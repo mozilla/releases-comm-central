@@ -45,26 +45,6 @@
     <command id="cmd_newCard" oncommand="AbPanelNewCard();"/>
     <command id="cmd_newlist" oncommand="AbPanelNewList();"/>
   </commandset>
-  <broadcasterset id="cmd_properties-flavors">
-    <broadcaster id="cmd_properties-contextMenu" observes="cmd_properties"
-                 valueGeneric="&propertiesContext.label;"
-                 valueGenericAccessKey="&propertiesContext.accesskey;"
-                 valueAddressBook="&abPropertiesContext.label;"
-                 valueAddressBookAccessKey="&abPropertiesContext.accesskey;"
-                 valueContact="&editContactContext.label;"
-                 valueContactAccessKey="&editContactContext.accesskey;"
-                 valueMailingList="&editMailingListContext.label;"
-                 valueMailingListAccessKey="&editMailingListContext.accesskey;"/>
-    <broadcaster id="cmd_properties-menu" observes="cmd_properties"
-                 valueGeneric="&propertiesMenu.label;"
-                 valueGenericAccessKey="&propertiesMenu.accesskey;"
-                 valueAddressBook="&abPropertiesMenu.label;"
-                 valueAddressBookAccessKey="&abPropertiesMenu.accesskey;"
-                 valueContact="&contactPropertiesMenu.label;"
-                 valueContactAccessKey="&contactPropertiesMenu.accesskey;"
-                 valueMailingList="&mailingListPropertiesMenu.label;"
-                 valueMailingListAccessKey="&mailingListPropertiesMenu.accesskey;"/>
-  </broadcasterset>
 
   <keyset id="keyset_abContactsPanel">
     <!-- This key (key_delete) does not trigger any command, but it is used
@@ -96,7 +76,17 @@
     <menuseparator/>
     <menuitem label="&propertiesContext.label;"
               key="key_properties"
-              command="cmd_properties-contextMenu"/>
+              command="cmd_properties"
+              accesskey="&propertiesContext.accesskey;"
+              valueGeneric="&propertiesContext.label;"
+              valueGenericAccessKey="&propertiesContext.accesskey;"
+              valueAddressBook="&abPropertiesContext.label;"
+              valueAddressBookAccessKey="&abPropertiesContext.accesskey;"
+              valueContact="&editContactContext.label;"
+              valueContactAccessKey="&editContactContext.accesskey;"
+              valueMailingList="&editMailingListContext.label;"
+              valueMailingListAccessKey="&editMailingListContext.accesskey;"
+              />
   </menupopup>
 
   <menupopup id="sidebarAbContextMenu">

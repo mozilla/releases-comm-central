@@ -383,84 +383,84 @@ var ResultsPaneController =
       case "cmd_selectAll":
         return true;
       case "cmd_delete":
-      case "button_delete":
-        var numSelected;
-        var enabled = false;
+      case "button_delete": {
+        let numSelected;
+        let enabled = false;
         if (gAbView && gAbView.selection) {
           if (gAbView.directory)
             enabled = !gAbView.directory.readOnly;
           numSelected = gAbView.selection.count;
-        }
-        else
+        } else {
           numSelected = 0;
+        }
+        enabled = enabled && (numSelected > 0);
 
-        // fix me, don't update on isCommandEnabled
+        let labelAttr = null;
         if (command == "cmd_delete") {
           switch (GetSelectedCardTypes()) {
             case kSingleListOnly:
-              goSetMenuValue(command, "valueList");
+              labelAttr = "valueList";
               break;
             case kMultipleListsOnly:
-              goSetMenuValue(command, "valueLists");
+              labelAttr = "valueLists";
               break;
             case kListsAndCards:
-              goSetMenuValue(command, "valueItems");
+              labelAttr = "valueItems";
               break;
             case kCardsOnly:
             default:
-              if (numSelected < 2)
-                goSetMenuValue(command, "valueCard");
-              else
-                goSetMenuValue(command, "valueCards");
-              break;
+              labelAttr = (numSelected < 2) ? "valueCard" : "valueCards";
           }
         }
-        return (enabled && (numSelected > 0));
+        document.querySelectorAll(`[command=${command}]`).forEach(e => {
+          e.disabled = !enabled;
+          if (labelAttr && e.hasAttribute(labelAttr)) {
+            e.setAttribute("label", e.getAttribute(labelAttr));
+          }
+        });
+        return enabled;
+      }
       case "cmd_printcardpreview":
       case "cmd_printcard":
         return (GetNumSelectedCards() > 0);
-      case "cmd_properties":
-        // Temporary fix for SeaMonkey (see bug  1318852).
-        // goSetLabelAccesskeyTooltiptext() is only defined in mail/.
-        // This will be removed in due course and therefore the
-        // block wasn't indented.
-        if (typeof goSetLabelAccesskeyTooltiptext == "function") {
-        let labelAttr = "valueGeneric";
-        let accKeyAttr = "valueGenericAccessKey";
-        let tooltipTextAttr = "valueGenericTooltipText";
+      case "cmd_properties": {
+        let attrs = {
+          label: "valueGeneric",
+          accesskey: "valueGenericAccessKey",
+          tooltiptext: "valueGenericTooltipText",
+        };
         switch (GetSelectedCardTypes()) {
           // Set cmd_properties UI according to the type of the selected item(s),
           // even with multiple selections for which cmd_properties is
           // not yet available and hence disabled.
           case kMultipleListsOnly:
           case kSingleListOnly:
-            labelAttr = "valueMailingList";
-            accKeyAttr = "valueMailingListAccessKey";
-            tooltipTextAttr = "valueMailingListTooltipText";
+            attrs.label = "valueMailingList";
+            attrs.accesskey = "valueMailingListAccessKey";
+            attrs.tooltiptext = "valueMailingListTooltipText";
             break;
           case kCardsOnly:
-            labelAttr = "valueContact";
-            accKeyAttr = "valueContactAccessKey";
-            tooltipTextAttr = "valueContactTooltipText";
+            attrs.label = "valueContact";
+            attrs.accesskey = "valueContactAccessKey";
+            attrs.tooltiptext = "valueContactTooltipText";
             break;
           case kListsAndCards:
           default:
-            //use generic set of attributes declared above
+            // use generic set of attributes declared above
             break;
         }
-        // This code is shared between main AB and composition's contacts sidebar.
-        // Note that in composition, there's no cmd_properties-button (yet);
-        // the resulting dump() should be ignored.
-        goSetLabelAccesskeyTooltiptext("cmd_properties-button", null, null,
-          tooltipTextAttr);
-        goSetLabelAccesskeyTooltiptext("cmd_properties-contextMenu",
-          labelAttr, accKeyAttr);
-        goSetLabelAccesskeyTooltiptext("cmd_properties-menu",
-          labelAttr, accKeyAttr);
-        }
-        // While "Edit Contact" dialogue is still modal (bug 115904, bug 135126),
-        // only enable "Properties" button for single selection; then fix bug 119999.
-        return (GetNumSelectedCards() == 1);
+
+        let enabled = (GetNumSelectedCards() == 1);
+        document.querySelectorAll("[command=cmd_properties]").forEach(e => {
+          e.disabled = !enabled;
+          for (let [attr, name] of Object.entries(attrs)) {
+            if (e.hasAttribute(attr) && e.getAttribute(name)) {
+              e.setAttribute(attr, e.getAttribute(name));
+            }
+          }
+        });
+        return enabled;
+      }
       case "cmd_newlist":
       case "cmd_newCard":
         return true;

@@ -127,27 +127,28 @@ var DirPaneController =
       case "cmd_printcardpreview":
         return (GetSelectedCardIndex() != -1);
       case "cmd_properties": {
-        let labelAttr = "valueGeneric";
-        let accKeyAttr = "valueGenericAccessKey";
-        let tooltipTextAttr = "valueGenericTooltipText";
-        let isMailList;
+        let attrs = {
+          label: "valueGeneric",
+          accesskey: "valueGenericAccessKey",
+          tooltiptext: "valueGenericTooltipText",
+        };
         let selectedDir = getSelectedDirectory();
         if (selectedDir) {
-          isMailList = selectedDir.isMailList;
-          labelAttr = isMailList ? "valueMailingList"
-                                 : "valueAddressBook";
-          accKeyAttr = isMailList ? "valueMailingListAccessKey"
-                                  : "valueAddressBookAccessKey";
-          tooltipTextAttr = isMailList ? "valueMailingListTooltipText"
-                                       : "valueAddressBookTooltipText";
+          let isMailList = selectedDir.isMailList;
+          attrs.label = isMailList ? "valueMailingList" : "valueAddressBook";
+          attrs.accesskey = isMailList ? "valueMailingListAccessKey" : "valueAddressBookAccessKey";
+          attrs.tooltiptext = isMailList ? "valueMailingListTooltipText" : "valueAddressBookTooltipText";
         }
-        goSetLabelAccesskeyTooltiptext("cmd_properties-button", null, null,
-          tooltipTextAttr);
-        goSetLabelAccesskeyTooltiptext("cmd_properties-contextMenu",
-          labelAttr, accKeyAttr);
-        goSetLabelAccesskeyTooltiptext("cmd_properties-menu",
-          labelAttr, accKeyAttr);
-        return (selectedDir != null);
+        let enabled = (selectedDir != null);
+        document.querySelectorAll("[command=cmd_properties]").forEach(e => {
+          e.disabled = !enabled;
+          for (let [attr, name] of Object.entries(attrs)) {
+            if (e.hasAttribute(attr) && e.getAttribute(name)) {
+              e.setAttribute(attr, e.getAttribute(name));
+            }
+          }
+        });
+        return enabled;
       }
       case "cmd_abToggleStartupDir":
         return !!getSelectedDirectoryURI();
@@ -1204,56 +1205,4 @@ function nearestLeap(aYear) {
       return year;
   }
   return 2000;
-}
-
-/**
- * Sets the label, accesskey, and tooltiptext attributes of an element from
- * custom attributes of the same element. Typically, the element will be a
- * command or broadcaster element. JS does not allow omitting function arguments
- * in the middle of the arguments list, so in that case, please pass an explicit
- * falsy argument like null or undefined instead; the respective attributes will
- * not be touched. Empty strings ("") from custom attributes will be applied
- * correctly. Hacker's shortcut: Passing empty string ("") for any of the custom
- * attribute names will also set the respective main attribute to empty string ("").
- * Examples:
- *
- * goSetLabelAccesskeyTooltiptext("cmd_foo", "valueFlavor", "valueFlavorAccesskey");
- * goSetLabelAccesskeyTooltiptext("cmd_foo", "valueFlavor", "valueFlavorAccesskey",
- *                                           "valueFlavorTooltiptext");
- * goSetLabelAccesskeyTooltiptext("cmd_foo", null, null, "valueFlavorTooltiptext");
- * goSetLabelAccesskeyTooltiptext("cmd_foo", "", "", "valueFlavorTooltiptext");
- *
- * @param aID                    the ID of an XUL element (attribute source and target)
- * @param aLabelAttribute        (optional) the name of a custom label attribute of aID, or ""
- * @param aAccessKeyAttribute    (optional) the name of a custom accesskey attribute of aID, or ""
- * @param aTooltipTextAttribute  (optional) the name of a custom tooltiptext attribute of aID, or ""
- */
-function goSetLabelAccesskeyTooltiptext(aID, aLabelAttribute, aAccessKeyAttribute,
-                                             aTooltipTextAttribute) {
-  let node = top.document.getElementById(aID);
-  if (!node) {
-    // tweak for composition's abContactsPanel
-    node = document.getElementById(aID);
-  }
-  if (!node)
-    return;
-
-  for (let [attr, customAttr] of [["label",       aLabelAttribute      ],
-                                  ["accesskey",   aAccessKeyAttribute  ],
-                                  ["tooltiptext", aTooltipTextAttribute]]) {
-    if (customAttr) {
-      // In XUL (DOM Level 3), getAttribute() on non-existing attributes returns
-      // "" (instead of null), which is indistinguishable from existing valid
-      // attributes with value="", so we have to check using hasAttribute().
-      if (node.hasAttribute(customAttr)) {
-        let value = node.getAttribute(customAttr);
-        node.setAttribute(attr, value);
-      } else {  // missing custom attribute
-        dump('Something wrong here: goSetLabelAccesskeyTooltiptext("' + aID + '", ...): ' +
-             "Missing custom attribute: " + customAttr + "\n");
-      }
-    } else if (customAttr === "") {
-      node.removeAttribute(attr);
-    }
-  }
 }

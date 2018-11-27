@@ -86,31 +86,6 @@
     <command id="cmd_printcard" oncommand="AbPrintCard();"/>
     <command id="cmd_newMessage" oncommand="AbNewMessage();" disabled="true"/>
     <command id="cmd_properties" oncommand="goDoCommand('cmd_properties');" disabled="true"/>
-    <broadcasterset id="cmd_properties-flavors">
-      <broadcaster id="cmd_properties-button" observes="cmd_properties"
-                   valueGenericTooltipText="&editPropertiesButton.tooltip;"
-                   valueAddressBookTooltipText="&editAbPropertiesButton.tooltip;"
-                   valueContactTooltipText="&editContactPropertiesButton.tooltip;"
-                   valueMailingListTooltipText="&editMailingListPropertiesButton.tooltip;"/>
-      <broadcaster id="cmd_properties-contextMenu" observes="cmd_properties"
-                   valueGeneric="&propertiesContext.label;"
-                   valueGenericAccessKey="&propertiesContext.accesskey;"
-                   valueAddressBook="&abPropertiesContext.label;"
-                   valueAddressBookAccessKey="&abPropertiesContext.accesskey;"
-                   valueContact="&editContactContext.label;"
-                   valueContactAccessKey="&editContactContext.accesskey;"
-                   valueMailingList="&editMailingListContext.label;"
-                   valueMailingListAccessKey="&editMailingListContext.accesskey;"/>
-      <broadcaster id="cmd_properties-menu" observes="cmd_properties"
-                   valueGeneric="&propertiesMenu.label;"
-                   valueGenericAccessKey="&propertiesMenu.accesskey;"
-                   valueAddressBook="&abPropertiesMenu.label;"
-                   valueAddressBookAccessKey="&abPropertiesMenu.accesskey;"
-                   valueContact="&contactPropertiesMenu.label;"
-                   valueContactAccessKey="&contactPropertiesMenu.accesskey;"
-                   valueMailingList="&mailingListPropertiesMenu.label;"
-                   valueMailingListAccessKey="&mailingListPropertiesMenu.accesskey;"/>
-    </broadcasterset>
     <command id="cmd_undo" oncommand="goDoCommand('cmd_undo')" disabled="true"/>
     <command id="cmd_redo" oncommand="goDoCommand('cmd_redo')" disabled="true"/>
     <command id="cmd_cut" oncommand="goDoCommand('cmd_cut')" disabled="true"/>
@@ -124,6 +99,7 @@
              valueLists="&deleteListsCmd.label;"
              valueItems="&deleteItemsCmd.label;"
              disabled="true"/>
+    <command id="button_delete" oncommand="goDoCommand('button_delete');"/>
     <command id="cmd_selectAll" oncommand="goDoCommand('cmd_selectAll')" disabled="true"/>
     <command id="cmd_preferences"
              oncommand="openOptionsDialog('paneCompose', 'addressingTab');"/>
@@ -137,11 +113,6 @@
              oncommand="CustomizeMailToolbar('ab-toolbox', 'CustomizeABToolbar')"/>
     <command id="cmd_chatWithCard" oncommand="goDoCommand('cmd_chatWithCard')" disabled="true" />
 </commandset>
-
-<broadcasterset id="abBroadcasters">
-  <!-- Edit Menu -->
-  <broadcaster id="button_delete" disabled="true"/>
-</broadcasterset>
 
 <keyset id="tasksKeys">
   <!-- File Menu -->
@@ -207,7 +178,15 @@
 
 <menupopup id="dirTreeContext" onpopupshowing="updateDirTreeContext();">
   <menuitem id="dirTreeContext-properties"
-            command="cmd_properties-contextMenu"/>
+            command="cmd_properties"
+            label="&propertiesContext.label;"
+            accesskey="&propertiesContext.accesskey;"
+            valueGeneric="&propertiesContext.label;"
+            valueGenericAccessKey="&propertiesContext.accesskey;"
+            valueAddressBook="&abPropertiesContext.label;"
+            valueAddressBookAccessKey="&abPropertiesContext.accesskey;"
+            valueMailingList="&editMailingListContext.label;"
+            valueMailingListAccessKey="&editMailingListContext.accesskey;"/>
   <menuseparator/>
   <menuitem id="dirTreeContext-newcard" label="&newContactButton.label;"
             accesskey="&newContactButton.accesskey;" command="cmd_newCard"/>
@@ -225,13 +204,20 @@
   <menuitem id="dirTreeContext-delete"
             label="&deleteButton2.label;"
             accesskey="&deleteButton2.accesskey;"
-            observes="button_delete"
-            oncommand="goDoCommand('button_delete');"/>
+            command="button_delete"/>
 </menupopup>
 
 <menupopup id="abResultsTreeContext">
   <menuitem id="abResultsTreeContext-properties"
-            command="cmd_properties-contextMenu"/>
+            command="cmd_properties"
+            label="&propertiesContext.label;"
+            accesskey="&propertiesContext.accesskey;"
+            valueGeneric="&propertiesContext.label;"
+            valueGenericAccessKey="&propertiesContext.accesskey;"
+            valueContact="&editContactContext.label;"
+            valueContactAccessKey="&editContactContext.accesskey;"
+            valueMailingList="&editMailingListContext.label;"
+            valueMailingListAccessKey="&editMailingListContext.accesskey;"/>
   <menuseparator/>
   <menuitem id="abResultsTreeContext-newmessage"
             label="&newmsgButton.label;"
@@ -250,8 +236,7 @@
   <menuitem id="abResultsTreeContext-delete"
             label="&deleteButton2.label;"
             accesskey="&deleteButton2.accesskey;"
-            observes="button_delete"
-            oncommand="goDoCommand('button_delete');"/>
+            command="button_delete"/>
 </menupopup>
 
 <menupopup id="toolbar-context-menu"
@@ -431,7 +416,18 @@
                       oncommand="AbSwapFirstNameLastName()"/>
             <menuitem id="menu_properties"
                       key="key_properties"
-                      command="cmd_properties-menu"/>
+                      command="cmd_properties"
+                      label="&propertiesContext.label;"
+                      accesskey="&propertiesContext.accesskey;"
+                      valueGeneric="&propertiesMenu.label;"
+                      valueGenericAccessKey="&propertiesMenu.accesskey;"
+                      valueAddressBook="&abPropertiesMenu.label;"
+                      valueAddressBookAccessKey="&abPropertiesMenu.accesskey;"
+                      valueContact="&contactPropertiesMenu.label;"
+                      valueContactAccessKey="&contactPropertiesMenu.accesskey;"
+                      valueMailingList="&mailingListPropertiesMenu.label;"
+                      valueMailingListAccessKey="&mailingListPropertiesMenu.accesskey;"/>
+
 #ifdef XP_UNIX
 #ifndef XP_MACOSX
         <menuseparator id="prefSep"/>
@@ -626,13 +622,19 @@
       <toolbarbutton class="toolbarbutton-1" id="button-newlist" label="&newlistButton.label;" tooltiptext="&newlistButton.tooltip;" command="cmd_newlist"/>
       <toolbarbutton class="toolbarbutton-1" id="button-editcard"
                      label="&editPropertiesButton.label;"
-                     command="cmd_properties-button"/>
+                     command="cmd_properties"
+                     tooltiptext="&editPropertiesButton.tooltip;"
+                     valueGenericTooltipText="&editPropertiesButton.tooltip;"
+                     valueAddressBookTooltipText="&editAbPropertiesButton.tooltip;"
+                     valueContactTooltipText="&editContactPropertiesButton.tooltip;"
+                     valueMailingListTooltipText="&editMailingListPropertiesButton.tooltip;"/>
       <toolbarbutton class="toolbarbutton-1" id="button-newmessage" label="&newmsgButton.label;" tooltiptext="&newmsgButton.tooltip;" command="cmd_newMessage"/>
       <toolbarbutton class="toolbarbutton-1" id="button-newim" label="&newIM.label;" tooltiptext="&newIM.tooltip;" command="cmd_chatWithCard"/>
       <toolbarbutton class="toolbarbutton-1" id="button-abdelete"
-                     observes="button_delete" label="&deleteButton2.label;"
+                     label="&deleteButton2.label;"
+                     disabled="true"
                      tooltiptext="&deleteButton2.tooltip;"
-                     oncommand="goDoCommand('button_delete');"/>
+                     command="button_delete"/>
       <toolbaritem id="search-container"
                    title="&searchItem.title;"
                    align="center" flex="1"
