@@ -311,7 +311,8 @@ nsresult nsMapiHook::BlindSendMail (unsigned long aSession, nsIMsgCompFields * a
   pMsgComposeParams->SetIdentity(pMsgId);
   pMsgComposeParams->SetComposeFields(aCompFields);
   pMsgComposeParams->SetSendListener(sendListener) ;
-  pMsgComposeParams->SetSmtpPassword(nsDependentString(password));
+  if (password)
+    pMsgComposeParams->SetSmtpPassword(nsDependentString(password));
 
   // create the nsIMsgCompose object to send the object
   nsCOMPtr<nsIMsgCompose> pMsgCompose (do_CreateInstance(NS_MSGCOMPOSE_CONTRACTID, &rv));
