@@ -1549,36 +1549,36 @@ uploadListener.prototype = {
       let bundle = getComposeBundle();
       let displayError = true;
       switch (aStatusCode) {
-      case this.cloudProvider.authErr:
+      case Ci.nsIMsgCloudFileProvider.authErr:
         title = bundle.getString("errorCloudFileAuth.title");
         msg = bundle.getFormattedString("errorCloudFileAuth.message",
                                         [displayName]);
         break;
-      case this.cloudProvider.uploadErr:
+      case Ci.nsIMsgCloudFileProvider.uploadErr:
         title = bundle.getString("errorCloudFileUpload.title");
         msg = bundle.getFormattedString("errorCloudFileUpload.message",
                                         [displayName,
                                          this.attachment.name]);
         break;
-      case this.cloudProvider.uploadWouldExceedQuota:
+      case Ci.nsIMsgCloudFileProvider.uploadWouldExceedQuota:
         title = bundle.getString("errorCloudFileQuota.title");
         msg = bundle.getFormattedString("errorCloudFileQuota.message",
                                         [displayName,
                                          this.attachment.name]);
         break;
-      case this.cloudProvider.uploadExceedsFileNameLimit:
+      case Ci.nsIMsgCloudFileProvider.uploadExceedsFileNameLimit:
         title = bundle.getString("errorCloudFileNameLimit.title");
         msg = bundle.getFormattedString("errorCloudFileNameLimit.message",
                                         [displayName,
                                          this.attachment.name]);
         break;
-      case this.cloudProvider.uploadExceedsFileLimit:
+      case Ci.nsIMsgCloudFileProvider.uploadExceedsFileLimit:
         title = bundle.getString("errorCloudFileLimit.title");
         msg = bundle.getFormattedString("errorCloudFileLimit.message",
                                         [displayName,
                                          this.attachment.name]);
         break;
-      case this.cloudProvider.uploadCanceled:
+      case Ci.nsIMsgCloudFileProvider.uploadCanceled:
         displayError = false;
         break;
       default:

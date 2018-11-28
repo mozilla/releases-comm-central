@@ -1,0 +1,263 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+"use strict";
+
+ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
+ChromeUtils.import("resource://testing-common/ExtensionXPCShellUtils.jsm");
+
+ExtensionTestUtils.init(this);
+
+add_task(async () => {
+  async function background() {
+    function createCloudfileAccount() {
+      return new Promise((resolve) => {
+        function accountListener(account) {
+          browser.cloudFile.onAccountAdded.removeListener(accountListener);
+          resolve(account);
+        }
+
+        browser.cloudFile.onAccountAdded.addListener(accountListener);
+        browser.test.sendMessage("createAccount");
+      });
+    }
+
+    function removeCloudfileAccount(id) {
+      return new Promise((resolve) => {
+        function accountListener(accountId) {
+          browser.cloudFile.onAccountDeleted.removeListener(accountListener);
+          resolve(accountId);
+        }
+
+        browser.cloudFile.onAccountDeleted.addListener(accountListener);
+        browser.test.sendMessage("removeAccount", id);
+      });
+    }
+
+    function assertAccountsMatch(b, a) {
+      browser.test.assertEq(a.id, b.id);
+      browser.test.assertEq(a.name, b.name);
+      browser.test.assertEq(a.configured, b.configured);
+      browser.test.assertEq(a.uploadSizeLimit, b.uploadSizeLimit);
+      browser.test.assertEq(a.spaceRemaining, b.spaceRemaining);
+      browser.test.assertEq(a.spaceUsed, b.spaceUsed);
+      browser.test.assertEq(a.managementUrl, b.managementUrl);
+      browser.test.assertEq(a.settingsUrl, b.settingsUrl);
+    }
+
+    async function test_account_creation_removal() {
+      browser.test.log("test_account_creation_removal");
+      // Account creation
+      let createdAccount = await createCloudfileAccount();
+      assertAccountsMatch(createdAccount, {
+        id: "account1",
+        name: "xpcshell",
+        configured: false,
+        uploadSizeLimit: -1,
+        spaceRemaining: -1,
+        spaceUsed: -1,
+        managementUrl: browser.runtime.getURL("/content/management.html"),
+        settingsUrl: browser.runtime.getURL("/content/settings.html"),
+      });
+
+      // Other account creation
+      await new Promise((resolve, reject) => {
+        function accountListener(account) {
+          browser.cloudFile.onAccountAdded.removeListener(accountListener);
+          browser.test.fail("Got onAccountAdded for account from other addon");
+          reject();
+        }
+
+        browser.cloudFile.onAccountAdded.addListener(accountListener);
+        browser.test.sendMessage("createAccount", "ext-other-addon");
+
+        // Resolve in the next tick
+        setTimeout(() => {
+          browser.cloudFile.onAccountAdded.removeListener(accountListener);
+          resolve();
+        }, 0);
+      });
+
+      // Account removal
+      let removedAccountId = await removeCloudfileAccount(createdAccount.id);
+      browser.test.assertEq(createdAccount.id, removedAccountId);
+    }
+
+    async function test_getters_update() {
+      browser.test.log("test_getters_update");
+      browser.test.sendMessage("createAccount", "ext-other-addon");
+
+      let createdAccount = await createCloudfileAccount();
+
+      // getAccount and getAllAccounts
+      let retrievedAccount = await browser.cloudFile.getAccount(createdAccount.id);
+      assertAccountsMatch(createdAccount, retrievedAccount);
+
+      let retrievedAccounts = await browser.cloudFile.getAllAccounts();
+      browser.test.assertEq(retrievedAccounts.length, 1);
+      assertAccountsMatch(createdAccount, retrievedAccounts[0]);
+
+      // update()
+      let changes = {
+        configured: true,
+        // uploadSizeLimit intentionally left unset
+        spaceRemaining: 456,
+        spaceUsed: 789,
+        managementUrl: "/account.html",
+        settingsUrl: "/accountsettings.html",
+      };
+
+      let changedAccount = await browser.cloudFile.updateAccount(retrievedAccount.id, changes);
+      retrievedAccount = await browser.cloudFile.getAccount(createdAccount.id);
+
+      let expected = {
+        id: createdAccount.id,
+        name: "xpcshell",
+        configured: true,
+        uploadSizeLimit: -1,
+        spaceRemaining: 456,
+        spaceUsed: 789,
+        managementUrl: browser.runtime.getURL("/account.html"),
+        settingsUrl: browser.runtime.getURL("/accountsettings.html"),
+      };
+
+      assertAccountsMatch(changedAccount, expected);
+      assertAccountsMatch(retrievedAccount, expected);
+
+      await removeCloudfileAccount(createdAccount.id);
+    }
+
+    async function test_upload_delete() {
+      browser.test.log("test_upload_delete");
+      let createdAccount = await createCloudfileAccount();
+
+      let fileId = await new Promise((resolve) => {
+        function fileListener(account, { id, name, data }) {
+          browser.cloudFile.onFileUpload.removeListener(fileListener);
+          browser.test.assertEq(account.id, createdAccount.id);
+          browser.test.assertEq(name, "cloudFile1.txt");
+          browser.test.assertEq(new TextDecoder("utf-8").decode(data), "you got the moves!\n");
+          setTimeout(() => resolve(id));
+          return { url: "https://example.com/" + name };
+        }
+
+        browser.cloudFile.onFileUpload.addListener(fileListener);
+        browser.test.sendMessage("uploadFile", createdAccount.id, "cloudFile1");
+      });
+
+      browser.test.log("test upload aborted");
+      await new Promise((resolve) => {
+        async function fileListener(account, { id, name, data }) {
+          browser.cloudFile.onFileUpload.removeListener(fileListener);
+
+          // The listener won't return until onFileUploadAbort fires. When that happens,
+          // we return an aborted message, which completes the abort cycle.
+          await new Promise((resolveAbort) => {
+            function abortListener(accountAccount, abortId) {
+              browser.cloudFile.onFileUploadAbort.removeListener(abortListener);
+              resolveAbort();
+            }
+            browser.cloudFile.onFileUploadAbort.addListener(abortListener);
+            browser.test.sendMessage("cancelUpload", createdAccount.id);
+          });
+
+          setTimeout(resolve);
+          return { aborted: true };
+        }
+
+        browser.cloudFile.onFileUpload.addListener(fileListener);
+        browser.test.sendMessage("uploadFile", createdAccount.id, "cloudFile2", "uploadCanceled");
+      });
+
+      browser.test.log("test delete");
+      await new Promise((resolve) => {
+        function fileListener(account, id) {
+          browser.cloudFile.onFileDeleted.removeListener(fileListener);
+          browser.test.assertEq(account.id, createdAccount.id);
+          browser.test.assertEq(id, fileId);
+          setTimeout(resolve);
+        }
+
+        browser.cloudFile.onFileDeleted.addListener(fileListener);
+        browser.test.sendMessage("deleteFile", createdAccount.id);
+      });
+
+      await removeCloudfileAccount(createdAccount.id);
+      await new Promise(setTimeout);
+    }
+
+    // Tests to run
+    await test_account_creation_removal();
+    await test_getters_update();
+    await test_upload_delete();
+
+    browser.test.notifyPass("cloudFile");
+  }
+
+  let extension = ExtensionTestUtils.loadExtension({
+    background,
+    manifest: {
+      cloud_file: {
+        name: "xpcshell",
+        settings_url: "/content/settings.html",
+        management_url: "/content/management.html",
+      },
+      applications: { gecko: { id: "cloudfile@xpcshell" } },
+    },
+  });
+
+  let testFiles = {
+    "cloudFile1": do_get_file("data/cloudFile1.txt"),
+    "cloudFile2": do_get_file("data/cloudFile2.txt"),
+  };
+
+  extension.onMessage("createAccount", (id = "ext-cloudfile@xpcshell") => {
+    cloudFileAccounts.createAccount(id, {
+      onStartRequest() {},
+      onStopRequest() {},
+    }, null);
+  });
+
+  extension.onMessage("removeAccount", (id) => {
+    cloudFileAccounts.removeAccount(id);
+  });
+
+  extension.onMessage("uploadFile", (accountId, filename, expected = Cr.NS_OK) => {
+    let account = cloudFileAccounts.getAccount(accountId);
+
+    if (typeof expected == "string") {
+      expected = Ci.nsIMsgCloudFileProvider[expected];
+    }
+
+    account.uploadFile(testFiles[filename], {
+      onStartRequest() {},
+      onStopRequest(req, context, status) {
+        Assert.equal(status, expected);
+      },
+    });
+  });
+
+  extension.onMessage("cancelUpload", (id) => {
+    let account = cloudFileAccounts.getAccount(id);
+    account.cancelFileUpload(testFiles.cloudFile2);
+  });
+
+  extension.onMessage("deleteFile", (id) => {
+    let account = cloudFileAccounts.getAccount(id);
+
+    account.deleteFile(testFiles.cloudFile1, {
+      onStartRequest() {},
+      onStopRequest() {},
+    });
+  });
+
+  Assert.ok(!cloudFileAccounts.getProviderForType("ext-cloudfile@xpcshell"));
+  await extension.startup();
+  Assert.ok(cloudFileAccounts.getProviderForType("ext-cloudfile@xpcshell"));
+
+  await extension.awaitFinish("cloudFile");
+  await extension.unload();
+
+  Assert.ok(!cloudFileAccounts.getProviderForType("ext-cloudfile@xpcshell"));
+});

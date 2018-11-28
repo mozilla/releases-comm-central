@@ -91,6 +91,10 @@ a {
   padding-inline-end: 2px;
 }
 
+.menulist-icon {
+  width: 16px;
+}
+
 #learn-more {
   text-align: right;
 }

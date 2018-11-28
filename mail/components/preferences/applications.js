@@ -650,6 +650,12 @@ var gCloudFileTab = {
     iframe.setAttribute("src", aProvider.managementURL);
     iframe.setAttribute("flex", "1");
 
+    let type = aProvider.settingsURL.startsWith("chrome:") ? "chrome" : "content";
+    iframe.setAttribute("type", type);
+
+    // allows keeping dialog background color without hoops
+    iframe.setAttribute("transparent", "true");
+
     // If we have a past iframe, we replace it. Else append
     // to the wrapper.
     if (this._settings)

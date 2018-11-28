@@ -91,6 +91,10 @@ a {
   min-width: 16px;
 }
 
+.menulist-icon {
+  width: 16px;
+}
+
 #learn-more {
   text-align: right;
 }

@@ -8,6 +8,7 @@ messenger.jar:
 
     content/messenger/parent/ext-addressBook.js    (parent/ext-addressBook.js)
     content/messenger/parent/ext-browserAction.js  (parent/ext-browserAction.js)
+    content/messenger/parent/ext-cloudFile.js      (parent/ext-cloudFile.js)
     content/messenger/parent/ext-composeAction.js  (parent/ext-composeAction.js)
     content/messenger/parent/ext-legacy.js         (parent/ext-legacy.js)
     content/messenger/parent/ext-mail.js           (parent/ext-mail.js)
@@ -19,6 +20,7 @@ messenger.jar:
 
     content/messenger/schemas/addressBook.json     (schemas/addressBook.json)
     content/messenger/schemas/browserAction.json   (schemas/browserAction.json)
+    content/messenger/schemas/cloudFile.json       (schemas/cloudFile.json)
     content/messenger/schemas/composeAction.json   (schemas/composeAction.json)
     content/messenger/schemas/legacy.json          (schemas/legacy.json)
     content/messenger/schemas/tabs.json            (schemas/tabs.json)

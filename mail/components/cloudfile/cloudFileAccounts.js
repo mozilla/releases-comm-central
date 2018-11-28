@@ -16,11 +16,17 @@ var PWDMGR_REALM = "BigFiles Auth Token";
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 const { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm", null);
+ChromeUtils.import("resource://gre/modules/EventEmitter.jsm");
 
-var cloudFileAccounts = {
+var cloudFileAccounts = new class extends EventEmitter {
+  constructor() {
+    super();
+    this._providers = new Map();
+  }
+
   get kTokenRealm() {
     return PWDMGR_REALM;
-  },
+  }
 
   get _accountKeys() {
     let accountKeySet = {};
@@ -33,7 +39,7 @@ var cloudFileAccounts = {
 
     // TODO: sort by ordinal
     return Object.keys(accountKeySet);
-  },
+  }
 
   _getInitedProviderForType(aAccountKey, aType) {
     let provider = this.getProviderForType(aType);
@@ -46,7 +52,7 @@ var cloudFileAccounts = {
       }
     }
     return provider;
-  },
+  }
 
   _createUniqueAccountKey() {
     // Pick a unique account key (TODO: this is a dumb way to do it, probably)
@@ -56,7 +62,7 @@ var cloudFileAccounts = {
       if (!existingKeys.includes("account" + n))
         return "account" + n;
     }
-  },
+  }
 
   /**
    * Ensure that we have the account key for an account. If we already have the
@@ -72,11 +78,54 @@ var cloudFileAccounts = {
     if ("accountKey" in aKeyOrAccount)
       return aKeyOrAccount.accountKey;
     throw new Error("string or nsIMsgCloudFileProvider expected");
-  },
+  }
+
+  /**
+   * Register a cloudfile provider, e.g. from a bootstrapped add-on. Registering can be done in two
+   * ways, either implicitly through using the "cloud-files" XPCOM category, or explicitly using
+   * this function.
+   *
+   * @param {nsIMsgCloudFileProvider} The implementation to register
+   */
+  registerProvider(aProvider) {
+    let type = aProvider.type;
+    let hasXPCOM = false;
+
+    try {
+      Services.catMan.getCategoryEntry(CATEGORY, type);
+      hasXPCOM = true;
+    } catch (ex) {
+    }
+
+    if (this._providers.has(type)) {
+      throw new Error(`Cloudfile provider ${type} is already registered`);
+    } else if (hasXPCOM) {
+      throw new Error(`Cloudfile provider ${type} is already registered as an XPCOM component`);
+    }
+    this._providers.set(aProvider.type, aProvider);
+  }
+
+  /**
+   * Unregister a cloudfile provider. This function will only unregister those providers registered
+   * through #registerProvider. XPCOM providers cannot be unregistered here.
+   *
+   * @param {String} aType                  The provider type to unregister
+   */
+  unregisterProvider(aType) {
+    if (!this._providers.has(aType)) {
+      throw new Error(`Cloudfile provider ${aType} is not registered`);
+    }
+
+    this._providers.delete(aType);
+  }
 
   getProviderForType(aType) {
+    if (this._providers.has(aType)) {
+      return this._providers.get(aType);
+    }
+
     try {
-      let className = categoryManager.getCategoryEntry(CATEGORY, aType);
+      let className = Services.catMan.getCategoryEntry(CATEGORY, aType);
       let provider = Cc[className].createInstance(Ci.nsIMsgCloudFileProvider);
       return provider;
     } catch (e) {
@@ -86,8 +135,9 @@ var cloudFileAccounts = {
         Cu.reportError("Getting provider for type=" + aType + " FAILED; " + e);
       }
     }
+
     return null;
-  },
+  }
 
   // aExtraPrefs are prefs specific to an account provider.
   createAccount(aType, aRequestObserver, aExtraPrefs) {
@@ -101,15 +151,17 @@ var cloudFileAccounts = {
         this._processExtraPrefs(key, aExtraPrefs);
 
       let provider = this._getInitedProviderForType(key, aType);
-      if (provider)
+      if (provider) {
         provider.createExistingAccount(aRequestObserver);
+        this.emit("accountAdded", provider);
+      }
 
       return provider;
     } catch (e) {
       Services.prefs.deleteBranch(ACCOUNT_ROOT + key);
       throw e;
     }
-  },
+  }
 
   // Set provider-specific prefs
   _processExtraPrefs(aAccountKey, aExtraPrefs) {
@@ -132,23 +184,28 @@ var cloudFileAccounts = {
       Services.prefs[func](ACCOUNT_ROOT + aAccountKey + "." + prefKey,
                            value);
     }
-  },
+  }
 
   * enumerateProviders() {
-    for (let entry of fixIterator(categoryManager.enumerateCategory(CATEGORY),
+    for (let [type, provider] of this._providers.entries()) {
+      yield [type, provider];
+    }
+
+    for (let entry of fixIterator(Services.catMan.enumerateCategory(CATEGORY),
                                   Ci.nsISupportsCString)) {
       let provider = this.getProviderForType(entry.data);
       yield [entry.data, provider];
     }
-  },
+  }
 
   getAccount(aKey) {
     let type = Services.prefs.getCharPref(ACCOUNT_ROOT + aKey + ".type");
     return this._getInitedProviderForType(aKey, type);
-  },
+  }
 
   removeAccount(aKeyOrAccount) {
     let key = this._ensureKey(aKeyOrAccount);
+    let type = Services.prefs.getCharPref(ACCOUNT_ROOT + key + ".type");
 
     Services.prefs.deleteBranch(ACCOUNT_ROOT + key);
 
@@ -159,12 +216,14 @@ var cloudFileAccounts = {
       if (login.username == key)
         Services.logins.removeLogin(login);
     }
-  },
+
+    this.emit("accountDeleted", key, type);
+  }
 
   get accounts() {
     return this._accountKeys.filter(key => this.getAccount(key) != null).
       map(key => this.getAccount(key));
-  },
+  }
 
   getAccountsForType(aType) {
     let result = [];
@@ -176,7 +235,7 @@ var cloudFileAccounts = {
     }
 
     return result;
-  },
+  }
 
   addAccountDialog() {
     let params = {accountKey: null};
@@ -187,7 +246,7 @@ var cloudFileAccounts = {
                         "", "chrome, dialog, modal, resizable=yes",
                         params).focus();
     return params.accountKey;
-  },
+  }
 
   getDisplayName(aKeyOrAccount) {
     try {
@@ -199,13 +258,13 @@ var cloudFileAccounts = {
       Cu.reportError(e);
       return "";
     }
-  },
+  }
 
   setDisplayName(aKeyOrAccount, aDisplayName) {
     let key = this._ensureKey(aKeyOrAccount);
     Services.prefs.setCharPref(ACCOUNT_ROOT + key +
                                ".displayName", aDisplayName);
-  },
+  }
 
   /**
    * Retrieve a secret value, like an authorization token, for an account.
@@ -225,7 +284,7 @@ var cloudFileAccounts = {
       return loginInfo.password;
 
     return null;
-  },
+  }
 
   /**
    * Store a secret value, like an authorization token, for an account
@@ -261,7 +320,7 @@ var cloudFileAccounts = {
       Services.logins.modifyLogin(loginInfo, newLoginInfo);
     else
       Services.logins.addLogin(newLoginInfo);
-  },
+  }
 
   /**
    * Searches the nsILoginManager for an nsILoginInfo for BigFiles with
@@ -279,9 +338,5 @@ var cloudFileAccounts = {
         return login;
     }
     return null;
-  },
+  }
 };
-
-XPCOMUtils.defineLazyServiceGetter(this, "categoryManager",
-                                   "@mozilla.org/categorymanager;1",
-                                   "nsICategoryManager");

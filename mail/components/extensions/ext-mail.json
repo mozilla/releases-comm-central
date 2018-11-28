@@ -8,6 +8,15 @@
       ["browserAction"]
     ]
   },
+  "cloudFile": {
+    "url": "chrome://messenger/content/parent/ext-cloudFile.js",
+    "schema": "chrome://messenger/content/schemas/cloudFile.json",
+    "scopes": ["addon_parent"],
+    "manifest": ["cloud_file"],
+    "paths": [
+      ["cloudFile"]
+    ]
+  },
   "composeAction": {
     "url": "chrome://messenger/content/parent/ext-composeAction.js",
     "schema": "chrome://messenger/content/schemas/composeAction.json",

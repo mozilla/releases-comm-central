@@ -17,7 +17,7 @@ createAccountObserver.prototype = {
   onStartRequest(aRequest, aContext) {},
   onStopRequest(aRequest, aContext, aStatusCode) {
     if (aStatusCode == Cr.NS_OK
-        && aContext instanceof Ci.nsIMsgCloudFileProvider) {
+        && aContext.QueryInterface(Ci.nsIMsgCloudFileProvider)) {
       let accountKey = aContext.accountKey;
 
       // For now, we'll just set the display name to be the name of the service
@@ -26,7 +26,7 @@ createAccountObserver.prototype = {
       window.arguments[0].accountKey = aContext.accountKey;
       window.close();
     } else {
-      if (aContext instanceof Ci.nsIMsgCloudFileProvider) {
+      if (aContext.QueryInterface(Ci.nsIMsgCloudFileProvider)) {
         cloudFileAccounts.removeAccount(aContext.accountKey);
       } else {
         // Something went seriously wrong here...
@@ -65,21 +65,6 @@ var addAccountDialog = {
 
     this.removeTitleMenuItem();
 
-    // Determine whether any account types were added to the menulist,
-    // if not, return early.
-    if (this.addAccountTypes() == 0)
-      return;
-
-    // Hook up our onInput event handler
-    this._settings.addEventListener("DOMContentLoaded", this);
-
-    this._settings.addEventListener("overflow", this);
-
-    // Hook up the selection handler.
-    this._accountType.addEventListener("select", this);
-    // Also call it to run it for the default selection.
-    addAccountDialog.accountTypeSelected();
-
     // Hook up the default "Learn More..." link to the appropriate link.
     let learnMore = this._settings
                         .contentDocument
@@ -87,6 +72,17 @@ var addAccountDialog = {
     if (learnMore)
       learnMore.href = Services.prefs
                                .getCharPref("mail.cloud_files.learn_more_url");
+
+    // Determine whether any account types were added to the menulist,
+    // if not, return early.
+    if (this.addAccountTypes() == 0)
+      return;
+
+    // Hook up the selection handler.
+    this._accountType.addEventListener("select", this);
+    // Also call it to run it for the default selection.
+    addAccountDialog.accountTypeSelected();
+
     // The default emptySettings.xhtml is already loaded into the IFrame
     // at this point, before we could attach our DOMContentLoaded event
     // listener, so we'll call the function here manually.
@@ -160,6 +156,28 @@ var addAccountDialog = {
     window.sizeToContent();
   },
 
+  switchIframeType(type, src) {
+    if (type == this._settings.getAttribute("type")) {
+      return;
+    }
+
+    let frame = document.createElement("iframe");
+    frame.setAttribute("class", "indent");
+    frame.setAttribute("allowfullscreen", "false");
+    frame.setAttribute("flex", "1");
+    frame.setAttribute("type", type);
+    frame.setAttribute("src", src);
+
+    // allows keeping dialog background color without hoops
+    frame.setAttribute("transparent", "true");
+
+    this._settings.parentNode.replaceChild(frame, this._settings);
+    this._settings = frame;
+
+    this._settings.addEventListener("DOMContentLoaded", this);
+    this._settings.addEventListener("overflow", this);
+  },
+
   removeTitleMenuItem() {
     let menuitem = this._accountType.querySelector('menuitem[value=""]');
     if (menuitem)
@@ -231,6 +249,12 @@ var addAccountDialog = {
     if (!this._settings)
       return {};
 
+    if (this._settings.contentDocument.location.href.startsWith("moz-extension:")) {
+      // WebExtensions use their own storage mechanism, don't use extraArgs from
+      // their content document
+      return {};
+    }
+
     let func = this._settings.contentWindow
                    .wrappedJSObject
                    .extraArgs;
@@ -253,7 +277,8 @@ var addAccountDialog = {
     this._messages.selectedIndex = -1;
 
     // Load up the correct XHTML page for this provider.
-    this._settings.contentDocument.location.href = provider.settingsURL;
+    let type = provider.settingsURL.startsWith("chrome:") ? "chrome" : "content";
+    this.switchIframeType(type, provider.settingsURL);
   },
 
   onClickLink(e) {
