@@ -642,7 +642,7 @@ void nsMsgSearchDBView::MoveThreadAt(nsMsgViewIndex threadIndex)
   NS_ASSERTION(newIndex == m_levels.Length() ||
                (IsValidIndex(newIndex) && !m_levels[newIndex]),
                "inserting into middle of thread");
-  if (!IsValidIndex(newIndex))
+  if (newIndex == nsMsgViewIndex_None)
     newIndex = 0;
 
   nsMsgKey msgKey;
