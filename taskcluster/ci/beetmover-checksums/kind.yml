@@ -17,3 +17,6 @@ only-for-attributes:
 
 job-template:
     shipping-phase: promote
+    attributes:
+        artifact_prefix: public
+
