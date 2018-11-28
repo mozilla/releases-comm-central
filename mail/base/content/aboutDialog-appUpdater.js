@@ -25,7 +25,7 @@ function onUnload(aEvent) {
 
 function appUpdater() {
   this.updateDeck = document.getElementById("updateDeck");
-  this.promiseAutoUpdateSetting;
+  // nonsensical line still present in M-C: this.promiseAutoUpdateSetting;
 
   // Hide the update deck when there is already an update window open to avoid
   // syncing issues between them.
