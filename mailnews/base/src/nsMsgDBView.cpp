@@ -1215,6 +1215,8 @@ nsMsgDBView::LoadMessageByViewIndex(nsMsgViewIndex aViewIndex)
     nsCOMPtr<nsIMessenger> messenger (do_QueryReferent(mMessengerWeak));
     NS_ENSURE_TRUE(messenger, NS_ERROR_FAILURE);
     messenger->OpenURL(uri);
+    if (aViewIndex >= (nsMsgViewIndex)m_keys.Length())
+      return NS_MSG_INVALID_DBVIEW_INDEX;
     m_currentlyDisplayedMsgKey = m_keys[aViewIndex];
     m_currentlyDisplayedMsgUri = uri;
     m_currentlyDisplayedViewIndex = aViewIndex;
