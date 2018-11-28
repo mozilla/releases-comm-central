@@ -20,17 +20,17 @@ initViewWrapperTestUtils({mode: "imap", offline: false});
 var gCustomSearchTermSubject = {
   id: "mailnews@mozilla.org#test",
   name: "Test-mailbase Subject",
-  getEnabled: function subject_getEnabled(scope, op) {
+  getEnabled(scope, op) {
     return true;
   },
-  getAvailable: function subject_getAvailable(scope, op) {
+  getAvailable(scope, op) {
     return true;
   },
-  getAvailableOperators: function subject_getAvailableOperators(scope, length) {
+  getAvailableOperators(scope, length) {
     length.value = 1;
     return [Ci.nsMsgSearchOp.Contains];
   },
-  match: function subject_match(aMsgHdr, aSearchValue, aSearchOp) {
+  match(aMsgHdr, aSearchValue, aSearchOp) {
     return (aMsgHdr.subject.includes(aSearchValue));
   },
   needsBody: false,

@@ -166,10 +166,11 @@ FetchHTTP.prototype =
         logException(e);
         this._error(e);
       }
-    } else if (exStored)
+    } else if (exStored) {
       this._error(exStored);
-    else
+    } else {
       this._error(new ServerException(errorStr, errorCode, this._url));
+    }
 
     if (this._finishedCallback) {
       try {

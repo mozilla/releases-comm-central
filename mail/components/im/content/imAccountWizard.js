@@ -11,7 +11,7 @@ ChromeUtils.import("resource:///modules/MailServices.jsm");
 var PREF_EXTENSIONS_GETMOREPROTOCOLSURL = "extensions.getMoreProtocolsURL";
 
 var accountWizard = {
-  onload: function aw_onload() {
+  onload() {
     // Ensure the im core is initialized before we get a list of protocols.
     Services.core.init();
 
@@ -48,10 +48,10 @@ var accountWizard = {
     Services.obs.addObserver(this, "prpl-quit");
     window.addEventListener("unload", this.unload);
   },
-  unload: function aw_unload() {
+  unload() {
     Services.obs.removeObserver(accountWizard, "prpl-quit");
   },
-  observe: function am_observe(aObject, aTopic, aData) {
+  observe(aObject, aTopic, aData) {
     if (aTopic == "prpl-quit") {
       // libpurple is being uninitialized. We can't create any new
       // account so keeping this wizard open would be pointless, close it.
@@ -59,7 +59,7 @@ var accountWizard = {
     }
   },
 
-  getUsername: function aw_getUsername() {
+  getUsername() {
     // If the first username textbox is empty, make sure we return an empty
     // string so that it blocks the 'next' button of the wizard.
     if (!this.userNameBoxes[0].value)
@@ -68,7 +68,7 @@ var accountWizard = {
     return this.userNameBoxes.reduce((prev, elt) => prev + elt.value, "");
   },
 
-  checkUsername: function aw_checkUsername() {
+  checkUsername() {
     var wizard = document.getElementById("accountWizard");
     var name = accountWizard.getUsername();
     var duplicateWarning = document.getElementById("duplicateAccount");
@@ -83,7 +83,7 @@ var accountWizard = {
     duplicateWarning.hidden = !exists;
   },
 
-  selectProtocol: function aw_selectProtocol() {
+  selectProtocol() {
     var protoList = document.getElementById("protolist");
     var id = protoList.selectedItem.value;
     this.proto = Services.core.getProtocolById(id);
@@ -92,8 +92,7 @@ var accountWizard = {
   },
 
 
-  insertUsernameField: function aw_insertUsernameField(aName, aLabel, aParent,
-                                                       aDefaultValue) {
+  insertUsernameField(aName, aLabel, aParent, aDefaultValue) {
     var hbox = document.createElement("hbox");
     hbox.setAttribute("id", aName + "-hbox");
     hbox.setAttribute("align", "baseline");
@@ -117,7 +116,7 @@ var accountWizard = {
     return textbox;
   },
 
-  showUsernamePage: function aw_showUsernamePage() {
+  showUsernamePage() {
     var proto = this.proto.id;
     if ("userNameBoxes" in this && this.userNameProto == proto) {
       this.checkUsername();
@@ -163,14 +162,14 @@ var accountWizard = {
     this.checkUsername();
   },
 
-  hideUsernamePage: function aw_hideUsernamePage() {
+  hideUsernamePage() {
     document.getElementById("accountWizard").canAdvance = true;
     var next = "account" +
       (this.proto.noPassword ? "advanced" : "password");
     document.getElementById("accountusername").next = next;
   },
 
-  showAdvanced: function aw_showAdvanced() {
+  showAdvanced() {
     // ensure we don't destroy user data if it's not necessary
     var id = this.proto.id;
     if ("protoSpecOptId" in this && this.protoSpecOptId == id)
@@ -183,7 +182,7 @@ var accountWizard = {
     alias.focus();
   },
 
-  populateProtoSpecificBox: function aw_populate() {
+  populateProtoSpecificBox() {
     let haveOptions =
       accountOptionsHelper.addOptions(this.proto.id + "-", this.getProtoOptions());
     document.getElementById("protoSpecificGroupbox").hidden = !haveOptions;
@@ -194,7 +193,7 @@ var accountWizard = {
     }
   },
 
-  createSummaryRow: function aw_createSummaryRow(aLabel, aValue) {
+  createSummaryRow(aLabel, aValue) {
     var row = document.createElement("row");
     row.setAttribute("align", "baseline");
 
@@ -216,7 +215,7 @@ var accountWizard = {
     return row;
   },
 
-  showSummary: function aw_showSummary() {
+  showSummary() {
     var rows = document.getElementById("summaryRows");
     var bundle = document.getElementById("accountsBundle");
     while (rows.hasChildNodes())
@@ -287,7 +286,7 @@ var accountWizard = {
     }
   },
 
-  createAccount: function aw_createAccount() {
+  createAccount() {
     var acc = Services.accounts.createAccount(this.username, this.proto.id);
     if (!this.proto.noPassword && this.password)
       acc.password = this.password;
@@ -347,7 +346,7 @@ var accountWizard = {
     return true;
   },
 
-  getValue: function aw_getValue(aId) {
+  getValue(aId) {
     var elt = document.getElementById(aId);
     if ("selectedItem" in elt)
       return elt.selectedItem.value;
@@ -365,17 +364,17 @@ var accountWizard = {
     while (aEnumerator.hasMoreElements())
       yield aEnumerator.getNext();
   },
-  getProtocols: function aw_getProtocols() {
+  getProtocols() {
     return this.getIter(Services.core.getProtocols());
   },
-  getProtoOptions: function aw_getProtoOptions() {
+  getProtoOptions() {
     return this.getIter(this.proto.getOptions());
   },
-  getProtoUserSplits: function aw_getProtoUserSplits() {
+  getProtoUserSplits() {
     return this.getIter(this.proto.getUsernameSplit());
   },
 
-  onGroupboxKeypress: function aw_onGroupboxKeypress(aEvent) {
+  onGroupboxKeypress(aEvent) {
     var target = aEvent.target;
     var code = aEvent.charCode || aEvent.keyCode;
     if (code == KeyEvent.DOM_VK_SPACE ||
@@ -384,7 +383,7 @@ var accountWizard = {
         this.toggleGroupbox(target.id);
   },
 
-  toggleGroupbox: function aw_toggleGroupbox(id) {
+  toggleGroupbox(id) {
     var elt = document.getElementById(id);
     if (elt.hasAttribute("closed")) {
       elt.removeAttribute("closed");

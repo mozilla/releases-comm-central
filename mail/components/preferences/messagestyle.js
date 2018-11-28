@@ -137,9 +137,9 @@ var previewObserver = {
       }
     });
     this._ignoreVariantChange = true;
-    if (!this._loaded)
+    if (!this._loaded) {
       menulist.value = this.theme.variant = menulist.value;
-    else {
+    } else {
       menulist.value = this.theme.variant; // (reset to "default")
       document.getElementById("paneChat").userChangedValue(menulist);
     }

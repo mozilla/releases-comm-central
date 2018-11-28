@@ -123,14 +123,14 @@ var EmailAccountProvisioner = {
   /**
    * A helper function to enable or disable the Search button.
    */
-  searchButtonEnabled: function EAP_searchButtonEnabled(aVal) {
+  searchButtonEnabled(aVal) {
     document.getElementById("searchSubmit").disabled = !aVal;
   },
 
   /**
    * A setter for enabling / disabling the search fields.
    */
-  searchEnabled: function EAP_searchEnabled(aVal) {
+  searchEnabled(aVal) {
     document.getElementById("name").disabled = !aVal;
     for (let node of document.querySelectorAll(".providerCheckbox")) {
       node.disabled = !aVal;
@@ -141,7 +141,7 @@ var EmailAccountProvisioner = {
   /**
    * If aVal is true, show the spinner, else hide.
    */
-  spinning: function EAP_spinning(aVal) {
+  spinning(aVal) {
     let display = aVal ? "block" : "none";
     for (let node of document.querySelectorAll("#notifications .spinner")) {
       node.style.display = display;
@@ -152,7 +152,7 @@ var EmailAccountProvisioner = {
    * Sets the current window state to display the "success" page, with options
    * for composing messages, setting a signature, finding add-ons, etc.
    */
-  showSuccessPage: function EAP_showSuccessPage() {
+  showSuccessPage() {
     gLog.info("Showing the success page");
     let engine = Services.search.getEngineByName(window.arguments[0].search_engine);
     let account = window.arguments[0].account;
@@ -215,12 +215,12 @@ var EmailAccountProvisioner = {
    * Save the name inputted in the search field to localstorage, so we can
    * reconstitute it on respawn later.
    */
-  saveName: function EAP_saveName() {
+  saveName() {
     let name = document.getElementById("name").value.trim();
     this.storage.setItem("name", name);
   },
 
-  onSearchInputOrProvidersChanged: function EAP_onSearchInputOrProvidersChanged(event) {
+  onSearchInputOrProvidersChanged(event) {
     let emptyName = document.getElementById("name").value == "";
     EmailAccountProvisioner.searchButtonEnabled(!emptyName &&
       EmailAccountProvisioner.someProvidersChecked);
@@ -232,7 +232,7 @@ var EmailAccountProvisioner = {
    * the value for "this" is the actual window document, hence the need
    * to explicitly refer to EmailAccountProvisioner.
    */
-  init: function EAP_init() {
+  init() {
     // We can only init once, so bail out if we've been called again.
     if (EmailAccountProvisioner._inited)
       return;
@@ -444,7 +444,7 @@ var EmailAccountProvisioner = {
    * Event handler for when the user submits the search request for their
    * name to the suggestFromName service.
    */
-  onSearchSubmit: function EAP_onSearchSubmit() {
+  onSearchSubmit() {
     for (let node of document.getElementById("notifications").children) {
       node.style.display = "none";
     }
@@ -512,7 +512,7 @@ var EmailAccountProvisioner = {
    * tab for the address order form, and then closes the Account Provisioner
    * window.
    */
-  onAddressSelected: function EAP_onAddressSelected(aTarget) {
+  onAddressSelected(aTarget) {
     gLog.info("An address was selected by the user.");
     let provider = EmailAccountProvisioner.providers[aTarget.dataset.provider];
 
@@ -558,7 +558,7 @@ var EmailAccountProvisioner = {
    * Attempt to fetch the provider list from the server.  If it fails,
    * display an error message, and queue for retry.
    */
-  tryToPopulateProviderList: function EAP_tryToPopulateProviderList() {
+  tryToPopulateProviderList() {
     // If we're already in the middle of getting the provider list, or
     // we already got it before, bail out.
     if (this._loadingProviders || this._loadedProviders)
@@ -614,7 +614,7 @@ var EmailAccountProvisioner = {
     gLog.info("We've kicked off a request for the provider list JSON file...");
   },
 
-  providerHasCorrectFields: function EAP_providerHasCorrectFields(provider) {
+  providerHasCorrectFields(provider) {
     let result = true;
 
     let required = ["id", "label", "paid", "languages", "api", "tos_url",
@@ -636,7 +636,7 @@ var EmailAccountProvisioner = {
    * Take the fetched providers, create checkboxes, icons and labels,
    * and insert them below the search input.
    */
-  populateProviderList: function EAP_populateProviderList(data) {
+  populateProviderList(data) {
     gLog.info("Populating the provider list");
 
     if (!data || !data.length) {
@@ -735,7 +735,7 @@ var EmailAccountProvisioner = {
    * Go through each of the checked providers, and add the appropriate
    * ToS and privacy links to the disclaimer.
    */
-  populateTermsAndPrivacyLinks: function EAP_populateTOSandPrivacyLinks() {
+  populateTermsAndPrivacyLinks() {
     gLog.info("Refreshing terms and privacy links");
     // Empty the Terms of Service and Privacy links placeholder.
     let placeholder = document.querySelector(".commentary .placeholder");
@@ -982,7 +982,7 @@ var EmailAccountProvisioner = {
    * If we cannot retrieve the provider list from the server, display a
    * message about connection problems, and disable the search fields.
    */
-  beOffline: function EAP_beOffline() {
+  beOffline() {
     let offlineMsg = stringBundle.get("cannotConnect");
     let element = document.getElementById("cannotConnectMessage");
     if (!element.hasChildNodes()) {
@@ -998,7 +998,7 @@ var EmailAccountProvisioner = {
    * If we're suddenly able to get the provider list, hide the connection
    * error message and re-enable the search fields.
    */
-  beOnline: function EAP_beOnline() {
+  beOnline() {
     let element = document.getElementById("cannotConnectMessage");
     element.style.display = "none";
     element.textContent = "";

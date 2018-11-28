@@ -631,9 +631,9 @@
               inputBox.selectionStart += moveCursor;
               let separator = text.substring(inputBox.selectionStart,
                                              inputBox.selectionStart + 2);
-              if (separator == ": " || separator == ", ")
+              if (separator == ": " || separator == ", ") {
                 inputBox.selectionStart += 2;
-              else if (!moveCursor) {
+              } else if (!moveCursor) {
                 // If we're already at the end of a nick, carry on to display
                 // a list of possible alternatives and/or apply punctuation.
                 break;

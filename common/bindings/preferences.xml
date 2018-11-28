@@ -424,8 +424,9 @@
               lf.persistentDescriptor = val;
               if (!lf.exists())
                 lf.initWithPath(val);
-            } else
+            } else {
               lf = val.QueryInterface(Ci.nsIFile);
+            }
             this.preferences.rootBranch
                 .setComplexValue(this.name, Ci.nsIFile, lf);
             break;
@@ -482,18 +483,19 @@
             else
               element.setAttribute(attribute, value);
           }
-          if (aElement.localName == "checkbox")
+          if (aElement.localName == "checkbox") {
             setValue(aElement, "checked", val);
-          else if (aElement.localName == "colorpicker")
+          } else if (aElement.localName == "colorpicker") {
             setValue(aElement, "color", val);
-          else if (aElement.localName == "textbox") {
+          } else if (aElement.localName == "textbox") {
             // XXXmano Bug 303998: Avoid a caret placement issue if either the
             // preference observer or its setter calls updateElements as a result
             // of the input event handler.
             if (aElement.value !== val)
               setValue(aElement, "value", val);
-          } else
+          } else {
             setValue(aElement, "value", val);
+          }
         ]]>
         </body>
       </method>
@@ -780,8 +782,9 @@
 
             var obs = new OverlayLoadObserver(aPaneElement);
             document.loadOverlay(aPaneElement.src, obs);
-          } else
+          } else {
             this._selectPane(aPaneElement);
+          }
         ]]>
         </body>
       </method>
@@ -951,9 +954,9 @@
           } else if (aTimer == this._fadeTimer) {
             var elt = document.getElementById(this.lastSelected);
             var newOpacity = parseFloat(window.getComputedStyle(elt).opacity) + this._fadeIncrement;
-            if (newOpacity < 1.0)
+            if (newOpacity < 1.0) {
               elt.style.opacity = newOpacity;
-            else {
+            } else {
               aTimer.cancel();
               elt.style.opacity = 1.0;
             }

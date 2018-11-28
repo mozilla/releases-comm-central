@@ -351,9 +351,9 @@
             if (modeDetails.isDefault)
               this.defaultTabMode = modeDetails;
           }
-          if (aTabType.panelId)
+          if (aTabType.panelId) {
             aTabType.panel = document.getElementById(aTabType.panelId);
-          else if (!aTabType.perTabPanel) {
+          } else if (!aTabType.perTabPanel) {
             throw new Error("Trying to register a tab type with neither panelId " +
                             "nor perTabPanel attributes.");
           }

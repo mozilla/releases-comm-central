@@ -36,7 +36,7 @@ function nsBox() {
 
   let account = this;
   Object.defineProperty(this._oauth, "refreshToken", {
-    get: function getRefreshToken() {
+    get() {
       if (!this.mRefreshToken) {
         let authToken = cloudFileAccounts.getSecretValue(account.accountKey,
                                                          cloudFileAccounts.kTokenRealm);
@@ -44,7 +44,7 @@ function nsBox() {
       }
       return this.mRefreshToken;
     },
-    set: function setRefreshToken(aVal) {
+    set(aVal) {
       if (!aVal)
         aVal = "";
 
@@ -97,7 +97,7 @@ nsBox.prototype = {
    * Used by our testing framework to override the URLs that this component
    * communicates to.
    */
-  overrideUrls: function nsBox_overrideUrls(aNumUrls, aUrls) {
+  overrideUrls(aNumUrls, aUrls) {
     gServerUrl = aUrls[0];
   },
 
@@ -108,7 +108,7 @@ nsBox.prototype = {
    * @param aAccountKey the account key to initialize this
    *                    nsIMsgCloudFileProvider with.
    */
-  init: function nsBox_init(aAccountKey) {
+  init(aAccountKey) {
     this._accountKey = aAccountKey;
     this._prefBranch = Services.prefs.getBranch("mail.cloud_files.accounts." +
                                                 aAccountKey + ".");
@@ -121,7 +121,7 @@ nsBox.prototype = {
    *
    * @param aCallback called if folder is ready.
    */
-  _initFolder: function nsBox__initFolder(aCallback) {
+  _initFolder(aCallback) {
     this.log.info("_initFolder, cached folder id  = " + this._cachedFolderId);
 
     let saveFolderId = (aFolderId) => {
@@ -136,9 +136,9 @@ nsBox.prototype = {
     };
 
     // If there's no cached folder, try to get one, otherwise create one.
-    if (this._cachedFolderId == "")
+    if (this._cachedFolderId == "") {
       this._getFolder("Thunderbird", saveFolderId, createThunderbirdFolder);
-    else {
+    } else {
       this._folderId = this._cachedFolderId;
       if (aCallback)
         aCallback();
@@ -153,8 +153,7 @@ nsBox.prototype = {
    *                         stop states of a request.
    * @param aStatus the status of the request.
    */
-  _uploaderCallback: function nsBox__uploaderCallback(aRequestObserver,
-                                                            aStatus) {
+  _uploaderCallback(aRequestObserver, aStatus) {
     aRequestObserver.onStopRequest(null, null, aStatus);
     this._uploadingFile = null;
     this._uploads.shift();
@@ -180,7 +179,7 @@ nsBox.prototype = {
    * @param aCallback an nsIRequestObserver for monitoring the start and
    *                  stop states of the upload procedure.
    */
-  uploadFile: function nsBox_uploadFile(aFile, aCallback) {
+  uploadFile(aFile, aCallback) {
     if (Services.io.offline)
       throw Ci.nsIMsgCloudFileProvider.offlineErr;
 
@@ -243,7 +242,7 @@ nsBox.prototype = {
    * @param aCallback the nsIRequestObserver for monitoring the start and stop
    *                  states of the upload procedure.
    */
-  _finishUpload: function nsBox__finishUpload(aFile, aCallback) {
+  _finishUpload(aFile, aCallback) {
     let exceedsFileLimit = Ci.nsIMsgCloudFileProvider.uploadExceedsFileLimit;
     let exceedsQuota = Ci.nsIMsgCloudFileProvider.uploadWouldExceedQuota;
     if (aFile.fileSize > this._maxFileSize) {
@@ -274,7 +273,7 @@ nsBox.prototype = {
    *
    * @param aFile the nsIFile being uploaded.
    */
-  cancelFileUpload: function nsBox_cancelFileUpload(aFile) {
+  cancelFileUpload(aFile) {
     if (this._uploadingFile.equals(aFile)) {
       this._uploader.cancel();
     } else {
@@ -296,7 +295,7 @@ nsBox.prototype = {
    * @param failureCallback a callback fired if retrieving profile information
    *                        fails.
    */
-  _getUserInfo: function nsBox__getUserInfo(successCallback, failureCallback) {
+  _getUserInfo(successCallback, failureCallback) {
     let requestUrl = gServerUrl + "users/me";
     this.log.info("get_account_info requestUrl = " + requestUrl);
 
@@ -365,9 +364,7 @@ nsBox.prototype = {
    * @param aWithUI a boolean for whether or not we should display authorization
    *                UI if we don't have a valid token anymore, or just fail out.
    */
-  _logonAndGetUserInfo: function nsBox_logonAndGetUserInfo(aSuccessCallback,
-                                                               aFailureCallback,
-                                                               aWithUI) {
+  _logonAndGetUserInfo(aSuccessCallback, aFailureCallback, aWithUI) {
     if (!aFailureCallback)
       aFailureCallback = function() {
         this.requestObserver
@@ -384,7 +381,7 @@ nsBox.prototype = {
    *
    * @param aFile the nsIFile to get the URL for.
    */
-  urlForFile: function nsBox_urlForFile(aFile) {
+  urlForFile(aFile) {
     return this._urlsForFiles[aFile.path];
   },
 
@@ -397,7 +394,7 @@ nsBox.prototype = {
    * @param aCallback an nsIRequestObserver for observing the starting and
    *                  ending states of the request.
    */
-  refreshUserInfo: function nsBox_refreshUserInfo(aWithUI, aCallback) {
+  refreshUserInfo(aWithUI, aCallback) {
     this.log.info("Getting User Info 1 : " + this._loggedIn);
     if (Services.io.offline)
       throw Ci.nsIMsgCloudFileProvider.offlineErr;
@@ -414,9 +411,7 @@ nsBox.prototype = {
    * Our Box implementation does not implement the createNewAccount
    * function defined in nsIMsgCloudFileProvider.idl.
    */
-  createNewAccount: function nsBox_createNewAccount(aEmailAddress,
-                                                          aPassword, aFirstName,
-                                                          aLastName) {
+  createNewAccount(aEmailAddress, aPassword, aFirstName, aLastName) {
     return Cr.NS_ERROR_NOT_IMPLEMENTED;
   },
 
@@ -428,9 +423,7 @@ nsBox.prototype = {
    * @param aSuccessCallback called if the folder exists
    * @param aFailureCallback called if the folder cannot be found
    */
-  _getFolder: function nsBox__getFolder(aName,
-                                        aSuccessCallback,
-                                        aFailureCallback) {
+  _getFolder(aName, aSuccessCallback, aFailureCallback) {
     this.log.info("Getting folder: " + aName);
     if (Services.io.offline)
       throw Ci.nsIMsgCloudFileProvider.offlineErr;
@@ -495,8 +488,7 @@ nsBox.prototype = {
    * @param aName name of folder
    * @param aSuccessCallback called when folder is created
    */
-  _createFolder: function nsBox__createFolder(aName,
-                                              aSuccessCallback) {
+  _createFolder(aName, aSuccessCallback) {
     this.log.info("Creating folder: " + aName);
     if (Services.io.offline)
       throw Ci.nsIMsgCloudFileProvider.offlineErr;
@@ -549,7 +541,7 @@ nsBox.prototype = {
    * @param aRequestObserver an nsIRequestObserver for monitoring the start and
    *                         stop states of the login procedure.
    */
-  createExistingAccount: function nsBox_createExistingAccount(aRequestObserver) {
+  createExistingAccount(aRequestObserver) {
      // XXX: replace this with a better function
     let successCb = () => {
       aRequestObserver.onStopRequest(null, this, Cr.NS_OK);
@@ -569,7 +561,7 @@ nsBox.prototype = {
    *
    * @param aError an error to get the URL for.
    */
-  providerUrlForError: function nsBox_providerUrlForError(aError) {
+  providerUrlForError(aError) {
     if (aError == Ci.nsIMsgCloudFileProvider.uploadWouldExceedQuota)
       return "https://www.box.com/pricing/";
     return "";
@@ -596,7 +588,7 @@ nsBox.prototype = {
    * @param aCallback an nsIRequestObserver for monitoring the start and stop
    *                  states of the delete procedure.
    */
-  deleteFile: function nsBox_deleteFile(aFile, aCallback) {
+  deleteFile(aFile, aCallback) {
     this.log.info("Deleting a file");
 
     if (Services.io.offline) {
@@ -642,7 +634,7 @@ nsBox.prototype = {
    * @aparam aWithUI a boolean for whether or not we should prompt for a password
    *                 if no auth token is currently stored.
    */
-  logon: function nsBox_logon(successCallback, failureCallback, aWithUI) {
+  logon(successCallback, failureCallback, aWithUI) {
     // The token has expired, reauthenticate.
     if (this._oauth.tokenExpires < (new Date()).getTime()) {
       this._oauth.connect(successCallback, failureCallback, aWithUI);
@@ -683,7 +675,7 @@ nsBoxFileUploader.prototype = {
   /**
    * Do the upload of the file to Box.
    */
-  uploadFile: function nsBox_uploadFile() {
+  uploadFile() {
     this.requestObserver.onStartRequest(null, null);
     let requestUrl = gUploadUrl + "files/content";
     this.box._uploadInfo[this.file.path] = {};
@@ -778,7 +770,7 @@ nsBoxFileUploader.prototype = {
   /**
    * Cancels the upload request for the file associated with this Uploader.
    */
-  cancel: function nsBox_cancel() {
+  cancel() {
     this.log.info("in uploader cancel");
     this.callback(this.requestObserver, Ci.nsIMsgCloudFileProvider.uploadCanceled);
     delete this.callback;

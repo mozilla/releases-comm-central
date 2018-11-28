@@ -343,11 +343,11 @@ function cleanUpItemForPalette(aItem, aWrapper) {
   aWrapper.setAttribute("place", "palette");
   setWrapperType(aItem, aWrapper);
 
-  if (aItem.hasAttribute("title"))
+  if (aItem.hasAttribute("title")) {
     aWrapper.setAttribute("title", aItem.getAttribute("title"));
-  else if (aItem.hasAttribute("label"))
+  } else if (aItem.hasAttribute("label")) {
     aWrapper.setAttribute("title", aItem.getAttribute("label"));
-  else if (isSpecialItem(aItem)) {
+  } else if (isSpecialItem(aItem)) {
     var stringBundle = document.getElementById("stringBundle");
     // Remove the common "toolbar" prefix to generate the string name.
     var title = stringBundle.getString(aItem.localName.slice(7) + "Title");
@@ -686,8 +686,9 @@ function onToolbarDragOver(aEvent) {
       gCurrentDragOverItem = dropTarget.nextSibling;
       if (!gCurrentDragOverItem)
         gCurrentDragOverItem = toolbar;
-    } else
+    } else {
       gCurrentDragOverItem = dropTarget;
+    }
   }
 
   if (previousDragItem && gCurrentDragOverItem != previousDragItem) {

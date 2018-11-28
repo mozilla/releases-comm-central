@@ -303,8 +303,9 @@
             if (val) {
               if (this.hour < 12)
                 this.hour += 12;
-            } else if (this.hour >= 12)
+            } else if (this.hour >= 12) {
               this.hour -= 12;
+            }
             return val;
           ]]>
         </setter>

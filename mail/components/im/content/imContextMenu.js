@@ -45,7 +45,7 @@ imContextMenu.prototype = {
   },
 
   // Initialize context menu.
-  initMenu: function CM_initMenu(aPopup) {
+  initMenu(aPopup) {
     this.menu = aPopup;
 
     // Get contextual info.

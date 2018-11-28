@@ -42,7 +42,7 @@ function selectPaneAndTab(prefWindow, aPaneID, aTabID, aSubdialogID) {
     // open, the current prefpane may not be the wanted one.
     if (prefWindow.currentPane.id != prefPane.id) {
       if (aTabID && !prefPane.loaded) {
-        prefPane.addEventListener("paneload", function showTabOnLoad() {
+        prefPane.addEventListener("paneload", function() {
           showTab(prefPane, aTabID);
         }, {once: true});
         tabOnEvent = true;

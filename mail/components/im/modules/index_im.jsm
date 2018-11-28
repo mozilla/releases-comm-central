@@ -458,7 +458,7 @@ var GlodaIMIndexer = {
     this._knownConversations[convId].scheduledIndex = null;
   },
 
-  observe: function logger_observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic, aData) {
     if (aTopic == "new-ui-conversation") {
       // Add ourselves to the ui-conversation's list of observers for the
       // unread-message-count-changed notification.

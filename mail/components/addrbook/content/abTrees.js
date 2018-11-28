@@ -83,7 +83,7 @@ function abDirTreeItem(aDirectory) {
 }
 
 abDirTreeItem.prototype = {
-  getText: function atv_getText() {
+  getText() {
     return this._directory.dirName;
   },
 
@@ -129,7 +129,7 @@ abDirTreeItem.prototype = {
     return this._children;
   },
 
-  getProperties: function atv_getProps() {
+  getProperties() {
     let properties = [];
     if (this._directory.isMailList)
       properties.push("IsMailList-true");
@@ -150,7 +150,7 @@ directoryTreeView.prototype = {
 
   hasRemoteAB: false,
 
-  init: function dtv_init(aTree, aJSONFile) {
+  init(aTree, aJSONFile) {
     if (aJSONFile) {
       // Parse our persistent-open-state json file
       let data = IOUtils.loadFileToString(aJSONFile);
@@ -162,7 +162,7 @@ directoryTreeView.prototype = {
     aTree.view = this;
   },
 
-  shutdown: function dtv_shutdown(aJSONFile) {
+  shutdown(aJSONFile) {
     // Write out the persistOpenMap to our JSON file
     if (aJSONFile) {
       // Write out our json file...
@@ -172,22 +172,22 @@ directoryTreeView.prototype = {
   },
 
   // Override the dnd methods for those functions in abDragDrop.js
-  canDrop: function dtv_canDrop(aIndex, aOrientation, dataTransfer) {
+  canDrop(aIndex, aOrientation, dataTransfer) {
     return abDirTreeObserver.canDrop(aIndex, aOrientation, dataTransfer);
   },
 
-  drop: function dtv_drop(aRow, aOrientation, dataTransfer) {
+  drop(aRow, aOrientation, dataTransfer) {
     abDirTreeObserver.onDrop(aRow, aOrientation, dataTransfer);
   },
 
-  getDirectoryAtIndex: function dtv_getDirForIndex(aIndex) {
+  getDirectoryAtIndex(aIndex) {
     return this._rowMap[aIndex]._directory;
   },
 
   // Override jsTreeView's isContainer, since we want to be able
   // to react to drag-drop events for all items in the directory
   // tree.
-  isContainer: function dtv_isContainer(aIndex) {
+  isContainer(aIndex) {
     return true;
   },
 
@@ -196,7 +196,7 @@ directoryTreeView.prototype = {
    *       Callers should take care to re-select a desired row after calling
    *       this function.
    */
-  _rebuild: function dtv__rebuild() {
+  _rebuild() {
     var oldCount = this._rowMap.length;
     this._rowMap = [];
 
@@ -224,7 +224,7 @@ directoryTreeView.prototype = {
   },
 
   // nsIAbListener interfaces
-  onItemAdded: function dtv_onItemAdded(aParent, aItem) {
+  onItemAdded(aParent, aItem) {
     if (!(aItem instanceof Ci.nsIAbDirectory))
       return;
     // XXX we can optimize this later
@@ -242,7 +242,7 @@ directoryTreeView.prototype = {
     }
   },
 
-  onItemRemoved: function dtv_onItemRemoved(aParent, aItem) {
+  onItemRemoved(aParent, aItem) {
     if (!(aItem instanceof Ci.nsIAbDirectory))
       return;
     // XXX we can optimize this later
@@ -267,7 +267,7 @@ directoryTreeView.prototype = {
     }
   },
 
-  onItemPropertyChanged: function dtv_onItemProp(aItem, aProp, aOld, aNew) {
+  onItemPropertyChanged(aItem, aProp, aOld, aNew) {
     if (!(aItem instanceof Ci.nsIAbDirectory))
       return;
 

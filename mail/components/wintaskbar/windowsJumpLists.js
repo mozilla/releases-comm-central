@@ -59,7 +59,7 @@ var WinTaskbarJumpList = {
    * Startup, shutdown, and update
    */
 
-  startup: function WTBJL_startup() {
+  startup() {
     // exit if this isn't win7 or higher.
     if (!this._initTaskbar())
       return;
@@ -76,7 +76,7 @@ var WinTaskbarJumpList = {
     this.update();
   },
 
-  update: function WTBJL_update() {
+  update() {
     // are we disabled via prefs? don't do anything!
     if (!this._enabled)
       return;
@@ -85,7 +85,7 @@ var WinTaskbarJumpList = {
     this._buildList();
   },
 
-  _shutdown: function WTBJL__shutdown() {
+  _shutdown() {
     this._shuttingDown = true;
 
     this._free();
@@ -95,7 +95,7 @@ var WinTaskbarJumpList = {
    * List building
    */
 
-  _buildList: function WTBJL__buildList() {
+  _buildList() {
     // anything to build?
     if (!this._showTasks) {
       // don't leave the last list hanging on the taskbar.
@@ -116,7 +116,7 @@ var WinTaskbarJumpList = {
    * Taskbar api wrappers
    */
 
-  _startBuild: function WTBJL__startBuild() {
+  _startBuild() {
     // This is useful if there are any async tasks pending. Since we don't right
     // now, it's just harmless.
     this._builder.abortListBuild();
@@ -127,7 +127,7 @@ var WinTaskbarJumpList = {
     return this._builder.initListBuild(removedItems);
   },
 
-  _commitBuild: function WTBJL__commitBuild() {
+  _commitBuild() {
     this._builder.commitListBuild(succeed => {
       if (!succeed) {
         this._builder.abortListBuild();
@@ -135,7 +135,7 @@ var WinTaskbarJumpList = {
     });
   },
 
-  _buildTasks: function WTBJL__buildTasks() {
+  _buildTasks() {
     if (this._tasks.length > 0) {
       let items = toXPCOMArray(this._tasks.map(task =>
                                  this._createHandlerAppItem(task)),
@@ -144,7 +144,7 @@ var WinTaskbarJumpList = {
     }
   },
 
-  _deleteActiveJumpList: function WTBJL__deleteAJL() {
+  _deleteActiveJumpList() {
     this._builder.deleteActiveList();
   },
 
@@ -152,7 +152,7 @@ var WinTaskbarJumpList = {
    * Jump list item creation helpers
    */
 
-  _createHandlerAppItem: function WTBJL__createHandlerAppItem(aTask) {
+  _createHandlerAppItem(aTask) {
     let file = Services.dirsvc.get("XCurProcD", Ci.nsIFile);
 
     // XXX where can we grab this from in the build? Do we need to?
@@ -175,7 +175,7 @@ var WinTaskbarJumpList = {
     return item;
   },
 
-  _createSeparatorItem: function WTBJL__createSeparatorItem() {
+  _createSeparatorItem() {
     return Cc["@mozilla.org/windows-jumplistseparator;1"]
              .createInstance(Ci.nsIJumpListSeparator);
   },
@@ -184,7 +184,7 @@ var WinTaskbarJumpList = {
    * Prefs utilities
    */
 
-  _refreshPrefs: function WTBJL__refreshPrefs() {
+  _refreshPrefs() {
     this._enabled = _prefs.getBoolPref(PREF_TASKBAR_ENABLED);
     this._showTasks = _prefs.getBoolPref(PREF_TASKBAR_TASKS);
   },
@@ -193,7 +193,7 @@ var WinTaskbarJumpList = {
    * Init and shutdown utilities
    */
 
-  _initTaskbar: function WTBJL__initTaskbar() {
+  _initTaskbar() {
     this._builder = _taskbarService.createJumpListBuilder();
     if (!this._builder || !this._builder.available)
       return false;
@@ -201,17 +201,17 @@ var WinTaskbarJumpList = {
     return true;
   },
 
-  _initObs: function WTBJL__initObs() {
+  _initObs() {
     Services.obs.addObserver(this, "profile-before-change");
     _prefs.addObserver("", this);
   },
 
-  _freeObs: function WTBJL__freeObs() {
+  _freeObs() {
     Services.obs.removeObserver(this, "profile-before-change");
     _prefs.removeObserver("", this);
   },
 
-  observe: function WTBJL_observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic, aData) {
     switch (aTopic) {
       case "nsPref:changed":
         if (this._enabled && !_prefs.getBoolPref(PREF_TASKBAR_ENABLED))
@@ -226,7 +226,7 @@ var WinTaskbarJumpList = {
     }
   },
 
-  _free: function WTBJL__free() {
+  _free() {
     this._freeObs();
     delete this._builder;
   },

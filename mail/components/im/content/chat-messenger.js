@@ -33,19 +33,19 @@ function buddyListContextMenu(aXulMenu) {
     !hide && !this.target.canOpenConversation();
 }
 buddyListContextMenu.prototype = {
-  openConversation: function blcm_openConversation() {
+  openConversation() {
     if (this.onContact || this.onConv)
       this.target.openConversation();
   },
-  closeConversation: function blcm_closeConversation() {
+  closeConversation() {
     if (this.onConv)
       this.target.closeConversation();
   },
-  alias: function blcm_alias() {
+  alias() {
     if (this.onContact)
       this.target.startAliasing();
   },
-  delete: function blcm_delete() {
+  delete() {
     if (!this.onContact)
       return;
 
@@ -190,7 +190,7 @@ var chatTabType = {
     aTabmail.openTab("chat", {});
   },
 
-  supportsCommand: function ct_supportsCommand(aCommand, aTab) {
+  supportsCommand(aCommand, aTab) {
     switch (aCommand) {
       case "cmd_fullZoomReduce":
       case "cmd_fullZoomEnlarge":
@@ -204,7 +204,7 @@ var chatTabType = {
         return false;
     }
   },
-  isCommandEnabled: function ct_isCommandEnabled(aCommand, aTab) {
+  isCommandEnabled(aCommand, aTab) {
     switch (aCommand) {
       case "cmd_fullZoomReduce":
       case "cmd_fullZoomEnlarge":
@@ -219,7 +219,7 @@ var chatTabType = {
         return false;
     }
   },
-  doCommand: function ct_doCommand(aCommand, aTab) {
+  doCommand(aCommand, aTab) {
     switch (aCommand) {
       case "cmd_fullZoomReduce":
         ZoomManager.reduce();
@@ -245,7 +245,7 @@ var chatTabType = {
     }
   },
   onEvent(aEvent, aTab) {},
-  getBrowser: function ct_getBrowser(aTab) {
+  getBrowser(aTab) {
     let panel = document.getElementById("conversationsDeck").selectedPanel;
     if (panel == document.getElementById("logDisplay")) {
       if (document.getElementById("logDisplayDeck").selectedPanel ==
@@ -256,7 +256,7 @@ var chatTabType = {
     }
     return null;
   },
-  getFindbar: function ct_getFindbar(aTab) {
+  getFindbar(aTab) {
     let panel = document.getElementById("conversationsDeck").selectedPanel;
     if (panel == document.getElementById("logDisplay")) {
       if (document.getElementById("logDisplayDeck").selectedPanel ==
@@ -1185,9 +1185,9 @@ var chatHandler = {
       (a, b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase());
 
     ChromeUtils.import("resource:///modules/chatHandler.jsm", this);
-    if (this.ChatCore.initialized)
+    if (this.ChatCore.initialized) {
       this.initAfterChatCore();
-    else {
+    } else {
       this.ChatCore.init();
       this._addObserver("chat-core-initialized");
     }
@@ -1234,7 +1234,7 @@ function chatLogTreeView(aTree, aLogs) {
 chatLogTreeView.prototype = {
   __proto__: new PROTO_TREE_VIEW(),
 
-  _rebuild: function cLTV__rebuild() {
+  _rebuild() {
     // Some date helpers...
     const kDayInMsecs = 24 * 60 * 60 * 1000;
     const kWeekInMsecs = 7 * kDayInMsecs;

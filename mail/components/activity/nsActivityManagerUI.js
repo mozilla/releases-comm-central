@@ -13,7 +13,7 @@ function nsActivityManagerUI() {}
 nsActivityManagerUI.prototype = {
   classID: Components.ID("5fa5974e-09cb-40cc-9696-643f8a8d9a06"),
 
-  show: function show(aWindowContext, aID) {
+  show(aWindowContext, aID) {
     // First we see if it is already visible
     let window = this.recentWindow;
     if (window) {

@@ -151,11 +151,11 @@ var gCloudAttachmentLinkManager = {
         // Replying below quote - we'll select the point right before
         // the signature.  If there's no signature, we'll just use the
         // last node.
-        if (signature && signature.previousSibling)
+        if (signature && signature.previousSibling) {
           selection.collapse(mailBody,
                              Array.from(childNodes)
                                   .indexOf(signature.previousSibling));
-        else {
+        } else {
           selection.collapse(mailBody, childNodes.length - 1);
           editor.insertLineBreak();
 

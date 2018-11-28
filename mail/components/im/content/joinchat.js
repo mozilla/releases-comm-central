@@ -8,7 +8,7 @@ var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm", null
 var autoJoinPref = "autoJoin";
 
 var joinChat = {
-  onload: function jc_onload() {
+  onload() {
     var accountList = document.getElementById("accountlist");
     for (let acc of fixIterator(Services.accounts.getAccounts())) {
       if (!acc.connected || !acc.canJoinChat)
@@ -26,7 +26,7 @@ var joinChat = {
     accountList.selectedIndex = 0;
   },
 
-  onAccountSelect: function jc_onAccountSelect() {
+  onAccountSelect() {
     let ab = document.getElementById("separatorRow1");
     while (ab.nextSibling && ab.nextSibling.id != "separatorRow2")
       ab.nextSibling.remove();
@@ -62,9 +62,9 @@ var joinChat = {
       let val = defaultValues.getValue(field.identifier);
       if (val)
         textbox.setAttribute("value", val);
-      if (field.type == Ci.prplIChatRoomField.TYPE_PASSWORD)
+      if (field.type == Ci.prplIChatRoomField.TYPE_PASSWORD) {
         textbox.setAttribute("type", "password");
-      else if (field.type == Ci.prplIChatRoomField.TYPE_INT) {
+      } else if (field.type == Ci.prplIChatRoomField.TYPE_INT) {
         textbox.setAttribute("type", "number");
         textbox.setAttribute("min", field.min);
         textbox.setAttribute("max", field.max);
@@ -87,7 +87,7 @@ var joinChat = {
     window.sizeToContent();
   },
 
-  join: function jc_join() {
+  join() {
     let values = joinChat._values;
     for (let field of joinChat._fields) {
       let val = field.textbox.value.trim();

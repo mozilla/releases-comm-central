@@ -14,7 +14,7 @@ function onPreInit(aAccount, aAccountValue) {
 }
 
 var account = {
-  init: function account_init(aAccount) {
+  init(aAccount) {
     this.account = aAccount;
     this.proto = this.account.protocol;
     document.getElementById("accountName").value = this.account.name;
@@ -58,13 +58,13 @@ var account = {
     this.populateProtoSpecificBox();
   },
 
-  getProtoOptions: function* account_getProtoOptions() {
+  * getProtoOptions() {
     let options = this.proto.getOptions();
     while (options.hasMoreElements())
       yield options.getNext();
   },
 
-  populateProtoSpecificBox: function account_populate() {
+  populateProtoSpecificBox() {
     let attributes = {};
     attributes[Ci.prplIPref.typeBool] = [
       {name: "wsm_persist", value: "true"},

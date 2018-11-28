@@ -58,7 +58,7 @@ window.addEventListener("load", function onload(event) {
 // and it's the function's job to update the page with it.
 var snapshotFormatters = {
 
-  application: function application(data) {
+  application(data) {
     let strings = stringBundle();
     $("application-box").textContent = data.name;
     $("useragent-box").textContent = data.userAgent;
@@ -165,7 +165,7 @@ var snapshotFormatters = {
     // end of TB addition
   },
 
-  crashes: function crashes(data) {
+  crashes(data) {
     if (!AppConstants.MOZ_CRASHREPORTER)
       return;
 
@@ -225,7 +225,7 @@ var snapshotFormatters = {
     }));
   },
 
-  extensions: function extensions(data) {
+  extensions(data) {
     $.append($("extensions-tbody"), data.map(function(extension) {
       return $.new("tr", [
         $.new("td", extension.name),
@@ -236,7 +236,7 @@ var snapshotFormatters = {
     }));
   },
 
-  securitySoftware: function securitySoftware(data) {
+  securitySoftware(data) {
     if (!AppConstants.isPlatformAndVersionAtLeast("win", "6.2")) {
       $("security-software-title").hidden = true;
       $("security-software-table").hidden = true;
@@ -249,7 +249,7 @@ var snapshotFormatters = {
   },
 
 /* Not used by TB
-  features: function features(data) {
+  features(data) {
     $.append($("features-tbody"), data.map(function(feature) {
       return $.new("tr", [
         $.new("td", feature.name),
@@ -259,7 +259,7 @@ var snapshotFormatters = {
     }));
   },
 */
-  modifiedPreferences: function modifiedPreferences(data) {
+  modifiedPreferences(data) {
     $.append($("prefs-tbody"), sortedArrayFromObject(data).map(
       function([name, value]) {
         return $.new("tr", [
@@ -273,7 +273,7 @@ var snapshotFormatters = {
     ));
   },
 
-  lockedPreferences: function lockedPreferences(data) {
+  lockedPreferences(data) {
     $.append($("locked-prefs-tbody"), sortedArrayFromObject(data).map(
       function([name, value]) {
         return $.new("tr", [
@@ -285,7 +285,7 @@ var snapshotFormatters = {
   },
 
   /* eslint-disable complexity */
-  graphics: function graphics(data) {
+  graphics(data) {
     let strings = stringBundle();
 
     function localizedMsg(msgArray) {
@@ -660,7 +660,7 @@ var snapshotFormatters = {
   },
   /* eslint-enable complexity */
 
-  media: function media(data) {
+  media(data) {
     let strings = stringBundle();
 
     function insertBasicInfo(key, value) {
@@ -765,11 +765,11 @@ var snapshotFormatters = {
     insertDeviceInfo("input", data.audioInputDevices);
   },
 
-  javaScript: function javaScript(data) {
+  javaScript(data) {
     $("javascript-incremental-gc").textContent = data.incrementalGCEnabled;
   },
 
-  accessibility: function accessibility(data) {
+  accessibility(data) {
     $("a11y-activated").textContent = data.isActive;
     $("a11y-force-disabled").textContent = data.forceDisabled || 0;
 
@@ -784,7 +784,7 @@ var snapshotFormatters = {
     }
   },
 
-  libraryVersions: function libraryVersions(data) {
+  libraryVersions(data) {
     let strings = stringBundle();
     let trs = [
       $.new("tr", [
@@ -805,7 +805,7 @@ var snapshotFormatters = {
     $.append($("libversions-tbody"), trs);
   },
 
-  userJS: function userJS(data) {
+  userJS(data) {
     if (!data.exists)
       return;
     let userJSFile = Services.dirsvc.get("PrefD", Ci.nsIFile);
@@ -816,7 +816,7 @@ var snapshotFormatters = {
     $("prefs-user-js-section").className = "";
   },
 
-  sandbox: function sandbox(data) {
+  sandbox(data) {
     if (!AppConstants.MOZ_SANDBOX)
       return;
 
@@ -862,7 +862,7 @@ var snapshotFormatters = {
     }
   },
 
-  intl: function intl(data) {
+  intl(data) {
     $("intl-locale-requested").textContent =
       JSON.stringify(data.localeService.requested);
     $("intl-locale-available").textContent =
@@ -883,7 +883,7 @@ var snapshotFormatters = {
 
 var $ = document.getElementById.bind(document);
 
-$.new = function $_new(tag, textContentOrChildren, className, attributes) {
+$.new = function(tag, textContentOrChildren, className, attributes) {
   let elt = document.createElement(tag);
   if (className)
     elt.className = className;
@@ -898,7 +898,7 @@ $.new = function $_new(tag, textContentOrChildren, className, attributes) {
   return elt;
 };
 
-$.append = function $_append(parent, children) {
+$.append = function(parent, children) {
   children.forEach(c => parent.appendChild(c));
 };
 
@@ -1066,8 +1066,9 @@ Serializer.prototype = {
         let text = this._nodeText(child);
         this._appendText(text);
         hasText = hasText || !!text.trim();
-      } else if (child.nodeType == Node.ELEMENT_NODE)
+      } else if (child.nodeType == Node.ELEMENT_NODE) {
         this._serializeElement(child);
+      }
     }
 
     // For headings, draw a "line" underneath them so they stand out.

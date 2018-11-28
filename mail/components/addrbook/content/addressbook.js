@@ -496,15 +496,16 @@ function SetStatusText(total) {
           .get(total, gAddressBookBundle.getString("matchesFound1"))
           .replace("#1", total);
       }
-    } else
+    } else {
       statusText =
         gAddressBookBundle.getFormattedString(
           "totalContactStatus",
           [getSelectedDirectory().dirName, total]);
+    }
 
     gStatusText.setAttribute("label", statusText);
   } catch (ex) {
-    Cu.reportError("ERROR: failed to set status text:  " + ex );
+    Cu.reportError("ERROR: failed to set status text: " + ex);
   }
 }
 
@@ -782,9 +783,9 @@ function AbOSXAddressBookExists() {
 }
 
 function AbShowHideOSXAddressBook() {
-  if (AbOSXAddressBookExists())
+  if (AbOSXAddressBookExists()) {
     MailServices.ab.deleteAddressBook(kOSXDirectoryURI);
-  else {
+  } else {
     MailServices.ab.newAddressBook(
       gAddressBookBundle.getString(kOSXPrefBase + ".description"),
       kOSXDirectoryURI, 3, kOSXPrefBase);

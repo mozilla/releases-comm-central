@@ -145,7 +145,7 @@ var gDisplayPane = {
    * - the font selected by the user is no longer present (e.g. deleted from
    *   fonts folder)
    */
-  readFontSelection: function gDisplayPane_readFontSelection() {
+  readFontSelection() {
     let element = document.getElementById("defaultFont");
     let preference = document.getElementById(element.getAttribute("preference"));
     if (preference.value) {

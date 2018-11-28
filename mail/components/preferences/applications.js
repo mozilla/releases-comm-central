@@ -1120,20 +1120,22 @@ var gApplicationsPane = {
     // ask flag is set, it overrides the preferred action.  Otherwise we pick
     // the item identified by the preferred action (when the preferred action
     // is to use a helper app, we have to pick the specific helper app item).
-    if (handlerInfo.alwaysAskBeforeHandling)
+    if (handlerInfo.alwaysAskBeforeHandling) {
       menu.selectedItem = askMenuItem;
-    else switch (handlerInfo.preferredAction) {
-      case Ci.nsIHandlerInfo.useSystemDefault:
-        menu.selectedItem = defaultMenuItem;
-        break;
-      case Ci.nsIHandlerInfo.useHelperApp:
-        if (preferredApp)
-          menu.selectedItem =
-            possibleAppMenuItems.filter(v => v.handlerApp.equals(preferredApp))[0];
-        break;
-      case Ci.nsIHandlerInfo.saveToDisk:
-        menu.selectedItem = saveMenuItem;
-        break;
+    } else {
+      switch (handlerInfo.preferredAction) {
+        case Ci.nsIHandlerInfo.useSystemDefault:
+          menu.selectedItem = defaultMenuItem;
+          break;
+        case Ci.nsIHandlerInfo.useHelperApp:
+          if (preferredApp)
+            menu.selectedItem =
+              possibleAppMenuItems.filter(v => v.handlerApp.equals(preferredApp))[0];
+          break;
+        case Ci.nsIHandlerInfo.saveToDisk:
+          menu.selectedItem = saveMenuItem;
+          break;
+      }
     }
     // menu.selectedItem may be null if the preferredAction is
     // useSystemDefault, but handlerInfo.hasDefaultHandler returns false.

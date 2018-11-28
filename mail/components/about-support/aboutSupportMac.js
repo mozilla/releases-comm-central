@@ -9,7 +9,7 @@ var AboutSupportPlatform = {
    * Given an nsIFile, gets the file system type. The type is returned as a
    * string. Possible values are "network", "local", "unknown" and null.
    */
-  getFileSystemType: function ASPMac_getFileSystemType(aFile) {
+  getFileSystemType(aFile) {
     // Not implemented
     return null;
   },

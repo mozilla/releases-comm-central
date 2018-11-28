@@ -118,7 +118,7 @@ function EmailConfigWizard() {
 }
 EmailConfigWizard.prototype =
 {
-  _init: function EmailConfigWizard__init() {
+  _init() {
     gEmailWizardLogger.info("Initializing setup wizard");
     this._abortable = null;
   },

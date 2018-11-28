@@ -47,10 +47,10 @@ var activityObject = {
    * activity manager window.
    */
   placeActivityBinding(aBinding) {
-    if (aBinding.isGroup || aBinding.isProcess)
+    if (aBinding.isGroup || aBinding.isProcess) {
       this._activitiesView.insertBefore(aBinding,
                                         this._activitiesView.firstChild);
-    else {
+    } else {
       let next = this._activitiesView.firstChild;
       while (next && (next.isWarning || next.isProcess || next.isGroup))
         next = next.nextSibling;

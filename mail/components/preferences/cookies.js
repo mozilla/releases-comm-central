@@ -677,9 +677,9 @@ var gCookiesWindow = {
                               blockFutureCookies, item.originAttributes);
     }
 
-    if (nextSelected < 0)
+    if (nextSelected < 0) {
       seln.clearSelection();
-    else {
+    } else {
       seln.select(nextSelected);
       this._tree.focus();
     }

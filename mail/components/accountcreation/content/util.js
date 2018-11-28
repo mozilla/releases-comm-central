@@ -244,10 +244,11 @@ function debugObject(obj, name, maxDepth, curDepth) {
           result += name + "." + prop + "=[" + typeof(obj[prop]) + "]\n";
         result += debugObject(obj[prop], name + "." + prop,
                               maxDepth, curDepth + 1);
-      } else if (typeof(obj[prop]) == "function")
+      } else if (typeof(obj[prop]) == "function") {
         result += name + "." + prop + "=[function]\n";
-      else
+      } else {
         result += name + "." + prop + "=" + obj[prop] + "\n";
+      }
     } catch (e) {
       result += name + "." + prop + "-> Exception(" + e + ")\n";
     }

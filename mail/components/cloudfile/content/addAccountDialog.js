@@ -52,7 +52,7 @@ var addAccountDialog = {
   // exist as a Filelink provider for pre-existing users.
   _blacklist: new Set(["YouSendIt"]),
 
-  onInit: function AAD_onInit() {
+  onInit() {
     this._settings = document.getElementById("accountSettings");
     this._accountType = document.getElementById("accountType");
     this._noAccountText = document.getElementById("noAccountText");
@@ -122,7 +122,7 @@ var addAccountDialog = {
     }
   },
 
-  onIFrameLoaded: function AAD_onIFrameLoaded(aEvent) {
+  onIFrameLoaded(aEvent) {
     let doc = this._settings.contentDocument;
 
     let links = doc.getElementsByTagName("a");
@@ -160,14 +160,14 @@ var addAccountDialog = {
     window.sizeToContent();
   },
 
-  removeTitleMenuItem: function AAD_removeTitleMenuItem() {
+  removeTitleMenuItem() {
     let menuitem = this._accountType.querySelector('menuitem[value=""]');
     if (menuitem)
       menuitem.remove();
   },
 
   // Return number of additions to the menulist, zero if none happened.
-  addAccountTypes: function AAD_addAccountTypes() {
+  addAccountTypes() {
     let accountTypeTotal = 0;
     for (let [key, provider] of cloudFileAccounts.enumerateProviders()) {
       // If we already have an account for this type, don't add it to the list.
@@ -211,7 +211,7 @@ var addAccountDialog = {
     return accountTypeTotal;
   },
 
-  onOK: function AAD_onOK() {
+  onOK() {
     let accountType = this._accountType.value;
     let obs = new createAccountObserver();
 
@@ -227,7 +227,7 @@ var addAccountDialog = {
     return false;
   },
 
-  getExtraArgs: function AAD_getExtraArgs() {
+  getExtraArgs() {
     if (!this._settings)
       return {};
 
@@ -240,7 +240,7 @@ var addAccountDialog = {
     return func();
   },
 
-  accountTypeSelected: function AAD_accountTypeSelected() {
+  accountTypeSelected() {
     let providerKey = this._accountType.selectedItem.value;
     if (!providerKey)
       return;
@@ -256,13 +256,13 @@ var addAccountDialog = {
     this._settings.contentDocument.location.href = provider.settingsURL;
   },
 
-  onClickLink: function AAD_onClickLink(e) {
+  onClickLink(e) {
     e.preventDefault();
     let href = e.target.getAttribute("href");
     gProtocolService.loadURI(Services.io.newURI(href, "UTF-8"));
   },
 
-  onInput: function AAD_onInput() {
+  onInput() {
     // Let's see if we have everything we need to make OK enabled...
     if (this._accountType.selectedIndex == -1) {
       // We have the "Select a service provider" menuitem selected, so we
@@ -273,7 +273,7 @@ var addAccountDialog = {
     }
   },
 
-  checkValidity: function AAD_checkValidity() {
+  checkValidity() {
     // If there's a form in the iframe, ensure that
     // it's checkValidity function passes.
     let form = this._settings

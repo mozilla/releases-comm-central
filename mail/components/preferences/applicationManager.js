@@ -8,7 +8,7 @@
 var gAppManagerDialog = {
   _removed: [],
 
-  init: function appManager_init() {
+  init() {
     this.handlerInfo = window.arguments[0];
     var bundle = document.getElementById("appManagerBundle");
     gApplicationsPane._prefsBundle = document.getElementById("bundlePreferences");
@@ -46,7 +46,7 @@ var gAppManagerDialog = {
     list.selectedIndex = 0;
   },
 
-  onOK: function appManager_onOK() {
+  onOK() {
     if (!this._removed.length) {
       // return early to avoid calling the |store| method.
       return;
@@ -58,11 +58,11 @@ var gAppManagerDialog = {
     this.handlerInfo.store();
   },
 
-  onCancel: function appManager_onCancel() {
+  onCancel() {
     // do nothing
   },
 
-  remove: function appManager_remove() {
+  remove() {
     var list = document.getElementById("appList");
     this._removed.push(list.selectedItem.app);
     var index = list.selectedIndex;
@@ -79,7 +79,7 @@ var gAppManagerDialog = {
     }
   },
 
-  onSelect: function appManager_onSelect() {
+  onSelect() {
     var list = document.getElementById("appList");
     if (!list.selectedItem) {
       document.getElementById("remove").disabled = true;

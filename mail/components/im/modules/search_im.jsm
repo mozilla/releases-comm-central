@@ -205,7 +205,7 @@ GlodaIMSearcher.prototype = {
   /**
    * Parse the string into terms/phrases by finding matching double-quotes.
    */
-  parseSearchString: function GlodaIMSearcher_parseSearchString(aSearchString) {
+  parseSearchString(aSearchString) {
     aSearchString = aSearchString.trim();
     let terms = [];
 
@@ -246,7 +246,7 @@ GlodaIMSearcher.prototype = {
     return terms;
   },
 
-  buildFulltextQuery: function GlodaIMSearcher_buildFulltextQuery() {
+  buildFulltextQuery() {
     let query = Gloda.newQuery(Gloda.lookupNoun("im-conversation"), {
       noMagic: true,
       explicitSQL: NUEVO_FULLTEXT_SQL,
@@ -288,8 +288,7 @@ GlodaIMSearcher.prototype = {
     return query;
   },
 
-  getCollection: function GlodaIMSearcher_getCollection(
-      aListenerOverride, aData) {
+  getCollection(aListenerOverride, aData) {
     if (aListenerOverride)
       this.listener = aListenerOverride;
 
@@ -302,7 +301,7 @@ GlodaIMSearcher.prototype = {
 
   sortBy: "-dascore",
 
-  onItemsAdded: function GlodaIMSearcher_onItemsAdded(aItems, aCollection) {
+  onItemsAdded(aItems, aCollection) {
     let newScores = Gloda.scoreNounItems(
       aItems,
       {
@@ -318,17 +317,15 @@ GlodaIMSearcher.prototype = {
     if (this.listener)
       this.listener.onItemsAdded(aItems, aCollection);
   },
-  onItemsModified: function GlodaIMSearcher_onItemsModified(aItems,
-                                                            aCollection) {
+  onItemsModified(aItems, aCollection) {
     if (this.listener)
       this.listener.onItemsModified(aItems, aCollection);
   },
-  onItemsRemoved: function GlodaIMSearcher_onItemsRemoved(aItems,
-                                                          aCollection) {
+  onItemsRemoved(aItems, aCollection) {
     if (this.listener)
       this.listener.onItemsRemoved(aItems, aCollection);
   },
-  onQueryCompleted: function GlodaIMSearcher_onQueryCompleted(aCollection) {
+  onQueryCompleted(aCollection) {
     this.completed = true;
     if (this.listener)
       this.listener.onQueryCompleted(aCollection);

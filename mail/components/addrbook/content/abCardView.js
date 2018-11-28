@@ -436,16 +436,16 @@ function cvSetNodeWithLabel(node, label, text) {
 function cvSetCityStateZip(node, city, state, zip) {
   let text = "";
 
-  if (city && state && zip)
+  if (city && state && zip) {
     text = gAddressBookBundle.getFormattedString("cityAndStateAndZip",
                                                  [city, state, zip]);
-  else if (city && state && !zip)
+  } else if (city && state && !zip) {
     text = gAddressBookBundle.getFormattedString("cityAndStateNoZip",
                                                  [city, state]);
-  else if (zip && ((!city && state) || (city && !state)))
+  } else if (zip && ((!city && state) || (city && !state))) {
     text = gAddressBookBundle.getFormattedString("cityOrStateAndZip",
                                                  [city + state, zip]);
-  else {
+  } else {
     // Only one of the strings is non-empty so contatenating them produces that string.
     text = city + state + zip;
   }

@@ -1159,9 +1159,9 @@ nsHightailFileUploader.prototype = {
       this.log.info("findDownloadUrl response = " + response);
       let fileInfo = JSON.parse(response);
 
-      if (fileInfo.errorStatus)
+      if (fileInfo.errorStatus) {
         aFailureCallback();
-      else {
+      } else {
         // We need a kludge here because Hightail is returning URLs without the scheme...
         let url = this._ensureScheme(fileInfo.clickableDownloadUrl);
         this.hightail._urlsForFiles[this.file.path] = url;

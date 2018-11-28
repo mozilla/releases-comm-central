@@ -515,10 +515,10 @@ HostDetector.prototype =
     // this._hostsToTry is ordered by decreasing preference
     for (let i = 0; i < this._hostsToTry.length; i++) {
       let thisTry = this._hostsToTry[i];
-      if (thisTry.status == kNotTried || thisTry.status == kOngoing)
+      if (thisTry.status == kNotTried || thisTry.status == kOngoing) {
         unfinishedBusiness = true;
-      // thisTry is good, and all higher preference tries failed, so use this
-      else if (thisTry.status == kSuccess && !unfinishedBusiness) {
+      } else if (thisTry.status == kSuccess && !unfinishedBusiness) {
+        // thisTry is good, and all higher preference tries failed, so use this
         if (!successfulTry) {
           successfulTry = thisTry;
           if (successfulTry.protocol == SMTP)
@@ -686,7 +686,7 @@ CMDS[SMTP] = ["EHLO we-guess.mozilla.org\r\n", "QUIT\r\n"];
  * @returns {Array of {HostTry}}
  */
 function sortTriesByPreference(tries) {
-  return tries.sort(function __sortByPreference(a, b) {
+  return tries.sort(function(a, b) {
     // -1 = a is better; 1 = b is better; 0 = equal
     // Prefer SSL/TLS above all else
     if (a.ssl != NONE && b.ssl == NONE)

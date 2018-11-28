@@ -52,7 +52,7 @@ var AboutSupport = {
    * @returns An array of records, each record containing the name and other details
    *          about one SMTP server.
    */
-  _getSMTPDetails: function AboutSupport__getSMTPDetails(aAccount) {
+  _getSMTPDetails(aAccount) {
     let identities = aAccount.identities;
     let defaultIdentity = aAccount.defaultIdentity;
     let smtpDetails = [];
@@ -74,7 +74,7 @@ var AboutSupport = {
   /**
    * Returns account details as an array of records.
    */
-  getAccountDetails: function AboutSupport_getAccountDetails() {
+  getAccountDetails() {
     let accountDetails = [];
     let accounts = MailServices.accounts.accounts;
 
@@ -117,7 +117,7 @@ var AboutSupport = {
    * Returns the corresponding text for a given socket type index. The text is
    * returned as a record with "localized" and "neutral" entries.
    */
-  getSocketTypeText: function AboutSupport_getSocketTypeText(aIndex) {
+  getSocketTypeText(aIndex) {
     let plainSocketType = (aIndex in gSocketTypes ?
                            gSocketTypes[aIndex] : aIndex);
     let prettySocketType;
@@ -139,7 +139,7 @@ var AboutSupport = {
    * Returns the corresponding text for a given authentication method index. The
    * text is returned as a record with "localized" and "neutral" entries.
    */
-  getAuthMethodText: function AboutSupport_getAuthMethodText(aIndex) {
+  getAuthMethodText(aIndex) {
     let prettyAuthMethod;
     let plainAuthMethod = (aIndex in gAuthMethods ?
                            gAuthMethods[aIndex] : aIndex);

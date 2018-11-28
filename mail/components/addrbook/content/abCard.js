@@ -165,7 +165,7 @@ function OnLoadNewCard() {
                                       ? "LastName" : "FirstName");
   if (focus) {
     // XXX Using the setTimeout hack until bug 103197 is fixed
-    setTimeout( function(firstTextBox) { firstTextBox.focus(); }, 0, focus );
+    setTimeout(function(firstTextBox) { firstTextBox.focus(); }, 0, focus);
   }
 }
 
@@ -283,8 +283,9 @@ function OnLoadEditCard() {
 
       if (directory.readOnly) {
         // Set all the editable vcard fields to read only
-        for (var i = kVcardFields.length; i-- > 0; )
+        for (var i = kVcardFields.length; i-- > 0;) {
           document.getElementById(kVcardFields[i][0]).readOnly = true;
+        }
 
         // the birthday fields
         document.getElementById("Birthday").readOnly = true;
@@ -375,8 +376,9 @@ function InitPhoneticFields() {
 
   // show phonetic fields if indicated by the pref
   if (showPhoneticFields == "true") {
-    for (var i = kPhoneticFields.length; i-- > 0; )
+    for (var i = kPhoneticFields.length; i-- > 0;) {
       document.getElementById(kPhoneticFields[i]).hidden = false;
+    }
   }
 }
 
@@ -451,7 +453,7 @@ function GetCardValues(cardproperty, doc) {
   // to give extensions a chance to populate custom fields.
   NotifyLoadListeners(cardproperty, doc);
 
-  for (var i = kVcardFields.length; i-- > 0; ) {
+  for (var i = kVcardFields.length; i-- > 0;) {
     doc.getElementById(kVcardFields[i][0]).value =
       cardproperty.getProperty(kVcardFields[i][1], "");
   }
@@ -521,10 +523,12 @@ function HideNonVcardFields() {
   document.getElementById("chatTabButton").hidden = true;
   document.getElementById("photoTabButton").hidden = true;
   var i;
-  for (i = kNonVcardFields.length; i-- > 0; )
+  for (i = kNonVcardFields.length; i-- > 0;) {
     document.getElementById(kNonVcardFields[i]).collapsed = true;
-  for (i = kPhoneticFields.length; i-- > 0; )
+  }
+  for (i = kPhoneticFields.length; i-- > 0;) {
     document.getElementById(kPhoneticFields[i]).collapsed = true;
+  }
 }
 
 // Move the data from the dialog to the cardproperty to be stored in the database
@@ -538,9 +542,10 @@ function CheckAndSetCardValues(cardproperty, doc, check) {
   if (!cardproperty)
     return true;
 
-  for (var i = kVcardFields.length; i-- > 0; )
+  for (var i = kVcardFields.length; i-- > 0;) {
     cardproperty.setProperty(kVcardFields[i][1],
       doc.getElementById(kVcardFields[i][0]).value);
+  }
 
   // get the birthday information from the dialog
   var birthdayElem = doc.getElementById("Birthday");
@@ -696,8 +701,9 @@ function calculateAge(aEvent, aElement) {
     ageElem.value = null;
     datepicker.year = kDefaultYear;
     return;
-  } else if (aElement == yearElem)
+  } else if (aElement == yearElem) {
     datepicker.year = year;
+  }
   // calculate the length of time between the event and now
   try {
     var event = new Date(datepicker.year, datepicker.month, datepicker.date);
@@ -792,7 +798,7 @@ function modifyDatepicker(aDatepicker) {
   // this modified constrain value function ignores values less than the minimum
   // to let the value be blank (null)
   // from: mozilla/toolkit/content/widgets/datetimepicker.xml#759
-  aDatepicker._constrainValue = function newConstrainValue(aField, aValue, aNoWrap) {
+  aDatepicker._constrainValue = function(aField, aValue, aNoWrap) {
     // if the value is less than one, make the field's value null
     if (aValue < 1) {
       aField.value = null;
@@ -815,7 +821,7 @@ function modifyDatepicker(aDatepicker) {
   };
   // sets the specified field to the given value, but allows blank fields
   // from: mozilla/toolkit/content/widgets/datetimepicker.xml#698
-  aDatepicker._setFieldValue = function setValue(aField, aValue) {
+  aDatepicker._setFieldValue = function(aField, aValue) {
     if (aField == this.yearField && aValue >= kMinYear && aValue <= kMaxYear) {
       let oldDate = this._dateValue;
       this._dateValue.setFullYear(aValue);
@@ -1081,7 +1087,7 @@ var gPhotoDownloadUI = (function() {
   let elPhotoType;
   let elProgressContainer;
 
-  window.addEventListener("load", function load(event) {
+  window.addEventListener("load", function(event) {
     if (!elProgressbar)
       elProgressbar = document.getElementById("PhotoDownloadProgress");
     if (!elProgressLabel)

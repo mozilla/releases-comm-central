@@ -55,7 +55,7 @@ function MailGlue() {
 
 MailGlue.prototype = {
   // init (called at app startup)
-  _init: function MailGlue__init() {
+  _init() {
     Services.obs.addObserver(this, "xpcom-shutdown");
     Services.obs.addObserver(this, "final-ui-startup");
     Services.obs.addObserver(this, "mail-startup-done");
@@ -92,7 +92,7 @@ MailGlue.prototype = {
   },
 
   // cleanup (called at shutdown)
-  _dispose: function MailGlue__dispose() {
+  _dispose() {
     Services.obs.removeObserver(this, "xpcom-shutdown");
     Services.obs.removeObserver(this, "final-ui-startup");
     Services.obs.removeObserver(this, "mail-startup-done");
@@ -104,7 +104,7 @@ MailGlue.prototype = {
   },
 
   // nsIObserver implementation
-  observe: function MailGlue_observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic, aData) {
     switch (aTopic) {
     case "xpcom-shutdown":
       this._dispose();
@@ -143,11 +143,11 @@ MailGlue.prototype = {
   },
 
   // nsIMailGlue implementation
-  sanitize: function MG_sanitize(aParentWindow) {
+  sanitize(aParentWindow) {
     this._sanitizer.sanitize(aParentWindow);
   },
 
-  _onProfileStartup: function MailGlue__onProfileStartup() {
+  _onProfileStartup() {
     TBDistCustomizer.applyPrefDefaults();
 
     let locales = Services.locale.packagedLocales;
@@ -210,7 +210,7 @@ MailGlue.prototype = {
     });
   },
 
-  _onMailStartupDone: function MailGlue__onMailStartupDone() {
+  _onMailStartupDone() {
     // On Windows 7 and above, initialize the jump list module.
     const WINTASKBAR_CONTRACTID = "@mozilla.org/windows-taskbar;1";
     if (WINTASKBAR_CONTRACTID in Cc &&
@@ -223,7 +223,7 @@ MailGlue.prototype = {
     ExtensionsUI.checkForSideloadedExtensions();
   },
 
-  _handleLink: function MailGlue__handleLink(aSubject, aData) {
+  _handleLink(aSubject, aData) {
     let linkHandled = aSubject.QueryInterface(Ci.nsISupportsPRBool);
     if (!linkHandled.data) {
       let win = Services.wm.getMostRecentWindow("mail:3pane");

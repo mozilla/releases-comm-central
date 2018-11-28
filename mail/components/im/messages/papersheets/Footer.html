@@ -45,9 +45,9 @@ function setColors(target) {
 
 
 function checkNewText(target) {
-  if (target.tagName == "DIV")
+  if (target.tagName == "DIV") {
     setColors(target);
-  else if (target.tagName == "P" && target.className == "event") {
+  } else if (target.tagName == "P" && target.className == "event") {
     let parent = target.parentNode;
     // We need to start a group with this element if there are at least 3
     // system messages and they aren't already grouped.

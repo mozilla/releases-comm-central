@@ -15,6 +15,7 @@ module.exports = {
   ],
 
   "rules": {
+    "func-names": ["error", "never"],
     "no-multi-spaces": ["error", {
       exceptions: {
         "ArrayExpression": true,
@@ -24,6 +25,8 @@ module.exports = {
       },
       ignoreEOLComments: true,
     }],
+    "semi-spacing": ["error", {"before": false, "after": true}],
+    "space-in-parens": ["error", "never"],
   },
 
   // The html plugin is enabled via a command line option on eslint. To avoid

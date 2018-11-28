@@ -8,4 +8,8 @@ module.exports = {
     // just define the webextensions environment here.
     "webextensions": true,
   },
+
+  "rules": {
+    "func-names": "off",
+  },
 };

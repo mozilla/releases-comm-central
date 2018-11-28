@@ -41,7 +41,7 @@ var preferencesTabType = {
     tabmail.registerTabType(this);
   },
 
-  shouldSwitchTo: function shouldSwitchTo(aArgs) {
+  shouldSwitchTo(aArgs) {
     if (!gPrefTab) {
       return -1;
     }
@@ -54,7 +54,7 @@ var preferencesTabType = {
     gPrefTab = null;
   },
 
-  openTab: function onTabOpened(aTab, aArgs) {
+  openTab(aTab, aArgs) {
     if (!("contentPage" in aArgs)) {
       throw ("contentPage must be specified");
     }
@@ -91,7 +91,7 @@ var preferencesTabType = {
     // Wait for full loading of the tab and the automatic selecting of last tab.
     // Then run the given onload code.
     aTab.browser.addEventListener("paneSelected",
-      function _contentTab_onLoad(event) {
+      function(event) {
         aTab.pageLoading = false;
         aTab.pageLoaded = true;
 
@@ -123,7 +123,7 @@ var preferencesTabType = {
     this.lastBrowserId++;
   },
 
-  persistTab: function onPersistTab(aTab) {
+  persistTab(aTab) {
     if (aTab.browser.currentURI.spec == "about:blank")
       return null;
 
@@ -135,7 +135,7 @@ var preferencesTabType = {
     };
   },
 
-  restoreTab: function onRestoreTab(aTabmail, aPersistedState) {
+  restoreTab(aTabmail, aPersistedState) {
     aTabmail.openTab("preferencesTab", {
       contentPage: aPersistedState.tabURI,
       paneID: aPersistedState.paneID,

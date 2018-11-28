@@ -122,7 +122,7 @@
         <parameter name="aSelectionStart"/>
         <parameter name="aSelectionEnd"/>
         <body>
-          this.inputField.setSelectionRange( aSelectionStart, aSelectionEnd );
+          this.inputField.setSelectionRange(aSelectionStart, aSelectionEnd);
         </body>
       </method>
 

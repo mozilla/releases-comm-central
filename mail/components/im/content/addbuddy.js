@@ -6,7 +6,7 @@ var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm"
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm", null);
 
 var addBuddy = {
-  onload: function ab_onload() {
+  onload() {
     let accountList = document.getElementById("accountlist");
     for (let acc of fixIterator(Services.accounts.getAccounts())) {
       if (!acc.connected)
@@ -23,14 +23,14 @@ var addBuddy = {
     accountList.selectedIndex = 0;
   },
 
-  oninput: function ab_oninput() {
+  oninput() {
     document.documentElement.getButton("accept").disabled =
       !addBuddy.getValue("name");
   },
 
-  getValue: function ab_getValue(aId) { return document.getElementById(aId).value; },
+  getValue(aId) { return document.getElementById(aId).value; },
 
-  create: function ab_create() {
+  create() {
     let account = Services.accounts.getAccountById(this.getValue("accountlist"));
     let group = document.getElementById("chatBundle").getString("defaultGroup");
     account.addBuddy(Services.tags.createTag(group), this.getValue("name"));

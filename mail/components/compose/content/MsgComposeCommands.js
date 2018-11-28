@@ -1502,15 +1502,14 @@ function uploadListener(aAttachment, aFile, aCloudProvider) {
 }
 
 uploadListener.prototype = {
-  onStartRequest: function uploadListener_onStartRequest(aRequest, aContext) {
+  onStartRequest(aRequest, aContext) {
     let bucket = document.getElementById("attachmentBucket");
     let item = bucket.findItemForAttachment(this.attachment);
     if (item)
       item.image = "chrome://global/skin/icons/loading.png";
   },
 
-  onStopRequest: function uploadListener_onStopRequest(aRequest, aContext,
-                                                       aStatusCode) {
+  onStopRequest(aRequest, aContext, aStatusCode) {
     let bucket = document.getElementById("attachmentBucket");
     let attachmentItem = bucket.findItemForAttachment(this.attachment);
 
@@ -1530,9 +1529,9 @@ uploadListener.prototype = {
 
         // Set the icon for the attachment.
         let iconClass = this.cloudProvider.iconClass;
-        if (iconClass)
+        if (iconClass) {
           attachmentItem.image = iconClass;
-        else {
+        } else {
           // Should we use a generic "cloud" icon here? Or an overlay icon?
           // I think the provider should provide an icon, end of story.
           attachmentItem.image = null;
@@ -1631,11 +1630,10 @@ function deletionListener(aAttachment, aCloudProvider) {
 }
 
 deletionListener.prototype = {
-  onStartRequest: function deletionListener_onStartRequest(aRequest, aContext) {
+  onStartRequest(aRequest, aContext) {
   },
 
-  onStopRequest: function deletionListener_onStopRequest(aRequest, aContext,
-                                                         aStatusCode) {
+  onStopRequest(aRequest, aContext, aStatusCode) {
     if (!Components.isSuccessCode(aStatusCode)) {
       let displayName = cloudFileAccounts.getDisplayName(this.cloudProvider);
       Services.prompt.alert(window,
@@ -1972,7 +1970,7 @@ function GetArgs(originalData) {
   for (let i = 0; i < originalData.length; i++, prevChar = aChar) {
     var aChar = originalData.charAt(i);
     var aCharCode = originalData.charCodeAt(i);
-    if ( i < originalData.length - 1)
+    if (i < originalData.length - 1)
       nextChar = originalData.charAt(i + 1);
     else
       nextChar = "";
@@ -2503,9 +2501,9 @@ function ComposeStartup(aParams) {
   var args = null;   // old way, parameters are passed as a string
   gBodyFromArgs = false;
 
-  if (aParams)
+  if (aParams) {
     params = aParams;
-  else if (window.arguments && window.arguments[0]) {
+  } else if (window.arguments && window.arguments[0]) {
     try {
       if (window.arguments[0] instanceof Ci.nsIMsgComposeParams)
         params = window.arguments[0];
@@ -6337,7 +6335,7 @@ var gAttachmentNotifier = {
 
   enabled: false,
 
-  init: function gAN_init(aDocument) {
+  init(aDocument) {
     if (this._obs)
       this.shutdown();
 
@@ -6345,7 +6343,7 @@ var gAttachmentNotifier = {
     if (!this.enabled)
       return;
 
-    this._obs = new MutationObserver(function gAN_handleMutations(aMutations) {
+    this._obs = new MutationObserver(function(aMutations) {
       gAttachmentNotifier.timer.cancel();
       gAttachmentNotifier.timer.initWithCallback(gAttachmentNotifier.event, 500,
                                                  Ci.nsITimer.TYPE_ONE_SHOT);
@@ -6370,7 +6368,7 @@ var gAttachmentNotifier = {
 
   // Timer based function triggered by the inputEventListener
   // for the subject field.
-  subjectObserver: function handleEvent() {
+  subjectObserver() {
     gAttachmentNotifier.timer.cancel();
     gAttachmentNotifier.timer.initWithCallback(gAttachmentNotifier.event, 500,
                                                Ci.nsITimer.TYPE_ONE_SHOT);
@@ -6485,7 +6483,7 @@ var gAttachmentNotifier = {
     return null;
   },
 
-  shutdown: function gAN_shutdown() {
+  shutdown() {
     if (this._obs)
       this._obs.disconnect();
     gAttachmentNotifier.timer.cancel();

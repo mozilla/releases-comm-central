@@ -120,9 +120,9 @@ var MigrationWizard = {
       this._source = newSource;
 
     // check for more than one source profile
-    if (this._migrator.sourceHasMultipleProfiles)
+    if (this._migrator.sourceHasMultipleProfiles) {
       this._wiz.currentPage.next = "selectProfile";
-    else {
+    } else {
       this._wiz.currentPage.next = "migrating";
       var sourceProfiles = this._migrator.sourceProfiles;
       if (sourceProfiles && sourceProfiles.length == 1)

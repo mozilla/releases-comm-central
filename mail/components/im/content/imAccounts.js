@@ -36,7 +36,7 @@ var gAccountManager = {
   _disabledDelay: 500,
   disableTimerID: 0,
   _connectedLabelInterval: 0,
-  load: function am_load() {
+  load() {
     // Wait until the password service is ready before offering anything.
     Services.logins.initializationPromise.then(() => {
       this.accountList = document.getElementById("accountlist");
@@ -51,11 +51,11 @@ var gAccountManager = {
       }
       for (let event of events)
         Services.obs.addObserver(this, event);
-      if (!this.accountList.getRowCount())
+      if (!this.accountList.getRowCount()) {
         // This is horrible, but it works. Otherwise (at least on mac)
         // the wizard is not centered relatively to the account manager
         setTimeout(function() { gAccountManager.new(); }, 0);
-      else {
+      } else {
         // we have accounts, show the list
         document.getElementById("accountsDesk").selectedIndex = 1;
 
@@ -76,12 +76,12 @@ var gAccountManager = {
       this.close();
     });
   },
-  unload: function am_unload() {
+  unload() {
     clearInterval(this._connectedLabelInterval);
     for (let event of events)
       Services.obs.removeObserver(this, event);
   },
-  _updateAccountList: function am__updateAccountList() {
+  _updateAccountList() {
     let accountList = this.accountList;
     let i = 0;
     for (let acc of this.getAccounts()) {
@@ -109,7 +109,7 @@ var gAccountManager = {
     // We need to refresh the disabled menu items
     this.disableCommandItems();
   },
-  observe: function am_observe(aObject, aTopic, aData) {
+  observe(aObject, aTopic, aData) {
     if (aTopic == "prpl-quit") {
       // libpurple is being uninitialized. We don't need the account
       // manager window anymore, close it.
@@ -194,24 +194,24 @@ var gAccountManager = {
       }
     }
   },
-  cancelReconnection: function am_cancelReconnection() {
+  cancelReconnection() {
     this.accountList.selectedItem.cancelReconnection();
   },
-  connect: function am_connect() {
+  connect() {
     let account = this.accountList.selectedItem.account;
     if (account.disconnected) {
       this.temporarilyDisableButtons();
       account.connect();
     }
   },
-  disconnect: function am_disconnect() {
+  disconnect() {
     let account = this.accountList.selectedItem.account;
     if (account.connected || account.connecting) {
       this.temporarilyDisableButtons();
       account.disconnect();
     }
   },
-  addException: function am_addException() {
+  addException() {
     let account = this.accountList.selectedItem.account;
     let prplAccount = account.prplAccount;
     if (!account.disconnected || !prplAccount.connectionTarget)
@@ -230,7 +230,7 @@ var gAccountManager = {
     if (params.exceptionAdded)
       account.connect();
   },
-  copyDebugLog: function am_copyDebugLog() {
+  copyDebugLog() {
     let account = this.accountList.selectedItem.account;
     let text = account.getDebugMessages().map(function(dbgMsg) {
       let m = dbgMsg.message;
@@ -257,7 +257,7 @@ var gAccountManager = {
     Cc["@mozilla.org/widget/clipboardhelper;1"]
       .getService(Ci.nsIClipboardHelper).copyString(text);
   },
-  updateConnectedLabels: function am_updateConnectedLabels() {
+  updateConnectedLabels() {
     for (let i = 0; i < gAccountManager.accountList.itemCount; ++i) {
       let item = gAccountManager.accountList.getItemAtIndex(i);
       if (item.account.connected)
@@ -268,7 +268,7 @@ var gAccountManager = {
    * `this._disabledDelay` ms before calling disableCommandItems to restore
    * the state of the buttons.
    */
-  temporarilyDisableButtons: function am_temporarilyDisableButtons() {
+  temporarilyDisableButtons() {
     document.getElementById("cmd_disconnect").setAttribute("disabled", "true");
     document.getElementById("cmd_connect").setAttribute("disabled", "true");
     clearTimeout(this.disableTimerID);
@@ -280,10 +280,10 @@ var gAccountManager = {
     }, this._disabledDelay, this.accountList.selectedItem);
   },
 
-  new: function am_new() {
+  new() {
     this.openDialog("chrome://messenger/content/chat/imAccountWizard.xul");
   },
-  edit: function am_edit() {
+  edit() {
     // Find the nsIIncomingServer for the current imIAccount.
     let server = null;
     let imAccountId = this.accountList.selectedItem.account.numericId;
@@ -309,11 +309,11 @@ var gAccountManager = {
                         { server, selectPage: null });
     }
   },
-  autologin: function am_autologin() {
+  autologin() {
     var elt = this.accountList.selectedItem;
     elt.autoLogin = !elt.autoLogin;
   },
-  close: function am_close() {
+  close() {
     // If a modal dialog is opened, we can't close this window now
     if (this.modalDialog)
       setTimeout(function() { window.close(); }, 0);
@@ -323,7 +323,7 @@ var gAccountManager = {
 
   /* This function disables or enables the currently selected button and
      the corresponding context menu item */
-  disableCommandItems: function am_disableCommandItems() {
+  disableCommandItems() {
     let accountList = this.accountList;
     let selectedItem = accountList.selectedItem;
     // When opening the account manager, if accounts have errors, we
@@ -357,7 +357,7 @@ var gAccountManager = {
         elt.removeAttribute("disabled");
     }
   },
-  onContextMenuShowing: function am_onContextMenuShowing() {
+  onContextMenuShowing() {
     let targetElt = document.popupNode;
     let isAccount = targetElt instanceof Ci.nsIDOMXULSelectControlItemElement;
     document.querySelector(".im-context-account-item").forEach(e => {
@@ -376,11 +376,11 @@ var gAccountManager = {
     }
   },
 
-  selectAccount: function am_selectAccount(aAccountId) {
+  selectAccount(aAccountId) {
     this.accountList.selectedItem = document.getElementById(aAccountId);
     this.accountList.ensureSelectedElementIsVisible();
   },
-  onAccountSelect: function am_onAccountSelect() {
+  onAccountSelect() {
     clearTimeout(this.disableTimerID);
     this.disableTimerID = 0;
     this.disableCommandItems();
@@ -395,7 +395,7 @@ var gAccountManager = {
     }, 0, this);
   },
 
-  onKeyPress: function am_onKeyPress(event) {
+  onKeyPress(event) {
     if (!this.selectedItem)
       return;
 
@@ -433,7 +433,7 @@ var gAccountManager = {
     }
   },
 
-  moveCurrentItem: function am_moveCurrentItem(aOffset) {
+  moveCurrentItem(aOffset) {
     let accountList = this.accountList;
     if (!aOffset || !accountList.selectedItem)
       return;
@@ -456,18 +456,18 @@ var gAccountManager = {
     Services.prefs.setCharPref("messenger.accounts", array.join(","));
   },
 
-  getAccounts: function* am_getAccounts() {
+  * getAccounts() {
     let accounts = Services.accounts.getAccounts();
     while (accounts.hasMoreElements())
       yield accounts.getNext();
   },
 
-  openDialog: function am_openDialog(aUrl, aArgs) {
+  openDialog(aUrl, aArgs) {
     this.modalDialog = true;
     window.openDialog(aUrl, "", "chrome,modal,titlebar,centerscreen", aArgs);
     this.modalDialog = false;
   },
-  setAutoLoginNotification: function am_setAutoLoginNotification() {
+  setAutoLoginNotification() {
     var as = Services.accounts;
     var autoLoginStatus = as.autoLoginStatus;
     let isOffline = false;
@@ -530,7 +530,7 @@ var gAccountManager = {
 
     box.appendNotification(label, "autologinStatus", null, priority, [connectNowButton]);
   },
-  processAutoLogin: function am_processAutoLogin() {
+  processAutoLogin() {
     var ioService = Services.io;
     if (ioService.offline) {
       ioService.manageOfflineStatus = false;
@@ -541,7 +541,7 @@ var gAccountManager = {
 
     gAccountManager.accountList.selectedItem.buttons.setFocus();
   },
-  processCrashedAccountsLogin: function am_processCrashedAccountsLogin() {
+  processCrashedAccountsLogin() {
     for (let acc in gAccountManager.getAccounts())
       if (acc.disconnected && acc.autoLogin &&
           acc.firstConnectionState == acc.FIRST_CONNECTION_CRASHED)
@@ -554,7 +554,7 @@ var gAccountManager = {
 
     gAccountManager.accountList.selectedItem.buttons.setFocus();
   },
-  setOffline: function am_setOffline(aState) {
+  setOffline(aState) {
     this.isOffline = aState;
     if (aState)
       this.accountList.setAttribute("offline", "true");
@@ -577,7 +577,7 @@ var gAMDragAndDrop = {
     return this.SCROLL_SPEED;
   },
 
-  onDragStart: function amdnd_onDragStart(aEvent, aTransferData, aAction) {
+  onDragStart(aEvent, aTransferData, aAction) {
     let accountElement = aEvent.explicitOriginalTarget;
     // This stops the dragging session.
     if (!(accountElement instanceof Ci.nsIDOMXULSelectControlItemElement))
@@ -590,7 +590,7 @@ var gAMDragAndDrop = {
     aTransferData.data.addDataForFlavour(this.ACCOUNT_MIME_TYPE, accountElement);
   },
 
-  onDragOver: function amdnd_onDragOver(aEvent, aFlavour, aSession) {
+  onDragOver(aEvent, aFlavour, aSession) {
     let accountElement = aEvent.explicitOriginalTarget;
     // We are dragging over the account manager, consider it is the same as
     // the last element.
@@ -628,7 +628,7 @@ var gAMDragAndDrop = {
     this._accountElement = accountElement;
   },
 
-  cleanBorders: function amdnd_cleanBorders(aIsEnd) {
+  cleanBorders(aIsEnd) {
     if (!this._accountElement)
       return;
 
@@ -645,14 +645,14 @@ var gAMDragAndDrop = {
       delete this._accountElement;
   },
 
-  canDrop: function amdnd_canDrop(aEvent, aSession) {
+  canDrop(aEvent, aSession) {
     let accountElement = aEvent.explicitOriginalTarget;
     if (accountElement == gAccountManager.accountList)
       accountElement = gAccountManager.accountList.lastChild;
     return (accountElement != gAccountManager.accountList.selectedItem);
   },
 
-  checkForMagicScroll: function amdnd_checkForMagicScroll(aClientY) {
+  checkForMagicScroll(aClientY) {
     let accountList = gAccountManager.accountList;
     let listSize = accountList.getBoundingClientRect();
     let direction = 1;
@@ -665,7 +665,7 @@ var gAMDragAndDrop = {
     accountList._scrollbox.scrollTop += direction * this.SCROLL_SPEED;
   },
 
-  onDrop: function amdnd_onDrop(aEvent, aTransferData, aSession) {
+  onDrop(aEvent, aTransferData, aSession) {
     let accountElement = aEvent.explicitOriginalTarget;
     if (accountElement == gAccountManager.accountList)
       accountElement = gAccountManager.accountList.lastChild;
@@ -687,7 +687,7 @@ var gAMDragAndDrop = {
     gAccountManager.moveCurrentItem(offset);
   },
 
-  getSupportedFlavours: function amdnd_getSupportedFlavours() {
+  getSupportedFlavours() {
     var flavours = new FlavourSet();
     flavours.appendFlavour(this.ACCOUNT_MIME_TYPE,
                            "nsIDOMXULSelectControlItemElement");

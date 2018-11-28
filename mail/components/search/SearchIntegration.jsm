@@ -272,7 +272,7 @@ var SearchSupport = {
    * It resets lastFolderIndexedUri to an empty string, then yield returns null
    * once iteration across all folders is complete.
    */
-  _foldersToIndexGenerator: function* search_find_next_folder() {
+  * _foldersToIndexGenerator() {
     let servers = MailServices.accounts.allServers;
 
     // Stores whether we're after the last folder indexed or before that --

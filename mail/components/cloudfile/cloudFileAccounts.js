@@ -112,8 +112,7 @@ var cloudFileAccounts = {
   },
 
   // Set provider-specific prefs
-  _processExtraPrefs: function CFA__processExtraPrefs(aAccountKey,
-                                                      aExtraPrefs) {
+  _processExtraPrefs(aAccountKey, aExtraPrefs) {
     const kFuncMap = {
       "int": "setIntPref",
       "bool": "setBoolPref",
@@ -167,7 +166,7 @@ var cloudFileAccounts = {
       map(key => this.getAccount(key));
   },
 
-  getAccountsForType: function CFA_getAccountsForType(aType) {
+  getAccountsForType(aType) {
     let result = [];
 
     for (let accountKey of this._accountKeys) {
@@ -179,7 +178,7 @@ var cloudFileAccounts = {
     return result;
   },
 
-  addAccountDialog: function CFA_addAccountDialog() {
+  addAccountDialog() {
     let params = {accountKey: null};
     Services.wm
             .getMostRecentWindow(null)

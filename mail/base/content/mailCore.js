@@ -499,9 +499,9 @@ function openActivityMgr() {
 
 function openIMAccountMgr() {
   var win = Services.wm.getMostRecentWindow("Messenger:Accounts");
-  if (win)
+  if (win) {
     win.focus();
-  else {
+  } else {
     win = Services.ww.openWindow(null,
                                  "chrome://messenger/content/chat/imAccounts.xul",
                                  "Accounts", "chrome,resizable,centerscreen",
@@ -532,9 +532,9 @@ function openIMAccountWizard() {
 function openSavedFilesWnd() {
   let tabmail = document.getElementById("tabmail");
   let downloadsBrowser = tabmail.getBrowserForDocumentId("aboutDownloads");
-  if (downloadsBrowser)
+  if (downloadsBrowser) {
     tabmail.switchToTab(downloadsBrowser);
-  else {
+  } else {
     tabmail.openTab("chromeTab",
                     { chromePage: "about:downloads",
                       clickHandler: "specialTabs.aboutClickHandler(event);" });

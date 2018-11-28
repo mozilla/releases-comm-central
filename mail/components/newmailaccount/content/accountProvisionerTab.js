@@ -82,11 +82,13 @@ accountProvisionerTabType.persistTab = function(aTab) {
  */
 accountProvisionerTabType.restoreTab = function(aTabmail, aPersistedState) {
   aTabmail.openTab("accountProvisionerTab",
-                   { contentPage: aPersistedState.tabURI,
+                   {
+                     contentPage: aPersistedState.tabURI,
                      realName: aPersistedState.realName,
                      email: aPersistedState.email,
                      searchEngine: aPersistedState.searchEngine,
-                     background: true } );
+                     background: true,
+                   });
 };
 
 /**
