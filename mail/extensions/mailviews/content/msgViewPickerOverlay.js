@@ -2,8 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../../base/content/commandglue.js */
+
 ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource:///modules/MailViewManager.jsm");
+var {
+  MailViewConstants,
+} = ChromeUtils.import("resource:///modules/MailViewManager.jsm", null);
 
 // these constants are now authoritatively defined in MailViewManager.jsm (above)
 // tag views have kViewTagMarker + their key as value
@@ -26,18 +30,10 @@ var kViewTagMarker  = MailViewConstants.kViewTagMarker;
  */
 var gMailViewList = null;
 
-var nsMsgSearchScope  = Ci.nsMsgSearchScope;
-var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
-var nsMsgSearchOp     = Ci.nsMsgSearchOp;
-
-var nsMsgMessageFlags = Ci.nsMsgMessageFlags;
-
 // perform the view/action requested by the aValue string
 // and set the view picker label to the aLabel string
-function ViewChange(aValue)
-{
-  if (aValue == kViewItemCustomize || aValue == kViewItemVirtual)
-  {
+function ViewChange(aValue) {
+  if (aValue == kViewItemCustomize || aValue == kViewItemVirtual) {
     // restore to the previous view value, in case they cancel
     ViewPickerBinding.updateDisplay();
     if (aValue == kViewItemCustomize)
@@ -50,14 +46,11 @@ function ViewChange(aValue)
   }
 
   // tag menuitem values are of the form :<keyword>
-  if (isNaN(aValue))
-  {
+  if (isNaN(aValue)) {
     // split off the tag key
     var tagkey = aValue.substr(kViewTagMarker.length);
     gFolderDisplay.view.setMailView(kViewItemTags, tagkey);
-  }
-  else
-  {
+  } else {
     var numval = Number(aValue);
     gFolderDisplay.view.setMailView(numval, null);
   }
@@ -65,8 +58,7 @@ function ViewChange(aValue)
 }
 
 
-function ViewChangeByMenuitem(aMenuitem)
-{
+function ViewChangeByMenuitem(aMenuitem) {
   // Mac View menu menuitems don't have XBL bindings
   ViewChange(aMenuitem.getAttribute("value"));
 }
@@ -77,7 +69,7 @@ function ViewChangeByMenuitem(aMenuitem)
  *  visible at all times (or ever).  No view picker widget, no binding.
  */
 var ViewPickerBinding = {
-  _init: function ViewPickerBinding_init() {
+  _init() {
     window.addEventListener(
       "MailViewChanged",
       function(aEvent) { ViewPickerBinding.updateDisplay(aEvent); });
@@ -102,8 +94,7 @@ var ViewPickerBinding = {
   get currentViewValue() {
     if (gFolderDisplay.view.mailViewIndex == kViewItemTags)
       return kViewTagMarker + gFolderDisplay.view.mailViewData;
-    else
-      return gFolderDisplay.view.mailViewIndex + "";
+    return gFolderDisplay.view.mailViewIndex + "";
   },
 
   /**
@@ -117,7 +108,7 @@ var ViewPickerBinding = {
   /**
    * The effective view has changed, update the widget.
    */
-  updateDisplay: function ViewPickerBinding_updateDisplay(aEvent, aGiveUpIfNotFound) {
+  updateDisplay(aEvent, aGiveUpIfNotFound) {
     let viewPicker = document.getElementById("viewPicker");
     if (viewPicker) {
       let value = this.currentViewValue;
@@ -125,8 +116,7 @@ var ViewPickerBinding = {
       let viewPickerPopup = document.getElementById("viewPickerPopup");
       let selectedItem =
         viewPickerPopup.querySelector('[value="' + value + '"]');
-      if (!selectedItem)
-      {
+      if (!selectedItem) {
         // we may have a new item, so refresh to make it show up
         RefreshAllViewPopups(viewPickerPopup, true);
         selectedItem = viewPickerPopup.querySelector('[value="' + value + '"]');
@@ -138,8 +128,7 @@ var ViewPickerBinding = {
 };
 ViewPickerBinding._init();
 
-function LaunchCustomizeDialog()
-{
+function LaunchCustomizeDialog() {
   OpenOrFocusWindow({}, "mailnews:mailviewlist", "chrome://messenger/content/mailViewList.xul");
 }
 
@@ -149,12 +138,10 @@ function LaunchCustomizeDialog()
  *  the view picker menu list in the toolbar.  aIsMenulist will be false in the
  *  former case and true in the latter case.
  */
-function RefreshAllViewPopups(aViewPopup)
-{
+function RefreshAllViewPopups(aViewPopup) {
   RefreshViewPopup(aViewPopup);
   var menupopups = aViewPopup.getElementsByTagName("menupopup");
-  if (menupopups.length > 1)
-  {
+  if (menupopups.length > 1) {
     // when we have menupopups, we assume both tags and custom views are there
     RefreshTagsPopup(menupopups[0]);
     RefreshCustomViewsPopup(menupopups[1]);
@@ -162,8 +149,7 @@ function RefreshAllViewPopups(aViewPopup)
 }
 
 
-function RefreshViewPopup(aViewPopup)
-{
+function RefreshViewPopup(aViewPopup) {
   // mark default views if selected
   let currentViewValue = ViewPickerBinding.currentViewValue;
 
@@ -184,8 +170,7 @@ function RefreshViewPopup(aViewPopup)
   viewNotDeleted.setAttribute("hidden", true);
   var msgFolder = folderArray[0];
   var server = msgFolder.server;
-  if (server.type == "imap")
-  {
+  if (server.type == "imap") {
     let imapServer =
       server.QueryInterface(Ci.nsIImapIncomingServer);
     if (imapServer.deleteModel == Ci.nsMsgImapDeleteModels.IMAPDelete) {
@@ -197,8 +182,7 @@ function RefreshViewPopup(aViewPopup)
 }
 
 
-function RefreshCustomViewsPopup(aMenupopup)
-{
+function RefreshCustomViewsPopup(aMenupopup) {
   // for each mail view in the msg view list, add an entry in our combo box
   if (!gMailViewList)
     gMailViewList = Cc["@mozilla.org/messenger/mailviewlist;1"]
@@ -210,8 +194,7 @@ function RefreshCustomViewsPopup(aMenupopup)
   // now rebuild the list
   var currentView = ViewPickerBinding.currentViewValue;
   var numItems = gMailViewList.mailViewCount;
-  for (var i = 0; i < numItems; ++i)
-  {
+  for (var i = 0; i < numItems; ++i) {
     var viewInfo = gMailViewList.getMailViewAt(i);
     var menuitem = document.createElement("menuitem");
     menuitem.setAttribute("label", viewInfo.prettyName);
@@ -224,8 +207,7 @@ function RefreshCustomViewsPopup(aMenupopup)
 }
 
 
-function RefreshTagsPopup(aMenupopup)
-{
+function RefreshTagsPopup(aMenupopup) {
   // remove all menuitems
   while (aMenupopup.hasChildNodes())
     aMenupopup.lastChild.remove();
@@ -234,8 +216,7 @@ function RefreshTagsPopup(aMenupopup)
   let currentTagKey = gFolderDisplay.view.mailViewIndex == kViewItemTags ?
                         gFolderDisplay.view.mailViewData : "";
   let tagArray = MailServices.tags.getAllTags({});
-  for (let i = 0; i < tagArray.length; ++i)
-  {
+  for (let i = 0; i < tagArray.length; ++i) {
     let tagInfo = tagArray[i];
     let menuitem = document.createElement("menuitem");
     menuitem.setAttribute("label", tagInfo.tag);
@@ -250,8 +231,7 @@ function RefreshTagsPopup(aMenupopup)
   }
 }
 
-function ViewPickerOnLoad()
-{
+function ViewPickerOnLoad() {
   var viewPickerPopup = document.getElementById("viewPickerPopup");
   if (viewPickerPopup)
     RefreshAllViewPopups(viewPickerPopup, true);

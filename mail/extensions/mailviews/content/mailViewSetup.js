@@ -3,19 +3,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var nsMsgSearchScope = Ci.nsMsgSearchScope;
+/* import-globals-from ../../../../mailnews/base/search/content/searchTermOverlay.js */
+
 var gMailView = null;
 
 var dialog;
 
-function mailViewOnLoad()
-{
+function mailViewOnLoad() {
   initializeSearchWidgets();
   initializeMailViewOverrides();
   dialog = {};
 
-  if ("arguments" in window && window.arguments[0])
-  {
+  if ("arguments" in window && window.arguments[0]) {
     var args = window.arguments[0];
     if ("mailView" in args)
       gMailView = window.arguments[0].mailView;
@@ -27,39 +26,32 @@ function mailViewOnLoad()
   dialog.nameField = document.getElementById("name");
   dialog.nameField.focus();
 
-  setSearchScope(nsMsgSearchScope.offlineMail);
+  setSearchScope(Ci.nsMsgSearchScope.offlineMail);
 
-  if (gMailView)
-  {
+  if (gMailView) {
     dialog.nameField.value = gMailView.prettyName;
-    initializeSearchRows(nsMsgSearchScope.offlineMail, gMailView.searchTerms);
-  }
-  else
+    initializeSearchRows(Ci.nsMsgSearchScope.offlineMail, gMailView.searchTerms);
+  } else {
     onMore(null);
+  }
 
   doEnabling();
 }
 
-function mailViewOnUnLoad()
-{
-
+function mailViewOnUnLoad() {
 }
 
-function onOK()
-{
+function onOK() {
   var mailViewList = Cc["@mozilla.org/messenger/mailviewlist;1"].getService(Ci.nsIMsgMailViewList);
 
   // reflect the search widgets back into the search session
   var newMailView = null;
-  if (gMailView)
-  {
+  if (gMailView) {
     saveSearchTerms(gMailView.searchTerms, gMailView);
     // if the name of the view has been changed...
     if (gMailView.prettyName != dialog.nameField.value)
       gMailView.mailViewName = dialog.nameField.value;
-  }
-  else
-  {
+  } else {
     // otherwise, create a new mail view
     newMailView = mailViewList.createMailView();
 
@@ -77,43 +69,30 @@ function onOK()
   return true;
 }
 
-function initializeMailViewOverrides()
-{
+function initializeMailViewOverrides() {
   // replace some text with something we want. Need to add some ids to searchOverlay.js
-  //var orButton = document.getElementById('or');
-  //orButton.setAttribute('label', 'Any of the following');
-  //var andButton = document.getElementById('and');
-  //andButton.setAttribute('label', 'All of the following');
+  // var orButton = document.getElementById('or');
+  // orButton.setAttribute('label', 'Any of the following');
+  // var andButton = document.getElementById('and');
+  // andButton.setAttribute('label', 'All of the following');
   // matchAll doesn't make sense for views, since views are a single folder
   hideMatchAllItem();
 
 }
 
-function UpdateAfterCustomHeaderChange()
-{
+function UpdateAfterCustomHeaderChange() {
   updateSearchAttributes();
 }
 
-function doEnabling()
-{
-  if (dialog.nameField.value)
-  {
+function doEnabling() {
+  if (dialog.nameField.value) {
     if (dialog.OKButton.disabled)
       dialog.OKButton.disabled = false;
-  } else
-  {
-    if (!dialog.OKButton.disabled)
-      dialog.OKButton.disabled = true;
+  } else if (!dialog.OKButton.disabled) {
+    dialog.OKButton.disabled = true;
   }
 }
 
-function onEnterInSearchTerm()
-{
+function onEnterInSearchTerm() {
   // no-op for us...
 }
-
-function doHelpButton()
-{
-  openHelp("message-views-create-new");
-}
-

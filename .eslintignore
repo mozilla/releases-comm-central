@@ -48,18 +48,15 @@ mailnews/extensions/*
 !mailnews/extensions/newsblog
 
 # mail exclusions
-mail/app/**
+mail/app/profile/all-thunderbird.js
+mail/app/profile/channel-prefs.js
+mail/app/profile/prefs.js
 mail/base/content/protovis-r2.6-modded.js
-mail/branding/**
-mail/config/**
-mail/extensions/**
-mail/installer/**
-mail/locales/**
-mail/test/**
-mail/themes/**
-
-# prefs files
+mail/branding/nightly/thunderbird-branding.js
+mail/branding/thunderbird/thunderbird-branding.js
 mail/components/im/all-im.js
+mail/locales/en-US/all-l10n.js
+mail/test/**
 
 # calendar/ exclusions
 
