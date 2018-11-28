@@ -114,9 +114,9 @@ this.legacy = class extends ExtensionAPI {
       let instance;
       try {
         if (service) {
-          instance = Components.classes[contractid.substr(8)].getService(Ci.nsIObserver);
+          instance = Cc[contractid.substr(8)].getService(Ci.nsIObserver);
         } else {
-          instance = Components.classes[contractid].createInstance(Ci.nsIObserver);
+          instance = Cc[contractid].createInstance(Ci.nsIObserver);
         }
 
         instance.observe(null, "profile-after-change", null);

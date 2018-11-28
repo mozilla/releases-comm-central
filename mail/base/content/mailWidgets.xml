@@ -3,7 +3,6 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!-- globals fillInTags // mailWidgets.xml -->
 <!-- import-globals-from ../../../mailnews/base/content/dateFormat.js -->
 <!-- import-globals-from mailWindow.js -->
 <!-- import-globals-from SearchDialog.js -->
@@ -15,11 +14,11 @@
 %messengerDTD;
 ]>
 
-<bindings   id="mailBindings"
-            xmlns="http://www.mozilla.org/xbl"
-            xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-            xmlns:nc="http://home.netscape.com/NC-rdf#"
-            xmlns:xbl="http://www.mozilla.org/xbl">
+<bindings id="mailBindings"
+          xmlns="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:nc="http://home.netscape.com/NC-rdf#"
+          xmlns:xbl="http://www.mozilla.org/xbl">
 
   <!-- dummy widget to force this file to load -->
   <binding id="dummy" extends="xul:box"/>
@@ -1609,7 +1608,6 @@
           // val is a nsIMsgSearchValue object
           this.internalValue = val;
           var attrib = this.internalAttribute;
-          var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
           var children = document.getAnonymousNodes(this);
           this.searchAttribute = attrib;
           if (isNaN(attrib)) { // a custom term
@@ -1617,25 +1615,25 @@
             customHbox.setAttribute("value", val.str);
             return val;
           }
-          if (attrib == nsMsgSearchAttrib.Priority) {
+          if (attrib == Ci.nsMsgSearchAttrib.Priority) {
             var matchingPriority =
               children[1].querySelector(`[value="${val.priority}"]`);
             if (matchingPriority)
               children[1].selectedItem = matchingPriority;
-          } else if (attrib == nsMsgSearchAttrib.MsgStatus) {
+          } else if (attrib == Ci.nsMsgSearchAttrib.MsgStatus) {
             var matchingStatus =
               children[2].querySelector(`[value="${val.status}"]`);
             if (matchingStatus)
               children[2].selectedItem = matchingStatus;
-          } else if (attrib == nsMsgSearchAttrib.AgeInDays) {
+          } else if (attrib == Ci.nsMsgSearchAttrib.AgeInDays) {
             children[9].value = val.age;
-          } else if (attrib == nsMsgSearchAttrib.Date) {
+          } else if (attrib == Ci.nsMsgSearchAttrib.Date) {
             children[3].value = convertPRTimeToString(val.date);
-          } else if (attrib == nsMsgSearchAttrib.Sender ||
-                     attrib == nsMsgSearchAttrib.To ||
-                     attrib == nsMsgSearchAttrib.CC ||
-                     attrib == nsMsgSearchAttrib.AllAddresses ||
-                     attrib == nsMsgSearchAttrib.ToOrCC) {
+          } else if (attrib == Ci.nsMsgSearchAttrib.Sender ||
+                     attrib == Ci.nsMsgSearchAttrib.To ||
+                     attrib == Ci.nsMsgSearchAttrib.CC ||
+                     attrib == Ci.nsMsgSearchAttrib.AllAddresses ||
+                     attrib == Ci.nsMsgSearchAttrib.ToOrCC) {
             if (this.internalOperator == Ci.nsMsgSearchOp.IsntInAB ||
                 this.internalOperator == Ci.nsMsgSearchOp.IsInAB) {
               var abs = children[4].querySelector(`[value="${val.str}"]`);
@@ -1644,30 +1642,30 @@
             } else {
               children[0].value = val.str;
             }
-          } else if (attrib == nsMsgSearchAttrib.Keywords) {
+          } else if (attrib == Ci.nsMsgSearchAttrib.Keywords) {
             var keywordVal = children[5].querySelector(`[value="${val.str}"]`);
             if (keywordVal) {
               children[5].value = val.str;
               children[5].selectedItem = keywordVal;
             }
-          } else if (attrib == nsMsgSearchAttrib.JunkStatus) {
+          } else if (attrib == Ci.nsMsgSearchAttrib.JunkStatus) {
             var junkStatus =
               children[6].querySelector(`[value="${val.junkStatus}"]`);
             if (junkStatus)
               children[6].selectedItem = junkStatus;
-          } else if (attrib == nsMsgSearchAttrib.HasAttachmentStatus) {
+          } else if (attrib == Ci.nsMsgSearchAttrib.HasAttachmentStatus) {
             var hasAttachmentStatus =
               children[7].querySelector(`[value="${val.hasAttachmentStatus}"]`);
             if (hasAttachmentStatus)
               children[7].selectedItem = hasAttachmentStatus;
-          } else if (attrib == nsMsgSearchAttrib.JunkScoreOrigin) {
+          } else if (attrib == Ci.nsMsgSearchAttrib.JunkScoreOrigin) {
             var junkScoreOrigin =
               children[8].querySelector(`[value="${val.str}"]`);
             if (junkScoreOrigin)
               children[8].selectedItem = junkScoreOrigin;
-          } else if (attrib == nsMsgSearchAttrib.JunkPercent) {
+          } else if (attrib == Ci.nsMsgSearchAttrib.JunkPercent) {
             children[9].value = val.junkPercent;
-          } else if (attrib == nsMsgSearchAttrib.Size) {
+          } else if (attrib == Ci.nsMsgSearchAttrib.Size) {
             children[9].value = val.size;
           } else {
             children[0].value = val.str;
@@ -1681,43 +1679,42 @@
           <![CDATA[
             var searchValue = this.value;
             var searchAttribute = this.searchAttribute;
-            var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
             var children = document.getAnonymousNodes(this);
 
             searchValue.attrib = searchAttribute;
-            if (searchAttribute == nsMsgSearchAttrib.Priority) {
+            if (searchAttribute == Ci.nsMsgSearchAttrib.Priority) {
               searchValue.priority = children[1].selectedItem.value;
-            } else if (searchAttribute == nsMsgSearchAttrib.MsgStatus) {
+            } else if (searchAttribute == Ci.nsMsgSearchAttrib.MsgStatus) {
               searchValue.status = children[2].value;
-            } else if (searchAttribute == nsMsgSearchAttrib.AgeInDays) {
+            } else if (searchAttribute == Ci.nsMsgSearchAttrib.AgeInDays) {
               searchValue.age = children[9].value;
-            } else if (searchAttribute == nsMsgSearchAttrib.Date) {
+            } else if (searchAttribute == Ci.nsMsgSearchAttrib.Date) {
               searchValue.date = convertStringToPRTime(children[3].value);
-            } else if (searchAttribute == nsMsgSearchAttrib.Sender ||
-                       searchAttribute == nsMsgSearchAttrib.To ||
-                       searchAttribute == nsMsgSearchAttrib.CC ||
-                       searchAttribute == nsMsgSearchAttrib.AllAddresses ||
-                       searchAttribute == nsMsgSearchAttrib.ToOrCC) {
+            } else if (searchAttribute == Ci.nsMsgSearchAttrib.Sender ||
+                       searchAttribute == Ci.nsMsgSearchAttrib.To ||
+                       searchAttribute == Ci.nsMsgSearchAttrib.CC ||
+                       searchAttribute == Ci.nsMsgSearchAttrib.AllAddresses ||
+                       searchAttribute == Ci.nsMsgSearchAttrib.ToOrCC) {
               if (this.internalOperator == Ci.nsMsgSearchOp.IsntInAB ||
                   this.internalOperator == Ci.nsMsgSearchOp.IsInAB) {
                 searchValue.str = children[4].selectedItem.value;
               } else {
                 searchValue.str = children[0].value;
               }
-            } else if (searchAttribute == nsMsgSearchAttrib.Keywords) {
+            } else if (searchAttribute == Ci.nsMsgSearchAttrib.Keywords) {
               searchValue.str = children[5].value;
-            } else if (searchAttribute == nsMsgSearchAttrib.JunkStatus) {
+            } else if (searchAttribute == Ci.nsMsgSearchAttrib.JunkStatus) {
               searchValue.junkStatus = children[6].value;
-            } else if (searchAttribute == nsMsgSearchAttrib.JunkPercent) {
+            } else if (searchAttribute == Ci.nsMsgSearchAttrib.JunkPercent) {
               searchValue.junkPercent = children[9].value;
-            } else if (searchAttribute == nsMsgSearchAttrib.Size) {
+            } else if (searchAttribute == Ci.nsMsgSearchAttrib.Size) {
               searchValue.size = children[9].value;
-            } else if (searchAttribute == nsMsgSearchAttrib.HasAttachmentStatus) {
-              searchValue.status = 0x10000000;  // 0x10000000 is MSG_FLAG_ATTACHMENT;
-            } else if (searchAttribute == nsMsgSearchAttrib.JunkScoreOrigin) {
+            } else if (searchAttribute == Ci.nsMsgSearchAttrib.HasAttachmentStatus) {
+              searchValue.status = Ci.nsMsgMessageFlags.Attachment;
+            } else if (searchAttribute == Ci.nsMsgSearchAttrib.JunkScoreOrigin) {
               searchValue.str = children[8].value;
             } else if (isNaN(searchAttribute)) { // a custom term
-              searchValue.attrib = nsMsgSearchAttrib.Custom;
+              searchValue.attrib = Ci.nsMsgSearchAttrib.Custom;
               searchValue.str = children[10].getAttribute("value");
             } else {
               searchValue.str = children[0].value;
@@ -1796,9 +1793,8 @@
         // initialize the date picker
         var datePicker = document.getAnonymousNodes(this)[3];
         var searchAttribute = this.searchAttribute;
-        var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
         var time;
-        if (searchAttribute == nsMsgSearchAttrib.Date)
+        if (searchAttribute == Ci.nsMsgSearchAttrib.Date)
          time = datePicker.value;
         else
          time = new Date();
@@ -1823,7 +1819,7 @@
         this.initialize(document.getAnonymousNodes(this)[8], bundle);
 
         // initialize the tag list
-        fillInTags();
+        this.fillInTags();
       ]]>
       </constructor>
     </implementation>
