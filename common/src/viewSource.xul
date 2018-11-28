@@ -66,15 +66,12 @@
 #ifdef MOZ_SUITE
   <command id="cmd_highlightSyntax" oncommand="viewSourceChrome.toggleSyntaxHighlighting();"/>
   <command id="cmd_wrapLongLines" oncommand="viewSourceChrome.toggleWrapping();"/>
+  <command id="Browser:Back" oncommand="viewSourceChrome.goBack()" class="viewSourceNavigation"/>
+  <command id="Browser:Forward" oncommand="viewSourceChrome.goForward()" class="viewSourceNavigation"/>
 #endif
   <command id="cmd_textZoomReduce" oncommand="ZoomManager.reduce();"/>
   <command id="cmd_textZoomEnlarge" oncommand="ZoomManager.enlarge();"/>
   <command id="cmd_textZoomReset" oncommand="ZoomManager.reset();"/>
-
-  <command id="Browser:Back" oncommand="viewSourceChrome.goBack()" observes="viewSourceNavigation"/>
-  <command id="Browser:Forward" oncommand="viewSourceChrome.goForward()" observes="viewSourceNavigation"/>
-
-  <broadcaster id="viewSourceNavigation"/>
 
 #includesubst @TOOLKIT_DIR@/content/editMenuKeys.inc.xul
   <keyset id="viewSourceKeys">
@@ -133,6 +130,7 @@
   <tooltip id="aHTMLTooltip" page="true"/>
 
   <menupopup id="viewSourceContextMenu">
+#ifdef MOZ_SUITE
     <menuitem id="context-back"
               label="&backCmd.label;"
               accesskey="&backCmd.accesskey;"
@@ -144,6 +142,7 @@
               command="Browser:Forward"
               observes="viewSourceNavigation"/>
     <menuseparator observes="viewSourceNavigation"/>
+#endif
     <menuitem id="cMenu_findAgain"
               label="&findAgainCmd.label;"
               accesskey="&findAgainCmd.accesskey;"

@@ -293,11 +293,10 @@ ViewSourceChrome.prototype = {
 
     if (!this.historyEnabled) {
       // Disable the BACK and FORWARD commands and hide the related menu items.
-      let viewSourceNavigation = document.getElementById("viewSourceNavigation");
-      if (viewSourceNavigation) {
-        viewSourceNavigation.setAttribute("disabled", "true");
-        viewSourceNavigation.setAttribute("hidden", "true");
-      }
+      document.querySelectorAll(".viewSourceNavigation").forEach(e => {
+        e.setAttribute("disabled", "true");
+        e.setAttribute("hidden", "true");
+      });
     }
 
     // We require the first argument to do any loading of source.
@@ -570,21 +569,21 @@ ViewSourceChrome.prototype = {
   },
 
   /**
-   * Updates any commands that are dependant on command broadcasters.
+   * Updates any applicable commands.
    */
   updateCommands() {
-    let backBroadcaster = document.getElementById("Browser:Back");
-    let forwardBroadcaster = document.getElementById("Browser:Forward");
+    let backCommand = document.getElementById("Browser:Back");
+    let forwardCommand = document.getElementById("Browser:Forward");
 
     if (this.webNav.canGoBack) {
-      backBroadcaster.removeAttribute("disabled");
+      backCommand.removeAttribute("disabled");
     } else {
-      backBroadcaster.setAttribute("disabled", "true");
+      backCommand.setAttribute("disabled", "true");
     }
     if (this.webNav.canGoForward) {
-      forwardBroadcaster.removeAttribute("disabled");
+      forwardCommand.removeAttribute("disabled");
     } else {
-      forwardBroadcaster.setAttribute("disabled", "true");
+      forwardCommand.setAttribute("disabled", "true");
     }
   },
 
