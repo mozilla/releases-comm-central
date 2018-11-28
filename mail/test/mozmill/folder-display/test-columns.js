@@ -366,6 +366,7 @@ function invoke_column_picker_option(aActions) {
  * The column picker's "reset columns to default" option should set our state
  *  back to inbox state.
  */
+test_reset_to_inbox.__force_skip__ = true;
 function test_reset_to_inbox() {
   // create the source
   folderSource = create_folder("ColumnsApplySource");
@@ -405,6 +406,7 @@ function _apply_to_folder_common(aChildrenToo, folder) {
  * Change settings in a folder, apply them to another folder that also has
  *  children.  Make sure the folder changes but the children do not.
  */
+test_apply_to_folder_no_children.__force_skip__ = true;
 function test_apply_to_folder_no_children() {
   folderParent = create_folder("ColumnsApplyParent");
   folderParent.createSubfolder("Child1", null);
@@ -440,6 +442,7 @@ function test_apply_to_folder_no_children() {
  * Change settings in a folder, apply them to another folder and its children.
  *  Make sure the folder and its children change.
  */
+test_apply_to_folder_and_children.__force_skip__ = true;
 function test_apply_to_folder_and_children() {
   // no need to throttle ourselves during testing.
   MailUtils.INTER_FOLDER_PROCESSING_DELAY_MS = 0;
@@ -471,6 +474,7 @@ test_apply_to_folder_and_children.EXCLUDED_PLATFORMS = ['linux'];  // See bug 14
  * Change settings in an incoming folder, apply them to an outgoing folder that
  * also has children. Make sure the folder changes but the children do not.
  */
+test_apply_to_folder_no_children_swapped.__force_skip__ = true;
 function test_apply_to_folder_no_children_swapped() {
   folderParent = create_folder("ColumnsApplyParentOutgoing");
   folderParent.setFlag(Ci.nsMsgFolderFlags.SentMail);
@@ -518,6 +522,7 @@ test_apply_to_folder_no_children_swapped.EXCLUDED_PLATFORMS = ['linux'];  // See
  * Change settings in an incoming folder, apply them to an outgoing folder and
  * its children. Make sure the folder and its children change.
  */
+test_apply_to_folder_and_children_swapped.__force_skip__ = true;
 function test_apply_to_folder_and_children_swapped() {
   // No need to throttle ourselves during testing.
   MailUtils.INTER_FOLDER_PROCESSING_DELAY_MS = 0;
@@ -605,6 +610,7 @@ function test_persist_columns_gloda_collection() {
   assert_visible_columns(glodaColumns);
 }
 
+test_reset_columns_gloda_collection.__force_skip__ = true;
 function test_reset_columns_gloda_collection() {
   let fakeCollection = new FakeCollection();
   mc.tabmail.openTab("glodaList", { collection: fakeCollection });

@@ -68,6 +68,7 @@ function test_right_click_with_nothing_selected() {
 /**
  * Test that clicking on the column header shows the column picker.
  */
+test_right_click_column_header_shows_col_picker.__force_skip__ = true;
 function test_right_click_column_header_shows_col_picker() {
   be_in_folder(folder);
 
