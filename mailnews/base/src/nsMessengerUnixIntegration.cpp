@@ -607,12 +607,12 @@ nsresult nsMessengerUnixIntegration::GetFirstFolderWithNewMail(nsACString& aFold
       if (NS_FAILED(rv))
         continue;
 
-      // Skip check for new mail if folder is Virtual or SpecialUse but not Inbox
-      // or SentMail. Note: SpecialUse includes Inbox and SentMail as well as
+      // Skip check for new mail if folder is Virtual or SpecialUse but not Inbox.
+      // Note: SpecialUse includes Inbox and SentMail as well as
       // Drafts, Trash, Junk, Archive Templates and Queue. A notification of new
       // mail will not be produced for folders that are skipped.
       if (flags & ((nsMsgFolderFlags::SpecialUse | nsMsgFolderFlags::Virtual) &
-          ~(nsMsgFolderFlags::Inbox | nsMsgFolderFlags::SentMail)))
+                   ~nsMsgFolderFlags::Inbox))
         continue;
 
       nsCString folderURI;
