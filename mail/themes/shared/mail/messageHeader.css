@@ -97,6 +97,10 @@ toolbarpaletteitem #hdrDummyReplyButton {
   display: -moz-box !important;
 }
 
+.headerValue {
+  overflow-wrap: anywhere;
+}
+
 .headerValue[containsEmail="true"] {
   margin-inline-start: 0px !important;
 }

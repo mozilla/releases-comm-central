@@ -261,7 +261,7 @@ toolbar[mode="icons"] > #otherActionsButton > .toolbarbutton-menu-dropmarker {
   color: -moz-activehyperlinktext;
 }
 
-mail-headerfield > .headerValue:focus {
+mail-headerfield.headerValue:focus {
   outline-color: Highlight;
 }
 

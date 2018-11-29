@@ -162,7 +162,7 @@ window[inlinetoolbox] #newtoolbar {
   color: -moz-activehyperlinktext;
 }
 
-mail-headerfield > .headerValue:focus {
+mail-headerfield.headerValue:focus {
   outline-color: Highlight;
 }
 
