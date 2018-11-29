@@ -420,7 +420,7 @@ var EmailAccountProvisioner = {
       let searchEngineCheck = document.getElementById("search_engine_check");
       if (window.arguments[0].search_engine && searchEngineCheck.checked) {
         let engine = Services.search.getEngineByName(window.arguments[0].search_engine);
-        Services.search.currentEngine = engine;
+        Services.search.defaultEngine = engine;
       }
     });
 

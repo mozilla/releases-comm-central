@@ -184,12 +184,12 @@ var gGeneralPane = {
             "image", engine.iconURI ? engine.iconURI.spec :
                      "resource://gre-resources/broken-image.png"
           );
-          if (engine == Services.search.currentEngine)
+          if (engine == Services.search.defaultEngine)
             engineList.selectedItem = item;
         }
 
         engineList.addEventListener("command", function() {
-          Services.search.currentEngine = engineList.selectedItem.engine;
+          Services.search.defaultEngine = engineList.selectedItem.engine;
         });
       },
     });

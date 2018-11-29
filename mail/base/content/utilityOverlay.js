@@ -199,7 +199,7 @@ function openWebSearch(query, engine) {
   Services.search.init({
     onInitComplete() {
       if (!engine)
-        engine = Services.search.currentEngine;
+        engine = Services.search.defaultEngine;
       openLinkExternally(engine.getSubmission(query).uri.spec);
     },
   });

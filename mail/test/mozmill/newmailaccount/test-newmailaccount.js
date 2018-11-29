@@ -98,7 +98,7 @@ function nAccounts() {
  *                         in the form. Defaults to false.
  */
 function test_get_an_account(aCloseAndRestore) {
-  let originalEngine = Services.search.currentEngine;
+  let originalEngine = Services.search.defaultEngine;
   // Open the provisioner - once opened, let subtest_get_an_account run.
   plan_for_modal_dialog("AccountCreation", subtest_get_an_account);
   open_provisioner_window();
@@ -146,10 +146,10 @@ function test_get_an_account(aCloseAndRestore) {
 
   // Make sure we set the default search engine
   let engine = Services.search.getEngineByName("bar");
-  assert_equals(engine, Services.search.currentEngine);
+  assert_equals(engine, Services.search.defaultEngine);
 
   // Restore the original search engine.
-  Services.search.currentEngine = originalEngine;
+  Services.search.defaultEngine = originalEngine;
   remove_email_account("green@example.com");
 }
 
@@ -160,7 +160,7 @@ function test_get_an_account(aCloseAndRestore) {
 function subtest_get_an_account(w) {
   // Make sure we don't have bar as the default engine yet.
   let engine = Services.search.getEngineByName("bar");
-  assert_not_equals(engine, Services.search.currentEngine);
+  assert_not_equals(engine, Services.search.defaultEngine);
 
   wait_for_provider_list_loaded(w);
   wait_for_search_ready(w);

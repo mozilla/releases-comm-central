@@ -201,7 +201,7 @@ nsContextMenu.prototype = {
       }
 
       searchTheWeb.label = bundle.getFormattedString(key, [
-        Services.search.currentEngine.name, abbrSelection,
+        Services.search.defaultEngine.name, abbrSelection,
       ]);
       searchTheWeb.value = selection;
     }
