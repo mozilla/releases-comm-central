@@ -91,7 +91,10 @@ function get_accept_button(aController) {
  * @param aURL the expected URL for the IFrame to load.
  */
 function wait_for_settings_loaded(aController, aURL) {
-  wait_for_frame_load(aController.e('accountSettings'), aURL);
+  // Mozmill chokes horribly here, so don't look directly into the iframe.
+  aController.waitFor(() => {
+    return aController.e("accountType").nextElementSibling.src == aURL;
+  });
 }
 
 /**
@@ -177,7 +180,6 @@ function subtest_lone_provider_auto_selected(aController) {
  * Test that if a provider has a settings form, that the 'Set up Account'
  * button does not become enabled until the form passes validation.
  */
-test_accept_enabled_on_form_validation.__force_skip__ = true;
 function test_accept_enabled_on_form_validation() {
   // settings-with-form.xhtml has a form with a single text input. The form
   // requires that there be something in the text input before it passes
