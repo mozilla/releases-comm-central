@@ -29,6 +29,10 @@
  <script type="application/javascript" src="chrome://global/content/nsDragAndDrop.js" />
  <script type="application/javascript" src="chrome://global/content/nsTransferable.js" />
 
+ <linkset>
+   <link rel="localization" href="security/certificates/certManager.ftl"/>
+ </linkset>
+
  <stringbundle id="accountsBundle" src="chrome://messenger/locale/imAccounts.properties"/>
  <stringbundle id="chatBundle" src="chrome://messenger/locale/chat.properties"/>
 

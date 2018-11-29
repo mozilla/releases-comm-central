@@ -17,8 +17,6 @@
     %feedDTD;
   <!ENTITY % newsblogDTD SYSTEM "chrome://messenger-newsblog/locale/am-newsblog.dtd">
     %newsblogDTD;
-  <!ENTITY % certDTD SYSTEM "chrome://pippki/locale/certManager.dtd">
-    %certDTD;
 ]>
 
 <window id="subscriptionsDialog"
@@ -39,6 +37,10 @@
           src="chrome://messenger/content/specialTabs.js"/>
   <script type="application/javascript"
           src="chrome://messenger-newsblog/content/feed-subscriptions.js"/>
+
+  <linkset>
+    <link rel="localization" href="security/certificates/certManager.ftl"/>
+  </linkset>
 
   <keyset id="extensionsKeys">
     <key id="key_close"
@@ -235,8 +237,7 @@
              onclick="FeedSubscriptions.checkValidation(event);"/>
       <button id="addCertException"
               collapsed="true"
-              label="&certmgr.addException.label;"
-              accesskey="&certmgr.addException.accesskey;"
+              data-l10n-id="certmgr-add-exception"
               oncommand="FeedSubscriptions.addCertExceptionDialog();"/>
       <html:progress id="progressMeter"
                      hidden="hidden"

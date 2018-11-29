@@ -6,9 +6,7 @@
 
 <!DOCTYPE bindings [
   <!ENTITY % accountsDTD SYSTEM "chrome://chat/locale/accounts.dtd">
-  <!ENTITY % certManagerDTD SYSTEM "chrome://pippki/locale/certManager.dtd">
   %accountsDTD;
-  %certManagerDTD;
 ]>
 
 <bindings id="accountBindings"
@@ -37,8 +35,7 @@
             <xul:description class="error" anonid="reconnect"/>
             <xul:label class="addException text-link"
                        onclick="gAccountManager.addException()"
-                       value="&certmgr.addException.label;"
-                       accesskey="&certmgr.addException.accesskey;"/>
+                       data-l10n-id="certmgr-add-exception"/>
             <xul:spacer flex="1"/>
           </xul:vbox>
           <xul:checkbox label="&account.autoSignOn.label;" dir="reverse"
