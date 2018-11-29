@@ -13,10 +13,8 @@ ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/L10nRegistry.jsm");
 ChromeUtils.import("resource://gre/modules/Localization.jsm");
-
-XPCOMUtils.defineLazyServiceGetters(this, {
-  gAUS: ["@mozilla.org/updates/update-service;1", "nsIApplicationUpdateService"],
-});
+ChromeUtils.defineModuleGetter(this, "UpdateUtils",
+  "resource://gre/modules/UpdateUtils.jsm");
 
 const AUTO_UPDATE_CHANGED_TOPIC = "auto-update-config-change";
 
@@ -322,7 +320,7 @@ var gAdvancedPane = {
       let radiogroup = document.getElementById("updateRadioGroup");
       radiogroup.disabled = true;
       try {
-        let enabled = await gAUS.getAutoUpdateIsEnabled();
+        let enabled = await UpdateUtils.getAppUpdateAutoEnabled();
         radiogroup.value = enabled;
         radiogroup.disabled = false;
       } catch (error) {
@@ -341,7 +339,7 @@ var gAdvancedPane = {
       let updateAutoValue = (radiogroup.value == "true");
       radiogroup.disabled = true;
       try {
-        await gAUS.setAutoUpdateIsEnabled(updateAutoValue);
+        await UpdateUtils.setAppUpdateAutoEnabled(updateAutoValue);
         radiogroup.disabled = false;
       } catch (error) {
         Cu.reportError(error);

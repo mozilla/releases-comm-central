@@ -9,6 +9,9 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
 
+ChromeUtils.defineModuleGetter(this, "UpdateUtils",
+                               "resource://gre/modules/UpdateUtils.jsm");
+
 const PREF_APP_UPDATE_CANCELATIONS_OSX = "app.update.cancelations.osx";
 const PREF_APP_UPDATE_ELEVATE_NEVER    = "app.update.elevate.never";
 
@@ -23,17 +26,7 @@ function onUnload(aEvent) {
 }
 
 
-function appUpdater() {
-  this.updateDeck = document.getElementById("updateDeck");
-  // nonsensical line still present in M-C: this.promiseAutoUpdateSetting;
-
-  // Hide the update deck when there is already an update window open to avoid
-  // syncing issues between them.
-  if (Services.wm.getMostRecentWindow("Update:Wizard")) {
-    this.updateDeck.hidden = true;
-    return;
-  }
-
+function appUpdater(options = {}) {
   XPCOMUtils.defineLazyServiceGetter(this, "aus",
                                      "@mozilla.org/updates/update-service;1",
                                      "nsIApplicationUpdateService");
@@ -43,6 +36,20 @@ function appUpdater() {
   XPCOMUtils.defineLazyServiceGetter(this, "um",
                                      "@mozilla.org/updates/update-manager;1",
                                      "nsIUpdateManager");
+
+  this.options = options;
+  this.updateDeck = document.getElementById("updateDeck");
+  this.promiseAutoUpdateSetting = null;
+
+  // Hide the update deck when the update window is already open and it's not
+  // already applied, to avoid syncing issues between them. Applied updates
+  // don't have any information to sync between the windows as they both just
+  // show the "Restart to continue"-type button.
+  if (Services.wm.getMostRecentWindow("Update:Wizard") &&
+      !this.isApplied) {
+    this.updateDeck.hidden = true;
+    return;
+  }
 
   this.bundle = Services.strings.
                 createBundle("chrome://messenger/locale/messenger.properties");
@@ -75,7 +82,7 @@ function appUpdater() {
   }
 
   // We might need this value later, so start loading it from the disk now.
-  this.promiseAutoUpdateSetting = this.aus.getAutoUpdateIsEnabled();
+  this.promiseAutoUpdateSetting = UpdateUtils.getAppUpdateAutoEnabled();
 
   // That leaves the options
   // "Check for updates, but let me choose whether to install them", and
@@ -104,10 +111,9 @@ appUpdater.prototype = {
 
   // true when there is an update already installed in the background.
   get isApplied() {
-    if (this.update) {
+    if (this.update)
       return this.update.state == "applied" ||
              this.update.state == "applied-service";
-    }
     return this.um.activeUpdate &&
            (this.um.activeUpdate.state == "applied" ||
             this.um.activeUpdate.state == "applied-service");
@@ -121,10 +127,9 @@ appUpdater.prototype = {
            this.um.activeUpdate.state == "downloading";
   },
 
-  // true when updating has been disabled by enterprise policy. Not yet used.
+  // true when updating has been disabled by enterprise policy
   get updateDisabledByPolicy() {
-    return Services.policies &&
-           !Services.policies.isAllowed("appUpdate");
+    return Services.policies && !Services.policies.isAllowed("appUpdate");
   },
 
   // true when updating in background is enabled.
@@ -146,7 +151,7 @@ appUpdater.prototype = {
     if (button) {
       if (aChildID == "downloadAndInstall") {
         let updateVersion = gAppUpdater.update.displayVersion;
-        // Include the build ID if this is an "a#" (nightly) build
+        // Include the build ID if this is an "a#" (nightly or aurora) build
         if (/a\d+$/.test(updateVersion)) {
           let buildID = gAppUpdater.update.buildID;
           let year = buildID.slice(0, 4);
@@ -158,10 +163,11 @@ appUpdater.prototype = {
         button.accessKey = this.bundle.GetStringFromName("update.downloadAndInstallButton.accesskey");
       }
       this.updateDeck.selectedPanel = panel;
-      if (!document.commandDispatcher.focusedElement || // don't steal the focus
-          document.commandDispatcher.focusedElement.localName == "button") // except from the other buttons
+      if (this.options.buttonAutoFocus &&
+          (!document.commandDispatcher.focusedElement || // don't steal the focus
+           document.commandDispatcher.focusedElement.localName == "button")) { // except from the other buttons
         button.focus();
-
+      }
     } else {
       this.updateDeck.selectedPanel = panel;
     }
@@ -193,6 +199,8 @@ appUpdater.prototype = {
       return;
     }
 
+    gAppUpdater.selectPanel("restarting");
+
     // Notify all windows that an application quit has been requested.
     let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].
                      createInstance(Ci.nsISupportsPRBool);
@@ -200,16 +208,18 @@ appUpdater.prototype = {
 
     // Something aborted the quit process.
     if (cancelQuit.data) {
+      gAppUpdater.selectPanel("apply");
       return;
     }
 
     // If already in safe mode restart in safe mode (bug 327119)
     if (Services.appinfo.inSafeMode) {
-      Services.startup.restartInSafeMode(Services.startup.eAttemptQuit);
+      Services.startup.restartInSafeMode(Ci.nsIAppStartup.eAttemptQuit);
       return;
     }
 
-    Services.startup.quit(Services.startup.eAttemptQuit | Services.startup.eRestart);
+    Services.startup.quit(Ci.nsIAppStartup.eAttemptQuit |
+                          Ci.nsIAppStartup.eRestart);
   },
 
   /**
@@ -247,7 +257,7 @@ appUpdater.prototype = {
       }
 
       if (!gAppUpdater.promiseAutoUpdateSetting) {
-        gAppUpdater.promiseAutoUpdateSetting = gAppUpdater.aus.getAutoUpdateIsEnabled();
+        gAppUpdater.promiseAutoUpdateSetting = UpdateUtils.getAppUpdateAutoEnabled();
       }
       gAppUpdater.promiseAutoUpdateSetting.then(updateAuto => {
         if (updateAuto) { // automatically download and install
@@ -342,7 +352,7 @@ appUpdater.prototype = {
       if (this.backgroundUpdateEnabled) {
         this.selectPanel("applying");
         let self = this;
-        Services.obs.addObserver(function selectPanelOnUpdate(aSubject, aTopic, aData) {
+        Services.obs.addObserver(function observer(aSubject, aTopic, aData) {
           // Update the UI when the background updater is finished
           let status = aData;
           if (status == "applied" || status == "applied-service" ||
@@ -363,7 +373,7 @@ appUpdater.prototype = {
             self.setupDownloadingUI();
             return;
           }
-          Services.obs.removeObserver(selectPanelOnUpdate, "update-staged");
+          Services.obs.removeObserver(observer, "update-staged");
         }, "update-staged");
       } else {
         this.selectPanel("apply");
@@ -393,6 +403,5 @@ appUpdater.prototype = {
   /**
    * See nsISupports.idl
    */
-  QueryInterface: ChromeUtils.generateQI(["nsIProgressEventSink",
-                                          "nsIRequestObserver"]),
+  QueryInterface: ChromeUtils.generateQI(["nsIProgressEventSink", "nsIRequestObserver"]),
 };

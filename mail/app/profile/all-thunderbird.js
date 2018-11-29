@@ -78,9 +78,8 @@ pref("app.update.certs.2.commonName", "aus5.mozilla.org");
 // user can apply updates. This pref is no longer used on Windows, except as the
 // default value to migrate to the new location that this data is now stored
 // (which is in a file in the update directory). Because of this, this pref
-// should no longer be used directly. Instead,
-// nsIUpdateService::getAutoUpdateIsEnabled and
-// nsIUpdateService::setAutoUpdateIsEnabled should be used.
+// should no longer be used directly. Instead, getAppUpdateAutoEnabled and
+// getAppUpdateAutoEnabled from UpdateUtils.jsm should be used.
 #ifndef XP_WIN
  pref("app.update.auto", true);
 #endif
