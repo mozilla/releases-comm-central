@@ -8,7 +8,7 @@
 }
 
 #tabs-toolbar:-moz-lwtheme {
-  --tabline-color: var(--tab-line-color, var(--lwt-accent-color));
+  --tabline-color: var(--tab-line-color, currentColor);
 }
 
 #tabs-toolbar {
