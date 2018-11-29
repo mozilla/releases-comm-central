@@ -17,4 +17,3 @@ job-template:
     shipping-phase: promote
     attributes:
         artifact_map: taskcluster/taskgraph/manifests/source_files.yml
-
