@@ -108,6 +108,7 @@ function test_buttons_collapse_and_expand() {
   logState("giant again!");
   assertExpanded();
 }
+test_buttons_collapse_and_expand.EXCLUDED_PLATFORMS = ["linux"];
 
 function test_buttons_collapse_and_expand_on_spawn_in_vertical_mode() {
   // Assume we're in classic layout to start - since this is where we'll
