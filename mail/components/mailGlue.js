@@ -106,6 +106,10 @@ MailGlue.prototype = {
   // nsIObserver implementation
   observe(aSubject, aTopic, aData) {
     switch (aTopic) {
+    case "app-startup":
+      ChromeUtils.import("resource:///modules/BootstrapLoader.jsm");
+      AddonManager.addExternalExtensionLoader(BootstrapLoader);
+      break;
     case "xpcom-shutdown":
       this._dispose();
       break;
