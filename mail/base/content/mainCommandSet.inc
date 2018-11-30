@@ -89,12 +89,16 @@
               oncommandupdate="goUpdateMailMenuItems(this)">
 
     <command id="cmd_undo"
+           oncommand="goDoCommand('cmd_undo')"
+           disabled="true"
            valueDeleteMsg="&undoDeleteMsgCmd.label;"
            valueMoveMsg="&undoMoveMsgCmd.label;"
            valueCopyMsg="&undoCopyMsgCmd.label;"
            valueUnmarkAllMsgs="&undoMarkAllCmd.label;"
            valueDefault="&undoDefaultCmd.label;"/>
     <command id="cmd_redo"
+           oncommand="goDoCommand('cmd_redo')"
+           disabled="true"
            valueDeleteMsg="&redoDeleteMsgCmd.label;"
            valueMoveMsg="&redoMoveMsgCmd.label;"
            valueCopyMsg="&redoCopyMsgCmd.label;"
