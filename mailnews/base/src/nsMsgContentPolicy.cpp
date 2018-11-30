@@ -189,10 +189,8 @@ nsMsgContentPolicy::ShouldLoad(nsIURI           *aContentLocation,
                                  getter_AddRefs(rootDocShell));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  uint32_t appType;
-  rv = rootDocShell->GetAppType(&appType);
   // We only want to deal with mailnews
-  if (NS_FAILED(rv) || appType != nsIDocShell::APP_TYPE_MAIL)
+  if (rootDocShell->GetAppType() != nsIDocShell::APP_TYPE_MAIL)
     return NS_OK;
 #endif
 
