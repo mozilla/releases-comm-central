@@ -89,7 +89,7 @@ var SecurityController =
         {
           let enabled = {value: false};
           let checkStatus = {};
-          gDBView.getCommandStatus(nsMsgViewCommandType.cmdRequiringMsgBody,
+          gDBView.getCommandStatus(Ci.nsMsgViewCommandType.cmdRequiringMsgBody,
                                    enabled, checkStatus);
           return enabled.value;
         }
