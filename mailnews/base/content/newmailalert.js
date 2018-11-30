@@ -56,12 +56,20 @@ function prefillAlertInfo()
   folderSummaryInfoEl.mMaxMsgHdrsInPopup = gNumNewMsgsToShowInAlert;
   for (let folder of fixIterator(allFolders, Ci.nsIMsgFolder))
   {
-    if (folder.hasNewMessages && !folder.getFlag(Ci.nsMsgFolderFlags.Virtual))
-    {
-      var asyncFetch = {};
-      folderSummaryInfoEl.parseFolder(folder, new urlListener(folder), asyncFetch);
-      if (asyncFetch.value)
-        gPendingPreviewFetchRequests++;
+    if (folder.hasNewMessages) {
+      let notify =
+        // Any folder which is an inbox or ...
+        folder.getFlag(Ci.nsMsgFolderFlags.Inbox) ||
+        // any non-special or non-virtual folder. In other words, we don't
+        // notify for Drafts|Trash|SentMail|Templates|Junk|Archive|Queue or virtual.
+        !(folder.flags & (Ci.nsMsgFolderFlags.SpecialUse | Ci.nsMsgFolderFlags.Virtual));
+
+      if (notify) {
+        var asyncFetch = {};
+        folderSummaryInfoEl.parseFolder(folder, new urlListener(folder), asyncFetch);
+        if (asyncFetch.value)
+          gPendingPreviewFetchRequests++;
+      }
     }
   }
 }

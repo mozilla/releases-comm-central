@@ -607,10 +607,14 @@ nsresult nsMessengerUnixIntegration::GetFirstFolderWithNewMail(nsACString& aFold
       if (NS_FAILED(rv))
         continue;
 
-      // Unless we're dealing with an Inbox, we don't care
-      // about Drafts, Queue, SentMail, Template, or Junk folders
-      if (!(flags & nsMsgFolderFlags::Inbox) &&
-           (flags & (nsMsgFolderFlags::SpecialUse & ~nsMsgFolderFlags::Inbox)))
+      bool notify =
+        // Any folder which is an inbox or ...
+        flags & nsMsgFolderFlags::Inbox ||
+        // any non-special or non-virtual folder. In other words, we don't
+        // notify for Drafts|Trash|SentMail|Templates|Junk|Archive|Queue or virtual.
+        !(flags & (nsMsgFolderFlags::SpecialUse | nsMsgFolderFlags::Virtual));
+
+      if (!notify)
         continue;
 
       nsCString folderURI;
