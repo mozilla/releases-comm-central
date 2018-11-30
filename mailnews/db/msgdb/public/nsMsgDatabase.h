@@ -178,7 +178,7 @@ public:
   // nsMsgDatabase methods:
   nsMsgDatabase();
 
-  void GetMDBFactory(nsIMdbFactory ** aMdbFactory);
+  nsresult GetMDBFactory(nsIMdbFactory ** aMdbFactory);
   nsIMdbEnv             *GetEnv() {return m_mdbEnv;}
   nsIMdbStore           *GetStore() {return m_mdbStore;}
   virtual uint32_t      GetCurVersion();

@@ -271,16 +271,21 @@ void nsAddrDatabase::RemoveFromCache(nsAddrDatabase* pAddrDB)
     m_dbCache->RemoveElement(pAddrDB);
 }
 
-void nsAddrDatabase::GetMDBFactory(nsIMdbFactory ** aMdbFactory)
+nsresult nsAddrDatabase::GetMDBFactory(nsIMdbFactory ** aMdbFactory)
 {
   if (!mMdbFactory)
   {
     nsresult rv;
     nsCOMPtr <nsIMdbFactoryService> mdbFactoryService = do_GetService(NS_MORK_CONTRACTID, &rv);
-    if (NS_SUCCEEDED(rv) && mdbFactoryService)
+    if (NS_SUCCEEDED(rv) && mdbFactoryService) {
       rv = mdbFactoryService->GetMdbFactory(getter_AddRefs(mMdbFactory));
+      NS_ENSURE_SUCCESS(rv, rv);
+      if (!mMdbFactory)
+        return NS_ERROR_FAILURE;
+    }
   }
-  NS_IF_ADDREF(*aMdbFactory = mMdbFactory);
+  NS_ADDREF(*aMdbFactory = mMdbFactory);
+  return NS_OK;
 }
 
 /* caller need to delete *aDbPath */
@@ -466,10 +471,9 @@ nsAddrDatabase::OpenInternal(nsIFile *aMabFile, bool aCreate, nsIAddrDatabase** 
 // so other database calls can work.
 NS_IMETHODIMP nsAddrDatabase::OpenMDB(nsIFile *dbName, bool create)
 {
-  nsresult ret;
   nsCOMPtr<nsIMdbFactory> mdbFactory;
-  GetMDBFactory(getter_AddRefs(mdbFactory));
-  NS_ENSURE_TRUE(mdbFactory, NS_ERROR_FAILURE);
+  nsresult ret = GetMDBFactory(getter_AddRefs(mdbFactory));
+  NS_ENSURE_SUCCESS(ret, ret);
 
   ret = mdbFactory->MakeEnv(NULL, &m_mdbEnv);
   if (NS_SUCCEEDED(ret))

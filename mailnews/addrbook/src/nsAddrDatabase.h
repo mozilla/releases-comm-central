@@ -248,7 +248,7 @@ public:
 
   nsAddrDatabase();
 
-  void GetMDBFactory(nsIMdbFactory ** aMdbFactory);
+  nsresult GetMDBFactory(nsIMdbFactory ** aMdbFactory);
   nsIMdbEnv    *GetEnv() {return m_mdbEnv;}
   uint32_t    GetCurVersion();
   nsIMdbTableRowCursor *GetTableRowCursor();

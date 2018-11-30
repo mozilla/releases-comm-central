@@ -40,16 +40,21 @@ nsMsgFolderCache::~nsMsgFolderCache()
 
 NS_IMPL_ISUPPORTS(nsMsgFolderCache, nsIMsgFolderCache)
 
-void nsMsgFolderCache::GetMDBFactory(nsIMdbFactory ** aMdbFactory)
+nsresult nsMsgFolderCache::GetMDBFactory(nsIMdbFactory ** aMdbFactory)
 {
   if (!mMdbFactory)
   {
     nsresult rv;
     nsCOMPtr <nsIMdbFactoryService> mdbFactoryService = do_GetService(NS_MORK_CONTRACTID, &rv);
-    if (NS_SUCCEEDED(rv) && mdbFactoryService)
+    if (NS_SUCCEEDED(rv) && mdbFactoryService) {
       rv = mdbFactoryService->GetMdbFactory(getter_AddRefs(mMdbFactory));
+      NS_ENSURE_SUCCESS(rv, rv);
+      if (!mMdbFactory)
+        return NS_ERROR_FAILURE;
+    }
   }
-  NS_IF_ADDREF(*aMdbFactory = mMdbFactory);
+  NS_ADDREF(*aMdbFactory = mMdbFactory);
+  return NS_OK;
 }
 
 // initialize the various tokens and tables in our db's env
@@ -128,103 +133,102 @@ nsresult nsMsgFolderCache::InitExistingDB()
 
 nsresult nsMsgFolderCache::OpenMDB(const PathString& dbName, bool exists)
 {
-  nsresult ret=NS_OK;
   nsCOMPtr<nsIMdbFactory> mdbFactory;
-  GetMDBFactory(getter_AddRefs(mdbFactory));
-  if (mdbFactory)
+  nsresult ret = GetMDBFactory(getter_AddRefs(mdbFactory));
+  NS_ENSURE_SUCCESS(ret, ret);
+
+  ret = mdbFactory->MakeEnv(nullptr, &m_mdbEnv);
+  if (NS_SUCCEEDED(ret))
   {
-    ret = mdbFactory->MakeEnv(nullptr, &m_mdbEnv);
-    if (NS_SUCCEEDED(ret))
+    nsIMdbThumb *thumb = nullptr;
+    nsIMdbHeap* dbHeap = nullptr;
+
+    if (m_mdbEnv)
+      m_mdbEnv->SetAutoClear(true);
+    if (exists)
     {
-      nsIMdbThumb *thumb = nullptr;
-      nsIMdbHeap* dbHeap = nullptr;
+      mdbOpenPolicy inOpenPolicy;
+      mdb_bool canOpen;
+      mdbYarn outFormatVersion;
 
-      if (m_mdbEnv)
-        m_mdbEnv->SetAutoClear(true);
-      if (exists)
+      nsIMdbFile* oldFile = nullptr;
+      ret = mdbFactory->OpenOldFile(m_mdbEnv, dbHeap, dbName.get(),
+                                    mdbBool_kFalse, // not readonly, we want modifiable
+                                    &oldFile);
+      if ( oldFile )
       {
-        mdbOpenPolicy inOpenPolicy;
-        mdb_bool canOpen;
-        mdbYarn outFormatVersion;
-
-        nsIMdbFile* oldFile = nullptr;
-        ret = mdbFactory->OpenOldFile(m_mdbEnv, dbHeap, dbName.get(),
-                                      mdbBool_kFalse, // not readonly, we want modifiable
-                                      &oldFile);
-        if ( oldFile )
+        if (NS_SUCCEEDED(ret))
         {
-          if (NS_SUCCEEDED(ret))
+          ret = mdbFactory->CanOpenFilePort(m_mdbEnv, oldFile, // file to investigate
+            &canOpen, &outFormatVersion);
+          if (NS_SUCCEEDED(ret) && canOpen)
           {
-            ret = mdbFactory->CanOpenFilePort(m_mdbEnv, oldFile, // file to investigate
-              &canOpen, &outFormatVersion);
-            if (NS_SUCCEEDED(ret) && canOpen)
-            {
-              inOpenPolicy.mOpenPolicy_ScopePlan.mScopeStringSet_Count = 0;
-              inOpenPolicy.mOpenPolicy_MinMemory = 0;
-              inOpenPolicy.mOpenPolicy_MaxLazy = 0;
-
-              ret = mdbFactory->OpenFileStore(m_mdbEnv, NULL, oldFile, &inOpenPolicy,
-                &thumb);
-            }
-            else
-              ret = NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE;
-          }
-          NS_RELEASE(oldFile); // always release our file ref, store has own
-        }
-      }
-      if (NS_SUCCEEDED(ret) && thumb)
-      {
-        mdb_count outTotal;    // total somethings to do in operation
-        mdb_count outCurrent;  // subportion of total completed so far
-        mdb_bool outDone = false;      // is operation finished?
-        mdb_bool outBroken;     // is operation irreparably dead and broken?
-        do
-        {
-          ret = thumb->DoMore(m_mdbEnv, &outTotal, &outCurrent, &outDone, &outBroken);
-          if (NS_FAILED(ret))
-          {
-            outDone = true;
-            break;
-          }
-        }
-        while (NS_SUCCEEDED(ret) && !outBroken && !outDone);
-        // m_mdbEnv->ClearErrors(); // ### temporary...
-        if (NS_SUCCEEDED(ret) && outDone)
-        {
-          ret = mdbFactory->ThumbToOpenStore(m_mdbEnv, thumb, &m_mdbStore);
-          if (NS_SUCCEEDED(ret) && m_mdbStore)
-            ret = InitExistingDB();
-        }
-#ifdef DEBUG_bienvenu1
-        DumpContents();
-#endif
-      }
-      else // ### need error code saying why open file store failed
-      {
-        nsIMdbFile* newFile = 0;
-        ret = mdbFactory->CreateNewFile(m_mdbEnv, dbHeap, dbName.get(), &newFile);
-        if ( newFile )
-        {
-          if (NS_SUCCEEDED(ret))
-          {
-            mdbOpenPolicy inOpenPolicy;
-
             inOpenPolicy.mOpenPolicy_ScopePlan.mScopeStringSet_Count = 0;
             inOpenPolicy.mOpenPolicy_MinMemory = 0;
             inOpenPolicy.mOpenPolicy_MaxLazy = 0;
 
-            ret = mdbFactory->CreateNewFileStore(m_mdbEnv, dbHeap,
-              newFile, &inOpenPolicy, &m_mdbStore);
-            if (NS_SUCCEEDED(ret))
-              ret = InitNewDB();
+            ret = mdbFactory->OpenFileStore(m_mdbEnv, NULL, oldFile, &inOpenPolicy,
+              &thumb);
           }
-          NS_RELEASE(newFile); // always release our file ref, store has own
+          else
+            ret = NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE;
         }
-
+        NS_RELEASE(oldFile); // always release our file ref, store has own
       }
-      NS_IF_RELEASE(thumb);
     }
+    if (NS_SUCCEEDED(ret) && thumb)
+    {
+      mdb_count outTotal;    // total somethings to do in operation
+      mdb_count outCurrent;  // subportion of total completed so far
+      mdb_bool outDone = false;      // is operation finished?
+      mdb_bool outBroken;     // is operation irreparably dead and broken?
+      do
+      {
+        ret = thumb->DoMore(m_mdbEnv, &outTotal, &outCurrent, &outDone, &outBroken);
+        if (NS_FAILED(ret))
+        {
+          outDone = true;
+          break;
+        }
+      }
+      while (NS_SUCCEEDED(ret) && !outBroken && !outDone);
+      // m_mdbEnv->ClearErrors(); // ### temporary...
+      if (NS_SUCCEEDED(ret) && outDone)
+      {
+        ret = mdbFactory->ThumbToOpenStore(m_mdbEnv, thumb, &m_mdbStore);
+        if (NS_SUCCEEDED(ret) && m_mdbStore)
+          ret = InitExistingDB();
+      }
+#ifdef DEBUG_bienvenu1
+      DumpContents();
+#endif
+    }
+    else // ### need error code saying why open file store failed
+    {
+      nsIMdbFile* newFile = 0;
+      ret = mdbFactory->CreateNewFile(m_mdbEnv, dbHeap, dbName.get(), &newFile);
+      if ( newFile )
+      {
+        if (NS_SUCCEEDED(ret))
+        {
+          mdbOpenPolicy inOpenPolicy;
+
+          inOpenPolicy.mOpenPolicy_ScopePlan.mScopeStringSet_Count = 0;
+          inOpenPolicy.mOpenPolicy_MinMemory = 0;
+          inOpenPolicy.mOpenPolicy_MaxLazy = 0;
+
+          ret = mdbFactory->CreateNewFileStore(m_mdbEnv, dbHeap,
+            newFile, &inOpenPolicy, &m_mdbStore);
+          if (NS_SUCCEEDED(ret))
+            ret = InitNewDB();
+        }
+        NS_RELEASE(newFile); // always release our file ref, store has own
+      }
+
+    }
+    NS_IF_RELEASE(thumb);
   }
+
   return ret;
 }
 

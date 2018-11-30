@@ -28,7 +28,7 @@ public:
 protected:
   virtual ~nsMsgFolderCache();
 
-  void GetMDBFactory(nsIMdbFactory ** aMdbFactory);
+  nsresult GetMDBFactory(nsIMdbFactory ** aMdbFactory);
   nsresult AddCacheElement(const nsACString& key, nsIMdbRow *row, nsIMsgFolderCacheElement **result);
   nsresult RowCellColumnToCharPtr(nsIMdbRow *hdrRow, mdb_token columnToken, nsACString& resultPtr);
   nsresult InitMDBInfo();
