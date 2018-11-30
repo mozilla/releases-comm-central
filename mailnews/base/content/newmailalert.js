@@ -56,13 +56,7 @@ function prefillAlertInfo()
   folderSummaryInfoEl.mMaxMsgHdrsInPopup = gNumNewMsgsToShowInAlert;
   for (let folder of fixIterator(allFolders, Ci.nsIMsgFolder))
   {
-    // Enable new mail notification if folder has new messages and folder is not
-    // Virtual and not SpecialUse unless folder is Inbox. Note: SpecialUse
-    // includes Inbox and SentMail as well as Drafts, Trash, Junk, Archive, Templates
-    // and Queue.
-    if (folder.hasNewMessages &&
-        !folder.getFlag((Ci.nsMsgFolderFlags.SpecialUse | Ci.nsMsgFolderFlags.Virtual) &
-                        ~Ci.nsMsgFolderFlags.Inbox))
+    if (folder.hasNewMessages && !folder.getFlag(Ci.nsMsgFolderFlags.Virtual))
     {
       var asyncFetch = {};
       folderSummaryInfoEl.parseFolder(folder, new urlListener(folder), asyncFetch);
