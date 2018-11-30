@@ -573,12 +573,12 @@ var gAdvancedPane = {
     // Add an option to search for more languages if downloading is supported.
     if (Services.prefs.getBoolPref("intl.multilingual.downloadEnabled")) {
       let menuitem = document.createXULElement("menuitem");
-      menuitem.id = "defaultBrowserLanguageSearch";
+      menuitem.id = "defaultMessengerLanguageSearch";
       menuitem.setAttribute(
         "label", await document.l10n.formatValue("messenger-languages-search"));
       menuitem.setAttribute("value", "search");
       menuitem.addEventListener("command", () => {
-        gMainPane.showBrowserLanguages({search: true});
+        gAdvancedPane.showMessengerLanguages({search: true});
       });
       fragment.appendChild(menuitem);
     }
