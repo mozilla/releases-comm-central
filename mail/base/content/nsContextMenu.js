@@ -443,14 +443,7 @@ nsContextMenu.prototype = {
       if (aNode.localName == "treecol") {
         // The column header was clicked, show the column picker.
         let treecols = aNode.parentNode;
-        let nodeList = document.getAnonymousNodes(treecols);
-        let treeColPicker;
-        for (let i = 0; i < nodeList.length; i++) {
-          if (nodeList.item(i).localName == "treecolpicker") {
-            treeColPicker = nodeList.item(i);
-            break;
-          }
-        }
+        let treeColPicker = treecols.querySelector("treecolpicker");
         let popup = document.getAnonymousElementByAttribute(treeColPicker, "anonid", "popup");
         treeColPicker.buildPopup(popup);
         popup.openPopup(aNode, "before_start", 0, 0, true);

@@ -68,7 +68,6 @@ function test_right_click_with_nothing_selected() {
 /**
  * Test that clicking on the column header shows the column picker.
  */
-test_right_click_column_header_shows_col_picker.__force_skip__ = true;
 function test_right_click_column_header_shows_col_picker() {
   be_in_folder(folder);
 
@@ -78,7 +77,7 @@ function test_right_click_column_header_shows_col_picker() {
   //   |- hbox                item 0
   //   |- treecolpicker   <-- item 1 this is the one we want
   let threadCols = mc.window.document.getElementById("threadCols");
-  let treeColPicker = mc.window.document.getAnonymousNodes(threadCols).item(1);
+  let treeColPicker = threadCols.querySelector("treecolpicker");
   let popup = mc.window.document.getAnonymousElementByAttribute(
                 treeColPicker, "anonid", "popup");
 

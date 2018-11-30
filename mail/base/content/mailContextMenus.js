@@ -289,14 +289,7 @@ function fillFolderPaneContextMenu(aEvent) {
   // If a column header was clicked, show the column picker.
   if (target.localName == "treecol") {
     let treecols = target.parentNode;
-    let nodeList = document.getAnonymousNodes(treecols);
-    let treeColPicker = null;
-    for (let i = 0; i < nodeList.length; i++) {
-      if (nodeList.item(i).localName == "treecolpicker") {
-        treeColPicker = nodeList.item(i);
-        break;
-      }
-    }
+    let treeColPicker = treecols.querySelector("treecolpicker");
     if (treeColPicker) {
       let popup = document.getAnonymousElementByAttribute(treeColPicker, "anonid", "popup");
       treeColPicker.buildPopup(popup);

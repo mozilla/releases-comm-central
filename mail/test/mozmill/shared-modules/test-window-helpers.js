@@ -1767,7 +1767,7 @@ function augment_controller(aController, aWindowType) {
       //  treadCols
       //   |- hbox                item 0
       //   |- treecolpicker   <-- item 1 this is the one we want
-      let treeColPicker = doc.getAnonymousNodes(treecols).item(1);
+      let treeColPicker = treecols.querySelector("treecolpicker");
       let popup = doc.getAnonymousElementByAttribute(treeColPicker,
                                                      "anonid", "popup");
       popup.addEventListener("popupshowing", __popup_showing, true);
