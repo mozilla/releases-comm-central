@@ -76,8 +76,7 @@ function setupWizardPanels() {
           setPageData(pageData, "server", "hostname", "localhost");
           setPageData(pageData, "server", "port", "");
         } else if (pages == "rss") {
-          let accountName = Cc["@mozilla.org/intl/stringbundle;1"]
-                              .getService(Ci.nsIStringBundleService)
+          let accountName = Services.strings
                               .createBundle("chrome://messenger-newsblog/locale/newsblog.properties")
                               .GetStringFromName("feeds-accountname");
           SetCurrentAccountData({

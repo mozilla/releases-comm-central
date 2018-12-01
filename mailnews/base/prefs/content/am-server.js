@@ -433,10 +433,8 @@ function folderPickerChange(aEvent)
   // We need to convert that from MUTF-7 to Unicode.
   var manager = Cc['@mozilla.org/charset-converter-manager;1']
                   .getService(Ci.nsICharsetConverterManager);
-  var util = Cc["@mozilla.org/network/util;1"]
-               .getService(Ci.nsINetUtil);
   var trashUnicode = manager.mutf7ToUnicode(
-    util.unescapeString(folderPath, Ci.nsINetUtil.ESCAPE_URL_PATH));
+    Services.netUtils.unescapeString(folderPath, Ci.nsINetUtil.ESCAPE_URL_PATH));
 
   // Set the value to be persisted.
   document.getElementById("imap.trashFolderName")

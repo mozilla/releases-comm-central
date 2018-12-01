@@ -31,7 +31,7 @@ var gLocalTrashFolder;
 // storeIn takes a string containing the variable to store the new folder in
 function addFolder(parent, folderName, storeIn)
 {
-  gExpectedEvents = [[gMFNService.folderAdded, parent, folderName, storeIn]];
+  gExpectedEvents = [[MailServices.mfn.folderAdded, parent, folderName, storeIn]];
   // We won't receive a copy listener notification for this
   gCurrStatus |= kStatus.onStopCopyDone;
   parent.createSubfolder(folderName, null);
@@ -49,8 +49,8 @@ function addFolder(parent, folderName, storeIn)
 function copyFileMessage(file, destFolder, isDraftOrTemplate)
 {
   copyListener.mFolderStoredIn = destFolder;
-  gExpectedEvents = [[gMFNService.msgAdded, gHdrsReceived],
-                     [gMFNService.msgsClassified, gHdrsReceived, false, false]];
+  gExpectedEvents = [[MailServices.mfn.msgAdded, gHdrsReceived],
+                     [MailServices.mfn.msgsClassified, gHdrsReceived, false, false]];
   gCopyService.CopyFileMessage(file, destFolder, null, isDraftOrTemplate, 0, "",
                                copyListener, null);
   gCurrStatus |= kStatus.functionCallDone;
@@ -65,7 +65,7 @@ function copyMessages(items, isMove, srcFolder, destFolder)
     array.appendElement(item);
   });
   gExpectedEvents = [
-    [gMFNService.msgsMoveCopyCompleted, isMove, items, destFolder, true]];
+    [MailServices.mfn.msgsMoveCopyCompleted, isMove, items, destFolder, true]];
   gCopyService.CopyMessages(srcFolder, array, destFolder, isMove, copyListener,
                             null, true);
   gCurrStatus |= kStatus.functionCallDone;
@@ -79,7 +79,7 @@ function copyFolders(items, isMove, destFolder)
   items.forEach(function (item) {
     array.appendElement(item);
   });
-  gExpectedEvents = [[gMFNService.folderMoveCopyCompleted, isMove, items, destFolder]];
+  gExpectedEvents = [[MailServices.mfn.folderMoveCopyCompleted, isMove, items, destFolder]];
   gCopyService.CopyFolders(array, destFolder, isMove, copyListener, null);
   gCurrStatus |= kStatus.functionCallDone;
   if (gCurrStatus == kStatus.everythingDone)
@@ -99,11 +99,11 @@ function deleteMessages(srcFolder, items, deleteStorage, isMove)
   {
     // We won't be getting any OnStopCopy notification in this case
     gCurrStatus = kStatus.onStopCopyDone;
-    gExpectedEvents = [[gMFNService.msgsDeleted, items]];
+    gExpectedEvents = [[MailServices.mfn.msgsDeleted, items]];
   }
   else
     // We have to be getting a move notification, even if isMove is false
-    gExpectedEvents = [[gMFNService.msgsMoveCopyCompleted, true, items,
+    gExpectedEvents = [[MailServices.mfn.msgsMoveCopyCompleted, true, items,
                         gLocalTrashFolder, true]];
 
   srcFolder.deleteMessages(array, null, deleteStorage, isMove, copyListener, true);
@@ -114,7 +114,7 @@ function deleteMessages(srcFolder, items, deleteStorage, isMove)
 
 function renameFolder(folder, newName)
 {
-  gExpectedEvents = [[gMFNService.folderRenamed, [folder], newName]];
+  gExpectedEvents = [[MailServices.mfn.folderRenamed, [folder], newName]];
   gCurrStatus = kStatus.onStopCopyDone;
   folder.rename(newName, null);
   gCurrStatus |= kStatus.functionCallDone;
@@ -135,11 +135,13 @@ function deleteFolder(folder, child)
   // a folderMoveCopyCompleted.
   if (gLocalTrashFolder.isAncestorOf(folder))
     if (child)
-      gExpectedEvents = [[gMFNService.folderDeleted, [child]], [gMFNService.folderDeleted, [folder]]];
+      gExpectedEvents = [[MailServices.mfn.folderDeleted, [child]],
+                         [MailServices.mfn.folderDeleted, [folder]]];
     else
-      gExpectedEvents = [[gMFNService.folderDeleted, [folder]]];
+      gExpectedEvents = [[MailServices.mfn.folderDeleted, [folder]]];
   else
-    gExpectedEvents = [[gMFNService.folderMoveCopyCompleted, true, [folder], gLocalTrashFolder]];
+    gExpectedEvents = [[MailServices.mfn.folderMoveCopyCompleted, true,
+                        [folder], gLocalTrashFolder]];
 
   folder.parent.deleteSubFolders(array, null);
   gCurrStatus |= kStatus.functionCallDone;
@@ -149,8 +151,8 @@ function deleteFolder(folder, child)
 
 function compactFolder(folder)
 {
-  gExpectedEvents = [[gMFNService.itemEvent, folder, "FolderCompactStart"],
-                     [gMFNService.itemEvent, folder, "FolderCompactFinish"]];
+  gExpectedEvents = [[MailServices.mfn.itemEvent, folder, "FolderCompactStart"],
+                     [MailServices.mfn.itemEvent, folder, "FolderCompactFinish"]];
   // We won't receive a copy listener notification for this
   gCurrStatus |= kStatus.onStopCopyDone;
   folder.compact(null, null);
@@ -307,7 +309,7 @@ var gTestArray =
 function run_test()
 {
   // Add a listener.
-  gMFNService.addListener(gMFListener, allTestedEvents);
+  MailServices.mfn.addListener(gMFListener, allTestedEvents);
 
   localAccountUtils.loadLocalMailAccount();
 
@@ -346,7 +348,7 @@ function doTest(test)
   {
     gHdrsReceived = null;
     gMsgHdrs = null;
-    gMFNService.removeListener(gMFListener);
+    MailServices.mfn.removeListener(gMFListener);
     do_test_finished(); // for the one in run_test()
   }
 }

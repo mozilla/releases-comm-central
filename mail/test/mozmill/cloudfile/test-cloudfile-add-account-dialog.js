@@ -28,9 +28,6 @@ var kRootURL = collector.addHttpResource('../cloudfile/html', '');
 var kSettingsWithForm = kRootURL + 'settings-with-form.xhtml';
 
 var gOldProviders = {};
-XPCOMUtils.defineLazyServiceGetter(this, 'gCategoryMan',
-                                   '@mozilla.org/categorymanager;1',
-                                   'nsICategoryManager');
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
@@ -38,23 +35,23 @@ function setupModule(module) {
   }
 
   // Save the old providers...
-  for (let entry of fixIterator(gCategoryMan.enumerateCategory(kCategory),
+  for (let entry of fixIterator(Services.catMan.enumerateCategory(kCategory),
                                 Ci.nsISupportsCString)) {
-    let value = gCategoryMan.getCategoryEntry(kCategory, entry.data);
+    let value = Services.catMan.getCategoryEntry(kCategory, entry.data);
     gOldProviders[entry] = value;
   }
 
   // Clear out the old entries
-  gCategoryMan.deleteCategory(kCategory);
+  Services.catMan.deleteCategory(kCategory);
 }
 
 function teardownModule(module) {
   // Clear out any leftover entries.
-  gCategoryMan.deleteCategory(kCategory);
+  Services.catMan.deleteCategory(kCategory);
 
   // Put the old entries back
   for (let [key, value] of Object.entries(gOldProviders))
-    gCategoryMan.addCategoryEntry(kCategory, key, value, false, true);
+    Services.catMan.addCategoryEntry(kCategory, key, value, false, true);
 }
 
 /**

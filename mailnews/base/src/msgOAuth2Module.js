@@ -92,9 +92,7 @@ OAuth2Module.prototype = {
   },
 
   get refreshToken() {
-    let loginMgr = Cc["@mozilla.org/login-manager;1"]
-                     .getService(Ci.nsILoginManager);
-    let logins = loginMgr.findLogins({}, this._loginUrl, null, this._scope);
+    let logins = Services.logins.findLogins({}, this._loginUrl, null, this._scope);
     for (let login of logins) {
       if (login.username == this._username)
         return login.password;
@@ -102,22 +100,19 @@ OAuth2Module.prototype = {
     return '';
   },
   set refreshToken(token) {
-    let loginMgr = Cc["@mozilla.org/login-manager;1"]
-                     .getService(Ci.nsILoginManager);
-
     // Check if we already have a login with this username, and modify the
     // password on that, if we do.
-    let logins = loginMgr.findLogins({}, this._loginUrl, null, this._scope);
+    let logins = Services.logins.findLogins({}, this._loginUrl, null, this._scope);
     for (let login of logins) {
       if (login.username == this._username) {
         if (token) {
           let propBag = Cc["@mozilla.org/hash-property-bag;1"].
                         createInstance(Ci.nsIWritablePropertyBag);
           propBag.setProperty("password", token);
-          loginMgr.modifyLogin(login, propBag);
+          Services.logins.modifyLogin(login, propBag);
         }
         else
-          loginMgr.removeLogin(login);
+          Services.logins.removeLogin(login);
         return token;
       }
     }
@@ -128,7 +123,7 @@ OAuth2Module.prototype = {
                     .createInstance(Ci.nsILoginInfo);
       login.init(this._loginUrl, null, this._scope, this._username, token,
         '', '');
-      loginMgr.addLogin(login);
+      Services.logins.addLogin(login);
     }
     return token;
   },

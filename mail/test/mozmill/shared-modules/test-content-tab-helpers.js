@@ -469,14 +469,12 @@ function plugins_run_in_separate_processes(aController) {
 }
 
 function updateBlocklist(aController, aCallback) {
-  let blocklistNotifier = Cc["@mozilla.org/extensions/blocklist;1"]
-                            .getService(Ci.nsITimerCallback);
   let observer = function() {
     Services.obs.removeObserver(observer, "blocklist-updated");
     aController.window.setTimeout(aCallback, 0);
   };
   Services.obs.addObserver(observer, "blocklist-updated");
-  blocklistNotifier.notify(null);
+  Services.blocklist.QueryInterface(Ci.nsITimerCallback).notify(null);
 }
 
 function setAndUpdateBlocklist(aController, aURL, aCallback) {

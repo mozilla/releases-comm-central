@@ -1,6 +1,7 @@
 // Tests nsINntpUrl parsing.
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var localserver;
 var tests = [
@@ -141,8 +142,7 @@ var invalid_uris = [
 function run_test() {
   // We're not running the server, just setting it up
   localserver = setupLocalServer(119);
-  let nntpService = Cc["@mozilla.org/messenger/nntpservice;1"]
-                      .getService(Ci.nsIProtocolHandler);
+  let nntpService = MailServices.nntp.QueryInterface(Ci.nsIProtocolHandler);
   for (let test of tests) {
     dump("Checking URL " + test.uri + "\n");
     let url = nntpService.newURI(test.uri);

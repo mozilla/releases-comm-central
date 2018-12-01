@@ -38,12 +38,10 @@ var gOriginalOffline;
 function placeAccountName(aServer) {
   gOriginalOffline = Services.io.offline;
 
-  let bundle = Cc["@mozilla.org/intl/stringbundle;1"]
-    .getService(Ci.nsIStringBundleService)
+  let bundle = Services.strings
     .createBundle("chrome://messenger/locale/converterDialog.properties");
 
-  let brandShortName = Cc["@mozilla.org/intl/stringbundle;1"]
-    .getService(Ci.nsIStringBundleService)
+  let brandShortName = Services.strings
     .createBundle("chrome://branding/locale/brand.properties")
     .GetStringFromName("brandShortName");
 
@@ -168,8 +166,7 @@ function startContinue(aSelectedStoreType, aResponse) {
   gResponse = aResponse;
   gFolder = gServer.rootFolder.filePath;
 
-  let bundle = Cc["@mozilla.org/intl/stringbundle;1"]
-    .getService(Ci.nsIStringBundleService)
+  let bundle = Services.strings
     .createBundle("chrome://messenger/locale/converterDialog.properties");
 
   document.getElementById("progress").addEventListener("progress", function(e) {

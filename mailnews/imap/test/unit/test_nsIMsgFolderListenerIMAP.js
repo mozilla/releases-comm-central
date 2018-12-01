@@ -41,7 +41,7 @@ var gMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
 
 function addFolder(parent, folderName, storeIn)
 {
-  gExpectedEvents = [[gMFNService.folderAdded, parent, folderName, storeIn]];
+  gExpectedEvents = [[MailServices.mfn.folderAdded, parent, folderName, storeIn]];
   // No copy listener notification for this
   gCurrStatus |= kStatus.onStopCopyDone;
   parent.createSubfolder(folderName, null);
@@ -66,8 +66,8 @@ function copyFileMessage(file, messageId, destFolder)
   // copyListener.mMessageId = messageId;
 
   // Instead store the message id in gExpectedEvents, so we can match that up
-  gExpectedEvents = [[gMFNService.msgAdded, {expectedMessageId: messageId}],
-                     [gMFNService.msgsClassified, [messageId], false, false]];
+  gExpectedEvents = [[MailServices.mfn.msgAdded, {expectedMessageId: messageId}],
+                     [MailServices.mfn.msgsClassified, [messageId], false, false]];
   destFolder.updateFolder(null);
   gCopyService.CopyFileMessage(file, destFolder, null, true, 0, "", copyListener, null);
   gCurrStatus |= kStatus.functionCallDone;
@@ -103,9 +103,9 @@ function addMessagesToServer(messages, mailbox, localFolder)
     // Create the imapMessage and store it on the mailbox.
     mailbox.addMessage(new imapMessage(URI.spec, mailbox.uidnext++, []));
     // We can't get the headers again, so just pass on the message id
-    gExpectedEvents.push([gMFNService.msgAdded, {expectedMessageId: message.messageId}]);
+    gExpectedEvents.push([MailServices.mfn.msgAdded, {expectedMessageId: message.messageId}]);
   });
-  gExpectedEvents.push([gMFNService.msgsClassified,
+  gExpectedEvents.push([MailServices.mfn.msgsClassified,
                         messages.map(hdr => hdr.messageId),
                         false, false]);
 
@@ -123,19 +123,19 @@ function copyMessages(messages, isMove, srcFolder, destFolder)
   {
     array.appendElement(message);
   });
-  gExpectedEvents = [[gMFNService.msgsMoveCopyCompleted, isMove, messages, destFolder, true]];
+  gExpectedEvents = [[MailServices.mfn.msgsMoveCopyCompleted, isMove, messages, destFolder, true]];
   // We'll also get the msgAdded events when we go and update the destination
   // folder
   messages.forEach(function (message)
   {
     // We can't use the headers directly, because the notifications we'll
     // receive are for message headers in the destination folder
-    gExpectedEvents.push([gMFNService.msgKeyChanged,
+    gExpectedEvents.push([MailServices.mfn.msgKeyChanged,
                           {expectedMessageId: message.messageId}]);
-    gExpectedEvents.push([gMFNService.msgAdded,
+    gExpectedEvents.push([MailServices.mfn.msgAdded,
                           {expectedMessageId: message.messageId}]);
   });
-  gExpectedEvents.push([gMFNService.msgsClassified,
+  gExpectedEvents.push([MailServices.mfn.msgsClassified,
                         messages.map(hdr => hdr.messageId),
                         false, false]);
   gCopyService.CopyMessages(srcFolder, array, destFolder, isMove, copyListener, gMsgWindow, true);
@@ -192,7 +192,7 @@ function run_test()
   gTest = 0;
 
   // Add a listener.
-  gMFNService.addListener(gMFListener, allTestedEvents);
+  MailServices.mfn.addListener(gMFListener, allTestedEvents);
   gIMAPDaemon = new imapDaemon();
   gServer = makeServer(gIMAPDaemon, "");
 
@@ -232,7 +232,7 @@ function run_test()
   // We get these notifications on initial discovery
   gRootFolder = gIMAPIncomingServer.rootFolder;
   gIMAPInbox = gRootFolder.getChildNamed("Inbox");
-  gExpectedEvents = [[gMFNService.folderAdded, gRootFolder, "Trash",
+  gExpectedEvents = [[MailServices.mfn.folderAdded, gRootFolder, "Trash",
                      "gIMAPTrashFolder"]];
   gCurrStatus |= kStatus.onStopCopyDone | kStatus.functionCallDone;
 
@@ -261,7 +261,7 @@ function doTest(test)
   }
   else
   {
-    gMFNService.removeListener(gMFListener);
+    MailServices.mfn.removeListener(gMFListener);
     // Cleanup, null out everything, close all cached connections and stop the
     // server
     gRootFolder = null;

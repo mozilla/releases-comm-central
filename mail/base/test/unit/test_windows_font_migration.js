@@ -114,9 +114,8 @@ var kWindowsVersions = {
 };
 
 function set_windows_version(aVersion) {
-  let sysInfo = Cc["@mozilla.org/system-info;1"]
-                  .getService(Ci.nsIWritablePropertyBag2);
-  sysInfo.setPropertyAsDouble("version", aVersion);
+  Services.sysinfo.QueryInterface(Ci.nsIWritablePropertyBag2)
+          .setPropertyAsDouble("version", aVersion);
 }
 
 /**

@@ -8,7 +8,7 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function run_test() {
   let testFolderName = "";
-  let OSname = Cc["@mozilla.org/system-info;1"].getService(Ci.nsIPropertyBag2).getProperty("name");
+  let OSname = Services.sysinfo.getProperty("name");
   if (OSname == "Windows_NT") {
     // On Windows test file with ' ' in the name.
     testFolderName = "bugmail 1";

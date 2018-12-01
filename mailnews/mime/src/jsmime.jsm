@@ -63,19 +63,16 @@ Services.obs.addObserver(function (subject, topic, data) {
   subject = subject.QueryInterface(Ci.nsISupportsCString)
                    .data;
   if (data == CATEGORY_NAME) {
-    let url = catman.getCategoryEntry(CATEGORY_NAME, subject);
+    let url = Services.catMan.getCategoryEntry(CATEGORY_NAME, subject);
     Services.scriptloader.loadSubScript(url, {}, "UTF-8");
   }
 }, "xpcom-category-entry-added");
 
-var catman = Cc["@mozilla.org/categorymanager;1"]
-               .getService(Ci.nsICategoryManager);
-
-var entries = catman.enumerateCategory(CATEGORY_NAME);
+var entries = Services.catMan.enumerateCategory(CATEGORY_NAME);
 while (entries.hasMoreElements()) {
   let string = entries.getNext()
                       .QueryInterface(Ci.nsISupportsCString)
                       .data;
-  let url = catman.getCategoryEntry(CATEGORY_NAME, string);
+  let url = Services.catMan.getCategoryEntry(CATEGORY_NAME, string);
   Services.scriptloader.loadSubScript(url, {}, "UTF-8");
 }

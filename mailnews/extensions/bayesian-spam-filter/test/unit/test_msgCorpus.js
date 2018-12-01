@@ -4,9 +4,9 @@
 
 // Tests corpus management functions using nsIMsgCorpus
 
-var msgCorpus =
-  Cc["@mozilla.org/messenger/filter-plugin;1?name=bayesianfilter"]
-    .getService(Ci.nsIMsgCorpus);
+ChromeUtils.import("resource:///modules/MailServices.jsm");
+
+var msgCorpus = MailServices.junk.QueryInterface(Ci.nsIMsgCorpus);
 
 // tokens found in the test corpus file. trait 1001 was trained with
 // 2 messages, and trait 1003 with 1.

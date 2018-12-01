@@ -56,9 +56,8 @@ add_task(async function check_custom_header() {
     }
     Services.obs.addObserver(observer, "xpcom-category-entry-added");
   });
-  Cc["@mozilla.org/categorymanager;1"]
-    .getService(Ci.nsICategoryManager)
-    .addCategoryEntry("custom-mime-encoder", "X-Unusual", url, false, true);
+  Services.catMan
+          .addCategoryEntry("custom-mime-encoder", "X-Unusual", url, false, true);
   // The category manager doesn't fire until a later timestep.
   await promise;
   let headers = new StructuredHeaders();

@@ -6,6 +6,7 @@
  *   - Downloading a single message and checking content in stream is correct.
  */
 
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 // The basic daemon to use for testing nntpd.js implementations
@@ -82,8 +83,7 @@ function run_test() {
 
     var messageUri = folder.getUriForMsg(message);
 
-    var nntpService = Cc["@mozilla.org/messenger/nntpservice;1"]
-      .getService(Ci.nsIMsgMessageService);
+    var nntpService = MailServices.nntp.QueryInterface(Ci.nsIMsgMessageService);
 
     do_test_pending();
 

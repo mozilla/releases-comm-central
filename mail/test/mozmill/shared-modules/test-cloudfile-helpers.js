@@ -166,8 +166,8 @@ var gMockCloudfileManager = {
 
     this._mock_map[aID] = component;
 
-    gCategoryManager.addCategoryEntry("cloud-files", mockID,
-                                      mockContractID, false, true);
+    Services.catMan.addCategoryEntry("cloud-files", mockID,
+                                     mockContractID, false, true);
     this._mock_map[aID].register();
   },
 
@@ -179,7 +179,7 @@ var gMockCloudfileManager = {
       throw Error("No registered mock cloudfile provider with id = " +
                   aID);
 
-    gCategoryManager.deleteCategoryEntry("cloud-files", aID, false);
+    Services.catMan.deleteCategoryEntry("cloud-files", aID, false);
     this._mock_map[aID].unregister();
     delete this._mock_map[aID];
   },
@@ -193,8 +193,3 @@ var gMockCloudfileManager = {
 XPCOMUtils.defineLazyServiceGetter(gMockCloudfileManager, "_uuidService",
                                    "@mozilla.org/uuid-generator;1",
                                    "nsIUUIDGenerator");
-
-XPCOMUtils.defineLazyServiceGetter(this, "gCategoryManager",
-                                   "@mozilla.org/categorymanager;1",
-                                   "nsICategoryManager");
-

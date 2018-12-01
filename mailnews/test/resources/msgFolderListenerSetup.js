@@ -1,23 +1,16 @@
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-var nsIMsgDBHdr = Ci.nsIMsgDBHdr;
-var nsIArray = Ci.nsIArray;
-var nsIMsgFolder = Ci.nsIMsgFolder;
-
-var gMFNService = Cc["@mozilla.org/messenger/msgnotificationservice;1"]
-                      .getService(Ci.nsIMsgFolderNotificationService);
-
 var allTestedEvents =
-  gMFNService.msgAdded |
-  gMFNService.msgsClassified |
-  gMFNService.msgsDeleted |
-  gMFNService.msgsMoveCopyCompleted |
-  gMFNService.msgKeyChanged |
-  gMFNService.folderAdded |
-  gMFNService.folderDeleted |
-  gMFNService.folderMoveCopyCompleted |
-  gMFNService.folderRenamed |
-  gMFNService.itemEvent;
+  MailServices.mfn.msgAdded |
+  MailServices.mfn.msgsClassified |
+  MailServices.mfn.msgsDeleted |
+  MailServices.mfn.msgsMoveCopyCompleted |
+  MailServices.mfn.msgKeyChanged |
+  MailServices.mfn.folderAdded |
+  MailServices.mfn.folderDeleted |
+  MailServices.mfn.folderMoveCopyCompleted |
+  MailServices.mfn.folderRenamed |
+  MailServices.mfn.itemEvent;
 
 var gCopyService = MailServices.copy;
 
@@ -48,7 +41,7 @@ var gMFListener =
 {
   msgAdded: function(aMsg)
   {
-    verify([gMFNService.msgAdded, aMsg]);
+    verify([MailServices.mfn.msgAdded, aMsg]);
     // We might not actually have a header in gHdrsReceived in the IMAP case,
     // so use the aMsg we got instead
     gMsgHdrs.push({hdr: aMsg, ID: aMsg.messageId});
@@ -58,7 +51,7 @@ var gMFListener =
       if (gCurrStatus == kStatus.everythingDone)
         resetStatusAndProceed();
     }
-    else if (gExpectedEvents[0][0] == gMFNService.msgsClassified)
+    else if (gExpectedEvents[0][0] == MailServices.mfn.msgsClassified)
     {
       // XXX this is a hack to deal with limitations of the classification logic
       //  and the new list.  We want to issue a call to clear the list once all
@@ -72,7 +65,7 @@ var gMFListener =
   msgsClassified: function(aMsgs, aJunkProcessed, aTraitProcessed)
   {
     dump("classified id: " + aMsgs.queryElementAt(0, Ci.nsIMsgDBHdr).messageId + "\n");
-    verify([gMFNService.msgsClassified, aMsgs, aJunkProcessed,
+    verify([MailServices.mfn.msgsClassified, aMsgs, aJunkProcessed,
               aTraitProcessed]);
     if (gExpectedEvents.length == 0)
     {
@@ -84,7 +77,7 @@ var gMFListener =
 
   msgsDeleted: function(aMsgs)
   {
-    verify([gMFNService.msgsDeleted, aMsgs]);
+    verify([MailServices.mfn.msgsDeleted, aMsgs]);
     if (gExpectedEvents.length == 0)
     {
       gCurrStatus |= kStatus.notificationsDone;
@@ -95,7 +88,7 @@ var gMFListener =
 
   msgsMoveCopyCompleted: function(aMove, aSrcMsgs, aDestFolder, aDestMsgs)
   {
-    verify([gMFNService.msgsMoveCopyCompleted, aMove, aSrcMsgs, aDestFolder,
+    verify([MailServices.mfn.msgsMoveCopyCompleted, aMove, aSrcMsgs, aDestFolder,
             aDestMsgs]);
     if (gExpectedEvents.length == 0)
     {
@@ -107,7 +100,7 @@ var gMFListener =
 
   msgKeyChanged: function(aOldKey, aNewMsgHdr)
   {
-    verify([gMFNService.msgKeyChanged, aOldKey, aNewMsgHdr]);
+    verify([MailServices.mfn.msgKeyChanged, aOldKey, aNewMsgHdr]);
     if (gExpectedEvents.length == 0)
     {
       gCurrStatus |= kStatus.notificationsDone;
@@ -118,7 +111,7 @@ var gMFListener =
 
   folderAdded: function(aFolder)
   {
-    verify([gMFNService.folderAdded, aFolder]);
+    verify([MailServices.mfn.folderAdded, aFolder]);
     if (gExpectedEvents.length == 0)
     {
       gCurrStatus |= kStatus.notificationsDone;
@@ -129,7 +122,7 @@ var gMFListener =
 
   folderDeleted: function(aFolder)
   {
-    verify([gMFNService.folderDeleted, aFolder]);
+    verify([MailServices.mfn.folderDeleted, aFolder]);
     if (gExpectedEvents.length == 0)
     {
       gCurrStatus |= kStatus.notificationsDone;
@@ -140,7 +133,7 @@ var gMFListener =
 
   folderMoveCopyCompleted: function(aMove, aSrcFolder, aDestFolder)
   {
-    verify([gMFNService.folderMoveCopyCompleted, aMove, aSrcFolder, aDestFolder]);
+    verify([MailServices.mfn.folderMoveCopyCompleted, aMove, aSrcFolder, aDestFolder]);
     if (gExpectedEvents.length == 0)
     {
       gCurrStatus |= kStatus.notificationsDone;
@@ -151,7 +144,7 @@ var gMFListener =
 
   folderRenamed: function(aOrigFolder, aNewFolder)
   {
-    verify([gMFNService.folderRenamed, aOrigFolder, aNewFolder]);
+    verify([MailServices.mfn.folderRenamed, aOrigFolder, aNewFolder]);
     if (gExpectedEvents.length == 0)
     {
       gCurrStatus |= kStatus.notificationsDone;
@@ -166,7 +159,7 @@ var gMFListener =
     // empty...
     Assert.equal(aBetterBeNull, null);
     Assert.equal(aBetterBeEmpty, "");
-    verify([gMFNService.itemEvent, aFolder, aEvent]);
+    verify([MailServices.mfn.itemEvent, aFolder, aEvent]);
     if (gExpectedEvents.length == 0)
     {
       gCurrStatus |= kStatus.notificationsDone;
@@ -216,7 +209,7 @@ function resetStatusAndProceed()
 function hasExactlyElements(array, elements)
 {
   // If an nsIArray (it could also be a single header or a folder)
-  if (elements instanceof nsIArray)
+  if (elements instanceof Ci.nsIArray)
   {
     var count = elements.length;
 
@@ -228,13 +221,13 @@ function hasExactlyElements(array, elements)
       // Check: query element, must be a header or folder and present in the array
       var currElement;
       try {
-        currElement = elements.queryElementAt(i, nsIMsgDBHdr);
+        currElement = elements.queryElementAt(i, Ci.nsIMsgDBHdr);
       }
       catch (e) {}
       if (!currElement)
       {
         try {
-          currElement = elements.queryElementAt(i, nsIMsgFolder);
+          currElement = elements.queryElementAt(i, Ci.nsIMsgFolder);
         }
         catch (e) {}
       }
@@ -243,7 +236,7 @@ function hasExactlyElements(array, elements)
     }
   }
   // If a single header or a folder
-  else if (elements instanceof nsIMsgDBHdr || elements instanceof nsIMsgFolder)
+  else if (elements instanceof Ci.nsIMsgDBHdr || elements instanceof Ci.nsIMsgFolder)
   {
     // Check: there should be only one element in the array.
     Assert.equal(array.length, 1);
@@ -271,7 +264,7 @@ function verify(event)
 
   switch (eventType)
   {
-  case gMFNService.msgAdded:
+  case MailServices.mfn.msgAdded:
     // So for IMAP right now, we aren't able to get the actual nsIMsgDBHdr.
     // Instead, we'll match up message ids as a (poor?) substitute.
     if (expected[1].expectedMessageId)
@@ -280,12 +273,12 @@ function verify(event)
       break;
     }
     // If we do have a header, fall through to the case below
-  case gMFNService.msgsDeleted:
-  case gMFNService.folderDeleted:
+  case MailServices.mfn.msgsDeleted:
+  case MailServices.mfn.folderDeleted:
     // Check: headers match/folder matches.
     hasExactlyElements(expected[1], event[1]);
     break;
-  case gMFNService.msgsClassified:
+  case MailServices.mfn.msgsClassified:
     // In the IMAP case expected[1] is a list of mesage-id strings whereas in
     // the local case (where we are copying from files), we actually have
     // the headers.
@@ -300,7 +293,7 @@ function verify(event)
       let ignoreCount = event[1].length - expected[1].length;
       for (let i = 0; i < expected[1].length; i++) {
         let eventHeader = event[1].queryElementAt(i + ignoreCount,
-                                                  nsIMsgDBHdr);
+                                                  Ci.nsIMsgDBHdr);
         Assert.equal(expected[1][i], eventHeader.messageId);
       }
     }
@@ -312,11 +305,11 @@ function verify(event)
     // aTraitProcessed: was the message processed for traits?
     Assert.equal(expected[3], event[3]);
     break;
-  case gMFNService.msgKeyChanged:
+  case MailServices.mfn.msgKeyChanged:
     Assert.equal(expected[1].messageId, event[2].expectedMessageId);
     break;
-  case gMFNService.msgsMoveCopyCompleted:
-  case gMFNService.folderMoveCopyCompleted:
+  case MailServices.mfn.msgsMoveCopyCompleted:
+  case MailServices.mfn.folderMoveCopyCompleted:
     // Check: Move or copy as expected.
     Assert.equal(expected[1], event[1]);
 
@@ -326,7 +319,7 @@ function verify(event)
     // Check: destination folder matches.
     Assert.equal(expected[3], event[3]);
 
-    if (eventType == gMFNService.folderMoveCopyCompleted)
+    if (eventType == MailServices.mfn.folderMoveCopyCompleted)
       break;
 
     // Check: destination headers.  We expect these for local and imap folders,
@@ -335,12 +328,12 @@ function verify(event)
     //  we check that the message-id header values match up.
     for (let iMsg = 0; iMsg < event[2].length; iMsg++)
     {
-      let srcHdr = event[2].queryElementAt(iMsg, nsIMsgDBHdr);
-      let destHdr = event[4].queryElementAt(iMsg, nsIMsgDBHdr);
+      let srcHdr = event[2].queryElementAt(iMsg, Ci.nsIMsgDBHdr);
+      let destHdr = event[4].queryElementAt(iMsg, Ci.nsIMsgDBHdr);
       Assert.equal(srcHdr.messageId, destHdr.messageId);
     }
     break;
-  case gMFNService.folderAdded:
+  case MailServices.mfn.folderAdded:
     // Check: parent folder matches
     Assert.equal(event[1].parent, expected[1]);
 
@@ -352,14 +345,14 @@ function verify(event)
     if (expected[3])
       eval(expected[3] + "= event[1]");
     break;
-  case gMFNService.folderRenamed:
+  case MailServices.mfn.folderRenamed:
     // Check: source folder matches
     hasExactlyElements(expected[1], event[1]);
 
     // Check: destination folder name matches
     Assert.equal(expected[2], event[2].prettyName);
     break;
-  case gMFNService.itemEvent:
+  case MailServices.mfn.itemEvent:
     // the event string should match
     Assert.equal(expected[2], event[2]);
     // and so should the folder we are talking about

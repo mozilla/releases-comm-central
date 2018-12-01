@@ -1567,15 +1567,13 @@ var gAccountTree = {
           panelsToKeep.push(panels[3]);
 
         // extensions
-        let catMan = Cc["@mozilla.org/categorymanager;1"]
-                       .getService(Ci.nsICategoryManager);
         const CATEGORY = "mailnews-accountmanager-extensions";
-        let catEnum = catMan.enumerateCategory(CATEGORY);
+        let catEnum = Services.catMan.enumerateCategory(CATEGORY);
         while (catEnum.hasMoreElements()) {
           let entryName = null;
           try {
             entryName = catEnum.getNext().QueryInterface(Ci.nsISupportsCString).data;
-            let svc = Cc[catMan.getCategoryEntry(CATEGORY, entryName)]
+            let svc = Cc[Services.catMan.getCategoryEntry(CATEGORY, entryName)]
                         .getService(Ci.nsIMsgAccountManagerExtension);
             if (svc.showPanel(server)) {
               let bundleName = "chrome://" + svc.chromePackageName +

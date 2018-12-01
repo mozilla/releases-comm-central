@@ -12,6 +12,12 @@
 
   <binding id="glodacomplete-rich-result-popup" extends="chrome://global/content/bindings/autocomplete.xml#autocomplete-rich-result-popup">
     <implementation implements="nsIAutoCompletePopup">
+      <constructor>
+        <![CDATA[
+          ChromeUtils.import("resource://gre/modules/Services.jsm");
+          ]]>
+      </constructor>
+
       <method name="_appendCurrentResult">
         <body>
           <![CDATA[
@@ -29,9 +35,8 @@
             var trimmedSearchString = controller.searchString.trim();
 
             // Unescape the URI spec for showing as an entry in the popup
-            let url = Cc["@mozilla.org/intl/texttosuburi;1"]
-                        .getService(Ci.nsITextToSubURI)
-                        .unEscapeURIForUI("UTF-8", controller.getValueAt(this._currentIndex));
+            let url = Services.textToSubURI
+                              .unEscapeURIForUI("UTF-8", controller.getValueAt(this._currentIndex));
 
             // Unlike our superclass, we create nodes every time because we have
             //  heterogeneous results and we cannot rely on the XBL bindings to
