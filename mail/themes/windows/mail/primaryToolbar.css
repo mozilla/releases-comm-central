@@ -372,19 +372,12 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 }
 
 .mail-toolbox > toolbar {
-  margin-inline-start: 0;
   /* force iconsize="small" on these toolbars */
   counter-reset: smallicons;
 }
 
 .mail-toolbox > toolbar:not([type="menubar"]) {
   padding: 1px;
-}
-
-.chromeclass-toolbar {
-  /* Toolbar buttons have a margin of 3px; adjust the toolbar so the leftmost
-     button lines up with the rest of the window. */
-  margin-inline-start: -3px;
 }
 
 /* ::::: toolbar buttons on tabbar toolbar ::::: */
