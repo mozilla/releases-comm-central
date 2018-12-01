@@ -383,7 +383,7 @@ MimeInlineTextPlainFlowed_parse_line (const char *aLine, int32_t length, MimeObj
 
       // This is the main TXT to HTML conversion:
       // escaping (very important), eventually recognizing etc.
-      rv = conv->ScanTXT(lineSource.get(), whattodo, getter_Copies(lineResult));
+      rv = conv->ScanTXT(lineSource, whattodo, lineResult);
       NS_ENSURE_SUCCESS(rv, -1);
     }
   }

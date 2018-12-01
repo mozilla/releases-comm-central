@@ -1483,9 +1483,9 @@ nsMsgComposeAndSend::GetBodyFromEditor()
                    nsIDocumentEncoder::OutputNoFormattingInPre |
                    nsIDocumentEncoder::OutputDisallowLineBreaking;
   nsAutoString bodyStr;
-  char16_t* bodyText = nullptr;
+  nsAutoString bodyText;
   nsresult rv;
-  char16_t *origHTMLBody = nullptr;
+  nsAutoString origHTMLBody;
 
   // Ok, get the body...the DOM should have been whacked with
   // Content ID's already
@@ -1497,9 +1497,7 @@ nsMsgComposeAndSend::GetBodyFromEditor()
   // If we really didn't get a body, just return NS_OK
   if (bodyStr.IsEmpty())
     return NS_OK;
-  bodyText = ToNewUnicode(bodyStr);
-  if (!bodyText)
-    return NS_ERROR_OUT_OF_MEMORY;
+  bodyText = bodyStr;
 
   // If we are forcing this to be plain text, we should not be
   // doing this conversion.
@@ -1524,8 +1522,8 @@ nsMsgComposeAndSend::GetBodyFromEditor()
           whattodo = whattodo | mozITXTToHTMLConv::kStructPhrase;
       }
 
-      char16_t* wresult;
-      rv = conv->ScanHTML(bodyText, whattodo, &wresult);
+      nsAutoString wresult;
+      rv = conv->ScanHTML(bodyText, whattodo, wresult);
       if (NS_SUCCEEDED(rv))
       {
         // Save the original body for possible attachment as plain text
@@ -1544,9 +1542,9 @@ nsMsgComposeAndSend::GetBodyFromEditor()
 
   if (aCharset && *aCharset)
   {
-    bool isAsciiOnly = NS_IsAscii(bodyText);
+    bool isAsciiOnly = NS_IsAscii(bodyText.get());
     rv = nsMsgI18NConvertFromUnicode(nsDependentCString(aCharset),
-                                     nsDependentString(bodyText),
+                                     bodyText,
                                      outCString,
                                      true);
     if (mCompFields->GetForceMsgEncoding())
@@ -1573,7 +1571,7 @@ nsMsgComposeAndSend::GetBodyFromEditor()
         }
         if (!disableFallback)
         {
-          CopyUTF16toUTF8(nsDependentString(bodyText), outCString);
+          CopyUTF16toUTF8(bodyText, outCString);
           mCompFields->SetCharacterSet("UTF-8");
         }
       }
@@ -1585,11 +1583,11 @@ nsMsgComposeAndSend::GetBodyFromEditor()
     // If we have an origHTMLBody that is not null, this means that it is
     // different than the bodyText because of formatting conversions. Because of
     // this we need to do the charset conversion on this part separately
-    if (origHTMLBody)
+    if (!origHTMLBody.IsEmpty())
     {
       nsCString newBody;
       rv = nsMsgI18NConvertFromUnicode(nsDependentCString(aCharset),
-                                       nsDependentString(origHTMLBody),
+                                       origHTMLBody,
                                        newBody,
                                        true);
       if (NS_SUCCEEDED(rv))
@@ -1600,8 +1598,6 @@ nsMsgComposeAndSend::GetBodyFromEditor()
     else {
       mOriginalHTMLBody = ToNewCString(attachment1_body);
     }
-
-    free(bodyText);    //Don't need it anymore
   }
   else
     return NS_ERROR_FAILURE;

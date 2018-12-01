@@ -389,8 +389,8 @@ MimeInlineTextPlain_parse_line (const char *line, int32_t length, MimeObject *ob
 
       // Convert to HTML
       nsString citeTagsResultUnichar;
-      rv = conv->ScanTXT(citeTagsSource.get(), 0 /* no recognition */,
-                         getter_Copies(citeTagsResultUnichar));
+      rv = conv->ScanTXT(citeTagsSource, 0 /* no recognition */,
+                         citeTagsResultUnichar);
       if (NS_FAILED(rv)) return -1;
 
       prefaceResultStr.Append(NS_ConvertUTF16toUTF8(citeTagsResultUnichar));
@@ -415,8 +415,7 @@ MimeInlineTextPlain_parse_line (const char *line, int32_t length, MimeObject *ob
        escaping (very important), eventually recognizing etc. */
     nsString lineResultUnichar;
 
-    rv = conv->ScanTXT(lineSourceStr.get() + logicalLineStart,
-                       whattodo, getter_Copies(lineResultUnichar));
+    rv = conv->ScanTXT(Substring(lineSourceStr, logicalLineStart), whattodo, lineResultUnichar);
     NS_ENSURE_SUCCESS(rv, -1);
 
     if (!(text->mIsSig && quoting && text->mStripSig))

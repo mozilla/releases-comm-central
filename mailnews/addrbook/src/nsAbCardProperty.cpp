@@ -816,8 +816,7 @@ nsresult nsAbCardProperty::ConvertToXMLPrintData(nsAString &aXMLSubstr)
   // use ScanTXT to convert < > & to safe values.
   nsString safeText;
   if (!generatedName.IsEmpty()) {
-    rv = conv->ScanTXT(generatedName.get(), mozITXTToHTMLConv::kEntities,
-                       getter_Copies(safeText));
+    rv = conv->ScanTXT(generatedName, mozITXTToHTMLConv::kEntities, safeText);
     NS_ENSURE_SUCCESS(rv,rv);
   }
 
@@ -826,8 +825,7 @@ nsresult nsAbCardProperty::ConvertToXMLPrintData(nsAString &aXMLSubstr)
     GetPrimaryEmail(primaryEmail);
 
     // use ScanTXT to convert < > & to safe values.
-    rv = conv->ScanTXT(primaryEmail.get(), mozITXTToHTMLConv::kEntities,
-                       getter_Copies(safeText));
+    rv = conv->ScanTXT(primaryEmail, mozITXTToHTMLConv::kEntities, safeText);
     NS_ENSURE_SUCCESS(rv,rv);
   }
   xmlStr.Append(safeText);
@@ -887,8 +885,7 @@ nsresult nsAbCardProperty::ConvertToXMLPrintData(nsAString &aXMLSubstr)
 
           // use ScanTXT to convert < > & to safe values.
           nsString safeText;
-          rv = conv->ScanTXT(displayName.get(), mozITXTToHTMLConv::kEntities,
-                             getter_Copies(safeText));
+          rv = conv->ScanTXT(displayName, mozITXTToHTMLConv::kEntities, safeText);
           NS_ENSURE_SUCCESS(rv,rv);
           xmlStr.Append(safeText);
 
@@ -897,8 +894,7 @@ nsresult nsAbCardProperty::ConvertToXMLPrintData(nsAString &aXMLSubstr)
           listCard->GetPrimaryEmail(primaryEmail);
 
           // use ScanTXT to convert < > & to safe values.
-          rv = conv->ScanTXT(primaryEmail.get(), mozITXTToHTMLConv::kEntities,
-                             getter_Copies(safeText));
+          rv = conv->ScanTXT(primaryEmail, mozITXTToHTMLConv::kEntities, safeText);
           NS_ENSURE_SUCCESS(rv,rv);
           xmlStr.Append(safeText);
 
@@ -994,7 +990,7 @@ nsresult nsAbCardProperty::AppendLine(const AppendItem &aItem,
 
   // use ScanTXT to convert < > & to safe values.
   nsString safeText;
-  rv = aConv->ScanTXT(attrValue.get(), mozITXTToHTMLConv::kEntities, getter_Copies(safeText));
+  rv = aConv->ScanTXT(attrValue, mozITXTToHTMLConv::kEntities, safeText);
   NS_ENSURE_SUCCESS(rv,rv);
   aResult.Append(safeText);
 
