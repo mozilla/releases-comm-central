@@ -25,6 +25,8 @@ var gOriginalPaneWidth;
 var gEnlargedWindowWidth = 1260;
 var gShrunkenWindowWidth = 600;
 
+var gTodayPane;
+
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
     collector.getModule(lib).installInto(module);
@@ -41,6 +43,17 @@ function setupModule(module) {
   // Store folder pane width that we will change temporarily.
   let folderPaneBox = mc.e("folderPaneBox");
   gOriginalPaneWidth = folderPaneBox.width;
+
+  // Hide Lightning's Today pane as it takes up too much room in the
+  // small TB window our tests run in.
+  gTodayPane = mc.e("today-pane-panel");
+  if (gTodayPane) {
+    if (!gTodayPane.collapsed) {
+      mc.keypress(null, "VK_F11", {});
+    } else {
+      gTodayPane = null;
+    }
+  }
 }
 
 /**
@@ -108,7 +121,6 @@ function test_buttons_collapse_and_expand() {
   logState("giant again!");
   assertExpanded();
 }
-test_buttons_collapse_and_expand.EXCLUDED_PLATFORMS = ["linux"];
 
 function test_buttons_collapse_and_expand_on_spawn_in_vertical_mode() {
   // Assume we're in classic layout to start - since this is where we'll
@@ -141,4 +153,8 @@ function teardownModule() {
   collapse_panes(mc.e("folderpane_splitter"), false);
   let folderPaneBox = mc.e("folderPaneBox");
   folderPaneBox.width = gOriginalPaneWidth;
+
+  if (gTodayPane && gTodayPane.collapsed) {
+    mc.keypress(null, "VK_F11", {});
+  }
 }
