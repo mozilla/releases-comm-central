@@ -456,15 +456,20 @@ var gMessengerLanguagesDialog = {
   },
 
   showError() {
-    document.querySelectorAll(".warning-message-separator")
-      .forEach(separator => separator.classList.add("thin"));
     document.getElementById("warning-message").hidden = false;
     this._availableLocales.enableWithMessageId("messenger-languages-select-language");
+
+    // The height has likely changed, find our SubDialog and tell it to resize.
+    requestAnimationFrame(() => {
+      let dialogs = window.opener.gSubDialog._dialogs;
+      let index = dialogs.findIndex(d => d._frame.contentDocument == document);
+      if (index != -1) {
+        dialogs[index].resizeDialog();
+      }
+    });
   },
 
   hideError() {
-    document.querySelectorAll(".warning-message-separator")
-      .forEach(separator => separator.classList.remove("thin"));
     document.getElementById("warning-message").hidden = true;
   },
 

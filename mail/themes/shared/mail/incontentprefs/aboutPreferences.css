@@ -429,6 +429,10 @@ richlistbox:focus > richlistitem[selected="true"] {
   margin-inline-end: 4px;
 }
 
+#warning-message {
+  margin-top: 8px;
+}
+
 #warning-message > .message-bar-description {
   width: 32em;
 }

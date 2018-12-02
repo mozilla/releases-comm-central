@@ -18,6 +18,11 @@ prefwindow,
   margin: 0;
 }
 
+.contentPane,
+dialog > .dialog-content-box {
+  padding: 4px;
+}
+
 tabbox {
   /* override the rule in certManager.xul */
   margin: 0 0 5px !important;
