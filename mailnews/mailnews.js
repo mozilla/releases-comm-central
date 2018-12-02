@@ -255,7 +255,7 @@ pref("mailnews.reply_header_authorwroteondate", "chrome://messenger/locale/messe
 pref("mailnews.reply_header_originalmessage",   "chrome://messenger/locale/messengercompose/composeMsgs.properties");
 pref("mailnews.forward_header_originalmessage", "chrome://messenger/locale/messengercompose/composeMsgs.properties");
 
-pref("mailnews.reply_to_self_check_all_ident", false);
+pref("mailnews.reply_to_self_check_all_ident", true);
 
 pref("mailnews.reply_quoting_selection",               true);
 pref("mailnews.reply_quoting_selection.only_if_chars", "");
