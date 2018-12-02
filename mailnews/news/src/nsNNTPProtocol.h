@@ -237,11 +237,10 @@ private:
 
   // Cancelation specific state. In particular, the headers that should be
   // used for the cancelation message.
-  // mscott: we can probably replace this stuff with nsString
-  char   *m_cancelFromHdr;
-  char     *m_cancelNewsgroups;
-  char     *m_cancelDistribution;
-  char     *m_cancelID;
+  nsCString m_cancelFromHdr;
+  nsCString m_cancelNewsgroups;
+  nsCString m_cancelDistribution;
+  nsCString m_cancelID;
   int32_t    m_cancelStatus;
 
   // variable for ReadNewsList

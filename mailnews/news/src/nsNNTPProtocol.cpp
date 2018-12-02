@@ -264,11 +264,6 @@ nsNNTPProtocol::nsNNTPProtocol(nsINntpIncomingServer *aServer, nsIURI *aURL,
   m_responseText = nullptr;
   m_dataBuf = nullptr;
 
-  m_cancelFromHdr = nullptr;
-  m_cancelNewsgroups = nullptr;
-  m_cancelDistribution = nullptr;
-  m_cancelID = nullptr;
-
   m_key = nsMsgKey_None;
 
   mBytesReceived = 0;
@@ -305,10 +300,6 @@ void nsNNTPProtocol::Cleanup()  //free char* member variables
 {
   PR_FREEIF(m_responseText);
   PR_FREEIF(m_dataBuf);
-  PR_FREEIF(m_cancelFromHdr);
-  PR_FREEIF(m_cancelNewsgroups);
-  PR_FREEIF(m_cancelDistribution);
-  PR_FREEIF(m_cancelID);
 }
 
 NS_IMETHODIMP nsNNTPProtocol::Initialize(nsIURI *aURL, nsIMsgWindow *aMsgWindow)
@@ -429,10 +420,10 @@ NS_IMETHODIMP nsNNTPProtocol::Initialize(nsIURI *aURL, nsIMsgWindow *aMsgWindow)
 
   m_articleNumber = 0;
   m_originalContentLength = 0;
-  m_cancelID = nullptr;
-  m_cancelFromHdr = nullptr;
-  m_cancelNewsgroups = nullptr;
-  m_cancelDistribution = nullptr;
+  m_cancelID.Truncate();
+  m_cancelFromHdr.Truncate();
+  m_cancelNewsgroups.Truncate();
+  m_cancelDistribution.Truncate();
   return NS_OK;
 }
 
@@ -2257,7 +2248,30 @@ nsresult nsNNTPProtocol::ReadArticle(nsIInputStream * inputStream, uint32_t leng
 
 void nsNNTPProtocol::ParseHeaderForCancel(char *buf)
 {
+    static int lastHeader = 0;
     nsAutoCString header(buf);
+    if (header.First() == ' ' || header.First() == '\t') {
+        header.StripWhitespace();
+        // Add folded line to header if needed.
+        switch (lastHeader) {
+        case 1:
+            m_cancelFromHdr += header;
+            break;
+        case 2:
+            m_cancelID += header;
+            break;
+        case 3:
+            m_cancelNewsgroups += header;
+            break;
+        case 4:
+            m_cancelDistribution += header;
+            break;
+        }
+        // Other folded lines are of no interest.
+        return;
+    }
+
+    lastHeader = 0;
     int32_t colon = header.FindChar(':');
     if (!colon)
     return;
@@ -2268,26 +2282,26 @@ void nsNNTPProtocol::ParseHeaderForCancel(char *buf)
     switch (header.First()) {
     case 'F': case 'f':
         if (header.Find("From", /* ignoreCase = */ true) == 0) {
-            PR_FREEIF(m_cancelFromHdr);
-      m_cancelFromHdr = ToNewCString(value);
+            m_cancelFromHdr = value;
+            lastHeader = 1;
         }
         break;
     case 'M': case 'm':
         if (header.Find("Message-ID", /* ignoreCase = */ true) == 0) {
-            PR_FREEIF(m_cancelID);
-      m_cancelID = ToNewCString(value);
+            m_cancelID = value;
+            lastHeader = 2;
         }
         break;
     case 'N': case 'n':
         if (header.Find("Newsgroups", /* ignoreCase = */ true) == 0) {
-            PR_FREEIF(m_cancelNewsgroups);
-      m_cancelNewsgroups = ToNewCString(value);
+            m_cancelNewsgroups = value;
+            lastHeader = 3;
         }
         break;
      case 'D': case 'd':
         if (header.Find("Distributions", /* ignoreCase = */ true) == 0) {
-            PR_FREEIF(m_cancelDistribution);
-      m_cancelDistribution = ToNewCString(value);
+            m_cancelDistribution = value;
+            lastHeader = 4;
         }
         break;
     }
@@ -3539,15 +3553,8 @@ nsresult nsNNTPProtocol::DoCancel()
     int32_t status = 0;
     bool failure = false;
     nsresult rv = NS_OK;
-    char *id = nullptr;
-    char *subject = nullptr;
-    char *newsgroups = nullptr;
-    char *distribution = nullptr;
-    char *body = nullptr;
     bool requireConfirmationForCancel = true;
     bool showAlertAfterCancel = true;
-
-    int L;
 
   /* #### Should we do a more real check than this?  If the POST command
      didn't respond with "MK_NNTP_RESPONSE_POST_SEND_NOW Ok", then it's not ready for us to throw a
@@ -3555,13 +3562,6 @@ nsresult nsNNTPProtocol::DoCancel()
      Why?
    */
   NS_ASSERTION (m_responseCode == MK_NNTP_RESPONSE_POST_SEND_NOW, "code != POST_SEND_NOW");
-
-  // These shouldn't be set yet, since the headers haven't been "flushed"
-  // "Distribution: " doesn't appear to be required, so
-  // don't assert on m_cancelDistribution
-  NS_ASSERTION (m_cancelID &&
-   m_cancelFromHdr &&
-   m_cancelNewsgroups, "null ptr");
 
   nsCOMPtr<nsIStringBundleService> bundleService =
     mozilla::services::GetStringBundleService();
@@ -3577,9 +3577,9 @@ nsresult nsNNTPProtocol::DoCancel()
   NS_ENSURE_SUCCESS(rv,rv);
   NS_ConvertUTF16toUTF8 appName(brandFullName);
 
-  newsgroups = m_cancelNewsgroups;
-  distribution = m_cancelDistribution;
-  id = m_cancelID;
+  nsCString newsgroups(m_cancelNewsgroups);
+  nsCString distribution (m_cancelDistribution);
+  nsCString id (m_cancelID);
   nsCString oldFrom(m_cancelFromHdr);
 
   nsCOMPtr<nsIPrefBranch> prefBranch = do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
@@ -3593,18 +3593,13 @@ nsresult nsNNTPProtocol::DoCancel()
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  NS_ASSERTION (id && newsgroups, "null ptr");
-  if (!id || !newsgroups) return NS_ERROR_FAILURE;
+  if (id.IsEmpty() || newsgroups.IsEmpty())
+    return NS_ERROR_FAILURE;
 
-  m_cancelNewsgroups = nullptr;
-  m_cancelDistribution = nullptr;
-  m_cancelFromHdr = nullptr;
-  m_cancelID = nullptr;
-
-  L = PL_strlen (id);
-
-  subject = (char *) PR_Malloc (L + 20);
-  body = (char *) PR_Malloc (PL_strlen (appName.get()) + 100);
+  m_cancelNewsgroups.Truncate();
+  m_cancelDistribution.Truncate();
+  m_cancelFromHdr.Truncate();
+  m_cancelID.Truncate();
 
   nsString alertText;
   nsString confirmText;
@@ -3692,20 +3687,10 @@ nsresult nsNNTPProtocol::DoCancel()
       goto FAIL;
   }
 
-  if (!subject || !body)
-  {
-    status = MK_OUT_OF_MEMORY;
-    failure = true;
-    goto FAIL;
-  }
-
-  PL_strcpy (subject, "cancel ");
-  PL_strcat (subject, id);
-
   otherHeaders.AppendLiteral("Control: cancel ");
   otherHeaders += id;
   otherHeaders.AppendLiteral(CRLF);
-  if (distribution) {
+  if (!distribution.IsEmpty()) {
     otherHeaders.AppendLiteral("Distribution: ");
     otherHeaders += distribution;
     otherHeaders.AppendLiteral(CRLF);
@@ -3715,10 +3700,6 @@ nsresult nsNNTPProtocol::DoCancel()
   otherHeaders.AppendLiteral("Content-Type: text/plain");
   otherHeaders.AppendLiteral(CRLF);
 
-  PL_strcpy (body, "This message was cancelled from within ");
-  PL_strcat (body, appName.get());
-  PL_strcat (body, "." CRLF);
-
   m_cancelStatus = 0;
 
   {
@@ -3727,14 +3708,14 @@ nsresult nsNNTPProtocol::DoCancel()
     char *data;
     data = PR_smprintf("From: %s" CRLF
                        "Newsgroups: %s" CRLF
-                       "Subject: %s" CRLF
+                       "Subject: cancel %s" CRLF
                        "References: %s" CRLF
                        "%s" /* otherHeaders, already with CRLF */
                        CRLF /* body separator */
-                       "%s" /* body, already with CRLF */
+                       "This message was cancelled from within %s." CRLF /* body */
                        "." CRLF, /* trailing message terminator "." */
-                       from.get(), newsgroups, subject, id,
-                       otherHeaders.get(), body);
+                       from.get(), newsgroups.get(), id.get(), id.get(),
+                       otherHeaders.get(), appName.get());
 
     rv = SendData(data);
     PR_Free (data);
@@ -3772,12 +3753,6 @@ FAIL:
   if (m_newsFolder)
     rv = ( failure ) ? m_newsFolder->CancelFailed()
                      : m_newsFolder->CancelComplete();
-
-  PR_Free (id);
-  PR_Free (subject);
-  PR_Free (newsgroups);
-  PR_Free (distribution);
-  PR_Free (body);
 
   return rv;
 }
