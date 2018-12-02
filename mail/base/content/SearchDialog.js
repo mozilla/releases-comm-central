@@ -10,6 +10,8 @@
 /* import-globals-from messageDisplay.js */
 /* import-globals-from threadPane.js */
 
+"use strict";
+
 ChromeUtils.import("resource:///modules/MailUtils.jsm");
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -24,7 +26,6 @@ var gMessageDisplay;
 var gFolderPicker;
 var gStatusFeedback;
 var gTimelineEnabled = false;
-var RDF;
 var gSearchBundle;
 
 // Datasource search listener -- made global as it has to be registered
@@ -227,7 +228,7 @@ function searchOnLoad() {
   gSearchStopButton.setAttribute("label", gSearchBundle.getString("labelForSearchButton"));
   gSearchStopButton.setAttribute("accesskey", gSearchBundle.getString("labelForSearchButton.accesskey"));
 
-  gMessageDisplay = new NeverVisisbleMessageDisplayWidget();
+  gMessageDisplay = new NeverVisibleMessageDisplayWidget();
   gFolderDisplay = new SearchFolderDisplayWidget(gMessageDisplay);
   gFolderDisplay.messenger = messenger;
   gFolderDisplay.msgWindow = msgWindow;

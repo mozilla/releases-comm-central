@@ -545,6 +545,14 @@ DBViewWrapper.prototype = {
   },
 
   /**
+   * @return true if the folder being displayed is not a real folder at all,
+   *         but rather the result of a search.
+   */
+  get isSearch() {
+    return this._underlyingData == this.kUnderlyingSearchView;
+  },
+
+  /**
    * Check if the folder in question backs the currently displayed folder.  For
    *  a virtual folder, this is a test of whether the virtual folder includes
    *  messages from the given folder.  For a 'real' single folder, this is
@@ -678,6 +686,11 @@ DBViewWrapper.prototype = {
 
     FolderNotificationHelper.removeNotifications(this._underlyingFolders,
                                                  this);
+    if (this.isSearch || this.isSynthetic) {
+      // Opposite of FolderNotificationHelper.noteCuriosity(this)
+      FolderNotificationHelper.removeNotifications(null, this);
+    }
+
     if (this._underlyingFolders) {
       // (potentially) zero out the underlying msgDatabase references
       for (let folder of this._underlyingFolders)

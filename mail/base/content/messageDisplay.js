@@ -554,10 +554,10 @@ MessageTabDisplayWidget.prototype = {
  *  display widget that is never visible.  No one other than the search
  *  dialog should use this because the search dialog is bad UI.
  */
-function NeverVisisbleMessageDisplayWidget() {
+function NeverVisibleMessageDisplayWidget() {
   MessageDisplayWidget.call(this);
 }
-NeverVisisbleMessageDisplayWidget.prototype = {
+NeverVisibleMessageDisplayWidget.prototype = {
   __proto__: MessageDisplayWidget.prototype,
   get visible() {
     return false;

@@ -9,7 +9,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/folderPane.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 
-<!DOCTYPE dialog [
+<!DOCTYPE window [
   <!ENTITY % SearchDialogDTD SYSTEM "chrome://messenger/locale/SearchDialog.dtd">
   %SearchDialogDTD;
   <!ENTITY % searchTermDTD SYSTEM "chrome://messenger/locale/searchTermOverlay.dtd">
