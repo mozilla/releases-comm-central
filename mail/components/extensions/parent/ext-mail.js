@@ -631,6 +631,11 @@ class Tab extends TabBase {
   get isInReaderMode() {
     return false;
   }
+
+  /** Returns the id of the successor tab of the tab. */
+  get successorTabId() {
+    return -1;
+  }
 }
 
 /**
