@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.import("resource://gre/modules/Downloads.jsm");
+ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 
 var gDownloadDirSection = {
   async chooseFolder() {
@@ -93,10 +94,5 @@ var gDownloadDirSection = {
     downloadFolder.style.backgroundImage = "url(moz-icon://" + urlSpec + "?size=16)";
 
     return undefined;
-  },
-
-  async writeFolderList() {
-    var currentDirPref = document.getElementById("browser.download.downloadDir");
-    return await this._fileToIndex(currentDirPref.value);
   },
 };
