@@ -260,6 +260,10 @@ separator.groove:not([orient="vertical"]) {
   border-bottom-width: 0;
 }
 
+#defaultWebSearchPopup > menuitem > .menu-iconic-left {
+  display: -moz-box;
+}
+
 /* Applications Pane Styles */
 
 #applications-content {
