@@ -42,9 +42,7 @@ var reporterListener = {
 
   onSecurityChange(/* in nsIWebProgress*/ aWebProgress,
                    /* in nsIRequest*/ aRequest,
-                   /* in unsigned long*/ aOldState,
-                   /* in unsigned long*/ aState,
-                   /* in AString*/ aContentBlockingLogJSON) {
+                   /* in unsigned long*/ aState) {
     const wpl_security_bits = wpl.STATE_IS_SECURE |
                               wpl.STATE_IS_BROKEN |
                               wpl.STATE_IS_INSECURE |

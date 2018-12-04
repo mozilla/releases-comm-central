@@ -166,10 +166,8 @@ nsMsgStatusFeedback::OnStatusChange(nsIWebProgress* aWebProgress,
 
 NS_IMETHODIMP
 nsMsgStatusFeedback::OnSecurityChange(nsIWebProgress *aWebProgress,
-                                      nsIRequest *aRequest,
-                                      uint32_t aOldState,
-                                      uint32_t aState,
-                                      const nsAString& aContentBlockingLogJSON)
+                                    nsIRequest *aRequest,
+                                    uint32_t state)
 {
     return NS_OK;
 }

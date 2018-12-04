@@ -82,7 +82,7 @@ nsMsgShutdownTaskListener.prototype =
       updateProgressLabel(aMessage);
   },
 
-  onSecurityChange: function(aWebProgress, aRequest, aOldState, aState, aContentBlockingLogJSON)
+  onSecurityChange: function(aWebProgress, aRequest, state)
   {
     // we can ignore this notification
   }

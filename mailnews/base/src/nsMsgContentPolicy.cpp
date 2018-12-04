@@ -1049,10 +1049,7 @@ nsMsgContentPolicy::OnStatusChange(nsIWebProgress *aWebProgress,
 
 NS_IMETHODIMP
 nsMsgContentPolicy::OnSecurityChange(nsIWebProgress *aWebProgress,
-                                     nsIRequest *aRequest,
-                                     uint32_t aOldState,
-                                     uint32_t aState,
-                                     const nsAString& aContentBlockingLogJSON)
+                                     nsIRequest *aRequest, uint32_t aState)
 {
   return NS_OK;
 }

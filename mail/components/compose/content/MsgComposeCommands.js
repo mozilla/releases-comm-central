@@ -592,7 +592,7 @@ var progressListener = {
     } catch (ex) {}
   },
 
-  onSecurityChange(aWebProgress, aRequest, aOldState, aState, aContentBlockingLogJSON) {
+  onSecurityChange(aWebProgress, aRequest, state) {
     // we can ignore this notification
   },
 

@@ -1763,9 +1763,7 @@
       <method name="onSecurityChange">
         <parameter name="aWebProgress"/>
         <parameter name="aRequest"/>
-        <parameter name="aOldState"/>
         <parameter name="aState"/>
-        <parameter name="aContentBlockingLogJSON"/>
         <body><![CDATA[
           let browser = aWebProgress.QueryInterface(Ci.nsIDocShellTreeItem)
                                     .sameTypeRootTreeItem

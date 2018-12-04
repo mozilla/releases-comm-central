@@ -999,9 +999,7 @@
       <method name="onSecurityChange">
         <parameter name="aProgress"/>
         <parameter name="aRequest"/>
-        <parameter name="aOldState"/>
         <parameter name="aState"/>
-        <parameter name="aContentBlockingLogJSON"/>
       </method>
 
 

@@ -135,7 +135,7 @@ var progressListener = {
   onProgressChange: function(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress) {},
   onLocationChange: function(aWebProgress, aRequest, aLocation, aFlags) {},
   onStatusChange: function(aWebProgress, aRequest, aStatus, aMessage) {},
-  onSecurityChange: function(aWebProgress, aRequest, aOldState, aState, aContentBlockingLogJSON) {},
+  onSecurityChange: function(aWebProgress, aRequest, state) {},
 
   QueryInterface: ChromeUtils.generateQI(["nsIWebProgressListener",
                                           "nsISupportsWeakReference"]),

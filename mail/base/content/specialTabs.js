@@ -139,9 +139,9 @@ tabProgressListener.prototype = {
       this.mProgressListener.onStatusChange(aWebProgress, aRequest, aStatus,
         aMessage);
   },
-  onSecurityChange(aWebProgress, aRequest, aOldState, aState, aContentBlockingLogJSON) {
+  onSecurityChange(aWebProgress, aRequest, aState) {
     if (this.mProgressListener)
-      this.mProgressListener.onSecurityChange(aWebProgress, aRequest, aOldState, aState, aContentBlockingLogJSON);
+      this.mProgressListener.onSecurityChange(aWebProgress, aRequest, aState);
 
     const wpl = Ci.nsIWebProgressListener;
     const wpl_security_bits = wpl.STATE_IS_SECURE |

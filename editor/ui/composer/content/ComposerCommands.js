@@ -1284,7 +1284,7 @@ var gEditorOutputProgressListener =
     }
   },
 
-  onSecurityChange : function(aWebProgress, aRequest, aOldState, aState, aContentBlockingLogJSON)
+  onSecurityChange : function(aWebProgress, aRequest, state)
   {
     if (gShowDebugOutputSecurityChange)
     {
