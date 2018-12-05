@@ -369,7 +369,24 @@ NS_IMETHODIMP nsAbCardProperty::GetUID(nsACString &uid)
 
 NS_IMETHODIMP nsAbCardProperty::SetUID(const nsACString &aUID)
 {
-  return SetPropertyAsAString(kUIDProperty, NS_ConvertUTF8toUTF16(aUID));
+  nsresult rv = SetPropertyAsAString(kUIDProperty, NS_ConvertUTF8toUTF16(aUID));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (m_directoryId.IsEmpty()) {
+    return NS_OK;
+  }
+
+  int ampIndex = m_directoryId.FindChar('&');
+  const nsACString& directoryId = Substring(m_directoryId, 0, ampIndex);
+
+  nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr <nsIAbDirectory> directory = nullptr;
+  rv = abManager->GetDirectoryFromId(directoryId, getter_AddRefs(directory));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return directory->ModifyCard(this);
 }
 
 NS_IMETHODIMP nsAbCardProperty::GetFirstName(nsAString &aString)

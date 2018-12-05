@@ -2230,10 +2230,7 @@ NS_IMETHODIMP nsAddrDatabase::InitCardFromRow(nsIAbCard *newCard, nsIMdbRow* car
   if (NS_SUCCEEDED(rv))
     newCard->SetPropertyAsUint32(kRecordKeyColumn, key);
 
-  nsAutoCString uid;
-  newCard->GetUID(uid);
-  rv = SetCardValue(newCard, kUIDProperty, NS_ConvertUTF8toUTF16(uid).get(), false);
-  return Commit(nsAddrDBCommitType::kSessionCommit);
+  return NS_OK;
 }
 
 nsresult nsAddrDatabase::GetListCardFromDB(nsIAbCard *listCard, nsIMdbRow* listRow)

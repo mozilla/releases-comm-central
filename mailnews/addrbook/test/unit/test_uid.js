@@ -40,6 +40,14 @@ add_task(async function existingContactUID() {
   }
   equal(36, card.UID.length, "Existing contact has a UID");
 
+  let existingUID = card.UID;
+  bookCards = [...book.childCards];
+  card = bookCards[0];
+  if (card.isMailList) {
+    card = bookCards[1];
+  }
+  equal(existingUID, card.UID, "New reference to contact has the same UID");
+
   let abFile = profD.clone();
   abFile.append(kPABData.fileName);
   let response = await fetch(Services.io.newFileURI(abFile).spec);
