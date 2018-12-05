@@ -811,7 +811,16 @@ int ConvertToUTF8(const char *stringToUse, int32_t inLength,
 {
   nsresult rv = NS_OK;
 
-  if (PL_strcasecmp(input_charset, "UTF-7") == 0) {
+  // Look up Thunderbird's special aliases from charsetalias.properties.
+  nsCOMPtr<nsICharsetConverterManager> ccm =
+    do_GetService(NS_CHARSETCONVERTERMANAGER_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, -1);
+
+  nsCString newCharset;
+  rv = ccm->GetCharsetAlias(input_charset, newCharset);
+  NS_ENSURE_SUCCESS(rv, -1);
+
+  if (newCharset.Equals("UTF-7", nsCaseInsensitiveCStringComparator())) {
     nsAutoString utf16;
     rv = CopyUTF7toUTF16(nsDependentCString(stringToUse, inLength), utf16);
     if (NS_FAILED(rv))
@@ -820,7 +829,7 @@ int ConvertToUTF8(const char *stringToUse, int32_t inLength,
     return 0;
   }
 
-  auto encoding = mozilla::Encoding::ForLabel(nsDependentCString(input_charset));
+  auto encoding = mozilla::Encoding::ForLabel(newCharset);
   if (!encoding) {
     // Assume input is UTF-8.
     encoding = UTF_8_ENCODING;
