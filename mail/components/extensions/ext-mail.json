@@ -1,4 +1,12 @@
 {
+  "addressBook": {
+    "url": "chrome://messenger/content/parent/ext-addressBook.js",
+    "schema": "chrome://messenger/content/schemas/addressBook.json",
+    "scopes": ["addon_parent"],
+    "paths": [
+      ["addressBooks"], ["contacts"], ["mailingLists"]
+    ]
+  },
   "browserAction": {
     "url": "chrome://messenger/content/parent/ext-browserAction.js",
     "schema": "chrome://messenger/content/schemas/browserAction.json",
@@ -24,14 +32,6 @@
     "manifest": ["compose_action"],
     "paths": [
       ["composeAction"]
-    ]
-  },
-  "addressBook": {
-    "url": "chrome://messenger/content/parent/ext-addressBook.js",
-    "schema": "chrome://messenger/content/schemas/addressBook.json",
-    "scopes": ["addon_parent"],
-    "paths": [
-      ["addressBooks"], ["contacts"], ["mailingLists"]
     ]
   },
   "legacy": {
