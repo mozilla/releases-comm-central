@@ -63,12 +63,12 @@ function testEncodeAliases()
 
 function testDecodeAliasesInternal()
 {
-  var converter = CreateScriptableConverter();
+  let manager = Cc['@mozilla.org/charset-converter-manager;1']
+                  .getService(Ci.nsICharsetConverterManager);
+  let converter = CreateScriptableConverter();
   converter.isInternal = true;
-  for (var i = 0; i < aliases.length; ++i) {
-    if (aliases[i].toLowerCase() == "utf-7") {
-      let manager = Cc['@mozilla.org/charset-converter-manager;1']
-                      .getService(Ci.nsICharsetConverterManager);
+  for (let i = 0; i < aliases.length; ++i) {
+    if (manager.getCharsetAlias(aliases[i]).toLowerCase() == "utf-7") {
       Assert.equal(manager.utf7ToUnicode(inString), expectedString);
     } else {
       checkDecode(converter, aliases[i], inString, expectedString);

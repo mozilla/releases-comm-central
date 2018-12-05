@@ -15,6 +15,11 @@ var tests = [
   ["\xC2\xA31", "\u00A31", "ISO-8859-2"],
   ["\xA31", "\u01411", "ISO-8859-2"],
   ["\xC21", "\u00C21", "ISO-8859-1"],
+  // "Here comes the text." in Japanese encoded in Shift_JIS, also using Thunderbird's alias cp932.
+  ["=?shift_jis?Q?=82=b1=82=b1=82=c9=96=7b=95=b6=82=aa=82=ab=82=dc=82=b7=81=42?=", "ここに本文がきます。"],
+  ["=?shift_jis?B?grGCsYLJlnuVtoKqgquC3IK3gUI=?=", "ここに本文がきます。"],
+  ["=?cp932?Q?=82=b1=82=b1=82=c9=96=7b=95=b6=82=aa=82=ab=82=dc=82=b7=81=42?=", "ここに本文がきます。"],
+  ["=?cp932?B?grGCsYLJlnuVtoKqgquC3IK3gUI=?=", "ここに本文がきます。"],
 ];
 
 function run_test() {
