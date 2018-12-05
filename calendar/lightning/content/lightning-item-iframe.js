@@ -2741,7 +2741,7 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
             let rrules = splitRecurrenceRules(window.recurrenceInfo);
             let rule = rrules[0][0];
             gUntilDate = null;
-            if (!rule.isByCount && rule.isFinite) {
+            if (!rule.isByCount && rule.isFinite && rule.untilDate) {
                 gUntilDate = rule.untilDate.clone().getInTimezone(cal.dtz.defaultTimezone);
             }
         }
