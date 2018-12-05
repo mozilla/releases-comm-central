@@ -28,7 +28,7 @@ function UpdateMailToolbar(caller) {
 
 function isNewsURI(uri) {
   if (!uri) {
-      return false;
+    return false;
   }
   return uri.startsWith("news:/") || uri.startsWith("news-message:/");
 }
@@ -68,13 +68,13 @@ function SetNewsFolderColumns() {
   var bundle = document.getElementById("bundle_messenger");
 
   if (gDBView.usingLines) {
-     sizeColumn.setAttribute("label", bundle.getString("linesColumnHeader"));
-     sizeColumn.setAttribute("tooltiptext",
-                             bundle.getString("linesColumnTooltip2"));
+    sizeColumn.setAttribute("label", bundle.getString("linesColumnHeader"));
+    sizeColumn.setAttribute("tooltiptext",
+                            bundle.getString("linesColumnTooltip2"));
   } else {
-     sizeColumn.setAttribute("label", bundle.getString("sizeColumnHeader"));
-     sizeColumn.setAttribute("tooltiptext",
-                             bundle.getString("sizeColumnTooltip2"));
+    sizeColumn.setAttribute("label", bundle.getString("sizeColumnHeader"));
+    sizeColumn.setAttribute("tooltiptext",
+                            bundle.getString("sizeColumnTooltip2"));
   }
 }
 
@@ -101,9 +101,8 @@ function UpdateStatusMessageCounts(folder) {
     var bundle = document.getElementById("bundle_messenger");
 
     var numUnread = (numSelected > 1) ?
-            bundle.getFormattedString("selectedMsgStatus", [numSelected]) :
-            bundle.getFormattedString("unreadMsgStatus",
-                                      [folder.getNumUnread(false)]);
+      bundle.getFormattedString("selectedMsgStatus", [numSelected]) :
+      bundle.getFormattedString("unreadMsgStatus", [folder.getNumUnread(false)]);
     var numTotal = bundle.getFormattedString("totalMsgStatus",
                                              [folder.getTotalMessages(false)]);
 
@@ -329,9 +328,9 @@ function FolderPaneSelectionChange() {
 }
 
 function Undo() {
-    messenger.undo(msgWindow);
+  messenger.undo(msgWindow);
 }
 
 function Redo() {
-    messenger.redo(msgWindow);
+  messenger.redo(msgWindow);
 }

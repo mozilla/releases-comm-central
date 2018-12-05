@@ -88,7 +88,7 @@ function getWindowsVersionInfo() {
   // http://msdn.microsoft.com/en-us/library/ms724833%28v=vs.85%29.aspx
   const SZCSDVERSIONLENGTH = 128;
   const OSVERSIONINFOEXW = new ctypes.StructType("OSVERSIONINFOEXW",
-      [
+    [
       {dwOSVersionInfoSize: DWORD},
       {dwMajorVersion: DWORD},
       {dwMinorVersion: DWORD},
@@ -100,7 +100,7 @@ function getWindowsVersionInfo() {
       {wSuiteMask: WORD},
       {wProductType: BYTE},
       {wReserved: BYTE},
-      ]);
+    ]);
 
   let kernel32 = ctypes.open("kernel32");
   try {
@@ -167,50 +167,50 @@ var gSummaryFrameManager;
 
 // the folderListener object
 var folderListener = {
-    OnItemAdded(parentItem, item) {},
+  OnItemAdded(parentItem, item) {},
 
-    OnItemRemoved(parentItem, item) {},
+  OnItemRemoved(parentItem, item) {},
 
-    OnItemPropertyChanged(item, property, oldValue, newValue) {},
+  OnItemPropertyChanged(item, property, oldValue, newValue) {},
 
-    OnItemIntPropertyChanged(item, property, oldValue, newValue) {
-      if (item == gFolderDisplay.displayedFolder) {
-        if (property == "TotalMessages" || property == "TotalUnreadMessages") {
-          UpdateStatusMessageCounts(gFolderDisplay.displayedFolder);
-        }
+  OnItemIntPropertyChanged(item, property, oldValue, newValue) {
+    if (item == gFolderDisplay.displayedFolder) {
+      if (property == "TotalMessages" || property == "TotalUnreadMessages") {
+        UpdateStatusMessageCounts(gFolderDisplay.displayedFolder);
       }
-    },
+    }
+  },
 
-    OnItemBoolPropertyChanged(item, property, oldValue, newValue) {},
+  OnItemBoolPropertyChanged(item, property, oldValue, newValue) {},
 
-    OnItemUnicharPropertyChanged(item, property, oldValue, newValue) {},
-    OnItemPropertyFlagChanged(item, property, oldFlag, newFlag) {},
+  OnItemUnicharPropertyChanged(item, property, oldValue, newValue) {},
+  OnItemPropertyFlagChanged(item, property, oldFlag, newFlag) {},
 
-    OnItemEvent(folder, event) {
-      if (event == "ImapHdrDownloaded") {
-        if (folder) {
-          var imapFolder = folder.QueryInterface(Ci.nsIMsgImapMailFolder);
-          if (imapFolder) {
-            var hdrParser = imapFolder.hdrParser;
-            if (hdrParser) {
-              var msgHdr = hdrParser.GetNewMsgHdr();
-              if (msgHdr) {
-                var hdrs = hdrParser.headers;
-                if (hdrs && hdrs.indexOf("X-attachment-size:") > 0) {
-                  msgHdr.OrFlags(Ci.nsMsgMessageFlags
-                                   .Attachment);
-                }
-                if (hdrs && hdrs.indexOf("X-image-size:") > 0) {
-                  msgHdr.setStringProperty("imageSize", "1");
-                }
+  OnItemEvent(folder, event) {
+    if (event == "ImapHdrDownloaded") {
+      if (folder) {
+        var imapFolder = folder.QueryInterface(Ci.nsIMsgImapMailFolder);
+        if (imapFolder) {
+          var hdrParser = imapFolder.hdrParser;
+          if (hdrParser) {
+            var msgHdr = hdrParser.GetNewMsgHdr();
+            if (msgHdr) {
+              var hdrs = hdrParser.headers;
+              if (hdrs && hdrs.indexOf("X-attachment-size:") > 0) {
+                msgHdr.OrFlags(Ci.nsMsgMessageFlags
+                                 .Attachment);
+              }
+              if (hdrs && hdrs.indexOf("X-image-size:") > 0) {
+                msgHdr.setStringProperty("imageSize", "1");
               }
             }
           }
         }
-      } else if (event == "JunkStatusChanged") {
-        HandleJunkStatusChanged(folder);
       }
-    },
+    } else if (event == "JunkStatusChanged") {
+      HandleJunkStatusChanged(folder);
+    }
+  },
 };
 
 function ServerContainsFolder(server, folder) {
@@ -228,52 +228,52 @@ function SelectServer(server) {
 // alter the folder pane selection when a server is removed
 // or changed (currently, when the real username or real hostname change)
 var gThreePaneIncomingServerListener = {
-    onServerLoaded(server) {},
-    onServerUnloaded(server) {
-      let defaultAccount = accountManager.defaultAccount;
-      if (!defaultAccount) {
-       // If there is no default server we have nothing to do.
-       return;
-      }
+  onServerLoaded(server) {},
+  onServerUnloaded(server) {
+    let defaultAccount = accountManager.defaultAccount;
+    if (!defaultAccount) {
+     // If there is no default server we have nothing to do.
+     return;
+    }
 
-      let defaultServer = defaultAccount.incomingServer;
-      var selectedFolders = GetSelectedMsgFolders();
-      for (var i = 0; i < selectedFolders.length; i++) {
-        if (ServerContainsFolder(server, selectedFolders[i])) {
-          SelectServer(defaultServer);
-          // we've made a new selection, we're done
-          return;
-        }
-      }
-
-      // if nothing is selected at this point, better go select the default
-      // this could happen if nothing was selected when the server was removed
-      selectedFolders = GetSelectedMsgFolders();
-      if (selectedFolders.length == 0) {
+    let defaultServer = defaultAccount.incomingServer;
+    var selectedFolders = GetSelectedMsgFolders();
+    for (var i = 0; i < selectedFolders.length; i++) {
+      if (ServerContainsFolder(server, selectedFolders[i])) {
         SelectServer(defaultServer);
-      }
-    },
-    onServerChanged(server) {
-      // if the current selected folder is on the server that changed
-      // and that server is an imap or news server,
-      // we need to update the selection.
-      // on those server types, we'll be reconnecting to the server
-      // and our currently selected folder will need to be reloaded
-      // or worse, be invalid.
-      if (server.type != "imap" && server.type != "nntp")
+        // we've made a new selection, we're done
         return;
-
-      var selectedFolders = GetSelectedMsgFolders();
-      for (var i = 0; i < selectedFolders.length; i++) {
-        // if the selected item is a server, we don't have to update
-        // the selection
-        if (!(selectedFolders[i].isServer) && ServerContainsFolder(server, selectedFolders[i])) {
-          SelectServer(server);
-          // we've made a new selection, we're done
-          return;
-        }
       }
-    },
+    }
+
+    // if nothing is selected at this point, better go select the default
+    // this could happen if nothing was selected when the server was removed
+    selectedFolders = GetSelectedMsgFolders();
+    if (selectedFolders.length == 0) {
+      SelectServer(defaultServer);
+    }
+  },
+  onServerChanged(server) {
+    // if the current selected folder is on the server that changed
+    // and that server is an imap or news server,
+    // we need to update the selection.
+    // on those server types, we'll be reconnecting to the server
+    // and our currently selected folder will need to be reloaded
+    // or worse, be invalid.
+    if (server.type != "imap" && server.type != "nntp")
+      return;
+
+    var selectedFolders = GetSelectedMsgFolders();
+    for (var i = 0; i < selectedFolders.length; i++) {
+      // if the selected item is a server, we don't have to update
+      // the selection
+      if (!(selectedFolders[i].isServer) && ServerContainsFolder(server, selectedFolders[i])) {
+        SelectServer(server);
+        // we've made a new selection, we're done
+        return;
+      }
+    }
+  },
 };
 
 // aMsgWindowInitialized: false if we are calling from the onload handler, otherwise true
@@ -843,105 +843,105 @@ function loadStartMsgHdr(aStartMsgHdr) {
 }
 
 function loadStartFolder(initialUri) {
-    var defaultServer = null;
-    var startFolder;
-    var isLoginAtStartUpEnabled = false;
+  var defaultServer = null;
+  var startFolder;
+  var isLoginAtStartUpEnabled = false;
 
-    // If a URI was explicitly specified, we'll just clobber the default tab
-    let loadFolder = !atStartupRestoreTabs(!!initialUri);
+  // If a URI was explicitly specified, we'll just clobber the default tab
+  let loadFolder = !atStartupRestoreTabs(!!initialUri);
 
-    if (initialUri)
-      loadFolder = true;
+  if (initialUri)
+    loadFolder = true;
 
-    // First get default account
-    try {
-        if (initialUri) {
-            startFolder = MailUtils.getOrCreateFolder(initialUri);
-        } else {
-            let defaultAccount = accountManager.defaultAccount;
-            if (!defaultAccount)
-                return;
+  // First get default account
+  try {
+    if (initialUri) {
+        startFolder = MailUtils.getOrCreateFolder(initialUri);
+    } else {
+        let defaultAccount = accountManager.defaultAccount;
+        if (!defaultAccount)
+            return;
 
-            defaultServer = defaultAccount.incomingServer;
-            var rootMsgFolder = defaultServer.rootMsgFolder;
+        defaultServer = defaultAccount.incomingServer;
+        var rootMsgFolder = defaultServer.rootMsgFolder;
 
-            startFolder = rootMsgFolder;
+        startFolder = rootMsgFolder;
 
-            // Enable check new mail once by turning checkmail pref 'on' to bring
-            // all users to one plane. This allows all users to go to Inbox. User can
-            // always go to server settings panel and turn off "Check for new mail at startup"
-            if (!Services.prefs.getBoolPref(kMailCheckOncePrefName)) {
-                Services.prefs.setBoolPref(kMailCheckOncePrefName, true);
-                defaultServer.loginAtStartUp = true;
-            }
-
-            // Get the user pref to see if the login at startup is enabled for default account
-            isLoginAtStartUpEnabled = defaultServer.loginAtStartUp;
-
-            // Get Inbox only if login at startup is enabled.
-            if (isLoginAtStartUpEnabled) {
-                // now find Inbox
-                var inboxFolder = rootMsgFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
-                if (!inboxFolder) return;
-
-                startFolder = inboxFolder;
-            }
+        // Enable check new mail once by turning checkmail pref 'on' to bring
+        // all users to one plane. This allows all users to go to Inbox. User can
+        // always go to server settings panel and turn off "Check for new mail at startup"
+        if (!Services.prefs.getBoolPref(kMailCheckOncePrefName)) {
+            Services.prefs.setBoolPref(kMailCheckOncePrefName, true);
+            defaultServer.loginAtStartUp = true;
         }
 
-        // it is possible we were given an initial uri and we need to subscribe or try to add
-        // the folder. i.e. the user just clicked on a news folder they aren't subscribed to from a browser
-        // the news url comes in here.
+        // Get the user pref to see if the login at startup is enabled for default account
+        isLoginAtStartUpEnabled = defaultServer.loginAtStartUp;
 
-        // Perform biff on the server to check for new mail, except for imap
-        // or a pop3 account that is deferred or deferred to,
-        // or the case where initialUri is non-null (non-startup)
-        if (!initialUri && isLoginAtStartUpEnabled
-            && !defaultServer.isDeferredTo &&
-            defaultServer.rootFolder == defaultServer.rootMsgFolder)
-          defaultServer.performBiff(msgWindow);
-        if (loadFolder) {
-          try {
-            gFolderTreeView.selectFolder(startFolder);
-          } catch (ex) {
-            // This means we tried to select a folder that isn't in the current
-            // view. Just select the first one in the view then.
-            if (gFolderTreeView._rowMap.length)
-              gFolderTreeView.selectFolder(gFolderTreeView._rowMap[0]._folder);
-          }
-        }
-    } catch (ex) {
-      // this is the case where we're trying to auto-subscribe to a folder.
-      if (initialUri && !startFolder.parent) {
-        // hack to force display of thread pane.
-        if (IsMessagePaneCollapsed) {
-          MsgToggleMessagePane();
-        }
-        messenger.loadURL(window, initialUri);
-        return;
-      }
+        // Get Inbox only if login at startup is enabled.
+        if (isLoginAtStartUpEnabled) {
+            // now find Inbox
+            var inboxFolder = rootMsgFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
+            if (!inboxFolder) return;
 
-      Cu.reportError(ex);
+            startFolder = inboxFolder;
+        }
     }
 
-    MsgGetMessagesForAllServers(defaultServer);
+    // it is possible we were given an initial uri and we need to subscribe or try to add
+    // the folder. i.e. the user just clicked on a news folder they aren't subscribed to from a browser
+    // the news url comes in here.
 
-    if (MailOfflineMgr.isOnline()) {
-      // Check if we shut down offline, and restarted online, in which case
-      // we may have offline events to playback. Since this is not a pref
-      // the user should set, it's not in mailnews.js, so we need a try catch.
-      let playbackOfflineEvents = Services.prefs.getBoolPref("mailnews.playback_offline", false);
-      if (playbackOfflineEvents) {
-        Services.prefs.setBoolPref("mailnews.playback_offline", false);
-        MailOfflineMgr.offlineManager.goOnline(false, true, msgWindow);
+    // Perform biff on the server to check for new mail, except for imap
+    // or a pop3 account that is deferred or deferred to,
+    // or the case where initialUri is non-null (non-startup)
+    if (!initialUri && isLoginAtStartUpEnabled
+        && !defaultServer.isDeferredTo &&
+        defaultServer.rootFolder == defaultServer.rootMsgFolder)
+      defaultServer.performBiff(msgWindow);
+    if (loadFolder) {
+      try {
+        gFolderTreeView.selectFolder(startFolder);
+      } catch (ex) {
+        // This means we tried to select a folder that isn't in the current
+        // view. Just select the first one in the view then.
+        if (gFolderTreeView._rowMap.length)
+          gFolderTreeView.selectFolder(gFolderTreeView._rowMap[0]._folder);
       }
-
-      // If appropriate, send unsent messages. This may end up prompting the user,
-      // so we need to get it out of the flow of the normal load sequence.
-      setTimeout(function() {
-        if (MailOfflineMgr.shouldSendUnsentMessages())
-          SendUnsentMessages();
-      }, 0);
     }
+  } catch (ex) {
+    // this is the case where we're trying to auto-subscribe to a folder.
+    if (initialUri && !startFolder.parent) {
+      // hack to force display of thread pane.
+      if (IsMessagePaneCollapsed) {
+        MsgToggleMessagePane();
+      }
+      messenger.loadURL(window, initialUri);
+      return;
+    }
+
+    Cu.reportError(ex);
+  }
+
+  MsgGetMessagesForAllServers(defaultServer);
+
+  if (MailOfflineMgr.isOnline()) {
+    // Check if we shut down offline, and restarted online, in which case
+    // we may have offline events to playback. Since this is not a pref
+    // the user should set, it's not in mailnews.js, so we need a try catch.
+    let playbackOfflineEvents = Services.prefs.getBoolPref("mailnews.playback_offline", false);
+    if (playbackOfflineEvents) {
+      Services.prefs.setBoolPref("mailnews.playback_offline", false);
+      MailOfflineMgr.offlineManager.goOnline(false, true, msgWindow);
+    }
+
+    // If appropriate, send unsent messages. This may end up prompting the user,
+    // so we need to get it out of the flow of the normal load sequence.
+    setTimeout(function() {
+      if (MailOfflineMgr.shouldSendUnsentMessages())
+        SendUnsentMessages();
+    }, 0);
+  }
 }
 
 function AddToSession() {
@@ -1053,7 +1053,7 @@ function ClearMessagePane() {
     if (messagePane.location.href != "about:blank")
       messagePane.location.href = "about:blank";
   } catch (ex) {
-      logException(ex, false, "error clearing message pane");
+    logException(ex, false, "error clearing message pane");
   }
 }
 
@@ -1126,15 +1126,15 @@ function ChangeSelectionWithoutContentLoad(event, tree, aSingleSelect) {
 }
 
 function TreeOnMouseDown(event) {
-    // Detect right mouse click and change the highlight to the row
-    // where the click happened without loading the message headers in
-    // the Folder or Thread Pane.
-    // Same for middle click, which will open the folder/message in a tab.
-    if (event.button == 2 || event.button == 1) {
-      // We want a single selection if this is a middle-click (button 1)
-      ChangeSelectionWithoutContentLoad(event, event.target.parentNode,
-                                        event.button == 1);
-    }
+  // Detect right mouse click and change the highlight to the row
+  // where the click happened without loading the message headers in
+  // the Folder or Thread Pane.
+  // Same for middle click, which will open the folder/message in a tab.
+  if (event.button == 2 || event.button == 1) {
+    // We want a single selection if this is a middle-click (button 1)
+    ChangeSelectionWithoutContentLoad(event, event.target.parentNode,
+                                      event.button == 1);
+  }
 }
 
 function FolderPaneContextMenuNewTab(event) {
@@ -1300,7 +1300,7 @@ function ThreadPaneOnDragStart(aEvent) {
 
   let messageUris = gFolderDisplay.selectedMessageUris;
   if (!messageUris)
-     return;
+    return;
 
   gFolderDisplay.hintAboutToDeleteMessages();
   let messengerBundle = document.getElementById("bundle_messenger");
@@ -1356,7 +1356,6 @@ function ThreadPaneOnDragStart(aEvent) {
                                      encodeURIComponent(msgFileName), index);
     aEvent.dataTransfer.mozSetDataAt("application/x-moz-file-promise",
                                      new messageFlavorDataProvider(), index);
-
   }
 
   aEvent.dataTransfer.effectAllowed = "copyMove";

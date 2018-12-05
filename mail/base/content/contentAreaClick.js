@@ -7,51 +7,51 @@
 /* import-globals-from mailWindow.js */
 /* import-globals-from phishingDetector.js */
 
-  /**
-   * Extract the href from the link click event.
-   * We look for HTMLAnchorElement, HTMLAreaElement, HTMLLinkElement,
-   * HTMLInputElement.form.action, and nested anchor tags.
-   * If the clicked element was a HTMLInputElement or HTMLButtonElement
-   * we return the form action.
-   *
-   * @return href for the url being clicked
-   */
+/**
+ * Extract the href from the link click event.
+ * We look for HTMLAnchorElement, HTMLAreaElement, HTMLLinkElement,
+ * HTMLInputElement.form.action, and nested anchor tags.
+ * If the clicked element was a HTMLInputElement or HTMLButtonElement
+ * we return the form action.
+ *
+ * @return href for the url being clicked
+ */
 
-  ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
-  ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-  function hRefForClickEvent(aEvent, aDontCheckInputElement) {
-    var href;
-    var isKeyCommand = (aEvent.type == "command");
-    var target =
-      isKeyCommand ? document.commandDispatcher.focusedElement : aEvent.target;
+function hRefForClickEvent(aEvent, aDontCheckInputElement) {
+  var href;
+  var isKeyCommand = (aEvent.type == "command");
+  var target =
+    isKeyCommand ? document.commandDispatcher.focusedElement : aEvent.target;
 
-    if (target instanceof HTMLAnchorElement ||
-        target instanceof HTMLAreaElement ||
-        target instanceof HTMLLinkElement) {
-      if (target.hasAttribute("href"))
-        href = target.href;
-    } else if (target instanceof HTMLImageElement &&
-               target.hasAttribute("overflowing")) {
-      // Return if an image is zoomed, otherwise fall through to see if it has
-      // a link node.
-      return href;
-    } else if (!aDontCheckInputElement && ((target instanceof HTMLInputElement) ||
-                                           (target instanceof HTMLButtonElement))) {
-      if (target.form && target.form.action)
-        href = target.form.action;
-    } else {
-      // We may be nested inside of a link node.
-      var linkNode = aEvent.originalTarget;
-      while (linkNode && !(linkNode instanceof HTMLAnchorElement))
-        linkNode = linkNode.parentNode;
-
-      if (linkNode)
-        href = linkNode.href;
-    }
-
+  if (target instanceof HTMLAnchorElement ||
+      target instanceof HTMLAreaElement ||
+      target instanceof HTMLLinkElement) {
+    if (target.hasAttribute("href"))
+      href = target.href;
+  } else if (target instanceof HTMLImageElement &&
+             target.hasAttribute("overflowing")) {
+    // Return if an image is zoomed, otherwise fall through to see if it has
+    // a link node.
     return href;
+  } else if (!aDontCheckInputElement && ((target instanceof HTMLInputElement) ||
+                                         (target instanceof HTMLButtonElement))) {
+    if (target.form && target.form.action)
+      href = target.form.action;
+  } else {
+    // We may be nested inside of a link node.
+    var linkNode = aEvent.originalTarget;
+    while (linkNode && !(linkNode instanceof HTMLAnchorElement))
+      linkNode = linkNode.parentNode;
+
+    if (linkNode)
+      href = linkNode.href;
   }
+
+  return href;
+}
 
 function messagePaneOnResize(aEvent) {
   // Scale any overflowing images, exclude http content.

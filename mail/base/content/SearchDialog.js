@@ -40,90 +40,90 @@ var gSearchOnline = false;
 
 // Controller object for search results thread pane
 var nsSearchResultsController = {
-    supportsCommand(command) {
-        switch (command) {
-        case "cmd_delete":
-        case "cmd_shiftDelete":
-        case "button_delete":
-        case "cmd_open":
-        case "file_message_button":
-        case "open_in_folder_button":
-        case "saveas_vf_button":
-        case "cmd_selectAll":
-            return true;
-        default:
-            return false;
-        }
-    },
+  supportsCommand(command) {
+    switch (command) {
+      case "cmd_delete":
+      case "cmd_shiftDelete":
+      case "button_delete":
+      case "cmd_open":
+      case "file_message_button":
+      case "open_in_folder_button":
+      case "saveas_vf_button":
+      case "cmd_selectAll":
+        return true;
+      default:
+        return false;
+    }
+  },
 
-    // this controller only handles commands
-    // that rely on items being selected in
-    // the search results pane.
-    isCommandEnabled(command) {
-        var enabled = true;
+  // this controller only handles commands
+  // that rely on items being selected in
+  // the search results pane.
+  isCommandEnabled(command) {
+    var enabled = true;
 
-        switch (command) {
-          case "open_in_folder_button":
-            if (gFolderDisplay.selectedCount != 1)
-              enabled = false;
-            break;
-          case "cmd_delete":
-          case "cmd_shiftDelete":
-          case "button_delete":
-            // this assumes that advanced searches don't cross accounts
-            if (gFolderDisplay.selectedCount <= 0)
-              enabled = false;
-            break;
-          case "saveas_vf_button":
-              // need someway to see if there are any search criteria...
-              return true;
-          case "cmd_selectAll":
-            return true;
-          default:
-            if (gFolderDisplay.selectedCount <= 0)
-              enabled = false;
-            break;
-        }
+    switch (command) {
+      case "open_in_folder_button":
+        if (gFolderDisplay.selectedCount != 1)
+          enabled = false;
+        break;
+      case "cmd_delete":
+      case "cmd_shiftDelete":
+      case "button_delete":
+        // this assumes that advanced searches don't cross accounts
+        if (gFolderDisplay.selectedCount <= 0)
+          enabled = false;
+        break;
+      case "saveas_vf_button":
+        // need someway to see if there are any search criteria...
+        return true;
+      case "cmd_selectAll":
+        return true;
+      default:
+        if (gFolderDisplay.selectedCount <= 0)
+          enabled = false;
+        break;
+    }
 
-        return enabled;
-    },
+    return enabled;
+  },
 
-    doCommand(command) {
-        switch (command) {
-        case "cmd_open":
-            MsgOpenSelectedMessages();
-            return true;
+  doCommand(command) {
+    switch (command) {
+      case "cmd_open":
+        MsgOpenSelectedMessages();
+        return true;
 
-        case "cmd_delete":
-        case "button_delete":
-            MsgDeleteSelectedMessages(Ci.nsMsgViewCommandType.deleteMsg);
-            return true;
-        case "cmd_shiftDelete":
-            MsgDeleteSelectedMessages(Ci.nsMsgViewCommandType.deleteNoTrash);
-            return true;
+      case "cmd_delete":
+      case "button_delete":
+        MsgDeleteSelectedMessages(Ci.nsMsgViewCommandType.deleteMsg);
+        return true;
 
-        case "open_in_folder_button":
-            OpenInFolder();
-            return true;
+      case "cmd_shiftDelete":
+        MsgDeleteSelectedMessages(Ci.nsMsgViewCommandType.deleteNoTrash);
+        return true;
 
-        case "saveas_vf_button":
-            saveAsVirtualFolder();
-            return true;
+      case "open_in_folder_button":
+        OpenInFolder();
+        return true;
 
-        case "cmd_selectAll":
-            // move the focus to the search results pane
-            GetThreadTree().focus();
-            gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.selectAll);
-            return true;
+      case "saveas_vf_button":
+        saveAsVirtualFolder();
+        return true;
 
-        default:
-            return false;
-        }
+      case "cmd_selectAll":
+        // move the focus to the search results pane
+        GetThreadTree().focus();
+        gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.selectAll);
+        return true;
 
-    },
+      default:
+        return false;
+    }
+  },
 
-    onEvent(event) {
-    },
+  onEvent(event) {
+  },
 };
 
 function UpdateMailSearch(caller) {
@@ -246,7 +246,7 @@ function searchOnLoad() {
   });
 
   if (window.arguments && window.arguments[0])
-      updateSearchFolderPicker(window.arguments[0].folder);
+    updateSearchFolderPicker(window.arguments[0].folder);
 
   // trigger searchTermOverlay.js to create the first criterion
   onMore(null);
@@ -263,21 +263,21 @@ function searchOnUnload() {
 }
 
 function initializeSearchWindowWidgets() {
-    gFolderPicker = document.getElementById("searchableFolders");
-    gSearchStopButton = document.getElementById("search-button");
-    hideMatchAllItem();
+  gFolderPicker = document.getElementById("searchableFolders");
+  gSearchStopButton = document.getElementById("search-button");
+  hideMatchAllItem();
 
-    msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
-                  .createInstance(Ci.nsIMsgWindow);
-    msgWindow.domWindow = window;
-    msgWindow.rootDocShell.appType = Ci.nsIDocShell.APP_TYPE_MAIL;
+  msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
+                .createInstance(Ci.nsIMsgWindow);
+  msgWindow.domWindow = window;
+  msgWindow.rootDocShell.appType = Ci.nsIDocShell.APP_TYPE_MAIL;
 
-    gStatusFeedback = new nsMsgStatusFeedback();
-    msgWindow.statusFeedback = gStatusFeedback;
+  gStatusFeedback = new nsMsgStatusFeedback();
+  msgWindow.statusFeedback = gStatusFeedback;
 
-    // functionality to enable/disable buttons using nsSearchResultsController
-    // depending of whether items are selected in the search results thread pane.
-    top.controllers.insertControllerAt(0, nsSearchResultsController);
+  // functionality to enable/disable buttons using nsSearchResultsController
+  // depending of whether items are selected in the search results thread pane.
+  top.controllers.insertControllerAt(0, nsSearchResultsController);
 }
 
 
@@ -324,10 +324,10 @@ function onEnterInSearchTerm() {
   // if not searching, start the search
   // if searching, stop and then start again
   if (gSearchStopButton.getAttribute("label") == gSearchBundle.getString("labelForSearchButton")) {
-     onSearch();
+    onSearch();
   } else {
-     onSearchStop();
-     onSearch();
+    onSearchStop();
+    onSearch();
   }
 }
 
@@ -494,7 +494,6 @@ function GetScopeForFolder(folder) {
     default:
       return nsMsgSearchScope.offlineMail;
   }
-
 }
 
 function goUpdateSearchItems(commandset) {
@@ -508,15 +507,15 @@ function goUpdateSearchItems(commandset) {
 
 // used to toggle functionality for Search/Stop button.
 function onSearchButton(event) {
-    if (event.target.label == gSearchBundle.getString("labelForSearchButton"))
-        onSearch();
-    else
-        onSearchStop();
+  if (event.target.label == gSearchBundle.getString("labelForSearchButton"))
+    onSearch();
+  else
+    onSearchStop();
 }
 
 function MsgDeleteSelectedMessages(aCommandType) {
-    gFolderDisplay.hintAboutToDeleteMessages();
-    gFolderDisplay.doCommand(aCommandType);
+  gFolderDisplay.hintAboutToDeleteMessages();
+  gFolderDisplay.doCommand(aCommandType);
 }
 
 function MoveMessageInSearch(destFolder) {

@@ -183,67 +183,67 @@ var mailTabType = {
         }
       },
       restoreTab(aTabmail, aPersistedState) {
-      try {
-        let folder = MailUtils.getExistingFolder(aPersistedState.folderURI);
-        // if the folder no longer exists, we can't restore the tab
-        if (folder) {
-          let folderPaneVisible = ("folderPaneVisible" in aPersistedState) ?
-                                    aPersistedState.folderPaneVisible :
-                                    true;
-          // If we are talking about the first tab, it already exists and we
-          //  should poke it.  We are assuming it is the currently displayed
-          //  tab because we are privvy to the implementation details and know
-          //  it to be true.
-          if (aPersistedState.firstTab) {
-            // Poke the folder pane box and splitter
-            document.getElementById("folderPaneBox").collapsed =
-              !folderPaneVisible;
-            document.getElementById("folderpane_splitter").setAttribute("state",
-              (folderPaneVisible ? "open" : "collapsed"));
+        try {
+          let folder = MailUtils.getExistingFolder(aPersistedState.folderURI);
+          // if the folder no longer exists, we can't restore the tab
+          if (folder) {
+            let folderPaneVisible = ("folderPaneVisible" in aPersistedState) ?
+                                      aPersistedState.folderPaneVisible :
+                                      true;
+            // If we are talking about the first tab, it already exists and we
+            //  should poke it.  We are assuming it is the currently displayed
+            //  tab because we are privvy to the implementation details and know
+            //  it to be true.
+            if (aPersistedState.firstTab) {
+              // Poke the folder pane box and splitter
+              document.getElementById("folderPaneBox").collapsed =
+                !folderPaneVisible;
+              document.getElementById("folderpane_splitter").setAttribute("state",
+                (folderPaneVisible ? "open" : "collapsed"));
 
-            if (gMessageDisplay.visible != aPersistedState.messagePaneVisible) {
-              MsgToggleMessagePane();
-              // For reasons that are not immediately obvious, sometimes the
-              //  message display is not active at this time.  In that case, we
-              //  need to explicitly set the _visible value because otherwise it
-              //  misses out on the toggle event.
-              if (!gMessageDisplay._active)
-                gMessageDisplay._visible = aPersistedState.messagePaneVisible;
-            }
-
-            if (!("dontRestoreFirstTab" in aPersistedState &&
-                  aPersistedState.dontRestoreFirstTab))
-              gFolderTreeView.selectFolder(folder);
-
-            // We need to manually trigger the tab monitor restore trigger
-            // for this tab.  In theory this should be in tabmail, but the
-            // special nature of the first tab will last exactly long as this
-            // implementation right here so it does not particularly matter
-            // and is a bit more honest, if ugly, to do it here.
-            let tabmail = document.getElementById("tabmail");
-            let restoreState = tabmail._restoringTabState;
-            let tab = tabmail.tabInfo[0];
-            for (let tabMonitor of tabmail.tabMonitors) {
-              if (("onTabRestored" in tabMonitor) &&
-                  (tabMonitor.monitorName in restoreState.ext)) {
-                tabMonitor.onTabRestored(tab,
-                                         restoreState.ext[tabMonitor.monitorName],
-                                         true);
+              if (gMessageDisplay.visible != aPersistedState.messagePaneVisible) {
+                MsgToggleMessagePane();
+                // For reasons that are not immediately obvious, sometimes the
+                //  message display is not active at this time.  In that case, we
+                //  need to explicitly set the _visible value because otherwise it
+                //  misses out on the toggle event.
+                if (!gMessageDisplay._active)
+                  gMessageDisplay._visible = aPersistedState.messagePaneVisible;
               }
+
+              if (!("dontRestoreFirstTab" in aPersistedState &&
+                    aPersistedState.dontRestoreFirstTab))
+                gFolderTreeView.selectFolder(folder);
+
+              // We need to manually trigger the tab monitor restore trigger
+              // for this tab.  In theory this should be in tabmail, but the
+              // special nature of the first tab will last exactly long as this
+              // implementation right here so it does not particularly matter
+              // and is a bit more honest, if ugly, to do it here.
+              let tabmail = document.getElementById("tabmail");
+              let restoreState = tabmail._restoringTabState;
+              let tab = tabmail.tabInfo[0];
+              for (let tabMonitor of tabmail.tabMonitors) {
+                if (("onTabRestored" in tabMonitor) &&
+                    (tabMonitor.monitorName in restoreState.ext)) {
+                  tabMonitor.onTabRestored(tab,
+                                           restoreState.ext[tabMonitor.monitorName],
+                                           true);
+                }
+              }
+            } else {
+              let tabArgs = {
+                folder,
+                folderPaneVisible,
+                messagePaneVisible: aPersistedState.messagePaneVisible,
+                background: true,
+              };
+              aTabmail.openTab("folder", tabArgs);
             }
-          } else {
-            let tabArgs = {
-              folder,
-              folderPaneVisible,
-              messagePaneVisible: aPersistedState.messagePaneVisible,
-              background: true,
-            };
-            aTabmail.openTab("folder", tabArgs);
           }
+        } catch (e) {
+          logException(e);
         }
-      } catch (e) {
-        logException(e);
-      }
       },
       onTitleChanged(aTab, aTabNode) {
         if (!aTab.folderDisplay || !aTab.folderDisplay.displayedFolder) {

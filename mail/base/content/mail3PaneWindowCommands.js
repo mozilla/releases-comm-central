@@ -490,7 +490,7 @@ var DefaultController = {
         return window.MsgStatusFeedback._meteorsSpinning;
       case "cmd_undo":
       case "cmd_redo":
-          return SetupUndoRedoCommand(command);
+        return SetupUndoRedoCommand(command);
       case "cmd_renameFolder":
       {
         let folders = gFolderTreeView.getSelectedFolders();
@@ -940,25 +940,25 @@ var DefaultController = {
         gFolderTreeController.compactFolders();
         return;
       case "cmd_downloadFlagged":
-          gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.downloadFlaggedForOffline);
-          break;
+        gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.downloadFlaggedForOffline);
+        break;
       case "cmd_downloadSelected":
-          gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.downloadSelectedForOffline);
-          break;
+        gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.downloadSelectedForOffline);
+        break;
       case "cmd_synchronizeOffline":
-          MsgSynchronizeOffline();
-          break;
+        MsgSynchronizeOffline();
+        break;
       case "cmd_settingsOffline":
-          MailOfflineMgr.openOfflineAccountSettings();
-          break;
+        MailOfflineMgr.openOfflineAccountSettings();
+        break;
       case "cmd_moveToFolderAgain":
-          var folder = MailUtils.getOrCreateFolder(
-            Services.prefs.getCharPref("mail.last_msg_movecopy_target_uri"));
-          if (Services.prefs.getBoolPref("mail.last_msg_movecopy_was_move"))
-            MsgMoveMessage(folder);
-          else
-            MsgCopyMessage(folder);
-          break;
+        var folder = MailUtils.getOrCreateFolder(
+          Services.prefs.getCharPref("mail.last_msg_movecopy_target_uri"));
+        if (Services.prefs.getBoolPref("mail.last_msg_movecopy_was_move"))
+          MsgMoveMessage(folder);
+        else
+          MsgCopyMessage(folder);
+        break;
       case "cmd_selectAll":
         // XXX If the message pane is selected but the tab focused, this ends
         // closing the message tab. See bug 502834.
@@ -971,8 +971,8 @@ var DefaultController = {
         gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.selectAll);
         break;
       case "cmd_selectThread":
-          gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.selectThread);
-          break;
+        gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.selectThread);
+        break;
       case "cmd_selectFlagged":
         gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.selectFlagged);
         break;

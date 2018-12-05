@@ -2901,122 +2901,122 @@ function setSmartFolderName(aFolder, aName) {
 }
 
 var gFolderStatsHelpers = {
-    kUnknownSize: "-",
-    sumSubfoldersPref: false,
-    sumSubfolders: false,
-    sizeUnits: "",
-    kiloUnit: "KB",
-    megaUnit: "MB",
+  kUnknownSize: "-",
+  sumSubfoldersPref: false,
+  sumSubfolders: false,
+  sizeUnits: "",
+  kiloUnit: "KB",
+  megaUnit: "MB",
 
-    init() {
-      // We cache these values because the cells in the folder pane columns
-      // using these helpers can be redrawn often.
-      this.sumSubfoldersPref = Services.prefs.getBoolPref("mail.folderpane.sumSubfolders");
-      this.sizeUnits = Services.prefs.getCharPref("mail.folderpane.sizeUnits");
-      this.kiloUnit = gFolderTreeView.messengerBundle.getString("kiloByteAbbreviation2");
-      this.megaUnit = gFolderTreeView.messengerBundle.getString("megaByteAbbreviation2");
-    },
+  init() {
+    // We cache these values because the cells in the folder pane columns
+    // using these helpers can be redrawn often.
+    this.sumSubfoldersPref = Services.prefs.getBoolPref("mail.folderpane.sumSubfolders");
+    this.sizeUnits = Services.prefs.getCharPref("mail.folderpane.sizeUnits");
+    this.kiloUnit = gFolderTreeView.messengerBundle.getString("kiloByteAbbreviation2");
+    this.megaUnit = gFolderTreeView.messengerBundle.getString("megaByteAbbreviation2");
+  },
 
-    /**
-     * Add a prefix to denote the value is actually a sum of all the subfolders.
-     * The prefix is useful as this sum may not always be the exact sum of individual
-     * folders when they are shown expanded (due to rounding to a unit).
-     * E.g. folder1 600bytes -> 1KB, folder2 700bytes -> 1KB
-     * summarized at parent folder: 1300bytes -> 1KB
-     *
-     * @param aValue                  The value to be displayed.
-     * @param aSubfoldersContributed  Boolean indicating whether subfolders
-     *                                contributed to the accumulated total value.
-     */
-    addSummarizedPrefix(aValue, aSubfoldersContributed) {
-      if (!this.sumSubfolders)
-        return aValue;
+  /**
+   * Add a prefix to denote the value is actually a sum of all the subfolders.
+   * The prefix is useful as this sum may not always be the exact sum of individual
+   * folders when they are shown expanded (due to rounding to a unit).
+   * E.g. folder1 600bytes -> 1KB, folder2 700bytes -> 1KB
+   * summarized at parent folder: 1300bytes -> 1KB
+   *
+   * @param aValue                  The value to be displayed.
+   * @param aSubfoldersContributed  Boolean indicating whether subfolders
+   *                                contributed to the accumulated total value.
+   */
+  addSummarizedPrefix(aValue, aSubfoldersContributed) {
+    if (!this.sumSubfolders)
+      return aValue;
 
-      if (!aSubfoldersContributed)
-        return aValue;
+    if (!aSubfoldersContributed)
+      return aValue;
 
-      return gFolderTreeView.messengerBundle
-        .getFormattedString("folderSummarizedSymbolValue", [aValue]);
-    },
+    return gFolderTreeView.messengerBundle
+      .getFormattedString("folderSummarizedSymbolValue", [aValue]);
+  },
 
-    /**
-     * nsIMsgFolder uses -1 as a magic number to mean "I don't know". In those
-     * cases we indicate it to the user. The user has to open the folder
-     * so that the property is initialized from the DB.
-     *
-     * @param aNumber                 The number to translate for the user.
-     * @param aSubfoldersContributed  Boolean indicating whether subfolders
-     *                                contributed to the accumulated total value.
-     */
-    fixNum(aNumber, aSubfoldersContributed) {
-      if (aNumber < 0)
+  /**
+   * nsIMsgFolder uses -1 as a magic number to mean "I don't know". In those
+   * cases we indicate it to the user. The user has to open the folder
+   * so that the property is initialized from the DB.
+   *
+   * @param aNumber                 The number to translate for the user.
+   * @param aSubfoldersContributed  Boolean indicating whether subfolders
+   *                                contributed to the accumulated total value.
+   */
+  fixNum(aNumber, aSubfoldersContributed) {
+    if (aNumber < 0)
+      return this.kUnknownSize;
+
+    return (aNumber == 0 ? "" : this.addSummarizedPrefix(aNumber,
+                                                         aSubfoldersContributed));
+  },
+
+  /**
+   * Get the size of the specified folder.
+   *
+   * @param aFolder  The nsIMsgFolder to analyze.
+   */
+  getFolderSize(aFolder) {
+    let folderSize = 0;
+    try {
+      folderSize = aFolder.sizeOnDisk;
+      if (folderSize < 0)
         return this.kUnknownSize;
+    } catch (ex) {
+      return this.kUnknownSize;
+    }
+    return folderSize;
+  },
 
-      return (aNumber == 0 ? "" : this.addSummarizedPrefix(aNumber,
-                                                           aSubfoldersContributed));
-    },
+  /**
+   * Get the total size of all subfolders of the specified folder.
+   *
+   * @param aFolder  The nsIMsgFolder to analyze.
+   */
+  getSubfoldersSize(aFolder) {
+    let folderSize = 0;
+    if (aFolder.hasSubFolders) {
+      let subFolders = aFolder.subFolders;
+      while (subFolders.hasMoreElements()) {
+        let subFolder = subFolders.getNext()
+          .QueryInterface(Ci.nsIMsgFolder);
+        let subSize = this.getFolderSize(subFolder);
+        let subSubSize = this.getSubfoldersSize(subFolder);
+        if (subSize == this.kUnknownSize || subSubSize == this.kUnknownSize)
+          return subSize;
 
-    /**
-     * Get the size of the specified folder.
-     *
-     * @param aFolder  The nsIMsgFolder to analyze.
-     */
-    getFolderSize(aFolder) {
-      let folderSize = 0;
-      try {
-        folderSize = aFolder.sizeOnDisk;
-        if (folderSize < 0)
-          return this.kUnknownSize;
-      } catch (ex) {
-        return this.kUnknownSize;
+        folderSize += subSize + subSubSize;
       }
-      return folderSize;
-    },
+    }
+    return folderSize;
+  },
 
-    /**
-     * Get the total size of all subfolders of the specified folder.
-     *
-     * @param aFolder  The nsIMsgFolder to analyze.
-     */
-    getSubfoldersSize(aFolder) {
-      let folderSize = 0;
-      if (aFolder.hasSubFolders) {
-        let subFolders = aFolder.subFolders;
-        while (subFolders.hasMoreElements()) {
-          let subFolder = subFolders.getNext()
-            .QueryInterface(Ci.nsIMsgFolder);
-          let subSize = this.getFolderSize(subFolder);
-          let subSubSize = this.getSubfoldersSize(subFolder);
-          if (subSize == this.kUnknownSize || subSubSize == this.kUnknownSize)
-            return subSize;
-
-          folderSize += subSize + subSubSize;
-        }
-      }
-      return folderSize;
-    },
-
-    /**
-     * Format the given folder size into a string with an appropriate unit.
-     *
-     * @param aSize  The size in bytes to format.
-     * @param aUnit  Optional unit to use for the format.
-     *               Possible values are "KB" or "MB".
-     * @return       An array with 2 values. First is the resulting formatted strings.
-     *               The second one is the final unit used to format the string.
-     */
-    formatFolderSize(aSize, aUnit = gFolderStatsHelpers.sizeUnits) {
-      let size = Math.round(aSize / 1024);
-      let unit = gFolderStatsHelpers.kiloUnit;
-      // If size is non-zero try to show it in a unit that fits in 3 digits,
-      // but if user specified a fixed unit, use that.
-      if (aUnit != "KB" && (size > 999 || aUnit == "MB")) {
-        size = Math.round(size / 1024);
-        unit = gFolderStatsHelpers.megaUnit;
-        aUnit = "MB";
-      }
-      // This needs to be updated if the "%.*f" placeholder string
-      // in "*ByteAbbreviation2" in messenger.properties changes.
-      return [unit.replace("%.*f", size).replace(" ", ""), aUnit];
-    },
+  /**
+   * Format the given folder size into a string with an appropriate unit.
+   *
+   * @param aSize  The size in bytes to format.
+   * @param aUnit  Optional unit to use for the format.
+   *               Possible values are "KB" or "MB".
+   * @return       An array with 2 values. First is the resulting formatted strings.
+   *               The second one is the final unit used to format the string.
+   */
+  formatFolderSize(aSize, aUnit = gFolderStatsHelpers.sizeUnits) {
+    let size = Math.round(aSize / 1024);
+    let unit = gFolderStatsHelpers.kiloUnit;
+    // If size is non-zero try to show it in a unit that fits in 3 digits,
+    // but if user specified a fixed unit, use that.
+    if (aUnit != "KB" && (size > 999 || aUnit == "MB")) {
+      size = Math.round(size / 1024);
+      unit = gFolderStatsHelpers.megaUnit;
+      aUnit = "MB";
+    }
+    // This needs to be updated if the "%.*f" placeholder string
+    // in "*ByteAbbreviation2" in messenger.properties changes.
+    return [unit.replace("%.*f", size).replace(" ", ""), aUnit];
+  },
 };
