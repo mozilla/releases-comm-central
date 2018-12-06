@@ -246,7 +246,7 @@
                                                  "calendar", "monthInYear");
             return cal.l10n.getCalString("monthInYear", [monthName, this.rangeStartDate.year]);
         ]]></body>
-       </method>
+      </method>
       <method name="moveView">
         <parameter name="aNumber"/>
         <body><![CDATA[

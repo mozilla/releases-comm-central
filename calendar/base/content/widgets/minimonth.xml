@@ -427,7 +427,7 @@
                 onget="return this.mExtraDate"
                 onset="this.mExtraDate = val"/>
 
-       <!--returns the first (inclusive) date of the minimonth as a calIDateTime object-->
+      <!--returns the first (inclusive) date of the minimonth as a calIDateTime object-->
       <property name="firstDate" readonly="true">
         <getter><![CDATA[
             let date = this._getCalBoxNode(1, 1).date;
@@ -435,7 +435,7 @@
         ]]></getter>
       </property>
 
-       <!--returns the last (exclusive) date of the minimonth as a calIDateTime object-->
+      <!--returns the last (exclusive) date of the minimonth as a calIDateTime object-->
       <property name="lastDate" readonly="true">
         <getter><![CDATA[
             let date = this._getCalBoxNode(6, 7).date;
@@ -625,7 +625,7 @@
         ]]></body>
       </method>
 
-       <!--calIObserver methods -->
+      <!--calIObserver methods -->
       <method name="onStartBatch">
         <parameter name="aCalendar"/>
         <body><![CDATA[
@@ -698,7 +698,7 @@
         ]]></body>
       </method>
 
-       <!-- calICompositeObserver methods -->
+      <!-- calICompositeObserver methods -->
       <method name="onCalendarAdded">
         <parameter name="aCalendar"/>
         <body><![CDATA[
