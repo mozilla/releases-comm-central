@@ -155,8 +155,8 @@ function testTaskView() {
     controller.assertJSProperty(toolTipStatus, "textContent", "Completed");
 
     // Delete task and verify.
+    countBefore = taskTreeNode.mTaskArray.length;
     controller.click(eid("calendar-delete-task-button"));
-    countBefore = countAfter;
     controller.waitFor(() => {
         countAfter = taskTreeNode.mTaskArray.length;
         return countAfter == (countBefore - 1);
