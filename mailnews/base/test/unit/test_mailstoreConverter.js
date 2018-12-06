@@ -12,122 +12,100 @@ var log = Log.repository.getLogger("MailStoreConverter");
 Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
                            "@mozilla.org/msgstore/berkeleystore;1");
 
-var gMsgHdrs = [];
-// {nsIMsgLocalMailFolder} folder carrying messages for the pop server.
-var gInbox;
-
-// {nsIMsgAccount} Account to convert.
-var gAccount;
-// Server for the account to convert.
-var gServer;
-
-var copyListenerWrap = {
-  SetMessageKey: function(aKey) {
-    let hdr = gInbox.GetMessageHeader(aKey);
-    gMsgHdrs.push({hdr: hdr, ID: hdr.messageId});
-  },
-  OnStopCopy: function(aStatus) {
-    // Check: message successfully copied.
-    Assert.equal(aStatus, 0);
-  }
-};
-
-var EventTarget = function () {
-  this.dispatchEvent = function(aEvent) {
-    if (aEvent.type == "progress") {
-      log.trace("Progress: " + aEvent.detail);
-    }
-  };
-};
-
-function copyFileMessage(aFile, aDestFolder, aIsDraftOrTemplate)
-{
-  let listener = new PromiseTestUtils.PromiseCopyListener(copyListenerWrap);
-  MailServices.copy.CopyFileMessage(aFile, aDestFolder, null, aIsDraftOrTemplate,
-                                    0, "", listener, null);
-  return listener.promise;
-}
-
-/**
- * Check that conversion worked for the given source.
- * @param aSource - mbox source directory
- * @param aTarget - maildir target directory
- */
-function checkConversion(aSource, aTarget) {
-  let sourceContents = aSource.directoryEntries;
-
-  while (sourceContents.hasMoreElements()) {
-    let sourceContent = sourceContents.getNext().QueryInterface(Ci.nsIFile);
-    let sourceContentName = sourceContent.leafName;
-    let ext = sourceContentName.substr(-4);
-    let targetFile = FileUtils.File(OS.Path.join(aTarget.path,sourceContentName));
-    log.debug("Checking path: " + targetFile.path);
-    if (ext == ".dat") {
-      Assert.ok(targetFile.exists());
-    } else if (sourceContent.isDirectory()) {
-      Assert.ok(targetFile.exists());
-      checkConversion(sourceContent, targetFile);
-    } else if (ext != ".msf") {
-      Assert.ok(targetFile.exists());
-      let cur = FileUtils.File(OS.Path.join(targetFile.path,"cur"));
-      Assert.ok(cur.exists());
-      let tmp = FileUtils.File(OS.Path.join(targetFile.path,"tmp"));
-      Assert.ok(tmp.exists());
-      if (targetFile.leafName == "Inbox") {
-        let curContents = cur.directoryEntries;
-        let curContentsCount = 0;
-        while (curContents.hasMoreElements()) {
-          let curContent = curContents.getNext();
-          curContentsCount++;
-        }
-        // We had 1000 msgs in the old folder. We should have that after
-        // conversion too.
-        Assert.equal(curContentsCount, 1000);
-      }
-    }
-  }
-}
-
 function run_test() {
   localAccountUtils.loadLocalMailAccount();
 
-  // {nsIMsgIncomingServer} pop server for the test.
-  gServer = MailServices.accounts.createIncomingServer("test","localhost",
-                                                       "pop3");
-  gAccount = MailServices.accounts.createAccount();
-  gAccount.incomingServer = gServer;
-  gServer.QueryInterface(Ci.nsIPop3IncomingServer);
-  gServer.valid = true;
-
-  gInbox = gAccount.incomingServer.rootFolder
-    .getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
+  add_task(async function() {
+    await doMboxTest("test1", "../../../data/mbox_modern", 2);
+    await doMboxTest("test2", "../../../data/mbox_mboxrd", 2);
+    await doMboxTest("test3", "../../../data/mbox_unquoted", 2);
+    // Ideas for more tests:
+    // - check a really big mbox
+    // - check with really huge message (larger than one chunk)
+    // - check mbox with "From " line on chunk boundary
+    // - add tests for maildir->mbox conversion
+    // - check that round-trip conversion preserves messages
+    // - check that conversions preserve message body (ie that the
+    //   "From " line escaping scheme is reversable)
+  });
 
   run_next_test();
 }
 
-add_task(async function setupMessages() {
-  let msgFile = do_get_file("../../../data/bugmail10");
+/**
+ * Helper to create a server, account and inbox, and install an
+ * mbox file.
+ * @return {nsIMsgIncomingServer} a server.
+ */
+function setupServer(srvName, mboxFilename) {
+  // {nsIMsgIncomingServer} pop server for the test.
+  let server = MailServices.accounts.createIncomingServer(srvName,"localhost",
+                                                          "pop3");
+  let account= MailServices.accounts.createAccount();
+  account.incomingServer = server;
+  server.QueryInterface(Ci.nsIPop3IncomingServer);
+  server.valid = true;
 
-  // Add 1000 messages to the "Inbox" folder.
-  for (let i = 0; i < 1000; i++) {
-    await copyFileMessage(msgFile, gInbox, false);
-  }
-});
+  let inbox = account.incomingServer.rootFolder
+    .getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
 
-add_task(function testMaildirConversion() {
+  // install the mbox file
+  let mboxFile = do_get_file(mboxFilename);
+  mboxFile.copyTo( inbox.filePath.parent, inbox.filePath.leafName)
+
+  // TODO: is there some way to make folder rescan the mbox?
+  // We don't need it for this, but would be nice to do things properly.
+  return server;
+}
+
+
+/**
+ * Perform an mbox->maildir conversion test.
+ *
+ * @param {string} srvName - A unique server name to use for the test.
+ * @param {string} mboxFilename - mbox file to install and convert.
+ * @param {number} expectCnt - Number of messages expected.
+ * @return {nsIMsgIncomingServer} a server.
+ */
+async function doMboxTest(srvName, mboxFilename, expectCnt) {
+  // set up an account+server+inbox and copy in the test mbox file
+  let server = setupServer(srvName, mboxFilename);
+
   let mailstoreContractId = Services.prefs.getCharPref(
-    "mail.server." + gServer.key + ".storeContractID");
-  do_test_pending();
-  let pConverted = convertMailStoreTo(mailstoreContractId, gServer,
-                                      new EventTarget());
-  let originalRootFolder = gServer.rootFolder.filePath;
-  pConverted.then(function(aVal) {
-    log.debug("Conversion done: " + originalRootFolder.path + " => " + aVal);
-    let newRootFolder = gServer.rootFolder.filePath;
-    checkConversion(originalRootFolder, newRootFolder);
-    do_test_finished();
-  }).catch(function(aReason) {
-    log.error("Conversion Failed: " + aReason.error);
-    ok(false); // Fail the test!
-  });
-});
+    "mail.server." + server.key + ".storeContractID");
+
+  let aVal = await convertMailStoreTo(
+    mailstoreContractId, server, new EventTarget());
+  // NOTE: convertMailStoreTo() will suppress exceptions in it's
+  // worker, which makes unittest failures trickier to read...
+
+  let originalRootFolder = server.rootFolder.filePath;
+
+  // Converted. Now find resulting Inbox/cur directory so
+  // we can count the messages there.
+
+  let inbox = server.rootFolder
+    .getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
+  // NOTE: the conversion updates the path of the root folder,
+  // but _not_ the path of the inbox...
+  // Ideally, we'd just use inbox.filePath here, but
+  // instead we'll have compose the path manually.
+
+  let curDir = server.rootFolder.filePath;
+  curDir.append(inbox.filePath.leafName);
+  curDir.append("cur");
+
+  // Sanity check.
+  Assert.ok(curDir.isDirectory(), "'cur' directory created" );
+
+  // Check number of messages in Inbox/cur is what we expect.
+  let cnt = 0;
+  let it = curDir.directoryEntries;
+  while (it.hasMoreElements()) {
+    let curContent = it.getNext();
+    cnt++;
+  }
+
+  Assert.equal(cnt, expectCnt, "expected number of messages (" + mboxFilename + ")");
+}
+
