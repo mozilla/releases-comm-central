@@ -504,6 +504,31 @@ Object.assign(global, { tabTracker, windowTracker });
  * Extension-specific wrapper around a Thunderbird tab.
  */
 class Tab extends TabBase {
+  /** Removes some useless properties from a tab object. */
+  convert(fallback) {
+    let result = super.convert(fallback);
+
+    // These properties are not useful to Thunderbird extensions and are not returned.
+    for (let key of [
+      "attention",
+      "audible",
+      "discarded",
+      "hidden",
+      "incognito",
+      "isArticle",
+      "isInReaderMode",
+      "lastAccessed",
+      "mutedInfo",
+      "pinned",
+      "sharingState",
+      "successorTabId",
+    ]) {
+      delete result[key];
+    }
+
+    return result;
+  }
+
   /** Returns the XUL browser for the tab. */
   get browser() {
     return getTabBrowser(this.nativeTab);
