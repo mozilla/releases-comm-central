@@ -19,8 +19,8 @@
 // just for CONTRACTIDs
 #include "nsCharsetConverterManager.h"
 
-static nsIStringBundle * sDataBundle;
-static nsIStringBundle * sTitleBundle;
+static nsCOMPtr<nsIStringBundle> sDataBundle;
+static nsCOMPtr<nsIStringBundle> sTitleBundle;
 
 // Class nsCharsetConverterManager [implementation]
 
@@ -32,13 +32,8 @@ nsCharsetConverterManager::nsCharsetConverterManager()
 
 nsCharsetConverterManager::~nsCharsetConverterManager()
 {
-}
-
-//static
-void nsCharsetConverterManager::Shutdown()
-{
-  NS_IF_RELEASE(sDataBundle);
-  NS_IF_RELEASE(sTitleBundle);
+  sDataBundle = nullptr;
+  sTitleBundle = nullptr;
 }
 
 static
@@ -93,7 +88,8 @@ nsresult GetCharsetDataImpl(const char * aCharset, const char16_t * aProp,
   // aProp can be nullptr
 
   if (!sDataBundle) {
-    nsresult rv = LoadBundle("resource://gre-resources/charsetData.properties", &sDataBundle);
+    nsresult rv = LoadBundle("resource://gre-resources/charsetData.properties",
+                             getter_AddRefs(sDataBundle));
     if (NS_FAILED(rv))
       return rv;
   }
@@ -145,7 +141,8 @@ nsCharsetConverterManager::GetCharsetTitle(const char * aCharset,
   NS_ENSURE_ARG_POINTER(aCharset);
 
   if (!sTitleBundle) {
-    nsresult rv = LoadBundle("chrome://messenger/locale/charsetTitles.properties", &sTitleBundle);
+    nsresult rv = LoadBundle("chrome://messenger/locale/charsetTitles.properties",
+                             getter_AddRefs(sTitleBundle));
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
