@@ -70,16 +70,9 @@ folderLookupService.prototype = {
     // really exist---use the parent property to see if the folder is a real
     // folder.
     if (folder == null) {
-      let rdf = Cc["@mozilla.org/rdf/rdf-service;1"]
-                  .getService(Ci.nsIRDFService);
-      try {
-        folder = rdf.GetResource(aUrl)
-                    .QueryInterface(Ci.nsIMsgFolder);
-      } catch (e) {
-        // If the QI fails, then we somehow picked up an RDF resource that isn't
-        // a folder. Return null in this case.
+      folder = this.getOrCreateFolderForURL(aUrl);
+      if (!folder)
         return null;
-      }
     }
     // We don't want to return "dangling" (parentless) folders.
     if (!isValidFolder(folder))
@@ -93,6 +86,14 @@ folderLookupService.prototype = {
     return folder;
   },
   getOrCreateFolderForURL: function (aUrl) {
+    // Check that aUrl has an active scheme, in case this folder is from
+    // an extension that is currently disabled or hasn't started up yet.
+    // Extract the scheme in the same way that the RDF service does.
+    let scheme = aUrl.match(/\w*/)[0];
+    let contractID = "@mozilla.org/rdf/resource-factory;1?name=" + scheme;
+    if (!(contractID in Components.classes))
+      return null;
+
     // NOTE: this doesn't update _map, but it'll work fine and
     // it's a transitional function we want deleted anyway.
     let rdf = Cc["@mozilla.org/rdf/rdf-service;1"]
