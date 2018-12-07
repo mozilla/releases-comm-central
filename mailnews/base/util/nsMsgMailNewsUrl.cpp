@@ -6,6 +6,7 @@
 #include "msgCore.h"
 #include "nsMsgMailNewsUrl.h"
 #include "nsMsgBaseCID.h"
+#include "nsMsgLocalCID.h"
 #include "nsIMsgAccountManager.h"
 #include "nsString.h"
 #include "nsILoadGroup.h"
@@ -29,6 +30,8 @@
 #include "mozilla/Encoding.h"
 #include "nsDocShellLoadState.h"
 #include "nsContentUtils.h"
+#include "nsIObjectInputStream.h"
+#include "nsIObjectOutputStream.h"
 
 nsMsgMailNewsUrl::nsMsgMailNewsUrl()
 {
@@ -80,8 +83,68 @@ NS_INTERFACE_MAP_BEGIN(nsMsgMailNewsUrl)
   NS_INTERFACE_MAP_ENTRY(nsIMsgMailNewsUrl)
   NS_INTERFACE_MAP_ENTRY(nsIURL)
   NS_INTERFACE_MAP_ENTRY(nsIURI)
+  NS_INTERFACE_MAP_ENTRY(nsISerializable)
+  NS_INTERFACE_MAP_ENTRY(nsIClassInfo)
   NS_INTERFACE_MAP_ENTRY_CONDITIONAL(nsIURIWithSpecialOrigin, m_hasNormalizedOrigin)
 NS_INTERFACE_MAP_END
+
+NS_IMETHODIMP nsMsgMailNewsUrl::Read(nsIObjectInputStream *stream) {
+  nsAutoCString urlstr;
+  nsresult rv = NS_ReadOptionalCString(stream, urlstr);
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIIOService> ioService =
+    mozilla::services::GetIOService();
+  NS_ENSURE_TRUE(ioService, NS_ERROR_UNEXPECTED);
+  nsCOMPtr<nsIURI> url;
+  rv = ioService->NewURI(urlstr, nullptr, nullptr, getter_AddRefs(url));
+  NS_ENSURE_SUCCESS(rv, rv);
+  m_baseURL = do_QueryInterface(url);
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgMailNewsUrl::Write(nsIObjectOutputStream *stream) {
+  nsAutoCString urlstr;
+  nsresult rv = m_baseURL->GetSpec(urlstr);
+  NS_ENSURE_SUCCESS(rv, rv);
+  return NS_WriteOptionalStringZ(stream, urlstr.get());
+}
+
+NS_IMETHODIMP nsMsgMailNewsUrl::GetInterfaces(uint32_t *count, nsIID ***array) {
+  *count = 0;
+  *array = nullptr;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgMailNewsUrl::GetScriptableHelper(nsIXPCScriptable **_retval) {
+  *_retval = nullptr;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgMailNewsUrl::GetContractID(nsACString &aContractID) {
+  aContractID.SetIsVoid(true);
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgMailNewsUrl::GetClassDescription(nsACString &aClassDescription) {
+  aClassDescription.SetIsVoid(true);
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgMailNewsUrl::GetClassID(nsCID **aClassID) {
+  *aClassID = (nsCID *)moz_xmalloc(sizeof(nsCID));
+  return GetClassIDNoAlloc(*aClassID);
+}
+
+NS_IMETHODIMP nsMsgMailNewsUrl::GetFlags(uint32_t *aFlags) {
+  *aFlags = nsIClassInfo::MAIN_THREAD_ONLY;
+  return NS_OK;
+}
+
+static NS_DEFINE_CID(kNS_MAILBOXURL_CID, NS_MAILBOXURL_CID);
+NS_IMETHODIMP nsMsgMailNewsUrl::GetClassIDNoAlloc(nsCID *aClassIDNoAlloc) {
+  *aClassIDNoAlloc = kNS_MAILBOXURL_CID;  // XXX TODO: May need to vary based on type.
+  return NS_OK;
+}
 
 // Support for nsIURIWithSpecialOrigin.
 NS_IMETHODIMP nsMsgMailNewsUrl::GetOrigin(nsIURI **aOrigin)

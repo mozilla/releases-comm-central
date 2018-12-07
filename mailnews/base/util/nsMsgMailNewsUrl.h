@@ -26,6 +26,8 @@
 #include "nsIWeakReferenceUtils.h"
 #include "nsString.h"
 #include "nsIURIMutator.h"
+#include "nsISerializable.h"
+#include "nsIClassInfo.h"
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Okay, I found that all of the mail and news url interfaces needed to support
@@ -39,7 +41,9 @@
 #define IMETHOD_VISIBILITY NS_VISIBILITY_DEFAULT
 
 class NS_MSG_BASE nsMsgMailNewsUrl : public nsIMsgMailNewsUrl,
-                                     public nsIURIWithSpecialOrigin
+                                     public nsIURIWithSpecialOrigin,
+                                     public nsISerializable,
+                                     public nsIClassInfo
 {
 public:
     nsMsgMailNewsUrl();
@@ -49,6 +53,8 @@ public:
     NS_DECL_NSIURI
     NS_DECL_NSIURL
     NS_DECL_NSIURIWITHSPECIALORIGIN
+    NS_DECL_NSISERIALIZABLE
+    NS_DECL_NSICLASSINFO
 
 protected:
   virtual nsresult Clone(nsIURI **_retval);
