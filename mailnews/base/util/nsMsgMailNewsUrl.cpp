@@ -140,9 +140,9 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetFlags(uint32_t *aFlags) {
   return NS_OK;
 }
 
-static NS_DEFINE_CID(kNS_MAILBOXURL_CID, NS_MAILBOXURL_CID);
+static NS_DEFINE_CID(kNS_MSGMAILNEWSURL_CID, NS_MSGMAILNEWSURL_CID);
 NS_IMETHODIMP nsMsgMailNewsUrl::GetClassIDNoAlloc(nsCID *aClassIDNoAlloc) {
-  *aClassIDNoAlloc = kNS_MAILBOXURL_CID;  // XXX TODO: May need to vary based on type.
+  *aClassIDNoAlloc = kNS_MSGMAILNEWSURL_CID;
   return NS_OK;
 }
 
