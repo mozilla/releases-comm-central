@@ -155,20 +155,20 @@
                                class="treenode-checkbox"
                                label="&calendar.task.filter.title.label;"/>
               <modevbox id="task-filtertree-pane" flex="1" mode="task" broadcaster="modeBroadcaster" refcontrol="task-tree-filter-header">
-                 <radiogroup id="task-tree-filtergroup" class="task-tree-subpane"
-                             persist="value">
-                   <observes element="filterBroadcaster"
-                             attribute="value"
-                             onbroadcast="checkRadioControl(this.parentNode, document.getElementById('filterBroadcaster').getAttribute('value'));"/>
-                   <radio id="opt_throughcurrent_filter" label="&calendar.task.filter.current.label;" value="throughcurrent" command="calendar_task_filter_command"/>
-                   <radio id="opt_today_filter" label="&calendar.task.filter.today.label;" value="throughtoday" command="calendar_task_filter_command"/>
-                   <radio id="opt_next7days_filter" label="&calendar.task.filter.next7days.label;" value="throughsevendays" command="calendar_task_filter_command"/>
-                   <radio id="opt_notstarted_filter" label="&calendar.task.filter.notstarted.label;" value="notstarted" command="calendar_task_filter_command"/>
-                   <radio id="opt_overdue_filter" label="&calendar.task.filter.overdue.label;" value="overdue" command="calendar_task_filter_command"/>
-                   <radio id="opt_completed_filter" label="&calendar.task.filter.completed.label;" value="completed" command="calendar_task_filter_command"/>
-                   <radio id="opt_open_filter" label="&calendar.task.filter.open.label;" value="open" command="calendar_task_filter_command"/>
-                   <radio id="opt_all_filter" label="&calendar.task.filter.all.label;" value="all" command="calendar_task_filter_command"/>
-                 </radiogroup>
+                <radiogroup id="task-tree-filtergroup" class="task-tree-subpane"
+                            persist="value">
+                  <observes element="filterBroadcaster"
+                            attribute="value"
+                            onbroadcast="checkRadioControl(this.parentNode, document.getElementById('filterBroadcaster').getAttribute('value'));"/>
+                  <radio id="opt_throughcurrent_filter" label="&calendar.task.filter.current.label;" value="throughcurrent" command="calendar_task_filter_command"/>
+                  <radio id="opt_today_filter" label="&calendar.task.filter.today.label;" value="throughtoday" command="calendar_task_filter_command"/>
+                  <radio id="opt_next7days_filter" label="&calendar.task.filter.next7days.label;" value="throughsevendays" command="calendar_task_filter_command"/>
+                  <radio id="opt_notstarted_filter" label="&calendar.task.filter.notstarted.label;" value="notstarted" command="calendar_task_filter_command"/>
+                  <radio id="opt_overdue_filter" label="&calendar.task.filter.overdue.label;" value="overdue" command="calendar_task_filter_command"/>
+                  <radio id="opt_completed_filter" label="&calendar.task.filter.completed.label;" value="completed" command="calendar_task_filter_command"/>
+                  <radio id="opt_open_filter" label="&calendar.task.filter.open.label;" value="open" command="calendar_task_filter_command"/>
+                  <radio id="opt_all_filter" label="&calendar.task.filter.all.label;" value="all" command="calendar_task_filter_command"/>
+                </radiogroup>
               </modevbox>
             </modevbox>
             <modevbox id="calendar-list-pane" flex="1" mode="calendar,task" broadcaster="modeBroadcaster"

@@ -27,8 +27,8 @@
         <em:id>{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}</em:id>
         <em:minVersion>2.35a1</em:minVersion>
         <em:maxVersion>@SEAMONKEY_VERSION@</em:maxVersion>
-       </Description>
-     </em:targetApplication>
+      </Description>
+    </em:targetApplication>
 
     <em:name>Timezone Definitions for Mozilla Calendar</em:name>
     <em:description>Timezone definitions required by Lightning</em:description>

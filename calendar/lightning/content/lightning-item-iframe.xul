@@ -643,7 +643,7 @@
                     accesskey="&event.attendees.disallowcounter.accesskey;"
                     tooltiptext="&event.attendees.disallowcounter.tooltip;"
                     pack="start"/>
-         </hbox>
+        </hbox>
       </tabbox>
 
       <separator id="event-grid-link-separator"
