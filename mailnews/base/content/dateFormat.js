@@ -25,7 +25,7 @@ function initLocaleShortDateFormat()
     const dateFormatter = new Services.intl.DateTimeFormat(undefined,
       { dateStyle: "short" });
     var aDate = new Date(1999, 11, 1);
-    var dateString = dateFormatter.format(aDate);
+    var dateString = dateFormatter.format(aDate).replace(/ /g,"");
 
     // find out the separator
     var possibleSeparators = "/-.";
