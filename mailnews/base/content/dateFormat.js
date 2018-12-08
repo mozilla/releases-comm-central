@@ -30,10 +30,10 @@ function initLocaleShortDateFormat()
     // find out the separator
     var possibleSeparators = "/-.";
     var arrayOfStrings;
-    for ( var i = 0; i < possibleSeparators.length; ++i )
+    for (let i = 0; i < possibleSeparators.length; ++i)
     {
-      arrayOfStrings = dateString.split( possibleSeparators[i] );
-      if ( arrayOfStrings.length == 3 )
+      arrayOfStrings = dateString.split(possibleSeparators[i]);
+      if (arrayOfStrings.length == 3)
       {
         gSearchDateSeparator = possibleSeparators[i];
         break;
@@ -41,22 +41,22 @@ function initLocaleShortDateFormat()
     }
 
     // check the format option
-    if ( arrayOfStrings.length != 3 )       // no successful split
+    if (arrayOfStrings.length != 3)  // no successful split
     {
       dump("getLocaleShortDateFormat: could not analyze the date format, defaulting to mm/dd/yyyy\n");
     }
     else
     {
-      // the date will contain a zero if that system settings include leading zeros
+      // The date will contain a zero if the system settings include leading zeros.
       gSearchDateLeadingZeros = dateString.includes("0");
 
       // match 1 as number, since that will match both "1" and "01"
-      if ( arrayOfStrings[0] == 1 )
+      if (arrayOfStrings[0] == 1)
       {
         // 01.12.1999 or 01.1999.12
         gSearchDateFormat = arrayOfStrings[1] == "12" ? 5 : 6;
       }
-      else if ( arrayOfStrings[1] == 1 )
+      else if (arrayOfStrings[1] == 1)
       {
         // 12.01.1999 or 1999.01.12
         gSearchDateFormat = arrayOfStrings[0] == "12" ? 3 : 2;
@@ -92,7 +92,7 @@ function initializeSearchDateFormat()
     else
     {
       // initialize the search date format based on preferences
-      if ( gSearchDateFormat < 1 || gSearchDateFormat > 6 )
+      if (gSearchDateFormat < 1 || gSearchDateFormat > 6)
         gSearchDateFormat = 3;
 
       gSearchDateSeparator =
@@ -131,10 +131,10 @@ function convertDateToString(time)
 
   var year = time.getFullYear();
   var month = time.getMonth() + 1;  // since js month is 0-11
-  if ( gSearchDateLeadingZeros && month < 10 )
+  if (gSearchDateLeadingZeros && month < 10)
     month = "0" + month;
   var date = time.getDate();
-  if ( gSearchDateLeadingZeros && date < 10 )
+  if (gSearchDateLeadingZeros && date < 10)
     date = "0" + date;
 
   var dateStr;
@@ -219,4 +219,3 @@ function convertStringToPRTime(str)
   // so multiply by 1000 when converting
   return (time.getTime() * 1000);
 }
-
