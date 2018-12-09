@@ -29,6 +29,10 @@ const hiddenProperties = [
  * @implements {nsIObserver}
  */
 var cache = new class extends EventEmitter {
+  constructor() {
+    super();
+    this.listenerCount = 0;
+  }
   _makeContactNode(contact, parent) {
     contact.QueryInterface(Ci.nsIAbCard);
     return {
@@ -255,22 +259,30 @@ var cache = new class extends EventEmitter {
       }
     }
   }
+
+  incrementListeners() {
+    this.listenerCount++;
+    if (this.listenerCount == 1) {
+      MailServices.ab.addAddressBookListener(this, Ci.nsIAbListener.all);
+      Services.obs.addObserver(this, "addrbook-contact-created");
+      Services.obs.addObserver(this, "addrbook-contact-updated");
+      Services.obs.addObserver(this, "addrbook-list-updated");
+      Services.obs.addObserver(this, "addrbook-list-member-added");
+    }
+  }
+  decrementListeners() {
+    this.listenerCount--;
+    if (this.listenerCount == 0) {
+      MailServices.ab.removeAddressBookListener(this);
+      Services.obs.removeObserver(this, "addrbook-contact-created");
+      Services.obs.removeObserver(this, "addrbook-contact-updated");
+      Services.obs.removeObserver(this, "addrbook-list-updated");
+      Services.obs.removeObserver(this, "addrbook-list-member-added");
+    }
+  }
 };
-MailServices.ab.addAddressBookListener(cache, Ci.nsIAbListener.all);
-Services.obs.addObserver(cache, "addrbook-contact-created");
-Services.obs.addObserver(cache, "addrbook-contact-updated");
-Services.obs.addObserver(cache, "addrbook-list-updated");
-Services.obs.addObserver(cache, "addrbook-list-member-added");
 
 this.addressBook = class extends ExtensionAPI {
-  onShutdown() {
-    MailServices.ab.removeAddressBookListener(cache);
-    Services.obs.removeObserver(cache, "addrbook-contact-created");
-    Services.obs.removeObserver(cache, "addrbook-contact-updated");
-    Services.obs.removeObserver(cache, "addrbook-list-updated");
-    Services.obs.removeObserver(cache, "addrbook-list-member-added");
-  }
-
   getAPI(context) {
     return {
       addressBooks: {
@@ -317,8 +329,10 @@ this.addressBook = class extends ExtensionAPI {
             };
 
             cache.on("address-book-created", listener);
+            cache.incrementListeners();
             return () => {
               cache.off("address-book-created", listener);
+              cache.decrementListeners();
             };
           },
         }).api(),
@@ -331,8 +345,10 @@ this.addressBook = class extends ExtensionAPI {
             };
 
             cache.on("address-book-updated", listener);
+            cache.incrementListeners();
             return () => {
               cache.off("address-book-updated", listener);
+              cache.decrementListeners();
             };
           },
         }).api(),
@@ -345,8 +361,10 @@ this.addressBook = class extends ExtensionAPI {
             };
 
             cache.on("address-book-deleted", listener);
+            cache.incrementListeners();
             return () => {
               cache.off("address-book-deleted", listener);
+              cache.decrementListeners();
             };
           },
         }).api(),
@@ -399,8 +417,10 @@ this.addressBook = class extends ExtensionAPI {
             };
 
             cache.on("contact-created", listener);
+            cache.incrementListeners();
             return () => {
               cache.off("contact-created", listener);
+              cache.decrementListeners();
             };
           },
         }).api(),
@@ -413,8 +433,10 @@ this.addressBook = class extends ExtensionAPI {
             };
 
             cache.on("contact-updated", listener);
+            cache.incrementListeners();
             return () => {
               cache.off("contact-updated", listener);
+              cache.decrementListeners();
             };
           },
         }).api(),
@@ -427,8 +449,10 @@ this.addressBook = class extends ExtensionAPI {
             };
 
             cache.on("contact-deleted", listener);
+            cache.incrementListeners();
             return () => {
               cache.off("contact-deleted", listener);
+              cache.decrementListeners();
             };
           },
         }).api(),
@@ -492,8 +516,10 @@ this.addressBook = class extends ExtensionAPI {
             };
 
             cache.on("mailing-list-created", listener);
+            cache.incrementListeners();
             return () => {
               cache.off("mailing-list-created", listener);
+              cache.decrementListeners();
             };
           },
         }).api(),
@@ -506,8 +532,10 @@ this.addressBook = class extends ExtensionAPI {
             };
 
             cache.on("mailing-list-updated", listener);
+            cache.incrementListeners();
             return () => {
               cache.off("mailing-list-updated", listener);
+              cache.decrementListeners();
             };
           },
         }).api(),
@@ -520,8 +548,10 @@ this.addressBook = class extends ExtensionAPI {
             };
 
             cache.on("mailing-list-deleted", listener);
+            cache.incrementListeners();
             return () => {
               cache.off("mailing-list-deleted", listener);
+              cache.decrementListeners();
             };
           },
         }).api(),
@@ -534,8 +564,10 @@ this.addressBook = class extends ExtensionAPI {
             };
 
             cache.on("mailing-list-member-added", listener);
+            cache.incrementListeners();
             return () => {
               cache.off("mailing-list-member-added", listener);
+              cache.decrementListeners();
             };
           },
         }).api(),
@@ -548,8 +580,10 @@ this.addressBook = class extends ExtensionAPI {
             };
 
             cache.on("mailing-list-member-removed", listener);
+            cache.incrementListeners();
             return () => {
               cache.off("mailing-list-member-removed", listener);
+              cache.decrementListeners();
             };
           },
         }).api(),
