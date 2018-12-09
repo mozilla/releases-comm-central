@@ -52,8 +52,6 @@
   ]]>
   </script>
 
-  <broadcaster id="broadcaster_attachSignature"/>
-
   <description>&identityListDesc.label;</description>
   <separator class="thin"/>
 

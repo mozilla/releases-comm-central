@@ -292,31 +292,35 @@ function SaveFolderSettings(radioElemChoice,
 // Check the Fcc Self item and setup associated picker state
 function setupFccItems()
 {
-    var broadcaster = document.getElementById("broadcaster_doFcc");
-
-    var checked = document.getElementById("identity.doFcc").checked;
+  let checked = document.getElementById("identity.doFcc").checked;
+  document.querySelectorAll(".depends-on-do-fcc").forEach(e => {
     if (checked) {
-        broadcaster.removeAttribute("disabled");
-        switch (gFccRadioElemChoice) {
-            case "0" :
-                if (!gFccRadioElemChoiceLocked)
-                    SetPickerEnabling("msgFccAccountPicker", "msgFccFolderPicker");
-                SetRadioButtons("fcc_selectAccount", "fcc_selectFolder");
-                break;
-
-            case "1" :
-                if (!gFccRadioElemChoiceLocked)
-                    SetPickerEnabling("msgFccFolderPicker", "msgFccAccountPicker");
-                SetRadioButtons("fcc_selectFolder", "fcc_selectAccount");
-                break;
-
-            default :
-                dump("Error in setting Fcc elements.\n");
-                break;
-        }
+      e.removeAttribute("disabled");
+    } else {
+      e.setAttribute("disabled", "true");
     }
-    else
-        broadcaster.setAttribute("disabled", "true");
+  });
+  if (!checked) {
+    return;
+  }
+
+  switch (gFccRadioElemChoice) {
+    case "0" :
+      if (!gFccRadioElemChoiceLocked)
+          SetPickerEnabling("msgFccAccountPicker", "msgFccFolderPicker");
+      SetRadioButtons("fcc_selectAccount", "fcc_selectFolder");
+      break;
+
+    case "1" :
+      if (!gFccRadioElemChoiceLocked)
+          SetPickerEnabling("msgFccFolderPicker", "msgFccAccountPicker");
+      SetRadioButtons("fcc_selectFolder", "fcc_selectAccount");
+      break;
+
+    default :
+      dump("Error in setting Fcc elements.\n");
+      break;
+  }
 }
 
 // Disable CC textbox if CC checkbox is not checked
@@ -426,36 +430,39 @@ function updateArchiveHierarchyButton(archiveFolder) {
  * Enable or disable (as appropriate) the controls for setting archive options
  */
 function setupArchiveItems() {
-  let broadcaster = document.getElementById("broadcaster_archiveEnabled");
   let checked = document.getElementById("identity.archiveEnabled").checked;
-  let archiveFolder;
-
-  if (checked) {
-    broadcaster.removeAttribute("disabled");
-    switch (gArchivesRadioElemChoice) {
-      case "0":
-        if (!gArchivesRadioElemChoiceLocked)
-          SetPickerEnabling("msgArchivesAccountPicker", "msgArchivesFolderPicker");
-        SetRadioButtons("archive_selectAccount", "archive_selectFolder");
-        updateArchiveHierarchyButton(document.getElementById(
-                                     "msgArchivesAccountPicker").folder);
-        break;
-
-      case "1":
-        if (!gArchivesRadioElemChoiceLocked)
-          SetPickerEnabling("msgArchivesFolderPicker", "msgArchivesAccountPicker");
-        SetRadioButtons("archive_selectFolder", "archive_selectAccount");
-        updateArchiveHierarchyButton(document.getElementById(
-                                     "msgArchivesFolderPicker").folder);
-        break;
-
-      default:
-        dump("Error in setting Archive elements.\n");
-        return;
+  document.querySelectorAll(".depends-on-archive").forEach(e => {
+    if (checked) {
+      e.removeAttribute("disabled");
+    } else {
+      e.setAttribute("disabled", "true");
     }
+  });
+  if (!checked) {
+    return;
   }
-  else
-    broadcaster.setAttribute("disabled", "true");
+
+  switch (gArchivesRadioElemChoice) {
+    case "0":
+      if (!gArchivesRadioElemChoiceLocked)
+        SetPickerEnabling("msgArchivesAccountPicker", "msgArchivesFolderPicker");
+      SetRadioButtons("archive_selectAccount", "archive_selectFolder");
+      updateArchiveHierarchyButton(document.getElementById(
+                                   "msgArchivesAccountPicker").folder);
+      break;
+
+    case "1":
+      if (!gArchivesRadioElemChoiceLocked)
+        SetPickerEnabling("msgArchivesFolderPicker", "msgArchivesAccountPicker");
+      SetRadioButtons("archive_selectFolder", "archive_selectAccount");
+      updateArchiveHierarchyButton(document.getElementById(
+                                   "msgArchivesFolderPicker").folder);
+      break;
+
+    default:
+      dump("Error in setting Archive elements.\n");
+      return;
+  }
 }
 
 /**

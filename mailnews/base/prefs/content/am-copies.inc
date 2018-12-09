@@ -7,9 +7,6 @@
     <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
     </stringbundleset>
 
-    <broadcaster id="broadcaster_doFcc"/>
-    <broadcaster id="broadcaster_archiveEnabled"/>
-
     <label hidden="true" wsm_persist="true" id="identity.fccFolder"
                   pref="true" preftype="string" prefattribute="value"
                   prefstring="mail.identity.%identitykey%.fcc_folder"/>
@@ -54,14 +51,13 @@
           <rows>
             <row align="center">
               <radio id="fcc_selectAccount"
+                     class="depends-on-do-fcc"
                      value="0" label="&sentFolderOn.label;"
                      accesskey="&sentFolderOn.accesskey;"
-                     oncommand="setPickersState('msgFccAccountPicker', 'msgFccFolderPicker', event)"
-                     observes="broadcaster_doFcc"/>
+                     oncommand="setPickersState('msgFccAccountPicker', 'msgFccFolderPicker', event)"/>
                 <menulist id="msgFccAccountPicker"
-                          class="folderMenuItem"
-                          aria-labelledby="fcc_selectAccount"
-                          observes="broadcaster_doFcc">
+                          class="folderMenuItem depends-on-do-fcc"
+                          aria-labelledby="fcc_selectAccount">
                   <menupopup id="msgFccAccountPopup" type="folder" mode="filing"
                              expandFolders="false"
                              oncommand="noteSelectionChange('fcc', 'Account', event)"/>
@@ -69,15 +65,14 @@
             </row>
             <row align="center">
               <radio id="fcc_selectFolder"
+                     class="depends-on-do-fcc"
                      value="1" label="&sentInOtherFolder.label;"
                      accesskey="&sentInOtherFolder.accesskey;"
-                     oncommand="setPickersState('msgFccFolderPicker', 'msgFccAccountPicker', event)"
-                     observes="broadcaster_doFcc"/>
+                     oncommand="setPickersState('msgFccFolderPicker', 'msgFccAccountPicker', event)"/>
                 <menulist id="msgFccFolderPicker"
-                          class="folderMenuItem"
+                          class="folderMenuItem depends-on-do-fcc"
                           aria-labelledby="fcc_selectFolder"
-                          displayformat="verbose"
-                          observes="broadcaster_doFcc">
+                          displayformat="verbose">
                   <menupopup id="msgFccFolderPopup" type="folder" mode="filing"
                              class="menulist-menupopup"
                              showFileHereLabel="true"
@@ -89,12 +84,12 @@
       </radiogroup>
 
       <hbox align="center" class="fccReplyFollowsParent" hidable="true" hidefor="nntp,rss">
-        <checkbox wsm_persist="true" id="identity.fccReplyFollowsParent"
-              label="&fccReplyFollowsParent.label;"
-              accesskey="&fccReplyFollowsParent.accesskey;"
-              prefattribute="value"
-              prefstring="mail.identity.%identitykey%.fcc_reply_follows_parent"
-              observes="broadcaster_doFcc"/>
+        <checkbox id="identity.fccReplyFollowsParent" wsm_persist="true"
+                  class="depends-on-do-fcc"
+                  label="&fccReplyFollowsParent.label;"
+                  accesskey="&fccReplyFollowsParent.accesskey;"
+                  prefattribute="value"
+                  prefstring="mail.identity.%identitykey%.fcc_reply_follows_parent"/>
       </hbox>
 
       <grid>
@@ -145,10 +140,10 @@
                   oncommand="setupArchiveItems();"/>
         <spacer flex="1"/>
         <button id="archiveHierarchyButton"
+                class="depends-on-archive"
                 label="&archiveHierarchyButton.label;"
                 accesskey="&archiveHierarchyButton.accesskey;"
-                oncommand="ChangeArchiveHierarchy();"
-                observes="broadcaster_archiveEnabled"/>
+                oncommand="ChangeArchiveHierarchy();"/>
       </hbox>
 
       <radiogroup id="messageArchives">
@@ -160,14 +155,13 @@
           <rows>
             <row align="center">
               <radio id="archive_selectAccount"
+                     class="depends-on-archive"
                      value="0" label="&archivesFolderOn.label;"
                      accesskey="&archivesFolderOn.accesskey;"
-                     oncommand="setPickersState('msgArchivesAccountPicker', 'msgArchivesFolderPicker', event)"
-                     observes="broadcaster_archiveEnabled"/>
-                <menulist id="msgArchivesAccountPicker"
-                          class="folderMenuItem"
-                          aria-labelledby="archive_selectAccount"
-                          observes="broadcaster_archiveEnabled">
+                     oncommand="setPickersState('msgArchivesAccountPicker', 'msgArchivesFolderPicker', event)"/>
+              <menulist id="msgArchivesAccountPicker"
+                        class="folderMenuItem depends-on-archive"
+                        aria-labelledby="archive_selectAccount">
                 <menupopup id="msgArchivesAccountPopup" type="folder" mode="filing"
                            expandFolders="false"
                            oncommand="noteSelectionChange('archive', 'Account', event)"/>
@@ -175,15 +169,14 @@
             </row>
             <row align="center">
               <radio id="archive_selectFolder"
+                     class="depends-on-archive"
                      value="1" label="&archiveInOtherFolder.label;"
                      accesskey="&archiveInOtherFolder.accesskey;"
-                     oncommand="setPickersState('msgArchivesFolderPicker', 'msgArchivesAccountPicker', event)"
-                     observes="broadcaster_archiveEnabled"/>
-                <menulist id="msgArchivesFolderPicker"
-                          class="folderMenuItem"
-                          aria-labelledby="archive_selectFolder"
-                          displayformat="verbose"
-                          observes="broadcaster_archiveEnabled">
+                     oncommand="setPickersState('msgArchivesFolderPicker', 'msgArchivesAccountPicker', event)"/>
+              <menulist id="msgArchivesFolderPicker"
+                        class="folderMenuItem depends-on-archive"
+                        aria-labelledby="archive_selectFolder"
+                        displayformat="verbose">
                 <menupopup id="msgArchivesFolderPopup" type="folder" mode="filing"
                            class="menulist-menupopup"
                            showFileHereLabel="true"
