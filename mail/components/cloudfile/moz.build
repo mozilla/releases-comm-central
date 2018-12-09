@@ -20,3 +20,7 @@ EXTRA_JS_MODULES += [
 ]
 
 JAR_MANIFESTS += ['jar.mn']
+
+DIRS += [
+    'wetransfer',
+]

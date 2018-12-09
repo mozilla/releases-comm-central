@@ -1,0 +1,44 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+body {
+  min-height: 300px;
+  font: message-box;
+}
+
+.text-link {
+  color: -moz-nativehyperlinktext;
+}
+
+a {
+  display: block;
+}
+
+h1 {
+  font-size: 18px;
+  margin: 0;
+}
+
+.text-link:hover {
+  text-decoration: underline;
+}
+
+#background {
+  max-height: 100%;
+  max-width: 100%;
+}
+
+#title {
+  text-align: end;
+}
+
+#story {
+  margin-top: 2ex;
+}

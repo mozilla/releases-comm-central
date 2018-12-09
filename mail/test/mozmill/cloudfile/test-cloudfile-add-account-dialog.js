@@ -28,6 +28,7 @@ var kRootURL = collector.addHttpResource('../cloudfile/html', '');
 var kSettingsWithForm = kRootURL + 'settings-with-form.xhtml';
 
 var gOldProviders = {};
+var gOldWeTransferProvider = null;
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
@@ -43,6 +44,10 @@ function setupModule(module) {
 
   // Clear out the old entries
   Services.catMan.deleteCategory(kCategory);
+  gOldWeTransferProvider = cloudFileAccounts.getProviderForType(
+    "ext-wetransfer@extensions.thunderbird.net"
+  );
+  cloudFileAccounts.unregisterProvider(gOldWeTransferProvider.type);
 }
 
 function teardownModule(module) {
@@ -52,6 +57,7 @@ function teardownModule(module) {
   // Put the old entries back
   for (let [key, value] of Object.entries(gOldProviders))
     Services.catMan.addCategoryEntry(kCategory, key, value, false, true);
+  cloudFileAccounts.registerProvider(gOldWeTransferProvider);
 }
 
 /**

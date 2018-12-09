@@ -1,1 +1,8 @@
-{ "dictionaries": {"en-US": "dictionaries/en-US.dic"}, "system": [] }
+{
+  "dictionaries": {
+    "en-US": "dictionaries/en-US.dic"
+  },
+  "system": [
+    "wetransfer@extensions.thunderbird.net"
+  ]
+}

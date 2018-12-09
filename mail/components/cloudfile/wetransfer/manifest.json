@@ -1,0 +1,32 @@
+{
+  "manifest_version": 2,
+  "name": "__MSG_extensionName__",
+  "description": "__MSG_extensionDescription__",
+  "version": "2.0.0",
+  "applications": {
+    "gecko": {
+      "id": "wetransfer@extensions.thunderbird.net",
+      "strict_min_version": "60.4"
+    }
+  },
+  "default_locale": "en",
+
+  "icons": {
+    "16": "images/logo.svg",
+    "32": "images/logo.svg",
+    "48": "images/logo.svg",
+    "128": "images/logo.svg"
+  },
+
+  "cloud_file": {
+    "name": "__MSG_serviceName__",
+    "settings_url": "/content/moments.html",
+    "management_url": "/content/moments.html"
+  },
+
+  "background": {
+    "scripts": [
+      "background/background.js"
+    ]
+  }
+}

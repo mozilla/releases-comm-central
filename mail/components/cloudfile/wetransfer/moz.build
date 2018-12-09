@@ -1,0 +1,27 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+DIST_SUBDIR = 'features/wetransfer@extensions.thunderbird.net'
+
+FINAL_TARGET_FILES += [
+    'install.rdf',
+    'manifest.json',
+]
+FINAL_TARGET_FILES.background += [
+    'background/background.js',
+]
+FINAL_TARGET_FILES.content += [
+    'content/moments.css',
+    'content/moments.html',
+    'content/moments.js',
+]
+FINAL_TARGET_FILES.images += [
+    'images/logo.svg',
+]
+FINAL_TARGET_FILES._locales.en += [
+    '_locales/en/messages.json',
+]
+
+USE_EXTENSION_MANIFEST = True
+export('USE_EXTENSION_MANIFEST')
