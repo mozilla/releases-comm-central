@@ -1610,7 +1610,6 @@ static nsresult fixCharset(nsCString &aCharset)
     aCharset = "EUC-KR";
 
   // Convert to a canonical charset name.
-  // Bug 1297118 will revisit this call site.
   nsresult rv;
   nsCOMPtr<nsICharsetConverterManager> ccm =
     do_GetService(NS_CHARSETCONVERTERMANAGER_CONTRACTID, &rv);
