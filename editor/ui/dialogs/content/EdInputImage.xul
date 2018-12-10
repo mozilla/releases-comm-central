@@ -28,7 +28,6 @@
   <script type="application/javascript" src="chrome://editor/content/EdInputImage.js"/>
   <script type="application/javascript" src="chrome://editor/content/EdImageDialog.js"/>
 
-  <broadcaster id="args" value=""/>
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
 
   <tabbox id="TabBox">

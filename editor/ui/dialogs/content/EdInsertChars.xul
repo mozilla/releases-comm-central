@@ -24,7 +24,6 @@
   <script type="application/javascript" src="chrome://editor/content/EdInsertChars.js"/>
 
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
-  <broadcaster id="args" value=""/>
 
   <groupbox><label class="header">&category.label;</label>
     <radiogroup id="CatGrp" persist="category letter_index char_index">

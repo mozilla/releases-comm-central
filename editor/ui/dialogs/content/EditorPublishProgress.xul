@@ -23,7 +23,6 @@
   <script type="application/javascript" src="chrome://editor/content/EditorPublishProgress.js"/>
 
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
-  <broadcaster id="args" value=""/>
 
   <groupbox>
     <caption><label id="PublishToSite"/></caption>

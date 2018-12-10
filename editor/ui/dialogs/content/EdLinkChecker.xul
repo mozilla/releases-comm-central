@@ -20,7 +20,6 @@
   <script type="application/javascript" src="chrome://editor/content/EdLinkChecker.js"/>
 
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
-  <broadcaster id="args" value=""/>
 
   <listbox rows="8" id="LinksList" class="MinWidth20" flex="1"/>
   <hbox align="center">

@@ -25,7 +25,6 @@
   <script type="application/javascript" src="chrome://editor/content/EdDialogCommon.js"/>
   <script type="application/javascript" src="chrome://editor/content/EdFieldSetProps.js"/>
 
-  <broadcaster id="args" value=""/>
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
 
   <groupbox><label class="header" accesskey="&Legend.accesskey;">&Legend.label;</label>

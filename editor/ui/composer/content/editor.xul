@@ -110,14 +110,6 @@
 
   <tooltip id="aHTMLTooltip" onpopupshowing="return FillInHTMLTooltipEditor(this);"/>
 
-  <broadcasterset id="editorBroadcasters">
-    <broadcaster id="Editor:Throbber" busy="false"/>
-    <broadcaster id="Communicator:WorkMode"/>
-    <broadcaster id="args" value="about:blank"/>
-  </broadcasterset>
-
-  <broadcasterset id="mainBroadcasterSet"/>
-
   <!-- keys are appended from the overlay -->
   <keyset id="editorKeys">
     <keyset id="tasksKeys"/>
@@ -252,9 +244,8 @@
       <button id="navigator-throbber"
               oncommand="goClickThrobber('editor.throbber.url', event)"
               onclick="checkForMiddleClick(this, event);"
-              tooltiptext="&throbber.tooltip;">
-        <observes element="Editor:Throbber" attribute="busy"/>
-      </button>
+              tooltiptext="&throbber.tooltip;"
+              busy="false"/>
     </hbox>
   </toolbar>
   <toolbar id="FormatToolbar"

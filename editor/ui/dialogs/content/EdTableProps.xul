@@ -32,7 +32,6 @@
   <script type="application/javascript" src="chrome://editor/content/EdTableProps.js"/>
 
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
-  <broadcaster id="args" value=""/>
 
   <tabbox id="TabBox">
     <tabs flex="1">

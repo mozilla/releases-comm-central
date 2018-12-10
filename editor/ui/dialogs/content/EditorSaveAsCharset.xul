@@ -20,7 +20,6 @@
     <script type="application/javascript" src="chrome://editor/content/EditorSaveAsCharset.js"/>
 
     <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
-    <broadcaster id="args" value=""/>
 
     <groupbox>
         <label class="header">&documentTitleTitle.label;</label>

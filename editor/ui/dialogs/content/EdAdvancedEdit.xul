@@ -32,8 +32,6 @@
   <!-- global dialog functions -->
   <script type="application/javascript" src="chrome://editor/content/EdAdvancedEdit.js"/>
 
-  <broadcaster id="args" value=""/>
-
   <hbox>
     <label value="&currentattributesfor.label;"/>
     <label class="header" id="tagLabel"/>

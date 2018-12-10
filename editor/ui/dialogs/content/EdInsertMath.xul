@@ -26,7 +26,6 @@
           src="chrome://editor/content/EdInsertMath.js"/>
 
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
-  <broadcaster id="args" value=""/>
 
   <label id="srcMessage" value="&sourceEditField.label;"/>
   <textbox id="input" rows="5" multiline="true" oninput="updateMath();"

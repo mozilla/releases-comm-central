@@ -26,7 +26,6 @@
   <script type="application/javascript" src="chrome://editor/content/EdInsertTable.js"/>
 
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
-  <broadcaster id="args" value=""/>
   <groupbox><label class="header">&size.label;</label>
     <grid>
       <columns>

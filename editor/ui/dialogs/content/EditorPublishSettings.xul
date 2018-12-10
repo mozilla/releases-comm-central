@@ -26,7 +26,6 @@
   <script type="application/javascript" src="chrome://editor/content/publishprefs.js"/>
 
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
-  <broadcaster id="args" value=""/>
 
   <hbox id="SettingsPanel">
     <groupbox align="center">

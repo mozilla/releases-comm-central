@@ -23,7 +23,6 @@
   <script type="application/javascript" src="chrome://editor/content/EdInsSrc.js"/>
 
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
-  <broadcaster id="args" value=""/>
 
   <label id="srcMessage" value="&sourceEditField.label;"/>
   <vbox flex="1" style="width: 30em; height: 20em;">

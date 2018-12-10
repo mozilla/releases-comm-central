@@ -19,7 +19,6 @@
   <script type="application/javascript" src="chrome://editor/content/EdPageProps.js"/>
 
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
-  <broadcaster id="args" value=""/>
   <grid>
     <columns><column flex="1"/><column flex="2"/></columns>
     <rows>

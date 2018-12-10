@@ -25,7 +25,6 @@
   <script type="application/javascript" src="chrome://editor/content/EdDialogCommon.js"/>
   <script type="application/javascript" src="chrome://editor/content/EdSelectProps.js"/>
 
-  <broadcaster id="args" value=""/>
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
 
   <!-- Setting rows="7" on tree isn't working, equalsize vbox sets tree height. -->

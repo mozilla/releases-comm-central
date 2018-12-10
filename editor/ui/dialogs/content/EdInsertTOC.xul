@@ -24,7 +24,6 @@
 
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
   <spacer id="dummy" style="display:none"/>
-  <broadcaster id="args" value=""/>
   <vbox flex="1">
     <groupbox><label class="header">&buildToc.label;</label>
       <grid>

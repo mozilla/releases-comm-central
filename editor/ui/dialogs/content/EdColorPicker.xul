@@ -19,7 +19,6 @@
   <script type="application/javascript" src="chrome://editor/content/EdDialogCommon.js"/>
   <script type="application/javascript" src="chrome://editor/content/EdColorPicker.js"/>
 
-  <broadcaster id="args" value=""/>
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
 
   <hbox id="TableOrCellGroup" align="center" collapsed="true">
