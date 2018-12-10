@@ -25,7 +25,7 @@ calendar-multiday-view {
 }
 
 calendar-day-label {
-  -moz-binding: url(chrome://calendar/content/calendar-base-view.xml#calendar-day-label);
+  display: -moz-box;
 }
 
 nav-day-label {

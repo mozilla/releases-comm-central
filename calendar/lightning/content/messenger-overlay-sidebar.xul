@@ -32,6 +32,7 @@
 
 <overlay id="ltnSidebarOverlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script type="application/javascript" src="chrome://calendar/content/calendar-base-view.js"/>
 
   <!-- NEEDED FOR MULTIPLE CALENDAR SUPPORT -->
   <script type="application/javascript" src="chrome://calendar/content/calendar-management.js"/>
