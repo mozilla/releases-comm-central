@@ -25,17 +25,17 @@
   box-shadow: 0 0 1.5px 1px -moz-mac-focusring inset;
 }
 
-#attachmentBucket attachmentitem {
+#attachmentBucket .attachmentItem {
   border-top: 1px solid transparent;
   border-bottom: 1px solid #fff;
 }
 
-#attachmentBucket attachmentitem[dropOn="top"] {
+#attachmentBucket .attachmentItem[dropOn="top"] {
   border-top-color: #000;
   outline-color: transparent;
 }
 
-#attachmentBucket attachmentitem[dropOn="bottom"] {
+#attachmentBucket .attachmentItem[dropOn="bottom"] {
   border-bottom-color: #000;
 }
 

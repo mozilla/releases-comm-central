@@ -100,8 +100,13 @@
                                      defaultset="attachmentSaveAll"/>
                           </toolbox>
                         </hbox>
-                        <attachmentlist orient="horizontal" id="attachmentList" flex="1"
-                                        seltype="multiple" context="attachmentListContext"
-                                        role="listbox" itemcontext="attachmentItemContext"
-                                        ondragstart="nsDragAndDrop.startDrag(event,attachmentListDNDObserver);"
-                                        ondragover="nsDragAndDrop.dragOver(event, attachmentListDNDObserver);"/>
+                        <richlistbox id="attachmentList"
+                                     class="attachmentList"
+                                     orient="horizontal"
+                                     flex="1"
+                                     seltype="multiple"
+                                     context="attachmentListContext"
+                                     itemcontext="attachmentItemContext"
+                                     role="listbox"
+                                     ondragstart="nsDragAndDrop.startDrag(event,attachmentListDNDObserver);"
+                                     ondragover="nsDragAndDrop.dragOver(event, attachmentListDNDObserver);"/>

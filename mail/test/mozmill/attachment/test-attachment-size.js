@@ -239,7 +239,7 @@ function setupModule(module) {
  */
 function check_attachment_size(index, expectedSize) {
   let list = mc.e('attachmentList');
-  let node = list.getElementsByTagName('attachmentitem')[index];
+  let node = list.querySelectorAll("richlistitem.attachmentItem")[index];
 
   // First, let's check that the attachment size is correct
   let size = node.attachment.size;
@@ -261,7 +261,7 @@ function check_attachment_size(index, expectedSize) {
  */
 function check_no_attachment_size(index) {
   let list = mc.e('attachmentList');
-  let node = list.getElementsByTagName('attachmentitem')[index];
+  let node = list.querySelectorAll("richlistitem.attachmentItem")[index];
 
   if (node.attachment.size != null)
     throw new Error('attachmentSize attribute of deleted attachment should ' +
@@ -280,7 +280,7 @@ function check_no_attachment_size(index) {
  */
 function check_total_attachment_size(count, expectedSize, exact) {
   let list = mc.e('attachmentList');
-  let nodes = list.getElementsByTagName('attachmentitem');
+  let nodes = list.querySelectorAll("richlistitem.attachmentItem");
   let sizeNode = mc.e('attachmentSize');
 
   if (nodes.length != count)

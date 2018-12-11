@@ -92,7 +92,7 @@ function setupModule(module) {
  */
 function check_attachment_size(controller, index, expectedSize) {
   let bucket = controller.e('attachmentBucket');
-  let node = bucket.getElementsByTagName('attachmentitem')[index];
+  let node = bucket.querySelectorAll("richlistitem.attachmentItem")[index];
 
   // First, let's check that the attachment size is correct
   let size = node.attachment.size;
@@ -115,7 +115,7 @@ function check_attachment_size(controller, index, expectedSize) {
  */
 function check_no_attachment_size(controller, index) {
   let bucket = controller.e('attachmentBucket');
-  let node = bucket.getElementsByTagName('attachmentitem')[index];
+  let node = bucket.querySelectorAll("richlistitem.attachmentItem")[index];
 
   if (node.attachment.size != -1)
     throw new Error('attachment.size attribute should be -1!');
@@ -132,7 +132,7 @@ function check_no_attachment_size(controller, index) {
  */
 function check_total_attachment_size(controller, count) {
   let bucket = controller.e("attachmentBucket");
-  let nodes = bucket.getElementsByTagName("attachmentitem");
+  let nodes = bucket.querySelectorAll("richlistitem.attachmentItem");
   let sizeNode = controller.e("attachmentBucketSize");
 
   if (nodes.length != count)
@@ -223,7 +223,7 @@ function test_rename_attachment() {
 
   // Now, rename the attachment.
   let bucket = cwc.e("attachmentBucket");
-  let node = bucket.querySelector("attachmentitem");
+  let node = bucket.querySelector("richlistitem.attachmentItem");
   cwc.click(new elib.Elem(node));
   plan_for_modal_dialog("commonDialog", subtest_rename_attachment);
   cwc.window.RenameSelectedAttachment();
@@ -256,7 +256,7 @@ function test_open_attachment() {
 
   // Now, open the attachment.
   let bucket = cwc.e("attachmentBucket");
-  let node = bucket.querySelector("attachmentitem");
+  let node = bucket.querySelector("richlistitem.attachmentItem");
   plan_for_modal_dialog("unknownContentType", subtest_open_attachment);
   cwc.doubleClick(new elib.Elem(node));
   wait_for_modal_dialog("unknownContentType");

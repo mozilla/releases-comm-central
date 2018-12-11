@@ -434,7 +434,7 @@ function add_cloud_attachments(aController, aProvider, aWaitUploaded = true) {
  */
 function delete_attachment(aComposeWindow, aIndex) {
   let bucket = aComposeWindow.e('attachmentBucket');
-  let node = bucket.getElementsByTagName('attachmentitem')[aIndex];
+  let node = bucket.querySelectorAll("richlistitem.attachmentItem")[aIndex];
 
   aComposeWindow.click(new elib.Elem(node));
   aComposeWindow.window.RemoveSelectedAttachment();

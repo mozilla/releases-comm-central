@@ -15,19 +15,19 @@
   box-shadow: 0 0 2px Highlight inset, 0 0 2px Highlight inset;
 }
 
-#attachmentBucket attachmentitem {
+#attachmentBucket .attachmentItem {
   border-top: 1px solid transparent;
 }
 
-#attachmentBucket attachmentitem:last-child {
+#attachmentBucket .attachmentItem:last-child {
   border-bottom: 1px solid transparent;
 }
 
-#attachmentBucket attachmentitem[dropOn="top"] {
+#attachmentBucket .attachmentItem[dropOn="top"] {
   border-top-color: Highlight;
 }
 
-#attachmentBucket attachmentitem[dropOn="bottom"] {
+#attachmentBucket .attachmentItem[dropOn="bottom"] {
   border-bottom-color: Highlight;
 }
 

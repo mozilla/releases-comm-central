@@ -183,7 +183,8 @@
         <parameter name="name"/>
         <body><![CDATA[
           const XULNS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
-          let item = this.ownerDocument.createElementNS(XULNS, "attachmentitem");
+          let item = this.ownerDocument.createElementNS(XULNS, "richlistitem");
+          item.className = "attachmentItem";
           item.setAttribute("name", name || attachment.name);
           item.setAttribute("role", "option");
 
@@ -237,7 +238,11 @@
 
       <!-- ///////////////// private members ///////////////// -->
 
-      <field name="_childNodes" readonly="true">this.getElementsByTagName("attachmentitem")</field>
+      <property name="_childNodes" readonly="true">
+        <getter><![CDATA[
+          return this.querySelectorAll("richlistitem.attachmentItem");
+        ]]></getter>
+      </property>
       <property name="scrollbox" readonly="true">
         <getter><![CDATA[
           return document.getAnonymousElementByAttribute(this, "anonid", "scrollbox");
@@ -325,7 +330,7 @@
     <content>
       <xul:scrollbox flex="1" anonid="scrollbox" style="overflow: auto;">
         <xul:hbox flex="1" class="attachmentlist-wrapper">
-          <children includes="attachmentitem"/>
+          <children includes="richlistitem"/>
         </xul:hbox>
       </xul:scrollbox>
     </content>
@@ -366,7 +371,7 @@
     <content>
       <xul:scrollbox orient="vertical" flex="1" anonid="scrollbox"
                      style="overflow: auto;">
-        <children includes="attachmentitem"/>
+        <children includes="richlistitem"/>
       </xul:scrollbox>
     </content>
     <implementation>

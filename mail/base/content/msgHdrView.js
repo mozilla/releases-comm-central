@@ -2637,7 +2637,7 @@ var attachmentListDNDObserver = {
   onDragStart(aEvent, aAttachmentData, aDragAction) {
     let target = aEvent.target;
 
-    if (target.localName == "attachmentitem") {
+    if (target.localName == "richlistitem") {
       let selection = target.parentNode.selectedItems;
       aAttachmentData.data = new TransferDataSet();
       for (let item of selection) {

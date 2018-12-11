@@ -24,20 +24,20 @@
 }
 
 @media (-moz-windows-default-theme: 0) {
-  #attachmentBucket attachmentitem {
+  #attachmentBucket .attachmentItem {
     border-top: 1px solid transparent;
   }
 
-  #attachmentBucket attachmentitem:last-child {
+  #attachmentBucket .attachmentItem:last-child {
     border-bottom: 1px solid transparent;
   }
 }
 
-#attachmentBucket attachmentitem[dropOn="top"] {
+#attachmentBucket .attachmentItem[dropOn="top"] {
   border-top-color: Highlight;
 }
 
-#attachmentBucket attachmentitem[dropOn="bottom"] {
+#attachmentBucket .attachmentItem[dropOn="bottom"] {
   border-bottom-color: Highlight;
 }
 

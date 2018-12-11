@@ -21,38 +21,38 @@
   color: GrayText;
 }
 
-attachmentlist[orient="horizontal"] > attachmentitem {
+.attachmentList[orient="horizontal"] > .attachmentItem {
   pointer-events: none;
 }
 
-attachmentlist[orient="horizontal"] .attachmentcell-icon,
-attachmentlist[orient="horizontal"] .attachmentcell-nameselection {
+.attachmentList[orient="horizontal"] .attachmentcell-icon,
+.attachmentList[orient="horizontal"] .attachmentcell-nameselection {
   pointer-events: auto;
 }
 
-attachmentlist:focus > attachmentitem[selected="true"][current="true"] .attachmentcell-nameselection {
+.attachmentList:focus > .attachmentItem[selected="true"][current="true"] .attachmentcell-nameselection {
   outline: 1px dotted #F3D982;
 }
 
-attachmentlist:focus > attachmentitem[current="true"] .attachmentcell-nameselection {
+.attachmentList:focus > .attachmentItem[current="true"] .attachmentcell-nameselection {
   outline: 1px dotted;
   outline-offset: -1px;
 }
 
-attachmentitem[selected="true"] .attachmentcell-nameselection {
+.attachmentItem[selected="true"] .attachmentcell-nameselection {
   background-color: -moz-CellHighlight;
   color: -moz-CellHighlightText;
 }
 
-attachmentlist:focus > attachmentitem[selected="true"] .attachmentcell-nameselection {
+.attachmentList:focus > .attachmentItem[selected="true"] .attachmentcell-nameselection {
   background-color: Highlight;
   color: HighlightText;
 }
 
-attachmentitem[selected="true"] .attachmentcell-icon {
+.attachmentItem[selected="true"] .attachmentcell-icon {
   filter: url("chrome://messenger/skin/imageFilters.svg#selected");
 }
 
-attachmentlist:focus > attachmentitem[selected="true"] .attachmentcell-icon {
+.attachmentList:focus > .attachmentItem[selected="true"] .attachmentcell-icon {
   filter: url("chrome://messenger/skin/imageFilters.svg#selected-focus");
 }

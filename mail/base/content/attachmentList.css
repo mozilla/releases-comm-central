@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-attachmentlist {
+.attachmentList {
   -moz-appearance: listbox;
   -moz-user-focus: normal;
 }
 
-attachmentlist[orient="horizontal"] {
+.attachmentList[orient="horizontal"] {
   -moz-binding: url("chrome://messenger/content/mailWidgets.xml#attachmentlist-horizontal");
 }
 
-attachmentlist[orient="vertical"] {
+.attachmentList[orient="vertical"] {
   -moz-binding: url("chrome://messenger/content/mailWidgets.xml#attachmentlist-vertical");
 }
 
@@ -22,7 +22,7 @@ attachmentlist[orient="vertical"] {
   line-height: 0;
 }
 
-attachmentitem {
+.attachmentItem {
   -moz-binding: url("chrome://messenger/content/mailWidgets.xml#attachmentitem");
 }
 
@@ -34,30 +34,30 @@ attachmentitem {
   -moz-box-orient: horizontal;
 }
 
-attachmentlist[view="large"] .attachmentcell-content {
+.attachmentList[view="large"] .attachmentcell-content {
   -moz-box-orient: horizontal;
 }
 
-attachmentlist[view="large"] .attachmentcell-text {
+.attachmentList[view="large"] .attachmentcell-text {
   -moz-box-align: start;
   -moz-box-orient: vertical;
 }
 
-attachmentlist[view="tile"] .attachmentcell-content {
+.attachmentList[view="tile"] .attachmentcell-content {
   -moz-box-align: center;
   -moz-box-orient: vertical;
 }
 
-attachmentlist[view="tile"] .attachmentcell-text {
+.attachmentList[view="tile"] .attachmentcell-text {
   -moz-box-align: center;
   -moz-box-orient: vertical;
 }
 
-attachmentlist[orient="horizontal"] > attachmentitem {
+.attachmentList[orient="horizontal"] > .attachmentItem {
   min-width: 10em;
 }
 
-attachmentlist[orient="horizontal"][view="tile"] > attachmentitem {
+.attachmentList[orient="horizontal"][view="tile"] > .attachmentItem {
   min-width: 5em;
   max-width: 10em;
 }

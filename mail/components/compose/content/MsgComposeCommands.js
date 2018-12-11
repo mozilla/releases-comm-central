@@ -4431,7 +4431,7 @@ function attachmentsGetSortedArray(aAscending = true, aSelectedOnly = false) {
       return [];
 
     bucketList = document.getElementById("attachmentBucket");
-    listItems = [...bucketList.querySelectorAll("attachmentitem")];
+    listItems = [...bucketList.querySelectorAll("richlistitem.attachmentItem")];
   }
 
   if (aAscending) {
@@ -5675,7 +5675,7 @@ var envelopeDragObserver = {
     }
 
     // Target is an attachmentitem.
-    if (target.tagName == "attachmentitem") {
+    if (target.matches("richlistitem.attachmentItem")) {
       // If we're dragging/dropping in bottom half of attachmentitem,
       // adjust target to target.nextSibling (to show dropmarker above that).
       let box = target.boxObject;
@@ -5716,7 +5716,7 @@ var envelopeDragObserver = {
     let bucket = document.getElementById("attachmentBucket");
 
     let oldDropMarkerItem =
-      bucket.querySelector("attachmentitem[dropOn]");
+      bucket.querySelector("richlistitem.attachmentItem[dropOn]");
     if (oldDropMarkerItem)
       oldDropMarkerItem.removeAttribute("dropOn");
 
@@ -5731,7 +5731,7 @@ var envelopeDragObserver = {
   _hideDropMarker() {
    let oldDropMarkerItem =
      document.getElementById("attachmentBucket")
-             .querySelector("attachmentitem[dropOn]");
+             .querySelector("richlistitem.attachmentItem[dropOn]");
     if (oldDropMarkerItem)
       oldDropMarkerItem.removeAttribute("dropOn");
   },
@@ -5755,7 +5755,7 @@ var envelopeDragObserver = {
 
       // Moving possibly non-coherent multiple selections around correctly
       // is much more complex than one might think...
-      if (target.tagName == "attachmentitem" || target == "afterLastItem") {
+      if (target.matches("richlistitem.attachmentItem") || target == "afterLastItem") {
         // Drop before targetItem in the list, or after last item.
         let blockItems = [];
         let targetItem;
@@ -5920,7 +5920,7 @@ var envelopeDragObserver = {
 
       let target = this._adjustDropTarget(aEvent);
 
-      if (target && (target.tagName == "attachmentitem" || target == "afterLastItem")) {
+      if (target && (target.matches("richlistitem.attachmentItem") || target == "afterLastItem")) {
         // Adjusted target is an attachment list item; show dropmarker.
         this._showDropMarker(target);
       } else {
@@ -5962,7 +5962,7 @@ var attachmentBucketDNDObserver = {
   onDragStart(aEvent, aAttachmentData, aDragAction) {
     var target = aEvent.target;
 
-    if (target.localName == "attachmentitem")
+    if (target.matches("richlistitem.attachmentItem"))
       aAttachmentData.data = CreateAttachmentTransferData(target.attachment);
   },
 };
