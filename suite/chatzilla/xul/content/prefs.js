@@ -920,6 +920,19 @@ function onNetworkPrefChanged(network, prefName, newValue, oldValue)
             network.dispatch("sync-motif");
             break;
 
+        case "notifyList":
+            if (!network.primServ.supports["monitor"])
+                break;
+            var adds = newValue.filter((el) =>
+                { return oldValue.indexOf(el) < 0; });
+            var subs = oldValue.filter((el) =>
+                { return newValue.indexOf(el) < 0; });
+            if (adds.length > 0)
+                network.primServ.sendMonitorList(adds, true);
+            if (subs.length > 0)
+                network.primServ.sendMonitorList(subs, false);
+            break;
+
         case "outputWindowURL":
             network.dispatch("sync-window");
             break;

@@ -741,12 +741,12 @@ function onNotifyTimeout()
     {
         var net = client.networks[n];
         if (net.isConnected()) {
-            if (net.prefs["notifyList"].length > 0) {
+            if ((net.prefs["notifyList"].length > 0) &&
+                (!net.primServ.supports["monitor"])) {
                 var isonList = client.networks[n].prefs["notifyList"];
                 net.primServ.sendData ("ISON " + isonList.join(" ") + "\n");
             } else {
-                /* if the notify list is empty, just send a ping to see if we're
-                 * alive. */
+                /* Just send a ping to see if we're alive. */
                 net.primServ.sendData ("PING :ALIVECHECK\n");
             }
         }
@@ -1151,6 +1151,13 @@ function my_showtonet (e)
         case "251": /* users */
             this.doAutoPerform();
 
+            // Set our initial monitor list
+            if ((this.primServ.supports["monitor"]) &&
+                (this.prefs["notifyList"].length > 0))
+            {
+                this.primServ.sendMonitorList(this.prefs["notifyList"], true);
+            }
+
             this.isIdleAway = client.isIdleAway;
             if (this.prefs["away"])
                 this.dispatch("away", { reason: this.prefs["away"] });
@@ -1349,6 +1356,96 @@ function my_303 (e)
     this.onList = onList;
     this.offList = offList;
 
+}
+
+CIRCNetwork.prototype.on730 = /* RPL_MONONLINE  */
+CIRCNetwork.prototype.on731 = /* RPL_MONOFFLINE */
+function my_monnotice(e)
+{
+    var userList = e.params[2].split(",");
+    var nickList = [];
+    var o = getObjectDetails(client.currentObject);
+    var displayTab;
+    var i;
+    var msg;
+
+    if ("network" in o && o.network == this && client.currentObject != this)
+        displayTab = client.currentObject;
+
+    for (i = 0; i < userList.length; i++)
+    {
+        var nick = e.server.toLowerCase(userList[i].split("!")[0]);
+
+        // Make sure this nick is in the notify list.
+        if (this.prefs["notifyList"].indexOf(nick) < 0)
+        {
+            this.prefs["notifyList"].push(nick);
+            this.prefs["notifyList"].update();
+        }
+        nickList.push(nick);
+    }
+
+    if (e.code == "730") // RPL_MONONLINE
+        msg = arraySpeak (nickList, "is", "are") + " online.";
+    else // RPL_MONOFFLINE
+        msg = arraySpeak (nickList, "is", "are") + " offline.";
+    this.displayHere(msg, e.code);
+    if (displayTab)
+        displayTab.displayHere(msg, e.code);
+}
+
+CIRCNetwork.prototype.on732 = /* RPL_MONLIST */
+function my_732(e)
+{
+    if (!this.pendingNotifyList)
+        this.pendingNotifyList = [];
+    var nickList = e.server.toLowerCase(e.params[2]).split(",")
+    this.pendingNotifyList = this.pendingNotifyList.concat(nickList);
+}
+
+CIRCNetwork.prototype.on733 = /* RPL_ENDOFMONLIST */
+function my_733(e)
+{
+    if (this.pendingNotifyList)
+    {
+        this.prefs["notifyList"] = this.pendingNotifyList;
+        this.prefs["notifyList"].update();
+        this.display(getMsg(MSG_NOTIFY_LIST, arraySpeak(this.pendingNotifyList)));
+        delete this.pendingNotifyList;
+        if (e.params[2])
+            this.display(e.params[2], e.code);
+    }
+    else
+    {
+        this.prefs["notifyList"] = [];
+        this.prefs["notifyList"].update();
+        display(MSG_NO_NOTIFY_LIST);
+    }
+}
+
+CIRCNetwork.prototype.on734 = /* ERR_MONLISTFULL */
+function my_734(e)
+{
+    var nickList = e.server.toLowerCase(e.params[3]).split(",")
+    var i;
+    var msgname;
+
+    for (i = 0; i < nickList.length; i++)
+    {
+        var j = this.prefs["notifyList"].indexOf(nickList[i]);
+        if (j >= 0)
+            arrayRemoveAt(this.prefs["notifyList"], j);
+    }
+    this.prefs["notifyList"].update();
+
+    if (e.params[4])
+        this.display(e.params[4], e.code)
+    else
+        this.display(MSG_NOTIFY_FULL);
+
+    msgname = (nickList.length == 1) ? MSG_NOTIFY_DELONE :
+                                   MSG_NOTIFY_DELSOME;
+    this.display(getMsg(msgname, arraySpeak(nickList)));
 }
 
 /* away off reply */

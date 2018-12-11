@@ -24,7 +24,6 @@ const JSIRCV3_SUPPORTED_CAPS = [
     //"labeled-response",
     //"message-tags",
     //"metadata",
-    //"monitor",
     "multi-prefix",
     "sasl",
     //"server-time",
@@ -894,6 +893,32 @@ function serv_authabort()
 {
     // Abort an in-progress SASL authentication.
     this.sendData("AUTHENTICATE *\n");
+}
+
+CIRCServer.prototype.sendMonitorList =
+function serv_monitorlist(nicks, isAdd)
+{
+    if (!nicks.length)
+        return;
+
+    var prefix;
+    if (isAdd)
+        prefix = "MONITOR + ";
+    else
+        prefix = "MONITOR - ";
+
+    /* Send monitor list updates in chunks less than
+       maxLineLength in size. */
+    var nicks_string = nicks.join(",");
+    while (nicks_string.length > this.maxLineLength)
+    {
+        var nicks_part = nicks_string.substring(0, this.maxLineLength);
+        var i = nicks_part.lastIndexOf(",");
+        nicks_part = nicks_string.substring(0, i);
+        nicks_string = nicks_string.substring(i + 1);
+        this.sendData(prefix + nicks_part + "\n");
+    }
+    this.sendData(prefix + nicks_string + "\n");
 }
 
 CIRCServer.prototype.addTarget =

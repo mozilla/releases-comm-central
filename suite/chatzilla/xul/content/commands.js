@@ -3132,17 +3132,26 @@ function cmdClient(e)
 function cmdNotify(e)
 {
     var net = e.network;
+    var supports_monitor = net.primServ.supports["monitor"];
 
     if (!e.nickname)
     {
         if (net.prefs["notifyList"].length > 0)
         {
-            /* delete the lists and force a ISON check, this will
-             * print the current online/offline status when the server
-             * responds */
-            delete net.onList;
-            delete net.offList;
-            onNotifyTimeout();
+            if (supports_monitor)
+            {
+                // Just get the status of the monitor list from the server.
+                net.primServ.sendData("MONITOR S\n");
+            }
+            else
+            {
+                /* delete the lists and force a ISON check, this will
+                 * print the current online/offline status when the server
+                 * responds */
+                delete net.onList;
+                delete net.offList;
+                onNotifyTimeout();
+            }
         }
         else
         {
@@ -3177,6 +3186,9 @@ function cmdNotify(e)
 
         if (adds.length > 0)
         {
+            if (supports_monitor)
+                net.primServ.sendMonitorList(adds, true);
+
             msgname = (adds.length == 1) ? MSG_NOTIFY_ADDONE :
                                            MSG_NOTIFY_ADDSOME;
             display(getMsg(msgname, arraySpeak(adds)));
@@ -3184,6 +3196,9 @@ function cmdNotify(e)
 
         if (subs.length > 0)
         {
+            if (supports_monitor)
+                net.primServ.sendMonitorList(subs, false);
+
             msgname = (subs.length == 1) ? MSG_NOTIFY_DELONE :
                                            MSG_NOTIFY_DELSOME;
             display(getMsg(msgname, arraySpeak(subs)));
@@ -3191,7 +3206,8 @@ function cmdNotify(e)
 
         delete net.onList;
         delete net.offList;
-        onNotifyTimeout();
+        if (!supports_monitor)
+            onNotifyTimeout();
     }
 }
 
