@@ -85,21 +85,21 @@ function getMsgHeaders(aMsgHdr, aGetText=false) {
 }
 
 /**
- * Test that if we reply to a message in x-mac-croatian, we don't try to compose
- * in x-mac-croatian. Instead, we should be using the default charset (set to
+ * Test that if we reply to a message in an invalid charset, we don't try to compose
+ * in that charset. Instead, we should be using the default charset (set to
  * not be UTF-8 in this test).
  */
 function test_wrong_reply_charset() {
   let folder = gDrafts;
   let msg0 = create_message({
     bodyPart: new SyntheticPartLeaf("Some text",
-      {charset: "x-mac-croatian"})
+      {charset: "invalid-charset"})
   });
   add_message_to_folder(folder, msg0);
   be_in_folder(folder);
   let msg = select_click_row(0);
   assert_selected_and_displayed(mc, msg);
-  assert_equals(getMsgHeaders(msg).get("").charset, "x-mac-croatian");
+  assert_equals(getMsgHeaders(msg).get("").charset, "invalid-charset");
 
   let rwc = open_compose_with_reply();
   // Ctrl+S = save as draft.

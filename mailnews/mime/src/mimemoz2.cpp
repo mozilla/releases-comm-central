@@ -830,10 +830,7 @@ int ConvertToUTF8(const char *stringToUse, int32_t inLength,
   }
 
   auto encoding = mozilla::Encoding::ForLabel(newCharset);
-  if (!encoding) {
-    // Assume input is UTF-8.
-    encoding = UTF_8_ENCODING;
-  }
+  NS_ENSURE_TRUE(encoding, -1);  // Impossible since GetCharsetAlias() already checked.
 
   rv = encoding->DecodeWithoutBOMHandling(nsDependentCSubstring(stringToUse, inLength), outString);
   return NS_SUCCEEDED(rv) ? 0 : -1;

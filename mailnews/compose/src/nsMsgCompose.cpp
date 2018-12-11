@@ -1613,11 +1613,21 @@ static nsresult fixCharset(nsCString &aCharset)
   nsCString charset(aCharset);
   rv = ccm->GetCharsetAlias(charset.get(), aCharset);
 
+  // Replace an unrecognized charset with the default.
+  if (NS_FAILED(rv)) {
+    nsCOMPtr<nsIPrefBranch> prefs (do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
+    NS_ENSURE_SUCCESS(rv, rv);
+    nsString defaultCharset;
+    NS_GetLocalizedUnicharPreferenceWithDefault(prefs, "mailnews.send_default_charset",
+                                                NS_LITERAL_STRING("UTF-8"), defaultCharset);
+    LossyCopyUTF16toASCII(defaultCharset, aCharset);
+    return NS_OK;
+  }
+
   // Don't accept UTF-16 ever. UTF-16 should never be selected as an
   // outgoing encoding for e-mail. MIME can't handle those messages
   // encoded in ASCII-incompatible encodings.
-  if (NS_FAILED(rv) ||
-      StringBeginsWith(aCharset, NS_LITERAL_CSTRING("UTF-16"))) {
+  if (StringBeginsWith(aCharset, NS_LITERAL_CSTRING("UTF-16"))) {
     aCharset.AssignLiteral("UTF-8");
   }
   return NS_OK;
