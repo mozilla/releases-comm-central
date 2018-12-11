@@ -2025,9 +2025,12 @@ function _sendMsgTo(message, msgType, target, displayObj)
     for (var i = 0; i < lines.length; i++)
     {
         msg = lines[i];
-        client.munger.getRule(".mailto").enabled = client.prefs["munger.mailto"];
-        displayObj.display(msg, msgType, "ME!", target);
-        client.munger.getRule(".mailto").enabled = false;
+        if (!(o.server && o.server.caps["echo-message"]))
+        {
+            client.munger.getRule(".mailto").enabled = client.prefs["munger.mailto"];
+            displayObj.display(msg, msgType, "ME!", target);
+            client.munger.getRule(".mailto").enabled = false;
+        }
         if (msgType == "PRIVMSG")
             target.say(msg);
         else if (msgType == "NOTICE")

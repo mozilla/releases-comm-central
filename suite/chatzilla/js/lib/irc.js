@@ -18,7 +18,7 @@ const JSIRCV3_SUPPORTED_CAPS = [
     //"batch",
     "cap-notify",
     "chghost",
-    //"echo-message",
+    "echo-message",
     "extended-join",
     "invite-notify",
     //"labeled-response",
@@ -2209,7 +2209,7 @@ function my_cap (e)
             var caps_req = JSIRCV3_SUPPORTED_CAPS.filter(i => (i in this.caps));
 
             // Don't send requests for these caps.
-            let caps_noreq = ["tls", "sts"];
+            let caps_noreq = ["tls", "sts", "echo-message"];
 
             if (!this.parent.USE_SASL)
                 caps_noreq.push("sasl");
@@ -2326,7 +2326,7 @@ function my_cap (e)
         var caps_req = JSIRCV3_SUPPORTED_CAPS.filter(i => (i in e.newcaps));
 
         // Don't send requests for these caps.
-        caps_noreq = ["tls", "sts", "sasl"];
+        caps_noreq = ["tls", "sts", "sasl", "echo-message"];
         caps_req = caps_req.filter(i => caps_noreq.indexOf(i) === -1);
 
         if (caps_req.length > 0)
