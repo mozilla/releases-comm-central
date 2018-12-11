@@ -207,7 +207,6 @@ function test_delete_attachments() {
 
   close_compose_window(cwc);
 }
-test_delete_attachments.__force_skip__ = true;
 
 function subtest_rename_attachment(cwc) {
   cwc.e("loginTextbox").value = "renamed.txt";
@@ -237,7 +236,6 @@ function test_rename_attachment() {
 
   close_compose_window(cwc);
 }
-test_rename_attachment.__force_skip__ = true;
 
 function subtest_open_attachment(cwc) {
   cwc.window.document.documentElement.getButton("cancel").doCommand();
@@ -265,7 +263,6 @@ function test_open_attachment() {
 
   close_compose_window(cwc);
 }
-test_open_attachment.__force_skip__ = true;
 
 function test_forward_raw_attachment() {
   be_in_folder(folder);
