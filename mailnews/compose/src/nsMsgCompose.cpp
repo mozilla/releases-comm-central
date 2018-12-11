@@ -1604,11 +1604,6 @@ NS_IMETHODIMP nsMsgCompose::SetEditor(nsIEditor *aEditor)
 
 static nsresult fixCharset(nsCString &aCharset)
 {
-  // No matter what, we should block x-windows-949 (our internal name)
-  // from being used for outgoing emails (bug 234958).
-  if (aCharset.Equals("x-windows-949", nsCaseInsensitiveCStringComparator()))
-    aCharset = "EUC-KR";
-
   // Convert to a canonical charset name.
   nsresult rv;
   nsCOMPtr<nsICharsetConverterManager> ccm =
