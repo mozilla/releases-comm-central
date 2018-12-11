@@ -391,6 +391,7 @@ function test_selected_attachments_are_cleared() {
   assert_equals(attachmentList.selectedItems.length, 1,
                 "After loading a new message the first item should be selected");
 }
+test_selected_attachments_are_cleared.__force_skip__ = true;
 
 function test_attachment_toolbar_customize() {
   // This tests that removing the "save all" button from the attachment bar
@@ -438,6 +439,7 @@ function test_select_all_attachments_key() {
   assert_equals(attachmentList.selectedItems.length, 2,
                 "Should have selected all attachments!");
 }
+test_select_all_attachments_key.__force_skip__ = true;
 
 function test_delete_attachment_key() {
   be_in_folder(folder);
@@ -535,6 +537,7 @@ function test_attachments_compose_menu() {
 
   close_compose_window(cwc);
 }
+test_attachments_compose_menu.__force_skip__ = true;
 
 function test_delete_from_toolbar() {
   be_in_folder(folder);

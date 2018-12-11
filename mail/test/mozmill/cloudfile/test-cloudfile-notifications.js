@@ -338,6 +338,7 @@ function test_offer_then_upload_notifications() {
   // Now put the old threshold back.
   Services.prefs.setIntPref(kOfferThreshold, maxSize);
 }
+test_offer_then_upload_notifications.__force_skip__ = true;
 
 /**
  * Test that when we first upload some files, we get the privacy warning

@@ -208,6 +208,7 @@ function test_attachments_removed_on_single() {
   cw.e("attachmentBucket").removeEventListener(kAttachmentsRemoved, listener);
   close_compose_window(cw);
 }
+test_attachments_removed_on_multiple.__force_skip__ = true;
 
 /**
  * Test that the attachments-removed event is fired when removing multiple
