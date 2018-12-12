@@ -305,6 +305,10 @@
 @RESPATH@/components/devtools-startup.js
 @RESPATH@/components/aboutdebugging-registration.js
 @RESPATH@/components/aboutdebugging.manifest
+#ifdef NIGHTLY_BUILD
+@RESPATH@/components/aboutdebugging-new-registration.js
+@RESPATH@/components/aboutdebugging-new.manifest
+#endif
 @RESPATH@/components/aboutdevtools-registration.js
 @RESPATH@/components/aboutdevtools.manifest
 @RESPATH@/components/aboutdevtoolstoolbox-registration.js
