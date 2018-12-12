@@ -7,6 +7,9 @@
 ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");
 ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
 
+// eslint-disable-next-line mozilla/reject-importGlobalProperties
+Cu.importGlobalProperties(["File", "FileReader"]);
+
 async function promiseFileRead(nsifile) {
   let blob = await File.createFromNsIFile(nsifile);
 
