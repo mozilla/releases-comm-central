@@ -864,6 +864,12 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
   }
 }
 
+@media (-moz-os-version: windows-win7) {
+  #messengerWindow[sizemode="normal"] > #navigation-toolbox {
+    margin-top: -4px;
+  }
+}
+
 @media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
   #appmenuSecondaryPane {
     --appMenu-bg-color: #f1f5fb;
