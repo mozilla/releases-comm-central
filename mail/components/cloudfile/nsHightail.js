@@ -13,8 +13,6 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js", null);
 ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
 
-Cu.importGlobalProperties(["XMLHttpRequest"]);
-
 var gServerUrl = "https://dpi.yousendit.com"; // Production url
 // test url var gServerUrl = "https://test2-api.yousendit.com";
 

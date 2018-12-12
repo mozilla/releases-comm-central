@@ -9,7 +9,6 @@ ChromeUtils.import("resource:///modules/StringBundle.js");
 ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 ChromeUtils.import("resource://gre/modules/Timer.jsm");
-Cu.importGlobalProperties(["DOMParser"]);
 
 // Time in seconds: it is the minimum time of inactivity
 // needed to show the bundled notification.

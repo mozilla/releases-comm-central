@@ -17,8 +17,6 @@ ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
 ChromeUtils.import("resource:///modules/OAuth2.jsm");
 ChromeUtils.import("resource://gre/modules/Http.jsm");
 
-Cu.importGlobalProperties(["File", "FormData", "XMLHttpRequest"]);
-
 var gServerUrl = "https://api.box.com/2.0/";
 var gUploadUrl = "https://upload.box.com/api/2.0/";
 

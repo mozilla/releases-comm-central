@@ -7,8 +7,6 @@
 ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");
 ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
 
-Cu.importGlobalProperties(["File", "FileReader"]);
-
 async function promiseFileRead(nsifile) {
   let blob = await File.createFromNsIFile(nsifile);
 

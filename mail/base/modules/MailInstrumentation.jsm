@@ -16,8 +16,6 @@ const { logException } = ChromeUtils.import("resource:///modules/errUtils.js", n
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-Cu.importGlobalProperties(["XMLHttpRequest"]);
-
 /* :::::::: The Module ::::::::::::::: */
 
 var MailInstrumentation = {

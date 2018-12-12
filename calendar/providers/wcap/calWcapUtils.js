@@ -11,8 +11,6 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 
-Cu.importGlobalProperties(["DOMParser"]);
-
 var g_bShutdown = false;
 
 function initLogging() {

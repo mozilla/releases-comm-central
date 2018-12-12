@@ -14,8 +14,6 @@ const { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm", 
 ChromeUtils.defineModuleGetter(this, "Services", "resource://gre/modules/Services.jsm");
 ChromeUtils.defineModuleGetter(this, "setTimeout", "resource://gre/modules/Timer.jsm");
 
-Cu.importGlobalProperties(["XMLHttpRequest"]);
-
 let oconsole = new ConsoleAPI({
   prefix: "Overlays.jsm",
   consoleID: "overlays-jsm",

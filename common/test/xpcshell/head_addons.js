@@ -2,10 +2,6 @@
  * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
-/* eslint no-unused-vars: ["error", {vars: "local", args: "none"}] */
-
-Cu.importGlobalProperties(["TextEncoder"]);
-
 const PREF_EM_CHECK_UPDATE_SECURITY   = "extensions.checkUpdateSecurity";
 const PREF_EM_STRICT_COMPATIBILITY    = "extensions.strictCompatibility";
 const PREF_GETADDONS_BYIDS               = "extensions.getAddons.get.url";

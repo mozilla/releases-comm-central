@@ -14,8 +14,6 @@ ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-Cu.importGlobalProperties(["XMLHttpRequest"]);
-
 Services.scriptloader.loadSubScript("chrome://messenger-newsblog/content/Feed.js");
 Services.scriptloader.loadSubScript("chrome://messenger-newsblog/content/FeedItem.js");
 Services.scriptloader.loadSubScript("chrome://messenger-newsblog/content/feed-parser.js");
