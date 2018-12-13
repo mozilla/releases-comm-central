@@ -2148,15 +2148,26 @@ function ChangeLanguage(event)
 {
   // We need to change the dictionary language and if we are using inline spell check,
   // recheck the message
-
   var spellChecker = InlineSpellCheckerUI.mInlineSpellChecker.spellChecker;
   if (spellChecker.GetCurrentDictionary() != event.target.value)
   {
     spellChecker.SetCurrentDictionary(event.target.value);
 
+    ComposeChangeLanguage(event.target.value)
+  }
+  event.stopPropagation();
+}
+
+function ComposeChangeLanguage(aLang)
+{
+  if (document.documentElement.getAttribute("lang") != aLang) {
+
     // Update the document language as well.
     // This is needed to synchronize the subject.
-    document.documentElement.setAttribute("lang", event.target.value);
+    document.documentElement.setAttribute("lang", aLang);
+
+    // Update spellchecker pref
+    Services.prefs.setCharPref("spellchecker.dictionary", aLang);
 
     // now check the document and the subject over again with the new dictionary
     if (InlineSpellCheckerUI.enabled)
@@ -2165,7 +2176,6 @@ function ChangeLanguage(event)
       GetMsgSubjectElement().inputField.parentNode.spellCheckerUI.mInlineSpellChecker.spellCheckRange(null);
     }
   }
-  event.stopPropagation();
 }
 
 function ToggleReturnReceipt(target)
