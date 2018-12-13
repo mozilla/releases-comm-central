@@ -9,6 +9,7 @@ var kFormId = "provider-form";
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
+ChromeUtils.defineModuleGetter(this, "ExtensionParent", "resource://gre/modules/ExtensionParent.jsm");
 
 function createAccountObserver() {}
 
@@ -156,17 +157,22 @@ var addAccountDialog = {
     window.sizeToContent();
   },
 
-  switchIframeType(type, src) {
+  /**
+   * Displays the provider's settingsURL in a browser element, using a
+   * chrome-privileged browser only if necessary.
+   */
+  setIFrameSource(src) {
+    let type = src.startsWith("chrome:") ? "chrome" : "content";
     if (type == this._settings.getAttribute("type")) {
+      this._settings.setAttribute("src", src);
       return;
     }
 
-    let frame = document.createElement("iframe");
+    let frame = document.createElement("browser");
     frame.setAttribute("class", "indent");
     frame.setAttribute("allowfullscreen", "false");
     frame.setAttribute("flex", "1");
     frame.setAttribute("type", type);
-    frame.setAttribute("src", src);
 
     // allows keeping dialog background color without hoops
     frame.setAttribute("transparent", "true");
@@ -176,6 +182,12 @@ var addAccountDialog = {
 
     this._settings.addEventListener("DOMContentLoaded", this);
     this._settings.addEventListener("overflow", this);
+
+    if (src.startsWith("moz-extension:")) {
+      ExtensionParent.apiManager.emit("extension-browser-inserted", frame);
+    }
+
+    frame.setAttribute("src", src);
   },
 
   removeTitleMenuItem() {
@@ -277,8 +289,7 @@ var addAccountDialog = {
     this._messages.selectedIndex = -1;
 
     // Load up the correct XHTML page for this provider.
-    let type = provider.settingsURL.startsWith("chrome:") ? "chrome" : "content";
-    this.switchIframeType(type, provider.settingsURL);
+    this.setIFrameSource(provider.settingsURL);
   },
 
   onClickLink(e) {

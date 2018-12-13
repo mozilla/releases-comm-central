@@ -42,6 +42,7 @@
   },
   {
     "namespace": "cloudFile",
+    "allowedContexts": ["content"],
     "events": [
       {
         "name": "onFileUpload",
@@ -144,10 +145,12 @@
             "type": "string"
           },
           "configured": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "If true, the account is configured and ready to use. This property is currently ignored and all accounts are assumed to be configured."
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "A user-friendly name for this account."
           },
           "uploadSizeLimit": {
             "type": "integer",
@@ -202,6 +205,7 @@
         "name": "getAccount",
         "type": "function",
         "description": "Retrieve information about a single cloud file account",
+        "allowedContexts": ["content"],
         "async": true,
         "parameters": [
           {
@@ -214,13 +218,16 @@
         "name": "getAllAccounts",
         "type": "function",
         "description": "Retrieve all cloud file accounts for the current add-on",
-        "parameters": [],
-        "async": true
+        "allowedContexts": ["content"],
+        "async": true,
+        "parameters": []
       },
       {
         "name": "updateAccount",
         "type": "function",
         "description": "Update a cloud file account",
+        "allowedContexts": ["content"],
+        "async": true,
         "parameters": [
           {
             "name": "accountId",
@@ -233,7 +240,7 @@
               "configured": {
                 "type": "boolean",
                 "optional": true,
-                "description": "If true, the account is configured and ready to use."
+                "description": "If true, the account is configured and ready to use. This property is currently ignored and all accounts are assumed to be configured."
               },
               "uploadSizeLimit": {
                 "type": "integer",
@@ -265,8 +272,7 @@
               }
             }
           }
-        ],
-        "async": true
+        ]
       }
     ]
   }

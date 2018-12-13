@@ -8,6 +8,7 @@
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource:///modules/errUtils.js");
+ChromeUtils.defineModuleGetter(this, "ExtensionParent", "resource://gre/modules/ExtensionParent.jsm");
 
 var gPrefTab = null;
 
@@ -113,6 +114,7 @@ var preferencesTabType = {
     // Now start loading the content.
     aTab.title = this.loadingTabString;
 
+    ExtensionParent.apiManager.emit("extension-browser-inserted", aTab.browser);
     let params = {
       triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
       postData: aArgs.postData || null,

@@ -19,7 +19,7 @@
   "cloudFile": {
     "url": "chrome://messenger/content/parent/ext-cloudFile.js",
     "schema": "chrome://messenger/content/schemas/cloudFile.json",
-    "scopes": ["addon_parent"],
+    "scopes": ["addon_parent", "content_parent"],
     "manifest": ["cloud_file"],
     "paths": [
       ["cloudFile"]
