@@ -12,21 +12,26 @@
 var MODULE_NAME = 'test-cloudfile-manager';
 
 var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers',
-                       'pref-window-helpers',
+var MODULE_REQUIRES = ["folder-display-helpers",
+                       "pref-window-helpers",
                        "content-tab-helpers",
-                       'cloudfile-helpers'];
+                       "cloudfile-helpers",
+                       "window-helpers"];
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var kTestAccountType = "mock";
+var kRootURL = collector.addHttpResource("../cloudfile/html", "");
+var kSettingsWithLink = kRootURL + "settings-with-link.xhtml";
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
     collector.getModule(lib).installInto(module);
   }
 
-  gMockCloudfileManager.register(kTestAccountType);
+  gMockCloudfileManager.register(kTestAccountType, {
+    managementURL: kSettingsWithLink,
+  });
 
   // Let's set up a few dummy accounts;
   create_dummy_account("someKey1", kTestAccountType,
@@ -86,4 +91,29 @@ function test_load_accounts_and_properly_order() {
   }
 
   close_pref_tab(prefTab);
+}
+
+/**
+ * Tests that a link in the management pane is loaded in
+ * a browser and not in the management pane.
+ */
+function test_external_link() {
+  gMockExtProtSvcReg.register();
+
+  let prefTab = open_pref_tab("paneApplications");
+  let tabbox = content_tab_e(prefTab, "attachmentPrefs");
+  tabbox.selectedIndex = 1;
+
+  let iframe = content_tab_e(prefTab, "cloudFileSettingsWrapper").firstElementChild;
+  wait_for_frame_load(iframe, kSettingsWithLink);
+  mc.click(new elementslib.ID(iframe.contentDocument, "a"));
+
+  let targetHref = "https://www.example.com/";
+  mc.waitFor(
+    () => gMockExtProtSvc.urlLoaded(targetHref),
+    `Timed out waiting for the link ${targetHref} to be opened in the default browser.`
+  );
+  close_pref_tab(prefTab);
+
+  gMockExtProtSvcReg.unregister();
 }

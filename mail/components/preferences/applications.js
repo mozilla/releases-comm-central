@@ -485,11 +485,51 @@ var gCloudFileTab = {
 
     this.updateThreshold();
 
+    this._onProviderRegistered = this._onProviderRegistered.bind(this);
+    this._onProviderUnregistered = this._onProviderUnregistered.bind(this);
+    cloudFileAccounts.on("providerRegistered", this._onProviderRegistered);
+    cloudFileAccounts.on("providerUnregistered", this._onProviderUnregistered);
+
     this._initialized = true;
   },
 
   destroy() {
     // Remove any controllers or observers here.
+    cloudFileAccounts.off("providerRegistered", this._onProviderRegistered);
+    cloudFileAccounts.off("providerUnregistered", this._onProviderUnregistered);
+  },
+
+  _onProviderRegistered(event, provider) {
+    let accounts = cloudFileAccounts.getAccountsForType(provider.type);
+    accounts.sort(this._sortAccounts);
+
+    // Always add newly-enabled accounts to the end of the list, this makes
+    // it clearer to users what's happening.
+    for (let account of accounts) {
+      let item = this.makeRichListItemForAccount(account);
+      this._list.appendChild(item);
+      if (!(account.accountKey in this._accountCache)) {
+        let accountInfo = {
+          account,
+          listItem: item,
+          result: Cr.NS_OK,
+        };
+        this._accountCache[account.accountKey] = accountInfo;
+        this._mapResultToState(item, accountInfo.result);
+      }
+    }
+  },
+
+  _onProviderUnregistered(event, type) {
+    for (let item of this._list.children) {
+      // If the provider is unregistered, getAccount returns null.
+      if (!cloudFileAccounts.getAccount(item.value)) {
+        if (item.hasAttribute("selected")) {
+          this._settingsDeck.selectedPanel = this._defaultPanel;
+        }
+        item.remove();
+      }
+    }
   },
 
   makeRichListItemForAccount(aAccount) {
@@ -528,25 +568,25 @@ var gCloudFileTab = {
       this._list.lastChild.remove();
   },
 
+  // Sort the accounts by displayName.
+  _sortAccounts(a, b) {
+    let aName = cloudFileAccounts.getDisplayName(a.accountKey)
+                                 .toLowerCase();
+    let bName = cloudFileAccounts.getDisplayName(b.accountKey)
+                                 .toLowerCase();
+
+    if (aName < bName)
+      return -1;
+    if (aName > bName)
+      return 1;
+    return 0;
+  },
+
   rebuildView() {
     this.clearEntries();
     let accounts = cloudFileAccounts.accounts;
 
-    // Sort the accounts by displayName.
-    function sortAccounts(a, b) {
-      let aName = cloudFileAccounts.getDisplayName(a.accountKey)
-                                   .toLowerCase();
-      let bName = cloudFileAccounts.getDisplayName(b.accountKey)
-                                   .toLowerCase();
-
-      if (aName < bName)
-        return -1;
-      if (aName > bName)
-        return 1;
-      return 0;
-    }
-
-    accounts.sort(sortAccounts);
+    accounts.sort(this._sortAccounts);
 
     for (let account of accounts) {
       let rli = this.makeRichListItemForAccount(account);
@@ -644,16 +684,21 @@ var gCloudFileTab = {
   },
 
   _showAccountManagement(aProvider) {
+    let url = aProvider.managementURL;
+    if (url.startsWith("moz-extension:")) {
+      // Assumes there is only one account per provider.
+      let account = cloudFileAccounts.getAccountsForType(aProvider.type)[0];
+      url += `?accountId=${account.accountKey}`;
+    }
+
     let iframe = document.createElement("iframe");
-
-    iframe.setAttribute("src", aProvider.managementURL);
     iframe.setAttribute("flex", "1");
-
-    let type = aProvider.settingsURL.startsWith("chrome:") ? "chrome" : "content";
-    iframe.setAttribute("type", type);
-
     // allows keeping dialog background color without hoops
     iframe.setAttribute("transparent", "true");
+
+    let type = url.startsWith("chrome:") ? "chrome" : "content";
+    iframe.setAttribute("type", type);
+    iframe.setAttribute("src", url);
 
     // If we have a past iframe, we replace it. Else append
     // to the wrapper.
@@ -673,23 +718,6 @@ var gCloudFileTab = {
         Cu.reportError(e);
       }
     }, {capture: false, once: true});
-
-    // When the iframe (or any subcontent) fires the DOMContentLoaded event,
-    // attach the _onClickLink handler to any anchor elements that we can find.
-    this._settings.contentWindow.addEventListener("DOMContentLoaded", function(e) {
-      let doc = e.originalTarget;
-      let links = doc.getElementsByTagName("a");
-
-      for (let link of links) {
-        link.addEventListener("click", gCloudFileTab._onClickLink);
-      }
-    }, {capture: false, once: true});
-  },
-
-  _onClickLink(aEvent) {
-    aEvent.preventDefault();
-    let href = aEvent.target.getAttribute("href");
-    openLinkExternally(href);
   },
 
   authSelected() {

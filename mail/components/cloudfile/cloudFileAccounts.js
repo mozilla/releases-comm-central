@@ -103,6 +103,7 @@ var cloudFileAccounts = new class extends EventEmitter {
       throw new Error(`Cloudfile provider ${type} is already registered as an XPCOM component`);
     }
     this._providers.set(aProvider.type, aProvider);
+    this.emit("providerRegistered", aProvider);
   }
 
   /**
@@ -117,6 +118,7 @@ var cloudFileAccounts = new class extends EventEmitter {
     }
 
     this._providers.delete(aType);
+    this.emit("providerUnregistered", aType);
   }
 
   getProviderForType(aType) {

@@ -769,7 +769,8 @@
           <browser id="preferencesbrowser"
                    type="content"
                    flex="1"
-                   disablehistory="true"/>
+                   disablehistory="true"
+                   onclick="specialTabs.defaultClickHandler(event);"/>
         </notificationbox>
         <findbar browserid="preferencesbrowser"/>
       </vbox>
