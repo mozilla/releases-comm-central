@@ -231,12 +231,12 @@
           <row align="center">
             <label class="textbox-label" value="&incoming.label;"
                    control="result-incoming"/>
-            <textbox id="result-incoming" disabled="true" flex="1"/>
+            <textbox id="result-incoming" class="result-host-info" disabled="true" flex="1"/>
           </row>
           <row align="center">
             <label class="textbox-label" value="&outgoing.label;"
                    control="result-outgoing"/>
-            <textbox id="result-outgoing" disabled="true" flex="1"/>
+            <textbox id="result-outgoing" class="result-host-info" disabled="true" flex="1"/>
           </row>
           <row align="center">
             <label class="textbox-label" value="&username.label;"
@@ -249,7 +249,7 @@
         <hbox id="result_exchange_hostname_container" align="center">
           <label class="textbox-label" value="&exchange-hostname.label;"
                  control="result_exchange_hostname"/>
-          <textbox id="result_exchange_hostname" disabled="true" flex="1"/>
+          <textbox id="result_exchange_hostname" class="result-host-info" disabled="true" flex="1"/>
         </hbox>
         <description id="result_addon_intro"/>
         <grid id="result_addon_install">

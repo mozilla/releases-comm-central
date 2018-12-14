@@ -42,6 +42,26 @@
   margin-bottom: 1em;
 }
 
+textbox.result-host-info > label {
+  margin-left: 0px;
+  margin-right: 0px;
+}
+
+textbox.result-host-info > label.host-without-domain,
+textbox.result-host-info > label.ssl,
+textbox.result-host-info > label.certStatus {
+  margin-left: 0.4em;
+}
+
+textbox.result-host-info > label.domain {
+  font-weight: bold;
+}
+
+textbox.result-host-info > label.insecure {
+  color: red;
+  dfont-weight: bold;
+}
+
 #result_servertype {
   margin-bottom: 1.5em;
 }
