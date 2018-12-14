@@ -829,14 +829,10 @@ EmailConfigWizard.prototype =
     if (config.incoming.type == "exchange") {
       _hide("result_hostnames");
       _show("result_exchange");
+      setText("result_exchange_hostname", config.incoming.hostname);
       _disable("create_button");
       removeChildNodes(e("result_addon_install_rows"));
       this.switchToMode("result");
-
-      let hostnameE = e("result_exchange_hostname");
-      _makeHostDisplayString(config.incoming, hostnameE);
-      hostnameE.querySelector(".ssl").hidden = true; // it's always SSL, so just clutter
-      hostnameE.querySelector(".protocolType").hidden = true; // already have a nicer label
 
       (async () => {
         for (let addon of config.addons) {
@@ -913,54 +909,36 @@ EmailConfigWizard.prototype =
 
     var unknownString = gStringsBundle.getString("resultUnknown");
 
-    function _makeHostDisplayString(server, descrE) {
+    function _makeHostDisplayString(server, stringName) {
       let type = gStringsBundle.getString(sanitize.translate(server.type,
-          { imap: "resultIMAP", pop3: "resultPOP3", smtp: "resultSMTP", exchange: "resultExchange" }),
+          { imap: "resultIMAP", pop3: "resultPOP3", smtp: "resultSMTP" }),
           unknownString);
-      let domain = Services.eTLD.getBaseDomainFromHost(server.hostname);
-      let host = server.hostname.substr(0, server.hostname.length - domain.length);
-      let port = (isStandardPort(server.port) ? "" : ":" + server.port);
+      let host = server.hostname +
+          (isStandardPort(server.port) ? "" : ":" + server.port);
       let ssl = gStringsBundle.getString(sanitize.translate(server.socketType,
           { 1: "resultNoEncryption", 2: "resultSSL", 3: "resultSTARTTLS" }),
           unknownString);
       let certStatus = gStringsBundle.getString(server.badCert ?
           "resultSSLCertWeak" : "resultSSLCertOK");
       // TODO: we should really also display authentication method here.
-
-      function _addComponent(text, className) {
-        let textE = document.createElement("label");
-        textE.classList.add(className);
-        textE.textContent = text;
-        descrE.appendChild(textE);
-      }
-      removeChildNodes(descrE);
-      _addComponent(type, "protocolType");
-      _addComponent(host, "host-without-domain");
-      _addComponent(domain, "domain");
-      _addComponent(port, "port");
-      _addComponent(ssl, "ssl");
-      _addComponent(certStatus, "certStatus");
-
-      if (server.socketType != 2 && server.socketType != 3) { // not SSL/STARTTLS
-        descrE.querySelector(".ssl").classList.add("insecure");
-      }
-      if (server.badCert) {
-        descrE.querySelector(".certStatus").classList.add("insecure");
-      }
+      return gStringsBundle.getFormattedString(stringName,
+          [ type, host, ssl, certStatus ]);
     }
 
+    var incomingResult = unknownString;
     if (configFilledIn.incoming.hostname) {
-      _makeHostDisplayString(configFilledIn.incoming, e("result-incoming"));
+      incomingResult = _makeHostDisplayString(configFilledIn.incoming,
+          "resultIncoming");
     }
 
+    var outgoingResult = unknownString;
     if (!config.outgoing.existingServerKey) {
       if (configFilledIn.outgoing.hostname) {
-        _makeHostDisplayString(configFilledIn.outgoing, e("result-outgoing"));
+        outgoingResult = _makeHostDisplayString(configFilledIn.outgoing,
+            "resultOutgoing");
       }
     } else {
-      // setText() would confuse _makeHostDisplayString() when clearing the child nodes
-      e("result-outgoing").appendChild(document.createTextNode(
-        gStringsBundle.getString("resultOutgoingExisting")));
+      outgoingResult = gStringsBundle.getString("resultOutgoingExisting");
     }
 
     var usernameResult;
@@ -973,6 +951,9 @@ EmailConfigWizard.prototype =
             [ configFilledIn.incoming.username || unknownString,
               configFilledIn.outgoing.username || unknownString ]);
     }
+
+    setText("result-incoming", incomingResult);
+    setText("result-outgoing", outgoingResult);
     setText("result-username", usernameResult);
 
     this.switchToMode("result");
