@@ -85,7 +85,7 @@
               <hbox id="applying" align="center">
                 <image class="update-throbber"/><label>&update.applying;</label>
               </hbox>
-             <hbox id="downloadFailed" align="center">
+              <hbox id="downloadFailed" align="center">
                 <label>&update.failed.start;</label><label id="failedLink" class="text-link">&update.failed.linkText;</label><label>&update.failed.end;</label>
               </hbox>
               <hbox id="policyDisabled" align="center">
@@ -129,8 +129,8 @@
           <description class="text-blurb" id="contributeDesc">
             &helpus.start;<label class="text-link" onclick="openUILink(this.getAttribute('href'), event)" href="https://donate.mozilla.org/thunderbird/about/">&helpus.donateLink;</label>&helpus.middle;<label class="text-link" onclick="openUILink(this.getAttribute('href'), event)" href="https://www.thunderbird.net/get-involved/">&helpus.getInvolvedLink;</label>&helpus.end;
           </description>
-       </vbox>
-     </vbox>
+        </vbox>
+      </vbox>
     </hbox>
     <vbox id="bottomBox">
       <hbox pack="center">
@@ -140,7 +140,7 @@
       </hbox>
       <description id="trademark">
         <label class="trademark-label">&trademarkInfo.part1;</label>
-     </description>
+      </description>
     </vbox>
   </vbox>
 

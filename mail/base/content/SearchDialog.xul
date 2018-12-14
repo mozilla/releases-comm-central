@@ -81,36 +81,36 @@
 
     <vbox id="searchTerms" flex="3" persist="height">
       <vbox>
-         <hbox align="center">
-         <label value="&searchHeading.label;" accesskey="&searchHeading.accesskey;"
-                control="searchableFolders"/>
-         <menulist id="searchableFolders" flex="2" class="folderMenuItem"
-                   displayformat="verbose">
-           <menupopup class="menulist-menupopup"
-                      type="folder" mode="search"
-                      showAccountsFileHere="true" showFileHereLabel="true"
-                      oncommand="updateSearchFolderPicker(event.target._folder);"/>
-         </menulist>
-         <spacer flex="10"/>
-         <button id="search-button" oncommand="onSearchButton(event);" default="true"/>
+        <hbox align="center">
+          <label value="&searchHeading.label;" accesskey="&searchHeading.accesskey;"
+                 control="searchableFolders"/>
+          <menulist id="searchableFolders" flex="2" class="folderMenuItem"
+                    displayformat="verbose">
+            <menupopup class="menulist-menupopup"
+                       type="folder" mode="search"
+                       showAccountsFileHere="true" showFileHereLabel="true"
+                       oncommand="updateSearchFolderPicker(event.target._folder);"/>
+          </menulist>
+          <spacer flex="10"/>
+          <button id="search-button" oncommand="onSearchButton(event);" default="true"/>
         </hbox>
 
-         <hbox align="center">
-           <checkbox id="checkSearchSubFolders"
-                     label="&searchSubfolders.label;"
-                     accesskey="&searchSubfolders.accesskey;"
-                     checked="true"
-                     persist="checked"/>
-           <spacer flex="10"/>
-           <button label="&resetButton.label;" oncommand="onResetSearch(event);" accesskey="&resetButton.accesskey;"/>
-         </hbox>
-         <hbox align="center">
-           <checkbox id="checkSearchOnline"
-                     label="&searchOnServer.label;"
-                     accesskey="&searchOnServer.accesskey;"
-                     oncommand="updateSearchLocalSystem();"
-                     persist="checked"/>
-         </hbox>
+        <hbox align="center">
+          <checkbox id="checkSearchSubFolders"
+                    label="&searchSubfolders.label;"
+                    accesskey="&searchSubfolders.accesskey;"
+                    checked="true"
+                    persist="checked"/>
+          <spacer flex="10"/>
+          <button label="&resetButton.label;" oncommand="onResetSearch(event);" accesskey="&resetButton.accesskey;"/>
+        </hbox>
+        <hbox align="center">
+          <checkbox id="checkSearchOnline"
+                    label="&searchOnServer.label;"
+                    accesskey="&searchOnServer.accesskey;"
+                    oncommand="updateSearchLocalSystem();"
+                    persist="checked"/>
+        </hbox>
       </vbox>
 
       <hbox flex="1">

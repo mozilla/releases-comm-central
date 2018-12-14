@@ -191,7 +191,7 @@
 
   <tooltip id="aHTMLTooltip" page="true"/>
 
- <!-- msg header view -->
+  <!-- msg header view -->
   <!-- a convenience box for ease of extension overlaying -->
   <hbox id="messagepaneboxwrapper" flex="1">
     <vbox id="messagepanebox" flex="3"
