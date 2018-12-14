@@ -62,17 +62,21 @@ function guessConfig(domain, progressCallback, successCallback, errorCallback,
   // Servers that we know enough that they support OAuth2 do not need guessing.
   if (resultConfig.incoming.auth == Ci.nsMsgAuthMethod.OAuth2) {
     successCallback(resultConfig);
-    return null;
+    return new Abortable();
   }
 
   if (!resultConfig)
     resultConfig = new AccountConfig();
   resultConfig.source = AccountConfig.kSourceGuess;
 
+  if (!which) {
+    which = "both";
+  }
+
   if (!Services.prefs.getBoolPref(
       "mailnews.auto_config.guess.enabled")) {
     errorCallback("Guessing config disabled per user preference");
-    return null;
+    return new Abortable();
   }
 
   var incomingHostDetector = null;
@@ -105,7 +109,7 @@ function guessConfig(domain, progressCallback, successCallback, errorCallback,
       auth: Ci.nsMsgAuthMethod.passwordCleartext,
     });
     successCallback(resultConfig);
-    return null;
+    return new Abortable();
   }
   var progress = function(thisTry) {
     progressCallback(protocolToString(thisTry.protocol), thisTry.hostname,
@@ -148,7 +152,7 @@ function guessConfig(domain, progressCallback, successCallback, errorCallback,
     }
   };
 
-  var logger = Log4Moz.getConfiguredLogger("mail.wizard");
+  var logger = Log4Moz.getConfiguredLogger("mail.setup");
   var HostTryToAccountServer = function(thisTry, server) {
     server.type = protocolToString(thisTry.protocol);
     server.hostname = thisTry.hostname;

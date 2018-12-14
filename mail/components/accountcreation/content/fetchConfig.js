@@ -3,16 +3,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+ChromeUtils.import("resource:///modules/MailServices.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource:///modules/JXON.js");
+
 /**
  * Tries to find a configuration for this ISP on the local harddisk, in the
  * application install directory's "isp" subdirectory.
  * Params @see fetchConfigFromISP()
  */
-
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/JXON.js");
-
 function fetchConfigFromDisk(domain, successCallback, errorCallback) {
   return new TimeoutAbortable(runAsync(function() {
     try {
@@ -22,7 +21,7 @@ function fetchConfigFromDisk(domain, successCallback, errorCallback) {
       configLocation.append(sanitize.hostname(domain) + ".xml");
 
       if (!configLocation.exists() || !configLocation.isReadable()) {
-        errorCallback("local file not found");
+        errorCallback(new Exception("local file not found"));
         return;
       }
       var contents =
@@ -58,8 +57,8 @@ function fetchConfigFromISP(domain, emailAddress, successCallback,
                             errorCallback) {
   if (!Services.prefs.getBoolPref(
       "mailnews.auto_config.fetchFromISP.enabled")) {
-    errorCallback("ISP fetch disabled per user preference");
-    return null;
+    errorCallback(new Exception("ISP fetch disabled per user preference"));
+    return new Abortable();
   }
 
   let url1 = "http://autoconfig." + sanitize.hostname(domain) +
@@ -67,43 +66,35 @@ function fetchConfigFromISP(domain, emailAddress, successCallback,
   // .well-known/ <http://tools.ietf.org/html/draft-nottingham-site-meta-04>
   let url2 = "http://" + sanitize.hostname(domain) +
              "/.well-known/autoconfig/mail/config-v1.1.xml";
-  let sucAbortable = new SuccessiveAbortable();
-  var time = Date.now();
-  var urlArgs = { emailaddress: emailAddress };
+  let callArgs = {
+    urlArgs: {
+      emailaddress: emailAddress,
+    },
+  };
   if (!Services.prefs.getBoolPref(
       "mailnews.auto_config.fetchFromISP.sendEmailAddress")) {
-    delete urlArgs.emailaddress;
+    delete callArgs.urlArgs.emailaddress;
   }
-  let fetch1 = new FetchHTTP(url1, urlArgs, false,
-    function(result) {
-      successCallback(readFromXML(result));
-    },
-    function(e1) { // fetch1 failed
-      ddump("fetchisp 1 <" + url1 + "> took " + (Date.now() - time) +
-          "ms and failed with " + e1);
-      time = Date.now();
-      if (e1 instanceof CancelledException) {
-        errorCallback(e1);
-        return;
-      }
+  let call;
+  let fetch;
 
-      let fetch2 = new FetchHTTP(url2, urlArgs, false,
-        function(result) {
-          successCallback(readFromXML(result));
-        },
-        function(e2) {
-          ddump("fetchisp 2 <" + url2 + "> took " + (Date.now() - time) +
-              "ms and failed with " + e2);
-          // return the error for the primary call,
-          // unless the fetch was cancelled
-          errorCallback(e2 instanceof CancelledException ? e2 : e1);
-        });
-      sucAbortable.current = fetch2;
-      fetch2.start();
-    });
-  sucAbortable.current = fetch1;
-  fetch1.start();
-  return sucAbortable;
+  let priority = new PriorityOrderAbortable(
+      xml => successCallback(readFromXML(xml)),
+      errorCallback);
+
+  call = priority.addCall();
+  fetch = new FetchHTTP(url1, callArgs,
+      call.successCallback(), call.errorCallback());
+  call.setAbortable(fetch);
+  fetch.start();
+
+  call = priority.addCall();
+  fetch = new FetchHTTP(url2, callArgs,
+      call.successCallback(), call.errorCallback());
+  call.setAbortable(fetch);
+  fetch.start();
+
+  return priority;
 }
 
 /**
@@ -111,9 +102,12 @@ function fetchConfigFromISP(domain, emailAddress, successCallback,
  * Mozilla servers.
  * Params @see fetchConfigFromISP()
  */
-
 function fetchConfigFromDB(domain, successCallback, errorCallback) {
   let url = Services.prefs.getCharPref("mailnews.auto_config_url");
+  if (!url) {
+    errorCallback(new Exception("no URL for ISP DB configured"));
+    return new Abortable();
+  }
   domain = sanitize.hostname(domain);
 
   // If we don't specify a place to put the domain, put it at the end.
@@ -121,15 +115,12 @@ function fetchConfigFromDB(domain, successCallback, errorCallback) {
     url = url + domain;
   else
     url = url.replace("{{domain}}", domain);
-  url = url.replace("{{accounts}}", MailServices.accounts.accounts.length);
 
-  if (!url.length)
-    return errorCallback("no fetch url set");
-  let fetch = new FetchHTTP(url, null, false,
-                            function(result) {
-                              successCallback(readFromXML(result));
-                            },
-                            errorCallback);
+  let fetch = new FetchHTTP(url, {},
+    function(result) {
+      successCallback(readFromXML(result));
+    },
+    errorCallback);
   fetch.start();
   return fetch;
 }
@@ -166,7 +157,7 @@ function fetchConfigForMX(domain, successCallback, errorCallback) {
       let sld = Services.eTLD.getBaseDomainFromHost(mxHostname);
       ddump("base domain " + sld + " for " + mxHostname);
       if (sld == domain) {
-        errorCallback("MX lookup would be no different from domain");
+        errorCallback(new Exception("MX lookup would be no different from domain"));
         return;
       }
       sucAbortable.current = fetchConfigFromDB(sld, successCallback,
@@ -202,11 +193,13 @@ function getMX(domain, successCallback, errorCallback) {
   domain = sanitize.hostname(domain);
 
   let url = Services.prefs.getCharPref("mailnews.mx_service_url");
-  if (!url)
-    errorCallback("no URL for MX service configured");
+  if (!url) {
+    errorCallback(new Exception("no URL for MX service configured"));
+    return new Abortable();
+  }
   url += domain;
 
-  let fetch = new FetchHTTP(url, null, false,
+  let fetch = new FetchHTTP(url, {},
     function(result) {
       // result is plain text, with one line per server.
       // So just take the first line
@@ -215,7 +208,7 @@ function getMX(domain, successCallback, errorCallback) {
       let first = result.split("\n")[0];
       first.toLowerCase().replace(/[^a-z0-9\-_\.]*/g, "");
       if (first.length == 0) {
-        errorCallback("no MX found");
+        errorCallback(new Exception("no MX found"));
         return;
       }
       successCallback(first);

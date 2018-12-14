@@ -4,6 +4,7 @@ module.exports = {
   "globals": {
     "Abortable": true,
     "AccountConfig": true,
+    "AddonInstaller": true,
     "BadCertHandler": true,
     "CancelledException": true,
     "Exception": true,
@@ -12,6 +13,7 @@ module.exports = {
     "MailServices": true,
     "NewMailAccountProvisioner": true,
     "NotReached": true,
+    "PriorityOrderAbortable": true,
     "Services": true,
     "SuccessiveAbortable": true,
     "TimeoutAbortable": true,
@@ -29,6 +31,7 @@ module.exports = {
     "fetchConfigForMX": true,
     "fetchConfigFromDB": true,
     "fetchConfigFromDisk": true,
+    "fetchConfigFromExchange": true,
     "fetchConfigFromISP": true,
     "getStringBundle": true,
     "guessConfig": true,

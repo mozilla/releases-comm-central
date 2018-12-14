@@ -68,7 +68,7 @@ AccountConfig.prototype =
    */
   createNewIncoming() {
     return {
-      // { String-enum: "pop3", "imap", "nntp" }
+      // { String-enum: "pop3", "imap", "nntp", "exchange" }
       type: null,
       hostname: null,
       // { Integer }
@@ -112,6 +112,11 @@ AccountConfig.prototype =
       // When user hits delete, delete from local store and from server
       deleteOnServerWhenLocalDelete: true,
       downloadOnBiff: true,
+
+      // for Microsoft Exchange servers. Optional.
+      owaURL: null,
+      ewsURL: null,
+      easURL: null,
     };
   },
   /**
@@ -140,22 +145,71 @@ AccountConfig.prototype =
   },
 
   /**
+   * The configuration needs an addon to handle the account type.
+   * The addon needs to be installed before the account can be created
+   * in the backend.
+   * You can choose one, if there are several addons in the list.
+   * (Optional)
+   *
+   * Array of:
+   * {
+   *   id: "owl@example.com" {string},
+   *
+   *   // already localized string
+   *   name: "Owl" {string},
+   *
+   *   // already localized string
+   *   description: "A third party addon that allows you to connect to Exchange servers" {string}
+   *
+   *   // Minimal version of the addon. Needed in case the addon is already installed,
+   *   // to verify that the installed version is sufficient.
+   *   // The XPI URL below must satisfy this.
+   *   // Must satisfy <https://developer.mozilla.org/en-US/docs/Mozilla/Toolkit_version_format>
+   *   minVersion: "0.2" {string}
+   *
+   *   xpiURL: "https://live.thunderbird.net/autoconfig/owl.xpi" {URL},
+   *   websiteURL: "https://www.beonex.com/owl/" {URL},
+   *   icon32: "https://www.beonex.com/owl/owl-32x32.png" {URL},
+   *
+   *   useType : {
+   *     // Type shown as radio button to user in the config result.
+   *     // Users won't understand OWA vs. EWS vs. EAS etc., so this is an abstraction
+   *     // from the end user perspective.
+   *     generalType: "exchange" {string},
+   *
+   *     // Protocol
+   *     // Independent of the addon
+   *     protocolType: "owa" {string},
+   *
+   *     // Account type in the Thunderbird backend.
+   *     // What nsIMsgAccount.type will be set to when creating the account.
+   *     // This is specific to the addon.
+   *     addonAccountType: "owl-owa" {string},
+   *   }
+   * }
+   */
+  addons: null,
+
+  /**
    * Returns a deep copy of this object,
    * i.e. modifying the copy will not affect the original object.
    */
   copy() {
     // Workaround: deepCopy() fails to preserve base obj (instanceof)
     var result = new AccountConfig();
-    for (var prop in this)
+    for (let prop in this) {
       result[prop] = deepCopy(this[prop]);
+    }
 
     return result;
   },
+
   isComplete() {
     return (!!this.incoming.hostname && !!this.incoming.port &&
          !!this.incoming.socketType && !!this.incoming.auth &&
          !!this.incoming.username &&
          (!!this.outgoing.existingServerKey ||
+          this.outgoing.useGlobalPreferredServer ||
           (!!this.outgoing.hostname && !!this.outgoing.port &&
            !!this.outgoing.socketType && !!this.outgoing.auth &&
            !!this.outgoing.username)));
@@ -169,6 +223,7 @@ AccountConfig.prototype =
 AccountConfig.kSourceUser = 1; // user manually entered the config
 AccountConfig.kSourceXML = 2; // config from XML from ISP or Mozilla DB
 AccountConfig.kSourceGuess = 3; // guessConfig()
+AccountConfig.kSourceExchange = 4; // from Microsoft Exchange AutoDiscover
 
 
 /**

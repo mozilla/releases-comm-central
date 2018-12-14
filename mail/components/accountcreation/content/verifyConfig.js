@@ -3,6 +3,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+ChromeUtils.import("resource:///modules/MailServices.jsm");
+ChromeUtils.import("resource:///modules/OAuth2Providers.jsm");
+
+if (typeof gEmailWizardLogger == "undefined") {
+  ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+  var gEmailWizardLogger = Log4Moz.getConfiguredLogger("mail.wizard");
+}
+
 /**
  * This checks a given config, by trying a real connection and login,
  * with username and password.
@@ -28,15 +36,6 @@
  *   because there was an error (e.g. no network connection).
  *   The ex.message will contain a user-presentable message.
  */
-
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource:///modules/OAuth2Providers.jsm");
-
-if (typeof gEmailWizardLogger == "undefined") {
-  ChromeUtils.import("resource:///modules/gloda/log4moz.js");
-  var gEmailWizardLogger = Log4Moz.getConfiguredLogger("mail.wizard");
-}
-
 function verifyConfig(config, alter, msgWindow, successCallback, errorCallback) {
   ddump(debugObject(config, "config", 3));
   assert(config instanceof AccountConfig,
@@ -47,8 +46,7 @@ function verifyConfig(config, alter, msgWindow, successCallback, errorCallback) 
 
   if (MailServices.accounts.findRealServer(config.incoming.username,
                                            config.incoming.hostname,
-                                           sanitize.enum(config.incoming.type,
-                                                         ["pop3", "imap", "nntp"]),
+                                           config.incoming.type,
                                            config.incoming.port)) {
     errorCallback("Incoming server exists");
     return;
@@ -58,8 +56,7 @@ function verifyConfig(config, alter, msgWindow, successCallback, errorCallback) 
   let inServer =
     MailServices.accounts.createIncomingServer(config.incoming.username,
                                                config.incoming.hostname,
-                                               sanitize.enum(config.incoming.type,
-                                                             ["pop3", "imap", "nntp"]));
+                                               config.incoming.type);
   inServer.port = config.incoming.port;
   inServer.password = config.incoming.password;
   if (config.incoming.socketType == 1) // plain

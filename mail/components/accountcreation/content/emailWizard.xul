@@ -53,6 +53,8 @@
   <script type="application/javascript"
           src="chrome://messenger/content/accountcreation/fetchConfig.js"/>
   <script type="application/javascript"
+          src="chrome://messenger/content/accountcreation/exchangeAutoDiscover.js"/>
+  <script type="application/javascript"
           src="chrome://messenger/content/accountcreation/createInBackend.js"/>
   <script type="application/javascript"
           src="chrome://messenger/content/accountcreation/MyBadCertHandler.js"/>
@@ -201,7 +203,7 @@
     </grid>
     <spacer flex="1" />
 
-     <hbox id="status_area" flex="1">
+    <hbox id="status_area" flex="1">
       <vbox id="status_img_before" pack="start"/>
       <description id="status_msg">&#160;</description>
               <!-- Include 160 = nbsp, to make the element occupy the
@@ -209,15 +211,18 @@
                    it does not have sufficient height. -->
       <vbox id="status_img_after" pack="start"/>
     </hbox>
+    <vbox id="status-lines"/>
 
     <groupbox id="result_area" hidden="true">
-      <radiogroup id="result_imappop" orient="horizontal">
-        <radio id="result_select_imap" label="&imapLong.label;" value="1"
-               oncommand="gEmailConfigWizard.onResultIMAPOrPOP3();"/>
-        <radio id="result_select_pop3" label="&pop3Long.label;" value="2"
-               oncommand="gEmailConfigWizard.onResultIMAPOrPOP3();"/>
+      <radiogroup id="result_servertype" orient="horizontal">
+        <radio id="result_select_imap" label="&imapLong.label;" value="imap"
+               oncommand="gEmailConfigWizard.onResultServerTypeChanged();"/>
+        <radio id="result_select_pop3" label="&pop3Long.label;" value="pop3"
+               oncommand="gEmailConfigWizard.onResultServerTypeChanged();"/>
+        <radio id="result_select_exchange" label="&exchange.label;" value="exchange"
+               oncommand="gEmailConfigWizard.onResultServerTypeChanged();"/>
       </radiogroup>
-      <grid>
+      <grid id="result_hostnames">
         <columns>
           <column/>
           <column flex="1"/>
@@ -240,6 +245,23 @@
           </row>
         </rows>
       </grid>
+      <vbox id="result_exchange" hidden="true">
+        <hbox id="result_exchange_hostname_container" align="center">
+          <label class="textbox-label" value="&exchange-hostname.label;"
+                 control="result_exchange_hostname"/>
+          <textbox id="result_exchange_hostname" disabled="true" flex="1"/>
+        </hbox>
+        <description id="result_addon_intro"/>
+        <grid id="result_addon_install">
+          <columns>
+            <column id="result_addon_install_column_icon" pack="start" align="center" />
+            <column id="result_addon_install_column_link" pack="start" align="center" />
+            <column id="result_addon_install_column_button" pack="start" align="center" />
+          </columns>
+          <rows id="result_addon_install_rows">
+          </rows>
+        </grid>
+      </vbox>
     </groupbox>
 
     <groupbox id="manual-edit_area" hidden="true">

@@ -7,6 +7,7 @@ messenger.jar:
   content/messenger/accountcreation/createInBackend.js    (content/createInBackend.js)
   content/messenger/accountcreation/emailWizard.js        (content/emailWizard.js)
   content/messenger/accountcreation/emailWizard.xul       (content/emailWizard.xul)
+  content/messenger/accountcreation/exchangeAutoDiscover.js        (content/exchangeAutoDiscover.js)
   content/messenger/accountcreation/fetchConfig.js        (content/fetchConfig.js)
   content/messenger/accountcreation/fetchhttp.js          (content/fetchhttp.js)
   content/messenger/accountcreation/guessConfig.js        (content/guessConfig.js)

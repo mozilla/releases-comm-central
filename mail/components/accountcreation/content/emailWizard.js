@@ -36,7 +36,10 @@ var emailRE = /^[-_a-z0-9\'+*$^&%=~!?{}]+(?:\.[-_a-z0-9\'+*$^&%=~!?{}]+)*@(?:[-a
 
 if (typeof gEmailWizardLogger == "undefined") {
   ChromeUtils.import("resource:///modules/gloda/log4moz.js");
-  var gEmailWizardLogger = Log4Moz.getConfiguredLogger("mail.wizard");
+  var gEmailWizardLogger = Log4Moz.getConfiguredLogger("mail.setup");
+  gEmailWizardLogger.level = Log4Moz.Level.Info;
+  gEmailWizardLogger.addAppender(new Log4Moz.ConsoleAppender(new Log4Moz.BasicFormatter())); // browser console
+  gEmailWizardLogger.addAppender(new Log4Moz.DumpAppender(new Log4Moz.BasicFormatter())); // stdout
 }
 
 var gStringsBundle;
@@ -111,6 +114,12 @@ function setText(id, value) {
 
 function setLabelFromStringBundle(elementID, stringName) {
   e(elementID).label = gMessengerBundle.getString(stringName);
+}
+
+function removeChildNodes(el) {
+  while (el.hasChildNodes()) {
+    el.lastChild.remove();
+  }
 }
 
 function EmailConfigWizard() {
@@ -290,6 +299,7 @@ EmailConfigWizard.prototype =
       _show("stop_button");
       this.onStop = this.onStopFindConfig;
       _show("manual-edit_button");
+      _hide("provisioner_button");
       _hide("advanced-setup_button");
     } else if (modename == "result") {
       _show("status_area");
@@ -302,6 +312,7 @@ EmailConfigWizard.prototype =
       _enable("create_button");
       _hide("stop_button");
       _show("manual-edit_button");
+      _hide("provisioner_button");
       _hide("advanced-setup_button");
     } else if (modename == "manual-edit") {
       _show("status_area");
@@ -315,6 +326,7 @@ EmailConfigWizard.prototype =
       _disable("create_button");
       _hide("stop_button");
       _hide("manual-edit_button");
+      _hide("provisioner_button");
       _show("advanced-setup_button");
       _disable("advanced-setup_button");
     } else if (modename == "manual-edit-have-hostname") {
@@ -344,6 +356,7 @@ EmailConfigWizard.prototype =
       _disable("create_button");
       _show("stop_button");
       this.onStop = this.onStopHalfManualTesting;
+      _hide("provisioner_button");
       _show("advanced-setup_button");
       _disable("advanced-setup_button");
     } else if (modename == "manual-edit-complete") {
@@ -358,6 +371,7 @@ EmailConfigWizard.prototype =
       _enable("half-manual-test_button");
       _enable("create_button");
       _hide("stop_button");
+      _hide("provisioner_button");
       _show("advanced-setup_button");
       _enable("advanced-setup_button");
     } else {
@@ -373,6 +387,7 @@ EmailConfigWizard.prototype =
         _hide("create_button");
         _hide("manual-edit_button");
       }
+      _hide("provisioner_button");
     }
     window.sizeToContent();
   },
@@ -527,71 +542,80 @@ EmailConfigWizard.prototype =
    * Try to find an account configuration for this email address.
    * This is the function which runs the autoconfig.
    */
-  findConfig(domain, email) {
+  findConfig(domain, emailAddress) {
     gEmailWizardLogger.info("findConfig()");
     if (this._abortable) {
       this.onStop();
     }
     this.switchToMode("find-config");
-    this.startSpinner("looking_up_settings_disk");
+    this.startSpinner("looking_up_settings");
+
     var self = this;
-    this._abortable = fetchConfigFromDisk(domain,
-      function(config) { // success
+    var call = null;
+    var fetch = null;
+
+    var priority = this._abortable = new PriorityOrderAbortable(
+      function(config, call) { // success
         self._abortable = null;
+        self.removeStatusLines();
+        self.stopSpinner(call.foundMsg);
         self.foundConfig(config);
-        self.stopSpinner("found_settings_disk");
       },
-      function(e) { // fetchConfigFromDisk failed
+      function(e) { // all failed
+        self._abortable = null;
+        self.removeStatusLines();
         if (e instanceof CancelledException) {
           return;
         }
-        gEmailWizardLogger.info("fetchConfigFromDisk failed: " + e);
-        self.startSpinner("looking_up_settings_isp");
-        self._abortable = fetchConfigFromISP(domain, email,
-          function(config) { // success
-            self._abortable = null;
-            self.foundConfig(config);
-            self.stopSpinner("found_settings_isp");
-          },
-          function(e) { // fetchConfigFromISP failed
-            if (e instanceof CancelledException) {
-              return;
-            }
-            gEmailWizardLogger.info("fetchConfigFromISP failed: " + e);
-            logException(e);
-            self.startSpinner("looking_up_settings_db");
-            self._abortable = fetchConfigFromDB(domain,
-              function(config) { // success
-                self._abortable = null;
-                self.foundConfig(config);
-                self.stopSpinner("found_settings_db");
-              },
-              function(e) { // fetchConfigFromDB failed
-                if (e instanceof CancelledException) {
-                  return;
-                }
-                logException(e);
-                gEmailWizardLogger.info("fetchConfigFromDB failed: " + e);
-                self.startSpinner("looking_up_settings_db");
-                self._abortable = fetchConfigForMX(domain,
-                  function(config) { // success
-                    self._abortable = null;
-                    self.foundConfig(config);
-                    self.stopSpinner("found_settings_db");
-                  },
-                  function(e) { // fetchConfigForMX failed
-                    if (e instanceof CancelledException) {
-                      return;
-                    }
-                    logException(e);
-                    gEmailWizardLogger.info("fetchConfigForMX failed: " + e);
-                    var initialConfig = new AccountConfig();
-                    self._prefillConfig(initialConfig);
-                    self._guessConfig(domain, initialConfig);
-                  });
-              });
-          });
+
+        // guess config
+        let initialConfig = new AccountConfig();
+        self._prefillConfig(initialConfig);
+        self._guessConfig(domain, initialConfig);
       });
+    priority.addOneFinishedObserver(call => this.updateStatusLine(call));
+
+    try {
+      call = priority.addCall();
+      this.addStatusLine("looking_up_settings_disk", call);
+      call.foundMsg = "found_settings_disk";
+      fetch = fetchConfigFromDisk(domain,
+        call.successCallback(), call.errorCallback());
+      call.setAbortable(fetch);
+
+      call = priority.addCall();
+      this.addStatusLine("looking_up_settings_isp", call);
+      call.foundMsg = "found_settings_isp";
+      fetch = fetchConfigFromISP(domain, emailAddress,
+        call.successCallback(), call.errorCallback());
+      call.setAbortable(fetch);
+
+      call = priority.addCall();
+      this.addStatusLine("looking_up_settings_db", call);
+      call.foundMsg = "found_settings_db";
+      fetch = fetchConfigFromDB(domain,
+        call.successCallback(), call.errorCallback());
+      call.setAbortable(fetch);
+
+      call = priority.addCall();
+      this.addStatusLine("looking_up_settings_mx", call);
+      call.foundMsg = "found_settings_db";
+      fetch = fetchConfigForMX(domain,
+        call.successCallback(), call.errorCallback());
+      call.setAbortable(fetch);
+
+      call = priority.addCall();
+      this.addStatusLine("looking_up_settings_exchange", call);
+      call.foundMsg = "found_settings_exchange";
+      fetch = fetchConfigFromExchange(domain, emailAddress, self._password,
+        call.successCallback(), call.errorCallback());
+      call.setAbortable(fetch);
+
+    } catch (e) { // e.g. when entering an invalid domain like "c@c.-com"
+      this.showErrorMsg(e);
+      this.removeStatusLines();
+      this.onStop();
+    }
   },
 
   /**
@@ -630,6 +654,7 @@ EmailConfigWizard.prototype =
    */
   foundConfig(config) {
     gEmailWizardLogger.info("foundConfig()");
+    gEmailWizardLogger.info(debugObject(config, "foundConfig"));
     assert(config instanceof AccountConfig,
         "BUG: Arg 'config' needs to be an AccountConfig object");
 
@@ -638,11 +663,7 @@ EmailConfigWizard.prototype =
     if (!this._realname || !this._email) {
       return;
     }
-    this._foundConfig2(config);
-  },
 
-  // Continuation of foundConfig2() after custom fields.
-  _foundConfig2(config) {
     this.displayConfigResult(config);
   },
 
@@ -703,6 +724,12 @@ EmailConfigWizard.prototype =
     this._showStatusTitle(actionStrName);
   },
 
+  showErrorMsg(errorMsg) {
+    gEmailWizardLogger.warn("error " + errorMsg);
+    e("status_area").setAttribute("status", "error");
+    e("status_msg").textContent = errorMsg;
+  },
+
   _showStatusTitle(msgName) {
     let msg = " "; // assure height. Do via min-height in CSS, for 2 lines?
     try {
@@ -718,6 +745,52 @@ EmailConfigWizard.prototype =
     gEmailWizardLogger.info("status msg: " + msg);
   },
 
+  // UI to show status updates in parallel
+
+  addStatusLine(msgID, call) {
+    _show("status-lines");
+    var statusLine = document.createElement("hbox");
+    e("status-lines").appendChild(statusLine);
+    statusLine.classList.add("status-line");
+    var statusDescr = document.createElement("description");
+    statusDescr.classList.add("status_msg");
+    statusLine.appendChild(statusDescr);
+    var statusImg = document.createElement("vbox");
+    statusImg.classList.add("status-img");
+    statusImg.setAttribute("pack", "start");
+    statusLine.appendChild(statusImg);
+    let msg = msgID;
+    try {
+      msg = gStringsBundle.getFormattedString(msgID, [gBrandShortName]);
+    } catch (e) {
+      console.error(e);
+    }
+    statusDescr.textContent = msg;
+    call.statusLine = statusLine;
+    statusLine.setAttribute("status", "loading");
+  },
+
+  updateStatusLine(call) {
+    console.log("update status line for call " + call.position);
+    let line = [...document.querySelectorAll("#status-lines > .status-line")]
+      .find(line => line == call.statusLine);
+    if (!line) {
+      return;
+    }
+    if (!call.finished) {
+      line.setAttribute("status", "loading");
+    } else if (!call.succeeded) {
+      line.setAttribute("status", "failed");
+    } else {
+      line.setAttribute("status", "succeeded");
+    }
+  },
+
+  removeStatusLines() {
+    removeChildNodes(e("status-lines"));
+    _hide("status-lines");
+  },
+
   // -----------
   // Result area
 
@@ -731,6 +804,108 @@ EmailConfigWizard.prototype =
     assert(config instanceof AccountConfig);
     this._currentConfig = config;
     var configFilledIn = this.getConcreteConfig();
+
+    // IMAP / POP3 server type radio buttons
+    let alternatives = config.incomingAlternatives.filter(alt =>
+        (alt.type == "imap" || alt.type == "pop3" || alt.type == "exchange") &&
+        alt.type != config.incoming.type
+      );
+    let alternative = alternatives[0];
+    if (alternative) {
+      _show("result_servertype");
+      _hide("result_select_imap");
+      _hide("result_select_pop3");
+      _hide("result_select_exchange");
+      _show("result_select_" + alternative.type);
+      _show("result_select_" + config.incoming.type);
+      e("result_select_" + alternative.type).configIncoming = alternative;
+      e("result_select_" + config.incoming.type).configIncoming =
+          config.incoming;
+      e("result_servertype").value = config.incoming.type;
+    } else {
+      _hide("result_servertype");
+    }
+
+    if (config.incoming.type == "exchange") {
+      _hide("result_hostnames");
+      _show("result_exchange");
+      setText("result_exchange_hostname", config.incoming.hostname);
+      _disable("create_button");
+      removeChildNodes(e("result_addon_install_rows"));
+      this.switchToMode("result");
+
+      (async () => {
+        for (let addon of config.addons) {
+          let installer = new AddonInstaller(addon);
+          addon.isInstalled = await installer.isInstalled();
+        }
+        let installedAddon = config.addons.find(addon => addon.isInstalled);
+        if (installedAddon) {
+          _hide("result_addon_intro");
+          _hide("result_addon_install");
+          _enable("create_button");
+          this.onCreate = () => { // TODO
+            this._currentConfig.incoming.type = installedAddon.useType.addonAccountType;
+            this.validateAndFinish();
+          };
+        } else {
+          _hide("status_area");
+          _show("result_addon_intro");
+          var msg = gStringsBundle.getString("addon-intro");
+          if (!config.incomingAlternatives.find(alt => (alt.type == "imap" || alt.type == "pop3"))) {
+            msg = gStringsBundle.getString("no-open-protocols") + " " + msg;
+          }
+          setText("result_addon_intro", msg);
+
+          let containerE = e("result_addon_install_rows");
+          for (let addon of config.addons) {
+            // Creates
+            // <row>
+            //   <image src="https://live.thunderbird.net/owl32.png" />
+            //   <label class="text-link" href="https://live.thunderbird.net/owl">
+            //     A third party addon that ...
+            //   </label>
+            //   <button
+            //     class="larger-button"
+            //     orient="vertical" crop="right"
+            //     label="Install"
+            //     oncommand="…" />
+            // </row>
+            let addonE = document.createElement("row");
+            let iconE = document.createElement("image");
+            let descrE = document.createElement("label"); // must be <label> to be clickable
+            let buttonE = document.createElement("button");
+            addonE.appendChild(iconE);
+            addonE.appendChild(descrE);
+            addonE.appendChild(buttonE);
+            containerE.appendChild(addonE);
+            addonE.setAttribute("align", "center");
+            iconE.classList.add("icon");
+            if (addon.icon32) {
+              iconE.setAttribute("src", addon.icon32);
+            }
+            descrE.classList.add("text-link");
+            descrE.setAttribute("href", addon.websiteURL);
+            descrE.textContent = addon.description;
+            buttonE.classList.add("larger-button");
+            buttonE.setAttribute("orient", "vertical");
+            buttonE.setAttribute("crop", "right");
+            buttonE.setAttribute("label", gStringsBundle.getString("addonInstallShortLabel"));
+            buttonE.setAttribute("oncommand", "gEmailConfigWizard.addonInstall(this.addon);");
+            buttonE.addon = addon;
+          }
+          _show("result_addon_install");
+          _disable("create_button");
+        }
+
+        window.sizeToContent();
+      })();
+      return;
+    }
+
+    _show("result_hostnames");
+    _hide("result_exchange");
+    _enable("create_button");
 
     var unknownString = gStringsBundle.getString("resultUnknown");
 
@@ -781,29 +956,6 @@ EmailConfigWizard.prototype =
     setText("result-outgoing", outgoingResult);
     setText("result-username", usernameResult);
 
-    gEmailWizardLogger.info(debugObject(config, "config"));
-    // IMAP / POP dropdown
-    var lookForAltType =
-        config.incoming.type == "imap" ? "pop3" : "imap";
-    var alternative = null;
-    for (let i = 0; i < config.incomingAlternatives.length; i++) {
-      let alt = config.incomingAlternatives[i];
-      if (alt.type == lookForAltType) {
-        alternative = alt;
-        break;
-      }
-    }
-    if (alternative) {
-      _show("result_imappop");
-      e("result_select_" + alternative.type).configIncoming = alternative;
-      e("result_select_" + config.incoming.type).configIncoming =
-          config.incoming;
-      e("result_imappop").value =
-          config.incoming.type == "imap" ? 1 : 2;
-    } else {
-      _hide("result_imappop");
-    }
-
     this.switchToMode("result");
   },
 
@@ -816,18 +968,47 @@ EmailConfigWizard.prototype =
    *       This is why we use the oncommand attribute of the radio elements
    *       instead of the onselect attribute of the radiogroup.
    */
-  onResultIMAPOrPOP3() {
+  onResultServerTypeChanged() {
     var config = this._currentConfig;
-    var radiogroup = e("result_imappop");
     // add current server as best alternative to start of array
     config.incomingAlternatives.unshift(config.incoming);
     // use selected server (stored as special property on the <radio> node)
-    config.incoming = radiogroup.selectedItem.configIncoming;
+    config.incoming = e("result_servertype").selectedItem.configIncoming;
     // remove newly selected server from list of alternatives
-    config.incomingAlternatives = config.incomingAlternatives.filter(
-        function(e) { return e != config.incoming; });
+    config.incomingAlternatives = config.incomingAlternatives.filter(alt =>
+      alt != config.incoming);
     this.displayConfigResult(config);
   },
+
+  /**
+   * Install the addon
+   * Called when user clicks [Install] button.
+   *
+   * @param {AddonInfo} addon - @see AccountConfig.addons
+   */
+  async addonInstall(addon) {
+    _hide("result_addon_install");
+    _hide("result_addon_intro");
+    _disable("create_button");
+    _show("status_area");
+    this.startSpinner("addonInstallStarted");
+
+    try {
+      var installer = this._abortable = new AddonInstaller(addon);
+      await installer.install();
+
+      this._abortable = null;
+      this.stopSpinner("addonInstallSuccess");
+      _enable("create_button");
+
+      this._currentConfig.incoming.type = addon.useType.addonAccountType;
+      this.validateAndFinish();
+    } catch (e) {
+      this.showErrorMsg(e + "");
+      _show("result_addon_install");
+    }
+  },
+
 
   // ----------------
   // Manual Edit area
@@ -1150,10 +1331,8 @@ EmailConfigWizard.prototype =
   fillPortDropdown(protocolType) {
     var menu = e(protocolType == "smtp" ? "outgoing_port" : "incoming_port");
 
-    // menulist.removeAllItems() is nice, but nicely clears the user value, too
-    var popup = menu.menupopup;
-    while (popup.hasChildNodes())
-      popup.lastChild.remove();
+    // menulist.removeAllItems() is nice, but "nicely" clears the user value, too
+    removeChildNodes(menu.menupopup);
 
     // add standard ports
     var autoPort = gStringsBundle.getString("port_auto");
@@ -1526,7 +1705,7 @@ EmailConfigWizard.prototype =
         if (successfulConfig.oauthSettings)
           self._currentConfig.oauthSettings = successfulConfig.oauthSettings;
 
-        self.finish();
+        self.finish(configFilledIn);
       },
       function(e) { // failed
         self.showErrorStatus("config_unverifiable");
@@ -1542,9 +1721,13 @@ EmailConfigWizard.prototype =
       });
   },
 
-  finish() {
+  finish(concreteConfig) {
     gEmailWizardLogger.info("creating account in backend");
-    createAccountInBackend(this.getConcreteConfig());
+    var account = createAccountInBackend(concreteConfig);
+
+    // Trigger first login, to get folder structure, show account, etc..
+    account.incomingServer.rootFolder.getNewMessages(null, null);
+
     window.close();
   },
 };
@@ -1563,8 +1746,11 @@ var _gStandardPorts = {};
 _gStandardPorts.imap = [ 143, 993 ];
 _gStandardPorts.pop3 = [ 110, 995 ];
 _gStandardPorts.smtp = [ 587, 25, 465 ]; // order matters
+_gStandardPorts.exchange = [ 443 ];
 var _gAllStandardPorts = _gStandardPorts.smtp
-    .concat(_gStandardPorts.imap).concat(_gStandardPorts.pop3);
+    .concat(_gStandardPorts.imap)
+    .concat(_gStandardPorts.pop3)
+    .concat(_gStandardPorts.exchange);
 
 function isStandardPort(port) {
   return _gAllStandardPorts.includes(port);
@@ -1628,7 +1814,7 @@ SecurityWarningDialog.prototype =
     var incomingBad = ((configFilledIn.incoming.socketType > 1) ? 0 : this._inSecurityBad) |
                       ((configFilledIn.incoming.badCert) ? this._inCertBad : 0);
     var outgoingBad = 0;
-    if (!configFilledIn.outgoing.existingServerKey) {
+    if (configFilledIn.outgoing.addThisServer) {
       outgoingBad = ((configFilledIn.outgoing.socketType > 1) ? 0 : this._outSecurityBad) |
                     ((configFilledIn.outgoing.badCert) ? this._outCertBad : 0);
     }

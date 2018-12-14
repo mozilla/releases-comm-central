@@ -3,6 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
+/* eslint-disable complexity */
+
 /**
  * Takes an XML snipplet (as JXON) and reads the values into
  * a new AccountConfig object.
@@ -17,9 +20,6 @@
  * @param clientConfigXML {JXON}  The <clientConfig> node.
  * @return AccountConfig   object filled with the data from XML
  */
-ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
-
-/* eslint-disable complexity */
 function readFromXML(clientConfigXML) {
   function array_or_undef(value) {
     return value === undefined ? [] : value;

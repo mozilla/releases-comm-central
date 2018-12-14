@@ -899,13 +899,25 @@ pref("mailnews.emptyTrash.dontAskAgain", false);
 pref("mailnews.auto_config_url", "https://live.thunderbird.net/autoconfig/v1.1/");
 // Added in bug 551519. Remove when bug 545866 is fixed.
 pref("mailnews.mx_service_url", "https://live.thunderbird.net/dns/mx/");
+// The list of addons which can handle certain account types
+#ifdef RELEASE_OR_BETA
+pref("mailnews.auto_config.addons_url", "https://live.thunderbird.net/autoconfig/addons.json");
+#else
+pref("mailnews.auto_config.addons_url", "http://www.beonex.com/owl/addons-test.json");
+#endif
 // Allow to contact ISP (email address domain)
 // This happens via insecure means (HTTP), so the config cannot be trusted,
 // and also contains the email address
 pref("mailnews.auto_config.fetchFromISP.enabled", true);
 // Allow the fetch from ISP via HTTP, but not the email address
 pref("mailnews.auto_config.fetchFromISP.sendEmailAddress", true);
+// Allow the Microsoft Exchange AutoDiscover protocol.
+// This also sends the email address and password to the server,
+// which the protocol unfortunately requires in practice.
+pref("mailnews.auto_config.fetchFromExchange.enabled", true);
 pref("mailnews.auto_config.guess.enabled", true);
+// Work around bug 1454325 by disabling mimetype mungling in XmlHttpRequest
+pref("dom.xhr.standard_content_type_normalization", false);
 
 // -- Summary Database options
 // dontPreserveOnCopy: a space separated list of properties that are not

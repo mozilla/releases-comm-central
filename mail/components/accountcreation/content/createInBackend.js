@@ -3,25 +3,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+
+ChromeUtils.import("resource:///modules/MailServices.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+/* eslint-disable complexity */
+
 /**
  * Takes an |AccountConfig| JS object and creates that account in the
  * Thunderbird backend (which also writes it to prefs).
  *
- * @param config {AccountConfig} The account to create
- *
- * @return - the account created.
+ * @param {AccountConfig} config - The account to create
+ * @return {nsIMsgAccount} - the newly created account
  */
-
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-
-/* eslint-disable complexity */
 function createAccountInBackend(config) {
   // incoming server
   let inServer = MailServices.accounts.createIncomingServer(
       config.incoming.username,
       config.incoming.hostname,
-      sanitize.enum(config.incoming.type, ["pop3", "imap", "nntp"]));
+      config.incoming.type);
   inServer.port = config.incoming.port;
   inServer.authMethod = config.incoming.auth;
   inServer.password = config.incoming.password;
@@ -254,7 +253,7 @@ function checkIncomingServerAlreadyExists(config) {
   let incoming = config.incoming;
   let existing = MailServices.accounts.findRealServer(incoming.username,
         incoming.hostname,
-        sanitize.enum(incoming.type, ["pop3", "imap", "nntp"]),
+        incoming.type,
         incoming.port);
 
   // if username does not have an '@', also check the e-mail
@@ -262,7 +261,7 @@ function checkIncomingServerAlreadyExists(config) {
   if (!existing && !incoming.username.includes("@"))
     existing = MailServices.accounts.findRealServer(config.identity.emailAddress,
           incoming.hostname,
-          sanitize.enum(incoming.type, ["pop3", "imap", "nntp"]),
+          incoming.type,
           incoming.port);
   return existing;
 }

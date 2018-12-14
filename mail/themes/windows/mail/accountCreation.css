@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @namespace html url("http://www.w3.org/1999/xhtml");
+@import url("chrome://messenger/skin/shared/accountCreation.css");
 
 /* ::::: BUTTONS ::::: */
 
@@ -258,20 +259,4 @@ textbox.port[disabled="true"] {
 
 #incoming_protocol[disabled="true"] {
   padding-left: 6px;
-}
-
-#initialSettings, #status_area {
-  margin-bottom: 1em;
-}
-
-#result_area, #result_imappop {
-  margin-bottom: 1.5em;
-}
-
-#manual-edit_area {
-  margin-bottom: 2em;
-}
-
-#status_msg {
-  min-height: 2em;
 }

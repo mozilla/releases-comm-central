@@ -1,0 +1,79 @@
+#initialSettings {
+  margin-bottom: 1em;
+}
+
+#manual-edit_area {
+  margin-bottom: 2em;
+}
+
+/* status area */
+
+#status_msg {
+  min-height: 1.5em;
+}
+
+#status-lines {
+  -moz-box-pack: start;
+  -moz-box-flex: 10;
+  margin-left: 10em;
+}
+
+.status-line[status="loading"] .status-img {
+  background: url("chrome://global/skin/icons/loading.png") no-repeat;
+  width: 16px;
+  height: 16px;
+}
+
+.status-line[status="failed"] .status-img {
+  background: url("chrome://messenger/skin/icons/exclude.png") no-repeat;
+  width: 16px;
+  height: 16px;
+}
+
+.status-line[status="succeeded"] .status-img {
+  background: url("chrome://messenger/skin/icons/tick.png") no-repeat;
+  width: 16px;
+  height: 16px;
+}
+
+/* result area */
+
+#result_area {
+  margin-bottom: 1em;
+}
+
+#result_servertype {
+  margin-bottom: 1.5em;
+}
+
+#result_exchange_hostname_container {
+  margin-bottom: 0.5em;
+}
+
+#result_area description {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+#result_addon_intro {
+  max-width: 40em;
+}
+
+#result_addon_install {
+  margin-top: 4px;
+}
+
+#result_addon_install image.icon {
+  width: 32px;
+  height: 32px;
+  margin-left: 0.4em;
+  margin-right: 0.4em;
+}
+
+#result_addon_install_column_link {
+  max-width: 30em;
+}
+
+#result_addon_install_column_button {
+  max-width: 10em;
+}

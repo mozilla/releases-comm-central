@@ -83,6 +83,7 @@
   skin/classic/messenger/icons/timeline.svg                   (../shared/mail/icons/timeline.svg)
   skin/classic/messenger/icons/toolbarbutton-arrow.svg        (../shared/mail/icons/toolbarbutton-arrow.svg)
   skin/classic/messenger/icons/waiting.svg                    (../shared/mail/icons/waiting.svg)
+  skin/classic/messenger/shared/accountCreation.css           (../shared/mail/accountCreation.css)
   skin/classic/messenger/shared/accountProvisioner.css        (../shared/mail/accountProvisioner.css)
   skin/classic/messenger/shared/addressbook.css               (../shared/mail/addressbook.css)
   skin/classic/messenger/shared/compacttheme.css              (../shared/mail/compacttheme.css)

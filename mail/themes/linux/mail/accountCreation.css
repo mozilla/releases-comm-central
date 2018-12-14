@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+@import url("chrome://messenger/skin/shared/accountCreation.css");
+
 /* ::::: BUTTONS ::::: */
 
 .important-button {
@@ -241,20 +243,4 @@ textbox.port[disabled="true"] {
 
 #incoming_protocol[disabled="true"] {
   padding-left: 5px;
-}
-
-#initialSettings, #status_area {
-  margin-bottom: 1em;
-}
-
-#result_area, #result_imappop {
-  margin-bottom: 1.5em;
-}
-
-#manual-edit_area {
-  margin-bottom: 2em;
-}
-
-#status_msg {
-  min-height: 2em;
 }
