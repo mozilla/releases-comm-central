@@ -20,9 +20,6 @@
           xmlns:nc="http://home.netscape.com/NC-rdf#"
           xmlns:xbl="http://www.mozilla.org/xbl">
 
-  <!-- dummy widget to force this file to load -->
-  <binding id="dummy" extends="xul:box"/>
-
   <binding id="attachmentlist-base" extends="chrome://global/content/bindings/richlistbox.xml#richlistbox">
     <implementation>
       <constructor><![CDATA[
