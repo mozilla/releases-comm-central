@@ -348,7 +348,7 @@ function getAddonsList(config, successCallback, errorCallback) {
     },
     "description": {
       "en": "Owl is a paid third-party addon that allows you to access your email account on Exchange servers. See the website for prices.",
-      "de": "Eule ist eine Erweiterung von einem Drittanbieter, die Ihnen erlaubt, Exchange server zu benutzen. Sie ist kostenpflichtig. Die Preise finden sie auf der Website."
+      "de": "Eule ist eine Erweiterung von einem Drittanbieter, die Ihnen erlaubt, Exchange-Server zu benutzen. Sie ist kostenpflichtig. Die Preise finden Sie auf der Website."
     },
     "minVersion": "0.2",
     "xpiURL": "http://www.beonex.com/owl/latest.xpi",
