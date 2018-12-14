@@ -680,6 +680,7 @@ nsBrowserAccess.prototype = {
 
     let newTab = tabmail.openTab("contentTab", {contentPage: "about:blank",
                                                 background: loadInBackground,
+                                                opener: aOpener,
                                                 clickHandler});
 
     newWindow = newTab.browser.docShell.domWindow;

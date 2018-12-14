@@ -691,6 +691,7 @@ var specialTabs = {
      *
      * @param aArgs The options that content tabs accept.
      * @param aArgs.contentPage A string that holds the URL that is to be opened
+     * @param aArgs.opener The opener window
      * @param aArgs.clickHandler The click handler for that content tab. See the
      *  "Content Tabs" article on MDC.
      * @param aArgs.onLoad A function that takes an Event and a DOMNode. It is
@@ -705,6 +706,9 @@ var specialTabs = {
 
       // First clone the page and set up the basics.
       let clone = document.getElementById("contentTab").firstChild.cloneNode(true);
+
+      if ("opener" in aArgs && aArgs.opener)
+        clone.querySelector("browser").presetOpenerWindow(aArgs.opener);
 
       const findbar = document.createElement("findbar");
       // Adding browserid to findbar so that browser property can be set
