@@ -163,13 +163,6 @@ treechildren::-moz-tree-cell-text(dummy) {
   padding-top: var(--space-above-tabbar);
 }
 
-/* Add 4px extra margin on top of the tabs toolbar on Windows 7. */
-@media (-moz-os-version: windows-win7) {
-  :root[sizemode="normal"] #mail-toolbar-menubar2[autohide="true"][inactive] ~ #tabs-toolbar {
-    padding-top: calc(var(--space-above-tabbar) + 4px);
-  }
-}
-
 @media (-moz-windows-compositor) {
   @media (-moz-os-version: windows-win7),
          (-moz-os-version: windows-win8) {
