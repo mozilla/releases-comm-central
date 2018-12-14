@@ -35,9 +35,9 @@ checkbox:not([label]) .checkbox-label-box {
   margin-left: -6px;
 }
 
-#filterListDialog > hbox,
-#filterListDialog > grid {
-   margin: 8px 6px 0;
+#filterHeader,
+#filterListGrid {
+  margin: 8px 6px 0;
 }
 
 #FilterEditor {

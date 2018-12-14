@@ -14,13 +14,13 @@
   padding: 0px;
 }
 
-#filterListDialog > hbox {
-   margin: 8px;
-   font: menu;
+#filterHeader {
+  margin: 8px;
+  font: menu;
 }
 
-#filterListDialog > grid {
-   margin: 8px;
+#filterListGrid {
+  margin: 8px;
 }
 
 /* ::::: columns :::::: */

@@ -34,7 +34,7 @@
     <key keycode="VK_ESCAPE" oncommand="if (onFilterClose()) window.close();"/>
   </keyset>
 
-  <hbox align="center">
+  <hbox id="filterHeader" align="center">
     <label value="&filtersForPrefix.label;"
            accesskey="&filtersForPrefix.accesskey;" control="serverMenu"/>
 
@@ -56,7 +56,7 @@
              isempty="true"/>
   </hbox>
 
-  <grid flex="1">
+  <grid id="filterListGrid" flex="1">
     <columns>
       <column flex="1"/>
       <column/>
