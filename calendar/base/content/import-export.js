@@ -30,13 +30,10 @@ function loadEventsFromFile(aCalendar) {
 
     // Get a list of importers
     let contractids = [];
-    let catenum = Services.catMan.enumerateCategory("cal-importers");
     let currentListLength = 0;
     let defaultCIDIndex = 0;
-    while (catenum.hasMoreElements()) {
-        let entry = catenum.getNext();
-        entry = entry.QueryInterface(Components.interfaces.nsISupportsCString);
-        let contractid = Services.catMan.getCategoryEntry("cal-importers", entry);
+    for (let {data} of Services.catMan.enumerateCategory("cal-importers")) {
+        let contractid = Services.catMan.getCategoryEntry("cal-importers", data);
         let importer;
         try {
             importer = Components.classes[contractid]
@@ -238,13 +235,10 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
 
     // Get a list of exporters
     let contractids = [];
-    let catenum = Services.catMan.enumerateCategory("cal-exporters");
     let currentListLength = 0;
     let defaultCIDIndex = 0;
-    while (catenum.hasMoreElements()) {
-        let entry = catenum.getNext();
-        entry = entry.QueryInterface(Components.interfaces.nsISupportsCString);
-        let contractid = Services.catMan.getCategoryEntry("cal-exporters", entry);
+    for (let {data} of Services.catMan.enumerateCategory("cal-exporters")) {
+        let contractid = Services.catMan.getCategoryEntry("cal-exporters", data);
         let exporter;
         try {
             exporter = Components.classes[contractid]

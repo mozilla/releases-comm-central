@@ -37,15 +37,11 @@ function loadCalendarPrintDialog() {
     document.getElementById(theView ? "printCurrentViewRadio" : "custom-range")
             .setAttribute("selected", true);
 
-    // Get a list of formatters
-    let catenum = Services.catMan.enumerateCategory("cal-print-formatters");
-
-    // Walk the list, adding items to the layout menupopup
+    // Get a list of formatters.
+    // Walk the list, adding items to the layout menupopup.
     let layoutList = document.getElementById("layout-field");
-    while (catenum.hasMoreElements()) {
-        let entry = catenum.getNext();
-        entry = entry.QueryInterface(Components.interfaces.nsISupportsCString);
-        let contractid = Services.catMan.getCategoryEntry("cal-print-formatters", entry);
+    for (let {data} of Services.catMan.enumerateCategory("cal-print-formatters")) {
+        let contractid = Services.catMan.getCategoryEntry("cal-print-formatters", data);
         let formatter = Components.classes[contractid]
                                   .getService(Components.interfaces.calIPrintFormatter);
         // Use the contractid as value
