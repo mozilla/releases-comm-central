@@ -1568,12 +1568,9 @@ var gAccountTree = {
 
         // extensions
         const CATEGORY = "mailnews-accountmanager-extensions";
-        let catEnum = Services.catMan.enumerateCategory(CATEGORY);
-        while (catEnum.hasMoreElements()) {
-          let entryName = null;
+        for (let {data} of Services.catMan.enumerateCategory(CATEGORY)) {
           try {
-            entryName = catEnum.getNext().QueryInterface(Ci.nsISupportsCString).data;
-            let svc = Cc[Services.catMan.getCategoryEntry(CATEGORY, entryName)]
+            let svc = Cc[Services.catMan.getCategoryEntry(CATEGORY, data)]
                         .getService(Ci.nsIMsgAccountManagerExtension);
             if (svc.showPanel(server)) {
               let bundleName = "chrome://" + svc.chromePackageName +
@@ -1585,7 +1582,7 @@ var gAccountTree = {
           } catch(e) {
             // Fetching of this extension panel failed so do not show it,
             // just log error.
-            let extName = entryName || "(unknown)";
+            let extName = data || "(unknown)";
             Cu.reportError("Error accessing panel from extension '" +
                            extName + "': " + e);
           }

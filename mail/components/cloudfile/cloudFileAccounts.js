@@ -193,10 +193,9 @@ var cloudFileAccounts = new class extends EventEmitter {
       yield [type, provider];
     }
 
-    for (let entry of fixIterator(Services.catMan.enumerateCategory(CATEGORY),
-                                  Ci.nsISupportsCString)) {
-      let provider = this.getProviderForType(entry.data);
-      yield [entry.data, provider];
+    for (let {data} of Services.catMan.enumerateCategory(CATEGORY)) {
+      let provider = this.getProviderForType(data);
+      yield [data, provider];
     }
   }
 

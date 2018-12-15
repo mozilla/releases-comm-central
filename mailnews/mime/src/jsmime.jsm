@@ -64,11 +64,7 @@ Services.obs.addObserver(function (subject, topic, data) {
   }
 }, "xpcom-category-entry-added");
 
-var entries = Services.catMan.enumerateCategory(CATEGORY_NAME);
-while (entries.hasMoreElements()) {
-  let string = entries.getNext()
-                      .QueryInterface(Ci.nsISupportsCString)
-                      .data;
-  let url = Services.catMan.getCategoryEntry(CATEGORY_NAME, string);
+for (let {data} of Services.catMan.enumerateCategory(CATEGORY_NAME)) {
+  let url = Services.catMan.getCategoryEntry(CATEGORY_NAME, data);
   Services.scriptloader.loadSubScript(url, {}, "UTF-8");
 }
