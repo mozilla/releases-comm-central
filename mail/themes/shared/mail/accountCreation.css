@@ -59,7 +59,7 @@ textbox.result-host-info > label.domain {
 
 textbox.result-host-info > label.insecure {
   color: red;
-  dfont-weight: bold;
+  font-weight: bold;
 }
 
 #result_servertype {
