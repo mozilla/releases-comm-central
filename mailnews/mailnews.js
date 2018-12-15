@@ -900,11 +900,7 @@ pref("mailnews.auto_config_url", "https://live.thunderbird.net/autoconfig/v1.1/"
 // Added in bug 551519. Remove when bug 545866 is fixed.
 pref("mailnews.mx_service_url", "https://live.thunderbird.net/dns/mx/");
 // The list of addons which can handle certain account types
-#ifdef RELEASE_OR_BETA
 pref("mailnews.auto_config.addons_url", "https://live.thunderbird.net/autoconfig/addons.json");
-#else
-pref("mailnews.auto_config.addons_url", "http://www.beonex.com/owl/addons-test.json");
-#endif
 // Allow to contact ISP (email address domain)
 // This happens via insecure means (HTTP), so the config cannot be trusted,
 // and also contains the email address
