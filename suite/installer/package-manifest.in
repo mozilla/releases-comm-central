@@ -203,8 +203,6 @@
 @RESPATH@/components/Downloads.manifest
 @RESPATH@/components/DownloadLegacy.js
 @RESPATH@/components/FeedConverter.js
-@RESPATH@/components/FeedProcessor.js
-@RESPATH@/components/FeedProcessor.manifest
 @RESPATH@/components/UAOverridesBootstrapper.js
 @RESPATH@/components/UAOverridesBootstrapper.manifest
 @RESPATH@/components/WellKnownOpportunisticUtils.js
