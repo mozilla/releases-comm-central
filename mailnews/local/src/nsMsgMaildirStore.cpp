@@ -1189,6 +1189,7 @@ MaildirStoreParser::~MaildirStoreParser()
 nsresult MaildirStoreParser::ParseNextMessage(nsIFile *aFile)
 {
   nsresult rv;
+  NS_ENSURE_TRUE(m_db, NS_ERROR_NULL_POINTER);
   nsCOMPtr<nsIInputStream> inputStream;
   nsCOMPtr<nsIMsgParseMailMsgState> msgParser =
     do_CreateInstance(NS_PARSEMAILMSGSTATE_CONTRACTID, &rv);
@@ -1271,9 +1272,10 @@ void MaildirStoreParser::TimerCallback(nsITimer *aTimer, void *aClosure)
   }
   nsCOMPtr<nsIFile> currentFile;
   nsresult rv = parser->m_directoryEnumerator->GetNextFile(getter_AddRefs(currentFile));
-  NS_ENSURE_SUCCESS_VOID(rv);
-  parser->ParseNextMessage(currentFile);
-  // ### TODO - what if this fails?
+  if (NS_SUCCEEDED(rv))
+    rv = parser->ParseNextMessage(currentFile);
+  if (NS_FAILED(rv) && parser->m_listener)
+    parser->m_listener->OnStopRunningUrl(nullptr, NS_ERROR_FAILURE);
 }
 
 nsresult MaildirStoreParser::StartTimer()
