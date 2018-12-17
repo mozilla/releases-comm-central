@@ -516,5 +516,9 @@ var ltnImipBar = {
     }
 };
 
-addEventListener("messagepane-loaded", ltnImipBar.load, true);
+if (document.getElementById("msgHeaderView").loaded) {
+    ltnImipBar.load();
+} else {
+    addEventListener("messagepane-loaded", ltnImipBar.load, true);
+}
 addEventListener("messagepane-unloaded", ltnImipBar.unload, true);

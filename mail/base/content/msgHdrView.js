@@ -257,6 +257,7 @@ function OnLoadMsgHeaderPane() {
   // Dispatch an event letting any listeners know that we have loaded
   // the message pane.
   var headerViewElement = document.getElementById("msgHeaderView");
+  headerViewElement.loaded = true;
   headerViewElement.dispatchEvent(new Event("messagepane-loaded",
     { bubbles: false, cancelable: true }));
 
