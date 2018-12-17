@@ -63,7 +63,9 @@ menuitem[appHandlerIcon="save"] {
 
 .cloudfileAccount[state="auth-error"],
 .cloudfileAccount[state="no-connection"] {
-  list-style-image: url("chrome://global/skin/icons/error-16.png") !important;
+  list-style-image: url("chrome://global/skin/icons/error.svg") !important;
+  -moz-context-properties: fill;
+  fill: #d70022;
 }
 
 .cloudfileAccount .typeIcon {
