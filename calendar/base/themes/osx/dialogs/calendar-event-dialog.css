@@ -13,3 +13,13 @@
 #timezone-endtime {
     margin-inline-start: 15px;
 }
+
+hbox > #link-image-top {
+    margin-top: 1.2em;
+    margin-bottom: -1.2em;
+}
+
+vbox > #link-image-bottom {
+    margin-top: -1.2em;
+    margin-bottom: 1.2em;
+}

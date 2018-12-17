@@ -22,3 +22,12 @@ menulist[editable="true"] > menupopup > menuitem[selected="true"]::before {
   display: none;
   margin-inline-start: 0;
 }
+
+menulist[editable="true"] > .menulist-dropmarker {
+  -moz-appearance: none;
+  display: -moz-box;
+  padding-inline-start: 5px;
+  list-style-image: url(chrome://messenger/skin/icons/menulist-dropmarker.svg);
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
