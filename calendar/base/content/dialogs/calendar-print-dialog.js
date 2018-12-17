@@ -40,7 +40,7 @@ function loadCalendarPrintDialog() {
     // Get a list of formatters.
     // Walk the list, adding items to the layout menupopup.
     let layoutList = document.getElementById("layout-field");
-    for (let {data} of Services.catMan.enumerateCategory("cal-print-formatters")) {
+    for (let { data } of Services.catMan.enumerateCategory("cal-print-formatters")) {
         let contractid = Services.catMan.getCategoryEntry("cal-print-formatters", data);
         let formatter = Components.classes[contractid]
                                   .getService(Components.interfaces.calIPrintFormatter);

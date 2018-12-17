@@ -32,7 +32,7 @@ function loadEventsFromFile(aCalendar) {
     let contractids = [];
     let currentListLength = 0;
     let defaultCIDIndex = 0;
-    for (let {data} of Services.catMan.enumerateCategory("cal-importers")) {
+    for (let { data } of Services.catMan.enumerateCategory("cal-importers")) {
         let contractid = Services.catMan.getCategoryEntry("cal-importers", data);
         let importer;
         try {
@@ -237,7 +237,7 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
     let contractids = [];
     let currentListLength = 0;
     let defaultCIDIndex = 0;
-    for (let {data} of Services.catMan.enumerateCategory("cal-exporters")) {
+    for (let { data } of Services.catMan.enumerateCategory("cal-exporters")) {
         let contractid = Services.catMan.getCategoryEntry("cal-exporters", data);
         let exporter;
         try {
