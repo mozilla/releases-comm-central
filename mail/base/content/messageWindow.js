@@ -23,7 +23,6 @@
 /* import-globals-from phishingDetector.js */
 /* import-globals-from toolbarIconColor.js */
 
-var { JSTreeSelection } = ChromeUtils.import("resource:///modules/jsTreeSelection.js", null);
 ChromeUtils.import("resource:///modules/MailUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
