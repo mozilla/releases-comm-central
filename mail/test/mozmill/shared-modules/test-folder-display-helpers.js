@@ -964,13 +964,11 @@ function click_tree_row(aTree, aRowIndex, aController) {
   aTree.treeBoxObject.ensureRowIsVisible(aRowIndex);
 
   // get cell coordinates
-  let x = {}, y = {}, width = {}, height = {};
   let column = aTree.columns[0];
-  aTree.treeBoxObject.getCoordsForCellItem(aRowIndex, column, "text",
-                                           x, y, width, height);
+  let coords = aTree.treeBoxObject.getCoordsForCellItem(aRowIndex, column, "text");
 
   aController.sleep(0);
-  EventUtils.synthesizeMouse(aTree.body, x.value + 4, y.value + 4,
+  EventUtils.synthesizeMouse(aTree.body, coords.x + 4, coords.y + 4,
                              {}, aTree.ownerDocument.defaultView);
   aController.sleep(0);
 }
