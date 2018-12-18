@@ -100,6 +100,7 @@ static NS_DEFINE_CID(kCImapHostSessionList, NS_IIMAPHOSTSESSIONLIST_CID);
 extern mozilla::LazyLogModule gAutoSyncLog; // defined in nsAutoSyncManager.cpp
 extern mozilla::LazyLogModule IMAP;         // defined in nsImapProtocol.cpp
 extern mozilla::LazyLogModule IMAP_CS;      // For CONDSTORE, defined in nsImapProtocol.cpp
+mozilla::LazyLogModule IMAP_KW("IMAP_KW");  // for logging keyword (tag) processing
 
 #define MAILNEWS_CUSTOM_HEADERS "mailnews.customHeaders"
 
@@ -4440,7 +4441,7 @@ void nsImapMailFolder::TweakHeaderFlags(nsIImapProtocol* aProtocol, nsIMsgDBHdr 
       if (newFlags)
         tweakMe->OrFlags(newFlags, &dbHdrFlags);
       if (!customFlags.IsEmpty())
-        (void) HandleCustomFlags(m_curMsgUid, tweakMe, userFlags, customFlags);
+        (void) HandleCustomFlags(m_curMsgUid, tweakMe, userFlags, customFlags, nullptr);
     }
   }
 }
@@ -4751,7 +4752,8 @@ nsImapMailFolder::BeginMessageUpload()
 nsresult nsImapMailFolder::HandleCustomFlags(nsMsgKey uidOfMessage,
                                              nsIMsgDBHdr *dbHdr,
                                              uint16_t userFlags,
-                                             nsCString &keywords)
+                                             nsCString &keywords,
+                                             nsIImapFlagAndUidState *flagState)
 {
   nsresult rv = GetDatabase();
   NS_ENSURE_SUCCESS(rv, rv);
@@ -4784,6 +4786,71 @@ nsresult nsImapMailFolder::HandleCustomFlags(nsMsgKey uidOfMessage,
     dbHdr->GetStringProperty("junkscoreorigin", getter_Copies(existingProperty));
     if (existingProperty.IsEmpty())
       dbHdr->SetStringProperty("junkscoreorigin", "imapflag");
+  }
+
+  if (flagState && !(userFlags & kImapMsgSupportUserFlag))
+  {
+    nsCString localKeywords;
+    if (!(userFlags & kImapMsgSupportUserFlag))
+    {
+      dbHdr->GetStringProperty("keywords", getter_Copies(localKeywords));
+      MOZ_LOG(IMAP_KW, mozilla::LogLevel::Debug, ("UID=%" PRIu32 ", localKeywords=|%s| rcvdKeyword=|%s|",
+              uidOfMessage, localKeywords.get(), keywords.get()));
+    }
+    nsTArray<nsCString> localKeywordArray;
+    nsTArray<nsCString> rcvdKeywordArray;
+    ParseString(localKeywords, ' ', localKeywordArray);
+    ParseString(keywords, ' ', rcvdKeywordArray);
+
+    nsAutoCString mozLogDefinedKWs;
+    if (MOZ_LOG_TEST(IMAP_KW, mozilla::LogLevel::Debug))
+      mozLogDefinedKWs.AppendLiteral("Defined keywords = |");
+    uint32_t i = 0;
+    while (true)
+    {
+      nsAutoCString definedKeyword;
+      flagState->GetOtherKeywords(i++, definedKeyword);
+      if (definedKeyword.IsEmpty())
+      {
+        if (MOZ_LOG_TEST(IMAP_KW, mozilla::LogLevel::Debug))
+        {
+          mozLogDefinedKWs.Append('|');
+          MOZ_LOG(IMAP_KW, mozilla::LogLevel::Debug, ("%s", mozLogDefinedKWs.get()));
+        }
+        break;
+      }
+
+      if (MOZ_LOG_TEST(IMAP_KW, mozilla::LogLevel::Debug))
+      {
+        mozLogDefinedKWs.Append(definedKeyword.get());
+        mozLogDefinedKWs.Append(' ');
+      }
+
+      bool inLocal = localKeywordArray.Contains(definedKeyword);
+      bool inRcvd = rcvdKeywordArray.Contains(definedKeyword);
+      if (inLocal && inRcvd)
+        rcvdKeywordArray.RemoveElement(definedKeyword);
+      if (inLocal && !inRcvd)
+        localKeywordArray.RemoveElement(definedKeyword);
+    }
+    // Combine local and rcvd keyword arrays into a single string
+    // so it can be passed to SetStringProperty(). If element of
+    // local already in rcvd, avoid duplicates in combined string.
+    nsAutoCString combinedKeywords;
+    for (i = 0; i < localKeywordArray.Length(); i++)
+    {
+      if (!rcvdKeywordArray.Contains(localKeywordArray[i]))
+      {
+        combinedKeywords.Append(localKeywordArray[i]);
+        combinedKeywords.Append(' ');
+      }
+    }
+    for (i = 0; i < rcvdKeywordArray.Length(); i++)
+    {
+      combinedKeywords.Append(rcvdKeywordArray[i]);
+      combinedKeywords.Append(' ');
+    }
+    return dbHdr->SetStringProperty("keywords", combinedKeywords.get());
   }
   return (userFlags & kImapMsgSupportUserFlag) ?
           dbHdr->SetStringProperty("keywords", keywords.get()) : NS_OK;
@@ -4830,7 +4897,7 @@ nsresult nsImapMailFolder::SyncFlags(nsIImapFlagAndUidState *flagState)
 
     nsCString keywords;
     if (NS_SUCCEEDED(flagState->GetCustomFlags(uidOfMessage, getter_Copies(keywords))))
-        HandleCustomFlags(uidOfMessage, dbHdr, supportedUserFlags, keywords);
+        HandleCustomFlags(uidOfMessage, dbHdr, supportedUserFlags, keywords, flagState);
 
     NotifyMessageFlagsFromHdr(dbHdr, uidOfMessage, flags);
   }
@@ -4935,7 +5002,7 @@ nsImapMailFolder::NotifyMessageFlags(uint32_t aFlags,
       GetSupportedUserFlags(&supportedUserFlags);
       NotifyMessageFlagsFromHdr(dbHdr, aMsgKey, aFlags);
       nsCString keywords(aKeywords);
-      HandleCustomFlags(aMsgKey, dbHdr, supportedUserFlags, keywords);
+      HandleCustomFlags(aMsgKey, dbHdr, supportedUserFlags, keywords, nullptr);
     }
   }
   return NS_OK;

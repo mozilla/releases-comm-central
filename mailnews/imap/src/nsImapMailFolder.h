@@ -354,7 +354,8 @@ protected:
 
   nsresult SyncFlags(nsIImapFlagAndUidState *flagState);
   nsresult HandleCustomFlags(nsMsgKey uidOfMessage, nsIMsgDBHdr *dbHdr,
-                             uint16_t userFlags, nsCString& keywords);
+                             uint16_t userFlags, nsCString& keywords,
+                             nsIImapFlagAndUidState *flagState);
   nsresult NotifyMessageFlagsFromHdr(nsIMsgDBHdr *dbHdr, nsMsgKey msgKey,
                                      uint32_t flags);
 

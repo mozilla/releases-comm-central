@@ -782,7 +782,7 @@ void nsImapServerResponseParser::mailbox_data()
     if (fGotPermanentFlags)
       skip_to_CRLF();
     else
-      parse_folder_flags();
+      parse_folder_flags(true);
   }
   else if (!PL_strcasecmp(fNextToken, "LIST") ||
            !PL_strcasecmp(fNextToken, "XLIST"))
@@ -1850,20 +1850,19 @@ void nsImapServerResponseParser::text()
   skip_to_CRLF();
 }
 
-void nsImapServerResponseParser::parse_folder_flags()
+void nsImapServerResponseParser::parse_folder_flags(bool calledForFlags)
 {
   uint16_t labelFlags = 0;
+  bool storeUserFlags = !(fSupportsUserDefinedFlags & kImapMsgSupportUserFlag) &&
+                        calledForFlags && fFlagState;
+  uint16_t numOtherKeywords = 0;
 
   do
   {
     AdvanceToNextToken();
     if (*fNextToken == '(')
       fNextToken++;
-    if (!PL_strncasecmp(fNextToken, "$MDNSent", 8))
-      fSupportsUserDefinedFlags |= kImapMsgSupportMDNSentFlag;
-    else if (!PL_strncasecmp(fNextToken, "$Forwarded", 10))
-      fSupportsUserDefinedFlags |= kImapMsgSupportForwardedFlag;
-    else if (!PL_strncasecmp(fNextToken, "\\Seen", 5))
+    if (!PL_strncasecmp(fNextToken, "\\Seen", 5))
       fSettablePermanentFlags |= kImapMsgSeenFlag;
     else if (!PL_strncasecmp(fNextToken, "\\Answered", 9))
       fSettablePermanentFlags |= kImapMsgAnsweredFlag;
@@ -1873,22 +1872,51 @@ void nsImapServerResponseParser::parse_folder_flags()
       fSettablePermanentFlags |= kImapMsgDeletedFlag;
     else if (!PL_strncasecmp(fNextToken, "\\Draft", 6))
       fSettablePermanentFlags |= kImapMsgDraftFlag;
-    else if (!PL_strncasecmp(fNextToken, "$Label1", 7))
-      labelFlags |= 1;
-    else if (!PL_strncasecmp(fNextToken, "$Label2", 7))
-      labelFlags |= 2;
-    else if (!PL_strncasecmp(fNextToken, "$Label3", 7))
-      labelFlags |= 4;
-    else if (!PL_strncasecmp(fNextToken, "$Label4", 7))
-      labelFlags |= 8;
-    else if (!PL_strncasecmp(fNextToken, "$Label5", 7))
-      labelFlags |= 16;
     else if (!PL_strncasecmp(fNextToken, "\\*", 2))
     {
+      // User defined and special keywords (tags) can be defined and set for
+      // mailbox. Should only occur in PERMANENTFLAGS response.
       fSupportsUserDefinedFlags |= kImapMsgSupportUserFlag;
       fSupportsUserDefinedFlags |= kImapMsgSupportForwardedFlag;
       fSupportsUserDefinedFlags |= kImapMsgSupportMDNSentFlag;
       fSupportsUserDefinedFlags |= kImapMsgLabelFlags;
+    }
+    else
+    {
+      // Treat special and built-in $LabelX's as user defined if a
+      // save occurs below.
+      if (!PL_strncasecmp(fNextToken, "$MDNSent", 8))
+        fSupportsUserDefinedFlags |= kImapMsgSupportMDNSentFlag;
+      else if (!PL_strncasecmp(fNextToken, "$Forwarded", 10))
+        fSupportsUserDefinedFlags |= kImapMsgSupportForwardedFlag;
+      else if (!PL_strncasecmp(fNextToken, "$Label1", 7))
+        labelFlags |= 1;
+      else if (!PL_strncasecmp(fNextToken, "$Label2", 7))
+        labelFlags |= 2;
+      else if (!PL_strncasecmp(fNextToken, "$Label3", 7))
+        labelFlags |= 4;
+      else if (!PL_strncasecmp(fNextToken, "$Label4", 7))
+        labelFlags |= 8;
+      else if (!PL_strncasecmp(fNextToken, "$Label5", 7))
+        labelFlags |= 16;
+
+      // Save user keywords defined for mailbox, usually by other clients.
+      // But only do this for FLAGS response, not PERMANENTFLAGS response
+      // and if '\*' has not appeared in a PERMANENTFLAGS response.
+      if (storeUserFlags && *fNextToken != '\r')
+      {
+        if (*(fNextToken + strlen(fNextToken) - 1) != ')')
+        {
+          // Token doesn't end in ')' so save it as is.
+          fFlagState->SetOtherKeywords(numOtherKeywords++, nsDependentCString(fNextToken));
+        }
+        else
+        {
+          // Token ends in ')' so end of list. Change ')' to null and save.
+          fFlagState->SetOtherKeywords(numOtherKeywords++,
+                                       nsDependentCSubstring(fNextToken, strlen(fNextToken) - 1));
+        }
+      }
     }
   } while (!fAtEndOfLine && ContinueParse());
 
@@ -1947,7 +1975,7 @@ void nsImapServerResponseParser::resp_text_code()
       uint32_t saveSettableFlags = fSettablePermanentFlags;
       fSupportsUserDefinedFlags = 0;  // assume no unless told
       fSettablePermanentFlags = 0;            // assume none, unless told otherwise.
-      parse_folder_flags();
+      parse_folder_flags(false);
       // if the server tells us there are no permanent flags, we're
       // just going to pretend that the FLAGS response flags, if any, are
       // permanent in case the server is broken. This will allow us

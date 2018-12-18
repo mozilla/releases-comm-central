@@ -137,7 +137,7 @@ protected:
   virtual void    resp_cond_state(bool isTagged);
   virtual void    text_mime2();
   virtual void    text();
-  virtual void    parse_folder_flags();
+  virtual void    parse_folder_flags(bool calledForFlags);
   virtual void    enable_data();
   virtual void    language_data();
   virtual void    authChallengeResponse_data();

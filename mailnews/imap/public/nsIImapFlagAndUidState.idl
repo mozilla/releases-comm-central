@@ -70,5 +70,7 @@ interface nsIImapFlagAndUidState : nsISupports
    */
   ACString getCustomAttribute(in unsigned long aUid,
                               in ACString aCustomAttributeName);
+  void setOtherKeywords(in unsigned short index, in AUTF8String otherKeyword);
+  AUTF8String getOtherKeywords(in unsigned short index);
 };
 
