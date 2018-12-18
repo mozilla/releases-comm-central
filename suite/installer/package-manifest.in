@@ -330,7 +330,6 @@
 
 ; [Extensions]
 @RESPATH@/components/extensions-toolkit.manifest
-@RESPATH@/components/extension-process-script.js
 
 ; [Browser Chrome Files]
 ; Browser: Hack to get built_in_addons.json packaged
