@@ -921,6 +921,18 @@ class TabManager extends TabManagerBase {
   }
 
   /**
+   * Determines access using extension context.
+   *
+   * @param {NativeTab} nativeTab
+   *        The tab to check access on.
+   * @returns {boolean}
+   *        True if the extension has permissions for this tab.
+   */
+  canAccessTab(nativeTab) {
+    return true;
+  }
+
+  /**
    * Returns a new Tab instance wrapping the given native tab info.
    *
    * @param {NativeTabInfo} nativeTabInfo       The native tab for which to return a wrapper.
