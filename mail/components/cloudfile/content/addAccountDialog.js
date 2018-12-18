@@ -183,9 +183,7 @@ var addAccountDialog = {
     this._settings.addEventListener("DOMContentLoaded", this);
     this._settings.addEventListener("overflow", this);
 
-    if (src.startsWith("moz-extension:")) {
-      ExtensionParent.apiManager.emit("extension-browser-inserted", frame);
-    }
+    ExtensionParent.apiManager.emit("extension-browser-inserted", frame);
 
     frame.setAttribute("src", src);
   },
