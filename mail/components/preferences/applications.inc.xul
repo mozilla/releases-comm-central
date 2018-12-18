@@ -3,8 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
   <prefpane id="paneApplications"
             label="&paneAttachments.title;"
-            onpaneload="gApplicationsTabController.init();"
-            flex="1">
+            onpaneload="gApplicationsTabController.init();">
 
     <script type="application/javascript">
     <![CDATA[

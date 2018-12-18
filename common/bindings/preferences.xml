@@ -875,11 +875,6 @@
                       bottomPadding = parseInt(window.getComputedStyle(bottomBox).paddingBottom);
                     window.innerHeight += bottomPadding + verticalPadding + aPaneElement.contentHeight - targetHeight;
                   }
-
-                  // XXX rstrong - extend the contents of the prefpane to
-                  // prevent elements from being cutoff (see bug 349098).
-                  if (aPaneElement.contentHeight + verticalPadding < targetHeight)
-                    aPaneElement._content.style.height = targetHeight - verticalPadding + "px";
                 }
               }
               break;
@@ -1160,11 +1155,6 @@
   </binding>
 
   <binding id="prefpane">
-    <content>
-      <xul:vbox class="content-box" xbl:inherits="flex">
-        <children/>
-      </xul:vbox>
-    </content>
     <implementation>
       <method name="writePreferences">
         <parameter name="aFlushToDisk"/>
@@ -1318,15 +1308,12 @@
 
       <property name="contentHeight">
         <getter>
-          var targetHeight = parseInt(window.getComputedStyle(this._content).height);
-          targetHeight += parseInt(window.getComputedStyle(this._content).marginTop);
-          targetHeight += parseInt(window.getComputedStyle(this._content).marginBottom);
+          var targetHeight = parseInt(window.getComputedStyle(this).height);
+          targetHeight += parseInt(window.getComputedStyle(this).marginTop);
+          targetHeight += parseInt(window.getComputedStyle(this).marginBottom);
           return targetHeight;
         </getter>
       </property>
-      <field name="_content">
-        document.getAnonymousElementByAttribute(this, "class", "content-box");
-      </field>
     </implementation>
     <handlers>
       <handler event="command">
