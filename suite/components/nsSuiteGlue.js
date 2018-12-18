@@ -1239,12 +1239,11 @@ SuiteGlue.prototype = {
   // public nsISuiteGlue members
   // ------------------------------
 
-  showDownloadManager: function(aDownload)
+  showDownloadManager: function(newDownload)
   {
     if (!gDownloadManager) {
       gDownloadManager = Services.ww.openWindow(null, DOWNLOAD_MANAGER_URL,
-                                                null, "all,dialog=no",
-                                                { wrappedJSObject: aDownload });
+                                                null, "all,dialog=no", null);
       gDownloadManager.addEventListener("load", function() {
         gDownloadManager.addEventListener("unload", function() {
           gDownloadManager = null;
@@ -1253,7 +1252,7 @@ SuiteGlue.prototype = {
         ChromeUtils.import("resource:///modules/DownloadsTaskbar.jsm", {})
                    .DownloadsTaskbar.attachIndicator(gDownloadManager);
       });
-    } else if (!aDownload ||
+    } else if (!newDownload ||
                Services.prefs.getBoolPref(PREF_FOCUS_WHEN_STARTING)) {
         gDownloadManager.focus();
     } else {

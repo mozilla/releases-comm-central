@@ -29,7 +29,7 @@ interface nsISuiteGlue : nsISupports
   /**
    * Opens the Download Manager.
    */
-  void showDownloadManager();
+  void showDownloadManager( [optional] in boolean newDownload );
 
   /**
    * Deletes privacy sensitive data according to user preferences
