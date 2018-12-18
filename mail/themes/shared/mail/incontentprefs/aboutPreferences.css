@@ -234,10 +234,6 @@ textbox + button {
   border-radius: 0 0 1px 1px;
 }
 
-.spinbuttons-button > .button-box {
-  padding: 1px 5px 2px !important;
-}
-
 .spinbuttons-up > .button-box > .button-icon {
   list-style-image: url("chrome://messenger/skin/icons/arrow/arrow-up.png");
 }

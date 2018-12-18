@@ -61,8 +61,8 @@ spinbuttons {
 }
 
 .spinbuttons-button > .button-box {
-  padding-inline-start: 2px !important;
-  padding-inline-end: 3px !important;
+  padding-inline-start: 8px;
+  padding-inline-end: 8px;
 }
 
 .spinbuttons-button > .button-box > .button-text {
