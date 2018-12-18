@@ -1242,8 +1242,14 @@ SuiteGlue.prototype = {
   showDownloadManager: function(newDownload)
   {
     if (!gDownloadManager) {
+      // Use an empty arguments string or the download manager window
+      // will miss the toolbar and other features.
+      var argString = Cc["@mozilla.org/supports-string;1"]
+                        .createInstance(Ci.nsISupportsString);
+      argString.data = "";
       gDownloadManager = Services.ww.openWindow(null, DOWNLOAD_MANAGER_URL,
-                                                null, "all,dialog=no", null);
+                                                null, "all,dialog=no",
+                                                argString);
       gDownloadManager.addEventListener("load", function() {
         gDownloadManager.addEventListener("unload", function() {
           gDownloadManager = null;
