@@ -388,369 +388,368 @@ function OnAddressBookDataChanged(aAction, aParentDir, aItem) {
  * as we display the message through our mime converter.
  */
 var messageHeaderSink = {
-    QueryInterface: ChromeUtils.generateQI(
-      [Ci.nsIMsgHeaderSink]),
-    onStartHeaders() {
-      this.mSaveHdr = null;
-      // Every time we start to redisplay a message, check the view all headers
-      // pref...
-      var showAllHeadersPref = Services.prefs.getIntPref("mail.show_headers");
-      if (showAllHeadersPref == 2) {
-        gViewAllHeaders = true;
-      } else {
-        if (gViewAllHeaders) {
-          // If we currently are in view all header mode, rebuild our header
-          // view so we remove most of the header data.
-          hideHeaderView(gExpandedHeaderView);
-          RemoveNewHeaderViews(gExpandedHeaderView);
-          gDummyHeaderIdIndex = 0;
-          gExpandedHeaderView = {};
-          initializeHeaderViewTables();
-        }
-
-        gViewAllHeaders = false;
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgHeaderSink]),
+  onStartHeaders() {
+    this.mSaveHdr = null;
+    // Every time we start to redisplay a message, check the view all headers
+    // pref...
+    var showAllHeadersPref = Services.prefs.getIntPref("mail.show_headers");
+    if (showAllHeadersPref == 2) {
+      gViewAllHeaders = true;
+    } else {
+      if (gViewAllHeaders) {
+        // If we currently are in view all header mode, rebuild our header
+        // view so we remove most of the header data.
+        hideHeaderView(gExpandedHeaderView);
+        RemoveNewHeaderViews(gExpandedHeaderView);
+        gDummyHeaderIdIndex = 0;
+        gExpandedHeaderView = {};
+        initializeHeaderViewTables();
       }
 
-      ClearCurrentHeaders();
-      gBuiltExpandedView = false;
-      gBuildAttachmentsForCurrentMsg = false;
-      ClearAttachmentList();
-      gMessageNotificationBar.clearMsgNotifications();
+      gViewAllHeaders = false;
+    }
 
-      for (let index in gMessageListeners)
-        gMessageListeners[index].onStartHeaders();
-    },
+    ClearCurrentHeaders();
+    gBuiltExpandedView = false;
+    gBuildAttachmentsForCurrentMsg = false;
+    ClearAttachmentList();
+    gMessageNotificationBar.clearMsgNotifications();
 
-    onEndHeaders() {
-      // Give add-ons a chance to modify currentHeaderData before it actually
-      // gets displayed.
-      for (let index in gMessageListeners)
-        if ("onBeforeShowHeaderPane" in gMessageListeners[index])
-          gMessageListeners[index].onBeforeShowHeaderPane();
+    for (let index in gMessageListeners)
+      gMessageListeners[index].onStartHeaders();
+  },
 
-      // Load feed web page if so configured. This entry point works for
-      // messagepane loads in 3pane folder tab, 3pane message tab, and the
-      // standalone message window.
-      if (!FeedMessageHandler.shouldShowSummary(gMessageDisplay.displayedMessage, false))
-        FeedMessageHandler.setContent(gMessageDisplay.displayedMessage, false);
+  onEndHeaders() {
+    // Give add-ons a chance to modify currentHeaderData before it actually
+    // gets displayed.
+    for (let index in gMessageListeners)
+      if ("onBeforeShowHeaderPane" in gMessageListeners[index])
+        gMessageListeners[index].onBeforeShowHeaderPane();
 
-      ShowMessageHeaderPane();
-      // WARNING: This is the ONLY routine inside of the message Header Sink
-      // that should trigger a reflow!
-      ClearHeaderView(gExpandedHeaderView);
+    // Load feed web page if so configured. This entry point works for
+    // messagepane loads in 3pane folder tab, 3pane message tab, and the
+    // standalone message window.
+    if (!FeedMessageHandler.shouldShowSummary(gMessageDisplay.displayedMessage, false))
+      FeedMessageHandler.setContent(gMessageDisplay.displayedMessage, false);
 
-      // Make sure there is a subject even if it's empty so we'll show the
-      // subject and the twisty.
-      EnsureSubjectValue();
+    ShowMessageHeaderPane();
+    // WARNING: This is the ONLY routine inside of the message Header Sink
+    // that should trigger a reflow!
+    ClearHeaderView(gExpandedHeaderView);
 
-      // Only update the expanded view if it's actually selected (an
-      // extension-provided panel could be visible instead) and needs updating.
-      if (document.getElementById("msgHeaderViewDeck").selectedIndex == 0 &&
-          !gBuiltExpandedView) {
-        UpdateExpandedMessageHeaders();
+    // Make sure there is a subject even if it's empty so we'll show the
+    // subject and the twisty.
+    EnsureSubjectValue();
+
+    // Only update the expanded view if it's actually selected (an
+    // extension-provided panel could be visible instead) and needs updating.
+    if (document.getElementById("msgHeaderViewDeck").selectedIndex == 0 &&
+        !gBuiltExpandedView) {
+      UpdateExpandedMessageHeaders();
+    }
+
+    gMessageNotificationBar.setDraftEditMessage();
+    UpdateJunkButton();
+
+    for (let index in gMessageListeners)
+      gMessageListeners[index].onEndHeaders();
+  },
+
+  processHeaders(headerNameEnumerator, headerValueEnumerator, dontCollectAddress) {
+    this.onStartHeaders();
+
+    const kMailboxSeparator = ", ";
+    var index = 0;
+    while (headerNameEnumerator.hasMore()) {
+      var header = {};
+      header.headerValue = headerValueEnumerator.getNext();
+      header.headerName = headerNameEnumerator.getNext();
+
+      // For consistency's sake, let us force all header names to be lower
+      // case so we don't have to worry about looking for: Cc and CC, etc.
+      var lowerCaseHeaderName = header.headerName.toLowerCase();
+
+      // If we have an x-mailer, x-mimeole, or x-newsreader string,
+      // put it in the user-agent slot which we know how to handle already.
+      if (/^x-(mailer|mimeole|newsreader)$/.test(lowerCaseHeaderName))
+        lowerCaseHeaderName = "user-agent";
+
+      if (this.mDummyMsgHeader) {
+        if (lowerCaseHeaderName == "from")
+          this.mDummyMsgHeader.author = header.headerValue;
+        else if (lowerCaseHeaderName == "to")
+          this.mDummyMsgHeader.recipients = header.headerValue;
+        else if (lowerCaseHeaderName == "cc")
+          this.mDummyMsgHeader.ccList = header.headerValue;
+        else if (lowerCaseHeaderName == "subject")
+          this.mDummyMsgHeader.subject = header.headerValue;
+        else if (lowerCaseHeaderName == "reply-to")
+          this.mDummyMsgHeader.replyTo = header.headerValue;
+        else if (lowerCaseHeaderName == "message-id")
+          this.mDummyMsgHeader.messageId = header.headerValue;
+        else if (lowerCaseHeaderName == "list-post")
+          this.mDummyMsgHeader.listPost = header.headerValue;
+        else if (lowerCaseHeaderName == "delivered-to")
+          this.mDummyMsgHeader.deliveredTo = header.headerValue;
+        else if (lowerCaseHeaderName == "date")
+          this.mDummyMsgHeader.date = Date.parse(header.headerValue) * 1000;
       }
-
-      gMessageNotificationBar.setDraftEditMessage();
-      UpdateJunkButton();
-
-      for (let index in gMessageListeners)
-        gMessageListeners[index].onEndHeaders();
-    },
-
-    processHeaders(headerNameEnumerator, headerValueEnumerator, dontCollectAddress) {
-      this.onStartHeaders();
-
-      const kMailboxSeparator = ", ";
-      var index = 0;
-      while (headerNameEnumerator.hasMore()) {
-        var header = {};
-        header.headerValue = headerValueEnumerator.getNext();
-        header.headerName = headerNameEnumerator.getNext();
-
-        // For consistency's sake, let us force all header names to be lower
-        // case so we don't have to worry about looking for: Cc and CC, etc.
-        var lowerCaseHeaderName = header.headerName.toLowerCase();
-
-        // If we have an x-mailer, x-mimeole, or x-newsreader string,
-        // put it in the user-agent slot which we know how to handle already.
-        if (/^x-(mailer|mimeole|newsreader)$/.test(lowerCaseHeaderName))
-          lowerCaseHeaderName = "user-agent";
-
-        if (this.mDummyMsgHeader) {
-          if (lowerCaseHeaderName == "from")
-            this.mDummyMsgHeader.author = header.headerValue;
-          else if (lowerCaseHeaderName == "to")
-            this.mDummyMsgHeader.recipients = header.headerValue;
-          else if (lowerCaseHeaderName == "cc")
-            this.mDummyMsgHeader.ccList = header.headerValue;
-          else if (lowerCaseHeaderName == "subject")
-            this.mDummyMsgHeader.subject = header.headerValue;
-          else if (lowerCaseHeaderName == "reply-to")
-            this.mDummyMsgHeader.replyTo = header.headerValue;
-          else if (lowerCaseHeaderName == "message-id")
-            this.mDummyMsgHeader.messageId = header.headerValue;
-          else if (lowerCaseHeaderName == "list-post")
-            this.mDummyMsgHeader.listPost = header.headerValue;
-          else if (lowerCaseHeaderName == "delivered-to")
-            this.mDummyMsgHeader.deliveredTo = header.headerValue;
-          else if (lowerCaseHeaderName == "date")
-            this.mDummyMsgHeader.date = Date.parse(header.headerValue) * 1000;
-        }
-        // according to RFC 2822, certain headers
-        // can occur "unlimited" times
-        if (lowerCaseHeaderName in currentHeaderData) {
-          // Sometimes, you can have multiple To or Cc lines....
-          // In this case, we want to append these headers into one.
-          if (lowerCaseHeaderName == "to" || lowerCaseHeaderName == "cc") {
-            currentHeaderData[lowerCaseHeaderName].headerValue =
-              currentHeaderData[lowerCaseHeaderName].headerValue + "," +
-                header.headerValue;
-          } else {
-            // Use the index to create a unique header name like:
-            // received5, received6, etc
-            currentHeaderData[lowerCaseHeaderName + index++] = header;
-          }
+      // according to RFC 2822, certain headers
+      // can occur "unlimited" times
+      if (lowerCaseHeaderName in currentHeaderData) {
+        // Sometimes, you can have multiple To or Cc lines....
+        // In this case, we want to append these headers into one.
+        if (lowerCaseHeaderName == "to" || lowerCaseHeaderName == "cc") {
+          currentHeaderData[lowerCaseHeaderName].headerValue =
+            currentHeaderData[lowerCaseHeaderName].headerValue + "," +
+              header.headerValue;
         } else {
-         currentHeaderData[lowerCaseHeaderName] = header;
+          // Use the index to create a unique header name like:
+          // received5, received6, etc
+          currentHeaderData[lowerCaseHeaderName + index++] = header;
         }
-      } // while we have more headers to parse
-
-      // Process message tags as if they were headers in the message.
-      SetTagHeader();
-
-      if (("from" in currentHeaderData) && ("sender" in currentHeaderData)) {
-        let senderMailbox = kMailboxSeparator +
-          MailServices.headerParser.extractHeaderAddressMailboxes(
-            currentHeaderData.sender.headerValue) + kMailboxSeparator;
-        let fromMailboxes = kMailboxSeparator +
-          MailServices.headerParser.extractHeaderAddressMailboxes(
-            currentHeaderData.from.headerValue) + kMailboxSeparator;
-        if (fromMailboxes.includes(senderMailbox))
-          delete currentHeaderData.sender;
+      } else {
+       currentHeaderData[lowerCaseHeaderName] = header;
       }
+    } // while we have more headers to parse
 
-      // We don't need to show the reply-to header if its value is either
-      // the From field (totally pointless) or the To field (common for
-      // mailing lists, but not that useful).
-      if (("from" in currentHeaderData) &&
-          ("to" in currentHeaderData) &&
-          ("reply-to" in currentHeaderData)) {
-        let replyToMailbox = MailServices.headerParser.extractHeaderAddressMailboxes(
-            currentHeaderData["reply-to"].headerValue);
-        let fromMailboxes = MailServices.headerParser.extractHeaderAddressMailboxes(
-            currentHeaderData.from.headerValue);
-        let toMailboxes = MailServices.headerParser.extractHeaderAddressMailboxes(
-            currentHeaderData.to.headerValue);
+    // Process message tags as if they were headers in the message.
+    SetTagHeader();
 
-        if (replyToMailbox == fromMailboxes || replyToMailbox == toMailboxes)
-          delete currentHeaderData["reply-to"];
-      }
+    if (("from" in currentHeaderData) && ("sender" in currentHeaderData)) {
+      let senderMailbox = kMailboxSeparator +
+        MailServices.headerParser.extractHeaderAddressMailboxes(
+          currentHeaderData.sender.headerValue) + kMailboxSeparator;
+      let fromMailboxes = kMailboxSeparator +
+        MailServices.headerParser.extractHeaderAddressMailboxes(
+          currentHeaderData.from.headerValue) + kMailboxSeparator;
+      if (fromMailboxes.includes(senderMailbox))
+        delete currentHeaderData.sender;
+    }
 
-      // For content-base urls stored uri encoded, we want to decode for
-      // display (and encode for external link open).
-      if ("content-base" in currentHeaderData) {
-        currentHeaderData["content-base"].headerValue =
-          decodeURI(currentHeaderData["content-base"].headerValue);
-      }
+    // We don't need to show the reply-to header if its value is either
+    // the From field (totally pointless) or the To field (common for
+    // mailing lists, but not that useful).
+    if (("from" in currentHeaderData) &&
+        ("to" in currentHeaderData) &&
+        ("reply-to" in currentHeaderData)) {
+      let replyToMailbox = MailServices.headerParser.extractHeaderAddressMailboxes(
+          currentHeaderData["reply-to"].headerValue);
+      let fromMailboxes = MailServices.headerParser.extractHeaderAddressMailboxes(
+          currentHeaderData.from.headerValue);
+      let toMailboxes = MailServices.headerParser.extractHeaderAddressMailboxes(
+          currentHeaderData.to.headerValue);
 
-      let expandedfromLabel = document.getElementById("expandedfromLabel");
-      if (gFolderDisplay.selectedMessageIsFeed)
-        expandedfromLabel.value = expandedfromLabel.getAttribute("valueAuthor");
-      else
-        expandedfromLabel.value = expandedfromLabel.getAttribute("valueFrom");
+      if (replyToMailbox == fromMailboxes || replyToMailbox == toMailboxes)
+        delete currentHeaderData["reply-to"];
+    }
 
-      this.onEndHeaders();
-    },
+    // For content-base urls stored uri encoded, we want to decode for
+    // display (and encode for external link open).
+    if ("content-base" in currentHeaderData) {
+      currentHeaderData["content-base"].headerValue =
+        decodeURI(currentHeaderData["content-base"].headerValue);
+    }
 
-    handleAttachment(contentType, url, displayName, uri, isExternalAttachment) {
-      this.skipAttachment = true;
+    let expandedfromLabel = document.getElementById("expandedfromLabel");
+    if (gFolderDisplay.selectedMessageIsFeed)
+      expandedfromLabel.value = expandedfromLabel.getAttribute("valueAuthor");
+    else
+      expandedfromLabel.value = expandedfromLabel.getAttribute("valueFrom");
 
-      // Don't show vcards as external attachments in the UI. libmime already
-      // renders them inline.
-      if (!this.mSaveHdr)
-        this.mSaveHdr = messenger.messageServiceFromURI(uri)
-                                 .messageURIToMsgHdr(uri);
-      if (contentType == "text/x-vcard") {
-        var inlineAttachments = Services.prefs.getBoolPref("mail.inline_attachments");
-        var displayHtmlAs = Services.prefs.getIntPref("mailnews.display.html_as");
-        if (inlineAttachments && !displayHtmlAs)
-          return;
-      }
+    this.onEndHeaders();
+  },
 
-      var size = null;
-      if (isExternalAttachment && url.startsWith("file:")) {
-        let fileHandler = Services.io.getProtocolHandler("file")
-          .QueryInterface(Ci.nsIFileProtocolHandler);
-        try {
-          let file = fileHandler.getFileFromURLSpec(url);
-          // Can't get size for detached attachments which are no longer
-          // available on the specified location.
-          if (file.exists())
-            size = file.fileSize;
-        } catch (e) {
-          Cu.reportError("Couldn't open external attachment; " +
-                         "url=" + url + "; " + e);
-        }
-      }
+  handleAttachment(contentType, url, displayName, uri, isExternalAttachment) {
+    this.skipAttachment = true;
 
-      currentAttachments.push(new AttachmentInfo(contentType, url, displayName,
-                                                 uri, isExternalAttachment,
-                                                 size));
-      this.skipAttachment = false;
-
-      // If we have an attachment, set the nsMsgMessageFlags.Attachment flag
-      // on the hdr to cause the "message with attachment" icon to show up
-      // in the thread pane.
-      // We only need to do this on the first attachment.
-      var numAttachments = currentAttachments.length;
-      if (numAttachments == 1) {
-        // We also have to enable the Message/Attachments menuitem.
-        var node = document.getElementById("msgAttachmentMenu");
-        if (node)
-          node.removeAttribute("disabled");
-
-        // convert the uri into a hdr
-        this.mSaveHdr.markHasAttachments(true);
-        // we also do the same on appmenu
-        let appmenunode = document.getElementById("appmenu_msgAttachmentMenu");
-        if (appmenunode)
-          appmenunode.removeAttribute("disabled");
-
-        // convert the uri into a hdr
-        this.mSaveHdr.markHasAttachments(true);
-      }
-    },
-
-    addAttachmentField(field, value) {
-      if (this.skipAttachment)
+    // Don't show vcards as external attachments in the UI. libmime already
+    // renders them inline.
+    if (!this.mSaveHdr)
+      this.mSaveHdr = messenger.messageServiceFromURI(uri)
+                               .messageURIToMsgHdr(uri);
+    if (contentType == "text/x-vcard") {
+      var inlineAttachments = Services.prefs.getBoolPref("mail.inline_attachments");
+      var displayHtmlAs = Services.prefs.getIntPref("mailnews.display.html_as");
+      if (inlineAttachments && !displayHtmlAs)
         return;
+    }
 
-      let last = currentAttachments[currentAttachments.length - 1];
-      if (field == "X-Mozilla-PartSize" && !last.url.startsWith("file") &&
-          !last.isDeleted) {
-        let size = parseInt(value);
-
-        if (last.isExternalAttachment && last.url.startsWith("http")) {
-          // Check if an external link attachment's reported size is sane.
-          // A size of < 2 isn't sensical so ignore such placeholder values.
-          // Don't accept a size with any non numerics. Also cap the number.
-          if (isNaN(size) || size.toString().length != value.length || size < 2)
-            size = -1;
-          if (size > Number.MAX_SAFE_INTEGER)
-            size = Number.MAX_SAFE_INTEGER;
-        }
-
-        // libmime returns -1 if it never managed to figure out the size.
-        if (size != -1)
-          last.size = size;
-      } else if (field == "X-Mozilla-PartDownloaded" && value == "0") {
-        // We haven't downloaded the attachment, so any size we get from
-        // libmime is almost certainly inaccurate. Just get rid of it. (Note:
-        // this relies on the fact that PartDownloaded comes after PartSize from
-        // the MIME emitter.)
-        last.size = null;
+    var size = null;
+    if (isExternalAttachment && url.startsWith("file:")) {
+      let fileHandler = Services.io.getProtocolHandler("file")
+        .QueryInterface(Ci.nsIFileProtocolHandler);
+      try {
+        let file = fileHandler.getFileFromURLSpec(url);
+        // Can't get size for detached attachments which are no longer
+        // available on the specified location.
+        if (file.exists())
+          size = file.fileSize;
+      } catch (e) {
+        Cu.reportError("Couldn't open external attachment; " +
+                       "url=" + url + "; " + e);
       }
-    },
+    }
 
-    onEndAllAttachments() {
-      displayAttachmentsForExpandedView();
+    currentAttachments.push(new AttachmentInfo(contentType, url, displayName,
+                                               uri, isExternalAttachment,
+                                               size));
+    this.skipAttachment = false;
 
-      for (let listener of gMessageListeners) {
-        if ("onEndAttachments" in listener)
-          listener.onEndAttachments();
+    // If we have an attachment, set the nsMsgMessageFlags.Attachment flag
+    // on the hdr to cause the "message with attachment" icon to show up
+    // in the thread pane.
+    // We only need to do this on the first attachment.
+    var numAttachments = currentAttachments.length;
+    if (numAttachments == 1) {
+      // We also have to enable the Message/Attachments menuitem.
+      var node = document.getElementById("msgAttachmentMenu");
+      if (node)
+        node.removeAttribute("disabled");
+
+      // convert the uri into a hdr
+      this.mSaveHdr.markHasAttachments(true);
+      // we also do the same on appmenu
+      let appmenunode = document.getElementById("appmenu_msgAttachmentMenu");
+      if (appmenunode)
+        appmenunode.removeAttribute("disabled");
+
+      // convert the uri into a hdr
+      this.mSaveHdr.markHasAttachments(true);
+    }
+  },
+
+  addAttachmentField(field, value) {
+    if (this.skipAttachment)
+      return;
+
+    let last = currentAttachments[currentAttachments.length - 1];
+    if (field == "X-Mozilla-PartSize" && !last.url.startsWith("file") &&
+        !last.isDeleted) {
+      let size = parseInt(value);
+
+      if (last.isExternalAttachment && last.url.startsWith("http")) {
+        // Check if an external link attachment's reported size is sane.
+        // A size of < 2 isn't sensical so ignore such placeholder values.
+        // Don't accept a size with any non numerics. Also cap the number.
+        if (isNaN(size) || size.toString().length != value.length || size < 2)
+          size = -1;
+        if (size > Number.MAX_SAFE_INTEGER)
+          size = Number.MAX_SAFE_INTEGER;
       }
-    },
 
-    /**
-     * This event is generated by nsMsgStatusFeedback when it gets an
-     * OnStateChange event for STATE_STOP.  This is the same event that
-     * generates the "msgLoaded" property flag change event.  This best
-     * corresponds to the end of the streaming process.
-     */
-    onEndMsgDownload(url) {
-      gMessageDisplay.onLoadCompleted();
+      // libmime returns -1 if it never managed to figure out the size.
+      if (size != -1)
+        last.size = size;
+    } else if (field == "X-Mozilla-PartDownloaded" && value == "0") {
+      // We haven't downloaded the attachment, so any size we get from
+      // libmime is almost certainly inaccurate. Just get rid of it. (Note:
+      // this relies on the fact that PartDownloaded comes after PartSize from
+      // the MIME emitter.)
+      last.size = null;
+    }
+  },
 
-      let expanded = Services.prefs.getBoolPref(
-        "mailnews.attachments.display.start_expanded");
+  onEndAllAttachments() {
+    displayAttachmentsForExpandedView();
 
-      if (expanded)
-        toggleAttachmentList(true);
+    for (let listener of gMessageListeners) {
+      if ("onEndAttachments" in listener)
+        listener.onEndAttachments();
+    }
+  },
 
-      // if we don't have any attachments, turn off the attachments flag
-      if (!this.mSaveHdr) {
-        var messageUrl = url.QueryInterface(Ci.nsIMsgMessageUrl);
-        this.mSaveHdr = messenger.msgHdrFromURI(messageUrl.uri);
-      }
-      if (!currentAttachments.length && this.mSaveHdr)
-        this.mSaveHdr.markHasAttachments(false);
+  /**
+   * This event is generated by nsMsgStatusFeedback when it gets an
+   * OnStateChange event for STATE_STOP.  This is the same event that
+   * generates the "msgLoaded" property flag change event.  This best
+   * corresponds to the end of the streaming process.
+   */
+  onEndMsgDownload(url) {
+    gMessageDisplay.onLoadCompleted();
 
-      let browser = getBrowser();
-      if (currentAttachments.length &&
-          Services.prefs.getBoolPref("mail.inline_attachments") &&
-          this.mSaveHdr && gFolderDisplay.selectedMessageIsFeed &&
-          browser && browser.contentDocument && browser.contentDocument.body) {
-        for (let img of browser.contentDocument.body.getElementsByClassName("moz-attached-image")) {
-          for (let attachment of currentAttachments) {
-            let partID = img.src.split("&part=")[1];
-            partID = partID ? partID.split("&")[0] : null;
-            if (attachment.partID && partID == attachment.partID) {
-              img.src = attachment.url;
-              break;
-            }
+    let expanded = Services.prefs.getBoolPref(
+      "mailnews.attachments.display.start_expanded");
+
+    if (expanded)
+      toggleAttachmentList(true);
+
+    // if we don't have any attachments, turn off the attachments flag
+    if (!this.mSaveHdr) {
+      var messageUrl = url.QueryInterface(Ci.nsIMsgMessageUrl);
+      this.mSaveHdr = messenger.msgHdrFromURI(messageUrl.uri);
+    }
+    if (!currentAttachments.length && this.mSaveHdr)
+      this.mSaveHdr.markHasAttachments(false);
+
+    let browser = getBrowser();
+    if (currentAttachments.length &&
+        Services.prefs.getBoolPref("mail.inline_attachments") &&
+        this.mSaveHdr && gFolderDisplay.selectedMessageIsFeed &&
+        browser && browser.contentDocument && browser.contentDocument.body) {
+      for (let img of browser.contentDocument.body.getElementsByClassName("moz-attached-image")) {
+        for (let attachment of currentAttachments) {
+          let partID = img.src.split("&part=")[1];
+          partID = partID ? partID.split("&")[0] : null;
+          if (attachment.partID && partID == attachment.partID) {
+            img.src = attachment.url;
+            break;
           }
-
-          img.addEventListener("load", function(event) {
-            if (this.clientWidth > this.parentNode.clientWidth) {
-              img.setAttribute("overflowing", "true");
-              img.setAttribute("shrinktofit", "true");
-            }
-          });
         }
+
+        img.addEventListener("load", function(event) {
+          if (this.clientWidth > this.parentNode.clientWidth) {
+            img.setAttribute("overflowing", "true");
+            img.setAttribute("shrinktofit", "true");
+          }
+        });
       }
+    }
 
-      OnMsgParsed(url);
-    },
+    OnMsgParsed(url);
+  },
 
-    onEndMsgHeaders(url) {
-      OnMsgLoaded(url);
-    },
+  onEndMsgHeaders(url) {
+    OnMsgLoaded(url);
+  },
 
-    onMsgHasRemoteContent(aMsgHdr, aContentURI, aCanOverride) {
-      gMessageNotificationBar.setRemoteContentMsg(aMsgHdr, aContentURI, aCanOverride);
-    },
+  onMsgHasRemoteContent(aMsgHdr, aContentURI, aCanOverride) {
+    gMessageNotificationBar.setRemoteContentMsg(aMsgHdr, aContentURI, aCanOverride);
+  },
 
-    mSecurityInfo: null,
-    mSaveHdr: null,
-    get securityInfo() {
-      return this.mSecurityInfo;
-    },
-    set securityInfo(aSecurityInfo) {
-      this.mSecurityInfo = aSecurityInfo;
-    },
+  mSecurityInfo: null,
+  mSaveHdr: null,
+  get securityInfo() {
+    return this.mSecurityInfo;
+  },
+  set securityInfo(aSecurityInfo) {
+    this.mSecurityInfo = aSecurityInfo;
+  },
 
-    mDummyMsgHeader: null,
+  mDummyMsgHeader: null,
 
-    get dummyMsgHeader() {
-      if (!this.mDummyMsgHeader)
-        this.mDummyMsgHeader = new nsDummyMsgHeader();
-      // The URI resolution will never work on the dummy header;
-      // save it now... we know it will be needed eventually.
-      // (And save it every time we come through here, not just when
-      // we create it; the onStartHeaders might come after creation!)
-      this.mSaveHdr = this.mDummyMsgHeader;
-      return this.mDummyMsgHeader;
-    },
-    mProperties: null,
-    get properties() {
-      if (!this.mProperties)
-        this.mProperties = Cc["@mozilla.org/hash-property-bag;1"].
-          createInstance(Ci.nsIWritablePropertyBag2);
-      return this.mProperties;
-    },
+  get dummyMsgHeader() {
+    if (!this.mDummyMsgHeader)
+      this.mDummyMsgHeader = new nsDummyMsgHeader();
+    // The URI resolution will never work on the dummy header;
+    // save it now... we know it will be needed eventually.
+    // (And save it every time we come through here, not just when
+    // we create it; the onStartHeaders might come after creation!)
+    this.mSaveHdr = this.mDummyMsgHeader;
+    return this.mDummyMsgHeader;
+  },
+  mProperties: null,
+  get properties() {
+    if (!this.mProperties)
+      this.mProperties = Cc["@mozilla.org/hash-property-bag;1"].
+        createInstance(Ci.nsIWritablePropertyBag2);
+    return this.mProperties;
+  },
 
-    resetProperties() {
-      this.mProperties = null;
-    },
+  resetProperties() {
+    this.mProperties = null;
+  },
 };
 
 function SetTagHeader() {
