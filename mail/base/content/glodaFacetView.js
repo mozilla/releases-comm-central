@@ -16,6 +16,7 @@ var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js", nul
 ChromeUtils.import("resource:///modules/StringBundle.js");
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {
   logObject,
   logException,
@@ -29,6 +30,85 @@ var {
 
 var glodaFacetStrings =
   new StringBundle("chrome://messenger/locale/glodaFacetView.properties");
+
+/**
+ * Object containing query-explanantion binding methods.
+ */
+const QueryExplanation = {
+  get node() {
+    return document.getElementById("query-explanation");
+  },
+  /**
+   * Indicate that we are based on a fulltext search
+   */
+  setFulltext(aMsgSearcher) {
+    while (this.node.hasChildNodes()) {
+      this.node.lastChild.remove();
+    }
+
+    const spanify = (text, classNames) => {
+      const span = document.createElement("span");
+      span.setAttribute("class", classNames);
+      span.textContent = text;
+      this.node.appendChild(span);
+      return span;
+    };
+
+    const searchLabel = glodaFacetStrings.get("glodaFacetView.search.label");
+    spanify(searchLabel, "explanation-fulltext-label");
+
+    const criteriaText = glodaFacetStrings.get(
+      "glodaFacetView.constraints.query.fulltext." +
+      (aMsgSearcher.andTerms ? "and" : "or") + "JoinWord");
+    for (let [iTerm, term] of aMsgSearcher.fulltextTerms.entries()) {
+      if (iTerm)
+        spanify(criteriaText, "explanation-fulltext-criteria");
+      spanify(term, "explanation-fulltext-term");
+    }
+  },
+  setQuery(msgQuery) {
+    try {
+      while (this.node.hasChildNodes()) {
+        this.node.lastChild.remove();
+      }
+
+      const spanify = (text, classNames) => {
+        const span = document.createElement("span");
+        span.setAttribute("class", classNames);
+        span.textContent = text;
+        this.node.appendChild(span);
+        return span;
+      };
+
+      let label = glodaFacetStrings.get("glodaFacetView.search.label");
+      spanify(label, "explanation-query-label");
+
+      let constraintStrings = [];
+      for (let constraint of msgQuery._constraints) {
+        if (constraint[0] != 1) return; // no idea what this is about
+        if (constraint[1].attributeName == "involves") {
+          let involvesLabel = glodaFacetStrings.get(
+            "glodaFacetView.constraints.query.involves.label");
+          involvesLabel = involvesLabel.replace("#1", constraint[2].value);
+          spanify(involvesLabel, "explanation-query-involves");
+        } else if (constraint[1].attributeName == "tag") {
+          const tagLabel = glodaFacetStrings.get(
+            "glodaFacetView.constraints.query.tagged.label");
+          const tag = constraint[2];
+          const tagNode = document.createElement("span");
+          const colorClass = "blc-" + MailServices.tags.getColorForKey(tag.key).substr(1);
+          tagNode.setAttribute("class", "message-tag tag " + colorClass);
+          tagNode.textContent = tag.tag;
+          spanify(tagLabel, "explanation-query-tagged");
+          this.node.appendChild(tagNode);
+        }
+      }
+      label = label + constraintStrings.join(", "); // XXX l10n?
+    } catch (e) {
+      logException(e);
+    }
+  },
+};
 
 /**
  * Represents the active constraints on a singular facet.  Singular facets can
@@ -351,11 +431,10 @@ var FacetContext = {
   },
 
   initialBuild() {
-    let queryExplanation = document.getElementById("query-explanation");
     if (this.searcher)
-      queryExplanation.setFulltext(this.searcher);
+      QueryExplanation.setFulltext(this.searcher);
     else
-      queryExplanation.setQuery(this.collection.query);
+      QueryExplanation.setQuery(this.collection.query);
     // we like to sort them so should clone the list
     this.faceters = this.facetDriver.faceters.concat();
 
