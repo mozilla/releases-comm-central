@@ -286,17 +286,17 @@ html[dir="rtl"] .date-vis-frame {
   font-size: 90%;
 }
 
-.facetious[type="boolean"][disabled] {
+facet-boolean[disabled] {
   opacity: 0.6;
 }
 
-.facetious[type="boolean"][disabled] > .facet-checkbox-bubble,
-.facetious[type="boolean-filtered"][disabled] > .facet-checkbox-bubble {
+facet-boolean[disabled] > .facet-checkbox-bubble,
+facet-boolean-filtered[disabled] > .facet-checkbox-bubble {
   cursor: default;
 }
 
-.facetious[type="boolean"]:not([disabled]):hover > .facet-checkbox-bubble,
-.facetious[type="boolean-filtered"]:not([disabled]):hover > .facet-checkbox-bubble {
+facet-boolean:not([disabled]):hover > .facet-checkbox-bubble,
+facet-boolean-filtered:not([disabled]):hover > .facet-checkbox-bubble {
   background-color: Highlight;
   color: HighlightText;
 }
@@ -321,7 +321,7 @@ html[dir="rtl"] .date-vis-frame {
 
 /* === Boolean Filtered === */
 
-.facetious[type="boolean-filtered"]:not([checked]) > .facet-filter-list {
+facet-boolean-filtered:not([checked]) > .facet-filter-list {
   display: none
 }
 

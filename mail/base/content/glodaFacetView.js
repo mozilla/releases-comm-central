@@ -123,14 +123,25 @@ const UIFacets = {
     }
   },
   addFacet(type, attrDef, args) {
-    let facet = document.createElement("div");
+    let facet;
+
+    if (type === "boolean") {
+      facet = document.createElement("facet-boolean");
+    } else if (type === "boolean-filtered") {
+      facet = document.createElement("facet-boolean-filtered");
+    } else {
+      facet = document.createElement("div");
+      facet.setAttribute("class", "facetious");
+      facet.setAttribute("type", type);
+    }
+
     facet.attrDef = attrDef;
     facet.nounDef = attrDef.objectNounDef;
+
     for (let key in args) {
       facet[key] = args[key];
     }
-    facet.setAttribute("class", "facetious");
-    facet.setAttribute("type", type);
+
     facet.setAttribute("name", attrDef.attributeName);
     this.node.appendChild(facet);
 

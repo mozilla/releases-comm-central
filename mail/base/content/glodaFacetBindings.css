@@ -6,14 +6,6 @@
   -moz-binding: url('chrome://messenger/content/glodaFacetBindings.xml#facet-discrete');
 }
 
-.facetious[type="boolean"] {
-  -moz-binding: url('chrome://messenger/content/glodaFacetBindings.xml#facet-boolean');
-}
-
-.facetious[type="boolean-filtered"] {
-  -moz-binding: url('chrome://messenger/content/glodaFacetBindings.xml#facet-boolean-filtered');
-}
-
 .results[type="message"] {
   -moz-binding: url('chrome://messenger/content/glodaFacetBindings.xml#results-message');
 }
