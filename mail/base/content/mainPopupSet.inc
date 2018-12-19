@@ -1204,7 +1204,7 @@
                              window.getSelection().toString());"/>
     <menuitem id="createFilterFromMenuItem" label="&CreateFilterFrom.label;"
               accesskey="&CreateFilterFrom.accesskey;"
-              oncommand="CreateFilter(this.parentNode.triggerNode.parentNode, gMessageDisplay.displayedMessage)"
+              oncommand="CreateFilter(document.popupNode, gMessageDisplay.displayedMessage)"
               observes="cmd_createFilterFromPopup"/>
   </menupopup>
   <!-- "Please keep all items and separators up to date in nsContextMenu.js when making changes here" -->

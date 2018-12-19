@@ -165,7 +165,10 @@ function createHeaderEntry(prefix, headerListInfo) {
   // later attach it to any <mail-emailaddress> tags it creates for later
   // extraction and use by UpdateEmailNodeDetails.
   this.enclosingBox.headerName = headerListInfo.name;
-
+  // Set the headerName attribute for the value nodes too.
+  this.enclosingBox.querySelectorAll(".headerValue").forEach(e => {
+    e.setAttribute("headerName", headerListInfo.name);
+  });
 }
 
 function initializeHeaderViewTables() {
@@ -1587,19 +1590,26 @@ function CopyEmailNewsAddress(addressNode, aIncludeName = false) {
  * Causes the filter dialog to pop up, prefilled for the specified e-mail
  * address or header value.
  *
- * @param aHeaderNode  A node which has an "emailAddress" attribute
- *                     or a "headerName" attribute.
+ * @param aHeaderNode  Node for which to create the filter. This can be a node
+ *                     in an mail-emailaddress element, or a node with just
+ *                     textual data, like Subject or Date.
  * @param aMessage     Optional nsIMsgHdr of the message from which the values
  *                     are taken. Will be used to preselect its folder in the
  *                     filter list.
  */
 function CreateFilter(aHeaderNode, aMessage) {
-  aHeaderNode = aHeaderNode.closest("mail-emailaddress");
-  let nodeIsAddress = aHeaderNode.hasAttribute("emailAddress");
-  let nodeValue = nodeIsAddress ? aHeaderNode.getAttribute("emailAddress") :
-                                  aHeaderNode.textContent;
+  let addressNode = aHeaderNode.closest("mail-emailaddress");
+  let value;
+  let name;
+  if (addressNode) {
+    name = addressNode.getAttribute("headerName");
+    value = addressNode.getAttribute("emailAddress");
+  } else {
+    name = aHeaderNode.getAttribute("headerName");
+    value = aHeaderNode.textContent;
+  }
   let folder = aMessage ? aMessage.folder : null;
-  top.MsgFilters(nodeValue, folder, aHeaderNode.getAttribute("headerName"));
+  top.MsgFilters(value, folder, name);
 }
 
 /**
