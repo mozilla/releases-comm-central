@@ -40,6 +40,7 @@ jobs:
     - deb7-python-zstandard
     - deb7-python3-defaults
     - deb7-python3.5
+    - deb7-sqlite3
     - deb7-valgrind
     - deb7-wayland
     - deb7-xz-utils
