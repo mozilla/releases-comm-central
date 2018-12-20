@@ -71,6 +71,7 @@ function testUTF8() {
         event.keypress(null, "VK_ESCAPE", {});
     });
 }
+testUTF8.EXCLUDED_PLATFORMS = ["darwin"];
 
 function teardownTest(module) {
     deleteCalendars(controller, UTF8STRING);

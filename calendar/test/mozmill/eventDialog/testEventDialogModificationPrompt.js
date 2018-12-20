@@ -142,6 +142,7 @@ function testEventDialogModificationPrompt() {
         controller.waitForElementNotPresent(eventbox);
     }
 }
+testEventDialogModificationPrompt.EXCLUDED_PLATFORMS = ["darwin"];
 
 function teardownTest(module) {
     deleteCalendars(controller, CALENDARNAME);
