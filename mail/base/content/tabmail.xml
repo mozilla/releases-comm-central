@@ -979,12 +979,11 @@
           tabNode.dispatchEvent(evt);
 
           return aIndex;
-         ]]>
-         </body>
-       </method>
-       <method name="persistTab">
-         <parameter name="tab"/>
-         <body><![CDATA[
+        ]]></body>
+      </method>
+      <method name="persistTab">
+        <parameter name="tab"/>
+        <body><![CDATA[
            /* Returns null in case persist fails */
 
            let persistFunc = tab.mode.persistTab || tab.mode.tabType.persistTab;
@@ -1625,21 +1624,21 @@
       <method name="onEvent">
         <parameter name="aEvent"/>
         <body>
-           <![CDATA[
-             let tab = this.currentTabInfo;
+          <![CDATA[
+            let tab = this.currentTabInfo;
 
-             // This can happen if we're starting up and haven't got a tab
-             // loaded yet.
-             if (!tab)
-               return null;
+            // This can happen if we're starting up and haven't got a tab
+            // loaded yet.
+            if (!tab)
+              return null;
 
-             let onEventFunc = tab.mode.onEvent ||
-                               tab.mode.tabType.onEvent;
-             if (onEventFunc)
-               return onEventFunc.call(tab.mode.tabType, aEvent, tab);
+            let onEventFunc = tab.mode.onEvent ||
+                              tab.mode.tabType.onEvent;
+            if (onEventFunc)
+              return onEventFunc.call(tab.mode.tabType, aEvent, tab);
 
-             return false;
-           ]]>
+            return false;
+          ]]>
         </body>
       </method>
       <!-- Set the document title based on the tab title -->
@@ -1668,7 +1667,7 @@
         <body>
           <![CDATA[
             this.mTabsProgressListeners.add(aListener);
-           ]]>
+          ]]>
         </body>
       </method>
       <method name="removeTabsProgressListener">
@@ -1676,7 +1675,7 @@
         <body>
           <![CDATA[
             this.mTabsProgressListeners.delete(aListener);
-           ]]>
+          ]]>
         </body>
       </method>
       <method name="_callTabListeners">
@@ -1693,7 +1692,7 @@
                 }
               }
             }
-           ]]>
+          ]]>
         </body>
       </method>
       <method name="onProgressChange">
