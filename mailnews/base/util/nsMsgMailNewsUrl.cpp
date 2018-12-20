@@ -85,9 +85,29 @@ NS_INTERFACE_MAP_BEGIN(nsMsgMailNewsUrl)
   NS_INTERFACE_MAP_ENTRY(nsIURI)
   NS_INTERFACE_MAP_ENTRY(nsISerializable)
   NS_INTERFACE_MAP_ENTRY(nsIClassInfo)
+  NS_INTERFACE_MAP_ENTRY(nsIIPCSerializableURI)
   NS_INTERFACE_MAP_ENTRY_CONDITIONAL(nsIURIWithSpecialOrigin, m_hasNormalizedOrigin)
 NS_INTERFACE_MAP_END
 
+//--------------------------
+// Support for serialization
+//--------------------------
+// nsMsgMailNewsUrl is only partly serialized by serializing the "base URL"
+// which is an nsStandardURL, or by only serializing the Spec. This may
+// cause problems in the future. See bug 1512356 and bug 1515337 for details,
+// follow-up in bug 1512698.
+
+//----------------------------------
+// Support for nsIIPCSerializableURI
+//----------------------------------
+void nsMsgMailNewsUrl::Serialize(mozilla::ipc::URIParams &aParams) {
+  nsCOMPtr<nsIIPCSerializableURI> serializable = do_QueryInterface(m_baseURL);
+  return serializable->Serialize(aParams);
+}
+
+//----------------------------
+// Support for nsISerializable
+//----------------------------
 NS_IMETHODIMP nsMsgMailNewsUrl::Read(nsIObjectInputStream *stream) {
   nsAutoCString urlstr;
   nsresult rv = NS_ReadOptionalCString(stream, urlstr);
@@ -109,6 +129,9 @@ NS_IMETHODIMP nsMsgMailNewsUrl::Write(nsIObjectOutputStream *stream) {
   return NS_WriteOptionalStringZ(stream, urlstr.get());
 }
 
+//-------------------------
+// Support for nsIClassInfo
+//-------------------------
 NS_IMETHODIMP nsMsgMailNewsUrl::GetInterfaces(uint32_t *count, nsIID ***array) {
   *count = 0;
   *array = nullptr;
@@ -146,7 +169,9 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetClassIDNoAlloc(nsCID *aClassIDNoAlloc) {
   return NS_OK;
 }
 
-// Support for nsIURIWithSpecialOrigin.
+//------------------------------------
+// Support for nsIURIWithSpecialOrigin
+//------------------------------------
 NS_IMETHODIMP nsMsgMailNewsUrl::GetOrigin(nsIURI **aOrigin)
 {
   MOZ_ASSERT(m_hasNormalizedOrigin,

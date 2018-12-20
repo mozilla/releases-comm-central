@@ -28,6 +28,7 @@
 #include "nsIURIMutator.h"
 #include "nsISerializable.h"
 #include "nsIClassInfo.h"
+#include "nsIIPCSerializableURI.h"
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Okay, I found that all of the mail and news url interfaces needed to support
@@ -43,7 +44,8 @@
 class NS_MSG_BASE nsMsgMailNewsUrl : public nsIMsgMailNewsUrl,
                                      public nsIURIWithSpecialOrigin,
                                      public nsISerializable,
-                                     public nsIClassInfo
+                                     public nsIClassInfo,
+                                     public nsIIPCSerializableURI
 {
 public:
     nsMsgMailNewsUrl();
@@ -55,6 +57,7 @@ public:
     NS_DECL_NSIURIWITHSPECIALORIGIN
     NS_DECL_NSISERIALIZABLE
     NS_DECL_NSICLASSINFO
+    NS_DECL_NSIIPCSERIALIZABLEURI
 
 protected:
   virtual nsresult Clone(nsIURI **_retval);
