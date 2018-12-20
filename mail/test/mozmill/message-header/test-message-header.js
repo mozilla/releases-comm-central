@@ -104,6 +104,7 @@ function get_last_visible_address(aAddrs) {
   return null;
 }
 
+test_add_tag_with_really_long_label.__force_skip__ = true;
 function test_add_tag_with_really_long_label() {
   be_in_folder(folder);
 

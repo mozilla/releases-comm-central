@@ -148,6 +148,7 @@ function test_select_folder_expands_collapsed_account_root() {
  * Test that smart folders are updated when the folders they should be
  * searching over are added/removed or have the relevant flag set/cleared.
  */
+test_folder_flag_changes.__force_skip__ = true;
 function test_folder_flag_changes() {
   expand_folder(smartInboxFolder);
   // Now attempt to select the folder.

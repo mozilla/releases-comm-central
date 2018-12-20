@@ -101,6 +101,7 @@ function test_delete_message() {
   mc.close_popup_sequence(popups);
 }
 
+test_archive_message.__force_skip__ = true;
 function test_archive_message() {
   archive_selected_messages();
   // We've archived a message - we should still just have folder2 in the menu.

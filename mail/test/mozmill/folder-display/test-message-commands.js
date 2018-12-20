@@ -181,6 +181,7 @@ function test_mark_n_unread_mixed() {
   check_read_status(curMessages, false);
 }
 
+test_toggle_read.__force_skip__ = true;
 function test_toggle_read() {
   be_in_folder(unreadFolder);
   let curMessage = select_click_row(0);
@@ -190,6 +191,7 @@ function test_toggle_read() {
   check_read_status([curMessage], true);
 }
 
+test_toggle_unread.__force_skip__ = true;
 function test_toggle_unread() {
   be_in_folder(unreadFolder);
   let curMessage = select_click_row(0);
@@ -199,6 +201,7 @@ function test_toggle_unread() {
   check_read_status([curMessage], false);
 }
 
+test_toggle_mixed.__force_skip__ = true;
 function test_toggle_mixed() {
   be_in_folder(unreadFolder);
   select_click_row(0);
@@ -339,6 +342,7 @@ function test_thread_delete_prompt() {
   Services.prefs.clearUserPref('mail.warn_on_collapsed_thread_operation');
 }
 
+test_yearly_archive.__force_skip__ = true;
 function test_yearly_archive() {
   yearly_archive(false);
 }
@@ -387,6 +391,7 @@ function yearly_archive(keep_structure) {
               "Message should have been archived to " + lastArchiveUri + ", but it isn't present there");
 }
 
+test_monthly_archive.__force_skip__ = true;
 function test_monthly_archive() {
   enable_archiving(true);
   monthly_archive(false);
@@ -436,6 +441,7 @@ function monthly_archive(keep_structure) {
               lastMsgYear + "/" + lastMonthFolderName + "/Archives, but it isn't present there");
 }
 
+test_folder_structure_archiving.__force_skip__ = true;
 function test_folder_structure_archiving() {
   enable_archiving(true);
   Services.prefs.setBoolPref("mail.identity.default.archive_keep_folder_structure", true);
@@ -443,6 +449,7 @@ function test_folder_structure_archiving() {
   yearly_archive(true);
 }
 
+test_selection_after_archive.__force_skip__ = true;
 function test_selection_after_archive() {
   enable_archiving(true);
   be_in_folder(archiveSrcFolder);
@@ -507,6 +514,7 @@ function check_tag_in_message(message, tag, isSet) {
     assert_false(tagSet, "Tag '" + tag.name + "' not expected on message!");
 }
 
+test_tag_keys.__force_skip__ = true;
 function test_tag_keys() {
   be_in_folder(unreadFolder);
   let curMessage = select_click_row(0);
