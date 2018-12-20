@@ -42,6 +42,7 @@
   },
   {
     "namespace": "cloudFile",
+    "permissions": ["manifest:cloud_file"],
     "allowedContexts": ["content"],
     "events": [
       {

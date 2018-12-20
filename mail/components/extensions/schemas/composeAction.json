@@ -52,6 +52,7 @@
   {
     "namespace": "composeAction",
     "description": "Use toolbar actions to put icons in the message composition toolbars. In addition to its icon, a toolbar action can also have a tooltip, a badge, and a popup.",
+    "permissions": ["manifest:compose_action"],
     "types": [
       {
         "id": "Details",
