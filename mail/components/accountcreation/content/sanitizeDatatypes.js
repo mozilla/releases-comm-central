@@ -105,8 +105,21 @@ var sanitize =
    */
   url(unchecked) {
     var str = this.string(unchecked);
-    if (!str.startsWith("http") && !str.startsWith("https"))
+
+    // DANGER ZONE: data:text/javascript or data:text/html can contain
+    // JavaScript code, run in the caller's security context, and might allow
+    // arbitrary code execution, so these must be prevented at all costs.
+    // PNG and JPEG data: URLs are fine.  But SVG is again dangerous,
+    // it can contain javascript, so it would create a critical security hole.
+    // Talk to BenB or bz before relaxing *any* of the checks in this function.
+    if (str.startsWith("data:image/png;") ||
+        str.startsWith("data:image/jpeg;")) {
+      return new URL(str).href;
+    }
+
+    if (!str.startsWith("http:") && !str.startsWith("https:")) {
       throw new MalformedException("url_scheme.error", unchecked);
+    }
 
     var uri;
     try {
