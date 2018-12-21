@@ -50,7 +50,6 @@ function clickViewMessagesItem(aMenuId) {
 /**
  * Test that Ignore Thread works as expected.
  */
-test_ignore_thread.__force_skip__ = true;
 function test_ignore_thread() {
   let t1root = thread1.getMsgHdr(0);
 
@@ -78,7 +77,6 @@ function test_ignore_thread() {
  * Test that ignored threads are shown when the View | Threads |
  * Ignored Threads option is checked.
  */
-test_view_threads_ignored_threads.__force_skip__ = true;
 function test_view_threads_ignored_threads() {
   let t1root = thread1.getMsgHdr(0);
   let t2root = thread2.getMsgHdr(0);
@@ -99,7 +97,6 @@ function test_view_threads_ignored_threads() {
 /**
  * Test that Watch Thread makes the thread watched.
  */
-test_watch_thread.__force_skip__ = true;
 function test_watch_thread() {
   let t2root = thread2.getMsgHdr(0);
   let t2second = select_click_row(1);

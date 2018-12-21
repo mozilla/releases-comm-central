@@ -59,7 +59,6 @@ function test_delete_no_junk_messages() {
 /**
  * Test deleting junk messages with some messages marked as junk.
  */
-test_delete_junk_messages.__force_skip__ = true;
 function test_delete_junk_messages() {
   let initialNumMessages = folder.getTotalMessages(false);
   be_in_folder(folder);
