@@ -354,7 +354,7 @@ class Overlays {
         if (targetchild && targetchild.parentNode == parent) {
           parent.insertBefore(node, after ? targetchild.nextSibling : targetchild);
           wasInserted = true;
-          // Not breaking here to match original behavior
+          break;
         }
       }
     }
