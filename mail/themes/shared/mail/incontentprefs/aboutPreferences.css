@@ -78,6 +78,7 @@ radio[pane] {
   margin-inline-end: 0;
   padding: 5px 10px;
   min-height: 40px;
+  outline-offset: -1px;
   transition: background-color 150ms;
 }
 
@@ -97,6 +98,10 @@ radio[pane][selected]:hover {
 radio[pane]:hover:active {
   color: var(--in-content-category-text-selected-active);
   background-color: var(--in-content-category-background-selected-active);
+}
+
+.paneSelector[focused="true"][keyboard-navigation="true"] > radio[pane][focused="true"] {
+  outline: var(--in-content-category-outline-focus);
 }
 
 radio[pane]:hover::before,
@@ -253,6 +258,14 @@ textbox + button {
 separator.groove:not([orient="vertical"]) {
   border-top-color: #c1c1c1;
   border-bottom-width: 0;
+}
+
+tab:-moz-focusring {
+  outline: var(--in-content-category-outline-focus);
+}
+
+tab:-moz-focusring > .tab-middle {
+  outline: none;
 }
 
 #defaultWebSearchPopup > menuitem > .menu-iconic-left {

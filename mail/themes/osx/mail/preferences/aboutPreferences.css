@@ -91,6 +91,10 @@ radio[pane][selected] {
   font-size: 1.224em;
 }
 
+tab:-moz-focusring > .tab-middle > .tab-text {
+  outline: none;
+}
+
 /**
  * Dialog
  */

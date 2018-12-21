@@ -23,6 +23,20 @@ window.addEventListener("load", function() {
       prefWindow.showPane(document.getElementById("paneGeneral"));
     radio.hidden = true;
   }
+
+  let categories = prefWindow._selector;
+  document.documentElement.addEventListener("keydown", function(event) {
+    if (event.keyCode == KeyEvent.DOM_VK_TAB ||
+        event.keyCode == KeyEvent.DOM_VK_UP ||
+        event.keyCode == KeyEvent.DOM_VK_DOWN ||
+        event.keyCode == KeyEvent.DOM_VK_LEFT ||
+        event.keyCode == KeyEvent.DOM_VK_RIGHT) {
+      categories.setAttribute("keyboard-navigation", "true");
+    }
+  });
+  categories.addEventListener("mousedown", function() {
+    this.removeAttribute("keyboard-navigation");
+  });
 });
 
 /**
