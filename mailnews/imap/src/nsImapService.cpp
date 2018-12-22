@@ -625,8 +625,7 @@ nsresult nsImapService::FetchMimePart(nsIImapUrl *aImapUrl,
       // DIRTY LITTLE HACK --> if we are opening an attachment we want the docshell to
       // treat this load as if it were a user click event. Then the dispatching stuff will be much
       // happier.
-      RefPtr<nsDocShellLoadState> loadState = new nsDocShellLoadState();
-      loadState->SetURI(url);
+      RefPtr<nsDocShellLoadState> loadState = new nsDocShellLoadState(url);
       loadState->SetLoadFlags(aImapAction == nsImapUrl::nsImapOpenMimePart
                                 ? nsIWebNavigation::LOAD_FLAGS_IS_LINK
                                 : nsIWebNavigation::LOAD_FLAGS_NONE);
@@ -1064,8 +1063,7 @@ nsresult nsImapService::GetMessageFromUrl(nsIImapUrl *aImapUrl,
   if (NS_SUCCEEDED(rv) && docShell)
   {
     NS_ASSERTION(!aConvertDataToText, "can't convert to text when using docshell");
-    RefPtr<nsDocShellLoadState> loadState = new nsDocShellLoadState();
-    loadState->SetURI(url);
+    RefPtr<nsDocShellLoadState> loadState = new nsDocShellLoadState(url);
     loadState->SetLoadFlags(nsIWebNavigation::LOAD_FLAGS_NONE);
     loadState->SetFirstParty(false);
     loadState->SetTriggeringPrincipal(nsContentUtils::GetSystemPrincipal());

@@ -309,8 +309,7 @@ nsresult nsNntpService::GetMessageFromUrl(nsIURI *aUrl,
     // DIRTY LITTLE HACK --> if we are opening an attachment we want the docshell to
     // treat this load as if it were a user click event. Then the dispatching stuff will be much
     // happier.
-    RefPtr<nsDocShellLoadState> loadState = new nsDocShellLoadState();
-    loadState->SetURI(aUrl);
+    RefPtr<nsDocShellLoadState> loadState = new nsDocShellLoadState(aUrl);
     loadState->SetLoadFlags(mOpenAttachmentOperation
                               ? nsIWebNavigation::LOAD_FLAGS_IS_LINK
                               : nsIWebNavigation::LOAD_FLAGS_NONE);
@@ -449,8 +448,7 @@ NS_IMETHODIMP nsNntpService::OpenAttachment(const char *aContentType,
 
     nsCOMPtr<nsIDocShell> docShell(do_QueryInterface(aDisplayConsumer, &rv));
     if (NS_SUCCEEDED(rv) && docShell) {
-      RefPtr<nsDocShellLoadState> loadState = new nsDocShellLoadState();
-      loadState->SetURI(url);
+      RefPtr<nsDocShellLoadState> loadState = new nsDocShellLoadState(url);
       loadState->SetLoadFlags(nsIWebNavigation::LOAD_FLAGS_IS_LINK);
       loadState->SetLoadType(LOAD_LINK);
       loadState->SetFirstParty(false);

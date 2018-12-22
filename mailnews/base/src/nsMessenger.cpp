@@ -589,8 +589,7 @@ nsMessenger::LoadURL(mozIDOMWindowProxy *aWin, const nsACString& aURL)
   AddMsgUrlToNavigateHistory(aURL);
   mNavigatingToUri.Truncate();
   mLastDisplayURI = aURL; // Remember the last uri we displayed.
-  RefPtr<nsDocShellLoadState> loadState = new nsDocShellLoadState();
-  loadState->SetURI(uri);
+  RefPtr<nsDocShellLoadState> loadState = new nsDocShellLoadState(uri);
   loadState->SetLoadFlags(nsIWebNavigation::LOAD_FLAGS_NONE);
   loadState->SetFirstParty(true);
   loadState->SetTriggeringPrincipal(nsContentUtils::GetSystemPrincipal());
