@@ -883,7 +883,7 @@ var specialTabs = {
     try {
       // If the updates.xml file is deleted then getUpdateAt will throw.
       var update = um.getUpdateAt(0)
-                     .QueryInterface(Ci.nsIPropertyBag);
+                     .QueryInterface(Ci.nsIWritablePropertyBag);
     } catch (x) {
       Cu.reportError("Unable to find update: " + x);
       return;

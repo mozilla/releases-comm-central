@@ -12,10 +12,6 @@ pref("mailnews.start_page.override_url", "https://live.thunderbird.net/%APP%/wha
 // nightly=1 hour, official=24 hours
 pref("app.update.interval", 3600);
 
-// The time interval between the downloading of mar file chunks in the
-// background (in seconds)
-pref("app.update.download.backgroundInterval", 60);
-
 // Give the user x seconds to react before showing the big UI. nightly=1 hour
 pref("app.update.promptWaitTime", 3600);
 
