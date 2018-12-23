@@ -1698,11 +1698,11 @@
       </menu>
 
 #ifdef XP_MACOSX
-#include ../../../base/content/macWindowMenu.inc
+#include ../../../base/content/macWindowMenu.inc.xul
 #endif
 
       <!-- Help -->
-#include ../../../base/content/helpMenu.inc
+#include ../../../base/content/helpMenu.inc.xul
     </menubar>
    </toolbaritem>
   </toolbar>
@@ -2040,7 +2040,7 @@
     <toolbox id="FormatToolbox" mode="icons">
       <toolbar class="chromeclass-toolbar" id="FormatToolbar" persist="collapsed"
                customizable="true" nowindowdrag="true">
-#include editFormatButtons.inc
+#include editFormatButtons.inc.xul
         <spacer flex="1"/>
       </toolbar>
     </toolbox>

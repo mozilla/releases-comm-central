@@ -167,13 +167,13 @@
       </vbox>
 
       <!-- Copies & Folders Tab -->
-#include am-copies.inc
+#include am-copies.inc.xul
 
       <!-- Composition & Addressing Tab -->
-#include am-addressing.inc
+#include am-addressing.inc.xul
 
       <!-- Security Tab -->
-#include ../../../extensions/smime/content/am-smime.inc
+#include ../../../extensions/smime/content/am-smime.inc.xul
 
     </tabpanels>
   </tabbox>

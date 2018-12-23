@@ -606,11 +606,11 @@
         </menu>
 
 #ifdef XP_MACOSX
-#include ../../../base/content/macWindowMenu.inc
+#include ../../../base/content/macWindowMenu.inc.xul
 #endif
 
       <!-- Help -->
-#include ../../../base/content/helpMenu.inc
+#include ../../../base/content/helpMenu.inc.xul
     </menubar>
    </toolbaritem>
   </toolbar>

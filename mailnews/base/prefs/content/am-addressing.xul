@@ -22,6 +22,6 @@
     <hbox class="dialogheader">
       <label class="dialogheader-title" value="&addressing.label;"/>
     </hbox>
-#include am-addressing.inc
+#include am-addressing.inc.xul
   </vbox>
 </page>

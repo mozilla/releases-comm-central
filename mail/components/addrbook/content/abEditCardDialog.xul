@@ -24,6 +24,6 @@
   <script type="application/javascript" src="chrome://messenger/content/addressbook/abCommon.js"/>
   <script type="application/javascript" src="chrome://messenger/content/addressbook/abCard.js"/>
 
-#include abCard.inc
+#include abCard.inc.xul
 
 </dialog>

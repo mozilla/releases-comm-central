@@ -38,6 +38,6 @@
 
   <spacer style="height:1em"/>
 
-#include abCard.inc
+#include abCard.inc.xul
 
 </dialog>

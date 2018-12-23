@@ -21,6 +21,6 @@
     <hbox class="dialogheader">
       <label class="dialogheader-title" value="&copyAndFolderTitle.label;"/>
     </hbox>
-#include am-copies.inc
+#include am-copies.inc.xul
   </vbox>
 </page>

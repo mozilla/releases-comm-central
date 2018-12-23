@@ -109,7 +109,7 @@
     </groupbox>
 
     <vbox id="searchTermListBox" flex="1">
-#include searchTerm.inc
+#include searchTerm.inc.xul
   </vbox>
 
   <splitter id="gray_horizontal_splitter" persist="state" orient="vertical"/>

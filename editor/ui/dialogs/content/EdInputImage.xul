@@ -58,7 +58,7 @@
           </rows>
         </grid>
       </groupbox>
-#include edImage.inc
+#include edImage.inc.xul
     </tabpanels>
   </tabbox>
 

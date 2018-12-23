@@ -945,11 +945,11 @@
       </menu>
 
 #ifdef XP_MACOSX
-#include macWindowMenu.inc
+#include macWindowMenu.inc.xul
 #endif
 
       <!-- Help -->
-#include helpMenu.inc
+#include helpMenu.inc.xul
 
       <spacer id="menubar_spacer" flex="100%"/>
       </menubar>

@@ -20,7 +20,7 @@
       <label class="dialogheader-title" value="&securityTitle.label;"/>
     </hbox>
 
-#include am-smime.inc
+#include am-smime.inc.xul
   </vbox>
 
 </page>

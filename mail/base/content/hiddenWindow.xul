@@ -73,7 +73,7 @@
 
   <!-- keys are appended from the overlay -->
 <keyset id="mailKeys">
-#include mainKeySet.inc
+#include mainKeySet.inc.xul
   <keyset id="tasksKeys">
     <key id="key_newMessage" key="&newMessageCmd.key;" command="cmd_newMessage"
          modifiers="accel,shift"/>
@@ -83,7 +83,7 @@
 </keyset>
 
 <commandset id="mailCommands">
-#include mainCommandSet.inc
+#include mainCommandSet.inc.xul
   <commandset id="mailSearchMenuItems"/>
   <commandset id="globalEditMenuItems"
               commandupdater="true"
@@ -108,9 +108,9 @@
        on a platform that wants to leave the app running, like the Mac.
   -->
 
-#include mainNavigationToolbox.inc
+#include mainNavigationToolbox.inc.xul
   </toolbox>
-#include mainMailToolbox.inc
+#include mainMailToolbox.inc.xul
 
 <browser id="hiddenBrowser" disablehistory="true"/>
 

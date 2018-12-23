@@ -155,7 +155,7 @@
 <script type="application/javascript" src="chrome://messenger/content/threadPane.js"/>
 
 <commandset id="mailCommands">
-#include mainCommandSet.inc
+#include mainCommandSet.inc.xul
   <commandset id="mailSearchMenuItems"/>
   <commandset id="globalEditMenuItems"
               commandupdater="true"
@@ -200,7 +200,7 @@
 </commandset>
 
 <keyset id="mailKeys">
-#include mainKeySet.inc
+#include mainKeySet.inc.xul
   <keyset id="tasksKeys">
 #ifdef XP_MACOSX
     <key id="key_newMessage" key="&newMessageCmd.key;" command="cmd_newMessage"
@@ -218,8 +218,8 @@
 
 <!-- Popup menus provided by mailWindowOverlay.xul -->
 <popupset id="mainPopupSet">
-#include mainPopupSet.inc
-#include msgHdrPopup.inc
+#include mainPopupSet.inc.xul
+#include msgHdrPopup.inc.xul
   <panel type="glodacomplete-richlistbox"
          id="PopupGlodaAutocomplete"
          noautofocus="true" />
@@ -332,8 +332,8 @@
     </popupnotificationcontent>
   </popupnotification>
 
-#include editContactPanel.inc
-#include ../../components/im/content/chat-menu.inc
+#include editContactPanel.inc.xul
+#include ../../components/im/content/chat-menu.inc.xul
 </popupset>
 #ifdef XP_MACOSX
 <popupset>
@@ -365,7 +365,7 @@
 </vbox>
 
   <!-- navigation-toolbox with main menubar and tabs toolbar -->
-#include mainNavigationToolbox.inc
+#include mainNavigationToolbox.inc.xul
 
     <toolbar id="tabs-toolbar" class="chromeclass-toolbar">
       <!-- class tabmail-tabs is unused and only maintained for add-ons. -->
@@ -447,7 +447,7 @@
              beneath both of them. -->
         <box id="mailContent" orient="vertical" flex="1">
           <!-- mail-toolbox with the main toolbarbuttons -->
-#include mainMailToolbox.inc
+#include mainMailToolbox.inc.xul
 
           <box id="messengerBox" orient="horizontal" flex="1" minheight="100" height="100" persist="height">
             <vbox id="folderPaneBox" minwidth="125" width="200" persist="width">
@@ -521,7 +521,7 @@
 
             <vbox flex="1">
               <box orient="vertical" id="messagesBox" flex="1">
-#include quickFilterBar.inc
+#include quickFilterBar.inc.xul
                 <deck id="displayDeck" flex="1" selectedIndex="0"
                       minheight="100" height="100" persist="height"
                       >
@@ -662,7 +662,7 @@
                              autofind="false"/>
                     <vbox id="singlemessage" flex="1">
                       <hbox id="msgHeaderView" collapsed="true" class="main-header-area">
-#include msgHdrView.inc
+#include msgHdrView.inc.xul
                       </hbox>
                       <!-- The msgNotificationBar appears on top of the message
                            and displays information like: junk, contains remote
@@ -684,7 +684,7 @@
                                 resizebefore="closest" resizeafter="closest"
                                 collapsed="true"/>
                       <vbox id="attachmentView" collapsed="true">
-#include msgAttachmentView.inc
+#include msgAttachmentView.inc.xul
                       </vbox>
                       <findbar id="FindToolbar" browserid="messagepane"/>
                     </vbox>
@@ -695,7 +695,7 @@
             </vbox>
           </box>
         </box> <!-- end of mailContent -->
-#include ../../components/im/content/chat-messenger.inc
+#include ../../components/im/content/chat-messenger.inc.xul
       </tabpanels>
      </tabbox>
     </tabmail>
@@ -785,7 +785,7 @@
   <notificationbox id="mail-notification-box" notificationside="bottom"/>
   <statuspanel id="statusbar-display"/>
   <hbox id="status-bar" class="statusbar chromeclass-status">
-#include mainStatusbar.inc
+#include mainStatusbar.inc.xul
     <statusbarpanel id="unreadMessageCount"/>
     <statusbarpanel id="totalMessageCount"/>
   </hbox>

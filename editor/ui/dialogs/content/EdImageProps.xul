@@ -39,7 +39,7 @@
       <tab id="imageLinkTab" label="&imageLinkTab.label;"/>
     </tabs>
     <tabpanels>
-#include edImage.inc
+#include edImage.inc.xul
       <vbox>
         <spacer class="spacer"/>
         <vbox id="LinkLocationBox">

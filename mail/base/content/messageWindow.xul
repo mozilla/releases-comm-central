@@ -117,7 +117,7 @@
   <script type="application/javascript" src="chrome://messenger/content/newmailaccount/uriListener.js"/>
 
   <commandset id="mailCommands">
-#include mainCommandSet.inc
+#include mainCommandSet.inc.xul
     <commandset id="mailSearchMenuItems"/>
     <commandset id="attachmentCommands">
       <command id="cmd_openAllAttachments"
@@ -143,7 +143,7 @@
 
   <keyset id="mailKeys">
     <key keycode="VK_ESCAPE" oncommand="window.close();"/>
-#include mainKeySet.inc
+#include mainKeySet.inc.xul
     <keyset id="tasksKeys">
 #ifdef XP_MACOSX
       <key id="key_newMessage" key="&newMessageCmd.key;" command="cmd_newMessage"
@@ -161,10 +161,10 @@
 
   <!-- Popup menus provided by mailWindowOverlay.xul -->
   <popupset id="mainPopupSet">
-#include mainPopupSet.inc
-#include msgHdrPopup.inc
+#include mainPopupSet.inc.xul
+#include msgHdrPopup.inc.xul
   </popupset>
-#include editContactPanel.inc
+#include editContactPanel.inc.xul
 
 #ifdef XP_MACOSX
   <vbox id="titlebar">
@@ -183,11 +183,11 @@
 #endif
 
   <!-- navigation-toolbox with the main menubar -->
-#include mainNavigationToolbox.inc
+#include mainNavigationToolbox.inc.xul
   </toolbox>
 
   <!-- mail-toolbox with the main toolbarbuttons -->
-#include mainMailToolbox.inc
+#include mainMailToolbox.inc.xul
 
   <tooltip id="aHTMLTooltip" page="true"/>
 
@@ -200,7 +200,7 @@
           ondragexit="nsDragAndDrop.dragExit(event, messagepaneObserver);">
 
       <hbox id="msgHeaderView" collapsed="true" class="main-header-area">
-#include msgHdrView.inc
+#include msgHdrView.inc.xul
       </hbox>
       <!-- The msgNotificationBar appears on top of the message and displays
            information like: junk, mdn, remote content and phishing warnings -->
@@ -214,7 +214,7 @@
                src="about:blank" onclick="return contentAreaClick(event);" />
       <splitter id="attachment-splitter" collapse="after" resizebefore="closest" resizeafter="closest" collapsed="true"/>
       <vbox id="attachmentView" collapsed="true">
-#include msgAttachmentView.inc
+#include msgAttachmentView.inc.xul
       </vbox>
       <findbar id="FindToolbar" browserid="messagepane"/>
     </vbox>
@@ -226,7 +226,7 @@
   </panel>
 
   <hbox id="status-bar" class="statusbar chromeclass-status">
-#include mainStatusbar.inc
+#include mainStatusbar.inc.xul
     <hbox class="statusbarpanel statusbar-resizerpanel">
       <resizer dir="bottomend"/>
     </hbox>
