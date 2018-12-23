@@ -24,16 +24,13 @@ function isAccel(event) {
 }
 
 /**
- * Get the localstorage for this page in a way that works in chrome.
- *
- * Cribbed from
- *   mozilla/dom/tests/mochitest/localstorage/test_localStorageFromChrome.xhtml
+ * Get fixed localstorage.
  *
  * @param {String} page The page to get the localstorage for.
  * @return {nsIDOMStorage} The localstorage for this page.
  */
-function getLocalStorage(page) {
-  var url = "chrome://content/messenger/accountProvisionerStorage/" + page;
+function getLocalStorage() {
+  var url = "https://accountprovisioner.thunderbird.invalid";
 
   var uri = Services.io.newURI(url);
   var principal = Services.scriptSecurityManager.createCodebasePrincipal(uri, {});
@@ -1009,7 +1006,7 @@ var EmailAccountProvisioner = {
 
 
 XPCOMUtils.defineLazyGetter(EmailAccountProvisioner, "storage", function() {
-  return getLocalStorage("accountProvisioner");
+  return getLocalStorage();
 });
 
 window.addEventListener("online",
