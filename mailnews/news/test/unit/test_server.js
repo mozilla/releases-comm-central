@@ -1,4 +1,3 @@
-////////////////////////////////////////////////////////////////////////////////
 // Protocol tests for NNTP. These actually aren't too important, but their main
 // purpose is to make sure that maild is working properly and to provide
 // examples for how using maild. They also help make sure that I coded nntpd.js
@@ -6,37 +5,31 @@
 // TODO:
 // * We need to hook up mochitest,
 // * TLS negotiation.
-////////////////////////////////////////////////////////////////////////////////
 
 // The basic daemon to use for testing nntpd.js implementations
 var daemon = setupNNTPDaemon();
 
-// Define these up here for checking with the transaction
-var test = null;
-
-////////////////////////////////////////////////////////////////////////////////
-//                             NNTP SERVER TESTS                              //
-////////////////////////////////////////////////////////////////////////////////
-// Functions in order as defined in nntpd.js. Each function tests the URLs    //
-// that are located over the implementation of nsNNTPProtocol::LoadURL and    //
-// added in bug 400331. Furthermore, they are tested in rough order as they   //
-// would be expected to be used in a session. If more URL types are modified, //
-// please add a corresponding type to the following tests.                    //
-// When adding new servers, only test the commands that become different for  //
-// each specified server, to keep down redudant tests.                        //
-////////////////////////////////////////////////////////////////////////////////
+// NNTP SERVER TESTS
+// -----------------
+// Functions in order as defined in nntpd.js. Each function tests the URLs
+// that are located over the implementation of nsNNTPProtocol::LoadURL and
+// added in bug 400331. Furthermore, they are tested in rough order as they
+// would be expected to be used in a session. If more URL types are modified,
+// please add a corresponding type to the following tests.
+// When adding new servers, only test the commands that become different for
+// each specified server, to keep down redudant tests.
 
 function testRFC977() {
   var server = makeServer(NNTP_RFC977_handler, daemon);
   server.start(NNTP_PORT);
 
   try {
-    var prefix = "news://localhost:"+NNTP_PORT+"/";
+    var prefix = "news://localhost:" + NNTP_PORT + "/";
     var transaction;
 
     // Test - group subscribe listing
     test = "news:*";
-    setupProtocolTest(NNTP_PORT, prefix+"*");
+    setupProtocolTest(NNTP_PORT, prefix + "*");
     server.performTest();
     transaction = server.playTransaction();
     do_check_transaction(transaction, ["MODE READER", "LIST"]);
@@ -44,7 +37,7 @@ function testRFC977() {
     // Test - getting group headers
     test = "news:test.subscribe.empty";
     server.resetTest();
-    setupProtocolTest(NNTP_PORT, prefix+"test.subscribe.empty");
+    setupProtocolTest(NNTP_PORT, prefix + "test.subscribe.empty");
     server.performTest();
     transaction = server.playTransaction();
     do_check_transaction(transaction, ["MODE READER",
@@ -53,7 +46,7 @@ function testRFC977() {
     // Test - getting an article
     test = "news:MESSAGE_ID";
     server.resetTest();
-    setupProtocolTest(NNTP_PORT, prefix+"TSS1@nntp.invalid");
+    setupProtocolTest(NNTP_PORT, prefix + "TSS1@nntp.invalid");
     server.performTest();
     transaction = server.playTransaction();
     do_check_transaction(transaction, ["MODE READER",
@@ -62,7 +55,7 @@ function testRFC977() {
     // Test - news expiration
     test = "news:GROUP?list-ids";
     server.resetTest();
-    setupProtocolTest(NNTP_PORT, prefix+"test.filter?list-ids");
+    setupProtocolTest(NNTP_PORT, prefix + "test.filter?list-ids");
     server.performTest();
     transaction = server.playTransaction();
     do_check_transaction(transaction, ["MODE READER",
@@ -77,11 +70,11 @@ function testRFC977() {
     transaction = server.playTransaction();
     do_check_transaction(transaction, ["MODE READER", "POST"]);
   } catch (e) {
-    dump("NNTP Protocol test "+test+" failed for type RFC 977:\n");
+    dump("NNTP Protocol test " + test + " failed for type RFC 977:\n");
     try {
       var trans = server.playTransaction();
      if (trans)
-        dump("Commands called: "+trans.them+"\n");
+        dump("Commands called: " + trans.them + "\n");
     } catch (exp) {}
     do_throw(e);
   }
@@ -96,17 +89,16 @@ function testConnectionLimit() {
   var server = makeServer(NNTP_RFC977_handler, daemon);
   server.start(NNTP_PORT);
 
-  var prefix = "news://localhost:"+NNTP_PORT+"/";
-  var transaction;
+  var prefix = "news://localhost:" + NNTP_PORT + "/";
 
   // To test make connections limit, we run two URIs simultaneously.
-  var url = URLCreator.newURI(prefix+"*");
+  var url = URLCreator.newURI(prefix + "*");
   _server.loadNewsUrl(url, null, null);
-  setupProtocolTest(NNTP_PORT, prefix+"TSS1@nntp.invalid");
+  setupProtocolTest(NNTP_PORT, prefix + "TSS1@nntp.invalid");
   server.performTest();
   // We should have length one... which means this must be a transaction object,
   // containing only us and them
-  Assert.ok('us' in server.playTransaction());
+  Assert.ok("us" in server.playTransaction());
   server.stop();
 
   var thread = gThreadManager.currentThread;
@@ -121,13 +113,13 @@ function testReentrantClose() {
   server.start(NNTP_PORT);
 
   var listener = {
-    OnStartRunningUrl: function (url) {},
-    OnStopRunningUrl: function (url, rv) {
+    OnStartRunningUrl(url) {},
+    OnStopRunningUrl(url, rv) {
       // Spin the event loop (entering nsNNTPProtocol::ProcessProtocolState)
       let thread = gThreadManager.currentThread;
       while (thread.hasPendingEvents())
         thread.processNextEvent(true);
-    }
+    },
   };
   // Nice multi-step command--we can close while executing this URL if we are
   // careful.
@@ -139,9 +131,9 @@ function testReentrantClose() {
   _server.loadNewsUrl(url, null, null);
   server.performTest("GROUP");
   dump("Stopping server\n");
-  gThreadManager.currentThread.dispatch(
-    { run: function() { _server.closeCachedConnections(); } },
-    Ci.nsIEventTarget.DISPATCH_NORMAL);
+  gThreadManager.currentThread.dispatch({
+    run() { _server.closeCachedConnections(); },
+  }, Ci.nsIEventTarget.DISPATCH_NORMAL);
   server.performTest();
   server.stop();
 
@@ -157,11 +149,11 @@ function testManyConnections() {
   _server.maximumConnectionsNumber = 3;
   var listener = {
     ran: 0,
-    OnStartRunningUrl: function (url) {},
-    OnStopRunningUrl: function (url, rv) {
+    OnStartRunningUrl(url) {},
+    OnStopRunningUrl(url, rv) {
       if (--(this.ran) == 0)
         _server.closeCachedConnections();
-    }
+    },
   };
   let groups = _server.rootFolder.subFolders;
   while (groups.hasMoreElements()) {
@@ -172,7 +164,7 @@ function testManyConnections() {
   server.performTest();
   // The last one that is processed is test.filter, so make sure that
   // test.subscribed.simple is not retrieving the data meant for test.filter
-  let folder = _server.rootFolder.getChildNamed("test.subscribe.simple")
+  let folder = _server.rootFolder.getChildNamed("test.subscribe.simple");
   Assert.equal(folder.getTotalMessages(false), 1);
 }
 

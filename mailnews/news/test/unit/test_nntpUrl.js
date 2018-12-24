@@ -21,8 +21,8 @@ function run_test() {
   // This is crash test for Bug 392729
   try {
     // msgkey is invalid for news:// protocol
-    let hdr = getMessageHeaderFromUrl("news://localhost:119" +
-                                      "/123@example.invalid?group=test.subscribe.simple&key=abcdefghijk");
+    getMessageHeaderFromUrl("news://localhost:119" +
+                            "/123@example.invalid?group=test.subscribe.simple&key=abcdefghijk");
     Assert.ok(false);
   } catch (e) {
     Assert.equal(e.result, Cr.NS_ERROR_MALFORMED_URI);

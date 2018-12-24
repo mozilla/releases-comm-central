@@ -40,7 +40,6 @@ mailnews/jsaccount/*
 mailnews/local/*
 mailnews/mapi/*
 mailnews/mime/*
-mailnews/news/*
 mailnews/test/*
 
 # mailnews/extensions exclusions

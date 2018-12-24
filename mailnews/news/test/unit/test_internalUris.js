@@ -2,28 +2,30 @@
  * If you manually generate a news URI somewhere, please add it to this test.
  */
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../test/resources/alertTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/alertTestUtils.js");
 
 ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var dummyMsgWindow = {
   get statusFeedback() {
     return {
-      startMeteors: function () {},
-      stopMeteors: function () {
+      startMeteors() {},
+      stopMeteors() {
         async_driver();
       },
-      showProgress: function () {}
+      showProgress() {},
     };
   },
   get promptDialog() {
     return alertUtilsPrompts;
   },
   QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgWindow,
-                                          Ci.nsISupportsWeakReference])
+                                          Ci.nsISupportsWeakReference]),
 };
 var daemon, localserver, server;
 
@@ -35,18 +37,18 @@ var tests = [
   test_grouplist,
   test_postMessage,
   test_escapedName,
-  cleanUp
+  cleanUp,
 ];
 
 var kCancelArticle =
-  "From: fake@acme.invalid\n"+
-  "Newsgroups: test.filter\n"+
-  "Subject: cancel <4@regular.invalid>\n"+
-  "References: <4@regular.invalid>\n"+
-  "Control: cancel <4@regular.invalid>\n"+
-  "MIME-Version: 1.0\n"+
-  "Content-Type: text/plain\n"+
-  "\n"+
+  "From: fake@acme.invalid\n" +
+  "Newsgroups: test.filter\n" +
+  "Subject: cancel <4@regular.invalid>\n" +
+  "References: <4@regular.invalid>\n" +
+  "Control: cancel <4@regular.invalid>\n" +
+  "MIME-Version: 1.0\n" +
+  "Content-Type: text/plain\n" +
+  "\n" +
   "This message was cancelled from within ";
 
 function* test_newMsgs() {
@@ -59,9 +61,10 @@ function* test_newMsgs() {
   yield true;
 }
 
+/* exported alert, confirmEx */
 // Prompts for cancel
 function alert(title, text) {}
-function confirmEx(title, text, flags) {  return 0; }
+function confirmEx(title, text, flags) { return 0; }
 
 function* test_cancel() {
   // This tests nsMsgNewsFolder::CancelMessage
@@ -70,11 +73,11 @@ function* test_cancel() {
   let hdr = db.GetMsgHdrForKey(4);
 
   let folderListener = {
-    OnItemEvent: function(aEventFolder, aEvent) {
+    OnItemEvent(aEventFolder, aEvent) {
       if (aEvent == "DeleteOrMoveMsgCompleted") {
         MailServices.mailSession.RemoveFolderListener(this);
       }
-    }
+    },
   };
   MailServices.mailSession.AddFolderListener(folderListener, Ci.nsIFolderListener.event);
   folder.QueryInterface(Ci.nsIMsgNewsFolder)
@@ -95,14 +98,13 @@ function* test_fetchMessage() {
   // Tests nsNntpService::CreateMessageIDURL via FetchMessage
   var statuscode = -1;
   let streamlistener = {
-    onDataAvailable: function() {},
-    onStartRequest: function() {
-    },
-    onStopRequest: function (aRequest, aContext, aStatus) {
+    onDataAvailable() {},
+    onStartRequest() {},
+    onStopRequest(aRequest, aContext, aStatus) {
       statuscode = aStatus;
     },
     QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener,
-                                            Ci.nsIRequestObserver])
+                                            Ci.nsIRequestObserver]),
   };
   let folder = localserver.rootFolder.getChildNamed("test.filter");
   MailServices.nntp.fetchMessage(folder, 2, null, streamlistener, asyncUrlListener);
@@ -121,7 +123,7 @@ function* test_search() {
   let searchTerm = searchSession.createTerm();
   searchTerm.attrib = Ci.nsMsgSearchAttrib.Subject;
   let value = searchTerm.value;
-  value.str = 'First';
+  value.str = "First";
   searchTerm.value = value;
   searchTerm.op = Ci.nsMsgSearchOp.Contains;
   searchTerm.booleanAnd = false;
@@ -129,12 +131,12 @@ function* test_search() {
 
   let hitCount;
   let searchListener = {
-    onSearchHit: function (dbHdr, folder) { hitCount++; },
-    onSearchDone: function (status) {
+    onSearchHit() { hitCount++; },
+    onSearchDone() {
       searchSession.unregisterListener(this);
       async_driver();
     },
-    onNewSearch: function() { hitCount = 0; }
+    onNewSearch() { hitCount = 0; },
   };
   searchSession.registerListener(searchListener);
 
@@ -149,7 +151,7 @@ function* test_grouplist() {
   // This tests nsNntpService::GetListOfGroupsOnServer
   let subserver = localserver.QueryInterface(Ci.nsISubscribableServer);
   let subscribeListener = {
-    OnDonePopulating: function () { async_driver(); }
+    OnDonePopulating() { async_driver(); },
   };
   subserver.subscribeListener = subscribeListener;
 
@@ -193,13 +195,13 @@ function* test_postMessage() {
 }
 
 // Not tested because it requires UI, and this is insufficient, I think.
-function test_forwardInline() {
-  // This tests mime_parse_stream_complete via forwarding inline
-  let folder = localserver.rootFolder.getChildNamed("test.filter");
-  let hdr = folder.msgDatabase.GetMsgHdrForKey(1);
-  MailServices.compose.forwardMessage("a@b.invalid", hdr, null,
-    localserver, Ci.nsIMsgComposeService.kForwardInline);
-}
+// function test_forwardInline() {
+//   // This tests mime_parse_stream_complete via forwarding inline
+//   let folder = localserver.rootFolder.getChildNamed("test.filter");
+//   let hdr = folder.msgDatabase.GetMsgHdrForKey(1);
+//   MailServices.compose.forwardMessage("a@b.invalid", hdr, null,
+//     localserver, Ci.nsIMsgComposeService.kForwardInline);
+// }
 
 function* test_escapedName() {
   // This does a few tests to make sure our internal URIs work for newsgroups
@@ -218,14 +220,13 @@ function* test_escapedName() {
   // Load a message, to test news-message: URI unescaping
   var statuscode = -1;
   let streamlistener = {
-    onDataAvailable: function() {},
-    onStartRequest: function() {
-    },
-    onStopRequest: function (aRequest, aContext, aStatus) {
+    onDataAvailable() {},
+    onStartRequest() {},
+    onStopRequest(aRequest, aContext, aStatus) {
       statuscode = aStatus;
     },
     QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener,
-                                            Ci.nsIRequestObserver])
+                                            Ci.nsIRequestObserver]),
   };
   MailServices.nntp.fetchMessage(folder, 1, null, streamlistener, asyncUrlListener);
   yield false;

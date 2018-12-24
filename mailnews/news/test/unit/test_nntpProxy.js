@@ -32,8 +32,3 @@ add_task(async function cleanUp() {
   NetworkTestUtils.shutdownServers();
   localserver.closeCachedConnections();
 });
-
-function run_test() {
-  run_next_test();
-}
-

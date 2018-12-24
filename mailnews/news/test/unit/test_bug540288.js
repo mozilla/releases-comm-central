@@ -1,25 +1,22 @@
 /* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* Tests that an empty cache entry doesn't return an empty message for news. */
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-
 // The basic daemon to use for testing nntpd.js implementations
 var daemon = setupNNTPDaemon();
 
 var server;
 var localserver;
 
-var streamListener =
-{
+var streamListener = {
   _data: "",
 
   QueryInterface:
     ChromeUtils.generateQI([Ci.nsIStreamListener, Ci.nsIRequestObserver]),
 
   // nsIRequestObserver
-  onStartRequest: function(aRequest, aContext) {
+  onStartRequest(aRequest, aContext) {
   },
-  onStopRequest: function(aRequest, aContext, aStatusCode) {
+  onStopRequest(aRequest, aContext, aStatusCode) {
     Assert.equal(aStatusCode, 0);
 
     // Reduce any \r\n to just \n so we can do a good comparison on any
@@ -33,14 +30,14 @@ var streamListener =
   },
 
   // nsIStreamListener
-  onDataAvailable: function(aRequest, aContext, aInputStream, aOffset, aCount) {
+  onDataAvailable(aRequest, aContext, aInputStream, aOffset, aCount) {
     let scriptStream = Cc["@mozilla.org/scriptableinputstream;1"]
                          .createInstance(Ci.nsIScriptableInputStream);
 
     scriptStream.init(aInputStream);
 
     this._data += scriptStream.read(aCount);
-  }
+  },
 };
 
 function doTestFinished() {
@@ -67,7 +64,7 @@ function run_test() {
     MailServices.nntp
                 .cacheStorage
                 .asyncOpenURI(uri, "", Ci.nsICacheStorage.OPEN_NORMALLY, {
-      onCacheEntryAvailable: function(cacheEntry, isNew, appCache, status) {
+      onCacheEntryAvailable(cacheEntry, isNew, appCache, status) {
         Assert.equal(status, Cr.NS_OK);
 
         cacheEntry.markValid();
@@ -76,7 +73,8 @@ function run_test() {
         var folder = localserver.rootFolder.getChildNamed("test.subscribe.simple");
         folder.clearFlag(Ci.nsMsgFolderFlags.Offline);
         folder.getNewMessages(null, {
-          OnStopRunningUrl: function () { localserver.closeCachedConnections(); }});
+          OnStopRunningUrl() { localserver.closeCachedConnections(); },
+        });
         server.performTest();
 
         Assert.equal(folder.getTotalMessages(false), 1);
@@ -94,7 +92,7 @@ function run_test() {
 
         // Get the server to run
         server.performTest();
-      }
+      },
     });
 
     do_test_pending();
@@ -103,4 +101,4 @@ function run_test() {
     server.stop();
     do_throw(e);
   }
-};
+}

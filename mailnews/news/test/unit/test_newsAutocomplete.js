@@ -8,25 +8,20 @@
 
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-// The basic daemon to use for testing nntpd.js implementations
-var gDaemon = setupNNTPDaemon();
-
-var ACR = Ci.nsIAutoCompleteResult;
-
 function acObserver() {}
 
 acObserver.prototype = {
   _search: null,
   _result: null,
 
-  onSearchResult: function (aSearch, aResult) {
+  onSearchResult(aSearch, aResult) {
     this._search = aSearch;
     this._result = aResult;
-  }
+  },
 };
 
 function run_test() {
-  let localserver = setupLocalServer(119);
+  setupLocalServer(119);
 
   // create identity
   let identity = MailServices.accounts.createIdentity();
@@ -102,4 +97,4 @@ function run_test() {
   let thread = gThreadManager.currentThread;
   while (thread.hasPendingEvents())
     thread.processNextEvent(true);
-};
+}

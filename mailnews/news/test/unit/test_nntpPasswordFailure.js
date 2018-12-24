@@ -9,16 +9,18 @@
  *     we get a new password prompt and can enter the password.
  */
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../test/resources/alertTestUtils.js */
+/* import-globals-from ../../../test/resources/passwordStorage.js */
+/* import-globals-from ../../../test/resources/mailTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/alertTestUtils.js");
 load("../../../resources/passwordStorage.js");
 load("../../../resources/mailTestUtils.js");
 
-var test = null;
 var server;
 var daemon;
 var incomingServer;
@@ -31,8 +33,8 @@ var kUserName = "testnews";
 var kInvalidPassword = "newstest";
 var kValidPassword = "notallama";
 
-function alert(aDialogText, aText)
-{
+/* exported alert, confirmEx, promptUsernameAndPasswordPS */
+function alert(aDialogText, aText) {
   // The first few attempts may prompt about the password problem, the last
   // attempt shouldn't.
   Assert.ok(attempt < 4);
@@ -81,11 +83,10 @@ function getMail() {
   folder.getNewMessages(gDummyMsgWindow, urlListener);
 }
 
-var urlListener =
-{
-  OnStartRunningUrl: function (url) {
+var urlListener = {
+  OnStartRunningUrl(url) {
   },
-  OnStopRunningUrl: function (url, result) {
+  OnStopRunningUrl(url, result) {
     try {
       // On the last attempt, we should have successfully got one mail.
       Assert.equal(folder.getTotalMessages(false),
@@ -94,10 +95,9 @@ var urlListener =
       // If we've just cancelled, expect failure rather than success
       // because the server dropped the connection.
       dump("in onStopRunning, result = " + result + "\n");
-      //do_check_eq(result, attempt == 2 ? Cr.NS_ERROR_FAILURE : 0);
+      // do_check_eq(result, attempt == 2 ? Cr.NS_ERROR_FAILURE : 0);
       async_driver();
-    }
-    catch (e) {
+    } catch (e) {
       // If we have an error, clean up nicely before we throw it.
       server.stop();
 
@@ -107,15 +107,15 @@ var urlListener =
 
       do_throw(e);
     }
-  }
+  },
 };
 
 // Definition of tests
 var tests = [
   getMail1,
   getMail2,
-  endTest
-]
+  endTest,
+];
 
 function* getMail1() {
   dump("\nGet Mail 1\n");
@@ -160,8 +160,7 @@ function* endTest() {
   yield true;
 }
 
-function run_test()
-{
+function run_test() {
   // Disable new mail notifications
   Services.prefs.setBoolPref("mail.biff.play_sound", false);
   Services.prefs.setBoolPref("mail.biff.show_alert", false);

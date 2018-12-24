@@ -15,21 +15,22 @@
 // For the purposes of this test, we read enough to see if the group command is
 // being misread or not, as it is complicated enough.
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../test/resources/alertTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/alertTestUtils.js");
 
 ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var daemon, localserver, server;
-var killConnection = false;
 var highWater = 0;
 
 var tests = [
   test_newMsgs,
   trigger_bug,
-  cleanUp
+  cleanUp,
 ];
 
 function* test_newMsgs() {
@@ -65,7 +66,7 @@ function* trigger_bug() {
   localserver.performExpand(null);
   // We also need a callback to know that folders have been loaded.
   let folderListener = {
-    OnItemEvent: function (item, event) {
+    OnItemEvent(item, event) {
       dump(event + " triggered for " + item.prettyName + "!\n\n\n");
       if (event == "FolderLoaded" &&
           item.prettyName == "test.subscribe.simple") {
@@ -74,7 +75,7 @@ function* trigger_bug() {
         async_driver();
       }
     },
-    QueryInterface: ChromeUtils.generateQI([Ci.nsIFolderListener])
+    QueryInterface: ChromeUtils.generateQI([Ci.nsIFolderListener]),
   };
   MailServices.mailSession.AddFolderListener(folderListener, Ci.nsIFolderListener.event);
   // Again, two things will need to be listened for

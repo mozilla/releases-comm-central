@@ -7,7 +7,6 @@
  */
 
 ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 // The basic daemon to use for testing nntpd.js implementations
 var daemon = setupNNTPDaemon();
@@ -15,17 +14,16 @@ var daemon = setupNNTPDaemon();
 var server;
 var localserver;
 
-var streamListener =
-{
+var streamListener = {
   _data: "",
 
   QueryInterface:
     ChromeUtils.generateQI([Ci.nsIStreamListener, Ci.nsIRequestObserver]),
 
   // nsIRequestObserver
-  onStartRequest: function(aRequest, aContext) {
+  onStartRequest(aRequest, aContext) {
   },
-  onStopRequest: function(aRequest, aContext, aStatusCode) {
+  onStopRequest(aRequest, aContext, aStatusCode) {
     Assert.equal(aStatusCode, 0);
 
     // Reduce any \r\n to just \n so we can do a good comparison on any
@@ -39,14 +37,14 @@ var streamListener =
   },
 
   // nsIStreamListener
-  onDataAvailable: function(aRequest, aContext, aInputStream, aOffset, aCount) {
+  onDataAvailable(aRequest, aContext, aInputStream, aOffset, aCount) {
     let scriptStream = Cc["@mozilla.org/scriptableinputstream;1"]
                          .createInstance(Ci.nsIScriptableInputStream);
 
     scriptStream.init(aInputStream);
 
     this._data += scriptStream.read(aCount);
-  }
+  },
 };
 
 function doTestFinished() {
@@ -71,7 +69,8 @@ function run_test() {
     var folder = localserver.rootFolder.getChildNamed("test.subscribe.simple");
     folder.clearFlag(Ci.nsMsgFolderFlags.Offline);
     folder.getNewMessages(null, {
-      OnStopRunningUrl: function () { localserver.closeCachedConnections(); }});
+      OnStopRunningUrl() { localserver.closeCachedConnections(); },
+    });
     server.performTest();
 
     Assert.equal(folder.getTotalMessages(false), 1);
@@ -92,4 +91,4 @@ function run_test() {
     server.stop();
     do_throw(e);
   }
-};
+}

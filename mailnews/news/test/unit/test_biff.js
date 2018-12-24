@@ -1,6 +1,7 @@
 // This tests that we can execute biff properly, specifically that filters are
 // run during biff, producing correct counts.
 
+/* import-globals-from ../../../test/resources/filterTestUtils.js */
 load("../../../resources/filterTestUtils.js");
 
 ChromeUtils.import("resource:///modules/MailServices.jsm");
@@ -30,10 +31,12 @@ function run_test() {
   // for biff. Instead, we use the notifier to look for all 7 messages to be
   // added and take that as our sign that the download is finished.
   let expectCount = 7, seen = 0;
-  let listener = { msgAdded: function() {
-    if (++seen == expectCount)
-      localserver.closeCachedConnections();
-    }};
+  let listener = {
+    msgAdded() {
+      if (++seen == expectCount)
+        localserver.closeCachedConnections();
+    },
+  };
   MailServices.mfn.addListener(listener, Ci.nsIMsgFolderNotificationService.msgAdded);
   localserver.performBiff(null);
   server.performTest();

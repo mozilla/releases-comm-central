@@ -1,4 +1,3 @@
-////////////////////////////////////////////////////////////////////////////////
 // Tests for the filtering code of NNTP. The same tests are run for each of the
 // different NNTP setups, to test code in a variety of cases.
 //
@@ -16,20 +15,20 @@
 //   - Message-ID (header retrievable by XOVER)
 //   - User-Agent (header not retrievable by XHDR)
 // * Test all actions
-////////////////////////////////////////////////////////////////////////////////
 
+/* import-globals-from ../../../test/resources/filterTestUtils.js */
 load("../../../resources/filterTestUtils.js");
 
 // These are the expected results for testing filter triggers
 var attribResults = {
-  "1@regular.invalid" : ["isRead", false],
-  "2@regular.invalid" : ["isRead", true],
-  "3@regular.invalid" : ["isRead", true],
-  "4@regular.invalid" : ["isRead", true],
-  "5@regular.invalid" : ["isRead", true],
-  "6.odd@regular.invalid" : ["isRead", true],
-  "7@regular.invalid" : ["isRead", true],
-  "8.unread@regular.invalid" : ["isRead", true]
+  "1@regular.invalid": ["isRead", false],
+  "2@regular.invalid": ["isRead", true],
+  "3@regular.invalid": ["isRead", true],
+  "4@regular.invalid": ["isRead", true],
+  "5@regular.invalid": ["isRead", true],
+  "6.odd@regular.invalid": ["isRead", true],
+  "7@regular.invalid": ["isRead", true],
+  "8.unread@regular.invalid": ["isRead", true],
 };
 function testAttrib(handler, daemon, localserver) {
   var server = makeServer(handler, daemon);
@@ -40,7 +39,8 @@ function testAttrib(handler, daemon, localserver) {
   // Get the folder and force filters to run
   var folder = localserver.rootFolder.getChildNamed("test.filter");
   folder.getNewMessages(null, {
-    OnStopRunningUrl: function () { localserver.closeCachedConnections() }});
+    OnStopRunningUrl() { localserver.closeCachedConnections(); },
+  });
   server.performTest();
 
   var headerEnum = folder.messages;
@@ -48,12 +48,11 @@ function testAttrib(handler, daemon, localserver) {
   while (headerEnum.hasMoreElements())
     headers.push(headerEnum.getNext().QueryInterface(Ci.nsIMsgDBHdr));
 
-  try
-  {
+  try {
     Assert.equal(headers.length, 8);
     for (var header of headers) {
       var id = header.messageId;
-      dump("Testing message "+id+"\n");
+      dump("Testing message " + id + "\n");
       Assert.equal(header[attribResults[id][0]], attribResults[id][1]);
     }
   } catch (e) {
@@ -68,26 +67,26 @@ function testAttrib(handler, daemon, localserver) {
 
 // These are the results for testing actual actions
 var actionResults = {
-  "1@regular.invalid" : ["priority", 6],
+  "1@regular.invalid": ["priority", 6],
   // "2@regular.invalid" should not be in database
-  "3@regular.invalid" : function (header, folder) {
+  "3@regular.invalid": function(header, folder) {
     var flags = folder.msgDatabase.GetThreadContainingMsgHdr(header).flags;
     var ignored = Ci.nsMsgMessageFlags.Ignored;
     // This is checking the thread's kill flag
     return (flags & ignored) == ignored;
   },
-  "4@regular.invalid" : function (header, folder) {
+  "4@regular.invalid": function(header, folder) {
     var flags = folder.msgDatabase.GetThreadContainingMsgHdr(header).flags;
     var watched = Ci.nsMsgMessageFlags.Watched;
     // This is checking the thread's watch flag
     return (flags & watched) == watched;
   },
-  "5@regular.invalid" : ["isFlagged", true],
-  "6.odd@regular.invalid" : ["isRead", false],
-  "7@regular.invalid" : function (header, folder) {
+  "5@regular.invalid": ["isFlagged", true],
+  "6.odd@regular.invalid": ["isRead", false],
+  "7@regular.invalid": function(header, folder) {
     return header.getStringProperty("keywords") == "tag";
   },
-  "8.unread@regular.invalid" : ["isRead", false]
+  "8.unread@regular.invalid": ["isRead", false],
 };
 function testAction(handler, daemon, localserver) {
   var server = makeServer(handler, daemon);
@@ -97,7 +96,8 @@ function testAction(handler, daemon, localserver) {
   // Get the folder and force filters to run
   var folder = localserver.rootFolder.getChildNamed("test.filter");
   folder.getNewMessages(null, {
-    OnStopRunningUrl: function () { localserver.closeCachedConnections() }});
+    OnStopRunningUrl() { localserver.closeCachedConnections(); },
+  });
   server.performTest();
 
   var headerEnum = folder.messages;
@@ -105,12 +105,11 @@ function testAction(handler, daemon, localserver) {
   while (headerEnum.hasMoreElements())
     headers.push(headerEnum.getNext().QueryInterface(Ci.nsIMsgDBHdr));
 
-  try
-  {
+  try {
     Assert.equal(headers.length, 7);
     for (var header of headers) {
       var id = header.messageId;
-      dump("Testing message "+id+"\n");
+      dump("Testing message " + id + "\n");
       if (actionResults[id] instanceof Array)
         Assert.equal(header[actionResults[id][0]], actionResults[id][1]);
       else
@@ -138,14 +137,14 @@ function run_test() {
   createFilter(serverFilters, "subject", "Odd", "read");
   createFilter(serverFilters, "from", "Odd Person", "read");
   // A PRTime is the time in μs, but a JS date is time in ms.
-  createFilter(serverFilters, "date", new Date(2000, 0, 1)*1000, "read");
+  createFilter(serverFilters, "date", new Date(2000, 0, 1) * 1000, "read");
   createFilter(serverFilters, "size", 2, "read");
   createFilter(serverFilters, "message-id", "odd", "read");
   createFilter(serverFilters, "user-agent", "Odd/1.0", "read");
   createFilter(serverFilters, "message-id", "8.unread", "read");
   localserver.setFilterList(serverFilters);
 
-  handlers.forEach( function (handler) {
+  handlers.forEach(function(handler) {
     testAttrib(handler, daemon, localserver);
   });
 
@@ -160,7 +159,7 @@ function run_test() {
   createFilter(folderFilters, "subject", "First", "priority");
   createFilter(folderFilters, "subject", "Odd", "delete");
   createFilter(folderFilters, "from", "Odd Person", "kill");
-  createFilter(folderFilters, "date", new Date(2000, 0, 1)*1000, "watch");
+  createFilter(folderFilters, "date", new Date(2000, 0, 1) * 1000, "watch");
   createFilter(folderFilters, "size", 2, "flag");
   createFilter(folderFilters, "message-id", "odd", "stop");
   // This shouldn't be hit, because of the previous filter
@@ -171,7 +170,7 @@ function run_test() {
   folderFilters.loggingEnabled = true;
   folder.setFilterList(folderFilters);
 
-  handlers.forEach( function (handler) {
+  handlers.forEach(function(handler) {
     testAction(handler, daemon, localserver);
   });
 }

@@ -8,9 +8,9 @@ function run_test() {
   var server = makeServer(NNTP_RFC977_handler, daemon);
   server.start();
   var localserver = setupLocalServer(server.port);
-  var listener = { OnStopRunningUrl: function () {
-    localserver.closeCachedConnections();
-  }};
+  var listener = {
+    OnStopRunningUrl() { localserver.closeCachedConnections(); },
+  };
 
   // Tests bug 484656.
   localserver.realHostName = localserver.hostName;

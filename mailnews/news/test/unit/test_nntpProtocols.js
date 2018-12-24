@@ -11,17 +11,17 @@ var defaultProtocolFlags =
   Ci.nsIProtocolHandler.URI_FORBIDS_COOKIE_ACCESS |
   Ci.nsIProtocolHandler.ORIGIN_IS_FULL_SPEC;
 
-var protocols =
-  [ { protocol: "news",
-      urlSpec: "news://user@localhost/",
-      defaultPort: Ci.nsINntpUrl.DEFAULT_NNTP_PORT
-    },
-    // XXX News secure protocol not working yet.
-    /*
-    { protocol: "snews",
-      urlSpec: "snews://user@localhost/",
-      defaultPort: Ci.nsINntpUrl.DEFAULT_NNTPS_PORT
-      } */];
+var protocols = [{
+  protocol: "news",
+  urlSpec: "news://user@localhost/",
+  defaultPort: Ci.nsINntpUrl.DEFAULT_NNTP_PORT,
+},
+// XXX News secure protocol not working yet.
+/* { protocol: "snews",
+  urlSpec: "snews://user@localhost/",
+  defaultPort: Ci.nsINntpUrl.DEFAULT_NNTPS_PORT
+} */
+];
 
 function run_test() {
   for (var part = 0; part < protocols.length; ++part) {

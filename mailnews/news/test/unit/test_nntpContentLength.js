@@ -27,7 +27,8 @@ function run_test() {
     let folder = localserver.rootFolder.getChildNamed("test.subscribe.simple");
     folder.clearFlag(Ci.nsMsgFolderFlags.Offline);
     folder.getNewMessages(null, {
-      OnStopRunningUrl: function () { localserver.closeCachedConnections(); }});
+      OnStopRunningUrl() { localserver.closeCachedConnections(); },
+    });
     server.performTest();
 
     Assert.equal(folder.getTotalMessages(false), 1);
@@ -59,18 +60,17 @@ function run_test() {
     // Now try an attachment. &part=1.2
     // XXX the message doesn't really have an attachment
     let attachmentURL = Services.io.newURI(neckoURL.value.spec + "&part=1.2");
-    let attachmentChannel = Services.io.newChannelFromURI2(attachmentURL,
-                                                           null,
-                                                           Services.scriptSecurityManager.getSystemPrincipal(),
-                                                           null,
-                                                           Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                                           Ci.nsIContentPolicy.TYPE_OTHER);
+    Services.io.newChannelFromURI2(attachmentURL,
+                                   null,
+                                   Services.scriptSecurityManager.getSystemPrincipal(),
+                                   null,
+                                   Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                   Ci.nsIContentPolicy.TYPE_OTHER);
     // Currently attachments have their content length set to the length of the
     // entire message
     Assert.equal(channel.contentLength, kSimpleNewsArticle.length);
-  }
-  catch (e) {
+  } catch (e) {
     server.stop();
     do_throw(e);
   }
-};
+}

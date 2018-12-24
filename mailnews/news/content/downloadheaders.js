@@ -11,8 +11,7 @@ var numberElement = null;
 var nntpServer = null;
 var args = null;
 
-function OnLoad()
-{
+function OnLoad() {
   let newsBundle = document.getElementById("bundle_news");
 
   if ("arguments" in window && window.arguments[0]) {
@@ -31,7 +30,7 @@ function OnLoad()
 
     let infotext = newsBundle.getFormattedString("downloadHeadersInfoText",
                                                  [args.articleCount]);
-    setText('info', infotext);
+    setText("info", infotext);
     let okButtonText = newsBundle.getString("okButtonText");
     let okbutton = document.documentElement.getButton("accept");
     okbutton.setAttribute("label", okButtonText);

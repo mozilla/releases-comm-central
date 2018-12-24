@@ -3,7 +3,7 @@ ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
 
-var CC = Components.Constructor;
+var test = null;
 
 // WebApps.jsm called by ProxyAutoConfig (PAC) requires a valid nsIXULAppInfo.
 ChromeUtils.import("resource://testing-common/AppInfo.jsm");
@@ -15,16 +15,27 @@ do_get_profile();
 var gDEPTH = "../../../../";
 
 // Import the servers
-ChromeUtils.import("resource://testing-common/mailnews/maild.js");
-ChromeUtils.import("resource://testing-common/mailnews/nntpd.js");
+var {
+  fsDebugAll,
+  gThreadManager,
+  nsMailServer,
+} = ChromeUtils.import("resource://testing-common/mailnews/maild.js", null);
+var {
+  newsArticle,
+  NNTP_Giganews_handler,
+  NNTP_RFC2980_handler,
+  NNTP_RFC4643_extension,
+  NNTP_RFC977_handler,
+  nntpDaemon,
+} = ChromeUtils.import("resource://testing-common/mailnews/nntpd.js", null);
 
 var kSimpleNewsArticle =
-  "From: John Doe <john.doe@example.com>\n"+
-  "Date: Sat, 24 Mar 1990 10:59:24 -0500\n"+
-  "Newsgroups: test.subscribe.simple\n"+
-  "Subject: H2G2 -- What does it mean?\n"+
-  "Message-ID: <TSS1@nntp.invalid>\n"+
-  "\n"+
+  "From: John Doe <john.doe@example.com>\n" +
+  "Date: Sat, 24 Mar 1990 10:59:24 -0500\n" +
+  "Newsgroups: test.subscribe.simple\n" +
+  "Subject: H2G2 -- What does it mean?\n" +
+  "Message-ID: <TSS1@nntp.invalid>\n" +
+  "\n" +
   "What does the acronym H2G2 stand for? I've seen it before...\n";
 
 // The groups to set up on the fake server.
@@ -35,13 +46,13 @@ var groups = [
   ["test.empty", false],
   ["test.subscribe.empty", true],
   ["test.subscribe.simple", true],
-  ["test.filter", true]
+  ["test.filter", true],
 ];
 // Sets up the NNTP daemon object for use in fake server
 function setupNNTPDaemon() {
   var daemon = new nntpDaemon();
 
-  groups.forEach(function (element) {
+  groups.forEach(function(element) {
     daemon.addGroup(element[0]);
   });
 
@@ -51,12 +62,12 @@ function setupNNTPDaemon() {
   while (enumerator.hasMoreElements())
     files.push(enumerator.getNext().QueryInterface(Ci.nsIFile));
 
-  files.sort(function (a, b) {
+  files.sort(function(a, b) {
     if (a.leafName == b.leafName) return 0;
     return a.leafName < b.leafName ? -1 : 1;
   });
 
-  files.forEach(function (file) {
+  files.forEach(function(file) {
       var fstream = Cc["@mozilla.org/network/file-input-stream;1"]
                       .createInstance(Ci.nsIFileInputStream);
       var sstream = Cc["@mozilla.org/scriptableinputstream;1"]
@@ -93,7 +104,7 @@ Services.prefs.setBoolPref("mail.strict_threading", true);
 
 // Make sure we don't try to use a protected port. I like adding 1024 to the
 // default port when doing so...
-var NNTP_PORT = 1024+119;
+var NNTP_PORT = 1024 + 119;
 
 var _server = null;
 var _account = null;
@@ -101,7 +112,7 @@ var _account = null;
 function subscribeServer(incomingServer) {
   // Subscribe to newsgroups
   incomingServer.QueryInterface(Ci.nsINntpIncomingServer);
-  groups.forEach(function (element) {
+  groups.forEach(function(element) {
       if (element[1])
         incomingServer.subscribeToNewsgroup(element[0]);
     });
@@ -110,7 +121,7 @@ function subscribeServer(incomingServer) {
 }
 
 // Sets up the client-side portion of fakeserver
-function setupLocalServer(port, host="localhost") {
+function setupLocalServer(port, host = "localhost") {
   if (_server != null)
     return _server;
   let serverAndAccount =
@@ -141,17 +152,17 @@ function setupProtocolTest(port, newsUrl, incomingServer) {
     newsServer = setupLocalServer(port);
 
   var listener = {
-    onStartRequest : function () {},
-    onStopRequest : function ()  {
+    onStartRequest() {},
+    onStopRequest() {
       if (!this.called) {
         this.called = true;
         newsServer.closeCachedConnections();
         this.called = false;
       }
     },
-    onDataAvailable : function () {},
+    onDataAvailable() {},
     QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
-  }
+  };
   listener.called = false;
   newsServer.loadNewsUrl(url, null, listener);
 }
@@ -186,7 +197,7 @@ function do_check_transaction(real, expected) {
   // real.them may have an extra QUIT on the end, where the stream is only
   // closed after we have a chance to process it and not them. We therefore
   // excise this from the list
-  if (real.them[real.them.length-1] == "QUIT")
+  if (real.them[real.them.length - 1] == "QUIT")
     real.them.pop();
 
   Assert.equal(real.them.join(","), expected.join(","));
@@ -219,9 +230,9 @@ var articleTextListener = {
     ChromeUtils.generateQI([Ci.nsIStreamListener, Ci.nsIRequestObserver]),
 
   // nsIRequestObserver
-  onStartRequest: function(aRequest, aContext) {
+  onStartRequest(aRequest, aContext) {
   },
-  onStopRequest: function(aRequest, aContext, aStatusCode) {
+  onStopRequest(aRequest, aContext, aStatusCode) {
     Assert.equal(aStatusCode, 0);
 
     // Reduce any \r\n to just \n so we can do a good comparison on any
@@ -231,14 +242,14 @@ var articleTextListener = {
   },
 
   // nsIStreamListener
-  onDataAvailable: function(aRequest, aContext, aInputStream, aOffset, aCount) {
+  onDataAvailable(aRequest, aContext, aInputStream, aOffset, aCount) {
     let scriptStream = Cc["@mozilla.org/scriptableinputstream;1"]
                          .createInstance(Ci.nsIScriptableInputStream);
 
     scriptStream.init(aInputStream);
 
     this.data += scriptStream.read(aCount);
-  }
+  },
 };
 
 registerCleanupFunction(function() {

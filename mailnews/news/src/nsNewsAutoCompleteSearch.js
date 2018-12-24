@@ -30,37 +30,37 @@ nsNewsAutoCompleteResult.prototype = {
     return this._searchResults.length;
   },
 
-  getValueAt: function getValueAt(aIndex) {
+  getValueAt(aIndex) {
     return this._searchResults[aIndex].value;
   },
 
-  getLabelAt: function getLabelAt(aIndex) {
+  getLabelAt(aIndex) {
     return this._searchResults[aIndex].value;
   },
 
-  getCommentAt: function getCommentAt(aIndex) {
+  getCommentAt(aIndex) {
     return this._searchResults[aIndex].comment;
   },
 
-  getStyleAt: function getStyleAt(aIndex) {
+  getStyleAt(aIndex) {
     return "subscribed-news";
   },
 
-  getImageAt: function getImageAt(aIndex) {
+  getImageAt(aIndex) {
     return "";
   },
 
-  getFinalCompleteValueAt: function(aIndex) {
+  getFinalCompleteValueAt(aIndex) {
     return this.getValueAt(aIndex);
   },
 
-  removeValueAt: function removeValueAt(aRowIndex, aRemoveFromDB) {
+  removeValueAt(aRowIndex, aRemoveFromDB) {
   },
 
   // nsISupports
 
-  QueryInterface: ChromeUtils.generateQI([kACR])
-}
+  QueryInterface: ChromeUtils.generateQI([kACR]),
+};
 
 function nsNewsAutoCompleteSearch() {}
 
@@ -78,18 +78,16 @@ nsNewsAutoCompleteSearch.prototype = {
    * @param accountKey  The key of the account.
    * @return            The incoming news server (or null if one does not exist).
    */
-  _findServer: function _findServer(accountKey) {
+  _findServer(accountKey) {
     let account = MailServices.accounts.getAccount(accountKey);
 
-    if (account.incomingServer.type == 'nntp')
+    if (account.incomingServer.type == "nntp")
       return account.incomingServer;
-    else
-      return null;
+    return null;
   },
 
   // nsIAutoCompleteSearch
-  startSearch: function startSearch(aSearchString, aSearchParam,
-                                    aPreviousResult, aListener) {
+  startSearch(aSearchString, aSearchParam, aPreviousResult, aListener) {
     let params = aSearchParam ? JSON.parse(aSearchParam) : {};
     let result = new nsNewsAutoCompleteResult(aSearchString);
     if (!("type" in params) || !("accountKey" in params) ||
@@ -111,7 +109,7 @@ nsNewsAutoCompleteSearch.prototype = {
         if (curr.prettyName.includes(aSearchString)) {
           result._searchResults.push({
             value: curr.prettyName,
-            comment: this.cachedServer.prettyName
+            comment: this.cachedServer.prettyName,
           });
         }
       }
@@ -125,12 +123,12 @@ nsNewsAutoCompleteSearch.prototype = {
     aListener.onSearchResult(this, result);
   },
 
-  stopSearch: function stopSearch() {
+  stopSearch() {
   },
 
   // nsISupports
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIAutoCompleteSearch])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIAutoCompleteSearch]),
 };
 
 // Module

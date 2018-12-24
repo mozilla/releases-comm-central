@@ -9,35 +9,35 @@ var tests = [
   { uri: "news://localhost/?newgroups",
     get server() { return localserver; },
     folder: null,
-    newsAction: Ci.nsINntpUrl.ActionListNewGroups
+    newsAction: Ci.nsINntpUrl.ActionListNewGroups,
   },
   // news://host/group-based
   { uri: "news://news.server.example/example.group.this",
     server: null,
     folder: null,
     newsAction: Ci.nsINntpUrl.ActionGetNewNews,
-    group: "example.group.this"
+    group: "example.group.this",
   },
   { uri: "news://news.server.example/*",
     server: null,
     folder: null,
-    newsAction: Ci.nsINntpUrl.ActionListGroups
+    newsAction: Ci.nsINntpUrl.ActionListGroups,
   },
   { uri: "news://news.server.example/news.*",
     server: null,
     folder: null,
-    newsAction: Ci.nsINntpUrl.ActionListGroups
+    newsAction: Ci.nsINntpUrl.ActionListGroups,
   },
   { uri: "news://localhost/test.filter?list-ids",
     get server() { return localserver; },
     get folder() { return localserver.rootFolder.getChildNamed("test.filter"); },
     newsAction: Ci.nsINntpUrl.ActionListIds,
-    group: "test.filter"
+    group: "test.filter",
   },
   { uri: "news://localhost/some.group?search/XPAT From 1-5 [Ww][Hh][Oo]",
     get server() { return localserver; },
     newsAction: Ci.nsINntpUrl.ActionSearch,
-    group: "some.group"
+    group: "some.group",
   },
 
   // news://host/message-based URIs
@@ -47,19 +47,19 @@ var tests = [
     newsAction: Ci.nsINntpUrl.ActionFetchArticle,
     messageID: "message-id@some-host.invalid",
     group: "",
-    key: 0xffffffff
+    key: 0xffffffff,
   },
   { uri: "news://localhost/message-id@some-host.invalid?part=1.4",
     get server() { return localserver; },
     folder: null,
     newsAction: Ci.nsINntpUrl.ActionFetchPart,
-    messageID: "message-id@some-host.invalid"
+    messageID: "message-id@some-host.invalid",
   },
   { uri: "news://localhost/message-id@some-host.invalid?cancel",
     get server() { return localserver; },
     folder: null,
     newsAction: Ci.nsINntpUrl.ActionCancelArticle,
-    messageID: "message-id@some-host.invalid"
+    messageID: "message-id@some-host.invalid",
   },
   { uri: "news://localhost/message-id@some-host.invalid?group=foo&key=123",
     get server() { return localserver; },
@@ -67,7 +67,7 @@ var tests = [
     newsAction: Ci.nsINntpUrl.ActionFetchArticle,
     messageID: "message-id@some-host.invalid",
     group: "foo",
-    key: 123
+    key: 123,
   },
 
   // No-authority uris
@@ -76,7 +76,7 @@ var tests = [
     folder: null,
     newsAction: Ci.nsINntpUrl.ActionGetNewNews,
     group: "rec.games.pinball",
-    host: ""
+    host: "",
   },
   { uri: "news:message-id@some-host.invalid",
     server: null,
@@ -84,14 +84,14 @@ var tests = [
     newsAction: Ci.nsINntpUrl.ActionFetchArticle,
     messageID: "message-id@some-host.invalid",
     group: "",
-    key: 0xffffffff
+    key: 0xffffffff,
   },
 
   // news-message://host/group#key
   { uri: "news-message://localhost/test.simple.subscribe#1",
     newsAction: Ci.nsINntpUrl.ActionFetchArticle,
     group: "test.simple.subscribe",
-    key: 1
+    key: 1,
   },
 
   // nntp://host/group
@@ -99,19 +99,19 @@ var tests = [
     get server() { return localserver; },
     get folder() { return localserver.rootFolder.getChildNamed("test.filter"); },
     newsAction: Ci.nsINntpUrl.ActionGetNewNews,
-    group: "test.filter"
+    group: "test.filter",
   },
   { uri: "nntp://localhost/i.dont.exist",
     get server() { return localserver; },
     folder: null,
     newsAction: Ci.nsINntpUrl.ActionGetNewNews,
-    group: "i.dont.exist"
+    group: "i.dont.exist",
   },
   { uri: "nntp://news.example.invalid/i.dont.exist",
     server: null,
     folder: null,
     newsAction: Ci.nsINntpUrl.ActionGetNewNews,
-    group: "i.dont.exist"
+    group: "i.dont.exist",
   },
 
   // nntp://host/group/key
@@ -120,14 +120,14 @@ var tests = [
     get folder() { return localserver.rootFolder.getChildNamed("test.filter"); },
     newsAction: Ci.nsINntpUrl.ActionFetchArticle,
     group: "test.filter",
-    key: 123
+    key: 123,
   },
   { uri: "nntp://localhost/i.dont.exist/123",
     get server() { return localserver; },
     folder: null,
     newsAction: Ci.nsINntpUrl.ActionFetchArticle,
     group: "i.dont.exist",
-    key: 123
+    key: 123,
   },
 ];
 
@@ -136,7 +136,7 @@ var invalid_uris = [
   "nntp://localhost/",
   "nntp://localhost/a.group/hello",
   "nntp://localhost/a.group/0",
-  "nntp:a.group"
+  "nntp:a.group",
 ];
 
 function run_test() {

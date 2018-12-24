@@ -6,15 +6,12 @@
 // The basic daemon to use for testing nntpd.js implementations
 var daemon = setupNNTPDaemon();
 
-// Define these up here for checking with the transaction
-var test = null;
-
-add_task(async function () {
+add_task(async function() {
   await Services.logins.initializationPromise;
 
   daemon.groupCredentials = {
     "test.subscribe.empty": ["group1", "pass1"],
-    "test.filter": ["group2", "pass2"]
+    "test.filter": ["group2", "pass2"],
   };
 
   var server = makeServer(NNTP_RFC4643_extension, daemon);
@@ -39,7 +36,7 @@ add_task(async function () {
     var transaction;
 
     test = "per-group password part 1";
-    setupProtocolTest(server.port, prefix+"test.subscribe.empty", localserver);
+    setupProtocolTest(server.port, prefix + "test.subscribe.empty", localserver);
     server.performTest();
     transaction = server.playTransaction();
     do_check_transaction(transaction, ["MODE READER",
@@ -50,7 +47,7 @@ add_task(async function () {
 
     test = "per-group password part 2";
     server.resetTest();
-    setupProtocolTest(server.port, prefix+"test.filter", localserver);
+    setupProtocolTest(server.port, prefix + "test.filter", localserver);
     server.performTest();
     transaction = server.playTransaction();
     do_check_transaction(transaction, ["MODE READER", "GROUP test.filter",
@@ -60,11 +57,11 @@ add_task(async function () {
                                        "XOVER 1-8"]);
 
   } catch (e) {
-    dump("NNTP Protocol test "+test+" failed for type RFC 977:\n");
+    dump("NNTP Protocol test " + test + " failed for type RFC 977:\n");
     try {
       var trans = server.playTransaction();
-     if (trans)
-        dump("Commands called: "+uneval(trans)+"\n");
+      if (trans)
+        dump("Commands called: " + uneval(trans) + "\n");
     } catch (exp) {}
     do_throw(e);
   }
@@ -74,7 +71,3 @@ add_task(async function () {
   while (thread.hasPendingEvents())
     thread.processNextEvent(true);
 });
-
-function run_test() {
-  run_next_test();
-}
