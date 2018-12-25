@@ -463,9 +463,16 @@ var categoryManagement = {
             // We haven't created a rule for this category yet, do so now.
             let sheet = getViewStyleSheet();
             let ruleString = '.category-color-box[categories~="' + aCatName + '"] {} ';
-            let ruleIndex = sheet.insertRule(ruleString, sheet.cssRules.length);
 
-            this.categoryStyleCache[aCatName] = sheet.cssRules[ruleIndex];
+            try {
+                let ruleIndex = sheet.insertRule(ruleString, sheet.cssRules.length);
+                this.categoryStyleCache[aCatName] = sheet.cssRules[ruleIndex];
+            } catch (ex) {
+                sheet.ownerNode.addEventListener("load",
+                                                 () => this.updateStyleSheetForCategory(aCatName),
+                                                 { once: true });
+                return;
+            }
         }
 
         let color = Preferences.get("calendar.category.color." + aCatName) || "";
