@@ -23,6 +23,7 @@ kind-dependencies:
     - nightly-l10n-signing
     - repackage-l10n
     - repackage-signing-l10n
+    - repackage-signing-msi
     - mar-signing
     - mar-signing-l10n
 
