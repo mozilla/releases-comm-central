@@ -1854,7 +1854,7 @@
     </handlers>
   </binding>
 
-  <binding id="tabmail-arrowscrollbox" extends="chrome://global/content/bindings/scrollbox.xml#arrowscrollbox-clicktoscroll">
+  <binding id="tabmail-arrowscrollbox" extends="chrome://global/content/bindings/scrollbox.xml#arrowscrollbox">
     <content>
       <xul:toolbarbutton class="scrollbutton-up"
                          xbl:inherits="orient,collapsed=notoverflowing,disabled=scrolledtostart"
