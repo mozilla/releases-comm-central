@@ -944,17 +944,6 @@ nsresult nsMsgSearchTerm::MatchBody(nsIMsgSearchScopeTerm *scope, uint64_t offse
   GetMatchAllBeforeDeciding(&boolContinueLoop);
   result = boolContinueLoop;
 
-  // If there's a '=' in the search term, then we're not going to do
-  // quoted printable decoding. Otherwise we assume everything is
-  // quoted printable. Obviously everything isn't quoted printable, but
-  // since we don't have a MIME parser handy, and we want to err on the
-  // side of too many hits rather than not enough, we'll assume in that
-  // general direction. Blech. ### FIX ME
-  // bug fix #314637: for stateful charsets like ISO-2022-JP, we don't
-  // want to decode quoted printable since it contains '='.
-  bool isQuotedPrintable = !nsMsgI18Nstateful_charset(folderCharset) &&
-    (m_value.utf8String.FindChar('=') == kNotFound);
-
   nsCString compare;
   nsCString charset;
   while (!endOfFile && result == boolContinueLoop)
@@ -963,7 +952,7 @@ nsresult nsMsgSearchTerm::MatchBody(nsIMsgSearchScopeTerm *scope, uint64_t offse
     {
       bool softLineBreak = false;
       // Do in-place decoding of quoted printable
-      if (isQuotedPrintable)
+      if (bodyHan->IsQP())
       {
         softLineBreak = StringEndsWith(buf, NS_LITERAL_CSTRING("="));
         MsgStripQuotedPrintable(buf);

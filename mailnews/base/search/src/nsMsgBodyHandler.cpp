@@ -389,6 +389,9 @@ void nsMsgBodyHandler::SniffPossibleMIMEHeader(const nsCString &line)
   nsCString lowerCaseLine(line);
   ToLowerCase(lowerCaseLine);
 
+  if (StringBeginsWith(lowerCaseLine, NS_LITERAL_CSTRING("content-transfer-encoding:")))
+    m_partIsQP = lowerCaseLine.Find("quoted-printable", /* ignoreCase = */ true) != -1;
+
   if (StringBeginsWith(lowerCaseLine, NS_LITERAL_CSTRING("content-type:")))
   {
     if (lowerCaseLine.Find("text/html", /* ignoreCase = */ true) != -1)

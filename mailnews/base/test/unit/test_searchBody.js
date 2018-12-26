@@ -80,6 +80,13 @@ var Files =
   "../../../data/multipart-message-2.eml",  // plaintext, base64, non-ASCII, has "bodyOfAttachedMessagePläin"
   "../../../data/multipart-message-3.eml",  // plaintext+HTML, non-ASCII in plaintext, has "bodyOfAttachedMessagePläin"
   "../../../data/multipart-message-4.eml",  // plaintext+HTML, non-ASCII in HTML, has "bodyOfAttachedMessägeHTML"
+
+  // Message using ISO-2022-JP and CTE: quoted-printable.
+  "../../../data/iso-2022-jp-qp.eml",  // plaintext, has 日本 (Japan), we shouldn't find =1B$BF|K.
+
+  // Message using ISO-2022-JP and 7bit, but containing something that looks like quoted-printable.
+  // (bug 314637).
+  "../../../data/iso-2022-jp-not-qp.eml",  // plaintext, has 現況 which contains =67.
 ]
 var Tests =
 [
@@ -147,6 +154,11 @@ var Tests =
   { value: "ShouldNotFindAcrossLines", op: Contains, count: 0 },
   { value: "ShouldFindThisAgain", op: Contains, count: 2 },
   { value: "ShouldFind AcrossLines", op: Contains, count: 2 },
+
+  // Test for ISO-2022-JP and CTE: quoted-printable, also 7bit looking like quoted-printable.
+  { value: "日本", op: Contains, count: 1 },
+  { value: "=1B$BF|K", op: Contains, count: 0 },
+  { value: "現況", op: Contains, count: 1 },
 ];
 
 function fixFile(file) {
