@@ -108,12 +108,8 @@ toolbar[printpreview="true"] {
   color: var(--sidebar-text-color);
 }
 
-:root[lwt-tree] treechildren::-moz-tree-image(hover),
-:root[lwt-tree] treechildren::-moz-tree-twisty(hover),
 :root[lwt-tree] treechildren::-moz-tree-image(selected),
 :root[lwt-tree] treechildren::-moz-tree-twisty(selected),
-:root[lwt-tree] #threadTree treechildren::-moz-tree-cell-text(untagged, hover),
-:root[lwt-tree] tree:not(#threadTree) treechildren::-moz-tree-cell-text(hover),
 :root[lwt-tree] #threadTree treechildren::-moz-tree-cell-text(untagged, selected),
 :root[lwt-tree] tree:not(#threadTree) treechildren::-moz-tree-cell-text(selected) {
   color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
