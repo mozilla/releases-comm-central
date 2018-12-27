@@ -76,6 +76,7 @@ void nsMsgBodyHandler::Initialize()
   m_stripHeaders = true;
   m_partIsHtml = false;
   m_base64part = false;
+  m_partIsQP = false;
   m_isMultipart = false;
   m_partIsText = true; // Default is text/plain, maybe proven otherwise later.
   m_pastMsgHeaders = false;
@@ -319,6 +320,8 @@ int32_t nsMsgBodyHandler::ApplyTransformations (const nsCString &line, int32_t l
     // so no more defaulting to 'true' when the part is done.
     m_partIsText = false;
 
+    // Note: we cannot reset 'm_partIsQP' yet since we still need it to process
+    // the last buffer returned here. Parsing the next part will set a new value.
     return buf.Length();
   }
 
@@ -405,6 +408,7 @@ void nsMsgBodyHandler::SniffPossibleMIMEHeader(const nsCString &line)
       {
         // Nested multipart, get ready for new headers.
         m_base64part = false;
+        m_partIsQP = false;
         m_pastPartHeaders = false;
         m_partIsHtml = false;
         m_partIsText = false;
@@ -416,6 +420,7 @@ void nsMsgBodyHandler::SniffPossibleMIMEHeader(const nsCString &line)
     {
       // Initialise again.
       m_base64part = false;
+      m_partIsQP = false;
       m_pastPartHeaders = false;
       m_partIsHtml = false;
       m_partIsText = true;  // Default is text/plain, maybe proven otherwise later.
