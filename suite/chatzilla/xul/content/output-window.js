@@ -260,7 +260,7 @@ function scrollToElement(element, position)
 
         case "marker":
             if ("getActivityMarker" in view)
-                element = view.getActivityMarker().marker;
+                element = view.getActivityMarker();
             else
                 element = null;
             break;

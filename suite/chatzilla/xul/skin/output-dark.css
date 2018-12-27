@@ -23,6 +23,10 @@ a.chatzilla-link:visited {
     color: lightgrey;
 }
 
+.chatzilla-line-marker {
+    box-shadow: 0px 2px darkgreen !important;
+}
+
 .header-outer {
     background-color: black;
 }

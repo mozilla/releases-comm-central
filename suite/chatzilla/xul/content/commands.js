@@ -173,6 +173,9 @@ function initCommands()
          ["log",               cmdLog,                             CMD_CONSOLE,
           "[<state>]"],
          ["map",               cmdSimpleCommand,    CMD_NEED_SRV | CMD_CONSOLE],
+         ["marker",            cmdMarker,                          CMD_CONSOLE],
+         ["marker-clear",      cmdMarker,                          CMD_CONSOLE],
+         ["marker-set",        cmdMarker,                          CMD_CONSOLE],
          ["match-users",       cmdMatchUsers,      CMD_NEED_CHAN | CMD_CONSOLE,
           "<mask>"],
          ["me",                cmdMe,                              CMD_CONSOLE,
@@ -2182,6 +2185,7 @@ function _sendMsgTo(message, msgType, target, displayObj)
     if (!displayObj)
         displayObj = target;
 
+
     var msg = filterOutput(message, msgType, target);
 
     var o = getObjectDetails(target);
@@ -2600,6 +2604,40 @@ function cmdLeave(e)
             if (!leaveChannel(channels[i]))
                 break;
         }
+    }
+}
+
+function cmdMarker(e)
+{
+    if (!client.initialized)
+        return;
+
+    var view = e.sourceObject;
+    if (!("setActivityMarker" in e.sourceObject))
+        return;
+
+    var marker = e.sourceObject.getActivityMarker();
+    if ((e.command.name == "marker") && (marker == null))
+    {
+        // Marker is not currently set but user wants to scroll to it,
+        // so we just call set like normal.
+        e.command.name = "marker-set";
+    }
+
+    switch(e.command.name)
+    {
+        case "marker":    /* Scroll to the marker. */
+            e.sourceObject.scrollToElement("marker", "center");
+            break;
+        case "marker-set":   /* Set (or reset) the marker. */
+            e.sourceObject.setActivityMarker(true);
+            e.sourceObject.scrollToElement("marker", "center");
+            break;
+        case "marker-clear": /* Clear the marker. */
+            e.sourceObject.setActivityMarker(false);
+            break;
+        default:
+            view.display(MSG_ERR_UNKNOWN_COMMAND, e.command.name);
     }
 }
 

@@ -703,6 +703,11 @@ function onWindowFocus(e)
 function onWindowBlue(e)
 {
     window.isFocused = false;
+
+    // If we're tracking last read lines, set a mark on the current view
+    // when losing focus.
+    if (client.currentObject && client.currentObject.prefs["autoMarker"])
+        client.currentObject.dispatch("marker-set");
 }
 
 function onInputCompleteLine(e)
@@ -2821,6 +2826,44 @@ function chan_part(reason)
     this._part(reason);
 }
 
+client.setActivityMarker =
+CIRCNetwork.prototype.setActivityMarker =
+CIRCChannel.prototype.setActivityMarker =
+CIRCUser.prototype.setActivityMarker =
+CIRCDCCChat.prototype.setActivityMarker =
+CIRCDCCFileTransfer.prototype.setActivityMarker =
+function view_setactivitymarker(state)
+{
+    if (!client.initialized)
+        return;
+
+    // Always clear the activity marker first.
+    var markedRow = this.getActivityMarker();
+    if (markedRow)
+    {
+        markedRow.classList.remove("chatzilla-line-marker");
+    }
+
+    if (state)
+    {
+        // Mark the last row.
+        var target = this.messages.firstChild.lastChild;
+        if (!target)
+            return;
+        target.classList.add("chatzilla-line-marker");
+    }
+}
+
+client.getActivityMarker =
+CIRCNetwork.prototype.getActivityMarker =
+CIRCChannel.prototype.getActivityMarker =
+CIRCUser.prototype.getActivityMarker =
+CIRCDCCChat.prototype.getActivityMarker =
+CIRCDCCFileTransfer.prototype.getActivityMarker =
+function view_getactivitymarker()
+{
+    return this.messages.querySelector(".chatzilla-line-marker");
+}
 CIRCChannel.prototype.onInit =
 function chan_oninit ()
 {

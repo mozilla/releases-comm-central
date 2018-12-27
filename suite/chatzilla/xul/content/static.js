@@ -2546,6 +2546,11 @@ function setCurrentObject (obj)
     if (tb)
         tb.setAttribute("state", "normal");
 
+    // If we're tracking last read lines, set a mark on the current view
+    // before switching to the new one.
+    if (tb && client.currentObject.prefs["autoMarker"])
+        client.currentObject.dispatch("marker-set");
+
     client.currentObject = obj;
 
     // Update userlist:

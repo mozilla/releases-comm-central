@@ -20,6 +20,10 @@ a.chatzilla-link {
     color: #342ecc;
 }
 
+.chatzilla-line-marker {
+    box-shadow: 0px 2px lightgray !important;
+}
+
 .header-outer {
     background-color: #d1d0ea;
 }
