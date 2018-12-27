@@ -74,6 +74,6 @@ scriptworker:
             - 'project:comm:thunderbird:releng:balrog:server:beta'
             - 'project:comm:thunderbird:releng:balrog:server:release'
 
-partner:
-    release: {}
-    staging: {}
+partner-urls:
+    release-partner-repack: {}
+    release-eme-free-repack: {}
