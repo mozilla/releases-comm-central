@@ -5,15 +5,15 @@
 loader: taskgraph.loader.single_dep:loader
 
 transforms:
-   - taskgraph.transforms.name_sanity:transforms
-   - taskgraph.transforms.repackage_signing:transforms
-   - taskgraph.transforms.task:transforms
+    - taskgraph.transforms.name_sanity:transforms
+    - taskgraph.transforms.repackage_signing:transforms
+    - taskgraph.transforms.task:transforms
 
 kind-dependencies:
-   - repackage-msi
+    - repackage-msi
 
 only-for-build-platforms:
-   - win32-nightly/opt
-   - win32/opt
-   - win64-nightly/opt
-   - win64/opt
+    - win32-nightly/opt
+    - win32/opt
+    - win64-nightly/opt
+    - win64/opt
