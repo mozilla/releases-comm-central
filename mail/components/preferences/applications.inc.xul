@@ -87,18 +87,17 @@
 
           <separator class="thin"/>
 
+          <listheader equalsize="always" style="border: 0; padding: 0; -moz-appearance: none;">
+            <treecol id="typeColumn" label="&typeColumn.label;" value="type"
+                      accesskey="&typeColumn.accesskey;" persist="sortDirection"
+                      flex="1" onclick="gApplicationsPane.sort(event);"
+                      sortDirection="ascending" sort="typeDescription"/>
+            <treecol id="actionColumn" label="&actionColumn2.label;" value="action"
+                      accesskey="&actionColumn2.accesskey;" persist="sortDirection"
+                      flex="1" onclick="gApplicationsPane.sort(event);"/>
+          </listheader>
           <richlistbox id="handlersView"
-                       preference="pref.downloads.disable_button.edit_actions">
-            <listheader equalsize="always" style="border: 0; padding: 0; -moz-appearance: none;">
-              <treecol id="typeColumn" label="&typeColumn.label;" value="type"
-                       accesskey="&typeColumn.accesskey;" persist="sortDirection"
-                       flex="1" onclick="gApplicationsPane.sort(event);"
-                       sortDirection="ascending" sort="typeDescription"/>
-              <treecol id="actionColumn" label="&actionColumn2.label;" value="action"
-                       accesskey="&actionColumn2.accesskey;" persist="sortDirection"
-                       flex="1" onclick="gApplicationsPane.sort(event);"/>
-            </listheader>
-          </richlistbox>
+                       preference="pref.downloads.disable_button.edit_actions"/>
 
           <separator class="thin"/>
 
