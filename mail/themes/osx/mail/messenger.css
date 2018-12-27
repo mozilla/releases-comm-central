@@ -222,13 +222,8 @@ toolbarbutton[type="menu-button"][disabled="true"]:hover:active {
   -moz-appearance: none;
   border: none;
   background-color: transparent !important;
-  list-style-image: url("chrome://global/skin/arrow/arrow-dn.png");
   width: auto;
   padding: 0 5px;
-}
-
-.toolbarbutton-menubutton-dropmarker[disabled="true"] {
-  list-style-image: url("chrome://global/skin/arrow/arrow-dn-dis.png");
 }
 
 /* ::::: primary toolbar buttons ::::: */
