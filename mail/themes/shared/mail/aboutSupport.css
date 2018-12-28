@@ -11,7 +11,9 @@
 }
 
 #check-show-private-data {
-  margin-bottom: -0.5em;
+  margin-inline-start: 10px;
+  margin-inline-end: 3px;
+  vertical-align: text-bottom;
 }
 
 .gray-text {
