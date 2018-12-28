@@ -1204,7 +1204,7 @@ nsresult MaildirStoreParser::ParseNextMessage(nsIFile *aFile)
   rv = NS_NewLocalFileInputStream(getter_AddRefs(inputStream), aFile);
   if (NS_SUCCEEDED(rv) && inputStream)
   {
-    nsMsgLineStreamBuffer *inputStreamBuffer =
+    RefPtr<nsMsgLineStreamBuffer> inputStreamBuffer =
       new nsMsgLineStreamBuffer(FILE_IO_BUFFER_SIZE, true, false);
     int64_t fileSize;
     aFile->GetFileSize(&fileSize);
