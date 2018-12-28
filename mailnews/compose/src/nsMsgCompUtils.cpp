@@ -389,7 +389,7 @@ nsresult mime_generate_headers(nsIMsgCompFields *fields,
 
   // If we are saving the message as a draft, don't bother inserting the undisclosed recipients field. We'll take care of that when we
   // really send the message.
-  if (!hasDisclosedRecipient && !isDraft)
+  if (!hasDisclosedRecipient && (!isDraft || deliver_mode == nsIMsgSend::nsMsgQueueForLater))
   {
     bool bAddUndisclosedRecipients = true;
     prefs->GetBoolPref("mail.compose.add_undisclosed_recipients", &bAddUndisclosedRecipients);

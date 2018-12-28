@@ -162,7 +162,7 @@ static nsresult StripOutGroupNames(char * addresses)
         {
           // ok, we found a group name
           // let's backup the write cursor to remove the group name
-          writePtr = previousSeparator + 1;
+          writePtr = previousSeparator;
           group = true;
           continue;
         }
