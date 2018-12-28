@@ -129,6 +129,8 @@ const UIFacets = {
       facet = document.createElement("facet-boolean");
     } else if (type === "boolean-filtered") {
       facet = document.createElement("facet-boolean-filtered");
+    } else if (type === "discrete") {
+      facet = document.createElement("facet-discrete");
     } else {
       facet = document.createElement("div");
       facet.setAttribute("class", "facetious");
