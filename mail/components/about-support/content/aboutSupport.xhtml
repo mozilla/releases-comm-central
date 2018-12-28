@@ -10,8 +10,6 @@
   <!ENTITY % htmlDTD PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "DTD/xhtml1-strict.dtd"> %htmlDTD;
   <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd"> %brandDTD;
   <!ENTITY % resetProfileDTD SYSTEM "chrome://global/locale/resetProfile.dtd"> %resetProfileDTD;
-<!-- Added for TB -->
-  <!ENTITY % aboutSupportMailDTD SYSTEM "chrome://messenger/locale/aboutSupportMail.dtd"> %aboutSupportMailDTD;
 ]>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -34,6 +32,7 @@
     <link rel="localization" href="branding/brand.ftl"/>
     <link rel="localization" href="toolkit/about/aboutSupport.ftl"/>
 <!-- Added for TB -->
+    <link rel="localization" href="messenger/aboutSupportMail.ftl"/>
     <script type="application/javascript"
             src="chrome://messenger/content/about-support/accounts.js"/>
     <script type="application/javascript"
@@ -70,13 +69,14 @@
  -->
       <button id="copy-to-clipboard" data-l10n-id="copy-text-to-clipboard-label"/>
 <!-- Added for TB -->
-      <button id="send-via-email">
-        &aboutSupport.sendViaEmail.label;
-      </button>
-      <input type="checkbox" id="check-show-private-data" class="data-uionly"
-             onchange="onShowPrivateDataChange(this);" />
-      <label for="check-show-private-data">&aboutSupport.showPrivateData.mainText;
-      <span class="gray-text">&aboutSupport.showPrivateData.explanationText;</span></label>
+      <button id="send-via-email" data-l10n-id="send-via-email"/>
+      <input type="checkbox"
+             id="check-show-private-data"
+             class="data-uionly"
+             role="checkbox"
+             onchange="onShowPrivateDataChange(this);"/>
+      <label for="check-show-private-data" data-l10n-id="show-private-data-main-text"/>
+      <label class="gray-text" data-l10n-id="show-private-data-explanation-text"/>
 <!-- End of TB addition -->
     </div>
 
@@ -241,63 +241,37 @@
 
       <!-- - - - - - - - - - - - - - - - - - - - - -->
 <!-- Added for TB -->
-      <h2 class="major-section">
-        &aboutSupport.accountsTitle;
-      </h2>
+      <h2 class="major-section" data-l10n-id="accounts-title"/>
 
       <table id="accounts-table">
         <thead>
           <tr>
-            <th rowspan="2">
-              &aboutSupport.accountsID;
-            </th>
+            <th rowspan="2" data-l10n-id="accounts-ID"/>
 
-            <th rowspan="2" class="data-private">
-              &aboutSupport.accountsName;
-            </th>
+            <th rowspan="2" class="data-private" data-l10n-id="accounts-name"/>
 
-            <th colspan="3">
-              &aboutSupport.accountsIncomingServer;
-            </th>
+            <th colspan="3" data-l10n-id="accounts-incoming-server"/>
 
-            <th colspan="5">
-              &aboutSupport.accountsOutgoingServers;
-            </th>
+            <th colspan="5" data-l10n-id="accounts-outgoing-servers"/>
           </tr>
           <tr class="thead-level2">
             <!-- Incoming server -->
-            <th>
-              &aboutSupport.accountsServerName;
-            </th>
+            <th data-l10n-id="accounts-server-name"/>
 
-            <th>
-              &aboutSupport.accountsConnSecurity;
-            </th>
+            <th data-l10n-id="accounts-conn-security"/>
 
-            <th>
-              &aboutSupport.accountsAuthMethod;
-            </th>
+            <th data-l10n-id="accounts-auth-method"/>
 
             <!-- Outgoing servers -->
-            <th class="data-private">
-              &aboutSupport.identityName;
-            </th>
+            <th class="data-private" data-l10n-id="identity-name"/>
 
-            <th>
-              &aboutSupport.accountsServerName;
-            </th>
+            <th data-l10n-id="accounts-server-name"/>
 
-            <th>
-              &aboutSupport.accountsConnSecurity;
-            </th>
+            <th data-l10n-id="accounts-conn-security"/>
 
-            <th>
-              &aboutSupport.accountsAuthMethod;
-            </th>
+            <th data-l10n-id="accounts-auth-method"/>
 
-            <th>
-              &aboutSupport.accountsDefault;
-            </th>
+            <th data-l10n-id="accounts-default"/>
           </tr>
         </thead>
 
