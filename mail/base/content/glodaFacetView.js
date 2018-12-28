@@ -111,6 +111,34 @@ const QueryExplanation = {
 };
 
 /**
+ * Object containing facets binding methods.
+ */
+const UIFacets = {
+  get node() {
+    return document.getElementById("facets");
+  },
+  clearFacets() {
+    while (this.node.hasChildNodes()) {
+      this.node.lastChild.remove();
+    }
+  },
+  addFacet(type, attrDef, args) {
+    let facet = document.createElement("div");
+    facet.attrDef = attrDef;
+    facet.nounDef = attrDef.objectNounDef;
+    for (let key in args) {
+      facet[key] = args[key];
+    }
+    facet.setAttribute("class", "facetious");
+    facet.setAttribute("type", type);
+    facet.setAttribute("name", attrDef.attributeName);
+    this.node.appendChild(facet);
+
+    return facet;
+  },
+};
+
+/**
  * Represents the active constraints on a singular facet.  Singular facets can
  *  only have an inclusive set or an exclusive set, but not both.  Non-singular
  *  facets can have both.  Because they are different worlds, non-singular gets
@@ -523,8 +551,6 @@ var FacetContext = {
   facetingCompleted() {
     this.planLayout();
 
-    let uiFacets = document.getElementById("facets");
-
     if (!this.everFaceted) {
       this.everFaceted = true;
       this.faceters.sort(this._groupCountComparator);
@@ -560,7 +586,7 @@ var FacetContext = {
           continue;
         }
 
-        faceter.xblNode = uiFacets.addFacet(faceter.type, faceter.attrDef, {
+        faceter.xblNode = UIFacets.addFacet(faceter.type, faceter.attrDef, {
           faceter,
           facetDef: faceter.facetDef,
           orderedGroups: faceter.orderedGroups,

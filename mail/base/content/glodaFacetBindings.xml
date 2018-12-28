@@ -12,42 +12,6 @@
           xmlns:xbl="http://www.mozilla.org/xbl"
           xmlns:svg="http://www.w3.org/2000/svg">
 
-<!-- ===== Facets ===== -->
-
-<binding id="facets">
-  <content>
-  </content>
-  <implementation>
-    <method name="clearFacets">
-      <body><![CDATA[
-        while (this.hasChildNodes())
-          this.lastChild.remove();
-      ]]></body>
-    </method>
-    <method name="addFacet">
-      <parameter name="aType" />
-      <parameter name="aAttrDef" />
-      <parameter name="aArgs" />
-      <body><![CDATA[
-        let facets = this;
-
-        let facet = document.createElement("div");
-        facet.attrDef = aAttrDef;
-        facet.nounDef = aAttrDef.objectNounDef;
-        for (let key in aArgs) {
-          facet[key] = aArgs[key];
-        }
-        facet.setAttribute("class", "facetious");
-        facet.setAttribute("type", aType);
-        facet.setAttribute("name", aAttrDef.attributeName);
-        facets.appendChild(facet);
-
-        return facet;
-      ]]></body>
-    </method>
-  </implementation>
-</binding>
-
 <binding id="facet-base">
   <implementation>
     <method name="brushItems">
