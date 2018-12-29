@@ -25,6 +25,7 @@ job-defaults:
             by-release-level:
                 production: download.mozilla.org
                 staging: bouncer-bouncer-releng.stage.mozaws.net
+        update-line: {}
 
 jobs:
     thunderbird:
