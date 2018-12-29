@@ -66,6 +66,12 @@ const ABOUT_SUPPORT_ERROR_STRINGS = new Map([[ "text/html", ["undefined", "null"
 function open_about_support() {
   let tab = open_content_tab_with_click(mc.menus.helpMenu.aboutsupport_open,
                                         "about:support");
+
+  // Make sure L10n is done.
+  let l10nDone = false;
+  tab.browser.contentDocument.l10n.ready.then(() => l10nDone = true, Cu.reportError);
+  mc.waitFor(() => l10nDone, "Timeout waiting for L10n to complete.");
+
   // We have one variable that's asynchronously populated -- wait for it to be
   // populated.
   mc.waitFor(() => (tab.browser.contentWindow.gAccountDetails !== undefined),
