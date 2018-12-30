@@ -37,11 +37,13 @@
     <button id="alarm-snooze-all-button"
             type="menu"
             label="&calendar.alarm.snoozeallfor.label;">
-      <menupopup type="snooze-menupopup"
+      <menupopup id="alarm-snooze-all-popup"
+                 type="snooze-menupopup"
                  ignorekeys="true"
                  onsnooze="snoozeAllItems(event.detail)"/>
     </button>
-    <button label="&calendar.alarm.dismissall.label;"
+    <button id="alarm-dismiss-all-button"
+            label="&calendar.alarm.dismissall.label;"
             oncommand="onDismissAllAlarms();"/>
   </hbox>
   <hbox pack="end" class="resizer-box">

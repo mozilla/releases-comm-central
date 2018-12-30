@@ -167,10 +167,8 @@ function testEventDialog() {
 
     // Catch and dismiss alarm.
     plan_for_modal_dialog("Calendar:AlarmWindow", alarm => {
-        let { lookup: alarmlookup } = helpersForController(alarm);
-        alarm.waitThenClick(alarmlookup(`
-            /id("calendar-alarm-dialog")/id("alarm-actionbar")/[1]`
-        ));
+        let { eid: alarmid } = helpersForController(alarm);
+        alarm.waitThenClick(alarmid("alarm-dismiss-all-button"));
     });
     wait_for_modal_dialog("Calendar:AlarmWindow", TIMEOUT_MODAL_DIALOG);
 

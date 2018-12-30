@@ -70,7 +70,7 @@ var AGENDA_LISTBOX = `
 var EVENTPATH = `
     /{"tooltip":"itemTooltip","calendar":"${CALENDARNAME.toLowerCase()}"}
 `;
-// Used after "${EVENTPATH}/${getEventDetials([view])}/".
+// Used after "${EVENTPATH}/${getEventDetails([view])}/".
 var ALARM_ICON_PATH = `
     anon({"anonid":"category-box-stack"})/anon({"align":"center"})/
     anon({"anonid":"alarm-icons-box"})/anon({"class":"reminder-icon"})
