@@ -71,3 +71,7 @@ XPCOMUtils.defineLazyServiceGetter(MailServices, "junk",
 XPCOMUtils.defineLazyServiceGetter(MailServices, "newMailNotification",
                                    "@mozilla.org/newMailNotificationService;1",
                                    "mozINewMailNotificationService");
+
+XPCOMUtils.defineLazyServiceGetter(MailServices, "folderLookup",
+                                   "@mozilla.org/mail/folder-lookup;1",
+                                   "nsIFolderLookupService");

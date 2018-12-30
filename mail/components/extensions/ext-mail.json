@@ -50,6 +50,15 @@
     "scopes": ["addon_parent"],
     "manifest": ["legacy"]
   },
+  "mailTabs": {
+    "url": "chrome://messenger/content/parent/ext-mailTabs.js",
+    "schema": "chrome://messenger/content/schemas/mailTabs.json",
+    "scopes": ["addon_parent"],
+    "manifest": ["mailTabs"],
+    "paths": [
+      ["mailTabs"]
+    ]
+  },
   "pkcs11": {
     "url": "chrome://messenger/content/parent/ext-pkcs11.js",
     "schema": "chrome://messenger/content/schemas/pkcs11.json",

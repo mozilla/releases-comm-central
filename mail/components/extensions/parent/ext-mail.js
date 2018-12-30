@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+ChromeUtils.defineModuleGetter(this, "MailServices", "resource:///modules/MailServices.jsm");
+
 var {
   ExtensionError,
 } = ExtensionUtils;
@@ -504,9 +506,21 @@ Object.assign(global, { tabTracker, windowTracker });
  * Extension-specific wrapper around a Thunderbird tab.
  */
 class Tab extends TabBase {
-  /** Removes some useless properties from a tab object. */
+  /** Returns true if this tab is a 3-pane tab. */
+  get isMail3Pane() {
+    return this.nativeTab.mode.type == "folder";
+  }
+
+  /** Overrides the matches function to enable querying for 3-pane tabs. */
+  matches(queryInfo, context) {
+    let result = super.matches(queryInfo, context);
+    return result && (!queryInfo.isMail3Pane || this.isMail3Pane);
+  }
+
+  /** Adds the isMail3Pane property and removes some useless properties from a tab object. */
   convert(fallback) {
     let result = super.convert(fallback);
+    result.isMail3Pane = this.isMail3Pane;
 
     // These properties are not useful to Thunderbird extensions and are not returned.
     for (let key of [
@@ -987,4 +1001,80 @@ extensions.on("startup", (type, extension) => { // eslint-disable-line mozilla/b
                    () => new TabManager(extension));
   defineLazyGetter(extension, "windowManager",
                    () => new WindowManager(extension));
+});
+
+/**
+ * The following functions turn nsIMsgFolder references into more human-friendly forms.
+ * A folder can be referenced with the account key, and the path to the folder in that account.
+ */
+
+/**
+ * Convert a folder URI to a human-friendly path.
+ * @return {String}
+ */
+function folderURIToPath(uri) {
+  let path = Services.io.newURI(uri).filePath;
+  return path.split("/").map(decodeURIComponent).join("/");
+}
+
+/**
+ * Convert a human-friendly path to a folder URI. This function does not assume that the
+ * folder referenced exists.
+ * @return {String}
+ */
+function folderPathToURI(accountId, path) {
+  let rootURI = MailServices.accounts.getAccount(accountId).incomingServer.rootFolder.URI;
+  if (path == "/") {
+    return rootURI;
+  }
+  return rootURI + path.split("/").map(encodeURIComponent).join("/");
+}
+
+/**
+ * Converts an nsIMsgFolder to a simple object for use in messages.
+ * @return {Object}
+ */
+function convertFolder(folder, accountId) {
+  if (!folder) {
+    return null;
+  }
+  if (!accountId) {
+    let server = folder.server;
+    let account = MailServices.accounts.FindAccountForServer(server);
+    accountId = account.key;
+  }
+  return {
+    accountId,
+    name: folder.prettyName,
+    path: folderURIToPath(folder.URI),
+  };
+}
+
+/**
+ * Converts an nsIMsgHdr to a simle object for use in messages.
+ * This function WILL change as the API develops.
+ * @return {Object}
+ */
+function convertMessage(msgHdr) {
+  if (!msgHdr) {
+    return null;
+  }
+
+  return {
+    messageId: msgHdr.messageId,
+    read: msgHdr.isRead,
+    flagged: msgHdr.isFlagged,
+    ccList: msgHdr.ccList,
+    bccList: msgHdr.bccList,
+    author: msgHdr.mime2DecodedAuthor,
+    subject: msgHdr.mime2DecodedSubject,
+    recipients: msgHdr.mime2DecodedRecipients,
+  };
+}
+
+Object.assign(global, {
+  convertFolder,
+  convertMessage,
+  folderPathToURI,
+  folderURIToPath,
 });

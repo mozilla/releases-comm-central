@@ -38,7 +38,8 @@
           "favIconUrl": {"type": "string", "optional": true, "permissions": ["tabs"], "description": "The URL of the tab's favicon. This property is only present if the extension's manifest includes the <code>\"tabs\"</code> permission. It may also be an empty string if the tab is loading."},
           "status": {"type": "string", "optional": true, "description": "Either <em>loading</em> or <em>complete</em>."},
           "width": {"type": "integer", "optional": true, "description": "The width of the tab in pixels."},
-          "height": {"type": "integer", "optional": true, "description": "The height of the tab in pixels."}
+          "height": {"type": "integer", "optional": true, "description": "The height of the tab in pixels."},
+          "isMail3Pane": {"type": "boolean", "optional": true, "description": "Whether the tab is a 3-pane tab."}
         }
       },
       {
@@ -226,6 +227,11 @@
             "type": "object",
             "name": "queryInfo",
             "properties": {
+              "isMail3Pane": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Whether the tab is a Thunderbird 3-pane tab."
+              },
               "active": {
                 "type": "boolean",
                 "optional": true,
