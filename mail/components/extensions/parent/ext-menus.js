@@ -604,9 +604,10 @@ function addMenuEventInfo(info, contextData, extension, includeSensitiveData) {
     info.frameUrl = contextData.originalViewUrl;
   }
 
-  if (contextData.selectedMessages && extension.hasPermission("messagesRead")) {
-    info.selectedMessages = messageListTracker.startList(contextData.selectedMessages, {extension});
-  }
+  // TODO re-enable this with bug 1488176.
+  // if (contextData.selectedMessages && extension.hasPermission("messagesRead")) {
+  //   info.selectedMessages = messageListTracker.startList(contextData.selectedMessages, {extension});
+  // }
   for (let folderType of ["displayedFolder", "selectedFolder"]) {
     if (contextData[folderType] && extension.hasPermission("accountsRead")) {
       info[folderType] = convertFolder(contextData[folderType]);
