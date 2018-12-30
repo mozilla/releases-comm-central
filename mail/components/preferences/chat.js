@@ -2,14 +2,62 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from preferences.js */
 // messagestyle.js
 /* globals previewObserver */
 
 var gChatPane = {
+  mInitialized: false,
+
   init() {
-    previewObserver.load();
     this.updateDisabledState();
     this.updatePlaySound();
+
+    let preference = document.getElementById("mail.preferences.chat.selectedTabIndex");
+    this.mTabBox = document.getElementById("chatPrefs");
+    this.mTabBox.selectedIndex = preference.value != null ? preference.value : 0;
+
+    window.addEventListener("paneSelected", this.paneSelectionChanged);
+
+    this.mInitialized = true;
+  },
+
+  paneSelectionChanged() {
+    gChatPane.initPreview(); // Can't use "this", as it's probably not gChatPane.
+  },
+
+  tabSelectionChanged() {
+    if (this.mInitialized) {
+      document.getElementById("mail.preferences.chat.selectedTabIndex")
+              .valueFromPreferences = this.mTabBox.selectedIndex;
+    }
+
+    this.initPreview();
+  },
+
+  initPreview() {
+    // We add this browser only when really necessary.
+    let previewDeck = document.getElementById("previewDeck");
+    if (previewDeck.querySelector("browser")) {
+      return;
+    }
+    if (getCurrentPaneID() != "paneChat") {
+      return;
+    }
+    if (this.mTabBox.selectedIndex != 1) {
+      return;
+    }
+
+    window.removeEventListener("paneSelected", this.paneSelectionChanged);
+
+    let browser = document.createElement("browser");
+    browser.setAttribute("id", "previewbrowser");
+    browser.setAttribute("type", "content");
+    browser.setAttribute("flex", "1");
+    browser.setAttribute("style", "-moz-binding: url(chrome://chat/content/convbrowser.xml#browser)");
+    browser.setAttribute("tooltip", "aHTMLTooltip");
+    previewDeck.appendChild(browser);
+    previewObserver.load();
   },
 
   updateDisabledState() {

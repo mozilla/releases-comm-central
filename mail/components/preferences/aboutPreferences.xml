@@ -122,7 +122,7 @@
           }
           let event = document.createEvent("Events");
           event.initEvent("paneSelected", true, true);
-          this.dispatchEvent(event);
+          this.currentPane.dispatchEvent(event);
         ]]>
         </body>
       </method>

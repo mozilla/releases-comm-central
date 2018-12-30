@@ -155,8 +155,7 @@
             <hbox flex="1">
               <vbox id="provider-listing">
                 <richlistbox id="cloudFileView" orient="vertical" flex="1"
-                             seltype="single"
-                             onselect="gCloudFileTab.onSelectionChanged();">
+                             seltype="single">
                 </richlistbox>
                 <separator class="thin"/>
                 <hbox>

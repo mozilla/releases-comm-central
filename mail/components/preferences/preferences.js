@@ -80,3 +80,11 @@ function showTab(aPane, aTabID, aSubdialogID) {
   if (aSubdialogID)
     setTimeout(function() { document.getElementById(aSubdialogID).click(); }, 0);
 }
+
+/**
+ * Get the ID of the current pane.
+ */
+function getCurrentPaneID() {
+  let prefWindow = document.getElementById("MailPreferences");
+  return prefWindow.currentPane ? prefWindow.currentPane.id : null;
+}

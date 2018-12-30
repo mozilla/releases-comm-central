@@ -6,6 +6,8 @@
     <script type="application/javascript" src="chrome://messenger/content/preferences/messagestyle.js"/>
 
     <preferences id="chatPreferences">
+      <preference id="mail.preferences.chat.selectedTabIndex"
+                  name="mail.preferences.chat.selectedTabIndex" type="int"/>
       <preference id="messenger.startup.action"            name="messenger.startup.action"     type="int"/>
       <preference id="purple.conversations.im.send_typing" name="purple.conversations.im.send_typing" type="bool"/>
       <preference id="messenger.status.reportIdle"         name="messenger.status.reportIdle"         type="bool"
@@ -32,7 +34,7 @@
     <stringbundle id="themesBundle"
                   src="chrome://messenger/locale/preferences/messagestyle.properties"/>
 
-    <tabbox id="chatPrefs" flex="1">
+    <tabbox id="chatPrefs" flex="1" onselect="gChatPane.tabSelectionChanged();">
       <tabs id="chatPrefsTabs">
         <tab id="chatGeneralTab"       label="&generalTab.label;"/>
         <tab id="chatMessageStylesTab" label="&messageStyleTab.title;"/>
@@ -207,9 +209,6 @@
                 </vbox>
               </hbox>
             </vbox>
-            <browser flex="1" id="previewbrowser" type="content"
-                     style="-moz-binding: url(chrome://chat/content/convbrowser.xml#browser)"
-                     tooltip="aHTMLTooltip"/>
           </deck>
           <hbox align="baseline">
             <label value="&messageStyleVariant.label;" control="themevariant"

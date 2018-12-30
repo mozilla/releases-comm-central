@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from preferences.js */
 // applications.inc.xul
 /* globals ICON_URL_APP */
 // mail/base/content/contentAreaClick.js
@@ -411,13 +412,13 @@ var gApplicationsTabController = {
 
     gApplicationsPane.init();
 
-    let tabbox = document.getElementById("attachmentPrefs");
+    this.mTabBox = document.getElementById("attachmentPrefs");
 
     // If BigFiles is disabled, hide the "Outgoing" tab, and the tab
     // selectors, and bail out.
     if (!Services.prefs.getBoolPref("mail.cloud_files.enabled")) {
       // Default to the first tab, "Incoming"
-      tabbox.selectedIndex = 0;
+      this.mTabBox.selectedIndex = 0;
       // Hide the tab selector
       let tabs = document.getElementById("attachmentPrefsTabs");
       tabs.hidden = true;
@@ -426,27 +427,35 @@ var gApplicationsTabController = {
     }
 
     gCloudFileTab.init();
+    this.paneSelectionChanged = this.paneSelectionChanged.bind(this);
+    window.addEventListener("paneSelected", this.paneSelectionChanged);
 
     if (!(("arguments" in window) && window.arguments[1])) {
       // If no tab was specified, select the last used tab.
       let preference = document.getElementById("mail.preferences.applications.selectedTabIndex");
-      tabbox.selectedIndex = preference.value != null ? preference.value : this.mDefaultIndex;
+      this.mTabBox.selectedIndex = preference.value != null ? preference.value : this.mDefaultIndex;
     }
 
     this.mInitialized = true;
   },
 
-  tabSelectionChanged() {
-    if (this.mInitialized)
-      document.getElementById("mail.preferences.applications.selectedTabIndex")
-              .valueFromPreferences = document.getElementById("attachmentPrefs")
-              .selectedIndex;
+  paneSelectionChanged() {
+    gCloudFileTab.init();
   },
 
+  tabSelectionChanged() {
+    if (this.mInitialized) {
+      document.getElementById("mail.preferences.applications.selectedTabIndex")
+              .valueFromPreferences = this.mTabBox.selectedIndex;
+    }
+
+    gCloudFileTab.init();
+  },
 };
 
 var gCloudFileTab = {
   _initialized: false,
+  _initializationStarted: false,
   _list: null,
   _settings: null,
   _settingsDeck: null,
@@ -463,8 +472,19 @@ var gCloudFileTab = {
   },
 
   init() {
-    if (this._initialized)
+    // Because this leads to another document being loaded, do it only when really necessary.
+    if (this._initializationStarted) {
       return;
+    }
+    if (getCurrentPaneID() != "paneApplications") {
+      return;
+    }
+    if (gApplicationsTabController.mTabBox.selectedIndex != 1) {
+      return;
+    }
+
+    this._initializationStarted = true;
+    window.removeEventListener("paneSelected", gApplicationsTabController.paneSelectionChanged);
 
     this._list = document.getElementById("cloudFileView");
     this._removeAccountButton = document.getElementById("removeCloudFileAccount");
@@ -474,6 +494,8 @@ var gCloudFileTab = {
     this._loadingPanel = document.getElementById("cloudFileLoadingPanel");
     this._authErrorPanel = document.getElementById("cloudFileAuthErrorPanel");
 
+    this.onSelectionChanged = this.onSelectionChanged.bind(this);
+    this._list.addEventListener("select", this.onSelectionChanged);
     this.rebuildView();
 
     if (this._list.itemCount > 0) {
