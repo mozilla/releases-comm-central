@@ -104,10 +104,22 @@ var calauth = {
                 aAuthInfo.password = pwInfo.password;
                 return true;
             } else {
-                let prompter2 = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
-                                          .getService(Components.interfaces.nsIPromptFactory)
-                                          .getPrompt(this.mWindow, Components.interfaces.nsIAuthPrompt2);
-                return prompter2.promptAuth(aChannel, aLevel, aAuthInfo);
+                let savePasswordLabel = null;
+                if (Preferences.get("signon.rememberSignons", true)) {
+                    savePasswordLabel = cal.l10n.getAnyString("passwordmgr",
+                                                              "passwordmgr",
+                                                              "rememberPassword");
+                }
+                let savePassword = {};
+                let returnValue = Services.prompt.promptAuth(null, aChannel, aLevel, aAuthInfo,
+                                                             savePasswordLabel, savePassword);
+                if (savePassword.value) {
+                    calauth.passwordManagerSave(aAuthInfo.username,
+                                                aAuthInfo.password,
+                                                hostRealm.prePath,
+                                                aAuthInfo.realm);
+                }
+                return returnValue;
             }
         }
 
