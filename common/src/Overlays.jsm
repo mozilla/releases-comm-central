@@ -119,7 +119,7 @@ class Overlays {
         let node = stylesheets.snapshotItem(i);
         let match = node.nodeValue.match(/href=["']([^"']*)["']/);
         if (match) {
-          unloadedSheets.push(match[1]);
+          unloadedSheets.push(new URL(match[1], node.baseURI).href);
         }
       }
 
@@ -471,7 +471,7 @@ class Overlays {
     }
 
     if (node.hasAttribute("src")) {
-      let url = node.getAttribute("src");
+      let url = new URL(node.getAttribute("src"), node.baseURI).href;
       oconsole.debug(`Loading script ${url} into ${this.window.location}`);
       try {
         Services.scriptloader.loadSubScript(url, this.window);
