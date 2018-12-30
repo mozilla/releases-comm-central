@@ -57,7 +57,7 @@
   .attachmentItem {
     pointer-events: auto !important;
     border: 1px solid transparent;
-    color: -moz-FieldText;
+    color: -moz-FieldText !important;
     background-color: transparent;
     background-repeat: no-repeat;
     background-size: 100% 100%;

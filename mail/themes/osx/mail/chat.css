@@ -6,11 +6,22 @@
 
 %include ../../../components/im/themes/chat.css
 
+/* Adaptation of #folderPaneBox/#folderPaneTree from osx/mail/mailWindow1.css */
+:root:not([lwt-tree]) #chatPanel {
+  -moz-appearance: -moz-mac-source-list;
+  -moz-font-smoothing-background-color: -moz-mac-source-list;
+}
+
 #chatTabPanel {
   --imbox-selected-text-color: -moz-FieldText;
   --imbox-selected-background-color: -moz-Field;
   --imbox-selected-border-color: #bdbdbd;
   --imgroup-selected-background-color: ThreeDLightShadow;
+}
+
+#contactlistbox {
+  background: transparent;
+  -moz-appearance: none;
 }
 
 :root:not([lwt-tree]) imgroup[selected] {
@@ -24,15 +35,6 @@
 .contactStatusText,
 .convStatusText {
   margin-top: 3px;
-}
-
-:root:not([lwt-tree]) #contactlistbox {
-  /* border-inline-start because of the inverted direction */
-  border-inline-start: 1px solid var(--imbox-selected-border-color);
-}
-
-#contactlistbox > scrollbox {
-  margin-inline-start: -1px;
 }
 
 #statusTypeIcon:-moz-locale-dir(ltr) {
@@ -83,33 +85,7 @@
 #listSplitter,
 #contextSplitter {
   background-image: none;
-  /* splitter grip area */
-  width: 5px;
   min-width: 5px;
-  /* because of the negative margin needed to make the splitter visible */
-  position: relative;
-  z-index: 10;
-  transition: border-width .3s ease-in;
-}
-
-#listSplitter {
-  border-inline-start: 1px solid transparent;
-  /* make only the splitter border visible */
-  margin-inline-end: -4px;
-}
-
-#listSplitter[state="collapsed"]:hover {
-  border-inline-start: 4px solid highlight;
-}
-
-#contextSplitter {
-  border-inline-end: 1px solid #bdbdbd;
-  /* make only the splitter border visible */
-  margin-inline-start: -4px;
-}
-
-#contextSplitter[state="collapsed"]:hover {
-  border-inline-end: 4px solid highlight;
 }
 
 .conv-status-container {
@@ -119,17 +95,6 @@
 .startChatBubble > .button-box > .button-icon,
 .closeConversationButton > .button-box > .button-icon {
   margin-inline-start: 0;
-}
-
-/* Adaptation of #folderPaneBox/#folderPaneTree from osx/mail/mailWindow1.css */
-:root:not([lwt-tree]) #listPaneBox {
-  -moz-appearance: -moz-mac-source-list;
-  -moz-font-smoothing-background-color: -moz-mac-source-list;
-}
-
-#listPaneBox > * {
-  background: transparent !important;
-  -moz-appearance: none !important;
 }
 
 /* Set a background color to avoid lightweight theme backgrounds */

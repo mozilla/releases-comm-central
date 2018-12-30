@@ -365,12 +365,6 @@
   </binding>
 
   <binding id="attachmentlist-vertical" extends="chrome://messenger/content/mailWidgets.xml#attachmentlist-base">
-    <content>
-      <xul:scrollbox orient="vertical" flex="1" anonid="scrollbox"
-                     style="overflow: auto;">
-        <children includes="richlistitem"/>
-      </xul:scrollbox>
-    </content>
     <implementation>
       <method name="_itemsPerRow">
         <body><![CDATA[

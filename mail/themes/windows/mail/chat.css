@@ -98,51 +98,16 @@
 
 #listSplitter,
 #contextSplitter {
-  border-width: 0;
   background-color: transparent;
   min-width: 0;
-  /* splitter grip area */
-  width: 5px;
-  margin-top: 0;
-  /* because of the negative margin needed to make the splitter visible */
-  position: relative;
-  z-index: 10;
 }
 
 #listSplitter {
-  border-inline-start: 1px solid transparent;
-  /* make only the splitter border visible */
-  margin-inline-end: -5px;
-}
-
-#listSplitter[state="collapsed"]:hover {
-  border-inline-start: 4px solid highlight;
+  border-inline-end-width: 0;
 }
 
 #contextSplitter {
-  border-inline-end: 1px solid #a9b7c9;
-  /* make only the splitter border visible */
-  margin-inline-start: -5px;
-}
-
-#contextSplitter[state="collapsed"]:hover {
-  border-inline-end: 4px solid highlight;
-}
-
-.splitter,
-#logsSplitter {
-  border-width: 0;
-  border-bottom: 1px solid ThreeDShadow;
-  min-height: 0;
-  /* splitter grip area */
-  height: 5px;
-  background-color: transparent;
-  /* make only the splitter border visible */
-  margin-top: -5px;
-  margin-inline-start: 0;
-  /* because of the negative margin needed to make the splitter visible */
-  position: relative;
-  z-index: 10;
+  border-inline-start-width: 0;
 }
 
 @media (-moz-windows-default-theme) {
@@ -172,9 +137,13 @@
     background-color: -moz-field;
   }
 
-  .splitter,
+  .splitter[orient="vertical"],
   #logsSplitter {
-    border-bottom: 1px solid #a9b7c9;
+    border-bottom-color: #a9b7c9;
+  }
+
+  #contextSplitter {
+    border-inline-end-color: #a9b7c9;
   }
 
   richlistitem[selected] > label,

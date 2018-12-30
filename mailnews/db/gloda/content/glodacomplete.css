@@ -16,7 +16,7 @@ panel[type="glodacomplete-richlistbox"] {
   -moz-appearance: none;
 }
 
-.autocomplete-richlistbox > scrollbox {
+.autocomplete-richlistbox {
   overflow-x: hidden !important;
 }
 

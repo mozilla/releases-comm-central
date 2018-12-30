@@ -95,12 +95,12 @@
 
 /* move the scrollbar to the left */
 #contactlistbox:-moz-locale-dir(ltr),
-#contactlistbox:-moz-locale-dir(rtl) > scrollbox > .scrollbox-innerbox {
+#contactlistbox:-moz-locale-dir(rtl) > :-moz-any(imconv, imcontact, imgroup) {
   direction: rtl;
 }
 
 #contactlistbox:-moz-locale-dir(rtl),
-#contactlistbox:-moz-locale-dir(ltr) > scrollbox > .scrollbox-innerbox {
+#contactlistbox:-moz-locale-dir(ltr) > :-moz-any(imconv, imcontact, imgroup) {
   direction: ltr;
 }
 
@@ -558,7 +558,6 @@ richlistitem[state="disconnected"] .accountStateIcon {
   margin: 0;
   padding: 3px;
   border: none;
-  box-shadow: inset 0 1px 3px 0px rgba(0, 0, 0, 0.6);
 }
 
 .conv-textbox[focused="true"] {
@@ -639,16 +638,60 @@ richlistitem[state="disconnected"] .accountStateIcon {
 }
 %endif
 
-.splitter {
-  margin: 0;
+.splitter[orient="vertical"],
+#logsSplitter {
   border-style: none;
+  min-height: 0;
+  /* splitter grip area */
+  height: 5px;
+  background-color: transparent;
+  /* make only the splitter border visible */
+  margin-top: -5px;
+  margin-inline-start: 0;
+  /* because of the negative margin needed to make the splitter visible */
+  position: relative;
+  z-index: 10;
 %ifdef XP_MACOSX
-  min-height: 2px;
-  background: linear-gradient(rgba(0,0,0,0.35), transparent);
+  border-bottom: 1px solid #bdbdbd;
 %else
-  height: 3px;
-  background: transparent;
+  border-bottom: 1px solid ThreeDShadow;
 %endif
+}
+
+/* Adaptation of #folderpane_splitter */
+#listSplitter,
+#contextSplitter {
+  margin-top: 0;
+  /* splitter grip area */
+  width: 5px;
+  /* because of the negative margin needed to make the splitter visible */
+  position: relative;
+  z-index: 10;
+  transition: border-width .3s ease-in;
+}
+
+#listSplitter {
+  border-inline-start: 1px solid transparent;
+  /* make only the splitter border visible */
+  margin-inline-end: -5px;
+}
+
+#listSplitter[state="collapsed"]:hover {
+  border-inline-start: 4px solid highlight;
+}
+
+#contextSplitter {
+%ifdef XP_MACOSX
+  border-inline-end: 1px solid #bdbdbd;
+%else
+  border-inline-end: 1px solid ThreeDShadow;
+%endif
+  /* make only the splitter border visible */
+  margin-inline-start: -5px;
+}
+
+#contextSplitter[state="collapsed"]:hover {
+  border-inline-end: 4px solid highlight;
 }
 
 #conv-toolbar {
@@ -858,8 +901,9 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
 :root[lwt-tree] #nicklist,
 :root[lwt-tree] .conv-nicklist-header,
 :root[lwt-tree] .conv-logs-header-label {
+  -moz-appearance: none;
   background-color: var(--sidebar-background-color);
-  border-bottom-color: var(--sidebar-border-color, hsla(0,0%,60%,.4));
+  border-bottom: 1px solid var(--sidebar-border-color, hsla(0,0%,60%,.4));
   color: var(--sidebar-text-color);
 }
 
@@ -902,4 +946,8 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
 :root[lwt-tree] #nicklist > richlistitem[inactive][selected] > label,
 :root[lwt-tree] #nicklist:focus > richlistitem[inactive][selected] > label {
   color: var(--sidebar-highlight-text-color, var(--sidebar-text-color)) !important;
+}
+
+:root[lwt-tree] #logTree {
+  -moz-appearance: none;
 }

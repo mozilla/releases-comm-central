@@ -84,9 +84,6 @@
 #attachmentBucket {
   width: 15em;
   min-width: 15em;
-}
-
-#attachmentBucket > scrollbox > .scrollbox-innerbox {
   padding: 1px;
 }
 

@@ -5,6 +5,7 @@
 .attachmentList {
   -moz-appearance: listbox;
   -moz-user-focus: normal;
+  margin: 0;
 }
 
 .attachmentList[orient="horizontal"] {
