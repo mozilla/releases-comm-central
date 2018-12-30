@@ -83,6 +83,32 @@ nsContextMenu.prototype = {
     if (!aIsShift) {
       this.hasPageMenu = PageMenuParent.buildAndAddToPopup(this.target,
                                                            aPopup);
+
+      let subject = {
+        menu: aPopup,
+        tab: document.getElementById("tabmail").currentTabInfo,
+        isContentSelected: this.isContentSelected,
+        inFrame: this.inFrame,
+        isTextSelected: this.isTextSelected,
+        onTextInput: this.onTextInput,
+        onLink: this.onLink,
+        onImage: this.onImage,
+        onVideo: this.onVideo,
+        onAudio: this.onAudio,
+        onCanvas: this.onCanvas,
+        onEditableArea: this.onEditableArea,
+        srcUrl: this.mediaURL,
+        pageUrl: this.browser ? this.browser.currentURI.spec : undefined,
+        linkUrl: this.linkURL,
+        selectionText: this.isTextSelected ? this.selectionInfo.text : undefined,
+      };
+      if (document.popupNode.closest("tree") == gFolderDisplay.tree) {
+        subject.displayedFolder = gFolderDisplay.view.displayedFolder;
+        subject.selectedMessages = gFolderDisplay.selectedMessages;
+      }
+      subject.wrappedJSObject = subject;
+
+      Services.obs.notifyObservers(subject, "on-build-contextmenu");
     }
 
     this.initItems();

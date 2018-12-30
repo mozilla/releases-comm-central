@@ -506,6 +506,14 @@ Object.assign(global, { tabTracker, windowTracker });
  * Extension-specific wrapper around a Thunderbird tab.
  */
 class Tab extends TabBase {
+  constructor(extension, nativeTab, id) {
+    if (nativeTab.localName == "tab") {
+      let tabmail = nativeTab.ownerDocument.getElementById("tabmail");
+      nativeTab = tabmail._getTabContextForTabbyThing(nativeTab)[1];
+    }
+    super(extension, nativeTab, id);
+  }
+
   /** Returns true if this tab is a 3-pane tab. */
   get isMail3Pane() {
     return this.nativeTab.mode.type == "folder";

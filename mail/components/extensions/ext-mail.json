@@ -59,6 +59,18 @@
       ["mailTabs"]
     ]
   },
+  "menusChild": {
+    "schema": "chrome://messenger/content/schemas/menus_child.json",
+    "scopes": ["addon_child", "content_child", "devtools_child"]
+  },
+  "menus": {
+    "url": "chrome://messenger/content/parent/ext-menus.js",
+    "schema": "chrome://messenger/content/schemas/menus.json",
+    "scopes": ["addon_parent"],
+    "paths": [
+      ["menus"]
+    ]
+  },
   "pkcs11": {
     "url": "chrome://messenger/content/parent/ext-pkcs11.js",
     "schema": "chrome://messenger/content/schemas/pkcs11.json",

@@ -1832,6 +1832,14 @@
           return tabmail.getBrowserForTab(tab);
         ]]></getter>
       </property>
+
+      <property name="mode">
+        <getter><![CDATA[
+          let tabmail = document.getElementById("tabmail");
+          let tab = tabmail._getTabContextForTabbyThing(this, false)[1];
+          return tab.mode;
+        ]]></getter>
+      </property>
     </implementation>
 
     <handlers>
