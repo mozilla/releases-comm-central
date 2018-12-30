@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+this.EXPORTED_SYMBOLS = ['MessageGenerator'];
+
 /**
  * A list of first names for use by MessageGenerator to create deterministic,
  *  reversible names.  To keep things easily reversible, if you add names, make

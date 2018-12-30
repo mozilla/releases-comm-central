@@ -1,0 +1,382 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+let account, rootFolder, subFolders;
+
+add_task(async function setup() {
+  account = createAccount();
+  rootFolder = account.incomingServer.rootFolder;
+  subFolders = [...rootFolder.subFolders];
+  createMessages(subFolders[0], 10);
+
+  window.gFolderTreeView.selectFolder(rootFolder);
+  await new Promise(executeSoon);
+});
+
+add_task(async function test_update() {
+  async function background() {
+    function awaitMessage(messageToSend, ...sendArgs) {
+      return new Promise(resolve => {
+        browser.test.onMessage.addListener(function listener(...args) {
+          browser.test.onMessage.removeListener(listener);
+          resolve(args);
+        });
+        if (messageToSend) {
+          browser.test.sendMessage(messageToSend, ...sendArgs);
+        }
+      });
+    }
+
+    function assertDeepEqual(expected, actual) {
+      if (Array.isArray(expected)) {
+        browser.test.assertTrue(Array.isArray(actual));
+        browser.test.assertEq(expected.length, actual.length);
+        for (let i = 0; i < expected.length; i++) {
+          assertDeepEqual(expected[i], actual[i]);
+        }
+        return;
+      }
+
+      let expectedKeys = Object.keys(expected);
+      let actualKeys = Object.keys(actual);
+      // Ignore any extra keys on the actual object.
+      browser.test.assertTrue(expectedKeys.length <= actualKeys.length);
+
+      for (let key of expectedKeys) {
+        browser.test.assertTrue(actualKeys.includes(key), `Key ${key} exists`);
+        if (expected[key] === null) {
+          browser.test.assertTrue(actual[key] === null);
+          continue;
+        }
+        if (["array", "object"].includes(typeof expected[key])) {
+          assertDeepEqual(expected[key], actual[key]);
+          continue;
+        }
+        browser.test.assertEq(expected[key], actual[key]);
+      }
+    }
+
+    async function checkCurrent(expected) {
+      let current = await browser.mailTabs.getCurrent();
+      assertDeepEqual(expected, current);
+    }
+
+    let [accountId] = await awaitMessage();
+    let { folders } = await browser.accounts.get(accountId);
+    let state = {
+      sortType: null,
+      sortOrder: null,
+      layout: "standard",
+      folderPaneVisible: null,
+      messagePaneVisible: null,
+      displayedFolder: {
+        accountId,
+        name: "Local Folders",
+        path: "/",
+      },
+    };
+    await checkCurrent(state);
+    await awaitMessage("checkRealLayout", state);
+
+    browser.mailTabs.update({ displayedFolder: folders[0] });
+    state.sortType = "byDate";
+    state.sortOrder = "ascending";
+    state.folderPaneVisible = true;
+    state.messagePaneVisible = true;
+    state.displayedFolder = folders[0];
+    await checkCurrent(state);
+    await awaitMessage("checkRealLayout", state);
+    await awaitMessage("checkRealSort", state);
+
+    state.sortOrder = "descending";
+    for (let value of ["byDate", "bySubject", "byAuthor"]) {
+      await browser.mailTabs.update({ sortType: value, sortOrder: "descending" });
+      state.sortType = value;
+      await awaitMessage("checkRealSort", state);
+    }
+    state.sortOrder = "ascending";
+    for (let value of ["byAuthor", "bySubject", "byDate"]) {
+      await browser.mailTabs.update({ sortType: value, sortOrder: "ascending" });
+      state.sortType = value;
+      await awaitMessage("checkRealSort", state);
+    }
+
+    for (let key of ["folderPaneVisible", "messagePaneVisible"]) {
+      for (let value of [false, true]) {
+        await browser.mailTabs.update({ [key]: value });
+        state[key] = value;
+        await checkCurrent(state);
+        await awaitMessage("checkRealLayout", state);
+      }
+    }
+    for (let value of ["wide", "vertical", "standard"]) {
+      await browser.mailTabs.update({ layout: value });
+      state.layout = value;
+      await checkCurrent(state);
+      await awaitMessage("checkRealLayout", state);
+    }
+
+    let selectedMessages = await browser.mailTabs.getSelectedMessages();
+    browser.test.assertEq(0, selectedMessages.length);
+
+    browser.test.notifyPass("mailTabs");
+  }
+
+  let extension = ExtensionTestUtils.loadExtension({
+    background,
+    manifest: { permissions: ["accountsRead", "mailTabs", "messagesRead"] },
+  });
+
+  extension.onMessage("checkRealLayout", (expected) => {
+    let intValue = ["standard", "wide", "vertical"].indexOf(expected.layout);
+    is(Services.prefs.getIntPref("mail.pane_config.dynamic"), intValue);
+    if (typeof expected.messagePaneVisible == "boolean") {
+      is(document.getElementById("messagepaneboxwrapper").collapsed, !expected.messagePaneVisible);
+    }
+    if (typeof expected.folderPaneVisible == "boolean") {
+      is(document.getElementById("folderPaneBox").collapsed, !expected.folderPaneVisible);
+    }
+    extension.sendMessage();
+  });
+
+  extension.onMessage("checkRealSort", (expected) => {
+    for (let [columnId, sortType] of window.gFolderDisplay.COLUMNS_MAP) {
+      if (sortType == expected.sortType) {
+        let column = document.getElementById(columnId);
+        is(column.getAttribute("sortDirection"), expected.sortOrder);
+        extension.sendMessage();
+        return;
+      }
+    }
+    throw new Error("This test should never get here.");
+  });
+
+  await extension.startup();
+  extension.sendMessage(account.key);
+  await extension.awaitFinish("mailTabs");
+  await extension.unload();
+
+  window.gFolderTreeView.selectFolder(rootFolder);
+});
+
+add_task(async function test_events() {
+  async function background() {
+    function awaitMessage() {
+      return new Promise(resolve => {
+        browser.test.onMessage.addListener(function listener(...args) {
+          browser.test.onMessage.removeListener(listener);
+          resolve(args);
+        });
+      });
+    }
+
+    let [accountId] = await awaitMessage();
+
+    let current = await browser.mailTabs.getCurrent();
+    browser.test.assertEq(accountId, current.displayedFolder.accountId);
+    browser.test.assertEq("/", current.displayedFolder.path);
+
+    async function selectFolder(newFolderPath) {
+      return new Promise(resolve => {
+        browser.mailTabs.onDisplayedFolderChanged.addListener(function listener(tabId, folder) {
+          browser.mailTabs.onDisplayedFolderChanged.removeListener(listener);
+          browser.test.assertEq(current.id, tabId);
+          browser.test.assertEq(accountId, folder.accountId);
+          browser.test.assertEq(newFolderPath, folder.path);
+          resolve();
+        });
+        browser.test.sendMessage("selectFolder", newFolderPath);
+      });
+    }
+    await selectFolder("/Trash");
+    await selectFolder("/Unsent Messages");
+    await selectFolder("/");
+
+    async function selectFolderByUpdate(newFolderPath) {
+      return new Promise(resolve => {
+        browser.mailTabs.onDisplayedFolderChanged.addListener(function listener(tabId, folder) {
+          browser.mailTabs.onDisplayedFolderChanged.removeListener(listener);
+          browser.test.assertEq(current.id, tabId);
+          browser.test.assertEq(accountId, folder.accountId);
+          browser.test.assertEq(newFolderPath, folder.path);
+          resolve();
+        });
+        browser.mailTabs.update({ displayedFolder: { accountId, path: newFolderPath } });
+      });
+    }
+    await selectFolderByUpdate("/Trash");
+    await selectFolderByUpdate("/Unsent Messages");
+    await selectFolderByUpdate("/");
+    await selectFolderByUpdate("/Trash");
+
+    async function selectMessage(...newMessages) {
+      return new Promise(resolve => {
+        browser.mailTabs.onSelectedMessagesChanged.addListener(function listener(tabId, messages) {
+          browser.mailTabs.onSelectedMessagesChanged.removeListener(listener);
+          browser.test.assertEq(newMessages.length, messages.length);
+          browser.mailTabs.getSelectedMessages().then(selectedMessages => {
+            browser.test.assertEq(newMessages.length, selectedMessages.length);
+            resolve();
+          });
+        });
+        browser.test.sendMessage("selectMessage", newMessages);
+      });
+    }
+    await selectMessage(3);
+    await selectMessage(7);
+    await selectMessage(4, 6);
+    await selectMessage();
+
+    await new Promise(setTimeout);
+    browser.test.notifyPass("mailTabs");
+  }
+
+  let folderMap = new Map([
+    ["/", rootFolder],
+    ["/Trash", subFolders[0]],
+    ["/Unsent Messages", subFolders[1]],
+  ]);
+
+  let extension = ExtensionTestUtils.loadExtension({
+    background,
+    manifest: { permissions: ["accountsRead", "mailTabs", "messagesRead"] },
+  });
+
+  extension.onMessage("selectFolder", (newFolderPath) => {
+    window.gFolderTreeView.selectFolder(folderMap.get(newFolderPath));
+  });
+
+  extension.onMessage("selectMessage", (newMessages) => {
+    let allMessages = [...window.gFolderDisplay.displayedFolder.messages];
+    window.gFolderDisplay.selectMessages(newMessages.map(i => allMessages[i]));
+  });
+
+  await extension.startup();
+  extension.sendMessage(account.key);
+  await extension.awaitFinish("mailTabs");
+  await extension.unload();
+
+  window.gFolderTreeView.selectFolder(rootFolder);
+});
+
+add_task(async function test_background_tab() {
+  async function background() {
+    function awaitMessage(messageToSend, ...sendArgs) {
+      return new Promise(resolve => {
+        browser.test.onMessage.addListener(function listener(...args) {
+          browser.test.onMessage.removeListener(listener);
+          resolve(args);
+        });
+        if (messageToSend) {
+          browser.test.sendMessage(messageToSend, ...sendArgs);
+        }
+      });
+    }
+
+    let [accountId] = await awaitMessage();
+    let { folders } = await browser.accounts.get(accountId);
+    let allTabs = await browser.tabs.query({});
+    let queryTabs = await browser.tabs.query({ isMail3Pane: true });
+    let allMailTabs = await browser.mailTabs.getAll();
+
+    browser.test.assertEq(4, allTabs.length);
+    browser.test.assertEq(2, queryTabs.length);
+    browser.test.assertEq(2, allMailTabs.length);
+
+    browser.test.assertEq(accountId, allMailTabs[0].displayedFolder.accountId);
+    browser.test.assertEq("/", allMailTabs[0].displayedFolder.path);
+
+    browser.test.assertEq(accountId, allMailTabs[1].displayedFolder.accountId);
+    browser.test.assertEq("/Trash", allMailTabs[1].displayedFolder.path);
+    browser.test.assertTrue(allMailTabs[1].active);
+
+    // Check the initial state.
+    await awaitMessage("checkRealLayout", {
+      messagePaneVisible: true,
+      folderPaneVisible: true,
+      displayedFolder: "/Trash",
+    });
+
+    await browser.mailTabs.update(allMailTabs[0].id, {
+      folderPaneVisible: false,
+      messagePaneVisible: false,
+      displayedFolder: folders[1],
+    });
+
+    // Should be in the same state, since we're updating a background tab.
+    await awaitMessage("checkRealLayout", {
+      messagePaneVisible: true,
+      folderPaneVisible: true,
+      displayedFolder: "/Trash",
+    });
+
+    allMailTabs = await browser.mailTabs.getAll();
+    browser.test.assertEq(2, allMailTabs.length);
+
+    browser.test.assertEq(accountId, allMailTabs[0].displayedFolder.accountId);
+    browser.test.assertEq("/Unsent Messages", allMailTabs[0].displayedFolder.path);
+
+    browser.test.assertEq(accountId, allMailTabs[1].displayedFolder.accountId);
+    browser.test.assertEq("/Trash", allMailTabs[1].displayedFolder.path);
+    browser.test.assertTrue(allMailTabs[1].active);
+
+    // Switch to the other mail tab.
+    await browser.tabs.update(allMailTabs[0].id, { active: true });
+
+    // Should have changed to the updated state.
+    await awaitMessage("checkRealLayout", {
+      messagePaneVisible: false,
+      folderPaneVisible: false,
+      displayedFolder: "/Unsent%20Messages",
+    });
+
+    await browser.mailTabs.update(allMailTabs[0].id, {
+      folderPaneVisible: true,
+      messagePaneVisible: true,
+    });
+    await awaitMessage("checkRealLayout", {
+      messagePaneVisible: true,
+      folderPaneVisible: true,
+      displayedFolder: "/Unsent%20Messages",
+    });
+
+    // Switch back to the first mail tab.
+    await browser.tabs.update(allMailTabs[1].id, { active: true });
+
+    // Should be in the same state it was in.
+    await awaitMessage("checkRealLayout", {
+      messagePaneVisible: true,
+      folderPaneVisible: true,
+      displayedFolder: "/Trash",
+    });
+
+    browser.test.notifyPass("mailTabs");
+  }
+
+  let extension = ExtensionTestUtils.loadExtension({
+    background,
+    manifest: { permissions: ["accountsRead", "mailTabs", "tabs"] },
+  });
+
+  extension.onMessage("checkRealLayout", async (expected) => {
+    is(document.getElementById("messagepaneboxwrapper").collapsed, !expected.messagePaneVisible);
+    is(document.getElementById("folderPaneBox").collapsed, !expected.folderPaneVisible);
+    is(window.gFolderTreeView.getSelectedFolders()[0].URI,
+       account.incomingServer.serverURI + expected.displayedFolder);
+    extension.sendMessage();
+  });
+
+  let tabmail = document.getElementById("tabmail");
+  window.openContentTab("about:config");
+  window.openContentTab("about:mozilla");
+  tabmail.openTab("folder", { folder: subFolders[0] });
+
+  await extension.startup();
+  extension.sendMessage(account.key);
+  await extension.awaitFinish("mailTabs");
+  await extension.unload();
+
+  tabmail.closeOtherTabs(tabmail.tabModes.folder.tabs[0]);
+  window.gFolderTreeView.selectFolder(rootFolder);
+});

@@ -31,6 +31,16 @@ function addIdentity(account) {
   info(`Created identity ${identity.toString()}`);
 }
 
+function createMessages(folder, count) {
+  const {
+    MessageGenerator,
+  } = ChromeUtils.import("resource://testing-common/mailnews/messageGenerator.js", null);
+  let messages = new MessageGenerator().makeMessages({ count });
+  let messageStrings = messages.map(message => message.toMboxString());
+  folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  folder.addMessageBatch(messageStrings.length, messageStrings);
+}
+
 async function promiseAnimationFrame(win = window) {
   await new Promise(win.requestAnimationFrame);
   // dispatchToMainThread throws if used as the first argument of Promise.
