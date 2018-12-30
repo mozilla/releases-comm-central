@@ -4,10 +4,7 @@
 
 "use strict";
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource://testing-common/ExtensionXPCShellUtils.jsm");
-
 ExtensionTestUtils.init(this);
 
 add_task(async function test_addressBooks() {
@@ -58,12 +55,15 @@ add_task(async function test_addressBooks() {
       return null;
     };
 
-    let awaitMessage = function() {
+    let awaitMessage = function(messageToSend, ...sendArgs) {
       return new Promise(resolve => {
         browser.test.onMessage.addListener(function listener(...args) {
           browser.test.onMessage.removeListener(listener);
           resolve(args);
         });
+        if (messageToSend) {
+          browser.test.sendMessage(messageToSend, ...sendArgs);
+        }
       });
     };
 
@@ -337,70 +337,59 @@ add_task(async function test_addressBooks() {
     async function outsideEventsTest() {
       browser.test.log("Starting outsideEventsTest");
 
-      browser.test.sendMessage("outsideEventsTest", "createAddressBook");
-      let [bookId, newBookPrefId] = await awaitMessage();
+      let [bookId, newBookPrefId] = await awaitMessage("outsideEventsTest", "createAddressBook");
       let [newBook] = checkEvents(["addressBooks", "onCreated", { type: "addressBook", id: bookId }]);
       browser.test.assertEq("external add", newBook.name);
 
-      browser.test.sendMessage("outsideEventsTest", "updateAddressBook", newBookPrefId);
-      await awaitMessage();
+      await awaitMessage("outsideEventsTest", "updateAddressBook", newBookPrefId);
       let [updatedBook] = checkEvents(["addressBooks", "onUpdated", { type: "addressBook", id: bookId }]);
       browser.test.assertEq("external edit", updatedBook.name);
 
-      browser.test.sendMessage("outsideEventsTest", "deleteAddressBook", newBookPrefId);
-      await awaitMessage();
+      await awaitMessage("outsideEventsTest", "deleteAddressBook", newBookPrefId);
       checkEvents(["addressBooks", "onDeleted", bookId]);
 
-      browser.test.sendMessage("outsideEventsTest", "createContact");
-      let [parentId1, contactId] = await awaitMessage();
+      let [parentId1, contactId] = await awaitMessage("outsideEventsTest", "createContact");
       let [newContact] = checkEvents(
         ["contacts", "onCreated", { type: "contact", parentId: parentId1, id: contactId }]
       );
       browser.test.assertEq("external", newContact.properties.FirstName);
       browser.test.assertEq("add", newContact.properties.LastName);
 
-      browser.test.sendMessage("outsideEventsTest", "updateContact", contactId);
-      await awaitMessage();
+      await awaitMessage("outsideEventsTest", "updateContact", contactId);
       let [updatedContact] = checkEvents(
         ["contacts", "onUpdated", { type: "contact", parentId: parentId1, id: contactId }]
       );
       browser.test.assertEq("external", updatedContact.properties.FirstName);
       browser.test.assertEq("edit", updatedContact.properties.LastName);
 
-      browser.test.sendMessage("outsideEventsTest", "createMailingList");
-      let [parentId2, listId] = await awaitMessage();
+      let [parentId2, listId] = await awaitMessage("outsideEventsTest", "createMailingList");
       let [newList] = checkEvents(
         ["mailingLists", "onCreated", { type: "mailingList", parentId: parentId2, id: listId }]
       );
       browser.test.assertEq("external add", newList.name);
 
-      browser.test.sendMessage("outsideEventsTest", "updateMailingList", listId);
-      await awaitMessage();
+      await awaitMessage("outsideEventsTest", "updateMailingList", listId);
       let [updatedList] = checkEvents(
         ["mailingLists", "onUpdated", { type: "mailingList", parentId: parentId2, id: listId }]
       );
       browser.test.assertEq("external edit", updatedList.name);
 
-      browser.test.sendMessage("outsideEventsTest", "addMailingListMember", listId, contactId);
-      await awaitMessage();
+      await awaitMessage("outsideEventsTest", "addMailingListMember", listId, contactId);
       checkEvents(
         ["mailingLists", "onMemberAdded", { type: "contact", parentId: listId, id: contactId }]
       );
       let listMembers = await browser.mailingLists.listMembers(listId);
       browser.test.assertEq(1, listMembers.length);
 
-      browser.test.sendMessage("outsideEventsTest", "removeMailingListMember", listId, contactId);
-      await awaitMessage();
+      await awaitMessage("outsideEventsTest", "removeMailingListMember", listId, contactId);
       checkEvents(
         ["mailingLists", "onMemberRemoved", listId, contactId]
       );
 
-      browser.test.sendMessage("outsideEventsTest", "deleteMailingList", listId);
-      await awaitMessage();
+      await awaitMessage("outsideEventsTest", "deleteMailingList", listId);
       checkEvents(["mailingLists", "onDeleted", parentId2, listId]);
 
-      browser.test.sendMessage("outsideEventsTest", "deleteContact", contactId);
-      await awaitMessage();
+      await awaitMessage("outsideEventsTest", "deleteContact", contactId);
       checkEvents(["contacts", "onDeleted", parentId1, contactId]);
 
       browser.test.log("Completed outsideEventsTest");

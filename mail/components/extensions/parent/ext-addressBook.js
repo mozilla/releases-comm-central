@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const uuidGenerator = Cc["@mozilla.org/uuid-generator;1"].getService(Ci.nsIUUIDGenerator);
-
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 
@@ -286,7 +284,7 @@ this.addressBook = class extends ExtensionAPI {
   getAPI(context) {
     return {
       addressBooks: {
-        openUI() {
+        async openUI() {
           let topWindow = Services.wm.getMostRecentWindow(AB_WINDOW_TYPE);
           if (!topWindow) {
             // TODO: wait until window is loaded before resolving
@@ -294,7 +292,7 @@ this.addressBook = class extends ExtensionAPI {
           }
           topWindow.focus();
         },
-        closeUI() {
+        async closeUI() {
           for (let win of Services.wm.getEnumerator(AB_WINDOW_TYPE)) {
             win.close();
           }

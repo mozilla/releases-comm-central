@@ -80,12 +80,14 @@
       {
         "name": "openUI",
         "type": "function",
+        "async": true,
         "description": "Opens the address book user interface.",
         "parameters": []
       },
       {
         "name": "closeUI",
         "type": "function",
+        "async": true,
         "description": "Closes the address book user interface.",
         "parameters": []
       },

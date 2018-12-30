@@ -4,6 +4,7 @@
 
 this.EXPORTED_SYMBOLS = ["ToolbarButtonAPI"];
 
+ChromeUtils.defineModuleGetter(this, "Services", "resource://gre/modules/Services.jsm");
 ChromeUtils.defineModuleGetter(this, "ViewPopup", "resource:///modules/ExtensionPopups.jsm");
 ChromeUtils.defineModuleGetter(this, "ExtensionSupport", "resource:///modules/extensionSupport.jsm");
 ChromeUtils.import("resource://gre/modules/ExtensionCommon.jsm");
@@ -82,18 +83,14 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
         this.paint(window);
       },
     });
+
+    extension.callOnClose(this);
   }
 
   /**
    * Called when the extension is disabled or removed.
-   *
-   * @param reason
    */
-  onShutdown(reason) {
-    if (reason === "APP_SHUTDOWN") {
-      return;
-    }
-
+  close() {
     ExtensionSupport.unregisterWindowListener(this.id);
     for (let window of ExtensionSupport.openWindows) {
       if (this.windowURLs.includes(window.location.href)) {
@@ -352,11 +349,12 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
    * @param {ChromeWindow} window
    *        Browser chrome window.
    */
-  updateWindow(window) {
+  async updateWindow(window) {
     let button = window.document.getElementById(this.id);
     if (button) {
       this.updateButton(button, this.globals);
     }
+    await new Promise(window.requestAnimationFrame);
   }
 
   /**
@@ -368,18 +366,20 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
    * @param {XULElement|ChromeWindow|null} target
    *        Browser tab or browser chrome window, may be null.
    */
-  updateOnChange(target) {
+  async updateOnChange(target) {
     if (target) {
       let window = target.ownerGlobal;
       if (target === window || target.selected) {
-        this.updateWindow(window);
+        await this.updateWindow(window);
       }
     } else {
+      let promises = [];
       for (let window of ExtensionSupport.openWindows) {
         if (this.windowURLs.includes(window.location.href)) {
-          this.updateWindow(window);
+          promises.push(this.updateWindow(window));
         }
       }
+      await Promise.all(promises);
     }
   }
 
@@ -427,7 +427,7 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
    * @param {string} value
    *        Value for prop.
    */
-  setProperty(details, prop, value) {
+  async setProperty(details, prop, value) {
     let {target, values} = this.getContextData(details);
     if (value === null) {
       delete values[prop];
@@ -435,7 +435,7 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
       values[prop] = value;
     }
 
-    this.updateOnChange(target);
+    await this.updateOnChange(target);
   }
 
   /**
@@ -480,45 +480,45 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
           },
         }).api(),
 
-        enable(tabId) {
-          action.setProperty({tabId}, "enabled", true);
+        async enable(tabId) {
+          await action.setProperty({tabId}, "enabled", true);
         },
 
-        disable(tabId) {
-          action.setProperty({tabId}, "enabled", false);
+        async disable(tabId) {
+          await action.setProperty({tabId}, "enabled", false);
         },
 
         isEnabled(details) {
           return action.getProperty(details, "enabled");
         },
 
-        setTitle(details) {
-          action.setProperty(details, "title", details.title);
+        async setTitle(details) {
+          await action.setProperty(details, "title", details.title);
         },
 
         getTitle(details) {
           return action.getProperty(details, "title");
         },
 
-        setIcon(details) {
+        async setIcon(details) {
           details.iconType = this.manifestName;
 
           let icon = IconDetails.normalize(details, extension, context);
           if (!Object.keys(icon).length) {
             icon = null;
           }
-          action.setProperty(details, "icon", icon);
+          await action.setProperty(details, "icon", icon);
         },
 
-        setBadgeText(details) {
-          action.setProperty(details, "badgeText", details.text);
+        async setBadgeText(details) {
+          await action.setProperty(details, "badgeText", details.text);
         },
 
         getBadgeText(details) {
           return action.getProperty(details, "badgeText");
         },
 
-        setPopup(details) {
+        async setPopup(details) {
           // Note: Chrome resolves arguments to setIcon relative to the calling
           // context, but resolves arguments to setPopup relative to the extension
           // root.
@@ -528,7 +528,7 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
           if (url && !context.checkLoadURL(url)) {
             return Promise.reject({message: `Access denied for URL ${url}`});
           }
-          action.setProperty(details, "popup", url);
+          await action.setProperty(details, "popup", url);
           return Promise.resolve(null);
         },
 
@@ -536,7 +536,7 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
           return action.getProperty(details, "popup");
         },
 
-        setBadgeBackgroundColor(details) {
+        async setBadgeBackgroundColor(details) {
           let color = details.color;
           if (typeof color == "string") {
             let col = InspectorUtils.colorToRGBA(color);
@@ -545,7 +545,7 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
             }
             color = col && [col.r, col.g, col.b, Math.round(col.a * 255)];
           }
-          action.setProperty(details, "badgeBackgroundColor", color);
+          await action.setProperty(details, "badgeBackgroundColor", color);
         },
 
         getBadgeBackgroundColor(details, callback) {

@@ -2,6 +2,15 @@
 
 module.exports = {
   "globals": {
+    // These are defined in the WebExtension script scopes by ExtensionCommon.jsm.
+    // From toolkit/components/extensions/.eslintrc.js.
+    "ExtensionAPI": true,
+    "ExtensionCommon": true,
+    "ExtensionUtils": true,
+    "extensions": true,
+    "global": true,
+    "Services": true,
+
     // From toolkit/components/extensions/parent/.eslintrc.js.
     "CONTAINER_STORE": true,
     "DEFAULT_STORE": true,

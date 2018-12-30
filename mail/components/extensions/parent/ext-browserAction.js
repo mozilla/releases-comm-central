@@ -16,8 +16,8 @@ this.browserAction = class extends ToolbarButtonAPI {
     browserActionMap.set(this.extension, this);
   }
 
-  onShutdown(reason) {
-    super.onShutdown(reason);
+  close() {
+    super.close();
     browserActionMap.delete(this.extension);
   }
 
