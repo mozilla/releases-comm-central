@@ -10,13 +10,12 @@ var saveFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
 saveFile.append(dot.leafName + ".eml");
 saveFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
 
-function run_test()
-{
+function run_test() {
   registerCleanupFunction(teardown);
   do_test_pending();
   do_timeout(10000, function() {
-    do_throw('SaveMessageToDisk did not complete within 10 seconds' +
-      '(incorrect messageURI?). ABORTING.');
+    do_throw("SaveMessageToDisk did not complete within 10 seconds" +
+      "(incorrect messageURI?). ABORTING.");
   });
   copyFileMessageInLocalFolder(dot, 0, "", null, save_message);
 }
@@ -44,14 +43,14 @@ function check_each_line(aExpectedLines, aActualLines) {
 }
 
 var UrlListener = {
-  OnStartRunningUrl: function(aUrl) {
+  OnStartRunningUrl(aUrl) {
   },
-  OnStopRunningUrl: function(aUrl, aExitCode) {
+  OnStopRunningUrl(aUrl, aExitCode) {
     Assert.equal(aExitCode, 0);
     check_each_line(IOUtils.loadFileToString(dot),
                     IOUtils.loadFileToString(saveFile));
     do_test_finished();
-  }
+  },
 };
 
 function teardown() {

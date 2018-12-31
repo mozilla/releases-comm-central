@@ -37,8 +37,6 @@ mailnews/imap/*
 mailnews/import/*
 mailnews/intl/*
 mailnews/jsaccount/*
-mailnews/local/*
-mailnews/mapi/*
 mailnews/mime/*
 mailnews/test/*
 

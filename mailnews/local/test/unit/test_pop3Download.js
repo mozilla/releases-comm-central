@@ -2,8 +2,9 @@
  * The intent of this file is to test that pop3 download code message storage
  * works correctly.
  */
+
+/* import-globals-from ../../../test/resources/POP3pump.js */
 load("../../../resources/POP3pump.js");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var testSubjects = ["[Bug 397009] A filter will let me tag, but not untag",
                     "Hello, did you receive my bugmail?",
@@ -20,8 +21,7 @@ var gFiles = ["../../../data/bugmail1",
 Services.prefs.setBoolPref("mailnews.downloadToTempFile", false);
 Services.prefs.setBoolPref("mail.server.default.leave_on_server", true);
 
-function run_test()
-{
+function run_test() {
   // add 3 messages
   gPOP3Pump.files = gFiles;
   gPOP3Pump.onDone = continueTest;
@@ -29,14 +29,11 @@ function run_test()
   gPOP3Pump.run();
 }
 
-function continueTest()
-{
+function continueTest() {
   // get message headers for the inbox folder
   let enumerator = localAccountUtils.inboxFolder.msgDatabase.EnumerateMessages();
   var msgCount = 0;
-  let hdr;
-  while (enumerator.hasMoreElements())
-  {
+  while (enumerator.hasMoreElements()) {
     let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     gMsgHdrs.push(hdr);
     Assert.equal(hdr.subject, testSubjects[msgCount++]);
@@ -46,8 +43,7 @@ function continueTest()
   streamNextMessage();
 }
 
-function streamNextMessage()
-{
+function streamNextMessage() {
   let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
   let msghdr = gMsgHdrs[gHdrIndex];
   let msgURI = msghdr.folder.getUriForMsg(msghdr);
@@ -55,15 +51,15 @@ function streamNextMessage()
   msgServ.streamMessage(msgURI, gStreamListener, null, null, false, "", true);
 }
 
-gStreamListener = {
-  QueryInterface : ChromeUtils.generateQI([Ci.nsIStreamListener]),
-  _stream : null,
-  _data : null,
-  onStartRequest : function (aRequest, aContext) {
+var gStreamListener = {
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
+  _stream: null,
+  _data: null,
+  onStartRequest(aRequest, aContext) {
     this._stream = null;
     this._data = "";
   },
-  onStopRequest : function (aRequest, aContext, aStatusCode) {
+  onStopRequest(aRequest, aContext, aStatusCode) {
     // check that the streamed message starts with "From "
     Assert.ok(this._data.startsWith("From "));
     if (++gHdrIndex == gFiles.length)
@@ -71,7 +67,7 @@ gStreamListener = {
     else
       streamNextMessage();
   },
-  onDataAvailable : function (aRequest, aContext, aInputStream, aOff, aCount) {
+  onDataAvailable(aRequest, aContext, aInputStream, aOff, aCount) {
     if (this._stream == null) {
       this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(Ci.nsIScriptableInputStream);
       this._stream.init(aInputStream);

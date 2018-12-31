@@ -8,7 +8,7 @@
 
 var gPluggableStores = [
   "@mozilla.org/msgstore/berkeleystore;1",
-  "@mozilla.org/msgstore/maildirstore;1"
+  "@mozilla.org/msgstore/maildirstore;1",
 ];
 
 function test_discoverSubFolders() {

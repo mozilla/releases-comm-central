@@ -10,6 +10,10 @@
  */
 
 // async support
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../test/resources/alertTestUtils.js */
+/* import-globals-from ../../../test/resources/POP3pump.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/alertTestUtils.js");
@@ -17,19 +21,18 @@ load("../../../resources/alertTestUtils.js");
 load("../../../resources/POP3pump.js");
 
 var testSubjects = ["Hello, did you receive my bugmail?"];
-var tests = [loadMessages,
-             goodStreaming,
-             badStreaming,
-            ];
+var tests = [
+  loadMessages,
+  goodStreaming,
+  badStreaming,
+];
 
-function run_test()
-{
+function run_test() {
   async_run_tests(tests);
 }
 
 var gHdr;
-function* loadMessages()
-{
+function* loadMessages() {
   gPOP3Pump.files = ["../../../data/draft1"];
   gPOP3Pump.onDone = async_driver;
   gPOP3Pump.run();
@@ -38,8 +41,7 @@ function* loadMessages()
   // get message headers for the inbox folder
   let enumerator = localAccountUtils.inboxFolder.msgDatabase.EnumerateMessages();
   var msgCount = 0;
-  while(enumerator.hasMoreElements())
-  {
+  while (enumerator.hasMoreElements()) {
     msgCount++;
     gHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     Assert.equal(gHdr.subject, testSubjects[msgCount - 1]);
@@ -48,15 +50,14 @@ function* loadMessages()
   gPOP3Pump = null;
 }
 
-function* goodStreaming()
-{
+function* goodStreaming() {
   // try to stream the headers of the last message
   let uri = gHdr.folder.getUriForMsg(gHdr);
   let messageService = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger)
                                                      .messageServiceFromURI(uri);
   messageService.streamHeaders(uri, createStreamListener(
     function theString(k) {
-      dump('the string:\n' + k + '\n');
+      dump("the string:\n" + k + "\n");
       // The message contains this header
       Assert.ok(k.includes("X-Mozilla-Draft-Info: internal/draft; vcard=0; receipt=0; DSN=0; uuencode=0"));
       async_driver();
@@ -65,8 +66,7 @@ function* goodStreaming()
 }
 
 // crash from bug 752768
-function badStreaming()
-{
+function badStreaming() {
   // try to stream the headers of the last message
   let folder = gHdr.folder;
   let uri = folder.getUriForMsg(gHdr);
@@ -82,8 +82,10 @@ function badStreaming()
   let haveError = false;
   try {
     messageService.streamHeaders(uri, createStreamListener(
-      function theString(k) {} ), null, true);
-  } catch (e) {haveError = true;}
+      function theString(k) {}), null, true);
+  } catch (e) {
+    haveError = true;
+  }
   Assert.ok(haveError);
 }
 
@@ -96,25 +98,25 @@ function badStreaming()
 function createStreamListener(k) {
   return {
     _data: "",
-    _stream : null,
+    _stream: null,
 
     QueryInterface:
       ChromeUtils.generateQI([Ci.nsIStreamListener, Ci.nsIRequestObserver]),
 
     // nsIRequestObserver
-    onStartRequest: function(aRequest, aContext) {
+    onStartRequest(aRequest, aContext) {
     },
-    onStopRequest: function(aRequest, aContext, aStatusCode) {
+    onStopRequest(aRequest, aContext, aStatusCode) {
       k(this._data);
     },
 
     // nsIStreamListener
-    onDataAvailable: function(aRequest, aContext, aInputStream, aOffset, aCount) {
+    onDataAvailable(aRequest, aContext, aInputStream, aOffset, aCount) {
       if (this._stream == null) {
         this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(Ci.nsIScriptableInputStream);
         this._stream.init(aInputStream);
       }
       this._data += this._stream.read(aCount);
-    }
+    },
   };
 }

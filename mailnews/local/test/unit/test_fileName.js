@@ -3,9 +3,6 @@
  * Test handling of special chars in folder names
  */
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 function run_test() {
   let testFolderName = "";
   let OSname = Services.sysinfo.getProperty("name");
@@ -67,7 +64,7 @@ function run_test() {
 
   localAccountUtils.incomingServer = MailServices.accounts.localFoldersServer;
   // force load of accounts.
-  let defaultAccount = MailServices.accounts.defaultAccount;
+  MailServices.accounts.defaultAccount;
 
   let pop3Server = MailServices.accounts.FindServer("user", "poptest", "pop3");
   let rootFolder = localAccountUtils.incomingServer.rootMsgFolder

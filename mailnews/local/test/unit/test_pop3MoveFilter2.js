@@ -6,10 +6,8 @@
  */
 
 
+/* import-globals-from ../../../test/resources/POP3pump.js */
 load("../../../resources/POP3pump.js");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
 var gFiles = ["../../../data/bugmail10", "../../../data/basic1"];
 
 Services.prefs.setBoolPref("mail.server.default.leave_on_server", true);
@@ -17,16 +15,15 @@ Services.prefs.setBoolPref("mail.server.default.leave_on_server", true);
 // Currently we have two mailbox storage formats.
 var gPluggableStores = [
   "@mozilla.org/msgstore/berkeleystore;1",
-  "@mozilla.org/msgstore/maildirstore;1"
+  "@mozilla.org/msgstore/maildirstore;1",
 ];
-var basic1_preview = 'Hello, world!';
-var bugmail10_preview = 'Do not reply to this email. You can add comments to this bug at https://bugzilla.mozilla.org/show_bug.cgi?id=436880 -- Configure bugmail: https://bugzilla.mozilla.org/userprefs.cgi?tab=email ------- You are receiving this mail because: -----';
+var basic1_preview = "Hello, world!";
+var bugmail10_preview = "Do not reply to this email. You can add comments to this bug at https://bugzilla.mozilla.org/show_bug.cgi?id=436880 -- Configure bugmail: https://bugzilla.mozilla.org/userprefs.cgi?tab=email ------- You are receiving this mail because: -----";
 
 var gMoveFolder;
 var gFilter; // the test filter
 var gFilterList;
-var gTestArray =
-[
+var gTestArray = [
   function createFilters() {
     gFilterList = gPOP3Pump.fakeServer.getFilterList(null);
     // create a cc filter which will match the first message but not the second.
@@ -67,7 +64,7 @@ var gTestArray =
     hdrs.push(hdr);
     Assert.ok(!gMoveFolder.fetchMsgPreviewText(keys, keys.length,
                                                false, null));
-    Assert.equal(hdrs[0].getStringProperty('preview'), bugmail10_preview);
+    Assert.equal(hdrs[0].getStringProperty("preview"), bugmail10_preview);
     // check inbox message
     hdrs = [];
     keys = [];
@@ -78,24 +75,21 @@ var gTestArray =
     Assert.ok(!localAccountUtils.inboxFolder
                                 .fetchMsgPreviewText(keys, keys.length,
                                                      false, null));
-    Assert.equal(hdrs[0].getStringProperty('preview'), basic1_preview);
-  }
+    Assert.equal(hdrs[0].getStringProperty("preview"), basic1_preview);
+  },
 ];
 
-function folderCount(folder)
-{
+function folderCount(folder) {
   let enumerator = folder.msgDatabase.EnumerateMessages();
   let count = 0;
-  while (enumerator.hasMoreElements())
-  {
+  while (enumerator.hasMoreElements()) {
     count++;
-    let hdr = enumerator.getNext();
+    enumerator.getNext();
   }
   return count;
 }
 
-function setup_store(storeID)
-{
+function setup_store(storeID) {
   return function _setup_store() {
     // Initialize pop3Pump with correct mailbox format.
     gPOP3Pump.resetPluggableStore(storeID);
@@ -110,11 +104,10 @@ function setup_store(storeID)
       localAccountUtils.loadLocalMailAccount();
 
     gMoveFolder = localAccountUtils.rootFolder.createLocalSubfolder("MoveFolder");
-  }
+  };
 }
 
-function run_test()
-{
+function run_test() {
   for (let store of gPluggableStores) {
     add_task(setup_store(store));
     gTestArray.forEach(x => add_task(x));
@@ -124,8 +117,7 @@ function run_test()
   run_next_test();
 }
 
-function exitTest()
-{
+function exitTest() {
   // Cleanup and exit the test.
   info("Exiting mail tests\n");
   gPOP3Pump = null;

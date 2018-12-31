@@ -2,14 +2,14 @@
  * The intent of this file is to test duplicate handling options
  * in the pop3 download code.
  */
+
+/* import-globals-from ../../../test/resources/POP3pump.js */
 load("../../../resources/POP3pump.js");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var testSubjects = ["[Bug 397009] A filter will let me tag, but not untag",
                     "Hello, did you receive my bugmail?"];
 
-function run_test()
-{
+function run_test() {
   // Set duplicate action to be delete duplicates.
   Services.prefs.setIntPref("mail.server.default.dup_action",
                             Ci.nsIMsgIncomingServer.deleteDups);
@@ -22,13 +22,11 @@ function run_test()
   gPOP3Pump.run();
 }
 
-function continueTest()
-{
+function continueTest() {
   // get message headers for the inbox folder
   let enumerator = localAccountUtils.inboxFolder.msgDatabase.EnumerateMessages();
   var msgCount = 0;
-  while (enumerator.hasMoreElements())
-  {
+  while (enumerator.hasMoreElements()) {
     let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     Assert.equal(hdr.subject, testSubjects[msgCount++]);
   }

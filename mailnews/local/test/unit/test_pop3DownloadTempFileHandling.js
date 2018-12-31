@@ -4,15 +4,15 @@
  *
  * Original author: David Bienvenu <dbienvenu@mozilla.com>
  */
+
+/* import-globals-from ../../../test/resources/POP3pump.js */
 load("../../../resources/POP3pump.js");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var testSubjects = ["[Bug 397009] A filter will let me tag, but not untag",
                     "Hello, did you receive my bugmail?"];
 var gExpectedFiles;
 
-function run_test()
-{
+function run_test() {
   Services.prefs.setBoolPref("mailnews.downloadToTempFile", true);
   gExpectedFiles = createExpectedTemporaryFiles(2);
   // add 2 messages
@@ -23,8 +23,7 @@ function run_test()
   gPOP3Pump.run();
 }
 
-function continueTest()
-{
+function continueTest() {
   dump("temp file path = " + gExpectedFiles[0].path + "\n");
   dump("temp file path = " + gExpectedFiles[1].path + "\n");
   for (let expectedFile of gExpectedFiles)
@@ -33,8 +32,7 @@ function continueTest()
   // get message headers for the inbox folder
   let enumerator = localAccountUtils.inboxFolder.msgDatabase.EnumerateMessages();
   var msgCount = 0;
-  while (enumerator.hasMoreElements())
-  {
+  while (enumerator.hasMoreElements()) {
     let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     Assert.equal(hdr.subject, testSubjects[msgCount++]);
   }
@@ -52,7 +50,7 @@ function createExpectedTemporaryFiles(numFiles) {
   }
 
   let expectedFiles = [];
-  for (i = 0; i < numFiles; i++)
+  for (let i = 0; i < numFiles; i++)
     expectedFiles.push(createTemporaryFile());
 
   for (let expectedFile of expectedFiles)

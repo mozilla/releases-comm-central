@@ -2,27 +2,25 @@
 /**
  * Protocol tests for POP3.
  */
-ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-var type = null;
-var test = null;
 var server;
 var daemon;
 var incomingServer;
 var thisTest;
 
-var tests = [
-  { title: "Get New Mail, One Message",
-    messages: [ "message2.eml", "message2.eml", "message3.eml" ],
-    transaction: [ "AUTH", "CAPA", "AUTH PLAIN", "STAT", "LIST", "UIDL",
-                   "RETR 1", "DELE 1", "RETR 2", "DELE 2", "RETR 3", "DELE 3" ] }
-];
+var tests = [{
+  title: "Get New Mail, One Message",
+  messages: ["message2.eml", "message2.eml", "message3.eml"],
+  transaction: [
+    "AUTH", "CAPA", "AUTH PLAIN", "STAT", "LIST", "UIDL",
+    "RETR 1", "DELE 1", "RETR 2", "DELE 2", "RETR 3", "DELE 3",
+  ],
+}];
 
-var urlListener =
-{
-  OnStartRunningUrl: function (url) {
+var urlListener = {
+  OnStartRunningUrl(url) {
   },
-  OnStopRunningUrl: function (url, result) {
+  OnStopRunningUrl(url, result) {
     try {
       var transaction = server.playTransaction();
 
@@ -32,8 +30,7 @@ var urlListener =
       Assert.equal(localAccountUtils.inboxFolder.getNumUnread(false), 1);
 
       Assert.equal(result, 0);
-    }
-    catch (e) {
+    } catch (e) {
       // If we have an error, clean up nicely before we throw it.
       server.stop();
 
@@ -46,7 +43,7 @@ var urlListener =
 
     // Let OnStopRunningUrl return cleanly before doing anything else.
     do_timeout(0, checkBusy);
-  }
+  },
 };
 
 function checkBusy() {
@@ -116,8 +113,6 @@ function run_test() {
   daemon = server[0];
   server = server[1];
   server.start();
-
-  type = "RFC 1939";
 
   // Set up the basic accounts and folders
   incomingServer = createPop3ServerAndLocalFolders(server.port);

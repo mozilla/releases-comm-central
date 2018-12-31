@@ -2,6 +2,7 @@
 
 /* Test of accessing over 2 GiB local folder. */
 
+/* import-globals-from ../../../test/resources/messageGenerator.js */
 load("../../../resources/messageGenerator.js");
 var bugmail10 = do_get_file("../../../data/bugmail10");
 
@@ -11,8 +12,7 @@ Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
 var gLocalInboxSize;
 var gLocalTrashFolder;
 
-function run_test()
-{
+function run_test() {
   localAccountUtils.loadLocalMailAccount();
 
   // "Master" do_test_pending(), paired with a do_test_finished() at the end of
@@ -59,8 +59,7 @@ function run_test()
 }
 
 // Get message whose offset is over 2 GiB.
-function getMessageHdr()
-{
+function getMessageHdr() {
   let msgEnum = localAccountUtils.inboxFolder.msgDatabase.EnumerateMessages();
   while (msgEnum.hasMoreElements()) {
     let header = msgEnum.getNext().QueryInterface(Ci.nsIMsgDBHdr);
@@ -70,10 +69,10 @@ function getMessageHdr()
   }
 
   do_throw("Over 2 GiB msgkey was not found!");
+  return null; // This won't ever happen, but we're keeping the linter happy.
 }
 
-function copyMessages()
-{
+function copyMessages() {
   // Make sure inbox file grew (i.e., we were not writing over data).
   let localInboxSize = localAccountUtils.inboxFolder.filePath.fileSize;
   info("Local inbox size (after copyFileMessageInLocalFolder()) = " +
@@ -89,19 +88,18 @@ function copyMessages()
 }
 
 var copyListener2 = {
-  OnStartCopy : function() {},
-  OnProgress: function(aProgress, aProgressMax) {},
-  SetMessageKey : function(aKey) {},
-  OnStopCopy : function(aStatus) {
+  OnStartCopy() {},
+  OnProgress(aProgress, aProgressMax) {},
+  SetMessageKey(aKey) {},
+  OnStopCopy(aStatus) {
     Assert.equal(aStatus, 0);
 
     do_timeout(0, accessOver2GBMsg);
-  }
+  },
 };
 
 // streamMessage() test by over 2 GiB mail offset.
-function accessOver2GBMsg()
-{
+function accessOver2GBMsg() {
   let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
   let msghdr = getMessageHdr();
   let msgURI = msghdr.folder.getUriForMsg(msghdr);
@@ -110,13 +108,13 @@ function accessOver2GBMsg()
 }
 
 var gStreamListener = {
-  QueryInterface : ChromeUtils.generateQI([Ci.nsIStreamListener]),
-  _stream : null,
-  _data : null,
-  onStartRequest : function (aRequest, aContext) {
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
+  _stream: null,
+  _data: null,
+  onStartRequest(aRequest, aContext) {
     this._data = "";
   },
-  onStopRequest : function (aRequest, aContext, aStatusCode) {
+  onStopRequest(aRequest, aContext, aStatusCode) {
     let fstream = Cc["@mozilla.org/network/file-input-stream;1"]
                     .createInstance(Ci.nsIFileInputStream);
     let stream = Cc["@mozilla.org/scriptableinputstream;1"]
@@ -129,7 +127,7 @@ var gStreamListener = {
 
     do_timeout(0, endTest);
   },
-  onDataAvailable : function (aRequest, aContext, aInputStream, aOff, aCount) {
+  onDataAvailable(aRequest, aContext, aInputStream, aOff, aCount) {
     if (this._stream == null) {
       this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(Ci.nsIScriptableInputStream);
       this._stream.init(aInputStream);

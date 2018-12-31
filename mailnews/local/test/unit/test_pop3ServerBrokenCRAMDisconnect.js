@@ -23,22 +23,19 @@
  * @author Ben Bucksch
  */
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-
 var server;
 var daemon;
 var incomingServer;
-var test = "Server which advertises CRAM-MD5, but closes the connection when it's tried";
+test = "Server which advertises CRAM-MD5, but closes the connection when it's tried";
 // that's how it currently looks like (we fail to log in):
-var expectedTransaction = [ "AUTH", "CAPA", "AUTH CRAM-MD5" ];
+var expectedTransaction = ["AUTH", "CAPA", "AUTH CRAM-MD5"];
 // TODO that's how it should look like (we start a new connection and try another scheme):
-//const expectedTransaction = [ "AUTH", "CAPA", "AUTH CRAM-MD5", "CAPA", "AUTH PLAIN", "STAT" ];
+// const expectedTransaction = ["AUTH", "CAPA", "AUTH CRAM-MD5", "CAPA", "AUTH PLAIN", "STAT"];
 
-var urlListener =
-{
-  OnStartRunningUrl: function (url) {
+var urlListener = {
+  OnStartRunningUrl(url) {
   },
-  OnStopRunningUrl: function (url, result) {
+  OnStopRunningUrl(url, result) {
     try {
       // We should be getting an error here, because we couldn't log in.
       Assert.equal(result, Cr.NS_ERROR_FAILURE);
@@ -55,7 +52,7 @@ var urlListener =
 
       do_throw(e);
     }
-  }
+  },
 };
 
 function endTest() {
@@ -69,21 +66,19 @@ function endTest() {
   do_test_finished();
 }
 
-function CRAMFail_handler(daemon)
-{
-  POP3_RFC5034_handler.call(this, daemon);
+function CRAMFail_handler(daemon_) {
+  POP3_RFC5034_handler.call(this, daemon_);
 
   this._kAuthSchemeStartFunction["CRAM-MD5"] = this.killConn;
 }
 CRAMFail_handler.prototype = {
-  __proto__ : POP3_RFC5034_handler.prototype, // inherit
+  __proto__: POP3_RFC5034_handler.prototype, // inherit
 
-  killConn : function()
-  {
+  killConn() {
     this.closing = true;
     return "-ERR I don't feel like it";
-  }
-}
+  },
+};
 
 function run_test() {
   try {

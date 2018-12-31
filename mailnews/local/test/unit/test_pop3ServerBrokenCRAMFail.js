@@ -3,19 +3,17 @@
  * Server which advertises CRAM-MD5, but fails when it's tried.
  * This reportedly happens for some misconfigured servers.
  */
-ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var server;
 var daemon;
 var incomingServer;
-var test = "Server which advertises CRAM-MD5, but fails when it's tried";
-var expectedTransaction = [ "AUTH", "CAPA", "AUTH CRAM-MD5", "AUTH PLAIN", "STAT" ];
+test = "Server which advertises CRAM-MD5, but fails when it's tried";
+var expectedTransaction = ["AUTH", "CAPA", "AUTH CRAM-MD5", "AUTH PLAIN", "STAT"];
 
-var urlListener =
-{
-  OnStartRunningUrl: function (url) {
+var urlListener = {
+  OnStartRunningUrl(url) {
   },
-  OnStopRunningUrl: function (url, result) {
+  OnStopRunningUrl(url, result) {
     try {
       Assert.equal(result, 0);
 
@@ -31,7 +29,7 @@ var urlListener =
 
       do_throw(e);
     }
-  }
+  },
 };
 
 function checkBusy() {
@@ -59,22 +57,20 @@ function endTest() {
   do_test_finished();
 }
 
-function CRAMFail_handler(daemon)
-{
-  POP3_RFC5034_handler.call(this, daemon);
+function CRAMFail_handler(daemon_) {
+  POP3_RFC5034_handler.call(this, daemon_);
 
   this._kAuthSchemeStartFunction["CRAM-MD5"] = this.killConn;
 }
 CRAMFail_handler.prototype = {
-  __proto__ : POP3_RFC5034_handler.prototype, // inherit
+  __proto__: POP3_RFC5034_handler.prototype, // inherit
 
-  killConn : function()
-  {
+  killConn() {
     this._multiline = false;
     this._state = kStateAuthNeeded;
     return "-ERR I just pretended to implement CRAM-MD5";
-  }
-}
+  },
+};
 
 function run_test() {
   try {

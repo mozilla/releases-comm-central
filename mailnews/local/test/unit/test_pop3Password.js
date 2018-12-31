@@ -3,28 +3,24 @@
  * Authentication tests for POP3.
  */
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-
+/* import-globals-from ../../../test/resources/passwordStorage.js */
 load("../../../resources/passwordStorage.js");
 
-var test = null;
 var server;
 var daemon;
 var incomingServer;
 var thisTest;
 
-var tests = [
-  { title: "Get New Mail, One Message",
-    messages: ["message1.eml"],
-    transaction: [ "AUTH", "CAPA", "AUTH PLAIN", "STAT", "LIST",
-                   "UIDL", "RETR 1", "DELE 1" ] }
-];
+var tests = [{
+  title: "Get New Mail, One Message",
+  messages: ["message1.eml"],
+  transaction: ["AUTH", "CAPA", "AUTH PLAIN", "STAT", "LIST", "UIDL", "RETR 1", "DELE 1"],
+}];
 
-var urlListener =
-{
-  OnStartRunningUrl: function (url) {
+var urlListener = {
+  OnStartRunningUrl(url) {
   },
-  OnStopRunningUrl: function (url, result) {
+  OnStopRunningUrl(url, result) {
     try {
       var transaction = server.playTransaction();
 
@@ -34,8 +30,7 @@ var urlListener =
                    thisTest.messages.length);
 
       Assert.equal(result, 0);
-    }
-    catch (e) {
+    } catch (e) {
       // If we have an error, clean up nicely before we throw it.
       server.stop();
 
@@ -48,7 +43,7 @@ var urlListener =
 
     // Let OnStopRunningUrl return cleanly before doing anything else.
     do_timeout(0, checkBusy);
-  }
+  },
 };
 
 function checkBusy() {
@@ -105,7 +100,7 @@ function testNext() {
   }
 }
 
-add_task(async function () {
+add_task(async function() {
   // Disable new mail notifications
   Services.prefs.setBoolPref("mail.biff.play_sound", false);
   Services.prefs.setBoolPref("mail.biff.show_alert", false);
@@ -144,7 +139,3 @@ add_task(async function () {
 
   testNext();
 });
-
-function run_test() {
-  run_next_test();
-}

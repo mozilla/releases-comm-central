@@ -11,6 +11,9 @@
  * with a null database.
  *
  */
+
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
@@ -22,14 +25,13 @@ var gMsgFile2 = do_get_file("../../../data/draft1");
 var gTargetFolder = null;
 
 var tests = [
-  function* setup()
-  {
+  function* setup() {
     do_timeout(5000, function() {
       // should be done by now
       Assert.ok(false);
     });
 
-    if (typeof localAccountUtils.inboxFolder == 'undefined')
+    if (typeof localAccountUtils.inboxFolder == "undefined")
       localAccountUtils.loadLocalMailAccount();
     localAccountUtils.rootFolder.createSubfolder("target", null);
     gTargetFolder = localAccountUtils.rootFolder.getChildNamed("target");
@@ -44,13 +46,11 @@ var tests = [
 
   },
 
-  function* firstUpdate()
-  {
+  function* firstUpdate() {
     // get message headers for the target folder
     let enumerator = gTargetFolder.msgDatabase.EnumerateMessages();
     var msgCount = 0;
-    while(enumerator.hasMoreElements())
-    {
+    while (enumerator.hasMoreElements()) {
       msgCount++;
       let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
       Assert.equal(hdr.subject, testSubjects[msgCount - 1]);
@@ -58,25 +58,23 @@ var tests = [
     Assert.equal(msgCount, 2);
 
     // try an update
-    mailTestUtils.updateFolderAndNotify(gTargetFolder, function () {
+    mailTestUtils.updateFolderAndNotify(gTargetFolder, function() {
       dump("after FolderLoaded1\n");
       async_driver();
     });
     yield false;
   },
 
-  function* secondUpdate()
-  {
+  function* secondUpdate() {
     // If the following executes, the test hangs in bug 787557.
     gTargetFolder.msgDatabase = null;
     // try an update
-    mailTestUtils.updateFolderAndNotify(gTargetFolder, function () {
+    mailTestUtils.updateFolderAndNotify(gTargetFolder, function() {
       dump("after FolderLoaded2\n");
       async_driver();
     });
     yield false;
   },
-
 ];
 
 function run_test() {

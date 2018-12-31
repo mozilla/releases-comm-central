@@ -11,7 +11,7 @@
 // Currently we have two mailbox storage formats.
 var gPluggableStores = [
   "@mozilla.org/msgstore/berkeleystore;1",
-  "@mozilla.org/msgstore/maildirstore;1"
+  "@mozilla.org/msgstore/maildirstore;1",
 ];
 
 /**
@@ -47,8 +47,7 @@ function check_sub_folders(expected, actual) {
 /**
  * Test default mailbox without creating any subfolders.
  */
-function test_default_mailbox(expected, type)
-{
+function test_default_mailbox(expected, type) {
   let mailbox = setup_mailbox(type, create_temporary_directory());
 
   check_sub_folders(expected, mailbox.subFolders);
@@ -64,12 +63,11 @@ function test_default_mailbox(expected, type)
  *                       the folders and subfolders from
  *                       aFolderArray are to be added.
  */
-function add_sub_folders(aFolderArray, aParentFolder)
-{
+function add_sub_folders(aFolderArray, aParentFolder) {
   for (let msgFolder of aFolderArray) {
     if (!aParentFolder.containsChildNamed(msgFolder.name))
       aParentFolder.createSubfolder(msgFolder.name, null);
-    if (!!msgFolder.subFolders) {
+    if (msgFolder.subFolders) {
       add_sub_folders(msgFolder.subFolders,
                       aParentFolder.getChildNamed(msgFolder.name));
     }
@@ -97,38 +95,35 @@ function run_all_tests() {
 
   // Assuming that the order of the folders returned from the actual folder
   // discovery is independent and un-important for this test.
-  test_mailbox([
-    {
-      name: "Inbox",
-      subFolders: [ { name: "sub4" } ]
-    },
-    {
-      name: "Trash"
-    }
-  ], "pop3");
+  test_mailbox([{
+    name: "Inbox",
+    subFolders: [{
+      name: "sub4",
+    }],
+  }, {
+    name: "Trash",
+  }], "pop3");
 
-  test_mailbox([
-    {
-      name: "Inbox",
-      subFolders: [
-        { name: "inbox-sub1",
-          subFolders: [ { name: "inbox-sub-sub1" },
-                        { name: "inbox-sub-sub2" }
-                      ]
-        },
-        { name: "inbox-sub2" }
-      ]
-    },
-    {
-      name: "Trash"
-    },
-    {
-      name: "Outbox",
-      subFolders: [
-        { name: "outbox-sub1" }
-      ]
-    }
-  ], "pop3");
+  test_mailbox([{
+    name: "Inbox",
+    subFolders: [{
+      name: "inbox-sub1",
+      subFolders: [{
+        name: "inbox-sub-sub1",
+      }, {
+        name: "inbox-sub-sub2",
+      }],
+    }, {
+      name: "inbox-sub2",
+    }],
+  }, {
+    name: "Trash",
+  }, {
+    name: "Outbox",
+    subFolders: [{
+      name: "outbox-sub1",
+    }],
+  }], "pop3");
 }
 
 function run_test() {

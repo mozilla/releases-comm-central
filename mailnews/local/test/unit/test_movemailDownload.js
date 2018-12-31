@@ -2,29 +2,14 @@
  * The intent of this file is to test that movemail download code
  * works correctly.
  */
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
-var gPluggableStores = [
-  "@mozilla.org/msgstore/berkeleystore;1",
-  "@mozilla.org/msgstore/maildirstore;1"
-];
+ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
 var testSubjects = ["[Bug 397009] A filter will let me tag, but not untag",
                     "Hello, did you receive my bugmail?",
                     "[Bug 655578] list-id filter broken"];
 
 var gMsgHdrs = [];
-var gHdrIndex = 0;
-
-// the movemail spool dir file is these three files
-// concatenated together.
-
-var gFiles = ["../../../data/bugmail1",
-              "../../../data/draft1",
-              "../../../data/bugmail19"];
-
 var gMoveMailInbox;
 
 function setup(storeID, aHostName) {
@@ -44,7 +29,7 @@ function setup(storeID, aHostName) {
     movemailServer.QueryInterface(Ci.nsILocalMailIncomingServer);
     movemailServer.getNewMail(null, null, null);
     gMoveMailInbox = movemailServer.rootFolder.getChildNamed("INBOX");
-  }
+  };
 }
 
 var gTestArray = [
@@ -54,7 +39,6 @@ var gTestArray = [
     // get message headers for the inbox folder
     let enumerator = gMoveMailInbox.msgDatabase.EnumerateMessages();
     var msgCount = 0;
-    let hdr;
     while (enumerator.hasMoreElements()) {
       let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
       gMsgHdrs.push(hdr);
@@ -65,11 +49,10 @@ var gTestArray = [
   async function streamMessages() {
     for (let msgHdr of gMsgHdrs)
       await streamNextMessage(msgHdr);
-  }
+  },
 ];
 
-function run_test()
-{
+function run_test() {
   let hostName = "movemail";
   for (let index = 0; index < localAccountUtils.pluggableStores.length; index++) {
     add_task(setup(localAccountUtils.pluggableStores[index],
@@ -80,7 +63,7 @@ function run_test()
   run_next_test();
 }
 
-var streamNextMessage = async function (aMsgHdr) {
+var streamNextMessage = async function(aMsgHdr) {
   let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
   let msgURI = aMsgHdr.folder.getUriForMsg(aMsgHdr);
   dump("streaming msg " + msgURI + " store token = " +

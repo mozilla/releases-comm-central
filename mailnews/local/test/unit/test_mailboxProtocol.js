@@ -10,16 +10,14 @@ var defaultProtocolFlags =
   Ci.nsIProtocolHandler.URI_FORBIDS_COOKIE_ACCESS |
   Ci.nsIProtocolHandler.ORIGIN_IS_FULL_SPEC;
 
-var protocols =
-  [ { protocol: "mailbox",
-      urlSpec: "mailbox://user@localhost/",
-      // mailbox protocol doesn't use a port
-      defaultPort: -1
-    },
-  ];
+var protocols = [{
+  protocol: "mailbox",
+  urlSpec: "mailbox://user@localhost/",
+  // mailbox protocol doesn't use a port
+  defaultPort: -1,
+}];
 
-function run_test()
-{
+function run_test() {
   for (var part = 0; part < protocols.length; ++part) {
     print("protocol: " + protocols[part].protocol);
 

@@ -6,6 +6,7 @@
    mbox->maildir are correct.
  */
 
+/* import-globals-from ../../../test/resources/POP3pump.js */
 load("../../../resources/POP3pump.js");
 ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
@@ -84,7 +85,7 @@ add_task(async function maildirToMbox() {
   while (enumerator.hasMoreElements()) {
     let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     let body = mailTestUtils.loadMessageToString(gTestFolder, hdr);
-    Assert.ok(body.indexOf(hdr.subject) >= 0);
+    Assert.ok(body.includes(hdr.subject));
   }
 });
 
@@ -132,7 +133,7 @@ add_task(async function mboxToMaildir() {
   while (enumerator.hasMoreElements()) {
     let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     let body = mailTestUtils.loadMessageToString(gInboxFolder, hdr);
-    Assert.ok(body.indexOf(hdr.subject) >= 0);
+    Assert.ok(body.includes(hdr.subject));
   }
 });
 
@@ -140,13 +141,8 @@ add_task(function testCleanup() {
   gPOP3Pump = null;
 });
 
-function run_test() {
-  run_next_test();
-}
-
 // Clone of POP3pump resetPluggableStore that does not reset local folders.
-function resetPluggableStoreLocal(aStoreContractID)
-{
+function resetPluggableStoreLocal(aStoreContractID) {
   Services.prefs.setCharPref("mail.serverDefaultStoreContractID", aStoreContractID);
 
   // Cleanup existing files, server and account instances, if any.
@@ -161,8 +157,8 @@ function resetPluggableStoreLocal(aStoreContractID)
   gPOP3Pump.fakeServer = localAccountUtils.create_incoming_server("pop3",
       gPOP3Pump.kPOP3_PORT, "fred", "wilma");
 
-  //localAccountUtils.clearAll();
+  // localAccountUtils.clearAll();
 
   gPOP3Pump._incomingServer = gPOP3Pump.fakeServer;
   gPOP3Pump._mailboxStoreContractID = aStoreContractID;
-};
+}

@@ -18,49 +18,49 @@
  * @author Ben Bucksch
  */
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-
 var server;
 var daemon;
 var authSchemes;
 var incomingServer;
 var thisTest;
-var test = null;
 
-var tests = [
-  { title: "GSSAPI auth, server with GSSAPI only",
-    clientAuthMethod : Ci.nsMsgAuthMethod.GSSAPI,
-    serverAuthMethods : [ "GSSAPI" ],
-    expectSuccess : false,
-    transaction: [ "AUTH", "CAPA" ] },
-    // First GSSAPI step happens and fails out of band, thus no "AUTH GSSAPI"
-  { title: "GSSAPI auth, server with GSSAPI and CRAM-MD5",
-    clientAuthMethod : Ci.nsMsgAuthMethod.GSSAPI,
-    serverAuthMethods : [ "GSSAPI", "CRAM-MD5" ],
-    expectSuccess : false,
-    transaction: [ "AUTH", "CAPA" ] },
-  { title: "Any secure auth, server with GSSAPI only",
-    clientAuthMethod : Ci.nsMsgAuthMethod.secure,
-    serverAuthMethods : [ "GSSAPI" ],
-    expectSuccess : false,
-    transaction: [ "AUTH", "CAPA" ] },
-  { title: "Any secure auth, server with GSSAPI and CRAM-MD5",
-    clientAuthMethod : Ci.nsMsgAuthMethod.secure,
-    serverAuthMethods : [ "GSSAPI", "CRAM-MD5" ],
-    expectSuccess : true,
-    transaction: [ "AUTH", "CAPA", "AUTH CRAM-MD5", "STAT" ] },
-  { title: "Encrypted password, server with GSSAPI and CRAM-MD5",
-    clientAuthMethod : Ci.nsMsgAuthMethod.passwordEncrypted,
-    serverAuthMethods : [ "GSSAPI", "CRAM-MD5" ],
-    expectSuccess : true,
-    transaction: [ "AUTH", "CAPA", "AUTH CRAM-MD5", "STAT" ] },
-];
+var tests = [{
+  title: "GSSAPI auth, server with GSSAPI only",
+  clientAuthMethod: Ci.nsMsgAuthMethod.GSSAPI,
+  serverAuthMethods: ["GSSAPI"],
+  expectSuccess: false,
+  transaction: ["AUTH", "CAPA"],
+}, {
+  // First GSSAPI step happens and fails out of band, thus no "AUTH GSSAPI"
+  title: "GSSAPI auth, server with GSSAPI and CRAM-MD5",
+  clientAuthMethod: Ci.nsMsgAuthMethod.GSSAPI,
+  serverAuthMethods: ["GSSAPI", "CRAM-MD5"],
+  expectSuccess: false,
+  transaction: ["AUTH", "CAPA"],
+}, {
+  title: "Any secure auth, server with GSSAPI only",
+  clientAuthMethod: Ci.nsMsgAuthMethod.secure,
+  serverAuthMethods: ["GSSAPI"],
+  expectSuccess: false,
+  transaction: ["AUTH", "CAPA"],
+}, {
+  title: "Any secure auth, server with GSSAPI and CRAM-MD5",
+  clientAuthMethod: Ci.nsMsgAuthMethod.secure,
+  serverAuthMethods: ["GSSAPI", "CRAM-MD5"],
+  expectSuccess: true,
+  transaction: ["AUTH", "CAPA", "AUTH CRAM-MD5", "STAT"],
+}, {
+  title: "Encrypted password, server with GSSAPI and CRAM-MD5",
+  clientAuthMethod: Ci.nsMsgAuthMethod.passwordEncrypted,
+  serverAuthMethods: ["GSSAPI", "CRAM-MD5"],
+  expectSuccess: true,
+  transaction: ["AUTH", "CAPA", "AUTH CRAM-MD5", "STAT"],
+}];
 
-var urlListener =
-{
-  OnStartRunningUrl: function (url) {
+var urlListener = {
+  OnStartRunningUrl(url) {
   },
-  OnStopRunningUrl: function (url, result) {
+  OnStopRunningUrl(url, result) {
     try {
       if (thisTest.expectSuccess)
         Assert.equal(result, 0);
@@ -79,7 +79,7 @@ var urlListener =
 
       do_throw(e);
     }
-  }
+  },
 };
 
 function checkBusy() {
@@ -139,44 +139,39 @@ function testNext() {
 }
 
 // <copied from="head_maillocal.js::createPop3ServerAndLocalFolders()">
-function createPop3Server()
-{
+function createPop3Server() {
   let incoming = MailServices.accounts.createIncomingServer("fred", "localhost", "pop3");
   incoming.port = server.port;
   incoming.password = "wilma";
   return incoming;
 }
-//</copied>
+// </copied>
 
-function deletePop3Server()
-{
+function deletePop3Server() {
   if (!incomingServer)
     return;
   MailServices.accounts.removeIncomingServer(incomingServer, true);
   incomingServer = null;
 }
 
-function GSSAPIFail_handler(daemon)
-{
-  POP3_RFC5034_handler.call(this, daemon);
+function GSSAPIFail_handler(daemon_) {
+  POP3_RFC5034_handler.call(this, daemon_);
 }
 GSSAPIFail_handler.prototype = {
-  __proto__ : POP3_RFC5034_handler.prototype, // inherit
-  _needGSSAPI : false,
+  __proto__: POP3_RFC5034_handler.prototype, // inherit
+  _needGSSAPI: false,
   // kAuthSchemes will be set by test
 
-  AUTH: function(restLine)
-  {
+  AUTH(restLine) {
     var scheme = restLine.split(" ")[0];
-    if (scheme == "GSSAPI")
-    {
+    if (scheme == "GSSAPI") {
       this._multiline = true;
       this._needGSSAPI = true;
       return "+";
     }
     return POP3_RFC5034_handler.prototype.AUTH.call(this, restLine); // call parent
   },
-  onMultiline: function(line) {
+  onMultiline(line) {
     if (this._needGSSAPI) {
       this._multiline = false;
       this._needGSSAPI = false;
@@ -186,8 +181,8 @@ GSSAPIFail_handler.prototype = {
     if (POP3_RFC5034_handler.prototype.onMultiline)
       return POP3_RFC5034_handler.prototype.onMultiline.call(this, line); // call parent
     return undefined;
-  }
-}
+  },
+};
 
 function run_test() {
   // Disable new mail notifications
@@ -205,7 +200,7 @@ function run_test() {
   server = new nsMailServer(createHandler, daemon);
   server.start();
 
-  //incomingServer = createPop3ServerAndLocalFolders();
+  // incomingServer = createPop3ServerAndLocalFolders();
   localAccountUtils.loadLocalMailAccount();
 
   do_test_pending();

@@ -4,7 +4,7 @@ ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://testing-common/mailnews/mailTestUtils.js");
 ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
 
-var CC = Components.Constructor;
+var test = null;
 
 // WebApps.jsm called by ProxyAutoConfig (PAC) requires a valid nsIXULAppInfo.
 ChromeUtils.import("resource://testing-common/AppInfo.jsm");
@@ -16,11 +16,12 @@ do_get_profile();
 var gDEPTH = "../../../../";
 
 // Import the pop3 server scripts
+/* import-globals-from ../../../test/fakeserver/maild.js */
+/* import-globals-from ../../../test/fakeserver/auth.js */
+/* import-globals-from ../../../test/fakeserver/pop3d.js */
 ChromeUtils.import("resource://testing-common/mailnews/maild.js");
 ChromeUtils.import("resource://testing-common/mailnews/auth.js");
 ChromeUtils.import("resource://testing-common/mailnews/pop3d.js");
-
-ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 // Setup the daemon and server
 // If the debugOption is set, then it will be applied to the server.
@@ -40,34 +41,33 @@ function setupServerDaemon(debugOption) {
   return [daemon, server, extraProps];
 }
 
-function createPop3ServerAndLocalFolders(port, hostname="localhost") {
+function createPop3ServerAndLocalFolders(port, hostname = "localhost") {
   localAccountUtils.loadLocalMailAccount();
   let server = localAccountUtils.create_incoming_server("pop3", port,
     "fred", "wilma", hostname);
   return server;
 }
 
-var gCopyListener =
-{
+var gCopyListener = {
   callbackFunction: null,
   copiedMessageHeaderKeys: [],
-  OnStartCopy: function() {},
-  OnProgress: function(aProgress, aProgressMax) {},
-  SetMessageKey: function(aKey) {
+  OnStartCopy() {},
+  OnProgress(aProgress, aProgressMax) {},
+  SetMessageKey(aKey) {
     try {
       this.copiedMessageHeaderKeys.push(aKey);
     } catch (ex) {
       dump(ex);
     }
   },
-  GetMessageId: function(aMessageId) {},
-  OnStopCopy: function(aStatus) {
+  GetMessageId(aMessageId) {},
+  OnStopCopy(aStatus) {
     if (this.callbackFunction) {
       mailTestUtils.do_timeout_function(0, this.callbackFunction,
                                         null,
-                                        [ this.copiedMessageHeaderKeys, aStatus ]);
+                                        [this.copiedMessageHeaderKeys, aStatus]);
     }
-  }
+  },
 };
 
 /**
@@ -112,7 +112,7 @@ function do_check_transaction(real, expected) {
   // real.them may have an extra QUIT on the end, where the stream is only
   // closed after we have a chance to process it and not them. We therefore
   // excise this from the list
-  if (real.them[real.them.length-1] == "QUIT")
+  if (real.them[real.them.length - 1] == "QUIT")
     real.them.pop();
 
   Assert.equal(real.them.join(","), expected.join(","));

@@ -47,7 +47,3 @@ add_task(async function cleanUp() {
   incomingServer.closeCachedConnections();
   server.stop();
 });
-
-function run_test() {
-  run_next_test();
-}

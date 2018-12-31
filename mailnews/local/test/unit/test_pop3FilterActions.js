@@ -6,11 +6,8 @@
  * Original author: David Bienvenu <dbienvenu@mozilla.com>
  */
 
-
+/* import-globals-from ../../../test/resources/POP3pump.js */
 load("../../../resources/POP3pump.js");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
 var gFiles = ["../../../data/bugmail10", "../../../data/bugmail11"];
@@ -20,19 +17,18 @@ Services.prefs.setBoolPref("mail.server.default.leave_on_server", true);
 // Currently we have two mailbox storage formats.
 var gPluggableStores = [
   "@mozilla.org/msgstore/berkeleystore;1",
-  "@mozilla.org/msgstore/maildirstore;1"
+  "@mozilla.org/msgstore/maildirstore;1",
 ];
 
 // Map subject to previews using subject as the key.
 var previews = {
-"[Bug 436880] IMAP itemDeleted and itemMoveCopyCompleted notifications quite broken": 'Do not reply to this email. You can add comments to this bug at https://bugzilla.mozilla.org/show_bug.cgi?id=436880 -- Configure bugmail: https://bugzilla.mozilla.org/userprefs.cgi?tab=email ------- You are receiving this mail because: -----',
-"Bugzilla: confirm account creation": 'Bugzilla has received a request to create a user account using your email address (example@example.org). To confirm that you want to create an account using that email address, visit the following link: https://bugzilla.mozilla.org/token.cgi?t=xxx'
-}
+  "[Bug 436880] IMAP itemDeleted and itemMoveCopyCompleted notifications quite broken": "Do not reply to this email. You can add comments to this bug at https://bugzilla.mozilla.org/show_bug.cgi?id=436880 -- Configure bugmail: https://bugzilla.mozilla.org/userprefs.cgi?tab=email ------- You are receiving this mail because: -----",
+  "Bugzilla: confirm account creation": "Bugzilla has received a request to create a user account using your email address (example@example.org). To confirm that you want to create an account using that email address, visit the following link: https://bugzilla.mozilla.org/token.cgi?t=xxx",
+};
 
 var gFilter; // the test filter
 var gFilterList;
-var gTestArray =
-[
+var gTestArray = [
   function createFilters() {
     gFilterList = gPOP3Pump.fakeServer.getFilterList(null);
     gFilter = gFilterList.createFilter("AddKeyword");
@@ -92,33 +88,30 @@ var gTestArray =
     Assert.ok(!localAccountUtils.inboxFolder
                                 .fetchMsgPreviewText(keys, keys.length,
                                                      false, null));
-    let preview1 = hdrs[0].getStringProperty('preview');
-    let preview2 = hdrs[1].getStringProperty('preview');
+    let preview1 = hdrs[0].getStringProperty("preview");
+    let preview2 = hdrs[1].getStringProperty("preview");
     Assert.equal(preview1, previews[hdrs[0].subject]);
     Assert.equal(preview2, previews[hdrs[1].subject]);
-    Assert.equal(hdrs[0].getStringProperty('keywords'), "TheTag");
-    Assert.equal(hdrs[1].getStringProperty('keywords'), "TheTag");
+    Assert.equal(hdrs[0].getStringProperty("keywords"), "TheTag");
+    Assert.equal(hdrs[1].getStringProperty("keywords"), "TheTag");
     Assert.equal(hdrs[0].flags, Ci.nsMsgMessageFlags.Read |
                                 Ci.nsMsgMessageFlags.Marked);
     Assert.equal(hdrs[1].flags, Ci.nsMsgMessageFlags.Read |
                                 Ci.nsMsgMessageFlags.Marked);
-  }
+  },
 ];
 
-function folderCount(folder)
-{
+function folderCount(folder) {
   let enumerator = folder.msgDatabase.EnumerateMessages();
   let count = 0;
-  while (enumerator.hasMoreElements())
-  {
+  while (enumerator.hasMoreElements()) {
     count++;
-    let hdr = enumerator.getNext();
+    enumerator.getNext();
   }
   return count;
 }
 
-function setup_store(storeID)
-{
+function setup_store(storeID) {
   return function _setup_store() {
     // Initialize pop3Pump with correct mailbox format.
     gPOP3Pump.resetPluggableStore(storeID);
@@ -132,11 +125,10 @@ function setup_store(storeID)
 
     if (!localAccountUtils.inboxFolder)
       localAccountUtils.loadLocalMailAccount();
-  }
+  };
 }
 
-function run_test()
-{
+function run_test() {
   for (let store of gPluggableStores) {
     add_task(setup_store(store));
     gTestArray.forEach(x => add_task(x));
@@ -146,8 +138,7 @@ function run_test()
   run_next_test();
 }
 
-function exitTest()
-{
+function exitTest() {
   info("Exiting mail tests\n");
   gPOP3Pump = null;
 }

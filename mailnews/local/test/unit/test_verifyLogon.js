@@ -5,17 +5,12 @@
  *   - Check that verifyLogon fails
  */
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-
+/* import-globals-from ../../../test/resources/alertTestUtils.js */
 load("../../../resources/alertTestUtils.js");
 
-var test = null;
 var server;
 var daemon;
 var incomingServer;
-var pop3Service;
-var attempt = 0;
 
 var kUserName = "testpop3";
 var kInvalidPassword = "pop3test";
@@ -32,14 +27,13 @@ function verifyPop3Logon(validPassword) {
   return false;
 }
 
-var urlListener =
-{
-  expectSucess : false,
-  OnStartRunningUrl: function (url) {
+var urlListener = {
+  expectSucess: false,
+  OnStartRunningUrl(url) {
   },
-  OnStopRunningUrl: function (url, aResult) {
+  OnStopRunningUrl(url, aResult) {
     Assert.equal(Components.isSuccessCode(aResult), this.expectSuccess);
-  }
+  },
 };
 
 function actually_run_test() {
@@ -62,8 +56,7 @@ function verifyGoodLogon() {
   do_test_finished();
 }
 
-function run_test()
-{
+function run_test() {
   // Disable new mail notifications
   Services.prefs.setBoolPref("mail.biff.play_sound", false);
   Services.prefs.setBoolPref("mail.biff.show_alert", false);
@@ -88,10 +81,7 @@ function run_test()
   // it from the signons json file in which the login information is stored).
   localAccountUtils.loadLocalMailAccount();
 
-
-  incomingServer = MailServices.accounts
-                    .createIncomingServer(kUserName,"localhost", "pop3");
-
+  incomingServer = MailServices.accounts.createIncomingServer(kUserName, "localhost", "pop3");
   incomingServer.port = server.port;
 
   do_test_pending();

@@ -11,8 +11,7 @@ var bugmail11 = do_get_file("../../../data/bugmail11");
 // tag used with test messages
 var tag1 = "istag";
 
-function run_test()
-{
+function run_test() {
   do_test_pending();
   copyFileMessageInLocalFolder(bugmail11, 0, tag1, null, test_keywords);
 }

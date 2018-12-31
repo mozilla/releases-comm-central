@@ -2,6 +2,7 @@
  * The intent of this file is to demonstrate a minimal
  * POP3 unit test using the testing file POP3Pump.js
  */
+/* import-globals-from ../../../test/resources/POP3pump.js */
 load("../../../resources/POP3pump.js");
 
 var testSubjects = ["[Bug 397009] A filter will let me tag, but not untag",
@@ -28,7 +29,3 @@ add_task(async function runPump() {
   Assert.equal(msgCount, 2);
   gPOP3Pump = null;
 });
-
-function run_test() {
-  run_next_test();
-}

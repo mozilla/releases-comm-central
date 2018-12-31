@@ -9,16 +9,17 @@
  *     we get a new password prompt and can enter the password.
  */
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../test/resources/alertTestUtils.js */
+/* import-globals-from ../../../test/resources/passwordStorage.js */
+/* import-globals-from ../../../test/resources/mailTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/alertTestUtils.js");
 load("../../../resources/passwordStorage.js");
 load("../../../resources/mailTestUtils.js");
 
-var test = null;
 var server;
 var daemon;
 var incomingServer;
@@ -30,8 +31,8 @@ var kUserName = "testpop3";
 var kInvalidPassword = "pop3test";
 var kValidPassword = "testpop3";
 
-function alert(aDialogText, aText)
-{
+/* exported alert, confirmEx, promptPasswordPS */
+function alert(aDialogText, aText) {
   // The first few attempts may prompt about the password problem, the last
   // attempt shouldn't.
   Assert.ok(attempt < 4);
@@ -80,11 +81,10 @@ function getPopMail() {
                                incomingServer);
 }
 
-var urlListener =
-{
-  OnStartRunningUrl: function (url) {
+var urlListener = {
+  OnStartRunningUrl(url) {
   },
-  OnStopRunningUrl: function (url, result) {
+  OnStopRunningUrl(url, result) {
     try {
       // On the last attempt, we should have successfully got one mail.
       Assert.equal(localAccountUtils.inboxFolder.getTotalMessages(false),
@@ -95,8 +95,7 @@ var urlListener =
       dump("in onStopRunning, result = " + result + "\n");
       Assert.equal(result, attempt == 2 ? Cr.NS_ERROR_FAILURE : 0);
       async_driver();
-    }
-    catch (e) {
+    } catch (e) {
       // If we have an error, clean up nicely before we throw it.
       server.stop();
 
@@ -106,15 +105,15 @@ var urlListener =
 
       do_throw(e);
     }
-  }
+  },
 };
 
 // Definition of tests
 var tests = [
   getMail1,
   getMail2,
-  endTest
-]
+  endTest,
+];
 
 function actually_run_test() {
   daemon.setMessages(["message1.eml"]);
@@ -164,8 +163,7 @@ function* endTest() {
   yield true;
 }
 
-function run_test()
-{
+function run_test() {
   // Disable new mail notifications
   Services.prefs.setBoolPref("mail.biff.play_sound", false);
   Services.prefs.setBoolPref("mail.biff.show_alert", false);

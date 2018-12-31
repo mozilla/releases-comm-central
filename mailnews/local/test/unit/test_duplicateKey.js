@@ -6,6 +6,7 @@
  * messages, testing for duplicated keys in bug 1202105.
  */
 
+/* import-globals-from ../../../test/resources/POP3pump.js */
 load("../../../resources/POP3pump.js");
 ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
@@ -31,11 +32,11 @@ add_task(async function runPump() {
   // but it should!
   localAccountUtils.inboxFolder
                    .deleteMessages(deletes, // in nsIArray messages,
-                                   null, //in nsIMsgWindow msgWindow,
+                                   null, // in nsIMsgWindow msgWindow,
                                    true, // in boolean deleteStorage,
                                    true, // in boolean isMove,
                                    null, // in nsIMsgCopyServiceListener,
-                                   false); //in boolean allowUndo
+                                   false); // in boolean allowUndo
 
   dump("Messages after delete\n");
   hdrs = showMessages(localAccountUtils.inboxFolder);
@@ -61,10 +62,6 @@ add_task(async function runPump() {
 
   gPOP3Pump = null;
 });
-
-function run_test() {
-  run_next_test();
-}
 
 function showMessages(folder) {
   let enumerator = folder.msgDatabase.EnumerateMessages();
