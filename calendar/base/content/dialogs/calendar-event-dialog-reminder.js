@@ -12,6 +12,7 @@ ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
 
 var allowedActionsMap = {};
+var suppressListUpdate = false;
 
 /**
  * Sets up the reminder dialog.
@@ -254,45 +255,50 @@ function onReminderSelected() {
     let listitem = listbox.selectedItem;
 
     if (listitem) {
-        let reminder = listitem.reminder;
+        try {
+            suppressListUpdate = true;
+            let reminder = listitem.reminder;
 
-        // Action
-        actionType.value = reminder.action;
+            // Action
+            actionType.value = reminder.action;
 
-        // Absolute/relative things
-        if (reminder.related == Components.interfaces.calIAlarm.ALARM_RELATED_ABSOLUTE) {
-            relationType.value = "absolute";
+            // Absolute/relative things
+            if (reminder.related == Components.interfaces.calIAlarm.ALARM_RELATED_ABSOLUTE) {
+                relationType.value = "absolute";
 
-            // Date
-            absDate.value = cal.dtz.dateTimeToJsDate(reminder.alarmDate || cal.dtz.getDefaultStartDate());
-        } else {
-            relationType.value = "relative";
-
-            // Unit and length
-            let alarmlen = Math.abs(reminder.offset.inSeconds / 60);
-            if (alarmlen % 1440 == 0) {
-                unit.value = "days";
-                length.value = alarmlen / 1440;
-            } else if (alarmlen % 60 == 0) {
-                unit.value = "hours";
-                length.value = alarmlen / 60;
+                // Date
+                absDate.value = cal.dtz.dateTimeToJsDate(reminder.alarmDate || cal.dtz.getDefaultStartDate());
             } else {
-                unit.value = "minutes";
-                length.value = alarmlen;
+                relationType.value = "relative";
+
+                // Unit and length
+                let alarmlen = Math.abs(reminder.offset.inSeconds / 60);
+                if (alarmlen % 1440 == 0) {
+                    unit.value = "days";
+                    length.value = alarmlen / 1440;
+                } else if (alarmlen % 60 == 0) {
+                    unit.value = "hours";
+                    length.value = alarmlen / 60;
+                } else {
+                    unit.value = "minutes";
+                    length.value = alarmlen;
+                }
+
+                // Relation
+                let relation = (reminder.offset.isNegative ? "before" : "after");
+
+                // Origin
+                let origin;
+                if (reminder.related == Components.interfaces.calIAlarm.ALARM_RELATED_START) {
+                    origin = "START";
+                } else if (reminder.related == Components.interfaces.calIAlarm.ALARM_RELATED_END) {
+                    origin = "END";
+                }
+
+                relationOrigin.value = [relation, origin].join("-");
             }
-
-            // Relation
-            let relation = (reminder.offset.isNegative ? "before" : "after");
-
-            // Origin
-            let origin;
-            if (reminder.related == Components.interfaces.calIAlarm.ALARM_RELATED_START) {
-                origin = "START";
-            } else if (reminder.related == Components.interfaces.calIAlarm.ALARM_RELATED_END) {
-                origin = "END";
-            }
-
-            relationOrigin.value = [relation, origin].join("-");
+        } finally {
+            suppressListUpdate = false;
         }
     } else {
         // no list item is selected, disable elements
@@ -307,7 +313,8 @@ function onReminderSelected() {
  * @param event         The DOM event caused by the change.
  */
 function updateReminder(event) {
-    if (event.explicitOriginalTarget.localName == "richlistitem" ||
+    if (suppressListUpdate ||
+        event.explicitOriginalTarget.localName == "richlistitem" ||
         event.explicitOriginalTarget.parentNode.localName == "richlistitem" ||
         event.explicitOriginalTarget.id == "reminder-remove-button" ||
         !document.commandDispatcher.focusedElement) {
@@ -386,12 +393,19 @@ function onNewReminder() {
 
     let reminder = cal.createAlarm();
     let alarmlen = Preferences.get("calendar.alarms." + itemType + "alarmlen", 15);
+    let alarmunit = Preferences.get("calendar.alarms." + itemType + "alarmunit", 15);
 
     // Default is a relative DISPLAY alarm, |alarmlen| minutes before the event.
     // If DISPLAY is not supported by the provider, then pick the provider's
     // first alarm type.
     let offset = cal.createDuration();
-    offset.minutes = alarmlen;
+    if (alarmunit == "days") {
+        offset.days = alarmlen;
+    } else if (alarmunit == "hours") {
+        offset.hours = alarmlen;
+    } else {
+        offset.minutes = alarmlen;
+    }
     offset.normalize();
     offset.isNegative = true;
     reminder.related = reminder.ALARM_RELATED_START;

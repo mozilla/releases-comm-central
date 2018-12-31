@@ -17,6 +17,7 @@ ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 const DEFVALUE = 43;
 
 var helpersForController, invokeEventDialog, openLightningPrefs, menulistSelect;
+var plan_for_modal_dialog, wait_for_modal_dialog;
 
 function setupModule(module) {
     controller = mozmill.getMail3PaneController();
@@ -28,6 +29,9 @@ function setupModule(module) {
     } = collector.getModule("calendar-utils"));
     collector.getModule("calendar-utils").setupModule(controller);
     Object.assign(module, helpersForController(controller));
+
+    ({ plan_for_modal_dialog, wait_for_modal_dialog } =
+        collector.getModule("window-helpers"));
 
     collector.getModule("content-tab-helpers").installInto(module);
 }
@@ -46,7 +50,7 @@ function testDefaultAlarms() {
     `;
 
     // Configure the lightning preferences.
-    openLightningPrefs(handlePrefDialog, controller);
+    openLightningPrefs(handlePrefTab, controller);
 
     // Create New Event.
     controller.click(eid("newMsgButton-calendar-menuitem"));
@@ -59,6 +63,10 @@ function testDefaultAlarms() {
         event.assertDOMProperty(eventid("item-alarm"), "value", "custom");
         let reminderDetailsVisible = eventpath(detailPath);
         event.assertDOMProperty(reminderDetailsVisible, "value", expectedEventReminder);
+
+        plan_for_modal_dialog("Calendar:EventDialog:Reminder", handleReminderDialog);
+        event.click(reminderDetailsVisible);
+        wait_for_modal_dialog("Calendar:EventDialog:Reminder");
 
         // Close the event dialog.
         event.window.close();
@@ -74,12 +82,16 @@ function testDefaultAlarms() {
         let reminderDetailsVisible = taskpath(detailPath);
         task.assertDOMProperty(reminderDetailsVisible, "value", expectedTaskReminder);
 
+        plan_for_modal_dialog("Calendar:EventDialog:Reminder", handleReminderDialog);
+        task.click(reminderDetailsVisible);
+        wait_for_modal_dialog("Calendar:EventDialog:Reminder");
+
         // Close the task dialog.
         task.window.close();
     });
 }
 
-function handlePrefDialog(tab) {
+function handlePrefTab(tab) {
     // Click on the alarms tab.
     content_tab_e(tab, "calPreferencesTabAlarms").click();
 
@@ -97,6 +109,31 @@ function handlePrefDialog(tab) {
 
     let tododefalarmlen = content_tab_eid(tab, "tododefalarmlen");
     replaceText(tododefalarmlen, DEFVALUE.toString());
+}
+
+function handleReminderDialog(reminders) {
+    let { eid: remindersid, replaceText } = helpersForController(reminders);
+
+    let listbox = remindersid("reminder-listbox");
+    let listboxElement = remindersid("reminder-listbox").getNode();
+    reminders.waitFor(() => listboxElement.selectedCount == 1);
+    reminders.assertJS(listboxElement.selectedItem.reminder.offset.days == DEFVALUE);
+
+    reminders.click(remindersid("reminder-new-button"));
+    reminders.waitFor(() => listboxElement.itemCount == 2);
+    reminders.assertJS(listboxElement.selectedCount == 1);
+    reminders.assertJS(listboxElement.selectedItem.reminder.offset.days == DEFVALUE);
+
+    replaceText(remindersid("reminder-length"), "20");
+    reminders.assertJS(listboxElement.selectedItem.reminder.offset.days == 20);
+
+    reminders.click(listbox);
+    reminders.keypress(listbox, "VK_UP", {});
+    reminders.waitFor(() => listboxElement.selectedIndex == 0);
+
+    reminders.assertJS(listboxElement.selectedItem.reminder.offset.days == DEFVALUE);
+
+    reminders.window.close();
 }
 
 function teardownTest(module) {
