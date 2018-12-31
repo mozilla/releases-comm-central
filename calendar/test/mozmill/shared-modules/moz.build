@@ -1,0 +1,13 @@
+# vim: set filetype=python:
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# Copies the files in this folder to a staging directory in the objdir.
+# Files from mail/test/mozmill/shared-modules are copied into the same
+# directory to allow calendar tests to run. Due to an oddity in the
+# build system, we can't use the same wildcard twice for a destination.
+TEST_HARNESS_FILES.mozmill.stage['shared-modules'] += [
+    'test-calendar-utils.js',
+    'test-item-editing-helpers.js',
+]

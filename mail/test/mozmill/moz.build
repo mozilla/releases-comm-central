@@ -47,3 +47,7 @@ TEST_HARNESS_FILES.mozmill.resources += mailnews_files([
     'test/resources/messageInjection.js',
     'test/resources/messageModifier.js',
 ])
+
+DIRS += [
+    'shared-modules',
+]

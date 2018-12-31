@@ -32,5 +32,8 @@ PKG_STAGE = $(DIST)/test-stage
 
 stage-package:
 	$(NSINSTALL) -D $(PKG_STAGE)/mozmill/
+	$(NSINSTALL) -D $(PKG_STAGE)/mozmill/fakeserver
+	$(NSINSTALL) -D $(PKG_STAGE)/mozmill/resources
 	@(cd $(commtopsrcdir)/mail/test/mozmill && tar $(TAR_CREATE_FLAGS) - *) | (cd $(PKG_STAGE)/mozmill/ && tar -xf -)
-	@(cd $(DEPTH)/_tests/mozmill && tar $(TAR_CREATE_FLAGS) - *) | (cd $(PKG_STAGE)/mozmill/ && tar -xf -)
+	@(cd $(DEPTH)/_tests/mozmill/fakeserver && tar $(TAR_CREATE_FLAGS) - *) | (cd $(PKG_STAGE)/mozmill/fakeserver && tar -xf -)
+	@(cd $(DEPTH)/_tests/mozmill/resources && tar $(TAR_CREATE_FLAGS) - *) | (cd $(PKG_STAGE)/mozmill/resources && tar -xf -)

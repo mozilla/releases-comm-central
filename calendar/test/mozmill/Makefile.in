@@ -27,21 +27,7 @@ find-solo-test = $(if $(and $(SOLO_TEST),$(SOLO_FILE)),$(error Both SOLO_TEST an
 
 include $(moztopsrcdir)/config/rules.mk
 
-# Calendar uses both its own shared modules and those from Thunderbird. Since
-# the build system and mozmill is not set up to include files from two different
-# locations, we have to stuff them into the same directory. There might be
-# problems if the names are the same, but I propose we boycott those modules!
-mozmill-stage: MOZMILL_STAGE=$(MOZMILLDIR)/stage
-mozmill-stage: MOZMILL_STAGE_SHARED=$(MOZMILL_STAGE)/shared-modules
-mozmill-stage: $(MOZMILL_SHARED)
-	$(INSTALL) -D $(MOZMILL_STAGE)
-	$(INSTALL) -D $(MOZMILL_STAGE_SHARED)
-	$(INSTALL) $(addprefix $(srcdir)/,$(shell cat $(srcdir)/mozmilltests.list)) $(MOZMILL_STAGE)
-
-	$(INSTALL) $(wildcard $(commtopsrcdir)/mail/test/mozmill/shared-modules/*.js) $(MOZMILL_STAGE_SHARED)
-	$(INSTALL) $(wildcard $(srcdir)/shared-modules/*.js) $(MOZMILL_STAGE_SHARED)
-
-mozmill: mozmill-stage
+mozmill:
 	unset PYTHONHOME && cd $(MOZMILLDIR) && unset MACOSX_DEPLOYMENT_TARGET && \
 	$(MOZMILLPYTHON) runtestlist.py --list=$(srcdir)/mozmilltests.list \
 	--binary="$(MOZMILLPROGRAM)" \
@@ -51,7 +37,7 @@ mozmill: mozmill-stage
 	$(MOZMILL_EXTRA)
 
 mozmill-one: solo-test = $(find-solo-test)
-mozmill-one: mozmill-stage
+mozmill-one:
 	unset PYTHONHOME && cd $(MOZMILLDIR) && unset MACOSX_DEPLOYMENT_TARGET && \
 	$(MOZMILLPYTHON) runtest.py \
 	--test=$(abspath $(MOZMILLDIR))/stage/$(solo-test) \
