@@ -2,11 +2,11 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-MOZMILLDIR=$(DEPTH)/_tests/mozmill
+MOZMILLDIR=$(topobjdir)/_tests/mozmill
 ifeq ($(OS_ARCH),WINNT)
-VIRTUALENV_BIN = $(MOZMILLDIR)/../mozmill-virtualenv/Scripts
+VIRTUALENV_BIN = $(topobjdir)/_virtualenvs/init/Scripts
 else
-VIRTUALENV_BIN = $(MOZMILLDIR)/../mozmill-virtualenv/bin
+VIRTUALENV_BIN = $(topobjdir)/_virtualenvs/init/bin
 endif
 MOZMILLPYTHON = $(abspath $(VIRTUALENV_BIN)/python$(BIN_SUFFIX))
 

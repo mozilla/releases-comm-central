@@ -76,27 +76,12 @@ def main(args=None):
 
     os.chdir(source)
 
-    # check for existence of necessary files
-    if not os.path.exists('virtualenv'):
-        print "File not found: virtualenv"
-        sys.exit(1)
-
     # packages to install in dependency order
     packages = ["jsbridge", "mozmill"]
 
     # create the virtualenv and install packages
     env = os.environ.copy()
     env.pop('PYTHONHOME', None)
-    returncode = call([sys.executable, os.path.join('virtualenv', 'virtualenv.py'),
-                       # Without this, virtualenv.py may attempt to contact the outside
-                       # world and search for or download a newer version of pip,
-                       # setuptools, or wheel. This is bad for security, reproducibility,
-                       # and speed.
-                       "--no-download",
-                       destination], env=env)
-    if returncode:
-        print 'Failure to install virtualenv'
-        sys.exit(returncode)
     pip = entry_point_path(destination, 'pip')
 
     # Install packages to the virtualenv

@@ -15,10 +15,8 @@ $(_DEST_DIR):
 # Copy MozMill and its dependencies over, and set up a virtualenv. The
 # virtualenv directory is outside because we don't want to bundle it up during
 # stage-package.
-VIRTUALENV_DIR = $(_DEST_DIR)/../mozmill-virtualenv
+VIRTUALENV_DIR = $(topobjdir)/_virtualenvs/init
 mozmill-virtualenv: $(_DEST_DIR)
-	rm -rf $(VIRTUALENV_DIR) && \
-	mkdir $(VIRTUALENV_DIR) && \
 	unset MACOSX_DEPLOYMENT_TARGET && \
 	$(PYTHON) $(_DEST_DIR)/resources/installmozmill.py $(VIRTUALENV_DIR)
 
