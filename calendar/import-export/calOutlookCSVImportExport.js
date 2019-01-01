@@ -49,10 +49,10 @@ var localeNl = {
     headAlarm:        "Herinneringen aan/uit",
     headAlarmDate:    "Herinneringsdatum",
     headAlarmTime:    "Herinneringstijd",
-    headCategories:   "Categorieën",
+    headCategories:   "CategorieÃ«n",
     headDescription:  "Beschrijving",
     headLocation:     "Locatie",
-    headPrivate:      "Privé",
+    headPrivate:      "PrivÃ©",
 
     valueTrue:        "Waar",
     valueFalse:       "Onwaar",
