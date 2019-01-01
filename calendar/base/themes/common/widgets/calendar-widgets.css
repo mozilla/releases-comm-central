@@ -79,14 +79,6 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
     visibility: hidden;
 }
 
-.categories-listbox {
-    -moz-appearance: none;
-    background-color: Menu;
-    color: MenuText;
-    margin: 0 0 4px 0;
-    border: 0;
-}
-
 .categories-textbox .textbox-search-icon {
     list-style-image: none;
     cursor:default;
