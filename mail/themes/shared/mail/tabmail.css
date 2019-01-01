@@ -355,24 +355,40 @@
 }
 
 .contentTabSecurity {
-  height: 20px;
-  width: 20px;
+  height: 16px;
+  width: 16px;
+  margin: 2px;
   margin-inline-end: 5px;
   background-repeat: no-repeat;
 }
 
-.contentTabSecurity[level="high"],
+.contentTabSecurity[level="high"] {
+  background-image: url("chrome://messenger/skin/icons/connection-secure.svg");
+  -moz-context-properties: fill;
+  fill: #12bc00;
+}
+
 .contentTabSecurity[level="low"] {
-  background-image: url("chrome://messenger/skin/icons/secure.png");
+  background-image: url("chrome://messenger/skin/icons/connection-mixed.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 .contentTabSecurity[level="broken"] {
-  background-image: url("chrome://messenger/skin/icons/insecure.png");
+  background-image: url("chrome://messenger/skin/icons/connection-insecure.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 .contentTabSecurity[loading="true"] {
   background-image: url("chrome://global/skin/icons/loading.png");
-  background-position: 4px 2px;
+}
+
+@media (min-resolution: 1.1ddpx) {
+  #security-button[loading="true"] {
+    background-image: url("chrome://global/skin/icons/loading@2x.png");
+    background-size: 16px;
+  }
 }
 
 .contentTabAddress * {
