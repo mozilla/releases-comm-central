@@ -6,7 +6,7 @@ this.EXPORTED_SYMBOLS = ["ToolbarButtonAPI"];
 
 ChromeUtils.defineModuleGetter(this, "Services", "resource://gre/modules/Services.jsm");
 ChromeUtils.defineModuleGetter(this, "ViewPopup", "resource:///modules/ExtensionPopups.jsm");
-ChromeUtils.defineModuleGetter(this, "ExtensionSupport", "resource:///modules/extensionSupport.jsm");
+ChromeUtils.defineModuleGetter(this, "ExtensionSupport", "resource:///modules/ExtensionSupport.jsm");
 ChromeUtils.import("resource://gre/modules/ExtensionCommon.jsm");
 ChromeUtils.import("resource://gre/modules/ExtensionUtils.jsm");
 ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.defineModuleGetter(this, "ChromeManifest", "resource:///modules/ChromeManifest.jsm");
-ChromeUtils.defineModuleGetter(this, "ExtensionSupport", "resource:///modules/extensionSupport.jsm");
+ChromeUtils.defineModuleGetter(this, "ExtensionSupport", "resource:///modules/ExtensionSupport.jsm");
 ChromeUtils.defineModuleGetter(this, "Overlays", "resource:///modules/Overlays.jsm");
 ChromeUtils.defineModuleGetter(this, "XPIInternal", "resource://gre/modules/addons/XPIProvider.jsm");
 

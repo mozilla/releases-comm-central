@@ -27,7 +27,7 @@ ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
 ChromeUtils.defineModuleGetter(this, "BrowserToolboxProcess", "resource://devtools/client/framework/ToolboxProcess.jsm");
 ChromeUtils.defineModuleGetter(this, "ScratchpadManager", "resource://devtools/client/scratchpad/scratchpad-manager.jsm");
 ChromeUtils.defineModuleGetter(this, "ExtensionParent", "resource://gre/modules/ExtensionParent.jsm");
-ChromeUtils.defineModuleGetter(this, "ExtensionSupport", "resource:///modules/extensionSupport.jsm");
+ChromeUtils.defineModuleGetter(this, "ExtensionSupport", "resource:///modules/ExtensionSupport.jsm");
 Object.defineProperty(this, "HUDService", {
   get() {
     let { devtools } = ChromeUtils.import("resource://devtools/shared/Loader.jsm", null);

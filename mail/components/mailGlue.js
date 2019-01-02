@@ -11,9 +11,7 @@ ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
 ChromeUtils.import("resource://gre/modules/LightweightThemeConsumer.jsm");
 ChromeUtils.import("resource:///modules/TBDistCustomizer.jsm");
 ChromeUtils.import("resource:///modules/MailMigrator.jsm");
-const {
-  ExtensionSupport,
-} = ChromeUtils.import("resource:///modules/extensionSupport.jsm", null);
+ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
 const { L10nRegistry, FileSource } = ChromeUtils.import("resource://gre/modules/L10nRegistry.jsm", null);
 
 // lazy module getters
