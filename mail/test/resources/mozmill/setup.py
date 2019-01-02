@@ -62,7 +62,7 @@ setup(name=PACKAGE_NAME,
           mozmill-restart = mozmill:restart_cli
         """,
       platforms =['Any'],
-      install_requires = ['jsbridge == 2.4.14',
+      install_requires = ['jsbridge == 2.4.15',
                           'mozrunner >= 6.0',
                           'manifestparser >= 0.9'],
       classifiers=['Development Status :: 4 - Beta',

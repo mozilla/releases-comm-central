@@ -42,6 +42,7 @@ desc = """Python to JavaScript bridge interface."""
 summ = """A powerful and extensible Python to JavaScript bridge interface."""
 
 PACKAGE_NAME = "jsbridge"
+# You must update the required version in mozmill's setup.py to match this.
 PACKAGE_VERSION = "2.4.15"
 
 requires = ['mozrunner >= 6.0']
