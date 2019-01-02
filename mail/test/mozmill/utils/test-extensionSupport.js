@@ -3,7 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Tests extensionSupport.jsm functions.
+ * Tests ExtensionSupport.jsm functions.
  */
 
 // make SOLO_TEST=utils/test-extensionSupport.js mozmill-one
@@ -14,7 +14,7 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers",
                        "address-book-helpers" ];
 
-ChromeUtils.import("resource:///modules/extensionSupport.jsm");
+ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
