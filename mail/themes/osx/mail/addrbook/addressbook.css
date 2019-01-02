@@ -104,55 +104,29 @@
 
 /* ::::: splitters ::::: */
 
-splitter {
+#dirTree-splitter {
+  border-width: 0;
+  border-inline-end: 1px solid #bdbdbd;
+  min-width: 0;
+  width: 5px;
   background-color: transparent;
-  width: 7px;
-  min-width: 7px;
-  min-height: 7px;
+  margin-inline-start: -5px;
+  position: relative;
+  z-index: 10;
 }
 
-#dirTree-splitter,
 #results-splitter {
-  height: 7px !important;
-  min-height: 7px;
+  border-width: 0;
+  border-top: 1px solid #bdbdbd;
+  min-height: 0;
+  height: 5px;
+  background-color: transparent;
+  margin-bottom: -5px;
+  position: relative;
+  z-index: 10;
 }
 
 /* ::::: results pane ::::: */
-
-#abResultsTree {
-  -moz-appearance: -moz-mac-source-list;
-  -moz-font-smoothing-background-color: -moz-mac-source-list;
-}
-
-#abResultsTree treechildren::-moz-tree-row {
-  background-color: transparent;
-}
-
-#abResultsTree treechildren::-moz-tree-row(selected) {
-  -moz-appearance: -moz-mac-source-list-selection;
-  -moz-font-smoothing-background-color: -moz-mac-source-list-selection;
-}
-
-@media not all and (-moz-mac-yosemite-theme) {
-  #abResultsTree treechildren::-moz-tree-row(selected, focus) {
-    -moz-appearance: -moz-mac-active-source-list-selection;
-    -moz-font-smoothing-background-color: -moz-mac-active-source-list-selection;
-  }
-
-  #abResultsTree treechildren::-moz-tree-cell-text(selected) {
-    color: white;
-  }
-}
-
-@media (-moz-mac-yosemite-theme) {
-  #abResultsTree treechildren::-moz-tree-cell-text(selected, focus) {
-    color: black;
-  }
-}
-
-#abResultsTree + separator {
-  border-top: 1px solid #bebebe;
-}
 
 #GeneratedName {
   padding-inline-start: 42px;
@@ -179,6 +153,7 @@ splitter {
 }
 
 #CardViewOuterBox {
+  color: -moz-DialogText;
   margin: 0px;
   padding: 0px;
 }
@@ -187,10 +162,6 @@ splitter {
   -moz-user-focus: ignore;
   overflow: auto;
   min-width: 150px;
-  margin: 0px;
-  padding: 0px;
-  border-top: 1px solid #8E8E8E;
-  border-left: 1px solid #BEBEBE;
 }
 
 #CardViewInnerBox {
