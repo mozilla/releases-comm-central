@@ -50,6 +50,8 @@ tabpanel > hbox > description {
 #defaultWebSearch > .menulist-label-box > .menulist-icon[src] {
   margin-inline-start: 5px;
   margin-inline-end: 8px;
+  width: 16px;
+  height: 16px;
 }
 
 /* Category List */
