@@ -9,7 +9,3 @@
 .message {
   -moz-binding: url('chrome://messenger/content/glodaFacetBindings.xml#result-message');
 }
-
-.popup-menu {
-  -moz-binding: url('chrome://messenger/content/glodaFacetBindings.xml#popup-menu');
-}

@@ -921,7 +921,7 @@ class MozFacetDiscrete extends HTMLElement {
       node.setAttribute("selected", "true");
 
       if (node.classList.contains("bar")) {
-        document.getElementById("popup-menu").show(event, this, node);
+        document.querySelector("facet-popup-menu").show(event, this, node);
       } else if (node.classList.contains("facet-more")) {
         this.changeMode("all");
       }
@@ -957,7 +957,217 @@ class MozFacetDiscrete extends HTMLElement {
   }
 }
 
+class MozFacetPopupMenu extends HTMLElement {
+  constructor() {
+    super();
+
+    this.addEventListener("keypress", (event) => {
+      switch (event.keyCode) {
+        case KeyEvent.DOM_VK_ESCAPE:
+          this.hide();
+          break;
+
+        case KeyEvent.DOM_VK_DOWN:
+          this.moveFocus(event, 1);
+          break;
+
+        case KeyEvent.DOM_VK_TAB:
+          if (event.shiftKey) {
+            this.moveFocus(event, -1);
+            break;
+          }
+
+          this.moveFocus(event, 1);
+          break;
+
+        case KeyEvent.DOM_VK_UP:
+          this.moveFocus(event, -1);
+          break;
+
+        default:
+          break;
+      }
+    });
+  }
+
+  connectedCallback() {
+    const parentDiv = document.createElement("div");
+    parentDiv.classList.add("parent");
+    parentDiv.setAttribute("tabIndex", "0");
+
+    this.includeNode = document.createElement("div");
+    this.includeNode.classList.add("popup-menuitem", "top");
+    this.includeNode.setAttribute("tabindex", "0");
+    this.includeNode.onmouseover = () => { this.focus(); };
+    this.includeNode.onkeypress = (event) => {
+      if (event.keyCode == event.DOM_VK_RETURN) {
+        this.doInclude();
+      }
+    };
+    this.includeNode.onmouseup = () => { this.doInclude(); };
+
+    this.excludeNode = document.createElement("div");
+    this.excludeNode.classList.add("popup-menuitem", "bottom");
+    this.excludeNode.setAttribute("tabindex", "0");
+    this.excludeNode.onmouseover = () => { this.focus(); };
+    this.excludeNode.onkeypress = (event) => {
+      if (event.keyCode == event.DOM_VK_RETURN) {
+        this.doExclude();
+      }
+    };
+    this.excludeNode.onmouseup = () => { this.doExclude(); };
+
+    this.undoNode = document.createElement("div");
+    this.undoNode.classList.add("popup-menuitem", "undo");
+    this.undoNode.setAttribute("tabindex", "0");
+    this.undoNode.onmouseover = () => { this.focus(); };
+    this.undoNode.onkeypress = (event) => {
+      if (event.keyCode == event.DOM_VK_RETURN) {
+        this.doUndo();
+      }
+    };
+    this.undoNode.onmouseup = () => { this.doUndo(); };
+
+    parentDiv.appendChild(this.includeNode);
+    parentDiv.appendChild(this.excludeNode);
+    parentDiv.appendChild(this.undoNode);
+
+    this.appendChild(parentDiv);
+  }
+
+  _getLabel(facetDef, facetValue, groupValue, stringName) {
+    let labelFormat;
+    if (stringName in facetDef.strings) {
+      labelFormat = facetDef.strings[stringName];
+    } else {
+      labelFormat = glodaFacetStrings.get(`glodaFacetView.facets.${stringName}.fallbackLabel`);
+    }
+
+    if (!labelFormat.includes("#1")) {
+      return labelFormat;
+    }
+
+    return labelFormat.replace("#1", facetValue);
+  }
+
+  build(facetDef, facetValue, groupValue) {
+    try {
+      if (groupValue) {
+        this.includeNode.textContent = this._getLabel(facetDef, facetValue,
+          groupValue, "mustMatchLabel");
+        this.excludeNode.textContent = this._getLabel(facetDef, facetValue,
+          groupValue, "cantMatchLabel");
+        this.undoNode.textContent = this._getLabel(facetDef, facetValue,
+          groupValue, "mayMatchLabel");
+      } else {
+        this.includeNode.textContent = this._getLabel(facetDef, facetValue,
+          groupValue, "mustMatchNoneLabel");
+        this.excludeNode.textContent = this._getLabel(facetDef, facetValue,
+          groupValue, "mustMatchSomeLabel");
+        this.undoNode.textContent = this._getLabel(facetDef, facetValue,
+          groupValue, "mayMatchAnyLabel");
+      }
+    } catch (e) {
+      logException(e);
+    }
+  }
+
+  moveFocus(event, delta) {
+    try {
+      // We probably want something quite generic in the long term, but that
+      // is way too much for now (needs to skip over invisible items, etc)
+      let focused = document.activeElement;
+      if (focused == this.includeNode) { this.excludeNode.focus(); } else if (focused == this.excludeNode) { this.includeNode.focus(); }
+      event.preventDefault();
+      event.stopPropagation();
+    } catch (e) {
+      logException(e);
+    }
+  }
+
+  selectItem(event) {
+    try {
+      let focused = document.activeElement;
+      if (focused == this.includeNode) { this.doInclude(); } else if (focused == this.excludeNode) { this.doExclude(); } else { this.doUndo(); }
+    } catch (e) {
+      logException(e);
+    }
+  }
+
+  show(event, facetNode, barNode) {
+    try {
+      this.node = barNode;
+      this.facetNode = facetNode;
+      let facetDef = facetNode.facetDef;
+      let groupValue = barNode.groupValue;
+      let variety = barNode.getAttribute("variety");
+      let label = barNode.querySelector(".bar-link").textContent;
+      this.build(facetDef, label, groupValue);
+      this.node.setAttribute("selected", "true");
+      const rtl = window.getComputedStyle(this).direction == "rtl";
+      /* We show different menus if we're on an "unselected" facet value,
+         or if we're on a preselected facet value, whether included or
+         excluded. The variety attribute handles that through CSS */
+      this.setAttribute("variety", variety);
+      let rect = barNode.getBoundingClientRect();
+      let x, y;
+      if (event.type == "click") {
+        // center the menu on the mouse click
+        if (rtl) { x = event.pageX + 10; } else { x = event.pageX - 10; }
+        y = Math.max(20, event.pageY - 15);
+      } else {
+        if (rtl) { x = rect.left + rect.width / 2 + 20; } else { x = rect.left + rect.width / 2 - 20; }
+        y = rect.top - 10;
+      }
+      if (rtl) { this.style.left = (x - this.getBoundingClientRect().width) + "px"; } else { this.style.left = x + "px"; }
+      this.style.top = y + "px";
+
+      if (variety == "remainder") {
+        // include
+        this.includeNode.focus();
+      } else {
+        // undo
+        this.undoNode.focus();
+      }
+    } catch (e) {
+      logException(e);
+    }
+  }
+
+  hide() {
+    try {
+      this.setAttribute("variety", "invisible");
+      if (this.node) {
+        this.node.removeAttribute("selected");
+        this.node.focus();
+      }
+    } catch (e) {
+      logException(e);
+    }
+  }
+
+  doInclude() {
+    try {
+      this.facetNode.includeFacet(this.node);
+      this.hide();
+    } catch (e) {
+      logException(e);
+    }
+  }
+
+  doExclude() {
+    this.facetNode.excludeFacet(this.node);
+    this.hide();
+  }
+
+  doUndo() {
+    this.facetNode.undoFacet(this.node);
+    this.hide();
+  }
+}
+
 customElements.define("facet-date", MozFacetDate);
 customElements.define("facet-boolean", MozFacetBoolean);
 customElements.define("facet-boolean-filtered", MozFacetBooleanFiltered);
 customElements.define("facet-discrete", MozFacetDiscrete);
+customElements.define("facet-popup-menu", MozFacetPopupMenu);

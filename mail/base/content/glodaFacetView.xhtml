@@ -42,9 +42,8 @@
           src="chrome://messenger/content/glodaFacetVis.js"></script>
 </head>
 <body id="body" onload="reachOutAndTouchFrame()"
-      onkeypress="if (event.keyCode == event.DOM_VK_ESCAPE) document.getElementById('popup-menu').hide();"
       onmouseup="return clickOnBody(event)">
-  <div id="popup-menu" class="popup-menu" variety="invisible"/>
+  <facet-popup-menu class="popup-menu" variety="invisible"/>
   <div id="table">
     <div>
         <div class="facets facets-sidebar" id="facets">

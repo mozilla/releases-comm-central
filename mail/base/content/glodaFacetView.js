@@ -1009,7 +1009,7 @@ function reachOutAndTouchFrame() {
 
 function clickOnBody(event) {
   if (event.bubbles) {
-    document.getElementById("popup-menu").hide();
+    document.querySelector("facet-popup-menu").hide();
   }
   return 0;
 }
