@@ -5,18 +5,18 @@
 [
   {
     "namespace": "windows",
-    "description": "Use the <code>browser.windows</code> API to interact with browser windows. You can use this API to create, modify, and rearrange windows in the browser.",
+    "description": "Use the <code>browser.windows</code> API to interact with Thunderbird. You can use this API to create, modify, and rearrange windows.",
     "types": [
       {
         "id": "WindowType",
         "type": "string",
-        "description": "The type of browser window this is. Under some circumstances a Window may not be assigned type property, for example when querying closed windows from the $(ref:sessions) API.",
+        "description": "The type of window this is. Under some circumstances a Window may not be assigned type property.",
         "enum": ["normal", "popup", "panel", "app", "devtools"]
       },
       {
         "id": "WindowState",
         "type": "string",
-        "description": "The state of this browser window. Under some circumstances a Window may not be assigned state property, for example when querying closed windows from the $(ref:sessions) API.",
+        "description": "The state of this window.",
         "enum": ["normal", "minimized", "maximized", "fullscreen", "docked"]
       },
       {
@@ -27,7 +27,7 @@
             "type": "integer",
             "optional": true,
             "minimum": 0,
-            "description": "The ID of the window. Window IDs are unique within a browser session. Under some circumstances a Window may not be assigned an ID, for example when querying windows using the $(ref:sessions) API, in which case a session ID may be present."
+            "description": "The ID of the window. Window IDs are unique within a session."
           },
           "focused": {
             "type": "boolean",
@@ -36,28 +36,28 @@
           "top": {
             "type": "integer",
             "optional": true,
-            "description": "The offset of the window from the top edge of the screen in pixels. Under some circumstances a Window may not be assigned top property, for example when querying closed windows from the $(ref:sessions) API."
+            "description": "The offset of the window from the top edge of the screen in pixels."
           },
           "left": {
             "type": "integer",
             "optional": true,
-            "description": "The offset of the window from the left edge of the screen in pixels. Under some circumstances a Window may not be assigned left property, for example when querying closed windows from the $(ref:sessions) API."
+            "description": "The offset of the window from the left edge of the screen in pixels."
           },
           "width": {
             "type": "integer",
             "optional": true,
-            "description": "The width of the window, including the frame, in pixels. Under some circumstances a Window may not be assigned width property, for example when querying closed windows from the $(ref:sessions) API."
+            "description": "The width of the window, including the frame, in pixels."
           },
           "height": {
             "type": "integer",
             "optional": true,
-            "description": "The height of the window, including the frame, in pixels. Under some circumstances a Window may not be assigned height property, for example when querying closed windows from the $(ref:sessions) API."
+            "description": "The height of the window, including the frame, in pixels."
           },
           "tabs": {
             "type": "array",
             "items": { "$ref": "tabs.Tab" },
             "optional": true,
-            "description": "Array of $(ref:tabs.Tab) objects representing the current tabs in the window."
+            "description": "Array of :ref:`tabs.Tab` objects representing the current tabs in the window."
           },
           "incognito": {
             "type": "boolean",
@@ -77,11 +77,6 @@
             "type": "boolean",
             "description": "Whether the window is set to be always on top."
           },
-          "sessionId": {
-            "type": "string",
-            "optional": true,
-            "description": "The session ID used to uniquely identify a Window obtained from the $(ref:sessions) API."
-          },
           "title": {
             "type": "string",
             "optional": true,
@@ -99,11 +94,11 @@
     "properties": {
       "WINDOW_ID_NONE": {
         "value": -1,
-        "description": "The windowId value that represents the absence of a browser window."
+        "description": "The windowId value that represents the absence of a window."
       },
       "WINDOW_ID_CURRENT": {
         "value": -2,
-        "description": "The windowId value that represents the $(topic:current-window)[current window]."
+        "description": "The windowId value that represents the current window."
       }
     },
     "functions": [
@@ -127,7 +122,7 @@
               "populate": {
                 "type": "boolean",
                 "optional": true,
-                "description": "If true, the $(ref:windows.Window) object will have a <var>tabs</var> property that contains a list of the $(ref:tabs.Tab) objects. The <code>Tab</code> objects only contain the <code>url</code>, <code>title</code> and <code>favIconUrl</code> properties if the extension's manifest file includes the <code>\"tabs\"</code> permission."
+                "description": "If true, the :ref:`windows.Window` object will have a <var>tabs</var> property that contains a list of the :ref:`tabs.Tab` objects. The <code>Tab</code> objects only contain the <code>url</code>, <code>title</code> and <code>favIconUrl</code> properties if the extension's manifest file includes the <code>\"tabs\"</code> permission."
               },
               "windowTypes": {
                 "type": "array",
@@ -135,7 +130,7 @@
                   "$ref": "WindowType"
                 },
                 "optional": true,
-                "description": "If set, the $(ref:windows.Window) returned will be filtered based on its type. If unset the default filter is set to <code>['app', 'normal', 'panel', 'popup']</code>, with <code>'app'</code> and <code>'panel'</code> window types limited to the extension's own windows."
+                "description": "If set, the :ref:`windows.Window` returned will be filtered based on its type. If unset the default filter is set to <code>['app', 'normal', 'panel', 'popup']</code>, with <code>'app'</code> and <code>'panel'</code> window types limited to the extension's own windows."
               }
             }
           },
@@ -154,7 +149,7 @@
       {
         "name": "getCurrent",
         "type": "function",
-        "description": "Gets the $(topic:current-window)[current window].",
+        "description": "Gets the current window.",
         "async": "callback",
         "parameters": [
           {
@@ -166,13 +161,13 @@
               "populate": {
                 "type": "boolean",
                 "optional": true,
-                "description": "If true, the $(ref:windows.Window) object will have a <var>tabs</var> property that contains a list of the $(ref:tabs.Tab) objects. The <code>Tab</code> objects only contain the <code>url</code>, <code>title</code> and <code>favIconUrl</code> properties if the extension's manifest file includes the <code>\"tabs\"</code> permission."
+                "description": "If true, the :ref:`windows.Window` object will have a <var>tabs</var> property that contains a list of the :ref:`tabs.Tab` objects. The <code>Tab</code> objects only contain the <code>url</code>, <code>title</code> and <code>favIconUrl</code> properties if the extension's manifest file includes the <code>\"tabs\"</code> permission."
               },
               "windowTypes": {
                 "type": "array",
                 "items": { "$ref": "WindowType" },
                 "optional": true,
-                "description": "If set, the $(ref:windows.Window) returned will be filtered based on its type. If unset the default filter is set to <code>['app', 'normal', 'panel', 'popup']</code>, with <code>'app'</code> and <code>'panel'</code> window types limited to the extension's own windows."
+                "description": "If set, the :ref:`windows.Window` returned will be filtered based on its type. If unset the default filter is set to <code>['app', 'normal', 'panel', 'popup']</code>, with <code>'app'</code> and <code>'panel'</code> window types limited to the extension's own windows."
               }
             }
           },
@@ -203,13 +198,13 @@
               "populate": {
                 "type": "boolean",
                 "optional": true,
-                "description": "If true, the $(ref:windows.Window) object will have a <var>tabs</var> property that contains a list of the $(ref:tabs.Tab) objects. The <code>Tab</code> objects only contain the <code>url</code>, <code>title</code> and <code>favIconUrl</code> properties if the extension's manifest file includes the <code>\"tabs\"</code> permission."
+                "description": "If true, the :ref:`windows.Window` object will have a <var>tabs</var> property that contains a list of the :ref:`tabs.Tab` objects. The <code>Tab</code> objects only contain the <code>url</code>, <code>title</code> and <code>favIconUrl</code> properties if the extension's manifest file includes the <code>\"tabs\"</code> permission."
               },
               "windowTypes": {
                 "type": "array",
                 "items": { "$ref": "WindowType" },
                 "optional": true,
-                "description": "If set, the $(ref:windows.Window) returned will be filtered based on its type. If unset the default filter is set to <code>['app', 'normal', 'panel', 'popup']</code>, with <code>'app'</code> and <code>'panel'</code> window types limited to the extension's own windows."
+                "description": "If set, the :ref:`windows.Window` returned will be filtered based on its type. If unset the default filter is set to <code>['app', 'normal', 'panel', 'popup']</code>, with <code>'app'</code> and <code>'panel'</code> window types limited to the extension's own windows."
               }
             }
           },
@@ -240,13 +235,13 @@
               "populate": {
                 "type": "boolean",
                 "optional": true,
-                "description": "If true, each $(ref:windows.Window) object will have a <var>tabs</var> property that contains a list of the $(ref:tabs.Tab) objects for that window. The <code>Tab</code> objects only contain the <code>url</code>, <code>title</code> and <code>favIconUrl</code> properties if the extension's manifest file includes the <code>\"tabs\"</code> permission."
+                "description": "If true, each :ref:`windows.Window` object will have a <var>tabs</var> property that contains a list of the :ref:`tabs.Tab` objects for that window. The <code>Tab</code> objects only contain the <code>url</code>, <code>title</code> and <code>favIconUrl</code> properties if the extension's manifest file includes the <code>\"tabs\"</code> permission."
               },
               "windowTypes": {
                 "type": "array",
                 "items": { "$ref": "WindowType" },
                 "optional": true,
-                "description": "If set, the $(ref:windows.Window) returned will be filtered based on its type. If unset the default filter is set to <code>['app', 'normal', 'panel', 'popup']</code>, with <code>'app'</code> and <code>'panel'</code> window types limited to the extension's own windows."
+                "description": "If set, the :ref:`windows.Window` returned will be filtered based on its type. If unset the default filter is set to <code>['app', 'normal', 'panel', 'popup']</code>, with <code>'app'</code> and <code>'panel'</code> window types limited to the extension's own windows."
               }
             }
           },
@@ -500,7 +495,7 @@
       {
         "name": "onFocusChanged",
         "type": "function",
-        "description": "Fired when the currently focused window changes. Will be $(ref:windows.WINDOW_ID_NONE) if all browser windows have lost focus. Note: On some Linux window managers, WINDOW_ID_NONE will always be sent immediately preceding a switch from one browser window to another.",
+        "description": "Fired when the currently focused window changes. Will be :ref:`windows.WINDOW_ID_NONE`) if all browser windows have lost focus. Note: On some Linux window managers, WINDOW_ID_NONE will always be sent immediately preceding a switch from one browser window to another.",
         "filters": [
           {
             "name": "windowTypes",
