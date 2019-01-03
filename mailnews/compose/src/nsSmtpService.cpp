@@ -284,8 +284,7 @@ nsSmtpService::AllowPort(int32_t port, const char *scheme, bool *_retval)
 NS_IMETHODIMP nsSmtpService::GetProtocolFlags(uint32_t *result)
 {
     *result = URI_NORELATIVE | ALLOWS_PROXY | URI_LOADABLE_BY_ANYONE |
-      URI_NON_PERSISTABLE | URI_DOES_NOT_RETURN_DATA |
-      URI_FORBIDS_COOKIE_ACCESS;
+      URI_NON_PERSISTABLE | URI_DOES_NOT_RETURN_DATA;
     return NS_OK;
 }
 

@@ -304,8 +304,7 @@ NS_IMETHODIMP nsPop3Service::GetDefaultDoBiff(bool *aDoBiff)
 NS_IMETHODIMP nsPop3Service::GetProtocolFlags(uint32_t *result)
 {
     NS_ENSURE_ARG_POINTER(result);
-    *result = URI_NORELATIVE | URI_DANGEROUS_TO_LOAD | ALLOWS_PROXY |
-              URI_FORBIDS_COOKIE_ACCESS;
+    *result = URI_NORELATIVE | URI_DANGEROUS_TO_LOAD | ALLOWS_PROXY;
     return NS_OK;
 }
 
