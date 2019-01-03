@@ -3,10 +3,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import glob
 import optparse
 import sys
 import os
-import shutil
 import subprocess
 import logging
 
@@ -79,15 +79,31 @@ totalTestErrors = 0
 totalTestPasses = 0
 totalDirectories = 0
 
-tests = open(options.list, "rt").readlines()
+tests = [t.strip() for t in open(options.list, "rt").readlines()]
 
 if options.total_chunks > 1:
-    tests_per_chunk = float(len(tests)) / options.total_chunks
+    test_counts = {}
+    total_test_count = 0
+    for t in tests:
+        if os.path.isdir(os.path.join(SCRIPT_DIRECTORY, t)):
+            test_counts[t] = len(glob.glob(os.path.join(SCRIPT_DIRECTORY, t, "test*.js")))
+        else:
+            test_counts[t] = 1
+        total_test_count += test_counts[t]
+
+    tests_per_chunk = float(total_test_count) / options.total_chunks
     start = int(round((options.this_chunk - 1) * tests_per_chunk))
     end = int(round(options.this_chunk * tests_per_chunk))
 
-    tests = (t for t in tests[start:end])
-
+    chunk_tests = []
+    cumulative_test_count = 0
+    for t in tests:
+        if cumulative_test_count >= end:
+            break
+        if cumulative_test_count >= start:
+            chunk_tests.append(t)
+        cumulative_test_count += test_counts[t]
+    tests = chunk_tests
 
 for directory in tests:
     log.info("INFO | (runtestlist.py) | Running directory: %s",

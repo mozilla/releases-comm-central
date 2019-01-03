@@ -43,7 +43,6 @@ xpcshell:
         by-test-platform:
             linux32/debug: 8
             linux64/debug: 8
-            macosx64.*: 2
             default: 4
     instance-size: default
     max-run-time: 5400
