@@ -20,9 +20,6 @@
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 
-using namespace mozilla;
-using namespace net;
-
 // LDAP per-session data structure.
 //
 typedef struct {
