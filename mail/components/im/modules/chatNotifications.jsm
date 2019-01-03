@@ -98,7 +98,7 @@ var Notifications = {
           messageText = messageText.replace(/^\/me/, name);
       case 2:
         if (!icon)
-          icon = "chrome://messenger/skin/userIcon.png";
+          icon = "chrome://messenger/skin/icons/userIcon.svg";
 
         if (!messageText) {
           let bundle = new StringBundle("chrome://messenger/locale/chat.properties");

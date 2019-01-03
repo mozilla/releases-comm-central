@@ -21,41 +21,8 @@
   color: GrayText;
 }
 
-.attachmentList[orient="horizontal"] > .attachmentItem {
-  pointer-events: none;
-}
-
-.attachmentList[orient="horizontal"] .attachmentcell-icon,
-.attachmentList[orient="horizontal"] .attachmentcell-nameselection {
-  pointer-events: auto;
-}
-
-.attachmentList:focus > .attachmentItem[selected="true"][current="true"] .attachmentcell-nameselection {
-  outline: 1px dotted #F3D982;
-}
-
-.attachmentList:focus > .attachmentItem[current="true"] .attachmentcell-nameselection {
-  outline: 1px dotted;
-  outline-offset: -1px;
-}
-
-.attachmentItem[selected="true"] .attachmentcell-nameselection {
-  background-color: -moz-CellHighlight;
-  color: -moz-CellHighlightText;
-}
-
-.attachmentList:focus > .attachmentItem[selected="true"] .attachmentcell-nameselection {
-  background-color: Highlight;
-  color: HighlightText;
-}
-
-.attachmentList:focus > .attachmentItem[selected="true"] .attachmentcell-icon {
-  filter: url("chrome://messenger/skin/imageFilters.svg#selected-focus");
-}
-
 @media (-moz-windows-default-theme) {
   .attachmentItem {
-    pointer-events: auto !important;
     border: 1px solid transparent;
     color: -moz-FieldText !important;
     background-color: transparent;
@@ -72,16 +39,6 @@
   .attachmentList[orient="horizontal"] > .attachmentItem {
     margin-top: 1px;
     margin-inline-start: 1px;
-  }
-
-  .attachmentcell-nameselection {
-    outline: none !important;
-    background-color: inherit !important;
-    color: inherit !important;
-  }
-
-  .attachmentcell-icon {
-    filter: none !important;
   }
 
   .attachmentcell-name, .attachmentcell-size {

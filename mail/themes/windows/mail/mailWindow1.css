@@ -445,7 +445,7 @@ treechildren::-moz-tree-cell-text(dummy) {
 }
 
 #folderpane_splitter {
-  border-inline-start: 1px solid #a9b7c9;
+  border-inline-start: 1px solid var(--splitter-color);
   /* make only the splitter border visible */
   margin-inline-end: -4px;
 }
@@ -455,7 +455,7 @@ treechildren::-moz-tree-cell-text(dummy) {
 }
 
 #threadpane-splitter:not([orient="vertical"]) {
-  border-inline-end: 1px solid #a9b7c9;
+  border-inline-end: 1px solid var(--splitter-color);
   /* make only the splitter border visible */
   margin-inline-start: -4px;
 }
@@ -467,7 +467,6 @@ treechildren::-moz-tree-cell-text(dummy) {
 #threadpane-splitter,
 #attachment-splitter {
   border-width: 0;
-  border-bottom: 1px solid #a9b7c9;
   min-height: 0;
   height: 5px;
   background-color: transparent;
@@ -475,6 +474,14 @@ treechildren::-moz-tree-cell-text(dummy) {
   position: relative;
   z-index: 10;
   transition: border-width .3s ease-in;
+}
+
+#threadpane-splitter {
+  border-bottom: 1px solid var(--splitter-color);
+}
+
+#attachment-splitter {
+  border-bottom: 1px solid #a9b7c9;
 }
 
 #attachment-splitter:not([state="collapsed"]) {

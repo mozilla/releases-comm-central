@@ -26,8 +26,7 @@
 }
 
 #attachmentBucket .attachmentItem {
-  border-top: 1px solid transparent;
-  border-bottom: 1px solid #fff;
+  border: 1px solid transparent;
 }
 
 #attachmentBucket .attachmentItem[dropOn="top"] {
@@ -81,6 +80,10 @@ toolbar[nowindowdrag="true"] {
 
 #composeContentBox:-moz-window-inactive {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) inset;
+}
+
+#headers-box {
+  padding-bottom: 3px;
 }
 
 #MsgHeadersToolbar {
@@ -146,12 +149,6 @@ toolbar[nowindowdrag="true"] {
   margin: 4px 6px;
 }
 
-#attachmentbucket-sizer {
-  border-top: none;
-  border-bottom: none;
-  height: 7px;
-}
-
 #attachments-header-box {
   min-height: 28px;
 }
@@ -163,7 +160,7 @@ toolbar[nowindowdrag="true"] {
 #attachmentBucketSize {
   padding-top: 2px;
   padding-inline-end: 2px;
-  color: GrayText;
+  color: #999;
 }
 
 #attachmentBucketCloseButton {
@@ -341,15 +338,21 @@ textbox.textbox-addressingWidget:hover {
   display: none;
 }
 
+.menulist-description {
+  color: #999;
+}
+
 /* ::::: compose toolbar sizer ::::: */
 
 #compose-toolbar-sizer {
   position: relative;
-  margin-top: -2px;
-  min-height: 7px;
-  background-image: url("chrome://messenger/skin/messengercompose/osx-noise.png");
-  background-color: rgb(242, 242, 242);
-  border-bottom: 1px solid #DCDCDC;
+  z-index: 10;
+  min-height: 0;
+  height: 5px;
+  margin-top: -5px;
+  border-top-width: 0;
+  border-bottom-color: var(--splitter-color);
+  background-color: transparent;
 }
 
 /* ::::: format toolbar ::::: */
@@ -1019,9 +1022,14 @@ toolbarbutton.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker > .dropmark
 }
 
 #sidebar-splitter {
-  border-right: 1px solid #8e8e8e;
-  border-left: 1px solid #bebebe;
-  background-color: #ececec;
+  border-inline-end-width: 0;
+  border-inline-start: 1px solid var(--splitter-color);
+  min-width: 0;
+  width: 5px;
+  background-color: transparent;
+  margin-inline-end: -5px;
+  position: relative;
+  z-index: 10;
 }
 
 #sidebar-title {

@@ -114,57 +114,20 @@ treechildren::-moz-tree-row(dummy, focus, selected)  {
 
 /* ..... splitter adjustments ..... */
 
-splitter {
-  background-color: transparent;
-  width: 7px;
-  min-width: 7px;
-  min-height: 7px;
-}
-
-#threadpane-splitter {
-  height: 8px !important;
-  min-height: 8px;
-  background-image: url("chrome://messenger/skin/icons/vertical-threadpane-splitter-bg.gif");
-  background-repeat: repeat-y;
-  border-inline-start: 1px solid #A6A6A6;
-  border-inline-end: 1px solid #8C8C8C;
-}
-
-#threadpane-splitter:-moz-locale-dir(rtl) {
-  background-image: url("chrome://messenger/skin/icons/vertical-threadpane-splitter-bg-rtl.gif");
-}
-
-/* The orient="vertical" isn't which direction the splitter itself runs, it's
-   actually which way its parent lays out its children, so when it's vertical,
-   the splitter is a horizontal bar. */
-#threadpane-splitter[orient="vertical"] {
-  background-image: url("chrome://messenger/skin/icons/threadpane-splitter-bg.gif");
-  background-repeat: repeat-x;
-  border-top: 1px solid #A6A6A6;
-  border-bottom: 1px solid #8C8C8C;
-  border-inline-start-width: 0;
-  border-inline-end-width: 0;
-}
-
-#threadpane-splitter[state="collapsed"] {
-  border-bottom-width: 0;
-  border-inline-end: 0;
-}
-
 #folderpane_splitter,
 #threadpane-splitter:not([orient="vertical"]) {
-  background-image: none;
-  /* splitter grip area */
+  border-width: 0;
+  min-width: 0;
   width: 5px;
-  min-width: 5px;
-  /* because of the negative margin needed to make the splitter visible */
+  background-color: transparent;
+  margin-top: 0;
   position: relative;
   z-index: 10;
   transition: border-width .3s ease-in;
 }
 
 #folderpane_splitter {
-  border-inline-start: 1px solid #bdbdbd;
+  border-inline-start: 1px solid var(--splitter-color);
   /* make only the splitter border visible */
   margin-inline-end: -4px;
 }
@@ -174,14 +137,47 @@ splitter {
 }
 
 #threadpane-splitter:not([orient="vertical"]) {
-  border-inline-start-style: none;
-  border-inline-end: 1px solid #bdbdbd;
+  border-inline-end: 1px solid var(--splitter-color);
   /* make only the splitter border visible */
   margin-inline-start: -4px;
 }
 
 #threadpane-splitter[state="collapsed"]:not([orient="vertical"]):hover {
   border-inline-end: 4px solid highlight;
+}
+
+#threadpane-splitter,
+#attachment-splitter {
+  border-width: 0;
+  min-height: 0;
+  height: 5px;
+  background-color: transparent;
+  margin-top: -5px;
+  position: relative;
+  z-index: 10;
+  transition: border-width .3s ease-in;
+}
+
+#threadpane-splitter {
+  border-bottom: 1px solid var(--splitter-color);
+}
+
+#attachment-splitter {
+  border-bottom: 1px solid #bdbdbd;
+}
+
+#attachment-splitter:not([state="collapsed"]) {
+  border-bottom: 1px solid transparent;
+}
+
+#attachment-splitter,
+#threadpane-splitter[state="collapsed"] {
+  transition: border-color .3s;
+}
+
+#threadpane-splitter[state="collapsed"]:hover,
+#attachment-splitter[state="collapsed"]:hover {
+  border-bottom: 4px solid highlight;
 }
 
 /* ..... status bar adjustments ..... */

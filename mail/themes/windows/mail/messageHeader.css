@@ -13,7 +13,7 @@
   color: WindowText;
   background-color: ButtonFace;
   padding: 0.4ex;
-  border-bottom: 1px solid #a9b7c9; /* The same color as the splitters */
+  border-bottom: 1px solid var(--splitter-color); /* The same color as the splitters */
 }
 
 /* ::::: msg header toolbars ::::: */

@@ -155,7 +155,6 @@ richlistitem[error="true"] .accountStateIcon {
   list-style-image: url("chrome://global/skin/icons/warning.svg");
 }
 
-
 #statusArea {
   margin: 0 0;
   padding: 0 0;
@@ -181,9 +180,12 @@ richlistitem[error="true"] .accountStateIcon {
 }
 
 #userIcon[src=""] {
-  background-image: url("chrome://messenger/skin/userIcon.png");
+  background-image: url("chrome://messenger/skin/icons/userIcon.svg");
   background-size: contain;
   background-repeat: no-repeat;
+  -moz-context-properties: fill, fill-opacity;
+  fill: #000;
+  fill-opacity: 0.25;
 }
 
 #userIcon:hover {

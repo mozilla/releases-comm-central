@@ -286,35 +286,22 @@ imcontact[aliasing] .contactDisplayName {
 }
 
 .conv-top-info {
-  margin: 0 0;
-  padding: 0 0;
+  margin: 0;
+  padding: 0.6ex;
   border-style: none;
   -moz-appearance: none;
   -moz-window-dragging: no-drag;
-%ifdef XP_MACOSX
-  /* Copy of .main-header-area from osx/mail/messageHeader.css */
-  color: #2E3436; /* Aluminium 6 */
-  border-bottom:1px solid #BFBFBF !important;
-  padding: 0.6ex;
-%else
-  background-color: -moz-Dialog;
-%ifdef XP_WIN
-  background-image: linear-gradient(rgba(255,255,255,.5), rgba(255,255,255,0));
-%else
-  background-image: linear-gradient(rgba(255,255,255,.3), rgba(255,255,255,0));
-%endif
-%ifndef XP_WIN
-  border-bottom: 1px solid ThreeDShadow;
-%else
-  border-bottom: none;
-%endif
-%endif
+  border-bottom: 1px solid var(--splitter-color);
 }
 
 .userIconHolder {
   border: 2px solid rgba(0,0,0,0.15);
   border-radius: 5px;
   overflow: hidden;
+}
+
+:root[lwt-tree-brighttext] .userIconHolder {
+  border-color: rgba(255,255,255,0.15);
 }
 
 .userIcon,
@@ -333,9 +320,16 @@ imcontact[aliasing] .contactDisplayName {
 }
 
 .userIcon[src=""] {
-  background-image: url("chrome://messenger/skin/userIcon.png");
+  background-image: url("chrome://messenger/skin/icons/userIcon.svg");
   background-size: contain;
   background-repeat: no-repeat;
+  -moz-context-properties: fill, fill-opacity;
+  fill: #000;
+  fill-opacity: 0.25;
+}
+
+:root[lwt-tree-brighttext] .userIcon[src=""] {
+  fill: #fff;
 }
 
 .statusTypeIcon {
@@ -450,10 +444,8 @@ richlistitem[state="disconnected"] .accountStateIcon {
 }
 
 .statusMessage {
-  margin: 0 0 !important;
-%ifdef XP_MACOSX
+  margin: 32px 0 0;
   min-height: 16px;
-%endif
 }
 
 .statusMessage[noTopic]:not([editing]),
@@ -488,54 +480,23 @@ richlistitem[state="disconnected"] .accountStateIcon {
   margin: 2px 2px;
 }
 
-.statusMessage {
-  margin-top: 32px !important;
-}
-
-.statusMessage[editing] {
-%ifdef XP_MACOSX
-  margin: 29px 0 -1px -4px !important;
-%else
-%ifdef XP_WIN
-  margin: 28px 0 -1px -2px !important;
-%else
-  margin: 29px 0 -3px -4px !important;
-%endif
-%endif
-}
-
 .displayName {
   font-size: 16px;
-  border-bottom: 1px solid rgba(0,0,0,0.25);
-  margin: 0 0 16px !important;
+  border-bottom: 1px solid var(--splitter-color);
+  margin: 0 0 16px;
   padding-right: 20px;
 }
 
 .prplIcon {
-  margin-top: 0 !important;
-  margin-inline-end: 1px !important;
-  margin-bottom: 16px !important;
-  margin-inline-start: -16px !important;
+  margin-top: 0;
+  margin-inline-end: 1px;
+  margin-bottom: 16px ;
+  margin-inline-start: -16px;
 }
 
 .conv-messages {
   min-width: 150px;
-%ifndef XP_MACOSX
-%ifndef XP_WIN
-  border-bottom: solid 1px GrayText;
-%else
-  border: 1px solid rgba(0, 0, 0, 0.25);
-  border-left: none;
-  border-right: none !important;
-%endif
-%endif
 }
-
-%ifndef XP_MACOSX
-.conv-messages[chat] {
-  border-right: solid 1px GrayText;
-}
-%endif
 
 /* Animation copied from the find bar in Firefox - http://dxr.mozilla.org/mozilla-central/source/toolkit/themes/linux/global/findBar.css#7 */
 .conv-status-container {
@@ -656,11 +617,7 @@ richlistitem[state="disconnected"] .accountStateIcon {
   /* because of the negative margin needed to make the splitter visible */
   position: relative;
   z-index: 10;
-%ifdef XP_MACOSX
-  border-bottom: 1px solid #bdbdbd;
-%else
-  border-bottom: 1px solid ThreeDShadow;
-%endif
+  border-bottom: 1px solid var(--splitter-color);
 }
 
 /* Adaptation of #folderpane_splitter */
@@ -686,11 +643,7 @@ richlistitem[state="disconnected"] .accountStateIcon {
 }
 
 #contextSplitter {
-%ifdef XP_MACOSX
-  border-inline-end: 1px solid #bdbdbd;
-%else
-  border-inline-end: 1px solid ThreeDShadow;
-%endif
+  border-inline-end: 1px solid var(--splitter-color);
   /* make only the splitter border visible */
   margin-inline-start: -5px;
 }

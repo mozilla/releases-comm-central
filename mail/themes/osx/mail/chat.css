@@ -15,7 +15,7 @@
 #chatTabPanel {
   --imbox-selected-text-color: -moz-FieldText;
   --imbox-selected-background-color: -moz-Field;
-  --imbox-selected-border-color: #bdbdbd;
+  --imbox-selected-border-color: var(--splitter-color);
   --imgroup-selected-background-color: ThreeDLightShadow;
 }
 
@@ -84,7 +84,6 @@
 /* Adaptation of #folderpane_splitter */
 #listSplitter,
 #contextSplitter {
-  background-image: none;
   min-width: 5px;
 }
 
@@ -100,6 +99,11 @@
 /* Set a background color to avoid lightweight theme backgrounds */
 #contextPane {
   background-color: #fff;
+}
+
+.statusMessage[editing] {
+  color: -moz-dialogtext;
+  margin: 29px 0 -1px -4px;
 }
 
 #displayNameAndstatusMessageStack #statusMessage {

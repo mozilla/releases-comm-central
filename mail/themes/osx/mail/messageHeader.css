@@ -11,7 +11,7 @@
 /* ::::: for the entire area ::::: */
 .main-header-area {
   color: #2E3436; /* Aluminium 6 */
-  border-bottom:1px solid #BFBFBF;
+  border-bottom:1px solid var(--splitter-color);
   padding: 0.6ex;
 }
 
@@ -38,7 +38,7 @@
 /* ::::: attachment view ::::: */
 
 #attachmentList {
-  margin: 0px;
+  margin: 0;
   background-color: -moz-Field;
   color: -moz-FieldText;
 }
@@ -89,12 +89,6 @@
 #attachmentBar {
   background-color: #fff;
   color: -moz-dialogtext;
-}
-
-#attachment-splitter {
-  min-height: 7px;
-  border-top: 1px solid #C8C8C8;
-  background-color: #E6E6E6;
 }
 
 /* ::::: attachment list ::::: */

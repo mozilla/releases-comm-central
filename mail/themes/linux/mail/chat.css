@@ -9,7 +9,7 @@
 #chatTabPanel {
   --imbox-selected-text-color: -moz-FieldText;
   --imbox-selected-background-color: -moz-Field;
-  --imbox-selected-border-color: ThreeDShadow;
+  --imbox-selected-border-color: var(--splitter-color);
   --imgroup-selected-background-color: ThreeDLightShadow;
 }
 
@@ -44,8 +44,8 @@
   -moz-appearance: none;
 }
 
-#conv-top-info {
-  -moz-appearance: none;
+:root:not([lwt-tree]) #conv-top-info {
+  background-color: -moz-Dialog;
   color: -moz-DialogText;
 }
 
@@ -63,6 +63,11 @@
 
 .conv-hbox {
   -moz-box-align: center;
+}
+
+.statusMessage[editing] {
+  color: -moz-dialogtext;
+  margin: 29px 0 -3px -4px;
 }
 
 #displayNameAndstatusMessageStack #statusMessage {

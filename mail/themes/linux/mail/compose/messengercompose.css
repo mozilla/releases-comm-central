@@ -119,7 +119,7 @@ menulist:-moz-locale-dir(rtl) > .menulist-label-box {
 /* ::::: special toolbar colors ::::: */
 
 #attachmentbucket-sizer {
-  border-top: none;
+  -moz-appearance: none;
 }
 
 #attachments-header-box {

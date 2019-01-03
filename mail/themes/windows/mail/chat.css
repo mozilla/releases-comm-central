@@ -9,7 +9,7 @@
 #chatTabPanel {
   --imbox-selected-text-color: -moz-FieldText;
   --imbox-selected-background-color: -moz-Field;
-  --imbox-selected-border-color: #a9b7c9;
+  --imbox-selected-border-color: var(--splitter-color);
   --imgroup-selected-background-color: ThreeDLightShadow;
 }
 
@@ -30,11 +30,6 @@
   background: var(--imbox-selected-background-color);
 }
 
-.conv-messages {
-  border-top: 0;
-  border-bottom: 0;
-}
-
 .conv-textbox {
   -moz-appearance: none;
   /* Right/left margins so the borders show up on all sides. */
@@ -49,10 +44,6 @@
 #contextPane {
   background-color: -moz-field;
   color: -moz-fieldtext;
-}
-
-.conv-top-info {
-  background: transparent;
 }
 
 .userIcon {
@@ -74,6 +65,11 @@
   padding-bottom: 2px;
   border-bottom: 1px solid ThreeDShadow;
   background-color: -moz-Dialog;
+}
+
+.statusMessage[editing] {
+  color: -moz-dialogtext;
+  margin: 28px 0 -1px -2px;
 }
 
 #displayNameAndstatusMessageStack #statusMessage {
@@ -135,15 +131,6 @@
     border-color: hsla(206, 100%, 60%, .65) hsla(206, 100%, 55%, .65)
                   hsla(206, 100%, 50%, .65);
     background-color: -moz-field;
-  }
-
-  .splitter[orient="vertical"],
-  #logsSplitter {
-    border-bottom-color: #a9b7c9;
-  }
-
-  #contextSplitter {
-    border-inline-end-color: #a9b7c9;
   }
 
   richlistitem[selected] > label,

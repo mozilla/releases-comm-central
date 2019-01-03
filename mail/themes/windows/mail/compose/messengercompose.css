@@ -12,9 +12,6 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
 #attachmentBucket {
-  -moz-appearance: none;
-  border-top: 1px solid #a9b7c9; /* The same color as the splitters */
-  border-bottom: 1px solid #a9b7c9;
   background-color: -moz-Field;
   color: -moz-FieldText;
 }
@@ -39,6 +36,11 @@
 
 #attachmentBucket .attachmentItem[dropOn="bottom"] {
   border-bottom-color: Highlight;
+}
+
+:root[lwt-tree] #attachmentBucket > .attachmentItem:hover {
+  background-color: hsla(0,0%,50%,.15);
+  border-color: transparent;
 }
 
 /* ::::: special toolbar colors ::::: */
@@ -80,7 +82,6 @@
 #headers-box {
   -moz-appearance: none;
   padding-bottom: 2px;
-  border-bottom: 1px solid ThreeDShadow;
 }
 
 #MsgHeadersToolbar {
@@ -616,24 +617,6 @@ toolbar:not(:-moz-lwtheme) {
   padding-bottom: 2px;
 }
 
-/* ::::: special toolbar colors ::::: */
-
-#attachmentbucket-sizer {
-  position: relative;
-  z-index: 10;
-  min-width: 0;
-  width: 5px;
-  margin-inline-end: -4px;
-  border-inline-end-width: 0;
-  border-inline-start: 1px solid #a9b7c9;
-  background-color: transparent;
-}
-
-#attachmentbucket-sizer[state="collapsed"] {
-  border-inline-start-color: transparent;
-  cursor: default;
-}
-
 #attachments-header-box {
   min-height: 26px;
 }
@@ -650,7 +633,7 @@ toolbar:not(:-moz-lwtheme) {
   height: 5px;
   margin-top: -5px;
   border-top-width: 0;
-  border-bottom-width: 0;
+  border-bottom-color: var(--splitter-color);
   background-color: transparent;
 }
 
@@ -796,7 +779,7 @@ toolbar:not(:-moz-lwtheme) {
 
 #sidebar-splitter {
   border-inline-end-width: 0;
-  border-inline-start: 1px solid #a9b7c9;
+  border-inline-start: 1px solid var(--splitter-color);
   min-width: 0;
   width: 5px;
   background-color: transparent;
@@ -806,10 +789,6 @@ toolbar:not(:-moz-lwtheme) {
 }
 
 @media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
-  #headers-box {
-    border-bottom-color: #a9b7c9;
-  }
-
   findbar {
     background-color: #eef3fa;
   }
@@ -850,10 +829,6 @@ toolbar:not(:-moz-lwtheme) {
   #compose-toolbox:not(:-moz-lwtheme) {
     color: black;
     text-shadow: 0 0 .7em white, 0 0 .7em white, 0 1px 0 rgba(255, 255, 255, .4);
-  }
-
-  #headers-box {
-    border-bottom-color: #aabccf;
   }
 
   #composeContentBox {

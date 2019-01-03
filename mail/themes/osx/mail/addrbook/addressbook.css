@@ -106,7 +106,7 @@
 
 #dirTree-splitter {
   border-width: 0;
-  border-inline-end: 1px solid #bdbdbd;
+  border-inline-end: 1px solid var(--splitter-color);
   min-width: 0;
   width: 5px;
   background-color: transparent;
@@ -117,7 +117,7 @@
 
 #results-splitter {
   border-width: 0;
-  border-top: 1px solid #bdbdbd;
+  border-top: 1px solid var(--splitter-color);
   min-height: 0;
   height: 5px;
   background-color: transparent;
