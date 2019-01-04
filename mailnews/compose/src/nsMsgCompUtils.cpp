@@ -34,7 +34,7 @@
 #include "mozilla/Services.h"
 #include "mozilla/Unused.h"
 #include "nsIContentIterator.h"
-#include "nsIDocument.h"
+#include "mozilla/dom/Document.h"
 #include "nsIMIMEInfo.h"
 #include "nsIMsgHeaderParser.h"
 #include "nsIMutableArray.h"
@@ -1774,7 +1774,7 @@ void GetSerialiserFlags(const char* charset, bool* flowed, bool* delsp, bool* fo
 }
 
 already_AddRefed<nsIArray>
-GetEmbeddedObjects(nsIDocument* aDocument)
+GetEmbeddedObjects(mozilla::dom::Document* aDocument)
 {
   nsCOMPtr<nsIMutableArray> nodes = do_CreateInstance(NS_ARRAY_CONTRACTID);
   if (NS_WARN_IF(!nodes)) {

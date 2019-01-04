@@ -7,8 +7,8 @@
 #include "nsComponentManagerUtils.h"
 #include "nsNetCID.h"
 #include "nsString.h"
+#include "mozilla/dom/Document.h"
 #include "nsWMUtils.h"
-#include "nsIDocument.h"
 #include "nsINodeList.h"
 #include "nsContentList.h"
 #include "nsINode.h"
@@ -127,7 +127,7 @@ nsWMUtils::GetOEAccountFilesInFolder(nsIFile *aFolder,
 }
 
 nsresult
-nsWMUtils::MakeXMLdoc(nsIDocument **aXmlDoc,
+nsWMUtils::MakeXMLdoc(mozilla::dom::Document **aXmlDoc,
                       nsIFile *aFile)
 {
   nsresult rv;
@@ -143,7 +143,7 @@ nsWMUtils::MakeXMLdoc(nsIDocument **aXmlDoc,
   }
   int64_t filesize;
   aFile->GetFileSize(&filesize);
-  nsCOMPtr<nsIDocument> xmldoc =
+  nsCOMPtr<mozilla::dom::Document> xmldoc =
     parser->ParseFromStream(stream, EmptyString(), int32_t(filesize),
                             mozilla::dom::SupportedType::Application_xml, rv2);
   xmldoc.forget(aXmlDoc);
@@ -151,7 +151,7 @@ nsWMUtils::MakeXMLdoc(nsIDocument **aXmlDoc,
 }
 
 nsresult
-nsWMUtils::GetValueForTag(nsIDocument *aXmlDoc,
+nsWMUtils::GetValueForTag(mozilla::dom::Document *aXmlDoc,
                           const char *aTagName,
                           nsAString &aValue)
 {

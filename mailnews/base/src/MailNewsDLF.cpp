@@ -82,7 +82,7 @@ MailNewsDLF::CreateInstance(const char* aCommand,
 
 NS_IMETHODIMP
 MailNewsDLF::CreateInstanceForDocument(nsISupports* aContainer,
-                                       nsIDocument* aDocument,
+                                       mozilla::dom::Document* aDocument,
                                        const char* aCommand,
                                        nsIContentViewer** aDocViewer)
 {

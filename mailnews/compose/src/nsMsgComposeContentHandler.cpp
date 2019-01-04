@@ -14,7 +14,7 @@
 #include "nsCOMPtr.h"
 #include "nsPIDOMWindow.h"
 #include "mozIDOMWindow.h"
-#include "nsIDocument.h"
+#include "mozilla/dom/Document.h"
 #include "nsIInterfaceRequestor.h"
 #include "nsIInterfaceRequestorUtils.h"
 #include "nsIMsgMailNewsUrl.h"

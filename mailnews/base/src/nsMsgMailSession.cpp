@@ -14,7 +14,7 @@
 #include "nsAppDirectoryServiceDefs.h"
 #include "nsPIDOMWindow.h"
 #include "nsIDocShell.h"
-#include "nsIDocument.h"
+#include "mozilla/dom/Document.h"
 #include "nsIObserverService.h"
 #include "nsIAppStartup.h"
 #include "nsToolkitCompsCID.h"
@@ -285,7 +285,7 @@ nsresult nsMsgMailSession::GetTopmostMsgWindow(nsIMsgWindow **aMsgWindow)
       NS_ENSURE_SUCCESS(rv, rv);
       NS_ENSURE_TRUE(topMostWindow, NS_ERROR_FAILURE);
 
-      nsIDocument* domDocument = topMostWindow->GetDoc();
+      mozilla::dom::Document* domDocument = topMostWindow->GetDoc();
       NS_ENSURE_TRUE(domDocument, NS_ERROR_FAILURE);
 
       Element* domElement = domDocument->GetDocumentElement();

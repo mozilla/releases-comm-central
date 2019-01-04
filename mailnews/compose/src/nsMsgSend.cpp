@@ -29,7 +29,7 @@
 #include "nsMsgPrompts.h"
 #include "nsCExternalHandlerService.h"
 #include "nsIMIMEService.h"
-#include "nsIDocument.h"
+#include "mozilla/dom/Document.h"
 #include "nsMsgCompCID.h"
 #include "nsIAbAddressCollector.h"
 #include "nsAbBaseCID.h"
@@ -1414,7 +1414,7 @@ nsMsgComposeAndSend::GetMultipartRelatedCount(bool forceToBeCalculated /*=false*
   mMultipartRelatedAttachmentCount = 0;
   if (mEditor)
   {
-    nsCOMPtr<nsIDocument> document;
+    nsCOMPtr<mozilla::dom::Document> document;
     mEditor->GetDocument(getter_AddRefs(document));
     if (!document)
       return 0;

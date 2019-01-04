@@ -21,7 +21,7 @@
 #include "nsIMsgWindow.h"
 #include "nsIDocShell.h"
 #include "nsPIDOMWindow.h"
-#include "nsIDocument.h"
+#include "mozilla/dom/Document.h"
 #include "nsIXULWindow.h"
 #include "nsIWindowMediator.h"
 #include "nsIDocShellTreeItem.h"
@@ -325,7 +325,7 @@ nsMsgComposeService::GetOrigWindowSelection(MSG_ComposeType type, nsIMsgWindow *
   rv = docShell->GetContentViewer(getter_AddRefs(contentViewer));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIDocument> domDocument(contentViewer->GetDocument());
+  nsCOMPtr<mozilla::dom::Document> domDocument(contentViewer->GetDocument());
 
   nsCOMPtr<nsIDocumentEncoder> docEncoder = do_createHTMLCopyEncoder();
 

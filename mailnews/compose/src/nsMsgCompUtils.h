@@ -36,7 +36,7 @@ private:
   virtual ~nsMsgCompUtils();
 };
 
-already_AddRefed<nsIArray> GetEmbeddedObjects(nsIDocument* aDocument);
+already_AddRefed<nsIArray> GetEmbeddedObjects(mozilla::dom::Document* aDocument);
 
 PR_BEGIN_EXTERN_C
 

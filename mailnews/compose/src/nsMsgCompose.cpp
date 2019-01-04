@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsMsgCompose.h"
-#include "nsIDocument.h"
+#include "mozilla/dom/Document.h"
 #include "nsPIDOMWindow.h"
 #include "mozIDOMWindow.h"
 #include "nsISelectionController.h"
@@ -302,7 +302,7 @@ nsresult nsMsgCompose::ResetUrisForEmbeddedObjects()
   if (!m_editor)
     return NS_ERROR_FAILURE;
 
-  nsCOMPtr<nsIDocument> document;
+  nsCOMPtr<Document> document;
   m_editor->GetDocument(getter_AddRefs(document));
   if (!document)
     return NS_ERROR_FAILURE;
@@ -446,7 +446,7 @@ nsresult nsMsgCompose::TagEmbeddedObjects(nsIEditor *aEditor)
   if (!aEditor)
     return NS_ERROR_FAILURE;
 
-  nsCOMPtr<nsIDocument> document;
+  nsCOMPtr<Document> document;
   aEditor->GetDocument(getter_AddRefs(document));
   if (!document)
     return NS_ERROR_FAILURE;
@@ -530,7 +530,7 @@ nsMsgCompose::InsertDivWrappedTextAtSelection(const nsAString &aText,
   NS_ENSURE_SUCCESS_VOID(rv);
 
   // We need the document
-  nsCOMPtr<nsIDocument> doc;
+  nsCOMPtr<Document> doc;
   rv = m_editor->GetDocument(getter_AddRefs(doc));
   NS_ENSURE_SUCCESS_VOID(rv);
 
@@ -5626,7 +5626,7 @@ nsMsgCompose::BodyConvertible(int32_t *_retval)
     NS_ENSURE_ARG_POINTER(_retval);
     NS_ENSURE_STATE(m_editor);
 
-    nsCOMPtr<nsIDocument> rootDocument;
+    nsCOMPtr<Document> rootDocument;
     nsresult rv = m_editor->GetDocument(getter_AddRefs(rootDocument));
     if (NS_FAILED(rv))
       return rv;

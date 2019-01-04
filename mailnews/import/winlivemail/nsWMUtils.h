@@ -7,7 +7,6 @@
 
 #include <windows.h>
 #include "nsIWindowsRegKey.h"
-class nsIDocument;
 
 class nsWMUtils {
 public:
@@ -16,8 +15,8 @@ public:
   static nsresult GetOEAccountFiles(nsCOMArray<nsIFile> &aFileArray);
   static nsresult GetOEAccountFilesInFolder(nsIFile *aFolder,
                                             nsCOMArray<nsIFile> &aFileArray);
-  static nsresult MakeXMLdoc(nsIDocument **aXmlDoc, nsIFile *aFile);
-  static nsresult GetValueForTag(nsIDocument *aXmlDoc,
+  static nsresult MakeXMLdoc(mozilla::dom::Document **aXmlDoc, nsIFile *aFile);
+  static nsresult GetValueForTag(mozilla::dom::Document *aXmlDoc,
                                  const char *aTagName,
                                  nsAString &aValue);
 };
