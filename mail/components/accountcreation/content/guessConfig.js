@@ -166,8 +166,9 @@ function guessConfig(domain, progressCallback, successCallback, errorCallback,
     server.badCert = thisTry.selfSignedCert;
     server.targetSite = thisTry.targetSite;
     logger.info("CHOOSING " + server.type + " " + server.hostname + ":" +
-          server.port + ", auth method " + server.auth + " " +
-          server.authAlternatives.join(",") + ", SSL " + server.socketType +
+          server.port + ", auth method " + server.auth +
+          (server.authAlternatives.length ? " " + server.authAlternatives.join(",") : "") +
+          ", SSL " + server.socketType +
           (server.badCert ? " (bad cert!)" : ""));
   };
 

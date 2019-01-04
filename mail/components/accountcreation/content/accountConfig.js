@@ -214,6 +214,85 @@ AccountConfig.prototype =
            !!this.outgoing.socketType && !!this.outgoing.auth &&
            !!this.outgoing.username)));
   },
+
+  toString() {
+    function sslToString(socketType) {
+      switch (socketType) {
+        case 0:
+          return "undefined";
+        case 1:
+          return "no SSL";
+        case 2:
+          return "SSL";
+        case 3:
+          return "STARTTLS";
+        default:
+          return "invalid";
+      }
+    }
+    function authToString(authMethod) {
+      switch (authMethod) {
+        case 0:
+          return "undefined";
+        case 1:
+          return "none";
+        case 2:
+          return "old plain";
+        case 3:
+          return "plain";
+        case 4:
+          return "encrypted";
+        case 5:
+          return "Kerberos";
+        case 6:
+          return "NTLM";
+        case 7:
+          return "external/SSL";
+        case 8:
+          return "any secure";
+        case 10:
+          return "OAuth2";
+        default:
+          return "invalid";
+      }
+    }
+    function usernameToString(username) {
+      if (!username) {
+        return "undefined";
+      }
+      var domain = username.split("@")[1];
+      return domain ? "(redacted)@" + domain : "(redacted)";
+    }
+    function passwordToString(password) {
+      return password ? "set" : "not set";
+    }
+    function configToString(config) {
+      return config.type +
+      ", " + config.hostname + ":" + config.port +
+      ", " + sslToString(config.socketType) +
+      ", auth: " + authToString(config.auth) +
+       ", username: "+ usernameToString(config.username) +
+      ", password: "+ passwordToString(config.password);
+    }
+
+    var result =
+      "Incoming: " + configToString(this.incoming) +
+      "\nOutgoing: ";
+    if (this.outgoing.useGlobalPreferredServer) {
+      result += "Use global server";
+    } else if (this.outgoing.existingServerKey) {
+      result += "Use existing server " + this.outgoing.existingServerKey;
+    } else {
+      result += configToString(this.outgoing);
+    }
+    for (var config of this.incomingAlternatives) {
+      result += "\nIncoming alt: " + configToString(config);
+    }
+    for (var config of this.outgoingAlternatives) {
+      result += "\nOutgoing alt: " + configToString(config);
+    }
+    return result;
+  },
 };
 
 

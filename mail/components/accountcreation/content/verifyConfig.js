@@ -37,7 +37,7 @@ if (typeof gEmailWizardLogger == "undefined") {
  *   The ex.message will contain a user-presentable message.
  */
 function verifyConfig(config, alter, msgWindow, successCallback, errorCallback) {
-  ddump(debugObject(config, "config", 3));
+  ddump("verify config:\n" + config);
   assert(config instanceof AccountConfig,
          "BUG: Arg 'config' needs to be an AccountConfig object");
   assert(typeof(alter) == "boolean");
