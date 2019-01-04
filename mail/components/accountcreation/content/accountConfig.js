@@ -196,7 +196,7 @@ AccountConfig.prototype =
    */
   copy() {
     // Workaround: deepCopy() fails to preserve base obj (instanceof)
-    var result = new AccountConfig();
+    let result = new AccountConfig();
     for (let prop in this) {
       result[prop] = deepCopy(this[prop]);
     }
@@ -260,7 +260,7 @@ AccountConfig.prototype =
       if (!username) {
         return "undefined";
       }
-      var domain = username.split("@")[1];
+      let domain = username.split("@")[1];
       return domain ? "(redacted)@" + domain : "(redacted)";
     }
     function passwordToString(password) {
@@ -271,11 +271,11 @@ AccountConfig.prototype =
       ", " + config.hostname + ":" + config.port +
       ", " + sslToString(config.socketType) +
       ", auth: " + authToString(config.auth) +
-       ", username: "+ usernameToString(config.username) +
-      ", password: "+ passwordToString(config.password);
+       ", username: " + usernameToString(config.username) +
+      ", password: " + passwordToString(config.password);
     }
 
-    var result =
+    let result =
       "Incoming: " + configToString(this.incoming) +
       "\nOutgoing: ";
     if (this.outgoing.useGlobalPreferredServer) {
@@ -285,10 +285,10 @@ AccountConfig.prototype =
     } else {
       result += configToString(this.outgoing);
     }
-    for (var config of this.incomingAlternatives) {
+    for (let config of this.incomingAlternatives) {
       result += "\nIncoming alt: " + configToString(config);
     }
-    for (var config of this.outgoingAlternatives) {
+    for (let config of this.outgoingAlternatives) {
       result += "\nOutgoing alt: " + configToString(config);
     }
     return result;

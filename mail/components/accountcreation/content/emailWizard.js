@@ -39,7 +39,6 @@ if (typeof gEmailWizardLogger == "undefined") {
   var gEmailWizardLogger = Log4Moz.getConfiguredLogger("mail.setup");
   gEmailWizardLogger.level = Log4Moz.Level.Info;
   gEmailWizardLogger.addAppender(new Log4Moz.ConsoleAppender(new Log4Moz.BasicFormatter())); // browser console
-  //gEmailWizardLogger.addAppender(new Log4Moz.DumpAppender(new Log4Moz.BasicFormatter())); // stdout
 }
 
 var gStringsBundle;
