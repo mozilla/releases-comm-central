@@ -44,6 +44,7 @@ messenger.jar:
     content/messenger/menulist.xml                  (../../common/bindings/menulist.xml)
     content/messenger/notificationbox.xml           (../../common/bindings/notificationbox.xml)
     content/messenger/numberbox.xml                 (../../common/bindings/numberbox.xml)
+    content/messenger/richlistbox.xml               (../../common/bindings/richlistbox.xml)
     content/messenger/spinbuttons.xml               (../../common/bindings/spinbuttons.xml)
 *   content/messenger/textbox.xml                   (../../common/bindings/textbox.xml)
 *   content/messenger/toolbar.xml                   (../../common/bindings/toolbar.xml)

@@ -215,7 +215,7 @@
     </implementation>
   </binding>
 
-  <binding id="freebusy-timebar" extends="chrome://global/content/bindings/richlistbox.xml#richlistbox">
+  <binding id="freebusy-timebar" extends="chrome://messenger/content/richlistbox.xml#xbl-richlistbox">
     <implementation>
       <field name="mNumDays">0</field>
       <field name="mRange">0</field>
@@ -896,7 +896,7 @@
     </implementation>
   </binding>
 
-  <binding id="freebusy-grid" extends="chrome://global/content/bindings/richlistbox.xml#richlistbox">
+  <binding id="freebusy-grid" extends="chrome://messenger/content/richlistbox.xml#xbl-richlistbox">
     <implementation>
       <field name="mContentHeight">0</field>
       <field name="mRowHeight">0</field>

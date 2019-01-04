@@ -11,7 +11,7 @@
           xmlns:xbl="http://www.mozilla.org/xbl">
 
   <binding id="calendar-subscriptions-richlistbox"
-           extends="chrome://global/content/bindings/richlistbox.xml#richlistbox"
+           extends="chrome://messenger/content/richlistbox.xml#xbl-richlistbox"
            xbl:inherits="flex">
 
     <implementation>

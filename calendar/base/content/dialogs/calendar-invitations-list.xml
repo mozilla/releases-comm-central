@@ -12,7 +12,7 @@
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
           xmlns:xbl="http://www.mozilla.org/xbl">
   <binding id="calendar-invitations-richlistbox"
-           extends="chrome://global/content/bindings/richlistbox.xml#richlistbox"
+           extends="chrome://messenger/content/richlistbox.xml#xbl-richlistbox"
            xbl:inherits="flex">
     <implementation>
       <!-- methods -->

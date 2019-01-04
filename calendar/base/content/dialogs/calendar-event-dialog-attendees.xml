@@ -12,7 +12,7 @@
 <bindings xmlns="http://www.mozilla.org/xbl"
           xmlns:xbl="http://www.mozilla.org/xbl"
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <binding id="attendees-list" extends="chrome://global/content/bindings/richlistbox.xml#richlistbox">
+  <binding id="attendees-list" extends="chrome://messenger/content/richlistbox.xml#xbl-richlistbox">
     <implementation>
       <field name="mMaxAttendees">0</field>
       <field name="mContentHeight">0</field>
