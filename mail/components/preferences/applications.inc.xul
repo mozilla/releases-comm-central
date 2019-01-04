@@ -154,9 +154,9 @@
             </hbox>
             <hbox flex="1">
               <vbox id="provider-listing">
-                <richlistbox id="cloudFileView" orient="vertical" flex="1"
+                <xbl-richlistbox id="cloudFileView" orient="vertical" flex="1"
                              seltype="single">
-                </richlistbox>
+                </xbl-richlistbox>
                 <separator class="thin"/>
                 <hbox>
                   <button id="addCloudFileAccount"
