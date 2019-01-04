@@ -98,7 +98,7 @@ macosx64-nightly/opt:
     run:
         using: mozharness
         comm-checkout: true
-        actions: [build]
+        actions: [disabled, build]
         config-paths:
             - comm/mozharness
         config:
