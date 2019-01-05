@@ -1418,7 +1418,7 @@ EmailConfigWizard.prototype =
     var menulist = e("outgoing_hostname");
     // If the menulist is not editable, there is nothing to update
     // and menulist.inputField does not even exist.
-    if (!menulist.editable)
+    if (menulist.getAttribute("editable") != "true")
       return;
 
     var menuitem = menulist.getItemAtIndex(0);
@@ -1442,16 +1442,20 @@ EmailConfigWizard.prototype =
       this.onChangedManualEdit();
     } else {
       // new server, with hostname, port etc.
-      menulist.setAttribute("editable", "true");
       _show("outgoing_port");
       _show("outgoing_ssl");
       _show("outgoing_authMethod");
 
       // We cannot rely on the editable menulist binding being
       // attached immediately.
-      menulist.addEventListener("bindingattached", () => {
+      if (menulist.getAttribute("editable") != "true") {
+        menulist.setAttribute("editable", "true");
+        menulist.addEventListener("bindingattached", () => {
+          this.onChangedManualEdit();
+        }, { once: true });
+      } else {
         this.onChangedManualEdit();
-      }, { once: true });
+      }
     }
   },
 
