@@ -792,6 +792,8 @@
 <!ENTITY contextMoveMsgMenu.accesskey "M">
 <!ENTITY contextMoveCopyMsgRecentMenu.label "Recent">
 <!ENTITY contextMoveCopyMsgRecentMenu.accesskey "R">
+<!ENTITY contextMoveCopyMsgFavoritesMenu.label "Favorites">
+<!ENTITY contextMoveCopyMsgFavoritesMenu.accesskey "F">
 <!ENTITY contextCopyMsgMenu.label "Copy To">
 <!ENTITY contextCopyMsgMenu.accesskey "C">
 <!ENTITY contextKillThreadMenu.label "Ignore Thread">

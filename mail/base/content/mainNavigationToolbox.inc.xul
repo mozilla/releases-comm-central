@@ -571,7 +571,10 @@
                        showFileHereLabel="true"
                        showRecent="true"
                        recentLabel="&contextMoveCopyMsgRecentMenu.label;"
-                       recentAccessKey="&contextMoveCopyMsgRecentMenu.accesskey;"/>
+                       recentAccessKey="&contextMoveCopyMsgRecentMenu.accesskey;"
+                       showFavorites="true"
+                       favoritesLabel="&contextMoveCopyMsgFavoritesMenu.label;"
+                       favoritesAccessKey="&contextMoveCopyMsgFavoritesMenu.accesskey;"/>
           </menu>
           <menuseparator id="goFolderSeparator"/>
 
@@ -763,7 +766,10 @@
                          showFileHereLabel="true"
                          showRecent="true"
                          recentLabel="&moveCopyMsgRecentMenu.label;"
-                         recentAccessKey="&moveCopyMsgRecentMenu.accesskey;"/>
+                         recentAccessKey="&moveCopyMsgRecentMenu.accesskey;"
+                         showFavorites="true"
+                         favoritesLabel="&contextMoveCopyMsgFavoritesMenu.label;"
+                         favoritesAccessKey="&contextMoveCopyMsgFavoritesMenu.accesskey;"/>
             </menu>
             <menu id="copyMenu"
                   label="&copyMsgToMenu.label;"
@@ -773,7 +779,10 @@
                          showFileHereLabel="true"
                          showRecent="true"
                          recentLabel="&moveCopyMsgRecentMenu.label;"
-                         recentAccessKey="&moveCopyMsgRecentMenu.accesskey;"/>
+                         recentAccessKey="&moveCopyMsgRecentMenu.accesskey;"
+                         showFavorites="true"
+                         favoritesLabel="&contextMoveCopyMsgFavoritesMenu.label;"
+                         favoritesAccessKey="&contextMoveCopyMsgFavoritesMenu.accesskey;"/>
             </menu>
             <menuitem id="moveToFolderAgain" key="key_moveToFolderAgain" command="cmd_moveToFolderAgain"
                       label="&moveToFolderAgain.label;" accesskey="&moveToFolderAgain.accesskey;"/>

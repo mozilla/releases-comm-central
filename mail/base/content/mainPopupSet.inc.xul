@@ -999,7 +999,10 @@
                          mode="filing"
                          showFileHereLabel="true"
                          showRecent="true"
-                         recentLabel="&moveCopyMsgRecentMenu.label;"/>
+                         recentLabel="&moveCopyMsgRecentMenu.label;"
+                         showFavorites="true"
+                         favoritesLabel="&contextMoveCopyMsgFavoritesMenu.label;"
+                         favoritesAccessKey="&contextMoveCopyMsgFavoritesMenu.accesskey;"/>
             </menu>
             <menu id="appmenu_copyMenu"
                   label="&copyMsgToMenu.label;"
@@ -1008,7 +1011,10 @@
                          mode="filing"
                          showFileHereLabel="true"
                          showRecent="true"
-                         recentLabel="&moveCopyMsgRecentMenu.label;"/>
+                         recentLabel="&moveCopyMsgRecentMenu.label;"
+                         showFavorites="true"
+                         favoritesLabel="&contextMoveCopyMsgFavoritesMenu.label;"
+                         favoritesAccessKey="&contextMoveCopyMsgFavoritesMenu.accesskey;"/>
             </menu>
             <menuitem id="appmenu_moveToFolderAgain"
                       command="cmd_moveToFolderAgain"
@@ -1468,7 +1474,10 @@
                  showFileHereLabel="true"
                  showRecent="true"
                  recentLabel="&contextMoveCopyMsgRecentMenu.label;"
-                 recentAccessKey="&contextMoveCopyMsgRecentMenu.accesskey;"/>
+                 recentAccessKey="&contextMoveCopyMsgRecentMenu.accesskey;"
+                 showFavorites="true"
+                 favoritesLabel="&contextMoveCopyMsgFavoritesMenu.label;"
+                 favoritesAccessKey="&contextMoveCopyMsgFavoritesMenu.accesskey;"/>
     </menu>
     <menu id="mailContext-copyMenu"
           label="&contextCopyMsgMenu.label;"
@@ -1480,7 +1489,10 @@
                  showFileHereLabel="true"
                  showRecent="true"
                  recentLabel="&contextMoveCopyMsgRecentMenu.label;"
-                 recentAccessKey="&contextMoveCopyMsgRecentMenu.accesskey;"/>
+                 recentAccessKey="&contextMoveCopyMsgRecentMenu.accesskey;"
+                 showFavorites="true"
+                 favoritesLabel="&contextMoveCopyMsgFavoritesMenu.label;"
+                 favoritesAccessKey="&contextMoveCopyMsgFavoritesMenu.accesskey;"/>
     </menu>
     <menuitem id="mailContext-moveToFolderAgain"
               command="cmd_moveToFolderAgain"
