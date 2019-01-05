@@ -223,13 +223,14 @@ NS_IMPL_ISUPPORTS_INHERITED(nsSmtpProtocol, nsMsgAsyncWriteProtocol,
 
 nsSmtpProtocol::nsSmtpProtocol(nsIURI * aURL)
     : nsMsgAsyncWriteProtocol(aURL)
+    , m_dataBuf(nullptr)
 {
 }
 
 nsSmtpProtocol::~nsSmtpProtocol()
 {
   // free our local state
-  PR_Free(m_dataBuf);
+  PR_FREEIF(m_dataBuf);
 }
 
 nsresult nsSmtpProtocol::Initialize(nsIURI * aURL)
