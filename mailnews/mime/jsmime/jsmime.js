@@ -636,7 +636,7 @@ function decodeRFC2047Words(headerValue) {
     if (encoding == 'B' || encoding == 'b') {
       // Decode base64. If there's any non-base64 data, treat the string as
       // an illegal token.
-      if (/[^A-Za-z0-9+\/=]/.exec(text))
+      if (/[^ A-Za-z0-9+\/=]/.exec(text))
         return false;
 
       // Decode the string

@@ -625,13 +625,10 @@ suite('headerparser', function () {
         "\u2208  \u2209  \u220a  \u220b  \u220c  \u220d  \u220e  \u220f"],
 
       // Some interesting headers found in the wild:
-      // Invalid base64 text. We decide not to decode this word.
-      ["Re: [Kitchen Nightmares] Meow! Gordon Ramsay Is =?ISO-8859-1?B?UEgR l" +
-        "qZ VuIEhlYWQgVH rbGeOIFNob BJc RP2JzZXNzZW?= With My =?ISO-8859-1?B?" +
-        "SHVzYmFuZ JzX0JhbGxzL JfU2F5c19BbXiScw==?= Baking Company Owner",
-        "Re: [Kitchen Nightmares] Meow! Gordon Ramsay Is =?ISO-8859-1?B?UEgR " +
-        "lqZ VuIEhlYWQgVH rbGeOIFNob BJc RP2JzZXNzZW?= With My =?ISO-8859-1?B" +
-        "?SHVzYmFuZ JzX0JhbGxzL JfU2F5c19BbXiScw==?= Baking Company Owner"],
+      // Bug 1498795: Tolerate spaces in base64-encoded RFC 2047 tokens.
+      ["=?UTF-8?B?Q29uc2lndW Ug dG9kbyBlbCBmw7p0Ym9sIA==?= =?iso-8859-1?" +
+       "B?Y2 9uI EZVU0nTTiBjb24g?= =?windows-1252?B?ZX N 0ZSBvZmVydPNu?=",
+        "Consigue todo el f\u00fatbol con FUSI\u00d3N con este ofert\u00f3n"],
       ["=?us-ascii?Q?=09Edward_Rosten?=", "\tEdward Rosten"],
       ["=?us-ascii?Q?=3D=3FUTF-8=3FQ=3Ff=3DC3=3DBCr=3F=3D?=",
         "=?UTF-8?Q?f=C3=BCr?="],
