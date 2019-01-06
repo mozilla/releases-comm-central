@@ -79,7 +79,11 @@
   <menuitem id="copyEmailAddressItem"
             label="&CopyEmailAddress.label;"
             accesskey="&CopyEmailAddress.accesskey;"
-            oncommand="CopyEmailAddress(document.popupNode)"/>
+            oncommand="CopyEmailAddress(document.popupNode);"/>
+  <menuitem id="copyNameAndEmailAddressItem"
+            label="&CopyNameAndEmailAddress.label;"
+            accesskey="&CopyNameAndEmailAddress.accesskey;"
+            oncommand="CopyEmailAddress(document.popupNode, true);"/>
 </menupopup>
 
 <menupopup id="attachmentListContext" onpopupshowing="return onShowAttachmentContextMenu();">

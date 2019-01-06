@@ -479,12 +479,22 @@ function SendMailTo(fullAddress, aEvent)
   MailServices.compose.OpenComposeWindowWithParams(null, params);
 }
 
-// CopyEmailAddress takes the email address title button, extracts
-// the email address we stored in there and copies it to the clipboard
-function CopyEmailAddress(emailAddressNode)
+/**
+ * Takes the email address, extracts the address/name
+ * we stored in there and copies it to the clipboard.
+ *
+ * @param addressNode  a node which has an "emailAddress"
+ *                     attribute
+ * @param aIncludeName when true, also copy the name onto the clipboard,
+ *                     otherwise only the email address
+ */
+function CopyEmailAddress(emailAddressNode, aIncludeName = false)
 {
-  if (emailAddressNode)
-    CopyString(emailAddressNode.getAttribute("emailAddress"));
+  if (emailAddressNode) {
+    let address = emailAddressNode.getAttribute(aIncludeName ? "fullAddress"
+                                                             : "emailAddress");
+    CopyString(address);
+  }
 }
 
 // show the message id in the context menu
