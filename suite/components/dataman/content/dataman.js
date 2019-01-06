@@ -1437,8 +1437,8 @@ var gPerms = {
       this.addType.removeAllItems(); // Make sure list is clean.
       let permTypes = ["allowXULXBL", "cookie", "geo", "image", "indexedDB",
                        "install", "login-saving", "object", "offline-app",
-                       "plugins", "popup", "script", "sts/use", "sts/subd",
-                       "stylesheet", "trackingprotection"];
+                       "plugins", "popup", "script", "stylesheet",
+                       "trackingprotection"];
 
       // Look for a translation.
       for (let permType of permTypes) {
