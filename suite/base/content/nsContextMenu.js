@@ -967,7 +967,8 @@ nsContextMenu.prototype = {
     saveImageURL(canvas.toDataURL("image/jpeg", ""), name, "SaveImageTitle",
                                   true, true,
                                   this.target.ownerDocument.documentURIObject,
-                                  null, null, null, (gPrivate ? true : false));
+                                  null, null, null, (gPrivate ? true : false),
+                                  this.target.ownerDocument.nodePrincipal);
   },
 
   // Full screen video playback
@@ -1143,12 +1144,14 @@ nsContextMenu.prototype = {
       // Bypass cache, since it's a data: URL.
       saveImageURL(this.target.toDataURL(), "canvas.png", "SaveImageTitle",
                    true, false, referrerURI, null, null, null,
-                   (gPrivate ? true : false));
+                   (gPrivate ? true : false),
+                   doc.nodePrincipal /* system, because blob: */);
     else if (this.onImage) {
       saveImageURL(this.mediaURL, null, "SaveImageTitle", false,
                    false, referrerURI, null, gContextMenuContentData.contentType,
                    gContextMenuContentData.contentDisposition,
-                   (gPrivate ? true : false));
+                   (gPrivate ? true : false),
+                   doc.nodePrincipal);
     }
     else if (this.onVideo || this.onAudio) {
       var dialogTitle = this.onVideo ? "SaveVideoTitle" : "SaveAudioTitle";

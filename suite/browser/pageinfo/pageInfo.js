@@ -916,7 +916,8 @@ function saveMedia()
         titleKey = "SaveAudioTitle";
 
       saveURL(url, null, titleKey, false, false, makeURI(item.baseURI),
-              null, (opener.gPrivate ? true : false));
+              null, (opener.gPrivate ? true : false),
+              gDocument.nodePrincipal);
     }
   } else {
     selectSaveFolder(function(aDirectory) {
@@ -925,7 +926,8 @@ function saveMedia()
           uniqueFile(aChosenData.file);
           internalSave(aURIString, null, null, null, null, false,
                        "SaveImageTitle", aChosenData, aBaseURI, null, false,
-                       null, (opener.gPrivate ? true : false));
+                       null, (opener.gPrivate ? true : false),
+                       gDocument.nodePrincipal);
         };
 
         for (var i = 0; i < rowArray.length; i++) {
