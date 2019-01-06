@@ -1128,15 +1128,14 @@
        <body>
        <![CDATA[
          var nicklist = document.getElementById("nicklist");
-         var nick = aListItem.getAttribute("label").toLowerCase();
+         var nick = aListItem.querySelector("label").value.toLowerCase();
 
          // Look for the place of the nick in the list
          var start = 0;
          var end = nicklist.itemCount;
          while (start < end) {
            var middle = start + Math.floor((end - start) / 2);
-           if (nick < nicklist.getItemAtIndex(middle)
-                              .getAttribute("label").toLowerCase())
+           if (nick < nicklist.getItemAtIndex(middle).label.toLowerCase())
              end = middle;
            else
              start = middle + 1;
@@ -1190,7 +1189,7 @@
          item.chatBuddy = aBuddy;
          this.buddies.delete(aOldName);
          this.buddies.set(name, item);
-         item.setAttribute("label", name);
+         item.querySelector("label").value = name;
 
          // Move this item to the right position if its name changed
          item.remove();
