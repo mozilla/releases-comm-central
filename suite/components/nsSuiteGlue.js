@@ -393,7 +393,7 @@ SuiteGlue.prototype = {
 
   _migrateUI: function()
   {
-    const UI_VERSION = 5;
+    const UI_VERSION = 6;
 
     // If the pref is not set this is a new or pre SeaMonkey 2.49 profile.
     // We can't tell so we just run migration with version 0.
@@ -468,7 +468,7 @@ SuiteGlue.prototype = {
       } catch (ex) {}
     }
 
-    // Pretend currentUIVersion 3 never happend (used in 2.57 for a time and became 5).
+    // Pretend currentUIVersion 3 never happend (used in 2.57 for a time and became 6).
 
     // Remove obsolete download preferences set by user.
     if (currentUIVersion < 4) {
@@ -497,14 +497,25 @@ SuiteGlue.prototype = {
       } catch (ex) {}
     }
 
-    // The XUL directory viewer is no longer provided.
-    if (currentUIVersion < 5) {
+    if (currentUIVersion < 6) {
+      // Delete obsolete ssl and strict transport security permissions.
+      let perms = Services.perms.enumerator;
+      while (perms.hasMoreElements()) {
+        let perm = perms.getNext();
+        if (perm.type == "falsestart-rc4" ||
+            perm.type == "falsestart-rsa" ||
+            perm.type == "sts/use" ||
+            perm.type == "sts/subd") {
+          Services.perms.removePermission(perm);
+        }
+      }
+
+      // The XUL directory viewer is no longer provided.
       try {
         if (Services.prefs.getIntPref("network.dir.format") == 3) {
           Services.prefs.setIntPref("network.dir.format", 2);
         }
       } catch (ex) {}
-
     }
 
     // Update the migration version.
