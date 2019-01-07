@@ -58,7 +58,7 @@ add_task(async function test_update() {
     }
 
     async function checkCurrent(expected) {
-      let current = await browser.mailTabs.getCurrent();
+      let [current] = await browser.mailTabs.query({ active: true, currentWindow: true });
       assertDeepEqual(expected, current);
     }
 
@@ -80,7 +80,7 @@ add_task(async function test_update() {
     await awaitMessage("checkRealLayout", state);
 
     browser.mailTabs.update({ displayedFolder: folders[0] });
-    state.sortType = "byDate";
+    state.sortType = "date";
     state.sortOrder = "ascending";
     state.folderPaneVisible = true;
     state.messagePaneVisible = true;
@@ -90,13 +90,13 @@ add_task(async function test_update() {
     await awaitMessage("checkRealSort", state);
 
     state.sortOrder = "descending";
-    for (let value of ["byDate", "bySubject", "byAuthor"]) {
+    for (let value of ["date", "subject", "author"]) {
       await browser.mailTabs.update({ sortType: value, sortOrder: "descending" });
       state.sortType = value;
       await awaitMessage("checkRealSort", state);
     }
     state.sortOrder = "ascending";
-    for (let value of ["byAuthor", "bySubject", "byDate"]) {
+    for (let value of ["author", "subject", "date"]) {
       await browser.mailTabs.update({ sortType: value, sortOrder: "ascending" });
       state.sortType = value;
       await awaitMessage("checkRealSort", state);
@@ -125,7 +125,7 @@ add_task(async function test_update() {
 
   let extension = ExtensionTestUtils.loadExtension({
     background,
-    manifest: { permissions: ["accountsRead", "mailTabs", "messagesRead"] },
+    manifest: { permissions: ["accountsRead", "messagesRead"] },
   });
 
   extension.onMessage("checkRealLayout", (expected) => {
@@ -142,6 +142,7 @@ add_task(async function test_update() {
 
   extension.onMessage("checkRealSort", (expected) => {
     for (let [columnId, sortType] of window.gFolderDisplay.COLUMNS_MAP) {
+      sortType = sortType[2].toLowerCase() + sortType.substring(3);
       if (sortType == expected.sortType) {
         let column = document.getElementById(columnId);
         is(column.getAttribute("sortDirection"), expected.sortOrder);
@@ -173,7 +174,7 @@ add_task(async function test_events() {
 
     let [accountId] = await awaitMessage();
 
-    let current = await browser.mailTabs.getCurrent();
+    let [current] = await browser.mailTabs.query({ active: true, currentWindow: true });
     browser.test.assertEq(accountId, current.displayedFolder.accountId);
     browser.test.assertEq("/", current.displayedFolder.path);
 
@@ -240,7 +241,7 @@ add_task(async function test_events() {
 
   let extension = ExtensionTestUtils.loadExtension({
     background,
-    manifest: { permissions: ["accountsRead", "mailTabs", "messagesRead"] },
+    manifest: { permissions: ["accountsRead", "messagesRead"] },
   });
 
   extension.onMessage("selectFolder", (newFolderPath) => {
@@ -277,8 +278,8 @@ add_task(async function test_background_tab() {
     let [accountId] = await awaitMessage();
     let { folders } = await browser.accounts.get(accountId);
     let allTabs = await browser.tabs.query({});
-    let queryTabs = await browser.tabs.query({ isMail3Pane: true });
-    let allMailTabs = await browser.mailTabs.getAll();
+    let queryTabs = await browser.tabs.query({ mailTab: true });
+    let allMailTabs = await browser.mailTabs.query({});
 
     browser.test.assertEq(4, allTabs.length);
     browser.test.assertEq(2, queryTabs.length);
@@ -311,7 +312,7 @@ add_task(async function test_background_tab() {
       displayedFolder: "/Trash",
     });
 
-    allMailTabs = await browser.mailTabs.getAll();
+    allMailTabs = await browser.mailTabs.query({});
     browser.test.assertEq(2, allMailTabs.length);
 
     browser.test.assertEq(accountId, allMailTabs[0].displayedFolder.accountId);
@@ -356,7 +357,7 @@ add_task(async function test_background_tab() {
 
   let extension = ExtensionTestUtils.loadExtension({
     background,
-    manifest: { permissions: ["accountsRead", "mailTabs", "tabs"] },
+    manifest: { permissions: ["accountsRead"] },
   });
 
   extension.onMessage("checkRealLayout", async (expected) => {

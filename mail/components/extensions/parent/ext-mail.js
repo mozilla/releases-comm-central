@@ -515,20 +515,20 @@ class Tab extends TabBase {
   }
 
   /** Returns true if this tab is a 3-pane tab. */
-  get isMail3Pane() {
+  get mailTab() {
     return this.nativeTab.mode.type == "folder";
   }
 
   /** Overrides the matches function to enable querying for 3-pane tabs. */
   matches(queryInfo, context) {
     let result = super.matches(queryInfo, context);
-    return result && (!queryInfo.isMail3Pane || this.isMail3Pane);
+    return result && (!queryInfo.mailTab || this.mailTab);
   }
 
-  /** Adds the isMail3Pane property and removes some useless properties from a tab object. */
+  /** Adds the mailTab property and removes some useless properties from a tab object. */
   convert(fallback) {
     let result = super.convert(fallback);
-    result.isMail3Pane = this.isMail3Pane;
+    result.mailTab = this.mailTab;
 
     // These properties are not useful to Thunderbird extensions and are not returned.
     for (let key of [

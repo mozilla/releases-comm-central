@@ -60,7 +60,6 @@ add_task(async () => {
 
   let extension = ExtensionTestUtils.loadExtension({
     background,
-    manifest: { permissions: ["mailTabs"] },
   });
 
   extension.onMessage("checkVisible", async (...expected) => {

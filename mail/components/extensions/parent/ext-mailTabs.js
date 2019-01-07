@@ -10,7 +10,11 @@ ChromeUtils.defineModuleGetter(this, "QuickFilterManager",
 const LAYOUTS = ["standard", "wide", "vertical"];
 // From nsIMsgDBView.idl
 const SORT_TYPE_MAP = new Map(
-  Object.keys(Ci.nsMsgViewSortType).map(key => [Ci.nsMsgViewSortType[key], key])
+  Object.keys(Ci.nsMsgViewSortType).map(key => {
+    // Change "byFoo" to "foo".
+    let shortKey = key[2].toLowerCase() + key.substring(3);
+    return [Ci.nsMsgViewSortType[key], shortKey];
+  })
 );
 const SORT_ORDER_MAP = new Map(
   Object.keys(Ci.nsMsgViewSortOrder).map(key => [Ci.nsMsgViewSortOrder[key], key])
@@ -137,7 +141,7 @@ this.mailTabs = class extends ExtensionAPI {
         tabId = tab.id;
       }
 
-      if (tab && tab.isMail3Pane) {
+      if (tab && tab.mailTab) {
         return tab;
       }
       throw new ExtensionError(`Invalid mail tab ID: ${tabId}`);
@@ -145,25 +149,19 @@ this.mailTabs = class extends ExtensionAPI {
 
     return {
       mailTabs: {
-        async getAll() {
+        async query({ active, currentWindow, lastFocusedWindow, windowId }) {
           return Array.from(tabManager.query({
-            // All of these are needed for tabManager to return every tab we want.
-            "currentWindow": null,
-            "index": null,
-            "isMail3Pane": true,
-            "lastFocusedWindow": null,
-            "screen": null,
-            "windowId": null,
-            "windowType": null,
-          }, context), (tab) => convertMailTab(tab, context));
-        },
+            active,
+            currentWindow,
+            lastFocusedWindow,
+            mailTab: true,
+            windowId,
 
-        async getCurrent() {
-          let tab = tabManager.wrapTab(tabTracker.activeTab);
-          if (!tab || !tab.isMail3Pane) {
-            return null;
-          }
-          return convertMailTab(tab, context);
+            // All of these are needed for tabManager to return every tab we want.
+            index: null,
+            screen: null,
+            windowType: null,
+          }, context), (tab) => convertMailTab(tab, context));
         },
 
         async update(tabId, args) {
@@ -197,10 +195,14 @@ this.mailTabs = class extends ExtensionAPI {
             }
           }
 
-          if (sortType && sortType in Ci.nsMsgViewSortType &&
-              sortOrder && sortOrder in Ci.nsMsgViewSortOrder) {
-            tab.nativeTab.folderDisplay.view.sort(Ci.nsMsgViewSortType[sortType],
-                                                  Ci.nsMsgViewSortOrder[sortOrder]);
+          if (sortType) {
+            // Change "foo" to "byFoo".
+            sortType = "by" + sortType[0].toUpperCase() + sortType.substring(1);
+            if (sortType in Ci.nsMsgViewSortType &&
+                sortOrder && sortOrder in Ci.nsMsgViewSortOrder) {
+              tab.nativeTab.folderDisplay.view.sort(Ci.nsMsgViewSortType[sortType],
+                                                    Ci.nsMsgViewSortOrder[sortOrder]);
+            }
           }
 
           // Layout applies to all folder tabs.

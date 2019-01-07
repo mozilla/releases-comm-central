@@ -1,25 +1,6 @@
 [
   {
-    "namespace": "manifest",
-    "types": [
-      {
-        "$extend": "OptionalPermission",
-        "choices": [
-          {
-            "type": "string",
-            "enum": [
-              "mailTabs"
-            ]
-          }
-        ]
-      }
-    ]
-  },
-  {
     "namespace": "mailTabs",
-    "permissions": [
-      "mailTabs"
-    ],
     "types": [
       {
         "id": "QuickFilterTagsDetail",
@@ -77,18 +58,39 @@
     ],
     "functions": [
       {
-        "name": "getAll",
+        "name": "query",
         "type": "function",
-        "description": "Returns an array of all mail tabs in all windows.",
+        "description": "Gets all mail tabs that have the specified properties, or all tabs if no properties are specified.",
         "async": true,
-        "parameters": []
-      },
-      {
-        "name": "getCurrent",
-        "type": "function",
-        "description": "Returns the current mail tab in the most recent window, or throws an exception if the current tab is not a mail tab.",
-        "async": true,
-        "parameters": []
+        "parameters": [
+          {
+            "type": "object",
+            "name": "queryInfo",
+            "properties": {
+              "active": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Whether the tabs are active in their windows."
+              },
+              "currentWindow": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Whether the tabs are in the current window."
+              },
+              "lastFocusedWindow": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Whether the tabs are in the last focused window."
+              },
+              "windowId": {
+                "type": "integer",
+                "optional": true,
+                "minimum": -2,
+                "description": "The ID of the parent window, or $(ref:windows.WINDOW_ID_CURRENT) for the $(topic:current-window)[current window]."
+              }
+            }
+          }
+        ]
       },
       {
         "name": "update",
@@ -99,7 +101,7 @@
           {
             "name": "tabId",
             "type": "integer",
-            "description": "Defaults to the selected tab of the current window.",
+            "description": "Defaults to the active tab of the current window.",
             "optional": true,
             "minimum": 1
           },
@@ -129,26 +131,26 @@
                 "description": "Sorts the list of messages. <var>sortOrder</var> must also be given.",
                 "optional": true,
                 "enum": [
-                  "byNone",
-                  "byDate",
-                  "bySubject",
-                  "byAuthor",
-                  "byId",
-                  "byThread",
-                  "byPriority",
-                  "byStatus",
-                  "bySize",
-                  "byFlagged",
-                  "byUnread",
-                  "byRecipient",
-                  "byLocation",
-                  "byTags",
-                  "byJunkStatus",
-                  "byAttachments",
-                  "byAccount",
-                  "byCustom",
-                  "byReceived",
-                  "byCorrespondent"
+                  "none",
+                  "date",
+                  "subject",
+                  "author",
+                  "id",
+                  "thread",
+                  "priority",
+                  "status",
+                  "size",
+                  "flagged",
+                  "unread",
+                  "recipient",
+                  "location",
+                  "tags",
+                  "junkStatus",
+                  "attachments",
+                  "account",
+                  "custom",
+                  "received",
+                  "correspondent"
                 ]
               },
               "sortOrder": {
@@ -194,7 +196,7 @@
           {
             "name": "tabId",
             "type": "integer",
-            "description": "Defaults to the selected tab of the current window.",
+            "description": "Defaults to the active tab of the current window.",
             "optional": true,
             "minimum": 1
           }
@@ -209,7 +211,7 @@
           {
             "name": "tabId",
             "type": "integer",
-            "description": "Defaults to the selected tab of the current window.",
+            "description": "Defaults to the active tab of the current window.",
             "optional": true,
             "minimum": 1
           },

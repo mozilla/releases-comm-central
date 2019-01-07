@@ -116,7 +116,7 @@ add_task(async function test_thread_pane() {
 });
 
 add_task(async function test_tab() {
-  async function checkTabEvent(index, active, isMail3Pane) {
+  async function checkTabEvent(index, active, mailTab) {
     EventUtils.synthesizeMouseAtCenter(tabs[index], {type: "contextmenu"}, window);
 
     await BrowserTestUtils.waitForEvent(menu, "popupshown");
@@ -129,7 +129,7 @@ add_task(async function test_tab() {
     ok(!event.selectedMessages);
     is(tab.active, active);
     is(tab.index, index);
-    is(tab.isMail3Pane, isMail3Pane);
+    is(tab.mailTab, mailTab);
   }
 
   let extension = createExtension();

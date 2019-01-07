@@ -39,7 +39,7 @@
           "status": {"type": "string", "optional": true, "description": "Either <em>loading</em> or <em>complete</em>."},
           "width": {"type": "integer", "optional": true, "description": "The width of the tab in pixels."},
           "height": {"type": "integer", "optional": true, "description": "The height of the tab in pixels."},
-          "isMail3Pane": {"type": "boolean", "optional": true, "description": "Whether the tab is a 3-pane tab."}
+          "mailTab": {"type": "boolean", "optional": true, "description": "Whether the tab is a 3-pane tab."}
         }
       },
       {
@@ -227,7 +227,7 @@
             "type": "object",
             "name": "queryInfo",
             "properties": {
-              "isMail3Pane": {
+              "mailTab": {
                 "type": "boolean",
                 "optional": true,
                 "description": "Whether the tab is a Thunderbird 3-pane tab."
