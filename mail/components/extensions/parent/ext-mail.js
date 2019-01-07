@@ -1079,10 +1079,3 @@ function convertMessage(msgHdr) {
     recipients: msgHdr.mime2DecodedRecipients,
   };
 }
-
-Object.assign(global, {
-  convertFolder,
-  convertMessage,
-  folderPathToURI,
-  folderURIToPath,
-});

@@ -26,7 +26,7 @@ const hiddenProperties = [
  * @implements {nsIAbListener}
  * @implements {nsIObserver}
  */
-var cache = new class extends EventEmitter {
+var addressBookCache = new class extends EventEmitter {
   constructor() {
     super();
     this.listenerCount = 0;
@@ -54,7 +54,7 @@ var cache = new class extends EventEmitter {
           this.contacts = [...directory.childCards]
             .filter(c => !c.isMailList);
         }
-        this.contacts = this.contacts.map(c => cache._makeContactNode(c, directory));
+        this.contacts = this.contacts.map(c => addressBookCache._makeContactNode(c, directory));
         return this.contacts;
       },
       get mailingLists() {
@@ -64,7 +64,7 @@ var cache = new class extends EventEmitter {
         }
         this.mailingLists = [];
         for (let al of directory.addressLists.enumerate()) {
-          this.mailingLists.push(cache._makeDirectoryNode(al, directory));
+          this.mailingLists.push(addressBookCache._makeDirectoryNode(al, directory));
         }
         return this.mailingLists;
       },
@@ -299,10 +299,10 @@ this.addressBook = class extends ExtensionAPI {
         },
 
         list(complete = false) {
-          return cache.convert(cache.tree, complete);
+          return addressBookCache.convert(addressBookCache.tree, complete);
         },
         get(id, complete = false) {
-          return cache.convert(cache.findAddressBookById(id), complete);
+          return addressBookCache.convert(addressBookCache.findAddressBookById(id), complete);
         },
         create({ name }) {
           let dirName = MailServices.ab.newAddressBook(name, "", kPABDirectory);
@@ -310,11 +310,11 @@ this.addressBook = class extends ExtensionAPI {
           return directory.UID;
         },
         update(id, { name }) {
-          let node = cache.findAddressBookById(id);
+          let node = addressBookCache.findAddressBookById(id);
           node.item.dirName = name;
         },
         delete(id) {
-          let node = cache.findAddressBookById(id);
+          let node = addressBookCache.findAddressBookById(id);
           MailServices.ab.deleteAddressBook(node.item.URI);
         },
 
@@ -323,14 +323,14 @@ this.addressBook = class extends ExtensionAPI {
           name: "addressBooks.onCreated",
           register: fire => {
             let listener = (event, node) => {
-              fire.sync(cache.convert(node));
+              fire.sync(addressBookCache.convert(node));
             };
 
-            cache.on("address-book-created", listener);
-            cache.incrementListeners();
+            addressBookCache.on("address-book-created", listener);
+            addressBookCache.incrementListeners();
             return () => {
-              cache.off("address-book-created", listener);
-              cache.decrementListeners();
+              addressBookCache.off("address-book-created", listener);
+              addressBookCache.decrementListeners();
             };
           },
         }).api(),
@@ -339,14 +339,14 @@ this.addressBook = class extends ExtensionAPI {
           name: "addressBooks.onUpdated",
           register: fire => {
             let listener = (event, node) => {
-              fire.sync(cache.convert(node));
+              fire.sync(addressBookCache.convert(node));
             };
 
-            cache.on("address-book-updated", listener);
-            cache.incrementListeners();
+            addressBookCache.on("address-book-updated", listener);
+            addressBookCache.incrementListeners();
             return () => {
-              cache.off("address-book-updated", listener);
-              cache.decrementListeners();
+              addressBookCache.off("address-book-updated", listener);
+              addressBookCache.decrementListeners();
             };
           },
         }).api(),
@@ -358,22 +358,22 @@ this.addressBook = class extends ExtensionAPI {
               fire.sync(item.UID);
             };
 
-            cache.on("address-book-deleted", listener);
-            cache.incrementListeners();
+            addressBookCache.on("address-book-deleted", listener);
+            addressBookCache.incrementListeners();
             return () => {
-              cache.off("address-book-deleted", listener);
-              cache.decrementListeners();
+              addressBookCache.off("address-book-deleted", listener);
+              addressBookCache.decrementListeners();
             };
           },
         }).api(),
       },
       contacts: {
         list(parentId) {
-          let parentNode = cache.findAddressBookById(parentId);
-          return cache.convert(parentNode.contacts, false);
+          let parentNode = addressBookCache.findAddressBookById(parentId);
+          return addressBookCache.convert(parentNode.contacts, false);
         },
         get(id) {
-          return cache.convert(cache.findContactById(id), false);
+          return addressBookCache.convert(addressBookCache.findContactById(id), false);
         },
         create(parentId, properties) {
           let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(Ci.nsIAbCard);
@@ -382,13 +382,13 @@ this.addressBook = class extends ExtensionAPI {
               card.setProperty(name, value);
             }
           }
-          let parentNode = cache.findAddressBookById(parentId);
+          let parentNode = addressBookCache.findAddressBookById(parentId);
           let newCard = parentNode.item.addCard(card);
           return newCard.UID;
         },
         update(id, properties) {
-          let node = cache.findContactById(id);
-          let parentNode = cache.findAddressBookById(node.parentId);
+          let node = addressBookCache.findContactById(id);
+          let parentNode = addressBookCache.findAddressBookById(node.parentId);
 
           for (let [name, value] of Object.entries(properties)) {
             if (!hiddenProperties.includes(name)) {
@@ -398,8 +398,8 @@ this.addressBook = class extends ExtensionAPI {
           parentNode.item.modifyCard(node.item);
         },
         delete(id) {
-          let node = cache.findContactById(id);
-          let parentNode = cache.findAddressBookById(node.parentId);
+          let node = addressBookCache.findContactById(id);
+          let parentNode = addressBookCache.findAddressBookById(node.parentId);
 
           let cardArray = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
           cardArray.appendElement(node.item);
@@ -411,14 +411,14 @@ this.addressBook = class extends ExtensionAPI {
           name: "contacts.onCreated",
           register: fire => {
             let listener = (event, node) => {
-              fire.sync(cache.convert(node));
+              fire.sync(addressBookCache.convert(node));
             };
 
-            cache.on("contact-created", listener);
-            cache.incrementListeners();
+            addressBookCache.on("contact-created", listener);
+            addressBookCache.incrementListeners();
             return () => {
-              cache.off("contact-created", listener);
-              cache.decrementListeners();
+              addressBookCache.off("contact-created", listener);
+              addressBookCache.decrementListeners();
             };
           },
         }).api(),
@@ -427,14 +427,14 @@ this.addressBook = class extends ExtensionAPI {
           name: "contacts.onUpdated",
           register: fire => {
             let listener = (event, node) => {
-              fire.sync(cache.convert(node));
+              fire.sync(addressBookCache.convert(node));
             };
 
-            cache.on("contact-updated", listener);
-            cache.incrementListeners();
+            addressBookCache.on("contact-updated", listener);
+            addressBookCache.incrementListeners();
             return () => {
-              cache.off("contact-updated", listener);
-              cache.decrementListeners();
+              addressBookCache.off("contact-updated", listener);
+              addressBookCache.decrementListeners();
             };
           },
         }).api(),
@@ -446,22 +446,22 @@ this.addressBook = class extends ExtensionAPI {
               fire.sync(parent.UID, item.UID);
             };
 
-            cache.on("contact-deleted", listener);
-            cache.incrementListeners();
+            addressBookCache.on("contact-deleted", listener);
+            addressBookCache.incrementListeners();
             return () => {
-              cache.off("contact-deleted", listener);
-              cache.decrementListeners();
+              addressBookCache.off("contact-deleted", listener);
+              addressBookCache.decrementListeners();
             };
           },
         }).api(),
       },
       mailingLists: {
         list(parentId) {
-          let parentNode = cache.findAddressBookById(parentId);
-          return cache.convert(parentNode.mailingLists, false);
+          let parentNode = addressBookCache.findAddressBookById(parentId);
+          return addressBookCache.convert(parentNode.mailingLists, false);
         },
         get(id) {
-          return cache.convert(cache.findMailingListById(id), false);
+          return addressBookCache.convert(addressBookCache.findMailingListById(id), false);
         },
         create(parentId, { name, nickName, description }) {
           let mailList = Cc["@mozilla.org/addressbook/directoryproperty;1"].createInstance();
@@ -471,34 +471,34 @@ this.addressBook = class extends ExtensionAPI {
           mailList.listNickName = (nickName === null) ? "" : nickName;
           mailList.description = (description === null) ? "" : description;
 
-          let parentNode = cache.findAddressBookById(parentId);
+          let parentNode = addressBookCache.findAddressBookById(parentId);
           let newMailList = parentNode.item.addMailList(mailList);
           return newMailList.UID;
         },
         update(id, { name, nickName, description }) {
-          let node = cache.findMailingListById(id);
+          let node = addressBookCache.findMailingListById(id);
           node.item.dirName = name;
           node.item.listNickName = (nickName === null) ? "" : nickName;
           node.item.description = (description === null) ? "" : description;
           node.item.editMailListToDatabase(null);
         },
         delete(id) {
-          let node = cache.findMailingListById(id);
+          let node = addressBookCache.findMailingListById(id);
           MailServices.ab.deleteAddressBook(node.item.URI);
         },
 
         listMembers(id) {
-          let node = cache.findMailingListById(id);
-          return cache.convert(node.contacts, false);
+          let node = addressBookCache.findMailingListById(id);
+          return addressBookCache.convert(node.contacts, false);
         },
         addMember(id, contactId) {
-          let node = cache.findMailingListById(id);
-          let contactNode = cache.findContactById(contactId);
+          let node = addressBookCache.findMailingListById(id);
+          let contactNode = addressBookCache.findContactById(contactId);
           node.item.addCard(contactNode.item);
         },
         removeMember(id, contactId) {
-          let node = cache.findMailingListById(id);
-          let contactNode = cache.findContactById(contactId);
+          let node = addressBookCache.findMailingListById(id);
+          let contactNode = addressBookCache.findContactById(contactId);
 
           let cardArray = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
           cardArray.appendElement(contactNode.item);
@@ -510,14 +510,14 @@ this.addressBook = class extends ExtensionAPI {
           name: "mailingLists.onCreated",
           register: fire => {
             let listener = (event, node) => {
-              fire.sync(cache.convert(node));
+              fire.sync(addressBookCache.convert(node));
             };
 
-            cache.on("mailing-list-created", listener);
-            cache.incrementListeners();
+            addressBookCache.on("mailing-list-created", listener);
+            addressBookCache.incrementListeners();
             return () => {
-              cache.off("mailing-list-created", listener);
-              cache.decrementListeners();
+              addressBookCache.off("mailing-list-created", listener);
+              addressBookCache.decrementListeners();
             };
           },
         }).api(),
@@ -526,14 +526,14 @@ this.addressBook = class extends ExtensionAPI {
           name: "mailingLists.onUpdated",
           register: fire => {
             let listener = (event, node) => {
-              fire.sync(cache.convert(node));
+              fire.sync(addressBookCache.convert(node));
             };
 
-            cache.on("mailing-list-updated", listener);
-            cache.incrementListeners();
+            addressBookCache.on("mailing-list-updated", listener);
+            addressBookCache.incrementListeners();
             return () => {
-              cache.off("mailing-list-updated", listener);
-              cache.decrementListeners();
+              addressBookCache.off("mailing-list-updated", listener);
+              addressBookCache.decrementListeners();
             };
           },
         }).api(),
@@ -545,11 +545,11 @@ this.addressBook = class extends ExtensionAPI {
               fire.sync(parent.UID, item.UID);
             };
 
-            cache.on("mailing-list-deleted", listener);
-            cache.incrementListeners();
+            addressBookCache.on("mailing-list-deleted", listener);
+            addressBookCache.incrementListeners();
             return () => {
-              cache.off("mailing-list-deleted", listener);
-              cache.decrementListeners();
+              addressBookCache.off("mailing-list-deleted", listener);
+              addressBookCache.decrementListeners();
             };
           },
         }).api(),
@@ -558,14 +558,14 @@ this.addressBook = class extends ExtensionAPI {
           name: "mailingLists.onMemberAdded",
           register: fire => {
             let listener = (event, node) => {
-              fire.sync(cache.convert(node));
+              fire.sync(addressBookCache.convert(node));
             };
 
-            cache.on("mailing-list-member-added", listener);
-            cache.incrementListeners();
+            addressBookCache.on("mailing-list-member-added", listener);
+            addressBookCache.incrementListeners();
             return () => {
-              cache.off("mailing-list-member-added", listener);
-              cache.decrementListeners();
+              addressBookCache.off("mailing-list-member-added", listener);
+              addressBookCache.decrementListeners();
             };
           },
         }).api(),
@@ -577,11 +577,11 @@ this.addressBook = class extends ExtensionAPI {
               fire.sync(parent.UID, item.UID);
             };
 
-            cache.on("mailing-list-member-removed", listener);
-            cache.incrementListeners();
+            addressBookCache.on("mailing-list-member-removed", listener);
+            addressBookCache.incrementListeners();
             return () => {
-              cache.off("mailing-list-member-removed", listener);
-              cache.decrementListeners();
+              addressBookCache.off("mailing-list-member-removed", listener);
+              addressBookCache.decrementListeners();
             };
           },
         }).api(),

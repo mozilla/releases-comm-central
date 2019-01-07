@@ -190,7 +190,7 @@ class CloudFileProvider extends EventEmitter {
 }
 CloudFileProvider.prototype.QueryInterface = ChromeUtils.generateQI([Ci.nsIMsgCloudFileProvider]);
 
-function convertAccount(nativeAccount) {
+function convertCloudFileAccount(nativeAccount) {
   return {
     id: nativeAccount.accountKey,
     name: nativeAccount.displayName,
@@ -226,7 +226,7 @@ this.cloudFile = class extends ExtensionAPI {
           name: "cloudFile.onFileUpload",
           register: fire => {
             let listener = (event, { id, name, data }) => {
-              let account = convertAccount(self.provider);
+              let account = convertCloudFileAccount(self.provider);
               return fire.async(account, { id, name, data });
             };
 
@@ -242,7 +242,7 @@ this.cloudFile = class extends ExtensionAPI {
           name: "cloudFile.onFileUploadAbort",
           register: fire => {
             let listener = (event, { id }) => {
-              let account = convertAccount(self.provider);
+              let account = convertCloudFileAccount(self.provider);
               return fire.async(account, id);
             };
 
@@ -258,7 +258,7 @@ this.cloudFile = class extends ExtensionAPI {
           name: "cloudFile.onFileDeleted",
           register: fire => {
             let listener = (event, { id }) => {
-              let account = convertAccount(self.provider);
+              let account = convertCloudFileAccount(self.provider);
               return fire.async(account, id);
             };
 
@@ -278,7 +278,7 @@ this.cloudFile = class extends ExtensionAPI {
                 return null;
               }
 
-              return fire.async(convertAccount(nativeAccount));
+              return fire.async(convertCloudFileAccount(nativeAccount));
             };
 
             cloudFileAccounts.on("accountAdded", listener);
@@ -314,11 +314,11 @@ this.cloudFile = class extends ExtensionAPI {
             return undefined;
           }
 
-          return convertAccount(account);
+          return convertCloudFileAccount(account);
         },
 
         async getAllAccounts() {
-          return cloudFileAccounts.getAccountsForType(self.provider.type).map(convertAccount);
+          return cloudFileAccounts.getAccountsForType(self.provider.type).map(convertCloudFileAccount);
         },
 
         async updateAccount(accountId, updateProperties) {
@@ -346,7 +346,7 @@ this.cloudFile = class extends ExtensionAPI {
             account.settingsURL = updateProperties.settingsUrl;
           }
 
-          return convertAccount(account);
+          return convertCloudFileAccount(account);
         },
       },
     };
