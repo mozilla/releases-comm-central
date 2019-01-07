@@ -53,7 +53,9 @@ setup(name=PACKAGE_NAME,
       license='http://www.apache.org/licenses/LICENSE-2.0',
       packages=find_packages(exclude=['test']),
       include_package_data=True,
-      package_data = {'': ['*.js', '*.css', '*.html', '*.txt', '*.xpi', '*.rdf', '*.xul', '*.jsm', '*.xml'],},
+      package_data={
+          '': ['*.js', '*.css', '*.html', '*.txt', '*.xpi', '*.rdf', '*.xul', '*.jsm', '*.xml'],
+      },
       zip_safe=False,
       entry_points="""
           [console_scripts]
@@ -61,15 +63,18 @@ setup(name=PACKAGE_NAME,
           mozmill-thunderbird = mozmill:tbird_cli
           mozmill-restart = mozmill:restart_cli
         """,
-      platforms =['Any'],
-      install_requires = ['jsbridge == 2.4.15',
-                          'mozrunner >= 6.0',
-                          'manifestparser >= 0.9'],
-      classifiers=['Development Status :: 4 - Beta',
-                   'Environment :: Console',
-                   'Intended Audience :: Developers',
-                   'License :: OSI Approved :: Apache Software License',
-                   'Operating System :: OS Independent',
-                   'Topic :: Software Development :: Libraries :: Python Modules',
-                  ]
-     )
+      platforms=['Any'],
+      install_requires=[
+          'jsbridge == 2.4.15',
+          'mozrunner >= 6.0',
+          'manifestparser >= 0.9'
+      ],
+      classifiers=[
+          'Development Status :: 4 - Beta',
+          'Environment :: Console',
+          'Intended Audience :: Developers',
+          'License :: OSI Approved :: Apache Software License',
+          'Operating System :: OS Independent',
+          'Topic :: Software Development :: Libraries :: Python Modules',
+      ]
+      )

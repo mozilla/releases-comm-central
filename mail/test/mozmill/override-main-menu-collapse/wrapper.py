@@ -8,12 +8,12 @@
 
 import os
 import shutil
-import sys
 
 # We don't want any accounts for these tests.
 NO_ACCOUNTS = True
 # Do not force enable main menu bar, we'll set our own value in prefs.js.
 DEFAULT_MENUBAR = True
+
 
 def on_profile_created(profiledir):
     """

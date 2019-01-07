@@ -12,6 +12,7 @@ import logging
 
 SCRIPT_DIRECTORY = os.path.abspath(os.path.realpath(os.path.dirname(sys.argv[0])))
 
+
 class RunTestListOptions(optparse.OptionParser):
     """Parsed run test list command line options."""
     def __init__(self, **kwargs):
@@ -19,44 +20,44 @@ class RunTestListOptions(optparse.OptionParser):
         defaults = {}
 
         self.add_option("--binary",
-                        action = "store", type = "string", dest = "binary",
-                        help = "Binary to be run")
+                        action="store", type="string", dest="binary",
+                        help="Binary to be run")
         defaults["binary"] = ""
 
         self.add_option("--list",
-                        action = "store", type = "string", dest = "list",
-                        help = "List of tests to be run")
+                        action="store", type="string", dest="list",
+                        help="List of tests to be run")
         defaults["list"] = ""
 
         self.add_option("--dir",
-                        action = "store", type = "string", dest = "dir",
-                        help = "Directory of the tests, leave blank for current directory")
+                        action="store", type="string", dest="dir",
+                        help="Directory of the tests, leave blank for current directory")
         defaults["dir"] = ""
 
         self.add_option("--symbols-path",
-                        action = "store", type = "string", dest = "symbols",
-                        help = "The path to the symbol files from build_symbols")
+                        action="store", type="string", dest="symbols",
+                        help="The path to the symbol files from build_symbols")
         defaults["symbols"] = ""
 
         self.add_option("--total-chunks",
-                        action = "store", type = "int", dest = "total_chunks",
+                        action="store", type="int", dest="total_chunks",
                         help="how many chunks to split the tests up into")
         defaults["total_chunks"] = 1
         self.add_option("--this-chunk",
-                        action = "store", type = "int", dest = "this_chunk",
+                        action="store", type="int", dest="this_chunk",
                         help="which chunk to run between 1 and --total-chunks")
         defaults["this_chunk"] = 1
 
         self.add_option("--plugins-path",
-                        action = "store", type = "string", dest = "plugins",
-                        help = "The path to the plugins folder for the test profiles")
+                        action="store", type="string", dest="plugins",
+                        help="The path to the plugins folder for the test profiles")
 
         self.add_option("--testing-modules-dir",
                         action="store", type="string", dest="testingmodules",
                         help="The path to the testing modules directory")
         defaults["testingmodules"] = ""
 
-        self.set_defaults(**defaults);
+        self.set_defaults(**defaults)
 
         usage = """\
 Usage instructions for runtestlist.py
@@ -126,7 +127,7 @@ for directory in tests:
     print args
     outputPipe = subprocess.PIPE
 
-    proc = subprocess.Popen(args, cwd=SCRIPT_DIRECTORY, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
+    proc = subprocess.Popen(args, cwd=SCRIPT_DIRECTORY, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     testErrors = 0
     testPasses = 0

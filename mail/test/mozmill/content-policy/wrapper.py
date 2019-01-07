@@ -4,7 +4,7 @@
 
 import os
 import shutil
-import sys
+
 
 def on_profile_created(profiledir):
     """

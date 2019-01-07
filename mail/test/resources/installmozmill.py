@@ -14,8 +14,8 @@ from subprocess import call
 
 import buildconfig
 
-
 # utility functions for cross-platform
+
 
 def is_windows():
     return sys.platform.startswith('win')
@@ -49,7 +49,6 @@ def entry_point_path(virtual_env, entry_point):
 
 
 # command-line entry point
-
 def main(args=None):
     """command line front-end function"""
 

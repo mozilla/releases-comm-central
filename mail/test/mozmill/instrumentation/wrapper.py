@@ -8,10 +8,10 @@
 
 import os
 import shutil
-import sys
 
 # We don't want any accounts for these tests.
 NO_ACCOUNTS = True
+
 
 def on_profile_created(profiledir):
     """

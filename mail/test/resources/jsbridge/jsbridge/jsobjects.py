@@ -35,6 +35,7 @@
 #
 # ***** END LICENSE BLOCK *****
 
+
 def init_jsobject(cls, bridge, name, value, description=None):
     """Initialize a js object that is a subclassed base type; int, str, unicode, float."""
     obj = cls(value)
@@ -43,14 +44,15 @@ def init_jsobject(cls, bridge, name, value, description=None):
     obj._description_ = description
     return obj
 
+
 def create_jsobject(bridge, fullname, value=None, obj_type=None, override_set=False):
     """Create a single JSObject for named object on other side of the bridge.
-    
+
     Handles various initization cases for different JSObjects."""
     description = bridge.describe(fullname)
     obj_type = description['type']
     value = description.get('data', None)
-    
+
     if value is True or value is False:
         return value
 
@@ -64,41 +66,42 @@ def create_jsobject(bridge, fullname, value=None, obj_type=None, override_set=Fa
         return obj
     else:
         # Something very bad happened, we don't have a representation for the given type.
-        raise TypeError("Don't have a JSObject for javascript type "+obj_type)
-    
+        raise TypeError("Don't have a JSObject for javascript type " + obj_type)
+
+
 class JSObject(object):
     """Base javascript object representation."""
     _loaded_ = False
-    
+
     def __init__(self, bridge, name, override_set=False, description=None, *args, **kwargs):
         self._bridge_ = bridge
         if not override_set:
             name = bridge.set(name)['data']
         self._name_ = name
         self._description_ = description
-    
+
     def __jsget__(self, name):
         """Abstraction for final step in get events; __getitem__ and __getattr__.
         """
         result = create_jsobject(self._bridge_, name, override_set=True)
         return result
-    
+
     def __getattr__(self, name):
-        """Get the object from jsbridge. 
-        
+        """Get the object from jsbridge.
+
         Handles lazy loading of all attributes of self."""
         # A little hack so that ipython returns all the names.
         if name == '_getAttributeNames':
-            return lambda : self._bridge_.describe(self._name_)['attributes']
-            
+            return lambda: self._bridge_.describe(self._name_)['attributes']
+
         attributes = self._bridge_.describe(self._name_)['attributes']
         if name in attributes:
-            return self.__jsget__(self._name_+'["'+name+'"]')
+            return self.__jsget__(self._name_ + '["' + name + '"]')
         else:
-            raise AttributeError(name+" is undefined.")
-    
+            raise AttributeError(name + " is undefined.")
+
     __getitem__ = __getattr__
-        
+
     def __setattr__(self, name, value):
         """Set the given JSObject as an attribute of this JSObject and make proper javascript
         assignment on the other side of the bridge."""
@@ -107,21 +110,22 @@ class JSObject(object):
 
         response = self._bridge_.setAttribute(self._name_, name, value)
         object.__setattr__(self, name, create_jsobject(self._bridge_, response['data'], override_set=True))
-    
+
     __setitem__ = __setattr__
+
 
 class JSFunction(JSObject):
     """Javascript function represenation.
-    
-    Returns a JSObject instance for the serialized js type with 
-    name set to the full javascript call for this function. 
-    """    
-    
+
+    Returns a JSObject instance for the serialized js type with
+    name set to the full javascript call for this function.
+    """
+
     def __init__(self, bridge, name, override_set=False, description=None, *args, **kwargs):
         self._bridge_ = bridge
         self._name_ = name
         self._description_ = description
-    
+
     def __call__(self, *args):
         response = self._bridge_.execFunction(self._name_, args)
         if response['data'] is not None:
@@ -132,17 +136,21 @@ class JSString(JSObject, unicode):
     "Javascript string representation."
     __init__ = unicode.__init__
 
-class JSInt(JSObject, int): 
+
+class JSInt(JSObject, int):
     """Javascript number representation for Python int."""
     __init__ = int.__init__
+
 
 class JSFloat(JSObject, float):
     """Javascript number representation for Python float."""
     __init__ = float.__init__
-    
+
+
 class JSUndefined(JSObject):
-    """Javascript undefined representation."""    
-    __str__ = lambda self : "undefined"
+    """Javascript undefined representation."""
+    def __str__(self):
+        return "undefined"
 
     def __cmp__(self, other):
         if isinstance(other, JSUndefined):
@@ -150,18 +158,21 @@ class JSUndefined(JSObject):
         else:
             return False
 
-    __nonzero__ = lambda self: False
+    def __nonzero__(self):
+        return False
 
-js_type_cases = {'function'  :(JSFunction, False,), 
-                  'object'   :(JSObject, False,), 
-                  'array'    :(JSObject, False,),
-                  'string'   :(JSString, True,), 
-                  'number'   :(JSFloat, True,),
-                  'undefined':(JSUndefined, False,),
-                  'null'     :(JSObject, False,),
-                  }
-py_type_cases = {unicode  :JSString,
-                  str     :JSString,
-                  int     :JSInt,
-                  float   :JSFloat,
-                  }
+js_type_cases = {
+    'function': (JSFunction, False,),
+    'object': (JSObject, False,),
+    'array': (JSObject, False,),
+    'string': (JSString, True,),
+    'number': (JSFloat, True,),
+    'undefined': (JSUndefined, False,),
+    'null': (JSObject, False,),
+}
+py_type_cases = {
+    unicode: JSString,
+    str: JSString,
+    int: JSInt,
+    float: JSFloat,
+}

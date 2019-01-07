@@ -14,6 +14,7 @@ _pref_file_names = {
     "linux2": "linux-prefs.js",
 }
 
+
 def on_profile_created(profiledir):
     """
     On profile creation, this copies *-prefs.js from the current folder to

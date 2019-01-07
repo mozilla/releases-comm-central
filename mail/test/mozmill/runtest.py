@@ -3,35 +3,28 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-"""
-Runs the Bloat test harness
-"""
-
-import sys
-import os, os.path, platform, subprocess, signal
-import shutil
+from base64 import b64decode
+from time import sleep
+import atexit
+import imp
+import jsbridge
+import json
+import mozcrash
+import mozmill
 import mozprofile
 import mozrunner
-import jsbridge
-import mozmill
-import socket
-import copy
-
-# Python 2.6 has the json module, but Python 2.5 doesn't.
-try:
-    import json
-except ImportError:
-    import simplejson as json
+import os
+import platform
+import shutil
+import stat
+import subprocess
+import sys
+import tempfile
 
 SCRIPT_DIRECTORY = os.path.abspath(os.path.realpath(os.path.dirname(sys.argv[0])))
 sys.path.append(SCRIPT_DIRECTORY)
 
-import mozcrash
-
-from time import sleep
-import imp
-
-PROFILE_DIR = os.path.join(SCRIPT_DIRECTORY, 'mozmillprofile')
+PROFILE_DIR = os.path.join(tempfile.gettempdir(), 'mozmillprofile')
 SYMBOLS_PATH = None
 PLUGINS_PATH = None
 # XXX This breaks any semblance of test runner modularity, and only works
@@ -55,6 +48,7 @@ USE_RICH_FAILURES = False
 # Save screenshots of failures, so they can be uploaded as a TaskCluster artifact?
 UPLOAD_SCREENSHOTS = False
 
+
 # We need this because rmtree-ing read-only files fails on Windows
 def rmtree_onerror(func, path, exc_info):
     """
@@ -65,15 +59,15 @@ def rmtree_onerror(func, path, exc_info):
 
     If the error is for another reason it re-raises the error.
 
-    Usage : ``shutil.rmtree(path, onerror=rmtree_onerror)``
+    Usage: ``shutil.rmtree(path, onerror=rmtree_onerror)``
     """
-    import stat
     if not os.access(path, os.W_OK):
         # Is the error an access error ?
         os.chmod(path, stat.S_IWUSR)
         func(path)
     else:
         raise
+
 
 class ThunderTestProfile(mozprofile.ThunderbirdProfile):
     preferences = {
@@ -83,8 +77,8 @@ class ThunderTestProfile(mozprofile.ThunderbirdProfile):
         'dom.max_chrome_script_run_time': 0,
         'dom.max_script_run_time': 0,
         # disable extension stuffs
-        'extensions.update.enabled'    : False,
-        'extensions.update.notifyUser' : False,
+        'extensions.update.enabled': False,
+        'extensions.update.notifyUser': False,
         # don't warn about third party extensions in profile or elsewhere.
         'extensions.autoDisableScopes': 10,
         # do not ask about being the default mail client
@@ -102,10 +96,10 @@ class ThunderTestProfile(mozprofile.ThunderbirdProfile):
         # disable the first use junk dialog
         'mailnews.ui.junk.firstuse': False,
         # set the relative dirs properly
-        'mail.root.none-rel' :  "[ProfD]Mail",
-        'mail.root.pop3-rel' :  "[ProfD]Mail",
+        'mail.root.none-rel': "[ProfD]Mail",
+        'mail.root.pop3-rel': "[ProfD]Mail",
         # Do not allow check new mail to be set
-        'mail.startup.enabledMailCheckOnce' :  True,
+        'mail.startup.enabledMailCheckOnce': True,
         # Disable compatibility checking
         'extensions.checkCompatibility.nightly': False,
         # Stop any pings to AMO on add-on install
@@ -117,7 +111,7 @@ class ThunderTestProfile(mozprofile.ThunderbirdProfile):
         'offline.autoDetect': False,
         # Don't load what's new or the remote start page - keep everything local
         # under our control.
-        'mailnews.start_page_override.mstone' :  "ignore",
+        'mailnews.start_page_override.mstone': "ignore",
         'mailnews.start_page.url': "about:blank",
         # Do not enable gloda
         'mailnews.database.global.indexer.enabled': False,
@@ -128,7 +122,7 @@ class ThunderTestProfile(mozprofile.ThunderbirdProfile):
         'mail.font.windows.version': 2,
         # No, we don't want to be prompted about Telemetry
         'toolkit.telemetry.prompted': 999,
-        }
+    }
 
     menubar_preferences = {
         # Many tests operate items in the main menu, so keep it shown
@@ -138,52 +132,52 @@ class ThunderTestProfile(mozprofile.ThunderbirdProfile):
 
     # Dummied up local accounts to stop the account wizard
     account_preferences = {
-        'mail.account.account1.server' :  "server1",
-        'mail.account.account2.identities' :  "id1,id2",
-        'mail.account.account2.server' :  "server2",
-        'mail.account.account3.server' :  "server3",
-        'mail.accountmanager.accounts' :  "account1,account2,account3",
-        'mail.accountmanager.defaultaccount' :  "account2",
-        'mail.accountmanager.localfoldersserver' :  "server1",
-        'mail.identity.id1.fullName' :  "Tinderbox",
-        'mail.identity.id1.htmlSigFormat' : False,
-        'mail.identity.id1.htmlSigText' : "Tinderbox is soo 90ies",
-        'mail.identity.id1.smtpServer' :  "smtp1",
-        'mail.identity.id1.useremail' :  "tinderbox@foo.invalid",
-        'mail.identity.id1.valid' :  True,
-        'mail.identity.id2.fullName' : "Tinderboxpushlog",
-        'mail.identity.id2.htmlSigFormat' : True,
-        'mail.identity.id2.htmlSigText' : "Tinderboxpushlog is the new <b>hotness!</b>",
-        'mail.identity.id2.smtpServer' : "smtp1",
-        'mail.identity.id2.useremail' : "tinderboxpushlog@foo.invalid",
-        'mail.identity.id2.valid' : True,
-        'mail.server.server1.directory-rel' :  "[ProfD]Mail/Local Folders",
-        'mail.server.server1.hostname' :  "Local Folders",
-        'mail.server.server1.name' :  "Local Folders",
-        'mail.server.server1.type' :  "none",
-        'mail.server.server1.userName' :  "nobody",
-        'mail.server.server2.check_new_mail' :  False,
-        'mail.server.server2.directory-rel' :  "[ProfD]Mail/tinderbox",
-        'mail.server.server2.download_on_biff' :  True,
-        'mail.server.server2.hostname' :  "tinderbox123",
-        'mail.server.server2.login_at_startup' :  False,
-        'mail.server.server2.name' :  "tinderbox@foo.invalid",
-        'mail.server.server2.type' :  "pop3",
-        'mail.server.server2.userName' :  "tinderbox",
+        'mail.account.account1.server': "server1",
+        'mail.account.account2.identities': "id1,id2",
+        'mail.account.account2.server': "server2",
+        'mail.account.account3.server': "server3",
+        'mail.accountmanager.accounts': "account1,account2,account3",
+        'mail.accountmanager.defaultaccount': "account2",
+        'mail.accountmanager.localfoldersserver': "server1",
+        'mail.identity.id1.fullName': "Tinderbox",
+        'mail.identity.id1.htmlSigFormat': False,
+        'mail.identity.id1.htmlSigText': "Tinderbox is soo 90ies",
+        'mail.identity.id1.smtpServer': "smtp1",
+        'mail.identity.id1.useremail': "tinderbox@foo.invalid",
+        'mail.identity.id1.valid': True,
+        'mail.identity.id2.fullName': "Tinderboxpushlog",
+        'mail.identity.id2.htmlSigFormat': True,
+        'mail.identity.id2.htmlSigText': "Tinderboxpushlog is the new <b>hotness!</b>",
+        'mail.identity.id2.smtpServer': "smtp1",
+        'mail.identity.id2.useremail': "tinderboxpushlog@foo.invalid",
+        'mail.identity.id2.valid': True,
+        'mail.server.server1.directory-rel': "[ProfD]Mail/Local Folders",
+        'mail.server.server1.hostname': "Local Folders",
+        'mail.server.server1.name': "Local Folders",
+        'mail.server.server1.type': "none",
+        'mail.server.server1.userName': "nobody",
+        'mail.server.server2.check_new_mail': False,
+        'mail.server.server2.directory-rel': "[ProfD]Mail/tinderbox",
+        'mail.server.server2.download_on_biff': True,
+        'mail.server.server2.hostname': "tinderbox123",
+        'mail.server.server2.login_at_startup': False,
+        'mail.server.server2.name': "tinderbox@foo.invalid",
+        'mail.server.server2.type': "pop3",
+        'mail.server.server2.userName': "tinderbox",
         'mail.server.server2.whiteListAbURI': "",
-        'mail.server.server3.hostname' :  "prpl-irc",
-        'mail.server.server3.imAccount' :  "account1",
-        'mail.server.server3.type' :  "im",
-        'mail.server.server3.userName' :  "mozmilltest@irc.mozilla.invalid",
-        'mail.smtp.defaultserver' :  "smtp1",
-        'mail.smtpserver.smtp1.hostname' :  "tinderbox123",
-        'mail.smtpserver.smtp1.username' :  "tinderbox",
-        'mail.smtpservers' :  "smtp1",
-        'messenger.account.account1.autoLogin' :  False,
-        'messenger.account.account1.firstConnectionState' :  1,
-        'messenger.account.account1.name' :  "mozmilltest@irc.mozilla.invalid",
-        'messenger.account.account1.prpl' :  "prpl-irc",
-        'messenger.accounts' :  "account1",
+        'mail.server.server3.hostname': "prpl-irc",
+        'mail.server.server3.imAccount': "account1",
+        'mail.server.server3.type': "im",
+        'mail.server.server3.userName': "mozmilltest@irc.mozilla.invalid",
+        'mail.smtp.defaultserver': "smtp1",
+        'mail.smtpserver.smtp1.hostname': "tinderbox123",
+        'mail.smtpserver.smtp1.username': "tinderbox",
+        'mail.smtpservers': "smtp1",
+        'messenger.account.account1.autoLogin': False,
+        'messenger.account.account1.firstConnectionState': 1,
+        'messenger.account.account1.name': "mozmilltest@irc.mozilla.invalid",
+        'messenger.account.account1.prpl': "prpl-irc",
+        'messenger.accounts': "account1",
     }
 
     def __init__(self, *args, **kwargs):
@@ -191,18 +185,19 @@ class ThunderTestProfile(mozprofile.ThunderbirdProfile):
         super(ThunderTestProfile, self).__init__(*args, **kwargs)
         self.set_preferences(self.preferences)
 
-        if (wrapper is not None and hasattr(wrapper, "DEFAULT_MENUBAR")
-            and wrapper.DEFAULT_MENUBAR):
+        if (wrapper is not None and
+                hasattr(wrapper, "DEFAULT_MENUBAR") and
+                wrapper.DEFAULT_MENUBAR):
             pass
         else:
             self.set_preferences(self.menubar_preferences)
 
-        if (wrapper is not None and hasattr(wrapper, "NO_ACCOUNTS")
-            and wrapper.NO_ACCOUNTS):
+        if (wrapper is not None and
+                hasattr(wrapper, "NO_ACCOUNTS") and
+                wrapper.NO_ACCOUNTS):
             pass
         else:
             self.set_preferences(self.account_preferences)
-
 
     def get_profile_dir(self):
         '''
@@ -219,11 +214,11 @@ class ThunderTestProfile(mozprofile.ThunderbirdProfile):
             raise Exception('somehow failed to create profile dir!')
 
         if PLUGINS_PATH:
-          if not os.path.exists(PLUGINS_PATH):
-            raise Exception('Plugins path "%s" does not exist.' % PLUGINS_PATH)
+            if not os.path.exists(PLUGINS_PATH):
+                raise Exception('Plugins path "%s" does not exist.' % PLUGINS_PATH)
 
-          dest = os.path.join(PROFILE_DIR, "plugins")
-          shutil.copytree(PLUGINS_PATH, dest)
+            dest = os.path.join(PROFILE_DIR, "plugins")
+            shutil.copytree(PLUGINS_PATH, dest)
 
         if wrapper is not None and hasattr(wrapper, "on_profile_created"):
             # It's a little dangerous to allow on_profile_created access to the
@@ -240,6 +235,7 @@ class ThunderTestProfile(mozprofile.ThunderbirdProfile):
         '''
         pass
 
+
 def ThunderTestRunner(*args, **kwargs):
     kwargs['env'] = env = dict(os.environ)
     # note, we do NOT want to set NO_EM_RESTART or jsbridge wouldn't work
@@ -252,6 +248,7 @@ def ThunderTestRunner(*args, **kwargs):
     env['MOZ_NO_REMOTE'] = '1'
 
     return mozrunner.ThunderbirdRunner(*args, **kwargs)
+
 
 class ThunderTestMozmill(mozmill.MozMill):
     VNC_SERVER_PATH = '/usr/bin/vncserver'
@@ -275,16 +272,16 @@ class ThunderTestMozmill(mozmill.MozMill):
         if not profile:
             profile = self.profile_class(addons=[jsbridge.extension_path, extension_path])
         self.profile = profile
-        
+
         if not runner:
-            runner = self.runner_class(profile=self.profile, 
+            runner = self.runner_class(profile=self.profile,
                                        cmdargs=["-jsbridge", str(self.jsbridge_port)])
         self.runner = runner
 
         if self.use_vnc_server:
             try:
                 subprocess.check_call([self.VNC_SERVER_PATH, ':99'])
-            except subprocess.CalledProcessError, ex:
+            except subprocess.CalledProcessError:
                 # Okay, so that display probably already exists.  We can either
                 # use it as-is or kill it.  I'm deciding we want to kill it
                 # since there might be other processes alive in there that
@@ -341,10 +338,12 @@ def monkeypatched_15_run_tests(self, tests, sleeptime=0):
 
     # Give a second for any callbacks to finish.
     sleep(1)
+
 if hasattr(mozmill.MozMill, 'find_tests'):
     # Monkey-patch run_tests
     mozmill.MozMill.old_run_tests = mozmill.MozMill.run_tests
     mozmill.MozMill.run_tests = monkeypatched_15_run_tests
+
 
 class ThunderTestCLI(mozmill.CLI):
     mozmill_class = ThunderTestMozmill
@@ -392,7 +391,7 @@ class ThunderTestCLI(mozmill.CLI):
             test_file = os.path.abspath(test_file)
             if not os.path.isdir(test_file):
                 test_file = os.path.dirname(test_file)
-            if not test_file in test_dirs:
+            if test_file not in test_dirs:
                 test_dirs.append(test_file)
 
         # if we are monkeypatching, give it the test directories.
@@ -424,6 +423,8 @@ class ThunderTestCLI(mozmill.CLI):
 
 
 TEST_RESULTS = []
+
+
 # Versions of MozMill prior to 1.5 did not output test-pass /
 # TEST-UNEXPECTED-FAIL. Since 1.5 happened this gets output, so we only want
 # a summary at the end to make it easy for developers.
@@ -441,6 +442,8 @@ mozmill.LoggerListener.cases['mozmill.endTest'] = logEndTest
 # with one that wraps it and only tells it the exception message rather than
 # the whole JSON blob.
 ORIGINAL_FAILURE_LOGGER = mozmill.LoggerListener.cases['mozmill.fail']
+
+
 def logFailure(obj):
     if isinstance(obj, basestring):
         obj = json.loads(obj)
@@ -460,6 +463,7 @@ def prettifyFilename(path, tail_segs_desired=1):
     parts = path.split('/')
     return '/'.join(parts[-tail_segs_desired:])
 
+
 def prettyPrintException(e):
     print '  EXCEPTION:', e.get('message', 'no message!').encode('utf-8')
     print '    at:', prettifyFilename(e.get('fileName', 'nonesuch')), 'line', e.get('lineNumber', 0)
@@ -474,11 +478,11 @@ def prettyPrintException(e):
                 continue
             else:
                 funcname = line[:line.find('@')]
-            pathAndLine = line[line.rfind('@')+1:]
+            pathAndLine = line[line.rfind('@') + 1:]
             rcolon = pathAndLine.rfind(':')
             if rcolon != -1:
                 path = pathAndLine[:rcolon]
-                line = pathAndLine[rcolon+1:]
+                line = pathAndLine[rcolon + 1:]
             else:
                 path = pathAndLine
                 line = 0
@@ -491,11 +495,10 @@ def prettyPrintException(e):
 # Tests that are useless and shouldn't be printed if successful
 TEST_BLACKLIST = ["setupModule", "setupTest", "teardownTest", "teardownModule"]
 
-import pprint, atexit
+
 @atexit.register
 def prettyPrintResults():
     for result in TEST_RESULTS:
-        #pprint.pprint(result)
         testOrSummary = 'TEST'
         if 'summary' in result:
             testOrSummary = 'SUMMARY'
@@ -507,10 +510,12 @@ def prettyPrintResults():
             if result['name'] not in TEST_BLACKLIST:
                 print '%s-%s | %s' % (testOrSummary, kind, result['name'])
         else:
-            print '%s-UNEXPECTED-FAIL | %s | %s' % (testOrSummary, prettifyFilename(result['filename']), result['name'])
+            print '%s-UNEXPECTED-FAIL | %s | %s' % \
+                (testOrSummary, prettifyFilename(result['filename']), result['name'])
         for failure in result['fails']:
             if 'exception' in failure:
                 prettyPrintException(failure['exception'])
+
 
 @atexit.register
 def dumpRichResults():
@@ -524,6 +529,7 @@ def dumpRichResults():
                     print json.dumps(failure)
         print '##### MOZMILL-RICH-FAILURES-END #####'
 
+
 @atexit.register
 def uploadScreenshots():
     if not UPLOAD_SCREENSHOTS:
@@ -533,18 +539,15 @@ def uploadScreenshots():
     if not parent_dir:
         return
 
-    from base64 import b64decode
-    from os import fdopen
-    from tempfile import mkstemp
-
     for result in TEST_RESULTS:
         for failure in result['fails']:
             for win in failure['failureContext']['windows']['windows']:
                 prefix = result['name'].replace(':', '_')
-                fp, path = mkstemp(prefix=prefix + '-', suffix='.png', dir=parent_dir)
-                with fdopen(fp, 'wb') as shot:
+                fp, path = tempfile.mkstemp(prefix=prefix + '-', suffix='.png', dir=parent_dir)
+                with os.fdopen(fp, 'wb') as shot:
                     shot.write(b64decode(win['screenshotDataUrl'][len('data:image/png;base64,'):]))
                 print 'Wrote screenshot to', path
+
 
 def checkCrashesAtExit():
     if mozcrash.check_for_crashes(dump_directory=os.path.join(PROFILE_DIR, 'minidumps'),

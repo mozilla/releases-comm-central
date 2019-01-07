@@ -6,6 +6,7 @@
 
 import os
 
+
 def on_before_start(profile):
     """
     This installs the extension in the test-extension subdirectory into the
