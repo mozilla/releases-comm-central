@@ -34,11 +34,6 @@
 
 /* ::::: directory pane icons ::::: */
 
-#abDirTreeHeader {
-  -moz-appearance: treeheadercell;
-  height: 16px;
-}
-
 :root:not([lwt-tree]) #dirTree {
   -moz-appearance: -moz-mac-source-list;
   -moz-font-smoothing-background-color: -moz-mac-source-list;
@@ -156,12 +151,6 @@
   color: -moz-DialogText;
   margin: 0px;
   padding: 0px;
-}
-
-#CardViewBox {
-  -moz-user-focus: ignore;
-  overflow: auto;
-  min-width: 150px;
 }
 
 #CardViewInnerBox {

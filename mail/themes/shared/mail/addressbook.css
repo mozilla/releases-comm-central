@@ -117,6 +117,12 @@ treechildren::-moz-tree-cell-text(GeneratedName) {
 
 /* ::::: card view pane ::::: */
 
+#CardViewBox {
+  -moz-user-focus: ignore;
+  overflow: auto;
+  min-width: 150px;
+}
+
 #cvPhoto {
   list-style-image: url("chrome://messenger/skin/addressbook/icons/contact-generic.png");
 }
@@ -142,7 +148,6 @@ treechildren::-moz-tree-cell-text(GeneratedName) {
 }
 
 .CardViewLink {
-  color: -moz-nativehyperlinktext;
   cursor: pointer;
 }
 

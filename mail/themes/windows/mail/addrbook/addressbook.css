@@ -9,12 +9,6 @@
 @import url("chrome://messenger/skin/");
 @import url("chrome://messenger/skin/shared/addressbook.css");
 
-/* ::::: directory pane adjustments ::::: */
-
-#abDirTreeHeader-title {
-  padding-inline-start: 4px;
-}
-
 /* ::::: results pane ::::: */
 
 #GeneratedName {
@@ -22,14 +16,6 @@
 }
 
 /* ::::: card view pane ::::: */
-
-#CardViewBox {
-  -moz-user-focus: ignore;
-  overflow: auto;
-  min-width: 150px;
-  background-color: -moz-Field;
-  color: -moz-FieldText;
-}
 
 #CardViewInnerBox {
   margin-top: 2px;

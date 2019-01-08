@@ -22,14 +22,6 @@
 
 /* ::::: directory pane adjustments ::::: */
 
-#abDirTreeHeader {
-  border-bottom: 1px solid ThreeDShadow;
-}
-
-#abDirTreeHeader-title {
-  padding-inline-start: 4px;
-}
-
 #dirTree:not(:-moz-lwtheme) {
   border-bottom: 1px solid ThreeDShadow;
 }
@@ -74,14 +66,6 @@
 
 #CardViewOuterBox {
   border-bottom: 1px solid ThreeDShadow;
-}
-
-#CardViewBox {
-  -moz-user-focus: ignore;
-  overflow: auto;
-  min-width: 150px;
-  background-color: -moz-Field;
-  color: -moz-FieldText;
 }
 
 #CardViewInnerBox {
