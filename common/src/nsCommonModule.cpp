@@ -8,6 +8,7 @@
 #include "nsCommonBaseCID.h"
 #include "nsComponentManagerExtra.h"
 #include "nsSyncStreamListener.h"
+#include "nsSAXXMLReader.h"  // Sax parser.
 
 using mozilla::TransactionManager;
 
@@ -21,6 +22,9 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(TransactionManager)
 NS_DEFINE_NAMED_CID(NS_TRANSACTIONMANAGER_CID);
 
 NS_DEFINE_NAMED_CID(NS_SYNCSTREAMLISTENER_CID);
+
+NS_GENERIC_FACTORY_CONSTRUCTOR(nsSAXXMLReader)
+NS_DEFINE_NAMED_CID(NS_SAXXMLREADER_CID);
 
 static nsresult
 CreateNewSyncStreamListener(nsISupports *aOuter, REFNSIID aIID, void **aResult)
@@ -44,6 +48,7 @@ const mozilla::Module::CIDEntry kCommonCIDs[] = {
   { &kNS_BASECOMMANDCONTROLLER_CID, false, nullptr, nsBaseCommandControllerConstructor },
   { &kNS_TRANSACTIONMANAGER_CID, false, nullptr, TransactionManagerConstructor },
   { &kNS_SYNCSTREAMLISTENER_CID, false, nullptr, CreateNewSyncStreamListener },
+  { &kNS_SAXXMLREADER_CID, false, nullptr, nsSAXXMLReaderConstructor },
   { nullptr }
 };
 
@@ -52,6 +57,7 @@ const mozilla::Module::ContractIDEntry kCommonContracts[] = {
   { NS_BASECOMMANDCONTROLLER_CONTRACTID, &kNS_BASECOMMANDCONTROLLER_CID },
   { NS_TRANSACTIONMANAGER_CONTRACTID, &kNS_TRANSACTIONMANAGER_CID },
   { NS_SYNCSTREAMLISTENER_CONTRACTID, &kNS_SYNCSTREAMLISTENER_CID },
+  { NS_SAXXMLREADER_CONTRACTID, &kNS_SAXXMLREADER_CID },
   { nullptr }
 };
 
