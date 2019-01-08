@@ -1,0 +1,17 @@
+{
+  "extensionDescription": {
+    "message": "Condividi i tuoi allegati con WeTransfer"
+  },
+  "extensionName": {
+    "message": "FileLink per WeTransfer"
+  },
+  "serviceName": {
+    "message": "WeTransfer"
+  },
+  "moments_privacyPolicy": {
+    "message": "Informativa sulla privacy"
+  },
+  "moments_tagline": {
+    "message": "WeTransfer è il modo più semplice per inviare i tuoi file in tutto il mondo."
+  }
+}

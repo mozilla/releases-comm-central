@@ -19,8 +19,71 @@ FINAL_TARGET_FILES.content += [
 FINAL_TARGET_FILES.images += [
     'images/logo.svg',
 ]
+FINAL_TARGET_FILES._locales.br += [
+    '_locales/br/messages.json',
+]
+FINAL_TARGET_FILES._locales.dsb += [
+    '_locales/dsb/messages.json',
+]
 FINAL_TARGET_FILES._locales.en += [
     '_locales/en/messages.json',
+]
+FINAL_TARGET_FILES._locales['en-GB'] += [
+    '_locales/en_GB/messages.json',
+]
+FINAL_TARGET_FILES._locales['es-AR'] += [
+    '_locales/es_AR/messages.json',
+]
+FINAL_TARGET_FILES._locales.fi += [
+    '_locales/fi/messages.json',
+]
+FINAL_TARGET_FILES._locales.fr += [
+    '_locales/fr/messages.json',
+]
+FINAL_TARGET_FILES._locales['fy-NL'] += [
+    '_locales/fy_NL/messages.json',
+]
+FINAL_TARGET_FILES._locales.hsb += [
+    '_locales/hsb/messages.json',
+]
+FINAL_TARGET_FILES._locales.hu += [
+    '_locales/hu/messages.json',
+]
+FINAL_TARGET_FILES._locales.it += [
+    '_locales/it/messages.json',
+]
+FINAL_TARGET_FILES._locales.ka += [
+    '_locales/ka/messages.json',
+]
+FINAL_TARGET_FILES._locales.kab += [
+    '_locales/kab/messages.json',
+]
+FINAL_TARGET_FILES._locales.kk += [
+    '_locales/kk/messages.json',
+]
+FINAL_TARGET_FILES._locales['pt-BR'] += [
+    '_locales/pt_BR/messages.json',
+]
+FINAL_TARGET_FILES._locales['pt-PT'] += [
+    '_locales/pt_PT/messages.json',
+]
+FINAL_TARGET_FILES._locales.sk += [
+    '_locales/sk/messages.json',
+]
+FINAL_TARGET_FILES._locales.sl += [
+    '_locales/sl/messages.json',
+]
+FINAL_TARGET_FILES._locales['sv-SE'] += [
+    '_locales/sv_SE/messages.json',
+]
+FINAL_TARGET_FILES._locales.tr += [
+    '_locales/tr/messages.json',
+]
+FINAL_TARGET_FILES._locales['zh-CN'] += [
+    '_locales/zh_CN/messages.json',
+]
+FINAL_TARGET_FILES._locales['zh-TW'] += [
+    '_locales/zh_TW/messages.json',
 ]
 
 USE_EXTENSION_MANIFEST = True
