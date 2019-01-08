@@ -21,13 +21,13 @@ function updateDocumentSourceMaps(src) {
   }
 
   var contentHandler = {
-    startDocument: function startDocument() {
+    startDocument() {
     },
 
-    endDocument: function endDocument() {
+    endDocument() {
     },
 
-    handleAttributes: function handleAttributes(aAttributes) {
+    handleAttributes(aAttributes) {
       for (var i = 0; i < aAttributes.length; i++) {
         var attrLocalName = aAttributes.getLocalName(i);
         var attrNodeName = aAttributes.getQName(i);
@@ -36,36 +36,36 @@ function updateDocumentSourceMaps(src) {
       }
     },
 
-    startElement: function startElement(aNamespaceURI, aLocalName, aNodeName, aAttributes) {
+    startElement(aNamespaceURI, aLocalName, aNodeName, aAttributes) {
       do_parse_check(aLocalName, "Missing element local name (startElement)");
       do_parse_check(aNodeName, "Missing element node name (startElement)");
       do_parse_check(aAttributes, "Missing element attributes");
       this.handleAttributes(aAttributes);
     },
 
-    endElement: function endElement(aNamespaceURI, aLocalName, aNodeName) {
+    endElement(aNamespaceURI, aLocalName, aNodeName) {
       do_parse_check(aLocalName, "Missing element local name (endElement)");
       do_parse_check(aNodeName, "Missing element node name (endElement)");
     },
 
-    characters: function characters(aData) {
+    characters(aData) {
     },
 
-    processingInstruction: function processingInstruction(aTarget, aData) {
+    processingInstruction(aTarget, aData) {
       do_parse_check(aTarget, "Missing processing instruction target");
     },
   };
 
   var errorHandler = {
-    error: function error(aError) {
+    error(aError) {
       do_parse_check(!aError, "XML error");
     },
 
-    fatalError: function fatalError(aError) {
+    fatalError(aError) {
       do_parse_check(!aError, "XML fatal error");
     },
 
-    ignorableWarning: function ignorableWarning(aError) {
+    ignorableWarning(aError) {
       do_parse_check(!aError, "XML ignorable warning");
     },
   };
