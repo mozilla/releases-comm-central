@@ -55,6 +55,8 @@
   min-width: 0;
   padding: 0;
   padding-inline-start: 2px;
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 .expander-up {
