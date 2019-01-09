@@ -42,6 +42,11 @@ textbox[type="number"] {
   background-color: var(--in-content-box-background);
 }
 
+.numberbox-input-box {
+  -moz-appearance: none;
+  border-width: 0;
+}
+
 .sidebar-footer-label {
   font-size: 1em;
 }

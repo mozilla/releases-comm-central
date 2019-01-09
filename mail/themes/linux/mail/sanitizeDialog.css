@@ -53,16 +53,16 @@
 .expander-up,
 .expander-down {
   min-width: 0;
-  padding: 2px 0;
+  padding: 0;
   padding-inline-start: 2px;
 }
 
 .expander-up {
-  list-style-image: url("chrome://global/skin/arrow/arrow-up.gif");
+  list-style-image: url("chrome://global/skin/icons/arrow-up-12.svg");
 }
 
 .expander-down {
-  list-style-image: url("chrome://global/skin/arrow/arrow-dn.gif");
+  list-style-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
 }
 
 /* Make the item list the same width as the warning box */
