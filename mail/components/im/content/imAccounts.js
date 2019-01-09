@@ -662,7 +662,7 @@ var gAMDragAndDrop = {
       // We are not on a scroll zone
       return;
 
-    accountList._scrollbox.scrollTop += direction * this.SCROLL_SPEED;
+    accountList.scrollTop += direction * this.SCROLL_SPEED;
   },
 
   onDrop(aEvent, aTransferData, aSession) {
