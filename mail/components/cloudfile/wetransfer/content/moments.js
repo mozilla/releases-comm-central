@@ -3,6 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 (async () => {
+  for (let element of document.querySelectorAll("[data-message]")) {
+    element.textContent = browser.i18n.getMessage(element.dataset.message);
+  }
+
   let resp = await fetch("https://backgrounds.wetransfer.net/moment/list.json");
   let items = await resp.json();
   let item = items[Math.floor(Math.random() * items.length)];

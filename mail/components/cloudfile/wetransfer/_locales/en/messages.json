@@ -7,5 +7,11 @@
   },
   "serviceName": {
     "message": "WeTransfer"
+  },
+  "moments_privacyPolicy": {
+    "message": "Privacy Policy"
+  },
+  "moments_tagline": {
+    "message": "WeTransfer is the simplest way to send your files around the world."
   }
 }
