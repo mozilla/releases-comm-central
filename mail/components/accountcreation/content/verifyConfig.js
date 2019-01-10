@@ -93,6 +93,15 @@ function verifyConfig(config, alter, msgWindow, successCallback, errorCallback) 
       gEmailWizardLogger.info("OAuth2 issuer, scope is " +
                               config.oauthSettings.issuer + ", " + config.oauthSettings.scope);
     }
+    if (config.incoming.owaURL) {
+      inServer.setUnicharValue("owa_url", config.incoming.owaURL);
+    }
+    if (config.incoming.ewsURL) {
+      inServer.setUnicharValue("ews_url", config.incoming.ewsURL);
+    }
+    if (config.incoming.easURL) {
+      inServer.setUnicharValue("eas_url", config.incoming.easURL);
+    }
 
     if (inServer.password || inServer.authMethod == Ci.nsMsgAuthMethod.OAuth2) {
       verifyLogon(config, inServer, alter, msgWindow, successCallback, errorCallback);

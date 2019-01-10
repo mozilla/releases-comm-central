@@ -44,43 +44,27 @@ function createAccountInBackend(config) {
 
   inServer.doBiff = true;
   inServer.biffMinutes = config.incoming.checkInterval;
-  const loginAtStartupPrefTemplate =
-    "mail.server.%serverkey%.login_at_startup";
-  var loginAtStartupPref =
-    loginAtStartupPrefTemplate.replace("%serverkey%", inServer.key);
-  Services.prefs.setBoolPref(loginAtStartupPref,
-                             config.incoming.loginAtStartup);
+  inServer.setBoolValue("login_at_startup", config.incoming.loginAtStartup);
   if (config.incoming.type == "pop3") {
-    const leaveOnServerPrefTemplate =
-      "mail.server.%serverkey%.leave_on_server";
-    const daysToLeaveOnServerPrefTemplate =
-      "mail.server.%serverkey%.num_days_to_leave_on_server";
-    const deleteFromServerPrefTemplate =
-      "mail.server.%serverkey%.delete_mail_left_on_server";
-    const deleteByAgeFromServerPrefTemplate =
-      "mail.server.%serverkey%.delete_by_age_from_server";
-    const downloadOnBiffPrefTemplate =
-      "mail.server.%serverkey%.download_on_biff";
-    var leaveOnServerPref =
-      leaveOnServerPrefTemplate.replace("%serverkey%", inServer.key);
-    var ageFromServerPref =
-      deleteByAgeFromServerPrefTemplate.replace("%serverkey%", inServer.key);
-    var daysToLeaveOnServerPref =
-      daysToLeaveOnServerPrefTemplate.replace("%serverkey%", inServer.key);
-    var deleteFromServerPref =
-      deleteFromServerPrefTemplate.replace("%serverkey%", inServer.key);
-    let downloadOnBiffPref =
-      downloadOnBiffPrefTemplate.replace("%serverkey%", inServer.key);
-    Services.prefs.setBoolPref(leaveOnServerPref,
-                               config.incoming.leaveMessagesOnServer);
-    Services.prefs.setIntPref(daysToLeaveOnServerPref,
-                              config.incoming.daysToLeaveMessagesOnServer);
-    Services.prefs.setBoolPref(deleteFromServerPref,
-                               config.incoming.deleteOnServerWhenLocalDelete);
-    Services.prefs.setBoolPref(ageFromServerPref,
-                               config.incoming.deleteByAgeFromServer);
-    Services.prefs.setBoolPref(downloadOnBiffPref,
-                               config.incoming.downloadOnBiff);
+    inServer.setBoolValue("leave_on_server",
+      config.incoming.leaveMessagesOnServer);
+    inServer.setIntValue("num_days_to_leave_on_server",
+      config.incoming.daysToLeaveMessagesOnServer);
+    inServer.setBoolValue("delete_mail_left_on_server",
+      config.incoming.deleteOnServerWhenLocalDelete);
+    inServer.setBoolValue("delete_by_age_from_server",
+      config.incoming.deleteByAgeFromServer);
+    inServer.setBoolValue("download_on_biff",
+      config.incoming.downloadOnBiff);
+  }
+  if (config.incoming.owaURL) {
+    inServer.setUnicharValue("owa_url", config.incoming.owaURL);
+  }
+  if (config.incoming.ewsURL) {
+    inServer.setUnicharValue("ews_url", config.incoming.ewsURL);
+  }
+  if (config.incoming.easURL) {
+    inServer.setUnicharValue("eas_url", config.incoming.easURL);
   }
   inServer.valid = true;
 
@@ -104,10 +88,10 @@ function createAccountInBackend(config) {
     }
 
     if (outServer.authMethod == Ci.nsMsgAuthMethod.OAuth2) {
-      let pref = "mail.smtpserver." + outServer.key + ".";
-      Services.prefs.setCharPref(pref + "oauth2.scope",
+      let prefBranch = "mail.smtpserver." + outServer.key + ".";
+      Services.prefs.setCharPref(prefBranch + "oauth2.scope",
                                  config.oauthSettings.scope);
-      Services.prefs.setCharPref(pref + "oauth2.issuer",
+      Services.prefs.setCharPref(prefBranch + "oauth2.issuer",
                                  config.oauthSettings.issuer);
     }
 
