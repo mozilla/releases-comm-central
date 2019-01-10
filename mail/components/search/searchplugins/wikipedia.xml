@@ -4,18 +4,16 @@
 
 <SearchPlugin xmlns="http://www.mozilla.org/2006/browser/search/">
 <ShortName>Wikipedia (en)</ShortName>
-<Description>Wikipedia, the free encyclopedia</Description>
+<Description>Wikipedia, the Free Encyclopedia</Description>
 <InputEncoding>UTF-8</InputEncoding>
-<Image width="16" height="16">data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAEAgQAhIOEAMjHyABIR0gA6ejpAGlqaQCpqKkAKCgoAPz9%2FAAZGBkAmJiYANjZ2ABXWFcAent6ALm6uQA8OjwAiIiIiIiIiIiIiI4oiL6IiIiIgzuIV4iIiIhndo53KIiIiB%2FWvXoYiIiIfEZfWBSIiIEGi%2FfoqoiIgzuL84i9iIjpGIoMiEHoiMkos3FojmiLlUipYliEWIF%2BiDe0GoRa7D6GPbjcu1yIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</Image>
-<Url type="application/x-suggestions+json" method="GET" template="http://en.wikipedia.org/w/api.php">
+<Image width="16" height="16">resource://search-plugins/images/wikipedia.ico</Image>
+<Url type="application/x-suggestions+json" method="GET" template="https://en.wikipedia.org/w/api.php">
   <Param name="action" value="opensearch"/>
   <Param name="search" value="{searchTerms}"/>
 </Url>
-<Url type="text/html"
-     method="GET"
-     template="http://en.wikipedia.org/wiki/Special:Search"
-     resultdomain="wikipedia.org"
-     rel="searchform">
+<Url type="text/html" method="GET" template="https://en.wikipedia.org/wiki/Special:Search"
+     resultdomain="wikipedia.org" rel="searchform">
   <Param name="search" value="{searchTerms}"/>
+  <Param name="sourceid" value="Mozilla-search"/>
 </Url>
 </SearchPlugin>
