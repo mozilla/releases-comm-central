@@ -199,9 +199,10 @@
       <field name="_listener">
           <![CDATA[({
         _menu: this,
-        _clearMenu: function(aMenu) {
-          if (aMenu._teardown)
-            aMenu._teardown();
+        _clearMenu(menu) {
+          //xxx I'm not quite sure why this isn't always a function (bug 514445)
+          if (menu._teardown)
+            menu._teardown();
         },
         OnItemAdded: function act_add(aRDFParentItem, aItem) {
           if (!(aItem instanceof Ci.nsIMsgFolder))
@@ -210,9 +211,7 @@
             return;
           }
           //xxx we can optimize this later
-          //xxx I'm not quite sure why this isn't always a function
-          if (this._menu._teardown)
-            this._menu._teardown();
+          this._clearMenu(this._menu);
         },
 
         OnItemRemoved: function act_remove(aRDFParentItem, aItem) {
@@ -222,8 +221,7 @@
             return;
           }
           //xxx we can optimize this later
-          if (this._menu._teardown)
-            this._menu._teardown();
+          this._clearMenu(this._menu);
         },
 
         //xxx I stole this listener list from nsMsgFolderDatasource.cpp, but
@@ -232,9 +230,13 @@
         OnItemPropertyChanged: function(aItem, aProperty, aOld, aNew) {},
         OnItemIntPropertyChanged: function(aItem, aProperty, aOld, aNew) {
           if (aItem instanceof Ci.nsIMsgFolder) {
-            if (aProperty == "FolderFlag" &&
-                ((aOld & Ci.nsMsgFolderFlags.Favorite) !=
-                 (aNew & Ci.nsMsgFolderFlags.Favorite))) {
+            if (aProperty == "FolderFlag") {
+              if (this._menu.getAttribute("showFavorites") != "true" ||
+                  !this._menu._initializedSpecials.has("favorites"))
+                return;
+
+              if ((aOld & Ci.nsMsgFolderFlags.Favorite) !=
+                 (aNew & Ci.nsMsgFolderFlags.Favorite))
                setTimeout(this._clearMenu, 0, this._menu);
             }
           }
@@ -256,6 +258,7 @@
         OnItemEvent: function(aFolder, aEvent) {
           if (aEvent == "MRMTimeChanged") {
             if (this._menu.getAttribute("showRecent") != "true" ||
+                !this._menu._initializedSpecials.has("recent") ||
                 !this._menu.firstChild || !this._menu.firstChild.firstChild)
               return;
             // if this folder is already in the recent menu, return.
@@ -286,7 +289,7 @@
          */
         _getChildForItem: function act__itemIsChild(aItem, aMenu) {
           aMenu = aMenu || this._menu;
-          if (!aMenu || !aMenu.childNodes)
+          if (!aMenu || !aMenu.hasChildNodes())
             return null;
 
            if (!(aItem instanceof Ci.nsIMsgFolder))
@@ -300,11 +303,17 @@
         }
       })]]></field>
 
-      <!--
+       <!--
          - True if we have already built our menu-items and are now just
-         - listening for changes
-        -->
+         - listening for changes.
+         -->
       <field name="_initialized">false</field>
+
+      <!--
+         - A Set listing which of our special menus are already built.
+         - E.g. "recent", "favorites".
+        -->
+      <field name="_initializedSpecials">new Set()</field>
 
       <!--
          - Call this if you are unsure whether the menu-items have been built,
@@ -373,6 +382,7 @@
             this._listener._filterFunction = filterFunction;
           } else {
             folders = aFolders;
+            this._listener._filterFunction = function(folder) { return true; };
           }
 
           if (excludeServers.length > 0) {
@@ -430,13 +440,13 @@
           if (!this._parentFolder) {
             let addSeparator = false;
             // Some menus want a "Recent" option, but that should only be on our
-            // top-level menu
+            // top-level menu.
             if (this.getAttribute("showRecent") == "true") {
-              this._buildRecentMenu();
+              this._buildSpecialMenu("recent");
               addSeparator = true;
             }
             if (this.getAttribute("showFavorites") == "true") {
-              this._buildFavoritesMenu();
+              this._buildSpecialMenu("favorites");
               addSeparator = true;
             }
             if (addSeparator) {
@@ -587,38 +597,81 @@
       </method>
 
       <!--
+         - This only builds the menu item in the top-level menulist.
+         - The real submenu will be created once the popup is really shown,
+         - via the _buildSpecialSubmenu method.
+         -->
+      <method name="_buildSpecialMenu">
+        <parameter name="type"/>
+        <body><![CDATA[
+          // Now create the Recent folder and its children
+          let menu = document.createElement("menu");
+          if (type == "recent") {
+            menu.setAttribute("label", this.getAttribute("recentLabel"));
+            menu.setAttribute("accesskey", this.getAttribute("recentAccessKey"));
+          } else {
+            menu.setAttribute("label", this.getAttribute("favoritesLabel"));
+            menu.setAttribute("accesskey", this.getAttribute("favoritesAccessKey"));
+          }
+          menu.setAttribute("special", type);
+          menu.setAttribute("generated", "true");
+
+          let popup = document.createElement("menupopup");
+          popup.setAttribute("class", this.getAttribute("class"));
+          popup.addEventListener("popupshowing",
+                                 () => this._buildSpecialSubmenu(menu),
+                                 { once: true });
+
+          menu.appendChild(popup);
+          this.appendChild(menu);
+        ]]></body>
+      </method>
+
+      <!--
          - Builds a submenu with all of the recently used folders in it, to
          - allow for easy access.
         -->
-      <method name="_buildRecentMenu">
+      <method name="_buildSpecialSubmenu">
+        <parameter name="menu"/>
         <body><![CDATA[
-          // Iterate through all folders in all accounts, and find 15 (_MAXRECENT)
-          // of most recently modified ones.
-          let allFolders = this.toArray(
+          let specialType = menu.getAttribute("special");
+          if (this._initializedSpecials.has(specialType))
+            return;
+
+          // Iterate through all folders in all accounts matching the current filter.
+          let specialFolders = this.toArray(
             this.fixIterator(this.MailServices.accounts.allFolders, Ci.nsIMsgFolder));
+          if (this._listener._filterFunction)
+            specialFolders = specialFolders.filter(this._listener._filterFunction);
 
-          allFolders = allFolders.filter(f => f.canFileMessages);
-
-          let recentFolders = this.getMostRecentFolders(allFolders,
-                                                        this._MAXRECENT,
-                                                        "MRMTime");
+          switch (specialType) {
+            case "recent":
+              // Find 15 (_MAXRECENT) of most recently modified ones.
+              specialFolders = this.getMostRecentFolders(specialFolders,
+                                                         this._MAXRECENT,
+                                                         "MRMTime");
+              break;
+            case "favorites":
+              specialFolders = specialFolders.filter(folder => folder.getFlag(Ci.nsMsgFolderFlags.Favorite));
+              break;
+          }
 
           // Cache the pretty names so that they do not need to be fetched
           // _MAXRECENT^2 times later.
-          recentFolders = recentFolders.map(
+          let specialFoldersMap = specialFolders.map(
             function (f) { return { folder: f, name: f.prettyName } });
 
           // Because we're scanning across multiple accounts, we can end up with
           // several folders with the same name. Find those dupes.
           let dupeNames = new Set();
-          for (let i = 0; i < recentFolders.length; i++) {
-            for (let j = i + 1; j < recentFolders.length; j++) {
-              if (recentFolders[i].name == recentFolders[j].name)
-                dupeNames.add(recentFolders[i].name);
+          for (let i = 0; i < specialFoldersMap.length; i++) {
+            for (let j = i + 1; j < specialFoldersMap.length; j++) {
+              if (specialFoldersMap[i].name == specialFoldersMap[j].name)
+                dupeNames.add(specialFoldersMap[i].name);
             }
           }
 
-          for (let folderItem of recentFolders) {
+          for (let folderItem of specialFoldersMap) {
             // If this folder name appears multiple times in the recent list,
             // append the server name to disambiguate.
             // TODO:
@@ -634,19 +687,10 @@
           }
 
           // Make sure the entries are sorted alphabetically.
-          recentFolders.sort((a, b) => this.folderNameCompare(a.label, b.label));
-
-          // Now create the Recent folder and its children
-          var menu = document.createElement("menu");
-          menu.setAttribute("label", this.getAttribute("recentLabel"));
-          menu.setAttribute("accesskey", this.getAttribute("recentAccessKey"));
-          var popup = document.createElement("menupopup");
-          popup.setAttribute("class", this.getAttribute("class"));
-          popup.setAttribute("generated", "true");
-          menu.appendChild(popup);
+          specialFoldersMap.sort((a, b) => this.folderNameCompare(a.label, b.label));
 
           // Create entries for each of the recent folders.
-          for (let folderItem of recentFolders) {
+          for (let folderItem of specialFoldersMap) {
             let node = document.createElement("menuitem");
 
             node.setAttribute("label", folderItem.label);
@@ -655,87 +699,13 @@
             node.setAttribute("class", "folderMenuItem menuitem-iconic");
             this._setCssSelectors(folderItem.folder, node);
             node.setAttribute("generated", "true");
-            popup.appendChild(node);
+            menu.menupopup.appendChild(node);
           }
-          menu.setAttribute("generated", "true");
-          this.appendChild(menu);
-          if (!recentFolders.length)
+
+          if (specialFoldersMap.length == 0)
             menu.setAttribute("disabled", "true");
-        ]]></body>
-      </method>
 
-      <!--
-         - Builds a submenu with all of the favorite folders in it, to
-         - allow for easy access.
-        -->
-      <method name="_buildFavoritesMenu">
-        <body><![CDATA[
-          // Iterate through all folders in all accounts, and find the
-          // favorite ones.
-          let allFolders = this.toArray(
-            this.fixIterator(this.MailServices.accounts.allFolders, Ci.nsIMsgFolder));
-
-          let favoriteFolders = allFolders.filter(f => f.canFileMessages &&
-                                                       f.getFlag(Ci.nsMsgFolderFlags.Favorite));
-
-          // Cache the pretty names so that they do not need to be fetched
-          // _MAXFAVORITES^2 times later.
-          favoriteFolders = favoriteFolders.map(
-            function (f) { return { folder: f, name: f.prettyName } });
-
-          // Because we're scanning across multiple accounts, we can end up with
-          // several folders with the same name. Find those dupes.
-          let dupeNames = new Set();
-          for (let i = 0; i < favoriteFolders.length; i++) {
-            for (let j = i + 1; j < favoriteFolders.length; j++) {
-              if (favoriteFolders[i].name == favoriteFolders[j].name)
-                dupeNames.add(favoriteFolders[i].name);
-            }
-          }
-
-          for (let folderItem of favoriteFolders) {
-            // If this folder name appears multiple times in the favorites list,
-            // append the server name to disambiguate.
-            // TODO:
-            // - maybe this could use verboseFolderFormat from messenger.properties
-            //   instead of hardcoded " - ".
-            // - disambiguate folders with same name in same account
-            //   (in different subtrees).
-            let label = folderItem.name;
-            if (dupeNames.has(label))
-              label += " - " + folderItem.folder.server.prettyName;
-
-            folderItem.label = label;
-          }
-
-          // Make sure the entries are sorted alphabetically.
-          favoriteFolders.sort((a, b) => this.folderNameCompare(a.label, b.label));
-
-          // Now create the Favorites folder and its children
-          var menu = document.createElement("menu");
-          menu.setAttribute("label", this.getAttribute("favoritesLabel"));
-          menu.setAttribute("accesskey", this.getAttribute("favoritesAccessKey"));
-          var popup = document.createElement("menupopup");
-          popup.setAttribute("class", this.getAttribute("class"));
-          popup.setAttribute("generated", "true");
-          menu.appendChild(popup);
-
-          // Create entries for each of the favorite folders.
-          for (let folderItem of favoriteFolders) {
-            let node = document.createElement("menuitem");
-
-            node.setAttribute("label", folderItem.label);
-            node._folder = folderItem.folder;
-
-            node.setAttribute("class", "folderMenuItem menuitem-iconic");
-            this._setCssSelectors(folderItem.folder, node);
-            node.setAttribute("generated", "true");
-            popup.appendChild(node);
-          }
-          menu.setAttribute("generated", "true");
-          this.appendChild(menu);
-          if (!favoriteFolders.length)
-            menu.setAttribute("disabled", "true");
+          this._initializedSpecials.add(specialType);
         ]]></body>
       </method>
 
@@ -882,6 +852,9 @@
         -->
       <method name="_teardown">
         <body><![CDATA[
+          if (!this._initialized)
+            return;
+
           for (let i = this.childNodes.length - 1; i >= 0; i--) {
             let child = this.childNodes[i];
             if (child.getAttribute("generated") != "true")
@@ -894,6 +867,7 @@
           this._removeListener();
 
           this._initialized = false;
+          this._initializedSpecials.clear();
         ]]></body>
       </method>
     </implementation>
