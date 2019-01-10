@@ -620,7 +620,7 @@ var specialTabs = {
     // Wire up session and global history before any possible
     // progress notifications for back/forward button updating
     browser.docShell.initSessionHistory();
-    Services.obs.addObserver(browser, "browser:purge-session-history");
+    Services.obs.addObserver(browser.observer, "browser:purge-session-history");
 
     // remove the disablehistory attribute so the browser cleans up, as
     // though it had done this work itself
