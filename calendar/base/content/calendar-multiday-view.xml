@@ -2523,13 +2523,6 @@
           let visibleMinutes = Preferences.get("calendar.view.visiblehours", 9) * 60;
           this.setVisibleMinutes(visibleMinutes);
 
-          // set the flex attribute at the scrollbox-innerbox
-          // (this can be removed, after Bug 343555 is fixed)
-          let scrollbox = document.getAnonymousElementByAttribute(
-                         this, "anonid", "scrollbox");
-          document.getAnonymousElementByAttribute(
-              scrollbox, "class", "box-inherit scrollbox-innerbox").flex = "1";
-
           // set the time interval for the time indicator timer
           this.setTimeIndicatorInterval(Preferences.get("calendar.view.timeIndicatorInterval", 15));
           this.enableTimeIndicator();
