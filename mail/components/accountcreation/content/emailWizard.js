@@ -160,6 +160,7 @@ EmailConfigWizard.prototype =
     this._realname = (userFullname) ? userFullname : "";
     e("realname").value = this._realname;
     this._password = "";
+    this._exchangeUsername = ""; // only for Exchange AutoDiscover and only if needed
     this._okCallback = null;
 
     if (window.arguments && window.arguments[0]) {
@@ -445,13 +446,20 @@ EmailConfigWizard.prototype =
     this.onStartOver();
     this.checkStartDone();
   },
+
   onInputRealname() {
     this._realname = e("realname").value;
     this.checkStartDone();
   },
 
+  onInputUsername() {
+    this._exchangeUsername = e("username").value;
+    this.checkStartDone();
+  },
+
   onInputPassword() {
     this._password = e("password").value;
+    this.checkStartDone();
   },
 
   /**
@@ -606,8 +614,18 @@ EmailConfigWizard.prototype =
       call = priority.addCall();
       this.addStatusLine("looking_up_settings_exchange", call);
       call.foundMsg = "found_settings_exchange";
-      fetch = fetchConfigFromExchange(domain, emailAddress, self._password,
-        call.successCallback(), call.errorCallback());
+      fetch = fetchConfigFromExchange(domain,
+        emailAddress, this._exchangeUsername, this._password,
+        call.successCallback(),
+        (e, allErrors) => {
+          // Must call error callback in any case to stop the discover mode.
+          call.errorCallback()(e); // ()(e) is correct
+          if (e.code == 401 || allErrors && allErrors.find(e => e.code == 401)) { // Auth failed
+            // Ask user for username.
+            _show("usernameRow");
+            this.switchToMode("start");
+          }
+        });
       call.setAbortable(fetch);
 
     } catch (e) { // e.g. when entering an invalid domain like "c@c.-com"
@@ -769,7 +787,6 @@ EmailConfigWizard.prototype =
   },
 
   updateStatusLine(call) {
-    console.log("update status line for call " + call.position);
     let line = [...document.querySelectorAll("#status-lines > .status-line")]
       .find(line => line == call.statusLine);
     if (!line) {

@@ -199,6 +199,21 @@
                     accesskey="&rememberPassword.accesskey;"
                     checked="true"/>
         </row>
+        <row id="usernameRow" align="center" hidden="true">
+          <!-- This is used only used for Exchange AutoDiscover, and even then
+               only when absolutely necessary and known to be needed. -->
+          <label accesskey="&username.accesskey;"
+                 class="autoconfigLabel"
+                 value="&username.label;"
+                 control="username"/>
+          <textbox id="username"
+                   class="padded"
+                   placeholder="&username.placeholder;"
+                   oninput="gEmailConfigWizard.onInputUsername();" />
+          <hbox>
+            <description id="usernametext" class="initialDesc">&username.text;</description>
+          </hbox>
+        </row>
       </rows>
     </grid>
     <spacer flex="1" />

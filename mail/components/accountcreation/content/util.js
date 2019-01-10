@@ -334,7 +334,9 @@ ParallelCall.prototype = {
    */
   errorCallback() {
     return e => {
-      ddump("call " + this.position + " took " + (Date.now() - this._time) + "ms and failed with " + e +
+      ddump("call " + this.position + " took " + (Date.now() - this._time) +
+          "ms and failed with " + (typeof(e.code) == "number" ? e.code + " " : "") +
+          (e.toString() ? e.toString() : "unknown error, probably no host connection") +
           (this.callerAbortable && this.callerAbortable._url ? " at <" + this.callerAbortable._url + ">" : ""));
       this.e = e;
       this.finished = true;
@@ -369,7 +371,10 @@ ParallelCall.prototype = {
  *     {Object} result - Result of winner call
  *     {ParallelCall} call - Winner call info
  *   )} successCallback -  A call returned successfully
- * @param {Function(e)} errorCallback - All functions failed. The exception is from the first one.
+ * @param {Function(e, allErrors)} errorCallback - All calls failed.
+ *     {Exception} e - The exception returned by the first call.
+ *     This is just to adhere to the standard API of errorCallback(e).
+ *     {Array of Exception} allErrors - The exceptions from all calls.
  */
 function PriorityOrderAbortable(successCallback, errorCallback) {
   assert(typeof(successCallback) == "function");
@@ -416,7 +421,7 @@ function PriorityOrderAbortable(successCallback, errorCallback) {
     }
     if (!haveHigherPending && !haveHigherSuccess) {
       // all failed
-      errorCallback(this._calls[0].e);
+      errorCallback(this._calls[0].e, this._calls.map(call => call.e)); // see docs above
     }
   });
 }

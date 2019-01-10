@@ -19,6 +19,8 @@ ChromeUtils.defineModuleGetter(this, "AddonManager", "resource://gre/modules/Add
  *
  * @param {string} domain - The domain part of the user's email address
  * @param {string} emailAddress - The user's email address
+ * @param {string} username - (Optional) The user's login name.
+ *         If null, email address will be used.
  * @param {string} password - The user's password for that email address
  * @param {Function(config {AccountConfig})} successCallback - A callback that
  *         will be called when we could retrieve a configuration.
@@ -30,7 +32,7 @@ ChromeUtils.defineModuleGetter(this, "AddonManager", "resource://gre/modules/Add
  *         so do not unconditionally show this to the user.
  *         The first parameter will be an exception object or error string.
  */
-function fetchConfigFromExchange(domain, emailAddress, password,
+function fetchConfigFromExchange(domain, emailAddress, username, password,
                                  successCallback, errorCallback) {
   assert(typeof(successCallback) == "function");
   assert(typeof(errorCallback) == "function");
@@ -41,13 +43,13 @@ function fetchConfigFromExchange(domain, emailAddress, password,
   }
 
   // <https://technet.microsoft.com/en-us/library/bb124251(v=exchg.160).aspx#Autodiscover%20services%20in%20Outlook>
-  // <https://docs.microsoft.com/en-us/previous-versions/office/developer/exchange-server-interoperability-guidance/hh352638(v%3Dexchg.140)>
-  let url1 = "https://" + sanitize.hostname(domain) +
+  // <https://docs.microsoft.com/en-us/previous-versions/office/developer/exchange-server-interoperability-guidance/hh352638(v%3Dexchg.140)>, search for "The Autodiscover service uses one of these four methods"
+  let url1 = "https://autodiscover." + sanitize.hostname(domain) +
              "/autodiscover/autodiscover.xml";
-  let url2 = "https://autodiscover." + sanitize.hostname(domain) +
+  let url2 = "https://" + sanitize.hostname(domain) +
              "/autodiscover/autodiscover.xml";
   let url3 = "http://autodiscover." + sanitize.hostname(domain) +
-             "/autodiscover/autodiscover.xml"; // needed by email hosters
+             "/autodiscover/autodiscover.xml";
   let body =
     `<?xml version="1.0" encoding="utf-8"?>
     <Autodiscover xmlns="http://schemas.microsoft.com/exchange/autodiscover/outlook/requestschema/2006">
@@ -64,7 +66,7 @@ function fetchConfigFromExchange(domain, emailAddress, password,
       // Compare bug 1454325 comment 15.
       "Content-Type": "text/xml; charset=utf-8",
     },
-    username: emailAddress,
+    username: username || emailAddress,
     password,
     // url3 is HTTP (not HTTPS), so suppress password. Even MS spec demands so.
     requireSecureAuth: true,
@@ -77,7 +79,7 @@ function fetchConfigFromExchange(domain, emailAddress, password,
   let successive = new SuccessiveAbortable();
   let priority = new PriorityOrderAbortable(
     function(xml, call) { // success
-      readAutoDiscoverResponse(xml, successive, password, function(config) {
+      readAutoDiscoverResponse(xml, successive, username, password, function(config) {
         successive.current = getAddonsList(config, successCallback, errorCallback);
       }, errorCallback);
     },
@@ -119,7 +121,7 @@ var gLoopCounter = 0;
  * @param {Function(config {AccountConfig})} successCallback - @see accountConfig.js
  */
 function readAutoDiscoverResponse(autoDiscoverXML,
-  successive, password, successCallback, errorCallback) {
+  successive, username, password, successCallback, errorCallback) {
   assert(successive instanceof SuccessiveAbortable);
   assert(typeof(successCallback) == "function");
   assert(typeof(errorCallback) == "function");
@@ -135,11 +137,11 @@ function readAutoDiscoverResponse(autoDiscoverXML,
       throw new Exception("Too many redirects in XML response");
     }
     successive.current = fetchConfigFromExchange(domain,
-      redirectEmailAddress, password,
+      redirectEmailAddress, username, password,
       successCallback, errorCallback);
   }
 
-  let config = readAutoDiscoverXML(autoDiscoverXML);
+  let config = readAutoDiscoverXML(autoDiscoverXML, username);
 
   if (config.isComplete()) {
     successCallback(config);
@@ -150,11 +152,13 @@ function readAutoDiscoverResponse(autoDiscoverXML,
 
 /**
  * @param {JXON} xml - The Exchange server AutoDiscover response
+ * @param {string} username - (Optional) The user's login name
+ *     If null, email address placeholder will be used.
  * @returns {AccountConfig} - @see accountConfig.js
  *
  * @see <https://www.msxfaq.de/exchange/autodiscover/autodiscover_xml.htm>
  */
-function readAutoDiscoverXML(autoDiscoverXML) {
+function readAutoDiscoverXML(autoDiscoverXML, username) {
   if (typeof(autoDiscoverXML) != "object" ||
       !("Autodiscover" in autoDiscoverXML) ||
       !("Response" in autoDiscoverXML.Autodiscover) ||
@@ -172,7 +176,7 @@ function readAutoDiscoverXML(autoDiscoverXML) {
 
   var config = new AccountConfig();
   config.source = AccountConfig.kSourceExchange;
-  config.incoming.username = "%EMAILADDRESS%";
+  config.incoming.username = username || "%EMAILADDRESS%";
   config.incoming.socketType = 2; // only https supported
   config.incoming.port = 443;
   config.incoming.auth = Ci.nsMsgAuthMethod.passwordCleartext;
@@ -257,7 +261,7 @@ function readAutoDiscoverXML(autoDiscoverXML) {
         if ("LoginName" in protocolX) {
           server.username = sanitize.nonemptystring(protocolX.LoginName);
         } else {
-          server.username = "%EMAILADDRESS%";
+          server.username = username || "%EMAILADDRESS%";
         }
 
         if (type == "SMTP") {
