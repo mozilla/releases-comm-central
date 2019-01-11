@@ -1872,7 +1872,7 @@ bool nsImapProtocol::ProcessCurrentURL()
                                                 NS_SUCCEEDED(GetConnectionStatus()),
                                                 copyState);
       if (NS_FAILED(rv))
-        MOZ_LOG(IMAP, LogLevel::Info, ("CopyNextStreamMessage failed: %" PRIx32 "\n", static_cast<uint32_t>(rv)));
+        MOZ_LOG(IMAP, LogLevel::Info, ("CopyNextStreamMessage failed: %" PRIx32, static_cast<uint32_t>(rv)));
 
       NS_ReleaseOnMainThreadSystemGroup("nsImapProtocol, copyState", copyState.forget());
     }
@@ -9755,7 +9755,7 @@ nsresult nsImapMockChannel::ReadFromMemCache(nsICacheEntry *entry)
     MOZ_LOG(IMAPCache, LogLevel::Debug, ("ReadFromMemCache(): Cache entry rejected"));
     rv = NS_ERROR_FAILURE;
   }
-  MOZ_LOG(IMAPCache, LogLevel::Debug, ("ReadFromMemCache(): Returning " PRIx32, static_cast<uint32_t>(rv)));
+  MOZ_LOG(IMAPCache, LogLevel::Debug, ("ReadFromMemCache(): Returning %" PRIx32, static_cast<uint32_t>(rv)));
   return rv;
 }
 
