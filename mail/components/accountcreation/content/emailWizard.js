@@ -453,7 +453,7 @@ EmailConfigWizard.prototype =
   },
 
   onInputUsername() {
-    this._exchangeUsername = e("username").value;
+    this._exchangeUsername = e("usernameEx").value;
     this.checkStartDone();
   },
 

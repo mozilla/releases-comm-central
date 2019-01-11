@@ -18,12 +18,12 @@
 <!ENTITY password.text                   "Optional, will only be used to validate the username">
 <!ENTITY rememberPassword.label          "Remember password">
 <!ENTITY rememberPassword.accesskey      "m">
-<!ENTITY username.label                  "Your login:">
-<!ENTITY username.accesskey              "l">
-<!-- LOCALIZATION NOTE(username.placeholder): YOURDOMAIN refers to the Windows domain in ActiveDirectory. yourusername refers to the user's account name in Windows. -->
-<!ENTITY username.placeholder            "YOURDOMAIN\yourusername">
-<!-- LOCALIZATION NOTE(username.text): Domain refers to the Windows domain in ActiveDirectory. We mean the user's login in Windows at the local corporate network. -->
-<!ENTITY username.text                   "Domain login">
+<!ENTITY usernameEx.label                "Your login:">
+<!ENTITY usernameEx.accesskey            "l">
+<!-- LOCALIZATION NOTE(usernameEx.placeholder): YOURDOMAIN refers to the Windows domain in ActiveDirectory. yourusername refers to the user's account name in Windows. -->
+<!ENTITY usernameEx.placeholder          "YOURDOMAIN\yourusername">
+<!-- LOCALIZATION NOTE(usernameEx.text): Domain refers to the Windows domain in ActiveDirectory. We mean the user's login in Windows at the local corporate network. -->
+<!ENTITY usernameEx.text                 "Domain login">
 
 <!ENTITY imapLong.label                  "IMAP (remote folders)">
 <!ENTITY pop3Long.label                  "POP3 (keep mail on your computer)">

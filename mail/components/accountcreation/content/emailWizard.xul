@@ -202,16 +202,16 @@
         <row id="usernameRow" align="center" hidden="true">
           <!-- This is used only used for Exchange AutoDiscover, and even then
                only when absolutely necessary and known to be needed. -->
-          <label accesskey="&username.accesskey;"
+          <label accesskey="&usernameEx.accesskey;"
                  class="autoconfigLabel"
-                 value="&username.label;"
-                 control="username"/>
-          <textbox id="username"
+                 value="&usernameEx.label;"
+                 control="usernameEx"/>
+          <textbox id="usernameEx"
                    class="padded"
-                   placeholder="&username.placeholder;"
+                   placeholder="&usernameEx.placeholder;"
                    oninput="gEmailConfigWizard.onInputUsername();" />
           <hbox>
-            <description id="usernametext" class="initialDesc">&username.text;</description>
+            <description id="usernametextEx" class="initialDesc">&usernameEx.text;</description>
           </hbox>
         </row>
       </rows>
