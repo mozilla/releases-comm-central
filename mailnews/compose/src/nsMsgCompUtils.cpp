@@ -33,7 +33,7 @@
 #include "mozilla/mailnews/Services.h"
 #include "mozilla/Services.h"
 #include "mozilla/Unused.h"
-#include "nsIContentIterator.h"
+#include "mozilla/ContentIterator.h"
 #include "mozilla/dom/Document.h"
 #include "nsIMIMEInfo.h"
 #include "nsIMsgHeaderParser.h"
@@ -1781,12 +1781,15 @@ GetEmbeddedObjects(mozilla::dom::Document* aDocument)
     return nullptr;
   }
 
-  nsCOMPtr<nsIContentIterator> iter = NS_NewContentIterator();
-  iter->Init(aDocument->GetRootElement());
+  mozilla::PostContentIterator iter;
+  nsresult rv = iter.Init(aDocument->GetRootElement());
+  if (NS_WARN_IF(NS_FAILED(rv))) {
+    return nullptr;
+  }
 
   // Loop through the content iterator for each content node.
-  while (!iter->IsDone()) {
-    nsINode* node = iter->GetCurrentNode();
+  while (!iter.IsDone()) {
+    nsINode* node = iter.GetCurrentNode();
     if (node->IsElement()) {
       mozilla::dom::Element* element = node->AsElement();
 
@@ -1798,7 +1801,7 @@ GetEmbeddedObjects(mozilla::dom::Document* aDocument)
         nodes->AppendElement(node);
       }
     }
-    iter->Next();
+    iter.Next();
   }
 
   return nodes.forget();
