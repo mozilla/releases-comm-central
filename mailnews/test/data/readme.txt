@@ -59,3 +59,45 @@ nested multipart/* and message/* segments; as its explanation describes:
 
 The original source of this file is unknown, but a copy can be found at
 <http://sourceforge.net/projects/kmmail/files/MIME%20Torture%20Tests/>.
+
+
+
+
+mbox_modern
+-----------
+
+A simple mbox in the form that Thunderbird currently seems to save (as
+of Nov 2018).
+Separator lines are of the form:
+
+From - Fri Aug 24 11:55:47 2018
+
+Lines beginning with "From " within the message body are escaped
+by prefixing a space.
+
+
+mbox_unquoted
+-------------
+
+Old-style mbox. This seems to be what Thunderbird was storing back around
+2005, and so there are likely to be a bunch of these out in the wild.
+
+Separator lines are lines containing only: "From "
+Lines within the message body beginning with "From " are not escaped in
+any way.
+
+
+mbox_mboxrd
+-----------
+
+Example of the mboxrd variant, taken from the wikipedia mbox page.
+Separator lines are of the form:
+
+From MAILER-DAEMON Fri Jul  8 12:08:34 2011
+
+(note that MAILER-DAEMON is a special case - this is where an
+email address usually goes, but MAILER-DAEMON can be used instead).
+
+"From " lines within the message body are escaped by prefixing with
+a '>' char.
+
