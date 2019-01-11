@@ -50,7 +50,21 @@
               label="&openAttachmentListCmd.label;"
               disabled="true">
           <menupopup id="appmenu_attachmentMenuList"
-                     onpopupshowing="FillAttachmentListPopup(this);"/>
+                     onpopupshowing="FillAttachmentListPopup(event, this);">
+            <menuseparator/>
+            <menuitem label="&openAllAttachmentsCmd.label;"
+                      accesskey="&openAllAttachmentsCmd.accesskey;"
+                      command="cmd_openAllAttachments"/>
+            <menuitem label="&saveAllAttachmentsCmd.label;"
+                      accesskey="&saveAllAttachmentsCmd.accesskey;"
+                      command="cmd_saveAllAttachments"/>
+            <menuitem label="&detachAllAttachmentsCmd.label;"
+                      accesskey="&detachAllAttachmentsCmd.accesskey;"
+                      command="cmd_detachAllAttachments"/>
+            <menuitem label="&deleteAllAttachmentsCmd.label;"
+                      accesskey="&deleteAllAttachmentsCmd.accesskey;"
+                      command="cmd_deleteAllAttachments"/>
+          </menupopup>
         </menu>
         <menuseparator class="appmenu-menuseparator"/>
         <hbox>
