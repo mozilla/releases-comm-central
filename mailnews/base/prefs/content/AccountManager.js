@@ -1152,10 +1152,11 @@ function pageURL(pageId)
 
 function loadPage(pageId)
 {
-  const LOAD_FLAGS_NONE = Ci.nsIWebNavigation.LOAD_FLAGS_NONE;
-  document.getElementById("contentFrame").webNavigation.loadURI(pageURL(pageId),
-    LOAD_FLAGS_NONE, null, null, null,
-    Services.scriptSecurityManager.getSystemPrincipal());
+  const loadURIOptions = {
+    triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
+  };
+  document.getElementById("contentFrame")
+          .webNavigation.loadURI(pageURL(pageId), loadURIOptions);
 }
 
 // save the values of the widgets to the given server

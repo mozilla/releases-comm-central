@@ -29,6 +29,7 @@
 #include "nsThreadUtils.h"
 #include "nsAutoPtr.h"
 #include "mozilla/Services.h"
+#include "mozilla/dom/LoadURIOptionsBinding.h"
 
 // Interfaces Needed
 #include "nsIBaseWindow.h"
@@ -490,13 +491,11 @@ nsMsgPrintEngine::FireThatLoadOperation(const nsString& uri)
   else
   {
     nsCOMPtr<nsIWebNavigation> webNav(do_QueryInterface(mDocShell));
-    if (webNav)
-      rv = webNav->LoadURI(uri,                                // URI string
-                           nsIWebNavigation::LOAD_FLAGS_NONE,  // Load flags
-                           nullptr,                            // Referring URI
-                           nullptr,                            // Post data
-                           nullptr,                            // Extra headers
-                           nsContentUtils::GetSystemPrincipal());
+    if (webNav) {
+      mozilla::dom::LoadURIOptions loadURIOptions;
+      loadURIOptions.mTriggeringPrincipal = nsContentUtils::GetSystemPrincipal();
+      rv = webNav->LoadURI(uri, loadURIOptions);
+    }
   }
   return rv;
 }

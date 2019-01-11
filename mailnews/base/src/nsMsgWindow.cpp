@@ -34,6 +34,7 @@
 #include "nsIAuthPrompt.h"
 #include "nsMsgUtils.h"
 #include "mozilla/TransactionManager.h"
+#include "mozilla/dom/LoadURIOptionsBinding.h"
 
 NS_IMPL_ISUPPORTS(nsMsgWindow,
                               nsIMsgWindow,
@@ -505,9 +506,9 @@ nsMsgWindow::DisplayURIInMessagePane(const nsAString& uri, bool clearMsgHdr, nsI
   nsCOMPtr<nsIWebNavigation> webNav(do_QueryInterface(docShell));
   NS_ENSURE_TRUE(webNav, NS_ERROR_FAILURE);
 
-  return webNav->LoadURI(uri, nsIWebNavigation::LOAD_FLAGS_NONE,
-                         nullptr, nullptr, nullptr,
-                         principal);
+  mozilla::dom::LoadURIOptions loadURIOptions;
+  loadURIOptions.mTriggeringPrincipal = principal;
+  return webNav->LoadURI(uri, loadURIOptions);
 }
 
 NS_IMETHODIMP

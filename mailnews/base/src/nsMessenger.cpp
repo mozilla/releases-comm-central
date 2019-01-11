@@ -18,6 +18,7 @@
 #include "nsIMutableArray.h"
 #include "mozilla/Path.h"
 #include "mozilla/Services.h"
+#include "mozilla/dom/LoadURIOptionsBinding.h"
 
 // necko
 #include "nsMimeTypes.h"
@@ -475,12 +476,10 @@ nsMessenger::OpenURL(const nsACString& aURL)
   nsCOMPtr<nsIWebNavigation> webNav(do_QueryInterface(mDocShell));
   if(!webNav)
     return NS_ERROR_FAILURE;
-  rv = webNav->LoadURI(NS_ConvertASCIItoUTF16(aURL),          // URI string
-                       nsIWebNavigation::LOAD_FLAGS_IS_LINK,  // Load flags
-                       nullptr,                               // Referring URI
-                       nullptr,                               // Post stream
-                       nullptr,                               // Extra headers
-                       nsContentUtils::GetSystemPrincipal());
+  mozilla::dom::LoadURIOptions loadURIOptions;
+  loadURIOptions.mLoadFlags = nsIWebNavigation::LOAD_FLAGS_IS_LINK;
+  loadURIOptions.mTriggeringPrincipal = nsContentUtils::GetSystemPrincipal();
+  rv = webNav->LoadURI(NS_ConvertASCIItoUTF16(aURL), loadURIOptions);
   return rv;
 }
 

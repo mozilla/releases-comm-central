@@ -405,13 +405,13 @@ function SetFocusOnStartup()
 function EditorLoadUrl(url)
 {
   try {
-    if (url)
-      GetCurrentEditorElement().webNavigation.loadURI(url,  // uri string
-         Ci.nsIWebNavigation.LOAD_FLAGS_BYPASS_CACHE,       // load flags
-         null,                                              // referrer
-         null,                                              // post-data stream
-         null,
-         Services.scriptSecurityManager.getSystemPrincipal());
+    if (url) {
+      let loadURIOptions = {
+        loadFlags: Ci.nsIWebNavigation.LOAD_FLAGS_BYPASS_CACHE,
+        triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal()
+      };
+      GetCurrentEditorElement().webNavigation.loadURI(url, loadURIOptions);
+    }
   } catch (e) { dump(" EditorLoadUrl failed: "+e+"\n"); }
 }
 

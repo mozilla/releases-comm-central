@@ -63,9 +63,10 @@
 
             this.docShell.charset = "UTF-8";
             const URI = "chrome://chat/content/conv.html";
-            const flag = Ci.nsIWebNavigation.LOAD_FLAGS_NONE;
-            const systemPrincipal = Services.scriptSecurityManager.getSystemPrincipal();
-            this.webNavigation.loadURI(URI, flag, null, null, null, systemPrincipal);
+            const loadURIOptions = {
+              triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
+            };
+            this.webNavigation.loadURI(URI, loadURIOptions);
             this.addProgressListener(this);
 
             if (this._scrollingView)
