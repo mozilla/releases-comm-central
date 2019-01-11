@@ -1974,7 +1974,7 @@ nsMsgDBView::GetCellValue(int32_t aRow,
       }
       break;
     case 'u':
-      if (colID.EqualsLiteral("unreadCol") &&
+      if (colID.EqualsLiteral("unreadButtonColHeader") &&
           !(flags & nsMsgMessageFlags::Read))
       {
         nsString tmp_str;
