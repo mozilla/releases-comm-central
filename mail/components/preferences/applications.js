@@ -102,6 +102,13 @@ class HandlerListItem {
       this.node.setAttribute("actionIcon", this.handlerInfoWrapper.actionIcon);
     }
   }
+
+  set showActionsMenu(value) {
+    document.getAnonymousElementByAttribute(this.node, "anonid", "selected")
+            .setAttribute("hidden", !value);
+    document.getAnonymousElementByAttribute(this.node, "anonid", "not-selected")
+            .setAttribute("hidden", !!value);
+  }
 }
 
 /**
@@ -756,7 +763,7 @@ var gCloudFileTab = {
     if (!accountKey)
       return;
 
-    this.rebuildView();
+    this._rebuildView();
     let newItem = this._list.querySelector("richlistitem[value='" + accountKey + "']");
     this._list.selectItem(newItem);
     this._removeAccountButton.disabled = false;
@@ -778,7 +785,7 @@ var gCloudFileTab = {
     if (Services.prompt.confirm(null, "", confirmMessage)) {
       this._list.clearSelection();
       cloudFileAccounts.removeAccount(accountKey);
-      this.rebuildView();
+      this._rebuildView();
       this._settingsDeck.selectedPanel = this._defaultPanel;
       delete this._accountCache[accountKey];
 
@@ -874,10 +881,11 @@ var gApplicationsPane = {
     // the dialog might stretch too much in an attempt to fit them all in.
     // XXX Shouldn't we perhaps just set a max-height on the richlistbox?
     var _delayedPaneLoad = function(self) {
+      self._initListEventHandlers();
       self._loadData();
       self._rebuildVisibleTypes();
       self._sortVisibleTypes();
-      self.rebuildView();
+      self._rebuildView();
 
       // Notify observers that the UI is now ready
       Services.obs.notifyObservers(window, "app-handler-pane-loaded");
@@ -915,6 +923,31 @@ var gApplicationsPane = {
   // -----------------
   // View Construction
 
+  selectedHandlerListItem: null,
+
+  _initListEventHandlers() {
+    this._list.addEventListener("select", event => {
+      if (event.target != this._list) {
+        return;
+      }
+
+      let handlerListItem = this._list.selectedItem &&
+                            HandlerListItem.forNode(this._list.selectedItem);
+      if (this.selectedHandlerListItem == handlerListItem) {
+        return;
+      }
+
+      if (this.selectedHandlerListItem) {
+        this.selectedHandlerListItem.showActionsMenu = false;
+      }
+      this.selectedHandlerListItem = handlerListItem;
+      if (handlerListItem) {
+        this.rebuildActionsMenu();
+        handlerListItem.showActionsMenu = true;
+      }
+    });
+  },
+
   _rebuildVisibleTypes() {
     // Reset the list of visible types and the visible type description.
     this._visibleTypes.length = 0;
@@ -943,10 +976,10 @@ var gApplicationsPane = {
     }
   },
 
-  rebuildView() {
-    let lastSelectedType = this._list.selectedItem &&
-                           HandlerListItem.forNode(this._list.selectedItem)
-                           .handlerInfoWrapper.type;
+  _rebuildView() {
+    let lastSelectedType = this.selectedHandlerListItem &&
+                           this.selectedHandlerListItem.handlerInfoWrapper.type;
+    this.selectedHandlerListItem = null;
 
     // Clear the list of entries.
     while (this._list.childNodes.length > 1)
@@ -1053,7 +1086,7 @@ var gApplicationsPane = {
     if (!typeItem)
       return;
 
-    var handlerInfo = this._handledTypes[typeItem.type];
+    var handlerInfo = this.selectedHandlerListItem.handlerInfoWrapper;
     var menu =
       document.getAnonymousElementByAttribute(typeItem, "class", "actionsMenu");
     var menuPopup = menu.menupopup;
@@ -1223,7 +1256,7 @@ var gApplicationsPane = {
       column.setAttribute("sortDirection", "ascending");
 
     this._sortVisibleTypes();
-    this.rebuildView();
+    this._rebuildView();
   },
 
   /**
@@ -1287,8 +1320,7 @@ var gApplicationsPane = {
   },
 
   _storeAction(aActionItem) {
-    var typeItem = this._list.selectedItem;
-    var handlerInfo = this._handledTypes[typeItem.type];
+    var handlerInfo = this.selectedHandlerListItem.handlerInfoWrapper;
 
     if (aActionItem.hasAttribute("alwaysAsk")) {
       handlerInfo.alwaysAskBeforeHandling = true;
@@ -1314,7 +1346,7 @@ var gApplicationsPane = {
     handlerInfo.store();
 
     // Update the action label and image to reflect the new preferred action.
-    HandlerListItem.forNode(typeItem).refreshAction();
+    this.selectedHandlerListItem.refreshAction();
   },
 
   manageApp(aEvent) {
@@ -1322,8 +1354,7 @@ var gApplicationsPane = {
     // as we handle it specially ourselves.
     aEvent.stopPropagation();
 
-    var typeItem = this._list.selectedItem;
-    var handlerInfo = this._handledTypes[typeItem.type];
+    var handlerInfo = this.selectedHandlerListItem.handlerInfoWrapper;
 
     let closingCallback = () => {
       // Rebuild the actions menu so that we revert to the previous selection,
@@ -1331,7 +1362,7 @@ var gApplicationsPane = {
       this.rebuildActionsMenu();
 
       // Update the richlistitem too. Will be visible when selecting another row.
-      HandlerListItem.forNode(typeItem).refreshAction();
+      this.selectedHandlerListItem.refreshAction();
     };
 
     gSubDialog.open(
@@ -1370,7 +1401,7 @@ var gApplicationsPane = {
 
     if (AppConstants.platform == "win") {
       let params = {};
-      let handlerInfo = this._handledTypes[this._list.selectedItem.type];
+      let handlerInfo = this.selectedHandlerListItem.handlerInfoWrapper;
 
       params.mimeInfo = handlerInfo.wrappedHandlerInfo;
 
@@ -1412,7 +1443,7 @@ var gApplicationsPane = {
           handlerApp.executable = fp.file;
 
           // Add the app to the type's list of possible handlers.
-          let handlerInfo = this._handledTypes[this._list.selectedItem.type];
+          let handlerInfo = this.selectedHandlerListItem.handlerInfoWrapper;
           handlerInfo.addPossibleApplicationHandler(handlerApp);
         }
         onSelectionDone();
