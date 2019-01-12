@@ -308,10 +308,10 @@ var gTestArray =
 
 function run_test()
 {
+  localAccountUtils.loadLocalMailAccount();
+
   // Add a listener.
   MailServices.mfn.addListener(gMFListener, allTestedEvents);
-
-  localAccountUtils.loadLocalMailAccount();
 
   // Load up some messages so that we can copy them in later.
   gMsgFile1 = do_get_file("../../../data/bugmail10");

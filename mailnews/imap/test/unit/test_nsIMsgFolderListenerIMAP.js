@@ -191,8 +191,6 @@ function run_test()
   // This is before any of the actual tests, so...
   gTest = 0;
 
-  // Add a listener.
-  MailServices.mfn.addListener(gMFListener, allTestedEvents);
   gIMAPDaemon = new imapDaemon();
   gServer = makeServer(gIMAPDaemon, "");
 
@@ -225,6 +223,9 @@ function run_test()
   Services.prefs.setBoolPref("mail.biff.animate_dock_icon", false);
   // We aren't interested in downloading messages automatically
   Services.prefs.setBoolPref("mail.server.server1.download_on_biff", false);
+
+  // Add a listener so that we can check all folder events from this point.
+  MailServices.mfn.addListener(gMFListener, allTestedEvents);
 
   // Get the server list...
   gIMAPIncomingServer.performExpand(null);

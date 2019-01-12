@@ -18,7 +18,7 @@ var gCopyService = MailServices.copy;
 var gTest = 1;
 
 // Which events are expected
-var gExpectedEvents;
+var gExpectedEvents = [];
 
 // The current status (what all has been done)
 var gCurrStatus = 0;
@@ -269,7 +269,7 @@ function verify(event)
     // Instead, we'll match up message ids as a (poor?) substitute.
     if (expected[1].expectedMessageId)
     {
-      Assert.equal(event[1].messageId, expected[1].expectedMessageId);
+      Assert.equal(expected[1].expectedMessageId, event[1].messageId);
       break;
     }
     // If we do have a header, fall through to the case below
@@ -306,7 +306,7 @@ function verify(event)
     Assert.equal(expected[3], event[3]);
     break;
   case MailServices.mfn.msgKeyChanged:
-    Assert.equal(expected[1].messageId, event[2].expectedMessageId);
+    Assert.equal(expected[1].expectedMessageId, event[2].messageId);
     break;
   case MailServices.mfn.msgsMoveCopyCompleted:
   case MailServices.mfn.folderMoveCopyCompleted:
@@ -335,11 +335,11 @@ function verify(event)
     break;
   case MailServices.mfn.folderAdded:
     // Check: parent folder matches
-    Assert.equal(event[1].parent, expected[1]);
+    Assert.equal(expected[1], event[1].parent);
 
     // Check: folder name matches
-    Assert.equal(event[1].prettyName, expected[2]);
-    Assert.equal(event[1].name, expected[2]);
+    Assert.equal(expected[2], event[1].prettyName);
+    Assert.equal(expected[2], event[1].name);
 
     // Not a check, but if we have to store this folder somewhere, do it
     if (expected[3])
