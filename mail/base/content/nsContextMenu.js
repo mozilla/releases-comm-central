@@ -86,7 +86,8 @@ nsContextMenu.prototype = {
 
       let subject = {
         menu: aPopup,
-        tab: document.getElementById("tabmail").currentTabInfo,
+        tab: document.getElementById("tabmail") ?
+             document.getElementById("tabmail").currentTabInfo : undefined,
         isContentSelected: this.isContentSelected,
         inFrame: this.inFrame,
         isTextSelected: this.isTextSelected,
