@@ -149,12 +149,12 @@ function InitLanguageMenu(aCurLang)
   for (var i = 0; i < count; i++)
   {
     let item = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "menuitem");
-    item.setAttribute("label", sortedList[i].label);
-    item.setAttribute("value", sortedList[i].id);
+    item.setAttribute("label", sortedList[i].displayName);
+    item.setAttribute("value", sortedList[i].localeCode);
     let beforeItem = gDialog.LanguageMenulist.getItemAtIndex(i);
     languageMenuPopup.insertBefore(item, beforeItem);
 
-    if (aCurLang && sortedList[i].id == aCurLang)
+    if (aCurLang && sortedList[i].localeCode == aCurLang)
       defaultItem = item;
   }
 

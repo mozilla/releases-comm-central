@@ -173,7 +173,7 @@ var gComposePane = {
 
     // append the dictionaries to the menu list...
     for (var i = 0; i < count; i++)
-      languageMenuList.appendItem(sortedList[i].label, sortedList[i].id);
+      languageMenuList.appendItem(sortedList[i].displayName, sortedList[i].localeCode);
 
     languageMenuList.setInitialSelection();
   },

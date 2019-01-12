@@ -3811,8 +3811,8 @@ function InitLanguageMenu() {
 
   for (let i = 0; i < count; i++) {
     var item = document.createElement("menuitem");
-    item.setAttribute("label", sortedList[i].label);
-    item.setAttribute("value", sortedList[i].id);
+    item.setAttribute("label", sortedList[i].displayName);
+    item.setAttribute("value", sortedList[i].localeCode);
     item.setAttribute("type", "radio");
     languageMenuList.appendChild(item);
   }
