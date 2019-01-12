@@ -68,7 +68,6 @@
 #include "mozilla/Services.h"
 #include "nsMimeTypes.h"
 #include "nsIMsgFilter.h"
-#include "nsIConsoleService.h"
 #include "nsIScriptError.h"
 #include "mozilla/intl/LocaleService.h"
 #include "nsIURIMutator.h"
@@ -3581,32 +3580,6 @@ NS_IMETHODIMP nsMsgDBFolder::GetChildWithURI(const nsACString& uri, bool deep, b
   }
   return NS_OK;
 }
-
-NS_IMETHODIMP nsMsgDBFolder::GetPrettiestName(nsAString& name)
-{
-  if (NS_IsMainThread()) {
-    nsCOMPtr<nsIConsoleService> cs = do_GetService(NS_CONSOLESERVICE_CONTRACTID);
-
-    if (cs) {
-      nsCString msg(__FUNCTION__);
-      msg.AppendLiteral(" is deprecated and will be removed soon.");
-
-      nsCOMPtr<nsIScriptError> e = do_CreateInstance(NS_SCRIPTERROR_CONTRACTID);
-      if (e && NS_SUCCEEDED(e->Init(NS_ConvertUTF8toUTF16(msg), EmptyString(),
-                                    EmptyString(), 0, 0,
-                                    nsIScriptError::warningFlag, "mailnews",
-                                    false))) {
-        cs->LogMessage(e);
-      }
-    }
-  }
-  NS_WARNING("You are trying to use the deprecated attribute 'prettiestName'.");
-
-  if (NS_SUCCEEDED(GetPrettyName(name)))
-    return NS_OK;
-  return GetName(name);
-}
-
 
 NS_IMETHODIMP nsMsgDBFolder::GetShowDeletedMessages(bool *showDeletedMessages)
 {

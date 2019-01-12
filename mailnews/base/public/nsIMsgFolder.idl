@@ -42,7 +42,6 @@ interface nsIMsgFolder : nsISupports {
   attribute AString name;
   attribute AString prettyName;
   readonly attribute AString abbreviatedName;
-  /* @deprecated */ readonly attribute AString prettiestName;
 
   attribute nsIMsgFolder parent;
 
