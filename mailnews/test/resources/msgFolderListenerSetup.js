@@ -231,7 +231,7 @@ function hasExactlyElements(array, elements)
         }
         catch (e) {}
       }
-      Assert.notEqual(currElement, undefined);
+      Assert.equal(typeof currElement, "object");
       Assert.notEqual(mailTestUtils.non_strict_index_of(array, currElement), -1);
     }
   }
@@ -317,7 +317,7 @@ function verify(event)
     hasExactlyElements(expected[2], event[2]);
 
     // Check: destination folder matches.
-    Assert.equal(expected[3], event[3]);
+    Assert.equal(expected[3].URI, event[3].URI);
 
     if (eventType == MailServices.mfn.folderMoveCopyCompleted)
       break;
@@ -335,7 +335,7 @@ function verify(event)
     break;
   case MailServices.mfn.folderAdded:
     // Check: parent folder matches
-    Assert.equal(expected[1], event[1].parent);
+    Assert.equal(expected[1].URI, event[1].parent.URI);
 
     // Check: folder name matches
     Assert.equal(expected[2], event[1].prettyName);
@@ -356,7 +356,7 @@ function verify(event)
     // the event string should match
     Assert.equal(expected[2], event[2]);
     // and so should the folder we are talking about
-    Assert.equal(expected[1], event[1]);
+    Assert.equal(expected[1].URI, event[1].URI);
     break;
   }
 }
