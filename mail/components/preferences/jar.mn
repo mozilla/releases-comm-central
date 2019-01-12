@@ -35,7 +35,6 @@ messenger.jar:
     content/messenger/preferences/applications.js
     content/messenger/preferences/applicationManager.xul
     content/messenger/preferences/applicationManager.js
-    content/messenger/preferences/handlers.xml
     content/messenger/preferences/handlers.css
     content/messenger/preferences/actionsshared.js
     content/messenger/preferences/fonts.js

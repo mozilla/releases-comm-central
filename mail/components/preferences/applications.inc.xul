@@ -87,7 +87,7 @@
 
           <separator class="thin"/>
 
-          <listheader equalsize="always" style="border: 0; padding: 0; -moz-appearance: none;">
+          <listheader equalsize="always">
             <treecol id="typeColumn" label="&typeColumn.label;" value="type"
                       accesskey="&typeColumn.accesskey;" persist="sortDirection"
                       flex="1" onclick="gApplicationsPane.sort(event);"
