@@ -541,7 +541,7 @@ NS_IMETHODIMP nsAutoSyncManager::Pause()
 {
   StopTimer();
   mPaused = true;
-  MOZ_LOG(gAutoSyncLog, LogLevel::Debug, ("autosync paused\n"));
+  MOZ_LOG(gAutoSyncLog, LogLevel::Debug, ("autosync paused"));
   return NS_OK;
 }
 
@@ -549,7 +549,7 @@ NS_IMETHODIMP nsAutoSyncManager::Resume()
 {
   mPaused = false;
   StartTimerIfNeeded();
-  MOZ_LOG(gAutoSyncLog, LogLevel::Debug, ("autosync resumed\n"));
+  MOZ_LOG(gAutoSyncLog, LogLevel::Debug, ("autosync resumed"));
   return NS_OK;
 }
 

@@ -19,7 +19,7 @@ nsIMAPHostInfo::nsIMAPHostInfo(const char *serverKey,
                                nsIImapIncomingServer *server)
 {
   fServerKey = serverKey;
-  NS_ASSERTION(server, "*** Fatal null imap incoming server...\n");
+  NS_ASSERTION(server, "*** Fatal null imap incoming server...");
   server->GetServerDirectory(fOnlineDir);
   fNextHost = NULL;
   fCapabilityFlags = kCapabilityUndefined;

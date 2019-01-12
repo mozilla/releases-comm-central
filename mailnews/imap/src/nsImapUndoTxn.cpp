@@ -317,11 +317,11 @@ nsImapMoveCopyMsgTxn::UndoMailboxDelete()
         for (i = 0; i < count; i++)
         {
             oldHdr = m_srcHdrs[i];
-            NS_ASSERTION(oldHdr, "fatal ... cannot get old msg header\n");
+            NS_ASSERTION(oldHdr, "fatal ... cannot get old msg header");
             rv = srcDB->CopyHdrFromExistingHdr(m_srcKeyArray[i],
                                                oldHdr,true,
                                                getter_AddRefs(newHdr));
-            NS_ASSERTION(newHdr, "fatal ... cannot create new header\n");
+            NS_ASSERTION(newHdr, "fatal ... cannot create new header");
 
             if (NS_SUCCEEDED(rv) && newHdr)
             {

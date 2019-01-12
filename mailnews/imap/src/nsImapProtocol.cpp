@@ -562,7 +562,7 @@ nsImapProtocol::Initialize(nsIImapHostSessionList *aHostSessionList,
     nsresult rv = NS_NewThread(getter_AddRefs(m_iThread), this);
     if (NS_FAILED(rv))
     {
-      NS_ASSERTION(m_iThread, "Unable to create imap thread.\n");
+      NS_ASSERTION(m_iThread, "Unable to create imap thread.");
       return rv;
     }
     m_iThread->GetPRThread(&m_thread);
@@ -578,7 +578,7 @@ nsImapProtocol::~nsImapProtocol()
   PR_Free(m_dataOutputBuf);
 
   // **** We must be out of the thread main loop function
-  NS_ASSERTION(!m_imapThreadIsRunning, "Oops, thread is still running.\n");
+  NS_ASSERTION(!m_imapThreadIsRunning, "Oops, thread is still running.");
 }
 
 const nsCString&
@@ -1349,7 +1349,7 @@ nsImapProtocol::PseudoInterruptMsgLoad(nsIMsgFolder *aImapFolder, nsIMsgWindow *
 void
 nsImapProtocol::ImapThreadMainLoop()
 {
-  MOZ_LOG(IMAP, LogLevel::Debug, ("ImapThreadMainLoop entering [this=%p]\n", this));
+  MOZ_LOG(IMAP, LogLevel::Debug, ("ImapThreadMainLoop entering [this=%p]", this));
 
   PRIntervalTime sleepTime = kImapSleepTime;
   while (!DeathSignalReceived())
@@ -1442,7 +1442,7 @@ nsImapProtocol::ImapThreadMainLoop()
   }
   m_imapThreadIsRunning = false;
 
-  MOZ_LOG(IMAP, LogLevel::Debug, ("ImapThreadMainLoop leaving [this=%p]\n", this));
+  MOZ_LOG(IMAP, LogLevel::Debug, ("ImapThreadMainLoop leaving [this=%p]", this));
 }
 
 void nsImapProtocol::HandleIdleResponses()
@@ -1641,7 +1641,7 @@ bool nsImapProtocol::ProcessCurrentURL()
   nsAutoCString urlSpec;
   rv = mailnewsurl->GetSpec(urlSpec);
   NS_ENSURE_SUCCESS(rv, false);
-  Log("ProcessCurrentURL", urlSpec.get(), (validUrl) ? " = currentUrl\n" : " is not valid\n");
+  Log("ProcessCurrentURL", urlSpec.get(), (validUrl) ? " = currentUrl" : " is not valid");
   if (!validUrl)
     return false;
 
@@ -1881,7 +1881,7 @@ bool nsImapProtocol::ProcessCurrentURL()
     imapMailFolderSink = nullptr;
   }
   else
-    MOZ_LOG(IMAP, LogLevel::Info, ("null imapMailFolderSink\n"));
+    MOZ_LOG(IMAP, LogLevel::Info, ("null imapMailFolderSink"));
 
   // now try queued urls, now that we've released this connection.
   if (m_imapServerSink)
@@ -4932,7 +4932,7 @@ char* nsImapProtocol::CreateNewLineFromSocket()
   do
   {
     newLine = m_inputStreamBuffer->ReadNextLine(m_inputStream, numBytesInLine, needMoreData, &rv);
-    MOZ_LOG(IMAP, LogLevel::Debug, ("ReadNextLine [stream=%p nb=%u needmore=%u]\n",
+    MOZ_LOG(IMAP, LogLevel::Debug, ("ReadNextLine [stream=%p nb=%u needmore=%u]",
         m_inputStream.get(), numBytesInLine, needMoreData));
 
   } while (!newLine && NS_SUCCEEDED(rv) && !DeathSignalReceived()); // until we get the next line and haven't been interrupted
@@ -5215,7 +5215,7 @@ nsImapProtocol::DiscoverMailboxSpec(nsImapMailboxSpec * adoptedBoxSpec)
       break;
     case kDeleteSubFoldersInProgress:
       {
-        NS_ASSERTION(m_deletableChildren, "Oops .. null m_deletableChildren\n");
+        NS_ASSERTION(m_deletableChildren, "Oops .. null m_deletableChildren");
         m_deletableChildren->AppendElement(ToNewCString(adoptedBoxSpec->mAllocatedPathName));
       }
       break;
@@ -6549,7 +6549,7 @@ void nsImapProtocol::OnEnsureExistsFolder(const char * aSourceMailbox)
   nsIMAPNamespace *nsForMailbox = nullptr;
   m_hostSessionList->GetNamespaceForMailboxForHost(GetImapServerKey(),
                                                      aSourceMailbox, nsForMailbox);
-  // NS_ASSERTION (nsForMailbox, "Oops .. null nsForMailbox\n");
+  // NS_ASSERTION (nsForMailbox, "Oops .. null nsForMailbox");
 
   nsCString name;
 
@@ -6922,7 +6922,7 @@ bool nsImapProtocol::MailboxIsNoSelectMailbox(const char *mailboxName)
   nsIMAPNamespace *nsForMailbox = nullptr;
     m_hostSessionList->GetNamespaceForMailboxForHost(GetImapServerKey(),
                                                      mailboxName, nsForMailbox);
-  // NS_ASSERTION (nsForMailbox, "Oops .. null nsForMailbox\n");
+  // NS_ASSERTION (nsForMailbox, "Oops .. null nsForMailbox");
 
   nsCString name;
 

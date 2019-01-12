@@ -223,7 +223,7 @@ nsresult nsMsgBiffManager::AddBiffEntry(nsBiffEntry &biffEntry)
     if (biffEntry.nextBiffTime < mBiffArray[i].nextBiffTime)
       break;
   }
-  MOZ_LOG(MsgBiffLogModule, mozilla::LogLevel::Info, ("inserting biff entry at %d\n", i));
+  MOZ_LOG(MsgBiffLogModule, mozilla::LogLevel::Info, ("inserting biff entry at %d", i));
   mBiffArray.InsertElementAt(i, biffEntry);
   return NS_OK;
 }
@@ -291,7 +291,7 @@ nsresult nsMsgBiffManager::SetupNextBiff()
     if (mBiffTimer)
       mBiffTimer->Cancel();
 
-    MOZ_LOG(MsgBiffLogModule, mozilla::LogLevel::Info, ("setting %d timer\n", timeInMSUint32));
+    MOZ_LOG(MsgBiffLogModule, mozilla::LogLevel::Info, ("setting %d timer", timeInMSUint32));
     mBiffTimer = do_CreateInstance("@mozilla.org/timer;1");
     mBiffTimer->InitWithNamedFuncCallback(OnBiffTimer, (void*)this, timeInMSUint32,
                                           nsITimer::TYPE_ONE_SHOT,
@@ -306,7 +306,7 @@ nsresult nsMsgBiffManager::PerformBiff()
 {
   PRTime currentTime = PR_Now();
   nsCOMArray<nsIMsgFolder> targetFolders;
-  MOZ_LOG(MsgBiffLogModule, mozilla::LogLevel::Info, ("performing biffs\n"));
+  MOZ_LOG(MsgBiffLogModule, mozilla::LogLevel::Info, ("performing biffs"));
 
   uint32_t count = mBiffArray.Length();
   for (uint32_t i = 0; i < count; i++)
@@ -341,12 +341,14 @@ nsresult nsMsgBiffManager::PerformBiff()
         nsCString serverKey;
         current.server->GetKey(serverKey);
         nsresult rv = current.server->PerformBiff(nullptr);
-        MOZ_LOG(MsgBiffLogModule, mozilla::LogLevel::Info, ("biffing server %s rv = %" PRIx32 "\n", serverKey.get(), static_cast<uint32_t>(rv)));
+        MOZ_LOG(MsgBiffLogModule, mozilla::LogLevel::Info,
+          ("biffing server %s rv = %" PRIx32, serverKey.get(), static_cast<uint32_t>(rv)));
       }
       else
       {
-        MOZ_LOG(MsgBiffLogModule, mozilla::LogLevel::Info, ("not biffing server serverBusy = %d requirespassword = %d password prompt required = %d targetFolderIndex = %d\n",
-          serverBusy, serverRequiresPassword, passwordPromptRequired, targetFolderIndex));
+        MOZ_LOG(MsgBiffLogModule, mozilla::LogLevel::Info,
+          ("not biffing server serverBusy = %d requirespassword = %d password prompt required = %d targetFolderIndex = %d",
+           serverBusy, serverRequiresPassword, passwordPromptRequired, targetFolderIndex));
       }
       // if we didn't do this server because the destination server was already being
       // biffed into, leave this server in the biff array so it will fire next.
