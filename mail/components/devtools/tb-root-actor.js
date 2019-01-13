@@ -15,8 +15,9 @@ loader.lazyRequireGetter(this, "RootActor", "devtools/server/actors/root", true)
 loader.lazyRequireGetter(this, "BrowserTabList", "devtools/server/actors/webbrowser", true);
 loader.lazyRequireGetter(this, "BrowserAddonList", "devtools/server/actors/webbrowser", true);
 loader.lazyRequireGetter(this, "sendShutdownEvent", "devtools/server/actors/webbrowser", true);
-loader.lazyRequireGetter(this, "WorkerTargetActorList", "devtools/server/actors/worker/worker-list", true);
-loader.lazyRequireGetter(this, "ServiceWorkerRegistrationActorList", "devtools/server/actors/worker/worker-list", true);
+loader.lazyRequireGetter(this, "WorkerTargetActorList", "devtools/server/actors/worker/worker-target-actor-list", true);
+loader.lazyRequireGetter(this, "ServiceWorkerRegistrationActorList",
+  "devtools/server/actors/worker/service-worker-registration-list", true);
 loader.lazyRequireGetter(this, "ProcessActorList", "devtools/server/actors/process", true);
 
 /**
