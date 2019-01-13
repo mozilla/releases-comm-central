@@ -3,18 +3,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-export moztopsrcdir=${srcdir}
-export commtopsrcdir=${srcdir}/comm
-export mozreltopsrcdir=.
-export commreltopsrcdir=comm
-export commtopobjdir=${_objdir}/comm
-tmpscript=`$PYTHON -c 'import os, tempfile; print tempfile.mktemp(prefix="subscript.").replace(os.sep, "/")'` || exit 1
-m4 "${srcdir}/build/autoconf/subconfigure.m4" \
-    "${srcdir}/build/autoconf/altoptions.m4" \
-    "${srcdir}/${MOZ_BUILD_APP}/configure.in" > $tmpscript
-. $tmpscript
-rm -f $tmpscript
-
 MOZ_APP_BASENAME=SeaMonkey
 MOZ_APP_VENDOR=Mozilla
 MOZ_APP_NAME=seamonkey
@@ -29,22 +17,8 @@ ACCEPTED_MAR_CHANNEL_IDS=seamonkey-comm-central
 # The MAR_CHANNEL_ID must not contain the following 3 characters: ",\t "
 MAR_CHANNEL_ID=seamonkey-comm-central
 
-MOZ_APP_VERSION_TXT=${_topsrcdir}/$MOZ_BUILD_APP/config/version.txt
-MOZ_APP_VERSION=`cat $MOZ_APP_VERSION_TXT`
-SEAMONKEY_VERSION=$MOZ_APP_VERSION
-
 MOZ_APP_ID={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
 MOZ_PROFILE_MIGRATOR=1
 
-if test "$NIGHTLY_BUILD"; then
-  MOZ_RUST_URLPARSE=1
-fi
-
-if test "$OS_ARCH" = "WINNT" -o \
-        "$OS_ARCH" = "Linux"; then
-  MOZ_BUNDLED_FONTS=1
-fi
-
 # Include the DevTools client, not just the server (which is the default)
 MOZ_DEVTOOLS=all
-
