@@ -40,6 +40,10 @@
   counter-reset: smallicons;
 }
 
+#folderPane-toolbox {
+  -moz-appearance: none;
+}
+
 /* remove the small icons checkbox in Customize window */
 #smallicons {
   display: none;

@@ -33,6 +33,7 @@
 }
 
 #navigation-toolbox,
+#folderPane-toolbox,
 #mail-toolbar-menubar2 {
   -moz-appearance: none;
 }
@@ -899,7 +900,8 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
   }
 
   .mail-toolbox,
-  .contentTabToolbox {
+  .contentTabToolbox,
+  #folderPane-toolbox {
     box-shadow: none;
   }
 

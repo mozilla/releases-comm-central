@@ -452,18 +452,20 @@
           <box id="messengerBox" orient="horizontal" flex="1" minheight="100" height="100" persist="height">
             <vbox id="folderPaneBox" minwidth="125" width="200" persist="width">
               <sidebarheader id="folderPaneHeader" hidden="true" align="center"/>
-              <toolbar id="folderPane-toolbar"
-                       class="inline-toolbar"
-                       toolboxid="mail-toolbox"
-                       toolbarname="&folderPaneBar.label;"
-                       accesskey="&folderPaneBar.accesskey;"
-                       customizable="true"
-                       align="start"
-                       mode="icons" defaultmode="icons" lockmode="true"
-                       iconsize="small" defaulticonsize="small" lockiconsize="true"
-                       context="toolbar-context-menu"
-                       defaultset="folderpane-mode-selector"
-                       collapsed="true"/>
+              <toolbox id="folderPane-toolbox">
+                <toolbar id="folderPane-toolbar"
+                         class="inline-toolbar"
+                         toolboxid="mail-toolbox"
+                         toolbarname="&folderPaneBar.label;"
+                         accesskey="&folderPaneBar.accesskey;"
+                         customizable="true"
+                         align="start"
+                         mode="icons" defaultmode="icons" lockmode="true"
+                         iconsize="small" defaulticonsize="small" lockiconsize="true"
+                         context="toolbar-context-menu"
+                         defaultset="folderpane-mode-selector"
+                         collapsed="true"/>
+              </toolbox>
               <tree id="folderTree" class="plain" flex="1"
                     hidecolumnpicker="true" persist="mode" mode="all"
                     keepcurrentinview="true"
