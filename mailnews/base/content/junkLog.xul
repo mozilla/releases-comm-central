@@ -34,7 +34,6 @@
     <separator class="thin"/>
     <hbox flex="1">
       <browser id="logView"
-               class="inset"
                type="content"
                disablehistory="true"
                disablesecurity="true"

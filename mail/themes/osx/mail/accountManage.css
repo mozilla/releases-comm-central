@@ -89,6 +89,13 @@ description {
   background-color: #FFFFFF;
 }
 
+#smtpServerInfoBox {
+  border: 1px solid ThreeDShadow;
+  border-right-color: ThreeDHighlight;
+  border-bottom-color: ThreeDHighlight;
+  margin: 0 5px 5px;
+}
+
 /* ::::: dialog header ::::: */
 
 .dialogheader {

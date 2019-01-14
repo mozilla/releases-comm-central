@@ -103,3 +103,8 @@ textbox.tree-input {
   margin-top: 10px;
   margin-inline-start: 4px;
 }
+
+#logView {
+  border: 1px solid var(--in-content-box-border-color);
+  margin: 0 4px 5px;
+}

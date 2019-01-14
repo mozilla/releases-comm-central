@@ -60,7 +60,7 @@
 
     <label class="header">&serverDetails.label;</label>
     <hbox id="smtpServerInfoBox">
-      <stack flex="1" class="inset">
+      <stack flex="1">
         <spacer id="backgroundBox"/>
         <grid>
           <columns>
