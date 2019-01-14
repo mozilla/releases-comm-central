@@ -1,0 +1,17 @@
+{
+  "extensionDescription": {
+    "message": "Compartiu les vostres adjuncions mitjançant el WeTransfer"
+  },
+  "extensionName": {
+    "message": "FileLink per al WeTransfer"
+  },
+  "serviceName": {
+    "message": "WeTransfer"
+  },
+  "moments_privacyPolicy": {
+    "message": "Política de privadesa"
+  },
+  "moments_tagline": {
+    "message": "El WeTransfer és la manera més senzilla d'enviar els vostres fitxers arreu del món."
+  }
+}

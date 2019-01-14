@@ -22,17 +22,26 @@ FINAL_TARGET_FILES.images += [
 FINAL_TARGET_FILES._locales.br += [
     '_locales/br/messages.json',
 ]
+FINAL_TARGET_FILES._locales.ca += [
+    '_locales/ca/messages.json',
+]
+FINAL_TARGET_FILES._locales.cs += [
+    '_locales/cs/messages.json',
+]
 FINAL_TARGET_FILES._locales.dsb += [
     '_locales/dsb/messages.json',
 ]
 FINAL_TARGET_FILES._locales.en += [
     '_locales/en/messages.json',
 ]
-FINAL_TARGET_FILES._locales['en-GB'] += [
+FINAL_TARGET_FILES._locales.en_GB += [
     '_locales/en_GB/messages.json',
 ]
-FINAL_TARGET_FILES._locales['es-AR'] += [
+FINAL_TARGET_FILES._locales.es_AR += [
     '_locales/es_AR/messages.json',
+]
+FINAL_TARGET_FILES._locales.eu += [
+    '_locales/eu/messages.json',
 ]
 FINAL_TARGET_FILES._locales.fi += [
     '_locales/fi/messages.json',
@@ -40,14 +49,20 @@ FINAL_TARGET_FILES._locales.fi += [
 FINAL_TARGET_FILES._locales.fr += [
     '_locales/fr/messages.json',
 ]
-FINAL_TARGET_FILES._locales['fy-NL'] += [
+FINAL_TARGET_FILES._locales.fy_NL += [
     '_locales/fy_NL/messages.json',
+]
+FINAL_TARGET_FILES._locales.hr += [
+    '_locales/hr/messages.json',
 ]
 FINAL_TARGET_FILES._locales.hsb += [
     '_locales/hsb/messages.json',
 ]
 FINAL_TARGET_FILES._locales.hu += [
     '_locales/hu/messages.json',
+]
+FINAL_TARGET_FILES._locales.id += [
+    '_locales/id/messages.json',
 ]
 FINAL_TARGET_FILES._locales.it += [
     '_locales/it/messages.json',
@@ -61,11 +76,32 @@ FINAL_TARGET_FILES._locales.kab += [
 FINAL_TARGET_FILES._locales.kk += [
     '_locales/kk/messages.json',
 ]
-FINAL_TARGET_FILES._locales['pt-BR'] += [
+FINAL_TARGET_FILES._locales.ko += [
+    '_locales/ko/messages.json',
+]
+FINAL_TARGET_FILES._locales.nl += [
+    '_locales/nl/messages.json',
+]
+FINAL_TARGET_FILES._locales.nn_NO += [
+    '_locales/nn_NO/messages.json',
+]
+FINAL_TARGET_FILES._locales.pl += [
+    '_locales/pl/messages.json',
+]
+FINAL_TARGET_FILES._locales.pt_BR += [
     '_locales/pt_BR/messages.json',
 ]
-FINAL_TARGET_FILES._locales['pt-PT'] += [
+FINAL_TARGET_FILES._locales.pt_PT += [
     '_locales/pt_PT/messages.json',
+]
+FINAL_TARGET_FILES._locales.rm += [
+    '_locales/rm/messages.json',
+]
+FINAL_TARGET_FILES._locales.ro += [
+    '_locales/ro/messages.json',
+]
+FINAL_TARGET_FILES._locales.ru += [
+    '_locales/ru/messages.json',
 ]
 FINAL_TARGET_FILES._locales.sk += [
     '_locales/sk/messages.json',
@@ -73,16 +109,19 @@ FINAL_TARGET_FILES._locales.sk += [
 FINAL_TARGET_FILES._locales.sl += [
     '_locales/sl/messages.json',
 ]
-FINAL_TARGET_FILES._locales['sv-SE'] += [
+FINAL_TARGET_FILES._locales.sq += [
+    '_locales/sq/messages.json',
+]
+FINAL_TARGET_FILES._locales.sv_SE += [
     '_locales/sv_SE/messages.json',
 ]
 FINAL_TARGET_FILES._locales.tr += [
     '_locales/tr/messages.json',
 ]
-FINAL_TARGET_FILES._locales['zh-CN'] += [
+FINAL_TARGET_FILES._locales.zh_CN += [
     '_locales/zh_CN/messages.json',
 ]
-FINAL_TARGET_FILES._locales['zh-TW'] += [
+FINAL_TARGET_FILES._locales.zh_TW += [
     '_locales/zh_TW/messages.json',
 ]
 

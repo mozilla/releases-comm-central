@@ -1,0 +1,17 @@
+{
+  "extensionDescription": {
+    "message": "Dijelite svoje privitke putem WeTransfer"
+  },
+  "extensionName": {
+    "message": "FileLink za WeTransfer"
+  },
+  "serviceName": {
+    "message": "WeTransfer"
+  },
+  "moments_privacyPolicy": {
+    "message": "Politika privatnosti"
+  },
+  "moments_tagline": {
+    "message": "WeTransfer je najjednostavniji način za slanje vaših datoteka diljem svijeta."
+  }
+}

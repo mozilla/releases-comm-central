@@ -168,6 +168,6 @@ chrome/devtools/skin/variables.css
 modules/devtools/client/framework/gDevTools.jsm
 modules/devtools/gDevTools.jsm
 
-# Wetransfer locales - Bug 1518076 (en and en-GB are the same)
+# Wetransfer locales - Bug 1518076 (en and en_GB are the same)
 features/wetransfer@extensions.thunderbird.net/_locales/en/messages.json
-features/wetransfer@extensions.thunderbird.net/_locales/en-GB/messages.json
+features/wetransfer@extensions.thunderbird.net/_locales/en_GB/messages.json
