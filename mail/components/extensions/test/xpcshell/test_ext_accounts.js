@@ -91,6 +91,7 @@ add_task(async function test_accounts() {
 
       await awaitMessage("create folders");
       let result5 = await browser.accounts.get(account1Id);
+      let platformInfo = await browser.runtime.getPlatformInfo();
       assertDeepEqual([{
           accountId: account1Id,
           name: "Trash",
@@ -100,10 +101,12 @@ add_task(async function test_accounts() {
           name: "foo bar",
           path: "/Trash/foo bar",
         }, {
-        //   accountId: account1Id,
-        //   name: "Ϟ",
-        //   path: "/Trash/Ϟ",
-        // }, {
+          accountId: account1Id,
+          name: "Ϟ",
+          // This character is not supported on Windows, so it gets hashed,
+          // by NS_MsgHashIfNecessary.
+          path: platformInfo.os == "win" ? "/Trash/b52bc214" : "/Trash/Ϟ",
+        }, {
           accountId: account1Id,
           name: "Outbox",
           path: "/Unsent Messages",
