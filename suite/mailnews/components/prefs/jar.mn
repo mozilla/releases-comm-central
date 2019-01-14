@@ -1,0 +1,23 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+messenger.jar:
+    content/messenger/mailPrefsOverlay.xul                                     (content/mailPrefsOverlay.xul)
+    content/messenger/pref-mailnews.xul                                        (content/pref-mailnews.xul)
+    content/messenger/pref-mailnews.js                                         (content/pref-mailnews.js)
+    content/messenger/pref-notifications.xul                                   (content/pref-notifications.xul)
+    content/messenger/pref-notifications.js                                    (content/pref-notifications.js)
+    content/messenger/pref-junk.xul                                            (content/pref-junk.xul)
+    content/messenger/pref-junk.js                                             (content/pref-junk.js)
+    content/messenger/pref-tags.xul                                            (content/pref-tags.xul)
+    content/messenger/pref-tags.js                                             (content/pref-tags.js)
+    content/messenger/pref-viewing_messages.xul                                (content/pref-viewing_messages.xul)
+    content/messenger/pref-viewing_messages.js                                 (content/pref-viewing_messages.js)
+    content/messenger/pref-receipts.xul                                        (content/pref-receipts.xul)
+    content/messenger/pref-receipts.js                                         (content/pref-receipts.js)
+    content/messenger/pref-character_encoding.xul                              (content/pref-character_encoding.xul)
+    content/messenger/pref-character_encoding.js                               (content/pref-character_encoding.js)
+    content/messenger/pref-offline.xul                                         (content/pref-offline.xul)
+    content/messenger/pref-offline.js                                          (content/pref-offline.js)
+
