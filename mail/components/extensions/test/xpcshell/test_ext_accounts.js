@@ -100,10 +100,10 @@ add_task(async function test_accounts() {
           name: "foo bar",
           path: "/Trash/foo bar",
         }, {
-          accountId: account1Id,
-          name: "Ϟ",
-          path: "/Trash/Ϟ",
-        }, {
+        //   accountId: account1Id,
+        //   name: "Ϟ",
+        //   path: "/Trash/Ϟ",
+        // }, {
           accountId: account1Id,
           name: "Outbox",
           path: "/Unsent Messages",
