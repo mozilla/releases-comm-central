@@ -1,0 +1,117 @@
+[
+  {
+    "namespace": "manifest",
+    "types": [
+      {
+        "$extend": "OptionalPermission",
+        "choices": [
+          {
+            "type": "string",
+            "enum": [
+              "messagesRead"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "namespace": "messages",
+    "permissions": [
+      "messagesRead"
+    ],
+    "functions": [
+      {
+        "name": "list",
+        "type": "function",
+        "description": "Gets all messages in a folder.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "folder",
+            "$ref": "accounts.MailFolder"
+          }
+        ]
+      },
+      {
+        "name": "continueList",
+        "type": "function",
+        "description": "Returns the next chunk of messages in a list. See :doc:`how-to/messageLists` for more information.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "messageListId",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "name": "get",
+        "type": "function",
+        "description": "Returns a specified message.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "messageId",
+            "type": "integer"
+          }
+        ]
+      },
+      {
+        "name": "getFull",
+        "type": "function",
+        "description": "Returns a specified message, including all headers and MIME parts.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "messageId",
+            "type": "integer"
+          }
+        ]
+      },
+      {
+        "name": "update",
+        "type": "function",
+        "description": "Marks or unmarks a message as read, starred, or tagged.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "messageId",
+            "type": "integer"
+          },
+          {
+            "name": "newProperties",
+            "type": "object",
+            "properties": {
+              "read": {
+                "type": "boolean",
+                "description": "Marks the message as read or unread.",
+                "optional": true
+              },
+              "flagged": {
+                "type": "boolean",
+                "description": "Marks the message as starred or unstarred.",
+                "optional": true
+              },
+              "tags": {
+                "type": "array",
+                "description": "Sets the tags on the message. For a list of available tags, call the listTags method.",
+                "optional": true,
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "listTags",
+        "type": "function",
+        "description": "Returns a list of tags that can be set on messages, and their human-friendly name, colour, and sort order.",
+        "async": true,
+        "parameters": []
+      }
+    ]
+  }
+]

@@ -43,6 +43,8 @@ module.exports = {
     "folderURIToPath": true,
     "getTabBrowser": true,
     "makeWidgetId": true,
+    "messageListTracker": true,
+    "messageTracker": true,
     "tabGetSender": true,
     "tabTracker": true,
     "windowTracker": true,

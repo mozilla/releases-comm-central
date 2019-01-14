@@ -1,4 +1,12 @@
 {
+  "accounts": {
+    "url": "chrome://messenger/content/parent/ext-accounts.js",
+    "schema": "chrome://messenger/content/schemas/accounts.json",
+    "scopes": ["addon_parent"],
+    "paths": [
+      ["accounts"]
+    ]
+  },
   "addressBook": {
     "url": "chrome://messenger/content/parent/ext-addressBook.js",
     "schema": "chrome://messenger/content/schemas/addressBook.json",
@@ -69,6 +77,15 @@
     "scopes": ["addon_parent"],
     "paths": [
       ["menus"]
+    ]
+  },
+  "messages": {
+    "url": "chrome://messenger/content/parent/ext-messages.js",
+    "schema": "chrome://messenger/content/schemas/messages.json",
+    "scopes": ["addon_parent"],
+    "manifest": ["messages"],
+    "paths": [
+      ["messages"]
     ]
   },
   "pkcs11": {

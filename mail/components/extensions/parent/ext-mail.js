@@ -3,6 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.defineModuleGetter(this, "MailServices", "resource:///modules/MailServices.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+XPCOMUtils.defineLazyServiceGetter(
+  this, "uuidGenerator", "@mozilla.org/uuid-generator;1", "nsIUUIDGenerator"
+);
 
 var {
   ExtensionError,
@@ -1063,19 +1067,164 @@ function convertFolder(folder, accountId) {
  * This function WILL change as the API develops.
  * @return {Object}
  */
-function convertMessage(msgHdr) {
+function convertMessage(msgHdr, context) {
   if (!msgHdr) {
     return null;
   }
 
-  return {
-    messageId: msgHdr.messageId,
+  let composeFields = Cc["@mozilla.org/messengercompose/composefields;1"]
+                        .createInstance(Ci.nsIMsgCompFields);
+
+  let messageObject = {
+    id: messageTracker.getId(msgHdr),
+    date: new Date(msgHdr.dateInSeconds * 1000),
+    author: msgHdr.mime2DecodedAuthor,
+    recipients: composeFields.splitRecipients(msgHdr.mime2DecodedRecipients, false, {}),
+    ccList: composeFields.splitRecipients(msgHdr.ccList, false, {}),
+    bccList: composeFields.splitRecipients(msgHdr.bccList, false, {}),
+    subject: msgHdr.mime2DecodedSubject,
     read: msgHdr.isRead,
     flagged: msgHdr.isFlagged,
-    ccList: msgHdr.ccList,
-    bccList: msgHdr.bccList,
-    author: msgHdr.mime2DecodedAuthor,
-    subject: msgHdr.mime2DecodedSubject,
-    recipients: msgHdr.mime2DecodedRecipients,
   };
+  if (context.extension.hasPermission("accountsRead")) {
+    messageObject.folder = convertFolder(msgHdr.folder, msgHdr.accountKey);
+  }
+  let tags = msgHdr.getProperty("keywords");
+  messageObject.tags = tags ? tags.split(" ") : [];
+  return messageObject;
 }
+
+/**
+ * A map of numeric identifiers to messages for easy reference.
+ */
+var messageTracker = {
+  _nextId: 1,
+  _messages: new Map(),
+
+  /**
+   * Finds a message in the map or adds it to the map.
+   * @return {int} The identifier of the message
+   */
+  getId(msgHdr) {
+    for (let [key, value] of this._messages.entries()) {
+      if (value.folderURI == msgHdr.folder.URI && value.messageId == msgHdr.messageId) {
+        return key;
+      }
+    }
+    let id = this._nextId++;
+    this.setId(msgHdr, id);
+    return id;
+  },
+
+  /**
+   * Retrieves a message from the map. If the message no longer exists,
+   * it is removed from the map.
+   * @return {nsIMsgHdr} The identifier of the message
+   */
+  getMessage(id) {
+    let value = this._messages.get(id);
+    if (!value) {
+      return null;
+    }
+
+    let folder = MailServices.folderLookup.getFolderForURL(value.folderURI);
+    if (folder) {
+      let msgHdr = folder.msgDatabase.getMsgHdrForMessageID(value.messageId);
+      if (msgHdr) {
+        return msgHdr;
+      }
+    }
+
+    this._messages.delete(id);
+    return null;
+  },
+
+  /**
+   * Adds a message to the map.
+   */
+  setId(msgHdr, id) {
+    this._messages.set(id, { folderURI: msgHdr.folder.URI, messageId: msgHdr.messageId });
+  },
+};
+
+/**
+ * Tracks lists of messages so that an extension can consume them in chunks.
+ * Any WebExtensions method that could return multiple messages should instead call
+ * messageListTracker.startList and return the results, which contain the first
+ * chunk. Further chunks can be fetched by the extension calling
+ * browser.messages.continueList. Chunk size is controlled by a pref.
+ */
+var messageListTracker = {
+  _contextLists: new WeakMap(),
+
+  /**
+   * Takes an array or enumerator of messages and returns the first chunk.
+   * @returns {Object}
+   */
+  startList(messageList, context) {
+    if (Array.isArray(messageList)) {
+      messageList = this._createEnumerator(messageList);
+    }
+    let firstPage = this._getNextPage(messageList);
+    let messageListId = null;
+    if (messageList.hasMoreElements()) {
+      messageListId = uuidGenerator.generateUUID().number.substring(1, 37);
+      let lists = this._contextLists.get(context);
+      if (!lists) {
+        lists = new Map();
+        this._contextLists.set(context, lists);
+      }
+      lists.set(messageListId, messageList);
+    }
+
+    return {
+      id: messageListId,
+      messages: firstPage.map(message => convertMessage(message, context)),
+    };
+  },
+
+  /**
+   * Returns any subsequent chunk of messages.
+   * @returns {Object}
+   */
+  continueList(messageListId, context) {
+    let lists = this._contextLists.get(context);
+    let messageList = lists ? lists.get(messageListId, null) : null;
+    if (!messageList) {
+      throw new ExtensionError(
+        `No message list for id ${messageListId}. Have you reached the end of a list?`
+      );
+    }
+
+    let nextPage = this._getNextPage(messageList);
+    if (!messageList.hasMoreElements()) {
+      lists.delete(messageListId);
+      messageListId = null;
+    }
+    return {
+      id: messageListId,
+      messages: nextPage.map(message => convertMessage(message, context)),
+    };
+  },
+
+  _createEnumerator(array) {
+    let current = 0;
+    return {
+      hasMoreElements() {
+        return current < array.length;
+      },
+      getNext() {
+        return array[current++];
+      },
+    };
+  },
+
+  _getNextPage(messageList) {
+    let messageCount = Services.prefs.getIntPref("extensions.webextensions.messagesPerPage", 100);
+    let page = [];
+    for (let i = 0; i < messageCount && messageList.hasMoreElements(); i++) {
+      page.push(messageList.getNext().QueryInterface(Ci.nsIMsgDBHdr));
+    }
+    return page;
+  },
+};

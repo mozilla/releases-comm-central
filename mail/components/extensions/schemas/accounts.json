@@ -1,0 +1,64 @@
+[
+  {
+    "namespace": "manifest",
+    "types": [
+      {
+        "$extend": "OptionalPermission",
+        "choices": [
+          {
+            "type": "string",
+            "enum": [
+              "accountsRead"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "namespace": "accounts",
+    "permissions": [
+      "accountsRead"
+    ],
+    "types": [
+      {
+        "id": "MailFolder",
+        "type": "object",
+        "description": "A folder object, as returned by the <var>list</var> and <var>get</var> methods.",
+        "properties": {
+          "accountId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "optional": true
+          },
+          "path": {
+            "type": "string"
+          }
+        }
+      }
+    ],
+    "functions": [
+      {
+        "name": "list",
+        "type": "function",
+        "description": "Returns all mail accounts.",
+        "async": true,
+        "parameters": []
+      },
+      {
+        "name": "get",
+        "type": "function",
+        "description": "Returns details of the requested account, or null if it doesn't exist.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "accountId",
+            "type": "string"
+          }
+        ]
+      }
+    ]
+  }
+]
