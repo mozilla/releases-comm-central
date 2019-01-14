@@ -373,7 +373,7 @@ window.addEventListener("load", (e) => {
 });
 
 
-function ltnOnLoad(event) {
+async function ltnOnLoad(event) {
     // Check if the binary component was loaded
     checkCalendarBinaryComponent();
 
@@ -381,7 +381,7 @@ function ltnOnLoad(event) {
             .addEventListener("select", LtnObserveDisplayDeckChange, true);
 
     // Take care of common initialization
-    commonInitCalendar();
+    await commonInitCalendar();
 
     // Add an unload function to the window so we don't leak any listeners
     window.addEventListener("unload", ltnFinish);

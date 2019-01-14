@@ -18,6 +18,8 @@
       <constructor><![CDATA[
           let calMgr = cal.getCalendarManager();
           calMgr.addObserver(this.calMgrObserver);
+
+          this.dispatchEvent(new CustomEvent("bindingattached", { bubbles: false }));
       ]]></constructor>
       <destructor><![CDATA[
           let calMgr = cal.getCalendarManager();

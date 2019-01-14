@@ -12,7 +12,7 @@ ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 /**
  * Common initialization steps for calendar chrome windows.
  */
-function commonInitCalendar() {
+async function commonInitCalendar() {
     // load locale specific default values for preferences
     setLocaleDefaultPreferences();
 
@@ -20,7 +20,7 @@ function commonInitCalendar() {
     migrateCalendarUI();
 
     // Load the Calendar Manager
-    loadCalendarManager();
+    await loadCalendarManager();
 
     // set up the unifinder
     prepareCalendarToDoUnifinder();

@@ -83,10 +83,13 @@ function promptDeleteCalendar(aCalendar) {
 /**
  * Called to initialize the calendar manager for a window.
  */
-function loadCalendarManager() {
+async function loadCalendarManager() {
     // Set up the composite calendar in the calendar list widget.
     let tree = document.getElementById("calendar-list-tree-widget");
     let compositeCalendar = cal.view.getCompositeCalendar(window);
+    if (!tree.__lookupSetter__("compositeCalendar")) {
+        await new Promise(resolve => tree.addEventListener("bindingattached", resolve, { once: true }));
+    }
     tree.compositeCalendar = compositeCalendar;
 
     // Initialize our composite observer

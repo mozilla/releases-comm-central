@@ -111,15 +111,12 @@
     <implementation>
       <field name="mAllDayItem">null</field>;
 
-      <constructor><![CDATA[
-          this.mAllDayItem = document.getAnonymousElementByAttribute(this, "anonid", "allday-item");
-      ]]></constructor>
-
       <method name="setOccurrence">
         <parameter name="aOccurrence"/>
         <parameter name="aPeriod"/>
         <body><![CDATA[
             this.mOccurrence = aOccurrence;
+            this.mAllDayItem = document.getAnonymousElementByAttribute(this, "anonid", "allday-item");
             this.mAllDayItem.occurrence = aOccurrence;
             let dateFormatter = cal.getDateFormatter();
             let periodStartDate = aPeriod.start.clone();
