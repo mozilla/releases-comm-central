@@ -1134,7 +1134,9 @@ var gPhotoDownloadUI = (function() {
   }
 
   function onProgress(state, percent) {
-    elProgressbar.value = percent;
+    if (percent !== undefined) {
+      elProgressbar.value = percent;
+    }
     elProgressLabel.value = gAddressBookBundle.getString("stateImageSave");
   }
 

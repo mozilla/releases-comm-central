@@ -1026,7 +1026,8 @@ var gImageDownloader = (function() {
       // we are downloading comes from. If, and only if, the URL is not
       // related to a window, null should be used instead.
       let privacy = PrivateBrowsingUtils.privacyContextFromWindow(window);
-      downloader.saveURI(source, null, null, null, null, null, tempFile, privacy);
+      let principal = Services.scriptSecurityManager.createCodebasePrincipal(source, {});
+      downloader.saveURI(source, principal, null, null, null, null, null, tempFile, privacy);
     } catch (err) {
       cleanup();
       if (callbackError) {
@@ -1169,7 +1170,8 @@ var gImageDownloader = (function() {
     // we are downloading comes from. If, and only if, the URL is not
     // related to a window, null should be used instead.
     let privacy = PrivateBrowsingUtils.privacyContextFromWindow(window);
-    downloader.saveURI(source, null, null, null, null, null, target, privacy);
+    let principal = Services.scriptSecurityManager.createCodebasePrincipal(source, {});
+    downloader.saveURI(source, principal, null, null, null, null, null, target, privacy);
   }
 
   // Publicly accessible methods.
