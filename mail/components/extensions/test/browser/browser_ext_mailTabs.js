@@ -9,8 +9,13 @@ add_task(async function setup() {
   rootFolder = account.incomingServer.rootFolder;
   subFolders = [...rootFolder.subFolders];
   createMessages(subFolders[0], 10);
+  createMessages(subFolders[1], 50);
 
   window.gFolderTreeView.selectFolder(rootFolder);
+  Services.prefs.setIntPref("extensions.webextensions.messagesPerPage", 10);
+  registerCleanupFunction(() => {
+    Services.prefs.clearUserPref("extensions.webextensions.messagesPerPage");
+  });
   await new Promise(executeSoon);
 });
 
@@ -118,7 +123,8 @@ add_task(async function test_update() {
     }
 
     let selectedMessages = await browser.mailTabs.getSelectedMessages();
-    browser.test.assertEq(0, selectedMessages.length);
+    browser.test.assertEq(null, selectedMessages.id);
+    browser.test.assertEq(0, selectedMessages.messages.length);
 
     browser.test.notifyPass("mailTabs");
   }
@@ -161,7 +167,7 @@ add_task(async function test_update() {
   window.gFolderTreeView.selectFolder(rootFolder);
 });
 
-add_task(async function test_events() {
+add_task(async function test_displayedFolderChanged() {
   async function background() {
     function awaitMessage() {
       return new Promise(resolve => {
@@ -211,24 +217,6 @@ add_task(async function test_events() {
     await selectFolderByUpdate("/");
     await selectFolderByUpdate("/Trash");
 
-    async function selectMessage(...newMessages) {
-      return new Promise(resolve => {
-        browser.mailTabs.onSelectedMessagesChanged.addListener(function listener(tabId, messages) {
-          browser.mailTabs.onSelectedMessagesChanged.removeListener(listener);
-          browser.test.assertEq(newMessages.length, messages.length);
-          browser.mailTabs.getSelectedMessages().then(selectedMessages => {
-            browser.test.assertEq(newMessages.length, selectedMessages.length);
-            resolve();
-          });
-        });
-        browser.test.sendMessage("selectMessage", newMessages);
-      });
-    }
-    await selectMessage(3);
-    await selectMessage(7);
-    await selectMessage(4, 6);
-    await selectMessage();
-
     await new Promise(setTimeout);
     browser.test.notifyPass("mailTabs");
   }
@@ -244,12 +232,80 @@ add_task(async function test_events() {
     manifest: { permissions: ["accountsRead", "messagesRead"] },
   });
 
-  extension.onMessage("selectFolder", (newFolderPath) => {
+  extension.onMessage("selectFolder", async (newFolderPath) => {
     window.gFolderTreeView.selectFolder(folderMap.get(newFolderPath));
+    await new Promise(executeSoon);
   });
 
+  await extension.startup();
+  extension.sendMessage(account.key);
+  await extension.awaitFinish("mailTabs");
+  await extension.unload();
+
+  window.gFolderTreeView.selectFolder(rootFolder);
+});
+
+add_task(async function test_selectedMessagesChanged() {
+  async function background() {
+    function checkMessageList(expectedId, expectedCount, actual) {
+      if (expectedId) {
+        browser.test.assertEq(36, actual.id.length);
+      } else {
+        browser.test.assertEq(null, actual.id);
+      }
+      browser.test.assertEq(expectedCount, actual.messages.length);
+    }
+
+    // Because of bad design, we must wait for the WebExtensions mechanism to load ext-mailTabs.js,
+    // or when we call addListener below, it won't happen before the event is fired.
+    // This only applies if none of the earlier tests are run, but I'm saving you from wasting
+    // time figuring out what's going on like I did.
+    await browser.mailTabs.query({});
+
+    async function selectMessages(...newMessages) {
+      return new Promise(resolve => {
+        browser.mailTabs.onSelectedMessagesChanged.addListener(function listener(tabId, messageList) {
+          browser.mailTabs.onSelectedMessagesChanged.removeListener(listener);
+          resolve(messageList);
+        });
+        browser.test.sendMessage("selectMessage", newMessages);
+      });
+    }
+
+    let messageList;
+    messageList = await selectMessages(3);
+    checkMessageList(false, 1, messageList);
+    messageList = await selectMessages(7);
+    checkMessageList(false, 1, messageList);
+    messageList = await selectMessages(4, 6);
+    checkMessageList(false, 2, messageList);
+    messageList = await selectMessages();
+    checkMessageList(false, 0, messageList);
+    messageList = await selectMessages(2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37);
+    checkMessageList(true, 10, messageList);
+    messageList = await browser.messages.continueList(messageList.id);
+    checkMessageList(false, 2, messageList);
+    messageList = await browser.mailTabs.getSelectedMessages();
+    checkMessageList(true, 10, messageList);
+    messageList = await browser.messages.continueList(messageList.id);
+    checkMessageList(false, 2, messageList);
+
+    await new Promise(setTimeout);
+    browser.test.notifyPass("mailTabs");
+  }
+
+  let extension = ExtensionTestUtils.loadExtension({
+    background,
+    manifest: { permissions: ["accountsRead", "messagesRead"] },
+  });
+
+  window.gFolderTreeView.selectFolder(subFolders[1]);
+  if (!window.IsMessagePaneCollapsed()) {
+    window.MsgToggleMessagePane();
+  }
+  let allMessages = [...window.gFolderDisplay.displayedFolder.messages];
+
   extension.onMessage("selectMessage", (newMessages) => {
-    let allMessages = [...window.gFolderDisplay.displayedFolder.messages];
     window.gFolderDisplay.selectMessages(newMessages.map(i => allMessages[i]));
   });
 
@@ -259,6 +315,7 @@ add_task(async function test_events() {
   await extension.unload();
 
   window.gFolderTreeView.selectFolder(rootFolder);
+  window.MsgToggleMessagePane();
 });
 
 add_task(async function test_background_tab() {

@@ -11,5 +11,6 @@ module.exports = {
 
   "rules": {
     "func-names": "off",
+    "mozilla/import-headjs-globals": "error",
   },
 };
