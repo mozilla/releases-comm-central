@@ -60,7 +60,7 @@
       {
         "name": "query",
         "type": "function",
-        "description": "Gets all mail tabs that have the specified properties, or all tabs if no properties are specified.",
+        "description": "Gets all mail tabs that have the specified properties, or all mail tabs if no properties are specified.",
         "async": true,
         "parameters": [
           {
@@ -86,7 +86,7 @@
                 "type": "integer",
                 "optional": true,
                 "minimum": -2,
-                "description": "The ID of the parent window, or $(ref:windows.WINDOW_ID_CURRENT) for the $(topic:current-window)[current window]."
+                "description": "The ID of the parent window, or :ref:`windows.WINDOW_ID_CURRENT` for the current window."
               }
             }
           }

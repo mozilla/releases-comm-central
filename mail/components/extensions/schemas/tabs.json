@@ -27,10 +27,10 @@
         "id": "Tab",
         "type": "object",
         "properties": {
-          "id": {"type": "integer", "minimum": -1, "optional": true, "description": "The ID of the tab. Tab IDs are unique within a browser session. Under some circumstances a Tab may not be assigned an ID, for example when querying foreign tabs using the $(ref:sessions) API, in which case a session ID may be present. Tab ID can also be set to $(ref:tabs.TAB_ID_NONE) for apps and devtools windows."},
+          "id": {"type": "integer", "minimum": -1, "optional": true, "description": "The ID of the tab. Tab IDs are unique within a browser session. Under some circumstances a Tab may not be assigned an ID. Tab ID can also be set to :ref:`tabs.TAB_ID_NONE` for apps and devtools windows."},
           "index": {"type": "integer", "minimum": -1, "description": "The zero-based index of the tab within its window."},
           "windowId": {"type": "integer", "optional": true, "minimum": 0, "description": "The ID of the window the tab is contained within."},
-          "selected": {"type": "boolean", "description": "Whether the tab is selected.", "deprecated": "Please use $(ref:tabs.Tab.highlighted).", "unsupported": true},
+          "selected": {"type": "boolean", "description": "Whether the tab is selected.", "deprecated": "Please use :ref:`tabs.Tab.highlighted`.", "unsupported": true},
           "highlighted": {"type": "boolean", "description": "Whether the tab is highlighted. Works as an alias of active"},
           "active": {"type": "boolean", "description": "Whether the tab is active in its window. (Does not necessarily mean the window is focused.)"},
           "url": {"type": "string", "optional": true, "permissions": ["tabs"], "description": "The URL the tab is displaying. This property is only present if the extension's manifest includes the <code>\"tabs\"</code> permission."},
@@ -148,7 +148,7 @@
                 "type": "integer",
                 "minimum": -2,
                 "optional": true,
-                "description": "The window to create the new tab in. Defaults to the $(topic:current-window)[current window]."
+                "description": "The window to create the new tab in. Defaults to the current window."
               },
               "index": {
                 "type": "integer",
@@ -164,7 +164,7 @@
               "active": {
                 "type": "boolean",
                 "optional": true,
-                "description": "Whether the tab should become the active tab in the window. Does not affect whether the window is focused (see $(ref:windows.update)). Defaults to <var>true</var>."
+                "description": "Whether the tab should become the active tab in the window. Does not affect whether the window is focused (see :ref:`windows.update`). Defaults to <var>true</var>."
               },
               "selected": {
                 "deprecated": "Please use <em>active</em>.",
@@ -210,7 +210,7 @@
               {
                 "name": "tab",
                 "optional": true,
-                "description": "Details about the duplicated tab. The $(ref:tabs.Tab) object doesn't contain <code>url</code>, <code>title</code> and <code>favIconUrl</code> if the <code>\"tabs\"</code> permission has not been requested.",
+                "description": "Details about the duplicated tab. The :ref:`tabs.Tab` object doesn't contain <code>url</code>, <code>title</code> and <code>favIconUrl</code> if the <code>\"tabs\"</code> permission has not been requested.",
                 "$ref": "Tab"
               }
             ]
@@ -245,7 +245,7 @@
               "currentWindow": {
                 "type": "boolean",
                 "optional": true,
-                "description": "Whether the tabs are in the $(topic:current-window)[current window]."
+                "description": "Whether the tabs are in the current window."
               },
               "lastFocusedWindow": {
                 "type": "boolean",
@@ -268,13 +268,13 @@
                   {"type": "array", "items": {"type": "string"}}
                 ],
                 "optional": true,
-                "description": "Match tabs against one or more $(topic:match_patterns)[URL patterns]. Note that fragment identifiers are not matched."
+                "description": "Match tabs against one or more `URL Patterns <https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Match_patterns>`_. Note that fragment identifiers are not matched."
               },
               "windowId": {
                 "type": "integer",
                 "optional": true,
                 "minimum": -2,
-                "description": "The ID of the parent window, or $(ref:windows.WINDOW_ID_CURRENT) for the $(topic:current-window)[current window]."
+                "description": "The ID of the parent window, or :ref:`windows.WINDOW_ID_CURRENT` for the current window."
               },
               "windowType": {
                 "$ref": "WindowType",
@@ -315,7 +315,7 @@
             "name": "tabId",
             "minimum": 0,
             "optional": true,
-            "description": "Defaults to the selected tab of the $(topic:current-window)[current window]."
+            "description": "Defaults to the selected tab of the current window."
           },
           {
             "type": "object",
@@ -329,7 +329,7 @@
               "active": {
                 "type": "boolean",
                 "optional": true,
-                "description": "Whether the tab should be active. Does not affect whether the window is focused (see $(ref:windows.update))."
+                "description": "Whether the tab should be active. Does not affect whether the window is focused (see :ref:`windows.update`)."
               }
             }
           },
@@ -342,7 +342,7 @@
                 "name": "tab",
                 "$ref": "Tab",
                 "optional": true,
-                "description": "Details about the updated tab. The $(ref:tabs.Tab) object doesn't contain <code>url</code>, <code>title</code> and <code>favIconUrl</code> if the <code>\"tabs\"</code> permission has not been requested."
+                "description": "Details about the updated tab. The :ref:`tabs.Tab` object doesn't contain <code>url</code>, <code>title</code> and <code>favIconUrl</code> if the <code>\"tabs\"</code> permission has not been requested."
               }
             ]
           }
@@ -454,7 +454,7 @@
       {
         "name": "executeScript",
         "type": "function",
-        "description": "Injects JavaScript code into a page. For details, see the $(topic:content_scripts)[programmatic injection] section of the content scripts doc.",
+        "description": "Injects JavaScript code into a page. For details, see the `programmatic injection <https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_scripts>`_ section of the content scripts doc.",
         "async": "callback",
         "parameters": [
           {
@@ -489,7 +489,7 @@
       {
         "name": "insertCSS",
         "type": "function",
-        "description": "Injects CSS into a page. For details, see the $(topic:content_scripts)[programmatic injection] section of the content scripts doc.",
+        "description": "Injects CSS into a page. For details, see the `programmatic injection <https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_scripts>`_ section of the content scripts doc.",
         "async": "callback",
         "parameters": [
           {
@@ -516,7 +516,7 @@
       {
         "name": "removeCSS",
         "type": "function",
-        "description": "Removes injected CSS from a page. For details, see the $(topic:content_scripts)[programmatic injection] section of the content scripts doc.",
+        "description": "Removes injected CSS from a page. For details, see the `programmatic injection <https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_scripts>`_ section of the content scripts doc.",
         "async": "callback",
         "parameters": [
           {
@@ -600,7 +600,7 @@
       {
         "name": "onMoved",
         "type": "function",
-        "description": "Fired when a tab is moved within a window. Only one move event is fired, representing the tab the user directly moved. Move events are not fired for the other tabs that must move in response. This event is not fired when a tab is moved between windows. For that, see $(ref:tabs.onDetached).",
+        "description": "Fired when a tab is moved within a window. Only one move event is fired, representing the tab the user directly moved. Move events are not fired for the other tabs that must move in response. This event is not fired when a tab is moved between windows. For that, see :ref:`tabs.onDetached`.",
         "parameters": [
           {"type": "integer", "name": "tabId", "minimum": 0},
           {
