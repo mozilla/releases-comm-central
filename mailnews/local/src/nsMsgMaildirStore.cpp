@@ -54,7 +54,7 @@ static void percentEncode(nsACString const& in, nsACString& out)
   // We know the output will be at least as long as the input.
   out.SetLength(0);
   out.SetCapacity(in.Length());
-  for (cur = in.BeginReading(); cur != end; ++cur) {
+  for (cur = in.BeginReading(); cur < end; ++cur) {
     const char c = *cur;
     bool whitelisted = (c >= '0' && c <= '9') ||
       (c >= 'A' && c <= 'Z') ||
@@ -63,7 +63,7 @@ static void percentEncode(nsACString const& in, nsACString& out)
     if (whitelisted) {
       out.Append(c);
     } else {
-      out.AppendPrintf("%%%02x", (const unsigned char)c);
+      out.AppendPrintf("%%%02x", (unsigned char)c);
     }
   }
 }
