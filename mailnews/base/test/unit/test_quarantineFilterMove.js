@@ -51,7 +51,7 @@ var gTestArray =
     let firstMsgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     let secondMsgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     // Check that the messages have content
-    messageContent = getContentFromMessage(firstMsgHdr);
+    let messageContent = getContentFromMessage(firstMsgHdr);
     Assert.ok(messageContent.includes("Some User <bugmail@example.org> changed"));
     messageContent = getContentFromMessage(secondMsgHdr);
     Assert.ok(messageContent.includes("https://bugzilla.mozilla.org/show_bug.cgi?id=436880"));
@@ -77,7 +77,7 @@ var gTestArray =
     let firstMsgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     let secondMsgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     // Check that the messages have content
-    messageContent = getContentFromMessage(firstMsgHdr);
+    let messageContent = getContentFromMessage(firstMsgHdr);
     Assert.ok(messageContent.includes("Some User <bugmail@example.org> changed"));
     messageContent = getContentFromMessage(secondMsgHdr);
     Assert.ok(messageContent.includes("https://bugzilla.mozilla.org/show_bug.cgi?id=436880"));

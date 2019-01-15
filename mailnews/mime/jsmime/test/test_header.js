@@ -698,7 +698,7 @@ suite('headerparser', function () {
     header_tests.forEach(function (data) {
       arrayTest(data, function () {
         assert.deepEqual(headerparser.decodeRFC2047Words(
-          headerparser.convert8BitHeader(data[0], data[2])), data[1]);
+          headerparser.convert8BitHeader(data[0], (data.length > 2 ? data[2] : null))), data[1]);
       });
     });
   });

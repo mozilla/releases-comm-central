@@ -158,7 +158,8 @@ var listener =
       delete gTest.percents[aTokenString[i]];
     }
     Assert.equal(Object.keys(gTest.percents).length, 0);
-    gTest.currentIndex++;
+    if (gTest.command == kClass)
+      gTest.currentIndex++;
     startCommand();
   }
 };

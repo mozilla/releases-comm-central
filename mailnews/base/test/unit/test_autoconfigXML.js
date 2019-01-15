@@ -175,7 +175,7 @@ function test_readFromXML_config1()
   // 1. incoming server skipped because of an unsupported protocol
   // 2. incoming server skipped because of an so-far unknown auth method
   // 3. incoming server is fine for us: IMAP, SSL, cleartext password
-  server = config.incoming;
+  let server = config.incoming;
   Assert.equal("imapmail.example.com", server.hostname);
   Assert.equal("imap", server.type);
   Assert.equal(2, server.socketType); // SSL

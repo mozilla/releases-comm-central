@@ -10,6 +10,8 @@ var incomingServer;
 test = "Server which advertises CRAM-MD5, but fails when it's tried";
 var expectedTransaction = ["AUTH", "CAPA", "AUTH CRAM-MD5", "AUTH PLAIN", "STAT"];
 
+const kStateAuthNeeded = 1; // the same value as in pop3d.js
+
 var urlListener = {
   OnStartRunningUrl(url) {
   },

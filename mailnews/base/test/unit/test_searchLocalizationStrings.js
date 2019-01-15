@@ -41,6 +41,7 @@ function run_test()
     {
       let property = gValidityManager.getAttributeProperty(attribute);
       let valid = false;
+      let localizedString;
       try
       {
         localizedString = gStringBundle.GetStringFromName(property);

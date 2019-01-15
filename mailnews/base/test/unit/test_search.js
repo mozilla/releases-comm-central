@@ -456,8 +456,8 @@ function testSearch()
   {
     //  test of a custom db header
     dump("testing dbHeader " + test.dbHeader + "\n");
-    customValue = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder)
-                               .getProperty(test.dbHeader);
+    let customValue = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder)
+                                   .getProperty(test.dbHeader);
     Assert.equal(customValue, test.testString);
     do_timeout(0, testSearch);
   }

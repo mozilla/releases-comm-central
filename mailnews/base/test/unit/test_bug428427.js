@@ -193,7 +193,7 @@ function CreateVirtualFolder(newName, parentFolder, searchFolderURIs, searchTerm
   //  vfdb.summaryValid = true;
   vfdb.Close(true);
   // use acctMgr to setup the virtual folder listener
-  acctMgr = MailServices.accounts.QueryInterface(Ci.nsIFolderListener);
+  var acctMgr = MailServices.accounts.QueryInterface(Ci.nsIFolderListener);
   //print(acctMgr);
   acctMgr.OnItemAdded(null, newFolder);
   return newFolder;

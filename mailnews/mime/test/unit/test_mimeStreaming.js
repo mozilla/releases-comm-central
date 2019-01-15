@@ -56,7 +56,7 @@ function streamMsg(msgHdr)
     true);
 }
 
-gStreamListener = {
+var gStreamListener = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
   _stream : null,
   // nsIRequestObserver part
