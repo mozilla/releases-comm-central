@@ -24,23 +24,17 @@ var xmlReader =
   }
 };
 
-try {
-  Services.scriptloader.loadSubScript(
+Services.scriptloader.loadSubScript(
     "chrome://messenger/content/accountcreation/util.js", xmlReader);
-  Services.scriptloader.loadSubScript(
+Services.scriptloader.loadSubScript(
     "chrome://messenger/content/accountcreation/fetchConfig.js", xmlReader);
-  Services.scriptloader.loadSubScript(
+Services.scriptloader.loadSubScript(
     "chrome://messenger/content/accountcreation/accountConfig.js", xmlReader);
-  Services.scriptloader.loadSubScript(
+Services.scriptloader.loadSubScript(
     "chrome://messenger/content/accountcreation/sanitizeDatatypes.js",
     xmlReader);
-  Services.scriptloader.loadSubScript(
+Services.scriptloader.loadSubScript(
     "chrome://messenger/content/accountcreation/readFromXML.js", xmlReader);
-} catch (ex) {
-  dump(ex);
-  // The "accountcreation" files are not available in SeaMonkey (yet).
-  xmlReader = null;
-}
 
 function onTestSuccess(config)
 {
@@ -66,12 +60,6 @@ function onTestFailure(e)
 
 function run_test()
 {
-  if (!xmlReader) {
-    // if you see this and this is Thunderbird, then it's an error
-    dump("INFO | test_autoconfigFetchDisk.js not running, because this is SeaMonkey.");
-    return;
-  }
-
   registerCleanupFunction(finish_test);
 
   // Copy the xml file into place

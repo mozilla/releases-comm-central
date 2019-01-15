@@ -22,21 +22,16 @@ ChromeUtils.import("resource:///modules/JXON.js");
 Cu.importGlobalProperties(["DOMParser"]);
 
 var xmlReader = {};
-try {
-  Services.scriptloader.loadSubScript(
+Services.scriptloader.loadSubScript(
       "chrome://messenger/content/accountcreation/util.js", xmlReader);
-  Services.scriptloader.loadSubScript(
+Services.scriptloader.loadSubScript(
       "chrome://messenger/content/accountcreation/accountConfig.js",
       xmlReader);
-  Services.scriptloader.loadSubScript(
+Services.scriptloader.loadSubScript(
       "chrome://messenger/content/accountcreation/sanitizeDatatypes.js",
       xmlReader);
-  Services.scriptloader.loadSubScript(
+Services.scriptloader.loadSubScript(
       "chrome://messenger/content/accountcreation/readFromXML.js", xmlReader);
-} catch (ex) {
-  // The "accountcreation" files are not available in SeaMonkey (yet).
-  xmlReader = null;
-}
 
 /*
  * UTILITIES
@@ -265,13 +260,6 @@ function test_replaceVariables()
 
 function run_test()
 {
-  if (!xmlReader)
-  {
-    // if you see this and this is Thunderbird, then it's an error
-    dump("test_autoconfigXML.js not running, because this is SeaMonkey.");
-    return;
-  }
-
   test_readFromXML_config1();
   test_replaceVariables();
 };

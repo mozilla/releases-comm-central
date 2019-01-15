@@ -870,7 +870,7 @@ SSLErrorHandler.prototype =
 
     /* The following 2 cert problems are unfortunately common:
      * 1) hostname mismatch:
-     * user is custeromer at a domain hoster, he owns yourname.org,
+     * user is customer at a domain hoster, he owns yourname.org,
      * and the IMAP server is imap.hoster.com (but also reachable as
      * imap.yourname.org), and has a cert for imap.hoster.com.
      * 2) self-signed:

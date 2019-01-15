@@ -20,17 +20,11 @@
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var loaded = false;
-try {
-  Services.scriptloader.loadSubScript("chrome://messenger/content/accountcreation/util.js");
-  Services.scriptloader.loadSubScript("chrome://messenger/content/accountcreation/accountConfig.js");
-  Services.scriptloader.loadSubScript("chrome://messenger/content/accountcreation/sanitizeDatatypes.js");
-  Services.scriptloader.loadSubScript("chrome://messenger/content/accountcreation/guessConfig.js");
-  loaded = true;
-} catch (ex) {
-  // The "accountcreation" files are not available in SeaMonkey (yet).
-  dump("loading accountcreation JS files failed: " + ex + "\n" + ex.stack + "\n");
-}
+Services.scriptloader.loadSubScript("chrome://messenger/content/accountcreation/util.js");
+Services.scriptloader.loadSubScript("chrome://messenger/content/accountcreation/accountConfig.js");
+Services.scriptloader.loadSubScript("chrome://messenger/content/accountcreation/sanitizeDatatypes.js");
+Services.scriptloader.loadSubScript("chrome://messenger/content/accountcreation/fetchhttp.js");
+Services.scriptloader.loadSubScript("chrome://messenger/content/accountcreation/guessConfig.js");
 
 /*
  * UTILITIES
@@ -78,6 +72,10 @@ function assert_equal_try_orders(aA, aB)
  */
 function checkPop(host, protocol)
 {
+  // The list of protocol+ssl+port configurations should match
+  // getIncomingTryOrder() in guessConfig.js.
+  // SSL configs are separated until bug 1520283 is fixed.
+
   // port == UNKNOWN
     // [POP, TLS, 110], [POP, SSL, 995], [POP, NONE, 110]
   // port != UNKNOWN
@@ -90,7 +88,7 @@ function checkPop(host, protocol)
   let tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
   assert_equal_try_orders(tryOrder,
                           [[POP, TLS, 110],
-                           [POP, SSL, 995],
+                        // [POP, SSL, 995],
                            [POP, NONE, 110]]);
 
   ssl = TLS;
@@ -113,7 +111,7 @@ function checkPop(host, protocol)
   tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
   assert_equal_try_orders(tryOrder,
                           [[POP, TLS, port],
-                           [POP, SSL, port],
+                        // [POP, SSL, port],
                            [POP, NONE, port]]);
 
   for (ssl in [TLS, SSL, NONE]) {
@@ -129,6 +127,10 @@ function checkPop(host, protocol)
  */
 function checkImap(host, protocol)
 {
+  // The list of protocol+ssl+port configurations should match
+  // getIncomingTryOrder() in guessConfig.js.
+  // SSL configs are separated until bug 1520283 is fixed.
+
   // port == UNKNOWN
     // [IMAP, TLS, 143], [IMAP, SSL, 993], [IMAP, NONE, 143]
   // port != UNKNOWN
@@ -142,7 +144,7 @@ function checkImap(host, protocol)
   let tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
   assert_equal_try_orders(tryOrder,
                           [[IMAP, TLS, 143],
-                           [IMAP, SSL, 993],
+                        // [IMAP, SSL, 993],
                            [IMAP, NONE, 143]]);
 
   ssl = TLS;
@@ -165,7 +167,7 @@ function checkImap(host, protocol)
   tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
   assert_equal_try_orders(tryOrder,
                           [[IMAP, TLS, port],
-                           [IMAP, SSL, port],
+                        // [IMAP, SSL, port],
                            [IMAP, NONE, port]]);
 
   for (ssl in [TLS, SSL, NONE]) {
@@ -217,6 +219,10 @@ function test_getHostEntry()
  */
 function test_getIncomingTryOrder()
 {
+  // The list of protocol+ssl+port configurations should match
+  // getIncomingTryOrder() in guessConfig.js.
+  // SSL configs are separated until bug 1520283 is fixed.
+
   // protocol == POP || host starts with pop. || host starts with pop3.
   checkPop( "example.com", POP );
   checkPop( "pop.example.com", UNKNOWN );
@@ -235,21 +241,34 @@ function test_getIncomingTryOrder()
   let tryOrder = getIncomingTryOrder(domain, protocol, ssl, port);
   assert_equal_try_orders(tryOrder,
                           [[IMAP, TLS, 143],
-                           [IMAP, SSL, 993],
+                        // [IMAP, SSL, 993],
                            [POP, TLS, 110],
-                           [POP, SSL, 995],
+                        // [POP, SSL, 995],
                            [IMAP, NONE, 143],
                            [POP, NONE, 110]]);
 
+  ssl = SSL;
+  tryOrder = getIncomingTryOrder(domain, protocol, ssl, port);
+  assert_equal_try_orders(tryOrder,
+                          [[IMAP, SSL, 993],
+                           [POP, SSL, 995]]);
+
+  ssl = UNKNOWN;
   port = 31337;
   tryOrder = getIncomingTryOrder(domain, protocol, ssl, port);
   assert_equal_try_orders(tryOrder,
                           [[IMAP, TLS, port],
-                           [IMAP, SSL, port],
+                        // [IMAP, SSL, port],
                            [POP, TLS, port],
-                           [POP, SSL, port],
+                        // [POP, SSL, port],
                            [IMAP, NONE, port],
                            [POP, NONE, port]]);
+
+  ssl = SSL;
+  tryOrder = getIncomingTryOrder(domain, protocol, ssl, port);
+  assert_equal_try_orders(tryOrder,
+                          [[IMAP, SSL, port],
+                           [POP, SSL, port]]);
 };
 
 /**
@@ -257,6 +276,9 @@ function test_getIncomingTryOrder()
  */
 function test_getOutgoingTryOrder()
 {
+  // The list of protocol+ssl+port configurations should match
+  // getOutgoingTryOrder() in guessConfig.js.
+  // SSL configs are separated until bug 1520283 is fixed.
   let domain = "example.com";
   let protocol = SMTP;
   let ssl = UNKNOWN;
@@ -265,27 +287,32 @@ function test_getOutgoingTryOrder()
   assert_equal_try_orders(tryOrder,
                           [[SMTP, TLS, 587],
                            [SMTP, TLS, 25],
-                           [SMTP, SSL, 465],
+                        // [SMTP, SSL, 465],
                            [SMTP, NONE, 587],
                            [SMTP, NONE, 25]]);
+
+  ssl = SSL;
+  tryOrder = getOutgoingTryOrder(domain, protocol, ssl, port);
+  assert_equal_try_orders(tryOrder,
+                          [[SMTP, SSL, 465]]);
+
+  ssl = UNKNOWN;
   port = 31337
   tryOrder = getOutgoingTryOrder(domain, protocol, ssl, port);
   assert_equal_try_orders(tryOrder,
                           [[SMTP, TLS, port],
-                           [SMTP, SSL, port],
+                        // [SMTP, SSL, port],
                            [SMTP, NONE, port]]);
+
+  ssl = SSL;
+  tryOrder = getOutgoingTryOrder(domain, protocol, ssl, port);
+  assert_equal_try_orders(tryOrder,
+                          [[SMTP, SSL, port]]);
 };
 
 
 function run_test()
 {
-  if (!loaded)
-  {
-    // if you see this with Thunderbird, then it's an error
-    dump("INFO | test_autoconfigUtils.js not running, because this is SeaMonkey.\n");
-    return true;
-  }
-
   test_getHostEntry();
   test_getIncomingTryOrder();
   test_getOutgoingTryOrder();
