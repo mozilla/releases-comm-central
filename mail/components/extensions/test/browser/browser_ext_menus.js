@@ -5,7 +5,7 @@
 let gAccount, gFolders;
 
 function treeClick(tree, row, column, event) {
-  let coords = tree.treeBoxObject.getCoordsForCellItem(row, tree.columns[column], "cell");
+  let coords = tree.getCoordsForCellItem(row, tree.columns[column], "cell");
   let treeChildren = tree.lastElementChild;
   EventUtils.synthesizeMouse(
     treeChildren,

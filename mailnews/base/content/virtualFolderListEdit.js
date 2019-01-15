@@ -73,14 +73,11 @@ var gSelectVirtual = {
     if (aEvent.button != 0)
       return;
 
-    let row = {};
-    let col = {};
-    this._treeElement.treeBoxObject
-                     .getCellAt(aEvent.clientX, aEvent.clientY, row, col, {});
-    if (row.value == -1 || col.value.id != "selectedCol")
+    let treeCellInfo = this._treeElement.getCellAt(aEvent.clientX, aEvent.clientY);
+    if (treeCellInfo.row == -1 || treeCellInfo.col.id != "selectedCol")
       return;
 
-    this._toggle(row.value);
+    this._toggle(treeCellInfo.row);
   },
 
   _toggle: function(aRow) {

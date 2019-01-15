@@ -197,13 +197,13 @@ function selectServer(server, selectPageId)
   let accountTree = document.getElementById("accounttree");
   let index = accountTree.view.getIndexOfItem(pageToSelect);
   accountTree.view.selection.select(index);
-  accountTree.treeBoxObject.ensureRowIsVisible(index);
+  accountTree.ensureRowIsVisible(index);
 
   let lastItem = accountNode.lastChild.lastChild;
   if (lastItem.localName == "treeitem")
     index = accountTree.view.getIndexOfItem(lastItem);
 
-  accountTree.treeBoxObject.ensureRowIsVisible(index);
+  accountTree.ensureRowIsVisible(index);
 }
 
 function replaceWithDefaultSmtpServer(deletedSmtpServerKey)

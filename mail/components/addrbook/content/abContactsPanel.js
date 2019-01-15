@@ -75,7 +75,7 @@ function contactsListOnClick(aEvent) {
   }
   // Any click on gAbResultsTree view (rows or blank space).
   if (target.localName == "treechildren") {
-    let row = gAbResultsTree.treeBoxObject.getRowAt(aEvent.clientX, aEvent.clientY);
+    let row = gAbResultsTree.getRowAt(aEvent.clientX, aEvent.clientY);
     if (row < 0 || row >= gAbResultsTree.view.rowCount) {
       // Any click on results tree whitespace.
       if ((aEvent.detail == 1 && aEvent.button == 0) || aEvent.button == 2) {

@@ -104,7 +104,7 @@ function InitDialog()
   var index = gCharsetInfo.map(info => info.value).indexOf(gCharset);
   if (index >= 0) {
     tree.view.selection.select(index);
-    tree.treeBoxObject.ensureRowIsVisible(index);
+    tree.ensureRowIsVisible(index);
   }
 }
 

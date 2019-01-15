@@ -358,7 +358,7 @@ var mailTabType = {
         } else {
           // We don't want to null out the real tree box view, as that
           // corresponds to the _current_ tab, not the new one
-          aTab.folderDisplay.hookUpFakeTreeBox(false);
+          aTab.folderDisplay.hookUpFakeTree(false);
         }
       },
       persistTab(aTab) {
@@ -499,7 +499,6 @@ var mailTabType = {
     aTab.folderDisplay = new FolderDisplayWidget(aTab, aTab.messageDisplay);
     aTab.folderDisplay.msgWindow = msgWindow;
     aTab.folderDisplay.tree = document.getElementById("threadTree");
-    aTab.folderDisplay.treeBox = aTab.folderDisplay.tree.boxObject;
     aTab.folderDisplay.folderPaneVisible = aFolderPaneVisible;
 
     if (aIsFirstTab) {

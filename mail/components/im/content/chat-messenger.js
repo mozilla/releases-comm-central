@@ -482,7 +482,7 @@ var chatHandler = {
       if (!treeView.isContainer(index) &&
           treeView._rowMap[index].log.time == logTime) {
         logTree.view.selection.select(index);
-        logTree.treeBoxObject.ensureRowIsVisible(index);
+        logTree.ensureRowIsVisible(index);
         return true;
       }
       if (!treeView._rowMap[index].children.some(i => i.log.time == logTime))
@@ -494,7 +494,7 @@ var chatHandler = {
         ++index;
       if (treeView._rowMap[index].log.time == logTime) {
         logTree.view.selection.select(index);
-        logTree.treeBoxObject.ensureRowIsVisible(index);
+        logTree.ensureRowIsVisible(index);
       }
       return true;
     }

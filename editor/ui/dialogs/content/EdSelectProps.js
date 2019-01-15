@@ -8,7 +8,7 @@ var hasValue;
 var oldValue;
 var insertNew;
 var itemArray;
-var treeBoxObject;
+var theTree;
 var treeSelection;
 var selectElement;
 var currentItem = null;
@@ -94,14 +94,14 @@ optionObject.prototype.cycleCell = function cycleCell(index)
     else if (selectedOption)
     {
       selectedOption.removeAttribute("selected");
-      var column = treeBoxObject.columns["SelectSelCol"];
-      treeBoxObject.invalidateColumn(column);
+      var column = theTree.columns["SelectSelCol"];
+      theTree.invalidateColumn(column);
       selectedOption = null;
     }
     this.element.setAttribute("selected", "");
     selectedOption = this.element;
-    var column = treeBoxObject.columns["SelectSelCol"];
-    treeBoxObject.invalidateCell(index, column);
+    var column = theTree.columns["SelectSelCol"];
+    theTree.invalidateCell(index, column);
   }
   if (currentItem == this)
     // Also update the deck
@@ -178,10 +178,10 @@ optionObject.prototype.moveUp = function moveUp()
   if (itemArray[index].level < itemArray[index - 1].level + itemArray[index - 1].container)
   {
     // we need to repaint the tree's lines
-    treeBoxObject.invalidateRange(getParentIndex(index), index);
+    theTree.invalidateRange(getParentIndex(index), index);
     // a) option is just after an optgroup, so it becomes the last child
     itemArray[index].level = 2;
-    treeBoxObject.view.selectionChanged();
+    theTree.view.selectionChanged();
   }
   else
   {
@@ -206,10 +206,10 @@ optionObject.prototype.moveDown = function moveDown()
   if (index + 1 == itemArray.length || itemArray[index].level > itemArray[index + 1].level)
   {
     // we need to repaint the tree's lines
-    treeBoxObject.invalidateRange(getParentIndex(index), index);
+    theTree.invalidateRange(getParentIndex(index), index);
     // a) option is last child of an optgroup, so it moves just after
     itemArray[index].level = 1;
-    treeBoxObject.view.selectionChanged();
+    theTree.view.selectionChanged();
   }
   else
   {
@@ -292,7 +292,7 @@ optgroupObject.prototype.moveUp = function moveUp()
   var endItems = itemArray.splice(index);
   itemArray = itemArray.concat(movedItems).concat(endItems);
   // Repaint the lot
-  treeBoxObject.invalidateRange(index, j);
+  theTree.invalidateRange(index, j);
   selectTreeIndex(index, true);
 }
 
@@ -312,7 +312,7 @@ optgroupObject.prototype.moveDown = function moveDown()
   var endItems = itemArray.splice(index);
   itemArray = itemArray.concat(movedItems).concat(endItems);
   // Repaint the lot
-  treeBoxObject.invalidateRange(index, j);
+  theTree.invalidateRange(index, j);
   index += j - i;
   selectTreeIndex(index, true);
 }
@@ -321,11 +321,11 @@ optgroupObject.prototype.appendOption = function appendOption(child, parent)
 {
   var index = gDialog.nextChild(parent);
   // XXX need to repaint the lines, tree won't do this
-  var primaryCol = treeBoxObject.columns.getPrimaryColumn();
-  treeBoxObject.invalidateCell(index - 1, primaryCol);
+  var primaryCol = theTree.columns.getPrimaryColumn();
+  theTree.invalidateCell(index - 1, primaryCol);
   // insert the wrapped object as the last child
   itemArray.splice(index, 0, new optionObject(child, 2));
-  treeBoxObject.rowCountChanged(index, 1);
+  theTree.rowCountChanged(index, 1);
   selectTreeIndex(index, false);
 };
 
@@ -432,10 +432,10 @@ function Startup()
     {
       var index = itemArray.length;
       // XXX need to repaint the lines, tree won't do this
-      treeBoxObject.invalidateRange(this.lastChild(), index);
+      theTree.invalidateRange(this.lastChild(), index);
       // append the wrapped object
       itemArray.push(new optionObject(child, 1));
-      treeBoxObject.rowCountChanged(index, 1);
+      theTree.rowCountChanged(index, 1);
       selectTreeIndex(index, false);
     },
     canDestroy:       function canDestroy(prompt)
@@ -481,8 +481,8 @@ function Startup()
   UpdateSelectMultiple();
 
   // Define a custom view for the tree
-  treeBoxObject = gDialog.tree.treeBoxObject;
-  treeBoxObject.view = {
+  theTree = gDialog.tree;
+  theTree.view = {
     QueryInterface: ChromeUtils.generateQI(["nsITreeView",
                                             "nsISupportsWeakReference"]),
     // useful for debugging
@@ -628,10 +628,10 @@ function AddOptGroup()
   var optgroupElement = GetCurrentEditor().createElementWithDefaults("optgroup");
   var index = itemArray.length;
   // XXX need to repaint the lines, tree won't do this
-  treeBoxObject.invalidateRange(gDialog.lastChild(), index);
+  theTree.invalidateRange(gDialog.lastChild(), index);
   // append the wrapped object
   itemArray.push(new optgroupObject(optgroupElement));
-  treeBoxObject.rowCountChanged(index, 1);
+  theTree.rowCountChanged(index, 1);
   selectTreeIndex(index, false);
   SetTextboxFocus(gDialog.optgroupLabel);
 }
@@ -651,10 +651,10 @@ function RemoveElement()
     if (level == 1) {
       var last = gDialog.lastChild();
       if (index > last)
-        treeBoxObject.invalidateRange(last, index);
+        theTree.invalidateRange(last, index);
     }
     selectTreeIndex(index, true);
-    treeBoxObject.rowCountChanged(++index, -1);
+    theTree.rowCountChanged(++index, -1);
   }
 }
 
@@ -672,16 +672,16 @@ function onNameInput()
     gDialog.accept.disabled = disabled;
   gDialog.element.setAttribute("name", gDialog.selectName.value);
   // repaint the tree
-  var primaryCol = treeBoxObject.columns.getPrimaryColumn();
-  treeBoxObject.invalidateCell(treeSelection.currentIndex, primaryCol);
+  var primaryCol = theTree.columns.getPrimaryColumn();
+  theTree.invalidateCell(treeSelection.currentIndex, primaryCol);
 }
 
 function onLabelInput()
 {
   currentItem.element.setAttribute("label", gDialog.optgroupLabel.value);
   // repaint the tree
-  var primaryCol = treeBoxObject.columns.getPrimaryColumn();
-  treeBoxObject.invalidateCell(treeSelection.currentIndex, primaryCol);
+  var primaryCol = theTree.columns.getPrimaryColumn();
+  theTree.invalidateCell(treeSelection.currentIndex, primaryCol);
 }
 
 function onTextInput()
@@ -689,13 +689,13 @@ function onTextInput()
   currentItem.element.text = gDialog.optionText.value;
   // repaint the tree
   if (hasValue) {
-    var primaryCol = treeBoxObject.columns.getPrimaryColumn();
-    treeBoxObject.invalidateCell(treeSelection.currentIndex, primaryCol);
+    var primaryCol = theTree.columns.getPrimaryColumn();
+    theTree.invalidateCell(treeSelection.currentIndex, primaryCol);
   }
   else
   {
     gDialog.optionValue.value = gDialog.optionText.value;
-    treeBoxObject.invalidateRow(treeSelection.currentIndex);
+    theTree.invalidateRow(treeSelection.currentIndex);
   }
 }
 
@@ -705,8 +705,8 @@ function onValueInput()
   oldValue = gDialog.optionValue.value;
   currentItem.element.setAttribute("value", oldValue);
   // repaint the tree
-  var column = treeBoxObject.columns["SelectValCol"];
-  treeBoxObject.invalidateCell(treeSelection.currentIndex, column);
+  var column = theTree.columns["SelectValCol"];
+  theTree.invalidateCell(treeSelection.currentIndex, column);
 }
 
 function onHasValueClick()
@@ -724,8 +724,8 @@ function onHasValueClick()
     currentItem.element.removeAttribute("value");
   }
   // repaint the tree
-  var column = treeBoxObject.columns["SelectValCol"];
-  treeBoxObject.invalidateCell(treeSelection.currentIndex, column);
+  var column = theTree.columns["SelectValCol"];
+  theTree.invalidateCell(treeSelection.currentIndex, column);
 }
 
 function onSelectMultipleClick()
@@ -738,7 +738,7 @@ function onSelectMultipleClick()
 function selectTreeIndex(index, focus)
 {
   treeSelection.select(index);
-  treeBoxObject.ensureRowIsVisible(index);
+  theTree.ensureRowIsVisible(index);
   if (focus)
     gDialog.tree.focus();
 }

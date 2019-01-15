@@ -1835,10 +1835,9 @@
         <parameter name="event"/>
         <body>
           <![CDATA[
-            var box = this.tree.treeBoxObject;
-            if (event.originalTarget == box.treeBody) {
-              var index = box.getRowAt(event.clientX, event.clientY);
-              box.view.selection.select(index);
+            if (event.originalTarget == this.tree.treeBody) {
+              var index = this.tree.getRowAt(event.clientX, event.clientY);
+              this.tree.view.selection.select(index);
               return index;
             }
             return -1;
@@ -1870,17 +1869,16 @@
             self: this,
             tree: this.tree,
             parentNode: this.parentNode,
-            getLastVisibleRow(box) {
-              var f = box.getFirstVisibleRow();
-              var p = box.getPageLength();
-              var l = box.view.rowCount;
+            getLastVisibleRow(tree) {
+              var f = tree.getFirstVisibleRow();
+              var p = tree.getPageLength();
+              var l = tree.view.rowCount;
               return (l < f + p ? l : f + p) - 1;
             },
             handleEvent(event) {
               if (event.altKey)
                 return;
               var index;
-              var box = this.tree.treeBoxObject;
               if (this.parentNode.hasAttribute("open")) {
                 event.stopPropagation();
                 event.preventDefault();
@@ -1909,24 +1907,24 @@
                   break;
                 case event.DOM_VK_DOWN:
                   index++;
-                  if (index == box.view.rowCount)
+                  if (index == this.tree.view.rowCount)
                     return;
                   break;
                 case event.DOM_VK_PAGE_UP:
-                  if (index == box.getFirstVisibleRow())
-                    box.scrollByPages(-1);
-                  index = box.getFirstVisibleRow();
+                  if (index == this.tree.getFirstVisibleRow())
+                    this.tree.scrollByPages(-1);
+                  index = this.tree.getFirstVisibleRow();
                   break;
                 case event.DOM_VK_PAGE_DOWN:
-                  if (index == this.getLastVisibleRow(box))
-                    box.scrollByPages(1);
-                  index = this.getLastVisibleRow(box);
+                  if (index == this.getLastVisibleRow(this.tree))
+                    this.tree.scrollByPages(1);
+                  index = this.getLastVisibleRow(this.tree);
                   break;
                 case event.DOM_VK_HOME:
                   index = 0;
                   break;
                 case event.DOM_VK_END:
-                  index = box.view.rowCount - 1;
+                  index = this.tree.view.rowCount - 1;
                   break;
                 default:
                   if (event.charCode > 0 && !event.ctrlKey && !event.metaKey) {
@@ -1937,9 +1935,9 @@
                   }
                   return;
               }
-              box.view.selection.select(index);
+              this.tree.view.selection.select(index);
               if (this.parentNode.hasAttribute("open"))
-                box.ensureRowIsVisible(index);
+                this.tree.ensureRowIsVisible(index);
               else
                 this.self.fire();
             },
@@ -1996,14 +1994,13 @@
       <handler event="popupshowing">
         <![CDATA[
           this.parentNode.addEventListener("blur", this.onBlurMenuList);
-          var box = this.tree.treeBoxObject;
-          box.focused = true;
+          this.tree.focused = true;
           var index = this.setInitialSelection();
-          var height = box.view.rowCount * box.rowHeight;
-          height += this.boxObject.height - box.treeBody.boxObject.height;
+          var height = this.tree.view.rowCount * this.tree.rowHeight;
+          height += this.boxObject.height - this.tree.treeBody.boxObject.height;
           this.height = height;
           if (index >= 0)
-            setTimeout(function() { box.ensureRowIsVisible(index); }, 0);
+            setTimeout(function() { this.tree.ensureRowIsVisible(index); }, 0);
         ]]>
       </handler>
       <handler event="popuphiding">

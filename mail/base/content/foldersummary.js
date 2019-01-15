@@ -206,16 +206,15 @@ class MozFolderTooltip extends MozFolderSummary {
       return true;
     }
 
-    let row = {}, col = {};
-    gFolderTreeView._tree.getCellAt(event.clientX, event.clientY, row, col, {});
-    if (col.value.id == "folderNameCol") {
-      let cropped = gFolderTreeView._tree.isCellCropped(row.value, col.value);
+    let treeCellInfo = gFolderTreeView._tree.getCellAt(event.clientX, event.clientY);
+    if (treeCellInfo.col.id == "folderNameCol") {
+      let cropped = gFolderTreeView._tree.isCellCropped(treeCellInfo.row, treeCellInfo.col);
       if (this._addLocationInfo(msgFolder, cropped, tooltipnode)) {
         return true;
       }
     }
 
-    let counts = gFolderTreeView.getSummarizedCounts(row.value, col.value.id);
+    let counts = gFolderTreeView.getSummarizedCounts(treeCellInfo.row, treeCellInfo.col.id);
     return this._addSummarizeExplain(counts, tooltipnode);
   }
 

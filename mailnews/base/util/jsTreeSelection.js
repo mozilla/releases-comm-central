@@ -37,8 +37,8 @@ ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
  *
  * Unit test is in mailnews/base/util/test_jsTreeSelection.js
  */
-function JSTreeSelection(aTreeBoxObject) {
-  this._treeBoxObject = aTreeBoxObject;
+function JSTreeSelection(aTree) {
+  this._tree = aTree;
 
   this._currentIndex = null;
   this._shiftSelectPivot = null;
@@ -49,9 +49,9 @@ function JSTreeSelection(aTreeBoxObject) {
 }
 JSTreeSelection.prototype = {
   /**
-   * The current nsITreeBoxObject, appropriately QueryInterfaced.  May be null.
+   * The current XULTreeElement, appropriately QueryInterfaced. May be null.
    */
-  _treeBoxObject: null,
+  _tree: null,
 
   /**
    * Where the focus rectangle (that little dotted thing) shows up.  Just
@@ -83,10 +83,10 @@ JSTreeSelection.prototype = {
   _view: null,
 
   get tree() {
-    return this._treeBoxObject;
+    return this._tree;
   },
-  set tree(aTreeBoxObject) {
-    this._treeBoxObject = aTreeBoxObject;
+  set tree(aTree) {
+    this._tree = aTree;
   },
 
   set view(aView) {
@@ -138,8 +138,8 @@ JSTreeSelection.prototype = {
     this._count = 1;
     this._ranges = [[aViewIndex, aViewIndex]];
 
-    if (this._treeBoxObject)
-      this._treeBoxObject.invalidate();
+    if (this._tree)
+      this._tree.invalidate();
 
     this._fireSelectionChanged();
   },
@@ -206,8 +206,8 @@ JSTreeSelection.prototype = {
       // otherwise we need to keep going
     }
 
-    if (this._treeBoxObject)
-      this._treeBoxObject.invalidateRow(aIndex);
+    if (this._tree)
+      this._tree.invalidateRow(aIndex);
     this._fireSelectionChanged();
   },
 
@@ -242,8 +242,8 @@ JSTreeSelection.prototype = {
     if (!aAugment) {
       this._count = aRangeEnd - aRangeStart + 1;
       this._ranges = [[aRangeStart, aRangeEnd]];
-      if (this._treeBoxObject)
-        this._treeBoxObject.invalidate();
+      if (this._tree)
+        this._tree.invalidate();
       this._fireSelectionChanged();
       return;
     }
@@ -292,8 +292,8 @@ JSTreeSelection.prototype = {
       this._ranges.splice(insertionPoint, 0, [aRangeStart, aRangeEnd]);
 
     this._updateCount();
-    if (this._treeBoxObject)
-      this._treeBoxObject.invalidate();
+    if (this._tree)
+      this._tree.invalidate();
     this._fireSelectionChanged();
   },
 
@@ -348,8 +348,8 @@ JSTreeSelection.prototype = {
     this._ranges.splice.apply(this._ranges, args);
 
     this._updateCount();
-    if (this._treeBoxObject)
-      this._treeBoxObject.invalidate();
+    if (this._tree)
+      this._tree.invalidate();
     // note! nsTreeSelection doesn't fire a selection changed event, so neither
     //  do we, but it seems like we should
   },
@@ -362,8 +362,8 @@ JSTreeSelection.prototype = {
     this._shiftSelectPivot = null;
     this._count = 0;
     this._ranges = [];
-    if (this._treeBoxObject)
-      this._treeBoxObject.invalidate();
+    if (this._tree)
+      this._tree.invalidate();
     this._fireSelectionChanged();
   },
 
@@ -391,8 +391,8 @@ JSTreeSelection.prototype = {
     this._count = rowCount;
     this._ranges = [[0, rowCount - 1]];
 
-    if (this._treeBoxObject)
-      this._treeBoxObject.invalidate();
+    if (this._tree)
+      this._tree.invalidate();
     this._fireSelectionChanged();
   },
 
@@ -407,8 +407,8 @@ JSTreeSelection.prototype = {
   },
 
   invalidateSelection: function JSTreeSelection_invalidateSelection() {
-    if (this._treeBoxObject)
-      this._treeBoxObject.invalidate();
+    if (this._tree)
+      this._tree.invalidate();
   },
 
   /**
@@ -523,8 +523,8 @@ JSTreeSelection.prototype = {
         this._ranges[iTrans] = [low + aCount, high + aCount];
       }
       // invalidate and fire selection change notice
-      if (this._treeBoxObject)
-        this._treeBoxObject.invalidate();
+      if (this._tree)
+        this._tree.invalidate();
       this._fireSelectionChanged();
       return;
     }
@@ -553,8 +553,8 @@ JSTreeSelection.prototype = {
       this._ranges.splice(iTrans, 1);
     }
 
-    if (this._treeBoxObject)
-      this._treeBoxObject.invalidate();
+    if (this._tree)
+      this._tree.invalidate();
     this.selectEventsSuppressed = saveSuppress;
   },
 
@@ -582,8 +582,8 @@ JSTreeSelection.prototype = {
     if (this.selectEventsSuppressed)
       return;
     let view;
-    if (this._treeBoxObject && this._treeBoxObject.view)
-      view = this._treeBoxObject.view;
+    if (this._tree && this._tree.view)
+      view = this._tree.view;
     else
       view = this._view;
 
@@ -609,8 +609,8 @@ JSTreeSelection.prototype = {
       return;
 
     this._currentIndex = (aIndex != -1) ? aIndex : null;
-    if (this._treeBoxObject)
-      this._treeBoxObject.invalidateRow(aIndex);
+    if (this._tree)
+      this._tree.invalidateRow(aIndex);
   },
 
   currentColumn: null,

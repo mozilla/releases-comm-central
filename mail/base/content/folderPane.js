@@ -267,8 +267,7 @@ var gFolderTreeView = {
         aEvent.originalTarget.localName == "scrollbarbutton")
       return;
 
-    let row = gFolderTreeView._treeElement.treeBoxObject.getRowAt(aEvent.clientX,
-                                                                  aEvent.clientY);
+    let row = gFolderTreeView._treeElement.getRowAt(aEvent.clientX, aEvent.clientY);
     let folderItem = gFolderTreeView._rowMap[row];
     if (folderItem)
       folderItem.command();
@@ -278,7 +277,7 @@ var gFolderTreeView = {
   },
 
   getFolderAtCoords(aX, aY) {
-    let row = gFolderTreeView._treeElement.treeBoxObject.getRowAt(aX, aY);
+    let row = gFolderTreeView._treeElement.getRowAt(aX, aY);
     if (row in gFolderTreeView._rowMap)
       return gFolderTreeView._rowMap[row]._folder;
     return null;
@@ -574,7 +573,7 @@ var gFolderTreeView = {
     }
 
     this.selection.select(folderIndex);
-    this._treeElement.treeBoxObject.ensureRowIsVisible(folderIndex);
+    this._treeElement.ensureRowIsVisible(folderIndex);
     return true;
   },
 

@@ -76,7 +76,7 @@ function SetAbView(aURI)
   var actualSortColumn = gAbView.setView(directory, GetAbViewListener(),
                                          sortColumn, sortDirection);
 
-  gAbResultsTree.treeBoxObject.view =
+  gAbResultsTree.view =
     gAbView.QueryInterface(Ci.nsITreeView);
 
   UpdateSortIndicators(actualSortColumn, sortDirection);
@@ -289,8 +289,7 @@ function AbResultsPaneOnClick(event)
   }
   else if (t.localName == "treechildren") {
     // figure out what row the click was in
-    var row = gAbResultsTree.treeBoxObject.getRowAt(event.clientX,
-                                                    event.clientY);
+    var row = gAbResultsTree.getRowAt(event.clientX, event.clientY);
     if (row == -1)
       return;
 
@@ -354,7 +353,7 @@ function UpdateSortIndicators(colID, sortDirection)
 function InvalidateResultsPane()
 {
   if (gAbResultsTree)
-    gAbResultsTree.treeBoxObject.invalidate();
+    gAbResultsTree.invalidate();
 }
 
 // Controller object for Results Pane

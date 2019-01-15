@@ -175,13 +175,13 @@ var gPermissionManager = {
     if (this._lastPermissionSortColumn == "statusCol") {
       this._resortPermissions();
     }
-    this._tree.treeBoxObject.invalidate();
+    this._tree.invalidate();
   },
 
   _addPermission(aPermission) {
     this._addPermissionToList(aPermission);
     ++this._view._rowCount;
-    this._tree.treeBoxObject.rowCountChanged(this._view.rowCount - 1, 1);
+    this._tree.rowCountChanged(this._view.rowCount - 1, 1);
     // Re-do the sort, since we inserted this new item at the end.
     this._resortPermissions();
   },
@@ -418,8 +418,8 @@ var gPermissionManager = {
       if (this._permissions[i].principal.origin == aPrincipal.origin) {
         this._permissions.splice(i, 1);
         this._view._rowCount--;
-        this._tree.treeBoxObject.rowCountChanged(this._view.rowCount - 1, -1);
-        this._tree.treeBoxObject.invalidate();
+        this._tree.rowCountChanged(this._view.rowCount - 1, -1);
+        this._tree.invalidate();
         break;
       }
     }

@@ -277,7 +277,7 @@ function openSubscriptionsDialog(aFolder) {
   if (subscriptionsWindow) {
     if (aFolder) {
       subscriptionsWindow.FeedSubscriptions.selectFolder(aFolder);
-      subscriptionsWindow.FeedSubscriptions.mView.treeBox.ensureRowIsVisible(
+      subscriptionsWindow.FeedSubscriptions.mView.tree.ensureRowIsVisible(
         subscriptionsWindow.FeedSubscriptions.mView.selection.currentIndex);
     }
 

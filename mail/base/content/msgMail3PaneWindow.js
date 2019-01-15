@@ -397,7 +397,7 @@ var MailPrefObserver = {
                                   ++currentDisplayNameVersion);
 
         // refresh the thread pane
-        threadTree.treeBoxObject.invalidate();
+        threadTree.invalidate();
       }
     }
   },
@@ -1075,15 +1075,10 @@ function ClearMessagePane() {
  *     aSingleSelect then we create a transient single-row selection.
  */
 function ChangeSelectionWithoutContentLoad(event, tree, aSingleSelect) {
-  var treeBoxObj = tree.treeBoxObject;
-  if (!treeBoxObj) {
-    event.stopPropagation();
-    return;
-  }
 
-  var treeSelection = treeBoxObj.view.selection;
+  var treeSelection = tree.view.selection;
 
-  var row = treeBoxObj.getRowAt(event.clientX, event.clientY);
+  var row = tree.getRowAt(event.clientX, event.clientY);
   // Only do something if:
   // - the row is valid
   // - it's not already selected (or we want a single selection)
@@ -1100,12 +1095,12 @@ function ChangeSelectionWithoutContentLoad(event, tree, aSingleSelect) {
       }
     }
 
-    let transientSelection = new JSTreeSelection(treeBoxObj);
+    let transientSelection = new JSTreeSelection(tree);
     transientSelection.logAdjustSelectionForReplay();
 
     gRightMouseButtonSavedSelection = {
       // Need to clear out this reference later.
-      view: treeBoxObj.view,
+      view: tree.view,
       realSelection: treeSelection,
       transientSelection,
     };
@@ -1114,14 +1109,14 @@ function ChangeSelectionWithoutContentLoad(event, tree, aSingleSelect) {
 
     // tell it to log calls to adjustSelection
     // attach it to the view
-    treeBoxObj.view.selection = transientSelection;
+    tree.view.selection = transientSelection;
     // Don't generate any selection events! (we never set this to false, because
     //  that would generate an event, and we never need one of those from this
     //  selection object.
     transientSelection.selectEventsSuppressed = true;
     transientSelection.select(row);
     transientSelection.currentIndex = saveCurrentIndex;
-    treeBoxObj.ensureRowIsVisible(row);
+    tree.ensureRowIsVisible(row);
   }
   event.stopPropagation();
 }
@@ -1154,11 +1149,8 @@ function FolderPaneOnClick(event) {
     FolderPaneContextMenuNewTab(event);
     RestoreSelectionWithoutContentLoad(folderTree);
   } else if (event.button == 0) {
-    var row = {};
-    var col = {};
-    var elt = {};
-    folderTree.treeBoxObject.getCellAt(event.clientX, event.clientY, row, col, elt);
-    if (row.value == -1) {
+    var treeCellInfo = folderTree.getCellAt(event.clientX, event.clientY);
+    if (treeCellInfo.row == -1) {
       if (event.originalTarget.localName == "treecol") {
         // clicking on the name column in the folder pane should not sort
         event.stopPropagation();

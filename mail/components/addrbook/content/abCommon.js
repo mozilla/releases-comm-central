@@ -631,7 +631,7 @@ function DirPaneDoubleClick(event) {
     return;
 
   // Ignore double clicking on invalid rows.
-  let row = gDirTree.treeBoxObject.getRowAt(event.clientX, event.clientY);
+  let row = gDirTree.getRowAt(event.clientX, event.clientY);
   if (row == -1 || row > gDirTree.view.rowCount - 1)
     return;
 

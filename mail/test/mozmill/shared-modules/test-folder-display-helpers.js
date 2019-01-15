@@ -961,11 +961,11 @@ function click_tree_row(aTree, aRowIndex, aController) {
 
   let selection = aTree.view.selection;
   selection.select(aRowIndex);
-  aTree.treeBoxObject.ensureRowIsVisible(aRowIndex);
+  aTree.ensureRowIsVisible(aRowIndex);
 
   // get cell coordinates
   let column = aTree.columns[0];
-  let coords = aTree.treeBoxObject.getCoordsForCellItem(aRowIndex, column, "text");
+  let coords = aTree.getCoordsForCellItem(aRowIndex, column, "text");
 
   aController.sleep(0);
   EventUtils.synthesizeMouse(aTree.body, coords.x + 4, coords.y + 4,
@@ -1098,9 +1098,8 @@ function select_shift_click_row(aViewIndex, aController, aDoNotRequireLoad) {
 function _row_click_helper(aController, aTree, aViewIndex, aButton, aExtra) {
   // Force-focus the tree
   aTree.focus();
-  let treeBox = aTree.treeBoxObject;
   // very important, gotta be able to see the row
-  treeBox.ensureRowIsVisible(aViewIndex);
+  aTree.ensureRowIsVisible(aViewIndex);
   // coordinates of the upper left of the entire tree widget (headers included)
   let tx = aTree.boxObject.x, ty = aTree.boxObject.y;
   // coordinates of the row display region of the tree (below the headers)
@@ -1118,12 +1117,12 @@ function _row_click_helper(aController, aTree, aViewIndex, aButton, aExtra) {
     if (aExtra !== "toggle")
       rowX += 32;
   }
-  let rowY = treeBox.rowHeight * (aViewIndex - treeBox.getFirstVisibleRow()) +
-    treeBox.rowHeight / 2;
-  if (treeBox.getRowAt(x + rowX, y + rowY) != aViewIndex) {
+  let rowY = aTree.rowHeight * (aViewIndex - aTree.getFirstVisibleRow()) +
+    aTree.rowHeight / 2;
+  if (aTree.getRowAt(x + rowX, y + rowY) != aViewIndex) {
     throw new Error("Thought we would find row " + aViewIndex + " at " +
                     rowX + "," + rowY + " but we found " +
-                    treeBox.getRowAt(rowX, rowY));
+                    aTree.getRowAt(rowX, rowY));
   }
   // Generate a mouse-down for all click types; the transient selection
   // logic happens on mousedown which our tests assume is happening.  (If you
@@ -1189,10 +1188,10 @@ function middle_click_on_row(aViewIndex) {
  * Assert that the given row index is currently visible in the thread pane view.
  */
 function assert_row_visible(aViewIndex) {
-  let treeBox = mc.threadTree.treeBoxObject;
+  let tree = mc.threadTree;
 
-  if (treeBox.getFirstVisibleRow() > aViewIndex ||
-      treeBox.getLastVisibleRow() < aViewIndex)
+  if (tree.getFirstVisibleRow() > aViewIndex ||
+      tree.getLastVisibleRow() < aViewIndex)
     throw new Error("Row " + aViewIndex + " should currently be visible in " +
                     "the thread pane, but isn't.");
 }
@@ -2227,12 +2226,12 @@ function assert_visible(aViewIndexOrMessage) {
     viewIndex = _normalize_view_index(aViewIndexOrMessage);
   else
     viewIndex = mc.dbView.findIndexOfMsgHdr(aViewIndexOrMessage, false);
-  let treeBox = mc.threadTree.boxObject;
-  if (viewIndex < treeBox.getFirstVisibleRow() ||
-      viewIndex > treeBox.getLastVisibleRow())
+  let tree = mc.threadTree;
+  if (viewIndex < tree.getFirstVisibleRow() ||
+      viewIndex > tree.getLastVisibleRow())
     throw new Error("View index " + viewIndex + " is not visible! (" +
-                    treeBox.getFirstVisibleRow() + "-" +
-                    treeBox.getLastVisibleRow() + " are visible)");
+                    tree.getFirstVisibleRow() + "-" +
+                    tree.getLastVisibleRow() + " are visible)");
 }
 
 /**

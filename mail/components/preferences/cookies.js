@@ -37,7 +37,7 @@ var gCookiesWindow = {
 
   _populateList(aInitialLoad) {
     this._loadCookies();
-    this._tree.treeBoxObject.view = this._view;
+    this._tree.view = this._view;
     if (aInitialLoad)
       this.sort("rawHost");
     if (this._view.rowCount > 0)
@@ -79,7 +79,7 @@ var gCookiesWindow = {
 
       var oldRowCount = this._view._rowCount;
       this._view._rowCount = 0;
-      this._tree.treeBoxObject.rowCountChanged(0, -oldRowCount);
+      this._tree.rowCountChanged(0, -oldRowCount);
       this._view.selection.clearSelection();
     } else if (aData == "reload") {
       // first, clear any existing entries
@@ -137,7 +137,7 @@ var gCookiesWindow = {
     }
 
     // Make sure the tree display is up to date...
-    this._tree.treeBoxObject.invalidateRow(rowIndex);
+    this._tree.invalidateRow(rowIndex);
     // ... and if the cookie is selected, update the displayed metadata too
     if (cookieItem != null && this._view.selection.currentIndex == rowIndex)
       this._updateCookieData(cookieItem);
@@ -166,7 +166,7 @@ var gCookiesWindow = {
     // if any to get the position correct.)
     var oldRowCount = this._rowCount;
     this._view._rowCount += rowCountImpact;
-    this._tree.treeBoxObject.rowCountChanged(oldRowCount - 1, rowCountImpact);
+    this._tree.rowCountChanged(oldRowCount - 1, rowCountImpact);
 
     document.getElementById("removeAllCookies").disabled = this._view._filtered;
   },
@@ -403,8 +403,8 @@ var gCookiesWindow = {
         var delta = multiplier * item.cookies.length;
         this._rowCount += delta;
         item.open = !item.open;
-        gCookiesWindow._tree.treeBoxObject.rowCountChanged(aIndex + 1, delta);
-        gCookiesWindow._tree.treeBoxObject.invalidateRow(aIndex);
+        gCookiesWindow._tree.rowCountChanged(aIndex + 1, delta);
+        gCookiesWindow._tree.invalidateRow(aIndex);
       }
     },
     cycleHeader(aColumn) {},
@@ -608,7 +608,7 @@ var gCookiesWindow = {
     //    Before SelectedIndex: 1   Before RowCount: 4
     //    After  SelectedIndex: 1   After  RowCount: 3
     var seln = this._view.selection;
-    var tbo = this._tree.treeBoxObject;
+    var tbo = this._tree;
 
     if (seln.count < 1) return;
 
@@ -730,8 +730,8 @@ var gCookiesWindow = {
     this._view._invalidateCache(0);
     this._view.selection.clearSelection();
     this._view.selection.select(0);
-    this._tree.treeBoxObject.invalidate();
-    this._tree.treeBoxObject.ensureRowIsVisible(0);
+    this._tree.invalidate();
+    this._tree.ensureRowIsVisible(0);
 
     this._lastSortAscending = ascending;
     this._lastSortProperty = aProperty;
@@ -744,12 +744,12 @@ var gCookiesWindow = {
     // Clear the Tree Display
     this._view._filtered = false;
     this._view._rowCount = 0;
-    this._tree.treeBoxObject.rowCountChanged(0, -this._view._filterSet.length);
+    this._tree.rowCountChanged(0, -this._view._filterSet.length);
     this._view._filterSet = [];
 
     // Just reload the list to make sure deletions are respected
     this._loadCookies();
-    this._tree.treeBoxObject.view = this._view;
+    this._tree.view = this._view;
 
     // Restore sort order
     var sortby = this._lastSortProperty;
@@ -840,10 +840,10 @@ var gCookiesWindow = {
     // Clear the display
     var oldCount = view._rowCount;
     view._rowCount = 0;
-    gCookiesWindow._tree.treeBoxObject.rowCountChanged(0, -oldCount);
+    gCookiesWindow._tree.rowCountChanged(0, -oldCount);
     // Set up the filtered display
     view._rowCount = view._filterSet.length;
-    gCookiesWindow._tree.treeBoxObject.rowCountChanged(0, view.rowCount);
+    gCookiesWindow._tree.rowCountChanged(0, view.rowCount);
 
     // if the view is not empty then select the first item
     if (view.rowCount > 0)

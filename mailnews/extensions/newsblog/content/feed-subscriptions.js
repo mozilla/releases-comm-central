@@ -109,7 +109,7 @@ var FeedSubscriptions = {
       }
     }
 
-    this.mView.treeBox.ensureRowIsVisible(this.mView.selection.currentIndex);
+    this.mView.tree.ensureRowIsVisible(this.mView.selection.currentIndex);
     this.clearStatusInfo();
   },
 
@@ -130,7 +130,7 @@ var FeedSubscriptions = {
 
     /* nsITreeView */
     /* eslint-disable no-multi-spaces */
-    treeBox: null,
+    tree: null,
 
     mRowCount: 0,
     get rowCount()               { return this.mRowCount; },
@@ -139,7 +139,7 @@ var FeedSubscriptions = {
     get selection()              { return this._selection; },
     set selection(val)           { return this._selection = val; },
 
-    setTree(aTreebox)            { this.treeBox = aTreebox; },
+    setTree(aTree)               { this.tree = aTree; },
     isSeparator(aRow)            { return false; },
     isSorted()                   { return false; },
     isEditable(aRow, aColumn)    { return false; },
@@ -274,7 +274,7 @@ var FeedSubscriptions = {
 
       // Now invalidate the correct tree rows.
       this.mRowCount--;
-      this.treeBox.rowCountChanged(aRow, -1);
+      this.tree.rowCountChanged(aRow, -1);
 
       // Now update the selection position, unless noSelect (selection is
       // done later or not at all).  If the item is the last child, select the
@@ -575,7 +575,7 @@ var FeedSubscriptions = {
       // Suppress the select event caused by rowCountChanged.
       this.selection.selectEventsSuppressed = true;
       // Add or remove the children from our view.
-      this.treeBox.rowCountChanged(aRow, delta);
+      this.tree.rowCountChanged(aRow, delta);
       return delta;
     },
   },
@@ -724,8 +724,8 @@ var FeedSubscriptions = {
     let found = false;
 
     let firstVisRow, curFirstVisRow, curLastVisRow;
-    if (this.mView.treeBox) {
-      firstVisRow = this.mView.treeBox.getFirstVisibleRow();
+    if (this.mView.tree) {
+      firstVisRow = this.mView.tree.getFirstVisibleRow();
     }
 
     if (parentIndex != null) {
@@ -859,13 +859,13 @@ var FeedSubscriptions = {
     }
 
     // Ensure tree position does not jump unnecessarily.
-    curFirstVisRow = this.mView.treeBox.getFirstVisibleRow();
-    curLastVisRow = this.mView.treeBox.getLastVisibleRow();
+    curFirstVisRow = this.mView.tree.getFirstVisibleRow();
+    curLastVisRow = this.mView.tree.getLastVisibleRow();
     if (firstVisRow >= 0 &&
         this.mView.rowCount - curLastVisRow > firstVisRow - curFirstVisRow) {
-      this.mView.treeBox.scrollToRow(firstVisRow);
+      this.mView.tree.scrollToRow(firstVisRow);
     } else {
-      this.mView.treeBox.ensureRowIsVisible(this.mView.rowCount - 1);
+      this.mView.tree.ensureRowIsVisible(this.mView.rowCount - 1);
     }
 
     FeedUtils.log.debug("selectFolder: curIndex:firstVisRow:" +
@@ -905,7 +905,7 @@ var FeedSubscriptions = {
         for (let i = seln.currentIndex + 1; i < this.mView.rowCount; i++) {
           if (this.mView.getItemAtIndex(i).url == aFeed.url) {
             this.mView.selection.select(i);
-            this.mView.treeBox.ensureRowIsVisible(i);
+            this.mView.tree.ensureRowIsVisible(i);
             found = true;
             break;
           }
@@ -1988,7 +1988,7 @@ var FeedSubscriptions = {
 
       let feedWindow = this.feedWindow;
       let curSelItem = this.currentSelectedItem;
-      let firstVisRow = feedWindow.mView.treeBox.getFirstVisibleRow();
+      let firstVisRow = feedWindow.mView.tree.getFirstVisibleRow();
       let indexInView = feedWindow.mView.getItemInViewIndex(parentFolder);
       let open = indexInView != null;
 
@@ -2001,7 +2001,7 @@ var FeedSubscriptions = {
           feedWindow.mFeedContainers.push(feedWindow.makeFolderObject(parentFolder, 0));
           feedWindow.mView.mRowCount++;
           feedWindow.mTree.view = feedWindow.mView;
-          feedWindow.mView.treeBox.scrollToRow(firstVisRow);
+          feedWindow.mView.tree.scrollToRow(firstVisRow);
           return;
         }
       }
@@ -2028,7 +2028,7 @@ var FeedSubscriptions = {
         feedWindow.mView.toggleOpenState(parentIndex);
       }
 
-      feedWindow.mView.treeBox.scrollToRow(firstVisRow);
+      feedWindow.mView.tree.scrollToRow(firstVisRow);
 
       if (curSelItem.container) {
         feedWindow.selectFolder(curSelItem.folder, { open: curSelItem.open });
@@ -2083,7 +2083,7 @@ var FeedSubscriptions = {
       let feedWindow = this.feedWindow;
       let curSelIndex = this.currentSelectedIndex;
       let curSelItem = this.currentSelectedItem;
-      let firstVisRow = feedWindow.mView.treeBox.getFirstVisibleRow();
+      let firstVisRow = feedWindow.mView.tree.getFirstVisibleRow();
       let indexInView = feedWindow.mView.getItemInViewIndex(aOrigFolder);
       let open = indexInView != null;
 
@@ -2109,7 +2109,7 @@ var FeedSubscriptions = {
 
       feedWindow.mView.toggle(parentIndex);
       feedWindow.mView.toggleOpenState(parentIndex);
-      feedWindow.mView.treeBox.scrollToRow(firstVisRow);
+      feedWindow.mView.tree.scrollToRow(firstVisRow);
 
       if (curSelItem.container) {
         if (curSelItem.folder == aOrigFolder) {
@@ -2139,7 +2139,7 @@ var FeedSubscriptions = {
       let feedWindow = this.feedWindow;
       let curSelIndex = this.currentSelectedIndex;
       let curSelItem = this.currentSelectedItem;
-      let firstVisRow = feedWindow.mView.treeBox.getFirstVisibleRow();
+      let firstVisRow = feedWindow.mView.tree.getFirstVisibleRow();
       let indexInView = feedWindow.mView.getItemInViewIndex(aSrcFolder);
       let destIndexInView = feedWindow.mView.getItemInViewIndex(aDestFolder);
       let open = indexInView != null || destIndexInView != null;
@@ -2169,7 +2169,7 @@ var FeedSubscriptions = {
 
         feedWindow.mView.toggle(parentIndex);
         feedWindow.mView.toggleOpenState(parentIndex);
-        feedWindow.mView.treeBox.scrollToRow(firstVisRow);
+        feedWindow.mView.tree.scrollToRow(firstVisRow);
 
         if (curSelItem.container) {
           if (curSelItem.folder == aSrcFolder || select) {

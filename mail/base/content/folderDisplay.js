@@ -111,12 +111,6 @@ function FolderDisplayWidget(aTabInfo, aMessageDisplayWidget) {
    *  responsible for setting this.
    */
   this.tree = null;
-  /**
-   * The nsITreeBoxObject on the XUL tree node, accessible from this.tree as
-   *  this.tree.boxObject and QueryInterfaced as such.  The caller is
-   *  responsible for setting this.
-   */
-  this.treeBox = null;
 
   /**
    * The nsIMsgWindow corresponding to the window that holds us.  There is only
@@ -177,19 +171,19 @@ function FolderDisplayWidget(aTabInfo, aMessageDisplayWidget) {
   });
 
   /**
-   * Create a fake tree box object for if/when this folder is in the background.
+   * Create a fake tree object for if/when this folder is in the background.
    * We need to give it a DOM object to send events to, including the onselect
    * event we care about and for which we added a handler above, and all the
    * other events we don't care about.
    */
-  this._fakeTreeBox = new FakeTreeBoxObject(domNode);
+  this._fakeTree = new FakeTree(domNode);
 
   /**
    * Create a fake tree selection for cases where we have opened a background
    * tab. We'll get rid of this as soon as we've switched to the tab for the
    * first time, and have a real tree selection.
    */
-  this._fakeTreeSelection = new JSTreeSelection(this._fakeTreeBox);
+  this._fakeTreeSelection = new JSTreeSelection(this._fakeTree);
 
   this._mostRecentSelectionCounts = [];
   this._mostRecentCurrentIndices = [];
@@ -832,7 +826,7 @@ FolderDisplayWidget.prototype = {
     this.view.close();
     this.messenger.setWindow(null, null);
     this.messenger = null;
-    this._fakeTreeBox = null;
+    this._fakeTree = null;
     this._fakeTreeSelection = null;
   },
   // @}
@@ -944,8 +938,8 @@ FolderDisplayWidget.prototype = {
     this._updateThreadDisplay();
 
     // this creates a new selection object for the view.
-    if (this.treeBox)
-      this.treeBox.view = this.view.dbView;
+    if (this.tree)
+      this.tree.view = this.view.dbView;
 
     FolderDisplayListenerManager._fireListeners("onActiveCreatedView",
                                                 [this]);
@@ -1636,9 +1630,9 @@ FolderDisplayWidget.prototype = {
       // some things only need to happen if we are transitioning from inactive
       //  to active
       if (wasInactive) {
-        if (this.treeBox) {
+        if (this.tree) {
           // We might have assigned our JS tree selection to
-          //  this.view.dbView.selection back in _hookUpFakeTreeBox. If we've
+          //  this.view.dbView.selection back in _hookUpFakeTree. If we've
           //  done so, null the selection out so that the line after this
           //  causes a real selection to be created.
           // If we haven't done so, we're fine as selection would be null here
@@ -1652,11 +1646,11 @@ FolderDisplayWidget.prototype = {
           //  out its view so that it won't try and clean up any views or their
           //  selections.  (The actual actions happen in
           //  nsTreeBodyFrame::SetView)
-          // - this.view.dbView.selection.tree = this.treeBox
-          // - this.view.dbView.setTree(this.treeBox)
-          // - this.treeBox.view = this.view.dbView (in
+          // - this.view.dbView.selection.tree = this.tree
+          // - this.view.dbView.setTree(this.tree)
+          // - this.tree.view = this.view.dbView (in
           //   nsTreeBodyObject::SetView)
-          this.treeBox.view = this.view.dbView;
+          this.tree.view = this.view.dbView;
 
           if (fakeTreeSelection) {
             fakeTreeSelection.duplicateSelection(this.view.dbView.selection);
@@ -1665,7 +1659,7 @@ FolderDisplayWidget.prototype = {
             dontReloadMessage = true;
           }
           if (this._savedFirstVisibleRow != null)
-            this.treeBox.scrollToRow(this._savedFirstVisibleRow);
+            this.tree.scrollToRow(this._savedFirstVisibleRow);
         }
       }
 
@@ -1738,14 +1732,14 @@ FolderDisplayWidget.prototype = {
       !document.getElementById("folderPaneBox").collapsed;
 
     if (this.view.dbView) {
-      if (this.treeBox)
-        this._savedFirstVisibleRow = this.treeBox.getFirstVisibleRow();
+      if (this.tree)
+        this._savedFirstVisibleRow = this.tree.getFirstVisibleRow();
 
       // save the message pane's state only when it is potentially visible
       this.messagePaneCollapsed =
         document.getElementById("messagepaneboxwrapper").collapsed;
 
-      this.hookUpFakeTreeBox(true);
+      this.hookUpFakeTree(true);
     }
 
     this.messageDisplay.makeInactive();
@@ -1762,7 +1756,7 @@ FolderDisplayWidget.prototype = {
    *          tab, for example.
    * @private
    */
-  hookUpFakeTreeBox(aNullRealTreeBoxView) {
+  hookUpFakeTree(aNullRealTreeBoxView) {
     // save off the tree selection object.  the nsTreeBodyFrame will make the
     //  view forget about it when our view is removed, so it's up to us to
     //  save it.
@@ -1772,15 +1766,15 @@ FolderDisplayWidget.prototype = {
     // if we want to, make the tree forget about the view right now so we can
     //  tell the db view about its selection object so it can try and keep it
     //  up-to-date even while hidden in the background
-    if (aNullRealTreeBoxView && this.treeBox)
-      this.treeBox.view = null;
+    if (aNullRealTreeBoxView && this.tree)
+      this.tree.view = null;
     // (and tell the db view about its selection again...)
     this.view.dbView.selection = treeSelection;
 
     // hook the dbview up to the fake tree box
-    this._fakeTreeBox.view = this.view.dbView;
-    this.view.dbView.setTree(this._fakeTreeBox);
-    treeSelection.tree = this._fakeTreeBox;
+    this._fakeTree.view = this.view.dbView;
+    this.view.dbView.setTree(this._fakeTree);
+    treeSelection.tree = this._fakeTree;
   },
 
   /**
@@ -2405,7 +2399,7 @@ FolderDisplayWidget.prototype = {
 
     // If we can get the height of the folder pane, treat the values as
     //  percentages of that.
-    if (this.treeBox) {
+    if (this.tree) {
       let topPercentPadding = Services.prefs.getIntPref(
                               "mail.threadpane.padding.top_percent");
       let bottomPercentPadding = Services.prefs.getIntPref(
@@ -2413,7 +2407,7 @@ FolderDisplayWidget.prototype = {
 
       // Assume the bottom row is half-visible and should generally be ignored.
       // (We could actually do the legwork to see if there is a partial one...)
-      let paneHeight = this.treeBox.getPageLength() - 1;
+      let paneHeight = this.tree.getPageLength() - 1;
 
       // Convert from percentages to absolute row counts.
       topPadding = Math.ceil((topPercentPadding / 100) * paneHeight);
@@ -2461,21 +2455,21 @@ FolderDisplayWidget.prototype = {
         }, 0);
     }
 
-    let treeBox = this.treeBox;
-    if (!treeBox || !treeBox.view)
+    let tree = this.tree;
+    if (!tree || !tree.view)
       return;
 
     // try and trigger a reflow...
-    treeBox.height;
+    tree.height;
 
-    let maxIndex = treeBox.view.rowCount - 1;
+    let maxIndex = tree.view.rowCount - 1;
 
-    let first = treeBox.getFirstVisibleRow();
+    let first = tree.getFirstVisibleRow();
     // Assume the bottom row is half-visible and should generally be ignored.
     // (We could actually do the legwork to see if there is a partial one...)
     const halfVisible = 1;
-    let last  = treeBox.getLastVisibleRow() - halfVisible;
-    let span = treeBox.getPageLength() - halfVisible;
+    let last  = tree.getLastVisibleRow() - halfVisible;
+    let span = tree.getPageLength() - halfVisible;
     let [topPadding, bottomPadding] = this.visibleRowPadding;
 
     let target;
@@ -2490,7 +2484,7 @@ FolderDisplayWidget.prototype = {
       return;
 
     // this sets the first visible row
-    treeBox.scrollToRow(target);
+    tree.scrollToRow(target);
   },
 
   /**
@@ -2517,13 +2511,13 @@ FolderDisplayWidget.prototype = {
         }, 0);
     }
 
-    let treeBox = this.treeBox;
-    if (!treeBox)
+    let tree = this.tree;
+    if (!tree)
       return;
-    let first = treeBox.getFirstVisibleRow();
+    let first = tree.getFirstVisibleRow();
     const halfVisible = 1;
-    let last  = treeBox.getLastVisibleRow() - halfVisible;
-    let span = treeBox.getPageLength() - halfVisible;
+    let last  = tree.getLastVisibleRow() - halfVisible;
+    let span = tree.getPageLength() - halfVisible;
     let [topPadding, bottomPadding] = this.visibleRowPadding;
 
     // bail if the range is already visible with padding constraints handled
@@ -2543,7 +2537,7 @@ FolderDisplayWidget.prototype = {
       let halfSpare = Math.floor((span - rowSpan - topPadding - bottomPadding) / 2);
       target = aMinRow - halfSpare - topPadding;
     }
-    treeBox.scrollToRow(target);
+    tree.scrollToRow(target);
   },
 
   /**
@@ -2585,11 +2579,11 @@ FolderDisplayWidget.prototype = {
  *  an event listener for onselect already attached), and pass its boxObject in
  *  whenever nsTreeSelection QIs us to nsIBoxObject.
  */
-function FakeTreeBoxObject(aDOMNode) {
+function FakeTree(aDOMNode) {
   this.domNode = aDOMNode;
   this.view = null;
 }
-FakeTreeBoxObject.prototype = {
+FakeTree.prototype = {
   view: null,
   ensureRowIsVisible() {
     // NOP
@@ -2660,7 +2654,7 @@ FakeTreeBoxObject.prototype = {
     return this.domNode.boxObject.removeProperty(propertyName);
   },
   QueryInterface: ChromeUtils.generateQI(["nsIBoxObject",
-                                          "nsITreeBoxObject"]),
+                                          "XULTreeElement"]),
 };
 /*
  * Provide attribute and function implementations that complain very loudly if
@@ -2697,7 +2691,7 @@ function FTBO_stubOutMethods(aObj, aMethodNames) {
     };
   }
 }
-FTBO_stubOutAttributes(FakeTreeBoxObject.prototype, [
+FTBO_stubOutAttributes(FakeTree.prototype, [
   "columns",
   "focused",
   "treeBody",
@@ -2706,7 +2700,7 @@ FTBO_stubOutAttributes(FakeTreeBoxObject.prototype, [
   "horizontalPosition",
   "selectionRegion",
   ]);
-FTBO_stubOutMethods(FakeTreeBoxObject.prototype, [
+FTBO_stubOutMethods(FakeTree.prototype, [
   "getFirstVisibleRow",
   "getLastVisibleRow",
   "getPageLength",

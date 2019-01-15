@@ -32,28 +32,25 @@ function ThreadPaneOnClick(event) {
   if (t.localName != "treechildren")
     return;
 
-  let row = {};
-  let col = {};
-  let elt = {};
   let tree = GetThreadTree();
 
   // Figure out what cell the click was in.
-  tree.treeBoxObject.getCellAt(event.clientX, event.clientY, row, col, elt);
-  if (row.value == -1)
+  let treeCellInfo = tree.getCellAt(event.clientX, event.clientY);
+  if (treeCellInfo.row == -1)
    return;
 
   // Grouped By Sort dummy header row non cycler column doubleclick toggles the
   // thread's open/close state; tree.xml handles it. Cyclers are not currently
   // implemented in group header rows, a click/doubleclick there should
   // select/toggle thread state.
-  if (gFolderDisplay.view.isGroupedByHeaderAtIndex(row.value)) {
-    if (!col.value.cycler)
+  if (gFolderDisplay.view.isGroupedByHeaderAtIndex(treeCellInfo.row)) {
+    if (!treeCellInfo.col.cycler)
       return;
 
     if (event.detail == 1)
-      gFolderDisplay.selectViewIndex(row.value);
+      gFolderDisplay.selectViewIndex(treeCellInfo.row);
     if (event.detail == 2)
-      gFolderDisplay.view.dbView.toggleOpenState(row.value);
+      gFolderDisplay.view.dbView.toggleOpenState(treeCellInfo.row);
 
     event.stopPropagation();
     return;
@@ -61,16 +58,16 @@ function ThreadPaneOnClick(event) {
 
   // If the cell is in a cycler column or if the user doubleclicked on the
   // twisty, don't open the message in a new window.
-  if (event.detail == 2 && !col.value.cycler && elt.value != "twisty") {
+  if (event.detail == 2 && !treeCellInfo.col.cycler && treeCellInfo.childElt != "twisty") {
     ThreadPaneDoubleClick();
     // Doubleclicking should not toggle the open/close state of the thread.
     // This will happen if we don't prevent the event from bubbling to the
     // default handler in tree.xml.
     event.stopPropagation();
-  } else if (col.value.id == "junkStatusCol") {
+  } else if (treeCellInfo.col.id == "junkStatusCol") {
     MsgJunkMailInfo(true);
-  } else if (col.value.id == "threadCol" && !event.shiftKey && (event.ctrlKey || event.metaKey)) {
-    gDBView.ExpandAndSelectThreadByIndex(row.value, true);
+  } else if (treeCellInfo.col.id == "threadCol" && !event.shiftKey && (event.ctrlKey || event.metaKey)) {
+    gDBView.ExpandAndSelectThreadByIndex(treeCellInfo.row, true);
     event.stopPropagation();
   }
 }

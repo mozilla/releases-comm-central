@@ -320,12 +320,12 @@ function _middle_click_on_collapsed_thread_root_helper(aBackground) {
 
   let folderTab = mc.tabmail.currentTabInfo;
 
-  let treeBox = mc.threadTree.treeBoxObject;
+  let tree = mc.threadTree;
   // Scroll to the top, then to the bottom
-  treeBox.ensureRowIsVisible(0);
-  treeBox.scrollByLines(mc.folderDisplay.view.dbView.rowCount);
+  tree.ensureRowIsVisible(0);
+  tree.scrollByLines(mc.folderDisplay.view.dbView.rowCount);
   // Note the first visible row
-  let preFirstRow = treeBox.getFirstVisibleRow();
+  let preFirstRow = tree.getFirstVisibleRow();
 
   // Since reflowing a tree (eg when switching tabs) ensures that the current
   // index is brought into view, we need to set the current index so that we
@@ -344,9 +344,9 @@ function _middle_click_on_collapsed_thread_root_helper(aBackground) {
   }
 
   // Make sure the first visible row is still the same
-  if (treeBox.getFirstVisibleRow() != preFirstRow)
+  if (tree.getFirstVisibleRow() != preFirstRow)
     throw new Error("The first visible row should have been " + preFirstRow +
-        ", but is actually " + treeBox.getFirstVisibleRow() + ".");
+        ", but is actually " + tree.getFirstVisibleRow() + ".");
 
   close_tab(tabMessage);
 }
@@ -362,13 +362,13 @@ function _middle_click_on_expanded_thread_root_helper(aBackground) {
 
   let folderTab = mc.tabmail.currentTabInfo;
 
-  let treeBox = mc.threadTree.treeBoxObject;
+  let tree = mc.threadTree;
   // Scroll to the top, then to near (but not exactly) the bottom
-  treeBox.ensureRowIsVisible(0);
-  treeBox.scrollToRow(mc.folderDisplay.view.dbView.rowCount -
-      treeBox.getPageLength() - (NUM_MESSAGES_IN_THREAD / 2));
+  tree.ensureRowIsVisible(0);
+  tree.scrollToRow(mc.folderDisplay.view.dbView.rowCount -
+      tree.getPageLength() - (NUM_MESSAGES_IN_THREAD / 2));
   // Note the first visible row
-  let preFirstRow = treeBox.getFirstVisibleRow();
+  let preFirstRow = tree.getFirstVisibleRow();
 
   // Since reflowing a tree (eg when switching tabs) ensures that the current
   // index is brought into view, we need to set the current index so that we
@@ -387,9 +387,9 @@ function _middle_click_on_expanded_thread_root_helper(aBackground) {
   }
 
   // Make sure the first visible row is still the same
-  if (treeBox.getFirstVisibleRow() != preFirstRow)
+  if (tree.getFirstVisibleRow() != preFirstRow)
     throw new Error("The first visible row should have been " + preFirstRow +
-        ", but is actually " + treeBox.getFirstVisibleRow() + ".");
+        ", but is actually " + tree.getFirstVisibleRow() + ".");
 
   close_tab(tabMessage);
 }

@@ -34,7 +34,7 @@ function RestoreSelectionWithoutContentLoad(tree) {
     gRightMouseButtonSavedSelection = null;
 
     if (tree)
-      tree.treeBoxObject.invalidate();
+      tree.invalidate();
 
     UpdateMailToolbar("RestoreSelectionWithoutContentLoad");
   }
@@ -66,7 +66,7 @@ function fillMailContextMenu(event) {
   // No menu on grouped header row currently, any command would be an implied
   // multiselect.
   if (gFolderDisplay.tree) {
-    let row = gFolderDisplay.treeBox.getRowAt(event.clientX, event.clientY);
+    let row = gFolderDisplay.tree.getRowAt(event.clientX, event.clientY);
     if (gFolderDisplay.view.isGroupedByHeaderAtIndex(row)) {
       RestoreSelectionWithoutContentLoad(gFolderDisplay.tree);
       return false;
@@ -228,7 +228,7 @@ function OpenMessageByHeader(messageHeader, openInNewWindow) {
     }
 
     if (tree && tree.currentIndex != -1)
-      tree.treeBoxObject.ensureRowIsVisible(tree.currentIndex);
+      tree.ensureRowIsVisible(tree.currentIndex);
   }
 }
 

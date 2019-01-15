@@ -868,7 +868,7 @@ var FeedUtils = {
 
     win = Services.wm.getMostRecentWindow("Mail:News-BlogSubscriptions");
     if (win) {
-      win.FeedSubscriptions.mView.treeBox.invalidate();
+      win.FeedSubscriptions.mView.tree.invalidate();
     }
   },
 

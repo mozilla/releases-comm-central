@@ -306,8 +306,7 @@ function ComposeMessage(type, format, folder, messageArray) {
 function NewMessageToSelectedAddresses(type, format, identity) {
   var abSidebarPanel = document.commandDispatcher.focusedWindow;
   var abResultsTree = abSidebarPanel.document.getElementById("abResultsTree");
-  var abResultsBoxObject = abResultsTree.treeBoxObject;
-  var abView = abResultsBoxObject.view;
+  var abView = abResultsTree.view;
   abView = abView.QueryInterface(Ci.nsIAbView);
   var addresses = abView.selectedAddresses;
   var params = Cc["@mozilla.org/messengercompose/composeparams;1"].createInstance(Ci.nsIMsgComposeParams);

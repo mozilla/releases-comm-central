@@ -128,19 +128,15 @@ function onSynchronizeClick(event)
     if (event.button != 0)
       return;
 
-    var row = {}
-    var col = {}
-    var elt = {}
-
-    gSynchronizeTree.treeBoxObject.getCellAt(event.clientX, event.clientY, row, col, elt);
-    if (row.value == -1)
+    let treeCellInfo = gSynchronizeTree.getCellAt(event.clientX, event.clientY);
+    if (treeCellInfo.row == -1)
       return;
 
-    if (elt.value == "twisty") {
-        var folderResource = GetFolderResource(gSynchronizeTree, row.value);
+    if (treeCellInfo.childElt == "twisty") {
+        var folderResource = GetFolderResource(gSynchronizeTree, treeCellInfo.row);
         var folder = folderResource.QueryInterface(Ci.nsIMsgFolder);
 
-        if (!(gSynchronizeTree.treeBoxObject.view.isContainerOpen(row.value))) {
+        if (!(gSynchronizeTree.view.isContainerOpen(treeCellInfo.row))) {
             var serverType = folder.server.type;
             // imap is the only server type that does folder discovery
             if (serverType != "imap") return;
@@ -158,8 +154,8 @@ function onSynchronizeClick(event)
         }
     }
     else {
-      if (col.value.id == "syncCol") {
-        UpdateNode(GetFolderResource(gSynchronizeTree, row.value), row.value);
+      if (treeCellInfo.col.id == "syncCol") {
+        UpdateNode(GetFolderResource(gSynchronizeTree, treeCellInfo.row), treeCellInfo.row);
       }
     }
 }

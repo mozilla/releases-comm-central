@@ -233,7 +233,6 @@ function searchOnLoad() {
   gFolderDisplay.messenger = messenger;
   gFolderDisplay.msgWindow = msgWindow;
   gFolderDisplay.tree = document.getElementById("threadTree");
-  gFolderDisplay.treeBox = gFolderDisplay.tree.boxObject;
   gFolderDisplay.view.openSearchView();
   gFolderDisplay.makeActive();
 

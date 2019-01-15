@@ -91,7 +91,7 @@ StandaloneFolderDisplayWidget.prototype = {
    *  the fake tree box so it will actually do something in NoteChange.
    */
   onCreatedView() {
-    this._fakeTreeBox.view = this.view.dbView;
+    this._fakeTree.view = this.view.dbView;
     // Need to clear out this reference later.
     this._magicTreeSelection.view = this.view.dbView;
 
@@ -102,7 +102,7 @@ StandaloneFolderDisplayWidget.prototype = {
     //  showing an .eml file to go to a real message, at least in terms of
     //  having the selection object properly associated with the tree.
     if (!this.messageDisplay.isDummy) {
-      this.view.dbView.setTree(this._fakeTreeBox);
+      this.view.dbView.setTree(this._fakeTree);
       this.view.dbView.selection = this._magicTreeSelection;
       // This lets the dbView know we don't really have a tree, so it can
       // avoid operating on messages in collapsed threads.
