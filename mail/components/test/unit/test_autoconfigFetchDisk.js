@@ -11,7 +11,6 @@
 // Globals
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-Cu.importGlobalProperties(["DOMParser"]);  // Necessary for fetchConfig.js.
 
 var kXMLFile = "example.com.xml";
 var fetchConfigAbortable;
@@ -19,9 +18,9 @@ var copyLocation;
 
 var xmlReader =
 {
-  setTimeout : function(func, interval) {
+  setTimeout(func, interval) {
     do_timeout(interval, func);
-  }
+  },
 };
 
 Services.scriptloader.loadSubScript(
@@ -36,8 +35,7 @@ Services.scriptloader.loadSubScript(
 Services.scriptloader.loadSubScript(
     "chrome://messenger/content/accountcreation/readFromXML.js", xmlReader);
 
-function onTestSuccess(config)
-{
+function onTestSuccess(config) {
   // Check that we got the expected config.
   xmlReader.replaceVariables(config,
                              "Yamato Nadeshiko",
@@ -53,13 +51,11 @@ function onTestSuccess(config)
   do_test_finished();
 }
 
-function onTestFailure(e)
-{
+function onTestFailure(e) {
   do_throw(e);
 }
 
-function run_test()
-{
+function run_test() {
   registerCleanupFunction(finish_test);
 
   // Copy the xml file into place
@@ -80,8 +76,7 @@ function run_test()
                                                        onTestFailure);
 }
 
-function finish_test()
-{
+function finish_test() {
   // Remove the test config file
   copyLocation.append(kXMLFile);
   copyLocation.remove(false);

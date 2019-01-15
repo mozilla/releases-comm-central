@@ -20,6 +20,12 @@
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+/* import-globals-from ../../accountcreation/content/util.js */
+/* import-globals-from ../../accountcreation/content/accountConfig.js */
+/* import-globals-from ../../accountcreation/content/sanitizeDatatypes.js */
+/* import-globals-from ../../accountcreation/content/fetchhttp.js */
+/* import-globals-from ../../accountcreation/content/guessConfig.js */
+
 Services.scriptloader.loadSubScript("chrome://messenger/content/accountcreation/util.js");
 Services.scriptloader.loadSubScript("chrome://messenger/content/accountcreation/accountConfig.js");
 Services.scriptloader.loadSubScript("chrome://messenger/content/accountcreation/sanitizeDatatypes.js");
@@ -30,48 +36,43 @@ Services.scriptloader.loadSubScript("chrome://messenger/content/accountcreation/
  * UTILITIES
  */
 
-function assert(aBeTrue, aWhy)
-{
+function assert(aBeTrue, aWhy) {
   if (!aBeTrue)
     do_throw(aWhy);
   Assert.ok(aBeTrue);
-};
+}
 
-function assert_equal(aA, aB, aWhy)
-{
+function assert_equal(aA, aB, aWhy) {
   if (aA != aB)
     do_throw(aWhy);
   Assert.equal(aA, aB);
-};
+}
 
 /**
  * Test that two host entries are the same, ignoring the commands.
  */
-function assert_equal_host_entries(hostEntry, expected)
-{
+function assert_equal_host_entries(hostEntry, expected) {
   assert_equal(hostEntry.protocol, expected[0], "Protocols are different");
   assert_equal(hostEntry.ssl, expected[1], "SSL values are different");
   assert_equal(hostEntry.port, expected[2], "Port values are different");
-};
+}
 
 /**
  * Assert that the list of tryOrders are the same.
  */
-function assert_equal_try_orders(aA, aB)
-{
+function assert_equal_try_orders(aA, aB) {
   assert_equal(aA.length, aB.length, "tryOrders have different length");
-  for (let [i,subA] of aA.entries()) {
+  for (let [i, subA] of aA.entries()) {
     let subB = aB[i];
     assert_equal_host_entries(subA, subB);
   }
-};
+}
 
 /**
  * Check that the POP calculations are correct for a given host and
  * protocol.
  */
-function checkPop(host, protocol)
-{
+function checkPop(host, protocol) {
   // The list of protocol+ssl+port configurations should match
   // getIncomingTryOrder() in guessConfig.js.
   // SSL configs are separated until bug 1520283 is fixed.
@@ -119,14 +120,13 @@ function checkPop(host, protocol)
     assert_equal_try_orders(tryOrder,
                             [[POP, ssl, port]]);
   }
-};
+}
 
 /**
  * Check that the IMAP calculations are correct for a given host and
  * protocol.
  */
-function checkImap(host, protocol)
-{
+function checkImap(host, protocol) {
   // The list of protocol+ssl+port configurations should match
   // getIncomingTryOrder() in guessConfig.js.
   // SSL configs are separated until bug 1520283 is fixed.
@@ -175,7 +175,7 @@ function checkImap(host, protocol)
     assert_equal_try_orders(tryOrder,
                             [[IMAP, ssl, port]]);
   }
-};
+}
 
 /*
  * TESTS
@@ -187,8 +187,7 @@ function checkImap(host, protocol)
  * TODO:
  * - Test the returned commands as well.
  */
-function test_getHostEntry()
-{
+function test_getHostEntry() {
   // IMAP port numbers.
   assert_equal_host_entries(getHostEntry(IMAP, TLS, UNKNOWN),
                             [IMAP, TLS, 143]);
@@ -212,27 +211,26 @@ function test_getHostEntry()
                             [SMTP, SSL, 465]);
   assert_equal_host_entries(getHostEntry(SMTP, NONE, UNKNOWN),
                             [SMTP, NONE, 587]);
-};
+}
 
 /**
  * Test the getIncomingTryOrder method.
  */
-function test_getIncomingTryOrder()
-{
+function test_getIncomingTryOrder() {
   // The list of protocol+ssl+port configurations should match
   // getIncomingTryOrder() in guessConfig.js.
   // SSL configs are separated until bug 1520283 is fixed.
 
   // protocol == POP || host starts with pop. || host starts with pop3.
-  checkPop( "example.com", POP );
-  checkPop( "pop.example.com", UNKNOWN );
-  checkPop( "pop3.example.com", UNKNOWN );
-  checkPop( "imap.example.com", POP );
+  checkPop("example.com", POP);
+  checkPop("pop.example.com", UNKNOWN);
+  checkPop("pop3.example.com", UNKNOWN);
+  checkPop("imap.example.com", POP);
 
   // protocol == IMAP || host starts with imap.
-  checkImap( "example.com", IMAP );
-  checkImap( "imap.example.com", UNKNOWN );
-  checkImap( "pop.example.com", IMAP );
+  checkImap("example.com", IMAP);
+  checkImap("imap.example.com", UNKNOWN);
+  checkImap("pop.example.com", IMAP);
 
   let domain = "example.com";
   let protocol = UNKNOWN;
@@ -269,13 +267,12 @@ function test_getIncomingTryOrder()
   assert_equal_try_orders(tryOrder,
                           [[IMAP, SSL, port],
                            [POP, SSL, port]]);
-};
+}
 
 /**
  * Test the getOutgoingTryOrder method.
  */
-function test_getOutgoingTryOrder()
-{
+function test_getOutgoingTryOrder() {
   // The list of protocol+ssl+port configurations should match
   // getOutgoingTryOrder() in guessConfig.js.
   // SSL configs are separated until bug 1520283 is fixed.
@@ -297,7 +294,7 @@ function test_getOutgoingTryOrder()
                           [[SMTP, SSL, 465]]);
 
   ssl = UNKNOWN;
-  port = 31337
+  port = 31337;
   tryOrder = getOutgoingTryOrder(domain, protocol, ssl, port);
   assert_equal_try_orders(tryOrder,
                           [[SMTP, TLS, port],
@@ -308,12 +305,11 @@ function test_getOutgoingTryOrder()
   tryOrder = getOutgoingTryOrder(domain, protocol, ssl, port);
   assert_equal_try_orders(tryOrder,
                           [[SMTP, SSL, port]]);
-};
+}
 
 
-function run_test()
-{
+function run_test() {
   test_getHostEntry();
   test_getIncomingTryOrder();
   test_getOutgoingTryOrder();
-};
+}
