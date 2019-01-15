@@ -240,7 +240,7 @@ nsMsgComposeService::DetermineComposeHTML(nsIMsgIdentity *aIdentity, MSG_Compose
   return NS_OK;
 }
 
-nsresult
+MOZ_CAN_RUN_SCRIPT nsresult
 nsMsgComposeService::GetOrigWindowSelection(MSG_ComposeType type, nsIMsgWindow *aMsgWindow, nsACString& aSelHTML)
 {
   nsresult rv;
@@ -358,7 +358,7 @@ nsMsgComposeService::GetOrigWindowSelection(MSG_ComposeType type, nsIMsgWindow *
   return rv;
 }
 
-NS_IMETHODIMP
+MOZ_CAN_RUN_SCRIPT NS_IMETHODIMP
 nsMsgComposeService::OpenComposeWindow(const char *msgComposeWindowURL, nsIMsgDBHdr *origMsgHdr, const char *originalMsgURI,
   MSG_ComposeType type, MSG_ComposeFormat format, nsIMsgIdentity * aIdentity, nsIMsgWindow *aMsgWindow)
 {
