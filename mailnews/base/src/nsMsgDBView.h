@@ -14,7 +14,7 @@
 #include "MailNewsTypes.h"
 #include "nsIDBChangeListener.h"
 #include "nsITreeView.h"
-#include "nsITreeBoxObject.h"
+#include "mozilla/dom/XULTreeElement.h"
 #include "nsITreeSelection.h"
 #include "nsIMsgFolder.h"
 #include "nsIMsgThread.h"
@@ -134,7 +134,7 @@ protected:
   static char16_t* kForwardedString;
   static char16_t* kNewString;
 
-  nsCOMPtr<nsITreeBoxObject> mTree;
+  RefPtr<mozilla::dom::XULTreeElement> mTree;
   nsCOMPtr<nsITreeSelection> mTreeSelection;
   // We cache this to determine when to push command status notifications.
   uint32_t mNumSelectedRows;

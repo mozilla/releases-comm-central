@@ -31,7 +31,7 @@
 #include "mozilla/Services.h"
 #include "mozilla/dom/Element.h"
 #include "mozilla/ErrorResult.h"
-#include "nsITreeBoxObject.h"
+#include "mozilla/dom/XULTreeElement.h"
 #include "mozilla/dom/DataTransfer.h"
 
 #define INVALID_VERSION         0
@@ -1869,14 +1869,13 @@ nsNntpIncomingServer::GetCellText(int32_t row, nsTreeColumn* col, nsAString& _re
 }
 
 NS_IMETHODIMP
-nsNntpIncomingServer::SetTree(nsITreeBoxObject *tree)
+nsNntpIncomingServer::SetTree(mozilla::dom::XULTreeElement *tree)
 {
   mTree = tree;
   if (!tree)
     return NS_OK;
 
-  RefPtr<nsTreeColumns> cols;
-  tree->GetColumns(getter_AddRefs(cols));
+  RefPtr<nsTreeColumns> cols = tree->GetColumns();
   if (!cols)
     return NS_OK;
 

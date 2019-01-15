@@ -716,7 +716,7 @@ nsSubscribableServer::GetRowCount(int32_t *rowCount)
 }
 
 NS_IMETHODIMP
-nsSubscribableServer::SetTree(nsITreeBoxObject *aTree)
+nsSubscribableServer::SetTree(mozilla::dom::XULTreeElement *aTree)
 {
   mTree = aTree;
   return NS_OK;

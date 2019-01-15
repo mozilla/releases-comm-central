@@ -2334,7 +2334,7 @@ nsMsgDBView::CellTextForColumn(int32_t aRow,
 }
 
 NS_IMETHODIMP
-nsMsgDBView::SetTree(nsITreeBoxObject *tree)
+nsMsgDBView::SetTree(mozilla::dom::XULTreeElement *tree)
 {
   mTree = tree;
   return NS_OK;
@@ -3146,7 +3146,7 @@ nsMsgDBView::OperateOnMsgsInCollapsedThreads()
 {
   if (mTreeSelection)
   {
-    nsCOMPtr<nsITreeBoxObject> selTree;
+    RefPtr<mozilla::dom::XULTreeElement> selTree;
     mTreeSelection->GetTree(getter_AddRefs(selTree));
     // No tree means stand-alone message window.
     if (!selTree)

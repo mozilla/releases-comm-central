@@ -9,7 +9,7 @@
 #include "nsCOMPtr.h"
 #include "nsString.h"
 #include "nsIMsgIncomingServer.h"
-#include "nsITreeBoxObject.h"
+#include "mozilla/dom/XULTreeElement.h"
 #include "nsITreeSelection.h"
 #include "nsITreeView.h"
 #include "nsISubscribableServer.h"
@@ -67,7 +67,7 @@ private:
   SubscribeTreeNode *mTreeRoot;          // root of the folder tree while items are discovered on the server
   nsTArray<SubscribeTreeNode*> mRowMap;  // array of nodes representing the rows for the tree element
   nsCOMPtr<nsITreeSelection> mSelection;
-  nsCOMPtr<nsITreeBoxObject> mTree;
+  RefPtr<mozilla::dom::XULTreeElement> mTree;
   nsresult FreeSubtree(SubscribeTreeNode *node);
   nsresult FreeRows();
   nsresult CreateNode(SubscribeTreeNode *parent, const char *name, const nsACString &aPath, SubscribeTreeNode **result);

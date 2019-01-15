@@ -10,7 +10,7 @@
 #include "nsString.h"
 #include "nsIAbView.h"
 #include "nsITreeView.h"
-#include "nsITreeBoxObject.h"
+#include "mozilla/dom/XULTreeElement.h"
 #include "nsITreeSelection.h"
 #include "nsTArray.h"
 #include "nsIAbDirectory.h"
@@ -62,7 +62,7 @@ private:
   nsresult GetCardValue(nsIAbCard *card, const nsAString& colID, nsAString &_retval);
   nsresult RefreshTree();
 
-  nsCOMPtr<nsITreeBoxObject> mTree;
+  RefPtr<mozilla::dom::XULTreeElement> mTree;
   nsCOMPtr<nsITreeSelection> mTreeSelection;
   nsCOMPtr <nsIAbDirectory> mDirectory;
   nsTArray<AbCard*> mCards;

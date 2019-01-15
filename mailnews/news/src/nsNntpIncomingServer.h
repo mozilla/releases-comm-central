@@ -104,7 +104,7 @@ private:
     // in the search view
     nsTArray<nsCString> mTempSubscribed;
 
-    nsCOMPtr<nsITreeBoxObject> mTree;
+    RefPtr<mozilla::dom::XULTreeElement> mTree;
     nsCOMPtr<nsITreeSelection> mTreeSelection;
 
     bool     mHasSeenBeginGroups;

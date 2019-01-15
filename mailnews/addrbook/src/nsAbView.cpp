@@ -60,8 +60,10 @@ NS_IMETHODIMP nsAbView::ClearView()
 {
   mDirectory = nullptr;
   mAbViewListener = nullptr;
-  if (mTree)
-    mTree->SetView(nullptr);
+  if (mTree) {
+    IgnoredErrorResult rv2;
+    mTree->SetView(nullptr, mozilla::dom::CallerType::System, rv2);
+  }
   mTree = nullptr;
   mTreeSelection = nullptr;
 
@@ -105,8 +107,7 @@ nsresult nsAbView::RemoveCardAt(int32_t row)
 
   // This needs to happen after we remove the card, as RowCountChanged() will call GetRowCount()
   if (mTree) {
-    rv = mTree->RowCountChanged(row, -1);
-    NS_ENSURE_SUCCESS(rv,rv);
+    mTree->RowCountChanged(row, -1);
   }
 
   if (mAbViewListener && !mSuppressCountChange) {
@@ -172,7 +173,8 @@ NS_IMETHODIMP nsAbView::SetView(nsIAbDirectory *aAddressBook,
   {
     // Try and speed deletion of old cards by disconnecting the tree from us.
     mTreeSelection->ClearSelection();
-    mTree->SetView(nullptr);
+    IgnoredErrorResult rv2;
+    mTree->SetView(nullptr, mozilla::dom::CallerType::System, rv2);
   }
 
   // Clear out old cards
@@ -523,7 +525,7 @@ NS_IMETHODIMP nsAbView::GetCellText(int32_t row, nsTreeColumn* col, nsAString& _
   return GetCardValue(card, colID, _retval);
 }
 
-NS_IMETHODIMP nsAbView::SetTree(nsITreeBoxObject *tree)
+NS_IMETHODIMP nsAbView::SetTree(mozilla::dom::XULTreeElement *tree)
 {
   mTree = tree;
   return NS_OK;
@@ -545,9 +547,10 @@ nsresult nsAbView::InvalidateTree(int32_t row)
     return NS_OK;
 
   if (row == ALL_ROWS)
-    return mTree->Invalidate();
+    mTree->Invalidate();
   else
-    return mTree->InvalidateRow(row);
+    mTree->InvalidateRow(row);
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsAbView::SelectionChangedXPCOM()
@@ -907,7 +910,7 @@ nsresult nsAbView::AddCard(AbCard *abcard, bool selectCardAfterAdding, int32_t *
 
   // This needs to happen after we insert the card, as RowCountChanged() will call GetRowCount()
   if (mTree)
-    rv = mTree->RowCountChanged(*index, 1);
+    mTree->RowCountChanged(*index, 1);
 
   // Checking for mTree here works around core bug 399227
   if (selectCardAfterAdding && mTreeSelection && mTree) {
@@ -1162,8 +1165,7 @@ nsresult nsAbView::ReselectCards(nsIArray *aCards, nsIAbCard *aIndexCard)
     NS_ENSURE_SUCCESS(rv, rv);
 
     if (mTree) {
-      rv = mTree->EnsureRowIsVisible(currentIndex);
-      NS_ENSURE_SUCCESS(rv, rv);
+      mTree->EnsureRowIsVisible(currentIndex);
     }
   }
 
