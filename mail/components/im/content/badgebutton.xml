@@ -19,7 +19,9 @@
         <xul:hbox>
           <xul:image class="toolbarbutton-icon" xbl:inherits="validate,src=image,label"/>
         </xul:hbox>
-        <xul:label class="badgeButton-badge" anonid="badge"/>
+        <xul:box class="badgeButton-badge">
+          <xul:label class="badgeButton-badgeLabel" anonid="badge"/>
+        </xul:box>
       </xul:stack>
       <xul:label class="toolbarbutton-text" crop="right" flex="1"
                  xbl:inherits="value=label,accesskey,crop"/>

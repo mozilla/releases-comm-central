@@ -114,3 +114,7 @@ toolbar[mode="text"] .badgeButton-badge {
 #button-chat[showingBadge="true"] > stack > .badgeButton-badge {
   display: block;
 }
+
+.badgeButton-badgeLabel {
+  margin: 0;
+}

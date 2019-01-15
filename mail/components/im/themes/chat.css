@@ -223,6 +223,10 @@ imconv:not(:hover) > .closeConversationButton {
   margin-inline-start: 1ch;
 }
 
+.convUnreadTargetedCountLabel {
+  margin: 0;
+}
+
 imcontact[aliasing] .contactDisplayName {
   -moz-binding: url("chrome://global/content/bindings/textbox.xml#textbox");
 }
