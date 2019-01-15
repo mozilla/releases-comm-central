@@ -30,7 +30,7 @@ function setupModule(module) {
  * Delete a message and check that the message window is closed
  * where appropriate.
  */
-function test_close_message_window_on_delete_from_message_window() {
+function disabled_test_close_message_window_on_delete_from_message_window() {
   set_close_message_on_delete(true);
   be_in_folder(folder);
 
@@ -62,7 +62,7 @@ function test_close_message_window_on_delete_from_message_window() {
  * Delete a message when multiple windows are open to the message, and the
  * message is deleted from one of them.
  */
-function test_close_multiple_message_windows_on_delete_from_message_window() {
+function disabled_test_close_multiple_message_windows_on_delete_from_message_window() {
   set_close_message_on_delete(true);
   be_in_folder(folder);
 
@@ -98,7 +98,7 @@ function test_close_multiple_message_windows_on_delete_from_message_window() {
  * Delete a message when multiple windows are open to the message, and the
  * message is deleted from the 3-pane window.
  */
-function test_close_multiple_message_windows_on_delete_from_3pane_window() {
+function disabled_test_close_multiple_message_windows_on_delete_from_3pane_window() {
   set_close_message_on_delete(true);
   be_in_folder(folder);
 
@@ -135,7 +135,7 @@ function test_close_multiple_message_windows_on_delete_from_3pane_window() {
  * Delete a message and check that the message tab is closed
  * where appropriate.
  */
-function test_close_message_tab_on_delete_from_message_tab() {
+function disabled_test_close_message_tab_on_delete_from_message_tab() {
   set_close_message_on_delete(true);
   be_in_folder(folder);
 
@@ -168,7 +168,7 @@ function test_close_message_tab_on_delete_from_message_tab() {
  * Delete a message when multiple windows are open to the message, and the
  * message is deleted from one of them.
  */
-function test_close_multiple_message_tabs_on_delete_from_message_tab() {
+function disabled_test_close_multiple_message_tabs_on_delete_from_message_tab() {
   set_close_message_on_delete(true);
   be_in_folder(folder);
 
@@ -202,7 +202,7 @@ function test_close_multiple_message_tabs_on_delete_from_message_tab() {
  * Delete a message when multiple tabs are open to the message, and the
  * message is deleted from the 3-pane window.
  */
-function test_close_multiple_message_tabs_on_delete_from_3pane_window() {
+function disabled_test_close_multiple_message_tabs_on_delete_from_3pane_window() {
   set_close_message_on_delete(true);
   be_in_folder(folder);
 
@@ -237,7 +237,7 @@ function test_close_multiple_message_tabs_on_delete_from_3pane_window() {
  * Delete a message when multiple windows and tabs are open to the message, and
  * the message is deleted from the 3-pane window.
  */
-function test_close_multiple_windows_tabs_on_delete_from_3pane_window() {
+function disabled_test_close_multiple_windows_tabs_on_delete_from_3pane_window() {
   set_close_message_on_delete(true);
   be_in_folder(folder);
 
