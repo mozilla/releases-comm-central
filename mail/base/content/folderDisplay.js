@@ -1773,8 +1773,8 @@ FolderDisplayWidget.prototype = {
 
     // hook the dbview up to the fake tree box
     this._fakeTree.view = this.view.dbView;
-    this.view.dbView.setTree(this._fakeTree);
-    treeSelection.tree = this._fakeTree;
+    // this.view.dbView.setTree(this._fakeTree);  // See bug 1518823.
+    // treeSelection.tree = this._fakeTree;
   },
 
   /**
