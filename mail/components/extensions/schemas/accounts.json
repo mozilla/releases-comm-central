@@ -24,17 +24,20 @@
       {
         "id": "MailFolder",
         "type": "object",
-        "description": "A folder object, as returned by the <var>list</var> and <var>get</var> methods.",
+        "description": "A folder object, as returned by the <var>list</var> and <var>get</var> methods. Use the accountId and path properties to refer to a folder.",
         "properties": {
           "accountId": {
-            "type": "string"
+            "type": "string",
+            "description": "The account this folder belongs to."
           },
           "name": {
             "type": "string",
-            "optional": true
+            "optional": true,
+            "description": "The human-friendly name of this folder."
           },
           "path": {
-            "type": "string"
+            "type": "string",
+            "description": "Path to this folder in the account. Although paths look predictable, never guess a folder's path, as there are a number of reasons why it may not be what you think it is."
           }
         }
       }
