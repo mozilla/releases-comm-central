@@ -33,11 +33,10 @@
     "unpack": true
   },
   {
-    "size": 1856976,
-    "digest": "290caa333f418011f479deeb8b669493cbf3d1397c730453cea569b5185a6cec913d34990a651f7cad38e72512beb16ff9222e2933d222d752d5c8343cce9e80",
-    "filename": "cbindgen.tar.xz",
+    "size": 1899028,
+    "digest": "60516004036084c2052b3634e8fdfe462f8c488375ebbf50b09a06bd3ee23102c120d05ffbcf585340fcd492ac6e1ef6064784235d061eaf968d04c6ae4b1e90",
     "algorithm": "sha512",
-    "visibility": "public",
+    "filename": "cbindgen.tar.xz",
     "unpack": true
   },
   {
