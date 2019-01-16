@@ -786,6 +786,8 @@ class MozFacetDiscrete extends HTMLElement {
 
     document.body.appendChild(flyingNode);
 
+    // Adding setTimeout to improve the facet-discrete animation.
+    // See Bug 1439323 for more detail.
     setTimeout(() => {
       // animate the flying clone... flying!
       window.requestAnimationFrame(() => {
@@ -800,7 +802,7 @@ class MozFacetDiscrete extends HTMLElement {
       barNode.style.visibility = "hidden";
       delete barNode.groupValue;
       delete barNode.groupItems;
-    }, 0);
+    }, 100);
   }
 
   barClicked(barNode, variety) {
