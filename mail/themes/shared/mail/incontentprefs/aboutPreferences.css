@@ -70,7 +70,7 @@ radio[pane] {
   -moz-binding: url("chrome://global/content/bindings/radio.xml#radio") !important;
   -moz-appearance: none;
   width: 240px;
-  color: var(--in-content-category-text);
+  color: var(--in-content-text-color);
   border-right-width: 0;
   border-left-width: 0;
   border-radius: 2px;
