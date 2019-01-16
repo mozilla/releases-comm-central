@@ -212,19 +212,19 @@
       <field name="mTaskArray">[]</field>
       <field name="mHash2Index"><![CDATA[({})]]></field>
       <field name="mPendingRefreshJobs"><![CDATA[({})]]></field>
-        <field name="mShowCompletedTasks">true</field>
-        <field name="mFilter">null</field>
-        <field name="mStartDate">null</field>
-        <field name="mEndDate">null</field>
-        <field name="mDateRangeFilter">null</field>
-        <field name="mTextFilterField">null</field>
+      <field name="mShowCompletedTasks">true</field>
+      <field name="mFilter">null</field>
+      <field name="mStartDate">null</field>
+      <field name="mEndDate">null</field>
+      <field name="mDateRangeFilter">null</field>
+      <field name="mTextFilterField">null</field>
 
-        <property name="currentIndex">
-          <getter><![CDATA[
-            let tree = document.getAnonymousElementByAttribute(
-                this, "anonid", "calendar-task-tree");
-            return tree.currentIndex;
-        ]]></getter>
+      <property name="currentIndex">
+        <getter><![CDATA[
+          let tree = document.getAnonymousElementByAttribute(
+              this, "anonid", "calendar-task-tree");
+          return tree.currentIndex;
+      ]]></getter>
       </property>
 
       <property name="currentTask">
@@ -319,6 +319,7 @@
             return null;
         ]]></body>
       </method>
+
       <method name="getTaskAtRow">
         <parameter name="aRow"/>
         <body><![CDATA[
@@ -773,13 +774,14 @@
              */
 
             _getItemFromEvent: function(event, aCol, aRow) {
-                aRow = aRow || {};
-                let childElt = {};
-                this.treebox.getCellAt(event.clientX, event.clientY, aRow, aCol || {}, childElt);
-                if (!childElt.value) {
-                    return false;
+                let { col, row } = this.treebox.getCellAt(event.clientX, event.clientY);
+                if (aCol) {
+                    aCol.value = col;
                 }
-                return aRow && aRow.value > -1 && this.binding.mTaskArray[aRow.value];
+                if (aRow) {
+                    aRow.value = row;
+                }
+                return row > -1 && this.binding.mTaskArray[row];
             },
 
             // Helper function to display datetimes

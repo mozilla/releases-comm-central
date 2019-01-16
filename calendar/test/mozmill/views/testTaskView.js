@@ -37,7 +37,6 @@ function setupModule(module) {
 
 // Mozmill doesn't support trees yet, therefore completed checkbox and line-through style are not
 // checked.
-testTaskView.__force_skip__ = true;
 function testTaskView() {
     // paths
     let treeChildren = `
@@ -65,7 +64,7 @@ function testTaskView() {
     }
 
     let taskTreeNode = lookup(taskTree).getNode();
-    let countBefore = taskTreeNode.mTaskArray.length;
+    controller.assert(() => taskTreeNode.mTaskArray.length == 0);
 
     // Add task.
     let taskInput= lookup(`
@@ -76,11 +75,7 @@ function testTaskView() {
     controller.keypress(taskInput, "VK_RETURN", {});
 
     // Verify added.
-    let countAfter;
-    controller.waitFor(() => {
-        countAfter = taskTreeNode.mTaskArray.length;
-        return countAfter == (countBefore + 1);
-    }, "Added Task did not appear; countBefore=" + countBefore + ", countAfter=" + countAfter);
+    controller.waitFor(() => taskTreeNode.mTaskArray.length == 1, "Added Task did not appear");
 
     // Last added task is automatically selected so verify detail window data.
     controller.assertJSProperty(eid("calendar-task-details-title"), "textContent", TITLE);
@@ -105,6 +100,9 @@ function testTaskView() {
         // save
         task.click(taskid("button-saveandclose"));
     });
+
+    controller.assert(() => taskTreeNode.mTaskArray.length < 2, "Task added but should not have been");
+    controller.assert(() => taskTreeNode.mTaskArray.length > 0, "Task removed but should not have been");
 
     // Verify description and status in details pane.
     controller.assertValue(lookup(`
@@ -158,10 +156,7 @@ function testTaskView() {
     // Delete task and verify.
     countBefore = taskTreeNode.mTaskArray.length;
     controller.click(eid("calendar-delete-task-button"));
-    controller.waitFor(() => {
-        countAfter = taskTreeNode.mTaskArray.length;
-        return countAfter == (countBefore - 1);
-    }, "Task did not delete; countBefore=" + countBefore + ", countAfter=" + countAfter);
+    controller.waitFor(() => taskTreeNode.mTaskArray.length == 0, "Task did not delete");
 }
 
 function teardownTest(module) {
