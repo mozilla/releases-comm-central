@@ -17,11 +17,6 @@ gStrings.mailExt =
     'href="chrome://messenger/content/extensionsOverlay.css" type="text/css"');
   document.insertBefore(contentStylesheet, document.documentElement);
 
-  let bindingsStylesheet = document.createProcessingInstruction(
-    "xml-stylesheet",
-    'href="chrome://messenger/content/bindings.css" type="text/css"');
-  document.insertBefore(bindingsStylesheet, document.documentElement);
-
   // Add navigation buttons for back and forward on the addons page.
   let hbox = document.createElement("hbox");
   hbox.setAttribute("id", "nav-header");
