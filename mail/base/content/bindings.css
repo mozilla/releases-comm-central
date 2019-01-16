@@ -91,9 +91,3 @@ spinbuttons {
 .spinbuttons-button {
   -moz-user-focus: ignore;
 }
-
-xbl-richlistbox {
-  -moz-binding: url("chrome://messenger/content/richlistbox.xml#xbl-richlistbox");
-  -moz-user-focus: normal;
-  -moz-box-orient: vertical;
-}
