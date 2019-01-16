@@ -1042,6 +1042,17 @@ function folderPathToURI(accountId, path) {
   return rootURI + path.split("/").map(encodeURIComponent).join("/");
 }
 
+const folderTypeMap = new Map([
+  [Ci.nsMsgFolderFlags.Inbox, "inbox"],
+  [Ci.nsMsgFolderFlags.Drafts, "drafts"],
+  [Ci.nsMsgFolderFlags.SentMail, "sent"],
+  [Ci.nsMsgFolderFlags.Trash, "trash"],
+  [Ci.nsMsgFolderFlags.Templates, "templates"],
+  [Ci.nsMsgFolderFlags.Archive, "archives"],
+  [Ci.nsMsgFolderFlags.Junk, "junk"],
+  [Ci.nsMsgFolderFlags.Queue, "outbox"],
+]);
+
 /**
  * Converts an nsIMsgFolder to a simple object for use in messages.
  * @return {Object}
@@ -1055,11 +1066,20 @@ function convertFolder(folder, accountId) {
     let account = MailServices.accounts.FindAccountForServer(server);
     accountId = account.key;
   }
-  return {
+
+  let folderObject = {
     accountId,
     name: folder.prettyName,
     path: folderURIToPath(folder.URI),
   };
+
+  for (let [flag, typeName] of folderTypeMap.entries()) {
+    if (folder.flags & flag) {
+      folderObject.type = typeName;
+    }
+  }
+
+  return folderObject;
 }
 
 /**

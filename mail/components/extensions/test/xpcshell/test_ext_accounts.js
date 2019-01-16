@@ -62,10 +62,12 @@ add_task(async function test_accounts() {
           accountId: account1Id,
           name: "Trash",
           path: "/Trash",
+          type: "trash",
         }, {
           accountId: account1Id,
           name: "Outbox",
           path: "/Unsent Messages",
+          type: "outbox",
         }],
       }, result1[0]);
 
@@ -81,6 +83,7 @@ add_task(async function test_accounts() {
           accountId: account2Id,
           name: "Inbox",
           path: "/INBOX",
+          type: "inbox",
         }],
       }, result2[1]);
 
@@ -96,6 +99,7 @@ add_task(async function test_accounts() {
           accountId: account1Id,
           name: "Trash",
           path: "/Trash",
+          type: "trash",
         }, {
           accountId: account1Id,
           name: "foo bar",
@@ -110,6 +114,7 @@ add_task(async function test_accounts() {
           accountId: account1Id,
           name: "Outbox",
           path: "/Unsent Messages",
+          type: "outbox",
         }], result5.folders);
 
       browser.test.notifyPass("finished");

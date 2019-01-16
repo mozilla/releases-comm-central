@@ -38,6 +38,12 @@
           "path": {
             "type": "string",
             "description": "Path to this folder in the account. Although paths look predictable, never guess a folder's path, as there are a number of reasons why it may not be what you think it is."
+          },
+          "type": {
+            "type": "string",
+            "optional": true,
+            "description": "The type of folder, for several common types.",
+            "enum": ["inbox", "drafts", "sent", "trash", "templates", "archives", "junk", "outbox"]
           }
         }
       }
