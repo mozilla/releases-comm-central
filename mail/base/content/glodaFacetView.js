@@ -134,11 +134,11 @@ const UIFacets = {
     } else {
       facet = document.createElement("div");
       facet.setAttribute("class", "facetious");
-      facet.setAttribute("type", type);
     }
 
     facet.attrDef = attrDef;
     facet.nounDef = attrDef.objectNounDef;
+    facet.setAttribute("type", type);
 
     for (let key in args) {
       facet[key] = args[key];

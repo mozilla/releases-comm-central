@@ -50,10 +50,11 @@
         <div class="facets facets-sidebar" id="facets">
           <h1 id="filter-header-label">&glodaFacetView.filters.label;</h1>
           <div>
-            <facet-boolean id="facet-fromMe" attr="fromMe" uninitialized="true"/>
-            <facet-boolean id="facet-toMe" attr="toMe" uninitialized="true"/>
-            <facet-boolean id="facet-star" attr="star" uninitialized="true"/><br/>
+            <facet-boolean id="facet-fromMe" type="boolean" attr="fromMe" uninitialized="true"/>
+            <facet-boolean id="facet-toMe" type="boolean" attr="toMe" uninitialized="true"/>
+            <facet-boolean id="facet-star" type="boolean" attr="star" uninitialized="true"/><br/>
             <facet-boolean-filtered id="facet-attachmentTypes"
+                                    type="boolean-filtered"
                                     attr="attachmentTypes"
                                     groupDisplayProperty="categoryLabel"
                                     uninitialized="true"/>
