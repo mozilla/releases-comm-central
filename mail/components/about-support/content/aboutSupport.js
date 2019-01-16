@@ -82,6 +82,19 @@ var snapshotFormatters = {
     if (data.updateChannel)
       $("updatechannel-box").textContent = data.updateChannel;
 
+    try {
+      let launcherStatusTextId = "launcher-process-status-unknown";
+      switch (data.launcherProcessState) {
+        case 0:
+        case 1:
+        case 2:
+          launcherStatusTextId = "launcher-process-status-" + data.launcherProcessState;
+          break;
+      }
+
+      document.l10n.setAttributes($("launcher-process-box"), launcherStatusTextId);
+    } catch (e) {}
+
     let statusTextId = "multi-process-status-unknown";
 
     // Whitelist of known values with string descriptions:
