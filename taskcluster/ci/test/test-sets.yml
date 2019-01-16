@@ -18,3 +18,4 @@
 common-tests:
     - xpcshell
     - mozmill
+    - mochitest-thunderbird
