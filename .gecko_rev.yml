@@ -1,0 +1,27 @@
+---
+GECKO_BASE_REPOSITORY: https://hg.mozilla.org/mozilla-unified
+GECKO_HEAD_REPOSITORY: https://hg.mozilla.org/mozilla-central
+GECKO_HEAD_REF: default
+
+### For comm-central
+# GECKO_BASE_REPOSITORY: https://hg.mozilla.org/mozilla-unified
+# GECKO_HEAD_REPOSITORY: https://hg.mozilla.org/mozilla-central
+# GECKO_HEAD_REF: default
+#
+### For branches
+# GECKO_BASE_REPOSITORY: https://hg.mozilla.org/mozilla-unified
+# GECKO_HEAD_REPOSITORY: https://hg.mozilla.org/releases/mozilla-esr60
+# GECKO_HEAD_REF: THUNDERBIRD_60_VERBRANCH
+# GECKO_HEAD_REV: 6a830d12f15493a70b1192022c9985eba2139910
+#
+# Note about GECKO_HEAD_REV and GECKO_HEAD_REF:
+# GECKO_HEAD_REF is a branch name or "default".
+# GECKO_HEAD_REV is a revision hash. It cannot be a symbolic name like "default"
+# or "THUNDERBIRD_60_VERBRANCH".
+#
+# comm-central will have GECKO_HEAD_REF defined as "default" but not
+# GECKO_HEAD_REV. Release branches are pinned to a particular commit
+# and set GECKO_HEAD_REV. They may also set GECKO_HEAD_REF when the pinned
+# commit is in a branch within the repository, such as THUNDERBIRD_60_VERBRANCH.
+
+
