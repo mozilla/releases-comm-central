@@ -16,7 +16,7 @@ add_task(async function setup() {
   registerCleanupFunction(() => {
     Services.prefs.clearUserPref("extensions.webextensions.messagesPerPage");
   });
-  await new Promise(executeSoon);
+  await new Promise(resolve => executeSoon(resolve));
 });
 
 add_task(async function test_update() {
@@ -234,7 +234,7 @@ add_task(async function test_displayedFolderChanged() {
 
   extension.onMessage("selectFolder", async (newFolderPath) => {
     window.gFolderTreeView.selectFolder(folderMap.get(newFolderPath));
-    await new Promise(executeSoon);
+    await new Promise(resolve => executeSoon(resolve));
   });
 
   await extension.startup();

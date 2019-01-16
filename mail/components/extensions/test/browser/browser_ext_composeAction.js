@@ -81,7 +81,7 @@ add_task(async function setup() {
   let rootFolder = gAccount.incomingServer.rootFolder;
 
   window.gFolderTreeView.selectFolder(rootFolder);
-  await new Promise(executeSoon);
+  await new Promise(resolve => executeSoon(resolve));
 });
 
 add_task(async function the_test() {

@@ -11,7 +11,7 @@ add_task(async () => {
   createMessages(subFolders[0], 10);
 
   window.gFolderTreeView.selectFolder(rootFolder);
-  await new Promise(executeSoon);
+  await new Promise(resolve => executeSoon(resolve));
 });
 
 add_task(async () => {
@@ -64,7 +64,7 @@ add_task(async () => {
 
   extension.onMessage("checkVisible", async (...expected) => {
     // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-    await new Promise(r => setTimeout(r, 500));
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     let actual = [];
     let dbView = window.gFolderDisplay.view.dbView;
