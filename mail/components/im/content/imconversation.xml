@@ -935,8 +935,16 @@
           return;
 
         if (accelKeyPressed ||
-            !Services.prefs.getBoolPref("accessibility.typeaheadfind"))
+            !Services.prefs.getBoolPref("accessibility.typeaheadfind")) {
           this.editor.focus();
+
+          // A common use case is to click somewhere in the conversation and
+          // start typing a command (often /me). If quick find is enabled, it
+          // will pick up the "/" keypress and open the findbar.
+          if (event.charCode == "/".charCodeAt(0)) {
+            event.preventDefault();
+          }
+        }
 
         // Returns for Ctrl+V
         if (accelKeyPressed)
