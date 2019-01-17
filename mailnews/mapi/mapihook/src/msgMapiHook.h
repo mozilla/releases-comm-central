@@ -18,13 +18,12 @@ class nsMapiHook
         static bool IsBlindSendAllowed () ;
         static nsresult BlindSendMail (unsigned long aSession, nsIMsgCompFields * aCompFields) ;
         static nsresult ShowComposerWindow (unsigned long aSession, nsIMsgCompFields * aCompFields) ;
-        static nsresult PopulateCompFields(lpnsMapiMessage aMessage, nsIMsgCompFields * aCompFields) ;
         static nsresult PopulateCompFieldsWithConversion(lpnsMapiMessage aMessage,
                                         nsIMsgCompFields * aCompFields) ;
         static nsresult PopulateCompFieldsForSendDocs(nsIMsgCompFields * aCompFields,
                                         ULONG aFlags, LPTSTR aDelimChar, LPTSTR aFilePaths) ;
         static nsresult HandleAttachments (nsIMsgCompFields * aCompFields, int32_t aFileCount,
-                                        lpnsMapiFileDesc aFiles, BOOL aIsUnicode) ;
+                                           lpnsMapiFileDesc aFiles) ;
         static void CleanUp();
 
         static bool isMapiService;

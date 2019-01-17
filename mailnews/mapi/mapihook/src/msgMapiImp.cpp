@@ -198,16 +198,20 @@ STDMETHODIMP CMapiImp::Login(unsigned long aUIArg, LOGIN_PW_TYPE aLogin, LOGIN_P
 }
 
 STDMETHODIMP CMapiImp::SendMail( unsigned long aSession, lpnsMapiMessage aMessage,
-     short aRecipCount, lpnsMapiRecipDesc aRecips , short aFileCount, lpnsMapiFileDesc aFiles ,
      unsigned long aFlags, unsigned long aReserved)
 {
     nsresult rv = NS_OK ;
 
     MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("CMapiImp::SendMail using flags %d\n", aFlags));
-    // Assign the pointers in the aMessage struct to the array of Recips and Files
-    // received here from MS COM. These are used in BlindSendMail and ShowCompWin fns
-    aMessage->lpRecips = aRecips ;
-    aMessage->lpFiles = aFiles ;
+
+    // Handle possible nullptr argument.
+    nsMapiMessage Message;
+    memset(&Message, 0, sizeof(nsMapiMessage));
+
+    if (!aMessage)
+    {
+        aMessage = &Message;
+    }
 
     MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("CMapiImp::SendMail flags=%x subject: %s sender: %s\n",
       aFlags, (char *) aMessage->lpszSubject, (aMessage->lpOriginator) ? aMessage->lpOriginator->lpszAddress : ""));
@@ -216,10 +220,7 @@ STDMETHODIMP CMapiImp::SendMail( unsigned long aSession, lpnsMapiMessage aMessag
     nsCOMPtr<nsIMsgCompFields> pCompFields = do_CreateInstance(NS_MSGCOMPFIELDS_CONTRACTID, &rv) ;
     if (NS_FAILED(rv) || (!pCompFields) ) return MAPI_E_INSUFFICIENT_MEMORY ;
 
-    if (aFlags & MAPI_UNICODE)
-        rv = nsMapiHook::PopulateCompFields(aMessage, pCompFields) ;
-    else
-        rv = nsMapiHook::PopulateCompFieldsWithConversion(aMessage, pCompFields) ;
+    rv = nsMapiHook::PopulateCompFieldsWithConversion(aMessage, pCompFields);
 
     if (NS_SUCCEEDED (rv))
     {

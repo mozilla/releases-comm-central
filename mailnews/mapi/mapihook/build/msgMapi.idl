@@ -14,8 +14,8 @@ typedef struct
     unsigned long   ulReserved;
     unsigned long   flFlags;           /* Flags */
     unsigned long   nPosition_NotUsed; /* character in text to be replaced by attachment */
-    LPTSTR          lpszPathName;      /* Full path name including file name */
-    LPTSTR          lpszFileName;      /* Real (original) file name */
+    LPSTR           lpszPathName;      /* Full path name including file name */
+    LPSTR           lpszFileName;      /* Real (original) file name */
     unsigned char * lpFileType_NotUsed ;
 } nsMapiFileDesc, * lpnsMapiFileDesc;
 
@@ -64,8 +64,6 @@ interface nsIMapi : IUnknown
     HRESULT IsValidSession([in] unsigned long aSession);
 
     HRESULT SendMail([in] unsigned long aSession, [in, unique] lpnsMapiMessage aMessage,
-                     [in] short aRecipCount, [in, size_is(aRecipCount)] lpnsMapiRecipDesc aRecips,
-                     [in] short aFileCount, [in, size_is(aFileCount)] lpnsMapiFileDesc aFiles,
                      [in] unsigned long aFlags, [in] unsigned long aReserved) ;
 
     HRESULT SendDocuments([in] unsigned long aSession,
