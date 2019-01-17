@@ -23,8 +23,8 @@ class nsMapiHook
         static nsresult PopulateCompFieldsW(lpnsMapiMessageW aMessage, nsIMsgCompFields *aCompFields);
         static nsresult PopulateCompFieldsForSendDocs(nsIMsgCompFields * aCompFields,
                                         ULONG aFlags, LPTSTR aDelimChar, LPTSTR aFilePaths) ;
-        static nsresult HandleAttachments (nsIMsgCompFields * aCompFields, int32_t aFileCount,
-                                           lpnsMapiFileDesc aFiles) ;
+        static nsresult HandleAttachments(nsIMsgCompFields *aCompFields, int32_t aFileCount,
+                                          lpnsMapiFileDesc aFiles, bool bUTF8);
         static nsresult HandleAttachmentsW(nsIMsgCompFields *aCompFields, int32_t aFileCount,
                                            lpnsMapiFileDescW aFiles);
         static void CleanUp();
