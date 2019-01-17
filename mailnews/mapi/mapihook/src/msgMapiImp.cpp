@@ -4,7 +4,7 @@
 
 #include <mapidefs.h>
 #include <mapi.h>
-#include "msgMapi.h"
+#include <winstring.h>
 #include "msgMapiImp.h"
 #include "msgMapiFactory.h"
 #include "msgMapiMain.h"
@@ -238,6 +238,44 @@ STDMETHODIMP CMapiImp::SendMail( unsigned long aSession, lpnsMapiMessage aMessag
     return nsMAPIConfiguration::GetMAPIErrorFromNSError (rv) ;
 }
 
+STDMETHODIMP CMapiImp::SendMailW(unsigned long aSession, lpnsMapiMessageW aMessage,
+                                 unsigned long aFlags, unsigned long aReserved)
+{
+    nsresult rv = NS_OK;
+
+    MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("CMapiImp::SendMailW using flags %d\n", aFlags));
+
+    // Handle possible nullptr argument.
+    nsMapiMessageW Message{};
+    if (!aMessage)
+      aMessage = &Message;
+
+    MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("CMapiImp::SendMailW flags=%x subject: %s sender: %s\n",
+            aFlags,
+            NS_ConvertUTF16toUTF8(aMessage->lpszSubject).get(),
+            NS_ConvertUTF16toUTF8((aMessage->lpOriginator) ? aMessage->lpOriginator->lpszAddress : L"").get()));
+
+    // Create nsIMsgCompFields obj and populate it.
+    nsCOMPtr<nsIMsgCompFields> pCompFields = do_CreateInstance(NS_MSGCOMPFIELDS_CONTRACTID, &rv);
+    if (NS_FAILED(rv) || !pCompFields) return MAPI_E_INSUFFICIENT_MEMORY;
+
+    rv = nsMapiHook::PopulateCompFieldsW(aMessage, pCompFields);
+
+    if (NS_SUCCEEDED (rv))
+    {
+      // Check flag to see if UI needs to be brought up.
+      if (!(aFlags & MAPI_DIALOG))
+      {
+        rv = nsMapiHook::BlindSendMail(aSession, pCompFields);
+      }
+      else
+      {
+        rv = nsMapiHook::ShowComposerWindow(aSession, pCompFields);
+      }
+    }
+
+    return nsMAPIConfiguration::GetMAPIErrorFromNSError(rv);
+}
 
 STDMETHODIMP CMapiImp::SendDocuments( unsigned long aSession, LPTSTR aDelimChar,
                             LPTSTR aFilePaths, LPTSTR aFileNames, ULONG aFlags)

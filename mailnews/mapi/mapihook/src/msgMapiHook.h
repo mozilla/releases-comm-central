@@ -20,10 +20,13 @@ class nsMapiHook
         static nsresult ShowComposerWindow (unsigned long aSession, nsIMsgCompFields * aCompFields) ;
         static nsresult PopulateCompFieldsWithConversion(lpnsMapiMessage aMessage,
                                         nsIMsgCompFields * aCompFields) ;
+        static nsresult PopulateCompFieldsW(lpnsMapiMessageW aMessage, nsIMsgCompFields *aCompFields);
         static nsresult PopulateCompFieldsForSendDocs(nsIMsgCompFields * aCompFields,
                                         ULONG aFlags, LPTSTR aDelimChar, LPTSTR aFilePaths) ;
         static nsresult HandleAttachments (nsIMsgCompFields * aCompFields, int32_t aFileCount,
                                            lpnsMapiFileDesc aFiles) ;
+        static nsresult HandleAttachmentsW(nsIMsgCompFields *aCompFields, int32_t aFileCount,
+                                           lpnsMapiFileDescW aFiles);
         static void CleanUp();
 
         static bool isMapiService;

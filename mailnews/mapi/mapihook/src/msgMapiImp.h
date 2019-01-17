@@ -5,8 +5,6 @@
 #ifndef MSG_MAPI_IMP_H
 #define MSG_MAPI_IMP_H
 
-#include <windows.h>
-#include <mapi.h>
 #include "msgMapi.h"
 #include "nspr.h"
 #include "nscore.h"
@@ -57,6 +55,9 @@ public :
   STDMETHODIMP Initialize();
   STDMETHODIMP IsValid();
   STDMETHODIMP IsValidSession(unsigned long aSession);
+
+  STDMETHODIMP SendMailW(unsigned long aSession, lpnsMapiMessageW aMessage,
+                         unsigned long aFlags, unsigned long aReserved);
 
   STDMETHODIMP Logoff (unsigned long aSession);
   STDMETHODIMP CleanUp();

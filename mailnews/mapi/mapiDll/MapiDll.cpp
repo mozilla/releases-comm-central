@@ -222,6 +222,51 @@ ULONG FAR PASCAL MAPISendMail (LHANDLE lhSession, ULONG ulUIParam, nsMapiMessage
     return hr ;
 }
 
+ULONG FAR PASCAL MAPISendMailW(LHANDLE lhSession, ULONG ulUIParam, nsMapiMessageW *lpMessage,
+                               FLAGS flFlags, ULONG ulReserved)
+{
+    HRESULT hr = 0;
+    BOOL bTempSession = FALSE;
+    nsIMapi *pNsMapi = nullptr;
+
+    if (!InitMozillaReference(&pNsMapi))
+      return MAPI_E_FAILURE;
+
+    if (lpMessage->nRecipCount > MAX_RECIPS)
+      return MAPI_E_TOO_MANY_RECIPIENTS;
+
+    if (lpMessage->nFileCount > MAX_FILES)
+      return MAPI_E_TOO_MANY_FILES;
+
+    if ((!(flFlags & MAPI_DIALOG)) && (lpMessage->lpRecips == nullptr))
+      return MAPI_E_UNKNOWN_RECIPIENT;
+
+    if (!lhSession || pNsMapi->IsValidSession(lhSession) != S_OK)
+    {
+      FLAGS LoginFlag = 0;
+      if ((flFlags & MAPI_LOGON_UI) && (flFlags & MAPI_NEW_SESSION))
+        LoginFlag = MAPI_LOGON_UI | MAPI_NEW_SESSION;
+      else if (flFlags & MAPI_LOGON_UI)
+        LoginFlag = MAPI_LOGON_UI;
+
+      hr = MAPILogon(ulUIParam, (LPTSTR)NULL, (LPTSTR)NULL, LoginFlag, 0, &lhSession);
+      if (hr != SUCCESS_SUCCESS)
+        return MAPI_E_LOGIN_FAILURE;
+      bTempSession = TRUE;
+    }
+
+    hr = pNsMapi->SendMailW(lhSession, lpMessage, flFlags, ulReserved);
+
+    // we are seeing a problem when using Word, although we return success from the MAPI support
+    // MS COM interface in mozilla, we are getting this error here. This is a temporary hack !!
+    if (hr == 0x800703e6)
+      hr = SUCCESS_SUCCESS;
+
+    if (bTempSession)
+      MAPILogoff(lhSession, ulUIParam, 0, 0);
+
+    return hr;
+}
 
 ULONG FAR PASCAL MAPISendDocuments(ULONG ulUIParam, LPTSTR lpszDelimChar, LPTSTR lpszFilePaths,
                                 LPTSTR lpszFileNames, ULONG ulReserved)

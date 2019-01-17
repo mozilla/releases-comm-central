@@ -454,6 +454,116 @@ nsresult nsMapiHook::HandleAttachments (nsIMsgCompFields * aCompFields, int32_t 
 }
 
 
+nsresult nsMapiHook::HandleAttachmentsW(nsIMsgCompFields* aCompFields, int32_t aFileCount,
+                                        lpnsMapiFileDescW aFiles)
+{
+  nsresult rv = NS_OK ;
+  // Do nothing if there are no files to process.
+  if (!aFiles || aFileCount <= 0)
+      return NS_OK;
+
+  nsAutoCString Attachments ;
+  nsAutoCString TempFiles ;
+
+  nsCOMPtr <nsIFile> pFile = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv) ;
+  if (NS_FAILED(rv) || (!pFile)) return rv ;
+  nsCOMPtr <nsIFile> pTempDir = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv) ;
+  if (NS_FAILED(rv) || (!pTempDir)) return rv ;
+
+  for (int i=0 ; i < aFileCount ; i++)
+  {
+    if (aFiles[i].lpszPathName)
+    {
+      // Check if attachment exists.
+      pFile->InitWithPath (nsDependentString(aFiles[i].lpszPathName));
+
+      bool bExist ;
+      rv = pFile->Exists(&bExist) ;
+      MOZ_LOG(MAPI, mozilla::LogLevel::Debug,
+        ("nsMapiHook::HandleAttachmentsW: filename: %s path: %s exists = %s \n",
+         NS_ConvertUTF16toUTF8(aFiles[i].lpszFileName).get(),
+         NS_ConvertUTF16toUTF8(aFiles[i].lpszPathName).get(),
+         bExist ? "true" : "false"));
+      if (NS_FAILED(rv) || (!bExist)) return NS_ERROR_FILE_TARGET_DOES_NOT_EXIST ;
+
+      // Temp Directory.
+      nsCOMPtr <nsIFile> pTempDir;
+      NS_GetSpecialDirectory(NS_OS_TEMP_DIR, getter_AddRefs(pTempDir));
+
+      // Create a new sub directory called moz_mapi underneath the temp directory.
+      pTempDir->AppendRelativePath(NS_LITERAL_STRING("moz_mapi"));
+      pTempDir->Exists(&bExist) ;
+      if (!bExist)
+      {
+        rv = pTempDir->Create(nsIFile::DIRECTORY_TYPE, 777) ;
+        if (NS_FAILED(rv)) return rv ;
+      }
+
+      // Rename or copy the existing temp file with the real file name.
+
+      nsAutoString leafName ;
+      // leafName already contains a unicode leafName from lpszPathName. If we were given
+      // a value for lpszFileName, use it. Otherwise stick with leafName.
+      if (aFiles[i].lpszFileName)
+      {
+        nsAutoString wholeFileName(aFiles[i].lpszFileName);
+        // Need to find the last '\' and find the leafname from that.
+        int32_t lastSlash = wholeFileName.RFindChar(char16_t('\\'));
+        if (lastSlash != kNotFound)
+          leafName.Assign(Substring(wholeFileName, lastSlash + 1));
+        else
+          leafName.Assign(wholeFileName);
+      }
+      else
+        pFile->GetLeafName(leafName);
+
+      nsCOMPtr<nsIMsgAttachment> attachment = do_CreateInstance(NS_MSGATTACHMENT_CONTRACTID, &rv);
+      NS_ENSURE_SUCCESS(rv, rv);
+      attachment->SetName(leafName);
+
+      nsCOMPtr<nsIFile> pTempFile;
+      rv = pTempDir->Clone(getter_AddRefs(pTempFile));
+      if (NS_FAILED(rv) || !pTempFile)
+        return rv;
+
+      pTempFile->Append(leafName);
+      pTempFile->Exists(&bExist);
+      if (bExist)
+      {
+        rv = pTempFile->CreateUnique(nsIFile::NORMAL_FILE_TYPE, 0777);
+        NS_ENSURE_SUCCESS(rv, rv);
+        pTempFile->Remove(false); // remove so we can copy over it.
+        pTempFile->GetLeafName(leafName);
+      }
+      // Copy the file to its new location and file name.
+      pFile->CopyTo(pTempDir, leafName);
+      // Point pFile to the new location of the attachment.
+      pFile->InitWithFile(pTempDir);
+      pFile->Append(leafName);
+
+      // Create MsgCompose attachment object.
+      attachment->SetTemporary(true);  // this one is a temp file so set the flag for MsgCompose
+
+      // Now set the attachment object.
+      nsAutoCString pURL ;
+      NS_GetURLSpecFromFile(pFile, pURL);
+      attachment->SetUrl(pURL);
+
+      // Set the file size.
+      int64_t fileSize;
+      pFile->GetFileSize(&fileSize);
+      attachment->SetSize(fileSize);
+
+      // Add the attachment.
+      rv = aCompFields->AddAttachment (attachment);
+      if (NS_FAILED(rv))
+        MOZ_LOG(MAPI, mozilla::LogLevel::Debug,
+          ("nsMapiHook::HandleAttachmentsW: AddAttachment rv =  %lx\n", rv));
+    }
+  }
+  return rv ;
+}
+
 // this is used to convert non Unicode data and then populate comp fields
 nsresult nsMapiHook::PopulateCompFieldsWithConversion(lpnsMapiMessage aMessage,
                                     nsIMsgCompFields * aCompFields)
@@ -553,6 +663,89 @@ nsresult nsMapiHook::PopulateCompFieldsWithConversion(lpnsMapiMessage aMessage,
 #endif
 
   return rv ;
+}
+
+// This is used to populate comp fields with UTF-16 data from MAPISendMailW function.
+nsresult nsMapiHook::PopulateCompFieldsW(lpnsMapiMessageW aMessage,
+                                         nsIMsgCompFields* aCompFields)
+{
+  nsresult rv = NS_OK;
+
+  if (aMessage->lpOriginator)
+    aCompFields->SetFrom(nsDependentString(aMessage->lpOriginator->lpszAddress));
+
+  nsAutoString To;
+  nsAutoString Cc;
+  nsAutoString Bcc;
+
+  NS_NAMED_LITERAL_STRING(Comma, ",");
+
+  if (aMessage->lpRecips)
+  {
+    for (int i=0 ; i < (int)aMessage->nRecipCount ; i++)
+    {
+      if (aMessage->lpRecips[i].lpszAddress || aMessage->lpRecips[i].lpszName)
+      {
+        const wchar_t *addressWithoutType = (aMessage->lpRecips[i].lpszAddress)
+          ? aMessage->lpRecips[i].lpszAddress : aMessage->lpRecips[i].lpszName;
+        if (nsDependentString(addressWithoutType, 5).EqualsASCII("SMTP:") == 0)
+          addressWithoutType += 5;
+        switch (aMessage->lpRecips[i].ulRecipClass)
+        {
+        case MAPI_TO :
+          if (!To.IsEmpty())
+            To += Comma;
+          To.Append(nsDependentString(addressWithoutType));
+          break;
+
+        case MAPI_CC :
+          if (!Cc.IsEmpty())
+            Cc += Comma;
+          Cc.Append(nsDependentString(addressWithoutType));
+          break;
+
+        case MAPI_BCC :
+          if (!Bcc.IsEmpty())
+            Bcc += Comma;
+          Bcc.Append(nsDependentString(addressWithoutType));
+          break;
+        }
+      }
+    }
+  }
+
+  MOZ_LOG(MAPI, mozilla::LogLevel::Debug,
+    ("to: %s cc: %s bcc: %s \n", NS_ConvertUTF16toUTF8(To).get(),
+                                 NS_ConvertUTF16toUTF8(Cc).get(),
+                                 NS_ConvertUTF16toUTF8(Bcc).get()));
+  // set To, Cc, Bcc
+  aCompFields->SetTo(To);
+  aCompFields->SetCc(Cc);
+  aCompFields->SetBcc(Bcc);
+
+  // Set subject.
+  if (aMessage->lpszSubject)
+    aCompFields->SetSubject(nsDependentString(aMessage->lpszSubject));
+
+  // handle attachments as File URL
+  rv = HandleAttachmentsW(aCompFields, aMessage->nFileCount, aMessage->lpFiles);
+  if (NS_FAILED(rv)) return rv;
+
+  // Set body.
+  if (aMessage->lpszNoteText)
+  {
+    nsString Body(aMessage->lpszNoteText);
+    if (Body.IsEmpty() || Body.Last() != '\n')
+      Body.AppendLiteral(CRLF);
+
+    // This is needed when Simple MAPI is used without a compose window.
+    // See bug 1366196.
+    if (Body.Find("<html>") == kNotFound)
+      aCompFields->SetForcePlainText(true);
+
+    rv = aCompFields->SetBody(Body);
+  }
+  return rv;
 }
 
 // this is used to populate the docs as attachments in the Comp fields for Send Documents

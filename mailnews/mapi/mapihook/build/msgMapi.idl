@@ -46,6 +46,42 @@ typedef struct
     [size_is (nFileCount)] lpnsMapiFileDesc lpFiles;    /* Attachment descriptors */
 } nsMapiMessage, * lpnsMapiMessage;
 
+typedef struct
+{
+    unsigned long     ulReserved;
+    unsigned long     flFlags;               /* Flags */
+    unsigned long     nPosition_NotUsed;     /* character in text to be replaced by attachment */
+    LPWSTR            lpszPathName;          /* Full path name including file name */
+    LPWSTR            lpszFileName;          /* Real (original) file name */
+    unsigned char*    lpFileType_NotUsed;
+} nsMapiFileDescW, *lpnsMapiFileDescW;
+
+typedef struct
+{
+    unsigned long      ulReserved;
+    unsigned long      ulRecipClass;  /* MAPI_TO, MAPI_CC, MAPI_BCC, MAPI_ORIG    */
+    LPWSTR             lpszName;      /* Recipient name to display */
+    LPWSTR             lpszAddress;   /* Recipient email address */
+    unsigned long      ulEIDSize_NotUsed;
+    unsigned char*     lpEntryID_NotUsed;
+} nsMapiRecipDescW, *lpnsMapiRecipDescW;
+
+typedef struct
+{
+    unsigned long           ulReserved;
+    LPWSTR                  lpszSubject;                 /* Message Subject */
+    LPWSTR                  lpszNoteText;                /* Message Text */
+    LPWSTR                  lpszMessageType;
+    LPWSTR                  lpszDateReceived;            /* in YYYY/MM/DD HH:MM format */
+    LPWSTR                  lpszConversationID_NotUsed;  /* conversation thread ID */
+    unsigned long           flFlags;                     /* unread,return receipt */
+    lpnsMapiRecipDescW      lpOriginator;                /* Originator descriptor  */
+    unsigned long           nRecipCount;                 /* Number of recipients   */
+    [size_is (nRecipCount)] lpnsMapiRecipDescW lpRecips; /* Recipient descriptors  */
+    unsigned long           nFileCount;                  /* # of file attachments  */
+    [size_is (nFileCount)]  lpnsMapiFileDescW lpFiles;   /* Attachment descriptors */
+} nsMapiMessageW, *lpnsMapiMessageW;
+
 [
     object,
     uuid(6EDCD38E-8861-11d5-A3DD-00B0D0F3BAA7),
@@ -82,6 +118,9 @@ interface nsIMapi : IUnknown
 
     HRESULT SaveMail([in] unsigned long lhSession, [in] ULONG ulUIParam, [in, unique] lpnsMapiMessage lppMessage,
                      [in] ULONG flFlags, [in] ULONG ulReserved, [in, unique] LPTSTR lpszMessageID);
+
+    HRESULT SendMailW([in] unsigned long aSession, [in, unique] lpnsMapiMessageW aMessage,
+                      [in] unsigned long aFlags, [in] unsigned long aReserved);
 
     HRESULT Logoff(unsigned long aSession);
     HRESULT CleanUp();
