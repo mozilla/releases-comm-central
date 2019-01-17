@@ -288,7 +288,6 @@
 @RESPATH@/components/PeerConnection.manifest
 #endif
 @RESPATH@/components/PlacesCategoriesStarter.js
-@RESPATH@/components/pluginGlue.manifest
 @RESPATH@/components/ProcessSingleton.manifest
 @RESPATH@/components/MainProcessSingleton.js
 @RESPATH@/components/ContentProcessSingleton.js
