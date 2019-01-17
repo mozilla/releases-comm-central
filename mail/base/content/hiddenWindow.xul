@@ -28,6 +28,8 @@
 %quickFilterBarDTD;
 <!ENTITY % msgViewPickerDTD SYSTEM "chrome://messenger/locale/msgViewPickerOverlay.dtd" >
 %msgViewPickerDTD;
+<!ENTITY % msgHdrViewOverlayDTD SYSTEM "chrome://messenger/locale/msgHdrViewOverlay.dtd">
+%msgHdrViewOverlayDTD;
 ]>
 
 <window id="hidden-window"
