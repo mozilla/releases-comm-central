@@ -504,22 +504,25 @@ toolbar[mode="icons"] .toolbarbutton-1 > menupopup {
 
 /* ::::: directional button icons ::::: */
 
-.up {
-  min-width: 0px;
-  list-style-image: url("chrome://global/skin/arrow/arrow-up.gif");
+.up,
+.down {
+  min-width: 0;
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+  fill-opacity: 1;
 }
 
-.up[disabled="true"] {
-  list-style-image: url("chrome://global/skin/arrow/arrow-up-dis.gif");
+.up {
+  list-style-image: url("chrome://global/skin/icons/arrow-up-12.svg");
 }
 
 .down {
-  min-width: 0px;
-  list-style-image: url("chrome://global/skin/arrow/arrow-dn.gif");
+  list-style-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
 }
 
+.up[disabled="true"],
 .down[disabled="true"] {
-  list-style-image: url("chrome://global/skin/arrow/arrow-dn-dis.gif");
+  fill-opacity: .5;
 }
 
 /* ::::: Tabs ::::: */
@@ -647,7 +650,9 @@ button[type="menu-button"] > button {
 }
 
 button .dropmarker-icon {
-  list-style-image: url("chrome://global/skin/arrow/arrow-dn.gif");
+  list-style-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 button[type="menu-button"] > dropmarker {
