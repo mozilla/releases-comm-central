@@ -2,7 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global HTMLElement, DateFacetVis, FacetContext, glodaFacetStrings, FacetUtils, PluralForm, logException */
+/* global HTMLElement, DateFacetVis, FacetContext, glodaFacetStrings, FacetUtils, PluralForm */
+/* global logException, Gloda */
+
+ChromeUtils.import("resource:///modules/MailServices.jsm");
+
 class MozFacetDate extends HTMLElement {
   get build() {
     return this.buildFunc;
@@ -59,6 +63,8 @@ class MozFacetDate extends HTMLElement {
     }
   }
 }
+
+customElements.define("facet-date", MozFacetDate);
 
 class MozFacetBoolean extends HTMLElement {
   constructor() {
@@ -225,6 +231,8 @@ class MozFacetBoolean extends HTMLElement {
   }
 }
 
+customElements.define("facet-boolean", MozFacetBoolean);
+
 class MozFacetBooleanFiltered extends MozFacetBoolean {
   static get observedAttributes() {
     return ["checked", "disabled"];
@@ -384,6 +392,8 @@ class MozFacetBooleanFiltered extends MozFacetBoolean {
     }
   }
 }
+
+customElements.define("facet-boolean-filtered", MozFacetBooleanFiltered);
 
 class MozFacetDiscrete extends HTMLElement {
   constructor() {
@@ -959,6 +969,8 @@ class MozFacetDiscrete extends HTMLElement {
   }
 }
 
+customElements.define("facet-discrete", MozFacetDiscrete);
+
 class MozFacetPopupMenu extends HTMLElement {
   constructor() {
     super();
@@ -1168,8 +1180,344 @@ class MozFacetPopupMenu extends HTMLElement {
   }
 }
 
-customElements.define("facet-date", MozFacetDate);
-customElements.define("facet-boolean", MozFacetBoolean);
-customElements.define("facet-boolean-filtered", MozFacetBooleanFiltered);
-customElements.define("facet-discrete", MozFacetDiscrete);
 customElements.define("facet-popup-menu", MozFacetPopupMenu);
+
+/**
+ * MozResultMessage displays an excerpt of a message. Typically these are used in the gloda
+ * results listing, showing the messages that matched.
+ */
+class MozFacetResultMessage extends HTMLElement {
+  constructor() {
+    super();
+
+    this.addEventListener("mouseover", (event) => {
+      FacetContext.hoverFacet(FacetContext.fakeResultFaceter,
+        FacetContext.fakeResultAttr,
+        this.message, [this.message]);
+    });
+
+    this.addEventListener("mouseout", (event) => {
+      FacetContext.unhoverFacet(FacetContext.fakeResultFaceter,
+        FacetContext.fakeResultAttr,
+        this.message, [this.message]);
+    });
+
+  }
+
+  connectedCallback() {
+    const messageHeader = document.createElement("div");
+
+    const messageLine = document.createElement("div");
+    messageLine.classList.add("message-line");
+
+    const messageMeta = document.createElement("div");
+    messageMeta.classList.add("message-meta");
+
+    this.addressesGroup = document.createElement("div");
+    this.addressesGroup.classList.add("message-addresses-group");
+
+    this.authorGroup = document.createElement("div");
+    this.authorGroup.classList.add("message-author-group");
+
+    this.author = document.createElement("span");
+    this.author.classList.add("message-author");
+
+    this.date = document.createElement("div");
+    this.date.classList.add("message-date");
+
+    this.authorGroup.appendChild(this.author);
+    this.authorGroup.appendChild(this.date);
+    this.addressesGroup.appendChild(this.authorGroup);
+    messageMeta.appendChild(this.addressesGroup);
+    messageLine.appendChild(messageMeta);
+
+    const messageSubjectGroup = document.createElement("div");
+    messageSubjectGroup.classList.add("message-subject-group");
+
+    this.star = document.createElement("span");
+    this.star.classList.add("message-star");
+
+    this.subject = document.createElement("span");
+    this.subject.classList.add("message-subject");
+    this.subject.setAttribute("tabindex", "0");
+    this.subject.setAttribute("role", "link");
+
+    this.tags = document.createElement("span");
+    this.tags.classList.add("message-tags");
+
+    this.recipientsGroup = document.createElement("div");
+    this.recipientsGroup.classList.add("message-recipients-group");
+
+    this.to = document.createElement("span");
+    this.to.classList.add("message-to-label");
+
+    this.recipients = document.createElement("div");
+    this.recipients.classList.add("message-recipients");
+
+    this.recipientsGroup.appendChild(this.to);
+    this.recipientsGroup.appendChild(this.recipients);
+    messageSubjectGroup.appendChild(this.star);
+    messageSubjectGroup.appendChild(this.subject);
+    messageSubjectGroup.appendChild(this.tags);
+    messageSubjectGroup.appendChild(this.recipientsGroup);
+    messageLine.appendChild(messageSubjectGroup);
+    messageHeader.appendChild(messageLine);
+    this.appendChild(messageHeader);
+
+    this.snippet = document.createElement("pre");
+    this.snippet.classList.add("message-body");
+
+    this.attachments = document.createElement("div");
+    this.attachments.classList.add("message-attachments");
+
+    this.appendChild(this.snippet);
+    this.appendChild(this.attachments);
+
+    this.build();
+  }
+
+  /* eslint-disable complexity */
+  build() {
+    let message = this.message;
+
+    let subject = this.subject;
+    // -- eventify
+    subject.onclick = (event) => {
+      FacetContext.showConversationInTab(this, event.button == 1);
+    };
+    subject.onkeypress = (event) => {
+      if (Event.keyCode == event.DOM_VK_RETURN)
+        FacetContext.showConversationInTab(this, event.shiftKey);
+    };
+
+    // -- Content Poking
+    if (message.subject.trim() == "")
+      subject.textContent = glodaFacetStrings.get("glodaFacetView.result.message.noSubject");
+    else
+      subject.textContent = message.subject;
+    let authorNode = this.author;
+    authorNode.setAttribute("title", message.from.value);
+    authorNode.textContent = message.from.contact.name;
+    let toNode = this.to;
+    toNode.textContent = glodaFacetStrings.get("glodaFacetView.result.message.toLabel");
+
+    // this.author.textContent = ;
+    let {
+      makeFriendlyDateAgo,
+    } = ChromeUtils.import("resource:///modules/templateUtils.js", null);
+    this.date.textContent = makeFriendlyDateAgo(message.date);
+
+    // - Recipients
+    try {
+      let recipientsNode = this.recipients;
+      if (message.recipients) {
+        let recipientCount = 0;
+        const MAX_RECIPIENTS = 3;
+        let totalRecipientCount = message.recipients.length;
+        let recipientSeparator = glodaFacetStrings.get(
+          "glodaFacetView.results.message.recipientSeparator");
+        for (let index in message.recipients) {
+          let recipNode = document.createElement("span");
+          recipNode.setAttribute("class", "message-recipient");
+          recipNode.textContent = message.recipients[index].contact.name;
+          recipientsNode.appendChild(recipNode);
+          recipientCount++;
+          if (recipientCount == MAX_RECIPIENTS)
+            break;
+          if (index != totalRecipientCount - 1) {
+            // add separators (usually commas)
+            let sepNode = document.createElement("span");
+            sepNode.setAttribute("class", "message-recipient-separator");
+            sepNode.textContent = recipientSeparator;
+            recipientsNode.appendChild(sepNode);
+          }
+        }
+        if (totalRecipientCount > MAX_RECIPIENTS) {
+          let nOthers = totalRecipientCount - recipientCount;
+          let andNOthers = document.createElement("span");
+          andNOthers.setAttribute("class", "message-recipients-andothers");
+
+          let andOthersLabel = PluralForm.get(
+            nOthers, glodaFacetStrings.get("glodaFacetView.results.message.andOthers")
+          ).replace("#1", nOthers);
+
+          andNOthers.textContent = andOthersLabel;
+          recipientsNode.appendChild(andNOthers);
+        }
+      }
+    } catch (e) {
+      logException(e);
+    }
+
+    // - Starred
+    let starNode = this.star;
+    if (message.starred) {
+      starNode.setAttribute("starred", "true");
+    }
+
+    // - Attachments
+    if (message.attachmentNames) {
+      let attachmentsNode = this.attachments;
+      let imgNode = document.createElement("div");
+      imgNode.setAttribute("class", "message-attachment-icon");
+      attachmentsNode.appendChild(imgNode);
+      for (let attach of message.attachmentNames) {
+        let attachNode = document.createElement("div");
+        attachNode.setAttribute("class", "message-attachment");
+        if (attach.length >= 28)
+          attach = attach.substring(0, 24) + "…";
+        attachNode.textContent = attach;
+        attachmentsNode.appendChild(attachNode);
+      }
+    }
+
+    // - Tags
+    let tagsNode = this.tags;
+    if ("tags" in message && message.tags.length) {
+      for (let tag of message.tags) {
+        let tagNode = document.createElement("span");
+        let colorClass = "blc-" + MailServices.tags.getColorForKey(tag.key).substr(1);
+        tagNode.setAttribute("class", "message-tag tag " + colorClass);
+        tagNode.textContent = tag.tag;
+        tagsNode.appendChild(tagNode);
+      }
+    }
+
+    // - Body
+    if (message.indexedBodyText) {
+      let bodyText = message.indexedBodyText;
+
+      let matches = [];
+      if ("stashedColumns" in FacetContext.collection) {
+        let collection;
+        if ("IMCollection" in FacetContext &&
+          message instanceof Gloda.lookupNounDef("im-conversation").clazz)
+          collection = FacetContext.IMCollection;
+        else
+          collection = FacetContext.collection;
+        let offsets = collection.stashedColumns[message.id][0];
+        let offsetNums = offsets.split(" ").map(x => parseInt(x));
+        for (let i = 0; i < offsetNums.length; i += 4) {
+          // i is the column index. The indexedBodyText is in the column 0.
+          // Ignore matches for other columns.
+          if (offsetNums[i] != 0)
+            continue;
+
+          // i+1 is the term index, indicating which queried term was found.
+          // We can ignore for now...
+
+          // i+2 is the *byte* offset at which the term is in the string.
+          // i+3 is the term's length.
+          matches.push([offsetNums[i + 2], offsetNums[i + 3]]);
+        }
+
+        // Sort the matches by index, just to be sure.
+        // They are probably already sorted, but if they aren't it could
+        // mess things up at the next step.
+        matches.sort((a, b) => a[0] - b[0]);
+
+        // Convert the byte offsets and lengths into character indexes.
+        let charCodeToByteCount = (c) => {
+          // UTF-8 stores:
+          // - code points below U+0080 on 1 byte,
+          // - code points below U+0800 on 2 bytes,
+          // - code points U+D800 through U+DFFF are UTF-16 surrogate halves
+          // (they indicate that JS has split a 4 bytes UTF-8 character
+          // in two halves of 2 bytes each),
+          // - other code points on 3 bytes.
+          if (c < 0x80) {
+            return 1;
+          }
+          if (c < 0x800 || (c >= 0xD800 && c <= 0xDFFF)) {
+            return 2;
+          }
+          return 3;
+        };
+        let byteOffset = 0;
+        let offset = 0;
+        for (let match of matches) {
+          while (byteOffset < match[0])
+            byteOffset += charCodeToByteCount(bodyText.charCodeAt(offset++));
+          match[0] = offset;
+          for (let i = offset; i < offset + match[1]; ++i) {
+            let size = charCodeToByteCount(bodyText.charCodeAt(i));
+            if (size > 1)
+              match[1] -= size - 1;
+          }
+        }
+      }
+
+      // how many lines of context we want before the first match:
+      const kContextLines = 2;
+
+      let startIndex = 0;
+      if (matches.length > 0) {
+        // Find where the snippet should begin to show at least the
+        // first match and kContextLines of context before the match.
+        startIndex = matches[0][0];
+        for (let context = kContextLines; context >= 0; --context) {
+          startIndex = bodyText.lastIndexOf("\n", startIndex - 1);
+          if (startIndex == -1) {
+            startIndex = 0;
+            break;
+          }
+        }
+      }
+
+      // start assuming it's just one line that we want to show
+      let idxNewline = -1;
+      let ellipses = "…";
+
+      let maxLineCount = 5;
+      if (startIndex != 0) {
+        // Avoid displaying an ellipses followed by an empty line.
+        while (bodyText[startIndex + 1] == "\n")
+          ++startIndex;
+        bodyText = ellipses + bodyText.substring(startIndex);
+        // The first line will only contain the ellipsis as the character
+        // at startIndex is always \n, so we show an additional line.
+        ++maxLineCount;
+      }
+
+      for (let newlineCount = 0; newlineCount < maxLineCount; newlineCount++) {
+        idxNewline = bodyText.indexOf("\n", idxNewline + 1);
+        if (idxNewline == -1) {
+          ellipses = "";
+          break;
+        }
+      }
+      let snippet = "";
+      if (idxNewline > -1)
+        snippet = bodyText.substring(0, idxNewline);
+      else
+        snippet = bodyText;
+      if (ellipses)
+        snippet = snippet.trimRight() + ellipses;
+
+      let parent = this.snippet;
+      let node = document.createTextNode(snippet);
+      parent.appendChild(node);
+
+      let offset = startIndex ? startIndex - 1 : 0; // The ellipsis takes 1 character.
+      for (let match of matches) {
+        if (idxNewline > -1 && match[0] > startIndex + idxNewline)
+          break;
+        let secondNode = node.splitText(match[0] - offset);
+        node = secondNode.splitText(match[1]);
+        offset += match[0] + match[1] - offset;
+        let span = document.createElement("span");
+        span.textContent = secondNode.data;
+        if (!this.firstMatchText)
+          this.firstMatchText = secondNode.data;
+        span.setAttribute("class", "message-body-fulltext-match");
+        parent.replaceChild(span, secondNode);
+      }
+    }
+
+    // - Misc attributes
+    if (!message.read)
+      this.setAttribute("unread", "true");
+  }
+}
+
+customElements.define("facet-result-message", MozFacetResultMessage);
