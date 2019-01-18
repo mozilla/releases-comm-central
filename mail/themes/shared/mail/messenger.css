@@ -297,6 +297,17 @@ toolbarpaletteitem toolbarspring {
   -moz-window-dragging: no-drag;
 }
 
+/* ::::: MailExtension panels ::::: */
+
+.mail-extension-panel {
+  font: menu;
+}
+
+.mail-extension-panel > .panel-arrowcontainer > .panel-arrowcontent {
+  padding: 0;
+  overflow: hidden;
+}
+
 /* :::: autocomplete labels :::: */
 
 html|span.ac-emphasize-text {

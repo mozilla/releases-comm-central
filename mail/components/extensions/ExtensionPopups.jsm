@@ -9,11 +9,16 @@ var EXPORTED_SYMBOLS = ["BasePopup", "ViewPopup"];
 ChromeUtils.defineModuleGetter(this, "ExtensionParent",
                                "resource://gre/modules/ExtensionParent.jsm");
 ChromeUtils.import("resource://gre/modules/ExtensionUtils.jsm");
+ChromeUtils.import("resource://gre/modules/ExtensionCommon.jsm");
 
 const {
   DefaultWeakMap,
   promiseEvent,
 } = ExtensionUtils;
+
+const {
+  makeWidgetId
+} = ExtensionCommon
 
 class BasePopup {
   constructor(extension, viewNode, popupURL, browserStyle, fixedWidth = false, blockParser = false) {
@@ -288,7 +293,10 @@ class ViewPopup extends BasePopup {
     let document = window.document;
 
     let panel = document.createXULElement("panel");
+    panel.setAttribute("id", makeWidgetId(extension.id) + "-panel");
+    panel.setAttribute("class", "mail-extension-panel");
     panel.setAttribute("type", "arrow");
+    panel.setAttribute("role", "group");
     document.getElementById("mainPopupSet").appendChild(panel);
 
     super(extension, panel, popupURL, browserStyle, fixedWidth, blockParser);
