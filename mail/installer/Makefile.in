@@ -135,7 +135,6 @@ MOZ_PACKAGER_MINIFY=1
 
 NON_OMNIJAR_FILES = defaults/messenger/mailViews.dat
 
-include $(moztopsrcdir)/toolkit/mozapps/installer/signing.mk
 include $(moztopsrcdir)/toolkit/mozapps/installer/packager.mk
 
 ifeq (bundle, $(MOZ_FS_LAYOUT))
