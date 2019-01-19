@@ -151,6 +151,10 @@ toolbar[brighttext] {
   height: 20px;
 }
 
+.titlebar-placeholder[type="caption-buttons"] {
+  -moz-box-ordinal-group: 1000;
+}
+
 /* ::::: menubar ::::: */
 
 #menubar-items {

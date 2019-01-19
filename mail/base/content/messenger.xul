@@ -415,11 +415,7 @@
                    tabcontainer="tabmail-tabs"/>
       </toolbarbutton>
 
-      <hbox class="titlebar-placeholder" type="caption-buttons"
-#ifndef XP_MACOSX
-            ordinal="1000"
-#endif
-            />
+      <hbox class="titlebar-placeholder" type="caption-buttons"/>
 #ifdef XP_MACOSX
       <hbox class="titlebar-placeholder" type="fullscreen-button"/>
 #endif

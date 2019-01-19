@@ -204,8 +204,26 @@ toolbar[brighttext] {
     }
   }
 
-  :root[tabsintitlebar] .titlebar-placeholder[type="caption-buttons"] {
-    margin-inline-start: 10px;
+  @media (-moz-gtk-csd-reversed-placement: 0) {
+    .titlebar-placeholder[type="caption-buttons"] {
+      -moz-box-ordinal-group: 1000;
+    }
+
+    :root[tabsintitlebar] .titlebar-placeholder[type="caption-buttons"] {
+      margin-inline-start: 10px;
+    }
+  }
+
+  @media (-moz-gtk-csd-reversed-placement) {
+    #titlebar-buttonbox-container,
+    #titlebar-close,
+    .titlebar-placeholder[type="caption-buttons"] {
+      -moz-box-ordinal-group: 0;
+    }
+
+    :root[tabsintitlebar] .titlebar-placeholder[type="caption-buttons"] {
+      margin-inline-end: 10px;
+    }
   }
 }
 
