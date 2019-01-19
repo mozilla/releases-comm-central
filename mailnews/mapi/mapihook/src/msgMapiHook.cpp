@@ -366,11 +366,17 @@ nsresult nsMapiHook::HandleAttachments (nsIMsgCompFields * aCompFields, int32_t 
         if (aFiles[i].lpszPathName)
         {
             // check if attachment exists
-            pFile->InitWithNativePath(nsDependentCString((const char*)aFiles[i].lpszPathName));
+            if (!aIsUTF8)
+              pFile->InitWithNativePath(nsDependentCString(aFiles[i].lpszPathName));
+            else
+              pFile->InitWithPath(NS_ConvertUTF8toUTF16(aFiles[i].lpszPathName));
 
             bool bExist ;
             rv = pFile->Exists(&bExist) ;
-            MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("nsMapiHook::HandleAttachments: filename: %s path: %s exists = %s \n", (const char*)aFiles[i].lpszFileName, (const char*)aFiles[i].lpszPathName, bExist ? "true" : "false"));
+            MOZ_LOG(MAPI, mozilla::LogLevel::Debug,
+              ("nsMapiHook::HandleAttachments: filename: %s path: %s exists = %s\n",
+               (const char*)aFiles[i].lpszFileName,
+               (const char*)aFiles[i].lpszPathName, bExist ? "true" : "false"));
             if (NS_FAILED(rv) || (!bExist) ) return NS_ERROR_FILE_TARGET_DOES_NOT_EXIST ;
 
             //Temp Directory
