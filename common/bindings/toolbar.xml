@@ -494,14 +494,6 @@
     </handlers>
   </binding>
 
-  <binding id="toolbar-drag"
-#ifdef MOZ_SUITE
-           extends="chrome://communicator/content/bindings/toolbar.xml#toolbar">
-#else
-           extends="chrome://messenger/content/toolbar.xml#toolbar">
-#endif
-  </binding>
-
   <binding id="menubar" role="xul:menubar" display="xul:menubar">
     <implementation>
        <field name="_active">false</field>

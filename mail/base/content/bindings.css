@@ -19,12 +19,6 @@ toolbar {
   -moz-binding: url("chrome://messenger/content/toolbar.xml#toolbar");
 }
 
-@media (-moz-menubar-drag) {
-  toolbox > toolbar[type="menubar"]:not([autohide="true"]) {
-    -moz-binding: url("chrome://messenger/content/toolbar.xml#toolbar-drag");
-  }
-}
-
 %ifndef XP_MACOSX
 toolbar[type="menubar"][autohide="true"] {
   -moz-binding: url("chrome://messenger/content/toolbar.xml#toolbar-menubar-autohide");
