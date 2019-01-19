@@ -5,7 +5,6 @@
 #pragma warning (disable : 4996) // MAPILogoff is deprecated
 
 #include <windows.h>
-#include <tchar.h>
 #include <mapidefs.h>
 #include <mapi.h>
 #include "msgMapi.h"
@@ -109,9 +108,9 @@ BOOL InitMozillaReference(nsIMapi **aRetValue)
 // store and address book providers                            ////
 ////////////////////////////////////////////////////////////////////////////////////////
 
-ULONG FAR PASCAL MAPILogon(ULONG aUIParam, LPTSTR aProfileName,
-                            LPTSTR aPassword, FLAGS aFlags,
-                            ULONG aReserved, LPLHANDLE aSession)
+ULONG FAR PASCAL MAPILogon(ULONG aUIParam, LPSTR aProfileName,
+                           LPSTR aPassword, FLAGS aFlags,
+                           ULONG aReserved, LPLHANDLE aSession)
 {
     HRESULT hr = 0;
     ULONG nSessionId = 0;
@@ -120,36 +119,7 @@ ULONG FAR PASCAL MAPILogon(ULONG aUIParam, LPTSTR aProfileName,
     if (!InitMozillaReference(&pNsMapi))
         return MAPI_E_FAILURE;
 
-    if (!(aFlags & MAPI_UNICODE))
-    {
-        // Need to convert the parameters to Unicode.
-
-        char *pUserName = (char *) aProfileName;
-        char *pPassWord = (char *) aPassword;
-
-        TCHAR ProfileName[MAX_NAME_LEN] = {0};
-        TCHAR PassWord[MAX_PW_LEN] = {0};
-
-        if (pUserName != NULL)
-        {
-            if (!MultiByteToWideChar(CP_ACP, 0, pUserName, -1, ProfileName,
-                                                            MAX_NAME_LEN))
-                return MAPI_E_FAILURE;
-        }
-
-        if (pPassWord != NULL)
-        {
-            if (!MultiByteToWideChar(CP_ACP, 0, pPassWord, -1, PassWord,
-                                                            MAX_NAME_LEN))
-                return MAPI_E_FAILURE;
-        }
-
-        hr = pNsMapi->Login(aUIParam, ProfileName, PassWord, aFlags,
-                                                        &nSessionId);
-    }
-    else
-        hr = pNsMapi->Login(aUIParam, aProfileName, aPassword,
-                                                aFlags, &nSessionId);
+    hr = pNsMapi->Login(aUIParam, aProfileName, aPassword, aFlags, &nSessionId);
     if (hr == S_OK)
         (*aSession) = (LHANDLE) nSessionId;
     else
@@ -203,7 +173,7 @@ ULONG FAR PASCAL MAPISendMail (LHANDLE lhSession, ULONG ulUIParam, nsMapiMessage
         else if (flFlags & MAPI_LOGON_UI)
             LoginFlag = MAPI_LOGON_UI ;
 
-        hr = MAPILogon (ulUIParam, (LPTSTR) NULL, (LPTSTR) NULL, LoginFlag, 0, &lhSession) ;
+        hr = MAPILogon(ulUIParam, nullptr, nullptr, LoginFlag, 0, &lhSession);
         if (hr != SUCCESS_SUCCESS)
             return MAPI_E_LOGIN_FAILURE ;
         bTempSession = TRUE ;
@@ -249,7 +219,7 @@ ULONG FAR PASCAL MAPISendMailW(LHANDLE lhSession, ULONG ulUIParam, nsMapiMessage
       else if (flFlags & MAPI_LOGON_UI)
         LoginFlag = MAPI_LOGON_UI;
 
-      hr = MAPILogon(ulUIParam, (LPTSTR)NULL, (LPTSTR)NULL, LoginFlag, 0, &lhSession);
+      hr = MAPILogon(ulUIParam, nullptr, nullptr, LoginFlag, 0, &lhSession);
       if (hr != SUCCESS_SUCCESS)
         return MAPI_E_LOGIN_FAILURE;
       bTempSession = TRUE;
@@ -268,8 +238,8 @@ ULONG FAR PASCAL MAPISendMailW(LHANDLE lhSession, ULONG ulUIParam, nsMapiMessage
     return hr;
 }
 
-ULONG FAR PASCAL MAPISendDocuments(ULONG ulUIParam, LPTSTR lpszDelimChar, LPTSTR lpszFilePaths,
-                                LPTSTR lpszFileNames, ULONG ulReserved)
+ULONG FAR PASCAL MAPISendDocuments(ULONG ulUIParam, LPSTR lpszDelimChar, LPSTR lpszFilePaths,
+                                   LPSTR lpszFileNames, ULONG ulReserved)
 {
     LHANDLE lhSession ;
     nsIMapi *pNsMapi = NULL;
@@ -277,22 +247,21 @@ ULONG FAR PASCAL MAPISendDocuments(ULONG ulUIParam, LPTSTR lpszDelimChar, LPTSTR
     if (!InitMozillaReference(&pNsMapi))
         return MAPI_E_FAILURE;
 
-    unsigned long result = MAPILogon (ulUIParam, (LPTSTR) NULL, (LPTSTR) NULL, MAPI_LOGON_UI, 0, &lhSession) ;
+    unsigned long result = MAPILogon(ulUIParam, nullptr, nullptr, MAPI_LOGON_UI, 0, &lhSession);
     if (result != SUCCESS_SUCCESS)
         return MAPI_E_LOGIN_FAILURE ;
 
     HRESULT hr;
 
-    hr = pNsMapi->SendDocuments(lhSession, (LPTSTR) lpszDelimChar, (LPTSTR) lpszFilePaths,
-                                    (LPTSTR) lpszFileNames, ulReserved) ;
+    hr = pNsMapi->SendDocuments(lhSession, lpszDelimChar, lpszFilePaths, lpszFileNames, ulReserved);
 
     MAPILogoff (lhSession, ulUIParam, 0,0) ;
 
     return hr ;
 }
 
-ULONG FAR PASCAL MAPIFindNext(LHANDLE lhSession, ULONG ulUIParam, const LPTSTR lpszMessageType,
-                              const LPTSTR lpszSeedMessageID, FLAGS flFlags, ULONG ulReserved,
+ULONG FAR PASCAL MAPIFindNext(LHANDLE lhSession, ULONG ulUIParam, const LPSTR lpszMessageType,
+                              const LPSTR lpszSeedMessageID, FLAGS flFlags, ULONG ulReserved,
                               unsigned char lpszMessageID[64])
 {
   nsIMapi *pNsMapi = NULL;
@@ -303,14 +272,12 @@ ULONG FAR PASCAL MAPIFindNext(LHANDLE lhSession, ULONG ulUIParam, const LPTSTR l
   if (lhSession == 0)
     return MAPI_E_INVALID_SESSION;
 
-  const LPTSTR type = lpszMessageType ? lpszMessageType : (const LPTSTR)(L"");
-  const LPTSTR id = lpszSeedMessageID ? lpszSeedMessageID : (const LPTSTR)(L"");
-  return pNsMapi->FindNext(lhSession, ulUIParam, type, id,
+  return pNsMapi->FindNext(lhSession, ulUIParam, lpszMessageType, lpszSeedMessageID,
                            flFlags, ulReserved, lpszMessageID);
 }
 
 
-ULONG FAR PASCAL MAPIReadMail(LHANDLE lhSession, ULONG ulUIParam, LPTSTR lpszMessageID,
+ULONG FAR PASCAL MAPIReadMail(LHANDLE lhSession, ULONG ulUIParam, LPSTR lpszMessageID,
                               FLAGS flFlags, ULONG ulReserved, nsMapiMessage **lppMessage)
 {
   nsIMapi *pNsMapi = NULL;
@@ -328,7 +295,7 @@ ULONG FAR PASCAL MAPIReadMail(LHANDLE lhSession, ULONG ulUIParam, LPTSTR lpszMes
 }
 
 ULONG FAR PASCAL MAPISaveMail(LHANDLE lhSession, ULONG ulUIParam, lpnsMapiMessage lpMessage,
-                              FLAGS flFlags, ULONG ulReserved, LPTSTR lpszMessageID)
+                              FLAGS flFlags, ULONG ulReserved, LPSTR lpszMessageID)
 {
   nsIMapi *pNsMapi = NULL;
 
@@ -341,7 +308,7 @@ ULONG FAR PASCAL MAPISaveMail(LHANDLE lhSession, ULONG ulUIParam, lpnsMapiMessag
   return MAPI_E_FAILURE;
 }
 
-ULONG FAR PASCAL MAPIDeleteMail(LHANDLE lhSession, ULONG ulUIParam, LPTSTR lpszMessageID,
+ULONG FAR PASCAL MAPIDeleteMail(LHANDLE lhSession, ULONG ulUIParam, LPSTR lpszMessageID,
                                 FLAGS flFlags, ULONG ulReserved)
 {
   nsIMapi *pNsMapi = NULL;
@@ -356,8 +323,8 @@ ULONG FAR PASCAL MAPIDeleteMail(LHANDLE lhSession, ULONG ulUIParam, LPTSTR lpszM
                               lpszMessageID, flFlags, ulReserved) ;
 }
 
-ULONG FAR PASCAL MAPIAddress(LHANDLE lhSession, ULONG ulUIParam, LPTSTR lpszCaption,
-                             ULONG nEditFields, LPTSTR lpszLabels, ULONG nRecips,
+ULONG FAR PASCAL MAPIAddress(LHANDLE lhSession, ULONG ulUIParam, LPSTR lpszCaption,
+                             ULONG nEditFields, LPSTR lpszLabels, ULONG nRecips,
                              lpMapiRecipDesc lpRecips, FLAGS flFlags,
                              ULONG ulReserved, LPULONG lpnNewRecips,
                              lpMapiRecipDesc FAR *lppNewRecips)
@@ -371,7 +338,7 @@ ULONG FAR PASCAL MAPIDetails(LHANDLE lhSession, ULONG ulUIParam, lpMapiRecipDesc
     return MAPI_E_NOT_SUPPORTED;
 }
 
-ULONG FAR PASCAL MAPIResolveName(LHANDLE lhSession, ULONG ulUIParam, LPTSTR lpszName,
+ULONG FAR PASCAL MAPIResolveName(LHANDLE lhSession, ULONG ulUIParam, LPSTR lpszName,
                                  FLAGS flFlags, ULONG ulReserved, lpMapiRecipDesc FAR *lppRecip)
 {
   char* lpszRecipName = new char[(strlen((const char*)lpszName) + 1)];

@@ -31,7 +31,7 @@ private :
   PRLock *m_Lock;
   uint32_t  m_nMaxSessions;
 
-  nsDataHashtable<nsStringHashKey, uint32_t> m_ProfileMap;
+  nsDataHashtable<nsCStringHashKey, uint32_t> m_ProfileMap;
   nsClassHashtable<nsUint32HashKey, nsMAPISession> m_SessionMap;
   nsMAPIConfiguration();
   ~nsMAPIConfiguration();
@@ -39,8 +39,8 @@ private :
 public :
   static nsMAPIConfiguration *GetMAPIConfiguration();
   void OpenConfiguration();
-  int16_t RegisterSession(uint32_t aHwnd, const char16_t *aUserName, \
-                          const char16_t *aPassword, bool aForceDownLoad, \
+  int16_t RegisterSession(uint32_t aHwnd, const nsCString& aUserName,
+                          const nsCString& aPassword, bool aForceDownLoad,
                           bool aNewSession, uint32_t *aSession, const char *aIdKey);
   bool IsSessionValid(uint32_t aSessionID);
   bool UnRegisterSession(uint32_t aSessionID);
@@ -60,13 +60,12 @@ class nsMAPISession
   private :
     uint32_t m_nShared;
     nsCString m_pIdKey;
-    nsString m_pProfileName;
-    nsString m_pPassword;
+    nsCString m_pProfileName;
+    nsCString m_pPassword;
     void   *m_listContext; // used by findNext
 
   public :
-    nsMAPISession(uint32_t aHwnd, const char16_t *aUserName, \
-                  const char16_t *aPassword, \
+    nsMAPISession(uint32_t aHwnd, const nsCString& aUserName, const nsCString& aPassword,
                   bool aForceDownLoad, const char *aKey);
     uint32_t IncrementSession();
     uint32_t DecrementSession();

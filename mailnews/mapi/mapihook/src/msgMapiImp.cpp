@@ -121,8 +121,8 @@ STDMETHODIMP CMapiImp::Initialize()
     return hr;
 }
 
-STDMETHODIMP CMapiImp::Login(unsigned long aUIArg, LOGIN_PW_TYPE aLogin, LOGIN_PW_TYPE aPassWord,
-                unsigned long aFlags, unsigned long *aSessionId)
+STDMETHODIMP CMapiImp::Login(unsigned long aUIArg, LPSTR aLogin, LPSTR aPassWord,
+                             unsigned long aFlags, unsigned long *aSessionId)
 {
     HRESULT hr = E_FAIL;
      bool bNewSession = false;
@@ -135,7 +135,7 @@ STDMETHODIMP CMapiImp::Login(unsigned long aUIArg, LOGIN_PW_TYPE aLogin, LOGIN_P
     // Check For Profile Name
     if (aLogin != nullptr && aLogin[0] != '\0')
     {
-        if (!nsMapiHook::VerifyUserName(nsString(aLogin), id_key))
+        if (!nsMapiHook::VerifyUserName(nsDependentCString(aLogin), id_key))
         {
             *aSessionId = MAPI_E_LOGIN_FAILURE;
             MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("CMapiImp::Login failed for username %s\n", aLogin));
@@ -171,7 +171,8 @@ STDMETHODIMP CMapiImp::Login(unsigned long aUIArg, LOGIN_PW_TYPE aLogin, LOGIN_P
 
     nsMAPIConfiguration *pConfig = nsMAPIConfiguration::GetMAPIConfiguration();
     if (pConfig != nullptr)
-        nResult = pConfig->RegisterSession(aUIArg, char16ptr_t(aLogin), char16ptr_t(aPassWord),
+        nResult = pConfig->RegisterSession(aUIArg, nsDependentCString(aLogin),
+                                           nsDependentCString(aPassWord),
                                            (aFlags & MAPI_FORCE_DOWNLOAD), bNewSession,
                                            &nSession_Id, id_key.get());
     switch (nResult)
@@ -277,8 +278,8 @@ STDMETHODIMP CMapiImp::SendMailW(unsigned long aSession, lpnsMapiMessageW aMessa
     return nsMAPIConfiguration::GetMAPIErrorFromNSError(rv);
 }
 
-STDMETHODIMP CMapiImp::SendDocuments( unsigned long aSession, LPTSTR aDelimChar,
-                            LPTSTR aFilePaths, LPTSTR aFileNames, ULONG aFlags)
+STDMETHODIMP CMapiImp::SendDocuments(unsigned long aSession, LPSTR aDelimChar,
+                                     LPSTR aFilePaths, LPSTR aFileNames, ULONG aFlags)
 {
     nsresult rv = NS_OK ;
 
@@ -409,9 +410,9 @@ LONG CMapiImp::InitContext(unsigned long session, MsgMapiListContext **listConte
   return SUCCESS_SUCCESS;
 }
 
-STDMETHODIMP CMapiImp::FindNext(unsigned long aSession, unsigned long ulUIParam, LPTSTR lpszMessageType,
-                              LPTSTR lpszSeedMessageID, unsigned long flFlags, unsigned long ulReserved,
-                              unsigned char lpszMessageID[64])
+STDMETHODIMP CMapiImp::FindNext(unsigned long aSession, unsigned long ulUIParam, LPSTR lpszMessageType,
+                                LPSTR lpszSeedMessageID, unsigned long flFlags, unsigned long ulReserved,
+                                unsigned char lpszMessageID[64])
 
 {
   //
@@ -454,8 +455,8 @@ STDMETHODIMP CMapiImp::FindNext(unsigned long aSession, unsigned long ulUIParam,
   return(SUCCESS_SUCCESS);
 }
 
-STDMETHODIMP CMapiImp::ReadMail(unsigned long aSession, unsigned long ulUIParam, LPTSTR lpszMessageID,
-                              unsigned long flFlags, unsigned long ulReserved, lpnsMapiMessage *lppMessage)
+STDMETHODIMP CMapiImp::ReadMail(unsigned long aSession, unsigned long ulUIParam, LPSTR lpszMessageID,
+                                unsigned long flFlags, unsigned long ulReserved, lpnsMapiMessage *lppMessage)
 {
   nsresult irv;
   nsAutoCString keyString((char *) lpszMessageID);
@@ -480,8 +481,8 @@ STDMETHODIMP CMapiImp::ReadMail(unsigned long aSession, unsigned long ulUIParam,
 }
 
 
-STDMETHODIMP CMapiImp::DeleteMail(unsigned long aSession, unsigned long ulUIParam, LPTSTR lpszMessageID,
-                              unsigned long flFlags, unsigned long ulReserved)
+STDMETHODIMP CMapiImp::DeleteMail(unsigned long aSession, unsigned long ulUIParam, LPSTR lpszMessageID,
+                                  unsigned long flFlags, unsigned long ulReserved)
 {
   nsresult irv;
   nsAutoCString keyString((char *) lpszMessageID);
@@ -496,8 +497,8 @@ STDMETHODIMP CMapiImp::DeleteMail(unsigned long aSession, unsigned long ulUIPara
   return (listContext->DeleteMessage(msgKey)) ? SUCCESS_SUCCESS : MAPI_E_INVALID_MESSAGE;
 }
 
-STDMETHODIMP CMapiImp::SaveMail(unsigned long aSession, unsigned long ulUIParam,  lpnsMapiMessage lppMessage,
-                              unsigned long flFlags, unsigned long ulReserved, LPTSTR lpszMessageID)
+STDMETHODIMP CMapiImp::SaveMail(unsigned long aSession, unsigned long ulUIParam, lpnsMapiMessage lppMessage,
+                                unsigned long flFlags, unsigned long ulReserved, LPSTR lpszMessageID)
 {
   MsgMapiListContext *listContext;
   LONG ret = InitContext(aSession, &listContext);

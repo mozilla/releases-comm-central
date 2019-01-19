@@ -31,26 +31,26 @@ public :
 
   // Interface INsMapi
 
-  STDMETHODIMP Login(unsigned long aUIArg, LOGIN_PW_TYPE aLogin,
-                     LOGIN_PW_TYPE aPassWord, unsigned long aFlags,
+  STDMETHODIMP Login(unsigned long aUIArg, LPSTR aLogin,
+                     LPSTR aPassWord, unsigned long aFlags,
                      unsigned long *aSessionId);
 
-  STDMETHODIMP SendMail( unsigned long aSession, lpnsMapiMessage aMessage,
-       unsigned long aFlags, unsigned long aReserved) ;
+  STDMETHODIMP SendMail(unsigned long aSession, lpnsMapiMessage aMessage,
+                        unsigned long aFlags, unsigned long aReserved);
 
-  STDMETHODIMP SendDocuments( unsigned long aSession, LPTSTR aDelimChar,
-                              LPTSTR aFilePaths, LPTSTR aFileNames, ULONG aFlags);
+  STDMETHODIMP SendDocuments(unsigned long aSession, LPSTR aDelimChar,
+                             LPSTR aFilePaths, LPSTR aFileNames, ULONG aFlags);
 
-  STDMETHODIMP FindNext(  unsigned long aSession, unsigned long ulUIParam, LPTSTR lpszMessageType,
-                            LPTSTR lpszSeedMessageID, unsigned long flFlags, unsigned long ulReserved,
-                            unsigned char lpszMessageID[64] );
+  STDMETHODIMP FindNext(unsigned long aSession, unsigned long ulUIParam, LPSTR lpszMessageType,
+                        LPSTR lpszSeedMessageID, unsigned long flFlags, unsigned long ulReserved,
+                        unsigned char lpszMessageID[64]);
 
-  STDMETHODIMP ReadMail(unsigned long lhSession, unsigned long ulUIParam, LPTSTR lpszMessageID,
-                            unsigned long flFlags, unsigned long ulReserved, lpnsMapiMessage *lppMessage);
-  STDMETHODIMP DeleteMail(unsigned long lhSession, unsigned long ulUIParam, LPTSTR lpszMessageID,
-                            unsigned long flFlags, unsigned long ulReserved);
+  STDMETHODIMP ReadMail(unsigned long lhSession, unsigned long ulUIParam, LPSTR lpszMessageID,
+                        unsigned long flFlags, unsigned long ulReserved, lpnsMapiMessage *lppMessage);
+  STDMETHODIMP DeleteMail(unsigned long lhSession, unsigned long ulUIParam, LPSTR lpszMessageID,
+                          unsigned long flFlags, unsigned long ulReserved);
   STDMETHODIMP SaveMail(unsigned long lhSession, unsigned long ulUIParam, lpnsMapiMessage lppMessage,
-                            unsigned long flFlags, unsigned long ulReserved, LPTSTR lpszMessageID);
+                        unsigned long flFlags, unsigned long ulReserved, LPSTR lpszMessageID);
 
   STDMETHODIMP Initialize();
   STDMETHODIMP IsValid();
