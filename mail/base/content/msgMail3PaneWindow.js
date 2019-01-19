@@ -450,12 +450,6 @@ function OnLoadMessenger() {
     }
   }
 
-  if (AppConstants.platform == "linux") {
-    let { WindowDraggingElement } =
-      ChromeUtils.import("resource://gre/modules/WindowDraggingUtils.jsm", {});
-    new WindowDraggingElement(document.getElementById("titlebar"));
-  }
-
   ToolbarIconColor.init();
 
   // Set a sane starting width/height for all resolutions on new profiles.
