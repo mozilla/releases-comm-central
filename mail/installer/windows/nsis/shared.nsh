@@ -358,6 +358,7 @@
   WriteRegStr ${RegKey} "$0" "" "${ClientsRegName}"
   WriteRegStr ${RegKey} "$0\DefaultIcon" "" "$8,0"
   WriteRegStr ${RegKey} "$0" "DLLPath" "$6"
+  WriteRegDWORD ${RegKey} "$0" "SupportUTF8" 1
 
   ; The MapiProxy dll can exist in multiple installs of the application.
   ; Registration occurs as follows with the last action to occur being the one

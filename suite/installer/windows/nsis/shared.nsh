@@ -467,6 +467,7 @@
   WriteRegStr HKLM "$0" "" "${BrandFullNameInternal}"
   WriteRegStr HKLM "$0\DefaultIcon" "" "$8,0"
   WriteRegStr HKLM "$0" "DLLPath" "$6"
+  WriteRegDWORD HKLM "$0" "SupportUTF8" 1
 
   ; The MapiProxy dll can be used by multiple applications but
   ; is only registered for the last application installed. When the last
