@@ -171,10 +171,11 @@ STDMETHODIMP CMapiImp::Login(unsigned long aUIArg, LPSTR aLogin, LPSTR aPassWord
 
     nsMAPIConfiguration *pConfig = nsMAPIConfiguration::GetMAPIConfiguration();
     if (pConfig != nullptr)
-        nResult = pConfig->RegisterSession(aUIArg, nsDependentCString(aLogin),
-                                           nsDependentCString(aPassWord),
-                                           (aFlags & MAPI_FORCE_DOWNLOAD), bNewSession,
-                                           &nSession_Id, id_key.get());
+        nResult = pConfig->RegisterSession(aUIArg,
+            aLogin ? nsDependentCString(aLogin) : EmptyCString(),
+            aPassWord ? nsDependentCString(aPassWord) : EmptyCString(),
+            (aFlags & MAPI_FORCE_DOWNLOAD), bNewSession, 
+            &nSession_Id, id_key.get());
     switch (nResult)
     {
         case -1 :
