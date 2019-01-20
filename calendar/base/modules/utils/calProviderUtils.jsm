@@ -37,9 +37,13 @@ var calprovider = {
      * @return {nsIChannel}                                     The prepared channel
      */
     prepHttpChannel: function(aUri, aUploadData, aContentType, aNotificationCallbacks, aExisting=null) {
+        // We cannot use a system principal here, since the conncetion setup would fail if
+        // same-site cookie protection is enabled in TB and server-side.
+        let principal = aExisting ? null
+                                  : Services.scriptSecurityManager.createCodebasePrincipal(aUri, {});
         let channel = aExisting || Services.io.newChannelFromURI2(aUri,
                                                                   null,
-                                                                  Services.scriptSecurityManager.getSystemPrincipal(),
+                                                                  principal,
                                                                   null,
                                                                   Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                                                   Ci.nsIContentPolicy.TYPE_OTHER);
