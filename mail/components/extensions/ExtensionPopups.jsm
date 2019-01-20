@@ -17,8 +17,8 @@ const {
 } = ExtensionUtils;
 
 const {
-  makeWidgetId
-} = ExtensionCommon
+  makeWidgetId,
+} = ExtensionCommon;
 
 class BasePopup {
   constructor(extension, viewNode, popupURL, browserStyle, fixedWidth = false, blockParser = false) {
