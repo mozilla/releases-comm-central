@@ -4148,12 +4148,12 @@ nsMsgDBView::DetermineActionsForJunkChange(bool msgsAreJunk,
       }
       else
       {
-        // XXX ToDo: GetOrCreateFolder will only create a folder with localized
+        // XXX ToDo: GetOrCreateJunkFolder will only create a folder with localized
         //           name "Junk" regardless of spamFolderURI. So if someone
         //           sets the junk folder to an existing folder of a different
         //           name, then deletes that folder, this will fail to create
         //           the correct folder.
-        rv = GetOrCreateFolder(spamFolderURI, nullptr /* aListener */);
+        rv = GetOrCreateJunkFolder(spamFolderURI, nullptr /* aListener */);
         if (NS_SUCCEEDED(rv))
           rv = GetExistingFolder(spamFolderURI, targetFolder);
 

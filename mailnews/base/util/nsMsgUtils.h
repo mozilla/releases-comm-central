@@ -144,7 +144,7 @@ NS_MSG_BASE nsresult NS_GetLocalizedUnicharPreference(nsIPrefBranch *prefBranch,
    * this needs a listener, because we might have to create the folder
    * on the server, and that is asynchronous
    */
-NS_MSG_BASE nsresult GetOrCreateFolder(const nsACString & aURI, nsIUrlListener *aListener);
+NS_MSG_BASE nsresult GetOrCreateJunkFolder(const nsACString & aURI, nsIUrlListener *aListener);
 
 // Returns true if the nsIURI is a message under an RSS account
 NS_MSG_BASE nsresult IsRSSArticle(nsIURI * aMsgURI, bool *aIsRSSArticle);

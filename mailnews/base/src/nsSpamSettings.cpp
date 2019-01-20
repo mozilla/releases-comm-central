@@ -446,7 +446,7 @@ nsresult nsSpamSettings::UpdateJunkFolderState()
   if (mMoveOnSpam && !mCurrentJunkFolderURI.IsEmpty()) {
     // as the url listener, the spam settings will set the nsMsgFolderFlags::Junk folder flag
     // on the junk mail folder, after it is created
-    rv = GetOrCreateFolder(mCurrentJunkFolderURI, this);
+    rv = GetOrCreateJunkFolder(mCurrentJunkFolderURI, this);
   }
 
   return rv;

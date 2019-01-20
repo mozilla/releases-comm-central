@@ -839,7 +839,7 @@ nsresult IsRFC822HeaderFieldName(const char *aHdr, bool *aResult)
 
 // Warning, currently this routine only works for the Junk Folder
 nsresult
-GetOrCreateFolder(const nsACString &aURI, nsIUrlListener *aListener)
+GetOrCreateJunkFolder(const nsACString &aURI, nsIUrlListener *aListener)
 {
   nsresult rv;
   nsCOMPtr <nsIRDFService> rdf = do_GetService("@mozilla.org/rdf/rdf-service;1", &rv);

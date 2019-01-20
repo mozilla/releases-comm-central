@@ -9173,8 +9173,8 @@ nsImapMailFolder::OnMessageClassified(const char * aMsgURI,
                 //   m_moveCoalescer->AddMove(folder, msgKey);
                 //   willMoveMessage = true;
                 // }
-                rv = GetOrCreateFolder(spamFolderURI, nullptr /* aListener */);
-                NS_ASSERTION(NS_SUCCEEDED(rv), "GetOrCreateFolder failed");
+                rv = GetOrCreateJunkFolder(spamFolderURI, nullptr /* aListener */);
+                NS_ASSERTION(NS_SUCCEEDED(rv), "GetOrCreateJunkFolder failed");
               }
             }
           }
