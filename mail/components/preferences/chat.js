@@ -50,11 +50,10 @@ var gChatPane = {
 
     window.removeEventListener("paneSelected", this.paneSelectionChanged);
 
-    let browser = document.createElement("browser");
+    let browser = document.createElement("browser", { is: "conversation-browser" });
     browser.setAttribute("id", "previewbrowser");
     browser.setAttribute("type", "content");
     browser.setAttribute("flex", "1");
-    browser.setAttribute("style", "-moz-binding: url(chrome://chat/content/convbrowser.xml#browser)");
     browser.setAttribute("tooltip", "aHTMLTooltip");
     previewDeck.appendChild(browser);
     previewObserver.load();

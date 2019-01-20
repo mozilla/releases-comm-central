@@ -147,7 +147,7 @@
                       </hbox>
                     </vbox>
                     <vbox flex="1" id="logDisplayBrowserBox">
-                      <browser id="conv-log-browser" type="content" browser-type="conversation"
+                      <browser id="conv-log-browser" is="conversation-browser" type="content"
                                contextmenu="chatConversationContextMenu" flex="1"
                                tooltip="imTooltip"/>
                       <html:progress id="log-browserProgress" max="100" hidden="true"/>

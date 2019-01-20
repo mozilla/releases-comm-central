@@ -172,8 +172,8 @@ var previewObserver = {
     // (bug 1179943). Therefore, we override the method convbrowser
     // uses to determine if it should scroll, as well as its
     // mirror in the contentWindow (that messagestyle JS can call).
-    this.browser.autoScrollEnabled = () => false;
-    this.browser.contentWindow.autoScrollEnabled = () => false;
+    this.browser.convScrollEnabled = () => false;
+    this.browser.contentWindow.convScrollEnabled = () => false;
 
     // Display all queued messages. Use a timeout so that message text
     // modifiers can be added with observers for this notification.

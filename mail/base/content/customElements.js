@@ -7,6 +7,7 @@
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 for (let script of [
+  "chrome://chat/content/conversation-browser.js",
   "chrome://messenger/content/mailWidgets.js",
   "chrome://messenger/content/generalBindings.js",
   "chrome://messenger/content/statuspanel.js",

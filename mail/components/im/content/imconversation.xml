@@ -21,7 +21,8 @@
         <xul:hbox class="conv-top" flex="1" anonid="conv-top">
           <xul:notificationbox class="conv-messages" anonid="convNotificationBox" flex="1" xbl:inherits="chat">
             <xul:vbox flex="1">
-              <xul:browser anonid="browser" type="content" browser-type="conversation" flex="1"
+              <xul:browser anonid="browser" is="conversation-browser" type="content" flex="1"
+                           class="chat-conversation-browser"
                            xbl:inherits="tooltip=contenttooltip,contextmenu=contentcontextmenu,autoscrollpopup"/>
               <html:progress anonid="browserProgress" hidden="hidden"/>
               <xul:findbar anonid="FindToolbar" reversed="true"/>
@@ -1632,7 +1633,7 @@
        <setter>
          <![CDATA[
            if (this._conv && val)
-             throw "Already initialized";
+             throw new Error("imconversation already initialized");
            if (!val) {
              // this conversation has probably been moved to another
              // tab. Forget the prplConversation so that it isn't

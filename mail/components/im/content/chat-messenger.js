@@ -401,7 +401,7 @@ var chatHandler = {
       return;
     this._showLogPanel();
     let browser = document.getElementById("conv-log-browser");
-    browser._autoScrollEnabled = false;
+    browser._convScrollEnabled = false;
     if (this._pendingLogBrowserLoad) {
       browser._conv = aConversation;
       return;

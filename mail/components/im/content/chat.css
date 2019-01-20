@@ -43,10 +43,6 @@ tooltip[type="im"] {
   -moz-binding: url("chrome://chat/content/imtooltip.xml#tooltip");
 }
 
-browser[browser-type="conversation"] {
-  -moz-binding: url("chrome://chat/content/convbrowser.xml#browser");
-}
-
 #contextPaneFlexibleBox {
   overflow: hidden;
 }

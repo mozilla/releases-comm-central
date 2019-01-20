@@ -10,5 +10,5 @@ chat.jar:
 	content/chat/browserRequest.xul
 	content/chat/imAccountOptionsHelper.js
 *	content/chat/imtooltip.xml
-	content/chat/convbrowser.xml
+	content/chat/conversation-browser.js
 	content/chat/conv.html
