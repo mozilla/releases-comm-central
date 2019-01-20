@@ -9,20 +9,7 @@
 }
 
 treechildren::-moz-tree-image(threadCol, container) {
-  list-style-image: url(chrome://messenger/skin/icons/threadpane-col.png);
-  -moz-image-region: rect(0 16px 16px 0);
-}
-
-treechildren::-moz-tree-image(threadCol, container, focus, selected) {
-  -moz-image-region: rect(16px 16px 32px 0);
-}
-
-treechildren::-moz-tree-image(threadCol, container, hasUnread) {
-  -moz-image-region: rect(0 32px 16px 16px);
-}
-
-treechildren::-moz-tree-image(threadCol, container, hasUnread, focus, selected) {
-  -moz-image-region: rect(16px 32px 32px 16px);
+  list-style-image: url(chrome://messenger/skin/icons/thread-col.svg);
 }
 
 /* ..... read column ..... */
@@ -34,18 +21,16 @@ treechildren::-moz-tree-image(threadCol, container, hasUnread, focus, selected) 
 }
 
 treechildren::-moz-tree-image(unreadButtonColHeader) {
-  list-style-image: url(chrome://messenger/skin/icons/threadpane-col.png);
-  -moz-image-region: rect(0 48px 16px 32px);
-}
-
-:root[lwt-tree-brighttext] treechildren::-moz-tree-image(unreadButtonColHeader),
-treechildren::-moz-tree-image(unreadButtonColHeader, focus, selected) {
-  -moz-image-region: rect(16px 48px 32px 32px);
+  list-style-image: url(chrome://messenger/skin/icons/dot.svg);
+  -moz-image-region: auto;
+  width: 13px;
+  height: 13px;
 }
 
 treechildren::-moz-tree-image(unreadButtonColHeader, unread) {
   list-style-image: url(chrome://messenger/skin/icons/unreadmail.png) !important;
-  -moz-image-region: auto !important;
+  width: 16px;
+  height: 16px;
 }
 
 treechildren::-moz-tree-image(unreadButtonColHeader, unread, selected, focus) {
@@ -97,16 +82,12 @@ treechildren::-moz-tree-image(attachmentCol, attach) {
 }
 
 treechildren::-moz-tree-image(flaggedCol) {
-  list-style-image: url(chrome://messenger/skin/icons/threadpane-col.png);
-  -moz-image-region: rect(0 48px 16px 32px);
-}
-
-:root[lwt-tree-brighttext] treechildren::-moz-tree-image(flaggedCol),
-treechildren::-moz-tree-image(flaggedCol, focus, selected) {
-  -moz-image-region: rect(16px 48px 32px 32px);
+  list-style-image: url(chrome://messenger/skin/icons/dot.svg);
+  -moz-image-region: auto;
 }
 
 treechildren::-moz-tree-image(flaggedCol, flagged) {
+  list-style-image: url(chrome://messenger/skin/icons/threadpane-col.png);
   -moz-image-region: rect(0 80px 16px 64px);
 }
 
@@ -216,42 +197,8 @@ treechildren::-moz-tree-image(threadCol, ignoreSubthread) {
 }
 
 @media (min-resolution: 2dppx) {
-  treechildren::-moz-tree-image(threadCol, container) {
-    list-style-image: url(chrome://messenger/skin/icons/threadpane-col@2x.png);
-    -moz-image-region: rect(0 32px 32px 0);
-  }
-
-  treechildren::-moz-tree-image(threadCol, container, focus, selected) {
-    -moz-image-region: rect(32px 32px 64px 0);
-  }
-
-  treechildren::-moz-tree-image(threadCol, container, hasUnread) {
-    -moz-image-region: rect(0 64px 32px 32px);
-  }
-
-  treechildren::-moz-tree-image(threadCol, container, hasUnread, focus, selected) {
-    -moz-image-region: rect(32px 64px 64px 32px);
-  }
-
-  treechildren::-moz-tree-image(unreadButtonColHeader) {
-    list-style-image: url(chrome://messenger/skin/icons/threadpane-col@2x.png);
-    -moz-image-region: rect(0 96px 32px 64px);
-  }
-
-  treechildren::-moz-tree-image(unreadButtonColHeader, focus, selected) {
-    -moz-image-region: rect(32px 96px 64px 64px);
-  }
-
-  treechildren::-moz-tree-image(flaggedCol) {
-    list-style-image: url(chrome://messenger/skin/icons/threadpane-col@2x.png);
-    -moz-image-region: rect(0 96px 32px 64px);
-  }
-
-  treechildren::-moz-tree-image(flaggedCol, focus, selected) {
-    -moz-image-region: rect(32px 96px 64px 64px);
-  }
-
   treechildren::-moz-tree-image(flaggedCol, flagged) {
+    list-style-image: url(chrome://messenger/skin/icons/threadpane-col@2x.png);
     -moz-image-region: rect(0 160px 32px 128px);
   }
 
@@ -272,9 +219,7 @@ treechildren::-moz-tree-image(threadCol, ignoreSubthread) {
     -moz-image-region: rect(32px 192px 64px 160px);
   }
 
-  treechildren::-moz-tree-image(threadCol, container),
-  treechildren::-moz-tree-image(unreadButtonColHeader),
-  treechildren::-moz-tree-image(flaggedCol),
+  treechildren::-moz-tree-image(flaggedCol, flagged),
   treechildren::-moz-tree-image(junkStatusCol),
   treechildren::-moz-tree-image(correspondentCol) {
     width: 16px;

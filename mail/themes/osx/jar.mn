@@ -145,6 +145,7 @@ classic.jar:
   skin/classic/messenger/icons/attachment-deleted-large.png      (mail/icons/attachment-deleted-large.png)
   skin/classic/messenger/icons/check.png                         (mail/icons/check.png)
   skin/classic/messenger/icons/dot.png                           (mail/icons/dot.png)
+  skin/classic/messenger/icons/dot.svg                           (mail/icons/dot.svg)
   skin/classic/messenger/icons/flag-col.png                      (mail/icons/flag-col.png)
   skin/classic/messenger/icons/flaggedmail.png                   (mail/icons/flaggedmail.png)
   skin/classic/messenger/icons/folder-pane.png                   (mail/icons/folder-pane.png)
