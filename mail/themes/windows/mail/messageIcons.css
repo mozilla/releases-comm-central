@@ -57,7 +57,7 @@ treechildren::-moz-tree-image(attachmentCol, attach) {
 
 treechildren::-moz-tree-image(flaggedCol) {
   list-style-image: url(chrome://messenger/skin/icons/flag-empty.png);
-  padding-inline-end: 2px;
+  margin-inline-start: -2px;
 }
 
 treechildren::-moz-tree-image(flaggedCol, flagged) {
