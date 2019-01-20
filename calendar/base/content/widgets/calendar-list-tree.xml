@@ -646,11 +646,10 @@
                 // If we have a client point, get the row directly from the client
                 // point.
                 aRow = aRow || {};
-                this.treebox.getCellAt(event.clientX,
-                                       event.clientY,
-                                       aRow,
-                                       aCol || {},
-                                       {});
+                aCol = aCol || {};
+                let { col, row } = this.treebox.getCellAt(event.clientX, event.clientY);
+                aCol.value = col;
+                aRow.value = row;
             } else if (document.popupNode && document.popupNode.contextCalendar) {
                 // Otherwise, we can try to get the context calendar from the popupNode.
                 return document.popupNode.contextCalendar;
