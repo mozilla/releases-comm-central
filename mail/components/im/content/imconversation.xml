@@ -1110,6 +1110,7 @@
          label.setAttribute("flex", "1");
          label.setAttribute("crop", "end");
 
+         // Fix addNick below if you change the DOM makeup!
          var item = document.createElement("richlistitem");
          item.chatBuddy = aBuddy;
          item.appendChild(image);
@@ -1144,7 +1145,11 @@
          var end = nicklist.itemCount;
          while (start < end) {
            var middle = start + Math.floor((end - start) / 2);
-           if (nick < nicklist.getItemAtIndex(middle).label.toLowerCase())
+           // .firstChild.nextSibling gets us to the label. We can't use
+           // .label since the XBL binding might not be attached yet.
+           if (nick < nicklist.getItemAtIndex(middle)
+                              .firstChild.nextSibling
+                              .getAttribute("value").toLowerCase())
              end = middle;
            else
              start = middle + 1;
