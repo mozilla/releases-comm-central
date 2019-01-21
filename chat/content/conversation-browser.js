@@ -9,8 +9,14 @@
 /* global smileTextNode */
 /* global cleanupImMarkup */
 
-(function () { // Make <browser> defined now. It's lazily defined.
-  delete document.createElement("browser");
+(function () {
+  // <browser> is lazily set up through setElementCreationCallback,
+  // i.e. put into customElements the first time it's really seen.
+  // Create a fake to ensure browser exists in customElements, since otherwise
+  // we can't extend it. Then make sure this fake doesn't stay around.
+  if (!customElements.get("browser")) {
+    delete document.createElement("browser");
+  }
 })();
 
 /**
@@ -20,6 +26,58 @@
 class MozConversationBrowser extends customElements.get("browser") {
   constructor() {
     super();
+
+    this._conv = null;
+
+    // @implements {nsIWebProgressListener}
+    this.progressListener = {
+      onStateChange: (progress, request, stateFlags, status) => {
+        if (!((stateFlags & Ci.nsIWebProgressListener.STATE_IS_DOCUMENT) &&
+              (stateFlags & Ci.nsIWebProgressListener.STATE_STOP))) {
+          return;
+        }
+        if (!this._loadState) {
+          initHTMLDocument(this._conv, this.theme, this.contentDocument);
+          this._loadState = 1;
+          this._exposeMethodsToContent();
+          return;
+        }
+        this.removeProgressListener(this.progressListener);
+
+        this.initMagicCopy();
+
+        // We need to reset these variables here to avoid a race
+        // condition if we are starting to display a new conversation
+        // but the display of the previous conversation wasn't finished.
+        // This can happen if the user quickly changes the selected
+        // conversation in the log viewer.
+        this._lastMessage = null;
+        this._lastMessageIsContext = true;
+        this._firstNonContextElt = null;
+        this._messageDisplayPending = false;
+        this._pendingMessages = [];
+        this._nextPendingMessageIndex = 0;
+        this._pendingMessagesDisplayed = 0;
+        this._displayPendingMessagesCalls = 0;
+        this._sessions = [];
+        if (this.progressBar)
+          this.progressBar.hidden = true;
+
+        this.onChatNodeContentLoad = this.onContentElementLoad.bind(this);
+        this.contentChatNode.addEventListener("load", this.onChatNodeContentLoad, true);
+
+        // Notify observers to get the conversation shown.
+        Services.obs.notifyObservers(this, "conversation-loaded");
+      },
+      onProgressChange(progress, request, curSelf, maxSelf, curTotal, maxTotal) { },
+      onLocationChange(aprogress, request, location) { },
+      onStatusChange(progress, request, status, message) { },
+      onSecurityChange(progress, request, state) { },
+      QueryInterface: ChromeUtils.generateQI([
+        Ci.nsIWebProgressListener,
+        Ci.nsISupportsWeakReference],
+      ),
+    };
 
     // Make sure to load URLs externally.
     this.addEventListener("click", (event) => {
@@ -103,8 +161,6 @@ class MozConversationBrowser extends customElements.get("browser") {
 
     this._theme = null;
 
-    this._conv = null;
-
     this._loadState = 0;
 
     this.autoCopyEnabled = false;
@@ -139,55 +195,6 @@ class MozConversationBrowser extends customElements.get("browser") {
     this.addEventListener("scroll", this.browserScroll);
     this.addEventListener("resize", this.browserResize);
 
-    // @implements {nsIWebProgressListener}
-    this.progressListener = {
-      onStateChange: (progress, request, stateFlags, status) => {
-        if (!((stateFlags & Ci.nsIWebProgressListener.STATE_IS_DOCUMENT) &&
-              (stateFlags & Ci.nsIWebProgressListener.STATE_STOP))) {
-          return;
-        }
-        if (!this._loadState) {
-          initHTMLDocument(this._conv, this.theme, this.contentDocument);
-          this._loadState = 1;
-          this._exposeMethodsToContent();
-          return;
-        }
-        this.removeProgressListener(this.progressListener);
-
-        this.initMagicCopy();
-
-        // We need to reset these variables here to avoid a race
-        // condition if we are starting to display a new conversation
-        // but the display of the previous conversation wasn't finished.
-        // This can happen if the user quickly changes the selected
-        // conversation in the log viewer.
-        this._lastMessage = null;
-        this._lastMessageIsContext = true;
-        this._firstNonContextElt = null;
-        this._messageDisplayPending = false;
-        this._pendingMessages = [];
-        this._nextPendingMessageIndex = 0;
-        this._pendingMessagesDisplayed = 0;
-        this._displayPendingMessagesCalls = 0;
-        this._sessions = [];
-        if (this.progressBar)
-          this.progressBar.hidden = true;
-
-        this.onChatNodeContentLoad = this.onContentElementLoad.bind(this);
-        this.contentChatNode.addEventListener("load", this.onChatNodeContentLoad, true);
-
-        // Notify observers to get the conversation shown.
-        Services.obs.notifyObservers(this, "conversation-loaded");
-      },
-      onProgressChange(progress, request, curSelf, maxSelf, curTotal, maxTotal) { },
-      onLocationChange(aprogress, request, location) { },
-      onStatusChange(progress, request, status, message) { },
-      onSecurityChange(progress, request, state) { },
-      QueryInterface: ChromeUtils.generateQI([
-        Ci.nsIWebProgressListener,
-        Ci.nsISupportsWeakReference],
-      ),
-    };
 
     // @implements {nsIObserver}
     this.prefObserver = (subject, topic, data) => {
