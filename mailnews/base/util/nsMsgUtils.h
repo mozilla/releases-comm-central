@@ -105,8 +105,20 @@ NS_MSG_BASE nsresult NS_MsgDecodeUnescapeURLPath(const nsACString& aPath,
 
 NS_MSG_BASE bool WeAreOffline();
 
-// Check if a folder with aFolderUri exists
-NS_MSG_BASE nsresult GetExistingFolder(const nsCString& aFolderURI, nsIMsgFolder **aFolder);
+// Get a folder by Uri, returning null if it doesn't exist (or if some
+// error occurs). A missing folder is not considered an error.
+NS_MSG_BASE nsresult FindFolder(const nsACString& aFolderURI, nsIMsgFolder **aFolder);
+
+// Get a folder by Uri.
+// A missing folder is considered to be an error.
+// Returns a non-null folder if and only if result is NS_OK.
+NS_MSG_BASE nsresult GetExistingFolder(const nsACString& aFolderURI, nsIMsgFolder **aFolder);
+
+// Get a folder by Uri, creating it if it doesn't already exist.
+// An error is returned if a folder cannot be found or created.
+// Created folders will be 'dangling' folders (ie not connected to a
+// parent).
+NS_MSG_BASE nsresult GetOrCreateFolder(const nsACString& aFolderURI, nsIMsgFolder **aFolder);
 
 // Escape lines starting with "From ", ">From ", etc. in a buffer.
 NS_MSG_BASE nsresult EscapeFromSpaceLine(nsIOutputStream *ouputStream, char *start, const char *end);

@@ -748,7 +748,9 @@ bool WeAreOffline()
   return offline;
 }
 
-nsresult GetExistingFolder(const nsCString& aFolderURI, nsIMsgFolder **aFolder)
+// Find a folder by URL. If it doesn't exist, null will be returned
+// via aFolder.
+nsresult FindFolder(const nsACString& aFolderURI, nsIMsgFolder **aFolder)
 {
   NS_ENSURE_ARG_POINTER(aFolder);
 
@@ -758,7 +760,36 @@ nsresult GetExistingFolder(const nsCString& aFolderURI, nsIMsgFolder **aFolder)
   nsCOMPtr<nsIFolderLookupService> fls(do_GetService(NSIFLS_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
+  // GetFolderForURL returns NS_OK and null for non-existent folders
   rv = fls->GetFolderForURL(aFolderURI, aFolder);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return NS_OK;
+}
+
+// Fetch an existing folder by URL
+// The returned aFolder will be non-null if and only if result is NS_OK.
+// NS_OK - folder was found
+// NS_MSG_FOLDER_MISSING - if aFolderURI not found
+nsresult GetExistingFolder(const nsACString& aFolderURI, nsIMsgFolder **aFolder)
+{
+  nsresult rv = FindFolder(aFolderURI, aFolder);
+  NS_ENSURE_SUCCESS(rv, rv);
+  return *aFolder ? NS_OK : NS_MSG_ERROR_FOLDER_MISSING;
+}
+
+
+nsresult GetOrCreateFolder(const nsACString& aFolderURI, nsIMsgFolder **aFolder)
+{
+  NS_ENSURE_ARG_POINTER(aFolder);
+
+  *aFolder = nullptr;
+
+  nsresult rv;
+  nsCOMPtr<nsIFolderLookupService> fls(do_GetService(NSIFLS_CONTRACTID, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = fls->GetOrCreateFolderForURL(aFolderURI, aFolder);
   NS_ENSURE_SUCCESS(rv, rv);
 
   return *aFolder ? NS_OK : NS_ERROR_FAILURE;
