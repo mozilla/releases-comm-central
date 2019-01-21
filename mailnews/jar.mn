@@ -28,7 +28,6 @@ messenger.jar:
     content/messenger/am-serverwithnoidentities.xul                            (base/prefs/content/am-serverwithnoidentities.xul)
     content/messenger/am-serverwithnoidentities.js                             (base/prefs/content/am-serverwithnoidentities.js)
     content/messenger/am-server.js                                             (base/prefs/content/am-server.js)
-    content/messenger/am-server-top.xul                                        (base/prefs/content/am-server-top.xul)
 *   content/messenger/am-copies.xul                                            (base/prefs/content/am-copies.xul)
     content/messenger/am-copies.js                                             (base/prefs/content/am-copies.js)
     content/messenger/am-junk.xul                                              (base/prefs/content/am-junk.xul)
