@@ -1947,6 +1947,8 @@
       <method name="setInitialSelection">
         <body>
           <![CDATA[
+            ChromeUtils.import("resource:///modules/MailUtils.jsm", this);
+
             var view = this.tree.view;
 
             if (!view.selection.currentColumn)
@@ -1968,8 +1970,7 @@
             var index = -1;
             var uri = this.parentNode.getAttribute("uri");
             if (uri) {
-              var RDF = Cc["@mozilla.org/rdf/rdf-service;1"].getService(Ci.nsIRDFService);
-              index = view.getIndexOfResource(RDF.GetResource(uri));
+              index = view.getIndexOfResource(this.MailUtils.getOrCreateFolder(uri));
             }
             view.selection.select(index);
             return index;

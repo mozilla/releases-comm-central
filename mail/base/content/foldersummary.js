@@ -51,9 +51,8 @@ class MozFolderSummary extends MozXULElement {
     if (folder.flags & Ci.nsMsgFolderFlags.Virtual) {
       let srchFolderUri = msgDatabase.dBFolderInfo.getCharProperty("searchFolderUri");
       let folderUris = srchFolderUri.split("|");
-      let RDF = Cc["@mozilla.org/rdf/rdf-service;1"].getService(Ci.nsIRDFService);
       for (let uri of folderUris) {
-        let realFolder = RDF.GetResource(uri).QueryInterface(Ci.nsIMsgFolder);
+        let realFolder = MailUtils.getOrCreateFolder(uri);
         if (!realFolder.isServer) {
           folderArray.push(realFolder);
         }
