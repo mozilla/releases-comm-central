@@ -30,7 +30,8 @@
         <xul:label anonid="unreadCount" class="convUnreadCount"
                    crop="end" mousethrough="never"
                    xbl:inherits="value=unreadCount"/>
-        <xul:box class="convUnreadTargetedCount">
+        <xul:box class="convUnreadTargetedCount"
+                 xbl:inherits="value=unreadTargetedCount">
           <xul:label anonid="unreadTargetedCount" class="convUnreadTargetedCountLabel"
                      crop="end" mousethrough="never"
                      xbl:inherits="value=unreadTargetedCount"/>
