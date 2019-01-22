@@ -1054,6 +1054,13 @@ nsMsgContentPolicy::OnSecurityChange(nsIWebProgress *aWebProgress,
   return NS_OK;
 }
 
+NS_IMETHODIMP
+nsMsgContentPolicy::OnContentBlockingEvent(nsIWebProgress *aWebProgress,
+                                           nsIRequest *aRequest, uint32_t aEvent)
+{
+  return NS_OK;
+}
+
 /**
  * Implementation of nsIMsgContentPolicy
  *

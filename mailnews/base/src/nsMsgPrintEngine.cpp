@@ -214,6 +214,14 @@ nsMsgPrintEngine::OnSecurityChange(nsIWebProgress *aWebProgress,
 }
 
 NS_IMETHODIMP
+nsMsgPrintEngine::OnContentBlockingEvent(nsIWebProgress *aWebProgress,
+                                         nsIRequest *aRequest, uint32_t aEvent)
+{
+  MOZ_ASSERT_UNREACHABLE("notification excluded in AddProgressListener(...)");
+  return NS_OK;
+}
+
+NS_IMETHODIMP
 nsMsgPrintEngine::SetWindow(mozIDOMWindowProxy *aWin)
 {
   if (!aWin)

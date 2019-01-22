@@ -4121,6 +4121,14 @@ NS_IMETHODIMP nsMsgComposeSendListener::OnSecurityChange(nsIWebProgress *aWebPro
   return NS_OK;
 }
 
+NS_IMETHODIMP
+nsMsgComposeSendListener::OnContentBlockingEvent(nsIWebProgress *aWebProgress,
+                                                 nsIRequest *aRequest, uint32_t aEvent)
+{
+  /* Ignore this call */
+  return NS_OK;
+}
+
 nsresult
 nsMsgCompose::ConvertHTMLToText(nsIFile *aSigFile, nsString &aSigData)
 {

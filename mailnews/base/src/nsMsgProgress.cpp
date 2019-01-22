@@ -182,6 +182,13 @@ NS_IMETHODIMP nsMsgProgress::OnSecurityChange(nsIWebProgress *aWebProgress, nsIR
   return NS_OK;
 }
 
+NS_IMETHODIMP
+nsMsgProgress::OnContentBlockingEvent(nsIWebProgress *aWebProgress,
+                                      nsIRequest *aRequest, uint32_t aEvent)
+{
+  return NS_OK;
+}
+
 nsresult nsMsgProgress::ReleaseListeners()
 {
   m_listenerList.Clear();
