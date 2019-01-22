@@ -45,6 +45,7 @@
 }
 
 :root:not([lwt-tree]) #conv-top-info {
+  -moz-appearance: none;
   background-color: -moz-Dialog;
   color: -moz-DialogText;
 }
