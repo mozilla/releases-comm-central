@@ -110,21 +110,9 @@
             "type": "object",
             "properties": {
               "displayedFolder": {
-                "type": "object",
+                "$ref": "accounts.MailFolder",
                 "description": "Sets the folder displayed in the tab. The extension must have an accounts permission to do this.",
-                "optional": true,
-                "properties": {
-                  "accountId": {
-                    "type": "string"
-                  },
-                  "name": {
-                    "type": "string",
-                    "optional": true
-                  },
-                  "path": {
-                    "type": "string"
-                  }
-                }
+                "optional": true
               },
               "sortType": {
                 "type": "string",
