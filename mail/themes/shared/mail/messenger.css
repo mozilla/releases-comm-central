@@ -161,12 +161,6 @@ toolbar[printpreview="true"] {
   color: inherit !important;
 }
 
-/* ..... column picker ..... */
-
-.tree-columnpicker-icon  {
-  list-style-image: url(chrome://messenger/skin/icons/columnpicker.svg);
-}
-
 /* :::::: throbber :::::::::: */
 
 #throbber-box {
