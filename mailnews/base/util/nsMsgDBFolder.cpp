@@ -9,7 +9,6 @@
 #include "nsMsgFolderFlags.h"
 #include "nsIPrefBranch.h"
 #include "nsIPrefService.h"
-#include "nsRDFCID.h"
 #include "nsNetUtil.h"
 #include "nsIMsgFolderCache.h"
 #include "nsIMsgFolderCacheElement.h"
@@ -34,7 +33,6 @@
 #include "nsISpamSettings.h"
 #include "nsIMsgFilterPlugin.h"
 #include "nsIMsgMailSession.h"
-#include "nsIRDFService.h"
 #include "nsTextFormatter.h"
 #include "nsMsgDBCID.h"
 #include "nsReadLine.h"
@@ -82,8 +80,6 @@ static PRTime gtimeOfLastPurgeCheck;  // variable to know when to check for purg
 #define PREF_MAIL_WARN_FILTER_CHANGED "mail.warn_filter_changed"
 
 const char *kUseServerRetentionProp = "useServerRetention";
-
-static NS_DEFINE_CID(kRDFServiceCID, NS_RDFSERVICE_CID);
 
 nsICollation * nsMsgDBFolder::gCollationKeyGenerator = nullptr;
 
@@ -3004,29 +3000,13 @@ nsMsgDBFolder::GetSubFolders(nsISimpleEnumerator **aResult)
 NS_IMETHODIMP
 nsMsgDBFolder::FindSubFolder(const nsACString& aEscapedSubFolderName, nsIMsgFolder **aFolder)
 {
-  nsresult rv = NS_OK;
-  nsCOMPtr<nsIRDFService> rdf(do_GetService(kRDFServiceCID, &rv));
-
-  if (NS_FAILED(rv))
-    return rv;
-
   // XXX use necko here
   nsAutoCString uri;
   uri.Append(mURI);
   uri.Append('/');
   uri.Append(aEscapedSubFolderName);
 
-  nsCOMPtr<nsIRDFResource> res;
-  rv = rdf->GetResource(uri, getter_AddRefs(res));
-  if (NS_FAILED(rv))
-    return rv;
-
-  nsCOMPtr<nsIMsgFolder> folder(do_QueryInterface(res, &rv));
-  if (NS_FAILED(rv))
-    return rv;
-
-  folder.forget(aFolder);
-  return NS_OK;
+  return GetOrCreateFolder(uri, aFolder);
 }
 
 NS_IMETHODIMP
@@ -3743,8 +3723,6 @@ NS_IMETHODIMP nsMsgDBFolder::AddSubfolder(const nsAString& name,
 
   int32_t flags = 0;
   nsresult rv;
-  nsCOMPtr<nsIRDFService> rdf = do_GetService("@mozilla.org/rdf/rdf-service;1", &rv);
-  NS_ENSURE_SUCCESS(rv,rv);
 
   nsAutoCString uri(mURI);
   uri.Append('/');
@@ -3790,14 +3768,9 @@ NS_IMETHODIMP nsMsgDBFolder::AddSubfolder(const nsAString& name,
   if (NS_SUCCEEDED(rv) && msgFolder)
     return NS_MSG_FOLDER_EXISTS;
 
-  nsCOMPtr<nsIRDFResource> res;
-  rv = rdf->GetResource(uri, getter_AddRefs(res));
-  if (NS_FAILED(rv))
-    return rv;
-
-  nsCOMPtr<nsIMsgFolder> folder(do_QueryInterface(res, &rv));
-  if (NS_FAILED(rv))
-    return rv;
+  nsCOMPtr<nsIMsgFolder> folder;
+  rv = GetOrCreateFolder(uri, getter_AddRefs(folder));
+  NS_ENSURE_SUCCESS(rv, rv);
 
   folder->GetFlags((uint32_t *)&flags);
   flags |= nsMsgFolderFlags::Mail;
@@ -4490,7 +4463,7 @@ NS_IMETHODIMP nsMsgDBFolder::ListFoldersWithFlags(uint32_t aFlags, nsIMutableArr
 {
   NS_ENSURE_ARG_POINTER(aFolders);
   if ((mFlags & aFlags) == aFlags)
-    aFolders->AppendElement(static_cast<nsRDFResource*>(this));
+    aFolders->AppendElement(static_cast<nsIMsgFolder*>(this));
 
   nsCOMPtr<nsISimpleEnumerator> dummy;
   GetSubFolders(getter_AddRefs(dummy)); // initialize mSubFolders

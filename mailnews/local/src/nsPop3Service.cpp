@@ -18,8 +18,6 @@
 #include "nsIMsgWindow.h"
 #include "nsINetUtil.h"
 
-#include "nsIRDFService.h"
-#include "nsRDFCID.h"
 #include "nsMailDirServiceDefs.h"
 #include "prprf.h"
 #include "nsMsgUtils.h"
@@ -37,7 +35,6 @@
 #define PREF_MAIL_ROOT_POP3_REL "mail.root.pop3-rel"
 
 static NS_DEFINE_CID(kPop3UrlCID, NS_POP3URL_CID);
-static NS_DEFINE_CID(kRDFServiceCID, NS_RDFSERVICE_CID);
 
 nsPop3Service::nsPop3Service()
 {
@@ -316,7 +313,6 @@ NS_IMETHODIMP nsPop3Service::NewURI(const nsACString &aSpec,
     NS_ENSURE_ARG_POINTER(_retval);
 
     nsAutoCString folderUri(aSpec);
-    nsCOMPtr<nsIRDFResource> resource;
     int32_t offset = folderUri.FindChar('?');
     if (offset != kNotFound)
       folderUri.SetLength(offset);
@@ -326,13 +322,8 @@ NS_IMETHODIMP nsPop3Service::NewURI(const nsACString &aSpec,
 
     nsresult rv;
 
-    nsCOMPtr<nsIRDFService> rdfService(do_GetService(kRDFServiceCID, &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    rv = rdfService->GetResource(folderUri, getter_AddRefs(resource));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsCOMPtr<nsIMsgFolder> folder = do_QueryInterface(resource, &rv);
+    nsCOMPtr<nsIMsgFolder> folder;
+    rv = GetOrCreateFolder(folderUri, getter_AddRefs(folder));
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsCOMPtr<nsIMsgIncomingServer> server;

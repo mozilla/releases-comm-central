@@ -22,7 +22,6 @@
 #include "nsIMsgDatabase.h"
 #include "nsIMsgHdr.h"
 #include "nsIDBFolderInfo.h"
-#include "nsIRDFService.h"
 #include "nsMsgBaseCID.h"
 #include "nsIMsgCopyService.h"
 #include "nsIInputStream.h"
@@ -614,13 +613,9 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter()
         if (!actionTargetFolderUri.IsEmpty() &&
             !uri.Equals(actionTargetFolderUri))
         {
-          nsCOMPtr<nsIRDFService> rdf = do_GetService("@mozilla.org/rdf/rdf-service;1",&rv);
-          nsCOMPtr<nsIRDFResource> res;
-          rv = rdf->GetResource(actionTargetFolderUri, getter_AddRefs(res));
-          CONTINUE_IF_FAILURE(rv, "Could not get resource for action folder");
-
-          nsCOMPtr<nsIMsgFolder> destIFolder(do_QueryInterface(res, &rv));
-          CONTINUE_IF_FAILURE(rv, "Could not QI resource to folder");
+          nsCOMPtr<nsIMsgFolder> destIFolder;
+          rv = GetOrCreateFolder(actionTargetFolderUri, getter_AddRefs(destIFolder));
+          CONTINUE_IF_FAILURE(rv, "Could not get action folder");
 
           bool canFileMessages = true;
           nsCOMPtr<nsIMsgFolder> parentFolder;

@@ -26,7 +26,6 @@
 #include "prmem.h"
 #include "nsNetCID.h"
 #include "nsIIOService.h"
-#include "nsIRDFService.h"
 #include "nsIMimeConverter.h"
 #include "nsMsgMimeCID.h"
 #include "nsIPrefService.h"
@@ -873,28 +872,21 @@ nsresult
 GetOrCreateJunkFolder(const nsACString &aURI, nsIUrlListener *aListener)
 {
   nsresult rv;
-  nsCOMPtr <nsIRDFService> rdf = do_GetService("@mozilla.org/rdf/rdf-service;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
 
-  // get the corresponding RDF resource
-  // RDF will create the folder resource if it doesn't already exist
-  nsCOMPtr<nsIRDFResource> resource;
-  rv = rdf->GetResource(aURI, getter_AddRefs(resource));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIMsgFolder> folderResource = do_QueryInterface(resource, &rv);
+  nsCOMPtr<nsIMsgFolder> folder;
+  rv = GetOrCreateFolder(aURI, getter_AddRefs(folder));
   NS_ENSURE_SUCCESS(rv, rv);
 
   // don't check validity of folder - caller will handle creating it
   nsCOMPtr<nsIMsgIncomingServer> server;
   // make sure that folder hierarchy is built so that legitimate parent-child relationship is established
-  rv = folderResource->GetServer(getter_AddRefs(server));
+  rv = folder->GetServer(getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, rv);
   if (!server)
     return NS_ERROR_UNEXPECTED;
 
   nsCOMPtr <nsIMsgFolder> msgFolder;
-  rv = server->GetMsgFolderFromURI(folderResource, aURI, getter_AddRefs(msgFolder));
+  rv = server->GetMsgFolderFromURI(folder, aURI, getter_AddRefs(msgFolder));
   NS_ENSURE_SUCCESS(rv,rv);
 
   nsCOMPtr <nsIMsgFolder> parent;

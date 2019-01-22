@@ -13,9 +13,6 @@
 #include "nsIMsgIncomingServer.h"
 #include "nsIMsgProtocolInfo.h"
 #include "nsISupports.h"
-#include "nsIRDFService.h"
-#include "nsIRDFResource.h"
-#include "nsRDFCID.h"
 #include "nsIURL.h"
 #include "nsNetCID.h"
 #include "nsMsgCompUtils.h"
@@ -31,8 +28,6 @@
 #include "nsMsgUtils.h"
 #include "nsArrayUtils.h"
 #include "nsIURIMutator.h"
-
-static NS_DEFINE_CID(kRDFServiceCID, NS_RDFSERVICE_CID);
 
 ////////////////////////////////////////////////////////////////////////////////////
 // This is the listener class for the copy operation. We have to create this class
@@ -420,30 +415,15 @@ LocateMessageFolder(nsIMsgIdentity   *userIdentity,
   // as long as it doesn't start with anyfolder://
   if (PL_strncasecmp(ANY_SERVER, aFolderURI, strlen(aFolderURI)) != 0)
   {
-    nsCOMPtr<nsIRDFService> rdf(do_GetService(kRDFServiceCID, &rv));
-    if (NS_FAILED(rv)) return rv;
-
-    // get the corresponding RDF resource
-    // RDF will create the folder resource if it doesn't already exist
-    nsCOMPtr<nsIRDFResource> resource;
-    rv = rdf->GetResource(nsDependentCString(aFolderURI), getter_AddRefs(resource));
-    if (NS_FAILED(rv)) return rv;
-
-    nsCOMPtr <nsIMsgFolder> folderResource;
-    folderResource = do_QueryInterface(resource, &rv);
-    if (NS_SUCCEEDED(rv) && folderResource)
-    {
-      // don't check validity of folder - caller will handle creating it
-      nsCOMPtr<nsIMsgIncomingServer> server;
-      //make sure that folder hierarchy is built so that legitimate parent-child relationship is established
-      rv = folderResource->GetServer(getter_AddRefs(server));
-      NS_ENSURE_SUCCESS(rv,rv);
-      return server->GetMsgFolderFromURI(folderResource, nsDependentCString(aFolderURI), msgFolder);
-    }
-    else
-    {
-      return NS_ERROR_FAILURE;
-    }
+    nsCOMPtr<nsIMsgFolder> folder;
+    rv = GetOrCreateFolder(nsDependentCString(aFolderURI), getter_AddRefs(folder));
+    NS_ENSURE_SUCCESS(rv, rv);
+    // Don't check validity of folder - caller will handle creating it.
+    nsCOMPtr<nsIMsgIncomingServer> server;
+    // make sure that folder hierarchy is built so that legitimate parent-child relationship is established.
+    rv = folder->GetServer(getter_AddRefs(server));
+    NS_ENSURE_SUCCESS(rv, rv);
+    return server->GetMsgFolderFromURI(folder, nsDependentCString(aFolderURI), msgFolder);
   }
   else
   {

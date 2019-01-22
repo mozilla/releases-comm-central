@@ -9,9 +9,7 @@
 #include "nsImapOfflineSync.h"
 #include "nsImapMailFolder.h"
 #include "nsMsgFolderFlags.h"
-#include "nsIRDFService.h"
 #include "nsMsgBaseCID.h"
-#include "nsRDFCID.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgAccountManager.h"
 #include "nsINntpIncomingServer.h"
@@ -24,9 +22,6 @@
 #include "nsIAutoSyncManager.h"
 #include "nsArrayUtils.h"
 #include "mozilla/Unused.h"
-
-
-static NS_DEFINE_CID(kRDFServiceCID, NS_RDFSERVICE_CID);
 
 NS_IMPL_ISUPPORTS(nsImapOfflineSync, nsIUrlListener, nsIMsgCopyServiceListener, nsIDBChangeListener)
 
@@ -407,17 +402,10 @@ nsImapOfflineSync::ProcessAppendMsgOperation(nsIMsgOfflineImapOperation *current
   do {
     nsCString moveDestination;
     currentOp->GetDestinationFolderURI(getter_Copies(moveDestination));
-    nsCOMPtr<nsIRDFService> rdf(do_GetService(kRDFServiceCID, &rv));
-    if (NS_WARN_IF(NS_FAILED(rv)))
-      break;
 
-    nsCOMPtr<nsIRDFResource> res;
-    rv = rdf->GetResource(moveDestination, getter_AddRefs(res));
+    nsCOMPtr<nsIMsgFolder> destFolder;
+    rv = GetOrCreateFolder(moveDestination, getter_AddRefs(destFolder));
     if (NS_WARN_IF(NS_FAILED(rv)))
-      break;
-
-    nsCOMPtr<nsIMsgFolder> destFolder(do_QueryInterface(res, &rv));
-    if (NS_WARN_IF(!(NS_SUCCEEDED(rv) && destFolder)))
       break;
 
     nsCOMPtr <nsIInputStream> offlineStoreInputStream;

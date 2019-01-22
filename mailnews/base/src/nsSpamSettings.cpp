@@ -14,8 +14,6 @@
 #include "nsMsgFolderFlags.h"
 #include "nsImapCore.h"
 #include "nsIImapIncomingServer.h"
-#include "nsIRDFService.h"
-#include "nsIRDFResource.h"
 #include "nsAppDirectoryServiceDefs.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
@@ -505,7 +503,7 @@ NS_IMETHODIMP nsSpamSettings::GetSpamFolderURI(char **aSpamFolderURI)
   // the spam folder URI = account uri + "/Junk"
   nsCString folderURI;
   nsresult rv = GetActionTargetAccount(getter_Copies(folderURI));
-  NS_ENSURE_SUCCESS(rv,rv);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   // we might be trying to get the old spam folder uri
   // in order to clear the flag
@@ -513,20 +511,13 @@ NS_IMETHODIMP nsSpamSettings::GetSpamFolderURI(char **aSpamFolderURI)
   if (folderURI.IsEmpty())
     return NS_OK;
 
-  nsCOMPtr<nsIRDFService> rdf(do_GetService("@mozilla.org/rdf/rdf-service;1", &rv));
+  nsCOMPtr<nsIMsgFolder> folder;
+  rv = GetOrCreateFolder(folderURI, getter_AddRefs(folder));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIRDFResource> folderResource;
-  rv = rdf->GetResource(folderURI, getter_AddRefs(folderResource));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr <nsIMsgFolder> folder = do_QueryInterface(folderResource);
-  if (!folder)
-    return NS_ERROR_UNEXPECTED;
-
-  nsCOMPtr <nsIMsgIncomingServer> server;
+  nsCOMPtr<nsIMsgIncomingServer> server;
   rv = folder->GetServer(getter_AddRefs(server));
-  NS_ENSURE_SUCCESS(rv,rv);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   // see nsMsgFolder::SetPrettyName() for where the pretty name is set.
 
@@ -779,8 +770,6 @@ NS_IMETHODIMP nsSpamSettings::OnStopRunningUrl(nsIURI* aURL, nsresult exitCode)
   nsCOMPtr <nsIMsgFolder> junkFolder;
   rv = GetExistingFolder(junkFolderURI, getter_AddRefs(junkFolder));
   NS_ENSURE_SUCCESS(rv,rv);
-  if (!junkFolder)
-    return NS_ERROR_UNEXPECTED;
 
   rv = junkFolder->SetFlag(nsMsgFolderFlags::Junk);
   NS_ENSURE_SUCCESS(rv,rv);

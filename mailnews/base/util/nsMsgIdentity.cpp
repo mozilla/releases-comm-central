@@ -8,9 +8,6 @@
 #include "nsIPrefService.h"
 #include "nsString.h"
 #include "nsMsgCompCID.h"
-#include "nsIRDFService.h"
-#include "nsIRDFResource.h"
-#include "nsRDFCID.h"
 #include "nsMsgFolderFlags.h"
 #include "nsIMsgFolder.h"
 #include "nsIMsgIncomingServer.h"
@@ -24,7 +21,6 @@
 #include "nsComponentManagerUtils.h"
 #include "nsArrayUtils.h"
 
-static NS_DEFINE_CID(kRDFServiceCID, NS_RDFSERVICE_CID);
 
 #define REL_FILE_PREF_SUFFIX "-rel"
 
@@ -285,34 +281,25 @@ nsMsgIdentity::getFolderPref(const char *prefname, nsCString& retval,
 
   nsresult rv = mPrefBranch->GetCharPref(prefname, retval);
   if (NS_SUCCEEDED(rv) && !retval.IsEmpty()) {
-    // get the corresponding RDF resource
-    // RDF will create the folder resource if it doesn't already exist
-    nsCOMPtr<nsIRDFService> rdf(do_GetService(kRDFServiceCID, &rv));
-    if (NS_FAILED(rv)) return rv;
-    nsCOMPtr<nsIRDFResource> resource;
-    rdf->GetResource(retval, getter_AddRefs(resource));
-
-    nsCOMPtr <nsIMsgFolder> folderResource = do_QueryInterface(resource);
-    if (folderResource)
+    nsCOMPtr<nsIMsgFolder> folder;
+    rv = GetOrCreateFolder(retval, getter_AddRefs(folder));
+    NS_ENSURE_SUCCESS(rv, rv);
+    nsCOMPtr<nsIMsgIncomingServer> server;
+    // Make sure that folder hierarchy is built so that legitimate parent-child relationship is established.
+    folder->GetServer(getter_AddRefs(server));
+    if (server)
     {
-      // don't check validity of folder - caller will handle creating it
-      nsCOMPtr<nsIMsgIncomingServer> server;
-      //make sure that folder hierarchy is built so that legitimate parent-child relationship is established
-      folderResource->GetServer(getter_AddRefs(server));
-      if (server)
+      nsCOMPtr<nsIMsgFolder> rootFolder;
+      nsCOMPtr<nsIMsgFolder> deferredToRootFolder;
+      server->GetRootFolder(getter_AddRefs(rootFolder));
+      server->GetRootMsgFolder(getter_AddRefs(deferredToRootFolder));
+      // check if we're using a deferred account - if not, use the uri;
+      // otherwise, fall through to code that will fix this pref.
+      if (rootFolder == deferredToRootFolder)
       {
-        nsCOMPtr<nsIMsgFolder> rootFolder;
-        nsCOMPtr<nsIMsgFolder> deferredToRootFolder;
-        server->GetRootFolder(getter_AddRefs(rootFolder));
-        server->GetRootMsgFolder(getter_AddRefs(deferredToRootFolder));
-        // check if we're using a deferred account - if not, use the uri;
-        // otherwise, fall through to code that will fix this pref.
-        if (rootFolder == deferredToRootFolder)
-        {
-          nsCOMPtr <nsIMsgFolder> msgFolder;
-          rv = server->GetMsgFolderFromURI(folderResource, retval, getter_AddRefs(msgFolder));
-          return NS_SUCCEEDED(rv) ? msgFolder->GetURI(retval) : rv;
-        }
+        nsCOMPtr<nsIMsgFolder> msgFolder;
+        rv = server->GetMsgFolderFromURI(folder, retval, getter_AddRefs(msgFolder));
+        return NS_SUCCEEDED(rv) ? msgFolder->GetURI(retval) : rv;
       }
     }
   }
@@ -369,9 +356,7 @@ nsMsgIdentity::setFolderPref(const char *prefname, const nsACString& value, uint
 
   nsCString oldpref;
   nsresult rv;
-  nsCOMPtr<nsIRDFResource> res;
   nsCOMPtr<nsIMsgFolder> folder;
-  nsCOMPtr<nsIRDFService> rdf(do_GetService(kRDFServiceCID, &rv));
 
   if (folderflag == nsMsgFolderFlags::SentMail)
   {
@@ -398,12 +383,9 @@ nsMsgIdentity::setFolderPref(const char *prefname, const nsACString& value, uint
   rv = mPrefBranch->GetCharPref(prefname, oldpref);
   if (NS_SUCCEEDED(rv) && !oldpref.IsEmpty())
   {
-    rv = rdf->GetResource(oldpref, getter_AddRefs(res));
-    if (NS_SUCCEEDED(rv) && res)
-    {
-      folder = do_QueryInterface(res, &rv);
-      if (NS_SUCCEEDED(rv))
-        rv = folder->ClearFlag(folderflag);
+    rv = GetOrCreateFolder(oldpref, getter_AddRefs(folder));
+    if (NS_SUCCEEDED(rv)) {
+      rv = folder->ClearFlag(folderflag);
     }
   }
 
@@ -411,13 +393,9 @@ nsMsgIdentity::setFolderPref(const char *prefname, const nsACString& value, uint
   rv = SetCharAttribute(prefname, value);
   if (NS_SUCCEEDED(rv) && !value.IsEmpty())
   {
-    rv = rdf->GetResource(value, getter_AddRefs(res));
-    if (NS_SUCCEEDED(rv) && res)
-    {
-      folder = do_QueryInterface(res, &rv);
-      if (NS_SUCCEEDED(rv))
-        rv = folder->SetFlag(folderflag);
-    }
+    rv = GetOrCreateFolder(value, getter_AddRefs(folder));
+    if (NS_SUCCEEDED(rv))
+      rv = folder->SetFlag(folderflag);
   }
   return rv;
 }

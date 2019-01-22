@@ -26,7 +26,6 @@
 class QuotingOutputStreamListener;
 class nsMsgComposeSendListener;
 class nsIEditor;
-class nsIRDFService;
 class nsIArray;
 struct nsMsgMailList;
 

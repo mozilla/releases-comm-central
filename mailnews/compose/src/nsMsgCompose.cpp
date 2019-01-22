@@ -28,8 +28,6 @@
 #include "plstr.h"
 #include "prmem.h"
 #include "nsIDocShell.h"
-#include "nsIRDFService.h"
-#include "nsRDFCID.h"
 #include "nsAbBaseCID.h"
 #include "nsIAbMDBDirectory.h"
 #include "nsCExternalHandlerService.h"
@@ -3389,14 +3387,8 @@ NS_IMETHODIMP nsMsgCompose::RememberQueuedDisposition()
 
     m_identity->GetKey(identityKey);
 
-    nsCOMPtr<nsIRDFService> rdfService(do_GetService("@mozilla.org/rdf/rdf-service;1", &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsCOMPtr <nsIRDFResource> resource;
-    rv = rdfService->GetResource(m_folderName, getter_AddRefs(resource));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsCOMPtr<nsIMsgFolder> folder(do_QueryInterface(resource, &rv));
+    nsCOMPtr<nsIMsgFolder> folder;
+    rv = GetOrCreateFolder(m_folderName, getter_AddRefs(folder));
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsCOMPtr <nsIMsgDBHdr> msgHdr;
@@ -3837,23 +3829,12 @@ nsMsgComposeSendListener::OnStopCopy(nsresult aStatus)
 nsresult
 nsMsgComposeSendListener::GetMsgFolder(nsIMsgCompose *compObj, nsIMsgFolder **msgFolder)
 {
-  nsresult rv;
   nsCString folderUri;
 
-  rv = compObj->GetSavedFolderURI(getter_Copies(folderUri));
+  nsresult rv = compObj->GetSavedFolderURI(getter_Copies(folderUri));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIRDFService> rdfService (do_GetService("@mozilla.org/rdf/rdf-service;1", &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr <nsIRDFResource> resource;
-  rv = rdfService->GetResource(folderUri, getter_AddRefs(resource));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIMsgFolder> folder = do_QueryInterface(resource, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  folder.forget(msgFolder);
-  return rv;
+  return GetOrCreateFolder(folderUri, msgFolder);
 }
 
 nsresult

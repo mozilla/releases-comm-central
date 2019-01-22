@@ -30,11 +30,6 @@
 #include "nsIFileURL.h"
 #include "nsIMIMEInfo.h"
 
-// rdf
-#include "nsIRDFResource.h"
-#include "nsIRDFService.h"
-#include "nsRDFCID.h"
-
 // gecko
 #include "nsLayoutCID.h"
 #include "nsIContentViewer.h"
@@ -64,7 +59,6 @@
 #include "nsIMsgIncomingServer.h"
 
 #include "nsIMsgMessageService.h"
-#include "nsMsgRDFUtils.h"
 
 #include "nsIMsgHdr.h"
 #include "nsIMimeMiscStatus.h"
@@ -95,8 +89,6 @@
 #include "nsITransfer.h"
 
 #include "nsILinkHandler.h"
-
-static NS_DEFINE_CID(kRDFServiceCID,  NS_RDFSERVICE_CID);
 
 #define MESSENGER_SAVE_DIR_PREF_NAME "messenger.save.dir"
 #define MIMETYPE_DELETED    "text/x-moz-deleted"
@@ -1675,13 +1667,8 @@ nsSaveMsgListener::OnStopRunningUrl(nsIURI *url, nsresult exitCode)
   // ** save as template goes here
   if (!m_templateUri.IsEmpty())
   {
-    nsCOMPtr<nsIRDFService> rdf(do_GetService(kRDFServiceCID, &rv));
-    if (NS_FAILED(rv)) goto done;
-    nsCOMPtr<nsIRDFResource> res;
-    rv = rdf->GetResource(m_templateUri, getter_AddRefs(res));
-    if (NS_FAILED(rv)) goto done;
     nsCOMPtr<nsIMsgFolder> templateFolder;
-    templateFolder = do_QueryInterface(res, &rv);
+    rv = GetOrCreateFolder(m_templateUri, getter_AddRefs(templateFolder));
     if (NS_FAILED(rv)) goto done;
     nsCOMPtr<nsIMsgCopyService> copyService = do_GetService(NS_MSGCOPYSERVICE_CONTRACTID);
     if (copyService)

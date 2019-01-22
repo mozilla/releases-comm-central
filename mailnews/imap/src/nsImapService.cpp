@@ -21,8 +21,6 @@
 #include "nsImapUtils.h"
 #include "nsIMAPNamespace.h"
 #include "nsIDocShell.h"
-#include "nsIRDFService.h"
-#include "nsRDFCID.h"
 #include "nsIProgressEventSink.h"
 #include "nsIPrefBranch.h"
 #include "nsIPrefService.h"
@@ -876,17 +874,9 @@ nsresult nsImapService::DecomposeImapURI(const nsACString &aMessageURI,
                                       folderURI, aMsgKey, nullptr);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr <nsIRDFService> rdf = do_GetService("@mozilla.org/rdf/rdf-service;1",&rv);
+  nsCOMPtr<nsIMsgFolder> folder;
+  rv = GetOrCreateFolder(folderURI, aFolder);
   NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIRDFResource> res;
-  rv = rdf->GetResource(folderURI, getter_AddRefs(res));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIMsgFolder> msgFolder = do_QueryInterface(res);
-  NS_ENSURE_TRUE(msgFolder, NS_ERROR_FAILURE);
-
-  msgFolder.forget(aFolder);
 
   return NS_OK;
 }

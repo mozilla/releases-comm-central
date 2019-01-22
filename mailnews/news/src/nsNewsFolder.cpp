@@ -21,8 +21,6 @@
 #include "nsINntpService.h"
 #include "nsIMsgFilterService.h"
 #include "nsCOMPtr.h"
-#include "nsIRDFService.h"
-#include "nsRDFCID.h"
 #include "nsMsgDBCID.h"
 #include "nsMsgNewsCID.h"
 #include "nsMsgUtils.h"
@@ -61,12 +59,6 @@
 #include "nsMemory.h"
 #include "nsIURIMutator.h"
 
-static NS_DEFINE_CID(kRDFServiceCID, NS_RDFSERVICE_CID);
-
-// ###tw  This really ought to be the most
-// efficient file reading size for the current
-// operating system.
-#define NEWSRC_FILE_BUFFER_SIZE 1024
 
 #define kNewsSortOffset 9000
 
@@ -141,8 +133,6 @@ nsMsgNewsFolder::AddNewsgroup(const nsACString &name, const nsACString& setStr,
 {
   NS_ENSURE_ARG_POINTER(child);
   nsresult rv;
-  nsCOMPtr <nsIRDFService> rdf = do_GetService(kRDFServiceCID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr <nsINntpIncomingServer> nntpServer;
   rv = GetNntpServer(getter_AddRefs(nntpServer));
@@ -165,15 +155,12 @@ nsMsgNewsFolder::AddNewsgroup(const nsACString &name, const nsACString& setStr,
 
   uri.Append(escapedName);
 
-  nsCOMPtr<nsIRDFResource> res;
-  rv = rdf->GetResource(uri, getter_AddRefs(res));
-  if (NS_FAILED(rv)) return rv;
+  nsCOMPtr<nsIMsgFolder> folder;
+  rv = GetOrCreateFolder(uri, getter_AddRefs(folder));
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIMsgFolder> folder(do_QueryInterface(res, &rv));
-  if (NS_FAILED(rv)) return rv;
-
-  nsCOMPtr<nsIMsgNewsFolder> newsFolder(do_QueryInterface(res, &rv));
-  if (NS_FAILED(rv)) return rv;
+  nsCOMPtr<nsIMsgNewsFolder> newsFolder(do_QueryInterface(folder, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
 
   // cache this for when we open the db
   rv = newsFolder->SetReadSetFromStr(setStr);

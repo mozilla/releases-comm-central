@@ -21,7 +21,6 @@
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgWindow.h"
 #include "nsCOMPtr.h"
-#include "nsIRDFService.h"
 #include "nsMsgDBCID.h"
 #include "nsMsgUtils.h"
 #include "nsLocalUtils.h"
@@ -481,7 +480,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::GetFolderURL(nsACString& aUrl)
 
 NS_IMETHODIMP nsMsgLocalMailFolder::CreateStorageIfMissing(nsIUrlListener* aUrlListener)
 {
-  nsresult rv;
+  nsresult rv = NS_OK;
   nsCOMPtr<nsIMsgFolder> msgParent;
   GetParent(getter_AddRefs(msgParent));
 
@@ -498,16 +497,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::CreateStorageIfMissing(nsIUrlListener* aUrlL
       // If there is a hierarchy, there is a parent.
       // Don't strip off slash if it's the first character
       parentName.SetLength(leafPos);
-      // get the corresponding RDF resource
-      // RDF will create the folder resource if it doesn't already exist
-      nsCOMPtr<nsIRDFService> rdf = do_GetService("@mozilla.org/rdf/rdf-service;1", &rv);
-      NS_ENSURE_SUCCESS(rv,rv);
-
-      nsCOMPtr<nsIRDFResource> resource;
-      rv = rdf->GetResource(parentName, getter_AddRefs(resource));
-      NS_ENSURE_SUCCESS(rv,rv);
-
-      msgParent = do_QueryInterface(resource, &rv);
+      rv = GetOrCreateFolder(parentName, getter_AddRefs(msgParent));
       NS_ENSURE_SUCCESS(rv,rv);
     }
   }

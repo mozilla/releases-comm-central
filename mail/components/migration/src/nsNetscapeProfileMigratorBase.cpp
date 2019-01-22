@@ -10,7 +10,6 @@
 #include "nsIPrefBranch.h"
 #include "nsIPrefLocalizedString.h"
 #include "nsIPrefService.h"
-#include "nsIRDFService.h"
 #include "nsIServiceManager.h"
 #include "nsIMutableArray.h"
 #include "nsISupportsPrimitives.h"

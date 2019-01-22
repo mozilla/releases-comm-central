@@ -1427,10 +1427,6 @@ nsMsgAccountManager::ReactivateAccounts()
 NS_IMETHODIMP
 nsMsgAccountManager::SetSpecialFolders()
 {
-  nsresult rv;
-  nsCOMPtr<nsIRDFService> rdf = do_GetService("@mozilla.org/rdf/rdf-service;1", &rv);
-  NS_ENSURE_SUCCESS(rv,rv);
-
   nsCOMPtr<nsIArray> identities;
   GetAllIdentities(getter_AddRefs(identities));
 
@@ -1442,6 +1438,7 @@ nsMsgAccountManager::SetSpecialFolders()
 
   for (id = 0; id < idCount; id++)
   {
+    nsresult rv;
     nsCOMPtr<nsIMsgIdentity> thisIdentity(do_QueryElementAt(identities, id, &rv));
     if (NS_FAILED(rv))
       continue;
@@ -1449,62 +1446,52 @@ nsMsgAccountManager::SetSpecialFolders()
     if (NS_SUCCEEDED(rv) && thisIdentity)
     {
       nsCString folderUri;
-      nsCOMPtr<nsIRDFResource> res;
       nsCOMPtr<nsIMsgFolder> folder;
+
       thisIdentity->GetFccFolder(folderUri);
-      if (!folderUri.IsEmpty() && NS_SUCCEEDED(rdf->GetResource(folderUri, getter_AddRefs(res))))
+      if (!folderUri.IsEmpty() &&
+          NS_SUCCEEDED(GetOrCreateFolder(folderUri, getter_AddRefs(folder))))
       {
-        folder = do_QueryInterface(res, &rv);
         nsCOMPtr <nsIMsgFolder> parent;
-        if (folder && NS_SUCCEEDED(rv))
-        {
-          rv = folder->GetParent(getter_AddRefs(parent));
-          if (NS_SUCCEEDED(rv) && parent)
-            rv = folder->SetFlag(nsMsgFolderFlags::SentMail);
-        }
+        rv = folder->GetParent(getter_AddRefs(parent));
+        if (NS_SUCCEEDED(rv) && parent)
+          rv = folder->SetFlag(nsMsgFolderFlags::SentMail);
       }
+
       thisIdentity->GetDraftFolder(folderUri);
-      if (!folderUri.IsEmpty() && NS_SUCCEEDED(rdf->GetResource(folderUri, getter_AddRefs(res))))
+      if (!folderUri.IsEmpty() &&
+          NS_SUCCEEDED(GetOrCreateFolder(folderUri, getter_AddRefs(folder))))
       {
-        folder = do_QueryInterface(res, &rv);
         nsCOMPtr <nsIMsgFolder> parent;
-        if (folder && NS_SUCCEEDED(rv))
-        {
-          rv = folder->GetParent(getter_AddRefs(parent));
-          if (NS_SUCCEEDED(rv) && parent)
-            rv = folder->SetFlag(nsMsgFolderFlags::Drafts);
-        }
+        rv = folder->GetParent(getter_AddRefs(parent));
+        if (NS_SUCCEEDED(rv) && parent)
+          rv = folder->SetFlag(nsMsgFolderFlags::Drafts);
       }
+
       thisIdentity->GetArchiveFolder(folderUri);
-      if (!folderUri.IsEmpty() && NS_SUCCEEDED(rdf->GetResource(folderUri, getter_AddRefs(res))))
+      if (!folderUri.IsEmpty() &&
+          NS_SUCCEEDED(GetOrCreateFolder(folderUri, getter_AddRefs(folder))))
       {
-        folder = do_QueryInterface(res, &rv);
         nsCOMPtr <nsIMsgFolder> parent;
-        if (folder && NS_SUCCEEDED(rv))
-        {
-          rv = folder->GetParent(getter_AddRefs(parent));
-          if (NS_SUCCEEDED(rv) && parent)
-          {
-            bool archiveEnabled;
-            thisIdentity->GetArchiveEnabled(&archiveEnabled);
-            if (archiveEnabled)
-              rv = folder->SetFlag(nsMsgFolderFlags::Archive);
-            else
-              rv = folder->ClearFlag(nsMsgFolderFlags::Archive);
-          }
+        rv = folder->GetParent(getter_AddRefs(parent));
+        if (NS_SUCCEEDED(rv) && parent) {
+          bool archiveEnabled;
+          thisIdentity->GetArchiveEnabled(&archiveEnabled);
+          if (archiveEnabled)
+            rv = folder->SetFlag(nsMsgFolderFlags::Archive);
+          else
+            rv = folder->ClearFlag(nsMsgFolderFlags::Archive);
         }
       }
+
       thisIdentity->GetStationeryFolder(folderUri);
-      if (!folderUri.IsEmpty() && NS_SUCCEEDED(rdf->GetResource(folderUri, getter_AddRefs(res))))
+      if (!folderUri.IsEmpty() &&
+          NS_SUCCEEDED(GetOrCreateFolder(folderUri, getter_AddRefs(folder))))
       {
-        folder = do_QueryInterface(res, &rv);
-        if (folder && NS_SUCCEEDED(rv))
-        {
-          nsCOMPtr <nsIMsgFolder> parent;
-          rv = folder->GetParent(getter_AddRefs(parent));
-          if (NS_SUCCEEDED(rv) && parent) // only set flag if folder is real
-            rv = folder->SetFlag(nsMsgFolderFlags::Templates);
-        }
+        nsCOMPtr <nsIMsgFolder> parent;
+        rv = folder->GetParent(getter_AddRefs(parent));
+        if (NS_SUCCEEDED(rv) && parent)
+          folder->SetFlag(nsMsgFolderFlags::Templates);
       }
     }
   }
@@ -2939,12 +2926,8 @@ NS_IMETHODIMP nsMsgAccountManager::LoadVirtualFolders()
     bool isMore = true;
     nsAutoCString buffer;
     int32_t version = -1;
-    nsCOMPtr <nsIMsgFolder> virtualFolder;
-    nsCOMPtr <nsIDBFolderInfo> dbFolderInfo;
-    nsCOMPtr<nsIRDFResource> resource;
-    nsCOMPtr<nsIRDFService> rdf(do_GetService("@mozilla.org/rdf/rdf-service;1", &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<nsIArray> allFolders;
+    nsCOMPtr<nsIMsgFolder> virtualFolder;
+    nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
 
     while (isMore &&
            NS_SUCCEEDED(lineInputStream->ReadLine(buffer, &isMore)))
@@ -2963,64 +2946,59 @@ NS_IMETHODIMP nsMsgAccountManager::LoadVirtualFolders()
           buffer.Cut(0, 4);
           dbFolderInfo = nullptr;
 
-          rv = rdf->GetResource(buffer, getter_AddRefs(resource));
+          rv = GetOrCreateFolder(buffer, getter_AddRefs(virtualFolder));
           NS_ENSURE_SUCCESS(rv, rv);
 
-          virtualFolder = do_QueryInterface(resource);
-          if (!virtualFolder)
-            NS_WARNING("Failed to QI virtual folder, is this leftover from an optional account type?");
-          else
+          nsCOMPtr<nsIMsgFolder> grandParent;
+          nsCOMPtr<nsIMsgFolder> oldParent;
+          nsCOMPtr<nsIMsgFolder> parentFolder;
+          bool isServer;
+          // This loop handles creating virtual folders without an existing
+          // parent.
+          do
           {
-            nsCOMPtr <nsIMsgFolder> grandParent;
-            nsCOMPtr <nsIMsgFolder> oldParent;
-            nsCOMPtr <nsIMsgFolder> parentFolder;
-            bool isServer;
-            do
-            {
-              // need to add the folder as a sub-folder of its parent.
-              int32_t lastSlash = buffer.RFindChar('/');
-              if (lastSlash == kNotFound)
-                break;
-              nsDependentCSubstring parentUri(buffer, 0, lastSlash);
-              // hold a reference so it won't get deleted before it's parented.
-              oldParent = parentFolder;
+            // need to add the folder as a sub-folder of its parent.
+            int32_t lastSlash = buffer.RFindChar('/');
+            if (lastSlash == kNotFound)
+              break;
+            nsDependentCSubstring parentUri(buffer, 0, lastSlash);
+            // hold a reference so it won't get deleted before it's parented.
+            oldParent = parentFolder;
 
-              rdf->GetResource(parentUri, getter_AddRefs(resource));
-              parentFolder = do_QueryInterface(resource);
-              if (parentFolder)
-              {
-                nsAutoString currentFolderNameStr;
-                nsAutoCString currentFolderNameCStr;
-                MsgUnescapeString(nsCString(Substring(buffer, lastSlash + 1, buffer.Length())), 0, currentFolderNameCStr);
-                CopyUTF8toUTF16(currentFolderNameCStr, currentFolderNameStr);
-                nsCOMPtr <nsIMsgFolder> childFolder;
-                nsCOMPtr <nsIMsgDatabase> db;
-                // force db to get created.
-                virtualFolder->SetParent(parentFolder);
-                rv = virtualFolder->GetMsgDatabase(getter_AddRefs(db));
-                if (rv == NS_MSG_ERROR_FOLDER_SUMMARY_MISSING)
-                  msgDBService->CreateNewDB(virtualFolder, getter_AddRefs(db));
-                if (db)
-                  rv = db->GetDBFolderInfo(getter_AddRefs(dbFolderInfo));
-                else
-                  break;
+            rv = GetOrCreateFolder(parentUri, getter_AddRefs(parentFolder));
+            NS_ENSURE_SUCCESS(rv, rv);
 
-                parentFolder->AddSubfolder(currentFolderNameStr, getter_AddRefs(childFolder));
-                virtualFolder->SetFlag(nsMsgFolderFlags::Virtual);
-                if (childFolder)
-                  parentFolder->NotifyItemAdded(childFolder);
-                // here we make sure if our parent is rooted - if not, we're
-                // going to loop and add our parent as a child of its grandparent
-                // and repeat until we get to the server, or a folder that
-                // has its parent set.
-                parentFolder->GetParent(getter_AddRefs(grandParent));
-                parentFolder->GetIsServer(&isServer);
-                buffer.SetLength(lastSlash);
-              }
-              else
-                break;
-            } while (!grandParent && !isServer);
-          }
+            nsAutoString currentFolderNameStr;
+            nsAutoCString currentFolderNameCStr;
+            MsgUnescapeString(nsCString(Substring(buffer, lastSlash + 1, buffer.Length())), 0, currentFolderNameCStr);
+            CopyUTF8toUTF16(currentFolderNameCStr, currentFolderNameStr);
+            nsCOMPtr<nsIMsgFolder> childFolder;
+            nsCOMPtr<nsIMsgDatabase> db;
+            // force db to get created.
+            // XXX TODO: is this SetParent() right? Won't it screw up if virtual
+            // folder is nested >2 deep? Leave for now, but revisit when getting
+            // rid of dangling folders (BenC).
+            virtualFolder->SetParent(parentFolder);
+            rv = virtualFolder->GetMsgDatabase(getter_AddRefs(db));
+            if (rv == NS_MSG_ERROR_FOLDER_SUMMARY_MISSING)
+              msgDBService->CreateNewDB(virtualFolder, getter_AddRefs(db));
+            if (db)
+              rv = db->GetDBFolderInfo(getter_AddRefs(dbFolderInfo));
+            else
+              break;
+
+            parentFolder->AddSubfolder(currentFolderNameStr, getter_AddRefs(childFolder));
+            virtualFolder->SetFlag(nsMsgFolderFlags::Virtual);
+            if (childFolder)
+              parentFolder->NotifyItemAdded(childFolder);
+            // here we make sure if our parent is rooted - if not, we're
+            // going to loop and add our parent as a child of its grandparent
+            // and repeat until we get to the server, or a folder that
+            // has its parent set.
+            parentFolder->GetParent(getter_AddRefs(grandParent));
+            parentFolder->GetIsServer(&isServer);
+            buffer.SetLength(lastSlash);
+          } while (!grandParent && !isServer);
         }
         else if (dbFolderInfo && StringBeginsWith(buffer, NS_LITERAL_CSTRING("scope=")))
         {
@@ -3029,9 +3007,9 @@ NS_IMETHODIMP nsMsgAccountManager::LoadVirtualFolders()
           // and we have to add a pending listener for each of them.
           if (!buffer.IsEmpty())
           {
-            ParseAndVerifyVirtualFolderScope(buffer, rdf);
+            ParseAndVerifyVirtualFolderScope(buffer);
             dbFolderInfo->SetCharProperty(kSearchFolderUriProp, buffer);
-            AddVFListenersForVF(virtualFolder, buffer, rdf, msgDBService);
+            AddVFListenersForVF(virtualFolder, buffer, msgDBService);
           }
         }
         else if (dbFolderInfo && StringBeginsWith(buffer, NS_LITERAL_CSTRING("terms=")))
@@ -3095,11 +3073,9 @@ NS_IMETHODIMP nsMsgAccountManager::SaveVirtualFolders()
         virtualFolders->GetLength(&vfCount);
         for (uint32_t folderIndex = 0; folderIndex < vfCount; folderIndex++)
         {
-          nsCOMPtr <nsIRDFResource> folderRes (do_QueryElementAt(virtualFolders, folderIndex));
-          nsCOMPtr <nsIMsgFolder> msgFolder = do_QueryInterface(folderRes);
-          const char *uri;
-          nsCOMPtr <nsIMsgDatabase> db;
-          nsCOMPtr <nsIDBFolderInfo> dbFolderInfo;
+          nsCOMPtr<nsIMsgFolder> msgFolder(do_QueryElementAt(virtualFolders, folderIndex));
+          nsCOMPtr<nsIMsgDatabase> db;
+          nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
           rv = msgFolder->GetDBFolderInfoAndDB(getter_AddRefs(dbFolderInfo), getter_AddRefs(db)); // force db to get created.
           if (dbFolderInfo)
           {
@@ -3114,10 +3090,11 @@ NS_IMETHODIMP nsMsgAccountManager::SaveVirtualFolders()
             // logically searchFolderFlag is an int, but since we want to
             // write out a string, get it as a string.
             dbFolderInfo->GetCharProperty(SEARCH_FOLDER_FLAG, vfFolderFlag);
-            folderRes->GetValueConst(&uri);
+            nsCString uri;
+            msgFolder->GetURI(uri);
             if (!srchFolderUri.IsEmpty() && !searchTerms.IsEmpty())
             {
-              WriteLineToOutputStream("uri=", uri, outStream);
+              WriteLineToOutputStream("uri=", uri.get(), outStream);
               if (!vfFolderFlag.IsEmpty())
                 WriteLineToOutputStream(SEARCH_FOLDER_FLAG"=", vfFolderFlag.get(), outStream);
               WriteLineToOutputStream("scope=", srchFolderUri.get(), outStream);
@@ -3156,24 +3133,22 @@ nsresult nsMsgAccountManager::WriteLineToOutputStream(const char *prefix, const 
  * could implement the expansion into real folders here.
  *
  * @param buffer On input, list of folder uri's, on output, verified list.
- * @param rdf rdf service
  */
-void nsMsgAccountManager::ParseAndVerifyVirtualFolderScope(nsCString &buffer,
-                                                           nsIRDFService *rdf)
+void nsMsgAccountManager::ParseAndVerifyVirtualFolderScope(nsCString &buffer)
 {
   nsCString verifiedFolders;
   nsTArray<nsCString> folderUris;
   ParseString(buffer, '|', folderUris);
-  nsCOMPtr <nsIRDFResource> resource;
   nsCOMPtr<nsIMsgIncomingServer> server;
   nsCOMPtr<nsIMsgFolder> parent;
 
   for (uint32_t i = 0; i < folderUris.Length(); i++)
   {
-    rdf->GetResource(folderUris[i], getter_AddRefs(resource));
-    nsCOMPtr <nsIMsgFolder> realFolder = do_QueryInterface(resource);
-    if (!realFolder)
+    nsCOMPtr<nsIMsgFolder> realFolder;
+    nsresult rv = GetOrCreateFolder(folderUris[i], getter_AddRefs(realFolder));
+    if (!NS_SUCCEEDED(rv)) {
       continue;
+    }
     realFolder->GetParent(getter_AddRefs(parent));
     if (!parent)
       continue;
@@ -3190,19 +3165,16 @@ void nsMsgAccountManager::ParseAndVerifyVirtualFolderScope(nsCString &buffer,
 // This conveniently works to add a single folder as well.
 nsresult nsMsgAccountManager::AddVFListenersForVF(nsIMsgFolder *virtualFolder,
                                                   const nsCString& srchFolderUris,
-                                                  nsIRDFService *rdf,
                                                   nsIMsgDBService *msgDBService)
 {
   nsTArray<nsCString> folderUris;
   ParseString(srchFolderUris, '|', folderUris);
-  nsCOMPtr <nsIRDFResource> resource;
 
   for (uint32_t i = 0; i < folderUris.Length(); i++)
   {
-    rdf->GetResource(folderUris[i], getter_AddRefs(resource));
-    nsCOMPtr <nsIMsgFolder> realFolder = do_QueryInterface(resource);
-    if (!realFolder)
-      continue;
+    nsCOMPtr<nsIMsgFolder> realFolder;
+    nsresult rv = GetOrCreateFolder(folderUris[i], getter_AddRefs(realFolder));
+    NS_ENSURE_SUCCESS(rv, rv);
     RefPtr<VirtualFolderChangeListener> dbListener = new VirtualFolderChangeListener();
     NS_ENSURE_TRUE(dbListener, NS_ERROR_OUT_OF_MEMORY);
     dbListener->m_virtualFolder = virtualFolder;
@@ -3399,8 +3371,7 @@ NS_IMETHODIMP nsMsgAccountManager::OnItemAdded(nsIMsgFolder *parentItem, nsISupp
       NS_ENSURE_SUCCESS(rv, rv);
       nsCString srchFolderUri;
       dbFolderInfo->GetCharProperty(kSearchFolderUriProp, srchFolderUri);
-      nsCOMPtr<nsIRDFService> rdf(do_GetService("@mozilla.org/rdf/rdf-service;1", &rv));
-      AddVFListenersForVF(folder, srchFolderUri, rdf, msgDBService);
+      AddVFListenersForVF(folder, srchFolderUri, msgDBService);
     }
     rv = SaveVirtualFolders();
   }

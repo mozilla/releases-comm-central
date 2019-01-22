@@ -398,20 +398,9 @@ nsMsgIncomingServer::CreateRootFolder()
   nsCString serverUri;
   rv = GetServerURI(serverUri);
   NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIRDFService> rdf = do_GetService("@mozilla.org/rdf/rdf-service;1", &rv);
+  rv = GetOrCreateFolder(serverUri, getter_AddRefs(m_rootFolder));
   NS_ENSURE_SUCCESS(rv, rv);
-
-  // get the corresponding RDF resource
-  // RDF will create the server resource if it doesn't already exist
-  nsCOMPtr<nsIRDFResource> serverResource;
-  rv = rdf->GetResource(serverUri, getter_AddRefs(serverResource));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // make incoming server know about its root server folder so we
-  // can find sub-folders given an incoming server.
-  m_rootFolder = do_QueryInterface(serverResource, &rv);
-  return rv;
+  return NS_OK;
 }
 
 NS_IMETHODIMP

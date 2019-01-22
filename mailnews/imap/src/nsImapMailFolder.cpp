@@ -13,8 +13,6 @@
 #include "nsIUrlListener.h"
 #include "nsCOMPtr.h"
 #include "nsAutoPtr.h"
-#include "nsIRDFService.h"
-#include "nsRDFCID.h"
 #include "nsMsgDBCID.h"
 #include "nsMsgFolderFlags.h"
 #include "nsISeekableStream.h"
@@ -93,7 +91,6 @@
 #include "nsStringStream.h"
 #include "nsIStreamListener.h"
 
-static NS_DEFINE_CID(kRDFServiceCID, NS_RDFSERVICE_CID);
 static NS_DEFINE_CID(kParseMailMsgStateCID, NS_PARSEMAILMSGSTATE_CID);
 static NS_DEFINE_CID(kCImapHostSessionList, NS_IIMAPHOSTSESSIONLIST_CID);
 
@@ -263,8 +260,6 @@ NS_IMETHODIMP nsImapMailFolder::AddSubfolder(const nsAString& aName, nsIMsgFolde
 
   int32_t flags = 0;
   nsresult rv;
-  nsCOMPtr<nsIRDFService> rdf = do_GetService("@mozilla.org/rdf/rdf-service;1", &rv);
-  NS_ENSURE_SUCCESS(rv,rv);
 
   nsAutoCString uri(mURI);
   uri.Append('/');
@@ -283,13 +278,9 @@ NS_IMETHODIMP nsImapMailFolder::AddSubfolder(const nsAString& aName, nsIMsgFolde
   if (NS_SUCCEEDED(rv) && msgFolder)
     return NS_MSG_FOLDER_EXISTS;
 
-  nsCOMPtr<nsIRDFResource> res;
-  rv = rdf->GetResource(uri, getter_AddRefs(res));
-  if (NS_FAILED(rv))
-    return rv;
-
-  nsCOMPtr<nsIMsgFolder> folder(do_QueryInterface(res, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIMsgFolder> folder;
+  rv = GetOrCreateFolder(uri, getter_AddRefs(folder));
+  NS_ENSURE_SUCCESS(rv, NS_ERROR_FAILURE);
 
   nsCOMPtr <nsIFile> path;
   rv = CreateDirectoryForFolder(getter_AddRefs(path));
@@ -331,8 +322,6 @@ nsresult nsImapMailFolder::AddSubfolderWithPath(nsAString& name, nsIFile *dbPath
 {
   NS_ENSURE_ARG_POINTER(child);
   nsresult rv;
-  nsCOMPtr<nsIRDFService> rdf(do_GetService(kRDFServiceCID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString uri(mURI);
   uri.Append('/');
@@ -350,12 +339,8 @@ nsresult nsImapMailFolder::AddSubfolderWithPath(nsAString& name, nsIFile *dbPath
   if (NS_SUCCEEDED(rv) && msgFolder)
     return NS_MSG_FOLDER_EXISTS;
 
-  nsCOMPtr<nsIRDFResource> res;
-  rv = rdf->GetResource(uri, getter_AddRefs(res));
-  if (NS_FAILED(rv))
-    return rv;
-
-  nsCOMPtr<nsIMsgFolder> folder(do_QueryInterface(res, &rv));
+  nsCOMPtr<nsIMsgFolder> folder;
+  rv = GetOrCreateFolder(uri, getter_AddRefs(folder));
   NS_ENSURE_SUCCESS(rv, rv);
 
   folder->SetFilePath(dbPath);
@@ -877,27 +862,23 @@ NS_IMETHODIMP nsImapMailFolder::CreateClientSubfolderInfo(const nsACString& fold
   int32_t folderStart = leafName.RFindChar('/');
   if (folderStart > 0)
   {
-    nsCOMPtr<nsIRDFService> rdf(do_GetService(kRDFServiceCID, &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<nsIRDFResource> res;
-    nsCOMPtr<nsIMsgImapMailFolder> parentFolder;
+    nsCOMPtr<nsIMsgImapMailFolder> imapFolder;
     nsAutoCString uri (mURI);
     leafName.Assign(Substring(parentName, folderStart + 1));
     parentName.SetLength(folderStart);
 
     rv = CreateDirectoryForFolder(getter_AddRefs(path));
-    if (NS_FAILED(rv))
-      return rv;
+    NS_ENSURE_SUCCESS(rv, rv);
     uri.Append('/');
     uri.Append(NS_LossyConvertUTF16toASCII(parentName));
-    rv = rdf->GetResource(uri, getter_AddRefs(res));
-    if (NS_FAILED(rv))
-      return rv;
-    parentFolder = do_QueryInterface(res, &rv);
+    nsCOMPtr<nsIMsgFolder> folder;
+    rv = GetOrCreateFolder(uri, getter_AddRefs(folder));
+    NS_ENSURE_SUCCESS(rv, rv);
+    imapFolder = do_QueryInterface(folder, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
     nsAutoCString leafnameC;
     LossyCopyUTF16toASCII(leafName, leafnameC);
-    return parentFolder->CreateClientSubfolderInfo(leafnameC, hierarchyDelimiter,flags, suppressNotification);
+    return imapFolder->CreateClientSubfolderInfo(leafnameC, hierarchyDelimiter,flags, suppressNotification);
   }
 
   // if we get here, it's really a leaf, and "this" is the parent.
@@ -1047,14 +1028,8 @@ NS_IMETHODIMP nsImapMailFolder::CreateStorageIfMissing(nsIUrlListener* urlListen
       // If there is a hierarchy, there is a parent.
       // Don't strip off slash if it's the first character
       parentName.SetLength(leafPos);
-      // get the corresponding RDF resource
-      // RDF will create the folder resource if it doesn't already exist
-      nsCOMPtr<nsIRDFService> rdf(do_GetService(kRDFServiceCID, &rv));
+      rv = GetOrCreateFolder(parentName, getter_AddRefs(msgParent));
       NS_ENSURE_SUCCESS(rv, rv);
-      nsCOMPtr<nsIRDFResource> resource;
-      rv = rdf->GetResource(parentName, getter_AddRefs(resource));
-      if (NS_FAILED(rv)) return rv;
-      msgParent = do_QueryInterface(resource, &rv);
     }
   }
   if (msgParent)
@@ -2140,7 +2115,6 @@ NS_IMETHODIMP nsImapMailFolder::DeleteMessages(nsIArray *messages,
                                                bool allowUndo)
 {
   // *** jt - assuming delete is move to the trash folder for now
-  nsCOMPtr<nsIRDFResource> res;
   nsAutoCString uri;
   bool deleteImmediatelyNoTrash = false;
   nsAutoCString messageIds;
@@ -4103,16 +4077,9 @@ nsresult nsImapMailFolder::MoveIncorporatedMessage(nsIMsgDBHdr *mailHdr,
   nsresult rv;
   if (m_moveCoalescer)
   {
-    nsCOMPtr<nsIRDFService> rdf(do_GetService(kRDFServiceCID, &rv));
+    nsCOMPtr<nsIMsgFolder> destIFolder;
+    rv = GetOrCreateFolder(destFolderUri, getter_AddRefs(destIFolder));
     NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<nsIRDFResource> res;
-    rv = rdf->GetResource(destFolderUri, getter_AddRefs(res));
-    if (NS_FAILED(rv))
-      return rv;
-
-    nsCOMPtr<nsIMsgFolder> destIFolder(do_QueryInterface(res, &rv));
-    if (NS_FAILED(rv))
-      return rv;
 
     if (destIFolder)
     {
@@ -6915,36 +6882,26 @@ nsresult nsImapMailFolder::GetClearedOriginalOp(nsIMsgOfflineImapOperation *op, 
   nsCString sourceFolderURI;
   op->GetSourceFolderURI(getter_Copies(sourceFolderURI));
 
-  nsCOMPtr<nsIRDFResource> res;
   nsresult rv;
-  nsCOMPtr<nsIRDFService> rdf(do_GetService(kRDFServiceCID, &rv));
+  nsCOMPtr<nsIMsgFolder> sourceFolder;
+  rv = GetOrCreateFolder(sourceFolderURI, getter_AddRefs(sourceFolder));
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = rdf->GetResource(sourceFolderURI, getter_AddRefs(res));
-  if (NS_SUCCEEDED(rv))
+
+  nsCOMPtr<nsIDBFolderInfo> folderInfo;
+  sourceFolder->GetDBFolderInfoAndDB(getter_AddRefs(folderInfo), originalDB);
+  if (*originalDB)
   {
-    nsCOMPtr<nsIMsgFolder> sourceFolder(do_QueryInterface(res, &rv));
-    if (NS_SUCCEEDED(rv) && sourceFolder)
+    nsMsgKey originalKey;
+    op->GetMessageKey(&originalKey);
+    rv = (*originalDB)->GetOfflineOpForKey(originalKey, false, getter_AddRefs(returnOp));
+    if (NS_SUCCEEDED(rv) && returnOp)
     {
-      if (sourceFolder)
-      {
-        nsCOMPtr <nsIDBFolderInfo> folderInfo;
-        sourceFolder->GetDBFolderInfoAndDB(getter_AddRefs(folderInfo), originalDB);
-        if (*originalDB)
-        {
-          nsMsgKey originalKey;
-          op->GetMessageKey(&originalKey);
-          rv = (*originalDB)->GetOfflineOpForKey(originalKey, false, getter_AddRefs(returnOp));
-          if (NS_SUCCEEDED(rv) && returnOp)
-          {
-            nsCString moveDestination;
-            nsCString thisFolderURI;
-            GetURI(thisFolderURI);
-            returnOp->GetDestinationFolderURI(getter_Copies(moveDestination));
-            if (moveDestination.Equals(thisFolderURI))
-              returnOp->ClearOperation(nsIMsgOfflineImapOperation::kMoveResult);
-          }
-        }
-      }
+      nsCString moveDestination;
+      nsCString thisFolderURI;
+      GetURI(thisFolderURI);
+      returnOp->GetDestinationFolderURI(getter_Copies(moveDestination));
+      if (moveDestination.Equals(thisFolderURI))
+        returnOp->ClearOperation(nsIMsgOfflineImapOperation::kMoveResult);
     }
   }
   returnOp.forget(originalOp);
@@ -6957,24 +6914,17 @@ nsresult nsImapMailFolder::GetOriginalOp(nsIMsgOfflineImapOperation *op, nsIMsgO
   nsCString sourceFolderURI;
   op->GetSourceFolderURI(getter_Copies(sourceFolderURI));
 
-  nsCOMPtr<nsIRDFResource> res;
   nsresult rv;
-
-  nsCOMPtr<nsIRDFService> rdf(do_GetService(kRDFServiceCID, &rv));
+  nsCOMPtr<nsIMsgFolder> sourceFolder;
+  rv = GetOrCreateFolder(sourceFolderURI, getter_AddRefs(sourceFolder));
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = rdf->GetResource(sourceFolderURI, getter_AddRefs(res));
-  if (NS_SUCCEEDED(rv))
+  nsCOMPtr<nsIDBFolderInfo> folderInfo;
+  sourceFolder->GetDBFolderInfoAndDB(getter_AddRefs(folderInfo), originalDB);
+  if (*originalDB)
   {
-    nsCOMPtr<nsIMsgFolder> sourceFolder(do_QueryInterface(res, &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr <nsIDBFolderInfo> folderInfo;
-    sourceFolder->GetDBFolderInfoAndDB(getter_AddRefs(folderInfo), originalDB);
-    if (*originalDB)
-    {
-      nsMsgKey originalKey;
-      op->GetMessageKey(&originalKey);
-      rv = (*originalDB)->GetOfflineOpForKey(originalKey, false, getter_AddRefs(returnOp));
-    }
+    nsMsgKey originalKey;
+    op->GetMessageKey(&originalKey);
+    rv = (*originalDB)->GetOfflineOpForKey(originalKey, false, getter_AddRefs(returnOp));
   }
   returnOp.forget(originalOp);
   return rv;

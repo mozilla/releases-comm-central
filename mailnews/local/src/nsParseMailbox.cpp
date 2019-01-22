@@ -26,8 +26,6 @@
 #include "nsIMsgFilterHitNotify.h"
 #include "nsIIOService.h"
 #include "nsNetCID.h"
-#include "nsRDFCID.h"
-#include "nsIRDFService.h"
 #include "nsMsgI18N.h"
 #include "nsAppDirectoryServiceDefs.h"
 #include "nsIMsgLocalMailFolder.h"
@@ -53,8 +51,6 @@
 #include "nsQueryObject.h"
 #include "nsIOutputStream.h"
 #include "mozilla/Attributes.h"
-
-static NS_DEFINE_CID(kRDFServiceCID, NS_RDFSERVICE_CID);
 
 /* the following macros actually implement addref, release and query interface for our component. */
 NS_IMPL_ISUPPORTS_INHERITED(nsMsgMailboxParser,
@@ -2023,17 +2019,10 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter *filter, nsIMsgWi
         if (actionTargetFolderUri.get() && !m_inboxUri.Equals(actionTargetFolderUri,
                                                               nsCaseInsensitiveCStringComparator()))
         {
-          nsresult err;
-          nsCOMPtr<nsIRDFService> rdf(do_GetService(kRDFServiceCID, &err));
+          nsCOMPtr<nsIMsgFolder> destIFolder;
+          nsresult err = GetOrCreateFolder(actionTargetFolderUri,
+            getter_AddRefs(destIFolder));
           NS_ENSURE_SUCCESS(err, err);
-          nsCOMPtr<nsIRDFResource> res;
-          err = rdf->GetResource(actionTargetFolderUri, getter_AddRefs(res));
-          if (NS_FAILED(err))
-            return err;
-
-          nsCOMPtr<nsIMsgFolder> destIFolder(do_QueryInterface(res, &err));
-          if (NS_FAILED(err))
-            return err;
           bool msgMoved = false;
           // If we're moving to an imap folder, or this message has already
           // has a pending copy action, use the imap coalescer so that
@@ -2085,14 +2074,13 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter *filter, nsIMsgWi
             nsCOMPtr<nsIMsgCopyService> copyService;
             rv = GetExistingFolder(actionTargetFolderUri,
                                    getter_AddRefs(dstFolder));
-            if (NS_SUCCEEDED(rv)) {
-              copyService = do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
-            }
-            else {
+            if (NS_FAILED(rv)) {
               // Let's show a more specific warning.
               NS_WARNING("Target Folder does not exist.");
               return rv;
             }
+
+            copyService = do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
             if (NS_SUCCEEDED(rv))
               rv = copyService->CopyMessages(m_downloadFolder, messageArray, dstFolder,
                                              false, nullptr, msgWindow, false);

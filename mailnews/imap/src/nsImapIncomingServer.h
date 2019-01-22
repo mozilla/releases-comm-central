@@ -19,7 +19,6 @@
 #include "nsTArray.h"
 #include "mozilla/Mutex.h"
 
-class nsIRDFService;
 
 /* get some implementation from nsMsgIncomingServer */
 class nsImapIncomingServer : public nsMsgIncomingServer,
@@ -99,8 +98,8 @@ private:
   bool ConnectionTimeOut(nsIImapProtocol* aImapConnection);
   nsresult GetFormattedStringFromName(const nsAString& aValue, const char* aName, nsAString& aResult);
   nsresult GetPrefForServerAttribute(const char *prefSuffix, bool *prefValue);
-  bool CheckSpecialFolder(nsIRDFService *rdf, nsCString &folderUri,
-                            uint32_t folderFlag, nsCString &existingUri);
+  bool CheckSpecialFolder(nsCString &folderUri,
+                          uint32_t folderFlag, nsCString &existingUri);
 
   nsCOMArray<nsIImapProtocol> m_connectionCache;
   nsCOMArray<nsIImapUrl> m_urlQueue;

@@ -54,8 +54,6 @@
 #include "nsMsgUtils.h"
 #include "nsIMsgMdnGenerator.h"
 #include "nsISmtpServer.h"
-#include "nsIRDFService.h"
-#include "nsRDFCID.h"
 #include "nsIMsgAccountManager.h"
 #include "nsNativeCharsetUtils.h"
 #include "nsIAbCard.h"
@@ -87,8 +85,6 @@
 using namespace mozilla;
 using namespace mozilla::dom;
 using namespace mozilla::mailnews;
-
-static NS_DEFINE_CID(kRDFServiceCID, NS_RDFSERVICE_CID);
 
 #define PREF_MAIL_SEND_STRUCT "mail.send_struct"
 #define PREF_MAIL_STRICTLY_MIME "mail.strictly_mime"
@@ -3584,20 +3580,11 @@ nsMsgComposeAndSend::DeliverAsNewsExit(nsIURI *aUrl, nsresult aExitCode)
 nsresult
 nsMsgComposeAndSend::GetIncomingServer(const char *folderURL, nsIMsgIncomingServer **aServer)
 {
-  nsresult rv;
-  nsCOMPtr<nsIRDFService> rdf(do_GetService("@mozilla.org/rdf/rdf-service;1", &rv));
-  if (NS_FAILED(rv))
-    return rv;
-
-  nsCOMPtr<nsIRDFResource> resource;
-  rv = rdf->GetResource(nsDependentCString(folderURL), getter_AddRefs(resource));
-  if (NS_FAILED(rv))
-    return rv;
-
   nsCOMPtr <nsIMsgFolder> thisFolder;
-  thisFolder = do_QueryInterface(resource, &rv);
-  if (NS_FAILED(rv) || !thisFolder)
-    return rv;
+
+  nsresult rv = GetOrCreateFolder(nsDependentCString(folderURL),
+    getter_AddRefs(thisFolder));
+  NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgIncomingServer> server;
   rv = thisFolder->GetServer(getter_AddRefs(server));
@@ -4455,15 +4442,13 @@ nsMsgComposeAndSend::MimeDoFCC(nsIFile          *input_file,
   mComposeBundle->GetStringFromName("copyMessageStart", msg);
   if (!msg.IsEmpty())
   {
-    nsCOMPtr<nsIRDFService> rdfService = do_GetService(kRDFServiceCID);
-    if (rdfService)
-    {
-      nsCOMPtr<nsIRDFResource> res;
-      rdfService->GetResource(tmpUri, getter_AddRefs(res));
-      nsCOMPtr<nsIMsgFolder> folder = do_QueryInterface(res);
-      if (folder)
-        folder->GetName(mSavedToFolderName);
+    nsCOMPtr<nsIMsgFolder> folder;
+    rv = GetOrCreateFolder(tmpUri, getter_AddRefs(folder));
+    if (NS_FAILED(rv)) {
+      status = rv;
+      goto FAIL;
     }
+    folder->GetName(mSavedToFolderName);
     if (!mSavedToFolderName.IsEmpty())
       nsTextFormatter::ssprintf(printfString, msg.get(),
                                 mSavedToFolderName.get());

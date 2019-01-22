@@ -27,7 +27,6 @@
 #include "nsIFileURL.h"
 #include "mozilla/RefPtr.h"
 #include "nsDocShellLoadState.h"
-#include "nsIRDFService.h"
 #include "nsContentUtils.h"
 
 nsMailboxService::nsMailboxService()
@@ -651,17 +650,7 @@ nsMailboxService::DecomposeMailboxURI(const char * aMessageURI, nsIMsgFolder ** 
   rv = nsParseLocalMessageURI(aMessageURI, folderURI, aMsgKey);
   NS_ENSURE_SUCCESS(rv,rv);
 
-  nsCOMPtr <nsIRDFService> rdf = do_GetService("@mozilla.org/rdf/rdf-service;1",&rv);
-  NS_ENSURE_SUCCESS(rv,rv);
-
-  nsCOMPtr<nsIRDFResource> res;
-  rv = rdf->GetResource(folderURI, getter_AddRefs(res));
-  NS_ENSURE_SUCCESS(rv,rv);
-
-  rv = res->QueryInterface(NS_GET_IID(nsIMsgFolder), (void **) aFolder);
-  NS_ENSURE_SUCCESS(rv,rv);
-
-  return NS_OK;
+  return GetOrCreateFolder(folderURI, aFolder);
 }
 
 NS_IMETHODIMP
