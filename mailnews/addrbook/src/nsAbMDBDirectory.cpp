@@ -697,6 +697,31 @@ NS_IMETHODIMP nsAbMDBDirectory::ModifyCard(nsIAbCard *aModifiedCard)
   rv = mDatabase->EditCard(aModifiedCard, true, this);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  // If it's a mailing list's card, ensure the related nsIAbDirectory has the same UID.
+  bool isMailList;
+  rv = aModifiedCard->GetIsMailList(&isMailList);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (isMailList)
+  {
+    nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    nsAutoCString uri;
+    rv = aModifiedCard->GetMailListURI(getter_Copies(uri));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    nsCOMPtr<nsIAbDirectory> directory;
+    rv = abManager->GetDirectory(uri, getter_AddRefs(directory));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    nsAutoCString uid;
+    rv = aModifiedCard->GetUID(uid);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = directory->SetUID(uid);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
   nsCOMPtr<nsIObserverService> observerService = mozilla::services::GetObserverService();
   if (observerService) {
     nsAutoCString thisUID;

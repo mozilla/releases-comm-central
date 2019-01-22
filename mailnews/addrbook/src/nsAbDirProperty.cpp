@@ -282,6 +282,10 @@ NS_IMETHODIMP nsAbDirProperty::CopyMailList(nsIAbDirectory* srcList)
   srcList->GetDescription(str);
   SetDescription(str);
 
+  nsAutoCString uid;
+  srcList->GetUID(uid);
+  SetUID(uid);
+
   nsCOMPtr<nsIMutableArray> pAddressLists;
   srcList->GetAddressLists(getter_AddRefs(pAddressLists));
   SetAddressLists(pAddressLists);
