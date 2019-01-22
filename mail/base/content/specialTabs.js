@@ -172,6 +172,8 @@ tabProgressListener.prototype = {
     }
   },
   onContentBlockingEvent(aWebProgress, aRequest, aEvent) {
+    if (this.mProgressListener)
+      this.mProgressListener.onContentBlockingEvent(aWebProgress, aRequest, aEvent);
   },
   onRefreshAttempted(aWebProgress, aURI, aDelay, aSameURI) {
     if (this.mProgressListener)
