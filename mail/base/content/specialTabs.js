@@ -171,6 +171,8 @@ tabProgressListener.prototype = {
       this.mTab.security.removeAttribute("level");
     }
   },
+  onContentBlockingEvent(aWebProgress, aRequest, aEvent) {
+  },
   onRefreshAttempted(aWebProgress, aURI, aDelay, aSameURI) {
     if (this.mProgressListener)
       this.mProgressListener.onRefreshAttempted(aWebProgress, aURI, aDelay,

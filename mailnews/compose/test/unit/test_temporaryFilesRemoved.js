@@ -21,6 +21,7 @@ var progressListener = {
   onLocationChange: function(aWebProgress, aRequest, aLocation, aFlags) {},
   onStatusChange: function(aWebProgress, aRequest, aStatus, aMessage) {},
   onSecurityChange: function(aWebProgress, aRequest, state) {},
+  onContentBlockingEvent: function(aWebProgress, aRequest, aEvent) {},
 
   QueryInterface: ChromeUtils.generateQI(["nsIWebProgressListener",
                                           "nsISupportsWeakReference"]),

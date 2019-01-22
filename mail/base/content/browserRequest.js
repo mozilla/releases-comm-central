@@ -74,6 +74,9 @@ var reporterListener = {
     this.securityButton.setAttribute("tooltiptext",
                                      browser.securityUI.tooltipText);
   },
+
+  onContentBlockingEvent(aWebProgress, aRequest, aEvent) {
+  },
 };
 
 function cancelRequest() {

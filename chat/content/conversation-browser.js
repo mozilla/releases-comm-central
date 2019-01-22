@@ -73,6 +73,7 @@ class MozConversationBrowser extends customElements.get("browser") {
       onLocationChange(aprogress, request, location) { },
       onStatusChange(progress, request, status, message) { },
       onSecurityChange(progress, request, state) { },
+      onContentBlockingEvent(progress, request, event) { },
       QueryInterface: ChromeUtils.generateQI([
         Ci.nsIWebProgressListener,
         Ci.nsISupportsWeakReference],

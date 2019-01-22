@@ -1295,6 +1295,10 @@ var gEditorOutputProgressListener =
     }
   },
 
+  onContentBlockingEvent: function(aWebProgress, aRequest, aEvent)
+  {
+  },
+
   QueryInterface: ChromeUtils.generateQI(["nsIWebProgressListener",
                                           "nsISupportsWeakReference",
                                           "nsIPrompt",

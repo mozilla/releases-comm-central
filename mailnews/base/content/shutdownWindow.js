@@ -86,6 +86,11 @@ nsMsgShutdownTaskListener.prototype =
   {
     // we can ignore this notification
   }
+
+  onContentBlockingEvent: function(aWebProgress, aRequest, aEvent)
+  {
+    // we can ignore this notification
+  },
 }
 
 var MsgShutdownTaskListener = new nsMsgShutdownTaskListener();

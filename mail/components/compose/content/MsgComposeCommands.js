@@ -596,6 +596,10 @@ var progressListener = {
     // we can ignore this notification
   },
 
+  onContentBlockingEvent(aWebProgress, aRequest, aEvent) {
+    // we can ignore this notification
+  },
+
   QueryInterface: ChromeUtils.generateQI(["nsIWebProgressListener",
                                           "nsISupportsWeakReference"]),
 };

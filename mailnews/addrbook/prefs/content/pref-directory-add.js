@@ -118,6 +118,9 @@ var progressListener = {
   onSecurityChange: function(aWebProgress, aRequest, state)
   {
   },
+  onContentBlockingEvent: function(aWebProgress, aRequest, aEvent)
+  {
+  },
   QueryInterface: ChromeUtils.generateQI(["nsIWebProgressListener",
                                           "nsISupportsWeakReference"]),
 };
