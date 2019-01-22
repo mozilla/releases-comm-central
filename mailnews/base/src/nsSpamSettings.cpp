@@ -426,8 +426,9 @@ nsresult nsSpamSettings::UpdateJunkFolderState()
   if (!mCurrentJunkFolderURI.IsEmpty() && !mCurrentJunkFolderURI.Equals(newJunkFolderURI))
   {
     nsCOMPtr<nsIMsgFolder> oldJunkFolder;
-    rv = GetExistingFolder(mCurrentJunkFolderURI, getter_AddRefs(oldJunkFolder));
-    if (NS_SUCCEEDED(rv) && oldJunkFolder)
+    rv = FindFolder(mCurrentJunkFolderURI, getter_AddRefs(oldJunkFolder));
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (oldJunkFolder)
     {
       // remove the nsMsgFolderFlags::Junk on the old junk folder
       // XXX TODO

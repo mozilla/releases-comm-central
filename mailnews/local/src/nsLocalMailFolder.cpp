@@ -3451,8 +3451,9 @@ nsMsgLocalMailFolder::OnMessageClassified(const char *aMsgURI,
           if (moveOnSpam)
           {
             nsCOMPtr<nsIMsgFolder> folder;
-            rv = GetExistingFolder(spamFolderURI, getter_AddRefs(folder));
-            if (NS_SUCCEEDED(rv) && folder)
+            rv = FindFolder(spamFolderURI, getter_AddRefs(folder));
+            NS_ENSURE_SUCCESS(rv, rv);
+            if (folder)
             {
               rv = folder->SetFlag(nsMsgFolderFlags::Junk);
               NS_ENSURE_SUCCESS(rv,rv);
@@ -3487,8 +3488,10 @@ nsMsgLocalMailFolder::OnMessageClassified(const char *aMsgURI,
     if (!mSpamKeysToMove.IsEmpty())
     {
       nsCOMPtr<nsIMsgFolder> folder;
-      if (!spamFolderURI.IsEmpty())
-        rv = GetExistingFolder(spamFolderURI, getter_AddRefs(folder));
+      if (!spamFolderURI.IsEmpty()) {
+        rv = FindFolder(spamFolderURI, getter_AddRefs(folder));
+        NS_ENSURE_SUCCESS(rv, rv);
+      }
       for (uint32_t keyIndex = 0; keyIndex < mSpamKeysToMove.Length(); keyIndex++)
       {
         // If an upstream filter moved this message, don't move it here.

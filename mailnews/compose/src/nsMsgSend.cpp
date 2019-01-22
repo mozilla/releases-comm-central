@@ -2561,7 +2561,8 @@ nsMsgComposeAndSend::InitCompositionFields(nsMsgCompFields *fields,
       else
       {
         nsCOMPtr<nsIMsgFolder> folder;
-        GetExistingFolder(nsDependentCString(fieldsFCC), getter_AddRefs(folder));
+        rv = FindFolder(nsDependentCString(fieldsFCC), getter_AddRefs(folder));
+        NS_ENSURE_SUCCESS(rv, rv);
         if (folder)
         {
           useDefaultFCC = false;
@@ -4354,8 +4355,13 @@ nsMsgComposeAndSend::MimeDoFCC(nsIFile          *input_file,
   // the file for parsing...
   //
 
-  if (fcc_header && *fcc_header)
-    GetExistingFolder(nsDependentCString(fcc_header), getter_AddRefs(folder));
+  if (fcc_header && *fcc_header) {
+    rv = FindFolder(nsDependentCString(fcc_header), getter_AddRefs(folder));
+    if (NS_FAILED(rv)) {
+      status = rv;
+      goto FAIL;
+    }
+  }
 
   if ((mode == nsMsgDeliverNow || mode == nsMsgSendUnsent) && folder)
   {

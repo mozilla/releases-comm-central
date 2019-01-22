@@ -261,7 +261,8 @@ nsresult nsMsgPurgeService::PerformPurge()
         // because the folder pane isn't built yet, for example
         // skip this account
         nsCOMPtr<nsIMsgFolder> junkFolder;
-        GetExistingFolder(junkFolderURI, getter_AddRefs(junkFolder));
+        rv = FindFolder(junkFolderURI, getter_AddRefs(junkFolder));
+        NS_ENSURE_SUCCESS(rv, rv);
 
         MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("[%d] %s exists? %s (if doesn't exist, don't purge)", serverIndex, junkFolderURI.get(), junkFolder ? "true" : "false"));
         if (!junkFolder)

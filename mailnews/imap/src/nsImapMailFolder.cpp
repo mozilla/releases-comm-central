@@ -9155,15 +9155,16 @@ nsImapMailFolder::OnMessageClassified(const char * aMsgURI,
           {
             nsCString spamFolderURI;
             rv = spamSettings->GetSpamFolderURI(getter_Copies(spamFolderURI));
-            NS_ENSURE_SUCCESS(rv,rv);
+            NS_ENSURE_SUCCESS(rv, rv);
 
             if (!spamFolderURI.IsEmpty())
             {
-              rv = GetExistingFolder(spamFolderURI, getter_AddRefs(mSpamFolder));
-              if (NS_SUCCEEDED(rv) && mSpamFolder)
+              rv = FindFolder(spamFolderURI, getter_AddRefs(mSpamFolder));
+              NS_ENSURE_SUCCESS(rv, rv);
+              if (mSpamFolder)
               {
                 rv = mSpamFolder->SetFlag(nsMsgFolderFlags::Junk);
-                NS_ENSURE_SUCCESS(rv,rv);
+                NS_ENSURE_SUCCESS(rv, rv);
                 mSpamKeysToMove.AppendElement(msgKey);
                 willMoveMessage = true;
               }

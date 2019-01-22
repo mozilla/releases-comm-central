@@ -556,7 +556,7 @@ void nsImapOfflineSync::ProcessMoveOperation(nsIMsgOfflineImapOperation *op)
   while (currentOp);
 
   nsCOMPtr<nsIMsgFolder> destFolder;
-  GetExistingFolder(moveDestination, getter_AddRefs(destFolder));
+  FindFolder(moveDestination, getter_AddRefs(destFolder));
   // if the dest folder doesn't really exist, these operations are
   // going to fail, so clear them out and move on.
   if (!destFolder)
@@ -671,7 +671,7 @@ void nsImapOfflineSync::ProcessCopyOperation(nsIMsgOfflineImapOperation *aCurren
 
   nsAutoCString uids;
   nsCOMPtr<nsIMsgFolder> destFolder;
-  GetExistingFolder(copyDestination, getter_AddRefs(destFolder));
+  FindFolder(copyDestination, getter_AddRefs(destFolder));
   // if the dest folder doesn't really exist, these operations are
   // going to fail, so clear them out and move on.
   if (!destFolder)

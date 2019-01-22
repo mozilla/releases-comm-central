@@ -4141,8 +4141,9 @@ nsMsgDBView::DetermineActionsForJunkChange(bool msgsAreJunk,
     NS_ASSERTION(!spamFolderURI.IsEmpty(), "spam folder URI is empty, can't move");
     if (!spamFolderURI.IsEmpty())
     {
-      rv = GetExistingFolder(spamFolderURI, targetFolder);
-      if (NS_SUCCEEDED(rv) && *targetFolder)
+      rv = FindFolder(spamFolderURI, targetFolder);
+      NS_ENSURE_SUCCESS(rv,rv);
+      if (*targetFolder)
       {
         moveMessages = true;
       }
@@ -4157,7 +4158,7 @@ nsMsgDBView::DetermineActionsForJunkChange(bool msgsAreJunk,
         if (NS_SUCCEEDED(rv))
           rv = GetExistingFolder(spamFolderURI, targetFolder);
 
-        NS_ASSERTION(NS_SUCCEEDED(rv) && *targetFolder, "GetOrCreateFolder failed");
+        NS_ASSERTION(NS_SUCCEEDED(rv), "GetOrCreateJunkFolder failed");
       }
     }
 
