@@ -75,7 +75,9 @@ var reporterListener = {
                                      browser.securityUI.tooltipText);
   },
 
-  onContentBlockingEvent(aWebProgress, aRequest, aEvent) {
+  onContentBlockingEvent(/* in nsIWebProgress*/ aWebProgress,
+                         /* in nsIRequest*/ aRequest,
+                         /* in unsigned long*/ aEvent) {
   },
 };
 
