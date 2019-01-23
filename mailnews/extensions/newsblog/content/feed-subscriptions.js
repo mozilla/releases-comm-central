@@ -2668,11 +2668,7 @@ var FeedSubscriptions = {
           // A folder outline. If a folder exists in the account structure at
           // the same level as in the opml structure, feeds are placed into the
           // existing folder.
-          let defaultName = FeedUtils.strings.GetStringFromName("ImportFeedsNew");
-          let folderName = FeedUtils.getSanitizedFolderName(aParentFolder,
-                                                            outlineName,
-                                                            defaultName,
-                                                            false);
+          let folderName = outlineName;
           try {
             feedFolder = aParentFolder.getChildNamed(folderName);
           } catch (ex) {
