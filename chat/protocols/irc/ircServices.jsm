@@ -36,7 +36,8 @@ function ServiceMessage(aAccount, aMessage) {
   let nicknameToServiceName = {
     "chanserv": "ChanServ",
     "infoserv": "InfoServ",
-    "nickserv": "NickServ"
+    "nickserv": "NickServ",
+    "freenode-connect": "freenode-connect"
   };
 
   let nickname = aAccount.normalize(aMessage.origin);
@@ -229,6 +230,23 @@ var servicesBase = {
       }
 
       return false;
+    },
+
+    /*
+     * freenode sends some annoying messages on start-up from a freenode-connect
+     * bot. Only show these if the user wants to see server messages. See bug
+     * 1521761.
+     */
+    "freenode-connect": function(aMessage) {
+      // If the user would like to see server messages, fall through to the
+      // standard handler.
+      if (this._showServerTab)
+        return false;
+
+      // Only ignore the message notifying of scanning (and include additional
+      // checking of the hostname).
+      return (aMessage.host.startsWith("freenode/utility-bot/") &&
+              aMessage.params[1].includes("connections will be scanned for vulnerabilities"));
     }
   }
 };
