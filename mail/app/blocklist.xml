@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<blocklist lastupdate="1547658828472" xmlns="http://www.mozilla.org/2006/addons-blocklist">
+<blocklist lastupdate="1547810271416" xmlns="http://www.mozilla.org/2006/addons-blocklist">
   <emItems>
     <emItem blockID="i334" id="{0F827075-B026-42F3-885D-98981EE7B1AE}">
       <prefs/>
@@ -2298,6 +2298,10 @@
       <versionRange minVersion="0" maxVersion="*" severity="3"/>
     </emItem>
     <emItem blockID="451d950f-ca89-491b-87e7-45123e4f5ab4" id="reopen@closedtab.com">
+      <prefs/>
+      <versionRange minVersion="0" maxVersion="*" severity="3"/>
+    </emItem>
+    <emItem blockID="a15e8d7e-0726-4190-8187-c75e2b46d429" id="/^((\{94f608b3-76b6-4b7b-8cef-7360df22a930\})|(\{9648b74f-35ea-4218-acf0-ec2191f509f6\}))$/">
       <prefs/>
       <versionRange minVersion="0" maxVersion="*" severity="3"/>
     </emItem>
