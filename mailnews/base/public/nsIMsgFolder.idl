@@ -695,9 +695,6 @@ interface nsIMsgFolder : nsISupports {
 
   void NotifyFolderEvent(in ACString event);
 
-  //  void NotifyFolderLoaded();
-  //  void NotifyDeleteOrMoveMessagesCompleted(in nsIMsgFolder folder);
-
   // Gets all descendants, not just first level children.
   readonly attribute nsIArray descendants;
   /*
