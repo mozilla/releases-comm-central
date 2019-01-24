@@ -984,26 +984,27 @@ function async_trash_messages(aSynMessageSet) {
  * Delete all of the messages in a SyntheticMessageSet like the user performed a
  *  shift-delete (or if the messages were already in the trash).
  *
- * This is actually a synchronous operation.  I'm surprised too.
- *
  * @param aSynMessageSet The set of messages to delete.  The messages do not all
  *     have to be in the same folder, but we have to delete them folder by
  *     folder if they are not.
  */
 function async_delete_messages(aSynMessageSet) {
-  mark_action("messageInjection", "deleting messages",
-              aSynMessageSet.msgHdrList);
-  for (let [folder, xpcomHdrArray] of
-       aSynMessageSet.foldersWithXpcomHdrArrays()) {
-    mark_action("messageInjection", "deleting messages in folder",
-                [folder]);
-    folder.deleteMessages(xpcomHdrArray, null,
-                          /* delete storage */ true,
-                          /* is move? */ false,
-                          asyncCopyListener,
-                          /* do not allow undo, currently leaks */ false);
-  }
-  return true;
+  return async_run({func: function*() {
+    mark_action("messageInjection", "deleting messages",
+                aSynMessageSet.msgHdrList);
+    for (let [folder, xpcomHdrArray] of
+         aSynMessageSet.foldersWithXpcomHdrArrays()) {
+      mark_action("messageInjection", "deleting messages in folder",
+                  [folder]);
+      folder.deleteMessages(xpcomHdrArray, null,
+                            /* delete storage */ true,
+                            /* is move? */ false,
+                            asyncCopyListener,
+                            /* do not allow undo, currently leaks */ false);
+      yield false;
+    }
+    yield true;
+  }});
 }
 
 /**
