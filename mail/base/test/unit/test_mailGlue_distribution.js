@@ -1,6 +1,3 @@
-// This file uses eval, but really shouldn't. See bug 1498497.
-/* eslint-disable no-eval */
-
 ChromeUtils.import("resource:///modules/TBDistCustomizer.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
@@ -75,7 +72,7 @@ function run_test() {
   let keys = testIni.getKeys(s);
   while (keys.hasMore()) {
     let key = keys.getNext();
-    let value = eval(testIni.getString(s, key));
+    let value = TBDistCustomizer.parseValue(testIni.getString(s, key));
     switch (typeof value) {
     case "boolean":
         Assert.equal(value, Services.prefs.getBoolPref(key));
@@ -98,7 +95,7 @@ function run_test() {
   keys = testIni.getKeys(s);
   while (keys.hasMore()) {
     let key = keys.getNext();
-    let value = eval(testIni.getString(s, key));
+    let value = TBDistCustomizer.parseValue(testIni.getString(s, key));
     value = "data:text/plain," + key + "=" + value;
     Assert.equal(value, Services.prefs.getCharPref(key));
     overrides.push(key);
@@ -112,7 +109,7 @@ function run_test() {
   while (keys.hasMore()) {
     let key = keys.getNext();
     if (!overrides.includes(key)) {
-      let value = eval(testIni.getString(s, key));
+      let value = TBDistCustomizer.parseValue(testIni.getString(s, key));
       value =  value.replace(/%LOCALE%/g, "en-US");
       value = "data:text/plain," + key + "=" + value;
       Assert.equal(value, Services.prefs.getCharPref(key));

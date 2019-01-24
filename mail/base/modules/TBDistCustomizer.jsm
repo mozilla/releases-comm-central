@@ -2,9 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// This file uses eval, but really shouldn't. See bug 1498497.
-/* eslint-disable no-eval */
-
 this.EXPORTED_SYMBOLS = ["TBDistCustomizer"];
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -52,7 +49,7 @@ var TBDistCustomizer = {
         let key = keys.getNext();
         try {
           // Get the string value of the key
-          let value = eval(this._ini.getString("Preferences", key));
+          let value = this.parseValue(this._ini.getString("Preferences", key));
           // After determining what type it is, set the pref
           switch (typeof value) {
           case "boolean":
@@ -76,11 +73,6 @@ var TBDistCustomizer = {
     }
 
     // Set the prefs in the other sections
-
-    // We eval() the localizable prefs as well (even though they'll
-    // always get set as a string) to keep the INI format consistent:
-    // string prefs always need to be in quotes
-
     let localizedStr = Cc["@mozilla.org/pref-localizedstring;1"]
                          .createInstance(Ci.nsIPrefLocalizedString);
 
@@ -89,7 +81,7 @@ var TBDistCustomizer = {
       while (keys.hasMore()) {
         let key = keys.getNext();
         try {
-          let value = eval(this._ini.getString("LocalizablePreferences", key));
+          let value = this.parseValue(this._ini.getString("LocalizablePreferences", key));
           value = value.replace(/%LOCALE%/g, this._locale);
           localizedStr.data = "data:text/plain," + key + "=" + value;
           defaults.setComplexValue(key, Ci.nsIPrefLocalizedString, localizedStr);
@@ -104,7 +96,7 @@ var TBDistCustomizer = {
       while (keys.hasMore()) {
         let key = keys.getNext();
         try {
-          let value = eval(this._ini.getString("LocalizablePreferences-" + this._locale, key));
+          let value = this.parseValue(this._ini.getString("LocalizablePreferences-" + this._locale, key));
           localizedStr.data = "data:text/plain," + key + "=" + value;
           defaults.setComplexValue(key, Ci.nsIPrefLocalizedString, localizedStr);
         } catch (e) {
@@ -112,6 +104,19 @@ var TBDistCustomizer = {
         }
       }
     }
+  },
+
+  parseValue(value) {
+    try {
+      value = JSON.parse(value);
+    } catch (e) {
+      // JSON.parse catches numbers and booleans.
+      // Anything else, we assume is a string.
+      // Remove the quotes that aren't needed anymore.
+      value = value.replace(/^"/, "");
+      value = value.replace(/"$/, "");
+    }
+    return value;
   },
 };
 
