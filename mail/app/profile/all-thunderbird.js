@@ -805,6 +805,9 @@ pref("security.sandbox.content.mac.earlyinit", false);
 // Enable FIDO U2F
 pref("security.webauth.u2f", true);
 
+// Temporarily allow eval, see bug 1522608.
+pref("security.allow_eval_with_system_principal", true);
+
 // Use OS date and time settings by default.
 pref("intl.regional_prefs.use_os_locales", true);
 
