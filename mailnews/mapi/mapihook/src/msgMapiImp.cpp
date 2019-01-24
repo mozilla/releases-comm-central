@@ -174,7 +174,7 @@ STDMETHODIMP CMapiImp::Login(unsigned long aUIArg, LPSTR aLogin, LPSTR aPassWord
         nResult = pConfig->RegisterSession(aUIArg,
             aLogin ? nsDependentCString(aLogin) : EmptyCString(),
             aPassWord ? nsDependentCString(aPassWord) : EmptyCString(),
-            (aFlags & MAPI_FORCE_DOWNLOAD), bNewSession, 
+            (aFlags & MAPI_FORCE_DOWNLOAD), bNewSession,
             &nSession_Id, id_key.get());
     switch (nResult)
     {
