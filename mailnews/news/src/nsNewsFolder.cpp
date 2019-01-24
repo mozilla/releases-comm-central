@@ -796,12 +796,6 @@ nsMsgNewsFolder::DeleteMessages(nsIArray *messages, nsIMsgWindow *aMsgWindow,
     NotifyFolderEvent(NS_SUCCEEDED(rv) ? kDeleteOrMoveMsgCompleted :
       kDeleteOrMoveMsgFailed);
 
-  if (listener)
-  {
-    listener->OnStartCopy();
-    listener->OnStopCopy(NS_OK);
-  }
-
   (void) RefreshSizeOnDisk();
 
   return NS_OK;

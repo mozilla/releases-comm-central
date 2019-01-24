@@ -1138,14 +1138,8 @@ nsMsgLocalMailFolder::DeleteMessages(nsIArray *messages,
   if (!isMove && (deleteStorage || isTrashFolder))
   {
     nsCOMPtr<nsIMsgFolderNotificationService> notifier(do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
-    if (notifier) {
-      if (listener)
-      {
-        listener->OnStartCopy();
-        listener->OnStopCopy(NS_OK);
-      }
-      notifier->NotifyMsgsDeleted(messages);
-    }
+    if (notifier)
+        notifier->NotifyMsgsDeleted(messages);
   }
 
   if (!deleteStorage && !isTrashFolder)

@@ -2253,11 +2253,6 @@ NS_IMETHODIMP nsImapMailFolder::DeleteMessages(nsIArray *messages,
           database->DeleteMessages(srcKeyArray.Length(), srcKeyArray.Elements(), nullptr);
           EnableNotifications(allMessageCountNotifications, true);
         }
-        if (listener)
-        {
-          listener->OnStartCopy();
-          listener->OnStopCopy(NS_OK);
-        }
         NotifyFolderEvent(kDeleteOrMoveMsgCompleted);
       }
     }
