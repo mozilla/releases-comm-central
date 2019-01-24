@@ -1000,7 +1000,7 @@ function async_delete_messages(aSynMessageSet) {
     folder.deleteMessages(xpcomHdrArray, null,
                           /* delete storage */ true,
                           /* is move? */ false,
-                          asyncCopyListener,
+                          null,
                           /* do not allow undo, currently leaks */ false);
   }
   return true;
