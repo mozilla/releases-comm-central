@@ -85,7 +85,6 @@ NS_INTERFACE_MAP_BEGIN(nsMsgMailNewsUrl)
   NS_INTERFACE_MAP_ENTRY(nsIURI)
   NS_INTERFACE_MAP_ENTRY(nsISerializable)
   NS_INTERFACE_MAP_ENTRY(nsIClassInfo)
-  NS_INTERFACE_MAP_ENTRY(nsIIPCSerializableURI)
   NS_INTERFACE_MAP_ENTRY_CONDITIONAL(nsIURIWithSpecialOrigin, m_hasNormalizedOrigin)
 NS_INTERFACE_MAP_END
 
@@ -97,12 +96,8 @@ NS_INTERFACE_MAP_END
 // cause problems in the future. See bug 1512356 and bug 1515337 for details,
 // follow-up in bug 1512698.
 
-//----------------------------------
-// Support for nsIIPCSerializableURI
-//----------------------------------
-void nsMsgMailNewsUrl::Serialize(mozilla::ipc::URIParams &aParams) {
-  nsCOMPtr<nsIIPCSerializableURI> serializable = do_QueryInterface(m_baseURL);
-  return serializable->Serialize(aParams);
+NS_IMETHODIMP_(void) nsMsgMailNewsUrl::Serialize(mozilla::ipc::URIParams &aParams) {
+  m_baseURL->Serialize(aParams);
 }
 
 //----------------------------

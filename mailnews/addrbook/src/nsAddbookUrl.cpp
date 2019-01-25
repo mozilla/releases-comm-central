@@ -240,6 +240,12 @@ nsresult nsAddbookUrl::SetQueryWithEncoding(const nsACString &aQuery, const mozi
   return NS_MutateURI(m_baseURL).SetQueryWithEncoding(aQuery, aEncoding).Finalize(m_baseURL);
 }
 
+NS_IMETHODIMP_(void)
+nsAddbookUrl::Serialize(mozilla::ipc::URIParams &aParams)
+{
+  m_baseURL->Serialize(aParams);
+}
+
 NS_IMETHODIMP nsAddbookUrl::EqualsExceptRef(nsIURI *other, bool *_retval)
 {
   // The passed-in URI might be an nsMailtoUrl. Pass our inner URL to its

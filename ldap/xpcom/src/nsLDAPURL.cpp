@@ -723,6 +723,12 @@ nsresult nsLDAPURL::SetQueryWithEncoding(const nsACString &aQuery, const mozilla
   return NS_MutateURI(mBaseURL).SetQueryWithEncoding(aQuery, aEncoding).Finalize(mBaseURL);
 }
 
+NS_IMETHODIMP_(void)
+nsLDAPURL::Serialize(mozilla::ipc::URIParams &aParams)
+{
+  mBaseURL->Serialize(aParams);
+}
+
 NS_IMPL_ISUPPORTS(nsLDAPURL::Mutator, nsIURISetters, nsIURIMutator)
 
 NS_IMETHODIMP

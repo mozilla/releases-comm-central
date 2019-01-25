@@ -629,6 +629,12 @@ nsresult nsMailtoUrl::SetQueryWithEncoding(const nsACString &aQuery, const mozil
   return NS_MutateURI(m_baseURL).SetQueryWithEncoding(aQuery, aEncoding).Finalize(m_baseURL);
 }
 
+NS_IMETHODIMP_(void)
+nsMailtoUrl::Serialize(mozilla::ipc::URIParams &aParams)
+{
+  m_baseURL->Serialize(aParams);
+}
+
 NS_IMPL_ISUPPORTS(nsMailtoUrl::Mutator, nsIURISetters, nsIURIMutator)
 
 NS_IMETHODIMP
