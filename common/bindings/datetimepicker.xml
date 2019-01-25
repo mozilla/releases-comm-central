@@ -490,7 +490,12 @@
 
             var numberOrder = /^(\D*)\s*(\d+)(\D*)(\d+)(\D*)(\d+)\s*(\D*)$/;
 
-            var locale = Services.locale.regionalPrefsLocales[0] + "-u-ca-gregory-nu-latn";
+            // XXX TODO: The following hack should be fixed once Intl.Locale arrives in bug 1433303.
+            var locale = Services.locale.regionalPrefsLocales[0];
+            if (locale.includes("-u-"))
+              locale += "-ca-gregory-nu-latn";
+            else
+              locale += "-u-ca-gregory-nu-latn";
             var dtf = new Services.intl.DateTimeFormat(locale, { timeStyle: "long" });
 
             var pmTime = dtf.format(new Date(2000, 0, 1, 16, 7, 9));
