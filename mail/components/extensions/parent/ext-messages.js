@@ -4,6 +4,9 @@
 
 ChromeUtils.defineModuleGetter(this, "MailServices", "resource:///modules/MailServices.jsm");
 ChromeUtils.defineModuleGetter(this, "MsgHdrToMimeMessage", "resource:///modules/gloda/mimemsg.js");
+ChromeUtils.defineModuleGetter(this, "toXPCOMArray", "resource:///modules/iteratorUtils.jsm");
+
+var { DefaultMap } = ExtensionUtils;
 
 /**
  * Takes a part of a MIME message (as retrieved with MsgHdrToMimeMessage) and filters
@@ -24,6 +27,65 @@ function convertMessagePart(part) {
 
 this.messages = class extends ExtensionAPI {
   getAPI(context) {
+    function collectMessagesInFolders(messageIds) {
+      let folderMap = new DefaultMap(() => new Set());
+
+      for (let id of messageIds) {
+        let msgHdr = messageTracker.getMessage(id);
+        if (!msgHdr) {
+          continue;
+        }
+
+        let sourceSet = folderMap.get(msgHdr.folder);
+        sourceSet.add(msgHdr);
+      }
+
+      return folderMap;
+    }
+
+    async function moveOrCopyMessages(messageIds, { accountId, path }, isMove) {
+      let destinationURI = folderPathToURI(accountId, path);
+      let destinationFolder = MailServices.folderLookup.getFolderForURL(destinationURI);
+      let folderMap = collectMessagesInFolders(messageIds);
+      let promises = [];
+      for (let [sourceFolder, sourceSet] of folderMap.entries()) {
+        if (sourceFolder == destinationFolder) {
+          continue;
+        }
+
+        let messages = toXPCOMArray(sourceSet.values(), Ci.nsIMutableArray);
+        promises.push(new Promise((resolve, reject) => {
+          MailServices.copy.CopyMessages(
+            sourceFolder, messages, destinationFolder, isMove, {
+              OnStartCopy() {
+              },
+              OnProgress(progress, progressMax) {
+              },
+              SetMessageKey(key) {
+              },
+              GetMessageId(messageId) {
+              },
+              OnStopCopy(status) {
+                if (status == Cr.NS_OK) {
+                  resolve();
+                } else {
+                  reject(status);
+                }
+              },
+            }, /* msgWindow */ null, /* allowUndo */ true);
+        }));
+      }
+      try {
+        await Promise.all(promises);
+      } catch (ex) {
+        Cu.reportError(ex);
+        if (isMove) {
+          throw new ExtensionError(`Unexpected error moving messages: ${ex}`);
+        }
+        throw new ExtensionError(`Unexpected error copying messages: ${ex}`);
+      }
+    }
+
     return {
       messages: {
         async list({ accountId, path }) {
@@ -63,6 +125,52 @@ this.messages = class extends ExtensionAPI {
             for (let window of Services.wm.getEnumerator("mail:3pane")) {
               window.OnTagsChange();
             }
+          }
+        },
+        async move(messageIds, destination) {
+          return moveOrCopyMessages(messageIds, destination, true);
+        },
+        async copy(messageIds, destination) {
+          return moveOrCopyMessages(messageIds, destination, false);
+        },
+        async delete(messageIds, skipTrash) {
+          let folderMap = collectMessagesInFolders(messageIds);
+          for (let sourceFolder of folderMap.keys()) {
+            if (!sourceFolder.canDeleteMessages) {
+              throw new ExtensionError(`Unable to delete messages in "${sourceFolder.prettyName}"`);
+            }
+          }
+          let promises = [];
+          for (let [sourceFolder, sourceSet] of folderMap.entries()) {
+            promises.push(new Promise((resolve, reject) => {
+              let messages = toXPCOMArray(sourceSet.values(), Ci.nsIMutableArray);
+              sourceFolder.deleteMessages(
+                messages, /* msgWindow */ null, /* deleteStorage */ skipTrash,
+                /* isMove */ false, {
+                  OnStartCopy() {
+                  },
+                  OnProgress(progress, progressMax) {
+                  },
+                  SetMessageKey(key) {
+                  },
+                  GetMessageId(messageId) {
+                  },
+                  OnStopCopy(status) {
+                    if (status == Cr.NS_OK) {
+                      resolve();
+                    } else {
+                      reject(status);
+                    }
+                  },
+                }, /* allowUndo */ true
+              );
+            }));
+          }
+          try {
+            await Promise.all(promises);
+          } catch (ex) {
+            Cu.reportError(ex);
+            throw new ExtensionError(`Unexpected error deleting messages: ${ex}`);
           }
         },
         async listTags() {

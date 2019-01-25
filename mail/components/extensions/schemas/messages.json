@@ -8,6 +8,7 @@
           {
             "type": "string",
             "enum": [
+              "messagesMove",
               "messagesRead"
             ]
           }
@@ -77,7 +78,8 @@
         "parameters": [
           {
             "name": "messageId",
-            "type": "integer"
+            "type": "integer",
+            "minimum": 1
           },
           {
             "name": "newProperties",
@@ -102,6 +104,82 @@
                 }
               }
             }
+          }
+        ]
+      },
+      {
+        "name": "move",
+        "type": "function",
+        "description": "Moves messages to a specified folder.",
+        "async": true,
+        "permissions": [
+          "messagesMove"
+        ],
+        "parameters": [
+          {
+            "name": "messageIds",
+            "type": "array",
+            "description": "The IDs of the messages to move.",
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "destination",
+            "$ref": "accounts.MailFolder",
+            "description": "The folder to move the messages to."
+          }
+        ]
+      },
+      {
+        "name": "copy",
+        "type": "function",
+        "description": "Copies messages to a specified folder.",
+        "async": true,
+        "permissions": [
+          "messagesMove"
+        ],
+        "parameters": [
+          {
+            "name": "messageIds",
+            "type": "array",
+            "description": "The IDs of the messages to copy.",
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "destination",
+            "$ref": "accounts.MailFolder",
+            "description": "The folder to copy the messages to."
+          }
+        ]
+      },
+      {
+        "name": "delete",
+        "type": "function",
+        "description": "Deletes messages, or moves them to the trash folder.",
+        "async": true,
+        "permissions": [
+          "messagesMove"
+        ],
+        "parameters": [
+          {
+            "name": "messageIds",
+            "type": "array",
+            "description": "The IDs of the messages to delete.",
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "skipTrash",
+            "type": "boolean",
+            "description": "If true, the message will be permanently deleted without warning the user. If false or not specified, it will be moved to the trash folder.",
+            "optional": true
           }
         ]
       },

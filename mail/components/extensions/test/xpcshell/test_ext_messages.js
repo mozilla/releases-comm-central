@@ -11,9 +11,13 @@ let account, rootFolder, subFolders;
 async function run_test() {
   account = createAccount();
   rootFolder = account.incomingServer.rootFolder;
+  rootFolder.createSubfolder("test1", null);
+  rootFolder.createSubfolder("test2", null);
+  rootFolder.createSubfolder("test3", null);
   subFolders = [...rootFolder.subFolders];
-  createMessages(subFolders[0], 99);
-  createMessages(subFolders[1], 1);
+  createMessages(subFolders[0], 99); // Trash
+  createMessages(subFolders[1], 1); // Unsent messages
+  createMessages(subFolders[2], 5); // test1
 
   run_next_test();
 }
@@ -176,4 +180,148 @@ add_task(async function test_update() {
 
   await extension.awaitFinish("finished");
   await extension.unload();
+});
+
+add_task(async function test_move_copy_delete() {
+  let extension = ExtensionTestUtils.loadExtension({
+    async background() {
+      function awaitMessage() {
+        return new Promise(resolve => {
+          browser.test.onMessage.addListener(function listener(...args) {
+            browser.test.onMessage.removeListener(listener);
+            resolve(args);
+          });
+        });
+      }
+
+      async function checkMessagesInFolder(expectedIndices, folder) {
+        let expectedSubjects = expectedIndices.map(i => subjects[i]);
+        let {messages: actualMessages} = await browser.messages.list(folder);
+
+        browser.test.assertEq(expectedSubjects.length, actualMessages.length);
+        for (let m of actualMessages) {
+          browser.test.assertTrue(expectedSubjects.includes(m.subject));
+          let index = subjects.indexOf(m.subject);
+          ids[index] = m.id;
+        }
+
+        // Return the messages for convenience.
+        return actualMessages;
+      }
+
+      let [accountId] = await awaitMessage();
+      let {folders} = await browser.accounts.get(accountId);
+      let testFolder1 = folders.find(f => f.name == "test1");
+      let testFolder2 = folders.find(f => f.name == "test2");
+      let testFolder3 = folders.find(f => f.name == "test3");
+      let trashFolder = folders.find(f => f.name == "Trash");
+
+      let {messages: folder1Messages} = await browser.messages.list(testFolder1);
+      // Since the ID of a message changes when it is moved, track by subject.
+      let ids = folder1Messages.map(m => m.id);
+      let subjects = folder1Messages.map(m => m.subject);
+
+      // To help with debugging, output the IDs of our five messages.
+      // Conveniently at this point we know the messages should be numbered 101-105,
+      // (since we used 100 messages in the previous two tests) so I've put the
+      // expected values in comments.
+      browser.test.log(ids.join(", ")); // 101, 102, 103, 104, 105
+
+      // Move one message to another folder.
+      await browser.messages.move([ids[0]], testFolder2);
+      await checkMessagesInFolder([1, 2, 3, 4], testFolder1);
+      await checkMessagesInFolder([0], testFolder2);
+      browser.test.log(ids.join(", ")); // 106, 102, 103, 104, 105
+
+      // And back again.
+      await browser.messages.move([ids[0]], testFolder1);
+      await checkMessagesInFolder([0, 1, 2, 3, 4], testFolder1);
+      await checkMessagesInFolder([], testFolder2);
+      browser.test.log(ids.join(", ")); // 101, 102, 103, 103, 105
+
+      // Move two messages to another folder.
+      await browser.messages.move([ids[1], ids[3]], testFolder2);
+      await checkMessagesInFolder([0, 2, 4], testFolder1);
+      await checkMessagesInFolder([1, 3], testFolder2);
+      browser.test.log(ids.join(", ")); // 101, 107, 103, 108, 105
+
+      // Move one back again.
+      await browser.messages.move([ids[3]], testFolder1);
+      await checkMessagesInFolder([0, 2, 3, 4], testFolder1);
+      await checkMessagesInFolder([1], testFolder2);
+      browser.test.log(ids.join(", ")); // 101, 107, 103, 104, 105
+
+      // Move messages from different folders to a third folder.
+      await browser.messages.move([ids[1], ids[3]], testFolder3);
+      await checkMessagesInFolder([0, 2, 4], testFolder1);
+      await checkMessagesInFolder([], testFolder2);
+      await checkMessagesInFolder([1, 3], testFolder3);
+      browser.test.log(ids.join(", ")); // 101, 109, 103, 110, 105
+
+      // Move a message to the folder it's already in.
+      await browser.messages.move([ids[1]], testFolder3);
+      await checkMessagesInFolder([1, 3], testFolder3);
+      browser.test.log(ids.join(", ")); // 101, 109, 103, 110, 105
+
+      // Move no messages.
+      await browser.messages.move([], testFolder3);
+      await checkMessagesInFolder([0, 2, 4], testFolder1);
+      await checkMessagesInFolder([], testFolder2);
+      await checkMessagesInFolder([1, 3], testFolder3);
+      browser.test.log(ids.join(", ")); // 101, 109, 103, 110, 105
+
+      // Move a non-existent message.
+      await browser.messages.move([9999], testFolder1);
+      await checkMessagesInFolder([0, 2, 4], testFolder1);
+      browser.test.log(ids.join(", ")); // 101, 109, 103, 110, 105
+
+      // Move to a non-existent folder.
+      browser.test.assertRejects(browser.messages.move([ids[0]], {accountId, path: "/missing"}));
+
+      // Put everything back where it was at the start of the test.
+      await browser.messages.move(ids, testFolder1);
+
+      // Copy one message to another folder.
+      await browser.messages.copy([ids[4]], testFolder2);
+      await checkMessagesInFolder([0, 1, 2, 3, 4], testFolder1);
+      let {messages: folder2Messages} = await browser.messages.list(testFolder2);
+      browser.test.assertEq(1, folder2Messages.length);
+      browser.test.assertEq(subjects[4], folder2Messages[0].subject);
+      browser.test.assertTrue(folder2Messages[0].id != ids[4]);
+      ids.push(folder2Messages[0].id);
+      browser.test.log(ids.join(", ")); // 101, 102, 103, 104, 105, 111
+
+      // Delete the copied message.
+      await browser.messages.delete([ids.pop()], true);
+      await checkMessagesInFolder([0, 1, 2, 3, 4], testFolder1);
+      await checkMessagesInFolder([], testFolder2);
+      await checkMessagesInFolder([], testFolder3);
+      browser.test.log(ids.join(", ")); // 101, 102, 103, 104, 105
+
+      // Move a message to the trash.
+      let trashedMessage = await browser.messages.get(ids.pop());
+      await browser.messages.delete([trashedMessage.id], false);
+      await checkMessagesInFolder([0, 1, 2, 3], testFolder1);
+      await checkMessagesInFolder([], testFolder2);
+      await checkMessagesInFolder([], testFolder3);
+
+      let {messages: trashFolderMessages} = await browser.messages.list(trashFolder);
+      browser.test.assertTrue(trashFolderMessages.find(m => m.subject == trashedMessage.subject));
+      browser.test.log(ids.join(", ")); // 101, 102, 103, 104
+
+      browser.test.notifyPass("finished");
+    },
+    manifest: {
+      permissions: ["accountsRead", "messagesMove", "messagesRead"],
+    },
+  });
+
+  Services.prefs.setIntPref("extensions.webextensions.messagesPerPage", 1000);
+
+  await extension.startup();
+  extension.sendMessage(account.key);
+  await extension.awaitFinish("finished");
+  await extension.unload();
+
+  Services.prefs.clearUserPref("extensions.webextensions.messagesPerPage");
 });
