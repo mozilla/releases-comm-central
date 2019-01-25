@@ -8,8 +8,7 @@
 
 var nsIAbPMF = Ci.nsIAbPreferMailFormat;
 
-function run_test()
-{
+function run_test() {
   // Test - Get the address collecter
 
   // Get the actual collecter
@@ -48,4 +47,4 @@ function run_test()
   let CAB = MailServices.ab.getDirectory(kCABData.URI);
 
   Assert.ok(!CAB.childCards.hasMoreElements());
-};
+}

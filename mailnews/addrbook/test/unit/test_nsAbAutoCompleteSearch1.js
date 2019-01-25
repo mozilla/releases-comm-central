@@ -23,7 +23,7 @@ var results = [ { email: "d <ema@foo.invalid>", dirName: kPABData.dirName }, // 
                   { email: "te <lis>", dirName: kPABData.dirName }, // 7
                   { email: "tes <li>", dirName: kPABData.dirName }, // 8
                    // this contact has a nickname of "abcdef"
-                  { email: "test <l>", dirName: kPABData.dirName } // 9
+                  { email: "test <l>", dirName: kPABData.dirName }, // 9
                 ];
 var firstNames = [ { search: "f",      expected: [0, 1, 2, 3, 4, 5, 9] },
                      { search: "fi",     expected: [0, 1, 3, 4, 5] },
@@ -67,7 +67,7 @@ var lists = [ { search: "li", expected: [6, 7, 8, 0, 1, 2, 3, 4, 5] },
                 { search: "te", expected: [7, 8, 9, 5] },
                 { search: "tes", expected: [8, 9, 5] },
                 { search: "test", expected: [9, 5] },
-                { search: "abcdef", expected: [9] } // Bug 441586
+                { search: "abcdef", expected: [9] }, // Bug 441586
               ];
 
 var bothNames = [ { search: "f l",            expected: [0, 1, 2, 3, 4, 5, 9] },
@@ -84,10 +84,10 @@ acObserver.prototype = {
   _search: null,
   _result: null,
 
-  onSearchResult: function (aSearch, aResult) {
+  onSearchResult(aSearch, aResult) {
     this._search = aSearch;
     this._result = aResult;
-  }
+  },
 };
 
 var PAB_CARD_DATA = [
@@ -98,7 +98,7 @@ var PAB_CARD_DATA = [
     "NickName": "ni",
     "PrimaryEmail": "ema@foo.invalid",
     "PreferDisplayName": true,
-    "PopularityIndex": 0
+    "PopularityIndex": 0,
   },
   {
     "FirstName": "first",
@@ -107,7 +107,7 @@ var PAB_CARD_DATA = [
     "NickName": "nic",
     "PrimaryEmail": "emai@foo.invalid",
     "PreferDisplayName": true,
-    "PopularityIndex": 0
+    "PopularityIndex": 0,
   },
   {
     "FirstName": "f",
@@ -116,7 +116,7 @@ var PAB_CARD_DATA = [
     "NickName": "nick",
     "PrimaryEmail": "email@foo.invalid",
     "PreferDisplayName": true,
-    "PopularityIndex": 0
+    "PopularityIndex": 0,
   },
   {
     "FirstName": "fi",
@@ -125,7 +125,7 @@ var PAB_CARD_DATA = [
     "NickName": "nickn",
     "PrimaryEmail": "e@foo.invalid",
     "PreferDisplayName": true,
-    "PopularityIndex": 0
+    "PopularityIndex": 0,
   },
   {
     "FirstName": "fir",
@@ -134,31 +134,31 @@ var PAB_CARD_DATA = [
     "NickName": "n",
     "PrimaryEmail": "em@foo.invalid",
     "PreferDisplayName": true,
-    "PopularityIndex": 0
-  }
+    "PopularityIndex": 0,
+  },
 ];
 
 var PAB_LIST_DATA =  [
   {
-    "dirName" : "t",
+    "dirName": "t",
     "listNickName": null,
-    "description": "list"
+    "description": "list",
   },
   {
-    "dirName" : "te",
+    "dirName": "te",
     "listNickName": null,
-    "description": "lis"
+    "description": "lis",
   },
   {
-    "dirName" : "tes",
+    "dirName": "tes",
     "listNickName": null,
-    "description": "li"
+    "description": "li",
   },
   {
-    "dirName" : "test",
+    "dirName": "test",
     "listNickName": "abcdef",
-    "description": "l"
-  }
+    "description": "l",
+  },
 ];
 
 var CAB_CARD_DATA = [
@@ -169,20 +169,18 @@ var CAB_CARD_DATA = [
     "NickName": "NickName1",
     "PrimaryEmail": "PrimaryEmail1@test.invalid",
     "PreferDisplayName": true,
-    "PopularityIndex": 0
+    "PopularityIndex": 0,
   },
   {
     "FirstName": "Empty",
     "LastName": "Email",
     "DisplayName": "Empty Email",
     "PreferDisplayName": true,
-    "PopularityIndex": 0
-  }
+    "PopularityIndex": 0,
+  },
 ];
 
 var CAB_LIST_DATA = [];
-
-var ABMDB_PREFIX = "moz-abmdbdirectory://";
 
 function setupAddressBookData(aDirURI, aCardData, aMailListData) {
   let ab = MailServices.ab.getDirectory(aDirURI);
@@ -218,7 +216,7 @@ function setupAddressBookData(aDirURI, aCardData, aMailListData) {
 
   let childCards = ab.childCards;
   while (childCards.hasMoreElements()) {
-    let c = childCards.getNext().QueryInterface(Ci.nsIAbCard);
+    childCards.getNext().QueryInterface(Ci.nsIAbCard);
   }
 }
 
@@ -354,11 +352,11 @@ function run_test() {
     print("Search #" + index + ": search=" + element.search);
     acs.startSearch(element.search, param, prevRes, obs);
 
-    for (var i = 0; i < obs._result.matchCount; i++) {
+    for (let i = 0; i < obs._result.matchCount; i++) {
       print("... got " + i + ": " + obs._result.getValueAt(i));
     }
 
-    for (var i = 0; i < element.expected.length; i++) {
+    for (let i = 0; i < element.expected.length; i++) {
       print("... expected " + i + " (result " + element.expected[i] + "): " +
             results[element.expected[i]].email);
     }
@@ -370,7 +368,7 @@ function run_test() {
     Assert.equal(obs._result.matchCount, element.expected.length);
     Assert.equal(obs._result.defaultIndex, 0);
 
-    for (var i = 0; i < element.expected.length; ++i) {
+    for (let i = 0; i < element.expected.length; ++i) {
       Assert.equal(obs._result.getValueAt(i), results[element.expected[i]].email);
       Assert.equal(obs._result.getLabelAt(i), results[element.expected[i]].email);
       Assert.equal(obs._result.getCommentAt(i), results[element.expected[i]].dirName);
@@ -425,4 +423,4 @@ function run_test() {
                              { search: "displa", expected: [5] } ];
 
   popularitySearch.forEach(checkInputItem);
-};
+}

@@ -17,7 +17,7 @@ function checkLists(childNodes, number) {
   while (childNodes.hasMoreElements()) {
     var list = childNodes.getNext();
     if (list instanceof Ci.nsIAbDirectory &&
-        list.isMailList && list.dirName.startsWith('TestList')) {
+        list.isMailList && list.dirName.startsWith("TestList")) {
       var index = list.dirName.substr(8, list.dirName.length - 8);
       Assert.equal(mailListArray[index - 1], null);
       Assert.equal(list.URI, kPABData.URI + "/MailList" + index);
@@ -26,7 +26,7 @@ function checkLists(childNodes, number) {
     }
   }
 
-  mailListArray.forEach(function (value) { Assert.notEqual(value, null); });
+  mailListArray.forEach(function(value) { Assert.notEqual(value, null); });
 }
 
 function run_test() {

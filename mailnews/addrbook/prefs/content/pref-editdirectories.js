@@ -3,6 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../../../mail/components/addrbook/content/abCommon.js */
+
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 
@@ -10,31 +12,30 @@ ChromeUtils.import("resource:///modules/MailServices.jsm");
 // cases we just rebuild the list as it is easier than searching/adding in the
 // correct places an would be an infrequent operation.
 var gAddressBookAbListener = {
-  onItemAdded: function(parentDir, item) {
+  onItemAdded(parentDir, item) {
     if (item instanceof Ci.nsIAbDirectory) {
       fillDirectoryList();
     }
   },
-  onItemRemoved: function(parentDir, item) {
+  onItemRemoved(parentDir, item) {
     if (item instanceof Ci.nsIAbDirectory) {
       fillDirectoryList();
     }
   },
-  onItemPropertyChanged: function(item, property, oldValue, newValue) {
+  onItemPropertyChanged(item, property, oldValue, newValue) {
     if (item instanceof Ci.nsIAbDirectory) {
       fillDirectoryList();
     }
-  }
+  },
 };
 
-function onInitEditDirectories()
-{
+function onInitEditDirectories() {
   // For AbDeleteDirectory in abCommon.js
   gAddressBookBundle = document.getElementById("bundle_addressBook");
 
   // If the pref is locked disable the "Add" button
   if (Services.prefs.prefIsLocked("ldap_2.disable_button_add"))
-    document.getElementById("addButton").setAttribute('disabled', true);
+    document.getElementById("addButton").setAttribute("disabled", true);
 
   // Fill out the directory list
   fillDirectoryList();
@@ -47,13 +48,11 @@ function onInitEditDirectories()
                                          nsIAbListener.itemChanged);
 }
 
-function onUninitEditDirectories()
-{
+function onUninitEditDirectories() {
   MailServices.ab.removeAddressBookListener(gAddressBookAbListener);
 }
 
-function fillDirectoryList()
-{
+function fillDirectoryList() {
   var abList = document.getElementById("directoriesList");
 
   // Empty out anything in the list
@@ -69,9 +68,9 @@ function fillDirectoryList()
       holdingArray.push(ab);
   }
 
-  holdingArray.sort(function (a, b) { return a.dirName.localeCompare(b.dirName); });
+  holdingArray.sort(function(a, b) { return a.dirName.localeCompare(b.dirName); });
 
-  holdingArray.forEach(function (ab) {
+  holdingArray.forEach(function(ab) {
     let item = document.createElement("richlistitem");
     let label = document.createElement("label");
     label.setAttribute("value", ab.dirName);
@@ -82,8 +81,7 @@ function fillDirectoryList()
   });
 }
 
-function selectDirectory()
-{
+function selectDirectory() {
   var abList = document.getElementById("directoriesList");
   var editButton = document.getElementById("editButton");
   var removeButton = document.getElementById("removeButton");
@@ -93,27 +91,19 @@ function selectDirectory()
 
     // If the disable delete button pref for the selected directory is set,
     // disable the delete button for that directory.
-    let disable = false;
     let ab = MailServices.ab.getDirectory(abList.value);
-    try {
-      disable = Services.prefs.getBoolPref(ab.dirPrefId + ".disable_delete");
-    }
-    catch(ex){
-      // If this preference is not set, it's ok.
-    }
+    let disable = Services.prefs.getBoolPref(ab.dirPrefId + ".disable_delete", false);
     if (disable)
       removeButton.setAttribute("disabled", true);
     else
       removeButton.removeAttribute("disabled");
-  }
-  else {
+  } else {
     editButton.setAttribute("disabled", true);
     removeButton.setAttribute("disabled", true);
   }
 }
 
-function dblClickDirectory(event)
-{
+function dblClickDirectory(event) {
   // We only care about left click events.
   if (event.button != 0)
     return;
@@ -121,8 +111,7 @@ function dblClickDirectory(event)
   editDirectory();
 }
 
-function editDirectory()
-{
+function editDirectory() {
   var abList = document.getElementById("directoriesList");
 
   if (abList && abList.selectedItem) {
@@ -135,8 +124,7 @@ function editDirectory()
   }
 }
 
-function removeDirectory()
-{
+function removeDirectory() {
   var abList = document.getElementById("directoriesList");
 
   if (abList && abList.selectedItem)

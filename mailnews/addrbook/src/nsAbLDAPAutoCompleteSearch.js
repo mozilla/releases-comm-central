@@ -38,44 +38,44 @@ nsAbLDAPAutoCompleteResult.prototype = {
     return this._searchResults.length;
   },
 
-  getLabelAt: function getLabelAt(aIndex) {
+  getLabelAt(aIndex) {
     return this.getValueAt(aIndex);
   },
 
-  getValueAt: function getValueAt(aIndex) {
+  getValueAt(aIndex) {
     return this._searchResults[aIndex].value;
   },
 
-  getCommentAt: function getCommentAt(aIndex) {
+  getCommentAt(aIndex) {
     return this._commentColumn;
   },
 
-  getStyleAt: function getStyleAt(aIndex) {
+  getStyleAt(aIndex) {
     return this.searchResult == ACR.RESULT_FAILURE ? "remote-err" :
                                                      "remote-abook";
   },
 
-  getImageAt: function getImageAt(aIndex) {
+  getImageAt(aIndex) {
     return "";
   },
 
-  getFinalCompleteValueAt: function(aIndex) {
+  getFinalCompleteValueAt(aIndex) {
     return this.getValueAt(aIndex);
   },
 
-  removeValueAt: function removeValueAt(aRowIndex, aRemoveFromDB) {
+  removeValueAt(aRowIndex, aRemoveFromDB) {
   },
 
   // nsIAbAutoCompleteResult
 
-  getCardAt: function getCardAt(aIndex) {
+  getCardAt(aIndex) {
     return this._searchResults[aIndex].card;
   },
 
   // nsISupports
 
-  QueryInterface: ChromeUtils.generateQI([ACR, nsIAbAutoCompleteResult])
-}
+  QueryInterface: ChromeUtils.generateQI([ACR, nsIAbAutoCompleteResult]),
+};
 
 function nsAbLDAPAutoCompleteSearch() {
   Services.obs.addObserver(this, "quit-application");
@@ -109,7 +109,7 @@ nsAbLDAPAutoCompleteSearch.prototype = {
 
   // Private methods
 
-  _checkDuplicate: function _checkDuplicate(card, emailAddress) {
+  _checkDuplicate(card, emailAddress) {
     var lcEmailAddress = emailAddress.toLocaleLowerCase();
 
     return this._result._searchResults.some(function(result) {
@@ -117,7 +117,7 @@ nsAbLDAPAutoCompleteSearch.prototype = {
     });
   },
 
-  _addToResult: function(card) {
+  _addToResult(card) {
     let mbox = this._parser.makeMailboxObject(card.displayName,
       card.isMailList ? card.getProperty("Notes", "") || card.displayName :
                         card.primaryEmail);
@@ -141,13 +141,13 @@ nsAbLDAPAutoCompleteSearch.prototype = {
 
     this._result._searchResults.splice(insertPosition, 0, {
       value: emailAddress,
-      card: card,
+      card,
     });
   },
 
   // nsIObserver
 
-  observe: function observer(subject, topic, data) {
+  observe(subject, topic, data) {
     if (topic == "quit-application") {
       Services.obs.removeObserver(this, "quit-application");
     } else if (topic != "timer-callback") {
@@ -165,8 +165,7 @@ nsAbLDAPAutoCompleteSearch.prototype = {
 
   // nsIAutoCompleteSearch
 
-  startSearch: function startSearch(aSearchString, aParam,
-                                    aPreviousResult, aListener) {
+  startSearch(aSearchString, aParam, aPreviousResult, aListener) {
     let params = JSON.parse(aParam) || {};
     let applicable = !("type" in params) || this.applicableHeaders.has(params.type);
 
@@ -192,20 +191,18 @@ nsAbLDAPAutoCompleteSearch.prototype = {
     if ("idKey" in params) {
       try {
         identity = MailServices.accounts.getIdentity(params.idKey);
-      }
-      catch(ex) {
+      } catch (ex) {
         Cu.reportError("Couldn't get specified identity, " +
                        "falling back to global settings");
       }
     }
 
     // Does the current identity override the global preference?
-    if (identity && identity.overrideGlobalPref)
+    if (identity && identity.overrideGlobalPref) {
       acDirURI = identity.directoryServer;
-    else {
+    } else if (Services.prefs.getBoolPref("ldap_2.autoComplete.useDirectory")) {
       // Try the global one
-      if (Services.prefs.getBoolPref("ldap_2.autoComplete.useDirectory"))
-        acDirURI = Services.prefs.getCharPref("ldap_2.autoComplete.directoryServer");
+      acDirURI = Services.prefs.getCharPref("ldap_2.autoComplete.directoryServer");
     }
 
     if (!acDirURI || Services.io.offline) {
@@ -264,7 +261,7 @@ nsAbLDAPAutoCompleteSearch.prototype = {
       this._query.doQuery(this._book, args, this, this._book.maxHits, 0);
   },
 
-  stopSearch: function stopSearch() {
+  stopSearch() {
     if (this._listener) {
       this._query.stopQuery(this._context);
       this._listener = null;
@@ -273,7 +270,7 @@ nsAbLDAPAutoCompleteSearch.prototype = {
 
   // nsIAbDirSearchListener
 
-  onSearchFinished: function onSearchFinished(aResult, aErrorMsg) {
+  onSearchFinished(aResult, aErrorMsg) {
     if (!this._listener)
       return;
 
@@ -281,11 +278,10 @@ nsAbLDAPAutoCompleteSearch.prototype = {
       if (this._result.matchCount) {
         this._result.searchResult = ACR.RESULT_SUCCESS;
         this._result.defaultIndex = 0;
-      }
-      else
+      } else {
         this._result.searchResult = ACR.RESULT_NOMATCH;
-    }
-    else if (aResult == nsIAbDirectoryQueryResultListener.queryResultError) {
+      }
+    } else if (aResult == nsIAbDirectoryQueryResultListener.queryResultError) {
       this._result.searchResult = ACR.RESULT_FAILURE;
       this._result.defaultIndex = 0;
     }
@@ -295,7 +291,7 @@ nsAbLDAPAutoCompleteSearch.prototype = {
     this._listener = null;
   },
 
-  onSearchFoundCard: function onSearchFoundCard(aCard) {
+  onSearchFoundCard(aCard) {
     if (!this._listener)
       return;
 
@@ -315,7 +311,7 @@ nsAbLDAPAutoCompleteSearch.prototype = {
 
   QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver,
                                           Ci.nsIAutoCompleteSearch,
-                                          Ci.nsIAbDirSearchListener])
+                                          Ci.nsIAbDirSearchListener]),
 };
 
 // Module

@@ -80,15 +80,15 @@ function run_test() {
 
   cards = AB.getCardsFromProperty("LastName", "Doe", true);
   var i = 0;
-  var data = [ 'John', 'Jane' ];
+  var data = [ "John", "Jane" ];
 
   while (cards.hasMoreElements()) {
     i++;
     card = cards.getNext().QueryInterface(Ci.nsIAbCard);
-    Assert.equal(card.lastName, 'Doe');
+    Assert.equal(card.lastName, "Doe");
     var index = data.indexOf(card.firstName);
     Assert.notEqual(index, -1);
     delete data[index];
   }
   Assert.equal(i, 2);
-};
+}

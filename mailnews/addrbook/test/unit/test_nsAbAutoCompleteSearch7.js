@@ -16,15 +16,15 @@ var results =  [
   { email: "Tomas Doe <tomez.doe@foo2.invalid>" }, // 1
   { email: "Tomas Doe <tomez.doe@b.example.com>" }, // 2
   { email: "Tomas Doe <tomez.doe@a.example.com>" }, // 3
-  { email: "Tomek Smith <tomek@example.com>" } // 4
-]
+  { email: "Tomek Smith <tomek@example.com>" }, // 4
+];
 
 var inputs = [
   [
     { search: "t",            expected: [2, 3, 0, 1, 4] },
     { search: "tom",          expected: [0, 1, 2, 3, 4] },
-    { search: "tomek",        expected: [4] }
-  ]
+    { search: "tomek",        expected: [4] },
+  ],
 ];
 
 function acObserver() {}
@@ -33,10 +33,10 @@ acObserver.prototype = {
   _search: null,
   _result: null,
 
-  onSearchResult: function (aSearch, aResult) {
+  onSearchResult(aSearch, aResult) {
     this._search = aSearch;
     this._result = aResult;
-  }
+  },
 };
 
 var PAB_CARD_DATA = [
@@ -48,7 +48,7 @@ var PAB_CARD_DATA = [
     "PrimaryEmail": "tomez.doe@foo.invalid",
     "SecondEmail": "tomez.doe@foo2.invalid",
     "PreferDisplayName": true,
-    "PopularityIndex": 10
+    "PopularityIndex": 10,
   },
   {
     "FirstName": "Tomas",
@@ -57,7 +57,7 @@ var PAB_CARD_DATA = [
     "PrimaryEmail": "tomez.doe@b.example.com",
     "SecondEmail": "tomez.doe@a.example.com",
     "PreferDisplayName": true,
-    "PopularityIndex": 200
+    "PopularityIndex": 200,
   },
   {
     "FirstName": "Tomek",
@@ -65,11 +65,9 @@ var PAB_CARD_DATA = [
     "DisplayName": "Tomek Smith",
     "PrimaryEmail": "tomek@example.com",
     "PreferDisplayName": true,
-    "PopularityIndex": 3
-  }
+    "PopularityIndex": 3,
+  },
 ];
-
-var ABMDB_PREFIX = "moz-abmdbdirectory://";
 
 function setupAddressBookData(aDirURI, aCardData, aMailListData) {
   let ab = MailServices.ab.getDirectory(aDirURI);
@@ -105,7 +103,7 @@ function setupAddressBookData(aDirURI, aCardData, aMailListData) {
 
   let childCards = ab.childCards;
   while (childCards.hasMoreElements()) {
-    let c = childCards.getNext().QueryInterface(Ci.nsIAbCard);
+    childCards.getNext().QueryInterface(Ci.nsIAbCard);
   }
 }
 
@@ -119,8 +117,6 @@ function run_test() {
     .getService(Ci.nsIAutoCompleteSearch);
 
   var obs = new acObserver();
-  let obsNews = new acObserver();
-  let obsFollowup = new acObserver();
 
   let param = JSON.stringify({ type: "addr_to" });
 
@@ -130,10 +126,10 @@ function run_test() {
     print("Search #" + index + ": search=" + element.search);
     acs.startSearch(element.search, param, prevRes, obs);
 
-    for (var i = 0; i < obs._result.matchCount; i++) {
+    for (let i = 0; i < obs._result.matchCount; i++) {
       print("... got " + i + ": " + obs._result.getValueAt(i));
     }
-    for (var i = 0; i < element.expected.length; i++) {
+    for (let i = 0; i < element.expected.length; i++) {
       print("... expected " + i + " (result " + element.expected[i] + "): " +
             results[element.expected[i]].email);
     }
@@ -145,7 +141,7 @@ function run_test() {
     Assert.equal(obs._result.matchCount, element.expected.length);
     Assert.equal(obs._result.defaultIndex, 0);
 
-    for (var i = 0; i < element.expected.length; ++i) {
+    for (let i = 0; i < element.expected.length; ++i) {
       Assert.equal(obs._result.getValueAt(i), results[element.expected[i]].email);
       Assert.equal(obs._result.getLabelAt(i), results[element.expected[i]].email);
       Assert.equal(obs._result.getCommentAt(i), "");
@@ -158,4 +154,4 @@ function run_test() {
   }
 
   inputs.forEach(checkInputSet);
-};
+}

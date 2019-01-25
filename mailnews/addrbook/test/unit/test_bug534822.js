@@ -19,12 +19,10 @@ function run_test() {
   // Now load the ABs and check we've got all of them.
   let dirs = MailServices.ab.directories;
 
-  let dir;
-
   let results = [
     { name: "extension", result: false },
     { name: kPABData.dirName, result: false },
-    { name: kCABData.dirName, result: false }
+    { name: kCABData.dirName, result: false },
   ];
 
   while (dirs.hasMoreElements()) {
@@ -38,5 +36,5 @@ function run_test() {
     }
   }
 
-  results.forEach(function (result) { Assert.ok(result.result); });
-};
+  results.forEach(function(result) { Assert.ok(result.result); });
+}

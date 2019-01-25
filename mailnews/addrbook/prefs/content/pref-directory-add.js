@@ -6,8 +6,13 @@
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var {
+  isLegalHostNameOrIP,
+  cleanUpHostName,
+} = ChromeUtils.import("resource:///modules/hostnameUtils.jsm", null);
+var {
+  fixIterator,
+} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm", null);
 
 var gCurrentDirectory = null;
 var gReplicationBundle = null;
@@ -25,16 +30,14 @@ var kDefaultSecureLDAPPort = 636;
 var kLDAPDirectory = 0;  // defined in nsDirPrefs.h
 
 var ldapOfflineObserver = {
-  observe: function(subject, topic, state)
-  {
+  observe(subject, topic, state) {
     // sanity checks
     if (topic != "network:offline-status-changed") return;
     setDownloadOfflineOnlineState(state == "offline");
-  }
-}
+  },
+};
 
-function Startup()
-{
+function Startup() {
   gReplicationBundle = document.getElementById("bundle_replication");
 
   document.getElementById("download").label =
@@ -72,8 +75,7 @@ function Startup()
   }
 }
 
-function onUnload()
-{
+function onUnload() {
   if ("arguments" in window &&
       window.arguments[0] &&
       !Services.prefs.prefIsLocked(gCurrentDirectory.dirPrefId +
@@ -85,8 +87,7 @@ function onUnload()
 }
 
 var progressListener = {
-  onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus)
-  {
+  onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
     if (aStateFlags & Ci.nsIWebProgressListener.STATE_START) {
       // start the spinning
       gProgressMeter.removeAttribute("value");
@@ -104,29 +105,23 @@ var progressListener = {
       EndDownload(aStatus);
     }
   },
-  onProgressChange: function(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress)
-  {
+  onProgressChange(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress) {
     gProgressText.value = gReplicationBundle.getFormattedString("currentCount",
                                                                 [aCurSelfProgress]);
   },
-  onLocationChange: function(aWebProgress, aRequest, aLocation, aFlags)
-  {
+  onLocationChange(aWebProgress, aRequest, aLocation, aFlags) {
   },
-  onStatusChange: function(aWebProgress, aRequest, aStatus, aMessage)
-  {
+  onStatusChange(aWebProgress, aRequest, aStatus, aMessage) {
   },
-  onSecurityChange: function(aWebProgress, aRequest, state)
-  {
+  onSecurityChange(aWebProgress, aRequest, state) {
   },
-  onContentBlockingEvent: function(aWebProgress, aRequest, aEvent)
-  {
+  onContentBlockingEvent(aWebProgress, aRequest, aEvent) {
   },
   QueryInterface: ChromeUtils.generateQI(["nsIWebProgressListener",
                                           "nsISupportsWeakReference"]),
 };
 
-function DownloadNow()
-{
+function DownloadNow() {
   if (!gDownloadInProgress) {
     gProgressText = document.getElementById("replicationProgressText");
     gProgressMeter = document.getElementById("replicationProgressMeter");
@@ -141,16 +136,14 @@ function DownloadNow()
                                              progressListener);
       else
         EndDownload(false);
-    }
-    catch (ex) {
+    } catch (ex) {
       EndDownload(false);
     }
   } else {
     gReplicationCancelled = true;
     try {
       gReplicationService.cancelReplication(gCurrentDirectory.dirPrefId);
-    }
-    catch (ex) {
+    } catch (ex) {
       // XXX todo
       // perhaps replication hasn't started yet?  This can happen if you hit cancel after attempting to replication when offline
       dump("unexpected failure while cancelling.  ex=" + ex + "\n");
@@ -158,8 +151,7 @@ function DownloadNow()
   }
 }
 
-function EndDownload(aStatus)
-{
+function EndDownload(aStatus) {
   document.getElementById("download").label =
     gReplicationBundle.getString("downloadButton");
   document.getElementById("download").accessKey =
@@ -170,16 +162,18 @@ function EndDownload(aStatus)
   gProgressMeter.hidden = true;
 
   gDownloadInProgress = false;
-  gProgressText.value =
-    gReplicationBundle.getString(aStatus ? "replicationSucceeded" :
-                                 gReplicationCancelled ? "replicationCancelled" :
-                                  "replicationFailed");
+  if (aStatus) {
+    gProgressText.value = gReplicationBundle.getString("replicationSucceeded");
+  } else if (gReplicationCancelled) {
+    gProgressText.value = gReplicationBundle.getString("replicationCancelled");
+  } else {
+    gProgressText.value = gReplicationBundle.getString("replicationFailed");
+  }
 }
 
 // fill the settings panel with the data from the preferences.
 //
-function fillSettings()
-{
+function fillSettings() {
   document.getElementById("description").value = gCurrentDirectory.dirName;
 
   if (gCurrentDirectory instanceof Ci.nsIAbLDAPDirectory) {
@@ -192,7 +186,7 @@ function fillSettings()
     document.getElementById("search").value = ldapUrl.filter;
 
     var sub = document.getElementById("sub");
-    switch(ldapUrl.scope) {
+    switch (ldapUrl.scope) {
     case Ci.nsILDAPURL.SCOPE_ONELEVEL:
       sub.radioGroup.selectedItem = document.getElementById("one");
       break;
@@ -211,7 +205,7 @@ function fillSettings()
       break;
     }
 
-    var secure = ldapUrl.options & ldapUrl.OPT_SECURE
+    var secure = ldapUrl.options & ldapUrl.OPT_SECURE;
     if (secure)
       document.getElementById("secure").setAttribute("checked", "true");
 
@@ -223,7 +217,7 @@ function fillSettings()
   }
 
   // check if any of the preferences for this server are locked.
-  //If they are locked disable them
+  // If they are locked disable them
   DisableUriFields(gCurrentDirectory.dirPrefId + ".uri");
   DisableElementIfPrefIsLocked(gCurrentDirectory.dirPrefId + ".description", "description");
   DisableElementIfPrefIsLocked(gCurrentDirectory.dirPrefId + ".disable_button_download", "download");
@@ -231,31 +225,27 @@ function fillSettings()
   DisableElementIfPrefIsLocked(gCurrentDirectory.dirPrefId + ".auth.dn", "login");
 }
 
-function DisableElementIfPrefIsLocked(aPrefName, aElementId)
-{
+function DisableElementIfPrefIsLocked(aPrefName, aElementId) {
   if (Services.prefs.prefIsLocked(aPrefName))
-    document.getElementById(aElementId).setAttribute('disabled', true);
+    document.getElementById(aElementId).setAttribute("disabled", true);
 }
 
 // disables all the text fields corresponding to the .uri pref.
-function DisableUriFields(aPrefName)
-{
+function DisableUriFields(aPrefName) {
   if (Services.prefs.prefIsLocked(aPrefName)) {
     let lockedElements = document.querySelectorAll('[disableiflocked="true"]');
     for (let i = 0; i < lockedElements.length; i++)
-      lockedElements[i].setAttribute('disabled', 'true');
+      lockedElements[i].setAttribute("disabled", "true");
   }
 }
 
-function onSecure()
-{
+function onSecure() {
   document.getElementById("port").value =
     document.getElementById("secure").checked ? kDefaultSecureLDAPPort :
                                                 kDefaultLDAPPort;
 }
 
-function fillDefaultSettings()
-{
+function fillDefaultSettings() {
   document.getElementById("port").value = kDefaultLDAPPort;
   document.getElementById("results").value = kDefaultMaxHits;
   var sub = document.getElementById("sub");
@@ -269,22 +259,16 @@ function fillDefaultSettings()
                                       getString("abReplicationSaveSettings");
 }
 
-function hasCharacters(number)
-{
+function hasCharacters(number) {
   var re = /[0-9]/g;
   var num = number.match(re);
-  if(num && (num.length == number.length))
+  if (num && (num.length == number.length))
     return false;
-  else
-    return true;
+  return true;
 }
 
-function onAccept()
-{
+function onAccept() {
   try {
-    let pref_string_content = "";
-    let pref_string_title = "";
-
     let description = document.getElementById("description").value.trim();
     let hostname = cleanUpHostName(document.getElementById("hostname").value);
     let port = document.getElementById("port").value;
@@ -306,18 +290,18 @@ function onAccept()
       return null;
     };
 
-    if (!description)
+    if (!description) {
       errorValue = "invalidName";
-    else if ((errorArg = findDupeName(description))) {
+    } else if ((errorArg = findDupeName(description))) {
       errorValue = "duplicateNameText";
-    }
-    else if (!isLegalHostNameOrIP(hostname))
+    } else if (!isLegalHostNameOrIP(hostname)) {
       errorValue = "invalidHostname";
-    // XXX write isValidDn and call it on the dn string here?
-    else if (port && hasCharacters(port))
+    } else if (port && hasCharacters(port)) {
+      // XXX write isValidDn and call it on the dn string here?
       errorValue = "invalidPortNumber";
-    else if (results && hasCharacters(results))
+    } else if (results && hasCharacters(results)) {
       errorValue = "invalidResults";
+    }
 
     if (!errorValue) {
       // XXX Due to the LDAP c-sdk pass a dummy url to the IO service, then
@@ -326,9 +310,10 @@ function onAccept()
         (secure.checked ? "ldaps://" : "ldap://") + "localhost/dc=???")
         .QueryInterface(Ci.nsILDAPURL);
 
-      let newPort = port ? port :
-                          (secure.checked ? kDefaultSecureLDAPPort :
-                                            kDefaultLDAPPort);
+      let newPort = port;
+      if (!port) {
+        port = secure.checked ? kDefaultSecureLDAPPort : kDefaultLDAPPort;
+      }
       ldapUrl = ldapUrl.mutate()
                        .setHost(hostname)
                        .setPort(newPort)
@@ -350,8 +335,7 @@ function onAccept()
         gCurrentDirectory.dirName = description;
         gCurrentDirectory.lDAPURL = ldapUrl.QueryInterface(Ci.nsILDAPURL);
         window.opener.gNewServerString = gCurrentDirectory.dirPrefId;
-      }
-      else { // adding a new directory
+      } else { // adding a new directory
         window.opener.gNewServerString =
           MailServices.ab.newAddressBook(description, ldapUrl.spec, kLDAPDirectory);
       }
@@ -377,7 +361,7 @@ function onAccept()
 
       let errorText;
       if (errorArg)
-        errorText = addressBookBundle.getFormattedString(errorValue, [errorArg])
+        errorText = addressBookBundle.getFormattedString(errorValue, [errorArg]);
       else
         errorText = addressBookBundle.getString(errorValue);
 
@@ -390,24 +374,14 @@ function onAccept()
   return true;
 }
 
-function onCancel()
-{
+function onCancel() {
   window.opener.gUpdate = false;
-}
-
-
-// called by Help button in platform overlay
-function doHelpButton()
-{
-  openHelp("mail-ldap-properties");
 }
 
 // Sets the download button state for offline or online.
 // This function should only be called for ldap edit dialogs.
-function setDownloadOfflineOnlineState(isOffline)
-{
-  if (isOffline)
-  {
+function setDownloadOfflineOnlineState(isOffline) {
+  if (isOffline) {
     // Disable the download button and add some text indicating why.
     document.getElementById("downloadWarningMsg").textContent = document.
       getElementById("bundle_addressBook").

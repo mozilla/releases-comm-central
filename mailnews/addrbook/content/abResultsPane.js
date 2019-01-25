@@ -4,6 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../../mail/components/addrbook/content/abCommon.js */
+/* globals GetAbViewListener */
+// gCurFrame is SeaMonkey-only */
+/* globals gCurFrame */
+
 /**
  * Use of items in this file require:
  *
@@ -19,6 +24,7 @@
  * goSetMenuValue()
  *   Core function in globalOverlay.js
  */
+/* globals getSelectedDirectoryURI, AbResultsPaneDoubleClick, AbEditCard, goSetMenuValue */
 
 // List/card selections in the results pane.
 var kNothingSelected = 0;
@@ -35,8 +41,7 @@ var gAbView = null;
 // set up by SetAbView.
 var gAbResultsTree = null;
 
-function SetAbView(aURI)
-{
+function SetAbView(aURI) {
   // If we don't have a URI, just clear the view and leave everything else
   // alone.
   if (!aURI) {
@@ -58,8 +63,7 @@ function SetAbView(aURI)
   if (gAbView) {
     sortColumn = gAbView.sortColumn;
     sortDirection = gAbView.sortDirection;
-  }
-  else {
+  } else {
     if (gAbResultsTree.hasAttribute("sortCol"))
       sortColumn = gAbResultsTree.getAttribute("sortCol");
     var sortColumnNode = document.getElementById(sortColumn);
@@ -103,36 +107,30 @@ function SetAbView(aURI)
   }
 }
 
-function CloseAbView()
-{
+function CloseAbView() {
   if (gAbView)
     gAbView.clearView();
 }
 
-function GetOneOrMoreCardsSelected()
-{
+function GetOneOrMoreCardsSelected() {
   return (gAbView && (gAbView.selection.getRangeCount() > 0));
 }
 
-function GetSelectedAddresses()
-{
+function GetSelectedAddresses() {
   return GetAddressesForCards(GetSelectedAbCards());
 }
 
-function GetNumSelectedCards()
-{
+function GetNumSelectedCards() {
  try {
    return gAbView.selection.count;
- }
- catch (ex) {
+ } catch (ex) {
  }
 
  // if something went wrong, return 0 for the count.
  return 0;
 }
 
-function GetSelectedCardTypes()
-{
+function GetSelectedCardTypes() {
   var cards = GetSelectedAbCards();
   if (!cards) {
     Cu.reportError("ERROR: GetSelectedCardTypes: |cards| is null.");
@@ -152,22 +150,27 @@ function GetSelectedCardTypes()
       cardCnt++;
   }
 
-  return (mailingListCnt == 0) ? kCardsOnly :
-           (cardCnt > 0) ? kListsAndCards :
-             (mailingListCnt == 1) ? kSingleListOnly :
-               kMultipleListsOnly;
+  if (mailingListCnt == 0) {
+    return kCardsOnly;
+  }
+  if (cardCnt > 0) {
+    return kListsAndCards;
+  }
+  if (mailingListCnt == 1) {
+    return kSingleListOnly;
+  }
+  return kMultipleListsOnly;
 }
 
 // NOTE, will return -1 if more than one card selected, or no cards selected.
-function GetSelectedCardIndex()
-{
+function GetSelectedCardIndex() {
   if (!gAbView)
     return -1;
 
   var treeSelection = gAbView.selection;
   if (treeSelection.getRangeCount() == 1) {
-    var start = new Object;
-    var end = new Object;
+    var start = {};
+    var end = {};
     treeSelection.getRangeAt(0, start, end);
     if (start.value == end.value)
       return start.value;
@@ -177,8 +180,7 @@ function GetSelectedCardIndex()
 }
 
 // NOTE, returns the card if exactly one card is selected, null otherwise
-function GetSelectedCard()
-{
+function GetSelectedCard() {
   var index = GetSelectedCardIndex();
   return (index == -1) ? null : gAbView.getCardFromRow(index);
 }
@@ -188,8 +190,7 @@ function GetSelectedCard()
  *
  * It pushes only non-null/empty element, if any, into the returned list.
  */
-function GetSelectedAbCards()
-{
+function GetSelectedAbCards() {
   var abView = gAbView;
 
   // if sidebar is open, and addressbook panel is open and focused,
@@ -208,7 +209,6 @@ function GetSelectedAbCards()
 
   let cards = [];
   var count = abView.selection.getRangeCount();
-  var current = 0;
   for (let i = 0; i < count; ++i) {
     let start = {};
     let end = {};
@@ -230,8 +230,7 @@ function GetSelectedAbCards()
 // an optimization might be to make this return
 // the selected ranges, which would be faster
 // when the user does large selections, but for now, let's keep it simple.
-function GetSelectedRows()
-{
+function GetSelectedRows() {
   var selectedRows = "";
 
   if (!gAbView)
@@ -239,10 +238,10 @@ function GetSelectedRows()
 
   var rangeCount = gAbView.selection.getRangeCount();
   for (let i = 0; i < rangeCount; ++i) {
-    var start = new Object;
-    var end = new Object;
+    var start = {};
+    var end = {};
     gAbView.selection.getRangeAt(i, start, end);
-    for (let j = start.value;j <= end.value; ++j) {
+    for (let j = start.value; j <= end.value; ++j) {
       if (selectedRows)
         selectedRows += ",";
       selectedRows += j;
@@ -252,19 +251,16 @@ function GetSelectedRows()
   return selectedRows;
 }
 
-function AbSwapFirstNameLastName()
-{
+function AbSwapFirstNameLastName() {
   if (gAbView)
     gAbView.swapFirstNameLastName();
 }
 
-function AbEditSelectedCard()
-{
+function AbEditSelectedCard() {
   AbEditCard(GetSelectedCard());
 }
 
-function AbResultsPaneOnClick(event)
-{
+function AbResultsPaneOnClick(event) {
   // we only care about button 0 (left click) events
   if (event.button != 0) return;
 
@@ -286,8 +282,7 @@ function AbResultsPaneOnClick(event)
                                         kDefaultDescending : kDefaultAscending;
 
     SortAndUpdateIndicators(t.id, sortDirection);
-  }
-  else if (t.localName == "treechildren") {
+  } else if (t.localName == "treechildren") {
     // figure out what row the click was in
     var row = gAbResultsTree.getRowAt(event.clientX, event.clientY);
     if (row == -1)
@@ -298,20 +293,17 @@ function AbResultsPaneOnClick(event)
   }
 }
 
-function AbSortAscending()
-{
+function AbSortAscending() {
   var sortColumn = gAbResultsTree.getAttribute("sortCol");
   SortAndUpdateIndicators(sortColumn, kDefaultAscending);
 }
 
-function AbSortDescending()
-{
+function AbSortDescending() {
   var sortColumn = gAbResultsTree.getAttribute("sortCol");
   SortAndUpdateIndicators(sortColumn, kDefaultDescending);
 }
 
-function SortResultPane(sortColumn)
-{
+function SortResultPane(sortColumn) {
   var sortDirection = kDefaultAscending;
   if (gAbView)
      sortDirection = gAbView.sortDirection;
@@ -319,23 +311,21 @@ function SortResultPane(sortColumn)
   SortAndUpdateIndicators(sortColumn, sortDirection);
 }
 
-function SortAndUpdateIndicators(sortColumn, sortDirection)
-{
+function SortAndUpdateIndicators(sortColumn, sortDirection) {
   UpdateSortIndicators(sortColumn, sortDirection);
 
   if (gAbView)
     gAbView.sortBy(sortColumn, sortDirection);
 }
 
-function UpdateSortIndicators(colID, sortDirection)
-{
+function UpdateSortIndicators(colID, sortDirection) {
   var sortedColumn = null;
 
   // set the sort indicator on the column we are sorted by
   if (colID) {
     sortedColumn = document.getElementById(colID);
     if (sortedColumn) {
-      sortedColumn.setAttribute("sortDirection",sortDirection);
+      sortedColumn.setAttribute("sortDirection", sortDirection);
       gAbResultsTree.setAttribute("sortCol", colID);
     }
   }
@@ -350,17 +340,14 @@ function UpdateSortIndicators(colID, sortDirection)
   }
 }
 
-function InvalidateResultsPane()
-{
+function InvalidateResultsPane() {
   if (gAbResultsTree)
     gAbResultsTree.invalidate();
 }
 
 // Controller object for Results Pane
-var ResultsPaneController =
-{
-  supportsCommand: function(command)
-  {
+var ResultsPaneController = {
+  supportsCommand(command) {
     switch (command) {
       case "cmd_selectAll":
       case "cmd_delete":
@@ -376,8 +363,7 @@ var ResultsPaneController =
     }
   },
 
-  isCommandEnabled: function(command)
-  {
+  isCommandEnabled(command) {
     switch (command) {
       case "cmd_selectAll":
         return true;
@@ -468,8 +454,7 @@ var ResultsPaneController =
     }
   },
 
-  doCommand: function(command)
-  {
+  doCommand(command) {
     switch (command) {
       case "cmd_selectAll":
         if (gAbView)
@@ -491,16 +476,14 @@ var ResultsPaneController =
     }
   },
 
-  onEvent: function(event)
-  {
+  onEvent(event) {
     // on blur events set the menu item texts back to the normal values
     if (event == "blur")
       goSetMenuValue("cmd_delete", "valueDefault");
-  }
+  },
 };
 
-function SelectFirstCard()
-{
+function SelectFirstCard() {
   if (gAbView && gAbView.selection && (gAbView.selection.count > 0))
     gAbView.selection.select(0);
 }

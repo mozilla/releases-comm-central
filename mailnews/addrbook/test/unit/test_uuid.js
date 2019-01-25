@@ -9,7 +9,7 @@
  * will not change the state if the code works properly.
  */
 function check_directory(directory) {
-  var prefId = directory.dirPrefId + '&' + directory.dirName;
+  var prefId = directory.dirPrefId + "&" + directory.dirName;
 
   var testModification = !directory.readOnly;
   dump("Testing " + prefId);
@@ -25,7 +25,7 @@ function check_directory(directory) {
   var seenIds = [], cards = [];
   var enumerator = directory.childCards;
   while (enumerator.hasMoreElements()) {
-    var card = enumerator.getNext().QueryInterface(Ci.nsIAbCard);
+    let card = enumerator.getNext().QueryInterface(Ci.nsIAbCard);
     cards.push(card);
 
     // Question 2.1: Is the directory ID correct?
@@ -47,7 +47,7 @@ function check_directory(directory) {
 
   enumerator = search.childCards;
   while (enumerator.hasMoreElements()) {
-    var card = enumerator.getNext().QueryInterface(Ci.nsIAbCard);
+    let card = enumerator.getNext().QueryInterface(Ci.nsIAbCard);
 
     // Question 3.1: Is the directory ID correct?
     Assert.equal(prefId, card.directoryId);
@@ -83,7 +83,7 @@ function check_directory(directory) {
 
   // We need to iterate over the array of cards to avoid any problems if someone
   // makes the childCards enumerator reflect changes to directory...
-  for (var card of cards) {
+  for (let card of cards) {
     // Question 5.1: Does deleting a card properly set the uids?
     var localId = card.localId;
     array.clear();

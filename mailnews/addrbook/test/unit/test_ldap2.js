@@ -35,4 +35,4 @@ function run_test() {
   // and this at least ensures that we get a consistent ascii based preference
   // for the directory.
   Assert.equal(abDir.dirPrefId, "ldap_2.servers._nonascii");
-};
+}

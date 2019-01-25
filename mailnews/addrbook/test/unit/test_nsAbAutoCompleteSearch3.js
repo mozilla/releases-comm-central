@@ -26,13 +26,13 @@ var cards = [
     popularityIndex: 2 },
   { email: "mr@(bracket).not.invalid", secondEmail: "bracket@not.invalid",  firstName: "Mr.",
     displayName: "Mr. Bracket", value: "Mr. Bracket <mr@(bracket).not.invalid>",
-    popularityIndex: 1 }
+    popularityIndex: 1 },
 ];
 
 var duplicates = [
   { search: "test", expected: [1, 2] },
   { search: "first", expected: [6, 5, 3] },
-  { search: "(bracket)", expected: [7, 8] }
+  { search: "(bracket)", expected: [7, 8] },
 ];
 
 
@@ -42,14 +42,13 @@ acObserver.prototype = {
   _search: null,
   _result: null,
 
-  onSearchResult: function (aSearch, aResult) {
+  onSearchResult(aSearch, aResult) {
     this._search = aSearch;
     this._result = aResult;
-  }
+  },
 };
 
-function run_test()
-{
+function run_test() {
   // We set up the cards for this test manually as it is easier to set the
   // popularity index and we don't need many.
 
@@ -83,11 +82,11 @@ function run_test()
     print("Search #" + index + ": search=" + element.search);
     acs.startSearch(element.search, JSON.stringify({ type: "addr_to"  }), null, obs);
 
-    for (var i = 0; i < obs._result.matchCount; i++) {
+    for (let i = 0; i < obs._result.matchCount; i++) {
       print("... got " + i + ": " + obs._result.getValueAt(i));
     }
 
-    for (var i = 0; i < element.expected.length; i++) {
+    for (let i = 0; i < element.expected.length; i++) {
       print("... expected " + i + " (card " + element.expected[i] + "): " +
             cards[element.expected[i]].value);
     }
@@ -98,7 +97,7 @@ function run_test()
     Assert.equal(obs._result.errorDescription, null);
     Assert.equal(obs._result.matchCount, element.expected.length);
 
-    for (var i = 0; i < element.expected.length; ++i) {
+    for (let i = 0; i < element.expected.length; ++i) {
       Assert.equal(obs._result.getValueAt(i), cards[element.expected[i]].value);
       Assert.equal(obs._result.getLabelAt(i), cards[element.expected[i]].value);
       Assert.equal(obs._result.getCommentAt(i), "");

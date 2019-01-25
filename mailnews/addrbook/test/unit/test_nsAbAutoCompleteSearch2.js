@@ -8,7 +8,9 @@
  * books.
  */
 
-ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
+var {
+  getModelQuery,
+} = ChromeUtils.import("resource:///modules/ABQueryUtils.jsm", null);
 
 // taken from nsAbAutoCompleteSearch.js
 var ACR = Ci.nsIAutoCompleteResult;
@@ -57,7 +59,7 @@ nsAbAutoCompleteResult.prototype = {
     return "";
   },
 
-  getFinalCompleteValueAt: function(aIndex) {
+  getFinalCompleteValueAt(aIndex) {
     return this.getValueAt(aIndex);
   },
 
@@ -77,8 +79,8 @@ nsAbAutoCompleteResult.prototype = {
 
   // nsISupports
 
-  QueryInterface: ChromeUtils.generateQI([ACR, nsIAbAutoCompleteResult])
-}
+  QueryInterface: ChromeUtils.generateQI([ACR, nsIAbAutoCompleteResult]),
+};
 
 function createCard(chars, popularity) {
   var card = Cc["@mozilla.org/addressbook/cardproperty;1"]
@@ -93,8 +95,6 @@ function createCard(chars, popularity) {
   return card;
 }
 
-var lastSearchCards = [ createCard(1, 0), createCard(2, 0), createCard(3, 0) ];
-
 var results = [ { email: "d <e@foo.invalid>", dirName: kPABData.dirName },
                   { email: "di <em@foo.invalid>", dirName: kPABData.dirName },
                   { email: "dis <ema@foo.invalid>", dirName: kPABData.dirName } ];
@@ -105,36 +105,7 @@ var firstNames = [ { search: "fi",     expected: [1, 2] },
 var lastNames = [ { search: "la",     expected: [1, 2] },
                     { search: "las",    expected: [2] } ];
 
-var displayNames = [ { search: "d",      expected: [5, 0, 1, 2, 3, 4] },
-                       { search: "di",     expected: [5, 1, 2, 3, 4] },
-                       { search: "dis",    expected: [5, 2, 3, 4] },
-                       { search: "disp",   expected: [5, 3, 4]},
-                       { search: "displ",  expected: [5, 4]},
-                       { search: "displa", expected: [5]} ];
-
-var nickNames = [ { search: "n",      expected: [5, 0, 1, 2, 3, 4] },
-                    { search: "ni",     expected: [5, 0, 1, 2, 3] },
-                    { search: "nic",    expected: [5, 1, 2, 3] },
-                    { search: "nick",   expected: [5, 2, 3] },
-                    { search: "nickn",  expected: [5, 3] },
-                    { search: "nickna", expected: [5] } ];
-
-var emails = [ { search: "e",     expected: [0, 1, 2, 3, 4] },
-                 { search: "em",    expected: [0, 1, 2, 4] },
-                 { search: "ema",   expected: [0, 1, 2] },
-                 { search: "emai",  expected: [1, 2] },
-                 { search: "email", expected: [2] } ];
-
-// "l" case tested above
-var lists = [ { search: "li", expected: [6, 7, 8] },
-                { search: "lis", expected: [6, 7] },
-                { search: "list", expected: [6] },
-                { search: "t", expected: [6, 7, 8, 9] },
-                { search: "te", expected: [7, 8, 9] },
-                { search: "tes", expected: [8, 9] },
-                { search: "test", expected: [9] } ];
-
-var inputs = [ firstNames, lastNames];//, displayNames, nickNames, emails, lists ];
+var inputs = [firstNames, lastNames];
 
 function acObserver() {}
 
@@ -142,10 +113,10 @@ acObserver.prototype = {
   _search: null,
   _result: null,
 
-  onSearchResult: function (aSearch, aResult) {
+  onSearchResult(aSearch, aResult) {
     this._search = aSearch;
     this._result = aResult;
-  }
+  },
 };
 
 function run_test() {
@@ -166,11 +137,11 @@ function run_test() {
   lastResult.searchResult = ACR.RESULT_SUCCESS;
   lastResult.defaultIndex = 0;
   lastResult.errorDescription = null;
-  for (var i = 0; i < results.length; ++i) {
+  for (let i = 0; i < results.length; ++i) {
     lastResult._searchResults.push({
       value: results[i].email,
       comment: results[i].dirName,
-      card: createCard(i + 1, 0)
+      card: createCard(i + 1, 0),
     });
   }
 
@@ -187,7 +158,7 @@ function run_test() {
     Assert.equal(obs._result.errorDescription, null);
     Assert.equal(obs._result.matchCount, element.expected.length);
 
-    for (var i = 0; i < element.expected.length; ++i) {
+    for (let i = 0; i < element.expected.length; ++i) {
       Assert.equal(obs._result.getValueAt(i), results[element.expected[i]].email);
       Assert.equal(obs._result.getLabelAt(i), results[element.expected[i]].email);
       Assert.equal(obs._result.getCommentAt(i), results[element.expected[i]].dirName);
@@ -200,4 +171,4 @@ function run_test() {
   }
 
   inputs.forEach(checkInputSet);
-};
+}

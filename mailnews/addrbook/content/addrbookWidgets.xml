@@ -154,7 +154,7 @@
           if (aItem instanceof Ci.nsIAbDirectory) {
             // Find the item in the list to remove.
             // We can't use indexOf here because we need loose equality.
-            for (var index = this._directories.length; --index >= 0; )
+            for (var index = this._directories.length; --index >= 0;)
               if (this._directories[index] == aItem)
                 break;
             if (index != -1) {
@@ -182,7 +182,7 @@
           if (aItem instanceof Ci.nsIAbDirectory) {
             // Find the item in the list to rename.
             // We can't use indexOf here because we need loose equality.
-            for (var oldIndex = this._directories.length; --oldIndex >= 0; )
+            for (var oldIndex = this._directories.length; --oldIndex >= 0;)
               if (this._directories[oldIndex] == aItem)
                 break;
             if (oldIndex != -1)
@@ -234,7 +234,7 @@
           for (let d = this._directories.length - 1; d >= 0; d--) {
             let abURI = this._directories[d].URI;
             if (abURI in lists) {
-              lists[abURI].sort(function(a,b) { return a.dirName.localeCompare(b.dirName); });
+              lists[abURI].sort(function(a, b) { return a.dirName.localeCompare(b.dirName); });
               let listIndex = d;
               for (let list of lists[abURI]) {
                 listIndex++;
@@ -305,6 +305,8 @@
 
       <constructor>
         <![CDATA[
+          ChromeUtils.import("resource://gre/modules/Services.jsm");
+
           this._setWidgetDisabled(true);
         ]]>
       </constructor>
@@ -326,10 +328,10 @@
 
           this.setAttribute("map_address1", aCard.getProperty(aAddrPrefix + "Address"));
           this.setAttribute("map_address2", aCard.getProperty(aAddrPrefix + "Address2"));
-          this.setAttribute("map_city"    , aCard.getProperty(aAddrPrefix + "City"));
-          this.setAttribute("map_state"   , aCard.getProperty(aAddrPrefix + "State"));
-          this.setAttribute("map_zip"     , aCard.getProperty(aAddrPrefix + "ZipCode"));
-          this.setAttribute("map_country" , aCard.getProperty(aAddrPrefix + "Country"));
+          this.setAttribute("map_city", aCard.getProperty(aAddrPrefix + "City"));
+          this.setAttribute("map_state", aCard.getProperty(aAddrPrefix + "State"));
+          this.setAttribute("map_zip", aCard.getProperty(aAddrPrefix + "ZipCode"));
+          this.setAttribute("map_country", aCard.getProperty(aAddrPrefix + "Country"));
         ]]></body>
       </method>
 
@@ -352,10 +354,10 @@
 
           this.setAttribute("map_address1", aAddr1);
           this.setAttribute("map_address2", aAddr2);
-          this.setAttribute("map_city"    , aCity);
-          this.setAttribute("map_state"   , aState);
-          this.setAttribute("map_zip"     , aZip);
-          this.setAttribute("map_country" , aCountry);
+          this.setAttribute("map_city", aCity);
+          this.setAttribute("map_state", aState);
+          this.setAttribute("map_zip", aZip);
+          this.setAttribute("map_country", aCountry);
         ]]></body>
       </method>
 
@@ -385,7 +387,8 @@
             try {
               url = Services.prefs.getComplexValue("mail.addr_book.mapit_url." + aIndex + ".format",
                                                    Ci.nsIPrefLocalizedString).data;
-            } catch (e) { }
+            } catch (e) {
+            }
           }
 
           return url;

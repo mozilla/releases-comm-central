@@ -23,8 +23,7 @@ function run_test() {
   var fullCard = null;
   var tempCard;
 
-  while (childCards.hasMoreElements())
-  {
+  while (childCards.hasMoreElements()) {
     tempCard = childCards.getNext();
 
     // We want the one with the right email...

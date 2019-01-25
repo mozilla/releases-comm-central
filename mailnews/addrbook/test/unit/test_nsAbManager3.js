@@ -15,26 +15,26 @@ abListener.prototype = {
   mReceived: 0,
   mDirectory: null,
 
-  onItemAdded: function(aParentItem, aItem) {
+  onItemAdded(aParentItem, aItem) {
     this.mReceived |= Ci.nsIAbListener.itemAdded;
     this.mDirectory = aItem;
   },
 
-  onItemRemoved: function(aParentItem, aItem) {
+  onItemRemoved(aParentItem, aItem) {
     this.mReceived |= Ci.nsIAbListener.directoryRemoved;
     this.mDirectory = aItem;
   },
 
-  onItemPropertyChanged: function(aItem, aProperty, aOldValue, aNewValue) {
+  onItemPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {
     this.mReceived |= Ci.nsIAbListener.itemChanged;
     this.mDirectory = aItem;
   },
 
-  reset: function() {
+  reset() {
     this.mReceived = 0;
     this.mDirectory = null;
-  }
-}
+  },
+};
 
 function addDirectory(dirName) {
   MailServices.ab.newAddressBook(dirName, "", kPABData.dirType);

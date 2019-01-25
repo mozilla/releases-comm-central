@@ -107,4 +107,4 @@ function run_test() {
 
   // Check the default collected address book
   check_ab(kCABData);
-};
+}

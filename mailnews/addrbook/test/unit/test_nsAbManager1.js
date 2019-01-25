@@ -15,23 +15,23 @@ abL.prototype = {
  mReceived: 0,
  mAutoRemoveItem: false,
 
-  onItemAdded: function (parentItem, item) {
+  onItemAdded(parentItem, item) {
     this.mReceived |= nsIAbListener.itemAdded;
     if (this.mAutoRemoveItem)
       MailServices.ab.removeAddressBookListener(this);
   },
-  onItemRemoved: function (parentItem, item) {
+  onItemRemoved(parentItem, item) {
     this.mReceived |=
       (item == MailServices.ab ? nsIAbListener.directoryRemoved :
                                  nsIAbListener.directoryItemRemoved);
     if (this.mAutoRemoveItem)
       MailServices.ab.removeAddressBookListener(this);
   },
-  onItemPropertyChanged: function (item, property, oldValue, newValue) {
+  onItemPropertyChanged(item, property, oldValue, newValue) {
     this.mReceived |= nsIAbListener.itemChanged;
     if (this.mAutoRemoveItem)
       MailServices.ab.removeAddressBookListener(this);
-  }
+  },
 };
 
 function NotifyAbManager() {
@@ -90,7 +90,7 @@ function run_test() {
 
   NotifyAbManager();
 
-  Assert.equal(gAblAll.mReceived, (1 <<  numListenerOptions) - 1);
+  Assert.equal(gAblAll.mReceived, (1 << numListenerOptions) - 1);
   gAblAll.mReceived = 0;
 
   for (i = 0; i < numListenerOptions; ++i) {
@@ -100,4 +100,4 @@ function run_test() {
   // Test - Remove main listener
 
   MailServices.ab.removeAddressBookListener(gAblAll);
-};
+}

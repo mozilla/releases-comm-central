@@ -3,7 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var {
+  fixIterator,
+} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm", null);
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gOkButton;
@@ -15,11 +17,10 @@ var kCollectedAddressbookURI = "moz-abmdbdirectory://history.mab";
 var kAllDirectoryRoot = "moz-abdirectory://";
 var kPABDirectory = 2; // defined in nsDirPrefs.h
 
-function abNameOnLoad()
-{
+function abNameOnLoad() {
   // Get the document elements.
-  gOkButton = document.documentElement.getButton('accept');
-  gNameInput = document.getElementById('name');
+  gOkButton = document.documentElement.getButton("accept");
+  gNameInput = document.getElementById("name");
 
   // look in arguments[0] for parameters to see if we have a directory or not
   if ("arguments" in window && window.arguments[0] &&
@@ -54,8 +55,7 @@ function abNameOnLoad()
   }
 }
 
-function abNameOKButton()
-{
+function abNameOKButton() {
   var newName = gNameInput.value.trim();
 
   // Do not allow an already existing name.
@@ -82,7 +82,6 @@ function abNameOKButton()
   return true;
 }
 
-function abNameDoOkEnabling()
-{
+function abNameDoOkEnabling() {
   gOkButton.disabled = gNameInput.value.trim() == "";
 }

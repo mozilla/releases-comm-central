@@ -8,93 +8,93 @@ var ACR = Ci.nsIAutoCompleteResult;
 var cards = [
   { // 0
     email: "jd.who@example.com", displayName: "John Doe (:xx)",
-    popularityIndex: 0, firstName: "John", value: "John Doe (:xx) <jd.who@example.com>"
+    popularityIndex: 0, firstName: "John", value: "John Doe (:xx) <jd.who@example.com>",
   },
 
   { // 1
     email: "janey_who@example.com", displayName: "Jane Doe",
-    popularityIndex: 0, value: "Jane Doe <janey_who@example.com>"
+    popularityIndex: 0, value: "Jane Doe <janey_who@example.com>",
   },
 
   { // 2
     email: "pf@example.com", displayName: "Paul \"Shitbreak\" Finch",
-    popularityIndex: 0, value: "Paul \"Shitbreak\" Finch <pf@example.com>"
+    popularityIndex: 0, value: "Paul \"Shitbreak\" Finch <pf@example.com>",
   },
 
   { // 3
     email: "js@example.com", displayName: "Janine (Stifflers Mom)",
-    popularityIndex: 0, value: "Janine (Stifflers Mom) <js@example.com>"
+    popularityIndex: 0, value: "Janine (Stifflers Mom) <js@example.com>",
   },
 
   { // 4
     email: "ex0@example.com", displayName: "Ajden",
-    popularityIndex: 0, value: "Ajden <ex0@example.com>"
+    popularityIndex: 0, value: "Ajden <ex0@example.com>",
   },
 
   { // 5
     email: "5@example.com", displayName: "Foxx",
-    popularityIndex: 0, value: "Foxx <5@example.com>"
+    popularityIndex: 0, value: "Foxx <5@example.com>",
   },
 
   { // 6
     email: "6@example.com", displayName: "thewho",
-    popularityIndex: 0, value: "thewho <6@example.com>"
+    popularityIndex: 0, value: "thewho <6@example.com>",
   },
 
   { // 7
     email: "7@example.com", displayName: "fakeshit",
-    popularityIndex: 0, value: "fakeshit <7@example.com>"
+    popularityIndex: 0, value: "fakeshit <7@example.com>",
   },
 
   { // 8
     email: "8@example.com", displayName: "mastiff",
-    popularityIndex: 0, value: "mastiff <8@example.com>"
+    popularityIndex: 0, value: "mastiff <8@example.com>",
   },
 
   { // 9
     email: "9@example.com", displayName: "anyjohn",
-    popularityIndex: 0, value: "anyjohn <9@example.com>"
+    popularityIndex: 0, value: "anyjohn <9@example.com>",
   },
 
   { // 10
     email: "10@example.com", displayName: "däsh l18n",
-    popularityIndex: 0, value: "däsh l18n <10@example.com>"
+    popularityIndex: 0, value: "däsh l18n <10@example.com>",
   },
 
   { // 11
     email: "11@example.com", displayName: "paul mary",
     popularityIndex: 0, firstName: "paul", lastName: "mary meyer",
-    value: "paul mary <11@example.com>"
+    value: "paul mary <11@example.com>",
   },
 
   { // 12
     email: "12@example.com", displayName: "paul meyer",
     popularityIndex: 0, firstName: "paul", lastName: "mary meyer",
-    value: "paul meyer <12@example.com>"
+    value: "paul meyer <12@example.com>",
   },
 
   { // 13
     email: "13@example.com", displayName: "mr iron man (exp dev)",
     popularityIndex: 0, firstName: "iron", lastName: "man",
-    value: "mr iron man (exp dev) <13@example.com>"
+    value: "mr iron man (exp dev) <13@example.com>",
   },
 
   { // 14
     email: "14@example.com", displayName: "michael",
     popularityIndex: 0, nickName: "short",
-    value: "michael <14@example.com>"
+    value: "michael <14@example.com>",
   },
 
   { // 15
     email: "15@example.com", displayName: "good boy",
     popularityIndex: 0, nickName: "sh",
-    value: "good boy <15@example.com>"
+    value: "good boy <15@example.com>",
   },
 
   { // 16
     email: "16@example.com", displayName: "sherlock holmes",
-    popularityIndex: 0, value: "sherlock holmes <16@example.com>"
-  }
+    popularityIndex: 0, value: "sherlock holmes <16@example.com>",
+  },
 ];
 
 var inputs = [
@@ -106,11 +106,11 @@ var inputs = [
   { search: "jan", expected: [1, 3] },
   // expecting nickname to score highest.
   { search: "sh", expected: [15, 14, 2, 16, 10, 7] },
-  { search: "st", expected: [3,8] },
+  { search: "st", expected: [3, 8] },
   { search: "paul mary", expected: [11, 12] },
   { search: "\"paul mary\"", expected: [11] },
   { search: "\"iron man\" mr \"exp dev\"", expected: [13] },
-  { search: "short", expected: [14] }
+  { search: "short", expected: [14] },
 ];
 
 function acObserver() {}
@@ -119,14 +119,13 @@ acObserver.prototype = {
   _search: null,
   _result: null,
 
-  onSearchResult: function (aSearch, aResult) {
+  onSearchResult(aSearch, aResult) {
     this._search = aSearch;
     this._result = aResult;
-  }
+  },
 };
 
-function run_test()
-{
+function run_test() {
   // We set up the cards for this test manually as it is easier to set the
   // popularity index and we don't need many.
 
@@ -163,11 +162,11 @@ function run_test()
     print("Search #" + index + ": search=" + element.search);
     acs.startSearch(element.search, JSON.stringify({ type: "addr_to"  }), null, obs);
 
-    for (var i = 0; i < obs._result.matchCount; i++) {
+    for (let i = 0; i < obs._result.matchCount; i++) {
       print("... got " + i + ": " + obs._result.getValueAt(i));
     }
 
-    for (var i = 0; i < element.expected.length; i++) {
+    for (let i = 0; i < element.expected.length; i++) {
       print("... expected " + i + " (card " + element.expected[i] + "): " +
             cards[element.expected[i]].value);
     }
@@ -178,7 +177,7 @@ function run_test()
     Assert.equal(obs._result.errorDescription, null);
     Assert.equal(obs._result.matchCount, element.expected.length);
 
-    for (var i = 0; i < element.expected.length; ++i) {
+    for (let i = 0; i < element.expected.length; ++i) {
       Assert.equal(obs._result.getValueAt(i), cards[element.expected[i]].value);
       Assert.equal(obs._result.getLabelAt(i), cards[element.expected[i]].value);
     }

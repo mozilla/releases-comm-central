@@ -37,10 +37,10 @@ acObserver.prototype = {
   _search: null,
   _result: null,
 
-  onSearchResult: function (aSearch, aResult) {
+  onSearchResult(aSearch, aResult) {
     this._search = aSearch;
     this._result = aResult;
-  }
+  },
 };
 
 function run_test() {
@@ -66,11 +66,11 @@ function run_test() {
     print("Search #" + index + ": search=" + element.search);
     acs.startSearch(element.search, JSON.stringify({ type: "addr_to" }), null, obs);
 
-    for (var i = 0; i < obs._result.matchCount; i++) {
+    for (let i = 0; i < obs._result.matchCount; i++) {
       print("... got " + i + ": " + obs._result.getValueAt(i));
     }
 
-    for (var i = 0; i < element.expected.length; i++) {
+    for (let i = 0; i < element.expected.length; i++) {
       print("... expected " + i + " (card " + element.expected[i] + "): " +
             results[element.expected[i]].email);
     }
@@ -102,4 +102,4 @@ function run_test() {
   }
 
   inputs.forEach(checkInputSet);
-};
+}

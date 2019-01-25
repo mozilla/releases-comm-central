@@ -11,23 +11,21 @@
 var abListener = {
   result: [],
   maxResults: 1,
-  onItemAdded: function (parentItem, item) {
+  onItemAdded(parentItem, item) {
     Assert.ok(this.result.length < this.maxResults);
     this.result.push(["onItemAdded", parentItem, item]);
   },
-  onItemRemoved: function (parentItem, item) {
+  onItemRemoved(parentItem, item) {
     Assert.ok(this.result.length < this.maxResults);
     this.result.push(["onItemRemoved", parentItem, item]);
   },
-  onItemPropertyChanged: function (item, property, oldValue, newValue) {
+  onItemPropertyChanged(item, property, oldValue, newValue) {
     Assert.ok(this.result.length < this.maxResults);
     this.result.push(["onItemPropertyChanged", item, property, oldValue, newValue]);
-  }
+  },
 };
 
 function run_test() {
-  var i;
-
   // XXX Getting all directories ensures we create all ABs because the
   // address collecter can't currently create ABs itself (bug 314448).
   MailServices.ab.directories;
@@ -140,7 +138,7 @@ function run_test() {
   Assert.equal(card.getProperty("Notes", "BAD"), "testdescription");
   Assert.equal(card.getProperty("NickName", "BAD"), "test");
 
-  var book = abListener.result[1][2].QueryInterface(Ci.nsIAbDirectory);
+  book = abListener.result[1][2].QueryInterface(Ci.nsIAbDirectory);
   Assert.ok(book.isMailList);
   Assert.equal(book.dirName, "TestList");
   Assert.equal(book.listNickName, "test");
@@ -149,4 +147,4 @@ function run_test() {
   // Remove listener
 
   MailServices.ab.removeAddressBookListener(abListener);
-};
+}

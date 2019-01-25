@@ -187,21 +187,20 @@ var collectChecker = {
   AB: null,
   part: 0,
 
-  checkAddress : function (aDetails) {
+  checkAddress(aDetails) {
     try {
       this.addressCollect.collectAddress(aDetails.emailHeader, true,
                                          aDetails.mailFormat);
 
       this.checkCardResult(aDetails, false);
-    }
-    catch (e) {
+    } catch (e) {
       throw "FAILED in checkAddress emailHeader: " + aDetails.emailHeader +
       " part: " + this.part + " : " + e;
     }
     ++this.part;
   },
 
-  checkAll : function (aDetailsArray) {
+  checkAll(aDetailsArray) {
     try {
       // Formulate the string to add.
       var emailHeader = "";
@@ -218,13 +217,12 @@ var collectChecker = {
 
       for (i = 0; i < aDetailsArray.length; ++i)
         this.checkCardResult(aDetailsArray[i], true);
-    }
-    catch (e) {
+    } catch (e) {
       throw "FAILED in checkAll item: " + i + " : " + e;
     }
   },
 
-  checkCardResult : function (aDetails, overrideMailFormat) {
+  checkCardResult(aDetails, overrideMailFormat) {
     try {
       var card = this.AB.cardForEmailAddress(aDetails.primaryEmail);
 
@@ -244,15 +242,13 @@ var collectChecker = {
       Assert.equal(card.firstName, aDetails.firstName);
       Assert.equal(card.lastName, aDetails.lastName);
       Assert.equal(card.getProperty("_AimScreenName", ""), aDetails.screenName);
-    }
-    catch (e) {
+    } catch (e) {
       throw "FAILED in checkCardResult emailHeader: " + aDetails.emailHeader + " : " + e;
     }
-  }
+  },
 };
 
-function run_test()
-{
+function run_test() {
   // Test - Get the address collecter
 
   // XXX Getting all directories ensures we create all ABs because the
@@ -364,7 +360,7 @@ function run_test()
   var foundCards = [];
 
   while (childCards.hasMoreElements()) {
-    var card = childCards.getNext();
+    card = childCards.getNext();
     if (card instanceof Ci.nsIAbCard &&
         card.primaryEmail == kSingleAddress)
       foundCards.push(card);
@@ -379,4 +375,4 @@ function run_test()
   if (foundCards[0].displayName != "" &&
       foundCards[1].displayName != "")
     do_throw("Error, collectSingleCard created ok, but other card does not exist");
-};
+}

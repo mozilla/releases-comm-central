@@ -34,7 +34,7 @@ var cards = [
   { email: "j@test.invalid", secondEmail: "h@test.invalid",
     displayName: "3testsort", popularityIndex: 5 },
   // Add a contact that matches, but has no email. Should not show up.
-  { displayName: "primaryX" }
+  { displayName: "primaryX" },
 ];
 
 // These are for the initial search
@@ -91,14 +91,13 @@ acObserver.prototype = {
   _search: null,
   _result: null,
 
-  onSearchResult: function (aSearch, aResult) {
+  onSearchResult(aSearch, aResult) {
     this._search = aSearch;
     this._result = aResult;
-  }
+  },
 };
 
-function run_test()
-{
+function run_test() {
   // We set up the cards for this test manually as it is easier to set the
   // popularity index and we don't need many.
 
@@ -135,7 +134,7 @@ function run_test()
     print("Search #" + index + ": search=" + element);
     acs.startSearch(element, JSON.stringify({ type: "addr_to", idKey: "" }), null, obs);
 
-    for (var i = 0; i < obs._result.matchCount; i++) {
+    for (let i = 0; i < obs._result.matchCount; i++) {
       print("... got " + i + ": " + obs._result.getValueAt(i));
     }
 
@@ -145,7 +144,7 @@ function run_test()
     Assert.equal(obs._result.errorDescription, null);
     Assert.equal(obs._result.matchCount, expectedResults[index].length);
 
-    for (var i = 0; i < expectedResults[index].length; ++i) {
+    for (let i = 0; i < expectedResults[index].length; ++i) {
       Assert.equal(obs._result.getValueAt(i), expectedResults[index][i]);
       Assert.equal(obs._result.getLabelAt(i), expectedResults[index][i]);
       Assert.equal(obs._result.getCommentAt(i), "");

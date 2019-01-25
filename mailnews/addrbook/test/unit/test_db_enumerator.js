@@ -7,8 +7,7 @@ var ab_prefix       = "test-537815-";
 var card_properties = { FirstName: "01-first-3", LastName: "02-last", PrimaryEmail: "08-email-1@zindus.invalid" };
 var max_addressbooks = 10;
 
-function bug_537815_fixture_setup()
-{
+function bug_537815_fixture_setup() {
   let i, key;
 
   for (i = 1; i <= max_addressbooks; i++) {
@@ -41,10 +40,8 @@ function bug_537815_fixture_setup()
   }
 }
 
-function bug_537815_test()
-{
+function bug_537815_test() {
   let enm_dirs = MailServices.ab.directories;
-  let i, key;
 
   while (enm_dirs.hasMoreElements()) {
     let elem = enm_dirs.getNext().QueryInterface(Ci.nsIAbDirectory);
@@ -58,8 +55,8 @@ function bug_537815_test()
         let item = enm_cards.getNext();
         let abCard = item.QueryInterface(Ci.nsIAbCard);
 
-        for (i in card_properties) {
-          let value = abCard.getProperty(key, null);
+        for (let key in card_properties) {
+          abCard.getProperty(key, null);
         }
       }
       dump("visited all cards in: " + elem.dirName + "\n");
@@ -67,15 +64,13 @@ function bug_537815_test()
   }
 }
 
-function test_bug_537815()
-{
+function test_bug_537815() {
   bug_537815_fixture_setup();
   bug_537815_test();
   bug_537815_fixture_tear_down();
 }
 
-function bug_537815_fixture_tear_down()
-{
+function bug_537815_fixture_tear_down() {
   let enm_dirs = MailServices.ab.directories;
   let a_uri = {};
 
@@ -92,7 +87,6 @@ function bug_537815_fixture_tear_down()
     MailServices.ab.deleteAddressBook(uri);
 }
 
-function run_test()
-{
+function run_test() {
   test_bug_537815();
 }

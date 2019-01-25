@@ -11,10 +11,10 @@ acObserver.prototype = {
   _search: null,
   _result: null,
 
-  onSearchResult: function (aSearch, aResult) {
+  onSearchResult(aSearch, aResult) {
     this._search = aSearch;
     this._result = aResult;
-  }
+  },
 };
 
 function run_test() {
@@ -119,4 +119,4 @@ function run_test() {
   Assert.equal(obs._result.getCommentAt(0), null);
   Assert.equal(obs._result.getStyleAt(0), "default-match");
   Assert.equal(obs._result.getImageAt(0), null);
-};
+}

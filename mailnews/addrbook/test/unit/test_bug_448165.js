@@ -9,8 +9,7 @@ function run_test() {
   try {
     pab.deleteCards(null); // this should throw an error
     do_throw("Error, deleteCards should throw an error when null is passed to it");
-  }
-  catch (e) {
+  } catch (e) {
     // make sure the correct error message was thrown
     Assert.equal(e.result, Cr.NS_ERROR_INVALID_POINTER);
   }

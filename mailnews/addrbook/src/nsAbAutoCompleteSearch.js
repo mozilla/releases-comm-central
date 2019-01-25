@@ -4,7 +4,12 @@
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
+var {
+  getSearchTokens,
+  getModelQuery,
+  modelQueryHasUserValue,
+  generateQueryURI,
+} = ChromeUtils.import("resource:///modules/ABQueryUtils.jsm", null);
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var ACR = Ci.nsIAutoCompleteResult;
@@ -38,47 +43,47 @@ nsAbAutoCompleteResult.prototype = {
     return this._searchResults.length;
   },
 
-  getValueAt: function getValueAt(aIndex) {
+  getValueAt(aIndex) {
     return this._searchResults[aIndex].value;
   },
 
-  getLabelAt: function getLabelAt(aIndex) {
+  getLabelAt(aIndex) {
     return this.getValueAt(aIndex);
   },
 
-  getCommentAt: function getCommentAt(aIndex) {
+  getCommentAt(aIndex) {
     return this._searchResults[aIndex].comment;
   },
 
-  getStyleAt: function getStyleAt(aIndex) {
+  getStyleAt(aIndex) {
     return "local-abook";
   },
 
-  getImageAt: function getImageAt(aIndex) {
+  getImageAt(aIndex) {
     return "";
   },
 
-  getFinalCompleteValueAt: function(aIndex) {
+  getFinalCompleteValueAt(aIndex) {
     return this.getValueAt(aIndex);
   },
 
-  removeValueAt: function removeValueAt(aRowIndex, aRemoveFromDB) {
+  removeValueAt(aRowIndex, aRemoveFromDB) {
   },
 
   // nsIAbAutoCompleteResult
 
-  getCardAt: function getCardAt(aIndex) {
+  getCardAt(aIndex) {
     return this._searchResults[aIndex].card;
   },
 
-  getEmailToUse: function getEmailToUse(aIndex) {
+  getEmailToUse(aIndex) {
     return this._searchResults[aIndex].emailToUse;
   },
 
   // nsISupports
 
-  QueryInterface: ChromeUtils.generateQI([ACR, nsIAbAutoCompleteResult])
-}
+  QueryInterface: ChromeUtils.generateQI([ACR, nsIAbAutoCompleteResult]),
+};
 
 function nsAbAutoCompleteSearch() {}
 
@@ -104,7 +109,7 @@ nsAbAutoCompleteSearch.prototype = {
    * @param aDirectory  The directory that the card is in.
    * @param aCard       The card to return the popularity index for.
    */
-  _getPopularityIndex: function _getPopularityIndex(aDirectory, aCard) {
+  _getPopularityIndex(aDirectory, aCard) {
     let popularityValue = aCard.getProperty("PopularityIndex", "0");
     let popularityIndex = parseInt(popularityValue);
 
@@ -122,8 +127,7 @@ nsAbAutoCompleteSearch.prototype = {
         aCard.setProperty("PopularityIndex", popularityIndex);
         try {
           aDirectory.modifyCard(aCard);
-        }
-        catch (ex) {
+        } catch (ex) {
           Cu.reportError(ex);
         }
       }
@@ -141,7 +145,7 @@ nsAbAutoCompleteSearch.prototype = {
    * @param aSearchString - search string provided by user
    * @return a score; a higher score is better than a lower one
    */
-  _getScore: function(aCard, aAddress, aSearchString) {
+  _getScore(aCard, aAddress, aSearchString) {
     const BEST = 100;
 
     // We will firstly check if the search term provided by the user
@@ -184,7 +188,7 @@ nsAbAutoCompleteSearch.prototype = {
    * @param directory    An nsIAbDirectory to search.
    * @param result       The result element to append results to.
    */
-  _searchCards: function(searchQuery, directory, result) {
+  _searchCards(searchQuery, directory, result) {
     let childCards;
     try {
       childCards = this._abManager.getDirectory(directory.URI + searchQuery).childCards;
@@ -201,9 +205,9 @@ nsAbAutoCompleteSearch.prototype = {
       var card = childCards.getNext();
 
       if (card instanceof Ci.nsIAbCard) {
-        if (card.isMailList)
+        if (card.isMailList) {
           this._addToResult(commentColumn, directory, card, "", true, result);
-        else {
+        } else {
           let email = card.primaryEmail;
           if (email)
             this._addToResult(commentColumn, directory, card, email, true, result);
@@ -227,7 +231,7 @@ nsAbAutoCompleteSearch.prototype = {
    * @return             True if the card matches the search parameters, false
    *                     otherwise.
    */
-  _checkEntry: function _checkEntry(aCard, aEmailToUse, aSearchWords) {
+  _checkEntry(aCard, aEmailToUse, aSearchWords) {
     // Joining values of many fields in a single string so that a single
     // search query can be fired on all of them at once. Separating them
     // using spaces so that field1=> "abc" and field2=> "def" on joining
@@ -262,7 +266,7 @@ nsAbAutoCompleteSearch.prototype = {
    *                        for duplicates against. Lowercased.
    * @param currentResults  The current results list.
    */
-  _checkDuplicate: function (directory, card, lcEmailAddress, currentResults) {
+  _checkDuplicate(directory, card, lcEmailAddress, currentResults) {
     let existingResult = currentResults._collectedValues.get(lcEmailAddress);
     if (!existingResult)
       return false;
@@ -294,8 +298,7 @@ nsAbAutoCompleteSearch.prototype = {
    *                       it is the case. For mailing lists set it to true.
    * @param result         The result to add the new entry to.
    */
-  _addToResult: function(commentColumn, directory, card,
-                         emailToUse, isPrimaryEmail, result) {
+  _addToResult(commentColumn, directory, card, emailToUse, isPrimaryEmail, result) {
     let mbox = this._parser.makeMailboxObject(card.displayName,
       card.isMailList ? card.getProperty("Notes", "") || card.displayName :
                         emailToUse);
@@ -313,11 +316,11 @@ nsAbAutoCompleteSearch.prototype = {
     result._collectedValues.set(lcEmailAddress, {
       value: emailAddress,
       comment: commentColumn,
-      card: card,
-      isPrimaryEmail: isPrimaryEmail,
-      emailToUse: emailToUse,
+      card,
+      isPrimaryEmail,
+      emailToUse,
       popularity: this._getPopularityIndex(directory, card),
-      score: this._getScore(card, lcEmailAddress, result.searchString)
+      score: this._getScore(card, lcEmailAddress, result.searchString),
     });
   },
 
@@ -331,8 +334,7 @@ nsAbAutoCompleteSearch.prototype = {
    * It is expected that aSearchParam contains the identity (if any) to use
    * for determining if an address book should be autocompleted against.
    */
-  startSearch: function startSearch(aSearchString, aSearchParam,
-                                    aPreviousResult, aListener) {
+  startSearch(aSearchString, aSearchParam, aPreviousResult, aListener) {
     let params = aSearchParam ? JSON.parse(aSearchParam) : {};
     var result = new nsAbAutoCompleteResult(aSearchString);
     if (("type" in params) && !this.applicableHeaders.has(params.type)) {
@@ -360,9 +362,7 @@ nsAbAutoCompleteSearch.prototype = {
     let searchWords = getSearchTokens(fullString);
 
     // Find out about the comment column
-    try {
-      this._commentColumn = Services.prefs.getIntPref("mail.autoComplete.commentColumn");
-    } catch(e) { }
+    this._commentColumn = Services.prefs.getIntPref("mail.autoComplete.commentColumn", 0);
 
     if (aPreviousResult instanceof nsIAbAutoCompleteResult &&
         aSearchString.startsWith(aPreviousResult.searchString) &&
@@ -388,19 +388,17 @@ nsAbAutoCompleteSearch.prototype = {
           result._searchResults.push({
             value: aPreviousResult.getValueAt(i),
             comment: aPreviousResult.getCommentAt(i),
-            card: card,
+            card,
             isPrimaryEmail: (card.primaryEmail == email),
             emailToUse: email,
             popularity: parseInt(card.getProperty("PopularityIndex", "0")),
             score: this._getScore(card,
               aPreviousResult.getValueAt(i).toLocaleLowerCase(),
-              fullString)
+              fullString),
           });
         }
       }
-    }
-    else
-    {
+    } else {
       // Construct the search query from pref; using a query means we can
       // optimise on running the search through c++ which is better for string
       // comparisons (_checkEntry is relatively slow).
@@ -451,12 +449,12 @@ nsAbAutoCompleteSearch.prototype = {
     aListener.onSearchResult(this, result);
   },
 
-  stopSearch: function stopSearch() {
+  stopSearch() {
   },
 
   // nsISupports
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIAutoCompleteSearch])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIAutoCompleteSearch]),
 };
 
 // Module

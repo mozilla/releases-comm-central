@@ -41,8 +41,7 @@ function run_test() {
   // be triggered.
   gc();
 
-  while (childCards.hasMoreElements())
-  {
+  while (childCards.hasMoreElements()) {
     // Make sure everything is an nsIAbCard.
     childCards.getNext().QueryInterface(Ci.nsIAbCard);
 

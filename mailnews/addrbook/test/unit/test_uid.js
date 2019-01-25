@@ -97,7 +97,7 @@ add_task(async function newListUID() {
 // 3 seems to be the lowest number that works here. I don't know why.
 var count = 3;
 function newAddressBookFile() {
-  let foo = MailServices.ab.newAddressBook(`book${count}`, `moz-abmdbdirectory://abook-${count}.mab`, 2);
+  MailServices.ab.newAddressBook(`book${count}`, `moz-abmdbdirectory://abook-${count}.mab`, 2);
 
   let testAB = do_get_file("data/existing.mab");
   testAB.copyTo(profD, `abook-${count}.mab`);

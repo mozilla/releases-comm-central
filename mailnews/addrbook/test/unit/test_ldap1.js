@@ -35,8 +35,7 @@ function run_test() {
   // Set up an account and identity in the account manager
   let identity = MailServices.accounts.createIdentity();
 
-  const localAcTests =
-    [
+  const localAcTests = [
      // Online checks
      { useDir: false, dirSer: "",
        idOver: false, idSer: "", idKey: "",
@@ -83,8 +82,8 @@ function run_test() {
        offline: true, result: true },
      { useDir: true, dirSer: abDir.dirPrefId,
        idOver: true, idSer: kPABData.dirPrefID, idKey: identity.key,
-       offline: true, result: false }
-     ];
+       offline: true, result: false },
+  ];
 
   function checkAc(element, index, array) {
     dump("Testing index " + index + "\n");
@@ -98,4 +97,4 @@ function run_test() {
   }
 
   localAcTests.forEach(checkAc);
-};
+}

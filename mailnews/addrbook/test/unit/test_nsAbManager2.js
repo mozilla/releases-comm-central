@@ -18,24 +18,24 @@ abL.prototype = {
  mDirectory: null,
  mAutoRemoveItem: false,
 
-  onItemAdded: function (parentItem, item) {
+  onItemAdded(parentItem, item) {
     this.mReceived |= nsIAbListener.itemAdded;
     this.mDirectory = item;
     if (this.mAutoRemoveItem)
       MailServices.ab.removeAddressBookListener(this);
   },
-  onItemRemoved: function (parentItem, item) {
+  onItemRemoved(parentItem, item) {
     this.mReceived |= nsIAbListener.directoryRemoved;
     this.mDirectory = item;
     if (this.mAutoRemoveItem)
       MailServices.ab.removeAddressBookListener(this);
   },
-  onItemPropertyChanged: function (item, property, oldValue, newValue) {
+  onItemPropertyChanged(item, property, oldValue, newValue) {
     this.mReceived |= nsIAbListener.itemChanged;
     this.mDirectory = item;
     if (this.mAutoRemoveItem)
       MailServices.ab.removeAddressBookListener(this);
-  }
+  },
 };
 
 function checkDirs(aDirs, aDirArray) {
@@ -73,9 +73,9 @@ function addDirectory(dirName) {
     if (1 << i == nsIAbListener.itemAdded) {
       Assert.equal(gAblSingle[i].mReceived, nsIAbListener.itemAdded);
       gAblSingle[i].mReceived = 0;
-    }
-    else
+    } else {
       Assert.equal(gAblSingle[i].mReceived, 0);
+    }
   }
 
   return newDirectory;
@@ -96,9 +96,9 @@ function removeDirectory(directory) {
     if (1 << i == nsIAbListener.directoryRemoved) {
       Assert.equal(gAblSingle[i].mReceived, nsIAbListener.directoryRemoved);
       gAblSingle[i].mReceived = 0;
-    }
-    else
+    } else {
       Assert.equal(gAblSingle[i].mReceived, 0);
+    }
   }
 }
 
@@ -165,6 +165,6 @@ function run_test() {
 
   MailServices.ab.removeAddressBookListener(gAblAll);
 
-  for (i = 0; i< numListenerOptions; ++i)
+  for (i = 0; i < numListenerOptions; ++i)
     MailServices.ab.removeAddressBookListener(gAblSingle[i]);
-};
+}
