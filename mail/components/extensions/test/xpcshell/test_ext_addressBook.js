@@ -451,8 +451,9 @@ add_task(async function test_addressBooks() {
 
       case "createContact": {
         let contact = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(Ci.nsIAbCard);
-        contact.setProperty("FirstName", "external");
-        contact.setProperty("LastName", "add");
+        contact.firstName = "external";
+        contact.lastName = "add";
+        contact.primaryEmail = "test@invalid";
         let newContact = parent.addCard(contact);
         extension.sendMessage(parent.UID, newContact.UID);
         return;
@@ -460,8 +461,8 @@ add_task(async function test_addressBooks() {
       case "updateContact": {
         let contact = findContact(args[0]);
         if (contact) {
-          contact.setProperty("FirstName", "external");
-          contact.setProperty("LastName", "edit");
+          contact.firstName = "external";
+          contact.lastName = "edit";
           parent.modifyCard(contact);
           extension.sendMessage();
           return;
@@ -481,8 +482,7 @@ add_task(async function test_addressBooks() {
       }
 
       case "createMailingList": {
-        let list = Cc["@mozilla.org/addressbook/directoryproperty;1"].createInstance();
-        list.QueryInterface(Ci.nsIAbDirectory);
+        let list = Cc["@mozilla.org/addressbook/directoryproperty;1"].createInstance(Ci.nsIAbDirectory);
         list.isMailList = true;
         list.dirName = "external add";
 

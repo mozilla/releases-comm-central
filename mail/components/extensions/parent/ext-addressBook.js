@@ -48,13 +48,12 @@ var addressBookCache = new class extends EventEmitter {
       item: directory,
       get contacts() {
         delete this.contacts;
-        if (directory.isMailList) {
-          this.contacts = [...directory.addressLists.enumerate()];
-        } else {
-          this.contacts = [...directory.childCards]
-            .filter(c => !c.isMailList);
+        this.contacts = [];
+        for (let card of directory.childCards) {
+          if (!card.isMailList) {
+            this.contacts.push(addressBookCache._makeContactNode(card, directory));
+          }
         }
-        this.contacts = this.contacts.map(c => addressBookCache._makeContactNode(c, directory));
         return this.contacts;
       },
       get mailingLists() {
@@ -464,8 +463,7 @@ this.addressBook = class extends ExtensionAPI {
           return addressBookCache.convert(addressBookCache.findMailingListById(id), false);
         },
         create(parentId, { name, nickName, description }) {
-          let mailList = Cc["@mozilla.org/addressbook/directoryproperty;1"].createInstance();
-          mailList.QueryInterface(Ci.nsIAbDirectory);
+          let mailList = Cc["@mozilla.org/addressbook/directoryproperty;1"].createInstance(Ci.nsIAbDirectory);
           mailList.isMailList = true;
           mailList.dirName = name;
           mailList.listNickName = (nickName === null) ? "" : nickName;

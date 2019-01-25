@@ -2561,9 +2561,8 @@ nsListAddressEnumerator::HasMoreElements(bool *aResult)
     nsCOMPtr<nsIMdbRow> currentRow;
     nsresult rv = mDb->GetAddressRowByPos(mListRow, mAddressPos + 1,
                                           getter_AddRefs(currentRow));
-    NS_ENSURE_SUCCESS(rv, rv);
 
-    if (currentRow)
+    if (NS_SUCCEEDED(rv) && currentRow)
     {
       *aResult = true;
       break;
@@ -2587,19 +2586,19 @@ nsListAddressEnumerator::GetNext(nsISupports **aResult)
       return NS_ERROR_NULL_POINTER;
   }
 
-  if (++mAddressPos <= mAddressTotal)
+  while (++mAddressPos <= mAddressTotal)
   {
     nsCOMPtr<nsIMdbRow> currentRow;
     nsresult rv = mDb->GetAddressRowByPos(mListRow, mAddressPos,
                                           getter_AddRefs(currentRow));
-    NS_ENSURE_SUCCESS(rv, rv);
+    if (NS_SUCCEEDED(rv)) {
+      nsCOMPtr<nsIAbCard> resultCard;
+      rv = mDb->CreateABCard(currentRow, mListRowID,
+                             getter_AddRefs(resultCard));
+      NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMPtr<nsIAbCard> resultCard;
-    rv = mDb->CreateABCard(currentRow, mListRowID,
-                           getter_AddRefs(resultCard));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    return CallQueryInterface(resultCard, aResult);
+      return CallQueryInterface(resultCard, aResult);
+    }
   }
 
   return NS_ERROR_FAILURE;
