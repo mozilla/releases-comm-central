@@ -7,6 +7,7 @@
 /* import-globals-from mailTabs.js */
 /* import-globals-from mailWindow.js */
 /* import-globals-from messageDisplay.js */
+/* import-globals-from utilityOverlay.js */
 
 ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
 ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
@@ -446,11 +447,11 @@ nsContextMenu.prototype = {
     this.checkLastSeparator(this.menu);
   },
 
+  /* eslint-disable complexity */
   /**
    * Set the nsContextMenu properties based on the selected node and
    * its ancestors.
    */
-  /* eslint-disable complexity */
   setTarget(aNode) {
     // Clear any old spellchecking items from the menu, this used to
     // be in the menu hiding code but wasn't getting called in all

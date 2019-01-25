@@ -5,6 +5,7 @@
 
 /* globals MozXULElement */
 /* import-globals-from folderDisplay.js */
+/* import-globals-from folderPane.js */
 /* import-globals-from ../../../mailnews/base/content/newmailalert.js */
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");

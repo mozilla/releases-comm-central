@@ -15,7 +15,10 @@
  * but not for bigger file downloads.
  */
 
+/* import-globals-from emailWizard.js */
+
 ChromeUtils.import("resource:///modules/JXON.js");
+var { logException } = ChromeUtils.import("resource:///modules/errUtils.js", null);
 
 /**
  * Set up a fetch.
@@ -104,8 +107,7 @@ function FetchHTTP(url, args, successCallback, errorCallback) {
   this._logger = Log4Moz.getConfiguredLogger("mail.setup");
   this._logger.info("Requesting <" + url + ">");
 }
-FetchHTTP.prototype =
-{
+FetchHTTP.prototype = {
   __proto__: Abortable.prototype,
   _url: null, // URL as passed to ctor, without arguments
   _args: null,

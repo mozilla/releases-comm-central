@@ -3,11 +3,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from emailWizard.js */
 
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-/* eslint-disable complexity */
 
+/* eslint-disable complexity */
 /**
  * Takes an |AccountConfig| JS object and creates that account in the
  * Thunderbird backend (which also writes it to prefs).

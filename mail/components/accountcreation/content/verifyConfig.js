@@ -3,8 +3,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from emailWizard.js */
+
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource:///modules/OAuth2Providers.jsm");
+var { logException } = ChromeUtils.import("resource:///modules/errUtils.js", null);
 
 if (typeof gEmailWizardLogger == "undefined") {
   ChromeUtils.import("resource:///modules/gloda/log4moz.js");
@@ -159,8 +162,7 @@ function urlListener(config, server, alter, msgWindow, successCallback,
   this.mCertError = false;
   this._log = Log4Moz.getConfiguredLogger("mail.wizard");
 }
-urlListener.prototype =
-{
+urlListener.prototype = {
   OnStartRunningUrl(aUrl) {
     this._log.info("Starting to test username");
     this._log.info("  username=" + (this.mConfig.incoming.username !=

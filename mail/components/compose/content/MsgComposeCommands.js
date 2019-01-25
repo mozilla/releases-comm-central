@@ -2,6 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../../../editor/ui/composer/content/ComposerCommands.js */
+/* import-globals-from ../../../../editor/ui/composer/content/editor.js */
+/* import-globals-from ../../../../editor/ui/composer/content/editorUtilities.js */
+/* import-globals-from ../../../../mailnews/addrbook/content/abDragDrop.js */
+/* import-globals-from ../../../base/content/mailCore.js */
+/* import-globals-from ../../../base/content/utilityOverlay.js */
 /* import-globals-from addressingWidgetOverlay.js */
 
 /**
@@ -3077,11 +3083,11 @@ function DoSpellCheckBeforeSend() {
   return Services.prefs.getBoolPref("mail.SpellCheckBeforeSend");
 }
 
+/* eslint-disable complexity */
 /**
  * Handles message sending operations.
  * @param msgType nsIMsgCompDeliverMode of the operation.
  */
-/* eslint-disable complexity */
 function GenericSendMessage(msgType) {
   var msgCompFields = gMsgCompose.compFields;
 
@@ -4744,6 +4750,7 @@ function RenameSelectedAttachment() {
   goUpdateCommand("cmd_sortAttachmentsToggle");
 }
 
+/* eslint-disable complexity */
 /**
  * Move selected attachment(s) within the attachment list.
  *
@@ -4755,7 +4762,6 @@ function RenameSelectedAttachment() {
  *                    "bundleDown": Move attachments together (downwards).
  *                    "toggleSort": Sort attachments alphabetically (toggle).
  */
-/* eslint-disable complexity */
 function moveSelectedAttachments(aDirection) {
   // Command controllers will bail out if no or all attachments are selected,
   // or if block selections can't be moved, or if other direction-specific

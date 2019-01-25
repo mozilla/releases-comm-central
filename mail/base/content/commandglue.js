@@ -8,6 +8,8 @@
 
 /* import-globals-from folderDisplay.js */
 /* import-globals-from folderPane.js */
+/* import-globals-from mailWindow.js */
+/* import-globals-from msgMail3PaneWindow.js */
 
 var { MailViewConstants } = ChromeUtils.import("resource:///modules/MailViewManager.jsm", null);
 ChromeUtils.import("resource://gre/modules/Services.jsm");

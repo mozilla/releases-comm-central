@@ -4,6 +4,8 @@
 
 "use strict";
 
+/* import-globals-from preferences.js */
+
 /**
  * SubDialog constructor creates a new subdialog from a template and appends
  * it to the parentElement.

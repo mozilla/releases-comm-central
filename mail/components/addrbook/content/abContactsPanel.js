@@ -4,18 +4,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// addressbook.js
-/* globals gQueryURIFormat */
+/* import-globals-from ../../../../mailnews/addrbook/content/abResultsPane.js */
+/* import-globals-from abCommon.js */
 
-// mailnews/addrbook/content/abResultsPane.js
-/* globals GetNumSelectedCards */
-// mailnews/base/util/ABQueryUtils.jsm
-/* globals getModelQuery, getSearchTokens, generateQueryURI */
-
-// toolkit/content/globalOverlay.js
-/* globals goUpdateCommand */
-
-ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
+var {
+  getSearchTokens,
+  getModelQuery,
+  generateQueryURI,
+} = ChromeUtils.import("resource:///modules/ABQueryUtils.jsm", null);
 
 function GetAbViewListener() {
   // the ab panel doesn't care if the total changes, or if the selection changes

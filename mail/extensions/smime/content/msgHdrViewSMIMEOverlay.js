@@ -5,6 +5,7 @@
 
 /* import-globals-from ../../../../mailnews/extensions/smime/content/msgReadSMIMEOverlay.js */
 /* import-globals-from ../../../base/content/folderDisplay.js */
+/* import-globals-from ../../../base/content/mailWindow.js */
 /* import-globals-from ../../../base/content/msgHdrView.js */
 
 var gSignedUINode = null;

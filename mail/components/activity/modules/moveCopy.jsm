@@ -15,8 +15,7 @@ const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js", n
 
 // This module provides a link between the move/copy code and the activity
 // manager.
-var moveCopyModule =
-{
+var moveCopyModule = {
   lastMessage: {},
   lastFolder: {},
 

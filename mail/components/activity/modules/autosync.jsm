@@ -24,9 +24,7 @@ var nsIAutoSyncMgrListener = Ci.nsIAutoSyncMgrListener;
  * rather than generating one event per folder sync.
  */
 
-var autosyncModule =
-{
-
+var autosyncModule = {
   _inQFolderList: [],
   _running: false,
   _syncInfoPerFolder: new Map(),

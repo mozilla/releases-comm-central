@@ -16,6 +16,7 @@
 /* import-globals-from ../../extensions/mailviews/content/msgViewPickerOverlay.js */
 /* import-globals-from commandglue.js */
 /* import-globals-from mailWindow.js */
+/* import-globals-from utilityOverlay.js */
 
 ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");

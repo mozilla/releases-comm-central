@@ -15,8 +15,7 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 // notification.
 // The notification topic is "mail:appIdle", the values are "idle", and "back"
 
-var appIdleManager =
-{
+var appIdleManager = {
   _appIdle: false,
   _timerInterval: 5000, // 5 seconds ought to be plenty
   get _timer() {

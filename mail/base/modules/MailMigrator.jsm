@@ -85,11 +85,11 @@ var MailMigrator = {
     }
   },
 
+  /* eslint-disable complexity */
   /**
    * Determine if the UI has been upgraded in a way that requires us to reset
    * some user configuration.  If so, performs the resets.
    */
-  /* eslint-disable complexity */
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js

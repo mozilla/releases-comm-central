@@ -13,6 +13,7 @@
 /* import-globals-from mailWindow.js */
 /* import-globals-from msgViewNavigation.js */
 /* import-globals-from threadPane.js */
+/* import-globals-from utilityOverlay.js */
 
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource:///modules/MailUtils.jsm");

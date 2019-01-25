@@ -965,8 +965,7 @@ function AutomatedAutoCompleteHandler() {
 // force picks the first match and adds it to the addressing widget, then goes on to the next
 // name to complete.
 
-AutomatedAutoCompleteHandler.prototype =
-{
+AutomatedAutoCompleteHandler.prototype = {
   param: this,
   sessionName: null,
   namesToComplete: null,

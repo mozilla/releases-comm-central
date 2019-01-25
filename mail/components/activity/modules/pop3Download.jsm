@@ -15,8 +15,7 @@ const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js", n
 
 // This module provides a link between the pop3 service code and the activity
 // manager.
-var pop3DownloadModule =
-{
+var pop3DownloadModule = {
   // hash table of most recent download items per folder
   _mostRecentActivityForFolder: new Map(),
   // hash table of prev download items per folder, so we can

@@ -20,13 +20,14 @@
  * for values stored.
  */
 
+/* import-globals-from emailWizard.js */
+
 function AccountConfig() {
   this.incoming = this.createNewIncoming();
   this.incomingAlternatives = [];
   this.outgoing = this.createNewOutgoing();
   this.outgoingAlternatives = [];
-  this.identity =
-  {
+  this.identity = {
     // displayed real name of user
     realname: "%REALNAME%",
     // email address of user, as shown in From of outgoing mails
@@ -35,8 +36,7 @@ function AccountConfig() {
   this.inputFields = [];
   this.domains = [];
 }
-AccountConfig.prototype =
-{
+AccountConfig.prototype = {
   // @see createNewIncoming()
   incoming: null,
   // @see createNewOutgoing()

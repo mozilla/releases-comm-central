@@ -5,28 +5,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// abCardView.js
-/* globals ClearCardViewPane, DisplayCardViewPane, OnLoadCardView */
-// abTrees.js
-/* globals gDirectoryTreeView */
-
-// mail/base/content/mail-compacttheme.js
-/* globals CompactTheme */
-// mail/base/content/mailCore.js
-/* globals MailToolboxCustomizeDone */
-// mail/base/content/toolbarIconColor.js
-/* globals ToolbarIconColor */
-// mailnews/base/content/msgPrintEngine.js
-/* globals printEngineWindow */
-// mailnews/base/util/ABQueryUtils.jsm
-/* globals getModelQuery, getSearchTokens, generateQueryURI */
-
-// toolkit/content/globalOverlay.js
-/* globals goUpdateCommand */
+/* import-globals-from ../../../../mailnews/addrbook/content/abResultsPane.js */
+/* import-globals-from ../../../../mailnews/base/content/msgPrintEngine.js */
+/* import-globals-from abCardView.js */
+/* import-globals-from abCommon.js */
 
 // Ensure the activity modules are loaded for this window.
 ChromeUtils.import("resource:///modules/activity/activityModules.jsm");
-ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
+var {
+  getSearchTokens,
+  getModelQuery,
+  generateQueryURI,
+} = ChromeUtils.import("resource:///modules/ABQueryUtils.jsm", null);
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
@@ -364,13 +354,11 @@ function AbPrintCardInternal(doPrintPreview, msgType) {
     }
   }
 
-  /* eslint-disable no-global-assign */
-  printEngineWindow = window.openDialog("chrome://messenger/content/msgPrintEngine.xul",
-                                         "",
-                                         "chrome,dialog=no,all",
-                                         selectionArray.length, selectionArray,
-                                         statusFeedback, doPrintPreview, msgType);
-  /* eslint-enable no-global-assign */
+  window.openDialog("chrome://messenger/content/msgPrintEngine.xul",
+                    "",
+                    "chrome,dialog=no,all",
+                    selectionArray.length, selectionArray,
+                    statusFeedback, doPrintPreview, msgType);
 }
 
 function AbPrintCard() {
@@ -402,12 +390,10 @@ function AbPrintAddressBookInternal(doPrintPreview, msgType) {
   var abURIArr = uri.split("://");
   var printUrl = "addbook://" + abURIArr[0] + "/" + abURIArr[1] + "?action=print";
 
-  /* eslint-disable no-global-assign */
-  printEngineWindow = window.openDialog("chrome://messenger/content/msgPrintEngine.xul",
+  window.openDialog("chrome://messenger/content/msgPrintEngine.xul",
                     "",
                     "chrome,dialog=no,all",
                     1, [printUrl], statusFeedback, doPrintPreview, msgType);
-  /* eslint-enable no-global-assign */
 }
 
 function AbPrintAddressBook() {

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from commandglue.js */
+/* import-globals-from mailWindow.js */
 
 /**
  * Summarize a set of selected messages.  This can either be a single thread or

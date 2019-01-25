@@ -3,9 +3,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
-/* eslint-disable complexity */
+/* import-globals-from emailWizard.js */
 
+var { logException } = ChromeUtils.import("resource:///modules/errUtils.js", null);
+
+/* eslint-disable complexity */
 /**
  * Takes an XML snipplet (as JXON) and reads the values into
  * a new AccountConfig object.
@@ -212,8 +214,7 @@ function readFromXML(clientConfigXML) {
   d.inputFields = [];
   for (let inputField of array_or_undef(xml.$inputField)) {
     try {
-      var fieldset =
-      {
+      let fieldset = {
         varname: sanitize.alphanumdash(inputField["@key"]).toUpperCase(),
         displayName: sanitize.label(inputField["@label"]),
         exampleValue: sanitize.label(inputField.value),

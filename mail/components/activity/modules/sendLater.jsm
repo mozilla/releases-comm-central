@@ -43,8 +43,7 @@ var sendMsgProgressListener = {
 
 // This module provides a link between the send later service and the activity
 // manager.
-var sendLaterModule =
-{
+var sendLaterModule = {
   _sendProcess: null,
   _copyProcess: null,
   _identity: null,

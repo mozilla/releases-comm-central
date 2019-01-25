@@ -3,6 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from emailWizard.js */
+/* globals cleanUpHostName, isLegalHostNameOrIP */
+ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
+
 /**
  * This is a generic input validation lib. Use it when you process
  * data from the network.
@@ -16,10 +20,7 @@
  * they throw exceptions.
  */
 
-ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
-
-var sanitize =
-{
+var sanitize = {
   integer(unchecked) {
     if (typeof(unchecked) == "number" && !isNaN(unchecked))
       return unchecked;

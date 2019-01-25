@@ -4,19 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// addressbook.js
-/* globals PluralForm, ResultsPaneSelectionChanged, gPreviousDirTreeIndex, onEnterInSearchBar */
-// abTrees.js
-/* globals gDirectoryTreeView */
-
-// mail/base/content/utilityOverlay.js
-/* globals goSetMenuValue */
-
-// mailnews/addrbook/content/abResultsPane.js
-/* globals kCardsOnly, kListsAndCards, kMultipleListsOnly, kNothingSelected, kSingleListOnly */
-
-// toolkit/content/globalOverlay.js
-/* globals goUpdateCommand */
+/* import-globals-from ../../../../../toolkit/content/globalOverlay.js */
+/* import-globals-from ../../../../mailnews/addrbook/content/abResultsPane.js */
+/* import-globals-from ../../../base/content/utilityOverlay.js */
+/* import-globals-from abTrees.js */
+/* import-globals-from addressbook.js */
 
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource:///modules/IOUtils.js");
@@ -52,8 +44,7 @@ var defaultPhotoURI = "";
 var PERMS_DIRECTORY = parseInt("0755", 8);
 
 // Controller object for Dir Pane
-var DirPaneController =
-{
+var DirPaneController = {
   supportsCommand(command) {
     switch (command) {
       case "cmd_selectAll":

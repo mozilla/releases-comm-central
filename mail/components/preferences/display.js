@@ -3,8 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// toolkit/mozapps/preferences/fontbuilder.js
-/* globals FontBuilder */
+/* import-globals-from ../../../../toolkit/mozapps/preferences/fontbuilder.js */
+/* import-globals-from preferences.js */
+/* import-globals-from subdialogs.js */
 
 var gDisplayPane = {
   mInitialized: false,

@@ -6,12 +6,12 @@
  * Some common, generic functions
  */
 
-ChromeUtils.import("resource:///modules/errUtils.js");
+/* import-globals-from emailWizard.js */
+
+var { logException } = ChromeUtils.import("resource:///modules/errUtils.js", null);
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-/* eslint-disable spaced-comment */
 
-
-/////////////////////////////////////////
+// --------------------------
 // Low level, basic functions
 
 function assert(test, errorMsg) {
@@ -113,16 +113,14 @@ function getStringBundle(bundleURI) {
   }
 }
 
-
-/////////////////////////////////////////
+// ---------
 // Exception
 
 function Exception(msg) {
   this._message = msg;
   this.stack = Components.stack.formattedStack;
 }
-Exception.prototype =
-{
+Exception.prototype = {
   get message() {
     return this._message;
   },
@@ -139,8 +137,7 @@ function NotReached(msg) {
 NotReached.prototype = Object.create(Exception.prototype);
 NotReached.prototype.constructor = NotReached;
 
-
-/////////////////////////////////////////
+// ---------
 // Abortable
 
 /**
@@ -150,8 +147,7 @@ NotReached.prototype.constructor = NotReached;
  */
 function Abortable() {
 }
-Abortable.prototype =
-{
+Abortable.prototype = {
   cancel(e) {
   },
 };
@@ -434,8 +430,7 @@ function NoLongerNeededException(msg) {
 NoLongerNeededException.prototype = Object.create(CancelledException.prototype);
 NoLongerNeededException.prototype.constructor = NoLongerNeededException;
 
-
-/////////////////////////////////////////
+// -------------------
 // High level features
 
 /**
@@ -551,7 +546,7 @@ AddonInstaller.prototype.cancel = function() {
   }
 };
 
-/////////////////////////////////////////
+// ------------
 // Debug output
 
 function deepCopy(org) {
@@ -585,7 +580,6 @@ if (typeof gEmailWizardLogger == "undefined") {
   var gEmailWizardLogger = Log4Moz.getConfiguredLogger("mail.setup");
   gEmailWizardLogger.level = Log4Moz.Level.Info;
   gEmailWizardLogger.addAppender(new Log4Moz.ConsoleAppender(new Log4Moz.BasicFormatter())); // browser console
-  //gEmailWizardLogger.addAppender(new Log4Moz.DumpAppender(new Log4Moz.BasicFormatter())); // stdout
 }
 
 function ddump(text) {

@@ -13,6 +13,7 @@
 /* import-globals-from mailContextMenus.js */
 /* import-globals-from mailWindow.js */
 /* import-globals-from phishingDetector.js */
+/* import-globals-from utilityOverlay.js */
 
 ChromeUtils.import("resource:///modules/FeedUtils.jsm");
 var { GlodaSyntheticView } = ChromeUtils.import("resource:///modules/gloda/dbview.js", null);

@@ -5,6 +5,7 @@
 
 /* import-globals-from ../../../../mailnews/base/prefs/content/accountUtils.js */
 /* import-globals-from ../../../components/compose/content/MsgComposeCommands.js */
+/* import-globals-from ../../../components/compose/content/addressingWidgetOverlay.js */
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource:///modules/MailServices.jsm");

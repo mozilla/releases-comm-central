@@ -4,6 +4,7 @@
 
 /* import-globals-from ../../../../toolkit/components/printing/content/printUtils.js */
 /* import-globals-from mailWindow.js */
+/* import-globals-from utilityOverlay.js */
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");

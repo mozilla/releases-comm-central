@@ -4,10 +4,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from preferences.js */
+/* import-globals-from subdialogs.js */
+
 // applications.inc.xul
 /* globals ICON_URL_APP */
-// mail/base/content/contentAreaClick.js
-/* globals openLinkExternally */
 
 // ------------------------------
 // Constants & Enumeration Values

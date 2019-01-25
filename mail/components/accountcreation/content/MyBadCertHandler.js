@@ -13,8 +13,7 @@ function BadCertHandler(callback) {
   this._init(callback);
 }
 
-BadCertHandler.prototype =
-{
+BadCertHandler.prototype = {
   _init(callback) {
     this._callback = callback;
   },

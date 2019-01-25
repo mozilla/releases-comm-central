@@ -3,7 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+/* import-globals-from emailWizard.js */
+
+var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js", null);
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var TIMEOUT = 10; // in seconds
@@ -284,8 +286,7 @@ var kSuccess = 3;
  */
 function HostTry() {
 }
-HostTry.prototype =
-{
+HostTry.prototype = {
   // IMAP, POP or SMTP
   protocol: UNKNOWN,
   // {String}
@@ -345,8 +346,7 @@ function HostDetector(progressCallback, successCallback, errorCallback) {
   this._log.info("created host detector");
 }
 
-HostDetector.prototype =
-{
+HostDetector.prototype = {
   cancel(ex) {
     this._cancel = true;
     // We have to actively stop the network calls, as they may result in
@@ -616,8 +616,7 @@ function IncomingHostDetector(
   progressCallback, successCallback, errorCallback) {
   HostDetector.call(this, progressCallback, successCallback, errorCallback);
 }
-IncomingHostDetector.prototype =
-{
+IncomingHostDetector.prototype = {
   __proto__: HostDetector.prototype,
   _hostnamesToTry(protocol, domain) {
     var hostnamesToTry = [];
@@ -638,8 +637,7 @@ function OutgoingHostDetector(
   progressCallback, successCallback, errorCallback) {
   HostDetector.call(this, progressCallback, successCallback, errorCallback);
 }
-OutgoingHostDetector.prototype =
-{
+OutgoingHostDetector.prototype = {
   __proto__: HostDetector.prototype,
   _hostnamesToTry(protocol, domain) {
     var hostnamesToTry = [];
@@ -853,8 +851,7 @@ function SSLErrorHandler(thisTry, logger) {
   // nsICertOverrideService)
   this._gotCertError = 0;
 }
-SSLErrorHandler.prototype =
-{
+SSLErrorHandler.prototype = {
   processCertError(socketInfo, secInfo, targetSite) {
     this._log.error("Got Cert error for " + targetSite);
 
@@ -1002,8 +999,7 @@ function SocketUtil(hostname, port, ssl, commands, timeout,
       .createInstance(Ci.nsIScriptableInputStream);
   instream.init(stream);
 
-  var dataListener =
-  {
+  var dataListener = {
     data: [],
     onStartRequest(request, context) {
       try {

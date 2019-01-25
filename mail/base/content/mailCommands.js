@@ -6,6 +6,7 @@
 /* import-globals-from commandglue.js */
 /* import-globals-from folderDisplay.js */
 /* import-globals-from mailWindow.js */
+/* import-globals-from utilityOverlay.js */
 
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource:///modules/MailUtils.jsm");
@@ -163,6 +164,7 @@ function GetMsgKeyFromURI(uri) {
   return (match) ? match[1] : null;
 }
 
+/* eslint-disable complexity */
 /**
  * Compose a message.
  *
@@ -171,7 +173,6 @@ function GetMsgKeyFromURI(uri) {
  * @param folder nsIMsgFolder      Folder where the original message is stored
  * @param messageArray             Array of messages to process, often only holding one element.
  */
-/* eslint-disable complexity */
 function ComposeMessage(type, format, folder, messageArray) {
   let msgComposeType = Ci.nsIMsgCompType;
   let ignoreQuote = false;

@@ -3,8 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// mail/base/content/aboutDialog-appUpdater.js
-/* globals appUpdater, gAppUpdater */
+/* import-globals-from ../../base/content/aboutDialog-appUpdater.js */
+/* import-globals-from preferences.js */
+/* import-globals-from subdialogs.js */
 
 // Load DownloadUtils module for convertByteUnits
 ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");

@@ -3,10 +3,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+/* import-globals-from ../../../../mailnews/base/prefs/content/accountUtils.js */
+/* import-globals-from accountConfig.js */
+/* import-globals-from createInBackend.js */
+/* import-globals-from emailWizard.js */
+/* import-globals-from exchangeAutoDiscover.js */
+/* import-globals-from fetchConfig.js */
+/* import-globals-from fetchhttp.js */
+/* import-globals-from guessConfig.js */
+/* import-globals-from MyBadCertHandler.js */
+/* import-globals-from readFromXML.js */
+/* import-globals-from sanitizeDatatypes.js */
+/* import-globals-from util.js */
+/* import-globals-from verifyConfig.js */
+
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
+ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource:///modules/OAuth2Providers.jsm");
+
+var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js", null);
+/* globals cleanUpHostName, isLegalHostNameOrIP, kMaxPort, kMinPort */
+ChromeUtils.import("resource:///modules/hostnameUtils.jsm", null);
 
 /**
  * This is the dialog opened by menu File | New account | Mail... .
@@ -35,7 +52,6 @@ ChromeUtils.import("resource:///modules/OAuth2Providers.jsm");
 var emailRE = /^[-_a-z0-9\'+*$^&%=~!?{}]+(?:\.[-_a-z0-9\'+*$^&%=~!?{}]+)*@(?:[-a-z0-9.]+\.[a-z]{2,20}|\d{1,3}(?:\.\d{1,3}){3})(?::\d+)?$/i;
 
 if (typeof gEmailWizardLogger == "undefined") {
-  ChromeUtils.import("resource:///modules/gloda/log4moz.js");
   var gEmailWizardLogger = Log4Moz.getConfiguredLogger("mail.setup");
   gEmailWizardLogger.level = Log4Moz.Level.Info;
   gEmailWizardLogger.addAppender(new Log4Moz.ConsoleAppender(new Log4Moz.BasicFormatter())); // browser console
@@ -124,8 +140,7 @@ function removeChildNodes(el) {
 function EmailConfigWizard() {
   this._init();
 }
-EmailConfigWizard.prototype =
-{
+EmailConfigWizard.prototype = {
   _init() {
     gEmailWizardLogger.info("Initializing setup wizard");
     this._abortable = null;
@@ -1812,8 +1827,7 @@ function getStandardPorts(protocolType) {
 function SecurityWarningDialog() {
   this._acknowledged = [];
 }
-SecurityWarningDialog.prototype =
-{
+SecurityWarningDialog.prototype = {
   /**
    * {Array of {(incoming or outgoing) server part of {AccountConfig}}
    * A list of the servers for which we already showed this dialog and the

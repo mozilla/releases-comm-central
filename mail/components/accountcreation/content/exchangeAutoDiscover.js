@@ -3,10 +3,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from emailWizard.js */
+
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/JXON.js");
 ChromeUtils.defineModuleGetter(this, "AddonManager", "resource://gre/modules/AddonManager.jsm");
-/* eslint-disable complexity, no-lonely-if */
+var { logException } = ChromeUtils.import("resource:///modules/errUtils.js", null);
 
 /**
  * Tries to get a configuration from an MS Exchange server
@@ -150,6 +151,7 @@ function readAutoDiscoverResponse(autoDiscoverXML,
   }
 }
 
+/* eslint-disable complexity */
 /**
  * @param {JXON} xml - The Exchange server AutoDiscover response
  * @param {string} username - (Optional) The user's login name
@@ -271,7 +273,7 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
             config.outgoingAlternatives.push(server);
           }
         } else {
-          if (!config.incoming.hostname) {
+          if (!config.incoming.hostname) { // eslint-disable-line no-lonely-if
             config.incoming = server;
           } else {
             config.incomingAlternatives.push(server);
@@ -294,6 +296,7 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
 
   return config;
 }
+/* eslint-enable complexity */
 
 /**
  * Ask server which addons can handle this config.

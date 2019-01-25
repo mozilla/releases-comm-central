@@ -19,8 +19,7 @@ const { GlodaIndexer } = ChromeUtils.import("resource:///modules/gloda/indexer.j
 /**
  * Gloda message indexer feedback.
  */
-var glodaIndexerActivity =
-{
+var glodaIndexerActivity = {
   get log() {
     delete this.log;
     return this.log = Log4Moz.getConfiguredLogger("glodaIndexerActivity");
