@@ -24,6 +24,7 @@
 #include "mozpkix/Result.h"
 #include "mozpkix/pkixtypes.h"
 #include "smime.h"
+#include "mozilla/StaticMutex.h"
 
 using namespace mozilla;
 using namespace mozilla::psm;
@@ -384,23 +385,12 @@ public:
     mDigestType = aDigestType;
   }
 
-  static void InitStaticLock()
-  {
-    // If we ensure this is only executed on the main thread, we know
-    // there cannot be a race to allocate the lock multiple times.
-    MOZ_ASSERT(NS_IsMainThread());
-    if (!mLock) {
-      // Deliberate leak, one time allocation.
-      mLock = new mozilla::Mutex("SMimeVerificationTask");
-    }
-  }
-
 private:
   virtual nsresult CalculateResult() override
   {
     MOZ_ASSERT(!NS_IsMainThread());
 
-    MutexAutoLock mon(*mLock);
+    mozilla::StaticMutexAutoLock lock(sMutex);
     nsresult rv;
     if (!mDigestData.IsEmpty()) {
       rv = mMessage->VerifyDetachedSignature(
@@ -425,16 +415,15 @@ private:
   nsCString mDigestData;
   int16_t mDigestType;
 
-  static mozilla::Mutex *mLock;
+  static mozilla::StaticMutex sMutex;
 };
 
-mozilla::Mutex * SMimeVerificationTask::mLock = nullptr;
+mozilla::StaticMutex SMimeVerificationTask::sMutex;
 
 nsresult nsCMSMessage::CommonAsyncVerifySignature(nsISMimeVerificationListener *aListener,
                                                   unsigned char* aDigestData, uint32_t aDigestDataLen,
                                                   int16_t aDigestType)
 {
-  SMimeVerificationTask::InitStaticLock();
   RefPtr<CryptoTask> task = new SMimeVerificationTask(this, aListener, aDigestData, aDigestDataLen, aDigestType);
   return task->Dispatch("SMimeVerify");
 }
