@@ -4,14 +4,21 @@
 
 "use strict";
 
+// This is loaded into chrome windows with the subscript loader. Wrap in
+// a block to prevent accidentally leaking globals onto `window`.
+(() => {
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-for (let script of [
-  "chrome://chat/content/conversation-browser.js",
-  "chrome://messenger/content/mailWidgets.js",
-  "chrome://messenger/content/generalBindings.js",
-  "chrome://messenger/content/statuspanel.js",
-  "chrome://messenger/content/foldersummary.js",
-]) {
-  Services.scriptloader.loadSubScript(script, window);
+const isDummyDocument = document.documentURI == "chrome://extensions/content/dummy.xul";
+if (!isDummyDocument) {
+  for (let script of [
+    "chrome://chat/content/conversation-browser.js",
+    "chrome://messenger/content/mailWidgets.js",
+    "chrome://messenger/content/generalBindings.js",
+    "chrome://messenger/content/statuspanel.js",
+    "chrome://messenger/content/foldersummary.js",
+  ]) {
+    Services.scriptloader.loadSubScript(script, window);
+  }
 }
+})();
