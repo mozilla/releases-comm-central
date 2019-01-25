@@ -926,7 +926,7 @@ $.new = function $_new(tag, textContentOrChildren, className, attributes) { // e
   }
   if (Array.isArray(textContentOrChildren)) {
     this.append(elt, textContentOrChildren);
-  } else if (textContentOrChildren) {
+  } else if (!attributes || !attributes["data-l10n-id"]) {
     elt.textContent = String(textContentOrChildren);
   }
   return elt;
