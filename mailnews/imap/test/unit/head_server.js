@@ -22,22 +22,24 @@ do_get_profile();
 
 // Import fakeserver
 ChromeUtils.import("resource://testing-common/mailnews/maild.js");
-ChromeUtils.import("resource://testing-common/mailnews/imapd.js");
+var imapd = {};
+ChromeUtils.import("resource://testing-common/mailnews/imapd.js", imapd);
+var { imapDaemon, imapMessage } = imapd;
 ChromeUtils.import("resource://testing-common/mailnews/auth.js");
 
 function makeServer(daemon, infoString, otherProps) {
-  if (infoString in configurations)
-    return makeServer(daemon, configurations[infoString].join(","), otherProps);
+  if (infoString in imapd.configurations)
+    return makeServer(daemon, imapd.configurations[infoString].join(","), otherProps);
 
   function createHandler(d) {
-    var handler = new IMAP_RFC3501_handler(d);
+    var handler = new imapd.IMAP_RFC3501_handler(d);
     if (!infoString)
       infoString = "RFC2195";
 
     var parts = infoString.split(/ *, */);
     for (var part of parts) {
       if (part.startsWith("RFC"))
-        mixinExtension(handler, eval("IMAP_" + part + "_extension"));
+        imapd.mixinExtension(handler, imapd["IMAP_" + part + "_extension"]);
     }
     if (otherProps) {
       for (var prop in otherProps)

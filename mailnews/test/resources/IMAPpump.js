@@ -23,7 +23,8 @@ ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
 ChromeUtils.import("resource://testing-common/mailnews/maild.js");
 ChromeUtils.import("resource://testing-common/mailnews/auth.js");
-ChromeUtils.import("resource://testing-common/mailnews/imapd.js");
+var imapd = {};
+ChromeUtils.import("resource://testing-common/mailnews/imapd.js", imapd);
 ChromeUtils.import("resource://testing-common/AppInfo.jsm");
 
 // define globals
@@ -43,17 +44,17 @@ function setupIMAPPump(extensions)
   // These are copied from imap's head_server.js to here so we can run
   //   this from any directory.
   function makeServer(daemon, infoString) {
-    if (infoString in configurations)
-      return makeServer(daemon, configurations[infoString].join(","));
+    if (infoString in imapd.configurations)
+      return makeServer(daemon, imapd.configurations[infoString].join(","));
 
     function createHandler(d) {
-      var handler = new IMAP_RFC3501_handler(d);
+      var handler = new imapd.IMAP_RFC3501_handler(d);
       if (!infoString)
         infoString = "RFC2195";
 
       var parts = infoString.split(/ *, */);
       for (var part of parts) {
-        mixinExtension(handler, eval("IMAP_" + part + "_extension"));
+        imapd.mixinExtension(handler, imapd["IMAP_" + part + "_extension"]);
       }
       return handler;
     }
@@ -71,7 +72,7 @@ function setupIMAPPump(extensions)
 
   // end copy from head_server.js
 
-  IMAPPump.daemon = new imapDaemon();
+  IMAPPump.daemon = new imapd.imapDaemon();
   IMAPPump.server = makeServer(IMAPPump.daemon, extensions);
 
   IMAPPump.incomingServer = createLocalIMAPServer();
