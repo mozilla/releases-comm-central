@@ -427,13 +427,16 @@
                           disabled="true"/>
                 </hbox>
                 <hbox id="downloading" align="center">
-                  <image class="update-throbber"/><label>&update.downloading.start;</label><label id="downloadStatus"/><label>&update.downloading.end;</label>
+                  <image class="update-throbber"/><label>&update.downloading.start;</label>
+                  <label id="downloadStatus"/><label>&update.downloading.end;</label>
                 </hbox>
                 <hbox id="applying" align="center">
                   <image class="update-throbber"/><label>&update.applying;</label>
                 </hbox>
                <hbox id="downloadFailed" align="center">
-                  <label>&update.failed.start;</label><label id="failedLink" class="text-link">&update.failed.linkText;</label><label>&update.failed.end;</label>
+                  <label>&update.failed.start;</label>
+                  <label id="failedLink" class="text-link">&update.failed.linkText;</label>
+                  <label>&update.failed.end;</label>
                   <spacer flex="1"/>
                   <button label="&update.checkForUpdatesButton.label;"
                           accesskey="&update.checkForUpdatesButton.accesskey;"
@@ -453,14 +456,20 @@
                   <label>&update.otherInstanceHandlingUpdates;</label>
                 </hbox>
                 <hbox id="manualUpdate" align="center">
-                  <label>&update.manual.start;</label><label id="manualLink" class="text-link">&update.manual.linkText;</label><label>&update.manual.end;</label>
+                  <label>&update.manual.start;</label><label id="manualLink" class="text-link">
+                    &update.manual.linkText;
+                  </label>
+                  <label>&update.manual.end;</label>
                   <spacer flex="1"/>
                   <button label="&update.checkForUpdatesButton.label;"
                           accesskey="&update.checkForUpdatesButton.accesskey;"
                           disabled="true"/>
                 </hbox>
                 <hbox id="unsupportedSystem" align="center">
-                  <label>&update.unsupported.start;</label><label id="unsupportedLink" class="text-link">&update.unsupported.linkText;</label><label>&update.unsupported.end;</label>
+                  <label>&update.unsupported.start;</label>
+                  <label id="unsupportedLink"
+                         class="text-link">&update.unsupported.linkText;</label>
+                  <label>&update.unsupported.end;</label>
                 </hbox>
                 <hbox id="restarting" align="center">
                   <image class="update-throbber"/><label>&update.restarting;</label>
@@ -468,17 +477,23 @@
               </deck>
             </vbox>
             <separator/>
-            <radiogroup id="updateRadioGroup"
-                        align="start">
-              <radio id="autoDesktop"
-                     value="true"
-                     label="&updateAuto.label;"
-                     accesskey="&updateAuto.accesskey;"/>
-              <radio id="manualDesktop"
-                     value="false"
-                     label="&updateCheck.label;"
-                     accesskey="&updateCheck.accesskey;"/>
-            </radiogroup>
+            <description id="updateAllowDescription">&updateAppAllow.description;</description>
+            <vbox id="updateSettingsContainer">
+              <radiogroup id="updateRadioGroup"
+                          align="start">
+                <radio id="autoDesktop"
+                       value="true"
+                       label="&updateAuto.label;"
+                       accesskey="&updateAuto.accesskey;"/>
+                <radio id="manualDesktop"
+                       value="false"
+                       label="&updateCheck.label;"
+                       accesskey="&updateCheck.accesskey;"/>
+              </radiogroup>
+              <description id="updateSettingCrossUserWarning" hidden="true">
+                &updateCrossUserSettingWarning.description;
+              </description>
+            </vbox>
           </groupbox>
 
 #ifdef MOZ_MAINTENANCE_SERVICE

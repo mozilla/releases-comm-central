@@ -67,6 +67,7 @@
  -->
 <!ENTITY updateApp.version.pre           "Version ">
 <!ENTITY updateApp.version.post          "">
+<!ENTITY updateAppAllow.description      "Allow &brandShortName; to">
 <!ENTITY updateAuto.label                "Automatically install updates (recommended: improved security)">
 <!ENTITY updateAuto.accesskey            "A">
 <!ENTITY updateCheck.label               "Check for updates, but let me choose whether to install them">
@@ -76,6 +77,8 @@
 
 <!ENTITY useService.label                "Use a background service to install updates">
 <!ENTITY useService.accesskey            "b">
+
+<!ENTITY updateCrossUserSettingWarning.description "This setting will apply to all Windows accounts and &brandShortName; profiles using this installation of &brandShortName;.">
 
 <!-- Networking and Disk Space -->
 <!ENTITY showSettings.label            "Settings…">
