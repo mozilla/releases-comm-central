@@ -38,7 +38,7 @@
 //
 // ***** END LICENSE BLOCK *****
 
-var EXPORTED_SYMBOLS = ["MozMillController", "waitForEval", "MozMillAsyncTest",
+var EXPORTED_SYMBOLS = ["MozMillController", "MozMillAsyncTest",
                         "globalEventRegistry", "sleep", "windowMap"];
 
 var EventUtils = {}; ChromeUtils.import("chrome://mozmill/content/stdlib/EventUtils.js", EventUtils);
@@ -94,8 +94,6 @@ var windowMap = {
 var sleep = utils.sleep;
 var assert = utils.assert;
 var waitFor = utils.waitFor;
-var waitForEval = utils.waitForEval;
-
 
 var waitForEvents = function() {}
 
@@ -687,14 +685,6 @@ MozMillController.prototype.waitFor = function(callback, message, timeout,
   utils.waitFor(callback, message, timeout, interval, thisObject);
 
   frame.events.pass({'function':'controller.waitFor()'});
-}
-
-MozMillController.prototype.waitForEval = function(expression, timeout, interval, subject) {
-  waitFor(function() {
-    return eval(expression);
-  }, "controller.waitForEval: Timeout exceeded for '" + expression + "'", timeout, interval);
-
-  frame.events.pass({'function':'controller.waitForEval()'});
 }
 
 MozMillController.prototype.waitForElement = function(elem, timeout, interval) {

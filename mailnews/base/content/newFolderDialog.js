@@ -39,8 +39,7 @@ function onLoad()
     newFolderTypeBox.setAttribute("hidden", "true");
   } else {
     // set our folder type by calling the default selected type's oncommand
-    var selectedFolderType = document.getElementById("folderGroup").selectedItem;
-    eval(selectedFolderType.getAttribute("oncommand"));
+    document.getElementById("folderGroup").selectedItem.doCommand();
   }
 
   doEnabling();

@@ -153,8 +153,12 @@ var gTestArray =
 [
   // Adding folders
   // Create another folder to move and copy messages around, and force initialization.
-  function testAddFolder1() { addFolder(gRootFolder, "folder2", "gIMAPFolder2") },
-  function testAddFolder2() { addFolder(gRootFolder, "folder3", "gIMAPFolder3") },
+  function testAddFolder1() {
+    addFolder(gRootFolder, "folder2", function(folder) { gIMAPFolder2 = folder; });
+   },
+  function testAddFolder2() {
+    addFolder(gRootFolder, "folder3", function(folder) { gIMAPFolder3 = folder; });
+  },
 
   // Adding messages to folders
   function testCopyFileMessage1()
@@ -234,7 +238,7 @@ function run_test()
   gRootFolder = gIMAPIncomingServer.rootFolder;
   gIMAPInbox = gRootFolder.getChildNamed("Inbox");
   gExpectedEvents = [[MailServices.mfn.folderAdded, gRootFolder, "Trash",
-                     "gIMAPTrashFolder"]];
+                      function(folder) { gIMAPTrashFolder = folder; } ]];
   gCurrStatus |= kStatus.onStopCopyDone | kStatus.functionCallDone;
 
   gServer.performTest("SUBSCRIBE");

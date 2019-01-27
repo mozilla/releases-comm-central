@@ -159,10 +159,10 @@ function test_add_tag_with_really_long_label() {
 
 /**
  * @param headerName used for pretty-printing in exceptions
- * @param headerValueElement code to be eval()ed returning the DOM element
- *        with the data.
- * @param expectedName code to be eval()ed returning the expected value of
- *                     nsIAccessible.name for the DOM element in question
+ * @param headerValueElement  Function returning the DOM element
+ *                            with the data.
+ * @param expectedName  Function returning the expected value of
+ *                      nsIAccessible.name for the DOM element in question
  * @param expectedRole the expected value for nsIAccessible.role
  */
 let headersToTest = [

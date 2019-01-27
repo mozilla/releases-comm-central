@@ -341,9 +341,10 @@ function verify(event)
     Assert.equal(expected[2], event[1].prettyName);
     Assert.equal(expected[2], event[1].name);
 
-    // Not a check, but if we have to store this folder somewhere, do it
+    // Not a check, but call the passed in callback with the new folder,
+    // used e.g. to store this folder somewhere.
     if (expected[3])
-      eval(expected[3] + "= event[1]");
+      expected[3](event[1]);
     break;
   case MailServices.mfn.folderRenamed:
     // Check: source folder matches

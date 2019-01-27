@@ -170,9 +170,13 @@ var gTestArray =
 [
   // Adding folders
   // Create another folder to move and copy messages around, and force initialization.
-  function addFolder1() { addFolder(gRootFolder, "folder2", "gLocalFolder2"); },
+  function addFolder1() {
+    addFolder(gRootFolder, "folder2", function(folder) { gLocalFolder2 = folder; });
+  },
   // Create a third folder for more testing.
-  function addFolder2() { addFolder(gRootFolder, "folder3", "gLocalFolder3"); },
+  function addFolder2() {
+    addFolder(gRootFolder, "folder3", function(folder) { gLocalFolder3 = folder; });
+  },
   // Folder structure is now
   // Inbox
   // Trash
