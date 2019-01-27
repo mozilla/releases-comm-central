@@ -36,6 +36,7 @@ function setupModule(module) {
     collector.getModule("content-tab-helpers").installInto(module);
 }
 
+testDefaultAlarms.__force_skip__ = true;
 function testDefaultAlarms() {
     let localeUnitString = cal.l10n.getCalString("unitDays");
     let unitString = PluralForm.get(DEFVALUE, localeUnitString).replace("#1", DEFVALUE);
