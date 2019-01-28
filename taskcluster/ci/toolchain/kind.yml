@@ -14,6 +14,7 @@ jobs:
     - linux64-cctools-port
     - linux64-clang
     - linux64-clang-3.9
+    - linux64-clang-trunk-mingw-x64
     - linux64-gcc
     - linux64-gcc-4.9
     - linux64-hfsplus
@@ -26,6 +27,7 @@ jobs:
     - linux64-sccache
     - win64-cbindgen
     - win64-clang-cl
+    - win64-nasm
     - win64-node
     - win64-rust
     - win64-rust-1.28
