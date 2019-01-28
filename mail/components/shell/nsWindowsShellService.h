@@ -9,6 +9,7 @@
 #include "nsIShellService.h"
 #include "nsIObserver.h"
 #include "nsString.h"
+#include "nsToolkitShellService.h"
 
 #include <ole2.h>
 #include <windows.h>
@@ -24,7 +25,7 @@ typedef struct {
   int32_t flags;
 } SETTING;
 
-class nsWindowsShellService : public nsIShellService
+class nsWindowsShellService : public nsIShellService, public nsToolkitShellService
 {
 public:
   nsWindowsShellService();

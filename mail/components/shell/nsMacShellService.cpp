@@ -25,7 +25,7 @@ extern "C" {
   extern OSStatus _LSSaveAndRefresh(void);
 }
 
-NS_IMPL_ISUPPORTS(nsMacShellService, nsIShellService)
+NS_IMPL_ISUPPORTS(nsMacShellService, nsIShellService, nsIToolkitShellService)
 
 nsMacShellService::nsMacShellService(): mCheckedThisSession(false)
 {}

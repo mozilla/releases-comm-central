@@ -34,7 +34,7 @@
 #define REG_FAILED(val) \
   (val != ERROR_SUCCESS)
 
-NS_IMPL_ISUPPORTS(nsWindowsShellService, nsIShellService)
+NS_IMPL_ISUPPORTS(nsWindowsShellService, nsIShellService, nsIToolkitShellService)
 
 static nsresult
 OpenKeyForReading(HKEY aKeyRoot, const nsAString& aKeyName, HKEY* aKey)
