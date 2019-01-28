@@ -98,6 +98,12 @@ var gDisplayPane = {
           preference.setAttribute("name", name);
           preference.setAttribute("type", prefs[i].type);
           preferences.appendChild(preference);
+
+          if (!("setElementValue" in preference)) {
+            await new Promise((resolve) => {
+              preference.addEventListener("bindingattached", resolve, { once: true });
+            });
+          }
         }
 
         if (!prefs[i].element)
@@ -136,7 +142,10 @@ var gDisplayPane = {
       preference.setAttribute("onchange", "gDisplayPane._rebuildFonts();");
       document.getElementById("displayPreferences").appendChild(preference);
     }
-    return preference.value;
+
+    // We should return preference.value here, but we can't wait for the binding to load,
+    // or things get really messy. Fortunately this will give the same answer.
+    return Services.prefs.getCharPref(defaultFontTypePref);
   },
 
   /**

@@ -60,11 +60,7 @@ prefwindow:not([type="child"]) {
 }
 
 /* Attachments Pane */
-#MailPreferences[animated="true"] #handlersView {
-  height: 17em;
-}
-
-#MailPreferences[animated="false"] #handlersView {
+#handlersView {
   -moz-box-flex: 1;
 }
 

@@ -59,11 +59,7 @@ prefwindow[type="child"] .prefWindow-dlgbuttons {
 }
 
 /* Attachments Pane */
-#MailPreferences[animated="true"] #handlersView {
-  height: 25em;
-}
-
-#MailPreferences[animated="false"] #handlersView {
+#handlersView {
   -moz-box-flex: 1;
 }
 

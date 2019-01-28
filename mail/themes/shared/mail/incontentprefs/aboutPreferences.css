@@ -35,7 +35,7 @@ html|h2 {
   overflow: auto;
 }
 
-#MailPreferences > prefpane {
+#MailPreferences prefpane {
   max-width: 800px;
   padding: 0;
 }

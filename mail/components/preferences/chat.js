@@ -41,7 +41,7 @@ var gChatPane = {
     if (previewDeck.querySelector("browser")) {
       return;
     }
-    if (getCurrentPaneID() != "paneChat") {
+    if (!("getCurrentPaneID" in window) || getCurrentPaneID() != "paneChat") {
       return;
     }
     if (this.mTabBox.selectedIndex != 1) {

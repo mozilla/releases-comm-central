@@ -5,7 +5,7 @@
 @import url("chrome://messenger/skin/shared/in-content/aboutPreferences.css");
 
 .dialogBox,
-#MailPreferences > prefpane {
+#MailPreferences prefpane {
   font-size: 1.11em;
 }
 

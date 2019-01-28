@@ -529,10 +529,8 @@ var gSubDialog = {
   },
 
   init() {
-    this._dialogStack = document.getAnonymousElementByAttribute(
-      top.document.documentElement, "id", "dialogStack");
-    this._dialogTemplate = document.getAnonymousElementByAttribute(
-      top.document.documentElement, "id", "dialogTemplate");
+    this._dialogStack = document.getElementById("dialogStack");
+    this._dialogTemplate = document.getElementById("dialogTemplate");
     this._preloadDialog = new SubDialog({template: this._dialogTemplate,
                                          parentElement: this._dialogStack,
                                          id: this._nextDialogID++});

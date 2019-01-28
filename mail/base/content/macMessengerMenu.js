@@ -27,11 +27,9 @@ addEventListener("load", function() {
  */
 function loadListener(event) {
   setTimeout(function() {
-    let preWin = Services.wm.getMostRecentWindow("Mail:Preferences");
-    preWin.document.documentElement
-          .openSubDialog("chrome://messenger/content/preferences/dockoptions.xul",
-                         "", null);
-  }, 0);
+    let prefWin = Services.wm.getMostRecentWindow("Mail:Preferences");
+    prefWin.gSubDialog.open("chrome://messenger/content/preferences/dockoptions.xul");
+  });
 }
 
 /**
@@ -58,12 +56,10 @@ function openDockOptions() {
 
   if (win) {
     openOptionsDialog("paneGeneral");
-    win.document.documentElement
-       .openSubDialog("chrome://messenger/content/preferences/dockoptions.xul",
-                      "", null);
+    win.gSubDialog("chrome://messenger/content/preferences/dockoptions.xul");
   } else {
-      Services.ww.registerNotification(new PrefWindowObserver());
-      openOptionsDialog("paneGeneral");
+    Services.ww.registerNotification(new PrefWindowObserver());
+    openOptionsDialog("paneGeneral");
   }
 }
 

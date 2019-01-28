@@ -211,14 +211,6 @@ toolbar[type="menubar"][autohide="true"][inactive="true"]:not([customizing="true
 }
 %endif
 
-/* Preferences */
-
-preftab,
-preftab:root /* override :root */ {
-  -moz-binding: url("chrome://messenger/content/preferences/aboutPreferences.xml#preftab");
-  -moz-box-orient: vertical;
-}
-
 /* WebExtensions icon-variables */
 
 :root[lwthemeicons~="--getmsg-icon"] #button-getmsg:-moz-lwtheme {

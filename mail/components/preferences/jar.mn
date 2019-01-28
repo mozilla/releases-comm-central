@@ -4,7 +4,6 @@
 
 messenger.jar:
 *   content/messenger/preferences/aboutPreferences.xul
-    content/messenger/preferences/aboutPreferences.xml
     content/messenger/preferences/preferences.css
     content/messenger/preferences/preferences.js
 *   content/messenger/preferences/preferences.xml       (../../../common/bindings/preferences.xml)

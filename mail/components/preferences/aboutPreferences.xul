@@ -42,12 +42,26 @@
     <link rel="localization" href="messenger/preferences/languages.ftl"/>
   </linkset>
 
-  <script type="application/javascript" src="chrome://messenger/content/customElements.js"/>
-  <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
-  <script type="application/javascript" src="chrome://communicator/content/contentAreaClick.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/preferences/preferences.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/preferences/subdialogs.js"/>
-
+  <stack flex="1">
+    <hbox id="prefBox" flex="1">
+      <vbox id="pref-category-box">
+        <radiogroup id="selector" orient="vertical" class="paneSelector chromeclass-toolbar"
+                        role="listbox" flex="1"/> <!-- Expose to accessibility APIs as a listbox -->
+        <spacer flex="1"/>
+        <hbox class="sidebar-footer-button"
+              pack="center"
+              onclick="window.docShell.rootTreeItem.domWindow.openAddonsMgr();">
+          <label id="addonsButton" class="text-link">
+            <hbox align="center">
+              <image class="sidebar-footer-icon addons-icon"/>
+              <label class="sidebar-footer-label" flex="1">&addonsButton.label;</label>
+            </hbox>
+          </label>
+        </hbox>
+      </vbox>
+      <hbox id="preferencesContainer" flex="1">
+        <hbox class="paneDeckContainer" flex="1">
+          <deck id="paneDeck" flex="1">
 #include general.inc.xul
 #include display.inc.xul
 #include compose.inc.xul
@@ -55,6 +69,38 @@
 #include privacy.inc.xul
 #include security.inc.xul
 #include applications.inc.xul
-  <prefpane id="paneLightning" label="&paneLightning.title;"/>
+            <prefpane id="paneLightning" label="&paneLightning.title;"/>
 #include advanced.inc.xul
+          </deck>
+        </hbox>
+      </hbox>
+    </hbox>
+    <stack id="dialogStack" hidden="true"/>
+    <vbox id="dialogTemplate"
+          class="dialogOverlay"
+          align="center"
+          pack="center"
+          topmost="true"
+          hidden="true">
+      <vbox class="dialogBox"
+            pack="end"
+            role="dialog"
+            aria-labelledby="dialogTitle">
+        <hbox class="dialogTitleBar" align="center">
+          <label class="dialogTitle" flex="1"/>
+          <button class="dialogClose close-icon"
+                  aria-label="&preferencesCloseButton.label;"/>
+        </hbox>
+        <browser class="dialogFrame"
+                 autoscroll="false"
+                 disablehistory="true"/>
+      </vbox>
+    </vbox>
+  </stack>
+
+  <script type="application/javascript" src="chrome://messenger/content/customElements.js"/>
+  <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
+  <script type="application/javascript" src="chrome://communicator/content/contentAreaClick.js"/>
+  <script type="application/javascript" src="chrome://messenger/content/preferences/preferences.js"/>
+  <script type="application/javascript" src="chrome://messenger/content/preferences/subdialogs.js"/>
 </preftab>

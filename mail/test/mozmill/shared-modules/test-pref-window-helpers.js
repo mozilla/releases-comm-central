@@ -42,7 +42,7 @@ function installInto(module) {
 function open_pref_tab(aPaneID) {
   let tab = cth.open_content_tab_with_click(function() { fdh.mc.window.openOptionsDialog(aPaneID) },
                                             "about:preferences", fdh.mc, "preferencesTab");
-  utils.waitFor(() => tab.browser.contentDocument.documentElement.currentPane.id == aPaneID,
+  utils.waitFor(() => tab.browser.contentWindow.getCurrentPaneID() == aPaneID,
                 "Timed out waiting for prefpane " + aPaneID + " to load.");
   return tab;
 }

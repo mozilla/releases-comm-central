@@ -15,7 +15,6 @@
 
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-    <prefwindow id="MailPreferences">
         <prefpane id="paneLightning"
                   flex="1"
                   insertbefore="paneAdvanced"
@@ -53,8 +52,6 @@
                 </tabpanels>
             </tabbox>
         </prefpane>
-
-    </prefwindow>
 
     <script type="application/javascript"
             src="chrome://lightning/content/messenger-overlay-preferences.js"/>

@@ -7,84 +7,135 @@ var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {ExtensionSupport} = ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
 
-window.addEventListener("load", function() {
-  let prefWindow = document.getElementById("MailPreferences");
-  if (!Services.prefs.getBoolPref("mail.chat.enabled")) {
-    let radio =
-      document.getAnonymousElementByAttribute(prefWindow, "pane", "paneChat");
-    if (radio.selected)
-      prefWindow.showPane(document.getElementById("paneGeneral"));
-    radio.hidden = true;
-  }
-  if (!ExtensionSupport.loadedLegacyExtensions.has("{e2fda1a4-762b-4020-b5ad-a41df1933103}")) {
-    let radio =
-      document.getAnonymousElementByAttribute(prefWindow, "pane", "paneLightning");
-    if (radio.selected)
-      prefWindow.showPane(document.getElementById("paneGeneral"));
-    radio.hidden = true;
+var paneDeck = document.getElementById("paneDeck");
+var prefPanes = [...document.getElementsByTagName("prefpane")];
+var selector = document.getElementById("selector");
+
+(function() {
+  for (let pane of prefPanes) {
+    if (pane.id == "paneChat" && !Services.prefs.getBoolPref("mail.chat.enabled")) {
+      continue;
+    }
+    if (pane.id == "paneLightning" &&
+        !ExtensionSupport.loadedLegacyExtensions.has("{e2fda1a4-762b-4020-b5ad-a41df1933103}")) {
+      continue;
+    }
+
+    var radio = document.createElement("radio");
+    radio.setAttribute("pane", pane.id);
+    radio.setAttribute("value", pane.id);
+    radio.setAttribute("label", pane.label);
+    radio.setAttribute("oncommand", `showPane("${pane.id}");`);
+    // Expose preference group choice to accessibility APIs as an unchecked list item
+    // The parent group is exposed to accessibility APIs as a list
+    if (pane.image) {
+      radio.setAttribute("src", pane.image);
+    }
+    radio.style.listStyleImage = pane.style.listStyleImage;
+    selector.appendChild(radio);
+
+    pane.dispatchEvent(new CustomEvent("paneload"));
+    new Function(pane.getAttribute("onpaneload")).call(pane);
   }
 
-  let categories = prefWindow._selector;
+  if (prefPanes.length == 1) {
+    selector.setAttribute("collapsed", "true");
+  }
+
+  window.addEventListener("DOMContentLoaded", function() {
+    if (document.documentElement.hasAttribute("lastSelected")) {
+      showPane(document.documentElement.getAttribute("lastSelected"));
+    } else {
+      showPane(prefPanes[0].id);
+    }
+  });
+
   document.documentElement.addEventListener("keydown", function(event) {
     if (event.keyCode == KeyEvent.DOM_VK_TAB ||
         event.keyCode == KeyEvent.DOM_VK_UP ||
         event.keyCode == KeyEvent.DOM_VK_DOWN ||
         event.keyCode == KeyEvent.DOM_VK_LEFT ||
         event.keyCode == KeyEvent.DOM_VK_RIGHT) {
-      categories.setAttribute("keyboard-navigation", "true");
+      selector.setAttribute("keyboard-navigation", "true");
     }
   });
-  categories.addEventListener("mousedown", function() {
+  selector.addEventListener("mousedown", function() {
     this.removeAttribute("keyboard-navigation");
   });
-});
+})();
+
+/**
+ * Actually switches to the specified pane, fires events, and remembers the pane.
+ *
+ * @param paneID ID of the prefpane to select
+ */
+function showPane(paneID) {
+  if (!paneID) {
+    return;
+  }
+
+  let pane = document.getElementById(paneID);
+  if (!pane) {
+    return;
+  }
+
+  selector.value = paneID;
+  paneDeck.selectedPanel = pane;
+  pane.dispatchEvent(new CustomEvent("paneSelected", { bubbles: true }));
+
+  document.documentElement.setAttribute("lastSelected", paneID);
+  Services.xulStore.persist(document.documentElement, "lastSelected");
+}
 
 /**
  * Selects the specified preferences pane
  *
- * @param prefWindow    the prefwindow element to operate on
- * @param aPaneID       ID of prefpane to select
- * @param aTabID        ID of tab to select on the prefpane
- * @param aSubdialogID  ID of button to activate, opening a subdialog
+ * @param prefWindow          the prefwindow element to operate on
+ * @param paneID              ID of prefpane to select
+ * @param tabID               ID of tab to select on the prefpane
+ * @param otherArgs.subdialog ID of button to activate, opening a subdialog
  */
-function selectPaneAndTab(prefWindow, aPaneID, aTabID, aSubdialogID) {
-  if (aPaneID) {
-    let prefPane = document.getElementById(aPaneID);
+function selectPaneAndTab(prefWindow, paneID, tabID, otherArgs) {
+  if (paneID) {
+    let prefPane = document.getElementById(paneID);
     let tabOnEvent = false;
     // The prefwindow element selects the pane specified in window.arguments[0]
     // automatically. But let's check it and if the prefs window was already
     // open, the current prefpane may not be the wanted one.
-    if (prefWindow.currentPane.id != prefPane.id) {
-      if (aTabID && !prefPane.loaded) {
+    if (getCurrentPaneID() != prefPane.id) {
+      if (tabID && !prefPane.loaded) {
         prefPane.addEventListener("paneload", function() {
-          showTab(prefPane, aTabID);
+          showTab(prefPane, tabID);
         }, {once: true});
         tabOnEvent = true;
       }
-      prefWindow.showPane(prefPane);
+      showPane(prefPane.id);
     }
-    if (aTabID && !tabOnEvent)
-      showTab(prefPane, aTabID, aSubdialogID);
+    if (tabID && !tabOnEvent) {
+      showTab(prefPane, tabID, otherArgs ? otherArgs.subdialog : undefined);
+    }
   }
 }
 
 /**
  * Select the specified tab
  *
- * @param aPane         prefpane to operate on
- * @param aTabID        ID of tab to select on the prefpane
- * @param aSubdialogID  ID of button to activate, opening a subdialog
+ * @param pane         prefpane to operate on
+ * @param tabID        ID of tab to select on the prefpane
+ * @param subdialogID  ID of button to activate, opening a subdialog
  */
-function showTab(aPane, aTabID, aSubdialogID) {
-  aPane.querySelector("tabbox").selectedTab = document.getElementById(aTabID);
-  if (aSubdialogID)
-    setTimeout(function() { document.getElementById(aSubdialogID).click(); }, 0);
+function showTab(pane, tabID, subdialogID) {
+  pane.querySelector("tabbox").selectedTab = document.getElementById(tabID);
+  if (subdialogID) {
+    setTimeout(function() {
+      document.getElementById(subdialogID).click();
+    });
+  }
 }
 
 /**
  * Get the ID of the current pane.
  */
 function getCurrentPaneID() {
-  let prefWindow = document.getElementById("MailPreferences");
-  return prefWindow.currentPane ? prefWindow.currentPane.id : null;
+  return paneDeck.selectedPanel.id;
 }
