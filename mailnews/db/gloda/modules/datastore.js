@@ -14,9 +14,10 @@ const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
-ChromeUtils.import("resource:///modules/gloda/datamodel.js");
-ChromeUtils.import("resource:///modules/gloda/databind.js");
-const {collection} = ChromeUtils.import("resource:///modules/gloda/collection.js");
+const {GlodaAttributeDBDef, GlodaConversation, GlodaFolder, GlodaMessage, GlodaContact, GlodaIdentity} =
+  ChromeUtils.import("resource:///modules/gloda/datamodel.js");
+const {GlodaDatabind} = ChromeUtils.import("resource:///modules/gloda/databind.js");
+const {GlodaCollection, GlodaCollectionManager} = ChromeUtils.import("resource:///modules/gloda/collection.js");
 
 var MIN_CACHE_SIZE = 8 * 1048576;
 var MAX_CACHE_SIZE = 64 * 1048576;

@@ -6,11 +6,13 @@ this.EXPORTED_SYMBOLS = ['Gloda'];
 
 const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
-ChromeUtils.import("resource:///modules/gloda/datastore.js");
-const {GlodaAccount} = ChromeUtils.import("resource:///modules/gloda/datamodel.js");
-ChromeUtils.import("resource:///modules/gloda/databind.js");
-const {collection} = ChromeUtils.import("resource:///modules/gloda/collection.js");
-ChromeUtils.import("resource:///modules/gloda/connotent.js");
+const {GlodaDatastore} = ChromeUtils.import("resource:///modules/gloda/datastore.js");
+const {GlodaAttributeDBDef, GlodaAccount, GlodaConversation, GlodaFolder, GlodaMessage, GlodaContact, GlodaIdentity, GlodaAttachment} =
+  ChromeUtils.import("resource:///modules/gloda/datamodel.js");
+const {GlodaDatabind} = ChromeUtils.import("resource:///modules/gloda/databind.js");
+const {GlodaCollection, GlodaCollectionManager} = ChromeUtils.import("resource:///modules/gloda/collection.js");
+const {whittlerRegistry, mimeMsgToContentAndMeta} =
+  ChromeUtils.import("resource:///modules/gloda/connotent.js");
 const {query} = ChromeUtils.import("resource:///modules/gloda/query.js");
 const {GlodaUtils} = ChromeUtils.import("resource:///modules/gloda/utils.js");
 

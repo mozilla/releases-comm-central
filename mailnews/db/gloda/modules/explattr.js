@@ -14,9 +14,9 @@ this.EXPORTED_SYMBOLS = ['GlodaExplicitAttr'];
 const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 const {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
 
-ChromeUtils.import("resource:///modules/gloda/utils.js");
+const {GlodaUtils} = ChromeUtils.import("resource:///modules/gloda/utils.js");
 const {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
-ChromeUtils.import("resource:///modules/gloda/noun_tag.js");
+const {TagNoun} = ChromeUtils.import("resource:///modules/gloda/noun_tag.js");
 const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 

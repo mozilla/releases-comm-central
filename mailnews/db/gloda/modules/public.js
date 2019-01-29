@@ -5,13 +5,12 @@
 this.EXPORTED_SYMBOLS = ["Gloda"];
 
 const {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
-ChromeUtils.import("resource:///modules/gloda/everybody.js");
 const {GlodaIndexer} = ChromeUtils.import("resource:///modules/gloda/indexer.js");
 // initialize the indexer! (who was actually imported as a nested dep by the
 //  things everybody.js imported.)  We waited until now so it could know about
 //  its indexers.
 GlodaIndexer._init();
-ChromeUtils.import("resource:///modules/gloda/index_msg.js");
+const {GlodaMsgIndexer} = ChromeUtils.import("resource:///modules/gloda/index_msg.js");
 
 /**
  * Expose some junk

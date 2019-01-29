@@ -9,11 +9,11 @@ const {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js")
 
 const {GlodaUtils} = ChromeUtils.import("resource:///modules/gloda/utils.js");
 const {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
-ChromeUtils.import("resource:///modules/gloda/datastore.js");
-ChromeUtils.import("resource:///modules/gloda/datamodel.js"); // for GlodaAttachment
+const {GlodaDatastore} = ChromeUtils.import("resource:///modules/gloda/datastore.js");
+const {GlodaAttachment} = ChromeUtils.import("resource:///modules/gloda/datamodel.js");
+const {MimeTypeNoun} = ChromeUtils.import("resource:///modules/gloda/noun_mimetype.js");
+const {GlodaContent} = ChromeUtils.import("resource:///modules/gloda/connotent.js");
 
-ChromeUtils.import("resource:///modules/gloda/noun_mimetype.js");
-ChromeUtils.import("resource:///modules/gloda/connotent.js");
 
 /**
  * @namespace The Gloda Fundamental Attribute provider is a special attribute

@@ -22,14 +22,11 @@ const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
 const {GlodaUtils} = ChromeUtils.import("resource:///modules/gloda/utils.js");
-ChromeUtils.import("resource:///modules/gloda/datastore.js");
-ChromeUtils.import("resource:///modules/gloda/datamodel.js");
+const {GlodaDatastore} = ChromeUtils.import("resource:///modules/gloda/datastore.js");
+const {GlodaContact} = ChromeUtils.import("resource:///modules/gloda/datamodel.js");
 const {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
-ChromeUtils.import("resource:///modules/gloda/collection.js");
-ChromeUtils.import("resource:///modules/gloda/connotent.js");
-
-const {indexer} = ChromeUtils.import("resource:///modules/gloda/indexer.js");
-
+const {GlodaCollectionManager} = ChromeUtils.import("resource:///modules/gloda/collection.js");
+const {GlodaIndexer} = ChromeUtils.import("resource:///modules/gloda/indexer.js");
 const {MsgHdrToMimeMessage} = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
 
 // Cr does not have mailnews error codes!
