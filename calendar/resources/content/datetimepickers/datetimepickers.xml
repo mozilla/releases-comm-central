@@ -59,7 +59,7 @@
       <field name="mMonthShortNames">[]</field>
 
       <constructor><![CDATA[
-          const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
+          const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
           let goButton = document.getAnonymousElementByAttribute(this, "anonid", "date-go-button");
           goButton.setAttribute("label", cal.l10n.getCalString("go"));
           // Load the stuff we're going to use to parse written dates
@@ -411,7 +411,7 @@
       <field name="mForeverStr">null</field>
 
       <constructor><![CDATA[
-          const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
+          const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
           this.mForeverStr = cal.l10n.getString("calendar-event-dialog", "eventRecurrenceForeverLabel");
           document.getAnonymousElementByAttribute(this, "anonid", "menuitemForever")

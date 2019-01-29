@@ -13,9 +13,9 @@
  */
 
 // XXX Need to determine which of these we really need here.
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 // gTabmail is null if we are in a dialog window and not in a tab.
 var gTabmail = document.getElementById("tabmail") || null;

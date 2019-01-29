@@ -7,9 +7,9 @@
  *          changeAllDay, onNextSlot, onPreviousSlot
  */
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 var gStartDate = null;
 var gEndDate = null;

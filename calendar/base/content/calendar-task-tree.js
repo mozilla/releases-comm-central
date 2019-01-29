@@ -8,7 +8,7 @@
  *          tasksToMail, tasksToEvents, toggleCompleted,
  */
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 /**
  * Add registered calendars to the given menupopup. Removes all previous

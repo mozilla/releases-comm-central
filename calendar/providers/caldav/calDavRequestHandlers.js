@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
-var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm", null);
-ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
+const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 var xmlHeader = '<?xml version="1.0" encoding="UTF-8"?>\n';
 var MIME_TEXT_XML = "text/xml; charset=utf-8";

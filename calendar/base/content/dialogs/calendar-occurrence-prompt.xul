@@ -19,7 +19,7 @@
         xmlns:wairole="http://www.w3.org/2005/01/wai-rdf/GUIRoleTaxonomy#"
         xhtml2:role="wairole:alertdialog">
   <script type="application/javascript"><![CDATA[
-      ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+      const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
       function exitOccurrenceDialog(aReturnValue) {
           window.arguments[0].value = aReturnValue;

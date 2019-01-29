@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
-const { recurrenceRule2String } = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm", null);
-ChromeUtils.import("resource://gre/modules/Preferences.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+const { recurrenceRule2String } = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
+const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+const { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 this.EXPORTED_SYMBOLS = ["ltn"]; /* exported ltn */
 var ltn = {};

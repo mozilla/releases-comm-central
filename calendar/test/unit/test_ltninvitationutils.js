@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { ltn } = ChromeUtils.import("resource://calendar/modules/ltnInvitationUtils.jsm", null);
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+const { ltn } = ChromeUtils.import("resource://calendar/modules/ltnInvitationUtils.jsm");
+const { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 function run_test() {
     do_calendar_startup(run_next_test);

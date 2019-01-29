@@ -6,8 +6,8 @@
  *          sendMailToOrganizer, openAttachment, reply
  */
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
-const { recurrenceRule2String } = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm", null);
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+const { recurrenceRule2String } = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
 
 /**
  * Sets up the summary dialog, setting all needed fields on the dialog from the

@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm", null);
-ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+const { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm");
+const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 // Usually the backend loader gets loaded via profile-after-change, but in case
 // a calendar component hooks in earlier, its very likely it will use calUtils.
@@ -518,5 +518,5 @@ function makeQI(aInterfaces) {
 }
 
 // Backwards compatibility for bug 905097. Please remove with Thunderbird 61.
-const { injectCalUtilsCompat } = ChromeUtils.import("resource://calendar/modules/calUtilsCompat.jsm", null);
+const { injectCalUtilsCompat } = ChromeUtils.import("resource://calendar/modules/calUtilsCompat.jsm");
 injectCalUtilsCompat(cal);

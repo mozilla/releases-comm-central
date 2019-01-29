@@ -6,7 +6,7 @@ var MODULE_NAME = "testDayView";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers"];
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 var CALENDARNAME, CANVAS_BOX, EVENT_BOX, DAY_VIEW, LABELDAYBOX, EVENTPATH;
 var helpersForController, invokeEventDialog, getEventDetails, createCalendar;

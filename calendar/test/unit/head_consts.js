@@ -7,13 +7,13 @@
  *          createTodoFromIcalString, createEventFromIcalString, createDate, Cc, Ci, Cr, Cu
  */
 
-ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/Preferences.jsm");
-ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-ChromeUtils.import("resource://testing-common/AppInfo.jsm");
+var { getAppInfo, newAppInfo, updateAppInfo } = ChromeUtils.import("resource://testing-common/AppInfo.jsm");
 
 ChromeUtils.defineModuleGetter(this, "NetUtil", "resource://gre/modules/NetUtil.jsm");
 
@@ -47,7 +47,7 @@ updateAppInfo();
     Cc["@mozilla.org/calendar/backend-loader;1"].getService();
 })();
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 function createDate(aYear, aMonth, aDay, aHasTime, aHour, aMinute, aSecond, aTimezone) {
     let date = Cc["@mozilla.org/calendar/datetime;1"].createInstance(Ci.calIDateTime);

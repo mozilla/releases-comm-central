@@ -8,7 +8,7 @@ var MODULE_REQUIRES = ["calendar-utils", "window-helpers"];
 
 var EventUtils = {};
 ChromeUtils.import("chrome://mozmill/content/stdlib/EventUtils.js", EventUtils);
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 var SHORT_SLEEP, TIMEOUT_MODAL_DIALOG;
 var helpersForController, menulistSelect;

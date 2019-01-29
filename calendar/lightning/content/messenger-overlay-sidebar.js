@@ -8,9 +8,9 @@
  *          customizeMailToolbarForTabType
  */
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { AddonManager } = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 var gLastShownCalendarView = null;
 

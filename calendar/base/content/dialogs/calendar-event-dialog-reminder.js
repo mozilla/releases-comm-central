@@ -6,10 +6,10 @@
  *          onRemoveReminder, onAccept, onCancel
  */
 
-ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+const { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 var allowedActionsMap = {};
 var suppressListUpdate = false;

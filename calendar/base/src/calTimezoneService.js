@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
-ChromeUtils.import("resource://gre/modules/Preferences.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+const { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
+const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
-var { ICAL, unwrapSingle } = ChromeUtils.import("resource://calendar/modules/ical.js", null);
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { ICAL, unwrapSingle } = ChromeUtils.import("resource://calendar/modules/ical.js");
 
 function calStringEnumerator(stringArray) {
     this.mIndex = 0;

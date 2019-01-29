@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
-const { ltn } = ChromeUtils.import("resource://calendar/modules/ltnInvitationUtils.jsm", null);
-ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+const { ltn } = ChromeUtils.import("resource://calendar/modules/ltnInvitationUtils.jsm");
+const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 /**
  * Provides shortcuts to set label and collapsed attribute of imip-bar node.

@@ -6,7 +6,7 @@
  *          onCancel, onSubscribe, onUnsubscribe
  */
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 /**
  * Cancels any pending search operations.

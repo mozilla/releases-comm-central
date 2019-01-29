@@ -255,7 +255,7 @@
     </content>
     <implementation>
       <constructor><![CDATA[
-          ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+          const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
           let snoozePref = Preferences.get("calendar.alarms.defaultsnoozelength", 0);
           if (snoozePref <= 0) {

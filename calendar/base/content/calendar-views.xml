@@ -117,7 +117,7 @@
   <binding id="calendar-multiweek-view" extends="chrome://calendar/content/calendar-month-view.xml#calendar-month-base-view">
     <implementation implements="calICalendarView">
       <constructor><![CDATA[
-          ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+          const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
           this.mWeeksInView = Preferences.get("calendar.weeks.inview", 4);
       ]]></constructor>
 

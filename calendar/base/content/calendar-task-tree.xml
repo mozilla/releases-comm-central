@@ -111,8 +111,8 @@
     <implementation implements="nsIObserver">
       <constructor><![CDATA[
           ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-          ChromeUtils.import("resource://gre/modules/Services.jsm");
-          const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
+          const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+          const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
           // set up the tree filter
           this.mFilter = new calFilter();
@@ -167,7 +167,7 @@
           this.dispatchEvent(new CustomEvent("bindingattached", { bubbles: false }));
       ]]></constructor>
       <destructor><![CDATA[
-          ChromeUtils.import("resource://gre/modules/Services.jsm");
+          const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
           // remove composite calendar observer
           let composite = cal.view.getCompositeCalendar(window);

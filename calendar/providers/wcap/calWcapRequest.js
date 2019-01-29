@@ -19,8 +19,8 @@
 
 /* exported issueNetworkRequest, getWcapRequestStatusString, stringToIcal, stringToXml */
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 function generateRequestId() {
     if (!generateRequestId.mRequestPrefix) {

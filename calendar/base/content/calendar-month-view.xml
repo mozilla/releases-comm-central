@@ -416,7 +416,7 @@
 
     <implementation implements="calICalendarView">
       <constructor><![CDATA[
-          ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+          const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
           // Set the preference for the default start of the week
           this.weekStartOffset = Preferences.get("calendar.week.start", 0);

@@ -11,7 +11,7 @@ var helpersForController, invokeEventDialog, viewForward, createCalendar;
 var deleteCalendars;
 var setData;
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 function setupModule(module) {
     controller = mozmill.getMail3PaneController();

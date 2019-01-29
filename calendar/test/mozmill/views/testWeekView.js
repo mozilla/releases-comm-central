@@ -6,7 +6,7 @@ var MODULE_NAME = "testWeekView";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers"];
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 var CALENDARNAME, CANVAS_BOX, EVENT_BOX, WEEK_VIEW, EVENTPATH;
 var helpersForController, switchToView, invokeEventDialog, getEventDetails, createCalendar;

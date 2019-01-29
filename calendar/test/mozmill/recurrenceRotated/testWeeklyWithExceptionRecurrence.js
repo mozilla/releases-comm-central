@@ -15,7 +15,7 @@ var REPEAT_DETAILS, REC_DLG_ACCEPT, REC_DLG_DAYS;
 var helpersForEditUI, setData;
 var plan_for_modal_dialog, wait_for_modal_dialog;
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 const HOUR = 8;
 const STARTDATE = new Date(2009, 0, 6);

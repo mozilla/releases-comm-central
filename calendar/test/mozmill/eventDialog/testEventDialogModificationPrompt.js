@@ -7,7 +7,7 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers",
     "window-helpers", "folder-display-helpers"];
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 var CALENDARNAME, EVENT_BOX, CANVAS_BOX, EVENTPATH;
 var helpersForController, invokeEventDialog, createCalendar, closeAllEventDialogs, deleteCalendars;

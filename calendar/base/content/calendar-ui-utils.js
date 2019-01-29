@@ -12,8 +12,8 @@
  *          getOtherOrientation, updateSelectedLabel, setupAttendanceMenu
  */
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
-ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+const { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 
 /**
  * Helper function for filling the form,
@@ -241,7 +241,7 @@ function removeChildren(aElement) {
  */
 function sortCalendarArray(calendars) {
     // Be careful not to pollute the window object, as things break.
-    let { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm", null);
+    let { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
     let ret = calendars.concat([]);
     let sortOrder = {};

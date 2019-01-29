@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/L10nRegistry.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { FileSource, L10nRegistry } = ChromeUtils.import("resource://gre/modules/L10nRegistry.jsm");
 
 /**
  * Helper function to asynchronously call a certain method on the objects passed

@@ -15,7 +15,7 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <script type="application/javascript" src="chrome://calendar/content/mouseoverPreviews.js"/>
   <script type="application/javascript"><![CDATA[
-    ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+    const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
     function onLoad() {
         let docEl = document.documentElement;
         let item = window.arguments[0].item;

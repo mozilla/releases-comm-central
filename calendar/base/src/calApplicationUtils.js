@@ -4,7 +4,7 @@
 
 /* exported launchBrowser */
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * Launch the given url (string) in the external browser. If an event is passed,

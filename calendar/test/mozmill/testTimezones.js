@@ -21,7 +21,7 @@ var TIMEZONES = [
     "America/Argentina/Buenos_Aires", "Europe/Paris", "Asia/Kathmandu", "Australia/Adelaide"
 ];
 
-ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 function setupModule(module) {
     controller = mozmill.getMail3PaneController();

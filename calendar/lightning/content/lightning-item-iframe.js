@@ -14,19 +14,19 @@
  *          applyValues
  */
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const {
     recurrenceRule2String,
     splitRecurrenceRules,
     checkRecurrenceRule,
     countOccurrences
-} = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm", null);
-ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+} = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
+const { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 try {
-    ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
+    var { cloudFileAccounts } = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
 } catch (e) {
     // This will fail on Seamonkey, but thats ok since the pref for cloudfiles
     // is false, which means the UI will not be shown

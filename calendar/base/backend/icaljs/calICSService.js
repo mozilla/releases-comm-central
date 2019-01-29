@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { ICAL, unwrapSetter, unwrapSingle, wrapGetter } = ChromeUtils.import("resource://calendar/modules/ical.js", null);
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
+var { ICAL, unwrapSetter, unwrapSingle, wrapGetter } = ChromeUtils.import("resource://calendar/modules/ical.js");
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 function calIcalProperty(innerObject) {
     this.innerObject = innerObject || new ICAL.Property();

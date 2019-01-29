@@ -8,9 +8,9 @@
  *          adaptScheduleAgent
  */
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm", null);
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 // Variables related to whether we are in a tab or a window dialog.
 var gInTab = false;
