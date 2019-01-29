@@ -27,6 +27,5 @@ export MOZ_PACKAGE_JSSHELL=1
 
 # Set up mapi includes (must be done after visual studio setup)
 export INCLUDE=$INCLUDE:$(cd "$TOOLTOOL_DIR" && pwd)/mapiheader
-mk_export_correct_style INCLUDE
 
 mk_add_options "export SOCORRO_SYMBOL_UPLOAD_TOKEN_FILE=c:/builds/crash-stats-api.token"

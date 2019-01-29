@@ -21,4 +21,3 @@ MOZ_REQUIRE_ADDON_SIGNING=0
 
 # Set up mapi includes (must be done after visual studio setup)
 export INCLUDE=$INCLUDE:$(cd "$TOOLTOOL_DIR" && pwd)/mapiheader
-mk_export_correct_style INCLUDE
