@@ -974,8 +974,8 @@ function onTimeChange(event) {
 }
 
 /**
- * This listener is used in calendar-event-dialog-freebusy.xml inside the
- * binding. It has been taken out of the binding to prevent leaks.
+ * This listener is used in calendar-event-dialog-attendees-custom-elements.js inside the
+ * calendar-event-freebusy-grid custom element.
  */
 function calFreeBusyListener(aFbElement, aBinding) {
     this.mFbElement = aFbElement;

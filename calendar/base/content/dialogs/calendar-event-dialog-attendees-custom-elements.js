@@ -4,6 +4,7 @@
 
 /* global MozElements, MozXULElement, Services */
 /* import-globals-from ../calendar-ui-utils.js */
+/* import-globals-from ./calendar-event-dialog-attendees.js */
 
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
@@ -2333,7 +2334,7 @@ class MozCalendarEventSelectionBar extends MozXULElement {
 
     /**
      * Sets the ratio. The ratio is the factor which says by how big part of the total width is the
-     * scroll width.
+     * scroll width offset.
      *
      * @param {Number} val      A number between 0 and 1
      * @returns {Number}        The ratio
@@ -2608,3 +2609,592 @@ class MozCalendarEventSelectionBar extends MozXULElement {
     }
 }
 customElements.define("calendar-event-selection-bar", MozCalendarEventSelectionBar);
+
+/**
+ * MozCalendarEventFreebusyGrid is the container element holding rows for each persons' free and
+ * busy time slots. It is typically used in the dialog where you can select attendees whom to invite
+ * to an event.
+ *
+ * @extends {MozElements.RichListBox}
+ */
+class MozCalendarEventFreebusyGrid extends MozElements.RichListBox {
+    connectedCallback() {
+        this.mContentHeight = 0;
+        this.mRowHeight = 0;
+        this.mMaxFreeBusy = 0;
+        this.mPendingRequests = null;
+        this.mStartDate = null;
+        this.mEndDate = null;
+        this.mScrollOffset = 0;
+        this.mRange = 0;
+        this.mStartHour = 0;
+        this.mEndHour = 24;
+        this.mForce24Hours = false;
+        this.mZoomFactor = 100;
+
+        this.initTimeRange();
+
+        this.mRange = Number(this.getAttribute("range"));
+
+        this.mMaxFreeBusy = 0;
+        this.mPendingRequests = [];
+
+        window.addEventListener("load", this.onInitialize.bind(this), true);
+        window.addEventListener("unload", this.onUnload.bind(this), true);
+    }
+
+    /**
+     * Gets the zoom factor for the freebusy-grid.
+     *
+     * @returns {Number}        Zoom factor
+     */
+    get zoomFactor() {
+        return this.mZoomFactor;
+    }
+
+    /**
+     * Zooms freebusy grid and container element accordingly.
+     *
+     * @param {Number} val      New zoom factor
+     * @returns {Number}        New zoom factor
+     */
+    set zoomFactor(val) {
+        this.mZoomFactor = val;
+        for (let i = 1; i <= this.mMaxFreeBusy; i++) {
+            let freebusy = this.getFreeBusyElement(i);
+            freebusy.zoomFactor = this.mZoomFactor;
+        }
+        this.forceRefresh();
+        return val;
+    }
+
+    /**
+     * Gets force24Hours property which sets time format to 24 hour format.
+     *
+     * @returns {Boolean}       force24Hours value
+     */
+    get force24Hours() {
+        return this.mForce24Hours;
+    }
+
+    /**
+     * Sets force24Hours property to a new value. If true, forces the freebusy grid to 24 hours and
+     * updates the UI accordingly.
+     *
+     * @param {Boolean} val     New force24Hours value
+     * @returns {Boolean}       New force24Hours value
+     */
+    set force24Hours(val) {
+        this.mForce24Hours = val;
+        this.initTimeRange();
+        for (let i = 1; i <= this.mMaxFreeBusy; i++) {
+            let freebusy = this.getFreeBusyElement(i);
+            freebusy.force24Hours = this.mForce24Hours;
+        }
+        return val;
+    }
+
+    /**
+     * Scrolls to row with the index 'val'.
+     *
+     * @param {Number} val      Element index
+     * @returns {Number}        Element index
+     */
+    set firstVisibleRow(val) {
+        this.scrollToIndex(val);
+        return val;
+    }
+
+   /**
+    * Returns the index of first row element that is visible in the view box.
+    *
+    * @returns {Number}        First visible row
+    */
+    get firstVisibleRow() {
+        return this.getIndexOfFirstVisibleRow();
+    }
+
+    /**
+     * Scrolls to the row with the index calculated in the method.
+     *
+     * @param {Number} val      A number between 0 and 1
+     * @returns {Number}        A number between 0 and 1
+     */
+    set ratio(val) {
+        let rowcount = this.getRowCount();
+        this.scrollToIndex(Math.floor(rowcount * val));
+        return val;
+    }
+
+    /**
+     * Gets start date of the freebusy grid element.
+     *
+     * @returns {calIDateTime}       The start date
+     */
+    get startDate() {
+        return this.mStartDate;
+    }
+
+    /**
+     * Sets start date of the freebusy grid element and make it immutable.
+     *
+     * @param {calIDateTime} val     The start date
+     * @returns {calIDateTime}       The start date
+     */
+    set startDate(val) {
+        this.mStartDate = val.clone();
+        this.mStartDate.makeImmutable();
+        for (let i = 1; i <= this.mMaxFreeBusy; i++) {
+            this.getFreeBusyElement(i).startDate = val;
+        }
+        return val;
+    }
+
+    /**
+     * Gets end date of the freebusy grid element.
+     *
+     * @returns {calIDateTime}       The end date
+     */
+    get endDate() {
+        return this.mEndDate;
+    }
+
+    /**
+     * Sets end date of the event and make it immutable.
+     *
+     * @param {calIDateTime} val     The end date
+     * @returns {calIDateTime}       The end date
+     */
+    set endDate(val) {
+        this.mEndDate = val.clone();
+        this.mEndDate.makeImmutable();
+        for (let i = 1; i <= this.mMaxFreeBusy; i++) {
+            this.getFreeBusyElement(i).endDate = val;
+        }
+        return val;
+    }
+
+    /**
+     * Gets document size of the first freebusy element.
+     *
+     * @returns {Number}       Document size
+     */
+    get documentSize() {
+        return this.getFreeBusyElement(1).documentSize;
+    }
+
+    /**
+     * Sets scroll offset value of freebusy grid element and and scroll property of all
+     * freebusy-row elements.
+     *
+     * @param {Number} val       Scroll offset value
+     * @return {Number}          Scroll offset value
+     */
+    set scroll(val) {
+        this.mScrollOffset = val;
+        for (let i = 1; i <= this.mMaxFreeBusy; i++) {
+            this.getFreeBusyElement(i).scroll = val;
+        }
+        return val;
+    }
+
+    /**
+     * Cancel pending free/busy requests.
+     */
+    onUnload() {
+        for (let request of this.mPendingRequests) {
+            request.cancel(null);
+        }
+
+        this.mPendingRequests = [];
+    }
+
+    /**
+     * Initializes some properties using window arguments and update the freebusy-grid element.
+     */
+    onInitialize() {
+        let args = window.arguments[0];
+        let startTime = args.startTime;
+        let endTime = args.endTime;
+
+        let kDefaultTimezone = cal.dtz.defaultTimezone;
+        this.startDate = startTime.getInTimezone(kDefaultTimezone);
+        this.endDate = endTime.getInTimezone(kDefaultTimezone);
+
+        let template = this.getElementsByTagName("richlistitem")[0];
+        this.appendNewRow(template, null);
+        template.remove();
+
+        this.updateFreeBusy();
+    }
+
+    /**
+     * Handler function to call when changing the calendar used in this dialog.
+     *
+     * @param {Object} calendar     The calendar to change to
+     */
+    onChangeCalendar(calendar) { }
+
+    /**
+     * Appends a new empty row to the freebusy grid.
+     *
+     * @param {Element} templateNode        Element to be cloned
+     * @param {Element} replaceNode         Element to be replaced
+     */
+    appendNewRow(templateNode, replaceNode) {
+        this.mMaxFreeBusy++;
+        let newNode = templateNode.cloneNode(true);
+        if (replaceNode) {
+            this.replaceChild(newNode, replaceNode);
+        } else {
+            this.appendChild(newNode);
+        }
+
+        let grid = newNode.getElementsByTagName("calendar-event-freebusy-row")[0];
+
+        // Propagate start/enddate to the new row.
+        grid.startDate = this.mStartDate;
+        grid.endDate = this.mEndDate;
+
+        grid.force24Hours = this.mForce24Hours;
+        grid.zoomFactor = this.mZoomFactor;
+
+        // We always clone the first row. The problem is that the first row could be focused.
+        // When we clone that row, we end up with a cloned XUL textbox that has a focused attribute
+        // set. Therefore we think we're focused and don't properly refocus. The best solution to
+        // this would be to clone a template row that didn't really have any presentation, rather
+        // than using the real visible first row of the listbox. For now we'll just put in a hack
+        // that ensures the focused attribute is never copied when the node is cloned.
+        if (grid.getAttribute("focused") != "") {
+            grid.removeAttribute("focused");
+        }
+    }
+
+    /**
+     * This event handler is executed when modify event is emitted. This event is emitted when
+     * attendees-list element is modified. freebusy-grid remains synced with the modified
+     * attendees-list using this modify event.
+     *
+     * @param {Object} event       Event object for the element on which event was triggered
+     */
+    onModify(event) {
+        // Add or remove rows depending on the number of items
+        // contained in the list passed as argument.
+        let list = event.details;
+        if (this.mMaxFreeBusy != list.length) {
+            let template = this.getElementsByTagName("richlistitem")[0];
+            while (this.mMaxFreeBusy < list.length) {
+                let nextDummy = this.getNextDummyRow();
+                this.appendNewRow(template, nextDummy);
+                template = this.getElementsByTagName("richlistitem")[0];
+            }
+            while (this.mMaxFreeBusy > list.length) {
+                this.deleteRow(this.mMaxFreeBusy);
+            }
+        }
+
+        // Store the attributes in our grid rows.
+        for (let i = 1; i <= this.mMaxFreeBusy; i++) {
+            let freebusy = this.getFreeBusyElement(i);
+            freebusy.setAttribute("calid", list[i - 1].calid);
+            freebusy.removeAttribute("dirty");
+            if (list[i - 1].dirty) {
+                freebusy.setAttribute("dirty", "true");
+            }
+        }
+
+        // Align all rows
+        this.scroll = this.mScrollOffset;
+
+        this.updateFreeBusy();
+    }
+
+    /**
+     * Updates the freebusy-grid element.
+     */
+    updateFreeBusy() {
+        let fbService = cal.getFreeBusyService();
+        for (let i = 1; i <= this.mMaxFreeBusy; i++) {
+            // Retrieve the string from the appropriate row
+            let freebusy = this.getFreeBusyElement(i);
+            if (freebusy.hasAttribute("dirty")) {
+                freebusy.removeAttribute("dirty");
+                let calid = freebusy.getAttribute("calid");
+                if (calid && calid.length > 0) {
+                    // Define the datetime range we would like to ask for.
+                    let start = this.mStartDate.clone();
+                    start.hour = 0;
+                    start.minute = 0;
+                    start.second = 0;
+                    let end = start.clone();
+                    end.day += this.mRange;
+                    // Update with 'no data available' until response will be received
+                    freebusy.onFreeBusy(null);
+                    try {
+                        let listener = new calFreeBusyListener(freebusy, this);
+                        let request = fbService.getFreeBusyIntervals(calid,
+                            start,
+                            end,
+                            Ci.calIFreeBusyInterval.BUSY_ALL,
+                            listener);
+                        if (request && request.isPending) {
+                            this.mPendingRequests.push(request);
+                        }
+                    } catch (ex) {
+                        Cu.reportError(ex);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Shows next time slot which all of the freebusy-row agrees with.
+     */
+    nextSlot() {
+        let startTime = this.mStartDate.clone();
+        let endTime = this.mEndDate.clone();
+
+        startTime.isDate = false;
+        endTime.isDate = false;
+
+        let allDay = this.mStartDate.isDate;
+        let step_in_minutes = Math.floor(60 * this.zoomFactor / 100);
+        if (allDay) {
+            step_in_minutes = 60 * 24;
+            endTime.day++;
+        }
+
+        let duration = endTime.subtractDate(startTime);
+
+        startTime.minute += step_in_minutes;
+
+        if (startTime.hour < this.mStartHour) {
+            startTime.hour = this.mStartHour;
+            startTime.minute = 0;
+        }
+
+        endTime = startTime.clone();
+        endTime.addDuration(duration);
+        if (endTime.hour > this.mEndHour) {
+            startTime.day++;
+            startTime.hour = this.mStartHour;
+            startTime.minute = 0;
+            endTime = startTime.clone();
+            endTime.addDuration(duration);
+            if (endTime.hour > this.mEndHour) {
+                return this.mStartDate.clone();
+            }
+        }
+
+        // Now iterate all freebusy-rows and ask each one if it wants to modify the suggested time
+        // slot. we keep iterating the rows until all of them are happy with it.
+        let recheck;
+        do {
+            recheck = false;
+
+            for (let i = 1; i <= this.mMaxFreeBusy; i++) {
+                let row = this.getFreeBusyElement(i);
+                let newTime = row.nextSlot(startTime, endTime, allDay);
+                if (newTime) {
+                    if (newTime.compare(startTime) != 0) {
+                        startTime = newTime;
+
+                        if (startTime.hour < this.mStartHour) {
+                            startTime.hour = this.mStartHour;
+                            startTime.minute = 0;
+                        }
+
+                        endTime = startTime.clone();
+                        endTime.addDuration(duration);
+
+                        if (endTime.hour > this.mEndHour) {
+                            startTime.day++;
+                            startTime.hour = this.mStartHour;
+                            startTime.minute = 0;
+                            endTime = startTime.clone();
+                            endTime.addDuration(duration);
+                        }
+
+                        recheck = true;
+                    }
+                } else {
+                    // A new slot could not be found and the given time was also invalid.
+                    return this.mStartDate.clone();
+                }
+            }
+        } while (recheck);
+
+        // Return the unmodifed startdate of the item in case no possible match was found.
+        if (startTime.compare(this.mStartDate) == 0) {
+            return this.mStartDate.clone();
+        }
+
+        // Special case for allday events - if the original datetime was indeed a date we need to
+        // carry this state over to the calculated datetime.
+        if (this.mStartDate.isDate) {
+            startTime.isDate = true;
+        }
+
+        // In case the new starttime happens to be scheduled on a different day, we also need to
+        // update the complete freebusy informations and appropriate underlying arrays holding the
+        // informaion.
+        if (this.mStartDate.day != startTime.day) {
+            for (let i = 1; i <= this.mMaxFreeBusy; i++) {
+                let fbelem = this.getFreeBusyElement(i);
+                fbelem.setAttribute("dirty", "true");
+            }
+            this.updateFreeBusy();
+        }
+
+        // Return the new start time of the item.
+        return startTime;
+    }
+
+    /**
+     * Refreshes the freebusy-grid element.
+     */
+    forceRefresh() {
+        for (let i = 1; i <= this.mMaxFreeBusy; i++) {
+            let row = this.getFreeBusyElement(i);
+            row.setAttribute("dirty", "true");
+        }
+        this.updateFreeBusy();
+    }
+
+    /**
+     * Returns the <xul:richlistitem> at row number `row`.
+     *
+     * @param {Number} row      Row number
+     */
+    getListItem(row) {
+        return this.getElementsByTagName("richlistitem")[row - 1];
+    }
+
+    /**
+     * Returns the <xul:freebusy-row> in row with index `row`.
+     *
+     * @param {Number} row      Index of row element from which freebusy-row element has to be
+     *                          fetched
+     * @returns {Element}       Freebusy-row element
+     */
+    getFreeBusyElement(row) {
+        return this.getListItem(row).getElementsByTagName("calendar-event-freebusy-row")[0];
+    }
+
+    /**
+     * Deletes row with index `row`.
+     *
+     * @param {Number} row       Index of row that has to be deleted
+     */
+    deleteRow(row) {
+        this.removeRow(row);
+    }
+
+    /**
+     * Removes row and adds dummy row on its place.
+     *
+     * @param {Number} row       Index of row that has to be removed
+     */
+    removeRow(row) {
+        this.getListItem(row).remove();
+        this.fitDummyRows();
+        this.mMaxFreeBusy--;
+    }
+
+    /**
+     * Gets the next row from the top down.
+     *
+     * @returns {?Element}       Next dummy row or null if there isn't any
+     */
+    getNextDummyRow() {
+        for (let kid of this.childNodes) {
+            if (kid.hasAttribute("_isDummyRow")) {
+                return kid;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Fits dummy rows by calculating content height and appending/removing them.
+     */
+    fitDummyRows() {
+        setTimeout(() => {
+            this.calcContentHeight();
+            this.createOrRemoveDummyRows();
+        }, 0);
+    }
+
+    /**
+     * Sets content height and row height of freebusy-grid element.
+     */
+    calcContentHeight() {
+        let items = this.getElementsByTagName("richlistitem");
+        this.mContentHeight = 0;
+        if (items.length > 0) {
+            let i = 0;
+            do {
+                this.mRowHeight = items[i].boxObject.height;
+                ++i;
+            } while (i < items.length && !this.mRowHeight);
+            this.mContentHeight = this.mRowHeight * items.length;
+        }
+    }
+
+    /**
+     * Creates or removes dummy rows.
+     */
+    createOrRemoveDummyRows() {
+        let listboxHeight = this.boxObject.height;
+
+        // Remove rows to remove scrollbar
+        let kids = this.childNodes;
+        for (let i = kids.length - 1; this.mContentHeight > listboxHeight && i >= 0; --i) {
+            if (kids[i].hasAttribute("_isDummyRow")) {
+                this.mContentHeight -= this.mRowHeight;
+                kids[i].remove();
+            }
+        }
+
+        // Add rows to fill space
+        if (this.mRowHeight) {
+            while ((this.mContentHeight + this.mRowHeight) < listboxHeight) {
+                this.createDummyItem();
+                this.mContentHeight += this.mRowHeight;
+            }
+        }
+    }
+
+    /**
+     * Returns new dummy item.
+     *
+     * @returns {Node}       Dummy item
+     */
+    createDummyItem() {
+        let item = document.createElement("richlistitem");
+        item.setAttribute("_isDummyRow", "true");
+        item.setAttribute("class", "dummy-row");
+        let cell = document.createElement("hbox");
+        cell.setAttribute("flex", "1");
+        cell.setAttribute("class", "addressingWidgetCell dummy-row-cell");
+        item.appendChild(cell);
+        this.appendChild(item);
+        return item;
+    }
+
+    /**
+     * Updates end hour and start hour values of the freebusy-grid depending upon the force24Hours
+     * flag.
+     */
+    initTimeRange() {
+        if (this.force24Hours) {
+            this.mStartHour = 0;
+            this.mEndHour = 24;
+        } else {
+            this.mStartHour = Services.prefs.getIntPref("calendar.view.daystarthour", 8);
+            this.mEndHour = Services.prefs.getIntPref("calendar.view.dayendhour", 19);
+        }
+    }
+}
+customElements.define("calendar-event-freebusy-grid", MozCalendarEventFreebusyGrid);

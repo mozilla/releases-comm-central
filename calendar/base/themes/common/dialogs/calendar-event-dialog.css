@@ -305,6 +305,15 @@ label.label {
 
 #freebusy-grid {
     min-width: 1px;
+    -moz-user-focus: normal;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    overflow: hidden;
+}
+
+#freebusy-grid > .dummy-row, #freebusy-grid .dummy-row-cell {
+    width: 100%;
 }
 
 #calendar-summary-dialog {

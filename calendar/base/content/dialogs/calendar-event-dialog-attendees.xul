@@ -121,20 +121,20 @@
               </hbox>
             </richlistitem>
           </calendar-event-freebusy-timebar>
-          <freebusy-grid flex="1"
-                         id="freebusy-grid"
-                         range="16"
-                         class="listbox-noborder"
-                         seltype="multiple"
-                         rows="-1"
-                         disabled="true">
+          <calendar-event-freebusy-grid flex="1"
+                                        id="freebusy-grid"
+                                        range="16"
+                                        class="listbox-noborder"
+                                        seltype="multiple"
+                                        rows="-1"
+                                        disabled="true">
             <richlistitem class="addressingWidgetItem"
                           allowevents="true">
               <hbox class="addressingWidgetCell">
                 <calendar-event-freebusy-row dirty="true"/>
               </hbox>
             </richlistitem>
-          </freebusy-grid>
+          </calendar-event-freebusy-grid>
         </vbox>
         <calendar-event-selection-bar id="selection-bar"
                                       range="16"/>

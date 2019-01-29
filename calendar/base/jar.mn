@@ -55,7 +55,6 @@ calendar.jar:
     content/calendar/calendar-error-prompt.xul             (content/dialogs/calendar-error-prompt.xul)
     content/calendar/calendar-event-dialog.css             (content/dialogs/calendar-event-dialog.css)
     content/calendar/calendar-event-dialog.xul             (content/dialogs/calendar-event-dialog.xul)
-    content/calendar/calendar-event-dialog-freebusy.xml    (content/dialogs/calendar-event-dialog-freebusy.xml)
     content/calendar/calendar-event-dialog-recurrence.xul  (content/dialogs/calendar-event-dialog-recurrence.xul)
     content/calendar/calendar-event-dialog-recurrence.js   (content/dialogs/calendar-event-dialog-recurrence.js)
     content/calendar/calendar-event-dialog-reminder.js     (content/dialogs/calendar-event-dialog-reminder.js)

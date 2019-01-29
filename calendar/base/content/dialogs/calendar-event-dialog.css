@@ -34,7 +34,3 @@ calendar-event-freebusy-row {
     -moz-user-focus: normal;
 }
 
-freebusy-grid {
-    -moz-binding: url(chrome://calendar/content/calendar-event-dialog-freebusy.xml#freebusy-grid);
-    -moz-user-focus: normal;
-}
