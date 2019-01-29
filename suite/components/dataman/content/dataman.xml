@@ -17,7 +17,7 @@
            extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
     <implementation>
       <constructor><![CDATA[
-        ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+        var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
         var permLabel = this.type;
         try {

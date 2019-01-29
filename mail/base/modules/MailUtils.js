@@ -4,7 +4,7 @@
 
 var EXPORTED_SYMBOLS = ["MailUtils"];
 
-ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 const {Deprecated} = ChromeUtils.import("resource://gre/modules/Deprecated.jsm");
 Deprecated.warning(

@@ -11,12 +11,17 @@ const { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.js
 const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Platform-specific includes
-if ("@mozilla.org/windows-registry-key;1" in Cc)
-  ChromeUtils.import("resource:///modules/aboutSupportWin32.js");
-else if ("nsILocalFileMac" in Ci)
-  ChromeUtils.import("resource:///modules/aboutSupportMac.js");
-else
-  ChromeUtils.import("resource:///modules/aboutSupportUnix.js");
+var AboutSupportPlatform;
+if ("@mozilla.org/windows-registry-key;1" in Cc) {
+  let {temp} = ChromeUtils.import("resource:///modules/aboutSupportWin32.js");
+  AboutSupportPlatform = temp;
+} else if ("nsILocalFileMac" in Ci) {
+  let {temp} = ChromeUtils.import("resource:///modules/aboutSupportMac.js");
+  AboutSupportPlatform = temp;
+} else {
+  let {temp} = ChromeUtils.import("resource:///modules/aboutSupportUnix.js");
+  AboutSupportPlatform = temp;
+}
 
 var gMessengerBundle = Services.strings.createBundle(
   "chrome://messenger/locale/messenger.properties");

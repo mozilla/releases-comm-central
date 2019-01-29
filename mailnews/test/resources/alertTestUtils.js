@@ -29,7 +29,7 @@
  * do_throw().
  */
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 const {MockRegistrar} =
   ChromeUtils.import("resource://testing-common/MockRegistrar.jsm");
 

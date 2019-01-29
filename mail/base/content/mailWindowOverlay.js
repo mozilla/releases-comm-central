@@ -17,7 +17,7 @@
 
 const {FeedUtils} = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
 var { GlodaSyntheticView } = ChromeUtils.import("resource:///modules/gloda/dbview.js");
-ChromeUtils.import("resource:///modules/MailConsts.jsm");
+var {MailConsts} = ChromeUtils.import("resource:///modules/MailConsts.jsm");
 const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");

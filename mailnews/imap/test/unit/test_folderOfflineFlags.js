@@ -16,7 +16,7 @@ load("../../../resources/alertTestUtils.js");
 
 // IMAP pump
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Definition of tests
 var tests = [

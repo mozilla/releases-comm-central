@@ -4,7 +4,7 @@
 
 this.EXPORTED_SYMBOLS = ['DebugTraceHelper'];
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var SPACES = "                                                   ";
 var BRIGHT_COLORS = {

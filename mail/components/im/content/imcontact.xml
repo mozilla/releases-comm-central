@@ -49,8 +49,6 @@
       <![CDATA[
         this.contact = aContact;
         this.contact.addObserver(this);
-        if (!("Status" in window))
-          ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
         this.update();
       ]]>
       </body>

@@ -10,7 +10,7 @@
  * depends on jsTreeView.js being loaded before this script is loaded.
  */
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 const {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
 

@@ -1887,7 +1887,7 @@
       </method>
       <constructor>
         <![CDATA[
-          ChromeUtils.import("resource://gre/modules/Services.jsm");
+          var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
           ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
 
           var os = Cc["@mozilla.org/observer-service;1"]

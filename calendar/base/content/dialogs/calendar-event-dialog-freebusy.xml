@@ -112,8 +112,6 @@
       </property>
 
       <constructor><![CDATA[
-          ChromeUtils.import("resource://gre/modules/Preferences.jsm");
-
           this.initTimeRange();
       ]]></constructor>
 
@@ -123,6 +121,8 @@
                 this.mStartHour = 0;
                 this.mEndHour = 24;
             } else {
+                const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+
                 this.mStartHour = Preferences.get("calendar.view.daystarthour", 8);
                 this.mEndHour = Preferences.get("calendar.view.dayendhour", 19);
             }
@@ -374,8 +374,6 @@
       </property>
 
       <constructor><![CDATA[
-          ChromeUtils.import("resource://gre/modules/Preferences.jsm");
-
           let args = window.arguments[0];
           let startTime = args.startTime;
           let endTime = args.endTime;
@@ -478,6 +476,8 @@
                 this.mStartHour = 0;
                 this.mEndHour = 24;
             } else {
+                const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+
                 this.mStartHour = Preferences.get("calendar.view.daystarthour", 8);
                 this.mEndHour = Preferences.get("calendar.view.dayendhour", 19);
             }
@@ -609,8 +609,6 @@
       </property>
 
       <constructor><![CDATA[
-          ChromeUtils.import("resource://gre/modules/Preferences.jsm");
-
           this.initTimeRange();
           let grid = document.getElementById("freebusy-grid");
           this.mRange = Number(grid.getAttribute("range"));
@@ -883,6 +881,8 @@
                 this.mStartHour = 0;
                 this.mEndHour = 24;
             } else {
+                const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+
                 this.mStartHour = Preferences.get("calendar.view.daystarthour", 8);
                 this.mEndHour = Preferences.get("calendar.view.dayendhour", 19);
             }
@@ -955,8 +955,6 @@
       </property>
 
       <constructor><![CDATA[
-          ChromeUtils.import("resource://gre/modules/Preferences.jsm");
-
           this.initTimeRange();
 
           let grid = document.getElementById("freebusy-grid");
@@ -1393,6 +1391,8 @@
                 this.mStartHour = 0;
                 this.mEndHour = 24;
             } else {
+                const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+
                 this.mStartHour = Preferences.get("calendar.view.daystarthour", 8);
                 this.mEndHour = Preferences.get("calendar.view.dayendhour", 19);
             }

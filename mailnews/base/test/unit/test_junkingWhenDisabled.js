@@ -12,7 +12,7 @@ load("../../../resources/messageModifier.js");
 load("../../../resources/messageInjection.js");
 
 const {JSTreeSelection} = ChromeUtils.import("resource:///modules/jsTreeSelection.js");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 

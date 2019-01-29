@@ -14,7 +14,7 @@
 
 this.EXPORTED_SYMBOLS = ['GlodaMsgIndexer'];
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 const {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");

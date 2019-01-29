@@ -35,7 +35,7 @@ var JSAccountUtils = {};
 
 const {Log} = ChromeUtils.import("resource://gre/modules/Log.jsm");
 const {Preferences} = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 // Logger definitions.
 const LOGGER_NAME = "JsAccount";

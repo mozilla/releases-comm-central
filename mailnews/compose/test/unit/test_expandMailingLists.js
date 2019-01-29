@@ -11,7 +11,7 @@ var nsIMsgCompose = Ci.nsIMsgCompose;
 var nsIMsgComposeParams = Ci.nsIMsgComposeParams;
 var nsIMsgCompFields = Ci.nsIMsgCompFields;
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 /**

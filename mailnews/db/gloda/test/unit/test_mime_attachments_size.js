@@ -19,7 +19,7 @@ load("../../../../resources/messageGenerator.js");
 load("../../../../resources/messageModifier.js");
 load("../../../../resources/messageInjection.js");
 
-ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
+var {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 
 // Create a message generator
 var msgGen = gMessageGenerator = new MessageGenerator();

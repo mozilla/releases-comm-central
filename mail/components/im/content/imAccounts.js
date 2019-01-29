@@ -10,7 +10,7 @@
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm", null);
 var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
+var {DownloadUtils} = ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
 ChromeUtils.defineModuleGetter(this, "PluralForm", "resource://gre/modules/PluralForm.jsm");
 
 // This is the list of notifications that the account manager window observes

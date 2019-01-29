@@ -12,10 +12,10 @@ this.EXPORTED_SYMBOLS = ['NetworkTestUtils'];
 var CC = Components.Constructor;
 
 const {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
-ChromeUtils.import("resource://gre/modules/Promise.jsm");
+var {Promise} = ChromeUtils.import("resource://gre/modules/Promise.jsm");
 const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 const ServerSocket = CC("@mozilla.org/network/server-socket;1",
                         "nsIServerSocket",

@@ -6,7 +6,7 @@
 /* globals fixIterator, MailToolboxCustomizeDone, Notifications, openIMAccountMgr,
    PROTO_TREE_VIEW, Services, Status, statusSelector, ZoomManager */
 
-ChromeUtils.import("resource:///modules/chatNotifications.jsm");
+var {Notifications} = ChromeUtils.import("resource:///modules/chatNotifications.jsm");
 var { Services: imServices } = ChromeUtils.import("resource:///modules/imServices.jsm");
 const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 

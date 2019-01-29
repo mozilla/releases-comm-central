@@ -100,8 +100,7 @@ var statusSelector = {
         else
           elt.removeAttribute("value");
       }
-      if (!("TextboxSpellChecker" in window))
-        ChromeUtils.import("resource:///modules/imTextboxUtils.jsm");
+      const {TextboxSpellChecker} = ChromeUtils.import("resource:///modules/imTextboxUtils.jsm");
       TextboxSpellChecker.registerTextbox(elt);
       // force binding attachment by forcing layout
       elt.getBoundingClientRect();

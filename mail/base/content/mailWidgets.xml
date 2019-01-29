@@ -464,7 +464,6 @@
       <constructor>
         <![CDATA[
           this.mAddresses = [];
-          ChromeUtils.import("resource://gre/modules/Services.jsm");
         ]]>
       </constructor>
 
@@ -1320,8 +1319,6 @@
       </property>
       <constructor>
       <![CDATA[
-        ChromeUtils.import("resource:///modules/MailServices.jsm");
-        ChromeUtils.import("resource://gre/modules/Services.jsm", this);
         initializeTermFromId(this.id);
       ]]>
       </constructor>
@@ -1390,12 +1387,6 @@
           ]]>
         </getter>
       </property>
-      <constructor>
-        <![CDATA[
-          ChromeUtils.import("resource:///modules/MailServices.jsm");
-          ChromeUtils.import("resource://gre/modules/Services.jsm", this);
-        ]]>
-      </constructor>
     </implementation>
   </binding>
 
@@ -1774,9 +1765,6 @@
       </method>
       <constructor>
       <![CDATA[
-        ChromeUtils.import("resource:///modules/MailServices.jsm");
-        ChromeUtils.import("resource://gre/modules/Services.jsm", this);
-
         // initialize strings
         var bundle = this.Services.strings.createBundle("chrome://messenger/locale/messenger.properties");
 

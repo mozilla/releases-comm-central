@@ -399,8 +399,7 @@
       <![CDATA[
         let textbox = this.editor;
 
-        if (!("MessageFormat" in window))
-          ChromeUtils.import("resource:///modules/imTextboxUtils.jsm");
+        const {MessageFormat} = ChromeUtils.import("resource:///modules/imTextboxUtils.jsm");
         MessageFormat.registerTextbox(textbox);
 
         // Init the textbox size
@@ -1505,8 +1504,6 @@
 
          this.findbar.browser = this.browser;
 
-         if (!("Status" in window))
-           ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
          this.updateConvStatus();
          this.initTextboxFormat();
        ]]>

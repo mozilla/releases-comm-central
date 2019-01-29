@@ -5,7 +5,7 @@
 
 /* This is where functions related to the print engine are kept */
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /* globals for a particular window */
 var printEngineContractID      = "@mozilla.org/messenger/msgPrintEngine;1";

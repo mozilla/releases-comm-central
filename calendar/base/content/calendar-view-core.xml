@@ -61,8 +61,6 @@
 
     <implementation>
       <constructor><![CDATA[
-          ChromeUtils.import("resource://gre/modules/Preferences.jsm");
-
           this.eventNameTextbox.onblur = () => {
               this.stopEditing(true);
           };
@@ -151,6 +149,8 @@
 
       <method name="setLocationLabel">
         <body><![CDATA[
+            const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+
             let locationLabel = document.getAnonymousElementByAttribute(this, "anonid", "event-location");
             let location = this.mOccurrence.getProperty("LOCATION");
             let showLocation = Preferences.get("calendar.view.showLocation", false);
@@ -162,6 +162,8 @@
 
       <method name="setCSSClasses">
         <body><![CDATA[
+            const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+
             let item = this.mOccurrence;
             this.setAttribute("calendar-uri", item.calendar.uri.spec);
             this.setAttribute("calendar-id", item.calendar.id);

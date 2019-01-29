@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
 var gSubscribeTree = null;
 var gSubscribeBody = null;

@@ -23,7 +23,7 @@ const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 const {CharsetMenu} = ChromeUtils.import("resource://gre/modules/CharsetMenu.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "gViewSourceUtils", function() {
   let scope = {};

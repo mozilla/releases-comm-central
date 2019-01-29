@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const {console} = ChromeUtils.import("resource://gre/modules/Console.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const {clearInterval, clearTimeout, setInterval, setTimeout} = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 Cu.importGlobalProperties(["XMLHttpRequest"]);
 

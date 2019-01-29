@@ -23,11 +23,11 @@
 
 ChromeUtils.import("resource:///modules/activity/activityModules.jsm");
 var { logException } = ChromeUtils.import("resource:///modules/errUtils.js");
-ChromeUtils.import("resource:///modules/IOUtils.js");
+var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
 var { JSTreeSelection } = ChromeUtils.import("resource:///modules/jsTreeSelection.js");
 const {MailConsts} = ChromeUtils.import("resource:///modules/MailConsts.jsm");
 const {MailInstrumentation} = ChromeUtils.import("resource:///modules/MailInstrumentation.jsm");
-ChromeUtils.import("resource:///modules/mailnewsMigrator.js");
+var {migrateMailnews} = ChromeUtils.import("resource:///modules/mailnewsMigrator.js");
 const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 const {msgDBCacheManager} = ChromeUtils.import("resource:///modules/msgDBCacheManager.js");
 const {SessionStoreManager} = ChromeUtils.import("resource:///modules/SessionStoreManager.jsm");

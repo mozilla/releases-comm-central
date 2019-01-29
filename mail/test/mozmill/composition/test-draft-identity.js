@@ -18,7 +18,6 @@ var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
                        "compose-helpers", "notificationbox-helpers"];
 
 const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
 var gDrafts;
 var gAccount;

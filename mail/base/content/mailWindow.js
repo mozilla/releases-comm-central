@@ -18,7 +18,7 @@ const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm"
 const {appIdleManager} = ChromeUtils.import("resource:///modules/appIdleManager.js");
 const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 var { Gloda } = ChromeUtils.import("resource:///modules/gloda/public.js");
 

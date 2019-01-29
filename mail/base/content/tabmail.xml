@@ -270,7 +270,6 @@
       <constructor>
         window.controllers.insertControllerAt(0, this);
         this._restoringTabState = null;
-        ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
       </constructor>
       <destructor>
         window.controllers.removeController(this);

@@ -2,7 +2,7 @@
  * Test that adding nsIFolderListener in js does not cause any crash.
  */
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/messageModifier.js");

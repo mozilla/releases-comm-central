@@ -5,7 +5,7 @@
  * because that's not implemented yet, and it's unclear if anyone will want it.
  */
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");

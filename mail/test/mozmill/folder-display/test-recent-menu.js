@@ -10,7 +10,7 @@
 
 "use strict";
 
-ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var MODULE_NAME = 'test-recent-menu';

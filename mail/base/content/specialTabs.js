@@ -6,11 +6,11 @@
 /* import-globals-from mailWindow.js */
 /* import-globals-from utilityOverlay.js */
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
+var {AddonManager} = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
 const {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
-ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
+var {BrowserUtils} = ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
 const {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 const {ExtensionParent} = ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");
 

@@ -14,7 +14,7 @@
     <implementation implements="nsIAutoCompletePopup">
       <constructor>
         <![CDATA[
-          ChromeUtils.import("resource://gre/modules/Services.jsm");
+          var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
           ]]>
       </constructor>
 

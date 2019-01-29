@@ -110,7 +110,6 @@
 
     <implementation implements="nsIObserver">
       <constructor><![CDATA[
-          ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
           const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
           const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
@@ -286,6 +285,8 @@
       <method name="duration">
         <parameter name="aTask"/>
         <body><![CDATA[
+            const { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+
             if (aTask && aTask.dueDate && aTask.dueDate.isValid) {
                 let dur = aTask.dueDate.subtractDate(cal.dtz.now());
                 if (!dur.isNegative) {

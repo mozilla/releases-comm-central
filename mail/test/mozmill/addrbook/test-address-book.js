@@ -15,9 +15,9 @@ var MODULE_REQUIRES = ["folder-display-helpers", "address-book-helpers",
                        'compose-helpers', 'window-helpers',
                        'prompt-helpers'];
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var abController = null;
 var addrBook1, addrBook2, addrBook3, addrBook4, ldapBook;

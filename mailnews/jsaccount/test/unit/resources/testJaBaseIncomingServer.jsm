@@ -11,7 +11,7 @@
 
 const EXPORTED_SYMBOLS = ["JaBaseIncomingServerProperties", "JaBaseIncomingServer"];
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource:///modules/jsaccount/JSAccountUtils.jsm");
 
 // A partial JavaScript implementation of the base server methods.

@@ -24,7 +24,6 @@
       <field name="mPopupOpen">false</field>
 
       <constructor><![CDATA[
-          ChromeUtils.import("resource:///modules/MailServices.jsm");
           this.mMaxAttendees = 0;
 
           window.addEventListener("load", this.onLoad.bind(this), true);
@@ -286,6 +285,8 @@
 
       <property name="attendees">
         <getter><![CDATA[
+            const { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
+
             let attendees = [];
 
             for (let i = 1; true; i++) {
@@ -338,6 +339,8 @@
 
       <property name="organizer">
         <getter><![CDATA[
+            const { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
+
             for (let i = 1; true; i++) {
                 let inputField = this.getInputElement(i);
                 if (!inputField) {
@@ -381,6 +384,8 @@
       <method name="_resolveListByName">
         <parameter name="value"/>
         <body><![CDATA[
+            const { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
+
             let entries = MailServices.headerParser.makeFromDisplayAddress(value);
             return entries.length ? this._findListInAddrBooks(entries[0].name) : null;
         ]]></body>
@@ -389,6 +394,8 @@
       <method name="_findListInAddrBooks">
         <parameter name="entryname"/>
         <body><![CDATA[
+            const { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
+
             let allAddressBooks = MailServices.ab.directories;
 
             while (allAddressBooks.hasMoreElements()) {
@@ -539,6 +546,8 @@
 
       <method name="onModify">
         <body><![CDATA[
+            const { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
+
             let list = [];
             for (let i = 1; i <= this.mMaxAttendees; i++) {
                 // retrieve the string from the appropriate row
@@ -799,6 +808,8 @@
         <parameter name="element"/>
         <parameter name="noAdvance"/>
         <body><![CDATA[
+            const { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
+
             function parseHeaderValue(aMsgIAddressObject) {
                 if (aMsgIAddressObject.name.match(/[<>@,]/)) {
                     // special handling only needed for a name with a comma which are not already quoted
@@ -1098,8 +1109,6 @@
       </property>
 
       <constructor><![CDATA[
-          ChromeUtils.import("resource://gre/modules/Preferences.jsm");
-
           this.initTimeRange();
 
           // The basedate is the date/time from which the display

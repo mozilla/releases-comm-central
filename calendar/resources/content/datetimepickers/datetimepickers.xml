@@ -1432,8 +1432,6 @@
            inherits="value,onchange">
     <implementation>
       <constructor><![CDATA[
-          ChromeUtils.import("resource://gre/modules/Services.jsm");
-
           this.kTimeFormatObject = { timeStyle: "short" };
           this.initDateFormat();
           this.initTimeFormat();
@@ -1739,6 +1737,8 @@
       -->
       <method name="initTimeFormat">
         <body><![CDATA[
+            const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
             // probe the Time format
             this.ampmIndex = null;
             // Digits         HR       sep      MIN     sep      SEC     sep
@@ -1844,6 +1844,8 @@
       <method name="formatTime">
         <parameter name="aValue"/>
         <body><![CDATA[
+            const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
             let formatter = new Services.intl.DateTimeFormat(undefined, this.kTimeFormatObject);
             return formatter.format(aValue);
         ]]></body>

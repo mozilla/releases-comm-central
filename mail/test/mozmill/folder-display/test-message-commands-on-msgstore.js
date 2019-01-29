@@ -19,7 +19,7 @@ var MODULE_REQUIRES = ["folder-display-helpers",
                          "window-helpers"];
 
 const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 const {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
 
 var statusHeader = "X-Mozilla-Status: ";

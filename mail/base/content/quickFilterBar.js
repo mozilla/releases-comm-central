@@ -15,7 +15,7 @@ var {
   QuickFilterSearchListener,
   QuickFilterState,
 } = ChromeUtils.import("resource:///modules/QuickFilterManager.jsm");
-ChromeUtils.import("resource:///modules/SearchSpec.jsm");
+var {SearchSpec} = ChromeUtils.import("resource:///modules/SearchSpec.jsm");
 
 // -----------
 // Proper Code
