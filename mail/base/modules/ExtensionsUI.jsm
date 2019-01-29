@@ -11,6 +11,7 @@ const DEFAULT_EXTENSION_ICON = "chrome://mozapps/skin/extensions/extensionGeneri
 const HTML_NS = "http://www.w3.org/1999/xhtml";
 
 const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+const {BrowserUtils} = ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
 XPCOMUtils.defineLazyModuleGetters(this, {
   AddonManager: "resource://gre/modules/AddonManager.jsm",
   AddonManagerPrivate: "resource://gre/modules/AddonManager.jsm",
