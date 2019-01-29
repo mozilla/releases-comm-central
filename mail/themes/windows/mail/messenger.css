@@ -366,7 +366,6 @@ treechildren::-moz-tree-indentation {
 
 @media (-moz-windows-default-theme) {
   treechildren {
-    --treechildren-outline: none;
     --treechildren-focusColor: rgb(123,195,255);
     --treechildren-selectedFocusColor: rgb(205,232,255);
     --treechildren-currentColor: rgb(125,162,206);
@@ -400,13 +399,11 @@ treechildren::-moz-tree-indentation {
   treechildren::-moz-tree-row(selected) {
     border-color: var(--treechildren-selectedBorder);
     background-color: var(--treechildren-selectedBackground);
-    outline: var(--treechildren-outline);
   }
 
   treechildren::-moz-tree-row(current, focus) {
     border-style: solid;
     border-color: var(--treechildren-currentFocusBorder);
-    outline: var(--treechildren-outline);
   }
 
   treechildren::-moz-tree-row(selected, focus),
@@ -424,7 +421,6 @@ treechildren::-moz-tree-indentation {
   treechildren::-moz-tree-row(hover) {
     border-color: var(--treechildren-hoverBorder);
     background-color: var(--treechildren-hoverBackground);
-    outline: var(--treechildren-outline);
   }
 
   treechildren::-moz-tree-row(hover, current) {
@@ -468,7 +464,6 @@ treechildren::-moz-tree-indentation {
          (-moz-os-version: windows-win8) {
     treechildren {
       --treechildren-2ndBorderColor: rgba(255,255,255,.4);
-      --treechildren-outline: 1px solid var(--treechildren-2ndBorderColor);
       --treechildren-selectedBackground: rgba(190,190,190,.4);
       --treechildren-currentFocusBorder: var(--treechildren-currentColor);
       --treechildren-selectedFocusBorder: rgb(132,172,221) var(--treechildren-2ndBorderColor) var(--treechildren-currentColor);
@@ -491,7 +486,6 @@ treechildren::-moz-tree-indentation {
 
     treechildren::-moz-tree-row {
       border-radius: 3px;
-      -moz-outline-radius: 3px;
     }
   }
 }
@@ -521,6 +515,7 @@ treechildren::-moz-tree-indentation {
 :root[lwt-tree] treechildren::-moz-tree-row(hover) {
   background-color: hsla(0,0%,50%,.15);
   border-color: transparent;
+  background-image: none;
 }
 
 :root[lwt-tree] #threadTree treechildren::-moz-tree-row(untagged, selected),
