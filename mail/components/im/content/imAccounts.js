@@ -11,6 +11,7 @@ var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm", null
 var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
+ChromeUtils.defineModuleGetter(this, "PluralForm", "resource://gre/modules/PluralForm.jsm");
 
 // This is the list of notifications that the account manager window observes
 var events = [
@@ -514,8 +515,6 @@ var gAccountManager = {
       /* One or more accounts made the application crash during their connection.
          If none, this function has already returned */
       case as.AUTOLOGIN_ENABLED:
-        if (!("PluralForm" in window))
-          const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
         label = bundle.getString("accountsManager.notification.singleCrash.label");
         label = PluralForm.get(crashCount, label).replace("#1", crashCount);
         priority = box.PRIORITY_WARNING_MEDIUM;

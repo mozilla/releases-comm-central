@@ -305,8 +305,6 @@
 
       <constructor>
         <![CDATA[
-          ChromeUtils.import("resource://gre/modules/Services.jsm");
-
           this._setWidgetDisabled(true);
         ]]>
       </constructor>
@@ -379,6 +377,8 @@
       <method name="_getMapURLPref">
         <parameter name="aIndex"/>
         <body><![CDATA[
+          const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
           let url = null;
           if (!aIndex) {
             url = Services.prefs.getComplexValue("mail.addr_book.mapit_url.format",
@@ -401,6 +401,8 @@
         -->
       <method name="_listMapServices">
         <body><![CDATA[
+          const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
           let index = 1;
           let itemFound = true;
           let defaultFound = false;
@@ -476,6 +478,8 @@
       <method name="_chooseMapService">
         <parameter name="aItem"/>
         <body><![CDATA[
+          const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
           // Save selected URL as the default.
           let defaultUrl = Cc["@mozilla.org/pref-localizedstring;1"]
                              .createInstance(Ci.nsIPrefLocalizedString);

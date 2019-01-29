@@ -25,8 +25,10 @@ const {
 const { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
+var cloudFileAccounts;
 try {
-    var { cloudFileAccounts } = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
+    let temp = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
+    cloudFileAccounts = temp.cloudFileAccounts;
 } catch (e) {
     // This will fail on Seamonkey, but thats ok since the pref for cloudfiles
     // is false, which means the UI will not be shown

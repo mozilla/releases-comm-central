@@ -36,7 +36,6 @@ class MozMailUrlfield extends MozMailHeaderfield {
 class MozMailHeaderfieldTags extends MozXULElement {
   connectedCallback() {
     this.classList.add("headerValue");
-    const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
   }
 
   set headerValue(val) {
@@ -44,6 +43,7 @@ class MozMailHeaderfieldTags extends MozXULElement {
   }
 
   buildTags(tags) {
+    const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
     // tags contains a list of actual tag names (not the keys), delimited by spaces
     // each tag name is encoded.
 

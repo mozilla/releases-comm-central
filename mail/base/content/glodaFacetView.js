@@ -13,10 +13,10 @@
  */
 
 var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
-const {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
-ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { StringBundle } = ChromeUtils.import("resource:///modules/StringBundle.js");
+var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {
   logObject,
   logException,

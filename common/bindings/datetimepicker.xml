@@ -484,6 +484,8 @@
       <method name="_init">
         <body>
           <![CDATA[
+            const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
             this.hourField = this._fieldOne;
             this.minuteField = this._fieldTwo;
             this.secondField = this._fieldThree;
@@ -773,6 +775,8 @@
       <method name="_init">
         <body>
           <![CDATA[
+            const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
             // We'll default to YYYY/MM/DD to start.
             var yfield = "input-one";
             var mfield = "input-two";
@@ -1015,6 +1019,8 @@
       <method name="_init">
         <body>
           <![CDATA[
+            const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
             var locale = Services.locale.regionalPrefsLocales[0] + "-u-ca-gregory";
             var dtfMonth = new Services.intl.DateTimeFormat(locale, {month: "long", timeZone: "UTC"});
             var dtfWeekday = new Services.intl.DateTimeFormat(locale, {weekday: "narrow"});
