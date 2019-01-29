@@ -77,8 +77,6 @@
 #endif
   </keyset>
 
-  <dummy class="usesMailWidgets"/>
-
     <vbox id="searchTerms" flex="3" persist="height">
       <vbox>
         <hbox align="center">

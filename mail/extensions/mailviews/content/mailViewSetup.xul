@@ -35,8 +35,6 @@
   <script type="application/javascript" src="chrome://messenger/content/searchTerm.js"/>
   <script type="application/javascript" src="chrome://messenger/content/dateFormat.js"/>
 
-  <dummy class="usesMailWidgets"/>
-
   <vbox flex="1">
     <separator class="thin"/>
     <vbox>

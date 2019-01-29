@@ -29,7 +29,6 @@
   onunload="filterEditorOnUnload();"
   ondialogaccept="return onAccept();">
 
-  <dummy class="usesMailWidgets"/>
   <stringbundleset id="stringbundleset">
     <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
     <stringbundle id="bundle_filter" src="chrome://messenger/locale/filter.properties"/>
