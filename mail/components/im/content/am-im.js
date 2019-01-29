@@ -5,7 +5,7 @@
 // chat/content/imAccountOptionsHelper.js
 /* globals accountOptionsHelper */
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var autoJoinPref = "autoJoin";
 

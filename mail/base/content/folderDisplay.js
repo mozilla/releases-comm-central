@@ -6,10 +6,10 @@
 /* import-globals-from mailWindow.js */
 /* import-globals-from ../../extensions/mailviews/content/msgViewPickerOverlay.js */
 
-ChromeUtils.import("resource:///modules/DBViewWrapper.jsm");
-var { JSTreeSelection } = ChromeUtils.import("resource:///modules/jsTreeSelection.js", null);
-ChromeUtils.import("resource:///modules/MailUtils.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {DBViewWrapper} = ChromeUtils.import("resource:///modules/DBViewWrapper.jsm");
+var { JSTreeSelection } = ChromeUtils.import("resource:///modules/jsTreeSelection.js");
+const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gFolderDisplay = null;
 var gMessageDisplay = null;

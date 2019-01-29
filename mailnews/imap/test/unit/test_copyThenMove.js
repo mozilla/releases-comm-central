@@ -8,7 +8,7 @@ load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/messageGenerator.js");
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var gEmptyLocal1, gEmptyLocal2;
 var gLastKey;
@@ -16,7 +16,7 @@ var gMessages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
 var gCopyService = MailServices.copy;
 
 ChromeUtils.import("resource:///modules/folderUtils.jsm");
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+const {toXPCOMArray} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
 var tests = [
   setup,

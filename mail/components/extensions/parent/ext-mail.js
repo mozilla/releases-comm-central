@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.defineModuleGetter(this, "MailServices", "resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 XPCOMUtils.defineLazyServiceGetter(
   this, "uuidGenerator", "@mozilla.org/uuid-generator;1", "nsIUUIDGenerator"
 );

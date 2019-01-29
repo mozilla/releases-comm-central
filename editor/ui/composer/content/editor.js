@@ -5,7 +5,7 @@
 
 ChromeUtils.import("resource:///modules/editorUtilities.jsm");
 ChromeUtils.import("resource://services-common/async.js");
-ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 /* Main Composer window UI control */
 

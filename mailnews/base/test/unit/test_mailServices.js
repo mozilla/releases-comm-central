@@ -6,7 +6,7 @@
  * Tests for the MailServices module.
  */
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 function check_service(aService, aInterface) {
   Assert.ok(aService in MailServices);
@@ -32,7 +32,7 @@ function check_services() {
 }
 
 function check_shim() {
-  let { MailServices: oldMailServices } = ChromeUtils.import("resource:///modules/mailServices.js", null);
+  let { MailServices: oldMailServices } = ChromeUtils.import("resource:///modules/mailServices.js");
   Assert.equal(oldMailServices, MailServices);
 }
 

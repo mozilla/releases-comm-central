@@ -3,13 +3,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
-ChromeUtils.import("resource:///modules/folderUtils.jsm");
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {allAccountsSorted} = ChromeUtils.import("resource:///modules/folderUtils.jsm");
+const {fixIterator, toArray} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 /**
  * interfaces

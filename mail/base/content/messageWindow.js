@@ -23,11 +23,11 @@
 /* import-globals-from phishingDetector.js */
 /* import-globals-from toolbarIconColor.js */
 
-ChromeUtils.import("resource:///modules/MailUtils.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource:///modules/MsgHdrSyntheticView.jsm");
+const {MsgHdrSyntheticView} = ChromeUtils.import("resource:///modules/MsgHdrSyntheticView.jsm");
 
 // from MailNewsTypes.h
 var nsMsgKey_None = 0xFFFFFFFF;

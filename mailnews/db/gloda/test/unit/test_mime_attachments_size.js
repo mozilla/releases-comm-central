@@ -26,7 +26,7 @@ var msgGen = gMessageGenerator = new MessageGenerator();
 // Create a message scenario generator using that message generator
 var scenarios = gMessageScenarioFactory = new MessageScenarioFactory(msgGen);
 
-ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
+const {MsgHdrToMimeMessage} = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
 
 var htmlText = "<html><head></head><body>I am HTML! Woo! </body></html>";
 

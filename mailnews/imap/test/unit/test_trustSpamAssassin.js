@@ -18,7 +18,7 @@ load("../../../resources/asyncTestUtils.js");
 // IMAP pump
 
 // Globals
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var gMessage = "SpamAssassinYes"; // message file used as the test message
 

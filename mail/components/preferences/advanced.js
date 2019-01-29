@@ -8,12 +8,12 @@
 /* import-globals-from subdialogs.js */
 
 // Load DownloadUtils module for convertByteUnits
-ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
+const {DownloadUtils} = ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/L10nRegistry.jsm");
-ChromeUtils.import("resource://gre/modules/Localization.jsm");
+const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {L10nRegistry} = ChromeUtils.import("resource://gre/modules/L10nRegistry.jsm");
+const {Localization} = ChromeUtils.import("resource://gre/modules/Localization.jsm");
 ChromeUtils.defineModuleGetter(this, "UpdateUtils",
   "resource://gre/modules/UpdateUtils.jsm");
 
@@ -65,7 +65,7 @@ var gAdvancedPane = {
     // Search integration -- check whether we should hide or disable integration
     let hideSearchUI = false;
     let disableSearchUI = false;
-    ChromeUtils.import("resource:///modules/SearchIntegration.jsm");
+    const {SearchIntegration} = ChromeUtils.import("resource:///modules/SearchIntegration.jsm");
     if (SearchIntegration) {
       if (SearchIntegration.osVersionTooLow)
         hideSearchUI = true;

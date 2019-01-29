@@ -6,21 +6,21 @@ this.EXPORTED_SYMBOLS = [];
 
 var CC = Components.Constructor;
 
-const { Gloda } = ChromeUtils.import("resource:///modules/gloda/public.js", null);
-const { GlodaAccount } = ChromeUtils.import("resource:///modules/gloda/datamodel.js", null);
+const { Gloda } = ChromeUtils.import("resource:///modules/gloda/public.js");
+const { GlodaAccount } = ChromeUtils.import("resource:///modules/gloda/datamodel.js");
 const {
   GlodaIndexer,
   IndexingJob,
-} = ChromeUtils.import("resource:///modules/gloda/indexer.js", null);
-const { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm", null);
-const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm", null);
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+} = ChromeUtils.import("resource:///modules/gloda/indexer.js");
+const { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
+const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 const {
   clearTimeout,
   setTimeout,
-} = ChromeUtils.import("resource://gre/modules/Timer.jsm", null);
+} = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 
 ChromeUtils.defineModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
 ChromeUtils.defineModuleGetter(this, "AsyncShutdown",

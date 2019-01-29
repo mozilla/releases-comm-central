@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {encodeABTermValue, getModelQuery} = ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 const nsIAbListener = Ci.nsIAbListener;
 const kPrefMailAddrBookLastNameFirst = "mail.addr_book.lastnamefirst";

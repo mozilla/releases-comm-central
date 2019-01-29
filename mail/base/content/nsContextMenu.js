@@ -9,11 +9,11 @@
 /* import-globals-from messageDisplay.js */
 /* import-globals-from utilityOverlay.js */
 
-ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
-ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {InlineSpellChecker, SpellCheckHelper} = ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
+var {PlacesUtils} = ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "PageMenuParent", function() {

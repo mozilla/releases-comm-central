@@ -4,8 +4,8 @@
 
 "use strict";
 
-ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");
-ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
+var {ExtensionParent} = ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");
+var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
 
 // eslint-disable-next-line mozilla/reject-importGlobalProperties
 Cu.importGlobalProperties(["File", "FileReader"]);

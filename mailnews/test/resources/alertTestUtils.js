@@ -31,7 +31,7 @@
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 const {MockRegistrar} =
-  ChromeUtils.import("resource://testing-common/MockRegistrar.jsm", {});
+  ChromeUtils.import("resource://testing-common/MockRegistrar.jsm");
 
 // Wrapper to the nsIPrompt interface.
 // This allows the send code to attempt to display errors to the user without

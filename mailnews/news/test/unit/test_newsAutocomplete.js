@@ -6,7 +6,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 function acObserver() {}
 

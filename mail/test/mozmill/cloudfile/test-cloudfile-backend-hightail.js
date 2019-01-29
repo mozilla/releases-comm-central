@@ -19,7 +19,7 @@ var MODULE_REQUIRES = ['folder-display-helpers',
                          'observer-helpers',
                          'prompt-helpers',];
 
-ChromeUtils.import('resource://gre/modules/Services.jsm');
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gServer, gObsManager;
 

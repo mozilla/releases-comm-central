@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://services-sync/main.js");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+const {Weave} = ChromeUtils.import("resource://services-sync/main.js");
+const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 const PIN_PART_LENGTH = 4;
 

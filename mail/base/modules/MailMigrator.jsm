@@ -11,8 +11,8 @@
 
 var EXPORTED_SYMBOLS = ["MailMigrator"];
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/IOUtils.js");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
 
 var MailMigrator = {
   /**
@@ -261,7 +261,7 @@ var MailMigrator = {
 
       // Changed notification sound behaviour on OS X.
       if (currentUIVersion < 15) {
-        ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+        var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
         if (AppConstants.platform == "macosx") {
           // For people updating from versions < 52 who had "Play system sound"
           // selected for notifications. As TB no longer plays system sounds,

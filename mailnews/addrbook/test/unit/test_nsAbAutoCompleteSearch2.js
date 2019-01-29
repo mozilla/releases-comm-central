@@ -10,7 +10,7 @@
 
 var {
   getModelQuery,
-} = ChromeUtils.import("resource:///modules/ABQueryUtils.jsm", null);
+} = ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
 
 // taken from nsAbAutoCompleteSearch.js
 var ACR = Ci.nsIAutoCompleteResult;

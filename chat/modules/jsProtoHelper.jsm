@@ -15,8 +15,8 @@ this.EXPORTED_SYMBOLS = [
   "TooltipInfo"
 ];
 
-ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-ChromeUtils.import("resource:///modules/imServices.jsm");
+const {EmptyEnumerator, XPCOMUtils} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/conversations.properties")

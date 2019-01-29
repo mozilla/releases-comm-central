@@ -4,7 +4,7 @@
 
 "use strict";
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 function DevToolsStartup() {}
 
@@ -24,7 +24,7 @@ DevToolsStartup.prototype = {
   },
 
   handleDevToolsFlag(cmdLine) {
-    ChromeUtils.import("resource://devtools/client/framework/ToolboxProcess.jsm");
+    const {BrowserToolboxProcess} = ChromeUtils.import("resource://devtools/client/framework/ToolboxProcess.jsm");
     BrowserToolboxProcess.init();
 
     if (cmdLine.state == Ci.nsICommandLine.STATE_REMOTE_AUTO) {
@@ -33,7 +33,7 @@ DevToolsStartup.prototype = {
   },
 
   initialize() {
-    let { devtools, require, DevToolsLoader } = ChromeUtils.import("resource://devtools/shared/Loader.jsm", null);
+    let { devtools, require, DevToolsLoader } = ChromeUtils.import("resource://devtools/shared/Loader.jsm");
     let { DebuggerServer } = require("devtools/server/main");
     let { gDevTools } = require("devtools/client/framework/devtools");
 

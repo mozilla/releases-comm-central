@@ -8,7 +8,7 @@
  *  for now.
  */
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 function registerFolderEventLogHelper() {
   // Bail if there's no one on the other end who cares about our very

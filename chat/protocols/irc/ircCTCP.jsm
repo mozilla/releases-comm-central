@@ -10,9 +10,9 @@
 
 this.EXPORTED_SYMBOLS = ["ircCTCP", "ctcpBase"];
 
-ChromeUtils.import("resource:///modules/imServices.jsm");
+const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
 ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-ChromeUtils.import("resource:///modules/ircHandlers.jsm");
+const {ircHandlers} = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
 ChromeUtils.import("resource:///modules/ircUtils.jsm");
 
 // Split into a CTCP message which is a single command and a single parameter:

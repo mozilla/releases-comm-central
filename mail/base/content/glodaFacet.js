@@ -5,7 +5,7 @@
 /* global HTMLElement, DateFacetVis, FacetContext, glodaFacetStrings, FacetUtils, PluralForm */
 /* global logException, Gloda */
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 class MozFacetDate extends HTMLElement {
   get build() {
@@ -1304,7 +1304,7 @@ class MozFacetResultMessage extends HTMLElement {
     // this.author.textContent = ;
     let {
       makeFriendlyDateAgo,
-    } = ChromeUtils.import("resource:///modules/templateUtils.js", null);
+    } = ChromeUtils.import("resource:///modules/templateUtils.js");
     this.date.textContent = makeFriendlyDateAgo(message.date);
 
     // - Recipients

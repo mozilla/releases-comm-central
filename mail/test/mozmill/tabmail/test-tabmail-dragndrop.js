@@ -6,7 +6,7 @@
 
 var elib = {};
 ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /*
  * Test rearanging tabs via drag'n'drop.

@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource:///modules/activity/alertHook.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource://testing-common/mailnews/MockFactory.js");
+const {alertHook} = ChromeUtils.import("resource:///modules/activity/alertHook.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MockFactory} = ChromeUtils.import("resource://testing-common/mailnews/MockFactory.js");
 alertHook.init();
 
 // Replace the alerts service with our own. This will let us check if we're

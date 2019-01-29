@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // this dialog can only be opened if we have a shell service
-ChromeUtils.import("resource:///modules/ShellService.jsm");
+const {ShellService} = ChromeUtils.import("resource:///modules/ShellService.jsm");
 const nsIPrefBranch = Ci.nsIPrefBranch;
 
 function onLoad()

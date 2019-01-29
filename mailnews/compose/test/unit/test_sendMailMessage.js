@@ -6,7 +6,7 @@
  * between mailnews and SMTP server. It does not check the data of the message
  * either side of the link, it will be extended later to do that.
  */
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var test = null;
 var server;

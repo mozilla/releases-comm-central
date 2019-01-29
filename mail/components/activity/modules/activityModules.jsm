@@ -8,15 +8,15 @@
 
 this.EXPORTED_SYMBOLS = [];
 
-const { sendLaterModule } = ChromeUtils.import("resource:///modules/activity/sendLater.jsm", null);
+const { sendLaterModule } = ChromeUtils.import("resource:///modules/activity/sendLater.jsm");
 sendLaterModule.init();
-const { moveCopyModule } = ChromeUtils.import("resource:///modules/activity/moveCopy.jsm", null);
+const { moveCopyModule } = ChromeUtils.import("resource:///modules/activity/moveCopy.jsm");
 moveCopyModule.init();
-const { glodaIndexerActivity } = ChromeUtils.import("resource:///modules/activity/glodaIndexer.jsm", null);
+const { glodaIndexerActivity } = ChromeUtils.import("resource:///modules/activity/glodaIndexer.jsm");
 glodaIndexerActivity.init();
-const { autosyncModule } = ChromeUtils.import("resource:///modules/activity/autosync.jsm", null);
+const { autosyncModule } = ChromeUtils.import("resource:///modules/activity/autosync.jsm");
 autosyncModule.init();
-ChromeUtils.import("resource:///modules/activity/alertHook.jsm");
+const {alertHook} = ChromeUtils.import("resource:///modules/activity/alertHook.jsm");
 alertHook.init();
-const { pop3DownloadModule } = ChromeUtils.import("resource:///modules/activity/pop3Download.jsm", null);
+const { pop3DownloadModule } = ChromeUtils.import("resource:///modules/activity/pop3Download.jsm");
 pop3DownloadModule.init();

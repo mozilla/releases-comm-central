@@ -5,7 +5,7 @@
 // This tests that the charset decoding uses nsICharsetDecoder instead of
 // TextDecoder, to get some extra charsets.
 
-ChromeUtils.import("resource:///modules/jsmime.jsm");
+const {jsmime} = ChromeUtils.import("resource:///modules/jsmime.jsm");
 
 var tests = [
   ["=?UTF-7?Q?+AKM-1?=", "\u00A31"],

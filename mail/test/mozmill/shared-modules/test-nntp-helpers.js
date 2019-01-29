@@ -9,8 +9,8 @@ var MODULE_NAME = "nntp-helpers";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULES_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var kSimpleNewsArticle =
   "From: John Doe <john.doe@example.com>\n"+

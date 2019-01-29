@@ -19,11 +19,11 @@ const SETUP_SUCCESS_PAGE            = 8;
 // See discussion in Bugs 508112 and 653307.
 const RECAPTCHA_DOMAIN = "https://www.google.com";
 
-ChromeUtils.import("resource://services-sync/main.js");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
-ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+const {Weave} = ChromeUtils.import("resource://services-sync/main.js");
+const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {PlacesUtils} = ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
+const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 
 var gSyncSetup = {
   QueryInterface: XPCOMUtils.generateQI([Ci.nsIWebProgressListener,

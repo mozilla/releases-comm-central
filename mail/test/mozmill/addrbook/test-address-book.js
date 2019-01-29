@@ -16,7 +16,7 @@ var MODULE_REQUIRES = ["folder-display-helpers", "address-book-helpers",
                        'prompt-helpers'];
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var abController = null;

@@ -12,7 +12,7 @@
 
 this.EXPORTED_SYMBOLS = ["XMPPAuthMechanisms"];
 
-ChromeUtils.import("resource://services-crypto/utils.js");
+const {CryptoUtils, btoa} = ChromeUtils.import("resource://services-crypto/utils.js");
 ChromeUtils.import("resource:///modules/xmpp-xml.jsm");
 
 // Handle PLAIN authorization mechanism.

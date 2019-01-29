@@ -3,29 +3,29 @@
 if (typeof gDEPTH == "undefined")
   var gDEPTH = "../../../../";
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource://testing-common/mailnews/mailTestUtils.js");
-ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
-ChromeUtils.import("resource://testing-common/mailnews/IMAPpump.js");
-ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {mailTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/mailTestUtils.js");
+var {localAccountUtils} = ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
+var {IMAPpump} = ChromeUtils.import("resource://testing-common/mailnews/IMAPpump.js");
+var {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
 var CC = Components.Constructor;
 
 // WebApps.jsm called by ProxyAutoConfig (PAC) requires a valid nsIXULAppInfo.
-ChromeUtils.import("resource://testing-common/AppInfo.jsm");
+var {getAppInfo, newAppInfo, updateAppInfo} = ChromeUtils.import("resource://testing-common/AppInfo.jsm");
 updateAppInfo();
 
 // Ensure the profile directory is set up
 do_get_profile();
 
 // Import fakeserver
-ChromeUtils.import("resource://testing-common/mailnews/maild.js");
+var {maild} = ChromeUtils.import("resource://testing-common/mailnews/maild.js");
 var imapd = {};
 ChromeUtils.import("resource://testing-common/mailnews/imapd.js", imapd);
 var { imapDaemon, imapMessage } = imapd;
-ChromeUtils.import("resource://testing-common/mailnews/auth.js");
+var {auth} = ChromeUtils.import("resource://testing-common/mailnews/auth.js");
 
 function makeServer(daemon, infoString, otherProps) {
   if (infoString in imapd.configurations)

@@ -16,7 +16,7 @@
  * Original Author: Atul Jangra<atuljangra66@gmail.com>
  */
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 load("../../../resources/logHelper.js");

@@ -49,7 +49,7 @@ var hwindow = Cc["@mozilla.org/appshell/appShellService;1"]
     .getService(Ci.nsIAppShellService)
     .hiddenDOMWindow;
 
-var json2 = ChromeUtils.import("chrome://jsbridge/content/modules/json2.js");
+var json2 = ChromeUtils.import("chrome://jsbridge/content/modules/json2.js", null);
 
 var jsonEncode = json2.JSON.stringify;
 

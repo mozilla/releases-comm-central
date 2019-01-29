@@ -16,7 +16,7 @@ load("../../../resources/messageGenerator.js");
 // IMAP pump
 
 // Globals
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 setupIMAPPump();
 

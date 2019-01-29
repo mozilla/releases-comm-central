@@ -33,8 +33,8 @@
 const EXPORTED_SYMBOLS = ["JSAccountUtils"];
 var JSAccountUtils = {};
 
-ChromeUtils.import("resource://gre/modules/Log.jsm");
-ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+const {Log} = ChromeUtils.import("resource://gre/modules/Log.jsm");
+const {Preferences} = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 // Logger definitions.

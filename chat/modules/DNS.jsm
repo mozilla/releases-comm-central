@@ -6,9 +6,9 @@
 // loading system DNS libraries on Linux, Mac and Windows.
 
 if (typeof Components !== "undefined") {
-  ChromeUtils.import("resource://gre/modules/ctypes.jsm");
-  ChromeUtils.import("resource://gre/modules/Services.jsm");
-  ChromeUtils.import('resource://gre/modules/PromiseWorker.jsm');
+  var {ctypes} = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
+  var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+  var {BasePromiseWorker} = ChromeUtils.import("resource://gre/modules/PromiseWorker.jsm");
 }
 
 var LOCATION = "resource:///modules/DNS.jsm";

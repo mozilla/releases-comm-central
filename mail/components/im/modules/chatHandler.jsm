@@ -4,9 +4,9 @@
 
 this.EXPORTED_SYMBOLS = ["allContacts", "onlineContacts", "ChatCore"];
 
-const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm", null);
-const { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm", null);
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+const { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var allContacts = {};
 var onlineContacts = {};

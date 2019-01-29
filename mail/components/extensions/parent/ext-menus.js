@@ -2,15 +2,15 @@
 /* vim: set sts=2 sw=2 et tw=80: */
 "use strict";
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 var {
   DefaultMap,
   ExtensionError,
 } = ExtensionUtils;
 
-ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");
+var {ExtensionParent} = ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");
 
 var {
   IconDetails,

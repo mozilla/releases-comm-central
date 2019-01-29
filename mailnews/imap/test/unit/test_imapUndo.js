@@ -10,7 +10,7 @@
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var gRootFolder;
 var gLastKey;

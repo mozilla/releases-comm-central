@@ -11,7 +11,7 @@
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gServer, gIMAPIncomingServer, gIMAPDaemon;
 

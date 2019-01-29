@@ -8,8 +8,8 @@
  * Command-specific code. This stuff should be called by the widgets
  */
 
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 //NOTE: gMessengerBundle and gBrandBundle must be defined and set
 //      for this Overlay to work properly

@@ -3,9 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {MsgHdrToMimeMessage} = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // This global is for SeaMonkey compatibility.
 var gShowFeedSummary;

@@ -10,12 +10,12 @@
 /* import-globals-from messageDisplay.js */
 /* import-globals-from msgMail3PaneWindow.js */
 
-ChromeUtils.import("resource:///modules/MsgHdrSyntheticView.jsm");
-var { logException } = ChromeUtils.import("resource:///modules/errUtils.js", null);
-ChromeUtils.import("resource:///modules/MailUtils.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { getSpecialFolderString } = ChromeUtils.import("resource:///modules/folderUtils.jsm", null);
-var { MsgHdrToMimeMessage } = ChromeUtils.import("resource:///modules/gloda/mimemsg.js", null);
+const {MsgHdrSyntheticView} = ChromeUtils.import("resource:///modules/MsgHdrSyntheticView.jsm");
+var { logException } = ChromeUtils.import("resource:///modules/errUtils.js");
+const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { getSpecialFolderString } = ChromeUtils.import("resource:///modules/folderUtils.jsm");
+var { MsgHdrToMimeMessage } = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
 
 /**
  * Displays message "folder"s, mail "message"s, and "glodaList" results.  The

@@ -11,7 +11,7 @@
  */
 load("../../../resources/searchTestUtils.js");
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var nsMsgSearchScope = Ci.nsMsgSearchScope;
 var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;

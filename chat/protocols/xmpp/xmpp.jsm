@@ -9,11 +9,11 @@ this.EXPORTED_SYMBOLS = [
   "XMPPAccountPrototype"
 ];
 
-ChromeUtils.import("resource:///modules/imServices.jsm");
-ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
-ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
+const {Status} = ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
+const {EmptyEnumerator, XPCOMUtils} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
-ChromeUtils.import("resource:///modules/NormalizedMap.jsm");
+const {NormalizedMap} = ChromeUtils.import("resource:///modules/NormalizedMap.jsm");
 ChromeUtils.import("resource:///modules/socket.jsm");
 ChromeUtils.import("resource:///modules/xmpp-xml.jsm");
 ChromeUtils.import("resource:///modules/xmpp-session.jsm");

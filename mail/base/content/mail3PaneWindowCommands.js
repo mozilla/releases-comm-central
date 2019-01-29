@@ -15,10 +15,10 @@
 /* import-globals-from threadPane.js */
 /* import-globals-from utilityOverlay.js */
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource:///modules/MailUtils.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 
 // Controller object for folder pane
 var FolderPaneController = {

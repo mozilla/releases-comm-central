@@ -54,7 +54,7 @@
 
   <script type="application/javascript">
   <![CDATA[
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function test()
 {

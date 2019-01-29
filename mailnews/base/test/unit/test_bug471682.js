@@ -8,7 +8,7 @@
  * then compare the date and filesize of the folder file with the
  * stored result in dbfolderinfo. If they don't match, that's bad.
  */
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var bugmail1 = do_get_file("../../../data/bugmail1");
 var gHdr; // header of test message in local folder

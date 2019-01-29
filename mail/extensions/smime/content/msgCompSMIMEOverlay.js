@@ -7,8 +7,8 @@
 /* import-globals-from ../../../components/compose/content/MsgComposeCommands.js */
 /* import-globals-from ../../../components/compose/content/addressingWidgetOverlay.js */
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 // Account encryption policy values:
 // const kEncryptionPolicy_Never = 0;

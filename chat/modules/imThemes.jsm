@@ -14,9 +14,9 @@ this.EXPORTED_SYMBOLS = [
   "serializeSelection"
 ];
 
-ChromeUtils.import("resource:///modules/imServices.jsm");
-ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
+const {DownloadUtils} = ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
+const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.importGlobalProperties(["DOMParser", "Element"]);
 
 var kMessagesStylePrefBranch = "messenger.options.messagesStyle.";

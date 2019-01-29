@@ -9,7 +9,7 @@
 
 this.EXPORTED_SYMBOLS = ["GlodaSyntheticView"];
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
 ChromeUtils.import("resource:///modules/gloda/public.js");

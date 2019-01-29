@@ -4,7 +4,7 @@
  * it drop the connection when it's attempted.
  */
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 load("../../../resources/logHelper.js");

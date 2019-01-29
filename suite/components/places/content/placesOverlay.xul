@@ -16,7 +16,7 @@
   <script type="application/javascript"
           src="chrome://global/content/globalOverlay.js"/>
   <script type="application/javascript"><![CDATA[
-    ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+    const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
     ChromeUtils.defineModuleGetter(window,
       "PlacesUtils", "resource://gre/modules/PlacesUtils.jsm");
     ChromeUtils.defineModuleGetter(window,

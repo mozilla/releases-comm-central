@@ -5,7 +5,7 @@
 // service class to manipulate the junk training.dat file
 //  code is adapted from Mnehy Thunderbird Extension
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function TrainingData() {
 

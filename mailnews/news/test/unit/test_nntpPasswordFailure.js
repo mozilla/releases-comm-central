@@ -9,7 +9,7 @@
  *     we get a new password prompt and can enter the password.
  */
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 /* import-globals-from ../../../test/resources/logHelper.js */
 /* import-globals-from ../../../test/resources/asyncTestUtils.js */
 /* import-globals-from ../../../test/resources/alertTestUtils.js */

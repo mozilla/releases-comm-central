@@ -7,7 +7,7 @@
 const EXPORTED_SYMBOLS = ["JaBaseUrlProperties", "JaBaseUrl"];
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource:///modules/jsaccount/JSAccountUtils.jsm");
+const {JSAccountUtils} = ChromeUtils.import("resource:///modules/jsaccount/JSAccountUtils.jsm");
 
 // A partial JavaScript implementation of the base server methods.
 

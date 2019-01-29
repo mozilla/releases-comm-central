@@ -5,8 +5,8 @@
 
 var EXPORTED_SYMBOLS = ["Sanitizer"];
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   AppConstants: "resource://gre/modules/AppConstants.jsm",
@@ -185,7 +185,7 @@ var Sanitizer = {
 
     history: {
       clear: function() {
-        ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
+        const {PlacesUtils} = ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
 
         // use try/catch for everything but the last task so we clear as much as possible
         try {

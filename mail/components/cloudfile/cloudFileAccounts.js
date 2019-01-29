@@ -13,10 +13,10 @@ var ACCOUNT_ROOT = PREF_ROOT + "accounts.";
 var PWDMGR_HOST = "chrome://messenger/cloudfile";
 var PWDMGR_REALM = "BigFiles Auth Token";
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-const { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm", null);
-ChromeUtils.import("resource://gre/modules/EventEmitter.jsm");
+const { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+const {EventEmitter} = ChromeUtils.import("resource://gre/modules/EventEmitter.jsm");
 
 var cloudFileAccounts = new class extends EventEmitter {
   constructor() {

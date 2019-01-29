@@ -8,9 +8,9 @@
 
 this.EXPORTED_SYMBOLS = ['VirtualFolderHelper'];
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource:///modules/MailUtils.jsm");
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+const {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
 var VirtualFolderHelper = {
   /**

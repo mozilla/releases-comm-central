@@ -8,8 +8,8 @@
 /* import-globals-from ../../../mail/components/compose/content/addressingWidgetOverlay.js */
 /* import-globals-from abResultsPane.js */
 
-ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 // Returns the load context for the current window
 function getLoadContext() {

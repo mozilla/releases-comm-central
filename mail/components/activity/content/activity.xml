@@ -107,7 +107,7 @@
         /* globals activityManager */
         ChromeUtils.import("resource:///modules/templateUtils.js", this);
         try {
-          const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js", null);
+          const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
           // fetch the activity and set the base attributes
           let actID = this.getAttribute("actID");
@@ -228,7 +228,7 @@
         <parameter name="time"/>
         <body>
           <![CDATA[
-            ChromeUtils.import("resource://gre/modules/Services.jsm");
+            const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
             const dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
               dateStyle: "long", timeStyle: "short",
             });

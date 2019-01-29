@@ -18,7 +18,7 @@ var MODULE_REQUIRES = ["folder-display-helpers",
                        "cloudfile-helpers",
                        "window-helpers"];
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var kTestAccountType = "mock";
 var kRootURL = collector.addHttpResource("../cloudfile/html", "");

@@ -22,7 +22,7 @@ ChromeUtils.defineModuleGetter(this, "Services", "resource://gre/modules/Service
  *                   and nsDragAndDrop wrappers for more convenience
  **/
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var nsTransferable = {
   /**

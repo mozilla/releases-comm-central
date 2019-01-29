@@ -4,10 +4,10 @@
 
 var EXPORTED_SYMBOLS = ["convertMailStoreTo", "terminateWorkers"];
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
-ChromeUtils.import("resource://gre/modules/osfile.jsm");
-ChromeUtils.import("resource://gre/modules/Log.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
+const {OS} = ChromeUtils.import("resource://gre/modules/osfile.jsm");
+const {Log} = ChromeUtils.import("resource://gre/modules/Log.jsm");
 
 let log = Log.repository.getLogger("MailStoreConverter");
 log.level = Log.Level.Debug;

@@ -1998,7 +1998,7 @@
     <implementation implements="nsITimerCallback">
       <constructor>
         <![CDATA[
-          ChromeUtils.import("resource://gre/modules/Services.jsm");
+          const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
           this.mTabMinWidth = Services.prefs.getIntPref("mail.tabs.tabMinWidth");
           this.mTabMaxWidth = Services.prefs.getIntPref("mail.tabs.tabMaxWidth");
@@ -2029,7 +2029,7 @@
 
       <destructor>
         <![CDATA[
-          ChromeUtils.import("resource://gre/modules/Services.jsm");
+          const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
           Services.prefs.removeObserver("mail.tabs.", this._prefObserver);
 

@@ -7,7 +7,7 @@
 
 ChromeUtils.import("resource:///modules/folderUtils.jsm");
 ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var nsMsgSearchScope = Ci.nsMsgSearchScope;
 var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;

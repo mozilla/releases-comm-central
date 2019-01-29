@@ -8,7 +8,7 @@
 
 load("resources/trainingfile.js");
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 // before shrink, the trained messages have 76 tokens. Force shrink.
 Services.prefs.setIntPref("mailnews.bayesian_spam_filter.junk_maxtokens", 75);

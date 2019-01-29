@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://services-sync/main.js");
+const {Weave} = ChromeUtils.import("resource://services-sync/main.js");
 
 const PAGE_NO_ACCOUNT = 0;
 const PAGE_HAS_ACCOUNT = 1;

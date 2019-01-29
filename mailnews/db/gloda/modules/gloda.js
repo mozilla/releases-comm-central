@@ -4,20 +4,20 @@
 
 this.EXPORTED_SYMBOLS = ['Gloda'];
 
-ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
 ChromeUtils.import("resource:///modules/gloda/datastore.js");
-ChromeUtils.import("resource:///modules/gloda/datamodel.js");
+const {GlodaAccount} = ChromeUtils.import("resource:///modules/gloda/datamodel.js");
 ChromeUtils.import("resource:///modules/gloda/databind.js");
-ChromeUtils.import("resource:///modules/gloda/collection.js");
+const {collection} = ChromeUtils.import("resource:///modules/gloda/collection.js");
 ChromeUtils.import("resource:///modules/gloda/connotent.js");
-ChromeUtils.import("resource:///modules/gloda/query.js");
-ChromeUtils.import("resource:///modules/gloda/utils.js");
+const {query} = ChromeUtils.import("resource:///modules/gloda/query.js");
+const {GlodaUtils} = ChromeUtils.import("resource:///modules/gloda/utils.js");
 
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-ChromeUtils.import("resource:///modules/IOUtils.js");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+const {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * @see |Gloda.BadItemContentsError|

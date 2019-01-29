@@ -4,7 +4,7 @@
 
 this.EXPORTED_SYMBOLS = ["Status"];
 
-ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+const {XPCOMUtils} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 ChromeUtils.import("resource:///modules/imServices.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>

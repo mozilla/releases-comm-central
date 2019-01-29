@@ -14,13 +14,13 @@
 /* import-globals-from msgMail3PaneWindow.js */
 /* import-globals-from utilityOverlay.js */
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource:///modules/appIdleManager.js");
-ChromeUtils.import("resource:///modules/MailUtils.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {appIdleManager} = ChromeUtils.import("resource:///modules/appIdleManager.js");
+const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js", null);
-var { Gloda } = ChromeUtils.import("resource:///modules/gloda/public.js", null);
+var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var { Gloda } = ChromeUtils.import("resource:///modules/gloda/public.js");
 
 // This file stores variables common to mail windows
 var messenger;

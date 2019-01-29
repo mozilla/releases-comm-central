@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-ChromeUtils.import("resource:///modules/imServices.jsm");
+const {EmptyEnumerator, XPCOMUtils} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
 ChromeUtils.import("resource:///modules/ircUtils.jsm");
-ChromeUtils.import("resource:///modules/ircHandlers.jsm");
+const {ircHandlers} = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
 ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
-ChromeUtils.import("resource:///modules/NormalizedMap.jsm");
+const {NormalizedMap} = ChromeUtils.import("resource:///modules/NormalizedMap.jsm");
 ChromeUtils.import("resource:///modules/socket.jsm");
 
 ChromeUtils.defineModuleGetter(this, "PluralForm",

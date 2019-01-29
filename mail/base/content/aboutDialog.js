@@ -7,8 +7,8 @@
 "use strict";
 
 // Services = object with smart getters for common XPCOM services
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 function init(aEvent) {
   if (aEvent.target != document)

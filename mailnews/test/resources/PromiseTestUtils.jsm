@@ -12,7 +12,7 @@ this.EXPORTED_SYMBOLS = ['PromiseTestUtils'];
 var CC = Components.Constructor;
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 /**
  * Url listener that can wrap another listener and trigger a callback.

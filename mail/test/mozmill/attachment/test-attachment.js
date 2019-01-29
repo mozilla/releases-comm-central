@@ -18,7 +18,7 @@ var elib = {};
 ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
 var EventUtils = {};
 ChromeUtils.import("chrome://mozmill/content/stdlib/EventUtils.js", EventUtils);
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var folder;
 var messages;

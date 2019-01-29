@@ -22,20 +22,20 @@
 /* import-globals-from toolbarIconColor.js */
 
 ChromeUtils.import("resource:///modules/activity/activityModules.jsm");
-var { logException } = ChromeUtils.import("resource:///modules/errUtils.js", null);
+var { logException } = ChromeUtils.import("resource:///modules/errUtils.js");
 ChromeUtils.import("resource:///modules/IOUtils.js");
-var { JSTreeSelection } = ChromeUtils.import("resource:///modules/jsTreeSelection.js", null);
-ChromeUtils.import("resource:///modules/MailConsts.jsm");
-ChromeUtils.import("resource:///modules/MailInstrumentation.jsm");
+var { JSTreeSelection } = ChromeUtils.import("resource:///modules/jsTreeSelection.js");
+const {MailConsts} = ChromeUtils.import("resource:///modules/MailConsts.jsm");
+const {MailInstrumentation} = ChromeUtils.import("resource:///modules/MailInstrumentation.jsm");
 ChromeUtils.import("resource:///modules/mailnewsMigrator.js");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource:///modules/msgDBCacheManager.js");
-ChromeUtils.import("resource:///modules/SessionStoreManager.jsm");
-ChromeUtils.import("resource:///modules/SummaryFrameManager.jsm");
-ChromeUtils.import("resource:///modules/MailUtils.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-ChromeUtils.import("resource://gre/modules/Color.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {msgDBCacheManager} = ChromeUtils.import("resource:///modules/msgDBCacheManager.js");
+const {SessionStoreManager} = ChromeUtils.import("resource:///modules/SessionStoreManager.jsm");
+const {SummaryFrameManager} = ChromeUtils.import("resource:///modules/SummaryFrameManager.jsm");
+const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+const {Color} = ChromeUtils.import("resource://gre/modules/Color.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   LightweightThemeManager: "resource://gre/modules/LightweightThemeManager.jsm",
@@ -542,7 +542,7 @@ function LoadPostAccountWizard() {
   MigrateJunkMailSettings();
   MigrateFolderViews();
   MigrateOpenMessageBehavior();
-  ChromeUtils.import("resource:///modules/MailMigrator.jsm");
+  const {MailMigrator} = ChromeUtils.import("resource:///modules/MailMigrator.jsm");
   MailMigrator.migratePostAccountWizard();
 
   accountManager.setSpecialFolders();
@@ -596,7 +596,7 @@ function LoadPostAccountWizard() {
 
       // Next, try loading the search integration module
       // We'll get a null SearchIntegration if we don't have one
-      ChromeUtils.import("resource:///modules/SearchIntegration.jsm");
+      var {SearchIntegration} = ChromeUtils.import("resource:///modules/SearchIntegration.jsm");
 
       // Show the default client dialog only if
       // EITHER: we have at least one account, and we aren't already the default

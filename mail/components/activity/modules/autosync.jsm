@@ -10,8 +10,8 @@ var nsActProcess = Components.Constructor("@mozilla.org/activity-process;1",
 var nsActEvent = Components.Constructor("@mozilla.org/activity-event;1",
                                           "nsIActivityEvent", "init");
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js", null);
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
 var nsIAutoSyncMgrListener = Ci.nsIAutoSyncMgrListener;
 

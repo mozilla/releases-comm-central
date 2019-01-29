@@ -8,7 +8,7 @@
 
 /* import-globals-from ../../../test/resources/POP3pump.js */
 load("../../../resources/POP3pump.js");
-ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
+const {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
 add_task(async function runPump() {
 

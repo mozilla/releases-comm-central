@@ -14,7 +14,7 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers",
                        "address-book-helpers" ];
 
-ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
+const {ExtensionSupport} = ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {

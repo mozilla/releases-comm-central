@@ -5,8 +5,8 @@
 /* import-globals-from ../../../mail/components/addrbook/content/abCommon.js */
 /* import-globals-from ../../../mail/components/compose/content/addressingWidgetOverlay.js */
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 top.MAX_RECIPIENTS = 1;
 var inputElementType = "";

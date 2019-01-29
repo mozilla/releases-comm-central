@@ -6,8 +6,8 @@
 /* import-globals-from emailWizard.js */
 
 ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/JXON.js");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {JXON} = ChromeUtils.import("resource:///modules/JXON.js");
 
 /**
  * Tries to find a configuration for this ISP on the local harddisk, in the

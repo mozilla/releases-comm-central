@@ -8,9 +8,9 @@
  *  or not.
  */
 
-ChromeUtils.import("resource:///modules/gloda/log4moz.js");
-ChromeUtils.import("resource:///modules/IOUtils.js");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 Cu.importGlobalProperties(["Element", "Node"]);
 
 var _mailnewsTestLogger;

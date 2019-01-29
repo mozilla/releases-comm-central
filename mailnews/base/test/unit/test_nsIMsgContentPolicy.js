@@ -3,7 +3,7 @@
  * Test suite for nsIMsgContentPolicy to check we could add/remove customized protocol to
  * nsMsgContentPolicy.
  */
-ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
+const {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 
 function makeURI(aURL) {
   var ioService = Cc["@mozilla.org/network/io-service;1"]

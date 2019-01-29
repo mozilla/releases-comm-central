@@ -28,7 +28,7 @@
                            "windows-1252", "windows-1255", "windows-1256",
                            "windows-1257", "windows-1258"];
 
-        ChromeUtils.import("resource://gre/modules/Services.jsm");
+        const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
         let charsetBundle = Services.strings.createBundle(
           "chrome://messenger/locale/charsetTitles.properties");

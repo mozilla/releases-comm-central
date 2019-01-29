@@ -5,8 +5,8 @@
 
 /* import-globals-from preferences.js */
 
-ChromeUtils.import("resource://gre/modules/Downloads.jsm");
-ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
+var {Downloads} = ChromeUtils.import("resource://gre/modules/Downloads.jsm");
+var {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 
 var gDownloadDirSection = {
   async chooseFolder() {

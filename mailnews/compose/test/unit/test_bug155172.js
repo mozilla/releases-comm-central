@@ -6,7 +6,7 @@
 load("../../../resources/alertTestUtils.js");
 load("../../../resources/passwordStorage.js");
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var gNewPassword = null;
 

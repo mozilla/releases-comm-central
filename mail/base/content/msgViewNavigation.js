@@ -10,8 +10,8 @@
 /* import-globals-from mailWindow.js */
 /* import-globals-from messageDisplay.js */
 
-var { allAccountsSorted } = ChromeUtils.import("resource:///modules/folderUtils.jsm", null);
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { allAccountsSorted } = ChromeUtils.import("resource:///modules/folderUtils.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function GetSubFoldersInFolderPaneOrder(folder) {
   var subFolders = folder.subFolders;

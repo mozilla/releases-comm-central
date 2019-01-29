@@ -4,9 +4,9 @@
 
 this.EXPORTED_SYMBOLS = ["SearchSpec"];
 
-const { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm", null);
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * Wrapper abstraction around a view's search session.  This is basically a

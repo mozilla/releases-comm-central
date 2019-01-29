@@ -17,7 +17,7 @@ load("../../../resources/messageGenerator.js");
 load("../../../resources/messageModifier.js");
 load("../../../resources/messageInjection.js");
 
-ChromeUtils.import("resource:///modules/jsTreeSelection.js");
+const {JSTreeSelection} = ChromeUtils.import("resource:///modules/jsTreeSelection.js");
 
 // Items used to add messages to the folder
 var gMessageGenerator = new MessageGenerator();

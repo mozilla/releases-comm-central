@@ -3,9 +3,9 @@
  * Most of this test was copied from test_messageHeaders.js.
  */
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource:///modules/mimeParser.jsm");
+const {MimeParser} = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 
 var CompFields = CC("@mozilla.org/messengercompose/composefields;1",
                     Ci.nsIMsgCompFields);

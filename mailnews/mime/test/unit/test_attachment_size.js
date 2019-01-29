@@ -14,7 +14,7 @@ load("../../../resources/messageModifier.js");
 load("../../../resources/messageInjection.js");
 
 // Somehow we hit the blocklist service, and that needs appInfo defined
-ChromeUtils.import("resource://testing-common/AppInfo.jsm");
+const {updateAppInfo} = ChromeUtils.import("resource://testing-common/AppInfo.jsm");
 updateAppInfo();
 
 var gMessenger = Cc["@mozilla.org/messenger;1"]

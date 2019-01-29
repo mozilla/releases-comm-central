@@ -2,7 +2,7 @@
  * Test nsMsgHdr's In-Reply-To/References parsing logic.
  */
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var anyOldMessage = do_get_file("../../../../data/bugmail1");
 

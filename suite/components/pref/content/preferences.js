@@ -6,7 +6,7 @@
 // The content of this file is loaded into the scope of the
 // prefwindow and will be available to all prefpanes!
 
-ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 function OnLoad()
 {

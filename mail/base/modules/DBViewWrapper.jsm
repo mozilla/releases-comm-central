@@ -4,15 +4,15 @@
 
 this.EXPORTED_SYMBOLS = ["DBViewWrapper", "IDBViewWrapperListener"];
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 const {
   MailViewConstants,
   MailViewManager,
-} = ChromeUtils.import("resource:///modules/MailViewManager.jsm", null);
-ChromeUtils.import("resource:///modules/SearchSpec.jsm");
+} = ChromeUtils.import("resource:///modules/MailViewManager.jsm");
+const {SearchSpec} = ChromeUtils.import("resource:///modules/SearchSpec.jsm");
 const {
   VirtualFolderHelper,
-} = ChromeUtils.import("resource:///modules/virtualFolderWrapper.js", null);
+} = ChromeUtils.import("resource:///modules/virtualFolderWrapper.js");
 
 var MSG_VIEW_FLAG_DUMMY = 0x20000000;
 

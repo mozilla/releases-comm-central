@@ -5,14 +5,14 @@
 
 "use strict";
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
-ChromeUtils.import("resource://gre/modules/LightweightThemeConsumer.jsm");
-ChromeUtils.import("resource:///modules/TBDistCustomizer.jsm");
-ChromeUtils.import("resource:///modules/MailMigrator.jsm");
-ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
-const { L10nRegistry, FileSource } = ChromeUtils.import("resource://gre/modules/L10nRegistry.jsm", null);
+const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {AddonManager} = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
+const {LightweightThemeConsumer} = ChromeUtils.import("resource://gre/modules/LightweightThemeConsumer.jsm");
+const {TBDistCustomizer} = ChromeUtils.import("resource:///modules/TBDistCustomizer.jsm");
+const {MailMigrator} = ChromeUtils.import("resource:///modules/MailMigrator.jsm");
+const {ExtensionSupport} = ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
+const { L10nRegistry, FileSource } = ChromeUtils.import("resource://gre/modules/L10nRegistry.jsm");
 
 // lazy module getters
 
@@ -105,7 +105,7 @@ MailGlue.prototype = {
   observe(aSubject, aTopic, aData) {
     switch (aTopic) {
     case "app-startup":
-      ChromeUtils.import("resource:///modules/BootstrapLoader.jsm");
+      const {BootstrapLoader} = ChromeUtils.import("resource:///modules/BootstrapLoader.jsm");
       AddonManager.addExternalExtensionLoader(BootstrapLoader);
       break;
     case "xpcom-shutdown":
@@ -217,11 +217,11 @@ MailGlue.prototype = {
     const WINTASKBAR_CONTRACTID = "@mozilla.org/windows-taskbar;1";
     if (WINTASKBAR_CONTRACTID in Cc &&
         Cc[WINTASKBAR_CONTRACTID].getService(Ci.nsIWinTaskbar).available) {
-      const { WinTaskbarJumpList } = ChromeUtils.import("resource:///modules/windowsJumpLists.js", null);
+      const { WinTaskbarJumpList } = ChromeUtils.import("resource:///modules/windowsJumpLists.js");
       WinTaskbarJumpList.startup();
     }
 
-    ChromeUtils.import("resource:///modules/ExtensionsUI.jsm");
+    const {ExtensionsUI} = ChromeUtils.import("resource:///modules/ExtensionsUI.jsm");
     ExtensionsUI.checkForSideloadedExtensions();
   },
 

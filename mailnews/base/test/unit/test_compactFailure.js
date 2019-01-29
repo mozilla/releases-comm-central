@@ -1,6 +1,6 @@
 
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-ChromeUtils.import("resource://testing-common/mailnews/MockFactory.js");
+const {toXPCOMArray} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+const {MockFactory} = ChromeUtils.import("resource://testing-common/mailnews/MockFactory.js");
 
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");

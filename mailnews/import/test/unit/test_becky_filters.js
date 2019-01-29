@@ -1,4 +1,4 @@
-ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
+const {localAccountUtils} = ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
 
 function run_test()
 {

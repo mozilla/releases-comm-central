@@ -12,10 +12,10 @@
 /* import-globals-from msgMail3PaneWindow.js */
 /* import-globals-from nsDragAndDrop.js */
 
-var { encodeABTermValue } = ChromeUtils.import("resource:///modules/ABQueryUtils.jsm", null);
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { encodeABTermValue } = ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var searchSessionContractID = "@mozilla.org/messenger/searchSession;1";
 var gSearchSession;

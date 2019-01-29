@@ -7,7 +7,7 @@
 
 /* import-globals-from ../../../test/resources/POP3pump.js */
 load("../../../resources/POP3pump.js");
-ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
+const {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
 var testSubjects = ["[Bug 397009] A filter will let me tag, but not untag",
                     "Hello, did you receive my bugmail?"];

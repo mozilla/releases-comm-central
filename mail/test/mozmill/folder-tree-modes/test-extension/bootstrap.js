@@ -5,7 +5,7 @@
 
 "use strict";
 
-ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
+const {ExtensionSupport} = ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
 
 //const addonID = "testfoldertreemode@mozilla.org";
 
@@ -30,7 +30,7 @@ function setupFolderMode(aWindow) {
   let testFolderTreeMode = {
     __proto__: aWindow.IFolderTreeMode,
     generateMap: function(aFTV) {
-      ChromeUtils.import("resource:///modules/MailServices.jsm");
+      const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
       // Pick the tinderbox@foo.invalid inbox and use it as the only folder
       let server = MailServices.accounts.FindServer("tinderbox", "tinderbox123", "pop3");
       let item = new aWindow.ftvItem(server.rootFolder.getChildNamed("Inbox"));

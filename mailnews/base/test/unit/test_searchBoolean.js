@@ -6,7 +6,7 @@
  * Demonstrates and tests the use of grouped boolean expressions in search terms
  */
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var gSearchSession = Cc["@mozilla.org/messenger/searchSession;1"]
                         .createInstance(Ci.nsIMsgSearchSession);

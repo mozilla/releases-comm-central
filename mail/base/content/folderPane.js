@@ -16,16 +16,16 @@ var {
   allAccountsSorted,
   getMostRecentFolders,
   folderNameCompare,
-} = ChromeUtils.import("resource:///modules/folderUtils.jsm", null);
+} = ChromeUtils.import("resource:///modules/folderUtils.jsm");
 var {
   fixIterator,
   toXPCOMArray,
-} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm", null);
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource:///modules/MailUtils.jsm");
-ChromeUtils.import("resource:///modules/IOUtils.js");
-ChromeUtils.import("resource:///modules/FeedUtils.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+const {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
+const {FeedUtils} = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 if (typeof FeedMessageHandler != "object")
   Services.scriptloader.loadSubScript("chrome://messenger-newsblog/content/newsblogOverlay.js");

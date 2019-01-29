@@ -11,10 +11,10 @@ load("../../../resources/messageGenerator.js");
 load("../../../resources/messageModifier.js");
 load("../../../resources/messageInjection.js");
 
-ChromeUtils.import("resource:///modules/jsTreeSelection.js");
+const {JSTreeSelection} = ChromeUtils.import("resource:///modules/jsTreeSelection.js");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var nsIMFNService = Ci.nsIMsgFolderNotificationService;
 

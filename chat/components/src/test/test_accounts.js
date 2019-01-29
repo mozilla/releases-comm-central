@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource:///modules/imServices.jsm");
-ChromeUtils.import("resource://testing-common/AppInfo.jsm");
+const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
+const {updateAppInfo} = ChromeUtils.import("resource://testing-common/AppInfo.jsm");
 
 function run_test() {
   do_get_profile();

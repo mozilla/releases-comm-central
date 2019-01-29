@@ -4,10 +4,10 @@
 
 /* import-globals-from ../../../base/content/commandglue.js */
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {
   MailViewConstants,
-} = ChromeUtils.import("resource:///modules/MailViewManager.jsm", null);
+} = ChromeUtils.import("resource:///modules/MailViewManager.jsm");
 
 // these constants are now authoritatively defined in MailViewManager.jsm (above)
 // tag views have kViewTagMarker + their key as value

@@ -8,10 +8,10 @@
  * nsIMsgCloudFileProvider interface.
  */
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js", null);
-ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
+const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
 
 var gServerUrl = "https://dpi.yousendit.com"; // Production url
 // test url var gServerUrl = "https://test2-api.yousendit.com";

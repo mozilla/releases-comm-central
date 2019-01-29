@@ -15,22 +15,22 @@
 this.EXPORTED_SYMBOLS = ['GlodaMsgIndexer'];
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource:///modules/MailUtils.jsm");
+const {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
-ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
-ChromeUtils.import("resource:///modules/gloda/utils.js");
+const {GlodaUtils} = ChromeUtils.import("resource:///modules/gloda/utils.js");
 ChromeUtils.import("resource:///modules/gloda/datastore.js");
 ChromeUtils.import("resource:///modules/gloda/datamodel.js");
-ChromeUtils.import("resource:///modules/gloda/gloda.js");
+const {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
 ChromeUtils.import("resource:///modules/gloda/collection.js");
 ChromeUtils.import("resource:///modules/gloda/connotent.js");
 
-ChromeUtils.import("resource:///modules/gloda/indexer.js");
+const {indexer} = ChromeUtils.import("resource:///modules/gloda/indexer.js");
 
-ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
+const {MsgHdrToMimeMessage} = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
 
 // Cr does not have mailnews error codes!
 var NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE = 0x80550005;

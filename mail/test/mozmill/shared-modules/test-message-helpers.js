@@ -15,7 +15,7 @@ ChromeUtils.import("chrome://mozmill/content/modules/frame.js", frame);
 var utils = {};
 ChromeUtils.import("chrome://mozmill/content/modules/utils.js", utils);
 
-ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
+const {MsgHdrToMimeMessage} = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
 
 function installInto(module) {
   module.to_mime_message = to_mime_message;

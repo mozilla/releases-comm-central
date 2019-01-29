@@ -1,7 +1,7 @@
 /* -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 // This file implements test NNTP servers
 
-ChromeUtils.import("resource:///modules/mimeParser.jsm");
+const {MimeParser} = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 
 var EXPORTED_SYMBOLS = [
   'nntpDaemon',

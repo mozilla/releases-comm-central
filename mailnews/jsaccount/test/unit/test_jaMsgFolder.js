@@ -9,8 +9,8 @@
 // JS override classes.
 
 ChromeUtils.import("resource://testing-common/mailnews/testJaBaseMsgFolder.jsm");
-ChromeUtils.import("resource:///modules/MailUtils.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var interfaces = JaBaseMsgFolderProperties.baseInterfaces;
 

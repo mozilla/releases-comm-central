@@ -13,8 +13,8 @@
 |   longer term, this code will be restructured to make it more reusable.      |
 ------------------------------------------------------------------------------*/
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gContextMenuContentData = null;
 

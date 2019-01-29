@@ -11,7 +11,7 @@ var nsIMsgCompose = Ci.nsIMsgCompose;
 var nsIMsgComposeParams = Ci.nsIMsgComposeParams;
 var nsIMsgCompFields = Ci.nsIMsgCompFields;
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * Helper to check population worked as expected.

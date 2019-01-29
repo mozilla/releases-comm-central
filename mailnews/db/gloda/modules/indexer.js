@@ -13,14 +13,14 @@
 this.EXPORTED_SYMBOLS = ['GlodaIndexer', 'IndexingJob'];
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
-ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
-ChromeUtils.import("resource:///modules/gloda/utils.js");
+const {GlodaUtils} = ChromeUtils.import("resource:///modules/gloda/utils.js");
 ChromeUtils.import("resource:///modules/gloda/datastore.js");
-ChromeUtils.import("resource:///modules/gloda/gloda.js");
+const {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
 ChromeUtils.import("resource:///modules/gloda/collection.js");
 ChromeUtils.import("resource:///modules/gloda/connotent.js");
 

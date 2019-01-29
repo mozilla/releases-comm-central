@@ -3,7 +3,7 @@
  * Test suite for nsIMsgHeaderParser function removeDuplicateAddresses:
  */
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 function run_test() {
   const checks =

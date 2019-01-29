@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://gre/modules/Http.jsm");
+const {httpRequest} = ChromeUtils.import("resource://gre/modules/Http.jsm");
 ChromeUtils.import("resource:///modules/ArrayBufferUtils.jsm");
 ChromeUtils.import("resource:///modules/BigInteger.jsm");
-ChromeUtils.import("resource:///modules/imServices.jsm");
-ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
+const {EmptyEnumerator, XPCOMUtils} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 
 // Constants used by the login process. This emulates a captured session using

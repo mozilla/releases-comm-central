@@ -6,9 +6,9 @@
 
 var kFormId = "provider-form";
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+const {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
 ChromeUtils.defineModuleGetter(this, "ExtensionParent", "resource://gre/modules/ExtensionParent.jsm");
 
 function createAccountObserver() {}

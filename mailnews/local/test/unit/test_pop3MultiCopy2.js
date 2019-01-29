@@ -8,7 +8,7 @@
 
 /* import-globals-from ../../../test/resources/POP3pump.js */
 load("../../../resources/POP3pump.js");
-ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
+const {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
 Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
                            "@mozilla.org/msgstore/maildirstore;1");

@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://services-sync/main.js");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {Weave} = ChromeUtils.import("resource://services-sync/main.js");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var Change = {
   _dialog: null,

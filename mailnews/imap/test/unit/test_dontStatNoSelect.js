@@ -11,7 +11,7 @@ load("../../../resources/messageGenerator.js");
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var tests = [
   checkStatSelect,

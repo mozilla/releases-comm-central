@@ -63,8 +63,8 @@ var EXPORTED_SYMBOLS = [
 // + Messages: A message is represented internally as an annotated URI.       //
 ////////////////////////////////////////////////////////////////////////////////
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/mimeParser.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {MimeParser} = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 ChromeUtils.import("resource://testing-common/mailnews/auth.js");
 
 function imapDaemon(flags, syncFunc) {

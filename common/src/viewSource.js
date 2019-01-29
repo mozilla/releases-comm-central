@@ -7,7 +7,7 @@
 /* globals internalSave, goDoCommand */
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource://gre/modules/ViewSourceBrowser.jsm");
+const {ViewSourceBrowser} = ChromeUtils.import("resource://gre/modules/ViewSourceBrowser.jsm");
 
 ChromeUtils.defineModuleGetter(this, "Services",
   "resource://gre/modules/Services.jsm");

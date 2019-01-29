@@ -1,13 +1,13 @@
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource://testing-common/mailnews/mailTestUtils.js");
-ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {mailTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/mailTestUtils.js");
+var {localAccountUtils} = ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
 
 var test = null;
 
 // WebApps.jsm called by ProxyAutoConfig (PAC) requires a valid nsIXULAppInfo.
-ChromeUtils.import("resource://testing-common/AppInfo.jsm");
+var {getAppInfo, newAppInfo, updateAppInfo} = ChromeUtils.import("resource://testing-common/AppInfo.jsm");
 updateAppInfo();
 
 // Ensure the profile directory is set up
@@ -19,9 +19,9 @@ var gDEPTH = "../../../../";
 /* import-globals-from ../../../test/fakeserver/maild.js */
 /* import-globals-from ../../../test/fakeserver/auth.js */
 /* import-globals-from ../../../test/fakeserver/pop3d.js */
-ChromeUtils.import("resource://testing-common/mailnews/maild.js");
-ChromeUtils.import("resource://testing-common/mailnews/auth.js");
-ChromeUtils.import("resource://testing-common/mailnews/pop3d.js");
+var {maild} = ChromeUtils.import("resource://testing-common/mailnews/maild.js");
+var {auth} = ChromeUtils.import("resource://testing-common/mailnews/auth.js");
+var {pop3d} = ChromeUtils.import("resource://testing-common/mailnews/pop3d.js");
 
 // Setup the daemon and server
 // If the debugOption is set, then it will be applied to the server.

@@ -4,9 +4,9 @@
 
 do_get_profile();
 
-ChromeUtils.import("resource:///modules/imServices.jsm");
+const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
 ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-ChromeUtils.import("resource://gre/modules/osfile.jsm");
+const {OS} = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 
 var gLogger = {};
 Services.scriptloader.loadSubScript("resource:///components/logger.js", gLogger);

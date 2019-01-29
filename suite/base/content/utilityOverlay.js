@@ -9,9 +9,9 @@
  **/
 
 // Services = object with smart getters for common XPCOM services
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
+var {BrowserUtils} = ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
 
 // XPCOMUtils.defineLazyGetter(this, "Weave", function() {
 //   let tmp = {};

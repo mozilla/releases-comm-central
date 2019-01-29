@@ -5,7 +5,7 @@
 var EXPORTED_SYMBOLS = ["AboutSupportPlatform"];
 
 // JS ctypes are needed to get at the data we need
-ChromeUtils.import("resource://gre/modules/ctypes.jsm");
+const {ctypes} = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
 var GFile = ctypes.StructType("GFile");
 var GFileInfo = ctypes.StructType("GFileInfo");
 var GError = ctypes.StructType("GError");

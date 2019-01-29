@@ -29,7 +29,7 @@ var msgGen = gMessageGenerator = new MessageGenerator();
 // Create a message scenario generator using that message generator
 var scenarios = gMessageScenarioFactory = new MessageScenarioFactory(msgGen);
 
-ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
+const {MsgHdrToMimeMessage} = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
 
 // While we're at it, we'll also test the correctness of the GlodaAttachment
 // representation, esp. its "I just need the part information to rebuild the

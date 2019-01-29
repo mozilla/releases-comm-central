@@ -5,7 +5,7 @@
 
 /* import-globals-from emailWizard.js */
 
-var { logException } = ChromeUtils.import("resource:///modules/errUtils.js", null);
+var { logException } = ChromeUtils.import("resource:///modules/errUtils.js");
 
 /* eslint-disable complexity */
 /**

@@ -43,7 +43,7 @@
      * Bug 549192
      * Ensures that history views are updated after deleting entries.
      */
-      ChromeUtils.import("resource://gre/modules/Services.jsm");
+      const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
     SimpleTest.waitForExplicitFinish();
 

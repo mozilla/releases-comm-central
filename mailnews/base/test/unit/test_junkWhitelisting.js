@@ -12,7 +12,7 @@ load("../../../resources/abSetup.js");
 // add fake POP3 server driver
 load("../../../resources/POP3pump.js");
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 /*
  * The address available in the test address book is "PrimaryEmail1@test.invalid"

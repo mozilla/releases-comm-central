@@ -16,18 +16,18 @@
 
 // Ensure the activity modules are loaded for this window.
 ChromeUtils.import("resource:///modules/activity/activityModules.jsm");
-ChromeUtils.import("resource:///modules/AttachmentChecker.jsm");
-ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
-const { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm", null);
-const { allAccountsSorted } = ChromeUtils.import("resource:///modules/folderUtils.jsm", null);
-const { fixIterator, toArray } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm", null);
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource:///modules/MailUtils.jsm");
-ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
-ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+const {AttachmentChecker} = ChromeUtils.import("resource:///modules/AttachmentChecker.jsm");
+const {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
+const { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
+const { allAccountsSorted } = ChromeUtils.import("resource:///modules/folderUtils.jsm");
+const { fixIterator, toArray } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+const {InlineSpellChecker} = ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
+const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 ChromeUtils.defineModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
 ChromeUtils.defineModuleGetter(this, "ShortcutUtils",

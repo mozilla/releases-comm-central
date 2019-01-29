@@ -7,8 +7,8 @@
    PROTO_TREE_VIEW, Services, Status, statusSelector, ZoomManager */
 
 ChromeUtils.import("resource:///modules/chatNotifications.jsm");
-var { Services: imServices } = ChromeUtils.import("resource:///modules/imServices.jsm", null);
-ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var { Services: imServices } = ChromeUtils.import("resource:///modules/imServices.jsm");
+const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 ChromeUtils.defineModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
 

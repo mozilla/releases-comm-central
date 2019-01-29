@@ -3,10 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var URI_INHERITS_SECURITY_CONTEXT = Ci.nsIProtocolHandler
                                       .URI_INHERITS_SECURITY_CONTEXT;
@@ -39,13 +39,13 @@ function resolveURIInternal(aCmdLine, aArgument) {
 
 function handleIndexerResult(aFile) {
   // Do this here because xpcshell isn't too happy with this at startup
-  ChromeUtils.import("resource:///modules/MailUtils.jsm");
+  const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
   // Make sure the folder tree is initialized
   MailUtils.discoverFolders();
 
   // Use the search integration module to convert the indexer result into a
   // message header
-  ChromeUtils.import("resource:///modules/SearchIntegration.jsm");
+  const {SearchIntegration} = ChromeUtils.import("resource:///modules/SearchIntegration.jsm");
   let msgHdr = SearchIntegration.handleResult(aFile);
 
   // If we found a message header, open it, otherwise throw an exception

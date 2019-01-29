@@ -4,11 +4,11 @@
 
 this.EXPORTED_SYMBOLS = ['GlodaFundAttr'];
 
-ChromeUtils.import("resource:///modules/gloda/log4moz.js");
-ChromeUtils.import("resource:///modules/StringBundle.js");
+const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
 
-ChromeUtils.import("resource:///modules/gloda/utils.js");
-ChromeUtils.import("resource:///modules/gloda/gloda.js");
+const {GlodaUtils} = ChromeUtils.import("resource:///modules/gloda/utils.js");
+const {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
 ChromeUtils.import("resource:///modules/gloda/datastore.js");
 ChromeUtils.import("resource:///modules/gloda/datamodel.js"); // for GlodaAttachment
 

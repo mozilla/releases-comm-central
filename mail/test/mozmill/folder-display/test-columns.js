@@ -8,7 +8,7 @@ var elib = {};
 ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
 
 // needed to zero inter-folder processing delay
-ChromeUtils.import("resource:///modules/MailUtils.jsm");
+const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 
 /*

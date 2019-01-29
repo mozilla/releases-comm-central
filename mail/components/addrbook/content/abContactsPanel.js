@@ -11,7 +11,7 @@ var {
   getSearchTokens,
   getModelQuery,
   generateQueryURI,
-} = ChromeUtils.import("resource:///modules/ABQueryUtils.jsm", null);
+} = ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
 
 function GetAbViewListener() {
   // the ab panel doesn't care if the total changes, or if the selection changes

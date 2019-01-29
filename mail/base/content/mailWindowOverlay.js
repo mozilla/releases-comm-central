@@ -15,15 +15,15 @@
 /* import-globals-from phishingDetector.js */
 /* import-globals-from utilityOverlay.js */
 
-ChromeUtils.import("resource:///modules/FeedUtils.jsm");
-var { GlodaSyntheticView } = ChromeUtils.import("resource:///modules/gloda/dbview.js", null);
+const {FeedUtils} = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
+var { GlodaSyntheticView } = ChromeUtils.import("resource:///modules/gloda/dbview.js");
 ChromeUtils.import("resource:///modules/MailConsts.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource:///modules/MailUtils.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+const {AddonManager} = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
 
 ChromeUtils.defineModuleGetter(this, "BrowserToolboxProcess", "resource://devtools/client/framework/ToolboxProcess.jsm");
 ChromeUtils.defineModuleGetter(this, "ScratchpadManager", "resource://devtools/client/scratchpad/scratchpad-manager.jsm");
@@ -31,7 +31,7 @@ ChromeUtils.defineModuleGetter(this, "ExtensionParent", "resource://gre/modules/
 ChromeUtils.defineModuleGetter(this, "ExtensionSupport", "resource:///modules/ExtensionSupport.jsm");
 Object.defineProperty(this, "HUDService", {
   get() {
-    let { devtools } = ChromeUtils.import("resource://devtools/shared/Loader.jsm", null);
+    let { devtools } = ChromeUtils.import("resource://devtools/shared/Loader.jsm");
     return devtools.require("devtools/client/webconsole/hudservice").HUDService;
   },
   configurable: true,

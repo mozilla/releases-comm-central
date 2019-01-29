@@ -1,5 +1,5 @@
-ChromeUtils.import("resource:///modules/TBDistCustomizer.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {TBDistCustomizer} = ChromeUtils.import("resource:///modules/TBDistCustomizer.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function run_test() {
   do_test_pending();

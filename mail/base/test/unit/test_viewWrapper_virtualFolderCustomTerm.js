@@ -10,7 +10,7 @@
 /* import-globals-from resources/viewWrapperTestUtils.js */
 load("resources/viewWrapperTestUtils.js");
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 initViewWrapperTestUtils({mode: "imap", offline: false});
 

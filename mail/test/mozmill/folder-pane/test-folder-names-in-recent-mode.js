@@ -13,7 +13,7 @@ var MODULE_NAME = "test-folder-names-in-recent-mode";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers"];
 
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+const {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
 function setupModule(module) {
   collector.getModule("folder-display-helpers").installInto(module);

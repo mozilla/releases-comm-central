@@ -13,7 +13,7 @@ load("../../../resources/messageGenerator.js");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource://testing-common/mailnews/IMAPpump.js");
 ChromeUtils.import("resource://testing-common/mailnews/imapd.js");
-ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
+const {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
 async function setupFolder()
 {

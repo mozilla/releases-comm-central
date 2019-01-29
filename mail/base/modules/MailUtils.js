@@ -6,7 +6,7 @@ var EXPORTED_SYMBOLS = ["MailUtils"];
 
 ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
-ChromeUtils.import("resource://gre/modules/Deprecated.jsm");
+const {Deprecated} = ChromeUtils.import("resource://gre/modules/Deprecated.jsm");
 Deprecated.warning(
     "MailUtils.js has been renamed MailUtils.jsm",
     "https://bugzilla.mozilla.org/show_bug.cgi?id=1498041",

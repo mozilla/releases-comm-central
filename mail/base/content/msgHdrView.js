@@ -14,13 +14,13 @@
 /* import-globals-from nsDragAndDrop.js */
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/DisplayNameUtils.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-var { GlodaUtils } = ChromeUtils.import("resource:///modules/gloda/utils.js", null);
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {DisplayNameUtils} = ChromeUtils.import("resource:///modules/DisplayNameUtils.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { GlodaUtils } = ChromeUtils.import("resource:///modules/gloda/utils.js");
 var {
   Status: statusUtils,
-} = ChromeUtils.import("resource:///modules/imStatusUtils.jsm", null);
+} = ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
 
 // Warning: It's critical that the code in here for displaying the message
 // headers for a selected message remain as fast as possible. In particular,

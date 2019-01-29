@@ -10,10 +10,10 @@
 "use strict";
 
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/Troubleshoot.jsm");
-ChromeUtils.import("resource://gre/modules/ResetProfile.jsm");
-ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {Troubleshoot} = ChromeUtils.import("resource://gre/modules/Troubleshoot.jsm");
+const {ResetProfile} = ChromeUtils.import("resource://gre/modules/ResetProfile.jsm");
+const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 // added for TB
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 // end of TB addition
@@ -987,7 +987,7 @@ function copyRawDataToClipboard(button) {
       Services.clipboard.setData(transferable, null, Ci.nsIClipboard.kGlobalClipboard);
       if (AppConstants.platform == "android") {
         // Present a snackbar notification.
-        ChromeUtils.import("resource://gre/modules/Snackbars.jsm");
+        var {Snackbars} = ChromeUtils.import("resource://gre/modules/Snackbars.jsm");
         let rawDataCopiedString = await document.l10n.formatValue("raw-data-copied");
         Snackbars.show(rawDataCopiedString, Snackbars.LENGTH_SHORT);
       }
@@ -1033,7 +1033,7 @@ async function copyContentsToClipboard() {
 
   if (AppConstants.platform == "android") {
     // Present a snackbar notification.
-    ChromeUtils.import("resource://gre/modules/Snackbars.jsm");
+    var {Snackbars} = ChromeUtils.import("resource://gre/modules/Snackbars.jsm");
     let textCopiedString = await document.l10n.formatValue("text-copied");
     Snackbars.show(textCopiedString, Snackbars.LENGTH_SHORT);
   }

@@ -5,10 +5,10 @@
 var CC = Components.Constructor;
 
 ChromeUtils.import("resource:///modules/hiddenWindow.jsm");
-ChromeUtils.import("resource:///modules/imServices.jsm");
-ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
+const {EmptyEnumerator, XPCOMUtils} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
-ChromeUtils.import("resource:///modules/ToLocaleFormat.jsm");
+const {ToLocaleFormat} = ChromeUtils.import("resource:///modules/ToLocaleFormat.jsm");
 
 ChromeUtils.defineModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
 

@@ -8,10 +8,10 @@ this.EXPORTED_SYMBOLS = ["pop3DownloadModule"];
 var nsActEvent = Components.Constructor("@mozilla.org/activity-event;1",
                                           "nsIActivityEvent", "init");
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js", null);
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
 // This module provides a link between the pop3 service code and the activity
 // manager.

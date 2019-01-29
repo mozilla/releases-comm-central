@@ -1,7 +1,7 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-ChromeUtils.import("resource:///modules/imServices.jsm");
+const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
 var irc = {};
 Services.scriptloader.loadSubScript("resource:///components/irc.js", irc);
 Services.conversations.initConversations();

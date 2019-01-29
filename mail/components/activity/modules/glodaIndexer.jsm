@@ -10,11 +10,11 @@ var nsActProcess = Components.Constructor("@mozilla.org/activity-process;1",
 var nsActEvent   = Components.Constructor("@mozilla.org/activity-event;1",
                                             "nsIActivityEvent", "init");
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js", null);
-const { Gloda } = ChromeUtils.import("resource:///modules/gloda/public.js", null);
-const { GlodaIndexer } = ChromeUtils.import("resource:///modules/gloda/indexer.js", null);
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const { Gloda } = ChromeUtils.import("resource:///modules/gloda/public.js");
+const { GlodaIndexer } = ChromeUtils.import("resource:///modules/gloda/indexer.js");
 
 /**
  * Gloda message indexer feedback.

@@ -19,7 +19,7 @@
 
 this.EXPORTED_SYMBOLS = ["ircCAP"];
 
-ChromeUtils.import("resource:///modules/ircHandlers.jsm");
+const {ircHandlers} = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
 ChromeUtils.import("resource:///modules/ircUtils.jsm");
 
 /*

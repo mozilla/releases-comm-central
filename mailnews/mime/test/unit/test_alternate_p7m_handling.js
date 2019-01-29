@@ -5,7 +5,7 @@ load("../../../resources/messageGenerator.js");
 load("../../../resources/messageModifier.js");
 load("../../../resources/messageInjection.js");
 
-ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
+const {MsgHdrToMimeMessage} = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
 
 var gMessenger = Cc["@mozilla.org/messenger;1"]
                    .createInstance(Ci.nsIMessenger);

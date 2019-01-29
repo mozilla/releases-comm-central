@@ -12,12 +12,12 @@ var gMessengerBundle = null;
 
 var nsMsgSearchScope = Ci.nsMsgSearchScope;
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource:///modules/virtualFolderWrapper.js");
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-ChromeUtils.import("resource:///modules/MailUtils.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {virtualFolderWrapper} = ChromeUtils.import("resource:///modules/virtualFolderWrapper.js");
+const {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 function onLoad()
 {

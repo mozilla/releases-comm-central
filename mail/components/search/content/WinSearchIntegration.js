@@ -6,7 +6,7 @@
 // SearchIntegration.jsm
 /* globals SearchIntegration, SearchSupport, Services */
 
-ChromeUtils.import("resource:///modules/MailUtils.jsm");
+const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 var MSG_DB_LARGE_COMMIT = 1;
 var CRLF = "\r\n";

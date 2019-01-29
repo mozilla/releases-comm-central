@@ -19,7 +19,7 @@
 this.EXPORTED_SYMBOLS = ["ircServices", "servicesBase"];
 
 ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-ChromeUtils.import("resource:///modules/ircHandlers.jsm");
+const {ircHandlers} = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
 ChromeUtils.import("resource:///modules/ircUtils.jsm");
 
 /*

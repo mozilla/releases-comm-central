@@ -9,7 +9,7 @@
  * is corrupt but a JSON backup is not available.
  */
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyServiceGetter(this, "bs",
                                    "@mozilla.org/browser/nav-bookmarks-service;1",

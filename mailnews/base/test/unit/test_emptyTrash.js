@@ -16,7 +16,7 @@
   */
 
 // Globals
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var gMsgFile1;
 var gLocalTrashFolder;

@@ -81,11 +81,11 @@ const TAB_EVENTS = ["TabOpen", "TabClose", "TabSelect", "TabShow", "TabHide"];
 #define BROKEN_WM_Z_ORDER
 #endif
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
+const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 // debug.js adds NS_ASSERT. cf. bug 669196
-ChromeUtils.import("resource://gre/modules/debug.js");
+const {debug} = ChromeUtils.import("resource://gre/modules/debug.js");
 
 #ifdef MOZ_CRASH_REPORTER
 XPCOMUtils.defineLazyServiceGetter(this, "CrashReporter",

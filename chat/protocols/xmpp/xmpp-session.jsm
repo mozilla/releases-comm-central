@@ -4,9 +4,9 @@
 
 this.EXPORTED_SYMBOLS = ["XMPPSession", "XMPPDefaultResource"];
 
-ChromeUtils.import("resource:///modules/DNS.jsm");
-ChromeUtils.import("resource:///modules/imServices.jsm");
-ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+const {DNS} = ChromeUtils.import("resource:///modules/DNS.jsm");
+const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
+const {XPCOMUtils} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 ChromeUtils.import("resource:///modules/socket.jsm");
 ChromeUtils.import("resource:///modules/xmpp-xml.jsm");
 ChromeUtils.import("resource:///modules/xmpp-authmechs.jsm");

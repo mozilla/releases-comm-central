@@ -4,9 +4,9 @@
 
 var EXPORTED_SYMBOLS = ["PluralStringFormatter", "makeFriendlyDateAgo"];
 
-ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/StringBundle.js");
+const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
 
 function PluralStringFormatter(aBundleURI) {
   this._bundle = new StringBundle(aBundleURI);

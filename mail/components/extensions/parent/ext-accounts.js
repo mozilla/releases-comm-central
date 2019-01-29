@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.defineModuleGetter(this, "MailServices", "resource:///modules/MailServices.jsm");
-var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm", null);
+var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
 function convertAccount(account) {
   account = account.QueryInterface(Ci.nsIMsgAccount);

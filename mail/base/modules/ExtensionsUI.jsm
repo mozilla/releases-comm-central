@@ -10,7 +10,7 @@ const BRAND_PROPERTIES = "chrome://branding/locale/brand.properties";
 const DEFAULT_EXTENSION_ICON = "chrome://mozapps/skin/extensions/extensionGeneric.svg";
 const HTML_NS = "http://www.w3.org/1999/xhtml";
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 XPCOMUtils.defineLazyModuleGetters(this, {
   AddonManager: "resource://gre/modules/AddonManager.jsm",
   AddonManagerPrivate: "resource://gre/modules/AddonManager.jsm",
@@ -293,7 +293,7 @@ var gXPInstallObserver = {
         label: addonsBundle.getString("addonPostInstall.restart.label"),
         accessKey: addonsBundle.getString("addonPostInstall.restart.key"),
         callback: () => {
-          ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
+          const {BrowserUtils} = ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
           BrowserUtils.restartApplication();
         },
       };

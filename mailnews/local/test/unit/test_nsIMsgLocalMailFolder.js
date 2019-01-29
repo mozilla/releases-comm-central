@@ -6,7 +6,7 @@
 /* import-globals-from ../../../test/resources/messageGenerator.js */
 load("../../../resources/messageGenerator.js");
 
-var { toXPCOMArray } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm", null);
+var { toXPCOMArray } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
 /**
  * Bug 66763

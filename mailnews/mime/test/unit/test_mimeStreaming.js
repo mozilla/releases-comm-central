@@ -6,8 +6,8 @@
  * This test iterates over the test files in gTestFiles, and streams
  * each as a message and makes sure the streaming doesn't assert or crash.
  */
-ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
-ChromeUtils.import("resource:///modules/IOUtils.js");
+const {localAccountUtils} = ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
+const {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
 
 var gTestFiles =[
   "../../../data/bug505221",

@@ -17,9 +17,9 @@ var MODULE_REQUIRES = ['cloudfile-helpers',
                          'keyboard-helpers',
                          'window-helpers'];
 
-ChromeUtils.import('resource://gre/modules/Services.jsm');
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import('resource://gre/modules/XPCOMUtils.jsm');
-ChromeUtils.import('resource:///modules/cloudFileAccounts.js');
+const {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
 ChromeUtils.import('resource:///modules/iteratorUtils.jsm');
 
 var kCategory = 'cloud-files';

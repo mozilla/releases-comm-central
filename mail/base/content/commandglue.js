@@ -11,8 +11,8 @@
 /* import-globals-from mailWindow.js */
 /* import-globals-from msgMail3PaneWindow.js */
 
-var { MailViewConstants } = ChromeUtils.import("resource:///modules/MailViewManager.jsm", null);
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailViewConstants } = ChromeUtils.import("resource:///modules/MailViewManager.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function UpdateMailToolbar(caller) {
   // If we have a transient selection, we shouldn't update the toolbar. We'll

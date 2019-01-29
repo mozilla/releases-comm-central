@@ -5,21 +5,21 @@
 this.EXPORTED_SYMBOLS = ["QuickFilterState", "QuickFilterManager",
                           "MessageTextFilter", "QuickFilterSearchListener"];
 
-ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 const {
   logException,
   logObject,
-} = ChromeUtils.import("resource:///modules/errUtils.js", null);
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+} = ChromeUtils.import("resource:///modules/errUtils.js");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 // XXX we need to know whether the gloda indexer is enabled for upsell reasons,
 // but this should really just be exposed on the main Gloda public interface.
-const { GlodaIndexer } = ChromeUtils.import("resource:///modules/gloda/indexer.js", null);
+const { GlodaIndexer } = ChromeUtils.import("resource:///modules/gloda/indexer.js");
 // we need to be able to create gloda message searcher instances for upsells:
-const { GlodaMsgSearcher } = ChromeUtils.import("resource:///modules/gloda/msg_search.js", null);
+const { GlodaMsgSearcher } = ChromeUtils.import("resource:///modules/gloda/msg_search.js");
 
 
 /**

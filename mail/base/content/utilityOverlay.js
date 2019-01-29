@@ -4,8 +4,8 @@
 
 /* import-globals-from mailWindow.js */
 
-ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {PlacesUtils} = ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gShowBiDi = false;
 

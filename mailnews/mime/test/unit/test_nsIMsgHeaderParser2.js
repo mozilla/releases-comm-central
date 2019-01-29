@@ -6,7 +6,7 @@
  *   parseDecodedHeader
  */
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 function run_test() {
   // In this array, the sub arrays consist of the following elements:

@@ -18,11 +18,11 @@
 
 var EXPORTED_SYMBOLS = ["SearchIntegration"];
 
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js", null);
-var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm", null);
-ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var PERM_DIRECTORY = 0o755;
 var PERM_FILE = 0o644;

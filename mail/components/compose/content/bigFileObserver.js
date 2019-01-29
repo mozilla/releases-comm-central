@@ -4,8 +4,8 @@
 
 /* import-globals-from MsgComposeCommands.js */
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
 
 var kUploadNotificationValue = "bigAttachmentUploading";
 var kPrivacyWarningNotificationValue = "bigAttachmentPrivacyWarning";

@@ -22,7 +22,7 @@ var os = {};
 ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
 
 ChromeUtils.import('resource://gre/modules/Services.jsm');
-ChromeUtils.import('resource:///modules/iteratorUtils.jsm');
+const {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
 var kAttachmentsAdded = "attachments-added";
 var kAttachmentsRemoved = "attachments-removed";

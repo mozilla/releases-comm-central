@@ -34,7 +34,7 @@ function addIdentity(account) {
 function createMessages(folder, count) {
   const {
     MessageGenerator,
-  } = ChromeUtils.import("resource://testing-common/mailnews/messageGenerator.js", null);
+  } = ChromeUtils.import("resource://testing-common/mailnews/messageGenerator.js");
   let messages = new MessageGenerator().makeMessages({ count });
   let messageStrings = messages.map(message => message.toMboxString());
   folder.QueryInterface(Ci.nsIMsgLocalMailFolder);

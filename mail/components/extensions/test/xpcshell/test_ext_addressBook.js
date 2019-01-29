@@ -4,7 +4,7 @@
 
 "use strict";
 
-ChromeUtils.import("resource://testing-common/ExtensionXPCShellUtils.jsm");
+const {ExtensionTestUtils} = ChromeUtils.import("resource://testing-common/ExtensionXPCShellUtils.jsm");
 ExtensionTestUtils.init(this);
 
 add_task(async function test_addressBooks() {

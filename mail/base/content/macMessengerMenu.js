@@ -5,8 +5,8 @@
 
 /* import-globals-from mailCore.js */
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 // Load and add the menu item to the OS X Dock icon menu.
 addEventListener("load", function() {

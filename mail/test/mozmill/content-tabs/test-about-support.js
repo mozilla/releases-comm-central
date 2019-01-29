@@ -10,7 +10,7 @@ var RELATIVE_ROOT = '../shared-modules';
 var MODULE_REQUIRES = ['folder-display-helpers', 'content-tab-helpers',
                        'compose-helpers', 'window-helpers'];
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 Cu.importGlobalProperties(["DOMParser"]);
 
 var warningText = new Map();

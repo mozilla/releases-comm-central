@@ -12,9 +12,9 @@ var MODULE_REQUIRES = ["folder-display-helpers", "keyboard-helpers",
 
 var elib = {};
 ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
-ChromeUtils.import('resource://gre/modules/Services.jsm');
-ChromeUtils.import('resource:///modules/iteratorUtils.jsm');
-ChromeUtils.import('resource:///modules/MailServices.jsm');
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 var mc, fdh, kbh, dh;

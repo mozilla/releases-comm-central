@@ -4,7 +4,7 @@
 
 this.EXPORTED_SYMBOLS = ["ChromeManifest"];
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * A parser for chrome.manifest files. Implements a subset of

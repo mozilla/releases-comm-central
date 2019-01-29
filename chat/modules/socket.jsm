@@ -78,7 +78,7 @@
 
 this.EXPORTED_SYMBOLS = ["Socket"];
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource:///modules/ArrayBufferUtils.jsm");
 ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 ChromeUtils.import("resource:///modules/hiddenWindow.jsm");

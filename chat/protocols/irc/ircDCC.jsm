@@ -11,7 +11,7 @@
 
 this.EXPORTED_SYMBOLS = ["ctcpDCC"/*, "dccBase"*/];
 
-ChromeUtils.import("resource:///modules/ircHandlers.jsm");
+const {ircHandlers} = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
 ChromeUtils.import("resource:///modules/ircUtils.jsm");
 ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 

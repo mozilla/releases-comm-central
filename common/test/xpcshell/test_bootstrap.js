@@ -15,7 +15,7 @@ const ID1 = "bootstrap1@tests.mozilla.org";
 const ID2 = "bootstrap2@tests.mozilla.org";
 
 // This verifies that bootstrappable add-ons can be used without restarts.
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Enable loading extensions from the user scopes
 Services.prefs.setIntPref("extensions.enabledScopes",
@@ -126,7 +126,7 @@ function getUninstallNewVersion() {
 }
 
 async function checkBootstrappedPref() {
-  let XPIScope = ChromeUtils.import("resource://gre/modules/addons/XPIProvider.jsm", {});
+  let XPIScope = ChromeUtils.import("resource://gre/modules/addons/XPIProvider.jsm", null);
 
   let data = new Map();
   for (let entry of XPIScope.XPIStates.enabledAddons()) {

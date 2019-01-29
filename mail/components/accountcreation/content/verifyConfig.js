@@ -5,12 +5,12 @@
 
 /* import-globals-from emailWizard.js */
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource:///modules/OAuth2Providers.jsm");
-var { logException } = ChromeUtils.import("resource:///modules/errUtils.js", null);
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {OAuth2Providers} = ChromeUtils.import("resource:///modules/OAuth2Providers.jsm");
+var { logException } = ChromeUtils.import("resource:///modules/errUtils.js");
 
 if (typeof gEmailWizardLogger == "undefined") {
-  ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+  var {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
   var gEmailWizardLogger = Log4Moz.getConfiguredLogger("mail.wizard");
 }
 

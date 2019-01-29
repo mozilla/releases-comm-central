@@ -14,7 +14,7 @@
  */
 this.EXPORTED_SYMBOLS = ["ircNonStandard"];
 
-ChromeUtils.import("resource:///modules/ircHandlers.jsm");
+const {ircHandlers} = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
 ChromeUtils.import("resource:///modules/ircUtils.jsm");
 
 var ircNonStandard = {

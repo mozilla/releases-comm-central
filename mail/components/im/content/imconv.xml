@@ -172,7 +172,7 @@
           if (buddy && buddy.account.connected)
             statusType = buddy.statusType;
           if (!("Status" in window))
-            ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
+            const {Status} = ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
           this.setAttribute("status", Status.toAttribute(statusType));
         }
 

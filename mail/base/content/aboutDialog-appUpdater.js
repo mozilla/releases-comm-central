@@ -5,9 +5,9 @@
 // Note: this file is included in aboutDialog.xul and preferences/advanced.xul
 // if MOZ_UPDATER is defined.
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {DownloadUtils} = ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
 
 ChromeUtils.defineModuleGetter(this, "UpdateUtils",
                                "resource://gre/modules/UpdateUtils.jsm");

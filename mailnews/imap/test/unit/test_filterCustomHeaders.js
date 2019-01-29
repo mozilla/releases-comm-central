@@ -7,7 +7,7 @@
  * Original author: David Bienvenu <bienvenu@mozilla.com>
  */
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 

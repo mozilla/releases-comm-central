@@ -4,7 +4,7 @@
 
 this.EXPORTED_SYMBOLS = ["commands"];
 
-ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+const {XPCOMUtils} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/xmpp.properties")

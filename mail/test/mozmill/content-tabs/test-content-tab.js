@@ -16,7 +16,7 @@ var mozmill = {};
 ChromeUtils.import("chrome://mozmill/content/modules/mozmill.js", mozmill);
 var elementslib = {};
 ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elementslib);
-ChromeUtils.import('resource://gre/modules/Services.jsm');
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
 // so we get the right path for the resources.

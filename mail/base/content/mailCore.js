@@ -18,11 +18,11 @@
 /* import-globals-from mailWindow.js */
 /* import-globals-from utilityOverlay.js */
 
-ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource://gre/modules/CharsetMenu.jsm");
+const {BrowserUtils} = ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+const {CharsetMenu} = ChromeUtils.import("resource://gre/modules/CharsetMenu.jsm");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "gViewSourceUtils", function() {

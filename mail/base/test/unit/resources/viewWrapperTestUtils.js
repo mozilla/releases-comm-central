@@ -5,18 +5,18 @@
 const {
   DBViewWrapper,
   IDBViewWrapperListener,
-} = ChromeUtils.import("resource:///modules/DBViewWrapper.jsm", null);
+} = ChromeUtils.import("resource:///modules/DBViewWrapper.jsm");
 const {
   MailViewManager,
   MailViewConstants,
-} = ChromeUtils.import("resource:///modules/MailViewManager.jsm", null);
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+} = ChromeUtils.import("resource:///modules/MailViewManager.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const {
   VirtualFolderHelper,
-} = ChromeUtils.import("resource:///modules/virtualFolderWrapper.js", null);
+} = ChromeUtils.import("resource:///modules/virtualFolderWrapper.js");
 const {
   toXPCOMArray,
-} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm", null);
+} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
 // Only load these files if we're an XPCShell test. This file is also included by
 // MozMill tests (mail/test/mozmill/shared-modules/test-folder-display-helpers.js).

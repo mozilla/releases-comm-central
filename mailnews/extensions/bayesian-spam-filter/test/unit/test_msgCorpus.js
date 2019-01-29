@@ -4,7 +4,7 @@
 
 // Tests corpus management functions using nsIMsgCorpus
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var msgCorpus = MailServices.junk.QueryInterface(Ci.nsIMsgCorpus);
 

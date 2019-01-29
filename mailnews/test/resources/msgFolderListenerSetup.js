@@ -1,4 +1,4 @@
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var allTestedEvents =
   MailServices.mfn.msgAdded |

@@ -11,8 +11,8 @@ load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/POP3pump.js");
 ChromeUtils.import("resource:///modules/folderUtils.jsm");
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {fixIterator, toXPCOMArray} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var gIMAPTrashFolder;
 var gEmptyLocal1, gEmptyLocal2;

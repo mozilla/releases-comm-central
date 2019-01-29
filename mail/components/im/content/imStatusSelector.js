@@ -5,8 +5,8 @@
 // chat/modules/imTextboxUtils.jsm
 /* globals TextboxSpellChecker */
 
-var { Status } = ChromeUtils.import("resource:///modules/imStatusUtils.jsm", null);
-var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm", null);
+var { Status } = ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
+var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 
 var statusSelector = {
   observe(aSubject, aTopic, aMsg) {

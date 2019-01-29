@@ -10,7 +10,7 @@
 
 "use strict";
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 function isValidFolder(folder) {
   // RDF is liable to return folders that don't exist, and we may be working

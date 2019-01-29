@@ -5,8 +5,8 @@
 // chat/content/imAccountOptionsHelper.js
 /* globals accountOptionsHelper */
 
-var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm", null);
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var PREF_EXTENSIONS_GETMOREPROTOCOLSURL = "extensions.getMoreProtocolsURL";
 

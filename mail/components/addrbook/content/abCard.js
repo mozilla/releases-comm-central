@@ -5,8 +5,8 @@
 
 /* import-globals-from abCommon.js */
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var kNonVcardFields =
         ["NickNameContainer", "SecondaryEmailContainer", "ScreenNameContainer",

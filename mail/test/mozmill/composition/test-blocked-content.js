@@ -22,9 +22,9 @@ var MODULE_REQUIRES = [
 
 var os = {};
 ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
-ChromeUtils.import('resource://gre/modules/Services.jsm');
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource://gre/modules/osfile.jsm");
+const {OS} = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 
 var gOutboxFolder;
 

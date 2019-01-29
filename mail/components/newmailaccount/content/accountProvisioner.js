@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
-ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-ChromeUtils.import("resource:///modules/StringBundle.js");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js", null);
+const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+const {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
 // Get a configured logger for this component.
 // To debug, set mail.provider.logging.dump (or .console)="All"

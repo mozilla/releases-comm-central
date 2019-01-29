@@ -9,8 +9,8 @@
 this.EXPORTED_SYMBOLS = ["getFolderProperties", "getSpecialFolderString",
                          "allAccountsSorted", "getMostRecentFolders", "folderNameCompare"];
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {fixIterator, toArray} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
 /**
  * Returns a string representation of a folder's "special" type.

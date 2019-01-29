@@ -3,7 +3,7 @@
  */
 
 load("../../../resources/logHelper.js");
-ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
+const {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
 var gSavedMsgFile;
 

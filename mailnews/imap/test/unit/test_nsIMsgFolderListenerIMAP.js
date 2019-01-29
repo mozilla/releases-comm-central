@@ -17,7 +17,7 @@
 
 load("../../../resources/msgFolderListenerSetup.js");
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 // Globals
 var gRootFolder;

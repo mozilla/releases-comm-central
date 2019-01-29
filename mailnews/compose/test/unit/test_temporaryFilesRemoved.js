@@ -6,7 +6,7 @@
  * Test that temporary files for draft are surely removed.
  */
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gMsgCompose;
 var gExpectedFiles;

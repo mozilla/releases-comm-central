@@ -14,7 +14,7 @@
 
 // Globals
 
-ChromeUtils.import("resource:///modules/AttachmentChecker.jsm");
+const {AttachmentChecker} = ChromeUtils.import("resource:///modules/AttachmentChecker.jsm");
 
 /*
  * UTILITIES

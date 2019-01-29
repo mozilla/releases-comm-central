@@ -21,9 +21,9 @@
  */
 
 // Services
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 // MailServices
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 // Import the main scripts that mailnews tests need to set up and tear down
 load("../../../../resources/abSetup.js");
@@ -44,7 +44,7 @@ var msgGen = gMessageGenerator = new MessageGenerator();
 // Create a message scenario generator using that message generator
 var scenarios = gMessageScenarioFactory = new MessageScenarioFactory(msgGen);
 
-ChromeUtils.import("resource:///modules/errUtils.js");
+const {logObject} = ChromeUtils.import("resource:///modules/errUtils.js");
 
 /**
  * Create a 'me' identity of "me@localhost" for the benefit of Gloda.  At the
@@ -88,17 +88,17 @@ for (let {envVar, prefName} of ENVIRON_MAPPINGS) {
 
 
 // -- Import our modules
-ChromeUtils.import("resource:///modules/gloda/public.js");
-ChromeUtils.import("resource:///modules/gloda/indexer.js");
+const {Gloda} = ChromeUtils.import("resource:///modules/gloda/public.js");
+const {GlodaIndexer} = ChromeUtils.import("resource:///modules/gloda/indexer.js");
 ChromeUtils.import("resource:///modules/gloda/index_msg.js");
 ChromeUtils.import("resource:///modules/gloda/datastore.js");
 ChromeUtils.import("resource:///modules/gloda/collection.js");
 ChromeUtils.import("resource:///modules/gloda/datamodel.js");
 ChromeUtils.import("resource:///modules/gloda/noun_tag.js");
-ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
+const {MsgHdrToMimeMessage} = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
 
 // -- Add a logger listener that throws when we give it a warning/error.
-ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 var throwingAppender = new Log4Moz.ThrowingAppender(do_throw);
 throwingAppender.level = Log4Moz.Level.Warn;
 Log4Moz.repository.rootLogger.addAppender(throwingAppender);

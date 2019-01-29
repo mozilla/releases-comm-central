@@ -36,7 +36,7 @@ class MozMailUrlfield extends MozMailHeaderfield {
 class MozMailHeaderfieldTags extends MozXULElement {
   connectedCallback() {
     this.classList.add("headerValue");
-    ChromeUtils.import("resource:///modules/MailServices.jsm");
+    const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
   }
 
   set headerValue(val) {

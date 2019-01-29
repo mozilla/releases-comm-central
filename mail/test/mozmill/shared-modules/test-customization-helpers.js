@@ -9,7 +9,7 @@ var MODULE_NAME = "customization-helpers";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var elib = {};
 ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
 

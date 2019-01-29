@@ -8,7 +8,7 @@
  * mail.accountmanager.accounts list, and removing duplicate accounts with
  * the same server.
  */
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 function run_test()
 {

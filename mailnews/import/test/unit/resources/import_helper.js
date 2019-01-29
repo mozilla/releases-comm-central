@@ -1,5 +1,5 @@
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 // used by checkProgress to periodically check the progress of the import
 var gGenericImportHelper;

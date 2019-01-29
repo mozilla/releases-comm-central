@@ -7,7 +7,7 @@
  * depends on jsTreeView.js being loaded before this script is loaded.
  */
 
-ChromeUtils.import("resource:///modules/IOUtils.js");
+const {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
 
 /**
  * Each abDirTreeItem corresponds to one row in the tree view.

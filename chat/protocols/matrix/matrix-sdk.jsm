@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://gre/modules/Console.jsm");
+const {console} = ChromeUtils.import("resource://gre/modules/Console.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/Timer.jsm");
+const {clearInterval, clearTimeout, setInterval, setTimeout} = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 Cu.importGlobalProperties(["XMLHttpRequest"]);
 
-const { Loader, Require, Module } = ChromeUtils.import("resource://devtools/shared/base-loader.js", null);
+const { Loader, Require, Module } = ChromeUtils.import("resource://devtools/shared/base-loader.js");
 
 this.EXPORTED_SYMBOLS = ["MatrixSDK"];
 

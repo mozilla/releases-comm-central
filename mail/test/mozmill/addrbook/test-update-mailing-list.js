@@ -15,7 +15,7 @@ var RELATIVE_ROOT = '../shared-modules';
 var MODULE_REQUIRES = ['address-book-helpers',
                        'folder-display-helpers',];
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 function setupModule(module) {
   collector.getModule('folder-display-helpers').installInto(module);

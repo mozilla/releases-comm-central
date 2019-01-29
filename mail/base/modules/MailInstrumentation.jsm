@@ -12,9 +12,9 @@ this.EXPORTED_SYMBOLS = ["MailInstrumentation"];
 
 var nsIMFNService = Ci.nsIMsgFolderNotificationService;
 
-const { logException } = ChromeUtils.import("resource:///modules/errUtils.js", null);
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const { logException } = ChromeUtils.import("resource:///modules/errUtils.js");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 /* :::::::: The Module ::::::::::::::: */
 

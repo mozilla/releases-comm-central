@@ -17,11 +17,11 @@
 /* import-globals-from util.js */
 /* import-globals-from verifyConfig.js */
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource:///modules/OAuth2Providers.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {OAuth2Providers} = ChromeUtils.import("resource:///modules/OAuth2Providers.jsm");
 
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js", null);
+var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 /* globals cleanUpHostName, isLegalHostNameOrIP, kMaxPort, kMinPort */
 ChromeUtils.import("resource:///modules/hostnameUtils.jsm", null);
 

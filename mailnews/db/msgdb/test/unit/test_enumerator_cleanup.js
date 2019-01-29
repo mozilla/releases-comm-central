@@ -2,7 +2,7 @@
  * Test nsMsgDatabase's cleanup of nsMsgDBEnumerators
  */
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var anyOldMessage = do_get_file("../../../../data/bugmail1");
 

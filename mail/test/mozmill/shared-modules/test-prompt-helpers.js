@@ -10,8 +10,8 @@ var RELATIVE_ROOT = "../shared-modules";
 // we need this for the main controller
 var MODULE_REQUIRES = ["mock-object-helpers"];
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var kMockPromptServiceName = "Mock Prompt Service";
 var kPromptServiceContractID = "@mozilla.org/embedcomp/prompt-service;1";

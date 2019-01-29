@@ -6,9 +6,9 @@
 
 "use strict";
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-const { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm", null);
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Platform-specific includes
 if ("@mozilla.org/windows-registry-key;1" in Cc)

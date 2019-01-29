@@ -7,8 +7,8 @@
 // are called in the correct order. This also tests that the various
 // HeaderParser methods are run correctly.
 
-ChromeUtils.import("resource:///modules/mimeParser.jsm");
-ChromeUtils.import("resource:///modules/IOUtils.js");
+const {MimeParser} = ChromeUtils.import("resource:///modules/mimeParser.jsm");
+const {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
 
 /// Utility method to compare objects
 function compare_objects(real, expected) {

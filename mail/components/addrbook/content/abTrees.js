@@ -11,8 +11,8 @@
  */
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource:///modules/IOUtils.js");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
 
 // Tree Sort helper methods.
 var AB_ORDER = ["aab", "pab", "mork", "ldap", "mapi+other", "anyab", "cab"];

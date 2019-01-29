@@ -7,11 +7,11 @@ var EXPORTED_SYMBOLS = ["MailUtils"];
 const {
   fixIterator,
   toXPCOMArray,
-} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm", null);
-ChromeUtils.import("resource:///modules/MailConsts.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+const {MailConsts} = ChromeUtils.import("resource:///modules/MailConsts.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 
 var MC = MailConsts;
 

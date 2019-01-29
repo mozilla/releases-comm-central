@@ -145,7 +145,7 @@ function* test_fulltextsearch(aPhrase)
   }
 }
 
-ChromeUtils.import("resource:///modules/gloda/msg_search.js");
+const {GlodaMsgSearcher} = ChromeUtils.import("resource:///modules/gloda/msg_search.js");
 ChromeUtils.import("resource:///modules/gloda/datastore.js");
 
 /**

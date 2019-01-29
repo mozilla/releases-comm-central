@@ -13,8 +13,8 @@ var EXPORTED_SYMBOLS = [
   'POP3_RFC5034_handler'
 ];
 
-ChromeUtils.import("resource:///modules/IOUtils.js");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://testing-common/mailnews/auth.js");
 
 // Since we don't really need to worry about peristence, we can just

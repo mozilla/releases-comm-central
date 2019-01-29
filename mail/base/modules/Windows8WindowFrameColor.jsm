@@ -6,7 +6,7 @@
 
 this.EXPORTED_SYMBOLS = ["Windows8WindowFrameColor"];
 
-ChromeUtils.import("resource://gre/modules/WindowsRegistry.jsm");
+const {WindowsRegistry} = ChromeUtils.import("resource://gre/modules/WindowsRegistry.jsm");
 
 var Windows8WindowFrameColor = {
   _windowFrameColor: null,

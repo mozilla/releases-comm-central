@@ -4,11 +4,11 @@
 
 this.EXPORTED_SYMBOLS = ["Notifications"];
 
-const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm", null);
-ChromeUtils.import("resource:///modules/StringBundle.js");
-ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-ChromeUtils.import("resource://gre/modules/Timer.jsm");
+const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+const {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
+const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+const {clearTimeout, setTimeout} = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 
 // Time in seconds: it is the minimum time of inactivity
 // needed to show the bundled notification.

@@ -4,8 +4,8 @@
 
 const XULNS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource:///modules/mailnewsMigrator.js");
 ChromeUtils.import("resource:///modules/extensionSupport.jsm");
 
@@ -149,7 +149,7 @@ SuiteGlue.prototype = {
     }
     delay = delay <= MAX_DELAY ? delay : MAX_DELAY;
 
-    ChromeUtils.import("resource://services-sync/main.js");
+    const {Weave} = ChromeUtils.import("resource://services-sync/main.js");
     Weave.Service.scheduler.delayedAutoConnect(delay);
   },
 

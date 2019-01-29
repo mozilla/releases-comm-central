@@ -8,7 +8,7 @@
 // these tests is to demonstrate that both the old junk-oriented calls and the
 // new trait-oriented calls give the same results on junk processing.
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 // local constants
 var kUnclassified = MailServices.junk.UNCLASSIFIED;

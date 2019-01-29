@@ -12,21 +12,21 @@
  *  get it wrong and it may eventually want to migrate.
  */
 
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js", null);
-ChromeUtils.import("resource:///modules/StringBundle.js");
+var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
 ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {
   logObject,
   logException,
-} = ChromeUtils.import("resource:///modules/errUtils.js", null);
+} = ChromeUtils.import("resource:///modules/errUtils.js");
 
-var { Gloda } = ChromeUtils.import("resource:///modules/gloda/public.js", null);
+var { Gloda } = ChromeUtils.import("resource:///modules/gloda/public.js");
 var {
   FacetDriver,
   FacetUtils,
-} = ChromeUtils.import("resource:///modules/gloda/facet.js", null);
+} = ChromeUtils.import("resource:///modules/gloda/facet.js");
 
 var glodaFacetStrings =
   new StringBundle("chrome://messenger/locale/glodaFacetView.properties");

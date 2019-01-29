@@ -9,7 +9,7 @@ load("../../../resources/asyncTestUtils.js");
 load("../../../resources/messageGenerator.js");
 load("../../../resources/alertTestUtils.js");
 
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 

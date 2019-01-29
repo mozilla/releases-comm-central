@@ -1,12 +1,12 @@
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/MailServices.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {localAccountUtils} = ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
 
 var test = null;
 
 // WebApps.jsm called by ProxyAutoConfig (PAC) requires a valid nsIXULAppInfo.
-ChromeUtils.import("resource://testing-common/AppInfo.jsm");
+var {getAppInfo, newAppInfo, updateAppInfo} = ChromeUtils.import("resource://testing-common/AppInfo.jsm");
 updateAppInfo();
 
 // Ensure the profile directory is set up
@@ -19,7 +19,7 @@ var {
   fsDebugAll,
   gThreadManager,
   nsMailServer,
-} = ChromeUtils.import("resource://testing-common/mailnews/maild.js", null);
+} = ChromeUtils.import("resource://testing-common/mailnews/maild.js");
 var {
   newsArticle,
   NNTP_Giganews_handler,
@@ -27,7 +27,7 @@ var {
   NNTP_RFC4643_extension,
   NNTP_RFC977_handler,
   nntpDaemon,
-} = ChromeUtils.import("resource://testing-common/mailnews/nntpd.js", null);
+} = ChromeUtils.import("resource://testing-common/mailnews/nntpd.js");
 
 var kSimpleNewsArticle =
   "From: John Doe <john.doe@example.com>\n" +

@@ -8,13 +8,13 @@
 var {
   logException,
   errorWithDebug,
-} = ChromeUtils.import("resource:///modules/errUtils.js", null);
+} = ChromeUtils.import("resource:///modules/errUtils.js");
 var {
   MessageTextFilter,
   QuickFilterManager,
   QuickFilterSearchListener,
   QuickFilterState,
-} = ChromeUtils.import("resource:///modules/QuickFilterManager.jsm", null);
+} = ChromeUtils.import("resource:///modules/QuickFilterManager.jsm");
 ChromeUtils.import("resource:///modules/SearchSpec.jsm");
 
 // -----------

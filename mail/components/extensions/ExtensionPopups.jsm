@@ -8,8 +8,8 @@ var EXPORTED_SYMBOLS = ["BasePopup", "ViewPopup"];
 
 ChromeUtils.defineModuleGetter(this, "ExtensionParent",
                                "resource://gre/modules/ExtensionParent.jsm");
-ChromeUtils.import("resource://gre/modules/ExtensionUtils.jsm");
-ChromeUtils.import("resource://gre/modules/ExtensionCommon.jsm");
+const {ExtensionUtils} = ChromeUtils.import("resource://gre/modules/ExtensionUtils.jsm");
+const {ExtensionCommon} = ChromeUtils.import("resource://gre/modules/ExtensionCommon.jsm");
 
 const {
   DefaultWeakMap,

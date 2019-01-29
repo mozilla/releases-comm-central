@@ -9,9 +9,9 @@
 
 var CE = Components.Exception;
 
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource:///modules/jsaccount/JSAccountUtils.jsm");
-ChromeUtils.import("resource:///modules/jsaccount/JaBaseUrl.jsm");
+const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+const {JSAccountUtils} = ChromeUtils.import("resource:///modules/jsaccount/JSAccountUtils.jsm");
+const {JaBaseUrl} = ChromeUtils.import("resource:///modules/jsaccount/JaBaseUrl.jsm");
 
 const ATTACHMENT_QUERY = "part=1.";
 

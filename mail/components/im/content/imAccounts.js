@@ -8,8 +8,8 @@
 /* globals statusSelector */
 
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm", null);
-var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm", null);
-ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
 
 // This is the list of notifications that the account manager window observes
@@ -515,7 +515,7 @@ var gAccountManager = {
          If none, this function has already returned */
       case as.AUTOLOGIN_ENABLED:
         if (!("PluralForm" in window))
-          ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+          const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
         label = bundle.getString("accountsManager.notification.singleCrash.label");
         label = PluralForm.get(crashCount, label).replace("#1", crashCount);
         priority = box.PRIORITY_WARNING_MEDIUM;

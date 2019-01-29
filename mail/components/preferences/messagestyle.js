@@ -9,7 +9,7 @@ ChromeUtils.import("resource:///modules/jsProtoHelper.jsm", jsProtoHelper);
 const {
   getThemeByName,
   getThemeVariants,
-} = ChromeUtils.import("resource:///modules/imThemes.jsm", null);
+} = ChromeUtils.import("resource:///modules/imThemes.jsm");
 
 function Conversation(aName) {
   this._name = aName;

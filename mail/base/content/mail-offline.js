@@ -5,7 +5,7 @@
 
 /* import-globals-from mailWindow.js */
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var MailOfflineMgr = {
   offlineManager: null,
