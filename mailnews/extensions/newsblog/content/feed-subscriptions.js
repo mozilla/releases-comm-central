@@ -5,11 +5,11 @@
 
 const {FeedUtils} = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
 ChromeUtils.import("resource:///modules/gloda/log4moz.js");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 const {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
-const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 
 var FeedSubscriptions = {
   get mMainWin() { return Services.wm.getMostRecentWindow("mail:3pane"); },

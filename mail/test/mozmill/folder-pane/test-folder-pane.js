@@ -15,8 +15,8 @@ var MODULE_NAME = 'test-folder-pane';
 var RELATIVE_ROOT = '../shared-modules';
 var MODULE_REQUIRES = ['folder-display-helpers'];
 
-const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 function setupModule(module) {
   collector.getModule('folder-display-helpers').installInto(module);

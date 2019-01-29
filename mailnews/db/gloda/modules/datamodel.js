@@ -6,7 +6,7 @@ this.EXPORTED_SYMBOLS = ["GlodaAttributeDBDef", "GlodaAccount",
                     "GlodaConversation", "GlodaFolder", "GlodaMessage",
                     "GlodaContact", "GlodaIdentity", "GlodaAttachment"];
 
-const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");

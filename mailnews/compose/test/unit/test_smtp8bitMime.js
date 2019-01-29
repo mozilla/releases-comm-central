@@ -6,7 +6,7 @@
  * advertises it AND if mail.strictly_mime doesn't force us to send 7bit.
  * It does not check the data of the message on either side of the link.
  */
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var test = null;
 var server;

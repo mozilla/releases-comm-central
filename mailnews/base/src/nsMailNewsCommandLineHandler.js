@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 var MAPI_STARTUP_ARG = "MapiStartup";
@@ -30,7 +30,7 @@ var nsMailNewsCommandLineHandler =
    */
   handle: function nsMailNewsCommandLineHandler_handle(aCommandLine) {
     // Do this here because xpcshell isn't too happy with this at startup
-    const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+    var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
     // -mail <URL>
     let mailURL = null;
     try {

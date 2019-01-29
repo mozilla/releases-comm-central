@@ -21,13 +21,13 @@ const {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAcc
 const { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 const { allAccountsSorted } = ChromeUtils.import("resource:///modules/folderUtils.jsm");
 const { fixIterator, toArray } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 const {InlineSpellChecker} = ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
-const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 ChromeUtils.defineModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
 ChromeUtils.defineModuleGetter(this, "ShortcutUtils",

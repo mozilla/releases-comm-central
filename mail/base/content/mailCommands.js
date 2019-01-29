@@ -8,8 +8,8 @@
 /* import-globals-from mailWindow.js */
 /* import-globals-from utilityOverlay.js */
 
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 /**
  * Get the identity that most likely is the best one to use, given the hint.

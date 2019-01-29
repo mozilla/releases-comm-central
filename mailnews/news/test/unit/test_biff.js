@@ -4,7 +4,7 @@
 /* import-globals-from ../../../test/resources/filterTestUtils.js */
 load("../../../resources/filterTestUtils.js");
 
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 function run_test() {
   // Set up the server and add in filters

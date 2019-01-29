@@ -7,8 +7,8 @@
 const {OAuth2} = ChromeUtils.import("resource:///modules/OAuth2.jsm");
 const {OAuth2Providers} = ChromeUtils.import("resource:///modules/OAuth2Providers.jsm");
 const {Preferences} = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 function OAuth2Module() {
   this._refreshToken = '';

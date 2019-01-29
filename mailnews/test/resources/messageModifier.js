@@ -8,7 +8,7 @@
  */
 
 const {toXPCOMArray} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 /**
  * Represents a set of synthetic messages, also supporting insertion into and

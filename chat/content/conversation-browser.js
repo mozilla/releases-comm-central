@@ -5,9 +5,10 @@
 "use strict";
 
 /* global MozXULElement */
-/* global initHTMLDocument serializeSelection getCurrentTheme isNextMessage getHTMLForMessage insertHTMLForMessage */
-/* global smileTextNode */
-/* global cleanupImMarkup */
+
+const { initHTMLDocument, serializeSelection, getCurrentTheme, isNextMessage, getHTMLForMessage, insertHTMLForMessage } = ChromeUtils.import("resource:///modules/imThemes.jsm");
+const { smileTextNode } = ChromeUtils.import("resource:///modules/imSmileys.jsm");
+const { cleanupImMarkup } = ChromeUtils.import("resource:///modules/imContentSink.jsm");
 
 (function () {
   // <browser> is lazily set up through setElementCreationCallback,
@@ -152,13 +153,6 @@ class MozConversationBrowser extends customElements.get("browser") {
 
   connectedCallback() {
     super.connectedCallback();
-
-    if (!("cleanupImMarkup" in window))
-      ChromeUtils.import("resource:///modules/imContentSink.jsm");
-    if (!("smileImMarkup" in window))
-      ChromeUtils.import("resource:///modules/imSmileys.jsm");
-    if (!("getCurrentTheme" in window))
-      ChromeUtils.import("resource:///modules/imThemes.jsm");
 
     this._theme = null;
 

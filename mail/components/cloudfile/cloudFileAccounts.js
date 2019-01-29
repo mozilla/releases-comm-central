@@ -13,7 +13,7 @@ var ACCOUNT_ROOT = PREF_ROOT + "accounts.";
 var PWDMGR_HOST = "chrome://messenger/cloudfile";
 var PWDMGR_REALM = "BigFiles Auth Token";
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 const { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 const {EventEmitter} = ChromeUtils.import("resource://gre/modules/EventEmitter.jsm");

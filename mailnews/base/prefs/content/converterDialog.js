@@ -9,7 +9,7 @@
 
 var {BrowserUtils} = ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 var {OS} = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 const {Log} = ChromeUtils.import("resource://gre/modules/Log.jsm");

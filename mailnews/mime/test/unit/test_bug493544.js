@@ -2,7 +2,7 @@
 // Tests if a multi-line MIME header is parsed even if it violates RFC 2047
 //
 
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 function run_test() {
   const headers = [

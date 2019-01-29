@@ -7,7 +7,7 @@
  * each as a message and makes sure the streaming doesn't assert or crash.
  */
 const {localAccountUtils} = ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
-const {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
+var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
 
 var gTestFiles =[
   "../../../data/bug505221",

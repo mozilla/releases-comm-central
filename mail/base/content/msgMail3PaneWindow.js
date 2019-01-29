@@ -25,16 +25,16 @@ ChromeUtils.import("resource:///modules/activity/activityModules.jsm");
 var { logException } = ChromeUtils.import("resource:///modules/errUtils.js");
 var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
 var { JSTreeSelection } = ChromeUtils.import("resource:///modules/jsTreeSelection.js");
-const {MailConsts} = ChromeUtils.import("resource:///modules/MailConsts.jsm");
+var {MailConsts} = ChromeUtils.import("resource:///modules/MailConsts.jsm");
 const {MailInstrumentation} = ChromeUtils.import("resource:///modules/MailInstrumentation.jsm");
 var {migrateMailnews} = ChromeUtils.import("resource:///modules/mailnewsMigrator.js");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 const {msgDBCacheManager} = ChromeUtils.import("resource:///modules/msgDBCacheManager.js");
 const {SessionStoreManager} = ChromeUtils.import("resource:///modules/SessionStoreManager.jsm");
 const {SummaryFrameManager} = ChromeUtils.import("resource:///modules/SummaryFrameManager.jsm");
-const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 const {Color} = ChromeUtils.import("resource://gre/modules/Color.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {

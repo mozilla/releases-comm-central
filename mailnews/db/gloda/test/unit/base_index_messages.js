@@ -17,9 +17,9 @@
 
 load("resources/glodaTestHelper.js");
 
-const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 const {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Whether we can expect fulltext results
 var expectFulltextResults = true;

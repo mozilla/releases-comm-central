@@ -4,7 +4,7 @@
 
 this.EXPORTED_SYMBOLS = ["GlodaMsgSearcher"];
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const {Gloda} = ChromeUtils.import("resource:///modules/gloda/public.js");
 
 /**

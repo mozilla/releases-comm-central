@@ -12,11 +12,11 @@
  * "mail.notification.logging.dump" (for stderr) to the string indicating the level you want.
  */
 
-const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
-const {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var NMNS = Ci.mozINewMailNotificationService;
 

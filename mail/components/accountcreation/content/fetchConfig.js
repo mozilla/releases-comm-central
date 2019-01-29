@@ -6,7 +6,7 @@
 /* import-globals-from emailWizard.js */
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const {JXON} = ChromeUtils.import("resource:///modules/JXON.js");
 
 /**

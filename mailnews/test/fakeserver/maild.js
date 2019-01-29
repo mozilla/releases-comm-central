@@ -6,7 +6,7 @@
 
 // Much of the original code is taken from netwerk's httpserver implementation
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var EXPORTED_SYMBOLS = [
   'nsMailServer',

@@ -6,7 +6,7 @@
 /* import-globals-from emailWizard.js */
 
 var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var TIMEOUT = 10; // in seconds
 

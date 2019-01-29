@@ -16,7 +16,7 @@
 
 load("resources/glodaTestHelper.js");
 
-const {MsgHdrToMimeMessage} = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
+var {MsgHdrToMimeMessage} = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
 
 // we need to be able to get at GlodaFundAttr to check the number of whittler
 //   invocations

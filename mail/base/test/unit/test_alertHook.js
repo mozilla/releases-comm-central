@@ -4,7 +4,7 @@
 
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 const {alertHook} = ChromeUtils.import("resource:///modules/activity/alertHook.jsm");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 const {MockFactory} = ChromeUtils.import("resource://testing-common/mailnews/MockFactory.js");
 alertHook.init();
 

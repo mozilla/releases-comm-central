@@ -11,7 +11,7 @@ var nsIMsgCompConvertible = Ci.nsIMsgCompConvertible;
 var nsIMsgCompFields = Ci.nsIMsgCompFields;
 var SendFormat = Ci.nsIMsgCompSendFormat;
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * Helper to check population worked as expected.

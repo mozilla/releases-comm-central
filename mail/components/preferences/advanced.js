@@ -10,8 +10,8 @@
 // Load DownloadUtils module for convertByteUnits
 const {DownloadUtils} = ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const {L10nRegistry} = ChromeUtils.import("resource://gre/modules/L10nRegistry.jsm");
 const {Localization} = ChromeUtils.import("resource://gre/modules/Localization.jsm");
 ChromeUtils.defineModuleGetter(this, "UpdateUtils",

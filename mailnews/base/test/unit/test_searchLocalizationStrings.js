@@ -4,7 +4,7 @@
 
  // tests that localization strings added in bug 484147 are defined in preferences
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gValidityManager = Cc['@mozilla.org/mail/search/validityManager;1']
                            .getService(Ci.nsIMsgSearchValidityManager);

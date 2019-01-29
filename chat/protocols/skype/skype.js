@@ -5,7 +5,7 @@
 const {httpRequest} = ChromeUtils.import("resource://gre/modules/Http.jsm");
 ChromeUtils.import("resource:///modules/ArrayBufferUtils.jsm");
 ChromeUtils.import("resource:///modules/BigInteger.jsm");
-const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
+var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
 const {EmptyEnumerator, XPCOMUtils} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 

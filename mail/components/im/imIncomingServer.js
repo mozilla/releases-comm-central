@@ -6,7 +6,7 @@ const {
   EmptyEnumerator,
   XPCOMUtils,
 } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 
 function imIncomingServer() {}
 

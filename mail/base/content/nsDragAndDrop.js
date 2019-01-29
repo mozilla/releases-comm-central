@@ -13,8 +13,6 @@
 // For documentation about what to use instead, see:
 //   http://developer.mozilla.org/En/DragDrop/Drag_and_Drop
 
-ChromeUtils.defineModuleGetter(this, "Services", "resource://gre/modules/Services.jsm");
-
 /**
  *  nsTransferable - a wrapper for nsITransferable that simplifies
  *                   javascript clipboard and drag&drop. for use in
@@ -22,7 +20,7 @@ ChromeUtils.defineModuleGetter(this, "Services", "resource://gre/modules/Service
  *                   and nsDragAndDrop wrappers for more convenience
  **/
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var nsTransferable = {
   /**

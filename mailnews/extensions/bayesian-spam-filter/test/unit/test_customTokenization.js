@@ -4,7 +4,7 @@
 
 // Tests use of custom tokenization, originally introduced in bug 476389
 
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 // command functions for test data
 var kTrain = 0;  // train a file

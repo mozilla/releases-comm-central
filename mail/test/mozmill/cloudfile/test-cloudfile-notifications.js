@@ -18,7 +18,7 @@ var MODULE_REQUIRES = ['folder-display-helpers',
                        'prompt-helpers',
                        'notificationbox-helpers'];
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var maxSize, oldInsertNotificationPref;
 

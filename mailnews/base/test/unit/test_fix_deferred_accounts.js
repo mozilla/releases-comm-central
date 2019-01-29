@@ -6,7 +6,7 @@
  * This tests that we cleanup the account prefs when a pop3 account has
  * been deferred to a hidden account.
  */
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 function run_test()
 {

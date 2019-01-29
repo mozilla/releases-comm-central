@@ -6,7 +6,7 @@
 
 load("../../../resources/messageGenerator.js");
 
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var gCopySource;
 var gCopyDest;

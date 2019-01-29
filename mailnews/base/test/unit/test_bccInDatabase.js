@@ -6,7 +6,7 @@
  * Testing of bcc in message summary file added in bug 481667
  */
 
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var hdr;
 

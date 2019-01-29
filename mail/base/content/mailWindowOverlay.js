@@ -15,15 +15,15 @@
 /* import-globals-from phishingDetector.js */
 /* import-globals-from utilityOverlay.js */
 
-const {FeedUtils} = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
+var {FeedUtils} = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
 var { GlodaSyntheticView } = ChromeUtils.import("resource:///modules/gloda/dbview.js");
 var {MailConsts} = ChromeUtils.import("resource:///modules/MailConsts.jsm");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-const {AddonManager} = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var {AddonManager} = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
 
 ChromeUtils.defineModuleGetter(this, "BrowserToolboxProcess", "resource://devtools/client/framework/ToolboxProcess.jsm");
 ChromeUtils.defineModuleGetter(this, "ScratchpadManager", "resource://devtools/client/scratchpad/scratchpad-manager.jsm");

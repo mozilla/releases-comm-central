@@ -8,7 +8,7 @@
 
 var {Notifications} = ChromeUtils.import("resource:///modules/chatNotifications.jsm");
 var { Services: imServices } = ChromeUtils.import("resource:///modules/imServices.jsm");
-const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 ChromeUtils.defineModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
 

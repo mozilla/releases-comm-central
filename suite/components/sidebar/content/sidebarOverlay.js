@@ -23,7 +23,7 @@
 // Import modules
 //////////////////////////////////////////////////////////////
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 //////////////////////////////////////////////////////////////
 // Global variables

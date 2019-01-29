@@ -6,9 +6,9 @@
 
 "use strict";
 
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 const { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Platform-specific includes
 var AboutSupportPlatform;

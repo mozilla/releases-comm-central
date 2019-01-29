@@ -4,7 +4,7 @@
 
 const {jsmime} = ChromeUtils.import("resource:///modules/jsmime.jsm");
 const {MimeParser} = ChromeUtils.import("resource:///modules/mimeParser.jsm");
-const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 function HeaderHandler() {
   this.value = "";

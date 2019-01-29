@@ -9,7 +9,7 @@
 /* import-globals-from emailWizard.js */
 
 var { logException } = ChromeUtils.import("resource:///modules/errUtils.js");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // --------------------------
 // Low level, basic functions

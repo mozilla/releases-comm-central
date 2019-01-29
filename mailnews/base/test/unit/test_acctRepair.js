@@ -7,7 +7,7 @@
  * without having an account that points at it.
  */
 
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 function run_test()
 {

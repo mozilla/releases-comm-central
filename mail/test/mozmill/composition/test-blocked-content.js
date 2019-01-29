@@ -22,7 +22,7 @@ var MODULE_REQUIRES = [
 
 var os = {};
 ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 const {OS} = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 

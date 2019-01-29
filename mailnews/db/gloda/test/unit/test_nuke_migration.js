@@ -12,7 +12,7 @@
  * the nuke path! oh the irony!) so we don't need to get all hardcore.
  **/
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * The DB version to use.  We set this as a non-const variable so that

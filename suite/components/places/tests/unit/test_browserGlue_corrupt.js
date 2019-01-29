@@ -9,7 +9,7 @@
  * database is corrupt and one backup is available.
  */
 
-const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyServiceGetter(this, "bs",
                                    "@mozilla.org/browser/nav-bookmarks-service;1",

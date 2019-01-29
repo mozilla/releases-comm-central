@@ -5,8 +5,8 @@
 // toolkit/content/treeUtils.js
 /* globals gTreeUtils */
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 var nsIPermissionManager = Ci.nsIPermissionManager;
 var nsICookiePermission = Ci.nsICookiePermission;

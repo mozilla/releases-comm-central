@@ -6,7 +6,7 @@
  *   - Downloading a single message and checking content in stream is correct.
  */
 
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 // The basic daemon to use for testing nntpd.js implementations
 var daemon = setupNNTPDaemon();

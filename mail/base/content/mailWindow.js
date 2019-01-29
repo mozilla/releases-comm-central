@@ -14,10 +14,10 @@
 /* import-globals-from msgMail3PaneWindow.js */
 /* import-globals-from utilityOverlay.js */
 
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 const {appIdleManager} = ChromeUtils.import("resource:///modules/appIdleManager.js");
-const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 var { Gloda } = ChromeUtils.import("resource:///modules/gloda/public.js");

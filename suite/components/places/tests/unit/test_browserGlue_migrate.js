@@ -10,7 +10,7 @@
  * bookmark on init, we should not try to import.
  */
 
-const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyServiceGetter(this, "bs",
                                    "@mozilla.org/browser/nav-bookmarks-service;1",

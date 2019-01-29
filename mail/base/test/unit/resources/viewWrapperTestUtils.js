@@ -10,7 +10,7 @@ const {
   MailViewManager,
   MailViewConstants,
 } = ChromeUtils.import("resource:///modules/MailViewManager.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const {
   VirtualFolderHelper,
 } = ChromeUtils.import("resource:///modules/virtualFolderWrapper.js");

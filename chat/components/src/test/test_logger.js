@@ -4,7 +4,7 @@
 
 do_get_profile();
 
-const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
+var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
 ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 const {OS} = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 

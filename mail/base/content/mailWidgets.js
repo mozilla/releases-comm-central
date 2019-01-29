@@ -43,7 +43,7 @@ class MozMailHeaderfieldTags extends MozXULElement {
   }
 
   buildTags(tags) {
-    const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+    var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
     // tags contains a list of actual tag names (not the keys), delimited by spaces
     // each tag name is encoded.
 

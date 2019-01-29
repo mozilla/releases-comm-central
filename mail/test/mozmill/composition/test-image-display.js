@@ -20,7 +20,7 @@ var os = {};
 ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
 var elib = {};
 ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
-const {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
+var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
 
 var gImageFolder;
 

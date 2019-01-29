@@ -17,6 +17,7 @@ this.EXPORTED_SYMBOLS = [
 
 const {EmptyEnumerator, XPCOMUtils} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
+const {ClassInfo} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/conversations.properties")

@@ -3,7 +3,7 @@
  * Test suite for nsIMsgFolder functions.
  */
 
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 function run_test() {
   // Create a local mail account (we need this first)

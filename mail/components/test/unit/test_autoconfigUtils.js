@@ -18,7 +18,7 @@
 
 // Globals
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /* import-globals-from ../../accountcreation/content/util.js */
 /* import-globals-from ../../accountcreation/content/accountConfig.js */

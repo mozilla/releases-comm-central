@@ -21,7 +21,7 @@ var SAVE = 0
 var CANCEL = 1
 var DONT_SAVE = 2;
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var cwc = null; // compose window controller
 var folder = null;

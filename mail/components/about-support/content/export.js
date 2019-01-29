@@ -7,7 +7,7 @@ createParentElement, getAccountsText, getLoadContext, MailServices, Services */
 
 "use strict";
 
-const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 /**
  * Create warning text to add to any private data.

@@ -10,7 +10,7 @@
  */
 
 const {MailMigrator} = ChromeUtils.import("resource:///modules/MailMigrator.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * A list of font names to verify using |makeVerifier| and

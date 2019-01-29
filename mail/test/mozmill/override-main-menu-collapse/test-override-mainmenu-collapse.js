@@ -15,7 +15,7 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers",
                        "window-helpers"];
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function setupModule(module) {
   collector.getModule("folder-display-helpers").installInto(module);

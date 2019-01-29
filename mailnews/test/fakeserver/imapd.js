@@ -63,7 +63,7 @@ var EXPORTED_SYMBOLS = [
 // + Messages: A message is represented internally as an annotated URI.       //
 ////////////////////////////////////////////////////////////////////////////////
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const {MimeParser} = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 ChromeUtils.import("resource://testing-common/mailnews/auth.js");
 

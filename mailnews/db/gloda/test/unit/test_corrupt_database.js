@@ -15,7 +15,7 @@
 load("../../../../resources/logHelper.js");
 load("../../../../resources/asyncTestUtils.js");
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // -- Do configure the gloda prefs though...
 // yes to indexing

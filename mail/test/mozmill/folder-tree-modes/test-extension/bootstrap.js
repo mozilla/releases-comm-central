@@ -30,7 +30,7 @@ function setupFolderMode(aWindow) {
   let testFolderTreeMode = {
     __proto__: aWindow.IFolderTreeMode,
     generateMap: function(aFTV) {
-      const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+      var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
       // Pick the tinderbox@foo.invalid inbox and use it as the only folder
       let server = MailServices.accounts.FindServer("tinderbox", "tinderbox123", "pop3");
       let item = new aWindow.ftvItem(server.rootFolder.getChildNamed("Inbox"));

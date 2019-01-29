@@ -11,10 +11,10 @@
  * one of our account providers.
  */
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
-const {JXON} = ChromeUtils.import("resource:///modules/JXON.js");
+var {JXON} = ChromeUtils.import("resource:///modules/JXON.js");
 
 /**
  * This is an observer that watches all HTTP requests for one where the

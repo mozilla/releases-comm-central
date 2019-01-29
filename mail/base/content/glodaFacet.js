@@ -5,7 +5,7 @@
 /* global HTMLElement, DateFacetVis, FacetContext, glodaFacetStrings, FacetUtils, PluralForm */
 /* global logException, Gloda */
 
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 class MozFacetDate extends HTMLElement {
   get build() {

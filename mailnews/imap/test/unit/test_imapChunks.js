@@ -3,7 +3,7 @@
  * server lies about rfc822.size (known to happen for Exchange and gmail)
  */
 
-const {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
+var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
 
 var gIMAPDaemon, gServer, gIMAPIncomingServer, gSavedMsgFile;
 

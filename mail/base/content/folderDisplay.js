@@ -8,8 +8,8 @@
 
 const {DBViewWrapper} = ChromeUtils.import("resource:///modules/DBViewWrapper.jsm");
 var { JSTreeSelection } = ChromeUtils.import("resource:///modules/jsTreeSelection.js");
-const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 var gFolderDisplay = null;
 var gMessageDisplay = null;

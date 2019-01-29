@@ -4,9 +4,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var URI_INHERITS_SECURITY_CONTEXT = Ci.nsIProtocolHandler
                                       .URI_INHERITS_SECURITY_CONTEXT;
@@ -39,7 +39,7 @@ function resolveURIInternal(aCmdLine, aArgument) {
 
 function handleIndexerResult(aFile) {
   // Do this here because xpcshell isn't too happy with this at startup
-  const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+  var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
   // Make sure the folder tree is initialized
   MailUtils.discoverFolders();
 

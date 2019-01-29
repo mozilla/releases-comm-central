@@ -20,9 +20,9 @@ var MODULE_REQUIRES = ['folder-display-helpers',
 
 var elib = {};
 ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import('resource:///modules/iteratorUtils.jsm');
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 const {HttpServer} = ChromeUtils.import("chrome://mozmill/content/stdlib/httpd.js");
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back

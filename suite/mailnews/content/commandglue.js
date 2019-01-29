@@ -9,7 +9,7 @@
  */
 
 const {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 //NOTE: gMessengerBundle and gBrandBundle must be defined and set
 //      for this Overlay to work properly

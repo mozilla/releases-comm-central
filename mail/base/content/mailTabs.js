@@ -10,10 +10,10 @@
 /* import-globals-from messageDisplay.js */
 /* import-globals-from msgMail3PaneWindow.js */
 
-const {MsgHdrSyntheticView} = ChromeUtils.import("resource:///modules/MsgHdrSyntheticView.jsm");
+var {MsgHdrSyntheticView} = ChromeUtils.import("resource:///modules/MsgHdrSyntheticView.jsm");
 var { logException } = ChromeUtils.import("resource:///modules/errUtils.js");
-const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { getSpecialFolderString } = ChromeUtils.import("resource:///modules/folderUtils.jsm");
 var { MsgHdrToMimeMessage } = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
 
@@ -639,6 +639,7 @@ var mailTabType = {
     // -- display deck (thread pane / account central)
     // in a vertical view, the threadContentArea sits in the #threadPaneBox
     //  next to the message pane and its splitter.
+    var kVerticalMailLayout = 2;
     if (layout == kVerticalMailLayout)
       document.getElementById("threadContentArea").collapsed =
         !displayDeckLegal;

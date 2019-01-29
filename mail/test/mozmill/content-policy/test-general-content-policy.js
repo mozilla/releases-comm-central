@@ -34,8 +34,8 @@ ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
 var os = {};
 ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var folder = null;
 var gMsgNo = 0;

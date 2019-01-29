@@ -7,9 +7,9 @@
 /* import-globals-from utilityOverlay.js */
 
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {AddonManager} = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
-const {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
+var {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
 var {BrowserUtils} = ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
 const {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 const {ExtensionParent} = ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");

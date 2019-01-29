@@ -10,7 +10,7 @@
  * Test suite for basic functionality with nsIMsgFolderListeners.
  */
 
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var nsIMFNService = Ci.nsIMsgFolderNotificationService;
 var nsIMFListener = Ci.nsIMsgFolderListener;

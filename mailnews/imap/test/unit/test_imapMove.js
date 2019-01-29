@@ -4,8 +4,8 @@
 
 // This tests that we use IMAP move if the IMAP server supports it.
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 load("../../../resources/logHelper.js");
 load("../../../resources/messageGenerator.js");

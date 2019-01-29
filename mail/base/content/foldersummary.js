@@ -8,9 +8,9 @@
 /* import-globals-from folderPane.js */
 /* import-globals-from ../../../mailnews/base/content/newmailalert.js */
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 /**
  * MozFolderSummary displays a listing of NEW mails for the folder in question.

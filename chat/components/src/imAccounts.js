@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const {EmptyEnumerator, XPCOMUtils} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
+var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
 ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 
 var kPrefAutologinPending = "messenger.accounts.autoLoginPending";

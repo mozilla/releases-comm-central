@@ -5,9 +5,10 @@
 var CC = Components.Constructor;
 
 ChromeUtils.import("resource:///modules/hiddenWindow.jsm");
-const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
+var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
 const {EmptyEnumerator, XPCOMUtils} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
+const {GenericMessagePrototype} = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
+const {ClassInfo} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 const {ToLocaleFormat} = ChromeUtils.import("resource:///modules/ToLocaleFormat.jsm");
 
 ChromeUtils.defineModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
@@ -430,6 +431,7 @@ function LogMessage(aData, aConversation) {
   for (let flag of aData.flags)
     this[flag] = true;
 }
+
 LogMessage.prototype = {
   __proto__: GenericMessagePrototype,
   _interfaces: [Ci.imIMessage, Ci.prplIMessage],

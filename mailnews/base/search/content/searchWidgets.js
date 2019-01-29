@@ -5,7 +5,7 @@
 
 /* global MozXULElement, gFilter, gFilterList */
 
-const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 const updateParentNode = (parentNode) => {
   if (parentNode.hasAttribute("initialActionIndex")) {

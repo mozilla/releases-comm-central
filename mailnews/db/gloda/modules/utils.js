@@ -4,7 +4,7 @@
 
 this.EXPORTED_SYMBOLS = ['GlodaUtils'];
 
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 /**
  * @namespace A holding place for logic that is not gloda-specific and should

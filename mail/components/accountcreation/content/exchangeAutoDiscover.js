@@ -5,7 +5,7 @@
 
 /* import-globals-from emailWizard.js */
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.defineModuleGetter(this, "AddonManager", "resource://gre/modules/AddonManager.jsm");
 var { logException } = ChromeUtils.import("resource:///modules/errUtils.js");
 

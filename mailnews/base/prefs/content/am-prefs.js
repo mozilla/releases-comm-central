@@ -6,7 +6,7 @@
 /* functions for disabling front end elements when the appropriate
    back-end preference is locked. */
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * Prefs in MailNews require dynamic portions to indicate

@@ -17,8 +17,8 @@
  * @return href for the url being clicked
  */
 
-const {PlacesUtils} = ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {PlacesUtils} = ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
 
 function hRefForClickEvent(aEvent, aDontCheckInputElement) {
   var href;

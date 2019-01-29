@@ -6,7 +6,7 @@
 // This file is the component definition for a demo base implementation of a
 // javascript msgFolder.
 
-const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 const {JSAccountUtils} = ChromeUtils.import("resource:///modules/jsaccount/JSAccountUtils.jsm");
 ChromeUtils.import("resource://testing-common/mailnews/testJaBaseMsgFolder.jsm");
 

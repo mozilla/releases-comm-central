@@ -3,7 +3,7 @@
  * Most of this test was copied from test_messageHeaders.js.
  */
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 const {MimeParser} = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 

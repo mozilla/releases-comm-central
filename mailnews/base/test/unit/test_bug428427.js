@@ -4,7 +4,7 @@
 
 // Test of message count changes in virtual folder views
 
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var dbviewContractId = "@mozilla.org/messenger/msgdbview;1?type=" + "quicksearch";
 var dbView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);

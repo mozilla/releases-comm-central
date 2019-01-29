@@ -15,7 +15,7 @@ const {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnew
 ChromeUtils.import("resource://testing-common/mailnews/IMAPpump.js");
 ChromeUtils.import("resource://testing-common/mailnews/imapd.js");
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Globals
 

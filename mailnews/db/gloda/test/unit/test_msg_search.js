@@ -38,7 +38,7 @@ function unique_string() {
   return s;
 }
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const {GlodaMsgSearcher} = ChromeUtils.import("resource:///modules/gloda/msg_search.js");
 
 /**

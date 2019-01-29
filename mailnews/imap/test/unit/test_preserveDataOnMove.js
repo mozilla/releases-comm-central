@@ -12,7 +12,7 @@ load("../../../resources/asyncTestUtils.js");
 // IMAP pump
 
 // Globals
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var gMessage = "bugmail10"; // message file used as the test message
 

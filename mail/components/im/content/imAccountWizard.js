@@ -6,7 +6,7 @@
 /* globals accountOptionsHelper */
 
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var PREF_EXTENSIONS_GETMOREPROTOCOLSURL = "extensions.getMoreProtocolsURL";
 

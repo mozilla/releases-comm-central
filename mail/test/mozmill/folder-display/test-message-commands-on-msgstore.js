@@ -18,9 +18,9 @@ var MODULE_REQUIRES = ["folder-display-helpers",
                          "compose-helpers",
                          "window-helpers"];
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
+var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
 
 var statusHeader = "X-Mozilla-Status: ";
 var nsMsgMessageFlags = Ci.nsMsgMessageFlags;

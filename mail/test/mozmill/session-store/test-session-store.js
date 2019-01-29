@@ -19,7 +19,7 @@ ChromeUtils.import("chrome://mozmill/content/modules/controller.js", controller)
 
 const {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 const {SessionStoreManager} = ChromeUtils.import("resource:///modules/SessionStoreManager.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var folderA, folderB;
 

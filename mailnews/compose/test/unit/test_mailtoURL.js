@@ -1,7 +1,7 @@
 /*
  * Test suite for mailto: URLs
  */
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var nsIMailtoUrl = Ci.nsIMailtoUrl;
 var COMPOSE_HTML = Ci.nsIMsgCompFormat.HTML;

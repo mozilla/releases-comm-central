@@ -58,7 +58,7 @@ var loader = Cc["@mozilla.org/moz/jssubscript-loader;1"]
 var uuidgen = Cc["@mozilla.org/uuid-generator;1"]
                     .getService(Ci.nsIUUIDGenerator);
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var systemPrincipal = Services.scriptSecurityManager.getSystemPrincipal();
 
 var backstage = this;

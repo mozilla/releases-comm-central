@@ -9,7 +9,7 @@
 
 var CE = Components.Exception;
 
-const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 const {JSAccountUtils} = ChromeUtils.import("resource:///modules/jsaccount/JSAccountUtils.jsm");
 const {JaBaseUrl} = ChromeUtils.import("resource:///modules/jsaccount/JaBaseUrl.jsm");
 

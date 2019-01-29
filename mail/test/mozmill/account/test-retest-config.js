@@ -12,7 +12,7 @@ var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
 
 var elib = {};
 ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var user = {
   name: "test",

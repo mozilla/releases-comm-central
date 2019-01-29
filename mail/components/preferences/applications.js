@@ -20,9 +20,9 @@ var gNodeToObjectMap = new WeakMap();
 
 // CloudFile account tools used by gCloudFileTab.
 const {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 XPCOMUtils.defineLazyServiceGetters(this, {
   gHandlerService: ["@mozilla.org/uriloader/handler-service;1", "nsIHandlerService"],

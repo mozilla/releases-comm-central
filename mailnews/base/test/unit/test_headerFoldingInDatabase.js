@@ -7,7 +7,7 @@
  * see bug 1454257 and bug 1456001.
  */
 
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var hdr;
 

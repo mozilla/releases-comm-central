@@ -11,7 +11,7 @@
 /* import-globals-from messageDisplay.js */
 
 var { allAccountsSorted } = ChromeUtils.import("resource:///modules/folderUtils.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function GetSubFoldersInFolderPaneOrder(folder) {
   var subFolders = folder.subFolders;

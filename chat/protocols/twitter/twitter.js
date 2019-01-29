@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const {httpRequest, percentEncode} = ChromeUtils.import("resource://gre/modules/Http.jsm");
-const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
-const {XPCOMUtils} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 ChromeUtils.import("resource:///modules/twitter-text.jsm");
 

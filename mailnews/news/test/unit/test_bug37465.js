@@ -1,6 +1,6 @@
 // Bug 37465 -- assertions with no accounts
 
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 function run_test() {
   var daemon = setupNNTPDaemon();

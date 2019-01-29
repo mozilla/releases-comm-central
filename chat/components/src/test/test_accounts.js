@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
+var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
 const {updateAppInfo} = ChromeUtils.import("resource://testing-common/AppInfo.jsm");
 
 function run_test() {

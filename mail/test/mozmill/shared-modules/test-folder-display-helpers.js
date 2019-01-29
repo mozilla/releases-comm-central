@@ -25,10 +25,10 @@ const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
 var nsMsgViewIndex_None = 0xffffffff;
 const {MailConsts} = ChromeUtils.import("resource:///modules/MailConsts.jsm");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 ChromeUtils.import('resource:///modules/MailViewManager.jsm');
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var FILE_LOAD_PATHS = [
   "../",

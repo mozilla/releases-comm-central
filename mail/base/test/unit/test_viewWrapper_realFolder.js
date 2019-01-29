@@ -8,7 +8,7 @@
 load("resources/viewWrapperTestUtils.js");
 initViewWrapperTestUtils();
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /* ===== Real Folder, no features ===== */
 

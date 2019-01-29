@@ -38,7 +38,7 @@ this.EXPORTED_SYMBOLS = [
   "HttpServer",
 ];
 
-const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var CC = Components.Constructor;
 

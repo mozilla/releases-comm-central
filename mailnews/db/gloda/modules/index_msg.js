@@ -16,8 +16,8 @@ this.EXPORTED_SYMBOLS = ['GlodaMsgIndexer'];
 
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 const {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
@@ -27,7 +27,7 @@ const {GlodaContact} = ChromeUtils.import("resource:///modules/gloda/datamodel.j
 const {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
 const {GlodaCollectionManager} = ChromeUtils.import("resource:///modules/gloda/collection.js");
 const {GlodaIndexer} = ChromeUtils.import("resource:///modules/gloda/indexer.js");
-const {MsgHdrToMimeMessage} = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
+var {MsgHdrToMimeMessage} = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
 
 // Cr does not have mailnews error codes!
 var NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE = 0x80550005;

@@ -7,7 +7,7 @@ this.EXPORTED_SYMBOLS = ['MsgHdrToMimeMessage',
                           'MimeBody', 'MimeUnknown',
                           'MimeMessageAttachment'];
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var EMITTER_MIME_CODE = "application/x-js-mime-message";

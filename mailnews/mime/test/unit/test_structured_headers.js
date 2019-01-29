@@ -5,7 +5,7 @@
 // This tests the msgIStructuredHeaders and msgIWritableStructuredHeaders
 // interfaces.
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /// Verify that a specific XPCOM error code is thrown.
 function verifyError(block, errorCode) {

@@ -3,7 +3,7 @@
  * Test suite for nsIMsgHeaderParser::makeFromDisplayAddress
  */
 
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 function run_test() {
   const checks =

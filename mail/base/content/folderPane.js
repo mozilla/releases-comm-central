@@ -21,11 +21,11 @@ var {
   fixIterator,
   toXPCOMArray,
 } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-const {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
 const {FeedUtils} = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 if (typeof FeedMessageHandler != "object")
   Services.scriptloader.loadSubScript("chrome://messenger-newsblog/content/newsblogOverlay.js");

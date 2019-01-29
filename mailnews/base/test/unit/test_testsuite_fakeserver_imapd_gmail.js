@@ -14,7 +14,7 @@ load("../../../resources/alertTestUtils.js");
 // IMAP pump
 ChromeUtils.import("resource://testing-common/mailnews/IMAPpump.js");
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 
 setupIMAPPump("GMail");

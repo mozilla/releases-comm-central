@@ -8,7 +8,7 @@ var gClickToPlayPluginActualEvents = 0;
 var gClickToPlayPluginExpectedEvents = 5;
 var gPluginHost = Cc["@mozilla.org/plugin/host;1"].getService(Ci.nsIPluginHost);
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // This listens for the next opened tab and checks it is of the right url.
 // opencallback is called when the new tab is fully loaded

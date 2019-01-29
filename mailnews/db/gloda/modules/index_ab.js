@@ -11,7 +11,7 @@ const {GlodaIndexer, IndexingJob} = ChromeUtils.import("resource:///modules/glod
 const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 const {FreeTagNoun} = ChromeUtils.import("resource:///modules/gloda/noun_freetag.js");
 const {GlodaUtils} = ChromeUtils.import("resource:///modules/gloda/utils.js");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 
 var GlodaABIndexer = {

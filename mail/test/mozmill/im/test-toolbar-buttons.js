@@ -9,7 +9,7 @@ var MODULE_NAME = 'test-toolbar-buttons';
 var RELATIVE_ROOT = '../shared-modules';
 var MODULE_REQUIRES = ['folder-display-helpers'];
 
-const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
+var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
 
 function setupModule(module) {
   collector.getModule('folder-display-helpers').installInto(module);

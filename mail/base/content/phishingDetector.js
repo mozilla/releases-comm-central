@@ -5,7 +5,7 @@
 /* import-globals-from mailWindowOverlay.js */
 /* import-globals-from utilityOverlay.js */
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var kPhishingNotSuspicious = 0;
 var kPhishingWithIPAddress = 1;

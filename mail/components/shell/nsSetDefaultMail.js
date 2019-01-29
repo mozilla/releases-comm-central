@@ -10,7 +10,7 @@
  * by making the current executable the "default mail app."
  */
 
-const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 function nsSetDefaultMail() {
 }

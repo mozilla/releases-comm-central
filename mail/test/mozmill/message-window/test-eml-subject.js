@@ -15,8 +15,8 @@ var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 var os = {};
 ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
-const {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
-const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
+var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 var setupModule = function(module) {
   let fdh = collector.getModule("folder-display-helpers");

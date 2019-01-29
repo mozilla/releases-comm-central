@@ -293,7 +293,6 @@ var gXPInstallObserver = {
         label: addonsBundle.getString("addonPostInstall.restart.label"),
         accessKey: addonsBundle.getString("addonPostInstall.restart.key"),
         callback: () => {
-          const {BrowserUtils} = ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
           BrowserUtils.restartApplication();
         },
       };

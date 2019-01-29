@@ -37,7 +37,7 @@
  * alias3.eml        50             53
  */
 
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var traitService = Cc["@mozilla.org/msg-trait-service;1"]
                        .getService(Ci.nsIMsgTraitService);

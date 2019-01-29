@@ -10,10 +10,10 @@
 "use strict";
 
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const {Troubleshoot} = ChromeUtils.import("resource://gre/modules/Troubleshoot.jsm");
 const {ResetProfile} = ChromeUtils.import("resource://gre/modules/ResetProfile.jsm");
-const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 // added for TB
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 // end of TB addition

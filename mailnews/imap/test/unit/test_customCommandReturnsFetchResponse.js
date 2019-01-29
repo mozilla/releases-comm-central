@@ -13,7 +13,7 @@ load("../../../resources/asyncTestUtils.js");
 
 // IMAP pump
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Globals
 

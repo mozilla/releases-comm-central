@@ -4,7 +4,7 @@
 
 /* import-globals-from ../../../base/content/commandglue.js */
 
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {
   MailViewConstants,
 } = ChromeUtils.import("resource:///modules/MailViewManager.jsm");

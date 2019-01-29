@@ -15,7 +15,7 @@ var MODULE_NAME = 'test-opening-messages-without-a-backing-view';
 var RELATIVE_ROOT = '../shared-modules';
 var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers'];
 
-const {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 // One folder's enough
 var folder = null;

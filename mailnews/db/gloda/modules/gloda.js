@@ -13,13 +13,13 @@ const {GlodaDatabind} = ChromeUtils.import("resource:///modules/gloda/databind.j
 const {GlodaCollection, GlodaCollectionManager} = ChromeUtils.import("resource:///modules/gloda/collection.js");
 const {whittlerRegistry, mimeMsgToContentAndMeta} =
   ChromeUtils.import("resource:///modules/gloda/connotent.js");
-const {query} = ChromeUtils.import("resource:///modules/gloda/query.js");
+const {GlodaQueryClassFactory} = ChromeUtils.import("resource:///modules/gloda/query.js");
 const {GlodaUtils} = ChromeUtils.import("resource:///modules/gloda/utils.js");
 
 const {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-const {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 /**
  * @see |Gloda.BadItemContentsError|

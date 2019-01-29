@@ -3,7 +3,7 @@
  * Test suite for auto-detecting attachment file charset.
  */
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 function checkAttachmentCharset(expectedCharset) {

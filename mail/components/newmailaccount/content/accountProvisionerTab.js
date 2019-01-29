@@ -7,7 +7,7 @@
 // mail/base/content/specialTabs.js
 /* globals specialTabs */
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
 /**

@@ -16,7 +16,7 @@
 
 // Globals
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const {JXON} = ChromeUtils.import("resource:///modules/JXON.js");
 
 var xmlReader = {};

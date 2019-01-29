@@ -3,7 +3,7 @@
  * Test suite for nsMsgMailSession functions relating to listeners.
  */
 
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var nsIFolderListener = Ci.nsIFolderListener;
 var numListenerFunctions = 8;

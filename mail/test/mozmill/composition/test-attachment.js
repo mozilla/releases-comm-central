@@ -25,7 +25,7 @@ var filePrefix;
 
 var os = {};
 ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
-const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 var rawAttachment =
   "Can't make the frug contest, Helen; stomach's upset. I'll fix you, " +

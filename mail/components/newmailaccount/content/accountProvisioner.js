@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
-const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-const {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+var {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
 // Get a configured logger for this component.

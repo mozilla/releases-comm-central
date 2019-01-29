@@ -9,8 +9,8 @@
 
 this.EXPORTED_SYMBOLS = ["GlodaDatastore"];
 
-const {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
 
 const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
