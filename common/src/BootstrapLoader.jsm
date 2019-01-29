@@ -294,7 +294,8 @@ var BootstrapLoader = {
     return addon;
   },
 
-  loadScope(addon, file) {
+  loadScope(addon) {
+    let file = addon.file || addon._sourceBundle;
     let uri = getURIForResourceInFile(file, "bootstrap.js").spec;
     let principal = Services.scriptSecurityManager.getSystemPrincipal();
 
