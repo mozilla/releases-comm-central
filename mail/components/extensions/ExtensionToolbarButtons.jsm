@@ -4,12 +4,12 @@
 
 this.EXPORTED_SYMBOLS = ["ToolbarButtonAPI"];
 
-ChromeUtils.defineModuleGetter(this, "Services", "resource://gre/modules/Services.jsm");
-ChromeUtils.defineModuleGetter(this, "ViewPopup", "resource:///modules/ExtensionPopups.jsm");
-ChromeUtils.defineModuleGetter(this, "ExtensionSupport", "resource:///modules/ExtensionSupport.jsm");
-const {ExtensionCommon} = ChromeUtils.import("resource://gre/modules/ExtensionCommon.jsm");
-const {ExtensionUtils} = ChromeUtils.import("resource://gre/modules/ExtensionUtils.jsm");
-const {ExtensionParent} = ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {ViewPopup} = ChromeUtils.import("resource:///modules/ExtensionPopups.jsm");
+var {ExtensionSupport} = ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
+var {ExtensionCommon} = ChromeUtils.import("resource://gre/modules/ExtensionCommon.jsm");
+var {ExtensionUtils} = ChromeUtils.import("resource://gre/modules/ExtensionUtils.jsm");
+var {ExtensionParent} = ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");
 
 const {
   EventManager,
@@ -27,7 +27,7 @@ const {
   ExtensionError,
 } = ExtensionUtils;
 
-const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 XPCOMUtils.defineLazyGlobalGetters(this, ["InspectorUtils"]);
 
 var XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";

@@ -15,7 +15,7 @@
            extends="chrome://mozapps/content/extensions/extensions.xml#addon-generic">
     <implementation>
       <constructor><![CDATA[
-        const {ExtensionParent} = ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");
+        var {ExtensionParent} = ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");
         this._updateState = this._updateState.bind(this);
         ExtensionParent.apiManager.on("startup", this._updateState);
         ExtensionParent.apiManager.on("shutdown", this._updateState);

@@ -4,14 +4,12 @@
 
 var CC = Components.Constructor;
 
-ChromeUtils.import("resource:///modules/hiddenWindow.jsm");
 var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
-const {EmptyEnumerator, XPCOMUtils} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-const {GenericMessagePrototype} = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
-const {ClassInfo} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-const {ToLocaleFormat} = ChromeUtils.import("resource:///modules/ToLocaleFormat.jsm");
-
-ChromeUtils.defineModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
+var {EmptyEnumerator, XPCOMUtils} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var {GenericMessagePrototype} = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
+var {ClassInfo} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var {ToLocaleFormat} = ChromeUtils.import("resource:///modules/ToLocaleFormat.jsm");
+var {OS} = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/logger.properties")

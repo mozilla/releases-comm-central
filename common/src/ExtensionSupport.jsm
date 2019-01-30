@@ -9,13 +9,13 @@
 
 this.EXPORTED_SYMBOLS = ["ExtensionSupport"];
 
-const {AddonManager} = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {AddonManager} = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 // ChromeUtils.import("resource://gre/modules/Deprecated.jsm") - needed for warning.
-const {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
+var {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 
 var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-const {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
+var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
 
 var extensionHooks = new Map();
 var legacyExtensions = new Map();

@@ -16,7 +16,7 @@
 /* import-globals-from utilityOverlay.js */
 
 var {FeedUtils} = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
-var { GlodaSyntheticView } = ChromeUtils.import("resource:///modules/gloda/dbview.js");
+var {GlodaSyntheticView} = ChromeUtils.import("resource:///modules/gloda/dbview.js");
 var {MailConsts} = ChromeUtils.import("resource:///modules/MailConsts.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
@@ -25,10 +25,10 @@ var {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 var {AddonManager} = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
 
-ChromeUtils.defineModuleGetter(this, "BrowserToolboxProcess", "resource://devtools/client/framework/ToolboxProcess.jsm");
-ChromeUtils.defineModuleGetter(this, "ScratchpadManager", "resource://devtools/client/scratchpad/scratchpad-manager.jsm");
-ChromeUtils.defineModuleGetter(this, "ExtensionParent", "resource://gre/modules/ExtensionParent.jsm");
-ChromeUtils.defineModuleGetter(this, "ExtensionSupport", "resource:///modules/ExtensionSupport.jsm");
+var {BrowserToolboxProcess} = ChromeUtils.import("resource://devtools/client/framework/ToolboxProcess.jsm");
+var {ScratchpadManager} = ChromeUtils.import("resource://devtools/client/scratchpad/scratchpad-manager.jsm");
+var {ExtensionParent} = ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");
+var {ExtensionSupport} = ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
 Object.defineProperty(this, "HUDService", {
   get() {
     let { devtools } = ChromeUtils.import("resource://devtools/shared/Loader.jsm");

@@ -24,7 +24,7 @@ var {
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
-const {FeedUtils} = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
+var {FeedUtils} = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 if (typeof FeedMessageHandler != "object")
