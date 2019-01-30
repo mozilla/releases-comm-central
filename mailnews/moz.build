@@ -35,7 +35,7 @@ if CONFIG['OS_ARCH'] == 'WINNT':
     if CONFIG['MOZ_MAPI_SUPPORT']:
         DIRS += ['import/outlook/src']
 
-    if not CONFIG['GNU_CC']:
+    if CONFIG['CC_TYPE'] in ('msvc', 'clang-cl'):
         DIRS += [
             'import/winlivemail',
         ]
