@@ -49,7 +49,7 @@
 #include "nsIMutableArray.h"
 #include "nsArrayUtils.h"
 
-#include "nsToolkitCompsCID.h"
+#include "mozilla/Components.h"
 #include <stdlib.h>
 #define PROFILE_COMMANDLINE_ARG u" -profile "
 
@@ -421,8 +421,8 @@ nsresult nsMessengerWinIntegration::ShowAlertMessage(const nsString& aAlertTitle
 
   if (showAlert)
   {
-    nsCOMPtr<nsIAlertsService> alertsService (do_GetService(NS_ALERTSERVICE_CONTRACTID, &rv));
-    if (NS_SUCCEEDED(rv))
+    nsCOMPtr<nsIAlertsService> alertsService = mozilla::components::Alerts::Service();
+    if (alertsService)
     {
       rv = alertsService->ShowAlertNotification(NS_LITERAL_STRING(NEW_MAIL_ALERT_ICON), aAlertTitle,
                                                 aAlertText, true,
