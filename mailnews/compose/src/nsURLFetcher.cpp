@@ -28,6 +28,7 @@
 #include "nsIStreamConverterService.h"
 #include "nsIMsgProgress.h"
 #include "nsMsgUtils.h"
+#include "mozilla/Components.h"
 
 NS_IMPL_ISUPPORTS(nsURLFetcher,
                    nsIURLFetcher,
@@ -313,7 +314,7 @@ nsURLFetcher::FireURLRequest(nsIURI *aURL, nsIFile *localFile, nsIOutputStream *
   mOnStopRequestProcessed = false;
 
   // let's try uri dispatching...
-  nsCOMPtr<nsIURILoader> pURILoader (do_GetService(NS_URI_LOADER_CONTRACTID));
+  nsCOMPtr<nsIURILoader> pURILoader = mozilla::components::URILoader::Service();
   NS_ENSURE_TRUE(pURILoader, NS_ERROR_FAILURE);
 
   nsCOMPtr<nsIChannel> channel;

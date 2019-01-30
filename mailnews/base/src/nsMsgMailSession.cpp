@@ -17,7 +17,6 @@
 #include "mozilla/dom/Document.h"
 #include "nsIObserverService.h"
 #include "nsIAppStartup.h"
-#include "nsToolkitCompsCID.h"
 #include "nsISupportsPrimitives.h"
 #include "nsIAppShellService.h"
 #include "nsAppShellCID.h"
@@ -31,6 +30,7 @@
 #include "nsIProperties.h"
 #include "mozilla/Services.h"
 #include "mozilla/dom/Element.h"
+#include "mozilla/Components.h"
 
 NS_IMPL_ISUPPORTS(nsMsgMailSession, nsIMsgMailSession, nsIFolderListener)
 
@@ -562,8 +562,7 @@ void nsMsgShutdownService::AttemptShutdown()
   }
   else
   {
-    nsCOMPtr<nsIAppStartup> appStartup =
-      do_GetService(NS_APPSTARTUP_CONTRACTID);
+    nsCOMPtr<nsIAppStartup> appStartup = mozilla::components::AppStartup::Service();
     NS_ENSURE_TRUE_VOID(appStartup);
     NS_ENSURE_SUCCESS_VOID(appStartup->Quit(mQuitMode));
   }

@@ -35,6 +35,7 @@
 #include "nsMsgUtils.h"
 #include "mozilla/TransactionManager.h"
 #include "mozilla/dom/LoadURIOptionsBinding.h"
+#include "mozilla/Components.h"
 
 NS_IMPL_ISUPPORTS(nsMsgWindow,
                               nsIMsgWindow,
@@ -57,9 +58,8 @@ nsresult nsMsgWindow::Init()
 {
   // register ourselves as a content listener with the uri dispatcher service
   nsresult rv;
-  nsCOMPtr<nsIURILoader> dispatcher =
-           do_GetService(NS_URI_LOADER_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIURILoader> dispatcher = mozilla::components::URILoader::Service();
+  NS_ENSURE_TRUE(dispatcher, NS_ERROR_UNEXPECTED);
 
   rv = dispatcher->RegisterContentListener(this);
   if (NS_FAILED(rv))
@@ -98,7 +98,7 @@ NS_IMETHODIMP nsMsgWindow::GetMessageWindowDocShell(nsIDocShell ** aDocShell)
 NS_IMETHODIMP nsMsgWindow::CloseWindow()
 {
   nsresult rv = NS_OK;
-  nsCOMPtr<nsIURILoader> dispatcher = do_GetService(NS_URI_LOADER_CONTRACTID, &rv);
+  nsCOMPtr<nsIURILoader> dispatcher = mozilla::components::URILoader::Service();
   if (dispatcher) // on shut down it's possible dispatcher will be null.
     rv = dispatcher->UnRegisterContentListener(this);
 
