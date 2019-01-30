@@ -1,7 +1,15 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-ChromeUtils.import("resource:///modules/ArrayBufferUtils.jsm");
+var {
+  copyBytes,
+  ArrayBufferToBytes,
+  BytesToArrayBuffer,
+  StringToBytes,
+  StringToArrayBuffer,
+  ArrayBufferToString,
+  ArrayBufferToHexString,
+} = ChromeUtils.import("resource:///modules/ArrayBufferUtils.jsm");
 
 function do_check_arraybuffer_eq(a, b) {
   let viewA = new Uint8Array(a);

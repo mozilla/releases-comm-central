@@ -15,7 +15,7 @@
 
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {DisplayNameUtils} = ChromeUtils.import("resource:///modules/DisplayNameUtils.jsm");
+var {DisplayNameUtils} = ChromeUtils.import("resource:///modules/DisplayNameUtils.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var { GlodaUtils } = ChromeUtils.import("resource:///modules/gloda/utils.js");
 var {

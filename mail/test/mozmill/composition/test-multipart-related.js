@@ -19,7 +19,7 @@ var os = {};
 ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {MimeParser} = ChromeUtils.import("resource:///modules/mimeParser.jsm");
+var {MimeParser} = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 var elib = {};
 ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
 var utils = {};

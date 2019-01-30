@@ -9,8 +9,6 @@ var MODULE_NAME = "cloudfile-backend-helpers";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["window-helpers"];
 
-ChromeUtils.import('resource://gre/modules/XPCOMUtils.jsm');
-
 var kUserAuthRequested = "cloudfile:auth";
 var kUserDataRequested = "cloudfile:user";
 var kUploadFile = "cloudfile:uploadFile";

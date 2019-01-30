@@ -20,7 +20,7 @@ var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-const {Preferences} = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var {Preferences} = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 var gFontEnumerator;
 var gTodayPane;

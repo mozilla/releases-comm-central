@@ -9,7 +9,13 @@
  * adapted from test_localToImapFilter.js
  */
 
-ChromeUtils.import("resource:///modules/folderUtils.jsm");
+var {
+  getFolderProperties,
+  getSpecialFolderString,
+  allAccountsSorted,
+  getMostRecentFolders,
+  folderNameCompare,
+} = ChromeUtils.import("resource:///modules/folderUtils.jsm");
 
 var nsMsgSearchScope = Ci.nsMsgSearchScope;
 var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;

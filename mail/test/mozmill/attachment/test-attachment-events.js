@@ -21,8 +21,8 @@ var MODULE_REQUIRES = ['folder-display-helpers',
 var os = {};
 ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
 
-ChromeUtils.import('resource://gre/modules/Services.jsm');
-const {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
 var kAttachmentsAdded = "attachments-added";
 var kAttachmentsRemoved = "attachments-removed";

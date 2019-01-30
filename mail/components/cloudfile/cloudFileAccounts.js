@@ -15,8 +15,8 @@ var PWDMGR_REALM = "BigFiles Auth Token";
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-const { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-const {EventEmitter} = ChromeUtils.import("resource://gre/modules/EventEmitter.jsm");
+var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var {EventEmitter} = ChromeUtils.import("resource://gre/modules/EventEmitter.jsm");
 
 var cloudFileAccounts = new class extends EventEmitter {
   constructor() {

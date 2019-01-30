@@ -1,4 +1,4 @@
-const {TBDistCustomizer} = ChromeUtils.import("resource:///modules/TBDistCustomizer.jsm");
+var {TBDistCustomizer} = ChromeUtils.import("resource:///modules/TBDistCustomizer.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function run_test() {

@@ -65,7 +65,11 @@ var EXPORTED_SYMBOLS = [
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const {MimeParser} = ChromeUtils.import("resource:///modules/mimeParser.jsm");
-ChromeUtils.import("resource://testing-common/mailnews/auth.js");
+var {
+  AuthPLAIN,
+  AuthLOGIN,
+  AuthCRAM,
+} = ChromeUtils.import("resource://testing-common/mailnews/auth.js");
 
 function imapDaemon(flags, syncFunc) {
   this._flags = flags;

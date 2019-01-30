@@ -18,9 +18,7 @@ var MODULE_REQUIRES = ['cloudfile-helpers',
                          'window-helpers'];
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import('resource://gre/modules/XPCOMUtils.jsm');
-const {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
-ChromeUtils.import('resource:///modules/iteratorUtils.jsm');
+var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
 
 var kCategory = 'cloud-files';
 var kDialogId = 'addCloudFileAccount';

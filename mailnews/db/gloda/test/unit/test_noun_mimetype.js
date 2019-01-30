@@ -11,7 +11,7 @@
 
 load("resources/glodaTestHelper.js");
 
-ChromeUtils.import("resource:///modules/gloda/noun_mimetype.js");
+var {MimeType, MimeTypeNoun} = ChromeUtils.import("resource:///modules/gloda/noun_mimetype.js");
 
 /* ===== Tests ===== */
 

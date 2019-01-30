@@ -19,7 +19,7 @@ var APP_ICON_ATTR_NAME = "appHandlerIcon";
 var gNodeToObjectMap = new WeakMap();
 
 // CloudFile account tools used by gCloudFileTab.
-const {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
+var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");

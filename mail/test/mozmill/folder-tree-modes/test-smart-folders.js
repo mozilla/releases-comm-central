@@ -10,6 +10,8 @@
 
 "use strict";
 
+var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+
 var MODULE_NAME = "test-smart-folders";
 
 var RELATIVE_ROOT = "../shared-modules";

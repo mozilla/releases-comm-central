@@ -15,12 +15,15 @@ this.EXPORTED_SYMBOLS = ['GlodaIndexer', 'IndexingJob'];
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
-const {GlodaUtils} = ChromeUtils.import("resource:///modules/gloda/utils.js");
-const {GlodaDatastore} = ChromeUtils.import("resource:///modules/gloda/datastore.js");
-const {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
-const {GlodaCollectionManager} = ChromeUtils.import("resource:///modules/gloda/collection.js");
+var {GlodaUtils} = ChromeUtils.import("resource:///modules/gloda/utils.js");
+var {GlodaDatastore} = ChromeUtils.import("resource:///modules/gloda/datastore.js");
+var {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
+var {
+  GlodaCollection,
+  GlodaCollectionManager,
+} = ChromeUtils.import("resource:///modules/gloda/collection.js");
 
 /**
  * @class Capture the indexing batch concept explicitly.

@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {Deprecated} = ChromeUtils.import("resource://gre/modules/Deprecated.jsm");
+var {Deprecated} = ChromeUtils.import("resource://gre/modules/Deprecated.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
 function runnablePrompter(asyncPrompter, hashKey) {
   this._asyncPrompter = asyncPrompter;

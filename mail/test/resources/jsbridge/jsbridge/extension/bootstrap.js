@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {ExtensionSupport} = ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
+var {ExtensionSupport} = ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
 
 var addonID;
 

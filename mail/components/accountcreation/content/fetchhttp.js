@@ -17,7 +17,7 @@
 
 /* import-globals-from emailWizard.js */
 
-const {JXON} = ChromeUtils.import("resource:///modules/JXON.js");
+var {JXON} = ChromeUtils.import("resource:///modules/JXON.js");
 var { logException } = ChromeUtils.import("resource:///modules/errUtils.js");
 
 /**

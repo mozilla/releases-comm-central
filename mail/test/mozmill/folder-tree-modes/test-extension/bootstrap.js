@@ -5,7 +5,7 @@
 
 "use strict";
 
-const {ExtensionSupport} = ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
+var {ExtensionSupport} = ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
 
 //const addonID = "testfoldertreemode@mozilla.org";
 

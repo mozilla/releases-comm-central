@@ -15,7 +15,11 @@ this.EXPORTED_SYMBOLS = [
   "TooltipInfo"
 ];
 
-const {EmptyEnumerator, XPCOMUtils} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+const {
+  EmptyEnumerator,
+  initLogModule,
+  XPCOMUtils,
+} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
 const {ClassInfo} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 

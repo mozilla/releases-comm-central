@@ -5,9 +5,9 @@
 /* exported taskDetailsView, sendMailToOrganizer, taskViewCopyLink */
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-const { recurrenceRule2String } = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var { recurrenceRule2String } = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 var taskDetailsView = {
 

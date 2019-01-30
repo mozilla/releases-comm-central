@@ -6,6 +6,12 @@
 /* import-globals-from emailWizard.js */
 
 var { logException } = ChromeUtils.import("resource:///modules/errUtils.js");
+var {
+  cleanUpHostName,
+  isLegalHostNameOrIP,
+  kMaxPort,
+  kMinPort,
+} = ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
 
 /* eslint-disable complexity */
 /**

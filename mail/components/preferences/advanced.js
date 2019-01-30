@@ -8,12 +8,12 @@
 /* import-globals-from subdialogs.js */
 
 // Load DownloadUtils module for convertByteUnits
-const {DownloadUtils} = ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
+var {DownloadUtils} = ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {L10nRegistry} = ChromeUtils.import("resource://gre/modules/L10nRegistry.jsm");
-const {Localization} = ChromeUtils.import("resource://gre/modules/Localization.jsm");
+var {L10nRegistry} = ChromeUtils.import("resource://gre/modules/L10nRegistry.jsm");
+var {Localization} = ChromeUtils.import("resource://gre/modules/Localization.jsm");
 ChromeUtils.defineModuleGetter(this, "UpdateUtils",
   "resource://gre/modules/UpdateUtils.jsm");
 

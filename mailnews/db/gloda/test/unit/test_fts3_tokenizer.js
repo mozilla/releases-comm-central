@@ -145,8 +145,8 @@ function* test_fulltextsearch(aPhrase)
   }
 }
 
-const {GlodaMsgSearcher} = ChromeUtils.import("resource:///modules/gloda/msg_search.js");
-ChromeUtils.import("resource:///modules/gloda/datastore.js");
+var {GlodaMsgSearcher} = ChromeUtils.import("resource:///modules/gloda/msg_search.js");
+var {GlodaDatastore} = ChromeUtils.import("resource:///modules/gloda/datastore.js");
 
 /**
  * Pass a query string to the GlodaMsgSearcher, run the corresponding SQL query,

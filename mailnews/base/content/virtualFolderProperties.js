@@ -15,8 +15,11 @@ var nsMsgSearchScope = Ci.nsMsgSearchScope;
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {virtualFolderWrapper} = ChromeUtils.import("resource:///modules/virtualFolderWrapper.js");
-const {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var {
+  virtualFolderWrapper,
+  VirtualFolderHelper,
+} = ChromeUtils.import("resource:///modules/virtualFolderWrapper.js");
+var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 function onLoad()

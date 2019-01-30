@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
-const { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calUtils.jsm", "cal");
 ChromeUtils.defineModuleGetter(this, "Deprecated", "resource://gre/modules/Deprecated.jsm");

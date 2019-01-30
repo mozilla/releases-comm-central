@@ -11,18 +11,18 @@ var {ExtensionCommon} = ChromeUtils.import("resource://gre/modules/ExtensionComm
 var {ExtensionUtils} = ChromeUtils.import("resource://gre/modules/ExtensionUtils.jsm");
 var {ExtensionParent} = ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");
 
-const {
+var {
   EventManager,
   ExtensionAPI,
   makeWidgetId,
 } = ExtensionCommon;
 
-const {
+var {
   IconDetails,
   StartupCache,
 } = ExtensionParent;
 
-const {
+var {
   DefaultWeakMap,
   ExtensionError,
 } = ExtensionUtils;

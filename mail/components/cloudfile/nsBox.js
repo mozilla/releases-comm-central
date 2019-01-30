@@ -12,10 +12,10 @@
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
-const {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
-const {OAuth2} = ChromeUtils.import("resource:///modules/OAuth2.jsm");
-const {httpRequest} = ChromeUtils.import("resource://gre/modules/Http.jsm");
+var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
+var {OAuth2} = ChromeUtils.import("resource:///modules/OAuth2.jsm");
+var {httpRequest} = ChromeUtils.import("resource://gre/modules/Http.jsm");
 
 var gServerUrl = "https://api.box.com/2.0/";
 var gUploadUrl = "https://upload.box.com/api/2.0/";

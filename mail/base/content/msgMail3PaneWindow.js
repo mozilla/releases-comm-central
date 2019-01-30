@@ -26,16 +26,16 @@ var { logException } = ChromeUtils.import("resource:///modules/errUtils.js");
 var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
 var { JSTreeSelection } = ChromeUtils.import("resource:///modules/jsTreeSelection.js");
 var {MailConsts} = ChromeUtils.import("resource:///modules/MailConsts.jsm");
-const {MailInstrumentation} = ChromeUtils.import("resource:///modules/MailInstrumentation.jsm");
+var {MailInstrumentation} = ChromeUtils.import("resource:///modules/MailInstrumentation.jsm");
 var {migrateMailnews} = ChromeUtils.import("resource:///modules/mailnewsMigrator.js");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {msgDBCacheManager} = ChromeUtils.import("resource:///modules/msgDBCacheManager.js");
-const {SessionStoreManager} = ChromeUtils.import("resource:///modules/SessionStoreManager.jsm");
-const {SummaryFrameManager} = ChromeUtils.import("resource:///modules/SummaryFrameManager.jsm");
+var {msgDBCacheManager} = ChromeUtils.import("resource:///modules/msgDBCacheManager.js");
+var {SessionStoreManager} = ChromeUtils.import("resource:///modules/SessionStoreManager.jsm");
+var {SummaryFrameManager} = ChromeUtils.import("resource:///modules/SummaryFrameManager.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-const {Color} = ChromeUtils.import("resource://gre/modules/Color.jsm");
+var {Color} = ChromeUtils.import("resource://gre/modules/Color.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   LightweightThemeManager: "resource://gre/modules/LightweightThemeManager.jsm",

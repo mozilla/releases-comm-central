@@ -44,6 +44,7 @@ var EXPORTED_SYMBOLS = ["controller", "events", "utils", "elementslib", "os",
                         "getMsgComposeController", "getDownloadsController",
                         "Application", "MozMillAsyncTest", "cleanQuit",
                         "getPlacesController", 'isMac', 'isLinux', 'isWindows',
+                        "appInfo", "locale"
                        ];
 
 var controller = {};  ChromeUtils.import("chrome://mozmill/content/modules/controller.js", controller);

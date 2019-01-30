@@ -4,7 +4,7 @@
 
 /* exported gAlarmsPane */
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * Global Object to hold methods for the alarms pref pane

@@ -5,7 +5,7 @@
 var EXPORTED_SYMBOLS = ["AboutSupportPlatform"];
 
 // JS ctypes are needed to get at the data we need
-const {ctypes} = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
+var {ctypes} = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
 
 var BOOL = ctypes.int32_t;
 var DRIVE_UNKNOWN = 0;

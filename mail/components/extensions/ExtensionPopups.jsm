@@ -8,15 +8,15 @@ var EXPORTED_SYMBOLS = ["BasePopup", "ViewPopup"];
 
 ChromeUtils.defineModuleGetter(this, "ExtensionParent",
                                "resource://gre/modules/ExtensionParent.jsm");
-const {ExtensionUtils} = ChromeUtils.import("resource://gre/modules/ExtensionUtils.jsm");
-const {ExtensionCommon} = ChromeUtils.import("resource://gre/modules/ExtensionCommon.jsm");
+var {ExtensionUtils} = ChromeUtils.import("resource://gre/modules/ExtensionUtils.jsm");
+var {ExtensionCommon} = ChromeUtils.import("resource://gre/modules/ExtensionCommon.jsm");
 
-const {
+var {
   DefaultWeakMap,
   promiseEvent,
 } = ExtensionUtils;
 
-const {
+var {
   makeWidgetId,
 } = ExtensionCommon;
 

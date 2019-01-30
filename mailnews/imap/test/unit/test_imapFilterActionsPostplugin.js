@@ -5,8 +5,13 @@
  * adapted from test_imapFilterActions.js
  */
 
-ChromeUtils.import("resource:///modules/folderUtils.jsm");
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var {
+  getFolderProperties,
+  getSpecialFolderString,
+  allAccountsSorted,
+  getMostRecentFolders,
+  folderNameCompare,
+} = ChromeUtils.import("resource:///modules/folderUtils.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var nsMsgSearchScope = Ci.nsMsgSearchScope;

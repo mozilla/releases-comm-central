@@ -15,7 +15,11 @@ var EXPORTED_SYMBOLS = [
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
-ChromeUtils.import("resource://testing-common/mailnews/auth.js");
+var {
+  AuthPLAIN,
+  AuthLOGIN,
+  AuthCRAM,
+} = ChromeUtils.import("resource://testing-common/mailnews/auth.js");
 
 // Since we don't really need to worry about peristence, we can just
 // use a UIDL counter.

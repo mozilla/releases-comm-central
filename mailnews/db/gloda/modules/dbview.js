@@ -11,8 +11,8 @@ this.EXPORTED_SYMBOLS = ["GlodaSyntheticView"];
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-const {Gloda} = ChromeUtils.import("resource:///modules/gloda/public.js");
-const {GlodaMsgSearcher} = ChromeUtils.import("resource:///modules/gloda/msg_search.js");
+var {Gloda} = ChromeUtils.import("resource:///modules/gloda/public.js");
+var {GlodaMsgSearcher} = ChromeUtils.import("resource:///modules/gloda/msg_search.js");
 
 /**
  * Create a synthetic view suitable for passing to |FolderDisplayWidget.show|.

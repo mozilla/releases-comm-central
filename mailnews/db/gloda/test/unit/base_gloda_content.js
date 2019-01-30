@@ -16,11 +16,18 @@
 
 load("resources/glodaTestHelper.js");
 
-var {MsgHdrToMimeMessage} = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
+var {
+  MsgHdrToMimeMessage,
+  MimeMessage,
+  MimeContainer,
+  MimeBody,
+  MimeUnknown,
+  MimeMessageAttachment,
+} = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
 
 // we need to be able to get at GlodaFundAttr to check the number of whittler
 //   invocations
-ChromeUtils.import("resource:///modules/gloda/fundattr.js");
+var {GlodaFundAttr} = ChromeUtils.import("resource:///modules/gloda/fundattr.js");
 
 /* ===== Data ===== */
 var messageInfos = [

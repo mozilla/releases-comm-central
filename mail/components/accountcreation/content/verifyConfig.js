@@ -6,7 +6,7 @@
 /* import-globals-from emailWizard.js */
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {OAuth2Providers} = ChromeUtils.import("resource:///modules/OAuth2Providers.jsm");
+var {OAuth2Providers} = ChromeUtils.import("resource:///modules/OAuth2Providers.jsm");
 var { logException } = ChromeUtils.import("resource:///modules/errUtils.js");
 
 if (typeof gEmailWizardLogger == "undefined") {

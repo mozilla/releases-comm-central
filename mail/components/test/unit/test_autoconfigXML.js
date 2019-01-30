@@ -17,7 +17,7 @@
 // Globals
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {JXON} = ChromeUtils.import("resource:///modules/JXON.js");
+var {JXON} = ChromeUtils.import("resource:///modules/JXON.js");
 
 var xmlReader = {};
 Services.scriptloader.loadSubScript(

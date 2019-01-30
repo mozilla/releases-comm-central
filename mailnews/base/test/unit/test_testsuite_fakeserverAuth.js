@@ -7,7 +7,11 @@
  * just check roundtrips, against static values etc..
  */
 
-ChromeUtils.import("resource://testing-common/mailnews/auth.js");
+var {
+  AuthPLAIN,
+  AuthLOGIN,
+  AuthCRAM,
+} = ChromeUtils.import("resource://testing-common/mailnews/auth.js");
 
 var kUsername = "fred1";
 var kPassword = "wilma2";

@@ -15,7 +15,7 @@
 /* import-globals-from utilityOverlay.js */
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {appIdleManager} = ChromeUtils.import("resource:///modules/appIdleManager.js");
+var {appIdleManager} = ChromeUtils.import("resource:///modules/appIdleManager.js");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");

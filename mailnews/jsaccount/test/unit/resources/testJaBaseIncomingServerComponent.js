@@ -8,7 +8,10 @@
 
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 const {JSAccountUtils} = ChromeUtils.import("resource:///modules/jsaccount/JSAccountUtils.jsm");
-ChromeUtils.import("resource://testing-common/mailnews/testJaBaseIncomingServer.jsm");
+var {
+  JaBaseIncomingServerProperties,
+  JaBaseIncomingServer,
+} = ChromeUtils.import("resource://testing-common/mailnews/testJaBaseIncomingServer.jsm");
 dump("\n\ntestJaBaseIncomingServerComponent.js\n\n");
 
 // Constructor

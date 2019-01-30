@@ -2,7 +2,7 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
-ChromeUtils.import("resource:///modules/ircCommands.jsm");
+var {commands} = ChromeUtils.import("resource:///modules/ircCommands.jsm");
 
 var irc = {};
 Services.scriptloader.loadSubScript("resource:///components/irc.js", irc);

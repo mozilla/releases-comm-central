@@ -4,8 +4,18 @@
 
 this.EXPORTED_SYMBOLS = ["Status"];
 
-const {XPCOMUtils} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-ChromeUtils.import("resource:///modules/imServices.jsm");
+var {
+  XPCOMUtils,
+  setTimeout,
+  clearTimeout,
+  executeSoon,
+  nsSimpleEnumerator,
+  EmptyEnumerator,
+  ClassInfo,
+  l10nHelper,
+  initLogModule,
+} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/status.properties")

@@ -5,7 +5,7 @@
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {ExtensionSupport} = ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
+var {ExtensionSupport} = ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
 
 window.addEventListener("load", function() {
   let prefWindow = document.getElementById("MailPreferences");

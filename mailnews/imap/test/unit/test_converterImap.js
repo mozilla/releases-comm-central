@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {OS} = ChromeUtils.import("resource://gre/modules/osfile.jsm");
-ChromeUtils.import("resource:///modules/mailstoreConverter.jsm");
-const {Log} = ChromeUtils.import("resource://gre/modules/Log.jsm");
+var {OS} = ChromeUtils.import("resource://gre/modules/osfile.jsm");
+var {convertMailStoreTo} = ChromeUtils.import("resource:///modules/mailstoreConverter.jsm");
+var {Log} = ChromeUtils.import("resource://gre/modules/Log.jsm");
 
 Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
                            "@mozilla.org/msgstore/berkeleystore;1");
@@ -16,8 +16,7 @@ load("../../../resources/alertTestUtils.js");
 
 var log = Log.repository.getLogger("MailStoreConverter");
 
-var FileUtils = const {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm")
-                                .FileUtils;
+var {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 
 // Globals
 var gRootFolder;

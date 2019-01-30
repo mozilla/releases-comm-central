@@ -3,4 +3,4 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // get the core
-ChromeUtils.import("resource:///modules/gloda/public.js");
+var {Gloda} = ChromeUtils.import("resource:///modules/gloda/public.js");

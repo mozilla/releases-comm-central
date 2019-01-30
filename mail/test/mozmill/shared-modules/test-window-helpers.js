@@ -6,8 +6,8 @@
 
 var MODULE_NAME = "window-helpers";
 
-const {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-const {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
+var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var mozmill = {};

@@ -8,7 +8,7 @@ var {
   mimeMsgToContentSnippetAndMeta,
 } = ChromeUtils.import("resource:///modules/gloda/connotent.js");
 var { MsgHdrToMimeMessage } = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
-const {DisplayNameUtils} = ChromeUtils.import("resource:///modules/DisplayNameUtils.jsm");
+var {DisplayNameUtils} = ChromeUtils.import("resource:///modules/DisplayNameUtils.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {
   PluralStringFormatter,

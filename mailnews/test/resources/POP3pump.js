@@ -21,13 +21,22 @@
  */
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {localAccountUtils} = ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
+var {localAccountUtils} = ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
 
 // Import the pop3 server scripts
-const {nsMailServer} = ChromeUtils.import("resource://testing-common/mailnews/maild.js");
-ChromeUtils.import("resource://testing-common/mailnews/auth.js");
-ChromeUtils.import("resource://testing-common/mailnews/pop3d.js");
-const {Promise} = ChromeUtils.import("resource://gre/modules/Promise.jsm");
+var {nsMailServer} = ChromeUtils.import("resource://testing-common/mailnews/maild.js");
+var {
+  AuthPLAIN,
+  AuthLOGIN,
+  AuthCRAM,
+} = ChromeUtils.import("resource://testing-common/mailnews/auth.js");
+var {
+  pop3Daemon,
+  POP3_RFC1939_handler,
+  POP3_RFC2449_handler,
+  POP3_RFC5034_handler,
+} = ChromeUtils.import("resource://testing-common/mailnews/pop3d.js");
+var {Promise} = ChromeUtils.import("resource://gre/modules/Promise.jsm");
 
 function POP3Pump()
 {

@@ -6,7 +6,7 @@
 
 var jsProtoHelper = {};
 ChromeUtils.import("resource:///modules/jsProtoHelper.jsm", jsProtoHelper);
-const {
+var {
   getThemeByName,
   getThemeVariants,
 } = ChromeUtils.import("resource:///modules/imThemes.jsm");

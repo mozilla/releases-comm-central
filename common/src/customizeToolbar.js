@@ -10,7 +10,7 @@ var gToolboxSheet = false;
 var gPaletteBox = null;
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 function onLoad() {
   if ("arguments" in window && window.arguments[0]) {

@@ -6,8 +6,8 @@
  *          onRemoveReminder, onAccept, onCancel
  */
 
-const { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 

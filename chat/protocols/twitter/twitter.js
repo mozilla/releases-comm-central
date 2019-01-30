@@ -2,11 +2,32 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {httpRequest, percentEncode} = ChromeUtils.import("resource://gre/modules/Http.jsm");
+var {httpRequest, percentEncode} = ChromeUtils.import("resource://gre/modules/Http.jsm");
 var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
-ChromeUtils.import("resource:///modules/twitter-text.jsm");
+var {
+  XPCOMUtils,
+  setTimeout,
+  clearTimeout,
+  executeSoon,
+  nsSimpleEnumerator,
+  EmptyEnumerator,
+  ClassInfo,
+  l10nHelper,
+  initLogModule,
+} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var {
+  GenericAccountPrototype,
+  GenericAccountBuddyPrototype,
+  GenericConvIMPrototype,
+  GenericConvChatPrototype,
+  GenericConvChatBuddyPrototype,
+  GenericConversationPrototype,
+  GenericMessagePrototype,
+  GenericProtocolPrototype,
+  Message,
+  TooltipInfo,
+} = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
+var {twttr} = ChromeUtils.import("resource:///modules/twitter-text.jsm");
 
 var NS_PREFBRANCH_PREFCHANGE_TOPIC_ID = "nsPref:changed";
 var kMaxMessageLength = 140;

@@ -19,9 +19,25 @@ var gDEPTH = "../../../../";
 /* import-globals-from ../../../test/fakeserver/maild.js */
 /* import-globals-from ../../../test/fakeserver/auth.js */
 /* import-globals-from ../../../test/fakeserver/pop3d.js */
-var {maild} = ChromeUtils.import("resource://testing-common/mailnews/maild.js");
-var {auth} = ChromeUtils.import("resource://testing-common/mailnews/auth.js");
-var {pop3d} = ChromeUtils.import("resource://testing-common/mailnews/pop3d.js");
+var {
+  nsMailServer,
+  gThreadManager,
+  fsDebugNone,
+  fsDebugAll,
+  fsDebugRecv,
+  fsDebugRecvSend,
+} = ChromeUtils.import("resource://testing-common/mailnews/maild.js");
+var {
+  AuthPLAIN,
+  AuthLOGIN,
+  AuthCRAM,
+} = ChromeUtils.import("resource://testing-common/mailnews/auth.js");
+var {
+  pop3Daemon,
+  POP3_RFC1939_handler,
+  POP3_RFC2449_handler,
+  POP3_RFC5034_handler,
+} = ChromeUtils.import("resource://testing-common/mailnews/pop3d.js");
 
 // Setup the daemon and server
 // If the debugOption is set, then it will be applied to the server.

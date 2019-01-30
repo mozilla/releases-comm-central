@@ -7,20 +7,20 @@
 "use strict";
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Platform-specific includes
 var AboutSupportPlatform;
 if ("@mozilla.org/windows-registry-key;1" in Cc) {
-  let {temp} = ChromeUtils.import("resource:///modules/aboutSupportWin32.js");
-  AboutSupportPlatform = temp;
+  let temp = ChromeUtils.import("resource:///modules/aboutSupportWin32.js");
+  AboutSupportPlatform = temp.AboutSupportPlatform;
 } else if ("nsILocalFileMac" in Ci) {
-  let {temp} = ChromeUtils.import("resource:///modules/aboutSupportMac.js");
-  AboutSupportPlatform = temp;
+  let temp = ChromeUtils.import("resource:///modules/aboutSupportMac.js");
+  AboutSupportPlatform = temp.AboutSupportPlatform;
 } else {
-  let {temp} = ChromeUtils.import("resource:///modules/aboutSupportUnix.js");
-  AboutSupportPlatform = temp;
+  let temp = ChromeUtils.import("resource:///modules/aboutSupportUnix.js");
+  AboutSupportPlatform = temp.AboutSupportPlatform;
 }
 
 var gMessengerBundle = Services.strings.createBundle(

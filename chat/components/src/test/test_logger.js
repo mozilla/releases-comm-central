@@ -5,7 +5,17 @@
 do_get_profile();
 
 var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
-ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var {
+  XPCOMUtils,
+  setTimeout,
+  clearTimeout,
+  executeSoon,
+  nsSimpleEnumerator,
+  EmptyEnumerator,
+  ClassInfo,
+  l10nHelper,
+  initLogModule,
+} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 const {OS} = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 
 var gLogger = {};

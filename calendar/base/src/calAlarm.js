@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 var ALARM_RELATED_ABSOLUTE = Ci.calIAlarm.ALARM_RELATED_ABSOLUTE;

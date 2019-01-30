@@ -738,6 +738,8 @@
 
       <method name="refreshDisplay">
         <body><![CDATA[
+            const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+
             // Find out which should be the first day of the week
             this.weekStart = Preferences.get("calendar.week.start", 0);
             this.mShowWeekNumber = Preferences.get("calendar.view-minimonth.showWeekNumber", true);
@@ -835,6 +837,8 @@
       <method name="showMonth">
         <parameter name="aDate"/>
         <body><![CDATA[
+            const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
             // Use mExtraDate if aDate is null.
             aDate = new Date(aDate || this.mExtraDate);
 
@@ -1100,6 +1104,8 @@
 
       <method name="updateAccessibleLabel">
         <body><![CDATA[
+            const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
             let label;
             if (this.mValue) {
                 let dateFormatter =

@@ -5,7 +5,7 @@
 
 /* import-globals-from emailWizard.js */
 /* globals cleanUpHostName, isLegalHostNameOrIP */
-const {cleanUpHostName, isLegalHostNameOrIP} = ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
+var {cleanUpHostName, isLegalHostNameOrIP} = ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
 
 /**
  * This is a generic input validation lib. Use it when you process

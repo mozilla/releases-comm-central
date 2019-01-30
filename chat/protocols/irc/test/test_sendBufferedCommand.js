@@ -61,7 +61,7 @@ function test_parameterCollect() {
     account.callbacks.push((aCommand, aParams) => {
       let msg = account.buildMessage(aCommand, aParams);
       equal(msg, result, "Test buffering of parameters");
-      clearTimeout(timeout);
+      irc.clearTimeout(timeout);
       account._lastCommandSendTime = 0;
       run_next_test();
     });
@@ -69,7 +69,7 @@ function test_parameterCollect() {
       // This timeout lets the test fail more quickly if
       // some of the callbacks we added don't get called.
       // Not strictly speaking necessary.
-      timeout = setTimeout(() => {
+      timeout = irc.setTimeout(() => {
         ok(false, "test_parameterCollect failed after timeout.");
         run_next_test();
       }, 2000);
@@ -87,14 +87,14 @@ function test_parameterCollect() {
     account.callbacks.push((aCommand, aParams) => {
       let msg = account.buildMessage(aCommand, aParams);
       equal(msg, result, "Test buffering with setTimeout");
-      clearTimeout(timeout);
+      irc.clearTimeout(timeout);
       run_next_test();
     });
     add_test(() => {
       // This timeout lets the test fail more quickly if
       // some of the callbacks we added don't get called.
       // Not strictly speaking necessary.
-      timeout = setTimeout(() => {
+      timeout = irc.setTimeout(() => {
         ok(false, "test_parameterCollect failed after timeout.");
         run_next_test();
       }, 2000);
@@ -102,7 +102,7 @@ function test_parameterCollect() {
       for (let params of data) {
         let [channel, key] = params;
         delay += 200;
-        setTimeout(() => {
+        irc.setTimeout(() => {
           account.sendBufferedCommand("JOIN", channel, key);
         }, delay);
       }
@@ -147,7 +147,7 @@ function test_maxLength() {
         equal(msg, result, "Test maximum message length constraint");
         // After all results are checked, run the next test.
         if (result == results[results.length - 1]) {
-          clearTimeout(timeout);
+          irc.clearTimeout(timeout);
           run_next_test();
         }
       });
@@ -156,7 +156,7 @@ function test_maxLength() {
       // This timeout lets the test fail more quickly if
       // some of the callbacks we added don't get called.
       // Not strictly speaking necessary.
-      timeout = setTimeout(() => {
+      timeout = irc.setTimeout(() => {
         ok(false, "test_maxLength failed after timeout.");
         run_next_test();
       }, 2000);

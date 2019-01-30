@@ -12,12 +12,6 @@
 
   <binding id="glodacomplete-rich-result-popup" extends="chrome://global/content/bindings/autocomplete.xml#autocomplete-rich-result-popup">
     <implementation implements="nsIAutoCompletePopup">
-      <constructor>
-        <![CDATA[
-          var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-          ]]>
-      </constructor>
-
       <method name="_appendCurrentResult">
         <body>
           <![CDATA[

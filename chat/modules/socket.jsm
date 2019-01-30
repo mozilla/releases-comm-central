@@ -79,9 +79,27 @@
 this.EXPORTED_SYMBOLS = ["Socket"];
 
 const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource:///modules/ArrayBufferUtils.jsm");
-ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-ChromeUtils.import("resource:///modules/hiddenWindow.jsm");
+var {
+  copyBytes,
+  ArrayBufferToBytes,
+  BytesToArrayBuffer,
+  StringToBytes,
+  StringToArrayBuffer,
+  ArrayBufferToString,
+  ArrayBufferToHexString,
+} = ChromeUtils.import("resource:///modules/ArrayBufferUtils.jsm");
+var {
+  XPCOMUtils,
+  setTimeout,
+  clearTimeout,
+  executeSoon,
+  nsSimpleEnumerator,
+  EmptyEnumerator,
+  ClassInfo,
+  l10nHelper,
+  initLogModule,
+} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var {getHiddenHTMLWindow} = ChromeUtils.import("resource:///modules/hiddenWindow.jsm");
 
 // Network errors see: xpcom/base/nsError.h
 var NS_ERROR_MODULE_NETWORK = 2152398848;

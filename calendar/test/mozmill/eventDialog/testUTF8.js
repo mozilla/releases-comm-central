@@ -6,7 +6,7 @@ var MODULE_NAME = "testUTF8";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers"];
 
-const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 var EVENT_BOX, CANVAS_BOX;
 var helpersForController, invokeEventDialog, closeAllEventDialogs, createCalendar, deleteCalendars;

@@ -5,7 +5,7 @@
 const {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 const {OS} = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 const {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
-ChromeUtils.import("resource:///modules/mailstoreConverter.jsm");
+var {convertMailStoreTo} = ChromeUtils.import("resource:///modules/mailstoreConverter.jsm");
 const {Log} = ChromeUtils.import("resource://gre/modules/Log.jsm");
 const {allAccountsSorted} = ChromeUtils.import("resource:///modules/folderUtils.jsm");
 

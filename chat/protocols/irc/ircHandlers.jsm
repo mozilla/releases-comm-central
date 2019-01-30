@@ -4,7 +4,14 @@
 
 this.EXPORTED_SYMBOLS = ["ircHandlers"];
 
-ChromeUtils.import("resource:///modules/ircUtils.jsm");
+var {
+  _,
+  _conv,
+  ctcpFormatToText,
+  ctcpFormatToHTML,
+  conversationErrorMessage,
+  kListRefreshInterval
+} = ChromeUtils.import("resource:///modules/ircUtils.jsm");
 
 var ircHandlers = {
   /*

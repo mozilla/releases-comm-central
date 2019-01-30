@@ -68,9 +68,9 @@
 
 /* exported upgradeDB */
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-const {
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var {
     CAL_ITEM_FLAG,
     textToDate,
     getTimezone,

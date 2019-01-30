@@ -34,7 +34,7 @@ var kOriginalDatastoreID = "47e4bad6-fedc-4931-bf3f-d2f4146ac63e";
 Services.prefs.setCharPref(kDatastoreIDPref, kOriginalDatastoreID);
 
 // -- Add a logger listener that throws when we give it a warning/error.
-const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
 /**
  * Count the type of each severity level observed.
@@ -98,7 +98,7 @@ function test_corrupt_databases_get_reported_and_blown_away() {
 
   // - init gloda, get warnings
   mark_sub_test_start("init gloda");
-  const {Gloda} = ChromeUtils.import("resource:///modules/gloda/public.js");
+  var {Gloda} = ChromeUtils.import("resource:///modules/gloda/public.js");
   mark_sub_test_start("gloda inited, checking");
 
   mark_action("actual", "Counting appender counts", [countingAppender.counts]);
@@ -108,7 +108,7 @@ function test_corrupt_databases_get_reported_and_blown_away() {
   Assert.equal(countingAppender.getCountForLevel(Log4Moz.Level.Error), 0);
 
   // - make sure the datastore has an actual database
-  ChromeUtils.import("resource:///modules/gloda/datastore.js");
+  let {GlodaDatastore} = ChromeUtils.import("resource:///modules/gloda/datastore.js");
 
   // Make sure that the datastoreID was overwritten
   Assert.notEqual(Gloda.datastoreID, kOriginalDatastoreID);

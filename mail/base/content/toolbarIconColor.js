@@ -5,6 +5,8 @@
 
 /* import-globals-from mailWindow.js */
 
+var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+
 var ToolbarIconColor = {
   init() {
     this._initialized = true;

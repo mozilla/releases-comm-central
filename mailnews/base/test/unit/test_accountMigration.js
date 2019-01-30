@@ -9,7 +9,7 @@
 
 // make xpcshell-tests TEST_PATH=mailnews/base/test/unit/test_accountMigration.js
 
-ChromeUtils.import("resource:///modules/mailnewsMigrator.js");
+var {migrateMailnews} = ChromeUtils.import("resource:///modules/mailnewsMigrator.js");
 
 load("../../../resources/abSetup.js");
 

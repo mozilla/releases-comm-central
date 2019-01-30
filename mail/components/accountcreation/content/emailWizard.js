@@ -19,11 +19,15 @@
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {OAuth2Providers} = ChromeUtils.import("resource:///modules/OAuth2Providers.jsm");
+var {OAuth2Providers} = ChromeUtils.import("resource:///modules/OAuth2Providers.jsm");
 
 var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
-/* globals cleanUpHostName, isLegalHostNameOrIP, kMaxPort, kMinPort */
-ChromeUtils.import("resource:///modules/hostnameUtils.jsm", null);
+var {
+  cleanUpHostName,
+  isLegalHostNameOrIP,
+  kMaxPort,
+  kMinPort,
+} = ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
 
 /**
  * This is the dialog opened by menu File | New account | Mail... .

@@ -15,15 +15,15 @@
  */
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {
     recurrenceRule2String,
     splitRecurrenceRules,
     checkRecurrenceRule,
     countOccurrences
 } = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
-const { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 var cloudFileAccounts;
 try {

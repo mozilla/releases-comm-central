@@ -7,12 +7,12 @@
 
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {AddonManager} = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
-const {LightweightThemeConsumer} = ChromeUtils.import("resource://gre/modules/LightweightThemeConsumer.jsm");
-const {TBDistCustomizer} = ChromeUtils.import("resource:///modules/TBDistCustomizer.jsm");
-const {MailMigrator} = ChromeUtils.import("resource:///modules/MailMigrator.jsm");
-const {ExtensionSupport} = ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
-const { L10nRegistry, FileSource } = ChromeUtils.import("resource://gre/modules/L10nRegistry.jsm");
+var {AddonManager} = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
+var {LightweightThemeConsumer} = ChromeUtils.import("resource://gre/modules/LightweightThemeConsumer.jsm");
+var {TBDistCustomizer} = ChromeUtils.import("resource:///modules/TBDistCustomizer.jsm");
+var {MailMigrator} = ChromeUtils.import("resource:///modules/MailMigrator.jsm");
+var {ExtensionSupport} = ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
+var { L10nRegistry, FileSource } = ChromeUtils.import("resource://gre/modules/L10nRegistry.jsm");
 
 // lazy module getters
 

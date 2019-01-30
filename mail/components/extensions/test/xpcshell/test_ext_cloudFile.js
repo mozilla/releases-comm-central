@@ -4,8 +4,8 @@
 
 "use strict";
 
-const {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
-const {ExtensionTestUtils} = ChromeUtils.import("resource://testing-common/ExtensionXPCShellUtils.jsm");
+var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
+var {ExtensionTestUtils} = ChromeUtils.import("resource://testing-common/ExtensionXPCShellUtils.jsm");
 
 ExtensionTestUtils.init(this);
 

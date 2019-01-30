@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { countOccurrences } = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
+var { countOccurrences } = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
 
 function run_test() {
     do_calendar_startup(run_next_test);

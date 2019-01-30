@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
+var {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
 
 var gMsgFolder;
 var gLockedPref = null;

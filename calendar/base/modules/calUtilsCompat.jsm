@@ -6,7 +6,7 @@
  * Backwards compat for calUtils migration.
  */
 
-const { Deprecated } = ChromeUtils.import("resource://gre/modules/Deprecated.jsm");
+var { Deprecated } = ChromeUtils.import("resource://gre/modules/Deprecated.jsm");
 
 /* exported injectCalUtilsCompat */
 

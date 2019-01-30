@@ -11,12 +11,32 @@ this.EXPORTED_SYMBOLS = [
 
 const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
 const {Status} = ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
-const {EmptyEnumerator, XPCOMUtils} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
+const {
+  XPCOMUtils,
+  setTimeout,
+  clearTimeout,
+  executeSoon,
+  nsSimpleEnumerator,
+  EmptyEnumerator,
+  ClassInfo,
+  l10nHelper,
+} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var {
+  GenericAccountPrototype,
+  GenericAccountBuddyPrototype,
+  GenericConvIMPrototype,
+  GenericConvChatPrototype,
+  GenericConversationPrototype,
+  TooltipInfo,
+} = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 const {NormalizedMap} = ChromeUtils.import("resource:///modules/NormalizedMap.jsm");
-ChromeUtils.import("resource:///modules/socket.jsm");
-ChromeUtils.import("resource:///modules/xmpp-xml.jsm");
-ChromeUtils.import("resource:///modules/xmpp-session.jsm");
+var {
+  Stanza,
+  SupportedFeatures,
+} = ChromeUtils.import("resource:///modules/xmpp-xml.jsm");
+var {
+  XMPPSession,
+} = ChromeUtils.import("resource:///modules/xmpp-session.jsm");
 
 ChromeUtils.defineModuleGetter(this, "DownloadUtils",
   "resource://gre/modules/DownloadUtils.jsm");

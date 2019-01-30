@@ -5,9 +5,9 @@
 var FIREFOX_UID = "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}";
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
-const { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 //
 // The front-end wizard bits.

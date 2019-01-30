@@ -12,7 +12,11 @@ load("../../../resources/asyncTestUtils.js");
 load("../../../resources/alertTestUtils.js");
 
 // IMAP pump
-ChromeUtils.import("resource://testing-common/mailnews/IMAPpump.js");
+var {
+  IMAPPump,
+  setupIMAPPump,
+  teardownIMAPPump,
+} = ChromeUtils.import("resource://testing-common/mailnews/IMAPpump.js");
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 

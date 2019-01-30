@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-const {
+var {
     DB_SCHEMA_VERSION,
     getSqlTable,
     upgradeDB
 } = ChromeUtils.import("resource://calendar/modules/calStorageUpgrade.jsm");
-const { CAL_ITEM_FLAG, newDateTime } = ChromeUtils.import("resource://calendar/modules/calStorageHelpers.jsm");
+var { CAL_ITEM_FLAG, newDateTime } = ChromeUtils.import("resource://calendar/modules/calStorageHelpers.jsm");
 
 var USECS_PER_SECOND = 1000000;
 var kCalICalendar = Ci.calICalendar;

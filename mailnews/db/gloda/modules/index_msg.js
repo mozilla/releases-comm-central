@@ -15,19 +15,38 @@
 this.EXPORTED_SYMBOLS = ['GlodaMsgIndexer'];
 
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-const {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
-const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
-const {GlodaUtils} = ChromeUtils.import("resource:///modules/gloda/utils.js");
-const {GlodaDatastore} = ChromeUtils.import("resource:///modules/gloda/datastore.js");
-const {GlodaContact} = ChromeUtils.import("resource:///modules/gloda/datamodel.js");
-const {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
-const {GlodaCollectionManager} = ChromeUtils.import("resource:///modules/gloda/collection.js");
-const {GlodaIndexer} = ChromeUtils.import("resource:///modules/gloda/indexer.js");
-var {MsgHdrToMimeMessage} = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
+var {GlodaUtils} = ChromeUtils.import("resource:///modules/gloda/utils.js");
+var {GlodaDatastore} = ChromeUtils.import("resource:///modules/gloda/datastore.js");
+var {
+  GlodaAttributeDBDef,
+  GlodaAccount,
+  GlodaConversation,
+  GlodaFolder,
+  GlodaMessage,
+  GlodaContact,
+  GlodaIdentity,
+  GlodaAttachment,
+} = ChromeUtils.import("resource:///modules/gloda/datamodel.js");
+var {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
+var {
+  GlodaCollection,
+  GlodaCollectionManager,
+} = ChromeUtils.import("resource:///modules/gloda/collection.js");
+var {GlodaIndexer, IndexingJob} = ChromeUtils.import("resource:///modules/gloda/indexer.js");
+var {
+  MsgHdrToMimeMessage,
+  MimeMessage,
+  MimeContainer,
+  MimeBody,
+  MimeUnknown,
+  MimeMessageAttachment,
+} = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
 
 // Cr does not have mailnews error codes!
 var NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE = 0x80550005;

@@ -4,7 +4,7 @@
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
-const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 var xmlHeader = '<?xml version="1.0" encoding="UTF-8"?>\n';
 var MIME_TEXT_XML = "text/xml; charset=utf-8";

@@ -7,7 +7,7 @@
  */
 
 var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-const { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 /**

@@ -6,7 +6,14 @@
  * Tests for hostnameUtils.jsm.
  */
 
-const {isLegalHostNameOrIP} = ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
+var {
+  isLegalHostName,
+  isLegalHostNameOrIP,
+  isLegalIPAddress,
+  isLegalIPv4Address,
+  isLegalIPv6Address,
+  isLegalLocalIPAddress,
+} = ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
 
 /**
  * Checks if valid and invalid IPs are properly allowed or rejected.

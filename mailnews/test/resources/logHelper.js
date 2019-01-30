@@ -8,7 +8,7 @@
  *  or not.
  */
 
-const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
 Cu.importGlobalProperties(["Element", "Node"]);

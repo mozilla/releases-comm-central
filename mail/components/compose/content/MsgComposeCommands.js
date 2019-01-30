@@ -16,14 +16,14 @@
 
 // Ensure the activity modules are loaded for this window.
 ChromeUtils.import("resource:///modules/activity/activityModules.jsm");
-const {AttachmentChecker} = ChromeUtils.import("resource:///modules/AttachmentChecker.jsm");
-const {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
-const { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
-const { allAccountsSorted } = ChromeUtils.import("resource:///modules/folderUtils.jsm");
-const { fixIterator, toArray } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var {AttachmentChecker} = ChromeUtils.import("resource:///modules/AttachmentChecker.jsm");
+var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
+var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
+var { allAccountsSorted } = ChromeUtils.import("resource:///modules/folderUtils.jsm");
+var { fixIterator, toArray } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-const {InlineSpellChecker} = ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
+var {InlineSpellChecker} = ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
 var {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");

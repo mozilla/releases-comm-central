@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
+var {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 const {OS} = ChromeUtils.import("resource://gre/modules/osfile.jsm");
-ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
-ChromeUtils.import("resource:///modules/mailstoreConverter.jsm");
+var {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
+var {convertMailStoreTo, terminateWorkers} = ChromeUtils.import("resource:///modules/mailstoreConverter.jsm");
 const {Log} = ChromeUtils.import("resource://gre/modules/Log.jsm");
 
 var log = Log.repository.getLogger("MailStoreConverter");

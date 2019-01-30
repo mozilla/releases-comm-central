@@ -4,16 +4,29 @@
 
 this.EXPORTED_SYMBOLS = ['GlodaFundAttr'];
 
-const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
-const {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
+var {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
 
-const {GlodaUtils} = ChromeUtils.import("resource:///modules/gloda/utils.js");
-const {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
-const {GlodaDatastore} = ChromeUtils.import("resource:///modules/gloda/datastore.js");
-const {GlodaAttachment} = ChromeUtils.import("resource:///modules/gloda/datamodel.js");
-const {MimeTypeNoun} = ChromeUtils.import("resource:///modules/gloda/noun_mimetype.js");
-const {GlodaContent} = ChromeUtils.import("resource:///modules/gloda/connotent.js");
-
+var {GlodaUtils} = ChromeUtils.import("resource:///modules/gloda/utils.js");
+var {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
+var {GlodaDatastore} = ChromeUtils.import("resource:///modules/gloda/datastore.js");
+var {
+  GlodaAttributeDBDef,
+  GlodaAccount,
+  GlodaConversation,
+  GlodaFolder,
+  GlodaMessage,
+  GlodaContact,
+  GlodaIdentity,
+  GlodaAttachment,
+} = ChromeUtils.import("resource:///modules/gloda/datamodel.js");
+var {MimeType, MimeTypeNoun} = ChromeUtils.import("resource:///modules/gloda/noun_mimetype.js");
+var {
+  GlodaContent,
+  whittlerRegistry,
+  mimeMsgToContentAndMeta,
+  mimeMsgToContentSnippetAndMeta,
+} = ChromeUtils.import("resource:///modules/gloda/connotent.js");
 
 /**
  * @namespace The Gloda Fundamental Attribute provider is a special attribute

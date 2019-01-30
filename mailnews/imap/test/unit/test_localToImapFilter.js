@@ -10,8 +10,15 @@
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/POP3pump.js");
-ChromeUtils.import("resource:///modules/folderUtils.jsm");
-const {fixIterator, toXPCOMArray} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+
+var {
+  getFolderProperties,
+  getSpecialFolderString,
+  allAccountsSorted,
+  getMostRecentFolders,
+  folderNameCompare,
+} = ChromeUtils.import("resource:///modules/folderUtils.jsm");
+var {fixIterator, toXPCOMArray} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var gIMAPTrashFolder;

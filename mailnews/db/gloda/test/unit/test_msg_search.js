@@ -39,7 +39,7 @@ function unique_string() {
 }
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {GlodaMsgSearcher} = ChromeUtils.import("resource:///modules/gloda/msg_search.js");
+var {GlodaMsgSearcher} = ChromeUtils.import("resource:///modules/gloda/msg_search.js");
 
 /**
  * Wrap the construction of a GlodaMsgSearcher with a limit of 1 and feed it to

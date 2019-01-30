@@ -20,7 +20,14 @@
 this.EXPORTED_SYMBOLS = ["ircCAP"];
 
 const {ircHandlers} = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
-ChromeUtils.import("resource:///modules/ircUtils.jsm");
+var {
+  _,
+  _conv,
+  ctcpFormatToText,
+  ctcpFormatToHTML,
+  conversationErrorMessage,
+  kListRefreshInterval
+} = ChromeUtils.import("resource:///modules/ircUtils.jsm");
 
 /*
  * Parses a CAP message of the form:

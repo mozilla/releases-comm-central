@@ -12,12 +12,20 @@ this.EXPORTED_SYMBOLS = ["GlodaDatastore"];
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
 
-const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
-const {GlodaAttributeDBDef, GlodaConversation, GlodaFolder, GlodaMessage, GlodaContact, GlodaIdentity} =
-  ChromeUtils.import("resource:///modules/gloda/datamodel.js");
-const {GlodaDatabind} = ChromeUtils.import("resource:///modules/gloda/databind.js");
-const {GlodaCollection, GlodaCollectionManager} = ChromeUtils.import("resource:///modules/gloda/collection.js");
+var {
+  GlodaAttributeDBDef,
+  GlodaAccount,
+  GlodaConversation,
+  GlodaFolder,
+  GlodaMessage,
+  GlodaContact,
+  GlodaIdentity,
+  GlodaAttachment,
+} = ChromeUtils.import("resource:///modules/gloda/datamodel.js");
+var {GlodaDatabind} = ChromeUtils.import("resource:///modules/gloda/databind.js");
+var {GlodaCollection, GlodaCollectionManager} = ChromeUtils.import("resource:///modules/gloda/collection.js");
 
 var MIN_CACHE_SIZE = 8 * 1048576;
 var MAX_CACHE_SIZE = 64 * 1048576;

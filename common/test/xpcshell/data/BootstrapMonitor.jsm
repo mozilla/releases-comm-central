@@ -10,7 +10,6 @@ function notify(event, originalMethod, data, reason) {
   let info = {
     event,
     data: Object.assign({}, data, {
-      installPath: data.installPath.path,
       resourceURI: data.resourceURI.spec,
     }),
     reason,

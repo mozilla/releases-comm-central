@@ -6,9 +6,9 @@
  *         removeWidgetFor, onSelectAlarm, ensureCalendarVisible
  */
 
-const { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 /**
  * Helper function to get the alarm service and cache it.

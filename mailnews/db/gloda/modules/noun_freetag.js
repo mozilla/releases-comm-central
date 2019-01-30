@@ -4,9 +4,9 @@
 
 this.EXPORTED_SYMBOLS = ['FreeTag', 'FreeTagNoun'];
 
-const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
-const {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
+var {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
 
 function FreeTag(aTagName) {
   this.name = aTagName;

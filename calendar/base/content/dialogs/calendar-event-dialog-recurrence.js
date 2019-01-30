@@ -4,9 +4,9 @@
 
 /* exported onLoad, onAccept, onCancel */
 
-const { splitRecurrenceRules } = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
+var { splitRecurrenceRules } = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gIsReadOnly = false;
 var gStartTime = null;

@@ -5,7 +5,17 @@
 this.EXPORTED_SYMBOLS = ["_", "_conv", "ctcpFormatToText", "ctcpFormatToHTML",
                           "conversationErrorMessage", "kListRefreshInterval"];
 
-const {XPCOMUtils} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var {
+  XPCOMUtils,
+  setTimeout,
+  clearTimeout,
+  executeSoon,
+  nsSimpleEnumerator,
+  EmptyEnumerator,
+  ClassInfo,
+  l10nHelper,
+  initLogModule,
+} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/irc.properties")

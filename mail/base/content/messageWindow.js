@@ -27,7 +27,7 @@ var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-const {MsgHdrSyntheticView} = ChromeUtils.import("resource:///modules/MsgHdrSyntheticView.jsm");
+var {MsgHdrSyntheticView} = ChromeUtils.import("resource:///modules/MsgHdrSyntheticView.jsm");
 
 // from MailNewsTypes.h
 var nsMsgKey_None = 0xFFFFFFFF;

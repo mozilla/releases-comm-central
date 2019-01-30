@@ -8,6 +8,8 @@
 
 "use strict";
 
+var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+
 var MODULE_NAME = "test-address-widgets";
 
 var RELATIVE_ROOT = "../shared-modules";

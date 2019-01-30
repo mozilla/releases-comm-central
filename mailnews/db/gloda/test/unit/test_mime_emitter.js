@@ -29,12 +29,19 @@ var msgGen = gMessageGenerator = new MessageGenerator();
 // Create a message scenario generator using that message generator
 var scenarios = gMessageScenarioFactory = new MessageScenarioFactory(msgGen);
 
-var {MsgHdrToMimeMessage} = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
+var {
+  MsgHdrToMimeMessage,
+  MimeMessage,
+  MimeContainer,
+  MimeBody,
+  MimeUnknown,
+  MimeMessageAttachment,
+} = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
 
 // While we're at it, we'll also test the correctness of the GlodaAttachment
 // representation, esp. its "I just need the part information to rebuild the
 // URLs" claim.
-ChromeUtils.import("resource:///modules/gloda/fundattr.js");
+var {GlodaFundAttr} = ChromeUtils.import("resource:///modules/gloda/fundattr.js");
 
 var partText = new SyntheticPartLeaf("I am text! Woo!");
 var partHtml = new SyntheticPartLeaf(
@@ -607,7 +614,7 @@ var gInbox;
 
 function run_test() {
   registerCleanupFunction(function() {
-    ChromeUtils.import("resource:///modules/gloda/datastore.js");
+    let {GlodaDatastore} = ChromeUtils.import("resource:///modules/gloda/datastore.js");
     GlodaDatastore.shutdown();
   });
   // use mbox injection because the fake server chokes sometimes right now

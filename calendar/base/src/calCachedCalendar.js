@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 var calICalendar = Ci.calICalendar;
 var cICL = Ci.calIChangeLog;

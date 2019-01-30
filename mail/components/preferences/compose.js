@@ -6,7 +6,7 @@
 /* import-globals-from preferences.js */
 /* import-globals-from subdialogs.js */
 
-const {InlineSpellChecker} = ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
+var {InlineSpellChecker} = ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
 
 var gComposePane = {
   mInitialized: false,

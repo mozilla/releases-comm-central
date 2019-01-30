@@ -5,7 +5,7 @@
 // mail/components/about-support/content/accounts.js
 /* globals AboutSupport, AboutSupportPlatform */
 
-const {localAccountUtils} = ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
+var {localAccountUtils} = ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
 
 /*
  * Test the about:support module.

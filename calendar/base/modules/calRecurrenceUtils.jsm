@@ -6,8 +6,8 @@
  *          countOccurrences
  */
 
-const { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 this.EXPORTED_SYMBOLS = [
     "recurrenceRule2String", "splitRecurrenceRules", "checkRecurrenceRule",

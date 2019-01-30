@@ -8,7 +8,7 @@
 
 var EXPORTED_SYMBOLS = ["FacetDriver", "FacetUtils"];
 
-const {Gloda} = ChromeUtils.import("resource:///modules/gloda/public.js");
+var {Gloda} = ChromeUtils.import("resource:///modules/gloda/public.js");
 
 /**
  * Decides the appropriate faceters for the noun type and drives the faceting

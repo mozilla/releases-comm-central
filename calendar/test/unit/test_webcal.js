@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
-const { HttpServer } = ChromeUtils.import("resource://testing-common/httpd.js");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
+var { HttpServer } = ChromeUtils.import("resource://testing-common/httpd.js");
 
 function run_test() {
     let httpserv = new HttpServer();

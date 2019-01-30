@@ -6,7 +6,7 @@ this.EXPORTED_SYMBOLS = ["GlodaQueryClassFactory"];
 
 // GlodaDatastore has some constants we need, and oddly enough, there was no
 //  load dependency preventing us from doing this.
-const {GlodaDatastore} = ChromeUtils.import("resource:///modules/gloda/datastore.js");
+var {GlodaDatastore} = ChromeUtils.import("resource:///modules/gloda/datastore.js");
 
 /**
  * @class Query class core; each noun gets its own sub-class where attributes

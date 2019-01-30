@@ -1,7 +1,14 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-ChromeUtils.import("resource:///modules/ircUtils.jsm");
+var {
+  _,
+  _conv,
+  ctcpFormatToText,
+  ctcpFormatToHTML,
+  conversationErrorMessage,
+  kListRefreshInterval
+} = ChromeUtils.import("resource:///modules/ircUtils.jsm");
 
 var input = [
   // From http://www.mirc.com/colors.html

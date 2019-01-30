@@ -6,7 +6,7 @@ var MODULE_NAME = "calendar-utils";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["window-helpers", "folder-display-helpers", "pref-window-helpers"];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var os = {};
 ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
 var frame = {};

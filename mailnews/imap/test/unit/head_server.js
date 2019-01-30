@@ -8,7 +8,11 @@ var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var {mailTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/mailTestUtils.js");
 var {localAccountUtils} = ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
-var {IMAPpump} = ChromeUtils.import("resource://testing-common/mailnews/IMAPpump.js");
+var {
+  IMAPPump,
+  setupIMAPPump,
+  teardownIMAPPump,
+} = ChromeUtils.import("resource://testing-common/mailnews/IMAPpump.js");
 var {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
 var CC = Components.Constructor;
@@ -21,11 +25,22 @@ updateAppInfo();
 do_get_profile();
 
 // Import fakeserver
-var {maild} = ChromeUtils.import("resource://testing-common/mailnews/maild.js");
+var {
+  nsMailServer,
+  gThreadManager,
+  fsDebugNone,
+  fsDebugAll,
+  fsDebugRecv,
+  fsDebugRecvSend,
+} = ChromeUtils.import("resource://testing-common/mailnews/maild.js");
 var imapd = {};
 ChromeUtils.import("resource://testing-common/mailnews/imapd.js", imapd);
 var { imapDaemon, imapMessage } = imapd;
-var {auth} = ChromeUtils.import("resource://testing-common/mailnews/auth.js");
+var {
+  AuthPLAIN,
+  AuthLOGIN,
+  AuthCRAM,
+} = ChromeUtils.import("resource://testing-common/mailnews/auth.js");
 
 function makeServer(daemon, infoString, otherProps) {
   if (infoString in imapd.configurations)

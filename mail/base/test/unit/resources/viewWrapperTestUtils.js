@@ -2,19 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {
+var {
   DBViewWrapper,
   IDBViewWrapperListener,
 } = ChromeUtils.import("resource:///modules/DBViewWrapper.jsm");
-const {
+var {
   MailViewManager,
   MailViewConstants,
 } = ChromeUtils.import("resource:///modules/MailViewManager.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {
+var {
   VirtualFolderHelper,
 } = ChromeUtils.import("resource:///modules/virtualFolderWrapper.js");
-const {
+var {
   toXPCOMArray,
 } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 

@@ -7,7 +7,7 @@
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {JXON} = ChromeUtils.import("resource:///modules/JXON.js");
+var {JXON} = ChromeUtils.import("resource:///modules/JXON.js");
 
 /**
  * Tries to find a configuration for this ISP on the local harddisk, in the

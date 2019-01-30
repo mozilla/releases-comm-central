@@ -2,7 +2,18 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
-ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
+var {
+  GenericAccountPrototype,
+  GenericAccountBuddyPrototype,
+  GenericConvIMPrototype,
+  GenericConvChatPrototype,
+  GenericConvChatBuddyPrototype,
+  GenericConversationPrototype,
+  GenericMessagePrototype,
+  GenericProtocolPrototype,
+  Message,
+  TooltipInfo,
+} = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 
 var imConversations = {};
 Services.scriptloader.loadSubScript(

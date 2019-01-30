@@ -15,8 +15,15 @@ load("../../../../resources/messageInjection.js");
 
 var msgGen = gMessageGenerator = new MessageGenerator();
 
-const {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
-var {MsgHdrToMimeMessage} = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
+var {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
+var {
+  MsgHdrToMimeMessage,
+  MimeMessage,
+  MimeContainer,
+  MimeBody,
+  MimeUnknown,
+  MimeMessageAttachment,
+} = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
 
 function initNSS() {
   // Copy the NSS database files over.

@@ -19,7 +19,7 @@ var {
 } = ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-const {Preferences} = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var {Preferences} = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 

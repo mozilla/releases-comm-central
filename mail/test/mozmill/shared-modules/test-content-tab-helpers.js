@@ -17,7 +17,6 @@ ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
 var utils = {};
 ChromeUtils.import("chrome://mozmill/content/modules/utils.js", utils);
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 var NORMAL_TIMEOUT = 6000;
 var FAST_TIMEOUT = 1000;

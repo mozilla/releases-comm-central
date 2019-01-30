@@ -22,7 +22,7 @@ var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {BrowserUtils} = ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-const {CharsetMenu} = ChromeUtils.import("resource://gre/modules/CharsetMenu.jsm");
+var {CharsetMenu} = ChromeUtils.import("resource://gre/modules/CharsetMenu.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "gViewSourceUtils", function() {

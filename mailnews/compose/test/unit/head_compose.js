@@ -20,9 +20,23 @@ var gDEPTH = "../../../../";
 load("../../../resources/abSetup.js");
 
 // Import the smtp server scripts
-var {maild} = ChromeUtils.import("resource://testing-common/mailnews/maild.js");
-var {smtpd} = ChromeUtils.import("resource://testing-common/mailnews/smtpd.js");
-var {auth} = ChromeUtils.import("resource://testing-common/mailnews/auth.js");
+var {
+  nsMailServer,
+  gThreadManager,
+  fsDebugNone,
+  fsDebugAll,
+  fsDebugRecv,
+  fsDebugRecvSend,
+} = ChromeUtils.import("resource://testing-common/mailnews/maild.js");
+var {
+  smtpDaemon,
+  SMTP_RFC2821_handler,
+} = ChromeUtils.import("resource://testing-common/mailnews/smtpd.js");
+var {
+  AuthPLAIN,
+  AuthLOGIN,
+  AuthCRAM,
+} = ChromeUtils.import("resource://testing-common/mailnews/auth.js");
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 

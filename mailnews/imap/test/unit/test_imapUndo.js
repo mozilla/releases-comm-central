@@ -18,8 +18,6 @@ var gMessages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
 var gCopyService = MailServices.copy;
 var gMsgWindow;
 
-ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-
 var gMsgFile1 = do_get_file("../../../data/bugmail10");
 var gMsgFile2 = do_get_file("../../../data/bugmail11");
 var gMsgFile3 = do_get_file("../../../data/draft1");

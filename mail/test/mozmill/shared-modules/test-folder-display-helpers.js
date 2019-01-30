@@ -21,13 +21,13 @@ ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
 var utils = {};
 ChromeUtils.import("chrome://mozmill/content/modules/utils.js", utils);
 
-const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
 var nsMsgViewIndex_None = 0xffffffff;
-const {MailConsts} = ChromeUtils.import("resource:///modules/MailConsts.jsm");
+var {MailConsts} = ChromeUtils.import("resource:///modules/MailConsts.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-ChromeUtils.import('resource:///modules/MailViewManager.jsm');
+var {MailViewManager, MailViewConstants} = ChromeUtils.import("resource:///modules/MailViewManager.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var FILE_LOAD_PATHS = [

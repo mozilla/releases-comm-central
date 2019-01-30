@@ -12,10 +12,31 @@ load("../../../resources/alertTestUtils.js");
 const {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
 // IMAP pump
-ChromeUtils.import("resource://testing-common/mailnews/IMAPpump.js");
-ChromeUtils.import("resource://testing-common/mailnews/imapd.js");
+var {
+  IMAPPump,
+  setupIMAPPump,
+  teardownIMAPPump,
+} = ChromeUtils.import("resource://testing-common/mailnews/IMAPpump.js");
+var {
+  imapDaemon,
+  imapMailbox,
+  imapMessage,
+  IMAP_RFC3501_handler,
+  configurations,
+  mixinExtension,
+  IMAP_GMAIL_extension,
+  IMAP_MOVE_extension,
+  IMAP_CUSTOM_extension,
+  IMAP_RFC2197_extension,
+  IMAP_RFC2342_extension,
+  IMAP_RFC3348_extension,
+  IMAP_RFC4315_extension,
+  IMAP_RFC5258_extension,
+  IMAP_RFC2195_extension,
+} = ChromeUtils.import("resource://testing-common/mailnews/imapd.js");
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {fsDebugAll} = ChromeUtils.import("resource://testing-common/mailnews/maild.js");
 
 // Globals
 
@@ -33,8 +54,6 @@ var gTestArray =
 
   // optionally set server parameters, here enabling debug messages
   function serverParms() {
-    if (typeof fsDebugAll == "undefined")
-      const {fsDebugAll} = ChromeUtils.import("resource://testing-common/mailnews/maild.js");
     IMAPPump.server.setDebugLevel(fsDebugAll);
   },
 

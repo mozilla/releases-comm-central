@@ -9,7 +9,7 @@
  * version the test is run on.
  */
 
-const {MailMigrator} = ChromeUtils.import("resource:///modules/MailMigrator.jsm");
+var {MailMigrator} = ChromeUtils.import("resource:///modules/MailMigrator.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**

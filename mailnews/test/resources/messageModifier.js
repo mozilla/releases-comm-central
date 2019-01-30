@@ -7,7 +7,7 @@
  *  for testing purposes.
  */
 
-const {toXPCOMArray} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var {toXPCOMArray} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 /**

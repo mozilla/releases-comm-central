@@ -15,8 +15,14 @@ var gLastKey;
 var gMessages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
 var gCopyService = MailServices.copy;
 
-ChromeUtils.import("resource:///modules/folderUtils.jsm");
-const {toXPCOMArray} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var {
+  getFolderProperties,
+  getSpecialFolderString,
+  allAccountsSorted,
+  getMostRecentFolders,
+  folderNameCompare,
+} = ChromeUtils.import("resource:///modules/folderUtils.jsm");
+var {toXPCOMArray} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
 var tests = [
   setup,

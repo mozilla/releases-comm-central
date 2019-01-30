@@ -10,9 +10,9 @@
  */
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-const { countOccurrences } = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var { countOccurrences } = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 /**
  * Controller for the views

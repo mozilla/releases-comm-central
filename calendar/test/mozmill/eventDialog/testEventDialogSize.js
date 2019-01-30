@@ -9,7 +9,7 @@ var MODULE_REQUIRES = ["calendar-utils", "window-helpers"];
 var helpersForController, invokeEventDialog, createCalendar, closeAllEventDialogs, deleteCalendars;
 var CALENDARNAME;
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 const SMALL_TOLERANCE = 5;
 const LARGE_TOLERANCE = 10;

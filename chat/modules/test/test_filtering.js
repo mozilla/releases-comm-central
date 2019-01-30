@@ -2,7 +2,16 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
-ChromeUtils.import("resource:///modules/imContentSink.jsm");
+var {
+  cleanupImMarkup,
+  createDerivedRuleset,
+  addGlobalAllowedTag,
+  removeGlobalAllowedTag,
+  addGlobalAllowedAttribute,
+  removeGlobalAllowedAttribute,
+  addGlobalAllowedStyleRule,
+  removeGlobalAllowedStyleRule,
+} = ChromeUtils.import("resource:///modules/imContentSink.jsm");
 
 var kModePref = "messenger.options.filterMode";
 var kStrictMode = 0, kStandardMode = 1, kPermissiveMode = 2;

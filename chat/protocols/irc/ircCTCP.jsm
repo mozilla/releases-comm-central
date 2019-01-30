@@ -11,9 +11,26 @@
 this.EXPORTED_SYMBOLS = ["ircCTCP", "ctcpBase"];
 
 const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
-ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var {
+  XPCOMUtils,
+  setTimeout,
+  clearTimeout,
+  executeSoon,
+  nsSimpleEnumerator,
+  EmptyEnumerator,
+  ClassInfo,
+  l10nHelper,
+  initLogModule,
+} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 const {ircHandlers} = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
-ChromeUtils.import("resource:///modules/ircUtils.jsm");
+var {
+  _,
+  _conv,
+  ctcpFormatToText,
+  ctcpFormatToHTML,
+  conversationErrorMessage,
+  kListRefreshInterval
+} = ChromeUtils.import("resource:///modules/ircUtils.jsm");
 
 // Split into a CTCP message which is a single command and a single parameter:
 //   <command> " " <parameter>

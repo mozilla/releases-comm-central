@@ -4,7 +4,7 @@
 
 "use strict";
 
-const {ExtensionTestUtils} = ChromeUtils.import("resource://testing-common/ExtensionXPCShellUtils.jsm");
+var {ExtensionTestUtils} = ChromeUtils.import("resource://testing-common/ExtensionXPCShellUtils.jsm");
 ExtensionTestUtils.init(this);
 
 let account, rootFolder, subFolders;

@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
-const { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 /* exported commonInitCalendar, commonFinishCalendar */
 

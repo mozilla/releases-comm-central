@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-const { ltn } = ChromeUtils.import("resource://calendar/modules/ltnInvitationUtils.jsm");
-const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var { ltn } = ChromeUtils.import("resource://calendar/modules/ltnInvitationUtils.jsm");
+var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 /**
  * Provides shortcuts to set label and collapsed attribute of imip-bar node.

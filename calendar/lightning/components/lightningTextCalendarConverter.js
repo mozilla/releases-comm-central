@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-const { ltn } = ChromeUtils.import("resource://calendar/modules/ltnInvitationUtils.jsm");
+var { ltn } = ChromeUtils.import("resource://calendar/modules/ltnInvitationUtils.jsm");
 
 function ltnMimeConverter() {
     this.wrappedJSObject = this;

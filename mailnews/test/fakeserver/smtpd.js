@@ -6,7 +6,11 @@ var EXPORTED_SYMBOLS = [
   'SMTP_RFC2821_handler',
 ];
 
-ChromeUtils.import("resource://testing-common/mailnews/auth.js");
+var {
+  AuthPLAIN,
+  AuthLOGIN,
+  AuthCRAM,
+} = ChromeUtils.import("resource://testing-common/mailnews/auth.js");
 
 function smtpDaemon(flags) {
   this._messages = {};

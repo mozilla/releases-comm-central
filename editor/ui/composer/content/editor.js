@@ -5,7 +5,7 @@
 
 var {GetNextUntitledValue} = ChromeUtils.import("resource:///modules/editorUtilities.jsm");
 var {Async} = ChromeUtils.import("resource://services-common/async.js");
-const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 /* Main Composer window UI control */
 

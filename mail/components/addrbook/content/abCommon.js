@@ -13,8 +13,8 @@
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
-const {PrivateBrowsingUtils} = ChromeUtils.import("resource://gre/modules/PrivateBrowsingUtils.jsm");
+var {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
+var {PrivateBrowsingUtils} = ChromeUtils.import("resource://gre/modules/PrivateBrowsingUtils.jsm");
 
 var gDirTree;
 var abList = null;

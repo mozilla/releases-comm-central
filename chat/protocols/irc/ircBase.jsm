@@ -19,11 +19,39 @@
  */
 this.EXPORTED_SYMBOLS = ["ircBase"];
 
-ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
-const {ircHandlers} = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
-ChromeUtils.import("resource:///modules/ircUtils.jsm");
-ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
+var {
+  XPCOMUtils,
+  setTimeout,
+  clearTimeout,
+  executeSoon,
+  nsSimpleEnumerator,
+  EmptyEnumerator,
+  ClassInfo,
+  l10nHelper,
+  initLogModule,
+} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
+var {ircHandlers} = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
+var {
+  _,
+  _conv,
+  ctcpFormatToText,
+  ctcpFormatToHTML,
+  conversationErrorMessage,
+  kListRefreshInterval
+} = ChromeUtils.import("resource:///modules/ircUtils.jsm");
+var {
+  GenericAccountPrototype,
+  GenericAccountBuddyPrototype,
+  GenericConvIMPrototype,
+  GenericConvChatPrototype,
+  GenericConvChatBuddyPrototype,
+  GenericConversationPrototype,
+  GenericMessagePrototype,
+  GenericProtocolPrototype,
+  Message,
+  TooltipInfo,
+} = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 
 function privmsg(aAccount, aMessage, aIsNotification) {
   let params = {incoming: true, tags: aMessage.tags};

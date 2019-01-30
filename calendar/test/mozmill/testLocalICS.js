@@ -6,7 +6,7 @@ var MODULE_NAME = "testLocalICS";
 var RELATIVE_ROOT = "./shared-modules";
 var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers", "window-helpers"];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var TIMEOUT_MODAL_DIALOG, CANVAS_BOX, EVENT_BOX;
 var helpersForController, invokeEventDialog, deleteCalendars, handleNewCalendarWizard;

@@ -4,7 +4,7 @@
 
 this.EXPORTED_SYMBOLS = ['Log4Moz'];
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var MODE_RDONLY   = 0x01;
 var MODE_WRONLY   = 0x02;

@@ -7,7 +7,7 @@
  */
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-const { recurrenceRule2String } = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
+var { recurrenceRule2String } = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
 
 /**
  * Sets up the summary dialog, setting all needed fields on the dialog from the

@@ -2,13 +2,37 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {EmptyEnumerator, XPCOMUtils} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var {
+  ClassInfo,
+  clearTimeout,
+  EmptyEnumerator,
+  setTimeout,
+  XPCOMUtils,
+} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
-ChromeUtils.import("resource:///modules/ircUtils.jsm");
-const {ircHandlers} = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
-ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
-const {NormalizedMap} = ChromeUtils.import("resource:///modules/NormalizedMap.jsm");
-ChromeUtils.import("resource:///modules/socket.jsm");
+var {
+  _,
+  _conv,
+  ctcpFormatToText,
+  ctcpFormatToHTML,
+  conversationErrorMessage,
+  kListRefreshInterval
+} = ChromeUtils.import("resource:///modules/ircUtils.jsm");
+var {ircHandlers} = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
+var {
+  GenericAccountPrototype,
+  GenericAccountBuddyPrototype,
+  GenericConvIMPrototype,
+  GenericConvChatPrototype,
+  GenericConvChatBuddyPrototype,
+  GenericConversationPrototype,
+  GenericMessagePrototype,
+  GenericProtocolPrototype,
+  Message,
+  TooltipInfo,
+} = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
+var {NormalizedMap} = ChromeUtils.import("resource:///modules/NormalizedMap.jsm");
+var {Socket} = ChromeUtils.import("resource:///modules/socket.jsm");
 
 ChromeUtils.defineModuleGetter(this, "PluralForm",
   "resource://gre/modules/PluralForm.jsm");

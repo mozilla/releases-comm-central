@@ -11,7 +11,10 @@ var CE = Components.Exception;
 
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 const {JSAccountUtils} = ChromeUtils.import("resource:///modules/jsaccount/JSAccountUtils.jsm");
-const {JaBaseUrl} = ChromeUtils.import("resource:///modules/jsaccount/JaBaseUrl.jsm");
+const {
+  JaBaseUrl,
+  JaBaseUrlProperties,
+} = ChromeUtils.import("resource:///modules/jsaccount/JaBaseUrl.jsm");
 
 const ATTACHMENT_QUERY = "part=1.";
 

@@ -4,8 +4,10 @@
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var imapMessage;
 try {
-  ChromeUtils.import("resource://testing-common/mailnews/imapd.js");
+  var temp = ChromeUtils.import("resource://testing-common/mailnews/imapd.js");
+  imapMessage = temp.imapMessage;
 } catch (e) {
   // mozmill tests include this file, but they don't have testing-only modules
   // loaded. In this case, they don't get to use IMAP.
@@ -113,7 +115,11 @@ function configure_message_injection(aInjectionConfig) {
                                mis.injectionConfig.offline);
 
     // Pull in the IMAP fake server code
-    ChromeUtils.import("resource://testing-common/mailnews/IMAPpump.js");
+    let {
+      IMAPPump,
+      setupIMAPPump,
+      teardownIMAPPump,
+    } = ChromeUtils.import("resource://testing-common/mailnews/IMAPpump.js");
 
     // set up IMAP fakeserver and incoming server
     setupIMAPPump("");

@@ -6,7 +6,7 @@
 /* import-globals-from mailWindow.js */
 /* import-globals-from ../../extensions/mailviews/content/msgViewPickerOverlay.js */
 
-const {DBViewWrapper} = ChromeUtils.import("resource:///modules/DBViewWrapper.jsm");
+var {DBViewWrapper} = ChromeUtils.import("resource:///modules/DBViewWrapper.jsm");
 var { JSTreeSelection } = ChromeUtils.import("resource:///modules/jsTreeSelection.js");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");

@@ -13,7 +13,7 @@
  */
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-const { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 
 /**
  * Helper function for filling the form,

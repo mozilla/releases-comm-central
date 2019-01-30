@@ -26,7 +26,7 @@ var {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var {AddonRepository} = ChromeUtils.import("resource://gre/modules/addons/AddonRepository.jsm");
-var {OS, require} = ChromeUtils.import("resource://gre/modules/osfile.jsm");
+var {OS} = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 
 var {AddonTestUtils, MockAsyncShutdown} = ChromeUtils.import("resource://testing-common/AddonTestUtils.jsm");
 
@@ -40,8 +40,6 @@ ChromeUtils.defineModuleGetter(this, "ExtensionTestCommon",
                                "resource://testing-common/ExtensionTestCommon.jsm");
 ChromeUtils.defineModuleGetter(this, "HttpServer",
                                "resource://testing-common/httpd.js");
-ChromeUtils.defineModuleGetter(this, "MockAsyncShutdown",
-                               "resource://testing-common/AddonTestUtils.jsm");
 ChromeUtils.defineModuleGetter(this, "MockRegistrar",
                                "resource://testing-common/MockRegistrar.jsm");
 ChromeUtils.defineModuleGetter(this, "MockRegistry",

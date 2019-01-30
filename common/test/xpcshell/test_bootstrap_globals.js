@@ -12,7 +12,7 @@ const ADDONS = {
     "install.rdf": {
       "id": "bootstrap_globals@tests.mozilla.org",
     },
-    "bootstrap.js": String.raw`ChromeUtils.import("resource://gre/modules/Services.jsm");
+    "bootstrap.js": String.raw`var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var seenGlobals = new Set();
 var scope = this;

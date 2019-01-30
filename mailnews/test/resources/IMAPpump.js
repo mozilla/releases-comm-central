@@ -20,12 +20,16 @@ var EXPORTED_SYMBOLS = [
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-const {localAccountUtils} = ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
-const {gThreadManager, nsMailServer} = ChromeUtils.import("resource://testing-common/mailnews/maild.js");
-ChromeUtils.import("resource://testing-common/mailnews/auth.js");
+var {localAccountUtils} = ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
+var {gThreadManager, nsMailServer} = ChromeUtils.import("resource://testing-common/mailnews/maild.js");
+var {
+  AuthPLAIN,
+  AuthLOGIN,
+  AuthCRAM,
+} = ChromeUtils.import("resource://testing-common/mailnews/auth.js");
 var imapd = {};
 ChromeUtils.import("resource://testing-common/mailnews/imapd.js", imapd);
-const {updateAppInfo} = ChromeUtils.import("resource://testing-common/AppInfo.jsm");
+var {updateAppInfo} = ChromeUtils.import("resource://testing-common/AppInfo.jsm");
 
 // define globals
 var IMAPPump = {

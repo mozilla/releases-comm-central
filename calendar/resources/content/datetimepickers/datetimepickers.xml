@@ -539,6 +539,8 @@
 
     <implementation>
       <constructor><![CDATA[
+          const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
           let hbox = document.getAnonymousNodes(this)[0];
           this.kTextBox = hbox.childNodes[0];
           this.kTextBox.kTimePicker = this; // enable call back to method in Moz1.7

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { PromiseUtils } = ChromeUtils.import("resource://gre/modules/PromiseUtils.jsm");
+var { PromiseUtils } = ChromeUtils.import("resource://gre/modules/PromiseUtils.jsm");
 
 /*
  * Asynchronous tools for handling calendar operations

@@ -9,10 +9,10 @@ this.EXPORTED_SYMBOLS = ["GlodaAttributeDBDef", "GlodaAccount",
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 var LOG = Log4Moz.repository.getLogger("gloda.datamodel");
 
-const {GlodaUtils} = ChromeUtils.import("resource:///modules/gloda/utils.js");
+var {GlodaUtils} = ChromeUtils.import("resource:///modules/gloda/utils.js");
 
 // Make it lazy.
 var gMessenger;

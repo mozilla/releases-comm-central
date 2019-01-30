@@ -37,9 +37,9 @@
 
 var EXPORTED_SYMBOLS = ['loadFile','register_function','Collector','Runner','events',
                         'jsbridge', 'runTestDirectory', 'runTestFile', 'log', 'getThread',
-                        'timers', 'persisted'];
+                        'timers', 'persisted', 'registerModule'];
 
-const {HttpServer} = ChromeUtils.import("chrome://mozmill/content/stdlib/httpd.js");
+var {HttpServer} = ChromeUtils.import("chrome://mozmill/content/stdlib/httpd.js");
 
 var os = {};      ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
 var strings = {}; ChromeUtils.import("chrome://mozmill/content/stdlib/strings.js", strings);
