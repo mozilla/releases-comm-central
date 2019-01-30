@@ -383,11 +383,10 @@ nsMessengerOSXIntegration::ShowAlertMessage(const nsAString& aAlertTitle,
                                             const nsAString& aAlertText,
                                             const nsACString& aFolderURI)
 {
-  nsresult rv;
-
   nsCOMPtr<nsIAlertsService> alertsService = mozilla::components::Alerts::Service();
+  nsresult rv = alertsService ? NS_OK : NS_ERROR_UNEXPECTED;
   // If we have an nsIAlertsService implementation, use it:
-  if (alertsService)
+  if (NS_SUCCEEDED(rv))
   {
     alertsService->ShowAlertNotification(EmptyString(),
                                          aAlertTitle, aAlertText, true,
