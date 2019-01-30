@@ -11,9 +11,9 @@ this.EXPORTED_SYMBOLS = ['NetworkTestUtils'];
 
 var CC = Components.Constructor;
 
-var {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
+const {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 var {Promise} = ChromeUtils.import("resource://gre/modules/Promise.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
