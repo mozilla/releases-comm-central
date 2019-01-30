@@ -27,10 +27,10 @@
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {BrowserUtils} = ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
-const {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {allAccountsSorted} = ChromeUtils.import("resource:///modules/folderUtils.jsm");
-const {cleanUpHostName, isLegalHostNameOrIP} = ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
+var {allAccountsSorted} = ChromeUtils.import("resource:///modules/folderUtils.jsm");
+var {cleanUpHostName, isLegalHostNameOrIP} = ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
 
 // If Local directory has changed the app needs to restart. Once this is set
 // a restart will be attempted at each attempt to close the Account manager with OK.

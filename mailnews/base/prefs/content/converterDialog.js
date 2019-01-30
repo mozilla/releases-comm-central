@@ -10,14 +10,14 @@
 var {BrowserUtils} = ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
+var {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 var {OS} = ChromeUtils.import("resource://gre/modules/osfile.jsm");
-const {Log} = ChromeUtils.import("resource://gre/modules/Log.jsm");
+var {Log} = ChromeUtils.import("resource://gre/modules/Log.jsm");
 var {
   convertMailStoreTo,
   terminateWorkers,
 } = ChromeUtils.import("resource:///modules/mailstoreConverter.jsm");
-const {allAccountsSorted} = ChromeUtils.import("resource:///modules/folderUtils.jsm");
+var {allAccountsSorted} = ChromeUtils.import("resource:///modules/folderUtils.jsm");
 
 var log = Log.repository.getLogger("MailStoreConverter");
 // {nsIMsgIncomingServer} server for the account to be migrated.

@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 var gDeferredToAccount = "";

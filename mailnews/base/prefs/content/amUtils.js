@@ -6,7 +6,7 @@
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-const {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
 function BrowseForLocalFolders()
 {
