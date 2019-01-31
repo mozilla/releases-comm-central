@@ -1262,12 +1262,8 @@ function UpdateEmailNodeDetails(aEmailAddress, aDocumentNode, aCardDetails) {
     if (jid)
       chatAddresses.push(jid);
   }
+  let {onlineContacts} = ChromeUtils.import("resource:///modules/chatHandler.jsm");
   let chatContact;
-  if (!("chatHandler" in window)) {
-    window.chatHandler = {};
-    ChromeUtils.import("resource:///modules/chatHandler.jsm", chatHandler);
-  }
-  let onlineContacts = chatHandler.onlineContacts;
   for (let chatAddress of chatAddresses) {
     if (Object.prototype.hasOwnProperty.call(onlineContacts, chatAddresses)) {
       chatContact = onlineContacts[chatAddress];

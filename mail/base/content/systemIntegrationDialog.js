@@ -5,6 +5,9 @@
 
 // This dialog can only be opened if we have a shell service.
 
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {SearchIntegration} = ChromeUtils.import("resource:///modules/SearchIntegration.jsm");
+
 var gSystemIntegrationDialog = {
   _shellSvc: Cc["@mozilla.org/mail/shell-service;1"]
                .getService(Ci.nsIShellService),
@@ -20,11 +23,6 @@ var gSystemIntegrationDialog = {
   _searchCheckbox: null,
 
   onLoad() {
-    // Makes Services and SearchIntegration accessible via this.Services
-    // and this.SearchIntegration.
-    ChromeUtils.import("resource://gre/modules/Services.jsm", this);
-    ChromeUtils.import("resource:///modules/SearchIntegration.jsm", this);
-
     // initialize elements
     this._mailCheckbox    = document.getElementById("checkMail");
     this._newsCheckbox    = document.getElementById("checkNews");

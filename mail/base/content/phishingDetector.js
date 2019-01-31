@@ -6,6 +6,10 @@
 /* import-globals-from utilityOverlay.js */
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {
+  isLegalIPAddress,
+  isLegalLocalIPAddress,
+} = ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
 
 var kPhishingNotSuspicious = 0;
 var kPhishingWithIPAddress = 1;
@@ -26,8 +30,6 @@ var gPhishingDetector = {
    * Update the local tables if necessary.
    */
   init() {
-    ChromeUtils.import("resource:///modules/hostnameUtils.jsm", this);
-
     this.mCheckForIPAddresses = Services.prefs.getBoolPref("mail.phishing.detection.ipaddresses");
     this.mCheckForMismatchedHosts = Services.prefs.getBoolPref("mail.phishing.detection.mismatched_hosts");
     this.mDisallowFormActions = Services.prefs.getBoolPref("mail.phishing.detection.disallow_form_actions");
@@ -120,9 +122,9 @@ var gPhishingDetector = {
       if (aLinkText && aLinkText != aUrl &&
           aLinkText.replace(/\/+$/, "") != aUrl.replace(/\/+$/, "")) {
         if (this.mCheckForIPAddresses) {
-          let unobscuredHostNameValue = this.isLegalIPAddress(hrefURL.host, true);
+          let unobscuredHostNameValue = isLegalIPAddress(hrefURL.host, true);
           if (unobscuredHostNameValue)
-            failsStaticTests = !this.isLegalLocalIPAddress(unobscuredHostNameValue);
+            failsStaticTests = !isLegalLocalIPAddress(unobscuredHostNameValue);
         }
 
         if (!failsStaticTests && this.mCheckForMismatchedHosts) {
@@ -209,7 +211,7 @@ var gPhishingDetector = {
     // only prompt for http and https urls
     if (hrefURL.schemeIs("http") || hrefURL.schemeIs("https")) {
       // unobscure the host name in case it's an encoded ip address..
-      let unobscuredHostNameValue = this.isLegalIPAddress(hrefURL.host, true)
+      let unobscuredHostNameValue = isLegalIPAddress(hrefURL.host, true)
         || hrefURL.host;
 
       var brandShortName = document.getElementById("bundle_brand")

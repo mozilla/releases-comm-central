@@ -45,10 +45,8 @@ var MAX_SANE_BODY_PART_SIZE = 20 * 1024;
  *  the part tree we have already built.
  */
 function MimeMessageEmitter() {
-  this._mimeMsg = {};
-  ChromeUtils.import("resource:///modules/gloda/mimemsg.js", this._mimeMsg);
-  this._utils = {};
-  ChromeUtils.import("resource:///modules/gloda/utils.js", this._utils);
+  this._mimeMsg = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
+  this._utils = ChromeUtils.import("resource:///modules/gloda/utils.js");
 
   this._url = null;
   this._partRE = this._utils.GlodaUtils.PART_RE;

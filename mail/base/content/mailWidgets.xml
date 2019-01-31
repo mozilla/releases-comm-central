@@ -1935,7 +1935,7 @@
       <method name="setInitialSelection">
         <body>
           <![CDATA[
-            ChromeUtils.import("resource:///modules/MailUtils.jsm", this);
+            var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
             var view = this.tree.view;
 
@@ -1958,7 +1958,7 @@
             var index = -1;
             var uri = this.parentNode.getAttribute("uri");
             if (uri) {
-              index = view.getIndexOfResource(this.MailUtils.getOrCreateFolder(uri));
+              index = view.getIndexOfResource(MailUtils.getOrCreateFolder(uri));
             }
             view.selection.select(index);
             return index;

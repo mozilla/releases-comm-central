@@ -467,20 +467,19 @@ function nsAutoCompleteGloda() {
   try {
     // set up our awesome globals!
     if (Gloda === null) {
-      let loadNS = {};
-      ChromeUtils.import("resource:///modules/gloda/public.js", loadNS);
+      let loadNS = ChromeUtils.import("resource:///modules/gloda/public.js");
       Gloda = loadNS.Gloda;
 
-      ChromeUtils.import("resource:///modules/gloda/utils.js", loadNS);
+      loadNS = ChromeUtils.import("resource:///modules/gloda/utils.js");
       GlodaUtils = loadNS.GlodaUtils;
-      ChromeUtils.import("resource:///modules/gloda/suffixtree.js", loadNS);
+      loadNS = ChromeUtils.import("resource:///modules/gloda/suffixtree.js");
       MultiSuffixTree = loadNS.MultiSuffixTree;
-      ChromeUtils.import("resource:///modules/gloda/noun_tag.js", loadNS);
+      loadNS = ChromeUtils.import("resource:///modules/gloda/noun_tag.js");
       TagNoun = loadNS.TagNoun;
-      ChromeUtils.import("resource:///modules/gloda/noun_freetag.js", loadNS);
+      loadNS = ChromeUtils.import("resource:///modules/gloda/noun_freetag.js");
       FreeTagNoun = loadNS.FreeTagNoun;
 
-      ChromeUtils.import("resource:///modules/gloda/log4moz.js", loadNS);
+      loadNS = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
       LOG = loadNS["Log4Moz"].repository.getLogger("gloda.autocomp");
     }
 

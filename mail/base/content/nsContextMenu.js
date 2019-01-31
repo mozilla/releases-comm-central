@@ -17,9 +17,8 @@ var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "PageMenuParent", function() {
-  let tmp = {};
-  ChromeUtils.import("resource://gre/modules/PageMenu.jsm", tmp);
-  return new tmp.PageMenuParent();
+  let {PageMenuParent} = ChromeUtils.import("resource://gre/modules/PageMenu.jsm");
+  return new PageMenuParent();
 });
 
 var gSpellChecker = new InlineSpellChecker();

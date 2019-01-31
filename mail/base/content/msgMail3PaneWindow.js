@@ -42,8 +42,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 });
 
 XPCOMUtils.defineLazyGetter(this, "PopupNotifications", function() {
-  let tmp = {};
-  ChromeUtils.import("resource:///modules/GlobalPopupNotifications.jsm", tmp);
+  let {PopupNotifications} = ChromeUtils.import("resource:///modules/GlobalPopupNotifications.jsm");
   try {
     // Hide all notifications while the URL is being edited and the address bar
     // has focus, including the virtual focus in the results popup.
@@ -51,10 +50,10 @@ XPCOMUtils.defineLazyGetter(this, "PopupNotifications", function() {
     // minimized because of the effects of the "noautohide" attribute on Linux.
     // This can be removed once bug 545265 and bug 1320361 are fixed.
     let shouldSuppress = () => window.windowState == window.STATE_MINIMIZED;
-    return new tmp.PopupNotifications(document.getElementById("tabmail"),
-                                      document.getElementById("notification-popup"),
-                                      document.getElementById("notification-popup-box"),
-                                      { shouldSuppress });
+    return new PopupNotifications(document.getElementById("tabmail"),
+                                  document.getElementById("notification-popup"),
+                                  document.getElementById("notification-popup-box"),
+                                  { shouldSuppress });
   } catch (ex) {
     Cu.reportError(ex);
     return null;
@@ -436,8 +435,8 @@ function OnLoadMessenger() {
     // On Win8 set an attribute when the window frame color is too dark for black text.
     if (window.matchMedia("(-moz-os-version: windows-win8)").matches &&
         window.matchMedia("(-moz-windows-default-theme)").matches) {
-      let windowFrameColor = new Color(...ChromeUtils.import("resource:///modules/Windows8WindowFrameColor.jsm", {})
-                                            .Windows8WindowFrameColor.get());
+      let {Windows8WindowFrameColor} = ChromeUtils.import("resource:///modules/Windows8WindowFrameColor.jsm");
+      let windowFrameColor = new Color(Windows8WindowFrameColor.get());
       // Default to black for foreground text.
       if (!windowFrameColor.isContrastRatioAcceptable(new Color(0, 0, 0))) {
         document.documentElement.setAttribute("darkwindowframe", "true");
@@ -1480,10 +1479,9 @@ var LightWeightThemeWebInstaller = {
   },
 
   get _manager() {
-    let temp = {};
-    ChromeUtils.import("resource://gre/modules/LightweightThemeManager.jsm", temp);
+    let {LightweightThemeManager} = ChromeUtils.import("resource://gre/modules/LightweightThemeManager.jsm");
     delete this._manager;
-    return this._manager = temp.LightweightThemeManager;
+    return this._manager = LightweightThemeManager;
   },
 
   _installRequest(event) {
