@@ -576,10 +576,9 @@ nsresult nsMapiHook::HandleAttachmentsW(nsIMsgCompFields* aCompFields, int32_t a
 nsresult nsMapiHook::PopulateCompFieldsWithConversion(lpnsMapiMessage aMessage,
                                     nsIMsgCompFields * aCompFields)
 {
-  nsresult rv = NS_OK;
   bool isUTF8 = aMessage->ulReserved == CP_UTF8;
 
-  if (aMessage->lpOriginator)
+  if (aMessage->lpOriginator && aMessage->lpOriginator->lpszAddress)
   {
     nsAutoString From;
     if (!isUTF8)
@@ -645,6 +644,7 @@ nsresult nsMapiHook::PopulateCompFieldsWithConversion(lpnsMapiMessage aMessage,
   MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("to: %s cc: %s bcc: %s \n", NS_ConvertUTF16toUTF8(To).get(), NS_ConvertUTF16toUTF8(Cc).get(), NS_ConvertUTF16toUTF8(Bcc).get()));
 
   // set subject
+  nsresult rv = NS_OK;
   if (aMessage->lpszSubject)
   {
     nsAutoString Subject ;
@@ -696,9 +696,7 @@ nsresult nsMapiHook::PopulateCompFieldsWithConversion(lpnsMapiMessage aMessage,
 nsresult nsMapiHook::PopulateCompFieldsW(lpnsMapiMessageW aMessage,
                                          nsIMsgCompFields* aCompFields)
 {
-  nsresult rv = NS_OK;
-
-  if (aMessage->lpOriginator)
+  if (aMessage->lpOriginator && aMessage->lpOriginator->lpszAddress)
     aCompFields->SetFrom(nsDependentString(aMessage->lpOriginator->lpszAddress));
 
   nsAutoString To;
@@ -755,7 +753,7 @@ nsresult nsMapiHook::PopulateCompFieldsW(lpnsMapiMessageW aMessage,
     aCompFields->SetSubject(nsDependentString(aMessage->lpszSubject));
 
   // handle attachments as File URL
-  rv = HandleAttachmentsW(aCompFields, aMessage->nFileCount, aMessage->lpFiles);
+  nsresult rv = HandleAttachmentsW(aCompFields, aMessage->nFileCount, aMessage->lpFiles);
   if (NS_FAILED(rv)) return rv;
 
   // Set body.

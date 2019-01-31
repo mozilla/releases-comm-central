@@ -202,27 +202,20 @@ STDMETHODIMP CMapiImp::Login(unsigned long aUIArg, LPSTR aLogin, LPSTR aPassWord
 STDMETHODIMP CMapiImp::SendMail( unsigned long aSession, lpnsMapiMessage aMessage,
      unsigned long aFlags, unsigned long aReserved)
 {
-    nsresult rv = NS_OK ;
-
-    MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("CMapiImp::SendMail using flags %d\n", aFlags));
-
-    // Handle possible nullptr argument.
-    nsMapiMessage Message;
-    memset(&Message, 0, sizeof(nsMapiMessage));
-
-    if (!aMessage)
-    {
-        aMessage = &Message;
-    }
-
-    MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("CMapiImp::SendMail flags=%x subject: %s sender: %s\n",
-      aFlags, (char *) aMessage->lpszSubject, (aMessage->lpOriginator) ? aMessage->lpOriginator->lpszAddress : ""));
+    MOZ_LOG(MAPI, mozilla::LogLevel::Debug,
+      ("CMapiImp::SendMail flags=%lx subject: %s sender: %s\n",
+       aFlags,
+       (aMessage && aMessage->lpszSubject) ? aMessage->lpszSubject : "(no subject)",
+       (aMessage && aMessage->lpOriginator && aMessage->lpOriginator->lpszAddress) ?
+          aMessage->lpOriginator->lpszAddress : "(no sender)"));
 
     /** create nsIMsgCompFields obj and populate it **/
+    nsresult rv = NS_OK ;
     nsCOMPtr<nsIMsgCompFields> pCompFields = do_CreateInstance(NS_MSGCOMPFIELDS_CONTRACTID, &rv) ;
     if (NS_FAILED(rv) || (!pCompFields) ) return MAPI_E_INSUFFICIENT_MEMORY ;
 
-    rv = nsMapiHook::PopulateCompFieldsWithConversion(aMessage, pCompFields);
+    if (aMessage)
+      rv = nsMapiHook::PopulateCompFieldsWithConversion(aMessage, pCompFields);
 
     if (NS_SUCCEEDED (rv))
     {
@@ -243,25 +236,21 @@ STDMETHODIMP CMapiImp::SendMail( unsigned long aSession, lpnsMapiMessage aMessag
 STDMETHODIMP CMapiImp::SendMailW(unsigned long aSession, lpnsMapiMessageW aMessage,
                                  unsigned long aFlags, unsigned long aReserved)
 {
-    nsresult rv = NS_OK;
-
-    MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("CMapiImp::SendMailW using flags %d\n", aFlags));
-
-    // Handle possible nullptr argument.
-    nsMapiMessageW Message{};
-    if (!aMessage)
-      aMessage = &Message;
-
-    MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("CMapiImp::SendMailW flags=%x subject: %s sender: %s\n",
-            aFlags,
-            NS_ConvertUTF16toUTF8(aMessage->lpszSubject).get(),
-            NS_ConvertUTF16toUTF8((aMessage->lpOriginator) ? aMessage->lpOriginator->lpszAddress : L"").get()));
+    MOZ_LOG(MAPI, mozilla::LogLevel::Debug,
+      ("CMapiImp::SendMailW flags=%lx subject: %s sender: %s\n",
+       aFlags,
+       (aMessage && aMessage->lpszSubject) ?
+          NS_ConvertUTF16toUTF8(aMessage->lpszSubject).get() : "(no subject)",
+       (aMessage && aMessage->lpOriginator && aMessage->lpOriginator->lpszAddress) ?
+          NS_ConvertUTF16toUTF8(aMessage->lpOriginator->lpszAddress).get() : "(no sender)"));
 
     // Create nsIMsgCompFields obj and populate it.
+    nsresult rv = NS_OK;
     nsCOMPtr<nsIMsgCompFields> pCompFields = do_CreateInstance(NS_MSGCOMPFIELDS_CONTRACTID, &rv);
     if (NS_FAILED(rv) || !pCompFields) return MAPI_E_INSUFFICIENT_MEMORY;
 
-    rv = nsMapiHook::PopulateCompFieldsW(aMessage, pCompFields);
+    if (aMessage)
+      rv = nsMapiHook::PopulateCompFieldsW(aMessage, pCompFields);
 
     if (NS_SUCCEEDED (rv))
     {
