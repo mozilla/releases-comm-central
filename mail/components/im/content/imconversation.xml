@@ -1348,13 +1348,12 @@
           let typingState = this._conv.typingState;
           let cti = document.getElementById("conv-top-info");
           cti.removeAttribute("typing");
-          cti.removeAttribute("typed");
 
           let name = this._currentTypingName;
           if (!this._currentTypingName)
             name = this._conv.title; // .replace(/^([a-zA-Z0-9.]+)[@\s].*/, "$1");
           if (typingState == Ci.prplIConvIM.TYPING) {
-            cti.setAttribute("typing", "true");
+            cti.setAttribute("typing", "active");
             let typingMsg = this.bundle.formatStringFromName("chat.contactIsTyping",
                                                              [name], 1);
             cti.setAttribute("statusTypeTooltiptext", typingMsg);
@@ -1362,8 +1361,7 @@
             cti.setAttribute("statusMessage",
                              this.bundle.GetStringFromName("chat.isTyping"));
           } else if (typingState == Ci.prplIConvIM.TYPED) {
-            cti.setAttribute("typed", "true");
-
+            cti.setAttribute("typing", "paused");
             let typedMsg = this.bundle.formatStringFromName("chat.contactHasStoppedTyping",
                                                             [name], 1);
             cti.setAttribute("statusTypeTooltiptext", typedMsg);
@@ -1691,7 +1689,7 @@
                      xbl:inherits="src=userIcon"/>
         </xul:box>
         <xul:image anonid="statusTypeIcon" class="statusTypeIcon"
-                   xbl:inherits="status,typing,typed,tooltiptext=statusTypeTooltiptext"/>
+                   xbl:inherits="status,typing,tooltiptext=statusTypeTooltiptext"/>
       </xul:stack>
       <xul:stack class="displayNameAndstatusMessageStack"
                  mousethrough="always" flex="1">

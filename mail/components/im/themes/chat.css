@@ -353,14 +353,6 @@ imcontact[aliasing] .contactDisplayName {
   margin-inline-start: 32px;
 }
 
-.statusTypeIcon[typing] {
-  list-style-image: url('chrome://chat/skin/typing-16.png');
-}
-
-.statusTypeIcon[typed] {
-  list-style-image: url('chrome://chat/skin/typed-16.png');
-}
-
 #statusTypeIcon[status="available"],
 #statusTypeAvailable,
 .statusTypeIcon[status="available"],
@@ -445,6 +437,14 @@ richlistitem[state="disconnected"] .accountStateIcon {
     width: 16px;
     height: 16px;
   }
+}
+
+.statusTypeIcon[typing="active"] {
+  list-style-image: url('chrome://chat/skin/typing-16.png');
+}
+
+.statusTypeIcon[typing="paused"] {
+  list-style-image: url('chrome://chat/skin/typed-16.png');
 }
 
 .statusMessage {

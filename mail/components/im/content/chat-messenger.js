@@ -578,7 +578,6 @@ var chatHandler = {
     cti.setAttribute("statusTypeTooltiptext", statusString);
     cti.setAttribute("statusTooltiptext", statusString + statusText);
     cti.removeAttribute("typing");
-    cti.removeAttribute("typed");
     cti.removeAttribute("topicEditable");
     cti.removeAttribute("noTopic");
 
