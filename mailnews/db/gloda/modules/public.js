@@ -5,6 +5,7 @@
 this.EXPORTED_SYMBOLS = ["Gloda"];
 
 var {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
+/* nothing to import, just run some code */ ChromeUtils.import("resource:///modules/gloda/everybody.js");
 var {GlodaIndexer, IndexingJob} = ChromeUtils.import("resource:///modules/gloda/indexer.js");
 // initialize the indexer! (who was actually imported as a nested dep by the
 //  things everybody.js imported.)  We waited until now so it could know about
