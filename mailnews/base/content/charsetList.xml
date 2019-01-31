@@ -11,7 +11,7 @@
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <binding id="charsetpicker"
-           extends="chrome://global/content/bindings/menulist.xml#menulist">
+           extends="chrome://messenger/content/menulist.xml#xbl-menulist">
     <implementation>
       <constructor><![CDATA[
         let charsetValues = "";

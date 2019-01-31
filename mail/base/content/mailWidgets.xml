@@ -2142,7 +2142,7 @@
   </binding>
 
   <binding id="menulist-description" display="xul:menu"
-           extends="chrome://global/content/bindings/menulist.xml#menulist">
+           extends="chrome://messenger/content/menulist.xml#xbl-menulist">
     <content sizetopopup="pref">
       <xul:hbox class="menulist-label-box" flex="1">
         <xul:image class="menulist-icon" xbl:inherits="src=image,src"/>
