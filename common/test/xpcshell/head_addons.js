@@ -265,7 +265,11 @@ this.BootstrapMonitor = {
       Assert.equal(started.data.version, version);
 
     // Chrome should be registered by now
-    let installPath = new FileUtils.File(started.data.installPath);
+    // Get the install path from the resource URI, since it is not passed any longer.
+    let uri = Services.io.newURI(started.data.resourceURI);
+    let jarFile = uri.QueryInterface(Ci.nsIJARURI).JARFile;
+    let installPath = jarFile.QueryInterface(Ci.nsIFileURL).file;
+
     let isRegistered = isManifestRegistered(installPath);
     Assert.ok(isRegistered);
   },
@@ -290,7 +294,11 @@ this.BootstrapMonitor = {
   observe(subject, topic, data) {
     let info = JSON.parse(data);
     let id = info.data.id;
-    let installPath = new FileUtils.File(info.data.installPath);
+
+    // Get the install path from the resource URI, since it is not passed any longer.
+    let uri = Services.io.newURI(info.data.resourceURI);
+    let jarFile = uri.QueryInterface(Ci.nsIJARURI).JARFile;
+    let installPath = jarFile.QueryInterface(Ci.nsIFileURL).file;
 
     if (subject && subject.wrappedJSObject) {
       // NOTE: in some of the new tests, we need to received the real objects instead of
