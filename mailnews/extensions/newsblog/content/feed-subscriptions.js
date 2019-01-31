@@ -3,7 +3,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {FeedUtils} = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
+var {
+  Feed,
+  FeedItem,
+  FeedParser,
+  FeedUtils,
+} = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 var {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
