@@ -10,10 +10,8 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var elib = {};
-ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
-var os = {};
-ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
+var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js");
+var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.js");
 
 var folder1, folder2;
 

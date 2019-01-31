@@ -37,7 +37,7 @@
 
 var EXPORTED_SYMBOLS = ['trim', 'vslice'];
 
-var arrays = {}; ChromeUtils.import("chrome://mozmill/content/stdlib/arrays.js", arrays);
+var arrays = ChromeUtils.import("chrome://mozmill/content/stdlib/arrays.js");
 
 var trim = function (str) {
   return (str.replace(/^[\s\xA0]+/, "").replace(/[\s\xA0]+$/, ""));

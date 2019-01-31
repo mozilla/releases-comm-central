@@ -39,9 +39,9 @@
 
 var EXPORTED_SYMBOLS = ["mozmill"];
 
-var controller = ChromeUtils.import("chrome://mozmill/content/modules/controller.js", null);
-var mozmill = ChromeUtils.import("chrome://mozmill/content/modules/mozmill.js", null);
-var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.js", null);
+var controller = ChromeUtils.import("chrome://mozmill/content/modules/controller.js");
+var mozmill = ChromeUtils.import("chrome://mozmill/content/modules/mozmill.js");
+var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.js");
 
 
 // Observer when a new top-level window is ready

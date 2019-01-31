@@ -12,8 +12,7 @@ var RELATIVE_ROOT = '../shared-modules';
 var MODULE_REQUIRES = ['folder-display-helpers',
                          'content-tab-helpers',]
 
-var iteratorUtils = {};
-ChromeUtils.import('resource:///modules/iteratorUtils.jsm', iteratorUtils);
+var iteratorUtils = ChromeUtils.import('resource:///modules/iteratorUtils.jsm');
 
 var kWhatsNewPref = 'mailnews.start_page.override_url';
 

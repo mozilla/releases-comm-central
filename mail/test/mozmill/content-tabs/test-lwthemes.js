@@ -14,8 +14,7 @@ var MODULE_NAME = "test-lwthemes";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "content-tab-helpers"];
 
-var elib = {};
-ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
+var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js");
 
 var gNewTab;
 

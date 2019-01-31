@@ -16,8 +16,7 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var os = {};
-ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
+var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.js");
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {

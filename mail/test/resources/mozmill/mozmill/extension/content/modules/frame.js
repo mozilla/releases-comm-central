@@ -41,13 +41,13 @@ var EXPORTED_SYMBOLS = ['loadFile','register_function','Collector','Runner','eve
 
 var {HttpServer} = ChromeUtils.import("chrome://mozmill/content/stdlib/httpd.js");
 
-var os = {};      ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
-var strings = {}; ChromeUtils.import("chrome://mozmill/content/stdlib/strings.js", strings);
-var arrays = {};  ChromeUtils.import("chrome://mozmill/content/stdlib/arrays.js", arrays);
-var withs = {};   ChromeUtils.import("chrome://mozmill/content/stdlib/withs.js", withs);
-var utils = {};   ChromeUtils.import("chrome://mozmill/content/modules/utils.js", utils);
-var securableModule = {};
-  ChromeUtils.import("chrome://mozmill/content/stdlib/securable-module.js", securableModule);
+var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.js");
+var strings = ChromeUtils.import("chrome://mozmill/content/stdlib/strings.js");
+var arrays = ChromeUtils.import("chrome://mozmill/content/stdlib/arrays.js");
+var withs = ChromeUtils.import("chrome://mozmill/content/stdlib/withs.js");
+var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.js");
+var securableModule =
+  ChromeUtils.import("chrome://mozmill/content/stdlib/securable-module.js");
 
 var aConsoleService = Cc["@mozilla.org/consoleservice;1"].
      getService(Ci.nsIConsoleService);
@@ -81,12 +81,10 @@ var modules = undefined;
 
 var loadTestResources = function () {
   if (mozmill == undefined) {
-    mozmill = {};
-    ChromeUtils.import("chrome://mozmill/content/modules/mozmill.js", mozmill);
+    mozmill = ChromeUtils.import("chrome://mozmill/content/modules/mozmill.js");
   }
   if (elementslib == undefined) {
-    elementslib = {};
-    ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elementslib);
+    elementslib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js");
   }
 }
 
@@ -321,7 +319,7 @@ var log = function (obj) {
 }
 
 try {
-  var jsbridge = {}; ChromeUtils.import("chrome://jsbridge/content/modules/events.js", jsbridge);
+  var jsbridge = ChromeUtils.import("chrome://jsbridge/content/modules/events.js");
 } catch(err) {
   var jsbridge = null;
 
@@ -341,7 +339,7 @@ function Collector () {
   this.testing = [];
   this.httpd_started = false;
   this.http_port = 43336;
-  // var logging = {}; ChromeUtils.import("chrome://mozmill/content/stdlib/logging.js", logging);
+  // var logging = ChromeUtils.import("chrome://mozmill/content/stdlib/logging.js");
   // this.logger = new logging.Logger('Collector');
 }
 
@@ -510,9 +508,9 @@ function Runner (collector, invokedFromIDE) {
   this.collector = collector;
   this.invokedFromIDE = invokedFromIDE
   events.fireEvent('startRunner', true);
-  // var logging = {}; ChromeUtils.import("chrome://mozmill/content/stdlib/logging.js", logging);
+  // var logging = ChromeUtils.import("chrome://mozmill/content/stdlib/logging.js");
   // this.logger = new logging.Logger('Runner');
-  var m = {}; ChromeUtils.import("chrome://mozmill/content/modules/mozmill.js", m);
+  var m = ChromeUtils.import("chrome://mozmill/content/modules/mozmill.js");
   this.platform = m.platform;
 }
 Runner.prototype.runTestDirectory = function (directory) {

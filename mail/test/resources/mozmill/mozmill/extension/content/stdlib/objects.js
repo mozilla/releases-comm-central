@@ -45,7 +45,7 @@ var getLength = function (obj) {
   return len;
 }
 
-// var logging = {}; ChromeUtils.import("chrome://mozmill/content/stdlib/logging.js", logging);
+// var logging = ChromeUtils.import("chrome://mozmill/content/stdlib/logging.js");
 
 // var objectsLogger = logging.getLogger('objectsLogger');
 

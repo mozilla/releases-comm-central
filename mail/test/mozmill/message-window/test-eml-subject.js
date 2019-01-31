@@ -13,8 +13,7 @@ var MODULE_NAME = "test-eml-subject";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
-var os = {};
-ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
+var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.js");
 var {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 

@@ -16,8 +16,7 @@ var MODULE_NAME = "test-bug594646";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
-var os = {};
-ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
+var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.js");
 
 var gReferenceTextContent;
 

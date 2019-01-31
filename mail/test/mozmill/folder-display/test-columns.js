@@ -4,8 +4,7 @@
 
 "use strict";
 
-var elib = {};
-ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
+var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js");
 
 // needed to zero inter-folder processing delay
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");

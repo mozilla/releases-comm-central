@@ -10,16 +10,11 @@ var RELATIVE_ROOT = "../shared-modules";
 // we need window-helpers for augment_controller
 var MODULE_REQUIRES = ["window-helpers"];
 
-var EventUtils = {};
-ChromeUtils.import("chrome://mozmill/content/stdlib/EventUtils.js", EventUtils);
-var controller = {};
-ChromeUtils.import("chrome://mozmill/content/modules/controller.js", controller);
-var frame = {};
-ChromeUtils.import("chrome://mozmill/content/modules/frame.js", frame);
-var os = {};
-ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
-var utils = {};
-ChromeUtils.import("chrome://mozmill/content/modules/utils.js", utils);
+var EventUtils = ChromeUtils.import("chrome://mozmill/content/stdlib/EventUtils.js");
+var controller = ChromeUtils.import("chrome://mozmill/content/modules/controller.js");
+var frame = ChromeUtils.import("chrome://mozmill/content/modules/frame.js");
+var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.js");
+var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.js");
 
 var {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 

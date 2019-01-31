@@ -18,8 +18,7 @@ var MODULE_REQUIRES = ['folder-display-helpers',
                        'observer-helpers',
                        'prompt-helpers'];
 
-var os = {};
-ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
+var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.js");
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");

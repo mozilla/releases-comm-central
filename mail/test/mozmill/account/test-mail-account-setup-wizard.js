@@ -13,8 +13,7 @@ var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-var elib = {};
-ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
+var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js");
 
 var user = {
   name: "Yamato Nadeshiko",

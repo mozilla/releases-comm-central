@@ -8,8 +8,7 @@
 
 "use strict";
 
-var elib = {};
-ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
+var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js");
 
 var MODULE_NAME = "test-image-insertion-dialog";
 

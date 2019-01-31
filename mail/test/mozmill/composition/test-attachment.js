@@ -8,8 +8,7 @@
 
 "use strict";
 
-var elib = {};
-ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
+var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js");
 
 var MODULE_NAME = 'test-attachment';
 
@@ -23,8 +22,7 @@ var epsilon;
 var isWindows;
 var filePrefix;
 
-var os = {};
-ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
+var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.js");
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 var rawAttachment =

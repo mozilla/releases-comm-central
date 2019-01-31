@@ -36,7 +36,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-var mozmillInit = {}; ChromeUtils.import("chrome://mozmill/content/modules/init.js", mozmillInit);
+var mozmillInit = ChromeUtils.import("chrome://mozmill/content/modules/init.js");
 
 var MozMill = {
   onLoad: function() {
@@ -45,7 +45,7 @@ var MozMill = {
   },
 
   onMenuItemCommand: function() {
-    var utils = {}; ChromeUtils.import("chrome://mozmill/content/modules/utils.js", utils);
+    var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.js");
     var mmWindows = utils.getWindowByTitle('MozMill IDE');
     if (!mmWindows){
       var height = utils.getPreference("mozmill.height", 740);

@@ -40,11 +40,11 @@
 var EXPORTED_SYMBOLS = ["createEventObject", "triggerEvent", "getKeyCodeFromKeySequence",
                         "triggerKeyEvent", "triggerMouseEvent", "fakeOpenPopup"];
 
-var EventUtils = {}; ChromeUtils.import("chrome://mozmill/content/stdlib/EventUtils.js", EventUtils);
+var EventUtils = ChromeUtils.import("chrome://mozmill/content/stdlib/EventUtils.js")
 
-var utils = {}; ChromeUtils.import("chrome://mozmill/content/modules/utils.js", utils);
+var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.js");
 
-// var logging = {}; ChromeUtils.import("chrome://mozmill/content/stdlib/logging.js", logging);
+// var logging = ChromeUtils.import("chrome://mozmill/content/stdlib/logging.js");
 
 // var eventsLogger = logging.getLogger('eventsLogger');
 

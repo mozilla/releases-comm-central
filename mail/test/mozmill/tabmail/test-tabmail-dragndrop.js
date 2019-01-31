@@ -4,8 +4,7 @@
 
 "use strict";
 
-var elib = {};
-ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
+var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /*

@@ -1,4 +1,4 @@
-var utils = {}; ChromeUtils.import("chrome://mozmill/content/modules/utils.js", utils);
+var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.js");
 
 var copyInspector = function() {
   MozMilldx.inspectorToClipboard();

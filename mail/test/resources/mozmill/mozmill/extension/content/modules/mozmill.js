@@ -47,14 +47,14 @@ var EXPORTED_SYMBOLS = ["controller", "events", "utils", "elementslib", "os",
                         "appInfo", "locale"
                        ];
 
-var controller = {};  ChromeUtils.import("chrome://mozmill/content/modules/controller.js", controller);
-var events = {};      ChromeUtils.import("chrome://mozmill/content/modules/events.js", events);
-var utils = {};       ChromeUtils.import("chrome://mozmill/content/modules/utils.js", utils);
-var elementslib = {}; ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elementslib);
-var frame = {}; ChromeUtils.import("chrome://mozmill/content/modules/frame.js", frame);
+var controller = ChromeUtils.import("chrome://mozmill/content/modules/controller.js");
+var events = ChromeUtils.import("chrome://mozmill/content/modules/events.js");
+var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.js");
+var elementslib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js");
+var frame = ChromeUtils.import("chrome://mozmill/content/modules/frame.js");
 
-var os = {}; ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
-var withs = {}; ChromeUtils.import("chrome://mozmill/content/stdlib/withs.js", withs);
+var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.js");
+var withs = ChromeUtils.import("chrome://mozmill/content/stdlib/withs.js");
 
 var platform = os.getPlatform();
 

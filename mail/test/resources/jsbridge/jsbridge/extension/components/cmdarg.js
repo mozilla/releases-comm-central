@@ -68,12 +68,12 @@ jsbridgeHandler.prototype = {
     try {
       var port = cmdLine.handleFlagWithParam("jsbridge", false);
       if (port) {
-        var server = {};
-        ChromeUtils.import("chrome://jsbridge/content/modules/server.js", server);
+        var server =
+          ChromeUtils.import("chrome://jsbridge/content/modules/server.js");
         server.startServer(parseInt(port));
       } else {
-        var server = {};
-        ChromeUtils.import("chrome://jsbridge/content/modules/server.js", server);
+        var server =
+          ChromeUtils.import("chrome://jsbridge/content/modules/server.js");
         server.startServer(24242);
       }
     }

@@ -37,4 +37,4 @@
 
 var EXPORTED_SYMBOLS = ["server"];
 
-var server = {}; ChromeUtils.import("chrome://jsbridge/content/modules/server.js", server);
+var server = ChromeUtils.import("chrome://jsbridge/content/modules/server.js");

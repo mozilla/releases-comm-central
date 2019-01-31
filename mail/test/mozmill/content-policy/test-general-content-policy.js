@@ -29,10 +29,8 @@ var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers',
                          'keyboard-helpers',
                          'notificationbox-helpers'];
 
-var elib = {};
-ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
-var os = {};
-ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
+var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js");
+var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.js");
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");

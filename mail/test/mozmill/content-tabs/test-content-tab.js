@@ -10,12 +10,9 @@ var RELATIVE_ROOT = '../shared-modules';
 var MODULE_REQUIRES = ['folder-display-helpers', 'content-tab-helpers',
                        'dom-helpers', 'window-helpers'];
 
-var controller = {};
-ChromeUtils.import("chrome://mozmill/content/modules/controller.js", controller);
-var mozmill = {};
-ChromeUtils.import("chrome://mozmill/content/modules/mozmill.js", mozmill);
-var elementslib = {};
-ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elementslib);
+var controller = ChromeUtils.import("chrome://mozmill/content/modules/controller.js");
+var mozmill = ChromeUtils.import("chrome://mozmill/content/modules/mozmill.js");
+var elementslib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back

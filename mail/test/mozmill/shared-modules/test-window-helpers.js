@@ -10,16 +10,11 @@ var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 var {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var mozmill = {};
-ChromeUtils.import("chrome://mozmill/content/modules/mozmill.js", mozmill);
-var controller = {};
-ChromeUtils.import("chrome://mozmill/content/modules/controller.js", controller);
-var elib = {};
-ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
-var frame = {};
-ChromeUtils.import("chrome://mozmill/content/modules/frame.js", frame);
-var utils = {};
-ChromeUtils.import("chrome://mozmill/content/modules/utils.js", utils);
+var mozmill = ChromeUtils.import("chrome://mozmill/content/modules/mozmill.js");
+var controller = ChromeUtils.import("chrome://mozmill/content/modules/controller.js");
+var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js");
+var frame = ChromeUtils.import("chrome://mozmill/content/modules/frame.js");
+var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.js");
 
 /**
  * Timeout to use when waiting for the first window ever to load.  This is

@@ -20,8 +20,8 @@ var MODULE_REQUIRES = [ 'attachment-helpers',
                         'prompt-helpers',
                         'window-helpers' ];
 
-var elementslib = {}; ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elementslib);
-var downloads = {}; ChromeUtils.import("resource://gre/modules/Downloads.jsm", downloads);
+var elementslib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js");
+var downloads = ChromeUtils.import("resource://gre/modules/Downloads.jsm");
 
 var downloadsTab;
 

@@ -14,10 +14,8 @@ var RELATIVE_ROOT = '../shared-modules';
 var MODULE_REQUIRES = ['folder-display-helpers', 'compose-helpers',
                        'window-helpers'];
 
-var elib = {};
-ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js", elib);
-var EventUtils = {};
-ChromeUtils.import("chrome://mozmill/content/stdlib/EventUtils.js", EventUtils);
+var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js");
+var EventUtils = ChromeUtils.import("chrome://mozmill/content/stdlib/EventUtils.js");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var folder;

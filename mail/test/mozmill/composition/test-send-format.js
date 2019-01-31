@@ -16,8 +16,7 @@ var MODULE_NAME = "test-send-format";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers"];
 
-var os = {};
-ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
+var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.js");
 
 const nsIMsgCompConvertible = Ci.nsIMsgCompConvertible;
 

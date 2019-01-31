@@ -11,8 +11,7 @@ var MODULE_REQUIRES = ["folder-display-helpers", "mock-object-helpers"];
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var os = {};
-ChromeUtils.import("chrome://mozmill/content/stdlib/os.js", os);
+var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.js");
 
 var kMockContractIDPrefix = "@mozilla.org/mail/mockCloudFile;1?id=";
 
