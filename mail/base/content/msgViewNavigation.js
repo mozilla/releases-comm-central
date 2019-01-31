@@ -81,7 +81,6 @@ function FindNextFolder() {
   // go up to the parent, and start at the folder after the current one
   // unless we are at a server, in which case bail out.
   for (folder = gDBView.msgFolder; !folder.isServer;) {
-
     var parent = folder.parent;
     folder = FindNextChildFolder(parent, folder);
     if (folder)

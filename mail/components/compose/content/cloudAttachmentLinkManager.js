@@ -458,7 +458,6 @@ var gCloudAttachmentLinkManager = {
     if (msgType == Ci.nsIMsgCompDeliverMode.Now ||
         msgType == Ci.nsIMsgCompDeliverMode.Later ||
         msgType == Ci.nsIMsgCompDeliverMode.Background) {
-
       const kIDs = ["cloudAttachmentList", "cloudAttachmentListRoot",
                     "cloudAttachmentListHeader"];
       let mailDoc = document.getElementById("content-frame").contentDocument;

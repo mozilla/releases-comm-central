@@ -45,5 +45,4 @@ function run_test() {
   let transaction = server.playTransaction();
   do_check_transaction(transaction[transaction.length - 1],
     ["MODE READER", "GROUP test1", "ARTICLE 1"]);
-
 }

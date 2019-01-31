@@ -74,7 +74,6 @@ var gSendOptionsDialog = {
       this.addItemToDomainList(listbox, domainName);
       document.getElementById("SendOptionsDialogPane").userChangedValue(listbox);
     }
-
   },
 
   domainAlreadyPresent(aDomainName) {

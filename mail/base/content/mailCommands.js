@@ -401,7 +401,6 @@ function SaveAsFile(uris) {
 }
 
 function GenerateFilenameFromMsgHdr(msgHdr) {
-
   function MakeIS8601ODateString(date) {
     function pad(n) { return n < 10 ? "0" + n : n; }
     return date.getFullYear() + "-" +
@@ -422,7 +421,6 @@ function GenerateFilenameFromMsgHdr(msgHdr) {
   filename += MakeIS8601ODateString(new Date(msgHdr.date / 1000));
 
   return filename;
-
 }
 
 function saveAsUrlListener(aUri, aIdentity) {

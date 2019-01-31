@@ -360,7 +360,6 @@ var QuickFilterBarMuxer = {
     }
 
     collapsibleButtonBox.setAttribute("shrink", "true");
-
   },
 
   /**

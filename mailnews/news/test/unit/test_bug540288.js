@@ -96,7 +96,6 @@ function run_test() {
     });
 
     do_test_pending();
-
   } catch (e) {
     server.stop();
     do_throw(e);

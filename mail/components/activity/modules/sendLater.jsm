@@ -103,7 +103,6 @@ var sendLaterModule = {
         contextDisplayText = this._identity.email;
 
       aActivity.contextDisplayText = contextDisplayText;
-
     } else {
       aActivity.groupingStyle = Ci.nsIActivity.GROUPING_STYLE_STANDALONE;
     }
@@ -142,12 +141,10 @@ var sendLaterModule = {
   onStartSending(aTotalMessageCount) {
     if (!aTotalMessageCount) {
       this.log.error("onStartSending called with zero messages\n");
-
     }
   },
 
   onMessageStartSending(aCurrentMessage, aTotalMessageCount, aMessageHeader, aIdentity) {
-
     // We want to use the identity and subject later, so store them for now.
     this._identity = aIdentity;
     if (aMessageHeader)

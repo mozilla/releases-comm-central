@@ -330,7 +330,6 @@ var MailMigrator = {
 
       // Update the migration version.
       Services.prefs.setIntPref(UI_VERSION_PREF, UI_VERSION);
-
     } catch (e) {
       Cu.reportError("Migrating from UI version " + currentUIVersion + " to " +
                      UI_VERSION + " failed. Error message was: " + e + " -- " +

@@ -282,7 +282,6 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
       }
 
       // else unknown or unsupported protocol
-
     } catch (e) { logException(e); }
   }
 

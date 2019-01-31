@@ -604,7 +604,6 @@ function awAppendNewRow(setFocus) {
  * @return     This returns the menulist (not its child menupopup), despite the function name.
  */
 function awGetPopupElement(row) {
-
     return document.getElementById("addressCol1#" + row);
 }
 

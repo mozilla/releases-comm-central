@@ -67,7 +67,6 @@ function GetListValue(mailList, doAdd) {
   var pos = 0;
   var inputField, fieldValue, cardproperty;
   while ((inputField = awGetInputElement(i))) {
-
     fieldValue = inputField.value;
 
     if (doAdd || pos >= oldTotal)

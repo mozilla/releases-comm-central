@@ -460,7 +460,6 @@ function addNewToolbar() {
   doneButton.disabled = true;
 
   while (true) {
-
     if (!promptService.prompt(window, title, message, name, null, {})) {
       doneButton.disabled = false;
       return;

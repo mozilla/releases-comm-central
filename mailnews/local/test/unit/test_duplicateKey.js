@@ -11,7 +11,6 @@ load("../../../resources/POP3pump.js");
 const {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
 add_task(async function runPump() {
-
   gPOP3Pump.files = ["../../../data/bugmail1",
                      "../../../data/bugmail1",
                      "../../../data/bugmail1",

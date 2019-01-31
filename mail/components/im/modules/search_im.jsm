@@ -279,7 +279,6 @@ GlodaIMSearcher.prototype = {
           || term.length >= 3
       )
         fulltextQueryString += '"' + term + '"';
-
     }
 
     query.fulltextMatches(fulltextQueryString);

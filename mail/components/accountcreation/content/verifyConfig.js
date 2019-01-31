@@ -265,7 +265,6 @@ urlListener.prototype = {
         "chrome://messenger/locale/accountCreationModel.properties")
         .GetStringFromName("cannot_login.error");
     this.mErrorCallback(new Exception(errorMsg));
-
   },
 
   _cleanup() {

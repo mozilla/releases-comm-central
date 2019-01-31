@@ -330,7 +330,6 @@ function onViewToolbarsPopupShowing(aEvent, toolboxIds, aInsertPoint) {
     }
 
     for (let toolbarElement of potentialToolbars) {
-
       // We have to bind to toolbar because Javascript doesn't do fresh
       // let-bindings per Iteration.
       let toolbar = toolbarElement;

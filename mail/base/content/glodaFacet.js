@@ -427,7 +427,6 @@ class MozFacetDiscrete extends HTMLElement {
         this.barHoverGone(event.originalTarget.parentNode, true);
       }
     });
-
   }
 
   connectedCallback() {
@@ -1201,7 +1200,6 @@ class MozFacetResultMessage extends HTMLElement {
         FacetContext.fakeResultAttr,
         this.message, [this.message]);
     });
-
   }
 
   connectedCallback() {

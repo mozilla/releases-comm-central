@@ -19,7 +19,6 @@ nsAbLDAPAttributeMap.prototype = {
   classID: NS_ABLDAPATTRIBUTEMAP_CID,
 
   getAttributeList(aProperty) {
-
     if (!(aProperty in this.mPropertyMap)) {
       return null;
     }
@@ -29,7 +28,6 @@ nsAbLDAPAttributeMap.prototype = {
   },
 
   getAttributes(aProperty, aCount, aAttrs) {
-
     // fail if no entry for this
     if (!(aProperty in this.mPropertyMap)) {
       throw Cr.NS_ERROR_FAILURE;
@@ -41,7 +39,6 @@ nsAbLDAPAttributeMap.prototype = {
   },
 
   getFirstAttribute(aProperty) {
-
     // fail if no entry for this
     if (!(aProperty in this.mPropertyMap)) {
       return null;
@@ -51,7 +48,6 @@ nsAbLDAPAttributeMap.prototype = {
   },
 
   setAttributeList(aProperty, aAttributeList, aAllowInconsistencies) {
-
     var attrs = aAttributeList.split(",");
 
     // check to make sure this call won't allow multiple mappings to be
@@ -81,7 +77,6 @@ nsAbLDAPAttributeMap.prototype = {
   },
 
   getProperty(aAttribute) {
-
     if (!(aAttribute in this.mAttrMap)) {
       return null;
     }
@@ -104,7 +99,6 @@ nsAbLDAPAttributeMap.prototype = {
   },
 
   getAllCardProperties(aCount) {
-
     var props = [];
     for (var prop in this.mPropertyMap) {
       props.push(prop);
@@ -132,7 +126,6 @@ nsAbLDAPAttributeMap.prototype = {
   },
 
   setCardPropertiesFromLDAPMessage(aMessage, aCard) {
-
     var cardValueWasSet = false;
 
     var msgAttrCount = {};
@@ -144,15 +137,12 @@ nsAbLDAPAttributeMap.prototype = {
 
     // deal with each addressbook property
     for (var prop in this.mPropertyMap) {
-
       // go through the list of possible attrs in precedence order
       for (var attr of this.mPropertyMap[prop]) {
-
         attr = attr.toLowerCase();
 
         // find the first attr that exists in this message
         if (msgAttrs.includes(attr)) {
-
           try {
             var values = aMessage.getValues(attr, {});
             // strip out the optional label from the labeledURI
@@ -178,13 +168,11 @@ nsAbLDAPAttributeMap.prototype = {
   },
 
   checkState() {
-
     var attrsSeen = [];
 
     for (var prop in this.mPropertyMap) {
       let attrArray = this.mPropertyMap[prop];
       for (var attr of attrArray) {
-
         // multiple attributes that mapped to the empty string are permitted
         if (!attr.length) {
           continue;
@@ -214,7 +202,6 @@ nsAbLDAPAttributeMapService.prototype = {
   mAttrMaps: {},
 
   getMapForPrefBranch(aPrefBranchName) {
-
     // if we've already got this map, return it
     if (aPrefBranchName in this.mAttrMaps) {
       return this.mAttrMaps[aPrefBranchName];

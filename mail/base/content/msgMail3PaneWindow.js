@@ -1068,7 +1068,6 @@ function ClearMessagePane() {
  *     aSingleSelect then we create a transient single-row selection.
  */
 function ChangeSelectionWithoutContentLoad(event, tree, aSingleSelect) {
-
   var treeSelection = tree.view.selection;
 
   var row = tree.getRowAt(event.clientX, event.clientY);

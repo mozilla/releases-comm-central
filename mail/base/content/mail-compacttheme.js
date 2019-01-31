@@ -51,7 +51,6 @@ var CompactTheme = {
       } else {
         this._toggleStyleSheet(false);
       }
-
     }
   },
 

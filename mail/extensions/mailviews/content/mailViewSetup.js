@@ -77,7 +77,6 @@ function initializeMailViewOverrides() {
   // andButton.setAttribute('label', 'All of the following');
   // matchAll doesn't make sense for views, since views are a single folder
   hideMatchAllItem();
-
 }
 
 function UpdateAfterCustomHeaderChange() {

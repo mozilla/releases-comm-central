@@ -308,7 +308,6 @@ function openComposeWindowForRSSArticle(aMsgComposeWindow, aMsgHdr, aMessageUri,
     // The user is viewing the summary.
     MailServices.compose.OpenComposeWindow(aMsgComposeWindow, aMsgHdr, aMessageUri,
                                            aType, aFormat, aIdentity, aMsgWindow);
-
   } else {
     // Set up the compose message and get the feed message's web page link.
     let msgHdr = aMsgHdr;
@@ -356,7 +355,6 @@ function openComposeWindowForRSSArticle(aMsgComposeWindow, aMsgHdr, aMessageUri,
           MailServices.compose.OpenComposeWindow(aMsgComposeWindow, aMsgHdr, aMessageUri,
                                                  aType, aFormat, aIdentity, aMsgWindow);
         }
-
       }, false, {saneBodySize: true});
     } catch (ex) {
       // Error getting header, use the summary.

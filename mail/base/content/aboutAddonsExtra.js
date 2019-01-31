@@ -226,23 +226,18 @@ function getTrueState(addon, addonRef) {
       ExtensionSupport.loadedLegacyExtensions.has(addon.id)) {
     returnObject.stringName = "warnLegacyUninstall";
     returnObject.undoCommand = `${addonRef}.cancelUninstall()`;
-
   } else if (state.pendingOperation == "install") {
     returnObject.stringName = "warnLegacyInstall";
     returnObject.undoCommand = `${addonRef}.uninstall()`;
-
   } else if (addon.userDisabled) {
     returnObject.stringName = "warnLegacyDisable";
     returnObject.undoCommand = `${addonRef}.enable()`;
-
   } else if (state.pendingOperation == "enable") {
     returnObject.stringName = "warnLegacyEnable";
     returnObject.undoCommand = `${addonRef}.disable()`;
-
   } else if (state.pendingOperation == "upgrade") {
     returnObject.stringName = "warnLegacyUpgrade";
     returnObject.version = state.version;
-
   } else if (state.pendingOperation == "downgrade") {
     returnObject.stringName = "warnLegacyDowngrade";
     returnObject.version = state.version;

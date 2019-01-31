@@ -237,7 +237,6 @@ var nsMailDefaultHandler = {
       Services.ww.openWindow(null,
         "chrome://messenger/content/preferences/preferences.xul",
         "_blank", features, null);
-
     }
 
     // The URI might be passed as the argument to the file parameter

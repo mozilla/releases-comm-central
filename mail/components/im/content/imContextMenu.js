@@ -101,7 +101,6 @@ imContextMenu.prototype = {
 
   // Set various context menu attributes based on the state of the world.
   setTarget(aNode) {
-
     // Initialize contextual info.
     this.onLink            = false;
     this.linkURL           = "";
@@ -123,7 +122,6 @@ imContextMenu.prototype = {
               (elem instanceof HTMLAreaElement && elem.href) ||
               elem instanceof HTMLLinkElement ||
               elem.getAttributeNS("http://www.w3.org/1999/xlink", "type") == "simple")) {
-
           // Target is a link or a descendant of a link.
           this.onLink = true;
 

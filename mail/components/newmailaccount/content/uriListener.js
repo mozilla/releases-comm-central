@@ -134,7 +134,6 @@ TracingListener.prototype = {
   onStopRequest(/* nsIRequest */ aRequest,
                 /* nsISupports */ aContext,
                 /* int */ aStatusCode) {
-
     // Why don't people use JSMs? Sigh...
     let accountCreationFuncs = {};
     Services.scriptloader.loadSubScript(

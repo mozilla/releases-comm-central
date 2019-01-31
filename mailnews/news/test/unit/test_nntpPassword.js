@@ -31,7 +31,6 @@ add_task(async function() {
     do_check_transaction(transaction, ["MODE READER", "LIST",
                                        "AUTHINFO user testnews",
                                        "AUTHINFO pass newstest", "LIST"]);
-
   } catch (e) {
     dump("NNTP Protocol test " + test + " failed for type RFC 977:\n");
     try {

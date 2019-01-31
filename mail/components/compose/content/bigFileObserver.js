@@ -282,7 +282,6 @@ var gBigFileObserver = {
     let message = this.formatString("cloudFilePrivacyNotification");
     nb.appendNotification(message, kPrivacyNotificationValue, "null",
                           nb.PRIORITY_WARNING_MEDIUM, null);
-
   },
 
   _anyUploadsInProgress() {

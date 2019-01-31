@@ -646,7 +646,6 @@ EmailConfigWizard.prototype = {
           }
         });
       call.setAbortable(fetch);
-
     } catch (e) { // e.g. when entering an invalid domain like "c@c.-com"
       this.showErrorMsg(e);
       this.removeStatusLines();

@@ -1049,7 +1049,6 @@
           let tabs = state.tabs = [];
 
           for (let [iTab, tab] of this.tabInfo.entries()) {
-
             let persistTab = this.persistTab(tab);
 
             if (!persistTab)
@@ -1106,7 +1105,6 @@
           let tabs = aPersistedState.tabs;
           let indexToSelect = null;
           for (let [iTab, tabState] of tabs.entries()) {
-
             if (tabState.state.firstTab && aDontRestoreFirstTab)
               tabState.state.dontRestoreFirstTab = aDontRestoreFirstTab;
 
@@ -1297,7 +1295,6 @@
 
               let evt = new CustomEvent("TabSelect", { bubbles: true, detail: { tabInfo: tab } });
               this.tabContainer.selectedItem.dispatchEvent(evt);
-
             }
           ]]>
         </body>
@@ -2437,7 +2434,6 @@
         // keeps hovering over a tab, we assume he wants to switch to this tab.
         if ((dt.mozTypesAt(0)[0] != "application/x-moz-tabmail-tab")
             && (dt.mozTypesAt(0)[1] != "application/x-moz-tabmail-json")) {
-
           let tab = this._getDragTargetTab(event);
 
           if (!tab)
@@ -2466,7 +2462,6 @@
         // moved to a different or new window. We should not show
         // a dropmarker in such a case
         if (!dt.mozGetDataAt("application/x-moz-tabmail-json", 0)) {
-
           let draggedTab = dt.mozGetDataAt("application/x-moz-tabmail-tab", 0);
 
           if (!draggedTab)
@@ -2486,7 +2481,6 @@
 
         // Let's scroll
         if (this.hasAttribute("overflow")) {
-
           let target = event.originalTarget.getAttribute("anonid");
 
           let pixelsToScroll = 0;
@@ -2528,7 +2522,6 @@
         var newMargin;
 
         if (newIndex == this.childNodes.length) {
-
           let tabRect = this.childNodes[newIndex - 1].getBoundingClientRect();
 
           if (ltr)
@@ -2536,7 +2529,6 @@
           else
             newMargin = rect.right - tabRect.left;
         } else {
-
           let tabRect = this.childNodes[newIndex].getBoundingClientRect();
 
           if (ltr)
@@ -2594,7 +2586,6 @@
 
         // Is the tab one of our children?
         if (this.tabmail.tabContainer.getIndexOfItem(draggedTab) == -1) {
-
           // It's a tab from an other window, so we have to trigger session
           // restore to get our tab
 
@@ -2650,7 +2641,6 @@
 
         // check if the drop point is horizontally within the window
         if (eX > wX && eX < (wX + window.outerWidth)) {
-
           let bo = this.arrowScrollbox.boxObject;
           // also avoid detaching if the the tab was dropped too close to
           // the tabbar (half a tab)

@@ -303,7 +303,6 @@ function initInlineToolbox(toolboxId, toolbarId, popupId, customizeChange) {
   let toolbar = document.getElementById(toolbarId);
   if (toolbox && toolbar) {
     if (!toolbox.getAttribute("mode")) {
-
       /* set toolbox attributes to default values */
       let mode = toolbox.getAttribute("defaultmode");
       let align = toolbox.getAttribute("defaultlabelalign");
@@ -908,7 +907,6 @@ function EnsureMinimumNumberOfHeaders(headerTable) {
       gDummyHeaderIdIndex++;
       numEmptyHeaders--;
     }
-
   }
 }
 
@@ -1528,7 +1526,6 @@ function EditContact(emailAddressNode) {
  * @param aEvent       the event object when user triggers the menuitem
  */
 function SendMailToNode(addressNode, aEvent) {
-
   addressNode = addressNode.hasAttribute("newsgroup") ?
                   addressNode.closest("mail-newsgroup") :
                   addressNode.closest("mail-emailaddress");

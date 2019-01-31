@@ -78,7 +78,6 @@ Sanitizer.prototype = {
           // facility for timespan-based eviction.  Wipe it.
           Services.cache2.clear();
         } catch (ex) {}
-
       },
 
       get canClear() {
@@ -139,7 +138,6 @@ Sanitizer.prototype = {
             var branch = Services.prefs.getBranch("geo.wifi.access_token.");
             branch.deleteBranch("");
         } catch (e) {}
-
       },
 
       get canClear() {

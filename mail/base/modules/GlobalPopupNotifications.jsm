@@ -453,7 +453,6 @@ PopupNotifications.prototype = {
     let isActiveWindow = Services.focus.activeWindow == this.window;
 
     if (isActiveWindow) {
-
       // Autofocus if the notification requests focus.
       if (options && !options.dismissed && options.autofocus) {
         this.panel.removeAttribute("noautofocus");
@@ -1100,7 +1099,6 @@ PopupNotifications.prototype = {
         if (notification.options.extraAttr) {
           anchorElm.setAttribute("extraAttr", notification.options.extraAttr);
         }
-
       }
     }
   },

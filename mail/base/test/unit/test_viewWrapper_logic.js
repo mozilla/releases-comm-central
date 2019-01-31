@@ -128,7 +128,6 @@ function* test_sort_secondary_explicit() {
                   "secondary sort order should be descending");
     yield async_view_refresh(viewWrapper);
   }
-
 }
 
 /**

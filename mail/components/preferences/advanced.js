@@ -191,7 +191,6 @@ var gAdvancedPane = {
       window.addEventListener("unload", this);
 
       Services.obs.addObserver(this, AUTO_UPDATE_CHANGED_TOPIC);
-
     }
 
     this.mInitialized = true;

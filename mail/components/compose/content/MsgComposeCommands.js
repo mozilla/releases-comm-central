@@ -333,7 +333,6 @@ var stateListener = {
   NotifyComposeBodyReady() {
     // Look all the possible compose types (nsIMsgComposeParams.idl):
     switch (gComposeType) {
-
     case Ci.nsIMsgCompType.MailToUrl:
       gBodyFromArgs = true;
     case Ci.nsIMsgCompType.New:
@@ -1920,7 +1919,6 @@ function MessageComposeOfflineStateChanged(goingOffline) {
 
 function DoCommandClose() {
   if (ComposeCanClose()) {
-
     // Notify the SendListener that Send has been aborted and Stopped
     if (gMsgCompose)
       gMsgCompose.onSendNotPerformed(null, Cr.NS_ERROR_ABORT);
@@ -2689,7 +2687,6 @@ function ComposeStartup(aParams) {
             let msg = getComposeBundle().getFormattedString("errorLoadFileMessageMessage",
                                                             [args.message]);
             Services.prompt.alert(null, title, msg);
-
           } finally {
             if (cstream)
               cstream.close();

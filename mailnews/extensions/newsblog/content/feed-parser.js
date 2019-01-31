@@ -838,7 +838,6 @@ FeedParser.prototype = {
 
     nodeValue = nodeValue.replace(/[\n\r\t]+/g, " ");
     return this.removeUnprintableASCII(nodeValue);
-
   },
 
   getRDFTargetValueFormatted(ds, source, property) {
@@ -848,7 +847,6 @@ FeedParser.prototype = {
     }
 
     return this.removeUnprintableASCIIexCRLFTAB(nodeValue);
-
   },
 
   getRDFTargetValueRaw(ds, source, property) {

@@ -93,7 +93,6 @@ var SessionStoreManager = {
     await this.store.load();
     this._initialState = this.store.data.toSource() == {}.toSource() ?
                            null : this.store.data;
-
   },
 
   /**

@@ -262,7 +262,6 @@ function GetCurrentPrefs() {
   if (showPhoneticFields == "true")
     document.getElementById("cmd_SortBy_PhoneticName")
             .setAttribute("hidden", "false");
-
 }
 
 function SetNameColumn(cmd) {

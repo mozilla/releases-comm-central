@@ -1010,7 +1010,6 @@ function InitRecentlyClosedTabsPopup(menuPopup) {
 
   // Rebuild the recently closed tab list
   for (let i = 0; i < tabs.length; i++) {
-
     let menuItem = document.createElement("menuitem");
     menuItem.setAttribute("label", tabs[i].title);
     menuItem.setAttribute("oncommand", `document.getElementById("tabmail").undoCloseTab(${i});`);
@@ -1585,7 +1584,6 @@ function BatchMessageMover() {
 BatchMessageMover.prototype = {
 
   archiveMessages(aMsgHdrs) {
-
     if (!aMsgHdrs.length)
       return;
 

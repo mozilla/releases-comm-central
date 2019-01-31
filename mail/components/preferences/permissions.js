@@ -165,7 +165,6 @@ var gPermissionManager = {
     if (!isNewPermission) {
       this._permissionsToDelete.set(aPermission.principal.origin, aPermission);
     }
-
   },
 
   _handleCapabilityChange() {
@@ -398,11 +397,9 @@ var gPermissionManager = {
   },
 
   _addPermissionToList(aPermission) {
-
     if (aPermission.type == this._type &&
         (!this._manageCapability ||
          (aPermission.capability == this._manageCapability))) {
-
       var principal = aPermission.principal;
       var capabilityString = this._getCapabilityString(aPermission.capability);
       var p = new Permission(principal,

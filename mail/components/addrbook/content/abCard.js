@@ -1265,7 +1265,6 @@ var filePhotoHandler = {
       aDocument.getElementById("PhotoFile").setAttribute("PhotoURI", photoURI);
 
       filePhotoHandler.onShow(aCard, aDocument, "photo");
-
     };
 
     gImageDownloader.savePhoto(photoURI, cbSuccess,
@@ -1335,7 +1334,6 @@ var webPhotoHandler = {
       newPhotoAdded(newPhotoName, aCard);
 
       webPhotoHandler.onShow(aCard, aDocument, "photo");
-
     };
 
     gImageDownloader.savePhoto(photoURI, cbSuccess,

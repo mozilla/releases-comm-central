@@ -747,7 +747,6 @@ var FacetContext = {
       clearTimeout(this._brushTimeout);
     this._brushTimeout = setTimeout(this._timeoutHoverWrapper,
                                     this._HOVER_STABILITY_DURATION_MS, this);
-
   },
   _timeoutHover() {
     this._brushTimeout = null;

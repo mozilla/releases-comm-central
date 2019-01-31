@@ -17,7 +17,6 @@ function getMessageHeaderFromUrl(aUrl) {
 }
 
 function run_test() {
-
   // This is crash test for Bug 392729
   try {
     // msgkey is invalid for news:// protocol

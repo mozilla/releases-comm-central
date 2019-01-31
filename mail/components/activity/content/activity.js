@@ -187,7 +187,6 @@ var activityObject = {
       // internal list
       this._activityMgrListener = new this.ActivityMgrListener();
       activityManager.addListener(this._activityMgrListener);
-
     } catch (e) {
       this._activityLogger.error("Exception: " + e);
     }

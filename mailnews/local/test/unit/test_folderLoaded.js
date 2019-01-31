@@ -43,7 +43,6 @@ var tests = [
     MailServices.copy.CopyFileMessage(gMsgFile2, gTargetFolder, null, false, 0,
                                       "", asyncCopyListener, null);
     yield false;
-
   },
 
   function* firstUpdate() {

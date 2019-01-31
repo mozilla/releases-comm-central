@@ -150,7 +150,6 @@ function guessConfig(domain, progressCallback, successCallback, errorCallback,
           errorCallback(e);
         } catch (e) { errorInCallback(e); }
       }
-
     }
   };
 

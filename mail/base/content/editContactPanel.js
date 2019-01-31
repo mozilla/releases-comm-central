@@ -169,7 +169,6 @@ var editContactInlineUI = {
                       "chrome,modal,resizable=no,centerscreen",
                       { abURI: this._cardDetails.book.URI,
                         card: this._cardDetails.card });
-
   },
 
   deleteContact() {

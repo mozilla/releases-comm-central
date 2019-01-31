@@ -55,7 +55,6 @@ add_task(async function() {
                                        "AUTHINFO pass pass2",
                                        "GROUP test.filter",
                                        "XOVER 1-8"]);
-
   } catch (e) {
     dump("NNTP Protocol test " + test + " failed for type RFC 977:\n");
     try {

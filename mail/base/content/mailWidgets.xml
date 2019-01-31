@@ -599,7 +599,6 @@
               // do it when necessary for possible early loop exit to display
               // (X more).
               if (!all) {
-
                 // Calculate width and lines, consider the i+1 comma node if we have to
                 // <http://www.w3.org/TR/cssom-view/#client-attributes>
                 // <https://developer.mozilla.org/en/Determining_the_dimensions_of_elements>

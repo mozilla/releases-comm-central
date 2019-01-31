@@ -205,7 +205,6 @@ FetchHTTP.prototype = {
     if (success && this._request.status >= 200 &&
         this._request.status < 300) { // HTTP level success
       try {
-
         // response
         var mimetype = this._request.getResponseHeader("Content-Type");
         if (!mimetype)
@@ -225,7 +224,6 @@ FetchHTTP.prototype = {
           // ddump("mimetype: " + mimetype + " only supported as text");
           this.result = this._request.responseText;
         }
-
       } catch (e) {
         success = false;
         errorStr = getStringBundle(
@@ -283,7 +281,6 @@ FetchHTTP.prototype = {
         logException(e);
       }
     }
-
     } catch (e) {
       // error in our fetchhttp._response() code
       logException(e);

@@ -15,7 +15,6 @@ function test_discoverSubFolders() {
   let mailbox = setup_mailbox("none", create_temporary_directory());
 
   mailbox.msgStore.discoverSubFolders(mailbox, true);
-
 }
 
 function run_all_tests() {

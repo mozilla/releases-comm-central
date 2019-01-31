@@ -81,7 +81,6 @@ function contactsListOnClick(aEvent) {
         // for single right click, so we also let this trigger for the second
         // click of right double-click.
         gAbView.selection.clearSelection();
-
       }
     } else if (aEvent.button == 0 && aEvent.detail == 2) {
       // Any click on results tree rows.

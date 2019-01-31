@@ -49,7 +49,6 @@ function* test_real_folder_update() {
   // remove the second set of messages (some -> none)
   yield async_trash_messages(setTwo);
   verify_empty_view(viewWrapper);
-
 }
 
 /**

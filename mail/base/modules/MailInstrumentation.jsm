@@ -39,7 +39,6 @@ var MailInstrumentation = {
       MailInstrumentation.addEvent("msgSent", true);
     else if (aTopic == "mail:setAsDefault")
       MailInstrumentation.addEvent("setAsDefault", true);
-
   },
   msgAdded(aMsg) {
     MailServices.mfn.removeListener(this);
@@ -54,7 +53,6 @@ var MailInstrumentation = {
       MailInstrumentation._removeObserver(
         "mail.accountmanager.accounts",
         MailInstrumentation._accountsChanged);
-
     }
   },
   _smtpServerAdded() {

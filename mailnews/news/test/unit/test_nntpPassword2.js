@@ -77,7 +77,6 @@ add_task(async function() {
                                        "AUTHINFO pass newstest", "LIST"]);
     incomingServer.QueryInterface(Ci.nsISubscribableServer)
                   .subscribeCleanup();
-
   } catch (e) {
     dump("NNTP Protocol test " + test + " failed for type RFC 977:\n");
     try {

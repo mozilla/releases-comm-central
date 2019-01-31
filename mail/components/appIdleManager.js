@@ -26,7 +26,6 @@ var appIdleManager = {
   _timerCallback() {
     appIdleManager._appIdle = true;
     Services.obs.notifyObservers(null, "mail:appIdle", "idle");
-
   },
 
   onBlur() {

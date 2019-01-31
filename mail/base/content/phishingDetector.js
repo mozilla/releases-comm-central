@@ -63,7 +63,6 @@ var gPhishingDetector = {
                           Ci.nsMsgFolderFlags.Templates | Ci.nsMsgFolderFlags.Queue;
       if (folder.isSpecialFolder(outgoingFlags, true))
         return;
-
     } catch (ex) {
         if (ex.result != Cr.NS_ERROR_FAILURE)
           throw ex;
