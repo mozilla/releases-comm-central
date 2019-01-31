@@ -175,8 +175,11 @@ var gMockPromptService = {
   },
 
   get CID() {
-    let registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
-    return registrar.contractIDToCID(kPromptServiceContractID);
+    if (!this._cid) {
+      let registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
+      this._cid = registrar.contractIDToCID(kPromptServiceContractID);
+    }
+    return this._cid;
   },
 
   /* Registers the Mock Prompt Service, and stores the original Prompt Service.

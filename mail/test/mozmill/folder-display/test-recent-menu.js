@@ -12,6 +12,7 @@
 
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
 var MODULE_NAME = 'test-recent-menu';
 
