@@ -87,8 +87,8 @@ function awGetSelectItemIndex(itemData) {
   if (selectElementIndexTable == null) {
     selectElementIndexTable = {};
     var selectElem = document.getElementById("addressCol1#1");
-    for (var i = 0; i < selectElem.childNodes[0].childNodes.length; i++) {
-      var aData = selectElem.childNodes[0].childNodes[i].getAttribute("value");
+    for (var i = 0; i < selectElem.menupopup.childNodes.length; i++) {
+      var aData = selectElem.menupopup.childNodes[i].getAttribute("value");
       selectElementIndexTable[aData] = i;
     }
   }
@@ -261,7 +261,7 @@ function awSetInputAndPopupId(inputElem, popupElem, rowNumber) {
 function awSetInputAndPopupValue(inputElem, inputValue, popupElem, popupValue, rowNumber, aNotifyRecipientsChanged = true) {
   inputElem.value = inputValue.trimLeft();
 
-  popupElem.selectedItem = popupElem.childNodes[0].childNodes[awGetSelectItemIndex(popupValue)];
+  popupElem.selectedItem = popupElem.menupopup.childNodes[awGetSelectItemIndex(popupValue)];
   // TODO: can there be a row without ID yet?
   if (rowNumber >= 0)
     awSetInputAndPopupId(inputElem, popupElem, rowNumber);
