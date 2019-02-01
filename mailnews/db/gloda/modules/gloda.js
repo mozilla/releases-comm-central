@@ -1504,9 +1504,7 @@ var Gloda = {
    */
   _bindAttribute: function gloda_ns_bindAttr(aAttrDef, aSubjectNounDef) {
     let objectNounDef = aAttrDef.objectNounDef;
-dump("ACE: queryClass "+aSubjectNounDef.queryClass);
-dump("ACE: attrdef.canquery "+aAttrDef.canQuery);
-dump("ACE: attrname "+aAttrDef.attributeName);
+
     // -- the query constraint helpers
     if (aSubjectNounDef.queryClass !== undefined) {
       let constrainer;

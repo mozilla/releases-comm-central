@@ -330,7 +330,6 @@ MessagesByMessageIdCallback.prototype = {
       return;
 
     this._log.debug("getting results...");
-dump("ACE:"+this.results.length);
     for (let message of aItems) {
       this.results[this.msgIDToIndex[message.headerMessageID]].push(message);
     }
