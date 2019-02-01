@@ -47,6 +47,7 @@ var FeedUtils = {
   kBiffUnitsDays:    "d",
 
   DC_NS: "http://purl.org/dc/elements/1.1/",
+  get DC_PUBLISHER()    { return this.rdf.GetResource(this.DC_NS + "publisher"); },
   get DC_CREATOR()      { return this.rdf.GetResource(this.DC_NS + "creator"); },
   get DC_SUBJECT()      { return this.rdf.GetResource(this.DC_NS + "subject"); },
   get DC_DATE()         { return this.rdf.GetResource(this.DC_NS + "date"); },

@@ -228,9 +228,10 @@ FeedParser.prototype = {
       if (!tags) {
         tags = this.childrenByTagNameNS(itemNode, FeedUtils.DC_NS, "creator");
       }
-      item.author = this.getNodeValue(tags ? tags[0] : null) ||
-                    aFeed.title ||
-                    item.author;
+      let author = this.getNodeValue(tags ? tags[0] : null) ||
+                   aFeed.title;
+      author = this.cleanAuthorName(author);
+      item.author = author ? ["<" + author + ">"] : item.author;
 
       tags = this.childrenByTagNameNS(itemNode, nsURI, "pubDate");
       if (!tags || !this.getNodeValue(tags[0])) {
@@ -388,10 +389,12 @@ FeedParser.prototype = {
       item.id = item.url;
       item.url = this.validLink(item.url);
 
-      item.author = this.getRDFTargetValue(ds, itemResource, FeedUtils.DC_CREATOR) ||
-                    this.getRDFTargetValue(ds, channel, FeedUtils.DC_CREATOR) ||
-                    aFeed.title ||
-                    item.author;
+      let author = this.getRDFTargetValue(ds, itemResource, FeedUtils.DC_CREATOR) ||
+                   this.getRDFTargetValue(ds, channel, FeedUtils.DC_CREATOR) ||
+                   aFeed.title;
+      author = this.cleanAuthorName(author);
+      item.author = author ? ["<" + author + ">"] : item.author;
+
       item.date = this.getRDFTargetValue(ds, itemResource, FeedUtils.DC_DATE) ||
                   item.date;
       item.content = this.getRDFTargetValueFormatted(ds, itemResource,
@@ -641,7 +644,7 @@ FeedParser.prototype = {
         continue;
       }
 
-      // XXX Support multiple authors.
+      // Support multiple authors.
       tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_IETF_NS, "author");
       if (!tags) {
         tags = this.childrenByTagNameNS(source, FeedUtils.ATOM_IETF_NS, "author");
@@ -650,22 +653,43 @@ FeedParser.prototype = {
         tags = this.childrenByTagNameNS(channel, FeedUtils.ATOM_IETF_NS, "author");
       }
 
-      let authorEl = tags ? tags[0] : null;
-
-      let author = "";
-      if (authorEl) {
-        tags = this.childrenByTagNameNS(authorEl, FeedUtils.ATOM_IETF_NS, "name");
+      let authorTags = tags || [];
+      let authors = [];
+      for (let authorTag of authorTags) {
+        let author = "";
+        tags = this.childrenByTagNameNS(authorTag, FeedUtils.ATOM_IETF_NS, "name");
         let name = this.getNodeValue(tags ? tags[0] : null);
-        tags = this.childrenByTagNameNS(authorEl, FeedUtils.ATOM_IETF_NS, "email");
+        tags = this.childrenByTagNameNS(authorTag, FeedUtils.ATOM_IETF_NS, "email");
         let email = this.getNodeValue(tags ? tags[0] : null);
         if (name) {
-          author = name + (email ? " <" + email + ">" : "");
+          name = this.cleanAuthorName(name);
+          if (email) {
+            if (!email.match(/^<.*>$/)) {
+              email = " <" + email + ">";
+            }
+            author = name + email;
+          } else {
+            author = "<" + name + ">";
+          }
         } else if (email) {
           author = email;
         }
+
+        if (author) {
+          authors.push(author);
+        }
       }
 
-      item.author = author || item.author || aFeed.title;
+      if (authors.length == 0) {
+        tags = this.childrenByTagNameNS(channel, FeedUtils.DC_NS, "publisher");
+        let author = this.getNodeValue(tags ? tags[0] : null) ||
+                     aFeed.title;
+        author = this.cleanAuthorName(author);
+        item.author = author ? ["<" + author + ">"] : item.author;
+      } else {
+        item.author = authors;
+      }
+      FeedUtils.log.trace("FeedParser.parseAsAtomIETF: author(s) - " + item.author);
 
       tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_IETF_NS, "updated");
       if (!tags || !this.getNodeValue(tags[0])) {
@@ -828,6 +852,29 @@ FeedParser.prototype = {
 
     // Other parts of the code depend on this being null if there's no content.
     return content ? content : null;
+  },
+
+  /**
+   * Return a cleaned up author name value.
+   *
+   * @param {String} authorString  - A string.
+   * @returns {String}             - A clean string value.
+   */
+  cleanAuthorName(authorString) {
+    if (!authorString) {
+      return "";
+    }
+    FeedUtils.log.trace("FeedParser.cleanAuthor: author1 - " + authorString);
+    let author = authorString.replace(/[\n\r\t]+/g, " ")
+                             .replace(/"/g, '\\"')
+                             .trim();
+    // If the name contains special chars, quote it.
+    if (author.match(/[<>@,"]/)) {
+      author = '"' + author + '"';
+    }
+    FeedUtils.log.trace("FeedParser.cleanAuthor: author2 - " + author);
+
+    return author;
   },
 
   getRDFTargetValue(ds, source, property) {

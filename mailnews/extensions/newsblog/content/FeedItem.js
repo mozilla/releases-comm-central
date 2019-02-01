@@ -17,7 +17,10 @@ FeedItem.prototype = {
   content: null,
   enclosures: [],
   title: null,
-  author: "anonymous",
+  // Author must be angle bracket enclosed to function as an addr-spec, in the
+  // absence of an addr-spec portion of an RFC5322 email address, as other
+  // functionality (gloda search) depends on this.
+  author: "<anonymous>",
   inReplyTo: "",
   keywords: [],
   mURL: null,
@@ -205,12 +208,9 @@ FeedItem.prototype = {
   writeToFolder() {
     FeedUtils.log.trace("FeedItem.writeToFolder: " + this.identity +
                         " writing to message folder " + this.feed.name);
-    // Convert the title to UTF-16 before performing our HTML entity
-    // replacement reg expressions.
-    let title = this.title;
-
     // The subject may contain HTML entities.  Convert these to their unencoded
     // state. i.e. &amp; becomes '&'.
+    let title = this.title;
     title = this.mParserUtils.convertToPlainText(
         title,
         Ci.nsIDocumentEncoder.OutputSelectionOnly |
@@ -233,29 +233,11 @@ FeedItem.prototype = {
       ("References: " + this.inReplyTo + "\n" +
        "In-Reply-To: " + this.inReplyTo + "\n") : "";
 
-    // If there are keywords (categories), create the headers. In the case of
-    // a longer than RFC5322 recommended line length, create multiple folded
-    // lines (easier to parse than multiple Keywords headers).
-    let keywordsStr = "";
-    if (this.keywords.length) {
-      let HEADER = "Keywords: ";
-      let MAXLEN = 78;
-      keywordsStr = HEADER;
-      let keyword;
-      let keywords = [].concat(this.keywords);
-      let lines = [];
-      while (keywords.length) {
-        keyword = keywords.shift();
-        if (keywordsStr.length + keyword.length > MAXLEN) {
-          lines.push(keywordsStr);
-          keywordsStr = " ".repeat(HEADER.length);
-        }
-        keywordsStr += keyword + ",";
-      }
-      keywordsStr = keywordsStr.replace(/,$/, "\n");
-      lines.push(keywordsStr);
-      keywordsStr = lines.join("\n");
-    }
+    // Support multiple authors in From.
+    let fromStr = this.createHeaderStrFromArray("From: ", this.author);
+
+    // If there are keywords (categories), create the headers.
+    let keywordsStr = this.createHeaderStrFromArray("Keywords: ", this.keywords);
 
     // Escape occurrences of "From " at the beginning of lines of
     // content per the mbox standard, since "From " denotes a new
@@ -279,7 +261,7 @@ FeedItem.prototype = {
       "Received: by localhost; " + FeedUtils.getValidRFC5322Date() + "\n" +
       "Date: " + this.mDate + "\n" +
       "Message-Id: " + this.normalizeMessageID(this.id) + "\n" +
-      "From: " + this.author + "\n" +
+      fromStr +
       "MIME-Version: 1.0\n" +
       "Subject: " + this.title + "\n" +
       inreplytoHdrsStr +
@@ -321,6 +303,49 @@ FeedItem.prototype = {
     msgDBHdr.OrFlags(Ci.nsMsgMessageFlags.FeedMsg);
     msgFolder.gettingNewMessages = false;
     this.tagItem(msgDBHdr, this.keywords);
+  },
+
+/**
+ * Create a header string from an array. Intended for comma separated headers
+ * like From or Keywords. In the case of a longer than RFC5322 recommended
+ * line length, create multiple folded lines (easier to parse than multiple
+ * headers).
+ *
+ * @param  {String} headerName          - Name of the header.
+ * @param  {String}[] headerItemsArray  - An Array of strings to concatenate.
+ *
+ * @returns {String}
+ */
+  createHeaderStrFromArray(headerName, headerItemsArray) {
+    let headerStr = "";
+    if (!headerItemsArray || headerItemsArray.length == 0) {
+      return headerStr;
+    }
+
+    const HEADER = headerName;
+    const LINELENGTH = 78;
+    const MAXLINELENGTH = 990;
+    let items = [].concat(headerItemsArray);
+    let lines = [];
+    headerStr = HEADER;
+    while (items.length) {
+      let item = items.shift();
+      if (headerStr.length + item.length > LINELENGTH &&
+          headerStr.length > HEADER.length) {
+        lines.push(headerStr);
+        headerStr = " ".repeat(HEADER.length);
+      }
+
+      headerStr += headerStr.length + item.length > MAXLINELENGTH ?
+                     item.substr(0, MAXLINELENGTH - headerStr.length) + "…, " :
+                     item + ", ";
+    }
+
+    headerStr = headerStr.replace(/,\s$/, "\n");
+    lines.push(headerStr);
+    headerStr = lines.join("\n");
+
+    return headerStr;
   },
 
 /**
