@@ -16,6 +16,7 @@ var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 var controller = ChromeUtils.import("chrome://mozmill/content/modules/controller.js");
 
+var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
 var {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 var {SessionStoreManager} = ChromeUtils.import("resource:///modules/SessionStoreManager.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
