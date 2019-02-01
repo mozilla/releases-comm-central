@@ -516,7 +516,7 @@ void
 nsMsgCompose::InsertDivWrappedTextAtSelection(const nsAString &aText,
                                               const nsAString &classStr)
 {
-  NS_ASSERTION(m_editor, "InsertDivWrappedTextAtSelection called, but no editor exists\n");
+  NS_ASSERTION(m_editor, "InsertDivWrappedTextAtSelection called, but no editor exists");
   if (!m_editor)
     return;
 
@@ -622,7 +622,7 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
                                           bool aQuoted,
                                           bool aHTMLEditor)
 {
-  NS_ASSERTION(m_editor, "ConvertAndLoadComposeWindow but no editor\n");
+  NS_ASSERTION(m_editor, "ConvertAndLoadComposeWindow but no editor");
   NS_ENSURE_TRUE(m_editor && m_identity, NS_ERROR_NOT_INITIALIZED);
 
   // First, get the nsIEditor interface for future use
@@ -4358,7 +4358,7 @@ nsMsgCompose::BuildQuotedMessageAndSignature(void)
   //
   // This should never happen...if it does, just bail out...
   //
-  NS_ASSERTION(m_editor, "BuildQuotedMessageAndSignature but no editor!\n");
+  NS_ASSERTION(m_editor, "BuildQuotedMessageAndSignature but no editor!");
   if (!m_editor)
     return NS_ERROR_FAILURE;
 

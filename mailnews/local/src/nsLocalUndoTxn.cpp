@@ -250,14 +250,13 @@ nsLocalMoveCopyMsgTxn::UndoTransactionInternal()
       {
         rv = dstDB->GetMsgHdrForKey(m_dstKeyArray[i],
                                     getter_AddRefs(oldHdr));
-        NS_ASSERTION(oldHdr, "fatal ... cannot get old msg header\n");
+        NS_ASSERTION(oldHdr, "fatal ... cannot get old msg header");
         if (NS_SUCCEEDED(rv) && oldHdr)
         {
           rv = srcDB->CopyHdrFromExistingHdr(m_srcKeyArray[i],
                                              oldHdr, true,
                                              getter_AddRefs(newHdr));
-          NS_ASSERTION(newHdr,
-                       "fatal ... cannot create new msg header\n");
+          NS_ASSERTION(newHdr, "fatal ... cannot create new msg header");
           if (NS_SUCCEEDED(rv) && newHdr)
           {
             newHdr->SetStatusOffset(m_srcStatusOffsetArray[i]);
@@ -362,7 +361,7 @@ nsLocalMoveCopyMsgTxn::RedoTransaction()
   {
     rv = srcDB->GetMsgHdrForKey(m_srcKeyArray[i],
                                 getter_AddRefs(oldHdr));
-    NS_ASSERTION(oldHdr, "fatal ... cannot get old msg header\n");
+    NS_ASSERTION(oldHdr, "fatal ... cannot get old msg header");
 
     if (NS_SUCCEEDED(rv) && oldHdr)
     {
@@ -374,7 +373,7 @@ nsLocalMoveCopyMsgTxn::RedoTransaction()
       rv = dstDB->CopyHdrFromExistingHdr(m_dstKeyArray[i],
                                          oldHdr, true,
                                          getter_AddRefs(newHdr));
-      NS_ASSERTION(newHdr, "fatal ... cannot get new msg header\n");
+      NS_ASSERTION(newHdr, "fatal ... cannot get new msg header");
       if (NS_SUCCEEDED(rv) && newHdr)
       {
         if (i < m_dstSizeArray.Length())
@@ -417,7 +416,7 @@ nsLocalMoveCopyMsgTxn::RedoTransaction()
       for (i = 0; i < count; i++)
       {
         srcDB->GetMsgHdrForKey(m_srcKeyArray[i], getter_AddRefs(srcHdr));
-        NS_ASSERTION(srcHdr, "fatal ... cannot get old msg header\n");
+        NS_ASSERTION(srcHdr, "fatal ... cannot get old msg header");
         if (srcHdr)
         {
           nsCString messageId;

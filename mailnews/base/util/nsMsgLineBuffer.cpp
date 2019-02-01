@@ -360,7 +360,7 @@ char * nsMsgLineStreamBuffer::ReadNextLine(nsIInputStream * aInputStream, uint32
         startOfLine = m_dataBuffer;
         numFreeBytesInBuffer += growBy;
       }
-      NS_ASSERTION(m_startPos == 0, "m_startPos should be 0 .....\n");
+      NS_ASSERTION(m_startPos == 0, "m_startPos should be 0 .....");
     }
 
     uint32_t numBytesToCopy = std::min(uint64_t(numFreeBytesInBuffer - 1) /* leave one for a null terminator */, numBytesInStream);

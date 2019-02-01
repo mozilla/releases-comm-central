@@ -127,7 +127,7 @@ nsMsgServiceProviderService::LoadDataSource(const char *aURI)
   NS_ENSURE_SUCCESS(rv, rv);
   // for now load synchronously (async seems to be busted)
   rv = remote->Refresh(true);
-  NS_ASSERTION(NS_SUCCEEDED(rv), "failed refresh?\n");
+  NS_ASSERTION(NS_SUCCEEDED(rv), "failed refresh?");
 
   rv = mInnerDataSource->AddDataSource(ds);
 

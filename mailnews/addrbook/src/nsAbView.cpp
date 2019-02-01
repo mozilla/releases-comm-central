@@ -88,7 +88,7 @@ NS_IMETHODIMP nsAbView::ClearView()
 
   int32_t i = mCards.Length();
   while(i-- > 0)
-    NS_ASSERTION(NS_SUCCEEDED(RemoveCardAt(i)), "remove card failed\n");
+    NS_ASSERTION(NS_SUCCEEDED(RemoveCardAt(i)), "remove card failed");
 
   return NS_OK;
 }
@@ -182,7 +182,7 @@ NS_IMETHODIMP nsAbView::SetView(nsIAbDirectory *aAddressBook,
   while(i-- > 0)
   {
     rv = RemoveCardAt(i);
-    NS_ASSERTION(NS_SUCCEEDED(rv), "remove card failed\n");
+    NS_ASSERTION(NS_SUCCEEDED(rv), "remove card failed");
   }
 
   // We replace all cards so any sorting is no longer valid.
@@ -1086,11 +1086,11 @@ NS_IMETHODIMP nsAbView::OnItemPropertyChanged(nsISupports *item, const char *pro
 
     // Remove the old card.
     rv = RemoveCardAt(index);
-    NS_ASSERTION(NS_SUCCEEDED(rv), "remove card failed\n");
+    NS_ASSERTION(NS_SUCCEEDED(rv), "remove card failed");
 
     // Add the card we created, and select it (to restore selection) if it was selected.
     rv = AddCard(newCard, cardWasSelected /* select card */, &index);
-    NS_ASSERTION(NS_SUCCEEDED(rv), "add card failed\n");
+    NS_ASSERTION(NS_SUCCEEDED(rv), "add card failed");
 
     mSuppressSelectionChange = false;
     mSuppressCountChange = false;

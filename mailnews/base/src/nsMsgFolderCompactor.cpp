@@ -1217,7 +1217,7 @@ NS_IMETHODIMP
 nsFolderCompactState::StartMessage()
 {
   nsresult rv = NS_ERROR_FAILURE;
-  NS_ASSERTION(m_fileStream, "Fatal, null m_fileStream...\n");
+  NS_ASSERTION(m_fileStream, "Fatal, null m_fileStream...");
   if (m_fileStream)
   {
     nsCOMPtr <nsISeekableStream> seekableStream = do_QueryInterface(m_fileStream, &rv);

@@ -2992,7 +2992,7 @@ nsMsgComposeAndSend::Init(
 
   mUserIdentity = aUserIdentity;
   mAccountKey = aAccountKey;
-  NS_ASSERTION(mUserIdentity, "Got null identity!\n");
+  NS_ASSERTION(mUserIdentity, "Got null identity!");
   if (!mUserIdentity) return NS_ERROR_UNEXPECTED;
 
   //
