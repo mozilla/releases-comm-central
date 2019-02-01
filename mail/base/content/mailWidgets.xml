@@ -1017,6 +1017,13 @@
     </content>
 
     <implementation>
+      <constructor>
+        <![CDATA[
+          // Force initialization of the menulist custom element first.
+          customElements.upgrade(document.getAnonymousNodes(this)[0]);
+        ]]>
+      </constructor>
+
       <field name="internalScope">null</field>
       <field name="internalValue">-1</field>
       <field readonly="true" name="validityManager">
@@ -1152,7 +1159,7 @@
             var menuItemStrings = this.valueStrings;
 
             var menulist = document.getAnonymousNodes(this)[0];
-            var popup = menulist.firstChild;
+            var popup = menulist.menupopup;
 
             // save our old "value" so we can restore it later
             var oldData;
@@ -1170,10 +1177,7 @@
               if (Ci.nsMsgSearchAttrib.OtherHeader == menuItemIds[i].toString()) {
                 customizePos = i;
               } else {
-                var menuitem = document.createElement("menuitem");
-                menuitem.setAttribute("label", menuItemStrings[i]);
-                menuitem.setAttribute("value", menuItemIds[i]);
-                popup.appendChild(menuitem);
+                let menuitem = menulist.appendItem(menuItemStrings[i], menuItemIds[i]);
                 // try to restore the selection
                 if (!newSelection || oldData == menuItemIds[i].toString())
                   newSelection = menuitem;
@@ -1182,10 +1186,7 @@
             if (customizePos != -1) {
               var separator = document.createElement("menuseparator");
               popup.appendChild(separator);
-              menuitem = document.createElement("menuitem");
-              menuitem.setAttribute("label", menuItemStrings[customizePos]);
-              menuitem.setAttribute("value", menuItemIds[customizePos]);
-              popup.appendChild(menuitem);
+              menulist.appendItem(menuItemStrings[customizePos], menuItemIds[customizePos]);
             }
             //
             // If we are either uninitialized, or if we are called because
@@ -1453,6 +1454,16 @@
       <xul:hbox flex="1" class="search-value-custom" xbl:inherits="disabled"/>
     </content>
     <implementation>
+      <constructor>
+        <![CDATA[
+          // Force initialization of the menulist custom elements first.
+          let items = this.menulist.getElementsByTagNameNS(this.menulist.namespaceURI, "menulist");
+          for (let item of items) {
+            customElements.upgrade(item);
+          }
+        ]]>
+      </constructor>
+
       <field name="internalOperator">null</field>
       <field name="internalAttribute">null</field>
       <field name="internalValue">null</field>
@@ -1720,17 +1731,15 @@
       <method name="fillInTags">
         <body>
           <![CDATA[
-            var children = document.getAnonymousNodes(this);
-            var popupMenu = children[5].firstChild;
+            let menulist = document.getAnonymousNodes(this)[5];
+            // Force initialization of the menulist custom element first.
+            customElements.upgrade(menulist);
             let tagArray = MailServices.tags.getAllTags({});
             for (var i = 0; i < tagArray.length; ++i) {
               var taginfo = tagArray[i];
-              var newMenuItem = document.createElement("menuitem");
-              newMenuItem.setAttribute("label", taginfo.tag);
-              newMenuItem.setAttribute("value", taginfo.key);
-              popupMenu.appendChild(newMenuItem);
+              let newMenuItem = menulist.appendItem(taginfo.tag, taginfo.key);
               if (!i)
-                children[5].selectedItem = newMenuItem;
+                menulist.selectedItem = newMenuItem;
             }
           ]]>
         </body>

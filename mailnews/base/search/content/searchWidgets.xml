@@ -59,6 +59,8 @@
     <implementation>
       <constructor>
         <![CDATA[
+          // Force initialization of the menulist custom element first.
+          customElements.upgrade(this.menulist);
           this.addCustomActions();
           this.hideInvalidActions();
           // differentiate between creating a new, next available action,

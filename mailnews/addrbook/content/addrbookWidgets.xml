@@ -74,6 +74,8 @@
           this._teardown();
 
           let menulist = this.parentNode;
+          // Force initialization of the menulist custom element first.
+          customElements.upgrade(menulist);
 
           if (this.hasAttribute("none")) {
             // Create a dummy menuitem representing no selection.
