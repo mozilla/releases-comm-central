@@ -452,6 +452,7 @@ var snapshotFormatters = {
                           return $.new("p", val);
                        }))])]);
       }
+      delete data.failures;
     } else {
       $("graphics-failures-tbody").style.display = "none";
     }
