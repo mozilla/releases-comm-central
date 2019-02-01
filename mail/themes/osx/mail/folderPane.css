@@ -51,13 +51,11 @@ treechildren::-moz-tree-image(folderNameCol, isPaused),
 treechildren::-moz-tree-cell-text(folderNameCol, isPaused) {
   opacity: 0.4;
 }
-treechildren::-moz-tree-image(folderNameCol, closed, isBusy),
-treechildren::-moz-tree-image(folderNameCol, leaf, isBusy) {
+treechildren::-moz-tree-image(folderNameCol, isBusy) {
   list-style-image: url("chrome://messenger/skin/icons/waiting.svg");
   -moz-image-region: rect(0 16px 16px 0);
 }
-treechildren::-moz-tree-image(folderNameCol, closed, hasError),
-treechildren::-moz-tree-image(folderNameCol, leaf, hasError) {
+treechildren::-moz-tree-image(folderNameCol, hasError) {
   list-style-image: url("chrome://mozapps/skin/extensions/alerticon-error.svg");
   -moz-image-region: rect(0 16px 16px 0);
 }
@@ -159,13 +157,11 @@ treechildren::-moz-tree-image(folderNameCol, specialFolder-Archive) {
     list-style-image: url("chrome://messenger/skin/icons/folder-pane@2x.png");
     -moz-image-region: rect(0 448px 32px 416px);
   }
-  treechildren::-moz-tree-image(folderNameCol, closed, isBusy),
-  treechildren::-moz-tree-image(folderNameCol, leaf, isBusy) {
+  treechildren::-moz-tree-image(folderNameCol, isBusy) {
     list-style-image: url("chrome://messenger/skin/icons/status@2x.png");
     -moz-image-region: rect(0 64px 32px 32px);
   }
-  treechildren::-moz-tree-image(folderNameCol, closed, hasError),
-  treechildren::-moz-tree-image(folderNameCol, leaf, hasError) {
+  treechildren::-moz-tree-image(folderNameCol, hasError) {
     list-style-image: url("chrome://global/skin/icons/error.png");
     -moz-image-region: rect(0 16px 16px 0);
   }

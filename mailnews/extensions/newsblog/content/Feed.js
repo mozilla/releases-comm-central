@@ -255,7 +255,9 @@ Feed.prototype = {
           error = FeedUtils.kNewsBlogNoAuthError;
         }
 
-        if (request.status != 0 || error == FeedUtils.kNewsBlogBadCertError) {
+        if (request.status != 0 ||
+            error == FeedUtils.kNewsBlogBadCertError ||
+            errName == "DomainNotFoundError") {
           disable = true;
         }
       }

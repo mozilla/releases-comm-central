@@ -278,6 +278,19 @@ var FeedUtils = {
     }
 
     let forceDownload = !aIsBiff;
+    let inStartup = false;
+    if (aFolder.isServer) {
+      // The lastUpdateTime is |null| only at session startup/initialization.
+      // Note: feed processing does not impact startup, as the biff poll
+      // will go off in about kBiffPollMinutes (1) and process each feed
+      // according to its own lastUpdatTime/update frequency.
+      if (FeedUtils.getStatus(aFolder, aFolder.URI).lastUpdateTime === null) {
+        inStartup = true;
+      }
+
+      FeedUtils.setStatus(aFolder, aFolder.URI, "lastUpdateTime", Date.now());
+    }
+
     let allFolders = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
     if (!aFolder.isServer) {
       // Add the base folder; it does not get returned by ListDescendants. Do not
@@ -314,7 +327,10 @@ var FeedUtils = {
           // skip the per feed check.
           if (!forceDownload) {
             let status = FeedUtils.getStatus(folder, url);
-            if (!status.enabled ||
+            // Also skip if user paused, or error paused (but not inStartup;
+            // go check the feed again), or update interval hasn't expired.
+            if (status.enabled === false ||
+                (status.enabled === null && !inStartup) ||
                 (now - status.lastUpdateTime < status.updateMinutes * 60000)) {
               FeedUtils.log.debug("downloadFeed: SKIP feed, " +
                                   "aIsBiff:enabled:minsSinceLastUpdate::url - " +
