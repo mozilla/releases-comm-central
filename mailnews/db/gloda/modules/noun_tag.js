@@ -4,9 +4,9 @@
 
 this.EXPORTED_SYMBOLS = ['TagNoun'];
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-var {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
+const {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
 
 /**
  * @namespace Tag noun provider.

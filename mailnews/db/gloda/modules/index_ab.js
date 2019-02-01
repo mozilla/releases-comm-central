@@ -4,17 +4,14 @@
 
 this.EXPORTED_SYMBOLS = ['GlodaABIndexer', 'GlodaABAttrs'];
 
-var {
-  GlodaCollection,
-  GlodaCollectionManager,
-} = ChromeUtils.import("resource:///modules/gloda/collection.js");
-var {GlodaDatastore} = ChromeUtils.import("resource:///modules/gloda/datastore.js");
-var {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
-var {GlodaIndexer, IndexingJob} = ChromeUtils.import("resource:///modules/gloda/indexer.js");
-var {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
-var {FreeTagNoun} = ChromeUtils.import("resource:///modules/gloda/noun_freetag.js");
-var {GlodaUtils} = ChromeUtils.import("resource:///modules/gloda/utils.js");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {GlodaCollectionManager} = ChromeUtils.import("resource:///modules/gloda/collection.js");
+const {GlodaDatastore} = ChromeUtils.import("resource:///modules/gloda/datastore.js");
+const {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
+const {GlodaIndexer, IndexingJob} = ChromeUtils.import("resource:///modules/gloda/indexer.js");
+const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const {FreeTagNoun} = ChromeUtils.import("resource:///modules/gloda/noun_freetag.js");
+const {GlodaUtils} = ChromeUtils.import("resource:///modules/gloda/utils.js");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 
 var GlodaABIndexer = {

@@ -4,17 +4,17 @@
 
 this.EXPORTED_SYMBOLS = [];
 
-var {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 var LOG = Log4Moz.repository.getLogger("gloda.everybody");
 
-var {GlodaFundAttr} = ChromeUtils.import("resource:///modules/gloda/fundattr.js");
+const {GlodaFundAttr} = ChromeUtils.import("resource:///modules/gloda/fundattr.js");
 GlodaFundAttr.init();
-var {GlodaExplicitAttr} = ChromeUtils.import("resource:///modules/gloda/explattr.js");
+const {GlodaExplicitAttr} = ChromeUtils.import("resource:///modules/gloda/explattr.js");
 GlodaExplicitAttr.init();
 
 ChromeUtils.import("resource:///modules/gloda/noun_tag.js");
 ChromeUtils.import("resource:///modules/gloda/noun_freetag.js");
 ChromeUtils.import("resource:///modules/gloda/noun_mimetype.js");
 ChromeUtils.import("resource:///modules/gloda/index_msg.js");
-var {GlodaABAttrs} = ChromeUtils.import("resource:///modules/gloda/index_ab.js");
+const {GlodaABAttrs} = ChromeUtils.import("resource:///modules/gloda/index_ab.js");
 GlodaABAttrs.init();

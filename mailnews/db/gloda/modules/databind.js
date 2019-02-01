@@ -4,7 +4,7 @@
 
 this.EXPORTED_SYMBOLS = ["GlodaDatabind"];
 
-var {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
 var DBC_LOG = Log4Moz.repository.getLogger("gloda.ds.dbc");
 

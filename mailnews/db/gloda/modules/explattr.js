@@ -11,13 +11,13 @@
 
 this.EXPORTED_SYMBOLS = ['GlodaExplicitAttr'];
 
-var {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
-var {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
+const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
 
-var {GlodaUtils} = ChromeUtils.import("resource:///modules/gloda/utils.js");
-var {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
-var {TagNoun} = ChromeUtils.import("resource:///modules/gloda/noun_tag.js");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {GlodaUtils} = ChromeUtils.import("resource:///modules/gloda/utils.js");
+const {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
+const {TagNoun} = ChromeUtils.import("resource:///modules/gloda/noun_tag.js");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 
 var nsMsgMessageFlags_Replied = Ci.nsMsgMessageFlags.Replied;

@@ -9,23 +9,21 @@
 
 this.EXPORTED_SYMBOLS = ["GlodaDatastore"];
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
 
-var {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
-var {
+const {
   GlodaAttributeDBDef,
-  GlodaAccount,
   GlodaConversation,
   GlodaFolder,
   GlodaMessage,
   GlodaContact,
   GlodaIdentity,
-  GlodaAttachment,
 } = ChromeUtils.import("resource:///modules/gloda/datamodel.js");
-var {GlodaDatabind} = ChromeUtils.import("resource:///modules/gloda/databind.js");
-var {GlodaCollection, GlodaCollectionManager} = ChromeUtils.import("resource:///modules/gloda/collection.js");
+const {GlodaDatabind} = ChromeUtils.import("resource:///modules/gloda/databind.js");
+const {GlodaCollection, GlodaCollectionManager} = ChromeUtils.import("resource:///modules/gloda/collection.js");
 
 var MIN_CACHE_SIZE = 8 * 1048576;
 var MAX_CACHE_SIZE = 64 * 1048576;
@@ -2503,7 +2501,9 @@ var GlodaDatastore = {
     else
       imts.bindByIndex(3, aMessage._attachmentNames.join("\n"));
 
+//if (aMessage._indexAuthor)
     imts.bindByIndex(4, aMessage._indexAuthor);
+//if (aMessage._indexRecipients)
     imts.bindByIndex(5, aMessage._indexRecipients);
 
     try {

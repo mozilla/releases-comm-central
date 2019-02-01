@@ -4,8 +4,8 @@
 
 this.EXPORTED_SYMBOLS = ["GlodaMsgSearcher"];
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {Gloda} = ChromeUtils.import("resource:///modules/gloda/public.js");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {Gloda} = ChromeUtils.import("resource:///modules/gloda/public.js");
 
 /**
  * How much time boost should a 'score point' amount to?  The authoritative,

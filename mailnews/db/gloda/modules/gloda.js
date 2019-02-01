@@ -4,10 +4,10 @@
 
 this.EXPORTED_SYMBOLS = ['Gloda'];
 
-var {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
-var {GlodaDatastore} = ChromeUtils.import("resource:///modules/gloda/datastore.js");
-var {
+const {GlodaDatastore} = ChromeUtils.import("resource:///modules/gloda/datastore.js");
+const {
   GlodaAttributeDBDef,
   GlodaAccount,
   GlodaConversation,
@@ -17,21 +17,16 @@ var {
   GlodaIdentity,
   GlodaAttachment,
 } = ChromeUtils.import("resource:///modules/gloda/datamodel.js");
-var {GlodaDatabind} = ChromeUtils.import("resource:///modules/gloda/databind.js");
-var {GlodaCollection, GlodaCollectionManager} = ChromeUtils.import("resource:///modules/gloda/collection.js");
-var {
-  GlodaContent,
-  whittlerRegistry,
-  mimeMsgToContentAndMeta,
-  mimeMsgToContentSnippetAndMeta,
-} = ChromeUtils.import("resource:///modules/gloda/connotent.js");
-var {GlodaQueryClassFactory} = ChromeUtils.import("resource:///modules/gloda/query.js");
-var {GlodaUtils} = ChromeUtils.import("resource:///modules/gloda/utils.js");
+const {GlodaDatabind} = ChromeUtils.import("resource:///modules/gloda/databind.js");
+const {GlodaCollection, GlodaCollectionManager} = ChromeUtils.import("resource:///modules/gloda/collection.js");
+const {whittlerRegistry, mimeMsgToContentAndMeta} = ChromeUtils.import("resource:///modules/gloda/connotent.js");
+const {GlodaQueryClassFactory} = ChromeUtils.import("resource:///modules/gloda/query.js");
+const {GlodaUtils} = ChromeUtils.import("resource:///modules/gloda/utils.js");
 
-var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 /**
  * @see |Gloda.BadItemContentsError|
@@ -1509,7 +1504,9 @@ var Gloda = {
    */
   _bindAttribute: function gloda_ns_bindAttr(aAttrDef, aSubjectNounDef) {
     let objectNounDef = aAttrDef.objectNounDef;
-
+dump("ACE: queryClass "+aSubjectNounDef.queryClass);
+dump("ACE: attrdef.canquery "+aAttrDef.canQuery);
+dump("ACE: attrname "+aAttrDef.attributeName);
     // -- the query constraint helpers
     if (aSubjectNounDef.queryClass !== undefined) {
       let constrainer;

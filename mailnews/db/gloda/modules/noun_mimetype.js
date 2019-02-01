@@ -4,12 +4,11 @@
 
 this.EXPORTED_SYMBOLS = ['MimeType', 'MimeTypeNoun'];
 
-var {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
-var {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
-
+const {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
+const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 var LOG = Log4Moz.repository.getLogger("gloda.noun.mimetype");
 
-var {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
+const {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
 
 var CategoryStringMap = {};
 
