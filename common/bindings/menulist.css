@@ -6,6 +6,10 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml"); /* namespace for HTML elements */
 
+xbl-menulist {
+  -moz-binding: url("chrome://messenger/content/menulist.xml#xbl-menulist");
+}
+
 menulist[editable="true"],
 xbl-menulist[editable="true"] {
   -moz-binding: url("chrome://messenger/content/menulist.xml#menulist-editable");

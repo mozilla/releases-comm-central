@@ -100,7 +100,7 @@
 #msgIdentity {
   -moz-appearance: none;
   background-color: transparent;
-  height: 22px;
+  min-height: 25px;
   line-height: 1;
   border: 1px solid transparent;
   box-shadow: none;
@@ -605,10 +605,11 @@ toolbar:not(:-moz-lwtheme) {
 /* ::::: primary toolbar buttons ::::: */
 
 @media (-moz-windows-default-theme) {
-  menulist {
+  menulist,
+  xbl-menulist {
     -moz-appearance: none;
     margin: 1px 4px;
-    padding: 1px 5px !important;
+    padding: 1px 5px;
   }
 }
 
@@ -793,11 +794,13 @@ toolbar:not(:-moz-lwtheme) {
     background-color: #eef3fa;
   }
 
-  menulist {
+  menulist,
+  xbl-menulist {
     border-radius: 2px;
   }
 
-  menulist[open="true"] {
+  menulist[open="true"],
+  xbl-menulist[open="true"] {
     text-shadow: none;
     transition: none;
   }

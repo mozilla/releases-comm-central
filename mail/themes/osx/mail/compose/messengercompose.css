@@ -132,6 +132,10 @@ toolbar[nowindowdrag="true"] {
   padding-inline-start: 3px;
 }
 
+#msgIdentity[editable="true"] > .menulist-dropmarker {
+  display: none;
+}
+
 #msgIdentity[editable="true"] > menupopup {
   -moz-appearance: menupopup;
   margin-inline-start: 0;

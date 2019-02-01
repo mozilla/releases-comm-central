@@ -365,3 +365,9 @@
   text-decoration: underline;
   cursor: pointer;
 }
+
+/* Remove when bug 1524457 lands */
+#msgIdentity[editable="true"] > .menulist-label-box[role="none"],
+#msgIdentity[editable="true"] > .menulist-dropmarker[role="none"] {
+  display: none;
+}

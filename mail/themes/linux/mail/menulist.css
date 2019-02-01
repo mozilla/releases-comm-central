@@ -2,7 +2,31 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-menulist[editable="true"] {
+xbl-menulist {
+  -moz-appearance: menulist;
+  margin: 2px 4px;
+  color: -moz-DialogText;
+  font: menu;
+  text-shadow: none;
+}
+
+xbl-menulist:hover {
+  color: -moz-buttonhovertext;
+}
+
+xbl-menulist:hover:active,
+xbl-menulist[open="true"] {
+  color: ButtonText;
+}
+
+xbl-menulist[disabled="true"],
+xbl-menulist[disabled="true"]:hover,
+xbl-menulist[disabled="true"]:hover:active {
+  color: GrayText;
+}
+
+menulist[editable="true"],
+xbl-menulist[editable="true"] {
   -moz-appearance: none;
   color: -moz-FieldText;
 }
@@ -15,7 +39,8 @@ menulist[editable="true"] {
   padding-inline-end: 0;
 }
 
-menulist[editable="true"] > .menulist-dropmarker {
+menulist[editable="true"] > .menulist-dropmarker,
+xbl-menulist[editable="true"] > .menulist-dropmarker {
   display: -moz-box;
   -moz-appearance: -moz-menulist-button;
 }
