@@ -218,7 +218,7 @@ var gLastAlarmSelection = 0;
 function matchCustomReminderToMenuitem(reminder) {
     let defaultAlarmType = getDefaultAlarmType();
     let reminderList = document.getElementById("item-alarm");
-    let reminderPopup = reminderList.firstChild;
+    let reminderPopup = reminderList.menupopup;
     if (reminder.related != Ci.calIAlarm.ALARM_RELATED_ABSOLUTE &&
         reminder.offset &&
         reminder.action == defaultAlarmType) {

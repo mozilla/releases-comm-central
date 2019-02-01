@@ -347,7 +347,7 @@
       </xul:moz-input-box>
       <xul:dropmarker class="menulist-dropmarker" type="menu"
                       xbl:inherits="open,disabled,parentfocused=focused"/>
-      <children includes="menupopup"/>
+      <children/>
     </content>
 
     <implementation>

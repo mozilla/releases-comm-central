@@ -58,7 +58,7 @@ var PERCENT_COMPLETE_INPUT = `
 // To be appended to the path for a date- or timepicker.
 var DATE_INPUT = `
     anon({"class":"datepicker-box-class"})/{"class":"datepicker-text-class"}/
-    anon({"class":"menulist-editable-box textbox-input-box"})/anon({"anonid":"input"})
+    anon({"class":"menulist-editable-box moz-input-box"})/anon({"anonid":"input"})
 `;
 var TIME_INPUT = `
     anon({"anonid":"hbox"})/anon({"anonid":"time-picker"})/anon({"class":"timepicker-box-class"})/
@@ -79,7 +79,7 @@ var REC_DLG_UNTIL_INPUT = `
     /id("calendar-event-dialog-recurrence")/id("recurrence-range-groupbox")/[1]/
     id("recurrence-duration")/id("recurrence-range-until-box")/id("repeat-until-date")/
     anon({"class":"datepicker-box-class"})/{"class":"datepicker-text-class"}/
-    anon({"class":"menulist-editable-box textbox-input-box"})/anon({"anonid":"input"})
+    anon({"class":"menulist-editable-box moz-input-box"})/anon({"anonid":"input"})
 `;
 
 

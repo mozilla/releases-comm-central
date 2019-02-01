@@ -248,11 +248,11 @@
          node that interferes with navigation to interior nodes.] -->
     <content>
       <xul:hbox flex="1" id="hbox" class="datepicker-box-class">
-        <xul:menulist editable="true" type="panel" sizetopopup="false"
-                      class="datepicker-text-class"
-                      onchange="this.kDatePicker.parseTextBoxDate(true, event);"
-                      onkeypress="if (event.key == 'Enter') this.kDatePicker.parseTextBoxDate(true);"
-                      xbl:inherits="disabled">
+        <xul:xbl-menulist editable="true" type="panel" sizetopopup="false"
+                          class="datepicker-text-class"
+                          onchange="this.kDatePicker.parseTextBoxDate(true, event);"
+                          onkeypress="if (event.key == 'Enter') this.kDatePicker.parseTextBoxDate(true);"
+                          xbl:inherits="disabled">
           <xul:panel popupanchor="bottomright" popupalign="topright"
                      anonid="datepopup"
                      onpopupshowing="this.kDatePicker.onPopup();"
@@ -260,7 +260,7 @@
                      onpopuphiding="this.firstChild.hidePopupList();">
             <xul:minimonth/>
           </xul:panel>
-        </xul:menulist>
+        </xul:xbl-menulist>
       </xul:hbox>
     </content>
 
@@ -387,11 +387,11 @@
   <binding id="datepicker-forever" extends="chrome://calendar/content/datetimepickers/datetimepickers.xml#datepicker">
     <content>
       <xul:hbox flex="1" id="hbox" class="datepicker-box-class">
-        <xul:menulist anonid="foreverMenulist" editable="true" type="panel" sizetopopup="false"
-                      class="datepicker-text-class"
-                      onchange="this.kDatePicker.parseTextBoxDate(true, event);"
-                      onkeypress="if (event.key == 'Enter') this.kDatePicker.parseTextBoxDate(true);"
-                      xbl:inherits="disabled">
+        <xul:xbl-menulist anonid="foreverMenulist" editable="true" type="panel" sizetopopup="false"
+                          class="datepicker-text-class"
+                          onchange="this.kDatePicker.parseTextBoxDate(true, event);"
+                          onkeypress="if (event.key == 'Enter') this.kDatePicker.parseTextBoxDate(true);"
+                          xbl:inherits="disabled">
           <xul:panel popupanchor="bottomright" popupalign="topright"
                      anonid="datepopup"
                      onpopupshowing="this.parentNode.kDatePicker.onPopup();"
@@ -403,7 +403,7 @@
                         class="datepicker-text-menuItem-class"
                         oncommand="onMenuitemForever(); this.parentNode.hidePopup();"/>
           </xul:panel>
-        </xul:menulist>
+        </xul:xbl-menulist>
       </xul:hbox>
     </content>
 
@@ -522,18 +522,18 @@
          node that interferes with navigation to interior nodes.] -->
     <content>
       <xul:hbox flex="1" id="hbox" class="timepicker-box-class">
-        <xul:menulist editable="true" sizetopopup="false"
-                      id="timepicker-text"
-                      class="timepicker-text-class"
-                      onchange="this.kTimePicker.parseTextBoxTime(true, event);"
-                      onkeypress="if (event.key == 'Enter') this.kTimePicker.parseTextBoxTime(true);"
-                      xbl:inherits="disabled">
+        <xul:xbl-menulist editable="true" sizetopopup="false"
+                          id="timepicker-text"
+                          class="timepicker-text-class"
+                          onchange="this.kTimePicker.parseTextBoxTime(true, event);"
+                          onkeypress="if (event.key == 'Enter') this.kTimePicker.parseTextBoxTime(true);"
+                          xbl:inherits="disabled">
           <xul:menupopup popupalign="topright" popupanchor="bottomright"
                          onpopupshowing="onPopup(this)"
                          onpopuphiding="onHide(this)">
             <xul:timepicker-grids anonid="timepickerGrids"/>
           </xul:menupopup>
-        </xul:menulist>
+        </xul:xbl-menulist>
       </xul:hbox>
     </content>
 
