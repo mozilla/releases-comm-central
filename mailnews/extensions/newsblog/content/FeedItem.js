@@ -312,9 +312,9 @@ FeedItem.prototype = {
  * headers).
  *
  * @param  {String} headerName          - Name of the header.
- * @param  {String}[] headerItemsArray  - An Array of strings to concatenate.
+ * @param  {String[]} headerItemsArray  - An Array of strings to concatenate.
  *
- * @returns {String}
+ * @returns {String}                    - The header string.
  */
   createHeaderStrFromArray(headerName, headerItemsArray) {
     let headerStr = "";

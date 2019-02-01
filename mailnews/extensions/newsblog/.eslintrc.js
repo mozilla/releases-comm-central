@@ -22,7 +22,7 @@ module.exports = {
 
   "rules": {
     // Warn about cyclomatic complexity in functions.
-    "complexity": ["error", 70],
+    "complexity": ["error", 80],
 
     // Require braces around blocks that start a new line.
     "curly": ["error", "multi-line"],
