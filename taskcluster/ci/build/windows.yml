@@ -56,7 +56,7 @@ win32-nightly/opt:
     run:
         using: mozharness
         comm-checkout: true
-        actions: [disabled, build, check-test]
+        actions: [build, check-test]
         options: [append-env-variables-from-configs]
         script: mozharness/scripts/fx_desktop_build.py
         config-paths:
@@ -166,7 +166,7 @@ win64-nightly/opt:
     run:
         using: mozharness
         comm-checkout: true
-        actions: [disabled, build, check-test]
+        actions: [build, check-test]
         options: [append-env-variables-from-configs]
         script: mozharness/scripts/fx_desktop_build.py
         config-paths:
