@@ -305,6 +305,13 @@ function cleanupNode(aNode, aRules, aTextModifiers)
           --j;
         }
       }
+      // If the removeProperty method wasn't called by the above loop, the
+      // style attribute won't be re-generated, so it may still contain
+      // unsupported or unparsable CSS. Let's drop "style" attributes that
+      // don't contain any supported CSS.
+      if (!style.length)
+        node.removeAttribute("style");
+
       // Sort the style attributes for easier checking/comparing later.
       if (node.hasAttribute("style")) {
         let trailingSemi = false;

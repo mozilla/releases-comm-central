@@ -167,10 +167,11 @@ function test_standardMode() {
     "font-size: larger",
     "-moz-binding: url('chrome://global/content/bindings/textbox.xml#textbox');",
     "display: none",
-    "visibility: hidden"
+    "visibility: hidden",
+    "unsupported-by-gecko: blah"
   ];
   for (let css of badCSS) {
-    Assert.equal("<span style=\"\">foo</span>",
+    Assert.equal("<span>foo</span>",
                  cleanupImMarkup("<span style=\"" + css + "\">foo</span>"));
   }
   // The shorthand 'font' is decomposed to non-shorthand properties,
@@ -237,10 +238,11 @@ function test_permissiveMode() {
   const badCSS = [
     "-moz-binding: url('chrome://global/content/bindings/textbox.xml#textbox');",
     "display: none",
-    "visibility: hidden"
+    "visibility: hidden",
+    "unsupported-by-gecko: blah"
   ];
   for (let css of badCSS) {
-    Assert.equal("<span style=\"\">foo</span>",
+    Assert.equal("<span>foo</span>",
                  cleanupImMarkup("<span style=\"" + css + "\">foo</span>"));
   }
 
@@ -306,7 +308,7 @@ function test_addGlobalAllowedStyleRule() {
   Services.prefs.setIntPref(kModePref, kStandardMode);
 
   // Check that clear isn't allowed by default in strict mode.
-  Assert.equal("<br style=\"\">", cleanupImMarkup("<br style=\"clear: both;\">"));
+  Assert.equal("<br>", cleanupImMarkup("<br style=\"clear: both;\">"));
 
   // Allow clear.
   addGlobalAllowedStyleRule("clear");
@@ -335,8 +337,8 @@ function test_createDerivedRuleset() {
   Assert.equal(string, cleanupImMarkup(string, rules));
 
   string = "<br style=\"clear: both;\">";
-  Assert.equal("<br style=\"\">", cleanupImMarkup(string));
-  Assert.equal("<br style=\"\">", cleanupImMarkup(string, rules));
+  Assert.equal("<br>", cleanupImMarkup(string));
+  Assert.equal("<br>", cleanupImMarkup(string, rules));
   rules.styles["clear"] = true;
   Assert.equal(string, cleanupImMarkup(string, rules));
 
