@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ['localAccountUtils'];
+this.EXPORTED_SYMBOLS = ["localAccountUtils"];
 
 // MailServices
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var CC = Components.Constructor;
 
@@ -24,7 +24,7 @@ var localAccountUtils = {
   pluggableStores: ["@mozilla.org/msgstore/berkeleystore;1",
                     "@mozilla.org/msgstore/maildirstore;1"],
 
-  clearAll: function() {
+  clearAll() {
     this._localAccountInitialized = false;
     if (this.msgAccount)
       MailServices.accounts.removeAccount(this.msgAccount);
@@ -34,7 +34,7 @@ var localAccountUtils = {
     this.rootFolder = undefined;
   },
 
-  loadLocalMailAccount: function(storeID) {
+  loadLocalMailAccount(storeID) {
     if ((storeID && storeID == this._mailboxStoreContractID) ||
         (!storeID && this._localAccountInitialized))
       return;
@@ -87,6 +87,7 @@ var localAccountUtils = {
 
   /**
    * Create an nsIMsgIncomingServer and an nsIMsgAccount to go with it.
+   * There are no identities created for the account.
    *
    * @param aType The type of the server (pop3, imap etc).
    * @param aPort The port the server is on.
@@ -142,21 +143,24 @@ var localAccountUtils = {
   },
 
   /**
-   * Associate the given outgoing server with the given incoming server's account.
+   * Associate the given outgoing server with the given account.
+   * It does so by creating a new identity in the account using the given outgoing
+   * server.
    *
-   * @param aIncoming The incoming server (nsIMsgIncomingServer) or account
-   *                  (nsIMsgAccount) to associate.
-   * @param aOutgoingServer The outgoing server (nsISmtpServer) to associate.
-   * @param aSetAsDefault Whether to set the outgoing server as the default for
-   *                      the incoming server's account.
+   * @param {nsIMsgAccount} aIncoming  The account to associate.
+   * @param {nsISmtpServer} aOutgoingServer  The outgoing server to associate.
+   * @param {bool} aSetAsDefault  Whether to set the outgoing server as the default for
+   *                              the account.
    */
-  associate_servers: function(aIncoming, aOutgoingServer, aSetAsDefault) {
+  associate_servers(aIncoming, aOutgoingServer, aSetAsDefault = false) {
+    if (!(aIncoming instanceof Ci.nsIMsgAccount))
+      throw new Error("aIncoming isn't an account");
+
     let identity = MailServices.accounts.createIdentity();
     identity.smtpServerKey = aOutgoingServer.key;
 
-    if (aIncoming instanceof Ci.nsIMsgIncomingServer)
-      aIncoming = MailServices.accounts.FindAccountForServer(aIncoming);
     aIncoming.addIdentity(identity);
+
     if (aSetAsDefault)
       aIncoming.defaultIdentity = identity;
   }
