@@ -3,6 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* Utilities to show and parse user-entered date values used in filter and search rules. */
+
+"use strict";
+
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gSearchDateFormat = 0;
@@ -16,11 +20,6 @@ var gSearchDateLeadingZeros;
  */
 function initLocaleShortDateFormat()
 {
-  // default to mm/dd/yyyy
-  gSearchDateFormat = 3;
-  gSearchDateSeparator = "/";
-  gSearchDateLeadingZeros = true;
-
   try {
     const dateFormatter = new Services.intl.DateTimeFormat(undefined,
       { dateStyle: "short" });
@@ -43,7 +42,7 @@ function initLocaleShortDateFormat()
     // check the format option
     if (arrayOfStrings.length != 3)  // no successful split
     {
-      dump("getLocaleShortDateFormat: could not analyze the date format, defaulting to mm/dd/yyyy\n");
+      Cu.reportError("initLocaleShortDateFormat: could not analyze the date format, defaulting to mm/dd/yyyy");
     }
     else
     {
@@ -70,20 +69,22 @@ function initLocaleShortDateFormat()
   }
   catch (e)
   {
-    dump("getLocaleShortDateFormat: caught an exception!\n");
+    Cu.reportError("initLocaleShortDateFormat: caught an exception: " + e);
+    gSearchDateFormat = 0;
   }
 }
 
 function initializeSearchDateFormat()
 {
-  if (gSearchDateFormat)
+  if (gSearchDateFormat > 0)
     return;
 
   // get a search date format option and a separator
   try {
     gSearchDateFormat =
       Services.prefs.getComplexValue("mailnews.search_date_format",
-                                     Ci.nsIPrefLocalizedString);
+                                     Ci.nsIPrefLocalizedString).data;
+
     gSearchDateFormat = parseInt(gSearchDateFormat);
 
     // if the option is 0 then try to use the format of the current locale
@@ -97,7 +98,7 @@ function initializeSearchDateFormat()
 
       gSearchDateSeparator =
         Services.prefs.getComplexValue("mailnews.search_date_separator",
-                                       Ci.nsIPrefLocalizedString);
+                                       Ci.nsIPrefLocalizedString).data;
 
       gSearchDateLeadingZeros =
         (Services.prefs.getComplexValue(
@@ -108,7 +109,12 @@ function initializeSearchDateFormat()
   catch (e)
   {
     Cu.reportError("initializeSearchDateFormat: caught an exception: " + e);
-    // set to mm/dd/yyyy in case of error
+    gSearchDateFormat = 0;
+  }
+
+  if (gSearchDateFormat == 0)
+  {
+    // Set to mm/dd/yyyy in case we couldn't determine in any way.
     gSearchDateFormat = 3;
     gSearchDateSeparator = "/";
     gSearchDateLeadingZeros = true;
@@ -133,7 +139,7 @@ function convertDateToString(time)
   var month = time.getMonth() + 1;  // since js month is 0-11
   if (gSearchDateLeadingZeros && month < 10)
     month = "0" + month;
-  var date = time.getDate();
+  var date = time.getDate();  // day
   if (gSearchDateLeadingZeros && date < 10)
     date = "0" + date;
 
