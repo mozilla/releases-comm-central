@@ -67,7 +67,7 @@ jobs:
         name: submit-toplevel-thunderbird-release-to-balrog-bz2
         description: Submit toplevel Thunderbird release to balrog (bz2)
         shipping-product: thunderbird
-        run-on-releases: [esr60]
+        run-on-releases: [release]
         worker:
             product: thunderbird
             channel-names: ["release", "release-localtest", "release-cdntest"]
