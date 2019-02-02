@@ -124,8 +124,8 @@ function filterEditorOnLoad()
       else if ("copiedFilter" in args)
       {
         // we are copying a filter
-        var copiedFilter = args.copiedFilter;
-        var copiedName = gFilterBundle.getFormattedString("copyToNewFilterName",
+        let copiedFilter = args.copiedFilter;
+        let copiedName = gFilterBundle.getFormattedString("copyToNewFilterName",
           [copiedFilter.filterName]);
         let newFilter = gFilterList.createFilter(copiedName);
 
@@ -142,13 +142,15 @@ function filterEditorOnLoad()
           let searchTerm = copiedFilter.searchTerms.queryElementAt(i,
             Ci.nsIMsgSearchTerm);
 
-          var newTerm = newFilter.createTerm();
+          let newTerm = newFilter.createTerm();
           newTerm.attrib = searchTerm.attrib;
           newTerm.op = searchTerm.op;
           newTerm.booleanAnd = searchTerm.booleanAnd;
           newTerm.value = searchTerm.value;
           newFilter.appendTerm(newTerm);
-        };
+        }
+
+        newFilter.filterType = copiedFilter.filterType;
 
         gPreFillName = copiedName;
         gFilter = newFilter;
