@@ -157,6 +157,15 @@ textbox:not([searchbutton]) > .textbox-input-box > .textbox-search-sign {
   border-color: var(--toolbar-field-focus-border-color);
 }
 
+:root[lwt-selection] #searchInput .textbox-input:-moz-lwtheme::selection,
+:root[lwt-selection] #IMSearchInput .textbox-input:-moz-lwtheme::selection,
+:root[lwt-selection] #peopleSearchInput .textbox-input:-moz-lwtheme::selection,
+:root[lwt-selection] .themeableSearchBox .textbox-input:-moz-lwtheme::selection,
+:root[lwt-selection] .remote-gloda-search .textbox-input:-moz-lwtheme::selection {
+  background-color: var(--lwt-toolbar-field-highlight, Highlight);
+  color: var(--lwt-toolbar-field-highlight-text, HighlightText);
+}
+
 #PopupGlodaAutocomplete {
   -moz-appearance: none;
   margin-top: -1px;

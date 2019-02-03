@@ -86,6 +86,15 @@
               0 0 0 1px var(--toolbar-field-focus-border-color);
 }
 
+:root[lwt-selection] #searchInput .textbox-input:-moz-lwtheme::selection,
+:root[lwt-selection] #IMSearchInput .textbox-input:-moz-lwtheme::selection,
+:root[lwt-selection] #peopleSearchInput .textbox-input:-moz-lwtheme::selection,
+:root[lwt-selection] .themeableSearchBox .textbox-input:-moz-lwtheme::selection,
+:root[lwt-selection] .remote-gloda-search .textbox-input:-moz-lwtheme::selection {
+  background-color: var(--lwt-toolbar-field-highlight, Highlight);
+  color: var(--lwt-toolbar-field-highlight-text, HighlightText);
+}
+
 .remote-gloda-search-container {
   padding-top: 1px;
   padding-bottom: 1px;
