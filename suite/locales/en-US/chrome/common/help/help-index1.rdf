@@ -1331,7 +1331,7 @@
        <rdf:Description ID="master_password:preferences"
          nc:name="Master Password Preferences"
          nc:link="passwords_help.xhtml#master_passwords"/>
-     </rdf:li>
+     </rdf:li></rdf:Seq>
    </nc:subheadings>
 </rdf:Description>
 
@@ -1515,7 +1515,7 @@
        <rdf:Description ID="passwords:remembering_automatically"
          nc:name="Remembering Automatically"
          nc:link="using_priv_help.xhtml#using_the_password_manager"/>
-     </rdf:li>
+     </rdf:li></rdf:Seq>
    </nc:subheadings>
 </rdf:Description>
 
