@@ -29,7 +29,13 @@ const hiddenProperties = [
 var addressBookCache = new class extends EventEmitter {
   constructor() {
     super();
-    this.listenerCount = 0;
+
+    MailServices.ab.addAddressBookListener(this, Ci.nsIAbListener.all);
+    Services.obs.addObserver(this, "addrbook-contact-created");
+    Services.obs.addObserver(this, "addrbook-contact-updated");
+    Services.obs.addObserver(this, "addrbook-list-updated");
+    Services.obs.addObserver(this, "addrbook-list-member-added");
+    Services.obs.addObserver(this, "quit-application-granted");
   }
   _makeContactNode(contact, parent) {
     contact.QueryInterface(Ci.nsIAbCard);
@@ -254,27 +260,15 @@ var addressBookCache = new class extends EventEmitter {
         this.emit("mailing-list-member-added", this._makeContactNode(subject, parentNode.item));
         break;
       }
-    }
-  }
-
-  incrementListeners() {
-    this.listenerCount++;
-    if (this.listenerCount == 1) {
-      MailServices.ab.addAddressBookListener(this, Ci.nsIAbListener.all);
-      Services.obs.addObserver(this, "addrbook-contact-created");
-      Services.obs.addObserver(this, "addrbook-contact-updated");
-      Services.obs.addObserver(this, "addrbook-list-updated");
-      Services.obs.addObserver(this, "addrbook-list-member-added");
-    }
-  }
-  decrementListeners() {
-    this.listenerCount--;
-    if (this.listenerCount == 0) {
-      MailServices.ab.removeAddressBookListener(this);
-      Services.obs.removeObserver(this, "addrbook-contact-created");
-      Services.obs.removeObserver(this, "addrbook-contact-updated");
-      Services.obs.removeObserver(this, "addrbook-list-updated");
-      Services.obs.removeObserver(this, "addrbook-list-member-added");
+      case "quit-application-granted": {
+        MailServices.ab.removeAddressBookListener(this);
+        Services.obs.removeObserver(this, "addrbook-contact-created");
+        Services.obs.removeObserver(this, "addrbook-contact-updated");
+        Services.obs.removeObserver(this, "addrbook-list-updated");
+        Services.obs.removeObserver(this, "addrbook-list-member-added");
+        Services.obs.removeObserver(this, "quit-application-granted");
+        break;
+      }
     }
   }
 };
@@ -326,10 +320,8 @@ this.addressBook = class extends ExtensionAPI {
             };
 
             addressBookCache.on("address-book-created", listener);
-            addressBookCache.incrementListeners();
             return () => {
               addressBookCache.off("address-book-created", listener);
-              addressBookCache.decrementListeners();
             };
           },
         }).api(),
@@ -342,10 +334,8 @@ this.addressBook = class extends ExtensionAPI {
             };
 
             addressBookCache.on("address-book-updated", listener);
-            addressBookCache.incrementListeners();
             return () => {
               addressBookCache.off("address-book-updated", listener);
-              addressBookCache.decrementListeners();
             };
           },
         }).api(),
@@ -358,10 +348,8 @@ this.addressBook = class extends ExtensionAPI {
             };
 
             addressBookCache.on("address-book-deleted", listener);
-            addressBookCache.incrementListeners();
             return () => {
               addressBookCache.off("address-book-deleted", listener);
-              addressBookCache.decrementListeners();
             };
           },
         }).api(),
@@ -414,10 +402,8 @@ this.addressBook = class extends ExtensionAPI {
             };
 
             addressBookCache.on("contact-created", listener);
-            addressBookCache.incrementListeners();
             return () => {
               addressBookCache.off("contact-created", listener);
-              addressBookCache.decrementListeners();
             };
           },
         }).api(),
@@ -430,10 +416,8 @@ this.addressBook = class extends ExtensionAPI {
             };
 
             addressBookCache.on("contact-updated", listener);
-            addressBookCache.incrementListeners();
             return () => {
               addressBookCache.off("contact-updated", listener);
-              addressBookCache.decrementListeners();
             };
           },
         }).api(),
@@ -446,10 +430,8 @@ this.addressBook = class extends ExtensionAPI {
             };
 
             addressBookCache.on("contact-deleted", listener);
-            addressBookCache.incrementListeners();
             return () => {
               addressBookCache.off("contact-deleted", listener);
-              addressBookCache.decrementListeners();
             };
           },
         }).api(),
@@ -512,10 +494,8 @@ this.addressBook = class extends ExtensionAPI {
             };
 
             addressBookCache.on("mailing-list-created", listener);
-            addressBookCache.incrementListeners();
             return () => {
               addressBookCache.off("mailing-list-created", listener);
-              addressBookCache.decrementListeners();
             };
           },
         }).api(),
@@ -528,10 +508,8 @@ this.addressBook = class extends ExtensionAPI {
             };
 
             addressBookCache.on("mailing-list-updated", listener);
-            addressBookCache.incrementListeners();
             return () => {
               addressBookCache.off("mailing-list-updated", listener);
-              addressBookCache.decrementListeners();
             };
           },
         }).api(),
@@ -544,10 +522,8 @@ this.addressBook = class extends ExtensionAPI {
             };
 
             addressBookCache.on("mailing-list-deleted", listener);
-            addressBookCache.incrementListeners();
             return () => {
               addressBookCache.off("mailing-list-deleted", listener);
-              addressBookCache.decrementListeners();
             };
           },
         }).api(),
@@ -560,10 +536,8 @@ this.addressBook = class extends ExtensionAPI {
             };
 
             addressBookCache.on("mailing-list-member-added", listener);
-            addressBookCache.incrementListeners();
             return () => {
               addressBookCache.off("mailing-list-member-added", listener);
-              addressBookCache.decrementListeners();
             };
           },
         }).api(),
@@ -576,10 +550,8 @@ this.addressBook = class extends ExtensionAPI {
             };
 
             addressBookCache.on("mailing-list-member-removed", listener);
-            addressBookCache.incrementListeners();
             return () => {
               addressBookCache.off("mailing-list-member-removed", listener);
-              addressBookCache.decrementListeners();
             };
           },
         }).api(),
