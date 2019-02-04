@@ -19,13 +19,13 @@ tasks:
       _pushDate: {$if: 'tasks_for == "cron" || tasks_for == "action"', then: '0', else: {$eval: 'push.pushdate'}}
       _pushComment: {$if: 'tasks_for == "cron" || tasks_for == "action"', then: '', else: {$eval: 'push.comment'}}
     in:
-      taskId: {$if: 'tasks_for != "action"', then: '${as_slugid("decision")}'}
+      taskId: {$if: 'tasks_for != "action"', then: '${ownTaskId}'}
       taskGroupId:
         $if: 'tasks_for == "action"'
         then:
           '${action.taskGroupId}'
         else:
-          '${as_slugid("decision")}'  # same as taskId; this is how automation identifies a decision tsak
+          '${ownTaskId}'  # same as taskId; this is how automation identifies a decision tsak
       schedulerId: 'gecko-level-${repository.level}'
 
       created: {$fromNow: ''}
@@ -117,11 +117,6 @@ tasks:
               # someday, these will be provided by the worker - Bug 1492664
               TASKCLUSTER_ROOT_URL: https://taskcluster.net
               TASKCLUSTER_PROXY_URL: http://taskcluster
-            - $if: 'tasks_for != "action"'
-              then:
-                # scriptworker expects an environment variable named GECKO_COMMIT_MSG,
-                # see: https://github.com/mozilla-releng/scriptworker/blob/master/scriptworker/task.py
-                GECKO_COMMIT_MSG: '${_pushComment}'
             - $if: 'tasks_for == "action"'
               then:
                 ACTION_TASK_GROUP_ID: '${action.taskGroupId}'  # taskGroupId of the target task
@@ -172,7 +167,6 @@ tasks:
                 --pushlog-id='${push.pushlog_id}'
                 --pushdate='${push.pushdate}'
                 --project='${repository.project}'
-                --message="$GECKO_COMMIT_MSG"
                 --owner='${ownerEmail}'
                 --level='${repository.level}'
                 --base-repository="$GECKO_BASE_REPOSITORY"
