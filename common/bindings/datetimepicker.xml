@@ -787,7 +787,12 @@
 
             var numberOrder = /^(\D*)\s*(\d+)(\D*)(\d+)(\D*)(\d+)\s*(\D*)$/;
 
-            var locale = Services.locale.regionalPrefsLocales[0] + "-u-ca-gregory-nu-latn";
+            // XXX TODO: The following hack should be fixed once Intl.Locale arrives in bug 1433303.
+            var locale = Services.locale.regionalPrefsLocales[0];
+            if (locale.includes("-u-"))
+              locale += "-ca-gregory-nu-latn";
+            else
+              locale += "-u-ca-gregory-nu-latn";
             var dtf = new Services.intl.DateTimeFormat(locale, { dateStyle: "short" });
 
             var dt = dtf.format(new Date(2002, 9, 4));
@@ -1020,7 +1025,12 @@
           <![CDATA[
             const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-            var locale = Services.locale.regionalPrefsLocales[0] + "-u-ca-gregory";
+            // XXX TODO: The following hack should be fixed once Intl.Locale arrives in bug 1433303.
+            var locale = Services.locale.regionalPrefsLocales[0];
+            if (locale.includes("-u-"))
+              locale += "-ca-gregory";
+            else
+              locale += "-u-ca-gregory";
             var dtfMonth = new Services.intl.DateTimeFormat(locale, {month: "long", timeZone: "UTC"});
             var dtfWeekday = new Services.intl.DateTimeFormat(locale, {weekday: "narrow"});
 
