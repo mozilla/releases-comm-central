@@ -2953,15 +2953,32 @@ function user_oninit ()
 CIRCUser.prototype.onPrivmsg =
 function my_cprivmsg(e)
 {
+    var sourceObj = e.user;
+    var destObj = e.server.me;
+    var displayObj = this;
+
     if (!("messages" in this))
     {
         var limit = client.prefs["newTabLimit"];
         if (limit == 0 || client.viewsArray.length < limit)
-            openQueryTab(e.server, e.user.unicodeName);
+        {
+            if (e.user != e.server.me)
+            {
+                openQueryTab(e.server, e.user.unicodeName);
+            }
+            else
+            {
+                // This is a self-message, i.e. we received a message that
+                // looks like it came from us. Display it accordingly.
+                sourceObj = e.server.me;
+                destObj = openQueryTab(e.server, e.params[1]);
+                displayObj = destObj;
+            }
+        }
     }
 
     client.munger.getRule(".mailto").enabled = client.prefs["munger.mailto"];
-    this.display(e.decodeParam(2), "PRIVMSG", e.user, e.server.me);
+    displayObj.display(e.decodeParam(2), "PRIVMSG", sourceObj, destObj);
     client.munger.getRule(".mailto").enabled = false;
 }
 
@@ -3004,8 +3021,21 @@ function my_notice (e)
         }
     }
 
+    var sourceObj = this;
+    var destObj = e.server.me;
+    var displayObj = this;
+
+    if (e.user == e.server.me)
+    {
+        // This is a self-message, i.e. we received a message that
+        // looks like it came from us. Display it accordingly.
+        var sourceObj = e.server.me;
+        var destObj = e.server.addTarget(e.params[1]);
+        var displayObj = e.server.parent;
+    }
+
     client.munger.getRule(".mailto").enabled = displayMailto;
-    this.display(msg, "NOTICE", this, e.server.me);
+    displayObj.display(msg, "NOTICE", sourceObj, destObj);
     client.munger.getRule(".mailto").enabled = false;
 }
 
