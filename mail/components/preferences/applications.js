@@ -3,6 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 /* import-globals-from preferences.js */
 /* import-globals-from subdialogs.js */
 
@@ -28,6 +30,9 @@ XPCOMUtils.defineLazyServiceGetters(this, {
   gHandlerService: ["@mozilla.org/uriloader/handler-service;1", "nsIHandlerService"],
   gMIMEService: ["@mozilla.org/mime;1", "nsIMIMEService"],
 });
+
+document.getElementById("paneApplications")
+        .addEventListener("paneload", function() { gApplicationsTabController.init(); });
 
 // ---------
 // Utilities

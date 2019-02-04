@@ -3,10 +3,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 /* import-globals-from preferences.js */
 /* import-globals-from subdialogs.js */
 
 ChromeUtils.defineModuleGetter(this, "LoginHelper", "resource://gre/modules/LoginHelper.jsm");
+
+document.getElementById("paneSecurity")
+        .addEventListener("paneload", function() { gSecurityPane.init(); });
 
 var gSecurityPane = {
   mPane: null,

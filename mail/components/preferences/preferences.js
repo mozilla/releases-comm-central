@@ -35,7 +35,6 @@ var selector = document.getElementById("selector");
     selector.appendChild(radio);
 
     pane.dispatchEvent(new CustomEvent("paneload"));
-    new Function(pane.getAttribute("onpaneload")).call(pane);
   }
 
   if (prefPanes.length == 1) {

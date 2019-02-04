@@ -1,7 +1,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-  <prefpane id="paneSecurity" label="&paneSecurity.title;" onpaneload="gSecurityPane.init();">
+  <prefpane id="paneSecurity" label="&paneSecurity.title;">
     <script type="application/javascript" src="chrome://messenger/content/preferences/security.js"/>
 
     <stringbundle id="bundlePreferences" src="chrome://messenger/locale/preferences/preferences.properties"/>

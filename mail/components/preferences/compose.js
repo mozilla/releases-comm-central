@@ -3,10 +3,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 /* import-globals-from preferences.js */
 /* import-globals-from subdialogs.js */
 
 var {InlineSpellChecker} = ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
+
+document.getElementById("paneCompose")
+        .addEventListener("paneload", function() { gComposePane.init(); });
 
 var gComposePane = {
   mInitialized: false,

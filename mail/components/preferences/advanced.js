@@ -3,6 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 /* import-globals-from ../../base/content/aboutDialog-appUpdater.js */
 /* import-globals-from preferences.js */
 /* import-globals-from subdialogs.js */
@@ -18,6 +20,9 @@ ChromeUtils.defineModuleGetter(this, "UpdateUtils",
   "resource://gre/modules/UpdateUtils.jsm");
 
 const AUTO_UPDATE_CHANGED_TOPIC = "auto-update-config-change";
+
+document.getElementById("paneAdvanced")
+        .addEventListener("paneload", function() { gAdvancedPane.init(); });
 
 var gAdvancedPane = {
   mPane: null,

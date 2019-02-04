@@ -1,7 +1,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-  <prefpane id="paneAdvanced" label="&paneAdvanced.title;" onpaneload="gAdvancedPane.init();">
+  <prefpane id="paneAdvanced" label="&paneAdvanced.title;">
 #ifdef MOZ_UPDATER
     <script type="application/javascript" src="chrome://messenger/content/aboutDialog-appUpdater.js"/>
 #endif
