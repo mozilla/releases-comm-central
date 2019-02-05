@@ -51,7 +51,7 @@ job-defaults:
         symbol: Rel(GenChcks)
         kind: test
         tier: 1
-    optimization: {}
+    optimization: null
 
 jobs:
     thunderbird:

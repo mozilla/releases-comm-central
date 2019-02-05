@@ -33,7 +33,7 @@ job-defaults:
         tooltool-downloads: public
         need-xvfb: false
     run-on-projects: []
-    optimization: {}
+    optimization: null
 
 jobs:
     thunderbird-source/opt:
