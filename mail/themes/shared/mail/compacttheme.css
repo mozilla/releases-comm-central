@@ -82,6 +82,10 @@
   background-color: var(--lwt-toolbar-field-background-color, white);
 }
 
+#qfb-qs-textbox:-moz-lwtheme-brighttext:hover {
+  box-shadow: 0 1px 3px rgba(255,255,255,.15);
+}
+
 #qfb-qs-textbox:-moz-lwtheme[focused="true"] {
   background-color: var(--lwt-toolbar-field-focus, var(--lwt-toolbar-field-background-color, white));
   color: var(--lwt-toolbar-field-focus-color, var(--lwt-toolbar-field-color, black));
