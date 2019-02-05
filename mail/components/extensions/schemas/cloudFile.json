@@ -13,25 +13,33 @@
             "properties": {
               "name": {
                 "type": "string",
-                "preprocess": "localize"
+                "preprocess": "localize",
+                "description": "Name of the cloud file service."
               },
               "service_url": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "description": "URL to the web page of the cloud file service."
               },
               "new_account_url": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "deprecated": true,
+                "description": "This property was never used."
               },
               "settings_url": {
                 "type": "string",
                 "format": "relativeUrl",
-                "preprocess": "localize"
+                "preprocess": "localize",
+                "optional": true,
+                "deprecated": true,
+                "description": "A page for configuring accounts, this is obsolete after Thunderbird 60."
               },
               "management_url": {
                 "type": "string",
                 "format": "relativeUrl",
-                "preprocess": "localize"
+                "preprocess": "localize",
+                "description": "A page for configuring accounts, to be displayed in the preferences UI."
               }
             },
             "optional": true
@@ -89,7 +97,8 @@
           {
             "type": "integer",
             "name": "fileId",
-            "minimum": 1
+            "minimum": 1,
+            "description": "An identifier for this file"
           }
         ]
       },
@@ -107,7 +116,7 @@
             "type": "integer",
             "name": "fileId",
             "minimum": 1,
-            "description": "An identifier for this file, TODO might go away"
+            "description": "An identifier for this file"
           }
         ]
       },
@@ -143,7 +152,8 @@
         "description": "Information about a cloud file account",
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "description": "Unique identifier of the account"
           },
           "configured": {
             "type": "boolean",
@@ -173,11 +183,15 @@
           },
           "managementUrl": {
             "type": "string",
-            "format": "relativeUrl"
+            "format": "relativeUrl",
+            "description": "A page for configuring accounts, to be displayed in the preferences UI."
           },
           "settingsUrl": {
             "type": "string",
-            "format": "relativeUrl"
+            "format": "relativeUrl",
+            "optional": true,
+            "deprecated": true,
+            "description": "A page for configuring accounts, this is obsolete after Thunderbird 60."
           }
         }
       },
@@ -188,15 +202,18 @@
         "properties": {
           "id": {
             "type": "integer",
-            "minimum": 1
+            "minimum": 1,
+            "description": "An identifier for this file"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Filename of the file to be transferred"
           },
           "data": {
             "type": "object",
             "isInstanceOf": "ArrayBuffer",
-            "additionalProperties": true
+            "additionalProperties": true,
+            "description": "Contents of the file to be transferred"
           }
         }
       }
@@ -211,7 +228,8 @@
         "parameters": [
           {
             "name": "accountId",
-            "type": "string"
+            "type": "string",
+            "description": "Unique identifier of the account"
           }
         ]
       },
@@ -232,7 +250,8 @@
         "parameters": [
           {
             "name": "accountId",
-            "type": "string"
+            "type": "string",
+            "description": "Unique identifier of the account"
           },
           {
             "name": "updateProperties",
@@ -264,12 +283,15 @@
               "managementUrl": {
                 "type": "string",
                 "format": "relativeUrl",
-                "optional": true
+                "optional": true,
+                "description": "A page for configuring accounts, to be displayed in the preferences UI."
               },
               "settingsUrl": {
                 "type": "string",
                 "format": "relativeUrl",
-                "optional": true
+                "optional": true,
+                "deprecated": true,
+                "description": "A page for configuring accounts, this is obsolete after Thunderbird 60."
               }
             }
           }
