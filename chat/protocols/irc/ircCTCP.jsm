@@ -104,7 +104,7 @@ function ctcpHandleMessage(aMessage) {
     let message = aMessage;
     message.params.pop();
     message.params.push(otherMessage);
-    ircHandlers.handleMessage(message);
+    ircHandlers.handleMessage(this, message);
   }
 
   // Loop over each raw CTCP message.

@@ -1477,7 +1477,7 @@ ircAccount.prototype = {
 
     // The received timestamp is invalid.
     if (isNaN(sentTime)) {
-      this.WARN(aMessage.origin +
+      this.WARN(aSource +
                 " returned an invalid timestamp from a PING: " + aPongTime);
       return false;
     }
@@ -1488,7 +1488,7 @@ ircAccount.prototype = {
     // If the delay is negative or greater than 1 minute, something is
     // feeding us a crazy value. Don't display this to the user.
     if (delay < 0 || 60 * 1000 < delay) {
-      this.WARN(aMessage.origin + " returned an invalid delay from a PING: " +
+      this.WARN(aSource + " returned an invalid delay from a PING: " +
                 delay);
       return false;
     }
