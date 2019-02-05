@@ -20,11 +20,18 @@ testing/**
 # If you are enabling a directory, please add directory specific exclusions
 # below.
 build/**
-chat/**
 editor/**
-im/**
 ldap/**
 suite/**
+
+# chat exclusions
+chat/chat-prefs.js
+# third-party code
+chat/modules/BigInteger.jsm
+chat/protocols/matrix/matrix-sdk/**
+chat/protocols/twitter/twitter-text.jsm
+# preprocessed files
+chat/content/imtooltip.xml
 
 # mailnews exclusions
 mailnews/mailnews.js

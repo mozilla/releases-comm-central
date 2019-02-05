@@ -12,7 +12,7 @@ const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
 var MessageFormat = {
   _observedPrefs: [],
 
-  getValues: function mf_getValues() {
+  getValues() {
     this.unregisterObservers();
     let langGroup =
       Services.prefs.getComplexValue("font.language.group",
@@ -21,8 +21,8 @@ var MessageFormat = {
     let fontPref = "font.name." + fontGroup + "." + langGroup;
     let fontSizePref = "font.size.variable." + langGroup;
     this._values = {
-      langGroup: langGroup,
-      fontGroup: fontGroup,
+      langGroup,
+      fontGroup,
       font: Services.prefs.getCharPref(fontPref),
       fontIsDefault: !Services.prefs.prefHasUserValue(fontPref),
       fontSize: Services.prefs.getIntPref(fontSizePref),
@@ -34,7 +34,7 @@ var MessageFormat = {
       foregroundColorIsDefault:
         !Services.prefs.prefHasUserValue("browser.display.foreground_color"),
       useSystemColor:
-        Services.prefs.getBoolPref("browser.display.use_system_colors")
+        Services.prefs.getBoolPref("browser.display.use_system_colors"),
     };
 
     this._observedPrefs = [
@@ -43,32 +43,32 @@ var MessageFormat = {
       "font.name." + fontGroup + "." + langGroup,
       "font.size.variable." + langGroup,
       "browser.display.foreground_color",
-      "browser.display.use_system_colors"
+      "browser.display.use_system_colors",
     ];
     for (let name of this._observedPrefs)
       Services.prefs.addObserver(name, this);
   },
-  unregisterObservers: function mf_unregisterObservers() {
+  unregisterObservers() {
     for (let name of this._observedPrefs)
       Services.prefs.removeObserver(name, this);
     this._observedPrefs = [];
   },
-  observe: function(aSubject, aTopic, aMsg) {
+  observe(aSubject, aTopic, aMsg) {
     this.getValues();
     for (let textbox of this._textboxes)
       this.styleTextbox(textbox);
   },
-  _getColor: function mf__getColor() {
+  _getColor() {
     if (this._values.foregroundColorIsDefault || this._values.useSystemColor)
       return "";
     return this._values.foregroundColor;
   },
-  styleTextbox: function mf_styleTextbox(aTextbox) {
+  styleTextbox(aTextbox) {
     aTextbox.style.color = this._getColor();
     aTextbox.style.fontSize = this._values.fontSize + "px";
     aTextbox.style.fontFamily = this._values.font;
   },
-  getMessageStyle: function mf_getMessageStyle() {
+  getMessageStyle() {
     let result = {};
 
     let color = this._getColor();
@@ -86,7 +86,7 @@ var MessageFormat = {
     return result;
   },
   _textboxes: [],
-  registerTextbox: function mf_registerTextbox(aTextbox) {
+  registerTextbox(aTextbox) {
     if (!this._textboxes.includes(aTextbox))
       this._textboxes.push(aTextbox);
 
@@ -95,14 +95,14 @@ var MessageFormat = {
 
     this.styleTextbox(aTextbox);
   },
-  unregisterTextbox: function(aTextbox) {
+  unregisterTextbox(aTextbox) {
     let index = this._textboxes.indexOf(aTextbox);
     if (index != -1)
       this._textboxes.splice(index, 1);
 
     if (!this._textboxes.length)
       this.unregisterObservers();
-  }
+  },
 };
 
 var TextboxSize = {
@@ -113,9 +113,9 @@ var TextboxSize = {
     return this.autoResize =
       Services.prefs.getBoolPref(this._textboxAutoResizePrefName);
   },
-  observe: function(aSubject, aTopic, aMsg) {
+  observe(aSubject, aTopic, aMsg) {
     if (aTopic == "nsPref:changed" && aMsg == this._textboxAutoResizePrefName)
       this.autoResize = Services.prefs.getBoolPref(aMsg);
-  }
+  },
 };
 
