@@ -90,6 +90,7 @@ function testDefaultAlarms() {
         task.window.close();
     });
 }
+testDefaultAlarms.EXCLUDED_PLATFORMS = ["winnt"];
 
 function handlePrefTab(tab) {
     // Click on the alarms tab.
