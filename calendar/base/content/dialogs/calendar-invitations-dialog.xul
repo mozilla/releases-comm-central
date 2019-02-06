@@ -33,7 +33,7 @@
 
   <vbox id="dialog-box" flex="1">
     <stack flex="1">
-      <calendar-invitations-richlistbox id="invitations-listbox" flex="1"/>
+      <richlistbox id="invitations-listbox" flex="1"/>
       <hbox id="updating-box" align="center" pack="center" hidden="true">
         <label value="&calendar.invitations.dialog.statusmessage.updating.text;"
                crop="end"/>

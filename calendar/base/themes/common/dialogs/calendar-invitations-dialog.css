@@ -12,10 +12,12 @@
   opacity: 0.5;
 }
 
-calendar-invitations-richlistbox {
+#invitations-listbox {
   background-color: -moz-Field;
   color: -moz-FieldText;
   border: 1px solid #7F9DB9;
+  display: flex;
+  flex-direction: column;
 }
 
 calendar-invitations-richlistitem {

@@ -11,23 +11,6 @@
           xmlns="http://www.mozilla.org/xbl"
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
           xmlns:xbl="http://www.mozilla.org/xbl">
-  <binding id="calendar-invitations-richlistbox"
-           extends="chrome://messenger/content/richlistbox.xml#xbl-richlistbox"
-           xbl:inherits="flex">
-    <implementation>
-      <!-- methods -->
-      <method name="addCalendarItem">
-        <parameter name="aItem"/>
-        <body><![CDATA[
-            let newNode = createXULElement("calendar-invitations-richlistitem");
-            this.appendChild(newNode);
-            newNode.setAttribute("anonid", "invitations-listitem");
-            newNode.calendarItem = aItem;
-        ]]></body>
-      </method>
-    </implementation>
-  </binding>
-
   <binding id="calendar-invitations-richlistitem"
            extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
     <content>

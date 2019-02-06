@@ -34,7 +34,9 @@ function onLoad() {
             updatingBox.setAttribute("hidden", "true");
             let richListBox = document.getElementById("invitations-listbox");
             for (let item of aItems) {
-                richListBox.addCalendarItem(item);
+                let newNode = createXULElement("calendar-invitations-richlistitem");
+                newNode.calendarItem = item;
+                richListBox.appendChild(newNode);
             }
         }
     };
