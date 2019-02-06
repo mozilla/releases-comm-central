@@ -107,7 +107,6 @@
           <label value="&calendarproperties.color.label;" control="calendar-color"/>
           <hbox align="center">
             <html:input id="calendar-color"
-                        class="small-margin"
                         type="color"
                         palettename="standard"/>
           </hbox>
