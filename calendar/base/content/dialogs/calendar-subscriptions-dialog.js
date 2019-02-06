@@ -100,7 +100,10 @@ function onSearch() {
     cancelPendingSearchOperation();
 
     let richListBox = document.getElementById("subscriptions-listbox");
-    richListBox.clear();
+
+    while (richListBox.hasChildNodes()) {
+        richListBox.lastChild.remove();
+    }
 
     let registeredCals = {};
     for (let calendar of cal.getCalendarManager().getCalendars({})) {
@@ -111,7 +114,10 @@ function onSearch() {
         onResult: function(operation, result) {
             if (result) {
                 for (let calendar of result) {
-                    richListBox.addCalendar(calendar, registeredCals[calendar.id]);
+                    let newNode = createXULElement("calendar-subscriptions-richlistitem");
+                    newNode.calendar = calendar;
+                    newNode.subscribed = registeredCals[calendar.id];
+                    richListBox.appendChild(newNode);
                 }
             }
             if (!operation.isPending) {
@@ -128,7 +134,7 @@ function onSearch() {
     let operation = cal.getCalendarSearchService().searchForCalendars(document.getElementById("search-textbox").value,
                                                                       0 /* hints */, 50, opListener);
     if (operation && operation.isPending) {
-        gCurrentSearchOperation = op;
+        gCurrentSearchOperation = operation;
         document.getElementById("status-deck").selectedIndex = 1;
     }
 }

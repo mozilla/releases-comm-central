@@ -52,7 +52,7 @@
                  crop="end"/>
         </row>
         <row flex="1">
-          <calendar-subscriptions-richlistbox id="subscriptions-listbox" flex="1"/>
+          <richlistbox id="subscriptions-listbox" flex="1"/>
           <vbox>
             <button id="subscribe-button"
                     label="&calendar.subscriptions.dialog.subscribe.button.label;"

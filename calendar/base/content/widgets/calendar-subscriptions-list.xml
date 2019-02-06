@@ -10,33 +10,6 @@
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
           xmlns:xbl="http://www.mozilla.org/xbl">
 
-  <binding id="calendar-subscriptions-richlistbox"
-           extends="chrome://messenger/content/richlistbox.xml#xbl-richlistbox"
-           xbl:inherits="flex">
-
-    <implementation>
-      <method name="addCalendar">
-        <parameter name="aCalendar"/>
-        <parameter name="bSubscribed"/>
-        <body><![CDATA[
-            let newNode = createXULElement("calendar-subscriptions-richlistitem");
-            this.appendChild(newNode);
-            newNode.setAttribute("anonid", "subscriptions-listitem");
-            newNode.calendar = aCalendar;
-            newNode.subscribed = bSubscribed;
-        ]]></body>
-      </method>
-
-      <method name="clear">
-        <body><![CDATA[
-            while (this.hasChildNodes()) {
-                this.lastChild.remove();
-            }
-        ]]></body>
-      </method>
-    </implementation>
-  </binding>
-
   <binding id="calendar-subscriptions-richlistitem"
            extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
     <content>
