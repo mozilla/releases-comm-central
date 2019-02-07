@@ -201,15 +201,15 @@ class MozConversationBrowser extends customElements.get("browser") {
     };
 
     // @implements {nsIController}
-    this.conversationController = {
+    this.copyController = {
       supportsCommand(command) {
         return command == "cmd_copy" || command == "cmd_cut";
       },
-      isCommandEnabled(command) {
+      isCommandEnabled: command => {
         return command == "cmd_copy" &&
           !this.contentWindow.getSelection().isCollapsed;
       },
-      doCommand(command) {
+      doCommand: command => {
         let selection = this.contentWindow.getSelection();
         if (selection.isCollapsed)
           return;
@@ -283,7 +283,7 @@ class MozConversationBrowser extends customElements.get("browser") {
   }
 
   enableMagicCopy() {
-    this.contentWindow.controllers.insertControllerAt(0, this.chatController);
+    this.contentWindow.controllers.insertControllerAt(0, this.copyController);
     this.autoCopyEnabled = Services.clipboard.supportsSelectionClipboard() &&
       Services.prefs.getBoolPref("clipboard.autocopy");
     if (this.autoCopyEnabled) {
@@ -292,7 +292,7 @@ class MozConversationBrowser extends customElements.get("browser") {
   }
 
   disableMagicCopy() {
-    this.contentWindow.controllers.removeController(this.chatController);
+    this.contentWindow.controllers.removeController(this.copyController);
     if (this.autoCopyEnabled) {
       this.contentWindow.getSelection().removeSelectionListener(this.chatSelectionListener);
     }
