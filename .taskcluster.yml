@@ -1,8 +1,52 @@
 ---
 # This file is rendered via JSON-e by
-# - mozilla-taskcluster - https://docs.taskcluster.net/reference/integrations/mozilla-taskcluster/docs/taskcluster-yml
-# - cron tasks - taskcluster/taskgraph/cron/decision.py
-# - action tasks - taskcluster/taskgraph/actions/registry.py
+# - mozilla-taskcluster - See
+#   https://docs.taskcluster.net/reference/integrations/mozilla-taskcluster/docs/taskcluster-yml
+#   {
+#     tasks_for: 'hg-push',
+#     push: {owner, comment, pushlog_id, pushdate},
+#     repository: {url, project, level},
+#     now,
+#     as_slugid: // function
+#     ownTaskId: // taskId of the task that will be created
+#   }
+#
+# - cron tasks - See taskcluster/taskgraph/cron/decision.py
+#   {
+#     tasks_for: 'cron',
+#     push: {revision, pushlog_id, pushdate, owner}
+#     repository: {url, project, level},
+#     cron: {task_id, job_name, job_symbol, quoted_args},
+#     now,
+#     ownTaskId: // taskId of the task that will be created
+#   }
+#
+# - action tasks - See:
+#   * taskcluster/taskgraph/actions/registry.py,
+#   * https://docs.taskcluster.net/docs/manual/using/actions/spec
+#   * ci-admin:ciadmin/generate/in_tree_actions.py
+#
+#   The registry generates the hookPayload that appears in actions.json, and
+#   contains data from the decision task as well as JSON-e code to combine that
+#   with data supplied as part of the action spec.  When the hook is fired, the
+#   hookPayload is rendered with JSON-e to produce a payload for the hook task
+#   template.
+#
+#   The ci-admin code wraps the content of this file (.taskcluster.yml) with a
+#   JSON-e $let statement that produces the context described below, and
+#   installs that as the hook task template.
+#
+#   {
+#     tasks_for: 'action',
+#     push: {owner, pushlog_id, revision},
+#     repository: {url, project, level},
+#     input,
+#     parameters,
+#     taskId,      // targetted taskId
+#     taskGroupId, // targetted taskGroupId
+#     action: {name, title, description, taskGroupId, symbol, repo_scope, cb_name}
+#     ownTaskId:   // taskId of the task that will be created
+#   }
 
 version: 1
 
@@ -14,10 +58,6 @@ tasks:
       repoUrl: {$if: 'repository.url[-1] == "/"', then: {$eval: 'repository.url[:-1]'}, else: {$eval: 'repository.url'}}
       # Hardcode cron push info for now, so that we can transition to using real values without breaking callers of Chain of Trust
       _pushId: {$if: 'tasks_for == "cron"', then: '-1', else: {$eval: 'push.pushlog_id'}}
-      # action tasks can fail because of no pushdate or push comment information in context, so include them in
-      # hardcodes (even though they don't use these variables)
-      _pushDate: {$if: 'tasks_for == "cron" || tasks_for == "action"', then: '0', else: {$eval: 'push.pushdate'}}
-      _pushComment: {$if: 'tasks_for == "cron" || tasks_for == "action"', then: '', else: {$eval: 'push.comment'}}
     in:
       taskId: {$if: 'tasks_for != "action"', then: '${ownTaskId}'}
       taskGroupId:
