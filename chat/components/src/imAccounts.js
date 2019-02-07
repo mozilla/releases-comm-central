@@ -6,6 +6,9 @@ var {
   EmptyEnumerator,
   nsSimpleEnumerator,
   XPCOMUtils,
+  setTimeout,
+  clearTimeout,
+  executeSoon,
 } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
 var {GenericAccountPrototype, GenericAccountBuddyPrototype} = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");

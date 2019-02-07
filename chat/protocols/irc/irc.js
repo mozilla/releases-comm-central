@@ -7,7 +7,9 @@ var {
   clearTimeout,
   EmptyEnumerator,
   setTimeout,
+  executeSoon,
   XPCOMUtils,
+  nsSimpleEnumerator,
 } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
 var {

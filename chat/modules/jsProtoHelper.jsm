@@ -20,6 +20,7 @@ const {
   initLogModule,
   XPCOMUtils,
   nsSimpleEnumerator,
+  l10nHelper,
 } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
 const {ClassInfo} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");

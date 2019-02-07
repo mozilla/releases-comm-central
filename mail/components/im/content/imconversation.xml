@@ -83,6 +83,7 @@
 
            if ("MessageFormat" in window) {
              let textbox = this.editor;
+             const {MessageFormat, TextboxSpellChecker} = ChromeUtils.import("resource:///modules/imTextboxUtils.jsm");
              MessageFormat.unregisterTextbox(textbox);
              TextboxSpellChecker.unregisterTextbox(textbox);
            }
@@ -399,7 +400,7 @@
       <![CDATA[
         let textbox = this.editor;
 
-        const {MessageFormat} = ChromeUtils.import("resource:///modules/imTextboxUtils.jsm");
+        const {MessageFormat, TextboxSpellChecker} = ChromeUtils.import("resource:///modules/imTextboxUtils.jsm");
         MessageFormat.registerTextbox(textbox);
 
         // Init the textbox size
@@ -821,6 +822,7 @@
         this.displayStatusText();
 
         let overflow = "";
+        const {TextboxSize} = ChromeUtils.import("resource:///modules/imTextboxUtils.jsm");
         if (TextboxSize.autoResize) {
           let currHeight = parseInt(inputBox.parentNode.height);
           if (inputBox.defaultHeight + this._TEXTBOX_VERTICAL_OVERHEAD > currHeight)
@@ -844,6 +846,7 @@
 
         // This feature has been disabled, or the user is currently dragging
         // the splitter and the textbox has received an overflow event
+        const {TextboxSize} = ChromeUtils.import("resource:///modules/imTextboxUtils.jsm");
         if (!TextboxSize.autoResize ||
             this.getElt("splitter-bottom").getAttribute("state") == "dragging") {
           input.style.overflowY = "";
@@ -900,7 +903,7 @@
                                         (convTopHeight - convTopMinHeight);
           }
         }
-
+        const {TextboxSize} = ChromeUtils.import("resource:///modules/imTextboxUtils.jsm");
         if (TextboxSize.autoResize)
           this.inputExpand();
       ]]>
@@ -911,6 +914,7 @@
       <parameter name="event"/>
       <body>
       <![CDATA[
+        const {TextboxSize} = ChromeUtils.import("resource:///modules/imTextboxUtils.jsm");
         if (TextboxSize.autoResize)
           this.inputField.style.overflowY = "hidden";
       ]]>
