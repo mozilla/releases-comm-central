@@ -8,6 +8,7 @@ EXTRA_JS_MODULES += [
     'ChromeManifest.jsm',
     'ExtensionSupport.jsm',
     'Overlays.jsm',
+    'RDFDataSource.jsm',
     'RDFManifestConverter.jsm',
 ]
 
