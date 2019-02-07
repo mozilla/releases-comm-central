@@ -292,14 +292,14 @@ var gXPInstallObserver = {
     if (restartRequired) {
       action = {
         label: addonsBundle.getString("addonPostInstall.restart.label"),
-        accessKey: addonsBundle.getString("addonPostInstall.restart.key"),
+        accessKey: addonsBundle.getString("addonPostInstall.restart.accesskey"),
         callback: () => {
           BrowserUtils.restartApplication();
         },
       };
       secondaryActions = [{
         label: addonsBundle.getString("addonPostInstall.noRestart.label"),
-        accessKey: addonsBundle.getString("addonPostInstall.noRestart.key"),
+        accessKey: addonsBundle.getString("addonPostInstall.noRestart.accesskey"),
         callback: () => {},
       }];
       textEl.textContent = addonsBundle.getFormattedString(
@@ -309,7 +309,7 @@ var gXPInstallObserver = {
     } else {
       action = {
         label: addonsBundle.getString("addonPostInstall.okay.label"),
-        accessKey: addonsBundle.getString("addonPostInstall.okay.key"),
+        accessKey: addonsBundle.getString("addonPostInstall.okay.accesskey"),
         callback: () => {},
       };
       textEl.hidden = true;
