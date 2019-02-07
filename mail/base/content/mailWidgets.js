@@ -12,6 +12,7 @@
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {DBViewWrapper} = ChromeUtils.import("resource:///modules/DBViewWrapper.jsm");
 
 class MozMailHeaderfield extends MozXULElement {
