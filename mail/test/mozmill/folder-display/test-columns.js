@@ -353,8 +353,7 @@ function invoke_column_picker_option(aActions) {
   //   |- treecolpicker   <-- item 1 this is the one we want
   let threadCols = mc.window.document.getElementById("threadCols");
   let colPicker = threadCols.querySelector("treecolpicker");
-  let colPickerPopup = mc.window.document.getAnonymousElementByAttribute(
-                         colPicker, "anonid", "popup");
+  let colPickerPopup = colPicker.querySelector("[anonid=popup]");
 
   mc.click(new elib.Elem(colPicker));
   mc.click_menus_in_sequence(colPickerPopup, aActions);
@@ -363,9 +362,9 @@ function invoke_column_picker_option(aActions) {
 
 /**
  * The column picker's "reset columns to default" option should set our state
- *  back to inbox state.
+ *  back to the natural state.
  */
-function disabled_test_reset_to_inbox() {
+function test_reset_to_inbox() {
   // create the source
   folderSource = create_folder("ColumnsApplySource");
   // it better have INBOX defaults
@@ -377,7 +376,7 @@ function disabled_test_reset_to_inbox() {
   assert_visible_columns(conExtra);
 
   // reset!
-  invoke_column_picker_option([{anonid: "reset"}]);
+  invoke_column_picker_option([{anonid: "menuitem"}]);
 }
 
 function subtest_say_yes(cwc) {
@@ -388,8 +387,8 @@ function _apply_to_folder_common(aChildrenToo, folder) {
   if (aChildrenToo)
     plan_for_observable_event("msg-folder-columns-propagated");
   plan_for_modal_dialog("commonDialog", subtest_say_yes);
-  invoke_column_picker_option([{anonid: "applyTo-menu"},
-                               {anonid: aChildrenToo ?
+  invoke_column_picker_option([{class: "applyTo-menu"},
+                               {class: aChildrenToo ?
                                   "applyToFolderAndChildren-menu" :
                                   "applyToFolder-menu"},
                                {label: "Local Folders"},
@@ -404,7 +403,7 @@ function _apply_to_folder_common(aChildrenToo, folder) {
  * Change settings in a folder, apply them to another folder that also has
  *  children.  Make sure the folder changes but the children do not.
  */
-function disabled_test_apply_to_folder_no_children() {
+function test_apply_to_folder_no_children() {
   folderParent = create_folder("ColumnsApplyParent");
   folderParent.createSubfolder("Child1", null);
   folderChild1 = folderParent.getChildNamed("Child1");
@@ -414,7 +413,7 @@ function disabled_test_apply_to_folder_no_children() {
   be_in_folder(folderSource);
 
   // reset!
-  invoke_column_picker_option([{anonid: "reset"}]);
+  invoke_column_picker_option([{anonid: "menuitem"}]);
 
   // permute!
   let conExtra = INBOX_DEFAULTS.concat(["sizeCol"]);
@@ -439,14 +438,14 @@ function disabled_test_apply_to_folder_no_children() {
  * Change settings in a folder, apply them to another folder and its children.
  *  Make sure the folder and its children change.
  */
-function disabled_test_apply_to_folder_and_children() {
+function test_apply_to_folder_and_children() {
   // no need to throttle ourselves during testing.
   MailUtils.INTER_FOLDER_PROCESSING_DELAY_MS = 0;
 
   be_in_folder(folderSource);
 
   // reset!
-  invoke_column_picker_option([{anonid: "reset"}]);
+  invoke_column_picker_option([{anonid: "menuitem"}]);
 
   // permute!
   let conExtra = INBOX_DEFAULTS.concat(["tagsCol"]);
@@ -464,13 +463,14 @@ function disabled_test_apply_to_folder_and_children() {
   be_in_folder(folderChild2);
   assert_visible_columns(conExtra);
 }
-disabled_test_apply_to_folder_and_children.EXCLUDED_PLATFORMS = ['linux'];  // See bug 1406717.
+test_apply_to_folder_and_children.EXCLUDED_PLATFORMS = ['linux'];  // See bug 1406717.
+test_apply_to_folder_and_children.__force_skip__ = true;  // See bug 1521016.
 
 /**
  * Change settings in an incoming folder, apply them to an outgoing folder that
  * also has children. Make sure the folder changes but the children do not.
  */
-function disabled_test_apply_to_folder_no_children_swapped() {
+function test_apply_to_folder_no_children_swapped() {
   folderParent = create_folder("ColumnsApplyParentOutgoing");
   folderParent.setFlag(Ci.nsMsgFolderFlags.SentMail);
   folderParent.createSubfolder("Child1", null);
@@ -481,7 +481,7 @@ function disabled_test_apply_to_folder_no_children_swapped() {
   be_in_folder(folderSource);
 
   // reset!
-  invoke_column_picker_option([{anonid: "reset"}]);
+  invoke_column_picker_option([{anonid: "menuitem"}]);
 
   // permute!
   let conExtra = [...INBOX_DEFAULTS];
@@ -511,20 +511,21 @@ function disabled_test_apply_to_folder_no_children_swapped() {
   be_in_folder(folderChild2);
   assert_visible_columns(SENT_DEFAULTS);
 }
-disabled_test_apply_to_folder_no_children_swapped.EXCLUDED_PLATFORMS = ['linux'];  // See bug 1406717.
+test_apply_to_folder_no_children_swapped.EXCLUDED_PLATFORMS = ['linux'];  // See bug 1406717.
+test_apply_to_folder_no_children_swapped.__force_skip__ = true;  // See bug 1521016.
 
 /**
  * Change settings in an incoming folder, apply them to an outgoing folder and
  * its children. Make sure the folder and its children change.
  */
-function disabled_test_apply_to_folder_and_children_swapped() {
+function test_apply_to_folder_and_children_swapped() {
   // No need to throttle ourselves during testing.
   MailUtils.INTER_FOLDER_PROCESSING_DELAY_MS = 0;
 
   be_in_folder(folderSource);
 
   // reset!
-  invoke_column_picker_option([{anonid: "reset"}]);
+  invoke_column_picker_option([{anonid: "menuitem"}]);
 
   // permute!
   let conExtra = [...INBOX_DEFAULTS];
@@ -552,8 +553,8 @@ function disabled_test_apply_to_folder_and_children_swapped() {
   be_in_folder(folderChild2);
   assert_visible_columns(conExtraSwapped);
 }
-disabled_test_apply_to_folder_and_children_swapped.EXCLUDED_PLATFORMS = ['linux'];  // See bug 1406717.
-
+test_apply_to_folder_and_children_swapped.EXCLUDED_PLATFORMS = ['linux'];  // See bug 1406717.
+test_apply_to_folder_and_children_swapped.__force_skip__ = true;  // See bug 1521016.
 
 /**
  * Create a fake gloda collection.
@@ -604,16 +605,16 @@ function test_persist_columns_gloda_collection() {
   assert_visible_columns(glodaColumns);
 }
 
-function disabled_test_reset_columns_gloda_collection() {
+function test_reset_columns_gloda_collection() {
   let fakeCollection = new FakeCollection();
   mc.tabmail.openTab("glodaList", { collection: fakeCollection });
   wait_for_all_messages_to_load();
   assert_visible_columns(glodaColumns);
 
-  invoke_column_picker_option([{anonid: "reset"}]);
-  assert_visible_columns(GLODA_DEFAULTS);
+  invoke_column_picker_option([{anonid: "menuitem"}]); // reset!
+  assert_visible_columns(glodaColumns); // same, only order (would be) reset
 
   mc.tabmail.openTab("glodaList", { collection: fakeCollection });
   wait_for_all_messages_to_load();
-  assert_visible_columns(GLODA_DEFAULTS);
+  assert_visible_columns(glodaColumns);
 }

@@ -59,6 +59,15 @@ function mailContextOnPopupHiding(aEvent) {
 }
 
 function fillMailContextMenu(event) {
+  let target = document.popupNode;
+  if (target.localName == "treecol") {
+    let treeColPicker = target.parentNode.querySelector("treecolpicker");
+    let popup = treeColPicker.querySelector(`menupopup[anonid="popup"]`);
+    treeColPicker.buildPopup(popup);
+    popup.openPopup(target, "after_start", 0, 0, true);
+    return false;
+  }
+
   // If the popupshowing was for a submenu, we don't need to do anything.
   if (event.target != event.currentTarget)
     return true;
@@ -288,13 +297,10 @@ function fillFolderPaneContextMenu(aEvent) {
   let target = document.popupNode;
   // If a column header was clicked, show the column picker.
   if (target.localName == "treecol") {
-    let treecols = target.parentNode;
-    let treeColPicker = treecols.querySelector("treecolpicker");
-    if (treeColPicker) {
-      let popup = document.getAnonymousElementByAttribute(treeColPicker, "anonid", "popup");
-      treeColPicker.buildPopup(popup);
-      popup.openPopup(target, "after_start", 0, 0, true);
-    }
+    let treeColPicker = target.parentNode.querySelector("treecolpicker");
+    let popup = treeColPicker.querySelector(`menupopup[anonid="popup"]`);
+    treeColPicker.buildPopup(popup);
+    popup.openPopup(target, "after_start", 0, 0, true);
     return false;
   }
 

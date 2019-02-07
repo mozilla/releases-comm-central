@@ -77,8 +77,7 @@ function test_right_click_column_header_shows_col_picker() {
   //   |- treecolpicker   <-- item 1 this is the one we want
   let threadCols = mc.window.document.getElementById("threadCols");
   let treeColPicker = threadCols.querySelector("treecolpicker");
-  let popup = mc.window.document.getAnonymousElementByAttribute(
-                treeColPicker, "anonid", "popup");
+  let popup = treeColPicker.querySelector("[anonid=popup]");
 
   // Right click the subject column header
   // This should show the column picker popup.

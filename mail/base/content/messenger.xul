@@ -558,7 +558,7 @@
                           onkeydown="ThreadPaneKeyDown(event);"
                           onselect="ThreadPaneSelectionChanged();"
                           >
-                      <treecols id="threadCols" pickertooltiptext="&columnChooser2.tooltip;">
+                      <treecols id="threadCols" is="thread-pane-treecols" pickertooltiptext="&columnChooser2.tooltip;">
                         <treecol is="treecol-image" id="threadCol" fixed="true" cycler="true"
                                  class="treecol-image threadColumnHeader" currentView="unthreaded"
                                  label="&threadColumn.label;" tooltiptext="&threadColumn2.tooltip;"/>

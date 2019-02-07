@@ -1763,8 +1763,7 @@ function augment_controller(aController, aWindowType) {
       //   |- hbox                item 0
       //   |- treecolpicker   <-- item 1 this is the one we want
       let treeColPicker = treecols.querySelector("treecolpicker");
-      let popup = doc.getAnonymousElementByAttribute(treeColPicker,
-                                                     "anonid", "popup");
+      let popup = treeColPicker.querySelector(`menupopup[anonid="popup"]`);
       popup.addEventListener("popupshowing", __popup_showing, true);
       popup.addEventListener("popupshown", __popup_shown, true);
       popup.addEventListener("popuphiding", __popup_hiding, true);
