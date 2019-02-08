@@ -573,7 +573,8 @@ void MimeCMSRequestAsyncSignatureVerification(nsICMSMessage *aCMSMsg,
                                               const char *aFromAddr, const char *aFromName,
                                               const char *aSenderAddr, const char *aSenderName,
                                               nsIMsgSMIMEHeaderSink *aHeaderSink, int32_t aMimeNestingLevel,
-                                              unsigned char* item_data, uint32_t item_len)
+                                              unsigned char* item_data, uint32_t item_len,
+                                              int16_t digest_type)
 {
   nsCOMPtr<nsICMSMessage2> msg2 = do_QueryInterface(aCMSMsg);
   if (!msg2)
@@ -586,7 +587,7 @@ void MimeCMSRequestAsyncSignatureVerification(nsICMSMessage *aCMSMsg,
     return;
 
   if (item_data)
-    msg2->AsyncVerifyDetachedSignature(listener, item_data, item_len);
+    msg2->AsyncVerifyDetachedSignature(listener, item_data, item_len, digest_type);
   else
     msg2->AsyncVerifySignature(listener);
 }
@@ -689,7 +690,7 @@ MimeCMS_eof (void *crypto_closure, bool abort_p)
                                                from_addr.get(), from_name.get(),
                                                sender_addr.get(), sender_name.get(),
                                                data->smimeHeaderSink, aRelativeNestLevel,
-                                               nullptr, 0);
+                                               nullptr, 0, 0);
     }
   }
 

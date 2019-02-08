@@ -38,10 +38,14 @@ private:
   nsCOMPtr<nsIInterfaceRequestor> m_ctx;
   NSSCMSMessage * m_cmsMsg;
   NSSCMSSignerInfo* GetTopLevelSignerInfo();
-  nsresult CommonVerifySignature(unsigned char* aDigestData, uint32_t aDigestDataLen);
+  nsresult CommonVerifySignature(unsigned char* aDigestData, uint32_t aDigestDataLen,
+                                 int16_t aDigestType);
 
   nsresult CommonAsyncVerifySignature(nsISMimeVerificationListener *aListener,
-                                      unsigned char* aDigestData, uint32_t aDigestDataLen);
+                                      unsigned char* aDigestData, uint32_t aDigestDataLen,
+                                      int16_t aDigestType);
+  bool GetIntHashToOidHash(const int16_t aCryptoHashInt, SECOidTag &aOidTag);
+  bool IsAllowedHash(const int16_t aCryptoHashInt);
 
   void destructorSafeDestroyNSSReference();
 

@@ -42,10 +42,13 @@ interface nsICMSMessage2 : nsISupports
     *     [array, length_is(aDigestDataLen)]
     *     in octet aDigestData,
     *     in unsigned long aDigestDataLen);
+    *
+    * Set aDigestType to one of the values from nsICryptoHash.
    */
   void asyncVerifyDetachedSignature(in nsISMimeVerificationListener listener,
-                                     in UnsignedCharPtr aDigestData,
-                                     in unsigned long aDigestDataLen);
+                                    in UnsignedCharPtr aDigestData,
+                                    in unsigned long aDigestDataLen,
+                                    in int16_t aDigestType);
 };
 
 [uuid(5226d698-0773-4f25-b94c-7944b3fc01d3)]

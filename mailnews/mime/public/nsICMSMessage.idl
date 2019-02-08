@@ -28,7 +28,9 @@ interface nsICMSMessage : nsISupports
   void getSignerCert(out nsIX509Cert scert);
   void getEncryptionCert(out nsIX509Cert ecert);
   void verifySignature();
-  void verifyDetachedSignature(in UnsignedCharPtr aDigestData, in unsigned long aDigestDataLen);
+  void verifyDetachedSignature(in UnsignedCharPtr aDigestData,
+                               in unsigned long aDigestDataLen,
+                               in int16_t aDigestType);
   void CreateEncrypted(in nsIArray aRecipientCerts);
 
   /* The parameter aDigestType must be one of the values in nsICryptoHash */
