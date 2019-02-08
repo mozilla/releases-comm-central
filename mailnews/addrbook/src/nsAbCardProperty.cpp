@@ -386,7 +386,18 @@ NS_IMETHODIMP nsAbCardProperty::SetUID(const nsACString &aUID)
   rv = abManager->GetDirectoryFromId(directoryId, getter_AddRefs(directory));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return directory ? directory->ModifyCard(this) : NS_OK;
+  if (!directory) {
+    return NS_OK;
+  }
+
+  bool readOnly;
+  rv = directory->GetReadOnly(&readOnly);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (readOnly) {
+    return NS_ERROR_FAILURE;
+  }
+  return directory->ModifyCard(this);
 }
 
 NS_IMETHODIMP nsAbCardProperty::GetFirstName(nsAString &aString)
