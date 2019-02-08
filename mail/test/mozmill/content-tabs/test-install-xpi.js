@@ -39,62 +39,62 @@ var teardownModule = function(module) {
   mc.tabmail.closeTab(gNewTab);
 };
 
-function waitForNotification(id, buttonToClick, callback) {
+function waitForNotification(id, buttonToClickSelector, callback) {
   let path = `
     /id("messengerWindow")/id("mainPopupSet")/id("notification-popup")/id("${id}-notification")
   `.trim();
   let notification = new elib.Lookup(gDocument, path);
-  let button = new elib.Lookup(gDocument, `${path}/anon({"anonid":"${buttonToClick}"})`);
-
   mc.waitForElement(notification);
+  mc.waitFor(() => !gDocument.querySelector(`#${id}-notification`).hidden);
   // Give the UI some time to settle.
   mc.sleep(500);
   if (callback) {
     callback();
   }
-  mc.click(button);
+  let button = gDocument.querySelector(`#${id}-notification ${buttonToClickSelector}`);
+  mc.click(new elib.Elem(button));
   mc.waitForElementNotPresent(notification);
 }
 
-function disabled_test_install_corrupt_xpi() {
+function test_install_corrupt_xpi() {
   // This install with give us a corrupt xpi warning.
   mc.click(content_tab_eid(gNewTab, "corruptlink"));
-  waitForNotification("addon-install-blocked", "button");
-  waitForNotification("addon-install-failed", "button");
+  waitForNotification("addon-install-blocked", ".popup-notification-primary-button");
+  waitForNotification("addon-install-failed", ".popup-notification-primary-button");
 }
 
-function disabled_test_install_xpi_offer() {
+function test_install_xpi_offer() {
   mc.click(content_tab_eid(gNewTab, "installlink"));
-  waitForNotification("addon-install-blocked", "button");
-  waitForNotification("addon-install-confirmation", "secondarybutton");
+  waitForNotification("addon-install-blocked", ".popup-notification-primary-button");
+  waitForNotification("addon-install-confirmation", ".popup-notification-secondary-button");
 }
 
-function disabled_test_xpinstall_disabled() {
+function test_xpinstall_disabled() {
   Services.prefs.setBoolPref("xpinstall.enabled", false);
 
   // Try installation again - this time we'll get an install has been disabled message.
   mc.click(content_tab_eid(gNewTab, "installlink"));
-  waitForNotification("xpinstall-disabled", "secondarybutton");
+  waitForNotification("xpinstall-disabled", ".popup-notification-secondary-button");
 
   Services.prefs.clearUserPref("xpinstall.enabled");
 }
 
-function disabled_test_xpinstall_actually_install() {
+function test_xpinstall_actually_install() {
   mc.click(content_tab_eid(gNewTab, "installlink"));
-  waitForNotification("addon-install-blocked", "button");
-  waitForNotification("addon-install-confirmation", "button");
-  waitForNotification("addon-installed", "button");
+  waitForNotification("addon-install-blocked", ".popup-notification-primary-button");
+  waitForNotification("addon-install-confirmation", ".popup-notification-primary-button");
+  waitForNotification("addon-installed", ".popup-notification-primary-button");
 }
 
-function disabled_test_xpinstall_webext_actually_install() {
+function test_xpinstall_webext_actually_install() {
   mc.click(content_tab_eid(gNewTab, "installwebextlink"));
-  waitForNotification("addon-install-blocked", "button");
-  waitForNotification("addon-webext-permissions", "button", () => {
+  waitForNotification("addon-install-blocked", ".popup-notification-primary-button");
+  waitForNotification("addon-webext-permissions", ".popup-notification-primary-button", () => {
     let intro = new elib.ID(gDocument, "addon-webext-perm-intro");
     mc.assertNotDOMProperty(intro, "hidden", "true");
     let permissionList = new elib.ID(gDocument, "addon-webext-perm-list");
     mc.assertNotDOMProperty(permissionList, "hidden", "true");
     mc.assert(() => permissionList.getNode().childElementCount == 1);
   });
-  waitForNotification("addon-installed", "button");
+  waitForNotification("addon-installed", ".popup-notification-primary-button");
 }
