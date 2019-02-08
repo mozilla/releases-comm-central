@@ -527,6 +527,22 @@ function awInputChanged(inputElement) {
   top.doNotCreateANewRow = false;
 }
 
+// If we add a menulist to the DOM, it has some child nodes added to it
+// by the menulist custom element. If we then clone the menulist and add
+// it to the DOM again, more child nodes are added and we end up with
+// bug 1525828. This function clones any menulist as it originally was.
+function _menulistFriendlyClone(element) {
+  let clone = element.cloneNode(false);
+  if (element.localName == "menulist") {
+    clone.appendChild(element.menupopup.cloneNode(true));
+    return clone;
+  }
+  for (let child of element.children) {
+    clone.appendChild(_menulistFriendlyClone(child));
+  }
+  return clone;
+}
+
 function awAppendNewRow(setFocus) {
   var listbox = document.getElementById("addressingWidget");
   var listitem1 = awGetListItem(1);
@@ -535,7 +551,7 @@ function awAppendNewRow(setFocus) {
     var lastRecipientType = awGetPopupElement(top.MAX_RECIPIENTS).value;
 
     var nextDummy = awGetNextDummyRow();
-    var newNode = listitem1.cloneNode(true);
+    var newNode = _menulistFriendlyClone(listitem1);
     if (nextDummy)
       listbox.replaceChild(newNode, nextDummy);
     else
