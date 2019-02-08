@@ -9,14 +9,13 @@ var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js")
 // needed to zero inter-folder processing delay
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
-
 /*
  * Test column default logic and persistence logic.  Persistence comes in both
  *  tab-switching (because of the multiplexed implementation) and
  *  folder-switching forms.
  */
 
-// make SOLO_TEST=folder-display/test-columns.js mozmill-one
+// make mozmill-one SOLO_TEST=folder-display/test-columns.js
 
 var MODULE_NAME = 'test-columns';
 
@@ -87,6 +86,20 @@ function setupModule(module) {
     "dateCol",
     "locationCol"
   ];
+}
+
+/**
+ * Get the currently visible threadTree columns.
+ */
+function get_visible_threadtree_columns() {
+  let cols = mc.e("threadTree").columns;
+  let visibleColumnIds = [];
+  for (let col = cols.getFirstColumn(); col != null; col = col.getNext()) {
+    if (col.element.getAttribute("hidden") != "true") {
+      visibleColumnIds.push(col.id);
+    }
+  }
+  return visibleColumnIds;
 }
 
 /**
@@ -444,11 +457,11 @@ function test_apply_to_folder_and_children() {
 
   be_in_folder(folderSource);
 
-  // reset!
-  invoke_column_picker_option([{anonid: "menuitem"}]);
+  invoke_column_picker_option([{anonid: "menuitem"}]); // reset order!
+  let cols = get_visible_threadtree_columns();
 
   // permute!
-  let conExtra = INBOX_DEFAULTS.concat(["tagsCol"]);
+  let conExtra = cols.concat(["tagsCol"]);
   show_column("tagsCol");
   assert_visible_columns(conExtra);
 
@@ -463,8 +476,6 @@ function test_apply_to_folder_and_children() {
   be_in_folder(folderChild2);
   assert_visible_columns(conExtra);
 }
-test_apply_to_folder_and_children.EXCLUDED_PLATFORMS = ['linux'];  // See bug 1406717.
-test_apply_to_folder_and_children.__force_skip__ = true;  // See bug 1521016.
 
 /**
  * Change settings in an incoming folder, apply them to an outgoing folder that
@@ -480,8 +491,11 @@ function test_apply_to_folder_no_children_swapped() {
 
   be_in_folder(folderSource);
 
-  // reset!
-  invoke_column_picker_option([{anonid: "menuitem"}]);
+  invoke_column_picker_option([{anonid: "menuitem"}]); // reset order!
+  // Hide the columns that were added in other tests, since reset now
+  // only resets the order.
+  hide_column("tagsCol");
+  hide_column("sizeCol")
 
   // permute!
   let conExtra = [...INBOX_DEFAULTS];
@@ -511,8 +525,6 @@ function test_apply_to_folder_no_children_swapped() {
   be_in_folder(folderChild2);
   assert_visible_columns(SENT_DEFAULTS);
 }
-test_apply_to_folder_no_children_swapped.EXCLUDED_PLATFORMS = ['linux'];  // See bug 1406717.
-test_apply_to_folder_no_children_swapped.__force_skip__ = true;  // See bug 1521016.
 
 /**
  * Change settings in an incoming folder, apply them to an outgoing folder and
@@ -524,8 +536,7 @@ function test_apply_to_folder_and_children_swapped() {
 
   be_in_folder(folderSource);
 
-  // reset!
-  invoke_column_picker_option([{anonid: "menuitem"}]);
+  invoke_column_picker_option([{anonid: "menuitem"}]); // reset order!
 
   // permute!
   let conExtra = [...INBOX_DEFAULTS];
@@ -553,8 +564,6 @@ function test_apply_to_folder_and_children_swapped() {
   be_in_folder(folderChild2);
   assert_visible_columns(conExtraSwapped);
 }
-test_apply_to_folder_and_children_swapped.EXCLUDED_PLATFORMS = ['linux'];  // See bug 1406717.
-test_apply_to_folder_and_children_swapped.__force_skip__ = true;  // See bug 1521016.
 
 /**
  * Create a fake gloda collection.
