@@ -56,20 +56,20 @@ function waitForNotification(id, buttonToClick, callback) {
   mc.waitForElementNotPresent(notification);
 }
 
-function test_install_corrupt_xpi() {
+function disabled_test_install_corrupt_xpi() {
   // This install with give us a corrupt xpi warning.
   mc.click(content_tab_eid(gNewTab, "corruptlink"));
   waitForNotification("addon-install-blocked", "button");
   waitForNotification("addon-install-failed", "button");
 }
 
-function test_install_xpi_offer() {
+function disabled_test_install_xpi_offer() {
   mc.click(content_tab_eid(gNewTab, "installlink"));
   waitForNotification("addon-install-blocked", "button");
   waitForNotification("addon-install-confirmation", "secondarybutton");
 }
 
-function test_xpinstall_disabled() {
+function disabled_test_xpinstall_disabled() {
   Services.prefs.setBoolPref("xpinstall.enabled", false);
 
   // Try installation again - this time we'll get an install has been disabled message.
@@ -79,14 +79,14 @@ function test_xpinstall_disabled() {
   Services.prefs.clearUserPref("xpinstall.enabled");
 }
 
-function test_xpinstall_actually_install() {
+function disabled_test_xpinstall_actually_install() {
   mc.click(content_tab_eid(gNewTab, "installlink"));
   waitForNotification("addon-install-blocked", "button");
   waitForNotification("addon-install-confirmation", "button");
   waitForNotification("addon-installed", "button");
 }
 
-function test_xpinstall_webext_actually_install() {
+function disabled_test_xpinstall_webext_actually_install() {
   mc.click(content_tab_eid(gNewTab, "installwebextlink"));
   waitForNotification("addon-install-blocked", "button");
   waitForNotification("addon-webext-permissions", "button", () => {
