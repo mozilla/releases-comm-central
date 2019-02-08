@@ -56,9 +56,7 @@ XPCOMUtils.defineLazyServiceGetter(this, "aomStartup",
 const {
   createAppInfo,
   createHttpServer,
-  createInstallRDF,
   createTempWebExtensionFile,
-  createUpdateRDF,
   getFileForAddon,
   manuallyInstall,
   manuallyUninstall,
@@ -827,7 +825,7 @@ function isExtensionInBootstrappedList(aDir, aId) {
  */
 async function promiseWriteInstallRDFToDir(aData, aDir, aId = aData.id, aExtraFile = null) {
   let files = {
-    "install.rdf": AddonTestUtils.createInstallRDF(aData),
+    "install.rdf": createInstallRDF(aData),
   };
   if (typeof aExtraFile === "object")
     Object.assign(files, aExtraFile);
@@ -860,7 +858,7 @@ async function promiseWriteInstallRDFToDir(aData, aDir, aId = aData.id, aExtraFi
  */
 async function promiseWriteInstallRDFToXPI(aData, aDir, aId = aData.id, aExtraFile = null) {
   let files = {
-    "install.rdf": AddonTestUtils.createInstallRDF(aData),
+    "install.rdf": createInstallRDF(aData),
   };
   if (typeof aExtraFile === "object")
     Object.assign(files, aExtraFile);
@@ -1380,4 +1378,120 @@ async function setInitialState(addon, initialState) {
   } else if (initialState.userDisabled === false) {
     await addon.enable();
   }
+}
+
+/**
+ * Escapes any occurrences of &, ", < or > with XML entities.
+ *
+ * @param {string} str
+ *        The string to escape.
+ * @returns {string} The escaped string.
+ */
+function escapeXML(str) {
+  let replacements = {"&": "&amp;", '"': "&quot;", "'": "&apos;", "<": "&lt;", ">": "&gt;"};
+  return String(str).replace(/[&"''<>]/g, m => replacements[m]);
+}
+
+/**
+ * A tagged template function which escapes any XML metacharacters in
+ * interpolated values.
+ *
+ * @param {Array<string>} strings
+ *        An array of literal strings extracted from the templates.
+ * @param {Array} values
+ *        An array of interpolated values extracted from the template.
+ * @returns {string}
+ *        The result of the escaped values interpolated with the literal
+ *        strings.
+ */
+function escaped(strings, ...values) {
+  let result = [];
+
+  for (let [i, string] of strings.entries()) {
+    result.push(string);
+    if (i < values.length) {
+      result.push(escapeXML(values[i]));
+    }
+  }
+
+  return result.join("");
+}
+
+function _writeProps(obj, props, indent = "  ") {
+  let items = [];
+  for (let prop of props) {
+    if (obj[prop] !== undefined)
+      items.push(escaped`${indent}<em:${prop}>${obj[prop]}</em:${prop}>\n`);
+  }
+  return items.join("");
+}
+
+function _writeArrayProps(obj, props, indent = "  ") {
+  let items = [];
+  for (let prop of props) {
+    for (let val of obj[prop] || [])
+      items.push(escaped`${indent}<em:${prop}>${val}</em:${prop}>\n`);
+  }
+  return items.join("");
+}
+
+function _writeLocaleStrings(data) {
+  let items = [];
+
+  items.push(this._writeProps(data, ["name", "description", "creator", "homepageURL"]));
+  items.push(this._writeArrayProps(data, ["developer", "translator", "contributor"]));
+
+  return items.join("");
+}
+
+function createInstallRDF(data) {
+  let defaults = {
+    bootstrap: true,
+    version: "1.0",
+    name: `Test Extension ${data.id}`,
+    targetApplications: [
+      {
+        "id": "xpcshell@tests.mozilla.org",
+        "minVersion": "1",
+        "maxVersion": "64.*",
+      },
+    ],
+  };
+
+  var rdf = '<?xml version="1.0"?>\n';
+  rdf += '<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"\n' +
+         '     xmlns:em="http://www.mozilla.org/2004/em-rdf#">\n';
+
+  rdf += '<Description about="urn:mozilla:install-manifest">\n';
+
+  data = Object.assign({}, defaults, data);
+
+  let props = ["id", "version", "type", "internalName", "updateURL",
+               "optionsURL", "optionsType", "aboutURL", "iconURL",
+               "skinnable", "bootstrap", "strictCompatibility"];
+  rdf += _writeProps(data, props);
+
+  rdf += _writeLocaleStrings(data);
+
+  for (let platform of data.targetPlatforms || [])
+    rdf += escaped`<em:targetPlatform>${platform}</em:targetPlatform>\n`;
+
+  for (let app of data.targetApplications || []) {
+    rdf += "<em:targetApplication><Description>\n";
+    rdf += _writeProps(app, ["id", "minVersion", "maxVersion"]);
+    rdf += "</Description></em:targetApplication>\n";
+  }
+
+  for (let localized of data.localized || []) {
+    rdf += "<em:localized><Description>\n";
+    rdf += _writeArrayProps(localized, ["locale"]);
+    rdf += _writeLocaleStrings(localized);
+    rdf += "</Description></em:localized>\n";
+  }
+
+  for (let dep of data.dependencies || [])
+    rdf += escaped`<em:dependency><Description em:id="${dep}"/></em:dependency>\n`;
+
+  rdf += "</Description>\n</RDF>\n";
+  return rdf;
 }

@@ -9,9 +9,9 @@ createAppInfo("xpcshell@tests.mozilla.org", "XPCShell", "1", "1");
 
 const ADDONS = {
   bootstrap_globals: {
-    "install.rdf": {
+    "install.rdf": createInstallRDF({
       "id": "bootstrap_globals@tests.mozilla.org",
-    },
+    }),
     "bootstrap.js": String.raw`var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var seenGlobals = new Set();
