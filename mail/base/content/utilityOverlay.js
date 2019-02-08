@@ -196,12 +196,11 @@ function openWhatsNew() {
  * @param engine (optional) the search engine to use
  */
 function openWebSearch(query, engine) {
-  Services.search.init({
-    onInitComplete() {
-      if (!engine)
-        engine = Services.search.defaultEngine;
+  Services.search.init().then(async () => {
+    if (!engine) {
+      engine = await Services.search.getDefault();
       openLinkExternally(engine.getSubmission(query).uri.spec);
-    },
+    }
   });
 }
 

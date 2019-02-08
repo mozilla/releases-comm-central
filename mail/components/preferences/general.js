@@ -176,25 +176,24 @@ var gGeneralPane = {
   },
 
   updateWebSearch() {
-    Services.search.init({
-      onInitComplete() {
-        let engineList = document.getElementById("defaultWebSearch");
-        for (let engine of Services.search.getVisibleEngines()) {
-          let item = engineList.appendItem(engine.name);
-          item.engine = engine;
-          item.className = "menuitem-iconic";
-          item.setAttribute(
-            "image", engine.iconURI ? engine.iconURI.spec :
-                     "resource://gre-resources/broken-image.png"
-          );
-          if (engine == Services.search.defaultEngine)
-            engineList.selectedItem = item;
+    Services.search.init().then(async () => {
+      let defaultEngine = await Services.search.getDefault();
+      let engineList = document.getElementById("defaultWebSearch");
+      for (let engine of await Services.search.getVisibleEngines()) {
+        let item = engineList.appendItem(engine.name);
+        item.engine = engine;
+        item.className = "menuitem-iconic";
+        item.setAttribute("image", engine.iconURI ? engine.iconURI.spec :
+          "resource://gre-resources/broken-image.png"
+        );
+        if (engine == defaultEngine) {
+          engineList.selectedItem = item;
         }
+      }
 
-        engineList.addEventListener("command", function() {
-          Services.search.defaultEngine = engineList.selectedItem.engine;
-        });
-      },
+      engineList.addEventListener("command", () => {
+        Services.search.setDefault(engineList.selectedItem.engine);
+      });
     });
   },
 };
