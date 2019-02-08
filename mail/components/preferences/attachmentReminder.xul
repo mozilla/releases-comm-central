@@ -17,12 +17,11 @@
             xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
             dlgbuttons="accept,cancel"
             title="&attachmentReminderDialog.title;"
+            onload="gAttachmentReminderOptionsDialog.init();"
             ondialogaccept="gAttachmentReminderOptionsDialog.saveKeywords();"
             style="width:38em;">
 
-  <prefpane id="attachmentReminderOptionsDialogPane"
-            onpaneload="gAttachmentReminderOptionsDialog.init();">
-
+  <prefpane id="attachmentReminderOptionsDialogPane">
     <script type="application/javascript" src="chrome://messenger/content/preferences/attachmentReminder.js"/>
     <stringbundle id="bundlePreferences" src="chrome://messenger/locale/preferences/preferences.properties"/>
 

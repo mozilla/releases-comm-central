@@ -15,9 +15,10 @@
 <prefwindow id="ReturnReceiptsDialog" type="child"
             xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
             dlgbuttons="accept,cancel"
-            title="&dialog.title;">
+            title="&dialog.title;"
+            onload="enableDisableAllowedReceipts();">
 
-  <prefpane id="ReturnReceiptsDialogPane" onpaneload="enableDisableAllowedReceipts();">
+  <prefpane id="ReturnReceiptsDialogPane">
     <script type="application/javascript" src="chrome://messenger/content/preferences/receipts.js"/>
 
     <preferences id="ReturnReceiptsPreferences">

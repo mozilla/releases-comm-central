@@ -19,9 +19,10 @@
             xmlns:html="http://www.w3.org/1999/xhtml"
             dlgbuttons="accept,cancel"
             style="min-height: 33em;"
-            title="&dialog.title;">
+            title="&dialog.title;"
+            onload="gSendOptionsDialog.init();">
 
-  <prefpane id="SendOptionsDialogPane" onpaneload="gSendOptionsDialog.init();">
+  <prefpane id="SendOptionsDialogPane">
     <script type="application/javascript" src="chrome://messenger/content/preferences/sendoptions.js"/>
 
     <stringbundle id="bundlePreferences" src="chrome://messenger/locale/preferences/preferences.properties"/>

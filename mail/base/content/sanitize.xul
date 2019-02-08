@@ -9,22 +9,23 @@
 <?xml-stylesheet href="chrome://messenger/skin/sanitizeDialog.css"?>
 <?xml-stylesheet href="chrome://messenger/content/sanitizeDialog.css"?>
 
-<!DOCTYPE prefwindow [
+<!DOCTYPE dialog [
   <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
   <!ENTITY % sanitizeDTD SYSTEM "chrome://messenger/locale/sanitize.dtd">
   %brandDTD;
   %sanitizeDTD;
 ]>
 
-<prefwindow id="SanitizeDialog" type="child"
-            xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-            dlgbuttons="accept,cancel"
-            title="&sanitizeDialog2.title;"
-            noneverythingtitle="&sanitizeDialog2.title;"
-            style="width: &dialog.width;"
-            ondialogaccept="gSanitizePromptDialog.sanitize();">
+<dialog id="SanitizeDialog" type="child"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        dlgbuttons="accept,cancel"
+        title="&sanitizeDialog2.title;"
+        noneverythingtitle="&sanitizeDialog2.title;"
+        style="width: &dialog.width;"
+        onload="gSanitizePromptDialog.init();"
+        ondialogaccept="gSanitizePromptDialog.sanitize();">
 
-  <prefpane id="SanitizeDialogPane" onpaneload="gSanitizePromptDialog.init();">
+  <vbox id="SanitizeDialogPane">
     <stringbundle id="bundleBrowser"
             src="chrome://messenger/locale/messenger.properties"/>
 
@@ -110,5 +111,5 @@
                 onsyncfrompreference="return gSanitizePromptDialog.onReadGeneric();"/>
     </vbox>
 
-  </prefpane>
-</prefwindow>
+  </vbox>
+</dialog>
