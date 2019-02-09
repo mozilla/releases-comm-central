@@ -930,17 +930,18 @@ mime_create(const char *content_type, MimeHeaders *hdrs,
   {
     // override messages that have content disposition set to "attachment"
     // even though we probably should show them inline.
-    if (  (clazz != (MimeObjectClass *)&mimeInlineTextClass) &&
-          (clazz != (MimeObjectClass *)&mimeInlineTextPlainClass) &&
-          (clazz != (MimeObjectClass *)&mimeInlineTextPlainFlowedClass) &&
-          (clazz != (MimeObjectClass *)&mimeInlineTextHTMLClass) &&
+    if ((clazz != (MimeObjectClass *)&mimeMessageClass) &&
+        (clazz != (MimeObjectClass *)&mimeInlineImageClass) &&
+        (!opts->show_attachment_inline_text ||
+         ((clazz != (MimeObjectClass *)&mimeInlineTextHTMLClass) &&
           (clazz != (MimeObjectClass *)&mimeInlineTextHTMLParsedClass) &&
           (clazz != (MimeObjectClass *)&mimeInlineTextHTMLSanitizedClass) &&
           (clazz != (MimeObjectClass *)&mimeInlineTextHTMLAsPlaintextClass) &&
           (clazz != (MimeObjectClass *)&mimeInlineTextRichtextClass) &&
           (clazz != (MimeObjectClass *)&mimeInlineTextEnrichedClass) &&
-          (clazz != (MimeObjectClass *)&mimeMessageClass) &&
-          (clazz != (MimeObjectClass *)&mimeInlineImageClass) )
+          (clazz != (MimeObjectClass *)&mimeInlineTextClass) &&
+          (clazz != (MimeObjectClass *)&mimeInlineTextPlainClass) &&
+          (clazz != (MimeObjectClass *)&mimeInlineTextPlainFlowedClass))))
       // not a special inline type, so show as attachment
       clazz = (MimeObjectClass *)&mimeExternalObjectClass;
   }

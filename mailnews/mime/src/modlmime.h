@@ -362,6 +362,9 @@ public:
   bool show_attachment_inline_p; /* Whether or not we should display attachment inline (whatever say
                          the content-disposition) */
 
+  bool show_attachment_inline_text; /* Whether or not we should display text attachment inline (whatever
+                         the content-disposition says) */
+
   bool quote_attachment_inline_p; /* Whether or not we should include inlined attachments in
                          quotes of replies) */
 

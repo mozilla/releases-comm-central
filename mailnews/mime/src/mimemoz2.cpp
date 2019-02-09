@@ -1359,6 +1359,7 @@ MimeDisplayOptions::MimeDisplayOptions()
 
   missing_parts = false;
   show_attachment_inline_p = false;
+  show_attachment_inline_text = false;
   quote_attachment_inline_p = false;
   notify_nested_bodies = false;
   write_pure_bodies = false;
@@ -1510,6 +1511,7 @@ mime_bridge_create_display_stream(
       //
     msd->options->m_prefBranch->GetBoolPref("mail.force_user_charset", &(msd->options->force_user_charset));
     msd->options->m_prefBranch->GetBoolPref("mail.inline_attachments", &(msd->options->show_attachment_inline_p));
+    msd->options->m_prefBranch->GetBoolPref("mail.inline_attachments.text", &(msd->options->show_attachment_inline_text));
     msd->options->m_prefBranch->GetBoolPref("mail.reply_quote_inline", &(msd->options->quote_attachment_inline_p));
     msd->options->m_prefBranch->GetIntPref("mailnews.display.html_as", &(msd->options->html_as_p));
   }

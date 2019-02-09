@@ -12,7 +12,12 @@ pref("mailnews.timeline_is_enabled", false);
 pref("mailnews.logComposePerformance", false);
 
 pref("mail.wrap_long_lines",                true);
+
+// Show attachments of supported types rendered directly in the message body view.
 pref("mail.inline_attachments",             true);
+// When rendering attachments inline, show also text attachments (e.g. CSV, HTML,
+// plain text) which are potentially very long.
+pref("mail.inline_attachments.text",        false);
 pref("mail.reply_quote_inline",             false);
 // When in a message the List-Post header contains the content of the Reply-To
 // (which is called "Reply-To Munging") we override the Reply-To header with

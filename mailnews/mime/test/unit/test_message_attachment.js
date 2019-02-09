@@ -3,8 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * This test verifies that we don't display text attachments inline
- * when mail.inline_attachments is false.
+ * This test verifies that we generate proper attachment filenames.
  */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
@@ -150,5 +149,6 @@ var gInbox;
 
 function run_test() {
   gInbox = configure_message_injection({mode: "local"});
+  Services.prefs.setBoolPref("mail.inline_attachments.text", true);
   async_run_tests(tests);
 }

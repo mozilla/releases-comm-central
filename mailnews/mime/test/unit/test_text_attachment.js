@@ -34,9 +34,11 @@ var messages = [
 var gStreamListener = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
 
-  _str:"",
+  _str: "",
   // nsIRequestObserver part
   onStartRequest: function (aRequest, aContext) {
+    this.str = "";
+    this._stream = null;
   },
   onStopRequest: function (aRequest, aContext, aStatusCode) {
     // check that text attachment contents didn't end up inline.
@@ -63,7 +65,9 @@ var gStreamListener = {
 var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
                   .createInstance(Ci.nsIMsgWindow);
 
-function* test_message_attachments(info) {
+function* test_message_attachments(info, inline, inline_text) {
+  Services.prefs.setBoolPref("mail.inline_attachments", inline);
+  Services.prefs.setBoolPref("mail.inline_attachments.text", inline_text);
   let synMsg = gMessageGenerator.makeMessage(info);
   let synSet = new SyntheticMessageSet([synMsg]);
   yield add_sets_to_folder(gInbox, [synSet]);
@@ -84,16 +88,24 @@ function* test_message_attachments(info) {
   yield false;
 }
 
+function test_message_attachments_no_inline(info) {
+  return test_message_attachments(info, false, true);
+}
+
+function test_message_attachments_no_inline_text(info) {
+  return test_message_attachments(info, true, false);
+}
+
 /* ===== Driver ===== */
 
 var tests = [
-  parameterizeTest(test_message_attachments, messages),
+  parameterizeTest(test_message_attachments_no_inline, messages),
+  parameterizeTest(test_message_attachments_no_inline_text, messages),
 ];
 
 var gInbox;
 
 function run_test() {
   gInbox = configure_message_injection({mode: "local"});
-  Services.prefs.setBoolPref("mail.inline_attachments", false);
   async_run_tests(tests);
 }
