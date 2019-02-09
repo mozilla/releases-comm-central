@@ -22,7 +22,7 @@ const JSIRCV3_SUPPORTED_CAPS = [
     "extended-join",
     "invite-notify",
     //"labeled-response",
-    //"message-tags",
+    "message-tags",
     //"metadata",
     "multi-prefix",
     "sasl",
@@ -668,6 +668,106 @@ function serv_tolowercase(str)
              str = str.replace(/[A-Z]/g, replaceFunction);
      }
      return str;
+}
+
+// Encodes tag data to send.
+CIRCServer.prototype.encodeTagData =
+function serv_encodetagdata(obj)
+{
+    var dict = new Object();
+    dict[";"] = ":";
+    dict[" "] = "s";
+    dict["\\"] = "\\";
+    dict["\r"] = "r";
+    dict["\n"] = "n";
+
+    // Function for escaping key values.
+    function escapeTagValue(data)
+    {
+        var rv = "";
+        for (var i = 0; i  < data.length; i++)
+        {
+            var ci = data[i];
+            var co = dict[data[i]];
+            if (co)
+                rv += "\\" + co;
+            else
+                rv += ci;
+        }
+
+        return rv;
+    }
+
+    var str = "";
+
+    for(var key in obj)
+    {
+        var val = obj[key];
+        str += key;
+        if (val)
+        {
+            str += "=";
+            str += escapeTagValue(val);
+        }
+        str += ";";
+    }
+
+    // Remove any trailing semicolons.
+    if (str[str.length - 1] == ";")
+        str = str.substring(0, str.length - 1);
+
+    return str;
+}
+
+// Decodes received tag data.
+CIRCServer.prototype.decodeTagData =
+function serv_decodetagdata(str)
+{
+    // Remove the leading '@' if we have one.
+    if (str[0] == "@")
+        str = str.substring(1);
+
+    var dict = new Object();
+    dict[":"] = ";";
+    dict["s"] = " ";
+    dict["\\"] = "\\";
+    dict["r"] = "\r";
+    dict["n"] = "\n";
+
+    // Function for unescaping key values.
+    function unescapeTagValue(data)
+    {
+        var rv = "";
+        for (var i = 0; i  < data.length; i++)
+        {
+            var ci = data[i];
+            var co = dict[data[i+1]];
+            if (ci == "\\" && i < str.length - 1)
+            {
+                if (co)
+                    rv += co;
+                else
+                    rv += data[i+1];
+                i++
+            }
+            else if (ci != "\\")
+                rv += ci;
+        }
+
+        return rv;
+    }
+
+    var obj = Object();
+
+    var tags = str.split(";");
+    for (var i = 0; i < tags.length; i++)
+    {
+        var [key, val] = tags[i].split("=");
+        val = unescapeTagValue(val);
+        obj[key] = val;
+    }
+
+    return obj;
 }
 
 // Returns the IRC URL representation of this server.
@@ -1373,6 +1473,18 @@ function serv_onRawData(e)
         return false;
     }
 
+    if (l[0] == "@")
+    {
+        e.tagdata = l.substring(0, l.indexOf(" "));
+        e.tags = this.decodeTagData(e.tagdata);
+        l = l.substring(l.indexOf(" ") + 1);
+    }
+    else
+    {
+        e.tagdata = new Object();
+        e.tags = new Object();
+    }
+
     if (l[0] == ":")
     {
         // Must split only on REAL spaces here, not just any old whitespace.
@@ -1446,7 +1558,8 @@ function serv_onRawData(e)
     e.code = e.params[0].toUpperCase();
 
     // Ignore all private (inc. channel) messages, notices and invites here.
-    if (e.ignored && ((e.code == "PRIVMSG") || (e.code == "NOTICE") || (e.code == "INVITE") ))
+    if (e.ignored && ((e.code == "PRIVMSG") || (e.code == "NOTICE") ||
+                      (e.code == "INVITE") || (e.code == "TAGMSG")))
         return true;
 
     e.type = "parseddata";
@@ -2838,6 +2951,7 @@ function serv_invite(e)
 
 CIRCServer.prototype.onNotice =
 CIRCServer.prototype.onPrivmsg =
+CIRCServer.prototype.onTagmsg =
 function serv_notice_privmsg (e)
 {
     var targetName = e.params[1];
@@ -2899,6 +3013,13 @@ function serv_notice_privmsg (e)
             // Just print to console on failure - or we'd spam the user
             dd("Warning: IDENTIFY-MSG is on, but there's no message flags");
         }
+    }
+
+    // TAGMSG doesn't have a message parameter, so just pass it on.
+    if (e.code == "TAGMSG")
+    {
+        e.destObject = e.replyTo;
+        return true;
     }
 
     if (e.params[2].search (/^\x01[^ ]+.*\x01$/) != -1)
