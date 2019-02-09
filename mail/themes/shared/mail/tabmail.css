@@ -368,12 +368,6 @@
   fill: #12bc00;
 }
 
-.contentTabSecurity[level="low"] {
-  background-image: url("chrome://messenger/skin/icons/connection-mixed.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
-}
-
 .contentTabSecurity[level="broken"] {
   background-image: url("chrome://messenger/skin/icons/connection-insecure.svg");
   -moz-context-properties: fill;
