@@ -381,7 +381,7 @@ nsPgpMimeProxy::Finish() {
       return NS_ERROR_FAILURE;
 
     nsCString temp;
-    temp.AppendLiteral("Content-Type: text/html\r\nCharset: UTF-8\r\n\r\n<html><body>");
+    temp.AppendLiteral("Content-Type: text/html; Charset=utf-8\r\n\r\n<html><body>");
     temp.AppendLiteral("<BR><text=\"#000000\" bgcolor=\"#FFFFFF\" link=\"#FF0000\" vlink=\"#800080\" alink=\"#0000FF\">");
     temp.AppendLiteral("<center><table BORDER=1 ><tr><td><CENTER>");
 
