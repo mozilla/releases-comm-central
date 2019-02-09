@@ -245,11 +245,7 @@ pref("mail.last_msg_movecopy_was_move", true);
 //Set the font color for links to something lighter
 pref("browser.anchor_color", "#0B6CDA");
 
-#ifdef XP_WIN
-pref("browser.preferences.instantApply", false);
-#else
 pref("browser.preferences.instantApply", true);
-#endif
 #ifdef XP_MACOSX
 pref("browser.preferences.animateFadeIn", true);
 #else
