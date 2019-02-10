@@ -167,12 +167,7 @@ ULONG FAR PASCAL MAPISendMail (LHANDLE lhSession, ULONG ulUIParam, nsMapiMessage
 
     if (!lhSession || pNsMapi->IsValidSession(lhSession) != S_OK)
     {
-        FLAGS LoginFlag = 0;
-        if ( (flFlags & MAPI_LOGON_UI) && (flFlags & MAPI_NEW_SESSION) )
-            LoginFlag = MAPI_LOGON_UI | MAPI_NEW_SESSION ;
-        else if (flFlags & MAPI_LOGON_UI)
-            LoginFlag = MAPI_LOGON_UI ;
-
+        FLAGS LoginFlag = flFlags & (MAPI_LOGON_UI | MAPI_NEW_SESSION);
         hr = MAPILogon(ulUIParam, nullptr, nullptr, LoginFlag, 0, &lhSession);
         if (hr != SUCCESS_SUCCESS)
             return MAPI_E_LOGIN_FAILURE ;
@@ -213,12 +208,7 @@ ULONG FAR PASCAL MAPISendMailW(LHANDLE lhSession, ULONG ulUIParam, nsMapiMessage
 
     if (!lhSession || pNsMapi->IsValidSession(lhSession) != S_OK)
     {
-      FLAGS LoginFlag = 0;
-      if ((flFlags & MAPI_LOGON_UI) && (flFlags & MAPI_NEW_SESSION))
-        LoginFlag = MAPI_LOGON_UI | MAPI_NEW_SESSION;
-      else if (flFlags & MAPI_LOGON_UI)
-        LoginFlag = MAPI_LOGON_UI;
-
+      FLAGS LoginFlag = flFlags & (MAPI_LOGON_UI | MAPI_NEW_SESSION);
       hr = MAPILogon(ulUIParam, nullptr, nullptr, LoginFlag, 0, &lhSession);
       if (hr != SUCCESS_SUCCESS)
         return MAPI_E_LOGIN_FAILURE;

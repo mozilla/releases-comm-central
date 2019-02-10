@@ -51,6 +51,7 @@ if CONFIG['MOZ_MAPI_SUPPORT']:
         'mapi/mapiDLL',
         'mapi/mapihook',
     ]
+    TEST_DIRS += ['mapi/test']
 
 DIRS += [
     'build',
