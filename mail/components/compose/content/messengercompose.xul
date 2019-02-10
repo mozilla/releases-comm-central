@@ -1918,6 +1918,7 @@
       <hbox id="msgheaderstoolbar-box" flex="1">
         <vbox flex="1" id="addresses-box">
           <hbox id="top-gradient-box">
+            <hbox class="aw-firstColBox"/>
             <hbox id="identityLabel-box" align="center" pack="end" style="&headersSpace.style;">
               <label id="identityLabel" value="&fromAddr.label;"
                      accesskey="&fromAddr.accesskey;" control="msgIdentity"/>
@@ -1933,10 +1934,16 @@
                        onclick="awClickEmptySpace(event.originalTarget, true)"
                        disableonsend="true">
             <treecols hidden="true">
+              <treecol id="firstcol-addressingWidget"/>
               <treecol id="typecol-addressingWidget" style="&headersSpace.style;"/>
               <treecol id="textcol-addressingWidget" flex="1"/>
             </treecols>
             <richlistitem class="addressingWidgetItem" allowevents="true">
+              <hbox class="aw-firstColBox" align="center">
+                <image class="deleteAddress close-icon"
+                       onclick="awDeleteHit(this.parentNode.nextSibling.nextSibling
+                                                .querySelector('textbox.textbox-addressingWidget'));"/>
+              </hbox>
               <hbox class="addressingWidgetCell" align="center" style="&headersSpace.style;">
                 <menulist id="addressCol1#1" disableonsend="true"
                           class="aw-menulist" flex="1"
@@ -1950,8 +1957,6 @@
                     <menuitem value="addr_followup" label="&followupAddr.label;"/>
                   </menupopup>
                 </menulist>
-                <image class="deleteAddress close-icon"
-                       onclick="awDeleteHit(this.parentNode.nextSibling.querySelector('textbox.textbox-addressingWidget'));"/>
               </hbox>
               <hbox class="addressingWidgetCell" flex="1">
                 <textbox id="addressCol2#1" class="plain textbox-addressingWidget uri-element"
@@ -1975,6 +1980,7 @@
             </richlistitem>
           </richlistbox>
           <hbox id="subject-box">
+            <hbox class="aw-firstColBox"/>
             <hbox align="center" pack="end" style="&headersSpace.style;">
               <label id="subjectLabel" value="&subject.label;" accesskey="&subject.accesskey;" control="msgSubject"/>
             </hbox>

@@ -109,7 +109,7 @@
 #msgIdentity,
 #msgSubject,
 textbox.textbox-addressingWidget,
-.dummy-row-cell:not(:first-child) {
+.dummy-row-cell:last-child {
   border-bottom-color: var(--composer-header-border-color) !important;
   color: var(--lwt-text-color);
 }

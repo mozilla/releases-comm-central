@@ -89,6 +89,7 @@ menulist {
 menulist:not([disabled="true"]):not([open="true"]):hover {
   background: var(--toolbarbutton-active-background);
   border-color: var(--toolbarbutton-active-bordercolor);
+  color: inherit;
 }
 
 menulist[open="true"] {
@@ -152,7 +153,7 @@ menulist:-moz-locale-dir(rtl) > .menulist-label-box {
   background-color: inherit;
   border: 1px solid transparent;
   border-bottom-color: var(--toolbarbutton-hover-bordercolor);
-  padding: 4px 2px;
+  padding: 3px 2px;
   padding-inline-start: 5px !important;
   transition: border .2s, background-color .2s;
 }
@@ -192,19 +193,20 @@ menulist:-moz-locale-dir(rtl) > .menulist-label-box {
 .dummy-row {
   background-color: transparent !important;
   color: inherit !important;
+  margin-top: 1px;
 }
 
 textbox.textbox-addressingWidget,
-.dummy-row-cell:not(:first-child) {
-  padding: 4px 2px !important;
+.dummy-row-cell:last-child {
+  padding: 3px 2px !important;
   padding-inline-start: 5px !important;
   border: solid 1px transparent !important;
   border-bottom-color: var(--toolbarbutton-hover-bordercolor) !important;
   transition: border .2s, background-color .2s;
  }
 
-.addressingWidgetCell:first-child,
-.dummy-row-cell:first-child {
+.addressingWidgetCell:nth-child(2),
+.dummy-row-cell:nth-child(2) {
   border-bottom-color: transparent;
 }
 
@@ -215,15 +217,8 @@ textbox.textbox-addressingWidget:hover {
 }
 
 .deleteAddress {
-  -moz-box-ordinal-group: 0;
-  cursor: default;
   margin-inline-start: 0;
-  margin-bottom: 1px;
-  width: 0;
-  height: 18px;
-  transition-property: width, margin-inline-start;
-  transition-duration: 50ms, 50ms;
-  transition-timing-function: ease-in-out, ease-in-out;
+  margin-bottom: initial;
 }
 
 .addressingWidgetCell:hover > .aw-menulist:not([open="true"]) + .deleteAddress {
@@ -234,15 +229,11 @@ textbox.textbox-addressingWidget:hover {
 .aw-menulist {
   font: inherit;
   margin: 0;
-  margin-inline-start: 5px;
+  margin-inline-start: 1px;
   margin-inline-end: 7px;
   padding-inline-end: 0;
   outline: 1px solid transparent;
   outline-offset: -3px;
-}
-
-.aw-menulist:-moz-window-inactive {
-  opacity: .7;
 }
 
 .aw-menulist > .menulist-label-box {

@@ -185,7 +185,7 @@
 }
 
 textbox.textbox-addressingWidget,
-.dummy-row-cell:not(:first-child) {
+.dummy-row-cell:last-child {
   margin-bottom: 2px !important;
   padding: 2px !important;
   padding-inline-start: 5px !important;
@@ -195,7 +195,7 @@ textbox.textbox-addressingWidget,
 
 @media (-moz-windows-default-theme: 0) {
   textbox.textbox-addressingWidget,
-  .dummy-row-cell:not(:first-child) {
+    .dummy-row-cell:last-child {
     border-bottom-color: ThreeDShadow !important;
     margin-inline-end: 1px !important;
   }
@@ -207,26 +207,14 @@ textbox.textbox-addressingWidget,
   }
 }
 
-.addressingWidgetCell:first-child,
-.dummy-row-cell:first-child {
+.addressingWidgetCell:nth-child(2),
+.dummy-row-cell:nth-child(2) {
   border-bottom-color: transparent;
 }
 
 .deleteAddress {
-  -moz-box-ordinal-group: 0;
-  cursor: default;
   margin-inline-end: 0;
   margin-bottom: 1px;
-  width: 0;
-  height: 18px;
-  transition-property: width, margin-inline-end;
-  transition-duration: 50ms, 50ms;
-  transition-timing-function: ease-in-out, ease-in-out;
-}
-
-.addressingWidgetCell:hover > .aw-menulist:not([open="true"]) + .deleteAddress {
-  margin-inline-end: 3px;
-  width: 18px;
 }
 
 .aw-menulist {
@@ -234,6 +222,9 @@ textbox.textbox-addressingWidget,
   -moz-box-align: center;
   -moz-box-pack: center;
   color: ButtonText;
+  margin: 0 1px 2px;
+  margin-inline-end: 4px;
+  padding: 3px 0 !important;
 }
 
 .aw-menulist:-moz-focusring:not([open="true"]) > .menulist-label-box {
@@ -658,7 +649,7 @@ toolbar:not(:-moz-lwtheme) {
 
 @media (-moz-windows-default-theme) {
   textbox.textbox-addressingWidget,
-  .dummy-row-cell:not(:first-child) {
+  .dummy-row-cell:last-child {
     border-bottom-color: #a9b7c9 !important;
   }
 
@@ -715,13 +706,10 @@ toolbar:not(:-moz-lwtheme) {
   fill: currentColor;
 }
 
-.aw-menulist[disabled="true"] {
-  opacity: 0.5;
-}
-
 .aw-menulist > .menulist-label-box > .menulist-icon {
   width: 9px;
   height: 7px;
+  margin-inline-start: 2px;
 }
 
 @media (-moz-windows-default-theme: 0) {
@@ -735,10 +723,6 @@ toolbar:not(:-moz-lwtheme) {
     background-color: rgba(128, 128, 128, .45);
   }
 
-  .aw-menulist:-moz-window-inactive {
-    opacity: .7;
-  }
-
   .aw-menulist:focus:not([open="true"]) > .menulist-label-box {
     background-color: inherit;
     color: inherit;
@@ -747,10 +731,6 @@ toolbar:not(:-moz-lwtheme) {
 
 .aw-menulist > .menulist-label-box {
   margin: -1px 0;
-}
-
-.aw-menulist > .menulist-label-box > .menulist-icon {
-  margin-inline-start: 2px;
 }
 
 .aw-menulist > .menulist-label-box > .menulist-label {
@@ -806,25 +786,7 @@ toolbar:not(:-moz-lwtheme) {
   }
 
   .aw-menulist {
-    margin: 0 1px 2px;
-    margin-inline-end: 4px;
-    padding: 2px 0 !important;
-    border-color: rgba(23, 51, 78, .08) rgba(23, 51, 78, .12)
-                  rgba(23, 51, 78, .1);
-    background-image: linear-gradient(hsla(0, 0%, 100%, .2),
-                      hsla(0, 0%, 100%, .1));
     box-shadow: none;
-  }
-}
-
-@media (-moz-os-version: windows-win8) and (-moz-windows-default-theme),
-       (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
-  .aw-menulist {
-    margin: 0 1px 2px;
-    margin-inline-end: 4px;
-    padding: 2px 0 !important;
-    background-color: hsla(210, 4%, 10%, .04);
-    border-color: hsla(210, 4%, 10%, .05);
   }
 }
 

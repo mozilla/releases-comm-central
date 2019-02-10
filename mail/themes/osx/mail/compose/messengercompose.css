@@ -262,7 +262,7 @@ toolbar[nowindowdrag="true"] {
 }
 
 textbox.textbox-addressingWidget,
-.dummy-row-cell:not(:first-child) {
+.dummy-row-cell:last-child {
   border: 1px solid transparent !important;
   border-bottom-color: #C6C6C6 !important;
   border-top-left-radius: 2px;
@@ -283,14 +283,8 @@ textbox.textbox-addressingWidget:hover {
 }
 
 .deleteAddress {
-  -moz-box-ordinal-group: 0;
-  cursor: default;
+  margin-top: 1px;
   margin-inline-end: 0;
-  width: 0;
-  height: 18px;
-  transition-property: width, margin-inline-end;
-  transition-duration: 50ms, 50ms;
-  transition-timing-function: ease-in-out, ease-in-out;
 }
 
 .addressingWidgetCell:hover > .aw-menulist:not([open="true"]) + .deleteAddress {
@@ -304,13 +298,11 @@ textbox.textbox-addressingWidget:hover {
   -moz-box-pack: center;
   margin: 1px;
   margin-inline-end: 4px;
-  background-color: rgba(200, 200, 200, .4) !important;
-  border: rgba(149, 165, 166, .3) 1px solid;
+  border: 1px solid transparent;
   border-radius: 2px;
-  background-repeat: no-repeat;
-  background-position: 3px center;
-  background-size: 9px 7px;
-  background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
+  background: var(--toolbarbutton-active-background);
+  border-color: var(--toolbarbutton-active-bordercolor);
+  list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
   -moz-context-properties: fill;
   fill: currentColor;
   transition: background-color .25s ease-in;
@@ -320,17 +312,21 @@ textbox.textbox-addressingWidget:hover {
   background-position: calc(100% - 3px) center;
 }
 
-.aw-menulist:-moz-window-inactive {
-  opacity: .7;
-}
-
-.aw-menulist:hover {
-  background-color: rgba(150, 150, 150, .4) !important;
+.aw-menulist[open="true"] {
+  background: var(--toolbarbutton-active-background);
+  border-color: var(--toolbarbutton-active-bordercolor);
+  box-shadow: var(--toolbarbutton-active-boxshadow);
 }
 
 .aw-menulist:focus {
   border-color: -moz-mac-focusring;
   box-shadow: 0 0 1.5px 1px -moz-mac-focusring;
+}
+
+.aw-menulist > .menulist-label-box > .menulist-icon {
+  width: 9px;
+  height: 7px;
+  margin-inline-start: 2px;
 }
 
 .aw-menulist  > .menulist-label-box > .menulist-label {

@@ -258,6 +258,39 @@
   margin-inline-start: 1ex !important;
 }
 
+.aw-firstColBox,
+#firstcol-addressingWidget,
+.dummy-row-cell:first-child {
+  width: 21px;
+}
+
+.deleteAddress {
+  cursor: default;
+  margin-inline-end: 3px;
+  margin-bottom: 1px;
+  width: 18px;
+  height: 18px;
+  transition-property: width, margin-inline-end;
+  transition-duration: 50ms, 50ms;
+  transition-timing-function: ease-in-out, ease-in-out;
+}
+
+.addressingWidgetItem:not(:hover):not(:focus-within) .aw-menulist {
+  border-color: transparent;
+  background: transparent;
+}
+
+.addressingWidgetItem:not(:hover):not(:focus-within) .deleteAddress,
+.addressingWidgetItem:not(:hover):not(:focus-within) .aw-menulist > .menulist-label-box {
+  fill: transparent;
+}
+
+.aw-menulist:focus,
+.aw-menulist[focused="true"] {
+  background: var(--toolbarbutton-active-background);
+  border-color: var(--toolbarbutton-active-bordercolor);
+}
+
 /* :::: Format toolbar :::: */
 
 #FormatToolbar > toolbarbutton > .toolbarbutton-text {
