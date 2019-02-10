@@ -484,25 +484,26 @@ nsMsgAttachmentHandler::PickEncoding(const char *charset, nsIMsgSend *mime_deliv
     m_encoder = nullptr;
   }
 
-  /* Do some cleanup for documents with unknown content type.
+  /*
+    Do some cleanup for documents with unknown content type.
     There are two issues: how they look to MIME users, and how they look to
     non-MIME users.
 
-      If the user attaches a "README" file, which has unknown type because it
-      has no extension, we still need to send it with no encoding, so that it
-      is readable to non-MIME users.
+    If the user attaches a "README" file, which has unknown type because it
+    has no extension, we still need to send it with no encoding, so that it
+    is readable to non-MIME users.
 
-        But if the user attaches some random binary file, then base64 encoding
-        will have been chosen for it (above), and in this case, it won't be
-        immediately readable by non-MIME users.  However, if we type it as
-        text/plain instead of application/octet-stream, it will show up inline
-        in a MIME viewer, which will probably be ugly, and may possibly have
-        bad charset things happen as well.
+    But if the user attaches some random binary file, then base64 encoding
+    will have been chosen for it (above), and in this case, it won't be
+    immediately readable by non-MIME users.  However, if we type it as
+    text/plain instead of application/octet-stream, it will show up inline
+    in a MIME viewer, which will probably be ugly, and may possibly have
+    bad charset things happen as well.
 
-          So, the heuristic we use is, if the type is unknown, then the type is
-          set to application/octet-stream for data which needs base64 (binary data)
-          and is set to text/plain for data which didn't need base64 (unencoded or
-          lightly encoded data.)
+    So, the heuristic we use is, if the type is unknown, then the type is
+    set to application/octet-stream for data which needs base64 (binary data)
+    and is set to text/plain for data which didn't need base64 (unencoded or
+    lightly encoded data.)
   */
 DONE:
   if (m_type.IsEmpty() || m_type.LowerCaseEqualsLiteral(UNKNOWN_CONTENT_TYPE))
