@@ -13,7 +13,7 @@ const JSIRC_ERR_PAC_LOADING = "JSIRCE:PAC_LOADING";
 
 const JSIRCV3_SUPPORTED_CAPS = [
     "account-notify",
-    //"account-tag",
+    "account-tag",
     "away-notify",
     //"batch",
     "cap-notify",
@@ -1510,6 +1510,11 @@ function serv_onRawData(e)
                     e.user = new CIRCUser(this, null, ary[1], ary[2], null);
             }
         }
+    }
+
+    if (("user" in e) && e.user && e.tags.account)
+    {
+        e.user.account = e.tags.account;
     }
 
     e.ignored = false;
