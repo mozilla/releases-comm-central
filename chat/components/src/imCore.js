@@ -3,7 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
-var {XPCOMUtils, ClassInfo, initLogModule} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var {
+  XPCOMUtils,
+  ClassInfo,
+  initLogModule,
+  nsSimpleEnumerator,
+} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyServiceGetter(this, "categoryManager",
                                    "@mozilla.org/categorymanager;1",
