@@ -1248,16 +1248,16 @@ chatLogTreeView.prototype = {
     let chatBundle = document.getElementById("chatBundle");
     let dateFormatBundle = document.getElementById("bundle_dateformat");
     let placesBundle = document.getElementById("bundle_places");
+    const dateFormatter = new Services.intl.DateTimeFormat(undefined, {
+      dateStyle: "short",
+    });
     let formatDate = function(aDate) {
-      const dateFormatter = new Services.intl.DateTimeFormat(undefined, {
-        dateStyle: "short",
-      });
       return dateFormatter.format(aDate);
     };
+    const dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
+      dateStyle: "short", timeStyle: "short",
+    });
     let formatDateTime = function(aDate) {
-      const dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
-        dateStyle: "short", timeStyle: "short",
-      });
       return dateTimeFormatter.format(aDate);
     };
     let formatMonthYear = function(aDate) {
