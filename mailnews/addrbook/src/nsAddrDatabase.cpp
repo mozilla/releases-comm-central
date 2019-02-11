@@ -1200,6 +1200,9 @@ NS_IMETHODIMP nsAddrDatabase::CreateNewListCardAndAddToDB(nsIAbDirectory *aList,
   rv = newCard->GetPrimaryEmail(newEmail);
   NS_ENSURE_SUCCESS(rv,rv);
 
+  if (newEmail.IsEmpty())
+    return NS_OK;
+
   uint32_t i;
   for (i = 0; i < count; i++) {
     nsCOMPtr<nsIAbCard> currentCard = do_QueryElementAt(addressList, i, &rv);

@@ -48,4 +48,39 @@ function run_test() {
   ok(listCards.hasMoreElements());
   equal(contact3.UID, listCards.getNext().QueryInterface(Ci.nsIAbCard).UID);
   ok(!listCards.hasMoreElements());
+
+  // list.addressLists should contain contacts 1 and 3.
+  let listEnum = list.addressLists.enumerate();
+  ok(listEnum.hasMoreElements());
+  equal(contact1.UID, listEnum.getNext().QueryInterface(Ci.nsIAbCard).UID);
+  ok(listEnum.hasMoreElements());
+  equal(contact3.UID, listEnum.getNext().QueryInterface(Ci.nsIAbCard).UID);
+  ok(!listEnum.hasMoreElements());
+
+  // Reload the address book manager.
+  Services.obs.notifyObservers(null, "addrbook-reload");
+
+  MailServices.ab.directories;
+  book = MailServices.ab.getDirectory(kPABData.URI);
+
+  // For some unknown reason this is necessary for book.addressLists to be populated.
+  book.QueryInterface(Ci.nsIAbMDBDirectory).database.getMailingListsFromDB(book);
+  equal(1, book.addressLists.Count());
+  list = book.addressLists.GetElementAt(0).QueryInterface(Ci.nsIAbDirectory);
+
+  // list.childCards should contain contacts 1 and 3.
+  listCards = list.childCards;
+  ok(listCards.hasMoreElements());
+  equal(contact1.UID, listCards.getNext().QueryInterface(Ci.nsIAbCard).UID);
+  ok(listCards.hasMoreElements());
+  equal(contact3.UID, listCards.getNext().QueryInterface(Ci.nsIAbCard).UID);
+  ok(!listCards.hasMoreElements());
+
+  // list.addressLists should contain contacts 1 and 3.
+  listEnum = list.addressLists.enumerate();
+  ok(listEnum.hasMoreElements());
+  equal(contact1.UID, listEnum.getNext().QueryInterface(Ci.nsIAbCard).UID);
+  ok(listEnum.hasMoreElements());
+  equal(contact3.UID, listEnum.getNext().QueryInterface(Ci.nsIAbCard).UID);
+  ok(!listEnum.hasMoreElements());
 }

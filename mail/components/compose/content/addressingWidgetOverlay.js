@@ -5,6 +5,8 @@
 
 /* import-globals-from MsgComposeCommands.js */
 
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
 top.MAX_RECIPIENTS = 1; /* for the initial listitem created in the XUL */
 
 var inputElementType = "";
