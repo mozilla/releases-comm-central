@@ -136,11 +136,19 @@
                        disable-on-readonly="true"
                        disable-on-occurrence="true"
                        control="daypicker-weekday"/>
-                <daypicker-weekday id="daypicker-weekday"
-                                   flex="1"
-                                   disable-on-readonly="true"
-                                   disable-on-occurrence="true"
-                                   onselect="updateRecurrenceControls();"/>
+                <hbox id="daypicker-weekday"
+                      flex="1"
+                      disable-on-readonly="true"
+                      disable-on-occurrence="true"
+                      onselect="updateRecurrenceControls();">
+                  <daypicker bottom="true" mode="daypicker-weekday"/>
+                  <daypicker bottom="true" mode="daypicker-weekday"/>
+                  <daypicker bottom="true" mode="daypicker-weekday"/>
+                  <daypicker bottom="true" mode="daypicker-weekday"/>
+                  <daypicker bottom="true" mode="daypicker-weekday"/>
+                  <daypicker bottom="true" mode="daypicker-weekday"/>
+                  <daypicker bottom="true" right="true" mode="daypicker-weekday"/>
+                </hbox>
               </hbox>
             </vbox>
 

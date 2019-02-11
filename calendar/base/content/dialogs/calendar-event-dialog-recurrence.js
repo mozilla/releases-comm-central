@@ -224,11 +224,76 @@ const RecurrencePreview = {
 };
 
 /**
+ * An object containing the daypicker-weekday binding functionalities.
+ */
+const DaypickerWeekday = {
+    /**
+     * Method intitializing DaypickerWeekday.
+     */
+    init() {
+        this.weekStartOffset = Services.prefs.getIntPref("calendar.week.start", 0);
+
+        let mainbox = document.getElementById("daypicker-weekday");
+        let numChilds = mainbox.childNodes.length;
+        for (let i = 0; i < numChilds; i++) {
+            let child = mainbox.childNodes[i];
+            let dow = i + this.weekStartOffset;
+            if (dow >= 7) {
+                dow -= 7;
+            }
+            let day = cal.l10n.getString("dateFormat", `day.${dow + 1}.Mmm`);
+            child.label = day;
+            child.calendar = mainbox;
+        }
+    },
+    /**
+     * Getter for days property.
+     */
+    get days() {
+        let mainbox = document.getElementById("daypicker-weekday");
+        let numChilds = mainbox.childNodes.length;
+        let days = [];
+        for (let i = 0; i < numChilds; i++) {
+            let child = mainbox.childNodes[i];
+            if (child.getAttribute("checked") == "true") {
+                let index = i + this.weekStartOffset;
+                if (index >= 7) {
+                    index -= 7;
+                }
+                days.push(index + 1);
+            }
+        }
+        return days;
+    },
+    /**
+     * The weekday-picker manages an array of selected days of the week and
+     * the 'days' property is the interface to this array. the expected argument is
+     * an array containing integer elements, where each element represents a selected
+     * day of the week, starting with SUNDAY=1.
+     */
+    set days(val) {
+        let mainbox = document.getElementById("daypicker-weekday");
+        for (let child of mainbox.childNodes) {
+            child.removeAttribute("checked");
+        }
+        for (let i in val) {
+            let index = val[i] - 1 - this.weekStartOffset;
+            if (index < 0) {
+                index += 7;
+            }
+            mainbox.childNodes[index].setAttribute("checked", "true");
+        }
+        return val;
+    }
+};
+
+/**
  * Sets up the recurrence dialog from the window arguments. Takes care of filling
  * the dialog controls with the recurrence information for this window.
  */
 function onLoad() {
     RecurrencePreview.init();
+    DaypickerWeekday.init();
     changeWidgetsOrder();
 
     let args = window.arguments[0];
@@ -357,9 +422,9 @@ function initializeControls(rule) {
 
     // "WEEKLY" ruletype
     if (byDayRuleComponent.length == 0 || rule.type != "WEEKLY") {
-        document.getElementById("daypicker-weekday").days = [startDate.weekday + 1];
+        DaypickerWeekday.days = [startDate.weekday + 1];
     } else {
-        document.getElementById("daypicker-weekday").days = byDayRuleComponent;
+        DaypickerWeekday.days = byDayRuleComponent;
     }
 
     // "MONTHLY" ruletype
@@ -509,7 +574,7 @@ function onSave(item) {
             recRule.type = "WEEKLY";
             let ndays = Number(getElementValue("weekly-weeks"));
             recRule.interval = ndays;
-            let onDays = document.getElementById("daypicker-weekday").days;
+            let onDays = DaypickerWeekday.days;
             if (onDays.length > 0) {
                 recRule.setComponent("BYDAY", onDays.length, onDays);
             }

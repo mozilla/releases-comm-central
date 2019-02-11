@@ -292,7 +292,7 @@ listbox[disabled="true"] {
     color: -moz-FieldText;
 }
 
-daypicker-weekday {
+#daypicker-weekday {
     margin-top: 2px;
 }
 

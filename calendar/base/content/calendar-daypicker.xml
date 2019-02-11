@@ -37,103 +37,12 @@
       <constructor><![CDATA[
           this.setAttribute("autoCheck", "true");
           this.setAttribute("type", "checkbox");
+          this.setAttribute("disable-on-readonly", "true");
+          this.setAttribute("disable-on-occurrence", "true");
           this.addEventListener("DOMAttrModified", this.onmodified);
       ]]></constructor>
     </implementation>
   </binding>
-
-  <!--
-  ########################################################################
-  ## daypicker-weekday
-  ########################################################################
-  -->
-
-  <binding id="daypicker-weekday" extends="xul:box">
-    <content>
-      <xul:hbox anonid="mainbox" flex="1">
-        <xul:daypicker bottom="true" xbl:inherits="disabled,mode=id"/>
-        <xul:daypicker bottom="true" xbl:inherits="disabled,mode=id"/>
-        <xul:daypicker bottom="true" xbl:inherits="disabled,mode=id"/>
-        <xul:daypicker bottom="true" xbl:inherits="disabled,mode=id"/>
-        <xul:daypicker bottom="true" xbl:inherits="disabled,mode=id"/>
-        <xul:daypicker bottom="true" xbl:inherits="disabled,mode=id"/>
-        <xul:daypicker bottom="true" right="true" xbl:inherits="disabled,mode=id"/>
-      </xul:hbox>
-    </content>
-
-    <implementation>
-      <!--
-      The weekday-picker manages an array of selected days of the week and
-      the 'days' property is the interface to this array. the expected argument is
-      an array containing integer elements, where each element represents a selected
-      day of the week, starting with SUNDAY=1.
-      -->
-      <property name="days">
-        <setter><![CDATA[
-            let mainbox =
-                document.getAnonymousElementByAttribute(
-                    this, "anonid", "mainbox");
-            let numChilds = mainbox.childNodes.length;
-            for (let i = 0; i < numChilds; i++) {
-                let child = mainbox.childNodes[i];
-                child.removeAttribute("checked");
-            }
-            for (let i = 0; i < val.length; i++) {
-                let index = val[i] - 1 - this.weekStartOffset;
-                if (index < 0) {
-                    index += 7;
-                }
-                mainbox.childNodes[index].setAttribute("checked", "true");
-            }
-            return val;
-        ]]></setter>
-        <getter><![CDATA[
-            let mainbox =
-                document.getAnonymousElementByAttribute(
-                    this, "anonid", "mainbox");
-            let numChilds = mainbox.childNodes.length;
-            let days = [];
-            for (let i = 0; i < numChilds; i++) {
-                let child = mainbox.childNodes[i];
-                if (child.getAttribute("checked") == "true") {
-                    let index = i + this.weekStartOffset;
-                    if (index >= 7) {
-                        index -= 7;
-                    }
-                    days.push(index + 1);
-                }
-            }
-            return days;
-        ]]></getter>
-      </property>
-
-      <constructor><![CDATA[
-          const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-          const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
-
-          this.weekStartOffset = Preferences.get("calendar.week.start", 0);
-
-          let props =
-              Services.strings.createBundle(
-                  "chrome://calendar/locale/dateFormat.properties");
-          let mainbox =
-              document.getAnonymousElementByAttribute(
-                  this, "anonid", "mainbox");
-          let numChilds = mainbox.childNodes.length;
-          for (let i = 0; i < numChilds; i++) {
-              let child = mainbox.childNodes[i];
-              let dow = i + this.weekStartOffset;
-              if (dow >= 7) {
-                  dow -= 7;
-              }
-              let day = props.GetStringFromName("day." + (dow + 1) + ".Mmm");
-              child.label = day;
-              child.calendar = this;
-          }
-      ]]></constructor>
-    </implementation>
-  </binding>
-
   <!--
   ########################################################################
   ## daypicker-monthday

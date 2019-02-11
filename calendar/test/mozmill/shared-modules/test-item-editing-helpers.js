@@ -68,8 +68,7 @@ var REC_DLG_ACCEPT = `
 var REC_DLG_DAYS = `
     /id("calendar-event-dialog-recurrence")/id("recurrence-pattern-groupbox")/
     id("recurrence-pattern-grid")/id("recurrence-pattern-rows")/id("recurrence-pattern-period-row")/
-    id("period-deck")/id("period-deck-weekly-box")/[1]/id("daypicker-weekday")/
-    anon({"anonid":"mainbox"})
+    id("period-deck")/id("period-deck-weekly-box")/[1]/id("daypicker-weekday")
 `;
 var REC_DLG_UNTIL_INPUT = `
     /id("calendar-event-dialog-recurrence")/id("recurrence-range-groupbox")/[1]/
