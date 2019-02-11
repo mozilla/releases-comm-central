@@ -129,11 +129,11 @@ class MozMill(object):
                  runner_class=mozrunner.FirefoxRunner,
                  profile_class=mozprofile.FirefoxProfile,
                  jsbridge_port=24242,
-                 jsbridge_timeout=60):
+                 jsbridge_timeout=90):
         """
         - runner_class : which mozrunner class to use
         - profile_class : which class to use to generate application profiles
-        - jsbridge_port : port jsbridge uses to connect to to the application
+        - jsbridge_port : port jsbridge uses to connect to the application
         - jsbridge_timeout : how long to go without jsbridge communication
         """
 

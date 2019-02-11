@@ -362,7 +362,7 @@ class ThunderTestCLI(mozmill.CLI):
         global SYMBOLS_PATH, PLUGINS_PATH, TEST_NAME, TESTING_MODULES_DIR
 
         # note: we previously hardcoded a JS bridge timeout of 300 seconds,
-        # but the default is now 60 seconds...
+        # but the default is now 90 seconds...
         mozmill.CLI.__init__(self, *args, **kwargs)
 
         # Mozrunner expects the filename on OS X to point to the executable, but
