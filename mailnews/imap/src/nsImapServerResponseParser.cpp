@@ -3174,13 +3174,11 @@ bool nsImapServerResponseParser::msg_fetch_literal(bool chunk, int32_t origin)
         if (fTotalDownloadSize > 0)
           fServerConnection.PercentProgressUpdateEvent(0, charsReadSoFar + origin, fTotalDownloadSize);
       }
-      if (!lastChunk && (charsReadSoFar > numberOfCharsInThisChunk))
+      if (charsReadSoFar > numberOfCharsInThisChunk)
       {
-        // This is the last line of a chunk but not the last chunk of a multi-chunk
-        // message or the only "chunk" of a smaller non-chunked message. "Literal" here
-        // means actual email data and its EOLs, without imap protocol elements and their
-        // EOLs. End of line is defined by two characters \r\n (i.e., CRLF, 0xd,0xa)
-        // specified by RFC822.
+        // This is the last line of a chunk. "Literal" here means actual email data and
+        // its EOLs, without imap protocol elements and their EOLs. End of line is
+        // defined by two characters \r\n (i.e., CRLF, 0xd,0xa) specified by RFC822.
         // Here is an example the most typical last good line of a chunk:
         // "1s8AA5i4AAvF4QAG6+sAAD0bAPsAAAAA1OAAC)\r\n", where ")\r\n" are non-literals.
         // This an example of the last "good" line of a chunk that terminates with \r\n
@@ -3250,7 +3248,7 @@ bool nsImapServerResponseParser::msg_fetch_literal(bool chunk, int32_t origin)
       }
       else
       {
-        // Not the last line of a chunk or any line when lastChunk.
+        // Not the last line of a chunk.
         if (!fNextChunkStartsWithNewline)
         {
           // Process unmodified fCurrentLine string.
