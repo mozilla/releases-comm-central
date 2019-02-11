@@ -246,10 +246,54 @@
                          label="&event.recurrence.repeat.recur.label;"
                          disable-on-readonly="true"
                          disable-on-occurrence="true"/>
-                  <daypicker-monthday id="monthly-days"
-                                      onselect="updateRecurrenceControls();"
-                                      disable-on-readonly="true"
-                                      disable-on-occurrence="true"/>
+                  <hbox id="monthly-days"
+                        class="daypicker-monthday"
+                        onselect="updateRecurrenceControls();">
+                    <vbox class="daypicker-monthday-mainbox" flex="1">
+                      <hbox class="daypicker-row" flex="1">
+                        <daypicker label="1" mode="monthly-days"/>
+                        <daypicker label="2" mode="monthly-days"/>
+                        <daypicker label="3" mode="monthly-days"/>
+                        <daypicker label="4" mode="monthly-days"/>
+                        <daypicker label="5" mode="monthly-days"/>
+                        <daypicker label="6" mode="monthly-days"/>
+                        <daypicker label="7" right="true" mode="monthly-days"/>
+                      </hbox>
+                      <hbox class="daypicker-row" flex="1">
+                        <daypicker label="8" mode="monthly-days"/>
+                        <daypicker label="9" mode="monthly-days"/>
+                        <daypicker label="10" mode="monthly-days"/>
+                        <daypicker label="11" mode="monthly-days"/>
+                        <daypicker label="12" mode="monthly-days"/>
+                        <daypicker label="13" mode="monthly-days"/>
+                        <daypicker label="14" right="true" mode="monthly-days"/>
+                      </hbox>
+                      <hbox class="daypicker-row" flex="1">
+                        <daypicker label="15" mode="monthly-days"/>
+                        <daypicker label="16" mode="monthly-days"/>
+                        <daypicker label="17" mode="monthly-days"/>
+                        <daypicker label="18" mode="monthly-days"/>
+                        <daypicker label="19" mode="monthly-days"/>
+                        <daypicker label="20" mode="monthly-days"/>
+                        <daypicker label="21" right="true" mode="monthly-days"/>
+                      </hbox>
+                      <hbox class="daypicker-row" flex="1">
+                        <daypicker label="22" mode="monthly-days"/>
+                        <daypicker label="23" mode="monthly-days"/>
+                        <daypicker label="24" mode="monthly-days"/>
+                        <daypicker label="25" mode="monthly-days"/>
+                        <daypicker label="26" mode="monthly-days"/>
+                        <daypicker label="27" mode="monthly-days"/>
+                        <daypicker label="28" right="true" mode="monthly-days"/>
+                      </hbox>
+                      <hbox class="daypicker-row" flex="1">
+                        <daypicker bottom="true" label="29" mode="monthly-days"/>
+                        <daypicker bottom="true" label="30" mode="monthly-days"/>
+                        <daypicker bottom="true" label="31" mode="monthly-days"/>
+                        <daypicker bottom="true" right="true" label="" mode="monthly-days"/>
+                      </hbox>
+                    </vbox>
+                  </hbox>
                 </box>
               </radiogroup>
             </vbox>

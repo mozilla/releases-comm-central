@@ -288,12 +288,92 @@ const DaypickerWeekday = {
 };
 
 /**
+ * An object containing the daypicker-monthday binding functionalities.
+ */
+const DaypickerMonthday = {
+    /**
+     * Method intitializing DaypickerMonthday.
+     */
+    init() {
+        let mainbox = document.querySelector(".daypicker-monthday-mainbox");
+        let child = null;
+        for (let row of mainbox.childNodes) {
+            for (child of row.childNodes) {
+                child.calendar = mainbox;
+            }
+        }
+        let labelLastDay = cal.l10n.getString(
+            "calendar-event-dialog", "eventRecurrenceMonthlyLastDayLabel"
+        );
+        child.setAttribute("label", labelLastDay);
+    },
+    /**
+     * Setter for days property.
+     */
+    set days(val) {
+        let mainbox = document.querySelector(".daypicker-monthday-mainbox");
+        let days = [];
+        for (let row of mainbox.childNodes) {
+            for (let child of row.childNodes) {
+                child.removeAttribute("checked");
+                days.push(child);
+            }
+        }
+        for (let i in val) {
+            let lastDayOffset = val[i] == -1 ? 0 : -1;
+            let index = (val[i] < 0) ? val[i] + days.length + lastDayOffset : (val[i] - 1);
+            days[index].setAttribute("checked", "true");
+        }
+        return val;
+    },
+    /**
+     * Getter for days property.
+     */
+    get days() {
+        let mainbox = document.querySelector(".daypicker-monthday-mainbox");
+        let days = [];
+        for (let row of mainbox.childNodes) {
+            for (let child of row.childNodes) {
+                if (child.getAttribute("checked") == "true") {
+                    days.push(Number(child.label) ? Number(child.label) : -1);
+                }
+            }
+        }
+        return days;
+    },
+    /**
+     * Disables daypicker elements.
+     */
+    disable() {
+        let mainbox = document.querySelector(".daypicker-monthday-mainbox");
+        for (let row of mainbox.childNodes) {
+            for (let child of row.childNodes) {
+                child.setAttribute("disabled", "true");
+            }
+        }
+    },
+    /**
+     * Enables daypicker elements.
+     */
+    enable() {
+        let mainbox = document.querySelector(".daypicker-monthday-mainbox");
+        for (let row of mainbox.childNodes) {
+            for (let child of row.childNodes) {
+                child.removeAttribute("disabled");
+            }
+        }
+    }
+};
+
+
+/**
  * Sets up the recurrence dialog from the window arguments. Takes care of filling
  * the dialog controls with the recurrence information for this window.
  */
 function onLoad() {
     RecurrencePreview.init();
     DaypickerWeekday.init();
+    DaypickerMonthday.init();
     changeWidgetsOrder();
 
     let args = window.arguments[0];
@@ -432,7 +512,7 @@ function initializeControls(rule) {
                                byMonthDayRuleComponent.length == 0);
     if (ruleComponentsEmpty || rule.type != "MONTHLY") {
         document.getElementById("monthly-group").selectedIndex = 1;
-        document.getElementById("monthly-days").days = [startDate.day];
+        DaypickerMonthday.days = [startDate.day];
         let day = Math.floor((startDate.day - 1) / 7) + 1;
         setElementValue("monthly-ordinal", day);
         setElementValue("monthly-weekday", startDate.weekday + 1);
@@ -454,7 +534,7 @@ function initializeControls(rule) {
         setElementValue("monthly-weekday", byMonthDayRuleComponent[0]);
     } else if (byMonthDayRuleComponent.length > 0) {
         document.getElementById("monthly-group").selectedIndex = 1;
-        document.getElementById("monthly-days").days = byMonthDayRuleComponent;
+        DaypickerMonthday.days = byMonthDayRuleComponent;
     }
 
     // "YEARLY" ruletype
@@ -602,7 +682,7 @@ function onSave(item) {
                     recRule.setComponent("BYDAY", onDays.length, onDays);
                 }
             } else {
-                let monthlyDays = document.getElementById("monthly-days").days;
+                let monthlyDays = DaypickerMonthday.days;
                 if (monthlyDays.length > 0) {
                     recRule.setComponent("BYMONTHDAY", monthlyDays.length, monthlyDays);
                 }
@@ -951,12 +1031,12 @@ function updateRecurrencePattern() {
             let monthlyGroup = document.getElementById("monthly-group");
             let monthlyOrdinal = document.getElementById("monthly-ordinal");
             let monthlyWeekday = document.getElementById("monthly-weekday");
-            let monthlyDays = document.getElementById("monthly-days");
+            let monthlyDays = DaypickerMonthday;
             monthlyOrdinal.removeAttribute("disabled");
             monthlyWeekday.removeAttribute("disabled");
-            monthlyDays.removeAttribute("disabled");
+            monthlyDays.enable();
             if (monthlyGroup.selectedIndex == 0) {
-                monthlyDays.setAttribute("disabled", "true");
+                monthlyDays.disable();
             } else {
                 monthlyOrdinal.setAttribute("disabled", "true");
                 monthlyWeekday.setAttribute("disabled", "true");

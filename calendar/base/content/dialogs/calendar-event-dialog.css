@@ -6,8 +6,7 @@
     -moz-user-focus: normal;
 }
 
-daypicker-monthday {
-    -moz-binding: url(chrome://calendar/content/calendar-daypicker.xml#daypicker-monthday);
+.daypicker-monthday {
     -moz-user-focus: normal;
 }
 
