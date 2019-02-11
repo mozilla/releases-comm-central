@@ -1,4 +1,7 @@
 {
+  "extensionDescription": {
+    "message": "Sdílejte své přílohy pomocí WeTransfer"
+  },
   "extensionName": {
     "message": "FileLink pro WeTransfer"
   },

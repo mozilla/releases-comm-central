@@ -133,6 +133,9 @@ FINAL_TARGET_FILES._locales.sq += [
 FINAL_TARGET_FILES._locales.sv_SE += [
     '_locales/sv_SE/messages.json',
 ]
+FINAL_TARGET_FILES._locales.th += [
+    '_locales/th/messages.json',
+]
 FINAL_TARGET_FILES._locales.tr += [
     '_locales/tr/messages.json',
 ]
