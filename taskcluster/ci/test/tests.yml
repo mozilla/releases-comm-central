@@ -110,10 +110,10 @@ mochitest-thunderbird:
     description: "Mochitest browser-chrome-thunderbird run"
     suite: mochitest/browser-chrome-thunderbird
     treeherder-symbol: M(bct)
-    run-on-projects: []  # Don't run during testing phase
+    run-on-projects: built-projects
     loopback-video: true
     max-run-time: 3600
-    e10s: true
+    e10s: false
     serviceworker-e10s: false
     mozharness:
         script: desktop_unittest.py
