@@ -509,6 +509,21 @@
   <!-- preview -->
   <groupbox id="preview-border" flex="1">
     <label id="recurrence-preview-label" class="header">&event.recurrence.preview.label;</label>
-    <recurrence-preview id="recurrence-preview" flex="1"/>
+    <box id="recurrence-preview" flex="1">
+      <grid flex="1">
+        <columns>
+          <column class="first-column"/>
+          <column flex="1"/>
+        </columns>
+        <rows>
+          <row>
+            <minimonth readonly="true"/>
+            <minimonth readonly="true"/>
+            <minimonth readonly="true"/>
+            <spacer/>
+          </row>
+        </rows>
+      </grid>
+    </box>
   </groupbox>
 </dialog>

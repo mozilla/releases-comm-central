@@ -57,7 +57,6 @@ calendar.jar:
     content/calendar/calendar-event-dialog-freebusy.xml    (content/dialogs/calendar-event-dialog-freebusy.xml)
     content/calendar/calendar-event-dialog-recurrence.xul  (content/dialogs/calendar-event-dialog-recurrence.xul)
     content/calendar/calendar-event-dialog-recurrence.js   (content/dialogs/calendar-event-dialog-recurrence.js)
-    content/calendar/calendar-event-dialog-recurrence-preview.xml  (content/dialogs/calendar-event-dialog-recurrence-preview.xml)
     content/calendar/calendar-event-dialog-reminder.js     (content/dialogs/calendar-event-dialog-reminder.js)
     content/calendar/calendar-event-dialog-reminder.xul    (content/dialogs/calendar-event-dialog-reminder.xul)
     content/calendar/calendar-event-dialog-timezone.js     (content/dialogs/calendar-event-dialog-timezone.js)

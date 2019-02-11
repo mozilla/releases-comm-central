@@ -12,11 +12,6 @@ daypicker-monthday {
     -moz-user-focus: normal;
 }
 
-recurrence-preview {
-    -moz-binding: url(chrome://calendar/content/calendar-event-dialog-recurrence-preview.xml#recurrence-preview);
-    -moz-user-focus: normal;
-}
-
 /****************************************************************************************/
 
 attendees-list {

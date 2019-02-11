@@ -14,10 +14,221 @@ var gEndTime = null;
 var gUntilDate = null;
 
 /**
+ * Object wrapping the methods and properties of recurrence-preview binding.
+ */
+const RecurrencePreview = {
+    /**
+     * Initializes some properties and adds event listener to the #recurrence-preview node.
+     */
+    init() {
+        this.node = document.getElementById("recurrence-preview");
+        this.mRecurrenceInfo = null;
+        this.mResizeHandler = null;
+        this.mDateTime = null;
+        this.mResizeHandler = this.onResize.bind(this);
+        window.addEventListener("resize", this.mResizeHandler, true);
+    },
+    /**
+     * Removes the event listener added in init method.
+     */
+    destruct() {
+        window.removeEventListener("resize", this.mResizeHandler, true);
+    },
+    /**
+     * Setter for mDateTime property.
+     * @param {date} val - The date value that is to be set.
+     */
+    set dateTime(val) {
+        this.mDateTime = val.clone();
+        return this.mDateTime;
+    },
+    /**
+     * Getter for mDateTime property.
+     */
+    get dateTime() {
+        if (this.mDateTime == null) {
+            this.mDateTime = cal.dtz.now();
+        }
+        return this.mDateTime;
+    },
+    /**
+     * Updates #recurrence-preview node layout on window resize.
+     */
+    onResize() {
+        let minimonth = this.node.querySelector("minimonth");
+
+        let row = this.node.querySelector("row");
+        let rows = row.parentNode;
+
+        let contentWidth = minimonth.boxObject.width;
+        let containerWidth = this.node.boxObject.width;
+
+        // Now find out how much elements can be displayed.
+        // this is a simple division which always yields a positive integer value.
+        const cWidth = containerWidth % contentWidth;
+        let numHorizontal = (containerWidth - cWidth) / contentWidth;
+
+        let contentHeight = minimonth.boxObject.height;
+        let containerHeight = this.node.boxObject.height;
+
+        const cHeight = containerHeight % contentHeight;
+        // Now find out how much elements can be displayed.
+        // this is a simple division which always yields a positive integer value.
+        let numVertical = (containerHeight - cHeight) / contentHeight;
+
+        // Count the number of existing rows
+        let numRows = 0;
+        let rowIterator = row;
+        while (rowIterator) {
+            numRows++;
+            rowIterator = rowIterator.nextSibling;
+        }
+
+        // Adjust rows
+        while (numRows < numVertical) {
+            let newNode = row.cloneNode(true);
+            rows.appendChild(newNode);
+            numRows++;
+        }
+        while (numRows > numVertical) {
+            rows.firstChild.remove();
+            numRows--;
+        }
+
+        // Adjust columns in the grid
+        let column = this.node.querySelector(".first-column");
+        let columns = column.parentNode;
+        while ((columns.childNodes.length - 1) < numHorizontal) {
+            let newColumn = column.cloneNode(false);
+            columns.insertBefore(newColumn, column.nextSibling);
+        }
+        while ((columns.childNodes.length - 1) > numHorizontal) {
+            columns.firstChild.remove();
+        }
+
+        // Walk all rows and adjust column elements
+        row = this.node.querySelector("row");
+        while (row) {
+            let firstChild = row.firstChild;
+            while ((row.childNodes.length - 1) < numHorizontal) {
+                let newNode = firstChild.cloneNode(true);
+                firstChild.parentNode.insertBefore(newNode, firstChild);
+            }
+            while ((row.childNodes.length - 1) > numHorizontal) {
+                row.firstChild.remove();
+            }
+            row = row.nextSibling;
+        }
+
+        this.updateContent();
+        this.updatePreview(this.mRecurrenceInfo);
+    },
+    /**
+     * Updates content of #recurrence-preview node.
+     */
+    updateContent() {
+        let date = cal.dtz.dateTimeToJsDate(this.dateTime);
+        let row = this.node.querySelector("row");
+        while (row) {
+            let numChilds = row.childNodes.length - 1;
+            for (let i = 0; i < numChilds; i++) {
+                let minimonth = row.childNodes[i];
+                minimonth.showMonth(date);
+                date.setMonth(date.getMonth() + 1);
+            }
+            row = row.nextSibling;
+        }
+    },
+    /**
+     * Updates preview of #recurrence-preview node.
+     */
+    updatePreview(recurrenceInfo) {
+        let minimonth = this.node.querySelector("minimonth");
+        this.node.style.minHeight = minimonth.boxObject.height + "px";
+
+        this.mRecurrenceInfo = recurrenceInfo;
+        let start = this.dateTime.clone();
+        start.day = 1;
+        start.hour = 0;
+        start.minute = 0;
+        start.second = 0;
+        let end = start.clone();
+        end.month++;
+
+        // the 'minimonth' controls are arranged in a
+        // grid, sorted by rows first -> iterate the rows that may exist.
+        let row = this.node.querySelector("row");
+        while (row) {
+            // now iterater all the child nodes of this row
+            // in order to visit each minimonth in turn.
+            let numChilds = row.childNodes.length - 1;
+            for (let i = 0; i < numChilds; i++) {
+                // we now have one of the minimonth controls while 'start'
+                // and 'end' are set to the interval this minimonth shows.
+                minimonth = row.childNodes[i];
+                minimonth.showMonth(cal.dtz.dateTimeToJsDate(start));
+                if (recurrenceInfo) {
+                    // retrieve an array of dates that represents all occurrences
+                    // that fall into this time interval [start,end[.
+                    // note: the following loop assumes that this array conains
+                    // dates that are strictly monotonically increasing.
+                    // should getOccurrenceDates() not enforce this assumption we
+                    // need to fall back to some different algorithm.
+                    let dates = recurrenceInfo.getOccurrenceDates(start, end, 0, {});
+
+                    // now run throgh all days of this month and set the
+                    // 'busy' attribute with respect to the occurrence array.
+                    let index = 0;
+                    let occurrence = null;
+                    if (index < dates.length) {
+                        occurrence =
+                            dates[index++]
+                                .getInTimezone(start.timezone);
+                    }
+                    let current = start.clone();
+                    while (current.compare(end) < 0) {
+                        let box = minimonth.getBoxForDate(current);
+                        if (box) {
+                            if (occurrence &&
+                                occurrence.day == current.day &&
+                                occurrence.month == current.month &&
+                                occurrence.year == current.year) {
+                                box.setAttribute("busy", 1);
+                                if (index < dates.length) {
+                                    occurrence =
+                                        dates[index++]
+                                            .getInTimezone(start.timezone);
+                                    // take into account that the very next occurrence
+                                    // can happen at the same day as the previous one.
+                                    if (occurrence.day == current.day &&
+                                        occurrence.month == current.month &&
+                                        occurrence.year == current.year) {
+                                        continue;
+                                    }
+                                } else {
+                                    occurrence = null;
+                                }
+                            } else {
+                                box.removeAttribute("busy");
+                            }
+                        }
+                        current.day++;
+                    }
+                }
+                start.month++;
+                end.month++;
+            }
+            row = row.nextSibling;
+        }
+    }
+};
+
+/**
  * Sets up the recurrence dialog from the window arguments. Takes care of filling
  * the dialog controls with the recurrence information for this window.
  */
 function onLoad() {
+    RecurrencePreview.init();
     changeWidgetsOrder();
 
     let args = window.arguments[0];
@@ -27,8 +238,7 @@ function onLoad() {
 
     gStartTime = args.startTime;
     gEndTime = args.endTime;
-    let preview = document.getElementById("recurrence-preview");
-    preview.dateTime = gStartTime.getInTimezone(cal.dtz.defaultTimezone);
+    RecurrencePreview.dateTime = gStartTime.getInTimezone(cal.dtz.defaultTimezone);
 
     onChangeCalendar(calendar);
 
@@ -598,8 +808,7 @@ function updatePreview() {
     }
 
     let recInfo = onSave(item);
-    let preview = document.getElementById("recurrence-preview");
-    preview.updatePreview(recInfo);
+    RecurrencePreview.updatePreview(recInfo);
 }
 
 /**
