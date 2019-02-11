@@ -1094,8 +1094,8 @@
        </body>
      </method>
 
-     <!-- Add a buddy in the visible list of participants -->
-     <method name="addBuddy">
+     <!-- Create a buddy item to add in the visible list of participants -->
+     <method name="createBuddy">
        <parameter name="aBuddy"/>
        <body>
        <![CDATA[
@@ -1113,7 +1113,7 @@
          label.setAttribute("flex", "1");
          label.setAttribute("crop", "end");
 
-         // Fix addNick below if you change the DOM makeup!
+         // Fix insertBuddy below if you change the DOM makeup!
          var item = document.createElement("richlistitem");
          item.chatBuddy = aBuddy;
          item.appendChild(image);
@@ -1130,13 +1130,13 @@
          item.color = color;
          this.buddies.set(name, item);
 
-         // Insert item at the right position
-         this.addNick(item);
+         return item;
        ]]>
        </body>
      </method>
 
-     <method name="addNick">
+     <!-- Insert item at the right position -->
+     <method name="insertBuddy">
        <parameter name="aListItem"/>
        <body>
        <![CDATA[
@@ -1210,7 +1210,7 @@
 
          // Move this item to the right position if its name changed
          item.remove();
-         this.addNick(item);
+         this.insertBuddy(item);
        ]]>
        </body>
      </method>
@@ -1475,9 +1475,11 @@
              nicklist.lastChild.remove();
            // Populate the nicklist
            this.buddies = new Map();
-           let nicks = fixIterator(this.conv.getParticipants());
-           for (let n of nicks)
-             this.addBuddy(n);
+           for (let n of this.conv.getParticipants())
+             this.createBuddy(n);
+           nicklist.append(...Array.from(this.buddies.keys())
+                                .sort((a, b) => a.localeCompare(b))
+                                .map(nick => this.buddies.get(nick)));
            this.updateParticipantCount();
          }
        ]]>
@@ -1573,7 +1575,7 @@
              break;
            aSubject.QueryInterface(Ci.nsISimpleEnumerator);
            while (aSubject.hasMoreElements())
-             this.addBuddy(aSubject.getNext());
+             this.insertBuddy(this.createBuddy(aSubject.getNext()));
            this.updateParticipantCount();
            break;
 
