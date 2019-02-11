@@ -317,5 +317,11 @@ def main():
     shutil.rmtree(zoneinfo_path)
     shutil.rmtree(zoneinfo_pure_path)
 
+    print """
+When updating timezone definitions, please check the zones America/Campo_Grande,
+America/Cuiaba, and America/Sao_Paulo are not reset to their previous buggy state.
+See bug 1515937 for more information.
+"""
+
 if __name__ == "__main__":
     main()
