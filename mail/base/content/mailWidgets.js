@@ -1122,3 +1122,357 @@ class MozMailMultiEmailheaderfield extends MozXULElement {
   }
 }
 customElements.define("mail-multi-emailheaderfield", MozMailMultiEmailheaderfield);
+
+/**
+ * The MozAttachmentlist widget lists attachments for a mail. This is typically used to show
+ * attachments while writing a new mail as well as when reading mails.
+ * It has two layouts, which you can set by orient="horizontal" and orient="vertical" respectively.
+ *
+ * @extends {MozElements.RichListBox}
+ */
+class MozAttachmentlist extends MozElements.RichListBox {
+  constructor() {
+    super();
+
+    this.messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
+    this._setupEventListeners();
+  }
+
+  _setupEventListeners() {
+    this.addEventListener("keypress", (event) => {
+      // The spacebar should work just like the arrow keys, except that the
+      // focused element doesn't change, so use moveByOffset here.
+      if (event.keyCode == KeyEvent.DOM_VK_SPACE) {
+        this.moveByOffset(0, !event.ctrlKey, event.shiftKey);
+        event.preventDefault();
+      } else if (event.keyCode == KeyEvent.DOM_VK_RETURN) {
+        if (this.currentItem) {
+          this.addItemToSelection(this.currentItem);
+          let evt = document.createEvent("XULCommandEvent");
+          evt.initCommandEvent("command", true, true, window, 0, event.ctrlKey,
+            event.altKey, event.shiftKey, event.metaKey, null);
+          this.currentItem.dispatchEvent(evt);
+        }
+      }
+    });
+
+    this.addEventListener("click", (event) => {
+      if (event.button != 0 || event.target.classList.contains("attachmentItem")) {
+        return;
+      }
+
+      if (this.selType != "multiple" || (!event.ctrlKey && !event.shiftKey && !event.metaKey)) {
+        this.clearSelection();
+      }
+    });
+
+    // Make sure we keep the focus.
+    this.addEventListener("mousedown", (event) => {
+      if (event.button != 0) {
+        return;
+      }
+
+      if (document.commandDispatcher.focusedElement != this) {
+        this.focus();
+      }
+    });
+
+    if (this.orient === "horizontal") {
+      this.addEventListener("keypress", (event) => {
+        switch (event.keyCode) {
+          case KeyEvent.DOM_VK_LEFT:
+            this.moveByOffset(-1, !event.ctrlKey, event.shiftKey);
+            event.preventDefault();
+            break;
+
+          case KeyEvent.DOM_VK_RIGHT:
+            this.moveByOffset(1, !event.ctrlKey, event.shiftKey);
+            event.preventDefault();
+            break;
+
+          case KeyEvent.DOM_VK_DOWN:
+            this.moveByOffset(this._itemsPerRow(), !event.ctrlKey, event.shiftKey);
+            event.preventDefault();
+            break;
+
+          case KeyEvent.DOM_VK_UP:
+            this.moveByOffset(-this._itemsPerRow(), !event.ctrlKey, event.shiftKey);
+            event.preventDefault();
+            break;
+
+          default:
+            break;
+        }
+      });
+    }
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    if (this.delayConnectedCallback()) {
+      return;
+    }
+
+    this.sizes = { small: 16, large: 32, tile: 32 };
+
+    let children = Array.from(this._childNodes);
+
+    children.filter(child => child.getAttribute("selected") == "true")
+      .forEach(this.selectedItems.append, this.selectedItems);
+
+    children.filter(child => !child.hasAttribute("context"))
+      .forEach(child => child.setAttribute("context", this.getAttribute("itemcontext")));
+  }
+
+  set view(val) {
+    this.setAttribute("view", val);
+    this._setImageSize();
+    return val;
+  }
+
+  get view() {
+    return this.getAttribute("view");
+  }
+
+  set orient(val) {
+    // The current item can get messed up when changing orientation.
+    let curr = this.currentItem;
+    this.currentItem = null;
+
+    this.setAttribute("orient", val);
+    this.currentItem = curr;
+    return val;
+  }
+
+  get orient() {
+    return this.getAttribute("orient");
+  }
+
+  get itemCount() {
+    return this._childNodes.length;
+  }
+
+  /**
+   * Get the preferred height (the height that would allow us to fit everything without scrollbars)
+   * of the attachmentlist's bounding rectangle.
+   */
+  get preferredHeight() {
+    return this.scrollHeight - this.clientHeight + this.getBoundingClientRect().height;
+  }
+
+  get _childNodes() {
+    return this.querySelectorAll("richlistitem.attachmentItem");
+  }
+
+  getIndexOfItem(item) {
+    for (let i = 0; i < this._childNodes.length; i++) {
+      if (this._childNodes[i] === item) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  getItemAtIndex(index) {
+    if (index >= 0 && index < this._childNodes.length) {
+      return this._childNodes[index];
+    }
+    return null;
+  }
+
+  getRowCount() {
+    return this._childNodes.length;
+  }
+
+  getIndexOfFirstVisibleRow() {
+    if (this._childNodes.length == 0) {
+      return -1;
+    }
+
+    // First try to estimate which row is visible, assuming they're all the same height.
+    let box = this;
+    let estimatedRow = Math.floor(box.scrollTop / this._childNodes[0].getBoundingClientRect().height);
+    let estimatedIndex = estimatedRow * this._itemsPerRow();
+    let offset = this._childNodes[estimatedIndex].screenY - box.screenY;
+
+    if (offset > 0) {
+      // We went too far! Go back until we find an item totally off-screen, then return the one
+      // after that.
+      for (let i = estimatedIndex - 1; i >= 0; i--) {
+        let childBoxObj = this._childNodes[i].getBoundingClientRect();
+        if (childBoxObj.screenY + childBoxObj.height <= box.screenY) {
+          return i + 1;
+        }
+      }
+
+      // If we get here, we must have gone back to the beginning of the list, so just return 0.
+      return 0;
+    }
+
+    // We didn't go far enough! Keep going until we find an item atleast partially on-screen.
+    for (let i = estimatedIndex; i < this._childNodes.length; i++) {
+      let childBoxObj = this._childNodes[i].getBoundingClientRect();
+      if (childBoxObj.screenY + childBoxObj.height > box.screenY > 0) {
+        return i;
+      }
+    }
+
+    return null;
+  }
+
+  ensureIndexIsVisible(index) {
+    this.ensureElementIsVisible(this.getItemAtIndex(index));
+  }
+
+  ensureElementIsVisible(item) {
+    let box = this;
+
+    // Are we too far down?
+    if (item.screenY < box.screenY) {
+      box.scrollTop = item.getBoundingClientRect().y - box.getBoundingClientRect().y;
+    } else if (
+      item.screenY + item.getBoundingClientRect().height > box.screenY + box.getBoundingClientRect().height
+    ) {
+      // ... or not far enough?
+      box.scrollTop = item.getBoundingClientRect().y + item.getBoundingClientRect().height -
+        box.getBoundingClientRect().y - box.getBoundingClientRect().height;
+    }
+  }
+
+  scrollToIndex(index) {
+    let box = this;
+    let item = this.getItemAtIndex(index);
+    if (!item) {
+      return;
+    }
+    box.scrollTop = item.getBoundingClientRect().y - box.getBoundingClientRect().y;
+  }
+
+  appendItem(attachment, name) {
+    // -1 appends due to the way getItemAtIndex is implemented.
+    return this.insertItemAt(-1, attachment, name);
+  }
+
+  insertItemAt(index, attachment, name) {
+    let item = this.ownerDocument.createXULElement("richlistitem");
+    item.className = "attachmentItem";
+    item.setAttribute("name", name || attachment.name);
+    item.setAttribute("role", "option");
+
+    let size;
+    if (attachment.size != null && attachment.size != -1) {
+      size = this.messenger.formatFileSize(attachment.size);
+    } else {
+      // Use a zero-width space so the size label has the right height.
+      size = "\u200b";
+    }
+    item.setAttribute("size", size);
+
+    // Pick out some nice icons (small and large) for the attachment
+    if (attachment.contentType == "text/x-moz-deleted") {
+      let base = "chrome://messenger/skin/icons/";
+      item.setAttribute("image16", base + "attachment-deleted.png");
+      item.setAttribute("image32", base + "attachment-deleted-large.png");
+    } else {
+      item.setAttribute("image16", "moz-icon://" + attachment.name +
+        "?size=16&contentType=" + attachment.contentType);
+      item.setAttribute("image32", "moz-icon://" + attachment.name +
+        "?size=32&contentType=" + attachment.contentType);
+    }
+
+    item.setAttribute("imagesize", this.sizes[this.getAttribute("view")] || 16);
+    item.setAttribute("context", this.getAttribute("itemcontext"));
+    item.attachment = attachment;
+
+    this.insertBefore(item, this.getItemAtIndex(index));
+    return item;
+  }
+
+  /**
+   * Find the attachmentitem node for the specified nsIMsgAttachment.
+   */
+  findItemForAttachment(aAttachment) {
+    for (let i = 0; i < this.itemCount; i++) {
+      let item = this.getItemAtIndex(i);
+      if (item.attachment == aAttachment) { return item; }
+    }
+    return null;
+  }
+
+  _fireOnSelect() {
+    if (!this._suppressOnSelect && !this.suppressOnSelect) {
+      this.dispatchEvent(new Event("select", { bubbles: false, cancelable: true }));
+    }
+  }
+
+  _itemsPerRow() {
+    if (this.orient === "vertical") {
+      // Vertical attachment lists have one item per row by definition.
+      return 1;
+    }
+
+    // For 0 or 1 children, we can assume that they all fit in one row.
+    if (this._childNodes.length < 2) { return this._childNodes.length; }
+
+    let itemWidth = this._childNodes[1].getBoundingClientRect().x -
+      this._childNodes[0].getBoundingClientRect().x;
+
+    // Each item takes up a full row
+    if (itemWidth == 0) {
+      return 1;
+    }
+    return Math.floor(this.clientWidth / itemWidth);
+  }
+
+  _itemsPerCol(aItemsPerRow) {
+    let itemsPerRow = aItemsPerRow || this._itemsPerRow();
+
+    if (this._childNodes.length == 0) {
+      return 0;
+    }
+
+    if (this._childNodes.length <= itemsPerRow) {
+      return 1;
+    }
+
+    let itemHeight = this._childNodes[itemsPerRow].getBoundingClientRect().y -
+      this._childNodes[0].getBoundingClientRect().y;
+
+    return Math.floor(this.clientHeight / itemHeight);
+  }
+
+  _setImageSize() {
+    let size = this.sizes[this.view] || 16;
+
+    for (let i = 0; i < this._childNodes.length; i++) {
+      this._childNodes[i].imageSize = size;
+    }
+  }
+
+  /**
+   * Only used by attachmentlist with horizontal orient.
+   */
+  setOptimumWidth() {
+    if (this._childNodes.length == 0) {
+      return;
+    }
+
+    let width = 0;
+    let border = this._childNodes[0].getBoundingClientRect().width -
+      this._childNodes[0].clientWidth;
+
+    // If widths have changed after the initial calculation (updated
+    // size string), clear each item's prior hardcoded width so
+    // scrollwidth is natural, then get the width for the widest item
+    // and set it on all the items again.
+    for (let child of this._childNodes) {
+      child.width = "";
+      width = Math.max(width, child.scrollWidth);
+    }
+    for (let child of this._childNodes) {
+      child.width = width + border;
+    }
+  }
+}
+
+customElements.define("attachment-list", MozAttachmentlist, { extends: "richlistbox" });

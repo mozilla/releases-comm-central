@@ -2560,6 +2560,8 @@ function toggleAttachmentList(expanded, updateFocus) {
 
     if (updateFocus)
       attachmentList.focus();
+
+    attachmentList.selectItem(attachmentList.firstChild);
   } else {
     attachmentList.collapsed = true;
     attachmentSplitter.collapsed = true;
@@ -2949,8 +2951,9 @@ function ClearAttachmentList() {
   var list = document.getElementById("attachmentList");
   list.clearSelection();
 
-  while (list.hasChildNodes())
+  while (list.hasChildNodes()) {
     list.lastChild.remove();
+  }
 }
 
 var attachmentListDNDObserver = {

@@ -2093,12 +2093,12 @@
                            context=""
                            oncommand="attachmentBucketCloseButtonOnCommand();"/>
           </hbox>
-          <richlistbox id="attachmentBucket"
+          <richlistbox is="attachment-list" id="attachmentBucket"
                        class="attachmentList"
+                       orient="vertical"
                        tooltiptext=""
                        disableonsend="true"
                        seltype="multiple"
-                       orient="vertical"
                        flex="1"
                        height="0"
                        role="listbox"

@@ -102,11 +102,11 @@
   color: GrayText;
 }
 
-.attachmentList:focus > .attachmentItem[selected="true"][current="true"] {
+.attachmentList:focus .attachmentItem[selected="true"][current="true"] {
   outline: 1px dotted #F3D982;
 }
 
-.attachmentList:focus > .attachmentItem[current="true"] {
+.attachmentList:focus .attachmentItem[current="true"] {
   outline: 1px dotted;
   outline-offset: -1px;
 }
@@ -116,7 +116,7 @@
   color: -moz-CellHighlightText;
 }
 
-.attachmentList:focus > .attachmentItem[selected="true"] {
+.attachmentList:focus .attachmentItem[selected="true"] {
   background-color: Highlight;
   color: HighlightText;
 }
@@ -125,7 +125,7 @@
   color: -moz-CellHighlightText;
 }
 
-.attachmentList:focus > .attachmentItem[selected="true"] .attachmentcell-size {
+.attachmentList:focus .attachmentItem[selected="true"] .attachmentcell-size {
   color: HighlightText;
 }
 

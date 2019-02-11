@@ -373,8 +373,8 @@ function test_selected_attachments_are_cleared() {
 
   // We can just click on the first element, but the second one needs a
   // ctrl-click (or cmd-click for those Mac-heads among us).
-  mc.click(new elib.Elem(attachmentList.itemChildren[0]), 5, 5);
-  EventUtils.synthesizeMouse(attachmentList.itemChildren[1], 5, 5,
+  mc.click(new elib.Elem(attachmentList.children[0]), 5, 5);
+  EventUtils.synthesizeMouse(attachmentList.children[1], 5, 5,
                              {accelKey: true}, mc.window);
 
   assert_equals(attachmentList.selectedItems.length, 2,
