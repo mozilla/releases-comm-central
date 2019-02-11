@@ -36,7 +36,7 @@
 #include "nsThreadUtils.h"
 #include "nsMsgUtils.h"
 #include "nsNetUtil.h"
-#include "mozilla/Monitor.h"
+#include "mozilla/ReentrantMonitor.h"
 #include "mozilla/Services.h"
 #include "nsIArray.h"
 #include "nsArrayUtils.h"
@@ -46,11 +46,11 @@
 extern mozilla::LazyLogModule MAPI; // defined in msgMapiImp.cpp
 
 class MAPISendListener : public nsIMsgSendListener,
-                         public mozilla::Monitor
+                         public mozilla::ReentrantMonitor
 {
 public:
   MAPISendListener()
-  : Monitor("MAPISendListener monitor"),
+  : ReentrantMonitor("MAPISendListener monitor"),
     m_done(false) {}
 
     // nsISupports interface
@@ -68,6 +68,7 @@ public:
     /* void OnStopSending (in string aMsgID, in nsresult aStatus, in wstring aMsg, in nsIFile returnFile); */
     NS_IMETHOD OnStopSending(const char *aMsgID, nsresult aStatus, const char16_t *aMsg,
                            nsIFile *returnFile) {
+        mozilla::ReentrantMonitorAutoEnter mon(*this);
         m_done = true;
         NotifyAll();
         return NS_OK;
@@ -352,8 +353,8 @@ nsresult nsMapiHook::BlindSendMail (unsigned long aSession, nsIMsgCompFields * a
   nsCOMPtr<nsIThread> thread(do_GetCurrentThread());
   while (!sendListener->IsDone())
   {
-    mozilla::MonitorAutoLock mal(*sendListener);
-    sendListener->Wait(mozilla::TimeDuration::FromMilliseconds(1000UL));
+    mozilla::ReentrantMonitorAutoEnter mon(*sendListener);
+    sendListener->Wait(PR_MicrosecondsToInterval(1000UL));
     NS_ProcessPendingEvents(thread);
   }
 
