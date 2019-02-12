@@ -24,7 +24,7 @@ var selector = document.getElementById("selector");
     var radio = document.createElement("radio");
     radio.setAttribute("pane", pane.id);
     radio.setAttribute("value", pane.id);
-    radio.setAttribute("label", pane.label);
+    radio.setAttribute("label", pane.getAttribute("label"));
     radio.setAttribute("oncommand", `showPane("${pane.id}");`);
     // Expose preference group choice to accessibility APIs as an unchecked list item
     // The parent group is exposed to accessibility APIs as a list
