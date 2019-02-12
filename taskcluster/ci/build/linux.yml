@@ -50,7 +50,7 @@ linux64-nightly/opt:
     run:
         using: mozharness
         comm-checkout: true
-        actions: [build, check-test]
+        actions: [disabled, build, check-test]
         config-paths:
             - comm/mozharness
         config:
@@ -151,7 +151,7 @@ linux-nightly/opt:
     run:
         using: mozharness
         comm-checkout: true
-        actions: [build, check-test]
+        actions: [disabled, build, check-test]
         config-paths:
             - comm/mozharness
         config:
