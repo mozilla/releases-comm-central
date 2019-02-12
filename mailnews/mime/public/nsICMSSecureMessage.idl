@@ -15,22 +15,6 @@ interface nsIX509Cert;
 interface nsICMSSecureMessage : nsISupports
 {
   /**
-   * decodeCert - decode a BASE64 string into an X509Certificate object
-   */
-  nsIX509Cert decodeCert(in string value);
-
-  /**
-   * sendMessage - send a text message to the recipient indicated
-   *   by the base64-encoded cert.
-   */
-  string sendMessage(in string msg, in string cert);
-
-  /**
-   * receiveMessage - receive an encrypted (enveloped) message
-   */
-  string receiveMessage(in string msg);
-
-  /**
    * Return true if the certificate can be used for encrypting emails.
    */
   bool canBeUsedForEmailEncryption(in nsIX509Cert cert);
