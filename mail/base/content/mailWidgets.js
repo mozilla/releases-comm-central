@@ -387,41 +387,6 @@ class MozThreadPaneTreeColpicker extends customElements.get("treecolpicker") {
     });
   }
 
-  // XXX: this shouldn't need to be overridden. ATM, the removal of children
-  // while aPopup.childNodes.length > 2 is forcing us. We have three since we
-  // add one menu.
-  /** @override */
-  buildPopup(aPopup) {
-    // We no longer cache the picker content, remove the old content related to
-    // the cols - menuitem and separator should stay.
-    this.querySelectorAll("[colindex]").forEach((e) => { e.remove(); });
-
-    var refChild = aPopup.firstChild;
-
-    var tree = this.parentNode.parentNode;
-    for (var currCol = tree.columns.getFirstColumn(); currCol; currCol = currCol.getNext()) {
-      // Construct an entry for each column in the row, unless
-      // it is not being shown.
-      var currElement = currCol.element;
-      if (!currElement.hasAttribute("ignoreincolumnpicker")) {
-        var popupChild = document.createElement("menuitem");
-        popupChild.setAttribute("type", "checkbox");
-        var columnName = currElement.getAttribute("display") ||
-          currElement.getAttribute("label");
-        popupChild.setAttribute("label", columnName);
-        popupChild.setAttribute("colindex", currCol.index);
-        if (currElement.getAttribute("hidden") != "true")
-          popupChild.setAttribute("checked", "true");
-        if (currCol.primary)
-          popupChild.setAttribute("disabled", "true");
-        aPopup.insertBefore(popupChild, refChild);
-      }
-    }
-
-    var hidden = !tree.enableColumnDrag;
-    this.querySelectorAll(":not([colindex])").forEach((e) => { e.hidden = hidden; });
-  }
-
   _applyColumns(destFolder, useChildren) {
     // Get the current folder's column state, plus the "swapped" column
     // state, which swaps "From" and "Recipient" if only one is shown.
