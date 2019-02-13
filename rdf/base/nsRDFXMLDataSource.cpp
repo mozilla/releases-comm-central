@@ -483,7 +483,7 @@ RDFXMLDataSourceImpl::BlockingParse(nsIURI* aURL, nsIStreamListener* aConsumer)
 
     if (NS_FAILED(rv)) return rv;
     nsCOMPtr<nsIInputStream> in;
-    rv = channel->Open2(getter_AddRefs(in));
+    rv = channel->Open(getter_AddRefs(in));
 
     // Report success if the file doesn't exist, but propagate other errors.
     if (rv == NS_ERROR_FILE_NOT_FOUND) return NS_OK;
@@ -945,7 +945,7 @@ RDFXMLDataSourceImpl::Refresh(bool aBlocking)
                            nullptr, // aLoadGroup
                            this);   // aCallbacks
         NS_ENSURE_SUCCESS(rv, rv);
-        rv = channel->AsyncOpen2(this);
+        rv = channel->AsyncOpen(this);
         NS_ENSURE_SUCCESS(rv, rv);
 
         // So we don't try to issue two asynchronous loads at once.

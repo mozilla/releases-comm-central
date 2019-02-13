@@ -9305,15 +9305,10 @@ NS_IMETHODIMP nsImapMockChannel::SetURI(nsIURI* aURI)
 
 NS_IMETHODIMP nsImapMockChannel::Open(nsIInputStream **_retval)
 {
-  return NS_ImplementChannelOpen(this, _retval);
-}
-
-NS_IMETHODIMP nsImapMockChannel::Open2(nsIInputStream **_retval)
-{
   nsCOMPtr<nsIStreamListener> listener;
   nsresult rv = nsContentSecurityManager::doContentSecurityCheck(this, listener);
   NS_ENSURE_SUCCESS(rv, rv);
-  return Open(_retval);
+  return NS_ImplementChannelOpen(this, _retval);
 }
 
 NS_IMETHODIMP
@@ -9894,9 +9889,11 @@ bool nsImapMockChannel::ReadFromLocalCache()
   return false;
 }
 
-NS_IMETHODIMP nsImapMockChannel::AsyncOpen(nsIStreamListener *listener, nsISupports *ctxt)
+NS_IMETHODIMP nsImapMockChannel::AsyncOpen(nsIStreamListener *aListener)
 {
-  nsresult rv = NS_OK;
+  nsCOMPtr<nsIStreamListener> listener = aListener;
+  nsresult rv = nsContentSecurityManager::doContentSecurityCheck(this, listener);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   int32_t port;
   if (!m_url)
@@ -9910,7 +9907,7 @@ NS_IMETHODIMP nsImapMockChannel::AsyncOpen(nsIStreamListener *listener, nsISuppo
       return rv;
 
   // set the stream listener and then load the url
-  m_channelContext = ctxt;
+  // XXX TODO: Set m_channelContext.
   NS_ASSERTION(!m_channelListener, "shouldn't already have a listener");
   m_channelListener = listener;
   nsCOMPtr<nsIImapUrl> imapUrl  (do_QueryInterface(m_url));
@@ -9953,14 +9950,6 @@ NS_IMETHODIMP nsImapMockChannel::AsyncOpen(nsIStreamListener *listener, nsISuppo
   SetupPartExtractorListener(imapUrl, m_channelListener);
   // if for some reason open cache entry failed then just default to opening an imap connection for the url
   return ReadFromImapConnection();
-}
-
-NS_IMETHODIMP nsImapMockChannel::AsyncOpen2(nsIStreamListener *aListener)
-{
-    nsCOMPtr<nsIStreamListener> listener = aListener;
-    nsresult rv = nsContentSecurityManager::doContentSecurityCheck(this, listener);
-    NS_ENSURE_SUCCESS(rv, rv);
-    return AsyncOpen(listener, nullptr);
 }
 
 nsresult nsImapMockChannel::SetupPartExtractorListener(nsIImapUrl * aUrl, nsIStreamListener * aConsumer)

@@ -682,7 +682,7 @@ nsresult nsNNTPProtocol::ReadFromNewsConnection()
     nsresult rv = Initialize(m_url, m_msgWindow);
     NS_ENSURE_SUCCESS(rv, rv);
   }
-  return nsMsgProtocol::AsyncOpen(m_channelListener, m_channelContext);
+  return nsMsgProtocol::AsyncOpen(m_channelListener);  // XXX TODO: Provide context, m_channelContext.
 }
 
 // for messages stored in our offline cache, we have special code to handle that...
@@ -825,9 +825,12 @@ nsresult nsNNTPProtocol::OpenCacheEntry()
                                     nsICacheStorage::OPEN_NORMALLY, this);
 }
 
-NS_IMETHODIMP nsNNTPProtocol::AsyncOpen(nsIStreamListener *listener, nsISupports *ctxt)
+NS_IMETHODIMP nsNNTPProtocol::AsyncOpen(nsIStreamListener *aListener)
 {
-  nsresult rv;
+  nsCOMPtr<nsIStreamListener> listener = aListener;
+  nsresult rv = nsContentSecurityManager::doContentSecurityCheck(this, listener);
+  NS_ENSURE_SUCCESS(rv, rv);
+
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_runningURL, &rv);
   NS_ENSURE_SUCCESS(rv,rv);
 
@@ -840,7 +843,7 @@ NS_IMETHODIMP nsNNTPProtocol::AsyncOpen(nsIStreamListener *listener, nsISupports
   if (NS_FAILED(rv))
       return rv;
 
-  m_channelContext = ctxt;
+  // XXX TODO: Set m_channelContext.
   m_channelListener = listener;
   m_runningURL->GetNewsAction(&m_newsAction);
 
@@ -870,15 +873,8 @@ NS_IMETHODIMP nsNNTPProtocol::AsyncOpen(nsIStreamListener *listener, nsISupports
     if (NS_SUCCEEDED(OpenCacheEntry()))
       return NS_OK;
   }
-  return nsMsgProtocol::AsyncOpen(listener, ctxt);
-}
 
-NS_IMETHODIMP nsNNTPProtocol::AsyncOpen2(nsIStreamListener *aListener)
-{
-    nsCOMPtr<nsIStreamListener> listener = aListener;
-    nsresult rv = nsContentSecurityManager::doContentSecurityCheck(this, listener);
-    NS_ENSURE_SUCCESS(rv, rv);
-    return AsyncOpen(listener, nullptr);
+  return nsMsgProtocol::AsyncOpen(listener);  // Maybe XXX TODO: Context was originally passed in.
 }
 
 void nsNNTPProtocol::PostLoadAssertions()

@@ -180,7 +180,6 @@ nsMsgQuote::QuoteMessage(const char *msgURI, bool quoteHeaders,
                                       getter_AddRefs(mQuoteChannel));
 
   if (NS_FAILED(rv)) return rv;
-  nsCOMPtr<nsISupports> ctxt = do_QueryInterface(newURI);
 
   nsCOMPtr<nsIStreamConverterService> streamConverterService =
            do_GetService("@mozilla.org/streamConverters;1", &rv);
@@ -195,7 +194,7 @@ nsMsgQuote::QuoteMessage(const char *msgURI, bool quoteHeaders,
   if (NS_FAILED(rv)) return rv;
 
   //  now try to open the channel passing in our display consumer as the listener
-  rv = mQuoteChannel->AsyncOpen(convertedListener, ctxt);
+  rv = mQuoteChannel->AsyncOpen(convertedListener);  // XXX TODO: Provide context, newURI.
   return rv;
 }
 

@@ -148,8 +148,7 @@ public:
 
   NS_IMETHOD Cancel(nsresult status) override;  // handle stop button
   NS_IMETHOD GetContentType(nsACString &aContentType) override;
-  NS_IMETHOD AsyncOpen(nsIStreamListener *listener, nsISupports *ctxt) override;
-  NS_IMETHOD AsyncOpen2(nsIStreamListener *listener) override;
+  NS_IMETHOD AsyncOpen(nsIStreamListener *listener) override;
   NS_IMETHOD GetOriginalURI(nsIURI* *aURI) override;
   NS_IMETHOD SetOriginalURI(nsIURI* aURI) override;
   void PostLoadAssertions();

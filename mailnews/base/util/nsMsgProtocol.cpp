@@ -530,21 +530,20 @@ NS_IMETHODIMP nsMsgProtocol::GetURI(nsIURI* *aURI)
 
 NS_IMETHODIMP nsMsgProtocol::Open(nsIInputStream **_retval)
 {
-  return NS_ImplementChannelOpen(this, _retval);
-}
-
-NS_IMETHODIMP nsMsgProtocol::Open2(nsIInputStream **_retval)
-{
   nsCOMPtr<nsIStreamListener> listener;
   nsresult rv = nsContentSecurityManager::doContentSecurityCheck(this, listener);
   NS_ENSURE_SUCCESS(rv, rv);
-  return Open(_retval);
+  return NS_ImplementChannelOpen(this, _retval);
 }
 
-NS_IMETHODIMP nsMsgProtocol::AsyncOpen(nsIStreamListener *listener, nsISupports *ctxt)
+NS_IMETHODIMP nsMsgProtocol::AsyncOpen(nsIStreamListener *aListener)
 {
+    nsCOMPtr<nsIStreamListener> listener = aListener;
+    nsresult rv = nsContentSecurityManager::doContentSecurityCheck(this, listener);
+    NS_ENSURE_SUCCESS(rv, rv);
+
     int32_t port;
-    nsresult rv = m_url->GetPort(&port);
+    rv = m_url->GetPort(&port);
     if (NS_FAILED(rv))
         return rv;
 
@@ -559,17 +558,9 @@ NS_IMETHODIMP nsMsgProtocol::AsyncOpen(nsIStreamListener *listener, nsISupports 
         return rv;
 
     // set the stream listener and then load the url
-    m_channelContext = ctxt;
+    // XXX TODO: Set m_channelContext.
     m_channelListener = listener;
     return LoadUrl(m_url, nullptr);
-}
-
-NS_IMETHODIMP nsMsgProtocol::AsyncOpen2(nsIStreamListener *aListener)
-{
-    nsCOMPtr<nsIStreamListener> listener = aListener;
-    nsresult rv = nsContentSecurityManager::doContentSecurityCheck(this, listener);
-    NS_ENSURE_SUCCESS(rv, rv);
-    return AsyncOpen(listener, nullptr);
 }
 
 NS_IMETHODIMP nsMsgProtocol::GetLoadFlags(nsLoadFlags *aLoadFlags)
