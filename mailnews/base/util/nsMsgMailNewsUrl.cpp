@@ -32,6 +32,7 @@
 #include "nsContentUtils.h"
 #include "nsIObjectInputStream.h"
 #include "nsIObjectOutputStream.h"
+#include "nsIURIHolder.h"
 
 nsMsgMailNewsUrl::nsMsgMailNewsUrl()
 {
@@ -887,12 +888,13 @@ NS_IMETHODIMP nsMsgMailNewsUrl::LoadURI(nsIDocShell* docShell,
 }
 
 #define SAVE_BUF_SIZE FILE_IO_BUFFER_SIZE
-class nsMsgSaveAsListener : public nsIStreamListener
+class nsMsgSaveAsListener : public nsIStreamListener, public nsIURIHolder
 {
 public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIREQUESTOBSERVER
   NS_DECL_NSISTREAMLISTENER
+  NS_DECL_NSIURIHOLDER
 
   nsMsgSaveAsListener(nsIFile *aFile, bool addDummyEnvelope);
   nsresult SetupMsgWriteStream(nsIFile *aFile, bool addDummyEnvelope);
@@ -904,12 +906,13 @@ protected:
   bool m_writtenData;
   uint32_t m_leftOver;
   char m_dataBuffer[SAVE_BUF_SIZE+1]; // temporary buffer for this save operation
-
+  nsCOMPtr<nsIURI> mURI;
 };
 
 NS_IMPL_ISUPPORTS(nsMsgSaveAsListener,
                    nsIStreamListener,
-                   nsIRequestObserver)
+                   nsIRequestObserver,
+                   nsIURIHolder)
 
 nsMsgSaveAsListener::nsMsgSaveAsListener(nsIFile *aFile, bool addDummyEnvelope)
 {
@@ -921,6 +924,18 @@ nsMsgSaveAsListener::nsMsgSaveAsListener(nsIFile *aFile, bool addDummyEnvelope)
 
 nsMsgSaveAsListener::~nsMsgSaveAsListener()
 {
+}
+
+NS_IMETHODIMP nsMsgSaveAsListener::SetURI(nsIURI *aURI)
+{
+  mURI = aURI;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgSaveAsListener::GetURI(nsIURI **aURI)
+{
+  NS_IF_ADDREF(*aURI = mURI);
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgSaveAsListener::OnStartRequest(nsIRequest *request, nsISupports *ctxt)
@@ -956,9 +971,15 @@ NS_IMETHODIMP nsMsgSaveAsListener::OnDataAvailable(nsIRequest* request,
   }
 
   bool useCanonicalEnding = false;
-  nsCOMPtr <nsIMsgMessageUrl> msgUrl = do_QueryInterface(aSupport);
-  if (msgUrl)
+  nsCOMPtr<nsIURIHolder> holder;
+  nsCOMPtr<nsIURI> uri;
+  QueryInterface(NS_GET_IID(nsIURIHolder), getter_AddRefs(holder));
+  if (holder)
+    holder->GetURI(getter_AddRefs(uri));
+  if (uri) {
+    nsCOMPtr <nsIMsgMessageUrl> msgUrl = do_QueryInterface(uri);
     msgUrl->GetCanonicalLineEnding(&useCanonicalEnding);
+  }
 
   const char *lineEnding = (useCanonicalEnding) ? CRLF : MSG_LINEBREAK;
   uint32_t lineEndingLength = (useCanonicalEnding) ? 2 : MSG_LINEBREAK_LEN;

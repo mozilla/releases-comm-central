@@ -278,19 +278,26 @@ nsNntpMockChannel::GetIsDocument(bool *aIsDocument)
 NS_IMETHODIMP nsNntpMockChannel::Open(nsIInputStream **_retval)
 {
   nsCOMPtr<nsIStreamListener> listener;
-  nsresult rv = nsContentSecurityManager::doContentSecurityCheck(this, listener);
-  NS_ENSURE_SUCCESS(rv, rv);
+  // nsresult rv = nsContentSecurityManager::doContentSecurityCheck(this, listener);
+  // NS_ENSURE_SUCCESS(rv, rv);
   return NS_ImplementChannelOpen(this, _retval);
 }
 
 NS_IMETHODIMP nsNntpMockChannel::AsyncOpen(nsIStreamListener *aListener)
 {
   nsCOMPtr<nsIStreamListener> listener = aListener;
-  nsresult rv = nsContentSecurityManager::doContentSecurityCheck(this, listener);
-  NS_ENSURE_SUCCESS(rv, rv);
+  // nsresult rv = nsContentSecurityManager::doContentSecurityCheck(this, listener);
+  // NS_ENSURE_SUCCESS(rv, rv);
   m_channelState = CHANNEL_OPEN_WITH_ASYNC;
   m_channelListener = listener;
-  // XXX TODO: Set m_context.
+  m_context = nullptr;
+  nsCOMPtr <nsIURI> uri;
+  nsCOMPtr<nsIChannel> channel;
+  QueryInterface(NS_GET_IID(nsIChannel), getter_AddRefs(channel));
+  if (channel) {
+    channel->GetURI(getter_AddRefs(uri));
+    m_context = uri;
+  }
   return NS_OK;
 }
 
@@ -328,7 +335,7 @@ nsNntpMockChannel::AttachNNTPConnection(nsNNTPProtocol &protocol)
     rv = protocol.LoadNewsUrl(m_url, m_context);
     break;
   case CHANNEL_OPEN_WITH_ASYNC:
-    rv = protocol.AsyncOpen(m_channelListener);  // XXX TODO: Provide context, m_context.
+    rv = protocol.AsyncOpen(m_channelListener);
     break;
   default:
     MOZ_ASSERT_UNREACHABLE("Unknown channel state got us here.");

@@ -734,7 +734,7 @@ protected:
   nsCOMPtr<nsILoadGroup> m_loadGroup;
   nsCOMPtr<nsILoadInfo> m_loadInfo;
   nsCOMPtr<nsIStreamListener> m_channelListener;
-  nsISupports * m_channelContext;
+  nsCOMPtr<nsISupports> m_channelContext;
   nsresult m_cancelStatus;
   nsLoadFlags mLoadFlags;
   nsCOMPtr<nsIProgressEventSink> mProgressEventSink;

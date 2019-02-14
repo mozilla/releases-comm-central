@@ -298,16 +298,27 @@ nsresult nsMsgProtocol::SendData(const char * dataBuffer, bool aSuppressLogging)
 NS_IMETHODIMP nsMsgProtocol::OnDataAvailable(nsIRequest *request, nsISupports *ctxt, nsIInputStream *inStr, uint64_t sourceOffset, uint32_t count)
 {
   // right now, this really just means turn around and churn through the state machine
-  nsCOMPtr<nsIURI> uri = do_QueryInterface(ctxt);
+  nsCOMPtr<nsIURI> uri;
+  nsCOMPtr<nsIChannel> channel;
+  QueryInterface(NS_GET_IID(nsIChannel), getter_AddRefs(channel));
+  if (channel)
+    channel->GetURI(getter_AddRefs(uri));
+
   return ProcessProtocolState(uri, inStr, sourceOffset, count);
 }
 
 NS_IMETHODIMP nsMsgProtocol::OnStartRequest(nsIRequest *request, nsISupports *ctxt)
 {
   nsresult rv = NS_OK;
-  nsCOMPtr <nsIMsgMailNewsUrl> aMsgUrl = do_QueryInterface(ctxt, &rv);
-  if (NS_SUCCEEDED(rv) && aMsgUrl)
+  nsCOMPtr <nsIURI> uri;
+  nsCOMPtr<nsIChannel> channel;
+  QueryInterface(NS_GET_IID(nsIChannel), getter_AddRefs(channel));
+  if (channel)
+    channel->GetURI(getter_AddRefs(uri));
+
+  if (uri)
   {
+    nsCOMPtr <nsIMsgMailNewsUrl> aMsgUrl = do_QueryInterface(uri);
     rv = aMsgUrl->SetUrlState(true, NS_OK);
     if (m_loadGroup)
       m_loadGroup->AddRequest(static_cast<nsIRequest *>(this), nullptr /* context isupports */);
@@ -319,7 +330,7 @@ NS_IMETHODIMP nsMsgProtocol::OnStartRequest(nsIRequest *request, nsISupports *ct
   if (!mSuppressListenerNotifications && m_channelListener)
   {
     if (!m_channelContext)
-      m_channelContext = do_QueryInterface(ctxt);
+      m_channelContext = uri;
     rv = m_channelListener->OnStartRequest(this, m_channelContext);
   }
 
@@ -390,9 +401,15 @@ NS_IMETHODIMP nsMsgProtocol::OnStopRequest(nsIRequest *request, nsISupports *ctx
   if (!mSuppressListenerNotifications && m_channelListener)
     rv = m_channelListener->OnStopRequest(this, m_channelContext, aStatus);
 
-  nsCOMPtr <nsIMsgMailNewsUrl> msgUrl = do_QueryInterface(ctxt, &rv);
-  if (NS_SUCCEEDED(rv) && msgUrl)
+  nsCOMPtr<nsIURI> uri;
+  nsCOMPtr<nsIChannel> channel;
+  QueryInterface(NS_GET_IID(nsIChannel), getter_AddRefs(channel));
+  if (channel)
+    channel->GetURI(getter_AddRefs(uri));
+
+  if (uri)
   {
+    nsCOMPtr <nsIMsgMailNewsUrl> msgUrl = do_QueryInterface(uri);
     rv = msgUrl->SetUrlState(false, aStatus);  // Always returns NS_OK.
     if (m_loadGroup)
       m_loadGroup->RemoveRequest(static_cast<nsIRequest *>(this), nullptr, aStatus);
@@ -531,16 +548,16 @@ NS_IMETHODIMP nsMsgProtocol::GetURI(nsIURI* *aURI)
 NS_IMETHODIMP nsMsgProtocol::Open(nsIInputStream **_retval)
 {
   nsCOMPtr<nsIStreamListener> listener;
-  nsresult rv = nsContentSecurityManager::doContentSecurityCheck(this, listener);
-  NS_ENSURE_SUCCESS(rv, rv);
+  // nsresult rv = nsContentSecurityManager::doContentSecurityCheck(this, listener);
+  // NS_ENSURE_SUCCESS(rv, rv);
   return NS_ImplementChannelOpen(this, _retval);
 }
 
 NS_IMETHODIMP nsMsgProtocol::AsyncOpen(nsIStreamListener *aListener)
 {
     nsCOMPtr<nsIStreamListener> listener = aListener;
-    nsresult rv = nsContentSecurityManager::doContentSecurityCheck(this, listener);
-    NS_ENSURE_SUCCESS(rv, rv);
+    nsresult rv; // = nsContentSecurityManager::doContentSecurityCheck(this, listener);
+    // NS_ENSURE_SUCCESS(rv, rv);
 
     int32_t port;
     rv = m_url->GetPort(&port);
@@ -558,7 +575,14 @@ NS_IMETHODIMP nsMsgProtocol::AsyncOpen(nsIStreamListener *aListener)
         return rv;
 
     // set the stream listener and then load the url
-    // XXX TODO: Set m_channelContext.
+    m_channelContext = nullptr;
+    nsCOMPtr<nsIChannel> channel;
+    nsCOMPtr<nsIURI> uri;
+    QueryInterface(NS_GET_IID(nsIChannel), getter_AddRefs(channel));
+    if (channel)
+      channel->GetURI(getter_AddRefs(uri));
+    m_channelContext = uri;
+
     m_channelListener = listener;
     return LoadUrl(m_url, nullptr);
 }

@@ -340,7 +340,7 @@ nsresult nsNntpService::GetMessageFromUrl(nsIURI *aUrl,
       if (NS_FAILED(rv)) return rv;
 
       //  now try to open the channel passing in our display consumer as the listener
-      rv = aChannel->AsyncOpen(aStreamListener);  // XXX TODO: Provide context, aUrl.
+      rv = aChannel->AsyncOpen(aStreamListener);
     }
     else
       rv = RunNewsUrl(aUrl, aMsgWindow, aDisplayConsumer);

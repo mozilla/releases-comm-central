@@ -444,7 +444,7 @@ NS_IMETHODIMP nsImapService::DisplayMessage(const char *aMessageURI,
       NS_ENSURE_SUCCESS(rv, rv);
 
       //  now try to open the channel passing in our display consumer as the listener
-      rv = aChannel->AsyncOpen(aStreamListener);  // XXX TODO: Provide context, uri.
+      rv = aChannel->AsyncOpen(aStreamListener);
       return rv;
     }
   }
@@ -655,7 +655,7 @@ nsresult nsImapService::FetchMimePart(nsIImapUrl *aImapUrl,
         aChannel->SetLoadGroup(loadGroup);
 
         //  now try to open the channel passing in our display consumer as the listener
-        rv = aChannel->AsyncOpen(aStreamListener);  // XXX TODO: Provide context, url.
+        rv = aChannel->AsyncOpen(aStreamListener);
       }
       else // do what we used to do before
       {
@@ -1094,7 +1094,7 @@ nsresult nsImapService::GetMessageFromUrl(nsIImapUrl *aImapUrl,
       }
 
       //  now try to open the channel passing in our display consumer as the listener
-      rv = channel->AsyncOpen(streamListener);  // XXX TODO: Provide context, url.
+      rv = channel->AsyncOpen(streamListener);
     }
     else // do what we used to do before
     {

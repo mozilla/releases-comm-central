@@ -194,7 +194,7 @@ nsMsgQuote::QuoteMessage(const char *msgURI, bool quoteHeaders,
   if (NS_FAILED(rv)) return rv;
 
   //  now try to open the channel passing in our display consumer as the listener
-  rv = mQuoteChannel->AsyncOpen(convertedListener);  // XXX TODO: Provide context, newURI.
+  rv = mQuoteChannel->AsyncOpen(convertedListener);
   return rv;
 }
 

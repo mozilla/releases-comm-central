@@ -58,6 +58,7 @@ XPIDL_SOURCES += [
     'nsIStatusBarBiffManager.idl',
     'nsIStopwatch.idl',
     'nsISubscribableServer.idl',
+    'nsIURIHolder.idl',
     'nsIUrlListener.idl',
     'nsMsgFolderFlags.idl',
     'nsMsgMessageFlags.idl',

@@ -42,7 +42,8 @@
 // nsFolderCompactState
 //////////////////////////////////////////////////////////////////////////////
 
-NS_IMPL_ISUPPORTS(nsFolderCompactState, nsIMsgFolderCompactor, nsIRequestObserver, nsIStreamListener, nsICopyMessageStreamListener, nsIUrlListener)
+NS_IMPL_ISUPPORTS(nsFolderCompactState, nsIMsgFolderCompactor, nsIRequestObserver,
+                  nsIStreamListener, nsICopyMessageStreamListener, nsIUrlListener, nsIURIHolder)
 
 nsFolderCompactState::nsFolderCompactState()
 {
@@ -81,6 +82,18 @@ GetBaseStringBundle(nsIStringBundle **aBundle)
   nsCOMPtr<nsIStringBundle> bundle;
   return bundleService->CreateBundle(
     "chrome://messenger/locale/messenger.properties", aBundle);
+}
+
+NS_IMETHODIMP nsFolderCompactState::SetURI(nsIURI *aURI)
+{
+  mURI = aURI;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsFolderCompactState::GetURI(nsIURI **aURI)
+{
+  NS_IF_ADDREF(*aURI = mURI);
+  return NS_OK;
 }
 
 void nsFolderCompactState::CloseOutputStream()
@@ -1092,14 +1105,19 @@ nsOfflineStoreCompactState::OnStopRequest(nsIRequest *request, nsISupports *ctxt
   nsCOMPtr<nsIURI> uri;
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
   nsCOMPtr <nsIMsgStatusFeedback> statusFeedback;
+  nsCOMPtr<nsIURIHolder> holder;
   bool done = false;
 
   // The NS_MSG_ERROR_MSG_NOT_OFFLINE error should allow us to continue, so we
   // check for it specifically and don't terminate the compaction.
   if (NS_FAILED(rv) && rv != NS_MSG_ERROR_MSG_NOT_OFFLINE)
     goto done;
-  uri = do_QueryInterface(ctxt, &rv);
-  if (NS_FAILED(rv)) goto done;
+
+  QueryInterface(NS_GET_IID(nsIURIHolder), getter_AddRefs(holder));
+  if (holder)
+    holder->GetURI(getter_AddRefs(uri));
+  if (!uri) goto done;
+
   rv = GetMessage(getter_AddRefs(msgHdr));
   if (NS_FAILED(rv)) goto done;
 

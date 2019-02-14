@@ -56,18 +56,32 @@
 NS_IMPL_ISUPPORTS_INHERITED(nsMsgMailboxParser,
                              nsParseMailMessageState,
                              nsIStreamListener,
-                             nsIRequestObserver)
+                             nsIRequestObserver,
+                             nsIURIHolder)
+
+NS_IMETHODIMP nsMsgMailboxParser::SetURI(nsIURI *aURI)
+{
+  mURI = aURI;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgMailboxParser::GetURI(nsIURI **aURI)
+{
+  NS_IF_ADDREF(*aURI = mURI);
+  return NS_OK;
+}
 
 // Whenever data arrives from the connection, core netlib notifices the protocol by calling
 // OnDataAvailable. We then read and process the incoming data from the input stream.
 NS_IMETHODIMP nsMsgMailboxParser::OnDataAvailable(nsIRequest *request, nsISupports *ctxt, nsIInputStream *aIStream, uint64_t sourceOffset, uint32_t aLength)
 {
-    // right now, this really just means turn around and process the url
-    nsresult rv = NS_OK;
-    nsCOMPtr<nsIURI> url = do_QueryInterface(ctxt, &rv);
-    if (NS_SUCCEEDED(rv))
-        rv = ProcessMailboxInputStream(url, aIStream, aLength);
-    return rv;
+  // right now, this really just means turn around and process the url
+  nsresult rv = NS_ERROR_FAILURE;
+  nsCOMPtr<nsIURI> url;
+  GetURI(getter_AddRefs(url));
+  if (url)
+      rv = ProcessMailboxInputStream(url, aIStream, aLength);
+  return rv;
 }
 
 NS_IMETHODIMP nsMsgMailboxParser::OnStartRequest(nsIRequest *request, nsISupports *ctxt)
@@ -84,12 +98,13 @@ NS_IMETHODIMP nsMsgMailboxParser::OnStartRequest(nsIRequest *request, nsISupport
       mozilla::services::GetIOService();
     NS_ENSURE_TRUE(ioServ, NS_ERROR_UNEXPECTED);
 
-    nsCOMPtr<nsIMailboxUrl> runningUrl = do_QueryInterface(ctxt, &rv);
-
-    nsCOMPtr<nsIMsgMailNewsUrl> url = do_QueryInterface(ctxt);
+    nsCOMPtr<nsIMsgMailNewsUrl> url;
+    nsCOMPtr<nsIURI> uri;
     nsCOMPtr<nsIMsgFolder> folder = do_QueryReferent(m_folder);
+    if (uri)
+      url =  do_QueryInterface(uri);
 
-    if (NS_SUCCEEDED(rv) && runningUrl && folder)
+    if (url && folder)
     {
         url->GetStatusFeedback(getter_AddRefs(m_statusFeedback));
 

@@ -13,7 +13,7 @@
 #include "netCore.h"
 
 NS_IMPL_ISUPPORTS(nsCopyMessageStreamListener, nsIStreamListener,
-  nsIRequestObserver, nsICopyMessageStreamListener)
+  nsIRequestObserver, nsICopyMessageStreamListener, nsIURIHolder)
 
 static nsresult GetMessage(nsIURI *aURL, nsIMsgDBHdr **message)
 {
@@ -55,6 +55,18 @@ nsCopyMessageStreamListener::~nsCopyMessageStreamListener()
   //All member variables are nsCOMPtr's.
 }
 
+NS_IMETHODIMP nsCopyMessageStreamListener::SetURI(nsIURI *aURI)
+{
+  mURI = aURI;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsCopyMessageStreamListener::GetURI(nsIURI **aURI)
+{
+  NS_IF_ADDREF(*aURI = mURI);
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsCopyMessageStreamListener::Init(nsIMsgFolder *srcFolder, nsICopyMessageListener *destination, nsISupports *listenerData)
 {
   mSrcFolder = srcFolder;
@@ -91,9 +103,13 @@ NS_IMETHODIMP nsCopyMessageStreamListener::OnStartRequest(nsIRequest * request, 
 {
   nsCOMPtr<nsIMsgDBHdr> message;
   nsresult rv = NS_OK;
-  nsCOMPtr<nsIURI> uri = do_QueryInterface(ctxt, &rv);
+  nsCOMPtr<nsIURI> uri;
+  nsCOMPtr<nsIURIHolder> holder;
+  QueryInterface(NS_GET_IID(nsIURIHolder), getter_AddRefs(holder));
+  if (holder)
+    holder->GetURI(getter_AddRefs(uri));
 
-  NS_ASSERTION(NS_SUCCEEDED(rv), "ahah...someone didn't pass in the expected context!!!");
+  NS_ASSERTION(uri, "No URL available in nsCopyMessageStreamListener::OnStartRequest() !!!");
 
   if (NS_SUCCEEDED(rv))
     rv = GetMessage(uri, getter_AddRefs(message));

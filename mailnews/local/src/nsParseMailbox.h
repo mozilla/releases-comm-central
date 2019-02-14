@@ -26,6 +26,7 @@
 #include "nsIMsgFilter.h"
 #include "nsIMsgFilterHitNotify.h"
 #include "nsTArray.h"
+#include "nsIURIHolder.h"
 
 class nsByteArray;
 class nsOutputFileStream;
@@ -123,7 +124,7 @@ protected:
 };
 
 // This class is part of the mailbox parsing state machine
-class nsMsgMailboxParser : public nsIStreamListener, public nsParseMailMessageState, public nsMsgLineBuffer
+class nsMsgMailboxParser : public nsIStreamListener, public nsParseMailMessageState, public nsMsgLineBuffer, public nsIURIHolder
 {
 public:
   explicit nsMsgMailboxParser(nsIMsgFolder *);
@@ -138,6 +139,7 @@ public:
   ////////////////////////////////////////////////////////////////////////////////////////
   NS_DECL_NSIREQUESTOBSERVER
   NS_DECL_NSISTREAMLISTENER
+  NS_DECL_NSIURIHOLDER
 
   void    SetDB (nsIMsgDatabase *mailDB) {m_mailDB = mailDB; }
 
@@ -180,6 +182,7 @@ private:
   // to ::StopBinding and it is set whenever we call Load on a url
   bool      m_urlInProgress;
   nsWeakPtr m_folder;
+  nsCOMPtr<nsIURI> mURI;
   void ReleaseFolderLock();
   nsresult AcquireFolderLock();
 
