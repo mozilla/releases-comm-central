@@ -127,9 +127,8 @@ NS_IMETHODIMP nsMsgMailNewsUrl::Write(nsIObjectOutputStream *stream) {
 //-------------------------
 // Support for nsIClassInfo
 //-------------------------
-NS_IMETHODIMP nsMsgMailNewsUrl::GetInterfaces(uint32_t *count, nsIID ***array) {
-  *count = 0;
-  *array = nullptr;
+NS_IMETHODIMP nsMsgMailNewsUrl::GetInterfaces(nsTArray<nsIID> &array) {
+  array.Clear();
   return NS_OK;
 }
 
