@@ -77,6 +77,13 @@ function open_about_support() {
   mc.waitFor(() => (tab.browser.contentWindow.gAccountDetails !== undefined),
              "Timeout waiting for about:support's gAccountDetails to populate.");
 
+  mc.waitFor(() => content_tab_e(tab, "accounts-tbody").children.length > 1,
+             "Accounts sections didn't load.");
+  // The population of the info fields is async, so we must wait until
+  // the last one is done.
+  mc.waitFor(() => content_tab_e(tab, "intl-osprefs-regionalprefs").textContent.trim() != "",
+             "Regional prefs section didn't load.");
+
   return tab;
 }
 
