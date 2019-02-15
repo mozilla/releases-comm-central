@@ -36,10 +36,10 @@
   <stringbundle id="bundlePreferences"
                 src="chrome://messenger/locale/preferences/preferences.properties"/>
   <linkset>
-    <link rel="localization" href="branding/brand.ftl"/>
-    <link rel="localization" href="messenger/preferences/preferences.ftl"/>
-    <link rel="localization" href="messenger/preferences/fonts.ftl"/>
-    <link rel="localization" href="messenger/preferences/languages.ftl"/>
+    <html:link rel="localization" href="branding/brand.ftl"/>
+    <html:link rel="localization" href="messenger/preferences/preferences.ftl"/>
+    <html:link rel="localization" href="messenger/preferences/fonts.ftl"/>
+    <html:link rel="localization" href="messenger/preferences/languages.ftl"/>
   </linkset>
 
   <stack flex="1">

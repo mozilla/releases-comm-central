@@ -19,6 +19,7 @@
 ]>
 
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         id="accountManager"
         windowtype="Messenger:Accounts"
         title="&accountsWindow.title;"
@@ -30,7 +31,7 @@
  <script type="application/javascript" src="chrome://global/content/nsTransferable.js" />
 
  <linkset>
-   <link rel="localization" href="security/certificates/certManager.ftl"/>
+   <html:link rel="localization" href="security/certificates/certManager.ftl"/>
  </linkset>
 
  <stringbundle id="accountsBundle" src="chrome://messenger/locale/imAccounts.properties"/>

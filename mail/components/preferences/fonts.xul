@@ -33,7 +33,7 @@
     <script type="application/javascript" src="chrome://mozapps/content/preferences/fontbuilder.js"/>
     <script type="application/javascript" src="chrome://messenger/content/preferences/fonts.js"/>
     <linkset>
-      <link rel="localization" href="messenger/preferences/fonts.ftl"/>
+      <html:link rel="localization" href="messenger/preferences/fonts.ftl"/>
     </linkset>
 
     <groupbox>

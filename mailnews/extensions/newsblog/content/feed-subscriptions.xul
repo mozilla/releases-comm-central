@@ -37,7 +37,7 @@
           src="chrome://messenger-newsblog/content/feed-subscriptions.js"/>
 
   <linkset>
-    <link rel="localization" href="security/certificates/certManager.ftl"/>
+    <html:link rel="localization" href="security/certificates/certManager.ftl"/>
   </linkset>
 
   <keyset id="extensionsKeys">
