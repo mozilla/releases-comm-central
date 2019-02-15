@@ -245,7 +245,7 @@ function checkJsInRemoteContent() {
     throw new Error("noscript display should be 'none'; display=" + display);
 }
 
-function test_jsContentPolicy() {
+function disabled_test_jsContentPolicy() {
   let folderTab = mc.tabmail.currentTabInfo;
   be_in_folder(folder);
 

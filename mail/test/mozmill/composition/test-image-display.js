@@ -107,7 +107,7 @@ function test_cid_image_view() {
  * Test that showing an image with cid: URL in a HTML message will work
  * in a composition.
  */
-function test_cid_image_compose() {
+function disabled_test_cid_image_compose() {
   // Our image should also be in composition when the message is forwarded/replied.
   for (let msgOperation of [open_compose_with_forward, open_compose_with_reply]) {
     let cwc = msgOperation();
