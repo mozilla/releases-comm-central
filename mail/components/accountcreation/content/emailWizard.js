@@ -910,7 +910,7 @@ EmailConfigWizard.prototype = {
             // </row>
             let addonE = document.createElement("row");
             let iconE = document.createElement("image");
-            let descrE = document.createElement("label",  {is: "text-link"}); // must be <label> to be clickable
+            let descrE = document.createElement("label", {is: "text-link"}); // must be <label> to be clickable
             let buttonE = document.createElement("button");
             addonE.appendChild(iconE);
             addonE.appendChild(descrE);
