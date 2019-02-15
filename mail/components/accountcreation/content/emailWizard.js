@@ -899,7 +899,7 @@ EmailConfigWizard.prototype = {
             // Creates
             // <row>
             //   <image src="https://live.thunderbird.net/owl32.png" />
-            //   <label class="text-link" href="https://live.thunderbird.net/owl">
+            //   <label is="text-link" href="https://live.thunderbird.net/owl">
             //     A third party addon that ...
             //   </label>
             //   <button
@@ -910,7 +910,7 @@ EmailConfigWizard.prototype = {
             // </row>
             let addonE = document.createElement("row");
             let iconE = document.createElement("image");
-            let descrE = document.createElement("label"); // must be <label> to be clickable
+            let descrE = document.createElement("label",  {is: "text-link"}); // must be <label> to be clickable
             let buttonE = document.createElement("button");
             addonE.appendChild(iconE);
             addonE.appendChild(descrE);
@@ -921,7 +921,6 @@ EmailConfigWizard.prototype = {
             if (addon.icon32) {
               iconE.setAttribute("src", addon.icon32);
             }
-            descrE.classList.add("text-link");
             descrE.setAttribute("href", addon.websiteURL);
             descrE.textContent = addon.description;
             buttonE.classList.add("larger-button");

@@ -57,8 +57,7 @@
 
   <vbox flex="1" id="contentPane">
     <hbox align="right">
-      <label id="learnMore"
-             class="text-link"
+      <label is="text-link" id="learnMore"
              crop="end"
              value="&learnMore.label;"
              href="https://support.mozilla.org/kb/how-subscribe-news-feeds-and-blogs"/>
@@ -116,9 +115,8 @@
                          onfocus="FeedSubscriptions.onFocusChange();"
                          onblur="FeedSubscriptions.onFocusChange();"/>
                 <hbox align="center">
-                  <label id="locationValidate"
+                  <label is="text-link" id="locationValidate"
                          collapsed="true"
-                         class="text-link"
                          crop="end"
                          value="&locationValidate.label;"
                          onclick="FeedSubscriptions.checkValidation(event);"/>

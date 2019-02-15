@@ -433,7 +433,8 @@
                                     value=""/>
             </hbox>
             <vbox id="repeat-details" flex="1">
-                <label class="text-link"
+                <label id="repeat-details-label"
+                       class="text-link"
                        crop="right"
                        disable-on-readonly="true"
                        hyperlink="true"
@@ -539,16 +540,16 @@
                   align="center"/>
             <!-- TODO oncommand? onkeypress? -->
             <label id="reminder-multiple-alarms-label"
+                   class="text-link"
                    hidden="true"
                    value="&event.reminder.multiple.label;"
-                   class="text-link"
                    disable-on-readonly="true"
                    flex="1"
                    hyperlink="true"
                    onclick="updateReminder()"/>
             <label id="reminder-single-alarms-label"
-                   hidden="true"
                    class="text-link"
+                   hidden="true"
                    disable-on-readonly="true"
                    flex="1"
                    hyperlink="true"
@@ -646,18 +647,13 @@
         </hbox>
       </tabbox>
 
-      <separator id="event-grid-link-separator"
-                 class="groove"
-                 hidden="true"/>
-      <row id="event-grid-link-row"
-           align="center"
-           hidden="true">
-        <label value="&event.url.label;"
-               control="url-link"/>
+      <separator id="event-grid-link-separator" class="groove" hidden="true"/>
+      <row id="event-grid-link-row" align="center" hidden="true">
+        <label value="&event.url.label;" control="url-link"/>
         <label id="url-link"
+               class="text-link"
                onclick="launchBrowser(this.getAttribute('href'), event)"
                oncommand="launchBrowser(this.getAttribute('href'), event)"
-               class="text-link"
                crop="end"/>
       </row>
     </rows>

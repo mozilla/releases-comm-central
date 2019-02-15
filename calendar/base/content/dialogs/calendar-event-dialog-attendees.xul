@@ -224,8 +224,8 @@
             <datetimepicker id="event-starttime"
                             onchange="updateStartTime();"/>
             <label id="timezone-starttime"
-                   crop="right"
                    class="text-link"
+                   crop="right"
                    flex="1"
                    collapsed="true"
                    hyperlink="true"
@@ -236,8 +236,8 @@
             <datetimepicker id="event-endtime"
                             onchange="updateEndTime();"/>
             <label id="timezone-endtime"
-                   crop="right"
                    class="text-link"
+                   crop="right"
                    flex="1"
                    collapsed="true"
                    hyperlink="true"

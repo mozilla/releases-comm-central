@@ -2592,7 +2592,7 @@ function updateCalendar() {
         for (let element of enableElements) {
             element.removeAttribute("disabled");
             if (element.hasAttribute("hyperlink")) {
-                element.setAttribute("class", "text-link");
+                element.classList.add("text-link");
             }
         }
 

@@ -284,16 +284,16 @@
                       align="center"/>
                 <!-- TODO oncommand? onkeypress? -->
                 <label id="reminder-multiple-alarms-label"
+                       class="text-link"
                        hidden="true"
                        value="&event.reminder.multiple.label;"
-                       class="text-link"
                        disable-on-readonly="true"
                        flex="1"
                        hyperlink="true"
                        onclick="updateReminder()"/>
                 <label id="reminder-single-alarms-label"
-                       hidden="true"
                        class="text-link"
+                       hidden="true"
                        disable-on-readonly="true"
                        flex="1"
                        hyperlink="true"

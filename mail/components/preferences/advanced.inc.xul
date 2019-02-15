@@ -383,7 +383,7 @@
               <vbox>
                 <description>
                   &updateApp.version.pre;<label id="version"/>&updateApp.version.post;
-                  <label id="releasenotes" class="text-link" hidden="true">&releaseNotes.link;</label>
+                  <label is="text-link" id="releasenotes" hidden="true">&releaseNotes.link;</label>
                 </description>
                 <description id="distribution" class="text-blurb" hidden="true"/>
                 <description id="distributionId" class="text-blurb" hidden="true"/>
@@ -435,7 +435,7 @@
                 </hbox>
                <hbox id="downloadFailed" align="center">
                   <label>&update.failed.start;</label>
-                  <label id="failedLink" class="text-link">&update.failed.linkText;</label>
+                  <label is="text-link" id="failedLink">&update.failed.linkText;</label>
                   <label>&update.failed.end;</label>
                   <spacer flex="1"/>
                   <button label="&update.checkForUpdatesButton.label;"
@@ -456,7 +456,7 @@
                   <label>&update.otherInstanceHandlingUpdates;</label>
                 </hbox>
                 <hbox id="manualUpdate" align="center">
-                  <label>&update.manual.start;</label><label id="manualLink" class="text-link">
+                  <label>&update.manual.start;</label><label is="text-link" id="manualLink">
                     &update.manual.linkText;
                   </label>
                   <label>&update.manual.end;</label>
@@ -467,8 +467,7 @@
                 </hbox>
                 <hbox id="unsupportedSystem" align="center">
                   <label>&update.unsupported.start;</label>
-                  <label id="unsupportedLink"
-                         class="text-link">&update.unsupported.linkText;</label>
+                  <label is="text-link" id="unsupportedLink">&update.unsupported.linkText;</label>
                   <label>&update.unsupported.end;</label>
                 </hbox>
                 <hbox id="restarting" align="center">

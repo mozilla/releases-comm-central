@@ -134,10 +134,10 @@ var taskDetailsView = {
                 displayElement("calendar-task-details-attachment-rows", true);
                 for (let attachment of attachments) {
                     let url = attachment.calIAttachment.uri.spec;
-                    let urlLabel = createXULElement("label");
+                    let urlLabel = document.createXULElement("label");
+                    urlLabel.setAttribute("class", "text-link");
                     urlLabel.setAttribute("value", url);
                     urlLabel.setAttribute("tooltiptext", url);
-                    urlLabel.setAttribute("class", "text-link");
                     urlLabel.setAttribute("crop", "end");
                     urlLabel.setAttribute("onclick",
                                           "if (event.button != 2) launchBrowser(this.value);");

@@ -59,8 +59,7 @@
                 accesskey="&remoteContentExceptions.accesskey;"/>
       </hbox>
       <hbox>
-        <label id="acceptRemoteContentInfo"
-               class="text-link"
+        <label is="text-link" id="acceptRemoteContentInfo"
                href="https://support.mozilla.org/kb/remote-content-in-messages"
                value="&acceptRemoteContentInfo.label;"/>
         <spacer flex="1"/>
@@ -134,8 +133,7 @@
         <spacer flex="1"/>
       </hbox>
       <hbox>
-        <label id="doNotTrackInfo"
-               class="text-link"
+        <label is="text-link" id="doNotTrackInfo"
                href="https://www.mozilla.org/dnt"
                value="&doNotTrackInfo.label;"/>
         <spacer flex="1"/>

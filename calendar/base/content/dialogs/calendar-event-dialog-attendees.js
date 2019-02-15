@@ -507,16 +507,16 @@ function updateAllDay() {
 
         tzStart.setAttribute("disabled", "true");
         tzEnd.setAttribute("disabled", "true");
-        tzStart.removeAttribute("class");
-        tzEnd.removeAttribute("class");
+        tzStart.classList.remove("text-link");
+        tzEnd.classList.remove("text-link");
     } else {
         startpicker.removeAttribute("timepickerdisabled");
         endpicker.removeAttribute("timepickerdisabled");
 
         tzStart.removeAttribute("disabled");
         tzEnd.removeAttribute("disabled");
-        tzStart.setAttribute("class", "text-link");
-        tzEnd.setAttribute("class", "text-link");
+        tzStart.classList.add("text-link");
+        tzEnd.classList.add("text-link");
     }
 }
 

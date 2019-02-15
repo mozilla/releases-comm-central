@@ -135,7 +135,8 @@
       <label>
         &filterActionOrderWarning.label;
       </label>
-      <label class="text-link" onclick="showActionsOrder();">&filterActionOrder.label;</label>
+      <label id="seeExecutionOrder" class="text-link"
+             onclick="showActionsOrder();">&filterActionOrder.label;</label>
     </hbox>
   </vbox>
 </dialog>

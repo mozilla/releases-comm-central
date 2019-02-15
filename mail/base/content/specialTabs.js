@@ -960,9 +960,8 @@ var specialTabs = {
     var notification = notifyBox.appendNotification(telemetryText, "telemetry", null, notifyBox.PRIORITY_INFO_LOW, buttons);
     notification.persistence = 3; // arbitrary number, just so bar sticks around for a bit
 
-    let XULNS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
-    let link = notification.ownerDocument.createElementNS(XULNS, "label");
-    link.className = "text-link telemetry-text-link";
+    let link = notification.ownerDocument.createXULElement("label", {is: "text-link"});
+    link.className = "telemetry-text-link";
     link.setAttribute("value", telemetryBundle.get("telemetryLinkLabel"));
     link.addEventListener("click", function() {
       openPrivacyPolicy("tab");

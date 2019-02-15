@@ -32,9 +32,9 @@
           </xul:hbox>
           <xul:hbox pack="start">
             <xul:label class="text-link alarm-details-label"
-                   value="&calendar.alarm.details.label;"
-                   onclick="showDetails(event)"
-                   onkeypress="showDetails(event)"/>
+                       value="&calendar.alarm.details.label;"
+                       onclick="showDetails(event)"
+                       onkeypress="showDetails(event)"/>
           </xul:hbox>
         </xul:vbox>
       </xul:vbox>
