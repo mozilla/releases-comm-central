@@ -174,59 +174,46 @@ var gMockPromptService = {
     return this._promptState;
   },
 
-  get CID() {
-    if (!this._cid) {
-      let registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
-      this._cid = registrar.contractIDToCID(kPromptServiceContractID);
-    }
-    return this._cid;
-  },
+  CID: Components.ID("{404ebfa2-d8f4-4c94-8416-e65a55f9df5b}"),
+
+  get registrar() {
+     delete this.registrar;
+     return this.registrar =
+       Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
+   },
 
   /* Registers the Mock Prompt Service, and stores the original Prompt Service.
    */
-  register: function() {
-    if (this._registered)
-      return;
+  register() {
+    if (!this.originalCID) {
+      void Components.manager.getClassObject(Cc[kPromptServiceContractID],
+                                             Ci.nsIFactory);
 
-    let registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
-
-    this._origFactory = Components.manager
-                                  .getClassObject(Cc[kPromptServiceContractID],
-                                                  Ci.nsIFactory);
-
-    registrar.unregisterFactory(Components.ID(this.CID),
-                                this._origFactory);
-
-    registrar.registerFactory(Components.ID(this.CID),
-                              kMockPromptServiceName,
-                              kPromptServiceContractID,
-                              gMockPromptServiceFactory);
-
-    this._resetServicesPrompt();
-    this._registered = true;
+      this.originalCID = this.registrar.contractIDToCID(kPromptServiceContractID);
+      this.registrar.registerFactory(this.CID,
+                                     kMockPromptServiceName,
+                                     kPromptServiceContractID,
+                                     gMockPromptServiceFactory);
+      this._resetServicesPrompt();
+    }
   },
 
   /* Unregisters the Mock Prompt Service, and re-registers the original
    * Prompt Service.
    */
-  unregister: function() {
-    if (!this._registered)
-      return;
+  unregister() {
+    if (this.originalCID) {
+      // Unregister the mock.
+      this.registrar.unregisterFactory(this.CID, gMockPromptServiceFactory);
 
-    let registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
+      this.registrar.registerFactory(this.originalCID,
+                                     kPromptServiceName,
+                                     kPromptServiceContractID,
+                                     null);
 
-    registrar.unregisterFactory(Components.ID(this.CID),
-                                gMockPromptServiceFactory);
-
-    registrar.registerFactory(Components.ID(this.CID),
-                              kPromptServiceName,
-                              kPromptServiceContractID,
-                              this._origFactory);
-
-    delete this._origFactory;
-
-    this._resetServicesPrompt();
-    this._registered = false;
+      delete this.originalCID;
+      this._resetServicesPrompt();
+    }
   },
 
   _resetServicesPrompt: function() {
