@@ -100,9 +100,10 @@ NS_IMETHODIMP nsMsgMailboxParser::OnStartRequest(nsIRequest *request, nsISupport
 
     nsCOMPtr<nsIMsgMailNewsUrl> url;
     nsCOMPtr<nsIURI> uri;
-    nsCOMPtr<nsIMsgFolder> folder = do_QueryReferent(m_folder);
+    GetURI(getter_AddRefs(uri));
     if (uri)
-      url =  do_QueryInterface(uri);
+      url = do_QueryInterface(uri);
+    nsCOMPtr<nsIMsgFolder> folder = do_QueryReferent(m_folder);
 
     if (url && folder)
     {
