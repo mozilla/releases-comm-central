@@ -17,6 +17,7 @@ jobs:
     - fetch
     - image_builder
     - lint
+    - mingw32-build
     - periodic-updates
     - toolchain-build
     - update-verify
