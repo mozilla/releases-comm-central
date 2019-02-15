@@ -5,6 +5,7 @@
 
 #include "msgCore.h"
 #include "nsIURI.h"
+#include "nsIChannel.h"
 #include "nsParseMailbox.h"
 #include "nsIMsgHdr.h"
 #include "nsIMsgDatabase.h"
@@ -56,32 +57,22 @@
 NS_IMPL_ISUPPORTS_INHERITED(nsMsgMailboxParser,
                              nsParseMailMessageState,
                              nsIStreamListener,
-                             nsIRequestObserver,
-                             nsIURIHolder)
-
-NS_IMETHODIMP nsMsgMailboxParser::SetURI(nsIURI *aURI)
-{
-  mURI = aURI;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgMailboxParser::GetURI(nsIURI **aURI)
-{
-  NS_IF_ADDREF(*aURI = mURI);
-  return NS_OK;
-}
+                             nsIRequestObserver)
 
 // Whenever data arrives from the connection, core netlib notifices the protocol by calling
 // OnDataAvailable. We then read and process the incoming data from the input stream.
 NS_IMETHODIMP nsMsgMailboxParser::OnDataAvailable(nsIRequest *request, nsISupports *ctxt, nsIInputStream *aIStream, uint64_t sourceOffset, uint32_t aLength)
 {
-  // right now, this really just means turn around and process the url
-  nsresult rv = NS_ERROR_FAILURE;
-  nsCOMPtr<nsIURI> url;
-  GetURI(getter_AddRefs(url));
-  if (url)
-      rv = ProcessMailboxInputStream(url, aIStream, aLength);
-  return rv;
+    // right now, this really just means turn around and process the url
+    nsresult rv;
+    nsCOMPtr<nsIChannel> channel = do_QueryInterface(request, &rv);
+    NS_WARNING_ASSERTION(NS_SUCCEEDED(rv), "error QI nsIRequest to nsIChannel failed");
+    NS_ENSURE_SUCCESS(rv, rv);
+    nsCOMPtr<nsIURI> uri;
+    rv = channel->GetURI(getter_AddRefs(uri));
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = ProcessMailboxInputStream(uri, aIStream, aLength);
+    return rv;
 }
 
 NS_IMETHODIMP nsMsgMailboxParser::OnStartRequest(nsIRequest *request, nsISupports *ctxt)
@@ -98,14 +89,19 @@ NS_IMETHODIMP nsMsgMailboxParser::OnStartRequest(nsIRequest *request, nsISupport
       mozilla::services::GetIOService();
     NS_ENSURE_TRUE(ioServ, NS_ERROR_UNEXPECTED);
 
-    nsCOMPtr<nsIMsgMailNewsUrl> url;
+    nsCOMPtr<nsIChannel> channel = do_QueryInterface(request, &rv);
+    NS_WARNING_ASSERTION(NS_SUCCEEDED(rv), "error QI nsIRequest to nsIChannel failed");
+    NS_ENSURE_SUCCESS(rv, rv);
     nsCOMPtr<nsIURI> uri;
-    GetURI(getter_AddRefs(uri));
-    if (uri)
-      url = do_QueryInterface(uri);
+    rv = channel->GetURI(getter_AddRefs(uri));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    nsCOMPtr<nsIMailboxUrl> runningUrl = do_QueryInterface(uri, &rv);
+
+    nsCOMPtr<nsIMsgMailNewsUrl> url = do_QueryInterface(uri);
     nsCOMPtr<nsIMsgFolder> folder = do_QueryReferent(m_folder);
 
-    if (url && folder)
+    if (NS_SUCCEEDED(rv) && runningUrl && folder)
     {
         url->GetStatusFeedback(getter_AddRefs(m_statusFeedback));
 

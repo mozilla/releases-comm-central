@@ -10,10 +10,11 @@
 #include "nsIMsgImapMailFolder.h"
 #include "nsIMsgMessageService.h"
 #include "nsMsgUtils.h"
+#include "nsIChannel.h"
 #include "netCore.h"
 
 NS_IMPL_ISUPPORTS(nsCopyMessageStreamListener, nsIStreamListener,
-  nsIRequestObserver, nsICopyMessageStreamListener, nsIURIHolder)
+  nsIRequestObserver, nsICopyMessageStreamListener)
 
 static nsresult GetMessage(nsIURI *aURL, nsIMsgDBHdr **message)
 {
@@ -55,18 +56,6 @@ nsCopyMessageStreamListener::~nsCopyMessageStreamListener()
   //All member variables are nsCOMPtr's.
 }
 
-NS_IMETHODIMP nsCopyMessageStreamListener::SetURI(nsIURI *aURI)
-{
-  mURI = aURI;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsCopyMessageStreamListener::GetURI(nsIURI **aURI)
-{
-  NS_IF_ADDREF(*aURI = mURI);
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsCopyMessageStreamListener::Init(nsIMsgFolder *srcFolder, nsICopyMessageListener *destination, nsISupports *listenerData)
 {
   mSrcFolder = srcFolder;
@@ -104,13 +93,11 @@ NS_IMETHODIMP nsCopyMessageStreamListener::OnStartRequest(nsIRequest * request, 
   nsCOMPtr<nsIMsgDBHdr> message;
   nsresult rv = NS_OK;
   nsCOMPtr<nsIURI> uri;
-  nsCOMPtr<nsIURIHolder> holder;
-  QueryInterface(NS_GET_IID(nsIURIHolder), getter_AddRefs(holder));
-  if (holder)
-    holder->GetURI(getter_AddRefs(uri));
 
-  NS_ASSERTION(uri, "No URL available in nsCopyMessageStreamListener::OnStartRequest() !!!");
-
+  nsCOMPtr<nsIChannel> channel = do_QueryInterface(request, &rv);
+  NS_WARNING_ASSERTION(NS_SUCCEEDED(rv), "error QI nsIRequest to nsIChannel failed");
+  if (NS_SUCCEEDED(rv))
+    rv = channel->GetURI(getter_AddRefs(uri));
   if (NS_SUCCEEDED(rv))
     rv = GetMessage(uri, getter_AddRefs(message));
   if(NS_SUCCEEDED(rv))
@@ -156,6 +143,13 @@ NS_IMETHODIMP nsCopyMessageStreamListener::EndCopy(nsISupports *url, nsresult aS
 
 NS_IMETHODIMP nsCopyMessageStreamListener::OnStopRequest(nsIRequest* request, nsISupports *ctxt, nsresult aStatus)
 {
-  return EndCopy(ctxt, aStatus);
+  nsresult rv;
+  nsCOMPtr<nsIChannel> channel = do_QueryInterface(request, &rv);
+  NS_WARNING_ASSERTION(NS_SUCCEEDED(rv), "error QI nsIRequest to nsIChannel failed");
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIURI> uri;
+  rv = channel->GetURI(getter_AddRefs(uri));
+  NS_ENSURE_SUCCESS(rv, rv);
+  return EndCopy(uri, aStatus);
 }
 

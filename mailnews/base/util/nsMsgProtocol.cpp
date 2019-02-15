@@ -298,7 +298,7 @@ nsresult nsMsgProtocol::SendData(const char * dataBuffer, bool aSuppressLogging)
 NS_IMETHODIMP nsMsgProtocol::OnDataAvailable(nsIRequest *request, nsISupports *ctxt, nsIInputStream *inStr, uint64_t sourceOffset, uint32_t count)
 {
   // right now, this really just means turn around and churn through the state machine
-  nsCOMPtr<nsIURI> uri;
+  nsCOMPtr <nsIURI> uri;
   nsCOMPtr<nsIChannel> channel;
   QueryInterface(NS_GET_IID(nsIChannel), getter_AddRefs(channel));
   if (channel)
@@ -318,7 +318,7 @@ NS_IMETHODIMP nsMsgProtocol::OnStartRequest(nsIRequest *request, nsISupports *ct
 
   if (uri)
   {
-    nsCOMPtr <nsIMsgMailNewsUrl> aMsgUrl = do_QueryInterface(uri);
+    nsCOMPtr<nsIMsgMailNewsUrl> aMsgUrl = do_QueryInterface(uri);
     rv = aMsgUrl->SetUrlState(true, NS_OK);
     if (m_loadGroup)
       m_loadGroup->AddRequest(static_cast<nsIRequest *>(this), nullptr /* context isupports */);

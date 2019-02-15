@@ -16,15 +16,13 @@
 #include "nsIMsgWindow.h"
 #include "nsIStringBundle.h"
 #include "nsIMsgMessageService.h"
-#include "nsIURIHolder.h"
 
 #define COMPACTOR_READ_BUFF_SIZE 16384
 
 class nsFolderCompactState : public nsIMsgFolderCompactor,
                              public nsIStreamListener,
                              public nsICopyMessageStreamListener,
-                             public nsIUrlListener,
-                             public nsIURIHolder
+                             public nsIUrlListener
 {
 public:
   NS_DECL_ISUPPORTS
@@ -33,7 +31,6 @@ public:
   NS_DECL_NSICOPYMESSAGESTREAMLISTENER
   NS_DECL_NSIURLLISTENER
   NS_DECL_NSIMSGFOLDERCOMPACTOR
-  NS_DECL_NSIURIHOLDER
 
   nsFolderCompactState(void);
 protected:
@@ -91,7 +88,6 @@ protected:
   uint32_t m_addedHeaderSize;
   nsCOMPtr<nsIArray> m_offlineFolderArray;
   nsCOMPtr<nsIUrlListener> m_listener;
-  nsCOMPtr<nsIURI> mURI;
   bool m_alreadyWarnedDiskSpace;
 };
 

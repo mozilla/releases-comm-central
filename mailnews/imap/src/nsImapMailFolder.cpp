@@ -90,7 +90,6 @@
 #include "mozilla/Attributes.h"
 #include "nsStringStream.h"
 #include "nsIStreamListener.h"
-#include "nsIURIHolder.h"
 
 static NS_DEFINE_CID(kParseMailMsgStateCID, NS_PARSEMAILMSGSTATE_CID);
 static NS_DEFINE_CID(kCImapHostSessionList, NS_IIMAPHOSTSESSIONLIST_CID);
@@ -8107,13 +8106,6 @@ nsImapMailFolder::CopyStreamMessage(nsIMsgDBHdr* message,
 
   nsCString uri;
   srcFolder->GetUriForMsg(message, uri);
-
-  nsCOMPtr<nsIURIHolder> holder = do_QueryInterface(copyStreamListener);
-  if (holder) {
-    nsCOMPtr<nsIURI> uri2;
-    NS_NewURI(getter_AddRefs(uri2), uri.get());
-    holder->SetURI(uri2);
-  }
 
   if (!m_copyState->m_msgService)
     rv = GetMessageServiceFromURI(uri, getter_AddRefs(m_copyState->m_msgService));

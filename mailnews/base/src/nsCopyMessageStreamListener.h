@@ -12,12 +12,8 @@
 #include "nsICopyMessageListener.h"
 #include "nsCOMPtr.h"
 #include "nsIURI.h"
-#include "nsIURIHolder.h"
 
-class nsCopyMessageStreamListener : public nsIStreamListener,
-                                    public nsICopyMessageStreamListener,
-                                    public nsIURIHolder
-{
+class nsCopyMessageStreamListener : public nsIStreamListener, public nsICopyMessageStreamListener {
 
 public:
   nsCopyMessageStreamListener();
@@ -26,7 +22,6 @@ public:
   NS_DECL_NSICOPYMESSAGESTREAMLISTENER
   NS_DECL_NSIREQUESTOBSERVER
   NS_DECL_NSISTREAMLISTENER
-  NS_DECL_NSIURIHOLDER
 
 protected:
   virtual ~nsCopyMessageStreamListener();
@@ -34,7 +29,6 @@ protected:
   nsCOMPtr<nsICopyMessageListener> mDestination;
   nsCOMPtr<nsISupports> mListenerData;
   nsCOMPtr<nsIMsgFolder> mSrcFolder;
-  nsCOMPtr<nsIURI> mURI;
 
 };
 

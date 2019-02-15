@@ -10,6 +10,7 @@
 #include "nsIFile.h"
 #include "nsNetUtil.h"
 #include "nsIMsgHdr.h"
+#include "nsIChannel.h"
 #include "nsIStreamListener.h"
 #include "nsIMsgMessageService.h"
 #include "nsMsgDBCID.h"
@@ -42,8 +43,7 @@
 // nsFolderCompactState
 //////////////////////////////////////////////////////////////////////////////
 
-NS_IMPL_ISUPPORTS(nsFolderCompactState, nsIMsgFolderCompactor, nsIRequestObserver,
-                  nsIStreamListener, nsICopyMessageStreamListener, nsIUrlListener, nsIURIHolder)
+NS_IMPL_ISUPPORTS(nsFolderCompactState, nsIMsgFolderCompactor, nsIRequestObserver, nsIStreamListener, nsICopyMessageStreamListener, nsIUrlListener)
 
 nsFolderCompactState::nsFolderCompactState()
 {
@@ -82,18 +82,6 @@ GetBaseStringBundle(nsIStringBundle **aBundle)
   nsCOMPtr<nsIStringBundle> bundle;
   return bundleService->CreateBundle(
     "chrome://messenger/locale/messenger.properties", aBundle);
-}
-
-NS_IMETHODIMP nsFolderCompactState::SetURI(nsIURI *aURI)
-{
-  mURI = aURI;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsFolderCompactState::GetURI(nsIURI **aURI)
-{
-  NS_IF_ADDREF(*aURI = mURI);
-  return NS_OK;
 }
 
 void nsFolderCompactState::CloseOutputStream()
@@ -1105,7 +1093,7 @@ nsOfflineStoreCompactState::OnStopRequest(nsIRequest *request, nsISupports *ctxt
   nsCOMPtr<nsIURI> uri;
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
   nsCOMPtr <nsIMsgStatusFeedback> statusFeedback;
-  nsCOMPtr<nsIURIHolder> holder;
+  nsCOMPtr<nsIChannel> channel;
   bool done = false;
 
   // The NS_MSG_ERROR_MSG_NOT_OFFLINE error should allow us to continue, so we
@@ -1113,11 +1101,11 @@ nsOfflineStoreCompactState::OnStopRequest(nsIRequest *request, nsISupports *ctxt
   if (NS_FAILED(rv) && rv != NS_MSG_ERROR_MSG_NOT_OFFLINE)
     goto done;
 
-  QueryInterface(NS_GET_IID(nsIURIHolder), getter_AddRefs(holder));
-  if (holder)
-    holder->GetURI(getter_AddRefs(uri));
-  if (!uri) goto done;
-
+  channel = do_QueryInterface(request, &rv);
+  NS_WARNING_ASSERTION(NS_SUCCEEDED(rv), "error QI nsIRequest to nsIChannel failed");
+  if (NS_FAILED(rv)) goto done;
+  rv = channel->GetURI(getter_AddRefs(uri));
+  if (NS_FAILED(rv)) goto done;
   rv = GetMessage(getter_AddRefs(msgHdr));
   if (NS_FAILED(rv)) goto done;
 

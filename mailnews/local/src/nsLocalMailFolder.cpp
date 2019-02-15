@@ -58,7 +58,6 @@
 #include "nsIStringEnumerator.h"
 #include "mozilla/Services.h"
 #include "nsIURIMutator.h"
-#include "nsIURIHolder.h"
 
 //////////////////////////////////////////////////////////////////////////////
 // nsLocal
@@ -2732,17 +2731,10 @@ nsresult nsMsgLocalMailFolder::CopyMessagesTo(nsIArray *messages, nsTArray<nsMsg
   if (NS_FAILED(rv))
     return rv;
 
-  nsCString uri;
-  srcFolder->GetURI(uri);
-  nsCOMPtr<nsIURIHolder> holder = do_QueryInterface(copyListener);
-  if (holder) {
-    nsCOMPtr<nsIURI> uri2;
-    NS_NewURI(getter_AddRefs(uri2), uri.get());
-    holder->SetURI(uri2);
-  }
-
   if (!mCopyState->m_messageService)
   {
+    nsCString uri;
+    srcFolder->GetURI(uri);
     rv = GetMessageServiceFromURI(uri, getter_AddRefs(mCopyState->m_messageService));
   }
 
@@ -2793,13 +2785,6 @@ nsresult nsMsgLocalMailFolder::CopyMessageTo(nsISupports *message,
 
   nsCOMPtr<nsICopyMessageStreamListener> copyStreamListener = do_CreateInstance(NS_COPYMESSAGESTREAMLISTENER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv,rv);
-
-  nsCOMPtr<nsIURIHolder> holder = do_QueryInterface(copyStreamListener);
-  if (holder) {
-    nsCOMPtr<nsIURI> uri2;
-    NS_NewURI(getter_AddRefs(uri2), uri.get());
-    holder->SetURI(uri2);
-  }
 
   nsCOMPtr<nsICopyMessageListener> copyListener(do_QueryInterface(dstFolder, &rv));
   NS_ENSURE_SUCCESS(rv, NS_ERROR_NO_INTERFACE);
