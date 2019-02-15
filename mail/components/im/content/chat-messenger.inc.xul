@@ -160,7 +160,7 @@
               </deck>
               <splitter id="contextSplitter" hidden="true" collapse="after"/>
               <vbox id="contextPane" hidden="true" width="250" persist="width">
-                <toolbar class="conv-top-info" id="conv-top-info"/>
+                <chat-conversation-info id="conv-top-info" class="conv-top-info"/>
                 <vbox id="contextPaneFlexibleBox" flex="1">
                   <vbox flex="1" class="conv-chat" width="150">
                     <hbox align="baseline" class="conv-nicklist-header">

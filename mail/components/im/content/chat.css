@@ -51,10 +51,6 @@ tooltip[type="im"] {
   display: none;
 }
 
-.conv-top-info {
-  -moz-binding: url("chrome://messenger/content/chat/imconversation.xml#conv-info-large") !important;
-}
-
 #IMSearchInput {
   -moz-binding: url("chrome://messenger/content/search.xml#glodaSearch");
 }
