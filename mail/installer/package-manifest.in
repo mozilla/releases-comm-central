@@ -301,18 +301,6 @@
 @RESPATH@/chrome/devtools.manifest
 @RESPATH@/@PREF_DIR@/devtools-client.js
 @RESPATH@/@PREF_DIR@/debugger.js
-@RESPATH@/components/devtools-startup.manifest
-@RESPATH@/components/devtools-startup.js
-@RESPATH@/components/aboutdebugging-registration.js
-@RESPATH@/components/aboutdebugging.manifest
-#ifdef NIGHTLY_BUILD
-@RESPATH@/components/aboutdebugging-new-registration.js
-@RESPATH@/components/aboutdebugging-new.manifest
-#endif
-@RESPATH@/components/aboutdevtools-registration.js
-@RESPATH@/components/aboutdevtools.manifest
-@RESPATH@/components/aboutdevtoolstoolbox-registration.js
-@RESPATH@/components/aboutdevtoolstoolbox.manifest
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Default Profile Settings
@@ -383,80 +371,16 @@
 @BINPATH@/IA2Marshal.dll
 #endif
 #endif
-@RESPATH@/components/mozIntl.manifest
-@RESPATH@/components/mozIntl.js
 
 ; toolkit
-@RESPATH@/components/ConsoleAPI.manifest
-@RESPATH@/components/ConsoleAPIStorage.js
-@RESPATH@/components/BrowserElementParent.manifest
-@RESPATH@/components/BrowserElementParent.js
-@RESPATH@/components/Downloads.manifest
-@RESPATH@/components/DownloadLegacy.js
-@RESPATH@/components/PageThumbsComponents.manifest
-@RESPATH@/components/crashmonitor.manifest
-@RESPATH@/components/nsCrashMonitor.js
 @RESPATH@/components/toolkitsearch.manifest
-@RESPATH@/components/nsSearchService.js
-@RESPATH@/components/nsSearchSuggestions.js
-@RESPATH@/components/passwordmgr.manifest
-@RESPATH@/components/nsLoginInfo.js
-@RESPATH@/components/nsLoginManager.js
-@RESPATH@/components/nsLoginManagerPrompter.js
-@RESPATH@/components/storage-json.js
-@RESPATH@/components/crypto-SDR.js
-@RESPATH@/components/TooltipTextProvider.js
-@RESPATH@/components/TooltipTextProvider.manifest
-@RESPATH@/components/nsHelperAppDlg.manifest
-@RESPATH@/components/nsHelperAppDlg.js
-@RESPATH@/components/NetworkGeolocationProvider.manifest
-@RESPATH@/components/NetworkGeolocationProvider.js
 @RESPATH@/components/extensions.manifest
-@RESPATH@/components/addonManager.js
-@RESPATH@/components/amContentHandler.js
-@RESPATH@/components/amInstallTrigger.js
 #ifdef MOZ_UPDATER
 @RESPATH@/components/nsUpdateService.manifest
-@RESPATH@/components/nsUpdateService.js
-@RESPATH@/components/nsUpdateServiceStub.js
 #endif
-@RESPATH@/components/nsUpdateTimerManager.manifest
-@RESPATH@/components/nsUpdateTimerManager.js
-@RESPATH@/components/utils.manifest
-@RESPATH@/components/simpleServices.js
 @RESPATH@/components/ProcessSingleton.manifest
-@RESPATH@/components/MainProcessSingleton.js
-@RESPATH@/components/ContentProcessSingleton.js
-@RESPATH@/components/nsURLFormatter.manifest
-@RESPATH@/components/nsURLFormatter.js
-@RESPATH@/components/toolkitplaces.manifest
-@RESPATH@/components/nsTaggingService.js
-@RESPATH@/components/UnifiedComplete.js
-@RESPATH@/components/nsPlacesExpiration.js
-@RESPATH@/components/PageIconProtocolHandler.js
-@RESPATH@/components/PlacesCategoriesStarter.js
-@RESPATH@/components/ColorAnalyzer.js
-@RESPATH@/components/PageThumbsStorageService.js
-@RESPATH@/components/nsDefaultCLH.manifest
-@RESPATH@/components/nsDefaultCLH.js
-@RESPATH@/components/ContentPrefService2.manifest
-@RESPATH@/components/ContentPrefService2.js
-@RESPATH@/components/nsContentDispatchChooser.manifest
-@RESPATH@/components/nsContentDispatchChooser.js
 @RESPATH@/components/HandlerService.manifest
 @RESPATH@/components/HandlerService.js
-@RESPATH@/components/nsWebHandlerApp.manifest
-@RESPATH@/components/nsWebHandlerApp.js
-@RESPATH@/components/satchel.manifest
-@RESPATH@/components/nsFormAutoComplete.js
-@RESPATH@/components/FormHistoryStartup.js
-@RESPATH@/components/nsInputListAutoComplete.js
-@RESPATH@/components/contentAreaDropListener.manifest
-@RESPATH@/components/contentAreaDropListener.js
-@RESPATH@/components/UAOverridesBootstrapper.js
-@RESPATH@/components/UAOverridesBootstrapper.manifest
-@RESPATH@/components/WellKnownOpportunisticUtils.js
-@RESPATH@/components/WellKnownOpportunisticUtils.manifest
 
 #ifdef MOZ_CALENDAR
 [calendar]
@@ -468,40 +392,10 @@
 #endif
 @RESPATH@/features/wetransfer@extensions.thunderbird.net/
 
-@RESPATH@/components/nsPrompter.manifest
-@RESPATH@/components/nsPrompter.js
-@RESPATH@/components/CaptivePortalDetectComponents.manifest
-@RESPATH@/components/captivedetect.js
 @RESPATH@/components/servicesComponents.manifest
 @RESPATH@/components/servicesSettings.manifest
-@RESPATH@/components/RemoteSettingsComponents.js
 @RESPATH@/components/cryptoComponents.manifest
-@RESPATH@/components/TelemetryStartup.js
-@RESPATH@/components/TelemetryStartup.manifest
-@RESPATH@/components/XULStore.js
-@RESPATH@/components/XULStore.manifest
-@RESPATH@/components/htmlMenuBuilder.js
-@RESPATH@/components/htmlMenuBuilder.manifest
-@RESPATH@/components/Push.js
 @RESPATH@/components/Push.manifest
-@RESPATH@/components/PushComponents.js
-
-@RESPATH@/components/remotebrowserutils.manifest
-@RESPATH@/components/RemoteWebNavigation.js
-
-@RESPATH@/components/ProcessSelector.js
-@RESPATH@/components/ProcessSelector.manifest
-
-@RESPATH@/components/SlowScriptDebug.manifest
-@RESPATH@/components/SlowScriptDebug.js
-
-@RESPATH@/components/ClearDataService.manifest
-@RESPATH@/components/ClearDataService.js
-
-#ifdef MOZ_WEBRTC
-@RESPATH@/components/PeerConnection.js
-@RESPATH@/components/PeerConnection.manifest
-#endif
 
 ; Remote control protocol
 #ifdef ENABLE_MARIONETTE
@@ -512,22 +406,12 @@
 @RESPATH@/defaults/pref/marionette.js
 #endif
 
-@RESPATH@/components/nsAsyncShutdown.manifest
-@RESPATH@/components/nsAsyncShutdown.js
-
-@RESPATH@/components/BuiltinProviders.manifest
-@RESPATH@/components/PresentationControlService.js
 
 ; Phishing Protection
 
 ; Modules
 @RESPATH@/modules/*
 @RESPATH@/actors/*
-
-@RESPATH@/components/nsURLClassifier.manifest
-@RESPATH@/components/nsUrlClassifierHashCompleter.js
-@RESPATH@/components/nsUrlClassifierListManager.js
-@RESPATH@/components/nsUrlClassifierLib.js
 
 ; Security Reports
 @RESPATH@/components/SecurityReporter.manifest
@@ -650,8 +534,6 @@
 ; [Crash Reporter]
 ;
 #ifdef MOZ_CRASHREPORTER
-@RESPATH@/components/CrashService.manifest
-@RESPATH@/components/CrashService.js
 #ifdef XP_MACOSX
 @BINPATH@/crashreporter.app/
 #else
@@ -672,14 +554,4 @@
 @BINPATH@/pingsender@BIN_SUFFIX@
 
 ; Shutdown Terminator
-@RESPATH@/components/nsTerminatorTelemetry.js
 @RESPATH@/components/terminator.manifest
-
-; Background Hang Monitor
-
-; NOTE: This must match the config checks in
-; /toolkit/components/backgroundhangmonitor/moz.build.
-#if defined(NIGHTLY_BUILD) && !defined(MOZ_DEBUG) && !defined(MOZ_TSAN) && !defined(MOZ_ASAN)
-@RESPATH@/components/BHRTelemetryService.js
-@RESPATH@/components/BHRTelemetryService.manifest
-#endif
