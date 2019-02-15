@@ -92,7 +92,7 @@
                                                          this.calView.queryEndDate,
                                                          {});
                   for (let occ of occs) {
-                      this.calView.doAddItem(occ);
+                      this.calView.doAddItem(occ.QueryInterface(Ci.calIEvent));
                   }
               },
 
@@ -108,7 +108,7 @@
                                                             this.calView.queryEndDate,
                                                             {});
                       for (let occ of occs) {
-                          this.calView.doDeleteItem(occ);
+                          this.calView.doDeleteItem(occ.QueryInterface(Ci.calIEvent));
                       }
                   }
                   if (cal.item.isToDo(aNewItem)) {
@@ -124,7 +124,7 @@
                                                         this.calView.queryEndDate,
                                                         {});
                   for (let occ of occs) {
-                      this.calView.doAddItem(occ);
+                      this.calView.doAddItem(occ.QueryInterface(Ci.calIEvent));
                   }
               },
 
@@ -145,7 +145,7 @@
                                                          this.calView.queryEndDate,
                                                          {});
                   for (let occ of occs) {
-                      this.calView.doDeleteItem(occ);
+                      this.calView.doDeleteItem(occ.QueryInterface(Ci.calIEvent));
                   }
               },
 
