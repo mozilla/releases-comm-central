@@ -63,13 +63,25 @@ var gConnectionsDialog = {
     var shareProxiesPref = document.getElementById("network.proxy.share_proxy_settings");
     shareProxiesPref.disabled = proxyTypePref.value != 1;
 
+    var autologinProxyPref = document.getElementById("signon.autologin.proxy");
+    autologinProxyPref.disabled = proxyTypePref.value == 0;
+
     var noProxiesPref = document.getElementById("network.proxy.no_proxies_on");
-    noProxiesPref.disabled = proxyTypePref.value != 1;
+    noProxiesPref.disabled = proxyTypePref.value == 0;
 
     var autoconfigURLPref = document.getElementById("network.proxy.autoconfig_url");
     autoconfigURLPref.disabled = proxyTypePref.value != 2;
 
     this.updateReloadButton();
+  },
+
+  updateDNSPref() {
+    var socksVersionPref = document.getElementById("network.proxy.socks_version");
+    var socksDNSPref = document.getElementById("network.proxy.socks_remote_dns");
+    var proxyTypePref = document.getElementById("network.proxy.type");
+    var isDefinitelySocks4 = !socksVersionPref.disabled && socksVersionPref.value == 4;
+    socksDNSPref.disabled = (isDefinitelySocks4 || proxyTypePref.value == 0);
+    return undefined;
   },
 
   updateReloadButton() {
@@ -124,7 +136,7 @@ var gConnectionsDialog = {
     }
     var socksVersionPref = document.getElementById("network.proxy.socks_version");
     socksVersionPref.disabled = proxyTypePref.value != 1 || shareProxiesPref.value;
-
+    this.updateDNSPref();
     return undefined;
   },
 

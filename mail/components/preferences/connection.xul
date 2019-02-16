@@ -124,22 +124,11 @@
             <row>
               <spacer/>
               <radiogroup id="networkProxySOCKSVersion" orient="horizontal"
-                          preference="network.proxy.socks_version">
+                          preference="network.proxy.socks_version"
+                          onsyncfrompreference="return gConnectionsDialog.updateDNSPref();">
                 <radio id="networkProxySOCKSVersion4" value="4" label="&socks4.label;" accesskey="&socks4.accesskey;" />
                 <radio id="networkProxySOCKSVersion5" value="5" label="&socks5.label;" accesskey="&socks5.accesskey;" />
               </radiogroup>
-            </row>
-
-            <row align="center">
-              <hbox align="center" pack="end">
-                <label value="&noproxy.label;" accesskey="&noproxy.accesskey;" control="networkProxyNone"/>
-              </hbox>
-              <textbox id="networkProxyNone" class="uri-element"
-                       preference="network.proxy.no_proxies_on"/>
-            </row>
-            <row>
-              <spacer/>
-              <label value="&noproxyExplain.label;" control="networkProxyNone"/>
             </row>
           </rows>
         </grid>
@@ -155,6 +144,15 @@
       </radiogroup>
     </groupbox>
     <separator class="thin"/>
+    <label value="&noproxy.label;"
+           accesskey="&noproxy.accesskey;"
+           control="networkProxyNone"/>
+     <textbox id="networkProxyNone"
+              class="uri-element"
+              multiline="true"
+              rows="2"
+              preference="network.proxy.no_proxies_on"/>
+    <label value="&noproxyExplain.label;" control="networkProxyNone"/>
     <checkbox id="autologinProxy"
               label="&autologinproxy.label;"
               accesskey="&autologinproxy.accesskey;"
