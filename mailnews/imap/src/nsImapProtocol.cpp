@@ -9306,8 +9306,8 @@ NS_IMETHODIMP nsImapMockChannel::SetURI(nsIURI* aURI)
 NS_IMETHODIMP nsImapMockChannel::Open(nsIInputStream **_retval)
 {
   nsCOMPtr<nsIStreamListener> listener;
-  // nsresult rv = nsContentSecurityManager::doContentSecurityCheck(this, listener);
-  // NS_ENSURE_SUCCESS(rv, rv);
+  nsresult rv = nsContentSecurityManager::doContentSecurityCheck(this, listener);
+  NS_ENSURE_SUCCESS(rv, rv);
   return NS_ImplementChannelOpen(this, _retval);
 }
 
@@ -9892,8 +9892,8 @@ bool nsImapMockChannel::ReadFromLocalCache()
 NS_IMETHODIMP nsImapMockChannel::AsyncOpen(nsIStreamListener *aListener)
 {
   nsCOMPtr<nsIStreamListener> listener = aListener;
-  nsresult rv; //  = nsContentSecurityManager::doContentSecurityCheck(this, listener);
-  // NS_ENSURE_SUCCESS(rv, rv);
+  nsresult rv = nsContentSecurityManager::doContentSecurityCheck(this, listener);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   int32_t port;
   if (!m_url)

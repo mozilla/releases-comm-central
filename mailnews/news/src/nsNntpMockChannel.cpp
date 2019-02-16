@@ -278,16 +278,16 @@ nsNntpMockChannel::GetIsDocument(bool *aIsDocument)
 NS_IMETHODIMP nsNntpMockChannel::Open(nsIInputStream **_retval)
 {
   nsCOMPtr<nsIStreamListener> listener;
-  // nsresult rv = nsContentSecurityManager::doContentSecurityCheck(this, listener);
-  // NS_ENSURE_SUCCESS(rv, rv);
+  nsresult rv = nsContentSecurityManager::doContentSecurityCheck(this, listener);
+  NS_ENSURE_SUCCESS(rv, rv);
   return NS_ImplementChannelOpen(this, _retval);
 }
 
 NS_IMETHODIMP nsNntpMockChannel::AsyncOpen(nsIStreamListener *aListener)
 {
   nsCOMPtr<nsIStreamListener> listener = aListener;
-  // nsresult rv = nsContentSecurityManager::doContentSecurityCheck(this, listener);
-  // NS_ENSURE_SUCCESS(rv, rv);
+  nsresult rv = nsContentSecurityManager::doContentSecurityCheck(this, listener);
+  NS_ENSURE_SUCCESS(rv, rv);
   m_channelState = CHANNEL_OPEN_WITH_ASYNC;
   m_channelListener = listener;
   m_context = nullptr;

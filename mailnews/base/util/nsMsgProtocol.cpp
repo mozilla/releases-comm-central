@@ -548,16 +548,16 @@ NS_IMETHODIMP nsMsgProtocol::GetURI(nsIURI* *aURI)
 NS_IMETHODIMP nsMsgProtocol::Open(nsIInputStream **_retval)
 {
   nsCOMPtr<nsIStreamListener> listener;
-  // nsresult rv = nsContentSecurityManager::doContentSecurityCheck(this, listener);
-  // NS_ENSURE_SUCCESS(rv, rv);
+  nsresult rv = nsContentSecurityManager::doContentSecurityCheck(this, listener);
+  NS_ENSURE_SUCCESS(rv, rv);
   return NS_ImplementChannelOpen(this, _retval);
 }
 
 NS_IMETHODIMP nsMsgProtocol::AsyncOpen(nsIStreamListener *aListener)
 {
     nsCOMPtr<nsIStreamListener> listener = aListener;
-    nsresult rv; // = nsContentSecurityManager::doContentSecurityCheck(this, listener);
-    // NS_ENSURE_SUCCESS(rv, rv);
+    nsresult rv = nsContentSecurityManager::doContentSecurityCheck(this, listener);
+    NS_ENSURE_SUCCESS(rv, rv);
 
     int32_t port;
     rv = m_url->GetPort(&port);

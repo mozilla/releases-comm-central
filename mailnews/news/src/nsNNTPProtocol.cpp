@@ -830,8 +830,8 @@ nsresult nsNNTPProtocol::OpenCacheEntry()
 NS_IMETHODIMP nsNNTPProtocol::AsyncOpen(nsIStreamListener *aListener)
 {
   nsCOMPtr<nsIStreamListener> listener = aListener;
-  nsresult rv; //  = nsContentSecurityManager::doContentSecurityCheck(this, listener);
-  // NS_ENSURE_SUCCESS(rv, rv);
+  nsresult rv = nsContentSecurityManager::doContentSecurityCheck(this, listener);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_runningURL, &rv);
   NS_ENSURE_SUCCESS(rv,rv);

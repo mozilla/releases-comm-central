@@ -63,6 +63,7 @@
 #include "../../base/src/MailnewsLoadContextInfo.h"
 #include "nsDocShellLoadState.h"
 #include "nsContentUtils.h"
+#include "mozilla/LoadInfo.h"
 
 #define PREF_MAIL_ROOT_IMAP "mail.root.imap"            // old - for backward compatibility only
 #define PREF_MAIL_ROOT_IMAP_REL "mail.root.imap-rel"
@@ -440,7 +441,13 @@ NS_IMETHODIMP nsImapService::DisplayMessage(const char *aMessageURI,
       if (NS_SUCCEEDED(rv) && mailnewsUrl)
         mailnewsUrl->GetLoadGroup(getter_AddRefs(aLoadGroup));
 
-      rv = NewChannel(uri, getter_AddRefs(aChannel));
+      nsCOMPtr<nsILoadInfo> loadInfo = new mozilla::net::LoadInfo(
+        nsContentUtils::GetSystemPrincipal(),
+        nullptr,
+        nullptr,
+        nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+        nsIContentPolicy::TYPE_OTHER);
+      rv = NewChannel2(uri, loadInfo, getter_AddRefs(aChannel));
       NS_ENSURE_SUCCESS(rv, rv);
 
       //  now try to open the channel passing in our display consumer as the listener
@@ -643,7 +650,13 @@ nsresult nsImapService::FetchMimePart(nsIImapUrl *aImapUrl,
         if (NS_SUCCEEDED(rv) && mailnewsUrl)
           mailnewsUrl->GetLoadGroup(getter_AddRefs(loadGroup));
 
-        rv = NewChannel(url, getter_AddRefs(aChannel));
+        nsCOMPtr<nsILoadInfo> loadInfo = new mozilla::net::LoadInfo(
+          nsContentUtils::GetSystemPrincipal(),
+          nullptr,
+          nullptr,
+          nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+          nsIContentPolicy::TYPE_OTHER);
+        rv = NewChannel2(url, loadInfo, getter_AddRefs(aChannel));
         NS_ENSURE_SUCCESS(rv, rv);
 
         // we need a load group to hold onto the channel. When the request is finished,
@@ -1070,7 +1083,13 @@ nsresult nsImapService::GetMessageFromUrl(nsIImapUrl *aImapUrl,
       if (NS_SUCCEEDED(rv) && mailnewsUrl)
         mailnewsUrl->GetLoadGroup(getter_AddRefs(loadGroup));
 
-      rv = NewChannel(url, getter_AddRefs(channel));
+      nsCOMPtr<nsILoadInfo> loadInfo = new mozilla::net::LoadInfo(
+        nsContentUtils::GetSystemPrincipal(),
+        nullptr,
+        nullptr,
+        nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+        nsIContentPolicy::TYPE_OTHER);
+      rv = NewChannel2(url, loadInfo, getter_AddRefs(channel));
       NS_ENSURE_SUCCESS(rv, rv);
 
       // we need a load group to hold onto the channel. When the request is finished,

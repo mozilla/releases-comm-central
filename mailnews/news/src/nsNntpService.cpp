@@ -45,6 +45,7 @@
 #include "nsTArray.h"
 #include "nsDocShellLoadState.h"
 #include "nsContentUtils.h"
+#include "mozilla/LoadInfo.h"
 
 #include "../../base/src/MailnewsLoadContextInfo.h"
 
@@ -333,7 +334,13 @@ nsresult nsNntpService::GetMessageFromUrl(nsIURI *aUrl,
           mailnewsUrl->SetMsgWindow(aMsgWindow);
         mailnewsUrl->GetLoadGroup(getter_AddRefs(aLoadGroup));
       }
-      rv = NewChannel(aUrl, getter_AddRefs(aChannel));
+      nsCOMPtr<nsILoadInfo> loadInfo = new mozilla::net::LoadInfo(
+        nsContentUtils::GetSystemPrincipal(),
+        nullptr,
+        nullptr,
+        nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+        nsIContentPolicy::TYPE_OTHER);
+      rv = NewChannel2(aUrl, loadInfo, getter_AddRefs(aChannel));
       if (NS_FAILED(rv)) return rv;
 
       rv = aChannel->SetLoadGroup(aLoadGroup);
