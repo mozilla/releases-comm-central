@@ -2064,8 +2064,10 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter *filter, nsIMsgWi
             if (!m_msgMovedByFilter /* == NS_FAILED(err) */)
             {
               // XXX: Invoke MSG_LOG_TO_CONSOLE once bug 1135265 lands.
-              if (loggingEnabled)
-                (void) filter->LogRuleHitFail(filterAction, msgHdr, err, "Move failed");
+              if (loggingEnabled) {
+                (void) filter->LogRuleHitFail(filterAction, msgHdr, err,
+                                              NS_LITERAL_CSTRING("filterFailureMoveFailed"));
+              }
             }
           }
         }
@@ -2099,8 +2101,10 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter *filter, nsIMsgWi
 
             if (NS_FAILED(rv)) {
               // XXX: Invoke MSG_LOG_TO_CONSOLE once bug 1135265 lands.
-              if (loggingEnabled)
-                (void) filter->LogRuleHitFail(filterAction, msgHdr, rv, "Copy failed");
+              if (loggingEnabled) {
+                (void) filter->LogRuleHitFail(filterAction, msgHdr, rv,
+                                              NS_LITERAL_CSTRING("filterFailureCopyFailed"));
+              }
             }
             else
               m_msgCopiedByFilter = true;
@@ -2261,8 +2265,10 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter *filter, nsIMsgWi
                                    nsMsgFilterType::InboxRule, msgWindow);
         if (NS_FAILED(rv)) {
             // XXX: Invoke MSG_LOG_TO_CONSOLE once bug 1135265 lands.
-            if (loggingEnabled)
-              (void) filter->LogRuleHitFail(filterAction, msgHdr, rv, "Copy failed");
+          if (loggingEnabled) {
+            (void) filter->LogRuleHitFail(filterAction, msgHdr, rv,
+                                          NS_LITERAL_CSTRING("filterFailureCopyFailed"));
+          }
         }
       }
       break;
@@ -2331,11 +2337,11 @@ nsresult nsParseNewMailState::ApplyForwardAndReplyFilter(nsIMsgWindow *msgWindow
           if (NS_FAILED(rv)) {
             NS_WARNING("ReplyWithTemplate failed");
             if (rv == NS_ERROR_ABORT) {
-              m_filter->LogRuleHitFail(m_ruleAction, m_msgToForwardOrReply, rv,
-                                       "Sending reply aborted");
+              (void) m_filter->LogRuleHitFail(m_ruleAction, m_msgToForwardOrReply, rv,
+                                              NS_LITERAL_CSTRING("filterFailureSendingReplyAborted"));
             } else {
-              m_filter->LogRuleHitFail(m_ruleAction, m_msgToForwardOrReply, rv,
-                                       "Error sending reply");
+              (void) m_filter->LogRuleHitFail(m_ruleAction, m_msgToForwardOrReply, rv,
+                                              NS_LITERAL_CSTRING("filterFailureSendingReplyError"));
             }
           }
         }

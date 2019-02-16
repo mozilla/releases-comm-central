@@ -79,7 +79,7 @@ protected:
   nsresult LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
                              nsIMsgDBHdr *aMsgHdr,
                              nsresult aRcode,
-                             const char *aErrmsg);
+                             const nsACString &aErrmsg);
 
   virtual ~nsMsgFilter();
 

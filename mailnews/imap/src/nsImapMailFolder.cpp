@@ -3689,9 +3689,11 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter *filter, nsIMsgWindo
               if (NS_FAILED(rv)) {
                 NS_WARNING("ReplyWithTemplate failed");
                 if (rv == NS_ERROR_ABORT) {
-                  filter->LogRuleHitFail(filterAction, msgHdr, rv, "Sending reply aborted");
+                  (void) filter->LogRuleHitFail(filterAction, msgHdr, rv,
+                                                NS_LITERAL_CSTRING("filterFailureSendingReplyAborted"));
                 } else {
-                  filter->LogRuleHitFail(filterAction, msgHdr, rv, "Error sending reply");
+                  (void) filter->LogRuleHitFail(filterAction, msgHdr, rv,
+                                                NS_LITERAL_CSTRING("filterFailureSendingReplyError"));
                 }
               }
             }

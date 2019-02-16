@@ -780,9 +780,11 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter()
             rv = compService->ReplyWithTemplate(msgHdr, replyTemplateUri.get(), m_msgWindow, server);
             if (NS_FAILED(rv)) {
               if (rv == NS_ERROR_ABORT) {
-                m_curFilter->LogRuleHitFail(filterAction, msgHdr, rv, "Sending reply aborted");
+                (void) m_curFilter->LogRuleHitFail(filterAction, msgHdr, rv,
+                                                   NS_LITERAL_CSTRING("filterFailureSendingReplyAborted"));
               } else {
-                m_curFilter->LogRuleHitFail(filterAction, msgHdr, rv, "Error sending reply");
+                (void) m_curFilter->LogRuleHitFail(filterAction, msgHdr, rv,
+                                                   NS_LITERAL_CSTRING("filterFailureSendingReplyError"));
               }
             }
             CONTINUE_IF_FAILURE(rv, "ReplyWithTemplate failed");

@@ -500,7 +500,7 @@ nsresult
 nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
                                nsIMsgDBHdr *aMsgHdr,
                                nsresult aRcode,
-                               const char *aErrmsg)
+                               const nsACString &aErrmsg)
 {
     NS_ENSURE_ARG_POINTER(aFilterAction);
     NS_ENSURE_ARG_POINTER(aMsgHdr);
@@ -553,21 +553,27 @@ nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
     // Some Test <test@example.com> - send test 3 at 2/13/2015 11:32:53 AM
     // moved message id = 54DE5165.7000907@example.com to
     // mailbox://nobody@Local%20Folders/test
-
     if (NS_FAILED(aRcode))
     {
-
-      // Let us put "Filter Action Failed: "%s" with error code=%s while attempting: " inside bundle.
       // Convert aErrmsg to UTF16 string, and
       // convert aRcode to UTF16 string in advance.
-
       char tcode[20];
       PR_snprintf(tcode, sizeof(tcode), "0x%08x", aRcode);
+      NS_ConvertASCIItoUTF16 tcode16(tcode);
 
-      NS_ConvertASCIItoUTF16 tcode16(tcode) ;
-      NS_ConvertASCIItoUTF16 tErrmsg16(aErrmsg) ;
+      nsString tErrmsg;
+      if (actionType != nsMsgFilterAction::Custom) {
+        // If this is one of our internal actions, the passed string
+        // is an identifier to get from the bundle.
+        rv = bundle->GetStringFromName(PromiseFlatCString(aErrmsg).get(), tErrmsg);
+        if (NS_FAILED(rv))
+          tErrmsg.Assign(NS_ConvertUTF8toUTF16(aErrmsg));
+      } else {
+        // The addon creating the custom action should have passed a localized string.
+        tErrmsg.Assign(NS_ConvertUTF8toUTF16(aErrmsg));
+      }
+      const char16_t *logErrorFormatStrings[2] = { tErrmsg.get(), tcode16.get() };
 
-      const char16_t *logErrorFormatStrings[2] = { tErrmsg16.get(),  tcode16.get()};
       nsString filterFailureWarningPrefix;
       rv = bundle->FormatStringFromName(
                       "filterFailureWarningPrefix",
@@ -681,13 +687,13 @@ nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
 NS_IMETHODIMP nsMsgFilter::LogRuleHit(nsIMsgRuleAction *aFilterAction,
                                       nsIMsgDBHdr *aMsgHdr)
 {
-  return nsMsgFilter::LogRuleHitGeneric(aFilterAction, aMsgHdr, NS_OK, nullptr);
+  return nsMsgFilter::LogRuleHitGeneric(aFilterAction, aMsgHdr, NS_OK, EmptyCString());
 }
 
 NS_IMETHODIMP nsMsgFilter::LogRuleHitFail(nsIMsgRuleAction *aFilterAction,
                                           nsIMsgDBHdr *aMsgHdr,
                                           nsresult aRcode,
-                                          const char *aErrMsg)
+                                          const nsACString &aErrMsg)
 {
   return nsMsgFilter::LogRuleHitGeneric(aFilterAction, aMsgHdr, aRcode, aErrMsg);
 }

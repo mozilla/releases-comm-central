@@ -108,7 +108,7 @@ interface nsIMsgFilter : nsISupports {
     void logRuleHitFail(in nsIMsgRuleAction aFilterAction,
                         in nsIMsgDBHdr aHeader,
                         in nsresult aRcode,
-                        in string aErrmsg );
+                        in AUTF8String aErrmsg);
 
     nsIMsgRuleAction createAction();
 
