@@ -20,7 +20,7 @@
 #include "nsIDocShellTreeItem.h"
 #include "nsIWebNavigation.h"
 #include "nsContentPolicyUtils.h"
-#include "nsIFrameLoaderOwner.h"
+#include "nsFrameLoaderOwner.h"
 #include "nsFrameLoader.h"
 #include "nsIWebProgress.h"
 #include "nsMsgUtils.h"
@@ -30,6 +30,7 @@
 #include "nsINntpUrl.h"
 #include "nsILoadInfo.h"
 #include "nsSandboxFlags.h"
+#include "nsQueryObject.h"
 
 static const char kBlockRemoteImages[] = "mailnews.message_display.disable_remote_image";
 static const char kTrustedDomains[] =  "mail.trusteddomains";
@@ -830,9 +831,8 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
 
   // since NS_CP_GetDocShellFromContext returns the containing docshell rather
   // than the contained one we need, we can't use that here, so...
-  nsCOMPtr<nsIFrameLoaderOwner> flOwner = do_QueryInterface(aRequestingContext,
-                                                            &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+  RefPtr<nsFrameLoaderOwner> flOwner = do_QueryObject(aRequestingContext);
+  NS_ENSURE_TRUE(flOwner, NS_ERROR_INVALID_POINTER);
 
   RefPtr<nsFrameLoader> frameLoader = flOwner->GetFrameLoader();
   NS_ENSURE_TRUE(frameLoader, NS_ERROR_INVALID_POINTER);
