@@ -83,12 +83,12 @@ CallbackStreamListener.prototype = {
     let msgURI = this._msgHdr.folder.getUriForMsg(this._msgHdr);
     delete activeStreamListeners[msgURI];
 
-    aContext.QueryInterface(Ci.nsIURI);
-    let message = MsgHdrToMimeMessage.RESULT_RENDEVOUZ[aContext.spec];
+    aRequest.QueryInterface(Ci.nsIChannel);
+    let message = MsgHdrToMimeMessage.RESULT_RENDEVOUZ[aRequest.URI.spec];
     if (message === undefined)
       message = null;
 
-    delete MsgHdrToMimeMessage.RESULT_RENDEVOUZ[aContext.spec];
+    delete MsgHdrToMimeMessage.RESULT_RENDEVOUZ[aRequest.URI.spec];
 
     for (let i = 0; i < this._callbacksThis.length; i++) {
       try {
