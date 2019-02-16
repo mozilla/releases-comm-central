@@ -63,16 +63,7 @@ NS_IMPL_ISUPPORTS_INHERITED(nsMsgMailboxParser,
 // OnDataAvailable. We then read and process the incoming data from the input stream.
 NS_IMETHODIMP nsMsgMailboxParser::OnDataAvailable(nsIRequest *request, nsISupports *ctxt, nsIInputStream *aIStream, uint64_t sourceOffset, uint32_t aLength)
 {
-    // right now, this really just means turn around and process the url
-    nsresult rv;
-    nsCOMPtr<nsIChannel> channel = do_QueryInterface(request, &rv);
-    NS_WARNING_ASSERTION(NS_SUCCEEDED(rv), "error QI nsIRequest to nsIChannel failed");
-    NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<nsIURI> uri;
-    rv = channel->GetURI(getter_AddRefs(uri));
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = ProcessMailboxInputStream(uri, aIStream, aLength);
-    return rv;
+    return ProcessMailboxInputStream(aIStream, aLength);
 }
 
 NS_IMETHODIMP nsMsgMailboxParser::OnStartRequest(nsIRequest *request, nsISupports *ctxt)
@@ -312,7 +303,7 @@ void nsMsgMailboxParser::UpdateProgressPercent ()
   }
 }
 
-nsresult nsMsgMailboxParser::ProcessMailboxInputStream(nsIURI* aURL, nsIInputStream *aIStream, uint32_t aLength)
+nsresult nsMsgMailboxParser::ProcessMailboxInputStream(nsIInputStream *aIStream, uint32_t aLength)
 {
   nsresult ret = NS_OK;
 

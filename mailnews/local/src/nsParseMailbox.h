@@ -142,7 +142,7 @@ public:
   void    SetDB (nsIMsgDatabase *mailDB) {m_mailDB = mailDB; }
 
   // message socket libnet callbacks, which come through folder pane
-  nsresult ProcessMailboxInputStream(nsIURI* aURL, nsIInputStream *aIStream, uint32_t aLength);
+  nsresult ProcessMailboxInputStream(nsIInputStream *aIStream, uint32_t aLength);
 
   virtual void  DoneParsingFolder(nsresult status);
   virtual void  AbortNewHeader();
