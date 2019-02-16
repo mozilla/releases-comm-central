@@ -19,8 +19,9 @@ var SortOrder = Ci.nsMsgViewSortOrder;
 var tests = [
   [{from: "John Doe <db@tinderbox.invalid>"}, {senderCol: "John Doe"}],
   [{from: "\"Doe, John\" <db@tinderbox.invalid>"}, {senderCol: "Doe, John"}],
+  // Multiple senders are indicated with 'et al.' suffix.
   [{from: "John Doe <db@tinderbox.invalid>, Sally Ann <db@null.invalid>"},
-    {senderCol: "John Doe"}],
+    {senderCol: "John Doe et al."}],
   [{from: "=?UTF-8?Q?David_H=C3=A5s=C3=A4ther?= <db@null.invalid>"},
     {senderCol: "David Håsäther"}],
   [{from: "=?UTF-8?Q?H=C3=A5s=C3=A4ther=2C_David?= <db@null.invalid>"},
