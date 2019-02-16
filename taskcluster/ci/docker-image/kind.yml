@@ -12,7 +12,13 @@ jobs:
     - debian7-amd64-build
     - debian7-base
     - debian7-i386-build
+    - debian7-i386-packages
+    - debian7-i386-raw
+    - debian7-packages
+    - debian7-raw
     - debian9-base
+    - debian9-packages
+    - debian9-raw
     - desktop1604-test
     - fetch
     - image_builder
