@@ -91,13 +91,11 @@ var messages = [
 
   // Esoteric tests; these mainly test that we're getting the expected info back
   // from the message header.
-  /* disabled
   { name: "from_display_name_multiple",
     headers: { From: "Carter Burke <cburke@wyutani.invalid>, " +
                      "Dwayne Hicks <dhicks@uscmc.invalid>" },
-    expected: { column: "from", value: "Carter Burke" },
+    expected: { column: "from", value: "Carter Burke et al." },
   },
-  */
   { name: "from_missing",
     headers: { From: null },
     expected: { column: "from", value: "" },
