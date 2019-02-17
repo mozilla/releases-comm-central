@@ -97,10 +97,9 @@ MimeLeaf_parse_begin (MimeObject *obj)
       // don't decode text parts of message types. Other output formats,
       // like "display" (nsMimeMessageBodyDisplay), need decoding.
       (obj->options->format_out == nsMimeOutput::nsMimeMessageRaw &&
-       obj->parent &&
+       obj->parent && obj->parent->output_p &&
        (!PL_strcasecmp(obj->parent->content_type, MESSAGE_NEWS) ||
-        !PL_strcasecmp(obj->parent->content_type, MESSAGE_RFC822)) &&
-       !PL_strncasecmp(obj->content_type, "text/", 5)))
+        !PL_strcasecmp(obj->parent->content_type, MESSAGE_RFC822))))
     /* no-op */ ;
   else if (!PL_strcasecmp(obj->encoding, ENCODING_BASE64))
   fn = &MimeB64DecoderInit;
