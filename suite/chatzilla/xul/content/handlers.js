@@ -763,7 +763,7 @@ function onWhoTimeout()
                 chan.getUsersLength() < client.prefs["autoAwayCap"])
             {
                 net.primServ.LIGHTWEIGHT_WHO = true;
-                net.primServ.sendData("WHO " + chan.encodedName + "\n");
+                net.primServ.who(chan.unicodeName);
                 net.lastWhoCheckChannel = chan;
                 net.lastWhoCheckTime = Number(new Date());
                 return;
@@ -1677,8 +1677,8 @@ function my_315 (e)
 CIRCNetwork.prototype.on352 =
 function my_352 (e)
 {
-    //0-352 1-rginda_ 2-#chatzilla 3-chatzilla 4-h-64-236-139-254.aoltw.net
-    //5-irc.mozilla.org 6-rginda 7-H
+    //0-352 1-sender 2-channel 3-ident 4-host
+    //5-server 6-nick 7-H/G 8-hops and realname
     if ("pendingWhoReply" in this)
     {
         var status;
@@ -1691,6 +1691,49 @@ function my_352 (e)
                             [e.params[6], e.params[3], e.params[4],
                              e.user.desc, status, e.decodeParam(2),
                              e.params[5], e.user.hops]), e.code, e.user);
+    }
+
+    updateTitle(e.user);
+    if ("whoMatches" in this)
+        ++this.whoMatches;
+    else
+        this.whoMatches = 1;
+
+    if (!("whoUpdates" in this))
+        this.whoUpdates = new Object();
+
+    if (e.userHasChanges)
+    {
+        for (var c in e.server.channels)
+        {
+            var chan = e.server.channels[c];
+            if (chan.active && (e.user.canonicalName in chan.users))
+            {
+                if (!(c in this.whoUpdates))
+                    this.whoUpdates[c] = new Array();
+                this.whoUpdates[c].push(chan.users[e.user.canonicalName]);
+            }
+        }
+    }
+}
+
+CIRCNetwork.prototype.on354 =
+function my_354(e)
+{
+    //0-352 1-sender 2-type 3-channel 4-ident 5-host
+    //6-server 7-nick 8-H/G 9-hops 10-account 11-realname
+    if ("pendingWhoReply" in this)
+    {
+        var status;
+        if (e.user.isAway)
+            status = MSG_GONE;
+        else
+            status = MSG_HERE;
+
+        this.display(getMsg(MSG_WHO_MATCH,
+                            [e.params[7], e.params[4], e.params[5],
+                             e.user.desc, status, e.decodeParam(3),
+                             e.params[6], e.user.hops]), e.code, e.user);
     }
 
     updateTitle(e.user);

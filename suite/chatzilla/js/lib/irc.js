@@ -531,8 +531,10 @@ CIRCServer.prototype.VERSION_RPLY = "JS-IRC Library v0.01, " +
 CIRCServer.prototype.OS_RPLY = "Unknown";
 CIRCServer.prototype.HOST_RPLY = "Unknown";
 CIRCServer.prototype.DEFAULT_REASON = "no reason";
-/* true means on352 code doesn't collect hostmask, username, etc. */
+/* true means WHO command doesn't collect hostmask, username, etc. */
 CIRCServer.prototype.LIGHTWEIGHT_WHO = false;
+/* Unique identifier for WHOX commands. */
+CIRCServer.prototype.WHOX_TYPE = "314";
 /* -1 == never, 0 == prune onQuit, >0 == prune when >X ms old */
 CIRCServer.prototype.PRUNE_OLD_USERS = -1;
 
@@ -1231,7 +1233,7 @@ function serv_ppline(e)
         ev.data = lines[i].replace(/\r/g, "");
         if (ev.data)
         {
-            if (ev.data.match(/^(?::[^ ]+ )?(?:32[123]|352|315) /i))
+            if (ev.data.match(/^(?::[^ ]+ )?(?:32[123]|352|354|315) /i))
                 this.parent.eventPump.addBulkEvent(ev);
             else
                 this.parent.eventPump.addEvent(ev);
@@ -1773,6 +1775,50 @@ function serv_352 (e)
         }
     }
     var away = (e.params[7][0] == "G");
+    if (e.user.isAway != away)
+    {
+        e.userHasChanges = true;
+        e.user.isAway = away;
+    }
+
+    e.destObject = this.parent;
+    e.set = "network";
+
+    return true;
+}
+
+/* extended who reply */
+CIRCServer.prototype.on354 =
+function serv_354(e)
+{
+    // Discard if the type is not ours.
+    if (e.params[2] != this.WHOX_TYPE)
+        return;
+
+    e.userHasChanges = false;
+    if (this.LIGHTWEIGHT_WHO)
+    {
+        e.user = new CIRCUser(this, null, e.params[7]);
+    }
+    else
+    {
+        e.user = new CIRCUser(this, null, e.params[7], e.params[4], e.params[5]);
+        e.user.connectionHost = e.params[6];
+        // Hops is a separate parameter in WHOX.
+        e.user.hops = e.params[9];
+        var account = (e.params[10] == "0" ? null : e.params[10]);
+        e.user.account = account;
+        if (11 in e.params)
+        {
+            var desc = e.decodeParam(11, e.user);
+            if (e.user.desc != desc)
+            {
+                e.userHasChanges = true;
+                e.user.desc = desc;
+            }
+        }
+    }
+    var away = (e.params[8][0] == "G");
     if (e.user.isAway != away)
     {
         e.userHasChanges = true;
@@ -2473,7 +2519,12 @@ function serv_join(e)
             //If away-notify is active, query the list of users for away status.
             if (e.server.caps["away-notify"])
             {
-                e.server.sendData("WHO " + e.channel.encodedName + "\n");
+                // If the server supports extended who, use it.
+                // This lets us initialize the account property.
+                if (e.server.supports["whox"])
+                    e.server.who(e.channel.unicodeName + " %acdfhnrstu," + e.server.WHOX_TYPE);
+                else
+                    e.server.who(e.channel.unicodeName);
             }
         };
         // Between 10s - 20s.
