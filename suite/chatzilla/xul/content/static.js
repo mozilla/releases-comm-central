@@ -4173,17 +4173,18 @@ function dccfile_getprefmgr()
  * the same network.
  */
 CIRCNetwork.prototype.display =
-function net_display(message, msgtype, sourceObj, destObj)
+function net_display(message, msgtype, sourceObj, destObj, tags)
 {
     var o = getObjectDetails(client.currentObject);
     if (client.SLOPPY_NETWORKS && client.currentObject != this &&
         o.network == this && o.server && o.server.isConnected)
     {
-        client.currentObject.display(message, msgtype, sourceObj, destObj);
+        client.currentObject.display(message, msgtype, sourceObj, destObj,
+                                     tags);
     }
     else
     {
-        this.displayHere(message, msgtype, sourceObj, destObj);
+        this.displayHere(message, msgtype, sourceObj, destObj, tags);
     }
 }
 
@@ -4193,12 +4194,13 @@ function net_display(message, msgtype, sourceObj, destObj)
  * to it; otherwise, messages go to the *network* view.
  */
 CIRCChannel.prototype.display =
-function chan_display(message, msgtype, sourceObj, destObj)
+function chan_display(message, msgtype, sourceObj, destObj, tags)
 {
     if ("messages" in this)
-        this.displayHere(message, msgtype, sourceObj, destObj);
+        this.displayHere(message, msgtype, sourceObj, destObj, tags);
     else
-        this.parent.parent.displayHere(message, msgtype, sourceObj, destObj);
+        this.parent.parent.displayHere(message, msgtype, sourceObj, destObj,
+                                       tags);
 }
 
 /* Displays a user-centric message on the most appropriate view.
@@ -4208,11 +4210,11 @@ function chan_display(message, msgtype, sourceObj, destObj)
  * the same network, or the *network* view if not.
  */
 CIRCUser.prototype.display =
-function usr_display(message, msgtype, sourceObj, destObj)
+function usr_display(message, msgtype, sourceObj, destObj, tags)
 {
     if ("messages" in this)
     {
-        this.displayHere(message, msgtype, sourceObj, destObj);
+        this.displayHere(message, msgtype, sourceObj, destObj, tags);
     }
     else
     {
@@ -4220,10 +4222,11 @@ function usr_display(message, msgtype, sourceObj, destObj)
         if (o.server && o.server.isConnected &&
             o.network == this.parent.parent &&
             client.currentObject.TYPE != "IRCUser")
-            client.currentObject.display(message, msgtype, sourceObj, destObj);
+            client.currentObject.display(message, msgtype, sourceObj, destObj,
+                                         tags);
         else
             this.parent.parent.displayHere(message, msgtype, sourceObj,
-                                           destObj);
+                                           destObj, tags);
     }
 }
 
@@ -4260,9 +4263,9 @@ function this_feedback(e, message, msgtype, sourceObj, destObj)
         this.displayHere(message, msgtype, sourceObj, destObj);
 }
 
-function display (message, msgtype, sourceObj, destObj)
+function display (message, msgtype, sourceObj, destObj, tags)
 {
-    client.currentObject.display (message, msgtype, sourceObj, destObj);
+    client.currentObject.display (message, msgtype, sourceObj, destObj, tags);
 }
 
 client.getFontCSS =
@@ -4304,7 +4307,7 @@ CIRCChannel.prototype.displayHere =
 CIRCUser.prototype.displayHere =
 CIRCDCCChat.prototype.displayHere =
 CIRCDCCFileTransfer.prototype.displayHere =
-function __display(message, msgtype, sourceObj, destObj)
+function __display(message, msgtype, sourceObj, destObj, tags)
 {
     // We need a message type, assume "INFO".
     if (!msgtype)
@@ -4398,7 +4401,11 @@ function __display(message, msgtype, sourceObj, destObj)
     var isImportant = false, getAttention = false, isSuperfluous = false;
     var viewType = this.TYPE;
     var code;
-    var time = new Date();
+    var time;
+    if (tags && ("time" in tags))
+        time = new Date(tags.time);
+    else
+        time = new Date();
 
     var timeStamp = strftime(this.prefs["timestamps.log"], time);
 
