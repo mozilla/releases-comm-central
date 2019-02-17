@@ -137,6 +137,9 @@ nsresult nsAbManager::Init()
   nsresult rv = observerService->AddObserver(this, "profile-do-change", false);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  rv = observerService->AddObserver(this, "addrbook-reload", false);
+  NS_ENSURE_SUCCESS(rv, rv);
+
   rv = observerService->AddObserver(this, NS_XPCOM_SHUTDOWN_OBSERVER_ID,
                                     false);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -159,6 +162,14 @@ NS_IMETHODIMP nsAbManager::Observe(nsISupports *aSubject, const char *aTopic,
     return NS_OK;
   }
 
+  if (!strcmp(aTopic, "addrbook-reload"))
+  {
+    DIR_ShutDown();
+    mCacheTopLevelAb = nullptr;
+    mAbStore.Clear();
+    return NS_OK;
+  }
+
   if (!strcmp(aTopic, NS_XPCOM_SHUTDOWN_OBSERVER_ID))
   {
     DIR_ShutDown();
@@ -168,6 +179,9 @@ NS_IMETHODIMP nsAbManager::Observe(nsISupports *aSubject, const char *aTopic,
     NS_ENSURE_TRUE(observerService, NS_ERROR_UNEXPECTED);
 
     nsresult rv = observerService->RemoveObserver(this, "profile-do-change");
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = observerService->RemoveObserver(this, "addrbook-reload");
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = observerService->RemoveObserver(this, NS_XPCOM_SHUTDOWN_OBSERVER_ID);
