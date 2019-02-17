@@ -49,24 +49,24 @@ class MozChatConversationInfo extends MozXULElement {
   }
 
   _updateAttributes() {
-    let userIconHolder = document.querySelector(".userIconHolder");
+    let userIconHolder = this.querySelector(".userIconHolder");
     this.inheritAttribute(userIconHolder, "userIcon");
 
-    let userIcon = document.querySelector(".userIcon");
+    let userIcon = this.querySelector(".userIcon");
     this.inheritAttribute(userIcon, "src=userIcon");
 
-    let statusTypeIcon = document.querySelector(".statusTypeIcon");
+    let statusTypeIcon = this.querySelector(".statusTypeIcon");
     this.inheritAttribute(statusTypeIcon, "status");
     this.inheritAttribute(statusTypeIcon, "typing");
     this.inheritAttribute(statusTypeIcon, "tooltiptext=statusTypeTooltiptext");
 
-    let displayName = document.querySelector(".displayName");
+    let displayName = this.querySelector(".displayName");
     this.inheritAttribute(displayName, "value=displayName");
 
-    let prplIcon = document.querySelector(".prplIcon");
+    let prplIcon = this.querySelector(".prplIcon");
     this.inheritAttribute(prplIcon, "src=prplIcon");
 
-    let description = document.querySelector(".statusMessage");
+    let description = this.querySelector(".statusMessage");
     this.inheritAttribute(description, "value=statusMessage");
     this.inheritAttribute(description, "tooltiptext=statusTooltiptext");
     this.inheritAttribute(description, "editable=topicEditable");
@@ -75,7 +75,7 @@ class MozChatConversationInfo extends MozXULElement {
   }
 
   get topic() {
-    return document.querySelector(".statusMessage");
+    return this.querySelector(".statusMessage");
   }
 
   finishEditTopic(save) {
