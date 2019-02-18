@@ -223,7 +223,9 @@ NS_IMETHODIMP nsMailboxProtocol::OnStartRequest(nsIRequest *request, nsISupports
   if (m_nextState == MAILBOX_READ_FOLDER && m_mailboxParser)
   {
     // we need to inform our mailbox parser that it's time to start...
-    // XXX - TODO temp hack. mailboxparser expects a channel. It shouldn't. We should just pass through `request`, not `this`.
+    // NOTE: `request` here will be an nsInputStreamPump, but our callbacks
+    // are expecting to be able to QI to a `nsIChannel` to get the URI.
+    // So we pass `this`. See Bug 1528662.
     m_mailboxParser->OnStartRequest(this, ctxt);
   }
   return nsMsgProtocol::OnStartRequest(request, ctxt);
@@ -248,7 +250,9 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest *request, nsISupports 
   if (m_nextState == MAILBOX_READ_FOLDER && m_mailboxParser)
   {
     // we need to inform our mailbox parser that there is no more incoming data...
-    // XXX - TODO temp hack. mailboxparser expects a channel. It shouldn't. We should just pass through `request`, not `this`.
+    // NOTE: `request` here will be an nsInputStreamPump, but our callbacks
+    // are expecting to be able to QI to a `nsIChannel` to get the URI.
+    // So we pass `this`. See Bug 1528662.
     m_mailboxParser->OnStopRequest(this, ctxt, aStatus);
   }
   else if (m_nextState == MAILBOX_READ_MESSAGE)

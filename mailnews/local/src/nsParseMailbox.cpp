@@ -80,6 +80,8 @@ NS_IMETHODIMP nsMsgMailboxParser::OnStartRequest(nsIRequest *request, nsISupport
       mozilla::services::GetIOService();
     NS_ENSURE_TRUE(ioServ, NS_ERROR_UNEXPECTED);
 
+    // We know the request is an nsIChannel we can get a URI from, but this is
+    // probably bad form. See Bug 1528662.
     nsCOMPtr<nsIChannel> channel = do_QueryInterface(request, &rv);
     NS_WARNING_ASSERTION(NS_SUCCEEDED(rv), "error QI nsIRequest to nsIChannel failed");
     NS_ENSURE_SUCCESS(rv, rv);

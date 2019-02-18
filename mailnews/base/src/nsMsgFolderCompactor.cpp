@@ -1101,6 +1101,8 @@ nsOfflineStoreCompactState::OnStopRequest(nsIRequest *request, nsISupports *ctxt
   if (NS_FAILED(rv) && rv != NS_MSG_ERROR_MSG_NOT_OFFLINE)
     goto done;
 
+  // We know the request is an nsIChannel we can get a URI from, but this is
+  // probably bad form. See Bug 1528662.
   channel = do_QueryInterface(request, &rv);
   NS_WARNING_ASSERTION(NS_SUCCEEDED(rv), "error QI nsIRequest to nsIChannel failed");
   if (NS_FAILED(rv)) goto done;

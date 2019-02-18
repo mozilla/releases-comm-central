@@ -94,6 +94,8 @@ NS_IMETHODIMP nsCopyMessageStreamListener::OnStartRequest(nsIRequest * request, 
   nsresult rv = NS_OK;
   nsCOMPtr<nsIURI> uri;
 
+  // We know the request is an nsIChannel we can get a URI from, but this is
+  // probably bad form. See Bug 1528662.
   nsCOMPtr<nsIChannel> channel = do_QueryInterface(request, &rv);
   NS_WARNING_ASSERTION(NS_SUCCEEDED(rv), "error QI nsIRequest to nsIChannel failed");
   if (NS_SUCCEEDED(rv))
@@ -144,6 +146,8 @@ NS_IMETHODIMP nsCopyMessageStreamListener::EndCopy(nsISupports *url, nsresult aS
 NS_IMETHODIMP nsCopyMessageStreamListener::OnStopRequest(nsIRequest* request, nsISupports *ctxt, nsresult aStatus)
 {
   nsresult rv;
+  // We know the request is an nsIChannel we can get a URI from, but this is
+  // probably bad form. See Bug 1528662.
   nsCOMPtr<nsIChannel> channel = do_QueryInterface(request, &rv);
   NS_WARNING_ASSERTION(NS_SUCCEEDED(rv), "error QI nsIRequest to nsIChannel failed");
   NS_ENSURE_SUCCESS(rv, rv);
