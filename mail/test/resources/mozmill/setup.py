@@ -40,8 +40,8 @@ from setuptools import setup, find_packages
 desc = """UI Automation tool for Mozilla applications."""
 summ = """A tool for full UI automation of Mozilla applications."""
 
-PACKAGE_NAME = "mozmill"
-PACKAGE_VERSION = "1.5.18"
+PACKAGE_NAME = "mozmill_thunderbird"
+PACKAGE_VERSION = "1.6"
 
 setup(name=PACKAGE_NAME,
       version=PACKAGE_VERSION,
@@ -65,7 +65,7 @@ setup(name=PACKAGE_NAME,
         """,
       platforms=['Any'],
       install_requires=[
-          'jsbridge == 2.4.15',
+          'jsbridge_thunderbird == 2.5',
           'mozrunner >= 6.0',
           'manifestparser >= 0.9'
       ],

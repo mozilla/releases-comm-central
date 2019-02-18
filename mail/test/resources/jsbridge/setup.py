@@ -40,9 +40,9 @@ from setuptools import setup, find_packages
 desc = """Python to JavaScript bridge interface."""
 summ = """A powerful and extensible Python to JavaScript bridge interface."""
 
-PACKAGE_NAME = "jsbridge"
+PACKAGE_NAME = "jsbridge_thunderbird"
 # You must update the required version in mozmill's setup.py to match this.
-PACKAGE_VERSION = "2.4.15"
+PACKAGE_VERSION = "2.5"
 
 requires = ['mozrunner >= 6.0']
 
