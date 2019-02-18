@@ -136,8 +136,8 @@
             </richlistitem>
           </freebusy-grid>
         </vbox>
-        <selection-bar id="selection-bar"
-                       range="16"/>
+        <calendar-event-selection-bar id="selection-bar"
+                                      range="16"/>
       </stack>
       <scrollbar orient="horizontal"
                  id="horizontal-scrollbar"

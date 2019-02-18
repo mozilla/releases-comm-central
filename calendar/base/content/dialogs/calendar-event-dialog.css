@@ -12,8 +12,7 @@
 
 /****************************************************************************************/
 
-selection-bar {
-    -moz-binding: url(chrome://calendar/content/calendar-event-dialog-attendees.xml#selection-bar);
+calendar-event-selection-bar {
     -moz-user-focus: normal;
 }
 

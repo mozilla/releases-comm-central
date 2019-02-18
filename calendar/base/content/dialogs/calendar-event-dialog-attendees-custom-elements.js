@@ -2143,5 +2143,468 @@ class MozCalendarEventScrollContainer extends MozXULElement {
         return val;
     }
 }
-
 customElements.define("calendar-event-scroll-container", MozCalendarEventScrollContainer);
+
+/**
+ * MozCalendarEventSelectionBar implements the vertical bar that provides a visual indication for
+ * the time range the event is configured for.
+ *
+ * @extends {MozXULElement}
+ */
+class MozCalendarEventSelectionBar extends MozXULElement {
+    constructor() {
+        super();
+
+        this.mRange = 0;
+        this.mStartHour = 0;
+        this.mEndHour = 24;
+        this.mContentWidth = 0;
+        this.mHeaderHeight = 0;
+        this.mRatio = 0;
+        this.mBaseDate = null;
+        this.mStartDate = null;
+        this.mEndDate = null;
+        this.mMouseX = 0;
+        this.mMouseY = 0;
+        this.mDragState = 0;
+        this.mMargin = 0;
+        this.mWidth = 0;
+        this.mForce24Hours = false;
+        this.mZoomFactor = 100;
+        // Constant that defines at which ratio an event is clipped, when moved or resized.
+        this.mfClipRatio = 0.7;
+        this.mLeftBox = "";
+        this.mRightBox = "";
+        this.mSelectionbar = "";
+
+        this.addEventListener("mousedown", (event) => {
+            let element = event.target.closest("calendar-event-selection-bar");
+            this.mMouseX = event.screenX;
+            let mouseX = event.clientX - element.getBoundingClientRect().x;
+            if (mouseX >= this.mMargin) {
+                if (mouseX <= (this.mMargin + this.mWidth)) {
+                    if (mouseX <= (this.mMargin + this.leftdragWidth)) {
+                        // Move the startdate only...
+                        window.setCursor("w-resize");
+                        this.mDragState = 2;
+                    } else if (mouseX >= (this.mMargin + this.mWidth - (this.rightdragWidth))) {
+                        // Move the enddate only..
+                        window.setCursor("e-resize");
+                        this.mDragState = 3;
+                    } else {
+                        // Move the startdate and the enddate
+                        this.mDragState = 1;
+                        window.setCursor("grab");
+                    }
+                }
+            }
+        });
+
+        this.addEventListener("mousemove", (event) => {
+            let mouseX = event.screenX;
+            if (this.mDragState == 1) {
+                // Move the startdate and the enddate
+                let delta = mouseX - this.mMouseX;
+                let newStart = this.moveTime(this.mStartDate, delta, false);
+                if (newStart.compare(this.mStartDate) != 0) {
+                    let newEnd = this.moveTime(this.mEndDate, delta, false);
+
+                    // We need to adapt this date in case we're dealing with an all-day event.
+                    // This is because setting 'endDate' will automatically add one day extra for
+                    // all-day events.
+                    if (newEnd.isDate) {
+                        newEnd.day--;
+                    }
+
+                    this.startDate = newStart;
+                    this.endDate = newEnd;
+                    this.mMouseX = mouseX;
+                    this.update();
+                }
+            } else if (this.mDragState == 2) {
+                // Move the startdate only...
+                let delta = event.screenX - this.mSelectionbar.screenX;
+                let newStart = this.moveTime(this.mStartDate, delta, true);
+                if (newStart.compare(this.mEndDate) >= 0) {
+                    if (this.mStartDate.isDate) {
+                        return;
+                    }
+                    newStart = this.mEndDate;
+                }
+                if (newStart.compare(this.mStartDate) != 0) {
+                    this.startDate = newStart;
+                    this.update();
+                }
+            } else if (this.mDragState == 3) {
+                // Move the enddate only..
+                let delta = mouseX -
+                    (this.mSelectionbar.screenX + this.mSelectionbar.getBoundingClientRect().width);
+                let newEnd = this.moveTime(this.mEndDate, delta, true);
+                if (newEnd.compare(this.mStartDate) < 0) {
+                    newEnd = this.mStartDate;
+                }
+                if (newEnd.compare(this.mEndDate) != 0) {
+                    // We need to adapt this date in case we're dealing with an all-day event.
+                    // This is because setting 'endDate' will automatically add one day extra for
+                    // all-day events.
+                    if (newEnd.isDate) {
+                        newEnd.day--;
+                    }
+
+                    // Don't allow all-day events to be shorter than a single day.
+                    if (!newEnd.isDate || (newEnd.compare(this.startDate) >= 0)) {
+                        this.endDate = newEnd;
+                        this.update();
+                    }
+                }
+            }
+        });
+
+        this.addEventListener("mouseup", (event) => {
+            this.mDragState = 0;
+            window.setCursor("auto");
+        });
+    }
+
+    connectedCallback() {
+        if (!this.hasChildNodes() || !this.delayConnectedCallback()) {
+            this.appendChild(MozXULElement.parseXULToFragment(`
+                <scrollbox width="0" orient="horizontal" flex="1">
+                    <box class="selection-bar">
+                        <box class="selection-bar-left"></box>
+                        <spacer class="selection-bar-spacer" flex="1"></spacer>
+                        <box class="selection-bar-right"></box>
+                    </box>
+                </scrollbox>
+            `));
+        }
+
+        this.initTimeRange();
+
+        // The basedate is the date/time from which the display of the timebar starts. The range is
+        // the number of days we should be able to show. the start- and enddate is the time the
+        // event is scheduled for.
+        this.mRange = Number(this.getAttribute("range"));
+        this.mSelectionbar = this.querySelector(".selection-bar");
+    }
+
+    /**
+     * Gets the zoom factor for the selection bar.
+     *
+     * @returns {Number}        Zoom factor
+     */
+    get zoomFactor() {
+        return this.mZoomFactor;
+    }
+
+    /**
+     * Sets zoom factor of the selection bar.
+     *
+     * @param {Number} val      New zoom factor
+     * @returns {Number}        New zoom factor
+     */
+    set zoomFactor(val) {
+        this.mZoomFactor = val;
+        return val;
+    }
+
+    /**
+     * Gets force24Hours property which sets time format to 24 hour format.
+     *
+     * @returns {Boolean}       force24Hours value
+     */
+    get force24Hours() {
+        return this.mForce24Hours;
+    }
+
+    /**
+     * Sets force24Hours property to a new value. If true, forces the selection bar to 24 hours and
+     * updates the UI accordingly.
+     *
+     * @param {Boolean} val     New force24Hours value
+     * @returns {Boolean}       New force24Hours value
+     */
+    set force24Hours(val) {
+        this.mForce24Hours = val;
+        this.initTimeRange();
+        this.update();
+        return val;
+    }
+
+    /**
+     * Sets the ratio. The ratio is the factor which says by how big part of the total width is the
+     * scroll width.
+     *
+     * @param {Number} val      A number between 0 and 1
+     * @returns {Number}        The ratio
+     */
+    set ratio(val) {
+        this.mRatio = val;
+        this.update();
+        return val;
+    }
+
+    /**
+     * Sets base date for selection bar.
+     *
+     * @param {calIDateTime} val        Base date
+     */
+    set baseDate(val) {
+        // We need to convert the date/time in question in order to calculate with hours that are
+        // aligned with our timebar display.
+        let kDefaultTimezone = cal.dtz.defaultTimezone;
+        this.mBaseDate = val.getInTimezone(kDefaultTimezone);
+        this.mBaseDate.isDate = true;
+        this.mBaseDate.makeImmutable();
+        return val;
+    }
+
+    /**
+     * Gets start date of the selection bar.
+     *
+     * @returns {calIDateTime}       The start date
+     */
+    get startDate() {
+        return this.mStartDate;
+    }
+
+    /**
+     * Sets start date of the selection bar and make it immutable.
+     *
+     * @param {calIDateTime} val     New start date
+     * @returns {calIDateTime}       New start date
+     */
+    set startDate(val) {
+        // Currently we *always* set the basedate to be equal to the startdate. we'll most probably
+        // want to change this later.
+        this.baseDate = val;
+        // We need to convert the date/time in question in order to calculate with hours that are
+        // aligned with our timebar display.
+        let kDefaultTimezone = cal.dtz.defaultTimezone;
+        this.mStartDate = val.getInTimezone(kDefaultTimezone);
+        this.mStartDate.makeImmutable();
+        return val;
+    }
+
+    /**
+     * Gets end date of the selection bar.
+     *
+     * @returns {calIDateTime}       The end date
+     */
+    get endDate() {
+        return this.mEndDate;
+    }
+
+    /**
+     * Sets end date of the selection bar and make it immutable.
+     *
+     * @param {calIDateTime} val     New end date
+     * @returns {calIDateTime}       New end date
+     */
+    set endDate(val) {
+        // We need to convert the date/time in question in order to calculate with hours that are
+        // aligned with our timebar display.
+        let kDefaultTimezone = cal.dtz.defaultTimezone;
+        this.mEndDate = val.getInTimezone(kDefaultTimezone);
+        if (this.mEndDate.isDate) {
+            this.mEndDate.day += 1;
+        }
+        this.mEndDate.makeImmutable();
+        return val;
+    }
+
+    /**
+     * Gets width of the left box of the selection bar.
+     *
+     * @returns {Number}        Width of the left box
+     */
+    get leftdragWidth() {
+        if (!this.mLeftBox) {
+            this.mLeftBox = this.querySelector(".selection-bar-left");
+        }
+        return this.mLeftBox.getBoundingClientRect().width;
+    }
+
+    /**
+     * Gets width of the right box of the selection bar.
+     *
+     * @returns {Number}        Width of the right box
+     */
+    get rightdragWidth() {
+        if (!this.mRightBox) {
+            this.mRightBox = this.querySelector(".selection-bar-right");
+        }
+        return this.mRightBox.getBoundingClientRect().width;
+    }
+
+    /**
+     * Sets content width, margin, and header height of the selection bar and updates the time.
+     *
+     * @param {Number} width    Content width
+     * @param {Number} height   Header height
+     */
+    init(width, height) {
+        this.mContentWidth = width;
+        this.mHeaderHeight = height + 2;
+        this.mMargin = 0;
+        this.update();
+    }
+
+    /**
+     * Given some specific date this method calculates the corrposonding offset in fractional hours.
+     *
+     * @param {calIDateTime} date       Date object
+     */
+    date2offset(date) {
+        let num_hours = this.mEndHour - this.mStartHour;
+        let diff = date.subtractDate(this.mBaseDate);
+        let offset = diff.days * num_hours;
+        let hours = (diff.hours - this.mStartHour) + (diff.minutes / 60.0);
+        if (hours < 0) {
+            hours = 0;
+        }
+        if (hours > num_hours) {
+            hours = num_hours;
+        }
+        offset += hours;
+        return offset;
+    }
+
+    /**
+     * Updates selection-bar position and emits timechange event.
+     */
+    update() {
+        if (!this.mStartDate || !this.mEndDate) {
+            return;
+        }
+
+        // Calculate the relation of startdate/basedate and enddate/startdate.
+        let offset = this.mStartDate.subtractDate(this.mBaseDate);
+
+        // Calculate how much pixels a single hour and a single day take up.
+        let num_hours = this.mEndHour - this.mStartHour;
+        let hour_width = this.mContentWidth / num_hours;
+
+        // Calculate the offset in fractional hours that corrospond to our start- and end-time.
+        let start_offset_in_hours = this.date2offset(this.mStartDate);
+        let end_offset_in_hours = this.date2offset(this.mEndDate);
+        let duration_in_hours = end_offset_in_hours - start_offset_in_hours;
+
+        // Calculate width & margin for the selection bar based on the relation of
+        // startdate/basedate and enddate/startdate. This is a simple conversion from hours to
+        // pixels.
+        this.mWidth = duration_in_hours * hour_width;
+        let totaldragwidths = this.leftdragWidth + this.rightdragWidth;
+        if (this.mWidth < totaldragwidths) {
+            this.mWidth = totaldragwidths;
+        }
+        this.mMargin = start_offset_in_hours * hour_width;
+
+        // Calculate the difference between content and container in pixels. The container is the
+        // window showing this control, the content is the total number of pixels the selection bar
+        // can theoretically take up.
+        let total_width =
+            this.mContentWidth * this.mRange - this.parentNode.getBoundingClientRect().width;
+
+        // Calculate the current scroll offset.
+        offset = Math.floor(total_width * this.mRatio);
+
+        // The final margin is the difference between the date-based margin and the scroll-based
+        // margin.
+        this.mMargin -= offset;
+
+        // Set the styles based on the calculations above for the 'selection-bar'.
+        let style = "width: " + this.mWidth + "px; margin-inline-start: " + this.mMargin +
+                    "px; margin-top: " + this.mHeaderHeight + "px;";
+        this.mSelectionbar.setAttribute("style", style);
+
+        let event = document.createEvent("Events");
+        event.initEvent("timechange", true, false);
+        event.startDate = this.mStartDate;
+        event.endDate = this.mEndDate.clone();
+        if (event.endDate.isDate) {
+            event.endDate.day--;
+        }
+        event.endDate.makeImmutable();
+        this.dispatchEvent(event);
+    }
+
+    /**
+     * Sets width of the scrollbox of selection bar.
+     *
+     * @param {Number|String} width        New width
+     */
+    setWidth(width) {
+        let scrollbox = this.querySelector("scrollbox");
+        scrollbox.setAttribute("width", width);
+    }
+
+    /**
+     * Updates end hour and start hour values of the selection bar.
+     */
+    initTimeRange() {
+        if (this.force24Hours) {
+            this.mStartHour = 0;
+            this.mEndHour = 24;
+        } else {
+            this.mStartHour = Services.prefs.getIntPref("calendar.view.daystarthour", 8);
+            this.mEndHour = Services.prefs.getIntPref("calendar.view.dayendhour", 19);
+        }
+    }
+
+    /**
+     * Moves time when selection bar is moved.
+     *
+     * @param {calIDateTime} time       Old time
+     * @param {Number} delta            Minutes delta value
+     * @param {Boolean} doclip          Flag that decide minutes clipping
+     * @returns {calIDateTime}          New time
+     */
+    moveTime(time, delta, doclip) {
+        let newTime = time.clone();
+        let clip_minutes = 60 * this.zoomFactor / 100;
+        if (newTime.isDate) {
+            clip_minutes = 60 * 24;
+        }
+        let num_hours = this.mEndHour - this.mStartHour;
+        let hour_width = this.mContentWidth / num_hours;
+        let minutes_per_pixel = 60 / hour_width;
+        let minute_shift = minutes_per_pixel * delta;
+        let isClipped = Math.abs(minute_shift) >= (this.mfClipRatio * clip_minutes);
+        if (isClipped) {
+            if (delta > 0) {
+                if (time.isDate) {
+                    newTime.day++;
+                } else {
+                    if (doclip) {
+                        newTime.minute -= newTime.minute % clip_minutes;
+                    }
+                    newTime.minute += clip_minutes;
+                }
+            } else if (delta < 0) {
+                if (time.isDate) {
+                    newTime.day--;
+                } else {
+                    if (doclip) {
+                        newTime.minute -= newTime.minute % clip_minutes;
+                    }
+                    newTime.minute -= clip_minutes;
+                }
+            }
+        }
+
+        if (!newTime.isDate) {
+            if (newTime.hour < this.mStartHour) {
+                newTime.hour = this.mEndHour - 1;
+                newTime.day--;
+            }
+            if (newTime.hour >= this.mEndHour) {
+                newTime.hour = this.mStartHour;
+                newTime.day++;
+            }
+        }
+
+        return newTime;
+    }
+}
+customElements.define("calendar-event-selection-bar", MozCalendarEventSelectionBar);
