@@ -34,7 +34,7 @@ function setupModule(module) {
 /**
  *
  */
-function disabled_test_load_folder_with_invalidDB() {
+function test_load_folder_with_invalidDB() {
   folder.msgDatabase.dBFolderInfo.sortType = nsMsgViewSortType.bySubject;
   folder.msgDatabase.summaryValid = false;
   folder.msgDatabase.ForceClosed();
