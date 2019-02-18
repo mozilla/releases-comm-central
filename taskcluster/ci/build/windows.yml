@@ -59,7 +59,7 @@ win32-nightly/opt:
         env:
             TOOLTOOL_MANIFEST: "comm/mail/config/tooltool-manifests/win32/releng.manifest"
     run:
-        actions: [disabled, build, check-test]
+        actions: [build, check-test]
         options: [append-env-variables-from-configs]
         script: mozharness/scripts/fx_desktop_build.py
         config:
@@ -162,7 +162,7 @@ win64-nightly/opt:
         env:
             TOOLTOOL_MANIFEST: "comm/mail/config/tooltool-manifests/win64/releng.manifest"
     run:
-        actions: [disabled, build, check-test]
+        actions: [build, check-test]
         options: [append-env-variables-from-configs]
         script: mozharness/scripts/fx_desktop_build.py
         config:
