@@ -2,17 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* This file implements the nsIMsgCloudFileProvider interface.
- *
- * This component handles the Box implementation of the
- * nsIMsgCloudFileProvider interface.
- */
+/* This is the Box cloudfile provider.
+ * It's in a JSM that exports nothing because it's a self-contained singleton. */
 
 /* globals kClientId, kClientSecret */
 
+this.EXPORTED_SYMBOLS = [];
+
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
 var {OAuth2} = ChromeUtils.import("resource:///modules/OAuth2.jsm");
 var {httpRequest} = ChromeUtils.import("resource://gre/modules/Http.jsm");
@@ -22,10 +20,6 @@ var gUploadUrl = "https://upload.box.com/api/2.0/";
 
 var kAuthBaseUrl = "https://www.box.com/api/";
 var kAuthUrl = "oauth2/authorize";
-
-XPCOMUtils.defineLazyServiceGetter(this, "gProtocolService",
-                                   "@mozilla.org/uriloader/external-protocol-service;1",
-                                   "nsIExternalProtocolService");
 
 function nsBox() {
   this.log = Log4Moz.getConfiguredLogger("BoxService");
@@ -57,19 +51,18 @@ function nsBox() {
 }
 
 nsBox.prototype = {
-  /* nsISupports */
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgCloudFileProvider]),
-
-  classID: Components.ID("{c06a8707-7463-416c-8b39-e85044a4ff6e}"),
-
   get type() { return "Box"; },
   get displayName() { return "Box"; },
   get serviceURL() { return "https://www.box.com/thunderbird"; },
-  get iconClass() { return "chrome://messenger/skin/icons/box-logo.png"; },
+  get iconURL() { return "chrome://messenger/skin/icons/box-logo.png"; },
   get accountKey() { return this._accountKey; },
   get lastError() { return this._lastErrorText; },
   get settingsURL() { return "chrome://messenger/content/cloudfile/Box/settings.xhtml"; },
   get managementURL() { return "chrome://messenger/content/cloudfile/Box/management.xhtml"; },
+
+  get configured() {
+    return !!cloudFileAccounts.getSecretValue(this._accountKey, cloudFileAccounts.kTokenRealm);
+  },
 
   completionURI: "http://boxauthcallback.local/",
 
@@ -108,8 +101,7 @@ nsBox.prototype = {
    */
   init(aAccountKey) {
     this._accountKey = aAccountKey;
-    this._prefBranch = Services.prefs.getBranch("mail.cloud_files.accounts." +
-                                                aAccountKey + ".");
+    this._prefBranch = Services.prefs.getBranch(`mail.cloud_files.accounts.${aAccountKey}.`);
   },
 
   /**
@@ -179,7 +171,7 @@ nsBox.prototype = {
    */
   uploadFile(aFile, aCallback) {
     if (Services.io.offline)
-      throw Ci.nsIMsgCloudFileProvider.offlineErr;
+      throw cloudFileAccounts.constants.offlineErr;
 
     this.log.info("uploading " + aFile.leafName);
 
@@ -209,7 +201,7 @@ nsBox.prototype = {
 
     let onAuthFailure = function() {
       aCallback.onStopRequest(null, null,
-                              Ci.nsIMsgCloudFileProvider.authErr);
+                              cloudFileAccounts.constants.authErr);
     };
 
     this.log.info("Checking to see if we're logged in");
@@ -241,8 +233,8 @@ nsBox.prototype = {
    *                  states of the upload procedure.
    */
   _finishUpload(aFile, aCallback) {
-    let exceedsFileLimit = Ci.nsIMsgCloudFileProvider.uploadExceedsFileLimit;
-    let exceedsQuota = Ci.nsIMsgCloudFileProvider.uploadWouldExceedQuota;
+    let exceedsFileLimit = cloudFileAccounts.constants.uploadExceedsFileLimit;
+    let exceedsQuota = cloudFileAccounts.constants.uploadWouldExceedQuota;
     if (aFile.fileSize > this._maxFileSize) {
       aCallback.onStopRequest(null, null, exceedsFileLimit);
       return;
@@ -278,7 +270,7 @@ nsBox.prototype = {
       for (let i = 0; i < this._uploads.length; i++)
         if (this._uploads[i].file.equals(aFile)) {
           this._uploads[i].requestObserver.onStopRequest(
-            null, null, Ci.nsIMsgCloudFileProvider.uploadCanceled);
+            null, null, cloudFileAccounts.constants.uploadCancelled);
           this._uploads.splice(i, 1);
           return;
         }
@@ -301,13 +293,13 @@ nsBox.prototype = {
       successCallback = function() {
         this.requestObserver
             .onStopRequest(null, null,
-                           this._loggedIn ? Cr.NS_OK : Ci.nsIMsgCloudFileProvider.authErr);
+                           this._loggedIn ? Cr.NS_OK : cloudFileAccounts.constants.authErr);
     }.bind(this);
 
     if (!failureCallback)
       failureCallback = function() {
         this.requestObserver
-            .onStopRequest(null, null, Ci.nsIMsgCloudFileProvider.authErr);
+            .onStopRequest(null, null, cloudFileAccounts.constants.authErr);
     }.bind(this);
 
     let accountInfoSuccess = function(aResponseText, aRequest) {
@@ -366,7 +358,7 @@ nsBox.prototype = {
     if (!aFailureCallback)
       aFailureCallback = function() {
         this.requestObserver
-            .onStopRequest(null, null, Ci.nsIMsgCloudFileProvider.authErr);
+            .onStopRequest(null, null, cloudFileAccounts.constants.authErr);
       }.bind(this);
 
     return this.logon(function() {
@@ -395,13 +387,15 @@ nsBox.prototype = {
   refreshUserInfo(aWithUI, aCallback) {
     this.log.info("Getting User Info 1 : " + this._loggedIn);
     if (Services.io.offline)
-      throw Ci.nsIMsgCloudFileProvider.offlineErr;
+      throw cloudFileAccounts.constants.offlineErr;
     this.requestObserver = aCallback;
     aCallback.onStartRequest(null, null);
     if (!this._loggedIn)
       return this._logonAndGetUserInfo(null, null, aWithUI);
     if (!this._userInfo)
       return this._getUserInfo();
+
+    aCallback.onStopRequest(null, null);
     return this._userInfo;
   },
 
@@ -424,7 +418,7 @@ nsBox.prototype = {
   _getFolder(aName, aSuccessCallback, aFailureCallback) {
     this.log.info("Getting folder: " + aName);
     if (Services.io.offline)
-      throw Ci.nsIMsgCloudFileProvider.offlineErr;
+      throw cloudFileAccounts.constants.offlineErr;
 
     // There's no API to search by name and we don't know the ID. Get the root
     // folder and search for this name inside of it.
@@ -489,7 +483,7 @@ nsBox.prototype = {
   _createFolder(aName, aSuccessCallback) {
     this.log.info("Creating folder: " + aName);
     if (Services.io.offline)
-      throw Ci.nsIMsgCloudFileProvider.offlineErr;
+      throw cloudFileAccounts.constants.offlineErr;
 
     let body = {
       parent: {
@@ -547,7 +541,7 @@ nsBox.prototype = {
 
     let failureCb = (aResponseText) => {
       aRequestObserver.onStopRequest(null, this,
-                                     Ci.nsIMsgCloudFileProvider.authErr);
+                                     cloudFileAccounts.constants.authErr);
     };
 
     this.logon(successCb, failureCb, true);
@@ -560,7 +554,7 @@ nsBox.prototype = {
    * @param aError an error to get the URL for.
    */
   providerUrlForError(aError) {
-    if (aError == Ci.nsIMsgCloudFileProvider.uploadWouldExceedQuota)
+    if (aError == cloudFileAccounts.constants.uploadWouldExceedQuota)
       return "https://www.box.com/pricing/";
     return "";
   },
@@ -591,7 +585,7 @@ nsBox.prototype = {
 
     if (Services.io.offline) {
       this.log.error("We're offline - we can't delete the file.");
-      throw Ci.nsIMsgCloudFileProvider.offlineErr;
+      throw cloudFileAccounts.constants.offlineErr;
     }
 
     let uploadInfo = this._uploadInfo[aFile.path];
@@ -699,7 +693,7 @@ nsBoxFileUploader.prototype = {
               // If shared_link doesn't exist or is empty, an error occurred.
               if (!result.shared_link || !result.shared_link.url) {
                 this.callback(this.requestObserver,
-                  Ci.nsIMsgCloudFileProvider.uploadErr);
+                  cloudFileAccounts.constants.uploadErr);
               }
 
               // Can't use download_url because free accounts do not have access
@@ -712,7 +706,7 @@ nsBoxFileUploader.prototype = {
             }.bind(this);
             let shareFailure = function(aResponseText, aReqest) {
               this.callback(this.requestObserver,
-                Ci.nsIMsgCloudFileProvider.uploadErr);
+                cloudFileAccounts.constants.uploadErr);
             }.bind(this);
 
             // Currently only one file is uploaded at a time.
@@ -734,23 +728,23 @@ nsBoxFileUploader.prototype = {
             });
           } else {
             this.callback(this.requestObserver,
-                      Ci.nsIMsgCloudFileProvider.uploadErr);
+                      cloudFileAccounts.constants.uploadErr);
           }
         } catch (ex) {
           this.log.error(ex);
           this.callback(this.requestObserver,
-                      Ci.nsIMsgCloudFileProvider.uploadErr);
+                      cloudFileAccounts.constants.uploadErr);
         }
       } else {
         this.callback(this.requestObserver,
-                      Ci.nsIMsgCloudFileProvider.uploadErr);
+                      cloudFileAccounts.constants.uploadErr);
       }
     }.bind(this);
 
     req.onerror = function() {
       if (this.callback)
         this.callback(this.requestObserver,
-                      Ci.nsIMsgCloudFileProvider.uploadErr);
+                      cloudFileAccounts.constants.uploadErr);
     }.bind(this);
 
     req.setRequestHeader("Authorization", "Bearer " + this.box._oauth.accessToken);
@@ -770,7 +764,7 @@ nsBoxFileUploader.prototype = {
    */
   cancel() {
     this.log.info("in uploader cancel");
-    this.callback(this.requestObserver, Ci.nsIMsgCloudFileProvider.uploadCanceled);
+    this.callback(this.requestObserver, cloudFileAccounts.constants.uploadCancelled);
     delete this.callback;
     if (this.request) {
       this.log.info("cancelling upload request");
@@ -805,4 +799,13 @@ nsBoxFileUploader.prototype = {
 "\x63\x74"](this));
 /* eslint-enable */
 
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([nsBox]);
+cloudFileAccounts.registerProvider("Box", {
+  type: "Box",
+  displayName: "Box",
+  iconURL: "chrome://messenger/skin/icons/box-logo.png",
+  initAccount(accountKey) {
+    let account = new nsBox();
+    account.init(accountKey);
+    return account;
+  },
+});

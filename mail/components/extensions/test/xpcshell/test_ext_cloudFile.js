@@ -76,7 +76,7 @@ add_task(async () => {
         setTimeout(() => {
           browser.cloudFile.onAccountAdded.removeListener(accountListener);
           resolve();
-        }, 0);
+        });
       });
 
       // Account removal
@@ -167,7 +167,7 @@ add_task(async () => {
         }
 
         browser.cloudFile.onFileUpload.addListener(fileListener);
-        browser.test.sendMessage("uploadFile", createdAccount.id, "cloudFile2", "uploadCanceled");
+        browser.test.sendMessage("uploadFile", createdAccount.id, "cloudFile2", "uploadCancelled");
       });
 
       browser.test.log("test delete");
@@ -227,7 +227,7 @@ add_task(async () => {
     let account = cloudFileAccounts.getAccount(accountId);
 
     if (typeof expected == "string") {
-      expected = Ci.nsIMsgCloudFileProvider[expected];
+      expected = cloudFileAccounts.constants[expected];
     }
 
     account.uploadFile(testFiles[filename], {
@@ -255,9 +255,11 @@ add_task(async () => {
   Assert.ok(!cloudFileAccounts.getProviderForType("ext-cloudfile@xpcshell"));
   await extension.startup();
   Assert.ok(cloudFileAccounts.getProviderForType("ext-cloudfile@xpcshell"));
+  Assert.equal(cloudFileAccounts.accounts.length, 1);
 
   await extension.awaitFinish("cloudFile");
   await extension.unload();
 
   Assert.ok(!cloudFileAccounts.getProviderForType("ext-cloudfile@xpcshell"));
+  Assert.equal(cloudFileAccounts.accounts.length, 0);
 });

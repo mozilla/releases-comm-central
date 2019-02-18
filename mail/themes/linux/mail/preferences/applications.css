@@ -53,21 +53,31 @@ menuitem[appHandlerIcon="save"] {
 /**
  * Used by the outgoing attachment manager
  */
-.cloudfileAccount[state="connecting"],
-.cloudfileAccount[state="waiting-to-connect"] {
-  list-style-image: url("chrome://global/skin/icons/loading.png") !important;
-}
-
-.cloudfileAccount[state="auth-error"],
-.cloudfileAccount[state="no-connection"] {
-  list-style-image: url("moz-icon://stock/gtk-dialog-error?size=menu")!important;
+.cloudfileAccount {
+  padding: 4px;
 }
 
 .cloudfileAccount .typeIcon {
-  max-height: 16px;
-  max-width: 16px;
+  height: 16px;
+  width: 16px;
   margin-top: 3px;
   margin-bottom: 3px;
+}
+
+.cloudfileAccount > label {
+  /* This label needs to be the same height as the textbox. */
+  margin-top: 3px;
+  margin-bottom: 4px;
+}
+.cloudfileAccount:not([selected]) > label {
+  pointer-events: none;
+}
+
+.cloudfileAccount > textbox {
+  color: -moz-fieldtext !important;
+  min-height: unset;
+  margin: 0;
+  padding-inline: 4px;
 }
 
 #authMessage {

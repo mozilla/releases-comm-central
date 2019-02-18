@@ -20,7 +20,6 @@
 
   "cloud_file": {
     "name": "__MSG_serviceName__",
-    "settings_url": "/content/moments.html",
     "management_url": "/content/moments.html"
   },
 

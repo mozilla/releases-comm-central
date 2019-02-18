@@ -9,6 +9,8 @@ var MODULE_NAME = "cloudfile-backend-helpers";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["window-helpers"];
 
+var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
+
 var kUserAuthRequested = "cloudfile:auth";
 var kUserDataRequested = "cloudfile:user";
 var kUploadFile = "cloudfile:uploadFile";
@@ -32,7 +34,7 @@ function installInto(module) {
 }
 
 function setupModule(module) {
-  wh = collector.getModule('window-helpers');
+  wh = collector.getModule("window-helpers");
 }
 
 function SimpleRequestObserverManager() {
@@ -40,13 +42,13 @@ function SimpleRequestObserverManager() {
 }
 
 SimpleRequestObserverManager.prototype = {
-  create: function(aName) {
+  create(aName) {
     let obs = new SimpleRequestObserver(aName);
     this._observers.push(obs);
     return obs;
   },
 
-  check: function() {
+  check() {
     for (let observer of this._observers) {
       if (!observer.success)
         throw new Error("An observer named " + observer.name + " was leftover, "
@@ -55,19 +57,19 @@ SimpleRequestObserverManager.prototype = {
     }
   },
 
-  reset: function() {
+  reset() {
     this._observers = [];
-  }
-}
+  },
+};
 
 function SimpleRequestObserver(aName) {
   this.name = aName;
-};
+}
 
 SimpleRequestObserver.prototype = {
   success: null,
-  onStartRequest: function(aRequest, aContext) {},
-  onStopRequest: function(aRequest, aContext, aStatusCode) {
+  onStartRequest(aRequest, aContext) {},
+  onStopRequest(aRequest, aContext, aStatusCode) {
     if (Components.isSuccessCode(aStatusCode)) {
       this.success = true;
     } else {
@@ -76,7 +78,7 @@ SimpleRequestObserver.prototype = {
   },
   QueryInterface: ChromeUtils.generateQI([Ci.nsIRequestObserver,
                                           Ci.nsISupportsWeakReference]),
-}
+};
 
 /**
  * This function uploads one or more files, and then proceeds to cancel
@@ -95,14 +97,14 @@ function assert_can_cancel_uploads(aController, aProvider, aFiles) {
   for (let file of aFiles) {
     let mapping = {};
     mapping.listener = {
-      onStartRequest: function(aRequest, aContext) {
+      onStartRequest(aRequest, aContext) {
         mapping.started = true;
       },
-      onStopRequest: function(aRequest, aContext, aStatusCode) {
-        if (aStatusCode == Ci.nsIMsgCloudFileProvider.uploadCanceled)
+      onStopRequest(aRequest, aContext, aStatusCode) {
+        if (aStatusCode == cloudFileAccounts.constants.uploadCancelled)
           mapping.cancelled = true;
       },
-    }
+    };
 
     aProvider.uploadFile(file, mapping.listener);
     fileListenerMap.push(mapping);
@@ -121,6 +123,6 @@ function assert_can_cancel_uploads(aController, aProvider, aFiles) {
     return fileListenerMap.length == aFiles.length &&
            fileListenerMap.every(function(aMapping) {
              return aMapping.cancelled;
-           })
+           });
   }, "Timed out waiting for cancellation to occur");
 }

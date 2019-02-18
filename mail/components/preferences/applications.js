@@ -504,14 +504,13 @@ var gCloudFileTab = {
   _initialized: false,
   _initializationStarted: false,
   _list: null,
+  _buttonContainer: null,
   _settings: null,
   _settingsDeck: null,
   _tabpanel: null,
-  _accountCache: {},
   _settingsPanelWrap: null,
   _defaultPanel: null,
-  _loadingPanel: null,
-  _authErrorPanel: null,
+  _blacklist: new Set(["YouSendIt"]),
 
   get _strings() {
     return Services.strings
@@ -534,28 +533,21 @@ var gCloudFileTab = {
     window.removeEventListener("paneSelected", gApplicationsTabController.paneSelectionChanged);
 
     this._list = document.getElementById("cloudFileView");
+    this._buttonContainer = document.getElementById("addCloudFileAccountButtons");
     this._removeAccountButton = document.getElementById("removeCloudFileAccount");
     this._settingsDeck = document.getElementById("cloudFileSettingsDeck");
     this._defaultPanel = document.getElementById("cloudFileDefaultPanel");
     this._settingsPanelWrap = document.getElementById("cloudFileSettingsWrapper");
-    this._loadingPanel = document.getElementById("cloudFileLoadingPanel");
-    this._authErrorPanel = document.getElementById("cloudFileAuthErrorPanel");
 
-    this.onSelectionChanged = this.onSelectionChanged.bind(this);
-    this._list.addEventListener("select", this.onSelectionChanged);
+    this.updateThreshold();
     this.rebuildView();
-
-    if (this._list.itemCount > 0) {
-      this._list.selectedIndex = 0;
-      this._removeAccountButton.disabled = false;
-    }
 
     window.addEventListener("unload", this, {capture: false, once: true});
 
-    this.updateThreshold();
-
+    this._onAccountConfigured = this._onAccountConfigured.bind(this);
     this._onProviderRegistered = this._onProviderRegistered.bind(this);
     this._onProviderUnregistered = this._onProviderUnregistered.bind(this);
+    cloudFileAccounts.on("accountConfigured", this._onAccountConfigured);
     cloudFileAccounts.on("providerRegistered", this._onProviderRegistered);
     cloudFileAccounts.on("providerUnregistered", this._onProviderUnregistered);
 
@@ -564,28 +556,32 @@ var gCloudFileTab = {
 
   destroy() {
     // Remove any controllers or observers here.
+    cloudFileAccounts.off("accountConfigured", this._onAccountConfigured);
     cloudFileAccounts.off("providerRegistered", this._onProviderRegistered);
     cloudFileAccounts.off("providerUnregistered", this._onProviderUnregistered);
   },
 
+  _onAccountConfigured(event, account) {
+    for (let item of this._list.children) {
+      if (item.value == account.accountKey) {
+        item.querySelector("image.configuredWarning").hidden = account.configured;
+      }
+    }
+  },
+
   _onProviderRegistered(event, provider) {
     let accounts = cloudFileAccounts.getAccountsForType(provider.type);
-    accounts.sort(this._sortAccounts);
+    accounts.sort(this._sortDisplayNames);
 
     // Always add newly-enabled accounts to the end of the list, this makes
     // it clearer to users what's happening.
     for (let account of accounts) {
       let item = this.makeRichListItemForAccount(account);
       this._list.appendChild(item);
-      if (!(account.accountKey in this._accountCache)) {
-        let accountInfo = {
-          account,
-          listItem: item,
-          result: Cr.NS_OK,
-        };
-        this._accountCache[account.accountKey] = accountInfo;
-        this._mapResultToState(item, accountInfo.result);
-      }
+    }
+
+    if (!this._blacklist.has(provider.type)) {
+      this._buttonContainer.appendChild(this.makeButtonForProvider(provider));
     }
   },
 
@@ -595,8 +591,18 @@ var gCloudFileTab = {
       if (!cloudFileAccounts.getAccount(item.value)) {
         if (item.hasAttribute("selected")) {
           this._settingsDeck.selectedPanel = this._defaultPanel;
+          if (this._settings) {
+            this._settings.remove();
+          }
+          this._removeAccountButton.disabled = true;
         }
         item.remove();
+      }
+    }
+
+    for (let button of this._buttonContainer.children) {
+      if (button.getAttribute("value") == type) {
+        button.remove();
       }
     }
   },
@@ -604,161 +610,112 @@ var gCloudFileTab = {
   makeRichListItemForAccount(aAccount) {
     let rli = document.createElement("richlistitem");
     rli.value = aAccount.accountKey;
-    rli.setAttribute("value", aAccount.accountKey);
+    rli.setAttribute("align", "baseline");
     rli.setAttribute("class", "cloudfileAccount");
-    rli.setAttribute("state", "waiting-to-connect");
+    rli.setAttribute("value", aAccount.accountKey);
 
-    if (aAccount.iconClass)
-      rli.style.listStyleImage = "url('" + aAccount.iconClass + "')";
+    if (aAccount.iconURL)
+      rli.style.listStyleImage = "url('" + aAccount.iconURL + "')";
 
-    let displayName = cloudFileAccounts.getDisplayName(aAccount.accountKey);
-    // Quick and ugly - accountKey:displayName for now
-    let status = document.createElement("image");
-    status.setAttribute("class", "typeIcon");
+    let icon = document.createElement("image");
+    icon.setAttribute("class", "typeIcon");
+    rli.appendChild(icon);
 
-    rli.appendChild(status);
-    let descr = document.createElement("label");
-    descr.setAttribute("value", displayName);
-    rli.appendChild(descr);
+    let label = document.createElement("label");
+    label.setAttribute("crop", "end");
+    label.setAttribute("flex", "1");
+    label.setAttribute("value", cloudFileAccounts.getDisplayName(aAccount.accountKey));
+    label.addEventListener("click", this, true);
+    rli.appendChild(label);
 
-    // Set the state of the richlistitem, if applicable
-    if (aAccount.accountKey in this._accountCache) {
-      let result = this._accountCache[aAccount.accountKey].result;
-      this._mapResultToState(rli, result);
-      this._accountCache[aAccount.accountKey].listItem = rli;
+    let textBox = document.createElement("textbox");
+    textBox.setAttribute("flex", "1");
+    textBox.hidden = true;
+    textBox.addEventListener("blur", this);
+    textBox.addEventListener("keypress", this);
+    rli.appendChild(textBox);
+
+    let warningIcon = document.createElement("image");
+    warningIcon.setAttribute("class", "configuredWarning typeIcon");
+    warningIcon.setAttribute("src", "chrome://global/skin/icons/warning.svg");
+    warningIcon.setAttribute("tooltiptext", this._strings.GetStringFromName("notConfiguredYet"));
+    if (aAccount.configured) {
+      warningIcon.hidden = true;
     }
+    rli.appendChild(warningIcon);
 
     return rli;
   },
 
-  clearEntries() {
-    // Clear the list of entries.
-    while (this._list.hasChildNodes())
-      this._list.lastChild.remove();
+  makeButtonForProvider(provider) {
+    let button = document.createElement("button");
+    button.setAttribute("value", provider.type);
+    button.setAttribute(
+      "label", this._strings.formatStringFromName("addProvider", [provider.displayName], 1)
+    );
+    button.setAttribute("oncommand", `gCloudFileTab.addCloudFileAccount("${provider.type}")`);
+    button.style.listStyleImage = `url("${provider.iconURL}")`;
+    return button;
   },
 
   // Sort the accounts by displayName.
-  _sortAccounts(a, b) {
-    let aName = cloudFileAccounts.getDisplayName(a.accountKey)
-                                 .toLowerCase();
-    let bName = cloudFileAccounts.getDisplayName(b.accountKey)
-                                 .toLowerCase();
-
-    if (aName < bName)
-      return -1;
-    if (aName > bName)
-      return 1;
-    return 0;
+  _sortDisplayNames(a, b) {
+    let aName = a.displayName.toLowerCase();
+    let bName = b.displayName.toLowerCase();
+    return aName.localeCompare(bName);
   },
 
   rebuildView() {
-    this.clearEntries();
-    let accounts = cloudFileAccounts.accounts;
+    // Clear the list of entries.
+    while (this._list.hasChildNodes())
+      this._list.lastChild.remove();
 
-    accounts.sort(this._sortAccounts);
+    let accounts = cloudFileAccounts.accounts;
+    accounts.sort(this._sortDisplayNames);
 
     for (let account of accounts) {
       let rli = this.makeRichListItemForAccount(account);
       this._list.appendChild(rli);
-      if (!(account.accountKey in this._accountCache))
-        this.requestUserInfoForItem(rli, false);
+    }
+
+    while (this._buttonContainer.hasChildNodes())
+      this._buttonContainer.lastChild.remove();
+
+    let providers = cloudFileAccounts.providers;
+    providers.sort(this._sortDisplayNames);
+    for (let provider of providers) {
+      if (this._blacklist.has(provider.type)) {
+        continue;
+      }
+
+      this._buttonContainer.appendChild(this.makeButtonForProvider(provider));
     }
   },
 
-  requestUserInfoForItem(aItem, aWithUI) {
-    let accountKey = aItem.value;
-    let account = cloudFileAccounts.getAccount(accountKey);
-
-    let observer = {
-      onStopRequest(aRequest, aContext, aStatusCode) {
-        gCloudFileTab._accountCache[accountKey].result = aStatusCode;
-        gCloudFileTab.onUserInfoRequestDone(accountKey);
-      },
-      onStartRequest(aRequest, aContext) {
-        aItem.setAttribute("state", "connecting");
-      },
-    };
-
-    let accountInfo = {
-      account,
-      listItem: aItem,
-      result: Cr.NS_ERROR_NOT_AVAILABLE,
-    };
-
-    this._accountCache[accountKey] = accountInfo;
-
-    this._settingsDeck.selectedPanel = this._loadingPanel;
-    account.refreshUserInfo(aWithUI, observer);
-  },
-
-  onUserInfoRequestDone(aAccountKey) {
-    this.updateRichListItem(aAccountKey);
-
-    if (this._list.selectedItem &&
-        this._list.selectedItem.value == aAccountKey)
-      this._showAccountInfo(aAccountKey);
-  },
-
-  updateRichListItem(aAccountKey) {
-    let accountInfo = this._accountCache[aAccountKey];
-    if (!accountInfo)
+  onSelectionChanged(aEvent) {
+    if (!this._initialized || aEvent.target != this._list) {
       return;
+    }
 
-    let item = accountInfo.listItem;
-    let result = accountInfo.result;
-    this._mapResultToState(item, result);
-  },
-
-  _mapResultToState(aItem, aResult) {
-    let itemState = "no-connection";
-
-    if (aResult == Cr.NS_OK)
-      itemState = "connected";
-    else if (aResult == Ci.nsIMsgCloudFileProvider.authErr)
-      itemState = "auth-error";
-    else if (aResult == Cr.NS_ERROR_NOT_AVAILABLE)
-      itemState = "no-connection";
-    // TODO: What other states are there?
-
-    aItem.setAttribute("state", itemState);
-  },
-
-  onSelectionChanged() {
     // Get the selected item
     let selection = this._list.selectedItem;
     this._removeAccountButton.disabled = !selection;
-    if (!selection)
+    if (!selection) {
+      this._settingsDeck.selectedPanel = this._defaultPanel;
+      if (this._settings) {
+        this._settings.remove();
+      }
       return;
+    }
 
-    // The selection tells us the key.  We need the actual
-    // provider here.
-    let accountKey = selection.value;
-    this._showAccountInfo(accountKey);
+    this._showAccountInfo(selection.value);
   },
 
   _showAccountInfo(aAccountKey) {
-    let account = this._accountCache[aAccountKey].account;
-    let result = this._accountCache[aAccountKey].result;
+    let account = cloudFileAccounts.getAccount(aAccountKey);
+    this._settingsDeck.selectedPanel = this._settingsPanelWrap;
 
-    if (result == Cr.NS_ERROR_NOT_AVAILABLE) {
-      this._settingsDeck.selectedPanel = this._loadingPanel;
-    } else if (result == Cr.NS_OK) {
-      this._settingsDeck.selectedPanel = this._settingsPanelWrap;
-      this._showAccountManagement(account);
-    } else if (result == Ci.nsIMsgCloudFileProvider.authErr) {
-      this._settingsDeck.selectedPanel = this._authErrorPanel;
-    } else {
-      Cu.reportError("Unexpected connection error.");
-    }
-  },
-
-  _showAccountManagement(aProvider) {
-    let url = aProvider.managementURL;
-    if (url.startsWith("moz-extension:")) {
-      // Assumes there is only one account per provider.
-      let account = cloudFileAccounts.getAccountsForType(aProvider.type)[0];
-      url += `?accountId=${account.accountKey}`;
-    }
+    let url = account.managementURL + `?accountId=${account.accountKey}`;
 
     let iframe = document.createElement("iframe");
     iframe.setAttribute("flex", "1");
@@ -771,41 +728,22 @@ var gCloudFileTab = {
 
     // If we have a past iframe, we replace it. Else append
     // to the wrapper.
-    if (this._settings)
+    if (this._settings) {
       this._settings.remove();
+    }
 
     this._settingsPanelWrap.appendChild(iframe);
     this._settings = iframe;
-
-    // When the iframe loads, populate it with the provider.
-    this._settings.contentWindow.addEventListener("load", function() {
-      try {
-        iframe.contentWindow
-              .wrappedJSObject
-              .onLoadProvider(aProvider);
-      } catch (e) {
-        Cu.reportError(e);
-      }
-    }, {capture: false, once: true});
   },
 
-  authSelected() {
-    let item = this._list.selectedItem;
-
-    if (!item)
+  addCloudFileAccount(aType) {
+    let account = cloudFileAccounts.createAccount(aType);
+    if (!account)
       return;
 
-    this.requestUserInfoForItem(item, true);
-  },
-
-  addCloudFileAccount() {
-    let accountKey = cloudFileAccounts.addAccountDialog();
-    if (!accountKey)
-      return;
-
-    this.rebuildView();
-    let newItem = this._list.querySelector("richlistitem[value='" + accountKey + "']");
-    this._list.selectItem(newItem);
+    let rli = this.makeRichListItemForAccount(account);
+    this._list.appendChild(rli);
+    this._list.selectItem(rli);
     this._removeAccountButton.disabled = false;
   },
 
@@ -825,17 +763,66 @@ var gCloudFileTab = {
     if (Services.prompt.confirm(null, "", confirmMessage)) {
       this._list.clearSelection();
       cloudFileAccounts.removeAccount(accountKey);
-      this.rebuildView();
+      let rli = this._list.querySelector("richlistitem[value='" + accountKey + "']");
+      rli.remove();
       this._settingsDeck.selectedPanel = this._defaultPanel;
-      delete this._accountCache[accountKey];
-
-      this._removeAccountButton.disabled = (this._list.selectedCount == 0);
+      if (this._settings) {
+        this._settings.remove();
+      }
     }
   },
 
   handleEvent(aEvent) {
-    if (aEvent.type == "unload")
-      this.destroy();
+    switch (aEvent.type) {
+      case "unload":
+        this.destroy();
+        break;
+      case "click": {
+        let label = aEvent.target;
+        let item = label.parentNode;
+        let textBox = item.querySelector("textbox");
+        if (!item.selected) {
+          return;
+        }
+        label.hidden = true;
+        textBox.value = label.value;
+        textBox.hidden = false;
+        textBox.select();
+        break;
+      }
+      case "blur": {
+        let textBox = aEvent.target;
+        let item = textBox.parentNode;
+        let label = item.querySelector("label");
+        cloudFileAccounts.setDisplayName(item.value, textBox.value);
+        label.value = textBox.value;
+        label.hidden = false;
+        textBox.hidden = true;
+        break;
+      }
+      case "keypress": {
+        let textBox = aEvent.target;
+        let item = textBox.parentNode;
+        let label = item.querySelector("label");
+
+        if (aEvent.key == "Enter") {
+          cloudFileAccounts.setDisplayName(item.value, textBox.value);
+          label.value = textBox.value;
+          label.hidden = false;
+          textBox.hidden = true;
+          gCloudFileTab._list.focus();
+
+          aEvent.preventDefault();
+        } else if (aEvent.key == "Escape") {
+          textBox.value = label.value;
+          label.hidden = false;
+          textBox.hidden = true;
+          gCloudFileTab._list.focus();
+
+          aEvent.preventDefault();
+        }
+      }
+    }
   },
 
   readThreshold() {
@@ -851,11 +838,8 @@ var gCloudFileTab = {
 
   updateThreshold() {
     document.getElementById("cloudFileThreshold").disabled =
-    !document.getElementById("enableThreshold").checked;
+      !document.getElementById("enableThreshold").checked;
   },
-
-  QueryInterface: ChromeUtils.generateQI(["nsIObserver",
-                                          "nsISupportsWeakReference"]),
 };
 
 // -------------------

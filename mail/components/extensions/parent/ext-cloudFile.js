@@ -24,13 +24,11 @@ async function promiseFileRead(nsifile) {
   });
 }
 
-class CloudFileProvider extends EventEmitter {
-  constructor(extension) {
-    super();
-
+class CloudFileAccount {
+  constructor(accountKey, extension) {
+    this.accountKey = accountKey;
     this.extension = extension;
-    this.configured = false;
-    this.accountKey = false;
+    this._configured = false;
     this.lastError = "";
     this.settingsURL = this.extension.manifest.cloud_file.settings_url;
     this.managementURL = this.extension.manifest.cloud_file.management_url;
@@ -49,12 +47,15 @@ class CloudFileProvider extends EventEmitter {
     return `ext-${this.extension.id}`;
   }
   get displayName() {
-    return this.extension.manifest.cloud_file.name;
+    return Services.prefs.getCharPref(
+      `mail.cloud_files.accounts.${this.accountKey}.displayName`,
+      this.extension.manifest.cloud_file.name
+    );
   }
   get serviceURL() {
     return this.extension.manifest.cloud_file.service_url;
   }
-  get iconClass() {
+  get iconURL() {
     if (this.extension.manifest.icons) {
       let { icon } = ExtensionParent.IconDetails.getPreferredIcon(
         this.extension.manifest.icons, this.extension, 32
@@ -72,15 +73,18 @@ class CloudFileProvider extends EventEmitter {
   get fileSpaceUsed() {
     return this.quota.spaceUsed;
   }
+  get configured() {
+    return this._configured;
+  }
+  set configured(value) {
+    value = !!value;
+    if (value != this._configured) {
+      this._configured = value;
+      cloudFileAccounts.emit("accountConfigured", this);
+    }
+  }
   get createNewAccountUrl() {
     return this.extension.manifest.cloud_file.new_account_url;
-  }
-
-  init(accountKey) {
-    this.accountKey = accountKey;
-    Services.prefs.setCharPref(
-      `mail.cloud_files.accounts.${accountKey}.displayName`, this.displayName
-    );
   }
 
   async uploadFile(file, callback) {
@@ -91,24 +95,24 @@ class CloudFileProvider extends EventEmitter {
       let buffer = await promiseFileRead(file);
 
       this._fileIds.set(file.path, id);
-      results = await this.emit("uploadFile", {
+      results = await this.extension.emit("uploadFile", this, {
         id,
         name: file.leafName,
         data: buffer,
       });
     } catch (ex) {
       if (ex.result == 0x80530014) { // NS_ERROR_DOM_ABORT_ERR
-        callback.onStopRequest(null, null, Ci.nsIMsgCloudFileProvider.uploadCanceled);
+        callback.onStopRequest(null, null, cloudFileAccounts.constants.uploadCancelled);
       } else {
         console.error(ex);
-        callback.onStopRequest(null, null, Ci.nsIMsgCloudFileProvider.uploadErr);
+        callback.onStopRequest(null, null, cloudFileAccounts.constants.uploadErr);
       }
       return;
     }
 
     if (results && results.length > 0) {
       if (results[0].aborted) {
-        callback.onStopRequest(null, null, Ci.nsIMsgCloudFileProvider.uploadCanceled);
+        callback.onStopRequest(null, null, cloudFileAccounts.constants.uploadCancelled);
         return;
       }
 
@@ -116,7 +120,7 @@ class CloudFileProvider extends EventEmitter {
       this._fileUrls.set(file.path, url);
       callback.onStopRequest(null, null, Cr.NS_OK);
     } else {
-      callback.onStopRequest(null, null, Ci.nsIMsgCloudFileProvider.uploadErr);
+      callback.onStopRequest(null, null, cloudFileAccounts.constants.uploadErr);
       throw new ExtensionUtils.ExtensionError(
         `Missing cloudFile.onFileUpload listener for ${this.extension.id}`
       );
@@ -128,14 +132,14 @@ class CloudFileProvider extends EventEmitter {
   }
 
   cancelFileUpload(file) {
-    this.emit("uploadAbort", {
+    this.extension.emit("uploadAbort", this, {
       id: this._fileIds.get(file.path),
     });
   }
 
   refreshUserInfo(withUI, callback) {
     if (Services.io.offline) {
-      throw Ci.nsIMsgCloudFileProvider.offlineErr;
+      throw cloudFileAccounts.constants.offlineErr;
     }
     callback.onStopRequest(null, null, Cr.NS_OK);
   }
@@ -145,7 +149,7 @@ class CloudFileProvider extends EventEmitter {
     try {
       if (this._fileIds.has(file.path)) {
         let id = this._fileIds.get(file.path);
-        results = await this.emit("deleteFile", { id });
+        results = await this.extension.emit("deleteFile", this, { id });
       }
     } catch (ex) {
       callback.onStopRequest(null, null, Cr.NS_ERROR_FAILURE);
@@ -167,7 +171,7 @@ class CloudFileProvider extends EventEmitter {
 
   createExistingAccount(callback) {
     if (Services.io.offline) {
-      throw Ci.nsIMsgCloudFileProvider.offlineErr;
+      throw cloudFileAccounts.constants.offlineErr;
     }
     // We're assuming everything is ok here. Maybe expose this in the future if there is a need
     callback.onStopRequest(null, this, Cr.NS_OK);
@@ -179,16 +183,7 @@ class CloudFileProvider extends EventEmitter {
 
   overrideUrls(count, urls) {
   }
-
-  register() {
-    cloudFileAccounts.registerProvider(this);
-  }
-
-  unregister() {
-    cloudFileAccounts.unregisterProvider(this.type);
-  }
 }
-CloudFileProvider.prototype.QueryInterface = ChromeUtils.generateQI([Ci.nsIMsgCloudFileProvider]);
 
 function convertCloudFileAccount(nativeAccount) {
   return {
@@ -204,17 +199,34 @@ function convertCloudFileAccount(nativeAccount) {
 }
 
 this.cloudFile = class extends ExtensionAPI {
+  get providerType() {
+    return `ext-${this.extension.id}`;
+  }
+
   onManifestEntry(entryName) {
-    if (entryName == "cloud_file" && !this.provider) {
-      this.provider = new CloudFileProvider(this.extension);
-      this.provider.register();
+    if (entryName == "cloud_file") {
+      let {extension} = this;
+      cloudFileAccounts.registerProvider(this.providerType, {
+        type: this.providerType,
+        displayName: extension.manifest.cloud_file.name,
+        get iconURL() {
+          if (extension.manifest.icons) {
+            let { icon } = ExtensionParent.IconDetails.getPreferredIcon(
+              extension.manifest.icons, extension, 32
+            );
+            return extension.getURL(icon);
+          }
+          return "chrome://messenger/content/extension.svg";
+        },
+        initAccount(accountKey) {
+          return new CloudFileAccount(accountKey, extension);
+        },
+      });
     }
   }
 
   onShutdown() {
-    if (this.provider) {
-      this.provider.unregister();
-    }
+    cloudFileAccounts.unregisterProvider(this.providerType);
   }
 
   getAPI(context) {
@@ -225,14 +237,14 @@ this.cloudFile = class extends ExtensionAPI {
           context,
           name: "cloudFile.onFileUpload",
           register: fire => {
-            let listener = (event, { id, name, data }) => {
-              let account = convertCloudFileAccount(self.provider);
+            let listener = (event, account, { id, name, data }) => {
+              account = convertCloudFileAccount(account);
               return fire.async(account, { id, name, data });
             };
 
-            self.provider.on("uploadFile", listener);
+            context.extension.on("uploadFile", listener);
             return () => {
-              self.provider.off("uploadFile", listener);
+              context.extension.off("uploadFile", listener);
             };
           },
         }).api(),
@@ -241,14 +253,14 @@ this.cloudFile = class extends ExtensionAPI {
           context,
           name: "cloudFile.onFileUploadAbort",
           register: fire => {
-            let listener = (event, { id }) => {
-              let account = convertCloudFileAccount(self.provider);
+            let listener = (event, account, { id }) => {
+              account = convertCloudFileAccount(account);
               return fire.async(account, id);
             };
 
-            self.provider.on("uploadAbort", listener);
+            context.extension.on("uploadAbort", listener);
             return () => {
-              self.provider.off("uploadAbort", listener);
+              context.extension.off("uploadAbort", listener);
             };
           },
         }).api(),
@@ -257,14 +269,14 @@ this.cloudFile = class extends ExtensionAPI {
           context,
           name: "cloudFile.onFileDeleted",
           register: fire => {
-            let listener = (event, { id }) => {
-              let account = convertCloudFileAccount(self.provider);
+            let listener = (event, account, { id }) => {
+              account = convertCloudFileAccount(account);
               return fire.async(account, id);
             };
 
-            self.provider.on("deleteFile", listener);
+            context.extension.on("deleteFile", listener);
             return () => {
-              self.provider.off("deleteFile", listener);
+              context.extension.off("deleteFile", listener);
             };
           },
         }).api(),
@@ -274,7 +286,7 @@ this.cloudFile = class extends ExtensionAPI {
           name: "cloudFile.onAccountAdded",
           register: fire => {
             let listener = (event, nativeAccount) => {
-              if (nativeAccount.type != this.provider.type) {
+              if (nativeAccount.type != this.providerType) {
                 return null;
               }
 
@@ -293,7 +305,7 @@ this.cloudFile = class extends ExtensionAPI {
           name: "cloudFile.onAccountDeleted",
           register: fire => {
             let listener = (event, key, type) => {
-              if (this.provider.type != type) {
+              if (this.providerType != type) {
                 return null;
               }
 
@@ -310,7 +322,7 @@ this.cloudFile = class extends ExtensionAPI {
         async getAccount(accountId) {
           let account = cloudFileAccounts.getAccount(accountId);
 
-          if (!account || account.type != self.provider.type) {
+          if (!account || account.type != self.providerType) {
             return undefined;
           }
 
@@ -318,13 +330,13 @@ this.cloudFile = class extends ExtensionAPI {
         },
 
         async getAllAccounts() {
-          return cloudFileAccounts.getAccountsForType(self.provider.type).map(convertCloudFileAccount);
+          return cloudFileAccounts.getAccountsForType(self.providerType).map(convertCloudFileAccount);
         },
 
         async updateAccount(accountId, updateProperties) {
           let account = cloudFileAccounts.getAccount(accountId);
 
-          if (!account || account.type != self.provider.type) {
+          if (!account || account.type != self.providerType) {
             return undefined;
           }
           if (updateProperties.configured !== null) {

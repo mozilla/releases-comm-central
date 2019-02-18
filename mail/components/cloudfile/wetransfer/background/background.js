@@ -147,10 +147,16 @@ browser.cloudFile.onFileUploadAbort.addListener((account, id) => {
 
 browser.cloudFile.getAllAccounts().then(async (accounts) => {
   for (let account of accounts) {
-    await browser.cloudFile.updateAccount(account.id, { uploadSizeLimit: TWO_GB });
+    await browser.cloudFile.updateAccount(account.id, {
+      configured: true,
+      uploadSizeLimit: TWO_GB,
+    });
   }
 });
 
 browser.cloudFile.onAccountAdded.addListener(async (account) => {
-  await browser.cloudFile.updateAccount(account.id, { uploadSizeLimit: TWO_GB });
+  await browser.cloudFile.updateAccount(account.id, {
+    configured: true,
+    uploadSizeLimit: TWO_GB,
+  });
 });

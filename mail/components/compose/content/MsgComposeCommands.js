@@ -626,7 +626,7 @@ var defaultController = {
         // the feature is disbled.
         let cmd = document.getElementById("cmd_attachCloud");
         cmd.hidden = !Services.prefs.getBoolPref("mail.cloud_files.enabled") ||
-                     (cloudFileAccounts.accounts.length == 0) ||
+                     (cloudFileAccounts.configuredAccounts.length == 0) ||
                      Services.io.offline;
         return !cmd.hidden && !gWindowLocked;
       },
@@ -1093,7 +1093,7 @@ var attachmentBucketController = {
         let cmd = document.getElementById("cmd_convertCloud");
 
         cmd.hidden = (!Services.prefs.getBoolPref("mail.cloud_files.enabled") ||
-                      cloudFileAccounts.accounts.length == 0) ||
+                      cloudFileAccounts.configuredAccounts.length == 0) ||
                       Services.io.offline;
         if (cmd.hidden)
           return false;
@@ -1441,15 +1441,15 @@ function addAttachCloudMenuItems(aParentMenu) {
   while (aParentMenu.hasChildNodes())
     aParentMenu.lastChild.remove();
 
-  for (let cloudProvider of cloudFileAccounts.accounts) {
+  for (let cloudProvider of cloudFileAccounts.configuredAccounts) {
     let item = document.createElement("menuitem");
-    let iconClass = cloudProvider.iconClass;
+    let iconURL = cloudProvider.iconURL;
     item.cloudProvider = cloudProvider;
     item.setAttribute("label", cloudFileAccounts.getDisplayName(cloudProvider));
 
-    if (iconClass) {
+    if (iconURL) {
       item.setAttribute("class", "menu-iconic");
-      item.setAttribute("image", iconClass);
+      item.setAttribute("image", iconURL);
     }
     aParentMenu.appendChild(item);
   }
@@ -1466,9 +1466,9 @@ function addConvertCloudMenuItems(aParentMenu, aAfterNodeId, aRadioGroup) {
     item.setAttribute("checked", "true");
   }
 
-  for (let cloudProvider of cloudFileAccounts.accounts) {
+  for (let cloudProvider of cloudFileAccounts.configuredAccounts) {
     let item = document.createElement("menuitem");
-    let iconClass = cloudProvider.iconClass;
+    let iconURL = cloudProvider.iconURL;
     item.cloudProvider = cloudProvider;
     item.setAttribute("label", cloudFileAccounts.getDisplayName(cloudProvider));
     item.setAttribute("type", "radio");
@@ -1477,9 +1477,9 @@ function addConvertCloudMenuItems(aParentMenu, aAfterNodeId, aRadioGroup) {
     if (attachment.cloudProvider &&
         attachment.cloudProvider.accountKey == cloudProvider.accountKey) {
       item.setAttribute("checked", "true");
-    } else if (iconClass) {
+    } else if (iconURL) {
       item.setAttribute("class", "menu-iconic");
-      item.setAttribute("image", iconClass);
+      item.setAttribute("image", iconURL);
     }
 
     aParentMenu.appendChild(item);
@@ -1537,9 +1537,9 @@ uploadListener.prototype = {
         attachmentItem.uploading = false;
 
         // Set the icon for the attachment.
-        let iconClass = this.cloudProvider.iconClass;
-        if (iconClass) {
-          attachmentItem.image = iconClass;
+        let iconURL = this.cloudProvider.iconURL;
+        if (iconURL) {
+          attachmentItem.image = iconURL;
         } else {
           // Should we use a generic "cloud" icon here? Or an overlay icon?
           // I think the provider should provide an icon, end of story.
@@ -1558,36 +1558,36 @@ uploadListener.prototype = {
       let bundle = getComposeBundle();
       let displayError = true;
       switch (aStatusCode) {
-      case Ci.nsIMsgCloudFileProvider.authErr:
+      case cloudFileAccounts.constants.authErr:
         title = bundle.getString("errorCloudFileAuth.title");
         msg = bundle.getFormattedString("errorCloudFileAuth.message",
                                         [displayName]);
         break;
-      case Ci.nsIMsgCloudFileProvider.uploadErr:
+      case cloudFileAccounts.constants.uploadErr:
         title = bundle.getString("errorCloudFileUpload.title");
         msg = bundle.getFormattedString("errorCloudFileUpload.message",
                                         [displayName,
                                          this.attachment.name]);
         break;
-      case Ci.nsIMsgCloudFileProvider.uploadWouldExceedQuota:
+      case cloudFileAccounts.constants.uploadWouldExceedQuota:
         title = bundle.getString("errorCloudFileQuota.title");
         msg = bundle.getFormattedString("errorCloudFileQuota.message",
                                         [displayName,
                                          this.attachment.name]);
         break;
-      case Ci.nsIMsgCloudFileProvider.uploadExceedsFileNameLimit:
+      case cloudFileAccounts.constants.uploadExceedsFileNameLimit:
         title = bundle.getString("errorCloudFileNameLimit.title");
         msg = bundle.getFormattedString("errorCloudFileNameLimit.message",
                                         [displayName,
                                          this.attachment.name]);
         break;
-      case Ci.nsIMsgCloudFileProvider.uploadExceedsFileLimit:
+      case cloudFileAccounts.constants.uploadExceedsFileLimit:
         title = bundle.getString("errorCloudFileLimit.title");
         msg = bundle.getFormattedString("errorCloudFileLimit.message",
                                         [displayName,
                                          this.attachment.name]);
         break;
-      case Ci.nsIMsgCloudFileProvider.uploadCanceled:
+      case cloudFileAccounts.constants.uploadCancelled:
         displayError = false;
         break;
       default:
@@ -4332,7 +4332,7 @@ function AddAttachments(aAttachments, aCallback, aContentChanged = true) {
       try {
         let cloudProvider = cloudFileAccounts.getAccount(attachment.cloudProviderKey);
         item.cloudProvider = cloudProvider;
-        item.image = cloudProvider.iconClass;
+        item.image = cloudProvider.iconURL;
         item.originalUrl = attachment.url;
       } catch (ex) {
         dump(ex);

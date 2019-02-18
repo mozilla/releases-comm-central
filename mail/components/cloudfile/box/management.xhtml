@@ -13,7 +13,8 @@
     <script type="application/javascript"
             src="chrome://messenger/content/protovis-r2.6-modded.js"/>
     <script type="application/javascript"
-            src="chrome://messenger/content/cloudfile/Box/management.js"/>
+            src="chrome://messenger/content/cloudfile/Box/management.js"
+            defer="true"/>
     <link rel="stylesheet"
         type="text/css"
         href="chrome://messenger/skin/preferences/preferences.css" />
@@ -29,7 +30,13 @@
       </div>
     </div>
 
-    <div id="provider-spacebox">
+    <div id="provider-loading" align="center">
+      <img src="chrome://global/skin/icons/loading.png" />
+    </div>
+    <div id="provider-auth" align="center" hidden="true">
+      <button onclick="onDoAuth(this)">&boxMgmt.doAuth;</button>
+    </div>
+    <div id="provider-spacebox" hidden="true">
       <div id="provider-space-visuals"></div>
       <div id="provider-space">
         <div>

@@ -8,15 +8,17 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-cloudfile-attachment-item';
+var MODULE_NAME = "test-cloudfile-attachment-item";
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers',
-                       'compose-helpers',
-                       'cloudfile-helpers',
-                       'attachment-helpers']
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers",
+                       "compose-helpers",
+                       "cloudfile-helpers",
+                       "attachment-helpers"];
 
 var kAttachmentItemContextID = "msgComposeAttachmentItemContext";
+
+var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
@@ -133,8 +135,7 @@ function assert_can_cancel_upload(aController, aProvider, aListener,
   aProvider.cancelFileUpload = function(aFileToCancel) {
     if (aTargetFile.equals(aFileToCancel)) {
       aListener.onStopRequest(null, null,
-                              Ci.nsIMsgCloudFileProvider
-                                .uploadCanceled);
+                              cloudFileAccounts.constants.uploadCancelled);
       cancelled = true;
     }
   };

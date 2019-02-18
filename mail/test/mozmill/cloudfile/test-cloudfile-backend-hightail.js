@@ -8,18 +8,19 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-cloudfile-backend-hightail';
+var MODULE_NAME = "test-cloudfile-backend-hightail";
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers',
-                         'compose-helpers',
-                         'cloudfile-helpers',
-                         'cloudfile-backend-helpers',
-                         'cloudfile-hightail-helpers',
-                         'observer-helpers',
-                         'prompt-helpers',];
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers",
+                         "compose-helpers",
+                         "cloudfile-helpers",
+                         "cloudfile-backend-helpers",
+                         "cloudfile-hightail-helpers",
+                         "observer-helpers",
+                         "prompt-helpers",];
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
 
 var gServer, gObsManager;
 
@@ -45,8 +46,10 @@ function setupTest() {
 }
 
 function teardownTest() {
-  Services.prefs.QueryInterface(Ci.nsIPrefBranch)
-          .deleteBranch("mail.cloud_files.accounts");
+  for (let account of cloudFileAccounts.accounts) {
+    cloudFileAccounts.removeAccount(account);
+  }
+
   gObsManager.check();
   gObsManager.reset();
   gServer.stop(mc);
@@ -70,7 +73,7 @@ function test_simple_case() {
   let provider = gServer.getPreparedBackend("someAccountKey");
   provider.uploadFile(file, requestObserver);
 
-  mc.waitFor( () => requestObserver.success);
+  mc.waitFor(() => requestObserver.success);
 
   let urlForFile = provider.urlForFile(file);
   assert_equals(kExpectedUrl, urlForFile);
@@ -156,7 +159,7 @@ function test_deleting_uploads() {
 
   // Try deleting a file
   let obs = new ObservationRecorder();
-  obs.planFor(kDeleteFile)
+  obs.planFor(kDeleteFile);
   Services.obs.addObserver(obs, kDeleteFile);
 
   gServer.planForDeleteFile(kFilename);
@@ -172,7 +175,7 @@ function test_deleting_uploads() {
 
 /**
  * Test that cancelling an upload causes onStopRequest to be
- * called with nsIMsgCloudFileProvider.uploadCanceled.
+ * called with cloudFileAccounts.constants.uploadCancelled.
  */
 function test_can_cancel_upload() {
   const kFilename = "testFile1";
@@ -184,7 +187,7 @@ function test_can_cancel_upload() {
 
 /**
  * Test that cancelling several uploads causes onStopRequest to be
- * called with nsIMsgCloudFileProvider.uploadCanceled.
+ * called with cloudFileAccounts.constants.uploadCancelled.
  */
 function test_can_cancel_uploads() {
   const kFiles = ["testFile2", "testFile3", "testFile4"];
@@ -207,14 +210,14 @@ function test_create_existing_account() {
   let provider = gServer.getPreparedBackend("someNewAccount");
   let done = false;
   let myObs = {
-    onStartRequest: function(aRequest, aContext) {
+    onStartRequest(aRequest, aContext) {
     },
-    onStopRequest: function(aRequest, aContext, aStatusCode) {
-      assert_true(aContext instanceof Ci.nsIMsgCloudFileProvider);
+    onStopRequest(aRequest, aContext, aStatusCode) {
+      assert_equals(aContext, provider);
       assert_equals(aStatusCode, Cr.NS_OK);
       done = true;
     },
-  }
+  };
 
   provider.createExistingAccount(myObs);
   mc.waitFor(() => done);
@@ -255,8 +258,7 @@ function test_delete_refreshes_stale_token() {
 
   // At this point, we should not have seen any auth attempts.
   assert_equals(gServer.auth.count, 0,
-                "Should not have seen any authorization attempts "
-                + "yet");
+                "Should not have seen any authorization attempts yet");
 
   // Now delete the file, and get the stale auth token warning.
   gServer.planForDeleteFile(kFilename);

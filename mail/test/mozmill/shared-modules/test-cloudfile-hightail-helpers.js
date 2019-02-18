@@ -26,17 +26,17 @@ var kDownloadURLPrefix = "http://www.example.com/downloads";
 var kAuthResult = {
   authToken: "someAuthToken",
   errorStatus: null,
-}
+};
 
 var kDefaultConfig = {
-  port: kDefaultServerPort
-}
+  port: kDefaultServerPort,
+};
 
 var kDefaultReturnHeader = {
   statusCode: 200,
   statusString: "OK",
   contentType: "text/plain",
-}
+};
 
 var kDefaultUser = {
   key: null,
@@ -45,7 +45,7 @@ var kDefaultUser = {
   policy: null,
   version: "v3",
   password: null,
-  role:null,
+  role: null,
   email: "john@example.com",
   firstname: "John",
   lastname: "User",
@@ -62,11 +62,11 @@ var kDefaultUser = {
     maxFileDownloads: "100",
     maxFileSize: "104857600",
     premiumDelivery: null,
-    verifyRecipientIdentity: "Included"
+    verifyRecipientIdentity: "Included",
   },
   storage: {
     currentUsage: 1045,
-    storageQuota: 2147483648
+    storageQuota: 2147483648,
   },
   status: null,
   errorStatus: null,
@@ -78,12 +78,12 @@ var kDefaultFilePrepare = {
   ],
   status: null,
   errorStatus: null,
-}
+};
 
 var kDefaultCommitReturn = {
   clickableDownloadUrl: "",
   errorStatus: null,
-}
+};
 
 function installInto(module) {
   module.MockHightailServer = MockHightailServer;
@@ -105,15 +105,14 @@ function MockHightailServer() {
 MockHightailServer.prototype = {
   _server: null,
 
-  getPreparedBackend: function MDBS_getPreparedBackend(aAccountKey) {
+  getPreparedBackend(aAccountKey) {
     let username = this.userInfo.username;
-    Services.prefs.setCharPref("mail.cloud_files.accounts." + aAccountKey
-                               + ".username", username);
+    Services.prefs.setCharPref(`mail.cloud_files.accounts.${aAccountKey}.type`, "YouSendIt");
+    Services.prefs.setCharPref(`mail.cloud_files.accounts.${aAccountKey}.username`, username);
 
     cloudFileAccounts.setSecretValue(aAccountKey, cloudFileAccounts.kTokenRealm, "someAuthToken");
 
-    let hightail = Cc["@mozilla.org/mail/hightail;1"]
-                    .createInstance(Ci.nsIMsgCloudFileProvider);
+    let hightail = cloudFileAccounts.getAccount(aAccountKey);
 
     let urls = [kServerURL];
     hightail.overrideUrls(urls.length, urls);
@@ -122,8 +121,7 @@ MockHightailServer.prototype = {
     return hightail;
   },
 
-  init: function MDBS_init(aConfig) {
-
+  init(aConfig) {
     this._config = overrideDefault(kDefaultConfig, aConfig);
 
     this._server = new HttpServer();
@@ -138,11 +136,11 @@ MockHightailServer.prototype = {
     this.userInfo.setupUser();
   },
 
-  start: function MDBS_start() {
+  start() {
     this._server.start(this._config.port);
   },
 
-  stop: function MDBS_stop(aController) {
+  stop(aController) {
     this.auth.shutdown();
     this.userInfo.shutdown();
     this.registry.shutdown();
@@ -160,7 +158,7 @@ MockHightailServer.prototype = {
                         10000);
   },
 
-  setupUser: function MDBS_wireUser(aData) {
+  setupUser(aData) {
     this.userInfo.shutdown();
     this.userInfo.init(this._server);
     this.userInfo.setupUser(aData);
@@ -174,20 +172,20 @@ MockHightailServer.prototype = {
    * @param aMSeconds an optional argument, for the amount of time the upload
    *                  should take in milliseconds.
    */
-  planForUploadFile: function MDBS_planForUploadFile(aFilename, aMSeconds) {
+  planForUploadFile(aFilename, aMSeconds) {
     this.receiver.expect(aFilename, aMSeconds);
     let downloadUrl = kDownloadURLPrefix + "/" + aFilename;
     this.committer.prepareDownloadURL(aFilename, downloadUrl);
   },
 
-  planForGetFileURL: function MDBS_planForGetShare(aFilename, aData) {
+  planForGetFileURL(aFilename, aData) {
     this.committer.prepareDownloadURL(aFilename, aData.url);
   },
 
-  planForDeleteFile: function MYSS_planForDeleteFile(aFilename) {
+  planForDeleteFile(aFilename) {
     this.deleter.prepareForDelete(aFilename);
   },
-}
+};
 
 /**
  * A simple authentication handler, regardless of input, returns
@@ -200,7 +198,7 @@ function MockHightailAuthSimple(aHightail) {
 }
 
 MockHightailAuthSimple.prototype = {
-  init: function(aServer) {
+  init(aServer) {
     this._server = aServer;
     this._auth = generateObservableRequestHandler(
         "cloudfile:auth", "", JSON.stringify(kAuthResult));
@@ -208,12 +206,12 @@ MockHightailAuthSimple.prototype = {
     this._server.registerPathHandler(kAuthPath, this._auth);
   },
 
-  shutdown: function() {
+  shutdown() {
     this._server.registerPathHandler(kAuthPath, null);
     this._server = null;
     this._auth = null;
   },
-}
+};
 
 function MockHightailUserInfoSimple(aHightail) {
   this._server = null;
@@ -221,11 +219,11 @@ function MockHightailUserInfoSimple(aHightail) {
 }
 
 MockHightailUserInfoSimple.prototype = {
-  init: function(aServer) {
+  init(aServer) {
     this._server = aServer;
   },
 
-  setupUser: function(aData) {
+  setupUser(aData) {
     aData = overrideDefault(kDefaultUser, aData);
 
     this._userInfo = generateObservableRequestHandler(
@@ -233,7 +231,7 @@ MockHightailUserInfoSimple.prototype = {
     this._server.registerPathHandler(kUserInfoPath, this._userInfo);
   },
 
-  shutdown: function() {
+  shutdown() {
     this._server.registerPathHandler(kUserInfoPath, null);
     this._server = null;
   },
@@ -249,39 +247,39 @@ function MockHightailItemIdRegistry(aHightail) {
 }
 
 MockHightailItemIdRegistry.prototype = {
-  init: function(aServer) {
+  init(aServer) {
     this._itemIdMap = {};
     this._itemIds = [];
   },
 
-  shutdown: function() {
+  shutdown() {
   },
 
-  createItemId: function createItemId() {
+  createItemId() {
     let itemId = generateUUID();
     this._itemIds.push(itemId);
     return itemId;
   },
 
-  setMapping: function setMapping(aItemId, aFilename) {
+  setMapping(aItemId, aFilename) {
     let oldItemId = this.lookupItemId(aFilename);
     if (oldItemId)
-      delete this._itemIdMap[oldItemId]
+      delete this._itemIdMap[oldItemId];
 
     if (this._itemIds.includes(aItemId)) {
       this._itemIdMap[aItemId] = aFilename;
     }
   },
 
-  lookupFilename: function lookupFilename(aItemId) {
+  lookupFilename(aItemId) {
     return this._itemIdMap[aItemId];
   },
 
-  hasItemId: function hasItemId(aItemId) {
+  hasItemId(aItemId) {
     return (aItemId in this._itemIdMap);
   },
 
-  lookupItemId: function lookupItemId(aFilename) {
+  lookupItemId(aFilename) {
     // Slow lookup
     for (let itemId in this._itemIdMap) {
       if (this._itemIdMap[itemId] == aFilename)
@@ -289,7 +287,7 @@ MockHightailItemIdRegistry.prototype = {
     }
     return null;
   },
-}
+};
 
 /**
  * A simple preparation handler for a Hightail mock server. Allows
@@ -302,7 +300,7 @@ function MockHightailPrepareSimple(aHightail) {
 }
 
 MockHightailPrepareSimple.prototype = {
-  init: function(aServer) {
+  init(aServer) {
     this._server = aServer;
     this._server.registerPathHandler(kFolderInitUploadPath,
                                      this._prepare.bind(this));
@@ -310,7 +308,7 @@ MockHightailPrepareSimple.prototype = {
     this._foldersId = {
       root: 0,
       Apps: this._hightail.registry.createItemId(),
-      "Mozilla Thunderbird" : this._hightail.registry.createItemId()
+      "Mozilla Thunderbird": this._hightail.registry.createItemId(),
     };
 
     // Set up folders info
@@ -320,7 +318,7 @@ MockHightailPrepareSimple.prototype = {
     }
   },
 
-  shutdown: function() {
+  shutdown() {
     this._server.registerPathHandler(kFolderInitUploadPath, null);
     for (let i in this._foldersId) {
       this._server.registerPathHandler(kFolderPath + this._foldersId[i],
@@ -329,32 +327,32 @@ MockHightailPrepareSimple.prototype = {
     this._server = null;
   },
 
-  _getFolderInfo: function(aRequest, aResponse) {
+  _getFolderInfo(aRequest, aResponse) {
     let folderId = aRequest.path.substring(kFolderPath.length);
     let nextFolder = folderId == (this._foldersId.root + "")
                         ? "Apps"
                         : "Mozilla Thunderbird";
     let response = {
       folders: {
-        folder: [{name: nextFolder, id: this._foldersId[nextFolder]}]
+        folder: [{name: nextFolder, id: this._foldersId[nextFolder]}],
       },
-      status: 200
-    }
+      status: 200,
+    };
     aResponse.setStatusLine(null, 200, "OK");
     aResponse.setHeader("Content-Type", "application/json");
     aResponse.write(JSON.stringify(response));
   },
 
-  _prepare: function(aRequest, aResponse) {
+  _prepare(aRequest, aResponse) {
     let fileId = this._hightail.registry.createItemId();
     let uploadPath = kDefaultFileUploadPath + "/" + fileId;
 
     let injectedData = {
-      fileId: fileId,
+      fileId,
       uploadUrl: [
         kServerURL + uploadPath,
-      ]
-    }
+      ],
+    };
 
     // Set up the path that will accept an uploaded file
     this._server.registerPathHandler(uploadPath,
@@ -386,16 +384,16 @@ function MockHightailReceiverSimple(aHightail) {
 }
 
 MockHightailReceiverSimple.prototype = {
-  init: function(aServer) {
+  init(aServer) {
     this._server = aServer;
   },
 
-  shutdown: function() {
+  shutdown() {
     this._server = null;
     this._expectedFiles = [];
   },
 
-  receiveUpload: function(aRequest, aResponse) {
+  receiveUpload(aRequest, aResponse) {
     if (aRequest.method != "POST")
       throw new Error("Uploads should occur with a POST request");
 
@@ -404,7 +402,7 @@ MockHightailReceiverSimple.prototype = {
     if (!formData)
       throw new Error("Could not parse multi-part form during upload");
 
-    let filename = formData['filename'];
+    let filename = formData.filename;
     let filenameIndex = this._expectedFiles.indexOf(filename);
 
     Services.obs.notifyObservers(null, "cloudfile:uploadStarted",
@@ -414,14 +412,14 @@ MockHightailReceiverSimple.prototype = {
       aResponse.processAsync();
 
     if (filenameIndex == -1)
-      throw new Error("Unexpected file upload: " + formData['filename']);
+      throw new Error("Unexpected file upload: " + formData.filename);
 
     Services.obs.notifyObservers(null, "cloudfile:uploadFile",
                                  filename);
 
     this._expectedFiles.splice(filenameIndex, 1);
 
-    let itemId = formData['bid'];
+    let itemId = formData.bid;
     // Tell the committer how to map the uuid to the filename
     this._hightail.registry.setMapping(itemId, filename);
 
@@ -431,10 +429,10 @@ MockHightailReceiverSimple.prototype = {
     if (filename in this._mSeconds) {
       let timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
       let timerEvent = {
-        notify: function(aTimer) {
+        notify(aTimer) {
           aResponse.finish();
         },
-      }
+      };
       timer.initWithCallback(timerEvent, this._mSeconds[filename],
                              Ci.nsITimer.TYPE_ONE_SHOT);
       // This is kind of ridiculous, but it seems that we have to hold a
@@ -444,7 +442,7 @@ MockHightailReceiverSimple.prototype = {
     }
   },
 
-  expect: function(aFilename, aMSeconds) {
+  expect(aFilename, aMSeconds) {
     this._expectedFiles.push(aFilename);
 
     if (aMSeconds)
@@ -453,7 +451,7 @@ MockHightailReceiverSimple.prototype = {
 
   get expecting() {
     return this._expectedFiles;
-  }
+  },
 };
 
 function MockHightailCommitterSimple(aHightail) {
@@ -464,14 +462,14 @@ function MockHightailCommitterSimple(aHightail) {
 }
 
 MockHightailCommitterSimple.prototype = {
-  init: function(aServer) {
+  init(aServer) {
     this._server = aServer;
     // Since fileId is in query, we need to register path only once.
     this._server.registerPathHandler(kFolderCommitUploadPath,
                                      this.commit.bind(this));
   },
 
-  shutdown: function() {
+  shutdown() {
     this._server.registerPathHandler(kFolderCommitUploadPath,
                                      null);
     this._server = null;
@@ -479,11 +477,11 @@ MockHightailCommitterSimple.prototype = {
     this._filenameURLMap = {};
   },
 
-  prepareDownloadURL: function(aFilename, aURL) {
+  prepareDownloadURL(aFilename, aURL) {
     this._filenameURLMap[aFilename] = aURL;
   },
 
-  commit: function(aRequest, aResponse) {
+  commit(aRequest, aResponse) {
     let fileId = aRequest.queryString;
     fileId = fileId.substring(fileId.indexOf("fileId=") + 7);
     fileId = fileId.substring(0, fileId.indexOf("&"));
@@ -505,7 +503,7 @@ MockHightailCommitterSimple.prototype = {
 
     let injectedData = {
       clickableDownloadUrl: url,
-    }
+    };
     let data = overrideDefault(kDefaultCommitReturn, injectedData);
 
     // Return the default share URL
@@ -524,12 +522,12 @@ function MockHightailDeleterSimple(aHightail) {
 }
 
 MockHightailDeleterSimple.prototype = {
-  init: function(aServer) {
+  init(aServer) {
     this._server = aServer;
   },
-  shutdown: function() {},
+  shutdown() {},
 
-  receiveDelete: function(aRequest, aResponse) {
+  receiveDelete(aRequest, aResponse) {
     if (aRequest.method != "DELETE") {
       aResponse.setStatusLine(null, 500, "Bad request");
       aResponse.write("Expected a DELETE for deleting.");
@@ -565,7 +563,7 @@ MockHightailDeleterSimple.prototype = {
     Services.obs.notifyObservers(null, "cloudfile:deleteFile", filename);
     this._server.registerPathHandler(aRequest.path, null);
   },
-  prepareForDelete: function(aFilename) {
+  prepareForDelete(aFilename) {
     this._expectDelete.push(aFilename);
   },
 };
@@ -576,13 +574,13 @@ function MockHightailDeleterStaleToken(aHightail) {
 }
 
 MockHightailDeleterStaleToken.prototype = {
-  init: function(aServer) {
+  init(aServer) {
     this._server = aServer;
   },
 
-  shutdown: function() {},
+  shutdown() {},
 
-  receiveDelete: function(aRequest, aResponse) {
+  receiveDelete(aRequest, aResponse) {
     let data = { errorStatus: { code: 401, message: "Invalid auth token" } };
 
     aResponse.setStatusLine(null, 401, "Invalid auth token");
@@ -590,7 +588,7 @@ MockHightailDeleterStaleToken.prototype = {
     aResponse.write(JSON.stringify(data));
   },
 
-  prepareForDelete: function(aFilename) {},
+  prepareForDelete(aFilename) {},
 };
 
 function MockHightailAuthCounter(aHightail) {
@@ -601,24 +599,24 @@ function MockHightailAuthCounter(aHightail) {
 
 MockHightailAuthCounter.prototype = {
 
-  init: function(aServer) {
+  init(aServer) {
     this._server = aServer;
     this._server.registerPathHandler(kAuthPath, this._auth.bind(this));
   },
 
-  _auth: function(aRequest, aResponse) {
+  _auth(aRequest, aResponse) {
     this.count += 1;
     aResponse.setStatusLine(null, 200, "OK");
     aResponse.setHeader("Content-Type", "application/json");
     aResponse.write(JSON.stringify(kAuthResult));
   },
 
-  shutdown: function() {
+  shutdown() {
     this._server.registerPathHandler(kAuthPath, null);
     this._server = null;
     this._auth = null;
   },
-}
+};
 
 /**
  * Adds a username and password pair to nsILoginManager
@@ -654,7 +652,7 @@ function generateObservableRequestHandler(aKey, aValue, aString, aOptions) {
     aResponse.setHeader("Content-Type", aOptions.contentType);
     aResponse.write(aString);
     Services.obs.notifyObservers(subjectString, aKey, aValue);
-  }
+  };
   return func;
 }
 
@@ -683,15 +681,12 @@ function generateUUID() {
 
 }
 
-function parseHeaders(data, start)
-{
+function parseHeaders(data, start) {
   let headers = {};
 
   while (true) {
-    let done = false;
     let end = data.indexOf("\r\n", start);
     if (end == -1) {
-      done = true;
       end = data.length;
     }
     let line = data.substring(start, end);
@@ -700,16 +695,15 @@ function parseHeaders(data, start)
       // empty line, we're done
       break;
 
-    //XXX: this doesn't handle multi-line headers. do we care?
-    let [name, value] = line.split(':');
-    //XXX: not normalized, should probably use nsHttpHeaders or something
+    // XXX: this doesn't handle multi-line headers. do we care?
+    let [name, value] = line.split(":");
+    // XXX: not normalized, should probably use nsHttpHeaders or something
     headers[name] = value.trimLeft();
   }
   return [headers, start];
 }
 
-function parseMultipartForm(request)
-{
+function parseMultipartForm(request) {
   let boundary = null;
   // See if this is a multipart/form-data request, and if so, find the
   // boundary string
@@ -740,13 +734,11 @@ function parseMultipartForm(request)
     Array.prototype.push.apply(bytes, body.readByteArray(avail));
   let data = String.fromCharCode.apply(null, bytes);
   let formData = {};
-  let done = false;
   let start = 0;
   while (true) {
     // read first line
     let end = data.indexOf("\r\n", start);
     if (end == -1) {
-      done = true;
       end = data.length;
     }
 
@@ -778,22 +770,22 @@ function parseMultipartForm(request)
     start = end + 2;
 
     if ("Content-Disposition" in headers) {
-      let bits = headers["Content-Disposition"].split(';');
-      if (bits[0] == 'form-data') {
+      let bits = headers["Content-Disposition"].split(";");
+      if (bits[0] == "form-data") {
         for (let i = 0; i < bits.length; i++) {
           let b = bits[i].trimLeft();
-          if (b.startsWith('name=')) {
-            //TODO: handle non-ascii here?
+          if (b.startsWith("name=")) {
+            // TODO: handle non-ascii here?
             let name = b.substring(6, b.length - 1);
-            //TODO: handle multiple-value properties?
+            // TODO: handle multiple-value properties?
             formData[name] = part;
           }
-          if (b.startsWith('filename=')) {
+          if (b.startsWith("filename=")) {
             let filename = b.substring(10, b.length - 1);
-            formData['filename'] = filename;
+            formData.filename = filename;
           }
-          //TODO: handle filename= ?
-          //TODO: handle multipart/mixed for multi-file uploads?
+          // TODO: handle filename= ?
+          // TODO: handle multipart/mixed for multi-file uploads?
         }
       }
     }

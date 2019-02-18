@@ -182,7 +182,7 @@ var gBigFileObserver = {
 
   convertAttachments() {
     let cloudProvider;
-    let accounts = cloudFileAccounts.accounts;
+    let accounts = cloudFileAccounts.configuredAccounts;
 
     if (accounts.length == 1) {
       cloudProvider = accounts[0];
@@ -195,11 +195,8 @@ var gBigFileObserver = {
                                  names.length, names, selection))
         cloudProvider = accounts[selection.value];
     } else {
-      let accountKey = cloudFileAccounts.addAccountDialog();
-      if (accountKey)
-        cloudProvider = cloudFileAccounts.getAccount(accountKey);
-      else
-        return true;
+      openPreferencesTab("paneApplications", "attachmentsOutTab");
+      return true;
     }
 
     if (cloudProvider)

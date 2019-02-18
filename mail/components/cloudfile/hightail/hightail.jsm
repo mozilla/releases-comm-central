@@ -2,15 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* This file implements the nsIMsgCloudFileProvider interface.
- *
- * This component handles the Hightail implementation of the
- * nsIMsgCloudFileProvider interface.
- */
+/* This is the Hightail cloudfile provider.
+ * It's in a JSM that exports nothing because it's a self-contained singleton. */
+
+this.EXPORTED_SYMBOLS = [];
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
 
 var gServerUrl = "https://dpi.yousendit.com"; // Production url
@@ -30,19 +28,18 @@ function nsHightail() {
 }
 
 nsHightail.prototype = {
-  /* nsISupports */
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgCloudFileProvider]),
-
-  classID: Components.ID("{dd2bce44-ca71-42ce-b806-6fa4e073919c}"),
-
   get type() { return "YouSendIt"; }, // Saved in prefs, cannot change!
   get displayName() { return "Hightail"; },
   get serviceURL() { return "https://www.hightail.com"; },
-  get iconClass() { return "chrome://messenger/skin/icons/hightail.png"; },
+  get iconURL() { return "chrome://messenger/skin/icons/hightail.png"; },
   get accountKey() { return this._accountKey; },
   get lastError() { return this._lastErrorText; },
   get settingsURL() { return "chrome://messenger/content/cloudfile/Hightail/settings.xhtml"; },
   get managementURL() { return "chrome://messenger/content/cloudfile/Hightail/management.xhtml"; },
+
+  get configured() {
+    return !!cloudFileAccounts.getSecretValue(this._accountKey, cloudFileAccounts.kTokenRealm);
+  },
 
   _accountKey: false,
   _prefBranch: null,
@@ -84,8 +81,7 @@ nsHightail.prototype = {
    */
   init(aAccountKey) {
     this._accountKey = aAccountKey;
-    this._prefBranch = Services.prefs.getBranch("mail.cloud_files.accounts." +
-                                                aAccountKey + ".");
+    this._prefBranch = Services.prefs.getBranch(`mail.cloud_files.accounts.${aAccountKey}.`);
     this._userName = this._prefBranch.getCharPref("username");
     this._loggedIn = this._cachedAuthToken != "";
   },
@@ -167,7 +163,7 @@ nsHightail.prototype = {
    */
   uploadFile(aFile, aCallback) {
     if (Services.io.offline)
-      throw Ci.nsIMsgCloudFileProvider.offlineErr;
+      throw cloudFileAccounts.constants.offlineErr;
 
     this.log.info("Preparing to upload a file");
 
@@ -194,7 +190,7 @@ nsHightail.prototype = {
 
     let onAuthFailure = function() {
       aCallback.onStopRequest(null, null,
-                              Ci.nsIMsgCloudFileProvider.authErr);
+                              cloudFileAccounts.constants.authErr);
     };
 
     this.log.info("Checking to see if we're logged in");
@@ -260,7 +256,7 @@ nsHightail.prototype = {
    *                  states of the upload procedure.
    */
   _fileExceedsLimit(aCallback, aType, aStorageSize) {
-    let cancel = Ci.nsIMsgCloudFileProvider.uploadCanceled;
+    let cancel = cloudFileAccounts.constants.uploadCancelled;
 
     let args = {storage: aStorageSize};
     args.wrappedJSObject = args;
@@ -287,7 +283,7 @@ nsHightail.prototype = {
       for (let i = 0; i < this._uploads.length; i++)
         if (this._uploads[i].file.equals(aFile)) {
           this._uploads[i].requestObserver.onStopRequest(
-            null, null, Ci.nsIMsgCloudFileProvider.uploadCanceled);
+            null, null, cloudFileAccounts.constants.uploadCancelled);
           this._uploads.splice(i, 1);
           return;
         }
@@ -408,7 +404,7 @@ nsHightail.prototype = {
    */
   refreshUserInfo(aWithUI, aListener) {
     if (Services.io.offline)
-      throw Ci.nsIMsgCloudFileProvider.offlineErr;
+      throw cloudFileAccounts.constants.offlineErr;
 
     aListener.onStartRequest(null, null);
 
@@ -419,7 +415,7 @@ nsHightail.prototype = {
 
     let onAuthFailure = function() {
       aListener.onStopRequest(null, null,
-                              Ci.nsIMsgCloudFileProvider.authErr);
+                              cloudFileAccounts.constants.authErr);
     };
 
     // If we're not logged in, attempt to login, and then attempt to
@@ -445,7 +441,7 @@ nsHightail.prototype = {
    */
   createNewAccount(aEmailAddress, aPassword, aFirstName, aLastName, aRequestObserver) {
     if (Services.io.offline)
-      throw Ci.nsIMsgCloudFileProvider.offlineErr;
+      throw cloudFileAccounts.constants.offlineErr;
 
     let args = "?email=" + aEmailAddress + "&password=" + aPassword + "&firstname="
                + aFirstName + "&lastname=" + aLastName + "&";
@@ -523,7 +519,7 @@ nsHightail.prototype = {
   _checkFolderExist(aFolderId, aFoundCallback, aNotFoundCallback) {
     this.log.info("checkFolderExist");
     if (Services.io.offline)
-      throw Ci.nsIMsgCloudFileProvider.offlineErr;
+      throw cloudFileAccounts.constants.offlineErr;
 
     let args = "?includeFiles=false&includeFolders=true&";
 
@@ -571,7 +567,7 @@ nsHightail.prototype = {
   _createFolder(aName, aParent, aSuccessCallback) {
     this.log.info("Create folder: " + aName);
     if (Services.io.offline)
-      throw Ci.nsIMsgCloudFileProvider.offlineErr;
+      throw cloudFileAccounts.constants.offlineErr;
 
     let args = "?name=" + aName + "&parentId=" + aParent + "&";
 
@@ -620,7 +616,7 @@ nsHightail.prototype = {
 
     let failureCb = function(aResponseText, aRequest) {
       aRequestObserver.onStopRequest(null, this,
-                                     Ci.nsIMsgCloudFileProvider.authErr);
+                                     cloudFileAccounts.constants.authErr);
     }.bind(this);
 
     this.logon(successCb, failureCb, true);
@@ -633,7 +629,7 @@ nsHightail.prototype = {
    * @param aError an error to get the URL for.
    */
   providerUrlForError(aError) {
-    if (aError == Ci.nsIMsgCloudFileProvider.uploadExceedsFileLimit)
+    if (aError == cloudFileAccounts.constants.uploadExceedsFileLimit)
       return "http://www.hightail.com";
     return "";
   },
@@ -666,7 +662,7 @@ nsHightail.prototype = {
 
     if (Services.io.offline) {
       this.log.error("We're offline - we can't delete the file.");
-      throw Ci.nsIMsgCloudFileProvider.offlineErr;
+      throw cloudFileAccounts.constants.offlineErr;
     }
 
     let uploadInfo = this._uploadInfo[aFile.path];
@@ -708,7 +704,7 @@ nsHightail.prototype = {
 
           let onTokenRefreshFailure = function() {
             aCallback.onStopRequest(null, null,
-                                    Ci.nsIMsgCloudFileProvider.authErr);
+                                    cloudFileAccounts.constants.authErr);
           };
           this._handleStaleToken(onTokenRefresh, onTokenRefreshFailure);
           return;
@@ -891,7 +887,7 @@ nsHightailFileUploader.prototype = {
     }.bind(this);
 
     let onFailure = function() {
-      this.callback(this.requestObserver, Ci.nsIMsgCloudFileProvider.uploadErr);
+      this.callback(this.requestObserver, cloudFileAccounts.constants.uploadErr);
     }.bind(this);
 
     return this._prepareToSend(onSuccess, onFailure);
@@ -961,7 +957,7 @@ nsHightailFileUploader.prototype = {
         }
       } else {
         this.callback(this.requestObserver,
-                      Ci.nsIMsgCloudFileProvider.uploadErr);
+                      cloudFileAccounts.constants.uploadErr);
       }
     }.bind(this);
 
@@ -969,7 +965,7 @@ nsHightailFileUploader.prototype = {
       this.cleanupTempFile();
       if (this.callback)
         this.callback(this.requestObserver,
-                      Ci.nsIMsgCloudFileProvider.uploadErr);
+                      cloudFileAccounts.constants.uploadErr);
     }.bind(this);
 
     req.setRequestHeader("Date", curDate);
@@ -1049,7 +1045,7 @@ nsHightailFileUploader.prototype = {
    */
   cancel() {
     this.log.info("in uploader cancel");
-    this.callback(this.requestObserver, Ci.nsIMsgCloudFileProvider.uploadCanceled);
+    this.callback(this.requestObserver, cloudFileAccounts.constants.uploadCancelled);
     delete this.callback;
     if (this.request) {
       this.log.info("cancelling upload request");
@@ -1077,7 +1073,7 @@ nsHightailFileUploader.prototype = {
     req.onerror = function() {
       this.log.info("error in commit send");
       this.callback(this.requestObserver,
-                    Ci.nsIMsgCloudFileProvider.uploadErr);
+                    cloudFileAccounts.constants.uploadErr);
     }.bind(this);
 
     req.onload = function() {
@@ -1092,8 +1088,8 @@ nsHightailFileUploader.prototype = {
 
       let failed = function() {
         this.callback(this.requestObserver, this.file.leafName.length > 120
-                      ? Ci.nsIMsgCloudFileProvider.uploadExceedsFileNameLimit
-                      : Ci.nsIMsgCloudFileProvider.uploadErr);
+                      ? cloudFileAccounts.constants.uploadExceedsFileNameLimit
+                      : cloudFileAccounts.constants.uploadErr);
       }.bind(this);
 
       if (uploadInfo.errorStatus) {
@@ -1198,4 +1194,14 @@ nsHightailFileUploader.prototype = {
   },
 };
 
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([nsHightail]);
+// Hightail used to be named YouSendIt, which is the constant used in the prefs.
+cloudFileAccounts.registerProvider("YouSendIt", {
+  type: "YouSendIt",
+  displayName: "Hightail",
+  iconURL: "chrome://messenger/skin/icons/hightail.png",
+  initAccount(accountKey) {
+    let account = new nsHightail();
+    account.init(accountKey);
+    return account;
+  },
+});

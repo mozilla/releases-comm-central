@@ -2032,14 +2032,14 @@ function loadCloudProviders() {
         return;
     }
 
-    let isHidden = cloudFileAccounts.accounts.length == 0;
+    let isHidden = cloudFileAccounts.configuredAccounts.length == 0;
     cmd.hidden = isHidden;
     message.argument.value = isHidden;
     sendMessage(message);
 
     let itemObjects = [];
 
-    for (let cloudProvider of cloudFileAccounts.accounts) {
+    for (let cloudProvider of cloudFileAccounts.configuredAccounts) {
         // Create a serializable object to pass in a message outside the iframe
         let itemObject = {};
         itemObject.displayName = cloudFileAccounts.getDisplayName(cloudProvider);
@@ -2113,7 +2113,7 @@ function attachURL() {
  * @param {string} aAccountKey  The accountKey for a cloud provider
  */
 function attachFileByAccountKey(aAccountKey) {
-    for (let cloudProvider of cloudFileAccounts.accounts) {
+    for (let cloudProvider of cloudFileAccounts.configuredAccounts) {
         if (aAccountKey == cloudProvider.accountKey) {
             attachFile(cloudProvider);
             return;

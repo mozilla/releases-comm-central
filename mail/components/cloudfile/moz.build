@@ -3,18 +3,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-XPIDL_SOURCES += [
-    'nsIMsgCloudFileProvider.idl',
-]
-
-XPIDL_MODULE = 'cloudfile'
-
-EXTRA_COMPONENTS += [
-    'cloudFileComponents.manifest',
-    'nsBox.js',
-    'nsHightail.js',
-]
-
 EXTRA_JS_MODULES += [
     'cloudFileAccounts.js',
 ]
@@ -23,4 +11,7 @@ JAR_MANIFESTS += ['jar.mn']
 
 DIRS += [
     'wetransfer',
+]
+BROWSER_CHROME_MANIFESTS += [
+    'test/browser/browser.ini'
 ]

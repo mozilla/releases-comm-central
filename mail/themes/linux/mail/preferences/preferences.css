@@ -173,8 +173,7 @@ a {
 }
 
 #cloudFileView {
-  width: 150px;
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
 #upgrade {

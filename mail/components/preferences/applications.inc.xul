@@ -153,54 +153,24 @@
             <hbox flex="1">
               <vbox id="provider-listing">
                 <richlistbox id="cloudFileView" orient="vertical" flex="1"
-                             seltype="single">
+                             seltype="single"
+                             onselect="gCloudFileTab.onSelectionChanged(event);">
                 </richlistbox>
-                <separator class="thin"/>
-                <hbox>
-                  <button id="addCloudFileAccount"
-                          flex="1"
-                          label="&addCloudFileAccount1.label;"
-                          accesskey="&addCloudFileAccount1.accesskey;"
-                          oncommand="gCloudFileTab.addCloudFileAccount();"/>
-                  <button id="removeCloudFileAccount"
-                          flex="1"
-                          disabled="true"
-                          label="&removeCloudFileAccount.label;"
-                          accesskey="&removeCloudFileAccount.accesskey;"
-                          oncommand="gCloudFileTab.removeCloudFileAccount();"/>
-                </hbox>
+                <vbox id="addCloudFileAccountButtons">
+                </vbox>
+                <button id="removeCloudFileAccount"
+                        disabled="true"
+                        label="&removeCloudFileAccount.label;"
+                        accesskey="&removeCloudFileAccount.accesskey;"
+                        oncommand="gCloudFileTab.removeCloudFileAccount();"/>
               </vbox>
+              <separator class="thin" orient="vertical"/>
               <vbox flex="1">
                 <deck id="cloudFileSettingsDeck" flex="1">
                   <vbox id="cloudFileDefaultPanel" flex="1">
                     <description>&addCloudFileAccount.description;</description>
                   </vbox>
                   <vbox id="cloudFileSettingsWrapper" flex="1">
-                  </vbox>
-                  <vbox id="cloudFileLoadingPanel" flex="1">
-                    <hbox>
-                      <spring flex="1"/>
-                        <image id="cloudFileLoadingSpinner" />
-                      <spring flex="1"/>
-                    </hbox>
-                  </vbox>
-                  <vbox id="cloudFileAuthErrorPanel" flex="1">
-                    <spacer flex="1"/>
-                    <hbox>
-                      <spring flex="1"/>
-                        <image id="authImage"/>
-                      <spring flex="1"/>
-                    </hbox>
-                    <description id="authMessage">&authRequired.description;</description>
-                    <hbox>
-                      <spring flex="1"/>
-                        <button id="reauthCloudFileAccount"
-                                label="&authRequired.button.label;"
-                                accesskey="&authRequired.button.accesskey;"
-                                oncommand="gCloudFileTab.authSelected();"/>
-                      <spring flex="1"/>
-                     </hbox>
-                    <spacer flex="1"/>
                   </vbox>
                 </deck>
               </vbox>

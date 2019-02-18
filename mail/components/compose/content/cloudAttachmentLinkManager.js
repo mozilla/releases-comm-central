@@ -396,18 +396,18 @@ var gCloudAttachmentLinkManager = {
       let providerIdentity = aDocument.createElement("span");
       providerIdentity.style.cssFloat = "right";
 
-      if (aProvider.iconClass) {
+      if (aProvider.iconURL) {
         let providerIcon = aDocument.createElement("img");
         providerIcon.style.marginRight = "5px";
         providerIdentity.appendChild(providerIcon);
 
-        if (!/^chrome:\/\//i.test(aProvider.iconClass)) {
-          providerIcon.src = aProvider.iconClass;
+        if (!/^chrome:\/\//i.test(aProvider.iconURL)) {
+          providerIcon.src = aProvider.iconURL;
         } else {
           try {
             // Let's use the goodness from MsgComposeCommands.js since we're
             // sitting right in a compose window.
-            providerIcon.src = window.loadBlockedImage(aProvider.iconClass, true);
+            providerIcon.src = window.loadBlockedImage(aProvider.iconURL, true);
           } catch (e) {
             // Couldn't load the referenced image.
             Cu.reportError(e);

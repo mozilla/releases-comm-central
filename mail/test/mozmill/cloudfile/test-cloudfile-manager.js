@@ -9,9 +9,9 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-cloudfile-manager';
+var MODULE_NAME = "test-cloudfile-manager";
 
-var RELATIVE_ROOT = '../shared-modules';
+var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers",
                        "pref-window-helpers",
                        "content-tab-helpers",
@@ -104,9 +104,10 @@ function test_external_link() {
   let prefTab = open_pref_tab("paneApplications");
   let tabbox = content_tab_e(prefTab, "attachmentPrefs");
   tabbox.selectedIndex = 1;
+  content_tab_e(prefTab, "cloudFileView").selectedIndex = 0;
 
   let iframe = content_tab_e(prefTab, "cloudFileSettingsWrapper").firstElementChild;
-  wait_for_frame_load(iframe, kSettingsWithLink);
+  wait_for_frame_load(iframe, kSettingsWithLink + "?accountId=someKey3");
   mc.click(new elementslib.ID(iframe.contentDocument, "a"));
 
   let targetHref = "https://www.example.com/";

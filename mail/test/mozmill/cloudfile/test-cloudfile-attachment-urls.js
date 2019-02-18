@@ -8,15 +8,15 @@
 
 "use strict";
 
-var MODULE_NAME = 'test-cloudfile-attachment-urls';
+var MODULE_NAME = "test-cloudfile-attachment-urls";
 
-var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers',
-                       'compose-helpers',
-                       'cloudfile-helpers',
-                       'attachment-helpers',
-                       'dom-helpers',
-                       'window-helpers'];
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["folder-display-helpers",
+                       "compose-helpers",
+                       "cloudfile-helpers",
+                       "attachment-helpers",
+                       "dom-helpers",
+                       "window-helpers"];
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
@@ -32,7 +32,7 @@ var kSigOnReplyKey = "mail.identity.default.sig_on_reply";
 var kSigOnForwardKey = "mail.identity.default.sig_on_fwd";
 var kDefaultSigKey = "mail.identity.id1.htmlSigText";
 var kDefaultSig = "This is my signature.\n\nCheck out my website sometime!";
-var kFiles = ['./data/testFile1', './data/testFile2'];
+var kFiles = ["./data/testFile1", "./data/testFile2"];
 var kLines = ["This is a line of text", "and here's another!"];
 
 var gInbox, gOldHtmlPref, gOldSigPref;
@@ -545,8 +545,7 @@ function subtest_adding_filelinks_to_reply_below(aText, aWithSig) {
     br = assert_previous_nodes("br", root, 2);
     let textNode = assert_previous_text(br.previousSibling, aText);
     blockquote = textNode.previousSibling;
-  }
-  else {
+  } else {
     // If no text was inserted, check for 1 previous br node, and then the
     // blockquote.
     br = assert_previous_nodes("br", root, 1);
@@ -582,8 +581,7 @@ function subtest_adding_filelinks_to_plaintext_reply_below(aText, aWithSig) {
     let textNode = assert_previous_text(br.previousSibling, aText);
     // And then grab the span, which should be before the final text node.
     span = textNode.previousSibling;
-  }
-  else {
+  } else {
     br = assert_previous_nodes("br", root, 1);
     // If no text was entered, just grab the last br's previous sibling - that
     // will be the span.

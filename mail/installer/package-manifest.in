@@ -164,7 +164,6 @@
 
 @RESPATH@/components/aboutRedirector.js
 @RESPATH@/components/activityComponents.manifest
-@RESPATH@/components/cloudFileComponents.manifest
 @RESPATH@/components/folderLookupService.js
 ; interfaces.manifest doesn't get packaged because it is dynamically
 ; re-created at packaging time when linking the xpts that will actually
@@ -176,8 +175,6 @@
 @RESPATH@/components/nsActivity.js
 @RESPATH@/components/nsActivityManager.js
 @RESPATH@/components/nsActivityManagerUI.js
-@RESPATH@/components/nsHightail.js
-@RESPATH@/components/nsBox.js
 @RESPATH@/components/nsAddrbook.manifest
 @RESPATH@/components/nsMailNewsCommandLineHandler.js
 @RESPATH@/components/nsNewsAutoCompleteSearch.js

@@ -336,6 +336,21 @@ description > html|a {
   cursor: pointer;
 }
 
+#provider-listing {
+  width: 200px;
+}
+
+#addCloudFileAccountButtons button,
+#removeCloudFileAccount {
+  margin: 4px 0 0;
+}
+
+#addCloudFileAccountButtons button .button-icon {
+  width: 16px;
+  height: 16px;
+  margin-inline-end: 8px;
+}
+
 #paneChat {
   padding-top: 15px;
   padding-bottom: 15px;
