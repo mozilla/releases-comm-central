@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<blocklist lastupdate="1549627400713" xmlns="http://www.mozilla.org/2006/addons-blocklist">
+<blocklist lastupdate="1550265430182" xmlns="http://www.mozilla.org/2006/addons-blocklist">
   <emItems>
     <emItem blockID="i334" id="{0F827075-B026-42F3-885D-98981EE7B1AE}">
       <prefs/>
@@ -2338,6 +2338,14 @@
       <versionRange minVersion="0" maxVersion="*" severity="3"/>
     </emItem>
     <emItem blockID="f7c4b329-7a54-48d3-9494-81783fe99d90" id="superzoom@funnerapps.com">
+      <prefs/>
+      <versionRange minVersion="0" maxVersion="*" severity="3"/>
+    </emItem>
+    <emItem blockID="d94f7e0f-7088-43c9-a8da-eae102781079" id="/^((odnenajaeicndaeiapagpglohiklndhe@chrome-store-foxified-2174031944)|(akdibckdjeocfbcjaikipkhhbggcbgkg@chrome-store-foxified-699805590)|(\{bd9f5830-bf8c-4e38-933d-09f85b24d744\})|(youtube-downloader@addoncrop\.com)|(dailymotion-downloader@addoncrop\.com)|(youtube-mp3-iframe-downloader@addoncrop\.com)|(youtube-downloader-lite@addoncrop\.com)|(dailymotion-downloader-lite@addoncrop\.com)|(generated-p5qj07ef5ceqfktp5v8whw@chrome-store-foxified--505607522)|(generated-tuag2j5gwq73xzp8fbw3j8@chrome-store-foxified--505607522)|(generated-uj53d5j612ap5pz11hwgv2@chrome-store-foxified--505607522)|(\{f51f0244-bfb0-40ce-bf9d-af49f5949e61\})|(\{81751484-2dc9-47bf-aec3-b8e556237178\})|(\{d89d1e20-57af-4164-82cc-650af45cf0a5\})|(\{a5e28713-14c3-4967-befe-2ec253e317cd\})|(\{335ac35b-6c16-4304-93f0-64a418e5bf81\})|(\{d3fdb429-ef84-40a4-b160-010745ee0098\})|(\{d66db057-7d38-4df4-a0ba-63c272be25ee\})|(\{ff7f7151-09e3-4e35-9052-b21e23e7e2c1\})|(\{1479da02-e759-4a6f-8f62-c08096583806\})|(\{42d59cda-c117-459e-b244-1b850c27ccc9\})|(\{bec48f33-7869-4158-8cbc-5cf1606f9afa\})|(\{08ca656c-4973-46a8-85a9-3d771399c86e\})|(\{dc5336c8-5624-4f74-a794-bb15f3760f34\})|(\{6a3d97de-1b42-4624-880a-1a68bc917142\})|(\{ad965166-3a34-449d-8230-a636fb5cae57\})|(video-view@vv\.us)|(video-view@excoe\.com)|(xeco@rama\.com)|(ghj@brem\.com)|(fgtr@rembgr\.com)|(xero@saltam\.com)|(sora@remjem\.com)|(repo@saram\.com)|(tora@empoytr\.net)|(saving@ropbart\.com)|(japa@vbgt\.com)|(rtya@nop\.net)|(asan@khazan\.com)|(xerb@tangot\.com)|(audiotools@ramdeen\.com)|(webat@extrolm\.com)|(media@medplus\.com)|(audio@audequl\.com)|(control@medcontrols\.com)|(sabqo@rimjim\.com)|(repto@secroa\.com)|(meters@videobf\.com)|(betro@diskra\.com)|(codeca@vxmrop\.com)|(revoca@feronx\.com)|(brota@vidbrghta\.com))$/">
+      <prefs/>
+      <versionRange minVersion="0" maxVersion="*" severity="3"/>
+    </emItem>
+    <emItem blockID="d6b2dbad-31e9-4984-b649-19036cd38e1d" id="/^((((generated-e0yf8zkhypow3jjifkqzwo)|(iiinclagpealgnaglbmkdbfbgchjjbpg)|(jaehkpjddfdgiiefcnhahapilbejohhj))@chrome-store-foxified--?\d+)|(jid1-9ETkKdBARv7Iww@jetpack)|(\{813fe658-5a29-4dcc-ba6c-3941676e4f19\}))$/">
       <prefs/>
       <versionRange minVersion="0" maxVersion="*" severity="3"/>
     </emItem>
