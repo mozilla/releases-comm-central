@@ -984,7 +984,6 @@ function test_external_link_opening_behaviour() {
   gMockExtProtSvcReg.unregister();
   mc.tabmail.closeTab(tab);
 }
-test_external_link_opening_behaviour.__force_skip__ = true; // Bug 1524450
 
 /**
  * Test that if the provider returns XML that we can't turn into an account,
