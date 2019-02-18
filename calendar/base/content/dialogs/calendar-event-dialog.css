@@ -34,8 +34,7 @@ freebusy-day {
     -moz-user-focus: normal;
 }
 
-freebusy-timebar {
-    -moz-binding: url(chrome://calendar/content/calendar-event-dialog-freebusy.xml#freebusy-timebar);
+calendar-event-freebusy-timebar {
     -moz-user-focus: normal;
 }
 

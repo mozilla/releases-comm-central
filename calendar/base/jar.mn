@@ -63,6 +63,7 @@ calendar.jar:
     content/calendar/calendar-event-dialog-timezone.xul    (content/dialogs/calendar-event-dialog-timezone.xul)
     content/calendar/calendar-event-dialog-attendees.xul   (content/dialogs/calendar-event-dialog-attendees.xul)
     content/calendar/calendar-event-dialog-attendees.js    (content/dialogs/calendar-event-dialog-attendees.js)
+    content/calendar/calendar-event-dialog-attendees-custom-elements.js    (content/dialogs/calendar-event-dialog-attendees-custom-elements.js)
     content/calendar/calendar-invitations-dialog.css       (content/dialogs/calendar-invitations-dialog.css)
     content/calendar/calendar-invitations-dialog.js        (content/dialogs/calendar-invitations-dialog.js)
     content/calendar/calendar-invitations-dialog.xul       (content/dialogs/calendar-invitations-dialog.xul)

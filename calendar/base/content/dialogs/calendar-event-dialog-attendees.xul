@@ -30,6 +30,8 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <!-- Javascript includes -->
+  <script type="application/javascript"
+          src="chrome://calendar/content/calendar-event-dialog-attendees-custom-elements.js"/>
   <script type="application/javascript" src="chrome://calendar/content/calendar-event-dialog-attendees.js"/>
   <script type="application/javascript" src="chrome://calendar/content/calendar-dialog-utils.js"/>
   <script type="application/javascript" src="chrome://calendar/content/calendar-statusbar.js"/>
@@ -105,12 +107,12 @@
     <vbox id="freebusy-container" width="750" persist="width">
       <stack flex="1">
         <vbox flex="1">
-          <freebusy-timebar id="timebar"
-                            class="listbox-noborder"
-                            seltype="multiple"
-                            rows="1"
-                            disabled="true"
-                            range="16">
+          <calendar-event-freebusy-timebar id="timebar"
+                                           class="listbox-noborder"
+                                           seltype="multiple"
+                                           rows="1"
+                                           disabled="true"
+                                           range="16">
             <richlistitem class="freebusy-listitem"
                           allowevents="true">
               <hbox flex="1">
@@ -119,7 +121,7 @@
                 </scroll-container>
               </hbox>
             </richlistitem>
-          </freebusy-timebar>
+          </calendar-event-freebusy-timebar>
           <freebusy-grid flex="1"
                          id="freebusy-grid"
                          range="16"

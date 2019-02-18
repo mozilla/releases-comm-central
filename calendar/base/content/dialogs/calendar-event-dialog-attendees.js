@@ -4,7 +4,8 @@
 
 /* exported onLoad, onAccept, onCancel, zoomWithButtons, updateStartTime,
  *          endWidget, updateEndTime, editStartTimezone, editEndTimezone,
- *          changeAllDay, onNextSlot, onPreviousSlot
+ *          changeAllDay, onNextSlot, onPreviousSlot, onFreebusyTimebarInit,
+ *          setFreebusyTimebarTime
  */
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
@@ -30,6 +31,12 @@ var gZoomFactor = 100;
  * Sets up the attendee dialog
  */
 function onLoad() {
+    // set calendar-event-freebusy-timebar date and time properties
+    setFreebusyTimebarTime();
+
+    // set up some calendar-event-freebusy-timebar properties
+    onFreebusyTimebarInit();
+
     // first of all, attach all event handlers
     window.addEventListener("resize", onResize, true);
     window.addEventListener("modify", onModify, true);
@@ -747,6 +754,10 @@ function setZoomFactor(aValue) {
 function applyCurrentZoomFactor() {
     let timebar = document.getElementById("timebar");
     timebar.zoomFactor = gZoomFactor;
+    // After sepearating window.arguments logic from custom element
+    // it is necessary to call this method to set up some properties of
+    // calendar-event-freebusy-timebar element.
+    onFreebusyTimebarInit();
     let selectionbar = document.getElementById("selection-bar");
     selectionbar.zoomFactor = gZoomFactor;
     let grid = document.getElementById("freebusy-grid");
@@ -783,6 +794,10 @@ function setForce24Hours(aValue) {
     initTimeRange();
     let timebar = document.getElementById("timebar");
     timebar.force24Hours = gForce24Hours;
+    // After sepearating window.arguments logic from custom element
+    // it is necessary to call this method to set up some properties of
+    // calendar-event-freebusy-timebar element.
+    onFreebusyTimebarInit();
     let selectionbar = document.getElementById("selection-bar");
     selectionbar.force24Hours = gForce24Hours;
     let grid = document.getElementById("freebusy-grid");
@@ -990,3 +1005,67 @@ calFreeBusyListener.prototype = {
         }
     }
 };
+
+function setFreebusyTimebarTime() {
+    const timebar = document.getElementById("timebar");
+    let args = window.arguments[0];
+    let startTime = args.startTime;
+    let endTime = args.endTime;
+
+    timebar.initTimeRange();
+
+    // The basedate is the date/time from which the display
+    // of the timebar starts. The range is the number of days
+    // we should be able to show. The start- and enddate
+    // is the time the event is scheduled for.
+    let kDefaultTimezone = cal.dtz.defaultTimezone;
+    timebar.startDate = startTime.getInTimezone(kDefaultTimezone);
+    timebar.endDate = endTime.getInTimezone(kDefaultTimezone);
+    timebar.mRange = Number(timebar.getAttribute("range"));
+}
+
+function onFreebusyTimebarInit() {
+    const timebar = document.getElementById("timebar");
+    let args = window.arguments[0];
+    let startTime = args.startTime;
+    let endTime = args.endTime;
+
+    let kDefaultTimezone = cal.dtz.defaultTimezone;
+    timebar.mStartDate = startTime.getInTimezone(kDefaultTimezone);
+    timebar.mEndDate = endTime.getInTimezone(kDefaultTimezone);
+
+    // Set the number of 'freebusy-day'-elements
+    // we need to fill up the content box.
+    // TODO: hardcoded value
+    timebar.mNumDays = 4 * timebar.mZoomFactor / 100;
+    if (timebar.mNumDays < 2) {
+        timebar.mNumDays = 2;
+    }
+
+    // Now create those elements and set their date property.
+    let date = timebar.mStartDate.clone();
+    let template = timebar.getElementsByTagName("freebusy-day")[0];
+    template.force24Hours = timebar.mForce24Hours;
+    template.zoomFactor = timebar.mZoomFactor;
+    template.startDate = timebar.mStartDate;
+    template.endDate = timebar.mEndDate;
+    template.date = date;
+    let parent = template.parentNode;
+    if (parent.childNodes.length <= 1) {
+        let count = timebar.mNumDays - 1;
+        if (count > 0) {
+            for (let i = 0; i < count; i++) {
+                date.day++;
+                let newNode = template.cloneNode(false);
+                parent.appendChild(newNode);
+                newNode.force24Hours = timebar.mForce24Hours;
+                newNode.zoomFactor = timebar.mZoomFactor;
+                newNode.startDate = timebar.mStartDate;
+                newNode.endDate = timebar.mEndDate;
+                newNode.date = date;
+            }
+        }
+    }
+
+    timebar.dispatchTimebarEvent();
+}
