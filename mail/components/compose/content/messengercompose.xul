@@ -2052,7 +2052,7 @@
     </toolbox>
   </toolbox>
 
-  <splitter id="compose-toolbar-sizer" onmousedown="awSizerListen()"/>
+  <splitter id="compose-toolbar-sizer" onmousedown="awSizerListen()" orient="vertical"/>
 
   <!-- The mail message body frame -->
   <vbox id="appcontent" flex="1">
