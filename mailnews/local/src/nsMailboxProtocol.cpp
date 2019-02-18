@@ -223,7 +223,8 @@ NS_IMETHODIMP nsMailboxProtocol::OnStartRequest(nsIRequest *request, nsISupports
   if (m_nextState == MAILBOX_READ_FOLDER && m_mailboxParser)
   {
     // we need to inform our mailbox parser that it's time to start...
-    m_mailboxParser->OnStartRequest(request, ctxt);
+    // XXX - TODO temp hack. mailboxparser expects a channel. It shouldn't. We should just pass through `request`, not `this`.
+    m_mailboxParser->OnStartRequest(this, ctxt);
   }
   return nsMsgProtocol::OnStartRequest(request, ctxt);
 }
@@ -247,7 +248,8 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest *request, nsISupports 
   if (m_nextState == MAILBOX_READ_FOLDER && m_mailboxParser)
   {
     // we need to inform our mailbox parser that there is no more incoming data...
-    m_mailboxParser->OnStopRequest(request, ctxt, aStatus);
+    // XXX - TODO temp hack. mailboxparser expects a channel. It shouldn't. We should just pass through `request`, not `this`.
+    m_mailboxParser->OnStopRequest(this, ctxt, aStatus);
   }
   else if (m_nextState == MAILBOX_READ_MESSAGE)
   {
@@ -281,7 +283,7 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest *request, nsISupports 
             nsCOMPtr<nsICopyMessageStreamListener> listener = do_QueryInterface(m_channelListener, &rv);
             if (listener)
             {
-              listener->EndCopy(ctxt, aStatus);
+              listener->EndCopy(m_runningUrl, aStatus);
               listener->StartMessage(); // start next message.
             }
           }
