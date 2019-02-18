@@ -26,6 +26,7 @@ function testAttachRoundtrip() {
     do_test_pending();
     storage.addItem(storageItem, {
         onOperationComplete: function(calendar, status, opType, id, addedItem) {
+            addedItem.QueryInterface(Ci.calIEvent);
             executeSoon(() => {
                 // Make sure the cache is cleared, otherwise we'll get the cached item.
                 delete storage.wrappedJSObject.mItemCache[addedItem.id];

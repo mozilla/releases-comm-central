@@ -370,7 +370,10 @@ var caldtz = {
             if (oldZonesLength != recentTimezones.length) {
                 // Looks like the one or other timezone dropped out. Go ahead and
                 // modify the pref.
-                Preferences.set("calendar.timezone.recent", JSON.stringify(recentTimezones));
+                Preferences.set(
+                    "calendar.timezone.recent",
+                    JSON.stringify(recentTimezones.map(zone => zone.tzid))
+                );
             }
         }
         return recentTimezones;

@@ -68,7 +68,7 @@ function createEventFromIcalString(icalString) {
         parser.parseString(icalString);
         let items = parser.getItems({});
         cal.ASSERT(items.length == 1);
-        return items[0];
+        return items[0].QueryInterface(Ci.calIEvent);
     } else {
         let event = Cc["@mozilla.org/calendar/event;1"].createInstance(Ci.calIEvent);
         event.icalString = icalString;
@@ -182,6 +182,11 @@ function compareItemsSpecific(aLeftItem, aRightItem, aPropArray) {
             "start", "end", "duration", "title", "priority", "privacy",
             "creationDate", "status", "alarmLastAck", "recurrenceStartDate"
         ];
+    }
+    if (aLeftItem instanceof Ci.calIEvent) {
+        aLeftItem.QueryInterface(Ci.calIEvent);
+    } else if (aLeftItem instanceof Ci.calITodo) {
+        aLeftItem.QueryInterface(Ci.calITodo);
     }
     for (let i = 0; i < aPropArray.length; i++) {
         equal(getProps(aLeftItem, aPropArray[i]),

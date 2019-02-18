@@ -4,7 +4,7 @@
 
 function run_test() {
     do_test_pending();
-    cal.getTimezoneService().startup({
+    cal.getTimezoneService().QueryInterface(Ci.calIStartupService).startup({
         onResult: function() {
             really_run_test();
             do_test_finished();

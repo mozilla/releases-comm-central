@@ -74,6 +74,7 @@ var alarmObserver = {
 
         for (let expected of aExpectedArray) {
             let occ = aItem.recurrenceInfo.getNextOccurrence(date);
+            occ.QueryInterface(Ci.calIEvent);
             date = occ.startDate;
             this.expectResult(aCalendar, occ, aAlarm, expected);
         }

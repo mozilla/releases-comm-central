@@ -85,7 +85,7 @@ function test_fake_parent() {
 
     let items = parser.getItems({});
     equal(items.length, 1);
-    let item = items[0];
+    let item = items[0].QueryInterface(Ci.calIEvent);
 
     equal(item.id, "123");
     ok(!!item.recurrenceInfo);
@@ -97,7 +97,7 @@ function test_fake_parent() {
     equal(rinfo.countRecurrenceItems(), 1);
     let excs = rinfo.getOccurrences(cal.createDateTime("20120101T010101"), null, 0, {});
     equal(excs.length, 1);
-    let exc = excs[0];
+    let exc = excs[0].QueryInterface(Ci.calIEvent);
     equal(exc.startDate.icalString, "20120101T010102");
 
     equal(parser.getParentlessItems({})[0], exc);

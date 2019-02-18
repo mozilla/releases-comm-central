@@ -35,6 +35,7 @@ function run_test() {
 
     // Change the occurrence to another day
     let occ = item.recurrenceInfo.getOccurrenceFor(cal.createDateTime("20090604T073000Z"));
+    occ.QueryInterface(Ci.calIEvent);
     occ.startDate = cal.createDateTime("20090618T073000Z");
     item.recurrenceInfo.modifyException(occ, true);
 

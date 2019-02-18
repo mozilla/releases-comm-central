@@ -30,6 +30,7 @@ function run_test() {
     storage.addItem(item, { onOperationComplete: checkAddedItem });
 
     function checkAddedItem(calendar, status, opType, id, addedItem) {
+        addedItem.QueryInterface(Ci.calIEvent);
         let seq = addedItem.getProperty("SEQUENCE");
         let occ = addedItem.recurrenceInfo.getOccurrenceFor(rid);
 
@@ -43,6 +44,7 @@ function run_test() {
     }
 
     function checkModifiedItem(calendar, status, opType, id, changedItem) {
+        changedItem.QueryInterface(Ci.calIEvent);
         let seq = changedItem.getProperty("SEQUENCE");
         let occ = changedItem.recurrenceInfo.getOccurrenceFor(rid);
 
@@ -59,6 +61,7 @@ function run_test() {
     }
 
     function checkNormalItem(calendar, status, opType, id, changedItem) {
+        changedItem.QueryInterface(Ci.calIEvent);
         let seq = changedItem.getProperty("SEQUENCE");
         let occ = changedItem.recurrenceInfo.getOccurrenceFor(rid);
 

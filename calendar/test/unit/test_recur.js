@@ -46,6 +46,7 @@ function test_rules() {
 
             // Make sure occurrences are correct
             dump("Occurrence:");
+            occurrences[i].QueryInterface(Ci.calIEvent);
             equal(occurrences[i].startDate.icalString, expected[i]);
 
             if (ignoreNextOccCheck) {
@@ -57,6 +58,7 @@ function test_rules() {
             if (expected.length > i + 1) {
                 notEqual(nextOcc, null);
                 dump("Checking next occurrence: " + expected[i + 1] + "\n");
+                nextOcc.QueryInterface(Ci.calIEvent);
                 equal(nextOcc.startDate.icalString, expected[i + 1]);
             } else {
                 dump("Expecting no more occurrences, found " +
@@ -69,6 +71,7 @@ function test_rules() {
             if (i > 0) {
                 dump("Checking previous occurrence: " + expected[i - 1] + ", found " + (prevOcc ? prevOcc.startDate : prevOcc) + "\n");
                 notEqual(prevOcc, null);
+                prevOcc.QueryInterface(Ci.calIEvent);
                 equal(prevOcc.startDate.icalString, expected[i - 1]);
             } else {
                 dump("Expecting no previous occurrences, found " +
@@ -446,6 +449,7 @@ function test_rules() {
                          "RRULE:FREQ=DAILY;COUNT=3\n" +
                          "DTSTART:20020402T114500Z\n");
     occ1 = item.recurrenceInfo.getOccurrenceFor(createDate(2002, 3, 2, true, 11, 45, 0));
+    occ1.QueryInterface(Ci.calIEvent);
     occ1.startDate = createDate(2002, 3, 3, true, 12, 0, 0);
     item.recurrenceInfo.modifyException(occ1, true);
     check_recur(item, ["20020403T114500Z", "20020403T120000Z", "20020404T114500Z"]);
@@ -456,6 +460,7 @@ function test_rules() {
                      "DTSTART:20020402T114500Z\n" +
                      "EXDATE:20020403T114500Z\n");
     occ1 = item.recurrenceInfo.getOccurrenceFor(createDate(2002, 3, 2, true, 11, 45, 0));
+    occ1.QueryInterface(Ci.calIEvent);
     occ1.startDate = createDate(2002, 3, 3, true, 12, 0, 0);
     item.recurrenceInfo.modifyException(occ1, true);
     check_recur(item, ["20020403T120000Z", "20020404T114500Z"]);
@@ -464,9 +469,11 @@ function test_rules() {
                      "RRULE:FREQ=DAILY;COUNT=2\n" +
                      "DTSTART:20020402T114500Z\n");
     occ1 = item.recurrenceInfo.getOccurrenceFor(createDate(2002, 3, 2, true, 11, 45, 0));
+    occ1.QueryInterface(Ci.calIEvent);
     occ1.startDate = createDate(2002, 3, 2, true, 12, 0, 0);
     item.recurrenceInfo.modifyException(occ1, true);
     let occ2 = item.recurrenceInfo.getOccurrenceFor(createDate(2002, 3, 3, true, 11, 45, 0));
+    occ2.QueryInterface(Ci.calIEvent);
     occ2.startDate = createDate(2002, 3, 3, true, 12, 0, 0);
     item.recurrenceInfo.modifyException(occ2, true);
     check_recur(item, ["20020402T120000Z", "20020403T120000Z"]);
@@ -476,6 +483,7 @@ function test_rules() {
                      "DTSTART:20020402T114500Z\n" +
                      "RDATE:20020401T114500Z\n");
     occ1 = item.recurrenceInfo.getOccurrenceFor(createDate(2002, 3, 2, true, 11, 45, 0));
+    occ1.QueryInterface(Ci.calIEvent);
     occ1.startDate = createDate(2002, 2, 30, true, 11, 45, 0);
     item.recurrenceInfo.modifyException(occ1, true);
     check_recur(item, ["20020330T114500Z", "20020401T114500Z", "20020403T114500Z"]);
@@ -645,6 +653,7 @@ function test_interface() {
 
     // modifyException / getExceptionFor
     let occ1 = rinfo.getOccurrenceFor(occDate1);
+    occ1.QueryInterface(Ci.calIEvent);
     occ1.startDate = cal.createDateTime("20020401T114500");
     rinfo.modifyException(occ1, true);
     ok(rinfo.getExceptionFor(occDate1) != null);
@@ -673,6 +682,7 @@ function test_rrule_interface() {
                          "RRULE:INTERVAL=2;FREQ=WEEKLY;COUNT=6;BYDAY=TU,WE\r\n");
 
     let rrule = item.recurrenceInfo.getRecurrenceItemAt(0);
+    rrule.QueryInterface(Ci.calIRecurrenceRule);
     equal(rrule.type, "WEEKLY");
     equal(rrule.interval, 2);
     equal(rrule.count, 6);
@@ -750,28 +760,33 @@ function test_startdate_change() {
     item = makeRecEvent("RDATE:20020403T114500Z\r\n");
     changeBy(item, "PT1H");
     ritem = item.recurrenceInfo.getRecurrenceItemAt(0);
+    ritem.QueryInterface(Ci.calIRecurrenceDate);
     equal(ritem.date.icalString, "20020403T124500Z");
 
     // Event with an exdate
     item = makeRecEvent("EXDATE:20020403T114500Z\r\n");
     changeBy(item, "PT1H");
     ritem = item.recurrenceInfo.getRecurrenceItemAt(0);
+    ritem.QueryInterface(Ci.calIRecurrenceDate);
     equal(ritem.date.icalString, "20020403T124500Z");
 
     // Event with an rrule with until date
     item = makeRecEvent("RRULE:FREQ=WEEKLY;UNTIL=20020406T114500Z\r\n");
     changeBy(item, "PT1H");
     ritem = item.recurrenceInfo.getRecurrenceItemAt(0);
+    ritem.QueryInterface(Ci.calIRecurrenceRule);
     equal(ritem.untilDate.icalString, "20020406T124500Z");
 
     // Event with an exception item
     item = makeRecEvent("RRULE:FREQ=DAILY\r\n");
     let occ = item.recurrenceInfo.getOccurrenceFor(cal.createDateTime("20020406T114500Z"));
+    occ.QueryInterface(Ci.calIEvent);
     occ.startDate = cal.createDateTime("20020406T124500Z");
     item.recurrenceInfo.modifyException(occ, true);
     changeBy(item, "PT1H");
     equal(item.startDate.icalString, "20020402T124500Z");
     occ = item.recurrenceInfo.getExceptionFor(cal.createDateTime("20020406T124500Z"));
+    occ.QueryInterface(Ci.calIEvent);
     equal(occ.startDate.icalString, "20020406T134500Z");
 }
 
@@ -781,6 +796,7 @@ function test_idchange() {
                          "DTEND:20020402T124500Z\r\n" +
                          "RRULE:FREQ=DAILY\r\n");
     let occ = item.recurrenceInfo.getOccurrenceFor(cal.createDateTime("20020406T114500Z"));
+    occ.QueryInterface(Ci.calIEvent);
     occ.startDate = cal.createDateTime("20020406T124500Z");
     item.recurrenceInfo.modifyException(occ, true);
     equal(occ.id, "unchanged");
@@ -820,7 +836,7 @@ function test_failures() {
     throws(() => rinfo.modifyException(occ, true), /Illegal value/, "Invalid Argument");
 
     // Missing DTSTART/DUE but RRULE
-    item = createEventFromIcalString("BEGIN:VCALENDAR\r\n" +
+    item = createTodoFromIcalString("BEGIN:VCALENDAR\r\n" +
         "BEGIN:VTODO\r\n" +
         "RRULE:FREQ=DAILY\r\n" +
         "END:VTODO\r\n" +
@@ -833,7 +849,7 @@ function test_failures() {
 }
 
 function test_immutable() {
-    item = createEventFromIcalString("BEGIN:VCALENDAR\r\n" +
+    item = createTodoFromIcalString("BEGIN:VCALENDAR\r\n" +
         "BEGIN:VTODO\r\n" +
         "RRULE:FREQ=DAILY\r\n" +
         "END:VTODO\r\n" +

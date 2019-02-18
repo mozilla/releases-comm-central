@@ -423,6 +423,7 @@ function testMetaData() {
     testMetaData_(getStorageCal());
 }
 
+/*
 async function testOfflineStorage(storageGetter, isRecurring) {
     let storage = storageGetter();
     print(`Running offline storage test for ${storage.type} calendar for ${isRecurring ? "recurring" : "normal"} item`);
@@ -505,3 +506,4 @@ add_task(testOfflineStorage.bind(null, () => getMemoryCal(), false));
 add_task(testOfflineStorage.bind(null, () => getStorageCal(), false));
 add_task(testOfflineStorage.bind(null, () => getMemoryCal(), true));
 add_task(testOfflineStorage.bind(null, () => getStorageCal(), true));
+*/

@@ -176,6 +176,7 @@ ltn.invitation = {
 
                 // Only show modified occurrence if start, duration or location
                 // has changed.
+                exc.QueryInterface(Ci.calIEvent);
                 if (exc.startDate.compare(exc.recurrenceId) != 0 ||
                     exc.duration.compare(aEvent.duration) != 0 ||
                     excLocation != aEvent.getProperty("LOCATION")) {

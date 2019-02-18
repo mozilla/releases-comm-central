@@ -446,6 +446,7 @@ function countOccurrences(aItem) {
                     let exceptionIds = recInfo.getExceptionIds({});
                     for (let exceptionId of exceptionIds) {
                         let recur = recInfo.getExceptionFor(exceptionId);
+                        recur.QueryInterface(Ci.calIEvent);
                         if (from.compare(recur.startDate) == 1) {
                             from = recur.startDate.clone();
                         }

@@ -310,6 +310,7 @@ agendaListbox.addItem = function(aItem) {
     if (!cal.item.isEvent(aItem)) {
         return null;
     }
+    aItem.QueryInterface(Ci.calIEvent);
     let periods = this.findPeriodsForItem(aItem);
     if (periods.length == 0) {
         return null;

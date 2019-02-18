@@ -396,6 +396,7 @@ calMemoryCalendar.prototype = {
         let itemCompletedFilter = ((aItemFilter & calICalendar.ITEM_FILTER_COMPLETED_YES) != 0);
         let itemNotCompletedFilter = ((aItemFilter & calICalendar.ITEM_FILTER_COMPLETED_NO) != 0);
         function checkCompleted(item) {
+            item.QueryInterface(Ci.calITodo);
             return (item.isCompleted ? itemCompletedFilter : itemNotCompletedFilter);
         }
 

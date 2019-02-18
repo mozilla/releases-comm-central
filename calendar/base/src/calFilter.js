@@ -776,9 +776,11 @@ calFilter.prototype = {
                     // there are no more occurrences
                     return null;
                 }
+
                 if (this.isItemInFilters(next)) {
                     return next;
                 }
+                next.QueryInterface(Ci.calIEvent);
                 start = next.startDate || next.entryDate;
             }
 
@@ -791,6 +793,7 @@ calFilter.prototype = {
             let exMatch = null;
             aItem.recurrenceInfo.getExceptionIds({}).forEach(function(rID) {
                 let ex = aItem.recurrenceInfo.getExceptionFor(rID);
+                ex.QueryInterface(Ci.calIEvent);
                 if (ex && cal.dtz.now().compare(ex.startDate || ex.entryDate) < 0 &&
                     this.isItemInFilters(ex)) {
                     exMatch = ex;
