@@ -38,35 +38,27 @@
 
 var EXPORTED_SYMBOLS = ["Server", "server", "AsyncRead", "Session", "sessions", "globalRegistry", "startServer"];
 
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
 var events = ChromeUtils.import("chrome://jsbridge/content/modules/events.js");
 var DEBUG_ON = false;
 var BUFFER_SIZE = 1024;
-var loader = Cc['@mozilla.org/moz/jssubscript-loader;1']
-    .getService(Ci.mozIJSSubScriptLoader);
+var hwindow = Services.appShell.hiddenDOMWindow;
 
-var hwindow = Cc["@mozilla.org/appshell/appShellService;1"]
-    .getService(Ci.nsIAppShellService)
-    .hiddenDOMWindow;
+var uuidgen = Cc["@mozilla.org/uuid-generator;1"].getService(Ci.nsIUUIDGenerator);
 
-var json2 = ChromeUtils.import("chrome://jsbridge/content/modules/json2.js");
-
-var jsonEncode = json2.JSON.stringify;
-
-var uuidgen = Cc["@mozilla.org/uuid-generator;1"]
-                .getService(Ci.nsIUUIDGenerator);
-
-function AsyncRead (session) {
+function AsyncRead(session) {
   this.session = session;
 }
 
-AsyncRead.prototype.onStartRequest = function (request, context) {};
-AsyncRead.prototype.onStopRequest = function (request, context, status) {
+AsyncRead.prototype.onStartRequest = function(request, context) {};
+AsyncRead.prototype.onStopRequest = function(request, context, status) {
   log("async onstoprequest: onstoprequest");
   this.session.onQuit();
-}
-AsyncRead.prototype.onDataAvailable = function (request, context, inputStream, offset, count) {
+};
+AsyncRead.prototype.onDataAvailable = function(request, context, inputStream, offset, count) {
   var str = {};
-  str.value = '';
+  str.value = "";
 
   var bytesAvail = 0;
   do {
@@ -85,122 +77,158 @@ AsyncRead.prototype.onDataAvailable = function (request, context, inputStream, o
   } while (count > 0);
   log("jsbridge: onDataAvailable, going into receive with: \n\n" + str.value + "\n\n");
   this.session.receive(str.value);
-}
+};
 
 var globalRegistry = {};
 
-function Bridge (session) {
+function Bridge(session) {
   this.session = session;
   this.registry = globalRegistry;
 }
-Bridge.prototype._register = function (_type) {
+Bridge.prototype._register = function(_type) {
   this.bridgeType = _type;
   if (_type == "backchannel") {
     events.addBackChannel(this);
   }
-}
-Bridge.prototype.register = function (uuid, _type) {
+};
+Bridge.prototype.register = function(uuid, _type) {
   try {
     this._register(_type);
     var passed = true;
-  } catch(e) {
+  } catch (e) {
+    var exception;
     if (typeof(e) == "string") {
-      var exception = e;
+      exception = e;
     } else {
-      var exception = {'name':e.name, 'message':e.message};
+      exception = {
+        name: e.name,
+        message: e.message,
+      };
     }
-    this.session.encodeOut({'result':false, 'exception':exception, 'uuid':uuid});
+    this.session.encodeOut({
+      result: false,
+      exception,
+      uuid,
+    });
   }
   if (passed != undefined) {
-    this.session.encodeOut({"result":true, 'eventType':'register', 'uuid':uuid});
+    this.session.encodeOut({
+      result: true,
+      eventType: "register",
+      uuid,
+    });
   }
-
-}
-Bridge.prototype._describe = function (obj) {
+};
+Bridge.prototype._describe = function(obj) {
   var response = {};
-  if (obj == null) {
-    var type = "null";
+  var type;
+  if (obj === null) {
+    type = "null";
   } else {
-    var type = typeof(obj);
+    type = typeof(obj);
   }
   if (type == "object") {
     if (obj.length != undefined) {
-      var type = "array";
+      type = "array";
     }
     response.attributes = [];
     for (var i in obj) {
       response.attributes = response.attributes.concat(i);
     }
-  }
-  else if (type != "function"){
+  } else if (type != "function") {
     response.data = obj;
   }
   response.type = type;
   return response;
-}
-Bridge.prototype.describe = function (uuid, obj) {
+};
+Bridge.prototype.describe = function(uuid, obj) {
   var response = this._describe(obj);
   response.uuid = uuid;
   response.result = true;
   this.session.encodeOut(response);
-}
-Bridge.prototype._set = function (obj) {
+};
+Bridge.prototype._set = function(obj) {
   var uuid = uuidgen.generateUUID().toString();
   this.registry[uuid] = obj;
   return uuid;
-}
-Bridge.prototype.set = function (uuid, obj) {
+};
+Bridge.prototype.set = function(uuid, obj) {
   var ruuid = this._set(obj);
-  this.session.encodeOut({'result':true, 'data':'bridge.registry["'+ruuid+'"]', 'uuid':uuid});
-}
-Bridge.prototype._setAttribute = function (obj, name, value) {
+  this.session.encodeOut({
+    result: true,
+    data: `bridge.registry["${ruuid}"]`,
+    uuid,
+  });
+};
+Bridge.prototype._setAttribute = function(obj, name, value) {
   obj[name] = value;
   return value;
-}
-Bridge.prototype.setAttribute = function (uuid, obj, name, value) {
+};
+Bridge.prototype.setAttribute = function(uuid, obj, name, value) {
   try {
     var result = this._setAttribute(obj, name, value);
-  } catch(e) {
+  } catch (e) {
+    var exception;
     if (typeof(e) == "string") {
-      var exception = e;
+      exception = e;
     } else {
-      var exception = {'name':e.name, 'message':e.message};
+      exception = {
+        name: e.name,
+        message: e.message,
+      };
     }
-    this.session.encodeOut({'result':false, 'exception':exception, 'uuid':uuid});
+    this.session.encodeOut({
+      result: false,
+      exception,
+      uuid,
+    });
   }
   if (result != undefined) {
     this.set(uuid, obj[name]);
   }
-}
-Bridge.prototype._execFunction = function (func, args) {
+};
+Bridge.prototype._execFunction = function(func, args) {
   return func.apply(this.session.sandbox, args);
-}
-Bridge.prototype.execFunction = function (uuid, func, args) {
+};
+Bridge.prototype.execFunction = function(uuid, func, args) {
+  var result;
   try {
     var data = this._execFunction(func, args);
-    var result = true;
-  } catch(e) {
+    result = true;
+  } catch (e) {
+    var exception;
     if (typeof(e) == "string") {
-      var exception = e;
+      exception = e;
     } else {
-      var exception = {'name':e.name, 'message':e.message};
+      exception = {
+        name: e.name,
+        message: e.message,
+      };
     }
-    this.session.encodeOut({'result':false, 'exception':exception, 'uuid':uuid});
-    var result = true;
+    this.session.encodeOut({
+      result: false,
+      exception,
+      uuid,
+    });
+    result = true;
   }
   if (data != undefined) {
     this.set(uuid, data);
-  } else if ( result == true) {
-    this.session.encodeOut({'result':true, 'data':null, 'uuid':uuid});
+  } else if (result) {
+    this.session.encodeOut({
+      result: true,
+      data: null,
+      uuid,
+    });
   } else {
     log("jsbridge threw unknown data in execFunc");
-    throw 'JSBridge unknown data in execFunc';
+    throw "JSBridge unknown data in execFunc";
   }
-}
+};
 
 var backstage = this;
 
-function Session (transport) {
+function Session(transport) {
   this.transpart = transport;  // XXX Unused, needed to hold reference? Note the typo.
   let systemPrincipal = Cc["@mozilla.org/systemprincipal;1"]
                           .createInstance(Ci.nsIPrincipal);
@@ -209,33 +237,33 @@ function Session (transport) {
   this.sandbox.openPreferences = hwindow.openPreferences;
   try {
       this.outputstream = transport.openOutputStream(Ci.nsITransport.OPEN_BLOCKING, 0, 0);
-      this.outstream = Cc['@mozilla.org/intl/converter-output-stream;1']
-                    .createInstance(Ci.nsIConverterOutputStream);
-      this.outstream.init(this.outputstream, 'UTF-8');
+      this.outstream = Cc["@mozilla.org/intl/converter-output-stream;1"]
+                         .createInstance(Ci.nsIConverterOutputStream);
+      this.outstream.init(this.outputstream, "UTF-8");
       this.stream = transport.openInputStream(0, 0, 0);
-      this.instream = Cc['@mozilla.org/intl/converter-input-stream;1']
+      this.instream = Cc["@mozilla.org/intl/converter-input-stream;1"]
                         .createInstance(Ci.nsIConverterInputStream);
-      this.instream.init(this.stream, 'UTF-8', BUFFER_SIZE,
+      this.instream.init(this.stream, "UTF-8", BUFFER_SIZE,
                          Ci.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER);
-  } catch(e) {
-      log('jsbridge: Error: ' + e);
+  } catch (e) {
+      log("jsbridge: Error: " + e);
   }
-  log('jsbridge: Accepted connection.');
+  log("jsbridge: Accepted connection.");
 
-  this.pump = Cc['@mozilla.org/network/input-stream-pump;1']
-      .createInstance(Ci.nsIInputStreamPump);
+  this.pump = Cc["@mozilla.org/network/input-stream-pump;1"]
+                .createInstance(Ci.nsIInputStreamPump);
   this.pump.init(this.stream, 0, 0, false);
   this.pump.asyncRead(new AsyncRead(this), null);
 }
 Session.prototype.onOutput = function(string) {
-  log('jsbridge: write: '+string)
+  log("jsbridge: write: " + string);
   if (typeof(string) != "string") {
-    throw "This is not a string"
+    throw new Error("This is not a string");
   }
   try {
     var stroffset = 0;
     do {
-      var parts = '';
+      var parts = "";
       // Handle the case where we are writing something larger than our buffer
       if (string.length > BUFFER_SIZE) {
         log("jsbridge: onOutput: writing data stroffset is: " + stroffset + " string.length is: " + string.length);
@@ -256,7 +284,7 @@ Session.prototype.onOutput = function(string) {
     this.outstream.flush();
   } catch (e) {
     log("jsbridge: threw on writing string: " + string + "   exception: " + e);
-    throw "JSBridge cannot write: "+string
+    throw new Error("JSBridge cannot write: " + string);
   }
 };
 Session.prototype.onQuit = function() {
@@ -264,78 +292,84 @@ Session.prototype.onQuit = function() {
   this.outstream.close();
   sessions.remove(this);
 };
-Session.prototype.encodeOut = function (obj) {
+Session.prototype.encodeOut = function(obj) {
   try {
-    this.onOutput(jsonEncode(obj));
-  } catch(e) {
+    this.onOutput(JSON.stringify(obj));
+  } catch (e) {
+    var exception;
     if (typeof(e) == "string") {
-      var exception = e;
+      exception = e;
     } else {
-      var exception = {'name':e.name, 'message':e.message};
+      exception = {
+        name: e.name,
+        message: e.message,
+      };
     }
-    this.onOutput(jsonEncode({'result':false, 'exception':exception}));
+    this.onOutput(JSON.stringify({
+      result: false,
+      exception,
+    }));
   }
-
-}
+};
 Session.prototype.receive = function(data) {
   Cu.evalInSandbox(data, this.sandbox);
-}
-
-var sessions = {
-    _list: [],
-    add: function(session) {
-        this._list.push(session);
-    },
-    remove: function(session) {
-        var index = this._list.indexOf(session);
-        if(index != -1)
-            this._list.splice(index, 1);
-    },
-    get: function(index) {
-        return this._list[index];
-    },
-    quit: function() {
-        this._list.forEach(function(session) { session.onQuit(); });
-        this._list.splice(0, this._list.length);
-    }
 };
 
-function Server (port) {
+var sessions = {
+  _list: [],
+  add(session) {
+    this._list.push(session);
+  },
+  remove(session) {
+    var index = this._list.indexOf(session);
+    if (index != -1)
+      this._list.splice(index, 1);
+  },
+  get(index) {
+    return this._list[index];
+  },
+  quit() {
+    this._list.forEach(function(session) { session.onQuit(); });
+    this._list.splice(0, this._list.length);
+  },
+};
+
+function Server(port) {
   this.port = port;
 }
-Server.prototype.start = function () {
+Server.prototype.start = function() {
   try {
-    this.serv = Cc['@mozilla.org/network/server-socket;1']
-        .createInstance(Ci.nsIServerSocket);
+    this.serv = Cc["@mozilla.org/network/server-socket;1"]
+                  .createInstance(Ci.nsIServerSocket);
     this.serv.init(this.port, true, -1);
     this.serv.asyncListen(this);
-  } catch(e) {
-    log('jsbridge: Exception: ' + e);
+  } catch (e) {
+    log("jsbridge: Exception: " + e);
   }
-}
-Server.prototype.stop = function () {
-    log('jsbridge: Closing...');
-    this.serv.close();
-    this.sessions.quit();
-    this.serv = undefined;
-}
-Server.prototype.onStopListening = function (serv, status) {
+};
+Server.prototype.stop = function() {
+  log("jsbridge: Closing...");
+  this.serv.close();
+  this.sessions.quit();
+  this.serv = undefined;
+};
+Server.prototype.onStopListening = function(serv, status) {
 // Stub function
-}
-Server.prototype.onSocketAccepted = function (serv, transport) {
+};
+Server.prototype.onSocketAccepted = function(serv, transport) {
   let session = new Session(transport);
   sessions.add(session);
-}
+};
 
 function log(msg) {
   if (DEBUG_ON) {
-    dump(msg + '\n');
+    dump(msg + "\n");
   }
 }
 
 function startServer(port) {
-  var server = new Server(port)
-  server.start()
+  var server = new Server(port);
+  server.start();
 }
 
 

@@ -36,5 +36,3 @@
 // ***** END LICENSE BLOCK *****
 
 var jsbridgeInit = ChromeUtils.import("chrome://jsbridge/content/modules/init.js");
-
-

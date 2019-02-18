@@ -14,12 +14,10 @@ function uninstall() {}
 
 function startup(data, reason) {
   addonID = data.id;
-  ExtensionSupport.registerWindowListener(
-    addonID,
-    {
-      chromeURLs: [ "chrome://messenger/content/messenger.xul" ],
-      onLoadWindow: setupServer
-    });
+  ExtensionSupport.registerWindowListener(addonID, {
+    chromeURLs: ["chrome://messenger/content/messenger.xul"],
+    onLoadWindow: setupServer,
+  });
 }
 
 function shutdown(data, reason) {
@@ -29,12 +27,12 @@ function shutdown(data, reason) {
 }
 
 function setupServer(domWindow) {
-  loadScript("chrome://jsbridge/content/overlay.js", domWindow);
+  Services.scriptloader.loadSubScript("chrome://jsbridge/content/overlay.js", domWindow);
 
   // The server used to be started via the command line (cmdarg.js) which
   // doesn't work for a bootstrapped add-on, so let's do it here.
   let server = {};
-  ChromeUtils.import('chrome://jsbridge/content/modules/server.js', server);
+  ChromeUtils.import("chrome://jsbridge/content/modules/server.js", server);
   console.log("=== JS Bridge: Starting server");
   server.startServer(24242);
 
@@ -42,14 +40,9 @@ function setupServer(domWindow) {
   ExtensionSupport.unregisterWindowListener(addonID);
 }
 
-function loadScript(url, targetWindow) {
-  let loader = Cc["@mozilla.org/moz/jssubscript-loader;1"].getService(Ci.mozIJSSubScriptLoader);
-  loader.loadSubScript(url, targetWindow);
-}
-
 function logException(exc) {
   try {
     Services.console.logStringMessage(exc.toString() + "\n" + exc.stack);
+  } catch (x) {
   }
-  catch (x) {}
 }

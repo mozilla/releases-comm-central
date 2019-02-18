@@ -2,12 +2,15 @@ var EXPORTED_SYMBOLS = ["backchannels", "fireEvent", "addBackChannel"];
 
 var backchannels = [];
 
-var fireEvent = function (name, obj) {
+function fireEvent(name, obj) {
   for (let backchannel of backchannels) {
-    backchannel.session.encodeOut({'eventType':name, 'result':obj});
+    backchannel.session.encodeOut({
+      eventType: name,
+      result: obj,
+    });
   }
 }
 
-var addBackChannel = function (backchannel) {
-    backchannels.push(backchannel);
+function addBackChannel(backchannel) {
+  backchannels.push(backchannel);
 }
