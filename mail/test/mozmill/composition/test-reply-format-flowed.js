@@ -18,7 +18,7 @@ var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-help
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.js");
+var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 
 var gDrafts;
 

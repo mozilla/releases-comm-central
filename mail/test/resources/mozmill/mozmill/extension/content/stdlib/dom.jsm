@@ -35,51 +35,18 @@
 //
 // ***** END LICENSE BLOCK *****
 
-var EXPORTED_SYMBOLS = ['listDirectory', 'getFileForPath', 'abspath', 'getPlatform'];
+var EXPORTED_SYMBOLS = ["getAttributes"];
 
-function listDirectory (file) {
-  // file is the given directory (nsIFile)
-  var entries = file.directoryEntries;
-  var array = [];
-  while (entries.hasMoreElements())
-  {
-    var entry = entries.getNext();
-    entry.QueryInterface(Ci.nsIFile);
-    array.push(entry);
-  }
-  return array;
-}
-
-function getFileForPath (path) {
-  var file = Cc["@mozilla.org/file/local;1"]
-               .createInstance(Ci.nsIFile);
-  file.initWithPath(path);
-  return file;
-}
-
-function abspath (rel, file) {
-  var relSplit = rel.split('/');
-  if (relSplit[0] == '..' && !file.isDirectory()) {
-    file = file.parent;
-  }
-  for (var p of relSplit) {
-    if (p == '..') {
-      file = file.parent;
-    } else if (p == '.'){
-      if (!file.isDirectory()) {
-        file = file.parent;
+function getAttributes(node) {
+  var attributes = {};
+  for (var i in node.attributes) {
+    if (!isNaN(i)) {
+      try {
+        var attr = node.attributes[i];
+        attributes[attr.name] = attr.value;
+      } catch (err) {
       }
-    } else {
-      file.append(p);
     }
   }
-  return file.path;
+  return attributes;
 }
-
-function getPlatform () {
-  var xulRuntime = Cc["@mozilla.org/xre/app-info;1"]
-                   .getService(Ci.nsIXULRuntime);
-  return xulRuntime.OS.toLowerCase();
-}
-
-

@@ -10,8 +10,8 @@ var RELATIVE_ROOT = "../shared-modules";
 // we need this for the main controller
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
-var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.js");
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js");
+var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
+var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
 
 var wh, fdh, mc;
 

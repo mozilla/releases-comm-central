@@ -12,8 +12,8 @@ var MODULE_REQUIRES = ["folder-display-helpers",
                          "window-helpers",
                          "mock-object-helpers"];
 
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js");
-var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.js");
+var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var NORMAL_TIMEOUT = 6000;

@@ -14,7 +14,7 @@ var MODULE_NAME = "test-session-store";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
-var controller = ChromeUtils.import("chrome://mozmill/content/modules/controller.js");
+var controller = ChromeUtils.import("chrome://mozmill/content/modules/controller.jsm");
 
 var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
 var {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");

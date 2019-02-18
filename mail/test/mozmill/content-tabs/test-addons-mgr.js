@@ -12,7 +12,7 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "content-tab-helpers",
                        "window-helpers"];
 
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js");
+var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {

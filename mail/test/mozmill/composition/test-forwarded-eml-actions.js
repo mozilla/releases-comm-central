@@ -18,7 +18,7 @@ var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
                          "compose-helpers"];
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js");
+var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
 
 var folder;
 

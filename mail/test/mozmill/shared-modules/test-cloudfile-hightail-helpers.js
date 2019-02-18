@@ -6,7 +6,7 @@
 
 var MODULE_NAME = "cloudfile-hightail-helpers";
 
-var {HttpServer} = ChromeUtils.import("chrome://mozmill/content/stdlib/httpd.js");
+var {HttpServer} = ChromeUtils.import("chrome://mozmill/content/stdlib/httpd.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
 

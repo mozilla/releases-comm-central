@@ -10,7 +10,7 @@ var RELATIVE_ROOT = "../shared-modules";
 // we need this for the main controller
 var MODULE_REQUIRES = ["folder-display-helpers"];
 
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js");
+var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
 
 var NORMAL_TIMEOUT = 6000;
 var FAST_TIMEOUT = 1000;

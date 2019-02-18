@@ -35,28 +35,16 @@
 //
 // ***** END LICENSE BLOCK *****
 
-var EXPORTED_SYMBOLS = ['loadFile','register_function','Collector','Runner','events',
-                        'jsbridge', 'runTestDirectory', 'runTestFile', 'log', 'getThread',
-                        'timers', 'persisted', 'registerModule'];
+var EXPORTED_SYMBOLS = ["loadFile", "register_function", "Collector", "Runner", "events",
+                        "jsbridge", "runTestDirectory", "runTestFile", "log", "getThread",
+                        "timers", "persisted", "registerModule"];
 
-var {HttpServer} = ChromeUtils.import("chrome://mozmill/content/stdlib/httpd.js");
+var {HttpServer} = ChromeUtils.import("chrome://mozmill/content/stdlib/httpd.jsm");
 
-var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.js");
-var strings = ChromeUtils.import("chrome://mozmill/content/stdlib/strings.js");
-var arrays = ChromeUtils.import("chrome://mozmill/content/stdlib/arrays.js");
-var withs = ChromeUtils.import("chrome://mozmill/content/stdlib/withs.js");
-var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.js");
+var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
+var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 var securableModule =
-  ChromeUtils.import("chrome://mozmill/content/stdlib/securable-module.js");
-
-var aConsoleService = Cc["@mozilla.org/consoleservice;1"].
-     getService(Ci.nsIConsoleService);
-var ios = Cc["@mozilla.org/network/io-service;1"]
-            .getService(Ci.nsIIOService);
-var loader = Cc["@mozilla.org/moz/jssubscript-loader;1"]
-                    .getService(Ci.mozIJSSubScriptLoader);
-var uuidgen = Cc["@mozilla.org/uuid-generator;1"]
-                    .getService(Ci.nsIUUIDGenerator);
+  ChromeUtils.import("chrome://mozmill/content/stdlib/securable-module.jsm");
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var systemPrincipal = Services.scriptSecurityManager.getSystemPrincipal();
@@ -79,24 +67,23 @@ var mozmill = undefined;
 var elementslib = undefined;
 var modules = undefined;
 
-var loadTestResources = function () {
+var loadTestResources = function() {
   if (mozmill == undefined) {
-    mozmill = ChromeUtils.import("chrome://mozmill/content/modules/mozmill.js");
+    mozmill = ChromeUtils.import("chrome://mozmill/content/modules/mozmill.jsm");
   }
   if (elementslib == undefined) {
-    elementslib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js");
+    elementslib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
   }
-}
+};
 
 var loadFile = function(path, collector) {
-  var file = Cc["@mozilla.org/file/local;1"]
-               .createInstance(Ci.nsIFile);
+  var file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
   file.initWithPath(path);
-  var uri = ios.newFileURI(file).spec;
+  var uri = Services.io.newFileURI(file).spec;
 
   var module = new Cu.Sandbox(systemPrincipal, { wantGlobalProperties: ["ChromeUtils"] });
   module.registeredFunctions = registeredFunctions;
-  module.collector = collector
+  module.collector = collector;
   loadTestResources();
   module.mozmill = mozmill;
   module.elementslib = elementslib;
@@ -104,55 +91,54 @@ var loadFile = function(path, collector) {
   module.Cc = Cc;
   module.Ci = Ci;
   module.Cu = Cu;
-  module.require = function (mod) {
+  module.require = function(mod) {
     var loader = new securableModule.Loader({
-      rootPaths: [ios.newFileURI(file.parent).spec],
+      rootPaths: [Services.io.newFileURI(file.parent).spec],
       defaultPrincipal: "system",
-      globals : { mozmill, elementslib, persisted, Cc, Ci, Cu }
+      globals: { mozmill, elementslib, persisted, Cc, Ci, Cu },
     });
     if (modules != undefined) {
-        loader.modules = modules;
+      loader.modules = modules;
     }
     var retval = loader.require(mod);
     modules = loader.modules;
     return retval;
-  }
+  };
 
   if (collector != undefined) {
     collector.current_file = file;
     collector.current_path = path;
   }
   try {
-    loader.loadSubScript(uri, module, "UTF-8");
+    Services.scriptloader.loadSubScript(uri, module, "UTF-8");
   } catch (e) {
-    events.fail({'exception' : e});
+    events.fail({"exception": e});
 
     var obj = {
-      'filename': path,
-      'passed': 0,
-      'failed': 1,
-      'passes': [ ],
-      'fails' : [{'exception' : {
-                     message: e.message,
-                     filename: e.filename,
-                     lineNumber: e.lineNumber}}],
-      'name'  : '<TOP_LEVEL>'
+      filename: path,
+      passed: 0,
+      failed: 1,
+      passes: [ ],
+      fails: [{
+        exception: {
+          message: e.message,
+          filename: e.filename,
+          lineNumber: e.lineNumber,
+        },
+      }],
+      name: "<TOP_LEVEL>",
     };
-    events.fireEvent('endTest', obj);
+    events.fireEvent("endTest", obj);
   }
 
   module.__file__ = path;
   module.__uri__ = uri;
   return module;
-}
+};
 
-function registerFunction (name, func) {
-  registeredFunctions[name] = func;
-}
-
-function stateChangeBase (possibilities, restrictions, target, cmeta, v) {
+function stateChangeBase(possibilities, restrictions, target, cmeta, v) {
   if (possibilities) {
-    if (!arrays.inArray(possibilities, v)) {
+    if (!possibilities.includes(v)) {
       // TODO Error value not in this.poss
       return;
     }
@@ -174,111 +160,125 @@ function stateChangeBase (possibilities, restrictions, target, cmeta, v) {
 var timers = [];
 
 var events = {
-  'currentState' : null,
-  'currentModule': null,
-  'currentTest'  : null,
-  'userShutdown' : false,
-  'appQuit'      : false,
-  'listeners'    : {},
-}
-events.setState = function (v) {
-   return stateChangeBase(['dependencies', 'setupModule', 'teardownModule',
-                           'setupTest', 'teardownTest', 'test', 'collection'],
-                           null, 'currentState', 'setState', v);
-}
-events.toggleUserShutdown = function (){
+  currentState: null,
+  currentModule: null,
+  currentTest: null,
+  userShutdown: false,
+  appQuit: false,
+  listeners: {},
+};
+events.setState = function(v) {
+  return stateChangeBase([
+    "dependencies",
+    "setupModule",
+    "teardownModule",
+    "setupTest",
+    "teardownTest",
+    "test",
+    "collection",
+  ], null, "currentState", "setState", v);
+};
+events.toggleUserShutdown = function() {
   if (this.userShutdown) {
-    this.fail({'function':'frame.events.toggleUserShutdown', 'message':'Shutdown expected but none detected before timeout'});
+    this.fail({
+      function: "frame.events.toggleUserShutdown",
+      message: "Shutdown expected but none detected before timeout",
+    });
   }
   this.userShutdown = (!this.userShutdown);
-}
-events.isUserShutdown = function () {
+};
+events.isUserShutdown = function() {
   return this.userShutdown;
-}
-events.setTest = function (test, invokedFromIDE) {
+};
+events.setTest = function(test, invokedFromIDE) {
   test.__passes__ = [];
   test.__fails__ = [];
   test.__invokedFromIDE__ = invokedFromIDE;
   events.currentTest = test;
-  var obj = {'filename':events.currentModule.__file__,
-             'name':test.__name__,
-            }
-  events.fireEvent('setTest', obj);
-}
-events.endTest = function (test) {
-  test.status = 'done';
+  var obj = {
+    filename: events.currentModule.__file__,
+    name: test.__name__,
+  };
+  events.fireEvent("setTest", obj);
+};
+events.endTest = function(test) {
+  test.status = "done";
   events.currentTest = null;
-  var obj = {'filename':events.currentModule.__file__,
-         'passed':test.__passes__.length,
-         'failed':test.__fails__.length,
-         'passes':test.__passes__,
-         'fails' :test.__fails__,
-         'name'  :test.__name__,
-         }
+  var obj = {
+    filename: events.currentModule.__file__,
+    passed: test.__passes__.length,
+    failed: test.__fails__.length,
+    passes: test.__passes__,
+    fails: test.__fails__,
+    name: test.__name__,
+  };
   if (test.skipped) {
-    obj['skipped'] = true;
+    obj.skipped = true;
     obj.skipped_reason = test.skipped_reason;
   }
   if (test.meta) {
     obj.meta = test.meta;
   }
-  events.fireEvent('endTest', obj);
-}
-events.setModule = function (v) {
-  return stateChangeBase( null, [function (v) {return (v.__file__ != undefined)}],
-                          'currentModule', 'setModule', v);
-}
-events.pass = function (obj) {
+  events.fireEvent("endTest", obj);
+};
+events.setModule = function(v) {
+  return stateChangeBase(null, [
+    function(v) {
+      return (v.__file__ != undefined);
+    },
+  ], "currentModule", "setModule", v);
+};
+events.pass = function(obj) {
   if (events.currentTest) {
     events.currentTest.__passes__.push(obj);
   }
   for (var timer of timers) {
-    timer.actions.push(
-      {"currentTest":events.currentModule.__file__+"::"+events.currentTest.__name__, "obj":obj,
-       "result":"pass"}
-    );
+    timer.actions.push({
+      currentTest: events.currentModule.__file__ + "::" + events.currentTest.__name__,
+      obj,
+      result: "pass",
+    });
   }
-  events.fireEvent('pass', obj);
-}
-events.fail = function (obj) {
+  events.fireEvent("pass", obj);
+};
+events.fail = function(obj) {
   var error = obj.exception;
-  if(error) {
+  if (error) {
     // Error objects aren't enumerable https://bugzilla.mozilla.org/show_bug.cgi?id=637207
     obj.exception = {
       name: error.name,
       message: error.message,
       lineNumber: error.lineNumber,
       fileName: error.fileName,
-      stack: error.stack
+      stack: error.stack,
     };
   }
   // a low level event, such as a keystroke, fails
   if (events.currentTest) {
     events.currentTest.__fails__.push(obj);
   }
-  for (var time of timers) {
-    timer.actions.push(
-      {"currentTest":events.currentModule.__file__+"::"+events.currentTest.__name__, "obj":obj,
-       "result":"fail"}
-    );
+  for (var timer of timers) {
+    timer.actions.push({
+      currentTest: events.currentModule.__file__ + "::" + events.currentTest.__name__,
+      obj,
+      result: "fail",
+    });
   }
-  events.fireEvent('fail', obj);
-}
-events.skip = function (reason) {
+  events.fireEvent("fail", obj);
+};
+events.skip = function(reason) {
   events.currentTest.skipped = true;
   events.currentTest.skipped_reason = reason;
   for (var timer of timers) {
-    timer.actions.push(
-      {"currentTest":events.currentModule.__file__+"::"+events.currentTest.__name__, "obj":reason,
-       "result":"skip"}
-    );
+    timer.actions.push({
+      currentTest: events.currentModule.__file__ + "::" + events.currentTest.__name__,
+      obj: reason,
+      result: "skip",
+    });
   }
-  events.fireEvent('skip', reason);
-}
-events.fireEvent = function (name, obj) {
-  if (events.currentTest && name == "firePythonCallback" && events.currentTest.__invokedFromIDE__) {
-    throw new Error("tests that use firePythonCallback cannot be run from the IDE\n");
-  }
+  events.fireEvent("skip", reason);
+};
+events.fireEvent = function(name, obj) {
   if (this.listeners[name]) {
     for (var i in this.listeners[name]) {
       this.listeners[name][i](obj);
@@ -287,50 +287,52 @@ events.fireEvent = function (name, obj) {
   for (var listener of this.globalListeners) {
     listener(name, obj);
   }
-}
+};
 events.globalListeners = [];
-events.addListener = function (name, listener) {
+events.addListener = function(name, listener) {
   if (this.listeners[name]) {
     this.listeners[name].push(listener);
-  } else if (name =='') {
-    this.globalListeners.push(listener)
+  } else if (name == "") {
+    this.globalListeners.push(listener);
   } else {
     this.listeners[name] = [listener];
   }
-}
+};
 events.removeListener = function(listener) {
   for (var listenerIndex in this.listeners) {
     var e = this.listeners[listenerIndex];
-    for (var i in e){
+    for (let i in e) {
       if (e[i] == listener) {
         this.listeners[listenerIndex] = arrayRemove(e, i);
       }
     }
   }
-  for (var i in this.globalListeners) {
+  for (let i in this.globalListeners) {
     if (this.globalListeners[i] == listener) {
       this.globalListeners = arrayRemove(this.globalListeners, i);
     }
   }
-}
+};
 
-var log = function (obj) {
-  events.fireEvent('log', obj);
-}
+var log = function(obj) {
+  events.fireEvent("log", obj);
+};
 
+var jsbridge;
 try {
-  var jsbridge = ChromeUtils.import("chrome://jsbridge/content/modules/events.js");
-} catch(err) {
-  var jsbridge = null;
-
-  aConsoleService.logStringMessage("jsbridge not available.");
+  jsbridge = ChromeUtils.import("chrome://jsbridge/content/modules/events.js");
+} catch (err) {
+  jsbridge = null;
+  Services.console.logStringMessage("jsbridge not available.");
 }
 
 if (jsbridge) {
-  events.addListener('', function (name, obj) {jsbridge.fireEvent('mozmill.'+name, obj)} );
+  events.addListener("", function(name, obj) {
+    jsbridge.fireEvent("mozmill." + name, obj);
+  });
 }
 
-function Collector () {
+function Collector() {
   this.test_modules_by_filename = {};
   this.test_modules_by_name = {};
   this.requirements_run = {};
@@ -339,18 +341,17 @@ function Collector () {
   this.testing = [];
   this.httpd_started = false;
   this.http_port = 43336;
-  // var logging = ChromeUtils.import("chrome://mozmill/content/stdlib/logging.js");
+  // var logging = ChromeUtils.import("chrome://mozmill/content/stdlib/logging.jsm");
   // this.logger = new logging.Logger('Collector');
 }
 
-Collector.prototype.getModule = function (name) {
+Collector.prototype.getModule = function(name) {
   return this.test_modules_by_name[name];
-}
+};
 
-Collector.prototype.getServer = function (port, basePath) {
+Collector.prototype.getServer = function(port, basePath) {
   if (basePath) {
-    var lp = Cc["@mozilla.org/file/local;1"]
-             .createInstance(Ci.nsIFile);
+    var lp = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
     lp.initWithPath(basePath);
   }
 
@@ -364,9 +365,9 @@ Collector.prototype.getServer = function (port, basePath) {
   srv._port = port;
 
   return srv;
-}
+};
 
-Collector.prototype.startHttpd = function () {
+Collector.prototype.startHttpd = function() {
   while (this.httpd == undefined) {
     try {
       var http_server = this.getServer(this.http_port);
@@ -377,42 +378,40 @@ Collector.prototype.startHttpd = function () {
       this.http_port++;
     }
   }
-}
+};
 
-Collector.prototype.stopHttpd = function () {
+Collector.prototype.stopHttpd = function() {
   if (this.httpd) {
-    this.httpd.stop(function(){});  // Callback needed to pause execution until the server has been properly shutdown
+    this.httpd.stop(function() {});  // Callback needed to pause execution until the server has been properly shutdown
     this.httpd = null;
   }
-}
+};
 
-Collector.prototype.addHttpResource = function (directory, ns) {
+Collector.prototype.addHttpResource = function(directory, ns) {
   if (!this.httpd) {
     this.startHttpd();
   }
 
   if (!ns) {
-    ns = '/';
+    ns = "/";
   } else {
-    ns = '/' + ns + '/';
+    ns = "/" + ns + "/";
   }
 
-  var lp = Cc["@mozilla.org/file/local;1"].
-           createInstance(Ci.nsIFile);
+  var lp = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
   lp.initWithPath(os.abspath(directory, this.current_file));
   this.httpd.registerDirectory(ns, lp);
 
-  return 'http://localhost:' + this.http_port + ns
-}
+  return "http://localhost:" + this.http_port + ns;
+};
 
-Collector.prototype.initTestModule = function (filename) {
+Collector.prototype.initTestModule = function(filename) {
   var test_module = loadFile(filename, this);
   test_module.__tests__ = [];
   for (var i in test_module) {
     if (test_module[i] == null) {
       // do nothing
-    }
-    else if (typeof(test_module[i]) == "function") {
+    } else if (typeof(test_module[i]) == "function") {
       if (i == "setupTest") {
         test_module[i].__name__ = i;
         test_module.__setupTest__ = test_module[i];
@@ -425,14 +424,13 @@ Collector.prototype.initTestModule = function (filename) {
       } else if (i == "teardownModule") {
         test_module[i].__name__ = i;
         test_module.__teardownModule__ = test_module[i];
-      } else if (withs.startsWith(i, "test")) {
+      } else if (i.startsWith("test")) {
         test_module[i].__name__ = i;
         test_module.__tests__.push(test_module[i]);
       }
-    } else if (typeof(test_module[i]) == 'object' &&
-               test_module[i]._mozmillasynctest == true) {
-        test_module[i].__name__ = i;
-        test_module.__tests__.push(test_module[i]);
+    } else if (typeof(test_module[i]) == "object" && test_module[i]._mozmillasynctest) {
+      test_module[i].__name__ = i;
+      test_module.__tests__.push(test_module[i]);
     }
     if (i == "RELATIVE_ROOT") {
       test_module.__root_path__ = os.abspath(test_module[i], os.getFileForPath(filename));
@@ -454,116 +452,93 @@ Collector.prototype.initTestModule = function (filename) {
   }
 
   test_module.collector = this;
-  test_module.status = 'loaded';
+  test_module.status = "loaded";
   this.test_modules_by_filename[filename] = test_module;
 
   return test_module;
-}
+};
 
-Collector.prototype.initTestDirectory = function (directory) {
+Collector.prototype.initTestDirectory = function(directory) {
   var r = this;
   function recursiveModuleLoader(dfile) {
     r.loaded_directories.push(directory);
     var dfiles = os.listDirectory(dfile);
     for (var i in dfiles) {
       var f = dfiles[i];
-      if ( f.isDirectory() &&
-           !withs.startsWith(f.leafName, '.') &&
-           withs.startsWith(f.leafName, "test") &&
-           !arrays.inArray(r.loaded_directories, f.path) ) {
+      if (f.isDirectory() &&
+          !f.leafName.startsWith(".") &&
+          f.leafName.startsWith("test") &&
+          !r.loaded_directories.includes(f.path)) {
         recursiveModuleLoader(os.getFileForPath(f.path));
-      } else if ( withs.startsWith(f.leafName, "test") &&
-                  withs.endsWith(f.leafName, ".js")    &&
-                  !arrays.inArray(r.test_modules_by_filename, f.path) ) {
+      } else if (f.leafName.startsWith("test") &&
+                 f.leafName.endsWith(".js") &&
+                 !(f.path in r.test_modules_by_filename)) {
         r.initTestModule(f.path);
       }
       r.testing.push(f.path);
     }
   }
   recursiveModuleLoader(os.getFileForPath(directory));
-}
+};
 
 // Observer which gets notified when the application quits
 function AppQuitObserver() {
   this.register();
 }
 AppQuitObserver.prototype = {
-  observe: function(subject, topic, data) {
+  observe(subject, topic, data) {
     events.appQuit = true;
   },
-  register: function() {
-    var obsService = Cc["@mozilla.org/observer-service;1"]
-                     .getService(Ci.nsIObserverService);
-    obsService.addObserver(this, "quit-application");
+  register() {
+    Services.obs.addObserver(this, "quit-application");
   },
-  unregister: function() {
-    var obsService = Cc["@mozilla.org/observer-service;1"]
-                     .getService(Ci.nsIObserverService);
-    obsService.removeObserver(this, "quit-application");
-  }
-}
+  unregister() {
+    Services.obs.removeObserver(this, "quit-application");
+  },
+};
 
 
-function Runner (collector, invokedFromIDE) {
+function Runner(collector, invokedFromIDE) {
   this.collector = collector;
-  this.invokedFromIDE = invokedFromIDE
-  events.fireEvent('startRunner', true);
-  // var logging = ChromeUtils.import("chrome://mozmill/content/stdlib/logging.js");
+  this.invokedFromIDE = invokedFromIDE;
+  events.fireEvent("startRunner", true);
+  // var logging = ChromeUtils.import("chrome://mozmill/content/stdlib/logging.jsm");
   // this.logger = new logging.Logger('Runner');
-  var m = ChromeUtils.import("chrome://mozmill/content/modules/mozmill.js");
+  var m = ChromeUtils.import("chrome://mozmill/content/modules/mozmill.jsm");
   this.platform = m.platform;
 }
-Runner.prototype.runTestDirectory = function (directory) {
+Runner.prototype.runTestDirectory = function(directory) {
   this.collector.initTestDirectory(directory);
 
   for (var i in this.collector.test_modules_by_filename) {
     var test = this.collector.test_modules_by_filename[i];
-    if (test.status != 'done') {
+    if (test.status != "done") {
       this.runTestModule(test);
     }
   }
-}
-Runner.prototype.runTestFile = function (filename) {
+};
+Runner.prototype.runTestFile = function(filename) {
   // if ( !arrays.inArray(this.test_modules_by_filename, directory) ) {
   //   this.collector.initTestModule(directory);
   // }
   this.collector.initTestModule(filename);
   this.runTestModule(this.collector.test_modules_by_filename[filename]);
-}
-Runner.prototype.end = function () {
+};
+Runner.prototype.end = function() {
   try {
-    events.fireEvent('persist', persisted);
-  } catch(e) {
-    events.fireEvent('error', "persist serialization failed.");
+    events.fireEvent("persist", persisted);
+  } catch (e) {
+    events.fireEvent("error", "persist serialization failed.");
   }
   this.collector.stopHttpd();
-  events.fireEvent('endRunner', true);
-}
-Runner.prototype.getDependencies = function (module) {
-  events.setState('dependencies');
-  var alldeps = [];
-  function recursiveGetDeps (mod) {
-    for (var i in mod.__dependencies__) {
-      var m = mod.dependencies[i];
-      if ( !arrays.inArray(this.test_modules_by_name, m) ) {
-        // TODO: Raise Error that this dependency cannot be resolved.
-      } else {
-        recursiveGetDeps(this.test_modules_by_name[m]);
-        alldeps.push(m);
-      }
-    }
-  }
+  events.fireEvent("endRunner", true);
+};
 
-  return alldeps;
-}
-
-Runner.prototype.wrapper = function (func, arg) {
-  thread = Cc["@mozilla.org/thread-manager;1"]
-             .getService(Ci.nsIThreadManager)
-             .currentThread;
+Runner.prototype.wrapper = function(func, arg) {
+  thread = Services.tm.currentThread;
 
   if (func.EXCLUDED_PLATFORMS != undefined) {
-    if (arrays.inArray(func.EXCLUDED_PLATFORMS, this.platform)) {
+    if (func.EXCLUDED_PLATFORMS.includes(this.platform)) {
       events.skip("Platform exclusion");
       return;
     }
@@ -575,36 +550,34 @@ Runner.prototype.wrapper = function (func, arg) {
   try {
     if (arg) {
       func(arg);
+    } else if (func._mozmillasynctest) {
+      func.run();
     } else {
-      if (func._mozmillasynctest == true) {
-        func.run();
-      } else {
-        func();
-      }
+      func();
     }
     // If a shutdown was expected but the application hasn't quit, throw a failure
     if (events.isUserShutdown()) {
       utils.sleep(500);  // Prevents race condition between mozrunner hard process kill and normal FFx shutdown
       if (!events.appQuit) {
-        events.fail({'function':'Runner.wrapper', 'message':'Shutdown expected but none detected before end of test'});
+        events.fail({"function": "Runner.wrapper", "message": "Shutdown expected but none detected before end of test"});
       }
     }
   } catch (e) {
-    if (func._mozmillasynctest == true) {
+    if (func._mozmillasynctest) {
       func = {
-              'filename':events.currentModule.__file__,
-              'name':func.__name__
-             }
+        filename: events.currentModule.__file__,
+        name: func.__name__,
+      };
     }
     // Allow the exception if a user shutdown was expected
     if (!events.isUserShutdown()) {
-      events.fail({'exception': e, 'test':func})
+      events.fail({"exception": e, "test": func});
       Cu.reportError(e);
     }
   }
-}
+};
 
-Runner.prototype._runTestModule = function (module) {
+Runner.prototype._runTestModule = function(module) {
   if (module.__requirements__ != undefined && module.__force_skip__ == undefined) {
     for (var req of module.__requirements__) {
       module[req] = this.collector.getModule(req);
@@ -612,41 +585,42 @@ Runner.prototype._runTestModule = function (module) {
   }
 
   var attrs = [];
-  for (var i in module) {
+  for (let i in module) {
     attrs.push(i);
   }
 
   events.setModule(module);
   var observer = new AppQuitObserver();
+  var setupModulePassed, setupTestPassed;
 
-  module.__status__ = 'running';
+  module.__status__ = "running";
   if (module.__setupModule__) {
-    events.setState('setupModule');
+    events.setState("setupModule");
     events.setTest(module.__setupModule__);
     this.wrapper(module.__setupModule__, module);
-    var setupModulePassed = (events.currentTest.__fails__.length == 0 && !events.currentTest.skipped);
+    setupModulePassed = (events.currentTest.__fails__.length == 0 && !events.currentTest.skipped);
     events.endTest(module.__setupModule__);
   } else {
-    var setupModulePassed = true;
+    setupModulePassed = true;
   }
   if (setupModulePassed) {
-    for (var i in module.__tests__) {
+    for (let i in module.__tests__) {
       events.appQuit = false;
-      var test = module.__tests__[i];
+      let test = module.__tests__[i];
 
       // TODO: introduce per-test timeout:
       // https://bugzilla.mozilla.org/show_bug.cgi?id=574871
 
       if (module.__setupTest__) {
-        events.setState('setupTest');
+        events.setState("setupTest");
         events.setTest(module.__setupTest__);
         this.wrapper(module.__setupTest__, test);
-        var setupTestPassed = (events.currentTest.__fails__.length == 0 && !events.currentTest.skipped);
+        setupTestPassed = (events.currentTest.__fails__.length == 0 && !events.currentTest.skipped);
         events.endTest(module.__setupTest__);
       } else {
-        var setupTestPassed = true;
+        setupTestPassed = true;
       }
-      events.setState('test');
+      events.setState("test");
       events.setTest(test, this.invokedFromIDE);
       if (setupTestPassed) {
         this.wrapper(test);
@@ -654,22 +628,22 @@ Runner.prototype._runTestModule = function (module) {
         events.skip("setupTest failed.");
       }
       if (module.__teardownTest__) {
-        events.setState('teardownTest');
+        events.setState("teardownTest");
         events.setTest(module.__teardownTest__);
         this.wrapper(module.__teardownTest__, test);
         events.endTest(module.__teardownTest__);
       }
-      events.endTest(test)
+      events.endTest(test);
     }
   } else {
-    for (var test of module.__tests__) {
+    for (let test of module.__tests__) {
       events.setTest(test);
       events.skip("setupModule failed.");
       events.endTest(test);
     }
   }
   if (module.__teardownModule__) {
-    events.setState('teardownModule');
+    events.setState("teardownModule");
     events.setTest(module.__teardownModule__);
     this.wrapper(module.__teardownModule__, module);
     events.endTest(module.__teardownModule__);
@@ -677,51 +651,43 @@ Runner.prototype._runTestModule = function (module) {
 
   observer.unregister();
 
-  module.__status__ = 'done';
-}
+  module.__status__ = "done";
+};
 
-Runner.prototype.runTestModule = function (module) {
+Runner.prototype.runTestModule = function(module) {
   if (module.__requirements__ != undefined && module.__force_skip__ == undefined) {
-    if (!arrays.inArray(this.collector.loaded_directories, module.__root_path__)) {
+    if (!this.collector.loaded_directories.includes(module.__root_path__)) {
       if (module.__root_path__ != undefined) {
         this.collector.initTestDirectory(module.__root_path__);
       }
     }
-    var deps = this.getDependencies(module);
-    for (var i in deps) {
-      var dep = deps[i];
-      if (dep.status != 'done') {
-        this._runTestModule(dep);
-      }
-    }
   }
   this._runTestModule(module);
-}
+};
 
 
-var runTestDirectory = function (dir, invokedFromIDE) {
+var runTestDirectory = function(dir, invokedFromIDE) {
   var runner = new Runner(new Collector(), invokedFromIDE);
   runner.runTestDirectory(dir);
   runner.end();
   return true;
-}
-var runTestFile = function (filename, invokedFromIDE) {
+};
+var runTestFile = function(filename, invokedFromIDE) {
   var runner = new Runner(new Collector(), invokedFromIDE);
   runner.runTestFile(filename);
   runner.end();
   return true;
-}
+};
 
-var getThread = function () {
+var getThread = function() {
   return thread;
-}
+};
 
 function registerModule(name, path) {
   let protocolHandler = Services.io.getProtocolHandler("resource")
                                 .QueryInterface(Ci.nsIResProtocolHandler);
 
-  let modulesFile = Cc["@mozilla.org/file/local;1"]
-                      .createInstance(Ci.nsIFile);
+  let modulesFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
   modulesFile.initWithPath(path);
-  protocolHandler.setSubstitution(name, ios.newFileURI(modulesFile));
+  protocolHandler.setSubstitution(name, Services.io.newFileURI(modulesFile));
 }

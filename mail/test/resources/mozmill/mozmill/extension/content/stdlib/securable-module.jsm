@@ -35,16 +35,11 @@
  * ***** END LICENSE BLOCK ***** */
 
 (function(global) {
+  const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
    var exports = {};
 
-   var ios = Cc['@mozilla.org/network/io-service;1']
-             .getService(Ci.nsIIOService);
-
-   var scriptSecurityManager = Cc['@mozilla.org/scriptsecuritymanager;1']
-                               .getService(Ci.nsIScriptSecurityManager);
-
-   var systemPrincipal = Cc["@mozilla.org/systemprincipal;1"]
-                         .createInstance(Ci.nsIPrincipal);
+   var systemPrincipal = Cc["@mozilla.org/systemprincipal;1"].createInstance(Ci.nsIPrincipal);
 
    function resolvePrincipal(principal, defaultPrincipal) {
      if (principal === undefined)
@@ -57,7 +52,7 @@
    // The base URI to we use when we're given relative URLs, if any.
    var baseURI = null;
    if (global.window)
-     baseURI = ios.newURI(global.location.href);
+     baseURI = Services.io.newURI(global.location.href);
    exports.baseURI = baseURI;
 
    // The "parent" chrome URI to use if we're loading code that
@@ -87,11 +82,9 @@
        // and use it here. Until that's in the platform, though,
        // we'll play it safe and parentify the filename unless
        // we're absolutely certain things will be ok if we don't.
-       var filenameURI = ios.newURI(options.filename,
-                                    null,
-                                    baseURI);
-       if (filenameURI.scheme == 'chrome' &&
-           filenameURI.pathQueryRef.indexOf('/content/') == 0)
+       var filenameURI = Services.io.newURI(filename, null, baseURI);
+       if (filenameURI.scheme == "chrome" &&
+           filenameURI.pathQueryRef.indexOf("/content/") == 0)
          // Content packages will always have wrappers made for them;
          // if automatic wrappers have been disabled for the
          // chrome package via a chrome manifest flag, then
@@ -109,15 +102,14 @@
      return urlStr.slice(0, urlStr.lastIndexOf("/") + 1);
    }
 
-   exports.SandboxFactory = function SandboxFactory(defaultPrincipal) {
+   exports.SandboxFactory = function(defaultPrincipal) {
      // Unless specified otherwise, use a principal with limited
      // privileges.
-     this._defaultPrincipal = resolvePrincipal(defaultPrincipal,
-                                               "http://www.mozilla.org");
-   },
+     this._defaultPrincipal = resolvePrincipal(defaultPrincipal, "http://www.mozilla.org");
+   };
 
    exports.SandboxFactory.prototype = {
-     createSandbox: function createSandbox(options) {
+     createSandbox(options) {
        var principal = resolvePrincipal(options.principal,
                                         this._defaultPrincipal);
 
@@ -127,24 +119,24 @@
          get globalScope() {
            return this._sandbox;
          },
-         defineProperty: function defineProperty(name, value) {
+         defineProperty(name, value) {
            this._sandbox[name] = value;
          },
-         getProperty: function getProperty(name) {
+         getProperty(name) {
            return this._sandbox[name];
          },
-         evaluate: function evaluate(options) {
-           if (typeof(options) == 'string')
+         evaluate(options) {
+           if (typeof(options) == "string")
              options = {contents: options};
            options = {__proto__: options};
-           if (typeof(options.contents) != 'string')
-             throw new Error('Expected string for options.contents');
+           if (typeof(options.contents) != "string")
+             throw new Error("Expected string for options.contents");
            if (options.lineNo === undefined)
              options.lineNo = 1;
            if (options.jsVersion === undefined)
              options.jsVersion = "1.8";
-           if (typeof(options.filename) != 'string')
-             options.filename = '<string>';
+           if (typeof(options.filename) != "string")
+             options.filename = "<string>";
 
            if (this._principal == systemPrincipal)
              options.filename = maybeParentifyFilename(options.filename);
@@ -154,12 +146,12 @@
                                    options.jsVersion,
                                    options.filename,
                                    options.lineNo);
-         }
+         },
        };
-     }
+     },
    };
 
-   exports.Loader = function Loader(options) {
+   exports.Loader = function(options) {
      options = {__proto__: options};
      if (options.fs === undefined) {
        var rootPaths = options.rootPath || options.rootPaths;
@@ -168,8 +160,9 @@
            rootPaths = [rootPaths];
          var fses = rootPaths.map(path => new exports.LocalFileSystem(path));
          options.fs = new exports.CompositeFileSystem(fses);
-       } else
+       } else {
          options.fs = new exports.LocalFileSystem();
+       }
      }
      if (options.sandboxFactory === undefined)
        options.sandboxFactory = new exports.SandboxFactory(
@@ -188,14 +181,14 @@
    };
 
    exports.Loader.prototype = {
-     _makeRequire: function _makeRequire(rootDir) {
+     _makeRequire(rootDir) {
        var self = this;
-       return function require(module) {
+       return function(module) {
          if (module == "chrome") {
-           var chrome = { 
-             Cc, Ci, Cu, Cr, 
+           var chrome = {
+             Cc, Ci, Cu, Cr,
              Cm: Components.manager,
-             components: Components
+             components: Components,
            };
            return chrome;
          }
@@ -207,13 +200,12 @@
            if (options.filename === undefined)
              options.filename = path;
 
-           var exports = {};
            var sandbox = self.sandboxFactory.createSandbox(options);
            self.sandboxes[path] = sandbox;
            for (let name in self.globals) {
              sandbox.defineProperty(name, self.globals[name]);
            }
-           sandbox.defineProperty('require', self._makeRequire(path));
+           sandbox.defineProperty("require", self._makeRequire(path));
            sandbox.evaluate("var exports = {};");
            let ES5 = self.modules.es5;
            if (ES5) {
@@ -230,24 +222,24 @@
      // This is only really used by unit tests and other
      // development-related facilities, allowing access to symbols
      // defined in the global scope of a module.
-     findSandboxForModule: function findSandboxForModule(module) {
+     findSandboxForModule(module) {
        var path = this.fs.resolveModule(null, module);
        if (!path)
          throw new Error('Module "' + module + '" not found');
        if (!(path in this.sandboxes))
          this.require(module);
        if (!(path in this.sandboxes))
-         throw new Error('Internal error: path not in sandboxes: ' +
+         throw new Error("Internal error: path not in sandboxes: " +
                          path);
        return this.sandboxes[path];
      },
 
-     require: function require(module) {
+     require(module) {
        return (this._makeRequire(null))(module);
      },
 
-     runScript: function runScript(options, extraOutput) {
-       if (typeof(options) == 'string')
+     runScript(options, extraOutput) {
+       if (typeof(options) == "string")
          options = {contents: options};
        options = {__proto__: options};
        var sandbox = this.sandboxFactory.createSandbox(options);
@@ -256,18 +248,18 @@
        for (let name in this.globals) {
          sandbox.defineProperty(name, this.globals[name]);
        }
-       sandbox.defineProperty('require', this._makeRequire(null));
+       sandbox.defineProperty("require", this._makeRequire(null));
        return sandbox.evaluate(options);
-     }
+     },
    };
 
-   exports.CompositeFileSystem = function CompositeFileSystem(fses) {
+   exports.CompositeFileSystem = function(fses) {
      this.fses = fses;
      this._pathMap = {};
    };
 
    exports.CompositeFileSystem.prototype = {
-     resolveModule: function resolveModule(base, path) {
+     resolveModule(base, path) {
        for (var i = 0; i < this.fses.length; i++) {
          var fs = this.fses[i];
          var absPath = fs.resolveModule(base, path);
@@ -278,23 +270,23 @@
        }
        return null;
      },
-     getFile: function getFile(path) {
+     getFile(path) {
        return this._pathMap[path].getFile(path);
-     }
+     },
    };
 
-   exports.LocalFileSystem = function LocalFileSystem(root) {
+   exports.LocalFileSystem = function(root) {
      if (root === undefined) {
        if (!baseURI)
          throw new Error("Need a root path for module filesystem");
        root = baseURI;
      }
-     if (typeof(root) == 'string')
-       root = ios.newURI(root, null, baseURI);
+     if (typeof(root) == "string")
+       root = Services.io.newURI(root, null, baseURI);
      if (root instanceof Ci.nsIFile)
-       root = ios.newFileURI(root);
+       root = Services.io.newFileURI(root);
      if (!(root instanceof Ci.nsIURI))
-       throw new Error('Expected nsIFile, nsIURI, or string for root');
+       throw new Error("Expected nsIFile, nsIURI, or string for root");
 
      this.root = root.spec;
      this._rootURI = root;
@@ -302,18 +294,18 @@
    };
 
    exports.LocalFileSystem.prototype = {
-     resolveModule: function resolveModule(base, path) {
+     resolveModule(base, path) {
        path = path + ".js";
 
        var baseURI;
        if (!base)
          baseURI = this._rootURI;
        else
-         baseURI = ios.newURI(base);
-       var newURI = ios.newURI(path, null, baseURI);
-       var channel = ios.newChannelFromURI2(newURI,
+         baseURI = Services.io.newURI(base);
+       var newURI = Services.io.newURI(path, null, baseURI);
+       var channel = Services.io.newChannelFromURI2(newURI,
                                             null,
-                                            scriptSecurityManager.getSystemPrincipal(),
+                                            Services.scriptSecurityManager.getSystemPrincipal(),
                                             null,
                                             Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                             Ci.nsIContentPolicy.TYPE_OTHER);
@@ -327,12 +319,12 @@
        }
        return newURI.spec;
      },
-     getFile: function getFile(path) {
-       var channel = ios.newChannel2(path,
+     getFile(path) {
+       var channel = Services.io.newChannel2(path,
                                      null,
                                      null,
                                      null,
-                                     scriptSecurityManager.getSystemPrincipal(),
+                                     Services.scriptSecurityManager.getSystemPrincipal(),
                                      null,
                                      Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                      Ci.nsIContentPolicy.TYPE_OTHER);
@@ -349,7 +341,7 @@
        ciStream.close();
        iStream.close();
        return {contents: data};
-     }
+     },
    };
 
    if (global.window) {

@@ -29,8 +29,8 @@ var MODULE_NAME = "test-reply-multipart-charset";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers"];
 
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js");
-var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.js");
+var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 
 var folderToStoreMessages;
 

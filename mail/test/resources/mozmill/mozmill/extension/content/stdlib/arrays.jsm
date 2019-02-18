@@ -35,20 +35,26 @@
 //
 // ***** END LICENSE BLOCK *****
 
-var EXPORTED_SYMBOLS = ['getAttributes'];
+var EXPORTED_SYMBOLS = ["getSet", "compare"];
 
-
-var getAttributes = function (node) {
-  var attributes = {};
-  for (var i in node.attributes) {
-    if ( !isNaN(i) ) {
-      try {
-        var attr = node.attributes[i];
-        attributes[attr.name] = attr.value;
-      } catch (err) {
-      }
+function getSet(array) {
+  var narray = [];
+  for (var i in array) {
+    if (!narray.includes(array[i])) {
+      narray.push(array[i]);
     }
   }
-  return attributes;
+  return narray;
 }
 
+function compare(array, carray) {
+  if (array.length != carray.length) {
+    return false;
+  }
+  for (var i in array) {
+    if (array[i] != carray[i]) {
+      return false;
+    }
+  }
+  return true;
+}

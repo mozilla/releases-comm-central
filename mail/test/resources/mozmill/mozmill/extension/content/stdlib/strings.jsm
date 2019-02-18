@@ -35,59 +35,10 @@
 //
 // ***** END LICENSE BLOCK *****
 
-var EXPORTED_SYMBOLS = ['inArray', 'getSet', 'indexOf', 'rindexOf', 'compare'];
+var EXPORTED_SYMBOLS = ["vslice"];
 
-function inArray (array, value) {
-  for (var i in array) {
-    if (value == array[i]) {
-      return true;
-    }
-  }
-  return false;
-}
-
-function getSet (array) {
-  var narray = [];
-  for (var i in array) {
-    if ( !inArray(narray, array[i]) ) {
-      narray.push(array[i]);
-    }
-  }
-  return narray;
-}
-
-function indexOf (array, v, offset) {
-  for (var i in array) {
-    if (offset == undefined || i >= offset) {
-      if ( !isNaN(i) && array[i] == v) {
-        return new Number(i);
-      }
-    }
-  }
-  return -1;
-}
-
-function rindexOf (array, v) {
-  var l = array.length - 1;
-  for (var i in array) {
-    if (!isNaN(i)) {
-      i = new Number(i);
-    }
-    if (!isNaN(i) && array[l - i] == v) {
-      return l - i;
-    }
-  }
-  return -1;
-}
-
-function compare (array, carray) {
-  if (array.length != carray.length) {
-    return false;
-  }
-  for (var i in array) {
-    if (array[i] != carray[i]) {
-      return false;
-    }
-  }
-  return true;
-}
+var vslice = function(str, svalue, evalue) {
+  var sindex = str.indexOf(svalue);
+  var eindex = str.lastIndexOf(evalue);
+  return str.slice(sindex + 1, eindex);
+};

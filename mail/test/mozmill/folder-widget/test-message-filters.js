@@ -15,7 +15,7 @@ var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
                        "nntp-helpers", "address-book-helpers",
                        "prompt-helpers"];
 
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js");
+var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
 var folderA;
 
 function setupModule(module)

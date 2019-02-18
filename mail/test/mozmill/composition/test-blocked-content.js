@@ -20,7 +20,7 @@ var MODULE_REQUIRES = [
    "notificationbox-helpers"
 ];
 
-var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.js");
+var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {OS} = ChromeUtils.import("resource://gre/modules/osfile.jsm");

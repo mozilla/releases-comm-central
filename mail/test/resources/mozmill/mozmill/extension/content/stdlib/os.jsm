@@ -35,16 +35,47 @@
 //
 // ***** END LICENSE BLOCK *****
 
-var EXPORTED_SYMBOLS = ['trim', 'vslice'];
+var EXPORTED_SYMBOLS = ["listDirectory", "getFileForPath", "abspath", "getPlatform"];
 
-var arrays = ChromeUtils.import("chrome://mozmill/content/stdlib/arrays.js");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var trim = function (str) {
-  return (str.replace(/^[\s\xA0]+/, "").replace(/[\s\xA0]+$/, ""));
+function listDirectory(file) {
+  // file is the given directory (nsIFile)
+  var entries = file.directoryEntries;
+  var array = [];
+  while (entries.hasMoreElements()) {
+    var entry = entries.getNext();
+    entry.QueryInterface(Ci.nsIFile);
+    array.push(entry);
+  }
+  return array;
 }
 
-var vslice = function (str, svalue, evalue) {
-  var sindex = arrays.indexOf(str, svalue);
-  var eindex = arrays.rindexOf(str, evalue);
-  return str.slice(sindex + 1, eindex);
+function getFileForPath(path) {
+  var file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+  file.initWithPath(path);
+  return file;
+}
+
+function abspath(rel, file) {
+  var relSplit = rel.split("/");
+  if (relSplit[0] == ".." && !file.isDirectory()) {
+    file = file.parent;
+  }
+  for (var p of relSplit) {
+    if (p == "..") {
+      file = file.parent;
+    } else if (p == ".") {
+      if (!file.isDirectory()) {
+        file = file.parent;
+      }
+    } else {
+      file.append(p);
+    }
+  }
+  return file.path;
+}
+
+function getPlatform() {
+  return Services.appinfo.OS.toLowerCase();
 }

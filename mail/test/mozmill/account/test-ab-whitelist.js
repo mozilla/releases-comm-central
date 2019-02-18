@@ -10,9 +10,9 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
                        "account-manager-helpers", "keyboard-helpers" ];
 
-var mozmill = ChromeUtils.import("chrome://mozmill/content/modules/mozmill.js");
-var controller = ChromeUtils.import("chrome://mozmill/content/modules/controller.js");
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js");
+var mozmill = ChromeUtils.import("chrome://mozmill/content/modules/mozmill.jsm");
+var controller = ChromeUtils.import("chrome://mozmill/content/modules/controller.jsm");
+var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
 
 var gOldWhiteList = null;
 var gKeyString = null;

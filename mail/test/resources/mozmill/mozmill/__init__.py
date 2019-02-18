@@ -67,7 +67,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 extension_path = os.path.join(basedir, 'extension')
 
-mozmillModuleJs = "ChromeUtils.import('chrome://mozmill/content/modules/mozmill.js')"
+mozmillModuleJs = "ChromeUtils.import('chrome://mozmill/content/modules/mozmill.jsm')"
 
 try:
     import pkg_resources
@@ -199,14 +199,6 @@ class MozMill(object):
         })
         return True
 
-    def firePythonCallback_listener(self, obj):
-        callback_file = "%s_callbacks.py" % os.path.splitext(obj['filename'])[0]
-        if os.path.isfile(callback_file):
-            python_callbacks_module = imp.load_source('callbacks', callback_file)
-        else:
-            raise Exception("No valid callback file")
-        self.fire_python_callback(obj['method'], obj['arg'], python_callbacks_module)
-
     def create_network(self):
 
         # get the bridge and the back-channel
@@ -232,7 +224,6 @@ class MozMill(object):
             runner = self.runner_class(profile=self.profile,
                                        cmdargs=["-jsbridge", str(self.jsbridge_port)])
 
-        self.add_listener(self.firePythonCallback_listener, eventType='mozmill.firePythonCallback')
         self.runner = runner
         self.endRunnerCalled = False
 
@@ -278,7 +269,7 @@ class MozMill(object):
         self.tests.extend(tests)
 
         frame = jsbridge.JSObject(self.bridge,
-                                  "ChromeUtils.import('chrome://mozmill/content/modules/frame.js')")
+                                  "ChromeUtils.import('chrome://mozmill/content/modules/frame.jsm')")
         sleep(sleeptime)
 
         # transfer persisted data
@@ -568,17 +559,10 @@ class MozMillRestart(MozMill):
                                        cmdargs=["-jsbridge", str(self.jsbridge_port)])
         self.runner = runner
         self.endRunnerCalled = False
-        self.add_listener(self.firePythonCallback_listener, eventType='mozmill.firePythonCallback')
 
         # set the starttime for the tests
         # XXX assumes run_tests will be called soon after (currently true)
         self.starttime = datetime.utcnow()
-
-    def firePythonCallback_listener(self, obj):
-        if obj['fire_now']:
-            self.fire_python_callback(obj['method'], obj['arg'], self.python_callbacks_module)
-        else:
-            self.python_callbacks.append(obj)
 
     def start_runner(self):
 
@@ -589,7 +573,7 @@ class MozMillRestart(MozMill):
         self.create_network()
         self.appinfo = self.get_appinfo(self.bridge)
         frame = jsbridge.JSObject(self.bridge,
-                                  "ChromeUtils.import('chrome://mozmill/content/modules/frame.js')")
+                                  "ChromeUtils.import('chrome://mozmill/content/modules/frame.jsm')")
         return frame
 
     def run_dir(self, test_dir, sleeptime=0):

@@ -14,7 +14,7 @@ var folder;
 var messenger;
 var epsilon;
 
-var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.js");
+var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 
 var textAttachment =
   "Can't make the frug contest, Helen; stomach's upset. I'll fix you, " +

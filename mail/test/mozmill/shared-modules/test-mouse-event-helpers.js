@@ -9,7 +9,7 @@ var MODULE_NAME = "mouse-event-helpers";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers"];
 
-var EventUtils = ChromeUtils.import("chrome://mozmill/content/stdlib/EventUtils.js");
+var EventUtils = ChromeUtils.import("chrome://mozmill/content/stdlib/EventUtils.jsm");
 
 var fdh;
 

@@ -40,11 +40,11 @@
 var EXPORTED_SYMBOLS = ["createEventObject", "triggerEvent", "getKeyCodeFromKeySequence",
                         "triggerKeyEvent", "triggerMouseEvent", "fakeOpenPopup"];
 
-var EventUtils = ChromeUtils.import("chrome://mozmill/content/stdlib/EventUtils.js")
+var EventUtils = ChromeUtils.import("chrome://mozmill/content/stdlib/EventUtils.jsm");
 
-var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.js");
+var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 
-// var logging = ChromeUtils.import("chrome://mozmill/content/stdlib/logging.js");
+// var logging = ChromeUtils.import("chrome://mozmill/content/stdlib/logging.jsm");
 
 // var eventsLogger = logging.getLogger('eventsLogger');
 
@@ -73,10 +73,10 @@ function fakeOpenPopup(aWindow, aPopup) {
   aPopup.dispatchEvent(popupEvent);
 }
 
-    /* Fire an event in a browser-compatible manner */
+/* Fire an event in a browser-compatible manner */
 var triggerEvent = function(element, eventType, canBubble, controlKeyDown, altKeyDown, shiftKeyDown, metaKeyDown) {
-  canBubble = (typeof(canBubble) == undefined) ? true: canBubble;
-  var evt = element.ownerDocument.createEvent('HTMLEvents');
+  canBubble = (typeof(canBubble) == undefined) ? true : canBubble;
+  var evt = element.ownerDocument.createEvent("HTMLEvents");
 
   evt.shiftKey = shiftKeyDown;
   evt.metaKey = metaKeyDown;
@@ -85,44 +85,40 @@ var triggerEvent = function(element, eventType, canBubble, controlKeyDown, altKe
 
   evt.initEvent(eventType, canBubble, true);
   element.dispatchEvent(evt);
-
 };
 
 var getKeyCodeFromKeySequence = function(keySequence) {
-
   var match = /^\\(\d{1,3})$/.exec(keySequence);
   if (match != null) {
-      return match[1];
-
+    return match[1];
   }
   match = /^.$/.exec(keySequence);
   if (match != null) {
-      return match[0].charCodeAt(0);
-
+    return match[0].charCodeAt(0);
   }
   // this is for backward compatibility with existing tests
   // 1 digit ascii codes will break however because they are used for the digit chars
   match = /^\d{2,3}$/.exec(keySequence);
   if (match != null) {
-      return match[0];
-
+    return match[0];
   }
-  if (keySequence != null){
+  if (keySequence != null) {
     // eventsLogger.error("invalid keySequence "+String(keySequence));
   }
   // mozmill.results.writeResult("invalid keySequence");
-}
+  throw new Error("Should never reach here");
+};
 
 var triggerKeyEvent = function(element, eventType, aKey, modifiers, expectedEvent) {
   // get the window and send focus event
-  var win = element.ownerDocument ? element.ownerDocument.defaultView : element;
+  var win = element.ownerDocument ? element.ownerGlobal : element;
   win.focus();
   utils.sleep(5);
 
   // If we have an element check if it needs to be focused
   if (element.ownerDocument) {
     var focusedElement = utils.getChromeWindow(win).document.commandDispatcher.focusedElement;
-    for (var node = focusedElement; node && node != element; )
+    for (var node = focusedElement; node && node != element;)
       node = node.parentNode;
 
     // Only focus the element when it's not focused yet
@@ -148,37 +144,33 @@ var triggerKeyEvent = function(element, eventType, aKey, modifiers, expectedEven
   } else {
     EventUtils.synthesizeKey(aKey, modifiers, win);
   }
-}
+};
 
-    /* Fire a mouse event in a browser-compatible manner */
+/* Fire a mouse event in a browser-compatible manner */
 var triggerMouseEvent = function(element, eventType, canBubble, clientX, clientY, controlKeyDown, altKeyDown, shiftKeyDown, metaKeyDown) {
-
-  clientX = clientX ? clientX: 0;
-  clientY = clientY ? clientY: 0;
+  clientX = clientX ? clientX : 0;
+  clientY = clientY ? clientY : 0;
 
   // Fixing this - make the mouse understand where it is on the screen, needed
   // for double click.
   var screenX = element.boxObject.screenX ? element.boxObject.screenX : 0;
-  var screenY = element.boxObject.screenY ? element.boxObject.screenY : 0;;
+  var screenY = element.boxObject.screenY ? element.boxObject.screenY : 0;
 
-  canBubble = (typeof(canBubble) == undefined) ? true: canBubble;
+  canBubble = (typeof(canBubble) == undefined) ? true : canBubble;
 
-  var evt = element.ownerDocument.defaultView.document.createEvent('MouseEvents');
+  var evt = element.ownerGlobal.document.createEvent("MouseEvents");
   if (evt.initMouseEvent) {
-      //LOG.info("element has initMouseEvent");
-      //Safari
-      evt.initMouseEvent(eventType, canBubble, true, element.ownerDocument.defaultView, 1, screenX, screenY, clientX, clientY, controlKeyDown, altKeyDown, shiftKeyDown, metaKeyDown, 0, null)
-
+    // LOG.info("element has initMouseEvent");
+    // Safari
+    evt.initMouseEvent(eventType, canBubble, true, element.ownerGlobal, 1, screenX, screenY, clientX, clientY, controlKeyDown, altKeyDown, shiftKeyDown, metaKeyDown, 0, null);
+  } else {
+    // LOG.warn("element doesn't have initMouseEvent; firing an event which should -- but doesn't -- have other mouse-event related attributes here, as well as controlKeyDown, altKeyDown, shiftKeyDown, metaKeyDown");
+    evt.initEvent(eventType, canBubble, true);
+    evt.shiftKey = shiftKeyDown;
+    evt.metaKey = metaKeyDown;
+    evt.altKey = altKeyDown;
+    evt.ctrlKey = controlKeyDown;
   }
-  else {
-      //LOG.warn("element doesn't have initMouseEvent; firing an event which should -- but doesn't -- have other mouse-event related attributes here, as well as controlKeyDown, altKeyDown, shiftKeyDown, metaKeyDown");
-      evt.initEvent(eventType, canBubble, true);
-      evt.shiftKey = shiftKeyDown;
-      evt.metaKey = metaKeyDown;
-      evt.altKey = altKeyDown;
-      evt.ctrlKey = controlKeyDown;
-
-  }
-  //Used by safari
+  // Used by safari
   element.dispatchEvent(evt);
-}
+};

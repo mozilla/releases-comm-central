@@ -15,7 +15,7 @@ var MODULE_NAME = "test-cp932-display.js";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
-var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.js");
+var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {

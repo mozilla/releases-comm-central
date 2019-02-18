@@ -36,22 +36,18 @@
 //
 // ***** END LICENSE BLOCK *****
 
-var EXPORTED_SYMBOLS = ["Elem", "ID", "Link", "XPath", "Selector", "Name", "Anon", "AnonXPath",
-                        "Lookup", "_byID", "_byName", "_byAttrib", "_byAnonAttrib",
-                       ];
+var EXPORTED_SYMBOLS = [
+  "Elem", "ID", "Link", "XPath", "Selector", "Name", "Anon", "AnonXPath",
+  "Lookup", "_byID", "_byName", "_byAttrib", "_byAnonAttrib",
+];
 
-var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.js");
-var strings = ChromeUtils.import("chrome://mozmill/content/stdlib/strings.js");
-var arrays = ChromeUtils.import("chrome://mozmill/content/stdlib/arrays.js");
-var json2 = ChromeUtils.import("chrome://mozmill/content/stdlib/json2.js");
-var withs = ChromeUtils.import("chrome://mozmill/content/stdlib/withs.js");
-var dom = ChromeUtils.import("chrome://mozmill/content/stdlib/dom.js");
-var objects = ChromeUtils.import("chrome://mozmill/content/stdlib/objects.js");
+var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
+var strings = ChromeUtils.import("chrome://mozmill/content/stdlib/strings.jsm");
 
-var countQuotes = function(str){
+var countQuotes = function(str) {
   var count = 0;
   var i = 0;
-  while(i < str.length) {
+  while (i < str.length) {
     i = str.indexOf('"', i);
     if (i != -1) {
       count++;
@@ -61,195 +57,177 @@ var countQuotes = function(str){
     }
   }
   return count;
-}
-var smartSplit = function (str) {
+};
+var smartSplit = function(str) {
   // Note: I would love it if someone good with regular expressions
   // could just replace this function with a good regex
 
   // Ensure we have an even number of quotes
   if (countQuotes(str) % 2 != 0) {
-    throw new Error ("Invalid Lookup Expression");
+    throw new Error("Invalid Lookup Expression");
   }
 
   var repls = [];
-  while ((str.indexOf('"') != -1) && i <= str.length) {
-    var i = str.indexOf('"');
-    var s = str.slice(i, str.indexOf('"', i + 1) +1)
-    str = str.replace(s, '%$^'+repls.length);
-    repls.push(s)
+  let i = 0;
+  while (str.includes('"') && i <= str.length) {
+    i = str.indexOf('"');
+    let s = str.slice(i, str.indexOf('"', i + 1) + 1);
+    str = str.replace(s, "%$^" + repls.length);
+    repls.push(s);
   }
 
-  var split = str.split('/');
+  var split = str.split("/");
   var rindex = 0;
-  for (var i in split) {
-    while (split[i].indexOf('%$^') != -1) {
-      var s = split[i];
+  for (let i in split) {
+    while (split[i].includes("%$^")) {
+      let s = split[i];
       var si = rindex;
-      split[i] = s.replace('%$^'+si, repls[si]);
+      split[i] = s.replace("%$^" + si, repls[si]);
       rindex++;
     }
   }
   return split;
-}
+};
 
 
-var ElemBase = function(){
+var ElemBase = function() {
   this.isElement = true;
-}
+};
 ElemBase.prototype.exists = function() {
-  if (this.getNode()){ return true; }
-  else{ return false; }
-}
+  return !!this.getNode();
+};
 ElemBase.prototype.nodeSearch = function(doc, func, string) {
-    var win = doc.defaultView;
-    var e = null;
-    var element = null;
-    //inline function to recursively find the element in the DOM, cross frame.
-    var search = function(win, func, string) {
-     if (win == null)
-       return;
+  var win = doc.defaultView;
+  var e = null;
+  var element = null;
+  // inline function to recursively find the element in the DOM, cross frame.
+  var search = function(win, func, string) {
+    if (win == null)
+      return;
 
-     //do the lookup in the current window
-     try {
-       element = func.call(win, string);
-     }
-     catch(err) { }
+    // do the lookup in the current window
+    try {
+      element = func.call(win, string);
+    } catch (err) {}
 
-      if (!element || (element.length == 0)) {
-        var frames = win.frames;
-        for (var i=0; i < frames.length; i++) {
-          search(frames[i], func, string);
-        }
-     }
-     else { e = element; }
-    };
+    if (!element || (element.length == 0)) {
+      var frames = win.frames;
+      for (var i = 0; i < frames.length; i++) {
+        search(frames[i], func, string);
+      }
+    } else {
+      e = element;
+    }
+  };
 
-    search(win, func, string);
+  search(win, func, string);
 
-    return e;
-}
+  return e;
+};
 
 var Elem = function(node) {
   this.node = node;
   return this;
-}
+};
 Elem.prototype = new utils.Copy(ElemBase.prototype);
-Elem.prototype.getNode = function () { return this.node; };
-Elem.prototype.getInfo = function () { return 'Elem instance.'; };
+Elem.prototype.getNode = function() {
+  return this.node;
+};
+Elem.prototype.getInfo = function() {
+  return "Elem instance.";
+};
 
 
 var Selector = function(_document, selector) {
   if (_document == undefined || selector == undefined) {
-    throw new Error('Selector constructor did not receive enough arguments.');
+    throw new Error("Selector constructor did not receive enough arguments.");
   }
   this._view = _document.defaultView;
   this.selector = selector;
   return this;
-}
+};
 Selector.prototype = new utils.Copy(ElemBase.prototype);
-Selector.prototype.getInfo = function () {
+Selector.prototype.getInfo = function() {
   return "Selector: " + this.selector;
-}
-Selector.prototype.getNodeForDocument = function (s) {
+};
+Selector.prototype.getNodeForDocument = function(s) {
   return this.document.querySelectorAll(s);
-}
-Selector.prototype.getNode = function (index) {
+};
+Selector.prototype.getNode = function(index) {
   var nodes = this.nodeSearch(this._view.document, this.getNodeForDocument, this.selector);
   return nodes ? nodes[index || 0] : null;
-}
+};
 
 
 var ID = function(_document, nodeID) {
   if (_document == undefined || nodeID == undefined) {
-    throw new Error('ID constructor did not receive enough arguments.');
+    throw new Error("ID constructor did not receive enough arguments.");
   }
   this._view = _document.defaultView;
   this.nodeID = nodeID;
   return this;
-}
+};
 ID.prototype = new utils.Copy(ElemBase.prototype);
-ID.prototype.getInfo = function () {
+ID.prototype.getInfo = function() {
   return "ID: " + this.nodeID;
-}
-ID.prototype.getNodeForDocument = function (s) {
+};
+ID.prototype.getNodeForDocument = function(s) {
   return this.document.getElementById(s);
-}
-ID.prototype.getNode = function () {
+};
+ID.prototype.getNode = function() {
   return this.nodeSearch(this._view.document, this.getNodeForDocument, this.nodeID);
-}
+};
 
 var Link = function(_document, linkName) {
   if (_document == undefined || linkName == undefined) {
-    throw new Error('Link constructor did not receive enough arguments.');
+    throw new Error("Link constructor did not receive enough arguments.");
   }
   this._view = _document.defaultView;
   this.linkName = linkName;
   return this;
-}
+};
 Link.prototype = new utils.Copy(ElemBase.prototype);
-Link.prototype.getInfo = function () {
+Link.prototype.getInfo = function() {
   return "Link: " + this.linkName;
-}
-Link.prototype.getNodeForDocument = function (linkName) {
-  var getText = function(el){
-    var text = "";
-    if (el.nodeType == 3){ //textNode
-      if (el.data != undefined){
-        text = el.data;
-      }
-      else{ text = el.innerHTML; }
-      text = text.replace(/n|r|t/g, " ");
-    }
-    if (el.nodeType == 1){ //elementNode
-        for (var i = 0; i < el.childNodes.length; i++) {
-            var child = el.childNodes.item(i);
-            text += getText(child);
-        }
-        if (el.tagName == "P" || el.tagName == "BR" ||
-          el.tagName == "HR" || el.tagName == "DIV") {
-          text += "n";
-        }
-    }
-    return text;
-  }
-
-  //sometimes the windows won't have this function
-  try { var links = this.document.getElementsByTagName('a'); }
-  catch(err){ // ADD LOG LINE mresults.write('Error: '+ err, 'lightred');
+};
+Link.prototype.getNodeForDocument = function(linkName) {
+  // sometimes the windows won't have this function
+  try {
+    var links = this.document.getElementsByTagName("a");
+  } catch (err) { // ADD LOG LINE mresults.write('Error: '+ err, 'lightred');
   }
   for (var i = 0; i < links.length; i++) {
     var el = links[i];
-    //if (getText(el).indexOf(this.linkName) != -1) {
-    if (el.innerHTML.indexOf(linkName) != -1){
+    if (el.innerHTML.includes(linkName)) {
       return el;
     }
   }
   return null;
-}
+};
 
-Link.prototype.getNode = function () {
+Link.prototype.getNode = function() {
   return this.nodeSearch(this._view.document, this.getNodeForDocument, this.linkName);
-}
+};
 
 var XPath = function(_document, expr) {
   if (_document == undefined || expr == undefined) {
-    throw new Error('XPath constructor did not receive enough arguments.');
+    throw new Error("XPath constructor did not receive enough arguments.");
   }
   this._view = _document.defaultView;
   this.expr = expr;
   return this;
-}
+};
 XPath.prototype = new utils.Copy(ElemBase.prototype);
-XPath.prototype.getInfo = function () {
+XPath.prototype.getInfo = function() {
   return "XPath: " + this.expr;
-}
-XPath.prototype.getNodeForDocument = function (s) {
+};
+XPath.prototype.getNodeForDocument = function(s) {
   var aNode = this.document;
   var aExpr = s;
   var xpe = null;
 
   if (this.document.defaultView == null) {
-    xpe = new getMethodInWindows('XPathEvaluator')();
+    xpe = new utils.getMethodInWindows("XPathEvaluator")();
   } else {
     xpe = new this.document.defaultView.XPathEvaluator();
   }
@@ -257,60 +235,62 @@ XPath.prototype.getNodeForDocument = function (s) {
     aNode.documentElement : aNode.ownerDocument.documentElement);
   var result = xpe.evaluate(aExpr, aNode, nsResolver, 0, null);
   var found = [];
-  var res;
-  while (res = result.iterateNext())
+  var res = result.iterateNext();
+  while (res) {
     found.push(res);
+    res = result.iterateNext();
+  }
   return found[0];
-}
+};
 
-XPath.prototype.getNode = function () {
+XPath.prototype.getNode = function() {
   return this.nodeSearch(this._view.document, this.getNodeForDocument, this.expr);
-}
+};
 
 var Name = function(_document, nName) {
   if (_document == undefined || nName == undefined) {
-    throw new Error('Name constructor did not receive enough arguments.');
+    throw new Error("Name constructor did not receive enough arguments.");
   }
   this._view = _document.defaultView;
   this.nName = nName;
   return this;
-}
+};
 Name.prototype = new utils.Copy(ElemBase.prototype);
-Name.prototype.getInfo = function () {
+Name.prototype.getInfo = function() {
   return "Name: " + this.nName;
-}
-Name.prototype.getNodeForDocument = function (s) {
-  try{
+};
+Name.prototype.getNodeForDocument = function(s) {
+  try {
     var els = this.document.getElementsByName(s);
-    if (els.length > 0) { return els[0]; }
-  }
-  catch(err){};
+    if (els.length > 0) {
+      return els[0];
+    }
+  } catch (err) {}
   return null;
-}
+};
 
-Name.prototype.getNode = function () {
+Name.prototype.getNode = function() {
   return this.nodeSearch(this._view.document, this.getNodeForDocument, this.nName);
-}
+};
 
 
-function Lookup (_document, expression) {
+function Lookup(_document, expression) {
   if (_document == undefined || expression == undefined) {
-    throw new Error('Lookup constructor did not receive enough arguments.');
+    throw new Error("Lookup constructor did not receive enough arguments.");
   }
   this._view = _document.defaultView;
   this.expression = expression;
 }
 Lookup.prototype = new utils.Copy(ElemBase.prototype);
-var _returnResult = function (results) {
+var _returnResult = function(results) {
   if (results.length == 0) {
-    return null
+    return null;
   } else if (results.length == 1) {
     return results[0];
-  } else {
-    return results;
   }
-}
-var _forChildren = function (element, name, value) {
+  return results;
+};
+var _forChildren = function(element, name, value) {
   var results = [];
   var nodes = Array.from(element.childNodes).filter(e => e);
   for (var i in nodes) {
@@ -320,25 +300,25 @@ var _forChildren = function (element, name, value) {
     }
   }
   return results;
-}
-var _forAnonChildren = function (_document, element, name, value) {
+};
+var _forAnonChildren = function(_document, element, name, value) {
   var results = [];
   var nodes = Array.from(_document.getAnonymousNodes(element) || []).filter(e => e);
-  for (var i in nodes ) {
+  for (var i in nodes) {
     var n = nodes[i];
     if (n[name] == value) {
       results.push(n);
     }
   }
   return results;
-}
-var _byID = function (_document, parent, value) {
-  return _returnResult(_forChildren(parent, 'id', value));
-}
-var _byName = function (_document, parent, value) {
-  return _returnResult(_forChildren(parent, 'tagName', value));
-}
-var _byAttrib = function (parent, attributes) {
+};
+var _byID = function(_document, parent, value) {
+  return _returnResult(_forChildren(parent, "id", value));
+};
+var _byName = function(_document, parent, value) {
+  return _returnResult(_forChildren(parent, "tagName", value));
+};
+var _byAttrib = function(parent, attributes) {
   var results = [];
 
   var nodes = parent.childNodes;
@@ -360,23 +340,22 @@ var _byAttrib = function (parent, attributes) {
       results.push(n);
     }
   }
-  if (results.length == 0) {
-  }
-  return _returnResult(results)
-}
-var _byAnonAttrib = function (_document, parent, attributes) {
+  return _returnResult(results);
+};
+var _byAnonAttrib = function(_document, parent, attributes) {
   var results = [];
 
-  if (objects.getLength(attributes) == 1) {
-    for (var i in attributes) {var k = i; var v = attributes[i]; }
-    var result = _document.getAnonymousElementByAttribute(parent, k, v)
+  if (Object.keys(attributes).length == 1) {
+    for (var i in attributes) {
+      var k = i; var v = attributes[i];
+    }
+    var result = _document.getAnonymousElementByAttribute(parent, k, v);
     if (result) {
       return result;
-
     }
   }
   var nodes = Array.from(_document.getAnonymousNodes(parent) || []).filter(n => n.getAttribute);
-  function resultsForNodes (nodes) {
+  function resultsForNodes(nodes) {
     for (var i in nodes) {
       var n = nodes[i];
       var requirementPass = 0;
@@ -392,29 +371,29 @@ var _byAnonAttrib = function (_document, parent, attributes) {
       }
     }
   }
-  resultsForNodes(nodes)
+  resultsForNodes(nodes);
   if (results.length == 0) {
     resultsForNodes(Array.from(parent.childNodes).filter(n => n != undefined && n.getAttribute));
   }
-  return _returnResult(results)
-}
-var _byIndex = function (_document, parent, i) {
+  return _returnResult(results);
+};
+var _byIndex = function(_document, parent, i) {
   return parent.childNodes[i];
-}
-var _anonByName = function (_document, parent, value) {
-  return _returnResult(_forAnonChildren(_document, parent, 'tagName', value));
-}
-var _anonByAttrib = function (_document, parent, value) {
+};
+var _anonByName = function(_document, parent, value) {
+  return _returnResult(_forAnonChildren(_document, parent, "tagName", value));
+};
+var _anonByAttrib = function(_document, parent, value) {
   return _byAnonAttrib(_document, parent, value);
-}
-var _anonByIndex = function (_document, parent, i) {
+};
+var _anonByIndex = function(_document, parent, i) {
   return _document.getAnonymousNodes(parent)[i];
-}
+};
 
-Lookup.prototype.getInfo = function () {
-  return "Lookup: "+ this.expression;
-}
-Lookup.prototype.exists = function () {
+Lookup.prototype.getInfo = function() {
+  return "Lookup: " + this.expression;
+};
+Lookup.prototype.exists = function() {
   try {
     var e = this.getNode();
   } catch (ex) {
@@ -424,66 +403,69 @@ Lookup.prototype.exists = function () {
     return true;
   }
   return false;
-}
-Lookup.prototype.getNode = function () {
-  var expSplit = smartSplit(this.expression).filter(e => e != '');
-  expSplit.unshift(this._view.document)
+};
+Lookup.prototype.getNode = function() {
+  var expSplit = smartSplit(this.expression).filter(e => e != "");
+  expSplit.unshift(this._view.document);
   var _document = this._view.document;
-  var nCases = {'id':_byID, 'name':_byName, 'attrib':_byAttrib, 'index':_byIndex};
-  var aCases = {'name':_anonByName, 'attrib':_anonByAttrib, 'index':_anonByIndex};
-  var reduceLookup = function (parent, exp) {
+  var nCases = {"id": _byID, "name": _byName, "attrib": _byAttrib, "index": _byIndex};
+  var aCases = {"name": _anonByName, "attrib": _anonByAttrib, "index": _anonByIndex};
+  var reduceLookup = function(parent, exp) {
     // Handle case where only index is provided
     var cases = nCases;
 
     // Handle ending index before any of the expression gets mangled
-    if (withs.endsWith(exp, ']')) {
-      var expIndex = json2.JSON.parse(strings.vslice(exp, '[', ']'));
+    if (exp.endsWith("]")) {
+      var expIndex = JSON.parse(strings.vslice(exp, "[", "]"));
     }
     // Handle anon
-    if (withs.startsWith(exp, 'anon')) {
-      var exp = strings.vslice(exp, '(', ')');
-      var cases = aCases;
+    if (exp.startsWith("anon")) {
+      exp = strings.vslice(exp, "(", ")");
+      cases = aCases;
     }
-    if (withs.startsWith(exp, '[')) {
+    if (exp.startsWith("[")) {
+      let obj;
       try {
-        var obj = json2.JSON.parse(strings.vslice(exp, '[', ']'))
+        obj = JSON.parse(strings.vslice(exp, "[", "]"));
       } catch (err) {
-        throw new Error(err+'. String to be parsed was || '+strings.vslice(exp, '[', ']')+' ||');
+        throw new Error(err + ". String to be parsed was || " + strings.vslice(exp, "[", "]") + " ||");
       }
-      var r = cases['index'](_document, parent, obj);
+      var r = cases.index(_document, parent, obj);
       if (r == null) {
-        throw new Error('Expression "'+exp+'" returned null. Anonymous == '+(cases == aCases));
+        throw new Error('Expression "' + exp + '" returned null. Anonymous == ' + (cases == aCases));
       }
       return r;
     }
 
     for (var c in cases) {
-      if (withs.startsWith(exp, c)) {
+      if (exp.startsWith(c)) {
+        let obj;
         try {
-          var obj = json2.JSON.parse(strings.vslice(exp, '(', ')'))
-        } catch(err) {
-           throw new Error(err+'. String to be parsed was || '+strings.vslice(exp, '(', ')')+'  ||');
+          obj = JSON.parse(strings.vslice(exp, "(", ")"));
+        } catch (err) {
+          throw new Error(err + ". String to be parsed was || " + strings.vslice(exp, "(", ")") + "  ||");
         }
         var result = cases[c](_document, parent, obj);
       }
     }
 
     if (!result) {
-      if ( withs.startsWith(exp, '{') ) {
+      if (exp.startsWith("{")) {
+        let obj;
         try {
-          var obj = json2.JSON.parse(exp)
-        } catch(err) {
-          throw new Error(err+'. String to be parsed was || '+exp+' ||');
+          obj = JSON.parse(exp);
+        } catch (err) {
+          throw new Error(err + ". String to be parsed was || " + exp + " ||");
         }
 
         if (cases == aCases) {
-          var result = _anonByAttrib(_document, parent, obj)
+          result = _anonByAttrib(_document, parent, obj);
         } else {
-          var result = _byAttrib(parent, obj)
+          result = _byAttrib(parent, obj);
         }
       }
       if (!result) {
-        throw new Error('Expression "'+exp+'" returned null. Anonymous == '+(cases == aCases));
+        throw new Error('Expression "' + exp + '" returned null. Anonymous == ' + (cases == aCases));
       }
     }
 
@@ -491,12 +473,9 @@ Lookup.prototype.getNode = function () {
     if (expIndex) {
       // TODO: Check length and raise error
       return result[expIndex];
-    } else {
-      // TODO: Check length and raise error
-      return result;
     }
-    // Maybe we should cause an exception here
-    return false
-  }
+    // TODO: Check length and raise error
+    return result;
+  };
   return expSplit.reduce(reduceLookup);
-}
+};

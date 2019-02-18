@@ -14,7 +14,7 @@ var MODULE_NAME = "pref-window-helpers";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "content-tab-helpers"];
 
-var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.js");
+var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 
 var fdh;
 var cth;

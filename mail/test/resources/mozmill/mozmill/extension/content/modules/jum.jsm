@@ -39,155 +39,198 @@ var EXPORTED_SYMBOLS = ["assert", "assertTrue", "assertFalse", "assertEquals", "
                         "assertNull", "assertNotNull", "assertUndefined", "assertNotUndefined",
                         "assertNaN", "assertNotNaN", "fail", "pass"];
 
-var frame = ChromeUtils.import("chrome://mozmill/content/modules/frame.js");
+var frame = ChromeUtils.import("chrome://mozmill/content/modules/frame.jsm");
 
-var ifJSONable = function (v) {
-  if (typeof(v) == 'function') {
+var ifJSONable = function(v) {
+  if (typeof(v) == "function") {
     return undefined;
-  } else {
-    return v;
   }
-}
+  return v;
+};
 
-var assert = function (booleanValue, comment) {
+var assert = function(booleanValue, comment) {
   if (booleanValue) {
-    frame.events.pass({'function':'jum.assert', 'value':ifJSONable(booleanValue), 'comment':comment});
+    frame.events.pass({
+      function: "jum.assert",
+      value: ifJSONable(booleanValue),
+      comment,
+    });
     return true;
   }
   reportFail("jum.assert(" + ifJSONable(booleanValue) + ") - " + comment);
   return false;
-}
+};
 
-var assertTrue = function (booleanValue, comment) {
-  if (typeof(booleanValue) != 'boolean') {
+var assertTrue = function(booleanValue, comment) {
+  if (typeof(booleanValue) != "boolean") {
     reportFail("jum.assertTrue(" + ifJSONable(booleanValue) + ") " +
       "Bad argument, value type " + typeof(booleanValue) + " isn't boolean - " + comment);
-      return false;
+    return false;
   }
 
   if (booleanValue) {
-    frame.events.pass({'function':'jum.assertTrue', 'value':ifJSONable(booleanValue),
-                       'comment':comment});
+    frame.events.pass({
+      function: "jum.assertTrue",
+      value: ifJSONable(booleanValue),
+      comment,
+    });
     return true;
   }
   reportFail("jum.assertTrue(" + ifJSONable(booleanValue) + ") - " + comment);
   return false;
-}
+};
 
-var assertFalse = function (booleanValue, comment) {
-  if (typeof(booleanValue) != 'boolean') {
+var assertFalse = function(booleanValue, comment) {
+  if (typeof(booleanValue) != "boolean") {
     reportFail("jum.assertFalse(" + ifJSONable(booleanValue) + ") " +
       "Bad argument, value type " + typeof(booleanValue) + " isn't boolean - " + comment);
     return false;
   }
 
   if (!booleanValue) {
-    frame.events.pass({'function':'jum.assertFalse', 'value':ifJSONable(booleanValue),
-                       'comment':comment});
+    frame.events.pass({
+      function: "jum.assertFalse",
+      value: ifJSONable(booleanValue),
+      comment,
+    });
     return true;
   }
   reportFail("jum.assertFalse(" + ifJSONable(booleanValue) + ") - " + comment);
   return false;
-}
+};
 
-var assertEquals = function (value1, value2, comment) {
+var assertEquals = function(value1, value2, comment) {
   if (value1 == value2) {
-    frame.events.pass({'function':'jum.assertEquals', 'comment':comment,
-                       'value1':ifJSONable(value1), 'value2':ifJSONable(value2)});
+    frame.events.pass({
+      function: "jum.assertEquals",
+      comment,
+      value1: ifJSONable(value1),
+      value2: ifJSONable(value2),
+    });
     return true;
   }
   reportFail("jum.assertEquals(" + ifJSONable(value1) + ", " +
     ifJSONable(value2) + ") - " + comment);
   return false;
-}
+};
 
-var assertNotEquals = function (value1, value2, comment) {
+var assertNotEquals = function(value1, value2, comment) {
   if (value1 != value2) {
-    frame.events.pass({'function':'jum.assertNotEquals', 'comment':comment,
-                       'value1':ifJSONable(value1), 'value2':ifJSONable(value2)});
+    frame.events.pass({
+      function: "jum.assertNotEquals",
+      comment,
+      value1: ifJSONable(value1),
+      value2: ifJSONable(value2),
+    });
     return true;
   }
   reportFail("jum.assertNotEquals(" + ifJSONable(value1) + ", " +
       ifJSONable(value2) + ") - " + comment);
   return false;
-}
+};
 
-var assertNull = function (value, comment) {
+var assertNull = function(value, comment) {
   if (value == null) {
-    frame.events.pass({'function':'jum.assertNull', 'comment':comment,
-                       'value':ifJSONable(value)});
+    frame.events.pass({
+      function: "jum.assertNull",
+      comment,
+      value: ifJSONable(value),
+    });
     return true;
   }
-  reportFail("jum.assertNull(" + ifJSONable(booleanValue) + ") - " + comment);
+  reportFail("jum.assertNull(" + ifJSONable(value) + ") - " + comment);
   return false;
-}
+};
 
-var assertNotNull = function (value, comment) {
+var assertNotNull = function(value, comment) {
   if (value != null) {
-    frame.events.pass({'function':'jum.assertNotNull', 'comment':comment,
-                       'value':ifJSONable(value)});
+    frame.events.pass({
+      function: "jum.assertNotNull",
+      comment,
+      value: ifJSONable(value),
+    });
     return true;
   }
-  reportFail("jum.assertNotNull(" + ifJSONable(booleanValue) + ") - " + comment);
+  reportFail("jum.assertNotNull(" + ifJSONable(value) + ") - " + comment);
   return false;
-}
+};
 
-var assertUndefined = function (value, comment) {
+var assertUndefined = function(value, comment) {
   if (value == undefined) {
-    frame.events.pass({'function':'jum.assertUndefined', 'comment':comment,
-                       'value':ifJSONable(value)});
+    frame.events.pass({
+      function: "jum.assertUndefined",
+      comment,
+      value: ifJSONable(value),
+    });
     return true;
   }
-  reportFail("jum.assertUndefined(" + ifJSONable(booleanValue) + ") - " + comment);
+  reportFail("jum.assertUndefined(" + ifJSONable(value) + ") - " + comment);
   return false;
-}
+};
 
-var assertNotUndefined = function (value, comment) {
+var assertNotUndefined = function(value, comment) {
   if (value != undefined) {
-    frame.events.pass({'function':'jum.assertNotUndefined', 'comment':comment,
-                       'value':ifJSONable(value)});
+    frame.events.pass({
+      function: "jum.assertNotUndefined",
+      comment,
+      value: ifJSONable(value),
+    });
     return true;
   }
-  reportFail("jum.assertNotUndefined(" + ifJSONable(booleanValue) + ") - " + comment);
+  reportFail("jum.assertNotUndefined(" + ifJSONable(value) + ") - " + comment);
   return false;
-}
+};
 
-var assertNaN = function (value, comment) {
+var assertNaN = function(value, comment) {
   if (isNaN(value)) {
-    frame.events.pass({'function':'jum.assertNaN', 'comment':comment,
-                       'value':ifJSONable(value)});
+    frame.events.pass({
+      function: "jum.assertNaN",
+      comment,
+      value: ifJSONable(value),
+    });
     return true;
   }
-  reportFail("jum.assertNaN(" + ifJSONable(booleanValue) + ") - " + comment);
+  reportFail("jum.assertNaN(" + ifJSONable(value) + ") - " + comment);
   return false;
-}
+};
 
-var assertNotNaN = function (value, comment) {
+var assertNotNaN = function(value, comment) {
   if (!isNaN(value)) {
-    frame.events.pass({'function':'jum.assertNotNaN', 'comment':comment,
-                       'value':ifJSONable(value)});
+    frame.events.pass({
+      function: "jum.assertNotNaN",
+      comment,
+      value: ifJSONable(value),
+    });
     return true;
   }
-  reportFail("jum.assertNotNaN(" + ifJSONable(booleanValue) + ") - " + comment);
+  reportFail("jum.assertNotNaN(" + ifJSONable(value) + ") - " + comment);
   return false;
-}
+};
 
 var reportFail = function(comment) {
   try {
     throw new Error(comment || "");
-  } catch(e) {
-    frame.events.fail({'assertion': e});
+  } catch (e) {
+    frame.events.fail({
+      assertion: e,
+    });
   }
-}
+};
 
-var fail = function (comment) {
-  frame.events.fail({'function':'jum.fail', 'comment':comment});
+var fail = function(comment) {
+  frame.events.fail({
+    function: "jum.fail",
+    comment,
+  });
   return false;
-}
+};
 
-var pass = function (comment) {
-  frame.events.pass({'function':'jum.pass', 'comment':comment});
+var pass = function(comment) {
+  frame.events.pass({
+    function: "jum.pass",
+    comment,
+  });
   return true;
-}
+};
 
 

@@ -39,24 +39,26 @@
 
 var EXPORTED_SYMBOLS = ["mozmill"];
 
-var controller = ChromeUtils.import("chrome://mozmill/content/modules/controller.js");
-var mozmill = ChromeUtils.import("chrome://mozmill/content/modules/mozmill.js");
-var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.js");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
+const controller = ChromeUtils.import("chrome://mozmill/content/modules/controller.jsm");
+const mozmill = ChromeUtils.import("chrome://mozmill/content/modules/mozmill.jsm");
+const utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 
 
 // Observer when a new top-level window is ready
 var windowReadyObserver = {
-  observe: function (subject, topic, data) {
+  observe(subject, topic, data) {
     attachEventListeners(subject);
-  }
+  },
 };
 
 
 // Observer when a top-level window is closed
 var windowCloseObserver = {
-  observe: function (subject, topic, data) {
+  observe(subject, topic, data) {
     controller.windowMap.remove(utils.getWindowId(subject));
-  }
+  },
 };
 
 
@@ -64,12 +66,12 @@ var windowCloseObserver = {
  * Attach event listeners
  */
 function attachEventListeners(aWindow) {
-  aWindow.addEventListener("load", function (event) {
+  aWindow.addEventListener("load", function(event) {
     controller.windowMap.update(utils.getWindowId(aWindow), "loaded", true);
 
     if ("gBrowser" in aWindow) {
       // Page is ready
-      aWindow.gBrowser.addEventListener("load", function (event) {
+      aWindow.gBrowser.addEventListener("load", function(event) {
         var doc = event.originalTarget;
 
         // Only update the flag if we have a document as target
@@ -84,7 +86,7 @@ function attachEventListeners(aWindow) {
       // have to wait for the "DOMContentLoaded" event. That's the final state.
       // Error pages will always have a baseURI starting with
       // "about:" followed by "error" or "blocked".
-      aWindow.gBrowser.addEventListener("DOMContentLoaded", function (event) {
+      aWindow.gBrowser.addEventListener("DOMContentLoaded", function(event) {
         var doc = event.originalTarget;
 
         var errorRegex = /about:.+(error)|(blocked)\?/;
@@ -102,7 +104,7 @@ function attachEventListeners(aWindow) {
       }, true);
 
       // Page is about to get unloaded
-      aWindow.gBrowser.addEventListener("beforeunload", function (event) {
+      aWindow.gBrowser.addEventListener("beforeunload", function(event) {
         var doc = event.originalTarget;
 
         // Only update the flag if we have a document as target
@@ -113,7 +115,7 @@ function attachEventListeners(aWindow) {
         }
       }, true);
     }
-  }, false);
+  });
 }
 
 /**
@@ -121,14 +123,11 @@ function attachEventListeners(aWindow) {
  */
 function initialize() {
   // Activate observer for new top level windows
-  var observerService = Cc["@mozilla.org/observer-service;1"].
-                        getService(Ci.nsIObserverService);
-  observerService.addObserver(windowReadyObserver, "toplevel-window-ready");
-  observerService.addObserver(windowCloseObserver, "outer-window-destroyed");
+  Services.obs.addObserver(windowReadyObserver, "toplevel-window-ready");
+  Services.obs.addObserver(windowCloseObserver, "outer-window-destroyed");
 
   // Attach event listeners to all open windows
-  var enumerator = Cc["@mozilla.org/appshell/window-mediator;1"].
-                   getService(Ci.nsIWindowMediator).getEnumerator("");
+  var enumerator = Services.wm.getEnumerator("");
   while (enumerator.hasMoreElements()) {
     var win = enumerator.getNext();
     attachEventListeners(win);
@@ -137,7 +136,7 @@ function initialize() {
     // otherwise windows which load really quick on startup never gets the
     // property set and we fail to create the controller
     controller.windowMap.update(utils.getWindowId(win), "loaded", true);
-  };
+  }
 }
 
 initialize();

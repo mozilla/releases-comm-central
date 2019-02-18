@@ -10,11 +10,10 @@ var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 var {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var mozmill = ChromeUtils.import("chrome://mozmill/content/modules/mozmill.js");
-var controller = ChromeUtils.import("chrome://mozmill/content/modules/controller.js");
-var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.js");
-var frame = ChromeUtils.import("chrome://mozmill/content/modules/frame.js");
-var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.js");
+var controller = ChromeUtils.import("chrome://mozmill/content/modules/controller.jsm");
+var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var frame = ChromeUtils.import("chrome://mozmill/content/modules/frame.jsm");
+var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 
 /**
  * Timeout to use when waiting for the first window ever to load.  This is
@@ -196,7 +195,7 @@ var WindowWatcher = {
     // Another possible means of getting this info would be to observe
     //  "xul-window-visible", but it provides no context and may still require
     //  polling anyways.
-    mozmill.wm.addListener(this);
+    Services.wm.addListener(this);
 
     this._inited = true;
   },
@@ -230,9 +229,8 @@ var WindowWatcher = {
     //  window type yet.
     // because this iterates from old to new, this does the right thing in that
     //  side-effects of consider will pick the most recent window.
-    for (let xulWindow of fixIterator(
-                                 mozmill.wm.getXULWindowEnumerator(null),
-                                 Ci.nsIXULWindow)) {
+    for (let xulWindow of fixIterator(Services.wm.getXULWindowEnumerator(null),
+                                      Ci.nsIXULWindow)) {
       if (!this.consider(xulWindow))
         this.monitoringList.push(xulWindow);
     }
