@@ -52,7 +52,7 @@ mail/branding/nightly/thunderbird-branding.js
 mail/branding/thunderbird/thunderbird-branding.js
 mail/components/im/all-im.js
 mail/locales/en-US/all-l10n.js
-mail/test/**
+mail/test/mozmill/**
 
 # calendar/ exclusions
 

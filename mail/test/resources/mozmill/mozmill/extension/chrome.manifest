@@ -1,6 +1,1 @@
 content	mozmill	content/
-
-locale	mozmill	en-US	locale/en-US/
-
-skin	mozmill	classic/1.0	skin/
-style	chrome://messenger/content/customizeToolbar.xul	chrome://mozmill/skin/overlay.css

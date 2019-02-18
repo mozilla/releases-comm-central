@@ -1,5 +1,0 @@
-content mozmill jar:chrome/mozmill.jar!/content/
-locale mozmill en-US jar:chrome/mozmill-locale.jar!/locale/en-US/
-skin mozmill classic/1.0 jar:chrome/mozmill-skin.jar!/skin/
-
-style chrome://messenger/content/customizeToolbar.xul chrome://mozmill/skin/overlay.css

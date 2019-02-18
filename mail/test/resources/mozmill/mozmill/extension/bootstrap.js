@@ -13,12 +13,10 @@ function uninstall() {}
 function startup(data, reason) {
   loadDefaultPrefs();
 
-  ExtensionSupport.registerWindowListener(
-    data.id,
-    {
-      chromeURLs: [ "chrome://messenger/content/messenger.xul" ],
-      onLoadWindow: setupUI
-    });
+  ExtensionSupport.registerWindowListener(data.id, {
+    chromeURLs: ["chrome://messenger/content/messenger.xul"],
+    onLoadWindow: setupUI,
+  });
 }
 
 function loadDefaultPrefs() {
@@ -35,30 +33,17 @@ function shutdown(data, reason) {
 
 
 function setupUI(domWindow) {
-  var document = domWindow.document;
-
-  function createMozmillMenu() {
-    let m = document.createElement("menuitem");
-    m.setAttribute("id", "mozmill-mozmill");
-    m.setAttribute("label", "Mozmill");
-    m.setAttribute("oncommand", "MozMill.onMenuItemCommand(event);");
-
-    return m;
-  }
-
   console.log("=== Mozmill: Seen window " + domWindow.document.location.href);
-  document.getElementById("taskPopup").appendChild(createMozmillMenu());
   loadScript("chrome://mozmill/content/overlay.js", domWindow);
 }
 
 function loadScript(url, targetWindow) {
-  let loader = Cc["@mozilla.org/moz/jssubscript-loader;1"].getService(Ci.mozIJSSubScriptLoader);
-  loader.loadSubScript(url, targetWindow);
+  Services.scriptloader.loadSubScript(url, targetWindow);
 }
 
 function logException(exc) {
   try {
     Services.console.logStringMessage(exc.toString() + "\n" + exc.stack);
+  } catch (x) {
   }
-  catch (x) {}
 }
