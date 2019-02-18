@@ -68,9 +68,9 @@ xpcshell:
             by-test-platform:
                 windows.*: true
                 default: false
-    # fetches:
-    #     build:
-    #         - gdata-provider.en-US.xpi
+    fetches:
+        build:
+            - gdata-provider.en-US.xpi
 
 mozmill:
     description: "mozmill test run"
