@@ -186,11 +186,8 @@ ClassInfo.prototype = {
 
     throw Cr.NS_ERROR_NO_INTERFACE;
   },
-  getInterfaces: function(countRef) {
-    let interfaces =
-      [Ci.nsIClassInfo, Ci.nsISupports].concat(this._interfaces);
-    countRef.value = interfaces.length;
-    return interfaces;
+  get interfaces() {
+    return [Ci.nsIClassInfo, Ci.nsISupports].concat(this._interfaces);
   },
   getHelperForLanguage: language => null,
   contractID: null,
