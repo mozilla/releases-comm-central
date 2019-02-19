@@ -4,6 +4,9 @@
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+// This is exported by preferences.js but we can't import that in a subdialog.
+let {getAvailableLocales} = window.top;
+
 ChromeUtils.defineModuleGetter(this, "AddonManager",
                                "resource://gre/modules/AddonManager.jsm");
 ChromeUtils.defineModuleGetter(this, "AddonRepository",
@@ -242,8 +245,8 @@ class SortedItemSelectList {
   }
 }
 
-function getLocaleDisplayInfo(localeCodes) {
-  let availableLocales = new Set(Services.locale.availableLocales);
+async function getLocaleDisplayInfo(localeCodes) {
+  let availableLocales = new Set(await getAvailableLocales());
   let packagedLocales = new Set(Services.locale.packagedLocales);
   let localeNames = Services.intl.getLocaleDisplayNames(undefined, localeCodes);
   return localeCodes.map((code, i) => {
@@ -305,7 +308,7 @@ var gMessengerLanguagesDialog = {
     // The first time this dialog is opened, populate with appLocalesAsBCP47.
     let selectedLocales = this.selectedLocales || Services.locale.appLocalesAsBCP47;
     let selectedLocaleSet = new Set(selectedLocales);
-    let available = Services.locale.availableLocales;
+    let available = await getAvailableLocales();
     let availableSet = new Set(available);
 
     // Filter selectedLocales since the user may select a locale when it is
@@ -314,13 +317,13 @@ var gMessengerLanguagesDialog = {
     // Nothing in available should be in selectedSet.
     available = available.filter(locale => !selectedLocaleSet.has(locale));
 
-    this.initSelectedLocales(selectedLocales);
+    await this.initSelectedLocales(selectedLocales);
     await this.initAvailableLocales(available, search);
 
     this.initialized = true;
   },
 
-  initSelectedLocales(selectedLocales) {
+  async initSelectedLocales(selectedLocales) {
     this._selectedLocales = new OrderedListBox({
       richlistbox: document.getElementById("selectedLocales"),
       upButton: document.getElementById("up"),
@@ -328,7 +331,7 @@ var gMessengerLanguagesDialog = {
       removeButton: document.getElementById("remove"),
       onRemove: (item) => this.selectedLocaleRemoved(item),
     });
-    this._selectedLocales.setItems(getLocaleDisplayInfo(selectedLocales));
+    this._selectedLocales.setItems(await getLocaleDisplayInfo(selectedLocales));
   },
 
   async initAvailableLocales(available, search) {
@@ -382,13 +385,13 @@ var gMessengerLanguagesDialog = {
     }
 
     // Remove the installed locales from the available ones.
-    let installedLocales = new Set(Services.locale.availableLocales);
+    let installedLocales = new Set(await getAvailableLocales());
     let notInstalledLocales = availableLangpacks
       .filter(({target_locale}) => !installedLocales.has(target_locale))
       .map(lang => lang.target_locale);
 
     // Create the rows for the remote locales.
-    let availableItems = getLocaleDisplayInfo(notInstalledLocales);
+    let availableItems = await getLocaleDisplayInfo(notInstalledLocales);
     availableItems.push({
       label: await document.l10n.formatValue("messenger-languages-available-label"),
       className: "label-item",
@@ -409,7 +412,7 @@ var gMessengerLanguagesDialog = {
   async loadLocalesFromInstalled(available) {
     let items;
     if (available.length > 0) {
-      items = getLocaleDisplayInfo(available);
+      items = await getLocaleDisplayInfo(available);
       items.push(await this.createInstalledLabel());
     } else {
       items = [];
@@ -424,35 +427,52 @@ var gMessengerLanguagesDialog = {
   },
 
   async availableLanguageSelected(item) {
-    let available = new Set(Services.locale.availableLocales);
-
-    if (available.has(item.value)) {
-      this._selectedLocales.addItem(item);
-      if (available.size == this._selectedLocales.items.length) {
-        // Remove the installed label, they're all installed.
-        this._availableLocales.items.shift();
-        this._availableLocales.setItems(this._availableLocales.items);
-      }
+    if ((await getAvailableLocales()).has(item.value)) {
+      await this.requestLocalLanguage(item);
     } else if (this.availableLangpacks.has(item.value)) {
-      this._availableLocales.disableWithMessageId("messenger-languages-downloading");
-
-      let {url, hash} = this.availableLangpacks.get(item.value);
-      let install = await AddonManager.getInstallForURL(
-        url, "application/x-xpinstall", hash);
-
-      try {
-        await install.install();
-      } catch (e) {
-        this.showError();
-        return;
-      }
-
-      item.installed = true;
-      this._selectedLocales.addItem(item);
-      this._availableLocales.enableWithMessageId("messenger-languages-select-language");
+      await this.requestRemoteLanguage(item);
     } else {
       this.showError();
     }
+  },
+
+  async requestLocalLanguage(item, available) {
+    this._selectedLocales.addItem(item);
+    let selectedCount = this._selectedLocales.items.length;
+    let availableCount = (await getAvailableLocales()).length;
+    if (selectedCount == availableCount) {
+      // Remove the installed label, they're all installed.
+      this._availableLocales.items.shift();
+      this._availableLocales.setItems(this._availableLocales.items);
+    }
+
+    // The label isn't always reset when the selected item is removed, so set it again.
+    this._availableLocales.enableWithMessageId("messenger-languages-select-language");
+  },
+
+  async requestRemoteLanguage(item) {
+    this._availableLocales.disableWithMessageId("messenger-languages-downloading");
+
+    let {url, hash} = this.availableLangpacks.get(item.value);
+    let addon;
+
+    try {
+      addon = await AddonManager.getInstallForURL(
+        url, "application/x-xpinstall", hash);
+      await addon.install();
+    } catch (e) {
+      this.showError();
+      return;
+    }
+
+    // If the add-on was previously installed, it might be disabled still.
+    if (addon.userDisabled) {
+      await addon.enable();
+    }
+
+    item.installed = true;
+    this._selectedLocales.addItem(item);
+    this._availableLocales.enableWithMessageId("messenger-languages-select-language");
   },
 
   showError() {

@@ -571,7 +571,7 @@ var gAdvancedPane = {
    * that the user would like to switch to after confirmation.
    */
   async setMessengerLocales(selected) {
-    let available = Services.locale.availableLocales;
+    let available = await getAvailableLocales();
     let localeNames = Services.intl.getLocaleDisplayNames(undefined, available);
     let locales = available.map((code, i) => ({code, name: localeNames[i]}));
     locales.sort((a, b) => a.name > b.name);
