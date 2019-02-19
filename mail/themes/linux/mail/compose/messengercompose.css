@@ -304,14 +304,25 @@ textbox.textbox-addressingWidget:hover {
   -moz-box-align: center;
   margin-right: 5px;
   margin-bottom: 0;
-  padding-top: 1px;
-  padding-bottom: 1px;
+  padding-top: 2px;
+  padding-bottom: 2px;
   padding-inline-start: 2px;
-  background: transparent;
+  padding-inline-end: 20px;
   font: inherit;
   border: 1px solid transparent;
   border-bottom-color: var(--toolbarbutton-hover-bordercolor);
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: calc( 100% - 5px);
+  background-size: 9px 7px;
+  background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
   transition: border .2s, background-color .2s;
+}
+
+#msgIdentity:-moz-locale-dir(rtl) {
+  background-position: 5px;
 }
 
 #msgIdentity:hover,
@@ -322,20 +333,19 @@ textbox.textbox-addressingWidget:hover {
   border-color: var(--toolbarbutton-hover-bordercolor);
 }
 
+#msgIdentity > .menulist-label-box {
+  background: none;
+  padding-inline-end: initial;
+}
+
 #msgIdentity > .menulist-input {
   -moz-appearance: none;
-  padding-top: 0;
-  padding-bottom: 0;
+  padding-top: 1px;
+  padding-bottom: 2px;
   padding-inline-start: 3px;
   padding-inline-end: 12px;
-  height: 1.4em;
   background-color: transparent;
-  background-repeat: no-repeat;
-  background-position: right;
-  background-size: 9px 7px;
-  background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
+  color: inherit;
 }
 
 #msgIdentity[editable="true"] > .menulist-dropmarker {

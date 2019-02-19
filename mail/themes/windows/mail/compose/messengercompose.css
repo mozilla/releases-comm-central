@@ -571,8 +571,9 @@ toolbar:not(:-moz-lwtheme) {
 }
 
 #msgIdentity > .menulist-input {
-  padding-top: 0;
-  padding-bottom: 0;
+  background-color: inherit;
+  color: inherit;
+  margin: 2px 0;
 }
 
 @media (-moz-windows-default-theme) {

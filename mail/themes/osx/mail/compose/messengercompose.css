@@ -130,6 +130,7 @@ toolbar[nowindowdrag="true"] {
 }
 
 #msgIdentity > .menulist-input {
+  color: inherit;
   padding-inline-start: 3px;
 }
 

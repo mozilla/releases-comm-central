@@ -23,10 +23,10 @@ menulist[is="menulist-editable"][editable="true"] > menupopup > menuitem[selecte
 }
 
 menulist[is="menulist-editable"][editable="true"] > .menulist-dropmarker {
+  display: none;
+}
+
+menulist > textbox {
   -moz-appearance: none;
-  display: -moz-box;
-  padding-inline-start: 5px;
-  list-style-image: url(chrome://messenger/skin/icons/menulist-dropmarker.svg);
-  -moz-context-properties: fill;
-  fill: currentColor;
+  background-color: transparent;
 }

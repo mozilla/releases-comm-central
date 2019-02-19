@@ -116,6 +116,7 @@ textbox.textbox-addressingWidget,
 
 #msgIdentity:hover,
 #msgIdentity:focus,
+#msgIdentity:focus-within,
 #msgSubject:hover,
 #msgSubject[focused="true"],
 textbox.textbox-addressingWidget:hover,

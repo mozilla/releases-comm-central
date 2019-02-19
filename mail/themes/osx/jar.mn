@@ -151,7 +151,6 @@ classic.jar:
   skin/classic/messenger/icons/exclude.png                       (mail/icons/exclude.png)
   skin/classic/messenger/icons/exclude-selected.png              (mail/icons/exclude-selected.png)
   skin/classic/messenger/icons/group-background.gif              (mail/icons/group-background.gif)
-  skin/classic/messenger/icons/menulist-dropmarker.svg           (mail/icons/menulist-dropmarker.svg)
   skin/classic/messenger/icons/multicolor.png                    (mail/icons/multicolor.png)
   skin/classic/messenger/icons/secure.png                        (mail/icons/secure.png)
   skin/classic/messenger/icons/server.png                        (mail/icons/server.png)

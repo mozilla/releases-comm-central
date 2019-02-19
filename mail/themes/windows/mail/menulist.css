@@ -7,14 +7,25 @@ menulist[is="menulist-editable"][editable="true"] {
 }
 
 .menulist-input {
-  padding-top: 3px;
-  padding-bottom: 3px;
-  padding-inline-start: 2px;
+  -moz-appearance: none;
+  border-style: none;
+  margin-top: -2px;
+  margin-bottom: -2px;
+  margin-inline-start: -2px;
+  margin-inline-end: 3px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-inline-start: 3px;
   padding-inline-end: 0;
+}
+
+menulist[is="menulist-editable"][editable="true"] .menulist-dropmarker {
+  display: -moz-box;
 }
 
 @media (-moz-windows-default-theme) {
   menulist[is="menulist-editable"][editable="true"] > .menulist-dropmarker {
-    margin: 0;
+    margin-inline-end: 0;
+    margin-inline-start: 0;
   }
 }

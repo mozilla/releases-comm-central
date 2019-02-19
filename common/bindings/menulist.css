@@ -6,10 +6,6 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml"); /* namespace for HTML elements */
 
-menulist[is="menulist-editable"][editable="true"] {
-  -moz-appearance: none;
-}
-
 menulist[is="menulist-editable"]:not([editable="true"]) .menulist-input,
 menulist[is="menulist-editable"][editable="true"] .menulist-label-box {
   display: none;
@@ -27,8 +23,4 @@ menulist html|*.textbox-input {
   border: none !important;
   padding: 0 !important;
   font: inherit;
-}
-
-menulist[is="menulist-editable"][editable="true"] .menulist-dropmarker {
-  display: -moz-box;
 }
