@@ -225,24 +225,24 @@ nsCMSMessage::CommonVerifySignature(unsigned char* aDigestData,
     goto loser;
   }
 
-  if (NSS_CMSSignedData_HasDigests(sigd)) {
-    SECAlgorithmID **existingAlgs = NSS_CMSSignedData_GetDigestAlgs(sigd);
-    if (existingAlgs) {
-      while (*existingAlgs) {
-        SECAlgorithmID *alg = *existingAlgs;
-        SECOidTag algOIDTag = SECOID_FindOIDTag(&alg->algorithm);
-        NSS_CMSSignedData_SetDigestValue(sigd, algOIDTag, NULL);
-        ++existingAlgs;
-      }
-    }
-  }
-
   if (aDigestData && aDigestDataLen)
   {
     SECOidTag oidTag;
     SECItem digest;
     digest.data = aDigestData;
     digest.len = aDigestDataLen;
+
+    if (NSS_CMSSignedData_HasDigests(sigd)) {
+      SECAlgorithmID **existingAlgs = NSS_CMSSignedData_GetDigestAlgs(sigd);
+      if (existingAlgs) {
+        while (*existingAlgs) {
+          SECAlgorithmID *alg = *existingAlgs;
+          SECOidTag algOIDTag = SECOID_FindOIDTag(&alg->algorithm);
+          NSS_CMSSignedData_SetDigestValue(sigd, algOIDTag, NULL);
+          ++existingAlgs;
+        }
+      }
+    }
 
     if (!GetIntHashToOidHash(aDigestType, oidTag)) {
       rv = NS_ERROR_CMS_VERIFY_BAD_DIGEST;
