@@ -1,6 +1,6 @@
 {
   "extensionDescription": {
-    "message": "Je bijlagen delen via WeTransfer"
+    "message": "Uw bijlagen delen via WeTransfer"
   },
   "extensionName": {
     "message": "FileLink voor WeTransfer"
@@ -12,6 +12,6 @@
     "message": "Privacybeleid"
   },
   "moments_tagline": {
-    "message": "WeTransfer is de meest eenvoudige manier om je bestanden wereldwijd te versturen."
+    "message": "WeTransfer is de meest eenvoudige manier om uw bestanden wereldwijd te versturen."
   }
 }
