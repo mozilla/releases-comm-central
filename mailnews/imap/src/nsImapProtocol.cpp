@@ -9909,12 +9909,8 @@ NS_IMETHODIMP nsImapMockChannel::AsyncOpen(nsIStreamListener *aListener)
   // set the stream listener and then load the url
   m_channelContext = nullptr;
   nsCOMPtr <nsIURI> uri;
-  nsCOMPtr<nsIChannel> channel;
-  QueryInterface(NS_GET_IID(nsIChannel), getter_AddRefs(channel));
-  if (channel) {
-    channel->GetURI(getter_AddRefs(uri));
-    m_channelContext = uri;
-  }
+  GetURI(getter_AddRefs(uri));
+  m_channelContext = uri;
 
   NS_ASSERTION(!m_channelListener, "shouldn't already have a listener");
   m_channelListener = listener;

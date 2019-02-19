@@ -845,14 +845,9 @@ NS_IMETHODIMP nsNNTPProtocol::AsyncOpen(nsIStreamListener *aListener)
   if (NS_FAILED(rv))
       return rv;
 
-  m_channelContext = nullptr;
   nsCOMPtr <nsIURI> uri;
-  nsCOMPtr<nsIChannel> channel;
-  QueryInterface(NS_GET_IID(nsIChannel), getter_AddRefs(channel));
-  if (channel) {
-    channel->GetURI(getter_AddRefs(uri));
-    m_channelContext = uri;
-  }
+  GetURI(getter_AddRefs(uri));
+  m_channelContext = uri;
   m_channelListener = listener;
   m_runningURL->GetNewsAction(&m_newsAction);
 

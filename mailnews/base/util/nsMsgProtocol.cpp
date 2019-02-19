@@ -299,10 +299,7 @@ NS_IMETHODIMP nsMsgProtocol::OnDataAvailable(nsIRequest *request, nsISupports *c
 {
   // right now, this really just means turn around and churn through the state machine
   nsCOMPtr <nsIURI> uri;
-  nsCOMPtr<nsIChannel> channel;
-  QueryInterface(NS_GET_IID(nsIChannel), getter_AddRefs(channel));
-  if (channel)
-    channel->GetURI(getter_AddRefs(uri));
+  GetURI(getter_AddRefs(uri));
 
   return ProcessProtocolState(uri, inStr, sourceOffset, count);
 }
@@ -311,10 +308,7 @@ NS_IMETHODIMP nsMsgProtocol::OnStartRequest(nsIRequest *request, nsISupports *ct
 {
   nsresult rv = NS_OK;
   nsCOMPtr <nsIURI> uri;
-  nsCOMPtr<nsIChannel> channel;
-  QueryInterface(NS_GET_IID(nsIChannel), getter_AddRefs(channel));
-  if (channel)
-    channel->GetURI(getter_AddRefs(uri));
+  GetURI(getter_AddRefs(uri));
 
   if (uri)
   {
@@ -402,10 +396,7 @@ NS_IMETHODIMP nsMsgProtocol::OnStopRequest(nsIRequest *request, nsISupports *ctx
     rv = m_channelListener->OnStopRequest(this, m_channelContext, aStatus);
 
   nsCOMPtr<nsIURI> uri;
-  nsCOMPtr<nsIChannel> channel;
-  QueryInterface(NS_GET_IID(nsIChannel), getter_AddRefs(channel));
-  if (channel)
-    channel->GetURI(getter_AddRefs(uri));
+  GetURI(getter_AddRefs(uri));
 
   if (uri)
   {
@@ -578,9 +569,7 @@ NS_IMETHODIMP nsMsgProtocol::AsyncOpen(nsIStreamListener *aListener)
     m_channelContext = nullptr;
     nsCOMPtr<nsIChannel> channel;
     nsCOMPtr<nsIURI> uri;
-    QueryInterface(NS_GET_IID(nsIChannel), getter_AddRefs(channel));
-    if (channel)
-      channel->GetURI(getter_AddRefs(uri));
+    GetURI(getter_AddRefs(uri));
     m_channelContext = uri;
 
     m_channelListener = listener;
