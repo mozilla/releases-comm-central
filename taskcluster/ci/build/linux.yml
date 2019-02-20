@@ -27,7 +27,6 @@ linux64/opt:
         - linux64-clang
         - linux64-node
         - linux64-rust
-        - linux64-sccache
 
 linux64-nightly/opt:
     description: "Linux64 Nightly"
@@ -97,7 +96,6 @@ linux64/debug:
         - linux64-clang
         - linux64-node
         - linux64-rust
-        - linux64-sccache
 
 linux/opt:
     description: "Linux32 Opt"
@@ -128,7 +126,6 @@ linux/opt:
         - linux64-clang
         - linux64-node
         - linux64-rust
-        - linux64-sccache
 
 linux-nightly/opt:
     description: "Linux32 Nightly"
@@ -198,4 +195,3 @@ linux/debug:
         - linux64-clang
         - linux64-node
         - linux64-rust
-        - linux64-sccache

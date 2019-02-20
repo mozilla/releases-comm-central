@@ -36,7 +36,6 @@ win32/opt:
         - win64-nasm
         - win64-node
         - win64-rust
-        - win64-sccache
 
 win32-nightly/opt:
     description: "Win32 Nightly"
@@ -75,7 +74,6 @@ win32-nightly/opt:
         - win64-nasm
         - win64-node
         - win64-rust
-        - win64-sccache
 
 win32/debug:
     description: "Win32 Debug"
@@ -107,7 +105,6 @@ win32/debug:
         - win64-nasm
         - win64-node
         - win64-rust
-        - win64-sccache
 
 win64/opt:
     description: "Win64 Opt"
@@ -139,7 +136,6 @@ win64/opt:
         - win64-nasm
         - win64-node
         - win64-rust
-        - win64-sccache
 
 win64-nightly/opt:
     description: "Win64 Nightly"
@@ -178,7 +174,6 @@ win64-nightly/opt:
         - win64-nasm
         - win64-node
         - win64-rust
-        - win64-sccache
 
 win64/debug:
     description: "Win64 Debug"
@@ -210,4 +205,3 @@ win64/debug:
         - win64-nasm
         - win64-node
         - win64-rust
-        - win64-sccache
