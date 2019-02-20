@@ -735,12 +735,8 @@ function checkForInvalidAccounts()
     // If there is a email address already provided, try to get to other ISP defaults.
     // If not, get pre-configured data, if any.
     if (identity.email) {
-      dump("Invalid account: trying to get ISP data for " + identity.email + "\n");
-      accountData = getIspDefaultsForEmail(identity.email);
-      dump("Invalid account: Got " + accountData + "\n");
-
       // account -> accountData -> pageData
-      accountData = AccountToAccountData(firstInvalidAccount, accountData);
+      accountData = AccountToAccountData(firstInvalidAccount, null);
     }
     else {
       accountData = getPreConfigDataForAccount(firstInvalidAccount);
@@ -890,23 +886,10 @@ function GetPageData()
 
 function PrefillAccountForIsp(ispName)
 {
-  dump("AccountWizard.prefillAccountForIsp(" + ispName + ")\n");
-
-  var ispData = getIspDefaultsForUri(ispName);
-
-  var pageData = GetPageData();
-
   if (!ispData) {
     SetCurrentAccountData(null);
     return;
   }
-
-  // prefill the rest of the wizard
-  dump("PrefillAccountForISP: filling with " + ispData + "\n");
-  SetCurrentAccountData(ispData);
-  AccountDataToPageData(ispData, pageData);
-
-  setPageData(pageData, "ispdata", "supplied", true);
 }
 
 // does any cleanup work for the the account data

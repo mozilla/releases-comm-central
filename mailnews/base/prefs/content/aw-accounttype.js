@@ -142,5 +142,5 @@ function initializeIspData()
 
     if (!ispName || ispName == "") return;
 
-    parent.PrefillAccountForIsp(ispName);
+    parent.SetCurrentAccountData(null);
 }

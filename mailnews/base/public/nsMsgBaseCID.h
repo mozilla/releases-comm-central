@@ -219,16 +219,6 @@
 { 0x91fd6b19, 0xe0bc, 0x11d3,  \
 { 0x8f, 0x97, 0x0, 0x0, 0x64, 0x65, 0x73, 0x74 }}
 
-//
-// nsMsgServiceProviderService
-//
-#define NS_MSGSERVICEPROVIDERSERVICE_CONTRACTID \
-  NS_RDF_DATASOURCE_CONTRACTID_PREFIX "ispdefaults"
-
-#define NS_MSGSERVICEPROVIDERSERVICE_CID \
-{ 0x10998cef, 0xd7f2, 0x4772,            \
-{ 0xb7, 0xdb, 0xbd, 0x09, 0x74, 0x54, 0x98, 0x4c }}
-
 #define NS_MSGLOGONREDIRECTORSERVICE_CONTRACTID \
   "@mozilla.org/messenger/msglogonredirector;1"
 

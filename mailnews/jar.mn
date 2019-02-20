@@ -52,7 +52,6 @@ messenger.jar:
     content/messenger/aw-done.js                                               (base/prefs/content/aw-done.js)
     content/messenger/accountUtils.js                                          (base/prefs/content/accountUtils.js)
     content/messenger/amUtils.js                                               (base/prefs/content/amUtils.js)
-    content/messenger/ispUtils.js                                              (base/prefs/content/ispUtils.js)
 *   content/messenger/SmtpServerEdit.xul                                       (base/prefs/content/SmtpServerEdit.xul)
     content/messenger/SmtpServerEdit.js                                        (base/prefs/content/SmtpServerEdit.js)
     content/messenger/converterDialog.xhtml                                    (base/prefs/content/converterDialog.xhtml)
