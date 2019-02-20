@@ -483,8 +483,14 @@ XMPPSession.prototype = {
         return;
       }
 
-      if (result.value && result.value.send)
-        this.send(result.value.send.getXML(), result.value.log);
+      // The authentication mechanism can yield a promise which must resolve
+      // before sending data.
+      if (result.value) {
+        Promise.resolve(result.value).then((value) => {
+          if (value.send)
+            this.send(value.send.getXML(), value.log);
+        });
+      }
       if (result.done) {
         this.startStream();
         this.onXmppStanza = this.stanzaListeners.startBind;
