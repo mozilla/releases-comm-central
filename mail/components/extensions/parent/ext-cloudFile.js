@@ -60,7 +60,7 @@ class CloudFileAccount {
       let { icon } = ExtensionParent.IconDetails.getPreferredIcon(
         this.extension.manifest.icons, this.extension, 32
       );
-      return this.extension.getURL(icon);
+      return this.extension.baseURI.resolve(icon);
     }
     return "chrome://messenger/content/extension.svg";
   }
@@ -214,7 +214,7 @@ this.cloudFile = class extends ExtensionAPI {
             let { icon } = ExtensionParent.IconDetails.getPreferredIcon(
               extension.manifest.icons, extension, 32
             );
-            return extension.getURL(icon);
+            return extension.baseURI.resolve(icon);
           }
           return "chrome://messenger/content/extension.svg";
         },
