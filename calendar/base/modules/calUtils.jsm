@@ -222,9 +222,8 @@ var cal = {
             }
         }
         return {
-            getInterfaces: function(countRef) {
-                countRef.value = _interfaces.length;
-                return _interfaces;
+            get interfaces() {
+                return [Ci.nsIClassInfo, Ci.nsISupports].concat(_interfaces);
             },
             getScriptableHelper: function() {
                 return null;
