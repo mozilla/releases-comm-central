@@ -9,7 +9,7 @@
  *     http://www.irchelp.org/irchelp/rfc/dccspec.html
  */
 
-this.EXPORTED_SYMBOLS = ["ctcpDCC"/*, "dccBase"*/];
+this.EXPORTED_SYMBOLS = ["ctcpDCC"/* , "dccBase"*/];
 
 const {ircHandlers} = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
 var {
@@ -18,7 +18,7 @@ var {
   ctcpFormatToText,
   ctcpFormatToHTML,
   conversationErrorMessage,
-  kListRefreshInterval
+  kListRefreshInterval,
 } = ChromeUtils.import("resource:///modules/ircUtils.jsm");
 var {
   GenericAccountPrototype,
@@ -54,7 +54,7 @@ function DCCMessage(aMessage, aAccount) {
       address: Number(params[2]),
       port: Number(params[3]),
       size: params.length == 5 ? Number(params[4]) : null,
-      furtherArguments: params.length > 5 ? params.slice(5) : []
+      furtherArguments: params.length > 5 ? params.slice(5) : [],
     };
   } catch (e) {
     aAccount.ERROR("Error parsing DCC parameters:\n" +
@@ -81,6 +81,6 @@ var ctcpDCC = {
 
       // Parse the message and attempt to handle it.
       return ircHandlers.handleDCCMessage(this, DCCMessage(aMessage, this));
-    }
-  }
+    },
+  },
 };

@@ -26,7 +26,7 @@ function specMessages() {
       who: "Angel!angel@example.com",
       get originalMessage() { return "Hello"; },
       message: "Hello",
-      incoming: true
+      incoming: true,
     },
     {
       tags: getTags("@time=2012-06-30T23:59:60.419Z :John!~john@1.2.3.4 JOIN #chan"),
@@ -34,7 +34,7 @@ function specMessages() {
       message: "John joined #chan",
       get originalMessage() { return "John joined #chan"; },
       system: true,
-      incoming: true
+      incoming: true,
     },
     {
       tags: getTags("@znc.in/server-time-iso=2016-11-13T19:20:45.284Z :John!~john@1.2.3.4 JOIN #chan"),
@@ -42,7 +42,7 @@ function specMessages() {
       message: "John joined #chan",
       get originalMessage() { return "John joined #chan"; },
       system: true,
-      incoming: true
+      incoming: true,
     },
     {
       tags: getTags("@time= :empty!Empty@host.local JOIN #test"),
@@ -50,7 +50,7 @@ function specMessages() {
       message: "Empty joined #test",
       get originalMessage() { return "Empty joined #test"; },
       system: true,
-      incoming: true
+      incoming: true,
     },
     {
       tags: getTags("NoTags!notags@1.2.3.4 PART #test"),
@@ -58,8 +58,8 @@ function specMessages() {
       message: "NoTags left #test",
       get originalMessage() { return "NoTags left #test"; },
       system: true,
-      incoming: true
-    }
+      incoming: true,
+    },
   ];
 
   const kExpectedTimes = [
@@ -67,7 +67,7 @@ function specMessages() {
     Math.floor(Date.parse("2012-06-30T23:59:59.999Z") / 1000),
     Math.floor(Date.parse(kMessages[2].tags.get("znc.in/server-time-iso")) / 1000),
     undefined,
-    undefined
+    undefined,
   ];
 
   for (let m in kMessages) {
@@ -77,7 +77,7 @@ function specMessages() {
     const tagMessage = {
       message: Object.assign({}, msg),
       tagName: tag,
-      tagValue: msg.tags.get(tag)
+      tagValue: msg.tags.get(tag),
     };
     tagServerTime.commands[tag](tagMessage);
 

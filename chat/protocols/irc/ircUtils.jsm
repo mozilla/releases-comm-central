@@ -165,7 +165,7 @@ var M_IRC_COLOR_MAP = {
   "13": "fuchsia", // pink (light purple) (fuchsia)
   "14": "grey",
   "15": "silver", // light grey (silver)
-  "99": "transparent"
+  "99": "transparent",
 };
 
 function mIRCColoring(aStack, aInput) {

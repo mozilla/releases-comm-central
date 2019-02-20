@@ -7,16 +7,16 @@ Services.scriptloader.loadSubScript("resource:///components/irc.js", irc);
 const {ircNonStandard} = ChromeUtils.import("resource:///modules/ircNonStandard.jsm");
 
 // The function that is under test here.
-var NOTICE = ircNonStandard.commands["NOTICE"];
+var NOTICE = ircNonStandard.commands.NOTICE;
 
 function FakeConversation() {}
 FakeConversation.prototype = {
-  writeMessage: function(aSender, aTarget, aOpts) {}
+  writeMessage(aSender, aTarget, aOpts) {},
 };
 
 function FakeAccount(aPassword) {
   this.imAccount = {
-    password: aPassword
+    password: aPassword,
   };
   this.buffer = [];
   this.convs = [];
@@ -24,17 +24,17 @@ function FakeAccount(aPassword) {
 FakeAccount.prototype = {
   connected: false,
   shouldAuthenticate: undefined,
-  _nickname: 'nick', // Can be anything except "auth" for most tests.
-  sendMessage: function(aCommand, aParams) {
+  _nickname: "nick", // Can be anything except "auth" for most tests.
+  sendMessage(aCommand, aParams) {
     this.buffer.push([aCommand, aParams]);
   },
-  gotDisconnected: function(aReason, aMsg) {
+  gotDisconnected(aReason, aMsg) {
     this.connected = false;
   },
-  getConversation: function(aName) {
+  getConversation(aName) {
     this.convs.push(aName);
     return new FakeConversation();
-  }
+  },
 };
 
 function run_test() {
@@ -53,7 +53,7 @@ function run_test() {
  */
 function testSecureList() {
   const kSecureListMsg =
-    ':fripp.mozilla.org NOTICE aleth-build :*** You cannot list within the first 60 seconds of connecting. Please try again later.';
+    ":fripp.mozilla.org NOTICE aleth-build :*** You cannot list within the first 60 seconds of connecting. Please try again later.";
 
   let message = irc.ircMessage(kSecureListMsg, "");
   let account = new FakeAccount();
@@ -77,8 +77,8 @@ function testSecureList() {
  */
 function testZncAuth() {
   const kZncMsgs = [
-    ':irc.znc.in NOTICE AUTH :*** You need to send your password. Try /quote PASS <username>:<password>',
-    ':irc.znc.in NOTICE AUTH :*** You need to send your password. Configure your client to send a server password.'
+    ":irc.znc.in NOTICE AUTH :*** You need to send your password. Try /quote PASS <username>:<password>",
+    ":irc.znc.in NOTICE AUTH :*** You need to send your password. Configure your client to send a server password.",
   ];
 
   for (let msg of kZncMsgs) {
@@ -129,11 +129,11 @@ function testZncAuth() {
 function testUMich() {
   // The above should not print out.
   const kMsgs = [
-    'NOTICE AUTH :*** Processing connection to irc.umich.edu',
-    'NOTICE AUTH :*** Looking up your hostname...',
-    'NOTICE AUTH :*** Checking Ident',
-    'NOTICE AUTH :*** Found your hostname',
-    'NOTICE AUTH :*** No Ident response'
+    "NOTICE AUTH :*** Processing connection to irc.umich.edu",
+    "NOTICE AUTH :*** Looking up your hostname...",
+    "NOTICE AUTH :*** Checking Ident",
+    "NOTICE AUTH :*** Found your hostname",
+    "NOTICE AUTH :*** No Ident response",
   ];
 
   const kFinalMsg =
@@ -187,10 +187,10 @@ function testAuthNick() {
 function testIgnoredNotices() {
   const kMsgs = [
     // moznet sends a welcome message which is useless.
-    ':levin.mozilla.org NOTICE Auth :Welcome to \u0002Mozilla\u0002!',
+    ":levin.mozilla.org NOTICE Auth :Welcome to \u0002Mozilla\u0002!",
     // Some servers (oftc) send a NOTICE that isn't an auth, but notifies about
     // the connection. See bug 1182735.
-    ':beauty.oftc.net NOTICE myusername :*** Connected securely via UNKNOWN AES128-SHA-128',
+    ":beauty.oftc.net NOTICE myusername :*** Connected securely via UNKNOWN AES128-SHA-128",
   ];
 
   for (let msg of kMsgs) {

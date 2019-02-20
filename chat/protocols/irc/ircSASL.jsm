@@ -17,7 +17,7 @@ var {
   ctcpFormatToText,
   ctcpFormatToHTML,
   conversationErrorMessage,
-  kListRefreshInterval
+  kListRefreshInterval,
 } = ChromeUtils.import("resource:///modules/ircUtils.jsm");
 
 var ircSASL = {
@@ -124,8 +124,8 @@ var ircSASL = {
       // List of SASL mechanisms supported by the server (or network, services).
       // The numeric contains a comma-separated list of mechanisms.
       return false;
-    }
-  }
+    },
+  },
 };
 
 var capSASL = {
@@ -147,6 +147,6 @@ var capSASL = {
       }
 
       return true;
-    }
-  }
+    },
+  },
 };

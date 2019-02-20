@@ -29,8 +29,8 @@ var isupportNAMESX = {
     "NAMESX": function(aMessage) {
       this.sendMessage("PROTOCTL", "NAMESX");
       return true;
-    }
-  }
+    },
+  },
 };
 
 var capMultiPrefix = {
@@ -51,6 +51,6 @@ var capMultiPrefix = {
       else
         return false;
       return true;
-    }
-  }
+    },
+  },
 };

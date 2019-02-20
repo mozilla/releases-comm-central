@@ -38,7 +38,7 @@ var {
   ctcpFormatToText,
   ctcpFormatToHTML,
   conversationErrorMessage,
-  kListRefreshInterval
+  kListRefreshInterval,
 } = ChromeUtils.import("resource:///modules/ircUtils.jsm");
 var {
   GenericAccountPrototype,
@@ -65,7 +65,7 @@ function privmsg(aAccount, aMessage, aIsNotification) {
 
 // Display the message and remove them from the rooms they're in.
 function leftRoom(aAccount, aNicks, aChannels, aSource, aReason, aKicked) {
-  let msgId = "message." +  (aKicked ? "kicked" : "parted");
+  let msgId = "message." + (aKicked ? "kicked" : "parted");
   // If a part message was included, include it.
   let reason = aReason ? _(msgId + ".reason", aReason) : "";
   function __(aNick, aYou) {
@@ -314,8 +314,7 @@ var ircBase = {
         return true;
       }
       // Otherwise, the ping was from a user command.
-      else
-        return this.handlePingReply(aMessage.origin, pongTime);
+      return this.handlePingReply(aMessage.origin, pongTime);
     },
     "PRIVMSG": function(aMessage) {
       // PRIVMSG <msgtarget> <text to be sent>
@@ -832,7 +831,7 @@ var ircBase = {
       topic = topic ? topic.normalize() : "";
 
       this._channelList.set(name,
-                            {topic: topic, participantCount: participantCount});
+                            {topic, participantCount});
       this._currentBatch.push(name);
       // Give callbacks a batch of channels of length _channelsPerBatch.
       if (this._currentBatch.length == this._channelsPerBatch) {
@@ -1447,7 +1446,7 @@ var ircBase = {
       // TODO
       return false;
     },
-    "492": function(aMessage) { //ERR_NOSERVICEHOST
+    "492": function(aMessage) { // ERR_NOSERVICEHOST
       // Non-generic
       // TODO
       return false;
@@ -1460,6 +1459,6 @@ var ircBase = {
     "502": function(aMessage) { // ERR_USERSDONTMATCH
       // :Cannot change mode for other users
       return serverErrorMessage(this, aMessage, _("error.mode.wrongUser"));
-    }
-  }
+    },
+  },
 };

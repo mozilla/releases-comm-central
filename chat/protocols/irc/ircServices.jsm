@@ -36,7 +36,7 @@ var {
   ctcpFormatToText,
   ctcpFormatToHTML,
   conversationErrorMessage,
-  kListRefreshInterval
+  kListRefreshInterval,
 } = ChromeUtils.import("resource:///modules/ircUtils.jsm");
 
 /*
@@ -54,7 +54,7 @@ function ServiceMessage(aAccount, aMessage) {
     "chanserv": "ChanServ",
     "infoserv": "InfoServ",
     "nickserv": "NickServ",
-    "freenode-connect": "freenode-connect"
+    "freenode-connect": "freenode-connect",
   };
 
   let nickname = aAccount.normalize(aMessage.origin);
@@ -68,7 +68,7 @@ var ircServices = {
   name: "IRC Services",
   priority: ircHandlers.HIGH_PRIORITY,
   isEnabled: () => true,
-  sendIdentify: function(aAccount) {
+  sendIdentify(aAccount) {
     if (aAccount.imAccount.password && aAccount.shouldAuthenticate &&
         !aAccount.isAuthenticated) {
       aAccount.sendMessage("IDENTIFY", aAccount.imAccount.password,
@@ -130,8 +130,8 @@ var ircServices = {
         return true;
       }
       return false;
-    }
-  }
+    },
+  },
 };
 
 var servicesBase = {
@@ -264,6 +264,6 @@ var servicesBase = {
       // checking of the hostname).
       return (aMessage.host.startsWith("freenode/utility-bot/") &&
               aMessage.params[1].includes("connections will be scanned for vulnerabilities"));
-    }
-  }
+    },
+  },
 };

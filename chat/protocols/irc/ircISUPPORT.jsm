@@ -21,7 +21,7 @@ var {
   ctcpFormatToText,
   ctcpFormatToHTML,
   conversationErrorMessage,
-  kListRefreshInterval
+  kListRefreshInterval,
 } = ChromeUtils.import("resource:///modules/ircUtils.jsm");
 
 /*
@@ -74,8 +74,8 @@ var ircISUPPORT = {
       }
 
       return true;
-    }
-  }
+    },
+  },
 };
 
 function setSimpleNumber(aAccount, aField, aMessage, aDefaultValue) {
@@ -238,6 +238,6 @@ var isupportBase = {
     "MAXCHANNELS": aMessage => false,
     "MAXTARGETS": function(aMessage) {
       return setSimpleNumber(this, "maxTargets", aMessage, 1);
-    }
-  }
+    },
+  },
 };

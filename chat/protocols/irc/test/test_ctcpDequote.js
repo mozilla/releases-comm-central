@@ -21,7 +21,7 @@ var input = [
   "ACTION te\x5Cast",
   "ACTION test\x5Ca",
   "ACTION \x5C\x5C\x5Catest",
-  "ACTION \x5C\x5Catest"
+  "ACTION \x5C\x5Catest",
 ];
 
 var expectedOutputParam = [
@@ -40,7 +40,7 @@ var expectedOutputParam = [
   "te\x01st",
   "test\x01",
   "\x5C\x01test",
-  "\x5Catest"
+  "\x5Catest",
 ];
 
 function run_test() {

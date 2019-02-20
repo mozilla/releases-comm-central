@@ -11,8 +11,8 @@ Services.scriptloader.loadSubScript("resource:///components/irc.js", irc);
 Services.conversations.initConversations();
 
 var fakeProto = {
-  id: "fake-proto"
-}
+  id: "fake-proto",
+};
 
 function run_test() {
   add_test(testUserModeCommand);
@@ -26,97 +26,97 @@ function testModeCommand() {
     {
       msg: "",
       channel: "#instantbird",
-      expectedMessage: "MODE #instantbird"
+      expectedMessage: "MODE #instantbird",
     },
     {
       msg: "#instantbird",
       channel: "#instantbird",
-      expectedMessage: "MODE #instantbird"
+      expectedMessage: "MODE #instantbird",
     },
     {
       msg: "-s",
       channel: "#Fins",
-      expectedMessage: "MODE #Fins -s"
+      expectedMessage: "MODE #Fins -s",
     },
     {
       msg: "#introduction +is",
       channel: "#introduction",
-      expectedMessage: "MODE #introduction +is"
+      expectedMessage: "MODE #introduction +is",
     },
     {
       msg: "-s",
       channel: "&Gills",
-      expectedMessage: "MODE &Gills -s"
+      expectedMessage: "MODE &Gills -s",
     },
     {
       msg: "#Gamers +o KennyS",
       channel: "#Gamers",
-      expectedMessage: "MODE #Gamers +o KennyS"
+      expectedMessage: "MODE #Gamers +o KennyS",
     },
     {
       msg: "+o lisp",
       channel: "&IB",
-      expectedMessage: "MODE &IB +o lisp"
+      expectedMessage: "MODE &IB +o lisp",
     },
     {
       msg: "+b nick!abc@server",
       channel: "#Alphabet",
-      expectedMessage: "MODE #Alphabet +b nick!abc@server"
+      expectedMessage: "MODE #Alphabet +b nick!abc@server",
     },
     {
       msg: "+b nick",
       channel: "#Alphabet",
-      expectedMessage: "MODE #Alphabet +b nick"
+      expectedMessage: "MODE #Alphabet +b nick",
     },
     {
       msg: "#instantbird +b nick!abc@server",
       channel: "#instantbird",
-      expectedMessage: "MODE #instantbird +b nick!abc@server"
+      expectedMessage: "MODE #instantbird +b nick!abc@server",
     },
     {
       msg: "+v Wiz",
       channel: "#TheMatrix",
-      expectedMessage: "MODE #TheMatrix +v Wiz"
+      expectedMessage: "MODE #TheMatrix +v Wiz",
     },
     {
       msg: "+k passcode",
       channel: "#TheMatrix",
-      expectedMessage: "MODE #TheMatrix +k passcode"
+      expectedMessage: "MODE #TheMatrix +k passcode",
     },
     {
       msg: "#Mafia +k keyword",
       channel: "#Mafia",
-      expectedMessage: "MODE #Mafia +k keyword"
+      expectedMessage: "MODE #Mafia +k keyword",
     },
     {
       msg: "#introduction +l 100",
       channel: "#introduction",
-      expectedMessage: "MODE #introduction +l 100"
+      expectedMessage: "MODE #introduction +l 100",
     },
     {
       msg: "+l 100",
       channel: "#introduction",
-      expectedMessage: "MODE #introduction +l 100"
-    }
+      expectedMessage: "MODE #introduction +l 100",
+    },
   ];
 
   const testUserCommands = [
     {
       msg: "nickolas +x",
-      expectedMessage: "MODE nickolas +x"
+      expectedMessage: "MODE nickolas +x",
     },
     {
       msg: "matrixisreal -x",
-      expectedMessage: "MODE matrixisreal -x"
+      expectedMessage: "MODE matrixisreal -x",
     },
     {
       msg: "matrixisreal_19 +oWp",
-      expectedMessage: "MODE matrixisreal_19 +oWp"
+      expectedMessage: "MODE matrixisreal_19 +oWp",
     },
     {
       msg: "nick",
-      expectedMessage: "MODE nick"
-    }
+      expectedMessage: "MODE nick",
+    },
   ];
 
   let account = new irc.ircAccount(fakeProto,
@@ -152,29 +152,29 @@ function testUserModeCommand() {
   const testData = [
     {
       msg: "+x",
-      expectedMessage: "MODE test_nick +x"
+      expectedMessage: "MODE test_nick +x",
     },
     {
       msg: "-x",
-      expectedMessage: "MODE test_nick -x"
+      expectedMessage: "MODE test_nick -x",
     },
     {
       msg: "-pa",
-      expectedMessage: "MODE test_nick -pa"
+      expectedMessage: "MODE test_nick -pa",
     },
     {
       msg: "+oWp",
-      expectedMessage: "MODE test_nick +oWp"
+      expectedMessage: "MODE test_nick +oWp",
     },
     {
       msg: "",
-      expectedMessage: "MODE test_nick"
-    }
+      expectedMessage: "MODE test_nick",
+    },
   ];
 
   let account = new irc.ircAccount(fakeProto,
                                    {name: "test_nick@instantbird.org"});
-  account._nickname = 'test_nick';
+  account._nickname = "test_nick";
   let conv = new irc.ircConversation(account, "newconv");
 
   // check if the message being sent is same as expected message.

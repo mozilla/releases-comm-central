@@ -8,7 +8,7 @@ Services.scriptloader.loadSubScript("resource:///components/irc.js", irc);
 var fakeProto = {
   id: "fake-proto",
   options: {alternateNicks: ""},
-  _getOptionDefault: function(aOption) { return this.options[aOption]; }
+  _getOptionDefault(aOption) { return this.options[aOption]; },
 };
 
 function test_tryNewNick() {
@@ -26,7 +26,7 @@ function test_tryNewNick() {
     "clo1kep10": "clo1kep11",
     "clo1kep0": "clo1kep1",
     "clo1kep01": "clo1kep02",
-    "clo1kep09": "clo1kep10"
+    "clo1kep09": "clo1kep10",
   };
 
   let account = new irc.ircAccount(fakeProto,
@@ -68,7 +68,7 @@ function test_maxLength() {
     ["abcdefg99", "abcdefg100"],
     ["abcdefg10", "abcdef100"],
     ["a99999999", "a100000000"],
-    ["a10000000", "a00000000"]
+    ["a10000000", "a00000000"],
   ];
 
   let account = new irc.ircAccount(fakeProto,
@@ -100,7 +100,7 @@ function test_altNicks() {
     "clokep1": [altNicks, "clokep2"],
 
     // Test messy alternatives.
-    "clokep[": [" clokep ,\n clokep111,,,\tclokep[, clokep_", "clokep_"]
+    "clokep[": [" clokep ,\n clokep111,,,\tclokep[, clokep_", "clokep_"],
   };
 
   let account = new irc.ircAccount(fakeProto,

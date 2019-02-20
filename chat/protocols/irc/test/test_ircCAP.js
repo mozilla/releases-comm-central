@@ -10,52 +10,52 @@ var testData = [
   [
     ["*", "LS", "multi-prefix sasl userhost-in-names"],
     [{
-      subcommand: 'LS',
-      parameter: 'multi-prefix',
+      subcommand: "LS",
+      parameter: "multi-prefix",
     },
     {
-      subcommand: 'LS',
-      parameter: 'sasl',
+      subcommand: "LS",
+      parameter: "sasl",
     },
     {
-      subcommand: 'LS',
-      parameter: 'userhost-in-names',
-    }]
+      subcommand: "LS",
+      parameter: "userhost-in-names",
+    }],
   ],
 
   // LS with both valid and invalid vendor specific capabilities.
   [
-    ["*","LS","sasl server-time znc.in/server-time-iso znc.in/playback palaverapp.com"],
+    ["*", "LS", "sasl server-time znc.in/server-time-iso znc.in/playback palaverapp.com"],
     [{
-      subcommand: 'LS',
-      parameter: 'sasl',
+      subcommand: "LS",
+      parameter: "sasl",
     },
     {
-      subcommand: 'LS',
-      parameter: 'server-time',
+      subcommand: "LS",
+      parameter: "server-time",
     },
     // Valid vendor prefixes (of the form <domain name>/<capability>).
     {
-      subcommand: 'LS',
-      parameter: 'znc.in/server-time-iso',
+      subcommand: "LS",
+      parameter: "znc.in/server-time-iso",
     },
     {
-      subcommand: 'LS',
-      parameter: 'znc.in/playback',
+      subcommand: "LS",
+      parameter: "znc.in/playback",
     },
     // Invalid vendor prefix, but we should treat it as an opaque identifier.
     {
-      subcommand: 'LS',
-      parameter: 'palaverapp.com',
-    }]
+      subcommand: "LS",
+      parameter: "palaverapp.com",
+    }],
   ],
 
   // Some implementations include one less parameter.
   [
     ["LS", "sasl"],
     [{
-      subcommand: 'LS',
-      parameter: 'sasl',
+      subcommand: "LS",
+      parameter: "sasl",
     }],
   ],
 
@@ -64,24 +64,24 @@ var testData = [
   [
     ["LS", "-disable =sticky ~ack"],
     [{
-      subcommand: 'LS',
-      parameter: 'disable',
-      modifier: '-',
+      subcommand: "LS",
+      parameter: "disable",
+      modifier: "-",
       disable: true,
     },
     {
-      subcommand: 'LS',
-      parameter: 'sticky',
-      modifier: '=',
+      subcommand: "LS",
+      parameter: "sticky",
+      modifier: "=",
       sticky: true,
     },
     {
-      subcommand: 'LS',
-      parameter: 'ack',
-      modifier: '~',
+      subcommand: "LS",
+      parameter: "ack",
+      modifier: "~",
       ack: true,
     }],
-  ]
+  ],
 ];
 
 function run_test() {
@@ -97,7 +97,7 @@ function testCapMessages() {
   for (let data of testData) {
     // Generate an ircMessage to send into capMessage.
     let message = {
-      params: data[0]
+      params: data[0],
     };
 
     // Create the CAP message.
@@ -119,9 +119,9 @@ function testCapMessages() {
     // Add defaults to the expected output.
     for (let expectedCap of expectedCaps) {
       // By default there's no modifier.
-      if (!('modifier' in expectedCap))
+      if (!("modifier" in expectedCap))
         expectedCap.modifier = undefined;
-      for (let param of ['disable', 'sticky', 'ack']) {
+      for (let param of ["disable", "sticky", "ack"]) {
         if (!(param in expectedCap))
           expectedCap[param] = false;
       }

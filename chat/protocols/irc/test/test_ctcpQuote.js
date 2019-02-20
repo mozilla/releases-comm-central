@@ -21,7 +21,7 @@ var input = [
   "te\x01st",
   "test\x01",
   "\\\\\x01test",
-  "\\\\atest"
+  "\\\\atest",
 ];
 
 var expectedOutputParams = [
@@ -40,7 +40,7 @@ var expectedOutputParams = [
   "ACTION te\\ast",
   "ACTION test\\a",
   "ACTION \\\\\\\\\\atest",
-  "ACTION \\\\\\\\atest"
+  "ACTION \\\\\\\\atest",
 ];
 
 var outputParams = [];

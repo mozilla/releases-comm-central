@@ -29,7 +29,7 @@ var {
   ctcpFormatToText,
   ctcpFormatToHTML,
   conversationErrorMessage,
-  kListRefreshInterval
+  kListRefreshInterval,
 } = ChromeUtils.import("resource:///modules/ircUtils.jsm");
 
 // Split into a CTCP message which is a single command and a single parameter:
@@ -71,8 +71,8 @@ var ircCTCP = {
   // CTCP uses only PRIVMSG and NOTICE commands.
   commands: {
     "PRIVMSG": ctcpHandleMessage,
-    "NOTICE": ctcpHandleMessage
-  }
+    "NOTICE": ctcpHandleMessage,
+  },
 };
 // Parse the message and call all CTCP handlers on the message.
 function ctcpHandleMessage(aMessage) {
@@ -153,7 +153,7 @@ var ctcpBase = {
     // supported CTCP parameters and this is not supported.
 
     // Returns the user's full name, and idle time.
-    //"FINGER": function(aMessage) { return false; },
+    // "FINGER": function(aMessage) { return false; },
 
     // Dynamic master index of what a client knows.
     "CLIENTINFO": function(aMessage) {
@@ -192,18 +192,17 @@ var ctcpBase = {
                              aMessage.ctcp.param);
         return true;
       }
-      else
-        return this.handlePingReply(aMessage.origin, aMessage.ctcp.param);
+      return this.handlePingReply(aMessage.origin, aMessage.ctcp.param);
     },
 
     // These are commented out since CLIENTINFO automatically returns the
     // supported CTCP parameters and this is not supported.
 
     // An encryption protocol between clients without any known reference.
-    //"SED": function(aMessage) { return false; },
+    // "SED": function(aMessage) { return false; },
 
     // Where to obtain a copy of a client.
-    //"SOURCE": function(aMessage) { return false; },
+    // "SOURCE": function(aMessage) { return false; },
 
     // Gets the local date and time from other clients.
     "TIME": function(aMessage) {
@@ -232,7 +231,7 @@ var ctcpBase = {
     // supported CTCP parameters and this is not supported.
 
     // A string set by the user (never the client coder)
-    //"USERINFO": function(aMessage) { return false; },
+    // "USERINFO": function(aMessage) { return false; },
 
     // The version and type of the client.
     "VERSION": function(aMessage) {
@@ -254,6 +253,6 @@ var ctcpBase = {
                           {system: true, tags: aMessage.tags});
       }
       return true;
-    }
-  }
+    },
+  },
 };

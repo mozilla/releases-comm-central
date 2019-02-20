@@ -90,7 +90,7 @@ var testData = [
   "PING tolsun.oulu.fi",
   "PING WiZ tolsun.oulu.fi",
   // Below fails, we don't use the (unnecessary) colon.
-  //"PING :irc.funet.fi",
+  // "PING :irc.funet.fi",
   "PONG csd.bu.edu tolsun.oulu.fi",
   "ERROR :Server *.fi already exists",
   "NOTICE WiZ :ERROR from csd.bu.edu -- Server *.fi already exists",
@@ -104,7 +104,7 @@ var testData = [
   ":csd.bu.edu WALLOPS :Connect '*.uiuc.edu 6667' from Joshua",
   "USERHOST Wiz Michael syrk",
   // Below fails, we don't use the (unnecessary) colon.
-  //":ircd.stealth.net 302 yournick :syrk=+syrk@millennium.stealth.net",
+  // ":ircd.stealth.net 302 yournick :syrk=+syrk@millennium.stealth.net",
   "ISON phone trillian WiZ jarlek Avalon Angel Monstah syrk",
 
   // Now for the torture test, specially crafted messages that might be
@@ -112,7 +112,7 @@ var testData = [
   "PRIVMSG foo ::)", // Test sending a colon as the first character.
   "PRIVMSG foo :This is a test.", // Test sending a space.
   "PRIVMSG foo :", // Empty last parameter.
-  "PRIVMSG foo :This is :a test." // A "second" last parameter.
+  "PRIVMSG foo :This is :a test.", // A "second" last parameter.
 ];
 
 function run_test() {
@@ -186,7 +186,7 @@ function testBrokenUnrealMessages() {
       host: undefined,
       source: "",
       tags: new Map(),
-    }
+    },
   };
 
   for (let messageStr in messages)
@@ -218,7 +218,7 @@ function testNewLinesInMessages() {
       host: "host",
       tags: new Map(),
       source: "Instantbir@host",
-    }
+    },
   };
 
   for (let messageStr in messages)
@@ -241,7 +241,7 @@ function testLocalhost() {
       host: undefined,
       tags: new Map(),
       source: "",
-    }
+    },
   };
 
   for (let messageStr in messages)
@@ -262,7 +262,7 @@ function testTags() {
       tags: new Map([
         ["aaa", "bBb"],
         ["ccc", undefined],
-        ["example.com/ddd", "eee"]
+        ["example.com/ddd", "eee"],
       ]),
       source: "ident@host.com",
     },
@@ -276,7 +276,7 @@ function testTags() {
       user: "host.com",
       host: undefined,
       tags: new Map([
-        ["xn--e1afmkfd.org/foo", undefined]
+        ["xn--e1afmkfd.org/foo", undefined],
       ]),
       source: "host.com@undefined",
     },
@@ -290,7 +290,7 @@ function testTags() {
       user: "host.com",
       host: undefined,
       tags: new Map([
-        ["aaa", "\\n;\n\r "]
+        ["aaa", "\\n;\n\r "],
       ]),
       source: "host.com@undefined",
     },
@@ -304,7 +304,7 @@ function testTags() {
       tags: new Map([
         ["c", undefined],
         ["h", ""],
-        ["a", "b"]
+        ["a", "b"],
       ]),
       source: "",
     },
@@ -316,10 +316,10 @@ function testTags() {
       user: "~john",
       host: "1.2.3.4",
       tags: new Map([
-        ["time", "2012-06-30T23:59:60.419Z"]
+        ["time", "2012-06-30T23:59:60.419Z"],
       ]),
       source: "~john@1.2.3.4",
-    }
+    },
   };
 
   for (let messageStr in messages)

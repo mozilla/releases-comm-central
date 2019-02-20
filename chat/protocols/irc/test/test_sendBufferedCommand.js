@@ -14,9 +14,9 @@ FakeAccount.prototype = {
   __proto__: irc.ircAccount.prototype,
   maxMessageLength: 60,
   callbacks: [],
-  sendMessage: function(aCommand, aParams) {
+  sendMessage(aCommand, aParams) {
     (this.callbacks.shift())(aCommand, aParams);
-  }
+  },
 };
 
 var account = new FakeAccount();
@@ -32,25 +32,25 @@ function test_parameterCollect() {
   let tests = [
     {
       data: [["one"], ["one"]],  // also tests deduplication
-      result: "JOIN one"
+      result: "JOIN one",
     },
     {
       data: [["one", ""]],  // explicit empty password string
-      result: "JOIN one"
+      result: "JOIN one",
     },
     {
       data: [["one"], ["two"], ["three"]],
-      result: "JOIN one,two,three"
+      result: "JOIN one,two,three",
     },
     {
       data: [["one"], ["two", "password"], ["three"]],
-      result: "JOIN two,one,three password"
+      result: "JOIN two,one,three password",
     },
     {
       data: [["one"], ["two", "password"], ["three"],
              ["four", "anotherpassword"]],
-      result: "JOIN two,four,one,three password,anotherpassword"
-    }
+      result: "JOIN two,four,one,three password,anotherpassword",
+    },
   ];
 
   for (let test of tests) {
@@ -119,8 +119,8 @@ function test_maxLength() {
       results: [
         "JOIN applecustard,pearpie,strawberryfield,blueberrypancake",
         "JOIN mangojuice,raspberryberet,pineapplesoup,limejelly",
-        "JOIN lemonsorbet"
-      ]
+        "JOIN lemonsorbet",
+      ],
     },
     {
       data: [["applecustard"], ["pearpie"], ["strawberryfield", "password1"],
@@ -129,9 +129,9 @@ function test_maxLength() {
       results: [
         "JOIN strawberryfield,applecustard,pearpie password1",
         "JOIN blueberrypancake,mangojuice,raspberryberet",
-        "JOIN limejelly,pineapplesoup,lemonsorbet password2"
-      ]
-    }
+        "JOIN limejelly,pineapplesoup,lemonsorbet password2",
+      ],
+    },
   ];
 
   account._lastCommandSendTime = 0;
