@@ -27,11 +27,7 @@ calProtocolHandler.prototype = {
             .QueryInterface(Ci.nsIStandardURL);
     },
 
-    newChannel: function(aUri) {
-        return this.newChannel2(aUri, null);
-    },
-
-    newChannel2: function(aUri, aLoadInfo) {
+    newChannel: function(aUri, aLoadInfo) {
         let uri = aUri.mutate().setScheme(this.mHttpProtocol.scheme).finalize();
 
         let channel;

@@ -28,12 +28,7 @@ function makeProtocolHandler(aProtocol, aDefaultPort, aClassID) {
       return url;
     },
 
-    newChannel: function (aURI) {
-      throw Cr.NS_ERROR_NOT_IMPLEMENTED;
-    },
-
-    newChannel2: function(aURI, aLoadInfo)
-    {
+    newChannel: function(aURI, aLoadInfo) {
       throw Cr.NS_ERROR_NOT_IMPLEMENTED;
     },
 

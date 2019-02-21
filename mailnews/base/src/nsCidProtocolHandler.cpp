@@ -52,14 +52,9 @@ NS_IMETHODIMP nsCidProtocolHandler::NewURI(const nsACString & aSpec, const char 
   return NS_OK;
 }
 
-NS_IMETHODIMP nsCidProtocolHandler::NewChannel(nsIURI *aURI, nsIChannel **_retval)
-{
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP nsCidProtocolHandler::NewChannel2(nsIURI *aURI,
-                                                nsILoadInfo* aLoadInfo,
-                                                nsIChannel **_retval)
+NS_IMETHODIMP nsCidProtocolHandler::NewChannel(nsIURI *aURI,
+                                               nsILoadInfo* aLoadInfo,
+                                               nsIChannel **_retval)
 {
   return NS_ERROR_NOT_IMPLEMENTED;
 }

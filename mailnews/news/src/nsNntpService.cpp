@@ -340,7 +340,7 @@ nsresult nsNntpService::GetMessageFromUrl(nsIURI *aUrl,
         nullptr,
         nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
         nsIContentPolicy::TYPE_OTHER);
-      rv = NewChannel2(aUrl, loadInfo, getter_AddRefs(aChannel));
+      rv = NewChannel(aUrl, loadInfo, getter_AddRefs(aChannel));
       if (NS_FAILED(rv)) return rv;
 
       rv = aChannel->SetLoadGroup(aLoadGroup);
@@ -1232,14 +1232,9 @@ NS_IMETHODIMP nsNntpService::NewURI(const nsACString &aSpec,
     return NS_OK;
 }
 
-NS_IMETHODIMP nsNntpService::NewChannel(nsIURI *aURI, nsIChannel **_retval)
-{
-  return NewChannel2(aURI, nullptr, _retval);
-}
-
-NS_IMETHODIMP nsNntpService::NewChannel2(nsIURI *aURI,
-                                         nsILoadInfo *aLoadInfo,
-                                         nsIChannel **_retval)
+NS_IMETHODIMP nsNntpService::NewChannel(nsIURI *aURI,
+                                        nsILoadInfo *aLoadInfo,
+                                        nsIChannel **_retval)
 {
   NS_ENSURE_ARG_POINTER(aURI);
   nsresult rv = NS_OK;

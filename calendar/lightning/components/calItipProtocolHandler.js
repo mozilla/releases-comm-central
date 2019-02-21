@@ -62,12 +62,7 @@ ItipProtocolHandler.prototype = {
                  .init(Ci.nsIStandardURL.URLTYPE_STANDARD, 0, spec, charSet, baseURI)
                  .finalize();
     },
-
-    newChannel: function(URI) {
-        return this.newChannel2(URI, null);
-    },
-
-    newChannel2: function(URI, aLoadInfo) {
+    newChannel: function(URI, aLoadInfo) {
         dump("Creating new ItipChannel for " + URI + "\n");
         return new ItipChannel(URI);
     },

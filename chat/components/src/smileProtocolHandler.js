@@ -28,10 +28,7 @@ smileProtocolHandler.prototype = {
                     .createInstance(Ci.nsIURIMutator);
     return mutator.setSpec(aSpec).finalize();
   },
-  newChannel: function SPH_newChannel(aURI) {
-    return this.newChannel2(aURI, null);
-  },
-  newChannel2: function SPH_newChannel2(aURI, aLoadInfo) {
+  newChannel: function SPH_newChannel2(aURI, aLoadInfo) {
     let smile = aURI.spec.replace(kSmileRegexp, "");
     let uri = Services.io.newURI(getSmileRealURI(smile));
     let channel = Services.io.newChannelFromURIWithLoadInfo(uri, aLoadInfo);

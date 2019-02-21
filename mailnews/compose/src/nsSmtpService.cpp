@@ -308,14 +308,9 @@ NS_IMETHODIMP nsSmtpService::NewURI(const nsACString &aSpec,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsSmtpService::NewChannel(nsIURI *aURI, nsIChannel **_retval)
-{
-  return NewChannel2(aURI, nullptr, _retval);
-}
-
-NS_IMETHODIMP nsSmtpService::NewChannel2(nsIURI *aURI,
-                                         nsILoadInfo* aLoadInfo,
-                                         nsIChannel **_retval)
+NS_IMETHODIMP nsSmtpService::NewChannel(nsIURI *aURI,
+                                        nsILoadInfo* aLoadInfo,
+                                        nsIChannel **_retval)
 {
   NS_ENSURE_ARG_POINTER(aURI);
   // create an empty pipe for use with the input stream channel.

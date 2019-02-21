@@ -575,14 +575,9 @@ NS_IMETHODIMP nsMailboxService::NewURI(const nsACString &aSpec,
   return rv;
 }
 
-NS_IMETHODIMP nsMailboxService::NewChannel(nsIURI *aURI, nsIChannel **_retval)
-{
-  return NewChannel2(aURI, nullptr, _retval);
-}
-
-NS_IMETHODIMP nsMailboxService::NewChannel2(nsIURI *aURI,
-                                            nsILoadInfo *aLoadInfo,
-                                            nsIChannel **_retval)
+NS_IMETHODIMP nsMailboxService::NewChannel(nsIURI *aURI,
+                                           nsILoadInfo *aLoadInfo,
+                                           nsIChannel **_retval)
 {
   NS_ENSURE_ARG_POINTER(aURI);
   NS_ENSURE_ARG_POINTER(_retval);
@@ -601,7 +596,7 @@ NS_IMETHODIMP nsMailboxService::NewChannel2(nsIURI *aURI,
 
       rv = handler->NewURI(spec, "" /* ignored */, aURI, getter_AddRefs(pop3Uri));
       NS_ENSURE_SUCCESS(rv, rv);
-      return handler->NewChannel2(pop3Uri, aLoadInfo, _retval);
+      return handler->NewChannel(pop3Uri, aLoadInfo, _retval);
     }
   }
 

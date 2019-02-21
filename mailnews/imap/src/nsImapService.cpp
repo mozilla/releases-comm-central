@@ -447,7 +447,7 @@ NS_IMETHODIMP nsImapService::DisplayMessage(const char *aMessageURI,
         nullptr,
         nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
         nsIContentPolicy::TYPE_OTHER);
-      rv = NewChannel2(uri, loadInfo, getter_AddRefs(aChannel));
+      rv = NewChannel(uri, loadInfo, getter_AddRefs(aChannel));
       NS_ENSURE_SUCCESS(rv, rv);
 
       //  now try to open the channel passing in our display consumer as the listener
@@ -656,7 +656,7 @@ nsresult nsImapService::FetchMimePart(nsIImapUrl *aImapUrl,
           nullptr,
           nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
           nsIContentPolicy::TYPE_OTHER);
-        rv = NewChannel2(url, loadInfo, getter_AddRefs(aChannel));
+        rv = NewChannel(url, loadInfo, getter_AddRefs(aChannel));
         NS_ENSURE_SUCCESS(rv, rv);
 
         // we need a load group to hold onto the channel. When the request is finished,
@@ -1089,7 +1089,7 @@ nsresult nsImapService::GetMessageFromUrl(nsIImapUrl *aImapUrl,
         nullptr,
         nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
         nsIContentPolicy::TYPE_OTHER);
-      rv = NewChannel2(url, loadInfo, getter_AddRefs(channel));
+      rv = NewChannel(url, loadInfo, getter_AddRefs(channel));
       NS_ENSURE_SUCCESS(rv, rv);
 
       // we need a load group to hold onto the channel. When the request is finished,
@@ -2639,14 +2639,9 @@ NS_IMETHODIMP nsImapService::NewURI(const nsACString &aSpec,
   return rv;
 }
 
-NS_IMETHODIMP nsImapService::NewChannel(nsIURI *aURI, nsIChannel **aRetVal)
-{
-  return NewChannel2(aURI, nullptr, aRetVal);
-}
-
-NS_IMETHODIMP nsImapService::NewChannel2(nsIURI *aURI,
-                                         nsILoadInfo* aLoadInfo,
-                                         nsIChannel **aRetVal)
+NS_IMETHODIMP nsImapService::NewChannel(nsIURI *aURI,
+                                        nsILoadInfo* aLoadInfo,
+                                        nsIChannel **aRetVal)
 {
   NS_ENSURE_ARG_POINTER(aURI);
   NS_ENSURE_ARG_POINTER(aRetVal);
