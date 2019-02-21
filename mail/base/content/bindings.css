@@ -66,10 +66,6 @@ datepicker[type="grid"] {
   -moz-binding: url('chrome://messenger/content/datetimepicker.xml#datepicker-grid');
 }
 
-timepicker {
-  -moz-binding: url('chrome://messenger/content/datetimepicker.xml#timepicker');
-}
-
 textbox[type="number"] {
   -moz-binding: url('chrome://messenger/content/numberbox.xml#numberbox');
 }

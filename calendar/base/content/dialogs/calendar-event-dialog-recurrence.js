@@ -818,6 +818,10 @@ function updatePreview() {
  * dialog when the user enters a wrong until date.
  */
 function checkUntilDate() {
+    if (!gStartTime) { // This function shouldn't run before onLoad.
+        return;
+    }
+
     let untilDate = cal.dtz.jsDateToDateTime(getElementValue("repeat-until-date"), gStartTime.timezone);
     let startDate = gStartTime.clone();
     startDate.isDate = true;

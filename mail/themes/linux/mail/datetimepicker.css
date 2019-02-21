@@ -10,7 +10,6 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 datepicker, timepicker {
-  margin: 2px 4px;
   padding: 0;
   border: none;
   background: none;

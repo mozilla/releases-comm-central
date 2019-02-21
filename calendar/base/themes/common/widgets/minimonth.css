@@ -47,51 +47,50 @@ minimonth {
   border-width: 0;
   color: var(--mmMainColor);
   padding: 4px;
+  min-width: 175px;
+}
+
+minimonth:not([readonly="true"]) [anonid="minimonth-readonly-header"],
+minimonth[readonly="true"] [anonid="minimonth-header"] {
+  display: none;
 }
 
 .minimonth-month-box {
   background-color: var(--mmBoxBackground);
   border: 1px dotted var(--mmBoxBorderColor);
+  font-weight: bold;
+  text-align: center;
+  height: 22px;
 }
 
 .minimonth-month-name {
+  text-align: center;
   font-weight: bold;
   padding: 0px;
   -moz-user-focus: normal;
-}
-
-.minimonth-month-name-readonly {
-  text-align: right;
-  font-weight: bold;
 }
 
 .minimonth-year-name {
-  min-width: 4em;
+  width: 5ch;
+  text-align: center;
   font-weight: bold;
   padding: 0px;
   -moz-user-focus: normal;
-}
-
-.minimonth-year-name-readonly {
-  min-width: 4em;
-  font-weight: bold;
-  padding-inline-start: 4px;
-}
-
-.minimonth-month-name > .toolbarbutton-icon,
-.minimonth-year-name > .toolbarbutton-icon {
-  display: none;
-}
-
-.minimonth-nav-btns > .toolbarbutton-icon {
-  margin: 1px;
 }
 
 .minimonth-nav-btns {
-  padding: 0px;
-  min-width: 19px;
+  -moz-appearance: none;
+  padding: 4px;
   list-style-image: url("chrome://calendar-common/skin/widgets/nav-arrow.svg");
   -moz-user-focus: normal;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+.minimonth-nav-btns:active,
+.minimonth-nav-btns:focus,
+.minimonth-nav-btns:hover {
+  background-color: hsla(0,0%,0%,.1);
 }
 
 .minimonth-nav-btns > .toolbarbutton-text  {

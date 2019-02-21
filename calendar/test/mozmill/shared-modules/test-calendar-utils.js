@@ -12,7 +12,6 @@ var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 var SHORT_SLEEP = 100;
 var MID_SLEEP = 500;
 var TIMEOUT_MODAL_DIALOG = 30000;
-var TIMEOUT_MONTHCHANGE = 10000;
 var CALENDARNAME = "Mozmill";
 
 // These are used in EventBox lookup.
@@ -226,11 +225,11 @@ function switchToView(controller, view) {
  * @param day           1-based index of a day
  */
 function goToDate(controller, year, month, day) {
-    let { eid, lookup } = helpersForController(controller);
+    let { lookup } = helpersForController(controller);
 
     let activeYear = lookup(`
         ${MINIMONTH}/anon({"anonid":"minimonth-header"})/anon({"anonid":"yearcell"})
-    `).getNode().getAttribute("label");
+    `).getNode().getAttribute("value");
 
     let activeMonth = lookup(`
         ${MINIMONTH}/anon({"anonid":"minimonth-header"})/anon({"anonid":"monthheader"})
@@ -240,51 +239,33 @@ function goToDate(controller, year, month, day) {
     let monthDifference = activeMonth - (month - 1);
 
     if (yearDifference != 0) {
-        let direction = yearDifference > 0 ? "up" : "down";
-        let scrollArrow = lookup(`
-            ${MINIMONTH}/anon({"anonid":"minimonth-header"})/anon({"anonid":"minmonth-popupset"})/
-            anon({"anonid":"years-popup"})/{"class":"scrollbutton-${direction}"}`);
-
-        // Pick year.
-        controller.click(lookup(`
-            ${MINIMONTH}/anon({"anonid":"minimonth-header"})/anon({"anonid":"yearcell"})
-        `));
-
-        let getYearListitem = function(aYear) {
-            return lookup(`
-                ${MINIMONTH}/anon({"anonid":"minimonth-header"})/
-                anon({"anonid":"minmonth-popupset"})/anon({"anonid":"years-popup"})/
-                {"label":"${aYear}"}
-            `);
-        };
+        let scrollArrow = (yearDifference > 0) ? "years-back-button" : "years-forward-button";
+        scrollArrow = lookup(
+            `${MINIMONTH}/anon({"anonid":"minimonth-header"})/anon({"anonid":"${scrollArrow}"})`
+        );
 
         controller.waitForElement(scrollArrow);
         scrollArrow = scrollArrow.getNode();
 
         for (let i = 0; i < Math.abs(yearDifference); i++) {
             scrollArrow.doCommand();
-            controller.waitForElement(getYearListitem(
-                activeYear - ((i+1)*(yearDifference/Math.abs(yearDifference)))
-            ));
+            controller.sleep(10);
         }
-
-        controller.waitForEvents.init(eid("calMinimonth"), ["monthchange"]);
-        controller.click(getYearListitem(year));
-        controller.waitForEvents.wait(TIMEOUT_MONTHCHANGE);
     }
 
     if (monthDifference != 0) {
-        controller.waitForEvents.init(eid("calMinimonth"), ["monthchange"]);
-        // Pick month.
-        controller.click(lookup(`
-            ${MINIMONTH}/anon({"anonid":"minimonth-header"})/anon({"anonid":"monthheader"})/
-            [${activeMonth}]
-        `));
-        controller.waitThenClick(lookup(`
-            ${MINIMONTH}/anon({"anonid":"minimonth-header"})/anon({"anonid":"minmonth-popupset"})/
-            anon({"anonid":"months-popup"})/{"index":"${month - 1}"}
-        `));
-        controller.waitForEvents.wait(TIMEOUT_MONTHCHANGE);
+        let scrollArrow = (monthDifference > 0) ? "months-back-button" : "months-forward-button";
+        scrollArrow = lookup(
+            `${MINIMONTH}/anon({"anonid":"minimonth-header"})/anon({"anonid":"${scrollArrow}"})`
+        );
+
+        controller.waitForElement(scrollArrow);
+        scrollArrow = scrollArrow.getNode();
+
+        for (let i = 0; i < Math.abs(monthDifference); i++) {
+            scrollArrow.doCommand();
+            controller.sleep(25);
+        }
     }
 
     let lastDayInFirstRow = lookup(`

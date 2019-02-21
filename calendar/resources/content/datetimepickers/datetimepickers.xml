@@ -225,420 +225,6 @@
     </implementation>
   </binding>
 
-  <binding id="datepicker" extends="chrome://calendar/content/datetimepickers/datetimepickers.xml#datetimepicker-base">
-    <!-- Desired behavior: when user is done editing the date field
-         and either leaves the field (onblur) or closes the dialog
-         (13 is enter/return key), parse the date and redisplay it
-         in the date field using the current format to verify
-         whether the date was parsed correctly.
-         This cannot be done with textbox oninput, so use a workaround.
-         This was done with textbox onkeypress="parseTextBoxDate(true)"
-         and onblur="parseTextBoxDate(true)" which worked in Moz1.6, but
-         no longer works in Moz1.7.
-         Therefore constructor stores attribute kDatePicker on the textbox,
-         and the onblur and onkeypress commands navigate to this kDatePicker.
-         xul:Textbox contains an xul:hbox which contains html:input.
-         Onkeypress and onblur are not documented attributes of xul:textbox,
-         but become attributes of the html:input.
-         Not clear how to navigate from the textbox to the input, otherwise
-         could put kDatePicker property on the input element.
-         [document.getAnonymousNodes(textBox) fails as of Moz1.7b]).
-         So navigate parents to textbox in order to call parseTextBoxDate.
-         [this comment is outside the <content> so it won't become a
-         node that interferes with navigation to interior nodes.] -->
-    <content>
-      <xul:hbox flex="1" id="hbox" class="datepicker-box-class">
-        <xul:xbl-menulist editable="true" type="panel" sizetopopup="false"
-                          class="datepicker-text-class"
-                          onchange="this.kDatePicker.parseTextBoxDate(true, event);"
-                          onkeypress="if (event.key == 'Enter') this.kDatePicker.parseTextBoxDate(true);"
-                          xbl:inherits="disabled">
-          <xul:panel popupanchor="bottomright" popupalign="topright"
-                     anonid="datepopup"
-                     onpopupshowing="this.kDatePicker.onPopup();"
-                     onpopupshown="this.firstChild.focusCalendar();"
-                     onpopuphiding="this.firstChild.hidePopupList();">
-            <xul:minimonth/>
-          </xul:panel>
-        </xul:xbl-menulist>
-      </xul:hbox>
-    </content>
-
-    <implementation>
-      <constructor><![CDATA[
-          let hbox = document.getAnonymousNodes(this)[0];
-          this.kTextBox = hbox.firstChild;
-
-          let val = this.getAttribute("value");
-          if (val) {
-              this.value = new Date(val); // setting value property calls update
-          } else {
-              this.value = new Date();
-          }
-
-          this.kTextBox.kDatePicker = this; // enable call back to method in Moz1.7
-          this.kTextBox.firstChild.kDatePicker = this;
-          this.kMinimonth = this.kTextBox.firstChild.firstChild;
-          this.mInPopup = false;
-          this.kMinimonth.addEventListener("select", this.clickDate);
-      ]]></constructor>
-
-      <destructor><![CDATA[
-          this.kMinimonth.removeEventListener("select", this.clickDate);
-      ]]></destructor>
-
-      <!-- This property will be overlayed in some extended binding -->
-      <property name="valueValid" readonly="true">
-        <getter><![CDATA[
-            return (this.mValue != null);
-        ]]></getter>
-      </property>
-
-      <property name="extraDate"
-                onget="return this.kMinimonth.extra"
-                onset="this.kMinimonth.extra = val"/>
-
-      <method name="update">
-        <parameter name="aValue"/>
-        <parameter name="aRefresh"/>
-        <body><![CDATA[
-            if (aValue != null) {
-                // format fails if year <= 1600 on win2k, so try format first.
-                let formattedValue = null;
-                try {
-                    formattedValue = this.formatDate(aValue);
-                } catch (ex) {
-                    // formattedValue is checked for a value below
-                }
-
-                if (formattedValue) {
-                    // format succeeded, safe to set value
-                    let dateChanged = true;
-                    if (this.valueValid) {
-                        dateChanged = this.mValue.getDate() != aValue.getDate() ||
-                                      this.mValue.getMonth() != aValue.getMonth() ||
-                                      this.mValue.getFullYear() != aValue.getFullYear();
-                    }
-                    this.mValue = aValue;
-                    this.kTextBox.value = formattedValue;
-                    if (aRefresh && dateChanged) {
-                        this.fireEvent("change");
-                    }
-                }
-            } else if (this.mValue) {
-                // invalid date, revert to previous date
-                // set textBox.value property, not attribute
-                this.kTextBox.value = this.formatDate(this.mValue);
-            }
-        ]]></body>
-      </method>
-
-      <method name="onPopup">
-        <body><![CDATA[
-            this.mInPopup = true;
-            this.kMinimonth.update(this.mValue);
-            this.mInPopup = false;
-        ]]></body>
-      </method>
-
-      <method name="parseTextBoxDate">
-        <parameter name="aRefresh"/>
-        <parameter name="aEvent"/>
-        <body><![CDATA[
-            // Stop the "change" event propagation. It will be properly
-            // fired inside the update method.
-            if (aEvent) {
-                aEvent.stopPropagation();
-            }
-            this.update(this.parseDateTime(this.kTextBox.value), aRefresh);
-            this.lastDateParseIncludedTime = false;
-        ]]></body>
-      </method>
-
-      <method name="select">
-        <body><![CDATA[
-            // select all in text box
-            this.kTextBox.select();
-        ]]></body>
-      </method>
-
-      <method name="clickDate">
-        <parameter name="aEvent" />
-        <body><![CDATA[
-            let datepicker = aEvent.target.parentNode.parentNode.kDatePicker;
-            if (!datepicker.mInPopup) {
-                // aEvent.target is the minimonth
-                datepicker.update(new Date(aEvent.target.value), true);
-                // select changed value so no cursor appears (can't type to it).
-                datepicker.select();
-                aEvent.target.parentNode.hidePopup();
-            }
-        ]]></body>
-      </method>
-    </implementation>
-
-    <handlers>
-      <handler event="blur" phase="capturing"><![CDATA[
-          this.parseTextBoxDate(true);
-      ]]></handler>
-    </handlers>
-  </binding>
-
-  <binding id="datepicker-forever" extends="chrome://calendar/content/datetimepickers/datetimepickers.xml#datepicker">
-    <content>
-      <xul:hbox flex="1" id="hbox" class="datepicker-box-class">
-        <xul:xbl-menulist anonid="foreverMenulist" editable="true" type="panel" sizetopopup="false"
-                          class="datepicker-text-class"
-                          onchange="this.kDatePicker.parseTextBoxDate(true, event);"
-                          onkeypress="if (event.key == 'Enter') this.kDatePicker.parseTextBoxDate(true);"
-                          xbl:inherits="disabled">
-          <xul:panel popupanchor="bottomright" popupalign="topright"
-                     anonid="datepopup"
-                     onpopupshowing="this.parentNode.kDatePicker.onPopup();"
-                     onpopupshown="this.firstChild.focusCalendar();"
-                     onpopuphiding="this.firstChild.hidePopupList();">
-            <xul:minimonth/>
-            <xul:menuseparator/>
-            <xul:button anonid="menuitemForever"
-                        class="datepicker-text-menuItem-class"
-                        oncommand="onMenuitemForever(); this.parentNode.hidePopup();"/>
-          </xul:panel>
-        </xul:xbl-menulist>
-      </xul:hbox>
-    </content>
-
-    <implementation>
-      <field name="mForeverStr">null</field>
-
-      <constructor><![CDATA[
-          const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-
-          this.mForeverStr = cal.l10n.getString("calendar-event-dialog", "eventRecurrenceForeverLabel");
-          document.getAnonymousElementByAttribute(this, "anonid", "menuitemForever")
-                  .setAttribute("label", this.mForeverStr);
-      ]]></constructor>
-
-      <method name="parseTextBoxDate">
-        <parameter name="aRefresh"/>
-        <parameter name="aEvent"/>
-        <body><![CDATA[
-            if (this.kTextBox.value.toLowerCase() == this.mForeverStr.toLowerCase()) {
-                this.mValue = "forever";
-                this.kTextBox.value = this.mForeverStr;
-            } else {
-                // Stop the "change" event propagation. It will be properly
-                // fired inside the update method.
-                if (aEvent) {
-                    aEvent.stopPropagation();
-                }
-                let date = this.parseDateTime(this.kTextBox.value);
-                if (date) {
-                    this.update(date, aRefresh);
-                } else {
-                    // Invalid date, revert to previous date.
-                    this.kTextBox.value = this.mValue == "forever" ? this.mForeverStr
-                                                                   : this.formatDate(this.mValue);
-                }
-                this.lastDateParseIncludedTime = false;
-            }
-        ]]></body>
-      </method>
-
-      <method name="onMenuitemForever">
-        <body><![CDATA[
-            if (this.kTextBox.value.toLowerCase() == this.mForeverStr.toLowerCase()) {
-                this.mValue = "forever";
-            }
-        ]]></body>
-      </method>
-
-      <property name="value">
-        <getter><![CDATA[
-            return this.mValue;
-        ]]></getter>
-        <setter><![CDATA[
-            if (val == "forever") {
-                document.getAnonymousElementByAttribute(this, "anonid", "foreverMenulist").selectedIndex = 1;
-                this.mValue = "forever";
-                this.kTextBox.value = this.mForeverStr;
-            } else {
-                this.update(val, false);
-            }
-        ]]></setter>
-      </property>
-
-      <property name="menuitemForever" readonly="true">
-        <getter><![CDATA[
-            return document.getAnonymousElementByAttribute(this, "anonid", "menuitemForever");
-        ]]></getter>
-      </property>
-
-      <method name="onPopup">
-        <parameter name="aDate"/>
-        <body><![CDATA[
-            // avoid reinitializing during reshow, for bugs 273914 & 278877 workaround
-            if (!this.mIsReshowing) {
-                this.mInPopup = true;
-                if (this.mValue == "forever") {
-                    this.kMinimonth.update(null);
-                    this.menuitemForever.setAttribute("highlight", "true");
-                } else {
-                    this.kMinimonth.update(this.mValue);
-                    this.menuitemForever.removeAttribute("highlight");
-                }
-                this.mInPopup = false;
-            }
-        ]]></body>
-      </method>
-
-      <property name="valueValid" readonly="true">
-        <getter><![CDATA[
-            return (this.mValue != null && this.mValue != "forever");
-        ]]></getter>
-      </property>
-    </implementation>
-  </binding>
-
-  <binding id="timepicker" extends="chrome://calendar/content/datetimepickers/datetimepickers.xml#datetimepicker-base">
-    <!-- Desired behavior: when user is done editing the time field
-         and either leaves the field (onblur) or closes the dialog
-         (13 is enter/return key), parse the time and redisplay it
-         in the time field using the current format to verify
-         whether the time was parsed correctly.
-         This cannot be done with textbox oninput, so use a workaround.
-         This was done with textbox onkeypress="parseTextBoxTime(true)"
-         and onblur="parseTextBoxTime(true)" which worked in Moz1.6, but
-         no longer works in Moz1.7.
-         Therefore constructor stores attribute kTimePicker on the textbox,
-         and the onblur and onkeypress commands navigate to this kTimePicker.
-         xul:Textbox contains an xul:hbox which contains html:input.
-         Onkeypress and onblur are not documented attributes of xul:textbox,
-         but become attributes of the html:input.
-         Not clear how to navigate from the textbox to the input, otherwise
-         could put kTimePicker property on the input element.
-         [document.getAnonymousNodes(textBox) fails as of Moz1.7b]).
-         So navigate parents to textbox in order to call parseTextBoxTime.
-         [this comment is outside the <content> so it won't become a
-         node that interferes with navigation to interior nodes.] -->
-    <content>
-      <xul:hbox flex="1" id="hbox" class="timepicker-box-class">
-        <xul:xbl-menulist editable="true" sizetopopup="false"
-                          id="timepicker-text"
-                          class="timepicker-text-class"
-                          onchange="this.kTimePicker.parseTextBoxTime(true, event);"
-                          onkeypress="if (event.key == 'Enter') this.kTimePicker.parseTextBoxTime(true);"
-                          xbl:inherits="disabled">
-          <xul:menupopup popupalign="topright" popupanchor="bottomright"
-                         onpopupshowing="onPopup(this)"
-                         onpopuphiding="onHide(this)">
-            <xul:timepicker-grids anonid="timepickerGrids"/>
-          </xul:menupopup>
-        </xul:xbl-menulist>
-      </xul:hbox>
-    </content>
-
-    <implementation>
-      <constructor><![CDATA[
-          const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
-          let hbox = document.getAnonymousNodes(this)[0];
-          this.kTextBox = hbox.childNodes[0];
-          this.kTextBox.kTimePicker = this; // enable call back to method in Moz1.7
-
-          let val = this.getAttribute("value");
-          if (val) {
-              this.value = new Date(val);
-          } else {
-              this.value = new Date();
-          }
-
-          // Change the grids in the timepicker-grids for 12-hours time format.
-          if (this.ampmIndex) {
-              // Find the locale strings for the AM/PM prefix/suffix.
-              let amTime = new Date(2000, 0, 1, 6, 12, 34);
-              let pmTime = new Date(2000, 0, 1, 18, 12, 34);
-              let formatter = new Services.intl.DateTimeFormat(undefined, this.kTimeFormatObject);
-              amTime = formatter.format(amTime);
-              pmTime = formatter.format(pmTime);
-              let amLabel = this.parseTimeRegExp.exec(amTime)[this.ampmIndex] || "AM";
-              let pmLabel = this.parseTimeRegExp.exec(pmTime)[this.ampmIndex] || "PM";
-
-              document.getAnonymousElementByAttribute(this, "anonid", "timepickerGrids")
-                      .changeTo12HoursFormat(amLabel, pmLabel);
-          }
-      ]]></constructor>
-
-      <method name="update">
-        <parameter name="aValue"/>
-        <parameter name="aRefresh"/>
-        <body><![CDATA[
-            let timeChanged = false;
-            if (aValue != null) {
-                if (this.mValue) {
-                    timeChanged = this.mValue.getHours() != aValue.getHours() ||
-                                  this.mValue.getMinutes() != aValue.getMinutes();
-                }
-                this.mValue = aValue;
-            }
-            // set textBox.value property, not attribute
-            this.kTextBox.value = this.formatTime(this.mValue);
-
-            if (aValue != null && aRefresh && timeChanged) {
-                let event = document.createEvent("Events");
-                event.initEvent("change", true, true);
-                this.dispatchEvent(event);
-            }
-        ]]></body>
-      </method>
-
-      <method name="parseTextBoxTime">
-        <parameter name="aRefresh"/>
-        <parameter name="aEvent"/>
-        <body><![CDATA[
-            // Stop the "change" event propagation. It will be properly
-            // fired inside the update method.
-            if (aEvent) {
-                aEvent.stopPropagation();
-            }
-            let time = this.parseTime(this.kTextBox.value);
-            this.update(time, aRefresh);
-            return time;
-        ]]></body>
-      </method>
-
-      <method name="onPopup">
-        <parameter name="aPopup" />
-        <body><![CDATA[
-            // select all to remove cursor since can't type while popped-up
-            this.select();
-            let timePickerGrid = aPopup.childNodes[0];
-            timePickerGrid.onPopupShowing(this, aPopup);
-        ]]></body>
-      </method>
-
-      <method name="onHide">
-        <parameter name="aPopup"/>
-        <body><![CDATA[
-            // This is the timepicker grid.  Why aren't we using anonid?
-            aPopup.childNodes[0].onPopupHiding();
-        ]]></body>
-      </method>
-
-      <method name="select">
-        <body><![CDATA[
-            // select all in text box
-            this.kTextBox.select();
-        ]]></body>
-      </method>
-    </implementation>
-
-    <handlers>
-      <handler event="blur" phase="capturing"><![CDATA[
-          this.parseTextBoxTime(true);
-      ]]></handler>
-    </handlers>
-  </binding>
-
   <binding id="timepicker-hour">
     <content>
       <xul:spacer flex="1"/>
@@ -1037,7 +623,6 @@
       <constructor><![CDATA[
           // set by onPopupShowing
           this.mPicker = null;
-          this.mPopup = null;
 
           // The currently selected time
           this.mSelectedTime = new Date();
@@ -1049,23 +634,29 @@
           this.kMINUTE_VIEW_ONE = 1;
       ]]></constructor>
 
+      <property name="value">
+        <getter><![CDATA[
+            return [
+                this.mSelectedTime.getHours(),
+                this.mSelectedTime.getMinutes(),
+            ];
+        ]]></getter>
+        <setter><![CDATA[
+            if (typeof val == "string") {
+                val = parseTime(val);
+            } else if (Array.isArray(val)) {
+                let [hours, minutes] = val;
+                val = new Date();
+                val.setHours(hours);
+                val.setMinutes(minutes);
+            }
+            this.mSelectedTime = val;
+        ]]></setter>
+      </property>
+
       <!-- Set up the picker, called when the popup pops -->
       <method name="onPopupShowing">
-        <parameter name="aPicker"/>
-        <parameter name="aPopup"/>
         <body><![CDATA[
-            this.mPicker = aPicker;
-            this.mPopup = aPopup;
-
-            // if there is a Date object in the popup item's
-            // value attribute, use it, otherwise use Now.
-            let inputTime = this.mPicker.value;
-            if (inputTime) {
-                this.mSelectedTime = new Date(inputTime);
-            } else {
-                this.mSelectedTime = new Date();
-            }
-
             // select the hour item
             let hours24 = this.mSelectedTime.getHours();
             let hourItemId = "time-picker-hour-box-" + hours24;
@@ -1080,14 +671,6 @@
                 this.clickLess();
             } else {
                 this.clickMore();
-            }
-        ]]></body>
-      </method>
-
-      <method name="onPopupHiding">
-        <body><![CDATA[
-            if (this.hasChanged) {
-                this.timeSelected();
             }
         ]]></body>
       </method>
@@ -1147,8 +730,7 @@
             // set the minutes to :00
             this.mSelectedTime.setMinutes(0);
 
-            // remove the popup grid
-            this.mPopup.hidePopup();
+            this.dispatchEvent(new CustomEvent("select"));
         ]]></body>
       </method>
 
@@ -1162,22 +744,8 @@
             this.mSelectedTime.setMinutes(minuteNumber);
             this.selectMinuteItem(minuteItem);
             this.hasChanged = true;
-            // remove the popup grid
-            this.mPopup.hidePopup();
-        ]]></body>
-      </method>
 
-      <!-- Called by clickMinute when one of the minute boxes is clicked,
-           Sets the value property and calls the client's onchange. -->
-      <method name="timeSelected">
-        <body><![CDATA[
-            // Copy picked time to avoid problems changing Date object in place
-            let pickedTime = new Date(this.mSelectedTime);
-
-            // put the picked time in the value property, and update
-            this.mPicker.update(pickedTime, true);
-            // select changed value so no cursor appears (can't type to it).
-            this.mPicker.select();
+            this.dispatchEvent(new CustomEvent("select"));
         ]]></body>
       </method>
 
@@ -1332,99 +900,6 @@
             }
             document.getAnonymousElementByAttribute(this, "anonid", "time-picker-hour-grid")
                     .setAttribute("format12hours", "true");
-        ]]></body>
-      </method>
-    </implementation>
-  </binding>
-
-  <binding id="datetimepicker" extends="chrome://calendar/content/datetimepickers/datetimepickers.xml#datetimepicker-base"
-           inherits="value,onchange,disabled,datepickerdisabled,timepickerdisabled">
-    <!-- onchange was simply "onDatePick()" in Moz1.6, but stopped working in Moz1.7
-         so had to add navigation by parents. -->
-    <content>
-      <xul:hbox flex="1" anonid="hbox">
-        <xul:datepicker anonid="date-picker"
-                        onchange="this.parentNode.parentNode.onDatePick();"
-                        xbl:inherits="value,disabled,disabled=datepickerdisabled"/>
-        <xul:timepicker anonid="time-picker"
-                        onchange="this.parentNode.parentNode.onTimePick();"
-                        xbl:inherits="value,disabled,disabled=timepickerdisabled"/>
-      </xul:hbox>
-    </content>
-
-    <implementation>
-      <property name="datepickerdisabled"
-                onset="if (val) this.kDatePicker.setAttribute('disabled', 'true');
-                       else this.kDatePicker.removeAttribute('disabled');"
-                onget="return this.kDatePicker.getAttribute('disabled')=='true';"/>
-
-      <!-- timepicker may be disabled alone for all day events -->
-      <property name="timepickerdisabled"
-                onset="if (val) this.kTimePicker.setAttribute('disabled', 'true');
-                       else this.kTimePicker.removeAttribute('disabled');"
-                onget="return this.kTimePicker.getAttribute('disabled')=='true';"/>
-
-      <constructor><![CDATA[
-          this.kDatePicker =
-              document.getAnonymousElementByAttribute(this, "anonid", "date-picker");
-          this.kTimePicker =
-              document.getAnonymousElementByAttribute(this, "anonid", "time-picker");
-
-          let val = this.getAttribute("value");
-          this.mValue = (val ? new Date(val)
-                             : new Date());
-      ]]></constructor>
-
-      <method name="update">
-        <parameter name="aValue"/>
-        <parameter name="aRefresh"/>
-        <body><![CDATA[
-            if (aValue != null) {
-                this.mValue = aValue;
-            }
-            // set textBox.value property, not attribute
-            this.kDatePicker.update(this.mValue, aRefresh);
-            this.kTimePicker.update(this.mValue, aRefresh);
-            if (aRefresh) {
-                this.fireEvent("change");
-            }
-        ]]></body>
-      </method>
-
-      <!-- Date was changed by gui: update value. -->
-      <method name="onDatePick">
-        <body><![CDATA[
-            let tempTime;
-            if (this.kDatePicker.lastDateParseIncludedTime) {
-                tempTime = new Date(this.kDatePicker.value);
-            } else {
-                tempTime = new Date(this.mValue);
-            }
-            let newDate = new Date(this.kDatePicker.value);
-            // Note: create new date because setting month and date of month in
-            // either order can lead to unexpected results (month may be advanced
-            // automatically if day of month is temporarily out of range).
-            let dateTime = new Date(newDate.getFullYear(),
-                                    newDate.getMonth(),
-                                    newDate.getDate(),
-                                    tempTime.getHours(),
-                                    tempTime.getMinutes(),
-                                    tempTime.getSeconds());
-            this.mValue = dateTime;
-            this.kTimePicker.update(dateTime, false);
-        ]]></body>
-      </method>
-
-      <!-- Time was changed by gui: update value -->
-      <method name="onTimePick">
-        <body><![CDATA[
-            let dateTime = new Date(this.mValue);
-            let newTime = this.kTimePicker.value;
-            dateTime.setHours(newTime.getHours());
-            dateTime.setMinutes(newTime.getMinutes());
-            dateTime.setSeconds(newTime.getSeconds());
-            this.mValue = dateTime;
-            this.kDatePicker.update(dateTime, false);
         ]]></body>
       </method>
     </implementation>

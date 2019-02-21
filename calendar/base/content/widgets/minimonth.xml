@@ -39,9 +39,12 @@
           xmlns:xbl="http://www.mozilla.org/xbl"
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-  <binding id="minimonth-header" extends="xul:box">
+  <binding id="minimonth-header">
     <content class="minimonth-month-box" align="center">
-      <xul:deck anonid="monthheader" xbl:inherits="selectedIndex=month" class="minimonth-month-name-readonly">
+      <xul:toolbarbutton anonid="months-back-button" class="minimonth-nav-btns" dir="-1"
+                         oncommand="this.kMinimonth.advanceMonth(parseInt(this.getAttribute('dir'), 10))"
+                         tooltiptext="&onemonthbackward.tooltip;"/>
+      <xul:deck anonid="monthheader" xbl:inherits="selectedIndex=month" class="minimonth-month-name" tabindex="-1">
         <xul:text value="&month.1.name;"/>
         <xul:text value="&month.2.name;"/>
         <xul:text value="&month.3.name;"/>
@@ -55,295 +58,42 @@
         <xul:text value="&month.11.name;"/>
         <xul:text value="&month.12.name;"/>
       </xul:deck>
-      <xul:text anonid="yearcell" class="minimonth-year-name-readonly" xbl:inherits="value=year"/>
-      <xul:spacer flex="1"/>
-    </content>
-  </binding>
-
-  <binding id="active-minimonth-header" extends="chrome://calendar/content/widgets/minimonth.xml#minimonth-header">
-    <content class="minimonth-month-box" align="center">
-      <xul:deck anonid="monthheader" xbl:inherits="selectedIndex=month">
-        <xul:toolbarbutton class="minimonth-month-name" label="&month.1.name;"  oncommand="showPopupList(event, 'months-popup')"/>
-        <xul:toolbarbutton class="minimonth-month-name" label="&month.2.name;"  oncommand="showPopupList(event, 'months-popup')"/>
-        <xul:toolbarbutton class="minimonth-month-name" label="&month.3.name;"  oncommand="showPopupList(event, 'months-popup')"/>
-        <xul:toolbarbutton class="minimonth-month-name" label="&month.4.name;"  oncommand="showPopupList(event, 'months-popup')"/>
-        <xul:toolbarbutton class="minimonth-month-name" label="&month.5.name;"  oncommand="showPopupList(event, 'months-popup')"/>
-        <xul:toolbarbutton class="minimonth-month-name" label="&month.6.name;"  oncommand="showPopupList(event, 'months-popup')"/>
-        <xul:toolbarbutton class="minimonth-month-name" label="&month.7.name;"  oncommand="showPopupList(event, 'months-popup')"/>
-        <xul:toolbarbutton class="minimonth-month-name" label="&month.8.name;"  oncommand="showPopupList(event, 'months-popup')"/>
-        <xul:toolbarbutton class="minimonth-month-name" label="&month.9.name;"  oncommand="showPopupList(event, 'months-popup')"/>
-        <xul:toolbarbutton class="minimonth-month-name" label="&month.10.name;" oncommand="showPopupList(event, 'months-popup')"/>
-        <xul:toolbarbutton class="minimonth-month-name" label="&month.11.name;" oncommand="showPopupList(event, 'months-popup')"/>
-        <xul:toolbarbutton class="minimonth-month-name" label="&month.12.name;" oncommand="showPopupList(event, 'months-popup')"/>
-      </xul:deck>
-      <xul:toolbarbutton anonid="yearcell"
-                         class="minimonth-year-name"
-                         oncommand="showPopupList(event, 'years-popup')"
-                         xbl:inherits="label=year"/>
-      <xul:spacer flex="1"/>
-      <xul:toolbarbutton anonid="back-button" class="minimonth-nav-btns" dir="-1"
+      <xul:toolbarbutton anonid="months-forward-button" class="minimonth-nav-btns" dir="1"
                          oncommand="this.kMinimonth.advanceMonth(parseInt(this.getAttribute('dir'), 10))"
-                         tooltiptext="&onemonthbackward.tooltip;"/>
+                         tooltiptext="&onemonthforward.tooltip;"/>
+      <xul:toolbarbutton anonid="years-back-button" class="minimonth-nav-btns" dir="-1"
+                         oncommand="this.kMinimonth.advanceYear(parseInt(this.getAttribute('dir'), 10))"
+                         tooltiptext="&oneyearbackward.tooltip;"/>
+      <xul:text anonid="yearcell" class="minimonth-year-name" xbl:inherits="value=year" tabindex="-1"/>
+      <xul:toolbarbutton anonid="years-forward-button" class="minimonth-nav-btns" dir="1"
+                         oncommand="this.kMinimonth.advanceYear(parseInt(this.getAttribute('dir'), 10))"
+                         tooltiptext="&oneyearforward.tooltip;"/>
+      <xul:spacer flex="1"/>
       <xul:toolbarbutton anonid="today-button" class="minimonth-nav-btns" dir="0"
                          oncommand="this.kMinimonth.value = new Date();"
                          tooltiptext="&showToday.tooltip;"/>
-      <xul:toolbarbutton anonid="forward-button" class="minimonth-nav-btns" dir="1"
-                         oncommand="this.kMinimonth.advanceMonth(parseInt(this.getAttribute('dir'), 10))"
-                         tooltiptext="&onemonthforward.tooltip;"/>
-      <xul:popupset anonid="minmonth-popupset">
-        <xul:menupopup anonid="months-popup" position="after_start"
-                       onpopupshowing="event.stopPropagation();"
-                       onpopuphidden="firePopupListHidden();">
-          <xul:menuitem class="minimonth-list" oncommand="onMonthsPopupCommand(this)" label="&month.1.name;"  index="0"/>
-          <xul:menuitem class="minimonth-list" oncommand="onMonthsPopupCommand(this)" label="&month.2.name;"  index="1"/>
-          <xul:menuitem class="minimonth-list" oncommand="onMonthsPopupCommand(this)" label="&month.3.name;"  index="2"/>
-          <xul:menuitem class="minimonth-list" oncommand="onMonthsPopupCommand(this)" label="&month.4.name;"  index="3"/>
-          <xul:menuitem class="minimonth-list" oncommand="onMonthsPopupCommand(this)" label="&month.5.name;"  index="4"/>
-          <xul:menuitem class="minimonth-list" oncommand="onMonthsPopupCommand(this)" label="&month.6.name;"  index="5"/>
-          <xul:menuitem class="minimonth-list" oncommand="onMonthsPopupCommand(this)" label="&month.7.name;"  index="6"/>
-          <xul:menuitem class="minimonth-list" oncommand="onMonthsPopupCommand(this)" label="&month.8.name;"  index="7"/>
-          <xul:menuitem class="minimonth-list" oncommand="onMonthsPopupCommand(this)" label="&month.9.name;"  index="8"/>
-          <xul:menuitem class="minimonth-list" oncommand="onMonthsPopupCommand(this)" label="&month.10.name;" index="9"/>
-          <xul:menuitem class="minimonth-list" oncommand="onMonthsPopupCommand(this)" label="&month.11.name;" index="10"/>
-          <xul:menuitem class="minimonth-list" oncommand="onMonthsPopupCommand(this)" label="&month.12.name;" index="11"/>
-        </xul:menupopup>
-        <xul:menupopup anonid="years-popup" position="after_start"
-                       onpopupshowing="moveYears('reset', 0); event.stopPropagation();"
-                       onpopuphidden="firePopupListHidden();">
-          <xul:toolbarbutton class="scrollbutton-up"
-                             orient="vertical"
-                             oncommand="moveYears('up', 1);"
-                             onmouseenter="startScroll('up', 1);"
-                             onmouseout="stopScroll();"/>
-          <xul:menuitem class="minimonth-list" oncommand="onYearsPopupCommand(this)"/>
-          <xul:menuitem class="minimonth-list" oncommand="onYearsPopupCommand(this)"/>
-          <xul:menuitem class="minimonth-list" oncommand="onYearsPopupCommand(this)"/>
-          <xul:menuitem class="minimonth-list" oncommand="onYearsPopupCommand(this)"/>
-          <xul:menuitem class="minimonth-list" oncommand="onYearsPopupCommand(this)"/>
-          <xul:menuitem class="minimonth-list" oncommand="onYearsPopupCommand(this)"/>
-          <xul:menuitem class="minimonth-list" oncommand="onYearsPopupCommand(this)"/>
-          <xul:menuitem class="minimonth-list" oncommand="onYearsPopupCommand(this)"/>
-          <xul:menuitem class="minimonth-list" oncommand="onYearsPopupCommand(this)"/>
-          <xul:toolbarbutton class="scrollbutton-down"
-                             orient="vertical"
-                             oncommand="moveYears('down', 1);"
-                             onmouseenter="startScroll('down', 1);"
-                             onmouseout="stopScroll();"/>
-        </xul:menupopup>
-      </xul:popupset>
     </content>
     <implementation>
       <field name="kMinimonth">null</field>
-      <field name="mPopup">null</field>
-      <field name="mScrollYearsHandler">null</field>
-      <field name="mPixelScrollDelta">0</field>
       <constructor><![CDATA[
           const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
           this.kMinimonth = cal.view.getParentNodeOrThis(this, "minimonth");
-          document.getAnonymousElementByAttribute(this, "anonid", "back-button").kMinimonth = this.kMinimonth;
+          document.getAnonymousElementByAttribute(this, "anonid", "months-back-button").kMinimonth = this.kMinimonth;
+          document.getAnonymousElementByAttribute(this, "anonid", "months-forward-button").kMinimonth = this.kMinimonth;
+          document.getAnonymousElementByAttribute(this, "anonid", "years-back-button").kMinimonth = this.kMinimonth;
+          document.getAnonymousElementByAttribute(this, "anonid", "years-forward-button").kMinimonth = this.kMinimonth;
           document.getAnonymousElementByAttribute(this, "anonid", "today-button").kMinimonth = this.kMinimonth;
-          document.getAnonymousElementByAttribute(this, "anonid", "forward-button").kMinimonth = this.kMinimonth;
-
-          this.mScrollYearsHandler = this.scrollYears.bind(this);
-          document.getAnonymousElementByAttribute(this, "anonid", "years-popup")
-                  .addEventListener("wheel", this.mScrollYearsHandler, true);
       ]]></constructor>
-
-      <destructor><![CDATA[
-          document.getAnonymousElementByAttribute(this, "anonid", "years-popup")
-                  .removeEventListener("wheel", this.mScrollYearsHandler, true);
-          this.mScrollYearsHandler = null;
-      ]]></destructor>
-
-      <method name="showPopupList">
-        <parameter name="aEvent"/>
-        <parameter name="aPopupAnonId"/>
-        <body><![CDATA[
-            // Close open popups (if any), to prevent linux crashes
-            if (this.mPopup) {
-                this.mPopup.hidePopup();
-            }
-            this.mPopup = document.getAnonymousElementByAttribute(this, "anonid", aPopupAnonId);
-            this.mPopup.openPopup(aEvent.target, "after_start");
-        ]]></body>
-      </method>
-
-      <method name="hidePopupList">
-        <body><![CDATA[
-            // Close open popups (if any)
-            let popup = this.mPopup;
-            this.mPopup = null;
-            if (popup) {
-                popup.hidePopup();
-            }
-        ]]></body>
-      </method>
-
-      <method name="firePopupListHidden">
-        <body><![CDATA[
-            if (this.mPopup) {
-                this.mPopup = null;
-                this.kMinimonth.fireEvent("popuplisthidden");
-            }
-        ]]></body>
-      </method>
-
-      <method name="onMonthsPopupCommand">
-        <parameter name="aItem"/>
-        <body><![CDATA[
-            let popup = cal.view.getParentNodeOrThis(aItem, "menupopup");
-            let triggerNode = popup.triggerNode || popup.anchorNode;
-            let deck = triggerNode.parentNode;
-
-            this.hidePopupList();
-            this.kMinimonth.switchMonth(aItem.getAttribute("index"));
-
-            deck.childNodes[deck.selectedIndex].focus();
-        ]]></body>
-      </method>
-
-      <method name="onYearsPopupCommand">
-        <parameter name="aItem"/>
-        <body><![CDATA[
-            this.hidePopupList();
-            let value = aItem.getAttribute("label");
-            if (value) {
-                this.kMinimonth.switchYear(value);
-            }
-        ]]></body>
-      </method>
-
-      <method name="updateMonthPopup">
-        <parameter name="aDate"/>
-        <body><![CDATA[
-            let months = document.getAnonymousElementByAttribute(this, "anonid", "months-popup").childNodes;
-            let month = aDate.getMonth();
-            for (let i = 0; i < months.length; i++) {
-                months[i].setAttribute("current", i == month ? "true" : "false");
-            }
-        ]]></body>
-      </method>
-
-      <method name="updateYearPopup">
-        <parameter name="aDate"/>
-        <body><![CDATA[
-            let years = document.getAnonymousElementByAttribute(this, "anonid", "years-popup").childNodes;
-            let year = new Date(aDate);
-            let compFullYear = aDate.getFullYear();
-            year.setFullYear(Math.max(1, compFullYear - Math.trunc(years.length / 2) + 1));
-            for (let i = 1; i < years.length - 1; i++) {
-                let curfullYear = year.getFullYear();
-                years[i].setAttribute("label", curfullYear);
-                years[i].setAttribute("current", curfullYear == compFullYear ? "true" : "false");
-                year.setFullYear(curfullYear + 1);
-            }
-        ]]></body>
-      </method>
-
-      <method name="scrollYears">
-        <parameter name="event"/>
-        <body><![CDATA[
-            let yearPopup = cal.view.getParentNodeOrThis(event.target, "menupopup");
-            const pixelThreshold = 75;
-            if (yearPopup) {
-                let monthList = yearPopup.getElementsByAttribute("class", "minimonth-list");
-                if (monthList && monthList.length > 0) {
-                    if (event.deltaMode == event.DOM_DELTA_PAGE) {
-                        let dir = event.deltaY > 0 ? "up" : "down";
-                        this.moveYears(dir, Math.abs(event.deltaY) * monthList.length);
-                    } else if (event.deltaMode == event.DOM_DELTA_LINE) {
-                        let dir = event.deltaY > 0 ? "up" : "down";
-                        this.moveYears(dir, 1);
-                    } else if (event.deltaMode == event.DOM_DELTA_PIXEL) {
-                        this.mPixelScrollDelta += event.deltaY;
-                        if (this.mPixelScrollDelta > pixelThreshold) {
-                            this.moveYears("down", 1);
-                            this.mPixelScrollDelta = 0;
-                        } else if (this.mPixelScrollDelta < -pixelThreshold) {
-                            this.moveYears("up", 1);
-                            this.mPixelScrollDelta = 0;
-                        }
-                    }
-
-                    event.stopPropagation();
-                    event.preventDefault();
-                }
-            }
-        ]]></body>
-      </method>
-
-      <method name="startScroll">
-        <parameter name="direction"/>
-        <parameter name="scrollOffset"/>
-        <body><![CDATA[
-            this.scrollInterval = setInterval(() => {
-                this.moveYears(direction, scrollOffset);
-            }, 50);
-        ]]></body>
-      </method>
-
-      <method name="stopScroll">
-        <body><![CDATA[
-            clearInterval(this.scrollInterval);
-        ]]></body>
-      </method>
-
-      <method name="moveYears">
-        <parameter name="direction"/>
-        <parameter name="scrollOffset"/>
-        <body><![CDATA[
-            // Update the year popup
-            let years = document.getAnonymousElementByAttribute(this, "anonid", "years-popup").childNodes;
-            let current = this.getAttribute("year");
-            let offset;
-            switch (direction) {
-                case "reset": {
-                    let middleyear = years[Math.floor(years.length / 2)].getAttribute("label");
-                    if (current <= (years.length / 2)) {
-                        offset = 1 - years[1].getAttribute("label");
-                    } else {
-                        offset = current - middleyear;
-                    }
-                    break;
-                }
-                case "up": {
-                    offset = -Math.abs(scrollOffset) || -1;
-                    break;
-                }
-                case "down": {
-                    offset = Math.abs(scrollOffset) || 1;
-                    break;
-                }
-            }
-
-            // Disable the up arrow when we get to the year 1.
-            years[0].disabled = parseInt(years[1].getAttribute("label"), 10) + offset < 2;
-
-            if (!offset) {
-                // No need to loop through when the offset is zero.
-                return;
-            }
-
-            // Go through all visible years and set the new value. Be sure to
-            // skip the scrollbuttons.
-            for (let i = 1; i < years.length - 1; i++) {
-                let value = parseInt(years[i].getAttribute("label"), 10) + offset;
-                years[i].setAttribute("label", value);
-                years[i].setAttribute("current", value == current ? "true" : "false");
-            }
-        ]]></body>
-      </method>
     </implementation>
-
-    <handlers>
-      <handler event="bindingattached" action="this.initialize();"/>
-    </handlers>
   </binding>
 
   <binding id="minimonth" extends="xul:box">
     <content orient="vertical" xbl:inherits="onchange,onmonthchange,onpopuplisthidden,readonly" role="group">
       <xul:minimonth-header anonid="minimonth-header" xbl:inherits="readonly,month,year"/>
+      <xul:hbox anonid="minimonth-readonly-header" class="minimonth-month-box" align="center" pack="center">
+        <xul:text anonid="minimonth-readonly-header-text"/>
+      </xul:hbox>
       <html:table anonid="minimonth-calendar" class="minimonth-cal-box">
         <html:tr class="minimonth-row-head" anonid="minimonth-row-header">
           <html:th class="minimonth-row-header-week" scope="col"/>
@@ -442,6 +192,12 @@
             let lastDateTime = cal.dtz.jsDateToDateTime(date);
             lastDateTime.day = lastDateTime.day + 1;
             return lastDateTime;
+        ]]></getter>
+      </property>
+
+      <property name="mReadOnlyHeaderText">
+        <getter><![CDATA[
+            return document.getAnonymousElementByAttribute(this, "anonid", "minimonth-readonly-header-text");
         ]]></getter>
       </property>
 
@@ -872,12 +628,11 @@
             // Update the month and year title
             this.setAttribute("month", aDate.getMonth());
             this.setAttribute("year", aDate.getFullYear());
-            if (!this.mIsReadOnly) {
-                // Update the month popup
-                let header = document.getAnonymousElementByAttribute(this, "anonid", "minimonth-header");
-                header.updateYearPopup(aDate);
-                header.updateMonthPopup(aDate);
-            }
+            this.mReadOnlyHeaderText.setAttribute("value",
+                cal.l10n.getDateFmtString(`month.${aDate.getMonth() + 1}.name`) +
+                " " + aDate.getFullYear()
+            );
+
             // Update the calendar
             let calbox = document.getAnonymousElementByAttribute(this, "anonid", "minimonth-calendar");
             let date = this._getStartDate(aDate);
@@ -1165,15 +920,6 @@
         ]]></body>
       </method>
 
-      <method name="hidePopupList">
-        <body><![CDATA[
-            if (!this.mIsReadOnly) {
-                let header = document.getAnonymousElementByAttribute(this, "anonid", "minimonth-header");
-                header.hidePopupList();
-            }
-        ]]></body>
-      </method>
-
       <method name="switchMonth">
         <parameter name="aMonth"/>
         <body><![CDATA[
@@ -1270,6 +1016,16 @@
         ]]></body>
       </method>
 
+      <method name="advanceYear">
+        <parameter name="aDir"/>
+        <body><![CDATA[
+            let advEditorDate = new Date(this.mEditorDate); // at 1st of month
+            let advYear = this.mEditorDate.getFullYear() + aDir;
+            advEditorDate.setFullYear(advYear);
+            this.showMonth(advEditorDate);
+        ]]></body>
+      </method>
+
       <method name="moveByOffset">
         <parameter name="aYears"/>
         <parameter name="aMonths"/>
@@ -1346,7 +1102,18 @@
           }
 
           if (deltaView != 0) {
-              this.advanceMonth(deltaView);
+              switch (event.originalTarget.getAttribute("anonid")) {
+                  case "today-button":
+                      break;
+                  case "years-forward-button":
+                  case "yearcell":
+                  case "years-back-button":
+                      this.advanceYear(deltaView);
+                      break;
+                  default:
+                      this.advanceMonth(deltaView);
+                      break;
+              }
           }
 
           event.stopPropagation();

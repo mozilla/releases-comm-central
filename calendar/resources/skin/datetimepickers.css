@@ -6,17 +6,9 @@
  *   Datepicker (text field with minimonth popup)
  *-------------------------------------------------------------------*/
  
-/* flex box around menulist */
-.datepicker-box-class {
-}
- 
 /* menulist */
-.datepicker-text-class {
+datepicker > menulist {
   width: 11em;
-}
-
-/* text input field */
-.datepicker-text-class input {
 }
 
 /*--------------------------------------------------------------------
@@ -56,10 +48,7 @@
  *   Timepicker (text menulist with popup)
  *-------------------------------------------------------------------*/
 
-.timepicker-box-class {
-}
-
-.timepicker-text-class {
+timepicker > menulist {
   width: 8em;
 }
 

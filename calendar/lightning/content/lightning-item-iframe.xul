@@ -18,7 +18,7 @@
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/primaryToolbar.css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/messenger.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar-common/skin/dialogs/calendar-event-dialog.css"?>
-
+<?xml-stylesheet type="text/css" href="chrome://messenger/content/menulist.css"?>
 
 <!DOCTYPE window [
     <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
@@ -54,6 +54,10 @@
           src="chrome://global/content/printUtils.js"/>
   <script type="application/javascript"
           src="chrome://calendar/content/calendar-statusbar.js"/>
+  <script type="application/javascript"
+          src="chrome://messenger/content/customElements.js"/>
+  <script type="application/javascript"
+          src="chrome://calendar/content/datetimepickers/datetimepickers.js"/>
 
   <commandset id="">
     <command id="cmd_recurrence"
@@ -426,11 +430,11 @@
                        accesskey="&event.until.accesskey;"
                        control="repeat-until-datepicker"
                        disable-on-readonly="true"/>
-                <datepicker-forever id="repeat-until-datepicker" flex="1"
-                                    disable-on-readonly="true"
-                                    onchange="checkUntilDate();"
-                                    oncommand="checkUntilDate();"
-                                    value=""/>
+                <datepicker id="repeat-until-datepicker" flex="1"
+                            type="forever"
+                            disable-on-readonly="true"
+                            oncommand="checkUntilDate();"
+                            value=""/>
             </hbox>
             <vbox id="repeat-details" flex="1">
                 <label id="repeat-details-label"

@@ -55,12 +55,10 @@ var PERCENT_COMPLETE_INPUT = `
 
 // To be appended to the path for a date- or timepicker.
 var DATE_INPUT = `
-    anon({"class":"datepicker-box-class"})/{"class":"datepicker-text-class"}/
-    anon({"class":"menulist-editable-box moz-input-box"})/anon({"anonid":"input"})
+    anon({"class":"datepicker-menulist"})/anon({"class":"menulist-input"})
 `;
 var TIME_INPUT = `
-    anon({"anonid":"hbox"})/anon({"anonid":"time-picker"})/anon({"class":"timepicker-box-class"})/
-    anon({"class":"timepicker-text-class"})/anon({"flex":"1"})/anon({"anonid":"input"})
+    anon({"class":"timepicker-menulist"})/anon({"class":"menulist-input"})
 `;
 
 // The following can be used as is.
@@ -76,8 +74,7 @@ var REC_DLG_DAYS = `
 var REC_DLG_UNTIL_INPUT = `
     /id("calendar-event-dialog-recurrence")/id("recurrence-range-groupbox")/[1]/
     id("recurrence-duration")/id("recurrence-range-until-box")/id("repeat-until-date")/
-    anon({"class":"datepicker-box-class"})/{"class":"datepicker-text-class"}/
-    anon({"class":"menulist-editable-box moz-input-box"})/anon({"anonid":"input"})
+    anon({"class":"datepicker-menulist"})/{"class":"menulist-input"}
 `;
 
 
@@ -127,27 +124,25 @@ function helpersForEditUI(controller) {
                 case "STARTDATE":
                     path = `
                         id("event-grid-startdate-row")/id("event-grid-startdate-picker-box")/
-                        id("${startId}")/anon({"anonid":"hbox"})/anon({"anonid":"date-picker"})/
-                        ${DATE_INPUT}
+                        id("${startId}")/anon({"anonid":"datepicker"})/${DATE_INPUT}
                     `;
                     break;
                 case "ENDDATE":
                     path = `
                         id("event-grid-enddate-row")/[1]/id("event-grid-enddate-picker-box")/
-                        id("${endId}")/anon({"anonid":"hbox"})/anon({"anonid":"date-picker"})/
-                        ${DATE_INPUT}
+                        id("${endId}")/anon({"anonid":"datepicker"})/${DATE_INPUT}
                     `;
                     break;
                 case "STARTTIME":
                     path = `
                         id("event-grid-startdate-row")/id("event-grid-startdate-picker-box")/
-                        id("${startId}")/${TIME_INPUT}
+                        id("${startId}")/anon({"anonid":"timepicker"})/${TIME_INPUT}
                     `;
                     break;
                 case "ENDTIME":
                     path = `
                         id("event-grid-enddate-row")/[1]/id("event-grid-enddate-picker-box")/
-                        id("${endId}")/${TIME_INPUT}
+                        id("${endId}")/anon({"anonid":"timepicker"})/${TIME_INPUT}
                     `;
                     break;
                 case "UNTILDATE":

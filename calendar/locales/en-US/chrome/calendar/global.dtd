@@ -46,6 +46,8 @@
 
 <!ENTITY onemonthbackward.tooltip "One Month Back" >
 <!ENTITY onemonthforward.tooltip "One Month Forward" >
+<!ENTITY oneyearbackward.tooltip "One Year Back" >
+<!ENTITY oneyearforward.tooltip "One Year Forward" >
 <!ENTITY showToday.tooltip "Go to Today">
 <!ENTITY onedayforward.tooltip "One Day Forward">
 <!ENTITY onedaybackward.tooltip "One Day Backward">

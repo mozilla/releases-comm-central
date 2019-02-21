@@ -8,24 +8,8 @@ menulist[type="panel"] {
   -moz-binding: url("chrome://calendar/content/datetimepickers/datetimepickers.xml#panellist");
 }
 
-datepicker {
-  -moz-binding: url("chrome://calendar/content/datetimepickers/datetimepickers.xml#datepicker");
-}
-
-datepicker-forever {
-  -moz-binding: url("chrome://calendar/content/datetimepickers/datetimepickers.xml#datepicker-forever");
-}
-
-datetimepicker {
-  -moz-binding: url("chrome://calendar/content/datetimepickers/datetimepickers.xml#datetimepicker");
-}
-
 datetextpicker {
   -moz-binding: url("chrome://calendar/content/datetimepickers/datetimepickers.xml#datetextpicker");
-}
-
-timepicker {
-  -moz-binding: url("chrome://calendar/content/datetimepickers/datetimepickers.xml#timepicker");
 }
 
 timepicker-grids {

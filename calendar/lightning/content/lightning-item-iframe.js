@@ -669,17 +669,17 @@ function loadDialog(aItem) {
         setElementValue("item-description", aItem.getProperty("DESCRIPTION"));
     }
 
-    // Task completed date
-    if (!gNewItemUI) {
-        if (aItem.completedDate) {
-            updateToDoStatus(aItem.status, cal.dtz.dateTimeToJsDate(aItem.completedDate));
-        } else {
-            updateToDoStatus(aItem.status);
-        }
-    }
-
-    // Task percent complete
     if (cal.item.isToDo(aItem)) {
+        // Task completed date
+        if (!gNewItemUI) {
+            if (aItem.completedDate) {
+                updateToDoStatus(aItem.status, cal.dtz.dateTimeToJsDate(aItem.completedDate));
+            } else {
+                updateToDoStatus(aItem.status);
+            }
+        }
+
+        // Task percent complete
         let percentCompleteInteger = 0;
         let percentCompleteProperty = aItem.getProperty("PERCENT-COMPLETE");
         if (percentCompleteProperty != null) {
@@ -2601,11 +2601,13 @@ function updateCalendar() {
             element.removeAttribute("collapsed");
         }
 
-        // Task completed date
-        if (item.completedDate) {
-            updateToDoStatus(item.status, cal.dtz.dateTimeToJsDate(item.completedDate));
-        } else {
-            updateToDoStatus(item.status);
+        if (cal.item.isToDo(item)) {
+            // Task completed date
+            if (item.completedDate) {
+                updateToDoStatus(item.status, cal.dtz.dateTimeToJsDate(item.completedDate));
+            } else {
+                updateToDoStatus(item.status);
+            }
         }
 
         // disable repeat menupopup if this is an occurrence
