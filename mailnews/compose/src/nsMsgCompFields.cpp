@@ -612,7 +612,7 @@ nsMsgCompFields::SplitRecipients(const nsAString &aRecipients,
   *aLength = 0;
   *aResult = nullptr;
 
-  nsCOMArray<msgIAddressObject> header(EncodedHeader(NS_ConvertUTF16toUTF8(aRecipients)));
+  nsCOMArray<msgIAddressObject> header(EncodedHeaderW(aRecipients));
   nsTArray<nsString> results;
   if (aEmailAddressOnly)
     ExtractEmails(header, results);
@@ -635,8 +635,7 @@ nsresult nsMsgCompFields::SplitRecipientsEx(const nsAString &recipients,
                                             nsTArray<nsMsgRecipient> &aResult)
 {
   nsTArray<nsString> names, addresses;
-  ExtractAllAddresses(EncodedHeader(NS_ConvertUTF16toUTF8(recipients)), names,
-    addresses);
+  ExtractAllAddresses(EncodedHeaderW(recipients), names, addresses);
 
   uint32_t numAddresses = names.Length();
   for (uint32_t i = 0; i < numAddresses; ++i)

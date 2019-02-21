@@ -30,6 +30,10 @@ nsCOMArray<msgIAddressObject> DecodedHeader(const nsAString &aHeader);
  */
 nsCOMArray<msgIAddressObject> EncodedHeader(const nsACString &aHeader,
                                             const char *aCharset = nullptr);
+/**
+ * Same deal, but we're starting with an nsAString.
+ */
+nsCOMArray<msgIAddressObject> EncodedHeaderW(const nsAString &aHeader);
 
 namespace detail {
 void DoConversion(const nsTArray<nsString> &aUTF16, nsTArray<nsCString> &aUTF8);

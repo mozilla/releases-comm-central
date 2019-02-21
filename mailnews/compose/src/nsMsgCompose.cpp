@@ -2600,15 +2600,13 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
       }
 
       nsCString fromEmailAddress;
-      ExtractEmail(EncodedHeader(NS_ConvertUTF16toUTF8(from)), fromEmailAddress);
+      ExtractEmail(EncodedHeaderW(from), fromEmailAddress);
 
       nsTArray<nsCString> toEmailAddresses;
-      ExtractEmails(EncodedHeader(NS_ConvertUTF16toUTF8(to)),
-        UTF16ArrayAdapter<>(toEmailAddresses));
+      ExtractEmails(EncodedHeaderW(to), UTF16ArrayAdapter<>(toEmailAddresses));
 
       nsTArray<nsCString> ccEmailAddresses;
-      ExtractEmails(EncodedHeader(NS_ConvertUTF16toUTF8(cc)),
-        UTF16ArrayAdapter<>(ccEmailAddresses));
+      ExtractEmails(EncodedHeaderW(cc), UTF16ArrayAdapter<>(ccEmailAddresses));
 
       nsCOMPtr<nsIPrefBranch> prefs (do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
       NS_ENSURE_SUCCESS(rv, rv);
