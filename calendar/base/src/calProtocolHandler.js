@@ -34,12 +34,12 @@ calProtocolHandler.prototype = {
         if (aLoadInfo) {
             channel = Services.io.newChannelFromURIWithLoadInfo(uri, aLoadInfo);
         } else {
-            channel = Services.io.newChannelFromURI2(uri,
-                                                     null,
-                                                     Services.scriptSecurityManager.getSystemPrincipal(),
-                                                     null,
-                                                     Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                                     Ci.nsIContentPolicy.TYPE_OTHER);
+            channel = Services.io.newChannelFromURI(uri,
+                                                    null,
+                                                    Services.scriptSecurityManager.getSystemPrincipal(),
+                                                    null,
+                                                    Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                                    Ci.nsIContentPolicy.TYPE_OTHER);
         }
         channel.originalURI = aUri;
         return channel;

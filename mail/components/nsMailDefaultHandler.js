@@ -66,12 +66,12 @@ function openURI(uri) {
   if (!mayOpenURI(uri))
     throw Cr.NS_ERROR_FAILURE;
 
-  var channel = Services.io.newChannelFromURI2(uri,
-                                               null,
-                                               Services.scriptSecurityManager.getSystemPrincipal(),
-                                               null,
-                                               Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                               Ci.nsIContentPolicy.TYPE_OTHER);
+  var channel = Services.io.newChannelFromURI(uri,
+                                              null,
+                                              Services.scriptSecurityManager.getSystemPrincipal(),
+                                              null,
+                                              Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                              Ci.nsIContentPolicy.TYPE_OTHER);
   var loader = Cc["@mozilla.org/uriloader;1"]
                  .getService(Ci.nsIURILoader);
 

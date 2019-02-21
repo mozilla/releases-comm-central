@@ -106,12 +106,12 @@ calICSCalendar.prototype = {
 
         // Use the ioservice, to create a channel, which makes finding the
         // right hooks to use easier.
-        let channel = Services.io.newChannelFromURI2(this.mUri,
-                                                     null,
-                                                     Services.scriptSecurityManager.getSystemPrincipal(),
-                                                     null,
-                                                     Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                                     Ci.nsIContentPolicy.TYPE_OTHER);
+        let channel = Services.io.newChannelFromURI(this.mUri,
+                                                    null,
+                                                    Services.scriptSecurityManager.getSystemPrincipal(),
+                                                    null,
+                                                    Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                                    Ci.nsIContentPolicy.TYPE_OTHER);
         let wHttpChannel = cal.wrapInstance(channel, Ci.nsIHttpChannel);
         let wFileChannel = cal.wrapInstance(channel, Ci.nsIFileChannel);
 
@@ -168,12 +168,12 @@ calICSCalendar.prototype = {
                          .createInstance(Ci.nsISupportsPRBool);
         prbForce.data = aForce;
 
-        let channel = Services.io.newChannelFromURI2(this.mUri,
-                                                     null,
-                                                     Services.scriptSecurityManager.getSystemPrincipal(),
-                                                     null,
-                                                     Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                                     Ci.nsIContentPolicy.TYPE_OTHER);
+        let channel = Services.io.newChannelFromURI(this.mUri,
+                                                    null,
+                                                    Services.scriptSecurityManager.getSystemPrincipal(),
+                                                    null,
+                                                    Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                                    Ci.nsIContentPolicy.TYPE_OTHER);
         this.prepareChannel(channel, aForce);
 
         let streamLoader = Cc["@mozilla.org/network/stream-loader;1"]
@@ -311,12 +311,12 @@ calICSCalendar.prototype = {
                     // All events are returned. Now set up a channel and a
                     // streamloader to upload.  onStopRequest will be called
                     // once the write has finished
-                    let channel = Services.io.newChannelFromURI2(self.mUri,
-                                                                 null,
-                                                                 Services.scriptSecurityManager.getSystemPrincipal(),
-                                                                 null,
-                                                                 Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                                                 Ci.nsIContentPolicy.TYPE_OTHER);
+                    let channel = Services.io.newChannelFromURI(self.mUri,
+                                                                null,
+                                                                Services.scriptSecurityManager.getSystemPrincipal(),
+                                                                null,
+                                                                Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                                                Ci.nsIContentPolicy.TYPE_OTHER);
 
                     // Allow the hook to add things to the channel, like a
                     // header that checks etags
@@ -774,12 +774,12 @@ calICSCalendar.prototype = {
         purgeOldBackups();
 
         // Now go download the remote file, and store it somewhere local.
-        let channel = Services.io.newChannelFromURI2(this.mUri,
-                                                     null,
-                                                     Services.scriptSecurityManager.getSystemPrincipal(),
-                                                     null,
-                                                     Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                                     Ci.nsIContentPolicy.TYPE_OTHER);
+        let channel = Services.io.newChannelFromURI(this.mUri,
+                                                    null,
+                                                    Services.scriptSecurityManager.getSystemPrincipal(),
+                                                    null,
+                                                    Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                                    Ci.nsIContentPolicy.TYPE_OTHER);
         channel.loadFlags |= Ci.nsIRequest.LOAD_BYPASS_CACHE;
         channel.notificationCallbacks = this;
 

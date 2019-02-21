@@ -51,11 +51,11 @@ About.prototype = {
     var newURI = Services.io.newURI(this[module + "URI"]);
     var channel = aLoadInfo ?
                   Services.io.newChannelFromURIWithLoadInfo(newURI, aLoadInfo) :
-                  Services.io.newChannelFromURI2(newURI, null,
-                                                 Services.scriptSecurityManager.getSystemPrincipal(),
-                                                 null,
-                                                 Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                                 Ci.nsIContentPolicy.TYPE_OTHER);
+                  Services.io.newChannelFromURI(newURI, null,
+                                                Services.scriptSecurityManager.getSystemPrincipal(),
+                                                null,
+                                                Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                                Ci.nsIContentPolicy.TYPE_OTHER);
     channel.originalURI = aURI;
     if (this[module + "Flags"] & UNTRUSTED)
       channel.owner = null;

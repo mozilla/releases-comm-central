@@ -292,7 +292,7 @@ calDNDBaseObserver.prototype = {
             case "text/x-moz-url": {
                 let uri = Services.io.newURI(data.toString());
                 let loader = cal.provider.createStreamLoader();
-                let channel = Services.io.newChannelFromURI2(
+                let channel = Services.io.newChannelFromURI(
                     uri,
                     null,
                     Services.scriptSecurityManager.getSystemPrincipal(),

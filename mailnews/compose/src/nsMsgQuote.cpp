@@ -171,13 +171,13 @@ nsMsgQuote::QuoteMessage(const char *msgURI, bool quoteHeaders,
   mQuoteChannel = nullptr;
   nsCOMPtr<nsIIOService> netService = mozilla::services::GetIOService();
   NS_ENSURE_TRUE(netService, NS_ERROR_UNEXPECTED);
-  rv = netService->NewChannelFromURI2(newURI,
-                                      nullptr,
-                                      nsContentUtils::GetSystemPrincipal(),
-                                      nullptr,
-                                      nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                      nsIContentPolicy::TYPE_OTHER,
-                                      getter_AddRefs(mQuoteChannel));
+  rv = netService->NewChannelFromURI(newURI,
+                                     nullptr,
+                                     nsContentUtils::GetSystemPrincipal(),
+                                     nullptr,
+                                     nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                     nsIContentPolicy::TYPE_OTHER,
+                                     getter_AddRefs(mQuoteChannel));
 
   if (NS_FAILED(rv)) return rv;
 

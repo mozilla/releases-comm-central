@@ -5316,12 +5316,12 @@ function OpenSelectedAttachment() {
       // Turn the URL into a nsIURI object then open it.
       let uri = Services.io.newURI(attachmentUrl);
       if (uri) {
-        let channel = Services.io.newChannelFromURI2(uri,
-                                                     null,
-                                                     Services.scriptSecurityManager.getSystemPrincipal(),
-                                                     null,
-                                                     Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                                     Ci.nsIContentPolicy.TYPE_OTHER);
+        let channel = Services.io.newChannelFromURI(uri,
+                                                    null,
+                                                    Services.scriptSecurityManager.getSystemPrincipal(),
+                                                    null,
+                                                    Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                                    Ci.nsIContentPolicy.TYPE_OTHER);
         if (channel) {
           let uriLoader = Cc["@mozilla.org/uriloader;1"].getService(Ci.nsIURILoader);
           uriLoader.openURI(channel, true, new nsAttachmentOpener());
@@ -6912,7 +6912,7 @@ function loadBlockedImage(aURL, aReturnDataURL = false) {
     // Assuming image/png is the best we can do.
     contentType = "image/png";
   }
-  let channel = Services.io.newChannelFromURI2(uri,
+  let channel = Services.io.newChannelFromURI(uri,
     null,
     Services.scriptSecurityManager.getSystemPrincipal(),
     null,

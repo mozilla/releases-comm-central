@@ -29,12 +29,12 @@ function run_test() {
 function check_webcal_uri(aUri) {
     let uri = Services.io.newURI(aUri);
 
-    let channel = Services.io.newChannelFromURI2(uri,
-                                                 null,
-                                                 Services.scriptSecurityManager.getSystemPrincipal(),
-                                                 null,
-                                                 Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                                 Ci.nsIContentPolicy.TYPE_OTHER);
+    let channel = Services.io.newChannelFromURI(uri,
+                                                null,
+                                                Services.scriptSecurityManager.getSystemPrincipal(),
+                                                null,
+                                                Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                                Ci.nsIContentPolicy.TYPE_OTHER);
 
     NetUtil.asyncFetch(channel, (data, status, request) => {
         ok(Components.isSuccessCode(status));

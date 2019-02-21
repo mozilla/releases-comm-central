@@ -122,12 +122,12 @@ function publishItemArray(aItemArray, aPath, aProgressDialog) {
 
     let icsURL = Services.io.newURI(aPath);
 
-    let channel = Services.io.newChannelFromURI2(icsURL,
-                                                 null,
-                                                 Services.scriptSecurityManager.getSystemPrincipal(),
-                                                 null,
-                                                 Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                                 Ci.nsIContentPolicy.TYPE_OTHER);
+    let channel = Services.io.newChannelFromURI(icsURL,
+                                                null,
+                                                Services.scriptSecurityManager.getSystemPrincipal(),
+                                                null,
+                                                Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                                Ci.nsIContentPolicy.TYPE_OTHER);
     if (icsURL.schemeIs("webcal")) {
         icsURL.scheme = "http";
     }

@@ -1834,12 +1834,12 @@ AttachmentInfo.prototype = {
   get isEmpty() {
     // Create an input stream on the attachment url.
     let url = Services.io.newURI(this.url);
-    let channel = Services.io.newChannelFromURI2(url,
-                                                 null,
-                                                 Services.scriptSecurityManager.getSystemPrincipal(),
-                                                 null,
-                                                 Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                                 Ci.nsIContentPolicy.TYPE_OTHER);
+    let channel = Services.io.newChannelFromURI(url,
+                                                null,
+                                                Services.scriptSecurityManager.getSystemPrincipal(),
+                                                null,
+                                                Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                                Ci.nsIContentPolicy.TYPE_OTHER);
     let stream = channel.open();
 
     let inputStream = Cc["@mozilla.org/binaryinputstream;1"]

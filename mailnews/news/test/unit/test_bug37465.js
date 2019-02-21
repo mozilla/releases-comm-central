@@ -18,12 +18,12 @@ function run_test() {
   Assert.equal(newsUri.folder, null);
 
   // Run the URI and make sure we get the message
-  let channel = Services.io.newChannelFromURI2(uri,
-                                               null,
-                                               Services.scriptSecurityManager.getSystemPrincipal(),
-                                               null,
-                                               Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                               Ci.nsIContentPolicy.TYPE_OTHER);
+  let channel = Services.io.newChannelFromURI(uri,
+                                              null,
+                                              Services.scriptSecurityManager.getSystemPrincipal(),
+                                              null,
+                                              Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                              Ci.nsIContentPolicy.TYPE_OTHER);
   channel.asyncOpen(articleTextListener, null);
 
   // Run the server

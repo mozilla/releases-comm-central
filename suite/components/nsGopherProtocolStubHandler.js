@@ -51,11 +51,11 @@ GopherProtocol.prototype = {
     var newURI = ios.newURI("chrome://communicator/content/gopherAddon.xhtml");
     // Create a chrome channel, and de-chrome it, to our information page.
     var chan = loadinfo ? ios.newChannelFromURIWithLoadInfo(newURI, loadinfo) :
-                          ios.newChannelFromURI2(newURI, null,
-                                                 Services.scriptSecurityManager.getSystemPrincipal(),
-                                                 null,
-                                                 Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                                 Ci.nsIContentPolicy.TYPE_OTHER);
+                          ios.newChannelFromURI(newURI, null,
+                                                Services.scriptSecurityManager.getSystemPrincipal(),
+                                                null,
+                                                Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                                Ci.nsIContentPolicy.TYPE_OTHER);
     chan.originalURI = inputURI;
     chan.owner = Cc["@mozilla.org/scriptsecuritymanager;1"]
                    .getService(Ci.nsIScriptSecurityManager)

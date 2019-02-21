@@ -41,12 +41,12 @@ var calprovider = {
         // same-site cookie protection is enabled in TB and server-side.
         let principal = aExisting ? null
                                   : Services.scriptSecurityManager.createCodebasePrincipal(aUri, {});
-        let channel = aExisting || Services.io.newChannelFromURI2(aUri,
-                                                                  null,
-                                                                  principal,
-                                                                  null,
-                                                                  Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                                                  Ci.nsIContentPolicy.TYPE_OTHER);
+        let channel = aExisting || Services.io.newChannelFromURI(aUri,
+                                                                 null,
+                                                                 principal,
+                                                                 null,
+                                                                 Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                                                 Ci.nsIContentPolicy.TYPE_OTHER);
         let httpchannel = channel.QueryInterface(Ci.nsIHttpChannel);
 
         httpchannel.setRequestHeader("Accept", "text/xml", false);

@@ -80,12 +80,12 @@ function* streamMessages() {
     for (let i = 1; i < inbox.uidnext ; i++) {
       let uri = {};
       imapS.GetUrlForUri("imap-message://user@localhost/INBOX#" + i, uri, null);
-      let channel = Services.io.newChannelFromURI2(uri.value,
-                                                   null,
-                                                   Services.scriptSecurityManager.getSystemPrincipal(),
-                                                   null,
-                                                   Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                                   Ci.nsIContentPolicy.TYPE_OTHER);
+      let channel = Services.io.newChannelFromURI(uri.value,
+                                                  null,
+                                                  Services.scriptSecurityManager.getSystemPrincipal(),
+                                                  null,
+                                                  Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                                  Ci.nsIContentPolicy.TYPE_OTHER);
       channel.asyncOpen(gStreamListener, null);
       yield false;
       let buf = gStreamListener._data;

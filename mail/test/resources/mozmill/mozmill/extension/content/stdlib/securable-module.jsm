@@ -303,7 +303,7 @@
        else
          baseURI = Services.io.newURI(base);
        var newURI = Services.io.newURI(path, null, baseURI);
-       var channel = Services.io.newChannelFromURI2(newURI,
+       var channel = Services.io.newChannelFromURI(newURI,
                                             null,
                                             Services.scriptSecurityManager.getSystemPrincipal(),
                                             null,
