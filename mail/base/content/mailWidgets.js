@@ -9,6 +9,8 @@
 /* global onClickEmailStar */
 /* global onClickEmailPresence */
 /* global gFolderDisplay */
+/* global MozElementMixin */
+/* global BaseControlMixin */
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
@@ -448,3 +450,166 @@ customElements.define("mail-newsgroups-headerfield", MozMailNewsgroupsHeaderfiel
 customElements.define("mail-messageid", MozMailMessageid);
 customElements.define("mail-emailaddress", MozMailEmailaddress);
 customElements.define("mail-emailheaderfield", MozMailEmailheaderfield);
+
+customElements.whenDefined("menulist").then(() => {
+  /**
+   * MozMenulistEditable is a menulist widget that can be made editable by setting editable="true".
+   * With an additional type="description" the list also contains an additional label that can hold
+   * for instance, a description of a menu item.
+   * It is typically used e.g. for the "Custom From Address..." feature to let the user chose and
+   * edit the address to send from.
+   * @extends {MozMenuList}
+   */
+  class MozMenulistEditable extends customElements.get("menulist") {
+    connectedCallback() {
+      if (this.delayConnectedCallback()) {
+        return;
+      }
+
+      this.prepend(MozMenulistEditable.fragment.cloneNode(true));
+      this._inputField = this.querySelector(".menulist-input");
+      this._labelBox = this.querySelector(".menulist-label-box");
+      this._dropmarker = this.querySelector(".menulist-dropmarker");
+
+      if (this.getAttribute("type") == "description") {
+        this._description = document.createElement("label");
+        this._description.classList.add("menulist-description");
+        this._description.setAttribute("crop", "right");
+        this._description.setAttribute("flex", "10000");
+        this._description.setAttribute("role", "none");
+        this.querySelector(".menulist-label").after(this._description);
+      }
+
+      this.initializeAttributeInheritance();
+
+      this.mSelectedInternal = null;
+      this.setInitialSelection();
+
+      this._handleMutation = (mutations) => {
+        this.editable = this.getAttribute("editable") == "true";
+      };
+      this.mAttributeObserver = new MutationObserver(this._handleMutation);
+      this.mAttributeObserver.observe(this, {
+        attributes: true,
+        attributeFilter: ["editable"],
+      });
+
+      this._keypress = (event) => {
+        if (event.key == "ArrowDown") {
+          this.open = true;
+        }
+      };
+      this._inputField.addEventListener("keypress", this._keypress);
+
+      this._popupHiding = (event) => {
+        // layerX is 0 if the user clicked outside the popup.
+        if (this.editable && event.layerX > 0) {
+          this._inputField.select();
+        }
+      };
+      if (!this.menupopup) {
+        this.appendChild(MozXULElement.parseXULToFragment(`<menupopup />`));
+      }
+      this.menupopup.addEventListener("popuphiding", this._popupHiding);
+    }
+
+    disconnectedCallback() {
+      super.disconnectedCallback();
+
+      this.mAttributeObserver.disconnect();
+      this._inputField.removeEventListener("keypress", this._keypress);
+      this.menupopup.removeEventListener("popuphiding", this._popupHiding);
+
+      for (let prop of ["_inputField", "_labelBox", "_dropmarker", "_description"]) {
+        if (this[prop]) {
+          this[prop].remove();
+          this[prop] = null;
+        }
+      }
+    }
+
+    static get fragment() {
+      // Accessibility information of these nodes will be
+      // presented on XULComboboxAccessible generated from <menulist>;
+      // hide these nodes from the accessibility tree.
+      return document.importNode(MozXULElement.parseXULToFragment(`
+        <textbox class="menulist-input" allowevents="true" flex="1" role="none"/>
+        <hbox class="menulist-label-box" flex="1" role="none">
+          <image class="menulist-icon" role="none"/>
+          <label class="menulist-label" crop="right" flex="1" role="none"/>
+          <label class="menulist-highlightable-label" crop="right" flex="1" role="none"/>
+        </hbox>
+        <dropmarker class="menulist-dropmarker" type="menu" role="none"/>
+      `), true);
+    }
+
+    static get inheritedAttributes() {
+      let attrs = super.inheritedAttributes;
+      attrs[".menulist-input"] = "value,disabled";
+      attrs[".menulist-description"] = "value=description";
+      return attrs;
+    }
+
+    set editable(val) {
+      if (val == this.editable)
+        return val;
+
+      if (!val) {
+        // If we were focused and transition from editable to not editable,
+        // focus the parent menulist so that the focus does not get stuck.
+        if (this._inputField == document.activeElement)
+          window.setTimeout(() => this.focus(), 0);
+      }
+
+      this.setAttribute("editable", val);
+      return val;
+    }
+
+    get editable() {
+      return this.getAttribute("editable") == "true";
+    }
+
+    set value(val) {
+      this._inputField.value = val;
+      this.setAttribute("value", val);
+      this.setAttribute("label", val);
+      return val;
+    }
+
+    get value() {
+      if (this.editable) {
+        return this._inputField.value;
+      }
+      return super.value;
+    }
+
+    get label() {
+      if (this.editable) {
+        return this._inputField.value;
+      }
+      return super.label;
+    }
+
+    set placeholder(val) {
+      this._inputField.placeholder = val;
+    }
+
+    get placeholder() {
+      return this._inputField.placeholder;
+    }
+
+    select() {
+      if (this.editable) {
+        this._inputField.select();
+      }
+    }
+  }
+
+  const MozXULMenuElement = MozElementMixin(XULMenuElement);
+  const MenuBaseControl = BaseControlMixin(MozXULMenuElement);
+  MenuBaseControl.implementCustomInterface(
+    MozMenulistEditable, [Ci.nsIDOMXULMenuListElement, Ci.nsIDOMXULSelectControlElement]
+  );
+
+  customElements.define("menulist-editable", MozMenulistEditable, { extends: "menulist" });
+});

@@ -316,18 +316,20 @@ textbox.textbox-addressingWidget:hover {
 
 #msgIdentity:hover,
 #msgIdentity:focus,
+#msgIdentity:focus-within,
 #msgIdentity[focused="true"] {
   background-color: -moz-field;
   border-color: var(--toolbarbutton-hover-bordercolor);
 }
 
-#msgIdentity > .menulist-editable-box {
+#msgIdentity > .menulist-input {
   -moz-appearance: none;
   padding-top: 0;
   padding-bottom: 0;
   padding-inline-start: 3px;
   padding-inline-end: 12px;
   height: 1.4em;
+  background-color: transparent;
   background-repeat: no-repeat;
   background-position: right;
   background-size: 9px 7px;

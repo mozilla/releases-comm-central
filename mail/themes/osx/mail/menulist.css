@@ -2,51 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-xbl-menulist {
-  -moz-appearance: menulist;
-  margin: 5px 2px 3px;
-  color: -moz-DialogText;
-  text-shadow: none;
-}
-
-xbl-menulist:not([popuponly="true"]) {
-  min-height: 20px;
-}
-
-xbl-menulist[disabled="true"] {
-  color: GrayText;
-}
-
-menulist[editable="true"],
-xbl-menulist[editable="true"] {
-  -moz-appearance: menulist-textfield;
+menulist[is="menulist-editable"][editable="true"] {
   margin: 4px 2px;
 }
 
-menulist[editable="true"] > menupopup,
-menulist[editable="true"] > menupopup > menuitem,
-menulist[editable="true"] > menupopup > menucaption,
-xbl-menulist[editable="true"] > menupopup,
-xbl-menulist[editable="true"] > menupopup > menuitem,
-xbl-menulist[editable="true"] > menupopup > menucaption {
+menulist[is="menulist-editable"][editable="true"] > menupopup,
+menulist[is="menulist-editable"][editable="true"] > menupopup > menuitem,
+menulist[is="menulist-editable"][editable="true"] > menupopup > menucaption {
   -moz-appearance: none;
 }
 
-menulist[editable="true"] > menupopup > :-moz-any(menuitem, menucaption) > .menu-iconic-left,
-xbl-menulist[editable="true"] > menupopup > :-moz-any(menuitem, menucaption) > .menu-iconic-left {
+menulist[is="menulist-editable"][editable="true"] > menupopup > :-moz-any(menuitem, menucaption) > .menu-iconic-left {
   display: none;
 }
 
-menulist[editable="true"] > menupopup > menuitem[checked="true"]::before,
-menulist[editable="true"] > menupopup > menuitem[selected="true"]::before,
-xbl-menulist[editable="true"] > menupopup > menuitem[checked="true"]::before,
-xbl-menulist[editable="true"] > menupopup > menuitem[selected="true"]::before {
+menulist[is="menulist-editable"][editable="true"] > menupopup > menuitem[checked="true"]::before,
+menulist[is="menulist-editable"][editable="true"] > menupopup > menuitem[selected="true"]::before {
   display: none;
   margin-inline-start: 0;
 }
 
-menulist[editable="true"] > .menulist-dropmarker,
-xbl-menulist[editable="true"] > .menulist-dropmarker {
+menulist[is="menulist-editable"][editable="true"] > .menulist-dropmarker {
   -moz-appearance: none;
   display: -moz-box;
   padding-inline-start: 5px;

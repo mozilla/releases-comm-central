@@ -60,6 +60,8 @@
           src="chrome://messenger/content/accountcreation/MyBadCertHandler.js"/>
   <script type="application/javascript"
           src="chrome://messenger/content/accountUtils.js" />
+  <script type="application/javascript"
+          src="chrome://messenger/content/customElements.js"/>
 
   <keyset id="mailKeys">
     <key keycode="VK_ESCAPE" oncommand="window.close();"/>
@@ -285,7 +287,7 @@
           <column/><!-- row label, e.g. "incoming" -->
           <column/><!-- protocol, e.g. "IMAP" -->
           <column/><!-- hostname / username -->
-          <column/><!-- port -->
+          <column width="90"/><!-- port -->
           <column/><!-- SSL -->
           <column/><!-- auth method -->
         </columns>
@@ -315,13 +317,13 @@
             <textbox id="incoming_hostname"
                      oninput="gEmailConfigWizard.onInputHostname();"
                      class="host uri-element"/>
-            <xbl-menulist id="incoming_port"
-                          editable="true"
-                          oninput="gEmailConfigWizard.onChangedPortIncoming();"
-                          oncommand="gEmailConfigWizard.onChangedPortIncoming();"
-                          class="port">
+            <menulist is="menulist-editable" id="incoming_port"
+                      editable="true"
+                      oninput="gEmailConfigWizard.onChangedPortIncoming();"
+                      oncommand="gEmailConfigWizard.onChangedPortIncoming();"
+                      class="port">
               <menupopup/>
-            </xbl-menulist>
+            </menulist>
             <menulist id="incoming_ssl"
                       class="security"
                       oncommand="gEmailConfigWizard.onChangedSSLIncoming();"
@@ -357,22 +359,22 @@
                    control="outgoing_hostname"/>
             <label id="outgoing_protocol"
                    value="&smtp.label;"/>
-            <xbl-menulist id="outgoing_hostname"
-                          editable="true"
-                          sizetopopup="none"
-                          oninput="gEmailConfigWizard.onInputHostname();"
-                          oncommand="gEmailConfigWizard.onChangedOutgoingDropdown();"
-                          onpopupshowing="gEmailConfigWizard.onOpenOutgoingDropdown();"
-                          class="host uri-element">
+            <menulist is="menulist-editable" id="outgoing_hostname"
+                      editable="true"
+                      sizetopopup="none"
+                      oninput="gEmailConfigWizard.onInputHostname();"
+                      oncommand="gEmailConfigWizard.onChangedOutgoingDropdown();"
+                      onpopupshowing="gEmailConfigWizard.onOpenOutgoingDropdown();"
+                      class="host uri-element">
               <menupopup id="outgoing_hostname_popup"/>
-            </xbl-menulist>
-            <xbl-menulist id="outgoing_port"
-                          editable="true"
-                          oninput="gEmailConfigWizard.onChangedPortOutgoing();"
-                          oncommand="gEmailConfigWizard.onChangedPortOutgoing();"
-                          class="port">
+            </menulist>
+            <menulist is="menulist-editable" id="outgoing_port"
+                      editable="true"
+                      oninput="gEmailConfigWizard.onChangedPortOutgoing();"
+                      oncommand="gEmailConfigWizard.onChangedPortOutgoing();"
+                      class="port">
               <menupopup/>
-            </xbl-menulist>
+            </menulist>
             <menulist id="outgoing_ssl"
                       class="security"
                       oncommand="gEmailConfigWizard.onChangedSSLOutgoing();"

@@ -10,6 +10,8 @@
 <?xml-stylesheet href="chrome://messenger/skin/smime/smime-compose.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/compacttheme.css" type="text/css" alternate="yes" title="Light/Dark"?>
 
+<?xml-stylesheet href="chrome://messenger/content/menulist.css" type="text/css"?>
+
 <!DOCTYPE window [
   <!ENTITY % messengercomposeDTD SYSTEM "chrome://messenger/locale/messengercompose/messengercompose.dtd" >
   %messengercomposeDTD;
@@ -1923,7 +1925,8 @@
               <label id="identityLabel" value="&fromAddr.label;"
                      accesskey="&fromAddr.accesskey;" control="msgIdentity"/>
             </hbox>
-            <menulist id="msgIdentity" type="description" flex="1"
+            <menulist is="menulist-editable" id="msgIdentity"
+                      type="description" flex="1"
                       disableautoselect="true" onkeypress="fromKeyPress(event);"
                       oncommand="LoadIdentity(false);" disableonsend="true">
               <menupopup id="msgIdentityPopup"/>
@@ -2115,5 +2118,4 @@
       <resizer dir="bottomend"/>
     </hbox>
   </hbox>
-
 </window>

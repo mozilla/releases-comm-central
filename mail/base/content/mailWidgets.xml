@@ -2150,19 +2150,6 @@
     </handlers>
   </binding>
 
-  <binding id="menulist-description" display="xul:menu"
-           extends="chrome://messenger/content/menulist.xml#xbl-menulist">
-    <content sizetopopup="pref">
-      <xul:hbox class="menulist-label-box" flex="1">
-        <xul:image class="menulist-icon" xbl:inherits="src=image,src"/>
-        <xul:label class="menulist-label" xbl:inherits="value=label,crop,accesskey" crop="right" flex="1"/>
-        <xul:label class="menulist-label menulist-description" xbl:inherits="value=description" crop="right" flex="10000"/>
-      </xul:hbox>
-      <xul:dropmarker class="menulist-dropmarker" type="menu" xbl:inherits="disabled,open"/>
-      <children includes="menupopup"/>
-    </content>
-  </binding>
-
   <binding id="menuitem-iconic-desc-noaccel" extends="chrome://global/content/bindings/menu.xml#menuitem">
     <content>
       <xul:hbox class="menu-iconic-left" align="center" pack="center"

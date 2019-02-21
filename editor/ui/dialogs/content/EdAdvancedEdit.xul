@@ -32,6 +32,8 @@
   <!-- global dialog functions -->
   <script type="application/javascript" src="chrome://editor/content/EdAdvancedEdit.js"/>
 
+  <script type="application/javascript" src="chrome://messenger/content/customElements.js"/>
+
   <hbox>
     <label value="&currentattributesfor.label;"/>
     <label class="header" id="tagLabel"/>
@@ -78,7 +80,8 @@
             </row>
             <row align="top" equalsize="always">
               <!-- Lists are built at runtime -->
-              <menulist id="AddHTMLAttributeNameInput" editable="true" flex="1"
+              <menulist is="menulist-editable" id="AddHTMLAttributeNameInput"
+                        editable="true" flex="1"
                         oninput="onInputHTMLAttributeName();"
                         oncommand="onInputHTMLAttributeName();"/>
               <deck id="AddHTMLAttributeValueDeck" selectedIndex="0">
@@ -87,7 +90,8 @@
                            oninput="onInputHTMLAttributeValue();"/>
                 </hbox>
                 <hbox align="top">
-                  <menulist id="AddHTMLAttributeValueMenulist" editable="true" flex="1"
+                  <menulist is="menulist-editable" id="AddHTMLAttributeValueMenulist"
+                            editable="true" flex="1"
                             oninput="onInputHTMLAttributeValue();"
                             oncommand="onInputHTMLAttributeValue();"/>
                 </hbox>

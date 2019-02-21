@@ -26,6 +26,7 @@
   <script type="application/javascript" src="chrome://editor/content/EdDialogCommon.js"/>
   <script type="application/javascript" src="chrome://editor/content/EditorPublish.js"/>
   <script type="application/javascript" src="chrome://editor/content/publishprefs.js"/>
+  <script type="application/javascript" src="chrome://messenger/content/customElements.js"/>
 
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
 
@@ -80,7 +81,8 @@
                control="DocDirList"/>
         <hbox align="center">
           <!-- Contents filled in at runtime -->
-          <menulist id="DocDirList" class="minWidth20 uri-element" editable="true"  flex="1"
+          <menulist is="menulist-editable" id="DocDirList"
+                    class="minWidth20 uri-element" editable="true" flex="1"
                     tooltiptext="&docDirList.tooltip;" oninput="onInputSettings();"/>
         </hbox>
         <spacer class="spacer"/>
@@ -113,7 +115,8 @@
             <spacer class="checkbox-spacer"/>
             <spacer class="radio-spacer"/>
             <!-- Contents filled in at runtime -->
-            <menulist id="OtherDirList" class="minWidth20 uri-element"
+            <menulist is="menulist-editable" id="OtherDirList"
+                      class="minWidth20 uri-element"
                       editable="true" flex="1" tooltiptext="&otherDirList.tooltip;"
                       oninput="onInputSettings();"/>
           </hbox>

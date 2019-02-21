@@ -6,21 +6,20 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml"); /* namespace for HTML elements */
 
-xbl-menulist {
-  -moz-binding: url("chrome://messenger/content/menulist.xml#xbl-menulist");
+menulist[is="menulist-editable"][editable="true"] {
+  -moz-appearance: none;
 }
 
-menulist[editable="true"],
-xbl-menulist[editable="true"] {
-  -moz-binding: url("chrome://messenger/content/menulist.xml#menulist-editable");
-  -moz-user-focus: ignore;
+menulist[is="menulist-editable"]:not([editable="true"]) .menulist-input,
+menulist[is="menulist-editable"][editable="true"] .menulist-label-box {
+  display: none;
 }
 
-xbl-menulist .menulist-dropmarker {
-  display: -moz-box;
+menulist > textbox {
+  margin: 0;
 }
 
-html|*.menulist-editable-input {
+menulist html|*.textbox-input {
   -moz-appearance: none !important;
   background: transparent !important;
   -moz-box-flex: 1;
@@ -28,4 +27,8 @@ html|*.menulist-editable-input {
   border: none !important;
   padding: 0 !important;
   font: inherit;
+}
+
+menulist[is="menulist-editable"][editable="true"] .menulist-dropmarker {
+  display: -moz-box;
 }

@@ -26,6 +26,8 @@
   <script type="application/javascript" src="chrome://editor/content/EdDialogCommon.js"/>
   <script type="application/javascript" src="chrome://editor/content/EdFormProps.js"/>
 
+  <script type="application/javascript" src="chrome://messenger/content/customElements.js"/>
+
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
 
   <groupbox><label class="header">&Settings.label;</label>
@@ -42,7 +44,7 @@
         <row align="center">
           <label control="FormMethod" value="&FormMethod.label;" accesskey="&FormMethod.accesskey;"/>
           <hbox>
-            <menulist id="FormMethod" editable="true" autoSelectMenuitem="true">
+            <menulist is="menulist-editable" id="FormMethod" editable="true" autoSelectMenuitem="true">
               <menupopup>
                 <menuitem label="GET"/>
                 <menuitem label="POST"/>
@@ -56,7 +58,7 @@
         <rows id="MoreSection">
           <row align="center">
             <label control="FormEncType" value="&FormEncType.label;" accesskey="&FormEncType.accesskey;"/>
-            <menulist id="FormEncType" editable="true" autoSelectMenuitem="true">
+            <menulist is="menulist-editable" id="FormEncType" editable="true" autoSelectMenuitem="true">
               <menupopup>
                 <menuitem label="application/x-www-form-urlencoded"/>
                 <menuitem label="multipart/form-data"/>
@@ -66,7 +68,7 @@
           </row>
           <row align="center">
             <label control="FormTarget" value="&FormTarget.label;" accesskey="&FormTarget.accesskey;"/>
-            <menulist id="FormTarget" editable="true" autoSelectMenuitem="true">
+            <menulist is="menulist-editable" id="FormTarget" editable="true" autoSelectMenuitem="true">
               <menupopup>
                 <menuitem label="_blank"/>
                 <menuitem label="_self"/>
@@ -92,5 +94,4 @@
             tooltiptext="&AdvancedEditButton.tooltip;"/>
   </hbox>
   <separator class="groove"/>
-
 </dialog>

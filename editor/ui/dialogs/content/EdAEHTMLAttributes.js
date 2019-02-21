@@ -28,17 +28,18 @@ function BuildHTMLAttributeNameList()
           // Add more rules if necessary.
           if (name.includes("^"))
           {
-            menuitem = gDialog.AddHTMLAttributeNameInput.appendItem(name.replace(/\^/g, ""));
+            name = name.replace(/\^/g, "");
+            menuitem = gDialog.AddHTMLAttributeNameInput.appendItem(name, name);
             menuitem.setAttribute("limitFirstChar", "true");
           }
           else
-            gDialog.AddHTMLAttributeNameInput.appendItem(name);
+            gDialog.AddHTMLAttributeNameInput.appendItem(name, name);
         }
       }
       else if (name == "-")
       {
         // Signal for separator
-        var popup = gDialog.AddHTMLAttributeNameInput.firstChild;
+        var popup = gDialog.AddHTMLAttributeNameInput.menupopup;
         if (popup)
         {
           var sep = document.createElementNS(XUL_NS, "menuseparator");
@@ -59,7 +60,7 @@ function BuildHTMLAttributeNameList()
         // Strip flag characters
         name = name.replace(/[!^#%$+]/g, "");
 
-        menuitem = gDialog.AddHTMLAttributeNameInput.appendItem(name);
+        menuitem = gDialog.AddHTMLAttributeNameInput.appendItem(name, name);
         if (menuitem)
         {
           // Signify "required" attributes by special style
@@ -205,7 +206,7 @@ function onInputHTMLAttributeName()
           if (valueList[i] == "-")
           {
             // Signal for separator
-            var popup = gDialog.AddHTMLAttributeValueInput.firstChild;
+            var popup = gDialog.AddHTMLAttributeValueInput.menupopup;
             if (popup)
             {
               var sep = document.createElementNS(XUL_NS, "menuseparator");
@@ -213,7 +214,7 @@ function onInputHTMLAttributeName()
                 popup.appendChild(sep);
             }
           } else {
-            gDialog.AddHTMLAttributeValueMenulist.appendItem(valueList[i]);
+            gDialog.AddHTMLAttributeValueMenulist.appendItem(valueList[i], valueList[i]);
           }
         }
       }
@@ -308,7 +309,7 @@ function onInputHTMLAttributeValue()
 function editHTMLAttributeValue(targetCell)
 {
   if (IsNotTreeHeader(targetCell))
-    gDialog.AddHTMLAttributeValueInput.inputField.select();
+    gDialog.AddHTMLAttributeValueInput.select();
 }
 
 

@@ -2,38 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-xbl-menulist {
-  -moz-appearance: menulist;
-  margin: 2px 4px;
-  color: -moz-FieldText;
-  text-shadow: none;
-}
-
-/* ..... focused state ..... */
-
-xbl-menulist:focus:not([open="true"]) > .menulist-label-box {
-  background-color: Highlight;
-  color: HighlightText;
-}
-
-xbl-menulist:-moz-focusring:not([open="true"]) > .menulist-label-box {
-  outline: 1px dotted;
-}
-
-/* ..... disabled state ..... */
-
-xbl-menulist[disabled="true"] {
-  background-color: -moz-Dialog;
-  color: GrayText;
-}
-
-menulist[editable="true"],
-xbl-menulist[editable="true"] {
-  -moz-appearance: textfield;
+menulist[is="menulist-editable"][editable="true"] {
   padding: 0;
 }
 
-.menulist-editable-box {
+.menulist-input {
   padding-top: 3px;
   padding-bottom: 3px;
   padding-inline-start: 2px;
@@ -41,8 +14,7 @@ xbl-menulist[editable="true"] {
 }
 
 @media (-moz-windows-default-theme) {
-  menulist[editable="true"] > .menulist-dropmarker,
-  xbl-menulist[editable="true"] > .menulist-dropmarker {
+  menulist[is="menulist-editable"][editable="true"] > .menulist-dropmarker {
     margin: 0;
   }
 }

@@ -5579,7 +5579,7 @@ function LoadIdentity(startup) {
       // If the From field is editable, reset the address from the identity.
       if (identityElement.editable) {
         identityElement.value = identityElement.selectedItem.value;
-        identityElement.inputField.placeholder = getComposeBundle().getFormattedString(
+        identityElement.placeholder = getComposeBundle().getFormattedString(
           "msgIdentityPlaceholder", [identityElement.selectedItem.value]
         );
       }
@@ -5613,7 +5613,7 @@ function MakeFromFieldEditable(ignoreWarning) {
   identityElement.focus();
   identityElement.value = identityElement.selectedItem.value;
   identityElement.select();
-  identityElement.inputField.placeholder = bundle.getFormattedString("msgIdentityPlaceholder", [identityElement.selectedItem.value]);
+  identityElement.placeholder = bundle.getFormattedString("msgIdentityPlaceholder", [identityElement.selectedItem.value]);
 }
 
 function setupAutocomplete() {

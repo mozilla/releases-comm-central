@@ -117,6 +117,7 @@
 
   #msgIdentity:hover,
   #msgIdentity:focus,
+  #msgIdentity:focus-within,
   #msgIdentity[focused="true"] {
     background-color: -moz-field;
     border-color: ThreeDShadow;
@@ -569,7 +570,7 @@ toolbar:not(:-moz-lwtheme) {
   text-shadow: none;
 }
 
-#msgIdentity > .menulist-editable-box {
+#msgIdentity > .menulist-input {
   padding-top: 0;
   padding-bottom: 0;
 }
@@ -582,12 +583,13 @@ toolbar:not(:-moz-lwtheme) {
 
   #msgIdentity:hover,
   #msgIdentity:focus,
+  #msgIdentity:focus-within,
   #msgIdentity[focused="true"] {
     background-color: -moz-field;
     border-color: #a9b7c9;
   }
 
-  #msgIdentity[editable="true"] > .menulist-dropmarker {
+  #msgIdentity[is="menulist-editable"][editable="true"] > .menulist-dropmarker {
     margin-inline-start: 3px;
     margin-inline-end: -3px;
   }
@@ -596,8 +598,7 @@ toolbar:not(:-moz-lwtheme) {
 /* ::::: primary toolbar buttons ::::: */
 
 @media (-moz-windows-default-theme) {
-  menulist,
-  xbl-menulist {
+  menulist {
     -moz-appearance: none;
     margin: 1px 4px;
     padding: 1px 5px;
@@ -774,13 +775,11 @@ toolbar:not(:-moz-lwtheme) {
     background-color: #eef3fa;
   }
 
-  menulist,
-  xbl-menulist {
+  menulist {
     border-radius: 2px;
   }
 
-  menulist[open="true"],
-  xbl-menulist[open="true"] {
+  menulist[open="true"] {
     text-shadow: none;
     transition: none;
   }

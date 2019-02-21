@@ -752,8 +752,7 @@ treechildren::-moz-tree-cell-text {
 }
 
 /* Fix to show the menulist-dropmarker under newer GTK3 versions */
-menulist[editable="true"] > .menulist-dropmarker,
-xbl-menulist[editable="true"] > .menulist-dropmarker {
+menulist[is="menulist-editable"][editable="true"] > .menulist-dropmarker {
   min-width: 2em;
 }
 
