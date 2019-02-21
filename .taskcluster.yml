@@ -66,7 +66,7 @@ tasks:
           '${action.taskGroupId}'
         else:
           '${ownTaskId}'  # same as taskId; this is how automation identifies a decision tsak
-      schedulerId: 'gecko-level-${repository.level}'
+      schedulerId: 'comm-level-${repository.level}'
 
       created: {$fromNow: ''}
       deadline: {$fromNow: '1 day'}
