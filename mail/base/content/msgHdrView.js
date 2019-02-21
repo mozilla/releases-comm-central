@@ -1185,18 +1185,13 @@ function OutputEmailAddresses(headerEntry, emailAddresses) {
   if (!emailAddresses)
     return;
 
-  var addresses = {};
-  var fullNames = {};
-  var names = {};
-  var numAddresses =  0;
+  // The email addresses are still RFC2047 encoded but libmime has already converted from
+  // "raw UTF-8" to "wide" (UTF-16) characters.
+  var addresses = MailServices.headerParser.parseEncodedHeaderW(emailAddresses);
 
-  numAddresses = MailServices.headerParser
-                             .parseHeadersWithArray(emailAddresses, addresses,
-                                                    names, fullNames);
-  var index = 0;
   if (headerEntry.useToggle)
     headerEntry.enclosingBox.resetAddressView(); // make sure we start clean
-  if (numAddresses == 0 && emailAddresses.includes(":")) {
+  if (addresses.length == 0 && emailAddresses.includes(":")) {
     // No addresses and a colon, so an empty group like "undisclosed-recipients: ;".
     // Add group name so at least something displays.
     let address = { displayName: emailAddresses };
@@ -1205,21 +1200,19 @@ function OutputEmailAddresses(headerEntry, emailAddresses) {
     else
       updateEmailAddressNode(headerEntry.enclosingBox.emailAddressNode, address);
   }
-  while (index < numAddresses) {
+  for (let addr of addresses) {
     // If we want to include short/long toggle views and we have a long view,
     // always add it. If we aren't including a short/long view OR if we are and
     // we haven't parsed enough addresses to reach the cutoff valve yet then add
     // it to the default (short) div.
     let address = {};
-    address.emailAddress = addresses.value[index];
-    address.fullAddress = fullNames.value[index];
-    address.displayName = names.value[index];
+    address.emailAddress = addr.email;
+    address.fullAddress = addr.toString();
+    address.displayName = addr.name;
     if (headerEntry.useToggle)
       headerEntry.enclosingBox.addAddressView(address);
     else
       updateEmailAddressNode(headerEntry.enclosingBox.emailAddressNode, address);
-
-    index++;
   }
 
   if (headerEntry.useToggle)

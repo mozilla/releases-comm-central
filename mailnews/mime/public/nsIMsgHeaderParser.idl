@@ -97,6 +97,18 @@ interface nsIMsgHeaderParser : nsISupports {
                           out msgIAddressObject addresses);
 
   /**
+   * Parse an address-based header that has not yet been 2047-decoded and does not
+   * contain raw octets but instead wide (UTF-16) characters.
+   *
+   * @param aEncodedHeader  The RFC 2047-encoded header to parse.
+   * @return                An array corresponding to the header description.
+   */
+  void parseEncodedHeaderW(in AString aEncodedHeader,
+                           [optional] out unsigned long length,
+                           [retval, array, size_is(length)]
+                           out msgIAddressObject addresses);
+
+/**
    * Parse an address-based header that has been 2047-decoded.
    *
    * The result of this method is an array of objects described in the above
@@ -178,9 +190,6 @@ interface nsIMsgHeaderParser : nsISupports {
    * "Bond, James <agent007@mi5.invalid>" would produce one address object,
    * while the string "webmaster@nowhere.invalid, child@nowhere.invalid" would
    * produce two address objects.
-   *
-   * Note that the input string is RFC 2231 and RFC 2047 decoded but no UTF-8
-   * decoding takes place.
    */
   void makeFromDisplayAddress(in AString aDisplayAddresses,
                               [optional] out unsigned long count,

@@ -268,6 +268,15 @@ MimeAddressParser.prototype = {
       MimeParser.HEADER_ADDRESS | MimeParser.HEADER_OPTION_ALL_I18N, aCharset);
     return fixArray(value, aPreserveGroups, count);
   },
+  parseEncodedHeaderW: function (aHeader, count) {
+    aHeader = aHeader || "";
+    let value = MimeParser.parseHeaderField(aHeader,
+      MimeParser.HEADER_ADDRESS |
+      MimeParser.HEADER_OPTION_DECODE_2231 |
+      MimeParser.HEADER_OPTION_DECODE_2047,
+      undefined);
+    return fixArray(value, false, count);
+  },
   parseDecodedHeader: function (aHeader, aPreserveGroups, count) {
     aHeader = aHeader || "";
     let value = MimeParser.parseHeaderField(aHeader, MimeParser.HEADER_ADDRESS);
@@ -389,13 +398,7 @@ MimeAddressParser.prototype = {
 
   parseHeadersWithArray: function (aHeader, aAddrs, aNames, aFullNames) {
     let addrs = [], names = [], fullNames = [];
-    // Parse header, but without HEADER_OPTION_ALLOW_RAW.
-    let value = MimeParser.parseHeaderField(aHeader || "",
-                                            MimeParser.HEADER_ADDRESS |
-                                            MimeParser.HEADER_OPTION_DECODE_2231 |
-                                            MimeParser.HEADER_OPTION_DECODE_2047,
-                                            undefined);
-    let allAddresses = fixArray(value, false);
+    let allAddresses = this.parseEncodedHeader(aHeader, undefined, false);
 
     // Don't index the dummy empty address.
     if (aHeader.trim() == "")
