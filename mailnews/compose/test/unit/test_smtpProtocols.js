@@ -46,7 +46,7 @@ function run_test() {
     try {
       // This call should throw NS_ERROR_NOT_IMPLEMENTED. If it doesn't,
       // then we should implement a new test for it.
-      pH.newChannel(uri);
+      pH.newChannel(uri, null);
       // If it didn't throw, then shout about it.
       do_throw("newChannel not throwing NS_ERROR_NOT_IMPLEMENTED.");
     }
