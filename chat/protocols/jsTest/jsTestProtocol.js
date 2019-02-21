@@ -33,14 +33,14 @@ function Conversation(aAccount)
 Conversation.prototype = {
   __proto__: GenericConvIMPrototype,
   _disconnected: false,
-  _setDisconnected: function() {
+  _setDisconnected() {
     this._disconnected = true;
   },
-  close: function() {
+  close() {
     if (!this._disconnected)
       this.account.disconnect(true);
   },
-  sendMsg: function (aMsg) {
+  sendMsg(aMsg) {
     if (this._disconnected) {
       this.writeMessage("jstest", "This message could not be sent because the conversation is no longer active: " + aMsg, {system: true, error: true});
       return;
@@ -60,7 +60,7 @@ function Account(aProtoInstance, aImAccount)
 }
 Account.prototype = {
   __proto__: GenericAccountPrototype,
-  connect: function() {
+  connect() {
     this.reportConnecting();
     // do something here
     this.reportConnected();
@@ -70,7 +70,7 @@ Account.prototype = {
     }).bind(this), 0);
   },
   _conv: null,
-  disconnect: function(aSilent) {
+  disconnect(aSilent) {
     this.reportDisconnecting(Ci.prplIAccount.NO_ERROR, "");
     if (!aSilent)
       this._conv.writeMessage("jstest", "You have disconnected.", {system: true});
@@ -88,8 +88,8 @@ Account.prototype = {
     password: {label: "_Password Field", default: "", isPassword: true,
                required: false},
     sampleIntField: {label: "_Int Field", default: 4, min: 0, max: 10,
-                     required: true}
-  }
+                     required: true},
+  },
 };
 
 function jsTestProtocol() { }
@@ -99,17 +99,17 @@ jsTestProtocol.prototype = {
   options: {
     "text": {label: "Text option",    default: "foo"},
     "bool": {label: "Boolean option", default: true},
-    "int" : {label: "Integer option", default: 42},
+    "int": {label: "Integer option", default: 42},
     "list": {label: "Select option",  default: "option2",
              listValues: {"option1": "First option",
                           "option2": "Default option",
-                          "option3": "Other option"}}
+                          "option3": "Other option"}},
   },
   usernameSplits: [
     {label: "Server", separator: "@", defaultValue: "default.server",
-     reverse: true}
+     reverse: true},
   ],
-  getAccount: function(aImAccount) { return new Account(this, aImAccount); },
+  getAccount(aImAccount) { return new Account(this, aImAccount); },
   classID: Components.ID("{a0774c5a-4aea-458b-9fbc-8d3cbf1a4630}"),
 };
 

@@ -56,11 +56,11 @@ function MatrixConversation(aAccount, aName, aNick)
 }
 MatrixConversation.prototype = {
   __proto__: GenericConvChatPrototype,
-  sendMsg: function(aMsg) {
+  sendMsg(aMsg) {
     this._account._client.sendTextMessage(this._roomId, aMsg);
   },
   get room() { return this._account._client.getRoom(this._roomId); },
-  addParticipant: function(aRoomMember) {
+  addParticipant(aRoomMember) {
     if (this._participants.has(aRoomMember.userId))
       return;
 
@@ -69,12 +69,12 @@ MatrixConversation.prototype = {
     this.notifyObservers(new nsSimpleEnumerator([participant]),
                          "chat-buddy-add");
   },
-  initListOfParticipants: function() {
+  initListOfParticipants() {
     let conv = this;
     let participants = [];
     this.room.getJoinedMembers().forEach(function(aRoomMember) {
       if (!conv._participants.has(aRoomMember.userId)) {
-        let participant = new MatrixParticipant(aRoomMember)
+        let participant = new MatrixParticipant(aRoomMember);
         participants.push(participant);
         conv._participants.set(aRoomMember.userId, participant);
       }
@@ -104,10 +104,10 @@ function MatrixAccount(aProtocol, aImAccount)
 }
 MatrixAccount.prototype = {
   __proto__: GenericAccountPrototype,
-  observe: function(aSubject, aTopic, aData) {},
-  remove: function() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
-  unInit: function() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
-  connect: function() {
+  observe(aSubject, aTopic, aData) {},
+  remove() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
+  unInit() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
+  connect() {
     this.reportConnecting();
     let baseURL = this.getString("server") + ":" + this.getInt("port");
     let account = this;
@@ -124,7 +124,7 @@ MatrixAccount.prototype = {
         account._client = MatrixSDK.createClient({
           baseUrl: baseURL,
           accessToken: data.access_token,
-          userId: data.user_id
+          userId: data.user_id,
         });
         account.startClient();
       }).catch(function(error) {
@@ -139,7 +139,7 @@ MatrixAccount.prototype = {
    * These are documented at:
    * https://matrix-org.github.io/matrix-js-sdk/0.7.0/module-client.html#~event:MatrixClient%2522Call.incoming%2522
    */
-  startClient: function() {
+  startClient() {
     let account = this;
     this._client.on("sync", function(state, prevState, data) {
       switch (state) {
@@ -198,7 +198,7 @@ MatrixAccount.prototype = {
 
     this._client.startClient();
   },
-  disconnect: function() {
+  disconnect() {
     if (this._client)
       this._client.stopClient();
   },
@@ -208,17 +208,17 @@ MatrixAccount.prototype = {
     // XXX Does it make sense to split up the server into a separate field?
     roomIdOrAlias: {
       get label() { return _("chatRoomField.room"); },
-      required: true
+      required: true,
     },
   },
-  parseDefaultChatName: function(aDefaultName) {
+  parseDefaultChatName(aDefaultName) {
     let chatFields = {
       roomIdOrAlias: aDefaultName,
     };
 
     return chatFields;
   },
-  joinChat: function(aComponents) {
+  joinChat(aComponents) {
     let roomIdOrAlias = aComponents.getValue("roomIdOrAlias").trim();
     let domain = this._client.getDomain();
     // For the format of room id and alias, see the matrix documentation:
@@ -249,12 +249,12 @@ MatrixAccount.prototype = {
     }).done();
     return conv;
   },
-  createConversation: function(aName) { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
+  createConversation(aName) { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
 
   get userId() { return this._client.credentials.userId; },
   _client: null,
   _roomList: new Map(),
-}
+};
 
 function MatrixProtocol() {
 }
@@ -263,23 +263,23 @@ MatrixProtocol.prototype = {
   get normalizedName() { return "matrix"; },
   get name() { return "Matrix"; },
   get iconBaseURI() { return "chrome://prpl-matrix/skin/"; },
-  getAccount: function(aImAccount) { return new MatrixAccount(this, aImAccount); },
+  getAccount(aImAccount) { return new MatrixAccount(this, aImAccount); },
 
   options: {
     // XXX Default to matrix.org once we support connection as guest?
     server: {
       get label() { return _("options.connectServer"); },
-      default: "https://"
+      default: "https://",
     },
     port: {
       get label() { return _("options.connectPort"); },
-      default: 443
-    }
+      default: 443,
+    },
   },
 
   get chatHasTopic() { return true; },
 
-  classID: Components.ID("{e9653ac6-a671-11e6-bf84-60a44c717042}")
+  classID: Components.ID("{e9653ac6-a671-11e6-bf84-60a44c717042}"),
 };
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory([MatrixProtocol]);

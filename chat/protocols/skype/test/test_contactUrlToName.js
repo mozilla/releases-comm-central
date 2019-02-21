@@ -9,7 +9,7 @@ var data = {
   "https://bay-client-s.gateway.messenger.live.com/v1/users/ME/contacts/8:clokep":
     "clokep",
   "https://bay-client-s.gateway.messenger.live.com/v1/users/8:clokep/presenceDocs/messagingService":
-    "clokep"
+    "clokep",
 };
 
 function run_test() {

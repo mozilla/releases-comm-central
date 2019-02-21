@@ -89,18 +89,18 @@ let loader = Loader({
   },
   globals: {
     global: {
-      setInterval: setInterval,
-      clearInterval: clearInterval,
-      setTimeout: setTimeout,
-      clearTimeout: clearTimeout,
+      setInterval,
+      clearInterval,
+      setTimeout,
+      clearTimeout,
     },
-    console: console,
-    XMLHttpRequest: XMLHttpRequest,
-    setTimeout: setTimeout,
-    clearTimeout: clearTimeout,
+    console,
+    XMLHttpRequest,
+    setTimeout,
+    clearTimeout,
     location: { href: "" }, // workaround for browser-request's is_crossDomain
-  }
-})
+  },
+});
 
 let requirer = Module("matrix-module", "");
 let require = Require(loader, requirer);

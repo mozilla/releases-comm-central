@@ -36,13 +36,13 @@ function FacebookAccount(aProtoInstance, aImAccount) {
 FacebookAccount.prototype = {
   __proto__: GenericAccountPrototype,
 
-  connect: function() {
+  connect() {
     this.WARN("As Facebook deprecated its XMPP gateway, it is currently not " +
               "possible to connect to Facebook Chat. See bug 1141674.");
     this.reportDisconnecting(Ci.prplIAccount.ERROR_OTHER_ERROR,
                              _("facebook.disabled"));
     this.reportDisconnected();
-  }
+  },
 };
 
 function FacebookProtocol() {}
@@ -51,8 +51,8 @@ FacebookProtocol.prototype = {
   get normalizedName() { return "facebook"; },
   get name() { return _("facebook.chat.name"); },
   get iconBaseURI() { return "chrome://prpl-facebook/skin/"; },
-  getAccount: function(aImAccount) { return new FacebookAccount(this, aImAccount); },
-  classID: Components.ID("{1d1d0bc5-610c-472f-b2cb-4b89857d80dc}")
+  getAccount(aImAccount) { return new FacebookAccount(this, aImAccount); },
+  classID: Components.ID("{1d1d0bc5-610c-472f-b2cb-4b89857d80dc}"),
 };
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory([FacebookProtocol]);
