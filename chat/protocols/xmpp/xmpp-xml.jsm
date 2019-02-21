@@ -4,12 +4,13 @@
 
 this.EXPORTED_SYMBOLS = ["Stanza", "XMPPParser", "SupportedFeatures"];
 
+/* eslint-disable key-spacing */
 var NS = {
   xml                       : "http://www.w3.org/XML/1998/namespace",
   xhtml                     : "http://www.w3.org/1999/xhtml",
   xhtml_im                  : "http://jabber.org/protocol/xhtml-im",
 
-  //auth
+  // auth
   client                    : "jabber:client",
   streams                   : "http://etherx.jabber.org/streams",
   stream                    : "urn:ietf:params:xml:ns:xmpp-streams",
@@ -26,20 +27,20 @@ var NS = {
   "private"                 : "jabber:iq:private",
   xdata                     : "jabber:x:data",
 
-  //roster
+  // roster
   roster                    : "jabber:iq:roster",
   roster_versioning         : "urn:xmpp:features:rosterver",
   roster_delimiter          : "roster:delimiter",
 
-  //privacy lists
+  // privacy lists
   privacy                   : "jabber:iq:privacy",
 
-  //discovering
+  // discovering
   disco_info                : "http://jabber.org/protocol/disco#info",
   disco_items               : "http://jabber.org/protocol/disco#items",
   caps                      : "http://jabber.org/protocol/caps",
 
-  //addressing
+  // addressing
   address                   : "http://jabber.org/protocol/address",
 
   muc_user                  : "http://jabber.org/protocol/muc#user",
@@ -75,7 +76,7 @@ var NS = {
   avatar_metadata           : "urn:xmpp:avatar:metadata",
   avatar_metadata_notify    : "urn:xmpp:avatar:metadata+notify",
   pubsub                    : "http://jabber.org/protocol/pubsub",
-  pubsub_event              : "http://jabber.org/protocol/pubsub#event"
+  pubsub_event              : "http://jabber.org/protocol/pubsub#event",
 };
 
 var TOP_LEVEL_ELEMENTS = {
@@ -88,8 +89,9 @@ var TOP_LEVEL_ELEMENTS = {
                            "urn:ietf:params:xml:ns:xmpp-sasl"],
   "success"             : "urn:ietf:params:xml:ns:xmpp-sasl",
   "challenge"           : "urn:ietf:params:xml:ns:xmpp-sasl",
-  "error"               : "urn:ietf:params:xml:ns:xmpp-streams"
+  "error"               : "urn:ietf:params:xml:ns:xmpp-streams",
 };
+/* eslint-enable key-spacing */
 
 // Features that we support in XMPP.
 // Don't forget to add your new features here.
@@ -101,18 +103,18 @@ var SupportedFeatures = [
   NS.muc,
   NS.ping,
   NS.vcard,
-  NS.version
+  NS.version,
 ];
 
 /* Stanza Builder */
 var Stanza = {
-  NS: NS,
+  NS,
 
   /* Create a presence stanza */
   presence: (aAttr, aData) => Stanza.node("presence", null, aAttr, aData),
 
   /* Create a message stanza */
-  message: function(aTo, aMsg, aState, aAttr = {}, aData = []) {
+  message(aTo, aMsg, aState, aAttr = {}, aData = []) {
     aAttr.to = aTo;
     if (!("type" in aAttr))
       aAttr.type = "chat";
@@ -127,7 +129,7 @@ var Stanza = {
   },
 
   /* Create a iq stanza */
-  iq: function(aType, aId, aTo, aData) {
+  iq(aType, aId, aTo, aData) {
     let attrs = {type: aType};
     if (aId)
       attrs.id = aId;
@@ -137,7 +139,7 @@ var Stanza = {
   },
 
   /* Create a XML node */
-  node: function(aName, aNs, aAttr, aData) {
+  node(aName, aNs, aAttr, aData) {
     let node = new XMLNode(null, aNs, aName, aName, aAttr);
     if (aData) {
       if (!Array.isArray(aData))
@@ -147,7 +149,7 @@ var Stanza = {
     }
 
     return node;
-  }
+  },
 };
 
 /* Text node
@@ -158,22 +160,22 @@ function TextNode(aText) {
 TextNode.prototype = {
   get type() { return "text"; },
 
-  append: function(aText) {
+  append(aText) {
     this.text += aText;
   },
 
   /* For debug purposes, returns an indented (unencoded) string */
-  convertToString: function(aIndent) { return aIndent + this.text + "\n"; },
+  convertToString(aIndent) { return aIndent + this.text + "\n"; },
 
   /* Returns the encoded XML */
-  getXML: function() {
+  getXML() {
     return Cc["@mozilla.org/txttohtmlconv;1"]
            .getService(Ci.mozITXTToHTMLConv)
            .scanTXT(this.text, Ci.mozITXTToHTMLConv.kEntities);
   },
 
   /* To read the unencoded data. */
-  get innerText() { return this.text; }
+  get innerText() { return this.text; },
 };
 
 /* XML node */
@@ -211,12 +213,12 @@ XMLNode.prototype = {
   get type() { return "node"; },
 
   /* Add a new child node */
-  addChild: function(aNode) {
+  addChild(aNode) {
     this.children.push(aNode);
   },
 
   /* Add text node */
-  addText: function(aText) {
+  addText(aText) {
     let lastIndex = this.children.length - 1;
     if (lastIndex >= 0 && this.children[lastIndex] instanceof TextNode)
       this.children[lastIndex].append(aText);
@@ -225,14 +227,14 @@ XMLNode.prototype = {
   },
 
   /* Get child elements by namespace */
-  getChildrenByNS: function(aNS) {
+  getChildrenByNS(aNS) {
     return this.children.filter(c => c.uri == aNS);
   },
 
   /* Get the first element anywhere inside the node (including child nodes)
      that matches the query.
      A query consists of an array of localNames. */
-  getElement: function(aQuery) {
+  getElement(aQuery) {
     if (aQuery.length == 0)
       return this;
 
@@ -250,7 +252,7 @@ XMLNode.prototype = {
 
   /* Get all elements of the node (including child nodes) that match the query.
      A query consists of an array of localNames. */
-  getElements: function(aQuery) {
+  getElements(aQuery) {
     if (aQuery.length == 0)
       return [this];
 
@@ -266,12 +268,12 @@ XMLNode.prototype = {
   },
 
   /* Get immediate children by the node name */
-  getChildren: function(aName) {
+  getChildren(aName) {
     return this.children.filter((c) => (c.type != "text" && c.localName == aName));
   },
 
   // Test if the node is a stanza and its namespace is valid.
-  isXmppStanza: function() {
+  isXmppStanza() {
     if (!TOP_LEVEL_ELEMENTS.hasOwnProperty(this.qName))
       return false;
     let ns = TOP_LEVEL_ELEMENTS[this.qName];
@@ -279,7 +281,7 @@ XMLNode.prototype = {
   },
 
   /* Returns indented XML */
-  convertToString: function(aIndent = "") {
+  convertToString(aIndent = "") {
     let s =
       aIndent + "<" + this.qName + this._getXmlns() + this._getAttributeText();
     let content = "";
@@ -289,7 +291,7 @@ XMLNode.prototype = {
   },
 
   /* Returns the XML */
-  getXML: function() {
+  getXML() {
     let s = "<" + this.qName + this._getXmlns() + this._getAttributeText();
     let innerXML = this.innerXML;
     return s + (innerXML ? ">" + innerXML + "</" + this.qName : "/") + ">";
@@ -299,13 +301,13 @@ XMLNode.prototype = {
   get innerText() { return this.children.map(c => c.innerText).join(""); },
 
   /* Private methods */
-  _getXmlns: function() { return this.uri ? " xmlns=\"" + this.uri + "\"" : ""; },
-  _getAttributeText: function() {
+  _getXmlns() { return this.uri ? " xmlns=\"" + this.uri + "\"" : ""; },
+  _getAttributeText() {
     let s = "";
     for (let name in this.attributes)
-      s += " " +name + "=\"" + this.attributes[name] + "\"";
+      s += " " + name + "=\"" + this.attributes[name] + "\"";
     return s;
-  }
+  },
 };
 
 function XMPPParser(aListener) {
@@ -319,7 +321,7 @@ function XMPPParser(aListener) {
 }
 XMPPParser.prototype = {
   _destroyPending: false,
-  destroy: function() {
+  destroy() {
     // Avoid reference cycles
     this._parser.contentHandler = null;
     delete this._listener;
@@ -337,17 +339,17 @@ XMPPParser.prototype = {
     delete this._parser;
   },
   _dummyRequest: {
-    cancel: function() { },
-    isPending: function() { },
-    resume: function() { },
-    suspend: function() { }
+    cancel() { },
+    isPending() { },
+    resume() { },
+    suspend() { },
   },
 
-  _logReceivedData: function(aData) {
+  _logReceivedData(aData) {
     this._listener.LOG("received:\n" + aData);
   },
   _inOnDataAvailable: false,
-  onDataAvailable: function(aInputStream, aOffset, aCount) {
+  onDataAvailable(aInputStream, aOffset, aCount) {
     this._inOnDataAvailable = true;
     this._parser.onDataAvailable(this._dummyRequest, null,
                                  aInputStream, aOffset, aCount);
@@ -357,10 +359,10 @@ XMPPParser.prototype = {
   },
 
   /* nsISAXContentHandler implementation */
-  startDocument: function() { },
-  endDocument: function() { },
+  startDocument() { },
+  endDocument() { },
 
-  startElement: function(aUri, aLocalName, aQName, aAttributes) {
+  startElement(aUri, aLocalName, aQName, aAttributes) {
     if (aQName == "stream:stream") {
       let node = new XMLNode(null, aUri, aLocalName, aQName, aAttributes);
       // The node we created doesn't have children, but
@@ -373,7 +375,7 @@ XMPPParser.prototype = {
         return;
       }
 
-      this._listener._streamId = node.attributes["id"];
+      this._listener._streamId = node.attributes.id;
       if (!("version" in node.attributes))
         this._listener.startLegacyAuth();
 
@@ -388,7 +390,7 @@ XMPPParser.prototype = {
     this._node = node;
   },
 
-  characters: function(aCharacters) {
+  characters(aCharacters) {
     if (!this._node) {
       // Ignore whitespace received on the stream to keep the connection alive.
       if (aCharacters.trim()) {
@@ -401,7 +403,7 @@ XMPPParser.prototype = {
     this._node.addText(aCharacters);
   },
 
-  endElement: function(aUri, aLocalName, aQName) {
+  endElement(aUri, aLocalName, aQName) {
     if (aQName == "stream:stream") {
       this._logReceivedData("</stream:stream>");
       delete this._node;
@@ -435,18 +437,18 @@ XMPPParser.prototype = {
     this._node = this._node._parentNode;
   },
 
-  processingInstruction: function(aTarget, aData) { },
+  processingInstruction(aTarget, aData) { },
 
   /* nsISAXErrorHandler implementation */
-  error: function(aError) {
+  error(aError) {
     if (this._listener)
       this._listener.onXMLError("parse-error", aError);
   },
-  fatalError: function(aError) {
+  fatalError(aError) {
     if (this._listener)
       this._listener.onXMLError("parse-fatal-error", aError);
   },
-  ignorableWarning: function(aError) {
+  ignorableWarning(aError) {
     if (this._listener)
       this._listener.onXMLError("parse-warning", aError);
   },

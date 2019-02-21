@@ -118,7 +118,7 @@ var commands = [
   {
     name: "join",
     get helpString() { return _("command.join3", "join"); },
-    run: function(aMsg, aConv, aReturnedConv) {
+    run(aMsg, aConv, aReturnedConv) {
       let account = getAccount(aConv);
       let params = aMsg.trim();
       let conv;
@@ -146,36 +146,36 @@ var commands = [
       if (aReturnedConv)
         aReturnedConv.value = conv;
       return true;
-    }
+    },
   },
   {
     name: "part",
     get helpString() { return _("command.part2", "part"); },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
-    run: function(aMsg, aConv) {
+    run(aMsg, aConv) {
       let conv = getConv(aConv);
       if (!conv.left)
         conv.part(aMsg);
       return true;
-    }
+    },
   },
   {
     name: "topic",
     get helpString() { return _("command.topic", "topic"); },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
-    run: function(aMsg, aConv) {
+    run(aMsg, aConv) {
       let conv = getMUC(aConv);
       if (!conv)
         return true;
       conv.topic = aMsg;
       return true;
-    }
+    },
   },
   {
     name: "ban",
     get helpString() { return _("command.ban", "ban"); },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
-    run: function(aMsg, aConv) {
+    run(aMsg, aConv) {
       let params = splitInput(aMsg);
       if (!params.length)
         return false;
@@ -184,13 +184,13 @@ var commands = [
       if (conv)
         conv.ban(...params);
       return true;
-    }
+    },
   },
   {
     name: "kick",
     get helpString() { return _("command.kick", "kick"); },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
-    run: function(aMsg, aConv) {
+    run(aMsg, aConv) {
       let conv = getMUC(aConv);
       if (!conv)
         return true;
@@ -200,31 +200,31 @@ var commands = [
         return false;
       conv.kick(...params);
       return true;
-    }
+    },
   },
   {
     name: "invite",
     get helpString() { return _("command.invite", "invite"); },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
-    run: function(aMsg, aConv) {
+    run(aMsg, aConv) {
       let conv = getMUC(aConv);
       if (!conv)
         return true;
 
       return invite(aMsg, conv);
-    }
+    },
   },
   {
     name: "inviteto",
     get helpString() { return _("command.inviteto", "inviteto"); },
     usageContext: Ci.imICommand.CMD_CONTEXT_IM,
-    run: (aMsg, aConv) => invite(aMsg, getConv(aConv))
+    run: (aMsg, aConv) => invite(aMsg, getConv(aConv)),
   },
   {
     name: "me",
     get helpString() { return _("command.me", "me"); },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
-    run: function(aMsg, aConv) {
+    run(aMsg, aConv) {
       let params = aMsg.trim();
       if (!params)
         return false;
@@ -236,13 +236,13 @@ var commands = [
       conv.sendMsg("/me " + params);
 
       return true;
-    }
+    },
   },
   {
     name: "nick",
     get helpString() { return _("command.nick", "nick"); },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
-    run: function(aMsg, aConv) {
+    run(aMsg, aConv) {
       let params = aMsg.trim().split(/\s+/);
       if (!params[0])
         return false;
@@ -251,13 +251,13 @@ var commands = [
       if (conv)
         conv.setNick(params[0]);
       return true;
-    }
+    },
   },
   {
     name: "msg",
     get helpString() { return _("command.msg", "msg"); },
     usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
-    run: function(aMsg, aConv, aReturnedConv) {
+    run(aMsg, aConv, aReturnedConv) {
       let conv = getMUC(aConv);
       if (!conv)
         return true;
@@ -276,13 +276,13 @@ var commands = [
       if (aReturnedConv)
         aReturnedConv.value = privateConv;
       return true;
-    }
+    },
   },
   {
     name: "version",
     get helpString() { return _("command.version", "version"); },
     usageContext: Ci.imICommand.CMD_CONTEXT_IM,
-    run: function(aMsg, aConv, aReturnedConv) {
+    run(aMsg, aConv, aReturnedConv) {
       let conv = getConv(aConv);
       if (conv.left)
         return true;
@@ -297,6 +297,6 @@ var commands = [
 
       conv.getVersion();
       return true;
-    }
-  }
+    },
+  },
 ];

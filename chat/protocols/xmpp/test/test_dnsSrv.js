@@ -19,15 +19,15 @@ FakeXMPPSession.prototype = {
   _account: { __proto__: xmpp.XMPPAccount.prototype },
   _host: null,
   _port: 0,
-  connect: function(aHostOrigin, aPortOrigin, aSecurity, aProxy,
-                    aHost = aHostOrigin, aPort = aPortOrigin) {},
-  _connectNextRecord: function() { this.isConnectNextRecord = true; },
+  connect(aHostOrigin, aPortOrigin, aSecurity, aProxy,
+          aHost = aHostOrigin, aPort = aPortOrigin) {},
+  _connectNextRecord() { this.isConnectNextRecord = true; },
 
   // Used to indicate that method _connectNextRecord is called or not.
   isConnectNextRecord: false,
 
-  LOG: function(aMsg) {},
-  WARN: function(aMsg) {},
+  LOG(aMsg) {},
+  WARN(aMsg) {},
 };
 
 var TEST_DATA = [
@@ -38,16 +38,16 @@ var TEST_DATA = [
       new dns.SRVRecord(5, 0, "xmpp1.instantbird.com", 5222),
       new dns.SRVRecord(10, 0, "xmpp2.instantbird.com", 5222),
       new dns.SRVRecord(0, 0, "xmpp3.instantbird.com", 5222),
-      new dns.SRVRecord(15, 0, "xmpp4.instantbird.com", 5222)
+      new dns.SRVRecord(15, 0, "xmpp4.instantbird.com", 5222),
     ],
     output: [
       new dns.SRVRecord(0, 0, "xmpp3.instantbird.com", 5222),
       new dns.SRVRecord(5, 0, "xmpp1.instantbird.com", 5222),
       new dns.SRVRecord(10, 0, "xmpp2.instantbird.com", 5222),
       new dns.SRVRecord(15, 0, "xmpp4.instantbird.com", 5222),
-      new dns.SRVRecord(20, 0, "xmpp.instantbird.com", 5222)
+      new dns.SRVRecord(20, 0, "xmpp.instantbird.com", 5222),
     ],
-    isConnectNextRecord: true
+    isConnectNextRecord: true,
   },
   {
     input: [
@@ -56,7 +56,7 @@ var TEST_DATA = [
       new dns.SRVRecord(10, 60, "xmpp2.instantbird.com", 5222),
       new dns.SRVRecord(5, 10, "xmpp3.instantbird.com", 5222),
       new dns.SRVRecord(20, 10, "xmpp.instantbird.com", 5222),
-      new dns.SRVRecord(15, 0, "xmpp4.instantbird.com", 5222)
+      new dns.SRVRecord(15, 0, "xmpp4.instantbird.com", 5222),
     ],
     output: [
       new dns.SRVRecord(5, 30, "xmpp5.instantbird.com", 5222),
@@ -64,42 +64,42 @@ var TEST_DATA = [
       new dns.SRVRecord(5, 0, "xmpp1.instantbird.com", 5222),
       new dns.SRVRecord(10, 60, "xmpp2.instantbird.com", 5222),
       new dns.SRVRecord(15, 0, "xmpp4.instantbird.com", 5222),
-      new dns.SRVRecord(20,10, "xmpp.instantbird.com", 5222)
+      new dns.SRVRecord(20, 10, "xmpp.instantbird.com", 5222),
     ],
-    isConnectNextRecord: true
+    isConnectNextRecord: true,
   },
 
   // Tests no SRV records are found.
   {
     input: [],
     output: [],
-    isConnectNextRecord: false
+    isConnectNextRecord: false,
   },
 
   // Tests XMPP is not supported if the result is one record with target ".".
   {
     input: [
-      new dns.SRVRecord(5, 30, ".", 5222)
+      new dns.SRVRecord(5, 30, ".", 5222),
     ],
     output: xmppSession.XMPPSession.prototype.SRV_ERROR_XMPP_NOT_SUPPORTED,
-    isConnectNextRecord: false
+    isConnectNextRecord: false,
   },
   {
     input: [
-      new dns.SRVRecord(5, 30, "xmpp.instantbird.com", 5222)
+      new dns.SRVRecord(5, 30, "xmpp.instantbird.com", 5222),
     ],
     output: [
-      new dns.SRVRecord(5, 30, "xmpp.instantbird.com", 5222)
+      new dns.SRVRecord(5, 30, "xmpp.instantbird.com", 5222),
     ],
-    isConnectNextRecord: true
+    isConnectNextRecord: true,
   },
 
   // Tests error happened during SRV lookup.
   {
     input: -1,
     output: xmppSession.XMPPSession.prototype.SRV_ERROR_LOOKUP_FAILED,
-    isConnectNextRecord: false
-  }
+    isConnectNextRecord: false,
+  },
 ];
 
 function run_test() {

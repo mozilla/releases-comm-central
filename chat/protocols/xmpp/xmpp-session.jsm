@@ -38,7 +38,7 @@ Object.defineProperty(this, "XMPPDefaultResource", {
   enumerable: true,
   get() {
     return _defaultResource;
-  }
+  },
 });
 
 function XMPPSession(aHost, aPort, aSecurity, aJID, aPassword, aAccount) {
@@ -114,7 +114,7 @@ XMPPSession.prototype = {
   // Contains the remaining SRV records if we failed to connect the current one.
   _srvRecords: [],
 
-  sendPing: function() {
+  sendPing() {
     this.sendStanza(Stanza.iq("get", null, null,
                               Stanza.node("ping", Stanza.NS.ping)),
                     this.cancelDisconnectTimer, this);
@@ -153,7 +153,7 @@ XMPPSession.prototype = {
 
   // Handles result of DNS SRV query and saves sorted results if it's OK in _srvRecords,
   // otherwise throws error.
-  _handleSrvQuery: function(aResult) {
+  _handleSrvQuery(aResult) {
     if (typeof aResult == "number" && aResult == -1)
       throw this.SRV_ERROR_LOOKUP_FAILED;
 
@@ -177,7 +177,7 @@ XMPPSession.prototype = {
     this._connectNextRecord();
   },
 
-  _connectNextRecord: function() {
+  _connectNextRecord() {
     if (!this._srvRecords.length) {
       this.ERROR("_connectNextRecord is called and there are no more records " +
                  "to connect.");
@@ -193,7 +193,7 @@ XMPPSession.prototype = {
   },
 
   /* Disconnect from the server */
-  disconnect: function() {
+  disconnect() {
     if (this.onXmppStanza == this.stanzaListeners.accountListening)
       this.send("</stream:stream>");
     delete this.onXmppStanza;
@@ -206,10 +206,10 @@ XMPPSession.prototype = {
   },
 
   /* Report errors to the account */
-  onError: function(aError, aException) {
+  onError(aError, aException) {
     // If we're trying to connect to SRV entries, then keep trying until a
     // successful connection occurs or we run out of SRV entries to try.
-    if (!!this._srvRecords.length) {
+    if (this._srvRecords.length) {
       this._connectNextRecord();
       return;
     }
@@ -218,7 +218,7 @@ XMPPSession.prototype = {
   },
 
   /* Send a text message to the server */
-  send: function(aMsg, aLogString) {
+  send(aMsg, aLogString) {
     this.sendString(aMsg, "UTF-8", aLogString);
   },
 
@@ -228,9 +228,9 @@ XMPPSession.prototype = {
    * return true if the stanza was handled, false if not. Note that an
    * undefined return value is treated as true.
    */
-  sendStanza: function(aStanza, aCallback, aThis, aLogString) {
+  sendStanza(aStanza, aCallback, aThis, aLogString) {
     if (!aStanza.attributes.hasOwnProperty("id"))
-      aStanza.attributes["id"] = this._account.generateId();
+      aStanza.attributes.id = this._account.generateId();
     if (aCallback)
       this._handlers.set(aStanza.attributes.id, aCallback.bind(aThis));
     this.send(aStanza.getXML(), aLogString);
@@ -239,7 +239,7 @@ XMPPSession.prototype = {
   },
 
   /* This method handles callbacks for specific ids. */
-  execHandler: function(aId, aStanza) {
+  execHandler(aId, aStanza) {
     let handler = this._handlers.get(aId);
     if (!handler)
       return false;
@@ -252,7 +252,7 @@ XMPPSession.prototype = {
   },
 
   /* Start the XMPP stream */
-  startStream: function() {
+  startStream() {
     if (this._parser)
       this._parser.destroy();
     this._parser = new XMPPParser(this);
@@ -260,15 +260,15 @@ XMPPSession.prototype = {
               '" xmlns="jabber:client" xmlns:stream="http://etherx.jabber.org/streams" version="1.0">');
   },
 
-  startSession: function() {
+  startSession() {
     this.sendStanza(Stanza.iq("set", null, null,
                               Stanza.node("session", Stanza.NS.session)),
-                    (aStanza) => aStanza.attributes["type"] == "result");
+                    (aStanza) => aStanza.attributes.type == "result");
     this.onXmppStanza = this.stanzaListeners.sessionStarted;
   },
 
   /* XEP-0078: Non-SASL Authentication */
-  startLegacyAuth: function() {
+  startLegacyAuth() {
     if (!this._encrypted && this._connectionSecurity == "require_tls") {
       this.onError(Ci.prplIAccount.ERROR_ENCRYPTION_ERROR,
                    _("connection.error.startTLSNotSupported"));
@@ -285,7 +285,7 @@ XMPPSession.prototype = {
 
   // If aResource is null, it will request to bind a server-generated
   // resourcepart, otherwise request to bind a client-submitted resourcepart.
-  _requestBind: function(aResource) {
+  _requestBind(aResource) {
     let resourceNode =
       aResource ? Stanza.node("resource", null, null, aResource) : null;
     this.sendStanza(Stanza.iq("set", null, null,
@@ -295,7 +295,7 @@ XMPPSession.prototype = {
 
   /* Socket events */
   /* The connection is established */
-  onConnection: function() {
+  onConnection() {
     if (this._security.includes("ssl")) {
       this.onXmppStanza = this.stanzaListeners.startAuth;
       this._encrypted = true;
@@ -311,7 +311,7 @@ XMPPSession.prototype = {
   },
 
   /* When incoming data is available to be parsed */
-  onDataReceived: function(aData) {
+  onDataReceived(aData) {
     this.checkPingTimer();
     let istream = Cc["@mozilla.org/io/string-input-stream;1"]
                     .createInstance(Ci.nsIStringInputStream);
@@ -319,7 +319,7 @@ XMPPSession.prototype = {
     this._lastReceivedData = aData;
     try {
       this._parser.onDataAvailable(istream, 0, aData.length);
-    } catch(e) {
+    } catch (e) {
       Cu.reportError(e);
       this.onXMLError("parser-exception", e);
     }
@@ -327,26 +327,26 @@ XMPPSession.prototype = {
   },
 
   /* The connection got disconnected without us closing it. */
-  onConnectionClosed: function() {
+  onConnectionClosed() {
     this._networkError(_("connection.error.serverClosedConnection"));
   },
-  onBadCertificate: function(aIsSslError, aNSSErrorMessage) {
+  onBadCertificate(aIsSslError, aNSSErrorMessage) {
     let error = this._account.handleBadCertificate(this, aIsSslError);
     this.onError(error, aNSSErrorMessage);
   },
-  onConnectionReset: function() {
+  onConnectionReset() {
     this._networkError(_("connection.error.resetByPeer"));
   },
-  onConnectionTimedOut: function() {
+  onConnectionTimedOut() {
     this._networkError(_("connection.error.timedOut"));
   },
-  _networkError: function(aMessage) {
+  _networkError(aMessage) {
     this.onError(Ci.prplIAccount.ERROR_NETWORK_ERROR, aMessage);
   },
 
 
   /* Methods called by the XMPPParser instance */
-  onXMLError: function(aError, aException) {
+  onXMLError(aError, aException) {
     if (aError == "parsing-characters")
       this.WARN(aError + ": " + aException + "\n" + this._lastReceivedData);
     else
@@ -358,7 +358,7 @@ XMPPSession.prototype = {
   // All the functions in stanzaListeners are used as onXmppStanza
   // implementations at various steps of establishing the session.
   stanzaListeners: {
-    initStream: function(aStanza) {
+    initStream(aStanza) {
       if (aStanza.localName != "features") {
         this.ERROR("Unexpected stanza " + aStanza.localName + ", expected 'features'");
         this._networkError(_("connection.error.incorrectResponse"));
@@ -388,7 +388,7 @@ XMPPSession.prototype = {
       this.onXmppStanza = this.stanzaListeners.startAuth;
       this.onXmppStanza(aStanza);
     },
-    startTLS: function(aStanza) {
+    startTLS(aStanza) {
       if (aStanza.localName != "proceed") {
         this._networkError(_("connection.error.failedToStartTLS"));
         return;
@@ -399,7 +399,7 @@ XMPPSession.prototype = {
       this.startStream();
       this.onXmppStanza = this.stanzaListeners.startAuth;
     },
-    startAuth: function(aStanza) {
+    startAuth(aStanza) {
       if (aStanza.localName != "features") {
         this.ERROR("Unexpected stanza " + aStanza.localName + ", expected 'features'");
         this._networkError(_("connection.error.incorrectResponse"));
@@ -461,7 +461,7 @@ XMPPSession.prototype = {
       this.onXmppStanza = this.stanzaListeners.authDialog.bind(this, authMec);
       this.onXmppStanza(null); // the first auth step doesn't read anything
     },
-    authDialog: function(aAuthMec, aStanza) {
+    authDialog(aAuthMec, aStanza) {
       if (aStanza && aStanza.localName == "failure") {
         let errorMsg = "authenticationFailure";
         if (aStanza.getElement(["not-authorized"]) ||
@@ -476,7 +476,7 @@ XMPPSession.prototype = {
       let result;
       try {
         result = aAuthMec.next(aStanza);
-      } catch(e) {
+      } catch (e) {
         this.ERROR(e);
         this.onError(Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED,
                      _("connection.error.authenticationFailure"));
@@ -496,7 +496,7 @@ XMPPSession.prototype = {
         this.onXmppStanza = this.stanzaListeners.startBind;
       }
     },
-    startBind: function(aStanza) {
+    startBind(aStanza) {
       if (!aStanza.getElement(["bind"])) {
         this.ERROR("Unexpected lack of the bind feature");
         this._networkError(_("connection.error.incorrectResponse"));
@@ -507,8 +507,8 @@ XMPPSession.prototype = {
       this._requestBind(this._resource);
       this.onXmppStanza = this.stanzaListeners.bindResult;
     },
-    bindResult: function(aStanza) {
-      if (aStanza.attributes["type"] == "error") {
+    bindResult(aStanza) {
+      if (aStanza.attributes.type == "error") {
         let error = this._account.parseError(aStanza);
         let message;
         switch (error.condition) {
@@ -548,15 +548,15 @@ XMPPSession.prototype = {
       this._resource = this._jid.resource;
       this.startSession();
     },
-    legacyAuth: function(aStanza) {
-      if (aStanza.attributes["type"] == "error") {
+    legacyAuth(aStanza) {
+      if (aStanza.attributes.type == "error") {
         let error = aStanza.getElement(["error"]);
         if (!error) {
           this._networkError(_("connection.error.incorrectResponse"));
           return;
         }
 
-        let code = parseInt(error.attributes["code"], 10);
+        let code = parseInt(error.attributes.code, 10);
         if (code == 401) {
           // Failed Authentication (Incorrect Credentials)
           this.onError(Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED,
@@ -579,7 +579,7 @@ XMPPSession.prototype = {
         // }
       }
 
-      if (aStanza.attributes["type"] != "result") {
+      if (aStanza.attributes.type != "result") {
         this._networkError(_("connection.error.incorrectResponse"));
         return;
       }
@@ -612,7 +612,7 @@ XMPPSession.prototype = {
 
       let children = [
         Stanza.node("username", null, null, this._jid.node),
-        Stanza.node("resource", null, null, this._resource)
+        Stanza.node("resource", null, null, this._resource),
       ];
 
       let logString;
@@ -656,16 +656,15 @@ XMPPSession.prototype = {
 
       let s = Stanza.iq("set", null, this._domain,
                         Stanza.node("query", Stanza.NS.auth, null, children));
-      this.sendStanza(s, undefined, undefined,
-        '<iq type="set".../> (' + logString + ')');
+      this.sendStanza(s, undefined, undefined, `<iq type="set".../> (${logString})`);
     },
-    sessionStarted: function(aStanza) {
+    sessionStarted(aStanza) {
       this.resetPingTimer();
       this._account.onConnection();
       this.LOG("Account successfully connected.");
       this.onXmppStanza = this.stanzaListeners.accountListening;
     },
-    accountListening: function(aStanza) {
+    accountListening(aStanza) {
       let id = aStanza.attributes.id;
       if (id && this.execHandler(id, aStanza))
         return;
@@ -678,9 +677,9 @@ XMPPSession.prototype = {
         this._account.onMessageStanza(aStanza);
       else if (name == "iq")
         this._account.onIQStanza(aStanza);
-    }
+    },
   },
-  onXmppStanza: function(aStanza) {
+  onXmppStanza(aStanza) {
     this.ERROR("should not be reached\n");
-  }
+  },
 };

@@ -24,7 +24,7 @@ XPCOMUtils.defineLazyGlobalGetters(this, ["crypto"]);
 
 // Handle PLAIN authorization mechanism.
 function* PlainAuth(aUsername, aPassword, aDomain) {
-  let data = "\0"+ aUsername + "\0" + aPassword;
+  let data = "\0" + aUsername + "\0" + aPassword;
 
   // btoa for Unicode, see https://developer.mozilla.org/en-US/docs/DOM/window.btoa
   let base64Data = btoa(unescape(encodeURIComponent(data)));
@@ -32,7 +32,7 @@ function* PlainAuth(aUsername, aPassword, aDomain) {
   let stanza = yield {
     send: Stanza.node("auth", Stanza.NS.sasl, {mechanism: "PLAIN"},
                       base64Data),
-    log: '<auth mechanism:="PLAIN"/> (base64 encoded username and password not logged)'
+    log: '<auth mechanism:="PLAIN"/> (base64 encoded username and password not logged)',
   };
 
   if (stanza.localName != "success")
@@ -235,7 +235,7 @@ const RFC3454 = {
 [\u{1d516}-\u{1d51c}]|[\u{1d51e}-\u{1d539}]|[\u{1d53b}-\u{1d53e}]|\
 [\u{1d540}-\u{1d544}]|\u{1d546}|[\u{1d54a}-\u{1d550}]|\
 [\u{1d552}-\u{1d6a3}]|[\u{1d6a8}-\u{1d7c9}]|[\u{20000}-\u{2a6d6}]|\
-[\u{2f800}-\u{2fa1d}]|[\u{f0000}-\u{ffffd}]|[\u{100000}-\u{10fffd}]"
+[\u{2f800}-\u{2fa1d}]|[\u{f0000}-\u{ffffd}]|[\u{100000}-\u{10fffd}]",
 };
 
 // Generates a random nonce and returns a base64 encoded string.
@@ -298,7 +298,7 @@ function saslName(aName) {
   // RFC 5802 (5.1): the client SHOULD prepare the username using the "SASLprep".
   // The characters ’,’ or ’=’ in usernames are sent as ’=2C’ and
   // ’=3D’ respectively.
-  let saslName = saslPrep(aName).replace(/=/g,"=3D").replace(/,/g, "=2C");
+  let saslName = saslPrep(aName).replace(/=/g, "=3D").replace(/,/g, "=2C");
   if (!saslName)
     throw "Name is not valid";
 
@@ -350,7 +350,7 @@ function* scramSHA1Auth(aUsername, aPassword, aDomain, aNonce) {
 
   let receivedStanza = yield {
     send: Stanza.node("auth", Stanza.NS.sasl, {mechanism: "SCRAM-SHA-1"},
-                      btoa(clientFirstMessage))
+                      btoa(clientFirstMessage)),
   };
 
   if (receivedStanza.localName != "challenge")
@@ -427,7 +427,7 @@ function* scramSHA1Auth(aUsername, aPassword, aDomain, aNonce) {
 
     return {
       send: Stanza.node("response", Stanza.NS.sasl, null, btoa(clientFinalMessage)),
-      log: '<response/> (base64 encoded SCRAM response containing password not logged)'
+      log: "<response/> (base64 encoded SCRAM response containing password not logged)",
     };
   });
 

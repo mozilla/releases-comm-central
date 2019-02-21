@@ -32,7 +32,8 @@ var {
   XMPPAccountPrototype,
 } = ChromeUtils.import("resource:///modules/xmpp.jsm");
 var {
-  XMPPSession, XMPPDefaultResource
+  XMPPSession,
+  XMPPDefaultResource,
 } = ChromeUtils.import("resource:///modules/xmpp-session.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
@@ -53,11 +54,11 @@ XMPPProtocol.prototype = {
   get normalizedName() { return "jabber"; },
   get name() { return "XMPP"; },
   get iconBaseURI() { return "chrome://prpl-jabber/skin/"; },
-  getAccount: function(aImAccount) { return new XMPPAccount(this, aImAccount); },
+  getAccount(aImAccount) { return new XMPPAccount(this, aImAccount); },
 
   usernameSplits: [
     {get label() { return _("options.domain"); }, separator: "@",
-     defaultValue: "jabber.org", reverse: true}
+     defaultValue: "jabber.org", reverse: true},
   ],
 
   options: {
@@ -72,14 +73,14 @@ XMPPProtocol.prototype = {
         // "old_ssl" and "none" are also supported, but not exposed in the UI.
         // Any unknown value will fallback to the opportunistic_tls behavior.
       },
-      default: "require_tls"
+      default: "require_tls",
     },
     server: {get label() { return _("options.connectServer"); }, default: ""},
-    port: {get label() { return _("options.connectPort"); }, default: 5222}
+    port: {get label() { return _("options.connectPort"); }, default: 5222},
   },
   get chatHasTopic() { return true; },
 
-  classID: Components.ID("{dde786d1-6f59-43d0-9bc8-b505a757fb30}")
+  classID: Components.ID("{dde786d1-6f59-43d0-9bc8-b505a757fb30}"),
 };
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory([XMPPProtocol]);

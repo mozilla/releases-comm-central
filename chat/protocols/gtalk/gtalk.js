@@ -32,7 +32,8 @@ var {
   XMPPAccountPrototype,
 } = ChromeUtils.import("resource:///modules/xmpp.jsm");
 var {
-  XMPPSession, XMPPDefaultResource
+  XMPPSession,
+  XMPPDefaultResource,
 } = ChromeUtils.import("resource:///modules/xmpp-session.jsm");
 var {
   Stanza,
@@ -50,15 +51,15 @@ XPCOMUtils.defineLazyGetter(this, "_", () =>
 // support their JID Domain Discovery extension.
 // See https://developers.google.com/talk/jep_extensions/jid_domain_change
 function* PlainFullBindAuth(aUsername, aPassword, aDomain) {
-  let key = btoa("\0"+ aUsername + "\0" + aPassword);
+  let key = btoa("\0" + aUsername + "\0" + aPassword);
   let attrs = {
     mechanism: "PLAIN",
     "xmlns:ga": "http://www.google.com/talk/protocol/auth",
-    "ga:client-uses-full-bind-result": "true"
+    "ga:client-uses-full-bind-result": "true",
   };
   let stanza = yield {
     send: Stanza.node("auth", Stanza.NS.sasl, attrs, key),
-    log: '<auth.../> (PlainFullBindAuth base64 encoded username and password not logged)'
+    log: "<auth.../> (PlainFullBindAuth base64 encoded username and password not logged)",
   };
 
   if (stanza.localName != "success")
@@ -70,7 +71,7 @@ function GTalkAccount(aProtoInstance, aImAccount) {
 }
 GTalkAccount.prototype = {
   __proto__: XMPPAccountPrototype,
-  connect: function() {
+  connect() {
     this._jid = this._parseJID(this.name);
     // The XMPP spec says that the node part of a JID is optional, but
     // in the case of Google Talk if the username typed by the user
@@ -95,7 +96,7 @@ GTalkAccount.prototype = {
       new XMPPSession("talk.google.com", 443,
                       "require_tls", this._jid,
                       this.imAccount.password, this);
-  }
+  },
 };
 
 function GTalkProtocol() {
@@ -108,12 +109,12 @@ GTalkProtocol.prototype = {
   get name() { return _("gtalk.protocolName"); },
   get iconBaseURI() { return "chrome://prpl-gtalk/skin/"; },
   get usernameEmptyText() { return _("gtalk.usernameHint"); },
-  getAccount: function(aImAccount) { return new GTalkAccount(this, aImAccount); },
+  getAccount(aImAccount) { return new GTalkAccount(this, aImAccount); },
   options: {
-    resource: {get label() { return _("options.resource"); }, default: ""}
+    resource: {get label() { return _("options.resource"); }, default: ""},
   },
   get chatHasTopic() { return true; },
-  classID: Components.ID("{38a224c1-6748-49a9-8ab2-efc362b1000d}")
+  classID: Components.ID("{38a224c1-6748-49a9-8ab2-efc362b1000d}"),
 };
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory([GTalkProtocol]);

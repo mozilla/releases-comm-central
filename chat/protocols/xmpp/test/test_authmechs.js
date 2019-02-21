@@ -11,7 +11,7 @@ add_task(async function testPlain() {
   const username = "juliet";
   const password = "r0m30myr0m30";
 
-  let mech = XMPPAuthMechanisms["PLAIN"](username, password, undefined);
+  let mech = XMPPAuthMechanisms.PLAIN(username, password, undefined);
 
   // Send the initiation message.
   let result = mech.next();

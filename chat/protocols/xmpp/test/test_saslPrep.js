@@ -13,49 +13,49 @@ var TEST_DATA = [
     // SOFT HYPHEN mapped to nothing.
     input: "I\u00adX",
     output: "IX",
-    isError: false
+    isError: false,
   },
   {
     // No transformation.
     input: "user",
     output: "user",
-    isError: false
+    isError: false,
   },
   {
     // Case preserved, will not match #2.
     input: "USER",
     output: "USER",
-    isError: false
+    isError: false,
   },
   {
     // Output is NFKC, input in ISO 8859-1.
     input: "\u00aa",
     output: "a",
-    isError: false
+    isError: false,
   },
   {
     // Output is NFKC, will match #1.
     input: "\u2168",
     output: "IX",
-    isError: false
+    isError: false,
   },
   {
     // Error - prohibited character.
     input: "\u0007",
     output: "",
-    isError: true
+    isError: true,
   },
   {
     // Error - bidirectional check.
     input: "\u0627\u0031",
     output: "",
-    isError: true
-  }
+    isError: true,
+  },
 ];
 
 function run_test() {
   for (let current of TEST_DATA) {
-    try{
+    try {
       let result = xmppAuth.saslPrep(current.input);
       equal(current.isError, false);
       equal(result, current.output);

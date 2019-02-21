@@ -11,55 +11,55 @@ var TEST_DATA = {
     node: "abdelrhman",
     domain: "instantbird",
     jid: "abdelrhman@instantbird",
-    normalized: "abdelrhman@instantbird"
+    normalized: "abdelrhman@instantbird",
   },
   " room@instantbird/abdelrhman ": {
     node: "room",
     domain: "instantbird",
     resource: "abdelrhman",
     jid: "room@instantbird/abdelrhman",
-    normalized: "room@instantbird"
+    normalized: "room@instantbird",
   },
   "room@instantbird/@bdelrhman": {
     node: "room",
     domain: "instantbird",
     resource: "@bdelrhman",
     jid: "room@instantbird/@bdelrhman",
-    normalized: "room@instantbird"
+    normalized: "room@instantbird",
   },
   "room@instantbird/abdelrhm\u0061\u0308n": {
     node: "room",
     domain: "instantbird",
     resource: "abdelrhm\u0061\u0308n",
     jid: "room@instantbird/abdelrhm\u0061\u0308n",
-    normalized: "room@instantbird"
+    normalized: "room@instantbird",
   },
   "Room@Instantbird/Abdelrhman": {
     node: "room",
     domain: "instantbird",
     resource: "Abdelrhman",
     jid: "room@instantbird/Abdelrhman",
-    normalized: "room@instantbird"
+    normalized: "room@instantbird",
   },
   "Abdelrhman@instantbird/Instant bird": {
     node: "abdelrhman",
     domain: "instantbird",
     resource: "Instant bird",
     jid: "abdelrhman@instantbird/Instant bird",
-    normalized: "abdelrhman@instantbird"
+    normalized: "abdelrhman@instantbird",
   },
   "abdelrhman@host/instant/Bird": {
     node: "abdelrhman",
     domain: "host",
     resource: "instant/Bird",
     jid: "abdelrhman@host/instant/Bird",
-    normalized: "abdelrhman@host"
+    normalized: "abdelrhman@host",
   },
   "instantbird": {
     domain: "instantbird",
     jid: "instantbird",
-    normalized: "instantbird"
-  }
+    normalized: "instantbird",
+  },
 };
 
 function testParseJID() {

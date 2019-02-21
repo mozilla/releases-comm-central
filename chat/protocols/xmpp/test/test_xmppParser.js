@@ -19,7 +19,7 @@ type="chat"><body xmlns="jabber:client">What man art thou that, thus \
 bescreen"d in night, so stumblest on my counsel?</body>\
 </message>',
     isError: false,
-    description: "Message stanza with body element"
+    description: "Message stanza with body element",
   },
   {
     input: '<message xmlns="jabber:client" from="romeo@montague.example" \
@@ -48,7 +48,7 @@ so stumblest on my counsel?</body>\
 </received>\
 </message>',
     isError: false,
-    description: "Forwarded copy of message carbons"
+    description: "Forwarded copy of message carbons",
   },
   {
     input: '<message xmlns="jabber:client" from="juliet@capulet.example/balcony" \
@@ -56,9 +56,9 @@ to="romeo@montague.example/garden" type="chat">\
 <body>What man art thou that, thus bescreen"d in night, so stumblest on my \
 counsel?\
 </message>',
-    output: '',
+    output: "",
     isError: true,
-    description: "No closing of body tag"
+    description: "No closing of body tag",
   },
   {
     input: '<message xmlns="http://etherx.jabber.org/streams" from="juliet@capulet.example/balcony" \
@@ -66,19 +66,19 @@ to="romeo@montague.example/garden" type="chat">\
 <body>What man art thou that, thus bescreen"d in night, so stumblest on my \
 counsel?</body>\
 </message>',
-    output: '',
+    output: "",
     isError: true,
-    description: "Invalid namespace of top-level element"
+    description: "Invalid namespace of top-level element",
   },
   {
     input: '<field xmlns="jabber:x:data" type="fixed">\
 <value>What man art thou that, thus bescreen"d in night, so stumblest on my \
 counsel?</value>\
 </field>',
-    output: '',
+    output: "",
     isError: true,
-    description: "Invalid top-level element"
-  }
+    description: "Invalid top-level element",
+  },
 ];
 
 function testXMPPParser() {
@@ -87,15 +87,15 @@ function testXMPPParser() {
       output: current.output,
       description: current.description,
       isError: current.isError,
-      onXMLError: function(aString) {
+      onXMLError(aString) {
         ok(this.isError, aString + " - " + this.description);
       },
-      LOG: function(aString) {},
-      startLegacyAuth: function() {},
-      onXmppStanza: function(aStanza) {
+      LOG(aString) {},
+      startLegacyAuth() {},
+      onXmppStanza(aStanza) {
         equal(this.output, aStanza.getXML(), this.description);
         ok(!this.isError, this.description);
-      }
+      },
     };
     let parser = new xmppXml.XMPPParser(listener);
     let istream = Cc["@mozilla.org/io/string-input-stream;1"]
