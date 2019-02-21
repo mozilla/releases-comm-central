@@ -44,40 +44,37 @@ var abFlavorDataProvider = {
 
 var abResultsPaneObserver = {
   onDragStart(aEvent, aXferData, aDragAction) {
-      var selectedRows = GetSelectedRows();
+    var selectedRows = GetSelectedRows();
 
-      if (!selectedRows)
-        return;
+    if (!selectedRows)
+      return;
 
-      var selectedAddresses = GetSelectedAddresses();
+    var selectedAddresses = GetSelectedAddresses();
 
-      aXferData.data = new TransferData();
-      aXferData.data.addDataForFlavour("moz/abcard", selectedRows);
-      aXferData.data.addDataForFlavour("text/x-moz-address", selectedAddresses);
-      aXferData.data.addDataForFlavour("text/unicode", selectedAddresses);
+    aXferData.data = new TransferData();
+    aXferData.data.addDataForFlavour("moz/abcard", selectedRows);
+    aXferData.data.addDataForFlavour("text/x-moz-address", selectedAddresses);
+    aXferData.data.addDataForFlavour("text/unicode", selectedAddresses);
 
-      let srcDirectory = getSelectedDirectory();
-      // The default allowable actions are copy, move and link, so we need
-      // to restrict them here.
-      if (!srcDirectory.readOnly)
-        // Only allow copy & move from read-write directories.
-        aDragAction.action = Ci.
-                             nsIDragService.DRAGDROP_ACTION_COPY |
-                             Ci.
-                             nsIDragService.DRAGDROP_ACTION_MOVE;
-      else
-        // Only allow copy from read-only directories.
-        aDragAction.action = Ci.
-                             nsIDragService.DRAGDROP_ACTION_COPY;
+    let srcDirectory = getSelectedDirectory();
+    // The default allowable actions are copy, move and link, so we need
+    // to restrict them here.
+    if (!srcDirectory.readOnly)
+      // Only allow copy & move from read-write directories.
+      aDragAction.action = Ci.nsIDragService.DRAGDROP_ACTION_COPY |
+                           Ci.nsIDragService.DRAGDROP_ACTION_MOVE;
+    else
+      // Only allow copy from read-only directories.
+      aDragAction.action = Ci.nsIDragService.DRAGDROP_ACTION_COPY;
 
-      var card = GetSelectedCard();
-      if (card && card.displayName) {
-        let vCard = card.translateTo("vcard");
-        aXferData.data.addDataForFlavour("text/vcard", decodeURIComponent(vCard));
-        aXferData.data.addDataForFlavour("application/x-moz-file-promise-dest-filename", card.displayName + ".vcf");
-        aXferData.data.addDataForFlavour("application/x-moz-file-promise-url", "data:text/vcard," + vCard);
-        aXferData.data.addDataForFlavour("application/x-moz-file-promise", abFlavorDataProvider);
-      }
+    var card = GetSelectedCard();
+    if (card && card.displayName) {
+      let vCard = card.translateTo("vcard");
+      aXferData.data.addDataForFlavour("text/vcard", decodeURIComponent(vCard));
+      aXferData.data.addDataForFlavour("application/x-moz-file-promise-dest-filename", card.displayName + ".vcf");
+      aXferData.data.addDataForFlavour("application/x-moz-file-promise-url", "data:text/vcard," + vCard);
+      aXferData.data.addDataForFlavour("application/x-moz-file-promise", abFlavorDataProvider);
+    }
   },
 
   onDrop(aEvent, aXferData, aDragSession) {
