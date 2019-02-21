@@ -6,7 +6,6 @@
 @import url("chrome://messenger/skin/numberbox.css");
 @import url("chrome://messenger/skin/xbl-notification.css");
 @import url("chrome://messenger/skin/spinbuttons.css");
-@import url("chrome://messenger/skin/datetimepicker.css");
 @import url("chrome://messenger/content/menulist.css");
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
@@ -56,14 +55,6 @@ button[type="menu-button"] {
 
 menulist[type="description"] > menupopup > menuitem[description] {
   -moz-binding: url("chrome://messenger/content/mailWidgets.xml#menuitem-iconic-desc-noaccel");
-}
-
-datepicker[type="popup"] {
-  -moz-binding: url('chrome://messenger/content/datetimepicker.xml#datepicker-popup');
-}
-
-datepicker[type="grid"] {
-  -moz-binding: url('chrome://messenger/content/datetimepicker.xml#datepicker-grid');
 }
 
 textbox[type="number"] {

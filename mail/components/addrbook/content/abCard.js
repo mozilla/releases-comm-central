@@ -290,7 +290,8 @@ function OnLoadEditCard() {
         }
 
         // the birthday fields
-        document.getElementById("Birthday").readOnly = true;
+        document.getElementById("BirthDay").readOnly = true;
+        document.getElementById("BirthMonth").readOnly = true;
         document.getElementById("BirthYear").readOnly = true;
         document.getElementById("Age").readOnly = true;
 
@@ -384,8 +385,36 @@ function InitPhoneticFields() {
   }
 }
 
+function InitBirthDateFields() {
+  let birthMonth = document.getElementById("BirthMonth");
+  let birthDay = document.getElementById("BirthDay");
+  let birthYear = document.getElementById("BirthYear");
+
+  if (birthMonth.menupopup.childElementCount == 1) {
+    let formatter = Intl.DateTimeFormat(undefined, { month: "long" });
+    for (let m = 1; m <= 12; m++) {
+      let menuitem = document.createElement("menuitem");
+      menuitem.setAttribute("value", m);
+      menuitem.setAttribute("label", formatter.format(new Date(2000, m - 1, 2)));
+      birthMonth.menupopup.appendChild(menuitem);
+    }
+
+    formatter = Intl.DateTimeFormat(undefined, { day: "numeric" });
+    for (let d = 1; d <= 31; d++) {
+      let menuitem = document.createElement("menuitem");
+      menuitem.setAttribute("value", d);
+      menuitem.setAttribute("label", formatter.format(new Date(2000, 0, d)));
+      birthDay.menupopup.appendChild(menuitem);
+    }
+  }
+
+  birthMonth.addEventListener("command", setDisabledMonthDays);
+  birthYear.addEventListener("change", setDisabledMonthDays);
+}
+
 function InitEditCard() {
   InitPhoneticFields();
+  InitBirthDateFields();
 
   InitCommonJS();
 
@@ -460,40 +489,37 @@ function GetCardValues(cardproperty, doc) {
       cardproperty.getProperty(kVcardFields[i][1], "");
   }
 
-  var birthday = doc.getElementById("Birthday");
-  modifyDatepicker(birthday);
-
   // Get the year first, so that the following month/day
   // calculations can take leap years into account.
   var year = cardproperty.getProperty("BirthYear", null);
   var birthYear = doc.getElementById("BirthYear");
   // set the year in the datepicker to the stored year
-  birthday.year = saneBirthYear(year);
   birthYear.value = year;
 
-  // get the month of the year (1 - 12)
   var month = cardproperty.getProperty("BirthMonth", null);
-  if (month > 0 && month < 13)
-    birthday.month = month - 1;
-  else
-    birthday.monthField.value = null;
-
-  // get the date of the month (1 - 31)
-  var date = cardproperty.getProperty("BirthDay", null);
-  if (date > 0 && date < 32)
-    birthday.date = date;
-  else
-    birthday.dateField.value = null;
+  var day = cardproperty.getProperty("BirthDay", null);
+  var birthMonth = doc.getElementById("BirthMonth");
+  var birthDay = doc.getElementById("BirthDay");
+  birthDay.value = -1;
+  if (month > 0 && month < 13) {
+    birthMonth.value = month;
+    setDisabledMonthDays();
+    if (day > 0 && day < 32)
+      birthDay.value = day;
+  } else {
+    birthMonth.value = -1;
+  }
 
   // get the current age
-  calculateAge(null, birthYear);
+  calculateAge();
 
   // when the birth year changes, update the datepicker's year to the new value
   // or to kDefaultYear if the value is null
-  birthYear.onchange = calculateAge;
-  birthday.onchange = calculateAge;
+  birthMonth.addEventListener("command", calculateAge);
+  birthDay.addEventListener("command", calculateAge);
+  birthYear.addEventListener("change", calculateAge);
   var age = doc.getElementById("Age");
-  age.onchange = calculateYear;
+  age.addEventListener("change", calculateYear);
 
   var popup = document.getElementById("PreferMailFormatPopup");
   if (popup)
@@ -550,9 +576,8 @@ function CheckAndSetCardValues(cardproperty, doc, check) {
   }
 
   // get the birthday information from the dialog
-  var birthdayElem = doc.getElementById("Birthday");
-  var birthMonth = birthdayElem.monthField.value;
-  var birthDay = birthdayElem.dateField.value;
+  var birthMonth = document.getElementById("BirthMonth").value;
+  var birthDay = document.getElementById("BirthDay").value;
   var birthYear = doc.getElementById("BirthYear").value;
 
   // set the birth day, month, and year properties
@@ -673,197 +698,59 @@ function SetCardDialogTitle(displayName) {
     : gAddressBookBundle.getString(gEditCard.titleProperty);
 }
 
-/**
- * Calculates the duration of time between an event and now and updates the year
- * of whichever element did not call this function.
- * @param aEvent   The event calling this method.
- * @param aElement Optional, but required if this function is not called from an
- *                 element's event listener. The element that would call this.
- */
-function calculateAge(aEvent, aElement) {
-  var datepicker, yearElem, ageElem;
-  if (aEvent)
-    aElement = this;
-  if (aElement.id == "BirthYear" || aElement.id == "Birthday") {
-    datepicker = document.getElementById("Birthday");
-    yearElem = document.getElementById("BirthYear");
-    ageElem = document.getElementById("Age");
-  }
-  if (!datepicker || !yearElem || !ageElem)
-    return;
+function setDisabledMonthDays() {
+  let birthMonth = document.getElementById("BirthMonth").value;
+  let birthYear = document.getElementById("BirthYear").value;
+  let popup = document.getElementById("BirthDay").menupopup;
 
-  // if the datepicker was updated, update the year element
-  if (aElement == datepicker && !(datepicker.year == kDefaultYear && !yearElem.value))
-    yearElem.value = datepicker.year;
-
-  var year = yearElem.value;
-  // if the year element's value is invalid set the year and age elements to null
-  if (isNaN(year) || year < kMinYear || year > kMaxYear) {
-    yearElem.value = null;
-    ageElem.value = null;
-    datepicker.year = kDefaultYear;
-    return;
-  } else if (aElement == yearElem) {
-    datepicker.year = year;
+  if (!isNaN(birthYear) && birthYear >= kMinYear && birthYear <= kMaxYear) {
+    popup.children[29].disabled = (birthYear % 4 != 0) && birthMonth == "2";
   }
-  // calculate the length of time between the event and now
-  try {
-    var event = new Date(datepicker.year, datepicker.month, datepicker.date);
-    // if the year is only 2 digits, then the year won't be set correctly
-    // using setFullYear fixes this issue
-    event.setFullYear(datepicker.year);
-    // get the difference between today and the event
-    var age = new Date(new Date() - event);
-    // get the number of years of the difference and subtract 1970 (epoch)
-    ageElem.value = age.getFullYear() - 1970;
-  } catch (e) {
-    datepicker.year = kDefaultYear;
-    // if there was an error (like invalid year) set the year and age to null
-    yearElem.value = null;
-    ageElem.value = null;
-  }
+  popup.children[30].disabled = birthMonth == "2";
+  popup.children[31].disabled = ["2", "4", "6", "9", "11"].includes(birthMonth);
 }
 
-/**
- * Calculates the year an event occurred based on the number of years, months,
- * and days since the event and updates the relevant element.
- * @param aEvent   The event calling this method.
- * @param aElement Optional, but required if this function is not called from an
- *                 element's event listener. The element that would call this.
- */
-function calculateYear(aEvent, aElement) {
-  var yearElem, datepicker;
-  if (aEvent)
-    aElement = this;
-  if (aElement.id == "Age") {
-    datepicker = document.getElementById("Birthday");
-    yearElem = document.getElementById("BirthYear");
-  }
-  if (!datepicker || !yearElem)
-    return;
+function calculateAge() {
+  let birthMonth = document.getElementById("BirthMonth").value;
+  let birthDay = document.getElementById("BirthDay").value;
+  let birthYear = document.getElementById("BirthYear").value;
+  document.getElementById("Age").value = "";
 
-  // if the age is null, remove the year from the year element, and set the
-  // datepicker to the default year
-  if (!aElement.value) {
-    datepicker.year = kDefaultYear;
-    yearElem.value = null;
+  if (birthMonth == -1 || birthDay == -1) {
     return;
   }
-  var today = new Date();
-  try {
-    var date = new Date(aElement.value, datepicker.month, datepicker.date);
-    date.setFullYear(aElement.value);
-    // get the difference between today and the age (the year is offset by 1970)
-    var difference = new Date(today - date);
-    datepicker.year = yearElem.value = difference.getFullYear() - 1970;
-  } catch (e) {
-    // The above code may throw an invalid year exception. If that happens, set
-    // the year to kDefaultYear and set the year element's value to 0.
-    datepicker.year = kDefaultYear;
-    // if there was an error (like invalid year) set the year and age to null
-    yearElem.value = null;
-    let ageElem = document.getElementById("Age");
-    if (ageElem)
-      ageElem.value = null;
+  if (isNaN(birthYear) || birthYear < kMinYear || birthYear > kMaxYear) {
+    return;
   }
+
+  let today = new Date();
+  let age = today.getFullYear() - birthYear;
+  if (birthMonth > today.getMonth()) {
+    age--;
+  } else if (birthMonth == today.getMonth() && birthDay > today.getDate()) {
+    age--;
+  }
+  document.getElementById("Age").value = age;
 }
 
-/**
- * Modifies a datepicker in the following ways:
- *  - Removes the scroll arrows
- *  - Hides the year
- *  - Allows the day and month to be blank
- * NOTE:
- * The datepicker's date, month, year, and dateValue properties are not always
- * what appear physically to the user in the datepicker fields.
- * If any field is blank, the corresponding property is either the previous
- * value if there was one since the card was opened or the relevant portion of
- * the current date.
- *
- * To get the displayed values, get the value of the individual field, such as
- * datepicker.yyyyField.value where yyyy is "year", "month", or "date" for the
- * year, month, and day, respectively.
- * If the value is null, then the field is blank and vice versa.
- * @param aDatepicker The datepicker to modify.
- */
-function modifyDatepicker(aDatepicker) {
-  // collapse the year field and separator
-  aDatepicker.yearField.parentNode.collapsed = true;
-  if (aDatepicker.yearField == aDatepicker._fieldThree ||
-      aDatepicker.yearField == aDatepicker._fieldTwo)
-    aDatepicker._separatorSecond.collapsed = true;
-  else
-    aDatepicker._separatorFirst.collapsed = true;
-  // collapse the spinner element
-  document.getAnonymousElementByAttribute(aDatepicker, "anonid", "buttons")
-          .collapsed = true;
-  // this modified constrain value function ignores values less than the minimum
-  // to let the value be blank (null)
-  // from: mozilla/toolkit/content/widgets/datetimepicker.xml#759
-  aDatepicker._constrainValue = function(aField, aValue, aNoWrap) {
-    // if the value is less than one, make the field's value null
-    if (aValue < 1) {
-      aField.value = null;
-      return null;
-    }
-    if (aNoWrap && aField == this.monthField)
-      aValue--;
-    // make sure the date is valid for the given month
-    if (aField == this.dateField) {
-      var currentMonth = this.month;
-      var dt = new Date(this.year, currentMonth, aValue);
-      return dt.getMonth() != currentMonth ? 1 : aValue;
-    }
-    var min = (aField == this.monthField) ? 0 : 1;
-    var max = (aField == this.monthField) ? 11 : kMaxYear;
-    // make sure the value isn't too high
-    if (aValue > max)
-      return aNoWrap ? max : min;
-    return aValue;
-  };
-  // sets the specified field to the given value, but allows blank fields
-  // from: mozilla/toolkit/content/widgets/datetimepicker.xml#698
-  aDatepicker._setFieldValue = function(aField, aValue) {
-    if (aField == this.yearField && aValue >= kMinYear && aValue <= kMaxYear) {
-      let oldDate = this._dateValue;
-      this._dateValue.setFullYear(aValue);
-      if (oldDate != this._dateValue) {
-        this._dateValue.setDate(0);
-        this._updateUI(this.dateField, this.date);
-      }
-    } else if (aField == this.monthField && aValue != null) {
-      // update the month if the value isn't null
-      let oldDate = this.date;
-      this._dateValue.setMonth(aValue);
-      if (oldDate != this.date)
-        this._dateValue.setDate(0);
-      this._updateUI(this.dateField, this.date);
-      let date = this._dateValue.getDate();
-      this.dateField.value = date < 10 && this.dateLeadingZero ? "0" + date : date;
-      let month = this._dateValue.getMonth() + 1;
-      this.monthField.value = month < 10 && this.monthLeadingZero ? "0" + month : month;
-    } else if (aField == this.dateField && aValue != null) {
-      // update the date if the value isn't null
-      this._dateValue.setDate(aValue);
-      this._updateUI(this.dateField, this.date);
-      let date = this._dateValue.getDate();
-      this.dateField.value = date < 10 && this.dateLeadingZero ? "0" + date : date;
-      let month = this._dateValue.getMonth() + 1;
-      this.monthField.value = month < 10 && this.monthLeadingZero ? "0" + month : month;
-    }
-    this.setAttribute("value", this.value);
+function calculateYear() {
+  let age = document.getElementById("Age").value;
+  if (isNaN(age)) {
+    return;
+  }
 
-    if (this.attachedControl)
-      this.attachedControl._setValueNoSync(this._dateValue);
-    // if the aField's value is null or 0, set both field's values to null
-    if (!aField.value && aField != this.yearField) {
-      this.dateField.value = null;
-      this.monthField.value = null;
-    }
-    // make the field's value null if aValue is null and the field's value isn't
-    if (aValue == null && aField.value != null)
-      aField.value = null;
-  };
+  let today = new Date();
+  let year = today.getFullYear() - age;
+
+  let birthMonth = document.getElementById("BirthMonth").value;
+  let birthDay = document.getElementById("BirthDay").value;
+  if (birthMonth > today.getMonth()) {
+    year--;
+  } else if (birthMonth == today.getMonth() && birthDay > today.getDate()) {
+    year--;
+  }
+  document.getElementById("BirthYear").value = year;
+  setDisabledMonthDays();
 }
 
 var chatNameFieldIds =

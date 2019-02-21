@@ -24,6 +24,12 @@
   width: 72ch;
 }
 
+#BirthMonth[value="-1"],
+#BirthDay[value="-1"],
+.placeholderOption {
+  color: GrayText;
+}
+
 .YearWidth {
   width: 8ch;
 }

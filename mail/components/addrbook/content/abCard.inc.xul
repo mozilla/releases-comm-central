@@ -230,16 +230,21 @@
           <label control="Birthday" value="&Birthday.label;"
                  accesskey="&Birthday.accesskey;"/>
           <hbox class="AddressCardEditWidth" align="center">
-            <!-- NOTE: This datepicker is modified.
-                 See abCardOverlay.js for details-->
-            <datepicker id="Birthday" type="popup"/>
-            <label value="&In.label;"/>
+            <menulist id="BirthMonth">
+              <menupopup>
+                <menuitem label="&Month.placeholder;" value="-1" class="placeholderOption"/>
+              </menupopup>
+            </menulist>
+            <menulist id="BirthDay">
+              <menupopup>
+                <menuitem label="&Day.placeholder;" value="-1" class="placeholderOption"/>
+              </menupopup>
+            </menulist>
             <textbox id="BirthYear" maxlength="4"
                      placeholder="&Year.placeholder;" class="YearWidth" />
-            <label control="Age" value="&Or.value;"/>
+            <label control="Age" value="&Age.label;"/>
             <textbox id="Age" maxlength="4"
                      placeholder="&Age.placeholder;" class="YearWidth" />
-            <label value="&YearsOld.label;"/>
             <spacer flex="1"/>
           </hbox>
         </hbox>

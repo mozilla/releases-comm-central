@@ -22,7 +22,6 @@ classic.jar:
   skin/classic/messenger/browserRequest.css                   (mail/browserRequest.css)
   skin/classic/messenger/compacttheme.css                     (mail/compacttheme.css)
   skin/classic/messenger/customizeToolbar.css                 (mail/customizeToolbar.css)
-  skin/classic/messenger/datetimepicker.css                   (mail/datetimepicker.css)
   skin/classic/messenger/section_collapsed.png                (mail/section_collapsed.png)
   skin/classic/messenger/section_expanded.png                 (mail/section_expanded.png)
   skin/classic/messenger/menulist.css                         (mail/menulist.css)

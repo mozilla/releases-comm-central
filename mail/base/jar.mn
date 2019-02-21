@@ -36,7 +36,6 @@ messenger.jar:
     content/messenger/viewSource.css                (../../common/src/viewSource.css)
     content/messenger/viewSource.js                 (../../common/src/viewSource.js)
 *   content/messenger/viewSource.xul                (../../common/src/viewSource.xul)
-*   content/messenger/datetimepicker.xml            (../../common/bindings/datetimepicker.xml)
     content/messenger/generalBindings.xml           (../../common/bindings/generalBindings.xml)
     content/messenger/generalBindings.js            (../../common/bindings/generalBindings.js)
     content/messenger/menubutton.xml                (../../common/bindings/menubutton.xml)

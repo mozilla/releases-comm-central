@@ -30,7 +30,6 @@
   locale/@AB_CD@/messenger/customizeToolbar.properties                  (%chrome/messenger/customizeToolbar.properties)
   locale/@AB_CD@/messenger/viewSource.dtd                               (%chrome/messenger/viewSource.dtd)
   locale/@AB_CD@/messenger/viewSource.properties                        (%chrome/messenger/viewSource.properties)
-  locale/@AB_CD@/messenger/datetimepicker.dtd                           (%chrome/messenger/datetimepicker.dtd)
   locale/@AB_CD@/messenger/systemIntegrationDialog.dtd                  (%chrome/messenger/systemIntegrationDialog.dtd)
   locale/@AB_CD@/messenger/virtualFolderProperties.dtd                  (%chrome/messenger/virtualFolderProperties.dtd)
   locale/@AB_CD@/messenger/virtualFolderListDialog.dtd                  (%chrome/messenger/virtualFolderListDialog.dtd)
