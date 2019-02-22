@@ -361,14 +361,14 @@ function imapMessage(URI, uid, flags) {
 }
 imapMessage.prototype = {
   get channel() {
-    return Services.io.newChannel2(this._URI,
-                                   null,
-                                   null,
-                                   null,
-                                   Services.scriptSecurityManager.getSystemPrincipal(),
-                                   null,
-                                   Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                   Ci.nsIContentPolicy.TYPE_OTHER);
+    return Services.io.newChannel(this._URI,
+                                  null,
+                                  null,
+                                  null,
+                                  Services.scriptSecurityManager.getSystemPrincipal(),
+                                  null,
+                                  Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                  Ci.nsIContentPolicy.TYPE_OTHER);
   },
   setFlag : function (flag) {
    if (this.flags.indexOf(flag) == -1)

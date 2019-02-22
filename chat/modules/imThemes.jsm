@@ -56,11 +56,11 @@ var gCurrentTheme = null;
 function getChromeFile(aURI)
 {
   try {
-    let channel = Services.io.newChannel2(aURI, null, null, null,
-                                          Services.scriptSecurityManager.getSystemPrincipal(),
-                                          null,
-                                          Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                          Ci.nsIContentPolicy.TYPE_OTHER);
+    let channel = Services.io.newChannel(aURI, null, null, null,
+                                         Services.scriptSecurityManager.getSystemPrincipal(),
+                                         null,
+                                         Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                         Ci.nsIContentPolicy.TYPE_OTHER);
     let stream = channel.open();
     let sstream = Cc["@mozilla.org/scriptableinputstream;1"]
                     .createInstance(Ci.nsIScriptableInputStream);
@@ -165,11 +165,11 @@ function plistToJSON(aElt)
 function getInfoPlistContent(aBaseURI)
 {
   try {
-    let channel = Services.io.newChannel2(aBaseURI + "Info.plist", null, null, null,
-                                          Services.scriptSecurityManager.getSystemPrincipal(),
-                                          null,
-                                          Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                          Ci.nsIContentPolicy.TYPE_OTHER);
+    let channel = Services.io.newChannel(aBaseURI + "Info.plist", null, null, null,
+                                         Services.scriptSecurityManager.getSystemPrincipal(),
+                                         null,
+                                         Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                         Ci.nsIContentPolicy.TYPE_OTHER);
     let stream = channel.open();
     let parser = new DOMParser();
     let doc = parser.parseFromStream(stream, null, stream.available(), "text/xml");

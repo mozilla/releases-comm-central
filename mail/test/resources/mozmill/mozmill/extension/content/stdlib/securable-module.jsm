@@ -320,7 +320,7 @@
        return newURI.spec;
      },
      getFile(path) {
-       var channel = Services.io.newChannel2(path,
+       var channel = Services.io.newChannel(path,
                                      null,
                                      null,
                                      null,

@@ -91,11 +91,11 @@ function getTheme(aName)
   else
     theme.baseUri = "chrome://" + theme.name + "/skin/";
   try {
-    let channel = Services.io.newChannel2(theme.baseUri + kThemeFile, null, null, null,
-                                          Services.scriptSecurityManager.getSystemPrincipal(),
-                                          null,
-                                          Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                          Ci.nsIContentPolicy.TYPE_IMAGE);
+    let channel = Services.io.newChannel(theme.baseUri + kThemeFile, null, null, null,
+                                         Services.scriptSecurityManager.getSystemPrincipal(),
+                                         null,
+                                         Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                         Ci.nsIContentPolicy.TYPE_IMAGE);
     let stream = channel.open();
     let bytes = NetUtil.readInputStream(stream, stream.available());
     theme.json = JSON.parse(gTextDecoder.decode(bytes));
