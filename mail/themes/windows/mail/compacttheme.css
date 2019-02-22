@@ -5,14 +5,6 @@
 @import url("chrome://messenger/skin/shared/compacttheme.css");
 
 @media (-moz-windows-default-theme) and (-moz-windows-accent-color-in-titlebar) {
-  :root[tabsintitlebar]:not(:-moz-window-inactive) {
-    background-color: -moz-win-accentcolor;
-  }
-
-  :root[tabsintitlebar] .titlebar-button:not(:-moz-window-inactive) {
-    stroke: -moz-win-accentcolortext;
-  }
-
   :root[tabsintitlebar] .tabmail-tab:not(:-moz-window-inactive) {
     color: var(--lwt-text-color) !important;
     background-color: var(--lwt-accent-color) !important;
@@ -35,12 +27,6 @@
 
   :root[tabsintitlebar] .tabmail-tab > .tab-stack > .tab-background {
     border-top-style: none !important;
-  }
-
-  :root[tabsintitlebar] #tabbar-toolbar .toolbarbutton-1:not(:-moz-window-inactive) {
-    color: -moz-win-accentcolortext;
-    fill: -moz-win-accentcolortext;
-    fill-opacity: .7;
   }
 }
 

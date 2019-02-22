@@ -228,15 +228,27 @@ treechildren::-moz-tree-cell-text(dummy) {
         :root[sizemode=normal][tabsintitlebar] {
           border-top: 1px solid -moz-win-accentcolor;
         }
-        :root[tabsintitlebar]:not(:-moz-window-inactive):not(:-moz-lwtheme) {
+        :root[tabsintitlebar]:not(:-moz-window-inactive):not(:-moz-lwtheme),
+        :root[tabsintitlebar]:not(:-moz-window-inactive)[lwt-default-theme-in-dark-mode] {
           background-color: -moz-win-accentcolor;
         }
 
         :root[tabsintitlebar] >
-          #navigation-toolbox:not(:-moz-window-inactive):not(:-moz-lwtheme) {
+          #navigation-toolbox:not(:-moz-window-inactive):not(:-moz-lwtheme),
+        :root[tabsintitlebar] >
+          #navigation-toolbox:not(:-moz-window-inactive)[lwt-default-theme-in-dark-mode] {
           color: -moz-win-accentcolortext;
         }
-      }
+
+        :root[tabsintitlebar][lwt-default-theme-in-dark-mode]:not(:-moz-window-inactive)
+          .titlebar-button {
+          stroke: -moz-win-accentcolortext;
+        }
+
+        :root[tabsintitlebar][lwt-default-theme-in-dark-mode]:not(:-moz-window-inactive) #tabs-toolbar {
+          --lwt-toolbarbutton-icon-fill: -moz-win-accentcolortext;
+          --toolbarbutton-icon-fill-opacity: .7;
+        }
 
       :root[sizemode=normal][tabsintitlebar]:-moz-window-inactive {
         border-top-color: rgba(0,0,0,.3);
