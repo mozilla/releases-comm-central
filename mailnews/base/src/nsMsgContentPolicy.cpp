@@ -118,7 +118,7 @@ nsMsgContentPolicy::ShouldAcceptRemoteContentForSender(nsIMsgDBHdr *aMsgHdr)
 
   // check with permission manager
   uint32_t permission = 0;
-  rv = mPermissionManager->TestPermission(mailURI, "image", &permission);
+  rv = mPermissionManager->TestPermission(mailURI, NS_LITERAL_CSTRING("image"), &permission);
   NS_ENSURE_SUCCESS(rv, false);
 
   // Only return true if the permission manager has an explicit allow
@@ -376,7 +376,7 @@ nsMsgContentPolicy::ShouldLoad(nsIURI           *aContentLocation,
   }
 
   uint32_t permission;
-  mPermissionManager->TestPermission(aContentLocation, "image", &permission);
+  mPermissionManager->TestPermission(aContentLocation, NS_LITERAL_CSTRING("image"), &permission);
   switch (permission) {
     case nsIPermissionManager::UNKNOWN_ACTION:
     {
@@ -770,7 +770,7 @@ void nsMsgContentPolicy::ComposeShouldLoad(nsIMsgCompose *aMsgCompose,
 
         // Test whitelist.
         uint32_t permission;
-        mPermissionManager->TestPermission(aContentLocation, "image", &permission);
+        mPermissionManager->TestPermission(aContentLocation, NS_LITERAL_CSTRING("image"), &permission);
         if (permission == nsIPermissionManager::ALLOW_ACTION)
           *aDecision = nsIContentPolicy::ACCEPT;
       }
