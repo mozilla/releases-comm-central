@@ -25,6 +25,7 @@ linux64/opt:
         - linux64-binutils
         - linux64-cbindgen
         - linux64-clang
+        - linux64-nasm
         - linux64-node
         - linux64-rust
         - linux64-sccache
@@ -63,6 +64,7 @@ linux64-nightly/opt:
         - linux64-binutils
         - linux64-cbindgen
         - linux64-clang
+        - linux64-nasm
         - linux64-node
         - linux64-rust
 
@@ -95,6 +97,7 @@ linux64/debug:
         - linux64-binutils
         - linux64-cbindgen
         - linux64-clang
+        - linux64-nasm
         - linux64-node
         - linux64-rust
         - linux64-sccache
@@ -126,6 +129,7 @@ linux/opt:
         - linux64-binutils
         - linux64-cbindgen
         - linux64-clang
+        - linux64-nasm
         - linux64-node
         - linux64-rust
         - linux64-sccache
@@ -164,6 +168,7 @@ linux-nightly/opt:
         - linux64-binutils
         - linux64-cbindgen
         - linux64-clang
+        - linux64-nasm
         - linux64-node
         - linux64-rust
 
@@ -196,6 +201,7 @@ linux/debug:
         - linux64-binutils
         - linux64-cbindgen
         - linux64-clang
+        - linux64-nasm
         - linux64-node
         - linux64-rust
         - linux64-sccache
