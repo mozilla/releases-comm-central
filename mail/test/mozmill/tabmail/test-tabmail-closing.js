@@ -94,7 +94,7 @@ function test_does_not_go_to_opener_if_switched() {
  * the last message tab takes us to the second last message tab as opposed
  * to the inbox tab.
  */
-function test_opening_thread_in_tabs_closing_behaviour() {
+function disabled_test_opening_thread_in_tabs_closing_behaviour() {
   be_in_folder(gFolder);
   make_display_threaded();
   collapse_all_threads();

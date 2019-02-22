@@ -332,7 +332,7 @@ function test_column_visibility_persists_through_folder_changes() {
 /**
  * Test that reordering persists through tab changes and folder changes.
  */
-function test_column_reordering_persists() {
+function disabled_test_column_reordering_persists() {
   let tabA = be_in_folder(folderA);
   let tabB = open_folder_in_new_tab(folderB);
 
@@ -377,7 +377,7 @@ function invoke_column_picker_option(aActions) {
  * The column picker's "reset columns to default" option should set our state
  *  back to the natural state.
  */
-function test_reset_to_inbox() {
+function disabled_test_reset_to_inbox() {
   // create the source
   folderSource = create_folder("ColumnsApplySource");
   // it better have INBOX defaults
@@ -416,7 +416,7 @@ function _apply_to_folder_common(aChildrenToo, folder) {
  * Change settings in a folder, apply them to another folder that also has
  *  children.  Make sure the folder changes but the children do not.
  */
-function test_apply_to_folder_no_children() {
+function disabled_test_apply_to_folder_no_children() {
   folderParent = create_folder("ColumnsApplyParent");
   folderParent.createSubfolder("Child1", null);
   folderChild1 = folderParent.getChildNamed("Child1");
@@ -451,7 +451,7 @@ function test_apply_to_folder_no_children() {
  * Change settings in a folder, apply them to another folder and its children.
  *  Make sure the folder and its children change.
  */
-function test_apply_to_folder_and_children() {
+function disabled_test_apply_to_folder_and_children() {
   // no need to throttle ourselves during testing.
   MailUtils.INTER_FOLDER_PROCESSING_DELAY_MS = 0;
 
@@ -481,7 +481,7 @@ function test_apply_to_folder_and_children() {
  * Change settings in an incoming folder, apply them to an outgoing folder that
  * also has children. Make sure the folder changes but the children do not.
  */
-function test_apply_to_folder_no_children_swapped() {
+function disabled_test_apply_to_folder_no_children_swapped() {
   folderParent = create_folder("ColumnsApplyParentOutgoing");
   folderParent.setFlag(Ci.nsMsgFolderFlags.SentMail);
   folderParent.createSubfolder("Child1", null);
@@ -530,7 +530,7 @@ function test_apply_to_folder_no_children_swapped() {
  * Change settings in an incoming folder, apply them to an outgoing folder and
  * its children. Make sure the folder and its children change.
  */
-function test_apply_to_folder_and_children_swapped() {
+function disabled_test_apply_to_folder_and_children_swapped() {
   // No need to throttle ourselves during testing.
   MailUtils.INTER_FOLDER_PROCESSING_DELAY_MS = 0;
 
