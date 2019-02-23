@@ -28,8 +28,9 @@ var activityObject = {
     let bindingName = aActivity.bindingName;
     let binding = document.createElement(bindingName);
 
-    if (binding)
+    if (binding) {
       binding.setAttribute("actID", aActivity.id);
+    }
 
     return binding;
   },
@@ -52,18 +53,22 @@ var activityObject = {
                                         this._activitiesView.firstChild);
     } else {
       let next = this._activitiesView.firstChild;
-      while (next && (next.isWarning || next.isProcess || next.isGroup))
+      while (next && (next.isWarning || next.isProcess || next.isGroup)) {
         next = next.nextSibling;
-      if (next)
+      }
+      if (next) {
         this._activitiesView.insertBefore(aBinding, next);
-      else
+      } else {
         this._activitiesView.appendChild(aBinding);
+      }
     }
-    if (aBinding.isGroup)
+    if (aBinding.isGroup) {
       this._groupCache.set(aBinding.contextType + ":" + aBinding.contextObj,
                            aBinding);
-    while (this._activitiesView.childNodes.length > ACTIVITY_LIMIT)
+    }
+    while (this._activitiesView.childNodes.length > ACTIVITY_LIMIT) {
       this.removeActivityBinding(this._activitiesView.lastChild.getAttribute("actID"));
+    }
   },
 
   /**
@@ -89,7 +94,7 @@ var activityObject = {
                                                  aActivity.contextObj);
         // create a group if it's not already created.
         if (!group) {
-          group = document.createElement("activity-group");
+          group = document.createElement("richlistitem", { is: "activity-group" });
           this._activityLogger.info("created group element");
           // Set the context type and object of the newly created group
           group.contextType = aActivity.contextType;
@@ -107,8 +112,7 @@ var activityObject = {
 
       if (group) {
         // get the inner list element of the group
-        let groupView = document.getAnonymousElementByAttribute(group, "anonid",
-                                                           "activityGroupView");
+        let groupView = group.querySelector(".activitygroupbox");
         groupView.appendChild(actBinding);
       } else {
         this.placeActivityBinding(actBinding);
@@ -146,10 +150,12 @@ var activityObject = {
           break;
         }
       } else {
-        let actbinding = document.getAnonymousElementByAttribute(item, "actID", aID);
+        // string to identify the activity item through actID attribute
+        // in querySelector.
+        let actIDValueStr = "[actID='" + aID + "']";
+        let actbinding = item.querySelector(actIDValueStr);
         if (actbinding) {
-          let groupView = document.getAnonymousElementByAttribute(item,
-                                                 "anonid", "activityGroupView");
+          let groupView = document.querySelector(".activitygroupbox");
           // since XBL dtors are not working properly when we remove the
           // element, we have to explicitly remove the binding from
           // activities' listeners list. See bug 230086 for details.
@@ -194,8 +200,9 @@ var activityObject = {
 
   rebuild() {
     let activities = activityManager.getActivities({});
-    for (let activity of activities)
+    for (let activity of activities) {
       this.addActivityBinding(activity.id, activity);
+    }
   },
 
   shutdown() {
@@ -276,12 +283,14 @@ activityObject.ActivityMgrListener = function() {};
 activityObject.ActivityMgrListener.prototype = {
   onAddedActivity(aID, aActivity) {
     activityObject._activityLogger.info(`added activity: ${aID} ${aActivity}`);
-    if (!activityObject._ignoreNotifications)
+    if (!activityObject._ignoreNotifications) {
       activityObject.addActivityBinding(aID, aActivity);
+    }
   },
 
   onRemovedActivity(aID) {
-    if (!activityObject._ignoreNotifications)
+    if (!activityObject._ignoreNotifications) {
       activityObject.removeActivityBinding(aID);
+    }
   },
 };
