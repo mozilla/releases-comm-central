@@ -40,8 +40,9 @@
 .fileTypeIcon {
   margin-inline-start: 8px;
   margin-inline-end: 8px;
+  margin-top: 12px;
   /* explicitly size the icon, so size doesn't vary on hidpi systems */
-  height: 32px;
+  max-height: 32px;
   width: 32px;
 }
 

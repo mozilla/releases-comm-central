@@ -194,7 +194,7 @@ function test_remove_file() {
   test_save_attachment_files_in_list();
 
   let list = content_tab_e(downloadsTab, "msgDownloadsRichListBox");
-  let firstElement = list.firstChild;
+  let firstElement = list.firstChild.nextSibling;
   let removingFileName = firstElement.getAttribute("displayName");
 
   // select first element
@@ -223,7 +223,7 @@ function test_remove_multiple_files() {
   test_save_attachment_files_in_list();
 
   let list = content_tab_e(downloadsTab, "msgDownloadsRichListBox");
-  let firstElement = list.firstChild;
+  let firstElement = list.firstChild.nextSibling;
   let secondElement = firstElement.nextSibling;
   let removingFileNames = [];
 

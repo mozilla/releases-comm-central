@@ -39,8 +39,9 @@
 
 .fileTypeIcon {
   margin-inline-end: 8px;
+  margin-top: 12px;
   /* Ensure icons are displayed at 32px size even on Retina display */
-  height: 32px;
+  max-height: 32px;
   width: 32px;
 }
 

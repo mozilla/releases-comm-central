@@ -6,14 +6,15 @@
   width: 22em;
 }
 
-richlistitem.download {
-  -moz-binding: url('chrome://messenger/content/downloads/download.xml#download');
-}
-
 #msgDownloadsListEmptyDescription {
   display: none;
 }
 
 #msgDownloadsRichListBox:empty + #msgDownloadsListEmptyDescription {
   display: -moz-box;
+}
+
+#msgDownloadsRichListBox > richlistitem.download > vbox {
+  display: flex;
+  flex-direction: column;
 }

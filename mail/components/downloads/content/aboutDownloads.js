@@ -228,7 +228,7 @@ DownloadItem.prototype = {
   },
 
   createElement() {
-    let element = document.createElement("richlistitem");
+    let element = document.createElement("richlistitem", { is: "downloads-view-item" });
     element.classList.add("download");
 
     // launch the download if double clicked
