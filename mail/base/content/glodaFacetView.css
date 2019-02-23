@@ -48,6 +48,8 @@ body {
   margin-top: 1em;
   margin-inline-end: 1em;
   max-width: 40em;
+  display: flex;
+  flex-direction: column;
 }
 
 .popup-menu {
@@ -514,6 +516,7 @@ html[dir="rtl"] .bar-link {
   border-bottom-color: lightgrey;
   border-radius: var(--borderRadius);
   color: -moz-DialogText;
+  overflow: hidden;
 }
 .message:not(:first-child) {
   border-top-style: none;
@@ -674,6 +677,7 @@ html[dir="rtl"] .message-attachment-icon {
   margin-inline-end: 1em;
   margin-bottom: 2em;
   cursor: pointer;
+  align-self: flex-end;
 }
 
 html[dir="rtl"] .show-more {
@@ -723,6 +727,8 @@ span.empty {
   padding-bottom: 2px;
   overflow: visible;
   transition: all .2s;
+  /* Put facet-date at the top */
+  order: -1;
 }
 
 #facet-date[hide="true"] {

@@ -18,10 +18,6 @@
       version="-//W3C//DTD XHTML 1.1//EN"
       dir="&locale.dir;">
 <head>
-  <!-- XBL bindings CSS -->
-  <link rel="stylesheet"
-        href="chrome://messenger/content/glodaFacetBindings.css"
-        type="text/css"/>
   <link rel="stylesheet" media="screen" type="text/css"
         href="chrome://messenger/skin/tagColors.css"/>
   <!-- Themes -->
@@ -68,8 +64,11 @@
             <div id="query-explanation"/>
           </div>
           <div id="data-column">
+            <!-- facet-results-message is put before facet-date here so that it gets upgraded first.
+            facet-date uses width of facet-results-message for the visualization. Using order property
+            we can show facet-date before facet-results-message -->
+            <facet-results-message id="results" class="results"/>
             <facet-date id="facet-date" class="facetious" type="date"/>
-            <div class="results" id="results" type="message" />
             <div class="loading" id="showLoading">
               <span class="loading">
                 <img class="loading"

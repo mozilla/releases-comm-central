@@ -64,7 +64,164 @@ class MozFacetDate extends HTMLElement {
   }
 }
 
+/**
+ * MozFacetResultsMessage shows the search results for the string entered in gloda-searchbox.
+ * @extends {HTMLElement}
+ */
+class MozFacetResultsMessage extends HTMLElement {
+  connectedCallback() {
+    const header = document.createElement("div");
+    header.classList.add("results-message-header");
+
+    this.countNode = document.createElement("h2");
+    this.countNode.classList.add("results-message-count");
+
+    const showallDiv = document.createElement("div");
+    showallDiv.classList.add("results-message-showall");
+
+    this.showNode = document.createElement("span");
+    this.showNode.classList.add("results-message-showall-button");
+    this.showNode.setAttribute("tabindex", "0");
+    this.showNode.setAttribute("role", "button");
+    this.showNode.onclick = () => { FacetContext.showActiveSetInTab(); };
+
+    const sortDiv = document.createElement("div");
+    sortDiv.classList.add("results-message-sort-bar");
+
+    this.sortLabelNode = document.createElement("span");
+    this.sortLabelNode.classList.add("result-message-sort-label");
+
+    this.sortRelevanceNode = document.createElement("span");
+    this.sortRelevanceNode.classList.add("results-message-sort-value");
+    this.sortRelevanceNode.setAttribute("tabindex", "0");
+    this.sortRelevanceNode.setAttribute("role", "button");
+
+    this.sortDateNode = document.createElement("span");
+    this.sortDateNode.classList.add("results-message-sort-value");
+    this.sortDateNode.setAttribute("tabindex", "0");
+    this.sortDateNode.setAttribute("role", "button");
+
+    this.messagesNode = document.createElement("div");
+    this.messagesNode.classList.add("messages");
+
+    header.appendChild(this.countNode);
+    header.appendChild(showallDiv);
+    header.appendChild(sortDiv);
+
+    showallDiv.appendChild(this.showNode);
+
+    sortDiv.appendChild(this.sortLabelNode);
+    sortDiv.appendChild(this.sortRelevanceNode);
+    sortDiv.appendChild(this.sortDateNode);
+
+    this.appendChild(header);
+    this.appendChild(this.messagesNode);
+  }
+
+  setMessages(messages) {
+    let topMessagesPluralFormat = glodaFacetStrings.get(
+      "glodaFacetView.results.header.countLabel.NMessages");
+    let outOfPluralFormat = glodaFacetStrings.get(
+      "glodaFacetView.results.header.countLabel.ofN");
+    let groupingFormat = glodaFacetStrings.get(
+      "glodaFacetView.results.header.countLabel.grouping");
+
+    let displayCount = messages.length;
+    let totalCount = FacetContext.activeSet.length;
+
+    // set the count so CSS selectors can know what the results look like
+    this.setAttribute("state", (totalCount <= 0) ? "empty" : "some");
+
+    let topMessagesStr = PluralForm.get(displayCount, topMessagesPluralFormat)
+      .replace("#1", displayCount.toLocaleString());
+    let outOfStr = PluralForm.get(totalCount, outOfPluralFormat)
+      .replace("#1", totalCount.toLocaleString());
+
+    this.countNode.textContent = groupingFormat.replace("#1", topMessagesStr)
+      .replace("#2", outOfStr);
+
+    const GlodaMessage = Gloda.lookupNounDef("message").clazz;
+    let visible = messages.some(m => m instanceof GlodaMessage);
+    this.showNode.style.display = visible ? "inline" : "none";
+    this.showNode.textContent = glodaFacetStrings.get(
+      "glodaFacetView.results.message.openEmailAsList.label");
+    this.showNode.setAttribute("title", glodaFacetStrings.get(
+      "glodaFacetView.results.message.openEmailAsList.tooltip"));
+    this.showNode.onkeypress = (event) => {
+      if (event.charCode == KeyEvent.DOM_VK_SPACE) {
+        FacetContext.showActiveSetInTab();
+        event.preventDefault();
+      }
+    };
+
+    this.sortLabelNode.textContent = glodaFacetStrings.get(
+      "glodaFacetView.results.message.sort.label");
+
+    this.sortRelevanceNode.textContent = glodaFacetStrings.get(
+      "glodaFacetView.results.message.sort.relevance");
+
+    this.sortRelevanceNode.onclick = () => {
+      FacetContext.sortBy = "-dascore";
+      this.updateSortLabels();
+    };
+    this.sortRelevanceNode.onkeypress = (event) => {
+      if (event.charCode == KeyEvent.DOM_VK_SPACE) {
+        FacetContext.sortBy = "-dascore";
+        this.updateSortLabels();
+        event.preventDefault();
+      }
+    };
+
+    this.sortDateNode.textContent = glodaFacetStrings.get("glodaFacetView.results.message.sort.date");
+    this.sortDateNode.onclick = () => {
+      FacetContext.sortBy = "-date";
+      this.updateSortLabels();
+    };
+    this.sortDateNode.onkeypress = (event) => {
+      if (event.charCode == KeyEvent.DOM_VK_SPACE) {
+        FacetContext.sortBy = "-date";
+        this.updateSortLabels();
+        event.preventDefault();
+      }
+    };
+
+    this.updateSortLabels(FacetContext.sortBy);
+
+    while (this.messagesNode.hasChildNodes()) {
+      this.messagesNode.lastChild.remove();
+    }
+    try {
+      // -- Messages
+      for (let message of messages) {
+        let msgNode = document.createElement("facet-result-message");
+        msgNode.message = message;
+        msgNode.setAttribute("class", "message");
+        this.messagesNode.appendChild(msgNode);
+      }
+    } catch (e) {
+      logException(e);
+    }
+  }
+
+  updateSortLabels() {
+    try {
+      let sortBy = FacetContext.sortBy;
+
+      if (sortBy == "-dascore") {
+        this.sortRelevanceNode.setAttribute("selected", "true");
+        this.sortDateNode.removeAttribute("selected");
+      } else if (sortBy == "-date") {
+        this.sortRelevanceNode.removeAttribute("selected");
+        this.sortDateNode.setAttribute("selected", "true");
+      }
+    } catch (e) {
+      logException(e);
+    }
+  }
+}
+
 customElements.define("facet-date", MozFacetDate);
+customElements.define("facet-results-message", MozFacetResultsMessage);
 
 class MozFacetBoolean extends HTMLElement {
   constructor() {

@@ -102,8 +102,6 @@ messenger.jar:
     content/messenger/glodaFacetView.xhtml          (content/glodaFacetView.xhtml)
     content/messenger/glodaFacetView.js             (content/glodaFacetView.js)
     content/messenger/glodaFacetView.css            (content/glodaFacetView.css)
-    content/messenger/glodaFacetBindings.css        (content/glodaFacetBindings.css)
-    content/messenger/glodaFacetBindings.xml        (content/glodaFacetBindings.xml)
     content/messenger/glodaFacetVis.js              (content/glodaFacetVis.js)
     content/messenger/glodaFacet.js                 (content/glodaFacet.js)
     content/messenger/quickFilterBar.js             (content/quickFilterBar.js)
