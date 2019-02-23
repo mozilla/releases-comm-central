@@ -94,17 +94,15 @@ MimeLeaf_parse_begin (MimeObject *obj)
    */
   if (!obj->encoding ||
       // If we need the object as "raw" for saving or forwarding,
-      // don't decode text parts of message types. Other output formats,
-      // like "display" (nsMimeMessageBodyDisplay), need decoding.
+      // don't decode attachment parts if headers are also written
+      // via the parent, so that the header matches the encoding.
       (obj->options->format_out == nsMimeOutput::nsMimeMessageRaw &&
-       obj->parent && obj->parent->output_p &&
-       (!PL_strcasecmp(obj->parent->content_type, MESSAGE_NEWS) ||
-        !PL_strcasecmp(obj->parent->content_type, MESSAGE_RFC822))))
+       obj->parent && obj->parent->output_p))
     /* no-op */ ;
   else if (!PL_strcasecmp(obj->encoding, ENCODING_BASE64))
-  fn = &MimeB64DecoderInit;
+    fn = &MimeB64DecoderInit;
   else if (!PL_strcasecmp(obj->encoding, ENCODING_QUOTED_PRINTABLE))
-  leaf->decoder_data =
+    leaf->decoder_data =
           MimeQPDecoderInit(((MimeConverterOutputCallback)
                         ((MimeLeafClass *)obj->clazz)->parse_decoded_buffer),
                         obj, obj);
@@ -112,7 +110,7 @@ MimeLeaf_parse_begin (MimeObject *obj)
        !PL_strcasecmp(obj->encoding, ENCODING_UUENCODE2) ||
        !PL_strcasecmp(obj->encoding, ENCODING_UUENCODE3) ||
        !PL_strcasecmp(obj->encoding, ENCODING_UUENCODE4))
-  fn = &MimeUUDecoderInit;
+    fn = &MimeUUDecoderInit;
   else if (!PL_strcasecmp(obj->encoding, ENCODING_YENCODE))
     fn = &MimeYDecoderInit;
 
