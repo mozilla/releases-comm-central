@@ -34,6 +34,7 @@ function makeProtocolHandler(aCID, aProtocol, aDefaultPort) {
         var channel = Cc["@mozilla.org/network/ldap-channel;1"]
                         .createInstance(Ci.nsIChannel);
         channel.init(aURI);
+        channel.loadInfo = aLoadInfo;
         return channel;
       }
 

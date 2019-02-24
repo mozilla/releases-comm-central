@@ -14,9 +14,10 @@ function NYI() {
     throw Cr.NS_ERROR_NOT_IMPLEMENTED;
 }
 
-function ItipChannel(URI) {
+function ItipChannel(URI, aLoadInfo) {
     this.wrappedJSObject = this;
     this.URI = this.originalURI = URI;
+    this.loadInfo = aLoadInfo;
 }
 ItipChannel.prototype = {
     QueryInterface: ChromeUtils.generateQI([Ci.nsIChannel, Ci.nsIRequest]),
@@ -64,7 +65,7 @@ ItipProtocolHandler.prototype = {
     },
     newChannel: function(URI, aLoadInfo) {
         dump("Creating new ItipChannel for " + URI + "\n");
-        return new ItipChannel(URI);
+        return new ItipChannel(URI, aLoadInfo);
     },
 };
 
