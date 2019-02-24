@@ -368,7 +368,7 @@ function SubscribeOnClick(event)
   else if (event.detail == 1)
   {
     // if the user single clicks on the subscribe check box, we handle it here
-    if (col.value.id == "subscribedColumn")
+    if (treeCellInfo.col.id == "subscribedColumn")
       ReverseStateFromNode(treeCellInfo.row);
   }
 }
