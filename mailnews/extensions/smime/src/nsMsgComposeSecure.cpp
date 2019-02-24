@@ -1153,7 +1153,7 @@ mime_nested_encoder_output_fn (const char *buf, int32_t size, void *closure)
   return state->MimeCryptoWriteBlock(bufWithNull.get(), size);
 }
 
-nsresult
+NS_IMETHODIMP
 nsMsgComposeSecure::FindCertByEmailAddress(const nsACString& aEmailAddress,
                                            bool aRequireValidCert,
                                            nsIX509Cert** _retval)

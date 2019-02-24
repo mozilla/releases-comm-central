@@ -7,6 +7,7 @@
 #include "nspr.h"
 #include "nsSMimeJSHelper.h"
 #include "nsMsgComposeSecure.h"
+#include "nsMsgCompCID.h"
 #include "nsCOMPtr.h"
 #include "nsMemory.h"
 #include "nsString.h"
@@ -63,6 +64,10 @@ NS_IMETHODIMP nsSMimeJSHelper::GetRecipientCertsInfo(
 
   if (mailbox_count)
   {
+    nsCOMPtr<nsIMsgComposeSecure> composeSecure =
+      do_CreateInstance(NS_MSGCOMPOSESECURE_CONTRACTID, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+
     char16_t **outEA = static_cast<char16_t **>(moz_xmalloc(mailbox_count * sizeof(char16_t *)));
     int32_t *outCV = static_cast<int32_t *>(moz_xmalloc(mailbox_count * sizeof(int32_t)));
     char16_t **outCII = static_cast<char16_t **>(moz_xmalloc(mailbox_count * sizeof(char16_t *)));
@@ -114,7 +119,7 @@ NS_IMETHODIMP nsSMimeJSHelper::GetRecipientCertsInfo(
         ToLowerCase(email, email_lowercase);
 
         nsCOMPtr<nsIX509Cert> cert;
-        if (NS_SUCCEEDED(nsMsgComposeSecure::FindCertByEmailAddress(
+        if (NS_SUCCEEDED(composeSecure->FindCertByEmailAddress(
                          email_lowercase, false, getter_AddRefs(cert))))
         {
           cert.forget(iCert);
@@ -200,7 +205,9 @@ NS_IMETHODIMP nsSMimeJSHelper::GetNoCertAddresses(
     return NS_OK;
   }
 
-  nsCOMPtr<nsIX509CertDB> certdb = do_GetService(NS_X509CERTDB_CONTRACTID);
+  nsCOMPtr<nsIMsgComposeSecure> composeSecure =
+    do_CreateInstance(NS_MSGCOMPOSESECURE_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   uint32_t missing_count = 0;
   bool *haveCert = new bool[mailbox_count];
@@ -221,7 +228,7 @@ NS_IMETHODIMP nsSMimeJSHelper::GetNoCertAddresses(
       ToLowerCase(mailboxes[i], email_lowercase);
 
       nsCOMPtr<nsIX509Cert> cert;
-      if (NS_SUCCEEDED(nsMsgComposeSecure::FindCertByEmailAddress(
+      if (NS_SUCCEEDED(composeSecure->FindCertByEmailAddress(
                        email_lowercase, true, getter_AddRefs(cert))))
         haveCert[i] = true;
 

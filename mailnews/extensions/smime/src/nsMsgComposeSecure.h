@@ -43,10 +43,6 @@ public:
 
   void GetOutputStream(nsIOutputStream **stream) { NS_IF_ADDREF(*stream = mStream);}
   nsresult GetSMIMEBundleString(const char16_t *name, nsString &outString);
-  static nsresult
-  FindCertByEmailAddress(const nsACString& aEmailAddress,
-                         bool aRequireValidCert,
-                         nsIX509Cert** _retval);
 
 private:
   virtual ~nsMsgComposeSecure();
