@@ -18,8 +18,6 @@
  *   connect(<originHost>, <originPort>[, ("starttls" | "ssl" | "udp")
  *           [, <proxy>[, <host>, <port>]]])
  *   disconnect()
- *   listen(<port>)
- *   stopListening()
  *   sendData(String <data>[, <logged data>])
  *   sendString(String <data>[, <encoding>[, <logged data>]])
  *   sendBinaryData(<arraybuffer data>)
@@ -246,23 +244,6 @@ var Socket = {
     this.disconnected = true;
   },
 
-  // Listen for a connection on a port.
-  // XXX take a timeout and then call stopListening
-  listen: function(aPort) {
-    this.LOG("Listening on port " + aPort);
-
-    this.serverSocket = new ServerSocket(aPort, false, -1);
-    this.serverSocket.asyncListen(this);
-  },
-
-  // Stop listening for a connection.
-  stopListening: function() {
-    this.LOG("Stop listening");
-    // Close the socket to stop listening.
-    if ("serverSocket" in this)
-      this.serverSocket.close();
-  },
-
   // Send data on the output stream. Provide aLoggedData to log something
   // different than what is actually sent.
   sendData: function(/* string */ aData, aLoggedData = aData) {
@@ -391,31 +372,6 @@ var Socket = {
     }
     this._createTransport(aProxyInfo);
     delete this._proxyCancel;
-  },
-
-  /*
-   * nsIServerSocketListener methods
-   */
-  // Called after a client connection is accepted when we're listening for one.
-  onSocketAccepted: function(aServerSocket, aTransport) {
-    this.LOG("onSocketAccepted");
-    // Store the values
-    this.transport = aTransport;
-    this.host = this.transport.host;
-    this.port = this.transport.port;
-
-    this._resetBuffers();
-    this._openStreams();
-
-    this.onConnectionHeard();
-    this.stopListening();
-  },
-  // Called when the listening socket stops for some reason.
-  // The server socket is effectively dead after this notification.
-  onStopListening: function(aSocket, aStatus) {
-    this.LOG("onStopListening");
-    if ("serverSocket" in this)
-      delete this.serverSocket;
   },
 
   /*
@@ -702,8 +658,7 @@ var Socket = {
   sendPing: function() { },
 
   /* QueryInterface and nsIInterfaceRequestor implementations */
-  QueryInterface: ChromeUtils.generateQI(["nsIServerSocketListener",
-                                          "nsIStreamListener",
+  QueryInterface: ChromeUtils.generateQI(["nsIStreamListener",
                                           "nsIRequestObserver",
                                           "nsITransportEventSink",
                                           "nsIBadCertListener2",
