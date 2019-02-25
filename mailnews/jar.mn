@@ -9,11 +9,6 @@ messenger.jar:
     content/messenger/addressbook/pref-editdirectories.xul                     (addrbook/prefs/content/pref-editdirectories.xul)
     content/messenger/addressbook/abAddressBookNameDialog.js                   (addrbook/content/abAddressBookNameDialog.js)
     content/messenger/addressbook/abAddressBookNameDialog.xul                  (addrbook/content/abAddressBookNameDialog.xul)
-#ifndef MOZ_THUNDERBIRD
-    content/messenger/addressbook/abEditCardDialog.xul                         (addrbook/content/abEditCardDialog.xul)
-    content/messenger/addressbook/abNewCardDialog.xul                          (addrbook/content/abNewCardDialog.xul)
-    content/messenger/addressbook/abResultsPaneOverlay.xul                     (addrbook/content/abResultsPaneOverlay.xul)
-#endif
     content/messenger/addressbook/abResultsPane.js                             (addrbook/content/abResultsPane.js)
     content/messenger/addressbook/addrbookWidgets.xml                          (addrbook/content/addrbookWidgets.xml)
     content/messenger/addressbook/abDragDrop.js                                (addrbook/content/abDragDrop.js)
@@ -94,12 +89,7 @@ messenger.jar:
     content/messenger/junkLog.xul                                              (base/content/junkLog.xul)
     content/messenger/junkLog.js                                               (base/content/junkLog.js)
     content/messenger/jsTreeView.js                                            (base/content/jsTreeView.js)
-#ifndef MOZ_THUNDERBIRD
-    content/messenger/searchTermOverlay.js                                     (base/search/content/searchTermOverlay.js)
-    content/messenger/searchTermOverlay.xul                                    (base/search/content/searchTermOverlay.xul)
-#else
-    content/messenger/searchTerm.js                                            (base/search/content/searchTermOverlay.js)
-#endif
+    content/messenger/searchTerm.js                                            (base/search/content/searchTerm.js)
 *   content/messenger/CustomHeaders.xul                                        (base/search/content/CustomHeaders.xul)
     content/messenger/CustomHeaders.js                                         (base/search/content/CustomHeaders.js)
 *   content/messenger/FilterEditor.xul                                         (base/search/content/FilterEditor.xul)

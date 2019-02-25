@@ -9,7 +9,7 @@
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <script type="application/javascript"
-          src="chrome://messenger/content/searchTermOverlay.js"/>
+          src="chrome://messenger/content/searchTerm.js"/>
   <script type="application/javascript"
           src="chrome://messenger/content/dateFormat.js"/>
 

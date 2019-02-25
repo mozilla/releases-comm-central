@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from ../../../../toolkit/content/globalOverlay.js */
-/* import-globals-from ../../../mailnews/base/search/content/searchTermOverlay.js */
+/* import-globals-from ../../../mailnews/base/search/content/searchTerm.js */
 /* import-globals-from folderDisplay.js */
 /* import-globals-from mailWindow.js */
 /* import-globals-from mailWindowOverlay.js */
@@ -247,7 +247,7 @@ function searchOnLoad() {
   if (window.arguments && window.arguments[0])
     updateSearchFolderPicker(window.arguments[0].folder);
 
-  // trigger searchTermOverlay.js to create the first criterion
+  // trigger searchTerm.js to create the first criterion
   onMore(null);
   // make sure all the buttons are configured
   UpdateMailSearch("onload");
@@ -349,7 +349,7 @@ function getSearchTerms() {
   let termCreator = gFolderDisplay.view.search.session;
 
   let searchTerms = [];
-  // searchTermOverlay stores wrapper objects in its gSearchTerms array.  Pluck
+  // searchTerm.js stores wrapper objects in its gSearchTerms array.  Pluck
   //  them.
   for (let iTerm = 0; iTerm < gSearchTerms.length; iTerm++) {
     let termWrapper = gSearchTerms[iTerm].obj;

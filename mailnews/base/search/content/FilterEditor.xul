@@ -39,11 +39,7 @@
   <script type="application/javascript" src="chrome://messenger/content/mailWindowOverlay.js"/>
   <script type="application/javascript" src="chrome://messenger/content/mailCommands.js"/>
   <script type="application/javascript" src="chrome://messenger/content/FilterEditor.js"/>
-#ifndef MOZ_THUNDERBIRD
-  <script type="application/javascript" src="chrome://messenger/content/searchTermOverlay.js"/>
-#else
   <script type="application/javascript" src="chrome://messenger/content/searchTerm.js"/>
-#endif
   <script type="application/javascript" src="chrome://messenger/content/dateFormat.js"/>
 
   <commandset>
