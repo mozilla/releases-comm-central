@@ -317,6 +317,7 @@ nsNntpMockChannel::AttachNNTPConnection(nsNNTPProtocol &protocol)
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Variable fun
+  protocol.SetLoadInfo(m_loadInfo);
   protocol.SetLoadGroup(m_loadGroup);
   protocol.SetLoadFlags(m_loadFlags);
   protocol.SetOwner(m_owner);
