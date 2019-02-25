@@ -43,6 +43,14 @@
       ["commands"]
     ]
   },
+  "compose": {
+    "url": "chrome://messenger/content/parent/ext-compose.js",
+    "schema": "chrome://messenger/content/schemas/compose.json",
+    "scopes": ["addon_parent"],
+    "paths": [
+      ["compose"]
+    ]
+  },
   "composeAction": {
     "url": "chrome://messenger/content/parent/ext-composeAction.js",
     "schema": "chrome://messenger/content/schemas/composeAction.json",

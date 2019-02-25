@@ -1,0 +1,136 @@
+[
+  {
+    "namespace": "compose",
+    "types": [
+      {
+        "id": "ComposeRecipient",
+        "choices": [
+          {
+            "type": "string",
+            "description": "A name and email address in the format \"Name <email@example.com>\", or just an email address."
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The ID of a contact or mailing list from the :doc:`contacts` and :doc:`mailingLists` APIs."
+              },
+              "type": {
+                "type": "string",
+                "description": "Which sort of object this ID is for.",
+                "enum": [
+                  "contact",
+                  "mailingList"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "ComposeParams",
+        "type": "object",
+        "properties": {
+          "to": {
+            "type": "array",
+            "items": {
+              "$ref": "ComposeRecipient"
+            },
+            "optional": true
+          },
+          "cc": {
+            "type": "array",
+            "items": {
+              "$ref": "ComposeRecipient"
+            },
+            "optional": true
+          },
+          "bcc": {
+            "type": "array",
+            "items": {
+              "$ref": "ComposeRecipient"
+            },
+            "optional": true
+          },
+          "replyTo": {
+            "type": "string",
+            "optional": true
+          },
+          "subject": {
+            "type": "string",
+            "optional": true
+          },
+          "body": {
+            "type": "string",
+            "optional": true
+          }
+        }
+      }
+    ],
+    "functions": [
+      {
+        "name": "beginNew",
+        "type": "function",
+        "async": true,
+        "parameters": [
+          {
+            "name": "details",
+            "$ref": "ComposeParams",
+            "optional": true
+          }
+        ]
+      },
+      {
+        "name": "beginReply",
+        "type": "function",
+        "async": true,
+        "parameters": [
+          {
+            "name": "messageId",
+            "description": "The message to reply to, as retrieved using other APIs.",
+            "type": "integer",
+            "minimum": 1
+          },
+          {
+            "name": "replyType",
+            "type": "string",
+            "enum": [
+              "replyToSender",
+              "replyToList",
+              "replyToAll"
+            ],
+            "optional": true
+          }
+        ]
+      },
+      {
+        "name": "beginForward",
+        "type": "function",
+        "async": true,
+        "parameters": [
+          {
+            "name": "messageId",
+            "description": "The message to forward, as retrieved using other APIs.",
+            "type": "integer",
+            "minimum": 1
+          },
+          {
+            "name": "forwardType",
+            "type": "string",
+            "enum": [
+              "forwardInline",
+              "forwardAsAttachment"
+            ],
+            "optional": true
+          },
+          {
+            "name": "details",
+            "$ref": "ComposeParams",
+            "optional": true
+          }
+        ]
+      }
+    ]
+  }
+]
