@@ -209,6 +209,7 @@ function Tag(aId, aName) {
   TagsById[this.id] = this;
 }
 Tag.prototype = {
+  __proto__: ClassInfo("imITag", "Tag"),
   get id() { return this._id; },
   get name() { return this._name; },
   set name(aNewName) {
@@ -250,19 +251,11 @@ Tag.prototype = {
     for (let observer of this._observers)
       observer.observe(aSubject, aTopic, aData);
   },
-
-  getInterfaces: function(countRef) {
-    let interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.imITag];
-    countRef.value = interfaces.length;
-    return interfaces;
-  },
-  getHelperForLanguage: language => null,
-  flags: 0,
-  QueryInterface: ChromeUtils.generateQI([Ci.imITag, Ci.nsIClassInfo])
 };
 
 
 var otherContactsTag = {
+  __proto__: ClassInfo(["nsIObserver", "imITag"], "Other Contacts Tag"),
   hiddenTagsPref: "messenger.buddies.hiddenTags",
   _hiddenTags: {},
   _contactsInitialized: false,
@@ -383,15 +376,6 @@ var otherContactsTag = {
     for (let observer of this._observers)
       observer.observe(aSubject, aTopic, aData);
   },
-
-  getInterfaces: function(countRef) {
-    let interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.nsIObserver, Ci.imITag];
-    countRef.value = interfaces.length;
-    return interfaces;
-  },
-  getHelperForLanguage: language => null,
-  flags: 0,
-  QueryInterface: ChromeUtils.generateQI([Ci.imITag, Ci.nsIObserver, Ci.nsIClassInfo])
 };
 
 
@@ -408,6 +392,7 @@ function Contact(aId, aAlias) {
   ContactsById[this._id] = this;
 }
 Contact.prototype = {
+  __proto__: ClassInfo("imIContact", "Contact"),
   _id: 0,
   get id() { return this._id; },
   get alias() { return this._alias; },
@@ -917,15 +902,6 @@ Contact.prototype = {
         this._removeBuddy(aSubject);
     }
   },
-
-  getInterfaces: function(countRef) {
-    let interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.imIContact];
-    countRef.value = interfaces.length;
-    return interfaces;
-  },
-  getHelperForLanguage: language => null,
-  flags: 0,
-  QueryInterface: ChromeUtils.generateQI([Ci.imIContact, Ci.nsIClassInfo])
 };
 
 var BuddiesById = { };
@@ -949,6 +925,7 @@ function Buddy(aId, aKey, aName, aSrvAlias, aContactId) {
   BuddiesById[this._id] = this;
 }
 Buddy.prototype = {
+  __proto__: ClassInfo("imIBuddy", "Buddy"),
   get id() { return this._id; },
   destroy: function() {
     for (let ab of this._accounts)
@@ -1233,15 +1210,6 @@ Buddy.prototype = {
         break;
     }
   },
-
-  getInterfaces: function(countRef) {
-    let interfaces = [Ci.nsIClassInfo, Ci.nsISupports, Ci.imIBuddy];
-    countRef.value = interfaces.length;
-    return interfaces;
-  },
-  getHelperForLanguage: language => null,
-  flags: 0,
-  QueryInterface: ChromeUtils.generateQI([Ci.imIBuddy, Ci.nsIClassInfo])
 };
 
 
