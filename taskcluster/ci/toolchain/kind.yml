@@ -20,6 +20,7 @@ jobs:
     - linux64-hfsplus
     - linux64-libdmg
     - linux64-llvm-dsymutil
+    - linux64-nasm
     - linux64-node
     - linux64-rust
     - linux64-rust-1.28
