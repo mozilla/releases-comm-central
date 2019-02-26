@@ -124,6 +124,10 @@
   }
 }
 
+#msgIdentity:-moz-focusring:not([open="true"]) > .menulist-label-box {
+  outline: none;
+}
+
 #msgSubject {
   -moz-appearance: none;
   margin-top: 0;
@@ -229,7 +233,7 @@ textbox.textbox-addressingWidget,
 }
 
 .aw-menulist:-moz-focusring:not([open="true"]) > .menulist-label-box {
-  border: 1px dotted;
+  outline: none;
 }
 
 .aw-menulist > .menulist-label-box {
