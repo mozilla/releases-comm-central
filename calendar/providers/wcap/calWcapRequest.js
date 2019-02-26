@@ -394,7 +394,7 @@ function issueNetworkRequest(parentRequest, respFunc, url, bLogging) {
 
         log("opening channel.", netRequest);
         loader.init(netRequest);
-        channel.asyncOpen(loader, null);
+        channel.asyncOpen(loader);
     } catch (exc) {
         netRequest.execRespFunc(exc);
     }

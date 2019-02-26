@@ -164,10 +164,6 @@ calICSCalendar.prototype = {
     },
 
     doRefresh: function(aForce) {
-        let prbForce = Cc["@mozilla.org/supports-PRBool;1"]
-                         .createInstance(Ci.nsISupportsPRBool);
-        prbForce.data = aForce;
-
         let channel = Services.io.newChannelFromURI(this.mUri,
                                                     null,
                                                     Services.scriptSecurityManager.getSystemPrincipal(),
@@ -184,7 +180,7 @@ calICSCalendar.prototype = {
 
         try {
             streamLoader.init(this);
-            channel.asyncOpen(streamLoader, prbForce);
+            channel.asyncOpen(streamLoader);
         } catch (e) {
             // File not found: a new calendar. No problem.
             cal.LOG("[calICSCalendar] Error occurred opening channel: " + e);
@@ -202,12 +198,11 @@ calICSCalendar.prototype = {
     // Listener for download. Parse the downloaded file
 
     onStreamComplete: function(loader, ctxt, status, resultLength, result) {
-        let forceRefresh = ctxt.QueryInterface(Ci.nsISupportsPRBool).data;
         let cont = false;
 
         if (Components.isSuccessCode(status)) {
             // Allow the hook to get needed data (like an etag) of the channel
-            cont = this.mHooks.onAfterGet(loader.request, forceRefresh);
+            cont = this.mHooks.onAfterGet(loader.request);
             cal.LOG("[calICSCalendar] Loading ICS succeeded, needs further processing: " + cont);
         } else {
             // Failure may be due to temporary connection issue, keep old data to
@@ -334,7 +329,7 @@ calICSCalendar.prototype = {
 
                         Services.startup.enterLastWindowClosingSurvivalArea();
                         inLastWindowClosingSurvivalArea = true;
-                        channel.asyncOpen(self, self);
+                        channel.asyncOpen(self);
                     } else {
                         if (inLastWindowClosingSurvivalArea) {
                             Services.startup.exitLastWindowClosingSurvivalArea();
@@ -400,7 +395,6 @@ calICSCalendar.prototype = {
         scriptableInputStream.read(-1);
     },
     onStopRequest: function(request, ctxt, status, errorMsg) {
-        ctxt = ctxt.wrappedJSObject;
         let httpChannel;
         let requestSucceeded = false;
         try {
@@ -416,25 +410,25 @@ calICSCalendar.prototype = {
 
         if ((httpChannel && !requestSucceeded) ||
             (!httpChannel && !Components.isSuccessCode(request.status))) {
-            ctxt.mObserver.onError(this.superCalendar,
+            this.mObserver.onError(this.superCalendar,
                                    Components.isSuccessCode(request.status)
                                    ? calIErrors.DAV_PUT_ERROR
                                    : request.status,
                                    "Publishing the calendar file failed\n" +
                                        "Status code: " + request.status.toString(16) + "\n");
-            ctxt.mObserver.onError(this.superCalendar, calIErrors.MODIFICATION_FAILED, "");
+            this.mObserver.onError(this.superCalendar, calIErrors.MODIFICATION_FAILED, "");
 
             // the PUT has failed, refresh, and signal error to all modifying operations:
             this.forceRefresh();
-            ctxt.unlock(calIErrors.MODIFICATION_FAILED);
+            this.unlock(calIErrors.MODIFICATION_FAILED);
             Services.startup.exitLastWindowClosingSurvivalArea();
             return;
         }
 
         // Allow the hook to grab data of the channel, like the new etag
 
-        ctxt.mHooks.onAfterPut(request, () => {
-            ctxt.unlock();
+        this.mHooks.onAfterPut(request, () => {
+            this.unlock();
             Services.startup.exitLastWindowClosingSurvivalArea();
         });
     },
@@ -802,7 +796,7 @@ calICSCalendar.prototype = {
 
         downloader.init(listener, backupFile);
         try {
-            channel.asyncOpen(downloader, null);
+            channel.asyncOpen(downloader);
         } catch (e) {
             // For local files, asyncOpen throws on new (calendar) files
             // No problem, go and upload something
@@ -883,7 +877,7 @@ dummyHooks.prototype = {
      *     didn't change, there might be no data in this GET), true in all
      *     other cases
      */
-    onAfterGet: function(aChannel, aForceRefresh) {
+    onAfterGet: function(aChannel) {
         return true;
     },
 
@@ -918,7 +912,7 @@ httpHooks.prototype = {
         return true;
     },
 
-    onAfterGet: function(aChannel, aForceRefresh) {
+    onAfterGet: function(aChannel) {
         let httpchannel = aChannel.QueryInterface(Ci.nsIHttpChannel);
         let responseStatus = 0;
         let responseStatusCategory = 0;
@@ -1057,20 +1051,16 @@ fileHooks.prototype = {
      *     didn't change, there might be no data in this GET), true in all
      *     other cases
      */
-    onAfterGet: function(aChannel, aForceRefresh) {
+    onAfterGet: function(aChannel) {
         let filechannel = aChannel.QueryInterface(Ci.nsIFileChannel);
         if (this.mtime) {
             let newMtime = filechannel.file.lastModifiedTime;
-            if (this.mtime == newMtime && !aForceRefresh) {
+            if (this.mtime == newMtime) {
                 return false;
-            } else {
-                this.mtime = newMtime;
-                return true;
             }
-        } else {
-            this.mtime = filechannel.file.lastModifiedTime;
-            return true;
         }
+        this.mtime = filechannel.file.lastModifiedTime;
+        return true;
     },
 
     onBeforePut: function(aChannel) {

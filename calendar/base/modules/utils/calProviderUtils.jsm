@@ -84,7 +84,7 @@ var calprovider = {
      */
     sendHttpRequest: function(aStreamLoader, aChannel, aListener) {
         aStreamLoader.init(aListener);
-        aChannel.asyncOpen(aStreamLoader, aChannel);
+        aChannel.asyncOpen(aStreamLoader);
     },
 
     /**

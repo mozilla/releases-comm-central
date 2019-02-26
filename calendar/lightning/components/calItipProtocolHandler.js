@@ -32,8 +32,8 @@ ItipChannel.prototype = {
     securityInfo: null,
 
     open: NYI,
-    asyncOpen: function(observer, ctxt) {
-        observer.onStartRequest(this, ctxt);
+    asyncOpen: function(observer) {
+        observer.onStartRequest(this, null);
     },
     asyncRead: function(listener, ctxt) {
         return listener.onStartRequest(this, ctxt);

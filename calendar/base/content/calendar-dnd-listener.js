@@ -319,7 +319,7 @@ calDNDBaseObserver.prototype = {
 
                 try {
                     loader.init(listener);
-                    channel.asyncOpen(loader, null);
+                    channel.asyncOpen(loader);
                 } catch (e) {
                     cal.ERROR(e);
                 }

@@ -371,7 +371,7 @@ calDavCalendar.prototype = {
             }
 
             self.mLastRedirectStatus = null;
-            channel.asyncOpen(listener, channel);
+            channel.asyncOpen(listener);
         }
 
         const OAUTH_GRACE_TIME = 30 * 1000;

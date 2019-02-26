@@ -86,7 +86,6 @@ function testLocalICS() {
 
     controller.assertJS(str.value.includes("SUMMARY:" + calendarTitle));
 }
-testLocalICS.__force_skip__ = true; // Bug 1452600
 
 function teardownTest(module) {
     deleteCalendars(controller, calendarName);
