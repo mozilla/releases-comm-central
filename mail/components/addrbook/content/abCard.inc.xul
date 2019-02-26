@@ -40,7 +40,7 @@
 
                 <!-- LOCALIZATION NOTE:
                      Fields for phonetic are disabled as default and can be
-                     enabled by^editing "mail.addr_book.show_phonetic_fields"
+                     enabled by editing "mail.addr_book.show_phonetic_fields"
                   -->
 
                 <spacer id="PhoneticSpacer1" flex="1" hidden="true"/>

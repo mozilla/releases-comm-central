@@ -413,6 +413,23 @@ function InitBirthDateFields() {
 }
 
 function InitEditCard() {
+  // Fix broken element IDs caused by translation mistakes. NameField1's ID should be either
+  // "FirstName" or "LastName", and if it isn't, make it so.
+  let nameField1Container = document.getElementById("NameField1Container");
+  let nameField1 = nameField1Container.querySelector("textbox");
+  if (nameField1.id != "FirstName" && nameField1.id != "LastName") {
+    nameField1Container.querySelector("label").setAttribute("control", "FirstName");
+    nameField1.id = "FirstName";
+    nameField1Container.querySelector("textbox ~ label").setAttribute("control", "PhoneticFirstName");
+    nameField1Container.querySelector("textbox ~ textbox").id = "PhoneticFirstName";
+
+    let nameField2Container = document.getElementById("NameField2Container");
+    nameField2Container.querySelector("label").setAttribute("control", "LastName");
+    nameField2Container.querySelector("textbox").id = "LastName";
+    nameField2Container.querySelector("textbox ~ label").setAttribute("control", "PhoneticLastName");
+    nameField2Container.querySelector("textbox ~ textbox").id = "PhoneticLastName";
+  }
+
   InitPhoneticFields();
   InitBirthDateFields();
 
