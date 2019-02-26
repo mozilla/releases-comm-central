@@ -9,58 +9,25 @@ var gPrefsBundle;
 
 function donePageInit() {
     var pageData = parent.GetPageData();
-    var currentAccountData = gCurrentAccountData;
-
-    if ("testingIspServices" in this) {
-      if (testingIspServices()) {
-        if ("setOtherISPServices" in this) {
-          setOtherISPServices();
-        }
-
-        if (currentAccountData && currentAccountData.useOverlayPanels && currentAccountData.createNewAccount) {
-          var backButton = document.documentElement.getButton("back");
-          backButton.setAttribute("disabled", true);
-
-          var cancelButton = document.documentElement.getButton("cancel");
-          cancelButton.setAttribute("disabled", true);
-
-          setPageData(pageData, "identity", "email", gEmailAddress);
-          setPageData(pageData, "identity", "fullName", gUserFullName);
-          setPageData(pageData, "login", "username", gScreenName);
-        }
-      }
-    }
-
     gPrefsBundle = document.getElementById("bundle_prefs");
-    var showMailServerDetails = true;
-
-    if (currentAccountData) {
-        // find out if we need to hide server details
-        showMailServerDetails = currentAccountData.showServerDetailsOnWizardSummary;
-    }
 
     // Find out if we need to hide details for incoming servers
-    var hideIncoming = (gCurrentAccountData && gCurrentAccountData.wizardHideIncoming);
+    var hideIncoming = pageData.server &&
+      pageData.server.servertype.value == "movemail";
 
     var email = "";
     if (pageData.identity && pageData.identity.email) {
         // fixup the email
         email = pageData.identity.email.value;
-        if (email.split('@').length < 2 &&
-                     currentAccountData &&
-                     currentAccountData.domain)
-            email += "@" + currentAccountData.domain;
     }
     setDivTextFromForm("identity.email", email);
 
     var userName="";
     if (pageData.login && pageData.login.username)
         userName = pageData.login.username.value;
-    if (!userName && email) {
-        if (currentAccountData && currentAccountData.incomingServerUserNameRequiresDomain == undefined)
-            currentAccountData.incomingServerUserNameRequiresDomain = false;
-        userName = getUsernameFromEmail(email, false);
-    }
+    if (!userName && email)
+        userName = getUsernameFromEmail(email);
+
     // Hide the "username" field if we don't want to show information
     // on the incoming server.
     setDivTextFromForm("server.username", hideIncoming ? null : userName);
@@ -69,45 +36,21 @@ function donePageInit() {
     if (pageData.login && pageData.login.smtpusername)
         smtpUserName = pageData.login.smtpusername.value;
     if (!smtpUserName && email)
-        smtpUserName = getUsernameFromEmail(email, false);
+        smtpUserName = getUsernameFromEmail(email);
     setDivTextFromForm("smtpServer.username", smtpUserName);
 
     if (pageData.accname && pageData.accname.prettyName) {
-      // If currentAccountData has a pretty name (e.g. news link or from
-      // isp data) only set the user name with the pretty name if the
-      // pretty name originally came from ispdata
-      if ((currentAccountData &&
-           currentAccountData.incomingServer.prettyName) &&
-           (pageData.ispdata &&
-            pageData.ispdata.supplied &&
-            pageData.ispdata.supplied.value))
-      {
-        // Get the polished account name - if the user has modified the
-        // account name then use that, otherwise use the userName.
-        pageData.accname.prettyName.value =
-          gPrefsBundle.getFormattedString("accountName",
-                         [currentAccountData.incomingServer.prettyName,
-                          (pageData.accname.userset && pageData.accname.userset.value) ? pageData.accname.prettyName.value : userName]);
-      }
-      // else just use the default supplied name
-
       setDivTextFromForm("account.name", pageData.accname.prettyName.value);
     } else {
       setDivTextFromForm("account.name", "");
     }
 
-    // Show mail servers (incoming&outgoing) details
-    // based on current account data. ISP can set
-    // rdf value of literal showServerDetailsOnWizardSummary
-    // to false to hide server details
-    if (showMailServerDetails && !serverIsNntp(pageData)) {
+    // Show mail servers (incoming & outgoing) details based on current account
+    // data.
+    if (!serverIsNntp(pageData)) {
         var incomingServerName="";
         if (pageData.server && pageData.server.hostname) {
             incomingServerName = pageData.server.hostname.value;
-            if (!incomingServerName &&
-                 currentAccountData &&
-                 currentAccountData.incomingServer.hostname)
-                incomingServerName = currentAccountData.incomingServer.hostName;
         }
         // Hide the incoming server name field if the user specified
         // wizardHideIncoming in the ISP defaults file
@@ -116,10 +59,6 @@ function donePageInit() {
         var incomingServerType="";
         if (pageData.server && pageData.server.servertype) {
             incomingServerType = pageData.server.servertype.value;
-            if (!incomingServerType &&
-                 currentAccountData &&
-                 currentAccountData.incomingServer.type)
-                incomingServerType = currentAccountData.incomingServer.type;
         }
         setDivTextFromForm("server.type", incomingServerType.toUpperCase());
 

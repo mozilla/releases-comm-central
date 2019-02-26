@@ -7,7 +7,6 @@ var {cleanUpHostName, isLegalHostNameOrIP} = ChromeUtils.import("resource:///mod
 
 var gOnMailServersPage;
 var gOnNewsServerPage;
-var gHideIncoming;
 var gProtocolInfo = null;
 
 function incomingPageValidate()
@@ -17,7 +16,7 @@ function incomingPageValidate()
 
   if (gOnMailServersPage) {
     hostName = document.getElementById("incomingServer").value;
-    if (!gHideIncoming && !isLegalHostNameOrIP(cleanUpHostName(hostName)))
+    if (!isLegalHostNameOrIP(cleanUpHostName(hostName)))
       canAdvance = false;
   }
   if (gOnNewsServerPage) {
@@ -43,12 +42,8 @@ function incomingPageUnload()
   var pageData = parent.GetPageData();
 
   if (gOnMailServersPage) {
-    // If we have hidden the incoming server dialogs, we don't want
-    // to set the server to an empty value here
-    if (!gHideIncoming) {
-      var incomingServerName = document.getElementById("incomingServer");
-      setPageData(pageData, "server", "hostname", cleanUpHostName(incomingServerName.value));
-    }
+    var incomingServerName = document.getElementById("incomingServer");
+    setPageData(pageData, "server", "hostname", cleanUpHostName(incomingServerName.value));
     var serverport = document.getElementById("serverPort").value;
     setPageData(pageData, "server", "port", serverport);
     var username = document.getElementById("username").value;
@@ -76,28 +71,18 @@ function incomingPageInit() {
     catch (ex){}
   }
 
-  gHideIncoming = false;
-  if (gCurrentAccountData && gCurrentAccountData.wizardHideIncoming)
-    gHideIncoming = true;
-
   var incomingServerbox = document.getElementById("incomingServerbox");
   var serverTypeBox = document.getElementById("serverTypeBox");
   if (incomingServerbox && serverTypeBox) {
-    if (gHideIncoming) {
-      incomingServerbox.setAttribute("hidden", "true");
-      serverTypeBox.setAttribute("hidden", "true");
-    }
-    else {
-      incomingServerbox.removeAttribute("hidden");
-      serverTypeBox.removeAttribute("hidden");
-    }
+    incomingServerbox.removeAttribute("hidden");
+    serverTypeBox.removeAttribute("hidden");
   }
 
   // Server type selection (pop3 or imap) is for mail accounts only
   var pageData = parent.GetPageData();
   var isMailAccount = pageData.accounttype.mailaccount.value;
   var isOtherAccount = pageData.accounttype.otheraccount.value;
-  if (isMailAccount && !gHideIncoming) {
+  if (isMailAccount) {
     var serverTypeRadioGroup = document.getElementById("servertype");
     /*
      * Check to see if the radiogroup has any value. If there is no
@@ -145,8 +130,7 @@ function incomingPageInit() {
   if (loginNameInput.value == "") {
     if (gProtocolInfo.requiresUsername) {
       // since we require a username, use the uid from the email address
-      loginNameInput.value = parent.getUsernameFromEmail(pageData.identity.email.value, gCurrentAccountData &&
-                                                         gCurrentAccountData.incomingServerUserNameRequiresDomain);
+      loginNameInput.value = parent.getUsernameFromEmail(pageData.identity.email.value);
     }
   }
   incomingPageValidate();

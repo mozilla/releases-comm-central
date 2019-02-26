@@ -41,12 +41,9 @@ function outgoingPageInit() {
     var pageData = parent.GetPageData();
 
     var smtpServer = null;
-    var smtpCreateNewServer = gCurrentAccountData && gCurrentAccountData.smtpCreateNewServer;
 
-    // Don't use the default smtp server if smtp server creation was explicitly
-    // requested in isp rdf.
     // If we're reusing the default smtp we should not set the smtp hostname.
-    if (MailServices.smtp.defaultServer && !smtpCreateNewServer) {
+    if (MailServices.smtp.defaultServer) {
       smtpServer = MailServices.smtp.defaultServer;
       setPageData(pageData, "identity", "smtpServerKey", "");
     }
@@ -56,12 +53,6 @@ function outgoingPageInit() {
 
     var boxToHide;
     var boxToShow;
-
-    if (pageData.server && pageData.server.smtphostname && smtpCreateNewServer) {
-      var smtpTextBox = document.getElementById("smtphostname");
-      if (smtpTextBox && smtpTextBox.value == "")
-        smtpTextBox.value = pageData.server.smtphostname.value;
-    }
 
     if (smtpServer && smtpServer.hostname) {
       // we have a hostname, so modify and show the static text and

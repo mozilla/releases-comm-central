@@ -61,7 +61,7 @@ var gDefaultAccount;
 
 // the current associative array that
 // will eventually be dumped into the account
-var gCurrentAccountData;
+var gCurrentAccountData = null;
 
 // default picker mode for copies and folders
 var gDefaultSpecialFolderPickerMode = "0";
@@ -70,12 +70,6 @@ var gDefaultSpecialFolderPickerMode = "0";
 function onAccountWizardLoad() {
   gPrefsBundle = document.getElementById("bundle_prefs");
   gMessengerBundle = document.getElementById("bundle_messenger");
-
-  if ("testingIspServices" in this) {
-    if ("SetCustomizedWizardDimensions" in this && testingIspServices()) {
-      SetCustomizedWizardDimensions();
-    }
-  }
 
   /* We are checking here for the callback argument */
   if (window.arguments && window.arguments[0]) {
@@ -160,12 +154,7 @@ function FinishAccount()
     var accountData= gCurrentAccountData;
 
     if (!accountData)
-    {
       accountData = new Object;
-      // Time to set the smtpRequiresUsername attribute
-      if (!serverIsNntp(pageData))
-        accountData.smtpRequiresUsername = true;
-    }
 
     // we may need local folders before account is "Finished"
     // if it's a pop3 account which defers to Local Folders.
@@ -262,7 +251,6 @@ function AccountDataToPageData(accountData, pageData)
   setPageData(pageData, "login", "password", server.password || "");
   setPageData(pageData, "accname", "prettyName", server.prettyName || "");
   setPageData(pageData, "accname", "userset", false);
-  setPageData(pageData, "ispdata", "supplied", false);
 
   var identity;
 
@@ -723,25 +711,11 @@ function checkForInvalidAccounts()
     dump("We have an invalid account, " + firstInvalidAccount + ", let's use that!\n");
     gCurrentAccount = firstInvalidAccount;
 
-    // there's a possibility that the invalid account has ISP defaults
-    // as well.. so first pre-fill accountData with ISP info, then
-    // overwrite it with the account data
-
-
-    var identity =
-      firstInvalidAccount.identities.queryElementAt(0, nsIMsgIdentity);
-
-    var accountData = null;
-    // If there is a email address already provided, try to get to other ISP defaults.
-    // If not, get pre-configured data, if any.
-    if (identity.email) {
-      // account -> accountData -> pageData
-      accountData = AccountToAccountData(firstInvalidAccount, null);
-    }
-    else {
-      accountData = getPreConfigDataForAccount(firstInvalidAccount);
-    }
-
+    var accountData = new Object;
+    accountData.incomingServer = firstInvalidAccount.incomingServer;
+    accountData.identity = firstInvalidAccount.identities.queryElementAt(0,
+      nsIMsgIdentity);
+    accountData.smtp = MailServices.smtp.defaultServer;
     AccountDataToPageData(accountData, pageData);
 
     gCurrentAccountData = accountData;
@@ -750,59 +724,6 @@ function checkForInvalidAccounts()
     // Set the page index to identity page.
     document.documentElement.pageIndex = 1;
   }
-}
-
-// Transfer all invalid account information to AccountData. Also, get those special
-// preferences (not associated with any interfaces but preconfigurable via prefs or rdf files)
-// like whether not the smtp server associated with this account requires
-// a user name (mail.identity.<id_key>.smtpRequiresUsername) and the choice of skipping
-// panels (mail.identity.<id_key>.wizardSkipPanels).
-function getPreConfigDataForAccount(account)
-{
-  var accountData = new Object;
-  accountData = new Object;
-  accountData.incomingServer = new Object;
-  accountData.identity = new Object;
-  accountData.smtp = new Object;
-
-  accountData = AccountToAccountData(account, null);
-
-  let identity = account.identities.queryElementAt(0, nsIMsgIdentity);
-
-  try {
-    var skipPanelsPrefStr = "mail.identity." + identity.key + ".wizardSkipPanels";
-    accountData.wizardSkipPanels = Services.prefs.getCharPref(skipPanelsPrefStr);
-
-    if (identity.smtpServerKey) {
-      let smtpServer = MailServices.smtp.getServerByKey(identity.smtpServerKey);
-      accountData.smtp = smtpServer;
-
-      var smtpRequiresUsername = false;
-      var smtpRequiresPrefStr = "mail.identity." + identity.key + ".smtpRequiresUsername";
-      smtpRequiresUsername = Services.prefs.getBoolPref(smtpRequiresPrefStr);
-      accountData.smtpRequiresUsername = smtpRequiresUsername;
-    }
-  }
-  catch(ex) {
-    // reached here as special identity pre-configuration prefs
-    // (wizardSkipPanels, smtpRequiresUsername) are not defined.
-  }
-
-  return accountData;
-}
-
-function AccountToAccountData(account, defaultAccountData)
-{
-  dump("AccountToAccountData(" + account + ", " + defaultAccountData + ")\n");
-  var accountData = defaultAccountData;
-  if (!accountData)
-    accountData = new Object;
-
-  accountData.incomingServer = account.incomingServer;
-  accountData.identity = account.identities.queryElementAt(0, nsIMsgIdentity);
-  accountData.smtp = MailServices.smtp.defaultServer;
-
-  return accountData;
 }
 
 // sets the page data, automatically creating the arrays as necessary
@@ -828,11 +749,9 @@ function serverIsNntp(pageData) {
   return false;
 }
 
-function getUsernameFromEmail(aEmail, aEnsureDomain)
+function getUsernameFromEmail(aEmail)
 {
   var username = aEmail.substr(0, aEmail.indexOf("@"));
-  if (aEnsureDomain && gCurrentAccountData && gCurrentAccountData.domain)
-    username += '@' + gCurrentAccountData.domain;
   return username;
 }
 
@@ -847,7 +766,7 @@ function getCurrentUserName(pageData)
   }
   if (userName == "") {
     var email = pageData.identity.email.value;
-    userName = getUsernameFromEmail(email, false);
+    userName = getUsernameFromEmail(email);
   }
   return userName;
 }
@@ -884,14 +803,6 @@ function GetPageData()
   return gPageData;
 }
 
-function PrefillAccountForIsp(ispName)
-{
-  if (!ispData) {
-    SetCurrentAccountData(null);
-    return;
-  }
-}
-
 // does any cleanup work for the the account data
 // - sets the username from the email address if it's not already set
 // - anything else?
@@ -912,26 +823,17 @@ function FixupAccountDataForIsp(accountData)
 
   // fix up the username
   if (!accountData.incomingServer.username)
-    accountData.incomingServer.username =
-      getUsernameFromEmail(email, accountData.incomingServerUserNameRequiresDomain);
+    accountData.incomingServer.username = getUsernameFromEmail(email);
 
-  if (!accountData.smtp.username &&
-      accountData.smtpRequiresUsername) {
+  if (!accountData.smtp.username) {
     // fix for bug #107953
     // if incoming hostname is same as smtp hostname
     // use the server username (instead of the email username)
-    if (accountData.smtp.hostname == accountData.incomingServer.hostName &&
-        accountData.smtpUserNameRequiresDomain == accountData.incomingServerUserNameRequiresDomain)
+    if (accountData.smtp.hostname == accountData.incomingServer.hostName)
       accountData.smtp.username = accountData.incomingServer.username;
     else
-      accountData.smtp.username = getUsernameFromEmail(email, accountData.smtpUserNameRequiresDomain);
+      accountData.smtp.username = getUsernameFromEmail(email);
   }
-}
-
-function SetCurrentAccountData(accountData)
-{
-  //    dump("Setting current account data (" + gCurrentAccountData + ") to " + accountData + "\n");
-  gCurrentAccountData = accountData;
 }
 
 // flush the XUL cache - just for debugging purposes - not called
@@ -953,16 +855,6 @@ function EnableCheckMailAtStartUpIfNeeded(newAccount)
     MailServices.accounts.defaultAccount = newAccount;
     newAccount.incomingServer.loginAtStartUp = true;
     newAccount.incomingServer.downloadOnBiff = true;
-  }
-}
-
-function SetSmtpRequiresUsernameAttribute(accountData)
-{
-  // If this is the default server, time to set the smtp user name
-  // Set the generic attribute for requiring user name for smtp to true.
-  // ISPs can override the pref via rdf files.
-  if (!gDefaultAccount) {
-    accountData.smtpRequiresUsername = true;
   }
 }
 
