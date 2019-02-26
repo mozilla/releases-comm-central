@@ -1470,7 +1470,7 @@ var XMPPAccountPrototype = {
       // vCard fields we want to display in the tooltip.
       const kTooltipFields = ["userName", "fullName", "nickname", "title",
                               "organization", "email", "birthday", "locality",
-                              "country"];
+                              "country", "telephone"];
 
       let tooltipInfo = [];
       for (let field of kTooltipFields) {
@@ -1545,6 +1545,11 @@ var XMPPAccountPrototype = {
       }
       else if (localName == "PHOTO")
         aResult.photo = node;
+      else if (localName == "TEL") {
+        let number = node.getElement(["NUMBER"]);
+        if (number && number.innerText)
+          aResult.telephone = number.innerText;
+      }
       // TODO: Parse the other fields of vCard and display it in system messages
       // in response to /whois.
     }

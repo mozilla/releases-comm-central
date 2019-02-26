@@ -1,10 +1,7 @@
 /* Any copyright is dedicated to the Public Domain.
-* http://creativecommons.org/publicdomain/zero/1.0/ */
+ * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
-var xmppXml = {};
-Services.scriptloader.loadSubScript("resource:///modules/xmpp-xml.jsm", xmppXml);
+var {XMPPParser} = ChromeUtils.import("resource:///modules/xmpp-xml.jsm");
 
 var TEST_DATA = [
   {
@@ -84,20 +81,17 @@ counsel?</value>\
 function testXMPPParser() {
   for (let current of TEST_DATA) {
     let listener = {
-      output: current.output,
-      description: current.description,
-      isError: current.isError,
       onXMLError(aString) {
-        ok(this.isError, aString + " - " + this.description);
+        ok(current.isError, aString + " - " + current.description);
       },
       LOG(aString) {},
       startLegacyAuth() {},
       onXmppStanza(aStanza) {
-        equal(this.output, aStanza.getXML(), this.description);
-        ok(!this.isError, this.description);
+        equal(current.output, aStanza.getXML(), current.description);
+        ok(!current.isError, current.description);
       },
     };
-    let parser = new xmppXml.XMPPParser(listener);
+    let parser = new XMPPParser(listener);
     let istream = Cc["@mozilla.org/io/string-input-stream;1"]
                     .createInstance(Ci.nsIStringInputStream);
     istream.setData(current.input, current.input.length);
