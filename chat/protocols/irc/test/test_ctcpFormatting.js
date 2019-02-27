@@ -2,12 +2,8 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var {
-  _,
-  _conv,
   ctcpFormatToText,
   ctcpFormatToHTML,
-  conversationErrorMessage,
-  kListRefreshInterval,
 } = ChromeUtils.import("resource:///modules/ircUtils.jsm");
 
 // TODO add a test for special JS characters (|, etc...)

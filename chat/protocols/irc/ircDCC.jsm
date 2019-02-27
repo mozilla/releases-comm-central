@@ -12,26 +12,6 @@
 this.EXPORTED_SYMBOLS = ["ctcpDCC"/* , "dccBase"*/];
 
 const {ircHandlers} = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
-var {
-  _,
-  _conv,
-  ctcpFormatToText,
-  ctcpFormatToHTML,
-  conversationErrorMessage,
-  kListRefreshInterval,
-} = ChromeUtils.import("resource:///modules/ircUtils.jsm");
-var {
-  GenericAccountPrototype,
-  GenericAccountBuddyPrototype,
-  GenericConvIMPrototype,
-  GenericConvChatPrototype,
-  GenericConvChatBuddyPrototype,
-  GenericConversationPrototype,
-  GenericMessagePrototype,
-  GenericProtocolPrototype,
-  Message,
-  TooltipInfo,
-} = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 
 // Parse a CTCP message into a DCC message. A DCC message is a CTCP message of
 // the form:

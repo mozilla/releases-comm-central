@@ -14,7 +14,13 @@ var {
 } = ChromeUtils.import("resource:///modules/ArrayBufferUtils.jsm");
 var {bigInt} = ChromeUtils.import("resource:///modules/BigInteger.jsm");
 var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
-var {EmptyEnumerator, XPCOMUtils} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var {
+  EmptyEnumerator,
+  XPCOMUtils,
+  clearTimeout,
+  l10nHelper,
+  nsSimpleEnumerator,
+} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 var {
   GenericAccountPrototype,
   GenericAccountBuddyPrototype,

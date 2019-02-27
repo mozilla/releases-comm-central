@@ -15,26 +15,8 @@
 this.EXPORTED_SYMBOLS = ["ircWATCH", "isupportWATCH", "ircMONITOR",
                           "isupportMONITOR"];
 
-var {
-  XPCOMUtils,
-  setTimeout,
-  clearTimeout,
-  executeSoon,
-  nsSimpleEnumerator,
-  EmptyEnumerator,
-  ClassInfo,
-  l10nHelper,
-  initLogModule,
-} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var {clearTimeout} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 const {ircHandlers} = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
-var {
-  _,
-  _conv,
-  ctcpFormatToText,
-  ctcpFormatToHTML,
-  conversationErrorMessage,
-  kListRefreshInterval,
-} = ChromeUtils.import("resource:///modules/ircUtils.jsm");
 
 function setStatus(aAccount, aNick, aStatus) {
   if (!aAccount.watchEnabled && !aAccount.monitorEnabled)

@@ -11,14 +11,6 @@
 this.EXPORTED_SYMBOLS = ["ircSASL", "capSASL"];
 
 const {ircHandlers} = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
-var {
-  _,
-  _conv,
-  ctcpFormatToText,
-  ctcpFormatToHTML,
-  conversationErrorMessage,
-  kListRefreshInterval,
-} = ChromeUtils.import("resource:///modules/ircUtils.jsm");
 
 var ircSASL = {
   name: "SASL AUTHENTICATE",

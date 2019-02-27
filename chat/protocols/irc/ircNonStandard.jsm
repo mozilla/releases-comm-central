@@ -17,9 +17,6 @@ this.EXPORTED_SYMBOLS = ["ircNonStandard"];
 const {ircHandlers} = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
 var {
   _,
-  _conv,
-  ctcpFormatToText,
-  ctcpFormatToHTML,
   conversationErrorMessage,
   kListRefreshInterval,
 } = ChromeUtils.import("resource:///modules/ircUtils.jsm");

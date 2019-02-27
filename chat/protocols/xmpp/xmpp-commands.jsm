@@ -6,14 +6,7 @@ this.EXPORTED_SYMBOLS = ["commands"];
 
 var {
   XPCOMUtils,
-  setTimeout,
-  clearTimeout,
-  executeSoon,
-  nsSimpleEnumerator,
-  EmptyEnumerator,
-  ClassInfo,
   l10nHelper,
-  initLogModule,
 } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>

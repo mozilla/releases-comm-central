@@ -15,11 +15,7 @@ this.EXPORTED_SYMBOLS = ["XMPPAuthMechanisms"];
 const {CommonUtils} = ChromeUtils.import("resource://services-common/utils.js");
 const {CryptoUtils} = ChromeUtils.import("resource://services-crypto/utils.js");
 const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {
-  Stanza,
-  XMPPParser,
-  SupportedFeatures,
-} = ChromeUtils.import("resource:///modules/xmpp-xml.jsm");
+var {Stanza} = ChromeUtils.import("resource:///modules/xmpp-xml.jsm");
 XPCOMUtils.defineLazyGlobalGetters(this, ["crypto"]);
 
 // Handle PLAIN authorization mechanism.

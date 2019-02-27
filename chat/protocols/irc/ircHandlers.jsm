@@ -4,15 +4,6 @@
 
 this.EXPORTED_SYMBOLS = ["ircHandlers"];
 
-var {
-  _,
-  _conv,
-  ctcpFormatToText,
-  ctcpFormatToHTML,
-  conversationErrorMessage,
-  kListRefreshInterval,
-} = ChromeUtils.import("resource:///modules/ircUtils.jsm");
-
 var ircHandlers = {
   /*
    * Object to hold the IRC handlers, each handler is an object that implements:

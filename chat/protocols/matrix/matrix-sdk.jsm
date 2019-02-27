@@ -3,9 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const {console} = ChromeUtils.import("resource://gre/modules/Console.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const {clearInterval, clearTimeout, setInterval, setTimeout} = ChromeUtils.import("resource://gre/modules/Timer.jsm");
-Cu.importGlobalProperties(["XMLHttpRequest"]);
 
 const { Loader, Require, Module } = ChromeUtils.import("resource://devtools/shared/base-loader.js");
 

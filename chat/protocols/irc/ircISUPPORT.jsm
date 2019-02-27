@@ -15,14 +15,6 @@
 this.EXPORTED_SYMBOLS = ["ircISUPPORT", "isupportBase"];
 
 const {ircHandlers} = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
-var {
-  _,
-  _conv,
-  ctcpFormatToText,
-  ctcpFormatToHTML,
-  conversationErrorMessage,
-  kListRefreshInterval,
-} = ChromeUtils.import("resource:///modules/ircUtils.jsm");
 
 /*
  * Parses an ircMessage into an ISUPPORT message for each token of the form:

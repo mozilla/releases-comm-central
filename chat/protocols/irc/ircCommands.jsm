@@ -6,25 +6,9 @@
 // implementing the commands field before we register them.
 this.EXPORTED_SYMBOLS = ["commands"];
 
-var {
-  XPCOMUtils,
-  setTimeout,
-  clearTimeout,
-  executeSoon,
-  nsSimpleEnumerator,
-  EmptyEnumerator,
-  ClassInfo,
-  l10nHelper,
-  initLogModule,
-} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-var {
-  _,
-  _conv,
-  ctcpFormatToText,
-  ctcpFormatToHTML,
-  conversationErrorMessage,
-  kListRefreshInterval,
-} = ChromeUtils.import("resource:///modules/ircUtils.jsm");
+var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
+var {ClassInfo} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var {_} = ChromeUtils.import("resource:///modules/ircUtils.jsm");
 
 // Shortcut to get the JavaScript conversation object.
 function getConv(aConv) { return aConv.wrappedJSObject; }

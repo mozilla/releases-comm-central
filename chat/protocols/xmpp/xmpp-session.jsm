@@ -8,20 +8,12 @@ const {DNS} = ChromeUtils.import("resource:///modules/DNS.jsm");
 const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
 var {
   XPCOMUtils,
-  setTimeout,
-  clearTimeout,
-  executeSoon,
-  nsSimpleEnumerator,
-  EmptyEnumerator,
-  ClassInfo,
   l10nHelper,
-  initLogModule,
 } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 var {Socket} = ChromeUtils.import("resource:///modules/socket.jsm");
 var {
   Stanza,
   XMPPParser,
-  SupportedFeatures,
 } = ChromeUtils.import("resource:///modules/xmpp-xml.jsm");
 var {XMPPAuthMechanisms} = ChromeUtils.import("resource:///modules/xmpp-authmechs.jsm");
 

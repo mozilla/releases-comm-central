@@ -78,24 +78,13 @@ this.EXPORTED_SYMBOLS = ["Socket"];
 
 const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {
-  copyBytes,
   ArrayBufferToBytes,
-  BytesToArrayBuffer,
-  StringToBytes,
-  StringToArrayBuffer,
-  ArrayBufferToString,
   ArrayBufferToHexString,
 } = ChromeUtils.import("resource:///modules/ArrayBufferUtils.jsm");
 var {
-  XPCOMUtils,
   setTimeout,
   clearTimeout,
   executeSoon,
-  nsSimpleEnumerator,
-  EmptyEnumerator,
-  ClassInfo,
-  l10nHelper,
-  initLogModule,
 } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 var {getHiddenHTMLWindow} = ChromeUtils.import("resource:///modules/hiddenWindow.jsm");
 
@@ -117,9 +106,6 @@ var BinaryOutputStream =
 var ScriptableInputStream =
   Components.Constructor("@mozilla.org/scriptableinputstream;1",
                          "nsIScriptableInputStream", "init");
-var ServerSocket =
-  Components.Constructor("@mozilla.org/network/server-socket;1",
-                         "nsIServerSocket", "init");
 var InputStreamPump =
   Components.Constructor("@mozilla.org/network/input-stream-pump;1",
                          "nsIInputStreamPump", "init");

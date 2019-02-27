@@ -2,11 +2,9 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var {
-  copyBytes,
   ArrayBufferToBytes,
   BytesToArrayBuffer,
   StringToBytes,
-  StringToArrayBuffer,
   ArrayBufferToString,
   ArrayBufferToHexString,
 } = ChromeUtils.import("resource:///modules/ArrayBufferUtils.jsm");
