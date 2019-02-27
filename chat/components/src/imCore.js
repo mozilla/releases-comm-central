@@ -43,7 +43,7 @@ function UserStatus()
 UserStatus.prototype = {
   __proto__: ClassInfo("imIUserStatusInfo", "User status info"),
 
-  unInit: function() {
+  unInit() {
     this._observers = [];
     Services.prefs.removeObserver(kPrefReportIdle, this);
     if (this._observingIdleness)
@@ -52,7 +52,7 @@ UserStatus.prototype = {
     Services.obs.removeObserver(this, NS_IOSERVICE_OFFLINE_STATUS_TOPIC);
   },
   _observingIdleness: false,
-  _addIdleObserver: function() {
+  _addIdleObserver() {
     this._observingIdleness = true;
     this._idleService =
       Cc["@mozilla.org/widget/idleservice;1"].getService(Ci.nsIIdleService);
@@ -65,7 +65,7 @@ UserStatus.prototype = {
     if (this._timeBeforeIdle)
       this._idleService.addIdleObserver(this, this._timeBeforeIdle);
   },
-  _removeIdleObserver: function() {
+  _removeIdleObserver() {
     if (this._timeBeforeIdle)
       this._idleService.removeIdleObserver(this, this._timeBeforeIdle);
 
@@ -77,7 +77,7 @@ UserStatus.prototype = {
     delete this._observingIdleness;
   },
 
-  observe: function(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic, aData) {
     if (aTopic == "nsPref:changed") {
       if (aData == kPrefReportIdle) {
         let reportIdle = Services.prefs.getBoolPref(kPrefReportIdle);
@@ -128,7 +128,7 @@ UserStatus.prototype = {
   _idle: false,
   _idleStatusText: "",
   _idleStatusType: Ci.imIStatusInfo.STATUS_AVAILABLE,
-  _checkIdle: function() {
+  _checkIdle() {
     let idleTime = Math.floor(this._idleService.idleTime / 1000);
     let idle = this._timeBeforeIdle && idleTime >= this._timeBeforeIdle;
     if (idle == this._idle)
@@ -159,7 +159,7 @@ UserStatus.prototype = {
   get statusText() { return this._statusText || this._idleStatusText; },
   _statusType: Ci.imIStatusInfo.STATUS_AVAILABLE,
   get statusType() { return Math.min(this._statusType, this._idleStatusType, this._offlineStatusType); },
-  setStatus: function(aStatus, aMessage) {
+  setStatus(aStatus, aMessage) {
     if (aStatus != Ci.imIStatusInfo.STATUS_UNKNOWN)
       this._statusType = aStatus;
     if (aStatus != Ci.imIStatusInfo.STATUS_OFFLINE)
@@ -168,7 +168,7 @@ UserStatus.prototype = {
   },
 
   _getProfileDir: () => Services.dirsvc.get("ProfD", Ci.nsIFile),
-  setUserIcon: function(aIconFile) {
+  setUserIcon(aIconFile) {
     let folder = this._getProfileDir();
 
     let newName = "";
@@ -201,7 +201,7 @@ UserStatus.prototype = {
 
     this._notifyObservers("user-icon-changed", newName);
   },
-  getUserIcon: function() {
+  getUserIcon() {
     let filename = Services.prefs.getCharPref(kPrefUserIconFilename);
     if (!filename)
       return null; // No icon has been set.
@@ -225,17 +225,17 @@ UserStatus.prototype = {
     this._notifyObservers("user-display-name-changed", aDisplayName);
   },
 
-  addObserver: function(aObserver) {
+  addObserver(aObserver) {
     if (!this._observers.includes(aObserver))
       this._observers.push(aObserver);
   },
-  removeObserver: function(aObserver) {
+  removeObserver(aObserver) {
     this._observers = this._observers.filter(o => o !== aObserver);
   },
-  _notifyObservers: function(aTopic, aData) {
+  _notifyObservers(aTopic, aData) {
     for (let observer of this._observers)
       observer.observe(this, aTopic, aData);
-  }
+  },
 };
 
 var gCoreService;
@@ -245,7 +245,7 @@ CoreService.prototype = {
 
   _initialized: false,
   get initialized() { return this._initialized; },
-  init: function() {
+  init() {
     if (this._initialized)
       return;
 
@@ -259,9 +259,9 @@ CoreService.prototype = {
 
     this.globalUserStatus = new UserStatus();
     this.globalUserStatus.addObserver({
-      observe: function(aSubject, aTopic, aData) {
+      observe(aSubject, aTopic, aData) {
         Services.obs.notifyObservers(aSubject, aTopic, aData);
-      }
+      },
     });
 
     let accounts = Services.accounts;
@@ -278,11 +278,11 @@ CoreService.prototype = {
       });
     }
   },
-  observe: function(aObject, aTopic, aData) {
+  observe(aObject, aTopic, aData) {
     if (aTopic == kQuitApplicationGranted)
       this.quit();
   },
-  quit: function() {
+  quit() {
     if (!this._initialized)
       throw Cr.NS_ERROR_NOT_INITIALIZED;
 
@@ -300,7 +300,7 @@ CoreService.prototype = {
     delete this._initialized;
   },
 
-  getProtocols: function() {
+  getProtocols() {
     if (!this._initialized)
       throw Cr.NS_ERROR_NOT_INITIALIZED;
 
@@ -325,7 +325,7 @@ CoreService.prototype = {
     return new nsSimpleEnumerator(protocols);
   },
 
-  getProtocolById: function(aPrplId) {
+  getProtocolById(aPrplId) {
     if (!this._initialized)
       throw Cr.NS_ERROR_NOT_INITIALIZED;
 
@@ -365,7 +365,7 @@ CoreService.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.imICoreService]),
   classDescription: "Core",
   classID: Components.ID("{073f5953-853c-4a38-bd81-255510c31c2e}"),
-  contractID: "@mozilla.org/chat/core-service;1"
+  contractID: "@mozilla.org/chat/core-service;1",
 };
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory([CoreService]);

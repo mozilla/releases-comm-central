@@ -55,7 +55,7 @@ function queueFileOperation(aPath, aOperation) {
  * Note: This function creates parent directories if required.
  */
 function appendToFile(aPath, aEncodedString, aCreate) {
-  return queueFileOperation(aPath, async function () {
+  return queueFileOperation(aPath, async function() {
     await OS.File.makeDir(OS.Path.dirname(aPath),
                           {ignoreExisting: true, from: OS.Constants.Path.profileDir});
     let file = await OS.File.open(aPath, {write: true, create: aCreate});
@@ -76,7 +76,7 @@ function appendToFile(aPath, aEncodedString, aCreate) {
 
 OS.File.profileBeforeChange.addBlocker(
   "Chat logger: writing all pending messages",
-  async function () {
+  async function() {
     for (let promise of gFilePromises.values()) {
       try {
         await promise;
@@ -188,7 +188,7 @@ LogWriter.prototype = {
         account: account.normalizedName,
         protocol: account.protocol.normalizedName,
         isChat: this._conv.isChat,
-        normalizedName: this._conv.normalizedName
+        normalizedName: this._conv.normalizedName,
       };
       if (aContinuedSession)
         header.continuedSession = true;
@@ -196,7 +196,7 @@ LogWriter.prototype = {
     }
     else {
       const dateTimeFormatter = new Services.intl.DateTimeFormat("en-US", {
-        dateStyle: "full", timeStyle: "long"
+        dateStyle: "full", timeStyle: "long",
       });
       header = "Conversation with " + this._conv.name +
                " at " + dateTimeFormatter.format(new Date(this._conv.startDate / 1000)) +
@@ -219,7 +219,7 @@ LogWriter.prototype = {
     let encoder = Cu.createDocumentEncoder(type);
     encoder.init(doc, type, 0);
     encoder.setContainerNode(div);
-    encoder.setNodeFixup({fixupNode: function(aNode, aSerializeKids) {
+    encoder.setNodeFixup({fixupNode(aNode, aSerializeKids) {
       if (aNode.localName == "a" && aNode.hasAttribute("href")) {
         let url = aNode.getAttribute("href");
         let content = aNode.textContent;
@@ -266,7 +266,7 @@ LogWriter.prototype = {
         flags: ["outgoing", "incoming", "system", "autoResponse",
                 "containsNick", "error", "delayed",
                 "noFormat", "containsImages", "notification",
-                "noLinkification"].filter(f => aMessage[f])
+                "noLinkification"].filter(f => aMessage[f]),
       };
       let alias = aMessage.alias;
       if (alias && alias != msg.who)
@@ -284,12 +284,10 @@ LogWriter.prototype = {
         let sender = aMessage.alias || aMessage.who;
         if (aMessage.autoResponse)
           line += sender + " <AUTO-REPLY>: " + msg;
-        else {
-          if (msg.startsWith("/me "))
-            line += "***" + sender + " " + msg.substr(4);
-          else
-            line += sender + ": " + msg;
-        }
+        else if (msg.startsWith("/me "))
+          line += "***" + sender + " " + msg.substr(4);
+        else
+          line += sender + ": " + msg;
       }
       lineToWrite = line + kLineBreak;
     }
@@ -298,13 +296,13 @@ LogWriter.prototype = {
       appendToFile(this.currentPath, lineToWrite)
         .catch(aError => Cu.reportError("Failed to log message:\n" + aError));
     });
-  }
+  },
 };
 
 var dummyLogWriter = {
   paths: null,
   currentPath: null,
-  logMessage: function() {}
+  logMessage() {},
 };
 
 
@@ -332,7 +330,7 @@ function SystemLogWriter(aAccount) {
   this.path = OS.Path.join(getLogFolderPathForAccount(aAccount), ".system",
                            getNewLogFileName());
   const dateTimeFormatter = new Services.intl.DateTimeFormat("en-US", {
-    dateStyle: "full", timeStyle: "long"
+    dateStyle: "full", timeStyle: "long",
   });
   let header = "System log for account " + aAccount.name +
                " (" + aAccount.protocol.normalizedName +
@@ -358,12 +356,12 @@ SystemLogWriter.prototype = {
       appendToFile(this.path, lineToWrite)
         .catch(aError => Cu.reportError("Failed to log event:\n" + aError));
     });
-  }
+  },
 };
 
 var dummySystemLogWriter = {
   path: null,
-  logEvent: function() {}
+  logEvent() {},
 };
 
 
@@ -433,7 +431,7 @@ function LogMessage(aData, aConversation) {
 LogMessage.prototype = {
   __proto__: GenericMessagePrototype,
   _interfaces: [Ci.imIMessage, Ci.prplIMessage],
-  get displayMessage() { return this.originalMessage; }
+  get displayMessage() { return this.originalMessage; },
 };
 
 
@@ -451,27 +449,27 @@ LogConversation.prototype = {
     name: this._accountName,
     normalizedName: this._accountName,
     protocol: {name: this._protocolName},
-    statusInfo: Services.core.globalUserStatus
+    statusInfo: Services.core.globalUserStatus,
   }; },
-  getMessages: function(aMessageCount) {
+  getMessages(aMessageCount) {
     if (aMessageCount)
       aMessageCount.value = this._messages.length;
     return this._messages.map(m => new LogMessage(m, this));
   },
-  getMessagesEnumerator: function(aMessageCount) {
+  getMessagesEnumerator(aMessageCount) {
     if (aMessageCount)
       aMessageCount.value = this._messages.length;
     let enumerator = {
       _index: 0,
       _conv: this,
       _messages: this._messages,
-      hasMoreElements: function() { return this._index < this._messages.length; },
-      getNext: function() { return new LogMessage(this._messages[this._index++], this._conv); },
+      hasMoreElements() { return this._index < this._messages.length; },
+      getNext() { return new LogMessage(this._messages[this._index++], this._conv); },
       QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator]),
-      * [Symbol.iterator]() { while (this.hasMoreElements()) yield this.getNext(); }
+      * [Symbol.iterator]() { while (this.hasMoreElements()) yield this.getNext(); },
     };
     return enumerator;
-  }
+  },
 };
 
 
@@ -564,7 +562,7 @@ Log.prototype = {
           who: "sessionstart",
           date: getDateFromFilename(filename)[0],
           text: _("badLogfile", filename),
-          flags: ["noLog", "notification", "error", "system"]
+          flags: ["noLog", "notification", "error", "system"],
         });
         continue;
       }
@@ -574,7 +572,7 @@ Log.prototype = {
           who: "sessionstart",
           date: getDateFromFilename(filename)[0],
           text: "",
-          flags: ["noLog", "notification"]
+          flags: ["noLog", "notification"],
         });
       }
 
@@ -606,7 +604,7 @@ Log.prototype = {
       return null;
 
     return new LogConversation(messages, properties);
-  }
+  },
 };
 
 
@@ -646,8 +644,8 @@ function DailyLogEnumerator(aEntries) {
         this._entries[dayID] = [];
 
       this._entries[dayID].push({
-        path: path,
-        time: logDate
+        path,
+        time: logDate,
       });
     }
     else {
@@ -664,13 +662,13 @@ DailyLogEnumerator.prototype = {
   _entries: {},
   _days: [],
   _index: 0,
-  hasMoreElements: function() { return this._index < this._days.length; },
-  getNext: function() {
+  hasMoreElements() { return this._index < this._days.length; },
+  getNext() {
     let dayID = this._days[this._index++];
     return new Log(this._entries[dayID]);
   },
   QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator]),
-  * [Symbol.iterator]() { while (this.hasMoreElements()) yield this.getNext(); }
+  * [Symbol.iterator]() { while (this.hasMoreElements()) yield this.getNext(); },
 };
 
 function LogEnumerator(aEntries) {
@@ -679,15 +677,15 @@ function LogEnumerator(aEntries) {
 }
 LogEnumerator.prototype = {
   _entries: [],
-  hasMoreElements: function() {
+  hasMoreElements() {
     return this._entries.length > 0;
   },
-  getNext: function() {
+  getNext() {
     // Create and return a log from the first entry.
     return new Log(this._entries.shift().path);
   },
   QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator]),
-  * [Symbol.iterator]() { while (this.hasMoreElements()) yield this.getNext(); }
+  * [Symbol.iterator]() { while (this.hasMoreElements()) yield this.getNext(); },
 };
 
 
@@ -735,8 +733,8 @@ Logger.prototype = {
 
       if (targetDate == logTime.toDateString()) {
         relevantEntries.push({
-          path: path,
-          time: logTime
+          path,
+          time: logTime,
         });
       }
     }).then(() => {
@@ -817,11 +815,11 @@ Logger.prototype = {
     return this._getEnumerator(entries, aGroupByDay);
   },
 
-  getLogFolderPathForAccount: function(aAccount) {
+  getLogFolderPathForAccount(aAccount) {
     return getLogFolderPathForAccount(aAccount);
   },
 
-  deleteLogFolderForAccount: function(aAccount) {
+  deleteLogFolderForAccount(aAccount) {
     if (!aAccount.disconnecting && !aAccount.disconnected)
       throw new Error("Account must be disconnected first before deleting logs.");
 
@@ -843,7 +841,7 @@ Logger.prototype = {
   },
 
   async forEach(aCallback) {
-    let getAllSubdirs = async function (aPaths, aErrorMsg) {
+    let getAllSubdirs = async function(aPaths, aErrorMsg) {
       let entries = [];
       for (let path of aPaths) {
         let iterator = new OS.File.DirectoryIterator(path);
@@ -859,7 +857,7 @@ Logger.prototype = {
       entries = entries.filter(aEntry => aEntry.isDir)
                        .map(aEntry => aEntry.path);
       return entries;
-    }
+    };
 
     let logsPath = OS.Path.join(OS.Constants.Path.profileDir, "logs");
     let prpls = await getAllSubdirs([logsPath]);
@@ -946,7 +944,7 @@ Logger.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver, Ci.imILogger]),
   classDescription: "Logger",
   classID: Components.ID("{fb0dc220-2c7a-4216-9f19-6b8f3480eae9}"),
-  contractID: "@mozilla.org/chat/logger;1"
+  contractID: "@mozilla.org/chat/logger;1",
 };
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory([Logger]);

@@ -10,7 +10,7 @@ function run_test() {
   do_get_profile();
 
   // Test the handling of accounts for unknown protocols.
-  const kAccountName = "Unknown"
+  const kAccountName = "Unknown";
   const kPrplId = "prpl-unknown";
 
   let prefs = Services.prefs;

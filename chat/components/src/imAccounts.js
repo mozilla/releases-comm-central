@@ -43,7 +43,7 @@ var gUserCanceledMasterPasswordPrompt = false;
 var gConvertingOldPasswords = false;
 
 var SavePrefTimer = {
-  saveNow: function() {
+  saveNow() {
     if (this._timer) {
       clearTimeout(this._timer);
       this._timer = null;
@@ -51,32 +51,32 @@ var SavePrefTimer = {
     Services.prefs.savePrefFile(null);
   },
   _timer: null,
-  unInitTimer: function() {
+  unInitTimer() {
     if (this._timer)
       this.saveNow();
   },
-  initTimer: function() {
+  initTimer() {
     if (!this._timer)
       this._timer = setTimeout(this.saveNow.bind(this), 5000);
-  }
+  },
 };
 
 var AutoLoginCounter = {
   _count: 0,
-  startAutoLogin: function() {
+  startAutoLogin() {
     ++this._count;
     if (this._count != 1)
       return;
     Services.prefs.setIntPref(kPrefAutologinPending, Date.now() / 1000);
     SavePrefTimer.saveNow();
   },
-  finishedAutoLogin: function() {
+  finishedAutoLogin() {
     --this._count;
     if (this._count != 0)
       return;
     Services.prefs.deleteBranch(kPrefAutologinPending);
     SavePrefTimer.initTimer();
-  }
+  },
 };
 
 function UnknownProtocol(aPrplId)
@@ -88,12 +88,12 @@ UnknownProtocol.prototype = {
   get name() { return ""; },
   get normalizedName() { return this.name; },
   get iconBaseURI() { return "chrome://chat/skin/prpl-unknown/"; },
-  getOptions: function() { return EmptyEnumerator; },
-  getUsernameSplit: function() { return EmptyEnumerator; },
+  getOptions() { return EmptyEnumerator; },
+  getUsernameSplit() { return EmptyEnumerator; },
   get usernameEmptyText() { return ""; },
 
-  getAccount: function(aKey, aName) { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
-  accountExists: function() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
+  getAccount(aKey, aName) { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
+  accountExists() { throw Cr.NS_ERROR_NOT_IMPLEMENTED; },
 
   // false seems an acceptable default for all options
   // (they should never be called anyway).
@@ -106,7 +106,7 @@ UnknownProtocol.prototype = {
   get usePointSize() { return true; },
   get registerNoScreenName() { return false; },
   get slashCommandsNative() { return false; },
-  get usePurpleProxy() { return false; }
+  get usePurpleProxy() { return false; },
 };
 
 // An unknown prplIAccount.
@@ -208,11 +208,10 @@ imAccount.prototype = {
         (this._connectionErrorReason != Ci.imIAccount.ERROR_MISSING_PASSWORD ||
          !this._password))
       return this._connectionErrorReason;
-    else
-      return this.prplAccount.connectionErrorReason;
+    return this.prplAccount.connectionErrorReason;
   },
 
-  observe: function(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic, aData) {
     if (aTopic == "account-connect-progress")
       this.connectionStateMsg = aData;
     else if (aTopic == "account-connecting") {
@@ -305,7 +304,7 @@ imAccount.prototype = {
   _omittedDebugMessages: 0,
   _debugMessagesBeforeError: null,
   _omittedDebugMessagesBeforeError: 0,
-  logDebugMessage: function(aMessage, aLevel) {
+  logDebugMessage(aMessage, aLevel) {
     if (!this._debugMessages)
       this._debugMessages = [];
     if (_maxDebugMessages &&
@@ -315,14 +314,14 @@ imAccount.prototype = {
     }
     this._debugMessages.push({logLevel: aLevel, message: aMessage});
   },
-  _createDebugMessage: function(aMessage) {
+  _createDebugMessage(aMessage) {
     let scriptError =
       Cc["@mozilla.org/scripterror;1"].createInstance(Ci.nsIScriptError);
     scriptError.init(aMessage, "", "", 0, null, Ci.nsIScriptError.warningFlag,
                      "component javascript");
     return {logLevel: 0, message: scriptError};
   },
-  getDebugMessages: function(aCount) {
+  getDebugMessages(aCount) {
     let messages = [];
     if (this._omittedDebugMessagesBeforeError) {
       let text = this._omittedDebugMessagesBeforeError + " messages omitted";
@@ -362,7 +361,7 @@ imAccount.prototype = {
     if (this._statusObserver)
       this.statusInfo.addObserver(this._statusObserver);
   },
-  _removeStatusObserver: function() {
+  _removeStatusObserver() {
     if (this._statusObserver) {
       this.statusInfo.removeObserver(this._statusObserver);
       delete this._statusObserver;
@@ -374,7 +373,7 @@ imAccount.prototype = {
   timeOfLastConnect: 0,
   timeOfNextReconnect: 0,
   _reconnectTimer: null,
-  _startReconnectTimer: function() {
+  _startReconnectTimer() {
     if (Services.io.offline) {
       Cu.reportError("_startReconnectTimer called while offline");
       return;
@@ -398,7 +397,7 @@ imAccount.prototype = {
     this._reconnectTimer = setTimeout(this.connect.bind(this), msDelay);
   },
 
-  _sendNotification: function(aTopic, aData) {
+  _sendNotification(aTopic, aData) {
     Services.obs.notifyObservers(this, aTopic, aData);
   },
 
@@ -423,7 +422,7 @@ imAccount.prototype = {
   },
 
   _pendingReconnectForConnectionInfoChange: false,
-  _connectionInfoChanged: function() {
+  _connectionInfoChanged() {
     // The next connection will be the first connection with these parameters.
     this.firstConnectionState = Ci.imIAccount.FIRST_CONNECTION_UNKNOWN;
 
@@ -441,7 +440,7 @@ imAccount.prototype = {
       return;
 
     this._pendingReconnectForConnectionInfoChange = true;
-    executeSoon(function () {
+    executeSoon(function() {
       delete this._pendingReconnectForConnectionInfoChange;
       // If the connection parameters have changed while we were
       // trying to connect, cancel the ongoing connection attempt and
@@ -469,11 +468,11 @@ imAccount.prototype = {
   get normalizedName() {
     return this.prplAccount ? this.prplAccount.normalizedName : this.name;
   },
-  normalize: function(aName) {
+  normalize(aName) {
     return this.prplAccount ? this.prplAccount.normalize(aName) : aName;
   },
 
-  _sendUpdateNotification: function() {
+  _sendUpdateNotification() {
     this._sendNotification("account-updated");
   },
 
@@ -526,7 +525,7 @@ imAccount.prototype = {
     }
     return "";
   },
-  _checkIfPasswordStillMissing: function() {
+  _checkIfPasswordStillMissing() {
     if (this._connectionErrorReason != Ci.imIAccount.ERROR_MISSING_PASSWORD ||
         !this.password)
       return;
@@ -573,12 +572,12 @@ imAccount.prototype = {
       this._connectionErrorReason = Ci.imIAccount.ERROR_MISSING_PASSWORD;
     this._sendUpdateNotification();
   },
-  _handleMasterPasswordException: function(aException) {
+  _handleMasterPasswordException(aException) {
     if (aException.result != Cr.NS_ERROR_ABORT)
       throw aException;
 
     gUserCanceledMasterPasswordPrompt = true;
-    executeSoon(function () { gUserCanceledMasterPasswordPrompt = false; });
+    executeSoon(function() { gUserCanceledMasterPasswordPrompt = false; });
   },
 
   get autoLogin() {
@@ -594,7 +593,7 @@ imAccount.prototype = {
     this._sendUpdateNotification();
   },
   _autoLoginPending: false,
-  checkAutoLogin: function() {
+  checkAutoLogin() {
     // No auto-login if: the account has an error at the imIAccount level
     // (unknown protocol, missing password, first connection crashed),
     // the account is already connected or connecting, or autoLogin is off.
@@ -611,7 +610,7 @@ imAccount.prototype = {
       this._finishedAutoLogin();
     }
   },
-  _finishedAutoLogin: function() {
+  _finishedAutoLogin() {
     if (!this.hasOwnProperty("_autoLoginPending"))
       return;
     delete this._autoLoginPending;
@@ -619,7 +618,7 @@ imAccount.prototype = {
   },
 
   // Delete the account (from the preferences, mozStorage, and call unInit).
-  remove: function() {
+  remove() {
     let login = Cc["@mozilla.org/login-manager/loginInfo;1"]
                 .createInstance(Ci.nsILoginInfo);
     let passwordURI = "im://" + this.protocol.id;
@@ -641,7 +640,7 @@ imAccount.prototype = {
     Services.contacts.forgetAccount(this.numericId);
     this.prefBranch.deleteBranch("");
   },
-  unInit: function() {
+  unInit() {
     // remove any pending reconnection timer.
     this._cancelReconnection();
 
@@ -670,7 +669,7 @@ imAccount.prototype = {
       return this.prplAccount;
     throw Cr.NS_ERROR_NOT_IMPLEMENTED;
   },
-  connect: function() {
+  connect() {
     if (!this.prplAccount)
       throw Cr.NS_ERROR_NOT_IMPLEMENTED;
 
@@ -719,7 +718,7 @@ imAccount.prototype = {
             this.prplAccount.connect();
           else if (this.connected)
             this.prplAccount.observe(aSubject, aTopic, aData);
-        }).bind(this)
+        }).bind(this),
       };
 
       this.statusInfo.addObserver(this._statusObserver);
@@ -730,7 +729,7 @@ imAccount.prototype = {
         this.disconnected)
       this.prplAccount.connect();
   },
-  disconnect: function() {
+  disconnect() {
     this._removeStatusObserver();
     if (!this.disconnected)
       this._ensurePrplAccount.disconnect();
@@ -741,7 +740,7 @@ imAccount.prototype = {
   get connecting() { return this.connectionState == Ci.imIAccount.STATE_CONNECTING; },
   get disconnecting() { return this.connectionState == Ci.imIAccount.STATE_DISCONNECTING; },
 
-  _cancelReconnection: function() {
+  _cancelReconnection() {
     if (this._reconnectTimer) {
       clearTimeout(this._reconnectTimer);
       delete this._reconnectTimer;
@@ -749,7 +748,7 @@ imAccount.prototype = {
     delete this.reconnectAttempt;
     delete this.timeOfNextReconnect;
   },
-  cancelReconnection: function() {
+  cancelReconnection() {
     if (!this.disconnected)
       throw Cr.NS_ERROR_UNEXPECTED;
 
@@ -759,51 +758,51 @@ imAccount.prototype = {
 
     this._cancelReconnection();
   },
-  createConversation: function(aName) {
+  createConversation(aName) {
     return this._ensurePrplAccount.createConversation(aName);
   },
-  addBuddy: function(aTag, aName) {
+  addBuddy(aTag, aName) {
     this._ensurePrplAccount.addBuddy(aTag, aName);
   },
-  loadBuddy: function(aBuddy, aTag) {
+  loadBuddy(aBuddy, aTag) {
     if (this.prplAccount)
       return this.prplAccount.loadBuddy(aBuddy, aTag);
     // Generate dummy account buddies for unknown protocols.
     return new UnknownAccountBuddy(this, aBuddy, aTag);
   },
-  requestBuddyInfo: function(aBuddyName) {
+  requestBuddyInfo(aBuddyName) {
     this._ensurePrplAccount.requestBuddyInfo(aBuddyName);
   },
-  getChatRoomFields: function() { return this._ensurePrplAccount.getChatRoomFields(); },
-  getChatRoomDefaultFieldValues: function(aDefaultChatName) {
+  getChatRoomFields() { return this._ensurePrplAccount.getChatRoomFields(); },
+  getChatRoomDefaultFieldValues(aDefaultChatName) {
     return this._ensurePrplAccount.getChatRoomDefaultFieldValues(aDefaultChatName);
   },
   get canJoinChat() { return this.prplAccount ? this.prplAccount.canJoinChat : false; },
-  joinChat: function(aComponents) {
+  joinChat(aComponents) {
     this._ensurePrplAccount.joinChat(aComponents);
   },
-  setBool: function(aName, aVal) {
+  setBool(aName, aVal) {
     this.prefBranch.setBoolPref(kAccountOptionPrefPrefix + aName, aVal);
     this._connectionInfoChanged();
     if (this.prplAccount)
       this.prplAccount.setBool(aName, aVal);
     SavePrefTimer.initTimer();
   },
-  setInt: function(aName, aVal) {
+  setInt(aName, aVal) {
     this.prefBranch.setIntPref(kAccountOptionPrefPrefix + aName, aVal);
     this._connectionInfoChanged();
     if (this.prplAccount)
       this.prplAccount.setInt(aName, aVal);
     SavePrefTimer.initTimer();
   },
-  setString: function(aName, aVal) {
+  setString(aName, aVal) {
     this.prefBranch.setStringPref(kAccountOptionPrefPrefix + aName, aVal);
     this._connectionInfoChanged();
     if (this.prplAccount)
       this.prplAccount.setString(aName, aVal);
     SavePrefTimer.initTimer();
   },
-  save: function() { SavePrefTimer.saveNow(); },
+  save() { SavePrefTimer.saveNow(); },
 
   get HTMLEnabled() { return this._ensurePrplAccount.HTMLEnabled; },
   get HTMLEscapePlainText() { return this._ensurePrplAccount.HTMLEscapePlainText; },
@@ -819,7 +818,7 @@ var gAccountsService = null;
 
 function AccountsService() { }
 AccountsService.prototype = {
-  initAccounts: function() {
+  initAccounts() {
     this._initAutoLoginStatus();
     this._accounts = [];
     this._accountsById = {};
@@ -850,7 +849,7 @@ AccountsService.prototype = {
 
   _observingAccountListChange: true,
   _prefObserver: null,
-  observe: function(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic, aData) {
     if (aTopic != "nsPref:changed" || aData != kPrefMessengerAccounts ||
        !this._observingAccountListChange)
       return;
@@ -872,7 +871,7 @@ AccountsService.prototype = {
     delete this._observingAccountListChange;
   },
 
-  unInitAccounts: function() {
+  unInitAccounts() {
     for (let account of this._accounts)
       account.unInit();
     gAccountsService = null;
@@ -883,7 +882,7 @@ AccountsService.prototype = {
   },
 
   autoLoginStatus: Ci.imIAccountsService.AUTOLOGIN_ENABLED,
-  _initAutoLoginStatus: function() {
+  _initAutoLoginStatus() {
     /* If auto-login is already disabled, do nothing */
     if (this.autoLoginStatus != Ci.imIAccountsService.AUTOLOGIN_ENABLED)
       return;
@@ -944,9 +943,9 @@ AccountsService.prototype = {
       // either we never crashed or breakpad is not enabled.
       // In this case, lastCrashTime will keep its 0 initialization value.
 
-      /*dump("autoLoginPending = " + autoLoginPending +
-             ", lastCrash = " + lastCrashTime +
-             ", difference = " + lastCrashTime - autoLoginPending + "\n");*/
+      /* dump("autoLoginPending = " + autoLoginPending +
+              ", lastCrash = " + lastCrashTime +
+              ", difference = " + lastCrashTime - autoLoginPending + "\n");*/
 
       if (lastCrashTime < autoLoginPending) {
         // the last crash caught by breakpad is older than our last autologin
@@ -967,11 +966,11 @@ AccountsService.prototype = {
     } catch (e) {
       // if we failed to get the last crash time, then keep the
       // AUTOLOGIN_CRASH value in mAutoLoginStatus and return.
-      return;
+
     }
   },
 
-  processAutoLogin: function() {
+  processAutoLogin() {
     if (!this._accounts)  // if we're already shutting down
       return;
 
@@ -989,7 +988,7 @@ AccountsService.prototype = {
   },
 
   _checkingIfPasswordStillMissing: false,
-  _checkIfPasswordStillMissing: function() {
+  _checkIfPasswordStillMissing() {
     // Avoid recursion.
     if (this._checkingIfPasswordStillMissing)
       return;
@@ -1000,7 +999,7 @@ AccountsService.prototype = {
     delete this._checkingIfPasswordStillMissing;
   },
 
-  getAccountById: function(aAccountId) {
+  getAccountById(aAccountId) {
     if (!aAccountId.startsWith(kAccountKeyPrefix))
       throw Cr.NS_ERROR_INVALID_ARG;
 
@@ -1008,14 +1007,14 @@ AccountsService.prototype = {
     return this.getAccountByNumericId(id);
   },
 
-  _keepAccount: function(aAccount) {
+  _keepAccount(aAccount) {
     this._accounts.push(aAccount);
     this._accountsById[aAccount.numericId] = aAccount;
   },
-  getAccountByNumericId: function(aAccountId) { return this._accountsById[aAccountId]; },
-  getAccounts: function() { return new nsSimpleEnumerator(this._accounts); },
+  getAccountByNumericId(aAccountId) { return this._accountsById[aAccountId]; },
+  getAccounts() { return new nsSimpleEnumerator(this._accounts); },
 
-  createAccount: function(aName, aPrpl) {
+  createAccount(aName, aPrpl) {
     // Ensure an account with the same name and protocol doesn't already exist.
     let prpl = Services.core.getProtocolById(aPrpl);
     if (!prpl)
@@ -1051,7 +1050,7 @@ AccountsService.prototype = {
     return account;
   },
 
-  deleteAccount: function(aAccountId) {
+  deleteAccount(aAccountId) {
     let account = this.getAccountById(aAccountId);
     if (!account)
       throw Cr.NS_ERROR_INVALID_ARG;
@@ -1075,7 +1074,7 @@ AccountsService.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.imIAccountsService]),
   classDescription: "Accounts",
   classID: Components.ID("{a94b5427-cd8d-40cf-b47e-b67671953e70}"),
-  contractID: "@mozilla.org/chat/accounts-service;1"
+  contractID: "@mozilla.org/chat/accounts-service;1",
 };
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory([AccountsService]);

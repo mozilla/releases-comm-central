@@ -95,7 +95,7 @@ function getDBConnection()
     "CREATE INDEX IF NOT EXISTS account_buddy_accountindex " +
       "ON account_buddy (account_id)",
     "CREATE INDEX IF NOT EXISTS account_buddy_buddyindex " +
-      "ON account_buddy (buddy_id)"
+      "ON account_buddy (buddy_id)",
   ].forEach(conn.executeSimpleSQL);
 
   return conn;
@@ -130,14 +130,14 @@ Object.defineProperty(this, "DBConn", {
       gDBConnWithPendingTransaction = null;
     });
     return gDBConnection;
-  }
+  },
 });
 
 function TagsService() { }
 TagsService.prototype = {
   get wrappedJSObject() { return this; },
   get defaultTag() { return this.createTag(_("defaultGroup")); },
-  createTag: function(aName) {
+  createTag(aName) {
     // If the tag already exists, we don't want to create a duplicate.
     let tag = this.getTagByName(aName);
     if (tag)
@@ -159,7 +159,7 @@ TagsService.prototype = {
   getTagById: aId => TagsById[aId],
   // Get an existing tag by name (will do an SQL query). Returns null
   // if not found.
-  getTagByName: function(aName) {
+  getTagByName(aName) {
     let statement = DBConn.createStatement("SELECT id FROM tags where name = :name");
     statement.params.name = aName;
     try {
@@ -171,7 +171,7 @@ TagsService.prototype = {
     }
   },
   // Get an array of all existing tags.
-  getTags: function(aTagCount) {
+  getTags(aTagCount) {
     if (Tags.length)
       Tags.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
     else
@@ -183,8 +183,8 @@ TagsService.prototype = {
   },
 
   isTagHidden: aTag => aTag.id in otherContactsTag._hiddenTags,
-  hideTag: function(aTag) { otherContactsTag.hideTag(aTag); },
-  showTag: function(aTag) { otherContactsTag.showTag(aTag); },
+  hideTag(aTag) { otherContactsTag.hideTag(aTag); },
+  showTag(aTag) { otherContactsTag.showTag(aTag); },
   get otherContactsTag() {
     otherContactsTag._initContacts();
     return otherContactsTag;
@@ -193,7 +193,7 @@ TagsService.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.imITagsService]),
   classDescription: "Tags",
   classID: Components.ID("{1fa92237-4303-4384-b8ac-4e65b50810a5}"),
-  contractID: "@mozilla.org/chat/tags-service;1"
+  contractID: "@mozilla.org/chat/tags-service;1",
 };
 
 // TODO move into the tagsService
@@ -222,32 +222,32 @@ Tag.prototype = {
       statement.finalize();
     }
 
-    //FIXME move the account buddies if some use this tag as their group
+    // FIXME move the account buddies if some use this tag as their group
     return aNewName;
   },
-  getContacts: function(aContactCount) {
+  getContacts(aContactCount) {
     let contacts = this._contacts.filter(c => !c._empty);
     if (aContactCount)
       aContactCount.value = contacts.length;
     return contacts;
   },
-  _addContact: function (aContact) {
+  _addContact(aContact) {
     this._contacts.push(aContact);
   },
-  _removeContact: function (aContact) {
+  _removeContact(aContact) {
     let index = this._contacts.indexOf(aContact);
     if (index != -1)
       this._contacts.splice(index, 1);
   },
 
-  addObserver: function(aObserver) {
+  addObserver(aObserver) {
     if (!this._observers.includes(aObserver))
       this._observers.push(aObserver);
   },
-  removeObserver: function(aObserver) {
+  removeObserver(aObserver) {
     this._observers = this._observers.filter(o => o !== aObserver);
   },
-  notifyObservers: function(aSubject, aTopic, aData) {
+  notifyObservers(aSubject, aTopic, aData) {
     for (let observer of this._observers)
       observer.observe(aSubject, aTopic, aData);
   },
@@ -259,11 +259,11 @@ var otherContactsTag = {
   hiddenTagsPref: "messenger.buddies.hiddenTags",
   _hiddenTags: {},
   _contactsInitialized: false,
-  _saveHiddenTagsPref: function() {
+  _saveHiddenTagsPref() {
     Services.prefs.setCharPref(this.hiddenTagsPref,
                                Object.keys(this._hiddenTags).join(","));
   },
-  showTag: function(aTag) {
+  showTag(aTag) {
     let id = aTag.id;
     delete this._hiddenTags[id];
     let contacts = Object.keys(this._contacts).map(id => this._contacts[id]);
@@ -275,7 +275,7 @@ var otherContactsTag = {
     Services.obs.notifyObservers(aTag, "tag-shown");
     this._saveHiddenTagsPref();
   },
-  hideTag: function(aTag) {
+  hideTag(aTag) {
     if (aTag.id < 0 || aTag.id in otherContactsTag._hiddenTags)
       return;
 
@@ -287,13 +287,13 @@ var otherContactsTag = {
     Services.obs.notifyObservers(aTag, "tag-hidden");
     this._saveHiddenTagsPref();
   },
-  _hideTag: function(aTag) {
+  _hideTag(aTag) {
     for (let contact of aTag.getContacts())
       if (!(contact.id in this._contacts) &&
           contact.getTags().every(t => t.id in this._hiddenTags))
         this._addContact(contact);
   },
-  observe: function(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic, aData) {
     aSubject.QueryInterface(Ci.imIContact);
     if (aTopic == "contact-tag-removed" || aTopic == "contact-added") {
       if (!(aSubject.id in this._contacts) &&
@@ -308,25 +308,25 @@ var otherContactsTag = {
       this._removeContact(aSubject);
   },
 
-  _initHiddenTags: function() {
+  _initHiddenTags() {
     let pref = Services.prefs.getCharPref(this.hiddenTagsPref);
     if (!pref)
       return;
     for (let tagId of pref.split(","))
       this._hiddenTags[tagId] = TagsById[tagId];
   },
-  _initContacts: function() {
+  _initContacts() {
     if (this._contactsInitialized)
       return;
     this._observers = [];
     this._observer = {
       self: this,
-      observe: function(aSubject, aTopic, aData) {
+      observe(aSubject, aTopic, aData) {
         if (aTopic == "contact-moved-in" && !(aSubject instanceof Contact))
           return;
 
         this.self.notifyObservers(aSubject, aTopic, aData);
-      }
+      },
     };
     this._contacts = {};
     this._contactsInitialized = true;
@@ -344,20 +344,20 @@ var otherContactsTag = {
   get id() { return -1; },
   get name() { return "__others__"; },
   set name(aNewName) { throw Cr.NS_ERROR_NOT_AVAILABLE; },
-  getContacts: function(aContactCount) {
+  getContacts(aContactCount) {
     let contacts = Object.keys(this._contacts).map(id => this._contacts[id]);
     if (aContactCount)
       aContactCount.value = contacts.length;
     return contacts;
   },
-  _addContact: function(aContact) {
+  _addContact(aContact) {
     this._contacts[aContact.id] = aContact;
     this.notifyObservers(aContact, "contact-moved-in");
     for (let observer of ContactsById[aContact.id]._observers)
       observer.observe(this, "contact-moved-in", null);
     aContact.addObserver(this._observer);
   },
-  _removeContact: function(aContact) {
+  _removeContact(aContact) {
     delete this._contacts[aContact.id];
     aContact.removeObserver(this._observer);
     this.notifyObservers(aContact, "contact-moved-out");
@@ -365,14 +365,14 @@ var otherContactsTag = {
       observer.observe(this, "contact-moved-out", null);
   },
 
-  addObserver: function(aObserver) {
+  addObserver(aObserver) {
     if (!this._observers.includes(aObserver))
       this._observers.push(aObserver);
   },
-  removeObserver: function(aObserver) {
+  removeObserver(aObserver) {
     this._observers = this._observers.filter(o => o !== aObserver);
   },
-  notifyObservers: function(aSubject, aTopic, aData) {
+  notifyObservers(aSubject, aTopic, aData) {
     for (let observer of this._observers)
       observer.observe(aSubject, aTopic, aData);
   },
@@ -413,7 +413,7 @@ Contact.prototype = {
     }
     return aNewAlias;
   },
-  _ensureNotDummy: function() {
+  _ensureNotDummy() {
     if (this._id >= 0)
       return;
 
@@ -436,12 +436,12 @@ Contact.prototype = {
     executeAsyncThenFinalize(statement);
   },
 
-  getTags: function(aTagCount) {
+  getTags(aTagCount) {
     if (aTagCount)
       aTagCount.value = this._tags.length;
     return this._tags;
   },
-  addTag: function(aTag, aInherited) {
+  addTag(aTag, aInherited) {
     if (this.hasTag(aTag))
       return;
 
@@ -465,7 +465,7 @@ Contact.prototype = {
     Services.obs.notifyObservers(this, "contact-tag-added", aTag.id);
   },
   /* Remove a tag from the local tags of the contact. */
-  _removeTag: function(aTag) {
+  _removeTag(aTag) {
     if (!this.hasTag(aTag) || this._isTagInherited(aTag))
       return;
 
@@ -480,7 +480,7 @@ Contact.prototype = {
       observer.observe(aTag, "contact-moved-out", null);
     Services.obs.notifyObservers(this, "contact-tag-removed", aTag.id);
   },
-  _removeContactTagRow: function(aTag) {
+  _removeContactTagRow(aTag) {
     let statement = DBConn.createStatement("DELETE FROM contact_tag " +
                                            "WHERE contact_id = :contactId " +
                                            "AND tag_id = :tagId");
@@ -488,9 +488,9 @@ Contact.prototype = {
     statement.params.tagId = aTag.id;
     executeAsyncThenFinalize(statement);
   },
-  hasTag: function(aTag) { return this._tags.some((t => t.id == aTag.id)); },
+  hasTag(aTag) { return this._tags.some((t => t.id == aTag.id)); },
   _massMove: false,
-  removeTag: function(aTag) {
+  removeTag(aTag) {
     if (!this.hasTag(aTag))
       throw "Attempting to remove a tag that the contact doesn't have";
     if (this._tags.length == 1)
@@ -500,8 +500,8 @@ Contact.prototype = {
     let hasTag = this.hasTag.bind(this);
     let newTag = this._tags[this._tags[0].id != aTag.id ? 0 : 1];
     let moved = false;
-    this._buddies.forEach(function (aBuddy) {
-      aBuddy._accounts.forEach(function (aAccountBuddy) {
+    this._buddies.forEach(function(aBuddy) {
+      aBuddy._accounts.forEach(function(aAccountBuddy) {
         if (aAccountBuddy.tag.id == aTag.id) {
           if (aBuddy._accounts.some(ab =>
                ab.account.numericId == aAccountBuddy.account.numericId &&
@@ -533,7 +533,7 @@ Contact.prototype = {
       this._removeTag(aTag);
     }
   },
-  _isTagInherited: function(aTag) {
+  _isTagInherited(aTag) {
     for (let buddy of this._buddies) {
       for (let accountBuddy of buddy._accounts)
         if (accountBuddy.tag.id == aTag.id)
@@ -541,7 +541,7 @@ Contact.prototype = {
     }
     return false;
   },
-  _moved: function(aOldTag, aNewTag) {
+  _moved(aOldTag, aNewTag) {
     if (this._massMove)
       return;
 
@@ -585,7 +585,7 @@ Contact.prototype = {
     Services.obs.notifyObservers(this, "contact-moved");
   },
 
-  getBuddies: function(aBuddyCount) {
+  getBuddies(aBuddyCount) {
     if (aBuddyCount)
       aBuddyCount.value = this._buddies.length;
     return this._buddies;
@@ -595,7 +595,7 @@ Contact.prototype = {
            this._buddies.every(b => b._empty);
   },
 
-  mergeContact: function(aContact) {
+  mergeContact(aContact) {
     // Avoid merging the contact with itself or merging into an
     // already removed contact.
     if (aContact.id == this.id || !(this.id in ContactsById))
@@ -614,7 +614,7 @@ Contact.prototype = {
       buddy.contact = this;
     this._updatePreferredBuddy();
   },
-  moveBuddyBefore: function(aBuddy, aBeforeBuddy) {
+  moveBuddyBefore(aBuddy, aBeforeBuddy) {
     let buddy = BuddiesById[aBuddy.id]; // remove XPConnect wrapper
     let oldPosition = this._buddies.indexOf(buddy);
     if (oldPosition == -1)
@@ -636,7 +636,7 @@ Contact.prototype = {
     buddy._notifyObservers("position-changed", String(newPosition));
     this._updatePreferredBuddy(buddy);
   },
-  adoptBuddy: function(aBuddy) {
+  adoptBuddy(aBuddy) {
     if (aBuddy.contact.id == this.id)
       throw Cr.NS_ERROR_INVALID_ARG;
 
@@ -645,7 +645,7 @@ Contact.prototype = {
     this._updatePreferredBuddy(buddy);
   },
   _massRemove: false,
-  _removeBuddy: function(aBuddy) {
+  _removeBuddy(aBuddy) {
     if (this._buddies.length == 1) {
       if (this._id > 0) {
         let statement =
@@ -687,7 +687,7 @@ Contact.prototype = {
         this._updatePreferredBuddy();
     }
   },
-  _updatePositions: function(aIndexBegin, aIndexEnd) {
+  _updatePositions(aIndexBegin, aIndexEnd) {
     if (aIndexEnd === undefined)
       aIndexEnd = this._buddies.length - 1;
     if (aIndexBegin > aIndexEnd)
@@ -704,7 +704,7 @@ Contact.prototype = {
     statement.finalize();
   },
 
-  detachBuddy: function(aBuddy) {
+  detachBuddy(aBuddy) {
     // Should return a new contact with the same list of tags.
     let buddy = BuddiesById[aBuddy.id];
     if (buddy.contact.id != this.id)
@@ -726,7 +726,7 @@ Contact.prototype = {
 
     return buddy.contact;
   },
-  remove: function() {
+  remove() {
     this._massRemove = true;
     for (let buddy of this._buddies)
       buddy.remove();
@@ -751,7 +751,7 @@ Contact.prototype = {
     this._updateStatus();
   },
   // aBuddy indicate which buddy's availability has changed.
-  _updatePreferredBuddy: function(aBuddy) {
+  _updatePreferredBuddy(aBuddy) {
     if (aBuddy) {
       aBuddy = BuddiesById[aBuddy.id]; // remove potential XPConnect wrapper
 
@@ -799,7 +799,7 @@ Contact.prototype = {
                       preferred.id != this._preferredBuddy.id))
       this.preferredBuddy = preferred;
   },
-  _updateStatus: function() {
+  _updateStatus() {
     let buddy = this._preferredBuddy; // for convenience
 
     // Decide which notifications should be fired.
@@ -838,27 +838,27 @@ Contact.prototype = {
   _availabilityDetails: 0,
   get availabilityDetails() { return this._availabilityDetails; },
   get canSendMessage() { return this.preferredBuddy.canSendMessage; },
-  //XXX should we list the buddies in the tooltip?
-  getTooltipInfo: function() { return this.preferredBuddy.getTooltipInfo(); },
-  createConversation: function() {
+  // XXX should we list the buddies in the tooltip?
+  getTooltipInfo() { return this.preferredBuddy.getTooltipInfo(); },
+  createConversation() {
     let uiConv = Services.conversations.getUIConversationByContactId(this.id);
     if (uiConv)
       return uiConv.target;
     return this.preferredBuddy.createConversation();
   },
 
-  addObserver: function(aObserver) {
+  addObserver(aObserver) {
     if (!this._observers.includes(aObserver))
       this._observers.push(aObserver);
   },
-  removeObserver: function(aObserver) {
+  removeObserver(aObserver) {
     if (!this.hasOwnProperty("_observers"))
       return;
 
     this._observers = this._observers.filter(o => o !== aObserver);
   },
   // internal calls + calls from add-ons
-  notifyObservers: function(aSubject, aTopic, aData) {
+  notifyObservers(aSubject, aTopic, aData) {
     for (let observer of this._observers)
       if ("observe" in observer) // avoid failing on destructed XBL bindings...
         observer.observe(aSubject, aTopic, aData);
@@ -866,12 +866,12 @@ Contact.prototype = {
       tag.notifyObservers(aSubject, aTopic, aData);
     Services.obs.notifyObservers(aSubject, aTopic, aData);
   },
-  _notifyObservers: function(aTopic, aData) {
+  _notifyObservers(aTopic, aData) {
     this.notifyObservers(this, "contact-" + aTopic, aData);
   },
 
   // This is called by the imIBuddy implementations.
-  _observe: function(aSubject, aTopic, aData) {
+  _observe(aSubject, aTopic, aData) {
     // Forward the notification.
     this.notifyObservers(aSubject, aTopic, aData);
 
@@ -927,7 +927,7 @@ function Buddy(aId, aKey, aName, aSrvAlias, aContactId) {
 Buddy.prototype = {
   __proto__: ClassInfo("imIBuddy", "Buddy"),
   get id() { return this._id; },
-  destroy: function() {
+  destroy() {
     for (let ab of this._accounts)
       ab.unInit();
     delete this._accounts;
@@ -966,20 +966,20 @@ Buddy.prototype = {
     this._notifyObservers("moved-into-contact");
     return aContact;
   },
-  _hasAccountBuddy: function(aAccountId, aTagId) {
+  _hasAccountBuddy(aAccountId, aTagId) {
     for (let ab of this._accounts) {
       if (ab.account.numericId == aAccountId && ab.tag.id == aTagId)
         return true;
     }
     return false;
   },
-  getAccountBuddies: function(aAccountBuddyCount) {
+  getAccountBuddies(aAccountBuddyCount) {
     if (aAccountBuddyCount)
       aAccountBuddyCount.value = this._accounts.length;
     return this._accounts;
   },
 
-  _addAccount: function(aAccountBuddy, aTag) {
+  _addAccount(aAccountBuddy, aTag) {
     this._accounts.push(aAccountBuddy);
     let contact = this._contact;
     if (!this._contact._tags.includes(aTag)) {
@@ -992,7 +992,7 @@ Buddy.prototype = {
   },
   get _empty() { return this._accounts.length == 0; },
 
-  remove: function() {
+  remove() {
     for (let account of this._accounts)
       account.remove();
   },
@@ -1000,7 +1000,7 @@ Buddy.prototype = {
   // imIStatusInfo implementation
   _preferredAccount: null,
   get preferredAccountBuddy() { return this._preferredAccount; },
-  _isPreferredAccount: function(aAccountBuddy) {
+  _isPreferredAccount(aAccountBuddy) {
     if (aAccountBuddy.account.numericId != this._preferredAccount.account.numericId)
       return false;
 
@@ -1023,7 +1023,7 @@ Buddy.prototype = {
     this._updateStatus();
   },
   // aAccount indicate which account's availability has changed.
-  _updatePreferredAccount: function(aAccount) {
+  _updatePreferredAccount(aAccount) {
     if (aAccount) {
       if (aAccount.account.numericId == this._preferredAccount.account.numericId) {
         // The suggested account is already preferred, check if its
@@ -1050,7 +1050,7 @@ Buddy.prototype = {
     }
 
     let preferred;
-    //TODO take into account the order of the account-manager list.
+    // TODO take into account the order of the account-manager list.
     for (let account of this._accounts) {
       if (!preferred || preferred.statusType < account.statusType ||
           (preferred.statusType == account.statusType &&
@@ -1067,7 +1067,7 @@ Buddy.prototype = {
     else
       this._updateStatus();
   },
-  _updateStatus: function() {
+  _updateStatus() {
     let account = this._preferredAccount; // for convenience
 
     // Decide which notifications should be fired.
@@ -1109,21 +1109,21 @@ Buddy.prototype = {
   _availabilityDetails: 0,
   get availabilityDetails() { return this._availabilityDetails; },
   get canSendMessage() { return this._preferredAccount.canSendMessage; },
-  //XXX should we list the accounts in the tooltip?
-  getTooltipInfo: function() { return this._preferredAccount.getTooltipInfo(); },
-  createConversation: function() { return this._preferredAccount.createConversation(); },
+  // XXX should we list the accounts in the tooltip?
+  getTooltipInfo() { return this._preferredAccount.getTooltipInfo(); },
+  createConversation() { return this._preferredAccount.createConversation(); },
 
-  addObserver: function(aObserver) {
+  addObserver(aObserver) {
     if (!this._observers.includes(aObserver))
       this._observers.push(aObserver);
   },
-  removeObserver: function(aObserver) {
+  removeObserver(aObserver) {
     if (!this._observers)
       return;
     this._observers = this._observers.filter(o => o !== aObserver);
   },
   // internal calls + calls from add-ons
-  notifyObservers: function(aSubject, aTopic, aData) {
+  notifyObservers(aSubject, aTopic, aData) {
     try {
       for (let observer of this._observers)
         observer.observe(aSubject, aTopic, aData);
@@ -1132,12 +1132,12 @@ Buddy.prototype = {
       Cu.reportError(e);
     }
   },
-  _notifyObservers: function(aTopic, aData) {
+  _notifyObservers(aTopic, aData) {
     this.notifyObservers(this, "buddy-" + aTopic, aData);
   },
 
   // This is called by the prplIAccountBuddy implementations.
-  observe: function(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic, aData) {
     // Forward the notification.
     this.notifyObservers(aSubject, aTopic, aData);
 
@@ -1196,7 +1196,7 @@ Buddy.prototype = {
           this.destroy();
         }
         else {
-          this._accounts = this._accounts.filter(function (ab) {
+          this._accounts = this._accounts.filter(function(ab) {
             return (ab.account.numericId != aSubject.account.numericId ||
                     ab.tag.id != aSubject.tag.id);
           });
@@ -1215,7 +1215,7 @@ Buddy.prototype = {
 
 function ContactsService() { }
 ContactsService.prototype = {
-  initContacts: function() {
+  initContacts() {
     let statement = DBConn.createStatement("SELECT id, name FROM tags");
     try {
       while (statement.executeStep())
@@ -1293,7 +1293,7 @@ ContactsService.prototype = {
     }
     otherContactsTag._initHiddenTags();
   },
-  unInitContacts: function() {
+  unInitContacts() {
     Tags = [];
     TagsById = { };
     // Avoid shutdown leaks caused by references to native components
@@ -1308,7 +1308,7 @@ ContactsService.prototype = {
 
   getContactById: aId => ContactsById[aId],
   // Get an array of all existing contacts.
-  getContacts: function(aContactCount) {
+  getContacts(aContactCount) {
     let contacts = Object.keys(ContactsById)
                          .filter(id => !ContactsById[id]._empty)
                          .map(id => ContactsById[id]);
@@ -1317,7 +1317,7 @@ ContactsService.prototype = {
     return contacts;
   },
   getBuddyById: aId => BuddiesById[aId],
-  getBuddyByNameAndProtocol: function(aNormalizedName, aPrpl) {
+  getBuddyByNameAndProtocol(aNormalizedName, aPrpl) {
     let statement =
       DBConn.createStatement("SELECT b.id FROM buddies b " +
                              "JOIN account_buddy ab ON buddy_id = b.id " +
@@ -1333,7 +1333,7 @@ ContactsService.prototype = {
       statement.finalize();
     }
   },
-  getAccountBuddyByNameAndAccount: function(aNormalizedName, aAccount) {
+  getAccountBuddyByNameAndAccount(aNormalizedName, aAccount) {
     let buddy = this.getBuddyByNameAndProtocol(aNormalizedName,
                                                aAccount.protocol);
     if (buddy) {
@@ -1346,7 +1346,7 @@ ContactsService.prototype = {
     return null;
   },
 
-  accountBuddyAdded: function(aAccountBuddy) {
+  accountBuddyAdded(aAccountBuddy) {
     let account = aAccountBuddy.account;
     let normalizedName = aAccountBuddy.normalizedName;
     let buddy = this.getBuddyByNameAndProtocol(normalizedName, account.protocol);
@@ -1399,7 +1399,7 @@ ContactsService.prototype = {
     // Fire the notifications.
     buddy.observe(aAccountBuddy, "account-buddy-added");
   },
-  accountBuddyRemoved: function(aAccountBuddy) {
+  accountBuddyRemoved(aAccountBuddy) {
     let buddy = aAccountBuddy.buddy;
     let statement =
       DBConn.createStatement("DELETE FROM account_buddy " +
@@ -1418,7 +1418,7 @@ ContactsService.prototype = {
     buddy.observe(aAccountBuddy, "account-buddy-removed");
   },
 
-  accountBuddyMoved: function(aAccountBuddy, aOldTag, aNewTag) {
+  accountBuddyMoved(aAccountBuddy, aOldTag, aNewTag) {
     let buddy = aAccountBuddy.buddy;
     let statement =
       DBConn.createStatement("UPDATE account_buddy " +
@@ -1446,7 +1446,7 @@ ContactsService.prototype = {
     contact._moved(aOldTag, aNewTag);
   },
 
-  storeAccount: function(aId, aUserName, aPrplId) {
+  storeAccount(aId, aUserName, aPrplId) {
     let statement =
       DBConn.createStatement("SELECT name, prpl FROM accounts WHERE id = :id");
     statement.params.id = aId;
@@ -1473,7 +1473,7 @@ ContactsService.prototype = {
       statement.finalize();
     }
   },
-  accountIdExists: function(aId) {
+  accountIdExists(aId) {
     let statement =
       DBConn.createStatement("SELECT id FROM accounts WHERE id = :id");
     try {
@@ -1483,7 +1483,7 @@ ContactsService.prototype = {
       statement.finalize();
     }
   },
-  forgetAccount: function(aId) {
+  forgetAccount(aId) {
     let statement =
       DBConn.createStatement("DELETE FROM accounts WHERE id = :accountId");
     try {
@@ -1508,7 +1508,7 @@ ContactsService.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.imIContactsService]),
   classDescription: "Contacts",
   classID: Components.ID("{8c3725dd-ee26-489d-8135-736015af8c7f}"),
-  contractID: "@mozilla.org/chat/contacts-service;1"
+  contractID: "@mozilla.org/chat/contacts-service;1",
 };
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory([ContactsService,

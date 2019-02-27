@@ -21,7 +21,7 @@ XPCOMUtils.defineLazyGetter(this, "_", () =>
 
 function CommandsService() { }
 CommandsService.prototype = {
-  initCommands: function() {
+  initCommands() {
     this._commands = {};
     // The say command is directly implemented in the UI layer, but has a
     // dummy command registered here so it shows up as a command (e.g. when
@@ -31,9 +31,9 @@ CommandsService.prototype = {
       get helpString() { return _("sayHelpString"); },
       usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
       priority: Ci.imICommand.CMD_PRIORITY_HIGH,
-      run: function(aMsg, aConv) {
+      run(aMsg, aConv) {
         throw Cr.NS_ERROR_NOT_IMPLEMENTED;
-      }
+      },
     });
 
     this.registerCommand({
@@ -41,13 +41,13 @@ CommandsService.prototype = {
       get helpString() { return _("rawHelpString"); },
       usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
       priority: Ci.imICommand.CMD_PRIORITY_DEFAULT,
-      run: function(aMsg, aConv) {
+      run(aMsg, aConv) {
         let conv = Services.conversations.getUIConversation(aConv);
         if (!conv)
           return false;
         conv.sendMsg(aMsg);
         return true;
-      }
+      },
     });
 
     this.registerCommand({
@@ -59,7 +59,7 @@ CommandsService.prototype = {
       get helpString() { return _("helpHelpString"); },
       usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
       priority: Ci.imICommand.CMD_PRIORITY_DEFAULT,
-      run: function(aMsg, aConv) {
+      run(aMsg, aConv) {
         aMsg = aMsg.trim();
         let conv = Services.conversations.getUIConversation(aConv);
         if (!conv)
@@ -101,7 +101,7 @@ CommandsService.prototype = {
         // Display the message.
         conv.systemMessage(text);
         return true;
-      }
+      },
     });
 
     // Status commands
@@ -110,7 +110,7 @@ CommandsService.prototype = {
       away: "AWAY",
       busy: "UNAVAILABLE",
       dnd: "UNAVAILABLE",
-      offline: "OFFLINE"
+      offline: "OFFLINE",
     };
     for (let cmd in status) {
       let statusValue = Ci.imIStatusInfo["STATUS_" + status[cmd]];
@@ -119,18 +119,18 @@ CommandsService.prototype = {
         get helpString() { return _("statusCommand", this.name, _(this.name)); },
         usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
         priority: Ci.imICommand.CMD_PRIORITY_HIGH,
-        run: function(aMsg) {
+        run(aMsg) {
           Services.core.globalUserStatus.setStatus(statusValue, aMsg);
           return true;
-        }
+        },
       });
     }
   },
-  unInitCommands: function() {
+  unInitCommands() {
     delete this._commands;
   },
 
-  registerCommand: function(aCommand, aPrplId) {
+  registerCommand(aCommand, aPrplId) {
     let name = aCommand.name;
     if (!name)
       throw Cr.NS_ERROR_INVALID_ARG;
@@ -139,7 +139,7 @@ CommandsService.prototype = {
       this._commands[name] = {};
     this._commands[name][aPrplId || ""] = aCommand;
   },
-  unregisterCommand: function(aCommandName, aPrplId) {
+  unregisterCommand(aCommandName, aPrplId) {
     if (this._commands.hasOwnProperty(aCommandName)) {
       let prplId = aPrplId || "";
       let commands = this._commands[aCommandName];
@@ -149,7 +149,7 @@ CommandsService.prototype = {
         delete this._commands[aCommandName];
     }
   },
-  listCommandsForConversation: function(aConversation, commandCount) {
+  listCommandsForConversation(aConversation, commandCount) {
     let result = [];
     let prplId = aConversation && aConversation.account.protocol.id;
     for (let name in this._commands) {
@@ -165,7 +165,7 @@ CommandsService.prototype = {
     return result;
   },
   // List only the commands for a protocol (excluding the global commands).
-  listCommandsForProtocol: function(aPrplId, commandCount) {
+  listCommandsForProtocol(aPrplId, commandCount) {
     if (!aPrplId)
       throw "You must provide a prpl ID.";
 
@@ -178,12 +178,12 @@ CommandsService.prototype = {
     commandCount.value = result.length;
     return result;
   },
-  _usageContextFilter: function(aConversation) {
+  _usageContextFilter(aConversation) {
     let usageContext =
       Ci.imICommand["CMD_CONTEXT_" + (aConversation.isChat ? "CHAT" : "IM")];
     return c => c.usageContext & usageContext;
   },
-  _findCommands: function(aConversation, aName) {
+  _findCommands(aConversation, aName) {
     let prplId = null;
     if (aConversation) {
       let account = aConversation.account;
@@ -233,7 +233,7 @@ CommandsService.prototype = {
     // Sort the matching commands by priority before returning the array.
     return cmdArray.sort((a, b) => b.priority - a.priority);
   },
-  executeCommand: function(aMessage, aConversation, aReturnedConv) {
+  executeCommand(aMessage, aConversation, aReturnedConv) {
     if (!aMessage)
       throw Cr.NS_ERROR_INVALID_ARG;
 
@@ -260,7 +260,7 @@ CommandsService.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.imICommandsService]),
   classDescription: "Commands",
   classID: Components.ID("{7cb20c68-ccc8-4a79-b6f1-0b4771ed6c23}"),
-  contractID: "@mozilla.org/chat/commands-service;1"
+  contractID: "@mozilla.org/chat/commands-service;1",
 };
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory([CommandsService]);

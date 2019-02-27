@@ -28,8 +28,8 @@ var dummyAccount = {
   normalizedName: "dummyaccount",
   protocol: {
     normalizedName: "dummy",
-    id: "prpl-dummy"
-  }
+    id: "prpl-dummy",
+  },
 };
 
 var dummyTwitterAccount = {
@@ -37,8 +37,8 @@ var dummyTwitterAccount = {
   normalizedName: "dummytwitter",
   protocol: {
     normalizedName: "twitter",
-    id: "prpl-twitter"
-  }
+    id: "prpl-twitter",
+  },
 };
 
 var test_accounts = [dummyAccount, dummyTwitterAccount];
@@ -50,7 +50,7 @@ var dummyConv = {
   normalizedName: "dummyconv",
   get name() { return this.normalizedName; },
   get startDate() { return new Date(2011, 5, 28).valueOf() * 1000; },
-  isChat: false
+  isChat: false,
 };
 
 // A day after the first one.
@@ -61,7 +61,7 @@ var dummyConv2 = {
   normalizedName: "dummyconv",
   get name() { return this.normalizedName; },
   get startDate() { return new Date(2011, 5, 29).valueOf() * 1000; },
-  isChat: false
+  isChat: false,
 };
 
 var dummyMUC = {
@@ -71,7 +71,7 @@ var dummyMUC = {
   normalizedName: "dummymuc",
   get name() { return this.normalizedName; },
   startDate: new Date(2011, 5, 28).valueOf() * 1000,
-  isChat: true
+  isChat: true,
 };
 
 var dummyTwitterConv = {
@@ -81,7 +81,7 @@ var dummyTwitterConv = {
   normalizedName: "dummytwitterconv",
   get name() { return this.normalizedName; },
   startDate: new Date(2011, 5, 28).valueOf() * 1000,
-  isChat: true
+  isChat: true,
 };
 
 var test_convs = [dummyConv, dummyMUC, dummyTwitterConv];
@@ -130,7 +130,7 @@ var encodeName_input = [
   "*file",
   "&file",
   "%file",
-  "\\fi?*&%le<>"
+  "\\fi?*&%le<>",
 ];
 
 var encodeName_output = [
@@ -177,10 +177,10 @@ var encodeName_output = [
   "%2afile",
   "%26file",
   "%25file",
-  "%5c" + "fi" + "%3f%2a%26%25" + "le" + "%3c%3e"
+  "%5c" + "fi" + "%3f%2a%26%25" + "le" + "%3c%3e",
 ];
 
-var test_queueFileOperation = async function () {
+var test_queueFileOperation = async function() {
   let dummyOperation = function() {};
 
   let dummyRejectedOperation = () => Promise.reject("Rejected!");
@@ -205,7 +205,7 @@ var test_queueFileOperation = async function () {
 
   let onPromiseComplete = (aPromise, aHandler) => {
     return aPromise.then(aHandler, aHandler);
-  }
+  };
   let test_queueOrder = (aOperation) => {
     let promise = qFO("queueOrderPath", aOperation);
     let firstOperationComplete = false;
@@ -213,20 +213,20 @@ var test_queueFileOperation = async function () {
     return qFO("queueOrderPath", () => {
       ok(firstOperationComplete);
     });
-  }
+  };
   // Test the queue order for rejected and resolved promises.
   await test_queueOrder(dummyResolvedOperation);
   await test_queueOrder(dummyRejectedOperation);
-}
+};
 
-var test_getLogFolderPathForAccount = async function () {
+var test_getLogFolderPathForAccount = async function() {
   let path = gLogger.getLogFolderPathForAccount(dummyAccount);
   equal(OS.Path.join(logDirPath, dummyAccount.protocol.normalizedName,
                      gLogger.encodeName(dummyAccount.normalizedName)), path);
-}
+};
 
 // Tests the global function getLogFilePathForConversation in logger.js.
-var test_getLogFilePathForConversation = async function () {
+var test_getLogFilePathForConversation = async function() {
   let path = gLogger.getLogFilePathForConversation(dummyConv, "format");
   let expectedPath = OS.Path.join(logDirPath, dummyAccount.protocol.normalizedName,
                                   gLogger.encodeName(dummyAccount.normalizedName));
@@ -235,9 +235,9 @@ var test_getLogFilePathForConversation = async function () {
   expectedPath = OS.Path.join(
     expectedPath, gLogger.getNewLogFileName("format", dummyConv.startDate / 1000));
   equal(path, expectedPath);
-}
+};
 
-var test_getLogFilePathForMUC = async function () {
+var test_getLogFilePathForMUC = async function() {
   let path = gLogger.getLogFilePathForConversation(dummyMUC, "format");
   let expectedPath = OS.Path.join(logDirPath, dummyAccount.protocol.normalizedName,
                                   gLogger.encodeName(dummyAccount.normalizedName));
@@ -246,9 +246,9 @@ var test_getLogFilePathForMUC = async function () {
   expectedPath = OS.Path.join(
     expectedPath, gLogger.getNewLogFileName("format", dummyMUC.startDate / 1000));
   equal(path, expectedPath);
-}
+};
 
-var test_getLogFilePathForTwitterConv = async function () {
+var test_getLogFilePathForTwitterConv = async function() {
   let path = gLogger.getLogFilePathForConversation(dummyTwitterConv, "format");
   let expectedPath =
     OS.Path.join(logDirPath, dummyTwitterAccount.protocol.normalizedName,
@@ -259,9 +259,9 @@ var test_getLogFilePathForTwitterConv = async function () {
     expectedPath, gLogger.getNewLogFileName("format",
                                             dummyTwitterConv.startDate / 1000));
   equal(path, expectedPath);
-}
+};
 
-var test_appendToFile = async function () {
+var test_appendToFile = async function() {
   const kStringToWrite = "Hello, world!";
   let path = OS.Path.join(OS.Constants.Path.profileDir, "testFile.txt");
   let encoder = new TextEncoder();
@@ -274,10 +274,10 @@ var test_appendToFile = async function () {
   // The read text should be equal to kStringToWrite repeated twice.
   equal(text, kStringToWrite + kStringToWrite);
   await OS.File.remove(path);
-}
+};
 
 // Tests the getLogPathsForConversation API defined in the imILogger interface.
-var test_getLogPathsForConversation = async function () {
+var test_getLogPathsForConversation = async function() {
   let logger = new gLogger.Logger();
   let paths = await logger.getLogPathsForConversation(dummyConv);
   // The path should be null since a LogWriter hasn't been created yet.
@@ -290,9 +290,9 @@ var test_getLogPathsForConversation = async function () {
   // Ensure this doesn't interfere with future tests.
   await OS.File.remove(paths[0]);
   gLogger.closeLogWriter(dummyConv);
-}
+};
 
-var test_logging = async function () {
+var test_logging = async function() {
   let logger = new gLogger.Logger();
   let oneSec = 1000000; // Microseconds.
 
@@ -305,32 +305,32 @@ var test_logging = async function () {
         time: startTime + 1,
         who: "personA",
         displayMessage: "Hi!",
-        outgoing: true
+        outgoing: true,
       },
       {
         time: startTime + 2,
         who: "personB",
         displayMessage: "Hello!",
-        incoming: true
+        incoming: true,
       },
       {
         time: startTime + 3,
         who: "personA",
         displayMessage: "What's up?",
-        outgoing: true
+        outgoing: true,
       },
       {
         time: startTime + 4,
         who: "personB",
         displayMessage: "Nothing much!",
-        incoming: true
-      }
+        incoming: true,
+      },
     ];
-  }
+  };
   let firstDayMsgs = getMsgsForConv(dummyConv);
   let secondDayMsgs = getMsgsForConv(dummyConv2);
 
-  let logMessagesForConv = async function (aConv, aMessages) {
+  let logMessagesForConv = async function(aConv, aMessages) {
     let logWriter = gLogger.getLogWriter(aConv);
     for (let message of aMessages)
       logWriter.logMessage(message);
@@ -350,7 +350,7 @@ var test_logging = async function () {
   // to ensure they are handled correctly.
   let logDir = OS.Path.dirname(
     gLogger.getLogFilePathForConversation(dummyConv, "json"));
-  let createBadFiles = async function (aConv) {
+  let createBadFiles = async function(aConv) {
     let blankFile = OS.Path.join(logDir,
       gLogger.getNewLogFileName("json", (aConv.startDate + oneSec) / 1000));
     let invalidJSONFile = OS.Path.join(logDir,
@@ -363,7 +363,7 @@ var test_logging = async function () {
   await createBadFiles(dummyConv);
   await createBadFiles(dummyConv2);
 
-  let testMsgs = function (aMsgs, aExpectedMsgs, aExpectedSessions) {
+  let testMsgs = function(aMsgs, aExpectedMsgs, aExpectedSessions) {
     // Ensure the number of session messages is correct.
     let sessions = aMsgs.filter(aMsg => aMsg.who == "sessionstart").length;
     equal(sessions, aExpectedSessions);
@@ -400,7 +400,7 @@ var test_logging = async function () {
     date.setMinutes(0);
     date.setSeconds(0);
     return date.valueOf();
-  }
+  };
 
   // Group expected messages by day.
   let messagesByDay = new Map();
@@ -423,14 +423,14 @@ var test_logging = async function () {
       ok(!info.isDir);
       ok(aLog.endsWith(".json"));
       await OS.File.remove(aLog);
-    }
+    },
   });
   let logFolder = OS.Path.dirname(gLogger.getLogFilePathForConversation(dummyConv));
   // The folder should now be empty - this will throw if it isn't.
   await OS.File.removeEmptyDir(logFolder, {ignoreAbsent: false});
-}
+};
 
-var test_logFileSplitting = async function () {
+var test_logFileSplitting = async function() {
   // Start clean, remove the log directory.
   let logFolderPath = OS.Path.join(OS.Constants.Path.profileDir, "logs");
   await OS.File.removeDir(logFolderPath, {ignoreAbsent: true});
@@ -441,10 +441,10 @@ var test_logFileSplitting = async function () {
     time: startTime,
     who: "John Doe",
     originalMessage: "Hello, world!",
-    outgoing: true
+    outgoing: true,
   };
 
-  let logMessage = async function (aMessage) {
+  let logMessage = async function(aMessage) {
     logWriter.logMessage(aMessage);
     await logWriter._initialized;
     await gLogger.gFilePromises.get(logWriter.currentPath);
@@ -458,7 +458,7 @@ var test_logFileSplitting = async function () {
   // The log writer's new start time should be the time of the message.
   equal(message.time * 1000, logWriter._startTime);
 
-  let getCurrentHeader = async function () {
+  let getCurrentHeader = async function() {
     return JSON.parse(new TextDecoder()
                       .decode(await OS.File.read(logWriter.currentPath))
                       .split("\n")[0]);
@@ -519,7 +519,7 @@ var test_logFileSplitting = async function () {
 
   // Clean up.
   await OS.File.removeDir(logFolderPath);
-}
+};
 
 function run_test() {
   // Test encodeName().

@@ -13,20 +13,20 @@ var kPrplId2 = "red";
 
 var fakeAccount = {
   connected: true,
-  protocol: {id: kPrplId}
+  protocol: {id: kPrplId},
 };
 var fakeDisconnectedAccount = {
   connected: false,
-  protocol: {id: kPrplId}
+  protocol: {id: kPrplId},
 };
 var fakeAccount2 = {
   connected: true,
-  protocol: {id: kPrplId2}
+  protocol: {id: kPrplId2},
 };
 
 var fakeConversation = {
   account: fakeAccount,
-  isChat: true
+  isChat: true,
 };
 
 function fakeCommand(aName, aUsageContext) {
@@ -38,8 +38,8 @@ fakeCommand.prototype = {
   get helpString() { return ""; },
   usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
   priority: Ci.imICommand.CMD_PRIORITY_PRPL,
-  run: (aMsg, aConv) => true
-}
+  run: (aMsg, aConv) => true,
+};
 
 function run_test() {
   let cmdserv = new imCommands.CommandsService();
@@ -78,50 +78,50 @@ function run_test() {
     {
       desc: "No conversation argument.",
       cmdlist: "away, back, busy, dnd, help, offline, raw, say",
-      results: [[], [], ["back"], [], ["back"], ["help"], ["help"], ["offline"], ["offline"]]
+      results: [[], [], ["back"], [], ["back"], ["help"], ["help"], ["offline"], ["offline"]],
     },
     {
       desc: "Disconnected conversation with fakeAccount.",
       conv: {
-        account: fakeDisconnectedAccount
+        account: fakeDisconnectedAccount,
       },
       cmdlist: "away, back, busy, dnd, help, helpme, offline, offline, r9kbeta, raw, say",
-      results: [[], [], ["back"], [], ["back"], ["help"], ["help"], ["offline"], ["offline"]]
+      results: [[], [], ["back"], [], ["back"], ["help"], ["help"], ["offline"], ["offline"]],
     },
     {
       desc: "Conversation with fakeAccount.",
       conv: {
-        account: fakeAccount
+        account: fakeAccount,
       },
       cmdlist: "away, back, busy, dnd, help, helpme, offline, offline, r9kbeta, raw, say",
-      results: [[], [], ["back"], [], ["back"], [], ["help"], ["offline"], ["offline"]]
+      results: [[], [], ["back"], [], ["back"], [], ["help"], ["offline"], ["offline"]],
     },
     {
       desc: "MUC with fakeAccount.",
       conv: {
         account: fakeAccount,
-        isChat: true
+        isChat: true,
       },
       cmdlist: "away, back, balderdash, busy, dnd, help, helpme, offline, offline, r9kbeta, raw, say",
-      results: [[], [], [], ["balderdash", true], ["back"], [], ["help"], ["offline"], ["offline"]]
+      results: [[], [], [], ["balderdash", true], ["back"], [], ["help"], ["offline"], ["offline"]],
     },
     {
       desc: "Conversation with fakeAccount2.",
       conv: {
-        account: fakeAccount2
+        account: fakeAccount2,
       },
       cmdlist: "away, back, baloney, banana, busy, dnd, help, offline, raw, say",
-      results: [[], [], [], ["baloney", true], ["back"], ["help"], ["help"], ["offline"], ["offline"]]
+      results: [[], [], [], ["baloney", true], ["back"], ["help"], ["help"], ["offline"], ["offline"]],
     },
     {
       desc: "MUC with fakeAccount2.",
       conv: {
         account: fakeAccount2,
-        isChat: true
+        isChat: true,
       },
       cmdlist: "away, back, baloney, banana, busy, dnd, help, offline, raw, say",
-      results: [[], [], [], ["baloney", true], ["back"], ["help"], ["help"], ["offline"], ["offline"]]
-    }
+      results: [[], [], [], ["baloney", true], ["back"], ["help"], ["help"], ["offline"], ["offline"]],
+    },
   ];
 
   for (let test of testData) {
@@ -155,20 +155,20 @@ function run_test() {
     },
     {
       message: "/helpme 2 arguments",
-      result: true
+      result: true,
     },
     {
       message: "nocommand",
-      result: false
+      result: false,
     },
     {
       message: "/-a",
-      result: false
+      result: false,
     },
     {
       message: "/notregistered",
-      result: false
-    }
+      result: false,
+    },
   ];
 
   // Test command execution.

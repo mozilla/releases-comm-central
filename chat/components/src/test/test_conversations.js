@@ -34,16 +34,16 @@ Conversation.prototype = {
     imAccount: {
       protocol: {name: "Fake Protocol"},
       alias: "",
-      name: "Fake Account"
+      name: "Fake Account",
     },
-    ERROR: function(e) {throw e;},
-    DEBUG: function() {}
+    ERROR(e) { throw e; },
+    DEBUG() {},
   },
-  addObserver: function(aObserver) {
+  addObserver(aObserver) {
     if (!(aObserver instanceof Ci.nsIObserver))
       aObserver = {observe: aObserver};
     GenericConvIMPrototype.addObserver.call(this, aObserver);
-  }
+  },
 };
 
 // Ensure that when iMsg.message is set to a message (including the empty
@@ -52,7 +52,7 @@ Conversation.prototype = {
 var test_null_message = function() {
   let originalMessage = "Hi!";
   let pMsg = new Message("buddy", originalMessage, {
-    outgoing: true, _alias: "buddy", time: Date.now()
+    outgoing: true, _alias: "buddy", time: Date.now(),
   });
   let iMsg = new imConversations.imMessage(pMsg);
   equal(iMsg.message, originalMessage, "Expected the original message.");
@@ -102,8 +102,8 @@ var test_message_transformation = function() {
   let receivedMsg = false, newTxt = false;
 
   uiConv.addObserver({
-    observe: function(aObject, aTopic, aMsg) {
-      switch(aTopic) {
+    observe(aObject, aTopic, aMsg) {
+      switch (aTopic) {
         case "sending-message":
           ok(!newTxt, "sending-message should fire before new-text.");
           ok(!receivedMsg, "sending-message should fire before received-message.");
@@ -128,7 +128,7 @@ var test_message_transformation = function() {
           newTxt = true;
           break;
       }
-    }
+    },
   });
 
   uiConv.sendMsg(message);
@@ -145,8 +145,8 @@ var test_cancel_send_message = function() {
   let sending = false;
   let uiConv = new imConversations.UIConversation(conv);
   uiConv.addObserver({
-    observe: function(aObject, aTopic, aMsg) {
-      switch(aTopic) {
+    observe(aObject, aTopic, aMsg) {
+      switch (aTopic) {
         case "sending-message":
           ok(aObject.QueryInterface(Ci.imIOutgoingMessage), "Wrong message type.");
           aObject.cancelled = true;
@@ -157,7 +157,7 @@ var test_cancel_send_message = function() {
           ok(false, "No other notification should be fired for a cancelled message.");
           break;
       }
-    }
+    },
   });
   uiConv.sendMsg("Hi!");
   ok(sending, "The sending-message notification was never fired.");
@@ -173,8 +173,8 @@ var test_cancel_display_message = function() {
   let received = false;
   let uiConv = new imConversations.UIConversation(conv);
   uiConv.addObserver({
-    observe: function(aObject, aTopic, aMsg) {
-      switch(aTopic) {
+    observe(aObject, aTopic, aMsg) {
+      switch (aTopic) {
         case "received-message":
           ok(aObject.QueryInterface(Ci.imIMessage), "Wrong message type.");
           aObject.cancelled = true;
@@ -184,11 +184,11 @@ var test_cancel_display_message = function() {
           ok(false, "Should not fire for a cancelled message.");
           break;
       }
-    }
+    },
   });
 
   uiConv.sendMsg("Hi!");
-  ok(received, "The received-message notification was never fired.")
+  ok(received, "The received-message notification was never fired.");
 };
 
 // A test that ensures protocols get a chance to prepare a message before
@@ -219,13 +219,13 @@ var test_prpl_message_prep = function() {
   let receivedMsg = false;
   let uiConv = new imConversations.UIConversation(conv);
   uiConv.addObserver({
-    observe: function(aObject, aTopic, aMsg) {
+    observe(aObject, aTopic, aMsg) {
       if (aTopic === "new-text") {
         ok(prepared, "The message was not prepared before sending.");
         equal(aObject.displayMessage, msg, "Expected the original message.");
         receivedMsg = true;
       }
-    }
+    },
   });
 
   uiConv.sendMsg(msg);
