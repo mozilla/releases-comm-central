@@ -17,7 +17,7 @@ this.EXPORTED_SYMBOLS = [
   "smileTextNode", // used to add smile:// img tags to the content of a textnode
   "smileString", // used to add smile:// img tags into a string without parsing it as HTML. Be sure the string doesn't contain HTML tags.
   "getSmileRealURI", // used to retrieve the chrome URI for a smile:// URI
-  "getSmileyList" // used to display a list of smileys in the UI
+  "getSmileyList", // used to display a list of smileys in the UI
 ];
 
 var kEmoticonsThemePref = "messenger.options.emoticonsTheme";
@@ -31,7 +31,7 @@ Object.defineProperty(this, "gTheme", {
     delete this.gTheme;
     gPrefObserver.init();
     return this.gTheme = getTheme();
-  }
+  },
 });
 
 var gPrefObserver = {
@@ -44,7 +44,7 @@ var gPrefObserver = {
       throw "bad notification";
 
     gTheme = getTheme();
-  }
+  },
 };
 
 function getSmileRealURI(aSmile)
@@ -77,10 +77,10 @@ function getTheme(aName)
   let name = aName || Services.prefs.getCharPref(kEmoticonsThemePref);
 
   let theme = {
-    name: name,
+    name,
     iconsHash: null,
     json: null,
-    regExp: null
+    regExp: null,
   };
 
   if (name == "none")
@@ -105,7 +105,7 @@ function getTheme(aName)
       for (let textCode of smiley.textCodes)
         theme.iconsHash[textCode] = smiley;
     }
-  } catch(e) {
+  } catch (e) {
     Cu.reportError(e);
   }
   return theme;
@@ -145,7 +145,7 @@ function getRegexp()
     return null;
   }
 
-  gTheme.regExp = new RegExp(emoticonList.join('|'), 'g');
+  gTheme.regExp = new RegExp(emoticonList.join("|"), "g");
   return gTheme.regExp;
 }
 

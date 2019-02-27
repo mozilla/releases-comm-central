@@ -30,7 +30,7 @@ function month(aDate, option) {
 }
 function hourMinSecTwoDigits(aDate) {
   return aDate.toLocaleString(undefined, {
-    hour: "2-digit", minute: "2-digit", second: "2-digit"
+    hour: "2-digit", minute: "2-digit", second: "2-digit",
   });
 }
 function dayPeriod(aDate) {
@@ -83,13 +83,13 @@ function timeZone(aDate) {
 }
 
 const dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
-  dateStyle: "full", timeStyle: "long"
+  dateStyle: "full", timeStyle: "long",
 });
 const dateFormatter = new Services.intl.DateTimeFormat(undefined, {
-  dateStyle: "full"
+  dateStyle: "full",
 });
 const timeFormatter = new Services.intl.DateTimeFormat(undefined, {
-  timeStyle: "long"
+  timeStyle: "long",
 });
 
 const formatFunctions = {

@@ -10,7 +10,7 @@ var { initHTMLDocument, serializeSelection, getCurrentTheme, isNextMessage, getH
 var { smileTextNode } = ChromeUtils.import("resource:///modules/imSmileys.jsm");
 var { cleanupImMarkup } = ChromeUtils.import("resource:///modules/imContentSink.jsm");
 
-(function () {
+(function() {
   // <browser> is lazily set up through setElementCreationCallback,
   // i.e. put into customElements the first time it's really seen.
   // Create a fake to ensure browser exists in customElements, since otherwise
@@ -120,7 +120,7 @@ class MozConversationBrowser extends customElements.get("browser") {
     });
 
     this.addEventListener("keypress", (event) => {
-      switch(event.keyCode) {
+      switch (event.keyCode) {
         case KeyEvent.DOM_VK_PAGE_UP: {
           if (event.shiftKey) {
             this.contentWindow.scrollByPages(-1);

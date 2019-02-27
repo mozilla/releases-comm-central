@@ -37,7 +37,7 @@ function test_plainText() {
     "foo",
     "foo  ", // preserve trailing whitespace
     "  foo", // preserve leading indent
-    "&lt;html&gt;&amp;" // keep escaped characters
+    "&lt;html&gt;&amp;", // keep escaped characters
   ];
   for (let string of strings)
     Assert.equal(string, cleanupImMarkup(string));
@@ -47,7 +47,7 @@ function test_paragraphs() {
   const strings = [
     "<p>foo</p><p>bar</p>",
     "<p>foo<br>bar</p>",
-    "foo<br>bar"
+    "foo<br>bar",
   ];
   for (let string of strings)
     Assert.equal(string, cleanupImMarkup(string));
@@ -70,7 +70,7 @@ function test_links() {
     "http://example.com/",
     "https://example.com/",
     "ftp://example.com/",
-    "mailto:foo@example.com"
+    "mailto:foo@example.com",
   ];
   for (let string of ok) {
     string = "<a href=\"" + string + "\">foo</a>";
@@ -83,7 +83,7 @@ function test_links() {
     "about:",
     "about:blank",
     "foo://bar/",
-    ""
+    "",
   ];
   for (let string of bad) {
     Assert.equal("<a>foo</a>",
@@ -151,7 +151,7 @@ function test_standardMode() {
 
   const okCSS = [
     "font-style: italic",
-    "font-weight: bold"
+    "font-weight: bold",
   ];
   for (let css of okCSS) {
     let string = "<span style=\"" + css + "\">foo</span>";
@@ -168,7 +168,7 @@ function test_standardMode() {
     "-moz-binding: url('chrome://global/content/bindings/textbox.xml#textbox');",
     "display: none",
     "visibility: hidden",
-    "unsupported-by-gecko: blah"
+    "unsupported-by-gecko: blah",
   ];
   for (let css of badCSS) {
     Assert.equal("<span>foo</span>",
@@ -203,7 +203,7 @@ function test_permissiveMode() {
   const fontAttributes = [
     "face=\"Times\"",
     "color=\"pink\"",
-    "size=\"3\""
+    "size=\"3\"",
   ];
   for (let fontAttribute of fontAttributes) {
     let string = "<font " + fontAttribute + ">foo</font>";
@@ -221,7 +221,7 @@ function test_permissiveMode() {
     "text-decoration: underline",
     "color: pink;",
     "font-family: Times",
-    "font-size: larger"
+    "font-size: larger",
   ];
   for (let css of okCSS) {
     let string = "<span style=\"" + css + "\">foo</span>";
@@ -239,7 +239,7 @@ function test_permissiveMode() {
     "-moz-binding: url('chrome://global/content/bindings/textbox.xml#textbox');",
     "display: none",
     "visibility: hidden",
-    "unsupported-by-gecko: blah"
+    "unsupported-by-gecko: blah",
   ];
   for (let css of badCSS) {
     Assert.equal("<span>foo</span>",
@@ -327,19 +327,19 @@ function test_createDerivedRuleset() {
   let string = "<hr>";
   Assert.equal("", cleanupImMarkup(string));
   Assert.equal("", cleanupImMarkup(string, rules));
-  rules.tags["hr"] = true;
+  rules.tags.hr = true;
   Assert.equal(string, cleanupImMarkup(string, rules));
 
   string = "<br id=\"123\">";
   Assert.equal("<br>", cleanupImMarkup(string));
   Assert.equal("<br>", cleanupImMarkup(string, rules));
-  rules.attrs["id"] = true;
+  rules.attrs.id = true;
   Assert.equal(string, cleanupImMarkup(string, rules));
 
   string = "<br style=\"clear: both;\">";
   Assert.equal("<br>", cleanupImMarkup(string));
   Assert.equal("<br>", cleanupImMarkup(string, rules));
-  rules.styles["clear"] = true;
+  rules.styles.clear = true;
   Assert.equal(string, cleanupImMarkup(string, rules));
 
   run_next_test();

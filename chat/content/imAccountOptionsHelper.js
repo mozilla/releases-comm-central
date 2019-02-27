@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var accountOptionsHelper = {
-  createTextbox: function(aType, aValue, aLabel, aName, aContainerType) {
+  createTextbox(aType, aValue, aLabel, aName, aContainerType) {
     let container = document.createElement(aContainerType);
     if (aContainerType == "row")
       container.setAttribute("align", "center");
@@ -24,7 +24,7 @@ var accountOptionsHelper = {
     return container;
   },
 
-  createMenulist: function(aList, aLabel, aName) {
+  createMenulist(aList, aLabel, aName) {
     let vbox = document.createElement("vbox");
     vbox.setAttribute("flex", "1");
 
@@ -51,7 +51,7 @@ var accountOptionsHelper = {
   // Adds options with specific prefix for ids to UI according to their types
   // with optional attributes for each type and returns true if at least one
   // option has been added to UI, otherwise returns false.
-  addOptions: function(aIdPrefix, aOptions, aAttributes) {
+  addOptions(aIdPrefix, aOptions, aAttributes) {
     let rows = document.getElementById("protoSpecific");
     while (rows.hasChildNodes())
       rows.lastChild.remove();
@@ -98,5 +98,5 @@ var accountOptionsHelper = {
       haveOptions = true;
     }
     return haveOptions;
-  }
+  },
 };

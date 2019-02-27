@@ -11,7 +11,7 @@ this.EXPORTED_SYMBOLS = [
   "insertHTMLForMessage",
   "initHTMLDocument",
   "getMessagesForRange",
-  "serializeSelection"
+  "serializeSelection",
 ];
 
 const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
@@ -44,7 +44,7 @@ XPCOMUtils.defineLazyGetter(this, "gTimeFormatter", () => {
   return new Services.intl.DateTimeFormat(undefined, {
     hour: "2-digit",
     minute: "2-digit",
-    second: "2-digit"
+    second: "2-digit",
   });
 });
 
@@ -89,7 +89,7 @@ function HTMLTheme(aBaseURI)
     outgoingContent: "Outgoing/Content.html",
     outgoingContext: "Outgoing/Context.html",
     outgoingNextContent: "Outgoing/NextContent.html",
-    outgoingNextContext: "Outgoing/NextContext.html"
+    outgoingNextContext: "Outgoing/NextContext.html",
   };
 
   for (let id in files) {
@@ -116,29 +116,29 @@ HTMLTheme.prototype = {
   get incomingContext() { return this.incomingContent; },
   get incomingNextContext() { return this.incomingNextContent; },
   get outgoingContext() { return this.hasOwnProperty("outgoingContent") ? this.outgoingContent : this.incomingContext; },
-  get outgoingNextContext() { return this.hasOwnProperty("outgoingNextContent") ? this.outgoingNextContent : this.incomingNextContext; }
+  get outgoingNextContext() { return this.hasOwnProperty("outgoingNextContent") ? this.outgoingNextContent : this.incomingNextContext; },
 };
 
 function plistToJSON(aElt)
 {
   switch (aElt.localName) {
-    case 'true':
+    case "true":
       return true;
-    case 'false':
+    case "false":
       return false;
-    case 'string':
-    case 'data':
+    case "string":
+    case "data":
       return aElt.textContent;
-    case 'real':
+    case "real":
       return parseFloat(aElt.textContent);
-    case 'integer':
+    case "integer":
       return parseInt(aElt.textContent, 10);
 
-    case 'dict':
+    case "dict":
       let res = {};
       let nodes = aElt.childNodes;
       for (let i = 0; i < nodes.length; ++i) {
-        if (nodes[i].nodeName == 'key') {
+        if (nodes[i].nodeName == "key") {
           let key = nodes[i].textContent;
           ++i;
           while (!Element.isInstance(nodes[i]))
@@ -148,7 +148,7 @@ function plistToJSON(aElt)
       }
       return res;
 
-    case 'array':
+    case "array":
       let array = [];
       nodes = aElt.childNodes;
       for (let i = 0; i < nodes.length; ++i) {
@@ -181,7 +181,7 @@ function getInfoPlistContent(aBaseURI)
     if (!node || node.localName != "dict")
       throw "Empty or invalid Info.plist file";
     return plistToJSON(node);
-  } catch(e) {
+  } catch (e) {
     Cu.reportError(e);
     return null;
   }
@@ -204,12 +204,12 @@ function getThemeByName(aName)
   return {
     name: aName,
     variant: "default",
-    baseURI: baseURI,
-    metadata: metadata,
+    baseURI,
+    metadata,
     html: new HTMLTheme(baseURI),
     showHeader: gPrefBranch.getBoolPref(kShowHeaderPref),
     combineConsecutive: gPrefBranch.getBoolPref(kCombineConsecutivePref),
-    combineConsecutiveInterval: gPrefBranch.getIntPref(kCombineConsecutiveIntervalPref)
+    combineConsecutiveInterval: gPrefBranch.getIntPref(kCombineConsecutiveIntervalPref),
   };
 }
 
@@ -224,7 +224,7 @@ function getCurrentTheme()
   try {
     gCurrentTheme = getThemeByName(name);
     gCurrentTheme.variant = variant;
-  } catch(e) {
+  } catch (e) {
     Cu.reportError(e);
     gCurrentTheme = getThemeByName(DEFAULT_THEME);
     gCurrentTheme.variant = "default";
@@ -338,18 +338,18 @@ var headerFooterReplacements = {
   sourceName: aConv => TXTToHTML(aConv.account.alias || aConv.account.name),
   destinationName: aConv => TXTToHTML(aConv.name),
   destinationDisplayName: aConv => TXTToHTML(aConv.title),
-  incomingIconPath: function(aConv) {
+  incomingIconPath(aConv) {
     let buddy;
     return (!aConv.isChat && (buddy = aConv.buddy) &&
             buddy.buddyIconFilename) || "incoming_icon.png";
   },
   outgoingIconPath: aConv => "outgoing_icon.png",
-  timeOpened: function(aConv, aFormat) {
+  timeOpened(aConv, aFormat) {
     let date = new Date(aConv.startDate / 1000);
     if (aFormat)
       return ToLocaleFormat(aFormat, date);
     return gTimeFormatter.format(date);
-  }
+  },
 };
 
 function formatAutoResponce(aTxt) {
@@ -362,17 +362,17 @@ var statusMessageReplacements = {
   message: aMsg => "<span class=\"ib-msg-txt\">" +
                    (aMsg.autoResponse ? formatAutoResponce(aMsg.message) : aMsg.message) +
                    "</span>",
-  time: function(aMsg, aFormat) {
+  time(aMsg, aFormat) {
     let date = new Date(aMsg.time * 1000);
     if (aFormat)
       return ToLocaleFormat(aFormat, date);
     return gTimeFormatter.format(date);
   },
   timestamp: aMsg => aMsg.time,
-  shortTime: function(aMsg) {
+  shortTime(aMsg) {
     return gTimeFormatter.format(new Date(aMsg.time * 1000));
   },
-  messageClasses: function(aMsg) {
+  messageClasses(aMsg) {
     let msgClass = [];
 
     if (aMsg.system)
@@ -404,14 +404,14 @@ var statusMessageReplacements = {
       msgClass.push("monospaced");
 
     return msgClass.join(" ");
-  }
+  },
 };
 
 function formatSender(aName) {
   return "<span class=\"ib-sender\">" + TXTToHTML(aName) + "</span>";
 }
 var messageReplacements = {
-  userIconPath: function (aMsg) {
+  userIconPath(aMsg) {
     // If the protocol plugin provides an icon for the message, use it.
     let iconURL = aMsg.iconURL;
     if (iconURL)
@@ -437,19 +437,19 @@ var messageReplacements = {
   senderDisplayName: aMsg => formatSender(aMsg.alias || aMsg.who),
   service: aMsg => aMsg.conversation.account.protocol.name,
   textbackgroundcolor: (aMsg, aFormat) => "transparent", // FIXME?
-  __proto__: statusMessageReplacements
+  __proto__: statusMessageReplacements,
 };
 
 var statusReplacements = {
-  status: aMsg => "", //FIXME
-  statusIcon: function(aMsg) {
+  status: aMsg => "", // FIXME
+  statusIcon(aMsg) {
     let conv = aMsg.conversation;
     let buddy = null;
     if (!conv.isChat)
       buddy = conv.buddy;
     return getStatusIconFromBuddy(buddy);
   },
-  __proto__: statusMessageReplacements
+  __proto__: statusMessageReplacements,
 };
 
 var kReplacementRegExp = /%([a-zA-Z]*)(\{([^\}]*)\})?%/g;
@@ -753,8 +753,7 @@ function serializeSelection(aSelection)
 
   if (shortVersionPossible)
     return shortSelection || aSelection.toString();
-  else
-    return longSelection.join(kLineBreak);
+  return longSelection.join(kLineBreak);
 }
 
 function SelectedMessage(aRootNode, aRange)
@@ -765,13 +764,13 @@ function SelectedMessage(aRootNode, aRange)
 
 SelectedMessage.prototype = {
   get msg() { return this._rootNodes[0]._originalMsg; },
-  addRoot: function(aRootNode) {
+  addRoot(aRootNode) {
     this._rootNodes.push(aRootNode);
   },
 
   // Helper function that returns the first span node of class
   // ib-msg-text under the rootNodes of the selected message.
-  _getSpanNode: function() {
+  _getSpanNode() {
     // first use the cached value if any
     if (this._spanNode)
       return this._spanNode;
@@ -805,7 +804,7 @@ SelectedMessage.prototype = {
 
   // Initialize _textSelected and _otherSelected; if _textSelected is true,
   // also initialize _selectedText and _cutBegin/End.
-  _initSelectedText: function() {
+  _initSelectedText() {
     if ("_textSelected" in this)
       return; // already initialized
 
@@ -870,19 +869,19 @@ SelectedMessage.prototype = {
     this._initSelectedText();
     return this._textSelected && this._cutEnd;
   },
-  isTextSelected: function() {
+  isTextSelected() {
     this._initSelectedText();
     return this._textSelected;
   },
-  onlyTextSelected: function() {
+  onlyTextSelected() {
     this._initSelectedText();
     return !this._otherSelected;
   },
-  getSelectedText: function() {
+  getSelectedText() {
     this._initSelectedText();
     return this._textSelected ? this._selectedText : "";
   },
-  getFormattedMessage: function() {
+  getFormattedMessage() {
     // First, get the selected text
     this._initSelectedText();
     let msg = this.msg;
@@ -900,13 +899,13 @@ SelectedMessage.prototype = {
     }
 
     // then get the suitable replacements and templates for this message
-    let getLocalizedPrefWithDefault = function (aName, aDefault) {
+    let getLocalizedPrefWithDefault = function(aName, aDefault) {
       try {
         let prefBranch =
           Services.prefs.getBranch("messenger.conversations.selections.");
         return prefBranch.getComplexValue(aName,
                                           Ci.nsIPrefLocalizedString).data;
-      } catch(e) {
+      } catch (e) {
         return aDefault;
       }
     };
@@ -935,12 +934,12 @@ SelectedMessage.prototype = {
     replacements = {
       message: aMsg => text,
       sender: aMsg => aMsg.alias || aMsg.who,
-      __proto__: replacements
+      __proto__: replacements,
     };
 
     // Finally, let the theme system do the magic!
     return replaceKeywordsInHTML(html, replacements, msg);
-  }
+  },
 };
 
 function getMessagesForRange(aRange)
@@ -956,7 +955,6 @@ function getMessagesForRange(aRange)
   // properties on DOM nodes, and stop when endNode is reached.
   // Found nodes are pushed into the rootNodes array.
   let processSubtree = function(aNode) {
-
     if (aNode._originalMsg) {
       // store the result
       if (!(aNode._originalMsg.id in messages)) {

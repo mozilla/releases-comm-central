@@ -28,10 +28,10 @@ var reporterListener = {
   QueryInterface: ChromeUtils.generateQI(["nsIWebProgressListener",
                                           "nsISupportsWeakReference"]),
 
-  onStateChange: function(/*in nsIWebProgress*/ aWebProgress,
-                          /*in nsIRequest*/ aRequest,
-                          /*in unsigned long*/ aStateFlags,
-                          /*in nsresult*/ aStatus) {
+  onStateChange(/* in nsIWebProgress */ aWebProgress,
+                /* in nsIRequest */ aRequest,
+                /* in unsigned long */ aStateFlags,
+                /* in nsresult */ aStatus) {
     if (aStateFlags & wpl.STATE_START &&
         aStateFlags & wpl.STATE_IS_NETWORK) {
       this.statusMeter.value = 0;
@@ -45,33 +45,33 @@ var reporterListener = {
     }
   },
 
-  onProgressChange: function(/*in nsIWebProgress*/ aWebProgress,
-                             /*in nsIRequest*/ aRequest,
-                             /*in long*/ aCurSelfProgress,
-                             /*in long */aMaxSelfProgress,
-                             /*in long */aCurTotalProgress,
-                             /*in long */aMaxTotalProgress) {
+  onProgressChange(/* in nsIWebProgress */ aWebProgress,
+                   /* in nsIRequest */ aRequest,
+                   /* in long */ aCurSelfProgress,
+                   /* in long */ aMaxSelfProgress,
+                   /* in long */ aCurTotalProgress,
+                   /* in long */ aMaxTotalProgress) {
     if (aMaxTotalProgress > 0) {
       let percentage = (aCurTotalProgress * 100) / aMaxTotalProgress;
       this.statusMeter.value = percentage;
     }
   },
 
-  onLocationChange: function(/*in nsIWebProgress*/ aWebProgress,
-                             /*in nsIRequest*/ aRequest,
-                             /*in nsIURI*/ aLocation) {
-    this.securityDisplay.setAttribute('label', aLocation.host);
+  onLocationChange(/* in nsIWebProgress */ aWebProgress,
+                   /* in nsIRequest */ aRequest,
+                   /* in nsIURI */ aLocation) {
+    this.securityDisplay.setAttribute("label", aLocation.host);
   },
 
-  onStatusChange: function(/*in nsIWebProgress*/ aWebProgress,
-                           /*in nsIRequest*/ aRequest,
-                           /*in nsresult*/ aStatus,
-                           /*in wstring*/ aMessage) {
+  onStatusChange(/* in nsIWebProgress */ aWebProgress,
+                 /* in nsIRequest */ aRequest,
+                 /* in nsresult */ aStatus,
+                 /* in wstring */ aMessage) {
   },
 
-  onSecurityChange: function(/*in nsIWebProgress*/ aWebProgress,
-                             /*in nsIRequest*/ aRequest,
-                             /*in unsigned long*/ aState) {
+  onSecurityChange(/* in nsIWebProgress */ aWebProgress,
+                   /* in nsIRequest */ aRequest,
+                   /* in unsigned long */ aState) {
     const wpl_security_bits = wpl.STATE_IS_SECURE |
                               wpl.STATE_IS_BROKEN |
                               wpl.STATE_IS_INSECURE;
@@ -98,11 +98,11 @@ var reporterListener = {
                                      browser.securityUI.tooltipText);
   },
 
-  onContentBlockingEvent: function(/*in nsIWebProgress*/ aWebProgress,
-                                   /*in nsIRequest*/ aRequest,
-                                   /*in unsigned long*/ aEvent) {
-  }
-}
+  onContentBlockingEvent(/* in nsIWebProgress */ aWebProgress,
+                         /* in nsIRequest */ aRequest,
+                         /* in unsigned long */ aEvent) {
+  },
+};
 
 function cancelRequest()
 {

@@ -11,7 +11,7 @@ this.EXPORTED_SYMBOLS = [
   "EmptyEnumerator",
   "ClassInfo",
   "l10nHelper",
-  "initLogModule"
+  "initLogModule",
 ];
 
 const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
@@ -71,7 +71,7 @@ function scriptError(aModule, aLevel, aMessage, aOriginalError) {
     if (aOriginalError.fileName)
       fileName = aOriginalError.fileName;
     if (aOriginalError.lineNumber)
-      lineNumber = aOriginalError.lineNumber
+      lineNumber = aOriginalError.lineNumber;
   }
   scriptError.init(aMessage, fileName, sourceLine, lineNumber, null, flag,
                    "component javascript");
@@ -101,7 +101,7 @@ XPCOMUtils.defineLazyGetter(Cu.getGlobalForObject({}), "gLogLevels", function() 
   // is necessary to make sure the observe is left alive while being a weak ref
   // to avoid cycles with the pref service.
   let logLevels = {
-    observe: function(aSubject, aTopic, aData) {
+    observe(aSubject, aTopic, aData) {
       let module = "level" + aData.substr(kLogLevelPref.length);
       if (Services.prefs.getPrefType(aData) == Services.prefs.PREF_INT)
         gLogLevels[module] = Services.prefs.getIntPref(aData);
@@ -143,7 +143,7 @@ function setTimeout(aFunction, aDelay)
   // GC'ed before firing the callback.
   let callback = {
     _timer: timer,
-    notify: function (aTimer) { aFunction.apply(null, args); delete this._timer; }
+    notify(aTimer) { aFunction.apply(null, args); delete this._timer; },
   };
   timer.initWithCallback(callback, aDelay, Ci.nsITimer.TYPE_ONE_SHOT);
   return timer;
@@ -179,7 +179,8 @@ function ClassInfo(aInterfaces, aDescription = "JS Proto Object")
   this.classDescription = aDescription;
 }
 ClassInfo.prototype = {
-  QueryInterface: function ClassInfo_QueryInterface(iid) {
+  // eslint-disable-next-line mozilla/use-chromeutils-generateqi
+  QueryInterface(iid) {
     if (iid.equals(Ci.nsISupports) || iid.equals(Ci.nsIClassInfo) ||
         this._interfaces.some(i => i.equals(iid)))
       return this;
@@ -192,13 +193,13 @@ ClassInfo.prototype = {
   getHelperForLanguage: language => null,
   contractID: null,
   classID: null,
-  flags: 0
+  flags: 0,
 };
 
 function l10nHelper(aChromeURL)
 {
   let bundle = Services.strings.createBundle(aChromeURL);
-  return function (aStringId) {
+  return function(aStringId) {
     try {
       if (arguments.length == 1)
         return bundle.GetStringFromName(aStringId);
@@ -226,20 +227,20 @@ function nsSimpleEnumerator(items)
   this._nextIndex = 0;
 }
 nsSimpleEnumerator.prototype = {
-  hasMoreElements: function() { return this._nextIndex < this._items.length; },
-  getNext: function() {
+  hasMoreElements() { return this._nextIndex < this._items.length; },
+  getNext() {
     if (!this.hasMoreElements())
       throw Cr.NS_ERROR_NOT_AVAILABLE;
 
     return this._items[this._nextIndex++];
   },
   QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator]),
-  [Symbol.iterator]() { return this._items.values(); }
+  [Symbol.iterator]() { return this._items.values(); },
 };
 
 var EmptyEnumerator = {
   hasMoreElements: () => false,
-  getNext: function() { throw Cr.NS_ERROR_NOT_AVAILABLE; },
+  getNext() { throw Cr.NS_ERROR_NOT_AVAILABLE; },
   QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator]),
-  * [Symbol.iterator]() {}
+  * [Symbol.iterator]() {},
 };

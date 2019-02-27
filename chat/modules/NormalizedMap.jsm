@@ -38,4 +38,4 @@ class NormalizedMap extends Map {
     super.set(this._normalize(key), val);
     return this;
   }
-};
+}

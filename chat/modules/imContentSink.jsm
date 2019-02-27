@@ -20,7 +20,7 @@ this.EXPORTED_SYMBOLS = [
   "addGlobalAllowedAttribute",
   "removeGlobalAllowedAttribute",
   "addGlobalAllowedStyleRule",
-  "removeGlobalAllowedStyleRule"
+  "removeGlobalAllowedStyleRule",
 ];
 
 /*
@@ -53,7 +53,7 @@ var kAllowedAnchorClasses = aClassName => aClassName == "ib-person";
 /* Tags whose content should be fully removed, and reported in the Error Console. */
 var kForbiddenTags = {
   script: true,
-  style: true
+  style: true,
 };
 
 // in strict mode, remove all formatings. Keep only links and line breaks.
@@ -61,105 +61,105 @@ var kStrictMode = {
   attrs: { },
 
   tags: {
-    'a': {
-      'title': true,
-      'href': kAllowedURLs,
-      'class': kAllowedAnchorClasses
+    "a": {
+      "title": true,
+      "href": kAllowedURLs,
+      "class": kAllowedAnchorClasses,
     },
-    'br': true,
-    'p': true
+    "br": true,
+    "p": true,
   },
 
-  styles: { }
+  styles: { },
 };
 
 // standard mode allows basic formattings (bold, italic, underlined)
 var kStandardMode = {
   attrs: {
-    'style': true
+    "style": true,
   },
 
   tags: {
-    'div': true,
-    'a': {
-      'title': true,
-      'href': kAllowedURLs,
-      'class': kAllowedAnchorClasses
+    "div": true,
+    "a": {
+      "title": true,
+      "href": kAllowedURLs,
+      "class": kAllowedAnchorClasses,
     },
-    'em': true,
-    'strong': true,
-    'b': true,
-    'i': true,
-    'u': true,
-    'span': {
-      'class': kAllowedMozClasses
+    "em": true,
+    "strong": true,
+    "b": true,
+    "i": true,
+    "u": true,
+    "span": {
+      "class": kAllowedMozClasses,
     },
-    'br': true,
-    'code': true,
-    'ul': true,
-    'li': true,
-    'ol': true,
-    'cite': true,
-    'blockquote': true,
-    'p': true
+    "br": true,
+    "code": true,
+    "ul": true,
+    "li": true,
+    "ol": true,
+    "cite": true,
+    "blockquote": true,
+    "p": true,
   },
 
   styles: {
-    'font-style': true,
-    'font-weight': true,
-    'text-decoration-line': true
-  }
+    "font-style": true,
+    "font-weight": true,
+    "text-decoration-line": true,
+  },
 };
 
 // permissive mode allows about anything that isn't going to mess up the chat window
 var kPermissiveMode = {
   attrs: {
-    'style': true
+    "style": true,
   },
 
-  tags : {
-    'div': true,
-    'a': {
-      'title': true,
-      'href': kAllowedURLs,
-      'class': kAllowedAnchorClasses
+  tags: {
+    "div": true,
+    "a": {
+      "title": true,
+      "href": kAllowedURLs,
+      "class": kAllowedAnchorClasses,
     },
-    'font': {
-      'face': true,
-      'color': true,
-      'size': true
+    "font": {
+      "face": true,
+      "color": true,
+      "size": true,
     },
-    'em': true,
-    'strong': true,
-    'b': true,
-    'i': true,
-    'u': true,
-    'span': {
-      'class': kAllowedMozClasses
+    "em": true,
+    "strong": true,
+    "b": true,
+    "i": true,
+    "u": true,
+    "span": {
+      "class": kAllowedMozClasses,
     },
-    'br': true,
-    'hr': true,
-    'code': true,
-    'ul': true,
-    'li': true,
-    'ol': true,
-    'cite': true,
-    'blockquote': true,
-    'p': true
+    "br": true,
+    "hr": true,
+    "code": true,
+    "ul": true,
+    "li": true,
+    "ol": true,
+    "cite": true,
+    "blockquote": true,
+    "p": true,
   },
 
   // FIXME: should be possible to use functions to filter values
-  styles : {
-    'color': true,
-    'font': true,
-    'font-family': true,
-    'font-size': true,
-    'font-style': true,
-    'font-weight': true,
-    'text-decoration-color': true,
-    'text-decoration-style': true,
-    'text-decoration-line': true
-  }
+  styles: {
+    "color": true,
+    "font": true,
+    "font-family": true,
+    "font-size": true,
+    "font-style": true,
+    "font-weight": true,
+    "text-decoration-color": true,
+    "text-decoration-style": true,
+    "text-decoration-line": true,
+  },
 };
 
 var kModePref = "messenger.options.filterMode";
@@ -183,7 +183,7 @@ var styleObserver = {
       throw "gGlobalRuleset not initialized";
 
     setBaseRuleset(getModePref(), gGlobalRuleset);
-  }
+  },
 };
 
 function getModePref()
@@ -206,7 +206,7 @@ function newRuleset(aBase)
   let result = {
     tags: {},
     attrs: {},
-    styles: {}
+    styles: {},
   };
   setBaseRuleset(aBase || getModePref(), result);
   return result;
@@ -290,7 +290,7 @@ function cleanupNode(aNode, aRules, aTextModifiers)
         // we check both the list of accepted attributes for all tags
         // and the list of accepted attributes for this specific tag.
         if (!(acceptFunction(aRules.attrs, attr) ||
-              ((typeof aRules.tags[nodeName] ==  "object") &&
+              ((typeof aRules.tags[nodeName] == "object") &&
                acceptFunction(aRules.tags[nodeName], attr)))) {
           node.removeAttribute(attr.name);
           --j;
@@ -322,7 +322,7 @@ function cleanupNode(aNode, aRules, aTextModifiers)
         }
         attrs = attrs.split(";").map(a => a.trim());
         attrs.sort();
-        node.setAttribute("style", attrs.join("; ") + (trailingSemi?";":""));
+        node.setAttribute("style", attrs.join("; ") + (trailingSemi ? ";" : ""));
       }
     }
     else {
