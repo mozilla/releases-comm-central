@@ -6,7 +6,7 @@
 <!ENTITY  offlineGoOfflineCmd.label                 "Work Offline">
 <!ENTITY  offlineGoOfflineCmd.accesskey             "k">
 
-<!-- LOCALIZATION NOTE : FILE This file contains the global menu items --> 
+<!-- LOCALIZATION NOTE : FILE This file contains the global menu items -->
 
 <!ENTITY fileMenu.label                   "File">
 <!ENTITY fileMenu.accesskey               "F">
@@ -62,13 +62,13 @@
 <!ENTITY selectAllCmd.label               "Select All">
 <!ENTITY selectAllCmd.key                 "A">
 <!ENTITY selectAllCmd.accesskey           "A">
-<!ENTITY clearHistoryCmd.label				"Clear Search History">  
-<!ENTITY clearHistoryCmd.accesskey			"H"> 
-<!ENTITY showSuggestionsCmd.label			"Show Suggestions">  
-<!ENTITY showSuggestionsCmd.accesskey		"S"> 
-<!ENTITY preferencesCmd.label				"Preferences…">
-<!ENTITY preferencesCmd.key					"E">  
-<!ENTITY preferencesCmd.accesskey			"e"> 
+<!ENTITY clearHistoryCmd.label            "Clear Search History">
+<!ENTITY clearHistoryCmd.accesskey        "H">
+<!ENTITY showSuggestionsCmd.label         "Show Suggestions">
+<!ENTITY showSuggestionsCmd.accesskey     "S">
+<!ENTITY preferencesCmd.label             "Preferences…">
+<!ENTITY preferencesCmd.key               "E">
+<!ENTITY preferencesCmd.accesskey         "e">
 <!ENTITY findBarCmd.key "F">
 <!-- LOCALIZATION NOTE (findBarCmd.accesskey): This accesskey should be within
      findBarCmd.label found in editorOverlay.dtd, findCmd.label in messenger.dtd
@@ -88,15 +88,15 @@
 <!ENTITY findTypeLinksCmd.label "Find Links As You Type">
 <!ENTITY findTypeLinksCmd.accesskey "k">
 
-<!ENTITY viewMenu.label					"View"> 
+<!ENTITY viewMenu.label                   "View">
 <!ENTITY viewMenu.accesskey               "V">
-<!ENTITY viewToolbarsMenu.label				"Show/Hide"> 
-<!ENTITY viewToolbarsMenu.accesskey			"w"> 
-<!ENTITY showTaskbarCmd.label					"Status Bar">  
-<!ENTITY showTaskbarCmd.accesskey				"S"> 
+<!ENTITY viewToolbarsMenu.label           "Show/Hide">
+<!ENTITY viewToolbarsMenu.accesskey       "w">
+<!ENTITY showTaskbarCmd.label             "Status Bar">
+<!ENTITY showTaskbarCmd.accesskey         "S">
 
-<!ENTITY helpMenu.label					"Help"> 
-<!ENTITY helpMenu.accesskey				"h"> 
+<!ENTITY helpMenu.label                   "Help">
+<!ENTITY helpMenu.accesskey               "h">
 
 <!ENTITY helpTroubleshootingInfo.label      "Troubleshooting Information">
 <!ENTITY helpTroubleshootingInfo.accesskey  "T">
@@ -106,24 +106,24 @@
 <!ENTITY helpSafeMode.accesskey             "R">
 <!ENTITY updateCmd.label                    "Check for Updates…">
 <!ENTITY updateCmd.accesskey                "C">
-<!ENTITY aboutCmd.label					"About &brandShortName;">
-<!ENTITY aboutCmd.accesskey				"A">
-<!ENTITY aboutCommPluginsCmd.label			"About Plugins">
-<!ENTITY aboutCommPluginsCmd.accesskey			"p">
+<!ENTITY aboutCmd.label                     "About &brandShortName;">
+<!ENTITY aboutCmd.accesskey                 "A">
+<!ENTITY aboutCommPluginsCmd.label          "About Plugins">
+<!ENTITY aboutCommPluginsCmd.accesskey      "p">
 
-<!ENTITY direct.label                                   "Online (Proxy: None)">
-<!ENTITY direct.accesskey                               "N">
-<!ENTITY manual.label                                   "Online (Proxy: Manual)">
-<!ENTITY manual.accesskey                               "M">
-<!ENTITY pac.label                                      "Online (Proxy: Auto URL)">
-<!ENTITY pac.accesskey                                  "A">
-<!ENTITY wpad.label                                     "Online (Proxy: Auto Discover)">
-<!ENTITY wpad.accesskey                                 "D">
-<!ENTITY system.label                                   "Online (Proxy: System Proxy)">
-<!ENTITY system.accesskey                               "S">
+<!ENTITY direct.label                             "Online (Proxy: None)">
+<!ENTITY direct.accesskey                         "N">
+<!ENTITY manual.label                             "Online (Proxy: Manual)">
+<!ENTITY manual.accesskey                         "M">
+<!ENTITY pac.label                                "Online (Proxy: Auto URL)">
+<!ENTITY pac.accesskey                            "A">
+<!ENTITY wpad.label                               "Online (Proxy: Auto Discover)">
+<!ENTITY wpad.accesskey                           "D">
+<!ENTITY system.label                             "Online (Proxy: System Proxy)">
+<!ENTITY system.accesskey                         "S">
 
-<!ENTITY proxy.label                                    "Proxy Configuration…">
-<!ENTITY proxy.accesskey                                "C">
+<!ENTITY proxy.label                              "Proxy Configuration…">
+<!ENTITY proxy.accesskey                          "C">
 
 <!ENTITY bidiSwitchTextDirectionItem.label        "Switch Text Direction">
 <!ENTITY bidiSwitchTextDirectionItem.accesskey    "w">

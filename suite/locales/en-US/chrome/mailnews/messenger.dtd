@@ -58,9 +58,9 @@
 <!ENTITY renameFolder.label "Rename Folder…">
 <!ENTITY renameFolder.accesskey "R">
 <!ENTITY compactFolders.label "Compact Folders">
-<!ENTITY compactFolders.accesskey		"F">
+<!ENTITY compactFolders.accesskey "F">
 <!ENTITY emptyTrashCmd.label "Empty Trash">
-<!ENTITY emptyTrashCmd.accesskey		"y">
+<!ENTITY emptyTrashCmd.accesskey "y">
 <!ENTITY offlineMenu.label "Offline">
 <!ENTITY offlineMenu.accesskey "l">
 <!ENTITY synchronizeOfflineCmd.label "Download/Sync Now…">
@@ -284,23 +284,23 @@
 <!ENTITY newNewMsgCmd.accesskey "M">
 <!ENTITY replyMsgCmd.label "Reply">
 <!ENTITY replyMsgCmd.accesskey "R">
-<!ENTITY replyMsgCmd.key	"r">
+<!ENTITY replyMsgCmd.key "r">
 <!ENTITY replyListCmd.label "Reply to List">
 <!ENTITY replyListCmd.accesskey "y">
 <!ENTITY replyNewsgroupCmd.label "Reply to Newsgroup">
-<!ENTITY replyNewsgroupCmd.accesskey	"y">
+<!ENTITY replyNewsgroupCmd.accesskey "y">
 <!ENTITY replySenderCmd.label "Reply to Sender Only">
 <!ENTITY replySenderCmd.accesskey "R">
 <!ENTITY replyToAllMsgCmd.label "Reply to All">
-<!ENTITY replyToAllMsgCmd.accesskey	"p">
-<!ENTITY replyToAllMsgCmd.key	"r">
+<!ENTITY replyToAllMsgCmd.accesskey "p">
+<!ENTITY replyToAllMsgCmd.key "r">
 <!ENTITY replyToSenderAndNewsgroupCmd.label "Reply to Sender and Newsgroup">
 <!ENTITY replyToSenderAndNewsgroupCmd.accesskey "p">
 <!ENTITY replyToAllRecipientsCmd.label "Reply to All Recipients">
 <!ENTITY replyToAllRecipientsCmd.accesskey "a">
 <!ENTITY forwardMsgCmd.label "Forward">
 <!ENTITY forwardMsgCmd.accesskey "F">
-<!ENTITY forwardMsgCmd.key	"l">
+<!ENTITY forwardMsgCmd.key "l">
 <!ENTITY forwardAsMenu.label "Forward As">
 <!ENTITY forwardAsMenu.accesskey "o">
 <!ENTITY forwardAsInline.label "Inline">

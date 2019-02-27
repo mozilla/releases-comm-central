@@ -4,10 +4,10 @@
 @import url("chrome://help/content/platformClasses.css");
 
 body {
-	margin: 2ex;
-	font-family: sans-serif;
-	font-size: 0.75em;
-	max-width: 120ex;
+  margin: 2ex;
+  font-family: sans-serif;
+  font-size: 0.75em;
+  max-width: 120ex;
 }
 
 dd { margin-inline-start: 0px; margin-bottom: 1em; }
@@ -47,17 +47,17 @@ p:first-child { padding-top: 0; margin-top: 0; }
 .separate > li { margin-bottom: 0.5em; }
 
 .contentsBox {
-	margin-top: 12px;
-	background-color: #cccccc;
-	border: 1px solid black;
-	width: 300px;
-	padding: 1em;
+  margin-top: 12px;
+  background-color: #cccccc;
+  border: 1px solid black;
+  width: 300px;
+  padding: 1em;
 }
 
 .contentsBox > ul {
-	list-style-type: none;
+  list-style-type: none;
 }
 
 a[href^="http://"]:after, a[href^="https://"]:after, a[href^="x-moz-url-link:"]:after {
-	content: url("images/web-links.png");
+  content: url("images/web-links.png");
 }

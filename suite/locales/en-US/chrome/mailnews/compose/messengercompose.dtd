@@ -114,12 +114,12 @@
 <!-- We already inherit &menuBar.tooltip and &mailToolbar.tooltip from messenger.dtd -->
 <!ENTITY addressBar.tooltip "Address Bar">
 <!ENTITY formatToolbar.tooltip "Formatting Toolbar">
-<!ENTITY sendButton.tooltip "Send this message now"> 
-<!ENTITY sendlaterButton.tooltip "Send this message later"> 
-<!ENTITY addressButton.tooltip "Select a recipient from an Address Book"> 
-<!ENTITY attachButton.tooltip "Include an attachment"> 
-<!ENTITY saveButton.tooltip "Save this message"> 
-<!ENTITY stopButton.tooltip "Stop the current transfer"> 
+<!ENTITY sendButton.tooltip "Send this message now">
+<!ENTITY sendlaterButton.tooltip "Send this message later">
+<!ENTITY addressButton.tooltip "Select a recipient from an Address Book">
+<!ENTITY attachButton.tooltip "Include an attachment">
+<!ENTITY saveButton.tooltip "Save this message">
+<!ENTITY stopButton.tooltip "Stop the current transfer">
 
 <!-- context menu items -->
 <!ENTITY openAttachment.label "Open">

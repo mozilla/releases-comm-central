@@ -66,7 +66,7 @@
      <rdf:Seq><rdf:li>
        <rdf:Description ID="default_browser_preferences"
          nc:name="default browser preferences"
-	 nc:link="cs_nav_prefs_navigator.xhtml#navigator"/>
+         nc:link="cs_nav_prefs_navigator.xhtml#navigator"/>
      </rdf:li></rdf:Seq>
    </nc:subheadings>
 </rdf:Description>
@@ -76,7 +76,7 @@
      <rdf:Seq><rdf:li>
        <rdf:Description ID="ieusers"
          nc:name="Internet Explorer User Help"
-	 nc:link="forieusers.xhtml"/>
+         nc:link="forieusers.xhtml"/>
      </rdf:li></rdf:Seq>
    </nc:subheadings>
 </rdf:Description>
@@ -111,7 +111,7 @@
      <rdf:Seq><rdf:li>
        <rdf:Description ID="preferences:default_browser"
          nc:name="default browser preferences"
-	 nc:link="cs_nav_prefs_navigator.xhtml#navigator"/>
+         nc:link="cs_nav_prefs_navigator.xhtml#navigator"/>
      </rdf:li></rdf:Seq>
    </nc:subheadings>
 </rdf:Description>
