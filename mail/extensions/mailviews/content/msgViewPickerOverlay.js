@@ -226,7 +226,7 @@ function RefreshTagsPopup(aMenupopup) {
       menuitem.setAttribute("checked", true);
     let color = tagInfo.color;
     if (color)
-      menuitem.setAttribute("class", "lc-" + color.substr(1));
+      menuitem.setAttribute("style", "color: " + color + ";");
     aMenupopup.appendChild(menuitem);
   }
 }

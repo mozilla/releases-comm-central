@@ -992,7 +992,7 @@ function InitMessageTags(menuPopup) {
     newMenuItem.setAttribute("oncommand", "ToggleMessageTagMenu(event.target);");
     var color = taginfo.color;
     if (color)
-      newMenuItem.setAttribute("class", "lc-" + color.substr(1));
+      newMenuItem.setAttribute("style", "color: " + color + ";");
     menuPopup.appendChild(newMenuItem);
   }
 }

@@ -16,6 +16,7 @@ var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {DBViewWrapper} = ChromeUtils.import("resource:///modules/DBViewWrapper.jsm");
+var { Windows8WindowFrameColor } = ChromeUtils.import("resource:///modules/Windows8WindowFrameColor.jsm");
 
 class MozMailHeaderfield extends MozXULElement {
   connectedCallback() {
@@ -74,11 +75,16 @@ class MozMailHeaderfieldTags extends MozXULElement {
       }
 
       let color = MailServices.tags.getColorForKey(tagsArray[i]);
+      let textColor = "black";
+      if (!Windows8WindowFrameColor.isColorContrastEnough(color)) {
+        textColor = "white";
+      }
 
       // now create a label for the tag name, and set the color
       const label = document.createElement("label");
       label.setAttribute("value", tagName);
-      label.className = "tagvalue blc-" + color.substr(1);
+      label.className = "tagvalue";
+      label.setAttribute("style", "color: " + textColor + "; background-color: " + color + ";");
 
       this.appendChild(label);
     }

@@ -17,6 +17,7 @@ var { StringBundle } = ChromeUtils.import("resource:///modules/StringBundle.js")
 var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { Windows8WindowFrameColor } = ChromeUtils.import("resource:///modules/Windows8WindowFrameColor.jsm");
 var {
   logObject,
   logException,
@@ -96,8 +97,13 @@ const QueryExplanation = {
             "glodaFacetView.constraints.query.tagged.label");
           const tag = constraint[2];
           const tagNode = document.createElement("span");
-          const colorClass = "blc-" + MailServices.tags.getColorForKey(tag.key).substr(1);
-          tagNode.setAttribute("class", "message-tag tag " + colorClass);
+          const color = MailServices.tags.getColorForKey(tag.key);
+          let textColor = "black";
+          if (!Windows8WindowFrameColor.isColorContrastEnough(color)) {
+            textColor = "white";
+          }
+          tagNode.setAttribute("class", "message-tag");
+          tagNode.setAttribute("style", "color: " + textColor + "; background-color: " + color + ";");
           tagNode.textContent = tag.tag;
           spanify(tagLabel, "explanation-query-tagged");
           this.node.appendChild(tagNode);

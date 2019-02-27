@@ -10,6 +10,8 @@ var {
 var { MsgHdrToMimeMessage } = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
 var {DisplayNameUtils} = ChromeUtils.import("resource:///modules/DisplayNameUtils.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {Windows8WindowFrameColor} = ChromeUtils.import("resource:///modules/Windows8WindowFrameColor.jsm");
+
 var {
   PluralStringFormatter,
   makeFriendlyDateAgo,
@@ -359,11 +361,14 @@ MultiMessageSummary.prototype = {
 
     for (let tag of sortedTags) {
       let tagNode = document.createElement("span");
-      // See tagColors.css.
       let color = MailServices.tags.getColorForKey(tag.key);
-      let colorClass = "blc-" + color.substr(1);
+      let textColor = "black";
+      if (!Windows8WindowFrameColor.isColorContrastEnough(color)) {
+        textColor = "white";
+      }
 
-      tagNode.classList.add("tag", colorClass);
+      tagNode.className = "tag";
+      tagNode.setAttribute("style", "color: " + textColor + "; background-color: " + color + ";");
       tagNode.dataset.tag = tag.tag;
       tagNode.textContent = tag.tag;
       aTagsNode.appendChild(tagNode);

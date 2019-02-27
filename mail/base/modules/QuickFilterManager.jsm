@@ -882,10 +882,10 @@ var TagFacetingFilter = {
         button.setAttribute("value", tag.key);
         let color = tag.color;
         // everybody always gets to be an qfb-tag-button.
-        if (color)
-          button.setAttribute("class", "toolbarbutton-1 qfb-tag-button lc-" + color.substr(1));
-        else
           button.setAttribute("class", "toolbarbutton-1 qfb-tag-button");
+        if (color) {
+          button.setAttribute("style", "color: " + color + " !important;");
+        }
         tagbar.appendChild(button);
       }
     }
