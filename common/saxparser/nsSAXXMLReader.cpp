@@ -232,8 +232,8 @@ nsSAXXMLReader::OnStartRequest(nsIRequest *aRequest) {
 }
 
 NS_IMETHODIMP
-nsSAXXMLReader::OnStopRequest(nsIRequest *aRequest,
-                              nsresult status) {
+nsSAXXMLReader::OnStopRequest(nsIRequest *aRequest, nsresult status)
+{
   NS_ENSURE_TRUE(mIsAsyncParse, NS_ERROR_FAILURE);
   NS_ENSURE_STATE(mListener);
   nsresult rv = mListener->OnStopRequest(aRequest, status);
@@ -250,8 +250,7 @@ nsSAXXMLReader::OnDataAvailable(nsIRequest *aRequest,
                                 uint32_t count) {
   NS_ENSURE_TRUE(mIsAsyncParse, NS_ERROR_FAILURE);
   NS_ENSURE_STATE(mListener);
-  return mListener->OnDataAvailable(aRequest, aInputStream, offset,
-                                    count);
+  return mListener->OnDataAvailable(aRequest, aInputStream, offset, count);
 }
 
 nsresult nsSAXXMLReader::InitParser(nsIRequestObserver *aObserver,

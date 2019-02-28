@@ -1817,8 +1817,7 @@ nsSaveMsgListener::OnStartRequest(nsIRequest* request)
 }
 
 NS_IMETHODIMP
-nsSaveMsgListener::OnStopRequest(nsIRequest* request,
-                                 nsresult status)
+nsSaveMsgListener::OnStopRequest(nsIRequest* request, nsresult status)
 {
   nsresult rv = NS_OK;
   mRequestHasStopped = true;

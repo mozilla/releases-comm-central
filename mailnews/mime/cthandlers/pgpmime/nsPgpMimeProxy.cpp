@@ -332,7 +332,7 @@ nsPgpMimeProxy::SetMimeCallback(MimeDecodeCallbackFun outputFun,
   mByteBuf.Truncate();
 
   if (mDecryptor)
-    return mDecryptor->OnStartRequest((nsIRequest*) this);  // XXX TODO: myUri was passed as context here.
+    return mDecryptor->OnStartRequest((nsIRequest*) this);
 
   return NS_OK;
 }
@@ -639,8 +639,7 @@ nsPgpMimeProxy::OnStartRequest(nsIRequest *aRequest)
 }
 
 NS_IMETHODIMP
-nsPgpMimeProxy::OnStopRequest(nsIRequest* aRequest,
-                             nsresult aStatus)
+nsPgpMimeProxy::OnStopRequest(nsIRequest* aRequest, nsresult aStatus)
 {
   return NS_OK;
 }

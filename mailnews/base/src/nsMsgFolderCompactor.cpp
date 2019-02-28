@@ -745,8 +745,7 @@ nsFolderCompactState::OnStartRequest(nsIRequest *request)
 }
 
 NS_IMETHODIMP
-nsFolderCompactState::OnStopRequest(nsIRequest *request,
-                                    nsresult status)
+nsFolderCompactState::OnStopRequest(nsIRequest *request, nsresult status)
 {
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
   if (NS_FAILED(status))
@@ -1086,8 +1085,7 @@ nsresult nsOfflineStoreCompactState::CopyNextMessage(bool &done)
 }
 
 NS_IMETHODIMP
-nsOfflineStoreCompactState::OnStopRequest(nsIRequest *request,
-                                          nsresult status)
+nsOfflineStoreCompactState::OnStopRequest(nsIRequest *request, nsresult status)
 {
   nsresult rv = status;
   nsCOMPtr<nsIURI> uri;

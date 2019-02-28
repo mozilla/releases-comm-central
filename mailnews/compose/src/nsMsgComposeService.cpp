@@ -780,8 +780,7 @@ nsMsgTemplateReplyHelper::OnStartRequest(nsIRequest* request)
 }
 
 NS_IMETHODIMP
-nsMsgTemplateReplyHelper::OnStopRequest(nsIRequest* request,
-                                nsresult status)
+nsMsgTemplateReplyHelper::OnStopRequest(nsIRequest* request, nsresult status)
 {
   if (NS_SUCCEEDED(status))
   {

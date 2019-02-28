@@ -362,11 +362,9 @@ NS_IMETHODIMP iface##Proxy::Set##attribute(type a1) {                     \
 NS_SYNCRUNNABLEMETHOD4(StreamListener, OnDataAvailable,
                        nsIRequest *, nsIInputStream *, uint64_t, uint32_t)
 
-NS_SYNCRUNNABLEMETHOD1(StreamListener, OnStartRequest,
-                       nsIRequest *)
+NS_SYNCRUNNABLEMETHOD1(StreamListener, OnStartRequest, nsIRequest *)
 
-NS_SYNCRUNNABLEMETHOD2(StreamListener, OnStopRequest,
-                       nsIRequest *, nsresult)
+NS_SYNCRUNNABLEMETHOD2(StreamListener, OnStopRequest, nsIRequest *, nsresult)
 
 NS_SYNCRUNNABLEMETHOD2(ImapProtocolSink, GetUrlWindow, nsIMsgMailNewsUrl *,
                        nsIMsgWindow **)
