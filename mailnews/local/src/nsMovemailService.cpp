@@ -530,7 +530,7 @@ nsMovemailService::GetNewMail(nsIMsgWindow *aMsgWindow,
   if (outputStream) {
     outputStream->Flush();
     newMailParser->PublishMsgHeader(nullptr);
-    newMailParser->OnStopRequest(nullptr, nullptr, NS_OK);
+    newMailParser->OnStopRequest(nullptr, NS_OK);
     rv = msgStore->FinishNewMessage(outputStream, newHdr);
     NS_ENSURE_SUCCESS(rv, rv);
     outputStream->Close();
