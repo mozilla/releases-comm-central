@@ -929,12 +929,11 @@ AccountsService.prototype = {
         let sis = Cc["@mozilla.org/scriptableinputstream;1"]
                   .createInstance(Ci.nsIScriptableInputStream);
         is.init(lastCrash, -1, 0, 0);
-        sstream.init(sis);
+        sis.init(sis);
 
-        lastCrashTime = parseInt(sstream.read(lastCrash.fileSize));
+        lastCrashTime = parseInt(sis.read(lastCrash.fileSize));
 
-        sstream.close();
-        fstream.close();
+        sis.close();
       }
       // The file not existing is totally acceptable, it just means that
       // either we never crashed or breakpad is not enabled.
