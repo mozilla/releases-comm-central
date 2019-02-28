@@ -33,14 +33,14 @@ var streamListener =
     ChromeUtils.generateQI([Ci.nsIStreamListener, Ci.nsIRequestObserver]),
 
   // nsIRequestObserver
-  onStartRequest: function(aRequest, aContext) {
+  onStartRequest: function(aRequest) {
   },
-  onStopRequest: function(aRequest, aContext, aStatusCode) {
+  onStopRequest: function(aRequest, aStatusCode) {
     Assert.equal(aStatusCode, Cr.NS_OK);
   },
 
   // nsIStreamListener
-  onDataAvailable: function(aRequest, aContext, aInputStream, aOffset, aCount) {
+  onDataAvailable: function(aRequest, aInputStream, aOffset, aCount) {
     let scriptStream = Cc["@mozilla.org/scriptableinputstream;1"]
                          .createInstance(Ci.nsIScriptableInputStream);
 

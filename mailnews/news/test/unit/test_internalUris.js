@@ -100,7 +100,7 @@ function* test_fetchMessage() {
   let streamlistener = {
     onDataAvailable() {},
     onStartRequest() {},
-    onStopRequest(aRequest, aContext, aStatus) {
+    onStopRequest(aRequest, aStatus) {
       statuscode = aStatus;
     },
     QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener,
@@ -222,7 +222,7 @@ function* test_escapedName() {
   let streamlistener = {
     onDataAvailable() {},
     onStartRequest() {},
-    onStopRequest(aRequest, aContext, aStatus) {
+    onStopRequest(aRequest, aStatus) {
       statuscode = aStatus;
     },
     QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener,

@@ -198,7 +198,7 @@ var gStreamListener = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
 
   // nsIRequestObserver part
-  onStartRequest: function (aRequest, aContext) {
+  onStartRequest: function (aRequest) {
     // We reset the size here because we know that we only expect one attachment
     //  per test email. In the case of the attached .eml with nested
     //  attachments, this allows us to properly discard the nested attachment
@@ -207,7 +207,7 @@ var gStreamListener = {
     //  handles this.
     gMessageHeaderSink.size = null;
   },
-  onStopRequest: function (aRequest, aContext, aStatusCode) {
+  onStopRequest: function (aRequest, aStatusCode) {
     dump("*** Size is "+gMessageHeaderSink.size+" (expecting "+this.expectedSize+")\n\n");
     Assert.ok(Math.abs(gMessageHeaderSink.size - this.expectedSize) <= epsilon);
     this._stream = null;
@@ -217,7 +217,7 @@ var gStreamListener = {
   // nsIStreamListener part
   _stream : null,
 
-  onDataAvailable: function (aRequest,aContext,aInputStream,aOffset,aCount) {
+  onDataAvailable: function (aRequest, aInputStream, aOffset, aCount) {
     if (this._stream === null) {
       this._stream = Cc["@mozilla.org/scriptableinputstream;1"].
                     createInstance(Ci.nsIScriptableInputStream);

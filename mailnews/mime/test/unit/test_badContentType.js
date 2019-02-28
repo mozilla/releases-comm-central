@@ -49,14 +49,14 @@ var gStreamListener = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
 
   // nsIRequestObserver part
-  onStartRequest: function (aRequest, aContext) {
+  onStartRequest: function (aRequest) {
     // We reset the size here because we know that we only expect one attachment
     //  per test email
     // msgHdrViewOverlay.js has a stack of attachment infos that properly
     //  handles this.
     gMessageHeaderSink.size = null;
   },
-  onStopRequest: function (aRequest, aContext, aStatusCode) {
+  onStopRequest: function (aRequest, aStatusCode) {
     dump("*** ContentType is "+gMessageHeaderSink.contentType+" (expecting "+this.expectedContentType+")\n\n");
     Assert.equal(gMessageHeaderSink.contentType, this.expectedContentType);
     this._stream = null;
@@ -66,7 +66,7 @@ var gStreamListener = {
   // nsIStreamListener part
   _stream : null,
 
-  onDataAvailable: function (aRequest,aContext,aInputStream,aOffset,aCount) {
+  onDataAvailable: function (aRequest, aInputStream, aOffset, aCount) {
     if (this._stream === null) {
       this._stream = Cc["@mozilla.org/scriptableinputstream;1"].
                     createInstance(Ci.nsIScriptableInputStream);

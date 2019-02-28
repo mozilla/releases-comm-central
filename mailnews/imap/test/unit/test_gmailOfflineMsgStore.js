@@ -223,14 +223,14 @@ var streamListener =
     ChromeUtils.generateQI([Ci.nsIStreamListener, Ci.nsIRequestObserver]),
 
   // nsIRequestObserver
-  onStartRequest: function(aRequest, aContext) {
+  onStartRequest: function(aRequest) {
   },
-  onStopRequest: function(aRequest, aContext, aStatusCode) {
+  onStopRequest: function(aRequest, aStatusCode) {
     Assert.equal(aStatusCode, 0);
   },
 
   // nsIStreamListener
-  onDataAvailable: function(aRequest, aContext, aInputStream, aOffset, aCount) {
+  onDataAvailable: function(aRequest, aInputStream, aOffset, aCount) {
     let scriptStream = Cc["@mozilla.org/scriptableinputstream;1"]
                           .createInstance(Ci.nsIScriptableInputStream);
 
@@ -244,14 +244,14 @@ var gStreamListener = {
   QueryInterface : ChromeUtils.generateQI([Ci.nsIStreamListener]),
   _stream : null,
   _data : null,
-  onStartRequest : function (aRequest, aContext) {
+  onStartRequest : function (aRequest) {
     this._data = "";
   },
-  onStopRequest : function (aRequest, aContext, aStatusCode) {
+  onStopRequest : function (aRequest, aStatusCode) {
     async_driver();
     this._stream = null;
   },
-  onDataAvailable : function (aRequest, aContext, aInputStream, aOff, aCount) {
+  onDataAvailable : function (aRequest, aInputStream, aOff, aCount) {
     if (this._stream == null) {
       this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(Ci.nsIScriptableInputStream);
       this._stream.init(aInputStream);

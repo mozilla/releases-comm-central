@@ -104,14 +104,14 @@ function createStreamListener(k) {
       ChromeUtils.generateQI([Ci.nsIStreamListener, Ci.nsIRequestObserver]),
 
     // nsIRequestObserver
-    onStartRequest(aRequest, aContext) {
+    onStartRequest(aRequest) {
     },
-    onStopRequest(aRequest, aContext, aStatusCode) {
+    onStopRequest(aRequest, aStatusCode) {
       k(this._data);
     },
 
     // nsIStreamListener
-    onDataAvailable(aRequest, aContext, aInputStream, aOffset, aCount) {
+    onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
       if (this._stream == null) {
         this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(Ci.nsIScriptableInputStream);
         this._stream.init(aInputStream);

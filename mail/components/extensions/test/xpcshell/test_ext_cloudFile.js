@@ -232,7 +232,7 @@ add_task(async () => {
 
     account.uploadFile(testFiles[filename], {
       onStartRequest() {},
-      onStopRequest(req, context, status) {
+      onStopRequest(req, status) {
         Assert.equal(status, expected);
       },
     });

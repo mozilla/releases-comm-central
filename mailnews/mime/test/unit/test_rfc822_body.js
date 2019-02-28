@@ -39,16 +39,16 @@ var gStreamListener = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
 
   // nsIRequestObserver part
-  onStartRequest: function (aRequest, aContext) {
+  onStartRequest: function (aRequest) {
   },
-  onStopRequest: function (aRequest, aContext, aStatusCode) {
+  onStopRequest: function (aRequest, aStatusCode) {
     Assert.equal(gMessageHeaderSink.attachmentCount,
                  this.expectedAttachmentCount);
     async_driver();
   },
 
   // nsIStreamListener part
-  onDataAvailable: function (aRequest,aContext,aInputStream,aOffset,aCount) {
+  onDataAvailable: function (aRequest, aInputStream, aOffset, aCount) {
     if (this.stream === null) {
       this.stream = Cc["@mozilla.org/scriptableinputstream;1"].
                     createInstance(Ci.nsIScriptableInputStream);

@@ -97,9 +97,9 @@ var gStreamListener = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
 
   // nsIRequestObserver part
-  onStartRequest: function (aRequest, aContext) {
+  onStartRequest: function (aRequest) {
   },
-  onStopRequest: function (aRequest, aContext, aStatusCode) {
+  onStopRequest: function (aRequest, aStatusCode) {
     let expectedAttachments = this.allAttachments.filter(i => i.shouldShow).
       map(i => i.filename);
     Assert.equal(expectedAttachments.length,
@@ -120,7 +120,7 @@ var gStreamListener = {
   // nsIStreamListener part
   _stream : null,
 
-  onDataAvailable: function (aRequest,aContext,aInputStream,aOffset,aCount) {
+  onDataAvailable: function (aRequest, aInputStream, aOffset, aCount) {
     if (this._stream === null) {
       this._stream = Cc["@mozilla.org/scriptableinputstream;1"].
                     createInstance(Ci.nsIScriptableInputStream);

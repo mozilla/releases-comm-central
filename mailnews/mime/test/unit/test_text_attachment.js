@@ -36,11 +36,11 @@ var gStreamListener = {
 
   _str: "",
   // nsIRequestObserver part
-  onStartRequest: function (aRequest, aContext) {
+  onStartRequest: function (aRequest) {
     this.str = "";
     this._stream = null;
   },
-  onStopRequest: function (aRequest, aContext, aStatusCode) {
+  onStopRequest: function (aRequest, aStatusCode) {
     // check that text attachment contents didn't end up inline.
     Assert.ok(!this._str.includes(textAttachment));
     async_driver();
@@ -52,7 +52,7 @@ var gStreamListener = {
   // nsIStreamListener part
   _stream : null,
 
-  onDataAvailable: function (aRequest,aContext,aInputStream,aOffset,aCount) {
+  onDataAvailable: function (aRequest, aInputStream, aOffset, aCount) {
     if (this._stream === null) {
       this._stream = Cc["@mozilla.org/scriptableinputstream;1"].
                     createInstance(Ci.nsIScriptableInputStream);

@@ -118,25 +118,25 @@ PromiseTestUtils.PromiseStreamListener = function(aWrapped) {
 PromiseTestUtils.PromiseStreamListener.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
 
-  onStartRequest : function (aRequest, aContext) {
+  onStartRequest : function (aRequest) {
     if (this.wrapped && this.wrapped.onStartRequest)
-      this.wrapped.onStartRequest(aRequest, aContext);
+      this.wrapped.onStartRequest(aRequest);
     this._data = "";
     this._stream = null;
   },
 
-  onStopRequest : function (aRequest, aContext, aStatusCode) {
+  onStopRequest : function (aRequest, aStatusCode) {
     if (this.wrapped && this.wrapped.onStopRequest)
-      this.wrapped.onStopRequest(aRequest, aContext, aStatusCode);
+      this.wrapped.onStopRequest(aRequest, aStatusCode);
     if (aStatusCode == Cr.NS_OK)
       this._resolve(this._data);
     else
       this._reject(aStatusCode);
   },
 
-  onDataAvailable : function (aRequest, aContext, aInputStream, aOff, aCount) {
+  onDataAvailable : function (aRequest, aInputStream, aOff, aCount) {
     if (this.wrapped && this.wrapped.onDataAvailable)
-      this.wrapped.onDataAvailable(aRequest, aContext, aInputStream, aOff, aCount);
+      this.wrapped.onDataAvailable(aRequest, aInputStream, aOff, aCount);
     if (!this._stream) {
       this._stream = Cc["@mozilla.org/scriptableinputstream;1"]
                      .createInstance(Ci.nsIScriptableInputStream);

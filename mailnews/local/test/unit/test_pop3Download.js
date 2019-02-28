@@ -55,11 +55,11 @@ var gStreamListener = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
   _stream: null,
   _data: null,
-  onStartRequest(aRequest, aContext) {
+  onStartRequest(aRequest) {
     this._stream = null;
     this._data = "";
   },
-  onStopRequest(aRequest, aContext, aStatusCode) {
+  onStopRequest(aRequest, aStatusCode) {
     // check that the streamed message starts with "From "
     Assert.ok(this._data.startsWith("From "));
     if (++gHdrIndex == gFiles.length)
@@ -67,7 +67,7 @@ var gStreamListener = {
     else
       streamNextMessage();
   },
-  onDataAvailable(aRequest, aContext, aInputStream, aOff, aCount) {
+  onDataAvailable(aRequest, aInputStream, aOff, aCount) {
     if (this._stream == null) {
       this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(Ci.nsIScriptableInputStream);
       this._stream.init(aInputStream);

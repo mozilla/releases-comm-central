@@ -107,14 +107,14 @@ var gStreamListener = {
   QueryInterface : ChromeUtils.generateQI([Ci.nsIStreamListener]),
   _stream : null,
   _data : null,
-  onStartRequest : function (aRequest, aContext) {
+  onStartRequest : function (aRequest) {
     this._data = "";
     this._stream = null;
   },
-  onStopRequest : function (aRequest, aContext, aStatusCode) {
+  onStopRequest : function (aRequest, aStatusCode) {
     async_driver();
   },
-  onDataAvailable : function (aRequest, aContext, aInputStream, aOff, aCount) {
+  onDataAvailable : function (aRequest, aInputStream, aOff, aCount) {
     if (this._stream == null) {
       this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(Ci.nsIScriptableInputStream);
       this._stream.init(aInputStream);

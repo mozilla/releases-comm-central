@@ -65,11 +65,11 @@ var gStreamListener = {
   index: 0, // The index of the message we're currently looking at.
 
   // nsIRequestObserver part
-  onStartRequest: function (aRequest, aContext) {
+  onStartRequest: function (aRequest) {
     this.contents = "";
     this.stream = null;
   },
-  onStopRequest: function (aRequest, aContext, aStatusCode) {
+  onStopRequest: function (aRequest, aStatusCode) {
     // Check that the attachments' filenames are as expected. Just use a regex
     // here because it's simple.
     let regex = /<legend class="mimeAttachmentHeaderName">(.*?)<\/legend>/gi;
@@ -86,7 +86,7 @@ var gStreamListener = {
   },
 
   // nsIStreamListener part
-  onDataAvailable: function (aRequest,aContext,aInputStream,aOffset,aCount) {
+  onDataAvailable: function (aRequest, aInputStream, aOffset, aCount) {
     if (this.stream === null) {
       this.stream = Cc["@mozilla.org/scriptableinputstream;1"].
                     createInstance(Ci.nsIScriptableInputStream);
