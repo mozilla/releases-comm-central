@@ -111,7 +111,7 @@ nsresult nsMsgSearchOnlineMail::Encode (nsCString& pEncoding,
         rv = searchValue->GetStr(pchar);
         if (NS_FAILED(rv) || pchar.IsEmpty())
           continue;
-        asciiOnly = NS_IsAscii(static_cast<const char16_t*>(pchar.get()));
+        asciiOnly = mozilla::IsAsciiNullTerminated(static_cast<const char16_t*>(pchar.get()));
       }
     }
   }

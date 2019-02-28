@@ -1538,7 +1538,7 @@ nsMsgComposeAndSend::GetBodyFromEditor()
 
   if (aCharset && *aCharset)
   {
-    bool isAsciiOnly = NS_IsAscii(bodyText.get());
+    bool isAsciiOnly = mozilla::IsAsciiNullTerminated(static_cast<const char16_t*>(bodyText.get()));
     rv = nsMsgI18NConvertFromUnicode(nsDependentCString(aCharset),
                                      bodyText,
                                      outCString,

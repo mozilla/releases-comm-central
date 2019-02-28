@@ -1329,7 +1329,7 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode, nsIMsgIdentity 
   }
   if (!msgBody.IsEmpty())
   {
-    bool isAsciiOnly = NS_IsAscii(static_cast<const char16_t*>(msgBody.get()));
+    bool isAsciiOnly = mozilla::IsAsciiNullTerminated(static_cast<const char16_t*>(msgBody.get()));
     // Convert body to mail charset
     nsCString outCString;
     rv = nsMsgI18NConvertFromUnicode(charset ? nsDependentCString(charset) : EmptyCString(),

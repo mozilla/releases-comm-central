@@ -1233,7 +1233,7 @@ bool nsAbManager::IsSafeLDIFString(const char16_t *aStr)
     // and MUST be base64 encoded
     if ((aStr[i] == char16_t('\n')) ||
         (aStr[i] == char16_t('\r')) ||
-        (!NS_IsAscii(aStr[i])))
+        (!mozilla::IsAscii(aStr[i])))
       return false;
   }
   return true;
