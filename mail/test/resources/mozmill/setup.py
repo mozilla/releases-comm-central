@@ -65,7 +65,7 @@ setup(name=PACKAGE_NAME,
         """,
       platforms=['Any'],
       install_requires=[
-          'jsbridge_thunderbird == 2.5',
+          'jsbridge_thunderbird == 2.5.1',
           'mozrunner >= 6.0',
           'manifestparser >= 0.9'
       ],

@@ -43,7 +43,6 @@ var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var events = ChromeUtils.import("chrome://jsbridge/content/modules/events.js");
 var DEBUG_ON = false;
 var BUFFER_SIZE = 1024;
-var hwindow = Services.appShell.hiddenDOMWindow;
 
 var uuidgen = Cc["@mozilla.org/uuid-generator;1"].getService(Ci.nsIUUIDGenerator);
 
@@ -51,12 +50,12 @@ function AsyncRead(session) {
   this.session = session;
 }
 
-AsyncRead.prototype.onStartRequest = function(request, context) {};
-AsyncRead.prototype.onStopRequest = function(request, context, status) {
+AsyncRead.prototype.onStartRequest = function(request) {};
+AsyncRead.prototype.onStopRequest = function(request, status) {
   log("async onstoprequest: onstoprequest");
   this.session.onQuit();
 };
-AsyncRead.prototype.onDataAvailable = function(request, context, inputStream, offset, count) {
+AsyncRead.prototype.onDataAvailable = function(request, inputStream, offset, count) {
   var str = {};
   str.value = "";
 
@@ -234,7 +233,6 @@ function Session(transport) {
                           .createInstance(Ci.nsIPrincipal);
   this.sandbox = Cu.Sandbox(systemPrincipal, { wantGlobalProperties: ["ChromeUtils"] });
   this.sandbox.bridge = new Bridge(this);
-  this.sandbox.openPreferences = hwindow.openPreferences;
   try {
       this.outputstream = transport.openOutputStream(Ci.nsITransport.OPEN_BLOCKING, 0, 0);
       this.outstream = Cc["@mozilla.org/intl/converter-output-stream;1"]
