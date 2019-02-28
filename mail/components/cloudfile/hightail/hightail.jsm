@@ -134,7 +134,7 @@ nsHightail.prototype = {
    * @param aStatus the status of the request.
    */
   _uploaderCallback(aRequestObserver, aStatus) {
-    aRequestObserver.onStopRequest(null, null, aStatus);
+    aRequestObserver.onStopRequest(null, aStatus);
 
     this._uploadingFile = null;
     this._uploads.shift();
@@ -189,8 +189,7 @@ nsHightail.prototype = {
     }.bind(this);
 
     let onAuthFailure = function() {
-      aCallback.onStopRequest(null, null,
-                              cloudFileAccounts.constants.authErr);
+      aCallback.onStopRequest(null, cloudFileAccounts.constants.authErr);
     };
 
     this.log.info("Checking to see if we're logged in");
@@ -266,7 +265,7 @@ nsHightail.prototype = {
                            "Hightail", "chrome,centerscreen,dialog,modal,resizable=yes",
                            args).focus();
 
-    return aCallback.onStopRequest(null, null, cancel);
+    return aCallback.onStopRequest(null, cancel);
   },
 
   /**
@@ -283,7 +282,7 @@ nsHightail.prototype = {
       for (let i = 0; i < this._uploads.length; i++)
         if (this._uploads[i].file.equals(aFile)) {
           this._uploads[i].requestObserver.onStopRequest(
-            null, null, cloudFileAccounts.constants.uploadCancelled);
+            null, cloudFileAccounts.constants.uploadCancelled);
           this._uploads.splice(i, 1);
           return;
         }
@@ -406,16 +405,15 @@ nsHightail.prototype = {
     if (Services.io.offline)
       throw cloudFileAccounts.constants.offlineErr;
 
-    aListener.onStartRequest(null, null);
+    aListener.onStartRequest(null);
 
     // Let's define some reusable callback functions...
     let onGetUserInfoSuccess = function() {
-      aListener.onStopRequest(null, null, Cr.NS_OK);
+      aListener.onStopRequest(null, Cr.NS_OK);
     };
 
     let onAuthFailure = function() {
-      aListener.onStopRequest(null, null,
-                              cloudFileAccounts.constants.authErr);
+      aListener.onStopRequest(null, cloudFileAccounts.constants.authErr);
     };
 
     // If we're not logged in, attempt to login, and then attempt to
@@ -455,18 +453,18 @@ nsHightail.prototype = {
           req.status < 400) {
         this.log.info("request status = " + req + " response = " +
                       req.responseText);
-        aRequestObserver.onStopRequest(null, null, Cr.NS_OK);
+        aRequestObserver.onStopRequest(null, Cr.NS_OK);
       } else {
         let docResponse = JSON.parse(req.responseText);
         this._lastErrorText = docResponse.errorStatus.message;
         this._lastErrorStatus = docResponse.errorStatus.code;
-        aRequestObserver.onStopRequest(null, null, Cr.NS_ERROR_FAILURE);
+        aRequestObserver.onStopRequest(null, Cr.NS_ERROR_FAILURE);
       }
     }.bind(this);
 
     req.onerror = function() {
       this.log.info("getUserInfo failed - status = " + req.status);
-      aRequestObserver.onStopRequest(null, null, Cr.NS_ERROR_FAILURE);
+      aRequestObserver.onStopRequest(null, Cr.NS_ERROR_FAILURE);
     }.bind(this);
     // Add a space at the end because http logging looks for two
     // spaces in the X-Auth-Token header to avoid putting passwords
@@ -611,13 +609,12 @@ nsHightail.prototype = {
   createExistingAccount(aRequestObserver) {
      // XXX: replace this with a better function
     let successCb = function(aResponseText, aRequest) {
-      aRequestObserver.onStopRequest(null, this, Cr.NS_OK);
-    }.bind(this);
+      aRequestObserver.onStopRequest(null, Cr.NS_OK);
+    };
 
     let failureCb = function(aResponseText, aRequest) {
-      aRequestObserver.onStopRequest(null, this,
-                                     cloudFileAccounts.constants.authErr);
-    }.bind(this);
+      aRequestObserver.onStopRequest(null, cloudFileAccounts.constants.authErr);
+    };
 
     this.logon(successCb, failureCb, true);
   },
@@ -683,7 +680,7 @@ nsHightail.prototype = {
       this._lastErrorStatus = response.errorStatus.status;
       this._lastErrorText = response.errorStatus.message;
       this.log.error("There was a problem deleting: " + this._lastErrorText);
-      aCallback.onStopRequest(null, null, Cr.NS_ERROR_FAILURE);
+      aCallback.onStopRequest(null, Cr.NS_ERROR_FAILURE);
     }.bind(this);
 
     req.onload = function() {
@@ -703,8 +700,7 @@ nsHightail.prototype = {
           }.bind(this);
 
           let onTokenRefreshFailure = function() {
-            aCallback.onStopRequest(null, null,
-                                    cloudFileAccounts.constants.authErr);
+            aCallback.onStopRequest(null, cloudFileAccounts.constants.authErr);
           };
           this._handleStaleToken(onTokenRefresh, onTokenRefreshFailure);
           return;
@@ -713,14 +709,13 @@ nsHightail.prototype = {
         this.log.error("Server has returned a failure on our delete request.");
         this.log.error("Error code: " + deleteInfo.errorStatus.code);
         this.log.error("Error message: " + deleteInfo.errorStatus.message);
-        // aCallback.onStopRequest(null, null,
-        //                         Ci.nsIMsgCloudFileProvider.uploadErr);
+        // aCallback.onStopRequest(null, Ci.nsIMsgCloudFileProvider.uploadErr);
         return;
       }
 
       this.log.info("Delete was successful!");
       // Success!
-      aCallback.onStopRequest(null, null, Cr.NS_OK);
+      aCallback.onStopRequest(null, Cr.NS_OK);
     }.bind(this);
 
     req.setRequestHeader("X-Auth-Token", this._cachedAuthToken + " ");
@@ -880,7 +875,7 @@ nsHightailFileUploader.prototype = {
    * Kicks off the upload procedure for this uploader.
    */
   startUpload() {
-    this.requestObserver.onStartRequest(null, null);
+    this.requestObserver.onStartRequest(null);
 
     let onSuccess = function() {
       this._uploadFile();

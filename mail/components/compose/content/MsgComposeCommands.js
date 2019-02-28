@@ -1511,14 +1511,14 @@ function uploadListener(aAttachment, aFile, aCloudProvider) {
 }
 
 uploadListener.prototype = {
-  onStartRequest(aRequest, aContext) {
+  onStartRequest(aRequest) {
     let bucket = document.getElementById("attachmentBucket");
     let item = bucket.findItemForAttachment(this.attachment);
     if (item)
       item.image = "chrome://global/skin/icons/loading.png";
   },
 
-  onStopRequest(aRequest, aContext, aStatusCode) {
+  onStopRequest(aRequest, aStatusCode) {
     let bucket = document.getElementById("attachmentBucket");
     let attachmentItem = bucket.findItemForAttachment(this.attachment);
 
@@ -1639,10 +1639,10 @@ function deletionListener(aAttachment, aCloudProvider) {
 }
 
 deletionListener.prototype = {
-  onStartRequest(aRequest, aContext) {
+  onStartRequest(aRequest) {
   },
 
-  onStopRequest(aRequest, aContext, aStatusCode) {
+  onStopRequest(aRequest, aStatusCode) {
     if (!Components.isSuccessCode(aStatusCode)) {
       let displayName = cloudFileAccounts.getDisplayName(this.cloudProvider);
       Services.prompt.alert(window,
@@ -1691,7 +1691,7 @@ function attachToCloud(aProvider) {
       try {
         aProvider.uploadFile(files[i], listener);
       } catch (ex) {
-        listener.onStopRequest(null, null, ex.result);
+        listener.onStopRequest(null, ex.result);
       }
       i++;
     });
@@ -1739,7 +1739,7 @@ function convertListItemsToCloudAttachment(aItems, aProvider) {
       aProvider.uploadFile(file, listener);
       convertedAttachments.appendElement(item.attachment);
     } catch (ex) {
-      listener.onStopRequest(null, null, ex.result);
+      listener.onStopRequest(null, ex.result);
     }
   }
 

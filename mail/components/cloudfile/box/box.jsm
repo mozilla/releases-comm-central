@@ -144,7 +144,7 @@ nsBox.prototype = {
    * @param aStatus the status of the request.
    */
   _uploaderCallback(aRequestObserver, aStatus) {
-    aRequestObserver.onStopRequest(null, null, aStatus);
+    aRequestObserver.onStopRequest(null, aStatus);
     this._uploadingFile = null;
     this._uploads.shift();
     if (this._uploads.length > 0) {
@@ -200,8 +200,7 @@ nsBox.prototype = {
     }.bind(this);
 
     let onAuthFailure = function() {
-      aCallback.onStopRequest(null, null,
-                              cloudFileAccounts.constants.authErr);
+      aCallback.onStopRequest(null, cloudFileAccounts.constants.authErr);
     };
 
     this.log.info("Checking to see if we're logged in");
@@ -236,11 +235,11 @@ nsBox.prototype = {
     let exceedsFileLimit = cloudFileAccounts.constants.uploadExceedsFileLimit;
     let exceedsQuota = cloudFileAccounts.constants.uploadWouldExceedQuota;
     if (aFile.fileSize > this._maxFileSize) {
-      aCallback.onStopRequest(null, null, exceedsFileLimit);
+      aCallback.onStopRequest(null, exceedsFileLimit);
       return;
     }
     if (aFile.fileSize > this.remainingFileSpace) {
-      aCallback.onStopRequest(null, null, exceedsQuota);
+      aCallback.onStopRequest(null, exceedsQuota);
       return;
     }
 
@@ -270,7 +269,7 @@ nsBox.prototype = {
       for (let i = 0; i < this._uploads.length; i++)
         if (this._uploads[i].file.equals(aFile)) {
           this._uploads[i].requestObserver.onStopRequest(
-            null, null, cloudFileAccounts.constants.uploadCancelled);
+            null, cloudFileAccounts.constants.uploadCancelled);
           this._uploads.splice(i, 1);
           return;
         }
@@ -292,14 +291,14 @@ nsBox.prototype = {
     if (!successCallback)
       successCallback = function() {
         this.requestObserver
-            .onStopRequest(null, null,
+            .onStopRequest(null,
                            this._loggedIn ? Cr.NS_OK : cloudFileAccounts.constants.authErr);
     }.bind(this);
 
     if (!failureCallback)
       failureCallback = function() {
         this.requestObserver
-            .onStopRequest(null, null, cloudFileAccounts.constants.authErr);
+            .onStopRequest(null, cloudFileAccounts.constants.authErr);
     }.bind(this);
 
     let accountInfoSuccess = function(aResponseText, aRequest) {
@@ -358,7 +357,7 @@ nsBox.prototype = {
     if (!aFailureCallback)
       aFailureCallback = function() {
         this.requestObserver
-            .onStopRequest(null, null, cloudFileAccounts.constants.authErr);
+            .onStopRequest(null, cloudFileAccounts.constants.authErr);
       }.bind(this);
 
     return this.logon(function() {
@@ -389,13 +388,13 @@ nsBox.prototype = {
     if (Services.io.offline)
       throw cloudFileAccounts.constants.offlineErr;
     this.requestObserver = aCallback;
-    aCallback.onStartRequest(null, null);
+    aCallback.onStartRequest(null);
     if (!this._loggedIn)
       return this._logonAndGetUserInfo(null, null, aWithUI);
     if (!this._userInfo)
       return this._getUserInfo();
 
-    aCallback.onStopRequest(null, null);
+    aCallback.onStopRequest(null, null);  // XXX TODO: This looks wrong, second argument is a status.
     return this._userInfo;
   },
 
@@ -536,12 +535,11 @@ nsBox.prototype = {
   createExistingAccount(aRequestObserver) {
      // XXX: replace this with a better function
     let successCb = () => {
-      aRequestObserver.onStopRequest(null, this, Cr.NS_OK);
+      aRequestObserver.onStopRequest(null, Cr.NS_OK);
     };
 
     let failureCb = (aResponseText) => {
-      aRequestObserver.onStopRequest(null, this,
-                                     cloudFileAccounts.constants.authErr);
+      aRequestObserver.onStopRequest(null, cloudFileAccounts.constants.authErr);
     };
 
     this.logon(successCb, failureCb, true);
@@ -602,11 +600,11 @@ nsBox.prototype = {
       this.log.info("delete request response = " + aRequest.status);
 
       if (aRequest.status != 204)
-        aCallback.onStopRequest(null, null, Cr.NS_ERROR_FAILURE);
+        aCallback.onStopRequest(null, Cr.NS_ERROR_FAILURE);
     }.bind(this);
     let deleteFailure = function(aException, aResponseText, aRequest) {
       this.log.error("Failed to delete file:" + aResponseText);
-      aCallback.onStopRequest(null, null, Cr.NS_ERROR_FAILURE);
+      aCallback.onStopRequest(null, Cr.NS_ERROR_FAILURE);
     }.bind(this);
 
     // Request to delete a file

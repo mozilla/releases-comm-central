@@ -1000,7 +1000,7 @@ function SocketUtil(hostname, port, ssl, commands, timeout,
 
   var dataListener = {
     data: [],
-    onStartRequest(request, context) {
+    onStartRequest(request) {
       try {
         initialized = true;
         if (!aborted) {
@@ -1010,14 +1010,14 @@ function SocketUtil(hostname, port, ssl, commands, timeout,
         }
       } catch (e) { _error(e); }
     },
-    onStopRequest(request, context, status) {
+    onStopRequest(request, status) {
       try {
         instream.close();
         outstream.close();
         resultCallback(this.data.length ? this.data : null);
       } catch (e) { _error(e); }
     },
-    onDataAvailable(request, context, inputStream, offset, count) {
+    onDataAvailable(request, inputStream, offset, count) {
       try {
         if (!aborted) {
           let inputData = instream.read(count);

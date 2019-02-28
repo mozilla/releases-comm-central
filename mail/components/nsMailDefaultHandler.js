@@ -82,11 +82,11 @@ function openURI(uri) {
                     .createInstance(Ci.nsILoadGroup);
 
   var loadlistener = {
-    onStartRequest(aRequest, aContext) {
+    onStartRequest(aRequest) {
       Services.startup.enterLastWindowClosingSurvivalArea();
     },
 
-    onStopRequest(aRequest, aContext, aStatusCode) {
+    onStopRequest(aRequest, aStatusCode) {
       Services.startup.exitLastWindowClosingSurvivalArea();
     },
 

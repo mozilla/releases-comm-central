@@ -361,7 +361,7 @@ var Socket = {
    */
   // onDataAvailable, called by Mozilla's networking code.
   // Buffers the data, and parses it into discrete messages.
-  onDataAvailable(aRequest, aContext, aInputStream, aOffset, aCount) {
+  onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
     if (this.disconnected)
       return;
     this._lastAliveTime = Date.now();
@@ -440,7 +440,7 @@ var Socket = {
    * nsIRequestObserver methods
    */
   // Signifies the beginning of an async request
-  onStartRequest(aRequest, aContext) {
+  onStartRequest(aRequest) {
     if (this.disconnected) {
       // Ignore this if we're already disconnected.
       return;
@@ -448,7 +448,7 @@ var Socket = {
     this.DEBUG("onStartRequest");
   },
   // Called to signify the end of an asynchronous request.
-  onStopRequest(aRequest, aContext, aStatus) {
+  onStopRequest(aRequest, aStatus) {
     if (this.disconnected) {
       // We're already disconnected, so nothing left to do here.
       return;

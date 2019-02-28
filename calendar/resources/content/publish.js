@@ -196,11 +196,11 @@ var notificationCallbacks = {
 var publishingListener = {
     QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
 
-    onStartRequest: function(request, ctxt) {
+    onStartRequest: function(request) {
     },
 
-    onStopRequest: function(request, ctxt, status, errorMsg) {
-        ctxt.wrappedJSObject.onStopUpload();
+    onStopRequest: function(request, status, errorMsg) {
+        this.wrappedJSObject.onStopUpload();
 
         let channel;
         let requestSucceeded;
@@ -223,6 +223,6 @@ var publishingListener = {
         }
     },
 
-    onDataAvailable: function(request, ctxt, inStream, sourceOffset, count) {
+    onDataAvailable: function(request, inStream, sourceOffset, count) {
     }
 };

@@ -99,20 +99,20 @@ var MimeParser = {
    */
   makeStreamListenerParser: function MimeParser_makeSLParser(emitter, opts) {
     var StreamListener = {
-      onStartRequest: function SLP_onStartRequest(aRequest, aContext) {
+      onStartRequest: function SLP_onStartRequest(aRequest) {
         try {
           if ("onStartRequest" in emitter)
-            emitter.onStartRequest(aRequest, aContext);
+            emitter.onStartRequest(aRequest);
         } finally {
           this._parser.resetParser();
         }
       },
-      onStopRequest: function SLP_onStopRequest(aRequest, aContext, aStatus) {
+      onStopRequest: function SLP_onStopRequest(aRequest, aStatus) {
         this._parser.deliverEOF();
         if ("onStopRequest" in emitter)
-          emitter.onStopRequest(aRequest, aContext, aStatus);
+          emitter.onStopRequest(aRequest, aStatus);
       },
-      onDataAvailable: function SLP_onData(aRequest, aContext, aStream,
+      onDataAvailable: function SLP_onData(aRequest, aStream,
                                            aOffset, aCount) {
         var scriptIn = Cc["@mozilla.org/scriptableinputstream;1"]
                          .createInstance(Ci.nsIScriptableInputStream);

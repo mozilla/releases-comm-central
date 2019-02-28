@@ -126,13 +126,11 @@ function TracingListener(aBrowser, aParams) {
 
 TracingListener.prototype = {
 
-  onStartRequest(/* nsIRequest */ aRequest,
-                 /* nsISupports */ aContext) {
-    this.oldListener.onStartRequest(aRequest, aContext);
+  onStartRequest(/* nsIRequest */ aRequest) {
+    this.oldListener.onStartRequest(aRequest);
   },
 
   onStopRequest(/* nsIRequest */ aRequest,
-                /* nsISupports */ aContext,
                 /* int */ aStatusCode) {
     // Why don't people use JSMs? Sigh...
     let accountCreationFuncs = {};
@@ -207,11 +205,10 @@ TracingListener.prototype = {
       account,
     });
 
-    this.oldListener.onStopRequest(aRequest, aContext, aStatusCode);
+    this.oldListener.onStopRequest(aRequest, aStatusCode);
   },
 
   onDataAvailable(/* nsIRequest */ aRequest,
-                  /* nsISupports */ aContext,
                   /* nsIInputStream */ aStream,
                   /* int */ aOffset,
                   /* int */ aCount) {
@@ -238,7 +235,7 @@ TracingListener.prototype = {
     this.chunks.push(data);
 
     outStream.writeBytes(data, aCount);
-    this.oldListener.onDataAvailable(aRequest, aContext,
+    this.oldListener.onDataAvailable(aRequest,
                                      storageStream.newInputStream(0),
                                      aOffset, aCount);
   },

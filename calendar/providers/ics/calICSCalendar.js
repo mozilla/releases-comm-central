@@ -385,8 +385,8 @@ calICSCalendar.prototype = {
 
     // nsIStreamListener impl
     // For after publishing. Do error checks here
-    onStartRequest: function(request, ctxt) {},
-    onDataAvailable: function(request, ctxt, inStream, sourceOffset, count) {
+    onStartRequest: function(request) {},
+    onDataAvailable: function(request, inStream, sourceOffset, count) {
         // All data must be consumed. For an upload channel, there is
         // no meaningfull data. So it gets read and then ignored
         let scriptableInputStream = Cc["@mozilla.org/scriptableinputstream;1"]
@@ -394,7 +394,7 @@ calICSCalendar.prototype = {
         scriptableInputStream.init(inStream);
         scriptableInputStream.read(-1);
     },
-    onStopRequest: function(request, ctxt, status, errorMsg) {
+    onStopRequest: function(request, status, errorMsg) {
         let httpChannel;
         let requestSucceeded = false;
         try {

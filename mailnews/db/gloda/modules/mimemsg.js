@@ -76,10 +76,10 @@ CallbackStreamListener.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
 
   // nsIRequestObserver part
-  onStartRequest: function (aRequest, aContext) {
+  onStartRequest: function (aRequest) {
     this._request = aRequest;
   },
-  onStopRequest: function (aRequest, aContext, aStatusCode) {
+  onStopRequest: function (aRequest, aStatusCode) {
     let msgURI = this._msgHdr.folder.getUriForMsg(this._msgHdr);
     delete activeStreamListeners[msgURI];
 
@@ -114,7 +114,7 @@ CallbackStreamListener.prototype = {
      converter is actually eating everything except the start and stop
      notification. */
   // nsIStreamListener part
-  onDataAvailable: function (aRequest,aContext,aInputStream,aOffset,aCount) {
+  onDataAvailable: function (aRequest,aInputStream,aOffset,aCount) {
     dump("this should not be happening! arrgggggh!\n");
     if (this._stream === null) {
       this._stream = Cc["@mozilla.org/scriptableinputstream;1"].

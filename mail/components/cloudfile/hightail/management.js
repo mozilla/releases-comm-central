@@ -29,7 +29,7 @@ function onDoAuth(button) {
   account.createExistingAccount({
     onStartRequest() {
     },
-    onStopRequest(unused1, unused2, error) {
+    onStopRequest(unused1, error) {
       button.disabled = false;
       if (error) {
         loading.hidden = true;

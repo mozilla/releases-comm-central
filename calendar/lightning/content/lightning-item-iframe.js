@@ -2230,7 +2230,7 @@ function uploadCloudAttachment(attachment, cloudProvider, listItem) {
             listItem.setAttribute("image", "chrome://global/skin/icons/loading.png");
         },
 
-        onStopRequest: function(aRequest, aContext, aStatusCode) {
+        onStopRequest: function(aRequest, aStatusCode) {
             if (Components.isSuccessCode(aStatusCode)) {
                 delete gAttachMap[attachment.hashId];
                 attachment.uri = Services.io.newURI(cloudProvider.urlForFile(file));
@@ -2355,7 +2355,7 @@ function deleteAttachment() {
         try {
             item.attachCloudProvider.deleteFile(item.attachLocalFile, {
                 onStartRequest: function() {},
-                onStopRequest: function(aRequest, aContext, aStatusCode) {
+                onStopRequest: function(aRequest, aStatusCode) {
                     if (!Components.isSuccessCode(aStatusCode)) {
                         // TODO With a notification bar, we could actually show this error.
                         cal.ERROR("[calendar-event-dialog] Deleting cloud attachment " +

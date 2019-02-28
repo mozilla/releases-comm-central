@@ -14,10 +14,10 @@ var gLinkCheckTimerID = 0;
 var gRequestObserver =
 {
   // urichecker requires that we have an OnStartRequest even tho it's a nop.
-  onStartRequest: function(request, ctxt) { },
+  onStartRequest: function(request) { },
 
   // onStopRequest is where we really handle the status.
-  onStopRequest: function(request, ctxt, status)
+  onStopRequest: function(request, status)
   {
     var linkChecker = request.QueryInterface(Ci.nsIURIChecker);
     if (linkChecker)

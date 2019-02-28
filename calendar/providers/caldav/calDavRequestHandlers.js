@@ -54,7 +54,7 @@ etagsHandler.prototype = {
     /**
      * @see nsIStreamListener
      */
-    onStartRequest: function(request, context) {
+    onStartRequest: function(request) {
         let httpchannel = request.QueryInterface(Ci.nsIHttpChannel);
 
         let responseStatus;
@@ -68,7 +68,7 @@ etagsHandler.prototype = {
             // We only need to parse 207's, anything else is probably a
             // server error (i.e 50x).
             httpchannel.contentType = "application/xml";
-            this._reader.onStartRequest(request, context);
+            this._reader.onStartRequest(request);
         } else {
             cal.LOG("CalDAV: Error fetching item etags");
             this.calendar.reportDavError(Ci.calIErrors.DAV_REPORT_ERROR);
@@ -79,7 +79,7 @@ etagsHandler.prototype = {
         }
     },
 
-    onStopRequest: async function(request, context, statusCode) {
+    onStopRequest: async function(request, statusCode) {
         if (this.calendar.verboseLogging()) {
             cal.LOG("CalDAV: recv: " + this.logXML);
         }
@@ -88,7 +88,7 @@ etagsHandler.prototype = {
             return;
         }
         try {
-            this._reader.onStopRequest(request, context, statusCode);
+            this._reader.onStopRequest(request, statusCode);
         } finally {
             this._reader = null;
         }
@@ -157,10 +157,10 @@ etagsHandler.prototype = {
         }
     },
 
-    onDataAvailable: function(request, context, inputStream, offset, count) {
+    onDataAvailable: function(request, inputStream, offset, count) {
         if (this._reader) {
             // No reader means request error
-            this._reader.onDataAvailable(request, context, inputStream, offset, count);
+            this._reader.onDataAvailable(request, inputStream, offset, count);
         }
     },
 
@@ -360,7 +360,7 @@ webDavSyncHandler.prototype = {
     /**
      * @see nsIStreamListener
      */
-    onStartRequest: function(request, context) {
+    onStartRequest: function(request) {
         let httpchannel = request.QueryInterface(Ci.nsIHttpChannel);
 
         let responseStatus;
@@ -374,7 +374,7 @@ webDavSyncHandler.prototype = {
             // We only need to parse 207's, anything else is probably a
             // server error (i.e 50x).
             httpchannel.contentType = "application/xml";
-            this._reader.onStartRequest(request, context);
+            this._reader.onStartRequest(request);
         } else if (this.calendar.mWebdavSyncToken != null &&
                    responseStatus >= 400 &&
                    responseStatus <= 499) {
@@ -395,7 +395,7 @@ webDavSyncHandler.prototype = {
         }
     },
 
-    onStopRequest: function(request, context, statusCode) {
+    onStopRequest: function(request, statusCode) {
         if (this.calendar.verboseLogging()) {
             cal.LOG("CalDAV: recv: " + this.logXML);
         }
@@ -405,16 +405,16 @@ webDavSyncHandler.prototype = {
             return;
         }
         try {
-            this._reader.onStopRequest(request, context, statusCode);
+            this._reader.onStopRequest(request, statusCode);
         } finally {
             this._reader = null;
         }
     },
 
-    onDataAvailable: function(request, context, inputStream, offset, count) {
+    onDataAvailable: function(request, inputStream, offset, count) {
         if (this._reader) {
             // No reader means request error
-            this._reader.onDataAvailable(request, context, inputStream, offset, count);
+            this._reader.onDataAvailable(request, inputStream, offset, count);
         }
     },
 
@@ -718,7 +718,7 @@ multigetSyncHandler.prototype = {
     /**
      * @see nsIStreamListener
      */
-    onStartRequest: function(request, context) {
+    onStartRequest: function(request) {
         let httpchannel = request.QueryInterface(Ci.nsIHttpChannel);
 
         let responseStatus;
@@ -732,7 +732,7 @@ multigetSyncHandler.prototype = {
             // We only need to parse 207's, anything else is probably a
             // server error (i.e 50x).
             httpchannel.contentType = "application/xml";
-            this._reader.onStartRequest(request, context);
+            this._reader.onStartRequest(request);
         } else {
             let errorMsg = "CalDAV: Error: got status " + responseStatus +
                                " fetching calendar data for " + this.calendar.name + ", " + this.listener;
@@ -741,7 +741,7 @@ multigetSyncHandler.prototype = {
         }
     },
 
-    onStopRequest: function(request, context, statusCode) {
+    onStopRequest: function(request, statusCode) {
         if (this.calendar.verboseLogging()) {
             cal.LOG("CalDAV: recv: " + this.logXML);
         }
@@ -776,7 +776,7 @@ multigetSyncHandler.prototype = {
             return;
         }
         try {
-            this._reader.onStopRequest(request, context, statusCode);
+            this._reader.onStopRequest(request, statusCode);
         } finally {
             this._reader = null;
         }
@@ -802,10 +802,10 @@ multigetSyncHandler.prototype = {
         }
     },
 
-    onDataAvailable: function(request, context, inputStream, offset, count) {
+    onDataAvailable: function(request, inputStream, offset, count) {
         if (this._reader) {
             // No reader means request error
-            this._reader.onDataAvailable(request, context, inputStream, offset, count);
+            this._reader.onDataAvailable(request, inputStream, offset, count);
         }
     },
 

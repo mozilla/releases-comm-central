@@ -102,25 +102,25 @@ class CloudFileAccount {
       });
     } catch (ex) {
       if (ex.result == 0x80530014) { // NS_ERROR_DOM_ABORT_ERR
-        callback.onStopRequest(null, null, cloudFileAccounts.constants.uploadCancelled);
+        callback.onStopRequest(null, cloudFileAccounts.constants.uploadCancelled);
       } else {
         console.error(ex);
-        callback.onStopRequest(null, null, cloudFileAccounts.constants.uploadErr);
+        callback.onStopRequest(null, cloudFileAccounts.constants.uploadErr);
       }
       return;
     }
 
     if (results && results.length > 0) {
       if (results[0].aborted) {
-        callback.onStopRequest(null, null, cloudFileAccounts.constants.uploadCancelled);
+        callback.onStopRequest(null, cloudFileAccounts.constants.uploadCancelled);
         return;
       }
 
       let url = results[0].url;
       this._fileUrls.set(file.path, url);
-      callback.onStopRequest(null, null, Cr.NS_OK);
+      callback.onStopRequest(null, Cr.NS_OK);
     } else {
-      callback.onStopRequest(null, null, cloudFileAccounts.constants.uploadErr);
+      callback.onStopRequest(null, cloudFileAccounts.constants.uploadErr);
       throw new ExtensionUtils.ExtensionError(
         `Missing cloudFile.onFileUpload listener for ${this.extension.id}`
       );
@@ -141,7 +141,7 @@ class CloudFileAccount {
     if (Services.io.offline) {
       throw cloudFileAccounts.constants.offlineErr;
     }
-    callback.onStopRequest(null, null, Cr.NS_OK);
+    callback.onStopRequest(null, Cr.NS_OK);
   }
 
   async deleteFile(file, callback) {
@@ -152,13 +152,13 @@ class CloudFileAccount {
         results = await this.extension.emit("deleteFile", this, { id });
       }
     } catch (ex) {
-      callback.onStopRequest(null, null, Cr.NS_ERROR_FAILURE);
+      callback.onStopRequest(null, Cr.NS_ERROR_FAILURE);
     }
 
     if (results && results.length > 0) {
-      callback.onStopRequest(null, null, Cr.NS_OK);
+      callback.onStopRequest(null, Cr.NS_OK);
     } else {
-      callback.onStopRequest(null, null, Cr.NS_ERROR_FAILURE);
+      callback.onStopRequest(null, Cr.NS_ERROR_FAILURE);
       throw new ExtensionUtils.ExtensionError(
         `Missing cloudFile.onFileDeleted listener for ${this.extension.id}`
       );
@@ -173,8 +173,8 @@ class CloudFileAccount {
     if (Services.io.offline) {
       throw cloudFileAccounts.constants.offlineErr;
     }
-    // We're assuming everything is ok here. Maybe expose this in the future if there is a need
-    callback.onStopRequest(null, this, Cr.NS_OK);
+    // We're assuming everything is ok here.
+    callback.onStopRequest(null, Cr.NS_OK);
   }
 
   providerUrlForError(error) {

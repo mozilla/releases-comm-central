@@ -317,7 +317,7 @@ function XMPPParser(aListener) {
   this._parser.errorHandler = this;
   this._parser.parseAsync(null);
   this._listener = aListener;
-  this._parser.onStartRequest(this._dummyRequest, null);
+  this._parser.onStartRequest(this._dummyRequest);
 }
 XMPPParser.prototype = {
   _destroyPending: false,
@@ -331,7 +331,7 @@ XMPPParser.prototype = {
       this._destroyPending = true;
       return;
     }
-    this._parser.onStopRequest(this._dummyRequest, null, Cr.NS_OK);
+    this._parser.onStopRequest(this._dummyRequest, Cr.NS_OK);
     // Stopping the request causes parse errors (because we parsed
     // only partial XML documents?), so the error handler is still
     // needed to avoid the errors being reported to the error console.
@@ -351,7 +351,7 @@ XMPPParser.prototype = {
   _inOnDataAvailable: false,
   onDataAvailable(aInputStream, aOffset, aCount) {
     this._inOnDataAvailable = true;
-    this._parser.onDataAvailable(this._dummyRequest, null,
+    this._parser.onDataAvailable(this._dummyRequest,
                                  aInputStream, aOffset, aCount);
     delete this._inOnDataAvailable;
     if (this._destroyPending)

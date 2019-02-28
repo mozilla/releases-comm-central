@@ -310,7 +310,7 @@ XMPPSession.prototype = {
     istream.setData(aData, aData.length);
     this._lastReceivedData = aData;
     try {
-      this._parser.onDataAvailable(istream, 0, aData.length);
+      this._parser.onDataAvailable(istream, 0, aData.length);  // XXX TODO: This looks wrong, request parameter missing.
     } catch (e) {
       Cu.reportError(e);
       this.onXMLError("parser-exception", e);

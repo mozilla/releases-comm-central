@@ -222,7 +222,7 @@ SearchIntegration = { // eslint-disable-line no-global-assign
     // Buffer to store the message
     _message: "",
 
-    onStartRequest(request, context) {
+    onStartRequest(request) {
       try {
         let outputFileStream =  Cc["@mozilla.org/network/file-output-stream;1"]
                                   .createInstance(Ci.nsIFileOutputStream);
@@ -235,7 +235,7 @@ SearchIntegration = { // eslint-disable-line no-global-assign
       }
     },
 
-    onStopRequest(request, context, status, errorMsg) {
+    onStopRequest(request, status) {
       try {
         // XXX Once the JS emitter gets checked in, this code should probably be
         // switched over to use that
@@ -293,7 +293,7 @@ SearchIntegration = { // eslint-disable-line no-global-assign
       this._onDoneStreaming(true);
     },
 
-    onDataAvailable(request, context, inputStream, offset, count) {
+    onDataAvailable(request, inputStream, offset, count) {
       try {
         let inStream = Cc["@mozilla.org/scriptableinputstream;1"]
                          .createInstance(Ci.nsIScriptableInputStream);
