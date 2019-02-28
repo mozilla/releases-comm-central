@@ -959,7 +959,7 @@ NS_IMETHODIMP nsPop3Protocol::OnTransportStatus(nsITransport *aTransport, nsresu
 }
 
 // stop binding is a "notification" informing us that the stream associated with aURL is going away.
-NS_IMETHODIMP nsPop3Protocol::OnStopRequest(nsIRequest *aRequest, nsISupports * aContext, nsresult aStatus)
+NS_IMETHODIMP nsPop3Protocol::OnStopRequest(nsIRequest *aRequest, nsresult aStatus)
 {
   // If the server dropped the connection, m_socketIsOpen will be true, before
   // we call nsMsgProtocol::OnStopRequest. The call will force a close socket,
@@ -997,7 +997,7 @@ NS_IMETHODIMP nsPop3Protocol::OnStopRequest(nsIRequest *aRequest, nsISupports * 
 
     return NS_OK;
   }
-  nsresult rv = nsMsgProtocol::OnStopRequest(aRequest, aContext, aStatus);
+  nsresult rv = nsMsgProtocol::OnStopRequest(aRequest, aStatus);
 
   // turn off the server busy flag on stop request - we know we're done, right?
   nsCOMPtr<nsIMsgIncomingServer> server = do_QueryInterface(m_pop3Server);

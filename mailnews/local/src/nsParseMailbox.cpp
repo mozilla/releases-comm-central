@@ -61,12 +61,12 @@ NS_IMPL_ISUPPORTS_INHERITED(nsMsgMailboxParser,
 
 // Whenever data arrives from the connection, core netlib notifices the protocol by calling
 // OnDataAvailable. We then read and process the incoming data from the input stream.
-NS_IMETHODIMP nsMsgMailboxParser::OnDataAvailable(nsIRequest *request, nsISupports *ctxt, nsIInputStream *aIStream, uint64_t sourceOffset, uint32_t aLength)
+NS_IMETHODIMP nsMsgMailboxParser::OnDataAvailable(nsIRequest *request, nsIInputStream *aIStream, uint64_t sourceOffset, uint32_t aLength)
 {
     return ProcessMailboxInputStream(aIStream, aLength);
 }
 
-NS_IMETHODIMP nsMsgMailboxParser::OnStartRequest(nsIRequest *request, nsISupports *ctxt)
+NS_IMETHODIMP nsMsgMailboxParser::OnStartRequest(nsIRequest *request)
 {
     m_startTime = PR_Now();
 
@@ -154,7 +154,7 @@ NS_IMETHODIMP nsMsgMailboxParser::OnStartRequest(nsIRequest *request, nsISupport
 }
 
 // stop binding is a "notification" informing us that the stream associated with aURL is going away.
-NS_IMETHODIMP nsMsgMailboxParser::OnStopRequest(nsIRequest *request, nsISupports *ctxt, nsresult aStatus)
+NS_IMETHODIMP nsMsgMailboxParser::OnStopRequest(nsIRequest *request, nsresult aStatus)
 {
     DoneParsingFolder(aStatus);
     // what can we do? we can close the stream?

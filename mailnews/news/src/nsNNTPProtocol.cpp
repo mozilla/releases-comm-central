@@ -530,7 +530,7 @@ nsresult nsNntpCacheStreamListener::Init(nsIStreamListener * aStreamListener, ns
 }
 
 NS_IMETHODIMP
-nsNntpCacheStreamListener::OnStartRequest(nsIRequest *request, nsISupports * aCtxt)
+nsNntpCacheStreamListener::OnStartRequest(nsIRequest *request)
 {
   nsCOMPtr <nsILoadGroup> loadGroup;
 
@@ -539,16 +539,16 @@ nsNntpCacheStreamListener::OnStartRequest(nsIRequest *request, nsISupports * aCt
     mChannelToUse->GetLoadGroup(getter_AddRefs(loadGroup));
   if (loadGroup)
     loadGroup->AddRequest(mChannelToUse, nullptr /* context isupports */);
-  return (mListener) ? mListener->OnStartRequest(mChannelToUse, aCtxt) : NS_OK;
+  return (mListener) ? mListener->OnStartRequest(mChannelToUse) : NS_OK;
 }
 
 NS_IMETHODIMP
-nsNntpCacheStreamListener::OnStopRequest(nsIRequest *request, nsISupports * aCtxt, nsresult aStatus)
+nsNntpCacheStreamListener::OnStopRequest(nsIRequest *request, nsresult aStatus)
 {
   nsresult rv = NS_OK;
   NS_ASSERTION(mListener, "this assertion is for Bug 531794 comment 7");
   if (mListener)
-    mListener->OnStopRequest(mChannelToUse, aCtxt, aStatus);
+    mListener->OnStopRequest(mChannelToUse, aStatus);
   nsCOMPtr <nsILoadGroup> loadGroup;
   NS_ASSERTION(mChannelToUse, "null channel in OnStopRequest");
   if (mChannelToUse)
@@ -571,10 +571,10 @@ nsNntpCacheStreamListener::OnStopRequest(nsIRequest *request, nsISupports * aCtx
 }
 
 NS_IMETHODIMP
-nsNntpCacheStreamListener::OnDataAvailable(nsIRequest *request, nsISupports * aCtxt, nsIInputStream * aInStream, uint64_t aSourceOffset, uint32_t aCount)
+nsNntpCacheStreamListener::OnDataAvailable(nsIRequest *request, nsIInputStream * aInStream, uint64_t aSourceOffset, uint32_t aCount)
 {
     NS_ENSURE_STATE(mListener);
-    return mListener->OnDataAvailable(mChannelToUse, aCtxt, aInStream, aSourceOffset, aCount);
+    return mListener->OnDataAvailable(mChannelToUse, aInStream, aSourceOffset, aCount);
 }
 
 NS_IMETHODIMP nsNNTPProtocol::GetOriginalURI(nsIURI* *aURI)
@@ -1061,7 +1061,7 @@ nsresult nsNNTPProtocol::LoadUrl(nsIURI * aURL, nsISupports * aConsumer)
     // load group here, by generating the start request notification. nsMsgProtocol::OnStartRequest
     // ignores the first parameter (which is supposed to be the channel) so we'll pass in null.
     if (m_fromCache)
-      nsMsgProtocol::OnStartRequest(nullptr, aURL);
+      nsMsgProtocol::OnStartRequest(nullptr);
 
       /* At this point, we're all done parsing the URL, and know exactly
       what we want to do with it.
@@ -1179,14 +1179,14 @@ void nsNNTPProtocol::FinishMemCacheEntry(bool valid)
 }
 
 // stop binding is a "notification" informing us that the stream associated with aURL is going away.
-NS_IMETHODIMP nsNNTPProtocol::OnStopRequest(nsIRequest *request, nsISupports * aContext, nsresult aStatus)
+NS_IMETHODIMP nsNNTPProtocol::OnStopRequest(nsIRequest *request, nsresult aStatus)
 {
     // either remove mem cache entry, or mark it valid if url successful and
     // command succeeded
     FinishMemCacheEntry(NS_SUCCEEDED(aStatus)
       && MK_NNTP_RESPONSE_TYPE(m_responseCode) == MK_NNTP_RESPONSE_TYPE_OK);
 
-    nsMsgProtocol::OnStopRequest(request, aContext, aStatus);
+    nsMsgProtocol::OnStopRequest(request, aStatus);
 
     // nsMsgProtocol::OnStopRequest() has called m_channelListener. There is
     // no need to be called again in CloseSocket(). Let's clear it here.
@@ -2123,7 +2123,7 @@ nsresult nsNNTPProtocol::DisplayArticle(nsIInputStream * inputStream, uint32_t l
       uint64_t inlength = 0;
       mDisplayInputStream->Available(&inlength);
       if (inlength > 0) // broadcast our batched up ODA changes
-        m_channelListener->OnDataAvailable(this, m_channelContext, mDisplayInputStream, 0, std::min(inlength, uint64_t(PR_UINT32_MAX)));
+        m_channelListener->OnDataAvailable(this, mDisplayInputStream, 0, std::min(inlength, uint64_t(PR_UINT32_MAX)));
       SetFlag(NNTP_PAUSE_FOR_READ);
       PR_Free(line);
       return rv;
@@ -2142,7 +2142,7 @@ nsresult nsNNTPProtocol::DisplayArticle(nsIInputStream * inputStream, uint32_t l
       uint64_t inlength = 0;
       mDisplayInputStream->Available(&inlength);
       if (inlength > 0) // broadcast our batched up ODA changes
-        m_channelListener->OnDataAvailable(this, m_channelContext, mDisplayInputStream, 0, std::min(inlength, uint64_t(PR_UINT32_MAX)));
+        m_channelListener->OnDataAvailable(this, mDisplayInputStream, 0, std::min(inlength, uint64_t(PR_UINT32_MAX)));
       PR_Free(line);
       return rv;
     }
@@ -4661,7 +4661,7 @@ nsresult nsNNTPProtocol::CleanupAfterRunningUrl()
   // because it can synchronously causes a new url to get run in the
   // protocol - truly evil, but we're stuck at the moment.
   if (m_channelListener)
-    (void) m_channelListener->OnStopRequest(this, m_channelContext, NS_OK);
+    (void) m_channelListener->OnStopRequest(this, NS_OK);
 
   if (m_loadGroup)
     (void) m_loadGroup->RemoveRequest(static_cast<nsIRequest *>(this), nullptr, NS_OK);

@@ -514,7 +514,7 @@ RDFXMLDataSourceImpl::BlockingParse(nsIURI* aURL, nsIStreamListener* aConsumer)
         }
     }
 
-    rv = aConsumer->OnStartRequest(channel, nullptr);
+    rv = aConsumer->OnStartRequest(channel);
 
     uint64_t offset = 0;
     while (NS_SUCCEEDED(rv)) {
@@ -533,7 +533,7 @@ RDFXMLDataSourceImpl::BlockingParse(nsIURI* aURL, nsIStreamListener* aConsumer)
         if (avail > UINT32_MAX)
             avail = UINT32_MAX;
 
-        rv = aConsumer->OnDataAvailable(channel, nullptr, bufStream, offset, (uint32_t)avail);
+        rv = aConsumer->OnDataAvailable(channel, bufStream, offset, (uint32_t)avail);
         if (NS_SUCCEEDED(rv))
             offset += avail;
     }
@@ -542,7 +542,7 @@ RDFXMLDataSourceImpl::BlockingParse(nsIURI* aURL, nsIStreamListener* aConsumer)
         channel->Cancel(rv);
 
     channel->GetStatus(&rv);
-    aConsumer->OnStopRequest(channel, nullptr, rv);
+    aConsumer->OnStopRequest(channel, rv);
 
     // Notify load observers
     for (i = mObservers.Count() - 1; i >= 0; --i) {
@@ -1089,14 +1089,13 @@ RDFXMLDataSourceImpl::RemoveXMLSinkObserver(nsIRDFXMLSinkObserver* aObserver)
 //
 
 NS_IMETHODIMP
-RDFXMLDataSourceImpl::OnStartRequest(nsIRequest *request, nsISupports *ctxt)
+RDFXMLDataSourceImpl::OnStartRequest(nsIRequest *request)
 {
-    return mListener->OnStartRequest(request, ctxt);
+    return mListener->OnStartRequest(request);
 }
 
 NS_IMETHODIMP
 RDFXMLDataSourceImpl::OnStopRequest(nsIRequest *request,
-                                    nsISupports *ctxt,
                                     nsresult status)
 {
     if (NS_FAILED(status)) {
@@ -1113,7 +1112,7 @@ RDFXMLDataSourceImpl::OnStopRequest(nsIRequest *request,
     }
 
     nsresult rv;
-    rv = mListener->OnStopRequest(request, ctxt, status);
+    rv = mListener->OnStopRequest(request, status);
 
     mListener = nullptr; // release the parser
 
@@ -1127,12 +1126,11 @@ RDFXMLDataSourceImpl::OnStopRequest(nsIRequest *request,
 
 NS_IMETHODIMP
 RDFXMLDataSourceImpl::OnDataAvailable(nsIRequest *request,
-                                      nsISupports *ctxt,
                                       nsIInputStream *inStr,
                                       uint64_t sourceOffset,
                                       uint32_t count)
 {
-    return mListener->OnDataAvailable(request, ctxt, inStr, sourceOffset, count);
+    return mListener->OnDataAvailable(request, inStr, sourceOffset, count);
 }
 
 //----------------------------------------------------------------------

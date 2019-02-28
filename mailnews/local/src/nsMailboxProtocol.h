@@ -61,8 +61,8 @@ public:
   // we support the nsIStreamListener interface
   ////////////////////////////////////////////////////////////////////////////////////////
 
-  NS_IMETHOD OnStartRequest(nsIRequest *request, nsISupports *ctxt) override;
-  NS_IMETHOD OnStopRequest(nsIRequest *request, nsISupports *ctxt, nsresult aStatus) override;
+  NS_IMETHOD OnStartRequest(nsIRequest *request) override;
+  NS_IMETHOD OnStopRequest(nsIRequest *request, nsresult aStatus) override;
 
 private:
   nsCOMPtr<nsIMailboxUrl>  m_runningUrl; // the nsIMailboxURL that is currently running

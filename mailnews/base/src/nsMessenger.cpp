@@ -1803,7 +1803,7 @@ nsresult nsSaveMsgListener::InitializeDownload(nsIRequest * aRequest)
 }
 
 NS_IMETHODIMP
-nsSaveMsgListener::OnStartRequest(nsIRequest* request, nsISupports* aSupport)
+nsSaveMsgListener::OnStartRequest(nsIRequest* request)
 {
   if (m_file)
     MsgNewBufferedFileOutputStream(getter_AddRefs(m_outputStream), m_file, -1, ATTACHMENT_PERMISSION);
@@ -1817,7 +1817,7 @@ nsSaveMsgListener::OnStartRequest(nsIRequest* request, nsISupports* aSupport)
 }
 
 NS_IMETHODIMP
-nsSaveMsgListener::OnStopRequest(nsIRequest* request, nsISupports* aSupport,
+nsSaveMsgListener::OnStopRequest(nsIRequest* request,
                                  nsresult status)
 {
   nsresult rv = NS_OK;
@@ -1932,7 +1932,6 @@ nsSaveMsgListener::OnStopRequest(nsIRequest* request, nsISupports* aSupport,
 
 NS_IMETHODIMP
 nsSaveMsgListener::OnDataAvailable(nsIRequest* request,
-                                  nsISupports* aSupport,
                                   nsIInputStream* inStream,
                                   uint64_t srcOffset,
                                   uint32_t count)
@@ -2564,7 +2563,7 @@ NS_IMPL_ISUPPORTS(nsDelAttachListener,
 // nsIRequestObserver
 //
 NS_IMETHODIMP
-nsDelAttachListener::OnStartRequest(nsIRequest * aRequest, nsISupports * aContext)
+nsDelAttachListener::OnStartRequest(nsIRequest * aRequest)
 {
   // called when we start processing the StreamMessage request.
   // This is called after OnStartRunningUrl().
@@ -2572,7 +2571,7 @@ nsDelAttachListener::OnStartRequest(nsIRequest * aRequest, nsISupports * aContex
 }
 
 NS_IMETHODIMP
-nsDelAttachListener::OnStopRequest(nsIRequest * aRequest, nsISupports * aContext, nsresult aStatusCode)
+nsDelAttachListener::OnStopRequest(nsIRequest * aRequest, nsresult aStatusCode)
 {
   // called when we have completed processing the StreamMessage request.
   // This is called after OnStopRequest(). This means that we have now
@@ -2617,7 +2616,7 @@ nsDelAttachListener::OnStopRequest(nsIRequest * aRequest, nsISupports * aContext
 //
 
 NS_IMETHODIMP
-nsDelAttachListener::OnDataAvailable(nsIRequest * aRequest, nsISupports * aSupport,
+nsDelAttachListener::OnDataAvailable(nsIRequest * aRequest,
                                      nsIInputStream * aInStream, uint64_t aSrcOffset,
                                      uint32_t aCount)
 {

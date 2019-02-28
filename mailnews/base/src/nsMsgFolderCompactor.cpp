@@ -739,13 +739,13 @@ nsFolderCompactState::GetMessage(nsIMsgDBHdr **message)
 
 
 NS_IMETHODIMP
-nsFolderCompactState::OnStartRequest(nsIRequest *request, nsISupports *ctxt)
+nsFolderCompactState::OnStartRequest(nsIRequest *request)
 {
   return StartMessage();
 }
 
 NS_IMETHODIMP
-nsFolderCompactState::OnStopRequest(nsIRequest *request, nsISupports *ctxt,
+nsFolderCompactState::OnStopRequest(nsIRequest *request,
                                     nsresult status)
 {
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
@@ -782,7 +782,7 @@ nsFolderCompactState::OnStopRequest(nsIRequest *request, nsISupports *ctxt,
 }
 
 NS_IMETHODIMP
-nsFolderCompactState::OnDataAvailable(nsIRequest *request, nsISupports *ctxt,
+nsFolderCompactState::OnDataAvailable(nsIRequest *request,
                                       nsIInputStream *inStr,
                                       uint64_t sourceOffset, uint32_t count)
 {
@@ -1086,7 +1086,7 @@ nsresult nsOfflineStoreCompactState::CopyNextMessage(bool &done)
 }
 
 NS_IMETHODIMP
-nsOfflineStoreCompactState::OnStopRequest(nsIRequest *request, nsISupports *ctxt,
+nsOfflineStoreCompactState::OnStopRequest(nsIRequest *request,
                                           nsresult status)
 {
   nsresult rv = status;
@@ -1330,7 +1330,7 @@ nsresult nsOfflineStoreCompactState::StartCompacting()
 }
 
 NS_IMETHODIMP
-nsOfflineStoreCompactState::OnDataAvailable(nsIRequest *request, nsISupports *ctxt,
+nsOfflineStoreCompactState::OnDataAvailable(nsIRequest *request,
                                             nsIInputStream *inStr,
                                             uint64_t sourceOffset, uint32_t count)
 {

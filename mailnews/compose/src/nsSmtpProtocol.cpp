@@ -525,7 +525,7 @@ void nsSmtpProtocol::AppendHelloArgument(nsACString& aResult)
 
 // stop binding is a "notification" informing us that the stream
 // associated with aURL is going away.
-NS_IMETHODIMP nsSmtpProtocol::OnStopRequest(nsIRequest *request, nsISupports *ctxt,
+NS_IMETHODIMP nsSmtpProtocol::OnStopRequest(nsIRequest *request,
                                             nsresult aStatus)
 {
   bool connDroppedDuringAuth = NS_SUCCEEDED(aStatus) && !m_sendDone &&
@@ -546,10 +546,10 @@ NS_IMETHODIMP nsSmtpProtocol::OnStopRequest(nsIRequest *request, nsISupports *ct
     MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Info,
  ("SMTP connection dropped after %d total bytes read", m_totalAmountRead));
     if (!connDroppedDuringAuth)
-      nsMsgAsyncWriteProtocol::OnStopRequest(nullptr, ctxt, NS_ERROR_NET_INTERRUPT);
+      nsMsgAsyncWriteProtocol::OnStopRequest(nullptr, NS_ERROR_NET_INTERRUPT);
   }
   else
-    nsMsgAsyncWriteProtocol::OnStopRequest(nullptr, ctxt, aStatus);
+    nsMsgAsyncWriteProtocol::OnStopRequest(nullptr, aStatus);
 
   // okay, we've been told that the send is done and the connection is going away. So
   // we need to release all of our state
@@ -563,7 +563,7 @@ NS_IMETHODIMP nsSmtpProtocol::OnStopRequest(nsIRequest *request, nsISupports *ct
     nsresult rv = AuthLoginResponse(nullptr, 0);
     if (NS_FAILED(rv))
       return rv;
-    return LoadUrl(runningURI, ctxt);
+    return LoadUrl(runningURI, nullptr);
   }
 
   return rv;

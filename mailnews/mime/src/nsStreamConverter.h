@@ -82,7 +82,6 @@ private:
   PRTime mConvertContentTime;
 #endif
   nsIRequest *                  mPendingRequest;  // used when we need to delay to fire onStartRequest
-  nsISupports *                 mPendingContext;  // used when we need to delay to fire onStartRequest
 };
 
 #endif /* nsStreamConverter_h_ */

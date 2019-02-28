@@ -81,14 +81,14 @@ NS_IMETHODIMP nsCopyMessageStreamListener::EndMessage(nsMsgKey key)
 }
 
 
-NS_IMETHODIMP nsCopyMessageStreamListener::OnDataAvailable(nsIRequest * /* request */, nsISupports *ctxt, nsIInputStream *aIStream, uint64_t sourceOffset, uint32_t aLength)
+NS_IMETHODIMP nsCopyMessageStreamListener::OnDataAvailable(nsIRequest * /* request */, nsIInputStream *aIStream, uint64_t sourceOffset, uint32_t aLength)
 {
   nsresult rv;
   rv = mDestination->CopyData(aIStream, aLength);
   return rv;
 }
 
-NS_IMETHODIMP nsCopyMessageStreamListener::OnStartRequest(nsIRequest * request, nsISupports *ctxt)
+NS_IMETHODIMP nsCopyMessageStreamListener::OnStartRequest(nsIRequest * request)
 {
   nsCOMPtr<nsIMsgDBHdr> message;
   nsresult rv = NS_OK;
@@ -143,7 +143,7 @@ NS_IMETHODIMP nsCopyMessageStreamListener::EndCopy(nsISupports *url, nsresult aS
   return NS_OK;
 }
 
-NS_IMETHODIMP nsCopyMessageStreamListener::OnStopRequest(nsIRequest* request, nsISupports *ctxt, nsresult aStatus)
+NS_IMETHODIMP nsCopyMessageStreamListener::OnStopRequest(nsIRequest* request, nsresult aStatus)
 {
   nsresult rv;
   // We know the request is an nsIChannel we can get a URI from, but this is

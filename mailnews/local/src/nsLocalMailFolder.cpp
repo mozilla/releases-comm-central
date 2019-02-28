@@ -3680,7 +3680,7 @@ nsMsgLocalMailFolder::AddMessageBatch(uint32_t aMessageCount,
       FinishNewLocalMessage(outFileStream, newHdr, msgStore, newMailParser);
       outFileStream->Close();
       outFileStream = nullptr;
-      newMailParser->OnStopRequest(nullptr, nullptr, NS_OK);
+      newMailParser->OnStopRequest(nullptr, NS_OK);
       newMailParser->EndMsgDownload();
       hdrArray->AppendElement(newHdr);
     }

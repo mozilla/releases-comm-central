@@ -295,7 +295,7 @@ nsresult nsMsgProtocol::SendData(const char * dataBuffer, bool aSuppressLogging)
 
 // Whenever data arrives from the connection, core netlib notifices the protocol by calling
 // OnDataAvailable. We then read and process the incoming data from the input stream.
-NS_IMETHODIMP nsMsgProtocol::OnDataAvailable(nsIRequest *request, nsISupports *ctxt, nsIInputStream *inStr, uint64_t sourceOffset, uint32_t count)
+NS_IMETHODIMP nsMsgProtocol::OnDataAvailable(nsIRequest *request, nsIInputStream *inStr, uint64_t sourceOffset, uint32_t count)
 {
   // right now, this really just means turn around and churn through the state machine
   nsCOMPtr <nsIURI> uri;
@@ -304,7 +304,7 @@ NS_IMETHODIMP nsMsgProtocol::OnDataAvailable(nsIRequest *request, nsISupports *c
   return ProcessProtocolState(uri, inStr, sourceOffset, count);
 }
 
-NS_IMETHODIMP nsMsgProtocol::OnStartRequest(nsIRequest *request, nsISupports *ctxt)
+NS_IMETHODIMP nsMsgProtocol::OnStartRequest(nsIRequest *request)
 {
   nsresult rv = NS_OK;
   nsCOMPtr <nsIURI> uri;
@@ -325,7 +325,7 @@ NS_IMETHODIMP nsMsgProtocol::OnStartRequest(nsIRequest *request, nsISupports *ct
   {
     if (!m_channelContext)
       m_channelContext = uri;
-    rv = m_channelListener->OnStartRequest(this, m_channelContext);
+    rv = m_channelListener->OnStartRequest(this);
   }
 
   nsCOMPtr<nsISocketTransport> strans = do_QueryInterface(m_transport);
@@ -385,7 +385,7 @@ void nsMsgProtocol::ShowAlertMessage(nsIMsgMailNewsUrl *aMsgUrl, nsresult aStatu
 }
 
 // stop binding is a "notification" informing us that the stream associated with aURL is going away.
-NS_IMETHODIMP nsMsgProtocol::OnStopRequest(nsIRequest *request, nsISupports *ctxt, nsresult aStatus)
+NS_IMETHODIMP nsMsgProtocol::OnStopRequest(nsIRequest *request, nsresult aStatus)
 {
   nsresult rv = NS_OK;
 
@@ -393,7 +393,7 @@ NS_IMETHODIMP nsMsgProtocol::OnStopRequest(nsIRequest *request, nsISupports *ctx
   // so pass in ourself as the channel and not the underlying socket or file channel the protocol
   // happens to be using
   if (!mSuppressListenerNotifications && m_channelListener)
-    rv = m_channelListener->OnStopRequest(this, m_channelContext, aStatus);
+    rv = m_channelListener->OnStopRequest(this, aStatus);
 
   nsCOMPtr<nsIURI> uri;
   GetURI(getter_AddRefs(uri));
@@ -1145,12 +1145,12 @@ nsresult nsMsgFilePostHelper::Init(nsIOutputStream * aOutStream, nsMsgAsyncWrite
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFilePostHelper::OnStartRequest(nsIRequest * aChannel, nsISupports *ctxt)
+NS_IMETHODIMP nsMsgFilePostHelper::OnStartRequest(nsIRequest * aChannel)
 {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFilePostHelper::OnStopRequest(nsIRequest * aChannel, nsISupports *ctxt, nsresult aStatus)
+NS_IMETHODIMP nsMsgFilePostHelper::OnStopRequest(nsIRequest * aChannel, nsresult aStatus)
 {
   nsMsgAsyncWriteProtocol *protInst = nullptr;
   nsCOMPtr<nsIStreamListener> callback = do_QueryReferent(mProtInstance);
@@ -1166,7 +1166,7 @@ NS_IMETHODIMP nsMsgFilePostHelper::OnStopRequest(nsIRequest * aChannel, nsISuppo
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFilePostHelper::OnDataAvailable(nsIRequest * /* aChannel */, nsISupports *ctxt, nsIInputStream *inStr, uint64_t sourceOffset, uint32_t count)
+NS_IMETHODIMP nsMsgFilePostHelper::OnDataAvailable(nsIRequest * /* aChannel */, nsIInputStream *inStr, uint64_t sourceOffset, uint32_t count)
 {
   nsMsgAsyncWriteProtocol *protInst = nullptr;
   nsCOMPtr<nsIStreamListener> callback = do_QueryReferent(mProtInstance);

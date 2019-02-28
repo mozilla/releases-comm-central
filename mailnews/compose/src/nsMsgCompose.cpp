@@ -2459,12 +2459,12 @@ QuotingOutputStreamListener::ConvertToPlainText(bool formatflowed,
                                            disallowBreaks);
 }
 
-NS_IMETHODIMP QuotingOutputStreamListener::OnStartRequest(nsIRequest *request, nsISupports * /* ctxt */)
+NS_IMETHODIMP QuotingOutputStreamListener::OnStartRequest(nsIRequest *request)
 {
   return NS_OK;
 }
 
-NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, nsISupports *ctxt, nsresult status)
+NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, nsresult status)
 {
   nsresult rv = NS_OK;
 
@@ -3020,7 +3020,7 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
 }
 
 NS_IMETHODIMP QuotingOutputStreamListener::OnDataAvailable(nsIRequest *request,
-                              nsISupports *ctxt, nsIInputStream *inStr,
+                              nsIInputStream *inStr,
                               uint64_t sourceOffset, uint32_t count)
 {
   nsresult rv = NS_OK;

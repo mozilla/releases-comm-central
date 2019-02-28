@@ -265,7 +265,7 @@ nsPop3Sink::EndMailDelivery(nsIPop3Protocol *protocol)
   {
     if (m_outFileStream)
       m_outFileStream->Flush();  // try this.
-    m_newMailParser->OnStopRequest(nullptr, nullptr, NS_OK);
+    m_newMailParser->OnStopRequest(nullptr, NS_OK);
     m_newMailParser->EndMsgDownload();
   }
   if (m_outFileStream)

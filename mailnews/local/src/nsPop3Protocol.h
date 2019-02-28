@@ -269,7 +269,7 @@ public:
   nsresult StartGetAsyncPassword(Pop3StatesEnum aNextState);
 
   NS_IMETHOD OnTransportStatus(nsITransport *transport, nsresult status, int64_t progress, int64_t progressMax) override;
-  NS_IMETHOD OnStopRequest(nsIRequest *request, nsISupports * aContext, nsresult aStatus) override;
+  NS_IMETHOD OnStopRequest(nsIRequest *request, nsresult aStatus) override;
   NS_IMETHOD Cancel(nsresult status) override;
 
   static void MarkMsgInHashTable(PLHashTable *hashTable, const Pop3UidlEntry *uidl,

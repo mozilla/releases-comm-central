@@ -346,7 +346,7 @@ nsNntpMockChannel::AttachNNTPConnection(nsNNTPProtocol &protocol)
   // essentially promised that we would load (by virtue of returning NS_OK to
   // AsyncOpen), we must now tell our listener the bad news.
   if (NS_FAILED(rv) && m_channelListener)
-    m_channelListener->OnStopRequest(this, m_context, rv);
+    m_channelListener->OnStopRequest(this, rv);
 
   // Returning a failure code is our way of telling the server that this URL
   // isn't going to run, so it should give the connection the next URL in the

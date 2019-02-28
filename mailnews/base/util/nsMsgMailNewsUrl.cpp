@@ -923,13 +923,13 @@ nsMsgSaveAsListener::~nsMsgSaveAsListener()
 {
 }
 
-NS_IMETHODIMP nsMsgSaveAsListener::OnStartRequest(nsIRequest *request, nsISupports *ctxt)
+NS_IMETHODIMP nsMsgSaveAsListener::OnStartRequest(nsIRequest *request)
 {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgSaveAsListener::OnStopRequest(nsIRequest *request, nsISupports * aCtxt, nsresult aStatus)
+nsMsgSaveAsListener::OnStopRequest(nsIRequest *request, nsresult aStatus)
 {
   if (m_outputStream)
   {
@@ -940,7 +940,6 @@ nsMsgSaveAsListener::OnStopRequest(nsIRequest *request, nsISupports * aCtxt, nsr
 }
 
 NS_IMETHODIMP nsMsgSaveAsListener::OnDataAvailable(nsIRequest* request,
-                                  nsISupports* aSupport,
                                   nsIInputStream* inStream,
                                   uint64_t srcOffset,
                                   uint32_t count)

@@ -484,7 +484,6 @@ nsStreamConverter::nsStreamConverter()
   mOverrideComposeFormat = false;
 
   mPendingRequest = nullptr;
-  mPendingContext = nullptr;
 }
 
 nsStreamConverter::~nsStreamConverter()
@@ -848,7 +847,6 @@ nsStreamConverter::GetOrigMsgHdr(nsIMsgDBHdr * *aMsgHdr)
 //
 nsresult
 nsStreamConverter::OnDataAvailable(nsIRequest     *request,
-                                   nsISupports    *ctxt,
                                    nsIInputStream *aIStream,
                                    uint64_t       sourceOffset,
                                    uint32_t       aLength)
@@ -943,7 +941,7 @@ const char output[] = "\
 // called only once, at the beginning of a URL load.
 //
 nsresult
-nsStreamConverter::OnStartRequest(nsIRequest *request, nsISupports *ctxt)
+nsStreamConverter::OnStartRequest(nsIRequest *request)
 {
 #ifdef DEBUG_rhp
     printf("nsStreamConverter::OnStartRequest()\n");
@@ -975,10 +973,9 @@ nsStreamConverter::OnStartRequest(nsIRequest *request, nsISupports *ctxt)
     {
       //we need to delay the on start request until we have figure out the real content type
       mPendingRequest = request;
-      mPendingContext = ctxt;
     }
     else
-      mOutListener->OnStartRequest(request, ctxt);
+      mOutListener->OnStartRequest(request);
   }
 
   return NS_OK;
@@ -989,7 +986,7 @@ nsStreamConverter::OnStartRequest(nsIRequest *request, nsISupports *ctxt)
 // called once when the networking library has finished processing the
 //
 nsresult
-nsStreamConverter::OnStopRequest(nsIRequest *request, nsISupports *ctxt, nsresult status)
+nsStreamConverter::OnStopRequest(nsIRequest *request, nsresult status)
 {
   // Make sure we fire any pending OnStartRequest before we do OnStop.
   FirePendingStartRequest();
@@ -1068,7 +1065,7 @@ nsStreamConverter::OnStopRequest(nsIRequest *request, nsISupports *ctxt, nsresul
 
   // forward on top request to any listeners
   if (mOutListener)
-    mOutListener->OnStopRequest(request, ctxt, status);
+    mOutListener->OnStopRequest(request, status);
 
 
   mAlreadyKnowOutputType = false;
@@ -1139,9 +1136,8 @@ NS_IMETHODIMP nsStreamConverter::FirePendingStartRequest()
 {
   if (mPendingRequest && mOutListener)
   {
-    mOutListener->OnStartRequest(mPendingRequest, mPendingContext);
+    mOutListener->OnStartRequest(mPendingRequest);
     mPendingRequest = nullptr;
-    mPendingContext = nullptr;
   }
   return NS_OK;
 }

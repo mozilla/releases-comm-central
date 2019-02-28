@@ -97,9 +97,8 @@ public:
 
   nsOfflineStoreCompactState(void);
   virtual ~nsOfflineStoreCompactState(void);
-  NS_IMETHOD OnStopRequest(nsIRequest *request, nsISupports *ctxt,
-                                    nsresult status) override;
-  NS_IMETHODIMP OnDataAvailable(nsIRequest *request, nsISupports *ctxt,
+  NS_IMETHOD OnStopRequest(nsIRequest *request, nsresult status) override;
+  NS_IMETHODIMP OnDataAvailable(nsIRequest *request,
                                 nsIInputStream *inStr,
                                 uint64_t sourceOffset, uint32_t count) override;
 

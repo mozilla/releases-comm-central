@@ -774,13 +774,13 @@ NS_IMETHODIMP nsMsgTemplateReplyHelper::OnStopRunningUrl(nsIURI *aUrl, nsresult 
 }
 
 NS_IMETHODIMP
-nsMsgTemplateReplyHelper::OnStartRequest(nsIRequest* request, nsISupports* aSupport)
+nsMsgTemplateReplyHelper::OnStartRequest(nsIRequest* request)
 {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgTemplateReplyHelper::OnStopRequest(nsIRequest* request, nsISupports* aSupport,
+nsMsgTemplateReplyHelper::OnStopRequest(nsIRequest* request,
                                 nsresult status)
 {
   if (NS_SUCCEEDED(status))
@@ -793,7 +793,6 @@ nsMsgTemplateReplyHelper::OnStopRequest(nsIRequest* request, nsISupports* aSuppo
 
 NS_IMETHODIMP
 nsMsgTemplateReplyHelper::OnDataAvailable(nsIRequest* request,
-                                  nsISupports* aSupport,
                                   nsIInputStream* inStream,
                                   uint64_t srcOffset,
                                   uint32_t count)

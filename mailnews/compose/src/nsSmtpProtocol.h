@@ -103,7 +103,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////////
 
     // stop binding is a "notification" informing us that the stream associated with aURL is going away.
-    NS_IMETHOD OnStopRequest(nsIRequest *request, nsISupports *ctxt, nsresult status) override;
+    NS_IMETHOD OnStopRequest(nsIRequest *request, nsresult status) override;
 
 private:
     virtual ~nsSmtpProtocol();

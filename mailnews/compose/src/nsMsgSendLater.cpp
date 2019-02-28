@@ -208,7 +208,7 @@ nsMsgSendLater::GetStatusFeedback(nsIMsgStatusFeedback **aFeedback)
 
 // Stream is done...drive on!
 NS_IMETHODIMP
-nsMsgSendLater::OnStopRequest(nsIRequest *request, nsISupports *ctxt, nsresult status)
+nsMsgSendLater::OnStopRequest(nsIRequest *request, nsresult status)
 {
   nsresult    rv;
 
@@ -326,7 +326,7 @@ nsMsgSendLater::BuildNewBuffer(const char* aBuf, uint32_t aCount, uint32_t *tota
 
 // Got data?
 NS_IMETHODIMP
-nsMsgSendLater::OnDataAvailable(nsIRequest *request, nsISupports *ctxt, nsIInputStream *inStr, uint64_t sourceOffset, uint32_t count)
+nsMsgSendLater::OnDataAvailable(nsIRequest *request, nsIInputStream *inStr, uint64_t sourceOffset, uint32_t count)
 {
   NS_ENSURE_ARG_POINTER(inStr);
 
@@ -396,7 +396,7 @@ nsMsgSendLater::OnStopRunningUrl(nsIURI *url, nsresult aExitCode)
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::OnStartRequest(nsIRequest *request, nsISupports *ctxt)
+nsMsgSendLater::OnStartRequest(nsIRequest *request)
 {
   return NS_OK;
 }

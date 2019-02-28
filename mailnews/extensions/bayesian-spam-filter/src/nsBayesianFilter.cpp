@@ -1038,8 +1038,8 @@ NS_IMETHODIMP TokenStreamListener::GetProperties(nsIWritablePropertyBag2 * *aPro
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-/* void onStartRequest (in nsIRequest aRequest, in nsISupports aContext); */
-NS_IMETHODIMP TokenStreamListener::OnStartRequest(nsIRequest *aRequest, nsISupports *aContext)
+/* void onStartRequest (in nsIRequest aRequest); */
+NS_IMETHODIMP TokenStreamListener::OnStartRequest(nsIRequest *aRequest)
 {
     mLeftOverCount = 0;
     if (!mBuffer)
@@ -1064,8 +1064,8 @@ NS_IMETHODIMP TokenStreamListener::OnStartRequest(nsIRequest *aRequest, nsISuppo
     return NS_OK;
 }
 
-/* void onDataAvailable (in nsIRequest aRequest, in nsISupports aContext, in nsIInputStream aInputStream, in unsigned long long aOffset, in unsigned long aCount); */
-NS_IMETHODIMP TokenStreamListener::OnDataAvailable(nsIRequest *aRequest, nsISupports *aContext, nsIInputStream *aInputStream, uint64_t aOffset, uint32_t aCount)
+/* void onDataAvailable (in nsIRequest aRequest, in nsIInputStream aInputStream, in unsigned long long aOffset, in unsigned long aCount); */
+NS_IMETHODIMP TokenStreamListener::OnDataAvailable(nsIRequest *aRequest, nsIInputStream *aInputStream, uint64_t aOffset, uint32_t aCount)
 {
     nsresult rv = NS_OK;
 
@@ -1137,8 +1137,8 @@ NS_IMETHODIMP TokenStreamListener::OnDataAvailable(nsIRequest *aRequest, nsISupp
     return rv;
 }
 
-/* void onStopRequest (in nsIRequest aRequest, in nsISupports aContext, in nsresult aStatusCode); */
-NS_IMETHODIMP TokenStreamListener::OnStopRequest(nsIRequest *aRequest, nsISupports *aContext, nsresult aStatusCode)
+/* void onStopRequest (in nsIRequest aRequest, in nsresult aStatusCode); */
+NS_IMETHODIMP TokenStreamListener::OnStopRequest(nsIRequest *aRequest, nsresult aStatusCode)
 {
     if (mLeftOverCount) {
         /* assume final buffer is complete. */

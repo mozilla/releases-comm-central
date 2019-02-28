@@ -1619,7 +1619,7 @@ bool nsImapProtocol::ProcessCurrentURL()
       // to run the folder load url and get off this crazy merry-go-round.
       if (m_channelListener)
       {
-        m_channelListener->OnStartRequest(m_mockChannel, m_channelContext);
+        m_channelListener->OnStartRequest(m_mockChannel);
       }
       return false;
     }
@@ -1654,7 +1654,7 @@ bool nsImapProtocol::ProcessCurrentURL()
   // happens to be using
   if (m_channelListener) // ### not sure we want to do this if rerunning url...
   {
-    m_channelListener->OnStartRequest(m_mockChannel, m_channelContext);
+    m_channelListener->OnStartRequest(m_mockChannel);
   }
   // If we haven't received the greeting yet, we need to make sure we strip
   // it out of the input before we start to do useful things...
@@ -1812,7 +1812,7 @@ bool nsImapProtocol::ProcessCurrentURL()
         m_mockChannel->GetStatus(&status);
         if (!GetServerStateParser().LastCommandSuccessful() && NS_SUCCEEDED(status))
           status = NS_MSG_ERROR_IMAP_COMMAND_FAILED;
-        rv = m_channelListener->OnStopRequest(m_mockChannel, m_channelContext, status);
+        rv = m_channelListener->OnStopRequest(m_mockChannel, status);
       }
   }
   bool suspendUrl = false;
@@ -3862,7 +3862,7 @@ nsImapProtocol::PostLineDownLoadEvent(const char *line, uint32_t uidOfMessage)
         NS_ASSERTION(count == byteCount, "IMAP channel pipe couldn't buffer entire write");
         if (NS_SUCCEEDED(rv))
         {
-          m_channelListener->OnDataAvailable(m_mockChannel, m_channelContext, m_channelInputStream, 0, count);
+          m_channelListener->OnDataAvailable(m_mockChannel, m_channelInputStream, 0, count);
         }
         // else some sort of explosion?
       }
@@ -9050,7 +9050,7 @@ nsresult nsImapCacheStreamListener::Init(nsIStreamListener * aStreamListener, ns
 }
 
 NS_IMETHODIMP
-nsImapCacheStreamListener::OnStartRequest(nsIRequest *request, nsISupports * aCtxt)
+nsImapCacheStreamListener::OnStartRequest(nsIRequest *request)
 {
   if (!mChannelToUse)
   {
@@ -9061,18 +9061,18 @@ nsImapCacheStreamListener::OnStartRequest(nsIRequest *request, nsISupports * aCt
   mChannelToUse->GetLoadGroup(getter_AddRefs(loadGroup));
   if (loadGroup)
     loadGroup->AddRequest(mChannelToUse, nullptr /* context isupports */);
-  return mListener->OnStartRequest(mChannelToUse, aCtxt);
+  return mListener->OnStartRequest(mChannelToUse);
 }
 
 NS_IMETHODIMP
-nsImapCacheStreamListener::OnStopRequest(nsIRequest *request, nsISupports * aCtxt, nsresult aStatus)
+nsImapCacheStreamListener::OnStopRequest(nsIRequest *request, nsresult aStatus)
 {
   if (!mListener)
   {
     NS_ERROR("OnStopRequest called twice");
     return NS_ERROR_NULL_POINTER;
   }
-  nsresult rv = mListener->OnStopRequest(mChannelToUse, aCtxt, aStatus);
+  nsresult rv = mListener->OnStopRequest(mChannelToUse, aStatus);
   nsCOMPtr <nsILoadGroup> loadGroup;
   mChannelToUse->GetLoadGroup(getter_AddRefs(loadGroup));
   if (loadGroup)
@@ -9085,9 +9085,9 @@ nsImapCacheStreamListener::OnStopRequest(nsIRequest *request, nsISupports * aCtx
 }
 
 NS_IMETHODIMP
-nsImapCacheStreamListener::OnDataAvailable(nsIRequest *request, nsISupports * aCtxt, nsIInputStream * aInStream, uint64_t aSourceOffset, uint32_t aCount)
+nsImapCacheStreamListener::OnDataAvailable(nsIRequest *request, nsIInputStream * aInStream, uint64_t aSourceOffset, uint32_t aCount)
 {
-  return mListener->OnDataAvailable(mChannelToUse, aCtxt, aInStream, aSourceOffset, aCount);
+  return mListener->OnDataAvailable(mChannelToUse, aInStream, aSourceOffset, aCount);
 }
 
 NS_IMPL_ISUPPORTS(nsImapMockChannel, nsIImapMockChannel, nsIChannel,
@@ -9777,8 +9777,7 @@ private:
 nsresult nsImapMockChannel::RunOnStopRequestFailure()
 {
   if (m_channelListener) {
-    m_channelListener->OnStopRequest(this, m_channelContext,
-                                     NS_MSG_ERROR_MSG_NOT_OFFLINE);
+    m_channelListener->OnStopRequest(this, NS_MSG_ERROR_MSG_NOT_OFFLINE);
   }
   return NS_OK;
 }

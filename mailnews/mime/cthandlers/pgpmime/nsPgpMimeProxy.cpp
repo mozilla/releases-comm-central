@@ -332,7 +332,7 @@ nsPgpMimeProxy::SetMimeCallback(MimeDecodeCallbackFun outputFun,
   mByteBuf.Truncate();
 
   if (mDecryptor)
-    return mDecryptor->OnStartRequest((nsIRequest*) this, myUri);
+    return mDecryptor->OnStartRequest((nsIRequest*) this);  // XXX TODO: myUri was passed as context here.
 
   return NS_OK;
 }
@@ -362,7 +362,7 @@ nsPgpMimeProxy::Write(const char *buf, uint32_t buf_size)
   // Pass data to the decrytion object for decryption.
   // The result is returned via OutputDecryptedData().
   if (mDecryptor)
-    return mDecryptor->OnDataAvailable((nsIRequest*) this, nullptr, (nsIInputStream*) this,
+    return mDecryptor->OnDataAvailable((nsIRequest*) this, (nsIInputStream*) this,
                                       0, buf_size);
 
   return NS_OK;
@@ -373,7 +373,7 @@ nsPgpMimeProxy::Finish() {
   NS_ENSURE_TRUE(mInitialized, NS_ERROR_NOT_INITIALIZED);
 
   if (mDecryptor) {
-    return mDecryptor->OnStopRequest((nsIRequest*) this, nullptr, NS_OK);
+    return mDecryptor->OnStopRequest((nsIRequest*) this, NS_OK);
   }
   else {
 
@@ -633,13 +633,13 @@ nsPgpMimeProxy::Close()
 ///////////////////////////////////////////////////////////////////////////////
 
 NS_IMETHODIMP
-nsPgpMimeProxy::OnStartRequest(nsIRequest *aRequest, nsISupports *aContext)
+nsPgpMimeProxy::OnStartRequest(nsIRequest *aRequest)
 {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsPgpMimeProxy::OnStopRequest(nsIRequest* aRequest, nsISupports* aContext,
+nsPgpMimeProxy::OnStopRequest(nsIRequest* aRequest,
                              nsresult aStatus)
 {
   return NS_OK;
@@ -650,7 +650,7 @@ nsPgpMimeProxy::OnStopRequest(nsIRequest* aRequest, nsISupports* aContext,
 ///////////////////////////////////////////////////////////////////////////////
 
 NS_IMETHODIMP
-nsPgpMimeProxy::OnDataAvailable(nsIRequest* aRequest, nsISupports* aContext,
+nsPgpMimeProxy::OnDataAvailable(nsIRequest* aRequest,
                               nsIInputStream *aInputStream,
                               uint64_t aSourceOffset,
                               uint32_t aLength)

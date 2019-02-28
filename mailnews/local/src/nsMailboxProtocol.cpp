@@ -215,7 +215,7 @@ nsresult nsMailboxProtocol::Initialize(nsIURI * aURL)
 // we support the nsIStreamListener interface
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-NS_IMETHODIMP nsMailboxProtocol::OnStartRequest(nsIRequest *request, nsISupports *ctxt)
+NS_IMETHODIMP nsMailboxProtocol::OnStartRequest(nsIRequest *request)
 {
   // extract the appropriate event sinks from the url and initialize them in our protocol data
   // the URL should be queried for a nsINewsURL. If it doesn't support a news URL interface then
@@ -226,9 +226,9 @@ NS_IMETHODIMP nsMailboxProtocol::OnStartRequest(nsIRequest *request, nsISupports
     // NOTE: `request` here will be an nsInputStreamPump, but our callbacks
     // are expecting to be able to QI to a `nsIChannel` to get the URI.
     // So we pass `this`. See Bug 1528662.
-    m_mailboxParser->OnStartRequest(this, ctxt);
+    m_mailboxParser->OnStartRequest(this);
   }
-  return nsMsgProtocol::OnStartRequest(request, ctxt);
+  return nsMsgProtocol::OnStartRequest(request);
 }
 
 bool nsMailboxProtocol::RunningMultipleMsgUrl()
@@ -244,7 +244,7 @@ bool nsMailboxProtocol::RunningMultipleMsgUrl()
 }
 
 // stop binding is a "notification" informing us that the stream associated with aURL is going away.
-NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest *request, nsISupports *ctxt, nsresult aStatus)
+NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest *request, nsresult aStatus)
 {
   nsresult rv;
   if (m_nextState == MAILBOX_READ_FOLDER && m_mailboxParser)
@@ -253,7 +253,7 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest *request, nsISupports 
     // NOTE: `request` here will be an nsInputStreamPump, but our callbacks
     // are expecting to be able to QI to a `nsIChannel` to get the URI.
     // So we pass `this`. See Bug 1528662.
-    m_mailboxParser->OnStopRequest(this, ctxt, aStatus);
+    m_mailboxParser->OnStopRequest(this, aStatus);
   }
   else if (m_nextState == MAILBOX_READ_MESSAGE)
   {
@@ -409,7 +409,7 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest *request, nsISupports 
     m_multipleMsgMoveCopyStream->Close();
     m_multipleMsgMoveCopyStream = nullptr;
   }
-  nsMsgProtocol::OnStopRequest(request, ctxt, aStatus);
+  nsMsgProtocol::OnStopRequest(request, aStatus);
   return CloseSocket();
 }
 
@@ -583,8 +583,7 @@ int32_t nsMailboxProtocol::ReadFolderResponse(nsIInputStream * inputStream, uint
 
   if (m_mailboxParser)
   {
-    nsCOMPtr <nsIURI> url = do_QueryInterface(m_runningUrl);
-    rv = m_mailboxParser->OnDataAvailable(nullptr, url, inputStream, sourceOffset, length); // let the parser deal with it...
+    rv = m_mailboxParser->OnDataAvailable(nullptr, inputStream, sourceOffset, length); // let the parser deal with it...
   }
   if (NS_FAILED(rv))
   {
@@ -616,7 +615,7 @@ int32_t nsMailboxProtocol::ReadMessageResponse(nsIInputStream * inputStream, uin
   if (m_channelListener)
   {
     // just forward the data we read in to the listener...
-    rv = m_channelListener->OnDataAvailable(this, m_channelContext, inputStream, sourceOffset, length);
+    rv = m_channelListener->OnDataAvailable(this, inputStream, sourceOffset, length);
   }
   else
   {
