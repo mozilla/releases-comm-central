@@ -245,7 +245,7 @@ this.mailTabs = class extends ExtensionAPI {
           let tab = getTabOrActive(tabId);
           let { folderDisplay } = tab.nativeTab;
           let messageList = folderDisplay.view.dbView.getSelectedMsgHdrs();
-          return messageListTracker.startList(messageList, context);
+          return messageListTracker.startList(messageList, extension);
         },
 
         async setQuickFilter(tabId, state) {
@@ -330,7 +330,7 @@ this.mailTabs = class extends ExtensionAPI {
           name: "mailTabs.onSelectedMessagesChanged",
           register: (fire) => {
             let listener = (event, tab, messages) => {
-              fire.sync(tabTracker.getId(tab), messageListTracker.startList(messages, context));
+              fire.sync(tabTracker.getId(tab), messageListTracker.startList(messages, extension));
             };
 
             uiListener.on("messages-changed", listener);

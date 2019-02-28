@@ -92,13 +92,13 @@ this.messages = class extends ExtensionAPI {
           let uri = folderPathToURI(accountId, path);
           let folder = MailServices.folderLookup.getFolderForURL(uri);
 
-          return messageListTracker.startList(folder.messages, context);
+          return messageListTracker.startList(folder.messages, context.extension);
         },
         async continueList(messageListId) {
-          return messageListTracker.continueList(messageListId, context);
+          return messageListTracker.continueList(messageListId, context.extension);
         },
         async get(messageId) {
-          return convertMessage(messageTracker.getMessage(messageId), context);
+          return convertMessage(messageTracker.getMessage(messageId), context.extension);
         },
         async getFull(messageId) {
           return new Promise(resolve => {

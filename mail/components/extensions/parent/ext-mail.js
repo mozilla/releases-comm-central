@@ -1008,13 +1008,6 @@ class WindowManager extends WindowManagerBase {
   }
 }
 
-extensions.on("startup", (type, extension) => { // eslint-disable-line mozilla/balanced-listeners
-  defineLazyGetter(extension, "tabManager",
-                   () => new TabManager(extension));
-  defineLazyGetter(extension, "windowManager",
-                   () => new WindowManager(extension));
-});
-
 /**
  * The following functions turn nsIMsgFolder references into more human-friendly forms.
  * A folder can be referenced with the account key, and the path to the folder in that account.
@@ -1082,12 +1075,26 @@ function convertFolder(folder, accountId) {
   return folderObject;
 }
 
+class FolderManager {
+  constructor(extension) {
+    this.extension = extension;
+  }
+
+  convert(folder, accountId) {
+    return convertFolder(folder, accountId);
+  }
+
+  get(accountId, path) {
+    return MailServices.folderLookup.getFolderForURL(folderPathToURI(accountId, path));
+  }
+}
+
 /**
  * Converts an nsIMsgHdr to a simle object for use in messages.
  * This function WILL change as the API develops.
  * @return {Object}
  */
-function convertMessage(msgHdr, context) {
+function convertMessage(msgHdr, extension) {
   if (!msgHdr) {
     return null;
   }
@@ -1106,7 +1113,7 @@ function convertMessage(msgHdr, context) {
     read: msgHdr.isRead,
     flagged: msgHdr.isFlagged,
   };
-  if (context.extension.hasPermission("accountsRead")) {
+  if (extension.hasPermission("accountsRead")) {
     messageObject.folder = convertFolder(msgHdr.folder, msgHdr.accountKey);
   }
   let tags = msgHdr.getProperty("keywords");
@@ -1181,7 +1188,7 @@ var messageListTracker = {
    * Takes an array or enumerator of messages and returns the first chunk.
    * @returns {Object}
    */
-  startList(messageList, context) {
+  startList(messageList, extension) {
     if (Array.isArray(messageList)) {
       messageList = this._createEnumerator(messageList);
     }
@@ -1189,17 +1196,17 @@ var messageListTracker = {
     let messageListId = null;
     if (messageList.hasMoreElements()) {
       messageListId = uuidGenerator.generateUUID().number.substring(1, 37);
-      let lists = this._contextLists.get(context);
+      let lists = this._contextLists.get(extension);
       if (!lists) {
         lists = new Map();
-        this._contextLists.set(context, lists);
+        this._contextLists.set(extension, lists);
       }
       lists.set(messageListId, messageList);
     }
 
     return {
       id: messageListId,
-      messages: firstPage.map(message => convertMessage(message, context)),
+      messages: firstPage.map(message => convertMessage(message, extension)),
     };
   },
 
@@ -1207,8 +1214,8 @@ var messageListTracker = {
    * Returns any subsequent chunk of messages.
    * @returns {Object}
    */
-  continueList(messageListId, context) {
-    let lists = this._contextLists.get(context);
+  continueList(messageListId, extension) {
+    let lists = this._contextLists.get(extension);
     let messageList = lists ? lists.get(messageListId, null) : null;
     if (!messageList) {
       throw new ExtensionError(
@@ -1223,7 +1230,7 @@ var messageListTracker = {
     }
     return {
       id: messageListId,
-      messages: nextPage.map(message => convertMessage(message, context)),
+      messages: nextPage.map(message => convertMessage(message, extension)),
     };
   },
 
@@ -1248,3 +1255,28 @@ var messageListTracker = {
     return page;
   },
 };
+
+class MessageManager {
+  constructor(extension) {
+    this.extension = extension;
+  }
+
+  convert(msgHdr) {
+    return convertMessage(msgHdr, this.extension);
+  }
+
+  get(id) {
+    return messageTracker.getMessage(id);
+  }
+}
+
+extensions.on("startup", (type, extension) => { // eslint-disable-line mozilla/balanced-listeners
+  if (extension.hasPermission("accountsRead")) {
+    defineLazyGetter(extension, "folderManager", () => new FolderManager(extension));
+  }
+  if (extension.hasPermission("messagesRead")) {
+    defineLazyGetter(extension, "messageManager", () => new MessageManager(extension));
+  }
+  defineLazyGetter(extension, "tabManager", () => new TabManager(extension));
+  defineLazyGetter(extension, "windowManager", () => new WindowManager(extension));
+});

@@ -605,7 +605,7 @@ function addMenuEventInfo(info, contextData, extension, includeSensitiveData) {
   }
 
   if (contextData.selectedMessages && extension.hasPermission("messagesRead")) {
-    info.selectedMessages = messageListTracker.startList(contextData.selectedMessages, {extension});
+    info.selectedMessages = messageListTracker.startList(contextData.selectedMessages, extension);
   }
   for (let folderType of ["displayedFolder", "selectedFolder"]) {
     if (contextData[folderType] && extension.hasPermission("accountsRead")) {
