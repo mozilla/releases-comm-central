@@ -5,17 +5,6 @@
 do_get_profile();
 
 var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
-var {
-  XPCOMUtils,
-  setTimeout,
-  clearTimeout,
-  executeSoon,
-  nsSimpleEnumerator,
-  EmptyEnumerator,
-  ClassInfo,
-  l10nHelper,
-  initLogModule,
-} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 const {OS} = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 
 var gLogger = {};
@@ -40,8 +29,6 @@ var dummyTwitterAccount = {
     id: "prpl-twitter",
   },
 };
-
-var test_accounts = [dummyAccount, dummyTwitterAccount];
 
 var dummyConv = {
   account: dummyAccount,
@@ -83,8 +70,6 @@ var dummyTwitterConv = {
   startDate: new Date(2011, 5, 28).valueOf() * 1000,
   isChat: true,
 };
-
-var test_convs = [dummyConv, dummyMUC, dummyTwitterConv];
 
 var encodeName_input = [
   "CON",
@@ -177,12 +162,10 @@ var encodeName_output = [
   "%2afile",
   "%26file",
   "%25file",
-  "%5c" + "fi" + "%3f%2a%26%25" + "le" + "%3c%3e",
+  "%5c" + "fi" + "%3f%2a%26%25" + "le" + "%3c%3e", // eslint-disable-line no-useless-concat
 ];
 
 var test_queueFileOperation = async function() {
-  let dummyOperation = function() {};
-
   let dummyRejectedOperation = () => Promise.reject("Rejected!");
   let dummyResolvedOperation = () => Promise.resolve("Resolved!");
 

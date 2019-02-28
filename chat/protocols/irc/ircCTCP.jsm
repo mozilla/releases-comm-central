@@ -26,7 +26,11 @@ function CTCPMessage(aMessage, aRawCTCPMessage) {
   // with \001 or \134, respectively. Any other character after \134 is replaced
   // with itself.
   let dequotedCTCPMessage = message.ctcp.rawMessage.replace(/\\(.|$)/g,
-    aStr => aStr[1] ? (aStr[1] == "a" ? "\x01" : aStr[1]) : "");
+    aStr => {
+      if (aStr[1])
+        return aStr[1] == "a" ? "\x01" : aStr[1];
+      return "";
+    });
 
   let separator = dequotedCTCPMessage.indexOf(" ");
   // If there's no space, then only a command is given.
@@ -68,6 +72,7 @@ function ctcpHandleMessage(aMessage) {
   // Split the raw message into the multiple CTCP messages and pull out the
   // command and parameters.
   let ctcpMessages = [];
+  // eslint-disable-next-line no-control-regex
   let otherMessage = rawCTCPParam.replace(/\x01([^\x01]*)\x01/g,
     function(aMatch, aMsg) {
       if (aMsg)

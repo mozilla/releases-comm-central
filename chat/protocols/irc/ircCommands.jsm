@@ -346,6 +346,7 @@ var commands = [
     get helpString() { return _("command.nick", "nick"); },
     run(aMsg, aConv) {
       let newNick = aMsg.trim();
+      // eslint-disable-next-line mozilla/use-includes-instead-of-indexOf
       if (newNick.indexOf(/\s+/) != -1)
         return false;
 

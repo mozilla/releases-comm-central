@@ -23,19 +23,19 @@ smileProtocolHandler.prototype = {
                  Ci.nsIProtocolHandler.URI_NOAUTH |
                  Ci.nsIProtocolHandler.URI_IS_UI_RESOURCE |
                  Ci.nsIProtocolHandler.URI_IS_LOCAL_RESOURCE,
-  newURI: function SPH_newURI(aSpec, aOriginCharset, aBaseURI) {
+  newURI(aSpec, aOriginCharset, aBaseURI) {
     let mutator = Cc["@mozilla.org/network/simple-uri-mutator;1"]
                     .createInstance(Ci.nsIURIMutator);
     return mutator.setSpec(aSpec).finalize();
   },
-  newChannel: function SPH_newChannel2(aURI, aLoadInfo) {
+  newChannel(aURI, aLoadInfo) {
     let smile = aURI.spec.replace(kSmileRegexp, "");
     let uri = Services.io.newURI(getSmileRealURI(smile));
     let channel = Services.io.newChannelFromURIWithLoadInfo(uri, aLoadInfo);
     channel.originalURI = aURI;
     return channel;
   },
-  allowPort: function SPH_allowPort(aPort, aScheme) { return false; },
+  allowPort(aPort, aScheme) { return false; },
 
   classDescription: "Smile Protocol Handler",
   classID: Components.ID("{04e58eae-dfbc-4c9e-8130-6d9ef19cbff4}"),

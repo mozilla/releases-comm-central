@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
-Cu.importGlobalProperties(["DOMParser"]);
 
 this.EXPORTED_SYMBOLS = [
   "cleanupImMarkup", // used to clean up incoming IMs.
@@ -175,7 +174,7 @@ function initGlobalRuleset()
 }
 
 var styleObserver = {
-  observe: function so_observe(aObject, aTopic, aMsg) {
+  observe(aObject, aTopic, aMsg) {
     if (aTopic != "nsPref:changed" || aMsg != kModePref)
       throw "bad notification";
 
@@ -262,7 +261,7 @@ function cleanupNode(aNode, aRules, aTextModifiers)
         else {
           // this node is not allowed, replace it with its children
           while (node.hasChildNodes())
-            aNode.insertBefore(node.removeChild(node.firstChild), node);
+            aNode.insertBefore(node.firstChild, node);
         }
         aNode.removeChild(node);
         // We want to process again the node at the index i which is

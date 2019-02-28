@@ -3,6 +3,7 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
+<!-- import-globals-from ../../mail/components/im/content/imAccounts.js -->
 
 <!DOCTYPE bindings [
   <!ENTITY % accountsDTD SYSTEM "chrome://chat/locale/accounts.dtd">
@@ -139,10 +140,10 @@
               let [val1, unit1, val2, unit2] = DownloadUtils.convertTimeUnits(date);
               if (!val2)
                 reconnect = bundle.getFormattedString("account.reconnectInSingle",
-                                                      [val1, unit1])
+                                                      [val1, unit1]);
               else
                 reconnect = bundle.getFormattedString("account.reconnectInDouble",
-                                                      [val1, unit1, val2, unit2])
+                                                      [val1, unit1, val2, unit2]);
             }
             document.getAnonymousElementByAttribute(this, "anonid", "reconnect")
                     .textContent = reconnect;
@@ -168,10 +169,10 @@
             let [val1, unit1, val2, unit2] = DownloadUtils.convertTimeUnits(date);
             if (!val2)
               value = bundle.getFormattedString("account.connectedForSingle",
-                                                [val1, unit1])
+                                                [val1, unit1]);
             else
               value = bundle.getFormattedString("account.connectedForDouble",
-                                                [val1, unit1, val2, unit2])
+                                                [val1, unit1, val2, unit2]);
           }
           else
             value = bundle.getString("account.connectedForSeconds");

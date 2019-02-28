@@ -32,7 +32,7 @@ XPCOMUtils.defineLazyGetter(this, "_", () =>
 var GenericAccountPrototype = {
   __proto__: ClassInfo("prplIAccount", "generic account object"),
   get wrappedJSObject() { return this; },
-  _init: function _init(aProtocol, aImAccount) {
+  _init(aProtocol, aImAccount) {
     this.protocol = aProtocol;
     this.imAccount = aImAccount;
     initLogModule(aProtocol.id, this);

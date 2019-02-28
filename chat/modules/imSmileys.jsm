@@ -35,11 +35,11 @@ Object.defineProperty(this, "gTheme", {
 });
 
 var gPrefObserver = {
-  init: function po_init() {
+  init() {
     Services.prefs.addObserver(kEmoticonsThemePref, gPrefObserver);
   },
 
-  observe: function so_observe(aObject, aTopic, aMsg) {
+  observe(aObject, aTopic, aMsg) {
     if (aTopic != "nsPref:changed" || aMsg != kEmoticonsThemePref)
       throw "bad notification";
 
@@ -49,9 +49,7 @@ var gPrefObserver = {
 
 function getSmileRealURI(aSmile)
 {
-  aSmile = Cc["@mozilla.org/intl/texttosuburi;1"]
-             .getService(Ci.nsITextToSubURI)
-             .unEscapeURIForUI("UTF-8", aSmile);
+  aSmile = Services.textToSubURI.unEscapeURIForUI("UTF-8", aSmile);
   if (aSmile in gTheme.iconsHash)
     return gTheme.baseUri + gTheme.iconsHash[aSmile].filename;
 
@@ -228,6 +226,7 @@ function smileImMarkup(aDocument, aText)
     return aText;
 
   let div = aDocument.createElement("div");
+  // eslint-disable-next-line no-unsanitized/property
   div.innerHTML = aText;
   smileNode(div);
   return div.innerHTML;

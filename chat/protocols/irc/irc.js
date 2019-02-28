@@ -8,13 +8,13 @@ var {
   EmptyEnumerator,
   setTimeout,
   executeSoon,
+  l10nHelper,
   XPCOMUtils,
   nsSimpleEnumerator,
 } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
 var {
   _,
-  _conv,
   ctcpFormatToText,
   ctcpFormatToHTML,
   conversationErrorMessage,
@@ -41,6 +41,10 @@ ChromeUtils.defineModuleGetter(this, "PluralForm",
 
 ChromeUtils.defineModuleGetter(this, "DownloadUtils",
   "resource://gre/modules/DownloadUtils.jsm");
+
+XPCOMUtils.defineLazyGetter(this, "_conv", () =>
+  l10nHelper("chrome://chat/locale/conversations.properties")
+);
 
 /*
  * Parses a raw IRC message into an object (see section 2.3 of RFC 2812). This
@@ -738,6 +742,7 @@ ircSocket.prototype = {
     // \020 with a \0, \n, \r or \020, respectively. Any other character is
     // replaced with itself.
     const lowDequote = {"0": "\0", "n": "\n", "r": "\r", "\x10": "\x10"};
+    // eslint-disable-next-line no-control-regex
     let dequotedMessage = aRawMessage.replace(/\x10./g,
       aStr => lowDequote[aStr[1]] || aStr[1]);
 
@@ -759,7 +764,7 @@ ircSocket.prototype = {
     }
   },
   onConnection() {
-    this._account._connectionRegistration.call(this._account);
+    this._account._connectionRegistration();
   },
   disconnect() {
     if (!this._account)
@@ -993,14 +998,14 @@ ircAccount.prototype = {
   _userModeReceived: false,
   setUserMode(aNick, aNewModes, aSetter, aDisplayFullMode) {
     if (this.normalizeNick(aNick) != this.normalizeNick(this._nickname)) {
-      WARN("Received unexpected mode for " + aNick);
+      this.WARN("Received unexpected mode for " + aNick);
       return false;
     }
 
     // Are modes being added or removed?
     let addNewMode = aNewModes[0] == "+";
     if (!addNewMode && aNewModes[0] != "-") {
-      WARN("Invalid mode string: " + aNewModes);
+      this.WARN("Invalid mode string: " + aNewModes);
       return false;
     }
     _setMode.call(this, addNewMode, aNewModes.slice(1));
@@ -1223,7 +1228,9 @@ ircAccount.prototype = {
     let sortWithoutPrefix = function(a, b) {
       a = this.normalize(a, prefixes);
       b = this.normalize(b, prefixes);
-      return a < b ? -1 : a > b ? 1 : 0;
+      if (a < b)
+        return -1;
+      return a > b ? 1 : 0;
     }.bind(this);
     let sortChannels = channels =>
       channels.trim().split(/\s+/).sort(sortWithoutPrefix).join(" ");
@@ -1509,13 +1516,17 @@ ircAccount.prototype = {
     // Count the number of bytes in a UTF-8 encoded string.
     function charCodeToByteCount(c) {
       // UTF-8 stores:
-      // - code points below U+0080 on 1 byte,
-      // - code points below U+0800 on 2 bytes,
+      // - code points below U+0080 are 1 byte,
+      // - code points below U+0800 are 2 bytes,
       // - code points U+D800 through U+DFFF are UTF-16 surrogate halves
       // (they indicate that JS has split a 4 bytes UTF-8 character
       // in two halves of 2 bytes each),
-      // - other code points on 3 bytes.
-      return c < 0x80 ? 1 : (c < 0x800 || (c >= 0xD800 && c <= 0xDFFF)) ? 2 : 3;
+      // - other code points are 3 bytes.
+      if (c < 0x80)
+        return 1;
+      if (c < 0x800 || (c >= 0xD800 && c <= 0xDFFF))
+        return 2;
+      return 3;
     }
     let bytes = 0;
     for (let i = 0; i < aStr.length; i++)
@@ -1849,6 +1860,7 @@ ircAccount.prototype = {
 
     // High/CTCP level quoting, replace \134 or \001 with \134\134 or \134a,
     // respectively. This is only done inside the extended data message.
+    // eslint-disable-next-line no-control-regex
     const highRegex = /\\|\x01/g;
     ircParam = ircParam.replace(highRegex,
       aChar => "\\" + (aChar == "\\" ? "\\" : "a"));

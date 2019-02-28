@@ -3,16 +3,8 @@
 
 var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
 var {
-  GenericAccountPrototype,
-  GenericAccountBuddyPrototype,
   GenericConvIMPrototype,
-  GenericConvChatPrototype,
-  GenericConvChatBuddyPrototype,
-  GenericConversationPrototype,
-  GenericMessagePrototype,
-  GenericProtocolPrototype,
   Message,
-  TooltipInfo,
 } = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 
 var imConversations = {};

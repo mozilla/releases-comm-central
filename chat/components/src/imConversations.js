@@ -670,7 +670,7 @@ ConversationsService.prototype = {
     let normalizedName = aAccount.normalize(aName);
     for (let conv of this._prplConversations) {
       if (aAccount.normalize(conv.name) == normalizedName &&
-          aAccount.numericId == aAccount.numericId &&
+          aAccount.numericId == conv.account.numericId &&
           conv.isChat == aIsChat)
         return conv;
     }

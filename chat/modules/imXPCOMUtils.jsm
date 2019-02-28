@@ -94,7 +94,7 @@ function initLogModule(aModule, aObj = {})
   aObj.ERROR = scriptError.bind(aObj, aModule, Ci.imIDebugMessage.LEVEL_ERROR);
   return aObj;
 }
-XPCOMUtils.defineLazyGetter(Cu.getGlobalForObject({}), "gLogLevels", function() {
+XPCOMUtils.defineLazyGetter(this, "gLogLevels", function() {
   // This object functions both as an obsever as well as a dict keeping the
   // log levels with prefs; the log levels all start with "level" (i.e. "level"
   // for the global level, "level.irc" for the IRC module).  The dual-purpose

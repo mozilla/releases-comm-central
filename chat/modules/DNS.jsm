@@ -291,6 +291,8 @@ function TXTRecord(aData) {
 }
 
 if (typeof Components === "undefined") {
+  /* eslint-env worker */
+
   // We are in a worker, wait for our message then execute the wanted method.
   importScripts("resource://gre/modules/workers/require.js");
   let PromiseWorker = require("resource://gre/modules/workers/PromiseWorker.js");
@@ -298,7 +300,7 @@ if (typeof Components === "undefined") {
   let worker = new PromiseWorker.AbstractWorker();
   worker.dispatch = function(aMethod, aArgs = []) {
     return self[aMethod](...aArgs);
-  },
+  };
   worker.postMessage = function(...aArgs) {
     self.postMessage(...aArgs);
   };
@@ -307,6 +309,7 @@ if (typeof Components === "undefined") {
   };
   self.addEventListener("message", msg => worker.handleMessage(msg));
 
+  // eslint-disable-next-line no-unused-vars
   function execute(aOS, aMethod, aArgs) {
     let DNS = (aOS == "WINNT" ? new load_dnsapi() : new load_libresolv());
     return DNS[aMethod].apply(DNS, aArgs);

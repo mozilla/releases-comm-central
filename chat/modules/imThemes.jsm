@@ -17,7 +17,6 @@ this.EXPORTED_SYMBOLS = [
 const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
 const {DownloadUtils} = ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
 const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-Cu.importGlobalProperties(["DOMParser", "Element"]);
 
 var kMessagesStylePrefBranch = "messenger.options.messagesStyle.";
 var kThemePref = "theme";
@@ -539,6 +538,7 @@ function insertHTMLForMessage(aMsg, aHTML, aDoc, aIsNext)
   let range = aDoc.createRange();
   let parent = insert ? insert.parentNode : aDoc.getElementById("Chat");
   range.selectNode(parent);
+  // eslint-disable-next-line no-unsanitized/method
   let documentFragment = range.createContextualFragment(aHTML);
   let result = documentFragment.firstChild;
 
@@ -894,6 +894,7 @@ SelectedMessage.prototype = {
     }
     else {
       let div = this._rootNodes[0].ownerDocument.createElement("div");
+      // eslint-disable-next-line no-unsanitized/property
       div.innerHTML = msg.autoResponse ? formatAutoResponce(msg.message) : msg.message;
       text = serializeNode(div);
     }

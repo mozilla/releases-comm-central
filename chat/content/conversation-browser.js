@@ -6,9 +6,17 @@
 
 /* global MozXULElement */
 
-var { initHTMLDocument, serializeSelection, getCurrentTheme, isNextMessage, getHTMLForMessage, insertHTMLForMessage } = ChromeUtils.import("resource:///modules/imThemes.jsm");
-var { smileTextNode } = ChromeUtils.import("resource:///modules/imSmileys.jsm");
-var { cleanupImMarkup } = ChromeUtils.import("resource:///modules/imContentSink.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {
+  initHTMLDocument,
+  serializeSelection,
+  getCurrentTheme,
+  isNextMessage,
+  getHTMLForMessage,
+  insertHTMLForMessage,
+} = ChromeUtils.import("resource:///modules/imThemes.jsm");
+var {smileTextNode} = ChromeUtils.import("resource:///modules/imSmileys.jsm");
+var {cleanupImMarkup} = ChromeUtils.import("resource:///modules/imContentSink.jsm");
 
 (function() {
   // <browser> is lazily set up through setElementCreationCallback,

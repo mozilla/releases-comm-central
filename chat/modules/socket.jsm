@@ -90,12 +90,8 @@ var {getHiddenHTMLWindow} = ChromeUtils.import("resource:///modules/hiddenWindow
 
 // Network errors see: xpcom/base/nsError.h
 var NS_ERROR_MODULE_NETWORK = 2152398848;
-var NS_ERROR_CONNECTION_REFUSED = NS_ERROR_MODULE_NETWORK + 13;
 var NS_ERROR_NET_TIMEOUT = NS_ERROR_MODULE_NETWORK + 14;
 var NS_ERROR_NET_RESET = NS_ERROR_MODULE_NETWORK + 20;
-var NS_ERROR_UNKNOWN_HOST = NS_ERROR_MODULE_NETWORK + 30;
-var NS_ERROR_UNKNOWN_PROXY_HOST = NS_ERROR_MODULE_NETWORK + 42;
-var NS_ERROR_PROXY_CONNECTION_REFUSED = NS_ERROR_MODULE_NETWORK + 72;
 
 var BinaryInputStream =
   Components.Constructor("@mozilla.org/binaryinputstream;1",

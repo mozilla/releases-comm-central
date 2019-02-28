@@ -143,8 +143,8 @@ function test_standardMode() {
   }
 
   // Remove font settings
-  let string = "<font face=\"Times\" color=\"pink\" size=\"3\">foo</font>";
-  Assert.equal("foo", cleanupImMarkup(string));
+  let font_string = "<font face=\"Times\" color=\"pink\" size=\"3\">foo</font>";
+  Assert.equal("foo", cleanupImMarkup(font_string));
 
   // Discard hr
   Assert.equal("foobar", cleanupImMarkup("foo<hr>bar"));
@@ -211,8 +211,8 @@ function test_permissiveMode() {
   }
 
   // Allow hr
-  let string = "foo<hr>bar";
-  Assert.equal(string, cleanupImMarkup(string));
+  let hr_string = "foo<hr>bar";
+  Assert.equal(hr_string, cleanupImMarkup(hr_string));
 
   // Allow most CSS rules changing the text appearance.
   const okCSS = [

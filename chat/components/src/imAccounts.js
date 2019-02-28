@@ -9,6 +9,7 @@ var {
   setTimeout,
   clearTimeout,
   executeSoon,
+  l10nHelper,
 } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
 var {GenericAccountPrototype, GenericAccountBuddyPrototype} = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
@@ -581,11 +582,7 @@ imAccount.prototype = {
   },
 
   get autoLogin() {
-    let autoLogin = true;
-    try {
-      autoLogin = this.prefBranch.getBoolPref(kPrefAccountAutoLogin);
-    } catch (e) { }
-    return autoLogin;
+    return this.prefBranch.getBoolPref(kPrefAccountAutoLogin, true);
   },
   set autoLogin(val) {
     this.prefBranch.setBoolPref(kPrefAccountAutoLogin, val);

@@ -1674,26 +1674,6 @@ var XMPPAccountPrototype = {
     };
   },
 
-  // Send an error stanza in response to the given stanza (rfc6120#8.3).
-  // aCondition is the name of the defined-condition child, aText an
-  // optional plain-text description.
-  sendErrorStanza(aStanza, aCondition, aType, aText) {
-    // TODO: Support the other stanza types (message, presence).
-    let qName = aStanza.qName;
-    if (qName != "iq") {
-      this.ERROR(`Sending an error stanza for a ${qName} stanza is not ` +
-                 `implemented yet.`);
-      return;
-    }
-
-    let error = Stanza.node("error", null, {type: aType},
-                            Stanza.node(aCondition, Stanza.NS.stanzas));
-    if (aText)
-      error.addChild(Stanza.node("text", Stanza.NS.stanzas, null, aText));
-    return this.sendStanza(Stanza.iq("error", aStanza.attributes.id,
-      aStanza.attributes.from, error));
-  },
-
   // Returns a callback suitable for use in sendStanza, to handle type==result
   // responses. aHandlers and aThis are passed on to handleErrors for error
   // handling.
@@ -1952,15 +1932,13 @@ var XMPPAccountPrototype = {
     let query = aStanza.getElement(["query"]);
     if (!query || query.uri != Stanza.NS.disco_items) {
       this.LOG("Could not get rooms for this server: " + this._jid.domain);
-      return true;
+      return;
     }
 
     // XEP-0059: Result Set Management.
     let set = query.getElement(["set"]);
     let last = set ? set.getElement(["last"]) : null;
     if (last) {
-      let after = Stanza.node("after", null, null, last.innerText);
-      let setNode = Stanza.node("set", Stanza.NS.rsm, null, after);
       let iq = Stanza.iq("get", null, this._mucService,
                          Stanza.node("query", Stanza.NS.disco_items));
       this.sendStanza(iq, this.onRoomDiscovery, this);

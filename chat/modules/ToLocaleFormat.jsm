@@ -45,7 +45,7 @@ function weekNumber(aDate, weekStart) {
   if (weekStart) {
     day = (day || 7) - weekStart;
   }
-  return Math.max(Math.floor((DayWithinYear(t) + 7 - day) / 7), 0);
+  return Math.max(Math.floor((DayWithinYear(aDate) + 7 - day) / 7), 0);
 }
 function weekNumberISO(t) {
   let thisWeek = weekNumber(1, t);

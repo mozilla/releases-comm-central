@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ["_", "_conv", "ctcpFormatToText", "ctcpFormatToHTML",
+this.EXPORTED_SYMBOLS = ["_", "ctcpFormatToText", "ctcpFormatToHTML",
                           "conversationErrorMessage", "kListRefreshInterval"];
 
 var {
@@ -12,10 +12,6 @@ var {
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/irc.properties")
-);
-
-XPCOMUtils.defineLazyGetter(this, "_conv", () =>
-  l10nHelper("chrome://chat/locale/conversations.properties")
 );
 
 XPCOMUtils.defineLazyGetter(this, "TXTToHTML", function() {
@@ -40,12 +36,14 @@ var kListRefreshInterval = 12 * 60 * 60 * 1000; // 12 hours.
  *  The number of characters (from the start of the input string) that the
  *  function handled.
  */
-var CTCP_TAGS = {"\x02": "b", // \002, ^B, Bold
-                   "\x16": "i", // \026, ^V, Reverse or Inverse (Italics)
-                   "\x1D": "i", // \035, ^], Italics (mIRC)
-                   "\x1F": "u", // \037, ^_, Underline
-                   "\x03": mIRCColoring, // \003, ^C, Coloring
-                   "\x0F": null}; // \017, ^O, Clear all formatting
+var CTCP_TAGS = {
+  "\x02": "b", // \002, ^B, Bold
+  "\x16": "i", // \026, ^V, Reverse or Inverse (Italics)
+  "\x1D": "i", // \035, ^], Italics (mIRC)
+  "\x1F": "u", // \037, ^_, Underline
+  "\x03": mIRCColoring, // \003, ^C, Coloring
+  "\x0F": null, // \017, ^O, Clear all formatting
+};
 
 // Generate an expression that will search for any of the control characters.
 var CTCP_TAGS_EXP = new RegExp("[" + Object.keys(CTCP_TAGS).join("") + "]");
@@ -140,6 +138,7 @@ function ctcpFormatToHTML(aString) {
 
 // mIRC colors are defined at http://www.mirc.com/colors.html.
 // This expression matches \003<one or two digits>[,<one or two digits>].
+// eslint-disable-next-line no-control-regex
 var M_IRC_COLORS_EXP = /^\x03(?:(\d\d?)(?:,(\d\d?))?)?/;
 var M_IRC_COLOR_MAP = {
   "0": "white",

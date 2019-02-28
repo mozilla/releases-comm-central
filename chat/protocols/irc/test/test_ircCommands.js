@@ -202,4 +202,5 @@ function _getRunCommand(aCommandName) {
 
   // Fail if no command was found.
   ok(false, "Could not find the '" + aCommandName + "' command.");
+  return null; // Shut-up eslint.
 }

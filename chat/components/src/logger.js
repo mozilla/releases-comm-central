@@ -5,11 +5,16 @@
 var CC = Components.Constructor;
 
 var {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
-var {EmptyEnumerator, XPCOMUtils} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var {
+  EmptyEnumerator,
+  l10nHelper,
+  XPCOMUtils,
+} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 var {GenericMessagePrototype} = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 var {ClassInfo} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 var {ToLocaleFormat} = ChromeUtils.import("resource:///modules/ToLocaleFormat.jsm");
 var {OS} = ChromeUtils.import("resource://gre/modules/osfile.jsm");
+var {getHiddenHTMLWindow} = ChromeUtils.import("resource:///modules/hiddenWindow.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/logger.properties")
@@ -137,7 +142,9 @@ function getNewLogFileName(aFormat, aStartTime) {
   let minutes = offset % 60;
   offset = (offset - minutes) / 60;
   function twoDigits(aNumber) {
-    return aNumber == 0 ? "00" : aNumber < 10 ? "0" + aNumber : aNumber;
+    if (aNumber == 0)
+      return "00";
+    return aNumber < 10 ? "0" + aNumber : aNumber;
   }
   if (!aFormat)
     aFormat = "txt";
@@ -167,7 +174,7 @@ LogWriter.prototype = {
   _messageCount: 0,
   format: "txt",
   encoder: new TextEncoder(),
-  startNewFile: function lw_startNewFile(aStartTime, aContinuedSession) {
+  startNewFile(aStartTime, aContinuedSession) {
     // We start a new log file every 1000 messages. The start time of this new
     // log file is the time of the next message. Since message times are in seconds,
     // if we receive 1000 messages within a second after starting the new file,
@@ -210,10 +217,11 @@ LogWriter.prototype = {
     this._initialized.catch(aError =>
                             Cu.reportError("Failed to initialize log file:\n" + aError));
   },
-  _serialize: function cl_serialize(aString) {
+  _serialize(aString) {
     // TODO cleanup once bug 102699 is fixed
     let doc = getHiddenHTMLWindow().document;
     let div = doc.createElementNS("http://www.w3.org/1999/xhtml", "div");
+    // eslint-disable-next-line no-unsanitized/property
     div.innerHTML = aString.replace(/\r?\n/g, "<br/>").replace(/<br>/gi, "<br/>");
     const type = "text/plain";
     let encoder = Cu.createDocumentEncoder(type);
@@ -237,7 +245,7 @@ LogWriter.prototype = {
   kDayOverlapLimit: 3 * 60 * 60 * 1000,
   // - After every 1000 messages.
   kMessageCountLimit: 1000,
-  logMessage: function cl_logMessage(aMessage) {
+  logMessage(aMessage) {
     // aMessage.time is in seconds, we need it in milliseconds.
     let messageTime = aMessage.time * 1000;
     let messageMidnight = new Date(messageTime).setHours(0, 0, 0, 0);
@@ -348,7 +356,7 @@ SystemLogWriter.prototype = {
   // has been written.
   _initialized: null,
   path: null,
-  logEvent: function sl_logEvent(aString) {
+  logEvent(aString) {
     let date = ToLocaleFormat("%x %X", new Date());
     let lineToWrite =
       this.encoder.encode("---- " + aString + " @ " + date + " ----" + kLineBreak);
@@ -712,7 +720,7 @@ Logger.prototype = {
     }
     return [];
   },
-  getLogFromFile: function logger_getLogFromFile(aFilePath, aGroupByDay) {
+  getLogFromFile(aFilePath, aGroupByDay) {
     if (!aGroupByDay)
       return Promise.resolve(new Log(aFilePath));
     let [targetDate] = getDateFromFilename(OS.Path.basename(aFilePath));
@@ -747,7 +755,7 @@ Logger.prototype = {
   },
   // Creates and returns the appropriate LogEnumerator for the given log array
   // depending on aGroupByDay, or an EmptyEnumerator if the input array is empty.
-  _getEnumerator: function logger__getEnumerator(aLogArray, aGroupByDay) {
+  _getEnumerator(aLogArray, aGroupByDay) {
     let enumerator = aGroupByDay ? DailyLogEnumerator : LogEnumerator;
     return aLogArray.length ? new enumerator(aLogArray) : EmptyEnumerator;
   },
@@ -764,13 +772,11 @@ Logger.prototype = {
       await gFilePromises.get(path);
     return paths;
   },
-  getLogsForAccountAndName: function logger_getLogsForAccountAndName(aAccount,
-                                       aNormalizedName, aGroupByDay) {
+  getLogsForAccountAndName(aAccount, aNormalizedName, aGroupByDay) {
     return this._getLogArray(aAccount, aNormalizedName)
                .then(aEntries => this._getEnumerator(aEntries, aGroupByDay));
   },
-  getLogsForAccountBuddy: function logger_getLogsForAccountBuddy(aAccountBuddy,
-                                                                 aGroupByDay) {
+  getLogsForAccountBuddy(aAccountBuddy, aGroupByDay) {
     return this.getLogsForAccountAndName(aAccountBuddy.account,
                                          aAccountBuddy.normalizedName, aGroupByDay);
   },
@@ -792,14 +798,13 @@ Logger.prototype = {
     }
     return this._getEnumerator(entries, aGroupByDay);
   },
-  getLogsForConversation: function logger_getLogsForConversation(aConversation,
-                                                                 aGroupByDay) {
+  getLogsForConversation(aConversation, aGroupByDay) {
     let name = aConversation.normalizedName;
     if (convIsRealMUC(aConversation))
       name += ".chat";
     return this.getLogsForAccountAndName(aConversation.account, name, aGroupByDay);
   },
-  getSystemLogsForAccount: function logger_getSystemLogsForAccount(aAccount) {
+  getSystemLogsForAccount(aAccount) {
     return this.getLogsForAccountAndName(aAccount, ".system");
   },
   async getSimilarLogs(aLog, aGroupByDay) {
@@ -884,7 +889,7 @@ Logger.prototype = {
     }
   },
 
-  observe: function logger_observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic, aData) {
     switch (aTopic) {
     case "profile-after-change":
       Services.obs.addObserver(this, "final-ui-startup");
