@@ -210,9 +210,9 @@ function test_create_existing_account() {
   let provider = gServer.getPreparedBackend("someNewAccount");
   let done = false;
   let myObs = {
-    onStartRequest(aRequest, aContext) {
+    onStartRequest(aRequest) {
     },
-    onStopRequest(aRequest, aContext, aStatusCode) {
+    onStopRequest(aRequest, aStatusCode) {
       assert_equals(aContext, provider);
       assert_equals(aStatusCode, Cr.NS_OK);
       done = true;

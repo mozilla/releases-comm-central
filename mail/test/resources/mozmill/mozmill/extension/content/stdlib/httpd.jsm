@@ -3588,7 +3588,7 @@ Response.prototype = {
 
     this._asyncCopier = new WriteThroughCopier(responseHeadPipe.inputStream,
                                                this._connection.output,
-                                               copyObserver, null);
+                                               copyObserver);
 
     responseHeadPipe.outputStream.close();
 
@@ -3614,7 +3614,7 @@ Response.prototype = {
 
     var response = this;
     var copyObserver = {
-        onStartRequest(request, context) {
+        onStartRequest(request) {
           dumpn("*** onStartRequest");
         },
 
@@ -3637,7 +3637,7 @@ Response.prototype = {
     dumpn("*** starting async copier of body data...");
     this._asyncCopier =
       new WriteThroughCopier(this._bodyInputStream, this._connection.output,
-                             copyObserver, null);
+                             copyObserver);
   },
 
   /** Ensures that this hasn't been ended. */
@@ -3679,12 +3679,10 @@ function wouldBlock(e) {
  *   the stream to which data is to be copied
  * @param observer : nsIRequestObserver
  *   an observer which will be notified when the copy starts and finishes
- * @param context : nsISupports
- *   context passed to observer when notified of start/stop
  * @throws NS_ERROR_NULL_POINTER
  *   if source, sink, or observer are null
  */
-function WriteThroughCopier(source, sink, observer, context) {
+function WriteThroughCopier(source, sink, observer) {
   if (!source || !sink || !observer)
     throw Cr.NS_ERROR_NULL_POINTER;
 
@@ -3696,9 +3694,6 @@ function WriteThroughCopier(source, sink, observer, context) {
 
   /** Observer watching this copy. */
   this._observer = observer;
-
-  /** Context for the observer watching this. */
-  this._context = context;
 
   /**
    * True iff this is currently being canceled (cancel has been called, the
@@ -3727,7 +3722,7 @@ function WriteThroughCopier(source, sink, observer, context) {
 
   // start copying
   try {
-    observer.onStartRequest(this, context);
+    observer.onStartRequest(this);
     this._waitToReadData();
     this._waitForSinkClosure();
   } catch (e) {
@@ -4087,7 +4082,7 @@ WriteThroughCopier.prototype = {
 
           self._completed = true;
           try {
-            self._observer.onStopRequest(self, self._context, self.status);
+            self._observer.onStopRequest(self, self.status);
           } catch (e) {
             NS_ASSERT(false,
                       "how are we throwing an exception here?  we control " +

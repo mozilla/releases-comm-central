@@ -68,8 +68,8 @@ function SimpleRequestObserver(aName) {
 
 SimpleRequestObserver.prototype = {
   success: null,
-  onStartRequest(aRequest, aContext) {},
-  onStopRequest(aRequest, aContext, aStatusCode) {
+  onStartRequest(aRequest) {},
+  onStopRequest(aRequest, aStatusCode) {
     if (Components.isSuccessCode(aStatusCode)) {
       this.success = true;
     } else {
@@ -97,10 +97,10 @@ function assert_can_cancel_uploads(aController, aProvider, aFiles) {
   for (let file of aFiles) {
     let mapping = {};
     mapping.listener = {
-      onStartRequest(aRequest, aContext) {
+      onStartRequest(aRequest) {
         mapping.started = true;
       },
-      onStopRequest(aRequest, aContext, aStatusCode) {
+      onStopRequest(aRequest, aStatusCode) {
         if (aStatusCode == cloudFileAccounts.constants.uploadCancelled)
           mapping.cancelled = true;
       },
