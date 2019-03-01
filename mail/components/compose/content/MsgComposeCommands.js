@@ -2891,16 +2891,12 @@ function ComposeStartup(aParams) {
 
   gEditingDraft = gMsgCompose.compFields.draftId;
 
-  // Check if we need to re-open contacts sidebar.
-  let sideBarBox = document.getElementById("sidebar-box");
+  // finally, see if we need to auto open the address sidebar.
+  var sideBarBox = document.getElementById("sidebar-box");
   if (sideBarBox.getAttribute("sidebarVisible") == "true") {
-    // Sidebar is supposed to be visible, so let's ensure it is loaded.
-    if (document.getElementById("sidebar").getAttribute("src") == "") {
-      // Load contacts sidebar document asynchronously so that we don't hurt
-      // performance on bringing up a new compose window. Pass false into
-      // toggleAddressPicker() so that sidebar doesn't get focus.
-      setTimeout(toggleAddressPicker, 0, false);
-    }
+    // if we aren't supposed to have the side bar hidden, make sure it is visible
+    if (document.getElementById("sidebar").getAttribute("src") == "")
+      setTimeout(toggleAddressPicker, 0);   // do this on a delay so we don't hurt perf. on bringing up a new compose window
   }
   gAutoSaveInterval = Services.prefs.getBoolPref("mail.compose.autosave") ?
     Services.prefs.getIntPref("mail.compose.autosaveinterval") * 60000 : 0;
@@ -6027,18 +6023,10 @@ function SetMsgAttachmentElementFocus() {
 
 /**
  * Focus the people search input in contacts side bar.
- *
- * @return {Boolean} true if peopleSearchInput was found, false otherwise.
  */
 function focusContactsSidebarSearchInput() {
   // Caveat: Callers must ensure that contacts side bar is visible.
-  let peopleSearchInput = sidebarDocumentGetElementById("peopleSearchInput",
-                                                        "abContactsPanel");
-  if (peopleSearchInput) {
-    peopleSearchInput.focus();
-    return true;
-  }
-  return false;
+  sidebarDocumentGetElementById("peopleSearchInput", "abContactsPanel").focus();
 }
 
 function SetMsgBodyFrameFocus() {
@@ -6094,7 +6082,6 @@ function sidebarDocumentGetElementById(aId, aPageId) {
     if (sidebarDocument.getElementById(aPageId)) {
       return sidebarDocument.getElementById(aId);
     }
-    // aPageId not found
     return null;
   }
   return sidebarDocument.getElementById(aId);
@@ -6230,14 +6217,7 @@ function sidebarCloseButtonOnCommand() {
   toggleAddressPicker();
 }
 
-/**
- * Show or hide contacts side bar,
- * and optionally focus peopleSearchInput when shown.
- *
- * @param {Boolean} aFocus  Whether to focus peopleSearchInput after the sidebar
- *                          is shown. If omitted, defaults to true.
- */
-function toggleAddressPicker(aFocus = true) {
+function toggleAddressPicker() {
   // Caveat: This function erroneously assumes that only abContactsPanel can
   // be shown in the sidebar browser, so it will fail if any other src is shown
   // as we do not reliably enforce abContactsPanel.xul as src of the sidebar
@@ -6262,24 +6242,11 @@ function toggleAddressPicker(aFocus = true) {
     // If we have yet to initialize the src URL on the sidebar, then go ahead
     // and do so now... We do this lazily here, so we don't spend time when
     // bringing up the compose window loading the address book data sources.
-    // Only when we open composition with the sidebar shown, or when the user
-    // opens it, do we set and load the src URL for contacts sidebar.
-    if (sidebarUrl == "") {
-      // sidebarUrl not yet set, load contacts side bar and focus the search
-      // input if applicable: We pass "?focus" as a URL querystring, then via
-      // onload event of <page id="abContactsPanel">, in AbPanelLoad() of
-      // abContactsPanel.js, we do the focusing first thing to avoid timing
-      // issues when trying to focus from here while contacts side bar is still
-      // loading.
-      let url = "chrome://messenger/content/addressbook/abContactsPanel.xul";
-      if (aFocus) {
-        url += "?focus";
-      }
-      sidebar.setAttribute("src", url);
-    } else if (aFocus) {
-      // sidebarUrl already set, so we can focus immediately if applicable.
-      focusContactsSidebarSearchInput();
-    }
+    // Only when the user opens the address picker, do we set the src URL
+    // for the sidebar.
+    if (sidebarUrl == "")
+      sidebar.setAttribute("src", "chrome://messenger/content/addressbook/abContactsPanel.xul");
+
     sidebarBox.setAttribute("sidebarVisible", "true");
   } else {
     // Hide contacts sidebar.
