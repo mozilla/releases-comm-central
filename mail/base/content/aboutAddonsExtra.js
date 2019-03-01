@@ -5,6 +5,7 @@
 /* import-globals-from ../../../../toolkit/mozapps/extensions/content/extensions.js */
 
 var {ExtensionSupport} = ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
+var {BrowserUtils} = ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
 
 gStrings.mailExt =
   Services.strings.createBundle("chrome://messenger/locale/extensionsOverlay.properties");

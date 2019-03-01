@@ -10,8 +10,6 @@ var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {AddonManager} = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
 var {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
-var {BrowserUtils} = ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
-var {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 var {ExtensionParent} = ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");
 
 function tabProgressListener(aTab, aStartsBlank) {
@@ -232,6 +230,7 @@ var DOMLinkHandler = {
       // ensure that the image loaded always obeys the content policy. There
       // may have been a chance that it was cached and we're trying to load it
       // direct from the cache and not the normal route.
+      let {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
       let tmpChannel = NetUtil.newChannel({
         uri,
         loadingNode: targetDoc,

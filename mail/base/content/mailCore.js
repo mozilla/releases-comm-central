@@ -19,11 +19,9 @@
 /* import-globals-from utilityOverlay.js */
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {BrowserUtils} = ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var {CharsetMenu} = ChromeUtils.import("resource://gre/modules/CharsetMenu.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "gViewSourceUtils", function() {
   let scope = {};
@@ -633,6 +631,7 @@ function safeModeRestart() {
     let environment = Cc["@mozilla.org/process/environment;1"]
                         .getService(Ci.nsIEnvironment);
     environment.set("MOZ_SAFE_MODE_RESTART", "1");
+    let {BrowserUtils} = ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
     BrowserUtils.restartApplication();
   }
 }

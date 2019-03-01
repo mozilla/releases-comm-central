@@ -5,7 +5,6 @@
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 var {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 var {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");

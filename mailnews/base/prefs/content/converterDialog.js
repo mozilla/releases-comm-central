@@ -7,17 +7,12 @@
  * type conversion.
  */
 
-var {BrowserUtils} = ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
-var {OS} = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 var {Log} = ChromeUtils.import("resource://gre/modules/Log.jsm");
-var {
-  convertMailStoreTo,
-  terminateWorkers,
-} = ChromeUtils.import("resource:///modules/mailstoreConverter.jsm");
 var {allAccountsSorted} = ChromeUtils.import("resource:///modules/folderUtils.jsm");
+var MailstoreConverter = ChromeUtils.import("resource:///modules/mailstoreConverter.jsm");
 
 var log = Log.repository.getLogger("MailStoreConverter");
 // {nsIMsgIncomingServer} server for the account to be migrated.
@@ -277,7 +272,7 @@ function startContinue(aSelectedStoreType, aResponse) {
       OnStartRunningUrl: function (aUrl) {
       },
       OnStopRunningUrl: function (aUrl, aExitCode) {
-        let pConvert = convertMailStoreTo(originalStoreContractID,
+        let pConvert = MailstoreConverter.convertMailStoreTo(originalStoreContractID,
           gServer, document.getElementById("progress"));
         pConvert.then(function(val) {
           promiseResolved(val);
@@ -290,7 +285,7 @@ function startContinue(aSelectedStoreType, aResponse) {
       gServer.type == "nntp");
   }
   else {
-    let pConvert = convertMailStoreTo(originalStoreContractID,
+    let pConvert = MailstoreConverter.convertMailStoreTo(originalStoreContractID,
       gServer, document.getElementById("progress"));
     pConvert.then(function(val) {
       promiseResolved(val);
@@ -307,7 +302,7 @@ function startContinue(aSelectedStoreType, aResponse) {
 function cancelConversion(aResponse) {
   gResponse = aResponse;
   gResponse.newRootFolder = null;
-  terminateWorkers();
+  MailstoreConverter.terminateWorkers();
   Services.io.offline = gOriginalOffline;
   window.close();
 }

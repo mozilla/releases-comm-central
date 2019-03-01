@@ -6,6 +6,7 @@
 var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var {BrowserUtils} = ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
 
 var gServer;
 var gOriginalStoreType;
