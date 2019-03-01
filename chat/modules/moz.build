@@ -13,6 +13,7 @@ EXTRA_JS_MODULES += [
     'imServices.jsm',
     'imSmileys.jsm',
     'imStatusUtils.jsm',
+    'imTextboxUtils.jsm',
     'imThemes.jsm',
     'imXPCOMUtils.jsm',
     'jsProtoHelper.jsm',
@@ -23,5 +24,4 @@ EXTRA_JS_MODULES += [
 
 EXTRA_PP_JS_MODULES += [
     'hiddenWindow.jsm',
-    'imTextboxUtils.jsm',
 ]

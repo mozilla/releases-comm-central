@@ -5,7 +5,6 @@
 this.EXPORTED_SYMBOLS = [
   "MessageFormat",
   "TextboxSize",
-  "TextboxSpellChecker"
 ];
 
 const {Services} = ChromeUtils.import("resource:///modules/imServices.jsm");
@@ -120,50 +119,3 @@ var TextboxSize = {
   }
 };
 
-var TextboxSpellChecker = {
-#ifndef MOZ_THUNDERBIRD
-  _spellCheckPrefName: "layout.spellcheckDefault",
-#else
-  _spellCheckPrefName: "mail.spellcheck.inline",
-#endif
-  _enabled: false,
- getValue: function tsc_getValue() {
-#ifndef MOZ_THUNDERBIRD
-    this._enabled = !!Services.prefs.getIntPref(this._spellCheckPrefName);
-#else
-    this._enabled = Services.prefs.getBoolPref(this._spellCheckPrefName);
-#endif
-  },
-  applyValue: function tsc_applyValue(aTextbox) {
-    if (this._enabled)
-      aTextbox.setAttribute("spellcheck", "true");
-    else
-      aTextbox.removeAttribute("spellcheck");
-  },
-
-  _textboxes: [],
-  registerTextbox: function tsc_registerTextbox(aTextbox) {
-    if (!this._textboxes.includes(aTextbox))
-      this._textboxes.push(aTextbox);
-
-    if (this._textboxes.length == 1) {
-      Services.prefs.addObserver(this._spellCheckPrefName, this);
-      this.getValue();
-    }
-
-    this.applyValue(aTextbox);
-  },
-  unregisterTextbox: function tsc_unregisterTextbox(aTextbox) {
-    let index = this._textboxes.indexOf(aTextbox);
-    if (index != -1)
-      this._textboxes.splice(index, 1);
-
-    if (!this._textboxes.length)
-      Services.prefs.removeObserver(this._spellCheckPrefName, this);
-  },
-  observe: function tsc_observe(aSubject, aTopic, aMsg) {
-    this.getValue();
-    for (let textbox of this._textboxes)
-      this.applyValue(textbox);
-  }
-};

@@ -2,9 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// chat/modules/imTextboxUtils.jsm
-/* globals TextboxSpellChecker */
-
 var { Status } = ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 
@@ -100,8 +97,13 @@ var statusSelector = {
         else
           elt.removeAttribute("value");
       }
-      const {TextboxSpellChecker} = ChromeUtils.import("resource:///modules/imTextboxUtils.jsm");
-      TextboxSpellChecker.registerTextbox(elt);
+
+      if (Services.prefs.getBoolPref("mail.spellcheck.inline")) {
+        elt.setAttribute("spellcheck", "true");
+      } else {
+        elt.removeAttribute("spellcheck");
+      }
+
       // force binding attachment by forcing layout
       elt.getBoundingClientRect();
       elt.select();
@@ -175,7 +177,7 @@ var statusSelector = {
 
     if (elt.hasAttribute("usingDefault"))
       elt.setAttribute("value", elt.getAttribute("usingDefault"));
-    TextboxSpellChecker.unregisterTextbox(elt);
+
     elt.removeAttribute("editing");
     elt.removeEventListener("blur", this.statusMessageBlur);
 

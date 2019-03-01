@@ -20,7 +20,6 @@ module.exports = {
       // chat/modules/imTextboxUtils.jsm
       MessageFormat: true,
       TextboxSize: true,
-      TextboxSpellChecker: true,
     },
   }],
 };
