@@ -3565,11 +3565,11 @@ Response.prototype = {
 
     var response = this;
     var copyObserver = {
-        onStartRequest(request, cx) {
+        onStartRequest(request) {
           dumpn("*** preamble copying started");
         },
 
-        onStopRequest(request, cx, statusCode) {
+        onStopRequest(request, statusCode) {
           dumpn("*** preamble copying complete " +
                 "[status=0x" + statusCode.toString(16) + "]");
 
@@ -3618,7 +3618,7 @@ Response.prototype = {
           dumpn("*** onStartRequest");
         },
 
-        onStopRequest(request, cx, statusCode) {
+        onStopRequest(request, statusCode) {
           dumpn("*** onStopRequest [status=0x" + statusCode.toString(16) + "]");
 
           if (statusCode === Cr.NS_BINDING_ABORTED) {

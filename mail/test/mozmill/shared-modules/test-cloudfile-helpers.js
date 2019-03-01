@@ -79,9 +79,9 @@ MockCloudfileAccount.prototype = {
   },
 
   uploadFile(aFile, aListener) {
-    aListener.onStartRequest(null, null);
+    aListener.onStartRequest(null);
     fdh.mc.window.setTimeout(function() {
-      aListener.onStopRequest(null, null, Cr.NS_OK);
+      aListener.onStopRequest(null, Cr.NS_OK);
     }, 0);
   },
 
@@ -91,8 +91,8 @@ MockCloudfileAccount.prototype = {
   },
 
   refreshUserInfo(aWithUI, aCallback) {
-    aCallback.onStartRequest(null, null);
-    aCallback.onStopRequest(null, null, Cr.NS_OK);
+    aCallback.onStartRequest(null);
+    aCallback.onStopRequest(null, Cr.NS_OK);
   },
 
   cancelFileUpload(aFile) {
@@ -104,9 +104,9 @@ MockCloudfileAccount.prototype = {
   },
 
   deleteFile(aFile, aCallback) {
-    aCallback.onStartRequest(null, null);
+    aCallback.onStartRequest(null);
     fdh.mc.window.setTimeout(function() {
-      aCallback.onStopRequest(null, null, Cr.NS_OK);
+      aCallback.onStopRequest(null, Cr.NS_OK);
     }, 0);
   },
 
