@@ -44,7 +44,6 @@ private:
   nsresult CommonAsyncVerifySignature(nsISMimeVerificationListener *aListener,
                                       unsigned char* aDigestData, uint32_t aDigestDataLen,
                                       int16_t aDigestType);
-  bool GetIntHashToOidHash(const int16_t aCryptoHashInt, SECOidTag &aOidTag);
   bool IsAllowedHash(const int16_t aCryptoHashInt);
 
   void destructorSafeDestroyNSSReference();

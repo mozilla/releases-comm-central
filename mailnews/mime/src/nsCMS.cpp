@@ -23,6 +23,7 @@
 #include "nsServiceManagerUtils.h"
 #include "mozpkix/Result.h"
 #include "mozpkix/pkixtypes.h"
+#include "sechash.h"
 #include "smime.h"
 #include "mozilla/StaticMutex.h"
 
@@ -245,7 +246,8 @@ nsCMSMessage::CommonVerifySignature(unsigned char* aDigestData,
       }
     }
 
-    if (!GetIntHashToOidHash(aDigestType, oidTag)) {
+    oidTag = HASH_GetHashOidTagByHashType(static_cast<HASH_HashType>(aDigestType));
+    if (oidTag == SEC_OID_UNKNOWN) {
       rv = NS_ERROR_CMS_VERIFY_BAD_DIGEST;
       goto loser;
     }
@@ -610,41 +612,9 @@ bool nsCMSMessage::IsAllowedHash(const int16_t aCryptoHashInt)
     case nsICryptoHash::SHA384:
     case nsICryptoHash::SHA512:
       return true;
-    case nsICryptoHash::MD2:
-    case nsICryptoHash::MD5:
     default:
       return false;
   }
-}
-
-bool nsCMSMessage::GetIntHashToOidHash(const int16_t aCryptoHashInt, SECOidTag &aOidTag)
-{
-  bool rv = true;
-
-  switch (aCryptoHashInt) {
-    case nsICryptoHash::MD2:
-      aOidTag = SEC_OID_MD2;
-      break;
-    case nsICryptoHash::MD5:
-      aOidTag = SEC_OID_MD5;
-      break;
-    case nsICryptoHash::SHA1:
-      aOidTag = SEC_OID_SHA1;
-      break;
-    case nsICryptoHash::SHA256:
-      aOidTag = SEC_OID_SHA256;
-      break;
-    case nsICryptoHash::SHA384:
-      aOidTag = SEC_OID_SHA384;
-      break;
-    case nsICryptoHash::SHA512:
-      aOidTag = SEC_OID_SHA512;
-      break;
-    default:
-      rv = false;
-  }
-
-  return rv;
 }
 
 NS_IMETHODIMP
@@ -669,9 +639,12 @@ nsCMSMessage::CreateSigned(nsIX509Cert* aSigningCert, nsIX509Cert* aEncryptCert,
     ecert = UniqueCERTCertificate(aEncryptCert->GetCert());
   }
 
-  SECOidTag digestType;
-  if (!IsAllowedHash(aDigestType) ||
-      !GetIntHashToOidHash(aDigestType, digestType)) {
+  if (!IsAllowedHash(aDigestType)) {
+      return NS_ERROR_INVALID_ARG;
+  }
+
+  SECOidTag digestType = HASH_GetHashOidTagByHashType(static_cast<HASH_HashType>(aDigestType));
+  if (digestType == SEC_OID_UNKNOWN) {
       return NS_ERROR_INVALID_ARG;
   }
 
