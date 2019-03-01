@@ -54,6 +54,7 @@
 <window id="messengerWindow"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
+        icon="messengerWindow"
         title="&titledefault.label;@PRE_RELEASE_SUFFIX@"
         titlemodifier="&titledefault.label;@PRE_RELEASE_SUFFIX@"
         titlemenuseparator="&titleSeparator.label;"

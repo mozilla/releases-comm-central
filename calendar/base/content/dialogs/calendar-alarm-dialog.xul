@@ -18,6 +18,7 @@
 
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         id="calendar-alarm-dialog"
+        icon="calendar-alarm-dialog"
         title="&calendar.alarm.title.label;"
         windowtype="Calendar:AlarmWindow"
         persist="screenX screenY width height"

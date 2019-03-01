@@ -66,6 +66,7 @@
         xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns:svg="http://www.w3.org/2000/svg"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        icon="messengerWindow"
         title="&titledefault.label;@PRE_RELEASE_SUFFIX@"
         titlemodifier="&titledefault.label;@PRE_RELEASE_SUFFIX@"
         titlemenuseparator="&titleSeparator.label;"

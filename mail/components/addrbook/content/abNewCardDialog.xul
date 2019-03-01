@@ -17,6 +17,7 @@
 <dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
     xmlns:html="http://www.w3.org/1999/xhtml"
     id="abcardWindow"
+    icon="abcardWindow"
     windowtype="mailnews:newcarddialog"
     onload="OnLoadNewCard()"
     ondialogaccept="return NewCardOKButton();"
