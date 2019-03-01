@@ -234,10 +234,9 @@ function test_link_insertion_goes_away_on_error() {
   provider.init("aKey");
 
   provider.uploadFile = function(aFile, aListener) {
-    aListener.onStartRequest(null, null);
+    aListener.onStartRequest(null);
     cwc.window.setTimeout(function() {
-      aListener.onStopRequest(null, null,
-                              cloudFileAccounts.constants.uploadErr);
+      aListener.onStopRequest(null, cloudFileAccounts.constants.uploadErr);
     }, 500);
   };
 
@@ -269,8 +268,8 @@ function test_no_offer_on_conversion() {
   // to worry about waiting for the onStopRequest method being called
   // asynchronously.
   provider.uploadFile = function(aFile, aListener) {
-    aListener.onStartRequest(null, null);
-    aListener.onStopRequest(null, null, Cr.NS_OK);
+    aListener.onStartRequest(null);
+    aListener.onStopRequest(null, Cr.NS_OK);
   };
 
   let cw = open_compose_new_mail();
@@ -312,8 +311,8 @@ function test_offer_then_upload_notifications() {
   // to worry about waiting for the onStopRequest method being called
   // asynchronously.
   provider.uploadFile = function(aFile, aListener) {
-    aListener.onStartRequest(null, null);
-    aListener.onStopRequest(null, null, Cr.NS_OK);
+    aListener.onStartRequest(null);
+    aListener.onStopRequest(null, Cr.NS_OK);
   };
 
   let cw = open_compose_new_mail();
@@ -353,10 +352,9 @@ function test_privacy_warning_notification() {
   provider.init("aKey");
 
   provider.uploadFile = function(aFile, aListener) {
-    aListener.onStartRequest(null, null);
+    aListener.onStartRequest(null);
     cwc.window.setTimeout(function() {
-      aListener.onStopRequest(null, null,
-                              Cr.NS_OK);
+      aListener.onStopRequest(null, Cr.NS_OK);
     }, 500);
   };
   let cwc = open_compose_new_mail(mc);
@@ -394,10 +392,9 @@ function test_privacy_warning_notification_no_persist() {
   provider.init("aKey");
 
   provider.uploadFile = function(aFile, aListener) {
-    aListener.onStartRequest(null, null);
+    aListener.onStartRequest(null);
     cwc.window.setTimeout(function() {
-      aListener.onStopRequest(null, null,
-                              Cr.NS_OK);
+      aListener.onStopRequest(null, Cr.NS_OK);
     }, 500);
   };
   let cwc = open_compose_new_mail(mc);
@@ -435,10 +432,9 @@ function test_privacy_warning_notification_open_after_close() {
   provider.init("aKey");
 
   provider.uploadFile = function(aFile, aListener) {
-    aListener.onStartRequest(null, null);
+    aListener.onStartRequest(null);
     cwc.window.setTimeout(function() {
-      aListener.onStopRequest(null, null,
-                              Cr.NS_OK);
+      aListener.onStopRequest(null, Cr.NS_OK);
     }, 500);
   };
   let cwc = open_compose_new_mail(mc);

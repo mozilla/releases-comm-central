@@ -60,7 +60,7 @@ function test_upload_cancel_repeat() {
   let started;
   provider.uploadFile = function(aFile, aListener) {
     listener = aListener;
-    listener.onStartRequest(null, null);
+    listener.onStartRequest(null);
     started = true;
   };
 
@@ -102,7 +102,7 @@ function test_upload_multiple_and_cancel() {
   let listener;
   provider.uploadFile = function(aFile, aListener) {
     listener = aListener;
-    listener.onStartRequest(null, null);
+    listener.onStartRequest(null);
   };
 
   add_cloud_attachments(cw, provider, false);
@@ -134,8 +134,7 @@ function assert_can_cancel_upload(aController, aProvider, aListener,
   // it's assumed that the provider is a MockCloudfileAccount.
   aProvider.cancelFileUpload = function(aFileToCancel) {
     if (aTargetFile.equals(aFileToCancel)) {
-      aListener.onStopRequest(null, null,
-                              cloudFileAccounts.constants.uploadCancelled);
+      aListener.onStopRequest(null, cloudFileAccounts.constants.uploadCancelled);
       cancelled = true;
     }
   };

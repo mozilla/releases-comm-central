@@ -394,7 +394,7 @@ nsBox.prototype = {
     if (!this._userInfo)
       return this._getUserInfo();
 
-    aCallback.onStopRequest(null, null);  // XXX TODO: This looks wrong, second argument is a status.
+    aCallback.onStopRequest(null, Cr.NS_OK);
     return this._userInfo;
   },
 
@@ -666,7 +666,7 @@ nsBoxFileUploader.prototype = {
    * Do the upload of the file to Box.
    */
   uploadFile() {
-    this.requestObserver.onStartRequest(null, null);
+    this.requestObserver.onStartRequest(null);
     let requestUrl = gUploadUrl + "files/content";
     this.box._uploadInfo[this.file.path] = {};
     this.box._uploadInfo[this.file.path].uploadUrl = requestUrl;

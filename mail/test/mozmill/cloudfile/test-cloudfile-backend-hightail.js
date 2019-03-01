@@ -213,7 +213,6 @@ function test_create_existing_account() {
     onStartRequest(aRequest) {
     },
     onStopRequest(aRequest, aStatusCode) {
-      assert_equals(aContext, provider);
       assert_equals(aStatusCode, Cr.NS_OK);
       done = true;
     },
