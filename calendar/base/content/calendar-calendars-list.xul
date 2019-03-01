@@ -69,7 +69,6 @@
                       type="full"
                       writable="true"
                       allowdrag="true"
-                      onSortOrderChanged="updateSortOrderPref(event)"
                       onselect="document.commandDispatcher.updateCommands('calendar_commands')"
                       childtooltip="calendar-list-tooltip"
                       childcontext="list-calendars-context-menu"/>

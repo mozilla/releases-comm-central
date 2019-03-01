@@ -52,7 +52,7 @@ function testTodayPane() {
     // Go to today and verify date.
     let dayPath = `${DAY_VIEW}/${LABELDAYBOX}/{"flex":"1"}`;
     controller.waitThenClick(lookup(TODAY_BUTTON));
-    controller.assertJS(lookup(dayPath).getNode().mDate.icalString == getIsoDate());
+    controller.assert(() => lookup(dayPath).getNode().mDate.icalString == getIsoDate());
 
     // Create event 6 hours from now, if this is tomorrow then at 23 today.
     // Doubleclick only triggers new event dialog on visible boxes, so scrolling
@@ -173,12 +173,12 @@ function testTodayPane() {
     `).getNode();
 
     // TODO This is failing, which might actually be an error in our code!
-    //  controller.assertJS(!tomorrow.hasAttribute("checked")
-    //    || tomorrow.getAttribute("checked") != "true");
-    controller.assertJS(
-        !soon.hasAttribute("checked") ||
-        soon.getAttribute("checked") != "true"
-    );
+    // controller.assert(() => {
+    //     return !tomorrow.hasAttribute("checked") || tomorrow.getAttribute("checked") != "true";
+    // });
+    controller.assert(() => {
+        return !soon.hasAttribute("checked") || soon.getAttribute("checked") != "true";
+    });
 }
 
 function getIsoDate() {

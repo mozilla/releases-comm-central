@@ -117,21 +117,21 @@ function handleReminderDialog(reminders) {
     let listbox = remindersid("reminder-listbox");
     let listboxElement = remindersid("reminder-listbox").getNode();
     reminders.waitFor(() => listboxElement.selectedCount == 1);
-    reminders.assertJS(listboxElement.selectedItem.reminder.offset.days == DEFVALUE);
+    reminders.assert(() => listboxElement.selectedItem.reminder.offset.days == DEFVALUE);
 
     reminders.click(remindersid("reminder-new-button"));
     reminders.waitFor(() => listboxElement.itemCount == 2);
-    reminders.assertJS(listboxElement.selectedCount == 1);
-    reminders.assertJS(listboxElement.selectedItem.reminder.offset.days == DEFVALUE);
+    reminders.assert(() => listboxElement.selectedCount == 1);
+    reminders.assert(() => listboxElement.selectedItem.reminder.offset.days == DEFVALUE);
 
     replaceText(remindersid("reminder-length"), "20");
-    reminders.assertJS(listboxElement.selectedItem.reminder.offset.days == 20);
+    reminders.assert(() => listboxElement.selectedItem.reminder.offset.days == 20);
 
     reminders.click(listbox);
     reminders.keypress(listbox, "VK_UP", {});
     reminders.waitFor(() => listboxElement.selectedIndex == 0);
 
-    reminders.assertJS(listboxElement.selectedItem.reminder.offset.days == DEFVALUE);
+    reminders.assert(() => listboxElement.selectedItem.reminder.offset.days == DEFVALUE);
 
     reminders.window.close();
 }

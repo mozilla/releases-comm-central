@@ -84,7 +84,7 @@ function testLocalICS() {
     cstream.readString(-1, str);
     cstream.close();
 
-    controller.assertJS(str.value.includes("SUMMARY:" + calendarTitle));
+    controller.assert(() => str.value.includes("SUMMARY:" + calendarTitle));
 }
 
 function teardownTest(module) {

@@ -404,13 +404,6 @@
             event.initEvent("SortOrderChanged", true, false);
             event.sortOrder = this.sortOrder;
             this.dispatchEvent(event);
-
-            let handler = this.getAttribute("onSortOrderChanged");
-            if (handler) {
-                // Call the given code in a function
-                let func = new Function("event", handler);
-                func(event);
-            }
         ]]></body>
       </method>
       <method name="displayScrollbarSpacer">

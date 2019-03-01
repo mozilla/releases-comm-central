@@ -39,8 +39,7 @@
             label="&calendar.alarm.snoozeallfor.label;">
       <menupopup id="alarm-snooze-all-popup"
                  type="snooze-menupopup"
-                 ignorekeys="true"
-                 onsnooze="snoozeAllItems(event.detail)"/>
+                 ignorekeys="true"/>
     </button>
     <button id="alarm-dismiss-all-button"
             label="&calendar.alarm.dismissall.label;"

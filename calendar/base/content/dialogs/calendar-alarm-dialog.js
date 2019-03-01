@@ -10,6 +10,12 @@ var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm")
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
+addEventListener("DOMContentLoaded", () => {
+    document.getElementById("alarm-snooze-all-popup").addEventListener("snooze", (event) => {
+        snoozeAllItems(event.detail);
+    });
+});
+
 /**
  * Helper function to get the alarm service and cache it.
  *

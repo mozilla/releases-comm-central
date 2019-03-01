@@ -290,17 +290,7 @@
             let snoozeEvent = document.createEvent("Events");
             snoozeEvent.initEvent("snooze", true, false);
             snoozeEvent.detail = minutes;
-
-            let handler = this.getAttribute("onsnooze");
-            let cancel = false;
-            if (handler) {
-                let func = new Function("event", handler);
-                cancel = (func.call(this, snoozeEvent) === false);
-            }
-
-            if (!cancel) {
-                this.dispatchEvent(snoozeEvent);
-            }
+            this.dispatchEvent(snoozeEvent);
         ]]></body>
       </method>
 

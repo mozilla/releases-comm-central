@@ -84,7 +84,6 @@ var windowMap = {
 
 // Declare most used utils functions in the controller namespace
 var sleep = utils.sleep;
-var assert = utils.assert;
 
 var waitForEvents = function() {};
 
@@ -906,16 +905,6 @@ MozMillController.prototype.assert = function(callback, message, thisObject) {
   utils.assert(callback, message, thisObject);
 
   frame.events.pass({"function": ": controller.assert('" + callback + "')"});
-  return true;
-};
-
-// Assert that the result of a Javascript expression is true
-MozMillController.prototype.assertJS = function(expression, subject) {
-  assert(function() {
-    return eval(expression); // eslint-disable-line no-eval
-  }, "controller.assertJS: Failed for '" + expression + "'");
-
-  frame.events.pass({"function": "controller.assertJS('" + expression + "')"});
   return true;
 };
 
