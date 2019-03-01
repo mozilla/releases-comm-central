@@ -22,7 +22,7 @@
 
 :root[lwt-tree] #unifinder-searchBox {
     background-color: var(--toolbar-bgcolor);
-    background-image: linear-gradient(var(--sidebar-border-color) 1px, transparent 1px);
+    background-image: none;
     color: var(--toolbar-color);
     border-bottom-color: var(--sidebar-border-color, hsla(0,0%,60%,.4));
 }

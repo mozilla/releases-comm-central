@@ -8,6 +8,12 @@
   border-bottom-color: ThreeDShadow;
 }
 
+#today-pane-splitter {
+  border-top-width: 0;
+  min-height: 0;
+  background-color: transparent;
+}
+
 @media (-moz-os-version: windows-win8) and (-moz-windows-default-theme),
        (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
   #today-pane-panel:not(:-moz-lwtheme) {

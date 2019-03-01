@@ -16,6 +16,12 @@
     background-color: -moz-Dialog;
 }
 
+#calsidebar_splitter {
+  border-inline-start: 1px solid var(--splitter-color);
+  /* make only the splitter border visible */
+  margin-inline-end: -5px;
+}
+
 /* Calendar list rules */
 #calendar-panel {
     padding-bottom: 5px;
@@ -52,48 +58,18 @@
 
 #calsidebar_splitter,
 #today-splitter {
-  border-width: 0;
   min-width: 0;
-  width: 5px;
   background-color: transparent;
-  margin-top: 0;
-  position: relative;
-  z-index: 10;
-  transition: border-width .3s ease-in;
-}
-
-#calsidebar_splitter {
-  border-inline-start: 1px solid #a9b7c9;
-  margin-inline-end: -5px;
-}
-
-#calsidebar_splitter[state="collapsed"] {
-  border-inline-start: 1px solid transparent;
-}
-
-#calsidebar_splitter[state="collapsed"]:hover {
-  border-inline-start: 4px solid highlight;
 }
 
 #today-splitter {
-  border-inline-end: 1px solid #a9b7c9;
+  border-inline-end: 1px solid var(--splitter-color);
   margin-inline-start: -5px;
   position: relative;
 }
 
 #today-splitter.calendar-sidebar-splitter:-moz-lwtheme {
   background-image: none;
-}
-
-#today-pane-splitter {
-  border-width: 0;
-  border-bottom: 3px double #a9b7c9;
-  min-height: 0;
-  height: 5px;
-  background-color: transparent;
-  margin-top: -3px;
-  position: relative;
-  z-index: 10;
 }
 
 @media (-moz-windows-default-theme) {

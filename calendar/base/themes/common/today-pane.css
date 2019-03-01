@@ -13,7 +13,6 @@
 .today-subpane {
   border-bottom-style: solid;
   border-bottom-width: 1px;
-  margin-bottom: 3px;
   padding: 0;
 }
 
@@ -76,26 +75,18 @@
   transform: scaleX(-1);
 }
 
-#agenda-panel:-moz-lwtheme > vbox,
-#today-pane-splitter:-moz-lwtheme,
-#todo-tab-panel:-moz-lwtheme {
-  background-color: -moz-Dialog;
-}
-
 #today-pane-panel:-moz-lwtheme > vbox {
   text-shadow: none;
   background-color: -moz-Dialog;
 }
 
 :root[lwt-tree] #today-pane-panel > vbox {
-  background-color: var(--sidebar-background-color);
+  background-color: var(--lwt-accent-color);
   color: var(--sidebar-text-color);
 }
 
-:root[lwt-tree] #agenda-panel > vbox,
-:root[lwt-tree] #today-pane-splitter,
-:root[lwt-tree] #todo-tab-panel {
-  background-color: var(--lwt-accent-color);
+:root[lwt-tree] #agenda-panel > modebox {
+  background-color: var(--sidebar-background-color);
 }
 
 :root[lwt-tree] .today-subpane {
@@ -208,7 +199,7 @@
 
 #agenda-toolbar {
   border: none;
-  padding: 1px;
+  padding: 4px 1px;
 }
 
 #todaypane-new-event-button {
@@ -245,10 +236,25 @@
  padding-inline-start: 5px;
 }
 
+#today-pane-splitter {
+  border-bottom: 1px solid var(--splitter-color);
+  /* splitter grip area */
+  height: 5px;
+  /* make only the splitter border visible */
+  margin-top: -5px;
+  /* because of the negative margin needed to make the splitter visible */
+  position: relative;
+  z-index: 10;
+}
+
+#show-completed-checkbox-box {
+  padding-top: 3px;
+}
+
 #agenda-listbox {
   -moz-appearance: none;
   -moz-user-focus: normal;
-  margin: 3px 0 0;
+  margin: 0;
   border-top: 1px solid ThreeDShadow;
 }
 

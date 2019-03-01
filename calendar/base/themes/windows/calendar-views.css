@@ -46,7 +46,7 @@ radio[calview][selected="true"] {
 
 #calendar-view-box #calendar-view-splitter {
     border: none;
-    border-bottom: 1px solid #a9b7c9;
+    border-bottom: 1px solid var(--splitter-color);
     min-height: 0;
     height: 5px;
     background-color: transparent;

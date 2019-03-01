@@ -28,7 +28,7 @@
 
 :root[lwt-tree] #task-addition-box {
     background-color: var(--toolbar-bgcolor);
-    background-image: linear-gradient(var(--sidebar-border-color) 1px, transparent 1px);
+    background-image: none;
     color: var(--toolbar-color);
     border-color: var(--sidebar-border-color, hsla(0,0%,60%,.4));
 }

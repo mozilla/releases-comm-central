@@ -14,11 +14,6 @@
     --toolbarbutton-checkedhover-backgroundcolor: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .5));
 }
 
-#calendar-task-view-splitter {
-    border: none;
-    min-height: 5px;
-}
-
 #calendar-task-details-container {
     border-top: 1px solid ThreeDShadow;
     border-left: 1px solid ThreeDShadow;
@@ -62,7 +57,7 @@
 
 #calendar-task-box #calendar-task-view-splitter {
     border-width: 0;
-    border-bottom: 1px solid #A9B7C9;
+    border-bottom: 1px solid var(--splitter-color);
     min-height: 0;
     height: 5px;
     background-color: transparent;

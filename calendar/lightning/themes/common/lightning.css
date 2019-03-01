@@ -165,3 +165,24 @@
     font-weight: bold;
     font-style: italic;
 }
+
+#calsidebar_splitter,
+#today-splitter {
+  /* splitter grip area */
+  width: 5px;
+  border-width: 0;
+  min-width: 0;
+  margin-top: 0;
+  /* because of the negative margin needed to make the splitter visible */
+  position: relative;
+  z-index: 10;
+  transition: border-width .3s ease-in;
+}
+
+#calsidebar_splitter[state="collapsed"] {
+  border-inline-start: 1px solid transparent;
+}
+
+#calsidebar_splitter[state="collapsed"]:hover {
+  border-inline-start: 4px solid highlight;
+}
