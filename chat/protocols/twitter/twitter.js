@@ -53,11 +53,11 @@ ChatBuddy.prototype = {
   },
   set buddyIconFilename(aName) {
     // Prevent accidental removal of the getter.
-    throw("Don't set chatBuddy.buddyIconFilename directly for Twitter.");
+    throw "Don't set chatBuddy.buddyIconFilename directly for Twitter.";
   },
-  createConversation: function() {
+  createConversation() {
     return this._account.createConversation(this._name);
-  }
+  },
 };
 
 function Tweet(aTweet, aWho, aMessage, aObject)
@@ -68,7 +68,7 @@ function Tweet(aTweet, aWho, aMessage, aObject)
 Tweet.prototype = {
   __proto__: GenericMessagePrototype,
   _deleted: false,
-  getActions: function(aCount) {
+  getActions(aCount) {
     // Direct messages have no actions.
     if (!this.conversation.isChat) {
       if (aCount)
@@ -120,21 +120,21 @@ Tweet.prototype = {
       aCount.value = actions.length;
     return actions;
   },
-  destroy: function() {
+  destroy() {
     // Mark the tweet as deleted until we receive a response.
     this._deleted = true;
 
     this.conversation._account.destroy(this._tweet, this.onDestroyCallback,
                                        this.onDestroyErrorCallback, this);
   },
-  onDestroyErrorCallback: function(aException, aData) {
+  onDestroyErrorCallback(aException, aData) {
     // The tweet was not successfully deleted.
     delete this._deleted;
     let error = this.conversation._parseError(aData);
     this.conversation.systemMessage(_("error.delete", error,
                                       this.originalMessage), true);
   },
-  onDestroyCallback: function(aData) {
+  onDestroyCallback(aData) {
     let tweet = JSON.parse(aData);
     // If Twitter responds with an error, throw to call the error callback.
     if ("error" in tweet)
@@ -142,7 +142,7 @@ Tweet.prototype = {
 
     // Create a new system message saying the tweet has been deleted.
     this.conversation.systemMessage(_("event.deleted", this.originalMessage));
-  }
+  },
 };
 
 function Action(aLabel, aAction, aTweet)
@@ -153,18 +153,18 @@ function Action(aLabel, aAction, aTweet)
 }
 Action.prototype = {
   __proto__: ClassInfo("prplIMessageAction", "generic message action object"),
-  get run() { return this._action.bind(this._tweet); }
+  get run() { return this._action.bind(this._tweet); },
 };
 
 // Properties / methods shared by both DirectMessageConversation and
 // TimelineConversation.
 var GenericTwitterConversation = {
-  getTweetLength: function (aString) {
+  getTweetLength(aString) {
     // Use the Twitter library to calculate the length.
     let parsed = twttr.txt.parseTweet(aString);
-    return parsed.weightedLength
+    return parsed.weightedLength;
   },
-  systemMessage: function(aMessage, aIsError, aDate) {
+  systemMessage(aMessage, aIsError, aDate) {
     let flags = {system: true};
     if (aIsError)
       flags.error = true;
@@ -172,7 +172,7 @@ var GenericTwitterConversation = {
       flags.time = aDate;
     this.writeMessage("twitter.com", aMessage, flags);
   },
-  onSentCallback: function(aMsg, aData) {
+  onSentCallback(aMsg, aData) {
     // The conversation may have been uninitialized in the time it takes for
     // the async callback to fire.  Use `_observers` as a proxy for uninit'd.
     if (!this._observers)
@@ -185,7 +185,7 @@ var GenericTwitterConversation = {
     tweet.text = aMsg;
     this.displayMessages([tweet]);
   },
-  prepareForDisplaying: function(aMsg) {
+  prepareForDisplaying(aMsg) {
     if (!this._tweets.has(aMsg.id))
       return;
     let tweet = this._tweets.get(aMsg.id)._tweet;
@@ -202,7 +202,7 @@ var GenericTwitterConversation = {
     // Note: the truncated flag is not always set correctly by twitter, so we
     // always make use of the original tweet.
     if ("retweeted_status" in tweet) {
-      let retweet = tweet["retweeted_status"];
+      let retweet = tweet.retweeted_status;
       let retweetText, retweetEntities = {};
 
       if ("extended_tweet" in retweet) {
@@ -260,10 +260,9 @@ var GenericTwitterConversation = {
       text = extended.full_text;
       if ("entities" in extended)
         entities = extended.entities;
-    } else {
+    } else if ("entities" in tweet) {
       // For non-retweets, we just want to use the entities that are given.
-      if ("entities" in tweet)
-        entities = tweet.entities;
+      entities = tweet.entities;
     }
 
     this._account.LOG("Tweet: " + text);
@@ -277,12 +276,12 @@ var GenericTwitterConversation = {
         // But remove the indices so they apply in the face of modifications.
         delete o.indices;
         return o;
-      })
+      }),
     });
 
     GenericConversationPrototype.prepareForDisplaying.apply(this, arguments);
   },
-  displayTweet: function(aTweet, aUser) {
+  displayTweet(aTweet, aUser) {
     let name = aUser.screen_name;
 
     let flags = name == this.nick ? {outgoing: true} : {incoming: true};
@@ -299,7 +298,7 @@ var GenericTwitterConversation = {
     this._tweets.set(tweet.id, tweet);
     tweet.conversation = this;
   },
-  _parseError: function(aData) {
+  _parseError(aData) {
     let error = "";
     try {
       let data = JSON.parse(aData);
@@ -309,10 +308,10 @@ var GenericTwitterConversation = {
         error = data.errors[0].message;
       if (error)
         error = "(" + error + ")";
-    } catch(e) {}
+    } catch (e) {}
     return error;
   },
-  getNormalizedChatBuddyName: (aNick) => aNick.replace(/^@/, "")
+  getNormalizedChatBuddyName: (aNick) => aNick.replace(/^@/, ""),
 };
 
 function TimelineConversation(aAccount)
@@ -341,12 +340,12 @@ function TimelineConversation(aAccount)
 }
 TimelineConversation.prototype = {
   __proto__: GenericConvChatPrototype,
-  unInit: function() {
+  unInit() {
     delete this._account._timeline;
     GenericConvChatPrototype.unInit.call(this);
   },
   inReplyToStatusId: null,
-  startReply: function(aTweet) {
+  startReply(aTweet) {
     this.inReplyToStatusId = aTweet.id_str;
     let entities = aTweet.entities;
 
@@ -368,13 +367,13 @@ TimelineConversation.prototype = {
     this.notifyObservers(null, "status-text-changed",
                          _("replyingToStatusText", aTweet.text));
   },
-  reTweet: function(aTweet) {
+  reTweet(aTweet) {
     this._account.reTweet(aTweet, null, function(aException, aData) {
       this.systemMessage(_("error.retweet", this._parseError(aData),
                            aTweet.text), true);
     }, this);
   },
-  sendMsg: function(aMsg) {
+  sendMsg(aMsg) {
     let parsed = twttr.txt.parseTweet(aMsg);
     if (!parsed.valid) {
       this.systemMessage(_("error.tooLong"), true);
@@ -388,7 +387,7 @@ TimelineConversation.prototype = {
     }, this);
     this.sendTyping("");
   },
-  like: function(aTweet, aRemoveLike = false) {
+  like(aTweet, aRemoveLike = false) {
     this._account.like(aTweet, aRemoveLike, function() {
       aTweet.favorited = !aRemoveLike;
     }, function(aException, aData) {
@@ -397,7 +396,7 @@ TimelineConversation.prototype = {
                           this.parseError(aData), aTweet.text), true);
     }, this);
   },
-  sendTyping: function(aString) {
+  sendTyping(aString) {
     let maxlen = twttr.txt.configs.defaults.maxWeightedTweetLength;
     if (aString.length == 0 && this.inReplyToStatusId) {
       delete this.inReplyToStatusId;
@@ -406,7 +405,7 @@ TimelineConversation.prototype = {
     }
     return maxlen - this.getTweetLength(aString);
   },
-  displayMessages: function(aMessages) {
+  displayMessages(aMessages) {
     let account = this._account;
     let lastMsgId = account._lastMsgId;
     for (let tweet of aMessages) {
@@ -430,7 +429,7 @@ TimelineConversation.prototype = {
       account.prefs.setCharPref("lastMessageId", account._lastMsgId);
     }
   },
-  _ensureParticipantExists: function(aNick) {
+  _ensureParticipantExists(aNick) {
     if (this._participants.has(aNick))
       return;
 
@@ -448,7 +447,7 @@ TimelineConversation.prototype = {
   set topic(aTopic) {
     if (this.topicSettable)
       this._account.setUserDescription(aTopic);
-  }
+  },
 };
 Object.assign(TimelineConversation.prototype, GenericTwitterConversation);
 
@@ -461,7 +460,7 @@ function DirectMessageConversation(aAccount, aName)
 }
 DirectMessageConversation.prototype = {
   __proto__: GenericConvIMPrototype,
-  sendMsg: function(aMsg) {
+  sendMsg(aMsg) {
     this._account.directMessage(aMsg, this.name,
                                 this.onSentCallback.bind(this, aMsg),
                                 function(aException, aData) {
@@ -469,7 +468,7 @@ DirectMessageConversation.prototype = {
       this.systemMessage(_("error.general", error, aMsg), true);
     }, this);
   },
-  displayMessages: function(aMessages) {
+  displayMessages(aMessages) {
     let account = this._account;
     for (let tweet of aMessages) {
       if (!("sender" in tweet) || !("recipient" in tweet) ||
@@ -480,13 +479,13 @@ DirectMessageConversation.prototype = {
       this.displayTweet(tweet, tweet.sender);
     }
   },
-  unInit: function() {
+  unInit() {
     this._account.removeConversation(this.name);
     GenericConvIMPrototype.unInit.call(this);
   },
   get nick() { return this._account.name; },
-  set nick(aNick) {}
-}
+  set nick(aNick) {},
+};
 Object.assign(DirectMessageConversation.prototype, GenericTwitterConversation);
 
 function Account(aProtocol, aImAccount)
@@ -520,7 +519,7 @@ Account.prototype = {
 
   token: "",
   tokenSecret: "",
-  connect: function() {
+  connect() {
     if (this.connected || this.connecting)
       return;
 
@@ -530,7 +529,7 @@ Account.prototype = {
     let prefValue = {};
     try {
       prefValue = JSON.parse(this.prefs.getCharPref("oauth"));
-    } catch(e) { }
+    } catch (e) { }
     if (prefValue.hasOwnProperty(this.consumerKey)) {
       let result = prefValue[this.consumerKey];
       this.token = result.oauth_token;
@@ -549,7 +548,7 @@ Account.prototype = {
     this.getTimelines();
   },
 
-  observe: function(aSubject, aTopic, aMsg) {
+  observe(aSubject, aTopic, aMsg) {
     // Twitter doesn't broadcast the user's availability, so we can ignore
     // imIUserStatusInfo's status notifications.
     if (aTopic != NS_PREFBRANCH_PREFCHANGE_TOPIC_ID)
@@ -563,8 +562,7 @@ Account.prototype = {
     this.openStream();
   },
 
-  signAndSend: function(aUrl, aHeaders, aPOSTData, aOnLoad, aOnError, aThis,
-                        aOAuthParams) {
+  signAndSend(aUrl, aHeaders, aPOSTData, aOnLoad, aOnError, aThis, aOAuthParams) {
     const kChars =
       "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
     const kNonceLength = 6;
@@ -578,7 +576,7 @@ Account.prototype = {
       ["oauth_signature_method", "HMAC-SHA1"],
       ["oauth_token", this.token],
       ["oauth_timestamp", Math.floor(((new Date()).getTime()) / 1000)],
-      ["oauth_version", "1.0"]
+      ["oauth_version", "1.0"],
     ]);
 
     let dataParams = [];
@@ -593,7 +591,7 @@ Account.prototype = {
     let method = "GET";
     if (aPOSTData) {
       method = "POST";
-      aPOSTData.forEach(function (p) {
+      aPOSTData.forEach(function(p) {
         dataParams.push(p.map(percentEncode));
       });
     }
@@ -602,7 +600,11 @@ Account.prototype = {
     let signatureBase =
       method + "&" + encodeURIComponent(urlSpec) + "&" +
       params.concat(dataParams)
-            .sort((a, b) => (a[0] < b[0]) ? -1 : (a[0] > b[0]) ? 1 : 0)
+            .sort((a, b) => {
+              if (a[0] < b[0])
+                return -1;
+              return a[0] > b[0] ? 1 : 0;
+            })
             .map(p => p.map(encodeURIComponent).join("%3D"))
             .join("%26");
 
@@ -627,41 +629,43 @@ Account.prototype = {
       postData: aPOSTData,
       onLoad: aOnLoad ? aOnLoad.bind(aThis) : null,
       onError: aOnError ? aOnError.bind(aThis) : null,
-      logger: {log: this.LOG.bind(this),
-               debug: this.DEBUG.bind(this)}
-    }
+      logger: {
+        log: this.LOG.bind(this),
+        debug: this.DEBUG.bind(this),
+      },
+    };
     return httpRequest(url, options);
   },
-  _parseURLData: function(aData) {
+  _parseURLData(aData) {
     let result = {};
-    aData.split("&").forEach(function (aParam) {
+    aData.split("&").forEach(function(aParam) {
       let [key, value] = aParam.split("=");
       result[key] = value;
     });
     return result;
   },
 
-  tweet: function(aMsg, aInReplyToId, aOnSent, aOnError, aThis) {
+  tweet(aMsg, aInReplyToId, aOnSent, aOnError, aThis) {
     let POSTData = [["status", aMsg]];
     if (aInReplyToId)
       POSTData.push(["in_reply_to_status_id", aInReplyToId]);
     this.signAndSend("1.1/statuses/update.json", null, POSTData, aOnSent,
                      aOnError, aThis);
   },
-  reTweet: function(aTweet, aOnSent, aOnError, aThis) {
+  reTweet(aTweet, aOnSent, aOnError, aThis) {
     let url = "1.1/statuses/retweet/" + aTweet.id_str + ".json";
     this.signAndSend(url, null, [], aOnSent, aOnError, aThis);
   },
-  destroy: function(aTweet, aOnSent, aOnError, aThis) {
+  destroy(aTweet, aOnSent, aOnError, aThis) {
     let url = "1.1/statuses/destroy/" + aTweet.id_str + ".json";
     this.signAndSend(url, null, [], aOnSent, aOnError, aThis);
   },
-  directMessage: function(aMsg, aName, aOnSent, aOnError, aThis) {
+  directMessage(aMsg, aName, aOnSent, aOnError, aThis) {
     let POSTData = [["text", aMsg], ["screen_name", aName]];
     this.signAndSend("1.1/direct_messages/new.json", null, POSTData, aOnSent,
                      aOnError, aThis);
   },
-  like: function(aTweet, aRemoveLike, aOnSent, aOnError, aThis) {
+  like(aTweet, aRemoveLike, aOnSent, aOnError, aThis) {
     const action = aRemoveLike ? "destroy" : "create";
     const url = `1.1/favorites/${action}.json`;
     const POSTData = [["id", aTweet.id_str]];
@@ -669,11 +673,11 @@ Account.prototype = {
   },
 
   _friends: null,
-  follow: function(aUserName) {
+  follow(aUserName) {
     this.signAndSend("1.1/friendships/create.json", null,
                      [["screen_name", aUserName]]);
   },
-  stopFollowing: function(aUserName) {
+  stopFollowing(aUserName) {
     // friendships/destroy will return the user in case of success.
     // Error cases would return a non 200 HTTP code and not call our callback.
     this.signAndSend("1.1/friendships/destroy.json", null,
@@ -688,11 +692,11 @@ Account.prototype = {
                                   new Date(date) / 1000);
     }, null, this);
   },
-  addBuddy: function(aTag, aName) {
+  addBuddy(aTag, aName) {
     this.follow(aName);
   },
 
-  getTimelines: function() {
+  getTimelines() {
     this.reportConnecting(_("connection.requestTimelines"));
 
     // If we have a last known message ID, append it as a get parameter.
@@ -715,7 +719,7 @@ Account.prototype = {
                        this),
       this.signAndSend("1.1/statuses/mentions_timeline.json" + getParams, null,
                        null, this.onTimelineReceived, this.onTimelineError,
-                       this)
+                       this),
     ];
 
     let track = this.getString("track");
@@ -731,19 +735,19 @@ Account.prototype = {
 
   get timeline() { return this._timeline || (this._timeline = new TimelineConversation(this)); },
 
-  onTimelineError: function(aError, aResponseText, aRequest) {
+  onTimelineError(aError, aResponseText, aRequest) {
     this.ERROR(aError);
     if (aRequest.status == 401)
       ++this._timelineAuthError;
     this._doneWithTimelineRequest(aRequest);
   },
 
-  onTimelineReceived: function(aData, aRequest) {
+  onTimelineReceived(aData, aRequest) {
     this._timelineBuffer = this._timelineBuffer.concat(JSON.parse(aData));
     this._doneWithTimelineRequest(aRequest);
   },
 
-  _doneWithTimelineRequest: function(aRequest) {
+  _doneWithTimelineRequest(aRequest) {
     this._pendingRequests =
       this._pendingRequests.filter(r => r !== aRequest);
 
@@ -790,12 +794,11 @@ Account.prototype = {
     this.openStream();
   },
 
-  sortByDate: (a, b) =>
-    (new Date(a["created_at"])) - (new Date(b["created_at"])),
+  sortByDate: (a, b) => (new Date(a.created_at)) - (new Date(b.created_at)),
 
   _streamingRequest: null,
   _pendingData: "",
-  openStream: function() {
+  openStream() {
     let track = this.getString("track");
     this._streamingRequest =
       this.signAndSend("https://userstream.twitter.com/1.1/user.json", null,
@@ -807,7 +810,7 @@ Account.prototype = {
     this.prefs.addObserver("track", this);
   },
   _streamTimeout: null,
-  resetStreamTimeout: function() {
+  resetStreamTimeout() {
     if (this._streamTimeout)
       clearTimeout(this._streamTimeout);
     // The twitter Streaming API sends a keep-alive newline every 30 seconds
@@ -815,15 +818,15 @@ Account.prototype = {
     // to reconnect.
     this._streamTimeout = setTimeout(this.onStreamTimeout.bind(this), 90000);
   },
-  onStreamError: function(aError) {
+  onStreamError(aError) {
     delete this._streamingRequest;
     // _streamTimeout is cleared by cleanUp called by gotDisconnected.
     this.gotDisconnected(Ci.prplIAccount.ERROR_NETWORK_ERROR, aError);
   },
-  onStreamTimeout: function() {
+  onStreamTimeout() {
     this.gotDisconnected(Ci.prplIAccount.ERROR_NETWORK_ERROR, "timeout");
   },
-  onDataAvailable: function(aRequest) {
+  onDataAvailable(aRequest) {
     this.resetStreamTimeout();
     let newText = this._pendingData + aRequest.target.response;
     if (newText.trim())
@@ -843,7 +846,7 @@ Account.prototype = {
         continue;
       }
       if ("direct_message" in msg) {
-        let dm = msg["direct_message"];
+        let dm = msg.direct_message;
         if (dm.sender_screen_name !== this.name)  // These are displayed on send.
           this.getConversation(dm.sender_screen_name).displayMessages([dm]);
       }
@@ -872,7 +875,7 @@ Account.prototype = {
       }
       else if ("event" in msg) {
         let user, event;
-        switch(msg.event) {
+        switch (msg.event) {
           case "follow":
             if (msg.source.screen_name == this.name) {
               user = msg.target;
@@ -899,7 +902,7 @@ Account.prototype = {
     }
   },
 
-  requestToken: function() {
+  requestToken() {
     this.reportConnecting(_("connection.initAuth"));
     let oauthParams =
       [["oauth_callback", encodeURIComponent(this.completionURI)]];
@@ -907,7 +910,7 @@ Account.prototype = {
                      this.onRequestTokenReceived, this.onError, this,
                      oauthParams);
   },
-  onRequestTokenReceived: function(aData) {
+  onRequestTokenReceived(aData) {
     this.LOG("Received request token.");
     let data = this._parseURLData(aData);
     if (!data.oauth_callback_confirmed ||
@@ -921,7 +924,7 @@ Account.prototype = {
 
     this.requestAuthorization();
   },
-  requestAuthorization: function() {
+  requestAuthorization() {
     this.reportConnecting(_("connection.requestAuth"));
     let url = this.baseURI + "oauth/authorize?" +
       "force_login=true&" + // ignore cookies
@@ -930,9 +933,9 @@ Account.prototype = {
     this._browserRequest = {
       get promptText() { return _("authPrompt"); },
       account: this,
-      url: url,
+      url,
       _active: true,
-      cancelled: function() {
+      cancelled() {
         if (!this._active)
           return;
 
@@ -940,49 +943,49 @@ Account.prototype = {
             .gotDisconnected(Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED,
                              _("connection.error.authCancelled"));
       },
-      loaded: function(aWindow, aWebProgress) {
+      loaded(aWindow, aWebProgress) {
         if (!this._active)
           return;
 
         this._listener = {
           QueryInterface: ChromeUtils.generateQI([Ci.nsIWebProgressListener,
                                                  Ci.nsISupportsWeakReference]),
-          _cleanUp: function() {
+          _cleanUp() {
             this.webProgress.removeProgressListener(this);
             this.window.close();
             delete this.window;
           },
-          _checkForRedirect: function(aURL) {
+          _checkForRedirect(aURL) {
             if (!aURL.startsWith(this._parent.completionURI))
               return;
 
             this._parent.finishAuthorizationRequest();
             this._parent.onAuthorizationReceived(aURL);
           },
-          onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus) {
+          onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
             const wpl = Ci.nsIWebProgressListener;
             if (aStateFlags & (wpl.STATE_START | wpl.STATE_IS_NETWORK))
               this._checkForRedirect(aRequest.name);
           },
-          onLocationChange: function(aWebProgress, aRequest, aLocation) {
+          onLocationChange(aWebProgress, aRequest, aLocation) {
             this._checkForRedirect(aLocation.spec);
           },
-          onProgressChange: function() {},
-          onStatusChange: function() {},
-          onSecurityChange: function() {},
+          onProgressChange() {},
+          onStatusChange() {},
+          onSecurityChange() {},
 
           window: aWindow,
           webProgress: aWebProgress,
-          _parent: this.account
+          _parent: this.account,
         };
         aWebProgress.addProgressListener(this._listener,
                                          Ci.nsIWebProgress.NOTIFY_ALL);
       },
-      QueryInterface: ChromeUtils.generateQI([Ci.prplIRequestBrowser])
+      QueryInterface: ChromeUtils.generateQI([Ci.prplIRequestBrowser]),
     };
     Services.obs.notifyObservers(this._browserRequest, "browser-request");
   },
-  finishAuthorizationRequest: function() {
+  finishAuthorizationRequest() {
     // Clean up the cookies, so that several twitter OAuth dialogs can work
     // during the same session (bug 954308).
     let cookies = Services.cookies.getCookiesFromHost("twitter.com", {});
@@ -999,7 +1002,7 @@ Account.prototype = {
       this._browserRequest._listener._cleanUp();
     delete this._browserRequest;
   },
-  onAuthorizationReceived: function(aData) {
+  onAuthorizationReceived(aData) {
     let data = this._parseURLData(aData.split("?")[1]);
     if (data.oauth_token != this.token || !data.oauth_verifier) {
       this.gotDisconnected(Ci.prplIAccount.ERROR_OTHER_ERROR,
@@ -1008,13 +1011,13 @@ Account.prototype = {
     }
     this.requestAccessToken(data.oauth_verifier);
   },
-  requestAccessToken: function(aTokenVerifier) {
+  requestAccessToken(aTokenVerifier) {
     this.reportConnecting(_("connection.requestAccess"));
     this.signAndSend("oauth/access_token", null, [],
                      this.onAccessTokenReceived, this.onError, this,
                      [["oauth_verifier", aTokenVerifier]]);
   },
-  onAccessTokenReceived: function(aData) {
+  onAccessTokenReceived(aData) {
     this.LOG("Received access token.");
     let result = this._parseURLData(aData);
     if (!this.fixAccountName(result))
@@ -1023,7 +1026,7 @@ Account.prototype = {
     let prefValue = {};
     try {
       JSON.parse(this.prefs.getCharPref("oauth"));
-    } catch(e) { }
+    } catch (e) { }
     prefValue[this.consumerKey] = result;
     this.prefs.setCharPref("oauth", JSON.stringify(prefValue));
 
@@ -1032,7 +1035,7 @@ Account.prototype = {
 
     this.getTimelines();
   },
-  fixAccountName: function(aAuthResult) {
+  fixAccountName(aAuthResult) {
     if (!aAuthResult.screen_name || aAuthResult.screen_name == this.name)
       return true;
 
@@ -1047,7 +1050,7 @@ Account.prototype = {
     return true;
   },
 
-  cleanUp: function() {
+  cleanUp() {
     this.finishAuthorizationRequest();
     if (this._pendingRequests.length != 0) {
       for (let request of this._pendingRequests)
@@ -1070,7 +1073,7 @@ Account.prototype = {
     delete this.token;
     delete this.tokenSecret;
   },
-  gotDisconnected: function(aError, aErrorMessage) {
+  gotDisconnected(aError, aErrorMessage) {
     if (this.disconnected || this.disconnecting)
       return;
 
@@ -1083,20 +1086,20 @@ Account.prototype = {
       this._timeline.notifyObservers(this._timeline, "update-conv-chatleft");
     this.reportDisconnected();
   },
-  remove: function() {
+  remove() {
     if (!this._timeline)
       return;
     this._timeline.close();
     delete this._timeline;
   },
-  unInit: function() {
+  unInit() {
     this.cleanUp();
   },
-  disconnect: function() {
+  disconnect() {
     this.gotDisconnected();
   },
 
-  onError: function(aException) {
+  onError(aException) {
     if (aException == "offline") {
       this.gotDisconnected(Ci.prplIAccount.ERROR_NETWORK_ERROR,
                            _("connection.error.noNetwork"));
@@ -1105,7 +1108,7 @@ Account.prototype = {
       this.gotDisconnected(Ci.prplIAccount.ERROR_OTHER_ERROR, aException.toString());
   },
 
-  setUserDescription: function(aDescription) {
+  setUserDescription(aDescription) {
     const kMaxUserDescriptionLength = 160;
     if (aDescription.length > kMaxUserDescriptionLength) {
       aDescription = aDescription.substr(0, kMaxUserDescriptionLength);
@@ -1118,7 +1121,7 @@ Account.prototype = {
                      [["description", aDescription]]);
   },
 
-  setUserInfo: function(aUser) {
+  setUserInfo(aUser) {
     let nick = aUser.screen_name;
     this._userInfo.set(nick, aUser);
 
@@ -1126,12 +1129,12 @@ Account.prototype = {
     if (nick == this.name && "description" in aUser)
       this.timeline.setTopic(aUser.description, nick, true);
   },
-  onRequestedInfoReceived: function(aData) {
+  onRequestedInfoReceived(aData) {
     let user = JSON.parse(aData);
     this.setUserInfo(user);
     this.requestBuddyInfo(user.screen_name);
   },
-  requestBuddyInfo: function(aBuddyName) {
+  requestBuddyInfo(aBuddyName) {
     let userInfo = this._userInfo.get(aBuddyName);
     if (!userInfo) {
       this.signAndSend("1.1/users/show.json?screen_name=" + aBuddyName, null,
@@ -1149,26 +1152,26 @@ Account.prototype = {
       description: null,
       url: null,
       location: null,
-      lang: function(aLang) {
+      lang(aLang) {
         try {
           return _lang(aLang);
         }
-        catch(e) {
+        catch (e) {
           return aLang;
         }
       },
       time_zone: null,
       protected: normalizeBool,
-      created_at: function(aDate) {
+      created_at(aDate) {
         const dateFormatter = new Services.intl.DateTimeFormat(undefined, {
-          dateStyle: "short"
+          dateStyle: "short",
         });
         return dateFormatter.format(new Date(aDate));
       },
       statuses_count: null,
       friends_count: null,
       followers_count: null,
-      listed_count: null
+      listed_count: null,
     };
 
     let tooltipInfo = [];
@@ -1190,7 +1193,7 @@ Account.prototype = {
 
   // Handle the full user info for each received friend. Set the user info and
   // create the participant.
-  onLookupReceived: function(aData) {
+  onLookupReceived(aData) {
     let users = JSON.parse(aData);
     for (let user of users) {
       this.setUserInfo(user);
@@ -1200,23 +1203,23 @@ Account.prototype = {
 
   // Allow us to reopen the timeline via the join chat menu.
   get canJoinChat() { return true; },
-  joinChat: function(aComponents) {
+  joinChat(aComponents) {
     // The 'timeline' getter opens a timeline conversation if none exists.
     this.timeline;
   },
 
-  getConversation: function(aName) {
+  getConversation(aName) {
     if (!this._conversations.has(aName))
       this._conversations.set(aName, new DirectMessageConversation(this, aName));
     return this._conversations.get(aName);
   },
-  removeConversation: function(aName) {
+  removeConversation(aName) {
     if (this._conversations.has(aName))
       this._conversations.delete(aName);
   },
-  createConversation: function(aName) {
+  createConversation(aName) {
     return this.getConversation(aName);
-  }
+  },
 };
 
 // Shortcut to get the JavaScript account object.
@@ -1232,7 +1235,7 @@ TwitterProtocol.prototype = {
   get iconBaseURI() { return "chrome://prpl-twitter/skin/"; },
   get noPassword() { return true; },
   options: {
-    "track": {get label() { return _("options.track"); }, default: ""}
+    "track": {get label() { return _("options.track"); }, default: ""},
   },
   // Replace the command name in the help string so translators do not attempt
   // to translate it.
@@ -1240,30 +1243,30 @@ TwitterProtocol.prototype = {
     {
       name: "follow",
       get helpString() { return _("command.follow", "follow"); },
-      run: function(aMsg, aConv) {
+      run(aMsg, aConv) {
         aMsg = aMsg.trim();
         if (!aMsg)
           return false;
         let account = getAccount(aConv);
         aMsg.split(" ").forEach(account.follow, account);
         return true;
-      }
+      },
     },
     {
       name: "unfollow",
       get helpString() { return _("command.unfollow", "unfollow"); },
-      run: function(aMsg, aConv) {
+      run(aMsg, aConv) {
         aMsg = aMsg.trim();
         if (!aMsg)
           return false;
         let account = getAccount(aConv);
         aMsg.split(" ").forEach(account.stopFollowing, account);
         return true;
-      }
-    }
+      },
+    },
   ],
-  getAccount: function(aImAccount) { return new Account(this, aImAccount); },
-  classID: Components.ID("{31082ff6-1de8-422b-ab60-ca0ac0b2af13}")
+  getAccount(aImAccount) { return new Account(this, aImAccount); },
+  classID: Components.ID("{31082ff6-1de8-422b-ab60-ca0ac0b2af13}"),
 };
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory([TwitterProtocol]);
