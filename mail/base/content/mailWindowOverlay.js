@@ -1806,6 +1806,7 @@ BatchMessageMover.prototype = {
       this.processNextBatch(); // next batch
     },
 
+  // @implements {nsIUrlListener}
   OnStartRunningUrl(url) {},
   OnStopRunningUrl(url, exitCode) {
     // this will always be a create folder url, afaik.
@@ -1820,22 +1821,25 @@ BatchMessageMover.prototype = {
 
   // also implements nsIMsgCopyServiceListener, but we only care
   // about the OnStopCopy
+  // @implements {nsIMsgCopyServiceListener}
   OnStartCopy() {},
   OnProgress(aProgress, aProgressMax) {},
   SetMessageKey(aKey) {},
   GetMessageId() {},
   OnStopCopy(aStatus) {
-    if (Components.isSuccessCode(aStatus))
+    if (Components.isSuccessCode(aStatus)) {
       this.processNextBatch();
-
-    // stop on error
-    Cu.reportError("Archive failed to copy: " + aStatus);
-    this._batches = null;
-    this.processNextBatch(); // for cleanup and exit
+    } else {
+      // stop on error
+      Cu.reportError("Archive failed to copy: " + aStatus);
+      this._batches = null;
+      this.processNextBatch(); // for cleanup and exit
+    }
   },
 
   // This also implements nsIMsgFolderListener, but we only care about the
   // folderAdded (createSubfolder callback).
+  // @implements {nsIMsgFolderListener}
   folderAdded(aFolder) {
     // Check that this is the folder we're interested in.
     if (aFolder.parent == this._dstFolderParent &&
