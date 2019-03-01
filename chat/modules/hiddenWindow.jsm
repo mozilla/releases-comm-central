@@ -10,11 +10,11 @@ const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
 XPCOMUtils.defineLazyGetter(this, "hiddenWindow", () =>
   Services.appShell.hiddenDOMWindow
 );
-#ifndef XP_MACOSX
-function getHiddenHTMLWindow() { return hiddenWindow; }
-#else
+
 function getHiddenHTMLWindow() {
-  let browser = hiddenWindow.document.getElementById("hiddenBrowser");
-  return browser.docShell ? browser.contentWindow : hiddenWindow;
+  if (Services.appinfo.OS == "Darwin") {
+    let browser = hiddenWindow.document.getElementById("hiddenBrowser");
+    return browser.docShell ? browser.contentWindow : hiddenWindow;
+  }
+  return hiddenWindow;
 }
-#endif

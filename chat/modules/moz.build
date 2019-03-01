@@ -9,6 +9,7 @@ EXTRA_JS_MODULES += [
     'ArrayBufferUtils.jsm',
     'BigInteger.jsm',
     'DNS.jsm',
+    'hiddenWindow.jsm',
     'imContentSink.jsm',
     'imServices.jsm',
     'imSmileys.jsm',
@@ -20,8 +21,4 @@ EXTRA_JS_MODULES += [
     'NormalizedMap.jsm',
     'socket.jsm',
     'ToLocaleFormat.jsm',
-]
-
-EXTRA_PP_JS_MODULES += [
-    'hiddenWindow.jsm',
 ]

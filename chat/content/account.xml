@@ -305,9 +305,6 @@
                   command="cmd_connect"
                   anonid="connect"/>
       <xul:spacer flex="1"/>
-#ifndef MOZ_THUNDERBIRD
-      <xul:button command="cmd_delete"/>
-#endif
       <xul:button command="cmd_edit"/>
     </content>
     <implementation>
