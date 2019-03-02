@@ -170,9 +170,6 @@
 @RESPATH@/components/SuiteFeeds.manifest
 @RESPATH@/components/SuiteSidebar.manifest
 @RESPATH@/components/toolkitsearch.manifest
-; Security Reports
-@RESPATH@/components/SecurityReporter.manifest
-@RESPATH@/components/SecurityReporter.js
 ; JavaScript components
 @RESPATH@/components/cryptoComponents.manifest
 @RESPATH@/components/FeedConverter.js
@@ -212,8 +209,6 @@
 @RESPATH@/components/TestInterfaceJSMaplike.js
 #endif
 @RESPATH@/components/WebContentConverter.js
-@RESPATH@/components/WebVTT.manifest
-@RESPATH@/components/WebVTTParserWrapper.js
 
 ; Modules
 @RESPATH@/modules/*
