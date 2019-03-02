@@ -256,7 +256,7 @@
   color: inherit;
   list-style-image: url("chrome://messenger/skin/icons/arrow-left.svg") !important;
   -moz-context-properties: fill, fill-opacity;
-  fill: currentColor;
+  fill: var(--lwt-toolbarbutton-icon-fill, currentColor);
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
