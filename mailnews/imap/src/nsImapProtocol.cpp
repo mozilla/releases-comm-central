@@ -2887,11 +2887,18 @@ void nsImapProtocol::ProcessSelectedStateURL()
         break;
       case nsIImapUrl::nsImapMsgStoreCustomKeywords:
         {
-          // if the server doesn't support user defined flags, don't try to set them.
-          uint16_t userFlags;
+          // If the server doesn't support user defined flags, don't try to
+          // define/set new ones. But if this is an attempt by TB to set or
+          // reset flags "Junk" or "NonJunk", change "Junk" or "NonJunk" to
+          // "$Junk" or "$NotJunk" respectively and store the modified flag
+          // name if the server doesn't support storing user defined flags
+          // and the server does allow storing the almost-standard flag names
+          // "$Junk" and "$NotJunk". Yahoo imap server is an example of this.
+          uint16_t userFlags = 0;
           GetSupportedUserFlags(&userFlags);
-          if (! (userFlags & kImapMsgSupportUserFlag))
-            break;
+          bool userDefinedSettable = userFlags & kImapMsgSupportUserFlag;
+          bool stdJunkOk = GetServerStateParser().IsStdJunkNotJunkUseOk();
+
           nsCString messageIdString;
           nsCString addFlags;
           nsCString subtractFlags;
@@ -2901,6 +2908,20 @@ void nsImapProtocol::ProcessSelectedStateURL()
           m_runningUrl->GetCustomSubtractFlags(subtractFlags);
           if (!addFlags.IsEmpty())
           {
+            if (!userDefinedSettable)
+            {
+              if (stdJunkOk)
+              {
+                if (addFlags.EqualsIgnoreCase("junk"))
+                  addFlags = "$Junk";
+                else if (addFlags.EqualsIgnoreCase("nonjunk"))
+                  addFlags = "$NotJunk";
+                else
+                  break;
+              }
+              else
+                break;
+            }
             nsAutoCString storeString("+FLAGS (");
             storeString.Append(addFlags);
             storeString.Append(')');
@@ -2908,6 +2929,20 @@ void nsImapProtocol::ProcessSelectedStateURL()
           }
           if (!subtractFlags.IsEmpty())
           {
+            if (!userDefinedSettable)
+            {
+              if (stdJunkOk)
+              {
+                if (subtractFlags.EqualsIgnoreCase("junk"))
+                  subtractFlags = "$Junk";
+                else if (subtractFlags.EqualsIgnoreCase("nonjunk"))
+                  subtractFlags = "$NotJunk";
+                else
+                  break;
+              }
+              else
+                break;
+            }
             nsAutoCString storeString("-FLAGS (");
             storeString.Append(subtractFlags);
             storeString.Append(')');
