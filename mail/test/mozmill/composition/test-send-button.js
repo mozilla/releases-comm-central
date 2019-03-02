@@ -199,7 +199,7 @@ function test_send_enabled_address_contacts_sidebar() {
 
   let sidebar = cwc.e("sidebar");
   wait_for_frame_load(sidebar,
-    "chrome://messenger/content/addressbook/abContactsPanel.xul");
+    "chrome://messenger/content/addressbook/abContactsPanel.xul?focus");
 
   let abTree = sidebar.contentDocument.getElementById("abResultsTree");
   click_tree_row(abTree, 0, cwc);
