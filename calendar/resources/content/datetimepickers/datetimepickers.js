@@ -5,6 +5,105 @@
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 customElements.whenDefined("menulist-editable").then(() => {
+    class MozTimepickerMinute extends MozXULElement {
+        static get observedAttributes() {
+            return ["label", "selected"];
+        }
+
+        constructor() {
+            super();
+
+            this.addEventListener("wheel", (event) => {
+                const pixelThreshold = 50;
+                let deltaView = 0;
+
+                if (event.deltaMode == event.DOM_DELTA_PAGE ||
+                    event.deltaMode == event.DOM_DELTA_LINE) {
+                    // Line/Page scrolling is usually vertical
+                    if (event.deltaY) {
+                        deltaView = event.deltaY < 0 ? -1 : 1;
+                    }
+                } else if (event.deltaMode == event.DOM_DELTA_PIXEL) {
+                    // The natural direction for pixel scrolling is left/right
+                    this.pixelScrollDelta += event.deltaX;
+                    if (this.pixelScrollDelta > pixelThreshold) {
+                        deltaView = 1;
+                        this.pixelScrollDelta = 0;
+                    } else if (this.pixelScrollDelta < -pixelThreshold) {
+                        deltaView = -1;
+                        this.pixelScrollDelta = 0;
+                    }
+                }
+
+                if (deltaView != 0) {
+                    this.moveMinutes(deltaView);
+                }
+
+                event.stopPropagation();
+                event.preventDefault();
+            });
+
+            this.clickMinute = (minuteItem, minuteNumber) => {
+                this.closest("timepicker-grids").clickMinute(minuteItem, minuteNumber);
+            };
+            this.moveMinutes = number => {
+                this.closest("timepicker-grids").moveMinutes(number);
+            };
+        }
+
+        connectedCallback() {
+            if (this.hasChildNodes()) {
+                return;
+            }
+
+            const spacer = document.createElement("spacer");
+            spacer.setAttribute("flex", "1");
+
+            const minutebox = document.createElement("vbox");
+            minutebox.addEventListener("click", () => {
+                this.clickMinute(this, this.getAttribute("value"));
+            });
+
+            const box = document.createElement("box");
+
+            this.label = document.createElement("label");
+            this.label.classList.add("time-picker-minute-label");
+
+            box.appendChild(this.label);
+            minutebox.appendChild(box);
+
+            this.appendChild(spacer.cloneNode());
+            this.appendChild(minutebox);
+            this.appendChild(spacer);
+
+            this.pixelScrollDelta = 0;
+
+            this._updateAttributes();
+        }
+
+        attributeChangedCallback() {
+            this._updateAttributes();
+        }
+
+        _updateAttributes() {
+            if (!this.label) {
+                return;
+            }
+
+            if (this.hasAttribute("label")) {
+                this.label.setAttribute("value", this.getAttribute("label"));
+            } else {
+                this.label.removeAttribute("value");
+            }
+
+            if (this.hasAttribute("selected")) {
+                this.label.setAttribute("selected", this.getAttribute("selected"));
+            } else {
+                this.label.removeAttribute("selected");
+            }
+        }
+    }
+
     class CalendarDatePicker extends MozXULElement {
         connectedCallback() {
             if (this.delayConnectedCallback()) {
@@ -338,6 +437,7 @@ customElements.whenDefined("menulist-editable").then(() => {
 
     initDateFormat();
     initTimeFormat();
+    customElements.define("timepicker-minute", MozTimepickerMinute);
     customElements.define("datepicker", CalendarDatePicker);
     customElements.define("timepicker", CalendarTimePicker);
     customElements.define("datetimepicker", CalendarDateTimePicker);
@@ -499,11 +599,15 @@ function parseTime(aValue) {
                 // try any format order
                 let preString = timePartsArray[PRE_INDEX];
                 let postString = timePartsArray[POST_INDEX];
-                if ((preString && this.amRegExp.test(preString)) ||
-                    (postString && this.amRegExp.test(postString))) {
+                if (
+                    (preString && this.amRegExp.test(preString)) ||
+                    (postString && this.amRegExp.test(postString))
+                ) {
                     ampmCode = "AM";
-                } else if ((preString && this.pmRegExp.test(preString)) ||
-                           (postString && this.pmRegExp.test(postString))) {
+                } else if (
+                    (preString && this.pmRegExp.test(preString)) ||
+                    (postString && this.pmRegExp.test(postString))
+                ) {
                     ampmCode = "PM";
                 } // else no match, ignore and treat as 24hour time.
             }
@@ -646,13 +750,13 @@ function initTimeFormat() {
                         let nextSepI = k + 1;
                         let nextDigitsI = k + 2;
                         if ((k == SEC_INDEX ||
-                             (!amProbeArray[nextDigitsI] && !pmProbeArray[nextDigitsI])) &&
+                            (!amProbeArray[nextDigitsI] && !pmProbeArray[nextDigitsI])) &&
                             amProbeArray[nextSepI] && pmProbeArray[nextSepI] &&
                             amProbeArray[nextSepI] != pmProbeArray[nextSepI]) {
                             amProbeArray[POST_INDEX] =
-                              amProbeArray[nextSepI] + amProbeArray[POST_INDEX];
+                                amProbeArray[nextSepI] + amProbeArray[POST_INDEX];
                             pmProbeArray[POST_INDEX] =
-                              pmProbeArray[nextSepI] + pmProbeArray[POST_INDEX];
+                                pmProbeArray[nextSepI] + pmProbeArray[POST_INDEX];
                             this.ampmIndex = POST_INDEX;
                             break;
                         }

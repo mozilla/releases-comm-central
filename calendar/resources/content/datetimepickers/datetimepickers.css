@@ -16,10 +16,6 @@ timepicker-grids {
   -moz-binding: url("chrome://calendar/content/datetimepickers/datetimepickers.xml#timepicker-grids");
 }
 
-timepicker-minute {
-  -moz-binding: url("chrome://calendar/content/datetimepickers/datetimepickers.xml#timepicker-minute");
-}
-
 timepicker-hour {
   -moz-binding: url("chrome://calendar/content/datetimepickers/datetimepickers.xml#timepicker-hour");
 }
