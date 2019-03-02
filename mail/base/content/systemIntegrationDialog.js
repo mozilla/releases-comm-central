@@ -67,22 +67,22 @@ var gSystemIntegrationDialog = {
 
     // read the raw pref value and not shellSvc.shouldCheckDefaultMail
     this._startupCheckbox.checked =
-      this.Services.prefs.getBoolPref("mail.shell.checkDefaultClient");
+      Services.prefs.getBoolPref("mail.shell.checkDefaultClient");
 
     // Search integration - check whether we should show/disable integration options
-    if (this.SearchIntegration) {
-      this._searchCheckbox.checked = this.SearchIntegration.prefEnabled;
+    if (SearchIntegration) {
+      this._searchCheckbox.checked = SearchIntegration.prefEnabled;
       // On Windows, do not offer the option on startup as it does not perform well.
-      if ((this.Services.appinfo.OS == "WINNT") && !calledFromPrefs &&
+      if ((Services.appinfo.OS == "WINNT") && !calledFromPrefs &&
           !this._searchCheckbox.checked) {
         this._searchCheckbox.hidden = true;
         // Even if the user wasn't presented the choice,
         // we do not want to ask again automatically.
-        this.SearchIntegration.firstRunDone = true;
-      } else if (!this.SearchIntegration.osVersionTooLow) {
+        SearchIntegration.firstRunDone = true;
+      } else if (!SearchIntegration.osVersionTooLow) {
         // Hide/disable the options if the OS does not support them.
         this._searchCheckbox.hidden = false;
-        if (this.SearchIntegration.osComponentsNotRunning) {
+        if (SearchIntegration.osComponentsNotRunning) {
           this._searchCheckbox.checked = false;
           this._searchCheckbox.disabled = true;
         }
@@ -104,7 +104,7 @@ var gSystemIntegrationDialog = {
     // So do not ask next time.
     let searchIntegPossible = !this._searchCheckbox.hidden;
     if (searchIntegPossible) {
-      this.SearchIntegration.firstRunDone = true;
+      SearchIntegration.firstRunDone = true;
     }
 
     // If the "skip integration" button was used do not set any defaults
@@ -112,7 +112,7 @@ var gSystemIntegrationDialog = {
     if (!aSetAsDefault) {
       // Disable search integration in this case.
       if (searchIntegPossible)
-        this.SearchIntegration.prefEnabled = false;
+        SearchIntegration.prefEnabled = false;
 
       return true;
     }
@@ -139,7 +139,7 @@ var gSystemIntegrationDialog = {
     // Set the search integration pref if it is changed.
     // The integration will handle the rest.
     if (searchIntegPossible)
-      this.SearchIntegration.prefEnabled = this._searchCheckbox.checked;
+      SearchIntegration.prefEnabled = this._searchCheckbox.checked;
 
     return true;
   },
