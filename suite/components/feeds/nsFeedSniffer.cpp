@@ -70,7 +70,7 @@ nsFeedSniffer::ConvertEncodedData(nsIRequest* request,
                                               getter_AddRefs(converter));
       NS_ENSURE_SUCCESS(rv, rv);
 
-      converter->OnStartRequest(request, nullptr);
+      converter->OnStartRequest(request);
 
       nsCOMPtr<nsIStringInputStream> rawStream =
         do_CreateInstance(NS_STRINGINPUTSTREAM_CONTRACTID);
@@ -80,10 +80,10 @@ nsFeedSniffer::ConvertEncodedData(nsIRequest* request,
       rv = rawStream->SetData((const char*)data, length);
       NS_ENSURE_SUCCESS(rv, rv);
 
-      rv = converter->OnDataAvailable(request, nullptr, rawStream, 0, length);
+      rv = converter->OnDataAvailable(request, rawStream, 0, length);
       NS_ENSURE_SUCCESS(rv, rv);
 
-      converter->OnStopRequest(request, nullptr, NS_OK);
+      converter->OnStopRequest(request, NS_OK);
     }
   }
   return rv;
@@ -321,7 +321,7 @@ nsFeedSniffer::GetMIMETypeFromContent(nsIRequest* request,
 }
 
 NS_IMETHODIMP
-nsFeedSniffer::OnStartRequest(nsIRequest* request, nsISupports* context)
+nsFeedSniffer::OnStartRequest(nsIRequest* request)
 {
   return NS_OK;
 }
@@ -341,7 +341,7 @@ nsFeedSniffer::AppendSegmentToString(nsIInputStream* inputStream,
 }
 
 NS_IMETHODIMP
-nsFeedSniffer::OnDataAvailable(nsIRequest* request, nsISupports* context,
+nsFeedSniffer::OnDataAvailable(nsIRequest* request,
                                nsIInputStream* stream, uint64_t offset,
                                uint32_t count)
 {
@@ -351,8 +351,7 @@ nsFeedSniffer::OnDataAvailable(nsIRequest* request, nsISupports* context,
 }
 
 NS_IMETHODIMP
-nsFeedSniffer::OnStopRequest(nsIRequest* request, nsISupports* context,
-                             nsresult status)
+nsFeedSniffer::OnStopRequest(nsIRequest* request, nsresult status)
 {
   return NS_OK;
 }
