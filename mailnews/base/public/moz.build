@@ -47,7 +47,6 @@ XPIDL_SOURCES += [
     'nsIMsgProgress.idl',
     'nsIMsgProtocolInfo.idl',
     'nsIMsgPurgeService.idl',
-    'nsIMsgRDFDataSource.idl',
     'nsIMsgShutdown.idl',
     'nsIMsgStatusFeedback.idl',
     'nsIMsgTagService.idl',
