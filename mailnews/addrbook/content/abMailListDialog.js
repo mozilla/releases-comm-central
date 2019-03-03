@@ -271,17 +271,17 @@ function AppendLastRow() {
   awFitDummyRows(1);
 
   // focus on first name
-  var listName = document.getElementById("ListName");
+  let listName = document.getElementById("ListName");
   if (listName)
     listName.focus();
 }
 
 function AppendNewRowAndSetFocus() {
-  var lastInput = awGetInputElement(top.MAX_RECIPIENTS);
+  let lastInput = awGetInputElement(top.MAX_RECIPIENTS);
   if (lastInput && lastInput.value)
     awAppendNewRow(true);
   else
-    awSetFocus(top.MAX_RECIPIENTS, lastInput);
+    awSetFocusTo(lastInput);
 }
 
 function SetInputValue(inputValue, parentNode, templateNode) {
@@ -314,23 +314,22 @@ function awClickEmptySpace(target, setFocus) {
   if (target == null || target.localName != "hbox")
     return;
 
-  var lastInput = awGetInputElement(top.MAX_RECIPIENTS);
+  let lastInput = awGetInputElement(top.MAX_RECIPIENTS);
 
   if (lastInput && lastInput.value)
     awAppendNewRow(setFocus);
-  else
-    if (setFocus)
-      awSetFocus(top.MAX_RECIPIENTS, lastInput);
+  else if (setFocus)
+    awSetFocusTo(lastInput);
 }
 
 function awReturnHit(inputElement) {
-  var row = awGetRowByInputElement(inputElement);
+  let row = awGetRowByInputElement(inputElement);
   if (inputElement.value) {
-    var nextInput = awGetInputElement(row + 1);
+    let nextInput = awGetInputElement(row + 1);
     if (!nextInput)
       awAppendNewRow(true);
     else
-      awSetFocus(row + 1, nextInput);
+      awSetFocusTo(nextInput);
   }
 }
 
@@ -385,9 +384,9 @@ function awAppendNewRow(setFocus) {
       if (input[0].getAttribute("focused") != "")
         input[0].removeAttribute("focused");
     }
-    // focus on new input widget
+    // Focus the new input widget.
     if (setFocus && input)
-      awSetFocus(top.MAX_RECIPIENTS, input[0]);
+      awSetFocusTo(input[0]);
   }
 }
 
@@ -396,25 +395,6 @@ function awAppendNewRow(setFocus) {
 
 function awGetInputElement(row) {
   return document.getElementById("addressCol1#" + row);
-}
-
-
-function _awSetFocus() {
-  var listbox = document.getElementById("addressingWidget");
-  try {
-    var theNewRow = awGetListItem(top.awRow);
-
-    listbox.ensureElementIsVisible(theNewRow);
-    top.awInputElement.focus();
-  } catch (ex) {
-    top.awFocusRetry++;
-    if (top.awFocusRetry < 8) {
-      dump("_awSetFocus failed, try it again...\n");
-      setTimeout(_awSetFocus, 0);
-    } else {
-      dump("_awSetFocus failed, forget about it!\n");
-    }
-  }
 }
 
 function awTabFromRecipient(element, event) {

@@ -415,19 +415,18 @@ function awClickEmptySpace(target, setFocus)
       target.localName != "listitem"))
     return;
 
-  var lastInput = awGetInputElement(top.MAX_RECIPIENTS);
+  let lastInput = awGetInputElement(top.MAX_RECIPIENTS);
 
   if ( lastInput && lastInput.value )
     awAppendNewRow(setFocus);
-  else
-    if (setFocus)
-      awSetFocus(top.MAX_RECIPIENTS, lastInput);
+  else if (setFocus)
+    awSetFocusTo(lastInput);
 }
 
 function awReturnHit(inputElement)
 {
-  var row = awGetRowByInputElement(inputElement);
-  var nextInput = awGetInputElement(row+1);
+  let row = awGetRowByInputElement(inputElement);
+  let nextInput = awGetInputElement(row+1);
 
   if ( !nextInput )
   {
@@ -443,7 +442,7 @@ function awReturnHit(inputElement)
   else
   {
     nextInput.select();
-    awSetFocus(row+1, nextInput);
+    awSetFocusTo(nextInput);
   }
 
   // be sure to add the recipient to our ignore list
@@ -453,7 +452,7 @@ function awReturnHit(inputElement)
 
 function awDeleteHit(inputElement)
 {
-  var row = awGetRowByInputElement(inputElement);
+  let row = awGetRowByInputElement(inputElement);
 
   /* 1. don't delete the row if it's the last one remaining, just reset it! */
   if (top.MAX_RECIPIENTS <= 1)
@@ -463,12 +462,11 @@ function awDeleteHit(inputElement)
   }
 
   /* 2. Set the focus to the previous field if possible */
+  // Note: awSetFocusTo() is asynchronous, i.e. we'll focus after row removal.
   if (row > 1)
-    awSetFocus(row - 1, awGetInputElement(row - 1))
+    awSetFocusTo(awGetInputElement(row - 1))
   else
-    awSetFocus(1, awGetInputElement(2))   /* We have to cheat a little bit because the focus will */
-                                          /* be set asynchronusly after we delete the current row, */
-                                          /* therefore the row number still the same! */
+    awSetFocusTo(awGetInputElement(2))
 
   /* 3. Delete the row */
   awDeleteRow(row);
@@ -550,9 +548,9 @@ function awAppendNewRow(setFocus)
         _awSetAutoComplete(select[0], input[0]);
     }
 
-    // focus on new input widget
+    // Focus the new input widget.
     if (setFocus && input[0] )
-      awSetFocus(top.MAX_RECIPIENTS, input[0]);
+      awSetFocusTo(input[0]);
   }
 }
 
@@ -625,31 +623,29 @@ function awRemoveRow(row)
   top.MAX_RECIPIENTS --;
 }
 
-function awSetFocus(row, inputElement)
-{
-  top.awRow = row;
-  top.awInputElement = inputElement;
-  top.awFocusRetry = 0;
-  setTimeout(_awSetFocus, 0);
+/**
+ * Set focus to the specified element, typically a recipient input element.
+ * We do this asynchronusly to allow other processes like adding or removing rows
+ * to complete before shifting focus.
+ *
+ * @param element  the element to receive focus asynchronously
+ */
+function awSetFocusTo(element) {
+  // Remember the (input) element to focus for asynchronous focusing, so that we
+  // play safe if this gets called again and the original element gets removed
+  // before we can focus it.
+  top.awInputToFocus = element;
+  setTimeout(_awSetFocusTo, 0);
 }
 
-function _awSetFocus()
-{
-  var listbox = document.getElementById('addressingWidget');
-  var theNewRow = awGetListItem(top.awRow);
+function _awSetFocusTo() {
+  top.awInputToFocus.focus();
+}
 
-  //Warning: firstVisibleRow is zero base but top.awRow is one base!
-  var firstVisibleRow = listbox.getIndexOfFirstVisibleRow();
-  var numOfVisibleRows = listbox.getNumberOfVisibleRows();
-
-  //Do we need to scroll in order to see the selected row?
-  if (top.awRow <= firstVisibleRow)
-    listbox.scrollToIndex(top.awRow - 1);
-  else
-    if (top.awRow - 1 >= (firstVisibleRow + numOfVisibleRows))
-      listbox.scrollToIndex(top.awRow - numOfVisibleRows);
-
-  top.awInputElement.focus();
+// Deprecated - use awSetFocusTo() instead.
+// ### TODO: This function should be removed if we're sure addons aren't using it.
+function awSetFocus(row, inputElement) {
+  awSetFocusTo(inputElement);
 }
 
 function awTabFromRecipient(element, event)
@@ -785,7 +781,7 @@ function awArrowHit(inputElement, direction)
     var nextInput = awGetInputElement(row);
 
     if (nextInput)
-      awSetFocus(row, nextInput);
+      awSetFocusTo(nextInput);
     else if (inputElement.value)
       awAppendNewRow(true);
   }

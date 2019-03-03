@@ -2268,9 +2268,9 @@ function getCurrentIdentity()
 
 function AdjustFocus()
 {
-  var element = awGetInputElement(awGetNumberOfRecipients());
+  let element = awGetInputElement(awGetNumberOfRecipients());
   if (element.value == "") {
-      awSetFocus(awGetNumberOfRecipients(), element);
+      awSetFocusTo(element);
   }
   else
   {
@@ -3094,8 +3094,7 @@ function DisplaySaveFolderDlg(folderURI)
 
 function SetMsgAddressingWidgetElementFocus()
 {
-  var element = awGetInputElement(awGetNumberOfRecipients());
-  awSetFocus(awGetNumberOfRecipients(), element);
+  awSetFocusTo(awGetInputElement(awGetNumberOfRecipients()));
 }
 
 function SetMsgIdentityElementFocus()
