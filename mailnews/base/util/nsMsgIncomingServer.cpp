@@ -36,8 +36,6 @@
 #include "nsIWindowWatcher.h"
 #include "nsIStringBundle.h"
 #include "nsIMsgHdr.h"
-#include "nsIRDFService.h"
-#include "nsRDFCID.h"
 #include "nsIInterfaceRequestor.h"
 #include "nsIInterfaceRequestorUtils.h"
 #include "nsILoginInfo.h"

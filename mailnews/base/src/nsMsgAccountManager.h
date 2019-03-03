@@ -29,8 +29,6 @@
 #include "nsAutoPtr.h"
 #include "nsTObserverArray.h"
 
-class nsIRDFService;
-
 class VirtualFolderChangeListener final : public nsIDBChangeListener
 {
 public:

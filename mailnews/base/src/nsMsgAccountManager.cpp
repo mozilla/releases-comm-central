@@ -43,8 +43,6 @@
 #include "nsAppDirectoryServiceDefs.h"
 #include "nsMailDirServiceDefs.h"
 #include "nsMsgFolderFlags.h"
-#include "nsIRDFService.h"
-#include "nsRDFCID.h"
 #include "nsIMsgFolderNotificationService.h"
 #include "nsIImapIncomingServer.h"
 #include "nsIImapUrl.h"

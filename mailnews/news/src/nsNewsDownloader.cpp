@@ -13,7 +13,6 @@
 #include "nsMsgNewsCID.h"
 #include "nsIMsgSearchSession.h"
 #include "nsIMsgSearchTerm.h"
-#include "nsRDFCID.h"
 #include "nsIMsgAccountManager.h"
 #include "nsMsgFolderFlags.h"
 #include "nsIMsgMailSession.h"
