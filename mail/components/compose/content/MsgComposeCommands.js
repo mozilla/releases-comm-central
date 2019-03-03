@@ -4041,18 +4041,17 @@ function getCurrentIdentity() {
 }
 
 function AdjustFocus() {
-  // dump("XXX adjusting focus\n");
-  var element = awGetInputElement(awGetNumberOfRecipients());
+  let element = awGetInputElement(awGetNumberOfRecipients());
   if (element.value == "") {
-    // dump("XXX focus on address\n");
-    awSetFocus(awGetNumberOfRecipients(), element);
+    // Focus last row of addressing widget.
+    awSetFocusTo(element);
   } else {
     element = GetMsgSubjectElement();
     if (element.value == "") {
-      // dump("XXX focus on subject\n");
+      // Focus subject.
       element.focus();
     } else {
-      // dump("XXX focus on body\n");
+      // Focus message body.
       SetMsgBodyFrameFocus();
     }
   }
@@ -5633,7 +5632,7 @@ function setupAutocomplete() {
 
 function fromKeyPress(event) {
   if (event.keyCode == KeyEvent.DOM_VK_RETURN)
-    awSetFocus(1, awGetInputElement(1));
+    awSetFocusTo(awGetInputElement(1));
 }
 
 function subjectKeyPress(event) {
@@ -6008,8 +6007,7 @@ function DisplaySaveFolderDlg(folderURI) {
 }
 
 function SetMsgAddressingWidgetTreeElementFocus() {
-  let lastRecipientInputElement = awGetInputElement(awGetNumberOfRecipients());
-  awSetFocus(awGetNumberOfRecipients(), lastRecipientInputElement);
+  awSetFocusTo(awGetInputElement(awGetNumberOfRecipients()));
 }
 
 function SetMsgIdentityElementFocus() {
