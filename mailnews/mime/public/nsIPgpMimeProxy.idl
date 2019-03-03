@@ -57,6 +57,11 @@ interface nsIPgpMimeProxy : nsIStreamListener
   attribute ACString              contentType;
 
   /**
+   * holds the URI of the message currently being processed
+   */
+  readonly attribute nsIURI       messageURI;
+
+  /**
    * The particular part number of the multipart object we are working on. The
    * numbering is the same as in URLs that use the form "...?part=1.1.2".
    *

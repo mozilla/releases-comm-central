@@ -60,6 +60,7 @@ protected:
   nsCString                     mContentType;
   nsCString                     mMimePart;
 
+  nsCOMPtr<nsIURI>              mMessageURI;
   nsresult Finalize();
 };
 

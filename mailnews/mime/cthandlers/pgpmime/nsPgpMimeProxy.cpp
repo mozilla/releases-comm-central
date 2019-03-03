@@ -298,8 +298,6 @@ NS_IMPL_ISUPPORTS(nsPgpMimeProxy,
 // nsPgpMimeProxy implementation
 nsPgpMimeProxy::nsPgpMimeProxy()
   : mInitialized(false),
-    mDecryptor(nullptr),
-    mLoadGroup(nullptr),
     mLoadFlags(LOAD_NORMAL),
     mCancelStatus(NS_OK)
 {
@@ -327,6 +325,7 @@ nsPgpMimeProxy::SetMimeCallback(MimeDecodeCallbackFun outputFun,
   mOutputFun     = outputFun;
   mOutputClosure = outputClosure;
   mInitialized   = true;
+  mMessageURI    = myUri;
 
   mStreamOffset = 0;
   mByteBuf.Truncate();
@@ -433,6 +432,15 @@ nsPgpMimeProxy::SetContentType(const nsACString &aContentType)
 
   return NS_OK;
 }
+
+
+NS_IMETHODIMP
+nsPgpMimeProxy::GetMessageURI(nsIURI **aMessageURI)
+{
+  NS_IF_ADDREF(*aMessageURI = mMessageURI);
+  return NS_OK;
+}
+
 
 NS_IMETHODIMP
 nsPgpMimeProxy::GetMimePart(nsACString &aMimePart)
