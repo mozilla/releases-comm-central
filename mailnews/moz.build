@@ -81,6 +81,7 @@ TESTING_JS_MODULES.mailnews += [
     'test/resources/MockFactory.js',
     'test/resources/NetworkTestUtils.jsm',
     'test/resources/PromiseTestUtils.jsm',
+    'test/resources/smimeUtils.jsm',
 ]
 
 if 'comm' in CONFIG['MOZ_BUILD_APP']:
