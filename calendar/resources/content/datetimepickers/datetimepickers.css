@@ -15,7 +15,3 @@ datetextpicker {
 timepicker-grids {
   -moz-binding: url("chrome://calendar/content/datetimepickers/datetimepickers.xml#timepicker-grids");
 }
-
-timepicker-hour {
-  -moz-binding: url("chrome://calendar/content/datetimepickers/datetimepickers.xml#timepicker-hour");
-}

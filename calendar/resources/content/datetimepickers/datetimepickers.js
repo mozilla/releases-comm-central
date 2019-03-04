@@ -104,6 +104,110 @@ customElements.whenDefined("menulist-editable").then(() => {
         }
     }
 
+    class MozTimepickerHour extends MozXULElement {
+        static get observedAttributes() {
+            return ["label", "selected"];
+        }
+
+        constructor() {
+            super();
+
+            this.addEventListener("wheel", (event) => {
+                const pixelThreshold = 50;
+                let deltaView = 0;
+
+                if (event.deltaMode == event.DOM_DELTA_PAGE ||
+                    event.deltaMode == event.DOM_DELTA_LINE) {
+                    // Line/Page scrolling is usually vertical
+                    if (event.deltaY) {
+                        deltaView = event.deltaY < 0 ? -1 : 1;
+                    }
+                } else if (event.deltaMode == event.DOM_DELTA_PIXEL) {
+                    // The natural direction for pixel scrolling is left/right
+                    this.pixelScrollDelta += event.deltaX;
+                    if (this.pixelScrollDelta > pixelThreshold) {
+                        deltaView = 1;
+                        this.pixelScrollDelta = 0;
+                    } else if (this.pixelScrollDelta < -pixelThreshold) {
+                        deltaView = -1;
+                        this.pixelScrollDelta = 0;
+                    }
+                }
+
+                if (deltaView != 0) {
+                    this.moveHours(deltaView);
+                }
+
+                event.stopPropagation();
+                event.preventDefault();
+            });
+
+            this.clickHour = (hourItem, hourNumber) => {
+                this.closest("timepicker-grids").clickHour(hourItem, hourNumber);
+            };
+            this.moveHours = number => {
+                this.closest("timepicker-grids").moveHours(number);
+            };
+            this.doubleClickHour = (hourItem, hourNumber) => {
+                this.closest("timepicker-grids").doubleClickHour(hourItem, hourNumber);
+            };
+        }
+
+        connectedCallback() {
+            if (this.hasChildNodes()) {
+                return;
+            }
+
+            const spacer = document.createElement("spacer");
+            spacer.setAttribute("flex", "1");
+
+            const hourbox = document.createElement("vbox");
+            hourbox.addEventListener("click", () => {
+                this.clickHour(this, this.getAttribute("value"));
+            });
+            hourbox.addEventListener("dblclick", () => {
+                this.doubleClickHour(this, this.getAttribute("value"));
+            });
+
+            const box = document.createElement("box");
+
+            this.label = document.createElement("label");
+            this.label.classList.add("time-picker-hour-label");
+
+            box.appendChild(this.label);
+            hourbox.appendChild(box);
+            hourbox.appendChild(spacer.cloneNode());
+
+            this.appendChild(spacer.cloneNode());
+            this.appendChild(hourbox);
+            this.appendChild(spacer);
+
+            this._updateAttributes();
+        }
+
+        attributeChangedCallback() {
+            this._updateAttributes();
+        }
+
+        _updateAttributes() {
+            if (!this.label) {
+                return;
+            }
+
+            if (this.hasAttribute("label")) {
+                this.label.setAttribute("value", this.getAttribute("label"));
+            } else {
+                this.label.removeAttribute("value");
+            }
+
+            if (this.hasAttribute("selected")) {
+                this.label.setAttribute("selected", this.getAttribute("selected"));
+            } else {
+                this.label.removeAttribute("selected");
+            }
+        }
+    }
+
     class CalendarDatePicker extends MozXULElement {
         connectedCallback() {
             if (this.delayConnectedCallback()) {
@@ -438,6 +542,7 @@ customElements.whenDefined("menulist-editable").then(() => {
     initDateFormat();
     initTimeFormat();
     customElements.define("timepicker-minute", MozTimepickerMinute);
+    customElements.define("timepicker-hour", MozTimepickerHour);
     customElements.define("datepicker", CalendarDatePicker);
     customElements.define("timepicker", CalendarTimePicker);
     customElements.define("datetimepicker", CalendarDateTimePicker);
