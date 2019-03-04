@@ -1,15 +1,13 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ['mailTestUtils'];
+this.EXPORTED_SYMBOLS = ["mailTestUtils"];
 
 var {ctypes} = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-
-var CC = Components.Constructor;
 
 // See Bug 903946
 function avoidUncaughtExceptionInExternalProtocolService() {
@@ -27,31 +25,28 @@ avoidUncaughtExceptionInExternalProtocolService();
 var mailTestUtils = {
   // Loads a file to a string
   // If aCharset is specified, treats the file as being of that charset
-  loadFileToString: function(aFile, aCharset) {
+  loadFileToString(aFile, aCharset) {
     var data = "";
     var fstream = Cc["@mozilla.org/network/file-input-stream;1"]
                     .createInstance(Ci.nsIFileInputStream);
     fstream.init(aFile, -1, 0, 0);
 
-    if (aCharset)
-    {
+    if (aCharset) {
       var cstream = Cc["@mozilla.org/intl/converter-input-stream;1"]
                       .createInstance(Ci.nsIConverterInputStream);
       cstream.init(fstream, aCharset, 4096, 0x0000);
-      var str = {};
+      let str = {};
       while (cstream.readString(4096, str) != 0)
         data += str.value;
 
       cstream.close();
-    }
-    else
-    {
+    } else {
       var sstream = Cc["@mozilla.org/scriptableinputstream;1"]
                       .createInstance(Ci.nsIScriptableInputStream);
 
       sstream.init(fstream);
 
-      var str = sstream.read(4096);
+      let str = sstream.read(4096);
       while (str.length > 0) {
         data += str;
         str = sstream.read(4096);
@@ -67,14 +62,12 @@ var mailTestUtils = {
 
   // Loads a message to a string
   // If aCharset is specified, treats the file as being of that charset
-  loadMessageToString: function(aFolder, aMsgHdr, aCharset)
-  {
+  loadMessageToString(aFolder, aMsgHdr, aCharset) {
     var data = "";
-    let reusable = new Object;
+    let reusable = {};
     let bytesLeft = aMsgHdr.messageSize;
     let stream = aFolder.getMsgInputStream(aMsgHdr, reusable);
-    if (aCharset)
-    {
+    if (aCharset) {
       let cstream = Cc["@mozilla.org/intl/converter-input-stream;1"]
                       .createInstance(Ci.nsIConverterInputStream);
       cstream.init(stream, aCharset, 4096, 0x0000);
@@ -88,9 +81,7 @@ var mailTestUtils = {
         bytesToRead = Math.min(bytesLeft, 4096);
       }
       cstream.close();
-    }
-    else
-    {
+    } else {
       var sstream = Cc["@mozilla.org/scriptableinputstream;1"]
                       .createInstance(Ci.nsIScriptableInputStream);
 
@@ -114,18 +105,16 @@ var mailTestUtils = {
     return data;
   },
 
-  /// Gets the first message header in a folder.
-  firstMsgHdr: function(folder)
-  {
+  // Gets the first message header in a folder.
+  firstMsgHdr(folder) {
     let enumerator = folder.msgDatabase.EnumerateMessages();
     if (enumerator.hasMoreElements())
       return enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     return null;
   },
 
-  /// Gets message header number N (0 based index) in a folder.
-  getMsgHdrN: function(folder, n)
-  {
+  // Gets message header number N (0 based index) in a folder.
+  getMsgHdrN(folder, n) {
     let i = 0;
     let enumerator = folder.msgDatabase.EnumerateMessages();
     while (enumerator.hasMoreElements()) {
@@ -144,7 +133,7 @@ var mailTestUtils = {
    * @param aFile The file to get the file system for.
    * @return The file system a particular file is on, or 'null' if not on Windows.
    */
-  get_file_system: function(aFile) {
+  get_file_system(aFile) {
     if (!("@mozilla.org/windows-registry-key;1" in Cc)) {
       dump("get_file_system() is supported on Windows only.\n");
       return null;
@@ -205,8 +194,7 @@ var mailTestUtils = {
       }
 
       return fsName.readString();
-    }
-    finally {
+    } finally {
       kernel32.close();
     }
   },
@@ -230,7 +218,7 @@ var mailTestUtils = {
    *          marking files as sparse, but an error occurred while doing so.
    *
    */
-  mark_file_region_sparse: function(aFile, aRegionStart, aRegionBytes) {
+  mark_file_region_sparse(aFile, aRegionStart, aRegionBytes) {
     let fileSystem = this.get_file_system(aFile);
     dump("[mark_file_region_sparse()] File system = " + (fileSystem || "(unknown)") +
            ", file region = at " + this.toMiBString(aRegionStart) +
@@ -364,8 +352,7 @@ var mailTestUtils = {
             throw new Error("Unable to set end of file, error " + ctypes.winLastError);
 
           return true;
-        }
-        finally {
+        } finally {
           let CloseHandle = kernel32.declare(
             "CloseHandle",
             ctypes.winapi_abi,
@@ -374,16 +361,13 @@ var mailTestUtils = {
           );
           CloseHandle(hFile);
         }
-      }
-      finally {
+      } finally {
         kernel32.close();
       }
-    }
-    else if ("nsILocalFileMac" in Ci) {
+    } else if ("nsILocalFileMac" in Ci) {
       // Macs don't support marking files as sparse.
       return false;
-    }
-    else {
+    } else {
       // Assuming Unix here. Unix file systems generally automatically sparsify
       // files.
       return true;
@@ -397,7 +381,7 @@ var mailTestUtils = {
    * @param aSize The size in bytes.
    * @return A string representing the size in medibytes.
    */
-  toMiBString: function(aSize) {
+  toMiBString(aSize) {
     return (aSize / 1048576) + " MiB";
   },
 
@@ -412,14 +396,13 @@ var mailTestUtils = {
    * @param aFuncArgs Optional list of arguments to pass to the function.
    */
   _timer: null,
-  do_timeout_function: function(aDelayInMS, aFunc, aFuncThis, aFuncArgs) {
+  do_timeout_function(aDelayInMS, aFunc, aFuncThis, aFuncArgs) {
     this._timer = Cc["@mozilla.org/timer;1"]
                     .createInstance(Ci.nsITimer);
     let wrappedFunc = function() {
       try {
         aFunc.apply(aFuncThis, aFuncArgs);
-      }
-      catch (ex) {
+      } catch (ex) {
         // we want to make sure that if the thing we call throws an exception,
         //  that this terminates the test.
         do_throw(ex);
@@ -447,17 +430,17 @@ var mailTestUtils = {
    *     trigger the updateFolder call and it is assumed someone else is taking
    *     care of that.
    */
-  updateFolderAndNotify: function(aFolder, aCallback, aCallbackThis,
-      aCallbackArgs, aSomeoneElseWillTriggerTheUpdate) {
+  updateFolderAndNotify(aFolder, aCallback, aCallbackThis,
+                        aCallbackArgs, aSomeoneElseWillTriggerTheUpdate) {
     // register for the folder loaded notification ahead of time... even though
     //  we may not need it...
     let folderListener = {
-      OnItemEvent: function (aEventFolder, aEvent) {
+      OnItemEvent(aEventFolder, aEvent) {
         if (aEvent == "FolderLoaded" && aFolder.URI == aEventFolder.URI) {
           MailServices.mailSession.RemoveFolderListener(this);
           aCallback.apply(aCallbackThis, aCallbackArgs);
         }
-      }
+      },
     };
 
     MailServices.mailSession.AddFolderListener(folderListener, Ci.nsIFolderListener.event);
@@ -469,11 +452,11 @@ var mailTestUtils = {
   /**
    * For when you want to compare elements non-strictly.
    */
-  non_strict_index_of: function(aArray, aElem) {
+  non_strict_index_of(aArray, aElem) {
     for (let [i, elem] of aArray.entries()) {
       if (elem == aElem)
         return i;
     }
     return -1;
-  }
+  },
 };

@@ -1,6 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*
  * This file provides a simple interface to the imap fake server. Demonstration
@@ -12,9 +12,9 @@
  */
 
 var EXPORTED_SYMBOLS = [
-  'IMAPPump',
-  'setupIMAPPump',
-  'teardownIMAPPump'
+  "IMAPPump",
+  "setupIMAPPump",
+  "teardownIMAPPump",
 ];
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -37,11 +37,10 @@ var IMAPPump = {
   server: null,         // the imap fake server
   incomingServer: null, // nsIMsgIncomingServer for the imap server
   inbox: null,          // nsIMsgFolder/nsIMsgImapMailFolder for imap inbox
-  mailbox: null         // imap fake server mailbox
+  mailbox: null,        // imap fake server mailbox
 };
 
-function setupIMAPPump(extensions)
-{
+function setupIMAPPump(extensions) {
   // Create Application info if we need it.
   updateAppInfo();
 
@@ -116,8 +115,7 @@ function setupIMAPPump(extensions)
 }
 
 // This will clear not only the imap accounts but also local accounts.
-function teardownIMAPPump()
-{
+function teardownIMAPPump() {
   // try to finish any pending operations
   let thread = gThreadManager.currentThread;
   while (thread.hasPendingEvents())
@@ -132,6 +130,5 @@ function teardownIMAPPump()
     IMAPPump.server.stop();
     MailServices.accounts.removeIncomingServer(IMAPPump.incomingServer, false);
     localAccountUtils.clearAll();
-  } catch (ex) {dump(ex);}
-
+  } catch (ex) { dump(ex); }
 }

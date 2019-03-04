@@ -1,14 +1,12 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 this.EXPORTED_SYMBOLS = ["localAccountUtils"];
 
 // MailServices
 const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-
-var CC = Components.Constructor;
 
 // Local Mail Folders. Requires prior setup of profile directory
 
@@ -62,7 +60,7 @@ var localAccountUtils = {
     this.inboxFolder.setFlag(Ci.nsMsgFolderFlags.Mail);
 
     // Force an initialization of the Inbox folder database.
-    var folderName = this.inboxFolder.prettyName;
+    this.inboxFolder.prettyName;
 
     this._localAccountInitialized = true;
   },
@@ -77,11 +75,9 @@ var localAccountUtils = {
    * @param aHostname The hostname for the server (defaults to localhost).
    * @return The newly-created nsIMsgIncomingServer.
    */
-  create_incoming_server(aType, aPort, aUsername, aPassword,
-                         aHostname="localhost") {
+  create_incoming_server(aType, aPort, aUsername, aPassword, aHostname = "localhost") {
     let serverAndAccount = localAccountUtils.
-      create_incoming_server_and_account(aType, aPort, aUsername, aPassword,
-                                         aHostname);
+      create_incoming_server_and_account(aType, aPort, aUsername, aPassword, aHostname);
     return serverAndAccount.server;
   },
 
@@ -98,11 +94,8 @@ var localAccountUtils = {
              "server" property and the newly-created nsIMsgAccount as the
              "account" property.
    */
-  create_incoming_server_and_account(aType, aPort, aUsername, aPassword,
-                                     aHostname="localhost") {
-    let server = MailServices.accounts.createIncomingServer(aUsername,
-                                                            aHostname,
-                                                            aType);
+  create_incoming_server_and_account(aType, aPort, aUsername, aPassword, aHostname = "localhost") {
+    let server = MailServices.accounts.createIncomingServer(aUsername, aHostname, aType);
     server.port = aPort;
     if (aUsername != null)
       server.username = aUsername;
@@ -122,7 +115,7 @@ var localAccountUtils = {
     }
     server.valid = true;
 
-    return {server: server, account: account};
+    return {server, account};
   },
 
   /**
@@ -134,7 +127,7 @@ var localAccountUtils = {
    * @param aHostname The hostname for the server (defaults to localhost).
    * @return The newly-created nsISmtpServer.
    */
-  create_outgoing_server(aPort, aUsername, aPassword, aHostname="localhost") {
+  create_outgoing_server(aPort, aUsername, aPassword, aHostname = "localhost") {
     let server = MailServices.smtp.createServer();
     server.hostname = aHostname;
     server.port = aPort;
@@ -163,5 +156,5 @@ var localAccountUtils = {
 
     if (aSetAsDefault)
       aIncoming.defaultIdentity = identity;
-  }
+  },
 };

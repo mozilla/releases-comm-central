@@ -1,30 +1,32 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
 // Utility functions for testing interactions with filters.
 
 var contains = Ci.nsMsgSearchOp.Contains;
 // This maps strings to a filter attribute (excluding the parameter)
 var ATTRIB_MAP = {
   // Template : [attrib, op, field of value, otherHeader]
-  "subject" : [Ci.nsMsgSearchAttrib.Subject, contains, "str", null],
-  "from" : [Ci.nsMsgSearchAttrib.Sender, contains, "str", null],
-  "date" : [Ci.nsMsgSearchAttrib.Date, Ci.nsMsgSearchOp.Is, "date", null],
-  "size" : [Ci.nsMsgSearchAttrib.Size, Ci.nsMsgSearchOp.Is, "size", null],
-  "message-id" : [Ci.nsMsgSearchAttrib.OtherHeader+1, contains, "str",
-                  "Message-ID"],
-  "user-agent" : [Ci.nsMsgSearchAttrib.OtherHeader+2, contains, "str",
-                  "User-Agent"]
+  "subject": [Ci.nsMsgSearchAttrib.Subject, contains, "str", null],
+  "from": [Ci.nsMsgSearchAttrib.Sender, contains, "str", null],
+  "date": [Ci.nsMsgSearchAttrib.Date, Ci.nsMsgSearchOp.Is, "date", null],
+  "size": [Ci.nsMsgSearchAttrib.Size, Ci.nsMsgSearchOp.Is, "size", null],
+  "message-id": [Ci.nsMsgSearchAttrib.OtherHeader + 1, contains, "str", "Message-ID"],
+  "user-agent": [Ci.nsMsgSearchAttrib.OtherHeader + 2, contains, "str", "User-Agent"],
 };
 // And this maps strings to filter actions
 var ACTION_MAP = {
   // Template : [action, auxiliary attribute field, auxiliary value]
-  "priority" : [Ci.nsMsgFilterAction.ChangePriority, "priority", 6],
-  "delete" : [Ci.nsMsgFilterAction.Delete],
-  "read" : [Ci.nsMsgFilterAction.MarkRead],
-  "unread" : [Ci.nsMsgFilterAction.MarkUnread],
-  "kill" : [Ci.nsMsgFilterAction.KillThread],
-  "watch" : [Ci.nsMsgFilterAction.WatchThread],
-  "flag" : [Ci.nsMsgFilterAction.MarkFlagged],
+  "priority": [Ci.nsMsgFilterAction.ChangePriority, "priority", 6],
+  "delete": [Ci.nsMsgFilterAction.Delete],
+  "read": [Ci.nsMsgFilterAction.MarkRead],
+  "unread": [Ci.nsMsgFilterAction.MarkUnread],
+  "kill": [Ci.nsMsgFilterAction.KillThread],
+  "watch": [Ci.nsMsgFilterAction.WatchThread],
+  "flag": [Ci.nsMsgFilterAction.MarkFlagged],
   "stop": [Ci.nsMsgFilterAction.StopExecution],
-  "tag" : [Ci.nsMsgFilterAction.AddTag, "strValue", "tag"]
+  "tag": [Ci.nsMsgFilterAction.AddTag, "strValue", "tag"],
 };
 
 /**

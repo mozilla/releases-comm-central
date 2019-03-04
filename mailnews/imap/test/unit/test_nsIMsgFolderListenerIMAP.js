@@ -69,7 +69,7 @@ function copyFileMessage(file, messageId, destFolder)
   gExpectedEvents = [[MailServices.mfn.msgAdded, {expectedMessageId: messageId}],
                      [MailServices.mfn.msgsClassified, [messageId], false, false]];
   destFolder.updateFolder(null);
-  gCopyService.CopyFileMessage(file, destFolder, null, true, 0, "", copyListener, null);
+  MailServices.copy.CopyFileMessage(file, destFolder, null, true, 0, "", copyListener, null);
   gCurrStatus |= kStatus.functionCallDone;
   gServer.performTest("APPEND");
   // Allow some time for the append operation to complete, so update folder
@@ -138,7 +138,7 @@ function copyMessages(messages, isMove, srcFolder, destFolder)
   gExpectedEvents.push([MailServices.mfn.msgsClassified,
                         messages.map(hdr => hdr.messageId),
                         false, false]);
-  gCopyService.CopyMessages(srcFolder, array, destFolder, isMove, copyListener, gMsgWindow, true);
+  MailServices.copy.CopyMessages(srcFolder, array, destFolder, isMove, copyListener, gMsgWindow, true);
   gCurrStatus |= kStatus.functionCallDone;
 
   gServer.performTest("COPY");

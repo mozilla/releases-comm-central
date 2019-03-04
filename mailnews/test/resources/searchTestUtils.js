@@ -1,8 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
- // Contains various functions commonly used in testing mailnews search
+// Contains various functions commonly used in testing mailnews search.
 
 /**
  * TestSearch: Class to test number of search hits
@@ -25,20 +25,17 @@
  */
 
 function TestSearch(aFolder, aValue, aAttrib, aOp, aHitCount, onDone, aCustomId,
-                    aArbitraryHeader, aHdrProperty)
-{
-  var searchListener =
-  {
-    onSearchHit: function(dbHdr, folder) { hitCount++; },
-    onSearchDone: function(status)
-    {
+                    aArbitraryHeader, aHdrProperty) {
+  var searchListener = {
+    onSearchHit(dbHdr, folder) { hitCount++; },
+    onSearchDone(status) {
       print("Finished search does " + aHitCount + " equal " + hitCount + "?");
       searchSession = null;
       Assert.equal(aHitCount, hitCount);
       if (onDone)
         onDone();
     },
-    onNewSearch: function() {hitCount = 0;}
+    onNewSearch() { hitCount = 0; },
   };
 
   // define and initiate the search session
@@ -103,21 +100,17 @@ function TestSearch(aFolder, aValue, aAttrib, aOp, aHitCount, onDone, aCustomId,
  * @param aAttrib: search attribute (Ci.nsMsgSearchAttrib.Size, etc.)
  * @param aValue:  expected value (true/false) for Available and Enabled
  */
- const gValidityManager = Cc['@mozilla.org/mail/search/validityManager;1']
-                          .getService(Ci.nsIMsgSearchValidityManager);
+ const gValidityManager = Cc["@mozilla.org/mail/search/validityManager;1"]
+                            .getService(Ci.nsIMsgSearchValidityManager);
 
-function testValidityTable(aScope, aOp, aAttrib, aValue)
-{
+function testValidityTable(aScope, aOp, aAttrib, aValue) {
   var validityTable = gValidityManager.getTable(aScope);
   var isAvailable = validityTable.getAvailable(aAttrib, aOp);
   var isEnabled = validityTable.getEnabled(aAttrib, aOp);
-  if (aValue)
-  {
+  if (aValue) {
     Assert.ok(isAvailable);
     Assert.ok(isEnabled);
-  }
-  else
-  {
+  } else {
     Assert.ok(!isAvailable);
     Assert.ok(!isEnabled);
   }

@@ -1,17 +1,14 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
  * This file provides utilities useful in using Promises and Task.jsm
  * with mailnews tests.
  */
 
-this.EXPORTED_SYMBOLS = ['PromiseTestUtils'];
+this.EXPORTED_SYMBOLS = ["PromiseTestUtils"];
 
-var CC = Components.Constructor;
-
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 /**
@@ -34,11 +31,11 @@ PromiseTestUtils.PromiseUrlListener = function(aWrapped) {
 PromiseTestUtils.PromiseUrlListener.prototype = {
   QueryInterface:   ChromeUtils.generateQI([Ci.nsIUrlListener]),
 
-  OnStartRunningUrl: function(aUrl) {
+  OnStartRunningUrl(aUrl) {
     if (this.wrapped && this.wrapped.OnStartRunningUrl)
       this.wrapped.OnStartRunningUrl(aUrl);
   },
-  OnStopRunningUrl: function(aUrl, aExitCode) {
+  OnStopRunningUrl(aUrl, aExitCode) {
     if (this.wrapped && this.wrapped.OnStopRunningUrl)
       this.wrapped.OnStopRunningUrl(aUrl, aExitCode);
     if (aExitCode == Cr.NS_OK)
@@ -67,27 +64,27 @@ PromiseTestUtils.PromiseCopyListener = function(aWrapped) {
 
 PromiseTestUtils.PromiseCopyListener.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgCopyServiceListener]),
-  OnStartCopy: function() {
+  OnStartCopy() {
     if (this.wrapped && this.wrapped.OnStartCopy)
       this.wrapped.OnStartCopy();
   },
-  OnProgress: function(aProgress, aProgressMax) {
+  OnProgress(aProgress, aProgressMax) {
     if (this.wrapped && this.wrapped.OnProgress)
       this.wrapped.OnProgress(aProgress, aProgressMax);
   },
-  SetMessageKey: function(aKey) {
+  SetMessageKey(aKey) {
     if (this.wrapped && this.wrapped.SetMessageKey)
       this.wrapped.SetMessageKey(aKey);
 
     this._result.messageKeys.push(aKey);
   },
-  SetMessageId: function(aMessageId) {
+  SetMessageId(aMessageId) {
     if (this.wrapped && this.wrapped.SetMessageId)
       this.wrapped.SetMessageId(aMessageId);
 
     this._result.messageIds.push(aMessageId);
   },
-  OnStopCopy: function(aStatus) {
+  OnStopCopy(aStatus) {
     if (this.wrapped && this.wrapped.OnStopCopy)
       this.wrapped.OnStopCopy(aStatus);
 
@@ -96,7 +93,7 @@ PromiseTestUtils.PromiseCopyListener.prototype = {
     else
       this._reject(aStatus);
   },
-  get promise() { return this._promise; }
+  get promise() { return this._promise; },
 };
 
 /**
@@ -118,14 +115,14 @@ PromiseTestUtils.PromiseStreamListener = function(aWrapped) {
 PromiseTestUtils.PromiseStreamListener.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
 
-  onStartRequest : function (aRequest) {
+  onStartRequest(aRequest) {
     if (this.wrapped && this.wrapped.onStartRequest)
       this.wrapped.onStartRequest(aRequest);
     this._data = "";
     this._stream = null;
   },
 
-  onStopRequest : function (aRequest, aStatusCode) {
+  onStopRequest(aRequest, aStatusCode) {
     if (this.wrapped && this.wrapped.onStopRequest)
       this.wrapped.onStopRequest(aRequest, aStatusCode);
     if (aStatusCode == Cr.NS_OK)
@@ -134,7 +131,7 @@ PromiseTestUtils.PromiseStreamListener.prototype = {
       this._reject(aStatusCode);
   },
 
-  onDataAvailable : function (aRequest, aInputStream, aOff, aCount) {
+  onDataAvailable(aRequest, aInputStream, aOff, aCount) {
     if (this.wrapped && this.wrapped.onDataAvailable)
       this.wrapped.onDataAvailable(aRequest, aInputStream, aOff, aCount);
     if (!this._stream) {
@@ -145,7 +142,7 @@ PromiseTestUtils.PromiseStreamListener.prototype = {
     this._data += this._stream.read(aCount);
   },
 
-  get promise() { return this._promise; }
+  get promise() { return this._promise; },
 };
 
 /**
@@ -156,13 +153,11 @@ PromiseTestUtils.PromiseStreamListener.prototype = {
  *                 "DeleteOrMoveMsgCompleted".
  * @return         promise that resolves when the event occurs
  */
-
-var nsIMFNService = Ci.nsIMsgFolderNotificationService;
-PromiseTestUtils.promiseFolderEvent = function promiseFolderEvent(folder, event) {
-  return new Promise( (resolve, reject) => {
+PromiseTestUtils.promiseFolderEvent = function(folder, event) {
+  return new Promise((resolve, reject) => {
     let folderListener = {
       QueryInterface: ChromeUtils.generateQI([Ci.nsIFolderListener]),
-      OnItemEvent: function onItemEvent(aEventFolder, aEvent) {
+      OnItemEvent(aEventFolder, aEvent) {
         if (folder === aEventFolder &&
             event == aEvent) {
           MailServices.mailSession.RemoveFolderListener(folderListener);
@@ -183,7 +178,7 @@ PromiseTestUtils.promiseFolderEvent = function promiseFolderEvent(folder, event)
  * @return                  promise that resolves when the event occurs
  */
 PromiseTestUtils.promiseFolderNotification = function(folder, listenerMethod) {
-  return new Promise( (resolve, reject) => {
+  return new Promise((resolve, reject) => {
     let mfnListener = {};
     mfnListener[listenerMethod] = function() {
       let args = Array.from(arguments);
@@ -203,11 +198,11 @@ PromiseTestUtils.promiseFolderNotification = function(folder, listenerMethod) {
         MailServices.mfn.removeListener(mfnListener);
         resolve(args);
       }
-    }
+    };
     MailServices.mfn.addListener(
       mfnListener, Ci.nsIMsgFolderNotificationService[listenerMethod]);
   });
-}
+};
 
 /**
  * Folder listener to resolve a promise when a folder with a certain
@@ -218,7 +213,7 @@ PromiseTestUtils.promiseFolderNotification = function(folder, listenerMethod) {
  *                 folder add completes
  */
 
-PromiseTestUtils.promiseFolderAdded = function promiseFolderAdded(folderName) {
+PromiseTestUtils.promiseFolderAdded = function(folderName) {
   return new Promise((resolve, reject) => {
     var listener = {
        folderAdded: aFolder => {
@@ -226,12 +221,12 @@ PromiseTestUtils.promiseFolderAdded = function promiseFolderAdded(folderName) {
            MailServices.mfn.removeListener(listener);
            resolve(aFolder);
          }
-       }
+       },
     };
     MailServices.mfn.addListener(listener,
       Ci.nsIMsgFolderNotificationService.folderAdded);
   });
-}
+};
 
 /**
  * Timer to resolve a promise after a delay
@@ -240,13 +235,12 @@ PromiseTestUtils.promiseFolderAdded = function promiseFolderAdded(folderName) {
  * @return          promise that resolves after the delay
  */
 
-PromiseTestUtils.promiseDelay = function promiseDelay(aDelay)
-{
+PromiseTestUtils.promiseDelay = function(aDelay) {
   return new Promise((resolve, reject) => {
     let timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
     timer.initWithCallback(resolve, aDelay, Ci.nsITimer.TYPE_ONE_SHOT);
   });
-}
+};
 
 /**
  * Search listener to resolve a promise when a search completes
@@ -264,15 +258,15 @@ PromiseTestUtils.PromiseSearchNotify = function(aSearchSession, aWrapped) {
     this._resolve = resolve;
     this._reject = reject;
   });
-}
+};
 
 PromiseTestUtils.PromiseSearchNotify.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgSearchNotify]),
-  onSearchHit: function(aHeader, aFolder) {
+  onSearchHit(aHeader, aFolder) {
     if (this.wrapped && this.wrapped.onSearchHit)
       this.wrapped.onSearchHit(aHeader, aFolder);
   },
-  onSearchDone: function onSearchDone(aResult) {
+  onSearchDone(aResult) {
     this._searchSession.unregisterListener(this);
     if (this.wrapped && this.wrapped.onSearchDone)
       this.wrapped.onSearchDone(aResult);
@@ -281,8 +275,8 @@ PromiseTestUtils.PromiseSearchNotify.prototype = {
     else
       this._reject(aResult);
   },
-  onNewSearch: function onNewSearch() {
+  onNewSearch() {
     if (this.wrapped && this.wrapped.onNewSearch)
       this.wrapped.onNewSearch();
-  }
-}
+  },
+};

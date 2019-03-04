@@ -51,8 +51,8 @@ function copyFileMessage(file, destFolder, isDraftOrTemplate)
   copyListener.mFolderStoredIn = destFolder;
   gExpectedEvents = [[MailServices.mfn.msgAdded, gHdrsReceived],
                      [MailServices.mfn.msgsClassified, gHdrsReceived, false, false]];
-  gCopyService.CopyFileMessage(file, destFolder, null, isDraftOrTemplate, 0, "",
-                               copyListener, null);
+  MailServices.copy.CopyFileMessage(file, destFolder, null, isDraftOrTemplate, 0, "",
+                                    copyListener, null);
   gCurrStatus |= kStatus.functionCallDone;
   if (gCurrStatus == kStatus.everythingDone)
     resetStatusAndProceed();
@@ -66,8 +66,8 @@ function copyMessages(items, isMove, srcFolder, destFolder)
   });
   gExpectedEvents = [
     [MailServices.mfn.msgsMoveCopyCompleted, isMove, items, destFolder, true]];
-  gCopyService.CopyMessages(srcFolder, array, destFolder, isMove, copyListener,
-                            null, true);
+  MailServices.copy.CopyMessages(srcFolder, array, destFolder, isMove, copyListener,
+                                 null, true);
   gCurrStatus |= kStatus.functionCallDone;
   if (gCurrStatus == kStatus.everythingDone)
     resetStatusAndProceed();
@@ -80,7 +80,7 @@ function copyFolders(items, isMove, destFolder)
     array.appendElement(item);
   });
   gExpectedEvents = [[MailServices.mfn.folderMoveCopyCompleted, isMove, items, destFolder]];
-  gCopyService.CopyFolders(array, destFolder, isMove, copyListener, null);
+  MailServices.copy.CopyFolders(array, destFolder, isMove, copyListener, null);
   gCurrStatus |= kStatus.functionCallDone;
   if (gCurrStatus == kStatus.everythingDone)
     resetStatusAndProceed();

@@ -37,7 +37,7 @@ mailnews/import/*
 mailnews/intl/*
 mailnews/jsaccount/*
 mailnews/mime/*
-mailnews/test/*
+mailnews/test/fakeserver/*
 
 # mailnews/extensions exclusions
 mailnews/extensions/*

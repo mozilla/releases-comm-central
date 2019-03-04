@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
 this.EXPORTED_SYMBOLS = ["MockFactory"];
 
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
@@ -18,7 +22,7 @@ var MockFactory = {
    *
    * @return           The UUID of the mock.
    */
-  register: function(contractID, mock, args) {
+  register(contractID, mock, args) {
     let uuid = Cc["@mozilla.org/uuid-generator;1"]
                  .getService(Ci.nsIUUIDGenerator)
                  .generateUUID()
@@ -28,7 +32,7 @@ var MockFactory = {
     let originalFactory = Cm.getClassObject(Cc[contractID], Ci.nsIFactory);
 
     let factory = {
-      createInstance: function(outer, iid) {
+      createInstance(outer, iid) {
         if (outer)
           do_throw(Cr.NS_ERROR_NO_AGGREGATION);
 
@@ -46,13 +50,13 @@ var MockFactory = {
         try {
           let genuine = originalFactory.createInstance(outer, iid);
           wrappedMock._genuine = genuine;
-        } catch(ex) {
+        } catch (ex) {
           dump(ex);
         }
 
         return wrappedMock.QueryInterface(iid);
       },
-      QueryInterface: ChromeUtils.generateQI([Ci.nsIFactory])
+      QueryInterface: ChromeUtils.generateQI([Ci.nsIFactory]),
     };
 
     Cm.QueryInterface(Ci.nsIComponentRegistrar)
@@ -61,9 +65,9 @@ var MockFactory = {
                        contractID, factory);
 
     this._registeredComponents[uuid] = {
-      contractID: contractID,
-      originalCID: originalCID,
-      factory: factory
+      contractID,
+      originalCID,
+      factory,
     };
 
     return uuid;
@@ -74,7 +78,7 @@ var MockFactory = {
    *
    * @param uuid The UUID of the mock.
    */
-  unregister: function(uuid) {
+  unregister(uuid) {
     if (!this._registeredComponents[uuid])
       return;
 
@@ -88,8 +92,8 @@ var MockFactory = {
     delete this._registeredComponents[uuid];
   },
 
-  unregisterAll: function() {
+  unregisterAll() {
     for (let uuid in this._registeredComponents)
       this.unregister(uuid);
-  }
+  },
 };

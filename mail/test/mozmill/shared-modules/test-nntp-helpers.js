@@ -50,8 +50,6 @@ function setupModule() {
     do_throw: function(aMsg) {
       throw new Error(aMsg);
     },
-    do_check_eq: function() {},
-    do_check_neq: function() {},
   };
   folderDisplayHelper.load_via_src_path("fakeserver/nntpd.js", testHelperModule);
   folderDisplayHelper.load_via_src_path("fakeserver/maild.js", testHelperModule);

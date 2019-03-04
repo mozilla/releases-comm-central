@@ -1,21 +1,18 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
  * This file provides utilities useful in testing more advanced networking
  * scenarios, such as proxies and SSL connections.
  */
 
-this.EXPORTED_SYMBOLS = ['NetworkTestUtils'];
+this.EXPORTED_SYMBOLS = ["NetworkTestUtils"];
 
 var CC = Components.Constructor;
 
 const {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
-var {Promise} = ChromeUtils.import("resource://gre/modules/Promise.jsm");
 const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 const ServerSocket = CC("@mozilla.org/network/server-socket;1",
                         "nsIServerSocket",
@@ -71,23 +68,23 @@ SocksClient.prototype = {
       this.waitRead(input);
   },
 
-  /// Listen on the input for the next packet
+  // Listen on the input for the next packet
   waitRead(input) {
     input.asyncWait(this, 0, 0, currentThread);
   },
 
-  /// Simple handler to write out a binary string (because xpidl sucks here)
+  // Simple handler to write out a binary string (because xpidl sucks here)
   write(buf) {
     this.client_out.write(buf, buf.length);
   },
 
-  /// Handle the first SOCKSv5 client message
+  // Handle the first SOCKSv5 client message
   handleGreeting() {
     if (this.inbuf.length == 0)
       return;
 
     if (this.inbuf[0] != 5) {
-      dump("Unknown protocol version: " + this.inbuf[0] + '\n');
+      dump("Unknown protocol version: " + this.inbuf[0] + "\n");
       this.close();
       return;
     }
@@ -98,41 +95,38 @@ SocksClient.prototype = {
     var nmethods = this.inbuf[1];
     if (this.inbuf.length < 2 + nmethods)
       return;
-    var methods = this.inbuf.slice(2, 2 + nmethods);
     this.inbuf = [];
 
     // Tell them that we don't log into this SOCKS server.
     this.state = STATE_WAIT_SOCKS5_REQUEST;
-    this.write('\x05\x00');
+    this.write("\x05\x00");
   },
 
-  /// Handle the second SOCKSv5 message
+  // Handle the second SOCKSv5 message
   handleSocks5Request() {
     if (this.inbuf.length < 4)
       return;
 
     // Find the address:port requested.
-    var version = this.inbuf[0];
-    var cmd = this.inbuf[1];
     var atype = this.inbuf[3];
+    var len, addr;
     if (atype == 0x01) { // IPv4 Address
-      var len = 4;
-      var addr = this.inbuf.slice(4, 8).join('.');
+      len = 4;
+      addr = this.inbuf.slice(4, 8).join(".");
     } else if (atype == 0x03) { // Domain name
-      var len = this.inbuf[4];
-      var addr = String.fromCharCode.apply(null,
-        this.inbuf.slice(5, 5 + len));
+      len = this.inbuf[4];
+      addr = String.fromCharCode.apply(null, this.inbuf.slice(5, 5 + len));
       len = len + 1;
     } else if (atype == 0x04) { // IPv6 address
-      var len = 16;
-      var addr = this.inbuf.slice(4, 20).map(i => i.toString(16)).join(':');
+      len = 16;
+      addr = this.inbuf.slice(4, 20).map(i => i.toString(16)).join(":");
     }
     var port = this.inbuf[4 + len] << 8 | this.inbuf[5 + len];
-    dump("Requesting " + addr + ":" + port + '\n');
+    dump("Requesting " + addr + ":" + port + "\n");
 
     // Map that data to the port we report.
     var foundPort = gPortMap.get(addr + ":" + port);
-    dump("This was mapped to " + foundPort + '\n');
+    dump("This was mapped to " + foundPort + "\n");
 
     if (foundPort !== undefined) {
       this.write("\x05\x00\x00" + // Header for response
@@ -166,13 +160,13 @@ SocksClient.prototype = {
     this.client_out.close();
     if (this.sub_transport)
       this.sub_transport.close(Cr.NS_OK);
-  }
+  },
 };
 
-/// A SOCKS server that runs on a random port.
+// A SOCKS server that runs on a random port.
 function SocksTestServer() {
   this.listener = ServerSocket(-1, true, -1);
-  dump("Starting SOCKS server on " + this.listener.port + '\n');
+  dump("Starting SOCKS server on " + this.listener.port + "\n");
   this.port = this.listener.port;
   this.listener.asyncListen(this);
   this.client_connections = [];
@@ -197,11 +191,11 @@ SocksTestServer.prototype = {
       this.listener.close();
       this.listener = null;
     }
-  }
+  },
 };
 
 var gSocksServer = null;
-/// hostname:port -> the port on localhost that the server really runs on.
+// hostname:port -> the port on localhost that the server really runs on.
 var gPortMap = new Map();
 
 var NetworkTestUtils = {

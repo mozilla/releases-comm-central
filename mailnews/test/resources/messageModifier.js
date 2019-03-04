@@ -1,6 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*
  * This file provides a number of methods for modifying (synthetic) messages
@@ -31,12 +31,12 @@ var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 function SyntheticMessageSet(aSynMessages, aMsgFolders, aFolderIndices) {
   this.synMessages = aSynMessages;
 
-  if (aMsgFolders == null)
-    this.msgFolders = [];
-  else if (!('length' in aMsgFolders))
+  if (Array.isArray(aMsgFolders))
+    this.msgFolders = aMsgFolders;
+  else if (aMsgFolders)
     this.msgFolders = [aMsgFolders];
   else
-    this.msgFolders = aMsgFolders;
+    this.msgFolders = [];
 
   if (aFolderIndices == null)
     this.folderIndices = aSynMessages.map(_ => null);
@@ -51,7 +51,7 @@ SyntheticMessageSet.prototype = {
    *
    * @protected
    */
-  _trackMessageAddition: function(aFolder, aMessageIndex) {
+  _trackMessageAddition(aFolder, aMessageIndex) {
     let aFolderIndex = this.msgFolders.indexOf(aFolder);
     if (aFolderIndex == -1)
       aFolderIndex = this.msgFolders.push(aFolder) - 1;
@@ -62,7 +62,7 @@ SyntheticMessageSet.prototype = {
    * Helper method for use by |async_move_messages| to tell us that it moved
    *  all the messages from aOldFolder to aNewFolder.
    */
-  _folderSwap: function(aOldFolder, aNewFolder) {
+  _folderSwap(aOldFolder, aNewFolder) {
     let folderIndex = this.msgFolders.indexOf(aOldFolder);
     this.msgFolders[folderIndex] = aNewFolder;
   },
@@ -74,7 +74,7 @@ SyntheticMessageSet.prototype = {
    * @returns a new SyntheticMessageSet containing the union of this set and
    *     the other set.
    */
-  union: function(aOtherSet) {
+  union(aOtherSet) {
     let messages = this.synMessages.concat(aOtherSet.synMessages);
     let folders = this.msgFolders.concat();
     let indices = this.folderIndices.concat();
@@ -88,8 +88,7 @@ SyntheticMessageSet.prototype = {
       let folderIndex = aOtherSet.folderIndices[iOther];
       if (folderIndex == null) {
         indices.push(folderIndex);
-      }
-      else {
+      } else {
         let folder = aOtherSet.msgFolders[folderIndex];
         if (!(folder.URI in folderUrisToIndices)) {
           folderUrisToIndices[folder.URI] = folders.length;
@@ -106,7 +105,7 @@ SyntheticMessageSet.prototype = {
    * Get the single message header of the message at the given index; use
    *  |msgHdrs| or |xpcomHdrArray| if you want to get all the headers at once.
    */
-  getMsgHdr: function(aIndex) {
+  getMsgHdr(aIndex) {
     let folder = this.msgFolders[this.folderIndices[aIndex]];
     let synMsg = this.synMessages[aIndex];
     return folder.msgDatabase.getMsgHdrForMessageID(synMsg.messageId);
@@ -115,7 +114,7 @@ SyntheticMessageSet.prototype = {
   /**
    * Get the URI for the message at the given index.
    */
-  getMsgURI: function(aIndex) {
+  getMsgURI(aIndex) {
     let msgHdr = this.getMsgHdr(aIndex);
     return msgHdr.folder.getUriForMsg(msgHdr);
   },
@@ -124,7 +123,7 @@ SyntheticMessageSet.prototype = {
    * @return a JS iterator of the message headers for all messages inserted into
    *     a folder.
    */
-  msgHdrs: function*() {
+  * msgHdrs() {
     // get the databases
     let msgDatabases = this.msgFolders.map(folder => folder.msgDatabase);
     for (let [iMsg, synMsg] of this.synMessages.entries()) {
@@ -168,7 +167,7 @@ SyntheticMessageSet.prototype = {
    * @return a generator that yields [nsIMsgFolder, nsIMutableArray of the
    *     messages from the set in that folder].
    */
-  foldersWithXpcomHdrArrays: function*() {
+  * foldersWithXpcomHdrArrays() {
     for (let [folder, msgHdrs] of this.foldersWithMsgHdrs) {
       yield [folder, toXPCOMArray(msgHdrs,
                                   Ci.nsIMutableArray)];
@@ -181,23 +180,23 @@ SyntheticMessageSet.prototype = {
    * @param aMsgHdr  A message header to work on. If not specified,
    *                 mark all messages in the current set.
    */
-  setRead: function(aRead, aMsgHdr) {
+  setRead(aRead, aMsgHdr) {
     let msgHdrs = aMsgHdr ? [aMsgHdr] : this.msgHdrList;
     for (let msgHdr of msgHdrs) {
       msgHdr.markRead(aRead);
     }
   },
-  setStarred: function(aStarred) {
+  setStarred(aStarred) {
     for (let msgHdr of this.msgHdrs()) {
       msgHdr.markFlagged(aStarred);
     }
   },
-  addTag: function(aTagName) {
+  addTag(aTagName) {
     for (let [folder, xpcomHdrArray] of this.foldersWithXpcomHdrArrays()) {
       folder.addKeywordsToMessages(xpcomHdrArray, aTagName);
     }
   },
-  removeTag: function(aTagName) {
+  removeTag(aTagName) {
     for (let [folder, xpcomHdrArray] of this.foldersWithXpcomHdrArrays()) {
       folder.removeKeywordsFromMessages(xpcomHdrArray, aTagName);
     }
@@ -214,12 +213,12 @@ SyntheticMessageSet.prototype = {
    *                 mark all messages in the current set.
    * Generates a JunkStatusChanged nsIMsgFolderListener itemEvent notification.
    */
-  setJunk: function(aIsJunk, aMsgHdr) {
+  setJunk(aIsJunk, aMsgHdr) {
     let junkscore = aIsJunk ? "100" : "0";
     let msgHdrs = aMsgHdr ? [aMsgHdr] : this.msgHdrList;
     for (let msgHdr of msgHdrs) {
       msgHdr.setStringProperty("junkscore", junkscore);
-    };
+    }
 
     let str = aIsJunk ? "junk" : "notjunk";
     let xpcomHdrArray = toXPCOMArray(msgHdrs, Ci.nsIMutableArray);
@@ -232,7 +231,7 @@ SyntheticMessageSet.prototype = {
    * Slice the message set using the exact Array.prototype.slice semantics
    * (because we call Array.prototype.slice).
    */
-  slice: function(...aArgs) {
+  slice(...aArgs) {
     let slicedMessages = this.synMessages.slice(...aArgs);
     let slicedIndices = this.folderIndices.slice(...aArgs);
     let sliced = new SyntheticMessageSet(slicedMessages, this.msgFolders,
@@ -240,5 +239,5 @@ SyntheticMessageSet.prototype = {
     if (("glodaMessages" in this) && this.glodaMessages)
       sliced.glodaMessages = this.glodaMessages.slice(...aArgs);
     return sliced;
-  }
+  },
 };

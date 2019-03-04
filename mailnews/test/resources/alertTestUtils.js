@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
 /* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /*
  * This file provides support for writing mailnews tests that require hooking
@@ -36,27 +40,26 @@ var {MockRegistrar} = ChromeUtils.import("resource://testing-common/MockRegistra
 // This allows the send code to attempt to display errors to the user without
 // failing.
 var alertUtilsPrompts = {
-  alert: function(aDialogTitle, aText) {
+  alert(aDialogTitle, aText) {
     if (typeof alert == "function") {
       alert(aDialogTitle, aText);
       return;
     }
 
     do_throw("alert unexpectedly called: " + aText + "\n");
-    return;
   },
 
-  alertCheck: function(aDialogTitle, aText, aCheckMsg, aCheckState) {
+  alertCheck(aDialogTitle, aText, aCheckMsg, aCheckState) {
     if (typeof alertCheck == "function") {
+      // eslint-disable-next-line no-undef
       alertCheck(aDialogTitle, aText, aCheckMsg, aCheckState);
       return;
     }
 
     do_throw("alertCheck unexpectedly called: " + aText + "\n");
-    return;
   },
 
-  confirm: function(aDialogTitle, aText) {
+  confirm(aDialogTitle, aText) {
     if (typeof confirm == "function") {
       return confirm(aDialogTitle, aText);
     }
@@ -65,8 +68,9 @@ var alertUtilsPrompts = {
     return false;
   },
 
-  confirmCheck: function(aDialogTitle, aText, aCheckMsg, aCheckState) {
+  confirmCheck(aDialogTitle, aText, aCheckMsg, aCheckState) {
     if (typeof confirmCheck == "function") {
+      // eslint-disable-next-line no-undef
       return confirmCheck(aDialogTitle, aText, aCheckMsg, aCheckState);
     }
 
@@ -74,9 +78,10 @@ var alertUtilsPrompts = {
     return false;
   },
 
-  confirmEx: function(aDialogTitle, aText, aButtonFlags, aButton0Title,
-                      aButton1Title, aButton2Title, aCheckMsg, aCheckState) {
+  confirmEx(aDialogTitle, aText, aButtonFlags, aButton0Title,
+            aButton1Title, aButton2Title, aCheckMsg, aCheckState) {
     if (typeof confirmEx == "function") {
+      // eslint-disable-next-line no-undef
       return confirmEx(aDialogTitle, aText, aButtonFlags, aButton0Title,
                        aButton1Title, aButton2Title, aCheckMsg, aCheckState);
     }
@@ -85,7 +90,7 @@ var alertUtilsPrompts = {
     return 0;
   },
 
-  prompt: function(aDialogTitle, aText, aValue, aCheckMsg, aCheckState) {
+  prompt(aDialogTitle, aText, aValue, aCheckMsg, aCheckState) {
     if (typeof prompt == "function") {
       return prompt(aDialogTitle, aText, aValue, aCheckMsg, aCheckState);
     }
@@ -94,9 +99,9 @@ var alertUtilsPrompts = {
     return false;
   },
 
-  promptUsernameAndPassword: function(aDialogTitle, aText, aUsername,
-                                      aPassword, aCheckMsg, aCheckState) {
+  promptUsernameAndPassword(aDialogTitle, aText, aUsername, aPassword, aCheckMsg, aCheckState) {
     if (typeof promptUsernameAndPassword == "function") {
+      // eslint-disable-next-line no-undef
       return promptUsernameAndPassword(aDialogTitle, aText, aUsername,
                                        aPassword, aCheckMsg, aCheckState);
     }
@@ -105,9 +110,9 @@ var alertUtilsPrompts = {
     return false;
   },
 
-  promptPassword: function(aDialogTitle, aText, aPassword, aCheckMsg,
-                           aCheckState) {
+  promptPassword(aDialogTitle, aText, aPassword, aCheckMsg, aCheckState) {
     if (typeof promptPassword == "function") {
+      // eslint-disable-next-line no-undef
       return promptPassword(aDialogTitle, aText, aPassword, aCheckMsg,
                             aCheckState);
     }
@@ -116,9 +121,9 @@ var alertUtilsPrompts = {
     return false;
   },
 
-  select: function(aDialogTitle, aText, aCount, aSelectList,
-                   aOutSelection) {
+  select(aDialogTitle, aText, aCount, aSelectList, aOutSelection) {
     if (typeof select == "function") {
+      // eslint-disable-next-line no-undef
       return select(aDialogTitle, aText, aCount, aSelectList,
                     aOutSelection);
     }
@@ -127,32 +132,33 @@ var alertUtilsPrompts = {
     return false;
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIPrompt])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIPrompt]),
 };
 
 var alertUtilsPromptService = {
-   alert: function(aParent, aDialogTitle, aText) {
+   alert(aParent, aDialogTitle, aText) {
     if (typeof alertPS == "function") {
+      // eslint-disable-next-line no-undef
       alertPS(aParent, aDialogTitle, aText);
       return;
     }
 
     do_throw("alertPS unexpectedly called: " + aText + "\n");
-    return;
   },
 
-  alertCheck: function(aParent, aDialogTitle, aText, aCheckMsg, aCheckState) {
+  alertCheck(aParent, aDialogTitle, aText, aCheckMsg, aCheckState) {
     if (typeof alertCheckPS == "function") {
+      // eslint-disable-next-line no-undef
       alertCheckPS(aParent, aDialogTitle, aText, aCheckMsg, aCheckState);
       return;
     }
 
     do_throw("alertCheckPS unexpectedly called: " + aText + "\n");
-    return;
   },
 
-  confirm: function(aParent, aDialogTitle, aText) {
+  confirm(aParent, aDialogTitle, aText) {
     if (typeof confirmPS == "function") {
+      // eslint-disable-next-line no-undef
       return confirmPS(aParent, aDialogTitle, aText);
     }
 
@@ -160,8 +166,9 @@ var alertUtilsPromptService = {
     return false;
   },
 
-  confirmCheck: function(aParent, aDialogTitle, aText, aCheckMsg, aCheckState) {
+  confirmCheck(aParent, aDialogTitle, aText, aCheckMsg, aCheckState) {
     if (typeof confirmCheckPS == "function") {
+      // eslint-disable-next-line no-undef
       return confirmCheckPS(aParent, aDialogTitle, aText, aCheckMsg,
                             aCheckState);
     }
@@ -170,9 +177,10 @@ var alertUtilsPromptService = {
     return false;
   },
 
-  confirmEx: function(aParent, aDialogTitle, aText, aButtonFlags, aButton0Title,
-                      aButton1Title, aButton2Title, aCheckMsg, aCheckState) {
+  confirmEx(aParent, aDialogTitle, aText, aButtonFlags, aButton0Title,
+            aButton1Title, aButton2Title, aCheckMsg, aCheckState) {
     if (typeof confirmExPS == "function") {
+      // eslint-disable-next-line no-undef
       return confirmExPS(aParent, aDialogTitle, aText, aButtonFlags,
                          aButton0Title, aButton1Title, aButton2Title, aCheckMsg,
                          aCheckState);
@@ -182,9 +190,9 @@ var alertUtilsPromptService = {
     return 0;
   },
 
-  prompt: function(aParent, aDialogTitle, aText, aValue, aCheckMsg,
-                   aCheckState) {
+  prompt(aParent, aDialogTitle, aText, aValue, aCheckMsg, aCheckState) {
     if (typeof promptPS == "function") {
+      // eslint-disable-next-line no-undef
       return promptPS(aParent, aDialogTitle, aText, aValue, aCheckMsg,
                       aCheckState);
     }
@@ -193,9 +201,10 @@ var alertUtilsPromptService = {
     return false;
   },
 
-  promptUsernameAndPassword: function(aParent, aDialogTitle, aText, aUsername,
-                                      aPassword, aCheckMsg, aCheckState) {
+  promptUsernameAndPassword(aParent, aDialogTitle, aText, aUsername,
+                            aPassword, aCheckMsg, aCheckState) {
     if (typeof promptUsernameAndPasswordPS == "function") {
+      // eslint-disable-next-line no-undef
       return promptUsernameAndPasswordPS(aParent, aDialogTitle, aText,
                                          aUsername, aPassword, aCheckMsg,
                                          aCheckState);
@@ -205,9 +214,9 @@ var alertUtilsPromptService = {
     return false;
   },
 
-  promptPassword: function(aParent, aDialogTitle, aText, aPassword, aCheckMsg,
-                           aCheckState) {
+  promptPassword(aParent, aDialogTitle, aText, aPassword, aCheckMsg, aCheckState) {
     if (typeof promptPasswordPS == "function") {
+      // eslint-disable-next-line no-undef
       return promptPasswordPS(aParent, aDialogTitle, aText, aPassword,
                               aCheckMsg, aCheckState);
     }
@@ -216,9 +225,9 @@ var alertUtilsPromptService = {
     return false;
   },
 
-  select: function(aParent, aDialogTitle, aText, aCount, aSelectList,
-                   aOutSelection) {
+  select(aParent, aDialogTitle, aText, aCount, aSelectList, aOutSelection) {
     if (typeof selectPS == "function") {
+      // eslint-disable-next-line no-undef
       return selectPS(aParent, aDialogTitle, aText, aCount, aSelectList,
                       aOutSelection);
     }
@@ -227,31 +236,30 @@ var alertUtilsPromptService = {
     return false;
   },
 
-  createInstance: function createInstance(outer, iid) {
+  createInstance(outer, iid) {
     if (outer != null)
       throw Cr.NS_ERROR_NO_AGGREGATION;
     return this.QueryInterface(iid);
   },
 
   QueryInterface: ChromeUtils.generateQI([Ci.nsIPromptService,
-                                          Ci.nsIPromptService2])
+                                          Ci.nsIPromptService2]),
 };
 
 var alertUtilsWindowWatcher = {
-  getNewPrompter: function(aParent) {
+  getNewPrompter(aParent) {
     return alertUtilsPrompts;
   },
 
-  getNewAuthPrompter: function(aParent) {
+  getNewAuthPrompter(aParent) {
     return Cc["@mozilla.org/login-manager/prompter;1"]
             .getService(Ci.nsIAuthPrompt);
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIWindowWatcher])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIWindowWatcher]),
 };
 
-function registerAlertTestUtils()
-{
+function registerAlertTestUtils() {
   MockRegistrar.register("@mozilla.org/embedcomp/window-watcher;1",
                       alertUtilsWindowWatcher);
   MockRegistrar.register("@mozilla.org/embedcomp/prompt-service;1",

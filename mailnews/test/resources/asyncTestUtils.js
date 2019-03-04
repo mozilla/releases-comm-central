@@ -1,3 +1,9 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* import-globals-from logHelper.js */
+
 /*
  * This file provides support for writing mailnews tests using generators so
  *  your test code can be simple and straight-forward.  We provide both the
@@ -44,13 +50,11 @@ function AsyncUrlListener(aWrapped, aCallback, aPromise) {
   this.promise = aPromise;
 }
 AsyncUrlListener.prototype = {
-  OnStartRunningUrl: function asyncUrlListener_OnStartRunningUrl(
-                         aUrl) {
+  OnStartRunningUrl(aUrl) {
     if (this.wrapped)
       this.wrapped.OnStartRunningUrl(aUrl);
   },
-  OnStopRunningUrl: function asyncUrlListener_OnStopRunningUrl(
-                         aUrl, aExitCode) {
+  OnStopRunningUrl(aUrl, aExitCode) {
     if (this.wrapped)
       this.wrapped.OnStopRunningUrl(aUrl, aExitCode);
     if (this.callback)
@@ -59,7 +63,7 @@ AsyncUrlListener.prototype = {
       this.promise();
     else
       async_driver();
-  }
+  },
 };
 
 /**
@@ -72,13 +76,13 @@ AsyncUrlListener.prototype = {
 var asyncUrlListener = new AsyncUrlListener();
 
 var asyncCopyListener = {
-  OnStartCopy: function() {},
-  OnProgress: function(aProgress, aProgressMax) {},
-  SetMessageKey: function(aMsgKey) {},
-  GetMessageId: function() {},
-  OnStopCopy: function(aStatus) {
+  OnStartCopy() {},
+  OnProgress(aProgress, aProgressMax) {},
+  SetMessageKey(aMsgKey) {},
+  GetMessageId() {},
+  OnStopCopy(aStatus) {
     async_driver();
-  }
+  },
 };
 
 var asyncGeneratorStack = [], asyncGeneratorSendValue = undefined;
@@ -113,12 +117,10 @@ function async_run(aArgs) {
     //  make _async_driver more clever to deal with this if we have a reason.
     return async_driver();
   }
-  else {
-    if (result === undefined)
-      return true;
-    else
-      return result;
-  }
+
+  if (result === undefined)
+    return true;
+  return result;
 }
 
 /**
@@ -151,7 +153,7 @@ var asyncExpectedEarlyAbort = "REAP!";
 function _async_driver() {
   let curGenerator;
   while (asyncGeneratorStack.length) {
-    curGenerator = asyncGeneratorStack[asyncGeneratorStack.length-1][0];
+    curGenerator = asyncGeneratorStack[asyncGeneratorStack.length - 1][0];
     try {
       let nextItem;
       do {
@@ -167,8 +169,7 @@ function _async_driver() {
         asyncGeneratorSendValue = undefined;
         return false;
       }
-    }
-    catch (ex) {
+    } catch (ex) {
       if (ex != asyncExpectedEarlyAbort) {
         let asyncStack = [];
         dump("*******************************************\n");
@@ -227,13 +228,12 @@ function _async_test_runner_timeout() {
     try {
       if (helper.onTimeout)
         helper.onTimeout();
-    }
-    catch (ex) {
+    } catch (ex) {
       dump("warning: helper failure: (" + ex.fileName + ":" + ex.lineNumber +
            "): " + ex + "\n");
     }
   }
-  do_throw('Timeout running test, and we want you to have the log.');
+  do_throw("Timeout running test, and we want you to have the log.");
 }
 
 /**
@@ -275,24 +275,20 @@ function* _async_test_runner(aTests) {
           if (parameter.length) {
             paramDesc = parameter.toString();
             args = parameter;
-          }
-          else {
+          } else {
             paramDesc = parameter.name;
             args = [parameter];
           }
-        }
-        else {
+        } else {
           paramDesc = parameter.toString();
           args = [parameter];
         }
         mark_test_start(testFunc.name, paramDesc);
-        yield async_run({func: testFunc, args: args});
+        yield async_run({func: testFunc, args});
         _async_test_runner_postTest();
         mark_test_end();
       }
-
-    }
-    else {
+    } else {
       mark_test_start(test.name);
       yield async_run({func: test});
       _async_test_runner_postTest();
@@ -305,8 +301,7 @@ function* _async_test_runner(aTests) {
   for (let cleanupHelper of ASYNC_TEST_RUNNER_FINAL_CLEANUP_HELPERS) {
     try {
       cleanupHelper();
-    }
-    catch (ex) {
+    } catch (ex) {
       mark_failure(["Problem during asyncTestUtils cleanup helper",
                      cleanupHelper.name, "exception:", ex]);
     }

@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
 /**
  * This routine will allow the easy processing of
  * messages through the fake POP3 server into the local
@@ -20,6 +24,7 @@
  *
  */
 
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {localAccountUtils} = ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
 
@@ -38,8 +43,7 @@ var {
 } = ChromeUtils.import("resource://testing-common/mailnews/pop3d.js");
 var {Promise} = ChromeUtils.import("resource://gre/modules/Promise.jsm");
 
-function POP3Pump()
-{
+function POP3Pump() {
   // public attributes
   this.fakeServer = null;
   this.onDone = null;
@@ -62,13 +66,11 @@ function POP3Pump()
 }
 
 // nsIUrlListener implementation
-POP3Pump.prototype.OnStartRunningUrl = function OnStartRunningUrl(url) {};
+POP3Pump.prototype.OnStartRunningUrl = function(url) {};
 
-POP3Pump.prototype.OnStopRunningUrl = function OnStopRunningUrl(aUrl, aResult)
-{
+POP3Pump.prototype.OnStopRunningUrl = function(aUrl, aResult) {
   this._actualResult = aResult;
-  if (aResult != Cr.NS_OK)
-  {
+  if (aResult != Cr.NS_OK) {
     // If we have an error, clean up nicely.
     this._server.stop();
 
@@ -84,8 +86,7 @@ POP3Pump.prototype.OnStopRunningUrl = function OnStopRunningUrl(aUrl, aResult)
 
 // Setup the daemon and server
 // If the debugOption is set, then it will be applied to the server.
-POP3Pump.prototype._setupServerDaemon = function _setupServerDaemon(aDebugOption)
-{
+POP3Pump.prototype._setupServerDaemon = function(aDebugOption) {
   this._daemon = new pop3Daemon();
   function createHandler(d) {
     return new POP3_RFC1939_handler(d);
@@ -96,10 +97,8 @@ POP3Pump.prototype._setupServerDaemon = function _setupServerDaemon(aDebugOption
   return [this._daemon, this._server];
 };
 
-POP3Pump.prototype._createPop3ServerAndLocalFolders =
-  function _createPop3ServerAndLocalFolders()
-{
-  if (typeof localAccountUtils.inboxFolder == 'undefined')
+POP3Pump.prototype._createPop3ServerAndLocalFolders = function() {
+  if (typeof localAccountUtils.inboxFolder == "undefined")
     localAccountUtils.loadLocalMailAccount();
 
   if (!this.fakeServer)
@@ -109,8 +108,7 @@ POP3Pump.prototype._createPop3ServerAndLocalFolders =
   return this.fakeServer;
 };
 
-POP3Pump.prototype.resetPluggableStore = function(aStoreContractID)
-{
+POP3Pump.prototype.resetPluggableStore = function(aStoreContractID) {
   if (aStoreContractID == this._mailboxStoreContractID)
     return;
 
@@ -132,10 +130,8 @@ POP3Pump.prototype.resetPluggableStore = function(aStoreContractID)
   this._mailboxStoreContractID = aStoreContractID;
 };
 
-POP3Pump.prototype._checkBusy = function _checkBusy()
-{
-  if (this._tests.length == 0 && !this._finalCleanup)
-  {
+POP3Pump.prototype._checkBusy = function() {
+  if (this._tests.length == 0 && !this._finalCleanup) {
     this._incomingServer.closeCachedConnections();
 
     // No more tests, let everything finish
@@ -145,12 +141,10 @@ POP3Pump.prototype._checkBusy = function _checkBusy()
     return;
   }
 
-  if (this._finalCleanup)
-  {
-    if (Services.tm.currentThread.hasPendingEvents())
+  if (this._finalCleanup) {
+    if (Services.tm.currentThread.hasPendingEvents()) {
       do_timeout(20, _checkPumpBusy);
-    else
-    {
+    } else {
       // exit this module
       do_test_finished();
       if (this.onDone)
@@ -166,8 +160,7 @@ POP3Pump.prototype._checkBusy = function _checkBusy()
   // If the server hasn't quite finished, just delay a little longer.
   if (this._incomingServer.serverBusy ||
       (this._incomingServer instanceof Ci.nsIPop3IncomingServer &&
-       this._incomingServer.runningProtocol))
-  {
+       this._incomingServer.runningProtocol)) {
     do_timeout(20, _checkPumpBusy);
     return;
   }
@@ -175,18 +168,15 @@ POP3Pump.prototype._checkBusy = function _checkBusy()
   this._testNext();
 };
 
-POP3Pump.prototype._testNext = function _testNext()
-{
+POP3Pump.prototype._testNext = function() {
   let thisFiles = this._tests.shift();
   if (!thisFiles)
     this._checkBusy();  // exit
 
   // Handle the server in a try/catch/finally loop so that we always will stop
   // the server if something fails.
-  try
-  {
-    if (this._firstFile)
-    {
+  try {
+    if (this._firstFile) {
       this._firstFile = false;
 
       // Start the fake POP3 server
@@ -194,9 +184,7 @@ POP3Pump.prototype._testNext = function _testNext()
       this.kPOP3_PORT = this._server.port;
       if (this.fakeServer)
         this.fakeServer.port = this.kPOP3_PORT;
-    }
-    else
-    {
+    } else {
       this._server.resetTest();
     }
 
@@ -211,16 +199,14 @@ POP3Pump.prototype._testNext = function _testNext()
                                  this._incomingServer);
 
     this._server.performTest();
-  } catch (e)
-  {
+  } catch (e) {
     this._server.stop();
 
     do_throw(e);
   }
 };
 
-POP3Pump.prototype.run = function run(aExpectedResult)
-{
+POP3Pump.prototype.run = function(aExpectedResult) {
   do_test_pending();
   // Disable new mail notifications
   Services.prefs.setBoolPref("mail.biff.play_sound", false);
@@ -251,7 +237,7 @@ POP3Pump.prototype.run = function run(aExpectedResult)
   this._testNext();
 
   // This probably does not work with multiple tests, but nobody is using that.
-  this._promise = new Promise( (resolve, reject) => {
+  this._promise = new Promise((resolve, reject) => {
     this._resolve = resolve;
     this._reject = reject;
   });

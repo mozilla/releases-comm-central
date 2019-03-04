@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
 /*
  * Makes everything awesome if you are Andrew.  Some day it will make everything
  *  awesome if you are not awesome too.
@@ -11,6 +15,7 @@
 var {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
+// eslint-disable-next-line mozilla/reject-importGlobalProperties
 Cu.importGlobalProperties(["Element", "Node"]);
 
 var _mailnewsTestLogger;
@@ -43,19 +48,19 @@ function logHelperHasInterestedListeners() {
  * This is based on my (asuth') exmmad extension.
  */
 var _errorConsoleTunnel = {
-  initialize: function () {
+  initialize() {
     Services.console.registerListener(this);
 
     // we need to unregister our listener at shutdown if we don't want explosions
     Services.obs.addObserver(this, "quit-application");
   },
 
-  shutdown: function () {
+  shutdown() {
     Services.console.unregisterListener(this);
     Services.obs.removeObserver(this, "quit-application");
   },
 
-  observe: function (aMessage, aTopic, aData) {
+  observe(aMessage, aTopic, aData) {
     if (aTopic == "quit-application") {
       this.shutdown();
       return;
@@ -65,42 +70,37 @@ var _errorConsoleTunnel = {
       // meh, let's just use mark_failure for now.
       // and let's avoid feedback loops (happens in mozmill)
       if ((aMessage instanceof Ci.nsIScriptError) &&
-        (!aMessage.errorMessage.includes("Error console says")))
-        {
-          // Unfortunately changes to mozilla-central are throwing lots
-          // of console errors during testing, so disable (we hope temporarily)
-          // failing on XPCOM console errors (see bug 1014350).
-          // An XPCOM error aMessage looks like this:
-          //   [JavaScript Error: "uncaught exception: 2147500037"]
-          // Capture the number, and allow known XPCOM results.
-          let matches = /exception: (\d+)/.exec(aMessage);
-          let XPCOMresult = null;
-          if (matches) {
-            for (let result in Cr) {
-              if (matches[1] == Cr[result])
-              {
-                XPCOMresult = result;
-                break;
-              }
+          (!aMessage.errorMessage.includes("Error console says"))) {
+        // Unfortunately changes to mozilla-central are throwing lots
+        // of console errors during testing, so disable (we hope temporarily)
+        // failing on XPCOM console errors (see bug 1014350).
+        // An XPCOM error aMessage looks like this:
+        //   [JavaScript Error: "uncaught exception: 2147500037"]
+        // Capture the number, and allow known XPCOM results.
+        let matches = /exception: (\d+)/.exec(aMessage);
+        let XPCOMresult = null;
+        if (matches) {
+          for (let result in Cr) {
+            if (matches[1] == Cr[result]) {
+              XPCOMresult = result;
+              break;
             }
-            let message = XPCOMresult || aMessage;
-            if (logHelperAllowedErrors.some(e => e == matches[1]))
-            {
-              if (XPCOMresult)
-                info("Ignoring XPCOM error: " + message);
-              return;
-            }
-            else
-              info("Found XPCOM error: " + message);
           }
-          mark_failure(["Error console says", aMessage]);
+          let message = XPCOMresult || aMessage;
+          if (logHelperAllowedErrors.some(e => e == matches[1])) {
+            if (XPCOMresult)
+              info("Ignoring XPCOM error: " + message);
+            return;
+          }
+          info("Found XPCOM error: " + message);
         }
-    }
-    catch (ex) {
+        mark_failure(["Error console says", aMessage]);
+      }
+    } catch (ex) {
       // This is to avoid pathological error loops.  we definitely do not
       // want to propagate an error here.
     }
-  }
+  },
 };
 
 // This defaults to undefined and is for use by test-folder-display-helpers
@@ -198,12 +198,12 @@ function mark_test_start(aName, aParameter, aDepth) {
   _testLoggerActiveContext = _mailnewsTestLogger.newContext({
     type: term,
     name: aName,
-    parameter: aParameter
+    parameter: aParameter,
   });
   if (_testLoggerContexts.length) {
     _testLoggerActiveContext._contextDepth = _testLoggerContexts.length;
     _testLoggerActiveContext._contextParentId =
-      _testLoggerContexts[_testLoggerContexts.length-1]._id;
+      _testLoggerContexts[_testLoggerContexts.length - 1]._id;
   }
   _testLoggerContexts.push(_testLoggerActiveContext);
 
@@ -320,21 +320,17 @@ function __simple_obj_copy(aObj, aDepthAllowed) {
 
     if (value == null) {
       oot[key] = null;
-    }
-    else if (typeof(value) != "object") {
+    } else if (typeof(value) != "object") {
       oot[key] = value;
-    }
-    // steal control flow if no more depth is allowed
-    else if (!aDepthAllowed) {
+    } else if (!aDepthAllowed) {
+      // steal control flow if no more depth is allowed
       oot[key] = "truncated, string rep: " + value.toString();
-    }
-    // array?  (not directly counted, but we will terminate because the
-    //  child copying occurs using nextDepth...)
-    else if (Array.isArray(value)) {
+    } else if (Array.isArray(value)) {
+      // array?  (not directly counted, but we will terminate because the
+      //  child copying occurs using nextDepth...)
       oot[key] = value.map(v => __value_copy(v, nextDepth));
-    }
-    // it's another object! woo!
-    else {
+    } else {
+      // it's another object! woo!
       oot[key] = _normalize_for_json(value, nextDepth, true);
     }
   }
@@ -380,7 +376,6 @@ function _normalize_for_json(aObj, aDepthAllowed, aJsonMeNotNeeded) {
   // === Mail Specific ===
   // (but common and few enough to not split out)
   if (aObj instanceof Ci.nsIMsgFolder) {
-    let flags = aObj.flags;
     return {
       type: "folder",
       name: aObj.prettyName,
@@ -388,8 +383,7 @@ function _normalize_for_json(aObj, aDepthAllowed, aJsonMeNotNeeded) {
       flags: _explode_flags(aObj.flags,
                             Ci.nsMsgFolderFlags),
     };
-  }
-  else if (aObj instanceof Ci.nsIMsgDBHdr) {
+  } else if (aObj instanceof Ci.nsIMsgDBHdr) {
     let properties = {};
     for (let name in _INTERESTING_MESSAGE_HEADER_PROPERTIES) {
       let propType = _INTERESTING_MESSAGE_HEADER_PROPERTIES[name];
@@ -411,10 +405,9 @@ function _normalize_for_json(aObj, aDepthAllowed, aJsonMeNotNeeded) {
                             Ci.nsMsgMessageFlags),
       interestingProperties: properties,
     };
-  }
-  // === Generic ===
-  // DOM nodes, including elements
-  else if (Node.isInstance(aObj)) {
+  } else if (Node.isInstance(aObj)) {
+    // === Generic ===
+    // DOM nodes, including elements
     let name = aObj.nodeName;
     let objAttrs = {};
 
@@ -428,43 +421,40 @@ function _normalize_for_json(aObj, aDepthAllowed, aJsonMeNotNeeded) {
       }
     }
 
-    let bounds = { left: null, top: null, width: null, height: null }
+    let bounds = { left: null, top: null, width: null, height: null };
     if ("getBoundingClientRect" in aObj)
       bounds = aObj.getBoundingClientRect();
 
     return {
       type: "domNode",
-      name: name,
+      name,
       value: aObj.nodeValue,
       namespace: aObj.namespaceURI,
       boundingClientRect: bounds,
       attrs: objAttrs,
     };
-  }
-  else if (aObj instanceof Ci.nsIDOMWindow) {
+  } else if (aObj instanceof Ci.nsIDOMWindow) {
     let winId, title;
     if (aObj.document && aObj.document.documentElement) {
       title = aObj.document.title;
       winId = aObj.document.documentElement.getAttribute("windowtype") ||
               aObj.document.documentElement.getAttribute("id") ||
               "unnamed";
-    }
-    else {
+    } else {
       winId = "n/a";
       title = "no document";
     }
     return {
       type: "domWindow",
       id: winId,
-      title: title,
+      title,
       location: "" + aObj.location,
       coords: {x: aObj.screenX, y: aObj.screenY},
       dims: {width: aObj.outerWidth, height: aObj.outerHeight},
     };
-  }
-  // Although straight JS exceptions should serialize pretty well, we can
-  //  improve things by making "stack" more friendly.
-  else if (aObj instanceof Error) {
+  } else if (aObj instanceof Error) {
+    // Although straight JS exceptions should serialize pretty well, we can
+    //  improve things by making "stack" more friendly.
     return {
       type: "error",
       message: aObj.message,
@@ -474,8 +464,7 @@ function _normalize_for_json(aObj, aDepthAllowed, aJsonMeNotNeeded) {
       stack: aObj.stack ? aObj.stack.split(/\n\r?/g) : null,
       _stringRep: aObj.message,
     };
-  }
-  else if (aObj instanceof Ci.nsIException) {
+  } else if (aObj instanceof Ci.nsIException) {
     return {
       type: "error",
       message: "nsIException: " + aObj.name,
@@ -485,16 +474,14 @@ function _normalize_for_json(aObj, aDepthAllowed, aJsonMeNotNeeded) {
       result: aObj.result,
       stack: null,
     };
-  }
-  else if (aObj instanceof Ci.nsIStackFrame) {
+  } else if (aObj instanceof Ci.nsIStackFrame) {
     return {
       type: "stackFrame",
       name: aObj.name,
       fileName: aObj.filename, // intentionally lower-case
       lineNumber: aObj.lineNumber,
     };
-  }
-  else if (aObj instanceof Ci.nsIScriptError) {
+  } else if (aObj instanceof Ci.nsIScriptError) {
     return {
       type: "stackFrame",
       name: aObj.errorMessage,
@@ -503,20 +490,19 @@ function _normalize_for_json(aObj, aDepthAllowed, aJsonMeNotNeeded) {
       lineNumber: aObj.lineNumber,
     };
   }
-  else {
-    for (let [checkType, handler] of _registered_json_normalizers) {
-      if (aObj instanceof checkType)
-        return handler(aObj);
-    }
 
-    // Do not fall into simple object walking if this is an XPCOM interface.
-    //  We might run across getters and that leads to nothing good.
-    if (aObj instanceof Ci.nsISupports) {
-      return {
-        type: "XPCOM",
-        name: aObj.toString(),
-      }
-    }
+  for (let [checkType, handler] of _registered_json_normalizers) {
+    if (aObj instanceof checkType)
+      return handler(aObj);
+  }
+
+  // Do not fall into simple object walking if this is an XPCOM interface.
+  // We might run across getters and that leads to nothing good.
+  if (aObj instanceof Ci.nsISupports) {
+    return {
+      type: "XPCOM",
+      name: aObj.toString(),
+    };
   }
 
   let simple_obj = __simple_obj_copy(aObj, aDepthAllowed);
@@ -541,7 +527,7 @@ function _MarkAction(aWho, aWhat, aArgs) {
 }
 _MarkAction.prototype = {
   _jsonMe: true,
-  toString: function() {
+  toString() {
     let argStr;
     if (this.args) {
       argStr = ":";
@@ -551,15 +537,15 @@ _MarkAction.prototype = {
             argStr += " " + arg.type + ": " + arg.name;
           else
             argStr += " " + arg.type;
-        }
-        else
+        } else {
           argStr += " " + arg;
+        }
       }
-    }
-    else
+    } else {
       argStr = "";
+    }
     return this.who + " " + this.what + argStr;
-  }
+  },
 };
 
 /**
@@ -631,8 +617,7 @@ function mark_failure(aRichString) {
     if (richThing == null || typeof(richThing) != "object") {
       text += richThing;
       args.push(richThing);
-    }
-    else {
+    } else {
       let jsonThing = _normalize_for_json(richThing);
       if (("type" in jsonThing) && ("name" in jsonThing))
         text += "[" + jsonThing.type + " " + jsonThing.name + "]";
@@ -662,33 +647,7 @@ function _wrapped_do_throw(text, stack) {
   return _orig_do_throw(text, stack);
 }
 
-function _wrapped_do_check_neq(left, right, stack) {
-  if (!stack)
-    stack = Components.stack.caller;
-
-  _xpcshellLogger.info(_testLoggerActiveContext,
-                       new _CheckAction(left != right,
-                                        left, right, stack));
-
-  return _orig_do_check_neq(left, right, stack);
-}
-
-function _wrapped_do_check_eq(left, right, stack) {
-  if (!stack)
-    stack = Components.stack.caller;
-
-  _xpcshellLogger.info(_testLoggerActiveContext,
-                       new _CheckAction(left == right,
-                                        left, right, stack));
-
-  return _orig_do_check_eq(left, right, stack);
-}
-
 function _wrap_xpcshell_functions() {
   _orig_do_throw = do_throw;
-  do_throw = _wrapped_do_throw;
-  _orig_do_check_neq = do_check_neq;
-  do_check_neq = _wrapped_do_check_neq;
-  _orig_do_check_eq = do_check_eq;
-  do_check_eq = _wrapped_do_check_eq;
+  do_throw = _wrapped_do_throw; // eslint-disable-line no-global-assign
 }
