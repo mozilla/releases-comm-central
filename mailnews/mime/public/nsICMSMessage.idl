@@ -5,10 +5,16 @@
 
 #include "nsISupports.idl"
 
+interface nsISMimeVerificationListener;
+
 %{ C++
 #define NS_CMSMESSAGE_CONTRACTID "@mozilla.org/nsCMSMessage;1"
 %}
 
+/*
+ * At the time the ptr type is eliminated in both interfaces, both should be
+ * made scriptable.
+ */
 [ptr] native UnsignedCharPtr(unsigned char);
 
 interface nsIX509Cert;
@@ -37,5 +43,50 @@ interface nsICMSMessage : nsISupports
   void CreateSigned(in nsIX509Cert scert, in nsIX509Cert ecert,
                     in UnsignedCharPtr aDigestData,
                     in unsigned long aDigestDataLen, in int16_t aDigestType);
+
+  /**
+    * Async version of nsICMSMessage::VerifySignature.
+    * Code will be executed on a background thread and
+    * availability of results will be notified using a
+    * call to nsISMimeVerificationListener.
+   */
+  void asyncVerifySignature(in nsISMimeVerificationListener listener);
+
+  /**
+    * Async version of nsICMSMessage::VerifyDetachedSignature.
+    * Code will be executed on a background thread and
+    * availability of results will be notified using a
+    * call to nsISMimeVerificationListener.
+    *
+    * We are using "native unsigned char" ptr, because the function
+    * signatures of this one and nsICMSMessage::verifyDetachedSignature
+    * should be the identical.
+    *
+    * Once both interfaces get cleaned up (bug 330503), the function signature
+    * should look like:
+    *     [array, length_is(aDigestDataLen)] or [const, array, length_is(aDigestDataLen])
+    *     in octet aDigestData,
+    *     in unsigned long aDigestDataLen);
+    *
+    * Set aDigestType to one of the values from nsICryptoHash.
+   */
+  void asyncVerifyDetachedSignature(in nsISMimeVerificationListener listener,
+                                    in UnsignedCharPtr aDigestData,
+                                    in unsigned long aDigestDataLen,
+                                    in int16_t aDigestType);
+};
+
+[uuid(5226d698-0773-4f25-b94c-7944b3fc01d3)]
+interface nsISMimeVerificationListener : nsISupports {
+
+  /**
+   * Notify that results are ready, that have been requested
+   * using nsICMSMessage::asyncVerify[Detached]Signature()
+   *
+   * verificationResultCode matches synchronous result code from
+   * nsICMSMessage::verify[Detached]Signature
+   */
+  void notify(in nsICMSMessage verifiedMessage,
+              in nsresult verificationResultCode);
 };
 

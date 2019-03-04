@@ -4,7 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsICMSMessage.h"
-#include "nsICMSMessage2.h"
 #include "nsICMSMessageErrors.h"
 #include "nsICMSDecoder.h"
 #include "mimecms.h"
@@ -301,7 +300,7 @@ nsSMimeVerificationListener::nsSMimeVerificationListener(const char *aFromAddr, 
   mSenderName = aSenderName;
 }
 
-NS_IMETHODIMP nsSMimeVerificationListener::Notify(nsICMSMessage2 *aVerifiedMessage,
+NS_IMETHODIMP nsSMimeVerificationListener::Notify(nsICMSMessage *aVerifiedMessage,
                                                   nsresult aVerificationResultCode)
 {
   // Only continue if we have a valid pointer to the UI
@@ -309,11 +308,8 @@ NS_IMETHODIMP nsSMimeVerificationListener::Notify(nsICMSMessage2 *aVerifiedMessa
 
   NS_ENSURE_TRUE(aVerifiedMessage, NS_ERROR_FAILURE);
 
-  nsCOMPtr<nsICMSMessage> msg = do_QueryInterface(aVerifiedMessage);
-  NS_ENSURE_TRUE(msg, NS_ERROR_FAILURE);
-
   nsCOMPtr<nsIX509Cert> signerCert;
-  msg->GetSignerCert(getter_AddRefs(signerCert));
+  aVerifiedMessage->GetSignerCert(getter_AddRefs(signerCert));
 
   int32_t signature_status = nsICMSMessageErrors::GENERAL_ERROR;
 
@@ -328,10 +324,10 @@ NS_IMETHODIMP nsSMimeVerificationListener::Notify(nsICMSMessage2 *aVerifiedMessa
   {
     bool signing_cert_without_email_address;
 
-    bool good_p = MimeCMSHeadersAndCertsMatch(msg, signerCert,
-                                                mFromAddr.get(), mFromName.get(),
-                                                mSenderAddr.get(), mSenderName.get(),
-                                                &signing_cert_without_email_address);
+    bool good_p = MimeCMSHeadersAndCertsMatch(aVerifiedMessage, signerCert,
+                                              mFromAddr.get(), mFromName.get(),
+                                              mSenderAddr.get(), mSenderName.get(),
+                                              &signing_cert_without_email_address);
     if (!good_p)
     {
       if (signing_cert_without_email_address)
@@ -576,20 +572,13 @@ void MimeCMSRequestAsyncSignatureVerification(nsICMSMessage *aCMSMsg,
                                               unsigned char* item_data, uint32_t item_len,
                                               int16_t digest_type)
 {
-  nsCOMPtr<nsICMSMessage2> msg2 = do_QueryInterface(aCMSMsg);
-  if (!msg2)
-    return;
-
   RefPtr<nsSMimeVerificationListener> listener =
     new nsSMimeVerificationListener(aFromAddr, aFromName, aSenderAddr, aSenderName,
                                     aHeaderSink, aMimeNestingLevel);
-  if (!listener)
-    return;
-
   if (item_data)
-    msg2->AsyncVerifyDetachedSignature(listener, item_data, item_len, digest_type);
+    aCMSMsg->AsyncVerifyDetachedSignature(listener, item_data, item_len, digest_type);
   else
-    msg2->AsyncVerifySignature(listener);
+    aCMSMsg->AsyncVerifySignature(listener);
 }
 
 static int

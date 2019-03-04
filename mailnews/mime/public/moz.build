@@ -8,7 +8,6 @@ XPIDL_SOURCES += [
     'nsICMSDecoder.idl',
     'nsICMSEncoder.idl',
     'nsICMSMessage.idl',
-    'nsICMSMessage2.idl',
     'nsICMSMessageErrors.idl',
     'nsICMSSecureMessage.idl',
     'nsIMimeConverter.idl',

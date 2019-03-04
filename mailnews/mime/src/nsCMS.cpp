@@ -33,7 +33,7 @@ using namespace mozilla::pkix;
 
 extern mozilla::LazyLogModule gPIPNSSLog;
 
-NS_IMPL_ISUPPORTS(nsCMSMessage, nsICMSMessage, nsICMSMessage2)
+NS_IMPL_ISUPPORTS(nsCMSMessage, nsICMSMessage)
 
 nsCMSMessage::nsCMSMessage()
 {
@@ -407,9 +407,7 @@ private:
   virtual void CallCallback(nsresult rv) override
   {
     MOZ_ASSERT(NS_IsMainThread());
-
-    nsCOMPtr<nsICMSMessage2> m2 = do_QueryInterface(mMessage);
-    mListener->Notify(m2, rv);
+    mListener->Notify(mMessage, rv);
   }
 
   nsCOMPtr<nsICMSMessage> mMessage;
