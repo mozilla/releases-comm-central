@@ -48,6 +48,10 @@ locales = [
     l10n = "{l}editor/ui/**"
 
 [[paths]]
+    reference = "suite/branding/seamonkey/locales/en-US/**"
+    l10n = "{l}suite/branding/seamonkey/**"
+
+[[paths]]
     reference = "{mozilla}/services/sync/locales/en-US/**"
     l10n = "{l}services/sync/**"
 
