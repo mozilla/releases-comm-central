@@ -212,7 +212,7 @@ menulist {
 
 @media (min-resolution: 2dppx) {
   #status_area[status=loading] #status_img_after {
-    background: url("chrome://global/skin/icons/loading@2x.png") no-repeat;
+    background-image: url("chrome://global/skin/icons/loading@2x.png");
   }
 }
 
