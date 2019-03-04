@@ -21,6 +21,69 @@ load("../../../resources/messageGenerator.js");
 load("../../../resources/messageModifier.js");
 load("../../../resources/messageInjection.js");
 
+let gCertValidityResult = 0;
+
+/**
+ * @implements nsICertVerificationCallback
+ */
+class CertVerificationResultCallback {
+  constructor(callback) {
+    this.callback = callback;
+  }
+  verifyCertFinished(prErrorCode, verifiedChain, hasEVPolicy) {
+    gCertValidityResult = prErrorCode;
+    this.callback();
+  }
+}
+
+function testCertValidity(cert, date) {
+  let prom = new Promise((resolve, reject) => {
+    const certificateUsageEmailRecipient = 0x0020;
+    let result = new CertVerificationResultCallback(resolve);
+    let flags = Ci.nsIX509CertDB.FLAG_LOCAL_ONLY;
+    const certdb = Cc["@mozilla.org/security/x509certdb;1"]
+                     .getService(Ci.nsIX509CertDB);
+    certdb.asyncVerifyCertAtTime(cert, certificateUsageEmailRecipient, flags,
+                                 "Alice@bogus.com", date, result);
+  });
+  return prom;
+}
+
+add_task(async function verifyTestCertsStillValid() {
+  let composeSecure = Cc["@mozilla.org/messengercompose/composesecure;1"]
+                      .createInstance(Ci.nsIMsgComposeSecure);
+  let cert = composeSecure.findCertByEmailAddress("Alice@bogus.com", false);
+  Assert.notEqual(cert, null);
+
+  let now = Date.now() / 1000;
+
+  let prom = testCertValidity(cert, now);
+  await prom;
+
+  if (gCertValidityResult != 0) {
+    // Either certs have expired, or something else is going wrong.
+    // Let's test if they were valid a week ago, for a better guess.
+
+    let oneWeekAgo = now - (7 * 24 * 60 * 60);
+    let prom = testCertValidity(cert, oneWeekAgo);
+    await prom;
+
+    if (gCertValidityResult == 0) {
+      Assert.ok(false,
+       "The S/MIME test certificates are invalid today, but were valid one week ago. " +
+       "Most likely they have expired and new certificates need to be generated and committed. " +
+       "Follow the instructions in comm/mailnews/test/data/smime/README.md");
+    } else {
+      Assert.ok(false,
+       "The S/MIME test certificates are invalid today, but were also invalid one week ago. " +
+       "If this error is first appearing today, the reason might be unrelated to expiration, " +
+       "and could indicate a general error in certificate validation. Nevertheless, if you'd " +
+       "like to attempt a refresh of certificates: " +
+       "Follow the instructions in comm/mailnews/test/data/smime/README.md");
+    }
+  }
+});
+
 var gInbox;
 
 var smimeDataDirectory = "../../../data/smime/";
@@ -201,10 +264,6 @@ function run_test() {
   SmimeUtils.loadCertificateAndKey(do_get_file(smimeDataDirectory + "Alice.p12"));
   SmimeUtils.loadCertificateAndKey(do_get_file(smimeDataDirectory + "Bob.p12"));
 
-  let composeSecure = Cc["@mozilla.org/messengercompose/composesecure;1"]
-                      .createInstance(Ci.nsIMsgComposeSecure);
-  let cert = composeSecure.findCertByEmailAddress("Alice@bogus.com", false);
-  Assert.notEqual(cert, null);
 
   run_next_test();
 }
