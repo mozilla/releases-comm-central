@@ -114,7 +114,7 @@ function onSearch() {
         onResult: function(operation, result) {
             if (result) {
                 for (let calendar of result) {
-                    let newNode = createXULElement("calendar-subscriptions-richlistitem");
+                    let newNode = document.createXULElement("calendar-subscriptions-richlistitem");
                     newNode.calendar = calendar;
                     newNode.subscribed = registeredCals[calendar.id];
                     richListBox.appendChild(newNode);

@@ -236,7 +236,7 @@
                 this.deleteItem(aItem);
             }
 
-            let box = createXULElement("calendar-month-day-box-item");
+            let box = document.createXULElement("calendar-month-day-box-item");
             let context = this.getAttribute("item-context") ||
                           this.getAttribute("context");
             box.setAttribute("context", context);
@@ -422,7 +422,7 @@
           this.weekStartOffset = Preferences.get("calendar.week.start", 0);
 
           for (let i = 0; i < 7; i++) {
-              let hdr = createXULElement("calendar-day-label");
+              let hdr = document.createXULElement("calendar-day-label");
               this.labeldaybox.appendChild(hdr);
               hdr.weekDay = (i + this.mWeekStartOffset) % 7;
               hdr.shortWeekNames = false;

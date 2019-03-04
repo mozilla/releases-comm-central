@@ -328,7 +328,7 @@ function appendCalendarItems(aItem, aCalendarMenuParent, aCalendarToUse, aOnComm
 function addMenuItem(aParent, aLabel, aValue, aCommand) {
     let item = null;
     if (aParent.localName == "menupopup") {
-        item = createXULElement("menuitem");
+        item = document.createXULElement("menuitem");
         item.setAttribute("label", aLabel);
         if (aValue) {
             item.setAttribute("value", aValue);
@@ -520,16 +520,6 @@ function menuListIndexOf(menuList, value) {
         }
     }
     return -1; // not found
-}
-
-/**
- * Creates the given element in the XUL namespace.
- *
- * @param elem      The local name of the element to create.
- * @return          The XUL element requested.
- */
-function createXULElement(elem) {
-    return document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", elem);
 }
 
 /**

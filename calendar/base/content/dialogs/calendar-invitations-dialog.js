@@ -34,7 +34,7 @@ function onLoad() {
             updatingBox.setAttribute("hidden", "true");
             let richListBox = document.getElementById("invitations-listbox");
             for (let item of aItems) {
-                let newNode = createXULElement("calendar-invitations-richlistitem");
+                let newNode = document.createXULElement("calendar-invitations-richlistitem");
                 newNode.calendarItem = item;
                 richListBox.appendChild(newNode);
             }

@@ -1100,7 +1100,7 @@ function loadCloudProviders(aItemObjects) {
 
     for (let itemObject of aItemObjects) {
         // Create a menu item.
-        let item = createXULElement("menuitem");
+        let item = document.createXULElement("menuitem");
         item.setAttribute("label", itemObject.label);
         item.setAttribute("observes", "cmd_attach_cloud");
         item.setAttribute("oncommand", "attachFileByAccountKey(event.target.cloudProviderAccountKey); event.stopPropagation();");

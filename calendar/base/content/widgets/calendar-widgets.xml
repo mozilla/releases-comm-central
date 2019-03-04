@@ -322,7 +322,7 @@
                             shadowStartDate.day += 1;
                             continue;
                         }
-                        let dropshadow = createXULElement("box");
+                        let dropshadow = document.createXULElement("box");
                         dropshadow.setAttribute("class", "dropshadow");
                         if (box.hasChildNodes()) {
                             box.insertBefore(dropshadow, box.firstChild);

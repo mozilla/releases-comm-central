@@ -170,7 +170,7 @@ function setupMaxReminders() {
     setElementValue("reminder-new-button", cond && "true", "disabled");
 
     if (!setupMaxReminders.notification) {
-        let notification = createXULElement("xbl-notification");
+        let notification = document.createXULElement("xbl-notification");
         let localeErrorString =
             cal.l10n.getString("calendar-alarms",
                                getItemBundleStringName("reminderErrorMaxCountReached"),
@@ -209,7 +209,7 @@ function setupMaxReminders() {
  * @return              The  XUL listitem node showing the passed reminder.
  */
 function setupListItem(aListItem, aReminder, aItem) {
-    let listitem = aListItem || createXULElement("richlistitem");
+    let listitem = aListItem || document.createXULElement("richlistitem");
 
     // Create a random id to be used for accessibility
     let reminderId = cal.getUUID();
@@ -223,7 +223,7 @@ function setupListItem(aListItem, aReminder, aItem) {
 
     let image = listitem.querySelector("image");
     if (!image) {
-        image = createXULElement("image");
+        image = document.createXULElement("image");
         image.setAttribute("class", "reminder-icon");
         listitem.appendChild(image);
     }
@@ -231,7 +231,7 @@ function setupListItem(aListItem, aReminder, aItem) {
 
     let label = listitem.querySelector("label");
     if (!label) {
-        label = createXULElement("label");
+        label = document.createXULElement("label");
         listitem.appendChild(label);
     }
     label.setAttribute("value", aReminder.toString(aItem));

@@ -132,7 +132,7 @@ function unsubscribeCalendar() {
 
 function initRefreshInterval() {
     function createMenuItem(minutes) {
-        let menuitem = createXULElement("menuitem");
+        let menuitem = document.createXULElement("menuitem");
         menuitem.setAttribute("value", minutes);
 
         let everyMinuteString = cal.l10n.getCalString("calendarPropertiesEveryMinute");

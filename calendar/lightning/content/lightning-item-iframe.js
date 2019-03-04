@@ -2053,7 +2053,7 @@ function loadCloudProviders() {
         itemObjects.push(itemObject);
 
         // Create a menu item from the serializable object
-        let item = createXULElement("menuitem");
+        let item = document.createXULElement("menuitem");
         item.setAttribute("label", itemObject.label);
         item.setAttribute("observes", "cmd_attach_cloud");
         item.setAttribute("oncommand", "attachFile(event.target.cloudProvider); event.stopPropagation();");
@@ -2278,7 +2278,7 @@ function addAttachment(attachment, cloudProvider) {
     // We currently only support uri attachments
     if (attachment.uri) {
         let documentLink = document.getElementById("attachment-link");
-        let listItem = createXULElement("richlistitem");
+        let listItem = document.createXULElement("richlistitem");
         let image = document.createElement("image");
         listItem.appendChild(image);
         let label = document.createElement("label");
@@ -3354,7 +3354,7 @@ function showTimezonePopup(event, dateTime, editFunc) {
 
     // Fill in the new recent timezones
     for (let timezone of recentTimezones) {
-        let menuItem = createXULElement("menuitem");
+        let menuItem = document.createXULElement("menuitem");
         menuItem.setAttribute("value", timezone.tzid);
         menuItem.setAttribute("label", timezone.displayName);
         timezonePopup.insertBefore(menuItem, timezoneDefaultItem.nextSibling);
