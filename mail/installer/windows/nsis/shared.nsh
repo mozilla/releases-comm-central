@@ -19,6 +19,9 @@
   ; Win7 taskbar and start menu link maintenance
   Call FixShortcutAppModelIDs
 
+  ; Upgrade the copies of the MAPI DLL's
+  ${UpgradeMapiDLLs}
+
   ClearErrors
   WriteRegStr HKLM "Software\Mozilla" "${BrandShortName}InstallerTest" "Write Test"
   ${If} ${Errors}
