@@ -741,9 +741,7 @@
       <method name="fireEvent">
         <parameter name="aEventName"/>
         <body><![CDATA[
-            let event = document.createEvent("Events");
-            event.initEvent(aEventName, true, true);
-            this.dispatchEvent(event);
+            this.dispatchEvent(new CustomEvent(aEventName, { bubbles: true }));
         ]]></body>
       </method>
 
@@ -876,8 +874,13 @@
       <method name="update">
         <parameter name="aValue"/>
         <body><![CDATA[
+            let changed = this.mValue && aValue && (
+                this.mValue.getFullYear() != aValue.getFullYear() ||
+                this.mValue.getMonth() != aValue.getMonth() ||
+                this.mValue.getDate() != aValue.getDate()
+            );
             this.mValue = aValue;
-            if (this.mValue) {
+            if (changed) {
                 this.fireEvent("change");
             }
             this.showMonth(aValue);

@@ -249,7 +249,9 @@ customElements.whenDefined("menulist-editable").then(() => {
                 attributeFilter: ["value"],
             });
 
-            this._inputField.addEventListener("change", () => {
+            this._inputField.addEventListener("change", (event) => {
+                event.stopPropagation();
+
                 let value = parseDateTime(this._inputBoxValue);
                 if (!value) {
                     this._inputBoxValue = this._minimonthValue;
@@ -258,7 +260,7 @@ customElements.whenDefined("menulist-editable").then(() => {
                 this._inputBoxValue = this._minimonthValue = value;
                 this._valueIsForever = false;
 
-                this.dispatchEvent(new CustomEvent("change"));
+                this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
             });
             this._popup.addEventListener("popupshown", () => {
                 this._minimonth.focusDate(this._minimonthValue);
@@ -267,12 +269,15 @@ customElements.whenDefined("menulist-editable").then(() => {
                 );
                 calendar.querySelector("td[selected]").focus();
             });
+            this._minimonth.addEventListener("change", (event) => {
+                event.stopPropagation();
+            });
             this._minimonth.addEventListener("select", () => {
                 this._inputBoxValue = this._minimonthValue;
                 this._valueIsForever = false;
                 this._popup.hidePopup();
 
-                this.dispatchEvent(new CustomEvent("change"));
+                this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
             });
         }
 
@@ -312,12 +317,29 @@ customElements.whenDefined("menulist-editable").then(() => {
         }
 
         set value(val) {
+            let wasForever = this._valueIsForever;
             if (this.getAttribute("type") == "forever" && val == "forever") {
                 this._valueIsForever = true;
+                this._inputBoxValue = val;
+                if (!wasForever) {
+                    this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
+                }
+                return;
             } else if (typeof val == "string") {
                 val = parseDateTime(val);
             }
+
+            let existingValue = this._minimonthValue;
+            this._valueIsForever = false;
             this._inputBoxValue = this._minimonthValue = val;
+
+            if (wasForever ||
+                existingValue.getFullYear() != val.getFullYear() ||
+                existingValue.getMonth() != val.getMonth() ||
+                existingValue.getDate() != val.getDate()
+            ) {
+                this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
+            }
         }
 
         get value() {
@@ -382,7 +404,9 @@ customElements.whenDefined("menulist-editable").then(() => {
                 attributeFilter: ["value"],
             });
 
-            this._inputField.addEventListener("change", () => {
+            this._inputField.addEventListener("change", (event) => {
+                event.stopPropagation();
+
                 let value = parseTime(this._inputBoxValue);
                 if (!value) {
                     this._inputBoxValue = this._gridValue;
@@ -390,14 +414,18 @@ customElements.whenDefined("menulist-editable").then(() => {
                 }
                 this._inputBoxValue = this._gridValue = value;
 
-                this.dispatchEvent(new CustomEvent("change"));
+                this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
             });
             this._menulist.menupopup.addEventListener("popupshowing", () => {
                 this._grid.onPopupShowing();
             });
             this._grid.addEventListener("select", (event) => {
+                event.stopPropagation();
+
                 this._inputBoxValue = this._gridValue;
                 this._popup.hidePopup();
+
+                this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
             });
         }
 
@@ -444,7 +472,11 @@ customElements.whenDefined("menulist-editable").then(() => {
                 val.setHours(hours);
                 val.setMinutes(minutes);
             }
-            this._inputBoxValue = this._gridValue = val;
+            let [existingHours, existingMinutes] = this._gridValue;
+            if (val.getHours() != existingHours ||
+                val.getMinutes() != existingMinutes) {
+                this._inputBoxValue = this._gridValue = val;
+            }
         }
 
         get value() {
@@ -501,8 +533,13 @@ customElements.whenDefined("menulist-editable").then(() => {
                 this._timepicker.value = this.getAttribute("value");
             }
 
-            this._datepicker.addEventListener("change", () => {
-                this.dispatchEvent(new CustomEvent("change"));
+            this._datepicker.addEventListener("change", (event) => {
+                event.stopPropagation();
+                this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
+            });
+            this._timepicker.addEventListener("change", (event) => {
+                event.stopPropagation();
+                this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
             });
         }
 
