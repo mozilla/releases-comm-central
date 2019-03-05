@@ -13,10 +13,6 @@ radio[pane] > .radio-label-box {
   font-size: 1.2em;
 }
 
-checkbox {
-  -moz-binding: url("chrome://global/content/bindings/checkbox.xml#checkbox") !important;
-}
-
 spinbuttons {
   -moz-appearance: none;
 }
