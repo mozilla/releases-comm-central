@@ -22,6 +22,7 @@
 
 <dialog id="identityDialog"
         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         onload="onLoadIdentityProperties();"
         ondialogaccept="return onOk();"
@@ -100,7 +101,7 @@
         </grid>
 
         <hbox class="indent" flex="1">
-          <textbox id="identity.htmlSigText" flex="1" multiline="true" wrap="off" rows="4" class="signatureBox"/>
+          <html:textarea id="identity.htmlSigText" rows="4" cols="72" class="signatureBox"/>
         </hbox>
 
         <hbox align="center">

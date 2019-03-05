@@ -126,7 +126,7 @@ var taskDetailsView = {
             let textbox = document.getElementById("calendar-task-details-description");
             let description = item.hasProperty("DESCRIPTION") ? item.getProperty("DESCRIPTION") : null;
             textbox.value = description;
-            textbox.inputField.readOnly = true;
+            textbox.readOnly = true;
             let attachmentRows = document.getElementById("calendar-task-details-attachment-rows");
             removeChildren(attachmentRows);
             let attachments = item.getAttachments({});

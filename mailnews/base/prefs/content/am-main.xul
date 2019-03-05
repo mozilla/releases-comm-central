@@ -9,6 +9,7 @@
 <!DOCTYPE page SYSTEM "chrome://messenger/locale/am-main.dtd" >
 
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
       onload="parent.onPanelLoaded('am-main.xul');">
 
   <vbox flex="1" style="overflow: auto;">
@@ -81,8 +82,8 @@
       </grid>
 
       <hbox class="indent" flex="1" style="min-height: 50px;">
-        <textbox wsm_persist="true" id="identity.htmlSigText" multiline="true" wrap="off" rows="4" flex="1"
-                 prefstring="mail.identity.%identitykey%.htmlSigText" class="signatureBox"/>
+        <html:textarea wsm_persist="true" id="identity.htmlSigText" rows="4" cols="72"
+                       prefstring="mail.identity.%identitykey%.htmlSigText" class="signatureBox"/>
       </hbox>
 
       <hbox align="center">

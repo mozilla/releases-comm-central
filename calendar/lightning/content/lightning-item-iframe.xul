@@ -37,9 +37,10 @@
       onload="onLoad();"
       onunload="onEventDialogUnload();"
       onresize="rearrangeAttendees();"
-      xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+      xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml">
 
-  <!-- Javascript includes -->
+  <!-- JavaScript includes -->
   <script type="application/javascript"
           src="chrome://lightning/content/lightning-item-iframe.js"/>
   <script type="application/javascript"
@@ -584,11 +585,10 @@
         <tabpanels id="event-grid-tabpanels"
                    flex="1">
           <tabpanel id="event-grid-tabpanel-description">
-            <textbox id="item-description"
-                     disable-on-readonly="true"
-                     flex="1"
-                     multiline="true"
-                     rows="12"/>
+            <html:textarea id="item-description"
+                           disable-on-readonly="true"
+                           flex="1"
+                           rows="12"/>
           </tabpanel>
           <tabpanel id="event-grid-tabpanel-attachments">
             <vbox flex="1">

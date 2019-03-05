@@ -11,6 +11,7 @@
 
 <dialog title="&windowTitle.label;"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         onload="Startup();"
         buttonlabelaccept="&insertButton.label;"
         buttonaccesskeyaccept="&insertButton.accesskey;"
@@ -28,8 +29,8 @@
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
 
   <label id="srcMessage" value="&sourceEditField.label;"/>
-  <textbox id="input" rows="5" multiline="true" oninput="updateMath();"
-           placeholder="\sqrt{x_1} + \frac{π^3}{2}"/>
+  <html:textarea id="input" rows="5" oninput="updateMath();"
+                 placeholder="\sqrt{x_1} + \frac{π^3}{2}"/>
   <vbox flex="1" style="overflow: auto; width: 30em; height: 5em;">
     <description id="output"/>
   </vbox>

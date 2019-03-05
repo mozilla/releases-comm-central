@@ -34,7 +34,7 @@
           <xul:description anonid="convStatus" class="plain conv-status" crop="end" />
         </hbox>
         <xul:stack anonid="conv-bottom" class="conv-bottom">
-          <xul:textbox anonid="inputBox" class="conv-textbox" multiline="true" flex="1"/>
+          <html:textarea anonid="inputBox" class="conv-textbox" flex="1"/>
           <xul:description anonid="charCounter" class="conv-counter" value="" right="0" bottom="0"/>
         </xul:stack>
       </xul:vbox>
@@ -379,7 +379,7 @@
         let lineHeight = parseInt(textboxStyle.getPropertyValue("line-height"));
 
         // Compute the overhead size.
-        let textboxHeight = textbox.inputField.clientHeight;
+        let textboxHeight = textbox.clientHeight;
         let deckHeight = textbox.parentNode.boxObject.height;
         this._TEXTBOX_VERTICAL_OVERHEAD = deckHeight - textboxHeight;
 
@@ -417,7 +417,7 @@
         this.calculateTextboxDefaultHeight();
         textbox.parentNode.height = textbox.defaultHeight +
                                     this._TEXTBOX_VERTICAL_OVERHEAD;
-        textbox.inputField.style.overflowY = "hidden";
+        textbox.style.overflowY = "hidden";
 
         if (Services.prefs.getBoolPref("mail.spellcheck.inline")) {
           textbox.setAttribute("spellcheck", "true");
@@ -842,7 +842,7 @@
           overflow = "hidden";
         }
 
-        inputBox.inputField.style.overflowY = overflow;
+        inputBox.style.overflowY = overflow;
       ]]>
       </body>
      </method>
@@ -851,8 +851,7 @@
       <parameter name="event"/>
       <body>
       <![CDATA[
-        let textbox = this.editor;
-        let input = textbox.inputField;
+        let input = this.editor;
 
         // This feature has been disabled, or the user is currently dragging
         // the splitter and the textbox has received an overflow event
@@ -869,7 +868,7 @@
         let topBoxStyle = window.getComputedStyle(topBox);
         let topMinSize = parseInt(topBoxStyle.getPropertyValue("min-height"));
         let topSize = parseInt(topBoxStyle.getPropertyValue("height"));
-        let deck = textbox.parentNode;
+        let deck = input.parentNode;
         let oldDeckHeight = parseInt(deck.height);
         let newDeckHeight =
           parseInt(input.scrollHeight) + this._TEXTBOX_VERTICAL_OVERHEAD;
@@ -926,7 +925,7 @@
       <![CDATA[
         const {TextboxSize} = ChromeUtils.import("resource:///modules/imTextboxUtils.jsm");
         if (TextboxSize.autoResize)
-          this.inputField.style.overflowY = "hidden";
+          this.style.overflowY = "hidden";
       ]]>
       </body>
      </method>
@@ -966,7 +965,7 @@
 
         // resend the event
         let clonedEvent = new KeyboardEvent("keypress", event);
-        this.editor.inputField.dispatchEvent(clonedEvent);
+        this.editor.dispatchEvent(clonedEvent);
       ]]>
       </body>
      </method>

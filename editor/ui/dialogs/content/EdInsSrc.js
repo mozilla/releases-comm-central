@@ -42,7 +42,6 @@ function Startup()
   }
   // Set initial focus
   gDialog.srcInput.focus();
-  // Note: We can't set the caret location in a multiline textbox
   SetWindowLocation();
 }
 

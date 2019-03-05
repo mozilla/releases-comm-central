@@ -20,7 +20,7 @@
         persist="screenX screenY"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         width="500"
-        xmlns:nc="http://home.netscape.com/NC-rdf#">
+        xmlns:html="http://www.w3.org/1999/xhtml">
 
     <script type="application/javascript"><![CDATA[
         function loadErrorPrompt() {
@@ -40,8 +40,7 @@
         }
     ]]></script>
     <vbox>
-        <textbox id="general-text" class="plain" readonly="true" 
-                 multiline="true" rows="3"/>
+        <html:textarea id="general-text" class="plain" readonly="readonly" rows="3"/>
         <hbox>
             <button id="details-button" label="&calendar.error.detail;" oncommand="toggleDetails()"/>
             <spacer flex="1"/>
@@ -58,8 +57,7 @@
                 </row>
                 <row flex="1">
                     <label value="&calendar.error.description;" control="error-description"/>
-                    <textbox id="error-description" class="plain" 
-                             readonly="true" multiline="true" rows="5"/>
+                    <html:textarea id="error-description" class="plain" readonly="readonly" rows="5"/>
                 </row>
             </rows>
         </grid>

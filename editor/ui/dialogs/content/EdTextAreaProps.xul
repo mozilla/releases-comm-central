@@ -15,6 +15,7 @@
 
 <dialog title="&windowTitle.label;"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         onload="Startup();"
         buttons="accept,cancel"
         ondialogaccept="return onAccept();"
@@ -95,7 +96,7 @@
         <row>
           <label control="TextAreaValue" value="&InitialText.label;" accesskey="&InitialText.accessKey;"/>
         </row>
-        <textbox id="TextAreaValue" flex="1" multiline="true" rows="5"/>
+        <html:textarea id="TextAreaValue" flex="1" rows="5"/>
       </rows>
     </grid>
   </groupbox>

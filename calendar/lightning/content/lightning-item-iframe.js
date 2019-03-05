@@ -2568,7 +2568,11 @@ function updateCalendar() {
     if (gIsReadOnly) {
         let disableElements = document.getElementsByAttribute("disable-on-readonly", "true");
         for (let element of disableElements) {
-            element.setAttribute("disabled", "true");
+            if (element.namespaceURI == "http://www.w3.org/1999/xhtml") {
+              element.setAttribute("disabled", "disabled");
+            } else {
+              element.setAttribute("disabled", "true");
+            }
 
             // we mark link-labels with the hyperlink attribute, since we need
             // to remove their class in case they get disabled. TODO: it would

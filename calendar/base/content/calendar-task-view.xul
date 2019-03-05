@@ -13,7 +13,8 @@
   <!ENTITY % dtd3 SYSTEM "chrome://calendar/locale/menuOverlay.dtd" > %dtd3;
 ]>
 
-<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml">
   <script type="application/javascript" src="chrome://calendar/content/calendar-task-tree.js"/>
   <script type="application/javascript" src="chrome://calendar/content/calendar-task-view.js"/>
   <script type="application/javascript" src="chrome://calendar/content/calendar-dialog-utils.js"/>
@@ -228,7 +229,9 @@
               </rows>
             </grid>
           </hbox>
-          <textbox id="calendar-task-details-description" multiline="true" flex="1"/>
+          <hbox flex="1">
+            <html:textarea id="calendar-task-details-description"/>
+          </hbox>
           <hbox id="calendar-task-details-attachment-row"
                align="top"
                hidden="true">

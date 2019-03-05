@@ -12,6 +12,7 @@
 
 <dialog id="certPicker" title="&certPicker.title;"
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
   style="width: 50em;"
   buttons="accept,cancel"
   ondialogaccept="return doOK();"
@@ -32,6 +33,5 @@
   </hbox>
   <separator class="thin"/>
   <label value="&certPicker.detailsLabel;"/>
-  <textbox readonly="true" id="details" multiline="true"
-           style="height: 12em;" flex="1"/>
+  <html:textarea id="details" readonly="readonly" style="height: 12em;" flex="1"/>
 </dialog>

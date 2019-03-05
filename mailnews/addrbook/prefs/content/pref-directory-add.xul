@@ -128,7 +128,7 @@
                  <label value="&searchFilter.label;"
                         accesskey="&searchFilter.accesskey;"
                         control="search"/>
-                 <textbox id="search" multiline="true" flex="1" disableiflocked="true"/>
+                 <html:textarea id="search" flex="1" disableiflocked="true"/>
               </row>
               <row align="center">
                 <label value="&saslMechanism.label;" control="saslMechanism" accesskey="&saslMechanism.accesskey;"/>

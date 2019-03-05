@@ -36,7 +36,8 @@
         ondialogcancel="return onCancel();"
         onresize="rearrangeAttendees();"
         persist="screenX screenY width height"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml">
 
   <!-- Javascript includes -->
   <script type="application/javascript"
@@ -357,10 +358,7 @@
       <separator class="groove" flex="1"/>
     </hbox>
     <box orient="horizontal" flex="1">
-      <textbox id="item-description"
-               multiline="true"
-               rows="6"
-               flex="1"/>
+      <html:textarea id="item-description" rows="6" flex="1"/>
     </box>
   </box>
 

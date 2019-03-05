@@ -147,11 +147,7 @@
     <label value="&noproxy.label;"
            accesskey="&noproxy.accesskey;"
            control="networkProxyNone"/>
-     <textbox id="networkProxyNone"
-              class="uri-element"
-              multiline="true"
-              rows="2"
-              preference="network.proxy.no_proxies_on"/>
+    <html:textarea id="networkProxyNone" rows="2" preference="network.proxy.no_proxies_on"/>
     <label value="&noproxyExplain.label;" control="networkProxyNone"/>
     <checkbox id="autologinProxy"
               label="&autologinproxy.label;"
