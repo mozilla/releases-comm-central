@@ -1,0 +1,13 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* ::::: thread labels decoration ::::: */
+
+/*
+ * This style sheet is empty and will be dynamically populated.
+ * To populate it, typically TagUtils.loadTagsIntoCSS(document)
+ * is called from the document's onload() handler.
+ * There is also TagUtils.addTagToAllDocumentSheets() which inserts
+ * CSS into this sheet on all open messenger and search windows.
+ */

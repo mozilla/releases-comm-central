@@ -36,6 +36,8 @@ var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 var {Color} = ChromeUtils.import("resource://gre/modules/Color.jsm");
+var {TagUtils} = ChromeUtils.import("resource:///modules/TagUtils.jsm");
+
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   LightweightThemeManager: "resource://gre/modules/LightweightThemeManager.jsm",
@@ -423,6 +425,8 @@ function AutoConfigWizard(okCallback) {
  * Called on startup to initialize various parts of the main window
  */
 function OnLoadMessenger() {
+  TagUtils.loadTagsIntoCSS(document);
+
   migrateMailnews();
   // Rig up our TabsInTitlebar early so that we can catch any resize events.
   TabsInTitlebar.init();

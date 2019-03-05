@@ -248,10 +248,9 @@ nsMsgDBView::GetPrefLocalizedString(const char *aPrefName,
 
 nsresult
 nsMsgDBView::AppendKeywordProperties(const nsACString& keywords,
-                                     nsAString& properties,
-                                     bool addSelectedTextProperty)
+                                     nsAString& properties)
 {
-  // Get the top most keyword's color and append that as a property.
+  // Get the top most keyword's CSS selector and append that as a property.
   nsresult rv;
   if (!mTagService)
   {
@@ -265,21 +264,13 @@ nsMsgDBView::AppendKeywordProperties(const nsACString& keywords,
   if (topKey.IsEmpty())
     return NS_OK;
 
-  nsCString color;
-  rv = mTagService->GetColorForKey(topKey, color);
-  if (NS_SUCCEEDED(rv) && !color.IsEmpty())
+  nsString selector;
+  rv = mTagService->GetSelectorForKey(topKey, selector);
+  if (NS_SUCCEEDED(rv))
   {
-    if (addSelectedTextProperty)
-    {
-      if (color.EqualsLiteral(LABEL_COLOR_WHITE_STRING))
-        properties.AppendLiteral(" lc-black");
-      else
-        properties.AppendLiteral(" lc-white");
-    }
-    color.Replace(0, 1, NS_LITERAL_CSTRING(LABEL_COLOR_STRING));
-    properties.AppendASCII(color.get());
+    properties.Append(' ');
+    properties.Append(selector);
   }
-
   return rv;
 }
 
@@ -1444,10 +1435,12 @@ nsMsgDBView::GetRowProperties(int32_t index,
 
   nsCString keywordProperty;
   FetchRowKeywords(index, msgHdr, keywordProperty);
-  if (keywordProperty.IsEmpty())
+  if (keywordProperty.IsEmpty()) {
     properties.AppendLiteral(" untagged");
-  else
-    AppendKeywordProperties(keywordProperty, properties, false);
+  } else {
+    AppendKeywordProperties(keywordProperty, properties);
+    properties.AppendLiteral(" tagged");
+  }
 
   // Give the custom column handlers a chance to style the row.
   for (int i = 0; i < m_customColumnHandlers.Count(); i++)
@@ -1577,10 +1570,12 @@ nsMsgDBView::GetCellProperties(int32_t aRow,
 
   nsCString keywords;
   FetchRowKeywords(aRow, msgHdr, keywords);
-  if (keywords.IsEmpty())
+  if (keywords.IsEmpty()) {
     properties.AppendLiteral(" untagged");
-  else
-    AppendKeywordProperties(keywords, properties, true);
+  } else {
+    AppendKeywordProperties(keywords, properties);
+    properties.AppendLiteral(" tagged");
+  }
 
   // This is a double fetch of the keywords property since we also fetch
   // it for the tags - do we want to do this?

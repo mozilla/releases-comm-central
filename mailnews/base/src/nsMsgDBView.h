@@ -69,9 +69,6 @@ public:
 #define PREF_LABELS_DESCRIPTION  "mailnews.labels.description."
 #define PREF_LABELS_COLOR  "mailnews.labels.color."
 
-#define LABEL_COLOR_STRING " lc-"
-#define LABEL_COLOR_WHITE_STRING "#FFFFFF"
-
 struct IdUint32
 {
   nsMsgKey    id;
@@ -407,8 +404,7 @@ protected:
   char16_t * GetString(const char16_t *aStringName);
   nsresult GetPrefLocalizedString(const char *aPrefName, nsString& aResult);
   nsresult AppendKeywordProperties(const nsACString& keywords,
-                                   nsAString& properties,
-                                   bool addSelectedTextProperty);
+                                   nsAString& properties);
   nsresult InitLabelStrings(void);
   nsresult CopyDBView(nsMsgDBView *aNewMsgDBView,
                       nsIMessenger *aMessengerInstance,

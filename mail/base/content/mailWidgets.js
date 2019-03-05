@@ -16,7 +16,7 @@ var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {DBViewWrapper} = ChromeUtils.import("resource:///modules/DBViewWrapper.jsm");
-var { Windows8WindowFrameColor } = ChromeUtils.import("resource:///modules/Windows8WindowFrameColor.jsm");
+var {TagUtils} = ChromeUtils.import("resource:///modules/TagUtils.jsm");
 
 class MozMailHeaderfield extends MozXULElement {
   connectedCallback() {
@@ -76,7 +76,7 @@ class MozMailHeaderfieldTags extends MozXULElement {
 
       let color = MailServices.tags.getColorForKey(tagsArray[i]);
       let textColor = "black";
-      if (!Windows8WindowFrameColor.isColorContrastEnough(color)) {
+      if (!TagUtils.isColorContrastEnough(color)) {
         textColor = "white";
       }
 

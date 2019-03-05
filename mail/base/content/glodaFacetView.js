@@ -17,7 +17,7 @@ var { StringBundle } = ChromeUtils.import("resource:///modules/StringBundle.js")
 var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var { Windows8WindowFrameColor } = ChromeUtils.import("resource:///modules/Windows8WindowFrameColor.jsm");
+var { TagUtils } = ChromeUtils.import("resource:///modules/TagUtils.jsm");
 var {
   logObject,
   logException,
@@ -99,7 +99,7 @@ const QueryExplanation = {
           const tagNode = document.createElement("span");
           const color = MailServices.tags.getColorForKey(tag.key);
           let textColor = "black";
-          if (!Windows8WindowFrameColor.isColorContrastEnough(color)) {
+          if (!TagUtils.isColorContrastEnough(color)) {
             textColor = "white";
           }
           tagNode.setAttribute("class", "message-tag");

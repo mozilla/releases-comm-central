@@ -15,6 +15,7 @@
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+var {TagUtils} = ChromeUtils.import("resource:///modules/TagUtils.jsm");
 
 var gCurrentFolder;
 
@@ -219,6 +220,7 @@ SearchFolderDisplayWidget.prototype = {
 
 
 function searchOnLoad() {
+  TagUtils.loadTagsIntoCSS(document);
   initializeSearchWidgets();
   initializeSearchWindowWidgets();
   messenger = Cc["@mozilla.org/messenger;1"]

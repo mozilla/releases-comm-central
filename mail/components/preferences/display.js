@@ -8,6 +8,7 @@
 /* import-globals-from ../../../../toolkit/mozapps/preferences/fontbuilder.js */
 /* import-globals-from preferences.js */
 /* import-globals-from subdialogs.js */
+var {TagUtils} = ChromeUtils.import("resource:///modules/TagUtils.jsm");
 
 document.getElementById("paneDisplay")
         .addEventListener("paneload", function() { gDisplayPane.init(); });
@@ -304,7 +305,11 @@ var gDisplayPane = {
 function addTagCallback(aName, aColor) {
   MailServices.tags.addTag(aName, aColor, "");
 
-  var item = gDisplayPane.appendTagItem(aName, MailServices.tags.getKeyForTag(aName), aColor);
+  // Add to style sheet.
+  let key = MailServices.tags.getKeyForTag(aName);
+  TagUtils.addTagToAllDocumentSheets(key, aColor);
+
+  var item = gDisplayPane.appendTagItem(aName, key, aColor);
   var tagListBox = document.getElementById("tagList");
   tagListBox.ensureElementIsVisible(item);
   tagListBox.selectItem(item);
@@ -313,13 +318,19 @@ function addTagCallback(aName, aColor) {
 
 function editTagCallback() {
   // update the values of the selected item
-  var tagListEl = document.getElementById("tagList");
-  var index = tagListEl.selectedIndex;
-  if (index >= 0) {
-    var tagElToEdit = tagListEl.getItemAtIndex(index);
-    var key = tagElToEdit.getAttribute("value");
-    // update the color and label elements
-    tagElToEdit.setAttribute("label", MailServices.tags.getTagForKey(key));
-    tagElToEdit.style.color = MailServices.tags.getColorForKey(key);
-  }
+  let tagListEl = document.getElementById("tagList");
+  let index = tagListEl.selectedIndex;
+  if (index < 0)
+    return;
+
+  let tagElToEdit = tagListEl.getItemAtIndex(index);
+  let key = tagElToEdit.getAttribute("value");
+  let color = MailServices.tags.getColorForKey(key);
+  // update the color and label elements
+  tagElToEdit.setAttribute("label", MailServices.tags.getTagForKey(key));
+  tagElToEdit.style.color = color;
+
+  // Add to style sheet. We simply add the new color, the rule is added at the
+  // end and will overrule the previous rule.
+  TagUtils.addTagToAllDocumentSheets(key, color);
 }

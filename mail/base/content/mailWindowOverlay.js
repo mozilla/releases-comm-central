@@ -24,6 +24,7 @@ var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 var {AddonManager} = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
+var {TagUtils} = ChromeUtils.import("resource:///modules/TagUtils.jsm");
 
 var {BrowserToolboxProcess} = ChromeUtils.import("resource://devtools/client/framework/ToolboxProcess.jsm");
 var {ScratchpadManager} = ChromeUtils.import("resource://devtools/client/scratchpad/scratchpad-manager.jsm");
@@ -933,8 +934,11 @@ function ManageTags() {
 
 function AddTagCallback(name, color) {
   MailServices.tags.addTag(name, color, "");
+  let key = MailServices.tags.getKeyForTag(name);
+  TagUtils.addTagToAllDocumentSheets(key, color);
+
   try {
-    ToggleMessageTag(MailServices.tags.getKeyForTag(name), true);
+    ToggleMessageTag(key, true);
   } catch (ex) {
     return false;
   }

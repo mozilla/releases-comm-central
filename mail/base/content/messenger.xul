@@ -6,6 +6,7 @@
 #filter substitution
 #define MAIN_WINDOW
 <?xml-stylesheet href="chrome://messenger/skin/mailWindow1.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/tagColors.css" type="text/css"?>
 <?xml-stylesheet href="chrome://gloda/content/glodacomplete.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/content/bindings.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/content/tabmail.css" type="text/css"?>

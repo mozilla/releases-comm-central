@@ -6,7 +6,7 @@
 /* global logException, Gloda */
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {Windows8WindowFrameColor} = ChromeUtils.import("resource:///modules/Windows8WindowFrameColor.jsm");
+var {TagUtils} = ChromeUtils.import("resource:///modules/TagUtils.jsm");
 
 class MozFacetDate extends HTMLElement {
   get build() {
@@ -1534,7 +1534,7 @@ class MozFacetResultMessage extends HTMLElement {
         let tagNode = document.createElement("span");
         let color = MailServices.tags.getColorForKey(tag.key);
         let textColor = "black";
-        if (!Windows8WindowFrameColor.isColorContrastEnough(color)) {
+        if (!TagUtils.isColorContrastEnough(color)) {
           textColor = "white";
         }
         tagNode.setAttribute("class", "message-tag");

@@ -49,6 +49,7 @@ interface nsIMsgTagService : nsISupports {
   AString getTagForKey(in ACString key); // look up the tag for a key.
   void setTagForKey(in ACString key, in AString tag); // this can be used to "rename" a tag
   ACString getColorForKey(in ACString key);
+  AString getSelectorForKey(in ACString key);  // return wide string to avoid conversion
   void setColorForKey(in ACString key, in ACString color);
   ACString getOrdinalForKey(in ACString key);
   void setOrdinalForKey(in ACString key, in ACString ordinal);
