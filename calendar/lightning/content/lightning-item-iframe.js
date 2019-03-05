@@ -2569,9 +2569,9 @@ function updateCalendar() {
         let disableElements = document.getElementsByAttribute("disable-on-readonly", "true");
         for (let element of disableElements) {
             if (element.namespaceURI == "http://www.w3.org/1999/xhtml") {
-              element.setAttribute("disabled", "disabled");
+                element.setAttribute("disabled", "disabled");
             } else {
-              element.setAttribute("disabled", "true");
+                element.setAttribute("disabled", "true");
             }
 
             // we mark link-labels with the hyperlink attribute, since we need
