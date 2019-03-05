@@ -2,5 +2,5 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
-Preferences.set("calendar.icaljs", false);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+Services.prefs.setBoolPref("calendar.icaljs", false);

@@ -51,7 +51,7 @@ calCalendarManager.prototype = {
 
         // We only add the observer if the pref is set and only check for the
         // pref on startup to avoid checking for every http request
-        if (Preferences.get("calendar.network.multirealm", false)) {
+        if (Services.prefs.getBoolPref("calendar.network.multirealm", false)) {
             Services.obs.addObserver(this, "http-on-examine-response");
         }
 
@@ -73,7 +73,7 @@ calCalendarManager.prototype = {
         // Remove the observer if the pref is set. This might fail when the
         // user flips the pref, but we assume he is going to restart anyway
         // afterwards.
-        if (Preferences.get("calendar.network.multirealm", false)) {
+        if (Services.prefs.getBoolPref("calendar.network.multirealm", false)) {
             Services.obs.removeObserver(this, "http-on-examine-response");
         }
 
@@ -151,7 +151,7 @@ calCalendarManager.prototype = {
                     // NOTE: For some reason, this observer call doesn't have
                     // the "cal" namespace defined
                     let userAgent = httpChannel.getRequestHeader("User-Agent");
-                    let calUAString = Preferences.get("calendar.useragent.extra", "").trim();
+                    let calUAString = Services.prefs.getStringPref("calendar.useragent.extra", "").trim();
 
                     // Don't add an empty string or an already included token.
                     if (calUAString && !userAgent.includes(calUAString)) {
@@ -259,8 +259,8 @@ calCalendarManager.prototype = {
 
             while (selectCalendars.executeStep()) {
                 let id = cal.getUUID(); // use fresh uuids
-                Preferences.set(getPrefBranchFor(id) + "type", selectCalendars.row.type);
-                Preferences.set(getPrefBranchFor(id) + "uri", selectCalendars.row.uri);
+                Services.prefs.setCharPref(getPrefBranchFor(id) + "type", selectCalendars.row.type);
+                Services.prefs.setCharPref(getPrefBranchFor(id) + "uri", selectCalendars.row.uri);
                 // the former id served as sort position:
                 sortOrder[selectCalendars.row.id] = id;
                 // move over prefs:
@@ -270,13 +270,13 @@ calCalendarManager.prototype = {
                     let value = selectPrefs.row.value;
                     switch (name) {
                         case "readonly":
-                            Preferences.set(getPrefBranchFor(id) + "readOnly", value == "true");
+                            Services.prefs.setBoolPref(getPrefBranchFor(id) + "readOnly", value == "true");
                             break;
                         case "relaxedmode":
-                            Preferences.set(getPrefBranchFor(id) + "relaxedMode", value == "true");
+                            Services.prefs.setBoolPref(getPrefBranchFor(id) + "relaxedMode", value == "true");
                             break;
                         case "suppressalarms":
-                            Preferences.set(getPrefBranchFor(id) + "suppressAlarms", value == "true");
+                            Services.prefs.setBoolPref(getPrefBranchFor(id) + "suppressAlarms", value == "true");
                             break;
                         case "disabled":
                         case "cache.supported":
@@ -284,15 +284,15 @@ calCalendarManager.prototype = {
                         case "cache.enabled":
                         case "calendar-main-in-composite":
                         case "calendar-main-default":
-                            Preferences.set(getPrefBranchFor(id) + name, value == "true");
+                            Services.prefs.setBoolPref(getPrefBranchFor(id) + name, value == "true");
                             break;
                         case "backup-time":
                         case "uniquenum":
                             // These preference names were migrated due to bug 979262.
-                            Preferences.set(getPrefBranchFor(id) + name + "2", "bignum:" + value);
+                            Services.prefs.setStringPref(getPrefBranchFor(id) + name + "2", "bignum:" + value);
                             break;
                         default: // keep as string
-                            Preferences.set(getPrefBranchFor(id) + name, value);
+                            Services.prefs.setStringPref(getPrefBranchFor(id) + name, value);
                             break;
                     }
                 }
@@ -303,7 +303,7 @@ calCalendarManager.prototype = {
             for (let id in sortOrder) {
                 sortOrderAr.push(sortOrder[id]);
             }
-            Preferences.set("calendar.list.sortOrder", sortOrderAr.join(" "));
+            Services.prefs.setStringPref("calendar.list.sortOrder", sortOrderAr.join(" "));
             flushPrefs();
         } finally {
             selectPrefs.reset();
@@ -490,8 +490,8 @@ calCalendarManager.prototype = {
             calendar.id = cal.getUUID();
         }
 
-        Preferences.set(getPrefBranchFor(calendar.id) + "type", calendar.type);
-        Preferences.set(getPrefBranchFor(calendar.id) + "uri", calendar.uri.spec);
+        Services.prefs.setStringPref(getPrefBranchFor(calendar.id) + "type", calendar.type);
+        Services.prefs.setStringPref(getPrefBranchFor(calendar.id) + "uri", calendar.uri.spec);
 
         if ((calendar.getProperty("cache.supported") !== false) &&
             (calendar.getProperty("cache.enabled") ||
@@ -649,8 +649,8 @@ calCalendarManager.prototype = {
 
             for (let calBranch in allCals) {
                 let id = calBranch.substring(REGISTRY_BRANCH.length);
-                let ctype = Preferences.get(calBranch + ".type", null);
-                let curi = Preferences.get(calBranch + ".uri", null);
+                let ctype = Services.prefs.getStringPref(calBranch + ".type", null);
+                let curi = Services.prefs.getStringPref(calBranch + ".uri", null);
 
                 try {
                     if (!ctype || !curi) { // sanity check
@@ -845,7 +845,7 @@ calMgrCalendarObserver.prototype = {
 
         if (aOldValue != aValue) {
             // Try to find the current sort order
-            let sortOrderPref = Preferences.get("calendar.list.sortOrder", "").split(" ");
+            let sortOrderPref = Services.prefs.getStringPref("calendar.list.sortOrder", "").split(" ");
             let initialSortOrderPos = null;
             for (let i = 0; i < sortOrderPref.length; ++i) {
                 if (sortOrderPref[i] == aCalendar.id) {

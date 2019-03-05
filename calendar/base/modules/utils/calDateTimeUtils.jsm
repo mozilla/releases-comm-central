@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calUtils.jsm", "cal");
@@ -52,7 +52,7 @@ var caldtz = {
             // Add the timezone if its not already the default timezone
             recentTimezones.unshift(aTzid);
             recentTimezones.splice(MAX_RECENT_TIMEZONES);
-            Preferences.set("calendar.timezone.recent", JSON.stringify(recentTimezones));
+            Services.prefs.setStringPref("calendar.timezone.recent", JSON.stringify(recentTimezones));
         }
     },
 
@@ -105,7 +105,7 @@ var caldtz = {
 
         if (cal.item.isEvent(aItem)) {
             aItem.endDate = aItem.startDate.clone();
-            aItem.endDate.minute += Preferences.get("calendar.event.defaultlength", 60);
+            aItem.endDate.minute += Services.prefs.getIntPref("calendar.event.defaultlength", 60);
         }
     },
 
@@ -347,7 +347,7 @@ var caldtz = {
      * @return                  An array of timezone ids or calITimezones.
      */
     getRecentTimezones: function(aConvertZones) {
-        let recentTimezones = JSON.parse(Preferences.get("calendar.timezone.recent", "[]") || "[]");
+        let recentTimezones = JSON.parse(Services.prefs.getStringPref("calendar.timezone.recent", "[]") || "[]");
         if (!Array.isArray(recentTimezones)) {
             recentTimezones = [];
         }
@@ -370,7 +370,7 @@ var caldtz = {
             if (oldZonesLength != recentTimezones.length) {
                 // Looks like the one or other timezone dropped out. Go ahead and
                 // modify the pref.
-                Preferences.set(
+                Services.prefs.setStringPref(
                     "calendar.timezone.recent",
                     JSON.stringify(recentTimezones.map(zone => zone.tzid))
                 );

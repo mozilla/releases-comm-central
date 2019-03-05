@@ -12,7 +12,6 @@
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { countOccurrences } = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 /**
  * Controller for the views
@@ -496,7 +495,7 @@ var categoryManagement = {
             }
         }
 
-        let color = Preferences.get("calendar.category.color." + aCatName) || "";
+        let color = Services.prefs.getStringPref("calendar.category.color." + aCatName, "");
         this.categoryStyleCache[aCatName].style.backgroundColor = color;
     }
 };

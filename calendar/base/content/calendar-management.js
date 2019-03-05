@@ -11,7 +11,6 @@
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 /**
  * Get this window's currently selected calendar.
@@ -121,12 +120,12 @@ function initHomeCalendar() {
     let homeCalendar = calMgr.createCalendar("storage", url);
     homeCalendar.name = cal.l10n.getCalString("homeCalendarName");
     calMgr.registerCalendar(homeCalendar);
-    Preferences.set("calendar.list.sortOrder", homeCalendar.id);
+    Services.prefs.setStringPref("calendar.list.sortOrder", homeCalendar.id);
     composite.addCalendar(homeCalendar);
 
     // Wrapping this in a try/catch block, as if any of the migration code
     // fails, the app may not load.
-    if (Preferences.get("calendar.migrator.enabled", true)) {
+    if (Services.prefs.getBoolPref("calendar.migrator.enabled", true)) {
         try {
             gDataMigrator.checkAndMigrate();
         } catch (e) {
@@ -155,7 +154,7 @@ function unloadCalendarManager() {
  */
 function updateSortOrderPref(event) {
     let sortOrderString = event.sortOrder.join(" ");
-    Preferences.set("calendar.list.sortOrder", sortOrderString);
+    Services.prefs.setStringPref("calendar.list.sortOrder", sortOrderString);
     try {
         Services.prefs.savePrefFile(null);
     } catch (e) {

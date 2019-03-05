@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
@@ -16,7 +15,7 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
  * @return          If true, pasting is currently possible.
  */
 function canPaste() {
-    if (Preferences.get("calendar.paste.intoSelectedCalendar", false)) {
+    if (Services.prefs.getBoolPref("calendar.paste.intoSelectedCalendar", false)) {
         let selectedCal = getSelectedCalendar();
         if (!selectedCal ||
             !cal.acl.isCalendarWritable(selectedCal) ||
@@ -215,7 +214,7 @@ function pasteFromClipboard() {
 
             let notify = Ci.calIItipItem.USER;
             let destCal = null;
-            if (Preferences.get("calendar.paste.intoSelectedCalendar", false)) {
+            if (Services.prefs.getBoolPref("calendar.paste.intoSelectedCalendar", false)) {
                 destCal = getSelectedCalendar();
             } else {
                 let pasteText = "paste";

@@ -6,7 +6,7 @@ var MODULE_NAME = "testUTF8";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers"];
 
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var EVENT_BOX, CANVAS_BOX;
 var helpersForController, invokeEventDialog, closeAllEventDialogs, createCalendar, deleteCalendars;
@@ -32,7 +32,7 @@ function setupModule(module) {
     collector.getModule("item-editing-helpers").setupModule(module);
 
     createCalendar(controller, UTF8STRING);
-    Preferences.set("calendar.categories.names", UTF8STRING);
+    Services.prefs.setStringPref("calendar.categories.names", UTF8STRING);
 }
 
 function testUTF8() {
@@ -75,6 +75,6 @@ testUTF8.EXCLUDED_PLATFORMS = ["darwin"];
 
 function teardownTest(module) {
     deleteCalendars(controller, UTF8STRING);
-    Preferences.reset("calendar.categories.names");
+    Services.prefs.clearUserPref("calendar.categories.names");
     closeAllEventDialogs();
 }

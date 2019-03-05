@@ -6,7 +6,6 @@
 
 var {OAuth2} = ChromeUtils.import("resource:///modules/OAuth2.jsm");
 var {OAuth2Providers} = ChromeUtils.import("resource:///modules/OAuth2Providers.jsm");
-var {Preferences} = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
@@ -35,8 +34,8 @@ OAuth2Module.prototype = {
   },
   _initPrefs(root, aUsername, aHostname) {
     // Load all of the parameters from preferences.
-    let issuer = Preferences.get(root + "oauth2.issuer", "");
-    let scope = Preferences.get(root + "oauth2.scope", "");
+    let issuer = Services.prefs.getStringPref(root + "oauth2.issuer", "");
+    let scope = Services.prefs.getStringPref(root + "oauth2.scope", "");
 
     // These properties are absolutely essential to OAuth2 support. If we don't
     // have them, we don't support OAuth2.
@@ -46,8 +45,8 @@ OAuth2Module.prototype = {
       if (details)
       {
         [issuer, scope] = details;
-        Preferences.set(root + "oauth2.issuer", issuer);
-        Preferences.set(root + "oauth2.scope", scope);
+        Services.prefs.setStringPref(root + "oauth2.issuer", issuer);
+        Services.prefs.setStringPref(root + "oauth2.scope", scope);
       }
       else
         return false;

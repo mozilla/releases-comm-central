@@ -19,7 +19,6 @@ var {
 } = ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-var {Preferences} = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
@@ -760,8 +759,8 @@ function AbOSXAddressBookExists() {
   // I can't think of a better way though.
 
   // See if the pref exists, if so, then we need to delete the address book
-  var uriPresent = Preferences.get(kOSXPrefBase + ".uri", null) == kOSXDirectoryURI;
-  var position = Preferences.get(kOSXPrefBase + ".position", 1);
+  var uriPresent = Services.prefs.getStringPref(kOSXPrefBase + ".uri", null) == kOSXDirectoryURI;
+  var position = Services.prefs.getIntPref(kOSXPrefBase + ".position", 1);
 
   // Address book exists if the uri is correct and the position is not zero.
   return uriPresent && position != 0;

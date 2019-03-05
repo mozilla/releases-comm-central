@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var localeEn = {
     headTitle:       "Subject",
@@ -265,7 +265,7 @@ calOutlookCSVImporter.prototype = {
                         // end date is exclusive, so set to next day after start.
                         eDate.day += 1;
                     } else {
-                        eDate.minute += Preferences.get("calendar.event.defaultlength", 60);
+                        eDate.minute += Services.prefs.getIntPref("calendar.event.defaultlength", 60);
                     }
                 } else if (sDate.isDate) {
                     // A time part for the startDate is missing or was

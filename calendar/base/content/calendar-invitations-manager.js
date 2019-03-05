@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /* exported getInvitationsManager */
 
@@ -88,10 +88,10 @@ InvitationsManager.prototype = {
         this.cancelInvitationsUpdate();
 
         this.mTimer = setTimeout(() => {
-            if (Preferences.get("calendar.invitations.autorefresh.enabled", true)) {
+            if (Services.prefs.getBoolPref("calendar.invitations.autorefresh.enabled", true)) {
                 this.mTimer = setInterval(() => {
                     this.getInvitations(operationListener);
-                }, Preferences.get("calendar.invitations.autorefresh.timeout", 3) * 60000);
+                }, Services.prefs.getIntPref("calendar.invitations.autorefresh.timeout", 3) * 60000);
             }
             this.getInvitations(operationListener);
         }, firstDelay);

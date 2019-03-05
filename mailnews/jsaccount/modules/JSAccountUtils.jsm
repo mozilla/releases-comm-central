@@ -34,7 +34,7 @@ const EXPORTED_SYMBOLS = ["JSAccountUtils"];
 var JSAccountUtils = {};
 
 const {Log} = ChromeUtils.import("resource://gre/modules/Log.jsm");
-const {Preferences} = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 // Logger definitions.
@@ -268,10 +268,10 @@ function configureLogging()
   log.addAppender(consoleAppender);
 
   // Make sure the logger keeps up with the logging level preference.
-  log.level = Log.Level[Preferences.get(PREF_LOG_LEVEL, LOG_LEVEL_DEFAULT)];
+  log.level = Log.Level[Services.prefs.getStringPref(PREF_LOG_LEVEL, LOG_LEVEL_DEFAULT)];
 
   // If enabled in the preferences, add a dump appender.
-  let logDumping = Preferences.get(PREF_LOG_DUMP, LOG_DUMP_DEFAULT);
+  let logDumping = Services.prefs.getBoolPref(PREF_LOG_DUMP, LOG_DUMP_DEFAULT);
   if (logDumping) {
     let dumpAppender = new Log.DumpAppender(new Log.BasicFormatter());
     log.addAppender(dumpAppender);

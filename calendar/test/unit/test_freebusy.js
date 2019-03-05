@@ -52,7 +52,7 @@ function test_period() {
     equal(period.duration.icalString, "PT1S");
 
     period.makeImmutable();
-    if (!Preferences.get("calendar.icaljs", false)) {
+    if (!Services.prefs.getBoolPref("calendar.icaljs", false)) {
         // ical.js doesn't support immutability yet
         throws(() => {
             period.start = cal.createDateTime("20120202T020202");

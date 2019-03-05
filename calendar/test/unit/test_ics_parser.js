@@ -9,7 +9,7 @@ function run_test() {
 function really_run_test() {
     test_roundtrip();
     test_async();
-    if (Preferences.get("calendar.icaljs", false)) {
+    if (Services.prefs.getBoolPref("calendar.icaljs", false)) {
         test_failures();
     }
     test_fake_parent();

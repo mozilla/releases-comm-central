@@ -4,7 +4,7 @@
 
 var { ltn } = ChromeUtils.import("resource://calendar/modules/ltnInvitationUtils.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function run_test() {
     do_calendar_startup(run_next_test);
@@ -508,12 +508,12 @@ add_task(async function compareInvitationOverlay_test() {
     // make sure that the Europe/Berlin timezone and long datetime format is set
     // and to use the app locale to avoid test failures when running locally on
     // an OS with a regional setting other than en-US
-    let dateformat = Preferences.get("calendar.date.format", 0);
-    let tzlocal = Preferences.get("calendar.timezone.local", "Europe/Berlin");
-    let useOsLocale = Preferences.get("intl.regional_prefs.use_os_locales", false);
-    Preferences.set("intl.regional_prefs.use_os_locales", false);
-    Preferences.set("calendar.date.format", 0);
-    Preferences.set("calendar.timezone.local", "Europe/Berlin");
+    let dateformat = Services.prefs.getIntPref("calendar.date.format", 0);
+    let tzlocal = Services.prefs.getStringPref("calendar.timezone.local", "Europe/Berlin");
+    let useOsLocale = Services.prefs.getBoolPref("intl.regional_prefs.use_os_locales", false);
+    Services.prefs.setBoolPref("intl.regional_prefs.use_os_locales", false);
+    Services.prefs.setIntPref("calendar.date.format", 0);
+    Services.prefs.setStringPref("calendar.timezone.local", "Europe/Berlin");
     let i = 0;
     for (let test of data) {
         i++;
@@ -546,9 +546,9 @@ add_task(async function compareInvitationOverlay_test() {
         }
     }
     // let's reset setting
-    Preferences.set("calendar.date.format", dateformat);
-    Preferences.set("calendar.timezone.local", tzlocal);
-    Preferences.set("intl.regional_prefs.use_os_locales", useOsLocale);
+    Services.prefs.setIntPref("calendar.date.format", dateformat);
+    Services.prefs.setStringPref("calendar.timezone.local", tzlocal);
+    Services.prefs.setBoolPref("intl.regional_prefs.use_os_locales", useOsLocale);
 });
 
 add_task(async function getHeaderSection_test() {
@@ -777,19 +777,19 @@ add_task(async function getRfc5322FormattedDate_test() {
     };
 
     let i = 0;
-    let timezone = Preferences.get("calendar.timezone.local", null);
+    let timezone = Services.prefs.getStringPref("calendar.timezone.local", null);
     for (let test of data.input) {
         i++;
         if (test.timezone) {
-            Preferences.set("calendar.timezone.local", test.timezone);
+            Services.prefs.setStringPref("calendar.timezone.local", test.timezone);
         } else {
-            Preferences.reset("calendar.timezone.local");
+            Services.prefs.clearUserPref("calendar.timezone.local");
         }
         let date = test.date ? new Date(test.date) : null;
         let re = new RegExp(data.expected);
         ok(re.test(ltn.invitation.getRfc5322FormattedDate(date)), "(test #" + i + ")");
     }
-    Preferences.set("calendar.timezone.local", timezone);
+    Services.prefs.setStringPref("calendar.timezone.local", timezone);
 });
 
 add_task(async function parseCounter_test() {
@@ -1031,8 +1031,8 @@ add_task(async function parseCounter_test() {
 
     // make sure to use the app locale to avoid test failures when running
     // locally on an OS with a regional setting other than en-US
-    let useOsLocale = Preferences.get("intl.regional_prefs.use_os_locales", false);
-    Preferences.set("intl.regional_prefs.use_os_locales", false);
+    let useOsLocale = Services.prefs.getBoolPref("intl.regional_prefs.use_os_locales", false);
+    Services.prefs.setBoolPref("intl.regional_prefs.use_os_locales", false);
 
     let getItem = function(aProperties) {
         let item = getIcs(true);
@@ -1142,5 +1142,5 @@ add_task(async function parseCounter_test() {
                                      "missing properties " + missingProps + ")");
     }
 
-    Preferences.set("intl.regional_prefs.use_os_locales", useOsLocale);
+    Services.prefs.setBoolPref("intl.regional_prefs.use_os_locales", useOsLocale);
 });

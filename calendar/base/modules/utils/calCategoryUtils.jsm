@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calUtils.jsm", "cal");
@@ -25,14 +25,14 @@ var calcategory = {
     setupDefaultCategories: function() {
         // First, set up the category names
         let categories = cal.l10n.getString("categories", "categories2");
-        Preferences.set("calendar.categories.names", categories);
+        Services.prefs.setStringPref("calendar.categories.names", categories);
 
         // Now, initialize the category default colors
         let categoryArray = calcategory.stringToArray(categories);
         for (let category of categoryArray) {
             let prefName = cal.view.formatStringForCSSRule(category);
-            Preferences.set("calendar.category.color." + prefName,
-                            cal.view.hashColor(category));
+            Services.prefs.setStringPref("calendar.category.color." + prefName,
+                                         cal.view.hashColor(category));
         }
 
         // Return the list of categories for further processing
@@ -46,7 +46,7 @@ var calcategory = {
      * @return                      array of category names
      */
     fromPrefs: function() {
-        let categories = Preferences.get("calendar.categories.names", null);
+        let categories = Services.prefs.getStringPref("calendar.categories.names", null);
 
         // If no categories are configured load a default set from properties file
         if (!categories) {

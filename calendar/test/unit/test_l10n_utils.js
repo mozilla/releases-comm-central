@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function run_test() {
@@ -54,7 +53,7 @@ add_task(async function calendarInfo_test() {
             ]
         }
     }];
-    let useOSLocaleFormat = Preferences.get("intl.regional_prefs.use_os_locales", false);
+    let useOSLocaleFormat = Services.prefs.getBoolPref("intl.regional_prefs.use_os_locales", false);
     let osprefs = Cc["@mozilla.org/intl/ospreferences;1"].getService(Ci.mozIOSPreferences);
     let appLocale = Services.locale.appLocalesAsBCP47[0];
     let rsLocale = osprefs.regionalPrefsLocales[0];
@@ -76,7 +75,7 @@ add_task(async function calendarInfo_test() {
             // if aLocale is null we test with the current date and time formatting setting
             // let's test the caching mechanism - this test section is pointless if app and
             // OS locale are the same like probably on automation
-            Preferences.set("intl.regional_prefs.use_os_locales", !useOSLocaleFormat);
+            Services.prefs.setBoolPref("intl.regional_prefs.use_os_locales", !useOSLocaleFormat);
             let info2 = cal.l10n.calendarInfo();
             equal(
                 Object.keys(info).length,
@@ -95,7 +94,7 @@ add_task(async function calendarInfo_test() {
             // we reset the cache and test again - it's suffient here to find one changed property,
             // so we use locale since that must change always in that scenario
             // info2 = cal.l10n.calendarInfo(null, true);
-            Preferences.set("intl.regional_prefs.use_os_locales", useOSLocaleFormat);
+            Services.prefs.setBoolPref("intl.regional_prefs.use_os_locales", useOSLocaleFormat);
             // This is currently disabled since the code actually doesn't reset the cache anyway.
             // When re-enabling, be aware that macOS returns just "en" for rsLocale while other
             // OS provide "en-US".

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calUtils.jsm", "cal");
@@ -26,17 +26,17 @@ var calalarms = {
      */
     setDefaultValues: function(aItem) {
         let type = cal.item.isEvent(aItem) ? "event" : "todo";
-        if (Preferences.get("calendar.alarms.onfor" + type + "s", 0) == 1) {
+        if (Services.prefs.getIntPref("calendar.alarms.onfor" + type + "s", 0) == 1) {
             let alarmOffset = cal.createDuration();
             let alarm = cal.createAlarm();
-            let units = Preferences.get("calendar.alarms." + type + "alarmunit", "minutes");
+            let units = Services.prefs.getStringPref("calendar.alarms." + type + "alarmunit", "minutes");
 
             // Make sure the alarm pref is valid, default to minutes otherwise
             if (!["weeks", "days", "hours", "minutes", "seconds"].includes(units)) {
                 units = "minutes";
             }
 
-            alarmOffset[units] = Preferences.get("calendar.alarms." + type + "alarmlen", 0);
+            alarmOffset[units] = Services.prefs.getIntPref("calendar.alarms." + type + "alarmlen", 0);
             alarmOffset.normalize();
             alarmOffset.isNegative = true;
             if (type == "todo" && !aItem.entryDate) {

@@ -4,7 +4,6 @@
 
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
@@ -707,8 +706,8 @@ calICSCalendar.prototype = {
             }
         }
 
-        let backupDays = Preferences.get("calendar.backup.days", 1);
-        let numBackupFiles = Preferences.get("calendar.backup.filenum", 3);
+        let backupDays = Services.prefs.getIntPref("calendar.backup.days", 1);
+        let numBackupFiles = Services.prefs.getIntPref("calendar.backup.filenum", 3);
 
         let backupDir;
         try {

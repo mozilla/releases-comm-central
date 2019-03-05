@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
@@ -1126,17 +1125,17 @@ function scheduleNextCurrentEventUpdate(aRefreshCallback, aMsUntil) {
  **/
 function getSoondaysPreference() {
     let prefName = "calendar.agendaListbox.soondays";
-    let soonpref = Preferences.get(prefName, 5);
+    let soonpref = Services.prefs.getIntPref(prefName, 5);
 
     if (soonpref > 0 && soonpref <= 28) {
         if (soonpref % 7 != 0) {
             let intSoonpref = Math.floor(soonpref / 7) * 7;
             soonpref = (intSoonpref == 0 ? soonpref : intSoonpref);
-            Preferences.set(prefName, soonpref, "INT");
+            Services.prefs.setIntPref(prefName, soonpref);
         }
     } else {
         soonpref = soonpref > 28 ? 28 : 1;
-        Preferences.set(prefName, soonpref, "INT");
+        Services.prefs.setIntPref(prefName, soonpref);
     }
     return soonpref;
 }

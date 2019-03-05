@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calUtils.jsm", "cal");
@@ -43,7 +43,7 @@ var calprint = {
 
         for (let category of categories) {
             let prefName = cal.view.formatStringForCSSRule(category);
-            let color = Preferences.get("calendar.category.color." + prefName) || "transparent";
+            let color = Services.prefs.getStringPref("calendar.category.color." + prefName, "transparent");
             if (!(prefName in sheet.insertedCategoryRules)) {
                 sheet.insertedCategoryRules[prefName] = true;
                 let ruleAdd = ' .category-color-box[categories~="' + prefName + '"] { ' +

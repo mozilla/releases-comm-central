@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
@@ -105,7 +104,7 @@ var calauth = {
                 return true;
             } else {
                 let savePasswordLabel = null;
-                if (Preferences.get("signon.rememberSignons", true)) {
+                if (Services.prefs.getBoolPref("signon.rememberSignons", true)) {
                     savePasswordLabel = cal.l10n.getAnyString("passwordmgr",
                                                               "passwordmgr",
                                                               "rememberPassword");
@@ -206,7 +205,7 @@ var calauth = {
 
         // Only show the save password box if we are supposed to.
         let savepassword = null;
-        if (Preferences.get("signon.rememberSignons", true)) {
+        if (Services.prefs.getBoolPref("signon.rememberSignons", true)) {
             savepassword = cal.l10n.getAnyString("passwordmgr", "passwordmgr", "rememberPassword");
         }
 

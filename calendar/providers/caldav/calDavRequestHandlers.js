@@ -4,7 +4,6 @@
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 var xmlHeader = '<?xml version="1.0" encoding="UTF-8"?>\n';
 var MIME_TEXT_XML = "text/xml; charset=utf-8";
@@ -679,7 +678,7 @@ multigetSyncHandler.prototype = {
             return;
         }
 
-        let batchSize = Preferences.get("calendar.caldav.multigetBatchSize", 100);
+        let batchSize = Services.prefs.getIntPref("calendar.caldav.multigetBatchSize", 100);
         let hrefString = "";
         while (this.itemsNeedFetching.length && batchSize > 0) {
             batchSize--;

@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 function calDateTimeFormatter() {
@@ -16,7 +15,7 @@ calDateTimeFormatter.prototype = {
 
     formatDate: function(aDate) {
         // Format the date using user's format preference (long or short)
-        let format = Preferences.get("calendar.date.format", 0);
+        let format = Services.prefs.getIntPref("calendar.date.format", 0);
         return (format == 0 ? this.formatDateLong(aDate) : this.formatDateShort(aDate));
     },
 
@@ -45,7 +44,7 @@ calDateTimeFormatter.prototype = {
         let formattedDate = this.formatDate(aDate);
         let formattedTime = this.formatTime(aDate);
 
-        let timeBeforeDate = Preferences.get("calendar.date.formatTimeBeforeDate", false);
+        let timeBeforeDate = Services.prefs.getBoolPref("calendar.date.formatTimeBeforeDate", false);
         if (timeBeforeDate) {
             return formattedTime + " " + formattedDate;
         } else {

@@ -4,7 +4,7 @@
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { ltn } = ChromeUtils.import("resource://calendar/modules/ltnInvitationUtils.jsm");
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * Provides shortcuts to set label and collapsed attribute of imip-bar node.
@@ -272,7 +272,7 @@ var ltnImipBar = {
         let diff = cal.itip.compare(ltnImipBar.itipItem.getItemList({})[0], ltnImipBar.foundItems[0]);
         // displaying chnages is only needed if that is enabled, an item already exists and there are
         // differences
-        if (diff != 0 && Preferences.get("calendar.itip.displayInvitationChanges", false)) {
+        if (diff != 0 && Services.prefs.getBoolPref("calendar.itip.displayInvitationChanges", false)) {
             let foundOverlay = ltn.invitation.createInvitationOverlay(ltnImipBar.foundItems[0],
                                                                       ltnImipBar.itipItem);
             let serializedOverlay = cal.xml.serializeDOM(foundOverlay);

@@ -4,7 +4,6 @@
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 function peekAlarmWindow() {
     return Services.wm.getMostRecentWindow("Calendar:AlarmWindow");
@@ -75,13 +74,13 @@ calAlarmMonitor.prototype = {
 
         this.mAlarms.push([aItem, aAlarm]);
 
-        if (Preferences.get("calendar.alarms.playsound", true)) {
+        if (Services.prefs.getBoolPref("calendar.alarms.playsound", true)) {
             // We want to make sure the user isn't flooded with alarms so we
             // limit this using a preference. For example, if the user has 20
             // events that fire an alarm in the same minute, then the alarm
             // sound will only play 5 times. All alarms will be shown in the
             // dialog nevertheless.
-            let maxAlarmSoundCount = Preferences.get("calendar.alarms.maxsoundsperminute", 5);
+            let maxAlarmSoundCount = Services.prefs.getIntPref("calendar.alarms.maxsoundsperminute", 5);
             let now = new Date();
 
             if (!this.mLastAlarmSoundDate ||
@@ -98,7 +97,7 @@ calAlarmMonitor.prototype = {
             if (maxAlarmSoundCount > this.mAlarmSoundCount) {
                 // Only ring the alarm sound if we haven't hit the max count.
                 try {
-                    let soundURL = Preferences.get("calendar.alarms.soundURL", null);
+                    let soundURL = Services.prefs.getStringPref("calendar.alarms.soundURL", null);
                     if (soundURL && soundURL.length > 0) {
                         soundURL = Services.io.newURI(soundURL);
                         this.mSound.play(soundURL);
@@ -111,7 +110,7 @@ calAlarmMonitor.prototype = {
             }
         }
 
-        if (!Preferences.get("calendar.alarms.show", true)) {
+        if (!Services.prefs.getBoolPref("calendar.alarms.show", true)) {
             return;
         }
 

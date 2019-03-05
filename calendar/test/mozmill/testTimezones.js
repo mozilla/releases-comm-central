@@ -21,7 +21,7 @@ var TIMEZONES = [
     "America/Argentina/Buenos_Aires", "Europe/Paris", "Asia/Kathmandu", "Australia/Adelaide"
 ];
 
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function setupModule(module) {
     controller = mozmill.getMail3PaneController();
@@ -44,7 +44,7 @@ function setupModule(module) {
 }
 
 function testTimezones1_SetGMT() {
-    Preferences.set("calendar.timezone.local", "Europe/London");
+    Services.prefs.setStringPref("calendar.timezone.local", "Europe/London");
 }
 
 function testTimezones2_CreateEvents() {
@@ -75,7 +75,7 @@ function testTimezones2_CreateEvents() {
 }
 
 function testTimezones3_checkStJohns() {
-    Preferences.set("calendar.timezone.local", "America/St_Johns");
+    Services.prefs.setStringPref("calendar.timezone.local", "America/St_Johns");
     let times = [
         [[4, 30], [5, 30], [6, 30], [7, 30], [8, 30], [9, 30], [10, 30], [11, 30]],
         [[4, 30], [6, 30], [7, 30], [7, 30], [9, 30], [9, 30], [11, 30], [12, 30]],
@@ -94,7 +94,7 @@ function testTimezones3_checkStJohns() {
 }
 
 function testTimezones4_checkCaracas() {
-    Preferences.set("calendar.timezone.local", "America/Caracas");
+    Services.prefs.setStringPref("calendar.timezone.local", "America/Caracas");
     // This is actually incorrect. Venezuela shifted clocks forward 30 minutes
     // in 2016, but our code doesn't handle historical timezones.
     let times = [
@@ -115,7 +115,7 @@ function testTimezones4_checkCaracas() {
 }
 
 function testTimezones5_checkPhoenix() {
-    Preferences.set("calendar.timezone.local", "America/Phoenix");
+    Services.prefs.setStringPref("calendar.timezone.local", "America/Phoenix");
     let times = [
         [[1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0], [8, 0]],
         [[0, 0], [2, 0], [3, 0], [3, 0], [5, 0], [5, 0], [7, 0], [8, 0]],
@@ -134,7 +134,7 @@ function testTimezones5_checkPhoenix() {
 }
 
 function testTimezones6_checkLosAngeles() {
-    Preferences.set("calendar.timezone.local", "America/Los_Angeles");
+    Services.prefs.setStringPref("calendar.timezone.local", "America/Los_Angeles");
     let times = [
         [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0]],
         [[0, 0], [2, 0], [3, 0], [3, 0], [5, 0], [5, 0], [7, 0], [8, 0]],
@@ -153,7 +153,7 @@ function testTimezones6_checkLosAngeles() {
 }
 
 function testTimezones7_checkBuenosAires() {
-    Preferences.set("calendar.timezone.local", "America/Argentina/Buenos_Aires");
+    Services.prefs.setStringPref("calendar.timezone.local", "America/Argentina/Buenos_Aires");
     let times = [
         [[5, 0], [6, 0], [7, 0], [8, 0], [9, 0], [10, 0], [11, 0], [12, 0]],
         [[4, 0], [6, 0], [7, 0], [7, 0], [9, 0], [9, 0], [11, 0], [12, 0]],
@@ -172,7 +172,7 @@ function testTimezones7_checkBuenosAires() {
 }
 
 function testTimezones8_checkParis() {
-    Preferences.set("calendar.timezone.local", "Europe/Paris");
+    Services.prefs.setStringPref("calendar.timezone.local", "Europe/Paris");
     let times = [
         [[9, 0], [10, 0], [11, 0], [12, 0], [13, 0], [14, 0], [15, 0], [16, 0]],
         [[9, 0], [11, 0], [12, 0], [12, 0], [14, 0], [14, 0], [16, 0], [17, 0]],
@@ -191,7 +191,7 @@ function testTimezones8_checkParis() {
 }
 
 function testTimezones9_checkKathmandu() {
-    Preferences.set("calendar.timezone.local", "Asia/Kathmandu");
+    Services.prefs.setStringPref("calendar.timezone.local", "Asia/Kathmandu");
     let times = [
         [[13, 45], [14, 45], [15, 45], [16, 45], [17, 45], [18, 45], [19, 45], [20, 45]],
         [[12, 45], [14, 45], [15, 45], [15, 45], [17, 45], [17, 45], [19, 45], [20, 45]],
@@ -210,7 +210,7 @@ function testTimezones9_checkKathmandu() {
 }
 
 function testTimezones10_checkAdelaide() {
-    Preferences.set("calendar.timezone.local", "Australia/Adelaide");
+    Services.prefs.setStringPref("calendar.timezone.local", "Australia/Adelaide");
     let times = [
         [[18, 30], [19, 30], [20, 30], [21, 30], [22, 30], [23, 30], [0, 30, +1], [1, 30, +1]],
         [[17, 30], [19, 30], [20, 30], [20, 30], [22, 30], [22, 30], [0, 30, +1], [1, 30, +1]],

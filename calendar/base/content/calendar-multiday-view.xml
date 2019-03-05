@@ -2510,21 +2510,19 @@
 
     <implementation implements="calICalendarView">
       <constructor><![CDATA[
-          const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
-
           // get day start/end hour from prefs and set on the view
-          this.setDayStartEndMinutes(Preferences.get("calendar.view.daystarthour", 8) * 60,
-                                     Preferences.get("calendar.view.dayendhour", 17) * 60);
+          this.setDayStartEndMinutes(Services.prefs.getIntPref("calendar.view.daystarthour", 8) * 60,
+                                     Services.prefs.getIntPref("calendar.view.dayendhour", 17) * 60);
 
           // initially scroll to the day start hour in the view
           this.scrollToMinute(this.mDayStartMin);
 
           // get visible hours from prefs and set on the view
-          let visibleMinutes = Preferences.get("calendar.view.visiblehours", 9) * 60;
+          let visibleMinutes = Services.prefs.getIntPref("calendar.view.visiblehours", 9) * 60;
           this.setVisibleMinutes(visibleMinutes);
 
           // set the time interval for the time indicator timer
-          this.setTimeIndicatorInterval(Preferences.get("calendar.view.timeIndicatorInterval", 15));
+          this.setTimeIndicatorInterval(Services.prefs.getIntPref("calendar.view.timeIndicatorInterval", 15));
           this.enableTimeIndicator();
 
           this.reorient();
@@ -2548,7 +2546,7 @@
             // range [0, 1440], we change it into the nearest limit (0 or 1440).
             let newTimeInterval = Math.max(0, Math.min(1440, aPrefInterval));
             if (newTimeInterval != aPrefInterval) {
-                Preferences.set("calendar.view.timeIndicatorInterval", newTimeInterval);
+                Services.prefs.setIntPref("calendar.view.timeIndicatorInterval", newTimeInterval);
             }
 
             if (newTimeInterval != this.mTimeIndicatorInterval) {
@@ -2748,8 +2746,8 @@
                 }
             }
 
-            let showIndicator = Preferences.get("calendar.alarms.indicator.show", true);
-            let totaltime = Preferences.get("calendar.alarms.indicator.totaltime", 3600);
+            let showIndicator = Services.prefs.getBoolPref("calendar.alarms.indicator.show", true);
+            let totaltime = Services.prefs.getIntPref("calendar.alarms.indicator.totaltime", 3600);
 
             if (!aStop && (!showIndicator || totaltime < 1)) {
                 // No need to animate if the indicator should not be shown.
@@ -3818,24 +3816,24 @@
       <method name="zoomIn">
         <parameter name="aLevel"/>
         <body><![CDATA[
-            let visibleHours = Preferences.get("calendar.view.visiblehours", 9);
+            let visibleHours = Services.prefs.getIntPref("calendar.view.visiblehours", 9);
             visibleHours += (aLevel || 1);
 
-            Preferences.set("calendar.view.visiblehours", Math.min(visibleHours, 24));
+            Services.prefs.setIntPref("calendar.view.visiblehours", Math.min(visibleHours, 24));
         ]]></body>
       </method>
       <method name="zoomOut">
         <parameter name="aLevel"/>
         <body><![CDATA[
-            let visibleHours = Preferences.get("calendar.view.visiblehours", 9);
+            let visibleHours = Services.prefs.getIntPref("calendar.view.visiblehours", 9);
             visibleHours -= (aLevel || 1);
 
-            Preferences.set("calendar.view.visiblehours", Math.max(1, visibleHours));
+            Services.prefs.setIntPref("calendar.view.visiblehours", Math.max(1, visibleHours));
         ]]></body>
       </method>
       <method name="zoomReset">
         <body><![CDATA[
-            Preferences.set("calendar.view.visiblehours", 9);
+            Services.prefs.setIntPref("calendar.view.visiblehours", 9);
         ]]></body>
       </method>
     </implementation>

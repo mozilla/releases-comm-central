@@ -4,7 +4,6 @@
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 var { PromiseUtils } = ChromeUtils.import("resource://gre/modules/PromiseUtils.jsm");
 
 var kHoursBetweenUpdates = 6;
@@ -317,7 +316,7 @@ calAlarmService.prototype = {
             return;
         }
 
-        let showMissed = Preferences.get("calendar.alarms.showmissed", true);
+        let showMissed = Services.prefs.getBoolPref("calendar.alarms.showmissed", true);
 
         let alarms = aItem.getAlarms({});
         for (let alarm of alarms) {

@@ -4,7 +4,6 @@
 
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 function calBackendLoader() {
     this.wrappedJSObject = this;
@@ -30,7 +29,7 @@ calBackendLoader.prototype = {
             return;
         }
 
-        if (Preferences.get("calendar.icaljs", false)) {
+        if (Services.prefs.getBoolPref("calendar.icaljs", false)) {
             let contracts = {
                 "@mozilla.org/calendar/datetime;1": "{36783242-ec94-4d8a-9248-d2679edd55b9}",
                 "@mozilla.org/calendar/ics-service;1": "{c61cb903-4408-41b3-bc22-da0b27efdfe1}",

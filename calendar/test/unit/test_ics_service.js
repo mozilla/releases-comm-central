@@ -14,7 +14,7 @@ function really_run_test() {
     test_param();
 
     // Only supported with ical.js
-    if (Preferences.get("calendar.icaljs", false)) {
+    if (Services.prefs.getBoolPref("calendar.icaljs", false)) {
         test_icalproperty();
     }
 }
@@ -75,7 +75,7 @@ function test_icalstring() {
     );
     equal(rrule.getComponent("BYDAY", {}).toString(), [2].toString());
 
-    if (Preferences.get("calendar.icaljs", false)) {
+    if (Services.prefs.getBoolPref("calendar.icaljs", false)) {
         let rdate = checkComp(cal.createRecurrenceDate.bind(cal),
                               "RDATE:20120101T000000",
                               { isNegative: false });

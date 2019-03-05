@@ -4,7 +4,7 @@
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { recurrenceRule2String } = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 this.EXPORTED_SYMBOLS = ["ltn"]; /* exported ltn */
@@ -306,7 +306,7 @@ ltn.invitation = {
                 case "modified":
                 case "removed":
                     n.className = aType;
-                    if (Preferences.get("calendar.view.useSystemColors", false)) {
+                    if (Services.prefs.getBoolPref("calendar.view.useSystemColors", false)) {
                         n.setAttribute("systemcolors", true);
                     }
                     break;

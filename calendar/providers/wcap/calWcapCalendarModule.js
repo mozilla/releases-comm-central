@@ -12,7 +12,6 @@
  */
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 //
@@ -60,8 +59,8 @@ function initWcapProvider() {
         g_busyItemTitle = getWcapString("busyItem.title.text");
         g_busyPhantomItemUuidPrefix = "PHANTOM_uuid_" + cal.getUUID();
 
-        CACHE_LAST_RESULTS = Preferences.get("calendar.wcap.cache_last_results", 4);
-        CACHE_LAST_RESULTS_INVALIDATE = Preferences.get("calendar.wcap.cache_last_results_invalidate", 120);
+        CACHE_LAST_RESULTS = Services.prefs.getIntPref("calendar.wcap.cache_last_results", 4);
+        CACHE_LAST_RESULTS_INVALIDATE = Services.prefs.getIntPref("calendar.wcap.cache_last_results_invalidate", 120);
     } catch (exc) {
         logError(exc, "error in init sequence");
     }

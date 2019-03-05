@@ -4,7 +4,6 @@
 
 var { Extractor } = ChromeUtils.import("resource://calendar/modules/calExtract.jsm");
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var calendarExtract = {
@@ -37,7 +36,7 @@ var calendarExtract = {
 
         // sort
         let pref = "calendar.patterns.last.used.languages";
-        let lastUsedLangs = Preferences.get(pref, "");
+        let lastUsedLangs = Services.prefs.getStringPref(pref, "");
 
         langs.sort((a, b) => {
             let idx_a = lastUsedLangs.indexOf(a[1]);
@@ -90,7 +89,7 @@ var calendarExtract = {
         let time = (new Date()).getTime();
 
         let locale = Services.locale.requestedLocale;
-        let dayStart = Preferences.get("calendar.view.daystarthour", 6);
+        let dayStart = Services.prefs.getIntPref("calendar.view.daystarthour", 6);
         let extractor;
 
         if (fixedLang) {
@@ -147,7 +146,7 @@ var calendarExtract = {
                 }
 
                 item.endDate = item.startDate.clone();
-                item.endDate.minute += Preferences.get("calendar.event.defaultlength", 60);
+                item.endDate.minute += Services.prefs.getIntPref("calendar.event.defaultlength", 60);
 
                 if (endGuess.year != null) {
                     item.endDate.year = endGuess.year;

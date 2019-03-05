@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 function run_test() {
@@ -12,9 +12,9 @@ function run_test() {
 add_task(async function test_setDefaultValues_events() {
     let item, alarm;
 
-    Preferences.set("calendar.alarms.onforevents", 1);
-    Preferences.set("calendar.alarms.eventalarmunit", "hours");
-    Preferences.set("calendar.alarms.eventalarmlen", 60);
+    Services.prefs.setIntPref("calendar.alarms.onforevents", 1);
+    Services.prefs.setStringPref("calendar.alarms.eventalarmunit", "hours");
+    Services.prefs.setIntPref("calendar.alarms.eventalarmlen", 60);
     item = cal.createEvent();
     cal.alarms.setDefaultValues(item);
     alarm = item.getAlarms({})[0];
@@ -23,9 +23,9 @@ add_task(async function test_setDefaultValues_events() {
     equal(alarm.action, "DISPLAY");
     equal(alarm.offset.icalString, "-P2DT12H");
 
-    Preferences.set("calendar.alarms.onforevents", 1);
-    Preferences.set("calendar.alarms.eventalarmunit", "yards");
-    Preferences.set("calendar.alarms.eventalarmlen", 20);
+    Services.prefs.setIntPref("calendar.alarms.onforevents", 1);
+    Services.prefs.setStringPref("calendar.alarms.eventalarmunit", "yards");
+    Services.prefs.setIntPref("calendar.alarms.eventalarmlen", 20);
     item = cal.createEvent();
     cal.alarms.setDefaultValues(item);
     alarm = item.getAlarms({})[0];
@@ -34,7 +34,7 @@ add_task(async function test_setDefaultValues_events() {
     equal(alarm.action, "DISPLAY");
     equal(alarm.offset.icalString, "-PT20M");
 
-    Preferences.set("calendar.alarms.onforevents", 0);
+    Services.prefs.setIntPref("calendar.alarms.onforevents", 0);
     item = cal.createEvent();
     cal.alarms.setDefaultValues(item);
     equal(item.getAlarms({}).length, 0);
@@ -45,9 +45,9 @@ add_task(async function test_setDefaultValues_events() {
         }
     };
 
-    Preferences.set("calendar.alarms.onforevents", 1);
-    Preferences.set("calendar.alarms.eventalarmunit", "hours");
-    Preferences.set("calendar.alarms.eventalarmlen", 60);
+    Services.prefs.setIntPref("calendar.alarms.onforevents", 1);
+    Services.prefs.setStringPref("calendar.alarms.eventalarmunit", "hours");
+    Services.prefs.setIntPref("calendar.alarms.eventalarmlen", 60);
     item = cal.createEvent();
     item.calendar = mockCalendar;
     cal.alarms.setDefaultValues(item);
@@ -57,9 +57,9 @@ add_task(async function test_setDefaultValues_events() {
     equal(alarm.action, "SHOUT");
     equal(alarm.offset.icalString, "-P2DT12H");
 
-    Preferences.reset("calendar.alarms.onforevents");
-    Preferences.reset("calendar.alarms.eventalarmunit");
-    Preferences.reset("calendar.alarms.eventalarmlen");
+    Services.prefs.clearUserPref("calendar.alarms.onforevents");
+    Services.prefs.clearUserPref("calendar.alarms.eventalarmunit");
+    Services.prefs.clearUserPref("calendar.alarms.eventalarmlen");
 });
 
 add_task(async function test_setDefaultValues_tasks() {
@@ -70,9 +70,9 @@ add_task(async function test_setDefaultValues_tasks() {
         return nowDate;
     };
 
-    Preferences.set("calendar.alarms.onfortodos", 1);
-    Preferences.set("calendar.alarms.todoalarmunit", "hours");
-    Preferences.set("calendar.alarms.todoalarmlen", 60);
+    Services.prefs.setIntPref("calendar.alarms.onfortodos", 1);
+    Services.prefs.setStringPref("calendar.alarms.todoalarmunit", "hours");
+    Services.prefs.setIntPref("calendar.alarms.todoalarmlen", 60);
     item = cal.createTodo();
     equal(item.entryDate, null);
     cal.alarms.setDefaultValues(item);
@@ -83,9 +83,9 @@ add_task(async function test_setDefaultValues_tasks() {
     equal(alarm.offset.icalString, "-P2DT12H");
     equal(item.entryDate, nowDate);
 
-    Preferences.set("calendar.alarms.onfortodos", 1);
-    Preferences.set("calendar.alarms.todoalarmunit", "yards");
-    Preferences.set("calendar.alarms.todoalarmlen", 20);
+    Services.prefs.setIntPref("calendar.alarms.onfortodos", 1);
+    Services.prefs.setStringPref("calendar.alarms.todoalarmunit", "yards");
+    Services.prefs.setIntPref("calendar.alarms.todoalarmlen", 20);
     item = cal.createTodo();
     cal.alarms.setDefaultValues(item);
     alarm = item.getAlarms({})[0];
@@ -94,7 +94,7 @@ add_task(async function test_setDefaultValues_tasks() {
     equal(alarm.action, "DISPLAY");
     equal(alarm.offset.icalString, "-PT20M");
 
-    Preferences.set("calendar.alarms.onfortodos", 0);
+    Services.prefs.setIntPref("calendar.alarms.onfortodos", 0);
     item = cal.createTodo();
     cal.alarms.setDefaultValues(item);
     equal(item.getAlarms({}).length, 0);
@@ -105,9 +105,9 @@ add_task(async function test_setDefaultValues_tasks() {
         }
     };
 
-    Preferences.set("calendar.alarms.onfortodos", 1);
-    Preferences.set("calendar.alarms.todoalarmunit", "hours");
-    Preferences.set("calendar.alarms.todoalarmlen", 60);
+    Services.prefs.setIntPref("calendar.alarms.onfortodos", 1);
+    Services.prefs.setStringPref("calendar.alarms.todoalarmunit", "hours");
+    Services.prefs.setIntPref("calendar.alarms.todoalarmlen", 60);
     item = cal.createTodo();
     item.calendar = mockCalendar;
     cal.alarms.setDefaultValues(item);
@@ -117,9 +117,9 @@ add_task(async function test_setDefaultValues_tasks() {
     equal(alarm.action, "SHOUT");
     equal(alarm.offset.icalString, "-P2DT12H");
 
-    Preferences.reset("calendar.alarms.onfortodos");
-    Preferences.reset("calendar.alarms.todoalarmunit");
-    Preferences.reset("calendar.alarms.todoalarmlen");
+    Services.prefs.clearUserPref("calendar.alarms.onfortodos");
+    Services.prefs.clearUserPref("calendar.alarms.todoalarmunit");
+    Services.prefs.clearUserPref("calendar.alarms.todoalarmlen");
     cal.dtz.now = calnow;
 });
 

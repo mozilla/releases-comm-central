@@ -8,7 +8,7 @@
 
 var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 addEventListener("DOMContentLoaded", () => {
     document.getElementById("alarm-snooze-all-popup").addEventListener("snooze", (event) => {
@@ -130,7 +130,7 @@ function finishWindow() {
         // all/snooze all. This can happen when the closer is clicked or escape
         // is pressed. Snooze all remaining items using the default snooze
         // property.
-        let snoozePref = Preferences.get("calendar.alarms.defaultsnoozelength", 0);
+        let snoozePref = Services.prefs.getIntPref("calendar.alarms.defaultsnoozelength", 0);
         if (snoozePref <= 0) {
             snoozePref = 5;
         }

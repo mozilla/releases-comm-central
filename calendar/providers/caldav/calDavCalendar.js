@@ -5,7 +5,6 @@
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 var { OAuth2 } = ChromeUtils.import("resource:///modules/OAuth2.jsm");
 
@@ -473,7 +472,7 @@ calDavCalendar.prototype = {
         return this.mHaveScheduling;
     },
     set hasScheduling(value) {
-        return (this.mHaveScheduling = (Preferences.get("calendar.caldav.sched.enabled", false) && value));
+        return (this.mHaveScheduling = (Services.prefs.getBoolPref("calendar.caldav.sched.enabled", false) && value));
     },
     mHasAutoScheduling: false, // Whether server automatically takes care of scheduling
     get hasAutoScheduling() {
@@ -2880,7 +2879,7 @@ calDavCalendar.prototype = {
     mVerboseLogging: undefined,
     verboseLogging: function() {
         if (this.mVerboseLogging === undefined) {
-            this.mVerboseLogging = Preferences.get("calendar.debug.log.verbose", false);
+            this.mVerboseLogging = Services.prefs.getBoolPref("calendar.debug.log.verbose", false);
         }
         return this.mVerboseLogging;
     },

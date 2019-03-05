@@ -149,11 +149,9 @@
 
       <method name="setLocationLabel">
         <body><![CDATA[
-            const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
-
             let locationLabel = document.getAnonymousElementByAttribute(this, "anonid", "event-location");
             let location = this.mOccurrence.getProperty("LOCATION");
-            let showLocation = Preferences.get("calendar.view.showLocation", false);
+            let showLocation = Services.prefs.getBoolPref("calendar.view.showLocation", false);
 
             locationLabel.value = showLocation && location ? location : "";
             setBooleanAttribute(locationLabel, "hidden", !showLocation || !location);
@@ -162,8 +160,6 @@
 
       <method name="setCSSClasses">
         <body><![CDATA[
-            const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
-
             let item = this.mOccurrence;
             this.setAttribute("calendar-uri", item.calendar.uri.spec);
             this.setAttribute("calendar-id", item.calendar.id);
@@ -175,7 +171,7 @@
 
             // Add alarm icons as needed.
             let alarms = item.getAlarms({});
-            if (alarms.length && Preferences.get("calendar.alarms.indicator.show", true)) {
+            if (alarms.length && Services.prefs.getBoolPref("calendar.alarms.indicator.show", true)) {
                 let iconsBox = document.getAnonymousElementByAttribute(this, "anonid", "alarm-icons-box");
                 cal.alarms.addReminderImages(iconsBox, alarms);
 

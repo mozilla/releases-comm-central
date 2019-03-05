@@ -19,14 +19,14 @@ function run_test() {
         [0, 53, "20270101T000000Z"],   // ... Friday
         [0, 52, "20280101T000000Z"]];  // ... Saturday
 
-    let savedWeekStart = Preferences.get("calendar.week.start", 0);
+    let savedWeekStart = Services.prefs.getIntPref("calendar.week.start", 0);
     for (let [weekStart, weekNumber, dateString] of wkst_wknum_date) {
-        Preferences.set("calendar.week.start", weekStart);
+        Services.prefs.setIntPref("calendar.week.start", weekStart);
         let date = cal.createDateTime(dateString);
         date.isDate = true;
         let week = cal.getWeekInfoService().getWeekTitle(date);
 
         equal(week, weekNumber, "Week number matches for " + dateString);
     }
-    Preferences.set("calendar.week.start", savedWeekStart);
+    Services.prefs.setIntPref("calendar.week.start", savedWeekStart);
 }

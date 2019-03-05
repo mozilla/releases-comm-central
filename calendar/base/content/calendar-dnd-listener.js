@@ -4,7 +4,6 @@
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 var { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 /* exported invokeEventDragSession, calendarViewDNDObserver,
@@ -150,7 +149,7 @@ var itemConversion = {
         if (!item.startDate) {
             if (aTask.dueDate) {
                 item.startDate = aTask.dueDate.clone();
-                item.startDate.minute -= Preferences.get("calendar.event.defaultlength", 60);
+                item.startDate.minute -= Services.prefs.getIntPref("calendar.event.defaultlength", 60);
             } else {
                 item.startDate = cal.dtz.getDefaultStartDate();
             }
@@ -161,7 +160,7 @@ var itemConversion = {
             // Make the event be the default event length if no due date was
             // specified.
             item.endDate = item.startDate.clone();
-            item.endDate.minute += Preferences.get("calendar.event.defaultlength", 60);
+            item.endDate.minute += Services.prefs.getIntPref("calendar.event.defaultlength", 60);
         }
 
         // Alarms

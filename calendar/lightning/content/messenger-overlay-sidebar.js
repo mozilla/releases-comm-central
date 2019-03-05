@@ -782,7 +782,7 @@ function checkCalendarBinaryComponent() {
     // Don't even get started if we are running ical.js or the binary component
     // was successfully loaded.
     if ("@mozilla.org/calendar/datetime;1" in Cc ||
-        Preferences.get("calendar.icaljs", false)) {
+        Services.prefs.getBoolPref("calendar.icaljs", false)) {
         return;
     }
 

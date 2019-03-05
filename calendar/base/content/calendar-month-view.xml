@@ -416,10 +416,10 @@
 
     <implementation implements="calICalendarView">
       <constructor><![CDATA[
-          const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+          const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
           // Set the preference for the default start of the week
-          this.weekStartOffset = Preferences.get("calendar.week.start", 0);
+          this.weekStartOffset = Services.prefs.getIntPref("calendar.week.start", 0);
 
           for (let i = 0; i < 7; i++) {
               let hdr = document.createXULElement("calendar-day-label");
@@ -429,7 +429,7 @@
           }
 
           // Set the preference for displaying the week number
-          this.mShowWeekNumber = Preferences.get("calendar.view-minimonth.showWeekNumber", true);
+          this.mShowWeekNumber = Services.prefs.getBoolPref("calendar.view-minimonth.showWeekNumber", true);
       ]]></constructor>
 
       <!-- fields -->
@@ -1077,8 +1077,8 @@
         <parameter name="aAlarmItem"/>
         <parameter name="aStop"/>
         <body><![CDATA[
-            let showIndicator = Preferences.get("calendar.alarms.indicator.show", true);
-            let totaltime = Preferences.get("calendar.alarms.indicator.totaltime", 3600);
+            let showIndicator = Services.prefs.getBoolPref("calendar.alarms.indicator.show", true);
+            let totaltime = Services.prefs.getIntPref("calendar.alarms.indicator.totaltime", 3600);
 
             if (!aStop && (!showIndicator || totaltime < 1)) {
                 // No need to animate if the indicator should not be shown.
@@ -1116,7 +1116,7 @@
     <handlers>
       <handler event="wheel"><![CDATA[
           const pixelThreshold = 150;
-          let scrollEnabled = Preferences.get("calendar.view.mousescroll", true);
+          let scrollEnabled = Services.prefs.getBoolPref("calendar.view.mousescroll", true);
           if (!event.ctrlKey && !event.shiftKey &&
               !event.altKey && !event.metaKey && scrollEnabled) {
               // In the month view, the only thing that can be scrolled

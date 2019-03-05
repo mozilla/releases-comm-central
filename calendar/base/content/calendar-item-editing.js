@@ -4,7 +4,6 @@
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 /* exported modifyEventWithDialog, undo, redo, setContextPartstat */
 
@@ -34,14 +33,14 @@ function disposeJob(job) {
 function setDefaultItemValues(aItem, aCalendar=null, aStartDate=null, aEndDate=null, aInitialDate=null, aForceAllday=false) {
     function endOfDay(aDate) {
         let eod = aDate ? aDate.clone() : cal.dtz.now();
-        eod.hour = Preferences.get("calendar.view.dayendhour", 19);
+        eod.hour = Services.prefs.getIntPref("calendar.view.dayendhour", 19);
         eod.minute = 0;
         eod.second = 0;
         return eod;
     }
     function startOfDay(aDate) {
         let sod = aDate ? aDate.clone() : cal.dtz.now();
-        sod.hour = Preferences.get("calendar.view.daystarthour", 8);
+        sod.hour = Services.prefs.getIntPref("calendar.view.daystarthour", 8);
         sod.minute = 0;
         sod.second = 0;
         return sod;
@@ -87,7 +86,7 @@ function setDefaultItemValues(aItem, aCalendar=null, aStartDate=null, aEndDate=n
             } else {
                 // If the event is not all day, then add the default event
                 // length.
-                aItem.endDate.minute += Preferences.get("calendar.event.defaultlength", 60);
+                aItem.endDate.minute += Services.prefs.getIntPref("calendar.event.defaultlength", 60);
             }
         }
 
@@ -104,18 +103,18 @@ function setDefaultItemValues(aItem, aCalendar=null, aStartDate=null, aEndDate=n
         if (aStartDate) {
             aItem.entryDate = aStartDate.clone();
         } else {
-            let defaultStart = Preferences.get("calendar.task.defaultstart", "none");
-            if (Preferences.get("calendar.alarms.onfortodos", 0) == 1 && defaultStart == "none") {
+            let defaultStart = Services.prefs.getStringPref("calendar.task.defaultstart", "none");
+            if (Services.prefs.getIntPref("calendar.alarms.onfortodos", 0) == 1 && defaultStart == "none") {
                 // start date is required if we want to set an alarm
                 defaultStart = "offsetcurrent";
             }
 
-            let units = Preferences.get("calendar.task.defaultstartoffsetunits", "minutes");
+            let units = Services.prefs.getStringPref("calendar.task.defaultstartoffsetunits", "minutes");
             if (!["days", "hours", "minutes"].includes(units)) {
                 units = "minutes";
             }
             let startOffset = cal.createDuration();
-            startOffset[units] = Preferences.get("calendar.task.defaultstartoffset", 0);
+            startOffset[units] = Services.prefs.getIntPref("calendar.task.defaultstartoffset", 0);
             let start;
 
             switch (defaultStart) {
@@ -153,14 +152,14 @@ function setDefaultItemValues(aItem, aCalendar=null, aStartDate=null, aEndDate=n
         if (aEndDate) {
             aItem.dueDate = aEndDate.clone();
         } else {
-            let defaultDue = Preferences.get("calendar.task.defaultdue", "none");
+            let defaultDue = Services.prefs.getStringPref("calendar.task.defaultdue", "none");
 
-            let units = Preferences.get("calendar.task.defaultdueoffsetunits", "minutes");
+            let units = Services.prefs.getStringPref("calendar.task.defaultdueoffsetunits", "minutes");
             if (!["days", "hours", "minutes"].includes(units)) {
                 units = "minutes";
             }
             let dueOffset = cal.createDuration();
-            dueOffset[units] = Preferences.get("calendar.task.defaultdueoffset", 0);
+            dueOffset[units] = Services.prefs.getIntPref("calendar.task.defaultdueoffset", 0);
 
             let start = aItem.entryDate ? aItem.entryDate.clone() : initDate.clone();
             let due;
@@ -454,8 +453,8 @@ function openEventDialog(calendarItem, calendar, mode, callback, job=null, initi
     args.job = job;
     args.initialStartDateValue = initialDate || cal.dtz.getDefaultStartDate();
     args.counterProposal = counterProposal;
-    args.inTab = Preferences.get("calendar.item.editInTab", false);
-    args.useNewItemUI = Preferences.get("calendar.item.useNewItemUI", false);
+    args.inTab = Services.prefs.getBoolPref("calendar.item.editInTab", false);
+    args.useNewItemUI = Services.prefs.getBoolPref("calendar.item.useNewItemUI", false);
 
     // this will be called if file->new has been selected from within the dialog
     args.onNewEvent = function(opcalendar) {

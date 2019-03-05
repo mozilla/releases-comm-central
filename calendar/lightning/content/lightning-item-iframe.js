@@ -23,7 +23,6 @@ var {
     countOccurrences
 } = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
 var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 var cloudFileAccounts;
 try {
@@ -35,7 +34,7 @@ try {
 }
 
 // Flag for using new item UI code (HTML/React.js).
-const gNewItemUI = Preferences.get("calendar.item.useNewItemUI", false);
+const gNewItemUI = Services.prefs.getBoolPref("calendar.item.useNewItemUI", false);
 
 // the following variables are constructed if the jsContext this file
 // belongs to gets constructed. all those variables are meant to be accessed
@@ -754,7 +753,7 @@ function loadDialog(aItem) {
             let itemProp = aItem.getProperty("X-MOZ-SEND-INVITATIONS");
             notifyCheckbox.checked = (aItem.calendar.getProperty("imip.identity") &&
                                       ((itemProp === null)
-                                       ? Preferences.get("calendar.itip.notify", true)
+                                       ? Services.prefs.getBoolPref("calendar.itip.notify", true)
                                        : (itemProp == "TRUE")));
             let undiscloseProp = aItem.getProperty("X-MOZ-SEND-INVITATIONS-UNDISCLOSED");
             undiscloseCheckbox.checked = (undiscloseProp === null)
@@ -1800,7 +1799,7 @@ function onUpdateAllDay() {
             // was an "All day" type, so we have to set default values.
             gStartTime.hour = cal.dtz.getDefaultStartDate(window.initialStartDateValue).hour;
             gEndTime.hour = gStartTime.hour;
-            gEndTime.minute += Preferences.get("calendar.event.defaultlength", 60);
+            gEndTime.minute += Services.prefs.getIntPref("calendar.event.defaultlength", 60);
             gOldStartTimezone = kDefaultTimezone;
             gOldEndTimezone = kDefaultTimezone;
         } else {
@@ -2017,7 +2016,7 @@ function updateConfigState(aArg) {
  * Add menu items to the UI for attaching files using cloud providers.
  */
 function loadCloudProviders() {
-    let cloudFileEnabled = Preferences.get("mail.cloud_files.enabled", false);
+    let cloudFileEnabled = Services.prefs.getBoolPref("mail.cloud_files.enabled", false);
     let cmd = document.getElementById("cmd_attach_cloud");
     let message = {
         command: "setElementAttribute",
@@ -2303,7 +2302,7 @@ function addAttachment(attachment, cloudProvider) {
         } else {
             let leafName = attachment.getParameter("FILENAME");
             let providerType = attachment.getParameter("PROVIDER");
-            let cloudFileEnabled = Preferences.get("mail.cloud_files.enabled", false);
+            let cloudFileEnabled = Services.prefs.getBoolPref("mail.cloud_files.enabled", false);
 
             if (leafName) {
                 // TODO security issues?

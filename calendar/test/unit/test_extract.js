@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { Extractor } = ChromeUtils.import("resource://calendar/modules/calExtract.jsm");
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 var extractor = new Extractor("en-US", 8);
 
@@ -181,7 +180,7 @@ function test_overrides() {
         "from.tomorrow": { add: "worromot" }
     };
 
-    Preferences.set("calendar.patterns.override", JSON.stringify(overrides));
+    Services.prefs.setStringPref("calendar.patterns.override", JSON.stringify(overrides));
 
     collected = extractor.extract(title, content, date, undefined);
     guessed = extractor.guessStart(false);

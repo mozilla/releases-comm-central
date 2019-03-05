@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 /**
@@ -111,7 +111,7 @@ calWeekPrinter.prototype = {
             let titleNode = currentPage.querySelector("." + weekdayName + "-title");
             titleNode.textContent = dateFormatter.formatDateLong(currentDate.getInTimezone(defaultTimezone));
 
-            if (Preferences.get(dayOffPrefName, false)) {
+            if (Services.prefs.getBoolPref(dayOffPrefName, false)) {
                 let daysOffNode = currentPage.querySelector("." + weekdayName + "-box");
                 daysOffNode.className += " day-off";
             }
