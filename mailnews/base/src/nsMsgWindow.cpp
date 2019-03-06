@@ -97,10 +97,9 @@ NS_IMETHODIMP nsMsgWindow::GetMessageWindowDocShell(nsIDocShell ** aDocShell)
 
 NS_IMETHODIMP nsMsgWindow::CloseWindow()
 {
-  nsresult rv = NS_OK;
   nsCOMPtr<nsIURILoader> dispatcher = mozilla::components::URILoader::Service();
   if (dispatcher) // on shut down it's possible dispatcher will be null.
-    rv = dispatcher->UnRegisterContentListener(this);
+    dispatcher->UnRegisterContentListener(this);
 
   mMsgWindowCommands = nullptr;
   mStatusFeedback = nullptr;
