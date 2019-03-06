@@ -495,6 +495,8 @@ var Gloda = {
    * The contact corresponding to the current user.  We are assuming that only
    *  a single user/human being uses the current profile.  This is known to be
    *  a flawed assumption, but is the best first approximation available.
+   * The contact is based on the default account's default identity. The user
+   *  can change both, if desired, in Account Settings.
    *
    * @TODO attempt to deal with multile people using the same profile
    */
@@ -508,110 +510,115 @@ var Gloda = {
    * @TODO deal with account addition/modification/removal
    * @TODO attempt to deal with multiple people using the same profile
    */
-  _initMyIdentities: function gloda_ns_initMyIdentities() {
+  _initMyIdentities() {
     let myContact = null;
     let myIdentities = {};
-    let myEmailAddresses = {}; // process each email at most once; stored here
+    // Process each email at most once; stored here.
+    let myEmailAddresses = new Set();
 
     let fullName, fallbackName;
     let existingIdentities = [];
     let identitiesToCreate = [];
 
-    let numIdentities = MailServices.accounts.allIdentities.length;
+    let allIdentities = MailServices.accounts.allIdentities;
+    let defaultMsgIdentity = MailServices.accounts.defaultAccount ?
+                                MailServices.accounts.defaultAccount.defaultIdentity :
+                                null;
+    let defaultMsgIdentityKey = defaultMsgIdentity ? defaultMsgIdentity.key : null;
+    let defaultIdentity;
 
-    // nothing to do if there are no accounts/identities.
-    if (!numIdentities)
+    // Nothing to do if there are no accounts/identities.
+    if (allIdentities.length == 0)
       return;
 
-    for (let iIdentity = 0; iIdentity < numIdentities; iIdentity++) {
-      let msgIdentity =
-        MailServices.accounts.allIdentities.queryElementAt(iIdentity,
-                                                           Ci.nsIMsgIdentity);
-
-      if (!fullName)
-        fullName = msgIdentity.fullName;
-      if (!fallbackName)
-        fallbackName = msgIdentity.email;
-
+    for (let msgIdentity of fixIterator(allIdentities, Ci.nsIMsgIdentity)) {
       let emailAddress = msgIdentity.email;
       let replyTo = msgIdentity.replyTo;
+      let msgIdentityDescription = msgIdentity.fullName || msgIdentity.email;
+      let isDefaultMsgIdentity = msgIdentity.key == defaultMsgIdentityKey;
 
-      // find the identities if they exist, flag to create them if they don't
-      if (emailAddress) {
-        let parsed = GlodaUtils.parseMailAddresses(emailAddress);
-        if (!(parsed.addresses[0] in myEmailAddresses)) {
-          let identity = GlodaDatastore.getIdentity("email",
-                                                    parsed.addresses[0]);
-          if (identity)
-            existingIdentities.push(identity);
-          else
-            identitiesToCreate.push(parsed.addresses[0]);
-          myEmailAddresses[parsed.addresses[0]] = true;
+      if (!fullName || isDefaultMsgIdentity)
+        fullName = msgIdentity.fullName;
+      if (!fallbackName || isDefaultMsgIdentity)
+        fallbackName = msgIdentity.email;
+
+      // Find the identities if they exist, flag to create them if they don't.
+      for (let address of [emailAddress, replyTo]) {
+        if (!address) {
+          continue;
         }
-      }
-      if (replyTo) {
-        let parsed = GlodaUtils.parseMailAddresses(replyTo);
-        if (!(parsed.addresses[0] in myEmailAddresses)) {
-          let identity = GlodaDatastore.getIdentity("email",
-                                                    parsed.addresses[0]);
-          if (identity)
-            existingIdentities.push(identity);
-          else
-            identitiesToCreate.push(parsed.addresses[0]);
-          myEmailAddresses[parsed.addresses[0]] = true;
+        let parsed = GlodaUtils.parseMailAddresses(address);
+        if (myEmailAddresses.has(parsed.addresses[0])) {
+          continue;
         }
+        let identity = GlodaDatastore.getIdentity("email", parsed.addresses[0]);
+        if (identity) {
+          if (identity.description != msgIdentityDescription) {
+            // If the user changed the identity name, update the db.
+            identity._description = msgIdentityDescription;
+            GlodaDatastore.updateIdentity(identity);
+          }
+          existingIdentities.push(identity);
+          if (isDefaultMsgIdentity) {
+            defaultIdentity = identity;
+          }
+        } else {
+          identitiesToCreate.push([parsed.addresses[0], msgIdentityDescription]);
+        }
+        myEmailAddresses.add(parsed.addresses[0]);
       }
     }
-
-    // we need to establish the identity.contact portions of the relationship
+    // We need to establish the identity.contact portions of the relationship.
     for (let identity of existingIdentities) {
       identity._contact = GlodaDatastore.getContactByID(identity.contactID);
+      if (defaultIdentity && defaultIdentity.id == identity.id) {
+        if (identity.contact.name != (fullName || fallbackName)) {
+          // If the user changed the default identity, update the db.
+          identity.contact.name = (fullName || fallbackName);
+          GlodaDatastore.updateContact(identity.contact);
+        }
+        defaultIdentity._contact = identity.contact;
+      }
     }
 
-    if (existingIdentities.length) {
-      // just use the first guy's contact
+    if (defaultIdentity) {
+      // The contact is based on the default account's default identity.
+      myContact = defaultIdentity.contact;
+    } else if (existingIdentities.length) {
+      // Just use the first guy's contact.
       myContact = existingIdentities[0].contact;
-    }
-    else {
-      // create a new contact
+    } else {
+      // Create a new contact.
       myContact = GlodaDatastore.createContact(null, null,
                                                fullName || fallbackName,
                                                0, 0);
       GlodaDatastore.insertContact(myContact);
     }
 
-    if (identitiesToCreate.length) {
-      for (let iIdentity = 0; iIdentity < identitiesToCreate.length;
-          iIdentity++) {
-        let emailAddress = identitiesToCreate[iIdentity];
-        // XXX this won't always be of type "email" as we add new account types
-        // XXX the blank string could be trying to differentiate; we do have
-        //  enough info to do it.
-        let identity = GlodaDatastore.createIdentity(myContact.id, myContact,
-                                                     "email",
-                                                     emailAddress,
-                                                     "", false);
-        existingIdentities.push(identity);
-      }
+    for (let emailAndDescription of identitiesToCreate) {
+      // XXX This won't always be of type "email" as we add new account types.
+      let identity = GlodaDatastore.createIdentity(myContact.id, myContact,
+                                                   "email",
+                                                   emailAndDescription[0],
+                                                   emailAndDescription[1],
+                                                   false);
+      existingIdentities.push(identity);
     }
 
-    for (let iIdentity = 0; iIdentity < existingIdentities.length;
-        iIdentity++) {
-      let identity = existingIdentities[iIdentity];
+    for (let identity of existingIdentities) {
       myIdentities[identity.id] = identity;
     }
 
     this.myContact = myContact;
     this.myIdentities = myIdentities;
-    myContact._identities = Object.keys(myIdentities).
-      map(id => myIdentities[id]);
+    myContact._identities = Object.keys(myIdentities).map(id => myIdentities[id]);
 
-    // we need contacts to make these objects reachable via the collection
+    // We need contacts to make these objects reachable via the collection
     //  manager.
     this._myContactCollection = this.explicitCollection(this.NOUN_CONTACT,
                                                         [this.myContact]);
-    this._myIdentitiesCollection =
-      this.explicitCollection(this.NOUN_IDENTITY, this.myContact._identities);
+    this._myIdentitiesCollection = this.explicitCollection(this.NOUN_IDENTITY,
+                                                           this.myContact._identities);
   },
 
   /**

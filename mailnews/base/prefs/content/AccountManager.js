@@ -27,6 +27,7 @@
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {BrowserUtils} = ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
+var {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
 var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {allAccountsSorted} = ChromeUtils.import("resource:///modules/folderUtils.jsm");
@@ -758,6 +759,8 @@ function onSetDefault(event) {
   let previousDefault = MailServices.accounts.defaultAccount;
   MailServices.accounts.defaultAccount = currentAccount;
   markDefaultServer(currentAccount, previousDefault);
+  // Update gloda's myContact with the new default account's default identity.
+  Gloda._initMyIdentities();
 
   // This is only needed on Seamonkey which has this button.
   setEnabled(document.getElementById("setDefaultButton"), false);

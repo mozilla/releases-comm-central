@@ -3920,6 +3920,30 @@ var GlodaDatastore = {
     return identity;
   },
 
+  get _updateIdentityStatement() {
+    let statement = this._createAsyncStatement(
+      "UPDATE identities SET contactID = ?1, \
+                             kind = ?2, \
+                             value = ?3, \
+                             description = ?4, \
+                             relay = ?5 \
+                         WHERE id = ?6");
+    this.__defineGetter__("_updateIdentityStatement", () => statement);
+    return this._updateIdentityStatement;
+  },
+
+  updateIdentity: function gloda_ds_updateIdentity(aIdentity) {
+    let ucs = this._updateIdentityStatement;
+    ucs.bindByIndex(5, aIdentity.id);
+    ucs.bindByIndex(0, aIdentity.contactID);
+    ucs.bindByIndex(1, aIdentity.kind);
+    ucs.bindByIndex(2, aIdentity.value);
+    ucs.bindByIndex(3, aIdentity.description);
+    ucs.bindByIndex(4, aIdentity.relay ? 1 : 0);
+
+    ucs.executeAsync(this.trackAsync());
+  },
+
   _identityFromRow: function gloda_ds_identityFromRow(aRow) {
     return new GlodaIdentity(this, aRow.getInt64(0), aRow.getInt64(1), null,
                              aRow.getString(2), aRow.getString(3),

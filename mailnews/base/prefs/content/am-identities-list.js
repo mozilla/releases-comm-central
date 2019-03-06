@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
 var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
@@ -146,6 +147,8 @@ function onSetDefault(event)
   gAccount.defaultIdentity = identity;
   // Rebuilt the identity list and select the moved identity again.
   refreshIdentityList(0);
+  // Update gloda's myContact with the new default indentity.
+  Gloda._initMyIdentities();
 }
 
 function onDelete(event)
