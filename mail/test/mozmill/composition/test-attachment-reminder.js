@@ -296,7 +296,7 @@ function click_manual_reminder(aCwc, aExpectedState) {
  * Bug 521128
  * Test proper behaviour of the manual reminder.
  */
-function test_manual_attachment_reminder() {
+function disabled_test_manual_attachment_reminder() {
   // Open a sample message with no attachment keywords.
   let cwc = open_compose_new_mail();
   setup_msg_contents(cwc, "test@example.invalid", "Testing manual reminder!",
@@ -364,7 +364,7 @@ function test_manual_attachment_reminder() {
  * Bug 938759
  * Test hiding of the automatic notification if the manual reminder is set.
  */
-function test_manual_automatic_attachment_reminder_interaction() {
+function disabled_test_manual_automatic_attachment_reminder_interaction() {
   // Open a blank message compose
   let cwc = open_compose_new_mail();
   // This one should have the reminder disabled.
@@ -518,7 +518,7 @@ function test_attachment_reminder_in_subject_and_body() {
  * Test proper behaviour of attachment reminder when keyword reminding
  * is turned off.
  */
-function test_disabled_attachment_reminder() {
+function disabled_test_disabled_attachment_reminder() {
   Services.prefs.setBoolPref(kReminderPref, false);
 
   // Open a sample message with no attachment keywords.
@@ -558,7 +558,7 @@ function test_disabled_attachment_reminder() {
  * Bug 833909
  * Test reminder comes up when a draft with keywords is opened.
  */
-function test_reminder_in_draft() {
+function disabled_test_reminder_in_draft() {
   // Open a sample message with no attachment keywords.
   let cwc = open_compose_new_mail();
   setup_msg_contents(cwc, "test@example.invalid", "Testing draft reminder!",
@@ -606,7 +606,7 @@ function test_reminder_in_draft() {
  * Bug 942436
  * Test that the reminder can be turned off for the current message.
  */
-function test_disabling_attachment_reminder() {
+function disabled_test_disabling_attachment_reminder() {
   // Open a sample message with attachment keywords.
   let cwc = open_compose_new_mail();
   setup_msg_contents(cwc, "test@example.invalid", "Testing turning off the reminder",
