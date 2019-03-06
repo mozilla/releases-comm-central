@@ -500,23 +500,45 @@ function awReturnHit(inputElement) {
   addRecipientsToIgnoreList(inputElement.value);
 }
 
-function awDeleteHit(inputElement) {
+function awDeleteAddressOnClick(deleteAddressElement) {
+  awDeleteHit(deleteAddressElement.parentNode.parentNode
+                                  .querySelector("textbox.textbox-addressingWidget"),
+                                  true);
+}
+
+/**
+ * Delete recipient row (addressingWidgetItem) from UI.
+ *
+ * @param {<xul:textbox>} inputElement  the recipient input XUL textbox element
+ *                                      (textbox-addressingWidget) whose parent
+ *                                      row (addressingWidgetItem) will be deleted.
+ * @param {boolean} deleteForward  true: focus next row after deleting the row
+ *                                 false: focus previous row after deleting the row
+ */
+function awDeleteHit(inputElement, deleteForward = false) {
   let row = awGetRowByInputElement(inputElement);
 
-  /* 1. don't delete the row if it's the last one remaining, just reset it! */
+  // Don't delete the row if it's the last one remaining; just reset it.
   if (top.MAX_RECIPIENTS <= 1) {
     inputElement.value = "";
     return;
   }
 
-  /* 2. Set the focus to the previous field if possible */
+  // Set the focus to the input field of the next/previous row according to
+  // the direction of deleting if possible.
   // Note: awSetFocusTo() is asynchronous, i.e. we'll focus after row removal.
-  if (row > 1)
+  if (!deleteForward && row > 1 ||
+      deleteForward && row == top.MAX_RECIPIENTS) {
+    // We're deleting backwards, but not the first row,
+    // or forwards on the last row: Focus previous row.
     awSetFocusTo(awGetInputElement(row - 1));
-  else
-    awSetFocusTo(awGetInputElement(2));
+  } else {
+    // We're deleting forwards, but not the last row,
+    // or backwards on the first row: Focus next row.
+    awSetFocusTo(awGetInputElement(row + 1));
+  }
 
-  /* 3. Delete the row */
+  // Delete the row.
   awDeleteRow(row);
 }
 
@@ -793,6 +815,10 @@ function awSetAutoComplete(rowNumber) {
   _awSetAutoComplete(selectElem, inputElem);
 }
 
+function awRecipientOnFocus(inputElement) {
+  inputElement.select();
+}
+
 function awRecipientTextCommand(enterEvent, element) {
   // Only add new row when enter was hit (not for tab/autocomplete select).
   if (enterEvent)
@@ -816,32 +842,60 @@ function awRecipientKeyPress(event, element) {
   }
 }
 
-function awRecipientKeyDown(event, element) {
-  switch (event.keyCode) {
-  case KeyEvent.DOM_VK_DELETE:
-  case KeyEvent.DOM_VK_BACK_SPACE:
-    if (!element.value)
-      awDeleteHit(element);
+/**
+ * Handle keydown event on a recipient input textbox.
+ * Enables recipient row deletion with DEL or BACKSPACE and
+ * recipient list navigation with cursor up/down.
+ *
+ * Note that the keydown event fires for ALL keys, so this may affect
+ * autocomplete as user enters a recipient text.
+ *
+ * @param {keydown event} event  the keydown event fired on a recipient input
+ * @param {<xul:textbox>} inputElement  the recipient input XUL textbox element
+ *                                      on which the event fired (textbox-addressingWidget)
+ */
+function awRecipientKeyDown(event, inputElement) {
+  switch (event.key) {
+    // Enable deletion of empty recipient rows.
+    case "Delete":
+    case "Backspace":
+      if (inputElement.textLength == 1 && event.repeat) {
+        // User is holding down Delete or Backspace to delete recipient text
+        // inline and is now deleting the last character: Set flag to
+        // temporarily block row deletion.
+        top.awRecipientInlineDelete = true;
+      }
+      if (!inputElement.value && !event.altKey) {
+        // When user presses DEL or BACKSPACE on an empty row, and it's not an
+        // ongoing inline deletion, and not ALT+BACKSPACE for input undo,
+        // we delete the row.
+        if (top.awRecipientInlineDelete && !event.repeat) {
+          // User has released and re-pressed Delete or Backspace key
+          // after holding them down to delete recipient text inline:
+          // unblock row deletion.
+          top.awRecipientInlineDelete = false;
+        }
+        if (!top.awRecipientInlineDelete) {
+          let deleteForward = (event.key == "Delete");
+          awDeleteHit(inputElement, deleteForward);
+        }
+      }
+      break;
 
-    // We need to stop the event else the listbox will receive it and the
-    // function awKeyDown will be executed!
-    event.stopPropagation();
-    break;
-  }
-}
-
-function awKeyDown(event, listboxElement) {
-  switch (event.keyCode) {
-  case KeyEvent.DOM_VK_DELETE:
-  case KeyEvent.DOM_VK_BACK_SPACE:
-    /* Warning, the listboxElement.selectedItems will change every time we delete a row */
-    var length = listboxElement.selectedCount;
-    for (var i = 1; i <= length; i++) {
-      var inputs = listboxElement.selectedItem.getElementsByTagName(awInputElementName());
-      if (inputs && inputs.length == 1)
-        awDeleteHit(inputs[0]);
-    }
-    break;
+    // Enable browsing the list of recipients up and down with cursor keys.
+    case "ArrowDown":
+    case "ArrowUp":
+      // Only browse recipients if the autocomplete popup is not open.
+      if (!inputElement.popupOpen) {
+        let row = awGetRowByInputElement(inputElement);
+        let down = (event.key == "ArrowDown");
+        let noEdgeRow = down ? row < top.MAX_RECIPIENTS : row > 1;
+        if (noEdgeRow) {
+          let targetRow = down ? row + 1 : row - 1;
+          awSetFocusTo(awGetInputElement(targetRow));
+        }
+      }
+      break;
   }
 }
 

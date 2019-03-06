@@ -1934,7 +1934,6 @@
             </menulist>
           </hbox>
           <richlistbox id="addressingWidget" flex="1" seltype="multiple"
-                       onkeydown="awKeyDown(event, this)"
                        onclick="awClickEmptySpace(event.originalTarget, true)"
                        disableonsend="true">
             <treecols hidden="true">
@@ -1945,8 +1944,7 @@
             <richlistitem class="addressingWidgetItem" allowevents="true">
               <hbox class="aw-firstColBox" align="center">
                 <image class="deleteAddress close-icon"
-                       onclick="awDeleteHit(this.parentNode.nextSibling.nextSibling
-                                                .querySelector('textbox.textbox-addressingWidget'));"/>
+                       onclick="awDeleteAddressOnClick(this);"/>
               </hbox>
               <hbox class="addressingWidgetCell" align="center" style="&headersSpace.style;">
                 <menulist id="addressCol1#1" disableonsend="true"
@@ -1973,6 +1971,7 @@
                          completedefaultindex="true" forcecomplete="true"
                          completeselectedindex="true"
                          minresultsforpopup="2" ignoreblurwhilesearching="true"
+                         onfocus="awRecipientOnFocus(this);"
                          ontextentered="awRecipientTextCommand(param, this)"
                          onchange="onRecipientsChanged();"
                          oninput="onRecipientsChanged();"

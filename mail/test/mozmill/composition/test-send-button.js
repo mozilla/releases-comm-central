@@ -82,6 +82,11 @@ function test_send_enabled_manual_address() {
   toggle_recipient_type(cwc, "addr_cc");
   check_send_commands_state(cwc, false);
 
+  // We changed focus from recipient input box.
+  // One click on the recipient input box selects the whole typed string.
+  cwc.click(cwc.eid("addressCol2#1"), 200, 5);
+  // Another click after the recipient deselects it to allow typing.
+  cwc.click(cwc.eid("addressCol2#1"), 200, 5);
   // This types additional characters into the recipient.
   setup_msg_contents(cwc, "domain.invalid", "", "");
   check_send_commands_state(cwc, true);
