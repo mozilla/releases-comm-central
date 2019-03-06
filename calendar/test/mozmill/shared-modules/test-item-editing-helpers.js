@@ -39,8 +39,7 @@ var EVENT_TABPANELS = `
     id("event-grid-tabbox")/id("event-grid-tabpanels")
 `;
 var DESCRIPTION_TEXTBOX = `
-    ${EVENT_TABPANELS}/id("event-grid-tabpanel-description")/id("item-description")/
-    anon({"anonid":"moz-input-box"})/anon({"class":"textbox-textarea"})
+    ${EVENT_TABPANELS}/id("event-grid-tabpanel-description")/id("item-description")
 `;
 var ATTENDEES_ROW = `
     ${EVENT_TABPANELS}/id("event-grid-tabpanel-attendees")/{"flex":"1"}/
