@@ -127,6 +127,16 @@ class WindowTracker extends WindowTrackerBase {
 
   /**
    * The currently active, or topmost, mail window, or null if no mail window is currently open.
+   *
+   * @property {DOMWindow|null} topWindow
+   * @readonly
+   */
+  get topNonPBWindow() {
+    return Services.wm.getMostRecentWindow("mail:3pane");
+  }
+
+  /**
+   * The currently active, or topmost, mail window, or null if no mail window is currently open.
    * Will only return the topmost "normal" (i.e., not popup) window.
    *
    * @property {?DOMWindow} topNormalWindow
