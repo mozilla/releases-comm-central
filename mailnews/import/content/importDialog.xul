@@ -93,22 +93,17 @@
         </vbox>
         <label>&noModulesFound.label;</label>
       </deck>
-      <grid flex="1">
-        <columns><column flex="1"/></columns>
-        <rows>
-          <row>
-            <description control="moduleList" id="description" class="box-padded"/>
-          </row>
-          <row>
-            <hbox id="acctName-box" flex="1" style="visibility: hidden;">
-              <label control="acctName" class="box-padded"
-                     accesskey="&acctName.accesskey;"
-                     value="&acctName.label;"/>
-              <textbox id="acctName" clickSelectsAll="true"/>
-            </hbox>
-          </row>
-        </rows>
-      </grid>
+      <vbox>
+        <hbox flex="1">
+          <description flex="1" control="moduleList" id="description" class="box-padded"/>
+        </hbox>
+        <hbox id="acctName-box" flex="1" style="visibility: hidden;">
+          <label control="acctName" class="box-padded"
+                 accesskey="&acctName.accesskey;"
+                 value="&acctName.label;"/>
+          <textbox id="acctName" clickSelectsAll="true"/>
+        </hbox>
+      </vbox>
     </vbox>
     <vbox class="wizard-box">
       <spacer flex="1"/>
