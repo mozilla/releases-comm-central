@@ -620,6 +620,10 @@ customElements.whenDefined("menulist").then(() => {
       super.selectedItem = val;
     }
 
+    get selectedItem() {
+      return super.selectedItem;
+    }
+
     select() {
       if (this.editable) {
         this._inputField.select();
