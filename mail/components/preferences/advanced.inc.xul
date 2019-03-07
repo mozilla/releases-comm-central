@@ -15,7 +15,7 @@
 
     <tabbox id="advancedPrefs" flex="1" onselect="gAdvancedPane.tabSelectionChanged();">
       <tabs id="advancedPrefsTabs">
-        <tab id="generalTab" label="&itemGeneral.label;"/>
+        <tab id="advancedGeneralTab" label="&itemGeneral.label;"/>
 #ifdef MOZ_DATA_REPORTING
         <tab id="dataChoicesTab" label="&dataChoicesTab.label;"/>
 #endif
@@ -417,10 +417,12 @@
                       orient="horizontal" preftype="string"
                       preference="security.default_personal_cert"
                       aria-labelledby="CertGroupCaption CertSelectionDesc">
-            <radio label="&certs.auto;" accesskey="&certs.auto.accesskey;"
-                    value="Select Automatically"/>
-            <radio label="&certs.ask;" accesskey="&certs.ask.accesskey;"
-                    value="Ask Every Time"/>
+            <radio id="certSelectionAuto"
+                   label="&certs.auto;" accesskey="&certs.auto.accesskey;"
+                   value="Select Automatically"/>
+            <radio id="certSelectionAsk"
+                   label="&certs.ask;" accesskey="&certs.ask.accesskey;"
+                   value="Ask Every Time"/>
           </radiogroup>
 
           <separator/>

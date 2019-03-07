@@ -1,10 +1,11 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-/* import-globals-from ../../../../base/content/utilityOverlay.js */
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 add_task(async () => {
+  // Mock the prompt service. We're going to be asked if we're sure
+  // we want to remove an account, so let's say yes.
+
   let mockPromptService = {
     confirmCount: 0,
     confirm() {
@@ -30,24 +31,7 @@ add_task(async () => {
 
   // Load the preferences tab.
 
-  let prefsDocument = await new Promise(resolve => {
-    Services.obs.addObserver(function documentLoaded(subject) {
-      if (subject.URL == "about:preferences") {
-        Services.obs.removeObserver(documentLoaded, "chrome-document-loaded");
-        resolve(subject);
-      }
-    }, "chrome-document-loaded");
-    openPreferencesTab("paneApplications", "attachmentsOutTab");
-  });
-  ok(prefsDocument.URL == "about:preferences");
-
-  let prefsWindow = prefsDocument.ownerGlobal;
-  if (prefsWindow.getCurrentPaneID() != "paneApplications") {
-    await new Promise(resolve => {
-      prefsDocument.addEventListener("paneSelected", resolve, { once: true });
-    });
-  }
-  is(prefsWindow.getCurrentPaneID(), "paneApplications");
+  let { prefsDocument, prefsWindow } = await openNewPrefsTab("paneApplications", "attachmentsOutTab");
 
   // Check everything is as it should be.
 
@@ -245,9 +229,7 @@ add_task(async () => {
   is(cloudFileAccounts.providers.length, 3);
   is(cloudFileAccounts.accounts.length, 0);
 
-  let tabmail = document.getElementById("tabmail");
-  let prefsTab = tabmail.currentTabInfo;
-  // This line is a hack to make the test pass despite bug 1519416.
-  document.querySelector(`findbar[browserid="preferencesbrowser"]`)._destroyed = true;
-  tabmail.closeTab(prefsTab);
+  // Close the preferences tab.
+
+  await closePrefsTab();
 });

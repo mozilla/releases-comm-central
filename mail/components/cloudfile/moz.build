@@ -12,6 +12,3 @@ JAR_MANIFESTS += ['jar.mn']
 DIRS += [
     'wetransfer',
 ]
-BROWSER_CHROME_MANIFESTS += [
-    'test/browser/browser.ini'
-]

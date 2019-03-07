@@ -12,3 +12,7 @@ if CONFIG['MOZ_WIDGET_TOOLKIT'] in ('windows', 'gtk3', 'cocoa'):
 
 if CONFIG['MOZ_UPDATER']:
     DEFINES['MOZ_UPDATER'] = 1
+
+BROWSER_CHROME_MANIFESTS += [
+    'test/browser/browser.ini',
+]

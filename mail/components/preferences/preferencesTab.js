@@ -71,10 +71,11 @@ var preferencesTabType = {
 
     // Start setting up the browser.
     aTab.browser = aTab.panel.querySelector("browser");
-
     aTab.browser.setAttribute("id", "preferencesTabBrowser" + this.lastBrowserId);
-
     aTab.browser.addEventListener("DOMLinkAdded", DOMLinkHandler);
+
+    aTab.findbar = aTab.panel.querySelector("findbar");
+    aTab.findbar.setAttribute("browserid", "preferencesTabBrowser" + this.lastBrowserId);
 
     // Default to reload being disabled.
     aTab.reloadEnabled = false;
