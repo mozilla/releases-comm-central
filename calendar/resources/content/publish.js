@@ -172,7 +172,7 @@ function publishItemArray(aItemArray, aPath, aProgressDialog) {
     uploadChannel.setUploadStream(inputStream,
                                   "text/calendar", -1);
     try {
-        channel.asyncOpen(publishingListener, aProgressDialog);
+        channel.asyncOpen(new PublishingListener(aProgressDialog));
     } catch (e) {
         Services.prompt.alert(null, cal.l10n.getCalString("genericErrorTitle"),
                               cal.l10n.getCalString("otherPutError", [e.message]));
@@ -192,15 +192,24 @@ var notificationCallbacks = {
     }
 };
 
+/**
+ * Listener object to pass to `channel.asyncOpen()`. A reference to the current dialog window
+ * passed to the constructor provides access to the dialog once the request is done.
+ * @implements {nsIStreamListener}
+ */
+class PublishingListener {
+    constructor(progressDialog) {
+        this.progressDialog = progressDialog;
+    }
 
-var publishingListener = {
-    QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
+    QueryInterface(aIID) {
+        return cal.generateClassQI(this, aIID, [Ci.PublishingListener]);
+    }
 
-    onStartRequest: function(request) {
-    },
+    onStartRequest(request) {}
 
-    onStopRequest: function(request, status, errorMsg) {
-        this.wrappedJSObject.onStopUpload();
+    onStopRequest(request, status, errorMsg) {
+        this.progressDialog.wrappedJSObject.onStopUpload();
 
         let channel;
         let requestSucceeded;
@@ -208,7 +217,7 @@ var publishingListener = {
             channel = request.QueryInterface(Ci.nsIHttpChannel);
             requestSucceeded = channel.requestSucceeded;
         } catch (e) {
-            // Don't fail if it is not a http channel, will be handled below
+            // Don't fail if it is not an http channel, will be handled below.
         }
 
         if (channel && !requestSucceeded) {
@@ -221,8 +230,7 @@ var publishingListener = {
             let body = cal.l10n.getCalString("otherPutError", [request.status.toString(16)]);
             Services.prompt.alert(null, cal.l10n.getCalString("genericErrorTitle"), body);
         }
-    },
-
-    onDataAvailable: function(request, inStream, sourceOffset, count) {
     }
-};
+
+    onDataAvailable(request, inStream, sourceOffset, count) {}
+}
