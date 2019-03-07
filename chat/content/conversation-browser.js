@@ -41,8 +41,9 @@ class MozConversationBrowser extends customElements.get("browser") {
     // @implements {nsIWebProgressListener}
     this.progressListener = {
       onStateChange: (progress, request, stateFlags, status) => {
-        if (!((stateFlags & Ci.nsIWebProgressListener.STATE_IS_DOCUMENT) &&
-              (stateFlags & Ci.nsIWebProgressListener.STATE_STOP))) {
+        if (!(stateFlags & Ci.nsIWebProgressListener.STATE_STOP) ||
+            !((stateFlags & Ci.nsIWebProgressListener.STATE_IS_DOCUMENT) ||
+              (stateFlags & Ci.nsIWebProgressListener.STATE_IS_WINDOW))) {
           return;
         }
         if (!this._loadState) {
