@@ -8,47 +8,6 @@
 
     <stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
 
-    <preferences id="composePreferences">
-      <preference id="mail.preferences.compose.selectedTabIndex" name="mail.preferences.compose.selectedTabIndex" type="int"/>
-      <preference id="mail.forward_message_mode" name="mail.forward_message_mode" type="int"/>
-      <preference id="mail.forward_add_extension" name="mail.forward_add_extension" type="bool"/>
-      <preference id="mail.SpellCheckBeforeSend" name="mail.SpellCheckBeforeSend" type="bool"/>
-      <preference id="mail.spellcheck.inline" name="mail.spellcheck.inline" type="bool"/>
-      <preference id="mail.warn_on_send_accel_key" name="mail.warn_on_send_accel_key" type="bool"/>
-      <preference id="mail.compose.autosave" name="mail.compose.autosave" type="bool"/>
-      <preference id="mail.compose.autosaveinterval" name="mail.compose.autosaveinterval" type="int"/>
-      <preference id="mail.enable_autocomplete" name="mail.enable_autocomplete" type="bool"/>
-      <preference id="ldap_2.autoComplete.useDirectory"
-                  name="ldap_2.autoComplete.useDirectory"
-                  onchange="gComposePane.enableAutocomplete();" type="bool"/>
-      <preference id="ldap_2.autoComplete.directoryServer" name="ldap_2.autoComplete.directoryServer" type="string"/>
-      <preference id="pref.ldap.disable_button.edit_directories"
-                  name="pref.ldap.disable_button.edit_directories" type="bool"/>
-      <preference id="mail.collect_email_address_outgoing" name="mail.collect_email_address_outgoing" type="bool"/>
-      <preference id="mail.collect_addressbook" name="mail.collect_addressbook" type="string"/>
-      <preference id="spellchecker.dictionary"  name="spellchecker.dictionary"   type="unichar"/>
-      <preference id="msgcompose.default_colors" name="msgcompose.default_colors" type="bool"/>
-      <preference id="msgcompose.font_face"      name="msgcompose.font_face" type="string"/>
-      <preference id="msgcompose.font_size"      name="msgcompose.font_size" type="string"/>
-      <preference id="msgcompose.text_color"     name="msgcompose.text_color" type="string"/>
-      <preference id="msgcompose.background_color" name="msgcompose.background_color" type="string"/>
-      <preference id="mail.compose.attachment_reminder"
-                  name="mail.compose.attachment_reminder"
-                  type="bool"/>
-      <preference id="mail.compose.default_to_paragraph"
-                  name="mail.compose.default_to_paragraph"
-                  type="bool"/>
-    </preferences>
-
-    <commandset id="compositionGeneralCommandSet">
-      <command id="cmd_toggleAutosave"
-               oncommand="gComposePane.updateAutosave();"/>
-      <command id="cmd_toggleAttachmentCheck"
-               oncommand="gComposePane.updateAttachmentCheck();"/>
-      <command id="cmd_toggleUseReaderDefaults"
-               oncommand="gComposePane.updateUseReaderDefaults();"/>
-    </commandset>
-
     <tabbox id="composePrefs" flex="1" onselect="gComposePane.tabSelectionChanged();">
       <tabs id="composePrefsTabs">
         <tab id="generalTab" label="&itemGeneral.label;"/>
@@ -76,7 +35,7 @@
 
             <hbox align="center" pack="start">
               <checkbox id="autoSave" label="&autoSave.label;" preference="mail.compose.autosave"
-                        accesskey="&autoSave.accesskey;" command="cmd_toggleAutosave"/>
+                        accesskey="&autoSave.accesskey;"/>
               <textbox id="autoSaveInterval"
                        size="2" type="number" min="1" max="35790"
                        preference="mail.compose.autosaveinterval"
@@ -94,8 +53,7 @@
               <checkbox id="attachment_reminder_label"
                         label="&attachmentReminder.label;"
                         accesskey="&attachmentReminder.accesskey;"
-                        preference="mail.compose.attachment_reminder"
-                        command="cmd_toggleAttachmentCheck"/>
+                        preference="mail.compose.attachment_reminder"/>
               <spacer flex="1"/>
               <button id="attachment_reminder_button"
                       label="&attachmentReminderOptions.label;"
@@ -141,8 +99,7 @@
               <checkbox id="useReaderDefaults"
                         label="&useReaderDefaults.label;"
                         accesskey="&useReaderDefaults.accesskey;"
-                        preference="msgcompose.default_colors"
-                        command="cmd_toggleUseReaderDefaults"/>
+                        preference="msgcompose.default_colors"/>
             </hbox>
             <hbox align="center" class="indent">
               <label id="textColorLabel"
@@ -217,8 +174,7 @@
             <hbox align="center" pack="start">
               <checkbox id="emailCollectionOutgoing" label="&emailCollectionPicker.label;"
                         accesskey="&emailCollectionPicker.accesskey;"
-                        preference="mail.collect_email_address_outgoing"
-                        oncommand="gComposePane.updateEmailCollection();"/>
+                        preference="mail.collect_email_address_outgoing"/>
               <menulist id="localDirectoriesList" flex="1"
                         preference="mail.collect_addressbook"
                         aria-labelledby="emailCollectionOutgoing">

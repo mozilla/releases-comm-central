@@ -7,23 +7,14 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
 
-<!DOCTYPE prefwindow SYSTEM "chrome://messenger/locale/preferences/dockoptions.dtd">
+<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/preferences/dockoptions.dtd">
 
-<prefwindow id="DockOptionsDialog" type="child"
-            xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-            xmlns:html="http://www.w3.org/1999/xhtml"
-            title="&dockOptionsDialog.title;" dlgbuttons="accept,cancel"
-            style="width: &window.macWidth;">
-  <script type="application/javascript"
-          src="chrome://communicator/content/utilityOverlay.js"/>
+<dialog id="DockOptionsDialog" type="child"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        title="&dockOptionsDialog.title;" dlgbuttons="accept,cancel"
+        style="width: &window.macWidth;">
   <prefpane id="DockOptionsDialogPane">
-    <preferences>
-      <preference id="mail.biff.animate_dock_icon"
-                  name="mail.biff.animate_dock_icon" type="bool"/>
-      <preference id="mail.biff.use_new_count_in_mac_dock"
-                  name="mail.biff.use_new_count_in_mac_dock" type="bool"/>
-    </preferences>
-
     <hbox orient="vertical">
       <checkbox id="newMailNotificationBounce"
                 label="&bounceSystemDockIcon.label;"
@@ -49,4 +40,7 @@
       <description class="bold">&directNotificationSettings.label;</description>
     </hbox>
   </prefpane>
-</prefwindow>
+
+  <script type="application/javascript" src="chrome://global/content/preferencesBindings.js"/>
+  <script type="application/javascript" src="chrome://messenger/content/preferences/dockoptions.js"/>
+</dialog>

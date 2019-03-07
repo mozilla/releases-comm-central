@@ -16,10 +16,45 @@ var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {L10nRegistry} = ChromeUtils.import("resource://gre/modules/L10nRegistry.jsm");
 var {Localization} = ChromeUtils.import("resource://gre/modules/Localization.jsm");
-ChromeUtils.defineModuleGetter(this, "UpdateUtils",
-  "resource://gre/modules/UpdateUtils.jsm");
+var {UpdateUtils} = ChromeUtils.import("resource://gre/modules/UpdateUtils.jsm");
 
 const AUTO_UPDATE_CHANGED_TOPIC = "auto-update-config-change";
+
+Preferences.addAll([
+  { id: "mail.preferences.advanced.selectedTabIndex", type: "int" },
+  { id: "general.autoScroll", type: "bool" },
+  { id: "general.smoothScroll", type: "bool" },
+  { id: "intl.regional_prefs.use_os_locales", type: "bool" },
+  { id: "mailnews.database.global.indexer.enabled", type: "bool" },
+  { id: "layers.acceleration.disabled", type: "bool", inverted: true },
+  { id: "searchintegration.enable", type: "bool" },
+  { id: "mail.prompt_purge_threshhold", type: "bool" },
+  { id: "mail.purge_threshhold_mb", type: "int" },
+  { id: "browser.cache.disk.capacity", type: "int" },
+  { id: "browser.cache.disk.smart_size.enabled", inverted: true, type: "bool" },
+  { id: "security.default_personal_cert", type: "string" },
+  { id: "security.disable_button.openCertManager", type: "bool" },
+  { id: "security.disable_button.openDeviceManager", type: "bool" },
+  { id: "security.OCSP.enabled", type: "int" },
+]);
+
+if (AppConstants.HAVE_SHELL_SERVICE) {
+  Preferences.addAll([
+    { id: "mail.shell.checkDefaultClient", type: "bool" },
+    { id: "pref.general.disable_button.default_mail", type: "bool" },
+  ]);
+}
+
+if (AppConstants.MOZ_TELEMETRY_REPORTING) {
+  Preferences.add({ id: "toolkit.telemetry.enabled", type: "bool" });
+}
+
+if (AppConstants.MOZ_UPDATER) {
+  Preferences.add({ id: "app.update.disable_button.showUpdateHistory", type: "bool" });
+  if (AppConstants.MOZ_MAINTENANCE_SERVICE) {
+    Preferences.add({ id: "app.update.service.enabled", type: "bool" });
+  }
+}
 
 document.getElementById("paneAdvanced")
         .addEventListener("paneload", function() { gAdvancedPane.init(); });
@@ -48,7 +83,7 @@ var gAdvancedPane = {
 
     if (!(("arguments" in window) && window.arguments[1])) {
       // If no tab was specified, select the last used tab.
-      let preference = document.getElementById("mail.preferences.advanced.selectedTabIndex");
+      let preference = Preferences.get("mail.preferences.advanced.selectedTabIndex");
       if (preference.value)
         document.getElementById("advancedPrefs").selectedIndex = preference.value;
     }
@@ -85,7 +120,7 @@ var gAdvancedPane = {
     } else if (disableSearchUI) {
       let searchCheckbox = document.getElementById("searchIntegration");
       searchCheckbox.checked = false;
-      document.getElementById("searchintegration.enable").disabled = true;
+      Preferences.get("searchintegration.enable").disabled = true;
     }
 
     // If the shell service is not working, disable the "Check now" button
@@ -212,8 +247,8 @@ var gAdvancedPane = {
 
   tabSelectionChanged() {
     if (this.mInitialized) {
-      document.getElementById("mail.preferences.advanced.selectedTabIndex")
-              .valueFromPreferences = document.getElementById("advancedPrefs").selectedIndex;
+      Preferences.get("mail.preferences.advanced.selectedTabIndex")
+                 .valueFromPreferences = document.getElementById("advancedPrefs").selectedIndex;
     }
   },
 
@@ -292,7 +327,7 @@ var gAdvancedPane = {
   readSmartSizeEnabled() {
     // The smart_size.enabled preference element is inverted="true", so its
     // value is the opposite of the actual pref value
-    var disabled = document.getElementById("browser.cache.disk.smart_size.enabled").value;
+    var disabled = Preferences.get("browser.cache.disk.smart_size.enabled").value;
     this.updateCacheSizeUI(!disabled);
   },
 
@@ -301,7 +336,7 @@ var gAdvancedPane = {
    * value.
    */
   readCacheSize() {
-    var preference = document.getElementById("browser.cache.disk.capacity");
+    var preference = Preferences.get("browser.cache.disk.capacity");
     return preference.value / 1024;
   },
 
@@ -380,10 +415,10 @@ var gAdvancedPane = {
     gSubDialog.open("chrome://mozapps/content/update/history.xul");
   },
 
-  updateCompactOptions(aCompactEnabled) {
+  updateCompactOptions() {
     document.getElementById("offlineCompactFolderMin").disabled =
-      !document.getElementById("offlineCompactFolder").checked ||
-      document.getElementById("mail.purge_threshhold_mb").locked;
+      !Preferences.get("mail.prompt_purge_threshhold").value ||
+      Preferences.get("mail.purge_threshhold_mb").locked;
   },
 
   updateSubmitCrashReports(aChecked) {
@@ -427,7 +462,7 @@ var gAdvancedPane = {
    * A value of 1 means OCSP is enabled. Any other value means it is disabled.
    */
   readEnableOCSP() {
-    var preference = document.getElementById("security.OCSP.enabled");
+    var preference = Preferences.get("security.OCSP.enabled");
     // This is the case if the preference is the default value.
     if (preference.value === undefined) {
       return true;
@@ -453,10 +488,13 @@ var gAdvancedPane = {
   /**
    * When the user toggles the layers.acceleration.disabled pref,
    * sync its new value to the gfx.direct2d.disabled pref too.
+   * Note that layers.acceleration.disabled is inverted.
    */
-  updateHardwareAcceleration(aVal) {
-    if (AppConstants.platforms == "win")
-      Services.prefs.setBoolPref("gfx.direct2d.disabled", !aVal);
+  updateHardwareAcceleration() {
+    if (AppConstants.platform == "win") {
+      let preference = Preferences.get("layers.acceleration.disabled");
+      Services.prefs.setBoolPref("gfx.direct2d.disabled", !preference.value);
+    }
   },
 
   // DATA CHOICES TAB
@@ -751,3 +789,6 @@ var gAdvancedPane = {
   },
 
 };
+
+Preferences.get("layers.acceleration.disabled").on("change", gAdvancedPane.updateHardwareAcceleration);
+Preferences.get("mail.prompt_purge_threshhold").on("change", gAdvancedPane.updateCompactOptions);

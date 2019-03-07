@@ -24,43 +24,6 @@
     <vbox id="calPreferencesBoxAlarms">
         <stringbundle id="bundleCalendarPreferences"
                       src="chrome://calendar/locale/calendar.properties"/>
-        <preferences>
-            <preference id="calendar.alarms.playsound"
-                        name="calendar.alarms.playsound"
-                        type="bool"
-                        onchange="gAlarmsPane.alarmsPlaySoundPrefChanged();"/>
-            <preference id="calendar.alarms.soundURL"
-                        name="calendar.alarms.soundURL"
-                        type="string"
-                        onchange="gAlarmsPane.readSoundLocation();"/>
-            <preference id="calendar.alarms.show"
-                        name="calendar.alarms.show"
-                        type="bool"/>
-            <preference id="calendar.alarms.showmissed"
-                        name="calendar.alarms.showmissed"
-                        type="bool"/>
-            <preference id="calendar.alarms.onforevents"
-                        name="calendar.alarms.onforevents"
-                        type="int"/>
-            <preference id="calendar.alarms.onfortodos"
-                        name="calendar.alarms.onfortodos"
-                        type="int"/>
-            <preference id="calendar.alarms.eventalarmlen"
-                        name="calendar.alarms.eventalarmlen"
-                        type="int"/>
-            <preference id="calendar.alarms.eventalarmunit"
-                        name="calendar.alarms.eventalarmunit"
-                        type="string"/>
-            <preference id="calendar.alarms.todoalarmlen"
-                        name="calendar.alarms.todoalarmlen"
-                        type="int"/>
-            <preference id="calendar.alarms.todoalarmunit"
-                        name="calendar.alarms.todoalarmunit"
-                        type="string"/>
-            <preference id="calendar.alarms.defaultsnoozelength"
-                        name="calendar.alarms.defaultsnoozelength"
-                        type="int"/>
-        </preferences>
 
         <groupbox>
             <label><html:h2>&pref.alarmgoesoff.label;</html:h2></label>

@@ -64,8 +64,14 @@ var previewObserver = {
     document.getElementById("showHeaderCheckbox")
             .addEventListener("CheckboxStateChange",
                               previewObserver.showHeaderChanged);
-    previewObserver.displayTheme(themeName.value);
-    this._loaded = true;
+
+    // If the preferences tab is opened straight to the message styles,
+    // loading the preview fails. Pushing this to back of the event queue
+    // prevents that failure.
+    setTimeout(() => {
+      previewObserver.displayTheme(themeName.value);
+      this._loaded = true;
+    });
   },
 
   showHeaderChanged() {
@@ -109,8 +115,8 @@ var previewObserver = {
     }
 
     let menulist = document.getElementById("themevariant");
-    if (menulist.firstChild)
-      menulist.firstChild.remove();
+    if (menulist.menupopup)
+      menulist.menupopup.remove();
     let popup = menulist.appendChild(document.createElement("menupopup"));
     let variants = getThemeVariants(this.theme);
 
@@ -146,7 +152,7 @@ var previewObserver = {
       menulist.value = this.theme.variant = menulist.value;
     } else {
       menulist.value = this.theme.variant; // (reset to "default")
-      document.getElementById("paneChat").userChangedValue(menulist);
+      Preferences.userChangedValue(menulist);
     }
     this._ignoreVariantChange = false;
 

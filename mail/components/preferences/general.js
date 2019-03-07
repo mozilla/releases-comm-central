@@ -8,6 +8,22 @@
 /* import-globals-from preferences.js */
 /* import-globals-from subdialogs.js */
 
+var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+
+Preferences.addAll([
+  { id: "mail.pane_config.dynamic", type: "int" },
+  { id: "mailnews.reuse_message_window", type: "bool" },
+  { id: "mailnews.start_page.enabled", type: "bool" },
+  { id: "mailnews.start_page.url", type: "string" },
+  { id: "mail.biff.show_tray_icon", type: "bool"  },
+  { id: "mail.biff.play_sound", type: "bool" },
+  { id: "mail.biff.play_sound.type", type: "int" },
+  { id: "mail.biff.play_sound.url", type: "string" },
+]);
+if (AppConstants.platform != "macosx") {
+  Preferences.add({ id: "mail.biff.show_alert", type: "bool" });
+}
+
 document.getElementById("paneGeneral")
         .addEventListener("paneload", function() { gGeneralPane.init(); });
 
@@ -19,8 +35,14 @@ var gGeneralPane = {
     this.mPane = document.getElementById("paneGeneral");
 
     this.updateStartPage();
-    this.updatePlaySound();
-    this.updateCustomizeAlert();
+    this.updatePlaySound(
+      !Preferences.get("mail.biff.play_sound").value,
+      Preferences.get("mail.biff.play_sound.url").value,
+      Preferences.get("mail.biff.play_sound.type").value
+    );
+    if (AppConstants.platform != "macosx") {
+      this.updateCustomizeAlert();
+    }
     this.updateWebSearch();
   },
 
@@ -28,7 +50,7 @@ var gGeneralPane = {
    * Restores the default start page as the user's start page
    */
   restoreDefaultStartPage() {
-    var startPage = document.getElementById("mailnews.start_page.url");
+    var startPage = Preferences.get("mailnews.start_page.url");
     startPage.value = startPage.defaultValue;
   },
 
@@ -37,7 +59,7 @@ var gGeneralPane = {
    * Stores the original value of mailnews.start_page.url
    */
   readStartPageUrl() {
-    var pref = document.getElementById("mailnews.start_page.url");
+    var pref = Preferences.get("mailnews.start_page.url");
     this.mStartPageUrl = pref.value;
     return Services.urlFormatter.formatURL(this.mStartPageUrl);
   },
@@ -75,7 +97,7 @@ var gGeneralPane = {
 
   readSoundLocation() {
     var soundUrlLocation = document.getElementById("soundUrlLocation");
-    soundUrlLocation.value = document.getElementById("mail.biff.play_sound.url").value;
+    soundUrlLocation.value = Preferences.get("mail.biff.play_sound.url").value;
     if (soundUrlLocation.value) {
       soundUrlLocation.label = this.convertURLToLocalFile(soundUrlLocation.value).leafName;
       soundUrlLocation.style.backgroundImage = "url(moz-icon://" + soundUrlLocation.label + "?size=16)";
@@ -131,28 +153,34 @@ var gGeneralPane = {
         return;
       }
       // convert the nsIFile into a nsIFile url
-      document.getElementById("mail.biff.play_sound.url").value = fp.fileURL.spec;
+      Preferences.get("mail.biff.play_sound.url").value = fp.fileURL.spec;
       this.readSoundLocation(); // XXX We shouldn't have to be doing this by hand
       this.updatePlaySound();
     });
   },
 
-  updatePlaySound() {
+  updatePlaySound(soundsDisabled, soundUrlLocation, soundType) {
     // Update the sound type radio buttons based on the state of the
     // play sound checkbox.
-    var soundsDisabled = !document.getElementById("newMailNotification").checked;
-    var soundUrlLocation = document.getElementById("soundUrlLocation").value;
+    if (soundsDisabled === undefined) {
+      soundsDisabled = !document.getElementById("newMailNotification").checked;
+      soundUrlLocation = document.getElementById("soundUrlLocation").value;
+    }
 
     // The UI is different on OS X as the user can only choose between letting
     // the system play a default sound or setting a custom one. Therefore,
     // "soundTypeEl" does not exist on OS X.
     if (AppConstants.platform != "macosx") {
       var soundTypeEl = document.getElementById("soundType");
+      if (soundType === undefined) {
+        soundType = soundTypeEl.value;
+      }
+
       soundTypeEl.disabled = soundsDisabled;
       document.getElementById("soundUrlLocation").disabled =
-        soundsDisabled || soundTypeEl.value != 1;
+        soundsDisabled || soundType != 1;
       document.getElementById("playSound").disabled =
-        soundsDisabled || (!soundUrlLocation && soundTypeEl.value != 0);
+        soundsDisabled || (!soundUrlLocation && soundType != 0);
     } else {
       // On OS X, if there is no selected custom sound then default one will
       // be played. We keep consistency by disabling the "Play sound" checkbox
@@ -161,22 +189,21 @@ var gGeneralPane = {
       document.getElementById("playSound").disabled = !soundUrlLocation;
       // The sound type radiogroup is hidden, but we have to keep the
       // play_sound.type pref set appropriately.
-      document.getElementById("mail.biff.play_sound.type").value =
+      Preferences.get("mail.biff.play_sound.type").value =
         (!soundsDisabled && soundUrlLocation) ? 1 : 0;
     }
   },
 
   updateStartPage() {
     document.getElementById("mailnewsStartPageUrl").disabled =
-      !document.getElementById("mailnewsStartPageEnabled").checked;
+      !Preferences.get("mailnews.start_page.enabled").value;
   },
 
   updateCustomizeAlert() {
     // The button does not exist on all platforms.
     let customizeAlertButton = document.getElementById("customizeMailAlert");
     if (customizeAlertButton) {
-      customizeAlertButton.disabled =
-        !document.getElementById("newMailNotificationAlert").checked;
+      customizeAlertButton.disabled = !Preferences.get("mail.biff.show_alert").value;
     }
   },
 
@@ -202,3 +229,8 @@ var gGeneralPane = {
     });
   },
 };
+
+Preferences.get("mailnews.start_page.enabled").on("change", gGeneralPane.updateStartPage);
+if (AppConstants.platform != "macosx") {
+  Preferences.get("mail.biff.show_alert").on("change", gGeneralPane.updateCustomizeAlert);
+}

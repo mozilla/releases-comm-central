@@ -3,7 +3,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../../../toolkit/content/preferencesBindings.js */
+
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
+Preferences.addAll([
+  { id: "mailnews.sendformat.auto_downgrade", type: "bool" },
+  { id: "mail.default_html_action", type: "int" },
+  { id: "mailnews.html_domains", type: "string" },
+  { id: "mailnews.plaintext_domains", type: "string" },
+]);
 
 var gSendOptionsDialog = {
   mPrefsBundle: null,
@@ -15,9 +24,9 @@ var gSendOptionsDialog = {
     this.mHTMLListBox = document.getElementById("html_domains");
     this.mPlainTextListBox = document.getElementById("plaintext_domains");
 
-    this.loadDomains(document.getElementById("mailnews.html_domains").value,
+    this.loadDomains(Preferences.get("mailnews.html_domains").value,
                      this.mHTMLListBox);
-    this.loadDomains(document.getElementById("mailnews.plaintext_domains").value,
+    this.loadDomains(Preferences.get("mailnews.plaintext_domains").value,
                      this.mPlainTextListBox);
   },
 
@@ -58,7 +67,7 @@ var gSendOptionsDialog = {
     for (let i = selectedCount - 1; i >= 0; i--)
       listbox.selectedItems[i].remove();
 
-    document.getElementById("SendOptionsDialogPane").userChangedValue(listbox);
+    Preferences.userChangedValue(listbox);
   },
 
   addDomain(aHTML) {
@@ -72,7 +81,7 @@ var gSendOptionsDialog = {
 
     if (domainName && !this.domainAlreadyPresent(domainName)) {
       this.addItemToDomainList(listbox, domainName);
-      document.getElementById("SendOptionsDialogPane").userChangedValue(listbox);
+      Preferences.userChangedValue(listbox);
     }
   },
 

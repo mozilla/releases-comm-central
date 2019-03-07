@@ -10,6 +10,18 @@
 
 ChromeUtils.defineModuleGetter(this, "LoginHelper", "resource://gre/modules/LoginHelper.jsm");
 
+Preferences.addAll([
+  { id: "mail.preferences.security.selectedTabIndex", type: "int" },
+  { id: "mail.spam.manualMark", type: "bool" },
+  { id: "mail.spam.manualMarkMode", type: "int" },
+  { id: "mail.spam.markAsReadOnSpam", type: "bool" },
+  { id: "mail.spam.logging.enabled", type: "bool" },
+  { id: "mail.phishing.detection.enabled", type: "bool" },
+  { id: "browser.safebrowsing.enabled", type: "bool" },
+  { id: "mailnews.downloadToTempFile", type: "bool" },
+  { id: "pref.privacy.disable_button.view_passwords", type: "bool" },
+]);
+
 document.getElementById("paneSecurity")
         .addEventListener("paneload", function() { gSecurityPane.init(); });
 
@@ -20,8 +32,8 @@ var gSecurityPane = {
   init() {
     this.mPane = document.getElementById("paneSecurity");
 
-    this.updateManualMarkMode(document.getElementById("manualMark").checked);
-    this.updateJunkLogButton(document.getElementById("enableJunkLogging").checked);
+    this.updateManualMarkMode(Preferences.get("mail.spam.manualMark").value);
+    this.updateJunkLogButton(Preferences.get("mail.spam.logging.enabled").value);
 
     this._initMasterPasswordUI();
 
@@ -30,7 +42,7 @@ var gSecurityPane = {
 
     if (!(("arguments" in window) && window.arguments[1])) {
       // If no tab was specified, select the last used tab.
-      let preference = document.getElementById("mail.preferences.security.selectedTabIndex");
+      let preference = Preferences.get("mail.preferences.security.selectedTabIndex");
       if (preference.value)
         document.getElementById("securityPrefs").selectedIndex = preference.value;
     }
@@ -40,8 +52,8 @@ var gSecurityPane = {
 
   tabSelectionChanged() {
     if (this.mInitialized)
-      document.getElementById("mail.preferences.security.selectedTabIndex")
-              .valueFromPreferences = document.getElementById("securityPrefs").selectedIndex;
+      Preferences.get("mail.preferences.security.selectedTabIndex")
+                 .valueFromPreferences = document.getElementById("securityPrefs").selectedIndex;
   },
 
   updateManualMarkMode(aEnableRadioGroup) {
@@ -161,3 +173,5 @@ var gSecurityPane = {
   },
 
 };
+
+Preferences.get("mail.phishing.detection.enabled").on("change", gSecurityPane.reloadMessageInOpener);

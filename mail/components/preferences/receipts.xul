@@ -7,28 +7,20 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
 
-<!DOCTYPE prefwindow [
+<!DOCTYPE dialog [
 <!ENTITY % receiptsDTD SYSTEM "chrome://messenger/locale/preferences/receipts.dtd">
 %receiptsDTD;
 ]>
 
-<prefwindow id="ReturnReceiptsDialog" type="child"
-            xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-            dlgbuttons="accept,cancel"
-            title="&dialog.title;"
-            onload="enableDisableAllowedReceipts();">
+<dialog id="ReturnReceiptsDialog" type="child"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        dlgbuttons="accept,cancel"
+        title="&dialog.title;"
+        onload="enableDisableAllowedReceipts();">
 
   <prefpane id="ReturnReceiptsDialogPane">
+    <script type="application/javascript" src="chrome://global/content/preferencesBindings.js"/>
     <script type="application/javascript" src="chrome://messenger/content/preferences/receipts.js"/>
-
-    <preferences id="ReturnReceiptsPreferences">
-      <preference id="mail.receipt.request_return_receipt_on" name="mail.receipt.request_return_receipt_on" type="bool"/>
-      <preference id="mail.incorporate.return_receipt" name="mail.incorporate.return_receipt" type="int"/>
-      <preference id="mail.mdn.report.enabled"     name="mail.mdn.report.enabled" type="bool"/>
-      <preference id="mail.mdn.report.not_in_to_cc" name="mail.mdn.report.not_in_to_cc" type="int"/>
-      <preference id="mail.mdn.report.outside_domain" name="mail.mdn.report.outside_domain" type="int"/>
-      <preference id="mail.mdn.report.other" name="mail.mdn.report.other" type="int"/>
-    </preferences>
 
     <vbox id="returnReceiptSettings" align="start">
       <checkbox id="alwaysRequest" label="&requestReceipt.label;"
@@ -99,4 +91,4 @@
     </radiogroup>
     <separator/>
   </prefpane>
-</prefwindow>
+</dialog>

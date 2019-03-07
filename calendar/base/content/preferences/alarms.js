@@ -6,6 +6,20 @@
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+Preferences.addAll([
+    { id: "calendar.alarms.playsound", type: "bool" },
+    { id: "calendar.alarms.soundURL", type: "string" },
+    { id: "calendar.alarms.show", type: "bool" },
+    { id: "calendar.alarms.showmissed", type: "bool" },
+    { id: "calendar.alarms.onforevents", type: "int" },
+    { id: "calendar.alarms.onfortodos", type: "int" },
+    { id: "calendar.alarms.eventalarmlen", type: "int" },
+    { id: "calendar.alarms.eventalarmunit", type: "string" },
+    { id: "calendar.alarms.todoalarmlen", type: "int" },
+    { id: "calendar.alarms.todoalarmunit", type: "string" },
+    { id: "calendar.alarms.defaultsnoozelength", type: "int" },
+]);
+
 /**
  * Global Object to hold methods for the alarms pref pane
  */
@@ -48,9 +62,9 @@ var gAlarmsPane = {
      */
     readSoundLocation: function() {
         let soundUrl = document.getElementById("alarmSoundFileField");
-        soundUrl.value = document.getElementById("calendar.alarms.soundURL").value;
+        soundUrl.value = Preferences.get("calendar.alarms.soundURL").value;
         if (soundUrl.value.startsWith("file://")) {
-            soundUrl.label = this.convertURLToLocalFile(soundUrl.value).leafName;
+            soundUrl.label = gAlarmsPane.convertURLToLocalFile(soundUrl.value).leafName;
         } else {
             soundUrl.label = soundUrl.value;
         }
@@ -63,7 +77,7 @@ var gAlarmsPane = {
      */
     useDefaultSound: function() {
         let defaultSoundUrl = "chrome://calendar/content/sound.wav";
-        document.getElementById("calendar.alarms.soundURL").value = defaultSoundUrl;
+        Preferences.get("calendar.alarms.soundURL").value = defaultSoundUrl;
         document.getElementById("alarmSoundCheckbox").checked = true;
         this.readSoundLocation();
     },
@@ -87,7 +101,7 @@ var gAlarmsPane = {
             if (rv != Ci.nsIFilePicker.returnOK || !picker.file) {
                 return;
             }
-            document.getElementById("calendar.alarms.soundURL").value = picker.fileURL.spec;
+            Preferences.get("calendar.alarms.soundURL").value = picker.fileURL.spec;
             document.getElementById("alarmSoundCheckbox").checked = true;
             this.readSoundLocation();
         });
@@ -119,7 +133,7 @@ var gAlarmsPane = {
      * playing a sound.
      */
     alarmsPlaySoundPrefChanged: function() {
-        let alarmsPlaySoundPref = document.getElementById("calendar.alarms.playsound");
+        let alarmsPlaySoundPref = Preferences.get("calendar.alarms.playsound");
 
         let items = [
             document.getElementById("alarmSoundFileField"),
@@ -133,3 +147,6 @@ var gAlarmsPane = {
         }
     }
 };
+
+Preferences.get("calendar.alarms.playsound").on("change", gAlarmsPane.alarmsPlaySoundPrefChanged);
+Preferences.get("calendar.alarms.soundURL").on("change", gAlarmsPane.readSoundLocation);

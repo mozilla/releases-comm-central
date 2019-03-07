@@ -8,7 +8,7 @@
 <?xml-stylesheet href="chrome://messenger/content/charsetList.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
 
-<!DOCTYPE prefwindow [
+<!DOCTYPE dialog [
 <!ENTITY % fontsDTD SYSTEM "chrome://messenger/locale/preferences/fonts.dtd" >
 %fontsDTD;
 ]>

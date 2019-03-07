@@ -12,40 +12,6 @@
 #endif
     ]]>
     </script>
-
-    <preferences id="applicationsPreferences">
-      <preference id="mail.preferences.applications.selectedTabIndex"
-                  name="mail.preferences.applications.selectedTabIndex" type="int"/>
-    </preferences>
-
-    <preferences id="downloadDirPreferences">
-      <preference id="browser.download.useDownloadDir"
-                  name="browser.download.useDownloadDir"
-                  type="bool"/>
-      <preference id="browser.download.folderList"
-                  name="browser.download.folderList"
-                  type="int"/>
-      <preference id="browser.download.downloadDir"
-                  name="browser.download.downloadDir"
-                  type="file"/>
-      <preference id="browser.download.dir"
-                  name="browser.download.dir"
-                  type="file"
-                  onchange="gDownloadDirSection.readDownloadDirPref();"/>
-      <preference id="pref.downloads.disable_button.edit_actions"
-                  name="pref.downloads.disable_button.edit_actions"
-                  type="bool"/>
-    </preferences>
-
-    <preferences id="cloudFilePreferences">
-      <preference id="mail.compose.big_attachments.notify"
-                  name="mail.compose.big_attachments.notify"
-                  type="bool"/>
-      <preference id="mail.compose.big_attachments.threshold_kb"
-                  name="mail.compose.big_attachments.threshold_kb"
-                  type="int"/>
-    </preferences>
-
     <script type="application/javascript"
             src="chrome://messenger/content/preferences/applications.js"/>
 

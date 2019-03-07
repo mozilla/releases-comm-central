@@ -19,11 +19,6 @@
                   flex="1"
                   insertbefore="paneAdvanced"
                   label="&lightning.preferencesLabel;">
-            <preferences>
-                <preference id="calendar.preferences.lightning.selectedTabIndex"
-                            name="calendar.preferences.lightning.selectedTabIndex"
-                            type="int"/>
-            </preferences>
             <tabbox id="calPreferencesTabbox"
                     flex="1">
                 <tabs>

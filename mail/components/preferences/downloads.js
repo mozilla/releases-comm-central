@@ -8,6 +8,14 @@
 var {Downloads} = ChromeUtils.import("resource://gre/modules/Downloads.jsm");
 var {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 
+Preferences.addAll([
+  { id: "browser.download.useDownloadDir", type: "bool" },
+  { id: "browser.download.folderList", type: "int" },
+  { id: "browser.download.downloadDir", type: "file" },
+  { id: "browser.download.dir", type: "file" },
+  { id: "pref.downloads.disable_button.edit_actions", type: "bool" },
+]);
+
 var gDownloadDirSection = {
   async chooseFolder() {
     var fp = Cc["@mozilla.org/filepicker;1"]
@@ -16,7 +24,7 @@ var gDownloadDirSection = {
     var title = bundlePreferences.getString("chooseAttachmentsFolderTitle");
     fp.init(window, title, Ci.nsIFilePicker.modeGetFolder);
 
-    var customDirPref = document.getElementById("browser.download.dir");
+    var customDirPref = Preferences.get("browser.download.dir");
     if (customDirPref.value)
       fp.displayDirectory = customDirPref.value;
     fp.appendFilters(Ci.nsIFilePicker.filterAll);
@@ -27,9 +35,9 @@ var gDownloadDirSection = {
     }
 
     let file = fp.file.QueryInterface(Ci.nsIFile);
-    let currentDirPref = document.getElementById("browser.download.downloadDir");
+    let currentDirPref = Preferences.get("browser.download.downloadDir");
     customDirPref.value = currentDirPref.value = file;
-    let folderListPref = document.getElementById("browser.download.folderList");
+    let folderListPref = Preferences.get("browser.download.folderList");
     folderListPref.value = await this._fileToIndex(file);
   },
 
@@ -37,7 +45,7 @@ var gDownloadDirSection = {
     this.readDownloadDirPref();
     var downloadFolder = document.getElementById("downloadFolder");
     var chooseFolder = document.getElementById("chooseFolder");
-    var preference = document.getElementById("browser.download.useDownloadDir");
+    var preference = Preferences.get("browser.download.useDownloadDir");
     downloadFolder.disabled = !preference.value;
     chooseFolder.disabled = !preference.value;
     return undefined;
@@ -58,7 +66,7 @@ var gDownloadDirSection = {
     case 1:
       return this._getDownloadsFolder("Downloads");
     }
-    var customDirPref = document.getElementById("browser.download.dir");
+    var customDirPref = Preferences.get("browser.download.dir");
     return customDirPref.value;
   },
 
@@ -74,11 +82,11 @@ var gDownloadDirSection = {
   },
 
   async readDownloadDirPref() {
-    var folderListPref = document.getElementById("browser.download.folderList");
+    var folderListPref = Preferences.get("browser.download.folderList");
     var bundlePreferences = document.getElementById("bundlePreferences");
     var downloadFolder = document.getElementById("downloadFolder");
 
-    var customDirPref = document.getElementById("browser.download.dir");
+    var customDirPref = Preferences.get("browser.download.dir");
     var customIndex = customDirPref.value ? await this._fileToIndex(customDirPref.value) : 0;
     if (customIndex == 0)
       downloadFolder.value = bundlePreferences.getString("desktopFolderName");
@@ -87,7 +95,7 @@ var gDownloadDirSection = {
     else
       downloadFolder.value = customDirPref.value ? customDirPref.value.path : "";
 
-    var currentDirPref = document.getElementById("browser.download.downloadDir");
+    var currentDirPref = Preferences.get("browser.download.downloadDir");
     var downloadDir = currentDirPref.value || await this._indexToFile(folderListPref.value);
     let urlSpec = Services.io.getProtocolHandler("file")
       .QueryInterface(Ci.nsIFileProtocolHandler)
@@ -98,3 +106,5 @@ var gDownloadDirSection = {
     return undefined;
   },
 };
+
+Preferences.get("browser.download.dir").on("change", gDownloadDirSection.readDownloadDirPref);

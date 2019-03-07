@@ -6,10 +6,11 @@ messenger.jar:
 *   content/messenger/preferences/aboutPreferences.xul
     content/messenger/preferences/preferences.css
     content/messenger/preferences/preferences.js
-*   content/messenger/preferences/preferences.xml       (../../../common/bindings/preferences.xml)
+    content/messenger/preferences/preferences.xml
     content/messenger/preferences/preferencesTab.js
     content/messenger/preferences/general.js
 #ifdef XP_MACOSX
+    content/messenger/preferences/dockoptions.js
     content/messenger/preferences/dockoptions.xul
 #endif
     content/messenger/preferences/display.js
@@ -17,6 +18,7 @@ messenger.jar:
     content/messenger/preferences/messagestyle.js
     content/messenger/preferences/messengerLanguages.js
     content/messenger/preferences/messengerLanguages.xul
+    content/messenger/preferences/colors.js
 *   content/messenger/preferences/colors.xul
     content/messenger/preferences/compose.js
     content/messenger/preferences/privacy.js
@@ -39,6 +41,7 @@ messenger.jar:
     content/messenger/preferences/fonts.js
     content/messenger/preferences/fonts.xul
 #ifndef XP_MACOSX
+    content/messenger/preferences/notifications.js
     content/messenger/preferences/notifications.xul
 #endif
     content/messenger/preferences/offline.js

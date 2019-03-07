@@ -5,7 +5,6 @@
 dialog,
 window,
 prefpane,
-prefwindow,
 .windowDialog {
   -moz-appearance: none;
   background-color: #fbfbfb;

@@ -6,20 +6,20 @@
 
 <?xml-stylesheet href="chrome://global/skin/"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
-<!DOCTYPE prefwindow [
+<!DOCTYPE dialog [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
 %brandDTD;
 <!ENTITY % sendOptionsDTD SYSTEM "chrome://messenger/locale/preferences/attachmentReminder.dtd">
 %sendOptionsDTD;
 ]>
 
-<prefwindow id="attachmentReminderOptionsDialog" type="child"
-            xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-            dlgbuttons="accept,cancel"
-            title="&attachmentReminderDialog.title;"
-            onload="gAttachmentReminderOptionsDialog.init();"
-            ondialogaccept="gAttachmentReminderOptionsDialog.saveKeywords();"
-            style="width:38em;">
+<dialog id="attachmentReminderOptionsDialog" type="child"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        dlgbuttons="accept,cancel"
+        title="&attachmentReminderDialog.title;"
+        onload="gAttachmentReminderOptionsDialog.init();"
+        ondialogaccept="gAttachmentReminderOptionsDialog.saveKeywords();"
+        style="width:38em;">
 
   <prefpane id="attachmentReminderOptionsDialogPane">
     <script type="application/javascript" src="chrome://messenger/content/preferences/attachmentReminder.js"/>
@@ -41,4 +41,4 @@
       </hbox>
     </groupbox>
   </prefpane>
-</prefwindow>
+</dialog>

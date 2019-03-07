@@ -28,46 +28,6 @@
     </script>
 
     <vbox id="calPreferencesBoxGeneral">
-
-        <preferences>
-            <preference id="calendar.date.format"
-                        name="calendar.date.format"
-                        type="int"/>
-            <preference id="calendar.event.defaultlength"
-                        name="calendar.event.defaultlength"
-                        type="int"/>
-            <preference id="calendar-timezone-local"
-                        name="calendar.timezone.local"
-                        type="string"/>
-            <preference id="calendar.task.defaultstart"
-                        name="calendar.task.defaultstart"
-                        type="string"/>
-            <preference id="calendar.task.defaultstartoffset"
-                        name="calendar.task.defaultstartoffset"
-                        type="int"/>
-            <preference id="calendar.task.defaultstartoffsetunits"
-                        name="calendar.task.defaultstartoffsetunits"
-                        type="string"/>
-            <preference id="calendar.task.defaultdue"
-                        name="calendar.task.defaultdue"
-                        type="string"/>
-            <preference id="calendar.task.defaultdueoffset"
-                        name="calendar.task.defaultdueoffset"
-                        type="int"/>
-            <preference id="calendar.task.defaultdueoffsetunits"
-                        name="calendar.task.defaultdueoffsetunits"
-                        type="string"/>
-            <preference id="calendar.view.useSystemColors"
-                        name="calendar.view.useSystemColors"
-                        type="bool"/>
-            <preference id="calendar.agendaListbox.soondays"
-                        name="calendar.agendaListbox.soondays"
-                        type="int"/>
-            <preference id="calendar.item.editInTab"
-                        name="calendar.item.editInTab"
-                        type="bool"/>
-        </preferences>
-
         <groupbox>
             <label><html:h2>&pref.mainbox.label;</html:h2></label>
             <vbox align="left">
@@ -97,7 +57,7 @@
                        accesskey="&pref.timezones.accesskey;"
                        control="calendar-timezone-menulist"/>
                 <menulist id="calendar-timezone-menulist"
-                          preference="calendar-timezone-local">
+                          preference="calendar.timezone.local">
                     <menupopup id="calendar-timezone-menupopup"/>
                 </menulist>
             </hbox>

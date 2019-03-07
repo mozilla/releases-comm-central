@@ -8,111 +8,10 @@
     <script type="application/javascript" src="chrome://messenger/content/preferences/advanced.js"/>
     <script type="application/javascript" src="chrome://communicator/content/utilityOverlay.js"/>
 
-    <preferences id="advancedPreferences">
-      <preference id="mail.preferences.advanced.selectedTabIndex"
-                  name="mail.preferences.advanced.selectedTabIndex" type="int"/>
-      <!-- General tab -->
-
-      <preference id="general.autoScroll"
-                  name="general.autoScroll"
-                  type="bool"/>
-      <preference id="general.smoothScroll"
-                  name="general.smoothScroll"
-                  type="bool"/>
-      <preference id="intl.regional_prefs.use_os_locales"
-                  name="intl.regional_prefs.use_os_locales"
-                  type="bool"/>
-
-      <preference id="mailnews.database.global.indexer.enabled"
-                  name="mailnews.database.global.indexer.enabled"
-                  type="bool"/>
-
-      <preference id="layers.acceleration.disabled"
-                  name="layers.acceleration.disabled"
-                  type="bool"
-                  inverted="true"
-                  onchange="gAdvancedPane.updateHardwareAcceleration(this.value);"/>
-
-#ifdef HAVE_SHELL_SERVICE
-      <preference id="mail.shell.checkDefaultClient"
-                  name="mail.shell.checkDefaultClient"
-                  type="bool"/>
-      <preference id="pref.general.disable_button.default_mail"
-                  name="pref.general.disable_button.default_mail"
-                  type="bool"/>
-#endif
-      <!-- Keep one id, so that we don't have to do platform specific stuff later -->
-#ifdef XP_WIN
-      <preference id="searchintegration.enable"
-                  name="mail.winsearch.enable"
-                  type="bool"/>
-#else
-#ifdef XP_MACOSX
-      <preference id="searchintegration.enable"
-                  name="mail.spotlight.enable"
-                  type="bool"/>
-#else
-      <!-- We don't have any OS search integration for linux yet. -->
-      <preference id="searchintegration.enable"
-                  name="mail.XXX.enable"
-                  type="bool"/>
-#endif
-#endif
-
-      <!-- Data Choices tab -->
-#ifdef MOZ_TELEMETRY_REPORTING
-      <preference id="toolkit.telemetry.enabled"
-                  name="toolkit.telemetry.enabled"
-                  type="bool"/>
-#endif
-
-      <!-- Network tab -->
-      <preference id="mail.prompt_purge_threshhold"
-                  name="mail.prompt_purge_threshhold" type="bool"/>
-      <preference id="mail.purge_threshhold_mb"
-                  name="mail.purge_threshhold_mb" type="int"/>
-      <preference id="browser.cache.disk.capacity"
-                  name="browser.cache.disk.capacity" type="int"/>
-      <preference id="browser.cache.disk.smart_size.enabled"
-                  name="browser.cache.disk.smart_size.enabled"
-                  inverted="true"
-                  type="bool"/>
-#ifdef MOZ_UPDATER
-      <!-- Update tab -->
-      <preference id="app.update.disable_button.showUpdateHistory"
-                  name="app.update.disable_button.showUpdateHistory"
-                  type="bool"/>
-
-#ifdef MOZ_MAINTENANCE_SERVICE
-      <preference id="app.update.service.enabled"
-                  name="app.update.service.enabled"
-                  type="bool"/>
-#endif
-#endif
-      <!-- Certificates tab -->
-      <preference id="security.default_personal_cert"
-                  name="security.default_personal_cert"
-                  type="string"/>
-      <preference id="security.disable_button.openCertManager"
-                  name="security.disable_button.openCertManager"
-                  type="bool"/>
-      <preference id="security.disable_button.openDeviceManager"
-                  name="security.disable_button.openDeviceManager"
-                  type="bool"/>
-      <preference id="security.OCSP.enabled"
-                  name="security.OCSP.enabled"
-                  type="int"/>
-    </preferences>
-
 #ifdef HAVE_SHELL_SERVICE
     <stringbundle id="bundlePreferences" src="chrome://messenger/locale/preferences/preferences.properties"/>
     <stringbundle id="bundleBrand" src="chrome://branding/locale/brand.properties"/>
 #endif
-
-    <commandset id="networkTabCommandSet">
-      <command id="cmd_toggleCompact"
-               oncommand="gAdvancedPane.updateCompactOptions();"/>
-    </commandset>
 
     <tabbox id="advancedPrefs" flex="1" onselect="gAdvancedPane.tabSelectionChanged();">
       <tabs id="advancedPrefsTabs">
@@ -362,9 +261,9 @@
                 <checkbox id="offlineCompactFolder"
                           label="&offlineCompactFolders.label;"
                           accesskey="&offlineCompactFolders.accesskey;"
-                          command="cmd_toggleCompact"
                           aria-labelledby="offlineCompactFolder offlineCompactFolderMin compactFolderMB"
-                          preference="mail.prompt_purge_threshhold"/>
+                          preference="mail.prompt_purge_threshhold"
+                          oncommand="gAdvancedPane.updateCompactOptions(this.checked);"/>
                 <textbox id="offlineCompactFolderMin" size="4" value="20"
                          type="number" min="1" max="2048" increment="10"
                          preference="mail.purge_threshhold_mb"
@@ -555,4 +454,3 @@
     </tabbox>
     <separator/>
   </prefpane>
-

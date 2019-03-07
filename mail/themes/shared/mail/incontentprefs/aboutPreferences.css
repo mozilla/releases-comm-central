@@ -11,11 +11,6 @@
   color: var(--in-content-page-color);
 }
 
-/* Don't show the Close button on tab content */
-#MailPreferences > .prefWindow-dlgbuttons {
-  display: none;
-}
-
 #prefBox {
   position: relative;
 }
@@ -67,7 +62,8 @@ tabpanel > hbox > description {
 
 radio[pane] {
   -moz-box-orient: horizontal;
-  -moz-binding: url("chrome://global/content/bindings/radio.xml#radio") !important;
+  -moz-box-align: center;
+  -moz-binding: url("chrome://global/content/bindings/radio.xml#radio");
   -moz-appearance: none;
   width: 240px;
   color: var(--in-content-text-color);

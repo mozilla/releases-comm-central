@@ -5,20 +5,6 @@
     <script type="application/javascript" src="chrome://communicator/content/utilityOverlay.js"/>
     <script type="application/javascript" src="chrome://messenger/content/preferences/general.js"/>
 
-    <preferences id="generalPreferences">
-      <preference id="mail.pane_config.dynamic" name="mail.pane_config.dynamic" type="int"/>
-      <preference id="mailnews.reuse_message_window" name="mailnews.reuse_message_window" type="bool"/>
-      <preference id="mailnews.start_page.enabled" name="mailnews.start_page.enabled" type="bool"/>
-      <preference id="mailnews.start_page.url" name="mailnews.start_page.url" type="string"/>
-#ifndef XP_MACOSX
-      <preference id="mail.biff.show_alert" name="mail.biff.show_alert" type="bool"/>
-#endif
-      <preference id="mail.biff.show_tray_icon" name="mail.biff.show_tray_icon" type="bool" />
-      <preference id="mail.biff.play_sound" name="mail.biff.play_sound" type="bool"/>
-      <preference id="mail.biff.play_sound.type" name="mail.biff.play_sound.type" type="int"/>
-      <preference id="mail.biff.play_sound.url" name="mail.biff.play_sound.url" type="string"/>
-    </preferences>
-
     <stringbundle id="bundlePreferences" src="chrome://messenger/locale/preferences/preferences.properties"/>
 
     <groupbox>
@@ -26,8 +12,7 @@
         <hbox align="start">
           <checkbox id="mailnewsStartPageEnabled" label="&enableStartPage.label;"
                     preference="mailnews.start_page.enabled"
-                    accesskey="&enableStartPage.accesskey;"
-                    oncommand="gGeneralPane.updateStartPage();"/>
+                    accesskey="&enableStartPage.accesskey;"/>
         </hbox>
         <hbox align="center">
           <label value="&location.label;" accesskey="&location1.accesskey;" control="mailnewsStartPageUrl"/>
@@ -66,8 +51,7 @@
         <checkbox id="newMailNotificationAlert"
                   label="&showAnimatedAlert.label;"
                   accesskey="&showAnimatedAlert.accesskey;"
-                  preference="mail.biff.show_alert"
-                  oncommand="gGeneralPane.updateCustomizeAlert();"/>
+                  preference="mail.biff.show_alert"/>
         <spacer flex="1"/>
         <button id="customizeMailAlert" label="&customizeMailAlert.label;" accesskey="&customizeMailAlert.accesskey;"
                 oncommand="gGeneralPane.customizeMailAlert();"/>

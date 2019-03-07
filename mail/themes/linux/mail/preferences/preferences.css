@@ -7,36 +7,6 @@
 
 /* Global Styles */
 
-prefwindow {
-  -moz-appearance: window;
-  background-color: -moz-Dialog;
-  color: -moz-DialogText;
-  font: message-box;
-  padding: 0;
-}
-
-prefpane {
-  padding: 8px;
-}
-
-prefwindow[type="child"] {
-  padding: 8px;
-}
-
-prefwindow[type="child"] > prefpane {
-  padding: 0;
-}
-
-.prefWindow-dlgbuttons {
-  padding-bottom: 8px;
-  padding-inline-start: 8px;
-  padding-inline-end: 8px;
-}
-
-prefwindow[type="child"] .prefWindow-dlgbuttons {
-  padding: 0;
-}
-
 radio[pane] {
   -moz-appearance: none;
   min-width: 4.5em;

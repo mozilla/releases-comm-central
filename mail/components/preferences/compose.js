@@ -10,6 +10,31 @@
 
 var {InlineSpellChecker} = ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
 
+Preferences.addAll([
+  { id: "mail.preferences.compose.selectedTabIndex", type: "int" },
+  { id: "mail.forward_message_mode", type: "int" },
+  { id: "mail.forward_add_extension", type: "bool" },
+  { id: "mail.SpellCheckBeforeSend", type: "bool" },
+  { id: "mail.spellcheck.inline", type: "bool" },
+  { id: "mail.warn_on_send_accel_key", type: "bool" },
+  { id: "mail.compose.autosave", type: "bool" },
+  { id: "mail.compose.autosaveinterval", type: "int" },
+  { id: "mail.enable_autocomplete", type: "bool" },
+  { id: "ldap_2.autoComplete.useDirectory", type: "bool" },
+  { id: "ldap_2.autoComplete.directoryServer", type: "string" },
+  { id: "pref.ldap.disable_button.edit_directories", type: "bool" },
+  { id: "mail.collect_email_address_outgoing", type: "bool" },
+  { id: "mail.collect_addressbook", type: "string" },
+  { id: "spellchecker.dictionary", type: "unichar" },
+  { id: "msgcompose.default_colors", type: "bool" },
+  { id: "msgcompose.font_face", type: "string" },
+  { id: "msgcompose.font_size", type: "string" },
+  { id: "msgcompose.text_color", type: "string" },
+  { id: "msgcompose.background_color", type: "string" },
+  { id: "mail.compose.attachment_reminder", type: "bool" },
+  { id: "mail.compose.default_to_paragraph", type: "bool" },
+]);
+
 document.getElementById("paneCompose")
         .addEventListener("paneload", function() { gComposePane.init(); });
 
@@ -39,7 +64,7 @@ var gComposePane = {
 
     if (!(("arguments" in window) && window.arguments[1])) {
       // If no tab was specified, select the last used tab.
-      let preference = document.getElementById("mail.preferences.compose.selectedTabIndex");
+      let preference = Preferences.get("mail.preferences.compose.selectedTabIndex");
       if (preference.value)
         document.getElementById("composePrefs").selectedIndex = preference.value;
     }
@@ -49,7 +74,7 @@ var gComposePane = {
 
   tabSelectionChanged() {
     if (this.mInitialized) {
-      var preference = document.getElementById("mail.preferences.compose.selectedTabIndex");
+      var preference = Preferences.get("mail.preferences.compose.selectedTabIndex");
       preference.valueFromPreferences = document.getElementById("composePrefs").selectedIndex;
     }
   },
@@ -64,44 +89,52 @@ var gComposePane = {
   },
 
   updateAutosave() {
-    this.enableElement(document.getElementById("autoSaveInterval"),
-      document.getElementById("autoSave").checked);
+    gComposePane.enableElement(
+      document.getElementById("autoSaveInterval"),
+      Preferences.get("mail.compose.autosave").value
+    );
   },
 
   updateUseReaderDefaults() {
-    let useReaderDefaultsChecked = document.getElementById("useReaderDefaults").checked;
-    this.enableElement(document.getElementById("textColorLabel"),
-      !useReaderDefaultsChecked);
-    this.enableElement(document.getElementById("backgroundColorLabel"),
-      !useReaderDefaultsChecked);
-    this.enableElement(document.getElementById("textColorButton"),
-      !useReaderDefaultsChecked);
-    this.enableElement(document.getElementById("backgroundColorButton"),
-      !useReaderDefaultsChecked);
+    let useReaderDefaultsChecked = Preferences.get("msgcompose.default_colors").value;
+    gComposePane.enableElement(
+      document.getElementById("textColorLabel"), !useReaderDefaultsChecked
+    );
+    gComposePane.enableElement(
+      document.getElementById("backgroundColorLabel"), !useReaderDefaultsChecked
+    );
+    gComposePane.enableElement(
+      document.getElementById("textColorButton"), !useReaderDefaultsChecked
+    );
+    gComposePane.enableElement(
+      document.getElementById("backgroundColorButton"), !useReaderDefaultsChecked
+    );
   },
 
   updateAttachmentCheck() {
-    this.enableElement(document.getElementById("attachment_reminder_button"),
-      document.getElementById("attachment_reminder_label").checked);
+    gComposePane.enableElement(
+      document.getElementById("attachment_reminder_button"),
+      Preferences.get("mail.compose.attachment_reminder").value
+    );
   },
 
   updateEmailCollection() {
-    this.enableElement(document.getElementById("localDirectoriesList"),
-      document.getElementById("emailCollectionOutgoing").checked);
+    gComposePane.enableElement(
+      document.getElementById("localDirectoriesList"),
+      Preferences.get("mail.collect_email_address_outgoing").value
+    );
   },
 
   enableElement(aElement, aEnable) {
     let pref = aElement.getAttribute("preference");
-    let prefIsLocked = pref ? document.getElementById(pref).locked : false;
+    let prefIsLocked = pref ? Preferences.get(pref).locked : false;
     aElement.disabled = !aEnable || prefIsLocked;
   },
 
   enableAutocomplete() {
-    var acLDAPPref = document.getElementById("ldap_2.autoComplete.useDirectory")
-                             .value;
-
-    this.enableElement(document.getElementById("directoriesList"), acLDAPPref);
-    this.enableElement(document.getElementById("editButton"), acLDAPPref);
+    let acLDAPPref = Preferences.get("ldap_2.autoComplete.useDirectory").value;
+    gComposePane.enableElement(document.getElementById("directoriesList"), acLDAPPref);
+    gComposePane.enableElement(document.getElementById("editButton"), acLDAPPref);
   },
 
   editDirectories() {
@@ -132,9 +165,9 @@ var gComposePane = {
 
   setButtonColors() {
     document.getElementById("textColorButton").value =
-      document.getElementById("msgcompose.text_color").value;
+      Preferences.get("msgcompose.text_color").value;
     document.getElementById("backgroundColorButton").value =
-      document.getElementById("msgcompose.background_color").value;
+      Preferences.get("msgcompose.background_color").value;
   },
 
   setDefaultStartupDir(aDirURI) {
@@ -201,7 +234,7 @@ var gComposePane = {
       }
     } catch (e) { }
     // Choose the item after the list is completely generated.
-    var preference = document.getElementById(fontsList.getAttribute("preference"));
+    var preference = Preferences.get(fontsList.getAttribute("preference"));
     fontsList.value = preference.value;
   },
 
@@ -209,23 +242,23 @@ var gComposePane = {
      // reset throws an exception if the pref value is already the default so
      // work around that with some try/catch exception handling
      try {
-       document.getElementById("msgcompose.font_face").reset();
+       Preferences.get("msgcompose.font_face").reset();
      } catch (ex) {}
 
      try {
-       document.getElementById("msgcompose.font_size").reset();
+       Preferences.get("msgcompose.font_size").reset();
      } catch (ex) {}
 
      try {
-       document.getElementById("msgcompose.text_color").reset();
+       Preferences.get("msgcompose.text_color").reset();
      } catch (ex) {}
 
      try {
-       document.getElementById("msgcompose.background_color").reset();
+       Preferences.get("msgcompose.background_color").reset();
      } catch (ex) {}
 
      try {
-       document.getElementById("msgcompose.default_colors").reset();
+       Preferences.get("msgcompose.default_colors").reset();
      } catch (ex) {}
 
      this.updateUseReaderDefaults();
@@ -257,3 +290,9 @@ var gComposePane = {
     },
   },
 };
+
+Preferences.get("mail.compose.autosave").on("change", gComposePane.updateAutosave);
+Preferences.get("mail.compose.attachment_reminder").on("change", gComposePane.updateAttachmentCheck);
+Preferences.get("msgcompose.default_colors").on("change", gComposePane.updateUseReaderDefaults);
+Preferences.get("ldap_2.autoComplete.useDirectory").on("change", gComposePane.enableAutocomplete);
+Preferences.get("mail.collect_email_address_outgoing").on("change", gComposePane.updateEmailCollection);

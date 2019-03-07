@@ -4,6 +4,24 @@
 
 /* exported gViewsPane */
 
+Preferences.addAll([
+    { id: "calendar.week.start", type: "int" },
+    { id: "calendar.view-minimonth.showWeekNumber", type: "bool" },
+    { id: "calendar.week.d0sundaysoff", type: "bool", inverted: "true" },
+    { id: "calendar.week.d1mondaysoff", type: "bool", inverted: "true" },
+    { id: "calendar.week.d2tuesdaysoff", type: "bool", inverted: "true" },
+    { id: "calendar.week.d3wednesdaysoff", type: "bool", inverted: "true" },
+    { id: "calendar.week.d4thursdaysoff", type: "bool", inverted: "true" },
+    { id: "calendar.week.d5fridaysoff", type: "bool", inverted: "true" },
+    { id: "calendar.week.d6saturdaysoff", type: "bool", inverted: "true" },
+    { id: "calendar.view.daystarthour", type: "int" },
+    { id: "calendar.view.dayendhour", type: "int" },
+    { id: "calendar.view.visiblehours", type: "int" },
+    { id: "calendar.weeks.inview", type: "int" },
+    { id: "calendar.previousweeks.inview", type: "int" },
+    { id: "calendar.view.showLocation", type: "bool" },
+]);
+
 /**
  * Global Object to hold methods for the views pref pane
  */

@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../../../toolkit/content/preferencesBindings.js */
+
+Preferences.forceEnableInstantApply();
+
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
@@ -97,20 +101,10 @@ function showPane(paneID) {
 function selectPaneAndTab(prefWindow, paneID, tabID, otherArgs) {
   if (paneID) {
     let prefPane = document.getElementById(paneID);
-    let tabOnEvent = false;
-    // The prefwindow element selects the pane specified in window.arguments[0]
-    // automatically. But let's check it and if the prefs window was already
-    // open, the current prefpane may not be the wanted one.
-    if (getCurrentPaneID() != prefPane.id) {
-      if (tabID && !prefPane.loaded) {
-        prefPane.addEventListener("paneload", function() {
-          showTab(prefPane, tabID);
-        }, {once: true});
-        tabOnEvent = true;
-      }
-      showPane(prefPane.id);
+    if (getCurrentPaneID() != paneID) {
+      showPane(paneID);
     }
-    if (tabID && !tabOnEvent) {
+    if (tabID) {
       showTab(prefPane, tabID, otherArgs ? otherArgs.subdialog : undefined);
     }
   }

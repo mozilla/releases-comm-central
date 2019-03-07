@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+
+<bindings id="preferencesBindings"
+          xmlns="http://www.mozilla.org/xbl"
+          xmlns:xbl="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <binding id="panebutton" role="listitem"
+           extends="chrome://global/content/bindings/radio.xml#radio">
+    <content>
+      <xul:image class="paneButtonIcon" xbl:inherits="src"/>
+      <xul:label class="paneButtonLabel" xbl:inherits="value=label"/>
+    </content>
+  </binding>
+
+</bindings>

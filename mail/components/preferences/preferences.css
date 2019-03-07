@@ -2,49 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-prefwindow,
-prefwindow:root /* override :root */ {
-  -moz-box-orient: vertical;
-}
-
 prefpane {
-  -moz-binding: url("chrome://messenger/content/preferences/preferences.xml#prefpane");
   -moz-box-orient: vertical;
-}
-
-prefwindow > .paneDeckContainer {
-  overflow: hidden;
 }
 
 prefpane > .content-box {
   overflow: hidden;
-}
-
-prefwindow[type="child"] > .paneDeckContainer {
-  overflow: -moz-hidden-unscrollable;
-}
-
-prefwindow[type="child"] > prefpane > .content-box {
-  -moz-box-flex: 1;
-  overflow: -moz-hidden-unscrollable;
-}
-
-preferences {
-  -moz-binding: url("chrome://messenger/content/preferences/preferences.xml#preferences");
-  visibility: collapse;
-}
-
-preference {
-  -moz-binding: url("chrome://messenger/content/preferences/preferences.xml#preference");
-  visibility: collapse;
-}
-
-radio[pane] {
-  -moz-binding: url("chrome://messenger/content/preferences/preferences.xml#panebutton") !important;
-  -moz-box-orient: vertical;
-  -moz-box-align: center;
-}
-
-prefwindow[chromehidden~="toolbar"] .chromeclass-toolbar {
-  display: none;
 }

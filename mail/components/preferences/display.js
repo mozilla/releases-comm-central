@@ -10,6 +10,32 @@
 /* import-globals-from subdialogs.js */
 var {TagUtils} = ChromeUtils.import("resource:///modules/TagUtils.jsm");
 
+Preferences.addAll([
+  { id: "mail.preferences.display.selectedTabIndex", type: "int" },
+  { id: "mail.fixed_width_messages", type: "bool" },
+  { id: "mail.quoted_style", type: "int" },
+  { id: "mail.quoted_size", type: "int" },
+  { id: "mail.citation_color", type: "string" },
+  { id: "mail.display_glyph", type: "bool" },
+  { id: "mailnews.labels.description.1", type: "wstring" },
+  { id: "mailnews.labels.color.1", type: "string" },
+  { id: "mailnews.labels.description.2", type: "wstring" },
+  { id: "mailnews.labels.color.2", type: "string" },
+  { id: "mailnews.labels.description.3", type: "wstring" },
+  { id: "mailnews.labels.color.3", type: "string" },
+  { id: "mailnews.labels.description.4", type: "wstring" },
+  { id: "mailnews.labels.color.4", type: "string" },
+  { id: "mailnews.labels.description.5", type: "wstring" },
+  { id: "mailnews.labels.color.5", type: "string" },
+  { id: "font.language.group", type: "wstring" },
+  { id: "mail.showCondensedAddresses", type: "bool" },
+  { id: "mailnews.mark_message_read.auto", type: "bool" },
+  { id: "mailnews.mark_message_read.delay", type: "bool" },
+  { id: "mailnews.mark_message_read.delay.interval", type: "int" },
+  { id: "mail.openMessageBehavior", type: "int" },
+  { id: "mail.close_message_window.on_delete", type: "bool" },
+]);
+
 document.getElementById("paneDisplay")
         .addEventListener("paneload", function() { gDisplayPane.init(); });
 
@@ -20,12 +46,13 @@ var gDisplayPane = {
   init() {
     if (!(("arguments" in window) && window.arguments[1])) {
       // If no tab was specified, select the last used tab.
-      let preference = document.getElementById("mail.preferences.display.selectedTabIndex");
+      let preference = Preferences.get("mail.preferences.display.selectedTabIndex");
       if (preference.value)
         document.getElementById("displayPrefs").selectedIndex = preference.value;
     }
     this._rebuildFonts();
-    this.updateMarkAsReadOptions(document.getElementById("automaticallyMarkAsRead").checked);
+    this.updateMarkAsReadOptions();
+
     var menulist = document.getElementById("defaultFont");
     if (menulist.selectedIndex == -1) {
       // Prepend menuitem with empty name and value.
@@ -39,7 +66,7 @@ var gDisplayPane = {
     this.mInitialized = true;
 
     document.getElementById("citationmenu").value =
-      document.getElementById("mail.citation_color").value;
+      Preferences.get("mail.citation_color").value;
 
     this.mTagListBox = document.getElementById("tagList");
     this.buildTagList();
@@ -51,9 +78,9 @@ var gDisplayPane = {
    * Populates the default font list in UI.
    */
   _rebuildFonts() {
-    var langGroupPref = document.getElementById("font.language.group");
-    var isSerif = this._readDefaultFontTypeForLanguage(langGroupPref.value) == "serif";
-    this._selectDefaultLanguageGroup(langGroupPref.value, isSerif);
+    var langGroupPref = Preferences.get("font.language.group");
+    var isSerif = gDisplayPane._readDefaultFontTypeForLanguage(langGroupPref.value) == "serif";
+    gDisplayPane._selectDefaultLanguageGroup(langGroupPref.value, isSerif);
   },
 
   /**
@@ -93,23 +120,13 @@ var gDisplayPane = {
                     element: "defaultFontSize",
                     fonttype: null }];
 
-      var preferences = document.getElementById("displayPreferences");
       for (var i = 0; i < prefs.length; ++i) {
-        var preference = document.getElementById(prefs[i].format.replace(/%LANG%/,
-                                                                 aLanguageGroup));
+        var preference = Preferences.get(prefs[i].format.replace(/%LANG%/, aLanguageGroup));
         if (!preference) {
-          preference = document.createElement("preference");
-          var name = prefs[i].format.replace(/%LANG%/, aLanguageGroup);
-          preference.id = name;
-          preference.setAttribute("name", name);
-          preference.setAttribute("type", prefs[i].type);
-          preferences.appendChild(preference);
-
-          if (!("setElementValue" in preference)) {
-            await new Promise((resolve) => {
-              preference.addEventListener("bindingattached", resolve, { once: true });
-            });
-          }
+          preference = Preferences.add({
+            id: prefs[i].format.replace(/%LANG%/, aLanguageGroup),
+            type: prefs[i].type,
+          });
         }
 
         if (!prefs[i].element)
@@ -139,14 +156,13 @@ var gDisplayPane = {
   _readDefaultFontTypeForLanguage(aLanguageGroup) {
     const kDefaultFontType = "font.default.%LANG%";
     var defaultFontTypePref = kDefaultFontType.replace(/%LANG%/, aLanguageGroup);
-    var preference = document.getElementById(defaultFontTypePref);
+    var preference = Preferences.get(defaultFontTypePref);
     if (!preference) {
-      preference = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "preference");
-      preference.id = defaultFontTypePref;
-      preference.type = "string";
-      preference.name = defaultFontTypePref;
-      preference.setAttribute("onchange", "gDisplayPane._rebuildFonts();");
-      document.getElementById("displayPreferences").appendChild(preference);
+      Preferences.add({
+        id: defaultFontTypePref,
+        type: "string",
+        name: defaultFontTypePref,
+      }).on("change", gDisplayPane._rebuildFonts);
     }
 
     // We should return preference.value here, but we can't wait for the binding to load,
@@ -163,7 +179,7 @@ var gDisplayPane = {
    */
   readFontSelection() {
     let element = document.getElementById("defaultFont");
-    let preference = document.getElementById(element.getAttribute("preference"));
+    let preference = Preferences.get(element.getAttribute("preference"));
     if (preference.value) {
       let fontItem = element.querySelector('[value="' + preference.value + '"]');
 
@@ -173,10 +189,9 @@ var gDisplayPane = {
     }
 
     let defaultValue = element.firstChild.firstChild.getAttribute("value");
-    let languagePref = document.getElementById("font.language.group");
+    let languagePref = Preferences.get("font.language.group");
     let defaultType = this._readDefaultFontTypeForLanguage(languagePref.value);
-    let listPref = document.getElementById("font.name-list." + defaultType +
-                                           "." + languagePref.value);
+    let listPref = Preferences.get("font.name-list." + defaultType + "." + languagePref.value);
     if (!listPref)
       return defaultValue;
 
@@ -192,8 +207,8 @@ var gDisplayPane = {
 
   tabSelectionChanged() {
     if (this.mInitialized)
-      document.getElementById("mail.preferences.display.selectedTabIndex")
-              .valueFromPreferences = document.getElementById("displayPrefs").selectedIndex;
+      Preferences.get("mail.preferences.display.selectedTabIndex")
+                 .valueFromPreferences = document.getElementById("displayPrefs").selectedIndex;
   },
 
   /**
@@ -272,33 +287,30 @@ var gDisplayPane = {
   /**
    * Enable/disable the options of automatic marking as read depending on the
    * state of the automatic marking feature.
-   *
-   * @param aEnableRadioGroup  Boolean value indicating whether the feature is enabled.
    */
-  updateMarkAsReadOptions(aEnableRadioGroup) {
-    let autoMarkAsPref = document.getElementById("mailnews.mark_message_read.delay");
-    let autoMarkDisabled = !aEnableRadioGroup || autoMarkAsPref.locked;
+  updateMarkAsReadOptions() {
+    let enableRadioGroup = Preferences.get("mailnews.mark_message_read.auto").value;
+    let autoMarkAsPref = Preferences.get("mailnews.mark_message_read.delay");
+    let autoMarkDisabled = !enableRadioGroup || autoMarkAsPref.locked;
     document.getElementById("markAsReadAutoPreferences").disabled = autoMarkDisabled;
     document.getElementById("secondsLabel").disabled = autoMarkDisabled;
-    this.updateMarkAsReadTextbox();
+    gDisplayPane.updateMarkAsReadTextbox();
   },
 
   /**
    * Automatically enable/disable delay textbox depending on state of the
    * Mark As Read On Delay feature.
-   *
-   * @param aFocusTextBox  Boolean value whether Mark As Read On Delay
-   *                       option was selected and the textbox should be focused.
    */
-  updateMarkAsReadTextbox(aFocusTextBox) {
-    let globalCheckbox = document.getElementById("automaticallyMarkAsRead");
-    let delayRadioOption = document.getElementById("markAsReadAfterDelay");
+  updateMarkAsReadTextbox() {
+    let radioGroupEnabled = Preferences.get("mailnews.mark_message_read.auto").value;
+    let textBoxEnabled = Preferences.get("mailnews.mark_message_read.delay").value;
+    let intervalPref = Preferences.get("mailnews.mark_message_read.delay.interval");
+
     let delayTextbox = document.getElementById("markAsReadDelay");
-    let intervalPref = document.getElementById("mailnews.mark_message_read.delay.interval");
-    delayTextbox.disabled = !globalCheckbox.checked ||
-                            !delayRadioOption.selected || intervalPref.locked;
-    if (!delayTextbox.disabled && aFocusTextBox)
+    delayTextbox.disabled = !radioGroupEnabled || !textBoxEnabled || intervalPref.locked;
+    if (document.activeElement.id == "markAsReadAutoPreferences") {
       delayTextbox.focus();
+    }
   },
 };
 
@@ -334,3 +346,7 @@ function editTagCallback() {
   // end and will overrule the previous rule.
   TagUtils.addTagToAllDocumentSheets(key, color);
 }
+
+Preferences.get("font.language.group").on("change", gDisplayPane._rebuildFonts);
+Preferences.get("mailnews.mark_message_read.auto").on("change", gDisplayPane.updateMarkAsReadOptions);
+Preferences.get("mailnews.mark_message_read.delay").on("change", gDisplayPane.updateMarkAsReadTextbox);

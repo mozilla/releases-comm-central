@@ -3,7 +3,33 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../../../toolkit/content/preferencesBindings.js */
+
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
+Preferences.addAll([
+  { id: "network.proxy.type", type: "int" },
+  { id: "network.proxy.http", type: "string" },
+  { id: "network.proxy.http_port", type: "int" },
+  { id: "network.proxy.ssl", type: "string" },
+  { id: "network.proxy.ssl_port", type: "int" },
+  { id: "network.proxy.socks", type: "string" },
+  { id: "network.proxy.socks_port", type: "int" },
+  { id: "network.proxy.socks_version", type: "int" },
+  { id: "network.proxy.no_proxies_on", type: "string" },
+  { id: "network.proxy.autoconfig_url", type: "string" },
+  { id: "network.proxy.share_proxy_settings", type: "bool" },
+  { id: "pref.advanced.proxies.disable_button.reload", type: "bool" },
+  { id: "network.proxy.backup.ssl", type: "string" },
+  { id: "network.proxy.backup.ssl_port", type: "int" },
+  { id: "network.proxy.backup.socks", type: "string" },
+  { id: "network.proxy.backup.socks_port", type: "int" },
+  { id: "network.proxy.socks_remote_dns", type: "bool" },
+  { id: "network.trr.mode", type: "int" },
+  { id: "network.trr.uri", type: "string" },
+  { id: "network.trr.custom_uri", type: "string" },
+  { id: "signon.autologin.proxy", type: "bool" },
+]);
 
 var gConnectionsDialog = {
   beforeAccept() {
@@ -11,7 +37,7 @@ var gConnectionsDialog = {
       Services.prefs.setStringPref("network.trr.uri", document.getElementById("customDnsOverHttpsInput").value);
     }
 
-    var proxyTypePref = document.getElementById("network.proxy.type");
+    var proxyTypePref = Preferences.get("network.proxy.type");
     if (proxyTypePref.value == 2) {
       this.doAutoconfigURLFixup();
       return true;
@@ -20,16 +46,16 @@ var gConnectionsDialog = {
     if (proxyTypePref.value != 1)
       return true;
 
-    var httpProxyURLPref = document.getElementById("network.proxy.http");
-    var httpProxyPortPref = document.getElementById("network.proxy.http_port");
-    var shareProxiesPref = document.getElementById("network.proxy.share_proxy_settings");
+    var httpProxyURLPref = Preferences.get("network.proxy.http");
+    var httpProxyPortPref = Preferences.get("network.proxy.http_port");
+    var shareProxiesPref = Preferences.get("network.proxy.share_proxy_settings");
     if (shareProxiesPref.value) {
       var proxyPrefs = ["ssl", "socks"];
       for (var i = 0; i < proxyPrefs.length; ++i) {
-        var proxyServerURLPref = document.getElementById("network.proxy." + proxyPrefs[i]);
-        var proxyPortPref = document.getElementById("network.proxy." + proxyPrefs[i] + "_port");
-        var backupServerURLPref = document.getElementById("network.proxy.backup." + proxyPrefs[i]);
-        var backupPortPref = document.getElementById("network.proxy.backup." + proxyPrefs[i] + "_port");
+        var proxyServerURLPref = Preferences.get("network.proxy." + proxyPrefs[i]);
+        var proxyPortPref = Preferences.get("network.proxy." + proxyPrefs[i] + "_port");
+        var backupServerURLPref = Preferences.get("network.proxy.backup." + proxyPrefs[i]);
+        var backupPortPref = Preferences.get("network.proxy.backup." + proxyPrefs[i] + "_port");
         backupServerURLPref.value = proxyServerURLPref.value;
         backupPortPref.value = proxyPortPref.value;
         proxyServerURLPref.value = httpProxyURLPref.value;
@@ -37,7 +63,7 @@ var gConnectionsDialog = {
       }
     }
 
-    var noProxiesPref = document.getElementById("network.proxy.no_proxies_on");
+    var noProxiesPref = Preferences.get("network.proxy.no_proxies_on");
     noProxiesPref.value = noProxiesPref.value.replace(/[;]/g, ",");
 
     return true;
@@ -49,36 +75,36 @@ var gConnectionsDialog = {
   },
 
   proxyTypeChanged() {
-    var proxyTypePref = document.getElementById("network.proxy.type");
+    var proxyTypePref = Preferences.get("network.proxy.type");
 
     // Update http
-    var httpProxyURLPref = document.getElementById("network.proxy.http");
+    var httpProxyURLPref = Preferences.get("network.proxy.http");
     httpProxyURLPref.disabled = proxyTypePref.value != 1;
-    var httpProxyPortPref = document.getElementById("network.proxy.http_port");
+    var httpProxyPortPref = Preferences.get("network.proxy.http_port");
     httpProxyPortPref.disabled = proxyTypePref.value != 1;
 
     // Now update the other protocols
-    this.updateProtocolPrefs();
+    gConnectionsDialog.updateProtocolPrefs();
 
-    var shareProxiesPref = document.getElementById("network.proxy.share_proxy_settings");
+    var shareProxiesPref = Preferences.get("network.proxy.share_proxy_settings");
     shareProxiesPref.disabled = proxyTypePref.value != 1;
 
-    var autologinProxyPref = document.getElementById("signon.autologin.proxy");
+    var autologinProxyPref = Preferences.get("signon.autologin.proxy");
     autologinProxyPref.disabled = proxyTypePref.value == 0;
 
-    var noProxiesPref = document.getElementById("network.proxy.no_proxies_on");
+    var noProxiesPref = Preferences.get("network.proxy.no_proxies_on");
     noProxiesPref.disabled = proxyTypePref.value == 0;
 
-    var autoconfigURLPref = document.getElementById("network.proxy.autoconfig_url");
+    var autoconfigURLPref = Preferences.get("network.proxy.autoconfig_url");
     autoconfigURLPref.disabled = proxyTypePref.value != 2;
 
-    this.updateReloadButton();
+    gConnectionsDialog.updateReloadButton();
   },
 
   updateDNSPref() {
-    var socksVersionPref = document.getElementById("network.proxy.socks_version");
-    var socksDNSPref = document.getElementById("network.proxy.socks_remote_dns");
-    var proxyTypePref = document.getElementById("network.proxy.type");
+    var socksVersionPref = Preferences.get("network.proxy.socks_version");
+    var socksDNSPref = Preferences.get("network.proxy.socks_remote_dns");
+    var proxyTypePref = Preferences.get("network.proxy.type");
     var isDefinitelySocks4 = !socksVersionPref.disabled && socksVersionPref.value == 4;
     socksDNSPref.disabled = (isDefinitelySocks4 || proxyTypePref.value == 0);
     return undefined;
@@ -91,13 +117,13 @@ var gConnectionsDialog = {
     // in prefs.
 
     var typedURL = document.getElementById("networkProxyAutoconfigURL").value;
-    var proxyTypeCur = document.getElementById("network.proxy.type").value;
+    var proxyTypeCur = Preferences.get("network.proxy.type").value;
 
     var pacURL = Services.prefs.getCharPref("network.proxy.autoconfig_url");
     var proxyType = Services.prefs.getIntPref("network.proxy.type");
 
     var disableReloadPref =
-        document.getElementById("pref.advanced.proxies.disable_button.reload");
+        Preferences.get("pref.advanced.proxies.disable_button.reload");
     disableReloadPref.disabled =
         (proxyTypeCur != 2 || proxyType != 2 || typedURL != pacURL);
   },
@@ -108,17 +134,17 @@ var gConnectionsDialog = {
   },
 
   updateProtocolPrefs() {
-    var proxyTypePref = document.getElementById("network.proxy.type");
-    var shareProxiesPref = document.getElementById("network.proxy.share_proxy_settings");
+    var proxyTypePref = Preferences.get("network.proxy.type");
+    var shareProxiesPref = Preferences.get("network.proxy.share_proxy_settings");
     var proxyPrefs = ["ssl", "socks"];
     for (var i = 0; i < proxyPrefs.length; ++i) {
-      var proxyServerURLPref = document.getElementById("network.proxy." + proxyPrefs[i]);
-      var proxyPortPref = document.getElementById("network.proxy." + proxyPrefs[i] + "_port");
+      var proxyServerURLPref = Preferences.get("network.proxy." + proxyPrefs[i]);
+      var proxyPortPref = Preferences.get("network.proxy." + proxyPrefs[i] + "_port");
 
       // Restore previous per-proxy custom settings, if present.
       if (!shareProxiesPref.value) {
-        var backupServerURLPref = document.getElementById("network.proxy.backup." + proxyPrefs[i]);
-        var backupPortPref = document.getElementById("network.proxy.backup." + proxyPrefs[i] + "_port");
+        var backupServerURLPref = Preferences.get("network.proxy.backup." + proxyPrefs[i]);
+        var backupPortPref = Preferences.get("network.proxy.backup." + proxyPrefs[i] + "_port");
         if (backupServerURLPref.hasUserValue) {
           proxyServerURLPref.value = backupServerURLPref.value;
           backupServerURLPref.reset();
@@ -134,20 +160,20 @@ var gConnectionsDialog = {
       proxyServerURLPref.disabled = proxyTypePref.value != 1 || shareProxiesPref.value;
       proxyPortPref.disabled = proxyServerURLPref.disabled;
     }
-    var socksVersionPref = document.getElementById("network.proxy.socks_version");
+    var socksVersionPref = Preferences.get("network.proxy.socks_version");
     socksVersionPref.disabled = proxyTypePref.value != 1 || shareProxiesPref.value;
     this.updateDNSPref();
     return undefined;
   },
 
   readProxyProtocolPref(aProtocol, aIsPort) {
-    var shareProxiesPref = document.getElementById("network.proxy.share_proxy_settings");
+    var shareProxiesPref = Preferences.get("network.proxy.share_proxy_settings");
     if (shareProxiesPref.value) {
-      var pref = document.getElementById("network.proxy.http" + (aIsPort ? "_port" : ""));
+      var pref = Preferences.get("network.proxy.http" + (aIsPort ? "_port" : ""));
       return pref.value;
     }
 
-    var backupPref = document.getElementById("network.proxy.backup." + aProtocol + (aIsPort ? "_port" : ""));
+    var backupPref = Preferences.get("network.proxy.backup." + aProtocol + (aIsPort ? "_port" : ""));
     return backupPref.hasUserValue ? backupPref.value : undefined;
   },
 
@@ -158,21 +184,21 @@ var gConnectionsDialog = {
 
   doAutoconfigURLFixup() {
     var autoURL = document.getElementById("networkProxyAutoconfigURL");
-    var autoURLPref = document.getElementById("network.proxy.autoconfig_url");
+    var autoURLPref = Preferences.get("network.proxy.autoconfig_url");
     try {
       autoURLPref.value = autoURL.value = Services.uriFixup.createFixupURI(autoURL.value, 0).spec;
     } catch (ex) {}
   },
 
   readHTTPProxyServer() {
-    var shareProxiesPref = document.getElementById("network.proxy.share_proxy_settings");
+    var shareProxiesPref = Preferences.get("network.proxy.share_proxy_settings");
     if (shareProxiesPref.value)
       this.updateProtocolPrefs();
     return undefined;
   },
 
   readHTTPProxyPort() {
-    var shareProxiesPref = document.getElementById("network.proxy.share_proxy_settings");
+    var shareProxiesPref = Preferences.get("network.proxy.share_proxy_settings");
     if (shareProxiesPref.value)
       this.updateProtocolPrefs();
     return undefined;
@@ -180,7 +206,7 @@ var gConnectionsDialog = {
 
   isDnsOverHttpsEnabled() {
     // values outside 1:4 are considered falsey/disabled in this context
-    let trrPref = document.getElementById("network.trr.mode");
+    let trrPref = Preferences.get("network.trr.mode");
     let enabled = trrPref.value > 0 && trrPref.value < 5;
     return enabled;
   },
@@ -188,7 +214,7 @@ var gConnectionsDialog = {
   readDnsOverHttpsMode() {
     // called to update checked element property to reflect current pref value
     let enabled = this.isDnsOverHttpsEnabled();
-    let uriPref = document.getElementById("network.trr.uri");
+    let uriPref = Preferences.get("network.trr.uri");
     uriPref.disabled = !enabled;
     return enabled;
   },
@@ -213,11 +239,13 @@ var gConnectionsDialog = {
 
   initDnsOverHttpsUI() {
     let defaultDnsOverHttpsUrlRadio = document.getElementById("defaultDnsOverHttpsUrlRadio");
-    let defaultPrefUrl = document.getElementById("network.trr.uri").defaultValue;
+    let defaultPrefUrl = Preferences.get("network.trr.uri").defaultValue;
     document.getElementById("defaultDnsOverHttpsUrlLabel").setAttribute("value", "(" + defaultPrefUrl + ")");
     defaultDnsOverHttpsUrlRadio.value = defaultPrefUrl;
     let radioGroup = document.getElementById("DnsOverHttpsUrlRadioGroup");
-    radioGroup.selectedIndex = document.getElementById("network.trr.uri").hasUserValue ? 1 : 0;
+    radioGroup.selectedIndex = Preferences.get("network.trr.uri").hasUserValue ? 1 : 0;
     this.updateDnsOverHttpsUI();
   },
 };
+
+Preferences.get("network.proxy.type").on("change", gConnectionsDialog.proxyTypeChanged);

@@ -20,61 +20,6 @@
             src="chrome://calendar/content/calendar-ui-utils.js"/>
 
     <vbox id="calPreferencesBoxViews">
-        <preferences>
-            <preference id="calendar.week.start"
-                        name="calendar.week.start"
-                        type="int"/>
-            <preference id="calendar.view-minimonth.showWeekNumber"
-                        name="calendar.view-minimonth.showWeekNumber"
-                        type="bool"/>
-            <preference id="calendar.week.d0sundaysoff"
-                        name="calendar.week.d0sundaysoff"
-                        type="bool"
-                        inverted="true"/>
-            <preference id="calendar.week.d1mondaysoff"
-                        name="calendar.week.d1mondaysoff"
-                        type="bool"
-                        inverted="true"/>
-            <preference id="calendar.week.d2tuesdaysoff"
-                        name="calendar.week.d2tuesdaysoff"
-                        type="bool"
-                        inverted="true"/>
-            <preference id="calendar.week.d3wednesdaysoff"
-                        name="calendar.week.d3wednesdaysoff"
-                        type="bool"
-                        inverted="true"/>
-            <preference id="calendar.week.d4thursdaysoff"
-                        name="calendar.week.d4thursdaysoff"
-                        type="bool"
-                        inverted="true"/>
-            <preference id="calendar.week.d5fridaysoff"
-                        name="calendar.week.d5fridaysoff"
-                        type="bool"
-                        inverted="true"/>
-            <preference id="calendar.week.d6saturdaysoff"
-                        name="calendar.week.d6saturdaysoff"
-                        type="bool"
-                        inverted="true"/>
-            <preference id="calendar.view.daystarthour"
-                        name="calendar.view.daystarthour"
-                        type="int"/>
-            <preference id="calendar.view.dayendhour"
-                        name="calendar.view.dayendhour"
-                        type="int"/>
-            <preference id="calendar.view.visiblehours"
-                        name="calendar.view.visiblehours"
-                        type="int"/>
-            <preference id="calendar.weeks.inview"
-                        name="calendar.weeks.inview"
-                        type="int"/>
-            <preference id="calendar.previousweeks.inview"
-                        name="calendar.previousweeks.inview"
-                        type="int"/>
-            <preference id="calendar.view.showLocation"
-                        name="calendar.view.showLocation"
-                        type="bool"/>
-        </preferences>
-
         <groupbox>
             <label><html:h2>&pref.calendar.view.allview.caption;</html:h2></label>
             <hbox>

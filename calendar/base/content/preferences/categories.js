@@ -8,6 +8,8 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
+Preferences.add({ id: "calendar.categories.names", type: "string" });
+
 var gCategoryList;
 var categoryPrefBranch = Services.prefs.getBranch("calendar.category.color.");
 
@@ -41,12 +43,12 @@ var gCategoriesPane = {
             parent.backupPrefList = [];
         }
 
-        let categories = document.getElementById("calendar.categories.names").value;
+        let categories = Preferences.get("calendar.categories.names").value;
 
         // If no categories are configured load a default set from properties file
         if (!categories) {
             categories = cal.category.setupDefaultCategories();
-            document.getElementById("calendar.categories.names").value = categories;
+            Preferences.get("calendar.categories.names").value = categories;
         }
 
         gCategoryList = cal.category.stringToArray(categories);
@@ -70,7 +72,7 @@ var gCategoriesPane = {
 
     updatePrefs: function() {
         cal.l10n.sortArrayByLocaleCollator(gCategoryList);
-        document.getElementById("calendar.categories.names").value =
+        Preferences.get("calendar.categories.names").value =
             cal.category.arrayToString(gCategoryList);
     },
 

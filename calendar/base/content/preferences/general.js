@@ -6,6 +6,21 @@
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
+Preferences.addAll([
+    { id: "calendar.date.format", type: "int" },
+    { id: "calendar.event.defaultlength", type: "int" },
+    { id: "calendar.timezone.local", type: "string" },
+    { id: "calendar.task.defaultstart", type: "string" },
+    { id: "calendar.task.defaultstartoffset", type: "int" },
+    { id: "calendar.task.defaultstartoffsetunits", type: "string" },
+    { id: "calendar.task.defaultdue", type: "string" },
+    { id: "calendar.task.defaultdueoffset", type: "int" },
+    { id: "calendar.task.defaultdueoffsetunits", type: "string" },
+    { id: "calendar.view.useSystemColors", type: "bool" },
+    { id: "calendar.agendaListbox.soondays", type: "int" },
+    { id: "calendar.item.editInTab", type: "bool" },
+]);
+
 /**
  * Global Object to hold methods for the general pref pane
  */
@@ -54,7 +69,7 @@ var gCalendarGeneralPane = {
             addMenuItem(tzMenuPopup, displayName, tzids[displayName]);
         }
 
-        let prefValue = document.getElementById("calendar-timezone-local").value;
+        let prefValue = Preferences.get("calendar.timezone.local").value;
         if (!prefValue) {
             prefValue = cal.dtz.defaultTimezone.tzid;
         }
@@ -97,7 +112,7 @@ var gCalendarGeneralPane = {
             }
         }
 
-        let pref = document.getElementById("calendar.agendaListbox.soondays");
+        let pref = Preferences.get("calendar.agendaListbox.soondays");
         let soonpref = pref.value || 5;
 
         // Check if soonDays preference has been edited with a wrong value.

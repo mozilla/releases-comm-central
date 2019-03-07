@@ -8,6 +8,17 @@
 /* import-globals-from preferences.js */
 /* import-globals-from subdialogs.js */
 
+Preferences.addAll([
+  { id: "pref.privacy.disable_button.cookie_exceptions", type: "bool" },
+  { id: "pref.privacy.disable_button.view_cookies", type: "bool" },
+  { id: "mailnews.message_display.disable_remote_image", type: "bool", inverted: "true" },
+  { id: "places.history.enabled", type: "bool" },
+  { id: "network.cookie.cookieBehavior", type: "int" },
+  { id: "network.cookie.lifetimePolicy", type: "int" },
+  { id: "network.cookie.blockFutureCookies", type: "bool" },
+  { id: "privacy.donottrackheader.enabled", type: "bool" },
+]);
+
 document.getElementById("panePrivacy")
         .addEventListener("paneload", function() { gPrivacyPane.init(); });
 
@@ -32,7 +43,7 @@ var gPrivacyPane = {
    * if cookies are enabled.
    */
   readAcceptCookies() {
-    let pref = document.getElementById("network.cookie.cookieBehavior");
+    let pref = Preferences.get("network.cookie.cookieBehavior");
     let acceptThirdPartyLabel = document.getElementById("acceptThirdPartyLabel");
     let acceptThirdPartyMenu = document.getElementById("acceptThirdPartyMenu");
     let keepUntil = document.getElementById("keepUntil");
@@ -92,7 +103,7 @@ var gPrivacyPane = {
    * Converts between network.cookie.cookieBehavior and the third-party cookie UI
    */
   readAcceptThirdPartyCookies() {
-    let pref = document.getElementById("network.cookie.cookieBehavior");
+    let pref = Preferences.get("network.cookie.cookieBehavior");
     switch (pref.value) {
       case 0:
         return "always";
@@ -141,3 +152,5 @@ var gPrivacyPane = {
                     null, params);
   },
 };
+
+Preferences.get("mailnews.message_display.disable_remote_image").on("change", gPrivacyPane.reloadMessageInOpener);

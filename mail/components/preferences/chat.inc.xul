@@ -5,32 +5,6 @@
     <script type="application/javascript" src="chrome://messenger/content/preferences/chat.js"/>
     <script type="application/javascript" src="chrome://messenger/content/preferences/messagestyle.js"/>
 
-    <preferences id="chatPreferences">
-      <preference id="mail.preferences.chat.selectedTabIndex"
-                  name="mail.preferences.chat.selectedTabIndex" type="int"/>
-      <preference id="messenger.startup.action"            name="messenger.startup.action"     type="int"/>
-      <preference id="purple.conversations.im.send_typing" name="purple.conversations.im.send_typing" type="bool"/>
-      <preference id="messenger.status.reportIdle"         name="messenger.status.reportIdle"         type="bool"
-                  onchange="gChatPane.updateDisabledState();"/>
-      <preference id="messenger.status.timeBeforeIdle"     name="messenger.status.timeBeforeIdle"     type="int"/>
-      <preference id="messenger.status.awayWhenIdle"       name="messenger.status.awayWhenIdle"       type="bool"
-                  onchange="gChatPane.updateMessageDisabledState();"/>
-      <preference id="messenger.status.defaultIdleAwayMessage" name="messenger.status.defaultIdleAwayMessage" type="wstring"/>
-      <preference id="purple.logging.log_chats"            name="purple.logging.log_chats"            type="bool"/>
-      <preference id="purple.logging.log_ims"              name="purple.logging.log_ims"              type="bool"/>
-      <preference id="purple.logging.log_system"           name="purple.logging.log_system"           type="bool"/>
-      <preference id="pref.privacy.disable_button.view_passwords" name="pref.privacy.disable_button.view_passwords" type="bool"/>
-      <preference id="mail.chat.show_desktop_notifications" name="mail.chat.show_desktop_notifications" type="bool"/>
-      <preference id="mail.chat.notification_info" name="mail.chat.notification_info" type="int"/>
-      <preference id="mail.chat.play_sound" name="mail.chat.play_sound" type="bool"/>
-      <preference id="mail.chat.play_sound.type" name="mail.chat.play_sound.type" type="int"/>
-      <preference id="mail.chat.play_sound.url" name="mail.chat.play_sound.url" type="string"/>
-      <preference id="messenger.options.getAttentionOnNewMessages" name="messenger.options.getAttentionOnNewMessages" type="bool"/>
-      <preference id="messenger.options.messagesStyle.theme"      name="messenger.options.messagesStyle.theme"      type="string"/>
-      <preference id="messenger.options.messagesStyle.variant"    name="messenger.options.messagesStyle.variant"    type="string"/>
-      <preference id="messenger.options.messagesStyle.showHeader" name="messenger.options.messagesStyle.showHeader" type="bool"/>
-    </preferences>
-
     <stringbundle id="themesBundle"
                   src="chrome://messenger/locale/preferences/messagestyle.properties"/>
 
@@ -65,7 +39,7 @@
             <textbox id="timeBeforeAway" type="number" min="1" max="720"
                      class="idle-reporting-enabled"
                      preference="messenger.status.timeBeforeIdle"
-                     onsyncfrompreference="var elt = document.getElementById(this.getAttribute('preference'));
+                     onsyncfrompreference="var elt = Preferences.get(this.getAttribute('preference'));
                                            return (elt.instantApply ? elt.valueFromPreferences : elt.value) / 60;"
                      onsynctopreference="return this.value * 60;"/>
             <label value="&idleTime;" control="timeBeforeAway"/>
@@ -122,8 +96,7 @@
               <checkbox id="chatNotification"
                         label="&chatSound.label;"
                         accesskey="&chatSound.accesskey;"
-                        preference="mail.chat.play_sound"
-                        oncommand="gChatPane.updatePlaySound();"/>
+                        preference="mail.chat.play_sound"/>
               <spacer flex="1"/>
               <button id="playChatSound" label="&play.label;" accesskey="&play.accesskey;"
                       oncommand="gChatPane.previewSound();"/>
@@ -132,7 +105,6 @@
                         class="indent"
                         orient="vertical"
                         preference="mail.chat.play_sound.type"
-                        oncommand="gChatPane.updatePlaySound();"
                         aria-labelledby="chatNotification">
               <hbox>
                 <radio id="chatSoundSystemSound"
@@ -224,5 +196,4 @@
         </tabpanel>
       </tabpanels>
     </tabbox>
-
   </prefpane>

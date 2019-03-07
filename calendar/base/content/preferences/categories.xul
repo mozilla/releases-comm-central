@@ -22,12 +22,6 @@
     </script>
 
     <vbox id="calPreferencesBoxCategories" flex="1">
-        <preferences>
-            <preference id="calendar.categories.names"
-                        name="calendar.categories.names"
-                        type="string"/>
-        </preferences>
-
         <richlistbox id="categorieslist"
                      flex="1"
                      seltype="multiple"

@@ -3,6 +3,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../../../toolkit/content/preferencesBindings.js */
+
+Preferences.addAll([
+  { id: "mail.receipt.request_return_receipt_on", type: "bool" },
+  { id: "mail.incorporate.return_receipt", type: "int" },
+  { id: "mail.mdn.report.enabled", type: "bool" },
+  { id: "mail.mdn.report.not_in_to_cc", type: "int" },
+  { id: "mail.mdn.report.outside_domain", type: "int" },
+  { id: "mail.mdn.report.other", type: "int" },
+]);
+
 /**
  * Enables/disables the labels and menulists depending whether
  * sending of return receipts is enabled.
@@ -22,6 +33,6 @@ function enableDisableAllowedReceipts() {
  */
 function enableElement(aElement, aEnable) {
   let pref = aElement.getAttribute("preference");
-  let prefIsLocked = pref ? document.getElementById(pref).locked : false;
+  let prefIsLocked = pref ? Preferences.get(pref).locked : false;
   aElement.disabled = !aEnable || prefIsLocked;
 }

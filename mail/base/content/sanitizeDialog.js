@@ -18,14 +18,6 @@ var gSanitizePromptDialog = {
     return parseInt(durList.value);
   },
 
-  get sanitizePreferences() {
-    if (!this._sanitizePreferences) {
-      this._sanitizePreferences =
-        document.getElementById("sanitizePreferences");
-    }
-    return this._sanitizePreferences;
-  },
-
   get warningBox() {
     return document.getElementById("sanitizeEverythingWarningBox");
   },
@@ -37,16 +29,22 @@ var gSanitizePromptDialog = {
     var s = new Sanitizer();
     s.prefDomain = "privacy.cpd.";
 
+    document.getElementById("sanitizeDurationChoice").value =
+      Services.prefs.getIntPref("privacy.sanitize.timeSpan");
+
     let sanitizeItemList = document.querySelectorAll("#itemList > [preference]");
-    for (let i = 0; i < sanitizeItemList.length; i++) {
-      let prefItem = sanitizeItemList[i];
+    for (let prefItem of sanitizeItemList) {
       let name = s.getNameFromPreference(prefItem.getAttribute("preference"));
       if (!s.canClearItem(name)) {
         prefItem.preference = null;
         prefItem.checked = false;
         prefItem.disabled = true;
+      } else {
+        prefItem.checked = Services.prefs.getBoolPref(prefItem.getAttribute("preference"));
       }
     }
+
+    this.onReadGeneric();
 
     document.documentElement.getButton("accept").label =
       this.bundleBrowser.getString("sanitizeButtonOK");
@@ -142,13 +140,12 @@ var gSanitizePromptDialog = {
     var found = false;
 
     // Find any other pref that's checked and enabled.
-    var i = 0;
-    while (!found && i < this.sanitizePreferences.childNodes.length) {
-      var preference = this.sanitizePreferences.childNodes[i];
-
-      found = !!preference.value &&
-              !preference.disabled;
-      i++;
+    let sanitizeItemList = document.querySelectorAll("#itemList > [preference]");
+    for (let prefItem of sanitizeItemList) {
+      found = !prefItem.disabled && prefItem.checked;
+      if (found) {
+        break;
+      }
     }
 
     try {
@@ -172,12 +169,11 @@ var gSanitizePromptDialog = {
   updatePrefs() {
     Sanitizer.prefs.setIntPref("timeSpan", this.selectedTimespan);
 
-    // Now manually set the prefs from their corresponding preference
-    // elements.
-    var prefs = this.sanitizePreferences.rootBranch;
-    for (let i = 0; i < this.sanitizePreferences.childNodes.length; ++i) {
-      var p = this.sanitizePreferences.childNodes[i];
-      prefs.setBoolPref(p.name, p.value);
+    // Now manually set the prefs from their corresponding preference elements.
+    let sanitizeItemList = document.querySelectorAll("#itemList > [preference]");
+    for (let prefItem of sanitizeItemList) {
+      let prefName = prefItem.getAttribute("preference");
+      Services.prefs.setBoolPref(prefName, prefItem.checked);
     }
   },
 
@@ -185,11 +181,11 @@ var gSanitizePromptDialog = {
    * Check if all of the history items have been selected like the default status.
    */
   hasNonSelectedItems() {
-    let checkboxes = document.querySelectorAll("#itemList > [preference]");
-    for (let i = 0; i < checkboxes.length; ++i) {
-      let pref = document.getElementById(checkboxes[i].getAttribute("preference"));
-      if (!pref.value)
+    let sanitizeItemList = document.querySelectorAll("#itemList > [preference]");
+    for (let prefItem of sanitizeItemList) {
+      if (!prefItem.checked) {
         return true;
+      }
     }
     return false;
   },

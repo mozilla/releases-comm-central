@@ -31,6 +31,7 @@
          title="&prefWindow.titleMAC;">
 #endif
 #endif
+  <script type="application/javascript" src="chrome://global/content/preferencesBindings.js"/>
 
   <stringbundle id="bundleBrand" src="chrome://branding/locale/brand.properties"/>
   <stringbundle id="bundlePreferences"

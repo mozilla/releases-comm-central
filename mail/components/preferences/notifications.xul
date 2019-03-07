@@ -8,24 +8,16 @@
 <?xml-stylesheet href="chrome://global/skin/"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
 
-<!DOCTYPE prefwindow [
+<!DOCTYPE dialog [
   <!ENTITY % notificationsDTD SYSTEM "chrome://messenger/locale/preferences/notifications.dtd">
   %notificationsDTD;
 ]>
 
-<prefwindow id="NotificationsDialog" type="child"
-            xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-            dlgbuttons="accept,cancel"
-            title="&notificationsDialog2.title;">
-
+<dialog id="NotificationsDialog" type="child"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        dlgbuttons="accept,cancel"
+        title="&notificationsDialog2.title;">
   <prefpane id="NotificationsDialogPane">
-    <preferences id="NotificationsPreferences">
-      <preference id="mail.biff.alert.show_preview" name="mail.biff.alert.show_preview" type="bool"/>
-      <preference id="mail.biff.alert.show_subject" name="mail.biff.alert.show_subject" type="bool"/>
-      <preference id="mail.biff.alert.show_sender" name="mail.biff.alert.show_sender" type="bool"/>
-      <preference id="alerts.totalOpenTime" name="alerts.totalOpenTime" type="int"/>
-    </preferences>
-
     <description>&alertCustomization.intro;</description>
     <checkbox id="previewText" class="indent" label="&previewText.label;" accesskey="&previewText.accesskey;" preference="mail.biff.alert.show_preview"/>
     <checkbox id="subject" class="indent" label="&subject.label;" accesskey="&subject.accesskey;" preference="mail.biff.alert.show_subject"/>
@@ -39,11 +31,13 @@
              accesskey="&totalOpenTimeBefore.accesskey;"/>
       <textbox id="totalOpenTime" type="number" size="3" min="1" max="3600" increment="1"
                preference="alerts.totalOpenTime"
-               onsyncfrompreference="return document.getElementById(this.getAttribute('preference')).value / 1000;"
+               onsyncfrompreference="return Preferences.get(this.getAttribute('preference')).value / 1000;"
                onsynctopreference="return this.value * 1000;"/>
       <label id="totalOpenTimeEnd" value="&totalOpenTimeEnd.label;"/>
     </hbox>
     <separator/>
-
   </prefpane>
-</prefwindow>
+
+  <script type="application/javascript" src="chrome://global/content/preferencesBindings.js"/>
+  <script type="application/javascript" src="chrome://messenger/content/preferences/notifications.js"/>
+</dialog>

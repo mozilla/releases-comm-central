@@ -7,34 +7,6 @@
 
 /* Global Styles */
 
-prefwindow {
-  -moz-appearance: dialog;
-  background-color: #ffffff;
-  color: -moz-DialogText;
-  font: -moz-dialog;
-  padding: 0;
-}
-
-prefwindow[type="child"] {
-  padding-top: 18px;
-  padding-bottom: 15px;
-  padding-inline-start: 18px;
-  padding-inline-end: 20px;
-}
-
-prefpane {
-  padding: 12px;
-}
-
-prefwindow[type="child"] > prefpane {
-  padding: 0;
-}
-
-.prefWindow-dlgbuttons {
-  margin: 0 12px 12px;
-  padding-top: 0 !important;
-}
-
 .paneButtonLabel {
   margin: 0 !important;
 }
@@ -53,10 +25,6 @@ prefwindow[type="child"] > prefpane {
 
 menulist > menupopup > menuitem {
   font: -moz-pull-down-menu;
-}
-
-prefwindow:not([type="child"]) {
-  padding: 0 !important;
 }
 
 /* Attachments Pane */

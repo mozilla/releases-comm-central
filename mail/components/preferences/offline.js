@@ -2,13 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../../../toolkit/content/preferencesBindings.js */
+
+Preferences.addAll([
+  { id: "offline.autoDetect", type: "bool" },
+  { id: "offline.startup_state", type: "int" },
+  { id: "offline.send.unsent_messages", type: "int" },
+  { id: "offline.download.download_messages", type: "int" },
+]);
+
 var kAutomatic         = 4;
 var kRememberLastState = 0;
 
 var gOfflineDialog = {
   dialogSetup() {
-    let offlineAutoDetection = document.getElementById("offline.autoDetect");
-    let offlineStartupStatePref = document.getElementById("offline.startup_state");
+    let offlineAutoDetection = Preferences.get("offline.autoDetect");
+    let offlineStartupStatePref = Preferences.get("offline.startup_state");
 
     offlineStartupStatePref.disabled = offlineAutoDetection.value;
     if (offlineStartupStatePref.disabled) {
@@ -18,3 +27,5 @@ var gOfflineDialog = {
     }
   },
 };
+
+Preferences.get("offline.autoDetect").on("change", gOfflineDialog.dialogSetup);

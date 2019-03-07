@@ -31,6 +31,12 @@ XPCOMUtils.defineLazyServiceGetters(this, {
   gMIMEService: ["@mozilla.org/mime;1", "nsIMIMEService"],
 });
 
+Preferences.addAll([
+  { id: "mail.preferences.applications.selectedTabIndex", type: "int" },
+  { id: "mail.compose.big_attachments.notify", type: "bool" },
+  { id: "mail.compose.big_attachments.threshold_kb", type: "int" },
+]);
+
 document.getElementById("paneApplications")
         .addEventListener("paneload", function() { gApplicationsTabController.init(); });
 
@@ -479,7 +485,7 @@ var gApplicationsTabController = {
 
     if (!(("arguments" in window) && window.arguments[1])) {
       // If no tab was specified, select the last used tab.
-      let preference = document.getElementById("mail.preferences.applications.selectedTabIndex");
+      let preference = Preferences.get("mail.preferences.applications.selectedTabIndex");
       this.mTabBox.selectedIndex = preference.value != null ? preference.value : this.mDefaultIndex;
     }
 
@@ -492,8 +498,8 @@ var gApplicationsTabController = {
 
   tabSelectionChanged() {
     if (this.mInitialized) {
-      document.getElementById("mail.preferences.applications.selectedTabIndex")
-              .valueFromPreferences = this.mTabBox.selectedIndex;
+      Preferences.get("mail.preferences.applications.selectedTabIndex")
+                 .valueFromPreferences = this.mTabBox.selectedIndex;
     }
 
     gCloudFileTab.init();
@@ -826,7 +832,7 @@ var gCloudFileTab = {
   },
 
   readThreshold() {
-    let pref = document.getElementById("mail.compose.big_attachments.threshold_kb");
+    let pref = Preferences.get("mail.compose.big_attachments.threshold_kb");
     return pref.value / 1024;
   },
 

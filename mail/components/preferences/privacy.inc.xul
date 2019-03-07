@@ -6,44 +6,6 @@
 
     <stringbundle id="bundlePreferences" src="chrome://messenger/locale/preferences/preferences.properties"/>
 
-    <preferences id="privacyPreferences">
-
-      <!-- XXX button prefs -->
-      <preference id="pref.privacy.disable_button.cookie_exceptions"
-                  name="pref.privacy.disable_button.cookie_exceptions"
-                  type="bool"/>
-      <preference id="pref.privacy.disable_button.view_cookies"
-                  name="pref.privacy.disable_button.view_cookies"
-                  type="bool"/>
-
-      <!-- Remote Content -->
-      <preference id="mailnews.message_display.disable_remote_image"
-                  name="mailnews.message_display.disable_remote_image"
-                  type="bool" inverted="true"
-                  onchange="gPrivacyPane.reloadMessageInOpener();"/>
-
-      <!-- History -->
-      <preference id="places.history.enabled"
-                  name="places.history.enabled"
-                  type="bool"/>
-
-      <!-- Cookies -->
-      <preference id="network.cookie.cookieBehavior"
-                  name="network.cookie.cookieBehavior"
-                  type="int"/>
-      <preference id="network.cookie.lifetimePolicy"
-                  name="network.cookie.lifetimePolicy"
-                  type="int"/>
-      <preference id="network.cookie.blockFutureCookies"
-                  name="network.cookie.blockFutureCookies"
-                  type="bool"/>
-
-      <!-- Tracking -->
-      <preference id="privacy.donottrackheader.enabled"
-                  name="privacy.donottrackheader.enabled"
-                  type="bool"/>
-    </preferences>
-
     <!-- Mail Content -->
     <groupbox id="mailContentGroup">
       <label><html:h2>&captionMailContent.label;</html:h2></label>

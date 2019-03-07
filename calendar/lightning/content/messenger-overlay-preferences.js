@@ -4,11 +4,13 @@
 
 /* exported gLightningPane */
 
+Preferences.add({ id: "calendar.preferences.lightning.selectedTabIndex", type: "int" });
+
 var gLightningPane = {
     mInitialized: false,
 
     init: function() {
-        let preference = document.getElementById("calendar.preferences.lightning.selectedTabIndex");
+        let preference = Preferences.get("calendar.preferences.lightning.selectedTabIndex");
         let ltnPrefs = document.getElementById("calPreferencesTabbox");
         if (preference.value) {
             ltnPrefs.selectedIndex = preference.value;
@@ -27,7 +29,7 @@ var gLightningPane = {
             return;
         }
         let ltnPrefs = document.getElementById("calPreferencesTabbox");
-        let preference = document.getElementById("calendar.preferences.lightning.selectedTabIndex");
+        let preference = Preferences.get("calendar.preferences.lightning.selectedTabIndex");
         preference.valueFromPreferences = ltnPrefs.selectedIndex;
     }
 };
