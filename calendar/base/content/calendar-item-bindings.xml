@@ -10,7 +10,7 @@
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
           xmlns:xbl="http://www.mozilla.org/xbl">
 
-  <binding id="item-date-row" extends="xul:row">
+  <binding id="item-date-row">
     <content xbl:inherits="mode">
       <xul:label anonid="item-datetime-label"
                  class="headline"

@@ -13,7 +13,7 @@
   ########################################################################
   -->
 
-  <binding id="daypicker" display="xul:button"
+  <binding id="daypicker"
            extends="chrome://global/content/bindings/button.xml#button-base">
     <content>
       <xul:hbox anonid="daypickerId" class="daypickerclass" align="center" flex="1">

@@ -1009,7 +1009,7 @@
     </implementation>
   </binding>
 
-  <binding id="search-menulist-abstract" name="searchMenulistAbstract" extends="xul:box">
+  <binding id="search-menulist-abstract" name="searchMenulistAbstract">
     <content>
       <xul:menulist class="search-menulist" xbl:inherits="flex,disabled" oncommand="this.parentNode.onSelect(event)">
         <xul:menupopup class="search-menulist-popup"/>

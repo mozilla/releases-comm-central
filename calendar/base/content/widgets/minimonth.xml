@@ -88,7 +88,7 @@
     </implementation>
   </binding>
 
-  <binding id="minimonth" extends="xul:box">
+  <binding id="minimonth">
     <content orient="vertical" xbl:inherits="onchange,onmonthchange,onpopuplisthidden,readonly" role="group">
       <xul:minimonth-header anonid="minimonth-header" xbl:inherits="readonly,month,year"/>
       <xul:hbox anonid="minimonth-readonly-header" class="minimonth-month-box" align="center" pack="center">

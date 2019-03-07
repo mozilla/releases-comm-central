@@ -225,7 +225,7 @@
     </implementation>
   </binding>
 
-  <binding id="timepicker-grids" extends="xul:box">
+  <binding id="timepicker-grids">
     <content>
       <vbox anonid="time-picker-grids"
             xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">

@@ -13,7 +13,7 @@
           xmlns:xbl="http://www.mozilla.org/xbl"
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-  <binding id="scroll-container" extends="xul:box">
+  <binding id="scroll-container">
     <content>
       <xul:box class="container"
                xbl:inherits="flex"
@@ -66,7 +66,7 @@
     </implementation>
   </binding>
 
-  <binding id="freebusy-day" extends="xul:box">
+  <binding id="freebusy-day">
     <content>
       <xul:box orient="vertical">
         <xul:text class="freebusy-timebar-title"
@@ -212,7 +212,7 @@
     </implementation>
   </binding>
 
-  <binding id="freebusy-row" extends="xul:box">
+  <binding id="freebusy-row">
     <content>
       <xul:scroll-container flex="1" anonid="container">
         <xul:box equalsize="always" anonid="hours"/>

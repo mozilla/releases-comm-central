@@ -296,7 +296,7 @@
     </handlers>
   </binding>
 
-  <binding id="buttons" extends="xul:hbox">
+  <binding id="buttons">
     <content>
       <xul:button class="disconnectButton"
                   command="cmd_disconnect"

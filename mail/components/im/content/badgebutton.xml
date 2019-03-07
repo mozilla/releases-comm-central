@@ -12,7 +12,7 @@
 
   <binding id="badgebutton"
            extends="chrome://global/content/bindings/toolbarbutton.xml#toolbarbutton"
-           display="xul:button" role="xul:toolbarbutton">
+           role="xul:toolbarbutton">
     <content>
       <children includes="observes|template|menupopup|panel|tooltip"/>
       <xul:stack>

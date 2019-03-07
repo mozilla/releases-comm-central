@@ -10,7 +10,7 @@
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
           xmlns:xbl="http://www.mozilla.org/xbl">
 
-  <binding id="task-menupopup" extends="xul:menupopup">
+  <binding id="task-menupopup">
     <implementation>
       <field name="mType">null</field>;
       <field name="mPopupHandler">null</field>

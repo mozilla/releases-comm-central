@@ -65,7 +65,7 @@
       additionally verified if the xul-element denoted by "refcontrol" is checked or not. During runtime an attribute named
       "collapsedinmodes" with the collpsed modes comma-separated e.g. "mail,calendar,task. This attribute is also made
       persistent-->
-  <binding id="modebox" extends="xul:box">
+  <binding id="modebox">
     <implementation>
       <field name="mBroadcaster">null</field>;
       <field name="mModHandler">null</field>;
