@@ -27,7 +27,7 @@ function setupModule(module) {
   nntpAccount = MailServices.accounts.FindAccountForServer(server);
 }
 
-function test_virtual_folder_selection_tree() {
+function disabled_test_virtual_folder_selection_tree() {
   plan_for_modal_dialog("mailnews:virtualFolderProperties",
                         subtest_create_virtual_folder);
   mc.click(mc.eid("button-appmenu"));
@@ -58,7 +58,7 @@ function subtest_check_virtual_folder_list(listc) {
   listc.window.document.documentElement.cancelDialog();
 }
 
-function test_offline_sync_folder_selection_tree() {
+function disabled_test_offline_sync_folder_selection_tree() {
   plan_for_modal_dialog("mailnews:synchronizeOffline",
                         subtest_offline_sync);
   mc.click(mc.eid("button-appmenu"));

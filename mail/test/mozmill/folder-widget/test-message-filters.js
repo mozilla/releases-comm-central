@@ -80,7 +80,7 @@ function test_message_filter_shows_newsgroup_server()
  * Test that customizing the toolbar doesn't lead to doubled accounts in
  * the Get Mail menu.  (bug 520457)
  */
-function test_customize_toolbar_doesnt_double_get_mail_menu()
+function disabled_test_customize_toolbar_doesnt_double_get_mail_menu()
 {
   be_in_folder(folderA);
 
@@ -116,7 +116,7 @@ function test_customize_toolbar_doesnt_double_get_mail_menu()
 
   check_getAllNewMsgMenu();
 }
-test_customize_toolbar_doesnt_double_get_mail_menu.EXCLUDED_PLATFORMS = ["darwin"];
+disabled_test_customize_toolbar_doesnt_double_get_mail_menu.EXCLUDED_PLATFORMS = ["darwin"];
 
 /* A helper function that opens up the new filter dialog (assuming that the
  * main filters dialog is already open), creates a simple filter, and then
