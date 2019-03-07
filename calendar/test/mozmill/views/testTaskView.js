@@ -37,7 +37,6 @@ function setupModule(module) {
 
 // Mozmill doesn't support trees yet, therefore completed checkbox and line-through style are not
 // checked.
-testTaskView.__force_skip__ = true;
 function testTaskView() {
     // paths
     let treeChildren = `
@@ -107,9 +106,8 @@ function testTaskView() {
 
     // Verify description and status in details pane.
     controller.assertValue(lookup(`
-        ${TASK_VIEW}/{"flex":"1"}/id("calendar-task-details-container")/
-        id("calendar-task-details-description")/anon({"anonid":"moz-input-box"})/
-        anon({"anonid":"input"})
+        ${TASK_VIEW}/{"flex":"1"}/id("calendar-task-details-container")/{"flex":"1"}/
+        id("calendar-task-details-description")
     `), DESCRIPTION);
     controller.assertValue(eid("calendar-task-details-status"), "Needs Action");
 
