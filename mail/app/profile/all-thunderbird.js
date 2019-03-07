@@ -801,8 +801,11 @@ pref("security.sandbox.content.mac.earlyinit", false);
 // Enable FIDO U2F
 pref("security.webauth.u2f", true);
 
-// Temporarily allow eval, see bug 1522608.
-pref("security.allow_eval_with_system_principal", true);
+#if defined(DEBUG)
+// Allow eval in these files, see bug 1522608.
+pref("security.allow_eval_with_system_principal", false);
+pref("security.uris_using_eval_with_system_principal", "ajv-4.1.1.js,autocomplete.xml,box.jsm,calDavCalendar.js,chrometask_chromescript,content-task.js,dialog.xml,gdataSession.jsm,jsol.js,jszip.js,lodash.js,parent_utils.js,preferencesbindings.js,react-redux.js,redux.js,setup,tree.xml,updates.js,wizard.xml");
+#endif
 
 // Use OS date and time settings by default.
 pref("intl.regional_prefs.use_os_locales", true);
