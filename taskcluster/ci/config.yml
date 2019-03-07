@@ -89,5 +89,3 @@ task-priority:
         'comm-beta': 'high'
         'comm-central': 'medium'
         'default': 'low'
-
-
