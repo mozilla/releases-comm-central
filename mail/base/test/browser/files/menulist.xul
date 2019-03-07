@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/css" href="chrome://global/skin/global.css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/content/bindings.css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/content/menulist.css"?>
+
+<page align="start" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script type="application/javascript" src="chrome://messenger/content/customElements.js"/>
+
+  <button id="before" label="I'm just a button" onclick="alert('I\'m a button!')"/>
+
+  <menulist>
+    <menupopup>
+      <menuitem value="foo" label="foo"/>
+      <menuitem value="bar" label="bar"/>
+    </menupopup>
+  </menulist>
+
+  <menulist is="menulist-editable">
+    <menupopup>
+      <menuitem value="foo" label="foo"/>
+      <menuitem value="bar" label="bar"/>
+    </menupopup>
+  </menulist>
+
+  <menulist is="menulist-editable" editable="true" width="100">
+    <menupopup>
+      <menuitem value="foo" label="foo"/>
+      <menuitem value="bar" label="bar"/>
+    </menupopup>
+  </menulist>
+
+  <button id="after" label="I'm just a button"/>
+</page>

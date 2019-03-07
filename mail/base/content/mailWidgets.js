@@ -506,6 +506,14 @@ customElements.whenDefined("menulist").then(() => {
         }
       };
       this._inputField.addEventListener("keypress", this._keypress);
+      this._change = (event) => {
+        event.stopPropagation();
+        this.selectedItem = null;
+        this.setAttribute("value", this._inputField.value);
+        // Start the event again, but this time with the menulist as target.
+        this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
+      };
+      this._inputField.addEventListener("change", this._change);
 
       this._popupHiding = (event) => {
         // layerX is 0 if the user clicked outside the popup.
@@ -524,6 +532,7 @@ customElements.whenDefined("menulist").then(() => {
 
       this.mAttributeObserver.disconnect();
       this._inputField.removeEventListener("keypress", this._keypress);
+      this._inputField.removeEventListener("change", this._change);
       this.menupopup.removeEventListener("popuphiding", this._popupHiding);
 
       for (let prop of ["_inputField", "_labelBox", "_dropmarker", "_description"]) {
@@ -602,6 +611,13 @@ customElements.whenDefined("menulist").then(() => {
 
     get placeholder() {
       return this._inputField.placeholder;
+    }
+
+    set selectedItem(val) {
+      if (val) {
+        this._inputField.value = val.getAttribute("value");
+      }
+      super.selectedItem = val;
     }
 
     select() {
