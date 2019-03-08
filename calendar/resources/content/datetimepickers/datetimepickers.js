@@ -249,7 +249,7 @@ customElements.whenDefined("menulist-editable").then(() => {
                 attributeFilter: ["value"],
             });
 
-            this._inputField.addEventListener("change", (event) => {
+            this._menulist.addEventListener("change", (event) => {
                 event.stopPropagation();
 
                 let value = parseDateTime(this._inputBoxValue);
