@@ -1012,8 +1012,8 @@ var gApplicationsPane = {
     this.selectedHandlerListItem = null;
 
     // Clear the list of entries.
-    while (this._list.childNodes.length > 1)
-      this._list.lastChild.remove();
+    this._list.textContent = "";
+
     var visibleTypes = this._visibleTypes;
 
     // If the user is filtering the list, then only show matching types.
