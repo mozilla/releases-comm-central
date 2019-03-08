@@ -56,7 +56,7 @@ function setupModule(module) {
 }
 
 // Test that closing an event dialog with no changes does not prompt for save.
-function disabled_testEventDialogModificationPrompt() {
+function testEventDialogModificationPrompt() {
     goToDate(controller, 2009, 1, 1);
 
     let createbox = lookupEventBox("day", CANVAS_BOX, null, 1, 8);
@@ -142,7 +142,8 @@ function disabled_testEventDialogModificationPrompt() {
         controller.waitForElementNotPresent(eventbox);
     }
 }
-testEventDialogModificationPrompt.EXCLUDED_PLATFORMS = ["darwin"];
+// testEventDialogModificationPrompt.EXCLUDED_PLATFORMS = ["darwin"];
+testEventDialogModificationPrompt.__force_skip__ = true;
 
 function teardownTest(module) {
     deleteCalendars(controller, CALENDARNAME);

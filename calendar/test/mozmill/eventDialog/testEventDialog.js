@@ -59,7 +59,7 @@ function setupModule(module) {
     createCalendar(controller, CALENDARNAME);
 }
 
-function disabled_testEventDialog() {
+function testEventDialog() {
     let dateFormatter = cal.getDateFormatter();
     let now = new Date();
 
@@ -218,7 +218,8 @@ function disabled_testEventDialog() {
         }
     }
 }
-testEventDialog.EXCLUDED_PLATFORMS = ["darwin"];
+// testEventDialog.EXCLUDED_PLATFORMS = ["darwin"];
+testEventDialog.__force_skip__ = true;
 
 function checkTooltip(row, col, startTime, endTime) {
     let item = lookupEventBox("month", null, row, col, null, EVENTPATH);
