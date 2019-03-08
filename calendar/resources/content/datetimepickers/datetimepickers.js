@@ -208,6 +208,526 @@ customElements.whenDefined("menulist-editable").then(() => {
         }
     }
 
+    /**
+     * The MozTimepickerGrids widget displays the grid of times to select, e.g. for an event.
+     * Typically it represents the popup content that let's the user select a time, in a
+     * <timepicker> widget.
+     *
+     * @extends MozXULElement
+     */
+    class MozTimepickerGrids extends MozXULElement {
+        constructor() {
+            super();
+
+            this.content = MozXULElement.parseXULToFragment(`
+                <vbox class="time-picker-grids">
+                  <grid class="time-picker-hour-grid" format12hours="false">
+                    <columns>
+                      <column class="time-picker-hour-column-class" flex="1"></column>
+                      <column class="time-picker-hour-column-class" flex="1"></column>
+                      <column class="time-picker-hour-column-class" flex="1"></column>
+                      <column class="time-picker-hour-column-class" flex="1"></column>
+                      <column class="time-picker-hour-column-class" flex="1"></column>
+                      <column class="time-picker-hour-column-class" flex="1"></column>
+                      <column class="time-picker-hour-column-class" flex="1"></column>
+                      <column class="time-picker-hour-column-class" flex="1"></column>
+                      <column class="time-picker-hour-column-class" flex="1"></column>
+                      <column class="time-picker-hour-column-class" flex="1"></column>
+                      <column class="time-picker-hour-column-class" flex="1"></column>
+                      <column class="time-picker-hour-column-class" flex="1"></column>
+                      <column></column>
+                    </columns>
+                    <rows>
+                      <row flex="1" class="timepicker-topRow-hour-class">
+                        <timepicker-hour class="time-picker-hour-box-class" value="0" label="0"></timepicker-hour>
+                        <timepicker-hour class="time-picker-hour-box-class" value="1" label="1"></timepicker-hour>
+                        <timepicker-hour class="time-picker-hour-box-class" value="2" label="2"></timepicker-hour>
+                        <timepicker-hour class="time-picker-hour-box-class" value="3" label="3"></timepicker-hour>
+                        <timepicker-hour class="time-picker-hour-box-class" value="4" label="4"></timepicker-hour>
+                        <timepicker-hour class="time-picker-hour-box-class" value="5" label="5"></timepicker-hour>
+                        <timepicker-hour class="time-picker-hour-box-class" value="6" label="6"></timepicker-hour>
+                        <timepicker-hour class="time-picker-hour-box-class" value="7" label="7"></timepicker-hour>
+                        <timepicker-hour class="time-picker-hour-box-class" value="8" label="8"></timepicker-hour>
+                        <timepicker-hour class="time-picker-hour-box-class" value="9" label="9"></timepicker-hour>
+                        <timepicker-hour class="time-picker-hour-box-class" value="10" label="10"></timepicker-hour>
+                        <timepicker-hour class="time-picker-hour-box-class" value="11" label="11"></timepicker-hour>
+                        <hbox class="timepicker-amLabelBox-class amLabelBox" hidden="true">
+                          <label></label>
+                        </hbox>
+                      </row>
+                      <row flex="1" class="timepicker-bottomRow-hour-class">
+                        <timepicker-hour class="time-picker-hour-box-class" value="12" label="12"></timepicker-hour>
+                        <timepicker-hour class="time-picker-hour-box-class" value="13" label="13"></timepicker-hour>
+                        <timepicker-hour class="time-picker-hour-box-class" value="14" label="14"></timepicker-hour>
+                        <timepicker-hour class="time-picker-hour-box-class" value="15" label="15"></timepicker-hour>
+                        <timepicker-hour class="time-picker-hour-box-class" value="16" label="16"></timepicker-hour>
+                        <timepicker-hour class="time-picker-hour-box-class" value="17" label="17"></timepicker-hour>
+                        <timepicker-hour class="time-picker-hour-box-class" value="18" label="18"></timepicker-hour>
+                        <timepicker-hour class="time-picker-hour-box-class" value="19" label="19"></timepicker-hour>
+                        <timepicker-hour class="time-picker-hour-box-class" value="20" label="20"></timepicker-hour>
+                        <timepicker-hour class="time-picker-hour-box-class" value="21" label="21"></timepicker-hour>
+                        <timepicker-hour class="time-picker-hour-box-class" value="22" label="22"></timepicker-hour>
+                        <timepicker-hour class="time-picker-hour-box-class" value="23" label="23"></timepicker-hour>
+                        <hbox class="pmLabelBox timepicker-pmLabelBox-class" hidden="true">
+                          <label></label>
+                        </hbox>
+                      </row>
+                    </rows>
+                  </grid>
+                  <vbox class="time-picker-five-minute-grid-box" flex="1">
+                    <grid class="time-picker-five-minute-grid" flex="1">
+                      <columns>
+                        <column class="time-picker-five-minute-column-class" flex="1"></column>
+                        <column class="time-picker-five-minute-column-class" flex="1"></column>
+                        <column class="time-picker-five-minute-column-class" flex="1"></column>
+                        <column class="time-picker-five-minute-column-class" flex="1"></column>
+                        <column class="time-picker-five-minute-column-class" flex="1"></column>
+                        <column class="time-picker-five-minute-column-class" flex="1"></column>
+                      </columns>
+                      <rows>
+                        <row flex="1">
+                          <timepicker-minute class="time-picker-five-minute-class" value="0" label=":00"></timepicker-minute>
+                          <timepicker-minute class="time-picker-five-minute-class" value="5" label=":05"></timepicker-minute>
+                          <timepicker-minute class="time-picker-five-minute-class" value="10" label=":10"></timepicker-minute>
+                          <timepicker-minute class="time-picker-five-minute-class" value="15" label=":15"></timepicker-minute>
+                          <timepicker-minute class="time-picker-five-minute-class" value="20" label=":20"></timepicker-minute>
+                          <timepicker-minute class="time-picker-five-minute-class" value="25" label=":25"></timepicker-minute>
+                        </row>
+                        <row flex="1">
+                          <timepicker-minute class="time-picker-five-minute-class" value="30" label=":30"></timepicker-minute>
+                          <timepicker-minute class="time-picker-five-minute-class" value="35" label=":35"></timepicker-minute>
+                          <timepicker-minute class="time-picker-five-minute-class" value="40" label=":40"></timepicker-minute>
+                          <timepicker-minute class="time-picker-five-minute-class" value="45" label=":45"></timepicker-minute>
+                          <timepicker-minute class="time-picker-five-minute-class" value="50" label=":50"></timepicker-minute>
+                          <timepicker-minute class="time-picker-five-minute-class" value="55" label=":55"></timepicker-minute>
+                        </row>
+                      </rows>
+                    </grid>
+                    <hbox class="time-picker-minutes-bottom">
+                      <spacer flex="1"></spacer>
+                      <label class="time-picker-more-control-label" value="»" onclick="clickMore()"></label>
+                    </hbox>
+                  </vbox>
+                  <vbox class="time-picker-one-minute-grid-box" flex="1" hidden="true">
+                    <grid class="time-picker-one-minute-grid" flex="1">
+                      <columns>
+                        <column class="time-picker-one-minute-column-class" flex="1"></column>
+                        <column class="time-picker-one-minute-column-class" flex="1"></column>
+                        <column class="time-picker-one-minute-column-class" flex="1"></column>
+                        <column class="time-picker-one-minute-column-class" flex="1"></column>
+                        <column class="time-picker-one-minute-column-class" flex="1"></column>
+                      </columns>
+                      <rows>
+                        <row flex="1">
+                          <timepicker-minute class="time-picker-one-minute-class" value="0" label=":00"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="1" label=":01"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="2" label=":02"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="3" label=":03"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="4" label=":04"></timepicker-minute>
+                        </row>
+                        <row flex="1">
+                          <timepicker-minute class="time-picker-one-minute-class" value="5" label=":05"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="6" label=":06"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="7" label=":07"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="8" label=":08"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="9" label=":09"></timepicker-minute>
+                        </row>
+                        <row flex="1">
+                          <timepicker-minute class="time-picker-one-minute-class" value="10" label=":10"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="11" label=":11"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="12" label=":12"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="13" label=":13"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="14" label=":14"></timepicker-minute>
+                        </row>
+                        <row flex="1">
+                          <timepicker-minute class="time-picker-one-minute-class" value="15" label=":15"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="16" label=":16"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="17" label=":17"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="18" label=":18"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="19" label=":19"></timepicker-minute>
+                        </row>
+                        <row flex="1">
+                          <timepicker-minute class="time-picker-one-minute-class" value="20" label=":20"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="21" label=":21"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="22" label=":22"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="23" label=":23"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="24" label=":24"></timepicker-minute>
+                        </row>
+                        <row flex="1">
+                          <timepicker-minute class="time-picker-one-minute-class" value="25" label=":25"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="26" label=":26"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="27" label=":27"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="28" label=":28"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="29" label=":29"></timepicker-minute>
+                        </row>
+                        <row flex="1">
+                          <timepicker-minute class="time-picker-one-minute-class" value="30" label=":30"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="31" label=":31"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="32" label=":32"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="33" label=":33"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="34" label=":34"></timepicker-minute>
+                        </row>
+                        <row flex="1">
+                          <timepicker-minute class="time-picker-one-minute-class" value="35" label=":35"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="36" label=":36"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="37" label=":37"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="38" label=":38"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="39" label=":39"></timepicker-minute>
+                        </row>
+                        <row flex="1">
+                          <timepicker-minute class="time-picker-one-minute-class" value="40" label=":40"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="41" label=":41"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="42" label=":42"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="43" label=":43"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="44" label=":44"></timepicker-minute>
+                        </row>
+                        <row flex="1">
+                          <timepicker-minute class="time-picker-one-minute-class" value="45" label=":45"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="46" label=":46"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="47" label=":47"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="48" label=":48"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="49" label=":49"></timepicker-minute>
+                        </row>
+                        <row flex="1">
+                          <timepicker-minute class="time-picker-one-minute-class" value="50" label=":50"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="51" label=":51"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="52" label=":52"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="53" label=":53"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="54" label=":54"></timepicker-minute>
+                        </row>
+                        <row flex="1">
+                          <timepicker-minute class="time-picker-one-minute-class" value="55" label=":55"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="56" label=":56"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="57" label=":57"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="58" label=":58"></timepicker-minute>
+                          <timepicker-minute class="time-picker-one-minute-class" value="59" label=":59"></timepicker-minute>
+                        </row>
+                      </rows>
+                    </grid>
+                    <hbox class="time-picker-minutes-bottom">
+                      <spacer flex="1"></spacer>
+                      <label class="time-picker-more-control-label" value="«" onclick="clickLess()"></label>
+                    </hbox>
+                  </vbox>
+                </vbox>
+                `);
+        }
+
+        connectedCallback() {
+            if (!this.hasChildNodes()) {
+                this.appendChild(document.importNode(this.content, true));
+            }
+
+            // set by onPopupShowing
+            this.mPicker = null;
+
+            // The currently selected time
+            this.mSelectedTime = new Date();
+            // The selected hour and selected minute items
+            this.mSelectedHourItem = null;
+            this.mSelectedMinuteItem = null;
+            // constants use to specify one and five minute view
+            this.kMINUTE_VIEW_FIVE = 5;
+            this.kMINUTE_VIEW_ONE = 1;
+        }
+
+        /**
+         * Sets new mSelectedTime.
+         *
+         * @param {String|Array} val        new mSelectedTime value
+         */
+        set value(val) {
+            if (typeof val == "string") {
+                val = parseTime(val);
+            } else if (Array.isArray(val)) {
+                let [hours, minutes] = val;
+                val = new Date();
+                val.setHours(hours);
+                val.setMinutes(minutes);
+            }
+            this.mSelectedTime = val;
+        }
+
+        /**
+         * @returns {Array}     An array containing mSelectedTime hours and mSelectedTime minutes
+         */
+        get value() {
+            return [
+                this.mSelectedTime.getHours(),
+                this.mSelectedTime.getMinutes(),
+            ];
+        }
+
+        /**
+         * Set up the picker, called when the popup pops.
+         */
+        onPopupShowing() {
+            // select the hour item
+            let hours24 = this.mSelectedTime.getHours();
+            let hourItem = this.querySelector(`.time-picker-hour-box-class[value="${hours24}"]`);
+            this.selectHourItem(hourItem);
+
+            // Show the five minute view if we are an even five minutes,
+            // otherwise one minute view
+            let minutesByFive = this.calcNearestFiveMinutes(this.mSelectedTime);
+
+            if (minutesByFive == this.mSelectedTime.getMinutes()) {
+                this.clickLess();
+            } else {
+                this.clickMore();
+            }
+        }
+
+        /**
+         * Switches popup to minute view and selects the selected minute item.
+         */
+        clickMore() {
+            // switch to one minute view
+            this.switchMinuteView(this.kMINUTE_VIEW_ONE);
+
+            // select minute box corresponding to the time
+            let minutes = this.mSelectedTime.getMinutes();
+            let oneMinuteItem = this.querySelector(
+                `.time-picker-one-minute-class[value="${minutes}"]`
+            );
+            this.selectMinuteItem(oneMinuteItem);
+        }
+
+        /**
+         * Switches popup to five-minute view and selects the five-minute item nearest to selected
+         * minute item.
+         */
+        clickLess() {
+            // switch to five minute view
+            this.switchMinuteView(this.kMINUTE_VIEW_FIVE);
+
+            // select closest five minute box,
+            // BUT leave the selected time at what may NOT be an even five minutes
+            // So that If they click more again the proper non-even-five minute
+            // box will be selected
+            let minutesByFive = this.calcNearestFiveMinutes(this.mSelectedTime);
+            let fiveMinuteItem = this.querySelector(
+                `.time-picker-five-minute-class[value="${minutesByFive}"]`
+            );
+            this.selectMinuteItem(fiveMinuteItem);
+        }
+
+        /**
+         * Selects the hour item which was clicked.
+         *
+         * @param {Node} hourItem           Hour item which was clicked
+         * @param {Number} hourNumber       Hour value of the clicked hour item
+         */
+        clickHour(hourItem, hourNumber) {
+            // select the item
+            this.selectHourItem(hourItem);
+
+            // Change the hour in the selected time.
+            this.mSelectedTime.setHours(hourNumber);
+
+            this.hasChanged = true;
+        }
+
+        /**
+         * Called when one of the hour boxes is double clicked.
+         * Sets the time to the selected hour, on the hour, and closes the popup.
+         *
+         * @param {Node} hourItem           Hour item which was clicked
+         * @param {Number} hourNumber       Hour value of the clicked hour item
+         */
+        doubleClickHour(hourItem, hourNumber) {
+            // set the minutes to :00
+            this.mSelectedTime.setMinutes(0);
+
+            this.dispatchEvent(new CustomEvent("select"));
+        }
+
+        /**
+         * Changes selectedTime's minute, calls the client's onchange and closes
+         * the popup.
+         *
+         * @param {Node} minuteItem         Minute item which was clicked
+         * @param {Number} minuteNumber     Minute value of the clicked minute item
+         */
+        clickMinute(minuteItem, minuteNumber) {
+            // set the minutes in the selected time
+            this.mSelectedTime.setMinutes(minuteNumber);
+            this.selectMinuteItem(minuteItem);
+            this.hasChanged = true;
+
+            this.dispatchEvent(new CustomEvent("select"));
+        }
+
+        /**
+         * Helper function to switch between "one" and "five" minute views.
+         *
+         * @param {Number} view      Number representing minute view
+         */
+        switchMinuteView(view) {
+            let fiveMinuteBox = this.querySelector(".time-picker-five-minute-grid-box");
+            let oneMinuteBox = this.querySelector(".time-picker-one-minute-grid-box");
+
+            if (view == this.kMINUTE_VIEW_ONE) {
+                fiveMinuteBox.setAttribute("hidden", true);
+                oneMinuteBox.setAttribute("hidden", false);
+            } else {
+                fiveMinuteBox.setAttribute("hidden", false);
+                oneMinuteBox.setAttribute("hidden", true);
+            }
+        }
+
+        /**
+         * Selects an hour item.
+         *
+         * @param {Node} hourItem      Hour item node to be selected
+         */
+        selectHourItem(hourItem) {
+            // clear old selection, if there is one
+            if (this.mSelectedHourItem != null) {
+                this.mSelectedHourItem.removeAttribute("selected");
+            }
+            // set selected attribute, to cause the selected style to apply
+            hourItem.setAttribute("selected", "true");
+            // remember the selected item so we can deselect it
+            this.mSelectedHourItem = hourItem;
+        }
+
+        /**
+         * Selects a minute item.
+         *
+         * @param {Node} minuteItem        Minute item node to be selected
+         */
+        selectMinuteItem(minuteItem) {
+            // clear old selection, if there is one
+            if (this.mSelectedMinuteItem != null) {
+                this.mSelectedMinuteItem.removeAttribute("selected");
+            }
+            // set selected attribute, to cause the selected style to apply
+            minuteItem.setAttribute("selected", "true");
+            // remember the selected item so we can deselect it
+            this.mSelectedMinuteItem = minuteItem;
+        }
+
+        /**
+         * Moves minute by the number passed and handle rollover cases where the minutes gets
+         * greater than 59 or less than 60.
+         *
+         * @param {Number} number       Moves minute by the number 'number'
+         */
+        moveMinutes(number) {
+            if (!this.mSelectedTime) {
+                return;
+            }
+
+            let idPrefix = ".time-picker-one-minute-class";
+
+            // Everything above assumes that we are showing the one-minute-grid,
+            // If not, we need to do these corrections;
+            let fiveMinuteBox = this.querySelector(".time-picker-five-minute-grid-box");
+
+            if (fiveMinuteBox.getAttribute("hidden") == "false") {
+                number *= 5;
+                idPrefix = ".time-picker-five-minute-class";
+
+                // If the detailed view was shown before, then mSelectedTime.getMinutes
+                // might not be a multiple of 5.
+                this.mSelectedTime.setMinutes(this.calcNearestFiveMinutes(this.mSelectedTime));
+            }
+
+            let newMinutes = this.mSelectedTime.getMinutes() + number;
+
+            // Handle rollover cases
+            if (newMinutes < 0) {
+                newMinutes += 60;
+            }
+            if (newMinutes > 59) {
+                newMinutes -= 60;
+            }
+
+            this.mSelectedTime.setMinutes(newMinutes);
+
+            let minuteItemId = `${idPrefix}[value="${this.mSelectedTime.getMinutes()}"]`;
+            let minuteItem = this.querySelector(minuteItemId);
+
+            this.selectMinuteItem(minuteItem);
+            this.mPicker.kTextBox.value = this.mPicker.formatTime(this.mSelectedTime);
+            this.hasChanged = true;
+        }
+
+        /**
+         * Moves hours by the number passed and handle rollover cases where the hours gets greater
+         * than 23 or less than 0.
+         *
+         * @param {Number} number       Moves hours by the number 'number'
+         */
+        moveHours(number) {
+            if (!this.mSelectedTime) {
+                return;
+            }
+
+            let newHours = this.mSelectedTime.getHours() + number;
+
+            // Handle rollover cases
+            if (newHours < 0) {
+                newHours += 24;
+            }
+            if (newHours > 23) {
+                newHours -= 24;
+            }
+
+            this.mSelectedTime.setHours(newHours);
+
+            let hourItemId = `.time-picker-hour-box-class[value="${this.mSelectedTime.getHours()}"]`;
+            let hourItem = this.querySelector(hourItemId);
+
+            this.selectHourItem(hourItem);
+            this.mPicker.kTextBox.value = this.mPicker.formatTime(this.mSelectedTime);
+            this.hasChanged = true;
+        }
+
+        /**
+         * Calulates the nearest even five minutes.
+         *
+         * @param {calDateTime} time     Time near to which nearest five minutes have to be found
+         */
+        calcNearestFiveMinutes(time) {
+            let minutes = time.getMinutes();
+            let minutesByFive = Math.round(minutes / 5) * 5;
+
+            if (minutesByFive > 59) {
+                minutesByFive = 55;
+            }
+            return minutesByFive;
+        }
+
+        /**
+         * Changes to 12 hours format by showing am/pm label.
+         *
+         * @param {String} amLabel     amLabelBox value
+         * @param {String} pmLabel     pmLabelBox value
+         */
+        changeTo12HoursFormat(amLabel, pmLabel) {
+            if (!this.firstChild) {
+                this.appendChild(document.importNode(this.content, true));
+            }
+
+            let amLabelBox = this.querySelector(".amLabelBox");
+            amLabelBox.removeAttribute("hidden");
+            amLabelBox.firstChild.setAttribute("value", amLabel);
+            let pmLabelBox = this.querySelector(".pmLabelBox");
+            pmLabelBox.removeAttribute("hidden");
+            pmLabelBox.firstChild.setAttribute("value", pmLabel);
+            this.querySelector(".time-picker-hour-box-class[value='0']")
+                .setAttribute("label", "12");
+            for (let i = 13; i < 24; i++) {
+                this.querySelector(`.time-picker-hour-box-class[value="${i}"]`)
+                    .setAttribute("label", i - 12);
+            }
+            this.querySelector(".time-picker-hour-grid")
+                .setAttribute("format12hours", "true");
+        }
+    }
+
     class CalendarDatePicker extends MozXULElement {
         connectedCallback() {
             if (this.delayConnectedCallback()) {
@@ -580,6 +1100,7 @@ customElements.whenDefined("menulist-editable").then(() => {
     initTimeFormat();
     customElements.define("timepicker-minute", MozTimepickerMinute);
     customElements.define("timepicker-hour", MozTimepickerHour);
+    customElements.define("timepicker-grids", MozTimepickerGrids);
     customElements.define("datepicker", CalendarDatePicker);
     customElements.define("timepicker", CalendarTimePicker);
     customElements.define("datetimepicker", CalendarDateTimePicker);
