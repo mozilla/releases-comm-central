@@ -86,6 +86,7 @@ function testLocalICS() {
 
     controller.assert(() => str.value.includes("SUMMARY:" + calendarTitle));
 }
+testLocalICS.EXCLUDED_PLATFORMS = ["winnt", "darwin"];  // See bug 1533663.
 
 function teardownTest(module) {
     deleteCalendars(controller, calendarName);
