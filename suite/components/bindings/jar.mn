@@ -12,7 +12,7 @@ comm.jar:
    content/communicator/bindings/generalBindings.xml                (../../../common/bindings/generalBindings.xml)
    content/communicator/bindings/notification.xml                   (notification.xml)
    content/communicator/bindings/numberbox.xml                      (../../../common/bindings/numberbox.xml)
-*  content/communicator/bindings/preferences.xml                    (../../../common/bindings/preferences.xml)
+   content/communicator/bindings/preferences.xml                    (preferences.xml)
    content/communicator/bindings/spinbuttons.xml                    (../../../common/bindings/spinbuttons.xml)
 *  content/communicator/bindings/textbox.xml                        (../../../common/bindings/textbox.xml)
 *  content/communicator/bindings/toolbar.xml                        (../../../common/bindings/toolbar.xml)

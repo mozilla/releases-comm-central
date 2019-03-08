@@ -1,11 +1,7 @@
 <?xml version="1.0"?>
 
 <!DOCTYPE bindings [
-#ifdef MOZ_SUITE
   <!ENTITY % preferencesDTD SYSTEM "chrome://communicator/locale/pref/preferences.dtd">
-#else
-  <!ENTITY % preferencesDTD SYSTEM "chrome://messenger/locale/preferences/preferences.dtd">
-#endif
   %preferencesDTD;
   <!ENTITY % globalKeysDTD SYSTEM "chrome://global/locale/globalKeys.dtd">
   %globalKeysDTD;
