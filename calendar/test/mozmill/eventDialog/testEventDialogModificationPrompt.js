@@ -56,7 +56,7 @@ function setupModule(module) {
 }
 
 // Test that closing an event dialog with no changes does not prompt for save.
-function testEventDialogModificationPrompt() {
+function disabled_testEventDialogModificationPrompt() {
     goToDate(controller, 2009, 1, 1);
 
     let createbox = lookupEventBox("day", CANVAS_BOX, null, 1, 8);
