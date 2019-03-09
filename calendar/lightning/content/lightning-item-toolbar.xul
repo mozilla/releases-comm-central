@@ -40,11 +40,10 @@
     <toolbarbutton id="button-privacy"
                    mode="dialog"
                    class="cal-event-toolbarbutton toolbarbutton-1"
-                   type="menu-button"
+                   type="menu"
                    disable-on-readonly="true"
                    label="&event.toolbar.privacy.label;"
-                   tooltiptext="&event.toolbar.privacy.tooltip;"
-                   oncommand="rotatePrivacy()">
+                   tooltiptext="&event.toolbar.privacy.tooltip;">
       <menupopup id="event-privacy-menupopup">
         <menuitem id="event-privacy-public-menuitem"
                   name="event-privacy-group"
@@ -67,19 +66,12 @@
       </menupopup>
     </toolbarbutton>
     <toolbarbutton id="button-url"
-                   type="menu-button"
                    mode="dialog"
                    class="cal-event-toolbarbutton toolbarbutton-1"
                    label="&event.attachments.menubutton.label;"
                    tooltiptext="&event.toolbar.attachments.tooltip;"
                    command="cmd_attach_url"
-                   disable-on-readonly="true">
-      <menupopup id="button-attach-menupopup">
-        <menuitem id="button-attach-url"
-                  label="&event.attachments.url.label;"
-                  command="cmd_attach_url"/>
-      </menupopup>
-    </toolbarbutton>
+                   disable-on-readonly="true"/>
     <toolbarbutton id="button-delete"
                    mode="dialog"
                    class="cal-event-toolbarbutton toolbarbutton-1"
@@ -90,11 +82,10 @@
     <toolbarbutton id="button-priority"
                    mode="dialog"
                    class="cal-event-toolbarbutton toolbarbutton-1"
-                   type="menu-button"
+                   type="menu"
                    disable-on-readonly="true"
                    label="&event.menu.options.priority2.label;"
-                   tooltiptext="&event.toolbar.priority.tooltip;"
-                   oncommand="rotatePriority()">
+                   tooltiptext="&event.toolbar.priority.tooltip;">
       <menupopup id="event-priority-menupopup">
         <menuitem id="event-priority-none-menuitem"
                   name="event-priority-group"
@@ -121,11 +112,10 @@
     <toolbarbutton id="button-status"
                    mode="dialog"
                    class="cal-event-toolbarbutton toolbarbutton-1 event-only"
-                   type="menu-button"
+                   type="menu"
                    disable-on-readonly="true"
                    label="&newevent.status.label;"
-                   tooltiptext="&event.toolbar.status.tooltip;"
-                   oncommand="rotateStatus()">
+                   tooltiptext="&event.toolbar.status.tooltip;">
       <menupopup id="event-status-menupopup">
         <menuitem id="event-status-none-menuitem"
                   name="event-status-group"
@@ -152,11 +142,10 @@
     <toolbarbutton id="button-freebusy"
                    mode="dialog"
                    class="cal-event-toolbarbutton toolbarbutton-1 event-only"
-                   type="menu-button"
+                   type="menu"
                    disable-on-readonly="true"
                    label="&event.menu.options.show.time.label;"
-                   tooltiptext="&event.toolbar.freebusy.tooltip;"
-                   oncommand="rotateShowTimeAs()">
+                   tooltiptext="&event.toolbar.freebusy.tooltip;">
       <menupopup id="event-freebusy-menupopup">
         <menuitem id="event-freebusy-busy-menuitem"
                   name="event-freebusy-group"

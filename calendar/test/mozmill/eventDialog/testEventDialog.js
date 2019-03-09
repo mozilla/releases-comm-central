@@ -218,8 +218,7 @@ function testEventDialog() {
         }
     }
 }
-// testEventDialog.EXCLUDED_PLATFORMS = ["darwin"];
-testEventDialog.__force_skip__ = true;
+testEventDialog.EXCLUDED_PLATFORMS = ["darwin"];
 
 function checkTooltip(row, col, startTime, endTime) {
     let item = lookupEventBox("month", null, row, col, null, EVENTPATH);

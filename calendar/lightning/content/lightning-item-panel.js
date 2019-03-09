@@ -3,9 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* exported onLoadLightningItemPanel, onAccept, onCancel, onCommandSave,
- *          onCommandDeleteItem, editAttendees, rotatePrivacy, editPrivacy,
- *          rotatePriority, editPriority, rotateStatus, editStatus,
- *          rotateShowTimeAs, editShowTimeAs, updateShowTimeAs, editToDoStatus,
+ *          onCommandDeleteItem, editAttendees, editPrivacy, editPriority,
+ *          editStatus, editShowTimeAs, updateShowTimeAs, editToDoStatus,
  *          postponeTask, toggleTimezoneLinks, toggleLink, attachURL,
  *          onCommandViewToolbar, onCommandCustomize, attachFileByAccountKey,
  *          onUnloadLightningItemPanel, openNewEvent, openNewTask,
@@ -501,17 +500,6 @@ function editConfigState(aArg) {
 }
 
 /**
- * Rotates the Privacy of an item to the next value
- * following the sequence  -> PUBLIC -> CONFIDENTIAL -> PRIVATE ->.
- */
-function rotatePrivacy() {
-    const states = ["PUBLIC", "CONFIDENTIAL", "PRIVATE"];
-    let oldPrivacy = gConfig.privacy;
-    let newPrivacy = states[(states.indexOf(oldPrivacy) + 1) % states.length];
-    editConfigState({ privacy: newPrivacy });
-}
-
-/**
  * Handler for changing privacy. aEvent is used for the popup menu
  * event-privacy-menupopup in the Privacy toolbar button.
  *
@@ -639,25 +627,6 @@ function updatePrivacy(aArg) {
 }
 
 /**
- * Rotates the Priority of an item to the next value
- * following the sequence -> Not specified -> Low -> Normal -> High ->.
- */
-function rotatePriority() {
-    let now = gConfig.priority;
-    let next;
-    if (now <= 0 || now > 9) {         // not specified -> low
-        next = 9;
-    } else if (now >= 1 && now <= 4) { // high -> not specified
-        next = 0;
-    } else if (now == 5) {             // normal -> high
-        next = 1;
-    } else if (now >= 6 && now <= 9) { // low -> normal
-        next = 5;
-    }
-    editConfigState({ priority: next });
-}
-
-/**
  * Handler to change the priority.
  *
  * @param {Node} aTarget  Has the new priority in its "value" attribute
@@ -731,26 +700,6 @@ function updatePriority(aArg) {
 }
 
 /**
- * Rotate the Status of an item to the next value following
- * the sequence -> NONE -> TENTATIVE -> CONFIRMED -> CANCELLED ->.
- */
-function rotateStatus() {
-    let oldStatus = gConfig.status;
-    let noneCommand = document.getElementById("cmd_status_none");
-    let noneCommandIsVisible = !noneCommand.hasAttribute("hidden");
-    let states = ["TENTATIVE", "CONFIRMED", "CANCELLED"];
-
-    // If control for status "NONE" ("cmd_status_none") is visible,
-    // allow rotating to it.
-    if (gConfig.isEvent && noneCommandIsVisible) {
-        states.unshift("NONE");
-    }
-
-    let newStatus = states[(states.indexOf(oldStatus) + 1) % states.length];
-    editConfigState({ status: newStatus });
-}
-
-/**
  * Handler for changing the status.
  *
  * @param {Node} aTarget  Has the new status in its "value" attribute
@@ -799,17 +748,6 @@ function updateStatus(aArg) {
         // "not specified" and update the status again.
         sendMessage({ command: "editStatus", value: "NONE" });
     }
-}
-
-/**
- * Toggles the transparency ("Show Time As" property) of an item
- * from BUSY (Opaque) to FREE (Transparent).
- */
-function rotateShowTimeAs() {
-    const states = ["OPAQUE", "TRANSPARENT"];
-    let oldValue = gConfig.showTimeAs;
-    let newValue = states[(states.indexOf(oldValue) + 1) % states.length];
-    editConfigState({ showTimeAs: newValue });
 }
 
 /**

@@ -327,12 +327,10 @@ function setData(dialog, iframe, data) {
 
     // privacy
     if (data.privacy != undefined) {
-        let toolbarbutton = eid("button-privacy");
-        let rect = toolbarbutton.getNode().getBoundingClientRect();
-        dialog.click(toolbarbutton, rect.width - 5, 5);
-        dialog.mainMenu.click(`#options-privacy-${data.privacy}-menuitem`);
-        // For some reason, the dialog does not close by itself.
-        dialog.click(toolbarbutton, rect.width - 5, 5);
+        dialog.click(eid("button-privacy"));
+        let menu = dialog.getMenu("#event-privacy-menupopup");
+        menu.click(`#event-privacy-${data.privacy}-menuitem`);
+        menu.close();
     }
 
     // status
