@@ -598,8 +598,8 @@ function CheckAndSetCardValues(cardproperty, doc, check) {
   var birthYear = doc.getElementById("BirthYear").value;
 
   // set the birth day, month, and year properties
-  cardproperty.setProperty("BirthDay", birthDay);
-  cardproperty.setProperty("BirthMonth", birthMonth);
+  cardproperty.setProperty("BirthDay", (birthDay == -1) ? null : birthDay);
+  cardproperty.setProperty("BirthMonth", (birthMonth == -1) ? null : birthMonth);
   cardproperty.setProperty("BirthYear", birthYear);
 
   var popup = document.getElementById("PreferMailFormatPopup");
