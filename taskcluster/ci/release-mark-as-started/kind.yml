@@ -38,6 +38,6 @@ jobs:
         shipping-product: thunderbird
         treeherder:
             platform: thunderbird-release/opt
-            symbol: Rel(ShipIt)
+            symbol: Rel(ShipIt-st)
             tier: 1
             kind: build
