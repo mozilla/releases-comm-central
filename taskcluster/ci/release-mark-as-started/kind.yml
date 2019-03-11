@@ -30,6 +30,7 @@ job-defaults:
             - project:comm:thunderbird:releng:ship-it:action:mark-as-started
    run-on-projects: []
    shipping-phase: promote
+   locales-file: comm/mail/locales/l10n-changesets.json
 
 jobs:
     thunderbird:
