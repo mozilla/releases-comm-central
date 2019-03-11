@@ -93,10 +93,12 @@ var chatTabType = {
     // Unused, but needed functions
     onTabTitleChanged() {},
     onTabOpened(aTab) {},
-    onTabClosing() {},
     onTabPersist() {},
     onTabRestored() {},
 
+    onTabClosing() {
+      chatHandler._onTabDeactivated(true);
+    },
     onTabSwitched(aNewTab, aOldTab) {
       // aNewTab == chat is handled earlier by showTab() below.
       if (aOldTab.mode.name == "chat")
@@ -147,20 +149,20 @@ var chatTabType = {
             chatHandler._addConversation(conv);
         }
       }
-
-      // The tab monitor will inform us when a different tab is selected.
-      let tabmail = document.getElementById("tabmail");
-      tabmail.registerTabMonitor(this.tabMonitor);
-      window.addEventListener("deactivate", chatTabType._onWindowDeactivated);
-      window.addEventListener("activate", chatTabType._onWindowActivated);
+      this.hasBeenOpened = true;
     }
+
+    // The tab monitor will inform us when a different tab is selected.
+    let tabmail = document.getElementById("tabmail");
+    tabmail.registerTabMonitor(this.tabMonitor);
+    window.addEventListener("deactivate", chatTabType._onWindowDeactivated);
+    window.addEventListener("activate", chatTabType._onWindowActivated);
 
     gChatTab = aTab;
     aTab.tabNode.setAttribute("type", "chat");
     this._handleArgs(aArgs);
     this.showTab(aTab);
     chatHandler.updateTitle();
-    this.hasBeenOpened = true;
   },
   shouldSwitchTo(aArgs) {
     if (!gChatTab)
