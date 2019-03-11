@@ -86,6 +86,9 @@ function setupModule(module) {
     "dateCol",
     "locationCol"
   ];
+
+  // create the source
+  folderSource = create_folder("ColumnsApplySource");
 }
 
 /**
@@ -377,9 +380,7 @@ function invoke_column_picker_option(aActions) {
  * The column picker's "reset columns to default" option should set our state
  *  back to the natural state.
  */
-function disabled_test_reset_to_inbox() {
-  // create the source
-  folderSource = create_folder("ColumnsApplySource");
+function test_reset_to_inbox() {
   // it better have INBOX defaults
   assert_visible_columns(INBOX_DEFAULTS);
 
@@ -416,7 +417,7 @@ function _apply_to_folder_common(aChildrenToo, folder) {
  * Change settings in a folder, apply them to another folder that also has
  *  children.  Make sure the folder changes but the children do not.
  */
-function disabled_test_apply_to_folder_no_children() {
+function test_apply_to_folder_no_children() {
   folderParent = create_folder("ColumnsApplyParent");
   folderParent.createSubfolder("Child1", null);
   folderChild1 = folderParent.getChildNamed("Child1");
@@ -451,7 +452,7 @@ function disabled_test_apply_to_folder_no_children() {
  * Change settings in a folder, apply them to another folder and its children.
  *  Make sure the folder and its children change.
  */
-function disabled_test_apply_to_folder_and_children() {
+function test_apply_to_folder_and_children() {
   // no need to throttle ourselves during testing.
   MailUtils.INTER_FOLDER_PROCESSING_DELAY_MS = 0;
 
@@ -481,7 +482,7 @@ function disabled_test_apply_to_folder_and_children() {
  * Change settings in an incoming folder, apply them to an outgoing folder that
  * also has children. Make sure the folder changes but the children do not.
  */
-function disabled_test_apply_to_folder_no_children_swapped() {
+function test_apply_to_folder_no_children_swapped() {
   folderParent = create_folder("ColumnsApplyParentOutgoing");
   folderParent.setFlag(Ci.nsMsgFolderFlags.SentMail);
   folderParent.createSubfolder("Child1", null);
@@ -530,7 +531,7 @@ function disabled_test_apply_to_folder_no_children_swapped() {
  * Change settings in an incoming folder, apply them to an outgoing folder and
  * its children. Make sure the folder and its children change.
  */
-function disabled_test_apply_to_folder_and_children_swapped() {
+function test_apply_to_folder_and_children_swapped() {
   // No need to throttle ourselves during testing.
   MailUtils.INTER_FOLDER_PROCESSING_DELAY_MS = 0;
 
