@@ -401,7 +401,7 @@ class MozConversationBrowser extends customElements.get("browser") {
       this.displayPendingMessages({
         timeRemaining() {
           return deadline - Cu.now();
-        }
+        },
       });
     }
   }
