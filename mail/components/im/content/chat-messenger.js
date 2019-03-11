@@ -100,7 +100,7 @@ var chatTabType = {
     onTabSwitched(aNewTab, aOldTab) {
       // aNewTab == chat is handled earlier by showTab() below.
       if (aOldTab.mode.name == "chat")
-        chatHandler._onTabDeactivated();
+        chatHandler._onTabDeactivated(true);
     },
   },
 
@@ -134,7 +134,7 @@ var chatTabType = {
   _onWindowDeactivated() {
     let tabmail = document.getElementById("tabmail");
     if (tabmail.currentTabInfo.mode.name == "chat")
-      chatHandler._onTabDeactivated();
+      chatHandler._onTabDeactivated(false);
   },
   openTab(aTab, aArgs) {
     if (!this.hasBeenOpened) {
@@ -906,10 +906,10 @@ var chatHandler = {
     if (convView)
       convView.switchingToPanel();
   },
-  _onTabDeactivated() {
+  _onTabDeactivated(aHidden) {
     let convView = chatHandler._getActiveConvView();
     if (convView)
-      convView.switchingAwayFromPanel();
+      convView.switchingAwayFromPanel(aHidden);
   },
   observe(aSubject, aTopic, aData) {
     if (aTopic == "chat-core-initialized") {

@@ -1404,11 +1404,13 @@
           // and reset the unread flag. In IB, this is done by tabbrowser.
           this.tab.update();
         }.bind(this), 1000);
+        this.browser.docShell.isActive = true;
       ]]>
       </body>
     </method>
 
     <method name="switchingAwayFromPanel">
+      <parameter name="aHidden"/>
       <body>
         <![CDATA[
           if (this._visibleTimer) {
@@ -1419,6 +1421,9 @@
           // interruptions for sufficiently long.
           if (this._wasVisible)
             this.browser.removeUnreadRuler();
+
+          if (aHidden)
+            this.browser.docShell.isActive = false;
         ]]>
       </body>
     </method>

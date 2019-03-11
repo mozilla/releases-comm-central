@@ -49,7 +49,7 @@
           if (this.hasAttribute("selected"))
             this.convView.switchingToPanel();
           else
-            this.convView.switchingAwayFromPanel();
+            this.convView.switchingAwayFromPanel(true);
         }).observe(this, {attributes: true, attributeFilter: ["selected"]});
       ]]>
      </constructor>
