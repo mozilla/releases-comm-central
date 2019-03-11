@@ -1404,7 +1404,7 @@
           // and reset the unread flag. In IB, this is done by tabbrowser.
           this.tab.update();
         }.bind(this), 1000);
-        this.browser.docShell.isActive = true;
+        this.browser.isActive = true;
       ]]>
       </body>
     </method>
@@ -1423,7 +1423,7 @@
             this.browser.removeUnreadRuler();
 
           if (aHidden)
-            this.browser.docShell.isActive = false;
+            this.browser.isActive = false;
         ]]>
       </body>
     </method>

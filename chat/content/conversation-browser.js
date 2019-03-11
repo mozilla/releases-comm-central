@@ -369,21 +369,41 @@ class MozConversationBrowser extends customElements.get("browser") {
       this._textModifiers.push(aModifier);
   }
 
+  set isActive(value) {
+    this.docShell.isActive = value;
+    if (value && this._pendingMessages.length)
+      this.startDisplayingPendingMessages(false);
+  }
+
   appendMessage(aMsg, aContext, aFirstUnread) {
     this._pendingMessages.push({
       msg: aMsg,
       context: aContext,
       firstUnread: aFirstUnread,
     });
-    this.delayedDisplayPendingMessages();
+    if (this.docShell.isActive)
+      this.startDisplayingPendingMessages(true);
   }
 
-  delayedDisplayPendingMessages() {
+  startDisplayingPendingMessages(delayed) {
     if (this._messageDisplayPending)
       return;
     this._messageDisplayPending = true;
     this.contentWindow.messageInsertPending = true;
-    requestIdleCallback(this.displayPendingMessages.bind(this));
+    if (delayed) {
+      requestIdleCallback(this.displayPendingMessages.bind(this));
+    } else {
+      // 200ms here is a generous amount of time. The conversation switch
+      // should take no more than 100ms to feel 'immediate', but the perceived
+      // performance if we flicker is likely even worse than having a barely
+      // perceptible delay.
+      let deadline = Cu.now() + 200;
+      this.displayPendingMessages({
+        timeRemaining() {
+          return deadline - Cu.now();
+        }
+      });
+    }
   }
 
   // getNextPendingMessage and getPendingMessagesCount are the
