@@ -16,7 +16,6 @@ var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {
-  virtualFolderWrapper,
   VirtualFolderHelper,
 } = ChromeUtils.import("resource:///modules/virtualFolderWrapper.js");
 var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
