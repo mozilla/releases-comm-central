@@ -8,8 +8,7 @@
 
 <!DOCTYPE dialog SYSTEM "chrome://messenger/locale/newTagDialog.dtd">
 
-<dialog xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         title="&newTagDialog1.title;"
         onload="onLoad();"

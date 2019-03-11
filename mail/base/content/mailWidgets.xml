@@ -17,7 +17,6 @@
 <bindings id="mailBindings"
           xmlns="http://www.mozilla.org/xbl"
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-          xmlns:nc="http://home.netscape.com/NC-rdf#"
           xmlns:xbl="http://www.mozilla.org/xbl">
 
   <binding id="attachmentlist-base" extends="chrome://messenger/content/richlistbox.xml#xbl-richlistbox">

@@ -13,7 +13,6 @@
 ]>
 
 <window id="filterListDialog"
-  xmlns:nc="http://home.netscape.com/NC-rdf#"
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
   windowtype="mailnews:filterlist"
