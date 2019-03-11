@@ -1454,16 +1454,6 @@
       <xul:hbox flex="1" class="search-value-custom" xbl:inherits="disabled"/>
     </content>
     <implementation>
-      <constructor>
-        <![CDATA[
-          // Force initialization of the menulist custom elements first.
-          let items = this.menulist.getElementsByTagNameNS(this.menulist.namespaceURI, "menulist");
-          for (let item of items) {
-            customElements.upgrade(item);
-          }
-        ]]>
-      </constructor>
-
       <field name="internalOperator">null</field>
       <field name="internalAttribute">null</field>
       <field name="internalValue">null</field>
@@ -1759,6 +1749,8 @@
                 node.setAttribute(attr, bundle.GetStringFromName(stringTag));
               }
             }
+            // Force initialization of the menulist custom element.
+            customElements.upgrade(parentNode);
           ]]>
         </body>
       </method>
