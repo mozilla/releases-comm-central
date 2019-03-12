@@ -2259,6 +2259,14 @@ function MsgMarkAllRead() {
  * Go through each selected server and mark all its folders read.
  */
 function MsgMarkAllFoldersRead() {
+  const bundle = document.getElementById("bundle_messenger");
+
+  if (!Services.prompt.confirm(window,
+                               bundle.getString("confirmMarkAllFoldersReadTitle"),
+                               bundle.getString("confirmMarkAllFoldersReadMessage"))) {
+    return;
+  }
+
   const selectedFolders = gFolderTreeView.getSelectedFolders();
   const selectedServers = selectedFolders.filter(folder => folder.isServer);
 
