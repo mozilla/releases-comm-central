@@ -19,6 +19,7 @@ interface nsIMsgDBHdr;
 interface nsIMsgComposeService : nsISupports {
 
   /* we need a msg window because when we forward inline we may need progress */
+  [can_run_script]
   void OpenComposeWindow(in string msgComposeWindowURL,
                          in nsIMsgDBHdr msgHdr,
                          in string originalMsgURI,
