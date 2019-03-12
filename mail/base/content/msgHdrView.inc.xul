@@ -279,7 +279,7 @@
                                              value="&fromField4.label;"
                                              valueFrom="&fromField4.label;" valueAuthor="&author.label;"
                                              control="expandedfromBox"/>
-                                      <mail-multi-emailHeaderField id="expandedfromBox" flex="1"/>
+                                      <mail-multi-emailheaderfield id="expandedfromBox" flex="1"/>
                                     </row>
                                   </rows>
                                 </grid>
@@ -322,22 +322,22 @@
                                       <label id="expandedreply-toLabel" class="headerName"
                                              value="&replyToField4.label;"
                                              control="expandedreply-toBox"/>
-                                      <mail-multi-emailHeaderField id="expandedreply-toBox"/>
+                                      <mail-multi-emailheaderfield id="expandedreply-toBox"/>
                                     </row>
                                     <row id="expandedtoRow" collapsed="true">
                                       <label id="expandedtoLabel" class="headerName"
                                              value="&toField4.label;" control="expandedtoBox"/>
-                                      <mail-multi-emailHeaderField id="expandedtoBox" flex="1"/>
+                                      <mail-multi-emailheaderfield id="expandedtoBox" flex="1"/>
                                     </row>
                                     <row id="expandedccRow" collapsed="true">
                                       <label id="expandedccLabel" class="headerName"
                                              value="&ccField4.label;" control="expandedccBox"/>
-                                      <mail-multi-emailHeaderField id="expandedccBox" flex="1"/>
+                                      <mail-multi-emailheaderfield id="expandedccBox" flex="1"/>
                                     </row>
                                     <row id="expandedbccRow" collapsed="true">
                                       <label id="expandedbccLabel" class="headerName"
                                              value="&bccField4.label;" control="expandedbccBox"/>
-                                      <mail-multi-emailHeaderField id="expandedbccBox"/>
+                                      <mail-multi-emailheaderfield id="expandedbccBox"/>
                                     </row>
                                     <row id="expandednewsgroupsRow" collapsed="true">
                                       <label id="expandednewsgroupsLabel" class="headerName"

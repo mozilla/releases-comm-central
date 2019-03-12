@@ -93,7 +93,7 @@ var gExpandedHeaderList = [
   { name: "tags" } ];
 
 /**
- * These are all the items that use a mail-multi-emailHeaderField widget and
+ * These are all the items that use a mail-multi-emailheaderfield widget and
  * therefore may require updating if the address book changes.
  */
 var gEmailAddressHeaderNames = ["from", "reply-to",

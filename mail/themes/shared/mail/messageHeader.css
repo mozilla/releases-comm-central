@@ -281,7 +281,7 @@ mail-emailaddress[selected="true"] > .emailDisplayButton > .emailStar {
 
 /* ::::: view expand and collapse twisties  ::::: */
 
-mail-multi-emailHeaderField,
+mail-multi-emailheaderfield,
 mail-headerfield,
 mail-urlfield,
 mail-newsgroups-headerfield {

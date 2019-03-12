@@ -187,7 +187,7 @@ let headersToTest = [
   headerName: "From",
   headerValueElement: function(mc) {
                       return mc.window.document.getAnonymousElementByAttribute(
-                      mc.a("expandedfromBox", {tagName: "mail-emailaddress"}),
+                      mc.e("expandedfromBox", {tagName: "mail-emailaddress"}),
                       "class", "emailDisplayButton"); },
   expectedName: function(mc, headerValueElement) {
                 return mc.e("expandedfromLabel").value + ": " +
@@ -198,7 +198,7 @@ let headersToTest = [
   headerName: "To",
   headerValueElement: function(mc) {
                       return mc.window.document.getAnonymousElementByAttribute(
-                      mc.a("expandedtoBox", {tagName: "mail-emailaddress"}),
+                      mc.e("expandedtoBox", {tagName: "mail-emailaddress"}),
                       "class", "emailDisplayButton"); },
   expectedName: function(mc, headerValueElement) {
                 return mc.e("expandedtoLabel").value + ": " +
@@ -209,7 +209,7 @@ let headersToTest = [
   headerName: "Cc",
   headerValueElement: function(mc) {
                       return mc.window.document.getAnonymousElementByAttribute(
-                      mc.a("expandedccBox", {tagName: "mail-emailaddress"}),
+                      mc.e("expandedccBox", {tagName: "mail-emailaddress"}),
                       "class", "emailDisplayButton"); },
   expectedName: function(mc, headerValueElement) {
                 return mc.e("expandedccLabel").value + ": " +
@@ -220,7 +220,7 @@ let headersToTest = [
   headerName: "Bcc",
   headerValueElement: function(mc) {
                       return mc.window.document.getAnonymousElementByAttribute(
-                      mc.a("expandedbccBox", {tagName: "mail-emailaddress"}),
+                      mc.e("expandedbccBox", {tagName: "mail-emailaddress"}),
                       "class", "emailDisplayButton"); },
   expectedName: function(mc, headerValueElement) {
                 return mc.e("expandedbccLabel").value + ": " +
@@ -231,7 +231,7 @@ let headersToTest = [
   headerName: "Reply-To",
   headerValueElement: function(mc) {
                       return mc.window.document.getAnonymousElementByAttribute(
-                      mc.a("expandedreply-toBox", {tagName: "mail-emailaddress"}),
+                      mc.e("expandedreply-toBox", {tagName: "mail-emailaddress"}),
                       "class", "emailDisplayButton"); },
   expectedName: function(mc, headerValueElement) {
                 return mc.e("expandedreply-toLabel").value + ": " +
@@ -336,9 +336,7 @@ function test_more_button_with_many_recipients()
   let previousHeaderMode = headerBox.node.getAttribute("show_header_mode");
 
   // Click the "more" button.
-  let moreIndicator = mc.eid("expandedccBox");
-  moreIndicator = mc.window.document.getAnonymousElementByAttribute(
-                    moreIndicator.node, "anonid", "more");
+  let moreIndicator = mc.window.document.getElementById("expandedccBox").more;
   moreIndicator = new elementslib.Elem(moreIndicator);
   mc.click(moreIndicator);
 
@@ -378,11 +376,7 @@ function test_clicking_star_opens_inline_contact_editor()
   wait_for_message_display_completion(mc);
   // Make sure the star is clicked, and we add the
   // new contact to our address book
-  let toDescription = mc.window.document.getAnonymousElementByAttribute(
-                        mc.window.document.getElementById("expandedtoBox"),
-                        "anonid",
-                        "emailAddresses"
-                      );
+  let toDescription = mc.window.document.getElementById("expandedtoBox").emailAddresses;
 
 
   // Ensure that the inline contact editing panel is not open
@@ -470,11 +464,7 @@ function test_address_book_switch_disabled_on_contact_in_mailing_list()
 
   // Make sure the star is clicked, and we add the
   // new contact to our address book
-  let toDescription = mc.window.document.getAnonymousElementByAttribute(
-                        mc.window.document.getElementById("expandedtoBox"),
-                        "anonid",
-                        "emailAddresses"
-                      );
+  let toDescription = mc.window.document.getElementById("expandedtoBox").emailAddresses;
 
   // Ensure that the inline contact editing panel is not open
   let contactPanel = mc.eid('editContactPanel').getNode();
@@ -576,7 +566,7 @@ function test_address_book_switch_disabled_on_contact_in_mailing_list()
  */
 function test_add_contact_from_context_menu() {
   // Click the contact to show the emailAddressPopup popup menu.
-  mc.click(mc.aid("expandedfromBox", {tagName: "mail-emailaddress"}));
+  mc.click(new elib.Elem(mc.e("expandedfromBox", {tagName: "mail-emailaddress"})));
 
   var addToAddressBookItem = mc.window.document.getElementById("addToAddressBookItem");
   if (addToAddressBookItem.hidden)
@@ -592,7 +582,7 @@ function test_add_contact_from_context_menu() {
 
   // Now click the contact again, the context menu should now show the
   // Edit Contact menu instead.
-  mc.click(mc.aid("expandedfromBox", {tagName: "mail-emailaddress"}));
+  mc.click(new elib.Elem(mc.e("expandedfromBox", {tagName: "mail-emailaddress"})));
   // (for reasons unknown, the pop-up does not close itself)
   close_popup(mc, mc.eid("emailAddressPopup"));
 
@@ -656,11 +646,7 @@ function test_more_widget() {
   assert_selected_and_displayed(mc, curMessage);
 
   // get the description element containing the addresses
-  let toDescription = mc.window.document.getAnonymousElementByAttribute(
-                        mc.window.document.getElementById("expandedtoBox"),
-                        "anonid",
-                        "emailAddresses"
-                      );
+  let toDescription = mc.window.document.getElementById("expandedtoBox").emailAddresses;
 
   subtest_more_widget_display(toDescription);
   subtest_more_widget_click(toDescription);
@@ -708,11 +694,7 @@ function test_show_all_header_mode() {
   assert_selected_and_displayed(mc, curMessage);
 
   // get the description element containing the addresses
-  let toDescription = mc.window.document.getAnonymousElementByAttribute(
-                        mc.window.document.getElementById("expandedtoBox"),
-                        "anonid",
-                        "emailAddresses"
-                      );
+  let toDescription = mc.window.document.getElementById("expandedtoBox").emailAddresses;
 
   change_to_header_normal_mode();
   subtest_more_widget_display(toDescription);
@@ -765,7 +747,7 @@ function subtest_more_widget_display(toDescription) {
   }
 
   // test that we've got a (more) node and that it's expanded
-  let moreNode = mc.a('expandedtoBox', {class: 'moreIndicator'});
+  let moreNode = mc.window.document.getElementById("expandedtoBox").more;
   if (!moreNode) {
     throw new Error("more node not found before activation");
   }
@@ -782,11 +764,11 @@ function subtest_more_widget_click(toDescription) {
   let oldNumLines = help_get_num_lines(toDescription);
 
   // activate (n more)
-  let moreNode = mc.aid('expandedtoBox', {class: 'moreIndicator'});
-  mc.click(moreNode);
+  let moreNode = mc.window.document.getElementById("expandedtoBox").more;
+  mc.click(new elib.Elem(moreNode));
 
   // test that (n more) is gone
-  moreNode = mc.a('expandedtoBox', {class: 'moreIndicator'});
+  moreNode = mc.window.document.getElementById("expandedtoBox").more;
   if (!moreNode.collapsed) {
     throw new Error("more node should be collapsed after activation");
   }
@@ -808,7 +790,7 @@ function subtest_change_to_all_header_mode(toDescription) {
 
   change_to_all_header_mode();
   // test that (n more) is gone
-  let moreNode = mc.a('expandedtoBox', {class: 'moreIndicator'});
+  let moreNode = mc.window.document.getElementById("expandedtoBox").more;
   if (!moreNode.collapsed) {
     throw new Error("more node should be collapsed in all header lines mode");
   }
@@ -880,17 +862,13 @@ function test_more_widget_with_disabled_more(){
   assert_selected_and_displayed(mc, curMessage);
 
   // test that (n more) is gone
-  let moreNode = mc.a('expandedtoBox', {class: 'moreIndicator'});
+  let moreNode = mc.window.document.getElementById("expandedtoBox").more;
   if (!moreNode.collapsed) {
     throw new Error("more node should be collapsed in n=0 case");
   }
 
   // get the description element containing the addresses
-  let toDescription = mc.window.document.getAnonymousElementByAttribute(
-                        mc.window.document.getElementById("expandedtoBox"),
-                        "anonid",
-                        "emailAddresses"
-                      );
+  let toDescription = mc.window.document.getElementById("expandedtoBox").emailAddresses;
 
   // test that we actually have more lines than the 3 we know are filled
   let newNumLines = help_get_num_lines(toDescription);
@@ -1007,7 +985,7 @@ function subtest_more_button_tooltip(aMsg) {
  * @return           the number of visible addresses in the header box
  */
 function get_number_of_addresses_in_header(aHeaderBox) {
-  let headerBoxElement = mc.a(aHeaderBox, {class: "headerValue"});
+  let headerBoxElement = mc.e(aHeaderBox, {class: "headerValue"});
   let addrs = headerBoxElement.getElementsByTagName('mail-emailaddress');
   let addrNum = 0;
   for (let i = 0; i < addrs.length; i++) {

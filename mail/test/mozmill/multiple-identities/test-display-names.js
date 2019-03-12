@@ -92,7 +92,7 @@ function help_test_display_name(message, field, expectedValue) {
   be_in_folder(folder);
   let curMessage = select_click_row(message);
 
-  let value = mc.a("expanded"+field+"Box", {tagName: "mail-emailaddress"})
+  let value = mc.e("expanded"+field+"Box", {tagName: "mail-emailaddress"})
                 .querySelector(".emaillabel").value;
 
   if (value != expectedValue)
