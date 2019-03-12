@@ -102,9 +102,6 @@ misc
 
 * grep for XXXs and fix the issues 
 
-rdf datasource 
---------------
-
 * revamp nsILDAPService (currently unused code) to manage LDAP
   connections and allow for sharing connections between browser
   clients.  I think this should obviate the need to hold onto the
