@@ -1200,7 +1200,6 @@ NS_IMETHODIMP nsAddrDatabase::CreateNewListCardAndAddToDB(nsIAbDirectory *aList,
   rv = newCard->GetPrimaryEmail(newEmail);
   NS_ENSURE_SUCCESS(rv,rv);
 
-  // Don't accept cards without email addresses.
   if (newEmail.IsEmpty())
     return NS_OK;
 
@@ -1369,10 +1368,24 @@ nsresult nsAddrDatabase::AddListAttributeColumnsToRow(nsIAbDirectory *list, nsIM
 
     uint32_t count;
     pAddressLists->GetLength(&count);
-    SetListAddressTotal(listRow, count);
 
     nsAutoString email;
-    uint32_t i, pos;
+    uint32_t i, total;
+    total = 0;
+    for (i = 0; i < count; i++)
+    {
+      nsCOMPtr<nsIAbCard> pCard(do_QueryElementAt(pAddressLists, i, &err));
+
+      if (NS_FAILED(err))
+        continue;
+
+      pCard->GetPrimaryEmail(email);
+      if (!email.IsEmpty())
+        total++;
+    }
+    SetListAddressTotal(listRow, total);
+
+    uint32_t pos;
     for (i = 0; i < count; i++)
     {
       nsCOMPtr<nsIAbCard> pCard(do_QueryElementAt(pAddressLists, i, &err));
