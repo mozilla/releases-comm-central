@@ -263,7 +263,7 @@ function subtest_switch_to_smart_folders(aViaMenu) {
 /**
  * Toggle folder modes through different means and sequences.
  */
-function disabled_test_toggling_modes() {
+function test_toggling_modes() {
   subtest_switch_to_all_folders(false);
   subtest_switch_to_smart_folders(false);
 
@@ -278,7 +278,7 @@ function disabled_test_toggling_modes() {
   subtest_switch_to_smart_folders(true);
   subtest_switch_to_all_folders(true);
 }
-disabled_test_toggling_modes.EXCLUDED_PLATFORMS = ["linux"];
+test_toggling_modes.EXCLUDED_PLATFORMS = ["linux"];
 
 function teardownModule() {
   tree.mode = "all";

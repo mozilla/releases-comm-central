@@ -119,7 +119,7 @@ function test_reply_noUTF16() {
   subtest_replyEditAsNewForward_charset(1, "./body-utf16.eml", "UTF-8");
 }
 
-function disabled_test_replyEditAsNewForward_override() {
+function test_replyEditAsNewForward_override() {
   // Check that the override is honoured (inspired by bug 1323377).
   subtest_replyEditAsNewForward_charset(1, "./multipart-charset.eml", "UTF-8", "Unicode");
   subtest_replyEditAsNewForward_charset(2, "./multipart-charset.eml", "windows-1252", "Western");
@@ -137,7 +137,7 @@ function test_replyEditAsNewForward_enforceDefault() {
   Services.prefs.clearUserPref("mailnews.send_default_charset");
 }
 
-function disabled_test_replyEditAsNewForward_noPreview() {
+function test_replyEditAsNewForward_noPreview() {
   // Check that it works even if the message wasn't viewed before, so
   // switch off the preview pane (bug 1323377).
   be_in_folder(folderToStoreMessages);

@@ -48,7 +48,7 @@ function test_open_addons_with_url() {
  * This relies on the MozMill extension having optionsURL defined in install.rdf,
  * however simplistic the preferences XUL document may be.
  */
-function disabled_test_addon_prefs() {
+function test_addon_prefs() {
   // Open Add-on Options.
   mc.click(mc.eid("button-appmenu"));
   let popups = mc.click_menus_in_sequence(mc.e("appmenu-popup"), [ { id: "appmenu_addons" } ], true);
