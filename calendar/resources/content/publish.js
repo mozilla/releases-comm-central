@@ -208,7 +208,7 @@ class PublishingListener {
 
     onStartRequest(request) {}
 
-    onStopRequest(request, status, errorMsg) {
+    onStopRequest(request, status) {
         this.progressDialog.wrappedJSObject.onStopUpload();
 
         let channel;
