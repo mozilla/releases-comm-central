@@ -14,5 +14,4 @@
 #displayName[editing],
 #statusMessage[editing] {
   -moz-appearance: textfield;
-  -moz-binding: url('chrome://global/content/bindings/textbox.xml#textbox');
 }

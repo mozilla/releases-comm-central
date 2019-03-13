@@ -221,36 +221,39 @@ textbox + button {
   margin-inline-start: -4px;
 }
 
-.spinbuttons-button {
-  min-height: initial;
-  margin-inline-start: 10px !important;
-  margin-inline-end: 2px !important;
+html|input[type="number"] {
+  padding: 0;
+  padding-inline-end: 1px;
 }
 
-.spinbuttons-up {
-  margin-top: 2px !important;
+html|input[type="number"]::-moz-number-spin-box {
+  margin-inline-start: 10px;
+}
+
+html|input[type="number"]::-moz-number-spin-up,
+html|input[type="number"]::-moz-number-spin-down {
+  -moz-appearance: none;
+  min-width: 25px;
+  border-color: var(--in-content-box-border-color);
+  background-color: var(--in-content-button-background);
+  background-position: center;
+}
+
+html|input[type="number"]::-moz-number-spin-up:hover,
+html|input[type="number"]::-moz-number-spin-down:hover {
+  background-color: var(--in-content-button-background-hover);
+}
+
+html|input[type="number"]::-moz-number-spin-up {
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
   border-radius: 1px 1px 0 0;
+  background-image: url("chrome://messenger/skin/icons/arrow/arrow-up.png");
 }
 
-.spinbuttons-down  {
-  margin-bottom: 2px !important;
+html|input[type="number"]::-moz-number-spin-down {
   border-radius: 0 0 1px 1px;
-}
-
-.spinbuttons-up > .button-box > .button-icon {
-  list-style-image: url("chrome://messenger/skin/icons/arrow/arrow-up.png");
-}
-
-.spinbuttons-up[disabled="true"] > .button-box > .button-icon {
-  list-style-image: url("chrome://messenger/skin/icons/arrow/arrow-up-dim.png");
-}
-
-.spinbuttons-down > .button-box > .button-icon {
-  list-style-image: url("chrome://messenger/skin/icons/arrow/arrow-down.png");
-}
-
-.spinbuttons-down[disabled="true"] > .button-box > .button-icon {
-  list-style-image: url("chrome://messenger/skin/icons/arrow/arrow-down-dim.png");
+  background-image: url("chrome://messenger/skin/icons/arrow/arrow-down.png");
 }
 
 separator.groove:not([orient="vertical"]) {

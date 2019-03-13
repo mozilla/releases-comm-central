@@ -34,39 +34,26 @@ groupbox > .groupbox-body {
 }
 
 textbox[type="number"] {
-  -moz-appearance: none;
-  border: 1px solid var(--in-content-box-border-color);
-  background-color: var(--in-content-box-background);
+  padding-inline-end: 0;
 }
 
-.numberbox-input-box {
-  -moz-appearance: none;
+textbox[type="number"]:focus-within {
+  border-color: var(--in-content-border-active);
+  box-shadow: 0 0 0 1px var(--in-content-border-active),
+              0 0 0 4px var(--in-content-border-active-shadow);
+}
+
+html|input[type="number"] {
   border-width: 0;
 }
 
-spinbuttons {
-  -moz-appearance: none;
+html|input[type="number"]:focus {
+  box-shadow: none;
 }
 
-.spinbuttons-up {
-  margin-top: 0 !important;
-  margin-bottom: 0;
-  border-radius: 4px 4px 0 0;
-}
-
-.spinbuttons-down  {
-  margin-top: 0;
-  margin-bottom: 0 !important;
-  border-radius: 0 0 4px 4px;
-}
-
-.spinbuttons-button > .button-box {
-  padding-inline-start: 8px;
-  padding-inline-end: 8px;
-}
-
-.spinbuttons-button > .button-box > .button-text {
-  display: none;
+html|input[type="number"]::-moz-number-spin-up,
+html|input[type="number"]::-moz-number-spin-down {
+  min-height: 11px;
 }
 
 menulist:not([popuponly="true"]) {

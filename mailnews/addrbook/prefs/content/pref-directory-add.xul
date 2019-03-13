@@ -69,7 +69,7 @@
                                 control="port"/>
                          <hbox>
                              <textbox id="port" type="number" size="5" min="1"
-                                       max="65535" hidespinbuttons="true"
+                                       max="65535"
                                        disableiflocked="true"/>
                          </hbox>
                      </row>
@@ -150,4 +150,3 @@
   </vbox>
 
 </dialog>
-

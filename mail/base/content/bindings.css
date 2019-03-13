@@ -2,10 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import url("chrome://global/skin/textbox.css");
-@import url("chrome://messenger/skin/numberbox.css");
+@import url("chrome://messenger/skin/textbox.css");
 @import url("chrome://messenger/skin/xbl-notification.css");
-@import url("chrome://messenger/skin/spinbuttons.css");
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
@@ -54,16 +52,4 @@ button[type="menu-button"] {
 
 menulist[type="description"] > menupopup > menuitem[description] {
   -moz-binding: url("chrome://messenger/content/mailWidgets.xml#menuitem-iconic-desc-noaccel");
-}
-
-textbox[type="number"] {
-  -moz-binding: url('chrome://messenger/content/numberbox.xml#numberbox');
-}
-
-spinbuttons {
-  -moz-binding: url("chrome://messenger/content/spinbuttons.xml#spinbuttons");
-}
-
-.spinbuttons-button {
-  -moz-user-focus: ignore;
 }

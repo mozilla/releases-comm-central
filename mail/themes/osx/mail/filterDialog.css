@@ -43,11 +43,6 @@ checkbox:not([label]) .checkbox-label-box {
   display: none;
 }
 
-spinbuttons {
-  margin-top: -2px;
-  margin-bottom: -2px;
-}
-
 .small-button {
   min-width: 22px;
   height: 20px;

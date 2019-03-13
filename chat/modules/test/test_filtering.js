@@ -165,7 +165,6 @@ function test_standardMode() {
     "color: pink;",
     "font-family: Times",
     "font-size: larger",
-    "-moz-binding: url('chrome://global/content/bindings/textbox.xml#textbox');",
     "display: none",
     "visibility: hidden",
     "unsupported-by-gecko: blah",
@@ -236,7 +235,6 @@ function test_permissiveMode() {
 
   // But still filter out dangerous CSS rules.
   const badCSS = [
-    "-moz-binding: url('chrome://global/content/bindings/textbox.xml#textbox');",
     "display: none",
     "visibility: hidden",
     "unsupported-by-gecko: blah",

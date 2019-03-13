@@ -26,6 +26,25 @@ html|h2 {
   font-size: 1.125em;
 }
 
+textbox[type="number"]:focus-within {
+  border-color: var(--in-content-border-active);
+  box-shadow: 0 0 0 1px var(--in-content-border-active),
+              0 0 0 4px var(--in-content-border-active-shadow);
+}
+
+html|input[type="number"] {
+  border-width: 0;
+}
+
+html|input[type="number"]:focus {
+  box-shadow: none;
+}
+
+html|input[type="number"]::-moz-number-spin-up,
+html|input[type="number"]::-moz-number-spin-down {
+  min-height: 13px;
+}
+
 /**
  * Dialog
  */

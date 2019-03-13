@@ -3,22 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+@namespace html url("http://www.w3.org/1999/xhtml");
 
-spinbuttons {
-  -moz-appearance: spinner;
-  cursor: default;
+textbox[type="number"] {
+  padding: 0 !important;
 }
 
-.spinbuttons-button {
-  min-width: 13px;
-  min-height: 11px;
-  margin: 0 !important;
-}
-
-.spinbuttons-up {
-  -moz-appearance: spinner-upbutton;
-}
-
-.spinbuttons-down {
-  -moz-appearance: spinner-downbutton;
+html|input[type="number"]::-moz-number-spin-box {
+  margin-inline-start: 5px;
 }

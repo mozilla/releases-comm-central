@@ -77,7 +77,7 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
   width: 1ch;
 }
 
-button:not(.spinbuttons-button):not(.dialog-button) {
+button:not(.dialog-button) {
   min-height: 19px; /* aqua size for small buttons */
 }
 

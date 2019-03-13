@@ -6,20 +6,16 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 textbox[type="number"] {
-  -moz-appearance: none;
-  -moz-box-align: center;
-  padding: 0 !important;
-  border: none;
-  background-color: transparent;
-  cursor: default;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-inline-end: 0;
 }
 
-html|*.numberbox-input {
-  text-align: right;
-  padding: 0 1px !important;
+html|input[type="number"]::-moz-number-spin-box {
+  margin-inline-start: 4px;
 }
 
-.numberbox-input-box {
-  -moz-appearance: textfield;
-  margin-right: 4px;
+html|input[type="number"]::-moz-number-spin-up,
+html|input[type="number"]::-moz-number-spin-down {
+  min-height: .7em;
 }

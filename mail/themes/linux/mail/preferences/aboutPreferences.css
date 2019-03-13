@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("chrome://messenger/skin/shared/in-content/aboutPreferences.css");
+@namespace html "http://www.w3.org/1999/xhtml";
 
 .dialogBox,
 #MailPreferences prefpane {
@@ -11,10 +12,6 @@
 
 radio[pane] > .radio-label-box {
   font-size: 1.2em;
-}
-
-spinbuttons {
-  -moz-appearance: none;
 }
 
 .treecol-sortdirection {
@@ -38,9 +35,12 @@ textbox[type="number"] {
   background-color: var(--in-content-box-background);
 }
 
-.numberbox-input-box {
-  -moz-appearance: none;
-  border-width: 0;
+html|input[type="number"]::-moz-number-spin-up {
+  min-height: 10px;
+}
+
+html|input[type="number"]::-moz-number-spin-down {
+  min-height: 11px;
 }
 
 .sidebar-footer-label {
