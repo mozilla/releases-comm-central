@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global MozElements, Services, cal, setElementValue */
+/* global MozElements, MozXULElement, Services */
+/* import-globals-from ../calendar-ui-utils.js */
 
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
@@ -263,7 +264,6 @@ class MozCalendarEventFreebusyTimebar extends MozElements.RichListBox {
         }
     }
 }
-
 customElements.define("calendar-event-freebusy-timebar", MozCalendarEventFreebusyTimebar);
 
 /**
@@ -1346,5 +1346,468 @@ class MozCalendarEventAttendeesList extends MozElements.RichListBox {
         this.mMaxAttendees--;
     }
 }
-
 customElements.define("calendar-event-attendees-list", MozCalendarEventAttendeesList);
+
+/**
+ * MozCalendarEventFreebusyRow is a widget that represents a row in freebusy-grid element.
+ *
+ * @extends {MozXULElement}
+ */
+class MozCalendarEventFreebusyRow extends MozXULElement {
+    connectedCallback() {
+        if (!this.hasChildNodes()) {
+            this.containerNodeElem = document.createElement("scroll-container");
+            this.containerNodeElem.setAttribute("flex", "1");
+            this.hoursNodeElem = document.createElement("box");
+            this.hoursNodeElem.setAttribute("equalsize", "always");
+            this.containerNodeElem.appendChild(this.hoursNodeElem);
+            this.appendChild(this.containerNodeElem);
+        }
+
+        this.state = null;
+        this.Entries = null;
+        this.offset = 0;
+        this.mStartDate = null;
+        this.mEndDate = null;
+        this.range = 0;
+        this.startHour = 0;
+        this.endHour = 24;
+        this.mForce24Hours = false;
+        this.mZoomFactor = 100;
+        this.initTimeRange();
+        this.range = Number(document.getElementById("freebusy-grid").getAttribute("range"));
+        this.onLoad();
+    }
+
+    /**
+     * Gets node representing hours.
+     *
+     * @returns {Element}       Box element inside scroll-container
+     */
+    get hoursNode() {
+        if (!this.hoursNodeElem) {
+            this.hoursNodeElem = this.querySelector("scroll-container > box");
+        }
+
+        return this.hoursNodeElem;
+    }
+
+    /**
+     * Gets the scroll container with the freebusy rows.
+     *
+     * @returns {Element}       Scroll container element
+     */
+    get containerNode() {
+        if (!this.containerNodeElem) {
+            this.containerNodeElem = this.querySelector("scroll-container");
+        }
+
+        return this.containerNodeElem;
+    }
+
+    /**
+     * Getter for zoom factor of freebusy row.
+     *
+     * @returns {Number}        Zoom factor
+     */
+    get zoomFactor() {
+        return this.mZoomFactor;
+    }
+
+    /**
+     * Sets zoom factor of freebusy row.
+     *
+     * @param {Number} val      New zoom factor
+     * @returns {Number}        New zoom factor
+     */
+    set zoomFactor(val) {
+        this.mZoomFactor = val;
+        removeChildren(this.hoursNode);
+        this.onLoad();
+        return val;
+    }
+
+    /**
+     * Gets force24Hours property which sets time format to 24 hour format.
+     *
+     * @returns {Boolean}       force24Hours value
+     */
+    get force24Hours() {
+        return this.mForce24Hours;
+    }
+
+    /**
+     * Sets force24Hours to a new value. If true, forces the freebusy view to 24 hours and updates
+     * the UI accordingly.
+     *
+     * @param {Boolean} val     New force24Hours value
+     * @returns {Boolean}       New force24Hours value
+     */
+    set force24Hours(val) {
+        this.mForce24Hours = val;
+        this.initTimeRange();
+        removeChildren(this.hoursNode);
+        this.onLoad();
+        return val;
+    }
+
+
+    /**
+     * Returns start date of the event.
+     *
+     * @returns {calIDateTime}      Start date value
+     */
+    get startDate() {
+        return this.mStartDate;
+    }
+
+    /**
+     * Sets start date of the event and make it immutable.
+     *
+     * @param {calIDateTime} val        Start date value
+     * @returns {?calIDateTime}         Start date value
+     */
+    set startDate(val) {
+        if (val == null) {
+            return null;
+        }
+        this.mStartDate = val.clone();
+        this.mStartDate.isDate = false;
+        this.mStartDate.makeImmutable();
+        return val;
+    }
+
+    /**
+     * Returns end date of the event.
+     *
+     * @returns {calIDateTime}      End date value
+     */
+    get endDate() {
+        return this.mEndDate;
+    }
+
+    /**
+     * Sets end date of the event and make it immutable.
+     *
+     * @param {?calIDateTime} val       End date value
+     * @returns {calIDateTime}          End date value
+     */
+    set endDate(val) {
+        if (val == null) {
+            return null;
+        }
+        this.mEndDate = val.clone();
+        this.mEndDate.isDate = false;
+        this.mEndDate.makeImmutable();
+        return val;
+    }
+
+    /**
+     * Returns number of boxes that is needed to fill the gap between start hour and end hour.
+     *
+     * @returns {Number}        Number of boxes
+     */
+    get numHours() {
+        let numHours = this.endHour - this.startHour;
+        return Math.ceil(numHours * 100 / this.zoomFactor);
+    }
+
+    /**
+     * Gets width of the content.
+     *
+     * @returns {Number}        Content width
+     */
+    get contentWidth() {
+        // Difference between the x coordinate of first and second child of hours node
+        const diffX = this.hoursNode.childNodes[1].boxObject.x - this.hoursNode.childNodes[0].boxObject.x;
+        return diffX * this.numHours;
+    }
+
+    /**
+     * Returns width of nearest listbox element.
+     *
+     * @returns {Number}        Nearest listbox width
+     */
+    get containerWidth() {
+        return this.closest("listbox").boxObject.width;
+    }
+
+    /**
+     * Sets offset value and calls showState which maps entries to the attribute of xul elements.
+     *
+     * @returns {Number}        New offset value
+     */
+    set dayOffset(val) {
+        this.offset = val * this.numHours;
+        this.showState();
+        return val;
+    }
+
+    /**
+     * Gets document size.
+     *
+     * @returns {Number}        Document size
+     */
+    get documentSize() {
+        return this.contentWidth * this.range;
+    }
+
+    /**
+     * Scrolls the element to a particular x value.
+     *
+     * @param {Number} val      New x value
+     * @returns {Number}        New x value
+     */
+    set scroll(val) {
+        let timebarContainer = document.querySelector("#timebar scroll-container");
+        let offset = timebarContainer.x;
+        // Set the offset at the content node.
+        this.containerNode.x = offset;
+        return val;
+    }
+
+    /**
+     * Setup some properties of the element.
+     */
+    onLoad() {
+        let numHours = this.endHour - this.startHour;
+        this.state = new Array(this.range * numHours);
+        for (let i = 0; i < this.state.length; i++) {
+            this.state[i] = Ci.calIFreeBusyInterval.UNKNOWN;
+        }
+        let step_in_minutes = Math.floor(60 * this.zoomFactor / 100);
+        let formatter = Cc["@mozilla.org/calendar/datetime-formatter;1"]
+                          .getService(Ci.calIDateTimeFormatter);
+        let date = cal.dtz.jsDateToDateTime(new Date());
+        date.hour = this.startHour;
+        date.minute = 0;
+        if (this.hoursNode.childNodes.length <= 0) {
+            let template = document.createXULElement("text");
+            template.className = "freebusy-grid";
+            // TODO: hardcoded value
+            let num_days = Math.max(2, 4 * this.zoomFactor / 100);
+            let count = Math.ceil(
+                (this.endHour - this.startHour) * 60 / step_in_minutes);
+            let remain = count;
+            for (let day = 1; day <= num_days; day++) {
+                let first = true;
+                while (remain--) {
+                    let newNode = template.cloneNode(false);
+                    let value = formatter.formatTime(date);
+                    if (first) {
+                        newNode.classList.add("first-in-day");
+                        first = false;
+                    }
+                    newNode.setAttribute("value", value);
+                    this.hoursNode.appendChild(newNode);
+                    date.minute += step_in_minutes;
+                    if (remain == 0) {
+                        newNode.classList.add("last-in-day");
+                    }
+                }
+                date.hour = this.startHour;
+                date.day++;
+                remain = count;
+            }
+        }
+    }
+
+    /**
+     * Sets freebusy-row state according to param entries which is an array of requested freebusy
+     * intervals. After the state has been updated we call showState() which will map the entries to
+     * attributes on the xul elements.
+     *
+     * @param {?calIFreeBusyInterval[]} entries        List of freebusy entries
+     */
+    onFreeBusy(entries) {
+        if (entries) {
+            // Remember the free/busy array which is used to find a new time for an event. We store
+            // this array only if the provider returned a valid array. In any other case
+            // (temporarily clean the display) we keep the last know result.
+            this.entries = entries;
+            let kDefaultTimezone = cal.dtz.defaultTimezone;
+            let start = this.startDate.clone();
+            start.hour = 0;
+            start.minute = 0;
+            start.second = 0;
+            start.timezone = kDefaultTimezone;
+            let end = start.clone();
+            end.day += this.range;
+            end.timezone = kDefaultTimezone;
+            // First of all set all state slots to 'free'
+            for (let i = 0; i < this.state.length; i++) {
+                this.state[i] = Ci.calIFreeBusyInterval.FREE;
+            }
+            // Iterate all incoming freebusy entries
+            for (let entry of entries) {
+                let rangeStart = entry.interval.start.getInTimezone(kDefaultTimezone);
+                let rangeEnd = entry.interval.end.getInTimezone(kDefaultTimezone);
+                if (rangeStart.compare(start) < 0) {
+                    rangeStart = start.clone();
+                }
+                if (rangeEnd.compare(end) > 0) {
+                    rangeEnd = end.clone();
+                }
+                let rangeDuration = rangeEnd.subtractDate(rangeStart);
+                let rangeStartHour = rangeStart.hour;
+                let rangeEndHour = rangeStartHour + (rangeDuration.inSeconds / 3600);
+                if ((rangeStartHour < this.endHour) &&
+                    (rangeEndHour >= this.startHour)) {
+                    let dayingrid = start.clone();
+                    dayingrid.year = rangeStart.year;
+                    dayingrid.month = rangeStart.month;
+                    dayingrid.day = rangeStart.day;
+                    dayingrid.getInTimezone(kDefaultTimezone);
+                    // Ok, this is an entry we're interested in. Find out
+                    // which hours are actually occupied.
+                    let offset = rangeStart.subtractDate(dayingrid);
+                    // Calculate how many days we're offset from the
+                    // start of the grid. Eliminate hours in case
+                    // we encounter the daylight-saving hop.
+                    let dayoffset = dayingrid.subtractDate(start);
+                    dayoffset.hours = 0;
+                    // Add both offsets to find the total offset.
+                    // dayoffset -> offset in days from start of grid
+                    // offset -> offset in hours from start of current day
+                    offset.addDuration(dayoffset);
+                    let duration = rangeEnd.subtractDate(rangeStart);
+                    let start_in_minutes = Math.floor(offset.inSeconds / 60);
+                    let end_in_minutes = Math.ceil((duration.inSeconds / 60) +
+                        (offset.inSeconds / 60));
+                    let minute2offset = (value, fNumHours, numHours, start_hour, zoomfactor) => {
+                        // 'value' is some integer in the interval [0, range * 24 * 60].
+                        // we need to map this offset into our array which
+                        // holds elements for 'range' days with [start, end] hours each.
+                        let minutes_per_day = 24 * 60;
+                        let day = (value - (value % minutes_per_day)) / minutes_per_day;
+                        let minute = Math.floor(value % minutes_per_day) - (start_hour * 60);
+                        minute = Math.max(0, minute);
+                        if (minute >= (numHours * 60)) {
+                            minute = (numHours * 60) - 1;
+                        }
+                        // How to get from minutes to offset?
+                        // 60 = 100%, 30 = 50%, 15 = 25%, etc.
+                        let minutes_per_block = 60 * zoomfactor / 100;
+                        let block = Math.floor(minute / minutes_per_block);
+                        return Math.ceil(fNumHours) * day + block;
+                    };
+                    // Number of hours (fractional representation)
+                    let calcNumHours = this.endHour - this.startHour;
+                    let fNumHours = calcNumHours * 100 / this.zoomFactor;
+                    let start_offset =
+                        minute2offset(start_in_minutes,
+                            fNumHours,
+                            calcNumHours,
+                            this.startHour,
+                            this.zoomFactor);
+                    let end_offset =
+                        minute2offset(end_in_minutes - 1,
+                            fNumHours,
+                            calcNumHours,
+                            this.startHour,
+                            this.zoomFactor);
+                    // Set all affected state slots
+                    for (let i = start_offset; i <= end_offset; i++) {
+                        this.state[i] = entry.freeBusyType;
+                    }
+                }
+            }
+        } else {
+            // First of all set all state slots to 'unknown'
+            for (let i = 0; i < this.state.length; i++) {
+                this.state[i] = Ci.calIFreeBusyInterval.UNKNOWN;
+            }
+        }
+        this.showState();
+    }
+
+    /**
+     * Maps entries to the attributes of xul elements.
+     */
+    showState() {
+        for (let i = 0; i < this.hoursNode.childNodes.length; i++) {
+            let hour = this.hoursNode.childNodes[i];
+            switch (this.state[i + this.offset]) {
+                case Ci.calIFreeBusyInterval.FREE:
+                    hour.setAttribute("state", "free");
+                    break;
+                case Ci.calIFreeBusyInterval.BUSY:
+                    hour.setAttribute("state", "busy");
+                    break;
+                case Ci.calIFreeBusyInterval.BUSY_TENTATIVE:
+                    hour.setAttribute("state", "busy_tentative");
+                    break;
+                case Ci.calIFreeBusyInterval.BUSY_UNAVAILABLE:
+                    hour.setAttribute("state", "busy_unavailable");
+                    break;
+                default:
+                    hour.removeAttribute("state");
+            }
+        }
+    }
+
+    /**
+     * Returns new time for the next slot.
+     *
+     * @param {calIDateTime} startTime      Previous start time
+     * @param {calIDateTime} endTime        Previous end time
+     * @param {Boolean} allDay              Flag telling whether the event is all day or not
+     * @returns {calIDateTime}              New time value
+     */
+    nextSlot(startTime, endTime, allDay) {
+        let newTime = startTime.clone();
+        let duration = endTime.subtractDate(startTime);
+        let newEndTime = newTime.clone();
+        newEndTime.addDuration(duration);
+        let kDefaultTimezone = cal.dtz.defaultTimezone;
+        if (this.entries) {
+            for (let entry of this.entries) {
+                let rangeStart =
+                    entry.interval.start.getInTimezone(kDefaultTimezone);
+                let rangeEnd =
+                    entry.interval.end.getInTimezone(kDefaultTimezone);
+                let isZeroLength = !newTime.compare(newEndTime);
+                if ((isZeroLength &&
+                    newTime.compare(rangeStart) >= 0 &&
+                    newTime.compare(rangeEnd) < 0) ||
+                    (!isZeroLength &&
+                        newTime.compare(rangeEnd) < 0 &&
+                        newEndTime.compare(rangeStart) > 0)) {
+                    // Current range of event conflicts with another event.
+                    // we need to find a new time for this event. A trivial approach
+                    // is to set the new start-time of the event equal to the end-time
+                    // of the conflict-range. All-day events need to be considered
+                    // separately, in which case we skip to the next day.
+                    newTime = rangeEnd.clone();
+                    if (allDay) {
+                        if (!((newTime.hour == 0) &&
+                            (newTime.minute == 0) &&
+                            (newTime.second == 0))) {
+                            newTime.day++;
+                            newTime.hour = 0;
+                            newTime.minute = 0;
+                            newTime.second = 0;
+                        }
+                    }
+                    newEndTime = newTime.clone();
+                    newEndTime.addDuration(duration);
+                }
+            }
+        }
+        return newTime;
+    }
+
+    /**
+     * Updates endHour and startHour values of the freebusy row.
+     */
+    initTimeRange() {
+        if (this.force24Hours) {
+            this.startHour = 0;
+            this.endHour = 24;
+        } else {
+            this.startHour = Services.prefs.getIntPref("calendar.view.daystarthour", 8);
+            this.endHour = Services.prefs.getIntPref("calendar.view.dayendhour", 19);
+        }
+    }
+}
+customElements.define("calendar-event-freebusy-row", MozCalendarEventFreebusyRow);

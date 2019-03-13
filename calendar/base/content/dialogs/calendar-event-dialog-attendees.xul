@@ -131,7 +131,7 @@
             <richlistitem class="addressingWidgetItem"
                           allowevents="true">
               <hbox class="addressingWidgetCell">
-                <freebusy-row dirty="true"/>
+                <calendar-event-freebusy-row dirty="true"/>
               </hbox>
             </richlistitem>
           </freebusy-grid>
