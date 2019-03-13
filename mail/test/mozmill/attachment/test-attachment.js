@@ -321,7 +321,7 @@ function subtest_attachment_list_toggle(elementId) {
   assert_message_pane_focused();
 }
 
-function disabled_test_attachment_list_expansion() {
+function test_attachment_list_expansion() {
   be_in_folder(folder);
 
   select_click_row(1);
@@ -344,7 +344,7 @@ function disabled_test_attachment_list_expansion() {
               "collapsed after clicking save button!");
 }
 
-function disabled_test_attachment_list_starts_expanded() {
+function test_attachment_list_starts_expanded() {
   ensure_starts_expanded(true);
   be_in_folder(folder);
 
@@ -355,7 +355,7 @@ function disabled_test_attachment_list_starts_expanded() {
               "Attachment list should start out expanded!");
 }
 
-function disabled_test_selected_attachments_are_cleared() {
+function test_selected_attachments_are_cleared() {
   ensure_starts_expanded(false);
   be_in_folder(folder);
   // First, select the message with two attachments.
@@ -390,7 +390,7 @@ function disabled_test_selected_attachments_are_cleared() {
                 "After loading a new message the first item should be selected");
 }
 
-function disabled_test_attachment_toolbar_customize() {
+function test_attachment_toolbar_customize() {
   // This tests that removing the "save all" button from the attachment bar
   // works correctly (i.e. it doesn't throw an error in the middle of processing
   // the attachments when loading a later message).
@@ -421,7 +421,7 @@ function disabled_test_attachment_toolbar_customize() {
   add_to_toolbar(mc.e("attachment-view-toolbar"), "attachmentSaveAll");
 }
 
-function disabled_test_select_all_attachments_key() {
+function test_select_all_attachments_key() {
   be_in_folder(folder);
 
   // First, select the message with two attachments.
@@ -437,7 +437,7 @@ function disabled_test_select_all_attachments_key() {
                 "Should have selected all attachments!");
 }
 
-function disabled_test_delete_attachment_key() {
+function test_delete_attachment_key() {
   be_in_folder(folder);
 
   // First, select the message with two attachments.
@@ -465,7 +465,7 @@ function disabled_test_delete_attachment_key() {
   wait_for_modal_dialog("commonDialog");
 }
 
-function disabled_test_attachments_compose_menu() {
+function test_attachments_compose_menu() {
   be_in_folder(folder);
 
   // First, select the message with two attachments.
@@ -534,7 +534,7 @@ function disabled_test_attachments_compose_menu() {
   close_compose_window(cwc);
 }
 
-function disabled_test_delete_from_toolbar() {
+function test_delete_from_toolbar() {
   be_in_folder(folder);
 
   // First, select the message with two attachments.
