@@ -9,7 +9,7 @@
 ]>
 
 <overlay id="composerOverlay"
-         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
 
   <!-- Items in the File menu used only by Composer app -->
   <menupopup id="menu_FilePopup">

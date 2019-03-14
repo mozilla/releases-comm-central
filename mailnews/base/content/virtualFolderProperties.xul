@@ -16,7 +16,7 @@
   %searchTermDTD;
 ]>
 
-<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         id="virtualFolderPropertiesDialog"
         title="&virtualFolderProperties.title;"
         onload="onLoad();"

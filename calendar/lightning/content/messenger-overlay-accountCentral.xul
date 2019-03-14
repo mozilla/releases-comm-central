@@ -13,7 +13,7 @@
 <?xml-stylesheet href="chrome://lightning/skin/accountCentral.css" type="text/css"?>
 
 <overlay id="calendar-list-overlay"
-         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
   <rows id="acctCentralRows">
     <spacer id="lightning-newCalendar-separator"
             flex="1"

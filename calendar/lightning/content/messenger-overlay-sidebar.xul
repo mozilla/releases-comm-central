@@ -31,7 +31,7 @@
 <?xul-overlay href="chrome://lightning/content/lightning-menus.xul"?>
 
 <overlay id="ltnSidebarOverlay"
-         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
   <script type="application/javascript" src="chrome://calendar/content/calendar-base-view.js"/>
 
   <!-- NEEDED FOR MULTIPLE CALENDAR SUPPORT -->

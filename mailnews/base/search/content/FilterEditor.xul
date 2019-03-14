@@ -19,7 +19,7 @@
 
 <dialog id="FilterEditor"
   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
   title="&window.title;"
   style="&filterEditorDialog.dimensions;"
   windowtype="mailnews:filtereditor"

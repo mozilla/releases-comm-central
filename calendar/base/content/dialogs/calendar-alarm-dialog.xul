@@ -16,7 +16,7 @@
 <!-- DTD File with all strings specific to the calendar -->
 <!DOCTYPE dialog SYSTEM "chrome://calendar/locale/calendar.dtd">
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         id="calendar-alarm-dialog"
         icon="calendar-alarm-dialog"
         title="&calendar.alarm.title.label;"

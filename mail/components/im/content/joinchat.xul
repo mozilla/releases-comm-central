@@ -8,13 +8,12 @@
 
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/joinChat.dtd">
 
-<dialog
-  id     = "joinChatDialog"
+<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+  id="joinChatDialog"
   windowtype="Messenger:JoinChat"
-  title  = "&joinChatWindow.title;"
-  buttons= "accept,cancel"
-  xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-  onload = "joinChat.onload()"
+  title="&joinChatWindow.title;"
+  buttons="accept,cancel"
+  onload="joinChat.onload()"
   ondialogaccept="joinChat.join()">
   <script type="application/javascript" src="chrome://messenger/content/chat/joinchat.js"/>
 

@@ -14,7 +14,7 @@
   %acDTD;
 ]>
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         id="autoconfigWizard"
         windowtype="mail:autoconfig"
         title="&autoconfigWizard2.title;"

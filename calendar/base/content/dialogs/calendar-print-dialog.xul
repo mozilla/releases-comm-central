@@ -26,7 +26,7 @@
         ondialogaccept="return printAndClose();"
         ondialogcancel="return true;"
         persist="screenX screenY width height"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
 
   <script type="application/javascript" src="chrome://calendar/content/calendar-print-dialog.js"/>
   <script type="application/javascript" src="chrome://calendar/content/calendar-ui-utils.js"/>

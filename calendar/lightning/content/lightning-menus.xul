@@ -11,7 +11,7 @@
   <!ENTITY % eventDialogDTD SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd" > %eventDialogDTD;
 ]>
 
-<overlay id="ltnMenusOverlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<overlay id="ltnMenusOverlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
   <menupopup id="menu_FilePopup">
     <menu id="menu_Open"
           mode="calendar"

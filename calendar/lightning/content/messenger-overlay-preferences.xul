@@ -13,7 +13,7 @@
 
 <?xml-stylesheet href="chrome://lightning/skin/lightning.css"?>
 
-<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
 
         <prefpane id="paneLightning"
                   flex="1"

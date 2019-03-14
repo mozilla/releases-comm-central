@@ -12,10 +12,10 @@
 
 <!DOCTYPE dialog SYSTEM "chrome://editor/locale/EdAdvancedEdit.dtd">
 
-<dialog title="&WindowTitle.label;"
+<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
     id="advancedEditDlg"
     style="width: 40em;"
-    xmlns ="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    title="&WindowTitle.label;"
     onload="Startup()"
     ondialogaccept="return onAccept();"
     ondialogcancel="return onCancel();">

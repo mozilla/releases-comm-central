@@ -10,7 +10,7 @@
 <!DOCTYPE dialog SYSTEM "chrome://editor/locale/EditConflict.dtd">
 
 <dialog buttons="cancel" title="&windowTitle.label;"
-    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
     onload = "Startup()"
     ondialogcancel="return onClose();">
 

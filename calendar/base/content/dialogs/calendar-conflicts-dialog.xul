@@ -12,7 +12,7 @@
         ondialogaccept="return onAccept();"
         ondialogcancel="return onCancel();"
         persist="screenX screenY"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
   <script type="application/javascript" src="chrome://calendar/content/mouseoverPreviews.js"/>
   <script type="application/javascript"><![CDATA[
     const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");

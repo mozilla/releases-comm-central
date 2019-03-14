@@ -15,7 +15,7 @@
 
 <?xml-stylesheet href="chrome://lightning/skin/lightning-toolbar.css" type="text/css"?>
 
-<overlay id="ltnToolbarOverlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<overlay id="ltnToolbarOverlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
   <popupset id="calendar-popupset">
     <menupopup id="calendar-toolbar-context"
                onpopupshowing="onViewToolbarsPopupShowing(event, ['navigation-toolbox', 'calendar-toolbox']);">

@@ -9,7 +9,7 @@
 
 <!DOCTYPE dialog SYSTEM "chrome://messenger/locale/am-archiveoptions.dtd" >
 
-<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         id="archive-options"
         title="&dialogTitle.label;"
         width="350" height="350"

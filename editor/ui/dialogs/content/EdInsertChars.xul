@@ -9,7 +9,7 @@
 <!DOCTYPE dialog SYSTEM "chrome://editor/locale/EditorInsertChars.dtd">
 
 <dialog id="insertCharsDlg" title="&windowTitle.label;"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         onload = "Startup()"
         onfocus = "onFocus()"
         buttonlabelaccept="&insertButton.label;"

@@ -8,13 +8,12 @@
 
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/addbuddy.dtd">
 
-<dialog
-  id     = "addBuddyDialog"
+<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+  id="addBuddyDialog"
   windowtype="Messenger:AddBuddy"
-  title  = "&addBuddyWindow.title;"
-  buttons= "accept,cancel"
-  xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-  onload = "addBuddy.onload()"
+  title="&addBuddyWindow.title;"
+  buttons="accept,cancel"
+  onload="addBuddy.onload()"
   ondialogaccept="addBuddy.create()"
   buttondisabledaccept="true">
   <script type="application/javascript" src="chrome://messenger/content/chat/addbuddy.js"/>

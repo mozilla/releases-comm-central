@@ -13,7 +13,7 @@
 ]>
 
 <window id="aboutDownloads"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns:xhtml="http://www.w3.org/1999/xhtml"
         title="&aboutDownloads.title;"
         onload="DownloadsView.init();">

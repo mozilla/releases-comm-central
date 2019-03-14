@@ -7,7 +7,7 @@
 
 <!DOCTYPE overlay SYSTEM "chrome://editor/locale/pref-editing.dtd">
 
-<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
   <prefpane id="editing_pane"
             label="&pref.editing.title;"
             script="chrome://editor/content/pref-editing.js">

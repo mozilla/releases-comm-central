@@ -15,7 +15,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/primaryToolbar.css" type="text/css"?>
 
 <dialog id="junkMailInfo"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         title="&window.title;"
         windowtype="mailnews:junkmailinfo"
         buttons="accept">

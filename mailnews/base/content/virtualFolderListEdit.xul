@@ -9,7 +9,7 @@
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/virtualFolderListDialog.dtd">
 
 <dialog id="searchFolderWindow"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         title="&virtualFolderListTitle.title;"
         windowtype="mailnews:virtualFolderList"
         style="width: 27em; height: 25em;"

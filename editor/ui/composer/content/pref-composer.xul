@@ -5,7 +5,7 @@
 
 <!DOCTYPE overlay SYSTEM "chrome://editor/locale/pref-composer.dtd">
 
-<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
   <prefpane id="composer_pane" label="&pref.composer.title;">
 
     <preferences id="composer_preferences">

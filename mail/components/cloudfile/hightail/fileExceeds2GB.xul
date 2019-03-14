@@ -13,7 +13,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css" type="text/css"?>
 
 <dialog id="fileExceeds2GB"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         buttons="cancel"
         buttonlabelcancel="&fileExceeds2GB.cancel;"
         title="&fileExceeds2GB.title;">

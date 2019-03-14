@@ -15,7 +15,7 @@
 ]>
 
 <overlay id="ltnCalendarItemPanelContentOverlay"
-         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
 
   <toolbarpalette id="event-toolbarpalette">
     <toolbarbutton id="button-save"

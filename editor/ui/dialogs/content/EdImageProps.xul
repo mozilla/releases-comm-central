@@ -17,8 +17,8 @@
 
 <!-- dialog containing a control requiring initial setup -->
 <dialog id="imageDlg" title="&windowTitle.label;"
-    xmlns ="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-    onload = "Startup()"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+    onload="Startup()"
     buttons="accept,cancel"
     ondialogaccept="return onAccept();"
     ondialogcancel="return onCancel();">
