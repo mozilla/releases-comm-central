@@ -3,6 +3,11 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
+<!-- import-globals-from ../../resources/content/mouseoverPreviews.js -->
+<!-- import-globals-from calendar-dnd-listener.js -->
+<!-- import-globals-from calendar-ui-utils.js -->
+<!-- import-globals-from calendar-views.js -->
+
 <!DOCTYPE bindings SYSTEM "chrome://global/locale/global.dtd" >
 
 <bindings id="calendar-multiday-view-bindings"
@@ -1464,6 +1469,8 @@
                 document.calendarEventColumnDragging = null;
                 col.mDragState = null;
 
+                var item = dragState.dragOccurrence;
+
                 // the multiday view currently exhibits a less than optimal strategy
                 // in terms of item selection. items don't get automatically selected
                 // when clicked and dragged, as to differentiate inline editing from
@@ -2022,7 +2029,7 @@
     <handlers>
       <handler event="dblclick" button="0"><![CDATA[
           if (this.calendarView.controller) {
-              let newStart = getClickedDateTime(event);
+              let newStart = this.getClickedDateTime(event);
               this.calendarView.controller.createNewEvent(null, newStart, null);
           }
       ]]></handler>
@@ -2035,7 +2042,7 @@
       ]]></handler>
 
       <handler event="click" button="2"><![CDATA[
-          let newStart = getClickedDateTime(event);
+          let newStart = this.getClickedDateTime(event);
           this.calendarView.selectedDateTime = newStart;
       ]]></handler>
 
@@ -2318,11 +2325,11 @@
 
             if (needsrelayout) {
                 let eventbox = document.getAnonymousElementByAttribute(this, "anonid", "eventbox");
-                eventbox.setAttribute("orient", val);
+                eventbox.setAttribute("orient", aVal);
                 let gb1 = document.getAnonymousElementByAttribute(this, "anonid", "gripbar1");
-                gb1.parentorient = val;
+                gb1.parentorient = aVal;
                 let gb2 = document.getAnonymousElementByAttribute(this, "anonid", "gripbar2");
-                gb2.parentorient = val;
+                gb2.parentorient = aVal;
             }
 
             return ret;
@@ -2903,7 +2910,7 @@
             if (this.mStartDate && this.mEndDate) {
                 let date = this.mStartDate.clone();
                 while (date.compare(this.mEndDate) <= 0) {
-                    dates.push(d.clone());
+                    dates.push(date.clone());
                     date.day += 1;
                 }
             } else if (this.mDateList) {

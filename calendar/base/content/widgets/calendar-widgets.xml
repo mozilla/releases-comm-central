@@ -2,6 +2,10 @@
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!-- import-globals-from ../calendar-ui-utils.js -->
+<!-- import-globals-from ../calendar-views.js -->
+
 <!DOCTYPE dialog [
   <!ENTITY % dtd1 SYSTEM "chrome://global/locale/global.dtd" > %dtd1;
   <!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd"> %dtd2;
@@ -384,8 +388,8 @@
           }
           let item = draggedDOMNode.occurrence.clone();
           let beginMoveDate = draggedDOMNode.mParentBox.date;
-          let itemStartDate = (item.startDate || item.entryDate || item.dueDate).getInTimezone(calendarView.mTimezone);
-          let itemEndDate = (item.endDate || item.dueDate || item.entryDate).getInTimezone(calendarView.mTimezone);
+          let itemStartDate = (item.startDate || item.entryDate || item.dueDate).getInTimezone(this.calendarView.mTimezone);
+          let itemEndDate = (item.endDate || item.dueDate || item.entryDate).getInTimezone(this.calendarView.mTimezone);
           let oneMoreDay = (itemEndDate.hour > 0 || itemEndDate.minute > 0);
           itemStartDate.isDate = true;
           itemEndDate.isDate = true;

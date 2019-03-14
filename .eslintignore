@@ -64,6 +64,8 @@ mail/test/mozmill/**
 
 # prefs files
 calendar/lightning/content/lightning.js
+calendar/providers/gdata/defaults/preferences.js
+calendar/timezones/preferences.js
 
 # third party library
 calendar/base/modules/ical.js

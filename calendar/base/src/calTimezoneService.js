@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from calTimezone.js */
+
 var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
@@ -475,7 +477,7 @@ function guessSystemTimezone() {
                 let match = untilRegex.exec(rrule.valueAsIcalString);
                 if (match) {
                     periodUntilCalDate.icalString = match[1];
-                    if (todayUTC.nativeTime > periodUntilDate.nativeTime) {
+                    if (todayUTC.nativeTime > periodUntilCalDate.nativeTime) {
                         continue; // period ends too early
                     }
                 } // else forever rule

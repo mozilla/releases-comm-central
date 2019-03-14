@@ -9,6 +9,10 @@
  *         calendarOfflineManager
  */
 
+/* import-globals-from dialogs/calendar-migration-dialog.js */
+/* import-globals-from calendar-common-sets.js */
+/* import-globals-from calendar-ui-utils.js */
+
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 

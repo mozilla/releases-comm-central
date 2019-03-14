@@ -3,6 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* exported loadCalendars, doOK, doExtra1 */
+
+/* import-globals-from ../calendar-ui-utils.js */
+
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 function loadCalendars() {

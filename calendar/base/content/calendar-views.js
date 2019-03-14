@@ -9,6 +9,9 @@
  *          editSelectedEvents, selectAllEvents
  */
 
+/* import-globals-from calendar-chrome-startup.js */
+/* import-globals-from calendar-item-editing.js */
+
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { countOccurrences } = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -152,7 +155,7 @@ var calendarViewController = {
                 // if we have multiple items and the user decided already for one
                 // item whether to delete the occurrence or the entire series,
                 // we apply that decission also to subsequent items
-                previoiusResponse = response;
+                previousResponse = response;
                 promptUser = false;
             }
 

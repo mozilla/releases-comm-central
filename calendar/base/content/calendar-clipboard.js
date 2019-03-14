@@ -2,6 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from calendar-common-sets.js */
+/* import-globals-from calendar-item-editing.js */
+/* import-globals-from calendar-management.js */
+/* import-globals-from calendar-views.js */
+
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 

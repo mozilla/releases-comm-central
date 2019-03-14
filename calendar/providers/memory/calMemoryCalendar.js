@@ -59,7 +59,7 @@ calMemoryCalendar.prototype = {
     },
 
     createCalendar: function() {
-        throw NS_ERROR_NOT_IMPLEMENTED;
+        throw Cr.NS_ERROR_NOT_IMPLEMENTED;
     },
 
     deleteCalendar: function(calendar, listener) {

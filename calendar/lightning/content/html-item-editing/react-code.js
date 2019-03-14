@@ -6,6 +6,9 @@
 
 /* exported gTopComponent, DatePicker, TopComponent */
 
+/* import-globals-from ../lightning-item-iframe.js */
+/* globals React, ReactDOM */
+
 var gTopComponent = null;
 
 var Tabstrip = React.createClass({

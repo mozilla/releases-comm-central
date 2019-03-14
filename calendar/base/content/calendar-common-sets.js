@@ -2,6 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../../../toolkit/content/globalOverlay.js */
+/* import-globals-from ../../lightning/content/messenger-overlay-sidebar.js */
+/* import-globals-from ../../resources/content/publish.js */
+/* import-globals-from agenda-listbox.js */
+/* import-globals-from calendar-clipboard.js */
+/* import-globals-from calendar-management.js */
+/* import-globals-from calendar-task-tree.js */
+/* import-globals-from calendar-ui-utils.js */
+/* import-globals-from calendar-unifinder.js */
+/* import-globals-from calendar-views.js */
+/* import-globals-from import-export.js */
+
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
@@ -449,7 +461,7 @@ var calendarController = {
     isInMode: function(mode) {
         switch (mode) {
             case "mail":
-                return !isCalendarInForeground();
+                return !this.isCalendarInForeground();
             case "calendar":
                 return gCurrentMode && gCurrentMode == "calendar";
             case "task":

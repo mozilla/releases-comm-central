@@ -163,7 +163,7 @@ calItipEmailTransport.prototype = {
                     // If there are no identities, then we are in the same
                     // situation as if we didn't have Xpcom Mail.
                     this.mHasXpcomMail = false;
-                    cal.LOG("initEmailService: No XPCOM Mail available: " + e);
+                    cal.LOG("initEmailService: No XPCOM Mail available");
                 }
             }
         } catch (ex) {

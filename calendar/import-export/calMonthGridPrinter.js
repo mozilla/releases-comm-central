@@ -121,7 +121,7 @@ calMonthPrinter.prototype = {
 
         // Find out if the end date is also shown in the last week of the
         // previous month. This also means we can spare a month printout.
-        lastDayOfPreviousMonth = endDate.clone();
+        let lastDayOfPreviousMonth = endDate.clone();
         lastDayOfPreviousMonth.month--;
         lastDayOfPreviousMonth = lastDayOfPreviousMonth.endOfMonth;
         if (cal.getWeekInfoService().getEndOfWeek(lastDayOfPreviousMonth).compare(endDate) >= 0) {

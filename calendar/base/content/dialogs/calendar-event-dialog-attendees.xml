@@ -3,6 +3,9 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
+<!-- import-globals-from ../calendar-ui-utils.js -->
+<!-- import-globals-from calendar-event-dialog-attendees.js -->
+
 <!DOCTYPE dialog [
   <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/global.dtd" > %dtd1;
   <!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar.dtd" > %dtd2;
@@ -1387,7 +1390,7 @@
               let delta = mouseX - this.mMouseX;
               let newStart = this.moveTime(this.mStartDate, delta, false);
               if (newStart.compare(this.mStartDate) != 0) {
-                  newEnd = this.moveTime(this.mEndDate, delta, false);
+                  let newEnd = this.moveTime(this.mEndDate, delta, false);
 
                   // We need to adapt this date in case we're dealing with
                   // an all-day event. This is because setting 'endDate' will

@@ -12,8 +12,11 @@
  *          getOtherOrientation, updateSelectedLabel, setupAttendanceMenu
  */
 
+/* import-globals-from ../../../../toolkit/content/globalOverlay.js */
+
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * Helper function for filling the form,

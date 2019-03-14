@@ -14,6 +14,11 @@
  *          applyValues
  */
 
+/* import-globals-from ../../base/content/calendar-ui-utils.js */
+/* import-globals-from ../../base/content/dialogs/calendar-dialog-utils.js */
+/* import-globals-from html-item-editing/react-code.js */
+/* globals gTimezonesEnabled, gShowLink */// Set by lightning-item-panel.js.
+
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {
@@ -216,7 +221,7 @@ function receiveMessage(aEvent) {
             postponeTask(aEvent.data.value);
             break;
         case "toggleTimezoneLinks":
-            gTimezonesEnabled = aEvent.data.checked;
+            gTimezonesEnabled = aEvent.data.checked; // eslint-disable-line
             updateDateTime();
             /*
             // Not implemented in react-code.js yet
@@ -1227,10 +1232,6 @@ function dateTimeControls2State(aStartDatepicker) {
             // changed the start date, it looks reasonable to restore a valid
             // until date equal to the start date.
             gUntilDate = gStartTime.clone();
-            // Update the rule.
-            let rrules = splitRecurrenceRules(window.recurrenceInfo);
-            recRule = rrules[0][0];
-            recRule.untilDate = gUntilDate.clone();
             // Update the until-date-picker. In case of "custom" rule, the
             // recurrence string is going to be changed by updateDateTime() below.
             let notCustomRule = document.getElementById("repeat-deck").selectedIndex == 0;
@@ -3718,6 +3719,7 @@ function updateAttendees() {
         notifyOptions.removeAttribute("collapsed");
 
         if (window.organizer && window.organizer.id) {
+            let organizer = window.organizer;
             document.getElementById("item-organizer-row").removeAttribute("collapsed");
             let cell = document.querySelector(".item-organizer-cell");
             let icon = cell.querySelector("img:nth-of-type(1)");
@@ -3959,7 +3961,7 @@ function removeAllAttendees() {
  * @param aAttendees    The attendees to check.
  */
 function sendMailToUndecidedAttendees(aAttendees) {
-    let targetAttendees = attendees.filter(isAttendeeUndecided);
+    let targetAttendees = aAttendees.filter(isAttendeeUndecided);
     sendMailToAttendees(targetAttendees);
 }
 

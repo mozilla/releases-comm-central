@@ -68,7 +68,7 @@ function lazyFactoryFor(backendScope, classID) {
         },
         lockFactory: function(lock) {
             let realFactory = backendScope.NSGetFactory(classID);
-            return realFactory.lockFactory(aOuter, aIID);
+            return realFactory.lockFactory(lock);
         }
     };
 }

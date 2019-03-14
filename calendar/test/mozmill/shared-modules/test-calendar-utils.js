@@ -120,7 +120,6 @@ function installInto(module) {
 
     // Now copy helper functions.
     module.helpersForController = helpersForController;
-    module.setupLightning = setupLightning;
     module.handleOccurrencePrompt = handleOccurrencePrompt;
     module.switchToView = switchToView;
     module.goToDate = goToDate;

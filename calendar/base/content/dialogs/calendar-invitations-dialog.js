@@ -4,6 +4,8 @@
 
 /* exported onLoad, onUnload, onAccept, onCancel */
 
+/* globals invitationsText */// From calendar-invitations-dialog.xul.
+
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 /**

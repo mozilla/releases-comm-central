@@ -295,9 +295,6 @@ module.exports = {
         // Disallow Initializing to undefined
         "no-undef-init": 2,
 
-        // Don't Disallow Undeclared Variables (for now)
-        "no-undef": 0,
-
         // Disallow control flow statements in finally blocks
         "no-unsafe-finally": 2,
 

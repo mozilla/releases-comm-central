@@ -6,6 +6,9 @@
  *          ltnSaveMailIdentitySelection, ltnNotifyOnIdentitySelection
  */
 
+/* import-globals-from ../../base/content/calendar-ui-utils.js */
+/* globals gCalendar */
+
 var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");

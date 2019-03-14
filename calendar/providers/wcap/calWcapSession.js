@@ -4,6 +4,8 @@
 
 /* exported getWcapSessionFor */
 
+/* import-globals-from calWcapCalendarModule.js */
+
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");

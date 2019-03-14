@@ -4,6 +4,8 @@
 
 /* exported onLoad, onAccept, onCancel */
 
+/* import-globals-from ../calendar-ui-utils.js */
+
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 /**

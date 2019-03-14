@@ -3,6 +3,8 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
+<!-- import-globals-from calendar-views.js -->
+
 <bindings id="calendar-multiday-view-bindings"
           xmlns="http://www.mozilla.org/xbl"
           xmlns:html="http://www.w3.org/1999/xhtml"
@@ -738,6 +740,7 @@
         <parameter name="aDates"/>
         <body><![CDATA[
             let start = this.startDate.clone();
+            let dates = [];
             while (start.compare(this.endDate) <= 0) {
                 dates.push(start);
                 start.day++;
@@ -788,6 +791,7 @@
       <handler event="wheel"><![CDATA[
           const pixelThreshold = 150;
           if (event.shiftKey && Services.prefs.getBoolPref("calendar.view.mousescroll", true)) {
+              let deltaView = 0;
               if (event.deltaMode == event.DOM_DELTA_LINE) {
                   if (event.deltaY != 0) {
                       deltaView = event.deltaY < 0 ? -1 : 1;

@@ -27,6 +27,8 @@
          Use onmonthchange to reshow parent popop (hidePopup, openPopup).
 -->
 
+<!-- import-globals-from ../calendar-ui-utils.js -->
+
 <!DOCTYPE bindings
 [
     <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/global.dtd" > %dtd1;

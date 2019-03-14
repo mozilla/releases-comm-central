@@ -4,6 +4,8 @@
 
 /* exported onLoad, onAccept, onCancel */
 
+/* import-globals-from ../calendar-ui-utils.js */
+
 var { splitRecurrenceRules } = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");

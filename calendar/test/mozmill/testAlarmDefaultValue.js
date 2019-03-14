@@ -18,6 +18,7 @@ const DEFVALUE = 43;
 
 var helpersForController, invokeEventDialog, openLightningPrefs, menulistSelect;
 var plan_for_modal_dialog, wait_for_modal_dialog;
+var content_tab_e, content_tab_eid;
 
 function setupModule(module) {
     controller = mozmill.getMail3PaneController();
@@ -28,15 +29,16 @@ function setupModule(module) {
         menulistSelect
     } = collector.getModule("calendar-utils"));
     collector.getModule("calendar-utils").setupModule(controller);
-    Object.assign(module, helpersForController(controller));
 
-    ({ plan_for_modal_dialog, wait_for_modal_dialog } =
-        collector.getModule("window-helpers"));
+    ({ plan_for_modal_dialog, wait_for_modal_dialog } = collector.getModule("window-helpers"));
 
-    collector.getModule("content-tab-helpers").installInto(module);
+    ({ content_tab_e, content_tab_eid } = collector.getModule("content-tab-helpers"));
+    collector.getModule("content-tab-helpers").setupModule();
 }
 
 function testDefaultAlarms() {
+    let { eid } = helpersForController(controller);
+
     let localeUnitString = cal.l10n.getCalString("unitDays");
     let unitString = PluralForm.get(DEFVALUE, localeUnitString).replace("#1", DEFVALUE);
     let alarmString = (...args) => cal.l10n.getString("calendar-alarms", ...args);
@@ -92,6 +94,7 @@ function testDefaultAlarms() {
 }
 
 function handlePrefTab(tab) {
+    let { replaceText } = helpersForController(controller);
     // Click on the alarms tab.
     content_tab_e(tab, "calPreferencesTabAlarms").click();
 

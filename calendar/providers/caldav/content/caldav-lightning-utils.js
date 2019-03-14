@@ -6,6 +6,10 @@
  *          caldavUpdateForceEmailSchedulingControl
  */
 
+/* import-globals-from ../../../base/content/calendar-ui-utils.js */
+/* import-globals-from ../../../lightning/content/lightning-utils.js */
+/* globals gCalendar */
+
 /**
  * Initializing calendar creation wizard and properties dialog to display the
  * option to enforce email scheduling for outgoing scheduling operations

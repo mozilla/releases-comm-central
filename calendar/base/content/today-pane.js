@@ -2,6 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../lightning/content/messenger-overlay-sidebar.js */
+/* import-globals-from agenda-listbox.js */
+/* import-globals-from calendar-chrome-startup.js */
+/* import-globals-from calendar-unifinder-todo.js */
+
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 /**

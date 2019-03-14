@@ -6,6 +6,8 @@
  *          onRemoveReminder, onAccept, onCancel
  */
 
+/* import-globals-from ../calendar-ui-utils.js */
+
 var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 

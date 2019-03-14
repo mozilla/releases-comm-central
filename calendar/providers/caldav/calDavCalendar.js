@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from calDavRequestHandlers.js */
+/* globals OAUTH_BASE_URI, OAUTH_SCOPE, OAUTH_CLIENT_ID, OAUTH_HASH */
+
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
@@ -146,11 +149,11 @@ calDavCalendar.prototype = {
     },
 
     createCalendar: function() {
-        throw NS_ERROR_NOT_IMPLEMENTED;
+        throw Cr.NS_ERROR_NOT_IMPLEMENTED;
     },
 
     deleteCalendar: function(_cal, listener) {
-        throw NS_ERROR_NOT_IMPLEMENTED;
+        throw Cr.NS_ERROR_NOT_IMPLEMENTED;
     },
 
     // calIChangeLog interface
@@ -1902,8 +1905,7 @@ calDavCalendar.prototype = {
             channel.requestMethod = "PROPFIND";
             return streamListener;
         }, () => {
-            notifyListener(Cr.NS_ERROR_NOT_AVAILABLE,
-                           "Error preparing http channel");
+            this.completeCheckServerInfo(aChangeLogListener, Cr.NS_ERROR_NOT_AVAILABLE);
         });
     },
 
@@ -2001,8 +2003,7 @@ calDavCalendar.prototype = {
             channel.requestMethod = "OPTIONS";
             return streamListener;
         }, () => {
-            notifyListener(Cr.NS_ERROR_NOT_AVAILABLE,
-                           "Error preparing http channel");
+            this.completeCheckServerInfo(aChangeLogListener, Cr.NS_ERROR_NOT_AVAILABLE);
         });
     },
 
@@ -2081,7 +2082,7 @@ calDavCalendar.prototype = {
             channel.requestMethod = "PROPFIND";
             return streamListener;
         }, () => {
-            notifyListener(Cr.NS_ERROR_NOT_AVAILABLE);
+            this.completeCheckServerInfo(aChangeLogListener, Cr.NS_ERROR_NOT_AVAILABLE);
         });
     },
 
@@ -2266,7 +2267,7 @@ calDavCalendar.prototype = {
             channel.requestMethod = queryMethod;
             return streamListener;
         }, () => {
-            notifyListener(Cr.NS_ERROR_NOT_AVAILABLE);
+            this.completeCheckServerInfo(aChangeLogListener, Cr.NS_ERROR_NOT_AVAILABLE);
         });
     },
 
@@ -2535,8 +2536,7 @@ calDavCalendar.prototype = {
             channel.setRequestHeader("Recipient", mailto_aCalId, false);
             return streamListener;
         }, () => {
-            notifyListener(Cr.NS_ERROR_NOT_AVAILABLE,
-                           "Error preparing http channel");
+            aListener.onResult(null, null);
         });
     },
 
@@ -2869,8 +2869,7 @@ calDavCalendar.prototype = {
                 }
                 return streamListener;
             }, () => {
-                notifyListener(Cr.NS_ERROR_NOT_AVAILABLE,
-                               "Error preparing http channel");
+                cal.LOG("CalDAV: Error preparing http channel");
             });
         }
         return true;

@@ -174,7 +174,7 @@ function testEventDialog() {
 
     // Verify event and alarm icon visible until endDate (3 full rows) and check tooltip.
     for (let row = 1; row <= 3; row++) {
-        for (col = 1; col <= 7; col++) {
+        for (let col = 1; col <= 7; col++) {
             controller.waitForElement(lookupEventBox("month", EVENT_BOX, row, col, null, EVENTPATH));
             checkAlarmIcon(controller, "month", row, col);
             checkTooltip(row, col, startTime, endTime);

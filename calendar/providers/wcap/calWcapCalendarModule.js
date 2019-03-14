@@ -11,8 +11,16 @@
  *          CACHE_LAST_RESULTS_INVALIDATE, LOG_LEVEL
  */
 
+/* import-globals-from calWcapUtils.js */
+/* import-globals-from calWcapErrors.js */
+/* import-globals-from calWcapRequest.js */
+/* import-globals-from calWcapSession.js */
+/* import-globals-from calWcapCalendar.js */
+/* import-globals-from calWcapCalendarItems.js */
+
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 //
 // init code for globals, prefs:

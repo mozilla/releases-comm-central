@@ -467,7 +467,7 @@ function editEndTimezone() {
     let self = this;
     let args = {};
     args.calendar = window.arguments[0].calendar;
-    args.time = gEndTime.getInTimezone(gEndTimezone);
+    args.time = gEndDate.getInTimezone(gEndTimezone);
     args.onOk = function(datetime) {
         if (gStartTimezone && gEndTimezone &&
             cal.data.compareObjects(gStartTimezone, gEndTimezone)) {

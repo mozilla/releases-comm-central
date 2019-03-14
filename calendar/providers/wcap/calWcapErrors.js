@@ -6,6 +6,8 @@
  *          errorToString
  */
 
+/* import-globals-from calWcapCalendarModule.js */
+
 var NS_ERROR_INVALID_ARG = Cr.NS_ERROR_INVALID_ARG;
 
 //

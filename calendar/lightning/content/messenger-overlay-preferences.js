@@ -4,6 +4,14 @@
 
 /* exported gLightningPane */
 
+/* import-globals-from ../../../mail/components/preferences/preferences.js */
+/* import-globals-from ../../../mail/components/preferences/subdialogs.js */
+/* import-globals-from ../../base/content/calendar-ui-utils.js */
+/* import-globals-from ../../base/content/preferences/alarms.js */
+/* import-globals-from ../../base/content/preferences/categories.js */
+/* import-globals-from ../../base/content/preferences/general.js */
+/* import-globals-from ../../base/content/preferences/views.js */
+
 Preferences.add({ id: "calendar.preferences.lightning.selectedTabIndex", type: "int" });
 
 var gLightningPane = {

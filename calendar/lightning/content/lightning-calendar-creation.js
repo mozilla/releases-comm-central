@@ -4,6 +4,9 @@
 
 /* exported onChangeIdentity */
 
+/* import-globals-from ../../resources/content/calendarCreation.js */
+/* import-globals-from lightning-utils.js */
+
 var common_initCustomizePage = initCustomizePage;
 var common_doCreateCalendar = doCreateCalendar;
 

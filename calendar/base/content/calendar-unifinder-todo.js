@@ -4,6 +4,8 @@
 
 /* exported prepareCalendarToDoUnifinder, finishCalendarToDoUnifinder */
 
+/* import-globals-from calendar-views.js */
+
 /**
  * Called when the window is loaded to set up the unifinder-todo.
  */

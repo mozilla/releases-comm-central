@@ -6,6 +6,8 @@
  *          getIcalUTC, getDatetimeFromIcalProp, getWcapString
  */
 
+/* import-globals-from calWcapCalendarModule.js */
+
 var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 

@@ -2,6 +2,31 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from calItemBase.js */
+/* import-globals-from calCachedCalendar.js */
+/* import-globals-from calAlarm.js */
+/* import-globals-from calAlarmMonitor.js */
+/* import-globals-from calAlarmService.js */
+/* import-globals-from calAttendee.js */
+/* import-globals-from calAttachment.js */
+/* import-globals-from calCalendarManager.js */
+/* import-globals-from calCalendarSearchService.js */
+/* import-globals-from calDateTimeFormatter.js */
+/* import-globals-from calDeletedItems.js */
+/* import-globals-from calEvent.js */
+/* import-globals-from calFreeBusyService.js */
+/* import-globals-from calIcsParser.js */
+/* import-globals-from calIcsSerializer.js */
+/* import-globals-from calItipItem.js */
+/* import-globals-from calProtocolHandler.js */
+/* import-globals-from calRecurrenceDate.js */
+/* import-globals-from calRecurrenceInfo.js */
+/* import-globals-from calRelation.js */
+/* import-globals-from calStartupService.js */
+/* import-globals-from calTransactionManager.js */
+/* import-globals-from calTodo.js */
+/* import-globals-from calWeekInfoService.js */
+
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 

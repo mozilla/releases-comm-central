@@ -4,6 +4,8 @@
 
 /* exported gAlarmsPane */
 
+/* import-globals-from ../../../lightning/content/messenger-overlay-preferences.js */
+
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 Preferences.addAll([

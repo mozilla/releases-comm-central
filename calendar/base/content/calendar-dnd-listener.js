@@ -2,6 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../../mail/base/content/nsDragAndDrop.js */
+/* import-globals-from calendar-item-editing.js */
+/* import-globals-from calendar-management.js */
+/* import-globals-from import-export.js */
+
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
@@ -324,9 +329,11 @@ calDNDBaseObserver.prototype = {
                 }
                 break;
             }
-            case "text/x-moz-message":
+            case "text/x-moz-message": {
+                let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
                 this.onDropMessage(messenger.msgHdrFromURI(data));
                 break;
+            }
             default:
                 cal.ASSERT(false, "unknown data flavour:" + bestFlavor.value+"\n");
                 break;

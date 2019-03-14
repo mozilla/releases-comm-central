@@ -6,6 +6,12 @@
  *          focusSearch, toggleUnifinder
  */
 
+/* import-globals-from ../../../mail/base/content/utilityOverlay.js */
+/* import-globals-from ../../resources/content/mouseoverPreviews.js */
+/* import-globals-from ../src/calFilter.js */
+/* import-globals-from calendar-common-sets.js */
+/* import-globals-from calendar-views.js */
+
 /**
  * U N I F I N D E R
  *

@@ -14,6 +14,8 @@
 /* exported onMouseOverItem, showToolTip, getPreviewForItem,
              getEventStatusString, getToDoStatusString */
 
+/* import-globals-from ../../base/content/calendar-ui-utils.js */
+
 /**
  * PUBLIC: This changes the mouseover preview based on the start and end dates
  * of an occurrence of a (one-time or recurring) calEvent or calToDo.

@@ -2,6 +2,7 @@
 
 module.exports = {
     globals: {
+        __file__: true,
         elementslib: true,
         controller: true,
         mozmill: true,

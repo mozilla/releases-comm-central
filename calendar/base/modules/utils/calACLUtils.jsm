@@ -81,6 +81,6 @@ var calacl = {
     userCanRespondToInvitation: function(aItem) {
         let aclEntry = aItem.aclEntry;
         // TODO check if || is really wanted here
-        return aclUtils.userCanModifyItem(aItem) || aclEntry.userCanRespond;
+        return calacl.userCanModifyItem(aItem) || aclEntry.userCanRespond;
     }
 };

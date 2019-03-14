@@ -8,6 +8,9 @@
  *          tasksToMail, tasksToEvents, toggleCompleted,
  */
 
+/* import-globals-from calendar-common-sets.js */
+/* import-globals-from calendar-dnd-listener.js */
+
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 /**

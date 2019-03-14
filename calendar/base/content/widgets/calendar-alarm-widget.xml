@@ -3,6 +3,8 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
+<!-- globals cal -->
+
 <!DOCTYPE bindings
 [
   <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/global.dtd" > %dtd1;
@@ -281,7 +283,7 @@
           unitList.selectedIndex = selectedIndex;
           unitValue.value = snoozePref;
 
-          updateAccessibleName();
+          this.updateAccessibleName();
       ]]></constructor>
 
       <method name="snoozeAlarm">
@@ -327,6 +329,8 @@
             function unitName(list) {
                 return { 1: "unitMinutes", 60: "unitHours", 1440: "unitDays" }[list.value] || "unitMinutes";
             }
+
+            let { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 
             let pluralString = cal.l10n.getCalString(unitName(unitList));
             let unitPlural = PluralForm.get(unitValue.value, pluralString)

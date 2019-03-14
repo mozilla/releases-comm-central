@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from calWcapCalendarModule.js */
+
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 /**
@@ -73,13 +75,13 @@ calWcapCalendar.prototype = {
     },
     // displayName attribute already part of calIWcapCalendar
     createCalendar: function(name, url, listener) {
-        throw NS_ERROR_NOT_IMPLEMENTED;
+        throw Cr.NS_ERROR_NOT_IMPLEMENTED;
     },
     deleteCalendar: function(calendar, listener) {
-        throw NS_ERROR_NOT_IMPLEMENTED;
+        throw Cr.NS_ERROR_NOT_IMPLEMENTED;
     },
     getCalendar: function(url) {
-        throw NS_ERROR_NOT_IMPLEMENTED;
+        throw Cr.NS_ERROR_NOT_IMPLEMENTED;
     },
 
     // calICalendar:

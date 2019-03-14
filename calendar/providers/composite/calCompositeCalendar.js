@@ -98,12 +98,12 @@ calCompositeCalendar.prototype = {
     get displayName() { return cal.l10n.getCalString("compositeName"); },
 
     createCalendar: function() {
-        throw NS_ERROR_NOT_IMPLEMENTED;
+        throw Cr.NS_ERROR_NOT_IMPLEMENTED;
     },
 
     deleteCalendar: function(calendar, listener) {
         // You shouldn't be able to delete from the composite calendar.
-        throw NS_ERROR_NOT_IMPLEMENTED;
+        throw Cr.NS_ERROR_NOT_IMPLEMENTED;
     },
 
     //

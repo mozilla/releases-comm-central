@@ -6,6 +6,8 @@
  *         removeWidgetFor, onSelectAlarm, ensureCalendarVisible
  */
 
+/* import-globals-from ../calendar-item-editing.js */
+
 var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");

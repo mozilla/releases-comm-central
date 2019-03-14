@@ -209,7 +209,7 @@ var cal = {
      * various properties of the nsIClassInfo implementation.
      */
     generateCI: function(classInfo) {
-        if (QueryInterface in classInfo) {
+        if ("QueryInterface" in classInfo) {
             throw Error("In generateCI, don't use a component for generating classInfo");
         }
         /* Note that Ci[Ci.x] == Ci.x for all x */

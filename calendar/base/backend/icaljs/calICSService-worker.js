@@ -6,9 +6,13 @@
  * ChromeWorker for parseICSAsync method in calICSService.js
  */
 
+/* eslint-env worker */
+/* import-globals-from ../../modules/ical.js */
+
 var NS_OK = 0;
 var NS_ERROR_FAILURE = 2147500037;
 
+// eslint-disable-next-line no-unused-vars
 importScripts("resource://calendar/modules/ical.js");
 
 onmessage = function(event) {

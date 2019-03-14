@@ -25,10 +25,10 @@ function openLocalCalendar() {
         }
         let calMgr = cal.getCalendarManager();
         let calendars = calMgr.getCalendars({});
-        if (calendars.some(x => x.uri == picker.fileURL)) {
+        let calendar = calendars.find(x => x.uri == picker.fileURL);
+        if (calendar) {
             // The calendar already exists, select it and return.
-            document.getElementById("calendar-list-tree-widget")
-                    .tree.view.selection.select(index);
+            document.getElementById("calendar-list-tree-widget").selectCalendarById(calendar.id);
             return;
         }
 
