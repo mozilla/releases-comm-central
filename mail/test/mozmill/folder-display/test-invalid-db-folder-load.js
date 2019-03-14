@@ -47,7 +47,7 @@ function test_load_folder_with_invalidDB() {
   assert_selected_and_displayed(curMessage);
 }
 
-function disabled_test_view_sort_maintained() {
+function test_view_sort_maintained() {
   if (mc.dbView.sortType != nsMsgViewSortType.bySubject)
       throw new Error("view sort type not restored from invalid db");
 }
