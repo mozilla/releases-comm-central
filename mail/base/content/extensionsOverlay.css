@@ -4,7 +4,12 @@
 
 @import url("chrome://messenger/skin/extensionsOverlay.css");
 
-.legacy-warning {
+/* Hide FX specific elements we don't use */
+.legacy-warning,
+#private-browsing-notice,
+#detail-privateBrowsing-row,
+#detail-privateBrowsing-row-footer,
+.privateBrowsing-notice-container {
   display: none;
 }
 
