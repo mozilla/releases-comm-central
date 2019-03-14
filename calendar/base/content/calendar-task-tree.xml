@@ -118,6 +118,7 @@
 
           // set up the custom tree view
           let tree = document.getAnonymousElementByAttribute(this, "anonid", "calendar-task-tree");
+          customElements.upgrade(tree);
           this.mTreeView.tree = tree;
           tree.view = this.mTreeView;
 

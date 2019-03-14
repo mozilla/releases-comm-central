@@ -220,7 +220,6 @@
 
       <field name="mCalendarList">[]</field>
       <field name="mCompositeCalendar">null</field>
-      <field name="tree">null</field>
       <field name="treebox">null</field>
       <field name="ruleCache">null</field>
       <field name="mCachedSheet">null</field>
@@ -230,6 +229,7 @@
       <field name="cycleDebounce">200</field>
 
       <constructor><![CDATA[
+          customElements.upgrade(this.tree);
           this.tree.view = this;
           this.ruleCache = {};
           this.mCycleCalendarFlag = {};
