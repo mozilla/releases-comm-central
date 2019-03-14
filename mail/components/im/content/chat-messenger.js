@@ -1028,7 +1028,7 @@ var chatHandler = {
         label: bundle.getString("buddy.authRequest.deny.label"),
         callback() { aSubject.deny(); },
       };
-      let box = document.getElementById("chatTabPanel");
+      let box = document.getElementById("chatNotificationBox");
       box.appendNotification(label, value, null, box.PRIORITY_INFO_HIGH,
                             [acceptButton, denyButton]);
       if (!gChatTab) {
@@ -1041,9 +1041,8 @@ var chatHandler = {
       aSubject.QueryInterface(Ci.prplIBuddyRequest);
       let value =
         "buddy-auth-request-" + aSubject.account.id + aSubject.userName;
-      let notification =
-        document.getElementById("chatTabPanel")
-                .getNotificationWithValue(value);
+      let box = document.getElementById("chatNotificationBox");
+      let notification = box.getNotificationWithValue(value);
       if (notification)
         notification.close();
     }
