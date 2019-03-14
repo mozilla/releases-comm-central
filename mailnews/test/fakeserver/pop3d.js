@@ -7,10 +7,10 @@
  */
 
 var EXPORTED_SYMBOLS = [
-  'pop3Daemon',
-  'POP3_RFC1939_handler',
-  'POP3_RFC2449_handler',
-  'POP3_RFC5034_handler'
+  "pop3Daemon",
+  "POP3_RFC1939_handler",
+  "POP3_RFC2449_handler",
+  "POP3_RFC5034_handler",
 ];
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -41,16 +41,15 @@ function readFile(fileName) {
   if ("@mozilla.org/windows-registry-key;1" in Cc) {
     // Windows doesn't allow '..' in appendRelativePath,
     // so we'll have to do this the long way.
-    if (fileName.includes('/')) {
-      let parts = fileName.split('/');
+    if (fileName.includes("/")) {
+      let parts = fileName.split("/");
       for (let part of parts) {
         if (part == "..")
           file = file.parent;
         else
           file.append(part);
       }
-    }
-    else {
+    } else {
       file.append("data");
       file.append(fileName);
     }
@@ -82,14 +81,14 @@ pop3Daemon.prototype = {
    *     contents will be loaded from the files or 2) objects with a "fileData"
    *     attribute whose value is the content of the file.
    */
-  setMessages: function(messages) {
+  setMessages(messages) {
     this._messages = [];
     this._totalMessageSize = 0;
 
     function addMessage(element) {
       // if it's a string, then it's a file-name.
       if (typeof element == "string")
-        this._messages.push( { fileData: readFile(element), size: -1 });
+        this._messages.push({ fileData: readFile(element), size: -1 });
       // otherwise it's an object as dictionary already
       else
         this._messages.push(element);
@@ -102,19 +101,16 @@ pop3Daemon.prototype = {
       this._totalMessageSize += this._messages[i].size;
     }
   },
-  getTotalMessages: function() {
+  getTotalMessages() {
     return this._messages.length;
   },
-  getTotalMessageSize: function() {
+  getTotalMessageSize() {
     return this._totalMessageSize;
-  }
+  },
 };
 
-///////////////////////////////////////////////////////////////////////////////
-//                              POP3 TEST SERVERS                            //
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
+// POP3 TEST SERVERS
+// -----------------
 
 var kStateAuthNeeded = 1; // Not authenticated yet, need username and password
 var kStateAuthPASS = 2; // got command USER, expecting command PASS
@@ -136,11 +132,11 @@ POP3_RFC1939_handler.prototype = {
   kUsername: "fred",
   kPassword: "wilma",
 
-  resetTest : function() {
+  resetTest() {
     this._state = kStateAuthNeeded;
   },
 
-  USER: function (args) {
+  USER(args) {
     if (this._state != kStateAuthNeeded)
       return "-ERR invalid state";
 
@@ -151,7 +147,7 @@ POP3_RFC1939_handler.prototype = {
 
     return "-ERR sorry, no such mailbox";
   },
-  PASS: function (args) {
+  PASS(args) {
     if (this._state != kStateAuthPASS)
       return "-ERR invalid state";
 
@@ -165,14 +161,14 @@ POP3_RFC1939_handler.prototype = {
       this.closing = true;
     return "-ERR invalid password";
   },
-  STAT: function (args) {
+  STAT(args) {
     if (this._state != kStateTransaction)
       return "-ERR invalid state";
 
     return "+OK " + this._daemon.getTotalMessages() + " " +
            this._daemon.getTotalMessageSize();
   },
-  LIST: function (args) {
+  LIST(args) {
     if (this._state != kStateTransaction)
       return "-ERR invalid state";
 
@@ -183,7 +179,7 @@ POP3_RFC1939_handler.prototype = {
     result += ".";
     return result;
   },
-  UIDL: function (args) {
+  UIDL(args) {
     if (this._state != kStateTransaction)
       return "-ERR invalid state";
     let result = "+OK\r\n";
@@ -193,7 +189,7 @@ POP3_RFC1939_handler.prototype = {
     result += ".";
     return result;
   },
-  RETR: function (args) {
+  RETR(args) {
     if (this._state != kStateTransaction)
       return "-ERR invalid state";
 
@@ -202,43 +198,43 @@ POP3_RFC1939_handler.prototype = {
     result += ".";
     return result;
   },
-  DELE: function (args) {
+  DELE(args) {
     if (this._state != kStateTransaction)
       return "-ERR invalid state";
     return "+OK";
   },
-  NOOP: function (args) {
+  NOOP(args) {
     if (this._state != kStateTransaction)
       return "-ERR invalid state";
     return "+OK";
   },
-  RSET: function (args) {
+  RSET(args) {
     if (this._state != kStateTransaction)
       return "-ERR invalid state";
     this._state = kStateAuthNeeded;
     return "+OK";
   },
-  QUIT: function (args) {
+  QUIT(args) {
     // Let the client close the socket
-    //this.closing = true;
+    // this.closing = true;
     return "+OK fakeserver signing off";
   },
-  onStartup: function () {
+  onStartup() {
     this.closing = false;
     this._state = kStateAuthNeeded;
     return "+OK Fake POP3 server ready";
   },
-  onError: function (command, args) {
+  onError(command, args) {
     return "-ERR command " + command + " not implemented";
   },
-  onServerFault: function (e) {
+  onServerFault(e) {
     return "-ERR internal server error: " + e;
   },
-  postCommand: function(reader) {
+  postCommand(reader) {
     reader.setMultiline(this._multiline);
     if (this.closing)
       reader.closeSocket();
-  }
+  },
 };
 
 
@@ -252,17 +248,17 @@ function POP3_RFC2449_handler(daemon) {
   POP3_RFC1939_handler.call(this, daemon);
 }
 POP3_RFC2449_handler.prototype = {
-  __proto__ : POP3_RFC1939_handler.prototype, // inherit
+  __proto__: POP3_RFC1939_handler.prototype, // inherit
 
   kCapabilities: ["UIDL"], // the test may adapt this as necessary
 
-  CAPA: function (args) {
+  CAPA(args) {
     var capa = "+OK List of our wanna-be capabilities follows:\r\n";
     for (var i = 0; i < this.kCapabilities.length; i++)
       capa += this.kCapabilities[i] + "\r\n";
     if (this.capaAdditions)
       capa += this.capaAdditions();
-    capa += "IMPLEMENTATION fakeserver\r\n" + ".";
+    capa += "IMPLEMENTATION fakeserver\r\n.";
     return capa;
   },
 };
@@ -276,20 +272,21 @@ POP3_RFC2449_handler.prototype = {
 function POP3_RFC5034_handler(daemon) {
   POP3_RFC2449_handler.call(this, daemon);
 
-  this._kAuthSchemeStartFunction = {};
-  this._kAuthSchemeStartFunction["CRAM-MD5"] = this.authCRAMStart;
-  this._kAuthSchemeStartFunction["PLAIN"] = this.authPLAINStart;
-  this._kAuthSchemeStartFunction["LOGIN"] = this.authLOGINStart;
+  this._kAuthSchemeStartFunction = {
+    "CRAM-MD5": this.authCRAMStart,
+    "PLAIN": this.authPLAINStart,
+    "LOGIN": this.authLOGINStart,
+  };
 }
 POP3_RFC5034_handler.prototype = {
-  __proto__ : POP3_RFC2449_handler.prototype, // inherit
+  __proto__: POP3_RFC2449_handler.prototype, // inherit
 
   kAuthSchemes: [ "CRAM-MD5", "PLAIN", "LOGIN" ], // the test may adapt this as necessary
 
-  _usedCRAMMD5Challenge : null, // not base64-encoded
+  _usedCRAMMD5Challenge: null, // not base64-encoded
 
   // called by this.CAPA()
-  capaAdditions : function() {
+  capaAdditions() {
     var capa = "";
     if (this.kAuthSchemes.length > 0) {
       capa += "SASL";
@@ -299,7 +296,7 @@ POP3_RFC5034_handler.prototype = {
     }
     return capa;
   },
-  AUTH: function (lineRest) {
+  AUTH(lineRest) {
     // |lineRest| is a string containing the rest of line after "AUTH "
     if (this._state != kStateAuthNeeded)
       return "-ERR invalid state";
@@ -316,7 +313,7 @@ POP3_RFC5034_handler.prototype = {
     var args = lineRest.split(" ");
     var scheme = args[0].toUpperCase();
     // |scheme| contained in |kAuthSchemes|?
-    if (!this.kAuthSchemes.some(function (s) { return s == scheme; }))
+    if (!this.kAuthSchemes.some(function(s) { return s == scheme; }))
       return "-ERR AUTH " + scheme + " not supported";
 
     var func = this._kAuthSchemeStartFunction[scheme];
@@ -325,7 +322,7 @@ POP3_RFC5034_handler.prototype = {
     return func.call(this, "1" in args ? args[1] : undefined);
   },
 
-  onMultiline: function(line) {
+  onMultiline(line) {
     if (this._nextAuthFunction) {
       var func = this._nextAuthFunction;
       this._multiline = false;
@@ -347,38 +344,32 @@ POP3_RFC5034_handler.prototype = {
   },
 
 
-  authPLAINStart : function (lineRest)
-  {
+  authPLAINStart(lineRest) {
     this._nextAuthFunction = this.authPLAINCred;
     this._multiline = true;
 
     return "+";
   },
-  authPLAINCred : function (line)
-  {
+  authPLAINCred(line) {
     var req = AuthPLAIN.decodeLine(line);
     if (req.username == this.kUsername &&
         req.password == this.kPassword) {
       this._state = kStateTransaction;
       return "+OK Hello friend! Friends give friends good advice: Next time, use CRAM-MD5";
     }
-    else {
-      if (this.dropOnAuthFailure)
-        this.closing = true;
-      return "-ERR Wrong username or password, crook!";
-    }
+    if (this.dropOnAuthFailure)
+      this.closing = true;
+    return "-ERR Wrong username or password, crook!";
   },
 
-  authCRAMStart : function (lineRest)
-  {
+  authCRAMStart(lineRest) {
     this._nextAuthFunction = this.authCRAMDigest;
     this._multiline = true;
 
     this._usedCRAMMD5Challenge = AuthCRAM.createChallenge("localhost");
     return "+ " + this._usedCRAMMD5Challenge;
   },
-  authCRAMDigest : function (line)
-  {
+  authCRAMDigest(line) {
     var req = AuthCRAM.decodeLine(line);
     var expectedDigest = AuthCRAM.encodeCRAMMD5(
         this._usedCRAMMD5Challenge, this.kPassword);
@@ -387,22 +378,18 @@ POP3_RFC5034_handler.prototype = {
       this._state = kStateTransaction;
       return "+OK Hello friend!";
     }
-    else {
       if (this.dropOnAuthFailure)
         this.closing = true;
       return "-ERR Wrong username or password, crook!";
-    }
   },
 
-  authLOGINStart : function (lineRest)
-  {
+  authLOGINStart(lineRest) {
     this._nextAuthFunction = this.authLOGINUsername;
     this._multiline = true;
 
     return "+ " + btoa("Username:");
   },
-  authLOGINUsername : function (line)
-  {
+  authLOGINUsername(line) {
     var req = AuthLOGIN.decodeLine(line);
     if (req == this.kUsername)
       this._nextAuthFunction = this.authLOGINPassword;
@@ -411,23 +398,19 @@ POP3_RFC5034_handler.prototype = {
     this._multiline = true;
     return "+ " + btoa("Password:");
   },
-  authLOGINBadUsername : function (line)
-  {
+  authLOGINBadUsername(line) {
     if (this.dropOnAuthFailure)
       this.closing = true;
     return "-ERR Wrong username or password, crook!";
   },
-  authLOGINPassword : function (line)
-  {
+  authLOGINPassword(line) {
     var req = AuthLOGIN.decodeLine(line);
     if (req == this.kPassword) {
       this._state = kStateTransaction;
       return "+OK Hello friend! Where did you pull out this old auth scheme?";
     }
-    else {
       if (this.dropOnAuthFailure)
         this.closing = true;
       return "-ERR Wrong username or password, crook!";
-    }
   },
 };

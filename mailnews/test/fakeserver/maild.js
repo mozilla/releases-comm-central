@@ -9,9 +9,9 @@
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var EXPORTED_SYMBOLS = [
-  'nsMailServer',
-  'gThreadManager', // TODO: kill this export
-  'fsDebugNone', 'fsDebugAll', 'fsDebugRecv', 'fsDebugRecvSend'
+  "nsMailServer",
+  "gThreadManager", // TODO: kill this export
+  "fsDebugNone", "fsDebugAll", "fsDebugRecv", "fsDebugRecvSend",
 ];
 
 var CC = Components.Constructor;
@@ -40,9 +40,9 @@ var BinaryInputStream = CC("@mozilla.org/binaryinputstream;1",
                              "setInputStream");
 
 // Time out after 3 minutes
-var TIMEOUT = 3*60*1000;
+var TIMEOUT = 3 * 60 * 1000;
 
-/******************************************************************************
+/**
  * The main server handling class. A fake server consists of three parts, this
  * server implementation (which handles the network communication), the handler
  * (which handles the state for a connection), and the daemon (which handles
@@ -56,8 +56,8 @@ var TIMEOUT = 3*60*1000;
  * the calls to the daemon will be made on the same thread, so you do not have
  * to worry about reentrancy in daemon calls.
  *
- ******************************************************************************
  * Typical usage:
+ *
  * function createHandler(daemon) {
  *   return new handler(daemon);
  * }
@@ -84,7 +84,7 @@ var TIMEOUT = 3*60*1000;
  *   thread.processNextEvent(true);
  *
  * do_test_finished();
- *****************************************************************************/
+ */
 function nsMailServer(handlerCreator, daemon) {
   this._debug = fsDebugNone;
 
@@ -120,9 +120,9 @@ function nsMailServer(handlerCreator, daemon) {
   this._inputStreams = [];
 }
 nsMailServer.prototype = {
-  onSocketAccepted : function (socket, trans) {
+  onSocketAccepted(socket, trans) {
     if (this._debug != fsDebugNone)
-      dump("Received Connection from " + trans.host + ":" + trans.port + '\n');
+      dump("Received Connection from " + trans.host + ":" + trans.port + "\n");
 
     const SEGMENT_SIZE = 1024;
     const SEGMENT_COUNT = 1024;
@@ -142,9 +142,9 @@ nsMailServer.prototype = {
     this._test = true;
   },
 
-  onStopListening : function (socket, status) {
+  onStopListening(socket, status) {
     if (this._debug != fsDebugNone)
-      dump("Connection Lost " + status + '\n');
+      dump("Connection Lost " + status + "\n");
 
     this._socketClosed = true;
     // We've been killed or we've stopped, reset the handler to the original
@@ -155,13 +155,13 @@ nsMailServer.prototype = {
     }
   },
 
-  setDebugLevel : function (debug) {
+  setDebugLevel(debug) {
     this._debug = debug;
     for (var i = 0; i < this._readers.length; i++)
       this._readers[i].setDebugLevel(debug);
   },
 
-  start : function (port=-1) {
+  start(port = -1) {
     if (this._socket)
       throw Cr.NS_ERROR_ALREADY_INITIALIZED;
 
@@ -177,7 +177,7 @@ nsMailServer.prototype = {
     this._socket = socket;
   },
 
-  stop : function () {
+  stop() {
     if (!this._socket)
       return;
 
@@ -187,7 +187,7 @@ nsMailServer.prototype = {
     for (let reader of this._readers)
       reader._realCloseSocket();
 
-    if (this._readers.some(function (e) { return e.observer.forced }))
+    if (this._readers.some(e => e.observer.forced))
       return;
 
     // spin an event loop and wait for the socket-close notification
@@ -196,7 +196,7 @@ nsMailServer.prototype = {
       // Don't wait for the next event, just in case there isn't one.
       thr.processNextEvent(false);
   },
-  stopTest : function () {
+  stopTest() {
     this._test = false;
   },
 
@@ -222,14 +222,14 @@ nsMailServer.prototype = {
    * serving any requests still to be processed when the server was last
    * stopped after being run).
    */
-  isStopped : function () {
+  isStopped() {
     return this._socketClosed;
   },
 
   /**
    * Runs the test. It will not exit until the test has finished.
    */
-  performTest : function (watchWord) {
+  performTest(watchWord) {
     this._watchWord = watchWord;
 
     let thread = Services.tm.currentThread;
@@ -240,7 +240,7 @@ nsMailServer.prototype = {
   /**
    * Returns true if the current processing test has finished.
    */
-  isTestFinished : function() {
+  isTestFinished() {
     return this._readers.length > 0 && !this._test;
   },
 
@@ -249,26 +249,25 @@ nsMailServer.prototype = {
    * The return is an object with two variables (us and them), both of which
    * are arrays returning the commands given by each server.
    */
-  playTransaction : function() {
-    if (this._readers.some(function (e) { return e.observer.forced; }))
+  playTransaction() {
+    if (this._readers.some(e => e.observer.forced))
       throw "Server timed out!";
     if (this._readers.length == 1)
       return this._readers[0].transaction;
-    else
-      return this._readers.map(function (e) { return e.transaction; });
+    return this._readers.map(e => e.transaction);
   },
 
   /**
    * Prepares for the next test.
    */
-  resetTest : function() {
-    this._readers = this._readers.filter(function (reader) {
+  resetTest() {
+    this._readers = this._readers.filter(function(reader) {
       return reader._isRunning;
     });
     this._test = true;
     for (var i = 0; i < this._readers.length; i++)
       this._readers[i]._handler.resetTest();
-  }
+  },
 };
 
 function readTo(input, count, arr) {
@@ -276,7 +275,7 @@ function readTo(input, count, arr) {
   Array.prototype.push.apply(arr, old);
 }
 
-/******************************************************************************
+/**
  * The nsMailReader service, which reads and handles the lines.
  * All specific handling is passed off to the handler, which is responsible
  * for maintaining its own state. The following commands are required for the
@@ -301,7 +300,7 @@ function readTo(input, count, arr) {
  * This object has the following supplemental functions for use by handlers:
  * closeSocket  Performs a server-side socket closing
  * setMultiline Sets the multiline mode based on the argument
- *****************************************************************************/
+ */
 function nsMailReader(server, handler, transport, debug, logTransaction) {
   this._debug = debug;
   this._server = server;
@@ -315,14 +314,14 @@ function nsMailReader(server, handler, transport, debug, logTransaction) {
   var output = transport.openOutputStream(Ci.nsITransport.OPEN_BLOCKING, 1024, 4096);
   this._output = output;
   if (logTransaction)
-    this.transaction = { us : [], them : [] };
+    this.transaction = { us: [], them: [] };
   else
     this.transaction = null;
 
   // Send response line
   var response = this._handler.onStartup();
-  response = response.replace(/([^\r])\n/g,"$1\r\n");
-  if (!response.endsWith('\n'))
+  response = response.replace(/([^\r])\n/g, "$1\r\n");
+  if (!response.endsWith("\n"))
     response = response + "\r\n";
   if (this.transaction)
     this.transaction.us.push(response);
@@ -334,9 +333,9 @@ function nsMailReader(server, handler, transport, debug, logTransaction) {
   this._isRunning = true;
 
   this.observer = {
-    server : server,
-    forced : false,
-    notify : function (timer) {
+    server,
+    forced: false,
+    notify(timer) {
       this.forced = true;
       this.server.stopTest();
       this.server.stop();
@@ -349,7 +348,7 @@ function nsMailReader(server, handler, transport, debug, logTransaction) {
                               Ci.nsITimer.TYPE_ONE_SHOT);
 }
 nsMailReader.prototype = {
-  _findLines : function () {
+  _findLines() {
     var buf = this._buffer;
     for (var crlfLoc = buf.indexOf(13); crlfLoc >= 0;
         crlfLoc = buf.indexOf(13, crlfLoc + 1)) {
@@ -366,7 +365,7 @@ nsMailReader.prototype = {
     this._findLines();
   },
 
-  onInputStreamReady : function (stream) {
+  onInputStreamReady(stream) {
     if (this.observer.forced)
       return;
 
@@ -386,10 +385,11 @@ nsMailReader.prototype = {
       var line = this._lines.shift();
 
       if (this._debug != fsDebugNone)
-        dump("RECV: " + line + '\n');
+        dump("RECV: " + line + "\n");
 
       var response;
       try {
+        let command;
         if (this._multiline) {
           response = this._handler.onMultiline(line);
 
@@ -402,14 +402,14 @@ nsMailReader.prototype = {
 
           // Find the command and splice it out...
           var splitter = line.indexOf(" ");
-          var command = splitter == -1 ? line : line.substring(0,splitter);
-          var args = splitter == -1 ? "" : line.substring(splitter+1);
+          command = splitter == -1 ? line : line.substring(0, splitter);
+          let args = splitter == -1 ? "" : line.substring(splitter + 1);
 
           // By convention, commands are uppercase
           command = command.toUpperCase();
 
           if (this._debug == fsDebugAll)
-            dump("Received command " + command + '\n');
+            dump("Received command " + command + "\n");
 
           if (command in this._handler)
             response = this._handler[command](args);
@@ -425,26 +425,25 @@ nsMailReader.prototype = {
       } catch (e) {
         response = this._handler.onServerFault(e);
         if (e instanceof Error) {
-          dump(e.name + ": " + e.message + '\n');
-          dump("File: " + e.fileName + " Line: " + e.lineNumber + '\n');
-          dump('Stack trace:\n' + e.stack);
+          dump(e.name + ": " + e.message + "\n");
+          dump("File: " + e.fileName + " Line: " + e.lineNumber + "\n");
+          dump("Stack trace:\n" + e.stack);
         } else {
-          dump("Exception caught: " + e + '\n');
+          dump("Exception caught: " + e + "\n");
         }
       }
 
       if (!this._preventLFMunge)
-        response = response.replace(/([^\r])\n/g,"$1\r\n");
+        response = response.replace(/([^\r])\n/g, "$1\r\n");
 
-      if (!response.endsWith('\n'))
+      if (!response.endsWith("\n"))
        response = response + "\r\n";
 
       if (this._debug == fsDebugRecvSend) {
-        dump("SEND: " + response.split(" ", 1)[0] + '\n');
-      }
-      else if (this._debug == fsDebugAll) {
+        dump("SEND: " + response.split(" ", 1)[0] + "\n");
+      } else if (this._debug == fsDebugAll) {
         var responses = response.split("\n");
-        responses.forEach(function (line) { dump("SEND: " + line + '\n'); });
+        responses.forEach(function(line) { dump("SEND: " + line + "\n"); });
       }
 
       if (this.transaction)
@@ -453,13 +452,11 @@ nsMailReader.prototype = {
       try {
         this._output.write(response, response.length);
         this._output.flush();
-      }
-      catch (ex) {
+      } catch (ex) {
         if (ex.result == Cr.NS_BASE_STREAM_CLOSED) {
           dump("Stream closed whilst sending, this may be expected\n");
           this._realCloseSocket();
-        }
-        else {
+        } else {
           // Some other issue, let the test see it.
           throw ex;
         }
@@ -478,33 +475,33 @@ nsMailReader.prototype = {
     }
   },
 
-  closeSocket : function () {
+  closeSocket() {
     this._signalStop = true;
   },
-  _realCloseSocket : function () {
+  _realCloseSocket() {
     this._isRunning = false;
     this._output.close();
     this._transport.close(Cr.NS_OK);
     this._server.stopTest();
   },
 
-  setMultiline : function (multi) {
+  setMultiline(multi) {
     this._multiline = multi;
   },
 
-  setDebugLevel : function (debug) {
+  setDebugLevel(debug) {
     this._debug = debug;
   },
 
-  preventLFMunge : function () {
+  preventLFMunge() {
     this._preventLFMunge = true;
   },
 
-  get watchWord () {
+  get watchWord() {
     return this._server._watchWord;
   },
 
-  stopTest : function () {
+  stopTest() {
     this._server.stopTest();
   },
 
