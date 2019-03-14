@@ -88,7 +88,7 @@ function _verify_message_is_displayed_in(aFlags, aMessage, aIndex) {
   }
 }
 
-function disabled_test_create_virtual_folders() {
+function test_create_virtual_folders() {
   be_in_folder(baseFolder);
 
   // Apply the mail view
@@ -133,7 +133,7 @@ function _open_first_message() {
 }
 
 
-function disabled_test_open_first_message_in_virtual_folder() {
+function test_open_first_message_in_virtual_folder() {
   folder = baseFolder.getChildNamed(baseFolder.prettyName + "-Important");
   if (!folder)
     throw new Error("DeletionFromVirtualFoldersA-Important was not created!");
@@ -220,7 +220,7 @@ function disabled_test_delete_last_message_from_virtual_folder_closes_message_di
 /**
  * Open the first message in the smart inbox.
  */
-function disabled_test_open_first_message_in_smart_inbox() {
+function test_open_first_message_in_smart_inbox() {
   // Switch to smart folders
   mc.folderTreeView.mode = "smart";
   // Select the smart inbox
@@ -310,6 +310,6 @@ function disabled_test_delete_last_message_from_smart_inbox_closes_message_displ
 /**
  * Switch back to the all folders mode for further tests.
  */
-function disabled_test_switch_back_to_all_folders_mode() {
+function test_switch_back_to_all_folders_mode() {
   mc.folderTreeView.mode = "all";
 }

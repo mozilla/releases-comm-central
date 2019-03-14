@@ -135,7 +135,7 @@ function disabled_test_close_multiple_message_windows_on_delete_from_3pane_windo
  * Delete a message and check that the message tab is closed
  * where appropriate.
  */
-function disabled_test_close_message_tab_on_delete_from_message_tab() {
+function test_close_message_tab_on_delete_from_message_tab() {
   set_close_message_on_delete(true);
   be_in_folder(folder);
 

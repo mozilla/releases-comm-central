@@ -140,7 +140,7 @@ function _verify_message_is_displayed_in(aFlags, aMessage, aIndex) {
  * simplifying our lives (but making us explode forevermore the first time any
  * of the tests fail.)
  */
-function disabled_test_open_first_message_in_all_four_display_mechanisms() {
+function test_open_first_message_in_all_four_display_mechanisms() {
   _open_message_in_all_four_display_mechanisms_helper(folder, 0);
 }
 
@@ -233,7 +233,7 @@ function disabled_test_delete_last_message_closes_message_displays() {
  * simplifying our lives (but making us explode forevermore the first time any
  * of the tests fail.)
  */
-function disabled_test_open_last_message_in_all_four_display_mechanisms() {
+function test_open_last_message_in_all_four_display_mechanisms() {
   // since we have four messages, index 3 is the last message.
   _open_message_in_all_four_display_mechanisms_helper(lastMessageFolder, 3);
 }
@@ -387,7 +387,7 @@ function disabled_test_delete_one_before_message_in_message_window() {
 /**
  * Test "one after" deletion in the folder tab.
  */
-function disabled_test_delete_one_after_message_in_folder_tab() {
+function test_delete_one_after_message_in_folder_tab() {
   // Open up message 4 in message tabs and a window (we'll delete message 5).
   _open_message_in_all_four_display_mechanisms_helper(oneAfterFolder, 4);
 
@@ -438,7 +438,7 @@ function disabled_test_delete_one_after_message_in_message_tab() {
 /**
  * Test "one after" deletion in the message window.
  */
-function disabled_test_delete_one_after_message_in_message_window() {
+function test_delete_one_after_message_in_message_window() {
   // Open up 5 in a message window, then select and open up 4 in a background
   // and a foreground tab.
   select_click_row(5);
