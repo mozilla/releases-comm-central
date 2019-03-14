@@ -89,7 +89,6 @@ function testSmokeTest() {
     controller.doubleClick(calendarList, 0, calendarList.getNode().boxObject.height);
     wait_for_modal_dialog("Calendar:NewCalendarWizard", TIMEOUT_MODAL_DIALOG);
 }
-testSmokeTest.EXCLUDED_PLATFORMS = ["winnt", "darwin"];  // See bug 1533663.
 
 function teardownTest(module) {
     deleteCalendars(controller, CALENDARNAME);
