@@ -54,7 +54,7 @@
 class nsIMAPMessagePartIDArray;
 class nsIPrefBranch;
 
-#define kDownLoadCacheSize 16000 // was 1536 - try making it bigger
+#define kDownLoadCacheSize 16000u // was 1536 - try making it bigger
 
 
 typedef struct _msg_line_info {

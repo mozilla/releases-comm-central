@@ -269,7 +269,7 @@ nsMsgLineStreamBuffer::~nsMsgLineStreamBuffer()
   PR_FREEIF(m_dataBuffer); // release our buffer...
 }
 
-nsresult nsMsgLineStreamBuffer::GrowBuffer(int32_t desiredSize)
+nsresult nsMsgLineStreamBuffer::GrowBuffer(uint32_t desiredSize)
 {
   char* newBuffer = (char *) PR_REALLOC(m_dataBuffer, desiredSize);
   NS_ENSURE_TRUE(newBuffer, NS_ERROR_OUT_OF_MEMORY);

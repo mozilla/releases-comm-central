@@ -223,7 +223,10 @@ uint32_t nsMsgImapLineDownloadCache::CurrentUID()
 
 uint32_t nsMsgImapLineDownloadCache::SpaceAvailable()
 {
-    return kDownLoadCacheSize - m_bufferPos;
+  MOZ_ASSERT(kDownLoadCacheSize >= m_bufferPos);
+  if (kDownLoadCacheSize <= m_bufferPos)
+    return 0;
+  return kDownLoadCacheSize - m_bufferPos;
 }
 
 msg_line_info *nsMsgImapLineDownloadCache::GetCurrentLineInfo()

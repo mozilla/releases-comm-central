@@ -91,7 +91,7 @@ public:
   // aNumBytesInLine -- The number of bytes in the line returned
   // aPauseForMoreData -- There is not enough data in the stream to make a line at this time...
   char * ReadNextLine(nsIInputStream * aInputStream, uint32_t &anumBytesInLine, bool &aPauseForMoreData, nsresult *rv = nullptr, bool addLineTerminator = false);
-  nsresult GrowBuffer(int32_t desiredSize);
+  nsresult GrowBuffer(uint32_t desiredSize);
   void ClearBuffer();
   bool NextLineAvailable();
 private:
