@@ -12,7 +12,6 @@ EXTRA_JS_MODULES += [
     'MailConsts.jsm',
     'MailInstrumentation.jsm',
     'MailMigrator.jsm',
-    'MailUtils.js',
     'MailUtils.jsm',
     'MailViewManager.jsm',
     'MsgHdrSyntheticView.jsm',

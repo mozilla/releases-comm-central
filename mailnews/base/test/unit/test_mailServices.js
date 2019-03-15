@@ -31,12 +31,6 @@ function check_services() {
   check_service("junk", Ci.nsIJunkMailPlugin);
 }
 
-function check_shim() {
-  let { MailServices: oldMailServices } = ChromeUtils.import("resource:///modules/mailServices.js");
-  Assert.equal(oldMailServices, MailServices);
-}
-
 function run_test() {
   check_services();
-  check_shim();
 }
