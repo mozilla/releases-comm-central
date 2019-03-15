@@ -357,9 +357,9 @@
              control="item-description" class="header"/>
       <separator class="groove" flex="1"/>
     </hbox>
-    <box orient="horizontal" flex="1">
+    <hbox id="item-description-wrapper" flex="1">
       <html:textarea id="item-description" rows="6" flex="1"/>
-    </box>
+    </hbox>
   </box>
 
   <!-- URL link -->

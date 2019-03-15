@@ -229,7 +229,7 @@
               </rows>
             </grid>
           </hbox>
-          <hbox flex="1">
+          <hbox id="calendar-task-details-description-wrapper" flex="1">
             <html:textarea id="calendar-task-details-description"/>
           </hbox>
           <hbox id="calendar-task-details-attachment-row"

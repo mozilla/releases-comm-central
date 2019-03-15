@@ -586,9 +586,7 @@
                    flex="1">
           <tabpanel id="event-grid-tabpanel-description">
             <html:textarea id="item-description"
-                           disable-on-readonly="true"
-                           flex="1"
-                           rows="12"/>
+                           disable-on-readonly="true"/>
           </tabpanel>
           <tabpanel id="event-grid-tabpanel-attachments">
             <vbox flex="1">

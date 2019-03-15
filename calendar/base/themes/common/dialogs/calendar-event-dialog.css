@@ -165,6 +165,16 @@ label.label {
     padding: 0px 9px;
 }
 
+#event-grid-tabpanel-description {
+    display: flex;
+}
+
+#event-grid-tabpanel-description > #item-description {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 7em;
+}
+
 /*--------------------------------------------------------------------
  *   Event dialog keep duration button
  *-------------------------------------------------------------------*/
@@ -649,9 +659,17 @@ freebusy-day > box {
     margin-left: 3px;
 }
 
+#calendar-summary-dialog #item-description-wrapper,
+#calendar-event-summary-dialog #item-description-wrapper,
+#calendar-task-summary-dialog #item-description-wrapper {
+    display: flex;
+}
+
 #calendar-summary-dialog #item-description,
 #calendar-event-summary-dialog #item-description,
 #calendar-task-summary-dialog #item-description {
+    width: 100%;
+    box-sizing: border-box;
     min-height: 54px;
 }
 

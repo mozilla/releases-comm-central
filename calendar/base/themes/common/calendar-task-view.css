@@ -45,10 +45,13 @@
     border-color: var(--sidebar-border-color, rgba(249,249,250,.2));
 }
 
+#calendar-task-details-description-wrapper {
+    display: flex;
+}
+
 #calendar-task-details-description {
-    -moz-appearance: textfield;
-    border: 1px solid;
-    margin: 0;
+    width: 100%;
+    box-sizing: border-box;
     font-family: serif;
     font-size: 16px;
 }
