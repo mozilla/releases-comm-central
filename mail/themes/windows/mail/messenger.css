@@ -585,7 +585,7 @@ button[type="menu-button"] > button {
   height: 11px;
 }
 
-.notification-button {
+button.notification-button {
   margin-bottom: 1px;
 }
 
