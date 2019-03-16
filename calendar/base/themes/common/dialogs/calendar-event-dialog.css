@@ -173,6 +173,11 @@ label.label {
     width: 100%;
     box-sizing: border-box;
     min-height: 7em;
+    margin: 2px 4px;
+}
+
+#event-grid-tabpanel-attendees > vbox > hbox > #item-attendees-box {
+    margin: 2px 4px;
 }
 
 /*--------------------------------------------------------------------
