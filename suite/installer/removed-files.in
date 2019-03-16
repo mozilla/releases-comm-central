@@ -518,7 +518,6 @@ Throbber-small.gif
 #endif
 #ifndef MOZ_UPDATER
   @DIR_MACOS@update-settings.ini
-  @DIR_MACOS@update.locale
   #ifdef XP_MACOSX
     @DIR_MACOS@updater.app/
   #else
@@ -526,6 +525,7 @@ Throbber-small.gif
   #endif
   @DIR_MACOS@updater.ini
 #endif
+@DIR_MACOS@update.locale
 @DIR_MACOS@@DLL_PREFIX@xpcom@DLL_SUFFIX@
 @DIR_MACOS@@DLL_PREFIX@xpcom_core@DLL_SUFFIX@
 @DIR_MACOS@xpicleanup@BIN_SUFFIX@
@@ -1023,9 +1023,6 @@ Throbber-small.gif
 @DIR_MACOS@res/dtd/xhtml11.dtd
 @DIR_MACOS@res/html/
 @DIR_MACOS@res/html/folder.png
-#ifdef MOZ_UPDATER
-  @DIR_MACOS@update.locale
-#endif
 
 ; pre-libxul static mail library
 @DIR_MACOS@components/@DLL_PREFIX@mail@DLL_SUFFIX@
