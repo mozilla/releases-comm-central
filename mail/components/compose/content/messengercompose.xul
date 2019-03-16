@@ -9,8 +9,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/attachmentList.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/smime/smime-compose.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/compacttheme.css" type="text/css" alternate="yes" title="Light/Dark"?>
-
-<?xml-stylesheet href="chrome://messenger/content/menulist.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/menulist.css" type="text/css"?>
 
 <!DOCTYPE window [
   <!ENTITY % messengercomposeDTD SYSTEM "chrome://messenger/locale/messengercompose/messengercompose.dtd" >

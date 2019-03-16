@@ -5,7 +5,9 @@
 /*--------------------------------------------------------------------
  *   Datepicker (text field with minimonth popup)
  *-------------------------------------------------------------------*/
- 
+
+@import url("chrome://messenger/skin/menulist.css");
+
 /* menulist */
 datepicker > menulist {
   width: 11em;

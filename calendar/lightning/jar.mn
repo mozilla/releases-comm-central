@@ -105,8 +105,6 @@ lightning.jar:
 calendar.jar:
     content/calendar/calendarCreation.xul                  (../resources/content/calendarCreation.xul)
     content/calendar/calendarCreation.js                   (../resources/content/calendarCreation.js)
-    content/calendar/datetimepickers/datetimepickers.css   (../resources/content/datetimepickers/datetimepickers.css)
-    content/calendar/datetimepickers/datetimepickers.xml   (../resources/content/datetimepickers/datetimepickers.xml)
     content/calendar/datetimepickers/datetimepickers.js    (../resources/content/datetimepickers/datetimepickers.js)
     content/calendar/mouseoverPreviews.js                  (../resources/content/mouseoverPreviews.js)
     content/calendar/publish.js                            (../resources/content/publish.js)

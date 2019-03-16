@@ -2,9 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import url("chrome://messenger/skin/menulist.css");
-
-@namespace html url("http://www.w3.org/1999/xhtml"); /* namespace for HTML elements */
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+@namespace html url("http://www.w3.org/1999/xhtml");
 
 menulist[is="menulist-editable"]:not([editable="true"]) .menulist-input,
 menulist[is="menulist-editable"][editable="true"] .menulist-label-box {

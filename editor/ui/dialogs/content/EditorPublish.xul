@@ -6,7 +6,7 @@
 
 <?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/content/menulist.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/menulist.css" type="text/css"?>
 
 <?xul-overlay href="chrome://editor/content/EditorPublishOverlay.xul"?>
 

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/css" href="chrome://global/skin/global.css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/content/bindings.css"?>
-<?xml-stylesheet type="text/css" href="chrome://messenger/content/menulist.css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/menulist.css"?>
 
 <page align="start" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
   <script type="application/javascript" src="chrome://messenger/content/customElements.js"/>
