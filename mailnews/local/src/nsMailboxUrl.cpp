@@ -22,6 +22,7 @@
 #include "nsIMsgMailSession.h"
 #include "nsNetUtil.h"
 #include "nsIFileURL.h"
+#include "nsIStandardURL.h"
 
 // this is totally lame and MUST be removed by M6
 // the real fix is to attach the URI to the URL as it runs through netlib
@@ -165,6 +166,30 @@ NS_IMETHODIMP nsMailboxUrl::GetNormalizedSpec(nsACString& aPrincipalSpec)
   }
 
   aPrincipalSpec.Assign(spec);
+  return NS_OK;
+}
+
+nsresult nsMailboxUrl::CreateURL(const nsACString& aSpec, nsIURL **aURL)
+{
+  nsresult rv;
+  nsCOMPtr<nsIURL> url;
+  // Check whether the URL is of the form
+  // mailbox://user@domain@server/folder?number=nn and contains a hostname.
+  // Check for format lacking absolute path.
+  if (PromiseFlatCString(aSpec).Find("///") == kNotFound) {
+    rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID).SetSpec(aSpec).Finalize(url);
+    NS_ENSURE_SUCCESS(rv, rv);
+  } else {
+    // The URL is more like a file URL without a hostname.
+    rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
+      .Apply(NS_MutatorMethod(&nsIStandardURLMutator::Init,
+                              nsIStandardURL::URLTYPE_NO_AUTHORITY, -1,
+                              PromiseFlatCString(aSpec),
+                              nullptr, nullptr, nullptr))
+      .Finalize(url);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+  url.forget(aURL);
   return NS_OK;
 }
 

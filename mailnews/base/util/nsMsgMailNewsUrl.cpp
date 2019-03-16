@@ -460,6 +460,15 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetSpec(nsACString &aSpec)
   return m_baseURL->GetSpec(aSpec);
 }
 
+nsresult nsMsgMailNewsUrl::CreateURL(const nsACString& aSpec, nsIURL **aURL)
+{
+  nsCOMPtr<nsIURL> url;
+  nsresult rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID).SetSpec(aSpec).Finalize(url);
+  NS_ENSURE_SUCCESS(rv, rv);
+  url.forget(aURL);
+  return NS_OK;
+}
+
 #define FILENAME_PART_LEN 10
 
 nsresult nsMsgMailNewsUrl::SetSpecInternal(const nsACString &aSpec)
@@ -484,7 +493,7 @@ nsresult nsMsgMailNewsUrl::SetSpecInternal(const nsACString &aSpec)
   }
 
   // Now, set the rest.
-  nsresult rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID).SetSpec(aSpec).Finalize(m_baseURL);
+  nsresult rv = CreateURL(aSpec, getter_AddRefs(m_baseURL));
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Check whether the URL is in normalized form.

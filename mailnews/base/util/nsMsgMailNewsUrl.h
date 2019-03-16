@@ -70,6 +70,7 @@ protected:
   virtual nsresult SetFilePath(const nsACString &aFilePath);
   virtual nsresult SetQuery(const nsACString &aQuery);
   virtual nsresult SetQueryWithEncoding(const nsACString &aQuery, const mozilla::Encoding* aEncoding);
+  virtual nsresult CreateURL(const nsACString& aSpec, nsIURL **aURL);  // nsMailboxUrl overrides this.
 
 public:
   class Mutator
