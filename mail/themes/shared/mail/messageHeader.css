@@ -99,6 +99,7 @@ toolbarpaletteitem #hdrDummyReplyButton {
 
 .headerValue {
   overflow-wrap: anywhere;
+  display: block;
 }
 
 .headerValue[containsEmail="true"] {
@@ -257,6 +258,25 @@ mail-emailaddress[selected="true"] > .emailDisplayButton > .emailStar {
 
 .addresstwisty[open]:hover {
   list-style-image:url("chrome://messenger/skin/icons/arrow/arrow-down.png");
+}
+
+.emailToggleHeaderfield {
+  padding-top: 1px;
+  width: 8px; /* The image's width is 8 pixels */
+  height: 8px;
+  margin-inline-end: 2px;
+  margin-inline-start: 4px;
+  background: url("chrome://global/skin/icons/twisty-collapsed.svg") no-repeat left 7px;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+.emailToggleHeaderfield:-moz-locale-dir(rtl) {
+  background: url("chrome://global/skin/icons/twisty-collapsed-rtl.svg");
+}
+
+.emailToggleHeaderfield.open {
+  background: url("chrome://global/skin/icons/twisty-expanded.svg") no-repeat left 6px;
 }
 
 /* ::::: view expand and collapse twisties  ::::: */

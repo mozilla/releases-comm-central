@@ -331,16 +331,14 @@ toolbar[mode="icons"] > #otherActionsButton > .toolbarbutton-menu-dropmarker >
   padding-top: 0px !important;
   padding-bottom: 0px !important;
   padding-inline-start: 0px !important;
-  padding-inline-end: 10px !important;
+  padding-inline-end: 0px !important;
   background-color: transparent !important;
-  background: url("chrome://messenger/skin/icons/arrow-dn-grey.png") no-repeat center right;
 }
 
 .messageIdDisplayButton:hover {
   cursor: pointer;
   text-decoration: underline;
   color: -moz-hyperlinktext;
-  background: url("chrome://messenger/skin/icons/arrow-dn-black.png") no-repeat center right;
 }
 
 /* ::::: msg header email addresses ::::: */
@@ -393,6 +391,11 @@ mail-emailaddress[selected="true"] > .emailDisplayButton {
   max-height: 7px; /* the height of the image */
   margin: 0.2em 2px 0; /* 0.2em just to move it off the top of the text */
   list-style-image: url("chrome://messenger/skin/icons/arrow-dn-7.png");
+}
+
+.emailToggleHeaderfield {
+  margin-inline-end: 3px;
+  margin-inline-start: 1px;
 }
 
 /* ::::: collapsed view styles ::::: */

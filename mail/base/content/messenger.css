@@ -19,11 +19,6 @@
 }
 
 /* message header widgets */
-
-mail-messageids-headerfield {
-  -moz-binding: url("chrome://messenger/content/mailWidgets.xml#mail-messageids-headerfield");
-}
-
 .emailDisplayButton {
   -moz-user-focus: normal;
 }

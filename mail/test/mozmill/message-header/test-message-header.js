@@ -434,7 +434,7 @@ function test_msg_id_context_menu() {
   let curMessage = select_click_row(-1);
 
   // Right click to show the context menu.
-  mc.rightClick(mc.aid("expandedreferencesBox", {tagName: "mail-messageid"}));
+  mc.rightClick(mc.eid("expandedreferencesBox", {tagName: "mail-messageid"}));
   wait_for_popup_to_open(mc.e("messageIdContext"));
 
   // Ensure Open Message For ID is shown... and that Open Browser With Message-ID

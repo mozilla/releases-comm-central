@@ -171,6 +171,106 @@ class MozMailMessageid extends MozXULElement {
   }
 }
 
+/**
+ * MozMailMessageidsHeaderfield is a widget used to show/link messages in the message header.
+ * Shown by default for nntp messages, not for regular emails.
+ * @extends {MozXULElement}
+ */
+class MozMailMessageidsHeaderfield extends MozXULElement {
+  connectedCallback() {
+    if (this.hasChildNodes() || this.delayConnectedCallback()) {
+      return;
+    }
+
+    this.setAttribute("context", "messageIdsHeaderfieldContext");
+
+    this.mMessageIds = [];
+    this.showFullMessageIds = false;
+
+    this.toggleIcon = document.createElement("image");
+    this.toggleIcon.classList.add("emailToggleHeaderfield");
+    this.toggleIcon.addEventListener("click", () => {
+      this._toggleWrap();
+    });
+    this.appendChild(this.toggleIcon);
+
+    this.headerValue = document.createElement("hbox");
+    this.headerValue.classList.add("headerValue");
+    this.headerValue.setAttribute("flex", "1");
+    this.appendChild(this.headerValue);
+  }
+
+  _toggleWrap() {
+    for (let i = 0; i < this.headerValue.childNodes.length; i += 2) {
+      if (!this.showFullMessageIds) {
+        this.toggleIcon.classList.add("open");
+        this.headerValue.childNodes[i].setAttribute("label", this.mMessageIds[i / 2]);
+        this.headerValue.childNodes[i].removeAttribute("tooltiptext");
+        this.headerValue.removeAttribute("singleline");
+      } else {
+        this.toggleIcon.classList.remove("open");
+        this.headerValue.childNodes[i].setAttribute("label", i / 2 + 1);
+        this.headerValue.childNodes[i].setAttribute("tooltiptext", this.mMessageIds[i / 2]);
+      }
+    }
+
+    this.showFullMessageIds = !this.showFullMessageIds;
+  }
+
+  fillMessageIdNodes() {
+    while (this.headerValue.childNodes.length > this.mMessageIds.length * 2 - 1) {
+      this.headerValue.lastChild.remove();
+    }
+
+    this.toggleIcon.hidden = this.mMessageIds.length <= 1;
+
+    for (let i = 0; i < this.mMessageIds.length; i++) {
+      if (i * 2 <= this.headerValue.childNodes.length - 1) {
+        this._updateMessageIdNode(this.headerValue.childNodes[i * 2], i + 1,
+          this.mMessageIds[i], this.mMessageIds.length);
+      } else {
+        let newMessageIdNode = document.createElement("mail-messageid");
+
+        if (i > 0) {
+          let textNode = document.createElement("text");
+          textNode.setAttribute("value", ", ");
+          textNode.setAttribute("class", "messageIdSeparator");
+          this.headerValue.appendChild(textNode);
+        }
+        let itemInDocument = this.headerValue.appendChild(newMessageIdNode);
+        this._updateMessageIdNode(itemInDocument, i + 1,
+          this.mMessageIds[i], this.mMessageIds.length);
+      }
+    }
+  }
+
+  _updateMessageIdNode(messageIdNode, index, messageId, lastId) {
+    if (this.showFullMessageIds || index == lastId) {
+      messageIdNode.setAttribute("label", messageId);
+      messageIdNode.removeAttribute("tooltiptext");
+    } else {
+      messageIdNode.setAttribute("label", index);
+      messageIdNode.setAttribute("tooltiptext", messageId);
+    }
+
+    messageIdNode.setAttribute("index", index);
+    messageIdNode.setAttribute("messageid", messageId);
+  }
+
+  addMessageIdView(messageId) {
+    this.mMessageIds.push(messageId);
+  }
+
+  clearHeaderValues() {
+    this.mMessageIds = [];
+    if (this.showFullMessageIds) {
+      this.showFullMessageIds = false;
+      this.toggleIcon.classList.remove("open");
+    }
+  }
+}
+customElements.define("mail-messageids-headerfield", MozMailMessageidsHeaderfield);
+
 class MozMailEmailaddress extends MozXULElement {
   static get observedAttributes() {
     return [
