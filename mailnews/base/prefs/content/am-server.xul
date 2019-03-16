@@ -1,15 +1,11 @@
 <?xml version="1.0"?>
-
-<!--
-
- This Source Code Form is subject to the terms of the Mozilla Public
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
-   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+   - file, You can obtain one at https://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/content/charsetList.css" type="text/css"?>
 
 <!DOCTYPE page [
 <!ENTITY % trashDTD SYSTEM "chrome://messenger/locale/am-server-top.dtd">
@@ -25,6 +21,7 @@
     <script type="application/javascript" src="chrome://messenger/content/am-server.js"/>
     <script type="application/javascript" src="chrome://messenger/content/am-prefs.js"/>
     <script type="application/javascript" src="chrome://messenger/content/amUtils.js"/>
+    <script type="application/javascript" src="chrome://messenger/content/menulist-charsetpicker.js"/>
     <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
 
     <label hidden="true" wsm_persist="true" id="server.type"/>
@@ -459,11 +456,10 @@
 
     <hbox hidefor="imap,pop3,movemail" align="center" valign="middle" iscontrolcontainer="true">
       <label value="&serverDefaultCharset2.label;" control="nntp.charset"/>
-      <menulist hidable="true"
-                type="charset"
+      <menulist is="menulist-charsetpicker" id="nntp.charset" subset="viewing"
+                hidable="true"
                 hidefor="imap,pop3,movemail"
                 wsm_persist="true"
-                id="nntp.charset"
                 preftype="string"
                 prefstring="mail.server.%serverkey%.charset"/>
     </hbox>

@@ -1,13 +1,10 @@
 <?xml version="1.0"?> <!-- -*- Mode: SGML; indent-tabs-mode: nil; -*- -->
-<!--
-
- This Source Code Form is subject to the terms of the Mozilla Public
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
-   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+   - file, You can obtain one at https://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/content/charsetList.css" type="text/css"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://messenger/locale/folderProps.dtd">
 
@@ -24,12 +21,7 @@
   <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
   <script type="application/javascript" src="chrome://messenger/content/retention.js"/>
   <script type="application/javascript" src="chrome://messenger/content/folderProps.js"/>
-  <script type="application/javascript">
-  <![CDATA[
-    const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-    Services.obs.notifyObservers(null, "charsetmenu-selected", "other");
-  ]]>
-  </script>
+  <script type="application/javascript" src="chrome://messenger/content/menulist-charsetpicker.js"/>
 
 <tabbox id="folderPropTabBox">
   <tabs id="folderPropTabs">
@@ -75,7 +67,7 @@
           <label value="&folderCharsetFallback2.label;"
                  accesskey="&folderCharsetFallback2.accesskey;"
                  control="folderCharsetList"/>
-          <menulist id="folderCharsetList" type="charset"/>
+          <menulist is="menulist-charsetpicker" id="folderCharsetList" subset="viewing"/>
         </hbox>
         <checkbox class="indent" id="folderCharsetOverride"
                   label="&folderCharsetEnforce2.label;"

@@ -1,11 +1,9 @@
 <?xml version="1.0"?>
-<!-- -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*-
-   - This Source Code Form is subject to the terms of the Mozilla Public
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
-   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+   - file, You can obtain one at https://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://global/skin/"?>
-<?xml-stylesheet href="chrome://messenger/content/charsetList.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
 
 <!DOCTYPE dialog [
@@ -32,6 +30,7 @@
     <script type="application/javascript" src="chrome://global/content/preferencesBindings.js"/>
     <script type="application/javascript" src="chrome://mozapps/content/preferences/fontbuilder.js"/>
     <script type="application/javascript" src="chrome://messenger/content/preferences/fonts.js"/>
+    <script type="application/javascript" src="chrome://messenger/content/menulist-charsetpicker.js"/>
     <linkset>
       <html:link rel="localization" href="messenger/preferences/fonts.ftl"/>
     </linkset>
@@ -284,7 +283,7 @@
             <label control="sendDefaultCharsetList"
                    value="&sendDefaultCharset.label;"
                    accesskey="&sendDefaultCharset.accesskey;"/>
-            <menulist id="sendDefaultCharsetList" type="charset"
+            <menulist is="menulist-charsetpicker" id="sendDefaultCharsetList"
                       subset="sending"
                       preference="mailnews.send_default_charset"/>
           </row>
@@ -293,7 +292,7 @@
             <label control="viewDefaultCharsetList"
                    value="&viewDefaultCharsetList.label;"
                    accesskey="&viewDefaultCharsetList.accesskey;"/>
-            <menulist id="viewDefaultCharsetList" type="charset"
+            <menulist is="menulist-charsetpicker" id="viewDefaultCharsetList"
                       subset="viewing"
                       preference="mailnews.view_default_charset"/>
           </row>

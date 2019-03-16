@@ -112,8 +112,6 @@ function onPreInit(account, accountValues)
   var type = parent.getAccountValue(account, accountValues, "server", "type", null, false);
   hideShowControls(type);
 
-  Services.obs.notifyObservers(null, "charsetmenu-selected", "other");
-
   gServer = account.incomingServer;
 
   if(!account.incomingServer.canEmptyTrashOnExit)
