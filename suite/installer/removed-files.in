@@ -102,11 +102,9 @@
 @DIR_MACOS@chrome/icons/default/venkman-window.xpm
 @DIR_MACOS@chrome/icons/default/venkman-window16.xpm
 @DIR_MACOS@chrome/installed-chrome.txt
-#ifdef MOZ_OMNIJAR
 @DIR_MACOS@distribution/extensions/{f13b157f-b174-47e7-a34d-4815ddfdfeb8}.xpi
 #ifdef LOCALE_BUILD
 @DIR_MACOS@distribution/extensions/langpack-@AB_CD@@venkman.mozilla.org.xpi
-#endif
 #endif
 #ifdef MOZ_GTK
 @DIR_MACOS@chrome/icons/default/venkman-window.png
@@ -533,512 +531,500 @@ Throbber-small.gif
 @DIR_MACOS@xpicleanup@BIN_SUFFIX@
 @DIR_MACOS@@DLL_PREFIX@xpistub@DLL_SUFFIX@
 
-#ifdef MOZ_OMNIJAR
-  @DIR_MACOS@chrome/be.jar
-  @DIR_MACOS@chrome/ca.jar
-  @DIR_MACOS@chrome/cs.jar
-  @DIR_MACOS@chrome/de.jar
-  @DIR_MACOS@chrome/en-GB.jar
-  @DIR_MACOS@chrome/en-US.jar
-  @DIR_MACOS@chrome/es-AR.jar
-  @DIR_MACOS@chrome/es-ES.jar
-  @DIR_MACOS@chrome/fi.jar
-  @DIR_MACOS@chrome/fr.jar
-  @DIR_MACOS@chrome/gl.jar
-  @DIR_MACOS@chrome/hu.jar
-  @DIR_MACOS@chrome/it.jar
-  @DIR_MACOS@chrome/ja.jar
-  @DIR_MACOS@chrome/ja-JP-mac.jar
-  @DIR_MACOS@chrome/ka.jar
-  @DIR_MACOS@chrome/lt.jar
-  @DIR_MACOS@chrome/nb-NO.jar
-  @DIR_MACOS@chrome/nl.jar
-  @DIR_MACOS@chrome/pl.jar
-  @DIR_MACOS@chrome/pt-BR.jar
-  @DIR_MACOS@chrome/pt-PT.jar
-  @DIR_MACOS@chrome/ro.jar
-  @DIR_MACOS@chrome/ru.jar
-  @DIR_MACOS@chrome/si.jar
-  @DIR_MACOS@chrome/sk.jar
-  @DIR_MACOS@chrome/sv-SE.jar
-  @DIR_MACOS@chrome/tr.jar
-  @DIR_MACOS@chrome/zh-CN.jar
-  @DIR_MACOS@chrome/comm.jar
-  @DIR_MACOS@chrome/toolkit.jar
-  @DIR_MACOS@chrome/classic.jar
-  @DIR_MACOS@chrome/pippki.jar
-  @DIR_MACOS@chrome/messenger.jar
-  @DIR_MACOS@chrome/newsblog.jar
-  @DIR_MACOS@chrome/gloda.jar
-  @DIR_MACOS@chrome/nonlocalized.manifest
-  @DIR_MACOS@chrome/localized.manifest
-  @DIR_MACOS@components/addonManager.js
-  @DIR_MACOS@components/Aitc.js
-  @DIR_MACOS@components/AlarmsManager.js
-  @DIR_MACOS@components/amContentHandler.js
-  @DIR_MACOS@components/amWebInstallListener.js
-  @DIR_MACOS@components/BrowserElementParent.js
-  @DIR_MACOS@components/ColorAnalyzer.js
-  @DIR_MACOS@components/ConsoleAPI.js
-  @DIR_MACOS@components/ContactManager.js
-  @DIR_MACOS@components/contentAreaDropListener.js
-  @DIR_MACOS@components/contentSecurityPolicy.js
-  @DIR_MACOS@components/crypto-SDR.js
-  @DIR_MACOS@components/FeedConverter.js
-  @DIR_MACOS@components/FeedProcessor.js
-  @DIR_MACOS@components/FeedWriter.js
-  @DIR_MACOS@components/glautocomp.js
-  @DIR_MACOS@components/GPSDGeolocationProvider.js
-  @DIR_MACOS@components/jsconsole-clhandler.js
-  @DIR_MACOS@components/jsmimeemitter.js
-  @DIR_MACOS@components/mdn-service.js
-  @DIR_MACOS@components/msgAsyncPrompter.js
-  @DIR_MACOS@components/NetworkGeolocationProvider.js
-  @DIR_MACOS@components/NotificationsComponents.manifest
-  @DIR_MACOS@components/newsblog.js
-  @DIR_MACOS@components/nsAbAutoCompleteMyDomain.js
-  @DIR_MACOS@components/nsAbAutoCompleteSearch.js
-  @DIR_MACOS@components/nsAbLDAPAttributeMap.js
-  @DIR_MACOS@components/nsAbout.js
-  @DIR_MACOS@components/nsAboutCertError.js
-  @DIR_MACOS@components/nsAboutData.js
-  @DIR_MACOS@components/nsAboutFeeds.js
-  @DIR_MACOS@components/nsAboutLife.js
-  @DIR_MACOS@components/nsAboutRights.js
-  @DIR_MACOS@components/nsAboutSessionRestore.js
-  @DIR_MACOS@components/nsBadCertHandler.js
-  @DIR_MACOS@components/nsBrowserContentHandler.js
-  @DIR_MACOS@components/nsComposerCmdLineHandler.js
-  @DIR_MACOS@components/nsContentDispatchChooser.js
-  @DIR_MACOS@components/nsDefaultCLH.js
-  @DIR_MACOS@components/nsDOMIdentity.js
-  #ifdef UNIX_BUT_NOT_MAC
-    components/nsFilePicker.js
-  #endif
-  @DIR_MACOS@components/nsFormAutoComplete.js
-  @DIR_MACOS@components/nsFormHistory.js
-  @DIR_MACOS@components/nsHandlerService.js
-  @DIR_MACOS@components/nsHelperAppDlg.js
-  @DIR_MACOS@components/nsIDService.js
-  @DIR_MACOS@components/nsINIProcessor.js
-  @DIR_MACOS@components/nsInputListAutoComplete.js
-  @DIR_MACOS@components/nsLDAPProtocolHandler.js
-  @DIR_MACOS@components/nsLoginInfo.js
-  @DIR_MACOS@components/nsLoginManager.js
-  @DIR_MACOS@components/nsLoginManagerPrompter.js
-  @DIR_MACOS@components/nsMailNewsCommandLineHandler.js
-  @DIR_MACOS@components/nsMsgTraitService.js
-  @DIR_MACOS@components/nsPlacesAutoComplete.js
-  @DIR_MACOS@components/nsPlacesDBFlush.js
-  @DIR_MACOS@components/nsPlacesExpiration.js
-  @DIR_MACOS@components/nsPrompter.js
-  @DIR_MACOS@components/nsSearchService.js
-  @DIR_MACOS@components/nsSearchSuggestions.js
-  @DIR_MACOS@components/nsSessionStartup.js
-  @DIR_MACOS@components/nsSessionStore.js
-  @DIR_MACOS@components/nsSetDefault.js
-  @DIR_MACOS@components/nsSidebar.js
-  @DIR_MACOS@components/nsSMTPProtocolHandler.js
-  @DIR_MACOS@components/nsSuiteGlue.js
-  @DIR_MACOS@components/nsTaggingService.js
-  @DIR_MACOS@components/nsTryToClose.js
-  @DIR_MACOS@components/nsTypeAheadFind.js
-  @DIR_MACOS@components/nsUpdateService.js
-  @DIR_MACOS@components/nsUpdateServiceStub.js
-  @DIR_MACOS@components/nsUpdateTimerManager.js
-  @DIR_MACOS@components/nsURLFormatter.js
-  @DIR_MACOS@components/nsWebHandlerApp.js
-  @DIR_MACOS@components/offlineStartup.js
-  @DIR_MACOS@components/PlacesCategoriesStarter.js
-  @DIR_MACOS@components/SettingsManager.js
-  @DIR_MACOS@components/SiteSpecificUserAgent.js
-  @DIR_MACOS@components/smime-service.js
-  @DIR_MACOS@components/storage-Legacy.js
-  @DIR_MACOS@components/storage-mozStorage.js
-  @DIR_MACOS@components/TCPSocket.js
-  @DIR_MACOS@components/txEXSLTRegExFunctions.js
-  @DIR_MACOS@components/WebContentConverter.js
-  @DIR_MACOS@components/binary.manifest
-  @DIR_MACOS@components/interfaces.manifest
-  @DIR_MACOS@defaults/profile/bookmarks.html
-  @DIR_MACOS@defaults/pref/browser-prefs.js
-  @DIR_MACOS@defaults/pref/composer.js
-  @DIR_MACOS@defaults/pref/mailnews.js
-  @DIR_MACOS@defaults/pref/mdn.js
-  @DIR_MACOS@defaults/pref/services-aitc.js
-  @DIR_MACOS@defaults/pref/services-notifications.js
-  @DIR_MACOS@defaults/pref/smime.js
-  @DIR_MACOS@defaults/autoconfig/
-  @DIR_MACOS@defaults/autoconfig/platform.js
-  @DIR_MACOS@defaults/autoconfig/prefcalls.js
-  @DIR_MACOS@extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}/
-  @DIR_MACOS@extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}/chrome/
-  @DIR_MACOS@extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}/chrome/chatzilla.jar
-  @DIR_MACOS@extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}/chrome/icons/
-  @DIR_MACOS@extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}/chrome/icons/default/
-  @DIR_MACOS@extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}/chrome/icons/default/chatzilla-window.xpm
-  @DIR_MACOS@extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}/chrome/icons/default/chatzilla-window16.xpm
-  @DIR_MACOS@extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}/chrome/icons/default/chatzilla-window.ico
-  @DIR_MACOS@extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}/chrome.manifest
-  @DIR_MACOS@extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}/components/
-  @DIR_MACOS@extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}/components/chatzilla-service.js
-  @DIR_MACOS@extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}/install.rdf
-  @DIR_MACOS@extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi
-#ifndef MOZ_OMNIJAR
-  @DIR_MACOS@extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}.xpi
-#else
-  @DIR_MACOS@extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}/
-  @DIR_MACOS@extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}/chrome.manifest
-  @DIR_MACOS@extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}/icon.png
-  @DIR_MACOS@extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}/install.rdf
-  @DIR_MACOS@extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}/preview.png
+@DIR_MACOS@chrome/be.jar
+@DIR_MACOS@chrome/ca.jar
+@DIR_MACOS@chrome/cs.jar
+@DIR_MACOS@chrome/de.jar
+@DIR_MACOS@chrome/en-GB.jar
+@DIR_MACOS@chrome/en-US.jar
+@DIR_MACOS@chrome/es-AR.jar
+@DIR_MACOS@chrome/es-ES.jar
+@DIR_MACOS@chrome/fi.jar
+@DIR_MACOS@chrome/fr.jar
+@DIR_MACOS@chrome/gl.jar
+@DIR_MACOS@chrome/hu.jar
+@DIR_MACOS@chrome/it.jar
+@DIR_MACOS@chrome/ja.jar
+@DIR_MACOS@chrome/ja-JP-mac.jar
+@DIR_MACOS@chrome/ka.jar
+@DIR_MACOS@chrome/lt.jar
+@DIR_MACOS@chrome/nb-NO.jar
+@DIR_MACOS@chrome/nl.jar
+@DIR_MACOS@chrome/pl.jar
+@DIR_MACOS@chrome/pt-BR.jar
+@DIR_MACOS@chrome/pt-PT.jar
+@DIR_MACOS@chrome/ro.jar
+@DIR_MACOS@chrome/ru.jar
+@DIR_MACOS@chrome/si.jar
+@DIR_MACOS@chrome/sk.jar
+@DIR_MACOS@chrome/sv-SE.jar
+@DIR_MACOS@chrome/tr.jar
+@DIR_MACOS@chrome/zh-CN.jar
+@DIR_MACOS@chrome/comm.jar
+@DIR_MACOS@chrome/toolkit.jar
+@DIR_MACOS@chrome/classic.jar
+@DIR_MACOS@chrome/pippki.jar
+@DIR_MACOS@chrome/messenger.jar
+@DIR_MACOS@chrome/newsblog.jar
+@DIR_MACOS@chrome/gloda.jar
+@DIR_MACOS@chrome/nonlocalized.manifest
+@DIR_MACOS@chrome/localized.manifest
+@DIR_MACOS@components/addonManager.js
+@DIR_MACOS@components/Aitc.js
+@DIR_MACOS@components/AlarmsManager.js
+@DIR_MACOS@components/amContentHandler.js
+@DIR_MACOS@components/amWebInstallListener.js
+@DIR_MACOS@components/BrowserElementParent.js
+@DIR_MACOS@components/ColorAnalyzer.js
+@DIR_MACOS@components/ConsoleAPI.js
+@DIR_MACOS@components/ContactManager.js
+@DIR_MACOS@components/contentAreaDropListener.js
+@DIR_MACOS@components/contentSecurityPolicy.js
+@DIR_MACOS@components/crypto-SDR.js
+@DIR_MACOS@components/FeedConverter.js
+@DIR_MACOS@components/FeedProcessor.js
+@DIR_MACOS@components/FeedWriter.js
+@DIR_MACOS@components/glautocomp.js
+@DIR_MACOS@components/GPSDGeolocationProvider.js
+@DIR_MACOS@components/jsconsole-clhandler.js
+@DIR_MACOS@components/jsmimeemitter.js
+@DIR_MACOS@components/mdn-service.js
+@DIR_MACOS@components/msgAsyncPrompter.js
+@DIR_MACOS@components/NetworkGeolocationProvider.js
+@DIR_MACOS@components/NotificationsComponents.manifest
+@DIR_MACOS@components/newsblog.js
+@DIR_MACOS@components/nsAbAutoCompleteMyDomain.js
+@DIR_MACOS@components/nsAbAutoCompleteSearch.js
+@DIR_MACOS@components/nsAbLDAPAttributeMap.js
+@DIR_MACOS@components/nsAbout.js
+@DIR_MACOS@components/nsAboutCertError.js
+@DIR_MACOS@components/nsAboutData.js
+@DIR_MACOS@components/nsAboutFeeds.js
+@DIR_MACOS@components/nsAboutLife.js
+@DIR_MACOS@components/nsAboutRights.js
+@DIR_MACOS@components/nsAboutSessionRestore.js
+@DIR_MACOS@components/nsBadCertHandler.js
+@DIR_MACOS@components/nsBrowserContentHandler.js
+@DIR_MACOS@components/nsComposerCmdLineHandler.js
+@DIR_MACOS@components/nsContentDispatchChooser.js
+@DIR_MACOS@components/nsDefaultCLH.js
+@DIR_MACOS@components/nsDOMIdentity.js
+#ifdef UNIX_BUT_NOT_MAC
+  components/nsFilePicker.js
 #endif
-  @DIR_MACOS@extensions/{f13b157f-b174-47e7-a34d-4815ddfdfeb8}/
-  @DIR_MACOS@extensions/{f13b157f-b174-47e7-a34d-4815ddfdfeb8}/chrome/
-  @DIR_MACOS@extensions/{f13b157f-b174-47e7-a34d-4815ddfdfeb8}/chrome/venkman.jar
-  @DIR_MACOS@extensions/{f13b157f-b174-47e7-a34d-4815ddfdfeb8}/chrome.manifest
-  @DIR_MACOS@extensions/{f13b157f-b174-47e7-a34d-4815ddfdfeb8}/components/
-  @DIR_MACOS@extensions/{f13b157f-b174-47e7-a34d-4815ddfdfeb8}/components/venkman-service.js
-  @DIR_MACOS@extensions/{f13b157f-b174-47e7-a34d-4815ddfdfeb8}/install.rdf
-  @DIR_MACOS@extensions/{f13b157f-b174-47e7-a34d-4815ddfdfeb8}.xpi
-  @DIR_MACOS@extensions/debugQA@mozilla.org/
-  @DIR_MACOS@extensions/debugQA@mozilla.org/install.rdf
-  @DIR_MACOS@extensions/debugQA@mozilla.org/chrome.manifest
-  @DIR_MACOS@extensions/debugQA@mozilla.org/chrome/
-  @DIR_MACOS@extensions/debugQA@mozilla.org/chrome/debugqa.jar
-  @DIR_MACOS@extensions/debugQA@mozilla.org.xpi
-  @DIR_MACOS@extensions/inspector@mozilla.org/
-  @DIR_MACOS@extensions/inspector@mozilla.org/install.rdf
-  @DIR_MACOS@extensions/inspector@mozilla.org/chrome.manifest
-  @DIR_MACOS@extensions/inspector@mozilla.org/chrome/
-  @DIR_MACOS@extensions/inspector@mozilla.org/chrome/inspector.jar
-  @DIR_MACOS@extensions/inspector@mozilla.org/platform/
-  @DIR_MACOS@extensions/inspector@mozilla.org/platform/Linux/
-  @DIR_MACOS@extensions/inspector@mozilla.org/platform/Linux/chrome/
-  @DIR_MACOS@extensions/inspector@mozilla.org/platform/Linux/chrome/icons/
-  @DIR_MACOS@extensions/inspector@mozilla.org/platform/Linux/chrome/icons/default/
-  @DIR_MACOS@extensions/inspector@mozilla.org/platform/Linux/chrome/icons/default/winInspectorMain16.xpm
-  @DIR_MACOS@extensions/inspector@mozilla.org/platform/Linux/chrome/icons/default/winInspectorMain.xpm
-  @DIR_MACOS@extensions/inspector@mozilla.org/platform/WINNT/chrome/icons/default/winInspectorMain.ico
-  @DIR_MACOS@extensions/inspector@mozilla.org/components/
-  @DIR_MACOS@extensions/inspector@mozilla.org/components/inspector-cmdline.js
-  @DIR_MACOS@extensions/inspector@mozilla.org/defaults/
-  @DIR_MACOS@extensions/inspector@mozilla.org/defaults/preferences/
-  @DIR_MACOS@extensions/inspector@mozilla.org/defaults/preferences/inspector.js
-  @DIR_MACOS@extensions/inspector@mozilla.org.xpi
-  @DIR_MACOS@extensions/langpack-ca@chatzilla.mozilla.org/chrome/chatzilla.jar
-  @DIR_MACOS@extensions/langpack-ca@chatzilla.mozilla.org/chrome/chatzilla.manifest
-  @DIR_MACOS@extensions/langpack-ca@chatzilla.mozilla.org/chrome.manifest
-  @DIR_MACOS@extensions/langpack-ca@chatzilla.mozilla.org/install.js
-  @DIR_MACOS@extensions/langpack-ca@chatzilla.mozilla.org/install.rdf
-  @DIR_MACOS@extensions/langpack-ca@chatzilla.mozilla.org.xpi
-  @DIR_MACOS@extensions/langpack-cs@chatzilla.mozilla.org/chrome/chatzilla.jar
-  @DIR_MACOS@extensions/langpack-cs@chatzilla.mozilla.org/chrome/chatzilla.manifest
-  @DIR_MACOS@extensions/langpack-cs@chatzilla.mozilla.org/chrome.manifest
-  @DIR_MACOS@extensions/langpack-cs@chatzilla.mozilla.org/install.js
-  @DIR_MACOS@extensions/langpack-cs@chatzilla.mozilla.org/install.rdf
-  @DIR_MACOS@extensions/langpack-cs@chatzilla.mozilla.org.xpi
-  @DIR_MACOS@extensions/langpack-de@chatzilla.mozilla.org/chrome/chatzilla.jar
-  @DIR_MACOS@extensions/langpack-de@chatzilla.mozilla.org/chrome/chatzilla.manifest
-  @DIR_MACOS@extensions/langpack-de@chatzilla.mozilla.org/chrome.manifest
-  @DIR_MACOS@extensions/langpack-de@chatzilla.mozilla.org/install.js
-  @DIR_MACOS@extensions/langpack-de@chatzilla.mozilla.org/install.rdf
-  @DIR_MACOS@extensions/langpack-de@chatzilla.mozilla.org.xpi
-  @DIR_MACOS@extensions/langpack-es-ES@chatzilla.mozilla.org/chrome/chatzilla.jar
-  @DIR_MACOS@extensions/langpack-es-ES@chatzilla.mozilla.org/chrome/chatzilla.manifest
-  @DIR_MACOS@extensions/langpack-es-ES@chatzilla.mozilla.org/chrome.manifest
-  @DIR_MACOS@extensions/langpack-es-ES@chatzilla.mozilla.org/install.js
-  @DIR_MACOS@extensions/langpack-es-ES@chatzilla.mozilla.org/install.rdf
-  @DIR_MACOS@extensions/langpack-es-ES@chatzilla.mozilla.org.xpi
-  @DIR_MACOS@extensions/langpack-fi@chatzilla.mozilla.org/install.rdf
-  @DIR_MACOS@extensions/langpack-fi@chatzilla.mozilla.org/chrome/chatzilla.jar
-  @DIR_MACOS@extensions/langpack-fi@chatzilla.mozilla.org/chrome/chatzilla.manifest
-  @DIR_MACOS@extensions/langpack-fi@chatzilla.mozilla.org/chrome.manifest
-  @DIR_MACOS@extensions/langpack-fi@chatzilla.mozilla.org/install.js
-  @DIR_MACOS@extensions/langpack-fi@chatzilla.mozilla.org.xpi
-  @DIR_MACOS@extensions/langpack-fr@chatzilla.mozilla.org/chrome/chatzilla.jar
-  @DIR_MACOS@extensions/langpack-fr@chatzilla.mozilla.org/chrome/chatzilla.manifest
-  @DIR_MACOS@extensions/langpack-fr@chatzilla.mozilla.org/chrome.manifest
-  @DIR_MACOS@extensions/langpack-fr@chatzilla.mozilla.org/install.js
-  @DIR_MACOS@extensions/langpack-fr@chatzilla.mozilla.org/install.rdf
-  @DIR_MACOS@extensions/langpack-fr@chatzilla.mozilla.org.xpi
-  @DIR_MACOS@extensions/langpack-it@chatzilla.mozilla.org/chrome/chatzilla.jar
-  @DIR_MACOS@extensions/langpack-it@chatzilla.mozilla.org/chrome/chatzilla.manifest
-  @DIR_MACOS@extensions/langpack-it@chatzilla.mozilla.org/chrome.manifest
-  @DIR_MACOS@extensions/langpack-it@chatzilla.mozilla.org/install.js
-  @DIR_MACOS@extensions/langpack-it@chatzilla.mozilla.org/install.rdf
-  @DIR_MACOS@extensions/langpack-it@chatzilla.mozilla.org.xpi
-  @DIR_MACOS@extensions/langpack-ja@chatzilla.mozilla.org/chrome/chatzilla.jar
-  @DIR_MACOS@extensions/langpack-ja@chatzilla.mozilla.org/chrome/chatzilla.manifest
-  @DIR_MACOS@extensions/langpack-ja@chatzilla.mozilla.org/chrome.manifest
-  @DIR_MACOS@extensions/langpack-ja@chatzilla.mozilla.org/install.js
-  @DIR_MACOS@extensions/langpack-ja@chatzilla.mozilla.org/install.rdf
-  @DIR_MACOS@extensions/langpack-ja@chatzilla.mozilla.org.xpi
-  @DIR_MACOS@extensions/langpack-ja-JP-mac@chatzilla.mozilla.org/chrome/chatzilla.jar
-  @DIR_MACOS@extensions/langpack-ja-JP-mac@chatzilla.mozilla.org/chrome/chatzilla.manifest
-  @DIR_MACOS@extensions/langpack-ja-JP-mac@chatzilla.mozilla.org/chrome.manifest
-  @DIR_MACOS@extensions/langpack-ja-JP-mac@chatzilla.mozilla.org/install.js
-  @DIR_MACOS@extensions/langpack-ja-JP-mac@chatzilla.mozilla.org/install.rdf
-  @DIR_MACOS@extensions/langpack-ja-JP-mac@chatzilla.mozilla.org.xpi
-  @DIR_MACOS@extensions/langpack-nb-NO@chatzilla.mozilla.org/chrome/chatzilla.jar
-  @DIR_MACOS@extensions/langpack-nb-NO@chatzilla.mozilla.org/chrome/chatzilla.manifest
-  @DIR_MACOS@extensions/langpack-nb-NO@chatzilla.mozilla.org/chrome.manifest
-  @DIR_MACOS@extensions/langpack-nb-NO@chatzilla.mozilla.org/install.js
-  @DIR_MACOS@extensions/langpack-nb-NO@chatzilla.mozilla.org/install.rdf
-  @DIR_MACOS@extensions/langpack-nb-NO@chatzilla.mozilla.org.xpi
-  @DIR_MACOS@extensions/langpack-pl@chatzilla.mozilla.org/install.rdf
-  @DIR_MACOS@extensions/langpack-pl@chatzilla.mozilla.org/chrome/chatzilla.jar
-  @DIR_MACOS@extensions/langpack-pl@chatzilla.mozilla.org/chrome/chatzilla.manifest
-  @DIR_MACOS@extensions/langpack-pl@chatzilla.mozilla.org/chrome.manifest
-  @DIR_MACOS@extensions/langpack-pl@chatzilla.mozilla.org/install.js
-  @DIR_MACOS@extensions/langpack-pl@chatzilla.mozilla.org.xpi
-  @DIR_MACOS@extensions/langpack-pt-BR@chatzilla.mozilla.org/chrome/chatzilla.jar
-  @DIR_MACOS@extensions/langpack-pt-BR@chatzilla.mozilla.org/chrome/chatzilla.manifest
-  @DIR_MACOS@extensions/langpack-pt-BR@chatzilla.mozilla.org/chrome.manifest
-  @DIR_MACOS@extensions/langpack-pt-BR@chatzilla.mozilla.org/install.js
-  @DIR_MACOS@extensions/langpack-pt-BR@chatzilla.mozilla.org/install.rdf
-  @DIR_MACOS@extensions/langpack-pt-BR@chatzilla.mozilla.org.xpi
-  @DIR_MACOS@extensions/langpack-pt-PT@chatzilla.mozilla.org/chrome/chatzilla.jar
-  @DIR_MACOS@extensions/langpack-pt-PT@chatzilla.mozilla.org/chrome/chatzilla.manifest
-  @DIR_MACOS@extensions/langpack-pt-PT@chatzilla.mozilla.org/chrome.manifest
-  @DIR_MACOS@extensions/langpack-pt-PT@chatzilla.mozilla.org/install.js
-  @DIR_MACOS@extensions/langpack-pt-PT@chatzilla.mozilla.org/install.rdf
-  @DIR_MACOS@extensions/langpack-pt-PT@chatzilla.mozilla.org.xpi
-  @DIR_MACOS@extensions/langpack-ru@chatzilla.mozilla.org/chrome/chatzilla.jar
-  @DIR_MACOS@extensions/langpack-ru@chatzilla.mozilla.org/chrome/chatzilla.manifest
-  @DIR_MACOS@extensions/langpack-ru@chatzilla.mozilla.org/chrome.manifest
-  @DIR_MACOS@extensions/langpack-ru@chatzilla.mozilla.org/install.js
-  @DIR_MACOS@extensions/langpack-ru@chatzilla.mozilla.org/install.rdf
-  @DIR_MACOS@extensions/langpack-ru@chatzilla.mozilla.org.xpi
-  @DIR_MACOS@extensions/langpack-si@chatzilla.mozilla.org/chrome/chatzilla.jar
-  @DIR_MACOS@extensions/langpack-si@chatzilla.mozilla.org/chrome/chatzilla.manifest
-  @DIR_MACOS@extensions/langpack-si@chatzilla.mozilla.org/chrome.manifest
-  @DIR_MACOS@extensions/langpack-si@chatzilla.mozilla.org/install.js
-  @DIR_MACOS@extensions/langpack-si@chatzilla.mozilla.org/install.rdf
-  @DIR_MACOS@extensions/langpack-si@chatzilla.mozilla.org.xpi
-  @DIR_MACOS@extensions/langpack-sk@chatzilla.mozilla.org/chrome/chatzilla.jar
-  @DIR_MACOS@extensions/langpack-sk@chatzilla.mozilla.org/chrome/chatzilla.manifest
-  @DIR_MACOS@extensions/langpack-sk@chatzilla.mozilla.org/chrome.manifest
-  @DIR_MACOS@extensions/langpack-sk@chatzilla.mozilla.org/install.js
-  @DIR_MACOS@extensions/langpack-sk@chatzilla.mozilla.org/install.rdf
-  @DIR_MACOS@extensions/langpack-sk@chatzilla.mozilla.org.xpi
-  @DIR_MACOS@extensions/langpack-sv-SE@chatzilla.mozilla.org/chrome/chatzilla.jar
-  @DIR_MACOS@extensions/langpack-sv-SE@chatzilla.mozilla.org/chrome/chatzilla.manifest
-  @DIR_MACOS@extensions/langpack-sv-SE@chatzilla.mozilla.org/chrome.manifest
-  @DIR_MACOS@extensions/langpack-sv-SE@chatzilla.mozilla.org/install.js
-  @DIR_MACOS@extensions/langpack-sv-SE@chatzilla.mozilla.org/install.rdf
-  @DIR_MACOS@extensions/langpack-sv-SE@chatzilla.mozilla.org.xpi
-  @DIR_MACOS@extensions/langpack-ca@venkman.mozilla.org/chrome/venkman.jar
-  @DIR_MACOS@extensions/langpack-ca@venkman.mozilla.org/chrome/venkman.manifest
-  @DIR_MACOS@extensions/langpack-ca@venkman.mozilla.org/chrome.manifest
-  @DIR_MACOS@extensions/langpack-ca@venkman.mozilla.org/install.js
-  @DIR_MACOS@extensions/langpack-ca@venkman.mozilla.org/install.rdf
-  @DIR_MACOS@extensions/langpack-ca@venkman.mozilla.org.xpi
-  @DIR_MACOS@extensions/langpack-de@venkman.mozilla.org/chrome/venkman.jar
-  @DIR_MACOS@extensions/langpack-de@venkman.mozilla.org/chrome/venkman.manifest
-  @DIR_MACOS@extensions/langpack-de@venkman.mozilla.org/chrome.manifest
-  @DIR_MACOS@extensions/langpack-de@venkman.mozilla.org/install.js
-  @DIR_MACOS@extensions/langpack-de@venkman.mozilla.org/install.rdf
-  @DIR_MACOS@extensions/langpack-de@venkman.mozilla.org.xpi
-  @DIR_MACOS@extensions/langpack-es-ES@venkman.mozilla.org/chrome/venkman.jar
-  @DIR_MACOS@extensions/langpack-es-ES@venkman.mozilla.org/chrome/venkman.manifest
-  @DIR_MACOS@extensions/langpack-es-ES@venkman.mozilla.org/chrome.manifest
-  @DIR_MACOS@extensions/langpack-es-ES@venkman.mozilla.org/install.js
-  @DIR_MACOS@extensions/langpack-es-ES@venkman.mozilla.org/install.rdf
-  @DIR_MACOS@extensions/langpack-es-ES@venkman.mozilla.org.xpi
-  @DIR_MACOS@extensions/langpack-fr@venkman.mozilla.org/chrome/venkman.jar
-  @DIR_MACOS@extensions/langpack-fr@venkman.mozilla.org/chrome/venkman.manifest
-  @DIR_MACOS@extensions/langpack-fr@venkman.mozilla.org/chrome.manifest
-  @DIR_MACOS@extensions/langpack-fr@venkman.mozilla.org/install.js
-  @DIR_MACOS@extensions/langpack-fr@venkman.mozilla.org/install.rdf
-  @DIR_MACOS@extensions/langpack-fr@venkman.mozilla.org.xpi
-  @DIR_MACOS@extensions/langpack-it@venkman.mozilla.org/chrome/venkman.jar
-  @DIR_MACOS@extensions/langpack-it@venkman.mozilla.org/chrome/venkman.manifest
-  @DIR_MACOS@extensions/langpack-it@venkman.mozilla.org/chrome.manifest
-  @DIR_MACOS@extensions/langpack-it@venkman.mozilla.org/install.js
-  @DIR_MACOS@extensions/langpack-it@venkman.mozilla.org/install.rdf
-  @DIR_MACOS@extensions/langpack-it@venkman.mozilla.org.xpi
-  @DIR_MACOS@extensions/langpack-ja@venkman.mozilla.org/chrome/venkman.jar
-  @DIR_MACOS@extensions/langpack-ja@venkman.mozilla.org/chrome/venkman.manifest
-  @DIR_MACOS@extensions/langpack-ja@venkman.mozilla.org/chrome.manifest
-  @DIR_MACOS@extensions/langpack-ja@venkman.mozilla.org/install.js
-  @DIR_MACOS@extensions/langpack-ja@venkman.mozilla.org/install.rdf
-  @DIR_MACOS@extensions/langpack-ja@venkman.mozilla.org.xpi
-  @DIR_MACOS@extensions/langpack-ja-JP-mac@venkman.mozilla.org/chrome/venkman.jar
-  @DIR_MACOS@extensions/langpack-ja-JP-mac@venkman.mozilla.org/chrome/venkman.manifest
-  @DIR_MACOS@extensions/langpack-ja-JP-mac@venkman.mozilla.org/chrome.manifest
-  @DIR_MACOS@extensions/langpack-ja-JP-mac@venkman.mozilla.org/install.js
-  @DIR_MACOS@extensions/langpack-ja-JP-mac@venkman.mozilla.org/install.rdf
-  @DIR_MACOS@extensions/langpack-ja-JP-mac@venkman.mozilla.org.xpi
-  @DIR_MACOS@extensions/langpack-nb-NO@venkman.mozilla.org/chrome/venkman.jar
-  @DIR_MACOS@extensions/langpack-nb-NO@venkman.mozilla.org/chrome/venkman.manifest
-  @DIR_MACOS@extensions/langpack-nb-NO@venkman.mozilla.org/chrome.manifest
-  @DIR_MACOS@extensions/langpack-nb-NO@venkman.mozilla.org/install.js
-  @DIR_MACOS@extensions/langpack-nb-NO@venkman.mozilla.org/install.rdf
-  @DIR_MACOS@extensions/langpack-nb-NO@venkman.mozilla.org.xpi
-  @DIR_MACOS@extensions/langpack-pl@venkman.mozilla.org/chrome/venkman.jar
-  @DIR_MACOS@extensions/langpack-pl@venkman.mozilla.org/chrome/venkman.manifest
-  @DIR_MACOS@extensions/langpack-pl@venkman.mozilla.org/chrome.manifest
-  @DIR_MACOS@extensions/langpack-pl@venkman.mozilla.org/install.js
-  @DIR_MACOS@extensions/langpack-pl@venkman.mozilla.org/install.rdf
-  @DIR_MACOS@extensions/langpack-pl@venkman.mozilla.org.xpi
-  @DIR_MACOS@extensions/langpack-ru@venkman.mozilla.org/chrome/venkman.jar
-  @DIR_MACOS@extensions/langpack-ru@venkman.mozilla.org/chrome/venkman.manifest
-  @DIR_MACOS@extensions/langpack-ru@venkman.mozilla.org/chrome.manifest
-  @DIR_MACOS@extensions/langpack-ri@venkman.mozilla.org/install.js
-  @DIR_MACOS@extensions/langpack-ru@venkman.mozilla.org/install.rdf
-  @DIR_MACOS@extensions/langpack-ru@venkman.mozilla.org.xpi
-  @DIR_MACOS@extensions/langpack-sv-SE@venkman.mozilla.org/chrome/venkman.jar
-  @DIR_MACOS@extensions/langpack-sv-SE@venkman.mozilla.org/chrome/venkman.manifest
-  @DIR_MACOS@extensions/langpack-sv-SE@venkman.mozilla.org/chrome.manifest
-  @DIR_MACOS@extensions/langpack-sv-SE@venkman.mozilla.org/install.js
-  @DIR_MACOS@extensions/langpack-sv-SE@venkman.mozilla.org/install.rdf
-  @DIR_MACOS@extensions/langpack-sv-SE@venkman.mozilla.org.xpi
-  @DIR_MACOS@extensions/modern@themes.mozilla.org/
-  @DIR_MACOS@extensions/modern@themes.mozilla.org/chrome/
-  @DIR_MACOS@extensions/modern@themes.mozilla.org/chrome/modern.jar
-  @DIR_MACOS@extensions/modern@themes.mozilla.org/chrome.manifest
-  @DIR_MACOS@extensions/modern@themes.mozilla.org/icon.png
-  @DIR_MACOS@extensions/modern@themes.mozilla.org/install.rdf
-  @DIR_MACOS@extensions/modern@themes.mozilla.org/preview.png
-  @DIR_MACOS@jssubloader/
-  @DIR_MACOS@modules/
-  @DIR_MACOS@modules/AddonLogging.jsm
-  @DIR_MACOS@modules/AddonManager.jsm
-  @DIR_MACOS@modules/AddonRepository.jsm
-  @DIR_MACOS@modules/AddonUpdateChecker.jsm
-  @DIR_MACOS@modules/BrowserElementPromptService.jsm
-  @DIR_MACOS@modules/CertUtils.jsm
-  @DIR_MACOS@modules/CommonDialog.jsm
-  @DIR_MACOS@modules/CrashSubmit.jsm
-  @DIR_MACOS@modules/CSPUtils.jsm
-  @DIR_MACOS@modules/ctypes.jsm
-  @DIR_MACOS@modules/debug.js
-  @DIR_MACOS@modules/dictUtils.js
-  @DIR_MACOS@modules/errUtils.js
-  @DIR_MACOS@modules/FileUtils.jsm
-  @DIR_MACOS@modules/folderUtils.jsm
-  @DIR_MACOS@modules/Geometry.jsm
-  @DIR_MACOS@modules/gloda/
-  @DIR_MACOS@modules/gloda/mimeTypeCategories.js
-  @DIR_MACOS@modules/gloda/log4moz.js
-  @DIR_MACOS@modules/gloda/gloda.js
-  @DIR_MACOS@modules/gloda/datamodel.js
-  @DIR_MACOS@modules/gloda/databind.js
-  @DIR_MACOS@modules/gloda/index_ab.js
-  @DIR_MACOS@modules/gloda/msg_search.js
-  @DIR_MACOS@modules/gloda/public.js
-  @DIR_MACOS@modules/gloda/noun_freetag.js
-  @DIR_MACOS@modules/gloda/utils.js
-  @DIR_MACOS@modules/gloda/suffixtree.js
-  @DIR_MACOS@modules/gloda/indexer.js
-  @DIR_MACOS@modules/gloda/fundattr.js
-  @DIR_MACOS@modules/gloda/dbview.js
-  @DIR_MACOS@modules/gloda/datastore.js
-  @DIR_MACOS@modules/gloda/everybody.js
-  @DIR_MACOS@modules/gloda/collection.js
-  @DIR_MACOS@modules/gloda/query.js
-  @DIR_MACOS@modules/gloda/noun_tag.js
-  @DIR_MACOS@modules/gloda/connotent.js
-  @DIR_MACOS@modules/gloda/noun_mimetype.js
-  @DIR_MACOS@modules/gloda/index_msg.js
-  @DIR_MACOS@modules/gloda/mimemsg.js
-  @DIR_MACOS@modules/gloda/explattr.js
-  @DIR_MACOS@modules/gloda/facet.js
-  @DIR_MACOS@modules/InlineSpellChecker.jsm
-  @DIR_MACOS@modules/IOUtils.js
-  @DIR_MACOS@modules/ISO8601DateUtils.jsm
-  @DIR_MACOS@modules/iteratorUtils.jsm
-  @DIR_MACOS@modules/jsTreeSelection.js
-  @DIR_MACOS@modules/LightweightThemeConsumer.jsm
-  @DIR_MACOS@modules/LightweightThemeManager.jsm
-  @DIR_MACOS@modules/mailnewsMigrator.js
-  @DIR_MACOS@modules/MailUtils.js
-  @DIR_MACOS@modules/Microformats.js
-  @DIR_MACOS@modules/NetUtil.jsm
-  @DIR_MACOS@modules/nsFormAutoCompleteResult.jsm
-  @DIR_MACOS@modules/PerfMeasurement.jsm
-  @DIR_MACOS@modules/PlacesDBUtils.jsm
-  @DIR_MACOS@modules/PlacesUIUtils.jsm
-  @DIR_MACOS@modules/PlacesUtils.jsm
-  @DIR_MACOS@modules/PluginProvider.jsm
-  @DIR_MACOS@modules/PluralForm.jsm
-  @DIR_MACOS@modules/PopupNotifications.jsm
-  @DIR_MACOS@modules/Sanitizer.jsm
-  @DIR_MACOS@modules/Services.jsm
-  @DIR_MACOS@modules/StringBundle.js
-  @DIR_MACOS@modules/services-common/async.js
-  @DIR_MACOS@modules/services-common/log4moz.js
-  @DIR_MACOS@modules/services-common/observers.js
-  @DIR_MACOS@modules/services-common/preferences.js
-  @DIR_MACOS@modules/services-common/rest.js
-  @DIR_MACOS@modules/services-common/stringbundle.js
-  @DIR_MACOS@modules/services-common/tokenserverclient.js
-  @DIR_MACOS@modules/services-common/utils.js
-  @DIR_MACOS@modules/services-crypto/utils.js
-  @DIR_MACOS@modules/services-crypto/WeaveCrypto.js
-  @DIR_MACOS@modules/services-notifications/service.js
-  @DIR_MACOS@modules/templateUtils.js
-  @DIR_MACOS@modules/traceHelper.js
-  @DIR_MACOS@modules/UserAgentOverrides.jsm
-  @DIR_MACOS@modules/utils.js
-  @DIR_MACOS@modules/virtualFolderWrapper.js
-  @DIR_MACOS@modules/WindowDraggingUtils.jsm
-  @DIR_MACOS@modules/WorkerTest.jsm
-  @DIR_MACOS@modules/WorkerTest_subworker.js
-  @DIR_MACOS@modules/WorkerTest_worker.js
-  @DIR_MACOS@modules/XPCOMUtils.jsm
-  @DIR_MACOS@modules/XPIProvider.jsm
-  @DIR_MACOS@greprefs.js
-  @DIR_MACOS@res/contenteditable.css
-  @DIR_MACOS@res/designmode.css
-  @DIR_MACOS@res/EditorOverride.css
-  @DIR_MACOS@res/grabber.gif
-  @DIR_MACOS@res/langGroups.properties
-  @DIR_MACOS@res/language.properties
-  @DIR_MACOS@res/svg.css
-  @DIR_MACOS@res/table-add-column-after-active.gif
-  @DIR_MACOS@res/table-add-column-after-hover.gif
-  @DIR_MACOS@res/table-add-column-after.gif
-  @DIR_MACOS@res/table-add-column-before-active.gif
-  @DIR_MACOS@res/table-add-column-before-hover.gif
-  @DIR_MACOS@res/table-add-column-before.gif
-  @DIR_MACOS@res/table-add-row-after-active.gif
-  @DIR_MACOS@res/table-add-row-after-hover.gif
-  @DIR_MACOS@res/table-add-row-after.gif
-  @DIR_MACOS@res/table-add-row-before-active.gif
-  @DIR_MACOS@res/table-add-row-before-hover.gif
-  @DIR_MACOS@res/table-add-row-before.gif
-  @DIR_MACOS@res/table-remove-column-active.gif
-  @DIR_MACOS@res/table-remove-column-hover.gif
-  @DIR_MACOS@res/table-remove-column.gif
-  @DIR_MACOS@res/table-remove-row-active.gif
-  @DIR_MACOS@res/table-remove-row-hover.gif
-  @DIR_MACOS@res/table-remove-row.gif
-  @DIR_MACOS@res/fonts/
-  @DIR_MACOS@res/fonts/mathfont.properties
-  @DIR_MACOS@res/fonts/mathfontStandardSymbolsL.properties
-  @DIR_MACOS@res/fonts/mathfontSTIXNonUnicode.properties
-  @DIR_MACOS@res/fonts/mathfontSTIXSize1.properties
-  @DIR_MACOS@res/fonts/mathfontSTIXSizeOneSym.properties
-  #ifdef XP_WIN
-    res/fonts/mathfontSymbol.properties
-  #endif
-  @DIR_MACOS@res/fonts/mathfontUnicode.properties
-  @DIR_MACOS@res/dtd/
-  @DIR_MACOS@res/dtd/mathml.dtd
-  @DIR_MACOS@res/dtd/xhtml11.dtd
-  @DIR_MACOS@res/html/
-  @DIR_MACOS@res/html/folder.png
-  #ifdef MOZ_UPDATER
-    @DIR_MACOS@update.locale
-  #endif
-#else
-  @DIR_MACOS@components/Aitc.js
-  @DIR_MACOS@components/binary.manifest
-  @DIR_MACOS@defaults/pref/services-aitc.js
-  @DIR_MACOS@defaults/pref/services-notifications.js
-  @DIR_MACOS@omni.ja
+@DIR_MACOS@components/nsFormAutoComplete.js
+@DIR_MACOS@components/nsFormHistory.js
+@DIR_MACOS@components/nsHandlerService.js
+@DIR_MACOS@components/nsHelperAppDlg.js
+@DIR_MACOS@components/nsIDService.js
+@DIR_MACOS@components/nsINIProcessor.js
+@DIR_MACOS@components/nsInputListAutoComplete.js
+@DIR_MACOS@components/nsLDAPProtocolHandler.js
+@DIR_MACOS@components/nsLoginInfo.js
+@DIR_MACOS@components/nsLoginManager.js
+@DIR_MACOS@components/nsLoginManagerPrompter.js
+@DIR_MACOS@components/nsMailNewsCommandLineHandler.js
+@DIR_MACOS@components/nsMsgTraitService.js
+@DIR_MACOS@components/nsPlacesAutoComplete.js
+@DIR_MACOS@components/nsPlacesDBFlush.js
+@DIR_MACOS@components/nsPlacesExpiration.js
+@DIR_MACOS@components/nsPrompter.js
+@DIR_MACOS@components/nsSearchService.js
+@DIR_MACOS@components/nsSearchSuggestions.js
+@DIR_MACOS@components/nsSessionStartup.js
+@DIR_MACOS@components/nsSessionStore.js
+@DIR_MACOS@components/nsSetDefault.js
+@DIR_MACOS@components/nsSidebar.js
+@DIR_MACOS@components/nsSMTPProtocolHandler.js
+@DIR_MACOS@components/nsSuiteGlue.js
+@DIR_MACOS@components/nsTaggingService.js
+@DIR_MACOS@components/nsTryToClose.js
+@DIR_MACOS@components/nsTypeAheadFind.js
+@DIR_MACOS@components/nsUpdateService.js
+@DIR_MACOS@components/nsUpdateServiceStub.js
+@DIR_MACOS@components/nsUpdateTimerManager.js
+@DIR_MACOS@components/nsURLFormatter.js
+@DIR_MACOS@components/nsWebHandlerApp.js
+@DIR_MACOS@components/offlineStartup.js
+@DIR_MACOS@components/PlacesCategoriesStarter.js
+@DIR_MACOS@components/SettingsManager.js
+@DIR_MACOS@components/SiteSpecificUserAgent.js
+@DIR_MACOS@components/smime-service.js
+@DIR_MACOS@components/storage-Legacy.js
+@DIR_MACOS@components/storage-mozStorage.js
+@DIR_MACOS@components/TCPSocket.js
+@DIR_MACOS@components/txEXSLTRegExFunctions.js
+@DIR_MACOS@components/WebContentConverter.js
+@DIR_MACOS@components/binary.manifest
+@DIR_MACOS@components/interfaces.manifest
+@DIR_MACOS@defaults/profile/bookmarks.html
+@DIR_MACOS@defaults/pref/browser-prefs.js
+@DIR_MACOS@defaults/pref/composer.js
+@DIR_MACOS@defaults/pref/mailnews.js
+@DIR_MACOS@defaults/pref/mdn.js
+@DIR_MACOS@defaults/pref/services-aitc.js
+@DIR_MACOS@defaults/pref/services-notifications.js
+@DIR_MACOS@defaults/pref/smime.js
+@DIR_MACOS@defaults/autoconfig/
+@DIR_MACOS@defaults/autoconfig/platform.js
+@DIR_MACOS@defaults/autoconfig/prefcalls.js
+@DIR_MACOS@extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}/
+@DIR_MACOS@extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}/chrome/
+@DIR_MACOS@extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}/chrome/chatzilla.jar
+@DIR_MACOS@extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}/chrome/icons/
+@DIR_MACOS@extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}/chrome/icons/default/
+@DIR_MACOS@extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}/chrome/icons/default/chatzilla-window.xpm
+@DIR_MACOS@extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}/chrome/icons/default/chatzilla-window16.xpm
+@DIR_MACOS@extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}/chrome/icons/default/chatzilla-window.ico
+@DIR_MACOS@extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}/chrome.manifest
+@DIR_MACOS@extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}/components/
+@DIR_MACOS@extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}/components/chatzilla-service.js
+@DIR_MACOS@extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}/install.rdf
+@DIR_MACOS@extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi
+@DIR_MACOS@extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}/
+@DIR_MACOS@extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}/chrome.manifest
+@DIR_MACOS@extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}/icon.png
+@DIR_MACOS@extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}/install.rdf
+@DIR_MACOS@extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}/preview.png
+@DIR_MACOS@extensions/{f13b157f-b174-47e7-a34d-4815ddfdfeb8}/
+@DIR_MACOS@extensions/{f13b157f-b174-47e7-a34d-4815ddfdfeb8}/chrome/
+@DIR_MACOS@extensions/{f13b157f-b174-47e7-a34d-4815ddfdfeb8}/chrome/venkman.jar
+@DIR_MACOS@extensions/{f13b157f-b174-47e7-a34d-4815ddfdfeb8}/chrome.manifest
+@DIR_MACOS@extensions/{f13b157f-b174-47e7-a34d-4815ddfdfeb8}/components/
+@DIR_MACOS@extensions/{f13b157f-b174-47e7-a34d-4815ddfdfeb8}/components/venkman-service.js
+@DIR_MACOS@extensions/{f13b157f-b174-47e7-a34d-4815ddfdfeb8}/install.rdf
+@DIR_MACOS@extensions/{f13b157f-b174-47e7-a34d-4815ddfdfeb8}.xpi
+@DIR_MACOS@extensions/debugQA@mozilla.org/
+@DIR_MACOS@extensions/debugQA@mozilla.org/install.rdf
+@DIR_MACOS@extensions/debugQA@mozilla.org/chrome.manifest
+@DIR_MACOS@extensions/debugQA@mozilla.org/chrome/
+@DIR_MACOS@extensions/debugQA@mozilla.org/chrome/debugqa.jar
+@DIR_MACOS@extensions/debugQA@mozilla.org.xpi
+@DIR_MACOS@extensions/inspector@mozilla.org/
+@DIR_MACOS@extensions/inspector@mozilla.org/install.rdf
+@DIR_MACOS@extensions/inspector@mozilla.org/chrome.manifest
+@DIR_MACOS@extensions/inspector@mozilla.org/chrome/
+@DIR_MACOS@extensions/inspector@mozilla.org/chrome/inspector.jar
+@DIR_MACOS@extensions/inspector@mozilla.org/platform/
+@DIR_MACOS@extensions/inspector@mozilla.org/platform/Linux/
+@DIR_MACOS@extensions/inspector@mozilla.org/platform/Linux/chrome/
+@DIR_MACOS@extensions/inspector@mozilla.org/platform/Linux/chrome/icons/
+@DIR_MACOS@extensions/inspector@mozilla.org/platform/Linux/chrome/icons/default/
+@DIR_MACOS@extensions/inspector@mozilla.org/platform/Linux/chrome/icons/default/winInspectorMain16.xpm
+@DIR_MACOS@extensions/inspector@mozilla.org/platform/Linux/chrome/icons/default/winInspectorMain.xpm
+@DIR_MACOS@extensions/inspector@mozilla.org/platform/WINNT/chrome/icons/default/winInspectorMain.ico
+@DIR_MACOS@extensions/inspector@mozilla.org/components/
+@DIR_MACOS@extensions/inspector@mozilla.org/components/inspector-cmdline.js
+@DIR_MACOS@extensions/inspector@mozilla.org/defaults/
+@DIR_MACOS@extensions/inspector@mozilla.org/defaults/preferences/
+@DIR_MACOS@extensions/inspector@mozilla.org/defaults/preferences/inspector.js
+@DIR_MACOS@extensions/inspector@mozilla.org.xpi
+@DIR_MACOS@extensions/langpack-ca@chatzilla.mozilla.org/chrome/chatzilla.jar
+@DIR_MACOS@extensions/langpack-ca@chatzilla.mozilla.org/chrome/chatzilla.manifest
+@DIR_MACOS@extensions/langpack-ca@chatzilla.mozilla.org/chrome.manifest
+@DIR_MACOS@extensions/langpack-ca@chatzilla.mozilla.org/install.js
+@DIR_MACOS@extensions/langpack-ca@chatzilla.mozilla.org/install.rdf
+@DIR_MACOS@extensions/langpack-ca@chatzilla.mozilla.org.xpi
+@DIR_MACOS@extensions/langpack-cs@chatzilla.mozilla.org/chrome/chatzilla.jar
+@DIR_MACOS@extensions/langpack-cs@chatzilla.mozilla.org/chrome/chatzilla.manifest
+@DIR_MACOS@extensions/langpack-cs@chatzilla.mozilla.org/chrome.manifest
+@DIR_MACOS@extensions/langpack-cs@chatzilla.mozilla.org/install.js
+@DIR_MACOS@extensions/langpack-cs@chatzilla.mozilla.org/install.rdf
+@DIR_MACOS@extensions/langpack-cs@chatzilla.mozilla.org.xpi
+@DIR_MACOS@extensions/langpack-de@chatzilla.mozilla.org/chrome/chatzilla.jar
+@DIR_MACOS@extensions/langpack-de@chatzilla.mozilla.org/chrome/chatzilla.manifest
+@DIR_MACOS@extensions/langpack-de@chatzilla.mozilla.org/chrome.manifest
+@DIR_MACOS@extensions/langpack-de@chatzilla.mozilla.org/install.js
+@DIR_MACOS@extensions/langpack-de@chatzilla.mozilla.org/install.rdf
+@DIR_MACOS@extensions/langpack-de@chatzilla.mozilla.org.xpi
+@DIR_MACOS@extensions/langpack-es-ES@chatzilla.mozilla.org/chrome/chatzilla.jar
+@DIR_MACOS@extensions/langpack-es-ES@chatzilla.mozilla.org/chrome/chatzilla.manifest
+@DIR_MACOS@extensions/langpack-es-ES@chatzilla.mozilla.org/chrome.manifest
+@DIR_MACOS@extensions/langpack-es-ES@chatzilla.mozilla.org/install.js
+@DIR_MACOS@extensions/langpack-es-ES@chatzilla.mozilla.org/install.rdf
+@DIR_MACOS@extensions/langpack-es-ES@chatzilla.mozilla.org.xpi
+@DIR_MACOS@extensions/langpack-fi@chatzilla.mozilla.org/install.rdf
+@DIR_MACOS@extensions/langpack-fi@chatzilla.mozilla.org/chrome/chatzilla.jar
+@DIR_MACOS@extensions/langpack-fi@chatzilla.mozilla.org/chrome/chatzilla.manifest
+@DIR_MACOS@extensions/langpack-fi@chatzilla.mozilla.org/chrome.manifest
+@DIR_MACOS@extensions/langpack-fi@chatzilla.mozilla.org/install.js
+@DIR_MACOS@extensions/langpack-fi@chatzilla.mozilla.org.xpi
+@DIR_MACOS@extensions/langpack-fr@chatzilla.mozilla.org/chrome/chatzilla.jar
+@DIR_MACOS@extensions/langpack-fr@chatzilla.mozilla.org/chrome/chatzilla.manifest
+@DIR_MACOS@extensions/langpack-fr@chatzilla.mozilla.org/chrome.manifest
+@DIR_MACOS@extensions/langpack-fr@chatzilla.mozilla.org/install.js
+@DIR_MACOS@extensions/langpack-fr@chatzilla.mozilla.org/install.rdf
+@DIR_MACOS@extensions/langpack-fr@chatzilla.mozilla.org.xpi
+@DIR_MACOS@extensions/langpack-it@chatzilla.mozilla.org/chrome/chatzilla.jar
+@DIR_MACOS@extensions/langpack-it@chatzilla.mozilla.org/chrome/chatzilla.manifest
+@DIR_MACOS@extensions/langpack-it@chatzilla.mozilla.org/chrome.manifest
+@DIR_MACOS@extensions/langpack-it@chatzilla.mozilla.org/install.js
+@DIR_MACOS@extensions/langpack-it@chatzilla.mozilla.org/install.rdf
+@DIR_MACOS@extensions/langpack-it@chatzilla.mozilla.org.xpi
+@DIR_MACOS@extensions/langpack-ja@chatzilla.mozilla.org/chrome/chatzilla.jar
+@DIR_MACOS@extensions/langpack-ja@chatzilla.mozilla.org/chrome/chatzilla.manifest
+@DIR_MACOS@extensions/langpack-ja@chatzilla.mozilla.org/chrome.manifest
+@DIR_MACOS@extensions/langpack-ja@chatzilla.mozilla.org/install.js
+@DIR_MACOS@extensions/langpack-ja@chatzilla.mozilla.org/install.rdf
+@DIR_MACOS@extensions/langpack-ja@chatzilla.mozilla.org.xpi
+@DIR_MACOS@extensions/langpack-ja-JP-mac@chatzilla.mozilla.org/chrome/chatzilla.jar
+@DIR_MACOS@extensions/langpack-ja-JP-mac@chatzilla.mozilla.org/chrome/chatzilla.manifest
+@DIR_MACOS@extensions/langpack-ja-JP-mac@chatzilla.mozilla.org/chrome.manifest
+@DIR_MACOS@extensions/langpack-ja-JP-mac@chatzilla.mozilla.org/install.js
+@DIR_MACOS@extensions/langpack-ja-JP-mac@chatzilla.mozilla.org/install.rdf
+@DIR_MACOS@extensions/langpack-ja-JP-mac@chatzilla.mozilla.org.xpi
+@DIR_MACOS@extensions/langpack-nb-NO@chatzilla.mozilla.org/chrome/chatzilla.jar
+@DIR_MACOS@extensions/langpack-nb-NO@chatzilla.mozilla.org/chrome/chatzilla.manifest
+@DIR_MACOS@extensions/langpack-nb-NO@chatzilla.mozilla.org/chrome.manifest
+@DIR_MACOS@extensions/langpack-nb-NO@chatzilla.mozilla.org/install.js
+@DIR_MACOS@extensions/langpack-nb-NO@chatzilla.mozilla.org/install.rdf
+@DIR_MACOS@extensions/langpack-nb-NO@chatzilla.mozilla.org.xpi
+@DIR_MACOS@extensions/langpack-pl@chatzilla.mozilla.org/install.rdf
+@DIR_MACOS@extensions/langpack-pl@chatzilla.mozilla.org/chrome/chatzilla.jar
+@DIR_MACOS@extensions/langpack-pl@chatzilla.mozilla.org/chrome/chatzilla.manifest
+@DIR_MACOS@extensions/langpack-pl@chatzilla.mozilla.org/chrome.manifest
+@DIR_MACOS@extensions/langpack-pl@chatzilla.mozilla.org/install.js
+@DIR_MACOS@extensions/langpack-pl@chatzilla.mozilla.org.xpi
+@DIR_MACOS@extensions/langpack-pt-BR@chatzilla.mozilla.org/chrome/chatzilla.jar
+@DIR_MACOS@extensions/langpack-pt-BR@chatzilla.mozilla.org/chrome/chatzilla.manifest
+@DIR_MACOS@extensions/langpack-pt-BR@chatzilla.mozilla.org/chrome.manifest
+@DIR_MACOS@extensions/langpack-pt-BR@chatzilla.mozilla.org/install.js
+@DIR_MACOS@extensions/langpack-pt-BR@chatzilla.mozilla.org/install.rdf
+@DIR_MACOS@extensions/langpack-pt-BR@chatzilla.mozilla.org.xpi
+@DIR_MACOS@extensions/langpack-pt-PT@chatzilla.mozilla.org/chrome/chatzilla.jar
+@DIR_MACOS@extensions/langpack-pt-PT@chatzilla.mozilla.org/chrome/chatzilla.manifest
+@DIR_MACOS@extensions/langpack-pt-PT@chatzilla.mozilla.org/chrome.manifest
+@DIR_MACOS@extensions/langpack-pt-PT@chatzilla.mozilla.org/install.js
+@DIR_MACOS@extensions/langpack-pt-PT@chatzilla.mozilla.org/install.rdf
+@DIR_MACOS@extensions/langpack-pt-PT@chatzilla.mozilla.org.xpi
+@DIR_MACOS@extensions/langpack-ru@chatzilla.mozilla.org/chrome/chatzilla.jar
+@DIR_MACOS@extensions/langpack-ru@chatzilla.mozilla.org/chrome/chatzilla.manifest
+@DIR_MACOS@extensions/langpack-ru@chatzilla.mozilla.org/chrome.manifest
+@DIR_MACOS@extensions/langpack-ru@chatzilla.mozilla.org/install.js
+@DIR_MACOS@extensions/langpack-ru@chatzilla.mozilla.org/install.rdf
+@DIR_MACOS@extensions/langpack-ru@chatzilla.mozilla.org.xpi
+@DIR_MACOS@extensions/langpack-si@chatzilla.mozilla.org/chrome/chatzilla.jar
+@DIR_MACOS@extensions/langpack-si@chatzilla.mozilla.org/chrome/chatzilla.manifest
+@DIR_MACOS@extensions/langpack-si@chatzilla.mozilla.org/chrome.manifest
+@DIR_MACOS@extensions/langpack-si@chatzilla.mozilla.org/install.js
+@DIR_MACOS@extensions/langpack-si@chatzilla.mozilla.org/install.rdf
+@DIR_MACOS@extensions/langpack-si@chatzilla.mozilla.org.xpi
+@DIR_MACOS@extensions/langpack-sk@chatzilla.mozilla.org/chrome/chatzilla.jar
+@DIR_MACOS@extensions/langpack-sk@chatzilla.mozilla.org/chrome/chatzilla.manifest
+@DIR_MACOS@extensions/langpack-sk@chatzilla.mozilla.org/chrome.manifest
+@DIR_MACOS@extensions/langpack-sk@chatzilla.mozilla.org/install.js
+@DIR_MACOS@extensions/langpack-sk@chatzilla.mozilla.org/install.rdf
+@DIR_MACOS@extensions/langpack-sk@chatzilla.mozilla.org.xpi
+@DIR_MACOS@extensions/langpack-sv-SE@chatzilla.mozilla.org/chrome/chatzilla.jar
+@DIR_MACOS@extensions/langpack-sv-SE@chatzilla.mozilla.org/chrome/chatzilla.manifest
+@DIR_MACOS@extensions/langpack-sv-SE@chatzilla.mozilla.org/chrome.manifest
+@DIR_MACOS@extensions/langpack-sv-SE@chatzilla.mozilla.org/install.js
+@DIR_MACOS@extensions/langpack-sv-SE@chatzilla.mozilla.org/install.rdf
+@DIR_MACOS@extensions/langpack-sv-SE@chatzilla.mozilla.org.xpi
+@DIR_MACOS@extensions/langpack-ca@venkman.mozilla.org/chrome/venkman.jar
+@DIR_MACOS@extensions/langpack-ca@venkman.mozilla.org/chrome/venkman.manifest
+@DIR_MACOS@extensions/langpack-ca@venkman.mozilla.org/chrome.manifest
+@DIR_MACOS@extensions/langpack-ca@venkman.mozilla.org/install.js
+@DIR_MACOS@extensions/langpack-ca@venkman.mozilla.org/install.rdf
+@DIR_MACOS@extensions/langpack-ca@venkman.mozilla.org.xpi
+@DIR_MACOS@extensions/langpack-de@venkman.mozilla.org/chrome/venkman.jar
+@DIR_MACOS@extensions/langpack-de@venkman.mozilla.org/chrome/venkman.manifest
+@DIR_MACOS@extensions/langpack-de@venkman.mozilla.org/chrome.manifest
+@DIR_MACOS@extensions/langpack-de@venkman.mozilla.org/install.js
+@DIR_MACOS@extensions/langpack-de@venkman.mozilla.org/install.rdf
+@DIR_MACOS@extensions/langpack-de@venkman.mozilla.org.xpi
+@DIR_MACOS@extensions/langpack-es-ES@venkman.mozilla.org/chrome/venkman.jar
+@DIR_MACOS@extensions/langpack-es-ES@venkman.mozilla.org/chrome/venkman.manifest
+@DIR_MACOS@extensions/langpack-es-ES@venkman.mozilla.org/chrome.manifest
+@DIR_MACOS@extensions/langpack-es-ES@venkman.mozilla.org/install.js
+@DIR_MACOS@extensions/langpack-es-ES@venkman.mozilla.org/install.rdf
+@DIR_MACOS@extensions/langpack-es-ES@venkman.mozilla.org.xpi
+@DIR_MACOS@extensions/langpack-fr@venkman.mozilla.org/chrome/venkman.jar
+@DIR_MACOS@extensions/langpack-fr@venkman.mozilla.org/chrome/venkman.manifest
+@DIR_MACOS@extensions/langpack-fr@venkman.mozilla.org/chrome.manifest
+@DIR_MACOS@extensions/langpack-fr@venkman.mozilla.org/install.js
+@DIR_MACOS@extensions/langpack-fr@venkman.mozilla.org/install.rdf
+@DIR_MACOS@extensions/langpack-fr@venkman.mozilla.org.xpi
+@DIR_MACOS@extensions/langpack-it@venkman.mozilla.org/chrome/venkman.jar
+@DIR_MACOS@extensions/langpack-it@venkman.mozilla.org/chrome/venkman.manifest
+@DIR_MACOS@extensions/langpack-it@venkman.mozilla.org/chrome.manifest
+@DIR_MACOS@extensions/langpack-it@venkman.mozilla.org/install.js
+@DIR_MACOS@extensions/langpack-it@venkman.mozilla.org/install.rdf
+@DIR_MACOS@extensions/langpack-it@venkman.mozilla.org.xpi
+@DIR_MACOS@extensions/langpack-ja@venkman.mozilla.org/chrome/venkman.jar
+@DIR_MACOS@extensions/langpack-ja@venkman.mozilla.org/chrome/venkman.manifest
+@DIR_MACOS@extensions/langpack-ja@venkman.mozilla.org/chrome.manifest
+@DIR_MACOS@extensions/langpack-ja@venkman.mozilla.org/install.js
+@DIR_MACOS@extensions/langpack-ja@venkman.mozilla.org/install.rdf
+@DIR_MACOS@extensions/langpack-ja@venkman.mozilla.org.xpi
+@DIR_MACOS@extensions/langpack-ja-JP-mac@venkman.mozilla.org/chrome/venkman.jar
+@DIR_MACOS@extensions/langpack-ja-JP-mac@venkman.mozilla.org/chrome/venkman.manifest
+@DIR_MACOS@extensions/langpack-ja-JP-mac@venkman.mozilla.org/chrome.manifest
+@DIR_MACOS@extensions/langpack-ja-JP-mac@venkman.mozilla.org/install.js
+@DIR_MACOS@extensions/langpack-ja-JP-mac@venkman.mozilla.org/install.rdf
+@DIR_MACOS@extensions/langpack-ja-JP-mac@venkman.mozilla.org.xpi
+@DIR_MACOS@extensions/langpack-nb-NO@venkman.mozilla.org/chrome/venkman.jar
+@DIR_MACOS@extensions/langpack-nb-NO@venkman.mozilla.org/chrome/venkman.manifest
+@DIR_MACOS@extensions/langpack-nb-NO@venkman.mozilla.org/chrome.manifest
+@DIR_MACOS@extensions/langpack-nb-NO@venkman.mozilla.org/install.js
+@DIR_MACOS@extensions/langpack-nb-NO@venkman.mozilla.org/install.rdf
+@DIR_MACOS@extensions/langpack-nb-NO@venkman.mozilla.org.xpi
+@DIR_MACOS@extensions/langpack-pl@venkman.mozilla.org/chrome/venkman.jar
+@DIR_MACOS@extensions/langpack-pl@venkman.mozilla.org/chrome/venkman.manifest
+@DIR_MACOS@extensions/langpack-pl@venkman.mozilla.org/chrome.manifest
+@DIR_MACOS@extensions/langpack-pl@venkman.mozilla.org/install.js
+@DIR_MACOS@extensions/langpack-pl@venkman.mozilla.org/install.rdf
+@DIR_MACOS@extensions/langpack-pl@venkman.mozilla.org.xpi
+@DIR_MACOS@extensions/langpack-ru@venkman.mozilla.org/chrome/venkman.jar
+@DIR_MACOS@extensions/langpack-ru@venkman.mozilla.org/chrome/venkman.manifest
+@DIR_MACOS@extensions/langpack-ru@venkman.mozilla.org/chrome.manifest
+@DIR_MACOS@extensions/langpack-ri@venkman.mozilla.org/install.js
+@DIR_MACOS@extensions/langpack-ru@venkman.mozilla.org/install.rdf
+@DIR_MACOS@extensions/langpack-ru@venkman.mozilla.org.xpi
+@DIR_MACOS@extensions/langpack-sv-SE@venkman.mozilla.org/chrome/venkman.jar
+@DIR_MACOS@extensions/langpack-sv-SE@venkman.mozilla.org/chrome/venkman.manifest
+@DIR_MACOS@extensions/langpack-sv-SE@venkman.mozilla.org/chrome.manifest
+@DIR_MACOS@extensions/langpack-sv-SE@venkman.mozilla.org/install.js
+@DIR_MACOS@extensions/langpack-sv-SE@venkman.mozilla.org/install.rdf
+@DIR_MACOS@extensions/langpack-sv-SE@venkman.mozilla.org.xpi
+@DIR_MACOS@extensions/modern@themes.mozilla.org/
+@DIR_MACOS@extensions/modern@themes.mozilla.org/chrome/
+@DIR_MACOS@extensions/modern@themes.mozilla.org/chrome/modern.jar
+@DIR_MACOS@extensions/modern@themes.mozilla.org/chrome.manifest
+@DIR_MACOS@extensions/modern@themes.mozilla.org/icon.png
+@DIR_MACOS@extensions/modern@themes.mozilla.org/install.rdf
+@DIR_MACOS@extensions/modern@themes.mozilla.org/preview.png
+@DIR_MACOS@jssubloader/
+@DIR_MACOS@modules/
+@DIR_MACOS@modules/AddonLogging.jsm
+@DIR_MACOS@modules/AddonManager.jsm
+@DIR_MACOS@modules/AddonRepository.jsm
+@DIR_MACOS@modules/AddonUpdateChecker.jsm
+@DIR_MACOS@modules/BrowserElementPromptService.jsm
+@DIR_MACOS@modules/CertUtils.jsm
+@DIR_MACOS@modules/CommonDialog.jsm
+@DIR_MACOS@modules/CrashSubmit.jsm
+@DIR_MACOS@modules/CSPUtils.jsm
+@DIR_MACOS@modules/ctypes.jsm
+@DIR_MACOS@modules/debug.js
+@DIR_MACOS@modules/dictUtils.js
+@DIR_MACOS@modules/errUtils.js
+@DIR_MACOS@modules/FileUtils.jsm
+@DIR_MACOS@modules/folderUtils.jsm
+@DIR_MACOS@modules/Geometry.jsm
+@DIR_MACOS@modules/gloda/
+@DIR_MACOS@modules/gloda/mimeTypeCategories.js
+@DIR_MACOS@modules/gloda/log4moz.js
+@DIR_MACOS@modules/gloda/gloda.js
+@DIR_MACOS@modules/gloda/datamodel.js
+@DIR_MACOS@modules/gloda/databind.js
+@DIR_MACOS@modules/gloda/index_ab.js
+@DIR_MACOS@modules/gloda/msg_search.js
+@DIR_MACOS@modules/gloda/public.js
+@DIR_MACOS@modules/gloda/noun_freetag.js
+@DIR_MACOS@modules/gloda/utils.js
+@DIR_MACOS@modules/gloda/suffixtree.js
+@DIR_MACOS@modules/gloda/indexer.js
+@DIR_MACOS@modules/gloda/fundattr.js
+@DIR_MACOS@modules/gloda/dbview.js
+@DIR_MACOS@modules/gloda/datastore.js
+@DIR_MACOS@modules/gloda/everybody.js
+@DIR_MACOS@modules/gloda/collection.js
+@DIR_MACOS@modules/gloda/query.js
+@DIR_MACOS@modules/gloda/noun_tag.js
+@DIR_MACOS@modules/gloda/connotent.js
+@DIR_MACOS@modules/gloda/noun_mimetype.js
+@DIR_MACOS@modules/gloda/index_msg.js
+@DIR_MACOS@modules/gloda/mimemsg.js
+@DIR_MACOS@modules/gloda/explattr.js
+@DIR_MACOS@modules/gloda/facet.js
+@DIR_MACOS@modules/InlineSpellChecker.jsm
+@DIR_MACOS@modules/IOUtils.js
+@DIR_MACOS@modules/ISO8601DateUtils.jsm
+@DIR_MACOS@modules/iteratorUtils.jsm
+@DIR_MACOS@modules/jsTreeSelection.js
+@DIR_MACOS@modules/LightweightThemeConsumer.jsm
+@DIR_MACOS@modules/LightweightThemeManager.jsm
+@DIR_MACOS@modules/mailnewsMigrator.js
+@DIR_MACOS@modules/MailUtils.js
+@DIR_MACOS@modules/Microformats.js
+@DIR_MACOS@modules/NetUtil.jsm
+@DIR_MACOS@modules/nsFormAutoCompleteResult.jsm
+@DIR_MACOS@modules/PerfMeasurement.jsm
+@DIR_MACOS@modules/PlacesDBUtils.jsm
+@DIR_MACOS@modules/PlacesUIUtils.jsm
+@DIR_MACOS@modules/PlacesUtils.jsm
+@DIR_MACOS@modules/PluginProvider.jsm
+@DIR_MACOS@modules/PluralForm.jsm
+@DIR_MACOS@modules/PopupNotifications.jsm
+@DIR_MACOS@modules/Sanitizer.jsm
+@DIR_MACOS@modules/Services.jsm
+@DIR_MACOS@modules/StringBundle.js
+@DIR_MACOS@modules/services-common/async.js
+@DIR_MACOS@modules/services-common/log4moz.js
+@DIR_MACOS@modules/services-common/observers.js
+@DIR_MACOS@modules/services-common/preferences.js
+@DIR_MACOS@modules/services-common/rest.js
+@DIR_MACOS@modules/services-common/stringbundle.js
+@DIR_MACOS@modules/services-common/tokenserverclient.js
+@DIR_MACOS@modules/services-common/utils.js
+@DIR_MACOS@modules/services-crypto/utils.js
+@DIR_MACOS@modules/services-crypto/WeaveCrypto.js
+@DIR_MACOS@modules/services-notifications/service.js
+@DIR_MACOS@modules/templateUtils.js
+@DIR_MACOS@modules/traceHelper.js
+@DIR_MACOS@modules/UserAgentOverrides.jsm
+@DIR_MACOS@modules/utils.js
+@DIR_MACOS@modules/virtualFolderWrapper.js
+@DIR_MACOS@modules/WindowDraggingUtils.jsm
+@DIR_MACOS@modules/WorkerTest.jsm
+@DIR_MACOS@modules/WorkerTest_subworker.js
+@DIR_MACOS@modules/WorkerTest_worker.js
+@DIR_MACOS@modules/XPCOMUtils.jsm
+@DIR_MACOS@modules/XPIProvider.jsm
+@DIR_MACOS@greprefs.js
+@DIR_MACOS@res/contenteditable.css
+@DIR_MACOS@res/designmode.css
+@DIR_MACOS@res/EditorOverride.css
+@DIR_MACOS@res/grabber.gif
+@DIR_MACOS@res/langGroups.properties
+@DIR_MACOS@res/language.properties
+@DIR_MACOS@res/svg.css
+@DIR_MACOS@res/table-add-column-after-active.gif
+@DIR_MACOS@res/table-add-column-after-hover.gif
+@DIR_MACOS@res/table-add-column-after.gif
+@DIR_MACOS@res/table-add-column-before-active.gif
+@DIR_MACOS@res/table-add-column-before-hover.gif
+@DIR_MACOS@res/table-add-column-before.gif
+@DIR_MACOS@res/table-add-row-after-active.gif
+@DIR_MACOS@res/table-add-row-after-hover.gif
+@DIR_MACOS@res/table-add-row-after.gif
+@DIR_MACOS@res/table-add-row-before-active.gif
+@DIR_MACOS@res/table-add-row-before-hover.gif
+@DIR_MACOS@res/table-add-row-before.gif
+@DIR_MACOS@res/table-remove-column-active.gif
+@DIR_MACOS@res/table-remove-column-hover.gif
+@DIR_MACOS@res/table-remove-column.gif
+@DIR_MACOS@res/table-remove-row-active.gif
+@DIR_MACOS@res/table-remove-row-hover.gif
+@DIR_MACOS@res/table-remove-row.gif
+@DIR_MACOS@res/fonts/
+@DIR_MACOS@res/fonts/mathfont.properties
+@DIR_MACOS@res/fonts/mathfontStandardSymbolsL.properties
+@DIR_MACOS@res/fonts/mathfontSTIXNonUnicode.properties
+@DIR_MACOS@res/fonts/mathfontSTIXSize1.properties
+@DIR_MACOS@res/fonts/mathfontSTIXSizeOneSym.properties
+#ifdef XP_WIN
+  res/fonts/mathfontSymbol.properties
+#endif
+@DIR_MACOS@res/fonts/mathfontUnicode.properties
+@DIR_MACOS@res/dtd/
+@DIR_MACOS@res/dtd/mathml.dtd
+@DIR_MACOS@res/dtd/xhtml11.dtd
+@DIR_MACOS@res/html/
+@DIR_MACOS@res/html/folder.png
+#ifdef MOZ_UPDATER
+  @DIR_MACOS@update.locale
 #endif
 
 ; pre-libxul static mail library

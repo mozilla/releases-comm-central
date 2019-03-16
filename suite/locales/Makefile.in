@@ -157,11 +157,9 @@ repackage-extensions: $(STAGEDIST)
 ifdef MOZ_IRC
 	$(MAKE) -C $(DEPTH)/extensions/irc/locales repackage-zip-$(AB_CD) STAGEDIST=$(STAGEDIST)
 endif
-ifeq ($(MOZ_PACKAGER_FORMAT),omni)
 	$(NSINSTALL) -D $(STAGEDIST)/distribution/extensions
 	$(MAKE) -C ../app pack-ext AB_CD=$(AB_CD) STAGEDIST=$(STAGEDIST)/extensions;
 	$(MAKE) -C ../app pack-ext AB_CD=$(AB_CD) STAGEDIST=$(STAGEDIST)/distribution/extensions;
-endif
 
 langpack: langpack-$(AB_CD)
 

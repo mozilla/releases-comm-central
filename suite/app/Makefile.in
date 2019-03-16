@@ -73,7 +73,6 @@ GARBAGE += $(MOZ_APP_NAME).1
 GARBAGE += $(addprefix $(DIST)/bin/defaults/pref/, browser-prefs.js)
 endif
 
-ifeq ($(MOZ_PACKAGER_FORMAT),omni)
 # Make extensions end up as XPIs instead of flat chrome when doing omni.jar.
 # Extensions that appear in dist/bin/extensions will get bundled with the
 # application, ones that appear in dist/bin/distribution/extensions will be
@@ -106,11 +105,8 @@ tools::
 	@$(MAKE) pack-ext STAGEDIST="$(DIST)/bin/extensions"
 	@$(MAKE) pack-ext STAGEDIST="$(DIST)/bin/distribution/extensions"
 
-endif
-
+# Additional macOS build steps.
 ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
-# Anything below the above ifdef won't be included in mac builds. So be very
-# careful what you add here.
 
 MAC_APP_NAME = $(MOZ_APP_DISPLAYNAME)
 

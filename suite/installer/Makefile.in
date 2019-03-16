@@ -193,10 +193,6 @@ ifdef MOZ_CLANG_RT_ASAN_LIB_PATH
 DEFINES += -DMOZ_CLANG_RT_ASAN_LIB=$(notdir $(MOZ_CLANG_RT_ASAN_LIB_PATH))
 endif
 
-ifeq ($(MOZ_PACKAGER_FORMAT),omni)
-DEFINES += -DMOZ_OMNIJAR=1
-endif
-
 libs::
 	$(MAKE) -C $(topobjdir)/comm/suite/locales langpack
 
