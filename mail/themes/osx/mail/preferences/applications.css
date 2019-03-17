@@ -14,18 +14,12 @@
   margin-bottom: -1px;
 }
 
-.typeIcon,
 .actionIcon {
-  margin: 0px 3px;
-}
-
-richlistitem label {
-  margin-inline-start: 1px;
-  margin-top: 2px;
+  margin: 0 3px;
 }
 
 richlistitem {
-  min-height: 22px;
+  min-height: 35px;
 }
 
 richlistitem[appHandlerIcon="ask"],
@@ -58,23 +52,21 @@ menuitem[appHandlerIcon="save"] {
 /**
  * Used by the outgoing attachment manager
  */
-.cloudfileAccount[state="connecting"],
-.cloudfileAccount[state="waiting-to-connect"] {
-  list-style-image: url("chrome://global/skin/icons/loading.png") !important;
-}
-
-.cloudfileAccount[state="auth-error"],
-.cloudfileAccount[state="no-connection"] {
-  list-style-image: url("chrome://global/skin/icons/error.svg") !important;
-  -moz-context-properties: fill;
-  fill: #d70022;
-}
 
 .cloudfileAccount .typeIcon {
   max-height: 16px;
   max-width: 16px;
-  margin-top: 3px;
-  margin-bottom: 3px;
+  margin-inline-end: 5px;
+}
+
+.cloudfileAccount:not([selected]) > label {
+  pointer-events: none;
+}
+
+.cloudfileAccount > textbox {
+  min-height: unset;
+  margin: 0;
+  padding-inline-start: 4px;
 }
 
 #authMessage {
@@ -99,9 +91,7 @@ menuitem[appHandlerIcon="save"] {
 }
 
 @media (min-resolution: 2dppx) {
-  .cloudfileAccount[state="connecting"],
-  .cloudfileAccount[state="waiting-to-connect"],
-  #cloudFileLoadingSpinner  {
-    list-style-image: url("chrome://global/skin/icons/loading@2x.png") !important;
+  #cloudFileLoadingSpinner {
+    list-style-image: url("chrome://global/skin/icons/loading@2x.png");
   }
 }

@@ -15,14 +15,12 @@
   margin-inline-end: 0;
 }
 
-.typeIcon,
 .actionIcon {
-  margin: 0px 3px;
+  margin: 0 3px;
 }
 
-#handlersView richlistitem label {
-  margin-inline-start: 1px;
-  margin-top: 2px;
+richlistitem {
+  min-height: 35px;
 }
 
 richlistitem[appHandlerIcon="ask"],
@@ -60,15 +58,14 @@ menuitem[appHandlerIcon="save"] {
 .cloudfileAccount .typeIcon {
   height: 16px;
   width: 16px;
-  margin-top: 3px;
-  margin-bottom: 3px;
 }
 
 .cloudfileAccount > label {
-  /* This label needs to be the same height as the textbox. */
-  margin-top: 3px;
-  margin-bottom: 4px;
+  margin-inline-start: 1px;
+  margin-top: initial;
+  margin-bottom: initial;
 }
+
 .cloudfileAccount:not([selected]) > label {
   pointer-events: none;
 }
@@ -77,12 +74,12 @@ menuitem[appHandlerIcon="save"] {
   color: -moz-fieldtext !important;
   min-height: unset;
   margin: 0;
-  padding-inline: 4px;
+  padding-inline-start: 4px;
 }
 
 #authMessage {
   text-align: center;
-  padding: 0px 80px;
+  padding: 0 80px;
 }
 
 #authImage {
@@ -99,4 +96,10 @@ menuitem[appHandlerIcon="save"] {
   width: 16px;
   height: 16px;
   list-style-image: url("chrome://global/skin/icons/loading.png");
+}
+
+@media (min-resolution: 1.1dppx) {
+  #cloudFileLoadingSpinner {
+    list-style-image: url("chrome://global/skin/icons/loading@2x.png");
+  }
 }

@@ -616,7 +616,7 @@ var gCloudFileTab = {
   makeRichListItemForAccount(aAccount) {
     let rli = document.createElement("richlistitem");
     rli.value = aAccount.accountKey;
-    rli.setAttribute("align", "baseline");
+    rli.setAttribute("align", "center");
     rli.setAttribute("class", "cloudfileAccount");
     rli.setAttribute("value", aAccount.accountKey);
 

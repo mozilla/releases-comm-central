@@ -295,13 +295,13 @@ tab:-moz-focusring > .tab-middle {
 }
 
 .typeIcon {
-  margin-inline-start: 10px !important;
-  margin-inline-end: 9px !important;
+  margin-inline-start: 10px;
+  margin-inline-end: 9px;
 }
 
 .actionIcon {
-  margin-inline-start: 11px !important;
-  margin-inline-end: 8px !important;
+  margin-inline-start: 11px;
+  margin-inline-end: 8px;
 }
 
 .actionsMenu {
