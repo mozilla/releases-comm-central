@@ -38,54 +38,6 @@ pv.extend = function(f) {
   return new g();
 };
 
-try {
-  eval("pv.parse = function(x) x;"); // native support
-} catch (e) {
-
-/**
- * Parses a Protovis specification, which may use JavaScript 1.8 function
- * expresses, replacing those function expressions with proper functions such
- * that the code can be run by a JavaScript 1.6 interpreter. This hack only
- * supports function expressions (using clumsy regular expressions, no less),
- * and not other JavaScript 1.8 features such as let expressions.
- *
- * @param {string} s a Protovis specification (i.e., a string of JavaScript 1.8
- * source code).
- * @returns {string} a conformant JavaScript 1.6 source code.
- */
-  pv.parse = function(js) { // hacky regex support
-    var re = new RegExp("function(\\s+\\w+)?\\([^)]*\\)\\s*", "mg"), m, i = 0;
-    var s = "";
-    while ((m = re.exec(js))) {
-      var j = m.index + m[0].length;
-      if (js[j--] != '{') {
-        s += js.substring(i, j) + "{return ";
-        i = j;
-        for (var p = 0; p >= 0 && j < js.length; j++) {
-          switch (js[j]) {
-            case '"': case '\'': {
-              var c = js[j];
-              while (++j < js.length && (js[j] != c)) {
-                if (js[j] == '\\') j++;
-              }
-              break;
-            }
-            case '[': case '(': p++; break;
-            case ']': case ')': p--; break;
-            case ';':
-            case ',': if (p == 0) p--; break;
-          }
-        }
-        s += pv.parse(js.substring(i, --j)) + ";}";
-        i = j;
-      }
-      re.lastIndex = j;
-    }
-    s += js.substring(i);
-    return s;
-  };
-}
-
 /**
  * Returns the passed-in argument, <tt>x</tt>; the identity function. This method
  * is provided for convenience since it is used as the default behavior for a
