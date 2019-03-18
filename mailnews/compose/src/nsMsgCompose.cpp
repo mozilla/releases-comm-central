@@ -613,7 +613,7 @@ remove_plaintext_tag(nsString &body)
   }
 }
 
-NS_IMETHODIMP
+MOZ_CAN_RUN_SCRIPT_FOR_DEFINITION NS_IMETHODIMP
 nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
                                           nsString& aBuf,
                                           nsString& aSignature,
@@ -929,7 +929,8 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
 
       case 2:
       {
-        m_editor->SelectAll();
+        nsCOMPtr<nsIEditor> editor(m_editor);  // Strong reference.
+        editor->SelectAll();
         break;
       }
 
@@ -1634,7 +1635,8 @@ static nsresult fixCharset(nsCString &aCharset)
 //  (it did the loadURI that triggered editor creation)
 // It is called from JS after editor creation
 //  (loadURI is done in JS)
-NS_IMETHODIMP nsMsgCompose::InitEditor(nsIEditor* aEditor, mozIDOMWindowProxy* aContentWindow)
+MOZ_CAN_RUN_SCRIPT_FOR_DEFINITION NS_IMETHODIMP
+nsMsgCompose::InitEditor(nsIEditor* aEditor, mozIDOMWindowProxy* aContentWindow)
 {
   NS_ENSURE_ARG_POINTER(aEditor);
   NS_ENSURE_ARG_POINTER(aContentWindow);
@@ -2464,7 +2466,14 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStartRequest(nsIRequest *request)
   return NS_OK;
 }
 
-NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, nsresult status)
+NS_IMETHODIMP
+QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, nsresult status)
+{
+  return OnStopRequestInternal(request,status);
+}
+
+MOZ_CAN_RUN_SCRIPT_BOUNDARY nsresult
+QuotingOutputStreamListener::OnStopRequestInternal(nsIRequest *request, nsresult status)
 {
   nsresult rv = NS_OK;
 
@@ -4601,7 +4610,7 @@ nsMsgCompose::ProcessSignature(nsIMsgIdentity *identity, bool aQuoted, nsString 
   return NS_OK;
 }
 
-nsresult
+MOZ_CAN_RUN_SCRIPT nsresult
 nsMsgCompose::BuildBodyMessageAndSignature()
 {
   nsresult    rv = NS_OK;

@@ -176,6 +176,7 @@ public:
 
 private:
     virtual ~QuotingOutputStreamListener();
+    nsresult OnStopRequestInternal(nsIRequest *request, nsresult status);
     nsWeakPtr                   mWeakComposeObj;
     nsString                    mMsgBody;
     nsString                    mCitePrefix;
