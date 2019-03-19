@@ -17,7 +17,7 @@ DIRS += [
     'import/text/src',
     'import/vcard/src',
     'intl',
-    'jsaccount',
+    # 'jsaccount',
     'local/public',
     'local/src',
     'mime',

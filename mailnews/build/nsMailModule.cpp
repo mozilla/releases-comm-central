@@ -189,6 +189,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 //  jsAccount includes
 ////////////////////////////////////////////////////////////////////////////////
+
+// Warning: When you re-enable this, be sure to touch msgIDelegateList.idl
+// or else msgIDelegateList.h is not generated again and you get inexplicable
+// compile errors.
+#define JSACCOUNT_EABLED 0
+#if JSACCOUNT_EABLED
 #include "msgJsAccountCID.h"
 #include "JaAbDirectory.h"
 #include "JaCompose.h"
@@ -196,6 +202,7 @@
 #include "JaMsgFolder.h"
 #include "JaSend.h"
 #include "JaUrl.h"
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // imap includes
@@ -576,6 +583,7 @@ NS_DEFINE_NAMED_CID(NS_MSGCOMPUTILS_CID);
 ////////////////////////////////////////////////////////////////////////////////
 // jsAccount factories
 ////////////////////////////////////////////////////////////////////////////////
+#if JSACCOUNT_EABLED
 NS_GENERIC_FACTORY_CONSTRUCTOR(JaCppAbDirectoryDelegator)
 NS_GENERIC_FACTORY_CONSTRUCTOR(JaCppComposeDelegator)
 NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(JaCppIncomingServerDelegator, Init)
@@ -589,6 +597,7 @@ NS_DEFINE_NAMED_CID(JACPPINCOMINGSERVERDELEGATOR_CID);
 NS_DEFINE_NAMED_CID(JACPPMSGFOLDERDELEGATOR_CID);
 NS_DEFINE_NAMED_CID(JACPPSENDDELEGATOR_CID);
 NS_DEFINE_NAMED_CID(JACPPURLDELEGATOR_CID);
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // imap factories
@@ -957,12 +966,14 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
   { &kNS_URLFETCHER_CID, false, NULL, nsURLFetcherConstructor},
   { &kNS_MSGCOMPUTILS_CID, false, NULL, nsMsgCompUtilsConstructor},
   // JsAccount Entries
+#if JSACCOUNT_EABLED
   { &kJACPPABDIRECTORYDELEGATOR_CID, false, nullptr, JaCppAbDirectoryDelegatorConstructor },
   { &kJACPPCOMPOSEDELEGATOR_CID, false, nullptr, JaCppComposeDelegatorConstructor },
   { &kJACPPINCOMINGSERVERDELEGATOR_CID, false, nullptr, JaCppIncomingServerDelegatorConstructor },
   { &kJACPPMSGFOLDERDELEGATOR_CID, false, nullptr, JaCppMsgFolderDelegatorConstructor },
   { &kJACPPSENDDELEGATOR_CID, false, nullptr, JaCppSendDelegatorConstructor },
   { &kJACPPURLDELEGATOR_CID, false, nullptr, JaCppUrlDelegatorConstructor },
+#endif
   // Imap Entries
   { &kNS_IMAPURL_CID, false, NULL, nsImapUrlConstructor },
   { &kNS_IMAPPROTOCOL_CID, false, nullptr, nsImapProtocolConstructor },
@@ -1170,12 +1181,14 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
   { NS_URLFETCHER_CONTRACTID, &kNS_URLFETCHER_CID },
   { NS_MSGCOMPUTILS_CONTRACTID, &kNS_MSGCOMPUTILS_CID },
   // JsAccount Entries
+#if JSACCOUNT_EABLED
   { JACPPABDIRECTORYDELEGATOR_CONTRACTID, &kJACPPABDIRECTORYDELEGATOR_CID },
   { JACPPCOMPOSEDELEGATOR_CONTRACTID, &kJACPPCOMPOSEDELEGATOR_CID },
   { JACPPINCOMINGSERVERDELEGATOR_CONTRACTID, &kJACPPINCOMINGSERVERDELEGATOR_CID },
   { JACPPMSGFOLDERDELEGATOR_CONTRACTID, &kJACPPMSGFOLDERDELEGATOR_CID },
   { JACPPSENDDELEGATOR_CONTRACTID, &kJACPPSENDDELEGATOR_CID },
   { JACPPURLDELEGATOR_CONTRACTID, &kJACPPURLDELEGATOR_CID },
+#endif
   // Imap Entries
   { NS_IMAPINCOMINGSERVER_CONTRACTID, &kNS_IMAPINCOMINGSERVER_CID },
   { NS_RDF_RESOURCE_FACTORY_CONTRACTID_PREFIX "imap", &kNS_IMAPRESOURCE_CID },
