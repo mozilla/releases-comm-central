@@ -7,3 +7,4 @@ gloda.jar:
   content/overlay.js               (content/overlay.js)
   content/glodacomplete.css        (content/glodacomplete.css)
   content/glodacomplete.xml        (content/glodacomplete.xml)
+  content/autocomplete-richlistitem.js        (content/autocomplete-richlistitem.js)

@@ -2,6 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/**
+ * glautocomp.js decides which autocomplete item type to
+ * use when one enters text in global search box. There are
+ * following types of autocomplete item: gloda-contact-chunk,
+ * gloda-fulltext-all, gloda-fulltext-single,gloda-multi,
+ * gloda-single-identity, gloda-single-tag.
+ */
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var {logException} = ChromeUtils.import("resource:///modules/errUtils.js");
 
