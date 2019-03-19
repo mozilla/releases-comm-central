@@ -37,6 +37,7 @@ function setupModule(module) {
 
 // Mozmill doesn't support trees yet, therefore completed checkbox and line-through style are not
 // checked.
+testTaskView.__force_skip__ = true;  // See bug 1533702.
 function testTaskView() {
     // paths
     let treeChildren = `
