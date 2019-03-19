@@ -52,8 +52,7 @@ var ATTENDEES_ROW = `
 // Only for Tasks.
 var PERCENT_COMPLETE_INPUT = `
     id("event-grid-todo-status-row")/id("event-grid-todo-status-picker-box")/
-    id("percent-complete-textbox")/anon({"class":"textbox-input-box"})/
-    anon({"anonid":"input"})
+    id("percent-complete-textbox")
 `;
 
 // To be appended to the path for a date- or timepicker.
