@@ -234,7 +234,6 @@ interface nsIMsgCompose : nsIMsgSendListener {
    *  The completion of document loading is detected by observing
    *  the "obs_documentCreated" command
    */
-  [can_run_script]
   void initEditor(in nsIEditor editor, in mozIDOMWindowProxy contentWindow);
 
   /* The following functions are for internal use, essentially for the listener */
@@ -255,7 +254,7 @@ interface nsIMsgCompose : nsIMsgSendListener {
   [noscript] void rememberQueuedDisposition();
 
   /* ... */
-  [can_run_script, noscript]
+  [noscript]
   void convertAndLoadComposeWindow(in nsStringRef aPrefix,
                                    in nsStringRef aBuf,
                                    in nsStringRef aSignature,
@@ -271,7 +270,7 @@ interface nsIMsgCompose : nsIMsgSendListener {
   readonly attribute nsIMsgProgress progress;
 
   /* ... */
-  [can_run_script, noscript]
+  [noscript]
   void buildBodyMessageAndSignature();
 
   /* ... */
