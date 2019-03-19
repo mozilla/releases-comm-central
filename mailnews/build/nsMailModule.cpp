@@ -193,7 +193,7 @@
 // Warning: When you re-enable this, be sure to touch msgIDelegateList.idl
 // or else msgIDelegateList.h is not generated again and you get inexplicable
 // compile errors.
-#define JSACCOUNT_ENABLED 0
+#define JSACCOUNT_ENABLED 1
 #if JSACCOUNT_ENABLED
 #include "msgJsAccountCID.h"
 #include "JaAbDirectory.h"
