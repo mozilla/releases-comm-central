@@ -193,8 +193,8 @@
 // Warning: When you re-enable this, be sure to touch msgIDelegateList.idl
 // or else msgIDelegateList.h is not generated again and you get inexplicable
 // compile errors.
-#define JSACCOUNT_EABLED 0
-#if JSACCOUNT_EABLED
+#define JSACCOUNT_ENABLED 0
+#if JSACCOUNT_ENABLED
 #include "msgJsAccountCID.h"
 #include "JaAbDirectory.h"
 #include "JaCompose.h"
@@ -583,7 +583,7 @@ NS_DEFINE_NAMED_CID(NS_MSGCOMPUTILS_CID);
 ////////////////////////////////////////////////////////////////////////////////
 // jsAccount factories
 ////////////////////////////////////////////////////////////////////////////////
-#if JSACCOUNT_EABLED
+#if JSACCOUNT_ENABLED
 NS_GENERIC_FACTORY_CONSTRUCTOR(JaCppAbDirectoryDelegator)
 NS_GENERIC_FACTORY_CONSTRUCTOR(JaCppComposeDelegator)
 NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(JaCppIncomingServerDelegator, Init)
@@ -966,7 +966,7 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
   { &kNS_URLFETCHER_CID, false, NULL, nsURLFetcherConstructor},
   { &kNS_MSGCOMPUTILS_CID, false, NULL, nsMsgCompUtilsConstructor},
   // JsAccount Entries
-#if JSACCOUNT_EABLED
+#if JSACCOUNT_ENABLED
   { &kJACPPABDIRECTORYDELEGATOR_CID, false, nullptr, JaCppAbDirectoryDelegatorConstructor },
   { &kJACPPCOMPOSEDELEGATOR_CID, false, nullptr, JaCppComposeDelegatorConstructor },
   { &kJACPPINCOMINGSERVERDELEGATOR_CID, false, nullptr, JaCppIncomingServerDelegatorConstructor },
@@ -1181,7 +1181,7 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
   { NS_URLFETCHER_CONTRACTID, &kNS_URLFETCHER_CID },
   { NS_MSGCOMPUTILS_CONTRACTID, &kNS_MSGCOMPUTILS_CID },
   // JsAccount Entries
-#if JSACCOUNT_EABLED
+#if JSACCOUNT_ENABLED
   { JACPPABDIRECTORYDELEGATOR_CONTRACTID, &kJACPPABDIRECTORYDELEGATOR_CID },
   { JACPPCOMPOSEDELEGATOR_CONTRACTID, &kJACPPCOMPOSEDELEGATOR_CID },
   { JACPPINCOMINGSERVERDELEGATOR_CONTRACTID, &kJACPPINCOMINGSERVERDELEGATOR_CID },
