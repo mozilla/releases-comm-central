@@ -359,6 +359,7 @@ function test_manual_attachment_reminder() {
   // Delete the leftover draft message.
   press_delete();
 }
+test_manual_attachment_reminder.EXCLUDED_PLATFORMS = ["winnt", "linux"];  // See bug 1535292.
 
 /**
  * Bug 938759
