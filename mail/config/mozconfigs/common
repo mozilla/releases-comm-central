@@ -5,7 +5,3 @@ ac_add_options --enable-calendar
 # This is the default on trunk, but it is toggled for beta causing
 # MozMill to fail since its add-ons aren't signed. So we force it here.
 MOZ_REQUIRE_SIGNING=0
-
-# Temporarily disable the clang plugin. See
-# https://bugzilla.mozilla.org/show_bug.cgi?id=1536047
-unset ENABLE_CLANG_PLUGIN
