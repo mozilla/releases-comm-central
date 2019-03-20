@@ -19,37 +19,37 @@ var activityObject = {
     this._activitiesView.selectAll();
   },
 
-  // Utility Functions for Activity binding management
+  // Utility Functions for Activity element management
 
   /**
-   * Creates the proper binding for the given activity
+   * Creates the proper element for the given activity
    */
-  createActivityBinding(aActivity) {
-    let bindingName = aActivity.bindingName;
-    let binding = document.createElement(bindingName);
+  createActivityWidget(type) {
+    let builtInName = type.bindingName;
+    let element = document.createElement("richlistitem", { is: builtInName });
 
-    if (binding) {
-      binding.setAttribute("actID", aActivity.id);
+    if (element) {
+      element.setAttribute("actID", type.id);
     }
 
-    return binding;
+    return element;
   },
 
   /**
-   * Returns the activity group binding that matches the context_type
+   * Returns the activity group element that matches the context_type
    * and context of the given activity, if any.
    */
-  getActivityGroupBindingByContext(aContextType, aContextObj) {
+  getActivityGroupElementByContext(aContextType, aContextObj) {
     return this._groupCache.get(aContextType + ":" + aContextObj);
   },
 
   /**
-   * Inserts the given binding into the correct position on the
+   * Inserts the given element into the correct position on the
    * activity manager window.
    */
-  placeActivityBinding(aBinding) {
-    if (aBinding.isGroup || aBinding.isProcess) {
-      this._activitiesView.insertBefore(aBinding,
+  placeActivityElement(element) {
+    if (element.isGroup || element.isProcess) {
+      this._activitiesView.insertBefore(element,
                                         this._activitiesView.firstChild);
     } else {
       let next = this._activitiesView.firstChild;
@@ -57,29 +57,28 @@ var activityObject = {
         next = next.nextSibling;
       }
       if (next) {
-        this._activitiesView.insertBefore(aBinding, next);
+        this._activitiesView.insertBefore(element, next);
       } else {
-        this._activitiesView.appendChild(aBinding);
+        this._activitiesView.appendChild(element);
       }
     }
-    if (aBinding.isGroup) {
-      this._groupCache.set(aBinding.contextType + ":" + aBinding.contextObj,
-                           aBinding);
+    if (element.isGroup) {
+      this._groupCache.set(element.contextType + ":" + element.contextObj, element);
     }
     while (this._activitiesView.childNodes.length > ACTIVITY_LIMIT) {
-      this.removeActivityBinding(this._activitiesView.lastChild.getAttribute("actID"));
+      this.removeActivityElement(this._activitiesView.lastChild.getAttribute("actID"));
     }
   },
 
   /**
-   * Adds a new binding to activity manager window for the
+   * Adds a new element to activity manager window for the
    * given activity. It is called by ActivityMgrListener when
    * a new activity is added into the activity manager's internal
    * list.
    */
-  addActivityBinding(aID, aActivity) {
+  addActivityElement(aID, aActivity) {
     try {
-      this._activityLogger.info(`Adding ActivityBinding: ${aID}, ${aActivity}`);
+      this._activityLogger.info(`Adding ActivityElement: ${aID}, ${aActivity}`);
       // get |groupingStyle| of the activity. Grouping style determines
       // whether we show the activity standalone or grouped by context in
       // the activity manager window.
@@ -90,7 +89,7 @@ var activityObject = {
       // find out if an activity group has already been created for this context
       let group = null;
       if (isGroupByContext) {
-        group = this.getActivityGroupBindingByContext(aActivity.contextType,
+        group = this.getActivityGroupElementByContext(aActivity.contextType,
                                                  aActivity.contextObj);
         // create a group if it's not already created.
         if (!group) {
@@ -102,33 +101,33 @@ var activityObject = {
           group.contextDisplayText = aActivity.contextDisplayText;
 
           // add group into the list
-          this.placeActivityBinding(group);
+          this.placeActivityElement(group);
         }
       }
 
-      // create the appropriate binding for the activity
-      let actBinding = this.createActivityBinding(aActivity);
-      this._activityLogger.info("created activity binding");
+      // create the appropriate element for the activity
+      let actElement = this.createActivityWidget(aActivity);
+      this._activityLogger.info("created activity element");
 
       if (group) {
         // get the inner list element of the group
         let groupView = group.querySelector(".activitygroupbox");
-        groupView.appendChild(actBinding);
+        groupView.appendChild(actElement);
       } else {
-        this.placeActivityBinding(actBinding);
+        this.placeActivityElement(actElement);
       }
     } catch (e) {
-      this._activityLogger.error("addActivityBinding: " + e);
+      this._activityLogger.error("addActivityElement: " + e);
       throw e;
     }
   },
 
   /**
-   * Removes the activity binding from the activity manager window.
+   * Removes the activity element from the activity manager window.
    * It is called by ActivityMgrListener when the activity in question
    * is removed from the activity manager's internal list.
    */
-  removeActivityBinding(aID) {
+  removeActivityElement(aID) {
     // Note: document.getAnonymousNodes(_activitiesView); didn't work
     this._activityLogger.info("removing Activity ID: " + aID);
     let activities = this._activitiesView.childNodes;
@@ -142,9 +141,6 @@ var activityObject = {
       if (!item.isGroup) {
         this._activityLogger.debug("is not a group, ");
         if (item.getAttribute("actID") == aID) {
-          // since XBL dtors are not working properly when we remove the
-          // element, we have to explicitly remove the binding from
-          // activities' listeners list. See bug 230086 for details.
           item.detachFromActivity();
           item.remove();
           break;
@@ -153,14 +149,11 @@ var activityObject = {
         // string to identify the activity item through actID attribute
         // in querySelector.
         let actIDValueStr = "[actID='" + aID + "']";
-        let actbinding = item.querySelector(actIDValueStr);
-        if (actbinding) {
+        let actElement = item.querySelector(actIDValueStr);
+        if (actElement) {
           let groupView = document.querySelector(".activitygroupbox");
-          // since XBL dtors are not working properly when we remove the
-          // element, we have to explicitly remove the binding from
-          // activities' listeners list. See bug 230086 for details.
-          actbinding.detachFromActivity();
-          actbinding.remove();
+          actElement.detachFromActivity();
+          actElement.remove();
 
           // if the group becomes empty after the removal,
           // get rid of the group as well
@@ -168,7 +161,6 @@ var activityObject = {
             this._groupCache.delete(item.contextType + ":" + item.contextObj);
             item.remove();
           }
-
           break;
         }
       }
@@ -186,7 +178,7 @@ var activityObject = {
       for (let iActivity = Math.max(0, activities.length - ACTIVITY_LIMIT);
            iActivity < activities.length; iActivity++) {
         let activity = activities[iActivity];
-        this.addActivityBinding(activity.id, activity);
+        this.addActivityElement(activity.id, activity);
       }
 
       // start listening changes in the activity manager's
@@ -201,7 +193,7 @@ var activityObject = {
   rebuild() {
     let activities = activityManager.getActivities({});
     for (let activity of activities) {
-      this.addActivityBinding(activity.id, activity);
+      this.addActivityElement(activity.id, activity);
     }
   },
 
@@ -224,20 +216,17 @@ var activityObject = {
     // everything.
     activityManager.cleanUp();
 
-    // since XBL dtors are not working properly when we remove the element,
-    // we have to explicitly remove the binding from activities' listeners
-    // list. See bug 230086 for details.
     let activities = this._activitiesView.childNodes;
     for (let i = activities.length - 1; i >= 0; i--) {
       let item = activities[i];
       if (!item.isGroup) {
         item.detachFromActivity();
       } else {
-        let actbinding = document.getAnonymousElementByAttribute(item, "actID", "*");
-        while (actbinding) {
-          actbinding.detachFromActivity();
-          actbinding.remove();
-          actbinding = document.getAnonymousElementByAttribute(item, "actID", "*");
+        let actElement = document.getAnonymousElementByAttribute(item, "actID", "*");
+        while (actElement) {
+          actElement.detachFromActivity();
+          actElement.remove();
+          actElement = document.getAnonymousElementByAttribute(item, "actID", "*");
         }
       }
     }
@@ -284,13 +273,13 @@ activityObject.ActivityMgrListener.prototype = {
   onAddedActivity(aID, aActivity) {
     activityObject._activityLogger.info(`added activity: ${aID} ${aActivity}`);
     if (!activityObject._ignoreNotifications) {
-      activityObject.addActivityBinding(aID, aActivity);
+      activityObject.addActivityElement(aID, aActivity);
     }
   },
 
   onRemovedActivity(aID) {
     if (!activityObject._ignoreNotifications) {
-      activityObject.removeActivityBinding(aID);
+      activityObject.removeActivityElement(aID);
     }
   },
 };
