@@ -783,7 +783,7 @@ pref("mail.main_menu.collapse_by_default", true);
 // instead of space in the file name.
 pref("mail.save_msg_filename_underscores_for_space", false);
 
-#ifdef MOZ_CONTENT_SANDBOX
+#ifdef MOZ_SANDBOX
 // This controls the strength of the Windows content process sandbox for testing
 // purposes. This will require a restart.
 // On windows these levels are:
