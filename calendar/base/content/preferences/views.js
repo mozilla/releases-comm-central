@@ -33,9 +33,9 @@ var gViewsPane = {
      * values set in prefs.
      */
     init: function() {
-        this.updateViewEndMenu(document.getElementById("daystarthour").value);
-        this.updateViewStartMenu(document.getElementById("dayendhour").value);
-        this.updateViewWorkDayCheckboxes(document.getElementById("weekstarts").value);
+        this.updateViewEndMenu(Preferences.get("calendar.view.daystarthour").value);
+        this.updateViewStartMenu(Preferences.get("calendar.view.dayendhour").value);
+        this.updateViewWorkDayCheckboxes(Preferences.get("calendar.week.start").value);
         this.initializeViewStartEndMenus();
     },
 
