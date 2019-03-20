@@ -472,18 +472,6 @@ function awDeleteHit(inputElement)
   awDeleteRow(row);
 }
 
-function awInputChanged(inputElement)
-{
-  dump("awInputChanged\n");
-//  AutoCompleteAddress(inputElement);
-
-  //Do we need to add a new row?
-  var lastInput = awGetInputElement(top.MAX_RECIPIENTS);
-  if ( lastInput && lastInput.value && !top.doNotCreateANewRow)
-    awAppendNewRow(false);
-  top.doNotCreateANewRow = false;
-}
-
 function awAppendNewRow(setFocus)
 {
   var listbox = document.getElementById('addressingWidget');
@@ -648,12 +636,7 @@ function awSetFocus(row, inputElement) {
   awSetFocusTo(inputElement);
 }
 
-function awTabFromRecipient(element, event)
-{
-  //If we are the last element in the listbox, we don't want to create a new row.
-  if (element == awGetInputElement(top.MAX_RECIPIENTS))
-    top.doNotCreateANewRow = true;
-
+function awTabFromRecipient(element, event) {
   var row = awGetRowByInputElement(element);
   if (!event.shiftKey && row < top.MAX_RECIPIENTS) {
     var listBoxRow = row - 1; // listbox row indices are 0-based, ours are 1-based.
@@ -750,15 +733,15 @@ function awRecipientErrorCommand(errItem, element)
 
 function awRecipientKeyPress(event, element)
 {
-  switch(event.keyCode) {
-  case KeyEvent.DOM_VK_UP:
+  switch(event.key) {
+  case "ArrowUp":
     awArrowHit(element, -1);
     break;
-  case KeyEvent.DOM_VK_DOWN:
+  case "ArrowDown":
     awArrowHit(element, 1);
     break;
-  case KeyEvent.DOM_VK_RETURN:
-  case KeyEvent.DOM_VK_TAB:
+  case "Enter":
+  case "Tab":
     // if the user text contains a comma or a line return, ignore
     if (element.value.search(',') != -1)
     {
@@ -766,7 +749,7 @@ function awRecipientKeyPress(event, element)
       element.value = ""; // clear out the current line so we don't try to autocomplete it..
       parseAndAddAddresses(addresses, awGetPopupElement(awGetRowByInputElement(element)).selectedItem.getAttribute("value"));
     }
-    else if (event.keyCode == KeyEvent.DOM_VK_TAB)
+    else if (event.key == "Tab")
       awTabFromRecipient(element, event);
 
     break;
@@ -788,9 +771,9 @@ function awArrowHit(inputElement, direction)
 
 function awRecipientKeyDown(event, element)
 {
-  switch(event.keyCode) {
-  case KeyEvent.DOM_VK_DELETE:
-  case KeyEvent.DOM_VK_BACK_SPACE:
+  switch(event.key) {
+  case "Delete":
+  case "Backspace":
     /* do not query directly the value of the text field else the autocomplete widget could potentially
        alter it value while doing some internal cleanup, instead, query the value through the first child
     */
@@ -806,9 +789,9 @@ function awRecipientKeyDown(event, element)
 
 function awKeyDown(event, listboxElement)
 {
-  switch(event.keyCode) {
-  case KeyEvent.DOM_VK_DELETE:
-  case KeyEvent.DOM_VK_BACK_SPACE:
+  switch(event.key) {
+  case "Delete":
+  case "Backspace":
     /* Warning, the listboxElement.selectedItems will change everytime we delete a row */
     var length = listboxElement.selectedItems.length;
     for (var i = 1; i <= length; i++) {
@@ -822,8 +805,8 @@ function awKeyDown(event, listboxElement)
 
 function awMenulistKeyPress(event, element)
 {
-  switch(event.keyCode) {
-  case KeyEvent.DOM_VK_TAB:
+  switch(event.key) {
+  case "Tab":
     awTabFromMenulist(element, event);
     break;
   }
