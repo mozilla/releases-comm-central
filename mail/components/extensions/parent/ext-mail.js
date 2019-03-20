@@ -1278,6 +1278,10 @@ class MessageManager {
   get(id) {
     return messageTracker.getMessage(id);
   }
+
+  startMessageList(messageList) {
+    return messageListTracker.startList(messageList, this.extension);
+  }
 }
 
 extensions.on("startup", (type, extension) => { // eslint-disable-line mozilla/balanced-listeners

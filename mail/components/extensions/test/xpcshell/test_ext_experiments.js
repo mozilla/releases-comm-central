@@ -39,6 +39,16 @@ add_task(async function test_managers() {
       browser.test.assertEq(testMessage.id, convertedMessage.id);
       browser.test.assertEq(testMessage.subject, convertedMessage.subject);
 
+      let messageList = await browser.testapi.testCanStartMessageList();
+      browser.test.assertEq(36, messageList.id.length);
+      browser.test.assertEq(4, messageList.messages.length);
+      browser.test.assertEq(testMessage.subject, messageList.messages[0].subject);
+
+      messageList = await browser.messages.continueList(messageList.id);
+      browser.test.assertEq(null, messageList.id);
+      browser.test.assertEq(1, messageList.messages.length);
+      browser.test.assertTrue(testMessage.subject != messageList.messages[0].subject);
+
       browser.test.notifyPass("finished");
     },
     files: {
@@ -70,6 +80,11 @@ add_task(async function test_managers() {
           type: "function",
           async: true,
           parameters: [],
+        }, {
+          name: "testCanStartMessageList",
+          type: "function",
+          async: true,
+          parameters: [],
         }],
       }]),
       "implementation.js": `
@@ -96,6 +111,10 @@ add_task(async function test_managers() {
                   let realMessage = realFolder.messages.getNext();
                   return context.extension.messageManager.convert(realMessage);
                 },
+                async testCanStartMessageList() {
+                  let realFolder = [...MailServices.accounts.allFolders.enumerate()].find(f => f.name == "test1");
+                  return context.extension.messageManager.startMessageList(realFolder.messages);
+                },
               },
             };
           }
@@ -116,7 +135,9 @@ add_task(async function test_managers() {
       },
     },
   });
+  Services.prefs.setIntPref("extensions.webextensions.messagesPerPage", 4);
   await extension.startup();
   await extension.awaitFinish("finished");
   await extension.unload();
+  Services.prefs.clearUserPref("extensions.webextensions.messagesPerPage");
 });
