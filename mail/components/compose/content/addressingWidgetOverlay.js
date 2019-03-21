@@ -103,89 +103,89 @@ function Recipients2CompFields(msgCompFields) {
     throw new Error("Message Compose Error: msgCompFields is null (ExtractRecipients)");
   }
 
-    var i = 1;
-    var addrTo = "";
-    var addrCc = "";
-    var addrBcc = "";
-    var addrReply = "";
-    var addrNg = "";
-    var addrFollow = "";
-    var to_Sep = "";
-    var cc_Sep = "";
-    var bcc_Sep = "";
-    var reply_Sep = "";
-    var ng_Sep = "";
-    var follow_Sep = "";
+  var i = 1;
+  var addrTo = "";
+  var addrCc = "";
+  var addrBcc = "";
+  var addrReply = "";
+  var addrNg = "";
+  var addrFollow = "";
+  var to_Sep = "";
+  var cc_Sep = "";
+  var bcc_Sep = "";
+  var reply_Sep = "";
+  var ng_Sep = "";
+  var follow_Sep = "";
 
-    var recipientType;
-    var inputField;
-    var fieldValue;
-    var recipient;
-    while ((inputField = awGetInputElement(i))) {
-      fieldValue = inputField.value;
-      if (fieldValue != "") {
-        recipientType = awGetPopupElement(i).value;
-        recipient = null;
+  var recipientType;
+  var inputField;
+  var fieldValue;
+  var recipient;
+  while ((inputField = awGetInputElement(i))) {
+    fieldValue = inputField.value;
+    if (fieldValue != "") {
+      recipientType = awGetPopupElement(i).value;
+      recipient = null;
 
-        switch (recipientType) {
-          case "addr_to":
-          case "addr_cc":
-          case "addr_bcc":
-          case "addr_reply":
-            try {
-              let headerParser = MailServices.headerParser;
-              recipient =
-                headerParser.makeFromDisplayAddress(fieldValue, {})
-                            .map(fullValue => headerParser.makeMimeAddress(fullValue.name,
-                                                                           fullValue.email))
-                            .join(", ");
-            } catch (ex) {
-              recipient = fieldValue;
-            }
-            break;
-        }
-
-        switch (recipientType) {
-          case "addr_to":
-            addrTo += to_Sep + recipient;
-            to_Sep = ",";
-            break;
-          case "addr_cc":
-            addrCc += cc_Sep + recipient;
-            cc_Sep = ",";
-            break;
-          case "addr_bcc":
-            addrBcc += bcc_Sep + recipient;
-            bcc_Sep = ",";
-            break;
-          case "addr_reply":
-            addrReply += reply_Sep + recipient;
-            reply_Sep = ",";
-            break;
-          case "addr_newsgroups":
-            addrNg += ng_Sep + fieldValue;
-            ng_Sep = ",";
-            break;
-          case "addr_followup":
-            addrFollow += follow_Sep + fieldValue;
-            follow_Sep = ",";
-            break;
-          case "addr_other":
-            let headerName = awGetPopupElement(i).label;
-            headerName = headerName.substring(0, headerName.indexOf(":"));
-            msgCompFields.setRawHeader(headerName, fieldValue, null);
-            break;
-        }
+      switch (recipientType) {
+        case "addr_to":
+        case "addr_cc":
+        case "addr_bcc":
+        case "addr_reply":
+          try {
+            let headerParser = MailServices.headerParser;
+            recipient =
+              headerParser.makeFromDisplayAddress(fieldValue, {})
+                          .map(fullValue => headerParser.makeMimeAddress(fullValue.name,
+                                                                         fullValue.email))
+                          .join(", ");
+          } catch (ex) {
+            recipient = fieldValue;
+          }
+          break;
       }
-      i++;
-    }
 
-    msgCompFields.to = addrTo;
-    msgCompFields.cc = addrCc;
-    msgCompFields.bcc = addrBcc;
-    msgCompFields.replyTo = addrReply;
-    msgCompFields.newsgroups = addrNg;
-    msgCompFields.followupTo = addrFollow;
+      switch (recipientType) {
+        case "addr_to":
+          addrTo += to_Sep + recipient;
+          to_Sep = ",";
+          break;
+        case "addr_cc":
+          addrCc += cc_Sep + recipient;
+          cc_Sep = ",";
+          break;
+        case "addr_bcc":
+          addrBcc += bcc_Sep + recipient;
+          bcc_Sep = ",";
+          break;
+        case "addr_reply":
+          addrReply += reply_Sep + recipient;
+          reply_Sep = ",";
+          break;
+        case "addr_newsgroups":
+          addrNg += ng_Sep + fieldValue;
+          ng_Sep = ",";
+          break;
+        case "addr_followup":
+          addrFollow += follow_Sep + fieldValue;
+          follow_Sep = ",";
+          break;
+        case "addr_other":
+          let headerName = awGetPopupElement(i).label;
+          headerName = headerName.substring(0, headerName.indexOf(":"));
+          msgCompFields.setRawHeader(headerName, fieldValue, null);
+          break;
+      }
+    }
+    i++;
+  }
+
+  msgCompFields.to = addrTo;
+  msgCompFields.cc = addrCc;
+  msgCompFields.bcc = addrBcc;
+  msgCompFields.replyTo = addrReply;
+  msgCompFields.newsgroups = addrNg;
+  msgCompFields.followupTo = addrFollow;
 }
 
 function CompFields2Recipients(msgCompFields) {
