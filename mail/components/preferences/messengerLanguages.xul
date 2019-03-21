@@ -28,35 +28,37 @@
         class="prefpane largeDialogContainer"
         flex="1">
     <description data-l10n-id="messenger-languages-description"/>
-
-    <grid flex="1">
-      <columns>
-        <column flex="1"/>
-        <column/>
-      </columns>
-      <rows>
-        <row flex="1">
-            <richlistbox id="selectedLocales" flex="1"/>
-          <vbox>
-            <button id="up" class="action-button" disabled="true" data-l10n-id="languages-customize-moveup"/>
-            <button id="down" class="action-button" disabled="true" data-l10n-id="languages-customize-movedown"/>
-            <button id="remove" class="action-button" disabled="true" data-l10n-id="languages-customize-remove"/>
-          </vbox>
-        </row>
-        <row>
-          <menulist id="availableLocales"
-                    class="available-locales-list"
-                    data-l10n-id="messenger-languages-select-language"
-                    data-l10n-attrs="placeholder,label">
-            <menupopup/>
-          </menulist>
+    <hbox flex="1">
+      <vbox flex="1">
+        <richlistbox id="selectedLocales" flex="1"/>
+        <menulist id="availableLocales"
+                  class="available-locales-list"
+                  data-l10n-id="messenger-languages-select-language"
+                  data-l10n-attrs="placeholder,label">
+          <menupopup/>
+        </menulist>
+      </vbox>
+      <vbox>
+        <button id="up"
+                class="action-button"
+                disabled="true"
+                data-l10n-id="languages-customize-moveup"/>
+        <button id="down"
+                class="action-button"
+                disabled="true"
+                data-l10n-id="languages-customize-movedown"/>
+        <button id="remove"
+                class="action-button"
+                disabled="true"
+                data-l10n-id="languages-customize-remove"/>
+        <vbox flex="1" pack="end">
           <button id="add"
                   class="add-messenger-language action-button"
                   data-l10n-id="languages-customize-add"
                   disabled="true"/>
-        </row>
-      </rows>
-    </grid>
+        </vbox>
+      </vbox>
+    </hbox>
     <hbox id="warning-message" class="message-bar message-bar-warning" hidden="true">
       <image class="message-bar-icon"/>
       <description class="message-bar-description" data-l10n-id="messenger-languages-error"/>

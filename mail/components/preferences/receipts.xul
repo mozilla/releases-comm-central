@@ -48,46 +48,53 @@
       <radio value="false" label="&never.label;" accesskey="&never.accesskey;"/>
       <radio value="true" label="&returnSome.label;" accesskey="&returnSome.accesskey;"/>
 
-      <grid class="indent">
-        <columns>
-          <column/>
-          <column/>
-        </columns>
-        <rows>
-          <row align="center">
-            <label id="notInToCcLabel" accesskey="&notInToCc.accesskey;" control="notInToCcPref" value="&notInToCc.label;"/>
-            <menulist id="notInToCcPref" preference="mail.mdn.report.not_in_to_cc">
-              <menupopup>
-                <menuitem value="0" label="&neverSend.label;"/>
-                <menuitem value="1" label="&alwaysSend.label;"/>
-                <menuitem value="2" label="&askMe.label;"/>
-              </menupopup>
-            </menulist>
-          </row>
-          <row align="center">
-            <label id="outsideDomainLabel" accesskey="&outsideDomain.accesskey;"
-                   control="outsideDomainPref" value="&outsideDomain.label;"/>
-            <menulist id="outsideDomainPref" preference="mail.mdn.report.outside_domain">
-              <menupopup>
-                <menuitem value="0" label="&neverSend.label;"/>
-                <menuitem value="1" label="&alwaysSend.label;"/>
-                <menuitem value="2" label="&askMe.label;"/>
-              </menupopup>
-            </menulist>
-          </row>
-          <row align="center">
-            <label id="otherCasesLabel" accesskey="&otherCases.accesskey;" control="otherCasesPref"
+      <vbox class="indent">
+        <hbox align="center">
+          <hbox flex="1">
+            <label id="notInToCcLabel"
+                   accesskey="&notInToCc.accesskey;"
+                   control="notInToCcPref"
+                   value="&notInToCc.label;"/>
+          </hbox>
+          <menulist id="notInToCcPref" preference="mail.mdn.report.not_in_to_cc">
+            <menupopup>
+              <menuitem value="0" label="&neverSend.label;"/>
+              <menuitem value="1" label="&alwaysSend.label;"/>
+              <menuitem value="2" label="&askMe.label;"/>
+            </menupopup>
+          </menulist>
+        </hbox>
+        <hbox align="center">
+          <hbox flex="1">
+            <label id="outsideDomainLabel"
+                   accesskey="&outsideDomain.accesskey;"
+                   control="outsideDomainPref"
+                   value="&outsideDomain.label;"/>
+          </hbox>
+          <menulist id="outsideDomainPref" preference="mail.mdn.report.outside_domain">
+            <menupopup>
+              <menuitem value="0" label="&neverSend.label;"/>
+              <menuitem value="1" label="&alwaysSend.label;"/>
+              <menuitem value="2" label="&askMe.label;"/>
+            </menupopup>
+          </menulist>
+        </hbox>
+        <hbox align="center">
+          <hbox flex="1">
+            <label id="otherCasesLabel"
+                   accesskey="&otherCases.accesskey;"
+                   control="otherCasesPref"
                    value="&otherCases.label;"/>
-            <menulist id="otherCasesPref" preference="mail.mdn.report.other">
-              <menupopup>
-                <menuitem value="0" label="&neverSend.label;"/>
-                <menuitem value="1" label="&alwaysSend.label;"/>
-                <menuitem value="2" label="&askMe.label;"/>
-              </menupopup>
-            </menulist>
-          </row>
-        </rows>
-      </grid>
+          </hbox>
+          <menulist id="otherCasesPref" preference="mail.mdn.report.other">
+            <menupopup>
+              <menuitem value="0" label="&neverSend.label;"/>
+              <menuitem value="1" label="&alwaysSend.label;"/>
+              <menuitem value="2" label="&askMe.label;"/>
+            </menupopup>
+          </menulist>
+        </hbox>
+      </vbox>
     </radiogroup>
     <separator/>
   </prefpane>
