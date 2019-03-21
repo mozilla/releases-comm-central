@@ -194,8 +194,8 @@ var collectChecker = {
 
       this.checkCardResult(aDetails, false);
     } catch (e) {
-      throw "FAILED in checkAddress emailHeader: " + aDetails.emailHeader +
-      " part: " + this.part + " : " + e;
+      throw new Error("FAILED in checkAddress emailHeader: " + aDetails.emailHeader +
+        " part: " + this.part + " : " + e);
     }
     ++this.part;
   },
@@ -218,7 +218,7 @@ var collectChecker = {
       for (i = 0; i < aDetailsArray.length; ++i)
         this.checkCardResult(aDetailsArray[i], true);
     } catch (e) {
-      throw "FAILED in checkAll item: " + i + " : " + e;
+      throw new Error("FAILED in checkAll item: " + i + " : " + e);
     }
   },
 
@@ -243,7 +243,7 @@ var collectChecker = {
       Assert.equal(card.lastName, aDetails.lastName);
       Assert.equal(card.getProperty("_AimScreenName", ""), aDetails.screenName);
     } catch (e) {
-      throw "FAILED in checkCardResult emailHeader: " + aDetails.emailHeader + " : " + e;
+      throw new Error("FAILED in checkCardResult emailHeader: " + aDetails.emailHeader + " : " + e);
     }
   },
 };

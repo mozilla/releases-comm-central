@@ -88,7 +88,7 @@ var accountOptionsHelper = {
           document.getElementById(name).value = opt.getListDefault();
           break;
         default:
-          throw "unknown preference type " + opt.type;
+          throw new Error("unknown preference type " + opt.type);
       }
       if (aAttributes && aAttributes[opt.type]) {
         let element = document.getElementById(name);

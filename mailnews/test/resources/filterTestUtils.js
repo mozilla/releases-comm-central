@@ -54,7 +54,7 @@ function createFilter(list, trigger, value, action) {
     oldValue[information[2]] = value;
     searchTerm.value = oldValue;
   } else {
-    throw "Unknown trigger " + trigger;
+    throw new Error("Unknown trigger " + trigger);
   }
   searchTerm.booleanAnd = true;
   filter.appendTerm(searchTerm);
@@ -66,7 +66,7 @@ function createFilter(list, trigger, value, action) {
     if (1 in information)
       filterAction[information[1]] = information[2];
   } else {
-    throw "Unknown action " + action;
+    throw new Error("Unknown action " + action);
   }
   filter.appendAction(filterAction);
 

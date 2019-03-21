@@ -344,7 +344,7 @@ var EmailAccountProvisioner = {
         resultsGroup = resultsGroup.parentElement;
       }
       if (!resultsGroup)
-        throw "Unexpected error finding resultsGroup.";
+        throw new Error("Unexpected error finding resultsGroup.");
 
       // Return if we're already expanded
       if (resultsGroup.classList.contains("expanded"))

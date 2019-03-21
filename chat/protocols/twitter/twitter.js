@@ -53,7 +53,7 @@ ChatBuddy.prototype = {
   },
   set buddyIconFilename(aName) {
     // Prevent accidental removal of the getter.
-    throw "Don't set chatBuddy.buddyIconFilename directly for Twitter.";
+    throw new Error("Don't set chatBuddy.buddyIconFilename directly for Twitter.");
   },
   createConversation() {
     return this._account.createConversation(this._name);

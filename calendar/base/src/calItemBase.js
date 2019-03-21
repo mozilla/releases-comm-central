@@ -436,7 +436,7 @@ calItemBase.prototype = {
             if (this.hasProperty(propName)) {
                 this.mPropertyParams[propName] = {};
             } else {
-                throw "Property " + aPropName + " not set";
+                throw new Error("Property " + aPropName + " not set");
             }
         }
         if (aParamValue || !isNaN(parseInt(aParamValue, 10))) {
@@ -451,7 +451,7 @@ calItemBase.prototype = {
     getParameterEnumerator: function(aPropName) {
         let propName = aPropName.toUpperCase();
         if (!(propName in this.mPropertyParams)) {
-            throw "Property " + aPropName + " not set";
+            throw new Error("Property " + aPropName + " not set");
         }
         let parameters = this.mPropertyParams[propName];
         return { // nsISimpleEnumerator

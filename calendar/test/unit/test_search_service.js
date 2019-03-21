@@ -68,7 +68,7 @@ function test_failure() {
 
     let provider = {
         searchForCalendars: function(aStr, aHint, aMax, aListener) {
-            throw "error";
+            throw new Error("error");
         }
     };
 

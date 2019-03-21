@@ -41,7 +41,7 @@ var gPrefObserver = {
 
   observe(aObject, aTopic, aMsg) {
     if (aTopic != "nsPref:changed" || aMsg != kEmoticonsThemePref)
-      throw "bad notification";
+      throw new Error("bad notification");
 
     gTheme = getTheme();
   },
@@ -53,7 +53,7 @@ function getSmileRealURI(aSmile)
   if (aSmile in gTheme.iconsHash)
     return gTheme.baseUri + gTheme.iconsHash[aSmile].filename;
 
-  throw "Invalid smile!";
+  throw new Error("Invalid smile!");
 }
 
 function getSmileyList(aThemeName)
@@ -219,7 +219,7 @@ function smileNode(aNode)
 function smileImMarkup(aDocument, aText)
 {
   if (!aDocument)
-    throw "providing an HTML document is required";
+    throw new Error("providing an HTML document is required");
 
   // return early if smileys are disabled
   if (!gTheme.iconsHash)

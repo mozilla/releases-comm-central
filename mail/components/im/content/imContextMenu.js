@@ -233,7 +233,7 @@ imContextMenu.prototype = {
     if (!href || (href.trim() == "")) {
       // Without this we try to save as the current doc,
       // for example, HTML case also throws if empty
-      throw "Empty href";
+      throw new Error("Empty href");
     }
 
     return makeURLAbsolute(this.link.baseURI, href);

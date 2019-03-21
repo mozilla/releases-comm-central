@@ -500,7 +500,7 @@ var chatHandler = {
       }
       return true;
     }
-    throw "Couldn't find the log to select among the set of logs passed.";
+    throw new Error("Couldn't find the log to select among the set of logs passed.");
   },
 
   onLogSelect() {

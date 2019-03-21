@@ -251,7 +251,7 @@ nsMailServer.prototype = {
    */
   playTransaction() {
     if (this._readers.some(e => e.observer.forced))
-      throw "Server timed out!";
+      throw new Error("Server timed out!");
     if (this._readers.length == 1)
       return this._readers[0].transaction;
     return this._readers.map(e => e.transaction);

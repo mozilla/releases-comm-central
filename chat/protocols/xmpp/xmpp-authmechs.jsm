@@ -32,7 +32,7 @@ function* PlainAuth(aUsername, aPassword, aDomain) {
   };
 
   if (stanza.localName != "success")
-    throw "Didn't receive the expected auth success stanza.";
+    throw new Error("Didn't receive the expected auth success stanza.");
 }
 
 // Handle SCRAM-SHA-1 authorization mechanism.
@@ -272,18 +272,18 @@ function saslPrep(aString) {
     "|" + RFC3454.C8 + "|" + RFC3454.C9 + "|" + RFC3454.A1;
   let match = new RegExp(matchStr, "u").test(retVal);
   if (match)
-    throw "String contains prohibited characters";
+    throw new Error("String contains prohibited characters");
 
   // RFC 4013 2.4: Bidirectional Characters.
   let r = new RegExp(RFC3454.D1, "u").test(retVal);
   let l = new RegExp(RFC3454.D2, "u").test(retVal);
   if (l && r)
-    throw "String must not contain LCat and RandALCat characters together";
+    throw new Error("String must not contain LCat and RandALCat characters together");
   else if (r) {
     let matchFirst = new RegExp("^(" + RFC3454.D1 + ")", "u").test(retVal);
     let matchLast = new RegExp("(" + RFC3454.D1 + ")$", "u").test(retVal);
     if (!matchFirst || !matchLast)
-      throw "A RandALCat character must be the first and the last character";
+      throw new Error("A RandALCat character must be the first and the last character");
   }
 
   return retVal;
@@ -296,7 +296,7 @@ function saslName(aName) {
   // ’=3D’ respectively.
   let saslName = saslPrep(aName).replace(/=/g, "=3D").replace(/,/g, "=2C");
   if (!saslName)
-    throw "Name is not valid";
+    throw new Error("Name is not valid");
 
   return saslName;
 }
@@ -350,7 +350,7 @@ function* scramSHA1Auth(aUsername, aPassword, aDomain, aNonce) {
   };
 
   if (receivedStanza.localName != "challenge")
-    throw "Not authorized";
+    throw new Error("Not authorized");
 
   // RFC 5802 (3): SCRAM Algorithm Overview.
   let decodedChallenge = atob(receivedStanza.innerText);
@@ -360,14 +360,14 @@ function* scramSHA1Auth(aUsername, aPassword, aDomain, aNonce) {
   // one (r).
   let attributes = parseChallenge(decodedChallenge);
   if (attributes.hasOwnProperty("e"))
-    throw "Authentication failed: " + attributes.e;
+    throw new Error("Authentication failed: " + attributes.e);
   else if (!attributes.hasOwnProperty("i") ||
            !attributes.hasOwnProperty("s") ||
            !attributes.hasOwnProperty("r")) {
-    throw "Unexpected response: " + decodedChallenge;
+    throw new Error("Unexpected response: " + decodedChallenge);
   }
   if (!attributes.r.startsWith(cNonce))
-    throw "Nonce is not correct";
+    throw new Error("Nonce is not correct");
 
   let clientFinalMessageWithoutProof =
     "c=" + btoa(gs2Header) + ",r=" + attributes.r;
@@ -429,20 +429,20 @@ function* scramSHA1Auth(aUsername, aPassword, aDomain, aNonce) {
 
   // Only check server signature if we succeed to authenticate.
   if (receivedStanza.localName != "success")
-    throw "Didn't receive the expected auth success stanza.";
+    throw new Error("Didn't receive the expected auth success stanza.");
 
   let decodedResponse = atob(receivedStanza.innerText);
 
   // Expected to contain a base64-encoded ServerSignature (v).
   attributes = parseChallenge(decodedResponse);
   if (!attributes.hasOwnProperty("v"))
-    throw "Unexpected response: " + decodedResponse;
+    throw new Error("Unexpected response: " + decodedResponse);
 
   // Compare ServerSignature with our ServerSignature which we calculated in
   // _generateResponse.
   let serverSignatureResponse = atob(attributes.v);
   if (serverSignature != serverSignatureResponse)
-    throw "Server signature does not match";
+    throw new Error("Server signature does not match");
 }
 
 var XMPPAuthMechanisms = {"PLAIN": PlainAuth, "SCRAM-SHA-1": scramSHA1Auth};

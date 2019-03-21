@@ -171,7 +171,7 @@ UIConversation.prototype = {
   removeTarget(aPrplConversation, aContactId) {
     let id = aPrplConversation.id;
     if (!(id in this._prplConv))
-      throw "unknown prpl conversation";
+      throw new Error("unknown prpl conversation");
 
     delete this._prplConv[id];
     if (this._currentTargetId != id)
@@ -653,7 +653,7 @@ ConversationsService.prototype = {
     let id = aPrplConversation.id;
     if (this._uiConv && id in this._uiConv)
       return this._uiConv[id];
-    throw "Unknown conversation";
+    throw new Error("Unknown conversation");
   },
   getUIConversationByContactId(aId) {
     return (aId in this._uiConvByContactId) ? this._uiConvByContactId[aId] : null;

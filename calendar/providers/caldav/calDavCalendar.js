@@ -1353,7 +1353,7 @@ calDavCalendar.prototype = {
             headchannel.QueryInterface(Ci.nsIHttpChannel);
             try {
                 if (headchannel.responseStatus != 200) {
-                    throw "OPTIONS returned unexpected status code: " + headchannel.responseStatus;
+                    throw new Error("OPTIONS returned unexpected status code: " + headchannel.responseStatus);
                 }
             } catch (e) {
                 cal.WARN("CalDAV: Exception: " + e);

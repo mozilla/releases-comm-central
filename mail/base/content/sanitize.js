@@ -215,7 +215,7 @@ Sanitizer.getClearRange = function(ts) {
       startDate = d.valueOf() * 1000; // convert to epoch usec
       break;
     default:
-      throw "Invalid time span for clear private data: " + ts;
+      throw new Error("Invalid time span for clear private data: " + ts);
   }
   return [startDate, endDate];
 };

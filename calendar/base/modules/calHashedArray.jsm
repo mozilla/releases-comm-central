@@ -64,7 +64,7 @@ cal.HashedArray.prototype = {
      */
     itemById: function(id) {
         if (this.mBatch > 0) {
-            throw "Accessing Array by ID not supported in batch mode ";
+            throw new Error("Accessing Array by ID not supported in batch mode");
         }
         return (id in this.mHash ? this.mArray[this.mHash[id]] : null);
     },
@@ -78,7 +78,7 @@ cal.HashedArray.prototype = {
      */
     indexOf: function(item) {
         if (this.mBatch > 0) {
-            throw "Accessing Array Indexes not supported in batch mode";
+            throw new Error("Accessing Array Indexes not supported in batch mode");
         }
         let hashId = this.hashAccessor(item);
         return (hashId in this.mHash ? this.mHash[hashId] : -1);
@@ -91,7 +91,7 @@ cal.HashedArray.prototype = {
      */
     removeById: function(id) {
         if (this.mBatch > 0) {
-            throw "Remvoing by ID in batch mode is not supported"; /* TODO */
+            throw new Error("Remvoing by ID in batch mode is not supported"); /* TODO */
         }
         let index = this.mHash[id];
         delete this.mHash[id];
@@ -222,7 +222,7 @@ cal.HashedArray.prototype = {
 cal.SortedHashedArray = function(comparator) {
     cal.HashedArray.apply(this, arguments);
     if (!comparator) {
-        throw "Sorted Hashed Array needs a comparator";
+        throw new Error("Sorted Hashed Array needs a comparator");
     }
     this.mCompFunc = comparator;
 };

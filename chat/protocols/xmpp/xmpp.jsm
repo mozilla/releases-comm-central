@@ -1372,11 +1372,11 @@ var XMPPAccountPrototype = {
 
   addBuddy(aTag, aName) {
     if (!this._connection)
-      throw "The account isn't connected";
+      throw new Error("The account isn't connected");
 
     let jid = this.normalize(aName);
     if (!jid || !jid.includes("@"))
-      throw "Invalid username";
+      throw new Error("Invalid username");
 
     if (this._buddies.has(jid)) {
       let subscription = this._buddies.get(jid).subscription;
@@ -2297,7 +2297,7 @@ var XMPPAccountPrototype = {
   // aDomain is required, but aNode and aResource are optional.
   _setJID(aDomain, aNode = null, aResource = null) {
     if (!aDomain)
-      throw "aDomain must have a value";
+      throw new Error("aDomain must have a value");
 
     let result = {
       node: aNode,
@@ -2456,7 +2456,7 @@ var XMPPAccountPrototype = {
     let jid = this._parseJID(convName);
     if (!jid || !jid.domain || (isMucParticipant && (!jid.node || !jid.resource))) {
       this.ERROR("Could not create conversation as jid is broken: " + convName);
-      throw "Invalid JID";
+      throw new Error("Invalid JID");
     }
 
     if (!this._conv.has(convName)) {

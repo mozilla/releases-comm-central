@@ -98,7 +98,7 @@ function HTMLTheme(aBaseURI)
   }
 
   if (!("incomingContent" in files))
-    throw "Invalid theme: Incoming/Content.html is missing!";
+    throw new Error("Invalid theme: Incoming/Content.html is missing!");
 }
 
 HTMLTheme.prototype = {
@@ -107,7 +107,7 @@ HTMLTheme.prototype = {
   get status() { return this.incomingContent; },
   get statusNext() { return this.status; },
   get incomingContent() {
-    throw "Incoming/Content.html is a required file";
+    throw new Error("Incoming/Content.html is a required file");
   },
   get incomingNextContent() { return this.incomingContent; },
   get outgoingContent() { return this.incomingContent; },
@@ -157,7 +157,7 @@ function plistToJSON(aElt)
       return array;
 
     default:
-      throw "Unknown tag in plist file";
+      throw new Error("Unknown tag in plist file");
   }
 }
 
@@ -173,12 +173,12 @@ function getInfoPlistContent(aBaseURI)
     let parser = new DOMParser();
     let doc = parser.parseFromStream(stream, null, stream.available(), "text/xml");
     if (doc.documentElement.localName != "plist")
-      throw "Invalid Info.plist file";
+      throw new Error("Invalid Info.plist file");
     let node = doc.documentElement.firstChild;
     while (node && !Element.isInstance(node))
       node = node.nextSibling;
     if (!node || node.localName != "dict")
-      throw "Empty or invalid Info.plist file";
+      throw new Error("Empty or invalid Info.plist file");
     return plistToJSON(node);
   } catch (e) {
     Cu.reportError(e);
@@ -198,7 +198,7 @@ function getThemeByName(aName)
   let baseURI = getChromeBaseURI(aName);
   let metadata = getInfoPlistContent(baseURI);
   if (!metadata)
-    throw "Cannot load theme " + aName;
+    throw new Error("Cannot load theme " + aName);
 
   return {
     name: aName,

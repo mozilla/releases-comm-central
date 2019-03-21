@@ -167,7 +167,7 @@ CommandsService.prototype = {
   // List only the commands for a protocol (excluding the global commands).
   listCommandsForProtocol(aPrplId, commandCount) {
     if (!aPrplId)
-      throw "You must provide a prpl ID.";
+      throw new Error("You must provide a prpl ID.");
 
     let result = [];
     for (let name in this._commands) {

@@ -494,7 +494,7 @@ function menuListSelectItem(menuListId, value) {
     let menuList = document.getElementById(menuListId);
     let index = menuListIndexOf(menuList, value);
     if (index == -1) {
-        throw "menuListSelectItem: No such Element: " + value;
+        throw new Error("menuListSelectItem: No such Element: " + value);
     } else {
         menuList.selectedIndex = index;
     }

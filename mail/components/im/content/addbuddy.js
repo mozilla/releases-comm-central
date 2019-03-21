@@ -18,7 +18,7 @@ var addBuddy = {
     }
     if (!accountList.itemCount) {
       document.getElementById("addBuddyDialog").cancelDialog();
-      throw "No connected account!";
+      throw new Error("No connected account!");
     }
     accountList.selectedIndex = 0;
   },

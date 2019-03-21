@@ -285,8 +285,8 @@ function getTimezone() {
     let nLen = nStr.length;
 
     if (nLen > aLen) {
-      throw "Can't zero-pad when longer than expected length: " + nStr +
-        ".length > " + aLen;
+      throw new Error("Can't zero-pad when longer than expected length: " + nStr +
+        ".length > " + aLen);
     }
 
     return "0".repeat(aLen - nLen) + nStr;

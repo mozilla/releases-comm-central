@@ -502,6 +502,7 @@ function parseCommand(text, partial) {
         throw new Error("Expected CRLF");
       let length = parseInt(text.substring(1, end));
       // Usable state
+      // eslint-disable-next-line no-throw-literal
       throw { length, current, args, stack, text: "" };
     } else if (c == "(") {
       stack.push(current);

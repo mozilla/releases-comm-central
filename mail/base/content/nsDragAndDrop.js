@@ -74,7 +74,7 @@ var nsTransferable = {
    **/
   get(aFlavourSet, aRetrievalFunc, aAnyFlag) {
     if (!aRetrievalFunc)
-      throw "No data retrieval handler provided!";
+      throw new Error("No data retrieval handler provided!");
 
     var array = aRetrievalFunc(aFlavourSet);
     var dataArray = [];
@@ -547,7 +547,7 @@ var nsDragAndDrop = {
       // Stop event propagation right here.
       aEvent.stopPropagation();
 
-      throw "Drop of " + aDraggedText + " denied.";
+      throw new Error("Drop of " + aDraggedText + " denied.");
     }
   },
 };

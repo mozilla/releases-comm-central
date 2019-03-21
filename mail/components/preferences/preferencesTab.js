@@ -56,7 +56,7 @@ var preferencesTabType = {
 
   openTab(aTab, aArgs) {
     if (!("contentPage" in aArgs)) {
-      throw ("contentPage must be specified");
+      throw new Error("contentPage must be specified");
     }
 
     // First clone the page and set up the basics.

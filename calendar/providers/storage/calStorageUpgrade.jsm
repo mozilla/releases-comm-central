@@ -178,7 +178,7 @@ function getVersion(db) {
         }
     }
 
-    throw "cal_calendar_schema_version SELECT returned no results";
+    throw new Error("cal_calendar_schema_version SELECT returned no results");
 }
 
 /**

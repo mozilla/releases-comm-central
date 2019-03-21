@@ -176,10 +176,10 @@ function initGlobalRuleset()
 var styleObserver = {
   observe(aObject, aTopic, aMsg) {
     if (aTopic != "nsPref:changed" || aMsg != kModePref)
-      throw "bad notification";
+      throw new Error("bad notification");
 
     if (!gGlobalRuleset)
-      throw "gGlobalRuleset not initialized";
+      throw new Error("gGlobalRuleset not initialized");
 
     setBaseRuleset(getModePref(), gGlobalRuleset);
   },

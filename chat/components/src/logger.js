@@ -942,7 +942,7 @@ Logger.prototype = {
       getSystemLogWriter(aSubject.account).logEvent(nameText + " is now " + status);
       break;
     default:
-      throw "Unexpected notification " + aTopic;
+      throw new Error("Unexpected notification " + aTopic);
     }
   },
 

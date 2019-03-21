@@ -21,7 +21,7 @@ var joinChat = {
     }
     if (!accountList.itemCount) {
       document.getElementById("joinChatDialog").cancelDialog();
-      throw "No connected MUC enabled account!";
+      throw new Error("No connected MUC enabled account!");
     }
     accountList.selectedIndex = 0;
   },
@@ -94,7 +94,7 @@ var joinChat = {
       if (!val && field.field.required) {
         field.textbox.focus();
         // FIXME: why isn't the return false enough?
-        throw "Some required fields are empty!";
+        throw new Error("Some required fields are empty!");
         // return false;
       }
       if (val)

@@ -221,7 +221,7 @@ Bridge.prototype.execFunction = function(uuid, func, args) {
     });
   } else {
     log("jsbridge threw unknown data in execFunc");
-    throw "JSBridge unknown data in execFunc";
+    throw new Error("JSBridge unknown data in execFunc");
   }
 };
 

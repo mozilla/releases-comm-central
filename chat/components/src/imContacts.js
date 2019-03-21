@@ -492,9 +492,9 @@ Contact.prototype = {
   _massMove: false,
   removeTag(aTag) {
     if (!this.hasTag(aTag))
-      throw "Attempting to remove a tag that the contact doesn't have";
+      throw new Error("Attempting to remove a tag that the contact doesn't have");
     if (this._tags.length == 1)
-      throw "Attempting to remove the last tag of a contact";
+      throw new Error("Attempting to remove the last tag of a contact");
 
     this._massMove = true;
     let hasTag = this.hasTag.bind(this);
@@ -618,7 +618,7 @@ Contact.prototype = {
     let buddy = BuddiesById[aBuddy.id]; // remove XPConnect wrapper
     let oldPosition = this._buddies.indexOf(buddy);
     if (oldPosition == -1)
-      throw "aBuddy isn't attached to this contact";
+      throw new Error("aBuddy isn't attached to this contact");
 
     let newPosition = -1;
     if (aBeforeBuddy)
@@ -670,7 +670,7 @@ Contact.prototype = {
     else {
       let index = this._buddies.indexOf(aBuddy);
       if (index == -1)
-        throw "Removing an unknown buddy from contact " + this._id;
+        throw new Error("Removing an unknown buddy from contact " + this._id);
 
       this._buddies = this._buddies.filter(b => b !== aBuddy);
 
@@ -691,7 +691,7 @@ Contact.prototype = {
     if (aIndexEnd === undefined)
       aIndexEnd = this._buddies.length - 1;
     if (aIndexBegin > aIndexEnd)
-      throw "_updatePositions: Invalid indexes";
+      throw new Error("_updatePositions: Invalid indexes");
 
     let statement =
       DBConn.createStatement("UPDATE buddies SET position = :position " +

@@ -255,7 +255,7 @@ var GenericAccountBuddyPrototype = {
 
   _init(aAccount, aBuddy, aTag, aUserName) {
     if (!aBuddy && !aUserName)
-      throw "aUserName is required when aBuddy is null";
+      throw new Error("aUserName is required when aBuddy is null");
 
     this._tag = aTag;
     this._account = aAccount;
@@ -757,13 +757,13 @@ function purplePref(aName, aOption) {
   this.label = aOption.label; // Text to display
 
   if (aOption.default === undefined || aOption.default === null)
-    throw "A default value for the option is required to determine its type.";
+    throw new Error("A default value for the option is required to determine its type.");
   this._defaultValue = aOption.default;
 
   const kTypes = {boolean: "Bool", string: "String", number: "Int"};
   let type = kTypes[typeof aOption.default];
   if (!type)
-    throw "Invalid option type";
+    throw new Error("Invalid option type");
 
   if (type == "String" && ("listValues" in aOption)) {
     type = "List";
@@ -854,7 +854,7 @@ var GenericProtocolPrototype = {
 
   init(aId) {
     if (aId != this.id)
-      throw "Creating an instance of " + aId + " but this object implements " + this.id;
+      throw new Error("Creating an instance of " + aId + " but this object implements " + this.id);
   },
   get id() { return "prpl-" + this.normalizedName; },
   // This is more aggressive than the account normalization of just
@@ -867,7 +867,7 @@ var GenericProtocolPrototype = {
   _getOptionDefault(aName) {
     if (this.options && this.options.hasOwnProperty(aName))
       return this.options[aName].default;
-    throw aName + " has no default value in " + this.id + ".";
+    throw new Error(aName + " has no default value in " + this.id + ".");
   },
   getOptions() {
     if (!this.options)
@@ -892,7 +892,7 @@ var GenericProtocolPrototype = {
 
     this.commands.forEach(function(command) {
       if (!command.hasOwnProperty("name") || !command.hasOwnProperty("run"))
-        throw "Every command must have a name and a run function.";
+        throw new Error("Every command must have a name and a run function.");
       if (!("QueryInterface" in command))
         command.QueryInterface = ChromeUtils.generateQI([Ci.imICommand]);
       if (!command.hasOwnProperty("usageContext"))

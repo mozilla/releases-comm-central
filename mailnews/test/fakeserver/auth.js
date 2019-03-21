@@ -36,7 +36,7 @@ var AuthPLAIN = {
     line = atob(line); // base64 decode
     let aap = line.split("\u0000"); // 0-charater is delimiter
     if (aap.length != 3)
-      throw "Expected three parts";
+      throw new Error("Expected three parts");
     /* aap is: authorize-id, authenticate-id, password.
        Generally, authorize-id = authenticate-id = username.
        authorize-id may thus be empty and then defaults to authenticate-id. */
@@ -46,7 +46,7 @@ var AuthPLAIN = {
     result.password = aap[2];
     dump("authorize-id: -" + authzid + "-, username: -" + result.username + "-, password: -" + result.password + "-\n");
     if (authzid && authzid != result.username)
-      throw "Expecting a authorize-id that's either the same as authenticate-id or empty";
+      throw new Error("Expecting a authorize-id that's either the same as authenticate-id or empty");
     return result;
   },
 
@@ -118,7 +118,7 @@ var AuthCRAM = {
     dump("base64 decoded -" + line + "-\n");
     var sp = line.split(" ");
     if (sp.length != 2)
-      throw "Expected one space";
+      throw new Error("Expected one space");
     var result = {};
     result.username = sp[0];
     result.digest = sp[1];
@@ -175,7 +175,7 @@ var AuthCRAM = {
     var result = "";
     for (var i = 0; i < binary.length; i++) {
       if (binary[i] > 255)
-        throw "unexpected that value > 255";
+        throw new Error("unexpected that value > 255");
       let hex = binary[i].toString(16);
       if (hex.length < 2)
         hex = "0" + hex;

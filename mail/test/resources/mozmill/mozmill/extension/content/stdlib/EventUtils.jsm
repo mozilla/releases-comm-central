@@ -451,7 +451,7 @@ function _createKeyboardEventDictionary(aKey, aKeyEvent, aWindow) {
   } else if (aKey.indexOf("VK_") == 0) {
     keyCode = _getKeyboardEvent(aWindow)["DOM_" + aKey];
     if (!keyCode) {
-      throw "Unknown key: " + aKey;
+      throw new Error("Unknown key: " + aKey);
     }
     keyName = _guessKeyNameFromKeyCode(keyCode, aWindow);
     result.flags |= Ci.nsITextInputProcessor.KEY_NON_PRINTABLE_KEY;

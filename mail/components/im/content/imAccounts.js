@@ -580,9 +580,9 @@ var gAMDragAndDrop = {
     let accountElement = aEvent.explicitOriginalTarget;
     // This stops the dragging session.
     if (!(accountElement instanceof Ci.nsIDOMXULSelectControlItemElement))
-      throw "Element is not draggable!";
+      throw new Error("Element is not draggable!");
     if (gAccountManager.accountList.itemCount == 1)
-      throw "Can't drag while there is only one account!";
+      throw new Error("Can't drag while there is only one account!");
 
     // Transferdata is never used, but we need to transfer something.
     aTransferData.data = new TransferData();

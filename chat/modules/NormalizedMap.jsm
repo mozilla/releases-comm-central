@@ -18,7 +18,7 @@ this.EXPORTED_SYMBOLS = ["NormalizedMap"];
 class NormalizedMap extends Map {
   constructor(aNormalize, aIterable = []) {
     if (typeof(aNormalize) != "function")
-      throw "NormalizedMap must have a normalize function!";
+      throw new Error("NormalizedMap must have a normalize function!");
     // Create the wrapped Map; use the provided iterable after normalizing the
     // keys.
     let entries = [...aIterable].map(([key, val]) => [aNormalize(key), val]);

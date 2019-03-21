@@ -1900,7 +1900,7 @@ calStorageCalendar.prototype = {
                 ritem = cal.createRecurrenceRule();
                 break;
             default:
-                throw "Unknown recurrence item: " + prop.propertyName;
+                throw new Error("Unknown recurrence item: " + prop.propertyName);
         }
 
         ritem.icalProperty = prop;

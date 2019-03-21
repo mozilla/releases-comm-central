@@ -275,7 +275,7 @@ var accountWizard = {
           this.prefs.push({opt, name, value: val});
         break;
       default:
-        throw "unknown preference type " + opt.type;
+        throw new Error("unknown preference type " + opt.type);
       }
     }
 
@@ -308,7 +308,7 @@ var accountWizard = {
         acc.setString(option.name, option.value);
         break;
       default:
-        throw "unknown type";
+        throw new Error("unknown type");
       }
     }
     var autologin = this.getValue("connectNow");

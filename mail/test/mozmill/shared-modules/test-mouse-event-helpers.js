@@ -80,7 +80,7 @@ function synthesize_drag_start(aWindow, aDispatcher, aListener)
   let trapDrag = function(event) {
 
     if (!event.dataTransfer)
-      throw "no DataTransfer";
+      throw new Error("no DataTransfer");
 
     dt = event.dataTransfer;
 

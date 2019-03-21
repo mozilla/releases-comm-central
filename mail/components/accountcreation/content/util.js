@@ -558,7 +558,7 @@ function deepCopy(org) {
   if (typeof(org) == "function")
     return org;
   if (typeof(org) != "object")
-    throw "can't copy objects of type " + typeof(org) + " yet";
+    throw new Error("can't copy objects of type " + typeof(org) + " yet");
 
   // TODO still instanceof org != instanceof copy
   // var result = new org.constructor();

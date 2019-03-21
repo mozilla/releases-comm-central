@@ -575,13 +575,13 @@ var Socket = {
     this._outputStream =
       this.transport.openOutputStream(0, this.outputSegmentSize, -1);
     if (!this._outputStream)
-      throw "Error getting output stream.";
+      throw new Error("Error getting output stream.");
 
     this._inputStream = this.transport.openInputStream(0, // flags
                                                        0, // Use default segment size
                                                        0); // Use default segment count
     if (!this._inputStream)
-      throw "Error getting input stream.";
+      throw new Error("Error getting input stream.");
 
     if (this.binaryMode) {
       // Handle binary mode

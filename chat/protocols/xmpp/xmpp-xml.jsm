@@ -188,7 +188,7 @@ TextNode.prototype = {
 function XMLNode(aParentNode, aUri, aLocalName, aQName = aLocalName,
                  aAttr = {}) {
   if (!aLocalName)
-    throw "aLocalName must have value";
+    throw new Error("aLocalName must have value");
 
   this._parentNode = aParentNode; // Used only for parsing
   this.uri = aUri;

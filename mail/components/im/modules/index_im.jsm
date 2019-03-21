@@ -603,7 +603,7 @@ var GlodaIMIndexer = {
     }
 
     if (!aCache)
-      throw "indexIMConversation called without aCache parameter.";
+      throw new Error("indexIMConversation called without aCache parameter.");
     let isNew = !Object.prototype.hasOwnProperty.call(aCache, fileName) && !glodaConv.id;
     let rv = aCallbackHandle.pushAndGo(
       Gloda.grokNounItem(glodaConv, {}, true, isNew, aCallbackHandle));

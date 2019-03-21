@@ -87,7 +87,7 @@ function verifyConfig(config, alter, msgWindow, successCallback, errorCallback) 
         if (hostDetails)
           [config.oauthSettings.issuer, config.oauthSettings.scope] = hostDetails;
         if (!config.oauthSettings.issuer || !config.oauthSettings.scope)
-          throw "Could not get issuer for oauth2 authentication";
+          throw new Error("Could not get issuer for oauth2 authentication");
       }
       gEmailWizardLogger.info("Saving oauth parameters for issuer " +
                                config.oauthSettings.issuer);

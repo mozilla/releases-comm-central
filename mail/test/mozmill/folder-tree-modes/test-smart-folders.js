@@ -195,7 +195,7 @@ function test_folder_flag_changes() {
   }
 
   if (archiveScope != desiredScope)
-    throw "archive scope wrong after removing folder";
+    throw new Error("archive scope wrong after removing folder");
   assert_folder_and_children_not_in_scope(archiveFolder, archiveScope);
 }
 

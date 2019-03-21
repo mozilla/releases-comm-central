@@ -389,7 +389,7 @@ calCalendarManager.prototype = {
             throw e;
         }
 
-        throw table + " SELECT returned no results";
+        throw new Error(table + " SELECT returned no results");
     },
 
     //

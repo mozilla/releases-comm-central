@@ -63,7 +63,7 @@ function* PlainFullBindAuth(aUsername, aPassword, aDomain) {
   };
 
   if (stanza.localName != "success")
-    throw "Didn't receive the expected auth success stanza.";
+    throw new Error("Didn't receive the expected auth success stanza.");
 }
 
 function GTalkAccount(aProtoInstance, aImAccount) {

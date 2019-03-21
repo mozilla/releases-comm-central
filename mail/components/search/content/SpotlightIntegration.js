@@ -107,7 +107,7 @@ SearchIntegration = { // eslint-disable-line no-global-assign
           case "<": return "&lt;";
           case ">": return "&gt;";
           case "&": return "&amp;";
-          default: throw "Unexpected match";
+          default: throw new Error("Unexpected match");
           }
         }
       );

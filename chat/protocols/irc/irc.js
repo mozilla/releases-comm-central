@@ -92,7 +92,7 @@ function ircMessage(aData, aOrigin) {
   // empty first parameter.) It also allows a trailing space after the
   // <parameter>s when no <last parameter> is present (also occurs with Unreal).
   if (!(temp = aData.match(/^(?:@([^ ]+) )?(?::([^ ]+) )?([^ ]+)((?: +[^: ][^ ]*)*)? *(?::([\s\S]*))?$/)))
-    throw "Couldn't parse message: \"" + aData + "\"";
+    throw new Error("Couldn't parse message: \"" + aData + "\"");
 
   message.command = temp[3];
   // Space separated parameters. Since we expect a space as the first thing
