@@ -371,7 +371,7 @@ nsLDAPMessage::IterateAttributes(uint32_t *aAttrCount, char** *aAttributes,
         // check to see if there is an error, or if we're just done iterating
         //
         if (!attr) {
- 
+
             // bail out if there's an error
             //
             int32_t lderrno = ldap_get_lderrno(mConnectionHandle, 0, 0);

@@ -1,37 +1,37 @@
 housecleaning for first 0.x release
 -----------------------------------
 * error handling: sort out what should be NS_ASSERTIONs vs. normal
-  error conditions (eg network & data errors), especially in nsLDAPChannel.  
+  error conditions (eg network & data errors), especially in nsLDAPChannel. 
   also shouldn't be casting results of nsILDAPConnection::GetErrorString to
   void in ldapSearch.  (ideally this would use xpidl nsresult decls
-  (bug 13423), but that's not done yet).  This also requires some 
-  threadsafety work related to the data and interfaces touched by 
+  (bug 13423), but that's not done yet).  This also requires some
+  threadsafety work related to the data and interfaces touched by
   nsLDAPChannel::Cancel, since these are used in the connection
-  callbacks, and we also need to be able to cancel from the connection 
-  callbacks themselves. 
+  callbacks, and we also need to be able to cancel from the connection
+  callbacks themselves.
 
 * audit for and fix leaks / bloat
 
-* destroy connection & thread when done with it; deal with timeouts 
-  (blocked on LDAP C SDK 4.1, in the hopes that the NSPR 
+* destroy connection & thread when done with it; deal with timeouts
+  (blocked on LDAP C SDK 4.1, in the hopes that the NSPR
   binding of the IO functions will provide us with some way to pop out
-  of the select() that's called under ldap_result().  It may not be worth 
+  of the select() that's called under ldap_result().  It may not be worth
   implementing this until nsLDAPService is resurrected.  If this
   doesn't work, we may have to give nsLDAPConnection an event queue &
   loop of its own, instead of using the LDAP C SDK as a vector to get
   events over there.
 
 items blocked waiting for other work
------------------------------------- 
-* go through the various options that can be used with the SDK function 
-  ldap_set_options() and decide if and where the various functions should 
-  be used.  This will include memory allocator settings, and possibly 
+------------------------------------
+* go through the various options that can be used with the SDK function
+  ldap_set_options() and decide if and where the various functions should
+  be used.  This will include memory allocator settings, and possibly
   threadsafety callbacks (if necessary).  (blocked waiting on LDAP C
   SDK 4.1 to land, since it contains NSPR bindings for some of this).
 
 * searches that return lots of entries to the nsLDAPChannel
-  (eg (sn=Smith) at netcenter) mostly stall out the UI.  moving most of the 
-  callback work off the UI thread to the LDAP connection thread didn't 
+  (eg (sn=Smith) at netcenter) mostly stall out the UI.  moving most of the
+  callback work off the UI thread to the LDAP connection thread didn't
   help; so this seems to be lossage in the event system itself (bug 50104).
 
 * deal with race condition that happens if data comes back after
@@ -41,7 +41,7 @@ items blocked waiting for other work
 
 * ensure that multiple calls to Cancel don't do the wrong thing
 
-* move the ldap_unbind() call out of the nsLDAPConnection destructor, 
+* move the ldap_unbind() call out of the nsLDAPConnection destructor,
   since nsLDAPConnection will soon go back to being callable from the
   UI thread, and ldap_unbind() is actually synchronous.  additionally,
   arrange for the connection thread to shutdown.  (waiting for
@@ -71,12 +71,12 @@ misc
 * replace instances of (obsolete) |static NS_DEFINE_IID| variables
   with direct calls to NS_GET_IID in the code.
 
-* investigate use of DNS in LDAP sdk.  I think sync functions used in the 
+* investigate use of DNS in LDAP sdk.  I think sync functions used in the
   wrong places (eg they end up getting called from Mozilla on the UI thread)?
 
 * audit for and implement any appropriate NOT_IMPLEMENTED functions
 
-* re-read the IDL for interfaces implemented by nsLDAPChannel.cpp make sure 
+* re-read the IDL for interfaces implemented by nsLDAPChannel.cpp make sure
   all interfaces are implemented correctly
 
 * implement progress info interfaces, if possible (% done)
@@ -100,7 +100,7 @@ misc
   heuristic to figure out if they're a string.  I wonder how
   ldapsearch does this.
 
-* grep for XXXs and fix the issues 
+* grep for XXXs and fix the issues
 
 * revamp nsILDAPService (currently unused code) to manage LDAP
   connections and allow for sharing connections between browser
@@ -113,7 +113,7 @@ misc
 
 testing
 -------
-* see how the browser copes when it does such a big search that the server 
+* see how the browser copes when it does such a big search that the server
   only returns partial results and an error.
 
 perf
@@ -133,10 +133,10 @@ perf
 
 later
 -----
-* rationalize the logging strategy.  right now there is a mix of 
-  PR_LOG/NS{WARNING|ERROR} and nsIConsoleService and non-logging, 
+* rationalize the logging strategy.  right now there is a mix of
+  PR_LOG/NS{WARNING|ERROR} and nsIConsoleService and non-logging,
   as I have been vacillating on how much logging it's really important to have
-  (part of my thought process about the XPCOM-wrapper being part of 
+  (part of my thought process about the XPCOM-wrapper being part of
   Mozilla-as-platform)
 * get rid of inappropriate use of nsVoidKey by implementing an nsPRInt32Key
 * handle referrals

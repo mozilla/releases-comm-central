@@ -1,5 +1,5 @@
 /* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*-
- * 
+ *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -11,9 +11,9 @@ interface nsILDAPBERValue;
 
 /**
  * nsILDAPBERElement is a wrapper interface for a C-SDK BerElement object.
- * Typically, this is used as an intermediate object to aid in the manual 
+ * Typically, this is used as an intermediate object to aid in the manual
  * construction of a BER value.  Once the construction is completed by calling
- * methods on this object, an nsILDAPBERValue can be retrieved from the 
+ * methods on this object, an nsILDAPBERValue can be retrieved from the
  * asValue attribute on this interface.
  *
  * <http://www.mozilla.org/directory/ietf-docs/draft-ietf-ldapext-ldap-c-api-05.txt>
@@ -22,7 +22,7 @@ interface nsILDAPBERValue;
  */
 
 [scriptable, uuid(409f5b31-c062-4d11-a35b-0a09e7967bf2)]
-interface nsILDAPBERElement : nsISupports 
+interface nsILDAPBERElement : nsISupports
 {
   /**
    * Initialize this object.  Must be called before calling any other method
@@ -38,21 +38,21 @@ interface nsILDAPBERElement : nsISupports
   void init(in nsILDAPBERValue aValue);
 
   /**
-   * Most TAG_* constants can be used in the construction or passing in of 
+   * Most TAG_* constants can be used in the construction or passing in of
    * values to the aTag arguments to most of the methods in this interface.
    */
 
-  /** 
-   * When returned from a parsing method, 0xffffffff is referred to 
+  /**
+   * When returned from a parsing method, 0xffffffff is referred to
    * has the parse-error semantic (ie TAG_LBER_ERROR); when passing it to
-   * a construction method, it is used to mean "pick the default tag for 
+   * a construction method, it is used to mean "pick the default tag for
    * this type" (ie TAG_LBER_DEFAULT).
    */
   const unsigned long TAG_LBER_ERROR = 0xffffffff;
   const unsigned long TAG_LBER_DEFAULT = 0xffffffff;
   const unsigned long TAG_LBER_END_OF_SEQORSET = 0xfffffffe;
 
-  /** 
+  /**
    * BER encoding types and masks
    */
   const unsigned long TAG_LBER_PRIMITIVE = 0x00;
@@ -81,7 +81,7 @@ interface nsILDAPBERElement : nsISupports
   const unsigned long TAG_LBER_SET = 0x31;
 
   /**
-   * Write a string to this element.  
+   * Write a string to this element. 
    *
    * @param  aString  string to write
    * @param  aTag     tag for this string (if TAG_LBER_DEFAULT is used,
@@ -96,7 +96,7 @@ interface nsILDAPBERElement : nsISupports
   /**
    * Start a set.  Sets may be nested.
    *
-   * @param  aTag  tag for this set (if TAG_LBER_DEFAULT is used, 
+   * @param  aTag  tag for this set (if TAG_LBER_DEFAULT is used,
    *               TAG_LBER_SET will be written).
    *
    * @exception  NS_ERROR_FAILUE   C-SDK returned an error

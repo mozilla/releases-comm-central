@@ -10,8 +10,8 @@
  * Error codes used in the LDAP XPCOM SDK.
  *
  * Taken from the Mozilla C SDK's ldap.h include file, these should be
- * the same as those specified in the draft-ietf-ldapext-ldap-c-api-04.txt 
- * Internet Draft.  
+ * the same as those specified in the draft-ietf-ldapext-ldap-c-api-04.txt
+ * Internet Draft. 
  *
  * The only good documentation I'm aware of for these error codes is
  * at <http://docs.iplanet.com/docs/manuals/directory.html#SDKC>.
@@ -101,12 +101,12 @@ interface nsILDAPErrors : nsISupports
     const long INAPPROPRIATE_AUTH = 0x30;
 
     const long INVALID_CREDENTIALS = 0x31;
- 
+
     const long INSUFFICIENT_ACCESS = 0x32;
 
     const long BUSY = 0x33;
 
-    const long UNAVAILABLE = 0x34;    
+    const long UNAVAILABLE = 0x34;   
 
     const long UNWILLING_TO_PERFORM = 0x35;
 
@@ -199,7 +199,7 @@ interface nsILDAPErrors : nsISupports
     const long REFERRAL_LIMIT_EXCEEDED = 0x61;
 };
 
-/* 
+/*
  * Map these errors codes into the nsresult namespace in C++
  */
 %{C++

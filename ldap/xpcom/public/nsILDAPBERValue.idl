@@ -1,5 +1,5 @@
 /* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*-
- * 
+ *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -10,35 +10,35 @@
  * Representation of a BER value as an interface containing an array of
  * bytes.  Someday this should perhaps be obsoleted by a better, more
  * generalized version of nsIByteBuffer, but that's currently not even
- * scriptable (see bug 125596).  
+ * scriptable (see bug 125596). 
  */
 [scriptable, uuid(c817c5fe-1dd1-11b2-a10b-ae9885762ea9)]
-interface nsILDAPBERValue : nsISupports 
+interface nsILDAPBERValue : nsISupports
 {
     /**
      * Set the BER value from an array of bytes (copies).
      *
      * @exception NS_ERROR_OUT_OF_MEMORY    couldn't allocate buffer to copy to
      */
-    void set(in unsigned long aCount, 
+    void set(in unsigned long aCount,
              [array, size_is(aCount)] in octet aValue);
 
-    /** 
+    /**
      * Set the BER value from a UTF8 string (copies).
      *
      * @exception NS_ERROR_OUT_OF_MEMORY    couldn't allocate buffer to copy to
      */
     void setFromUTF8(in AUTF8String aValue);
 
-    /** 
+    /**
      * Get the BER value as an array of bytes.  Note that if this value is
-     * zero-length, aCount and aRetVal will both be 0.  This means that 
+     * zero-length, aCount and aRetVal will both be 0.  This means that
      * (in C++ anyway) the caller MUST test either aCount or aRetval before
      * dereferencing aRetVal.
      *
      * @exception NS_ERROR_OUT_OF_MEMORY    couldn't allocate buffer to copy to
      */
-    void get(out unsigned long aCount, 
+    void get(out unsigned long aCount,
              [retval, array, size_is(aCount)] out octet aRetVal);
 };
 

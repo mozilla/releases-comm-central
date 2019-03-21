@@ -46,7 +46,7 @@ interface nsILDAPModification : nsISupports
    */
   attribute nsIArray values;
 
-  /** 
+  /**
    * Function that allows all the attributes to be set at the same
    * time to avoid multiple function calls.
    */

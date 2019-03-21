@@ -76,7 +76,7 @@ interface nsILDAPService : nsISupports {
      * connection itself (presumably from the callback/listener object).
      * The listener needs to implement nsILDAPMessageListener, providing
      * the OnLDAPMessage() method.
-     * 
+     *
      * @param aKey             unique key identifying the server entry
      * @param aMessageListener the listener object, which we will call
      *                         when the LDAP bind message is available
@@ -156,27 +156,27 @@ interface nsILDAPService : nsISupports {
      *
      * The only good documentation I'm aware of for this function is
      * at <http://docs.iplanet.com/docs/manuals/dirsdk/csdk41/html/filter.htm>
-     * and 
+     * and
      * <http://docs.iplanet.com/docs/manuals/dirsdk/csdk41/html/function.htm#17835>
      * Unfortunately, this does not currently seem to be available
      * under any open source license, so I can't include that
      * documentation here in the doxygen comments.
      *
-     * @param aMaxSize   maximum size (in char) of string to be 
+     * @param aMaxSize   maximum size (in char) of string to be
      *                   created and returned (including final \0)
      * @param aPattern   pattern to be used for the filter
      * @param aPrefix    prefix to prepend to the filter
      * @param aSuffix    suffix to be appended to the filer
      * @param aAttr      replacement for %a in the pattern
      * @param aValue     replacement for %v in the pattern
-     *  
+     * 
      * @exception NS_ERROR_INVALID_ARG      invalid parameter passed in
      * @exception NS_ERROR_OUT_OF_MEMORY    allocation failed
      * @exception NS_ERROR_NOT_AVAILABLE    filter longer than maxsiz chars
      * @exception NS_ERROR_UNEXPECTED       ldap_create_filter returned
      *                                      unexpected error code
      */
-    AUTF8String createFilter(in unsigned long aMaxSize, in AUTF8String aPattern, 
+    AUTF8String createFilter(in unsigned long aMaxSize, in AUTF8String aPattern,
                              in AUTF8String aPrefix, in AUTF8String aSuffix,
                              in AUTF8String aAttr, in AUTF8String aValue);
 

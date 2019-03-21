@@ -1,5 +1,5 @@
 /* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*-
- * 
+ *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -22,9 +22,9 @@ interface nsILDAPControl : nsISupports
   attribute ACString oid;
 
   /**
-   * The data associated with a control, if any.  To specify that no data 
+   * The data associated with a control, if any.  To specify that no data
    * is to be associated with the control, don't set this at all (which
-   * is equivalent to setting it to null).  
+   * is equivalent to setting it to null). 
    *
    * @note Specifying a zero-length value is not currently supported.  At some
    * date, setting this to an nsILDAPBERValue which has not had any of the
