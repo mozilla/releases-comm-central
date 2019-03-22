@@ -519,7 +519,6 @@ var snapshotFormatters = {
       "contentUsesTiling",
       "offMainThreadPaintEnabled",
       "offMainThreadPaintWorkerCount",
-      "lowEndMachine",
       "targetFrameRate",
     ];
     for (let feature of featureKeys) {
