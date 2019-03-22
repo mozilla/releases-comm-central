@@ -566,7 +566,7 @@ ldif_get_entry( FILE *fp, int *lineno )
 		}
 		/* ldif entries are terminated by a \n on a line by itself */
 		if ( line[0] == '\0' || line[0] == '\n'
-#if !defined( XP_WIN32 )
+#if !defined( XP_WIN )
 		     || ( line[0] == '\r' && line[1] == '\n' ) /* DOS format */
 #endif
 		   ) {
@@ -580,7 +580,7 @@ ldif_get_entry( FILE *fp, int *lineno )
 		}
 		gotsome = 1;
 		len = strlen( line );
-#if !defined( XP_WIN32 )
+#if !defined( XP_WIN )
 		/* DOS format */
 		if ( len > 0 && line[len-1] == '\r' ) {
 			--len;

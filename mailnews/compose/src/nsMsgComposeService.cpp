@@ -62,7 +62,7 @@
 #include "nsMsgUtils.h"
 #include "nsIPrincipal.h"
 
-#ifdef XP_WIN32
+#ifdef XP_WIN
 #include <windows.h>
 #include <shellapi.h>
 #include "nsIWidget.h"
