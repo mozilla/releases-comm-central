@@ -5,10 +5,10 @@
 chat.jar:
 % content chat %content/chat/
 	content/chat/accounts.css
-	content/chat/account.xml
 	content/chat/browserRequest.js
 	content/chat/browserRequest.xul
 	content/chat/imAccountOptionsHelper.js
+	content/chat/chat-account-richlistitem.js
 *	content/chat/imtooltip.xml
 	content/chat/conversation-browser.js
 	content/chat/conv.html
