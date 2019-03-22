@@ -194,8 +194,7 @@ const sortCompare = calunifinder.sortEntryComparer._sortCompare = {
             return -(a.length - b.length) * modifier;
         }
 
-        let collator = cal.l10n.createLocaleCollator();
-        return collator.compareString(0, a, b) * modifier;
+        return a.localeCompare(b, undefined, { numeric: true }) * modifier;
     },
 
     /**
