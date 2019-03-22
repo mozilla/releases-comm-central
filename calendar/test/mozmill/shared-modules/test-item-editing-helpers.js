@@ -10,7 +10,7 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 var SHORT_SLEEP, TIMEOUT_MODAL_DIALOG;
 var helpersForController, menulistSelect;
-var plan_for_modal_dialog, wait_for_modal_dialog;
+var plan_for_modal_dialog, wait_for_modal_dialog, augment_controller;
 var mark_failure;
 
 function setupModule(module) {
@@ -23,7 +23,7 @@ function setupModule(module) {
     } = collector.getModule("calendar-utils"));
     Object.assign(module, helpersForController(controller));
 
-    ({ plan_for_modal_dialog, wait_for_modal_dialog } =
+    ({ plan_for_modal_dialog, wait_for_modal_dialog, augment_controller } =
         collector.getModule("window-helpers"));
 
     ({ mark_failure } =
@@ -517,17 +517,18 @@ function addAttendees(dialog, innerFrame, attendeesString) {
         // Only add if not already present.
         if (!calAttendee) {
             plan_for_modal_dialog("Calendar:EventDialog:Attendees", (attDialog) => {
-                let { lookup: attlookup } = helpersForController(attDialog);
+                let { lookup: attlookup, eid: attid } = helpersForController(attDialog);
 
-                let input = attlookup(`
-                    /id("calendar-event-dialog-attendees-v2")/
-                    anon({"class":"box-inherit dialog-content-box"})
-                `);
+                let input = attid("attendees-list");
                 // As starting point is always the last entered Attendee, we have
                 // to advance to not overwrite it.
-                attDialog.keypress(input, "VK_TAB", {});
                 attDialog.waitFor(() =>
                     attDialog.window.document.activeElement.getAttribute("class") == "textbox-input"
+                );
+                attDialog.keypress(input, "VK_TAB", {});
+                attDialog.waitFor(() =>
+                    attDialog.window.document.activeElement.getAttribute("class") == "textbox-input" &&
+                    attDialog.window.document.activeElement.getAttribute("value") == null
                 );
                 attDialog.type(input, attendee);
                 attDialog.click(attlookup(`
@@ -549,17 +550,19 @@ function addAttendees(dialog, innerFrame, attendeesString) {
  * @param attendeesString   Comma separated list of eMail-Addresses to delete.
  */
 function deleteAttendees(event, innerFrame, attendeesString) {
+    let { eid: iframeid } = helpersForController(innerFrame);
     let { iframeLookup } = helpersForEditUI(innerFrame);
 
     // Now delete the attendees.
     let attendees = attendeesString.split(",");
     for (let attendee of attendees) {
         let attendeeToDelete = iframeLookup(`${ATTENDEES_ROW}/{"attendeeid":"mailto:${attendee}"}`);
-        // Unfortunately the context menu of the attendees is not working in
-        // Mozmill tests. Thus we have to use the JS-functions.
-        let calAttendee = innerFrame.window.attendees.find(aAtt => aAtt.id == `mailto:${attendee}`);
-        if (calAttendee) {
-            innerFrame.window.removeAttendee(calAttendee);
+        if (attendeeToDelete) {
+            augment_controller(event);
+            event.rightClick(attendeeToDelete);
+            event.click_menus_in_sequence(iframeid("attendee-popup").getNode(),
+                [{ id: "attendee-popup-removeattendee-menuitem" }]
+            );
         }
         event.waitForElementNotPresent(attendeeToDelete);
     }

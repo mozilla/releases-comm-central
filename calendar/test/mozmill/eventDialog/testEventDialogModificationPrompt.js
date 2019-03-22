@@ -189,8 +189,7 @@ function setupData() {
             freebusy: "busy",
             timezonedisplay: true,
             attachment: { add: "http://mozilla.org" },
-            // Test fails when changing attendees, therefore leaving out for now.
-            // attendees: { add: "foo@bar.de,foo@bar.com" }
+            attendees: { add: "foo@bar.de,foo@bar.com" }
         }, {
             title: "title2",
             location: "location2",
@@ -209,7 +208,7 @@ function setupData() {
             freebusy: "free",
             timezonedisplay: false,
             attachment: { remove: "mozilla.org" },
-            // attendees: { remove: "foo@bar.de,foo@bar.com" }
+            attendees: { remove: "foo@bar.de,foo@bar.com" }
         }],
         newlines: [
             { title: "title", description: "  test spaces  " },

@@ -9,7 +9,7 @@
  *          deleteAllAttachments, copyAttachment, attachmentLinkKeyPress,
  *          attachmentDblClick, attachmentClick, notifyUser,
  *          removeNotification, chooseRecentTimezone, showTimezonePopup,
- *          attendeeDblClick, attendeeClick, removeAttendee,
+ *          attendeeDblClick, setAttendeeContext, removeAttendee,
  *          removeAllAttendees, sendMailToUndecidedAttendees, checkUntilDate,
  *          applyValues
  */
@@ -3883,12 +3883,7 @@ function attendeeDblClick(aEvent) {
  *
  * @param aEvent         The popupshowing event
  */
-function attendeeClick(aEvent) {
-    // we need to handle right clicks only to display the context menu
-    if (aEvent.button != 2) {
-        return;
-    }
-
+function setAttendeeContext(aEvent) {
     if (window.attendees.length == 0) {
         // we just need the option to open the attendee dialog in this case
         let popup = document.getElementById("attendee-popup");

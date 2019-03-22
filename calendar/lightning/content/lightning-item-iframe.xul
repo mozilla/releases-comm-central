@@ -618,7 +618,7 @@
                       dialog-type="event"
                       flex="1"
                       context="attendee-popup"
-                      onclick="attendeeClick(event)"
+                      oncontextmenu="setAttendeeContext(event)"
                       disable-on-readonly="true"/>
               </hbox>
             </vbox>
@@ -736,7 +736,7 @@
            flex="1"
            context="attendee-popup"
            ondblclick="attendeeDblClick(event)"
-           onclick="attendeeClick(event)">
+           oncontextmenu="setAttendeeContext(event)">
         <img class="itip-icon"/>
         <label class="item-attendees-cell-label"
                crop="end"
