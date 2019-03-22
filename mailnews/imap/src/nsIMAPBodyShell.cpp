@@ -722,10 +722,11 @@ bool nsIMAPBodypartLeaf::ShouldFetchInline(nsIMAPBodyShell *aShell)
   }
 #endif // XP_MACOSX
 
-  // Leave out parts with type application/*
-  if (!PL_strcasecmp(m_bodyType, "APPLICATION") &&  // If it is of type "application"
-      PL_strncasecmp(m_bodySubType, "x-pkcs7", 7)  // and it's not a signature (signatures are inline)
-    )
+  // Fetch type APPLICAION now if the subtype is a signature or if it's an
+  // octet-stream. Otherwise, fetch on demand.
+  if (!PL_strcasecmp(m_bodyType, "APPLICATION") &&
+      PL_strncasecmp(m_bodySubType, "x-pkcs7", 7) &&
+      PL_strcasecmp(m_bodySubType, "octet-stream"))
     return false;  // we can leave it on the server
   if (!PL_strcasecmp(m_bodyType, "AUDIO"))
     return false;
