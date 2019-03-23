@@ -387,7 +387,7 @@ calICSCalendar.prototype = {
     onStartRequest: function(request) {},
     onDataAvailable: function(request, inStream, sourceOffset, count) {
         // All data must be consumed. For an upload channel, there is
-        // no meaningfull data. So it gets read and then ignored
+        // no meaningful data. So it gets read and then ignored
         let scriptableInputStream = Cc["@mozilla.org/scriptableinputstream;1"]
                                       .createInstance(Ci.nsIScriptableInputStream);
         scriptableInputStream.init(inStream);
@@ -985,7 +985,7 @@ httpHooks.prototype = {
             // putting is not atomic. This is bad. Race conditions can happen,
             // because there is a time in which we don't know the right
             // etag.
-            // Try to do the best we can, by immediatly getting the etag.
+            // Try to do the best we can, by immediately getting the etag.
 
             let etagListener = {};
             let self = this; // need to reference in callback

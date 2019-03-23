@@ -409,7 +409,7 @@ calWcapSession.prototype = {
                                     if (err) {
                                         throw err;
                                     }
-                                    stringToXml(this, str, -1 /* logout successfull */);
+                                    stringToXml(this, str, -1 /* logout successful */);
                                 }, url);
         } else {
             request.execRespFunc();

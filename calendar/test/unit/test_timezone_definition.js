@@ -7,7 +7,7 @@ function run_test() {
 }
 
 /**
- * Checks whether the pased string is a valid tz version number
+ * Checks whether the passed string is a valid tz version number
  * @param    {String}         aVersionString
  * @returns  {boolean}
  */

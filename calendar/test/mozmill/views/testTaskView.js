@@ -81,7 +81,7 @@ function testTaskView() {
     controller.assertJSProperty(eid("calendar-task-details-title"), "textContent", TITLE);
 
     // Open added task
-    // Doubleclick on completion checkbox is ignored as opening action, so don't
+    // Double-click on completion checkbox is ignored as opening action, so don't
     // click at immediate left where the checkbox is located.
     controller.doubleClick(lookup(treeChildren), 50, 0);
     invokeEventDialog(controller, null, (task, iframe) => {

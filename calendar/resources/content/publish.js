@@ -38,7 +38,7 @@ function publishCalendarDataDialogResponse(CalendarPublishObject, aProgressDialo
  * publishEntireCalendar
  * Show publish dialog, ask for URL and publish all items from the calendar.
  *
- * @param aCalendar   (optional) The calendar that will be published. If ommitted
+ * @param aCalendar   (optional) The calendar that will be published. If omitted
  *                               the user will be prompted to select a calendar.
  */
 function publishEntireCalendar(aCalendar) {

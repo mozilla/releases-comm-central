@@ -1145,7 +1145,7 @@ calWcapCalendar.prototype.getItems = function(itemFilter, maxResults, rangeStart
         return request;
     }
 
-    // m_cachedResults holds the last data revtrieval. This is expecially useful when
+    // m_cachedResults holds the last data retrieval. This is especially useful when
     // switching on multiple subcriptions: the composite calendar multiplexes getItems()
     // calls to all composited calendars over and over again, most often on the same
     // date range (as the user usually looks at the same view).

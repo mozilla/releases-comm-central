@@ -7,7 +7,7 @@
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 /**
- * The calendar provider class for WCAP calendars. Usually instanciated through
+ * The calendar provider class for WCAP calendars. Usually instantiated through
  * the calendar manager, but may also be created by the wcap session, hence the
  * following optional parameters.
  *

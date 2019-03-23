@@ -275,7 +275,7 @@ calDavCalendar.prototype = {
             },
             onOperationComplete: function(aCalendar, aStatus, aOpType, aId, aDetail) {
                 if (refreshNeeded) {
-                    // reseting the cached ctag forces an item refresh when
+                    // resetting the cached ctag forces an item refresh when
                     // safeRefresh is called later
                     self.mCtag = null;
                     self.mProposedCtag = null;
@@ -344,7 +344,7 @@ calDavCalendar.prototype = {
                     error = true;
                 }
             } catch (e) {
-                // This happens in case the response header is missing, thats fine.
+                // This happens in case the response header is missing, that's fine.
             }
 
             if (self.oauth && error) {
@@ -1617,7 +1617,7 @@ calDavCalendar.prototype = {
                                 let origin = "oauth:" + sessionId;
                                 cal.auth.passwordManagerGet(sessionId, pass, origin, pwMgrId);
                             } catch (e) {
-                                // User might have cancelled the master password prompt, thats ok
+                                // User might have cancelled the master password prompt, that's ok
                                 if (e.result != Cr.NS_ERROR_ABORT) {
                                     throw e;
                                 }
@@ -2260,7 +2260,7 @@ calDavCalendar.prototype = {
         };
         this.sendHttpRequest(requestUri, queryXml, MIME_TEXT_XML, null, (channel) => {
             if (queryDepth == 0) {
-                // Set header, doing this for Depth: 1 is not needed since thats the
+                // Set header, doing this for Depth: 1 is not needed since that's the
                 // default.
                 channel.setRequestHeader("Depth", "0", false);
             }

@@ -270,7 +270,7 @@ calStorageCalendar.prototype = {
             // new moz-storage-calendar schema. This is needed due to bug 479867
             // and its regression bug 561735. The first calendar created before
             // v19 already has a moz-profile-calendar:// uri without an ?id=
-            // parameter (the id in the databse is 0). We need to migrate this
+            // parameter (the id in the database is 0). We need to migrate this
             // special calendar differently.
 
             // WARNING: This is a somewhat fragile process. Great care should be
@@ -337,7 +337,7 @@ calStorageCalendar.prototype = {
                         migrateTables(this.mDB, this.id, id);
 
                         // Now remove the id from the uri to make sure we don't do this
-                        // again. Remeber the id, so we can recover in case something
+                        // again. Remember the id, so we can recover in case something
                         // goes wrong.
                         this.setProperty("uri", "moz-storage-calendar://");
                         this.setProperty("old_calendar_id", id);
@@ -390,7 +390,7 @@ calStorageCalendar.prototype = {
      * Executes a statement using an item as a parameter.
      *
      * @param aStmt         The statement to execute.
-     * @param aIdParam      The name of the parameter refering to the item id.
+     * @param aIdParam      The name of the parameter referring to the item id.
      * @param aId           The id of the item.
      */
     executeItemStatement: function(aStmt, aIdParam, aId) {
@@ -716,7 +716,7 @@ calStorageCalendar.prototype = {
             return;
         }
 
-        // HACK because recurring offline events/todos objects dont have offline_journal information
+        // HACK because recurring offline events/todos objects don't have offline_journal information
         // Hence we need to update the mRecEventCacheOfflineFlags and  mRecTodoCacheOfflineFlags hash-tables
         // It can be an expensive operation but is only used in Online Reconciliation mode
         if (wantOfflineCreatedItems | wantOfflineDeletedItems | wantOfflineModifiedItems) {
@@ -768,7 +768,7 @@ calStorageCalendar.prototype = {
         function handleResultItem(item, theIID, optionalFilterFunc) {
             let expandedItems = [];
             if (item.recurrenceInfo && asOccurrences) {
-                // If the item is recurring, get all ocurrences that fall in
+                // If the item is recurring, get all occurrences that fall in
                 // the range. If the item doesn't fall into the range at all,
                 // this expands to 0 items.
                 expandedItems = item.recurrenceInfo.getOccurrences(aRangeStart, aRangeEnd, 0, {});
@@ -2402,7 +2402,7 @@ calStorageCalendar.prototype = {
     /**
      * Internal logging function that should be called on any database error,
      * it will log as much info as possible about the database context and
-     * last statement so the problem can be investigated more easilly.
+     * last statement so the problem can be investigated more easily.
      *
      * @param message           Error message to log.
      * @param exception         Exception that caused the error.

@@ -55,7 +55,7 @@ function testTodayPane() {
     controller.assert(() => lookup(dayPath).getNode().mDate.icalString == getIsoDate());
 
     // Create event 6 hours from now, if this is tomorrow then at 23 today.
-    // Doubleclick only triggers new event dialog on visible boxes, so scrolling
+    // Double-click only triggers new event dialog on visible boxes, so scrolling
     // may be needed by default visible time is 08:00 - 17:00, box of 17th hour
     // is out of view.
     let hour = (new Date()).getHours();

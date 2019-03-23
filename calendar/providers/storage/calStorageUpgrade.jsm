@@ -25,7 +25,7 @@
  * object and the database are updated. This process continues until the
  * database is at the latest version.
  *
- * Note that your upgrader is not neccessarily called with a database object,
+ * Note that your upgrader is not necessarily called with a database object,
  * for example if the user's database is already at a higher version. In this
  * case your upgrader is called to compile the table data object. To make
  * calling code easier, there are a bunch of helper functions below that can be
@@ -463,7 +463,7 @@ function addColumn(tblData, tblName, colName, colType, db) {
  *
  * @param tblData       The table data object to apply the operation on.
  * @param tblName       The table name to delete on
- * @param colNameArray  An array of colum names to delete
+ * @param colNameArray  An array of column names to delete
  * @param db            (optional) The database to apply the operation on
  */
 function deleteColumns(tblData, tblName, colNameArray, db) {
@@ -514,7 +514,7 @@ function copyTable(tblData, tblName, newTblName, db, condition, selectOptions) {
  *
  * @param tblData       The table data object to apply the operation on.
  * @param tblName       The table name to alter
- * @param colNameArray  An array of colum names to delete
+ * @param colNameArray  An array of column names to delete
  * @param newType       The new type of the column
  * @param db            (optional) The database to apply the operation on
  */
@@ -1432,7 +1432,7 @@ upgrade.v21 = function(db, version) {
             } while (db.affectedRows > 0);
 
             // Finally we can delete the x-dateset rows. Note this will leave
-            // gaps in recur_index, but thats ok since its only used for
+            // gaps in recur_index, but that's ok since its only used for
             // ordering anyway and will be overwritten on the next item write.
             executeSimpleSQL(db, 'DELETE FROM cal_recurrence WHERE recur_type = "x-dateset"');
         }

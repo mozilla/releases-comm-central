@@ -380,7 +380,7 @@ webDavSyncHandler.prototype = {
                    responseStatus <= 499) {
             // Invalidate sync token with 4xx errors that could indicate the
             // sync token has become invalid and do a refresh
-            cal.LOG("CalDAV: Reseting sync token because server returned status code: " + responseStatus);
+            cal.LOG("CalDAV: Resetting sync token because server returned status code: " + responseStatus);
             this._reader = null;
             this.calendar.mWebdavSyncToken = null;
             this.calendar.saveCalendarProperties();

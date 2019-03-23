@@ -31,7 +31,7 @@ add_test(function test_registration() {
     let calmgr = cal.getCalendarManager();
     checkCalendarCount(0, 0, 0);
 
-    // Create a local memory calendar, ths shouldn't register any calendars
+    // Create a local memory calendar, this shouldn't register any calendars
     let memory = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
     checkCalendarCount(0, 0, 0);
 

@@ -63,7 +63,7 @@ var icalStringArray = [
     "DTEND;VALUE=DATE:20020403\n" +
     "RRULE:FREQ=DAILY;INTERVAL=1;COUNT=10\n" +
     "END:VEVENT\n",
-    // 13: daily recurring allday event. First occurence in the range.
+    // 13: daily recurring allday event. First occurrence in the range.
     "BEGIN:VEVENT\n" +
     "DTSTART;VALUE=DATE:20020401\n" +
     "DTEND;VALUE=DATE:20020402\n" +

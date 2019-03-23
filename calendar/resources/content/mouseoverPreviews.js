@@ -420,7 +420,7 @@ function createTooltipHeaderDescription(text) {
  *
  * @param   {calIEvent}  calendarEvent   The text to display in the node
  * @returns {mixed}                      Returns a calIDateTime for the detected
- *                                        occurence or calIEvent, if this is a
+ *                                        occurrence or calIEvent, if this is a
  *                                        non-recurring event
  */
 function getCurrentNextOrPreviousRecurrence(calendarEvent) {
