@@ -196,37 +196,23 @@ class Overlays {
     }
 
     if (this.document.readyState == "complete") {
-      let sheet;
-      let overlayTrigger = this.document.createXULElement("overlayTrigger");
-      overlayTrigger.addEventListener("bindingattached", () => {
-        oconsole.debug("XBL binding attached, continuing with load");
-        if (sheet) {
-          sheet.remove();
-        }
-        overlayTrigger.remove();
+      setTimeout(() => {
+        this._finish();
 
-        setTimeout(() => {
-          this._finish();
-
-          // Now execute load handlers since we are done loading scripts
-          let bubbles = [];
-          for (let { listener, useCapture } of deferredLoad) {
-            if (useCapture) {
-              this._fireEventListener(listener);
-            } else {
-              bubbles.push(listener);
-            }
-          }
-
-          for (let listener of bubbles) {
+        // Now execute load handlers since we are done loading scripts
+        let bubbles = [];
+        for (let { listener, useCapture } of deferredLoad) {
+          if (useCapture) {
             this._fireEventListener(listener);
+          } else {
+            bubbles.push(listener);
           }
-        }, 0);
-      }, { once: true });
-      this.document.documentElement.appendChild(overlayTrigger);
-      if (overlayTrigger.parentNode) {
-        sheet = this.loadCSS("chrome://messenger/content/overlayBindings.css");
-      }
+        }
+
+        for (let listener of bubbles) {
+          this._fireEventListener(listener);
+        }
+      });
     } else {
       this.document.defaultView.addEventListener("load", this._finish.bind(this), { once: true });
     }
