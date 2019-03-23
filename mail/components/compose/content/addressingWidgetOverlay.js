@@ -542,14 +542,6 @@ function awDeleteHit(inputElement, deleteForward = false) {
   awDeleteRow(row);
 }
 
-function awInputChanged(inputElement) {
-  // Do we need to add a new row?
-  var lastInput = awGetInputElement(top.MAX_RECIPIENTS);
-  if (lastInput && lastInput.value && !top.doNotCreateANewRow)
-    awAppendNewRow(false);
-  top.doNotCreateANewRow = false;
-}
-
 // If we add a menulist to the DOM, it has some child nodes added to it
 // by the menulist custom element. If we then clone the menulist and add
 // it to the DOM again, more child nodes are added and we end up with
@@ -730,32 +722,6 @@ function awSetFocus(row, inputElement) {
   awSetFocusTo(inputElement);
 }
 
-function awTabFromRecipient(element, event) {
-  // If we are the last element in the listbox, we don't want to create a new row.
-  if (element == awGetInputElement(top.MAX_RECIPIENTS))
-    top.doNotCreateANewRow = true;
-
-  var row = awGetRowByInputElement(element);
-  if (!event.shiftKey && row < top.MAX_RECIPIENTS) {
-    var listBoxRow = row - 1; // listbox row indices are 0-based, ours are 1-based.
-    var listBox = document.getElementById("addressingWidget");
-    listBox.listBoxObject.ensureIndexIsVisible(listBoxRow + 1);
-  }
-
-  // be sure to add the user add recipient to our ignore list
-  // when the user tabs out of an autocomplete line...
-  addRecipientsToIgnoreList(element.value);
-}
-
-function awTabFromMenulist(element, event) {
-  var row = awGetRowByInputElement(element);
-  if (event.shiftKey && row > 1) {
-    var listBoxRow = row - 1; // listbox row indices are 0-based, ours are 1-based.
-    var listBox = document.getElementById("addressingWidget");
-    listBox.listBoxObject.ensureIndexIsVisible(listBoxRow - 1);
-  }
-}
-
 function awGetNumberOfRecipients() {
   return top.MAX_RECIPIENTS;
 }
@@ -826,19 +792,23 @@ function awRecipientTextCommand(enterEvent, element) {
 }
 
 function awRecipientKeyPress(event, element) {
-  switch (event.keyCode) {
-  case KeyEvent.DOM_VK_RETURN:
-  case KeyEvent.DOM_VK_TAB:
-    // if the user text contains a comma or a line return, ignore
-    if (element.value.includes(",")) {
-      var addresses = element.value;
-      element.value = ""; // clear out the current line so we don't try to autocomplete it..
-      parseAndAddAddresses(addresses, awGetPopupElement(awGetRowByInputElement(element)).value);
-    } else if (event.keyCode == KeyEvent.DOM_VK_TAB) {
-      awTabFromRecipient(element, event);
-    }
+  switch (event.key) {
+    case "Enter":
+    case "Tab":
+      // If the recipient input text contains a comma (we also convert pasted line
+      // feeds into commas), check if multiple recipients and add them accordingly.
+      if (element.value.includes(",")) {
+        let addresses = element.value;
+        element.value = ""; // Clear out the current line so we don't try to autocomplete it.
+        parseAndAddAddresses(addresses, awGetPopupElement(awGetRowByInputElement(element)).value);
+      } else if (event.key == "Tab") {
+        // Single recipient added via Tab key:
+        // Add the recipient to our spellcheck ignore list.
+        // For Enter key, this is done in awReturnHit().
+        addRecipientsToIgnoreList(element.value);
+      }
 
-    break;
+      break;
   }
 }
 
@@ -896,14 +866,6 @@ function awRecipientKeyDown(event, inputElement) {
         }
       }
       break;
-  }
-}
-
-function awMenulistKeyPress(event, element) {
-  switch (event.keyCode) {
-  case KeyEvent.DOM_VK_TAB:
-    awTabFromMenulist(element, event);
-    break;
   }
 }
 
@@ -1007,14 +969,6 @@ function awSizerMouseMove() {
 
 function awSizerMouseUp() {
   document.removeEventListener("mousemove", awSizerMouseMove, true);
-}
-
-function awDocumentKeyPress(event) {
-  try {
-    var id = event.target.id;
-    if (id.startsWith("addressCol1"))
-      awMenulistKeyPress(event, event.target);
-  } catch (e) { }
 }
 
 // Given an arbitrary block of text like a comma delimited list of names or a names separated by spaces,

@@ -2568,8 +2568,6 @@ function ComposeStartup(aParams) {
 
   var identityList = document.getElementById("msgIdentity");
 
-  document.addEventListener("keypress", awDocumentKeyPress, true);
-
   document.addEventListener("paste", onPasteOrDrop);
   document.addEventListener("drop", onPasteOrDrop);
 

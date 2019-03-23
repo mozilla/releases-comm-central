@@ -7,6 +7,7 @@
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 top.MAX_RECIPIENTS = 1;
 var inputElementType = "";
@@ -174,7 +175,10 @@ function OnLoadNewMailList() {
   AppendNewRowAndSetFocus();
   awFitDummyRows(1);
 
-  document.addEventListener("keypress", awDocumentKeyPress, true);
+  if (AppConstants.MOZ_APP_NAME == "seamonkey") {
+    /* global awDocumentKeyPress */
+    document.addEventListener("keypress", awDocumentKeyPress, true);
+  }
 
   // focus on first name
   var listName = document.getElementById("ListName");
@@ -256,7 +260,10 @@ function OnLoadEditList() {
     document.getElementById("addressingWidget").disabled = true;
   }
 
-  document.addEventListener("keypress", awDocumentKeyPress, true);
+  if (AppConstants.MOZ_APP_NAME == "seamonkey") {
+    /* global awDocumentKeyPress */
+    document.addEventListener("keypress", awDocumentKeyPress, true);
+  }
 
   // workaround for bug 118337 - for mailing lists that have more rows than fits inside
   // the display, the value of the textbox inside the new row isn't inherited into the input -
@@ -395,12 +402,6 @@ function awAppendNewRow(setFocus) {
 
 function awGetInputElement(row) {
   return document.getElementById("addressCol1#" + row);
-}
-
-function awTabFromRecipient(element, event) {
-  // If we are the last element in the listbox, we don't want to create a new row.
-  if (element == awGetInputElement(top.MAX_RECIPIENTS))
-    top.doNotCreateANewRow = true;
 }
 
 function DragOverAddressListTree(event) {
