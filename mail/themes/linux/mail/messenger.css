@@ -104,6 +104,20 @@ toolbar[brighttext] {
   --toolbarbutton-checkedhover-backgroundcolor: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .5));
 }
 
+#tabs-toolbar {
+  --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background, hsla(240,5%,5%,.1));
+  --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background, hsla(240,5%,5%,.1));
+  --toolbarbutton-active-background: var(--lwt-toolbarbutton-active-background, hsla(240,5%,5%,.15));
+  --toolbarbutton-active-bordercolor: var(--lwt-toolbarbutton-active-background, hsla(240,5%,5%,.15));
+}
+
+#tabs-toolbar[brighttext] {
+  --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background, hsla(0,0%,70%,.4));
+  --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background, hsla(0,0%,70%,.4));
+  --toolbarbutton-active-background: var(--lwt-toolbarbutton-active-background, hsla(0,0%,70%,.6));
+  --toolbarbutton-active-bordercolor: var(--lwt-toolbarbutton-active-background, hsla(0,0%,70%,.6));
+}
+
 /* Hide the titlebar explicitly on versions of GTK+ where
  * it's rendered by window manager. */
 @media (-moz-gtk-csd-available: 0) {
