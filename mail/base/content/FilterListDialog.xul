@@ -55,87 +55,26 @@
              emptytext="&searchBox.emptyText;"
              isempty="true"/>
   </hbox>
-
-  <grid id="filterListGrid" flex="1">
-    <columns>
-      <column flex="1"/>
-      <column/>
-    </columns>
-    <rows>
-      <row>
-        <separator class="thin"/>
-      </row>
-      <row>
-        <hbox>
-          <label id="filterListLabel"
-                 control="filterList"
-                 flex="1">
-            &filterHeader.label;
-          </label>
-          <label id="countBox"/>
-        </hbox>
-      </row>
-
-      <row flex="1">
-        <vbox>
-          <richlistbox id="filterList" flex="1" onselect="updateButtons();"
-                       class="theme-listbox" seltype="multiple"
-                       onkeypress="onFilterListKeyPress(event);">
-            <treecols>
-              <treecol id="nameColumn" label="&nameColumn.label;" flex="1"/>
-              <treecol id="activeColumn" label="&activeColumn.label;" width="100"/>
-            </treecols>
-          </richlistbox>
-        </vbox>
-
-        <vbox>
-          <button id="newButton"
-                  type="menu-button"
-                  label="&newButton.label;"
-                  accesskey="&newButton.accesskey;"
-                  oncommand="onNewFilter();">
-            <menupopup>
-              <menuitem label="&newButton.label;"
-                        accesskey="&newButton.accesskey;"/>
-              <menuitem id="copyToNewButton"
-                        label="&newButton.popupCopy.label;"
-                        accesskey="&newButton.popupCopy.accesskey;"
-                        oncommand="onCopyToNewFilter(); event.stopPropagation();"/>
-            </menupopup>
-          </button>
-          <button id="editButton" label="&editButton.label;"
-                  accesskey="&editButton.accesskey;"
-                  oncommand="onEditFilter();"/>
-          <button id="deleteButton"
-                  label="&deleteButton.label;"
-                  accesskey="&deleteButton.accesskey;"
-                  oncommand="onDeleteFilter();"/>
-          <spacer flex="1"/>
-          <button id="reorderTopButton"
-                  label="&reorderTopButton;"
-                  accesskey="&reorderTopButton.accessKey;"
-                  tooltiptext="&reorderTopButton.toolTip;"
-                  oncommand="onTop(event);"/>
-          <button id="reorderUpButton"
-                  label="&reorderUpButton.label;"
-                  accesskey="&reorderUpButton.accesskey;"
-                  class="up"
-                  oncommand="onUp(event);"/>
-          <button id="reorderDownButton"
-                  label="&reorderDownButton.label;"
-                  accesskey="&reorderDownButton.accesskey;"
-                  class="down"
-                  oncommand="onDown(event);"/>
-          <button id="reorderBottomButton"
-                  label="&reorderBottomButton;"
-                  accesskey="&reorderBottomButton.accessKey;"
-                  tooltiptext="&reorderBottomButton.toolTip;"
-                  oncommand="onBottom(event);"/>
-          <spacer flex="1"/>
-        </vbox>
-      </row>
-      <row>
-        <vbox>
+  <separator class="thin"/>
+  <hbox id="filterListGrid" flex="1">
+    <vbox flex="1">
+      <hbox>
+        <label id="filterListLabel" control="filterList" flex="1">
+          &filterHeader.label;
+        </label>
+        <label id="countBox"/>
+      </hbox>
+      <box flex="1">
+        <richlistbox id="filterList" flex="1" onselect="updateButtons();"
+                     class="theme-listbox" seltype="multiple"
+                     onkeypress="onFilterListKeyPress(event);">
+              <treecols>
+                <treecol id="nameColumn" label="&nameColumn.label;" flex="1"/>
+                <treecol id="activeColumn" label="&activeColumn.label;" width="100"/>
+              </treecols>
+        </richlistbox>
+      </box>
+      <vbox>
           <separator class="thin"/>
           <hbox align="center">
             <label id="folderPickerPrefix" value="&folderPickerPrefix.label;"
@@ -161,16 +100,58 @@
                   oncommand="runSelectedFilters();" disabled="true"/>
           </hbox>
         </vbox>
-        <vbox>
-          <separator class="thin"/>
-            <button label="&viewLogButton.label;"
-                    accesskey="&viewLogButton.accesskey;"
-                    oncommand="viewLog();"/>
-
-        </vbox>
-      </row>
-    </rows>
-  </grid>
+    </vbox>
+    <vbox>
+      <label value=""/>
+      <button id="newButton"
+              type="menu-button"
+              label="&newButton.label;"
+              accesskey="&newButton.accesskey;"
+              oncommand="onNewFilter();">
+        <menupopup>
+          <menuitem label="&newButton.label;"
+                    accesskey="&newButton.accesskey;"/>
+          <menuitem id="copyToNewButton"
+                    label="&newButton.popupCopy.label;"
+                    accesskey="&newButton.popupCopy.accesskey;"
+                    oncommand="onCopyToNewFilter(); event.stopPropagation();"/>
+        </menupopup>
+      </button>
+      <button id="editButton" label="&editButton.label;"
+              accesskey="&editButton.accesskey;"
+              oncommand="onEditFilter();"/>
+      <button id="deleteButton"
+              label="&deleteButton.label;"
+              accesskey="&deleteButton.accesskey;"
+              oncommand="onDeleteFilter();"/>
+      <separator class="thin"/>
+      <button id="reorderTopButton"
+              label="&reorderTopButton;"
+              accesskey="&reorderTopButton.accessKey;"
+              tooltiptext="&reorderTopButton.toolTip;"
+              oncommand="onTop(event);"/>
+      <button id="reorderUpButton"
+              label="&reorderUpButton.label;"
+              accesskey="&reorderUpButton.accesskey;"
+              class="up"
+              oncommand="onUp(event);"/>
+      <button id="reorderDownButton"
+              label="&reorderDownButton.label;"
+              accesskey="&reorderDownButton.accesskey;"
+              class="down"
+              oncommand="onDown(event);"/>
+      <button id="reorderBottomButton"
+              label="&reorderBottomButton;"
+              accesskey="&reorderBottomButton.accessKey;"
+              tooltiptext="&reorderBottomButton.toolTip;"
+              oncommand="onBottom(event);"/>
+      <vbox flex="1" pack="end">
+        <button label="&viewLogButton.label;"
+                accesskey="&viewLogButton.accesskey;"
+                oncommand="viewLog();"/>
+      </vbox>
+    </vbox>
+  </hbox>
 
   <separator class="thin"/>
 
