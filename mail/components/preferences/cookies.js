@@ -26,7 +26,8 @@ var gCookiesWindow = {
     document.getElementById("filter").focus();
 
     if (!Services.prefs.getBoolPref("privacy.userContext.enabled")) {
-      document.getElementById("userContextRow").hidden = true;
+      document.getElementById("userContext").hidden = true;
+      document.getElementById("userContextLabel").hidden = true;
     }
   },
 
