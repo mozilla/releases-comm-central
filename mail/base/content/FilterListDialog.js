@@ -290,7 +290,7 @@ function toggleFilter(aFilterItem, aSetForEvent) {
 
   // Now update the checkbox
   if (aSetForEvent === undefined) {
-    aFilterItem.firstChild.nextSibling.setAttribute("checked", filter.enabled);
+    aFilterItem.firstChild.nextSibling.checked = filter.enabled;
   }
   // For accessibility set the checked state on listitem
   aFilterItem.setAttribute("aria-checked", filter.enabled);
@@ -713,7 +713,7 @@ function rebuildFilterList() {
       nameCell.setAttribute("flex", "1");
       enabledCell = document.createElement("checkbox");
       enabledCell.setAttribute("style", "padding-inline-start: 25px;");
-      enabledCell.addEventListener("click", onFilterClick, true);
+      enabledCell.addEventListener("CheckboxStateChange", onFilterClick, true);
       listitem.appendChild(nameCell);
       listitem.appendChild(enabledCell);
       gFilterListbox.appendChild(listitem);
@@ -858,12 +858,9 @@ function getServerThatCanHaveFilters() {
 }
 
 function onFilterClick(event) {
-    // we only care about button 0 (left click) events
-    if (event.button != 0) {
-      return;
-    }
-
-    toggleFilter(this.parentNode, !this.checked);
+  // This is called after the clicked checkbox changed state
+  // so this.checked is the right state we want to toggle to.
+  toggleFilter(this.parentNode, this.checked);
 }
 
 function onFilterDoubleClick(event) {
