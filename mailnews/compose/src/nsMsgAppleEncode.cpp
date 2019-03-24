@@ -177,7 +177,7 @@ int ap_encode_file_infor(
   /* write header */
 //  head.magic = dfork ? APPLESINGLE_MAGIC : APPLEDOUBLE_MAGIC;
   head.magic   = APPLEDOUBLE_MAGIC;    /* always do apple double */
-  head.version = VERSION;
+  head.version = APPLEDOUBLE_VERSION;
   memset(head.fill, '\0', sizeof (head.fill));
   head.entries = NUM_ENTRIES - 1;
   status = to64(p_ap_encode_obj,
