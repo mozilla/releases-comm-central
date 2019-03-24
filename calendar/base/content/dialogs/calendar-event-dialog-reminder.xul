@@ -26,6 +26,8 @@
   <!-- Javascript includes -->
   <script type="application/javascript" src="chrome://calendar/content/calendar-event-dialog-reminder.js"/>
   <script type="application/javascript" src="chrome://calendar/content/calendar-ui-utils.js"/>
+  <script type="application/javascript" src="chrome://messenger/content/customElements.js"/>
+  <script type="application/javascript" src="chrome://calendar/content/datetimepickers/datetimepickers.js"/>
 
   <notificationbox id="reminder-notifications"/>
 
