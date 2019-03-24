@@ -157,7 +157,7 @@
 
 ; [Components]
 #ifdef ACCESSIBILITY
-#ifdef XP_WIN32
+#ifdef XP_WIN
 @BINPATH@/Accessible.tlb
 @BINPATH@/AccessibleHandler.dll
 @BINPATH@/AccessibleMarshal.dll
@@ -288,7 +288,7 @@
 #ifdef MOZ_UPDATER
 @RESPATH@/icons/updater.png
 #endif
-#elifdef XP_WIN32
+#elifdef XP_WIN
 @RESPATH@/chrome/icons/default/bookmarkproperties.ico
 @RESPATH@/chrome/icons/default/downloadManager.ico
 @RESPATH@/chrome/icons/default/editorWindow.ico
@@ -504,7 +504,7 @@ man/*
 @RESPATH@/chrome/icons/default/msgcomposeWindow.png
 @RESPATH@/chrome/icons/default/msgcomposeWindow16.png
 @RESPATH@/chrome/icons/default/msgcomposeWindow48.png
-#elifdef XP_WIN32
+#elifdef XP_WIN
 @RESPATH@/chrome/icons/default/abcardWindow.ico
 @RESPATH@/chrome/icons/default/ablistWindow.ico
 @RESPATH@/chrome/icons/default/addressbookWindow.ico

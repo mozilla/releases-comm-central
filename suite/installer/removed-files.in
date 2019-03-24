@@ -110,7 +110,7 @@
 @DIR_MACOS@chrome/icons/default/venkman-window.png
 @DIR_MACOS@chrome/icons/default/venkman-window16.png
 @DIR_MACOS@chrome/icons/default/venkman-window48.png
-#elifdef XP_WIN32
+#elifdef XP_WIN
 chrome/icons/default/venkman-window.ico
 #endif
 #ifndef ENABLE_TESTS

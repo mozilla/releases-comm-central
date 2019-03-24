@@ -35,7 +35,7 @@ comm.jar:
    content/navigator/platformNavigationBindings.xul                 (mac/platformNavigationBindings.xul)
    content/navigator/platformMailOverlay.xul                        (mac/platformMailOverlay.xul)
 #else
-#ifdef XP_WIN32
+#ifdef XP_WIN
    content/navigator/platformNavigationBindings.xul                 (win/platformNavigationBindings.xul)
    content/navigator/platformMailOverlay.xul                        (win/platformMailOverlay.xul)
 #else
