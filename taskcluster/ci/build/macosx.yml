@@ -27,6 +27,7 @@ macosx64/debug:
         mozconfig-variant: debug
         tooltool-downloads: internal
     toolchains:
+        - linux64-binutils
         - linux64-cbindgen
         - linux64-cctools-port
         - linux64-clang
@@ -65,6 +66,7 @@ macosx64/opt:
         script: "mozharness/scripts/fx_desktop_build.py"
         tooltool-downloads: internal
     toolchains:
+        - linux64-binutils
         - linux64-cbindgen
         - linux64-cctools-port
         - linux64-clang
@@ -110,6 +112,7 @@ macosx64-nightly/opt:
         script: "mozharness/scripts/fx_desktop_build.py"
         tooltool-downloads: internal
     toolchains:
+        - linux64-binutils
         - linux64-cbindgen
         - linux64-cctools-port
         - linux64-clang
