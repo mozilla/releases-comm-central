@@ -3,13 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("chrome://messenger/content/bindings.css");
-@import url("chrome://messenger/content/preferences/preferences.css");
 
 /* Global Styles */
-
-.paneButtonLabel {
-  margin: 0 !important;
-}
 
 .windowDialog {
   padding: 12px;
@@ -42,14 +37,6 @@ menulist > menupopup > menuitem {
 prefpane .groupbox-body {
   -moz-appearance: none;
   padding: 8px 4px 4px;
-}
-
-#paneTabs > groupbox {
-  margin: 0;
-}
-
-#paneTabs > vbox {
-  margin: 8px;
 }
 
 prefpane .groupbox-title {

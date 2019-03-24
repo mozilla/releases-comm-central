@@ -33,6 +33,7 @@ html|h2 {
 #MailPreferences prefpane {
   max-width: 800px;
   padding: 0;
+  -moz-box-orient: vertical;
 }
 
 tabpanel > label,

@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("chrome://messenger/content/bindings.css");
-@import url("chrome://messenger/content/preferences/preferences.css");
 
 /* Global Styles */
 
@@ -19,11 +18,6 @@ radio[pane] {
   -moz-appearance: listbox;
   margin: 8px 8px 0;
   padding: 0;
-}
-
-.paneButtonIcon {
-  width: 32px;
-  height: 32px;
 }
 
 menulist > .menulist-label-box > .menulist-icon[src] {
