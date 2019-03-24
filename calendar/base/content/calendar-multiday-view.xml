@@ -883,7 +883,7 @@
                 }
             }
             this.mEventInfos.forEach((aEventInfo) => {
-                let item = aEventInfo.event.clone().QueryInterface(Ci.calIEvent);
+                let item = aEventInfo.event.clone();
                 let start = item.startDate || item.entryDate || item.dueDate;
                 start = start.getInTimezone(this.mTimezone);
                 aEventInfo.layoutStart = start;
