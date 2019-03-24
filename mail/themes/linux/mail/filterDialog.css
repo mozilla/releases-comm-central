@@ -24,6 +24,7 @@ richlistitem {
 richlistitem > checkbox {
   width: 100px;
   margin: 0;
+  -moz-user-focus: none;
 }
 
 checkbox:not([label]) .checkbox-label-box {
