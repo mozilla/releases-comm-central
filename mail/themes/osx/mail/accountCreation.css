@@ -3,51 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("chrome://messenger/skin/shared/accountCreation.css");
-
-/* Missing:
- * .important-button
- */
+@namespace html url("http://www.w3.org/1999/xhtml");
 
 .errordescription {
   padding-inline-start: 3px;
-  margin-top: 3px;
+  margin-top: 2px;
 }
 
 .initialDesc, .columnHeader {
   margin-top: 2px;
   color: GrayText;
-}
-
-/* Missing:
- * menulist[disabled="true"]
- * menulist[disabled="true"] > .menulist-editable-box
- * menulist[disabled="true"] > .menulist-editable-box > .menulist-editable-input
- * menulist[disabled="true"] > .menulist-dropmarker
- * #outgoing_protocol
- */
-
-/* Missing:
- * #config_status_title
- */
-
-.warningicon {
-  width: 16px;
-  height: 16px;
-  background: url("chrome://global/skin/icons/warning.svg") no-repeat;
-}
-
-.insecureLarry {
-  height: 64px;
-  width: 64px;
-  padding: 0;
-  background: url("chrome://global/skin/icons/sslWarning.png") no-repeat;
-}
-
-.secureLarry {
-  height: 64px;
-  width: 64px;
-  padding: 0;
-  background: url("chrome://messenger/skin/icons/identity.png") no-repeat;
 }
 
 @media (min-resolution: 2dppx) {
@@ -63,112 +28,10 @@
 #warningbox {
   width: 650px;
   height: 400px;
-  background: #333333 none repeat scroll 0% 0%;
-  padding: 1em;
-  overflow: auto;
 }
 
-.warning {
-  padding: 2em;
-  border-radius: 10px;
-  background-color: #772222;
-  border: 1px solid threedshadow;
-}
-
-.warning_text {
-  color: white;
-  font-size: 120%;
-}
-
-.warning_text > vbox {
-  padding-top: 5px;
-}
-
-.warning-heading {
-  border-bottom: 1px solid threedlightshadow;
-  font-size: 160%;
-  margin: 0px;
-  padding: 2px 2px 1px;
-}
-
-.warning_settings {
-  color: yellow;
-  font-weight: bold;
-  margin: 0px;
-  margin-right: 2px;
-}
-
-.larrybox {
-  padding-inline-end: 2em;
-}
-
-checkbox.acknowledge_checkbox {
-  padding-top: .5em;
-}
-
-.title {
-  font-weight: bold;
-  padding: 0px 3px;
-}
-
-.details {
-  font-style: italic;
-  padding: 3px;
-}
-
-.popup-panel {
-  padding: 2px 3px;
-  background-color: #ffffc7;
-  max-width: 320px;
-}
-
-.protocol {
-  width: 8em;
-}
-
-.protocol > label {
-  padding-inline-start: 6px;
-}
-
-.security {
-  width: 10em;
-}
-
-textbox.port {
-  width: 4em;
-}
-
-textbox.username {
-  width: 15em;
-  margin-bottom: 4px !important;
-  margin-top: 4px !important;
-}
-
-.host {
-  width: 14em;
-}
-
-/* Missing:
- * textbox[disabled="true"]
- */
-
-.technical_details {
-  cursor: pointer;
-  margin: 0px;
-  padding-left: 20px;
-  background: url("chrome://messenger/skin/section_collapsed.png") left 0 no-repeat;
-}
-
-.technical_details[expanded] {
-  background-image: url("chrome://messenger/skin/section_expanded.png");
-}
-
-.autoconfigLabel {
-  text-align: right;
-}
-
-.textbox-label {
-  text-align: right;
+#result-username {
+  margin-inline-start: 6px;
 }
 
 textbox[disabled="true"],
@@ -185,40 +48,9 @@ menulist {
   margin-left: 4px;
 }
 
-/* status area */
-
-#status_area[status=loading] #status_msg {
-  font-weight: bold;
-}
-
-#status_area[status=error] #status_msg {
-  font-weight: bold;
-}
-
 #status_area[status=error] #status_img_before {
-  background: url("chrome://global/skin/icons/warning.svg") no-repeat;
-  background-position-y: 1px;
-  width: 16px;
-  height: 16px;
   margin-right: 1em;
 }
-
-#status_area[status=loading] #status_img_after {
-  background: url("chrome://global/skin/icons/loading.png") no-repeat;
-  width: 16px;
-  height: 16px;
-  background-size: 16px 16px;
-}
-
-@media (min-resolution: 2dppx) {
-  #status_area[status=loading] #status_img_after {
-    background-image: url("chrome://global/skin/icons/loading@2x.png");
-  }
-}
-
-/* Missing:
- * .menulist-dropmarker[disabled="true"]
- */
 
 textbox.port[disabled="true"] {
   padding-top: 4px;
