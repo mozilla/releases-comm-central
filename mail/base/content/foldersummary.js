@@ -200,13 +200,17 @@ class MozFolderTooltip extends MozFolderSummary {
       return false;
     }
 
+    let treeCellInfo = gFolderTreeView._tree.getCellAt(event.clientX, event.clientY);
+    if (!treeCellInfo.col) {
+      return false;
+    }
+
     let tooltipnode = event.target;
     let asyncResults = {};
     if (tooltipnode.parseFolder(msgFolder, null, asyncResults)) {
       return true;
     }
 
-    let treeCellInfo = gFolderTreeView._tree.getCellAt(event.clientX, event.clientY);
     if (treeCellInfo.col.id == "folderNameCol") {
       let cropped = gFolderTreeView._tree.isCellCropped(treeCellInfo.row, treeCellInfo.col);
       if (this._addLocationInfo(msgFolder, cropped, tooltipnode)) {
@@ -215,7 +219,16 @@ class MozFolderTooltip extends MozFolderSummary {
     }
 
     let counts = gFolderTreeView.getSummarizedCounts(treeCellInfo.row, treeCellInfo.col.id);
-    return this._addSummarizeExplain(counts, tooltipnode);
+    if (this._addSummarizeExplain(counts, tooltipnode)) {
+      return true;
+    }
+
+    if (gFolderTreeView._tree.isCellCropped(treeCellInfo.row, treeCellInfo.col)) {
+      let croppedText = gFolderTreeView.getCellText(treeCellInfo.row, treeCellInfo.col);
+      return this._addCroppedText(croppedText, tooltipnode);
+    }
+
+    return false;
   }
 
   /** Handle the popuphiding event. */
@@ -270,6 +283,13 @@ class MozFolderTooltip extends MozFolderSummary {
       let sumString = document.getElementById("bundle_messenger")
         .getFormattedString("subfoldersExplanation", [counts[0], counts[1]], 2);
       expl.setAttribute("value", sumString);
+      node.appendChild(expl);
+      return true;
+    }
+
+  _addCroppedText(text, node) {
+      let expl = document.createElement("label");
+      expl.setAttribute("value", text);
       node.appendChild(expl);
       return true;
     }
