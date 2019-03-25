@@ -15,11 +15,5 @@ LOCAL_INCLUDES += [
     '../shell',
 ]
 
-if CONFIG['OS_ARCH'] == 'WINNT':
-    OS_LIBS += [
-        'ole32',
-        'shell32',
-    ]
-
 if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
     LOCAL_INCLUDES += ['../search']
