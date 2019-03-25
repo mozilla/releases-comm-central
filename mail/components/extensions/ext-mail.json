@@ -60,6 +60,14 @@
       ["composeAction"]
     ]
   },
+  "geckoProfiler": {
+    "url": "chrome://extensions/content/parent/ext-geckoProfiler.js",
+    "schema": "chrome://extensions/content/schemas/geckoProfiler.json",
+    "scopes": ["addon_parent"],
+    "paths": [
+      ["geckoProfiler"]
+    ]
+  },
   "legacy": {
     "url": "chrome://messenger/content/parent/ext-legacy.js",
     "schema": "chrome://messenger/content/schemas/legacy.json",
