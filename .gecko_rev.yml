@@ -23,5 +23,3 @@ GECKO_HEAD_REF: default
 # GECKO_HEAD_REV. Release branches are pinned to a particular commit
 # and set GECKO_HEAD_REV. They may also set GECKO_HEAD_REF when the pinned
 # commit is in a branch within the repository, such as THUNDERBIRD_60_VERBRANCH.
-
-
