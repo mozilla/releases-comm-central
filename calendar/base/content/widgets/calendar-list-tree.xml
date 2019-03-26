@@ -398,7 +398,6 @@
                 onset="return this.setAttribute('disabledstate', val);"/>
 
       <method name="sortOrderChanged">
-        <parameter name=""/>
         <body><![CDATA[
             if (this.mAddingFromComposite) {
                 return;
