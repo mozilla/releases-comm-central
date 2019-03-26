@@ -25,6 +25,12 @@ html|h2 {
   margin: 4px 0 !important;
 }
 
+html|h3 {
+  font-size: 1em;
+  font-weight: 600;
+  margin: 4px 0 !important;
+}
+
 #preferencesContainer {
   padding: 40px 28px;
   overflow: auto;

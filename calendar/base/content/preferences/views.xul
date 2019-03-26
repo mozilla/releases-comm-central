@@ -102,17 +102,14 @@
 
         <groupbox>
             <label><html:h2>&pref.calendar.view.dayandweekviews.caption;</html:h2></label>
-            <grid>
-                <columns>
-                    <column/>
-                    <column/>
-                    <column flex="1"/>
-                </columns>
-                <rows>
-                    <row align="center">
+            <html:table id="dayAndWeekViewsTable">
+                <html:tr>
+                    <html:td>
                         <label value="&pref.calendar.view.daystart.label;"
                                accesskey="&pref.calendar.view.daystart.accesskey;"
                                control="daystarthour"/>
+                    </html:td>
+                    <html:td>
                         <menulist id="daystarthour"
                                   oncommand="gViewsPane.updateViewEndMenu(this.value);"
                                   preference="calendar.view.daystarthour">
@@ -143,6 +140,8 @@
                                 <menuitem id="timeStart23"                        value="23"/>
                             </menupopup>
                         </menulist>
+                    </html:td>
+                    <html:td>
                         <hbox align="center" pack="center">
                             <label value="&pref.calendar.view.visiblehours.label;"
                                    accesskey="&pref.calendar.view.visiblehours.accesskey;"
@@ -178,11 +177,15 @@
                             </menulist>
                             <label value="&pref.calendar.view.visiblehoursend.label;"/>
                         </hbox>
-                    </row>
-                    <row align="center">
+                    </html:td>
+                </html:tr>
+                <html:tr>
+                    <html:td>
                         <label value="&pref.calendar.view.dayend.label;"
                                accesskey="&pref.calendar.view.dayend.accesskey;"
                                control="dayendhour"/>
+                    </html:td>
+                    <html:td>
                         <menulist id="dayendhour"
                                   oncommand="gViewsPane.updateViewStartMenu(this.value);"
                                   preference="calendar.view.dayendhour">
@@ -213,15 +216,13 @@
                                 <menuitem id="timeEnd24" label="&time.midnight;" value="24"/>
                             </menupopup>
                         </menulist>
-                    </row>
-                    <row align="center">
-                        <checkbox id="showLocation" pack="end"
-                                  label="&pref.showlocation.label;"
-                                  preference="calendar.view.showLocation"/>
-                        <spacer/>
-                    </row>
-                </rows>
-            </grid>
+                    </html:td>
+                </html:tr>
+            </html:table>
+            <checkbox id="showLocation" pack="end"
+                      label="&pref.showlocation.label;"
+                      preference="calendar.view.showLocation"/>
+            <spacer/>
         </groupbox>
 
         <groupbox id="viewsMultiweekGroupbox">

@@ -96,12 +96,6 @@ var gCalendarGeneralPane = {
         updateMenuLabelsPlural("default_task_due_offset_text", "default_task_due_offset_units");
     },
 
-    updateItemtypeDeck: function() {
-        let panelId = document.getElementById("defaults-itemtype-menulist").value;
-        let panel = document.getElementById(panelId);
-        document.getElementById("defaults-itemtype-deck").selectedPanel = panel;
-    },
-
     initializeTodaypaneMenu: function() {
         // Assign the labels for the menuitem
         let soondaysMenu = document.getElementById("soondays-menulist");

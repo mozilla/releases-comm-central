@@ -1,0 +1,56 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@namespace html url("http://www.w3.org/1999/xhtml");
+
+#defaults-task-table,
+#alarm-defaults-table,
+#dayAndWeekViewsTable {
+  border-spacing: 0;
+}
+
+#defaults-task-table html|td,
+#alarm-defaults-table html|td,
+#dayAndWeekViewsTable html|td {
+  padding: 0;
+}
+
+#default_task_start,
+#default_task_due {
+  width: calc(100% - 16px);  /* 16px is the sum of the element margins. */
+}
+
+#alarm-sound-table {
+  display: inline-table;
+}
+
+#eventdefalarm,
+#tododefalarm {
+  margin-inline-start: 4px;
+}
+
+#eventdefalarm,
+#tododefalarm,
+#alarmSoundFileField {
+  width: calc(100% - 8px); /* 8px is the sum of the element margins. */
+}
+
+#alarm-sound-buttons-box,
+#calendar\.prefs\.alarm\.sound\.browse,
+#calendar\.prefs\.alarm\.sound\.useDefault {
+  width: 100%;
+}
+
+.defaultTimeBox {
+  width: 100%;
+}
+
+#eventdefalarmunit,
+#tododefalarmunit {
+  margin-inline-end: 4px;
+}
+
+.dayOffCheckbox {
+  padding-inline-end: 10px;
+}
