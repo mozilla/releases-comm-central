@@ -3,14 +3,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* global MozElements */
 /* global MozXULElement */
 /* global openUILink */
 /* global MessageIdClick */
 /* global onClickEmailStar */
 /* global onClickEmailPresence */
 /* global gFolderDisplay */
-/* global MozElementMixin */
-/* global BaseControlMixin */
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
@@ -731,8 +730,7 @@ customElements.whenDefined("menulist").then(() => {
     }
   }
 
-  const MozXULMenuElement = MozElementMixin(XULMenuElement);
-  const MenuBaseControl = BaseControlMixin(MozXULMenuElement);
+  const MenuBaseControl = MozElements.BaseControlMixin(MozElements.MozElementMixin(XULMenuElement));
   MenuBaseControl.implementCustomInterface(
     MozMenulistEditable, [Ci.nsIDOMXULMenuListElement, Ci.nsIDOMXULSelectControlElement]
   );

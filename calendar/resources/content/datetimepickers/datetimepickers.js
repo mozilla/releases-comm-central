@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals BaseControlMixin, cal, MozElementMixin, MozXULElement */
+/* globals MozElements, MozXULElement, cal */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
@@ -895,8 +895,7 @@ customElements.whenDefined("menulist-editable").then(() => {
         }
     }
 
-    const MozXULMenuElement = MozElementMixin(XULMenuElement);
-    const MenuBaseControl = BaseControlMixin(MozXULMenuElement);
+    const MenuBaseControl = MozElements.BaseControlMixin(MozElements.MozElementMixin(XULMenuElement));
     MenuBaseControl.implementCustomInterface(CalendarDatePicker, [
         Ci.nsIDOMXULMenuListElement,
         Ci.nsIDOMXULSelectControlElement
