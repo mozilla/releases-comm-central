@@ -31,7 +31,6 @@
   <script type="application/javascript" src="chrome://calendar/content/calendar-print-dialog.js"/>
   <script type="application/javascript" src="chrome://calendar/content/calendar-ui-utils.js"/>
   <script type="application/javascript" src="chrome://global/content/printUtils.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/customElements.js"/>
   <script type="application/javascript" src="chrome://calendar/content/datetimepickers/datetimepickers.js"/>
 
   <hbox id="firstHbox" flex="1">
