@@ -62,7 +62,7 @@
       </vbox>
       <hbox id="preferencesContainer" flex="1">
         <hbox class="paneDeckContainer" flex="1">
-          <deck id="paneDeck" flex="1">
+          <hbox id="paneDeck" flex="1">
 #include general.inc.xul
 #include display.inc.xul
 #include compose.inc.xul
@@ -72,7 +72,7 @@
 #include applications.inc.xul
             <prefpane id="paneLightning" label="&paneLightning.title;"/>
 #include advanced.inc.xul
-          </deck>
+          </hbox>
         </hbox>
       </hbox>
     </hbox>

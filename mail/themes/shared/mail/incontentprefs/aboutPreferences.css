@@ -39,7 +39,12 @@ html|h3 {
 #MailPreferences prefpane {
   max-width: 800px;
   padding: 0;
+  -moz-box-flex: 1;
   -moz-box-orient: vertical;
+}
+
+#MailPreferences prefpane:not([selected]) {
+  display: none;
 }
 
 tabpanel > label,

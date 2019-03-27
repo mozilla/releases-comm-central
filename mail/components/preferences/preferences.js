@@ -82,8 +82,16 @@ function showPane(paneID) {
     return;
   }
 
+  let currentlySelected = paneDeck.querySelector("#paneDeck > prefpane[selected]");
+  if (currentlySelected) {
+    if (currentlySelected == pane) {
+      return;
+    }
+    currentlySelected.removeAttribute("selected");
+  }
+
   selector.value = paneID;
-  paneDeck.selectedPanel = pane;
+  pane.setAttribute("selected", "true");
   pane.dispatchEvent(new CustomEvent("paneSelected", { bubbles: true }));
 
   document.documentElement.setAttribute("lastSelected", paneID);
@@ -130,7 +138,11 @@ function showTab(pane, tabID, subdialogID) {
  * Get the ID of the current pane.
  */
 function getCurrentPaneID() {
-  return paneDeck.selectedPanel.id;
+  let currentlySelected = paneDeck.querySelector("#paneDeck > prefpane[selected]");
+  if (currentlySelected) {
+    return currentlySelected.id;
+  }
+  return null;
 }
 
 /**
