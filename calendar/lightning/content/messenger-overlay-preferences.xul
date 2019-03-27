@@ -4,21 +4,38 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
+<?xml-stylesheet href="chrome://calendar-common/skin/calendar-preferences.css" type="text/css"?>
+
 <!DOCTYPE overlay [
     <!ENTITY % lightningDTD SYSTEM "chrome://lightning/locale/lightning.dtd">
     <!ENTITY % preferencesDTD SYSTEM "chrome://calendar/locale/preferences/preferences.dtd">
+    <!ENTITY % generalDTD SYSTEM "chrome://calendar/locale/preferences/general.dtd">
+    <!ENTITY % globalDTD SYSTEM "chrome://calendar/locale/global.dtd">
+    <!ENTITY % eventDTD SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd">
+    <!ENTITY % alarmsDTD SYSTEM "chrome://calendar/locale/preferences/alarms.dtd">
+    <!ENTITY % categoriesDTD SYSTEM "chrome://calendar/locale/preferences/categories.dtd">
+    <!ENTITY % viewsDTD SYSTEM "chrome://calendar/locale/preferences/views.dtd">
     %lightningDTD;
     %preferencesDTD;
+    %generalDTD;
+    %globalDTD;
+    %eventDTD;
+    %alarmsDTD;
+    %categoriesDTD;
+    %viewsDTD;
 ]>
 
 <?xml-stylesheet href="chrome://lightning/skin/lightning.css"?>
 
-<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
-
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+         xmlns:html="http://www.w3.org/1999/xhtml">
         <prefpane id="paneLightning"
                   flex="1"
                   insertbefore="paneAdvanced"
                   label="&lightning.preferencesLabel;">
+            <stringbundle id="bundleCalendarPreferences"
+                          src="chrome://calendar/locale/calendar.properties"/>
+
             <tabbox id="calPreferencesTabbox"
                     flex="1">
                 <tabs>
@@ -33,22 +50,46 @@
                 </tabs>
                 <tabpanels flex="1">
                     <tabpanel orient="vertical">
-                        <vbox id="calPreferencesBoxGeneral"/>
+#include ../../base/content/preferences/general.inc.xul
                     </tabpanel>
                     <tabpanel orient="vertical">
-                        <vbox id="calPreferencesBoxAlarms"/>
+#include ../../base/content/preferences/alarms.inc.xul
                     </tabpanel>
                     <tabpanel orient="vertical">
-                        <vbox id="calPreferencesBoxCategories"/>
+#include ../../base/content/preferences/categories.inc.xul
                     </tabpanel>
                     <tabpanel orient="vertical">
-                        <vbox id="calPreferencesBoxViews"/>
+#include ../../base/content/preferences/views.inc.xul
                     </tabpanel>
                 </tabpanels>
             </tabbox>
         </prefpane>
 
-    <script type="application/javascript"
-            src="chrome://lightning/content/messenger-overlay-preferences.js"/>
+        <script type="application/javascript"
+                src="chrome://calendar/content/calendar-ui-utils.js"/>
+        <script type="application/javascript"
+                src="chrome://calendar/content/calendar-dialog-utils.js"/>
 
+        <!-- Get the localized text for use in the .js -->
+        <script type="application/javascript">
+            var labelLong  = "&pref.dateformat.long;";
+            var labelShort = "&pref.dateformat.short;";
+            var noneLabel  = "&pref.categories.none.label;";
+            var newTitle   = "&pref.categories.new.title;";
+            var editTitle  = "&pref.categories.edit.title;";
+            var overwrite  = "&pref.categories.overwrite;";
+            var overwriteTitle = "&pref.categories.overwrite.title;";
+            var noBlankCategories = "&pref.categories.noBlankCategories;";
+        </script>
+
+        <script type="application/javascript"
+                src="chrome://calendar/content/preferences/general.js"/>
+        <script type="application/javascript"
+                src="chrome://calendar/content/preferences/alarms.js"/>
+        <script type="application/javascript"
+                src="chrome://calendar/content/preferences/categories.js"/>
+        <script type="application/javascript"
+                src="chrome://calendar/content/preferences/views.js"/>
+        <script type="application/javascript"
+                src="chrome://lightning/content/messenger-overlay-preferences.js"/>
 </overlay>

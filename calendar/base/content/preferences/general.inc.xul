@@ -1,34 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- This Source Code Form is subject to the terms of the Mozilla Public
-   - License, v. 2.0. If a copy of the MPL was not distributed with this
-   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
-
-<?xml-stylesheet href="chrome://calendar-common/skin/calendar-preferences.css" type="text/css"?>
-
-<!DOCTYPE overlay [
-    <!ENTITY % generalDTD SYSTEM "chrome://calendar/locale/preferences/general.dtd">
-    <!ENTITY % globalDTD SYSTEM "chrome://calendar/locale/global.dtd">
-    <!ENTITY % eventDTD SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd">
-    %generalDTD;
-    %globalDTD;
-    %eventDTD;
-]>
-
-<overlay id="CalendarGeneralPaneOverlay"
-         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-         xmlns:html="http://www.w3.org/1999/xhtml">
-
-    <script type="application/javascript"
-            src="chrome://calendar/content/preferences/general.js"/>
-    <script type="application/javascript"
-            src="chrome://calendar/content/calendar-ui-utils.js"/>
-
-    <!-- Get the localized text for use in the .js -->
-    <script type="application/javascript">
-        var labelLong  = "&pref.dateformat.long;";
-        var labelShort = "&pref.dateformat.short;";
-    </script>
-
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, you can obtain one at http://mozilla.org/MPL/2.0/.
     <vbox id="calPreferencesBoxGeneral">
         <groupbox>
             <label><html:h2>&pref.mainbox.label;</html:h2></label>
@@ -254,4 +226,3 @@
             </hbox>
         </groupbox>
     </vbox>
-</overlay>

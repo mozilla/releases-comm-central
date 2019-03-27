@@ -1,0 +1,23 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, you can obtain one at http://mozilla.org/MPL/2.0/.
+    <vbox id="calPreferencesBoxCategories" flex="1">
+        <richlistbox id="categorieslist"
+                     flex="1"
+                     seltype="multiple"
+                     onselect="gCategoriesPane.updateButtons()"
+                     ondblclick="gCategoriesPane.listOnDblClick(event)"/>
+        <hbox pack="end">
+            <button label="&pref.categories.newButton.label;"
+                    accesskey="&pref.categories.newButton.accesskey;"
+                    oncommand="gCategoriesPane.addCategory()"/>
+            <button id="editCButton"
+                    label="&pref.categories.editButton.label;"
+                    accesskey="&pref.categories.editButton.accesskey;"
+                    oncommand="gCategoriesPane.editCategory()"/>
+            <button id="deleteCButton"
+                    label="&pref.categories.removeButton.label;"
+                    accesskey="&pref.categories.removeButton.accesskey;"
+                    oncommand="gCategoriesPane.deleteCategory()"/>
+        </hbox>
+    </vbox>

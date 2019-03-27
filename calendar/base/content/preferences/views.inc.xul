@@ -1,24 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- This Source Code Form is subject to the terms of the Mozilla Public
-   - License, v. 2.0. If a copy of the MPL was not distributed with this
-   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
-
-<!DOCTYPE overlay [
-    <!ENTITY % viewsDTD SYSTEM "chrome://calendar/locale/preferences/views.dtd">
-    <!ENTITY % globalDTD SYSTEM "chrome://calendar/locale/global.dtd">
-    %viewsDTD;
-    %globalDTD;
-]>
-
-<overlay id="ViewsPaneOverlay"
-         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-         xmlns:html="http://www.w3.org/1999/xhtml">
-
-    <script type="application/javascript"
-            src="chrome://calendar/content/preferences/views.js"/>
-    <script type="application/javascript"
-            src="chrome://calendar/content/calendar-ui-utils.js"/>
-
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, you can obtain one at http://mozilla.org/MPL/2.0/.
     <vbox id="calPreferencesBoxViews">
         <groupbox>
             <label><html:h2>&pref.calendar.view.allview.caption;</html:h2></label>
@@ -257,6 +239,4 @@
                 </menulist>
             </hbox>
         </groupbox>
-
     </vbox>
-</overlay>
