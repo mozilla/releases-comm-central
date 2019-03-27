@@ -78,7 +78,7 @@ ltn.invitation = {
      * Returns the html representation of the event as a DOM document.
      *
      * @param  {calIItemBase} aEvent     The event to parse into html.
-     * @param  {calItipItem}  aItipItem  The itip item, which containes aEvent.
+     * @param  {calItipItem}  aItipItem  The itip item, which contains aEvent.
      * @return {DOM}                     The html representation of aEvent.
      */
     createInvitationOverlay: function(aEvent, aItipItem) {
@@ -289,7 +289,7 @@ ltn.invitation = {
      */
     compareInvitationOverlay: function(aOldDoc, aNewDoc, aIgnoreId) {
         /**
-         * Transforms text node content to formated child nodes. Decorations are defined in imip.css
+         * Transforms text node content to formatted child nodes. Decorations are defined in imip.css
          * @param {Node}    aToNode text node to change
          * @param {String}  aType   use 'newline' for the same, 'added' or 'removed' for decoration
          * @param {String}  aText   [optional]

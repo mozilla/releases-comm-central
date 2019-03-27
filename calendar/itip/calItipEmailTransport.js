@@ -291,7 +291,7 @@ calItipEmailTransport.prototype = {
                 break;
             }
             case Ci.calIItipItem.NONE: {
-                // we shouldn't get here, as we stoppped processing in this case
+                // we shouldn't get here, as we stopped processing in this case
                 // earlier in checkAndSend in calItipUtils.jsm
                 cal.LOG("sendXpcomMail: Found NONE autoResponse type.");
                 break;

@@ -34,7 +34,7 @@ try {
     let temp = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
     cloudFileAccounts = temp.cloudFileAccounts;
 } catch (e) {
-    // This will fail on Seamonkey, but thats ok since the pref for cloudfiles
+    // This will fail on Seamonkey, but that's ok since the pref for cloudfiles
     // is false, which means the UI will not be shown
 }
 
@@ -1721,7 +1721,7 @@ function updateAccept() {
         // For all-day events we are not interested in times and compare only
         // dates.
         if (isEvent && getElementValue("event-all-day", "checked")) {
-            // jsDateToDateTime returnes the values in UTC. Depending on the
+            // jsDateToDateTime returns the values in UTC. Depending on the
             // local timezone and the values selected in datetimepicker the date
             // in UTC might be shifted to the previous or next day.
             // For example: The user (with local timezone GMT+05) selected
@@ -1897,7 +1897,7 @@ function editAttendees() {
             // by the 'invite attendee'-dialog.
             if (savedWindow.organizer) {
                 // The other case is that we already had an organizer object
-                // before we went throught the 'invite attendee'-dialog. In that
+                // before we went through the 'invite attendee'-dialog. In that
                 // case make sure we don't carry over attributes that have been
                 // set to their default values by the dialog but don't actually
                 // exist in the original organizer object.
@@ -3668,7 +3668,7 @@ function showOrHideItemURL(aShow, aUrl) {
             // hideOrShow(false);
             return false;
         }
-        // Only show if its either an internal protcol handler, or its external
+        // Only show if its either an internal protocol handler, or its external
         // and there is an external app for the scheme
         handler = cal.wrapInstance(handler, Ci.nsIExternalProtocolHandler);
         return !handler || handler.externalAppExistsForScheme(uri.scheme);

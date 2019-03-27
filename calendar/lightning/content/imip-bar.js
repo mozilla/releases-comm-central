@@ -275,7 +275,7 @@ var ltnImipBar = {
 
         let msgOverlay = ltnImipBar.msgOverlay;
         let diff = cal.itip.compare(ltnImipBar.itipItem.getItemList({})[0], ltnImipBar.foundItems[0]);
-        // displaying chnages is only needed if that is enabled, an item already exists and there are
+        // displaying changes is only needed if that is enabled, an item already exists and there are
         // differences
         if (diff != 0 && Services.prefs.getBoolPref("calendar.itip.displayInvitationChanges", false)) {
             let foundOverlay = ltn.invitation.createInvitationOverlay(ltnImipBar.foundItems[0],

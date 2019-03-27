@@ -68,7 +68,7 @@
   <script type="application/javascript" src="chrome://lightning/content/lightning-item-panel.js"/>
 
   <window id="messengerWindow">
-    <!-- Be sure to keep these sets, since they will be overlayed by
+    <!-- Be sure to keep these sets, since they will be overlaid by
          calendar/base/content/calendar-common-sets.xul -->
     <commandset id="calendar_commands">
       <command id="agenda_delete_event_command" oncommand="agendaListbox.deleteSelectedItem(false);"/>
@@ -197,7 +197,7 @@
                   class="calendar-sidebar-splitter"/>
 
         <deck id="calendarDisplayDeck" flex="1">
-          <!-- vbox "calendar-view-box will be overlayed..." -->
+          <!-- vbox "calendar-view-box will be overlaid..." -->
           <vbox id="calendar-view-box"/>
         </deck>
       </hbox>

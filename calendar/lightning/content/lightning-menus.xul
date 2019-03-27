@@ -383,7 +383,7 @@
         <menuitem id="ltnPublishCalendar"
                   label="&calendar.publish.label;"
                   accesskey="&calendar.publish.accesskey;"
-                  commmand="calendar_publish_calendar_command"
+                  command="calendar_publish_calendar_command"
                   observes="calendar_publish_calendar_command"/>
         <menuitem id="ltnDeleteSelectedCalendar"
                   labeldelete="&calendar.deletecalendar.label;"
@@ -747,7 +747,7 @@
                   observes="calendar_import_command"/>
         <menuitem id="appmenu_ltnPublishCalendar"
                   label="&calendar.publish.label;"
-                  commmand="calendar_publish_calendar_command"
+                  command="calendar_publish_calendar_command"
                   observes="calendar_publish_calendar_command"/>
         <menuitem id="appmenu_ltnDeleteSelectedCalendar"
                   labeldelete="&calendar.deletecalendar.label;"
