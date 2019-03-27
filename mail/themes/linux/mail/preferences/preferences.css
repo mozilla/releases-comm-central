@@ -109,24 +109,31 @@ a {
   margin-right: 120px;
 }
 
-#provider-name h1 {
-  font-size: large;
-}
-
 #provider-name h2 {
   font: message-box;
 }
 
 #provider-terms {
   float: right;
-  width: 110px;
 }
 
 #provider-terms a {
-  font-size: small;
   display: block;
   margin-bottom: 5px;
   text-align: right;
+}
+#upgrade a,
+#provider-terms a,
+#provider-account-settings a {
+  color: #0a8dff;
+  text-decoration: none;
+}
+
+#upgrade a:hover,
+#provider-terms a:hover,
+#provider-account-settings a:hover {
+  color: #0060df;
+  text-decoration: underline;
 }
 
 #provider-space {
@@ -171,10 +178,13 @@ a {
 
 #provider-management {
   margin: 0 10px;
+  font-size: 1.018em;
 }
 
 #provider-name h1 {
   margin: 0;
+  font-size: 1.5em;
+  font-weight: 600;
 }
 
 /* Loading panel */

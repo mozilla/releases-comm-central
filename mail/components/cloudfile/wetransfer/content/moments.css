@@ -11,10 +11,13 @@ html, body {
 body {
   min-height: 300px;
   font: message-box;
+  font-size: 1em;
 }
 
+a,
 .text-link {
-  color: -moz-nativehyperlinktext;
+  color: #0a8dff;
+  text-decoration: none;
 }
 
 a {
@@ -22,11 +25,14 @@ a {
 }
 
 h1 {
-  font-size: 18px;
+  font-size: 1.1em;
+  font-weight: 600;
   margin: 0;
 }
 
+a:hover,
 .text-link:hover {
+  color: #0060df;
   text-decoration: underline;
 }
 
