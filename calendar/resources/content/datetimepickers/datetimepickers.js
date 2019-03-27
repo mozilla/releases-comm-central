@@ -771,6 +771,8 @@ customElements.whenDefined("menulist-editable").then(() => {
                 attributeFilter: ["value"],
             });
 
+            this.initializeAttributeInheritance();
+
             this._menulist.addEventListener("change", (event) => {
                 event.stopPropagation();
 
@@ -925,6 +927,8 @@ customElements.whenDefined("menulist-editable").then(() => {
                 attributeFilter: ["value"],
             });
 
+            this.initializeAttributeInheritance();
+
             this._inputField.addEventListener("change", (event) => {
                 event.stopPropagation();
 
@@ -1053,6 +1057,8 @@ customElements.whenDefined("menulist-editable").then(() => {
                 this._datepicker.value = this.getAttribute("value");
                 this._timepicker.value = this.getAttribute("value");
             }
+
+            this.initializeAttributeInheritance();
 
             this._datepicker.addEventListener("change", (event) => {
                 event.stopPropagation();
