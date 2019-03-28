@@ -294,8 +294,15 @@ this.addressBook = class extends ExtensionAPI {
         async openUI() {
           let topWindow = Services.wm.getMostRecentWindow(AB_WINDOW_TYPE);
           if (!topWindow) {
-            // TODO: wait until window is loaded before resolving
-            topWindow = Services.ww.openWindow(null, AB_WINDOW_URI, "_blank", "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar", null);
+            topWindow = Services.ww.openWindow(
+              null, AB_WINDOW_URI, "_blank",
+              "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar", null
+            );
+          }
+          if (topWindow.document.readyState != "complete") {
+            await new Promise((resolve) => {
+              topWindow.addEventListener("load", resolve, { once: true });
+            });
           }
           topWindow.focus();
         },
