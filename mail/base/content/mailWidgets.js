@@ -27,19 +27,25 @@ class MozMailHeaderfield extends MozXULElement {
     return (this.textContent = val);
   }
 }
+customElements.define("mail-headerfield", MozMailHeaderfield);
 
 class MozMailUrlfield extends MozMailHeaderfield {
-  connectedCallback() {
-    super.connectedCallback();
-    this.setAttribute("context", "copyUrlPopup");
-    this.classList.add("text-link", "headerValueUrl");
+  constructor() {
+    super();
     this.addEventListener("click", (event) => {
       if (event.button != 2) {
         openUILink(encodeURI(event.target.textContent), event);
       }
     });
   }
+
+  connectedCallback() {
+    super.connectedCallback();
+    this.setAttribute("context", "copyUrlPopup");
+    this.classList.add("text-link", "headerValueUrl");
+  }
 }
+customElements.define("mail-urlfield", MozMailUrlfield);
 
 class MozMailHeaderfieldTags extends MozXULElement {
   connectedCallback() {
@@ -89,6 +95,7 @@ class MozMailHeaderfieldTags extends MozXULElement {
     }
   }
 }
+customElements.define("mail-tagfield", MozMailHeaderfieldTags);
 
 class MozMailNewsgroup extends MozXULElement {
   connectedCallback() {
@@ -97,6 +104,7 @@ class MozMailNewsgroup extends MozXULElement {
     this.setAttribute("popup", "newsgroupPopup");
   }
 }
+customElements.define("mail-newsgroup", MozMailNewsgroup);
 
 class MozMailNewsgroupsHeaderfield extends MozXULElement {
   connectedCallback() {
@@ -131,20 +139,24 @@ class MozMailNewsgroupsHeaderfield extends MozXULElement {
     }
   }
 }
+customElements.define("mail-newsgroups-headerfield", MozMailNewsgroupsHeaderfield);
 
 class MozMailMessageid extends MozXULElement {
   static get observedAttributes() {
     return ["label"];
   }
 
+  constructor() {
+    super();
+    this.addEventListener("click", (event) => {
+      MessageIdClick(this, event);
+    });
+  }
+
   connectedCallback() {
     this.classList.add("messageIdDisplayButton");
     this.setAttribute("context", "messageIdContext");
     this._updateAttributes();
-
-    this.addEventListener("click", (event) => {
-      MessageIdClick(this, event);
-    });
   }
 
   attributeChangedCallback() {
@@ -169,6 +181,7 @@ class MozMailMessageid extends MozXULElement {
     return this.getAttribute("label");
   }
 }
+customElements.define("mail-messageid", MozMailMessageid);
 
 /**
  * MozMailMessageidsHeaderfield is a widget used to show/link messages in the message header.
@@ -283,6 +296,9 @@ class MozMailEmailaddress extends MozXULElement {
   }
 
   connectedCallback() {
+    if (this.hasChildNodes() || this.delayConnectedCallback()) {
+      return;
+    }
     this.classList.add("emailDisplayButton");
     this.setAttribute("context", "emailAddressPopup");
     this.setAttribute("popup", "emailAddressPopup");
@@ -301,21 +317,18 @@ class MozMailEmailaddress extends MozXULElement {
     this.appendChild(emailStarImage);
     this.appendChild(emailPresenceImage);
 
-    this._areChildrenAppended = true;
-
     this._update();
     this._setupEventListeners();
   }
 
   attributeChangedCallback() {
+    if (!this.isConnectedAndReady) {
+      return;
+    }
     this._update();
   }
 
   _update() {
-    if (!this.isConnected || !this._areChildrenAppended) {
-      return;
-    }
-
     const emailLabel = this.querySelector(".emaillabel");
     const emailStarImage = this.querySelector(".emailStar");
     const emailPresenceImage = this.querySelector(".emailPresence");
@@ -364,9 +377,13 @@ class MozMailEmailaddress extends MozXULElement {
     });
   }
 }
+customElements.define("mail-emailaddress", MozMailEmailaddress);
 
 class MozMailEmailheaderfield extends MozXULElement {
   connectedCallback() {
+    if (this.hasChildNodes() || this.delayConnectedCallback()) {
+      return;
+    }
     this._mailEmailAddress = document.createElement("mail-emailaddress");
     this._mailEmailAddress.classList.add("headerValue");
     this._mailEmailAddress.setAttribute("containsEmail", "true");
@@ -378,6 +395,7 @@ class MozMailEmailheaderfield extends MozXULElement {
     return this._mailEmailAddress;
   }
 }
+customElements.define("mail-emailheaderfield", MozMailEmailheaderfield);
 
 class MozTreecolImage extends customElements.get("treecol") {
   static get observedAttributes() {
@@ -385,6 +403,9 @@ class MozTreecolImage extends customElements.get("treecol") {
   }
 
   connectedCallback() {
+    if (this.hasChildNodes() || this.delayConnectedCallback()) {
+      return;
+    }
     this.image = document.createElement("image");
     this.image.classList.add("treecol-icon");
 
@@ -393,14 +414,13 @@ class MozTreecolImage extends customElements.get("treecol") {
   }
 
   attributeChangedCallback() {
+    if (!this.isConnectedAndReady) {
+      return;
+    }
     this._updateAttributes();
   }
 
   _updateAttributes() {
-    if (!this.isConnected || !this.image) {
-      return;
-    }
-
     const src = this.getAttribute("src");
 
     if (src != null) {
@@ -546,15 +566,6 @@ class MozThreadPaneTreeColpicker extends customElements.get("treecolpicker") {
   }
 }
 customElements.define("thread-pane-treecolpicker", MozThreadPaneTreeColpicker, { extends: "treecolpicker" });
-
-customElements.define("mail-headerfield", MozMailHeaderfield);
-customElements.define("mail-urlfield", MozMailUrlfield);
-customElements.define("mail-tagfield", MozMailHeaderfieldTags);
-customElements.define("mail-newsgroup", MozMailNewsgroup);
-customElements.define("mail-newsgroups-headerfield", MozMailNewsgroupsHeaderfield);
-customElements.define("mail-messageid", MozMailMessageid);
-customElements.define("mail-emailaddress", MozMailEmailaddress);
-customElements.define("mail-emailheaderfield", MozMailEmailheaderfield);
 
 customElements.whenDefined("menulist").then(() => {
   /**
