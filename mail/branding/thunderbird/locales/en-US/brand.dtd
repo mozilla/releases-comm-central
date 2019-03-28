@@ -4,6 +4,10 @@
 <!ENTITY  brandShortName        "Thunderbird">
 <!ENTITY  brandShorterName      "Thunderbird">
 <!ENTITY  brandFullName         "Mozilla Thunderbird">
+<!-- LOCALIZATION NOTE (brandProductName):
+   This brand name can be used in messages where the product name needs to
+   remain unchanged across different versions (Daily, Beta, etc.). -->
+<!ENTITY  brandProductName      "Thunderbird">
 <!ENTITY  vendorShortName       "Mozilla">
 <!ENTITY  trademarkInfo.part1   "Mozilla Thunderbird and the Thunderbird logos
                                  are trademarks of the Mozilla Foundation.">
