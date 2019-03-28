@@ -4,6 +4,10 @@
 
 /* import-globals-from mailWindow.js */
 
+ChromeUtils.defineModuleGetter(
+    this, "LightweightThemeManager",
+    "resource://gre/modules/LightweightThemeManager.jsm");
+
 /**
  * Enables compacttheme.css when needed.
  */

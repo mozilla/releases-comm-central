@@ -26,16 +26,11 @@ var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var {InlineSpellChecker} = ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
 var {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 ChromeUtils.defineModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
 ChromeUtils.defineModuleGetter(this, "ShortcutUtils",
                                "resource://gre/modules/ShortcutUtils.jsm");
-
-XPCOMUtils.defineLazyModuleGetters(this, {
-  LightweightThemeManager: "resource://gre/modules/LightweightThemeManager.jsm",
-});
 
 var sDictCount = 0;
 
