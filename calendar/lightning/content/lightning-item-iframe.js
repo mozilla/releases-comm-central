@@ -598,7 +598,6 @@ function loadDialog(aItem) {
         }
     } else {
         let calendarList = document.getElementById("item-calendar");
-        removeChildren(calendarList);
         let indexToSelect = appendCalendarItems(aItem, calendarList, aItem.calendar || window.arguments[0].calendar);
         if (indexToSelect > -1) {
             calendarList.selectedIndex = indexToSelect;
