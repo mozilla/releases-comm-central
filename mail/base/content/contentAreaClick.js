@@ -5,7 +5,11 @@
 
 /* import-globals-from ../../../../toolkit/content/contentAreaUtils.js */
 /* import-globals-from mailWindow.js */
+/* import-globals-from utilityOverlay.js */
 /* import-globals-from phishingDetector.js */
+
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {PlacesUtils} = ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
 
 /**
  * Extract the href from the link click event.
@@ -14,43 +18,43 @@
  * If the clicked element was a HTMLInputElement or HTMLButtonElement
  * we return the form action.
  *
- * @return href for the url being clicked
+ * @return [href, linkText] the url and the text for the link being clicked.
  */
-
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {PlacesUtils} = ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
-
 function hRefForClickEvent(aEvent, aDontCheckInputElement) {
-  var href;
-  var isKeyCommand = (aEvent.type == "command");
-  var target =
-    isKeyCommand ? document.commandDispatcher.focusedElement : aEvent.target;
+  let target = (aEvent.type == "command") ?
+    document.commandDispatcher.focusedElement : aEvent.target;
 
+  if (target instanceof HTMLImageElement &&
+      target.hasAttribute("overflowing")) { // Click on zoomed image.
+    return [null, null];
+  }
+
+  let href = null;
+  let linkText = null;
   if (target instanceof HTMLAnchorElement ||
       target instanceof HTMLAreaElement ||
       target instanceof HTMLLinkElement) {
-    if (target.hasAttribute("href"))
+    if (target.hasAttribute("href")) {
       href = target.href;
-  } else if (target instanceof HTMLImageElement &&
-             target.hasAttribute("overflowing")) {
-    // Return if an image is zoomed, otherwise fall through to see if it has
-    // a link node.
-    return href;
+      linkText = gatherTextUnder(target);
+    }
   } else if (!aDontCheckInputElement && ((target instanceof HTMLInputElement) ||
                                          (target instanceof HTMLButtonElement))) {
     if (target.form && target.form.action)
       href = target.form.action;
   } else {
     // We may be nested inside of a link node.
-    var linkNode = aEvent.originalTarget;
-    while (linkNode && !(linkNode instanceof HTMLAnchorElement))
+    let linkNode = aEvent.originalTarget;
+    while (linkNode && !(linkNode instanceof HTMLAnchorElement)) {
       linkNode = linkNode.parentNode;
+    }
 
-    if (linkNode)
+    if (linkNode) {
       href = linkNode.href;
+      linkText = gatherTextUnder(linkNode);
+    }
   }
-
-  return href;
+  return [href, linkText];
 }
 
 function messagePaneOnResize(aEvent) {
@@ -107,7 +111,7 @@ function contentAreaClick(aEvent) {
   if (isLinkToAnchorOnPage(target))
     return true;
 
-  let href = hRefForClickEvent(aEvent);
+  let [href, linkText] = hRefForClickEvent(aEvent);
 
   if (!href && !aEvent.button) {
     // Is this an image that we might want to scale?
@@ -151,8 +155,16 @@ function contentAreaClick(aEvent) {
   aEvent.preventDefault();
 
   // Let the phishing detector check the link.
-  if (!gPhishingDetector.warnOnSuspiciousLinkClick(href))
-    return false;
+  let urlPhishCheckResult = gPhishingDetector.warnOnSuspiciousLinkClick(href, linkText);
+  if (urlPhishCheckResult === 1) {
+    return false; // Block request
+  }
+
+  if (urlPhishCheckResult === 0) {
+    // Use linkText instead.
+    openLinkExternally(linkText);
+    return true;
+  }
 
   openLinkExternally(href);
   return true;

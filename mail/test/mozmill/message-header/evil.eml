@@ -4,4 +4,4 @@ To: user@example.com
 Subject: Please click on this link!
 Content-Type: text/html
 
-<a href="http://www.evil.com/google">http://www.google.com</a>
+<form action="http://localhost/download-me"><input></form>

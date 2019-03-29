@@ -127,7 +127,7 @@ accountProvisionerTabType.clickHandler = function(aEvent) {
   if (!aEvent.isTrusted || aEvent.defaultPrevented || aEvent.button)
     return true;
 
-  let href = hRefForClickEvent(aEvent, true);
+  let href = hRefForClickEvent(aEvent, true)[0];
 
   // Check to see if we're set to open the link externally...
   if (aEvent.target.hasAttribute("target")) {

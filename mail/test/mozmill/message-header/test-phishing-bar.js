@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Test that the phishing notification behaves properly.
+ * Test that phishing notifications behave properly.
  */
 
 // make SOLO_TEST=message-header/test-phishing-bar.js mozmill-one
@@ -30,7 +30,7 @@ function setupModule(module) {
 
   folder = create_folder("PhishingBarA");
   add_message_to_folder(folder, create_message({body: {
-    body: '<a href="http://www.evil.com/google/">http://www.google.com</a>',
+    body: '<form action="http://localhost/download-me"><input></form>.',
     contentType: "text/html"
   }}));
   add_message_to_folder(folder, create_message());
@@ -68,6 +68,16 @@ function assert_ignore_works(aController) {
   aController.click_menus_in_sequence(aController.e("phishingOptions"),
                                       [{id: "phishingOptionIgnore"}]);
   wait_for_notification_to_stop(aController, kBoxId, kNotificationValue);
+}
+
+/**
+ * Helper function to click the first link in a message if one is available.
+ */
+function click_link_if_available() {
+  let msgBody = mc.e("messagepane").contentDocument.body;
+  if (msgBody.getElementsByTagName("a").length > 0) {
+    msgBody.getElementsByTagName("a")[0].click();
+  }
 }
 
 /**
@@ -128,36 +138,49 @@ function test_ignore_phishing_warning_from_eml_attachment() {
 
 /**
  * Test that when viewing a message with an auto-linked ip address, we don't
- * get a warning. We'll have http://130.128.4.1 vs. http://130.128.4.1/
+ * get a warning when clicking the link.
+ * We'll have http://130.128.4.1 vs. http://130.128.4.1/
  */
 function test_no_phishing_warning_for_ip_sameish_text() {
   be_in_folder(folder);
   select_click_row(2); // Mail with Public IP address.
+  click_link_if_available();
   assert_notification_displayed(mc, kBoxId, kNotificationValue, false); // not shown
 }
 
 /**
  * Test that when viewing a message with a link whose base domain matches but
  * has a different subdomain (e.g. http://subdomain.google.com/ vs
- * http://google.com/), we don't get a warning.
+ * http://google.com/), we don't get a warning if the link is pressed.
  */
 function test_no_phishing_warning_for_subdomain() {
   be_in_folder(folder);
   select_click_row(3);
+  click_link_if_available();
   assert_notification_displayed(mc, kBoxId, kNotificationValue, false); // not shown
 
   select_click_row(4);
+  click_link_if_available();
   assert_notification_displayed(mc, kBoxId, kNotificationValue, false); // not shown
 }
 
 /**
- * Test that when viewing a message with a link where the text and/or href
+ * Test that when clicking a link where the text and/or href
  * has no TLD, we still warn as appropriate.
  */
 function test_phishing_warning_for_local_domain() {
   be_in_folder(folder);
   select_click_row(5);
-  assert_notification_displayed(mc, kBoxId, kNotificationValue, true); // shown
+
+  let dialogAppeared = false;
+
+  plan_for_modal_dialog("commonDialog", function(ctrler) {
+    dialogAppeared = true;
+  });
+
+  click_link_if_available();
+
+  return dialogAppeared;
 }
 
 /**

@@ -1045,7 +1045,7 @@ var specialTabs = {
     if (!aEvent.isTrusted || aEvent.defaultPrevented || aEvent.button)
       return true;
 
-    let href = hRefForClickEvent(aEvent, true);
+    let href = hRefForClickEvent(aEvent, true)[0];
     if (href) {
       let uri = makeURI(href);
       if (!this._protocolSvc.isExposedProtocol(uri.scheme) ||
@@ -1068,7 +1068,7 @@ var specialTabs = {
     if (!aEvent.isTrusted || aEvent.defaultPrevented || aEvent.button)
       return true;
 
-    let href = hRefForClickEvent(aEvent, true);
+    let href = hRefForClickEvent(aEvent, true)[0];
 
     // We've explicitly allowed http, https and about as additional exposed
     // protocols in our default prefs, so these are the ones we need to check
@@ -1106,7 +1106,7 @@ var specialTabs = {
     if (!aEvent.isTrusted || aEvent.defaultPrevented || aEvent.button)
       return true;
 
-    let href = hRefForClickEvent(aEvent, true);
+    let href = hRefForClickEvent(aEvent, true)[0];
 
     // We've explicitly allowed http, https and about as additional exposed
     // protocols in our default prefs, so these are the ones we need to check

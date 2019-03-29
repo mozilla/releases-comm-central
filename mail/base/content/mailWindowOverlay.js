@@ -2541,7 +2541,7 @@ function SpaceHit(event) {
     contentWindow = window.content;
     if (focusedElement && importantElements.includes(focusedElement.id))
       return;
-  } else if (focusedElement && !hRefForClickEvent(event)) {
+  } else if (focusedElement && !hRefForClickEvent(event)[0]) {
     return;
   }
 
