@@ -107,4 +107,6 @@ var gDownloadDirSection = {
   },
 };
 
-Preferences.get("browser.download.dir").on("change", gDownloadDirSection.readDownloadDirPref);
+Preferences.get("browser.download.dir").on(
+  "change", gDownloadDirSection.readDownloadDirPref.bind(gDownloadDirSection)
+);
