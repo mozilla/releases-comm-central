@@ -6,82 +6,87 @@
  * Testing of Uint32HdrProperty search attribute. Adapted from test_search.js
  */
 
+/* import-globals-from ../../../test/resources/searchTestUtils.js */
 load("../../../resources/searchTestUtils.js");
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
-var nsMsgSearchOp = Ci.nsMsgSearchOp;
+var Isnt = Ci.nsMsgSearchOp.Isnt;
+var Is = Ci.nsMsgSearchOp.Is;
+var IsGreaterThan = Ci.nsMsgSearchOp.IsGreaterThan;
+var IsLessThan = Ci.nsMsgSearchOp.IsLessThan;
 
-var Isnt = nsMsgSearchOp.Isnt;
-var Is = nsMsgSearchOp.Is;
-var IsGreaterThan = nsMsgSearchOp.IsGreaterThan;
-var IsLessThan = nsMsgSearchOp.IsLessThan;
-
-var Uint32HdrProperty = nsMsgSearchAttrib.Uint32HdrProperty;
-
-var Tests =
-[
+var Tests = [
   // test a property that does not exist
-  { hdrProperty: "idonotexist",
+  {
+    hdrProperty: "idonotexist",
     op: Is,
     value: 1,
-    count: 0 },
-  { hdrProperty: "idonotexist",
+    count: 0,
+  }, {
+    hdrProperty: "idonotexist",
     op: Isnt,
     value: 1,
-    count: 1 },
+    count: 1,
+  },
   // add a property and test its value
-  { setup: function setupProperty() {
+  {
+    setup: function setupProperty() {
       let enumerator = localAccountUtils.inboxFolder.msgDatabase.EnumerateMessages();
-      while(enumerator.hasMoreElements())
+      while (enumerator.hasMoreElements())
         enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr).setUint32Property("iam23", 23);
     },
     hdrProperty: "iam23",
     op: Is,
     value: 23,
-    count: 1 },
-  { hdrProperty: "iam23",
+    count: 1,
+  }, {
+    hdrProperty: "iam23",
     op: Isnt,
     value: 23,
-    count: 0 },
-  { hdrProperty: "iam23",
+    count: 0,
+  }, {
+    hdrProperty: "iam23",
     op: Is,
     value: 17,
-    count: 0 },
-  { hdrProperty: "iam23",
+    count: 0,
+  }, {
+    hdrProperty: "iam23",
     op: Isnt,
     value: 17,
-    count: 1 },
-  { hdrProperty: "iam23",
+    count: 1,
+  }, {
+    hdrProperty: "iam23",
     op: IsGreaterThan,
     value: 25,
-    count: 0 },
-  { hdrProperty: "iam23",
+    count: 0,
+  }, {
+    hdrProperty: "iam23",
     op: IsLessThan,
     value: 25,
-    count: 1 },
-  { hdrProperty: "iam23",
+    count: 1,
+  }, {
+    hdrProperty: "iam23",
     op: IsGreaterThan,
     value: 17,
-    count: 1 },
-  { hdrProperty: "iam23",
+    count: 1,
+  }, {
+    hdrProperty: "iam23",
     op: IsLessThan,
     value: 17,
-    count: 0 },
+    count: 0,
+  },
 ];
 
-function run_test()
-{
+function run_test() {
   localAccountUtils.loadLocalMailAccount();
 
-  var copyListener =
-  {
-    OnStartCopy: function() {},
-    OnProgress: function(aProgress, aProgressMax) {},
-    SetMessageKey: function(aKey) {},
-    SetMessageId: function(aMessageId) {},
-    OnStopCopy: function(aStatus) { testSearch();}
+  var copyListener = {
+    OnStartCopy() {},
+    OnProgress(aProgress, aProgressMax) {},
+    SetMessageKey(aKey) {},
+    SetMessageId(aMessageId) {},
+    OnStopCopy(aStatus) { testSearch(); },
   };
 
   // Get a message into the local filestore. function testSearch() continues
@@ -93,27 +98,21 @@ function run_test()
 }
 
 // process each test from queue, calls itself upon completion of each search
-var testObject;
-function testSearch()
-{
+function testSearch() {
   var test = Tests.shift();
-  if (test)
-  {
+  if (test) {
     if (test.setup)
       test.setup();
-    testObject = new TestSearch(localAccountUtils.inboxFolder,
-                         test.value,
-                         nsMsgSearchAttrib.Uint32HdrProperty,
-                         test.op,
-                         test.count,
-                         testSearch,
-                         null,
-                         null,
-                         test.hdrProperty);
-  }
-  else
-  {
-    testObject = null;
+    new TestSearch(localAccountUtils.inboxFolder,
+                   test.value,
+                   Ci.nsMsgSearchAttrib.Uint32HdrProperty,
+                   test.op,
+                   test.count,
+                   testSearch,
+                   null,
+                   null,
+                   test.hdrProperty);
+  } else {
     do_test_finished();
   }
 }

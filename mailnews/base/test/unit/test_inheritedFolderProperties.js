@@ -6,8 +6,7 @@
  * Testing of inherited folder properties
  */
 
-function run_test()
-{
+function run_test() {
   localAccountUtils.loadLocalMailAccount();
   var rootFolder = localAccountUtils.incomingServer.rootMsgFolder;
 
@@ -104,5 +103,4 @@ function run_test()
   Assert.equal(subFolder12.getInheritedStringProperty(propertyName), null);
   Assert.equal(subFolder21.getInheritedStringProperty(propertyName), folderValue2);
   Assert.equal(subFolder22.getInheritedStringProperty(propertyName), null);
-
 }

@@ -8,35 +8,20 @@
 
 // main test
 
+/* import-globals-from ../../../test/resources/messageGenerator.js */
 load("../../../resources/messageGenerator.js");
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {
   IMAPPump,
   setupIMAPPump,
   teardownIMAPPump,
 } = ChromeUtils.import("resource://testing-common/mailnews/IMAPpump.js");
 var {
-  imapDaemon,
-  imapMailbox,
   imapMessage,
-  IMAP_RFC3501_handler,
-  configurations,
-  mixinExtension,
-  IMAP_GMAIL_extension,
-  IMAP_MOVE_extension,
-  IMAP_CUSTOM_extension,
-  IMAP_RFC2197_extension,
-  IMAP_RFC2342_extension,
-  IMAP_RFC3348_extension,
-  IMAP_RFC4315_extension,
-  IMAP_RFC5258_extension,
-  IMAP_RFC2195_extension,
 } = ChromeUtils.import("resource://testing-common/mailnews/imapd.js");
 const {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
-async function setupFolder()
-{
+async function setupFolder() {
   // add a single message to the imap inbox.
   let messages = [];
   let messageGenerator = new MessageGenerator();
@@ -55,8 +40,7 @@ async function setupFolder()
   await listener.promise;
 }
 
-async function searchTest()
-{
+async function searchTest() {
   // Get the IMAP inbox...
   var emptyLocal1 = localAccountUtils.rootFolder.createLocalSubfolder("empty 1");
 
@@ -79,30 +63,26 @@ async function searchTest()
 }
 
 // nsIMsgSearchNotify implementation
-var searchListener =
-{
+var searchListener = {
   numTotalMessages: 0,
   QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgSearchNotify]),
-  onNewSearch: function()
-  {
+  onNewSearch() {
     this.numTotalMessages = 0;
   },
-  onSearchHit: function(dbHdr, folder)
-  {
+  onSearchHit(dbHdr, folder) {
     this.numTotalMessages++;
   },
-  onSearchDone: function(status)
-  {
+  onSearchDone(status) {
     Assert.equal(this.numTotalMessages, 1);
     return true;
-  }
+  },
 };
 
 var tests = [
   setupIMAPPump,
   setupFolder,
   searchTest,
-  teardownIMAPPump
+  teardownIMAPPump,
 ];
 
 function run_test() {

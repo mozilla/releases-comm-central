@@ -5,10 +5,9 @@
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-var nsIFolderListener = Ci.nsIFolderListener;
 var numListenerFunctions = 8;
 
-var gMailSessionNotifier = MailServices.mailSession.QueryInterface(nsIFolderListener);
+var gMailSessionNotifier = MailServices.mailSession.QueryInterface(Ci.nsIFolderListener);
 
 var gFLAll;
 var gFLSingle = new Array(numListenerFunctions);
@@ -19,46 +18,46 @@ fL.prototype = {
   mReceived: 0,
   mAutoRemoveItem: false,
 
-  OnItemAdded: function (parentItem, item) {
-    this.mReceived |= nsIFolderListener.added;
+  OnItemAdded(parentItem, item) {
+    this.mReceived |= Ci.nsIFolderListener.added;
     if (this.mAutoRemoveItem)
       MailServices.mailSession.RemoveFolderListener(this);
   },
-  OnItemRemoved: function (parentItem, item) {
-    this.mReceived |= nsIFolderListener.removed;
+  OnItemRemoved(parentItem, item) {
+    this.mReceived |= Ci.nsIFolderListener.removed;
     if (this.mAutoRemoveItem)
       MailServices.mailSession.RemoveFolderListener(this);
   },
-  OnItemPropertyChanged: function (item, property, oldValue, newValue) {
-    this.mReceived |= nsIFolderListener.propertyChanged;
+  OnItemPropertyChanged(item, property, oldValue, newValue) {
+    this.mReceived |= Ci.nsIFolderListener.propertyChanged;
     if (this.mAutoRemoveItem)
       MailServices.mailSession.RemoveFolderListener(this);
   },
-  OnItemIntPropertyChanged: function (item, property, oldValue, newValue) {
-    this.mReceived |= nsIFolderListener.intPropertyChanged;
+  OnItemIntPropertyChanged(item, property, oldValue, newValue) {
+    this.mReceived |= Ci.nsIFolderListener.intPropertyChanged;
     if (this.mAutoRemoveItem)
       MailServices.mailSession.RemoveFolderListener(this);
   },
-  OnItemBoolPropertyChanged: function (item, property, oldValue, newValue) {
-    this.mReceived |= nsIFolderListener.boolPropertyChanged;
+  OnItemBoolPropertyChanged(item, property, oldValue, newValue) {
+    this.mReceived |= Ci.nsIFolderListener.boolPropertyChanged;
     if (this.mAutoRemoveItem)
       MailServices.mailSession.RemoveFolderListener(this);
   },
-  OnItemUnicharPropertyChanged: function (item, property, oldValue, newValue) {
-    this.mReceived |= nsIFolderListener.unicharPropertyChanged;
+  OnItemUnicharPropertyChanged(item, property, oldValue, newValue) {
+    this.mReceived |= Ci.nsIFolderListener.unicharPropertyChanged;
     if (this.mAutoRemoveItem)
       MailServices.mailSession.RemoveFolderListener(this);
   },
-  OnItemPropertyFlagChanged: function (item, property, oldValue, newValue) {
-    this.mReceived |= nsIFolderListener.propertyFlagChanged;
+  OnItemPropertyFlagChanged(item, property, oldValue, newValue) {
+    this.mReceived |= Ci.nsIFolderListener.propertyFlagChanged;
     if (this.mAutoRemoveItem)
       MailServices.mailSession.RemoveFolderListener(this);
   },
-  OnItemEvent: function (parentItem, item) {
-    this.mReceived |= nsIFolderListener.event;
+  OnItemEvent(parentItem, item) {
+    this.mReceived |= Ci.nsIFolderListener.event;
     if (this.mAutoRemoveItem)
       MailServices.mailSession.RemoveFolderListener(this);
-  }
+  },
 };
 
 function NotifyMailSession() {
@@ -81,7 +80,7 @@ function run_test() {
 
   gFLAll = new fL;
 
-  MailServices.mailSession.AddFolderListener(gFLAll, nsIFolderListener.all);
+  MailServices.mailSession.AddFolderListener(gFLAll, Ci.nsIFolderListener.all);
 
   for (i = 0; i < numListenerFunctions; ++i) {
     gFLSingle[i] = new fL;
@@ -130,4 +129,4 @@ function run_test() {
   // Test - Remove main listener
 
   MailServices.mailSession.RemoveFolderListener(gFLAll);
-};
+}

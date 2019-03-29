@@ -3,9 +3,15 @@
  * when using a display name from the address book.
  */
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
+/* import-globals-from ../../../test/resources/messageGenerator.js */
+/* import-globals-from ../../../test/resources/messageModifier.js */
+/* import-globals-from ../../../test/resources/messageInjection.js */
+/* import-globals-from ../../../test/resources/abSetup.js */
 load("../../../resources/messageGenerator.js");
 load("../../../resources/messageModifier.js");
 load("../../../resources/messageInjection.js");
@@ -15,7 +21,6 @@ var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var gMessageGenerator = new MessageGenerator();
-var gScenarioFactory = new MessageScenarioFactory(gMessageGenerator);
 
 Services.prefs.setBoolPref("mail.showCondensedAddresses", true);
 
@@ -63,9 +68,9 @@ function run_test() {
   gTestFolder = make_empty_folder();
   add_sets_to_folders(gTestFolder, [msgSet]);
   // - create the view
-  setup_view("threaded", ViewFlags.kNone);
+  setup_view("threaded", Ci.nsMsgViewFlagsType.kNone);
   // Check that sorting by sender uses the display name
-  gDBView.sort(SortType.byAuthor, SortOrder.ascending);
+  gDBView.sort(Ci.nsMsgViewSortType.byAuthor, Ci.nsMsgViewSortOrder.ascending);
   let sender1 = gDBView.cellTextForColumn(0, "senderCol");
   let sender2 = gDBView.cellTextForColumn(1, "senderCol");
 
@@ -74,7 +79,7 @@ function run_test() {
   if (sender2 != 4)
     view_throw("expected sender 2 to be 4");
 
-  gDBView.sort(SortType.byRecipient, SortOrder.ascending);
+  gDBView.sort(Ci.nsMsgViewSortType.byRecipient, Ci.nsMsgViewSortOrder.ascending);
   let recip1 = gDBView.cellTextForColumn(0, "recipientCol");
   let recip2 = gDBView.cellTextForColumn(1, "recipientCol");
 
@@ -87,20 +92,17 @@ function run_test() {
 }
 
 var gCommandUpdater = {
-  updateCommandStatus : function()
-  {
+  updateCommandStatus() {
     // the back end is smart and is only telling us to update command status
     // when the # of items in the selection has actually changed.
   },
 
-  displayMessageChanged : function(aFolder, aSubject, aKeywords)
-  {
+  displayMessageChanged(aFolder, aSubject, aKeywords) {
   },
 
-  updateNextMessageAfterDelete : function()
-  {
+  updateNextMessageAfterDelete() {
   },
-  summarizeSelection : function() {return false;}
+  summarizeSelection() { return false; },
 };
 
 var WHITESPACE = "                                              ";
@@ -111,7 +113,6 @@ function dump_view_contents() {
   dump("********* Current View State\n");
   for (let iViewIndex = 0; iViewIndex < gTreeView.rowCount; iViewIndex++) {
     let level = gTreeView.getLevel(iViewIndex);
-    let viewFlags = gDBView.viewFlags;
     let flags = gDBView.getFlagsAt(iViewIndex);
 
     let s = WHITESPACE.substr(0, level * 2);
@@ -137,11 +138,6 @@ function view_throw(why) {
 var gDBView;
 var gTreeView;
 
-var ViewType = Ci.nsMsgViewType;
-var SortType = Ci.nsMsgViewSortType;
-var SortOrder = Ci.nsMsgViewSortOrder;
-var ViewFlags = Ci.nsMsgViewFlagsType;
-
 function setup_view(aViewType, aViewFlags, aTestFolder) {
   let dbviewContractId = "@mozilla.org/messenger/msgdbview;1?type=" + aViewType;
 
@@ -149,15 +145,15 @@ function setup_view(aViewType, aViewFlags, aTestFolder) {
     aTestFolder = gTestFolder;
 
   // always start out fully expanded
-  aViewFlags |= ViewFlags.kExpandAll;
+  aViewFlags |= Ci.nsMsgViewFlagsType.kExpandAll;
 
   gDBView = Cc[dbviewContractId]
               .createInstance(Ci.nsIMsgDBView);
   gDBView.init(null, null, gCommandUpdater);
   var outCount = {};
   gDBView.open(aViewType != "search" ? aTestFolder : null,
-               SortType.byDate,
-               aViewType != "search" ? SortOrder.ascending : SortOrder.descending,
+               Ci.nsMsgViewSortType.byDate,
+               aViewType != "search" ? Ci.nsMsgViewSortOrder.ascending : Ci.nsMsgViewSortOrder.descending,
                aViewFlags, outCount);
   dump("  View Out Count: " + outCount.value + "\n");
 

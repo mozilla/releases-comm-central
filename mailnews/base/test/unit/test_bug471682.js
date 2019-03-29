@@ -17,8 +17,7 @@ localAccountUtils.loadLocalMailAccount();
 // create a subfolder as a target for copies
 var gSubfolder = localAccountUtils.inboxFolder.createLocalSubfolder("subfolder");
 
-function run_test()
-{
+function run_test() {
   // make sure we're using berkeley mailbox format here since this test
   // assumes berkeley mailbox format.
   if (Services.prefs.getCharPref("mail.serverDefaultStoreContractID") !=
@@ -29,51 +28,44 @@ function run_test()
   // step 1: copy a message into the local inbox
   MailServices.copy.CopyFileMessage(bugmail1, localAccountUtils.inboxFolder, null,
                                     false, 0, "", step2, null);
-  return;
 }
 
 // step 2: copy one message into a subfolder to establish an
 //         mbox file time and size
 // nsIMsgCopyServiceListener implementation
-var step2 =
-{
-  OnStartCopy: function() {},
-  OnProgress: function(aProgress, aProgressMax) {},
-  SetMessageKey: function(aKey)
-  {
+var step2 = {
+  OnStartCopy() {},
+  OnProgress(aProgress, aProgressMax) {},
+  SetMessageKey(aKey) {
     dump("in set message key\n");
     gHdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
   },
-  SetMessageId: function(aMessageId) {},
-  OnStopCopy: function(aStatus)
-  {
+  SetMessageId(aMessageId) {},
+  OnStopCopy(aStatus) {
     Assert.notEqual(gHdr, null);
     // copy the message into the subfolder
     var messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
     messages.appendElement(gHdr);
     MailServices.copy.CopyMessages(localAccountUtils.inboxFolder, messages, gSubfolder,
                                    false, step3, null, false);
-  }
+  },
 };
 
 // step 3: after the copy, delay to allow copy to complete and allow possible
 //         file error time
 // nsIMsgCopyServiceListener implementation
-var step3 =
-{
-  OnStartCopy: function() {},
-  OnProgress: function(aProgress, aProgressMax) {},
-  SetMessageKey: function(aKey) {},
-  SetMessageId: function(aMessageId) {},
-  OnStopCopy: function(aStatus)
-  {
+var step3 = {
+  OnStartCopy() {},
+  OnProgress(aProgress, aProgressMax) {},
+  SetMessageKey(aKey) {},
+  SetMessageId(aMessageId) {},
+  OnStopCopy(aStatus) {
     do_timeout(2000, step4);
-  }
-}
+  },
+};
 
 // step 4: start a second copy
-function step4()
-{
+function step4() {
   var messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   messages.appendElement(gHdr);
   MailServices.copy.CopyMessages(localAccountUtils.inboxFolder, messages, gSubfolder,
@@ -82,23 +74,21 @@ function step4()
 
 // step 5:  actual tests of file size and date
 // nsIMsgCopyServiceListener implementation
-var step5 =
-{
-  OnStartCopy: function() {},
-  OnProgress: function(aProgress, aProgressMax) {},
-  SetMessageKey: function(aKey) {},
-  SetMessageId: function(aMessageId) {},
-  OnStopCopy: function(aStatus)
-  {
+var step5 = {
+  OnStartCopy() {},
+  OnProgress(aProgress, aProgressMax) {},
+  SetMessageKey(aKey) {},
+  SetMessageId(aMessageId) {},
+  OnStopCopy(aStatus) {
     var dbSize = gSubfolder.msgDatabase.dBFolderInfo.folderSize;
     var dbDate = gSubfolder.msgDatabase.dBFolderInfo.folderDate;
     var filePath = gSubfolder.filePath;
-    var date = parseInt(filePath.lastModifiedTime/1000);
+    var date = parseInt(filePath.lastModifiedTime / 1000);
     var size = filePath.fileSize;
     Assert.equal(size, dbSize);
     Assert.equal(date, dbDate);
     // End of test, so release our header reference
     gHdr = null;
     do_test_finished();
-  }
-}
+  },
+};

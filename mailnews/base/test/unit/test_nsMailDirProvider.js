@@ -19,4 +19,4 @@ function run_test() {
 
     Assert.equal(dir.leafName, item.value);
   });
-};
+}

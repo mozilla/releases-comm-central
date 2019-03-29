@@ -13,11 +13,8 @@
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var nsIMFNService = Ci.nsIMsgFolderNotificationService;
-var nsIMFListener = Ci.nsIMsgFolderListener;
 
-
-var gIndividualFlags =
-[
+var gIndividualFlags = [
   nsIMFNService.msgAdded,
   nsIMFNService.msgsClassified,
   nsIMFNService.msgsDeleted,
@@ -32,93 +29,81 @@ var gIndividualFlags =
 
 // Our listener, which captures events.
 function gMFListener() {}
-gMFListener.prototype =
-{
+gMFListener.prototype = {
   mReceived: 0,
   mRemoveSelf: false,
-  msgAdded: function (aMsg)
-  {
+  msgAdded(aMsg) {
     Assert.equal(this.mReceived & nsIMFNService.msgAdded, 0);
     this.mReceived |= nsIMFNService.msgAdded;
     if (this.mRemoveSelf)
       MailServices.mfn.removeListener(this);
   },
 
-  msgsClassified: function (aMsgs, aJunkProcessed, aTraitProcessed)
-  {
+  msgsClassified(aMsgs, aJunkProcessed, aTraitProcessed) {
     Assert.equal(this.mReceived & nsIMFNService.msgsClassified, 0);
     this.mReceived |= nsIMFNService.msgsClassified;
     if (this.mRemoveSelf)
       MailServices.mfn.removeListener(this);
   },
 
-  msgsDeleted: function (aMsgs)
-  {
+  msgsDeleted(aMsgs) {
     Assert.equal(this.mReceived & nsIMFNService.msgsDeleted, 0);
     this.mReceived |= nsIMFNService.msgsDeleted;
     if (this.mRemoveSelf)
       MailServices.mfn.removeListener(this);
   },
 
-  msgsMoveCopyCompleted: function (aMove, aSrcMsgs, aDestFolder, aDestMsgs)
-  {
+  msgsMoveCopyCompleted(aMove, aSrcMsgs, aDestFolder, aDestMsgs) {
     Assert.equal(this.mReceived & nsIMFNService.msgsMoveCopyCompleted, 0);
     this.mReceived |= nsIMFNService.msgsMoveCopyCompleted;
     if (this.mRemoveSelf)
       MailServices.mfn.removeListener(this);
   },
 
-  msgKeyChanged: function(aOldMsgKey, aNewMsgHdr)
-  {
+  msgKeyChanged(aOldMsgKey, aNewMsgHdr) {
     Assert.equal(this.mReceived & nsIMFNService.msgKeyChanged, 0);
     this.mReceived |= nsIMFNService.msgKeyChanged;
     if (this.mRemoveSelf)
       MailServices.mfn.removeListener(this);
   },
 
-  folderAdded: function (aFolder)
-  {
+  folderAdded(aFolder) {
     Assert.equal(this.mReceived & nsIMFNService.folderAdded, 0);
     this.mReceived |= nsIMFNService.folderAdded;
     if (this.mRemoveSelf)
       MailServices.mfn.removeListener(this);
   },
 
-  folderDeleted: function (aFolder)
-  {
+  folderDeleted(aFolder) {
     Assert.equal(this.mReceived & nsIMFNService.folderDeleted, 0);
     this.mReceived |= nsIMFNService.folderDeleted;
     if (this.mRemoveSelf)
       MailServices.mfn.removeListener(this);
   },
 
-  folderMoveCopyCompleted: function (aMove, aSrcFolder, aDestFolder)
-  {
+  folderMoveCopyCompleted(aMove, aSrcFolder, aDestFolder) {
     Assert.equal(this.mReceived & nsIMFNService.folderMoveCopyCompleted, 0);
     this.mReceived |= nsIMFNService.folderMoveCopyCompleted;
     if (this.mRemoveSelf)
       MailServices.mfn.removeListener(this);
   },
 
-  folderRenamed: function (aOrigFolder, aNewFolder)
-  {
+  folderRenamed(aOrigFolder, aNewFolder) {
     Assert.equal(this.mReceived & nsIMFNService.folderRenamed, 0);
     this.mReceived |= nsIMFNService.folderRenamed;
     if (this.mRemoveSelf)
       MailServices.mfn.removeListener(this);
   },
 
-  itemEvent: function (aItem, aEvent, aData, aString)
-  {
+  itemEvent(aItem, aEvent, aData, aString) {
     Assert.equal(this.mReceived & nsIMFNService.itemEvent, 0);
     this.mReceived |= nsIMFNService.itemEvent;
     if (this.mRemoveSelf)
       MailServices.mfn.removeListener(this);
-  }
+  },
 };
 
-function NotifyMsgFolderListeners()
-{
+function NotifyMsgFolderListeners() {
   MailServices.mfn.notifyMsgAdded(null);
   MailServices.mfn.notifyMsgsClassified(null, null, null);
   MailServices.mfn.notifyMsgsDeleted(null);
@@ -131,12 +116,11 @@ function NotifyMsgFolderListeners()
   MailServices.mfn.notifyItemEvent(null, null, null, null);
 }
 
-function run_test()
-{
+function run_test() {
   // Test: Add listeners
   var singleListeners = [];
 
-  var addAListener = function (flag) {
+  var addAListener = function(flag) {
     var listener = new gMFListener();
     MailServices.mfn.addListener(listener, flag);
     singleListeners.push(listener);
@@ -149,7 +133,7 @@ function run_test()
 
   // Test: check whether the correct number of notifications have been received.
   // Then remove the listeners
-  var checkFlag = function (flag) {
+  var checkFlag = function(flag) {
     var listener = singleListeners.shift();
     Assert.equal(listener.mReceived, flag);
     listener.mRemoveSelf = true;
@@ -165,12 +149,12 @@ function run_test()
   Assert.ok(!MailServices.mfn.hasListeners);
 
   // Test: Send notifications again. Check that we don't receive any notifications.
-  singleListeners.forEach(function (listener) { listener.mReceived = 0; });
+  singleListeners.forEach(function(listener) { listener.mReceived = 0; });
 
   NotifyMsgFolderListeners();
 
   var checkNotReceived = function() {
     Assert.equal(singleListeners.shift().mReceived, 0);
-  }
+  };
   gIndividualFlags.forEach(checkNotReceived);
 }

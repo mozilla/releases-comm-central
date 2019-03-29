@@ -6,39 +6,39 @@
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-var nsMsgSearchScope = Ci.nsMsgSearchScope;
-var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
-var nsMsgSearchOp = Ci.nsMsgSearchOp;
-var Contains = nsMsgSearchOp.Contains;
-var offlineMail = nsMsgSearchScope.offlineMail;
+var Contains = Ci.nsMsgSearchOp.Contains;
 var gArrayHdrs = ["X-Bugzilla-Who", "Sender"];
-var gFirstHeader = nsMsgSearchAttrib.OtherHeader + 1;
+var gFirstHeader = Ci.nsMsgSearchAttrib.OtherHeader + 1;
 var fileName = "../../../data/SenderHeader";
 
-var Tests =
-[
+var Tests = [
   /* test header:
   X-Bugzilla-Who: bugmail@example.org
 
   This just shows that normal custom headers work
   */
-  { testValue: "bugmail",
+  {
+    testValue: "bugmail",
     attrib: gFirstHeader,
     op: Contains,
-    count: 1},
-  { testValue: "ThisIsNotThere",
+    count: 1,
+  }, {
+    testValue: "ThisIsNotThere",
     attrib: gFirstHeader,
     op: Contains,
-    count: 0},
+    count: 0,
+  },
   /* test header:
   Sender: iamthesender@example.com
 
   This is the main fix of bug 404489, that we can use Sender as a header
   */
-  { testValue: "iamthesender",
+  {
+    testValue: "iamthesender",
     attrib: gFirstHeader + 1,
     op: Contains,
-    count: 1},
+    count: 1,
+  },
   /* test header:
   From: bugzilla-daemon@mozilla.invalid
 
@@ -46,18 +46,20 @@ var Tests =
   "Sender" arbitrary headers, but does fire the standard test
   for nsMsgSenderAttrib.Sender
   */
-  { testValue: "bugzilla",
+  {
+    testValue: "bugzilla",
     attrib: gFirstHeader + 1,
     op: Contains,
-    count: 0},
-  { testValue: "bugzilla",
+    count: 0,
+  }, {
+    testValue: "bugzilla",
     attrib: Ci.nsMsgSearchAttrib.Sender,
     op: Contains,
-    count: 1}
+    count: 1,
+  },
 ];
 
-function run_test()
-{
+function run_test() {
   localAccountUtils.loadLocalMailAccount();
 
   // add the custom headers into the preferences file, ":" delimited
@@ -77,31 +79,26 @@ function run_test()
   return true;
 }
 
-var copyListener =
-{
-  OnStartCopy: function() {},
-  OnProgress: function(aProgress, aProgressMax) {},
-  SetMessageKey: function(aKey) { },
-  SetMessageId: function(aMessageId) {},
-  OnStopCopy: function(aStatus) { continue_test();}
+var copyListener = {
+  OnStartCopy() {},
+  OnProgress(aProgress, aProgressMax) {},
+  SetMessageKey(aKey) { },
+  SetMessageId(aMessageId) {},
+  OnStopCopy(aStatus) { continue_test(); },
 };
 
 // Runs at completion of each copy
 // process each test from queue, calls itself upon completion of each search
-var testObject;
-function continue_test()
-{
+function continue_test() {
   var test = Tests.shift();
-  if (test)
-    testObject = new TestSearchx(localAccountUtils.inboxFolder,
-                                 test.testValue,
-                                 test.attrib,
-                                 test.op,
-                                 test.count,
-                                 continue_test);
-  else
-  {
-    testObject = null;
+  if (test) {
+    new TestSearchx(localAccountUtils.inboxFolder,
+                    test.testValue,
+                    test.attrib,
+                    test.op,
+                    test.count,
+                    continue_test);
+  } else {
     do_test_finished();
   }
 }
@@ -123,20 +120,17 @@ function continue_test()
  *
  */
 
-function TestSearchx(aFolder, aValue, aAttrib, aOp, aHitCount, onDone)
-{
-  var searchListener =
-  {
-    onSearchHit: function(dbHdr, folder) { hitCount++; },
-    onSearchDone: function(status)
-    {
+function TestSearchx(aFolder, aValue, aAttrib, aOp, aHitCount, onDone) {
+  var searchListener = {
+    onSearchHit(dbHdr, folder) { hitCount++; },
+    onSearchDone(status) {
       print("Finished search does " + aHitCount + " equal " + hitCount + "?");
       searchSession = null;
       Assert.equal(aHitCount, hitCount);
       if (onDone)
         onDone();
     },
-    onNewSearch: function() {hitCount = 0;}
+    onNewSearch() { hitCount = 0; },
   };
 
   // define and initiate the search session
@@ -176,8 +170,8 @@ function TestSearchx(aFolder, aValue, aAttrib, aOp, aHitCount, onDone)
   else
     value.str = aValue;
   searchTerm.value = value;
-  if (aAttrib > nsMsgSearchAttrib.OtherHeader)
-    searchTerm.arbitraryHeader = gArrayHdrs[aAttrib - 1 - nsMsgSearchAttrib.OtherHeader];
+  if (aAttrib > Ci.nsMsgSearchAttrib.OtherHeader)
+    searchTerm.arbitraryHeader = gArrayHdrs[aAttrib - 1 - Ci.nsMsgSearchAttrib.OtherHeader];
   searchTerm.op = aOp;
   searchTerm.booleanAnd = false;
   searchSession.appendTerm(searchTerm);

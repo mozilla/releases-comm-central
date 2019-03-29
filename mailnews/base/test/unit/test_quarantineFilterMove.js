@@ -11,6 +11,8 @@
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 const {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
+
+/* import-globals-from ../../../test/resources/POP3pump.js */
 load("../../../resources/POP3pump.js");
 
 var gFiles = ["../../../data/bugmail1", "../../../data/bugmail10"];
@@ -18,8 +20,7 @@ var gFiles = ["../../../data/bugmail1", "../../../data/bugmail10"];
 var gMoveFolder, gMoveFolder2;
 var gFilter; // the test filter
 var gFilterList;
-var gTestArray =
-[
+var gTestArray = [
   function createFilters() {
     gFilterList = gPOP3Pump.fakeServer.getFilterList(null);
     gFilter = gFilterList.createFilter("MoveAll");
@@ -85,25 +86,22 @@ var gTestArray =
   function endTest() {
     dump("Exiting mail tests\n");
     gPOP3Pump = null;
-  }
+  },
 ];
 
-function folderCount(folder)
-{
+function folderCount(folder) {
   let enumerator = folder.msgDatabase.EnumerateMessages();
   let count = 0;
-  while (enumerator.hasMoreElements())
-  {
+  while (enumerator.hasMoreElements()) {
     count++;
-    let hdr = enumerator.getNext();
+    enumerator.getNext();
   }
   return count;
 }
 
-function run_test()
-{
+function run_test() {
   /* may not work in Linux */
-  //if ("@mozilla.org/gnome-gconf-service;1" in Cc)
+  // if ("@mozilla.org/gnome-gconf-service;1" in Cc)
   //  return;
   /**/
   // quarantine messages

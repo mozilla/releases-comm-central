@@ -4,6 +4,7 @@
 
 // Test of chaining copies between the same folders
 
+/* import-globals-from ../../../test/resources/messageGenerator.js */
 load("../../../resources/messageGenerator.js");
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
@@ -15,10 +16,7 @@ var gCurTestNum = 1;
 
 // main test
 
-var hdrs = [];
-
-var gTestArray =
-[
+var gTestArray = [
   function copyMsg1() {
     gMsgEnumerator = gCopySource.msgDatabase.EnumerateMessages();
     CopyNextMessage();
@@ -34,8 +32,7 @@ var gTestArray =
   },
 ];
 
-function CopyNextMessage()
-{
+function CopyNextMessage() {
   if (gMsgEnumerator.hasMoreElements()) {
     let msgHdr = gMsgEnumerator.getNext().QueryInterface(
       Ci.nsIMsgDBHdr);
@@ -43,13 +40,12 @@ function CopyNextMessage()
     messages.appendElement(msgHdr);
     MailServices.copy.CopyMessages(gCopySource, messages, gCopyDest, true,
                                    copyListener, null, false);
+  } else {
+    do_throw("TEST FAILED - out of messages");
   }
-  else
-    do_throw ('TEST FAILED - out of messages');
 }
 
-function run_test()
-{
+function run_test() {
   localAccountUtils.loadLocalMailAccount();
   let messageGenerator = new MessageGenerator();
   let scenarioFactory = new MessageScenarioFactory(messageGenerator);
@@ -69,26 +65,23 @@ function run_test()
   return true;
 }
 
-function doTest()
-{
+function doTest() {
   var test = gCurTestNum;
-  if (test <= gTestArray.length)
-  {
-    var testFn = gTestArray[test-1];
+  if (test <= gTestArray.length) {
+    var testFn = gTestArray[test - 1];
     dump("Doing test " + test + " " + testFn.name + "\n");
 
     try {
       testFn();
-    } catch(ex) {
-      do_throw ('TEST FAILED ' + ex);
+    } catch (ex) {
+      do_throw("TEST FAILED " + ex);
     }
-  }
-  else
+  } else {
     endTest();
+  }
 }
 
-function endTest()
-{
+function endTest() {
   // Cleanup, null out everything
   dump(" Exiting mail tests\n");
   gMsgEnumerator = null;
@@ -96,18 +89,16 @@ function endTest()
 }
 
 // nsIMsgCopyServiceListener implementation
-var copyListener =
-{
-  OnStartCopy: function() {},
-  OnProgress: function(aProgress, aProgressMax) {},
-  SetMessageKey: function(aKey) {},
-  SetMessageId: function(aMessageId) {},
-  OnStopCopy: function(aStatus)
-  {
+var copyListener = {
+  OnStartCopy() {},
+  OnProgress(aProgress, aProgressMax) {},
+  SetMessageKey(aKey) {},
+  SetMessageId(aMessageId) {},
+  OnStopCopy(aStatus) {
     // Check: message successfully copied.
     Assert.equal(aStatus, 0);
     ++gCurTestNum;
     doTest();
-  }
+  },
 };
 

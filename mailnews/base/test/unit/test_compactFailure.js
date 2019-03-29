@@ -2,6 +2,9 @@
 const {toXPCOMArray} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 const {MockFactory} = ChromeUtils.import("resource://testing-common/mailnews/MockFactory.js");
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../test/resources/messageGenerator.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/messageGenerator.js");
@@ -22,45 +25,45 @@ function LockedFileOutputStream() {
 LockedFileOutputStream.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIFileOutputStream]),
 
-  init: function(file, ioFlags, perm, behaviorFlags) {
+  init(file, ioFlags, perm, behaviorFlags) {
     throw Cr.NS_ERROR_FILE_IS_LOCKED;
   },
-}
+};
 
 var MsgDBServiceFailure = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgDBService]),
 
-  openMailDBFromFile: function(file, folder, create, leaveInvalidDB) {
+  openMailDBFromFile(file, folder, create, leaveInvalidDB) {
     if (folder.name == "ShouldFail")
       throw Cr.NS_ERROR_FILE_TARGET_DOES_NOT_EXIST;
     return this._genuine.openMailDBFromFile(file, folder, create, leaveInvalidDB);
   },
 
-  openFolderDB: function(folder, leaveInvalidDB) {
+  openFolderDB(folder, leaveInvalidDB) {
     return this._genuine.openFolderDB(folder, leaveInvalidDB);
   },
-  asyncOpenFolderDB: function(folder, leaveInvalidDB) {
+  asyncOpenFolderDB(folder, leaveInvalidDB) {
     return this._genuine.asyncOpenFolderDB(folder, leaveInvalidDB);
   },
-  openMore: function(db, timeHint) {
+  openMore(db, timeHint) {
     return this._genuine.openMore(db, timeHint);
   },
-  createNewDB: function(folder) {
+  createNewDB(folder) {
     return this._genuine.createNewDB(folder);
   },
-  registerPendingListener: function(folder, listener) {
+  registerPendingListener(folder, listener) {
     this._genuine.registerPendingListener(folder, listener);
   },
-  unregisterPendingListener: function(listener) {
+  unregisterPendingListener(listener) {
     this._genuine.unregisterPendingListener(listener);
   },
-  cachedDBForFolder: function(folder) {
+  cachedDBForFolder(folder) {
     return this._genuine.cachedDBFolder(folder);
   },
   get openDBs() {
     return this._genuine.oenDBs;
-  }
-}
+  },
+};
 
 function setup_output_stream_stub() {
   gUuid = MockFactory.register("@mozilla.org/network/file-output-stream;1",
@@ -125,7 +128,7 @@ function compact_with_exception(expectedException) {
   try {
     compactor.compact(gTargetFolder, false, listener, null);
     do_throw("nsIMsgFolderCompactor.compact did not fail.");
-  } catch(ex) {
+  } catch (ex) {
     Assert.equal(expectedException, ex.result);
   }
 }

@@ -9,29 +9,26 @@
  * Does not do comprehensive testing.
  *
  */
+/* import-globals-from ../../../test/resources/searchTestUtils.js */
 load("../../../resources/searchTestUtils.js");
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-var nsMsgSearchScope = Ci.nsMsgSearchScope;
-var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
-var nsMsgSearchOp = Ci.nsMsgSearchOp;
+var Isnt = Ci.nsMsgSearchOp.Isnt;
+var Is = Ci.nsMsgSearchOp.Is;
+var IsEmpty = Ci.nsMsgSearchOp.IsEmpty;
+var IsntEmpty = Ci.nsMsgSearchOp.IsntEmpty;
+var Contains = Ci.nsMsgSearchOp.Contains;
+var DoesntContain = Ci.nsMsgSearchOp.DoesntContain;
+var IsBefore = Ci.nsMsgSearchOp.IsBefore; // control entry not enabled
 
-var Isnt = nsMsgSearchOp.Isnt;
-var Is = nsMsgSearchOp.Is;
-var IsEmpty = nsMsgSearchOp.IsEmpty;
-var IsntEmpty = nsMsgSearchOp.IsntEmpty;
-var Contains = nsMsgSearchOp.Contains;
-var DoesntContain = nsMsgSearchOp.DoesntContain;
-var IsBefore = nsMsgSearchOp.IsBefore; // control entry not enabled
+var offlineMail = Ci.nsMsgSearchScope.offlineMail;
+var onlineMail = Ci.nsMsgSearchScope.onlineMail;
+var offlineMailFilter = Ci.nsMsgSearchScope.offlineMailFilter;
+var onlineMailFilter = Ci.nsMsgSearchScope.onlineMailFilter;
+var news = Ci.nsMsgSearchScope.news; // control entry not enabled
 
-var offlineMail = nsMsgSearchScope.offlineMail;
-var onlineMail = nsMsgSearchScope.onlineMail;
-var offlineMailFilter = nsMsgSearchScope.offlineMailFilter;
-var onlineMailFilter = nsMsgSearchScope.onlineMailFilter;
-var news = nsMsgSearchScope.news; // control entry not enabled
-
-var Keywords = nsMsgSearchAttrib.Keywords;
+var Keywords = Ci.nsMsgSearchAttrib.Keywords;
 
 // test tags
 var Tag1 = "istag";
@@ -42,244 +39,304 @@ var Tag1Tag4 = Tag1 + " " + Tag4;
 var Tag1Tag3 = Tag1 + " " + Tag3;
 var Tag1Tag1 = Tag1 + " " + Tag1;
 
-var Tests =
-[
-// Message has a single valid tag
+var Tests = [
+  // Message has a single valid tag
   // test the valid tag
-  { msgTag: Tag1,
+  {
+    msgTag: Tag1,
     testTag: Tag1,
     op: Is,
-    count: 1 },
-  { msgTag: Tag1,
+    count: 1,
+  }, {
+    msgTag: Tag1,
     testTag: Tag1,
     op: Isnt,
-    count: 0 },
-  { msgTag: Tag1,
+    count: 0,
+  }, {
+    msgTag: Tag1,
     testTag: Tag1,
     op: Contains,
-    count: 1 },
-  { msgTag: Tag1,
+    count: 1,
+  }, {
+    msgTag: Tag1,
     testTag: Tag1,
     op: DoesntContain,
-    count: 0 },
-  { msgTag: Tag1,
+    count: 0,
+  }, {
+    msgTag: Tag1,
     testTag: Tag1,
     op: IsEmpty,
-    count: 0 },
-  { msgTag: Tag1,
+    count: 0,
+  }, {
+    msgTag: Tag1,
     testTag: Tag1,
     op: IsntEmpty,
-    count: 1 },
-  //test an invalid tag, should act like empty
-  { msgTag: Tag2,
+    count: 1,
+  },
+  // test an invalid tag, should act like empty
+  {
+    msgTag: Tag2,
     testTag: Tag1,
     op: Contains,
-    count: 0 },
-  { msgTag: Tag2,
+    count: 0,
+  }, {
+    msgTag: Tag2,
     testTag: Tag1,
     op: DoesntContain,
-    count: 1 },
-  { msgTag: Tag2,
+    count: 1,
+  }, {
+    msgTag: Tag2,
     testTag: Tag1,
     op: Is,
-    count: 0 },
-  { msgTag: Tag2,
+    count: 0,
+  }, {
+    msgTag: Tag2,
     testTag: Tag1,
     op: Isnt,
-    count: 1 },
-  { msgTag: Tag2,
+    count: 1,
+  }, {
+    msgTag: Tag2,
     testTag: Tag1,
     op: IsEmpty,
-    count: 1 },
-  { msgTag: Tag2,
+    count: 1,
+  }, {
+    msgTag: Tag2,
     testTag: Tag1,
     op: IsntEmpty,
-    count: 0 },
-//   Message has two valid tags
+    count: 0,
+  },
+  // Message has two valid tags
   // test first tag
-  { msgTag: Tag1Tag4,
+  {
+    msgTag: Tag1Tag4,
     testTag: Tag1,
     op: Is,
-    count: 0 },
-  { msgTag: Tag1Tag4,
+    count: 0,
+  }, {
+    msgTag: Tag1Tag4,
     testTag: Tag1,
     op: Isnt,
-    count: 1 },
-  { msgTag: Tag1Tag4,
+    count: 1,
+  }, {
+    msgTag: Tag1Tag4,
     testTag: Tag1,
     op: Contains,
-    count: 1 },
-  { msgTag: Tag1Tag4,
+    count: 1,
+  }, {
+    msgTag: Tag1Tag4,
     testTag: Tag1,
     op: DoesntContain,
-    count: 0 },
-  { msgTag: Tag1Tag4,
+    count: 0,
+  }, {
+    msgTag: Tag1Tag4,
     testTag: Tag1,
     op: IsEmpty,
-    count: 0 },
-  { msgTag: Tag1Tag4,
+    count: 0,
+  }, {
+    msgTag: Tag1Tag4,
     testTag: Tag1,
     op: IsntEmpty,
-    count: 1 },
+    count: 1,
+  },
   // test second tag
-  { msgTag: Tag1Tag4,
+  {
+    msgTag: Tag1Tag4,
     testTag: Tag4,
     op: Is,
-    count: 0 },
-  { msgTag: Tag1Tag4,
+    count: 0,
+  }, {
+    msgTag: Tag1Tag4,
     testTag: Tag4,
     op: Isnt,
-    count: 1 },
-  { msgTag: Tag1Tag4,
+    count: 1,
+  }, {
+    msgTag: Tag1Tag4,
     testTag: Tag4,
     op: Contains,
-    count: 1 },
-  { msgTag: Tag1Tag4,
+    count: 1,
+  }, {
+    msgTag: Tag1Tag4,
     testTag: Tag4,
     op: DoesntContain,
-    count: 0 },
-  { msgTag: Tag1Tag4,
+    count: 0,
+  }, {
+    msgTag: Tag1Tag4,
     testTag: Tag4,
     op: IsEmpty,
-    count: 0 },
-  { msgTag: Tag1Tag4,
+    count: 0,
+  }, {
+    msgTag: Tag1Tag4,
     testTag: Tag4,
     op: IsntEmpty,
-    count: 1 },
+    count: 1,
+  },
   // test tag not in message
-  { msgTag: Tag1Tag4,
+  {
+    msgTag: Tag1Tag4,
     testTag: Tag2,
     op: Is,
-    count: 0 },
-  { msgTag: Tag1Tag4,
+    count: 0,
+  }, {
+    msgTag: Tag1Tag4,
     testTag: Tag2,
     op: Isnt,
-    count: 1 },
-  { msgTag: Tag1Tag4,
+    count: 1,
+  }, {
+    msgTag: Tag1Tag4,
     testTag: Tag2,
     op: Contains,
-    count: 0 },
-  { msgTag: Tag1Tag4,
+    count: 0,
+  }, {
+    msgTag: Tag1Tag4,
     testTag: Tag2,
     op: DoesntContain,
-    count: 1 },
-  { msgTag: Tag1Tag4,
+    count: 1,
+  }, {
+    msgTag: Tag1Tag4,
     testTag: Tag2,
     op: IsEmpty,
-    count: 0 },
-  { msgTag: Tag1Tag4,
+    count: 0,
+  }, {
+    msgTag: Tag1Tag4,
     testTag: Tag2,
     op: IsntEmpty,
-    count: 1 },
+    count: 1,
+  },
   // empty message
-  { msgTag: "",
+  {
+    msgTag: "",
     testTag: Tag2,
     op: Is,
-    count: 0 },
-  { msgTag: "",
+    count: 0,
+  }, {
+    msgTag: "",
     testTag: Tag2,
     op: Isnt,
-    count: 1 },
-  { msgTag: "",
+    count: 1,
+  }, {
+    msgTag: "",
     testTag: Tag2,
     op: Contains,
-    count: 0 },
-  { msgTag: "",
+    count: 0,
+  }, {
+    msgTag: "",
     testTag: Tag2,
     op: DoesntContain,
-    count: 1 },
-  { msgTag: "",
+    count: 1,
+  }, {
+    msgTag: "",
     testTag: Tag2,
     op: IsEmpty,
-    count: 1 },
-  { msgTag: "",
+    count: 1,
+  }, {
+    msgTag: "",
     testTag: Tag2,
     op: IsntEmpty,
-    count: 0 },
-// message with two tags, only one is valid
+    count: 0,
+  },
+  // message with two tags, only one is valid
   // test with the single valid tag
-  { msgTag: Tag1Tag3,
+  {
+    msgTag: Tag1Tag3,
     testTag: Tag1,
     op: Is,
-    count: 1 },
-  { msgTag: Tag1Tag3,
+    count: 1,
+  }, {
+    msgTag: Tag1Tag3,
     testTag: Tag1,
     op: Isnt,
-    count: 0 },
-  { msgTag: Tag1Tag3,
+    count: 0,
+  }, {
+    msgTag: Tag1Tag3,
     testTag: Tag1,
     op: Contains,
-    count: 1 },
-  { msgTag: Tag1Tag3,
+    count: 1,
+  }, {
+    msgTag: Tag1Tag3,
     testTag: Tag1,
     op: DoesntContain,
-    count: 0 },
-  { msgTag: Tag1Tag3,
+    count: 0,
+  }, {
+    msgTag: Tag1Tag3,
     testTag: Tag1,
     op: IsEmpty,
-    count: 0 },
-  { msgTag: Tag1Tag3,
+    count: 0,
+  }, {
+    msgTag: Tag1Tag3,
     testTag: Tag1,
     op: IsntEmpty,
-    count: 1 },
+    count: 1,
+  },
   // test with a tag not in the message
-  { msgTag: Tag1Tag3,
+  {
+    msgTag: Tag1Tag3,
     testTag: Tag2,
     op: Is,
-    count: 0 },
-  { msgTag: Tag1Tag3,
+    count: 0,
+  }, {
+    msgTag: Tag1Tag3,
     testTag: Tag2,
     op: Isnt,
-    count: 1 },
-  { msgTag: Tag1Tag3,
+    count: 1,
+  }, {
+    msgTag: Tag1Tag3,
     testTag: Tag2,
     op: Contains,
-    count: 0 },
-  { msgTag: Tag1Tag3,
+    count: 0,
+  }, {
+    msgTag: Tag1Tag3,
     testTag: Tag2,
     op: DoesntContain,
-    count: 1 },
-  { msgTag: Tag1Tag3,
+    count: 1,
+  }, {
+    msgTag: Tag1Tag3,
     testTag: Tag2,
     op: IsEmpty,
-    count: 0 },
-  { msgTag: Tag1Tag3,
+    count: 0,
+  }, {
+    msgTag: Tag1Tag3,
     testTag: Tag2,
     op: IsntEmpty,
-    count: 1 },
-//   Message has a duplicated tag
+    count: 1,
+  },
+  // Message has a duplicated tag
   // test the tag
-  { msgTag: Tag1Tag1,
+  {
+    msgTag: Tag1Tag1,
     testTag: Tag1,
     op: Is,
-    count: 1 },
-  { msgTag: Tag1Tag1,
+    count: 1,
+  }, {
+    msgTag: Tag1Tag1,
     testTag: Tag1,
     op: Isnt,
-    count: 0 },
-  { msgTag: Tag1Tag1,
+    count: 0,
+  }, {
+    msgTag: Tag1Tag1,
     testTag: Tag1,
     op: Contains,
-    count: 1 },
-  { msgTag: Tag1Tag1,
+    count: 1,
+  }, {
+    msgTag: Tag1Tag1,
     testTag: Tag1,
     op: DoesntContain,
-    count: 0 },
-  { msgTag: Tag1Tag1,
+    count: 0,
+  }, {
+    msgTag: Tag1Tag1,
     testTag: Tag1,
     op: IsEmpty,
-    count: 0 },
-  { msgTag: Tag1Tag1,
+    count: 0,
+  }, {
+    msgTag: Tag1Tag1,
     testTag: Tag1,
     op: IsntEmpty,
-    count: 1 },
-
+    count: 1,
+  },
 ];
 
 var hdr;
 
-function run_test()
-{
+function run_test() {
   localAccountUtils.loadLocalMailAccount();
 
   // test that validity table terms are valid
@@ -338,15 +395,14 @@ function run_test()
   MailServices.tags.addTagForKey(Tag1, Tag1, null, null);
   MailServices.tags.addTagForKey(Tag4, Tag4, null, null);
 
-  var copyListener =
-  {
-    OnStartCopy: function() {},
-    OnProgress: function(aProgress, aProgressMax) {},
-    SetMessageKey: function(aKey) {
+  var copyListener = {
+    OnStartCopy() {},
+    OnProgress(aProgress, aProgressMax) {},
+    SetMessageKey(aKey) {
       hdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
     },
-    SetMessageId: function(aMessageId) {},
-    OnStopCopy: function(aStatus) { testKeywordSearch();}
+    SetMessageId(aMessageId) {},
+    OnStopCopy(aStatus) { testKeywordSearch(); },
   };
 
   // Get a message into the local filestore. function testKeywordSearch() continues the testing after the copy.
@@ -357,23 +413,17 @@ function run_test()
 }
 
 // process each test from queue, calls itself upon completion of each search
-var testObject;
-function testKeywordSearch()
-{
+function testKeywordSearch() {
   var test = Tests.shift();
-  if (test)
-  {
+  if (test) {
     hdr.setStringProperty("keywords", test.msgTag);
-    testObject = new TestSearch(localAccountUtils.inboxFolder,
-                         test.testTag,
-                         nsMsgSearchAttrib.Keywords,
-                         test.op,
-                         test.count,
-                         testKeywordSearch);
-  }
-  else
-  {
-    testObject = null;
+    new TestSearch(localAccountUtils.inboxFolder,
+                   test.testTag,
+                   Ci.nsMsgSearchAttrib.Keywords,
+                   test.op,
+                   test.count,
+                   testKeywordSearch);
+  } else {
     hdr = null;
     do_test_finished();
   }

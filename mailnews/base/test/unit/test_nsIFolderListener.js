@@ -2,7 +2,11 @@
  * Test that adding nsIFolderListener in js does not cause any crash.
  */
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../test/resources/messageModifier.js */
+/* import-globals-from ../../../test/resources/messageGenerator.js */
+/* import-globals-from ../../../test/resources/messageInjection.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/messageModifier.js");
@@ -10,15 +14,15 @@ load("../../../resources/messageGenerator.js");
 load("../../../resources/messageInjection.js");
 
 var folderListener = {
-  OnItemAdded: function() {},
-  OnItemRemoved: function() {},
-  OnItemPropertyChanged: function() {},
-  OnItemIntPropertyChanged: function() {},
-  OnItemBoolPropertyChanged: function() {},
-  OnItemUnicharPropertyChanged: function() {},
-  OnItemPropertyFlagChanged: function() {},
-  OnItemEvent: function() {},
-}
+  OnItemAdded() {},
+  OnItemRemoved() {},
+  OnItemPropertyChanged() {},
+  OnItemIntPropertyChanged() {},
+  OnItemBoolPropertyChanged() {},
+  OnItemUnicharPropertyChanged() {},
+  OnItemPropertyFlagChanged() {},
+  OnItemEvent() {},
+};
 
 var targetFolder;
 
@@ -35,9 +39,9 @@ var tests = [
     });
   },
   async function create_new_message() {
-    let [msgSet] = make_new_sets_in_folder(targetFolder, [{count: 1}]);
+    make_new_sets_in_folder(targetFolder, [{count: 1}]);
     await wait_for_message_injection();
-  }
+  },
 ];
 
 function run_test() {

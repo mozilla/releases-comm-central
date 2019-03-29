@@ -6,9 +6,7 @@
 const {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 
 function makeURI(aURL) {
-  var ioService = Cc["@mozilla.org/network/io-service;1"]
-                    .getService(Ci.nsIIOService);
-  return ioService.newURI(aURL);
+  return Services.io.newURI(aURL);
 }
 
 function run_test() {
@@ -32,7 +30,7 @@ function run_test() {
     // Needs one of 'loadingNode', 'loadingPrincipal' or 'loadUsingSystemPrincipal' which we don't have.
     // Even with `loadUsingSystemPrincipal: true` this fails with "unknown protocol". See bug 1446587.
     securityFlags: Ci.nsILoadInfo.SEC_ONLY_FOR_EXPLICIT_CONTENTSEC_CHECK,
-    contentPolicyType: Ci.nsIContentPolicy.TYPE_IMAGE
+    contentPolicyType: Ci.nsIContentPolicy.TYPE_IMAGE,
   });
   let tmpLoadInfo = tmpChannel.loadInfo;
 
@@ -54,5 +52,5 @@ function run_test() {
   Assert.notEqual(decision,
                   Ci.nsIContentPolicy.ACCEPT,
                   "customized protocol should not load");
-};
+}
 

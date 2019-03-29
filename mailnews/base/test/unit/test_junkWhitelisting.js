@@ -7,9 +7,11 @@
  */
 
 // add address book setup
+/* import-globals-from ../../../test/resources/abSetup.js */
 load("../../../resources/abSetup.js");
 
 // add fake POP3 server driver
+/* import-globals-from ../../../test/resources/POP3pump.js */
 load("../../../resources/POP3pump.js");
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
@@ -30,17 +32,14 @@ var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var kDomainTest = 0;
 var kDomainExample = 1;
 
-var Files =
-[
+var Files = [
   "../../../data/bugmail1",
-  "../../../data/bugmail3"
-]
+  "../../../data/bugmail3",
+];
 
 var hdrs = [];
 
-function run_test()
-{
-
+function run_test() {
   // Test setup - copy the data file into place
   var testAB = do_get_file("../../../addrbook/test/unit/data/cardForEmail.mab");
 
@@ -55,8 +54,7 @@ function run_test()
   gPOP3Pump.run();
 }
 
-function continueTest()
-{
+function continueTest() {
   // get the message headers
   let headerEnum = localAccountUtils.inboxFolder.messages;
   while (headerEnum.hasMoreElements())
@@ -71,8 +69,7 @@ function continueTest()
   do_test_finished();
 }
 
-function doChecks(server)
-{
+function doChecks(server) {
   let spamSettings = server.spamSettings;
 
   // default is to use the whitelist

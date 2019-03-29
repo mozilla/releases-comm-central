@@ -23,17 +23,14 @@ Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
 
 // Globals
 var gMsgFile1, gMsgFile2, gMsgFile3;
-var gMsg1ID = "200806061706.m56H6RWT004933@mrapp54.mozilla.org";
 var gMsg2ID = "200804111417.m3BEHTk4030129@mrapp51.mozilla.org";
 var gMsg3ID = "4849BF7B.2030800@example.com";
 var gLocalFolder2;
 var gLocalFolder3;
-var gLocalTrashFolder;
-var gCurTestNum;
 // After a compact (or other operation), this is what we expect the
 // folder size to be.
 var gExpectedFolderSize;
-var gMsgHdrs = new Array();
+var gMsgHdrs = [];
 var gExpectedInboxSize;
 var gExpectedFolder2Size;
 var gExpectedFolder3Size;
@@ -43,23 +40,19 @@ var gMsgLinebreak = "";
 var gMsgKeys = [];
 
 // nsIMsgCopyServiceListener implementation
-var copyListenerWrap =
-{
-  SetMessageKey: function(aKey)
-  {
+var copyListenerWrap = {
+  SetMessageKey(aKey) {
     let hdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
-    gMsgHdrs.push({hdr: hdr, ID: hdr.messageId});
+    gMsgHdrs.push({hdr, ID: hdr.messageId});
   },
-  OnStopCopy: function(aStatus)
-  {
+  OnStopCopy(aStatus) {
     // Check: message successfully copied.
     Assert.equal(aStatus, 0);
-  }
+  },
 };
 
-var urlListenerWrap =
-{
-  OnStopRunningUrl: function (aUrl, aExitCode) {
+var urlListenerWrap = {
+  OnStopRunningUrl(aUrl, aExitCode) {
     // Check: message successfully copied.
     Assert.equal(aExitCode, 0);
 
@@ -75,31 +68,28 @@ var urlListenerWrap =
       Assert.ok(!folderMsgs.hasMoreElements());
       gMsgKeys.length = 0;
     }
-  }
+  },
 };
 
-function copyFileMessage(file, destFolder, isDraftOrTemplate)
-{
+function copyFileMessage(file, destFolder, isDraftOrTemplate) {
   let listener = new PromiseTestUtils.PromiseCopyListener(copyListenerWrap);
   MailServices.copy.CopyFileMessage(file, destFolder, null, isDraftOrTemplate, 0, "", listener, null);
   return listener.promise;
 }
 
-function copyMessages(items, isMove, srcFolder, destFolder)
-{
+function copyMessages(items, isMove, srcFolder, destFolder) {
   let listener = new PromiseTestUtils.PromiseCopyListener(copyListenerWrap);
   var array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  items.forEach(function (item) {
+  items.forEach(function(item) {
     array.appendElement(item);
   });
   MailServices.copy.CopyMessages(srcFolder, array, destFolder, isMove, listener, null, true);
   return listener.promise;
 }
 
-function deleteMessages(srcFolder, items)
-{
+function deleteMessages(srcFolder, items) {
   var array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  items.forEach(function (item) {
+  items.forEach(function(item) {
     array.appendElement(item);
   });
 
@@ -108,19 +98,16 @@ function deleteMessages(srcFolder, items)
   return listener.promise;
 }
 
-function calculateFolderSize(folder)
-{
+function calculateFolderSize(folder) {
   let msgDB = folder.msgDatabase;
   let enumerator = msgDB.EnumerateMessages();
   let totalSize = 0;
-  if (enumerator)
-  {
+  if (enumerator) {
     if (gMsgLinebreak == "") {
       // Figure out what the linebreak sequence is on the platform running the tests.
       gMsgLinebreak = "@mozilla.org/windows-registry-key;1" in Cc ? "\r\n" : "\n";
     }
-    while (enumerator.hasMoreElements())
-    {
+    while (enumerator.hasMoreElements()) {
       var header = enumerator.getNext();
       if (header instanceof Ci.nsIMsgDBHdr)
         totalSize += header.messageSize + gMsgLinebreak.length;
@@ -129,14 +116,11 @@ function calculateFolderSize(folder)
   return totalSize;
 }
 
-function verifyMsgOffsets(folder)
-{
+function verifyMsgOffsets(folder) {
   let msgDB = folder.msgDatabase;
   let enumerator = msgDB.EnumerateMessages();
-  if (enumerator)
-  {
-    while (enumerator.hasMoreElements())
-    {
+  if (enumerator) {
+    while (enumerator.hasMoreElements()) {
       let header = enumerator.getNext();
       if (header instanceof Ci.nsIMsgDBHdr) {
         let storeToken = header.getStringProperty("storeToken");
@@ -151,8 +135,7 @@ function verifyMsgOffsets(folder)
  */
 
 // Beware before commenting out a test -- later tests might just depend on earlier ones
-var gTestArray =
-[
+var gTestArray = [
   // Copying messages from files
   async function testCopyFileMessage1() {
     await copyFileMessage(gMsgFile1, localAccountUtils.inboxFolder, false);
@@ -199,8 +182,7 @@ var gTestArray =
 
     showMessages(gLocalFolder3, "after deleting 1 message to trash");
   },
-  async function compactFolder()
-  {
+  async function compactFolder() {
     gExpectedFolderSize = calculateFolderSize(gLocalFolder3);
     Assert.notEqual(gLocalFolder3.expungedBytes, 0);
     let listener = new PromiseTestUtils.PromiseUrlListener(urlListenerWrap);
@@ -228,8 +210,7 @@ var gTestArray =
 
     showMessages(gLocalFolder2, "after deleting 1 message");
   },
-  async function compactAllFolders()
-  {
+  async function compactAllFolders() {
     gExpectedInboxSize = calculateFolderSize(localAccountUtils.inboxFolder);
     gExpectedFolder2Size = calculateFolderSize(gLocalFolder2);
     gExpectedFolder3Size = calculateFolderSize(gLocalFolder3);
@@ -240,7 +221,7 @@ var gTestArray =
       gLocalFolder2.msgDatabase.getMsgHdrForMessageID(gMsg2ID).messageKey;
 
     // force expunged bytes count to get cached.
-    let localFolder2ExpungedBytes = gLocalFolder2.expungedBytes;
+    gLocalFolder2.expungedBytes;
     // mark localFolder2 as having an invalid db, and remove it
     // for good measure.
     gLocalFolder2.msgDatabase.summaryValid = false;
@@ -263,10 +244,10 @@ var gTestArray =
     // We do not in guarantee that, indeed after rebuild we expect the keys
     // to change.
     let checkResult = {
-      OnStopRunningUrl: function (aUrl, aExitCode) {
-      // Check: message successfully compacted.
-      Assert.equal(aExitCode, 0);
-      }
+      OnStopRunningUrl(aUrl, aExitCode) {
+        // Check: message successfully compacted.
+        Assert.equal(aExitCode, 0);
+      },
     };
     let listener = new PromiseTestUtils.PromiseUrlListener(checkResult);
     localAccountUtils.inboxFolder.compactAll(listener, null, true);
@@ -290,19 +271,17 @@ var gTestArray =
     // rebuild, that key has now changed.
     Assert.notEqual(message2.messageKey, f2m2Key);
   },
-  function lastTestCheck()
-  {
+  function lastTestCheck() {
     Assert.equal(gExpectedInboxSize, localAccountUtils.inboxFolder.filePath.fileSize);
     Assert.equal(gExpectedFolder2Size, gLocalFolder2.filePath.fileSize);
     Assert.equal(gExpectedFolder3Size, gLocalFolder3.filePath.fileSize);
     verifyMsgOffsets(gLocalFolder2);
     verifyMsgOffsets(gLocalFolder3);
     verifyMsgOffsets(localAccountUtils.inboxFolder);
-  }
+  },
 ];
 
-function run_test()
-{
+function run_test() {
   localAccountUtils.loadLocalMailAccount();
   // Load up some messages so that we can copy them in later.
   gMsgFile1 = do_get_file("../../../data/bugmail10");
@@ -311,18 +290,16 @@ function run_test()
 
   // Create another folder to move and copy messages around, and force initialization.
   gLocalFolder2 = localAccountUtils.rootFolder.createLocalSubfolder("folder2");
-  let folderName = gLocalFolder2.prettyName;
+
   // Create a third folder for more testing.
   gLocalFolder3 = localAccountUtils.rootFolder.createLocalSubfolder("folder3");
-  folderName = gLocalFolder3.prettyName;
 
   gTestArray.forEach(x => add_task(x));
   run_next_test();
 }
 
 // debug utility to show the key/offset/ID relationship of messages in a folder
-function showMessages(folder, text)
-{
+function showMessages(folder, text) {
   dump("Show messages for folder <" + folder.name + "> " + text + "\n");
   let folderMsgs = folder.messages;
   while (folderMsgs.hasMoreElements()) {

@@ -5,6 +5,7 @@
  * Original author: Kent James <kent@caspia.com>
  */
 
+/* import-globals-from ../../../test/resources/POP3pump.js */
 load("../../../resources/POP3pump.js");
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
@@ -15,8 +16,7 @@ var gCopyFolder;
 var gMoveFolder;
 var gFilter; // the test filter
 var gFilterList;
-var gTestArray =
-[
+var gTestArray = [
   function createFilters() {
     // setup manual copy then move mail filters on the inbox
     gFilterList = localAccountUtils.incomingServer.getFilterList(null);
@@ -90,23 +90,20 @@ var gTestArray =
     // server
     dump(" Exiting mail tests\n");
     gPOP3Pump = null;
-  }
+  },
 ];
 
-function folderCount(folder)
-{
+function folderCount(folder) {
   let enumerator = folder.msgDatabase.EnumerateMessages();
   let count = 0;
-  while (enumerator.hasMoreElements())
-  {
+  while (enumerator.hasMoreElements()) {
     count++;
-    let hdr = enumerator.getNext();
+    enumerator.getNext();
   }
   return count;
 }
 
-function run_test()
-{
+function run_test() {
   if (!localAccountUtils.inboxFolder)
     localAccountUtils.loadLocalMailAccount();
 

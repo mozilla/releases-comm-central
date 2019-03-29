@@ -7,10 +7,9 @@
  * preference every time we run the migration code, and other migration stuff
  */
 
-// make xpcshell-tests TEST_PATH=mailnews/base/test/unit/test_accountMigration.js
-
 var {migrateMailnews} = ChromeUtils.import("resource:///modules/mailnewsMigrator.js");
 
+/* import-globals-from ../../../test/resources/abSetup.js */
 load("../../../resources/abSetup.js");
 
 function run_test() {

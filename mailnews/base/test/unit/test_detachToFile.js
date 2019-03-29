@@ -6,6 +6,8 @@
  * Tests nsIMessenger's detachAttachmentsWOPrompts
  */
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
@@ -19,10 +21,9 @@ var tests = [
   startMime,
   startDetach,
   testDetach,
-]
+];
 
-function* startCopy()
-{
+function* startCopy() {
   // Get a message into the local filestore.
   var mailFile = do_get_file("../../../data/external-attach-test");
   MailServices.copy.CopyFileMessage(mailFile, localAccountUtils.inboxFolder, null,
@@ -31,8 +32,7 @@ function* startCopy()
 }
 
 // process the message through mime
-function* startMime()
-{
+function* startMime() {
   let msgHdr = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder);
 
   mimeMsg.MsgHdrToMimeMessage(msgHdr, gCallbackObject, gCallbackObject.callback,
@@ -41,8 +41,7 @@ function* startMime()
 }
 
 // detach any found attachments
-function* startDetach()
-{
+function* startDetach() {
   let msgHdr = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder);
   let msgURI = msgHdr.folder.generateMessageURI(msgHdr.messageKey);
 
@@ -56,8 +55,7 @@ function* startDetach()
 }
 
 // test that the detachment was successful
-function* testDetach()
-{
+function* testDetach() {
   // This test seems to fail on Linux without the following delay.
   do_timeout(200, async_driver);
   yield false;
@@ -85,12 +83,11 @@ SaveAttachmentCallback.prototype = {
   callback: function saveAttachmentCallback_callback(aMsgHdr, aMimeMessage) {
     this.attachments = aMimeMessage.allAttachments;
     async_driver();
-  }
-}
+  },
+};
 var gCallbackObject = new SaveAttachmentCallback();
 
-function run_test()
-{
+function run_test() {
   if (!localAccountUtils.inboxFolder)
     localAccountUtils.loadLocalMailAccount();
   async_run_tests(tests);

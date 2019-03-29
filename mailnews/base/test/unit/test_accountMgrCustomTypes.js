@@ -10,8 +10,7 @@
  * Adapted from test_AccountMgr.js by Kent James <kent@caspia.com>
  */
 
-function run_test()
-{
+function run_test() {
   Services.prefs.setCharPref("mail.account.account1.identities", "id1");
   Services.prefs.setCharPref("mail.account.account1.server", "server1");
   Services.prefs.setCharPref("mail.account.account2.identities", "id2");
@@ -72,7 +71,7 @@ function run_test()
 
   // now let the bad type timeout, and watch it magically disappear!
   do_test_pending();
-  do_timeout(3000, function () {
+  do_timeout(3000, function() {
     Assert.equal(MailServices.accounts.accounts.length, 2);
 
     // it is now gone

@@ -6,6 +6,7 @@
  * Testing of custom search features.
  *
  */
+/* import-globals-from ../../../test/resources/searchTestUtils.js */
 load("../../../resources/searchTestUtils.js");
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
@@ -13,64 +14,58 @@ var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var kCustomId = "xpcomtest@mozilla.org#test";
 var gHdr;
 
-var Tests =
-[
-  { setValue: "iamgood",
+var Tests = [
+  {
+    setValue: "iamgood",
     testValue: "iamnotgood",
     op: Ci.nsMsgSearchOp.Is,
-    count: 0 },
-  { setValue: "iamgood",
+    count: 0,
+  }, {
+    setValue: "iamgood",
     testValue: "iamgood",
     op: Ci.nsMsgSearchOp.Is,
-    count: 1 }
-]
+    count: 1,
+  },
+];
 
 // nsIMsgSearchCustomTerm object
-var customTerm =
-{
+var customTerm = {
   id: kCustomId,
   name: "term name",
-  getEnabled: function(scope, op)
-    {
-      return scope == Ci.nsMsgSearchScope.offlineMail &&
-             op == Ci.nsMsgSearchOp.Is;
-    },
-  getAvailable: function(scope, op)
-    {
-      return scope == Ci.nsMsgSearchScope.offlineMail &&
-             op == Ci.nsMsgSearchOp.Is;
-    },
-  getAvailableOperators: function(scope, length)
-    {
-       length.value = 1;
-       return [Ci.nsMsgSearchOp.Is];
-    },
-  match: function(msgHdr, searchValue, searchOp)
-    {
-      switch (searchOp)
-      {
-        case Ci.nsMsgSearchOp.Is:
-          if (msgHdr.getProperty("theTestProperty") == searchValue)
-            return true;
-      }
-      return false;
+  getEnabled(scope, op) {
+    return scope == Ci.nsMsgSearchScope.offlineMail &&
+           op == Ci.nsMsgSearchOp.Is;
+  },
+  getAvailable(scope, op) {
+    return scope == Ci.nsMsgSearchScope.offlineMail &&
+           op == Ci.nsMsgSearchOp.Is;
+  },
+  getAvailableOperators(scope, length) {
+     length.value = 1;
+     return [Ci.nsMsgSearchOp.Is];
+  },
+  match(msgHdr, searchValue, searchOp) {
+    switch (searchOp) {
+      case Ci.nsMsgSearchOp.Is:
+        if (msgHdr.getProperty("theTestProperty") == searchValue)
+          return true;
     }
+    return false;
+  },
 };
 
-function run_test()
-{
+function run_test() {
   localAccountUtils.loadLocalMailAccount();
   MailServices.filters.addCustomTerm(customTerm);
 
-  var copyListener =
-  {
-    OnStartCopy: function() {},
-    OnProgress: function(aProgress, aProgressMax) {},
-    SetMessageKey: function(aKey) {
+  var copyListener = {
+    OnStartCopy() {},
+    OnProgress(aProgress, aProgressMax) {},
+    SetMessageKey(aKey) {
       gHdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
     },
-    SetMessageId: function(aMessageId) {},
-    OnStopCopy: function(aStatus) { doTest();}
+    SetMessageId(aMessageId) {},
+    OnStopCopy(aStatus) { doTest(); },
   };
 
   // Get a message into the local filestore.
@@ -82,25 +77,18 @@ function run_test()
                                     false, 0, "", copyListener, null);
 }
 
-var testObject;
-
-function doTest()
-{
+function doTest() {
   let test = Tests.shift();
-  if (test)
-  {
+  if (test) {
     gHdr.setStringProperty("theTestProperty", test.setValue);
-    testObject = new TestSearch(localAccountUtils.inboxFolder,
-                         test.testValue,
-                         Ci.nsMsgSearchAttrib.Custom,
-                         test.op,
-                         test.count,
-                         doTest,
-                         kCustomId);
-  }
-  else
-  {
-    testObject = null;
+    new TestSearch(localAccountUtils.inboxFolder,
+                   test.testValue,
+                   Ci.nsMsgSearchAttrib.Custom,
+                   test.op,
+                   test.count,
+                   doTest,
+                   kCustomId);
+  } else {
     gHdr = null;
     do_test_finished();
   }

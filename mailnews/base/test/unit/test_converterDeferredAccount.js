@@ -17,7 +17,6 @@ Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
                            "@mozilla.org/msgstore/berkeleystore;1");
 
 // No. of messages/files and folders copied.
-var gProgressValue = 0;
 var gMsgHdrs = [];
 // {nsIMsgLocalMailFolder} folder carrying messages for the pop server.
 var gInbox;
@@ -29,26 +28,25 @@ var gServer2;
 var gServer;
 
 var copyListenerWrap = {
-  SetMessageKey: function(aKey) {
+  SetMessageKey(aKey) {
     let hdr = gInbox.GetMessageHeader(aKey);
-    gMsgHdrs.push({hdr: hdr, ID: hdr.messageId});
+    gMsgHdrs.push({hdr, ID: hdr.messageId});
   },
-  OnStopCopy: function(aStatus) {
+  OnStopCopy(aStatus) {
     // Check: message successfully copied.
     Assert.equal(aStatus, 0);
-  }
+  },
 };
 
-var EventTarget = function () {
-  this.dispatchEvent = function (event) {
+var EventTarget = function() {
+  this.dispatchEvent = function(event) {
     if (event.type == "progress") {
       log.trace("Progress: " + event.detail);
     }
   };
 };
 
-function copyFileMessage(file, destFolder, isDraftOrTemplate)
-{
+function copyFileMessage(file, destFolder, isDraftOrTemplate) {
   let listener = new PromiseTestUtils.PromiseCopyListener(copyListenerWrap);
   MailServices.copy.CopyFileMessage(file, destFolder, null, isDraftOrTemplate,
                                     0, "", listener, null);
@@ -67,7 +65,7 @@ function checkConversion(source, target) {
     let sourceContent = sourceContents.getNext().QueryInterface(Ci.nsIFile);
     let sourceContentName = sourceContent.leafName;
     let ext = sourceContentName.substr(-4);
-    let targetFile = FileUtils.File(OS.Path.join(target.path,sourceContentName));
+    let targetFile = FileUtils.File(OS.Path.join(target.path, sourceContentName));
     log.debug("Checking path: " + targetFile.path);
     if (ext == ".dat") {
       Assert.ok(targetFile.exists());
@@ -76,15 +74,15 @@ function checkConversion(source, target) {
       checkConversion(sourceContent, targetFile);
     } else if (ext != ".msf") {
       Assert.ok(targetFile.exists());
-      let cur = FileUtils.File(OS.Path.join(targetFile.path,"cur"));
+      let cur = FileUtils.File(OS.Path.join(targetFile.path, "cur"));
       Assert.ok(cur.exists());
-      let tmp = FileUtils.File(OS.Path.join(targetFile.path,"tmp"));
+      let tmp = FileUtils.File(OS.Path.join(targetFile.path, "tmp"));
       Assert.ok(tmp.exists());
       if (targetFile.leafName == "Inbox") {
         let curContents = cur.directoryEntries;
         let curContentsCount = 0;
         while (curContents.hasMoreElements()) {
-          let curContent = curContents.getNext();
+          curContents.getNext();
           curContentsCount++;
         }
         Assert.equal(curContentsCount, 1000);
@@ -172,8 +170,8 @@ add_task(function testMaildirConversion() {
     let newRootFolder = gServer.rootFolder.filePath;
     checkConversion(originalRootFolder, newRootFolder);
     do_test_finished();
-  }).catch (function(reason) {
+  }).catch(function(reason) {
     log.error("Conversion failed: " + reason.error);
-    ok(false); //Fail the test!
+    ok(false); // Fail the test!
   });
 });

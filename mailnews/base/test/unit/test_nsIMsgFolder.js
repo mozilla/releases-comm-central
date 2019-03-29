@@ -23,8 +23,7 @@ function run_test() {
   var caught = false;
   try {
     root.getChildNamed("folder");
-  }
-  catch (e) {
+  } catch (e) {
     caught = true;
   }
   Assert.equal(caught, true);
@@ -32,8 +31,7 @@ function run_test() {
   caught = false;
   try {
     root.getChildNamed("Trash1");
-  }
-  catch (e) {
+  } catch (e) {
     caught = true;
   }
   Assert.equal(caught, true);

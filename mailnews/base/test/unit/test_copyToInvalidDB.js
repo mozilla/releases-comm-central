@@ -3,9 +3,14 @@
  * or invalid
  */
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
+/* import-globals-from ../../../test/resources/messageGenerator.js */
+/* import-globals-from ../../../test/resources/messageModifier.js */
+/* import-globals-from ../../../test/resources/messageInjection.js */
 load("../../../resources/messageGenerator.js");
 load("../../../resources/messageModifier.js");
 load("../../../resources/messageInjection.js");
@@ -13,8 +18,6 @@ load("../../../resources/messageInjection.js");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var gMsg1;
-var gMessages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-var gCurTestNum;
 var gMsgId1;
 
 var gTestFolder, gTestFolder2;

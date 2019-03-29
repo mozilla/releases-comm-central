@@ -6,9 +6,8 @@
  * Testing of GetAvailable crashes in bug 514945
  */
 
-function run_test()
-{
-  const kValidityManager = Cc['@mozilla.org/mail/search/validityManager;1']
+function run_test() {
+  const kValidityManager = Cc["@mozilla.org/mail/search/validityManager;1"]
                              .getService(Ci.nsIMsgSearchValidityManager);
 
   let validityTable = kValidityManager.getTable(Ci.nsMsgSearchScope.offlineMail);
@@ -18,16 +17,17 @@ function run_test()
   let BAD_VALUE = 1000000; // some large value that is beyond the array bounds
   let haveExpectedError = false;
   try {
-    let isAvailable = validityTable.getAvailable(Ci.nsMsgSearchAttrib.Subject, BAD_VALUE);
-  } catch (e) { dump('Error but no crash, this is what we want:' + e + '\n');
-                haveExpectedError = true;
-              }
+    validityTable.getAvailable(Ci.nsMsgSearchAttrib.Subject, BAD_VALUE);
+  } catch (e) {
+    dump("Error but no crash, this is what we want:" + e + "\n");
+    haveExpectedError = true;
+  }
 
   Assert.ok(haveExpectedError);
 
-// One of the causes of this is that search term operators are not being
-//  initialized, resulting in random values of the operator. Make sure that is
-//  fixed.
+  // One of the causes of this is that search term operators are not being
+  // initialized, resulting in random values of the operator. Make sure that is
+  // fixed.
 
   const kSearchSession = Cc["@mozilla.org/messenger/searchSession;1"]
                         .createInstance(Ci.nsIMsgSearchSession);

@@ -35,7 +35,11 @@ chat/content/imtooltip.xml
 
 # mailnews exclusions
 mailnews/mailnews.js
-mailnews/base/*
+mailnews/base/content/*
+mailnews/base/prefs/*
+mailnews/base/search/*
+mailnews/base/src/*
+mailnews/base/util/*
 mailnews/build/*
 mailnews/compose/*
 mailnews/db/*

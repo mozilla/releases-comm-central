@@ -13,103 +13,116 @@ var gSearchSession = Cc["@mozilla.org/messenger/searchSession;1"]
 
 var gHdr; // the message header for the one mailbox message
 
-var Tests =
-[
-  { A: false,
+var Tests = [
+  {
+    A: false,
     B: false,
     C: false,
     D: false,
-    matches: false},
-  { A: false,
+    matches: false,
+  }, {
+    A: false,
     B: false,
     C: false,
     D: true,
-    matches: false},
-  { A: false,
+    matches: false,
+  }, {
+    A: false,
     B: false,
     C: true,
     D: false,
-    matches: false},
-  { A: false,
+    matches: false,
+  }, {
+    A: false,
     B: false,
     C: true,
     D: true,
-    matches: false},
-  { A: false,
+    matches: false,
+  }, {
+    A: false,
     B: true,
     C: false,
     D: false,
-    matches: false},
-  { A: false,
+    matches: false,
+  }, {
+    A: false,
     B: true,
     C: false,
     D: true,
-    matches: true},
-  { A: false,
+    matches: true,
+  }, {
+    A: false,
     B: true,
     C: true,
     D: false,
-    matches: true},
-  { A: false,
+    matches: true,
+  }, {
+    A: false,
     B: true,
     C: true,
     D: true,
-    matches: true},
-  { A: true,
+    matches: true,
+  }, {
+    A: true,
     B: false,
     C: false,
     D: false,
-    matches: false},
-  { A: true,
+    matches: false,
+  }, {
+    A: true,
     B: false,
     C: false,
     D: true,
-    matches: true},
-  { A: true,
+    matches: true,
+  }, {
+    A: true,
     B: false,
     C: true,
     D: false,
-    matches: true},
-  { A: true,
+    matches: true,
+  }, {
+    A: true,
     B: false,
     C: true,
     D: true,
-    matches: true},
-  { A: true,
+    matches: true,
+  }, {
+    A: true,
     B: true,
     C: false,
     D: false,
-    matches: false},
-  { A: true,
+    matches: false,
+  }, {
+    A: true,
     B: true,
     C: false,
     D: true,
-    matches: true},
-  { A: true,
+    matches: true,
+  }, {
+    A: true,
     B: true,
     C: true,
     D: false,
-    matches: true},
-  { A: true,
+    matches: true,
+  }, {
+    A: true,
     B: true,
     C: true,
     D: true,
-    matches: true},
+    matches: true,
+  },
 ];
 
 var gHitCount = 0;
-var searchListener =
-{
-  onSearchHit: function(dbHdr, folder) { gHitCount++; },
-  onSearchDone: function(status)
-  {
+var searchListener = {
+  onSearchHit(dbHdr, folder) { gHitCount++; },
+  onSearchDone(status) {
     testSearch();
   },
-  onNewSearch: function() {gHitCount = 0;}
+  onNewSearch() { gHitCount = 0; },
 };
 
-function run_test()
-{
+function run_test() {
   localAccountUtils.loadLocalMailAccount();
 
   /*
@@ -149,15 +162,14 @@ function run_test()
   addSearchTerm("c", true, false, true);  // " && (C"
   addSearchTerm("d", false, true, false); // " || D)"
 
-  var copyListener =
-  {
-    OnStartCopy: function() {},
-    OnProgress: function(aProgress, aProgressMax) {},
-    SetMessageKey: function(aKey) {
+  var copyListener = {
+    OnStartCopy() {},
+    OnProgress(aProgress, aProgressMax) {},
+    SetMessageKey(aKey) {
       gHdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
     },
-    SetMessageId: function(aMessageId) {},
-    OnStopCopy: function(aStatus) { testSearch();}
+    SetMessageId(aMessageId) {},
+    OnStopCopy(aStatus) { testSearch(); },
   };
 
   // Get a message into the local filestore. function testSearch() continues
@@ -170,25 +182,22 @@ function run_test()
 
 var gTest = null;
 // process each test from queue, calls itself upon completion of each search
-function testSearch()
-{
+function testSearch() {
   // tests the previous search
   if (gTest)
     Assert.equal(gHitCount, gTest.matches ? 1 : 0);
   gTest = Tests.shift();
-  if (gTest)
-  {
+  if (gTest) {
     gHdr.setStringProperty("a", gTest.A ? "T" : "F");
     gHdr.setStringProperty("b", gTest.B ? "T" : "F");
     gHdr.setStringProperty("c", gTest.C ? "T" : "F");
     gHdr.setStringProperty("d", gTest.D ? "T" : "F");
     try {
       gSearchSession.search(null);
+    } catch (e) {
+      dump(e);
     }
-    catch (e) {dump(e);}
-  }
-  else
-  {
+  } else {
     gSearchSession.unregisterListener(searchListener);
     do_test_finished();
   }

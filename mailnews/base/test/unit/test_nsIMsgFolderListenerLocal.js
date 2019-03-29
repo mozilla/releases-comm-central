@@ -19,6 +19,7 @@
   * - Deleting messages and folders, to trash and from trash (permanently)
   */
 
+/* import-globals-from ../../../test/resources/msgFolderListenerSetup.js */
 load("../../../resources/msgFolderListenerSetup.js");
 
 // Globals
@@ -29,8 +30,7 @@ var gLocalFolder3;
 var gLocalTrashFolder;
 
 // storeIn takes a string containing the variable to store the new folder in
-function addFolder(parent, folderName, storeIn)
-{
+function addFolder(parent, folderName, storeIn) {
   gExpectedEvents = [[MailServices.mfn.folderAdded, parent, folderName, storeIn]];
   // We won't receive a copy listener notification for this
   gCurrStatus |= kStatus.onStopCopyDone;
@@ -46,8 +46,7 @@ function addFolder(parent, folderName, storeIn)
  * classification because no messages have yet been marked as junk and there
  * are no traits configured, aJunkProcessed and aTraitProcessed will be false.
  */
-function copyFileMessage(file, destFolder, isDraftOrTemplate)
-{
+function copyFileMessage(file, destFolder, isDraftOrTemplate) {
   copyListener.mFolderStoredIn = destFolder;
   gExpectedEvents = [[MailServices.mfn.msgAdded, gHdrsReceived],
                      [MailServices.mfn.msgsClassified, gHdrsReceived, false, false]];
@@ -58,10 +57,9 @@ function copyFileMessage(file, destFolder, isDraftOrTemplate)
     resetStatusAndProceed();
 }
 
-function copyMessages(items, isMove, srcFolder, destFolder)
-{
+function copyMessages(items, isMove, srcFolder, destFolder) {
   var array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  items.forEach(function (item) {
+  items.forEach(function(item) {
     array.appendElement(item);
   });
   gExpectedEvents = [
@@ -73,10 +71,9 @@ function copyMessages(items, isMove, srcFolder, destFolder)
     resetStatusAndProceed();
 }
 
-function copyFolders(items, isMove, destFolder)
-{
+function copyFolders(items, isMove, destFolder) {
   var array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  items.forEach(function (item) {
+  items.forEach(function(item) {
     array.appendElement(item);
   });
   gExpectedEvents = [[MailServices.mfn.folderMoveCopyCompleted, isMove, items, destFolder]];
@@ -86,25 +83,23 @@ function copyFolders(items, isMove, destFolder)
     resetStatusAndProceed();
 }
 
-function deleteMessages(srcFolder, items, deleteStorage, isMove)
-{
+function deleteMessages(srcFolder, items, deleteStorage, isMove) {
   var array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  items.forEach(function (item) {
+  items.forEach(function(item) {
     array.appendElement(item);
   });
   // We should only get the delete notification only if we are not moving, and are deleting from
   // the storage/trash. We should get only the move/copy notification if we aren't.
   var isTrashFolder = srcFolder.getFlag(Ci.nsMsgFolderFlags.Trash);
-  if (!isMove && (deleteStorage || isTrashFolder))
-  {
+  if (!isMove && (deleteStorage || isTrashFolder)) {
     // We won't be getting any OnStopCopy notification in this case
     gCurrStatus = kStatus.onStopCopyDone;
     gExpectedEvents = [[MailServices.mfn.msgsDeleted, items]];
-  }
-  else
+  } else {
     // We have to be getting a move notification, even if isMove is false
     gExpectedEvents = [[MailServices.mfn.msgsMoveCopyCompleted, true, items,
                         gLocalTrashFolder, true]];
+  }
 
   srcFolder.deleteMessages(array, null, deleteStorage, isMove, copyListener, true);
   gCurrStatus |= kStatus.functionCallDone;
@@ -112,8 +107,7 @@ function deleteMessages(srcFolder, items, deleteStorage, isMove)
     resetStatusAndProceed();
 }
 
-function renameFolder(folder, newName)
-{
+function renameFolder(folder, newName) {
   gExpectedEvents = [[MailServices.mfn.folderRenamed, [folder], newName]];
   gCurrStatus = kStatus.onStopCopyDone;
   folder.rename(newName, null);
@@ -122,8 +116,7 @@ function renameFolder(folder, newName)
     resetStatusAndProceed();
 }
 
-function deleteFolder(folder, child)
-{
+function deleteFolder(folder, child) {
   var array = Cc["@mozilla.org/array;1"]
                 .createInstance(Ci.nsIMutableArray);
   array.appendElement(folder);
@@ -149,8 +142,7 @@ function deleteFolder(folder, child)
     resetStatusAndProceed();
 }
 
-function compactFolder(folder)
-{
+function compactFolder(folder) {
   gExpectedEvents = [[MailServices.mfn.itemEvent, folder, "FolderCompactStart"],
                      [MailServices.mfn.itemEvent, folder, "FolderCompactFinish"]];
   // We won't receive a copy listener notification for this
@@ -166,8 +158,7 @@ function compactFolder(folder)
  */
 
 // Beware before commenting out a test -- later tests might just depend on earlier ones
-var gTestArray =
-[
+var gTestArray = [
   // Adding folders
   // Create another folder to move and copy messages around, and force initialization.
   function addFolder1() {
@@ -298,20 +289,20 @@ var gTestArray =
     // Let's take a moment to re-initialize stuff that got moved
     gLocalFolder2 = gLocalTrashFolder.getChildNamed("folder2");
     gLocalFolder3 = gLocalFolder2.getChildNamed("folder3");
-    deleteFolder(gLocalFolder2, gLocalFolder3); },
+    deleteFolder(gLocalFolder2, gLocalFolder3);
+  },
   function compactInbox() {
     if (localAccountUtils.inboxFolder.msgStore.supportsCompaction)
       compactFolder(localAccountUtils.inboxFolder);
     else
       doTest(++gTest);
-  }
+  },
 ];
   // Folder structure should just be
   // Inbox
   // Trash
 
-function run_test()
-{
+function run_test() {
   localAccountUtils.loadLocalMailAccount();
 
   // Add a listener.
@@ -333,13 +324,11 @@ function run_test()
   doTest(1);
 }
 
-function doTest(test)
-{
-  if (test <= gTestArray.length)
-  {
-    var testFn = gTestArray[test-1];
+function doTest(test) {
+  if (test <= gTestArray.length) {
+    var testFn = gTestArray[test - 1];
     // Set a limit of 10 seconds; if the notifications haven't arrived by then there's a problem.
-    do_timeout(10000, function(){
+    do_timeout(10000, function() {
         if (gTest == test)
           do_throw("Notifications not received in 10000 ms for operation " + testFn.name +
             ", current status is " + gCurrStatus);
@@ -347,9 +336,7 @@ function doTest(test)
       );
     dump("=== Test: " + testFn.name + "\n");
     testFn();
-  }
-  else
-  {
+  } else {
     gHdrsReceived = null;
     gMsgHdrs = null;
     MailServices.mfn.removeListener(gMFListener);

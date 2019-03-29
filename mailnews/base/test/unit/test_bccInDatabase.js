@@ -10,19 +10,17 @@ var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var hdr;
 
-function run_test()
-{
+function run_test() {
   localAccountUtils.loadLocalMailAccount();
 
-  var copyListener =
-  {
-    OnStartCopy: function() {},
-    OnProgress: function(aProgress, aProgressMax) {},
-    SetMessageKey: function(aKey) {
+  var copyListener = {
+    OnStartCopy() {},
+    OnProgress(aProgress, aProgressMax) {},
+    SetMessageKey(aKey) {
       hdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
     },
-    SetMessageId: function(aMessageId) {},
-    OnStopCopy: function(aStatus) { continueTest();}
+    SetMessageId(aMessageId) {},
+    OnStopCopy(aStatus) { continueTest(); },
   };
 
   // Get a message into the local filestore.
@@ -32,11 +30,10 @@ function run_test()
                                     "", copyListener, null);
 }
 
-function continueTest()
-{
-  //dump("\nbccList >" + hdr.bccList);
-  //dump("\nccList >" + hdr.ccList);
-  //dump("\n");
+function continueTest() {
+  // dump("\nbccList >" + hdr.bccList);
+  // dump("\nccList >" + hdr.ccList);
+  // dump("\n");
   Assert.ok(hdr.bccList.includes("Another Person"));
   Assert.ok(hdr.bccList.includes("<u1@example.com>"));
   Assert.ok(!hdr.bccList.includes("IDoNotExist"));

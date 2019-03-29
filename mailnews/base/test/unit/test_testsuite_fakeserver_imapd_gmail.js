@@ -7,6 +7,9 @@
 // per https://developers.google.com/google-apps/gmail/imap_extensions
 
 // async support
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../test/resources/alertTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/alertTestUtils.js");
@@ -29,35 +32,33 @@ var handler;
 var tests = [
   setupMailboxes,
   testXlist,
-  endTest
-]
+  endTest,
+];
 
 // mbox mailboxes cannot contain both child mailboxes and messages, so this will
 // be one test case.
-function* setupMailboxes()
-{
+function* setupMailboxes() {
   IMAPPump.mailbox.specialUseFlag = "\\Inbox";
-  IMAPPump.daemon.createMailbox("[Gmail]", {flags : ["\\Noselect"]});
-  IMAPPump.daemon.createMailbox("[Gmail]/All Mail", {specialUseFlag : "\\AllMail"});
-  IMAPPump.daemon.createMailbox("[Gmail]/Drafts", {specialUseFlag : "\\Drafts"});
-  IMAPPump.daemon.createMailbox("[Gmail]/Sent", {specialUseFlag : "\\Sent"});
-  IMAPPump.daemon.createMailbox("[Gmail]/Spam", {specialUseFlag : "\\Spam"});
-  IMAPPump.daemon.createMailbox("[Gmail]/Starred", {specialUseFlag : "\\Starred"});
-  IMAPPump.daemon.createMailbox("[Gmail]/Trash", {specialUseFlag : "\\Trash"});
+  IMAPPump.daemon.createMailbox("[Gmail]", {flags: ["\\Noselect"]});
+  IMAPPump.daemon.createMailbox("[Gmail]/All Mail", {specialUseFlag: "\\AllMail"});
+  IMAPPump.daemon.createMailbox("[Gmail]/Drafts", {specialUseFlag: "\\Drafts"});
+  IMAPPump.daemon.createMailbox("[Gmail]/Sent", {specialUseFlag: "\\Sent"});
+  IMAPPump.daemon.createMailbox("[Gmail]/Spam", {specialUseFlag: "\\Spam"});
+  IMAPPump.daemon.createMailbox("[Gmail]/Starred", {specialUseFlag: "\\Starred"});
+  IMAPPump.daemon.createMailbox("[Gmail]/Trash", {specialUseFlag: "\\Trash"});
   IMAPPump.daemon.createMailbox("test", {});
 
   handler = IMAPPump.server._handlerCreator(IMAPPump.daemon);
-  let response = handler.onError('1', 'LOGIN user password');
-  Assert.ok(response.includes('OK'));
+  let response = handler.onError("1", "LOGIN user password");
+  Assert.ok(response.includes("OK"));
   // wait for imap pump to do its thing or else we get memory leaks
   IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
   yield false;
 }
 
 // test that 'XLIST "" "*"' returns the proper responses
-function* testXlist()
-{
-  let response = handler.onError('2', 'XLIST "" "*"');
+function* testXlist() {
+  let response = handler.onError("2", 'XLIST "" "*"');
 
   Assert.ok(response.includes('* LIST (\\HasNoChildren \\Inbox) "/" "INBOX"'));
   Assert.ok(response.includes('* LIST (\\Noselect \\HasChildren) "/" "[Gmail]"'));
@@ -73,25 +74,11 @@ function* testXlist()
 }
 
 // Cleanup at end
-function endTest()
-{
+function endTest() {
   teardownIMAPPump();
 }
 
-function run_test()
-{
+function run_test() {
   Services.prefs.setBoolPref("mail.server.server1.autosync_offline_stores", false);
   async_run_tests(tests);
-}
-
-/*
- * helper functions
- */
-
-function recursiveDeleteMailboxes(aMailbox)
-{
-  for (var child of aMailbox.allChildren) {
-    recursiveDeleteMailboxes(child);
-  }
-  IMAPPump.daemon.deleteMailbox(aMailbox);
 }

@@ -13,8 +13,7 @@ Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
 
 // main test
 
-function run_test()
-{
+function run_test() {
   let vfdat = do_get_file("../../../data/test_virtualFolders.dat");
 
   vfdat.copyTo(do_get_profile(), "virtualFolders.dat");

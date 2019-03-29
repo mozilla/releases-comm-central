@@ -5,37 +5,35 @@
 // Testing of to, cc, toorcc in addressbook search features added in bug 187768
 // Added testing of AllAddresses from bug 310359
 
+/* import-globals-from ../../../test/resources/searchTestUtils.js */
 load("../../../resources/searchTestUtils.js");
 
 // add address book setup
+/* import-globals-from ../../../test/resources/abSetup.js */
 load("../../../resources/abSetup.js");
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var ABUri = kPABData.URI;
 
-var nsMsgSearchScope = Ci.nsMsgSearchScope;
-var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
-var nsMsgSearchOp = Ci.nsMsgSearchOp;
+var IsntInAB = Ci.nsMsgSearchOp.IsntInAB;
+var IsInAB = Ci.nsMsgSearchOp.IsInAB;
+var IsBefore = Ci.nsMsgSearchOp.IsBefore; // control entry that is not enabled
+var Is = Ci.nsMsgSearchOp.Is;
+var Isnt = Ci.nsMsgSearchOp.Isnt;
 
-var IsntInAB = nsMsgSearchOp.IsntInAB;
-var IsInAB = nsMsgSearchOp.IsInAB;
-var IsBefore = nsMsgSearchOp.IsBefore; // control entry that is not enabled
-var Is = nsMsgSearchOp.Is;
-var Isnt = nsMsgSearchOp.Isnt;
+var offlineMail = Ci.nsMsgSearchScope.offlineMail;
+var onlineMail = Ci.nsMsgSearchScope.onlineMail;
+var offlineMailFilter = Ci.nsMsgSearchScope.offlineMailFilter;
+var onlineMailFilter = Ci.nsMsgSearchScope.onlineMailFilter;
+var news = Ci.nsMsgSearchScope.news; // control entry that is not enabled
 
-var offlineMail = nsMsgSearchScope.offlineMail;
-var onlineMail = nsMsgSearchScope.onlineMail;
-var offlineMailFilter = nsMsgSearchScope.offlineMailFilter;
-var onlineMailFilter = nsMsgSearchScope.onlineMailFilter;
-var news = nsMsgSearchScope.news; // control entry that is not enabled
-
-var Sender = nsMsgSearchAttrib.Sender;
-var To = nsMsgSearchAttrib.To;
-var CCopy = nsMsgSearchAttrib.CC;
-var ToOrCC = nsMsgSearchAttrib.ToOrCC;
-var AllAddresses = nsMsgSearchAttrib.AllAddresses;
-var Keywords = nsMsgSearchAttrib.Keywords; // control entry that is not enabled
+var Sender = Ci.nsMsgSearchAttrib.Sender;
+var To = Ci.nsMsgSearchAttrib.To;
+var CCopy = Ci.nsMsgSearchAttrib.CC;
+var ToOrCC = Ci.nsMsgSearchAttrib.ToOrCC;
+var AllAddresses = Ci.nsMsgSearchAttrib.AllAddresses;
+var Keywords = Ci.nsMsgSearchAttrib.Keywords; // control entry that is not enabled
 
 /*
  * The address available in the test address book is "PrimaryEmail1@test.invalid"
@@ -57,85 +55,101 @@ var Keywords = nsMsgSearchAttrib.Keywords; // control entry that is not enabled
  *
  */
 
-var Tests =
-[
-  { value: ABUri,
+var Tests = [
+  {
+    value: ABUri,
     attrib: Sender,
     op: IsInAB,
-    count: 3 },
-  { value: ABUri,
+    count: 3,
+  }, {
+    value: ABUri,
     attrib: To,
     op: IsInAB,
-    count: 4 },
-  { value: ABUri,
+    count: 4,
+  }, {
+    value: ABUri,
     attrib: ToOrCC,
     op: IsInAB,
-    count: 6 },
-  { value: ABUri,
+    count: 6,
+  }, {
+    value: ABUri,
     attrib: AllAddresses,
     op: IsInAB,
-    count: 8 },
-  { value: ABUri,
+    count: 8,
+  }, {
+    value: ABUri,
     attrib: CCopy,
     op: IsInAB,
-    count: 5 },
-  { value: ABUri,
+    count: 5,
+  }, {
+    value: ABUri,
     attrib: Sender,
     op: IsntInAB,
-    count: 5 },
-  { value: ABUri,
+    count: 5,
+  }, {
+    value: ABUri,
     attrib: To,
     op: IsntInAB,
-    count: 5 },
-  { value: ABUri,
+    count: 5,
+  }, {
+    value: ABUri,
     attrib: ToOrCC,
     op: IsntInAB,
-    count: 6 },
-  { value: ABUri,
+    count: 6,
+  }, {
+    value: ABUri,
     attrib: AllAddresses,
     op: IsntInAB,
-    count: 7 },
-  { value: ABUri,
+    count: 7,
+  }, {
+    value: ABUri,
     attrib: CCopy,
     op: IsntInAB,
-    count: 4 },
-  { value: "PrimaryEmail1@test.invalid",
+    count: 4,
+  }, {
+    value: "PrimaryEmail1@test.invalid",
     attrib: AllAddresses,
     op: Is,
-    count: 8 },
-  { value: "PrimaryEmail1@test.invalid",
+    count: 8,
+  }, {
+    value: "PrimaryEmail1@test.invalid",
     attrib: AllAddresses,
     op: Isnt,
-    count: 0 },
-  { value: "invalid@example.com",
+    count: 0,
+  }, {
+    value: "invalid@example.com",
     attrib: AllAddresses,
     op: Is,
-    count: 7 },
-  { value: "invalid@example.com",
+    count: 7,
+  }, {
+    value: "invalid@example.com",
     attrib: AllAddresses,
     op: Isnt,
-    count: 1 },
-  { value: "PrimaryEmail1@test.invalid",
+    count: 1,
+  }, {
+    value: "PrimaryEmail1@test.invalid",
     attrib: ToOrCC,
     op: Is,
-    count: 6 },
-  { value: "PrimaryEmail1@test.invalid",
+    count: 6,
+  }, {
+    value: "PrimaryEmail1@test.invalid",
     attrib: ToOrCC,
     op: Isnt,
-    count: 2 },
-  { value: "invalid@example.com",
+    count: 2,
+  }, {
+    value: "invalid@example.com",
     attrib: ToOrCC,
     op: Is,
-    count: 6 },
-  { value: "invalid@example.com",
+    count: 6,
+  }, {
+    value: "invalid@example.com",
     attrib: ToOrCC,
     op: Isnt,
-    count: 2 },
-
+    count: 2,
+  },
 ];
 
-var Files =
-[
+var Files = [
   "../../../data/bugmail1",
   "../../../data/bugmail2",
   "../../../data/bugmail3",
@@ -143,13 +157,10 @@ var Files =
   "../../../data/bugmail5",
   "../../../data/bugmail6",
   "../../../data/bugmail7",
-  "../../../data/bugmail8"
-]
+  "../../../data/bugmail8",
+];
 
-var messageKey, hdr;
-
-function run_test()
-{
+function run_test() {
   // Setup local mail accounts.
   localAccountUtils.loadLocalMailAccount();
 
@@ -262,43 +273,37 @@ function run_test()
   return true;
 }
 
-var copyListener =
-{
-  OnStartCopy: function() {},
-  OnProgress: function(aProgress, aProgressMax) {},
-  SetMessageKey: function(aKey) {},
-  SetMessageId: function(aMessageId) {},
-  OnStopCopy: function(aStatus)
-  {
+var copyListener = {
+  OnStartCopy() {},
+  OnProgress(aProgress, aProgressMax) {},
+  SetMessageKey(aKey) {},
+  SetMessageId(aMessageId) {},
+  OnStopCopy(aStatus) {
     var fileName = Files.shift();
-    if (fileName)
-    {
+    if (fileName) {
       var file = do_get_file(fileName);
       MailServices.copy.CopyFileMessage(file, localAccountUtils.inboxFolder, null,
                                         false, 0, "", copyListener, null);
-    }
-    else
+    } else {
       testAbSearch();
-  }
+    }
+  },
 };
 
 // Runs at completion of copy
 
 // process each test from queue, calls itself upon completion of each search
-var testObject;
-function testAbSearch()
-{
+function testAbSearch() {
   print("Test AbSearch");
   var test = Tests.shift();
-  if (test)
-  {
-    testObject = new TestSearch(localAccountUtils.inboxFolder,
-                         test.value,
-                         test.attrib,
-                         test.op,
-                         test.count,
-                         testAbSearch);
-  }
-  else
+  if (test) {
+    new TestSearch(localAccountUtils.inboxFolder,
+                   test.value,
+                   test.attrib,
+                   test.op,
+                   test.count,
+                   testAbSearch);
+  } else {
     do_test_finished();
+  }
 }

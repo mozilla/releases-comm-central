@@ -8,8 +8,7 @@
  */
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-function run_test()
-{
+function run_test() {
   // Create account prefs with a pop3 account deferred to a hidden account.
 
   Services.prefs.setCharPref("mail.account.account1.identities", "id1");

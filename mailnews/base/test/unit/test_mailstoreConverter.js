@@ -2,13 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 const {OS} = ChromeUtils.import("resource://gre/modules/osfile.jsm");
-var {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
-var {convertMailStoreTo, terminateWorkers} = ChromeUtils.import("resource:///modules/mailstoreConverter.jsm");
-const {Log} = ChromeUtils.import("resource://gre/modules/Log.jsm");
+var {convertMailStoreTo} = ChromeUtils.import("resource:///modules/mailstoreConverter.jsm");
 
-var log = Log.repository.getLogger("MailStoreConverter");
 Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
                            "@mozilla.org/msgstore/berkeleystore;1");
 
@@ -171,23 +167,6 @@ async function tempDir(prefix) {
       }
     }
   }
-}
-
-/**
- * Create a temporary (and empty) file. The caller is responsible for deleting it.
- *
- * @param {String} baseName - name to base the temp filename upon
- *                            (eg "...tmpdir/<baseName>-<randomhexdigits>")
- * @returns {String} full path of new file.
- */
-async function tempFile(baseName) {
-  if (!baseName) {
-    baseName = "tmp";
-  }
-  let tmpDir = OS.Constants.Path.tmpDir;
-  let u = await OS.File.openUnique(OS.Path.join(tmpDir, baseName));
-  u.file.close();
-  return u.path;
 }
 
 /**

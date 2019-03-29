@@ -4,26 +4,23 @@
 
 // Testing of search by junk percent and junk score origin
 
+/* import-globals-from ../../../test/resources/searchTestUtils.js */
 load("../../../resources/searchTestUtils.js");
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-var nsMsgSearchScope = Ci.nsMsgSearchScope;
-var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
-var nsMsgSearchOp = Ci.nsMsgSearchOp;
+var IsGreaterThan = Ci.nsMsgSearchOp.IsGreaterThan;
+var IsLessThan = Ci.nsMsgSearchOp.IsLessThan;
+var Is = Ci.nsMsgSearchOp.Is;
+var Isnt = Ci.nsMsgSearchOp.Isnt;
+var IsEmpty = Ci.nsMsgSearchOp.IsEmpty;
+var IsntEmpty = Ci.nsMsgSearchOp.IsntEmpty;
 
-var IsGreaterThan = nsMsgSearchOp.IsGreaterThan;
-var IsLessThan = nsMsgSearchOp.IsLessThan;
-var Is = nsMsgSearchOp.Is;
-var Isnt = nsMsgSearchOp.Isnt;
-var IsEmpty = nsMsgSearchOp.IsEmpty;
-var IsntEmpty = nsMsgSearchOp.IsntEmpty;
+var offlineMail = Ci.nsMsgSearchScope.offlineMail;
 
-var offlineMail = nsMsgSearchScope.offlineMail;
-
-var JunkScoreOrigin = nsMsgSearchAttrib.JunkScoreOrigin;
-var JunkPercent = nsMsgSearchAttrib.JunkPercent;
-var JunkStatus = nsMsgSearchAttrib.JunkStatus;
+var JunkScoreOrigin = Ci.nsMsgSearchAttrib.JunkScoreOrigin;
+var JunkPercent = Ci.nsMsgSearchAttrib.JunkPercent;
+var JunkStatus = Ci.nsMsgSearchAttrib.JunkStatus;
 
 var fileName = "../../../data/bugmail1";
 
@@ -41,176 +38,196 @@ var fileName = "../../../data/bugmail1";
  * (not junk) if the message is unclassified.
  */
 
-var Tests =
-[
-  // test empty junk status
-  { junkScore: false,
+var Tests = [
+  {
+    // test empty junk status
+    junkScore: false,
     testValue: 90,
     attrib: JunkStatus,
     op: IsEmpty,
-    count: 1},
-  { junkScore: false,
+    count: 1,
+  }, {
+    junkScore: false,
     testValue: 90,
     attrib: JunkStatus,
     op: IsntEmpty,
-    count: 0},
-  { junkScore: "0",
-    junkScoreOrigin: "plugin",
-    junkPercent: "10",
-    testValue: 90,
-    attrib: JunkStatus,
-    op: IsntEmpty,
-    count: 1},
-  { junkScore: "0",
-    junkScoreOrigin: "plugin",
-    junkPercent: "10",
-    testValue: 90,
-    attrib: JunkStatus,
-    op: IsEmpty,
-    count: 0},
-  { junkScore: "100",
+    count: 0,
+  }, {
+    junkScore: "0",
     junkScoreOrigin: "plugin",
     junkPercent: "10",
     testValue: 90,
     attrib: JunkStatus,
     op: IsntEmpty,
-    count: 1},
-  { junkScore: "100",
+    count: 1,
+  }, {
+    junkScore: "0",
     junkScoreOrigin: "plugin",
     junkPercent: "10",
     testValue: 90,
     attrib: JunkStatus,
     op: IsEmpty,
-    count: 0},
-  // Use junkpercent from database
-  { junkScore: "0",
+    count: 0,
+  }, {
+    junkScore: "100",
+    junkScoreOrigin: "plugin",
+    junkPercent: "10",
+    testValue: 90,
+    attrib: JunkStatus,
+    op: IsntEmpty,
+    count: 1,
+  }, {
+    junkScore: "100",
+    junkScoreOrigin: "plugin",
+    junkPercent: "10",
+    testValue: 90,
+    attrib: JunkStatus,
+    op: IsEmpty,
+    count: 0,
+  }, {
+    // Use junkpercent from database
+    junkScore: "0",
     junkScoreOrigin: "plugin",
     junkPercent: "10",
     testValue: 90,
     attrib: JunkPercent,
     op: IsGreaterThan,
-    count: 0},
-  { junkScore: "0",
+    count: 0,
+  }, {
+    junkScore: "0",
     junkScoreOrigin: "plugin",
     junkPercent: "10",
     testValue: 90,
     attrib: JunkPercent,
     op: IsLessThan,
-    count: 1},
-  { junkScore: "0",
+    count: 1,
+  }, {
+    junkScore: "0",
     junkScoreOrigin: "plugin",
     junkPercent: "10",
     testValue: 90,
     attrib: JunkPercent,
     op: Is,
-    count: 0},
-  { junkScore: "0",
+    count: 0,
+  }, {
+    junkScore: "0",
     junkScoreOrigin: "plugin",
     junkPercent: "90",
     testValue: 10,
     attrib: JunkPercent,
     op: IsGreaterThan,
-    count: 1},
-  { junkScore: "0",
+    count: 1,
+  }, {
+    junkScore: "0",
     junkScoreOrigin: "plugin",
     junkPercent: "90",
     testValue: 10,
     attrib: JunkPercent,
     op: IsLessThan,
-    count: 0},
-  { junkScore: "0",
+    count: 0,
+  }, {
+    junkScore: "0",
     junkScoreOrigin: "plugin",
     junkPercent: "10",
     testValue: 10,
     attrib: JunkPercent,
     op: Is,
-    count: 1},
-
+    count: 1,
+  }, {
     // values set by user, use junkscore not junkpercent
-  { junkScore: "0",
+    junkScore: "0",
     junkScoreOrigin: "user",
     junkPercent: "90",
     testValue: 50,
     attrib: JunkPercent,
     op: IsGreaterThan,
-    count: 0},
-  { junkScore: "0",
+    count: 0,
+  }, {
+    junkScore: "0",
     junkScoreOrigin: "user",
     junkPercent: "90",
     testValue: 50,
     attrib: JunkPercent,
     op: IsLessThan,
-    count: 1},
-  { junkScore: "0",
+    count: 1,
+  }, {
+    junkScore: "0",
     junkScoreOrigin: "user",
     junkPercent: "90",
     testValue: 50,
     attrib: JunkPercent,
     op: Is,
-    count: 0},
-  { junkScore: "100",
+    count: 0,
+  }, {
+    junkScore: "100",
     junkScoreOrigin: "user",
     junkPercent: "10",
     testValue: 50,
     attrib: JunkPercent,
     op: IsGreaterThan,
-    count: 1},
-  { junkScore: "100",
+    count: 1,
+  }, {
+    junkScore: "100",
     junkScoreOrigin: "user",
     junkPercent: "10",
     testValue: 50,
     attrib: JunkPercent,
     op: IsLessThan,
-    count: 0},
-  { junkScore: "0",
+    count: 0,
+  }, {
+    junkScore: "0",
     junkScoreOrigin: "user",
     junkPercent: "90",
     testValue: 0,
     attrib: JunkPercent,
     op: Is,
-    count: 1},
+    count: 1,
+  }, {
     // default to 0 when nothing set
-  { junkScore: "",
+    junkScore: "",
     junkScoreOrigin: "",
     junkPercent: "",
     testValue: 0,
     attrib: JunkPercent,
     op: Is,
-    count: 1},
-
+    count: 1,
+  }, {
     // junkscoreorigin search tests
-  { junkScore: "0",
+    junkScore: "0",
     junkScoreOrigin: "plugin",
     junkPercent: "50",
     testValue: "plugin",
     attrib: JunkScoreOrigin,
     op: Is,
-    count: 1},
-  { junkScore: "0",
+    count: 1,
+  }, {
+    junkScore: "0",
     junkScoreOrigin: "plugin",
     junkPercent: "50",
     testValue: "plugin",
     attrib: JunkScoreOrigin,
     op: Isnt,
-    count: 0},
-  { junkScore: "0",
+    count: 0,
+  }, {
+    junkScore: "0",
     junkScoreOrigin: "filter",
     junkPercent: "50",
     testValue: "plugin",
     attrib: JunkScoreOrigin,
     op: Is,
-    count: 0},
-  { junkScore: "0",
+    count: 0,
+  }, {
+    junkScore: "0",
     junkScoreOrigin: "filter",
     junkPercent: "50",
     testValue: "plugin",
     attrib: JunkScoreOrigin,
     op: Isnt,
-    count: 1},
+    count: 1,
+  },
 ];
 
-function run_test()
-{
+function run_test() {
   localAccountUtils.loadLocalMailAccount();
 
   // test that validity table terms are valid
@@ -235,40 +252,32 @@ function run_test()
 }
 
 var hdr;
-var copyListener =
-{
-  OnStartCopy: function() {},
-  OnProgress: function(aProgress, aProgressMax) {},
-  SetMessageKey: function(aKey) { hdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);},
-  SetMessageId: function(aMessageId) {},
-  OnStopCopy: function(aStatus) { testJunkSearch();}
+var copyListener = {
+  OnStartCopy() {},
+  OnProgress(aProgress, aProgressMax) {},
+  SetMessageKey(aKey) { hdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey); },
+  SetMessageId(aMessageId) {},
+  OnStopCopy(aStatus) { testJunkSearch(); },
 };
 
 // Runs at completion of each copy
 // process each test from queue, calls itself upon completion of each search
-var testObject;
-function testJunkSearch()
-{
+function testJunkSearch() {
   var test = Tests.shift();
-  if (test)
-  {
-    if (test.junkScore)
-    {
+  if (test) {
+    if (test.junkScore) {
       hdr.setStringProperty("junkpercent", test.junkPercent);
       hdr.setStringProperty("junkscoreorigin", test.junkScoreOrigin);
       hdr.setStringProperty("junkscore", test.junkScore);
     }
 
-    testObject = new TestSearch(localAccountUtils.inboxFolder,
-                         test.testValue,
-                         test.attrib,
-                         test.op,
-                         test.count,
-                         testJunkSearch);
-  }
-  else
-  {
-    testObject = null;
+    new TestSearch(localAccountUtils.inboxFolder,
+                   test.testValue,
+                   test.attrib,
+                   test.op,
+                   test.count,
+                   testJunkSearch);
+  } else {
     hdr = null;
     do_test_finished();
   }

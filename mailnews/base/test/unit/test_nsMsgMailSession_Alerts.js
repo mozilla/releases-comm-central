@@ -5,8 +5,8 @@
  */
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
+/* import-globals-from ../../../test/resources/alertTestUtils.js */
 load("../../../resources/alertTestUtils.js");
 
 var gDialogTitle = null;
@@ -17,6 +17,7 @@ function reset() {
   gText = null;
 }
 
+/* exported alert */// Used in alertTestUtils.
 function alert(aDialogTitle, aText) {
   Assert.equal(gDialogTitle, null);
   Assert.equal(gText, null);
@@ -30,7 +31,7 @@ var msgWindow = {
     return alertUtilsPrompts;
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgWindow])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgWindow]),
 };
 
 var msgUrl = {
@@ -40,7 +41,7 @@ var msgUrl = {
     return this._msgWindow;
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgMailNewsUrl])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgMailNewsUrl]),
 };
 
 function alertListener() {}
@@ -50,12 +51,12 @@ alertListener.prototype = {
   mMessage: null,
   mMsgWindow: null,
 
-  reset: function () {
+  reset() {
     this.mMessage = null;
     this.mMsgWindow = null;
   },
 
-  onAlert: function (aMessage, aMsgWindow) {
+  onAlert(aMessage, aMsgWindow) {
     Assert.equal(this.mMessage, null);
     Assert.equal(this.mMsgWindow, null);
 
@@ -63,11 +64,10 @@ alertListener.prototype = {
     this.mMsgWindow = aMsgWindow;
 
     return this.mReturn;
-  }
+  },
 };
 
-function run_test()
-{
+function run_test() {
   // Test - No listeners, check alert tries to alert the user.
 
   reset();

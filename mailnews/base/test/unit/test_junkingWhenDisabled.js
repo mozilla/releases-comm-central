@@ -4,15 +4,19 @@
  *  James using test_nsMsgDBView.js as a base.
  */
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
+/* import-globals-from ../../../test/resources/messageGenerator.js */
+/* import-globals-from ../../../test/resources/messageModifier.js */
+/* import-globals-from ../../../test/resources/messageInjection.js */
 load("../../../resources/messageGenerator.js");
 load("../../../resources/messageModifier.js");
 load("../../../resources/messageInjection.js");
 
 const {JSTreeSelection} = ChromeUtils.import("resource:///modules/jsTreeSelection.js");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
@@ -23,19 +27,11 @@ var nsIMFNService = Ci.nsIMsgFolderNotificationService;
 // calls to these objects in nsMsgDBView and friends, it will also
 // be necessary to add fake versions of those calls here.
 
-var gFakeView = {
-  rowCount: 1,
-  selectionChanged: function() {
-  },
-  QueryInterface: ChromeUtils.generateQI([Ci.nsITreeView]),
-};
-
 var gFakeSelection = new JSTreeSelection(null);
 
 // Items used to add messages to the folder
 
 var gMessageGenerator = new MessageGenerator();
-var gScenarioFactory = new MessageScenarioFactory(gMessageGenerator);
 
 var gLocalInboxFolder;
 var gListener;
@@ -51,20 +47,17 @@ function setup_globals(aNextFunc) {
 }
 
 var gCommandUpdater = {
-  updateCommandStatus : function()
-  {
+  updateCommandStatus() {
     // the back end is smart and is only telling us to update command status
     // when the # of items in the selection has actually changed.
   },
 
-  displayMessageChanged : function(aFolder, aSubject, aKeywords)
-  {
+  displayMessageChanged(aFolder, aSubject, aKeywords) {
   },
 
-  updateNextMessageAfterDelete : function()
-  {
+  updateNextMessageAfterDelete() {
   },
-  summarizeSelection : function() {return false;}
+  summarizeSelection() { return false; },
 };
 
 var gDBView;
@@ -101,7 +94,7 @@ var tests_for_all_views = [
   //  many messages get moved, just that some do on the second move.
   junkMessages,
   addMessages,
-  junkMessages
+  junkMessages,
 ];
 
 function addMessages() {
@@ -114,7 +107,6 @@ function addMessages() {
 }
 
 function* junkMessages() {
-
   // select and junk all messages
   gDBView.doCommand(Ci.nsMsgViewCommandType.selectAll);
   gDBView.doCommand(Ci.nsMsgViewCommandType.junk);
@@ -123,11 +115,9 @@ function* junkMessages() {
 
 // Our listener, which captures events and does the real tests.
 function gMFListener() {}
-gMFListener.prototype =
-{
+gMFListener.prototype = {
 
-  msgsMoveCopyCompleted: function (aMove, aSrcMsgs, aDestFolder, aDestMsgs)
-  {
+  msgsMoveCopyCompleted(aMove, aSrcMsgs, aDestFolder, aDestMsgs) {
     Assert.ok(aDestFolder.getFlag(Ci.nsMsgFolderFlags.Junk));
     // I tried to test this by counting messages in the folder, didn't work.
     //  Maybe all updates are not completed yet. Anyway I do it by just
@@ -136,8 +126,7 @@ gMFListener.prototype =
     async_driver();
   },
 
-  folderAdded: function (aFolder)
-  {
+  folderAdded(aFolder) {
     // this should be a junk folder
     Assert.ok(aFolder.getFlag(Ci.nsMsgFolderFlags.Junk));
     async_driver();

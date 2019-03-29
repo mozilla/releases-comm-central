@@ -11,19 +11,17 @@ var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var hdr;
 
-function run_test()
-{
+function run_test() {
   localAccountUtils.loadLocalMailAccount();
 
-  var copyListener =
-  {
-    OnStartCopy: function() {},
-    OnProgress: function(aProgress, aProgressMax) {},
-    SetMessageKey: function(aKey) {
+  var copyListener = {
+    OnStartCopy() {},
+    OnProgress(aProgress, aProgressMax) {},
+    SetMessageKey(aKey) {
       hdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
     },
-    SetMessageId: function(aMessageId) {},
-    OnStopCopy: function(aStatus) { continueTest();}
+    SetMessageId(aMessageId) {},
+    OnStopCopy(aStatus) { continueTest(); },
   };
 
   // Get a message into the local filestore.
@@ -33,8 +31,7 @@ function run_test()
                                     "", copyListener, null);
 }
 
-function continueTest()
-{
+function continueTest() {
   Assert.equal(hdr.author, "sender@example.com");
   Assert.equal(hdr.recipients, "\"Recipient  with  spaces\" <recipient@example.com>");
   Assert.equal(hdr.subject, "Badly folded headers, one line with   space   between   To and From");

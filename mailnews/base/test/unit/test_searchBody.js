@@ -5,32 +5,27 @@
 /*
  * This tests various body search criteria.
  */
+/* import-globals-from ../../../test/resources/searchTestUtils.js */
 load("../../../resources/searchTestUtils.js");
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-var nsMsgSearchScope = Ci.nsMsgSearchScope;
-var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
-var nsMsgSearchOp = Ci.nsMsgSearchOp;
+var Isnt = Ci.nsMsgSearchOp.Isnt;
+var Is = Ci.nsMsgSearchOp.Is;
+var IsEmpty = Ci.nsMsgSearchOp.IsEmpty;
+var IsntEmpty = Ci.nsMsgSearchOp.IsntEmpty;
+var Contains = Ci.nsMsgSearchOp.Contains;
+var DoesntContain = Ci.nsMsgSearchOp.DoesntContain;
+var IsBefore = Ci.nsMsgSearchOp.IsBefore; // control entry not enabled
 
-var Isnt = nsMsgSearchOp.Isnt;
-var Is = nsMsgSearchOp.Is;
-var IsEmpty = nsMsgSearchOp.IsEmpty;
-var IsntEmpty = nsMsgSearchOp.IsntEmpty;
-var Contains = nsMsgSearchOp.Contains;
-var DoesntContain = nsMsgSearchOp.DoesntContain;
-var IsBefore = nsMsgSearchOp.IsBefore; // control entry not enabled
+var offlineMail = Ci.nsMsgSearchScope.offlineMail;
+var onlineMail = Ci.nsMsgSearchScope.onlineMail;
+var offlineMailFilter = Ci.nsMsgSearchScope.offlineMailFilter;
+var news = Ci.nsMsgSearchScope.news; // control entry not enabled
 
-var offlineMail = nsMsgSearchScope.offlineMail;
-var onlineMail = nsMsgSearchScope.onlineMail;
-var offlineMailFilter = nsMsgSearchScope.offlineMailFilter;
-var onlineMailFilter = nsMsgSearchScope.onlineMailFilter;
-var news = nsMsgSearchScope.news; // control entry not enabled
+var Body = Ci.nsMsgSearchAttrib.Body;
 
-var Body = nsMsgSearchAttrib.Body;
-
-var Files =
-[
+var Files = [
   "../../../data/base64-1",
   "../../../data/basic1",
   "../../../data/multipart-base64-2",
@@ -87,9 +82,8 @@ var Files =
   // Message using ISO-2022-JP and 7bit, but containing something that looks like quoted-printable.
   // (bug 314637).
   "../../../data/iso-2022-jp-not-qp.eml",  // plaintext, has 現況 which contains =67.
-]
-var Tests =
-[
+];
+var Tests = [
   /* Translate Base64 messages */
   // "World!" is contained in three messages, but in bug132340 it's not in a text
   // part and should not be found.
@@ -196,28 +190,24 @@ function fixFile(file) {
   return targetFile;
 }
 
-var copyListener =
-{
-  OnStartCopy: function() {},
-  OnProgress: function(aProgress, aProgressMax) {},
-  SetMessageKey: function(aKey) {},
-  SetMessageId: function(aMessageId) {},
-  OnStopCopy: function(aStatus)
-  {
+var copyListener = {
+  OnStartCopy() {},
+  OnProgress(aProgress, aProgressMax) {},
+  SetMessageKey(aKey) {},
+  SetMessageId(aMessageId) {},
+  OnStopCopy(aStatus) {
     var fileName = Files.shift();
-    if (fileName)
-    {
+    if (fileName) {
       var file = fixFile(do_get_file(fileName));
       MailServices.copy.CopyFileMessage(file, localAccountUtils.inboxFolder, null,
                                         false, 0, "", copyListener, null);
-    }
-    else
+    } else {
       testBodySearch();
-  }
+    }
+  },
 };
 
-function run_test()
-{
+function run_test() {
   localAccountUtils.loadLocalMailAccount();
 
   // test that validity table terms are valid
@@ -250,7 +240,7 @@ function run_test()
   testValidityTable(onlineMail, IsBefore, Body, false);
 
   // online mail filter
-  /*testValidityTable(onlineMailFilter, Contains, Body, true);
+  /* testValidityTable(onlineMailFilter, Contains, Body, true);
   testValidityTable(onlineMailFilter, DoesntContain, Body, true);
   testValidityTable(onlineMailFilter, Is, Body, false);
   testValidityTable(onlineMailFilter, Isnt, Body, false);
@@ -272,22 +262,16 @@ function run_test()
 }
 
 // process each test from queue, calls itself upon completion of each search
-var testObject;
-function testBodySearch()
-{
+function testBodySearch() {
   var test = Tests.shift();
-  if (test)
-  {
-    testObject = new TestSearch(localAccountUtils.inboxFolder,
-                         test.value,
-                         Body,
-                         test.op,
-                         test.count,
-                         testBodySearch);
-  }
-  else
-  {
-    testObject = null;
+  if (test) {
+    new TestSearch(localAccountUtils.inboxFolder,
+                   test.value,
+                   Body,
+                   test.op,
+                   test.count,
+                   testBodySearch);
+  } else {
     do_test_finished();
   }
 }

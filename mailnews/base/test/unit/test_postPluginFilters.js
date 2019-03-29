@@ -6,6 +6,7 @@
  * tests post-plugin message filters as implemented in bug 198100
  */
 
+/* import-globals-from ../../../test/resources/POP3pump.js */
 load("../../../resources/POP3pump.js");
 
 // Globals
@@ -27,42 +28,35 @@ var kPriorityLow = 3;
 var kPriorityHigh = 5;
 var gInboxListener; // database listener object
 
-var gTests =
-[
-  // train two different messages
+var gTests = [
   {
+    // train two different messages
     command: kTrain,
     fileName: kGoodFile,
     traitId: MailServices.junk.GOOD_TRAIT,
-  },
-  {
+  }, {
     command: kTrain,
     fileName: kJunkFile,
     traitId: MailServices.junk.JUNK_TRAIT,
-  },
-  // test a filter that acts on GOOD messages
-  {
+  }, {
+    // test a filter that acts on GOOD messages
     command: kClass,
     fileName: kGoodFile,
-    test: function testClassGood() {
+    test() {
       Assert.equal(kPriorityHigh, gMsgHdr.priority);
-    }
-  },
-  // test a filter that acts on JUNK messages
-  {
+    },
+  }, {
+    // test a filter that acts on JUNK messages
     command: kClass,
     fileName: kJunkFile,
-    test: function testClassJunk() {
+    test() {
       Assert.equal(kPriorityLow, gMsgHdr.priority);
-    }
+    },
   },
-  /**/
-]
+];
 
 // main test
-function run_test()
-{
-
+function run_test() {
   // Setup some incoming filters, setting junk priority low, and good high.
 
   // Can't use the fake server, must use the deferredTo local server!
@@ -116,8 +110,7 @@ function run_test()
   startCommand();
 }
 
-function endTest()
-{
+function endTest() {
   // Cleanup
   dump(" Exiting mail tests\n");
   if (gInboxListener)
@@ -128,106 +121,78 @@ function endTest()
   do_test_finished(); // for the one in run_test()
 }
 
-var classifyListener =
-{
-  //nsIMsgTraitClassificationListener implementation
-  onMessageTraitsClassified: function(aMsgURI, {}, aTraits, aPercents)
-  {
-    //print("Message URI is " + aMsgURI);
+var classifyListener = {
+  // nsIMsgTraitClassificationListener implementation
+  onMessageTraitsClassified(aMsgURI, aTraitCount, aTraits, aPercents) {
+    // print("Message URI is " + aMsgURI);
     if (!aMsgURI)
-      return; //ignore end-of-batch signal
+      return; // ignore end-of-batch signal
 
     startCommand();
-  }
+  },
 };
 
 // nsIDBChangeListener implementation.
-function DBListener()
-{
+function DBListener() {
 }
 
-DBListener.prototype =
-{
-  onHdrFlagsChanged:
-    function onHdrFlagsChanged(aHdrChanged, aOldFlags, aNewFlags, aInstigator)
-    {
-    },
+DBListener.prototype = {
+  onHdrFlagsChanged(aHdrChanged, aOldFlags, aNewFlags, aInstigator) {
+  },
 
-  onHdrDeleted:
-    function onHdrDeleted(aHdrChanged, aParentKey, Flags, aInstigator)
-    {
-    },
+  onHdrDeleted(aHdrChanged, aParentKey, Flags, aInstigator) {
+  },
 
-  onHdrAdded:
-    function onHdrAdded(aHdrChanged, aParentKey, aFlags, aInstigator)
-    {
-      gMsgHdr = aHdrChanged;
-    },
+  onHdrAdded(aHdrChanged, aParentKey, aFlags, aInstigator) {
+    gMsgHdr = aHdrChanged;
+  },
 
-  onParentChanged:
-    function onParentChanged(aKeyChanged, oldParent, newParent, aInstigator)
-    {
-    },
+  onParentChanged(aKeyChanged, oldParent, newParent, aInstigator) {
+  },
 
-  onAnnouncerGoingAway:
-    function onAnnouncerGoingAway(instigator)
-    {
-      if (gInboxListener)
-      {
-        try {
-          IMAPPump.inbox.msgDatabase.RemoveListener(gInboxListener);
-        }
-        catch (e) {dump(" listener not found\n");}
+  onAnnouncerGoingAway(instigator) {
+    if (gInboxListener) {
+      try {
+        POP3Pump.inbox.msgDatabase.RemoveListener(gInboxListener);
+      } catch (e) {
+        dump("listener not found\n");
       }
-    },
+    }
+  },
 
-  onReadChanged:
-    function onReadChanged(aInstigator)
-    {
-    },
+  onReadChanged(aInstigator) {
+  },
 
-  onJunkScoreChanged:
-    function onJunkScoreChanged(aInstigator)
-    {
-    },
+  onJunkScoreChanged(aInstigator) {
+  },
 
-  onHdrPropertyChanged:
-    function onHdrPropertyChanged(aHdrToChange, aPreChange, aStatus, aInstigator)
-    {
-    },
-  onEvent:
-    function onEvent(aDB, aEvent)
-    {
-    },
-
+  onHdrPropertyChanged(aHdrToChange, aPreChange, aStatus, aInstigator) {
+  },
+  onEvent(aDB, aEvent) {
+  },
 };
 
-
 // start the next test command
-function startCommand()
-{
-  if (gTest && gTest.test)
-  {
+function startCommand() {
+  if (gTest && gTest.test) {
     dump("doing test " + gTest.test.name + "\n");
     gTest.test();
   }
-  if (!gTests.length)       // Do we have more commands?
-  {
+  if (!gTests.length) { // Do we have more commands?
     // no, all done
     endTest();
     return;
   }
 
   gTest = gTests.shift();
-  switch (gTest.command)
-  {
+  switch (gTest.command) {
     case kTrain:
       // train message
       var proArray = [];
       proArray.push(gTest.traitId);
 
       MailServices.junk.setMsgTraitClassification(
-        getSpec(gTest.fileName), //in string aMsgURI
+        getSpec(gTest.fileName), // in string aMsgURI
         0,
         null,         // in nsIArray aOldTraits
         proArray.length,
@@ -240,14 +205,13 @@ function startCommand()
     case kClass:
       // classify message
       gPOP3Pump.files = [gTest.fileName];
-      gPOP3Pump.onDone = function(){do_timeout(100, startCommand);};
+      gPOP3Pump.onDone = function() { do_timeout(100, startCommand); };
       gPOP3Pump.run();
       break;
   }
 }
 
-function getSpec(aFileName)
-{
+function getSpec(aFileName) {
   var file = do_get_file(aFileName);
   var uri = Services.io.newFileURI(file).QueryInterface(Ci.nsIURL);
   uri = uri.mutate().setQuery("type=application/x-message-display").finalize();

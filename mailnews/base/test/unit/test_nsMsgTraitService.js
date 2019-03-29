@@ -15,10 +15,8 @@ var kJunkIndex = Ci.nsIJunkMailPlugin.JUNK_TRAIT;
 var proId = "TheProTrait";
 var proName = "ProName";
 var antiId = "TheAntiTrait";
-var antiName = "AntiName";
 
-function run_test()
-{
+function run_test() {
   // Check lastIndex prior to adding, 3 - 1000 are reserved for mailnews
   Assert.equal(ts.lastIndex, 1000);
 
@@ -99,24 +97,20 @@ function run_test()
   try {
     Services.prefs.getCharPref("mailnews.traits.id." + proIndex);
     Assert.ok(false);
-  }
-  catch (e) {}
+  } catch (e) {}
 
   try {
     Services.prefs.getCharPref("mailnews.traits.name." + proIndex);
     Assert.ok(false);
-  }
-  catch (e) {}
+  } catch (e) {}
 
   try {
     Services.prefs.getBoolPref("mailnews.traits.enabled." + proIndex);
     Assert.ok(false);
-  }
-  catch (e) {}
+  } catch (e) {}
 
   try {
     Services.prefs.getCharPref("mailnews.traits.antiId." + proIndex);
     Assert.ok(false);
-  }
-  catch(e) {}
+  } catch (e) {}
 }

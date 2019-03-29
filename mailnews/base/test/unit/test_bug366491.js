@@ -7,7 +7,7 @@
 // main setup
 
 // only needed during debug
-//do_import_script("mailnews/extensions/bayesian-spam-filter/test/resources/trainingfile.js");
+// do_import_script("mailnews/extensions/bayesian-spam-filter/test/resources/trainingfile.js");
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
@@ -24,40 +24,40 @@ var kGood = MailServices.junk.GOOD;
  * not indepedently verified.
  */
 
-var tests =
-[
-  {fileName: "ham2.eml",
-   junkPercent: 8},
-  {fileName: "spam2.eml",
-   junkPercent: 81},
+var tests = [
+  {
+    fileName: "ham2.eml",
+    junkPercent: 8,
+  }, {
+    fileName: "spam2.eml",
+    junkPercent: 81,
+  },
 ];
 
-var emails =
-[
-  {fileName: "ham1.eml",
-   classification: kGood},
-  {fileName: "spam1.eml",
-   classification: kJunk},
+var emails = [
+  {
+    fileName: "ham1.eml",
+    classification: kGood,
+  }, {
+    fileName: "spam1.eml",
+    classification: kJunk,
+  },
 ];
 
 // main test
-function run_test()
-{
+function run_test() {
   localAccountUtils.loadLocalMailAccount();
   do_test_pending();
   doTestingListener.onMessageClassified(null, null, null);
   return true;
-};
+}
 
 var haveClassification = false;
-var doTestingListener =
-{
-  onMessageClassified: function(aMsgURI, aClassification, aJunkPercent)
-  {
+var doTestingListener = {
+  onMessageClassified(aMsgURI, aClassification, aJunkPercent) {
     // Do we have more training emails? If so, train
     var email = emails.shift();
-    if (email)
-    {
+    if (email) {
       MailServices.junk.setMessageClassification(getSpec(email.fileName),
         kUnclassified, email.classification, null, doTestingListener);
       return;
@@ -67,31 +67,26 @@ var doTestingListener =
       return; // ignore end of batch
 
     // Have we completed a classification? If so, test
-    if (haveClassification)
-    {
+    if (haveClassification) {
       let test = tests.shift();
       Assert.equal(getSpec(test.fileName), aMsgURI);
       Assert.equal(test.junkPercent, aJunkPercent);
     }
 
     // Do we have more classifications to do? Then classify the first one.
-    if (tests.length)
-    {
+    if (tests.length) {
       haveClassification = true;
       MailServices.junk.classifyMessage(getSpec(tests[0].fileName),
         null, doTestingListener);
-      return;
-    }
-
-    else
+    } else {
       do_test_finished();
-  }
+    }
+  },
 };
 
 // helper functions
 
-function getSpec(aFileName)
-{
+function getSpec(aFileName) {
   var file = do_get_file("../../../extensions/bayesian-spam-filter/test/unit/resources/" + aFileName);
   var uri = Services.io.newFileURI(file).QueryInterface(Ci.nsIURL);
   uri = uri.mutate().setQuery("type=application/x-message-display").finalize();

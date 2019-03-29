@@ -6,7 +6,7 @@
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var gValidityManager = Cc['@mozilla.org/mail/search/validityManager;1']
+var gValidityManager = Cc["@mozilla.org/mail/search/validityManager;1"]
                            .getService(Ci.nsIMsgSearchValidityManager);
 
 var gStringBundle = Services.strings
@@ -14,8 +14,7 @@ var gStringBundle = Services.strings
 
 // The following table of valid table scopes matches the allowable table
 // scopes in nsMsgSearchValidityManager::GetTable
-var kValidScopes =
-[
+var kValidScopes = [
   Ci.nsMsgSearchScope.offlineMail,
   Ci.nsMsgSearchScope.offlineMailFilter,
   Ci.nsMsgSearchScope.onlineMail,
@@ -26,29 +25,23 @@ var kValidScopes =
   Ci.nsMsgSearchScope.LDAP,
   Ci.nsMsgSearchScope.LDAPAnd,
   Ci.nsMsgSearchScope.LocalAB,
-  Ci.nsMsgSearchScope.LocalABAnd
+  Ci.nsMsgSearchScope.LocalABAnd,
 ];
 
-function run_test()
-{
-  for (var index = 0; index < kValidScopes.length; ++index)
-  {
+function run_test() {
+  for (var index = 0; index < kValidScopes.length; ++index) {
     let scope = kValidScopes[index];
     let table = gValidityManager.getTable(scope);
     let attributes = table.getAvailableAttributes({});
     let attribute;
-    while ((attribute = attributes.pop()) && attribute)
-    {
+    while ((attribute = attributes.pop()) && attribute) {
       let property = gValidityManager.getAttributeProperty(attribute);
       let valid = false;
       let localizedString;
-      try
-      {
+      try {
         localizedString = gStringBundle.GetStringFromName(property);
         valid = true;
-      }
-      catch (e)
-      {
+      } catch (e) {
         dump("\n" + e);
       }
       valid = valid && localizedString && (localizedString.length > 0);

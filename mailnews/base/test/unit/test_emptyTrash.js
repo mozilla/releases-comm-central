@@ -21,59 +21,52 @@ var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var gMsgFile1;
 var gLocalTrashFolder;
 var gCurTestNum;
-var gMsgHdrs = new Array();
+var gMsgHdrs = [];
 var gRootFolder;
 
 var nsIMFNService = Ci.nsIMsgFolderNotificationService;
-var nsIMFListener = Ci.nsIMsgFolderListener;
 
 // nsIMsgCopyServiceListener implementation
-var copyListener =
-{
-  OnStartCopy: function() {},
-  OnProgress: function(aProgress, aProgressMax) {},
-  SetMessageKey: function(aKey)
-  {
+var copyListener = {
+  OnStartCopy() {},
+  OnProgress(aProgress, aProgressMax) {},
+  SetMessageKey(aKey) {
     let hdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
-    gMsgHdrs.push({hdr: hdr, ID: hdr.messageId});
+    gMsgHdrs.push({hdr, ID: hdr.messageId});
   },
-  SetMessageId: function(aMessageId) {},
-  OnStopCopy: function(aStatus)
-  {
+  SetMessageId(aMessageId) {},
+  OnStopCopy(aStatus) {
     // Check: message successfully copied.
     Assert.equal(aStatus, 0);
     // Ugly hack: make sure we don't get stuck in a JS->C++->JS->C++... call stack
     // This can happen with a bunch of synchronous functions grouped together, and
     // can even cause tests to fail because they're still waiting for the listener
     // to return
-    do_timeout(0, function(){doTest(++gCurTestNum);});
-  }
+    do_timeout(0, function() { doTest(++gCurTestNum); });
+  },
 };
 
-var urlListener =
-{
-  OnStartRunningUrl: function (aUrl) {
+var urlListener = {
+  OnStartRunningUrl(aUrl) {
   },
-  OnStopRunningUrl: function (aUrl, aExitCode) {
+  OnStopRunningUrl(aUrl, aExitCode) {
     // Check: message successfully copied.
     Assert.equal(aExitCode, 0);
     // Ugly hack: make sure we don't get stuck in a JS->C++->JS->C++... call stack
     // This can happen with a bunch of synchronous functions grouped together, and
     // can even cause tests to fail because they're still waiting for the listener
     // to return
-    do_timeout(0, function(){doTest(++gCurTestNum);});
-  }
+    do_timeout(0, function() { doTest(++gCurTestNum); });
+  },
 };
 
-function copyFileMessage(file, destFolder, isDraftOrTemplate)
-{
+function copyFileMessage(file, destFolder, isDraftOrTemplate) {
   MailServices.copy.CopyFileMessage(file, destFolder, null, isDraftOrTemplate, 0, "", copyListener, null);
 }
 
-function deleteMessages(srcFolder, items)
-{
+function deleteMessages(srcFolder, items) {
   var array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  items.forEach(function (item) {
+  items.forEach(function(item) {
     array.appendElement(item);
   });
 
@@ -85,8 +78,7 @@ function deleteMessages(srcFolder, items)
  */
 
 // Beware before commenting out a test -- later tests might just depend on earlier ones
-var gTestArray =
-[
+var gTestArray = [
   // Copying message from file
   function testCopyFileMessage1() {
     copyFileMessage(gMsgFile1, localAccountUtils.inboxFolder, false);
@@ -101,13 +93,12 @@ var gTestArray =
     // Now delete the message
     deleteMessages(localAccountUtils.inboxFolder, [gMsgHdrs[0].hdr], false, false);
   },
-  function emptyTrash()
-  {
+  function emptyTrash() {
     gRootFolder = localAccountUtils.incomingServer.rootMsgFolder;
     gLocalTrashFolder = gRootFolder.getChildNamed("Trash");
     // hold onto a db to make sure that empty trash deals with the case
     // of someone holding onto the db, but the trash folder has a null db.
-    let gLocalTrashDB = gLocalTrashFolder.msgDatabase;
+    let gLocalTrashDB = gLocalTrashFolder.msgDatabase; // eslint-disable-line no-unused-vars
     gLocalTrashFolder.msgDatabase = null;
     // this is synchronous
     gLocalTrashFolder.emptyTrash(null, null);
@@ -118,21 +109,18 @@ var gTestArray =
     let enumerator = gLocalTrashFolder.msgDatabase.EnumerateMessages();
     Assert.equal(false, enumerator.hasMoreElements());
     urlListener.OnStopRunningUrl(null, 0);
-  }
+  },
 ];
 
 // Our listener, which captures events.
 function gMFListener() {}
-gMFListener.prototype =
-{
-  folderDeleted: function (aFolder)
-  {
+gMFListener.prototype = {
+  folderDeleted(aFolder) {
     aFolder.msgDatabase = null;
   },
 };
 
-function run_test()
-{
+function run_test() {
   localAccountUtils.loadLocalMailAccount();
   // Load up a message so that we can copy it in later.
   gMsgFile1 = do_get_file("../../../data/bugmail10");
@@ -148,25 +136,22 @@ function run_test()
   doTest(1);
 }
 
-function doTest(test)
-{
-  if (test <= gTestArray.length)
-  {
+function doTest(test) {
+  if (test <= gTestArray.length) {
     gCurTestNum = test;
 
-    var testFn = gTestArray[test-1];
+    var testFn = gTestArray[test - 1];
     // Set a limit of three seconds; if the notifications haven't arrived by then there's a problem.
-    do_timeout(10000, function(){
-        if (gCurTestNum == test)
-          do_throw("Notifications not received in 10000 ms for operation " + testFn.name);
-        }
-      );
+    do_timeout(10000, function() {
+      if (gCurTestNum == test)
+        do_throw("Notifications not received in 10000 ms for operation " + testFn.name);
+    });
     try {
-    testFn();
-    } catch(ex) {dump(ex);}
-  }
-  else
-  {
+      testFn();
+    } catch (ex) {
+      dump(ex);
+    }
+  } else {
     gMsgHdrs = null;
     do_test_finished(); // for the one in run_test()
   }

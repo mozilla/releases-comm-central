@@ -14,16 +14,19 @@
  * Does not currently test: quoted-printable, stripping quotes, UTF-8, small values of
  * bytesToRead.
  */
-var kDataRoot = "../../../data/"
+var kDataRoot = "../../../data/";
 
-function create(fileName, bytes, compressQuotes, stripHTML, outContentType)
-{
-  return {name: fileName, bytesToRead: bytes, compressQuotes: compressQuotes, stripHTML: stripHTML,
-          contentType: outContentType};
+function create(fileName, bytes, compressQuotes, stripHTML, outContentType) {
+  return {
+    name: fileName,
+    bytesToRead: bytes,
+    compressQuotes,
+    stripHTML,
+    contentType: outContentType,
+  };
 }
 
-var gTestFiles =
-[
+var gTestFiles = [
   create("basic1", 1024, false, false, "text/plain"), // Simple plain text
   create("basic1", 1024, false, true, "text/plain"), // should be same as above
   create("basic2", 1024, false, false, "text/html"), // Simple HTML
@@ -49,16 +52,14 @@ var gTestFiles =
   create("multipart-complex1", 1024, false, true, "text/html"), // Things get more complex here
   create("multipart-complex2", 1024, false, false, "text/plain"),
   create("multipart-complex2", 1024, false, true, "text/plain"),
-]
+];
 
-function run_test()
-{
+function run_test() {
   localAccountUtils.loadLocalMailAccount();
   var folder = localAccountUtils.incomingServer.rootMsgFolder;
 
-  gTestFiles.forEach(function (test)
-  {
-    dump("Testing "+test.name+"\n");
+  gTestFiles.forEach(function(test) {
+    dump("Testing " + test.name + "\n");
     var inFile = do_get_file(kDataRoot + test.name);
     var inStream = Cc["@mozilla.org/network/file-input-stream;1"]
                      .createInstance(Ci.nsIFileInputStream);

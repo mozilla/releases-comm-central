@@ -70,11 +70,11 @@ var countInboxesPref = "mail.notification.count.inbox_only";
 add_test(function testNotifyInbox() {
   let notified = false;
   let mockListener = {
-    onCountChanged: function TNU_onCountChanged(count) {notified = true;}
+    onCountChanged: function TNU_onCountChanged(count) { notified = true; },
   };
   let folder = {
     URI: "Test Inbox",
-    flags: Ci.nsMsgFolderFlags.Mail | Ci.nsMsgFolderFlags.Inbox
+    flags: Ci.nsMsgFolderFlags.Mail | Ci.nsMsgFolderFlags.Inbox,
   };
 
   let notif = MailServices.newMailNotification.wrappedJSObject;
@@ -86,7 +86,7 @@ add_test(function testNotifyInbox() {
   // Special folders should never count
   let special = {
     URI: "Test Special",
-    flags: Ci.nsMsgFolderFlags.Mail | Ci.nsMsgFolderFlags.Junk
+    flags: Ci.nsMsgFolderFlags.Mail | Ci.nsMsgFolderFlags.Junk,
   };
   notified = false;
   notif.OnItemIntPropertyChanged(special, "TotalUnreadMessages", 0, 2);
@@ -95,7 +95,7 @@ add_test(function testNotifyInbox() {
   // by default, non-inbox should not count
   let nonInbox = {
     URI: "Test Non-Inbox",
-    flags: Ci.nsMsgFolderFlags.Mail
+    flags: Ci.nsMsgFolderFlags.Mail,
   };
   notified = false;
   notif.OnItemIntPropertyChanged(nonInbox, "TotalUnreadMessages", 0, 2);
@@ -109,7 +109,3 @@ add_test(function testNotifyInbox() {
 
   run_next_test();
 });
-
-function run_test() {
-  run_next_test();
-}

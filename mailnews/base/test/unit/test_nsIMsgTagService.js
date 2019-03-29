@@ -12,8 +12,7 @@
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-function run_test()
-{
+function run_test() {
   // These are both tags and keys. Note keys are forced to be lower case
   const tag1 = "istag";
   const tag2 = "notistag";
@@ -58,8 +57,7 @@ function run_test()
   Assert.ok(!MailServices.tags.isValidKey(tag3));
   Assert.ok(MailServices.tags.isValidKey(tag4));
 
-  for (i = 0; i < 100; i++)
-  {
+  for (i = 0; i < 100; i++) {
     Assert.ok(MailServices.tags.isValidKey(i));
     // make sure it knows the difference betweens tags and keys
     Assert.ok(!MailServices.tags.isValidKey("lotsatags" + i));

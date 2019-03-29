@@ -35,7 +35,7 @@ var gLocalFolder2;
 
 var gCurTestNum;
 
-var gMsgHdrs = new Array();
+var gMsgHdrs = [];
 
 var PERSISTED_COLUMN_PROPERTY_NAME = "columnStates";
 var columnJSON = '{"threadCol":{"visible":true,"ordinal":"1"},"flaggedCol":{"visible":true,"ordinal":"4"},"attachmentCol":{"visible":true,"ordinal":"5"},"subjectCol":{"visible":true,"ordinal":"7"},"unreadButtonColHeader":{"visible":true,"ordinal":"9"},"senderCol":{"visible":true,"ordinal":"11"},"recipientCol":{"visible":false,"ordinal":"13"},"junkStatusCol":{"visible":true,"ordinal":"15"},"receivedCol":{"visible":true,"ordinal":"17"},"dateCol":{"visible":true,"ordinal":"19"},"statusCol":{"visible":false,"ordinal":"21"},"sizeCol":{"visible":true,"ordinal":"23"},"tagsCol":{"visible":false,"ordinal":"25"},"accountCol":{"visible":false,"ordinal":"27"},"priorityCol":{"visible":false,"ordinal":"29"},"unreadCol":{"visible":false,"ordinal":"31"},"totalCol":{"visible":false,"ordinal":"33"},"locationCol":{"visible":false,"ordinal":"35"},"idCol":{"visible":false,"ordinal":"37"}}';
@@ -43,71 +43,64 @@ var columnJSON = '{"threadCol":{"visible":true,"ordinal":"1"},"flaggedCol":{"vis
 function setColumnStates(folder) {
   let msgDatabase = folder.msgDatabase;
   let dbFolderInfo = msgDatabase.dBFolderInfo;
-  dbFolderInfo.setCharProperty(this.PERSISTED_COLUMN_PROPERTY_NAME, columnJSON);
+  dbFolderInfo.setCharProperty(PERSISTED_COLUMN_PROPERTY_NAME, columnJSON);
   msgDatabase.Commit(Ci.nsMsgDBCommitType.kLargeCommit);
 }
 
 function checkPersistentState(folder) {
   let msgDatabase = folder.msgDatabase;
   let dbFolderInfo = msgDatabase.dBFolderInfo;
-  let state = dbFolderInfo.getCharProperty(this.PERSISTED_COLUMN_PROPERTY_NAME);
+  let state = dbFolderInfo.getCharProperty(PERSISTED_COLUMN_PROPERTY_NAME);
   Assert.equal(state, columnJSON);
-  do_timeout(0, function(){doTest(++gCurTestNum);});
+  do_timeout(0, function() { doTest(++gCurTestNum); });
 }
 
 
 // nsIMsgCopyServiceListener implementation
-var copyListener =
-{
-  OnStartCopy: function() {},
-  OnProgress: function(aProgress, aProgressMax) {},
-  SetMessageKey: function(aKey)
-  {
+var copyListener = {
+  OnStartCopy() {},
+  OnProgress(aProgress, aProgressMax) {},
+  SetMessageKey(aKey) {
     try {
       let hdr = gLocalFolder2.GetMessageHeader(aKey);
-      gMsgHdrs.push({hdr: hdr, ID: hdr.messageId});
-    }
-    catch(e) {
+      gMsgHdrs.push({hdr, ID: hdr.messageId});
+    } catch (e) {
       dump("SetMessageKey failed: " + e + "\n");
     }
   },
-  SetMessageId: function(aMessageId) {},
-  OnStopCopy: function(aStatus)
-  {
+  SetMessageId(aMessageId) {},
+  OnStopCopy(aStatus) {
     // Check: message successfully copied.
     Assert.equal(aStatus, 0);
     // Ugly hack: make sure we don't get stuck in a JS->C++->JS->C++... call stack
     // This can happen with a bunch of synchronous functions grouped together, and
     // can even cause tests to fail because they're still waiting for the listener
     // to return
-    do_timeout(0, function(){doTest(++gCurTestNum);});
-  }
+    do_timeout(0, function() { doTest(++gCurTestNum); });
+  },
 };
 
-var urlListener =
-{
-  OnStartRunningUrl: function (aUrl) {
+var urlListener = {
+  OnStartRunningUrl(aUrl) {
   },
-  OnStopRunningUrl: function (aUrl, aExitCode) {
+  OnStopRunningUrl(aUrl, aExitCode) {
     // Check: message successfully copied.
     Assert.equal(aExitCode, 0);
     // Ugly hack: make sure we don't get stuck in a JS->C++->JS->C++... call stack
     // This can happen with a bunch of synchronous functions grouped together, and
     // can even cause tests to fail because they're still waiting for the listener
     // to return
-    do_timeout(0, function(){doTest(++gCurTestNum);});
-  }
+    do_timeout(0, function() { doTest(++gCurTestNum); });
+  },
 };
 
-function copyFileMessage(file, destFolder, isDraftOrTemplate)
-{
+function copyFileMessage(file, destFolder, isDraftOrTemplate) {
   MailServices.copy.CopyFileMessage(file, destFolder, null, isDraftOrTemplate, 0, "", copyListener, null);
 }
 
-function deleteMessages(srcFolder, items)
-{
+function deleteMessages(srcFolder, items) {
   var array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  items.forEach(function (item) {
+  items.forEach(function(item) {
     array.appendElement(item);
   });
 
@@ -119,8 +112,7 @@ function deleteMessages(srcFolder, items)
  */
 
 // Beware before commenting out a test -- later tests might just depend on earlier ones
-var gTestArray =
-[
+var gTestArray = [
   // Copying messages from files
   function testCopyFileMessage1() { copyFileMessage(gMsgFile1, gLocalFolder2, false); },
   function testCopyFileMessage2() { copyFileMessage(gMsgFile2, gLocalFolder2, false); },
@@ -130,22 +122,18 @@ var gTestArray =
   function testDeleteMessages1() { // delete to trash
     deleteMessages(gLocalFolder2, [gMsgHdrs[0].hdr], false, false);
   },
-  function checkBeforeCompact()
-  {
+  function checkBeforeCompact() {
     checkPersistentState(gLocalFolder2);
   },
-  function compactFolder()
-  {
+  function compactFolder() {
     gLocalFolder2.compact(urlListener, null);
   },
-  function checkAfterCompact()
-  {
+  function checkAfterCompact() {
     checkPersistentState(gLocalFolder2);
   },
 ];
 
-function run_test()
-{
+function run_test() {
   localAccountUtils.loadLocalMailAccount();
   // Load up some messages so that we can copy them in later.
   gMsgFile1 = do_get_file("../../../data/bugmail10");
@@ -154,7 +142,6 @@ function run_test()
 
   // Create another folder to move and copy messages around, and force initialization.
   gLocalFolder2 = localAccountUtils.rootFolder.createLocalSubfolder("folder2");
-  let folderName = gLocalFolder2.prettyName;
   setColumnStates(gLocalFolder2);
 
   // "Master" do_test_pending(), paired with a do_test_finished() at the end of all the operations.
@@ -165,12 +152,10 @@ function run_test()
   doTest(1);
 }
 
-function doTest(test)
-{
-  if (test <= gTestArray.length)
-  {
+function doTest(test) {
+  if (test <= gTestArray.length) {
     gCurTestNum = test;
-    var testFn = gTestArray[test-1];
+    var testFn = gTestArray[test - 1];
     // Set a limit of 10 seconds; if the notifications haven't arrived by
     // then, there's a problem.
     do_timeout(10000, function() {
@@ -178,11 +163,11 @@ function doTest(test)
         do_throw("Notifications not received in 10000 ms for operation " + testFn.name);
     });
     try {
-    testFn();
-    } catch(ex) {dump(ex);}
-  }
-  else
-  {
+      testFn();
+    } catch (ex) {
+      dump(ex);
+    }
+  } else {
     do_test_finished(); // for the one in run_test()
   }
 }

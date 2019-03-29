@@ -3,11 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const {JSTreeSelection} = ChromeUtils.import("resource:///modules/jsTreeSelection.js");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var fakeView = {
   rowCount: 101,
-  selectionChanged: function() {
+  selectionChanged() {
   },
   QueryInterface: ChromeUtils.generateQI(
     [Ci.nsITreeView]),
@@ -19,7 +18,7 @@ sel.view = fakeView;
 function bad_ranges(aMsg, aExpected) {
   let s = "\x1b[1;31m!!! BAD RANGES: " + aMsg + "\n";
   s += "Selection ranges: " + sel._ranges.length + ":";
-  for (let [low,high] of sel._ranges) {
+  for (let [low, high] of sel._ranges) {
     s += " " + low + "-" + high;
   }
 
@@ -40,7 +39,7 @@ function assert_selection_ranges(...aArgs) {
 
   let i = 0;
   let ourCount = 0;
-  for (let [slow,shigh] of sel._ranges) {
+  for (let [slow, shigh] of sel._ranges) {
     let [dlow, dhigh] = aArgs[i++];
     if (dlow != slow || dhigh != shigh)
       bad_ranges("Range mis-match on index " + i, aArgs);
@@ -85,14 +84,14 @@ function run_test() {
   asel(1);
   ansel(0);
   ansel(2);
-  asr([1,1]);
+  asr([1, 1]);
   aci(1);
 
   sel.select(2);
   asel(2);
   ansel(1);
   ansel(3);
-  asr([2,2]);
+  asr([2, 2]);
   aci(2);
 
   // -- clearSelection

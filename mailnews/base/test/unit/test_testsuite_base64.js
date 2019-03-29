@@ -7,8 +7,7 @@
  * (i.e. "binary" = plain, and "ascii" = encoded)
  */
 
-function run_test()
-{
+function run_test() {
   var plain = "testtesttest";
   var encoded = "dGVzdHRlc3R0ZXN0";
 
@@ -20,4 +19,4 @@ function run_test()
   Assert.equal(atob(btoa(plain)), plain);
   Assert.equal(btoa(atob(encoded)), encoded);
   return true;
-};
+}
