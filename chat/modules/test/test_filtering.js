@@ -108,7 +108,7 @@ function test_strictMode() {
   Services.prefs.setIntPref(kModePref, kStrictMode);
   test_allModes();
 
-  // check that basic formatting is stipped in strict mode.
+  // check that basic formatting is stripped in strict mode.
   for (let tag of ["div", "em", "strong", "b", "i", "u", "span", "code",
                    "ul", "li", "ol", "cite", "blockquote"])
     Assert.equal("foo", cleanupImMarkup("<" + tag + ">foo</" + tag + ">"));

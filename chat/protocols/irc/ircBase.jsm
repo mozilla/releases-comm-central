@@ -884,7 +884,7 @@ var ircBase = {
                           _("message.summoned", aMessage.params[0]));
     },
     "346": function(aMessage) { // RPL_INVITELIST
-      // <chanel> <invitemask>
+      // <channel> <invitemask>
       // TODO what do we do?
       return false;
     },

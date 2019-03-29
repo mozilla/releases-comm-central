@@ -28,7 +28,7 @@ var gFilePickerDirectory;
 
 /************* Message dialogs ***************/
 
-// Optional: Caller may supply text to substitue for "Ok" and/or "Cancel"
+// Optional: Caller may supply text to substitute for "Ok" and/or "Cancel"
 function ConfirmWithTitle(title, message, okButtonText, cancelButtonText)
 {
   let okFlag = okButtonText ? Services.prompt.BUTTON_TITLE_IS_STRING : Services.prompt.BUTTON_TITLE_OK;

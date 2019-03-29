@@ -692,7 +692,7 @@ var XMPPConversationPrototype = {
     }
   },
 
-  // Holds the resource of user that you are currenty talking to, but if the
+  // Holds the resource of user that you are currently talking to, but if the
   // user is a participant of a MUC we are in, holds the nick of user you are
   // talking to.
   _targetResource: "",
