@@ -1411,12 +1411,10 @@
         // Digits         HR           sep          MIN         sep          SEC         sep
         //   Index:       2            3            4           5            6           7
         let digitsExpr = "(\\d?\\d)\\s?(\\D)?\\s?(?:(\\d\\d)\\s?(\\D)?\\s?(?:(\\d\\d)\\s?(\\D)?\\s?)?)?";
-        // any letters or '.': non-digit alphanumeric, period (a.m.), or space (P M)
-        let anyAmPmExpr = "(?:[^\\d\\W]|[. ])+";
         // digitsExpr has 6 captures, so index of first ampmExpr is 1, of last is 8.
-        let probeTimeRegExp =
-            new RegExp("^(" + anyAmPmExpr + ")?\\s?" + digitsExpr + "(" + anyAmPmExpr + ")?\\s*$");
-        const PRE_INDEX = 1, HR_INDEX = 2, MIN_INDEX = 4, SEC_INDEX = 6, POST_INDEX = 8; // eslint-disable-line no-unused-vars
+        let probeTimeRegExp = new RegExp("^\\s*(\\D*)\\s?" + digitsExpr + "\\s?(\\D*)\\s*$");
+        // eslint-disable-next-line no-unused-vars
+        const PRE_INDEX = 1, HR_INDEX = 2, MIN_INDEX = 4, SEC_INDEX = 6, POST_INDEX = 8;
         let amProbeTime = new Date(2000, 0, 1, 6, 12, 34);
         let pmProbeTime = new Date(2000, 0, 1, 18, 12, 34);
         let formatter = new Services.intl.DateTimeFormat(undefined, { timeStyle: "short" });
