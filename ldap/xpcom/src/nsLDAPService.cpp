@@ -947,7 +947,7 @@ nsLDAPService::CountTokens(const char *aIter,
 
             // if we've hit the end of this token and the end of this
             // iterator simultaneous, be sure to bump the count, since we're
-            // never gonna hit the IsAsciiSpace where it's normally done.
+            // never going to hit the IsAsciiSpace where it's normally done.
             //
             if (aIter == aIterEnd) {
                 ++count;

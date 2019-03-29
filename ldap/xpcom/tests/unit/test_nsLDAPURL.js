@@ -215,7 +215,7 @@ function run_test() {
 
   Assert.equal(url.attributes.length, 0);
 
-  // Nothing should happend if the attribute doesn't exist
+  // Nothing should happen if the attribute doesn't exist
   url.removeAttribute("abc");
 
   Assert.equal(url.attributes.length, 0);

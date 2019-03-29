@@ -61,7 +61,7 @@ interface nsILDAPConnection : nsISupports
     const unsigned long VERSION3 = 3;
 
     /**
-     * Get information about the last error that occured on this connection.
+     * Get information about the last error that occurred on this connection.
      *
      * @param matched   if the server is returning LDAP_NO_SUCH_OBJECT,
      *                  LDAP_ALIAS_PROBLEM, LDAP_INVALID_DN_SYNTAX,

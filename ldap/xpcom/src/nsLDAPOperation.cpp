@@ -257,7 +257,7 @@ NS_IMETHODIMP
 nsLDAPOperation::SimpleBind(const nsACString& passwd)
 {
     RefPtr<nsLDAPConnection> connection = mConnection;
-    // There is a possibilty that mConnection can be cleared by another
+    // There is a possibility that mConnection can be cleared by another
     // thread. Grabbing a local reference to mConnection may avoid this.
     // See https://bugzilla.mozilla.org/show_bug.cgi?id=557928#c1
     nsresult rv;

@@ -35,7 +35,7 @@
  * 
  * ***** END LICENSE BLOCK ***** */
 
-/* bprint.c - a printing utility for debuging output */
+/* bprint.c - a printing utility for debugging output */
 #include <string.h>
 #include "lber-int.h"
 

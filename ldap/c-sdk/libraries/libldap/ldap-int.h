@@ -550,7 +550,7 @@ struct ldap {
 #define LDAP_GET_LDERRNO( ld, m, s ) ldap_get_lderrno( ld, m, s )
 
 /*
- * your standard "mimimum of two values" macro
+ * your standard "minimum of two values" macro
  */
 #define NSLDAPI_MIN(a, b) (((a) < (b)) ? (a) : (b))
 

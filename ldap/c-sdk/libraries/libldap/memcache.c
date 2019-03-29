@@ -105,7 +105,7 @@
 	    ((c)->ldmemc_lock_fns).ltf_mutex_free( (c)->ldmemc_lock ); \
 	}
 
-/* Macros used for triming unnecessary spaces in a basedn */
+/* Macros used for trimming unnecessary spaces in a basedn */
 #define NSLDAPI_IS_SPACE( c ) \
 	(((c) == ' ') || ((c) == '\t') || ((c) == '\n'))
 
@@ -830,7 +830,7 @@ ldap_memcache_abandon(LDAP *ld, int msgid)
    spaces will be treated as equal.  Extraneous spaces are those that
    precedes the basedn and those that follow a comma. */
 /*
- * XXXmcs: this is a bit too agressive... we need to deal with the fact that
+ * XXXmcs: this is a bit too aggressive... we need to deal with the fact that
  * commas and spaces may be quoted, in which case it is wrong to remove them.
  */
 static void

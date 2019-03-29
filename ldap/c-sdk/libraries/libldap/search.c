@@ -262,7 +262,7 @@ nsldapi_timeval2ldaplimit( struct timeval *timeoutp, int defaultvalue )
 	} else {
 		/*
 		 * both tv_sec and tv_usec are less than one (zero?) so
-		 * to maintain compatiblity with our "zero means no limit"
+		 * to maintain compatibility with our "zero means no limit"
 		 * convention we pass no limit to the server.
 		 */
 		timelimit = 0;	/* no limit */
@@ -845,7 +845,7 @@ unescape_filterval( char *val )
 
 /*
  * convert character 'c' that represents a hexadecimal digit to an integer.
- * if 'c' is not a hexidecimal digit [0-9A-Fa-f], -1 is returned.
+ * if 'c' is not a hexadecimal digit [0-9A-Fa-f], -1 is returned.
  * otherwise the converted value is returned.
  */
 static int

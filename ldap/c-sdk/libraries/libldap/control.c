@@ -237,7 +237,7 @@ nsldapi_get_controls( BerElement *ber, LDAPControl ***controlsp )
 			}
 			newctrl->ldctl_iscritical = (char)aint;	/* XXX lossy cast */
 		} else {
-			/* absent is synonomous with FALSE */
+			/* absent is synonymous with FALSE */
 			newctrl->ldctl_iscritical = 0;
 		}
 

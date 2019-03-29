@@ -49,7 +49,7 @@
                    just "dn:" means get anonymous user's rights.
                    
    attrlist        additional attributes for which rights info is 
-                   requrested. NULL means "just the ones returned 
+                   requested. NULL means "just the ones returned 
                    with the search operation".
 
    ctl_iscritical  Indicates whether the control is critical of not. If

@@ -278,7 +278,7 @@ typedef struct ldap_apifeature_info {
 #define LDAP_CONTROL_REFERRALS "1.2.840.113556.1.4.616"
 
 /*
- * Initializing an ldap sesssion, set session handle options, and
+ * Initializing an ldap session, set session handle options, and
  * closing an ldap session functions
  *
  * NOTE: If you want to use IPv6, you must use prldap creating a LDAP handle

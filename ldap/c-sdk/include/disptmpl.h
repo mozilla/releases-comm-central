@@ -132,7 +132,7 @@ extern "C" {
  */
 /*
  * use calculated label width (based on length of longest label in
- * template) instead of contant width
+ * template) instead of constant width
  */
 #define LDAP_DISP_OPT_AUTOLABELWIDTH 0x00000001L
 #define LDAP_DISP_OPT_HTMLBODYONLY   0x00000002L

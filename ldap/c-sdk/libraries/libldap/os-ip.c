@@ -1221,7 +1221,7 @@ static int
 nsldapi_tv2ms( struct timeval *tv )
 {
 	if ( tv == NULL ) {
-		return( -1 );	/* infinite timout for poll() */
+		return( -1 );	/* infinite timeout for poll() */
 	}
 
 	return( tv->tv_sec * 1000 + tv->tv_usec / 1000 );

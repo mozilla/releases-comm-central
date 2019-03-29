@@ -46,7 +46,7 @@ extern "C" {
 
 /*
  * these three defines resolve the SSL strength
- * setting auth weak, diables all cert checking
+ * setting auth weak, disables all cert checking
  * the CNCHECK tests for the man in the middle hack
  */
 #define LDAPSSL_AUTH_WEAK       0
@@ -91,7 +91,7 @@ int LDAP_CALL ldapssl_install_routines( LDAP *ld );
  * The next one supports server authentication using clientauth_init()
  * and allows the caller to specify the ssl strength to use in order to
  * verify the servers's certificate.
- * The next one supports ldapssl_clientauth_init() intializes security
+ * The next one supports ldapssl_clientauth_init() initializes security
  * for SSL for client authentication.  The third function initializes
  * security for doing SSL with client authentication, and PKCS, that is,
  * the third function initializes the security module database (secmod.db).
@@ -100,7 +100,7 @@ int LDAP_CALL ldapssl_install_routines( LDAP *ld );
  *     to the directory name, if so cert7.db will be postfixed to the string.
  * void *certdbhandle - Normally this is NULL.  This memory will need
  *     to be freed.
- * int needkeydb - boolean.  Must be !=0 if client Authentification
+ * int needkeydb - boolean.  Must be !=0 if client Authentication
  *     is required
  * char *keydbpath - path to the key database.  This can be a shortcut
  *     to the directory name, if so key3.db will be postfixed to the string.

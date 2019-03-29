@@ -112,7 +112,7 @@
  *                      If the first character in the set is "^",
  *                      it matches a character NOT in the set, i.e. 
  *			complements the set. A shorthand S-E is 
- *			used to specify a set of characters S upto 
+ *			used to specify a set of characters S up to 
  *			E, inclusive. The special characters "]" and 
  *			"-" have no special meaning if they appear 
  *			as the first chars in the set.
@@ -541,7 +541,7 @@ re_exec( const char *lp )
 		c = *(ap+1);
 		while (*lp && *(REGEXCHAR*)lp != c)
 			lp++;
-		if (!*lp)		/* if EOS, fail, else fall thru. */
+		if (!*lp)		/* if EOS, fail, else fall through. */
 			return 0;
 	default:			/* regular matching all the way. */
 		do {
@@ -571,7 +571,7 @@ re_exec( const char *lp )
  *
  *	special case optimizations: (nfa[n], nfa[n+1])
  *		CLO ANY
- *			We KNOW .* will match everything upto the
+ *			We KNOW .* will match everything up to the
  *			end of line. Thus, directly go to the end of
  *			line, without recursive pmatch calls. As in
  *			the other closure cases, the remaining pattern

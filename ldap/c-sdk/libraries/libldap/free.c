@@ -132,7 +132,7 @@ ldap_mods_free( LDAPMod **mods, int freemods )
 
 /*
  * ldap_memfree() is needed to ensure that memory allocated by the C runtime
- * assocated with libldap is freed by the same runtime code.
+ * associated with libldap is freed by the same runtime code.
  */
 void
 LDAP_CALL

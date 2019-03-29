@@ -364,7 +364,7 @@ NS_IMETHODIMP nsLDAPSyncQuery::GetQueryResults(nsILDAPURL *aServerURL,
     // We want this LDAP query to be synchronous while the XPCOM LDAP is
     // async in nature. So this eventQueue handling will wait for the
     // LDAP operation to be finished.
-    // mFinished controls the state of the LDAP opertion.
+    // mFinished controls the state of the LDAP operation.
     // It will be released in any case (success/failure)
 
 

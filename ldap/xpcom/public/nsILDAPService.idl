@@ -49,7 +49,7 @@ interface nsILDAPService : nsISupports {
      *
      * @exception NS_ERROR_FAILURE          either the server doesn't
      *                                      exist, or there are still
-     *                                      leases oustanding
+     *                                      leases outstanding
      */
     void deleteServer(in wstring aKey);
 

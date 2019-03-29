@@ -1158,7 +1158,7 @@ ber_sockbuf_set_option( Sockbuf *sb, int option, void *value )
 			sb->sb_ext_io_fns = *extiofns;
 		} else if ( extiofns->lbextiofn_size
 			    == LBER_X_EXTIO_FNS_SIZE_REV0 ) {
-			/* backwards compatiblity for older struct */
+			/* backwards compatibility for older struct */
 			sb->sb_ext_io_fns.lbextiofn_size =
 				LBER_X_EXTIO_FNS_SIZE;
 			sb->sb_ext_io_fns.lbextiofn_read =
@@ -1232,7 +1232,7 @@ ber_sockbuf_get_option( Sockbuf *sb, int option, void *value )
 			*extiofns = sb->sb_ext_io_fns;
 		} else if ( extiofns->lbextiofn_size
 			    == LBER_X_EXTIO_FNS_SIZE_REV0 ) {
-			/* backwards compatiblity for older struct */
+			/* backwards compatibility for older struct */
 			extiofns->lbextiofn_read = sb->sb_ext_io_fns.lbextiofn_read;
 			extiofns->lbextiofn_write = sb->sb_ext_io_fns.lbextiofn_write;
 			extiofns->lbextiofn_socket_arg = sb->sb_ext_io_fns.lbextiofn_socket_arg;
@@ -1391,7 +1391,7 @@ ber_get_next_buffer( void *buffer, size_t buffer_size, ber_len_t *len,
  *
  * For backward compatibility errno is also set on these error conditions:
  *
- * EINVAL   - LBER_SOCKBUF_OPT_VALID_TAG option set but tag doesnt match.
+ * EINVAL   - LBER_SOCKBUF_OPT_VALID_TAG option set but tag doesn't match.
  * EMSGSIZE - an overflow condition as described above for LBER_OVERFLOW.
  */
 ber_uint_t
@@ -1740,7 +1740,7 @@ nslberi_extwrite_compat( int s, const void *buf, int len,
 
 
 /*
- * Install I/O compatiblity functions.  This can't fail.
+ * Install I/O compatibility functions.  This can't fail.
  */
 static void
 nslberi_install_compat_io_fns( Sockbuf *sb )

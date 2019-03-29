@@ -325,7 +325,7 @@ nsldapi_sasl_write( int s, const void *buf, int  len,
  * sure this really is the Sockbuf we want to use.  So we have to restore the
  * lpoll_socketarg with the original one.
  * Why have origarg and staticorigarg?
- * To avoid malloc.  The sizeof staticorigarg should be large enough to accomodate almost
+ * To avoid malloc.  The sizeof staticorigarg should be large enough to accommodate almost
  * all clients without incurring too much additional overhead.  However, if we need more
  * room, origarg will grow to nfds.  If this proves to be inadequate, the size of the
  * staticorigarg is a good candidate for a #define set by configure.

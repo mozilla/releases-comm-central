@@ -76,7 +76,7 @@ nsLDAPControl::ToLDAPControl(LDAPControl **control)
     return NS_ERROR_OUT_OF_MEMORY;
   }
 
-  // need to ensure that this string is also alloced by PR_Alloc
+  // need to ensure that this string is also allocated by PR_Alloc
   ctl->ldctl_oid = PL_strdup(mOid.get());
   if (!ctl->ldctl_oid) {
     PR_Free(ctl);

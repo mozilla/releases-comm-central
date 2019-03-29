@@ -326,7 +326,7 @@ int PASCAL FAR WSAStartup(WORD wVersionRequested, LPWSADATA lpWSAData)	{
 		lpWSAData->wVersion = wVersionRequested;
 		lpWSAData->wHighVersion = wVersionRequested;
 
-		//	Fill in a discription.
+		//	Fill in a description.
                 strcpy(lpWSAData->szDescription, "Mozock DLL internal implementation.");
                 strcpy(lpWSAData->szSystemStatus, "Winsock running, allowing no network access.");
 
@@ -356,7 +356,7 @@ int PASCAL FAR WSACleanup(void) {
 		iRetval = 0;
 	}
 
-	//	Wether or not it succeeded, we free off the library here.
+	//	Whether or not it succeeded, we free off the library here.
 	//	Clear out our proc table too.
 	memset(spArray, 0, sizeof(spArray));
 	if(hWinsock != NULL)	{

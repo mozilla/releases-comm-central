@@ -54,7 +54,7 @@
  *
  *  e.g.,  ldap://ldap.itd.umich.edu/c=US?o,description?one?o=umich
  *
- *  To accomodate IPv6 addresses, the host portion of a host that appears
+ *  To accommodate IPv6 addresses, the host portion of a host that appears
  *  in hostport can be enclosed in square brackets, e.g
  *
  *  e.g.,  ldap://[fe80::a00:20ff:fee5:c0b4]:3389/dc=siroe,dc=com

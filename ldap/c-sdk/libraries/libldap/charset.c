@@ -208,7 +208,7 @@ static Byte *cc_to_t61();
 #endif /* NEEDPROTOS */
 
 /*
-   Character choosed as base in diacritics alone: NO-BREAK SPACE.
+   Character chosen as base in diacritics alone: NO-BREAK SPACE.
    (The standard say it must be a blank space, 0x20.)
 */
 #define  ALONE  0xA0

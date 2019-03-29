@@ -864,7 +864,7 @@ ldap_parse_sasl_bind_result(
 	}
 
 	LDAP_SET_LDERRNO( ld, err, m, e );
-	/* this is a little kludge for the 3.0 Barracuda/hammerhead relese */
+	/* this is a little kludge for the 3.0 Barracuda/hammerhead release */
 	/* the docs state that the return is either LDAP_DECODING_ERROR */
 	/* or LDAP_SUCCESS.  Here we match the docs...  it's cleaner in 3.1 */
 

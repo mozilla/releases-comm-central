@@ -43,7 +43,7 @@
  * implementations, and we recommend using other APIs.
  *
  * This file contain functions and declarations which have
- * outlived their usefullness and have been deprecated.  In many
+ * outlived their usefulness and have been deprecated.  In many
  * cases functions and declarations have been replaced with newer
  * extended functions.  In no way should applications rely on the
  * declarations and defines within this files as they can and will
