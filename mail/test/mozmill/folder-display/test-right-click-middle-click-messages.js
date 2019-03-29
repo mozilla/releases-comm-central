@@ -85,7 +85,7 @@ function test_right_click_column_header_shows_col_picker() {
 
   // Check that the popup opens.
   wait_for_popup_to_open(popup);
-  // Hide it again, we just wanted to know it was gonna be shown.
+  // Hide it again, we just wanted to know it was going to be shown.
   close_popup(mc, new elib.Elem(popup));
 }
 

@@ -943,7 +943,7 @@ var gImageDownloader = (function() {
    * file transfer.
    *
    * @param aURI {string}                    URI pointing to the photo.
-   * @param cbSuccess(photoName) {function}  A callback funtion which is called on success.
+   * @param cbSuccess(photoName) {function}  A callback function which is called on success.
    *                                         The photo file name is passed in.
    * @param cbError(state) {function}        A callback function which is called in case
    *                                         of an error. The error state is passed in.

@@ -1258,7 +1258,7 @@ var webPhotoHandler = {
 };
 
 function newPhotoAdded(aPhotoName, aCard) {
-  // If we had the photo saved locally, shedule it for removal if card is saved.
+  // If we had the photo saved locally, schedule it for removal if card is saved.
   gOldPhotos.push(gNewPhoto !== null ? gNewPhoto : aCard.getProperty("PhotoName", null));
   gNewPhoto = aPhotoName;
 }

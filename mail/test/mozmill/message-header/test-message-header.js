@@ -297,7 +297,7 @@ function verify_header_a11y(aHeaderInfo) {
  * XXX This test used to be after test_more_button_with_many_recipients,
  * however, there were some accessibility changes that it didn't seem to play
  * nicely with, and the toggling of the "more" button on the cc field was
- * causing this test to fail on the cc element. Tests with accessibilty
+ * causing this test to fail on the cc element. Tests with accessibility
  * hardware/software showed that the code was working fine. Therefore the test
  * may be suspect.
  *

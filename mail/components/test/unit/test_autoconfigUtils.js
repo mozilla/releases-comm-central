@@ -134,7 +134,7 @@ function checkImap(host, protocol) {
   // port == UNKNOWN
     // [IMAP, TLS, 143], [IMAP, SSL, 993], [IMAP, NONE, 143]
   // port != UNKNOWN
-    // ssl == UNKNONWN
+    // ssl == UNKNOWN
       // [IMAP, TLS, port], [IMAP, SSL, port], [IMAP, NONE, port]
     // ssl != UNKNOWN
      // [IMAP, ssl, port];

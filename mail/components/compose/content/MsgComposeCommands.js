@@ -618,7 +618,7 @@ var defaultController = {
     cmd_attachCloud: {
       isEnabled() {
         // Hide the command entirely if there are no cloud accounts or
-        // the feature is disbled.
+        // the feature is disabled.
         let cmd = document.getElementById("cmd_attachCloud");
         cmd.hidden = !Services.prefs.getBoolPref("mail.cloud_files.enabled") ||
                      (cloudFileAccounts.configuredAccounts.length == 0) ||
@@ -5007,7 +5007,7 @@ function toggleAttachmentPane(aAction = "toggle") {
     if (!attachmentsBox.collapsed) {
       // If attachment pane is currently shown:
       if (!bucketHasFocus && eventSource == "key") {
-        // If we get here via key_toggleAttachmentPane, here's where we mimick
+        // If we get here via key_toggleAttachmentPane, here's where we mimic
         // access key functionality: First focus the pane if it isn't focused yet.
         bucket.focus();
       } else {
@@ -6311,7 +6311,7 @@ function AddRecipient(aRecipientType, aAddress) {
   awAddRecipientsArray(aRecipientType, [aAddress]);
 }
 
-// Public method called by the contants sidebar.
+// Public method called by the contacts sidebar.
 function AddRecipientsArray(aRecipientType, aAddressArray) {
   awAddRecipientsArray(aRecipientType, aAddressArray);
 }
@@ -6949,7 +6949,7 @@ function loadBlockedImage(aURL, aReturnDataURL = false) {
     }
   } catch (e) {
     stream.close();
-    throw new Error("Couln't read all data from URL=" + aURL + " (" + e + ")");
+    throw new Error("Couldn't read all data from URL=" + aURL + " (" + e + ")");
   }
   stream.close();
   let encoded = btoa(streamData);

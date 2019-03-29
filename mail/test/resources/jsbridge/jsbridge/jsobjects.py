@@ -115,7 +115,7 @@ class JSObject(object):
 
 
 class JSFunction(JSObject):
-    """Javascript function represenation.
+    """Javascript function representation.
 
     Returns a JSObject instance for the serialized js type with
     name set to the full javascript call for this function.

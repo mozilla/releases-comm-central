@@ -154,7 +154,7 @@ encoder = JSObjectEncoder()
 
 
 class JSBridgeDisconnectError(Exception):
-    """exception raised when an unexpected disconect happens"""
+    """exception raised when an unexpected disconnect happens"""
 
 
 class Bridge(Telnet):

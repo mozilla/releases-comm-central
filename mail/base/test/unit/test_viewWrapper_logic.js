@@ -172,7 +172,7 @@ function* test_sort_secondary_implicit() {
  *  test both illegal primary sorts (fixed a while back) plus illegal
  *  secondary sorts (fixing now).
  *
- * Note: Sorting changes are synchronous, but toggling grouped by sort requries
+ * Note: Sorting changes are synchronous, but toggling grouped by sort requires
  *  a view rebuild.
  */
 function* test_sort_group_by_sort() {

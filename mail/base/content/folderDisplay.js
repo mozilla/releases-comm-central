@@ -282,7 +282,7 @@ FolderDisplayWidget.prototype = {
    *  most persistent/reliable thing we have without gloda.
    * Using the view index was ruled out because it is hardly stable.  Using the
    *  message key alone is insufficient for cross-folder searches.  Using a
-   *  folder identifier and message key is insufficent for local folders in the
+   *  folder identifier and message key is insufficient for local folders in the
    *  face of compaction, let alone complexities where the folder name may
    *  change due to renaming/moving.  Which means we eventually need to fall
    *  back to message-id anyways.  Feel free to add in lots of complexity if

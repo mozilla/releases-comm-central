@@ -1026,7 +1026,7 @@ var DefaultController = {
  */
 function ShowIgnoredMessageNotification(aMsgs, aSubthreadOnly) {
   let notifyBox = document.getElementById("msg-footer-notification-box");
-  notifyBox.removeTransientNotifications(); // don't wanna pile these up
+  notifyBox.removeTransientNotifications(); // don't want to pile these up
 
   let bundle = new StringBundle("chrome://messenger/locale/messenger.properties");
 

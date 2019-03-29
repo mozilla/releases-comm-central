@@ -829,7 +829,7 @@
               tab.panel.remove();
               delete tab.panel;
 
-              // Ensure current tab is still selecte and displayed in the
+              // Ensure current tab is still selected and displayed in the
               // panelContainer.
               this.panelContainer.selectedPanel =
                 this.currentTabInfo.panel || this.currentTabInfo.mode.tabType.panel;

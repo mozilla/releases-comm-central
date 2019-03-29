@@ -1174,7 +1174,7 @@ PopupNotifications.prototype = {
   },
 
   _swapBrowserNotifications(ourBrowser, otherBrowser) {
-    // When swaping browser docshells (e.g. dragging tab to new window) we need
+    // When swapping browser docshells (e.g. dragging tab to new window) we need
     // to update our notification map.
 
     let ourNotifications = this._getNotificationsForBrowser(ourBrowser);

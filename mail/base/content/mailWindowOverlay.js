@@ -1008,7 +1008,7 @@ function InitRecentlyClosedTabsPopup(menuPopup) {
   if (!tabs.length)
     return false;
 
-  // Clear the list before rebulding it.
+  // Clear the list before rebuilding it.
   while (menuPopup.hasChildNodes())
     menuPopup.lastChild.remove();
 
@@ -1447,7 +1447,7 @@ function MsgGetMessagesForAllServers(defaultServer) {
 /**
   * Get messages for all those accounts which have the capability
   * of getting messages and have session password available i.e.,
-  * curretnly logged in accounts.
+  * currently logged in accounts.
   * if offline, prompt for getting messages.
   */
 function MsgGetMessagesForAllAuthenticatedAccounts() {

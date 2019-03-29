@@ -198,7 +198,7 @@ function subtest_check_locked_prefs_addressing(amc)
   Services.prefs.getDefaultBranch("").setBoolPref(controlPref, "xxx");
   Services.prefs.lockPref(controlPref);
 
-  // Refresh the pane by swithing to another one.
+  // Refresh the pane by switching to another one.
   accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xul", amc);
   click_account_tree_row(amc, accountRow);
 
@@ -272,7 +272,7 @@ function subtest_check_locked_prefs_server(amc)
   Services.prefs.getDefaultBranch("").setBoolPref(controlPref, true);
   Services.prefs.lockPref(controlPref);
 
-  // Refresh the pane by swithing to another one.
+  // Refresh the pane by switching to another one.
   accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xul", amc);
   click_account_tree_row(amc, accountRow);
 

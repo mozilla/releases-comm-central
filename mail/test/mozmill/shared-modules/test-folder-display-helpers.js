@@ -2893,7 +2893,7 @@ var SyntheticPartMultiRelated;
 
 /**
  * Load a file in its own 'module' based on the effective location of the staged copy of
- * test-folder-helpers.js - if you get an error in this function, probably an appropriate releative
+ * test-folder-helpers.js - if you get an error in this function, probably an appropriate relative
  * path in FILE_LOAD_PATHS is missing for your setup.
  *
  * @param aPath A path relative to the comm-central source path (can be just a file name)

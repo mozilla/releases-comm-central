@@ -110,7 +110,7 @@ function get_visible_threadtree_columns() {
  *  throwing an exception if it is not the case.
  *
  * @param aDesiredColumns A list of column ID strings for columns that should be
- *     visible in the order that they should be visisble.
+ *     visible in the order that they should be visible.
  */
 function assert_visible_columns(aDesiredColumns) {
   let cols = mc.e("threadTree").columns;

@@ -184,7 +184,7 @@ h2 {
 }
 
 .facet-excluded > .bar > .bar-link {
-  text-decoration: line-through; /* strike the names of exluded facets */
+  text-decoration: line-through; /* strike the names of excluded facets */
 }
 
 .date-wrapper {

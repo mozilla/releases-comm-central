@@ -312,7 +312,7 @@ function
   be_in_folder(folderA);
   set_mail_view(MailViewConstants.kViewItemAll, null);
 
-  // Now get back to folder B, and check that its state hasn't chaned
+  // Now get back to folder B, and check that its state hasn't changed
   be_in_folder(folderB);
   assert_mail_view(MailViewConstants.kViewItemTags, "$label3");
   // Reset folder B's state

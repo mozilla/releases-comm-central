@@ -137,7 +137,7 @@ function fetchConfigFromDB(domain, successCallback, errorCallback) {
  * - DNS is unprotected, meaning the results could be forged.
  *   The same is true for fetchConfigFromISP() and guessConfig(), though.
  * - DNS MX tells us the incoming server, not the mailbox (IMAP) server.
- *   They are different. This mechnism is only an approximation
+ *   They are different. This mechanism is only an approximation
  *   for hosted domains (yourname.com is served by mx.hoster.com and
  *   therefore imap.hoster.com - that "therefore" is exactly the
  *   conclusional jump we make here.) and alternative domains
@@ -179,7 +179,7 @@ function fetchConfigForMX(domain, successCallback, errorCallback) {
  * change then.
  *
  * Returns (in successCallback) the hostname of the MX server.
- * If there are several entires with different preference values,
+ * If there are several entries with different preference values,
  * only the most preferred (i.e. those with the lowest value)
  * is returned. If there are several most preferred servers (i.e.
  * round robin), only one of them is returned.

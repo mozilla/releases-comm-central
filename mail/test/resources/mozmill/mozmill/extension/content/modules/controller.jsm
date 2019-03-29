@@ -1108,7 +1108,7 @@ MozMillController.prototype.assertImageLoaded = function(el) {
   return ret;
 };
 
-// Drag one eleent to the top x,y coords of another specified element
+// Drag one element to the top x,y coords of another specified element
 MozMillController.prototype.mouseMove = function(doc, start, dest) {
   // if one of these elements couldn't be looked up
   if (typeof start != "object") {
