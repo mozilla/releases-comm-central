@@ -529,7 +529,7 @@ var GlodaMsgIndexer = {
    *  that the messages are indexed.
    * The reason we allow for queueing messages in an event-driven fashion is
    *  that once we have reached a steady-state, it is preferable to be able to
-   *  deal with new messages and modified meta-data in a prompt fasion rather
+   *  deal with new messages and modified meta-data in a prompt fashion rather
    *  than having to (potentially) walk every folder in the system just to find
    *  the message that the user changed the tag on.
    */

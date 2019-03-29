@@ -446,7 +446,7 @@ nsImapIncomingServer::GetImapConnectionAndLoadUrl(nsIImapUrl* aImapUrl,
   {
     rv = aProtocol->LoadImapUrl(mailnewsurl, aConsumer);
     // *** jt - in case of the time out situation or the connection gets
-    // terminated by some unforseen problems let's give it a second chance
+    // terminated by some unforeseen problems let's give it a second chance
     // to run the url
     if (NS_FAILED(rv) && rv != NS_ERROR_ILLEGAL_VALUE)
     {

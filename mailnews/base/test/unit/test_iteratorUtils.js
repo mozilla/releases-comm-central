@@ -127,7 +127,7 @@ function test_toArray_NodeList() {
 }
 
 /**
- * Test that toArray works correctly with the build-in generator construct.
+ * Test that toArray works correctly with the built-in generator construct.
  */
 function test_toArray_builtin_generator() {
   let arr = [11, 12, 13, 14, 15, 16, 17, 18, 19, 20];

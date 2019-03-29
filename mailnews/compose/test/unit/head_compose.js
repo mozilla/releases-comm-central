@@ -163,7 +163,7 @@ function richCreateMessage(fields, attachments=[], identity=null,
   try {
     gDraftFolder = rootFolder.getChildNamed("Drafts");
   } catch (e) {
-    // we don't have to remove the folder because it doen't exist yet
+    // we don't have to remove the folder because it doesn't exist yet
     gDraftFolder = rootFolder.createLocalSubfolder("Drafts");
   }
   // Clear all messages

@@ -1046,7 +1046,7 @@ nsresult nsParseMailMessageState::ParseHeaders ()
       // we could very well care what the priority header was when we
       // remember its value. If so, need to remember it here. Also,
       // different priority headers can appear in the same message,
-      // but we only rememeber the last one that we see.
+      // but we only remember the last one that we see.
       else if (!PL_strncasecmp("X-Priority", buf, end - buf)
         || !PL_strncasecmp("Priority", buf, end - buf))
         header = &m_priority;

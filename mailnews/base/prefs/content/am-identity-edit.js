@@ -144,7 +144,7 @@ function onOk()
     // ask the account manager to create a new identity for us
     gIdentity = MailServices.accounts.createIdentity();
 
-    // copy in the default identity settings so we inherit lots of stuff like the defaul drafts folder, etc.
+    // copy in the default identity settings so we inherit lots of stuff like the default drafts folder, etc.
     gIdentity.copy(gAccount.defaultIdentity);
 
     // assume the identity is valid by default?

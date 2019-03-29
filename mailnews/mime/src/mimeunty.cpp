@@ -78,7 +78,7 @@ MimeUntypedText_finalize (MimeObject *object)
     uty->open_hdrs = 0;
   }
 
-  /* What about the open_subpart?  We're gonna have to assume that it
+  /* What about the open_subpart?  We're going to have to assume that it
    is also on the MimeContainer->children list, and will get cleaned
    up by that class. */
 

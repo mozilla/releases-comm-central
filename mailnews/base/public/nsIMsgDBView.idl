@@ -96,7 +96,7 @@ interface nsMsgViewNotificationCode
   const nsMsgViewNotificationCodeValue changed = 2;
   /* Some lines have had their contents changed (e.g., messages have been marked read
     or something.)  "where" indicates the first line with a change; "num" indicates
-    how many chaged.
+    how many changed.
    */
  const nsMsgViewNotificationCodeValue  scramble = 3;
  /* Everything changed.  Probably means we resorted the folder.  We are still working

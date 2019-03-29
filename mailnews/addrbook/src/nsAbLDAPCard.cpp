@@ -37,7 +37,7 @@ NS_IMPL_ISUPPORTS_INHERITED(nsAbLDAPCard, nsAbCardProperty, nsIAbLDAPCard)
  * meta-properties (m_*) to reflect what the LDAP contents will be once
  * the update has been performed. This allows you to do multiple (successful)
  * consecutive edits on a card in a search result. If the meta-properties
- * were not updated, incorrect assuptions would be made about what object
+ * were not updated, incorrect assumptions would be made about what object
  * classes to add, or  what attributes to clear.
  *
  * XXX: We need to take care when integrating this code with the asynchronous

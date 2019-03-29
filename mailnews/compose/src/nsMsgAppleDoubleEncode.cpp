@@ -106,7 +106,7 @@ int ap_encode_init(appledouble_encode_object *p_ap_encode_obj,
   memset(p_ap_encode_obj, 0, sizeof(appledouble_encode_object));
 
   /*
-  **  Fill out the source file inforamtion.
+  **  Fill out the source file information.
   */
   memcpy(p_ap_encode_obj->fname, path.get(), path.Length());
   p_ap_encode_obj->fname[path.Length()] = '\0';

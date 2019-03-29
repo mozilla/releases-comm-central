@@ -249,7 +249,7 @@ bool nsMsgI18Ncheck_data_in_charset_range(const char *charset, const char16_t* i
       // All converted successfully.
       break;
     } else if (result != mozilla::kOutputFull) {
-      // Didn't use all the input but the outout isn't full, hence
+      // Didn't use all the input but the output isn't full, hence
       // there was an unencodable character.
       res = false;
       break;

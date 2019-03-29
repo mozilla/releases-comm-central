@@ -745,7 +745,7 @@ nsresult nsPop3Protocol::StartGetAsyncPassword(Pop3StatesEnum aNextState)
 
   // We're now going to need to do something that will end up with us either
   // poking the login manager or prompting the user. We need to ensure we only
-  // do one prompt at a time (and loging manager could cause a master password
+  // do one prompt at a time (and login manager could cause a master password
   // prompt), so we need to use the async prompter.
   nsCOMPtr<nsIMsgAsyncPrompter> asyncPrompter =
     do_GetService(NS_MSGASYNCPROMPTER_CONTRACTID, &rv);
@@ -1663,7 +1663,7 @@ int32_t nsPop3Protocol::SendTLSResponse()
 
 void nsPop3Protocol::InitPrefAuthMethods(int32_t authMethodPrefValue)
 {
-  // for m_prefAuthMethods, using the same flags as server capablities.
+  // for m_prefAuthMethods, using the same flags as server capabilities.
   switch (authMethodPrefValue)
   {
     case nsMsgAuthMethod::none:

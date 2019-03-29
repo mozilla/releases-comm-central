@@ -113,7 +113,7 @@ var Tests = [
     op: Contains,
     count: 0,
   },
-  // test header with multiple occurences
+  // test header with multiple occurrences
   {
     testString: "one value",
     testAttribute: OtherHeader,

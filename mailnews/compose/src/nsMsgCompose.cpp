@@ -3158,7 +3158,7 @@ QuotingOutputStreamListener::InsertToCompose(nsIEditor *aEditor,
  * Returns true if the domain is a match for the given the domain list.
  * Subdomains are also considered to match.
  * @param aDomain - the domain name to check
- * @param aDomainList - a comman separated string of domain names
+ * @param aDomainList - a comma separated string of domain names
  */
 bool IsInDomainList(const nsAString &aDomain, const nsAString &aDomainList)
 {

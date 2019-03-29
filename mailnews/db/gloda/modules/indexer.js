@@ -83,7 +83,7 @@ IndexingJob.prototype = {
  *
  * Responsiveness
  * - When the user wants to quit, we should be able to stop and quit in a timely
- *   fasion.
+ *   fashion.
  * - We should not interfere with the user's thunderbird usage.
  *
  * Correctness

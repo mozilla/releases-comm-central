@@ -1944,7 +1944,7 @@ nsMsgDBView::GetCellValue(int32_t aRow,
       {
         nsCString junkScoreStr;
         msgHdr->GetStringProperty("junkscore", getter_Copies(junkScoreStr));
-        // Only need to assing a real value for junk, it's empty already
+        // Only need to assign a real value for junk, it's empty already
         // as it should be for non-junk.
         if (!junkScoreStr.IsEmpty() &&
             (junkScoreStr.ToInteger(&rv) == nsIJunkMailPlugin::IS_SPAM_SCORE))

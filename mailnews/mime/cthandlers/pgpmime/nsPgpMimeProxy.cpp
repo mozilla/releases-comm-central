@@ -341,7 +341,7 @@ nsPgpMimeProxy::Init()
 {
   mByteBuf.Truncate();
 
-  // Create add-on supplied decrytion object.
+  // Create add-on supplied decryption object.
   nsresult rv;
   mDecryptor = do_CreateInstance(PGPMIME_JS_DECRYPTOR_CONTRACTID, &rv);
   if (NS_FAILED(rv))
@@ -358,7 +358,7 @@ nsPgpMimeProxy::Write(const char *buf, uint32_t buf_size)
   mByteBuf.Assign(buf, buf_size);
   mStreamOffset = 0;
 
-  // Pass data to the decrytion object for decryption.
+  // Pass data to the decryption object for decryption.
   // The result is returned via OutputDecryptedData().
   if (mDecryptor)
     return mDecryptor->OnDataAvailable((nsIRequest*) this, (nsIInputStream*) this,

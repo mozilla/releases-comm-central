@@ -64,7 +64,7 @@ function doHelpButton()
 }
 
 /**
- * Get server type of the seleted item
+ * Get server type of the selected item
  */
 function GetServerType()
 {

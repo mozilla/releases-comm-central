@@ -1,6 +1,6 @@
 /**
  * This test checks if the imap message service code streams headers correctly.
- * It checks thst streaming headers for messages stored for offline use works.
+ * It checks that streaming headers for messages stored for offline use works.
  * It doesn't test streaming messages that haven't been stored for offline use
  * because that's not implemented yet, and it's unclear if anyone will want it.
  */

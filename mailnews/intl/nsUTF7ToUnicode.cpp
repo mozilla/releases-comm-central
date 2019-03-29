@@ -168,7 +168,7 @@ NS_IMETHODIMP nsBasicUTF7Decoder::ConvertNoBuff(const char * aSrc,
 
   while (src < srcEnd) {
 
-    // fist, attept to decode in the current mode
+    // first, attempt to decode in the current mode
     bcr = srcEnd - src;
     bcw = destEnd - dest;
     if (mEncoding == ENC_DIRECT)

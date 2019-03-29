@@ -57,7 +57,7 @@ function test_references_header_parsing(aMsgHdr) {
     dump("Setting references to: '" + refString + "'\n");
     aMsgHdr.setReferences(refString);
     if (aMsgHdr.numReferences != results.length) {
-      dump("Length mis-match! Was expecting:\n");
+      dump("Length mismatch! Was expecting:\n");
       for (iResult = 0; iResult < results.length; iResult++) {
         dump("'" + results[iResult] + "'\n");
       }

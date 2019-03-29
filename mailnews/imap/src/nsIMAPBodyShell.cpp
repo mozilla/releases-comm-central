@@ -722,7 +722,7 @@ bool nsIMAPBodypartLeaf::ShouldFetchInline(nsIMAPBodyShell *aShell)
   }
 #endif // XP_MACOSX
 
-  // Fetch type APPLICAION now if the subtype is a signature or if it's an
+  // Fetch type APPLICATION now if the subtype is a signature or if it's an
   // octet-stream. Otherwise, fetch on demand.
   if (!PL_strcasecmp(m_bodyType, "APPLICATION") &&
       PL_strncasecmp(m_bodySubType, "x-pkcs7", 7) &&

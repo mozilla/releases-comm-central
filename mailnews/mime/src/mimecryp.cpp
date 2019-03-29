@@ -201,7 +201,7 @@ MimeEncrypted_parse_eof (MimeObject *obj, bool abort_p)
 
   /* Now run the superclass's parse_eof, which (because we've already taken
    care of ibuffer in a way appropriate for this class, immediately above)
-   will ony set closed_p to true.
+   will only set closed_p to true.
    */
   status = ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_eof (obj, abort_p);
   if (status < 0) return status;

@@ -138,7 +138,7 @@ async function displayMessage2() {
 }
 
 function hackMetadata() {
-  // The sad story is tha the fake server doesn't support body structure, so we
+  // The sad story is that the fake server doesn't support body structure, so we
   // always load all messages entirely.
   // Hack the meta data to pretend this isn't the case to force separate caching
   // of the PDF attachment.

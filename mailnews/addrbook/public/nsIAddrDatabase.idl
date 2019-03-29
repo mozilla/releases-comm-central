@@ -173,7 +173,7 @@ interface nsIAddrDatabase : nsIAddrDBAnnouncer {
    *                          instance of the database.
    * @param  aName            The attribute to look up the value in.
    * @param  aUTF8Value       The value to look up in UTF8 format.
-   * @param  aCaseInsensitive Set to true for case-insenstive matching.
+   * @param  aCaseInsensitive Set to true for case-insensitive matching.
    * @result                  Returns an nsIAbCard if one is found, otherwise
    *                          NULL.
    */
@@ -188,7 +188,7 @@ interface nsIAddrDatabase : nsIAddrDBAnnouncer {
    *                          instance of the database.
    * @param  aName            The attribute to look up the value in.
    * @param  aUTF8Value       The value to look up in UTF8 format.
-   * @param  aCaseInsensitive Set to true for case-insenstive matching.
+   * @param  aCaseInsensitive Set to true for case-insensitive matching.
    * @result                  Returns an nsISimpleEnumerator of nsIAbCard
    *                          instances.
    */

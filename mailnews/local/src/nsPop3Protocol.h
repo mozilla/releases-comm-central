@@ -240,7 +240,7 @@ typedef struct _Pop3ConData {
 // commands, etc. I do not intend it to refer to protocol state)
 #define POP3_PAUSE_FOR_READ      0x00000001  /* should we pause for the next read */
 #define POP3_PASSWORD_FAILED    0x00000002
-#define POP3_STOPLOGIN              0x00000004  /* error loging in, so stop here */
+#define POP3_STOPLOGIN              0x00000004  /* error logging in, so stop here */
 #define POP3_AUTH_FAILURE           0x00000008  /* extended code said authentication failed */
 
 

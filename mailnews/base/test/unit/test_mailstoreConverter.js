@@ -63,7 +63,7 @@ function run_test() {
     // - check mbox with "From " line on chunk boundary
     // - add tests for maildir->mbox conversion
     // - check that conversions preserve message body (ie that the
-    //   "From " line escaping scheme is reversable)
+    //   "From " line escaping scheme is reversible)
   });
 
   run_next_test();

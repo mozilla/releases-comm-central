@@ -262,7 +262,7 @@ void nsImapServerResponseParser::ParseIMAPServerResponse(const char *aCurrentCom
             // Expected tag doesn't match the received tag. Not good, start over.
             response_fatal();
           }
-          // Show an alert notication containing the server response to bad IDLE.
+          // Show an alert notification containing the server response to bad IDLE.
           fServerConnection.AlertUserEventFromServer(fCurrentLine, true);
         }
         else

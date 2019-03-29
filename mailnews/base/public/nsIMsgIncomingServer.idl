@@ -210,7 +210,7 @@ interface nsIMsgIncomingServer : nsISupports {
    *
    * Note that this does not persist the filter list. To change the contents
    * of the existing filters, use getFilterList and mutate the values as
-   * appopriate.
+   * appropriate.
    *
    * @param aFilterList The new list of filters.
    */

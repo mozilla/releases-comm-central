@@ -430,7 +430,7 @@ protected:
   nsCOMPtr <nsIMsgDBHdr>  m_cachedHdr;
   nsMsgKey                m_cachedMsgKey;
 
-  // We need to store the message key for the message we are currenty
+  // We need to store the message key for the message we are currently
   // displaying to ensure we don't try to redisplay the same message just
   // because the selection changed (i.e. after a sort).
   nsMsgKey                m_currentlyDisplayedMsgKey;

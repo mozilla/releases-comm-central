@@ -42,7 +42,7 @@ function assert_selection_ranges(...aArgs) {
   for (let [slow, shigh] of sel._ranges) {
     let [dlow, dhigh] = aArgs[i++];
     if (dlow != slow || dhigh != shigh)
-      bad_ranges("Range mis-match on index " + i, aArgs);
+      bad_ranges("Range mismatch on index " + i, aArgs);
     ourCount += shigh - slow + 1;
   }
 

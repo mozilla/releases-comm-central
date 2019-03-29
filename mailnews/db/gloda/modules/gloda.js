@@ -498,7 +498,7 @@ var Gloda = {
    * The contact is based on the default account's default identity. The user
    *  can change both, if desired, in Account Settings.
    *
-   * @TODO attempt to deal with multile people using the same profile
+   * @TODO attempt to deal with multiple people using the same profile
    */
   myContact: null,
   /**

@@ -51,7 +51,7 @@ interface  nsIDBChangeListener : nsISupports {
                   in nsIDBChangeListener aInstigator);
 
   /**
-   * Callback when message parrent is changed. Parent is changed when message is deleted or moved.
+   * Callback when message parent is changed. Parent is changed when message is deleted or moved.
    *
    * @param aKeyChanged The message key that parent key was changed.
    * @param oldParent   Old parent key.

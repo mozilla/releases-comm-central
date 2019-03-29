@@ -588,7 +588,7 @@ bool CMapiMessage::CheckBodyInCharsetRange(const char* charset)
       // All converted successfully.
       break;
     } else if (result != mozilla::kOutputFull) {
-      // Didn't use all the input but the outout isn't full, hence
+      // Didn't use all the input but the output isn't full, hence
       // there was an unencodable character.
       return false;
     }

@@ -119,7 +119,7 @@ var FeedUtils = {
     return FeedUtils.kInvalidItemPurgeDelayDays * this.MILLISECONDS_PER_DAY;
   },
 
-  // Polling inverval to check individual feed update interval preference.
+  // Polling interval to check individual feed update interval preference.
   kBiffPollMinutes: 1,
   kNewsBlogSuccess: 0,
   // Usually means there was an error trying to parse the feed.

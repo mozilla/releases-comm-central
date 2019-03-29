@@ -4097,7 +4097,7 @@ NS_IMETHODIMP nsMsgDBFolder::Rename(const nsAString& aNewName, nsIMsgWindow *msg
       newFolder->SetPrettyName(aNewName);
       newFolder->SetFlags(mFlags);
       bool changed = false;
-      MatchOrChangeFilterDestination(newFolder, true /*caseInsenstive*/, &changed);
+      MatchOrChangeFilterDestination(newFolder, true /*case-insensitive*/, &changed);
       if (changed)
         AlertFilterChanged(msgWindow);
 

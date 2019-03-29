@@ -60,7 +60,7 @@ interface nsMsgMessageFlags
 
   /**
    * This message is queued for delivery.  This only ever gets set on messages
-   * in the queue folder, but is used to protect against the case of othe
+   * in the queue folder, but is used to protect against the case of other
    * messages having made their way in there somehow -- if some other program
    * put a message in the queue, we don't want to later deliver it!
    */

@@ -14,7 +14,7 @@ interface nsISimpleEnumerator;
 interface nsIAbBooleanExpression;
 
 /**
- * nsIAbManager is an interface to the main address book mananger
+ * nsIAbManager is an interface to the main address book manager
  * via the contract id "@mozilla.org/abmanager;1"
  *
  * It contains the main functions to create and delete address books as well

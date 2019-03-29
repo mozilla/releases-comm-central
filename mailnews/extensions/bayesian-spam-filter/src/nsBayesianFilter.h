@@ -260,7 +260,7 @@ public:
      *
      * @param aFromTraits array of trait ids used in aFile. If aFile contains
      *                    trait ids that are not in this array, they are not
-     *                    remapped, but assummed to be local trait ids.
+     *                    remapped, but assumed to be local trait ids.
      *
      * @param aToTraits   array of trait ids, corresponding to elements of
      *                    aFromTraits, that represent the local trait ids to be

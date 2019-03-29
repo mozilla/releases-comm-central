@@ -5793,7 +5793,7 @@ void nsImapProtocol::EscapeUserNamePasswordString(const char *strToEscape, nsCSt
 void nsImapProtocol::InitPrefAuthMethods(int32_t authMethodPrefValue,
                                          nsIMsgIncomingServer *aServer)
 {
-    // for m_prefAuthMethods, using the same flags as server capablities.
+    // for m_prefAuthMethods, using the same flags as server capabilities.
     switch (authMethodPrefValue)
     {
       case nsMsgAuthMethod::none:

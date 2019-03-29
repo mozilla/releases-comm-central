@@ -490,7 +490,7 @@ MimeMultipart_create_child(MimeObject *obj)
     status = body->clazz->parse_begin(body);
 
 #ifdef XP_MACOSX
-    /* if we are saving an apple double attachment, we need to set correctly the conten type of the channel */
+    /* if we are saving an apple double attachment, we need to set correctly the content type of the channel */
     if (mime_typep(obj, (MimeObjectClass *) &mimeMultipartAppleDoubleClass))
     {
       mime_stream_data *msd = (mime_stream_data *)body->options->stream_closure;

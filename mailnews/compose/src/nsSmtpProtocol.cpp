@@ -1019,7 +1019,7 @@ nsresult nsSmtpProtocol::SendTLSResponse()
 
 void nsSmtpProtocol::InitPrefAuthMethods(int32_t authMethodPrefValue)
 {
-  // for m_prefAuthMethods, using the same flags as server capablities.
+  // for m_prefAuthMethods, using the same flags as server capabilities.
   switch (authMethodPrefValue)
   {
     case nsMsgAuthMethod::none:
@@ -1172,7 +1172,7 @@ nsresult nsSmtpProtocol::ProcessAuth()
             return NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS;
         }
     }
-  // (wrong indention until here)
+  // (wrong indentation until here)
 
   (void) ChooseAuthMethod(); // advance m_currentAuthMethod
 

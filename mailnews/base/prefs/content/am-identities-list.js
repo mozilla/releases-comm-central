@@ -147,7 +147,7 @@ function onSetDefault(event)
   gAccount.defaultIdentity = identity;
   // Rebuilt the identity list and select the moved identity again.
   refreshIdentityList(0);
-  // Update gloda's myContact with the new default indentity.
+  // Update gloda's myContact with the new default identity.
   Gloda._initMyIdentities();
 }
 

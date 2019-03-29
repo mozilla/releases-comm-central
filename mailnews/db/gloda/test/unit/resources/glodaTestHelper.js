@@ -409,7 +409,7 @@ var _indexMessageState = {
   expectedCleanedUpCount: null,
   /** Expected value of |_workerHadNoCleanUpCount| at assertion time */
   expectedHadNoCleanUpCount: null,
-  /** Exepected value of |_numFullIndexed| at assertion time */
+  /** Expected value of |_numFullIndexed| at assertion time */
   expectedNumFullIndexed: null,
 
   /** The number of times a worker had a recover helper and it recovered. */

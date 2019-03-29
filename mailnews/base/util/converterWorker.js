@@ -18,7 +18,7 @@
  *
  * The conversion is non-destructive - srcRoot will be left untouched.
  *
- * The worker will post progess messages back to the main thread of
+ * The worker will post progress messages back to the main thread of
  * the form:
  *
  *   {"msg": "progress", "val": val, "total": total}

@@ -760,7 +760,7 @@ nsresult nsMsgSearchTerm::MatchArbitraryHeader(nsIMsgSearchScopeTerm *scope,
   nsCString dbHdrValue;
   msg->GetStringProperty(m_arbitraryHeader.get(), getter_Copies(dbHdrValue));
   if (!dbHdrValue.IsEmpty()) {
-    // Match value with the other info. It doesn't check all header occurences,
+    // Match value with the other info. It doesn't check all header occurrences,
     // so we use it only if we match and do line by line headers parsing otherwise.
     rv = MatchRfc2047String(dbHdrValue, charset, charsetOverride, pResult);
     if (matchExpected == *pResult)
@@ -785,7 +785,7 @@ nsresult nsMsgSearchTerm::MatchArbitraryHeader(nsIMsgSearchScopeTerm *scope,
   {
     nsCString charsetIgnored;
     if (bodyHandler->GetNextLine(buf, charsetIgnored) < 0 || EMPTY_MESSAGE_LINE(buf))
-      processingHeaders = false;  // No more lines or emtpy line teminating headers.
+      processingHeaders = false;  // No more lines or empty line terminating headers.
 
     bool isContinuationHeader = processingHeaders ?
       NS_IsAsciiWhitespace(buf.CharAt(0)) : false;

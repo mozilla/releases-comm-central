@@ -534,7 +534,7 @@ NS_IMETHODIMP nsImapService::DisplayMessage(const char *aMessageURI,
       nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
       // Should the message fetch force a peek or a traditional fetch?
       // Force peek if there is a delay in marking read (or no auto-marking at all).
-      // This is because a FETCH (BODY[]) will implicitly set tha \Seen flag on the msg,
+      // This is because a FETCH (BODY[]) will implicitly set the \Seen flag on the msg,
       // but a FETCH (BODY.PEEK[]) won't.
       bool forcePeek = false;
       if (NS_SUCCEEDED(rv) && prefBranch)

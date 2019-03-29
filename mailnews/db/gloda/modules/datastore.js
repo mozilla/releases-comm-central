@@ -911,7 +911,7 @@ var GlodaDatastore = {
 
       /**
        * Corresponds to a human being and roughly to an address book entry.
-       *  Constrast with an identity, which is a specific e-mail address, IRC
+       *  Contrast with an identity, which is a specific e-mail address, IRC
        *  nick, etc.  Identities belong to contacts, and this relationship is
        *  expressed on the identityAttributes table.
        */
