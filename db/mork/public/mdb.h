@@ -1101,7 +1101,7 @@ public:
   // even though some duplicate row might still live within the rowspace.)
   //
   // In other words, the FindRow() implementation is allowed to assume simple
-  // hash tables mapping unqiue column keys to associated row values will be
+  // hash tables mapping unique column keys to associated row values will be
   // sufficient, where any duplication is not recorded because only one copy
   // of a given key need be remembered.  Implementors are not required to sort
   // all rows by the specified column.

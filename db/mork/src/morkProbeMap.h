@@ -256,7 +256,7 @@ public:
     // The default method version returns true if all the bits equal zero.
 
   virtual void
-  ProbeMapClearKey(morkEnv* ev, // put 'nil' alls keys inside map
+  ProbeMapClearKey(morkEnv* ev, // put 'nil' into all keys inside map
     void* ioMapKey, mork_count inKeyCount); // array of keys inside map
     // ProbeMapClearKey() must put some representation of logical 'nil' into
     // every key slot in the map, such that MapTest() will later recognize

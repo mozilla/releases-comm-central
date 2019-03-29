@@ -68,7 +68,7 @@ public:
 
   // virtual mork_bool ProbeMapIsKeyNil(morkEnv* ev, void* ioMapKey);
 
-  // virtual void ProbeMapClearKey(morkEnv* ev, // put 'nil' alls keys inside map
+  // virtual void ProbeMapClearKey(morkEnv* ev, // put 'nil' into all keys inside map
   //   void* ioMapKey, mork_count inKeyCount); // array of keys inside map
 
   // virtual void ProbeMapPushIn(morkEnv* ev, // move (key,val) into the map
@@ -105,7 +105,7 @@ public: // other map methods
   morkBookAtom*  GetAid(morkEnv* ev, mork_aid inAid);
   // GetAid() returns the atom equal to inAid, or else nil
 
-  // note the atoms are owned elsewhere, usuall by morkAtomSpace
+  // note the atoms are owned elsewhere, usually by morkAtomSpace
 
 public: // typesafe refcounting inlines calling inherited morkNode methods
   static void SlotWeakAtomAidMap(morkAtomAidMap* me,
@@ -197,7 +197,7 @@ public:
 
   // virtual mork_bool ProbeMapIsKeyNil(morkEnv* ev, void* ioMapKey);
 
-  // virtual void ProbeMapClearKey(morkEnv* ev, // put 'nil' alls keys inside map
+  // virtual void ProbeMapClearKey(morkEnv* ev, // put 'nil' into all keys inside map
   //   void* ioMapKey, mork_count inKeyCount); // array of keys inside map
 
   // virtual void ProbeMapPushIn(morkEnv* ev, // move (key,val) into the map
@@ -231,7 +231,7 @@ public: // other map methods
   morkBookAtom*  GetAtom(morkEnv* ev, const morkBookAtom* inAtom);
   // GetAtom() returns the atom equal to inAtom, or else nil
 
-  // note the atoms are owned elsewhere, usuall by morkAtomSpace
+  // note the atoms are owned elsewhere, usually by morkAtomSpace
 
 public: // typesafe refcounting inlines calling inherited morkNode methods
   static void SlotWeakAtomBodyMap(morkAtomBodyMap* me,

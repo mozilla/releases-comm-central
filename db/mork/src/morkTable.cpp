@@ -996,7 +996,7 @@ morkTable::CutTableGcUse(morkEnv* ev)
   return mTable_GcUses;
 }
 
-// table dirty handling more complex thatn morkNode::SetNodeDirty() etc.
+// table dirty handling more complex than morkNode::SetNodeDirty() etc.
 
 void morkTable::SetTableClean(morkEnv* ev)
 {

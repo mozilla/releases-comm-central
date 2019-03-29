@@ -72,7 +72,7 @@ public: // other map methods
   morkRow*  GetRow(morkEnv* ev, const morkRow* ioRow);
   // GetRow() returns the row equal to ioRow, or else nil
 
-  // note the rows are owned elsewhere, usuall by morkRowSpace
+  // note the rows are owned elsewhere, usually by morkRowSpace
 
 public: // typesafe refcounting inlines calling inherited morkNode methods
   static void SlotWeakRowMap(morkRowMap* me,
@@ -142,7 +142,7 @@ public: // dynamic type identification
 
   // virtual mork_bool ProbeMapIsKeyNil(morkEnv* ev, void* ioMapKey);
 
-  // virtual void ProbeMapClearKey(morkEnv* ev, // put 'nil' alls keys inside map
+  // virtual void ProbeMapClearKey(morkEnv* ev, // put 'nil' into all keys inside map
   //   void* ioMapKey, mork_count inKeyCount); // array of keys inside map
 
   // virtual void ProbeMapPushIn(morkEnv* ev, // move (key,val) into the map
@@ -171,7 +171,7 @@ public: // other map methods
   morkRow*  GetRow(morkEnv* ev, const morkRow* ioRow);
   // GetRow() returns the row equal to ioRow, or else nil
 
-  // note the rows are owned elsewhere, usuall by morkRowSpace
+  // note the rows are owned elsewhere, usually by morkRowSpace
 
 public: // typesafe refcounting inlines calling inherited morkNode methods
   static void SlotWeakRowProbeMap(morkRowProbeMap* me,

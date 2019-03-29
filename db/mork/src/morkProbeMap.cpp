@@ -827,7 +827,7 @@ morkProbeMap::ProbeMapIsKeyNil(morkEnv* ev, void* ioMapKey)
 }
 
 /*virtual*/ void
-morkProbeMap::ProbeMapClearKey(morkEnv* ev, // put 'nil' alls keys inside map
+morkProbeMap::ProbeMapClearKey(morkEnv* ev, // put 'nil' into all keys inside map
   void* ioMapKey, mork_count inKeyCount) // array of keys inside map
   // ProbeMapClearKey() must put some representation of logical 'nil' into
   // every key slot in the map, such that MapTest() will later recognize
