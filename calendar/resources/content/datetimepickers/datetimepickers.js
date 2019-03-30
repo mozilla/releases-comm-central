@@ -688,7 +688,7 @@ customElements.whenDefined("menulist-editable").then(() => {
         }
 
         /**
-         * Calulates the nearest even five minutes.
+         * Calculates the nearest even five minutes.
          *
          * @param {calDateTime} time     Time near to which nearest five minutes have to be found
          */
@@ -1471,7 +1471,7 @@ function initTimeFormat() {
     // (For example, want to be able to parse both "12:34pm" and
     // "12H34M56Spm" for any characters H,M,S and any language's "pm".
     // The character between the last digit and the "pm" is optional.
-    // Must recogize "pm" directly, otherwise in "12:34pm" the "S" pattern
+    // Must recognize "pm" directly, otherwise in "12:34pm" the "S" pattern
     // matches the "p" character so only "m" is matched as ampm suffix.)
     //
     // digitsExpr has 6 captures, so index of first ampmExpr is 1, of last is 8.

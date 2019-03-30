@@ -1225,7 +1225,7 @@ calDavCalendar.prototype = {
                                      cIOL.GET,
                                      null,
                                      errorMsg);
-        // If an error occurrs here, we also need to unqueue the
+        // If an error occurs here, we also need to unqueue the
         // requests previously queued.
         while (this.mQueuedQueries.length) {
             let [, , , , listener] = this.mQueuedQueries.pop();
@@ -1578,7 +1578,7 @@ calDavCalendar.prototype = {
      * Sets up any needed prerequisites regarding authentication. This is the
      * beginning of a chain of asynchronous calls. This function will, when
      * done, call the next function related to checking resource type, server
-     * capabilties, etc.
+     * capabilities, etc.
      *
      * setupAuthentication                         * You are here
      * checkDavResourceType
@@ -2366,7 +2366,7 @@ calDavCalendar.prototype = {
         // We explicitly don't check for hasScheduling here to allow free-busy queries
         // even in case sched is turned off.
         if (!this.outboxUrl || !this.calendarUserAddress) {
-            cal.LOG("CalDAV: Calendar " + this.name + " doen't support scheduling;" +
+            cal.LOG("CalDAV: Calendar " + this.name + " doesn't support scheduling;" +
                     " freebusy query not possible");
             aListener.onResult(null, null);
             return;
@@ -2929,7 +2929,7 @@ calDavCalendar.prototype = {
                 }
             } catch (e) {
                 if (e.code != Cr.NS_ERROR_NOT_AVAILIBLE) {
-                    // The header could possibly not be availible, ignore that
+                    // The header could possibly not be available, ignore that
                     // case but throw otherwise
                     throw e;
                 }

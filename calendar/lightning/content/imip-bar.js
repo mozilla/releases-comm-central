@@ -297,7 +297,7 @@ var ltnImipBar = {
     },
 
     /**
-     * Exceutes an action triggered by an imip bar button
+     * Executes an action triggered by an imip bar button
      *
      * @param   {String}  aParticipantStatus  A partstat string as per RfC 5545
      * @param   {String}  aResponse           Either 'AUTO', 'NONE' or 'USER',

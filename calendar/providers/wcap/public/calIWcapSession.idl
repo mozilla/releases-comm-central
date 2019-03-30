@@ -26,7 +26,7 @@ interface calIWcapSession : nsISupports
     readonly attribute string userId;
 
     /**
-     * Determines whether the user is currentl logged in.
+     * Determines whether the user is currently logged in.
      * Does _not_ check whether the user's ticket has timed out!
      */
     readonly attribute boolean isLoggedIn;

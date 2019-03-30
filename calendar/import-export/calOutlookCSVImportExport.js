@@ -100,7 +100,7 @@ calOutlookCSVImporter.prototype = {
      * parse that into individual events.
      *
      * First line is field names, all quoted with double quotes.  Field names are
-     * locale dependendent.  In English the recognized field names are:
+     * locale dependent. In English the recognized field names are:
      *   "Title","Start Date","Start Time","End Date","End Time","All day event",
      *   "Reminder on/off","Reminder Date","Reminder Time","Categories",
      *   "Description","Location","Private"
@@ -109,7 +109,7 @@ calOutlookCSVImporter.prototype = {
      *  default durations are set.
      *
      * The rest of the lines are events, one event per line, with fields in the
-     * order descibed by the first line.   All non-empty values must be quoted.
+     * order described by the first line. All non-empty values must be quoted.
      *
      * Returns: an array of parsed calendarEvents.
      *   If the parse is cancelled, a zero length array is returned.

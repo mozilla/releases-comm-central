@@ -1626,7 +1626,7 @@ calStorageCalendar.prototype = {
         this.getItemBaseFromRow(row, flags, item);
         this.getAdditionalDataForItem(item, flags.value);
 
-        if (!isException) { // keep exceptions modifyable to set the parentItem
+        if (!isException) { // keep exceptions modifiable to set the parentItem
             item.makeImmutable();
             this.cacheItem(item);
         }
@@ -1664,7 +1664,7 @@ calStorageCalendar.prototype = {
         this.getItemBaseFromRow(row, flags, item);
         this.getAdditionalDataForItem(item, flags.value);
 
-        if (!isException) { // keep exceptions modifyable to set the parentItem
+        if (!isException) { // keep exceptions modifiable to set the parentItem
             item.makeImmutable();
             this.cacheItem(item);
         }

@@ -2644,7 +2644,7 @@ function updateCalendar() {
         updateAllDay();
     }
 
-    // Make sure capabilties are reflected correctly
+    // Make sure capabilities are reflected correctly
     updateCapabilities();
 }
 
@@ -4226,7 +4226,7 @@ function formatCounterValue(aProperty) {
 }
 
 /**
- * Get a map of porperty names and labels of currently supported properties
+ * Get a map of property names and labels of currently supported properties
  *
  * @returns {Map}
  */
@@ -4250,9 +4250,9 @@ function applyValues(aType) {
     }
     let originalBtn = document.getElementById("counter-original-btn");
     if (originalBtn.disabled) {
-        // The button is disbled when opening the dialog/tab, which makes it more obvious to the
+        // The button is disabled when opening the dialog/tab, which makes it more obvious to the
         // user that he/she needs to apply the proposal values prior to saving & sending.
-        // Once that happened, we leave both options to the user without toogling the button states
+        // Once that happened, we leave both options to the user without toggling the button states
         // to avoid needing to listen to manual changes to do that correctly
         originalBtn.removeAttribute("disabled");
     }

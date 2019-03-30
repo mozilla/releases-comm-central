@@ -29,7 +29,7 @@
     %eventDialogDTD;
 ]>
 
-<!-- Vbox id is changed during excution to allow different treatment.
+<!-- Vbox id is changed during execution to allow different treatment.
      document.loadOverlay() will not work on this one. -->
 <window id="calendar-event-dialog-inner"
       onload="onLoad();"

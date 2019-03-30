@@ -339,7 +339,7 @@ add_task(async function countOccurrences_test() {
         parser.parseString(ics);
         let items = parser.getItems({});
 
-        ok(items.length > 0, "parsing input suceeded (test #" + i + ")");
+        ok(items.length > 0, "parsing input succeeded (test #" + i + ")");
         for (let item of items) {
             equal(
                 countOccurrences(item),
