@@ -60,7 +60,7 @@
                                accesskey="&pref.defaultsnoozelength.accesskey;"
                                control="defaultsnoozelength"/>
                     </html:td>
-                    <html:td>
+                    <html:td width="30%">
                         <hbox align="center">
                             <textbox id="defaultsnoozelength"
                                      preference="calendar.alarms.defaultsnoozelength"

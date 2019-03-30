@@ -13,6 +13,10 @@ prefpane,
   padding: 0;
 }
 
+prefpane {
+  -moz-box-orient: vertical;
+}
+
 .contentPane {
   margin: 0;
 }
