@@ -360,7 +360,7 @@ nsresult calIcalProperty::getDatetime_(calIcalComponent * parent,
         if (itt.zone) {
             tzid_ = icaltimezone_get_tzid(const_cast<icaltimezone *>(itt.zone));
         } else {
-            // Need to get the tzid param. Unfortunatly, libical tends to return raw
+            // Need to get the tzid param. Unfortunately, libical tends to return raw
             // ics strings, with quotes and everything. That's not what we want. Need
             // to work around.
             icalparameter * const tzparam = icalproperty_get_first_parameter(prop, ICAL_TZID_PARAMETER);

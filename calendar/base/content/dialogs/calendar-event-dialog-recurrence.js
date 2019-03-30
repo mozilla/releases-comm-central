@@ -161,7 +161,7 @@ const RecurrencePreview = {
         // grid, sorted by rows first -> iterate the rows that may exist.
         let row = this.node.querySelector("row");
         while (row) {
-            // now iterater all the child nodes of this row
+            // now iterate all the child nodes of this row
             // in order to visit each minimonth in turn.
             let numChilds = row.childNodes.length - 1;
             for (let i = 0; i < numChilds; i++) {
@@ -172,13 +172,13 @@ const RecurrencePreview = {
                 if (recurrenceInfo) {
                     // retrieve an array of dates that represents all occurrences
                     // that fall into this time interval [start,end[.
-                    // note: the following loop assumes that this array conains
+                    // note: the following loop assumes that this array contains
                     // dates that are strictly monotonically increasing.
                     // should getOccurrenceDates() not enforce this assumption we
                     // need to fall back to some different algorithm.
                     let dates = recurrenceInfo.getOccurrenceDates(start, end, 0, {});
 
-                    // now run throgh all days of this month and set the
+                    // now run through all days of this month and set the
                     // 'busy' attribute with respect to the occurrence array.
                     let index = 0;
                     let occurrence = null;

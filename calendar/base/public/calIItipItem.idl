@@ -46,7 +46,7 @@ interface calIItipItem : nsISupports
     attribute AUTF8String sender;
 
     /**
-     * Attribute: receivedMethod - method the iTIP item had upon reciept
+     * Attribute: receivedMethod - method the iTIP item had upon receipt
      */
     attribute AUTF8String receivedMethod;
 

@@ -699,7 +699,7 @@
 
             // The level is an integer value that represents the level of indentation.
             // It is multiplied by the width specified in the :moz-tree-indentation
-            // pseudoelement to compute the exact indendation.
+            // pseudoelement to compute the exact indentation.
             getLevel: function(aRow) {
                 return 0;
             },

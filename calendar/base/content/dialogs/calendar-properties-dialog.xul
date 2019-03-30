@@ -78,7 +78,7 @@
                   disable-with-calendar="true"
                   label="&calendarproperties.refreshInterval.label;">
           <menupopup id="calendar-refreshInterval-menupopup">
-            <!-- This will be filled programatically to reduce the number of needed strings -->
+            <!-- This will be filled programmatically to reduce the number of needed strings -->
             <menuseparator id="calendar-refreshInterval-manual-separator"/>
             <menuitem id="calendar-refreshInterval-manual"
                       value="0"

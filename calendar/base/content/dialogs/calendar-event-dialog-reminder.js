@@ -371,7 +371,7 @@ function updateReminder(event) {
 }
 
 /**
- * Gets the locale stringname that is dependant on the item type. This function
+ * Gets the locale stringname that is dependent on the item type. This function
  * appends the item type, i.e |aPrefix + "Event"|.
  *
  * @param aPrefix       The prefix to prepend to the item type

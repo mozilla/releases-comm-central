@@ -142,7 +142,7 @@ function putItemsIntoCal(destCal, aItems, aFilePath) {
     let failedCount = 0;
     let duplicateCount = 0;
     // Used to store the last error. Only the last error, because we don't
-    // wan't to bomb the user with thousands of error messages in case
+    // want to bomb the user with thousands of error messages in case
     // something went really wrong.
     // (example of something very wrong: importing the same file twice.
     //  quite easy to trigger, so we really should do this)

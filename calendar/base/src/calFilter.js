@@ -19,7 +19,7 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
  *               to reflect changes in the current date and time, and changes to the view.
  *
  *
- *                 The properties may be set to one of the folowing values:
+ *                 The properties may be set to one of the following values:
  *               - FILTER_DATE_ALL: An unbound date range.
  *               - FILTER_DATE_XXX: One of the defined relative date ranges.
  *               - A string that may be converted to a calIDuration object that will be used
@@ -51,7 +51,7 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
  *
  *   category:     Specifies the filter property for the item category.
  *
- *                 The property may be set to one of the folowing values:
+ *                 The property may be set to one of the following values:
  *               - null: The item category will not be considered when filtering.
  *               - A string: The item will match the filter if any of it's categories match the
  *               category specified by the property.
@@ -60,7 +60,7 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
  *
  *   occurrences:  Specifies the filter property for returning occurrences of repeating items.
  *
- *                 The property may be set to one of the folowing values:
+ *                 The property may be set to one of the following values:
  *               - null, FILTER_OCCURRENCES_BOUND: The default occurrence handling. Occurrences
  *               will be returned only for date ranges with a bound end date.
  *               - FILTER_OCCURRENCES_NONE: Only the parent items will be returned.
@@ -903,7 +903,7 @@ calFilter.prototype = {
         let endDate = this.endDate;
 
         // we only want occurrences returned from calICalendar.getItems() with a default
-        // occurence filter property and a bound date range, otherwise the local listener
+        // occurrence filter property and a bound date range, otherwise the local listener
         // will handle occurrence expansion.
         if (!props.occurrences && this.endDate) {
             filter |= aCalendar.ITEM_FILTER_CLASS_OCCURRENCES;

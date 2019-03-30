@@ -34,7 +34,7 @@ interface calIStatusObserver : nsISupports
   void calendarCompleted(in calICalendar aCalendar);
 
   /**
-   * @return    An integer value denoting wheter a progress is running or not;
+   * @return    An integer value denoting whether a progress is running or not;
    *              if it returns DETERMINED_PROGRESS a determined progress 
                   is running;
    *              if it returns UNDETERMINED_PROGRESS an undetermined progress 

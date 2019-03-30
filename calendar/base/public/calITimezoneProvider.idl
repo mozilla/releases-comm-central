@@ -14,7 +14,7 @@ interface calITimezoneProvider : nsISupports
     readonly attribute nsIUTF8StringEnumerator aliasIds;
 
     /**
-     * Gets a timezone defintion passing a TZID.
+     * Gets a timezone definition passing a TZID.
      * Returns null in case of an unknown TZID.
      *
      * @param tzid       a TZID to be resolved

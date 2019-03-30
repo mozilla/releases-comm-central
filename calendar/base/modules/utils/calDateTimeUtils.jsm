@@ -340,7 +340,7 @@ var caldtz = {
     },
 
     /**
-     * Gets the list of recent timezones. Optionally retuns the list as
+     * Gets the list of recent timezones. Optionally returns the list as
      * calITimezones.
      *
      * @param aConvertZones     (optional) If true, return calITimezones instead

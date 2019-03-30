@@ -493,7 +493,7 @@
       </property>
 
       <!-- this property may be overridden by the
-          descendent classes if neeeded  -->
+          descendent classes if needed  -->
       <property name="weeksInView">
         <getter><![CDATA[
             return 0;

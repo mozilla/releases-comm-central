@@ -48,7 +48,7 @@ calWeekInfoService.prototype = {
         let startWeekday = Services.prefs.getIntPref("calendar.week.start", SUNDAY); // default to monday per ISO8601 standard.
 
         // The number of days since the start of the week.
-        // Notice that the result of the substraction might be negative.
+        // Notice that the result of the subtraction might be negative.
         // We correct for that by adding 7, and then using the remainder operator.
         let sinceStartOfWeek = (aDateTime.weekday - startWeekday + 7) % 7;
 

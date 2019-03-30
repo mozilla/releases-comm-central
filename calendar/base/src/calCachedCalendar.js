@@ -471,7 +471,7 @@ calCachedCalendar.prototype = {
     /*
      * Asynchronously performs playback operations of items added, modified, or deleted offline
      *
-     * @param aCallback         (optional) The function to be callled when playback is complete.
+     * @param aCallback         (optional) The function to be called when playback is complete.
      * @param aPlaybackType     (optional) The starting operation type. This function will be
      *                          called recursively through playback operations in the order of
      *                          add, modify, delete. By default playback will start with the add

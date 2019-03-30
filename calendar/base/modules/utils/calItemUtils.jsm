@@ -548,7 +548,7 @@ var calitem = {
     },
 
     /**
-     * Centralized funtions for accessing prodid and version
+     * Centralized functions for accessing prodid and version
      */
     get productId() { return "-//Mozilla.org/NONSGML Mozilla Calendar V1.1//EN"; },
     get productVersion() { return "2.0"; },

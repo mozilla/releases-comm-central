@@ -122,7 +122,7 @@ interface calIChangeLog : nsISupports {
     const long OFFLINE_FLAG_DELETED_RECORD = 4;
 
     /**
-     * Enable the changelog calendar to retrieve offline data right after instanciation.
+     * Enable the changelog calendar to retrieve offline data right after instantiation.
      */
     attribute calISyncWriteCalendar offlineStorage;
 

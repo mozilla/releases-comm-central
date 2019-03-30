@@ -469,7 +469,7 @@ calendar-time-bar[orient="vertical"] {
     width: 10ex; /* space for "11:00 AM" */
 }
 
-/* headers vertical, times horizonal */
+/* headers vertical, times horizontal */
 .view-label-box[orient="vertical"] {
     width: 30px;
 }

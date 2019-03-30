@@ -38,7 +38,7 @@ calICALJSTimezone.prototype = {
         try {
             displayName = bundle.GetStringFromName(stringName);
         } catch (e) {
-            // Just use the TZID if the string is mising.
+            // Just use the TZID if the string is missing.
         }
         this.__defineGetter__("displayName", () => {
             return displayName;

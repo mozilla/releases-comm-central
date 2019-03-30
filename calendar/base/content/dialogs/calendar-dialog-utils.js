@@ -143,7 +143,7 @@ function editReminder() {
     args.calendar = getCurrentCalendar();
 
     // While these are "just" callbacks, the dialog is opened modally, so aside
-    // from whats needed to set up the reminders, nothing else needs to be done.
+    // from what's needed to set up the reminders, nothing else needs to be done.
     args.onOk = function(reminders) {
         customItem.reminders = reminders;
     };
@@ -226,7 +226,7 @@ function matchCustomReminderToMenuitem(reminder) {
     if (reminder.related != Ci.calIAlarm.ALARM_RELATED_ABSOLUTE &&
         reminder.offset &&
         reminder.action == defaultAlarmType) {
-        // Exactly one reminder thats not absolute, we may be able to match up
+        // Exactly one reminder that's not absolute, we may be able to match up
         // popup items.
         let relation = (reminder.related == reminder.ALARM_RELATED_START ? "START" : "END");
         let origin;
@@ -539,7 +539,7 @@ function updateLink() {
             return;
         }
 
-        // Only show if its either an internal protcol handler, or its external
+        // Only show if its either an internal protocol handler, or its external
         // and there is an external app for the scheme
         handler = cal.wrapInstance(handler, Ci.nsIExternalProtocolHandler);
         hideOrShow(!handler || handler.externalAppExistsForScheme(uri.scheme));
@@ -720,7 +720,7 @@ function adaptScheduleAgent(aItem) {
             // organizer triggered action
             if (organizerAction) {
                 aItem.getAttendees({}).forEach((aAttendee) => {
-                    // overwritting must always happen consistently for all
+                    // overwriting must always happen consistently for all
                     // attendees regarding SERVER or CLIENT but must not override
                     // e.g. NONE, so we only overwrite if the param is set to
                     // SERVER or doesn't exist

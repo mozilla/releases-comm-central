@@ -401,7 +401,7 @@ var cal = {
 };
 
 /**
- * Update the logging preferences for the calendar console based on the sate of verbose logging and
+ * Update the logging preferences for the calendar console based on the state of verbose logging and
  * normal calendar logging.
  */
 function updateLogPreferences() {

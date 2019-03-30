@@ -204,7 +204,7 @@
       </menu>
       <menuseparator id="calendar-menuseparator-before-delete"/>
       <!-- the label and accesskey of the following menuitem is set during runtime,
-           and depends on wether the item is a task or an event-->
+           and depends on whether the item is a task or an event -->
       <menuitem id="calendar-item-context-menu-delete-menuitem"
                 key="calendar-delete-item-key"
                 observes="calendar_delete_event_command"/>

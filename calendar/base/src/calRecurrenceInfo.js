@@ -264,7 +264,7 @@ calRecurrenceInfo.prototype = {
             if (ritem.isFinite) {
                 // Get all occurrences starting at our recurrence start date.
                 // This is fine, since there will never be an EXDATE that
-                // occurrs before the event started and its illegal to EXDATE an
+                // occurs before the event started and its illegal to EXDATE an
                 // RDATE.
                 let rdates = ritem.getOccurrences(startDate,
                                                   startDate,

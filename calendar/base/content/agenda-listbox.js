@@ -231,7 +231,7 @@ agendaListbox.editSelectedItem = function() {
 
 /**
  * Finds the appropriate period for the given item, i.e finds "Tomorrow" if the
- * item occurrs tomorrow.
+ * item occurs tomorrow.
  *
  * @param aItem     The item to find the period for.
  */
@@ -1127,7 +1127,7 @@ function scheduleNextCurrentEventUpdate(aRefreshCallback, aMsUntil) {
 
 /**
  * Gets a right value for calendar.agendaListbox.soondays preference, avoid
- * erroneus values edited in the lightning.js preference file
+ * erroneous values edited in the lightning.js preference file
  **/
 function getSoondaysPreference() {
     let prefName = "calendar.agendaListbox.soondays";

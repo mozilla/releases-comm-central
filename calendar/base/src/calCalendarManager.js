@@ -139,7 +139,7 @@ calCalendarManager.prototype = {
                     // Possible reasons we got here:
                     // - Its not a http channel (wtf? Oh well)
                     // - The owner is not a calICalendar (looks like its not our deal)
-                    // - The WWW-Authenticate header is missing (thats ok)
+                    // - The WWW-Authenticate header is missing (that's ok)
                 }
                 break;
             }

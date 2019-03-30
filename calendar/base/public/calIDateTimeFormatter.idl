@@ -139,7 +139,7 @@ interface calIDateTimeFormatter : nsISupports
     AString monthName(in unsigned long aMonthIndex);
 
     /**
-     * Get the abbrevation of the month name
+     * Get the abbreviation of the month name
      *
      * @see monthName
      */
@@ -155,7 +155,7 @@ interface calIDateTimeFormatter : nsISupports
     AString dayName(in unsigned long aDayIndex);
 
     /**
-     * Get the abbrevation of the day name
+     * Get the abbreviation of the day name
      * @see dayName
      */
     AString shortDayName(in unsigned long aDayIndex);

@@ -62,7 +62,7 @@ function _calendarInfo(aLocale=null, aResetCache=false) {
     // would provide different result when called without aLocale and we
     // need to investigate whether this is wanted or chaching more selctively.
     // when starting to use it to deteremine the first week of a year, we would
-    // need to at least reset that chached properties on pref change.
+    // need to at least reset that cached properties on pref change.
     if (!("firstDayOfWeek" in _calendarInfo._startup) || aLocale) {
         let info = Services.intl.getCalendarInfo(aLocale);
         if (aLocale) {
@@ -126,7 +126,7 @@ var call10n = {
     /**
      * Gets the month name string in the right form depending on a base string.
      *
-     * @param {Number} aMonthNum     The month numer to get, 1-based.
+     * @param {Number} aMonthNum     The month number to get, 1-based.
      * @param {String} aBundleName   The Bundle to get the string from
      * @param {String} aStringBase   The base string name, .monthFormat will be appended
      * @return {String}              The formatted month name

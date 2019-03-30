@@ -3299,7 +3299,7 @@
             }
             this.mDateList = computedDateList;
 
-            // unselect previous selected event upon switch views, otherwise those
+            // deselect previous selected event upon switch views, otherwise those
             // events will stay selected forever, if select other events after
             // change week view.
             this.setSelectedItems(0, [], true);

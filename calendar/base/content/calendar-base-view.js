@@ -106,7 +106,7 @@ class MozCalendarDayLabel extends MozXULElement {
         let longNameWidth = this.longWeekdayName.boxObject.width;
 
         if (longNameWidth == 0) {
-            // weekdaypixels have not yet been layed out
+            // weekdaypixels have not yet been laid out
             return 0;
         }
 

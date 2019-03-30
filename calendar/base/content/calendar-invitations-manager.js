@@ -109,7 +109,7 @@ InvitationsManager.prototype = {
      * operation listeners.
      *
      * @param operationListener1    The first operation listener to notify.
-     * @param operationListener2    (optinal) The second operation listener to
+     * @param operationListener2    (optional) The second operation listener to
      *                                notify.
      */
     getInvitations: function(operationListener1, operationListener2) {

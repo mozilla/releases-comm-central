@@ -62,7 +62,7 @@
         <setter><![CDATA[
             // Setting calendars externally is not wanted. This is done internally
             // in the compositeCalendar setter.
-            throw Components.Exception("Seting calendars on type='full' is not supported",
+            throw Components.Exception("Setting calendars on type='full' is not supported",
                                        Cr.NS_ERROR_NOT_IMPLEMENTED);
         ]]></setter>
       </property>

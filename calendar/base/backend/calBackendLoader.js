@@ -21,7 +21,7 @@ calBackendLoader.prototype = {
     loaded: false,
 
     observe: function() {
-        // Nothing to do here, just need the entry so this is instanciated
+        // Nothing to do here, just need the entry so this is instantiated
     },
 
     loadBackend: function() {

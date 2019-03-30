@@ -663,7 +663,7 @@ var calendarController = {
 
 /**
  * XXX This is a temporary hack so we can release 1.0b2. This will soon be
- * superceeded by a new command controller architecture.
+ * superseded by a new command controller architecture.
  */
 var calendarController2 = {
     defaultController: null,

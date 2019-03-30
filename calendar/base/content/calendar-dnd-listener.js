@@ -390,8 +390,8 @@ calViewDNDObserver.prototype = {
     onDropItems: function(aItems) {
         let destCal = getSelectedCalendar();
         startBatchTransaction();
-        // we fall back explicitely to the popup to ask whether to send a
-        // notification to partticipants if required
+        // we fall back explicitly to the popup to ask whether to send a
+        // notification to participants if required
         let extResp = { responseMode: Ci.calIItipItem.USER };
         try {
             for (let item of aItems) {

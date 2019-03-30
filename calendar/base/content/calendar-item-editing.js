@@ -753,7 +753,7 @@ function setContextPartstat(aTarget, aItems) {
             let attendee = getParticipant(oldItem);
             if (attendee) {
                 // skip this item if the partstat for the participant hasn't
-                // changed. otherwise we would allways perfom updade operations
+                // changed. otherwise we would always perform update operations
                 // for recurring events on both, the master and the occurrence
                 // item
                 let partStat = aTarget.getAttribute("respvalue");

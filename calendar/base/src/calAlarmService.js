@@ -365,7 +365,7 @@ calAlarmService.prototype = {
                 // Delay is in msec, so don't forget to multiply
                 let timeout = alarmDate.subtractDate(now).inSeconds * 1000;
 
-                // No sense in keeping an extra timeout for an alarm thats past
+                // No sense in keeping an extra timeout for an alarm that's past
                 // our range.
                 let timeUntilRefresh = this.mRangeEnd.subtractDate(now).inSeconds * 1000;
                 if (timeUntilRefresh < timeout) {
@@ -580,7 +580,7 @@ calAlarmService.prototype = {
 
     get isLoading() {
         for (let calId in this.mLoadedCalendars) {
-            // we need to exclude calendars which failed to load explicitely to
+            // we need to exclude calendars which failed to load explicitly to
             // prevent the alaram dialog to stay opened after dismissing all
             // alarms if there is a network calendar that failed to load
             let currentStatus = cal.getCalendarManager()

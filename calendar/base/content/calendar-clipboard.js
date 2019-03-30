@@ -75,7 +75,7 @@ function copyToClipboard(aCalendarItemArray=null, aCutMode=false) {
             (aItem.calendar && cal.acl.userCanDeleteItemsFromCalendar(aItem.calendar))
         );
         if (items.length < calendarItemArray.length) {
-            cal.LOG("[calendar-clipboard] No priviledge to delete some or all selected items.");
+            cal.LOG("[calendar-clipboard] No privilege to delete some or all selected items.");
             return;
         }
         calendarItemArray = items;

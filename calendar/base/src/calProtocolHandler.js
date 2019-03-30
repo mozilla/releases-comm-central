@@ -60,7 +60,7 @@ calProtocolHandlerWebcal.prototype = {
     classID: Components.ID("{1153c73a-39be-46aa-9ba9-656d188865ca}"),
 };
 
-/** Constructor for webcals: protocl handler */
+/** Constructor for webcals: protocol handler */
 function calProtocolHandlerWebcals() {
     calProtocolHandler.call(this, "webcals");
 }

@@ -27,7 +27,7 @@
 
 <?xul-overlay href="chrome://lightning/content/lightning-item-toolbar.xul"?>
 
-<!-- Dialog id is changed during excution to allow different Window-icons
+<!-- Dialog id is changed during execution to allow different Window-icons
      on this dialog. document.loadOverlay() will not work on this one. -->
 <dialog title="&event.title.label;"
         windowtype="Calendar:EventDialog"

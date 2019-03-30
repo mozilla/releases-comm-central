@@ -372,7 +372,7 @@ var calprovider = {
      */
     BaseClass: class {
         /**
-         * The transient proeprties that are not pesisted to storage
+         * The transient properties that are not pesisted to storage
          */
         static get mTransientProperties() {
             return {
@@ -510,7 +510,7 @@ var calprovider = {
                     this.mObservers.notify("onEndBatch");
                 }
             } else {
-                cal.ASSERT(this.mBatchCount > 0, "unexepcted endBatch!");
+                cal.ASSERT(this.mBatchCount > 0, "unexpected endBatch!");
             }
         }
 

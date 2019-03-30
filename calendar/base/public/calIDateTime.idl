@@ -99,7 +99,7 @@ interface calIDateTime : nsISupports
    * @param day      day of month, 1-[28,29,31]
    * @param hour     hour, 0-23
    * @param minute   minute, 0-59
-   * @param second   decond, 0-59
+   * @param second   second, 0-59
    * @param timezone timezone
    *
    * The passed datetime will be normalized, e.g. a minute value of 60 will

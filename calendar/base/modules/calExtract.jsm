@@ -62,7 +62,7 @@ Extractor.prototype = {
         // ideally this should be considered with lower certainty to fill in
         // missing information
 
-        // remove last line preceeding quoted message and first line of the quote
+        // remove last line preceding quoted message and first line of the quote
         this.email = this.email.replace(/\r?\n[^>].*\r?\n>+.*$/m, "");
         // remove the rest of quoted content
         this.email = this.email.replace(/^>+.*$/gm, "");

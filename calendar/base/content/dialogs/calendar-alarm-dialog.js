@@ -192,7 +192,7 @@ function snoozeAllItems(aDurationMinutes) {
             getAlarmService().snoozeAlarm(node.item, node.alarm, duration);
         }
     }
-    // we need to close the widget here explicitely because the dialog will stay
+    // we need to close the widget here explicitly because the dialog will stay
     // opened if there a still not snoozable alarms
     document.getElementById("alarm-snooze-all-button").firstChild.hidePopup();
 }
@@ -417,5 +417,5 @@ function ensureCalendarVisible(aCalendar) {
     // This function is called on the alarm dialog from calendar-item-editing.js.
     // Normally, it makes sure that the calendar being edited is made visible,
     // but the alarm dialog is too far away from the calendar views that it
-    // makes sense to force visiblity for the calendar. Therefore, do nothing.
+    // makes sense to force visibility for the calendar. Therefore, do nothing.
 }

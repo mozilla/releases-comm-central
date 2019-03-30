@@ -456,7 +456,7 @@ function countOccurrences(aItem) {
                     }
 
                     // we add an extra day at beginning and end, so we don't
-                    // neeed to take care of any timezone conversion
+                    // need to take care of any timezone conversion
                     from.addDuration(cal.createDuration("-P1D"));
                     until.addDuration(cal.createDuration("P1D"));
 
@@ -475,7 +475,7 @@ function countOccurrences(aItem) {
         }
 
         if (byCount) {
-            // for a rrule by count, we still need to substract exceptions if any
+            // for a rrule by count, we still need to subtract exceptions if any
             occCounter = occCounter - excCounter;
         }
     }

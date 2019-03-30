@@ -223,7 +223,7 @@ function onLoad() {
         document.documentElement.getButton("accept").focus();
     }
 
-    // disbale default controls
+    // disable default controls
     let accept = document.documentElement.getButton("accept");
     let cancel = document.documentElement.getButton("cancel");
     accept.setAttribute("collapsed", "true");

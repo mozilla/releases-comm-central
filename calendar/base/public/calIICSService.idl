@@ -224,7 +224,7 @@ interface calIICSService : nsISupports
 {
     /**
      * Parses an ICS string and uses the passed tzProvider instance to
-     * resolve timezones not contained withing the VCALENDAR.
+     * resolve timezones not contained within the VCALENDAR.
      *
      * @param serialized     an ICS string
      * @param tzProvider     timezone provider used to resolve TZIDs

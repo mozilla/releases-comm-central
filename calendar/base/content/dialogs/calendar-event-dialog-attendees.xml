@@ -36,7 +36,7 @@
         <body><![CDATA[
             this.onInitialize();
 
-            // this trigger the continous update chain, which
+            // this trigger the continuous update chain, which
             // effectively calls this.onModify() on predefined
             // time intervals [each second].
             let self = this;
@@ -701,7 +701,7 @@
         ]]></body>
       </method>
 
-      <!-- This method returns the <xul:richlistitem> at row numer 'aRow' -->
+      <!-- This method returns the <xul:richlistitem> at row number 'aRow' -->
       <method name="getListItem">
         <parameter name="aRow"/>
         <body><![CDATA[

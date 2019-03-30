@@ -303,7 +303,7 @@ interface calIItemBase : nsISupports
   //
 
   /**
-   * This gives back every relation where the item is neighter the owner of the
+   * This gives back every relation where the item is neither the owner of the
    * relation nor the referred relation
    */
   void getRelations(out uint32_t count,

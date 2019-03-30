@@ -38,7 +38,7 @@ var caliterate = {
 
     /**
      * Runs the body() function once for each item in the iterator using the event queue to make
-     * sure other actions could run inbetween. When all iterations are done (and also when
+     * sure other actions could run in between. When all iterations are done (and also when
      * cal.iterate.forEach.BREAK is returned), calls the completed() function if passed.
      *
      * If you would like to break or continue inside the body(), return either

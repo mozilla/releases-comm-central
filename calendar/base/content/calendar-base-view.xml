@@ -403,7 +403,7 @@
       </method>
 
       <!-- This function guarantees that the
-       labels are clipped in the instance that the overflow occurrs,
+       labels are clipped in the instance that the overflow occurs,
        avoiding horizontal scrollbars from showing up for a short period. -->
       <method name="adjustWeekdayLength">
         <parameter name="forceShortName"/>

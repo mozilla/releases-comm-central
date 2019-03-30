@@ -28,7 +28,7 @@ class MozCalendarEventFreebusyTimebar extends MozElements.RichListBox {
     }
 
     /**
-     * Sets mZoomFactor to a new vlaue, clears freebusy-day's children, and updates zoomFactor and
+     * Sets mZoomFactor to a new value, clears freebusy-day's children, and updates zoomFactor and
      * force24Hours properties of freebusy-day element.
      *
      * @param {Number} val       new mZoomFactor value

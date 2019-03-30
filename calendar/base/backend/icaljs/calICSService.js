@@ -92,7 +92,7 @@ calIcalProperty.prototype = {
     get propertyName() { return this.innerObject.name.toUpperCase(); },
 
     getParameter: function(name) {
-        // Unfortuantely getting the "VALUE" parameter won't work, since in
+        // Unfortunately getting the "VALUE" parameter won't work, since in
         // jCal it has been translated to the value type id.
         if (name == "VALUE") {
             let defaultType = this.innerObject.getDefaultType();

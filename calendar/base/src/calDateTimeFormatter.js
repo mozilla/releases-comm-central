@@ -182,7 +182,7 @@ calDateTimeFormatter.prototype = {
         if (end) {
             end = end.getInTimezone(kDefaultTimezone);
         }
-        // EndDate is exclusive. For all-day events, we ened to substract one day,
+        // EndDate is exclusive. For all-day events, we need to subtract one day,
         // to get into a format that's understandable.
         if (start && start.isDate && end) {
             end.day -= 1;

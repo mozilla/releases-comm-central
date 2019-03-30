@@ -154,7 +154,7 @@ var calendarViewController = {
 
                 // if we have multiple items and the user decided already for one
                 // item whether to delete the occurrence or the entire series,
-                // we apply that decission also to subsequent items
+                // we apply that decision also to subsequent items
                 previousResponse = response;
                 promptUser = false;
             }
@@ -376,7 +376,7 @@ function scheduleMidnightUpdate(aRefreshCallback) {
 }
 
 /**
- * Retuns a cached copy of the view stylesheet.
+ * Returns a cached copy of the view stylesheet.
  *
  * @return      The view stylesheet object.
  */

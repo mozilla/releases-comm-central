@@ -689,7 +689,7 @@ function onPreviousSlot() {
 
     // In case the new starttime happens to be scheduled
     // on a different day, we also need to update the
-    // complete freebusy informations and appropriate
+    // complete freebusy information and appropriate
     // underlying arrays holding the information.
     let refresh = previousSlot.startTime.day != gStartDate.day;
 
@@ -874,7 +874,7 @@ function onMouseScroll(event) {
 }
 
 /**
- * Hanlder function to take care of attribute changes on the window
+ * Handler function to take care of attribute changes on the window
  *
  * @param event     The DOMAttrModified event caused by this change.
  */

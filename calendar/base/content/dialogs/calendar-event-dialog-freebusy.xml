@@ -984,8 +984,8 @@
 
             // In case the new starttime happens to be scheduled
             // on a different day, we also need to update the
-            // complete freebusy informations and appropriate
-            // underlying arrays holding the informaion.
+            // complete freebusy information and appropriate
+            // underlying arrays holding the information.
             if (this.mStartDate.day != startTime.day) {
                 for (let i = 1; i <= this.mMaxFreeBusy; i++) {
                     let fbelem = this.getFreeBusyElement(i);
@@ -1009,7 +1009,7 @@
         ]]></body>
       </method>
 
-      <!-- This method returns the <xul:richlistitem> at row numer 'aRow' -->
+      <!-- This method returns the <xul:richlistitem> at row number 'aRow' -->
       <method name="getListItem">
         <parameter name="aRow"/>
         <body><![CDATA[

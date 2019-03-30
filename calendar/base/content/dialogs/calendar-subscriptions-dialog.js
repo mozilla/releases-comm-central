@@ -140,7 +140,7 @@ function onSearch() {
 }
 
 /**
- * Markes the selected item in the subscriptions-listbox for subscribing. The
+ * Marks the selected item in the subscriptions-listbox for subscribing. The
  * actual subscribe happens when the window is closed.
  */
 function onSubscribe() {

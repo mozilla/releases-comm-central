@@ -431,7 +431,7 @@ function updateListboxDeleteButton(listboxId, buttonId) {
  * @param aUnit           The unit to find the plural form of
  * @param aIncludeLength  (optional) If true, the length will be included in the
  *                          result. If false, only the pluralized unit is returned.
- * @return                A string containg the pluralized version of the unit
+ * @return                A string containing the pluralized version of the unit
  */
 function unitPluralForm(aLength, aUnit, aIncludeLength=true) {
     let unitProp = {
@@ -607,7 +607,7 @@ function updateSelectedLabel(aElement) {
  *
  * @param {Node}  aMenu   The context menu item containing the required
  *                          menu or menuitem elements
- * @param {Array} aItems  An array of the selecetd calEvent or calTodo
+ * @param {Array} aItems  An array of the selected calEvent or calTodo
  *                          items to display the context menu for
  */
 function setupAttendanceMenu(aMenu, aItems) {
@@ -643,7 +643,7 @@ function setupAttendanceMenu(aMenu, aItems) {
      * that scenario here.
      *
      * Now the following matrix applies to take action of the users choice for
-     * the relevant participant (for columns, see explaination below):
+     * the relevant participant (for columns, see explanation below):
      * +---+------------------+-------------+--------+-----------------+
      * | # |     SELECTED     |  DISPLAYED  | STATUS | MENU ACTION     |
      * |   |    CAL ITEMS     |   SUBMENU   | PRESET | APPLIES ON      |
@@ -825,8 +825,8 @@ function setupAttendanceMenu(aMenu, aItems) {
 
     if (aItems.length == 1) {
         // we offer options for both single and recurring items. In case of the
-        // latter and the item is an occurence, we offer status information and
-        // actions for both, the occurence and the series
+        // latter and the item is an occurrence, we offer status information and
+        // actions for both, the occurrence and the series
         let thisPartStat = getInvitationStatus(aItems[0]);
 
         if (aItems[0].recurrenceId) {
