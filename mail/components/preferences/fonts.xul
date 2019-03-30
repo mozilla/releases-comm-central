@@ -274,11 +274,9 @@
           </hbox>
         </vbox>
         <vbox>
-          <menulist is="menulist-charsetpicker" id="sendDefaultCharsetList"
-                    subset="sending"
+          <menulist is="menulist-charsetpicker-sending" id="sendDefaultCharsetList"
                     preference="mailnews.send_default_charset"/>
-          <menulist is="menulist-charsetpicker" id="viewDefaultCharsetList"
-                    subset="viewing"
+          <menulist is="menulist-charsetpicker-viewing" id="viewDefaultCharsetList"
                     preference="mailnews.view_default_charset"/>
         </vbox>
       </hbox>

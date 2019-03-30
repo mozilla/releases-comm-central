@@ -456,7 +456,7 @@
 
     <hbox hidefor="imap,pop3,movemail" align="center" valign="middle" iscontrolcontainer="true">
       <label value="&serverDefaultCharset2.label;" control="nntp.charset"/>
-      <menulist is="menulist-charsetpicker" id="nntp.charset" subset="viewing"
+      <menulist is="menulist-charsetpicker-viewing" id="nntp.charset"
                 hidable="true"
                 hidefor="imap,pop3,movemail"
                 wsm_persist="true"

@@ -67,7 +67,7 @@
           <label value="&folderCharsetFallback2.label;"
                  accesskey="&folderCharsetFallback2.accesskey;"
                  control="folderCharsetList"/>
-          <menulist is="menulist-charsetpicker" id="folderCharsetList" subset="viewing"/>
+          <menulist is="menulist-charsetpicker-viewing" id="folderCharsetList"/>
         </hbox>
         <checkbox class="indent" id="folderCharsetOverride"
                   label="&folderCharsetEnforce2.label;"
