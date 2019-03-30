@@ -1389,9 +1389,9 @@ function initDateFormat() {
 function initTimeFormat() {
     // probe the Time format
     this.ampmIndex = null;
-    // Digits         HR       sep       MIN     sep       SEC     sep
-    //   Index:       2        3         4       5         6       7
-    let digitsExpr = "(\\d?\\d)(\\D+)?(?:(\\d\\d)(\\D+)?(?:(\\d\\d)(\\D+)?)?)?";
+    // Digits         HR       sep      MIN     sep      SEC     sep
+    //   Index:       2        3        4       5        6       7
+    let digitsExpr = "(\\d?\\d)(\\D)?(?:(\\d\\d)(\\D)?(?:(\\d\\d)(\\D)?)?)?";
     // any letters or '.': non-digit alphanumeric, period (a.m.), or space (P M)
     let anyAmPmExpr = "(?:[^\\d\\W]|[. ])+";
     // digitsExpr has 6 captures, so index of first ampmExpr is 1, of last is 8.
