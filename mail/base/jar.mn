@@ -82,8 +82,6 @@ messenger.jar:
     content/messenger/composerOverlay.css           (content/composerOverlay.css)
     content/messenger/threadPane.js                 (content/threadPane.js)
     content/messenger/protovis-r2.6-modded.js       (content/protovis-r2.6-modded.js)
-    content/messenger/dark.icon.svg                 (content/dark.icon.svg)
-    content/messenger/light.icon.svg                (content/light.icon.svg)
 #ifdef XP_MACOSX
     content/messenger/macMessengerMenu.js           (content/macMessengerMenu.js)
 #endif

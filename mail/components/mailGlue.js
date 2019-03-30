@@ -16,10 +16,6 @@ var { L10nRegistry, FileSource } = ChromeUtils.import("resource://gre/modules/L1
 
 // lazy module getters
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  LightweightThemeManager: "resource://gre/modules/LightweightThemeManager.jsm",
-});
-
 XPCOMUtils.defineLazyGetter(this, "gBrandBundle", function() {
   return Services.strings.createBundle("chrome://branding/locale/brand.properties");
 });
@@ -165,51 +161,12 @@ MailGlue.prototype = {
                              "_blank", "chrome,centerscreen,modal,resizable=no", null);
     }
 
-    let vendorShortName = gBrandBundle.GetStringFromName("vendorShortName");
-
-    LightweightThemeManager.addBuiltInTheme({
-      id: "thunderbird-compact-light@mozilla.org",
-      name: gMailBundle.GetStringFromName("lightTheme.name"),
-      description: gMailBundle.GetStringFromName("lightTheme.description"),
-      iconURL: "resource:///chrome/messenger/content/messenger/light.icon.svg",
-      textcolor: "rgb(24, 25, 26)",
-      icon_color: "rgb(24, 25, 26, 0.7)",
-      accentcolor: "#E3E4E6",
-      popup: "#fff",
-      popup_text: "#0c0c0d",
-      popup_border: "#ccc",
-      tab_line: "#0a84ff",
-      toolbarColor: "#f5f6f7",
-      toolbar_bottom_separator: "#ccc",
-      toolbar_field: "#fff",
-      toolbar_field_border: "#ccc",
-      author: vendorShortName,
-    });
-    LightweightThemeManager.addBuiltInTheme({
-      id: "thunderbird-compact-dark@mozilla.org",
-      name: gMailBundle.GetStringFromName("darkTheme.name"),
-      description: gMailBundle.GetStringFromName("darkTheme.description"),
-      iconURL: "resource:///chrome/messenger/content/messenger/dark.icon.svg",
-      textcolor: "rgb(249, 249, 250)",
-      icon_color: "rgb(249, 249, 250, 0.7)",
-      accentcolor: "hsl(240, 5%, 5%)",
-      popup: "#4a4a4f",
-      popup_text: "rgb(249, 249, 250)",
-      popup_border: "#27272b",
-      tab_line: "#0a84ff",
-      toolbarColor: "hsl(240, 1%, 20%)",
-      toolbar_bottom_separator: "hsla(240, 5%, 5%, 0.2",
-      toolbar_field: "rgb(71, 71, 73)",
-      toolbar_field_border: "rgba(249, 249, 250, 0.2)",
-      toolbar_field_separator: "#5F6670",
-      toolbar_field_text: "rgb(249, 249, 250)",
-      sidebar: "#38383D",
-      sidebar_text: "rgb(249, 249, 250)",
-      sidebar_border: "#606064",
-      author: vendorShortName,
-    }, {
-      useInDarkMode: true,
-    });
+    AddonManager.maybeInstallBuiltinAddon(
+        "thunderbird-compact-light@mozilla.org", "1.0",
+        "resource:///modules/themes/light/");
+    AddonManager.maybeInstallBuiltinAddon(
+        "thunderbird-compact-dark@mozilla.org", "1.0",
+        "resource:///modules/themes/dark/");
   },
 
   _onMailStartupDone() {
