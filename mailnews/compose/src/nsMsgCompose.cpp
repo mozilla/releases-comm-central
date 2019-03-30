@@ -510,7 +510,7 @@ nsMsgCompose::SetInsertingQuotedContent(bool aInsertingQuotedText)
   return NS_OK;
 }
 
-void
+MOZ_CAN_RUN_SCRIPT void
 nsMsgCompose::InsertDivWrappedTextAtSelection(const nsAString &aText,
                                               const nsAString &classStr)
 {
@@ -3050,7 +3050,7 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnDataAvailable(nsIRequest *request,
   return rv;
 }
 
-NS_IMETHODIMP QuotingOutputStreamListener::AppendToMsgBody(const nsCString &inStr)
+nsresult QuotingOutputStreamListener::AppendToMsgBody(const nsCString &inStr)
 {
   nsresult rv = NS_OK;
   if (!inStr.IsEmpty()) {
@@ -3069,14 +3069,14 @@ QuotingOutputStreamListener::SetComposeObj(nsIMsgCompose *obj)
   return NS_OK;
 }
 
-nsresult
+NS_IMETHODIMP
 QuotingOutputStreamListener::SetMimeHeaders(nsIMimeHeaders * headers)
 {
   mHeaders = headers;
   return NS_OK;
 }
 
-NS_IMETHODIMP
+MOZ_CAN_RUN_SCRIPT nsresult
 QuotingOutputStreamListener::InsertToCompose(nsIEditor *aEditor,
                                              bool aHTMLEditor)
 {
@@ -5769,7 +5769,7 @@ nsMsgCompose::MoveToEndOfDocument(void)
   return rv;
 }
 
-NS_IMETHODIMP
+MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP
 nsMsgCompose::SetIdentity(nsIMsgIdentity *aIdentity)
 {
   NS_ENSURE_ARG_POINTER(aIdentity);

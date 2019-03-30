@@ -166,13 +166,13 @@ public:
     NS_DECL_NSISTREAMLISTENER
     NS_DECL_NSIMSGQUOTINGOUTPUTSTREAMLISTENER
 
-    NS_IMETHOD SetComposeObj(nsIMsgCompose *obj);
-    NS_IMETHOD ConvertToPlainText(bool formatflowed,
-                                  bool delsp,
-                                  bool formatted,
-                                  bool disallowBreaks);
-    NS_IMETHOD InsertToCompose(nsIEditor *aEditor, bool aHTMLEditor);
-    NS_IMETHOD AppendToMsgBody(const nsCString &inStr);
+    nsresult SetComposeObj(nsIMsgCompose *obj);
+    nsresult ConvertToPlainText(bool formatflowed,
+                                bool delsp,
+                                bool formatted,
+                                bool disallowBreaks);
+    nsresult InsertToCompose(nsIEditor *aEditor, bool aHTMLEditor);
+    nsresult AppendToMsgBody(const nsCString &inStr);
 
 private:
     virtual ~QuotingOutputStreamListener();
