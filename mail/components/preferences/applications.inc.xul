@@ -109,7 +109,7 @@
                         preference="mail.compose.big_attachments.notify"
                         oncommand="gCloudFileTab.updateThreshold();"/>
               <textbox id="cloudFileThreshold" type="number" increment="1"
-                       maxlength="4" size="1"
+                       maxlength="4" size="2"
                        preference="mail.compose.big_attachments.threshold_kb"
                        onsyncfrompreference="return gCloudFileTab.readThreshold();"
                        onsynctopreference="return gCloudFileTab.writeThreshold();"/>

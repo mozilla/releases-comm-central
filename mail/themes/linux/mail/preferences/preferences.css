@@ -58,11 +58,6 @@ menulist > menupopup > menuitem > .menu-iconic-left {
   color: HighlightText !important;
 }
 
-/* Chat */
-#timeBeforeAway {
-  width: 4em;
-}
-
 /* Quota meter in Folder Properties */
 
 #quotaPercentageBar {

@@ -328,3 +328,23 @@ html|span.ac-emphasize-text {
 .ac-url-text {
   max-width: unset !important;
 }
+
+textbox[type="number"][size="1"] {
+  width: 4em;
+}
+
+textbox[type="number"][size="2"] {
+  width: 4.5em;
+}
+
+textbox[type="number"][size="3"] {
+  width: 5em;
+}
+
+textbox[type="number"][size="4"] {
+  width: 5.5em;
+}
+
+textbox[type="number"][size="5"] {
+  width: 6em;
+}

@@ -53,6 +53,26 @@ tabpanel > hbox > description {
   margin-inline-start: 0;
 }
 
+textbox[type="number"][size="1"] {
+  width: 4em;
+}
+
+textbox[type="number"][size="2"] {
+  width: 4.5em;
+}
+
+textbox[type="number"][size="3"] {
+  width: 5em;
+}
+
+textbox[type="number"][size="4"] {
+  width: 5.5em;
+}
+
+textbox[type="number"][size="5"] {
+  width: 6em;
+}
+
 /* Web search menulist */
 #defaultWebSearch > .menulist-label-box > .menulist-icon[src] {
   margin-inline-start: 5px;
