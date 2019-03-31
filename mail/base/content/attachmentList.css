@@ -62,3 +62,14 @@
   min-width: 5em;
   max-width: 10em;
 }
+
+#attachmentMenuList > menu:hover > .text-link {
+  text-decoration-line: underline;
+}
+
+#attachmentName.notfound,
+.attachmentItem.notfound,
+#attachmentMenuList > menu.notfound,
+#appmenu_attachmentMenuList > menu.notfound {
+  text-decoration-line: line-through;
+}

@@ -49,6 +49,15 @@
               label="&copyLinkCmd.label;"
               accesskey="&copyLinkCmd.accesskey;"
               oncommand="HandleMultipleAttachments(this.parentNode.attachments, 'copyUrl');"/>
+    <menuitem id="context-openFolder"
+#ifdef XP_MACOSX
+              label="&detachedAttachmentFolder.showMac.label;"
+              accesskey="&detachedAttachmentFolder.showMac.accesskey;"
+#else
+              label="&detachedAttachmentFolder.show.label;"
+              accesskey="&detachedAttachmentFolder.show.accesskey;"
+#endif
+              oncommand="HandleMultipleAttachments(this.parentNode.attachments, 'openFolder');"/>
   </menupopup>
 
   <menupopup id="attachmentListContext"

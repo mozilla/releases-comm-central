@@ -260,12 +260,28 @@ nsMsgStatusFeedback.prototype = {
       this.showStatusString(status);
   },
 
-  setOverLink(link, context) {
+  /*
+   * Set the statusbar display for hovered links, from browser.js.
+   *
+   * @param {String} url        - The href to display.
+   * @param {Element} anchorElt - Element.
+   */
+  setOverLink(url, anchorElt) {
+    if (url) {
+      url = Services.textToSubURI.unEscapeURIForUI("UTF-8", url);
+
+      // Encode bidirectional formatting characters.
+      // (RFC 3987 sections 3.2 and 4.1 paragraph 6)
+      url = url.replace(/[\u200e\u200f\u202a\u202b\u202c\u202d\u202e]/g,
+                        encodeURIComponent);
+    }
+
     if (!document.getElementById("status-bar").hidden) {
-      this._statusText.label = link;
+      this._statusText.label = url;
     } else {
       // Statusbar invisible: Show link in statuspanel instead.
-      this._statusPanel.label = link;
+      // TODO: consider porting the Firefox implementation of LinkTargetDisplay.
+      this._statusPanel.label = url;
     }
   },
 

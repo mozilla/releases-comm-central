@@ -578,25 +578,8 @@ var messageHeaderSink = {
         return;
     }
 
-    var size = null;
-    if (isExternalAttachment && url.startsWith("file:")) {
-      let fileHandler = Services.io.getProtocolHandler("file")
-        .QueryInterface(Ci.nsIFileProtocolHandler);
-      try {
-        let file = fileHandler.getFileFromURLSpec(url);
-        // Can't get size for detached attachments which are no longer
-        // available on the specified location.
-        if (file.exists())
-          size = file.fileSize;
-      } catch (e) {
-        Cu.reportError("Couldn't open external attachment; " +
-                       "url=" + url + "; " + e);
-      }
-    }
-
     currentAttachments.push(new AttachmentInfo(contentType, url, displayName,
-                                               uri, isExternalAttachment,
-                                               size));
+                                               uri, isExternalAttachment));
     this.skipAttachment = false;
 
     // If we have an attachment, set the nsMsgMessageFlags.Attachment flag
@@ -627,29 +610,41 @@ var messageHeaderSink = {
       return;
 
     let last = currentAttachments[currentAttachments.length - 1];
-    if (field == "X-Mozilla-PartSize" && !last.url.startsWith("file") &&
+    if (field == "X-Mozilla-PartSize" && !last.isFileAttachment &&
         !last.isDeleted) {
       let size = parseInt(value);
 
-      if (last.isExternalAttachment && last.url.startsWith("http")) {
+      if (last.isLinkAttachment) {
         // Check if an external link attachment's reported size is sane.
         // A size of < 2 isn't sensical so ignore such placeholder values.
         // Don't accept a size with any non numerics. Also cap the number.
-        if (isNaN(size) || size.toString().length != value.length || size < 2)
-          size = -1;
-        if (size > Number.MAX_SAFE_INTEGER)
-          size = Number.MAX_SAFE_INTEGER;
-      }
-
-      // libmime returns -1 if it never managed to figure out the size.
-      if (size != -1)
+        // We want the size to be checked again, upon user action, to make
+        // sure size is updated with an accurate value, so |sizeResolved|
+        // remains false.
+        if (isNaN(size) || size.toString().length != value.length || size < 2) {
+          last.size = -1;
+        } else if (size > Number.MAX_SAFE_INTEGER) {
+          last.size = Number.MAX_SAFE_INTEGER;
+        } else {
+          last.size = size;
+        }
+      } else if (size == -1) {
+        // libmime returns -1 if it never managed to figure out the size. We
+        // want fetch() to check again for internal attachments in this case,
+        // otherwise we accept libmime's value and set |sizeResolved|.
+        // A fetch() for a resolved size can still be requested if
+        // |ALWAYSFETCHSIZE| is true.
+        last.size = -1;
+      } else {
         last.size = size;
+        last.sizeResolved = true;
+      }
     } else if (field == "X-Mozilla-PartDownloaded" && value == "0") {
       // We haven't downloaded the attachment, so any size we get from
       // libmime is almost certainly inaccurate. Just get rid of it. (Note:
       // this relies on the fact that PartDownloaded comes after PartSize from
       // the MIME emitter.)
-      last.size = null;
+      last.size = -1;
     }
   },
 
@@ -670,12 +665,6 @@ var messageHeaderSink = {
    */
   onEndMsgDownload(url) {
     gMessageDisplay.onLoadCompleted();
-
-    let expanded = Services.prefs.getBoolPref(
-      "mailnews.attachments.display.start_expanded");
-
-    if (expanded)
-      toggleAttachmentList(true);
 
     // if we don't have any attachments, turn off the attachments flag
     if (!this.mSaveHdr) {
@@ -1708,56 +1697,62 @@ function CopyNewsgroupURL(newsgroupNode) {
  * Create a new attachment object which goes into the data attachment array.
  * This method checks whether the passed attachment is empty or not.
  *
- * @param contentType  The attachment's mimetype
- * @param url  The URL for the attachment
- * @param name  The name to be displayed for this attachment (usually the
- *              filename)
- * @param uri  The URI for the message containing the attachment
- * @param isExternalAttachment  True if the attachment has been detached
- * @param size  The size in bytes of the attachment
+ * @param {String} contentType - The attachment's mimetype.
+ * @param {String} url         - The URL for the attachment.
+ * @param {String} name        - The name to be displayed for this attachment
+ *                               (usually the filename).
+ * @param {String} uri         - The URI for the message containing the attachment.
+ * @param {Boolean} isExternalAttachment - True if the attachment has been
+ *                                         detached to file or is a link
+ *                                         attachment.
  */
-function AttachmentInfo(contentType, url, name, uri,
-                        isExternalAttachment, size) {
+function AttachmentInfo(contentType, url, name, uri, isExternalAttachment) {
+  this.message = gFolderDisplay.selectedMessage;
   this.contentType = contentType;
   this.name = name;
+  this.url = url;
   this.uri = uri;
   this.isExternalAttachment = isExternalAttachment;
-  this.size = size;
-  let match;
+  // A |size| value of -1 means we don't have a valid size. Check again if
+  // |sizeResolved| is false or ALWAYSFETCHSIZE is true. For internal attachments
+  // and link attachments with a reported size, libmime streams values to
+  // addAttachmentField() which updates this object. For external file
+  // attachments and unresolved -1 size internal attachments, |size| is updated
+  // in the isEmpty() function when the list is built. Deleted attachments
+  // are resolved to -1.
+  this.size = -1;
+  this.sizeResolved = this.isDeleted;
+  // Fetch the size for internal attachments even though libmime gave a size.
+  this.ALWAYSFETCHSIZE = false;
 
   // Remove [?&]part= from remote urls, after getting the partID.
   // Remote urls, unlike non external mail part urls, may also contain query
   // strings starting with ?; PART_RE does not handle this.
-  if (url.startsWith("http") || url.startsWith("file")) {
-    match = url.match(/[?&]part=[^&]+$/);
+  if (this.isLinkAttachment || this.isFileAttachment) {
+    let match = url.match(/[?&]part=[^&]+$/);
     match = match && match[0];
     this.partID = match && match.split("part=")[1];
-    url = url.replace(match, "");
+    this.url = url.replace(match, "");
   } else {
-    match = GlodaUtils.PART_RE.exec(url);
+    let match = GlodaUtils.PART_RE.exec(url);
     this.partID = match && match[1];
   }
-
-  // Make sure to communicate it if it's an external http attachment and not a
-  // local attachment. For feeds attachments (enclosures) are always remote,
-  // so there is nothing to communicate.
-  if (isExternalAttachment && url.startsWith("http") &&
-      !gFolderDisplay.selectedMessageIsFeed) {
-    if (this.name) {
-      this.name = url + " - " + this.name;
-    } else {
-      this.name = url;
-    }
-  }
-
-  this.url = url;
 }
 
 AttachmentInfo.prototype = {
   /**
    * Save this attachment to a file.
    */
-  save() {
+  async save() {
+    if (!this.hasFile || this.message != gFolderDisplay.selectedMessage) {
+      return;
+    }
+
+    let empty = await this.isEmpty();
+    if (empty) {
+      return;
+    }
+
     messenger.saveAttachment(this.contentType, this.url,
                              encodeURIComponent(this.name),
                              this.uri, this.isExternalAttachment);
@@ -1766,13 +1761,17 @@ AttachmentInfo.prototype = {
   /**
    * Open this attachment.
    */
-  open() {
-    if (!this.hasFile)
+  async open() {
+    if (!this.hasFile || this.message != gFolderDisplay.selectedMessage) {
       return;
+    }
 
-    if (this.isEmpty) {
-      var prompt = document.getElementById("bundle_messenger")
-                           .getString("emptyAttachment");
+    let empty = await this.isEmpty();
+    if (empty) {
+      let bundleMessenger = document.getElementById("bundle_messenger");
+      let prompt = bundleMessenger.getString(this.isExternalAttachment ?
+                                             "externalAttachmentNotFound" :
+                                             "emptyAttachment");
       msgWindow.promptDialog.alert(null, prompt);
     } else {
       messenger.openAttachment(this.contentType, this.url,
@@ -1784,8 +1783,8 @@ AttachmentInfo.prototype = {
   /**
    * Detach this attachment from the message.
    *
-   * @param aSaveFirst  true if the attachment should be saved before detaching,
-   *                    false otherwise
+   * @param {Boolean} aSaveFirst - true if the attachment should be saved
+   *                               before detaching, false otherwise.
    */
   detach(aSaveFirst) {
     messenger.detachAttachment(this.contentType, this.url,
@@ -1796,10 +1795,28 @@ AttachmentInfo.prototype = {
   /**
    * This method checks whether the attachment has been deleted or not.
    *
-   * @return true if the attachment has been deleted, false otherwise
+   * @returns true if the attachment has been deleted, false otherwise.
    */
   get isDeleted() {
     return this.contentType == "text/x-moz-deleted";
+  },
+
+  /**
+   * This method checks whether the attachment is a detached file.
+   *
+   * @returns true if the attachment is a detached file, false otherwise.
+   */
+  get isFileAttachment() {
+    return this.isExternalAttachment && this.url.startsWith("file:");
+  },
+
+  /**
+   * This method checks whether the attachment is an http link.
+   *
+   * @returns true if the attachment is an http link, false otherwise.
+   */
+  get isLinkAttachment() {
+    return this.isExternalAttachment && /^https?:/.test(this.url);
   },
 
   /**
@@ -1807,65 +1824,143 @@ AttachmentInfo.prototype = {
    * Deleted attachments or detached attachments with missing external files
    * do *not* have a file.
    *
-   * @return true if the attachment has an associated file, false otherwise
+   * @returns true if the attachment has an associated file, false otherwise.
    */
   get hasFile() {
-    if (this.isDeleted)
+    if (this.sizeResolved && this.size == -1) {
       return false;
-    if (this.isExternalAttachment && this.url.startsWith("file:") &&
-        this.size === null)
-      return false;
+    }
 
     return true;
   },
 
   /**
-   * This method checks whether the attachment is empty or not.
+   * Return display url, decoded and converted to utf8 from IDN punycode ascii,
+   * if the attachment is external (http or file schemes).
    *
-   * @return  true if the attachment is empty, false otherwise
+   * @returns {String} url.
    */
-  get isEmpty() {
-    // Create an input stream on the attachment url.
-    let url = Services.io.newURI(this.url);
-    let channel = Services.io.newChannelFromURI(url,
-                                                null,
-                                                Services.scriptSecurityManager.getSystemPrincipal(),
-                                                null,
-                                                Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                                Ci.nsIContentPolicy.TYPE_OTHER);
-    let stream = channel.open();
-
-    let inputStream = Cc["@mozilla.org/binaryinputstream;1"]
-                        .createInstance(Ci.nsIBinaryInputStream);
-    inputStream.setInputStream(stream);
-
-    let bytesAvailable = 0;
-
-    if (inputStream.isNonBlocking()) {
-      // If the stream does not block, test on two conditions:
-      //   - attachment is empty     -> 0 bytes will be returned on readBytes()
-      //   - attachment is not empty -> NS_BASE_STREAM_WOULD_BLOCK exception is
-      //                                thrown
-      let chunk = null;
-
-      try {
-        chunk = inputStream.readBytes(1);
-      } catch (ex) {
-        if (ex.result == Cr.NS_BASE_STREAM_WOULD_BLOCK) {
-          bytesAvailable = 1;
-        } else {
-          throw ex;
-        }
-      }
-      if (chunk)
-        bytesAvailable = chunk.length;
-    } else {
-      // If the stream blocks, we can rely on available() to return the correct
-      // number.
-      bytesAvailable = inputStream.available();
+  get displayUrl() {
+    if (this.isExternalAttachment) {
+      // For status bar url display purposes, we want the displaySpec.
+      // The ?part= has already been removed.
+      return decodeURI(makeURI(this.url).displaySpec);
     }
 
-    return (bytesAvailable == 0);
+    return this.url;
+  },
+
+  /**
+   * This method checks whether the attachment url location exists and
+   * is accessible. For http and file urls, fetch() will have the size
+   * in the content-length header.
+   *
+   * @returns true if the attachment is empty or error, false otherwise.
+   */
+  async isEmpty() {
+    if (this.isDeleted)
+      return true;
+
+    // If the size is already checked and failed, return.
+    if (this.sizeResolved && this.size == -1 && !this.ALWAYSFETCHSIZE)
+      return true;
+
+    // We already have the size; we don't trust link attachment sizes reported
+    // in the mime part or don't have them.
+    if (!this.isLinkAttachment && this.size > 0 && !this.ALWAYSFETCHSIZE)
+      return false;
+
+    let url = this.url;
+    let empty = true;
+    let size = 0;
+    let options = { method: "HEAD" };
+
+   // NOTE: For internal mailbox, imap, news urls the response body must get
+   // the content length with getReader().read() but we don't need to do this
+   // here as libmime streams it already in addAttachmentField(). For imap or
+   // news urls with credentials (username, userPass), we must remove them
+   // as Request fails such urls with a MSG_URL_HAS_CREDENTIALS error.
+    if (url.startsWith("imap://") || url.startsWith("news://")) {
+      let uri = makeURI(url);
+      if (uri.username)
+        url = url.replace(uri.username + "@", "");
+      if (uri.userPass)
+        url = url.replace(uri.userPass + "@", "");
+    }
+
+    let request = new Request(url, options);
+
+    if (this.isExternalAttachment || !this.sizeResolved || this.ALWAYSFETCHSIZE) {
+      updateAttachmentsDisplay(this, true);
+    }
+
+    await fetch(request)
+      .then((response) => {
+        if (!response.ok) {
+          console.warn("AttachmentInfo.isEmpty: fetch response error - " + response.statusText);
+          return null;
+        }
+
+        if (this.isLinkAttachment) {
+          if (response.status < 200 || response.status > 304) {
+            console.warn("AttachmentInfo.isEmpty: link fetch response status - " + response.status);
+            return null;
+          }
+        }
+
+        return response;
+      })
+      .then(async (response) => {
+        if (this.isExternalAttachment) {
+          size = response ? response.headers.get("content-length") : 0;
+        } else if (!this.sizeResolved || this.ALWAYSFETCHSIZE) {
+          // Check the attachment again if addAttachmentField() sets a
+          // libmime -1 return value for size to null in this object.
+          let data = await response.body.getReader().read();
+          size = data.value.length;
+        } else {
+          // Accept the libmime streamed size for internal attachments.
+          size = this.size;
+        }
+
+        if (size > 0)
+          empty = false;
+      })
+      .catch((error) => {
+        console.warn("AttachmentInfo.isEmpty: error - " + error.message);
+      });
+
+    if (this.isExternalAttachment || !this.sizeResolved || this.ALWAYSFETCHSIZE) {
+      // For link attachments, we may have had a published value or null
+      // indicating unknown value. We now know the real size, so set it and
+      // update the ui. For detached file attachments, get the size here
+      // instead of the old xpcom way. Finally, also update libmime unknown
+      // internal attachment size.
+      this.size = empty ? -1 : size;
+      this.sizeResolved = true;
+      updateAttachmentsDisplay(this, false);
+    }
+
+    return empty;
+  },
+
+  /**
+   * Open a file attachment's containing folder.
+   */
+  openFolder() {
+    if (!this.isFileAttachment || !this.hasFile) {
+      return;
+    }
+
+    // The file url is stored in the attachment info part with unix path and
+    // needs to be converted to os path for nsIFile.
+    let fileHandler = Services.io.getProtocolHandler("file")
+                                 .QueryInterface(Ci.nsIFileProtocolHandler);
+    try {
+      fileHandler.getFileFromURLSpec(this.displayUrl).reveal();
+    } catch (ex) {
+      console.error("AttachmentInfo.openFolder: file - " + this.displayUrl + ", " + ex);
+    }
   },
 };
 
@@ -1879,6 +1974,7 @@ function CanDetachAttachments() {
                    MailOfflineMgr.isOnline());
   if (canDetach && ("content-type" in currentHeaderData))
     canDetach = !ContentTypeIsSMIME(currentHeaderData["content-type"].headerValue);
+
   return canDetach;
 }
 
@@ -1913,6 +2009,7 @@ function onShowAttachmentItemContextMenu() {
   let deleteMenu     = document.getElementById("context-deleteAttachment");
   let copyUrlMenuSep = document.getElementById("context-menu-copyurl-separator");
   let copyUrlMenu    = document.getElementById("context-copyAttachmentUrl");
+  let openFolderMenu = document.getElementById("context-openFolder");
 
   // If we opened the context menu from the attachment info area (the paperclip,
   // "1 attachment" label, filename, or file size, just grab the first (and
@@ -1938,14 +2035,19 @@ function onShowAttachmentItemContextMenu() {
   var canDetachSelected = CanDetachAttachments() && !allSelectedDetached &&
                           !allSelectedDeleted;
   let allSelectedHttp = selectedAttachments.every(function(attachment) {
-    return attachment.url.startsWith("http");
+    return attachment.isLinkAttachment;
+  });
+  let allSelectedFile = selectedAttachments.every(function(attachment) {
+    return attachment.isFileAttachment;
   });
 
   openMenu.disabled = allSelectedDeleted;
   saveMenu.disabled = allSelectedDeleted;
   detachMenu.disabled = !canDetachSelected;
   deleteMenu.disabled = !canDetachSelected;
-  copyUrlMenuSep.hidden = copyUrlMenu.hidden = !allSelectedHttp;
+  copyUrlMenuSep.hidden = copyUrlMenu.hidden = !(allSelectedHttp || allSelectedFile);
+  openFolderMenu.hidden = !allSelectedFile;
+  openFolderMenu.disabled = allSelectedDeleted;
 }
 
 /**
@@ -2161,12 +2263,12 @@ function goUpdateAttachmentCommands() {
   goUpdateCommand("cmd_deleteAllAttachments");
 }
 
-function displayAttachmentsForExpandedView() {
+async function displayAttachmentsForExpandedView() {
   var bundle = document.getElementById("bundle_messenger");
   var numAttachments = currentAttachments.length;
-  var totalSize = 0;
   var attachmentView = document.getElementById("attachmentView");
   var attachmentSplitter = document.getElementById("attachment-splitter");
+  document.getElementById("attachmentIcon").removeAttribute("src");
 
   if (numAttachments <= 0) {
     attachmentView.collapsed = true;
@@ -2183,8 +2285,6 @@ function displayAttachmentsForExpandedView() {
 
     toggleAttachmentList(false);
 
-    var lastPartID;
-    var unknownSize = false;
     for (let attachment of currentAttachments) {
       // Create a new attachment widget
       var displayName = SanitizeAttachmentDisplayName(attachment);
@@ -2192,21 +2292,18 @@ function displayAttachmentsForExpandedView() {
       item.setAttribute("tooltiptext", attachment.name);
       item.addEventListener("command", attachmentItemCommand);
 
-      // Check if this attachment's part ID is a child of the last attachment
-      // we counted. If so, skip it, since we already accounted for its size
-      // from its parent.
-      if (!lastPartID || attachment.partID.indexOf(lastPartID) != 0) {
-        lastPartID = attachment.partID;
-        if (attachment.size !== null)
-          totalSize += attachment.size;
-        else if (!attachment.isDeleted)
-          unknownSize = true;
+      // Get a detached file's size or an internal attachment size that is not
+      // yet resolved, or if |ALWAYSFETCHSIZE| is true. For link attachments,
+      // the user must always initiate the fetch for privacy reasons.
+      if (!attachment.isLinkAttachment &&
+          (!attachment.sizeResolved || attachment.ALWAYSFETCHSIZE)) {
+        await attachment.isEmpty();
       }
     }
 
-    // Show the appropriate toolbar button and label based on the number of
-    // attachments.
-    updateSaveAllAttachmentsButton();
+    if (Services.prefs.getBoolPref("mailnews.attachments.display.start_expanded")) {
+      toggleAttachmentList(true);
+    }
 
     let attachmentInfo = document.getElementById("attachmentInfo");
     let attachmentCount = document.getElementById("attachmentCount");
@@ -2231,16 +2328,97 @@ function displayAttachmentsForExpandedView() {
       attachmentName.hidden = true;
     }
 
-    let sizeStr = messenger.formatFileSize(totalSize);
-    if (unknownSize) {
-      if (totalSize == 0)
-        sizeStr = bundle.getString("attachmentSizeUnknown");
-      else
-        sizeStr = bundle.getFormattedString("attachmentSizeAtLeast", [sizeStr]);
-    }
-    attachmentSize.setAttribute("value", sizeStr);
+    attachmentSize.value = getAttachmentsTotalSizeStr();
+
+    // Extra candy for external attachments.
+    displayAttachmentsForExpandedViewExternal();
+
+    // Show the appropriate toolbar button and label based on the number of
+    // attachments.
+    updateSaveAllAttachmentsButton();
 
     gBuildAttachmentsForCurrentMsg = true;
+  }
+}
+
+function displayAttachmentsForExpandedViewExternal() {
+  let bundleMessenger = document.getElementById("bundle_messenger");
+  let attachmentName = document.getElementById("attachmentName");
+  let attachmentList = document.getElementById("attachmentList");
+
+  // Attachment bar single.
+  let firstAttachment = attachmentList.firstElementChild.attachment;
+  let isExternalAttachment = firstAttachment.isExternalAttachment;
+  let displayUrl = isExternalAttachment ? firstAttachment.displayUrl : "";
+  let tooltiptext = isExternalAttachment || firstAttachment.isDeleted ?
+    "" : attachmentName.getAttribute("tooltiptextopen");
+  let externalAttachmentNotFound = bundleMessenger.getString("externalAttachmentNotFound");
+
+  attachmentName.textContent = displayUrl;
+  attachmentName.tooltipText = tooltiptext;
+  attachmentName.setAttribute("tooltiptextexternalnotfound", externalAttachmentNotFound);
+  attachmentName.setAttribute("onmouseover",
+                              `MsgStatusFeedback.setOverLink("${displayUrl}")`);
+  attachmentName.setAttribute("onmouseout",
+                              "MsgStatusFeedback.setOverLink('')");
+  attachmentName.setAttribute("onfocus",
+                              `MsgStatusFeedback.setOverLink("${displayUrl}")`);
+  attachmentName.setAttribute("onblur",
+                              "MsgStatusFeedback.setOverLink('')");
+  attachmentName.classList.remove("text-link");
+  attachmentName.classList.remove("notfound");
+
+  if (firstAttachment.isDeleted) {
+    attachmentName.classList.add("notfound");
+  }
+
+  if (isExternalAttachment) {
+    attachmentName.classList.add("text-link");
+
+    if (!firstAttachment.hasFile) {
+      attachmentName.setAttribute("tooltiptext", externalAttachmentNotFound);
+      attachmentName.classList.add("notfound");
+    }
+  }
+
+  // Expanded attachment list.
+  let index = 0;
+  for (let attachmentitem of attachmentList.children) {
+    let attachment = attachmentitem.attachment;
+    if (attachment.isDeleted) {
+      attachmentitem.classList.add("notfound");
+    }
+
+    if (attachment.isExternalAttachment) {
+      displayUrl = attachment.displayUrl;
+      attachmentitem.textContent = displayUrl;
+      attachmentitem.setAttribute("tooltiptext", "");
+      attachmentitem.setAttribute("onmouseover",
+                                  `MsgStatusFeedback.setOverLink("${displayUrl}")`);
+      attachmentitem.setAttribute("onmouseout",
+                                  "MsgStatusFeedback.setOverLink('')");
+      attachmentitem.setAttribute("onfocus",
+                                  `MsgStatusFeedback.setOverLink("${displayUrl}")`);
+      attachmentitem.setAttribute("onblur",
+                                  "MsgStatusFeedback.setOverLink('')");
+
+      let name = attachmentitem.boxObject.firstChild
+                               .getElementsByClassName("attachmentcell-name");
+      name[0].classList.add("text-link");
+
+      if (attachment.isLinkAttachment) {
+        if (index == 0) {
+          attachment.size = currentAttachments[index].size;
+        }
+      }
+
+      if (!attachment.hasFile) {
+        attachmentitem.setAttribute("tooltiptext", externalAttachmentNotFound);
+        attachmentitem.classList.add("notfound");
+      }
+    }
+
+    index++;
   }
 }
 
@@ -2264,6 +2442,129 @@ function updateSaveAllAttachmentsButton() {
   saveAllSingle.hidden = !single;
   saveAllMultiple.hidden = single;
   saveAllSingle.disabled = saveAllMultiple.disabled = allDeleted;
+}
+
+/**
+ * Update the attachments display info after a particular attachment's
+ * existence has been verified.
+ *
+ * @param {AttachmentInfo} attachmentInfo
+ * @param {Boolean} isFetching
+ */
+function updateAttachmentsDisplay(attachmentInfo, isFetching) {
+  if (attachmentInfo.isExternalAttachment || attachmentInfo.ALWAYSFETCHSIZE) {
+    let attachmentList = document.getElementById("attachmentList");
+    let attachmentIcon = document.getElementById("attachmentIcon");
+    let attachmentName = document.getElementById("attachmentName");
+    let attachmentSize = document.getElementById("attachmentSize");
+    let attachmentItem = attachmentList.findItemForAttachment(attachmentInfo);
+    let index = attachmentList.getIndexOfItem(attachmentItem);
+
+    if (isFetching) {
+      // Set elements busy to show the user this is potentially a long network
+      // fetch for the link attachment.
+      attachmentIcon.setAttribute("src", "chrome://global/skin/icons/loading.png");
+      attachmentItem.classList.add("busy");
+      attachmentItem.setAttribute("image", "chrome://global/skin/icons/loading.png");
+      return;
+    }
+
+    if (attachmentInfo.message != gFolderDisplay.selectedMessage) {
+      // The user changed messages while fetching, reset the bar and exit;
+      // the listitems are torn down/rebuilt on each message load.
+      attachmentIcon.removeAttribute("src");
+      return;
+    }
+
+    if (index == -1) {
+      // The user changed messages while fetching, then came back to the same
+      // message. The reset of busy state has already happened and anyway the
+      // item has already been torn down so the index will be invalid; exit.
+      return;
+    }
+
+    currentAttachments[index].size = attachmentInfo.size;
+    let tooltiptextExternalNotFound = attachmentName.getAttribute("tooltiptextexternalnotfound");
+
+    let sizeStr;
+    let bundle = document.getElementById("bundle_messenger");
+    if (attachmentInfo.size < 1) {
+      sizeStr = bundle.getString("attachmentSizeUnknown");
+    } else {
+      sizeStr = messenger.formatFileSize(attachmentInfo.size);
+    }
+
+    // The attachment listitem.
+    attachmentItem.classList.remove("busy");
+    attachmentItem.removeAttribute("image");
+    attachmentItem._updateImage();
+    if (attachmentInfo.hasFile) {
+      attachmentItem.setAttribute("size", sizeStr);
+      attachmentItem.removeAttribute("tooltiptext");
+      attachmentItem.classList.remove("notfound");
+    } else {
+      attachmentItem.removeAttribute("size");
+      attachmentItem.setAttribute("tooltiptext", tooltiptextExternalNotFound);
+      attachmentItem.classList.add("notfound");
+    }
+
+    // The attachmentbar.
+    updateSaveAllAttachmentsButton();
+    attachmentSize.value = getAttachmentsTotalSizeStr();
+    let attachemtsBusy = attachmentList.querySelectorAll(".attachmentItem.busy");
+    if (attachemtsBusy.length == 0)
+      attachmentIcon.removeAttribute("src");
+
+    // If it's the first one (and there's only one).
+    if (index == 0) {
+      if (attachmentInfo.hasFile) {
+        attachmentName.removeAttribute("tooltiptext");
+        attachmentName.classList.remove("notfound");
+      } else {
+        attachmentName.setAttribute("tooltiptext", tooltiptextExternalNotFound);
+        attachmentName.classList.add("notfound");
+      }
+    }
+
+    // Reset widths since size may have changed; ensure no false cropping of
+    // the attachment item name.
+    attachmentList.setOptimumWidth();
+  }
+}
+
+/**
+ * Calculate the total size of all attachments in the message as emitted to
+ * |currentAttachments| and return a pretty string.
+ *
+ * @returns {String} - Description of the attachment size (e.g. 123 KB or 3.1MB)
+ */
+function getAttachmentsTotalSizeStr() {
+  let bundle = document.getElementById("bundle_messenger");
+  let totalSize = 0;
+  let lastPartID;
+  let unknownSize = false;
+  for (let attachment of currentAttachments) {
+    // Check if this attachment's part ID is a child of the last attachment
+    // we counted. If so, skip it, since we already accounted for its size
+    // from its parent.
+    if (!lastPartID || attachment.partID.indexOf(lastPartID) != 0) {
+      lastPartID = attachment.partID;
+      if (attachment.size != -1)
+        totalSize += Number(attachment.size);
+      else if (!attachment.isDeleted)
+        unknownSize = true;
+    }
+  }
+
+  let sizeStr = messenger.formatFileSize(totalSize);
+  if (unknownSize) {
+    if (totalSize == 0)
+      sizeStr = bundle.getString("attachmentSizeUnknown");
+    else
+      sizeStr = bundle.getFormattedString("attachmentSizeAtLeast", [sizeStr]);
+  }
+
+  return sizeStr;
 }
 
 /**
@@ -2331,7 +2632,7 @@ function toggleAttachmentList(expanded, updateFocus) {
  */
 function getIconForAttachment(attachment) {
   if (attachment.isDeleted) {
-    return "chrome://messenger/skin/icon/attachment-deleted.png";
+    return "chrome://messenger/skin/icons/attachment-deleted.png";
   }
   return `moz-icon://${attachment.name}?size=16&amp;contentType=${attachment.contentType}`;
 }
@@ -2410,6 +2711,22 @@ function addAttachmentToPopup(popup, attachment, attachmentIndex) {
   // don't, our attachment menu items will not show up.
   item = popup.insertBefore(item, popup.childNodes[indexOfSeparator]);
 
+  if (attachment.isExternalAttachment) {
+    if (!attachment.hasFile) {
+      item.classList.add("notfound");
+    } else {
+      // The text-link class must be added to the <label> and have a <menu>
+      // hover rule. Adding to <menu> makes hover overflow the underline to
+      // the popup items.
+      let label = item.boxObject.firstChild.nextSibling;
+      label.classList.add("text-link");
+    }
+  }
+
+  if (attachment.isDeleted) {
+    item.classList.add("notfound");
+  }
+
   var detached = attachment.isExternalAttachment;
   var deleted  = !attachment.hasFile;
   var canDetach = CanDetachAttachments() && !deleted && !detached;
@@ -2459,6 +2776,19 @@ function addAttachmentToPopup(popup, attachment, attachmentIndex) {
   menuitementry.setAttribute("accesskey", getString("deleteLabelAccesskey"));
   menuitementry.setAttribute("disabled", !canDetach);
   menuitementry = openpopup.appendChild(menuitementry);
+
+  // Create the "open containing folder" menu item, for existing detached only.
+  if (attachment.isFileAttachment) {
+    let menuseparator = document.createElement("menuseparator");
+    openpopup.appendChild(menuseparator);
+    menuitementry = document.createElement("menuitem");
+    menuitementry.attachment = attachment;
+    menuitementry.setAttribute("oncommand", "this.attachment.openFolder();");
+    menuitementry.setAttribute("label", getString("openFolderLabel"));
+    menuitementry.setAttribute("accesskey", getString("openFolderLabelAccesskey"));
+    menuitementry.setAttribute("disabled", !attachment.hasFile);
+    menuitementry = openpopup.appendChild(menuitementry);
+  }
 }
 
 /**
@@ -2523,9 +2853,17 @@ function HandleSelectedAttachments(action) {
  * @param action  one of "open", "save", "saveAs", "detach", or "delete"
  */
 function HandleMultipleAttachments(attachments, action) {
+  // Feed message link attachments save handling.
+  if (gFolderDisplay.selectedMessageIsFeed &&
+      (action == "save" || action == "saveAs")) {
+    saveLinkAttachmentsToFile(attachments);
+    return;
+  }
+
   // convert our attachment data into some c++ friendly structs
   var attachmentContentTypeArray = [];
   var attachmentUrlArray = [];
+  var attachmentDisplayUrlArray = [];
   var attachmentDisplayNameArray = [];
   var attachmentMessageUriArray = [];
 
@@ -2533,12 +2871,14 @@ function HandleMultipleAttachments(attachments, action) {
   var actionIndex = 0;
   for (let attachment of attachments) {
     // Exclude attachment which are 1) deleted, or 2) detached with missing
-    // external files.
-    if (!attachment.hasFile)
+    // external files, unless copying urls.
+    if (!attachment.hasFile && action != "copyUrl") {
       continue;
+    }
 
     attachmentContentTypeArray[actionIndex] = attachment.contentType;
     attachmentUrlArray[actionIndex] = attachment.url;
+    attachmentDisplayUrlArray[actionIndex] = attachment.displayUrl;
     attachmentDisplayNameArray[actionIndex] = encodeURI(attachment.name);
     attachmentMessageUriArray[actionIndex] = attachment.uri;
     ++actionIndex;
@@ -2604,10 +2944,47 @@ function HandleMultipleAttachments(attachments, action) {
       // all selected attachment urls are http.
       let clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"]
                         .getService(Ci.nsIClipboardHelper);
-      clipboard.copyString(attachmentUrlArray.join("\n"));
+      clipboard.copyString(attachmentDisplayUrlArray.join("\n"));
+      return;
+    case "openFolder":
+      for (let attachment of attachments) {
+        setTimeout(() => attachment.openFolder());
+      }
       return;
     default:
       throw new Error("unknown HandleMultipleAttachments action: " + action);
+  }
+}
+
+/**
+ * Link attachments are passed as an array of AttachmentInfo objects. This
+ * is meant to download http link content using the browser method.
+ *
+ * @param {AttachmentInfo[]} aAttachmentInfoArray - Array of attachmentInfo.
+ */
+async function saveLinkAttachmentsToFile(aAttachmentInfoArray) {
+  let aURL, aDocument, aDefaultFileName, aContentDisposition,
+      aContentType, aShouldBypassCache, aFilePickerTitleKey,
+      aChosenData, aReferrer, aInitiatingDocument, aSkipPrompt,
+      aCacheKey, aIsContentWindowPrivate;
+  // Required for privacy context.
+  aInitiatingDocument = document;
+  for (let attachment of aAttachmentInfoArray) {
+    if (!attachment.hasFile || attachment.message != gFolderDisplay.selectedMessage) {
+      continue;
+    }
+
+    let empty = await attachment.isEmpty();
+    if (empty) {
+      continue;
+    }
+
+    aURL = attachment.url;
+    aDefaultFileName = attachment.name;
+    internalSave(aURL, aDocument, aDefaultFileName, aContentDisposition,
+                 aContentType, aShouldBypassCache, aFilePickerTitleKey,
+                 aChosenData, aReferrer, aInitiatingDocument, aSkipPrompt,
+                 aCacheKey, aIsContentWindowPrivate);
   }
 }
 

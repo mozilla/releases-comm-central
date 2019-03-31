@@ -328,8 +328,14 @@
           let border = this._childNodes[0].boxObject.width -
                        this._childNodes[0].clientWidth;
 
-          for (let child of this._childNodes)
+          // If widths have changed after the initial calculation (updated
+          // size string), clear each item's prior hardcoded width so
+          // scrollwidth is natural, then get the width for the widest item
+          // and set it on all the items again.
+          for (let child of this._childNodes) {
+            child.width = "";
             width = Math.max(width, child.scrollWidth);
+          }
           for (let child of this._childNodes)
             child.width = width + border;
         ]]></body>

@@ -20,11 +20,3 @@
 .attachmentcell-size {
   color: GrayText;
 }
-
-.attachmentItem[selected="true"] .attachmentcell-icon {
-  filter: url("chrome://messenger/skin/imageFilters.svg#selected");
-}
-
-.attachmentList:focus > .attachmentItem[selected="true"] .attachmentcell-icon {
-  filter: url("chrome://messenger/skin/imageFilters.svg#selected-focus");
-}

@@ -95,6 +95,11 @@
 
 <!ENTITY openAttachment.tooltip "Open the attached file">
 
+<!ENTITY detachedAttachmentFolder.show.label        "Open Containing Folder">
+<!ENTITY detachedAttachmentFolder.show.accesskey    "F">
+<!ENTITY detachedAttachmentFolder.showMac.label     "Show In Finder">
+<!ENTITY detachedAttachmentFolder.showMac.accesskey "F">
+
 <!-- Attachment toolbar items -->
 <!ENTITY saveAttachmentButton1.label       "Save">
 <!ENTITY saveAttachmentButton1.tooltip     "Save the attached file">

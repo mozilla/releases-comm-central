@@ -17,6 +17,7 @@
                             <label id="attachmentName" crop="center" flex="1"
                                    role="button"
                                    tooltiptext="&openAttachment.tooltip;"
+                                   tooltiptextopen="&openAttachment.tooltip;"
                                    onclick="OpenAttachmentFromBar(event);"
                                    ondragstart="nsDragAndDrop.startDrag(event,attachmentNameDNDObserver);"/>
                             <label id="attachmentSize"/>
