@@ -1861,14 +1861,13 @@ AttachmentInfo.prototype = {
     if (this.isDeleted)
       return true;
 
-    // If the size is already checked and failed, return.
-    if (this.sizeResolved && this.size == -1 && !this.ALWAYSFETCHSIZE)
+    // We have a resolved size.
+    if (this.sizeResolved && !this.ALWAYSFETCHSIZE) {
+      if (this.size > 0) {
+        return false;
+      }
       return true;
-
-    // We already have the size; we don't trust link attachment sizes reported
-    // in the mime part or don't have them.
-    if (!this.isLinkAttachment && this.size > 0 && !this.ALWAYSFETCHSIZE)
-      return false;
+    }
 
     let url = this.url;
     let empty = true;
@@ -1897,13 +1896,15 @@ AttachmentInfo.prototype = {
     await fetch(request)
       .then((response) => {
         if (!response.ok) {
-          console.warn("AttachmentInfo.isEmpty: fetch response error - " + response.statusText);
+          console.warn("AttachmentInfo.isEmpty: fetch response error - " +
+                       response.statusText + ", response.url - " + response.url);
           return null;
         }
 
         if (this.isLinkAttachment) {
           if (response.status < 200 || response.status > 304) {
-            console.warn("AttachmentInfo.isEmpty: link fetch response status - " + response.status);
+            console.warn("AttachmentInfo.isEmpty: link fetch response status - " +
+                         response.status + ", response.url - " + response.url);
             return null;
           }
         }
@@ -1915,7 +1916,7 @@ AttachmentInfo.prototype = {
           size = response ? response.headers.get("content-length") : 0;
         } else if (!this.sizeResolved || this.ALWAYSFETCHSIZE) {
           // Check the attachment again if addAttachmentField() sets a
-          // libmime -1 return value for size to null in this object.
+          // libmime -1 return value for size in this object.
           let data = await response.body.getReader().read();
           size = data.value.length;
         } else {
@@ -1931,7 +1932,7 @@ AttachmentInfo.prototype = {
       });
 
     if (this.isExternalAttachment || !this.sizeResolved || this.ALWAYSFETCHSIZE) {
-      // For link attachments, we may have had a published value or null
+      // For link attachments, we may have had a published value or -1
       // indicating unknown value. We now know the real size, so set it and
       // update the ui. For detached file attachments, get the size here
       // instead of the old xpcom way. Finally, also update libmime unknown
