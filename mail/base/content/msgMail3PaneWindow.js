@@ -1956,8 +1956,8 @@ var TabsInTitlebar = {
   },
 
   _sizePlaceholder(type, width) {
-    Array.forEach(document.querySelectorAll(".titlebar-placeholder[type='" + type + "']"),
-                  function(node) { node.style.width = width + "px"; });
+    document.querySelectorAll(".titlebar-placeholder[type='" + type + "']")
+            .forEach(function(node) { node.style.width = width + "px"; });
   },
 
   uninit() {

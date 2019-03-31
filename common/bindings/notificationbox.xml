@@ -70,7 +70,7 @@
           <![CDATA[
             var closedNotification = this._closedNotification;
             var notifications = this.getElementsByTagName("xbl-notification");
-            return Array.filter(notifications, n => n != closedNotification);
+            return Array.from(notifications).filter(n => n != closedNotification);
           ]]>
         </getter>
       </property>
