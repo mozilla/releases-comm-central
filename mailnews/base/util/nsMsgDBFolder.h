@@ -77,8 +77,7 @@ class nsMsgKeySetU;
  * class derived from nsMsgFolder for those folders that use an nsIMsgDatabase
  */
 
-class NS_MSG_BASE nsMsgDBFolder : public nsRDFResource,
-                                  public nsSupportsWeakReference,
+class NS_MSG_BASE nsMsgDBFolder : public nsSupportsWeakReference,
                                   public nsIMsgFolder,
                                   public nsIDBChangeListener,
                                   public nsIUrlListener,
@@ -86,7 +85,7 @@ class NS_MSG_BASE nsMsgDBFolder : public nsRDFResource,
                                   public nsIMsgTraitClassificationListener {
  public:
   nsMsgDBFolder(void);
-  NS_DECL_ISUPPORTS_INHERITED
+  NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIMSGFOLDER
   NS_DECL_NSIDBCHANGELISTENER
   NS_DECL_NSIURLLISTENER
@@ -95,9 +94,6 @@ class NS_MSG_BASE nsMsgDBFolder : public nsRDFResource,
 
   NS_IMETHOD WriteToFolderCacheElem(nsIMsgFolderCacheElement *element);
   NS_IMETHOD ReadFromFolderCacheElem(nsIMsgFolderCacheElement *element);
-
-  // nsRDFResource overrides
-  NS_IMETHOD Init(const char *aURI) override;
 
   nsresult CreateDirectoryForFolder(nsIFile **result);
   nsresult CreateBackupDirectory(nsIFile **result);
@@ -202,6 +198,7 @@ class NS_MSG_BASE nsMsgDBFolder : public nsRDFResource,
   nsresult MessagesInKeyOrder(nsTArray<nsMsgKey> &aKeyArray,
                               nsIMsgFolder *srcFolder,
                               nsIMutableArray *messages);
+  nsCString mURI;
 
   nsCOMPtr<nsIMsgDatabase> mDatabase;
   nsCOMPtr<nsIMsgDatabase> mBackupDatabase;

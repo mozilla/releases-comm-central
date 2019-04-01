@@ -102,8 +102,6 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
   NS_DECL_NSIMSGLOCALMAILFOLDER
   NS_DECL_NSIJUNKMAILCLASSIFICATIONLISTENER
   NS_DECL_ISUPPORTS_INHERITED
-  // nsIRDFResource methods:
-  NS_IMETHOD Init(const char *aURI) override;
 
   // nsIUrlListener methods
   NS_IMETHOD OnStartRunningUrl(nsIURI *aUrl) override;

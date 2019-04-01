@@ -89,14 +89,9 @@ folderLookupService.prototype = {
       return null;
     }
 
-    // TODO: we'll need to move init() up into nsIMsgFolder interface
-    let res = factory.createInstance(null, Ci.nsIRDFResource);
-    if (!res) {
-      return null;
-    }
-    folder = res.QueryInterface(Ci.nsIMsgFolder);
+    folder = factory.createInstance(null, Ci.nsIMsgFolder);
     if (folder) {
-      res.Init(uri);
+      folder.Init(uri);
       // Add the new folder to our map. Store a weak reference instead, so that
       // the folder can be closed when necessary.
       let weakRef = folder

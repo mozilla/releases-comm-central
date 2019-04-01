@@ -138,11 +138,10 @@ NS_NAMED_LITERAL_CSTRING(kFolderLoaded, "FolderLoaded");
 NS_NAMED_LITERAL_CSTRING(kNumNewBiffMessages, "NumNewBiffMessages");
 NS_NAMED_LITERAL_CSTRING(kRenameCompleted, "RenameCompleted");
 
-NS_IMPL_ISUPPORTS_INHERITED(nsMsgDBFolder, nsRDFResource,
-                            nsISupportsWeakReference, nsIMsgFolder,
-                            nsIDBChangeListener, nsIUrlListener,
-                            nsIJunkMailClassificationListener,
-                            nsIMsgTraitClassificationListener)
+NS_IMPL_ISUPPORTS(nsMsgDBFolder, nsISupportsWeakReference, nsIMsgFolder,
+                  nsIDBChangeListener, nsIUrlListener,
+                  nsIJunkMailClassificationListener,
+                  nsIMsgTraitClassificationListener)
 
 nsMsgDBFolder::nsMsgDBFolder(void)
     : mAddListener(true),
@@ -2767,10 +2766,9 @@ nsresult nsMsgDBFolder::createCollationKeyGenerator() {
 
 NS_IMETHODIMP
 nsMsgDBFolder::Init(const char *aURI) {
-  // for now, just initialize everything during Init()
-  nsresult rv;
-  rv = nsRDFResource::Init(aURI);
-  NS_ENSURE_SUCCESS(rv, rv);
+  NS_ASSERTION(aURI != nullptr, "null ptr");
+  if (!aURI) return NS_ERROR_NULL_POINTER;
+  mURI = aURI;
   return CreateBaseMessageURI(nsDependentCString(aURI));
 }
 
@@ -2781,7 +2779,8 @@ nsresult nsMsgDBFolder::CreateBaseMessageURI(const nsACString &aURI) {
 
 NS_IMETHODIMP
 nsMsgDBFolder::GetURI(nsACString &name) {
-  return nsRDFResource::GetValueUTF8(name);
+  name = mURI;
+  return NS_OK;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3275,14 +3274,12 @@ NS_IMETHODIMP nsMsgDBFolder::GetChildWithURI(const nsACString &uri, bool deep,
     nsCOMPtr<nsISupports> item;
     enumerator->GetNext(getter_AddRefs(item));
 
-    nsCOMPtr<nsIRDFResource> folderResource(do_QueryInterface(item));
     nsCOMPtr<nsIMsgFolder> folder(do_QueryInterface(item));
-    if (folderResource && folder) {
-      const char *folderURI;
-      rv = folderResource->GetValueConst(&folderURI);
-      if (NS_FAILED(rv)) return rv;
+    if (folder) {
+      nsCString folderURI;
+      rv = folder->GetURI(folderURI);
+      NS_ENSURE_SUCCESS(rv, rv);
       bool equal =
-          folderURI &&
           (caseInsensitive
                ? uri.Equals(folderURI, nsCaseInsensitiveCStringComparator())
                : uri.Equals(folderURI));

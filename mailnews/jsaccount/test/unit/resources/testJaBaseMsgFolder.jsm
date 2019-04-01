@@ -22,7 +22,6 @@ const JaBaseMsgFolderProperties = {
     Ci.nsIUrlListener,
     Ci.nsIJunkMailClassificationListener,
     Ci.nsIMsgTraitClassificationListener,
-    Ci.nsIRDFResource,
     Ci.nsIInterfaceRequestor,
     Ci.msgIOverride,
   ],

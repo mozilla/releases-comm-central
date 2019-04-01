@@ -118,8 +118,8 @@ JaCppMsgFolderDelegator::JaCppMsgFolderDelegator()
 NS_IMPL_ISUPPORTS_INHERITED(JaCppMsgFolderDelegator, JaBaseCppMsgFolder,
                             msgIOverride)
 
-NS_IMPL_ISUPPORTS(JaCppMsgFolderDelegator::Super, nsIMsgFolder, nsIRDFResource,
-                  nsIRDFNode, nsIDBChangeListener, nsIUrlListener,
+NS_IMPL_ISUPPORTS(JaCppMsgFolderDelegator::Super, nsIMsgFolder,
+                  nsIDBChangeListener, nsIUrlListener,
                   nsIJunkMailClassificationListener,
                   nsIMsgTraitClassificationListener, nsIInterfaceRequestor)
 

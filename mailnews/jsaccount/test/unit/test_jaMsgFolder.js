@@ -44,10 +44,7 @@ function run_test() {
   // Make sure the DB actually works.
   let dbFolder = db.folder;
   Assert.ok(dbFolder instanceof Ci.nsIMsgFolder);
-  Assert.equal(
-    dbFolder.QueryInterface(Ci.nsIRDFResource).Value,
-    "testja://foouser@foohost/somefolder"
-  );
+  Assert.equal(dbFolder.URI, "testja://foouser@foohost/somefolder");
   let fi = db.dBFolderInfo;
   Assert.ok(fi instanceof Ci.nsIDBFolderInfo);
   fi.setCharProperty("testProperty", "foobar");

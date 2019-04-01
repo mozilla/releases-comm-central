@@ -48,6 +48,13 @@ interface nsIMsgFolder : nsISupports {
   /// Returns an enumerator containing the messages within the current database.
   readonly attribute nsISimpleEnumerator messages;
 
+  /**
+   * This method is called by the folder-lookup-service after constructing
+   * a folder to initialize its URI. You would not normally
+   * call this method directly.
+   */
+  void Init(in string uri);
+
   void startFolderLoading();
   void endFolderLoading();
 

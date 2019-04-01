@@ -49,8 +49,6 @@ let tests = [
   // JaMsgFolder
   ["@mozilla.org/jacppmsgfolderdelegator;1", "nsISupports"],
   ["@mozilla.org/jacppmsgfolderdelegator;1", "nsIMsgFolder"],
-  ["@mozilla.org/jacppmsgfolderdelegator;1", "nsIRDFResource"],
-  ["@mozilla.org/jacppmsgfolderdelegator;1", "nsIRDFNode"],
   ["@mozilla.org/jacppmsgfolderdelegator;1", "nsIDBChangeListener"],
   ["@mozilla.org/jacppmsgfolderdelegator;1", "nsIUrlListener"],
   [

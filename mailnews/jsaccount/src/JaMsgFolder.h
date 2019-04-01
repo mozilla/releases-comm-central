@@ -58,9 +58,6 @@ class JaCppMsgFolderDelegator : public JaBaseCppMsgFolder, public msgIOverride {
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_MSGIOVERRIDE
 
-  // Note that we do not support override of RDF methods.
-  NS_FORWARD_NSIRDFRESOURCE(JaBaseCppMsgFolder::)
-  NS_FORWARD_NSIRDFNODE(JaBaseCppMsgFolder::)
   NS_FORWARD_NSIMSGFOLDER(DELEGATE_JS(mJsIMsgFolder, mMethods, mCppBase)->)
   NS_FORWARD_NSIDBCHANGELISTENER(
       DELEGATE_JS(mJsIDBChangeListener, mMethods,
@@ -92,7 +89,6 @@ class JaCppMsgFolderDelegator : public JaBaseCppMsgFolder, public msgIOverride {
   virtual ~JaCppMsgFolderDelegator() {}
 
   class Super : public nsIMsgFolder,
-                public nsIRDFResource,
                 public nsIDBChangeListener,
                 public nsIUrlListener,
                 public nsIJunkMailClassificationListener,
@@ -107,8 +103,6 @@ class JaCppMsgFolderDelegator : public JaBaseCppMsgFolder, public msgIOverride {
     }
     NS_DECL_ISUPPORTS
     NS_FORWARD_NSIMSGFOLDER(mFakeThis->JaBaseCppMsgFolder::)
-    NS_FORWARD_NSIRDFRESOURCE(mFakeThis->JaBaseCppMsgFolder::)
-    NS_FORWARD_NSIRDFNODE(mFakeThis->JaBaseCppMsgFolder::)
     NS_FORWARD_NSIDBCHANGELISTENER(mFakeThis->JaBaseCppMsgFolder::)
     NS_FORWARD_NSIURLLISTENER(mFakeThis->JaBaseCppMsgFolder::)
     NS_FORWARD_NSIJUNKMAILCLASSIFICATIONLISTENER(

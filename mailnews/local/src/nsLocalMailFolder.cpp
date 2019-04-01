@@ -112,11 +112,6 @@ NS_IMPL_ISUPPORTS_INHERITED(nsMsgLocalMailFolder, nsMsgDBFolder,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-NS_IMETHODIMP
-nsMsgLocalMailFolder::Init(const char *aURI) {
-  return nsMsgDBFolder::Init(aURI);
-}
-
 nsresult nsMsgLocalMailFolder::CreateChildFromURI(const nsCString &uri,
                                                   nsIMsgFolder **folder) {
   nsMsgLocalMailFolder *newFolder = new nsMsgLocalMailFolder;
