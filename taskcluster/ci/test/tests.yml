@@ -53,7 +53,7 @@ xpcshell:
         config:
             by-test-platform:
                 windows.*:
-                    - unittests/win_taskcluster_unittest.py
+                    - unittests/win_unittest.py
                     - unittests/thunderbird_extra.py
                 macosx64.*:
                     - unittests/mac_unittest.py
@@ -93,7 +93,7 @@ mozmill:
         config:
             by-test-platform:
                 windows.*:
-                    - unittests/win_taskcluster_unittest.py
+                    - unittests/win_unittest.py
                     - unittests/thunderbird_extra.py
                 macosx64.*:
                     - unittests/mac_unittest.py
@@ -121,7 +121,7 @@ mochitest-thunderbird:
         config:
             by-test-platform:
                 windows.*:
-                    - unittests/win_taskcluster_unittest.py
+                    - unittests/win_unittest.py
                     - unittests/thunderbird_extra.py
                 macosx64.*:
                     - unittests/mac_unittest.py
