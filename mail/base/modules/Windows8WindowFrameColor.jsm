@@ -31,6 +31,6 @@ var Windows8WindowFrameColor = {
                                                               "ColorizationColorBalance");
 
     return this._windowFrameColor = TagUtils.getColor(customizationColorHex,
-                                                         colorizationColorBalance);
+                                                      colorizationColorBalance);
   },
 };
