@@ -9,7 +9,7 @@ comm.jar:
    content/communicator/bindings/datetimepicker.xml                 (datetimepicker.xml)
    content/communicator/bindings/findbar.xml                        (findbar.xml)
    content/communicator/bindings/general.xml                        (general.xml)
-   content/communicator/bindings/generalBindings.xml                (../../../common/bindings/generalBindings.xml)
+   content/communicator/bindings/generalBindings.xml                (generalBindings.xml)
    content/communicator/bindings/notification.xml                   (notification.xml)
    content/communicator/bindings/numberbox.xml                      (numberbox.xml)
    content/communicator/bindings/preferences.xml                    (preferences.xml)
