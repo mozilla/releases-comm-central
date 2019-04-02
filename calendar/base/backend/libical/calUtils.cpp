@@ -16,7 +16,7 @@ nsresult logError(const nsAString& msg) {
     nsresult rc;
     nsCOMPtr<nsIScriptError> const scriptError(do_CreateInstance("@mozilla.org/scripterror;1", &rc));
     NS_ENSURE_SUCCESS(rc, rc);
-    rc = scriptError->Init(msg, EmptyString(), EmptyString(), 0, 0, nsIScriptError::errorFlag, "calendar", false);
+    rc = scriptError->Init(msg, EmptyString(), EmptyString(), 0, 0, nsIScriptError::errorFlag, "calendar", false, false);
     return getConsoleService()->LogMessage(scriptError);
 }
 
@@ -24,7 +24,7 @@ nsresult logWarning(const nsAString& msg) {
     nsresult rc;
     nsCOMPtr<nsIScriptError> const scriptError(do_CreateInstance("@mozilla.org/scripterror;1", &rc));
     NS_ENSURE_SUCCESS(rc, rc);
-    rc = scriptError->Init(msg, EmptyString(), EmptyString(), 0, 0, nsIScriptError::warningFlag, "calendar", false);
+    rc = scriptError->Init(msg, EmptyString(), EmptyString(), 0, 0, nsIScriptError::warningFlag, "calendar", false, false);
     return getConsoleService()->LogMessage(scriptError);
 }
 
