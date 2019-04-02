@@ -71,7 +71,6 @@ function EditorOnLoad()
     gSourceTextEditor.rootElement.style.margin = 0;
     var controller = Cc["@mozilla.org/embedcomp/base-command-controller;1"]
                        .createInstance(Ci.nsIControllerContext);
-    controller.init(null);
     controller.setCommandContext(gSourceContentWindow);
     gSourceContentWindow.contentWindow.controllers.insertControllerAt(0, controller);
     var commandTable = controller.QueryInterface(Ci.nsIInterfaceRequestor)

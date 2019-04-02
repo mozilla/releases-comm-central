@@ -123,7 +123,6 @@ function SetupComposerWindowCommands()
     composerController = Cc["@mozilla.org/embedcomp/base-command-controller;1"].createInstance();
 
     editorController = composerController.QueryInterface(Ci.nsIControllerContext);
-    editorController.init(null); // init it without passing in a command table
 
     // Get the nsIControllerCommandTable interface we need to register commands
     var interfaceRequestor = composerController.QueryInterface(Ci.nsIInterfaceRequestor);
@@ -195,7 +194,6 @@ function GetComposerCommandTable()
     controller = Cc["@mozilla.org/embedcomp/base-command-controller;1"].createInstance();
 
     var editorController = controller.QueryInterface(Ci.nsIControllerContext);
-    editorController.init(null);
     editorController.setCommandContext(GetCurrentEditorElement());
     window.content.controllers.insertControllerAt(0, controller);
 
