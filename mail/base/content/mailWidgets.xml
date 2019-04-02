@@ -98,7 +98,7 @@
 
           // First try to estimate which row is visible, assuming they're all
           // the same height.
-          let box = this.scrollbox;
+          let box = this;
           let estimatedRow = Math.floor(box.scrollTop /
                                         this._childNodes[0].boxObject.height);
           let estimatedIndex = estimatedRow * this._itemsPerRow();
@@ -143,7 +143,7 @@
       <method name="ensureElementIsVisible">
         <parameter name="item"/>
         <body><![CDATA[
-          let box = this.scrollbox;
+          let box = this;
 
           // Are we too far down?
           if (item.boxObject.screenY < box.boxObject.screenY)
@@ -158,7 +158,7 @@
       <method name="scrollToIndex">
         <parameter name="index"/>
         <body><![CDATA[
-          let box = this.scrollbox;
+          let box = this;
           let item = this.getItemAtIndex(index);
           if (!item)
             return;
@@ -217,7 +217,7 @@
       <!-- Get the preferred height (the height that would allow us to fit
            everything without scrollbars) of the attachmentlist's boxObject. -->
       <property name="preferredHeight" readonly="true"
-                onget="return this.scrollbox.scrollHeight - this.scrollbox.clientHeight + this.boxObject.height;"/>
+                onget="return this.scrollHeight - this.clientHeight + this.boxObject.height;"/>
 
       <!-- Find the attachmentitem node for the specified nsIMsgAttachment. -->
       <method name="findItemForAttachment">
@@ -237,11 +237,6 @@
       <property name="_childNodes" readonly="true">
         <getter><![CDATA[
           return this.querySelectorAll("richlistitem.attachmentItem");
-        ]]></getter>
-      </property>
-      <property name="scrollbox" readonly="true">
-        <getter><![CDATA[
-          return document.getAnonymousElementByAttribute(this, "anonid", "scrollbox");
         ]]></getter>
       </property>
 
@@ -265,7 +260,7 @@
 
           if (itemWidth == 0) // Each item takes up a full row
             return 1;
-          return Math.floor(this.scrollbox.clientWidth / itemWidth);
+          return Math.floor(this.clientWidth / itemWidth);
         ]]></body>
       </method>
 
@@ -282,7 +277,7 @@
           let itemHeight = this._childNodes[itemsPerRow].boxObject.y -
                            this._childNodes[0].boxObject.y;
 
-          return Math.floor(this.scrollbox.clientHeight / itemHeight);
+          return Math.floor(this.clientHeight / itemHeight);
         ]]></body>
       </method>
 
@@ -323,13 +318,6 @@
   </binding>
 
   <binding id="attachmentlist-horizontal" extends="chrome://messenger/content/mailWidgets.xml#attachmentlist-base">
-    <content>
-      <xul:scrollbox flex="1" anonid="scrollbox" style="overflow: auto;">
-        <xul:hbox flex="1" class="attachmentlist-wrapper">
-          <children includes="richlistitem"/>
-        </xul:hbox>
-      </xul:scrollbox>
-    </content>
     <implementation>
       <method name="setOptimumWidth">
         <body><![CDATA[
