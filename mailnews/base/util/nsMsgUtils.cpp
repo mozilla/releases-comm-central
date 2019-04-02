@@ -113,6 +113,7 @@ NS_MSG_BASE void MsgLogToConsole4(const nsAString &aErrorText,
                                   0,
                                   aFlag,
                                   "mailnews",
+                                  false,
                                   false)))
     return;
   console->LogMessage(scriptError);
