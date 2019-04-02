@@ -2039,7 +2039,7 @@ nsresult GetMailNewsFont(MimeObject *obj, bool styleFixed,  int32_t *fontPixelSi
       return rv;
 
     // get a font size from pref
-    prefStr.Assign(!styleFixed ? "font.size.variable." : "font.size.fixed.");
+    prefStr.Assign(!styleFixed ? "font.size.variable." : "font.size.monospace.");
     prefStr.Append(fontLang);
     rv = prefBranch->GetIntPref(prefStr.get(), fontPixelSize);
     if (NS_FAILED(rv))

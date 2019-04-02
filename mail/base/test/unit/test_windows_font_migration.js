@@ -71,7 +71,7 @@ function makeVerifier(aFonts) {
     Assert.equal(getFont("monospace", aEncoding), expectedFonts.monospace);
     Assert.equal(Services.prefs.getIntPref("font.size.variable." + aEncoding),
                  expectedFonts.variableSize);
-    Assert.equal(Services.prefs.getIntPref("font.size.fixed." + aEncoding),
+    Assert.equal(Services.prefs.getIntPref("font.size.monospace." + aEncoding),
                  expectedFonts.fixedSize);
   }
 
@@ -131,7 +131,7 @@ var kPrefBranchesToClear = [
   "font.name.sans-serif.",
   "font.name.monospace.",
   "font.size.variable.",
-  "font.size.fixed.",
+  "font.size.monospace.",
 ];
 
 /**
@@ -228,7 +228,7 @@ function test_not_migrating_monospace(aVerifier) {
   };
 
   Services.prefs.setCharPref("font.name.monospace.x-unicode", "Foo Mono");
-  Services.prefs.setIntPref("font.size.fixed.x-unicode", 20);
+  Services.prefs.setIntPref("font.size.monospace.x-unicode", 20);
 
   MailMigrator.migrateToClearTypeFonts();
 
@@ -243,9 +243,9 @@ function test_not_migrating_monospace(aVerifier) {
  */
 function test_migrating_non_default_font_sizes(aVerifier) {
   Services.prefs.setIntPref("font.size.variable.x-unicode", 20);
-  Services.prefs.setIntPref("font.size.fixed.x-western", 30);
-  Services.prefs.setIntPref("font.size.fixed.x-cyrillic", 50);
-  Services.prefs.setIntPref("font.size.fixed.el", 70);
+  Services.prefs.setIntPref("font.size.monospace.x-western", 30);
+  Services.prefs.setIntPref("font.size.monospace.x-cyrillic", 50);
+  Services.prefs.setIntPref("font.size.monospace.el", 70);
   Services.prefs.setIntPref("font.size.variable.tr", 80);
 
   MailMigrator.migrateToClearTypeFonts();

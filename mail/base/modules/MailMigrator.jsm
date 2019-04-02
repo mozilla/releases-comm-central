@@ -42,7 +42,7 @@ var MailMigrator = {
       }
 
       let monospacePref = "font.name.monospace." + encoding;
-      let fixedSizePref = "font.size.fixed." + encoding;
+      let fixedSizePref = "font.size.monospace." + encoding;
       if (!Services.prefs.prefHasUserValue(monospacePref)) {
         Services.prefs.setCharPref(monospacePref, aFonts.monospace);
         Services.prefs.setIntPref(fixedSizePref, aFonts.fixedSize);

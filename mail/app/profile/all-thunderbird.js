@@ -590,28 +590,28 @@ pref("font.name.monospace.x-unicode", "Menlo");
 pref("font.name-list.sans-serif.x-unicode", "Lucida Grande");
 pref("font.name-list.monospace.x-unicode", "Menlo, Monaco");
 pref("font.size.variable.x-unicode", 15);
-pref("font.size.fixed.x-unicode", 12);
+pref("font.size.monospace.x-unicode", 12);
 
 pref("font.name.sans-serif.x-western", "Lucida Grande");
 pref("font.name.monospace.x-western", "Menlo");
 pref("font.name-list.sans-serif.x-western", "Lucida Grande");
 pref("font.name-list.monospace.x-western", "Menlo, Monaco");
 pref("font.size.variable.x-western", 15);
-pref("font.size.fixed.x-western", 12);
+pref("font.size.monospace.x-western", 12);
 
 pref("font.name.sans-serif.x-cyrillic", "Lucida Grande");
 pref("font.name.monospace.x-cyrillic", "Menlo");
 pref("font.name-list.sans-serif.x-cyrillic", "Lucida Grande");
 pref("font.name-list.monospace.x-cyrillic", "Menlo, Monaco");
 pref("font.size.variable.x-cyrillic", 15);
-pref("font.size.fixed.x-cyrillic", 12);
+pref("font.size.monospace.x-cyrillic", 12);
 
 pref("font.name.sans-serif.el", "Lucida Grande");
 pref("font.name.monospace.el", "Menlo");
 pref("font.name-list.sans-serif.el", "Lucida Grande");
 pref("font.name-list.monospace.el", "Menlo, Monaco");
 pref("font.size.variable.el", 15);
-pref("font.size.fixed.el", 12);
+pref("font.size.monospace.el", 12);
 #endif
 
 // Since different versions of Windows need different settings, we'll handle

@@ -18,7 +18,7 @@ var kFontNameListFmtSerif     = "font.name-list.serif.%LANG%";
 var kFontNameListFmtSansSerif = "font.name-list.sans-serif.%LANG%";
 var kFontNameListFmtMonospace = "font.name-list.monospace.%LANG%";
 var kFontSizeFmtVariable      = "font.size.variable.%LANG%";
-var kFontSizeFmtFixed         = "font.size.fixed.%LANG%";
+var kFontSizeFmtFixed         = "font.size.monospace.%LANG%";
 var kFontMinSizeFmt           = "font.minimum-size.%LANG%";
 
 Preferences.addAll([
