@@ -36,14 +36,16 @@ var gPhishingDetector = {
   },
 
   /**
-   * Analyzes the urls contained in the currently loaded message in the message pane, looking for
-   * phishing URLs. Also checks for forms with action URLs, which are disallowed.
-   * Assumes the message has finished loading in the message pane (i.e. OnMsgParsed has fired).
+   * Analyze the currently loaded message in the message pane, looking for signs
+   * of a phishing attempt. Also checks for forms with action URLs, which are
+   * disallowed.
+   * Assumes the message has finished loading in the message pane (i.e.
+   * OnMsgParsed has fired).
    *
-   * @param aUrl nsIURI for the message being analyzed.
+   * @param {nsIURI} aUrl - url for the message being analyzed.
    *
-   * @return asynchronously calls gMessageNotificationBar.setPhishingMsg if the message
-   *         is identified as a scam.
+   * @return asynchronously calls gMessageNotificationBar.setPhishingMsg if the
+   *         message is identified as a scam.
    */
   analyzeMsgForPhishingURLs(aUrl) {
     if (!aUrl || !Services.prefs.getBoolPref("mail.phishing.detection.enabled"))
@@ -182,9 +184,10 @@ var gPhishingDetector = {
   },
 
   /**
-   * If the current message has been identified as an email scam, prompts the user with a warning
-   * before allowing the link click to be processed. The warning prompt includes the unobscured host name
-   * of the http(s) url the user clicked on.
+   * If the current message has been identified as an email scam, prompts the
+   * user with a warning before allowing the link click to be processed.
+   * The warning prompt includes the unobscured host name of the http(s) url the
+   * user clicked on.
    *
    * @param {String} aUrl - the url
    * @param {String} [aLinkText] - user visible link text associated with the link
@@ -193,39 +196,20 @@ var gPhishingDetector = {
    *         2 if aUrl should be allowed to load.
    */
   warnOnSuspiciousLinkClick(aUrl, aLinkText) {
+    if (!this.analyzeUrl(aUrl, aLinkText)) {
+      return 2; // No problem with the url. Allow it to load.
+    }
     let bundle = document.getElementById("bundle_messenger");
 
-    // If the message was detected as a scam in the general sense, display a
-    // generic warning...
-    if (gMessageNotificationBar.isShowingPhishingNotification()) {
-      let hrefURL;
-      // make sure relative link urls don't make us bail out
-      try {
-        hrefURL = Services.io.newURI(aUrl);
-      } catch (ex) { return 0; }
-
-      // only prompt for http and https urls
-      if (hrefURL.schemeIs("http") || hrefURL.schemeIs("https")) {
-        // unobscure the host name in case it's an encoded ip address..
-        let unobscuredHostNameValue = isLegalIPAddress(hrefURL.host, true) || hrefURL.host;
-
-        let brandShortName = document.getElementById("bundle_brand")
-                                     .getString("brandShortName");
-        let titleMsg = bundle.getString("confirmPhishingTitle");
-        let dialogMsg = bundle.getFormattedString("confirmPhishingUrl",
-          [brandShortName, unobscuredHostNameValue], 2);
-        let warningButtons = Ci.nsIPromptService.STD_YES_NO_BUTTONS + Ci.nsIPromptService.BUTTON_POS_1_DEFAULT;
-        return Services.prompt.confirmEx(window, titleMsg, dialogMsg,
-                                         warningButtons, "", "", "", "", {});
-      }
-      return 0; // allow the link to load
-    }
-
-    // Otherwise, analyze this URL in particular.
-    // If the URL is detected as a phishing attempt, display a warning.
-    if (this.analyzeUrl(aUrl, aLinkText)) {
+    // Analysis said there was a problem.
+    if (aLinkText && /^https?:/i.test(aLinkText)) {
       let actualURI = makeURI(aUrl);
-      let displayedURI = makeURI(aLinkText);
+      let displayedURI;
+      try {
+        displayedURI = Services.io.newURI(aLinkText);
+      } catch (e) {
+        return 1;
+      }
 
       let titleMsg = bundle.getString("linkMismatchTitle");
       let dialogMsg = bundle.getFormattedString("confirmPhishingUrlAlternate",
@@ -241,6 +225,28 @@ var gPhishingDetector = {
                                        warningButtons,
                                        button0Text, "", button2Text, "", {});
     }
-    return 0; // allow the link to load
+
+    let hrefURL;
+    try { // make sure relative link urls don't make us bail out
+      hrefURL = Services.io.newURI(aUrl);
+    } catch (e) {
+      return 1; // block the load
+    }
+
+    // only prompt for http and https urls
+    if (hrefURL.schemeIs("http") || hrefURL.schemeIs("https")) {
+      // unobscure the host name in case it's an encoded ip address..
+      let unobscuredHostNameValue = isLegalIPAddress(hrefURL.host, true) || hrefURL.host;
+
+      let brandShortName = document.getElementById("bundle_brand")
+                                   .getString("brandShortName");
+      let titleMsg = bundle.getString("confirmPhishingTitle");
+      let dialogMsg = bundle.getFormattedString("confirmPhishingUrl",
+        [brandShortName, unobscuredHostNameValue], 2);
+      let warningButtons = Ci.nsIPromptService.STD_YES_NO_BUTTONS + Ci.nsIPromptService.BUTTON_POS_1_DEFAULT;
+      return Services.prompt.confirmEx(window, titleMsg, dialogMsg,
+                                       warningButtons, "", "", "", "", {});
+    }
+    return 2; // allow the link to load
   },
 };
