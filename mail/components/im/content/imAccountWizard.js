@@ -10,6 +10,12 @@ var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var PREF_EXTENSIONS_GETMOREPROTOCOLSURL = "extensions.getMoreProtocolsURL";
 
+document.getElementById("accountprotocol").addEventListener("pageadvanced", accountWizard.selectProtocol);
+document.getElementById("accountusername").addEventListener("pageshow", accountWizard.showUsernamePage);
+document.getElementById("accountusername").addEventListener("pagehide", accountWizard.hideUsernamePage);
+document.getElementById("accountadvanced").addEventListener("pageshow", accountWizard.showAdvanced);
+document.getElementById("accountsummary").addEventListener("pageshow", accountWizard.showSummary);
+
 var accountWizard = {
   onload() {
     // Ensure the im core is initialized before we get a list of protocols.
@@ -87,8 +93,6 @@ var accountWizard = {
     var protoList = document.getElementById("protolist");
     var id = protoList.selectedItem.value;
     this.proto = Services.core.getProtocolById(id);
-
-    return true;
   },
 
 

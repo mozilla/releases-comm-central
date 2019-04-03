@@ -9,6 +9,25 @@ var kIPStartup = Ci.nsIProfileStartup;
 var kProfileMigratorContractIDPrefix = "@mozilla.org/profile/migrator;1?app=mail&type=";
 var nsISupportsString = Ci.nsISupportsString;
 
+var importSourcePage = document.getElementById("importSource");
+importSourcePage.addEventListener("pageadvanced", MigrationWizard.onImportSourcePageAdvanced);
+
+var selectProfilePage = document.getElementById("selectProfile");
+selectProfilePage.addEventListener("pageshow", MigrationWizard.onSelectProfilePageShow);
+selectProfilePage.addEventListener("pagerewound", MigrationWizard.onSelectProfilePageRewound);
+selectProfilePage.addEventListener("pageadvanced", MigrationWizard.onSelectProfilePageAdvanced);
+
+var importItemsPage = document.getElementById("importItems");
+importItemsPage.addEventListener("pageshow", MigrationWizard.onImportItemsPageShow);
+importItemsPage.addEventListener("pagerewound", MigrationWizard.onImportItemsPageAdvanced);
+importItemsPage.addEventListener("pageadvanced", MigrationWizard.onImportItemsPageAdvanced);
+
+var migratingPage = document.getElementById("migrating");
+migratingPage.addEventListener("pageshow", MigrationWizard.onMigratingPageShow);
+
+var donePage = document.getElementById("done");
+donePage.addEventListener("pageshow", MigrationWizard.onDonePageShow);
+
 var MigrationWizard = {
   _source: "",                  // Source Profile Migrator ContractID suffix
   _itemsFlags: kIMig.ALL,       // Selected Import Data Sources (16-bit bitfield)

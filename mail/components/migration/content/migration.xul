@@ -24,8 +24,7 @@
   <stringbundle id="bundle" src="chrome://messenger/locale/migration/migration.properties"/>
 
   <wizardpage id="importSource" pageid="importSource" next="selectProfile"
-              label="&importSource.title;"
-              onpageadvanced="MigrationWizard.onImportSourcePageAdvanced();">
+              label="&importSource.title;">
     <deck id="importSourceFound" selectedIndex="0">
     <vbox>
 #ifdef XP_WIN
@@ -51,19 +50,13 @@
   </wizardpage>
 
   <wizardpage id="selectProfile" pageid="selectProfile" label="&selectProfile.title;"
-              next="importItems"
-              onpageshow="return MigrationWizard.onSelectProfilePageShow();"
-              onpagerewound="return MigrationWizard.onSelectProfilePageRewound();"
-              onpageadvanced="return MigrationWizard.onSelectProfilePageAdvanced();">
+              next="importItems">
     <label control="profiles">&selectProfile.label;</label>
     <radiogroup id="profiles" align="left"/>
   </wizardpage>
 
   <wizardpage id="importItems" pageid="importItems" label="&importItems.title;"
               next="migrating"
-              onpageshow="return MigrationWizard.onImportItemsPageShow();"
-              onpagerewound="return MigrationWizard.onImportItemsPageAdvanced();"
-              onpageadvanced="return MigrationWizard.onImportItemsPageAdvanced();"
               oncommand="MigrationWizard.onImportItemCommand();">
     <description>&importItems.label;</description>
 
@@ -71,8 +64,7 @@
   </wizardpage>
 
   <wizardpage id="migrating" pageid="migrating" label="&migrating.title;"
-              next="done"
-              onpageshow="MigrationWizard.onMigratingPageShow();">
+              next="done">
 
     <description>&migrating.label;</description>
     <separator class="thin"/>
@@ -85,8 +77,7 @@
 
   </wizardpage>
 
-  <wizardpage id="done" pageid="done" label="&done.title;"
-              onpageshow="MigrationWizard.onDonePageShow();">
+  <wizardpage id="done" pageid="done" label="&done.title;">
     <description>&done.label;</description>
 
     <separator class="thin"/>

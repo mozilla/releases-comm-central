@@ -26,8 +26,7 @@
   <stringbundle id="accountsBundle" src="chrome://messenger/locale/imAccounts.properties"/>
 
   <wizardpage id="accountprotocol" pageid="accountprotocol" next="accountusername"
-              label="&accountProtocolTitle.label;"
-              onpageadvanced="return accountWizard.selectProtocol();">
+              label="&accountProtocolTitle.label;">
     <description>&accountProtocolInfo.label;</description>
     <separator/>
     <label value="&accountProtocolField.label;" control="protolist"
@@ -41,9 +40,7 @@
   </wizardpage>
 
   <wizardpage id="accountusername" pageid="accountusername" next="accountpassword"
-              label="&accountUsernameTitle.label;"
-              onpageshow="accountWizard.showUsernamePage();"
-              onpagehide="accountWizard.hideUsernamePage();">
+              label="&accountUsernameTitle.label;">
     <description id="usernameInfo"/>
     <separator/>
     <vbox id="userNameBox"/>
@@ -64,8 +61,7 @@
   </wizardpage>
 
   <wizardpage id="accountadvanced" pageid="accountadvanced" next="accountsummary"
-              label="&accountAdvancedTitle.label;"
-              onpageshow="accountWizard.showAdvanced();">
+              label="&accountAdvancedTitle.label;">
     <description>&accountAdvancedInfo.label;</description>
     <separator class="thin"/>
     <groupbox id="aliasGroupbox" class="collapsable"
@@ -97,8 +93,7 @@
   </wizardpage>
 
   <wizardpage id="accountsummary" pageid="accountsummary"
-              label="&accountSummaryTitle.label;"
-              onpageshow="accountWizard.showSummary();">
+              label="&accountSummaryTitle.label;">
     <description>&accountSummaryInfo.label;</description>
     <separator/>
     <grid id="summarygrid" flex="1">

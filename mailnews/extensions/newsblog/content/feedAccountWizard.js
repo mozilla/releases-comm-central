@@ -5,20 +5,20 @@
 
 var {FeedUtils} = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
 
+document.getElementById("accountsetuppage").addEventListener(
+  "pageshow", FeedAccountWizard.accountSetupPageValidate
+);
+document.getElementById("done").addEventListener(
+  "pageshow", FeedAccountWizard.donePageInit
+);
+
 /* Feed account standalone wizard functions */
 var FeedAccountWizard = {
   accountName: "",
 
-  accountSetupPageInit() {
-    this.accountSetupPageValidate();
-  },
-
   accountSetupPageValidate() {
     this.accountName = document.getElementById("prettyName").value.trim();
     document.documentElement.canAdvance = this.accountName;
-  },
-
-  accountSetupPageUnload() {
   },
 
   donePageInit() {

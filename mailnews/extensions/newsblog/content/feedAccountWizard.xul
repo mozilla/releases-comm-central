@@ -27,9 +27,7 @@
   <!-- Defaults : Feed account name -> default string -->
   <wizardpage id="accountsetuppage"
               pageid="accountsetuppage"
-              label="&accnameTitle.label;"
-              onpageshow="return FeedAccountWizard.accountSetupPageInit();"
-              onpageadvanced="return FeedAccountWizard.accountSetupPageUnload();">
+              label="&accnameTitle.label;">
     <vbox flex="1">
       <description>&accnameDesc.label;</description>
       <separator class="thin"/>
@@ -49,8 +47,7 @@
   <!-- Done page : Summarizes information collected to create a feed account -->
   <wizardpage id="done"
               pageid="done"
-              label="&accountSummaryTitle.label;"
-              onpageshow="return FeedAccountWizard.donePageInit();">
+              label="&accountSummaryTitle.label;">
     <vbox flex="1">
       <description>&accountSummaryInfo.label;</description>
       <separator class="thin"/>

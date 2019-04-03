@@ -38,9 +38,7 @@
 
   <!-- Account Type page : Displays choices of mail and news accounts that user can create -->
   <wizardpage id="accounttype" pageid="accounttype"
-              label="&accountTypeTitle.label;"
-              onpageshow="document.documentElement.canAdvance = true;"
-              onpageadvanced="return acctTypePageUnload();">
+              label="&accountTypeTitle.label;">
     <vbox flex="1">
       <description>&accountSetupInfo2.label;</description>
       <description>&accountTypeDesc2.label;</description>
@@ -69,9 +67,7 @@
 
   <!-- Identity page : Collects user's full name and email address -->
   <wizardpage id="identitypage" pageid="identitypage"
-              label="&identityTitle.label;"
-              onpageshow="return identityPageInit();"
-              onpageadvanced="return identityPageUnload();">
+              label="&identityTitle.label;">
     <vbox flex="1">
       <description>&identityDesc.label;</description>
       <separator/>
@@ -114,9 +110,7 @@
   <!-- Login name is prefilled with user id from the email address provided in identity page -->
   <!-- User can enter a login name here if it is different from the user id of his/her email address -->
   <wizardpage id="incomingpage" pageid="incomingpage"
-              label="&incomingTitle.label;"
-              onpageshow="return incomingPageInit();"
-              onpageadvanced="return incomingPageUnload();">
+              label="&incomingTitle.label;">
     <vbox flex="1">
         <vbox id="serverTypeBox">
         <label control="servertype">&incomingServerTypeDesc.label;</label>
@@ -195,9 +189,7 @@
   <!-- Login name is prefilled with user id from the email address provided in identity page -->
   <!-- User can enter a login name here if it is different from the user id of his/her email address -->
   <wizardpage id="outgoingpage" pageid="outgoingpage"
-              label="&outgoingTitle.label;"
-              onpageshow="return outgoingPageInit();"
-              onpageadvanced="return outgoingPageUnload();">
+              label="&outgoingTitle.label;">
     <vbox flex="1">
       <vbox id="noSmtp">
         <description>&outgoingServer.description;</description>
@@ -249,9 +241,7 @@
 
   <!-- News Server page : Collects the News groups server name -->
   <wizardpage id="newsserver" pageid="newsserver"
-              label="&incomingTitle.label;"
-              onpageshow="return incomingPageInit();"
-              onpageadvanced="return incomingPageUnload();">
+              label="&incomingTitle.label;">
     <vbox flex="1">
       <description>&newsServerNameDesc.label;</description>
       <separator class="thin"/>
@@ -269,9 +259,7 @@
   <!-- Account name page : User gets a choice to enter a pretty name for the account -->
   <!-- Defaults : Mail account -> Email address, Newsgroup account -> Newsgroup server name -->
   <wizardpage id="accnamepage" pageid="accnamepage"
-              label="&accnameTitle.label;"
-              onpageshow="return acctNamePageInit();"
-              onpageadvanced="return acctNamePageUnload();">
+              label="&accnameTitle.label;">
     <vbox flex="1">
       <description>&accnameDesc.label;</description>
       <separator class="thin"/>
@@ -285,8 +273,7 @@
 
   <!-- Done page : this page summarizes information collected to create a mail/news account -->
   <wizardpage id="done" pageid="done"
-              label="&completionTitle.label;"
-              onpageshow="return donePageInit();">
+              label="&completionTitle.label;">
     <vbox flex="1">
       <description>&completionText.label;</description>
       <separator class="thin"/>
