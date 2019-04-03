@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported initLocationPage, initCustomizePage, onSelectProvider,
+/* exported onLoad, initLocationPage, initCustomizePage, onSelectProvider,
  *          onInitialAdvance, doCreateCalendar, setCanRewindFalse
  */
 
@@ -22,6 +22,26 @@ var l10nStrings = {};
 l10nStrings[errorConstants.SUCCESS] = "";
 l10nStrings[errorConstants.INVALID_URI] = cal.l10n.getString("calendarCreation", "error.invalidUri");
 l10nStrings[errorConstants.ALREADY_EXISTS] = cal.l10n.getString("calendarCreation", "error.alreadyExists");
+
+function onLoad() {
+    // The functions referred to here are not the ones in this file,
+    // that's why this code is in an onload handler.
+    // See lightning-calendar-creation.js.
+    let initialPage = document.getElementById("initialPage");
+    initialPage.addEventListener("pageshow", checkRequired);
+    initialPage.addEventListener("pageadvanced", onInitialAdvance);
+
+    let locationPage = document.getElementById("locationPage");
+    locationPage.addEventListener("pageshow", initLocationPage);
+    locationPage.addEventListener("pageadvanced", prepareCreateCalendar);
+
+    let customizePage = document.getElementById("customizePage");
+    customizePage.addEventListener("pageshow", initCustomizePage);
+    customizePage.addEventListener("pageadvanced", doCreateCalendar);
+
+    let finishPage = document.getElementById("finishPage");
+    finishPage.addEventListener("pageshow", setCanRewindFalse);
+}
 
 /**
  * Initialize the location page
@@ -142,7 +162,7 @@ function onInitialAdvance() {
  * Create the calendar, so that the customize page can already check for
  * calendar capabilities of the provider.
  */
-function prepareCreateCalendar() {
+function prepareCreateCalendar(event) {
     gCalendar = null;
 
     let provider;
@@ -158,17 +178,15 @@ function prepareCreateCalendar() {
     }
 
     if (reason != errorConstants.SUCCESS || !url) {
-        return false;
+        event.preventDefault();
     }
 
     try {
         gCalendar = cal.getCalendarManager().createCalendar(provider, url);
     } catch (ex) {
         dump(ex);
-        return false;
+        event.preventDefault();
     }
-
-    return true;
 }
 
 /**

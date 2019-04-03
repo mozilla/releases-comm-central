@@ -20,6 +20,9 @@ var gMigrateWizard = {
      * user can then check these off to migrate the data from those sources.
      */
     loadMigrators: function() {
+        let wizardPage2 = document.getElementById("wizardPage2");
+        wizardPage2.addEventListener("pageshow", gMigrateWizard.migrateChecked);
+
         let listbox = document.getElementById("datasource-list");
 
         // XXX Once we have branding for lightning, this hack can go away

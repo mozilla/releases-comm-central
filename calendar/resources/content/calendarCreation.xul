@@ -17,17 +17,17 @@
         windowtype="Calendar:NewCalendarWizard"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
+        onload="onLoad()"
         onwizardfinish=""
         persist="screenX screenY">
 
   <script type="application/javascript" src="chrome://calendar/content/calendarCreation.js"/>
 
-  <wizardpage pageid="initialPage"
+  <wizardpage id="initialPage"
+              pageid="initialPage"
               next="locationPage"
               label="&wizard.label;"
-              description="&wizard.description;"
-              onpageshow="checkRequired();"
-              onpageadvanced="onInitialAdvance();">
+              description="&wizard.description;">
     <description>&initialpage.description;</description>
     <radiogroup id="calendar-type">
       <radio value="local" label="&initialpage.computer.label;" selected="true"/>
@@ -35,11 +35,10 @@
     </radiogroup>
   </wizardpage>
 
-  <wizardpage pageid="locationPage"
+  <wizardpage id="locationPage"
+              pageid="locationPage"
               next="customizePage"
               label="&wizard.label;"
-              onpageshow="initLocationPage();"
-              onpageadvanced="return prepareCreateCalendar();"
               description="&wizard.description;">
     <description>&locationpage.description;</description>
     <grid>
@@ -85,12 +84,11 @@
     </grid>
   </wizardpage>
 
-  <wizardpage pageid="customizePage"
+  <wizardpage id="customizePage"
+              pageid="customizePage"
               description="&custompage.shortdescription;"
               label="&wizard.label;"
-              next="finishPage"
-              onpageshow="initCustomizePage();"
-              onpageadvanced="doCreateCalendar();">
+              next="finishPage">
     <description>&custompage.longdescription;</description>
     <grid>
       <columns>
@@ -119,10 +117,10 @@
     </grid>
   </wizardpage>
 
-  <wizardpage pageid="finishPage"
+  <wizardpage id="finishPage"
+              pageid="finishPage"
               description="&finishpage.shortdescription;"
-              label="&wizard.label;"
-              onpageshow="setCanRewindFalse();">
+              label="&wizard.label;">
     <description>&finishpage.longdescription;</description>
   </wizardpage>
 </wizard>

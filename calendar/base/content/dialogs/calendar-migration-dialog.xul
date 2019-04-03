@@ -36,8 +36,7 @@
 
     <wizardpage id="wizardPage2"
                 pageid="progressPage"
-                label="&migration.importing;"
-                onpageshow="gMigrateWizard.migrateChecked()">
+                label="&migration.importing;">
         <label control="migrate-progressmeter">&migration.progress.description;</label>
         <vbox flex="1">
             <html:progress id="migrate-progressmeter" value="0" max="100"/>
