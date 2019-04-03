@@ -44,6 +44,7 @@ function setupModule(module) {
     calendarFile.append(calendarName + ".ics");
 }
 
+testLocalICS.__force_skip__ = true;
 function testLocalICS() {
     plan_for_modal_dialog("Calendar:NewCalendarWizard", (wizard) => {
         handleNewCalendarWizard(wizard, calendarName, { network: { format: "ics" } });

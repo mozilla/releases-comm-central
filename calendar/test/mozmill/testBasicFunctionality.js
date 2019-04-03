@@ -33,6 +33,7 @@ function setupModule(module) {
     ({ plan_for_modal_dialog, wait_for_modal_dialog } = collector.getModule("window-helpers"));
 }
 
+testSmokeTest.__force_skip__ = true;
 function testSmokeTest() {
     let dateFormatter = cal.getDateFormatter();
 
