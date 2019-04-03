@@ -5026,7 +5026,7 @@ function toggleAttachmentPane(aAction = "toggle") {
       attachmentsBox.collapsed = false;
       attachmentBucketSizer.collapsed = false;
       attachmentBucketSizer.setAttribute("state", "");
-      if (!bucketHasFocus)
+      if (!bucketHasFocus && eventSource == "key")
         bucket.focus();
       break;
 
@@ -5914,6 +5914,8 @@ var envelopeDragObserver = {
     // Add attachments if any.
     if (attachments.length > 0)
       AddAttachments(attachments);
+
+    bucket.focus();
   },
 
   onDragOver(aEvent, aFlavour, aDragSession) {
