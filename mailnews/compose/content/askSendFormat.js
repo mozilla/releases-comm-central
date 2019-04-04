@@ -4,6 +4,8 @@
 
 var gParam = null;
 
+document.addEventListener("dialogaccept", Send);
+
 /**
  * This dialog should be opened with arguments like e.g.
  * {action: nsIMsgCompSendFormat.AskUser, convertible: nsIMsgCompConvertible.Yes}

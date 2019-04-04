@@ -15,8 +15,7 @@
         style="width: 56ch;"
         onload="onLoad();"
         onunload="onUnload();"
-        buttons="cancel"
-        ondialogcancel="return onCancel();">
+        buttons="cancel">
 
   <script type="application/javascript"
           src="chrome://messenger/content/messengercompose/sendProgress.js"/>

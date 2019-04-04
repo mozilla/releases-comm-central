@@ -101,3 +101,6 @@ var gAppManagerDialog = {
     document.getElementById("appType").value = bundle.getString(appType);
   },
 };
+
+document.addEventListener("dialogaccept", gAppManagerDialog.onOK);
+document.addEventListener("dialogcancel", gAppManagerDialog.onCancel);

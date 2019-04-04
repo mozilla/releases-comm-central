@@ -17,7 +17,6 @@
         buttons="accept"
         buttonlabelaccept="&closeLog.label;"
         buttonaccesskeyaccept="&closeLog.accesskey;"
-        ondialogaccept="window.close();"
         persist="screenX screenY width height"
         style="width: 40em; height: 25em;">
 

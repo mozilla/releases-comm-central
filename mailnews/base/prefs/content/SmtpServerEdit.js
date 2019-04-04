@@ -18,6 +18,8 @@ var gSmtpSocketType;
 var gPort;
 var gDefaultPort;
 
+document.addEventListener("dialogaccept", onAccept);
+
 function onLoad(event)
 {
   gSmtpServer = window.arguments[0].server;

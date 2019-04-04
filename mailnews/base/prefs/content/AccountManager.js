@@ -33,6 +33,9 @@ var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {allAccountsSorted} = ChromeUtils.import("resource:///modules/folderUtils.jsm");
 var {cleanUpHostName, isLegalHostNameOrIP} = ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
 
+document.addEventListener("dialogcancel", onNotAccept);
+document.addEventListener("dialogaccept", () => onAccept(true));
+
 // If Local directory has changed the app needs to restart. Once this is set
 // a restart will be attempted at each attempt to close the Account manager with OK.
 var gRestartNeeded = false;

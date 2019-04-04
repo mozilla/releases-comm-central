@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported onLoadLightningItemPanel, onAccept, onCancel, onCommandSave,
+/* exported onLoadLightningItemPanel, onCommandSave,
  *          onCommandDeleteItem, editAttendees, editPrivacy, editPriority,
  *          editStatus, editShowTimeAs, updateShowTimeAs, editToDoStatus,
  *          postponeTask, toggleTimezoneLinks, toggleLink, attachURL,
@@ -61,6 +61,9 @@ if (!gTabmail) {
         goUpdateCommand("cmd_paste");
     };
 }
+
+document.addEventListener("dialogaccept", onAccept);
+document.addEventListener("dialogcancel", onCancel);
 
 // Stores the ids of the iframes of currently open event/task tabs, used
 // when window is closed to prompt for saving changes.

@@ -22,9 +22,7 @@
         buttonlabelaccept="&removeButton.label;"
         buttonaccesskeyaccept="&removeButton.accesskey;"
         defaultButton="cancel"
-        onload="onLoad();"
-        ondialogdisclosure="showInfo();"
-        ondialogaccept="return onAccept();">
+        onload="onLoad();">
   <stringbundle id="bundle_removeAccount"
                 src="chrome://messenger/locale/removeAccount.properties"/>
   <script type="application/javascript"

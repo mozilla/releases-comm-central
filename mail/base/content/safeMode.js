@@ -6,6 +6,10 @@
 var {AddonManager} = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+document.addEventListener("dialogaccept", onOK);
+document.addEventListener("dialogcancel", onCancel);
+document.addEventListener("dialogextra1", () => window.close());
+
 function restartApp() {
   Services.startup.quit(Services.startup.eForceQuit | Services.startup.eRestart);
 }

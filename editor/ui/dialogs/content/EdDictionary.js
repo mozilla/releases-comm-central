@@ -6,6 +6,8 @@
 var gSpellChecker;
 var gWordToAdd;
 
+document.addEventListener("dialogcancel", onClose);
+
 function Startup()
 {
   if (!GetCurrentEditor())

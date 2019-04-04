@@ -15,6 +15,9 @@ var gDeleteButton;
 
 var gAccount = null;  // the account we are showing the identities for
 
+document.addEventListener("dialogaccept", onOk);
+document.addEventListener("dialogcancel", onOk);
+
 function onLoad()
 {
   gIdentityListBox  = document.getElementById("identitiesList");

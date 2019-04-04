@@ -11,6 +11,8 @@ var stringBundle;
 var msgShutdownService = Cc["@mozilla.org/messenger/msgshutdownservice;1"]
                            .getService(Ci.nsIMsgShutdownService);
 
+document.addEventListener("dialogcancel", onCancel);
+
 function onLoad()
 {
   numTasks = msgShutdownService.getNumTasks();

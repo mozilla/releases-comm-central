@@ -17,6 +17,8 @@ var kCollectedAddressbookURI = "moz-abmdbdirectory://history.mab";
 var kAllDirectoryRoot = "moz-abdirectory://";
 var kPABDirectory = 2; // defined in nsDirPrefs.h
 
+document.addEventListener("dialogaccept", abNameOKButton);
+
 function abNameOnLoad() {
   // Get the document elements.
   gOkButton = document.documentElement.getButton("accept");

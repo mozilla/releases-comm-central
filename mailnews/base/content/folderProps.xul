@@ -14,8 +14,7 @@
   xmlns:html="http://www.w3.org/1999/xhtml"
   title="&folderProps.windowtitle.label;"
   buttons="accept,cancel"
-  onload="folderPropsOnLoad();" style="width: 56ch;"
-  ondialogaccept="return folderPropsOKButton();">
+  onload="folderPropsOnLoad();" style="width: 56ch;">
 
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
   <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>

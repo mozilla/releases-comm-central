@@ -14,9 +14,7 @@
         xmlns:html="http://www.w3.org/1999/xhtml"
         onload="Startup();"
         buttonlabelaccept="&insertButton.label;"
-        buttonaccesskeyaccept="&insertButton.accesskey;"
-        ondialogaccept="return onAccept();"
-        ondialogcancel="return onCancel();">
+        buttonaccesskeyaccept="&insertButton.accesskey;">
 
   <!-- Methods common to all editor dialogs -->
   <script type="application/javascript"

@@ -2,11 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported onLoad, onUnload, onKeyPress, onTextBoxKeyPress, onAccept,
- *          onCancel, onSubscribe, onUnsubscribe
- */
+/* exported onLoad, onUnload, onKeyPress, onTextBoxKeyPress, onSubscribe, onUnsubscribe */
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+
+document.addEventListener("dialogaccept", onAccept);
+document.addEventListener("dialogcancel", onCancel);
 
 /**
  * Cancels any pending search operations.

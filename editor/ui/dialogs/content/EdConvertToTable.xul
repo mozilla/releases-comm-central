@@ -12,8 +12,6 @@
 <dialog title="&windowTitle.label;"
    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
    onload = "Startup()"
-   ondialogaccept="return onAccept();"
-   ondialogcancel="return onCancel();"
    style="min-width:20em">
 
   <!-- Methods common to all editor dialogs -->

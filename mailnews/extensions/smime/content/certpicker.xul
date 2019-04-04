@@ -15,8 +15,6 @@
   xmlns:html="http://www.w3.org/1999/xhtml"
   style="width: 50em;"
   buttons="accept,cancel"
-  ondialogaccept="return doOK();"
-  ondialogcancel="return doCancel();"
   onload="onLoad();">
 
 <script type="application/javascript"

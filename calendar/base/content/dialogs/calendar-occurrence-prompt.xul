@@ -11,8 +11,6 @@
 <dialog id="calendar-occurrence-prompt"
         buttons="accept,cancel"
         windowtype="Calendar:OccurrencePrompt"
-        ondialogcancel="return exitOccurrenceDialog(0)"
-        ondialogaccept="exitOccurrenceDialog(1)"
         onload="onLoad()"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns:xhtml2="http://www.w3.org/TR/xhtml2"
@@ -20,6 +18,9 @@
         xhtml2:role="wairole:alertdialog">
   <script type="application/javascript"><![CDATA[
       const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+
+      document.addEventListener("dialogaccept", () => exitOccurrenceDialog(1));
+      document.addEventListener("dialogcancel", () => exitOccurrenceDialog(0));
 
       function exitOccurrenceDialog(aReturnValue) {
           window.arguments[0].value = aReturnValue;

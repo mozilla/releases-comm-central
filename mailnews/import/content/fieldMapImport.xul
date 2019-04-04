@@ -16,7 +16,6 @@
         buttons="accept,cancel"
         title="&fieldMapImport.title;"
         style="&fieldMapImport.size;"
-        ondialogaccept="FieldImportOKButton();"
         onload="OnLoadFieldMapImport();">
 
   <script type="application/javascript" src="chrome://messenger/content/fieldMapImport.js"/>

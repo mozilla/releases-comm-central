@@ -77,3 +77,5 @@ var gAttachmentReminderOptionsDialog = {
                                  keywordList);
   },
 };
+
+document.addEventListener("dialogaccept", gAttachmentReminderOptionsDialog.saveKeywords);

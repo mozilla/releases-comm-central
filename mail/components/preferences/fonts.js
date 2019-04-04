@@ -130,3 +130,5 @@ var gFontsDialog = {
     return true;
   },
 };
+
+document.addEventListener("dialogaccept", gFontsDialog.ondialogaccept);

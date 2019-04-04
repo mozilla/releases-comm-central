@@ -56,6 +56,8 @@ const kAccessDenied = 2152857621;
 //const kFtpPasv = 2152398871; // ftpCore.h
 //const kFtpPwd = 2152398872; // ftpCore.h
 
+document.addEventListener("dialogaccept", onEnterKey);
+document.addEventListener("dialogcancel", onClose);
 
 function Startup()
 {

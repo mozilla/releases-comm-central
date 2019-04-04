@@ -42,6 +42,8 @@ var nsMsgFilterType   = Ci.nsMsgFilterType;
 var nsIMsgRuleAction  = Ci.nsIMsgRuleAction;
 var nsMsgSearchScope  = Ci.nsMsgSearchScope;
 
+document.addEventListener("dialogaccept", onAccept);
+
 function filterEditorOnLoad()
 {
   getCustomActions();

@@ -15,8 +15,6 @@
   buttons="accept"
   buttonlabelaccept="&identitiesListClose.label;"
   buttonaccesskeyaccept="&identitiesListClose.accesskey;"
-  ondialogaccept="return onOk();"
-  ondialogcancel="return onOk();"
   style="width: 40em;">
 
 <stringbundle id="bundle_prefs" src="chrome://messenger/locale/prefs.properties"/>

@@ -14,6 +14,8 @@ var gMoveDownButton;
 var gListbox;
 var gSkipFirstRecordButton;
 
+document.addEventListener("dialogaccept", FieldImportOKButton);
+
 function OnLoadFieldMapImport()
 {
   top.importService = Cc["@mozilla.org/import/import-service;1"]

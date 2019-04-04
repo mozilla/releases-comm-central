@@ -15,6 +15,10 @@ var gDescWasEdited = false;
 
 //Cancel() is in EdDialogCommon.js
 // dialog initialization code
+
+document.addEventListener("dialogaccept", onAccept);
+document.addEventListener("dialogcancel", onCancel);
+
 function Startup()
 {
   var editor = GetCurrentEditor();

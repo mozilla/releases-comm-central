@@ -18,7 +18,6 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         onload="mailViewOnLoad();"
         onunload="mailViewOnUnLoad();"
-        ondialogaccept="return onOK();"
         buttons="accept,cancel"
         buttonalign="right"
         windowtype="mailnews:mailview"

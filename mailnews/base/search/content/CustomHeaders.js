@@ -14,6 +14,10 @@ var gContainer;
 var gFilterBundle=null;
 var gCustomBundle=null;
 
+document.addEventListener("dialogaccept", onOk);
+document.addEventListener("dialogextra1", onAddHeader);
+document.addEventListener("dialogextra2", onRemoveHeader);
+
 function onLoad()
 {
     let hdrs = Services.prefs.getCharPref("mailnews.customHeaders");

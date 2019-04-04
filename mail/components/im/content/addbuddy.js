@@ -36,3 +36,5 @@ var addBuddy = {
     account.addBuddy(Services.tags.createTag(group), this.getValue("name"));
   },
 };
+
+document.addEventListener("dialogaccept", addBuddy.create);

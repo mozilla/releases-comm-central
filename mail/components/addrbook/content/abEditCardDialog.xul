@@ -14,9 +14,7 @@
   xmlns:html="http://www.w3.org/1999/xhtml"
   id="abcardWindow"
   icon="abcardWindow"
-  onload="OnLoadEditCard()"
-  ondialogaccept="return EditCardOKButton();"
-  ondialogcancel="return EditCardCancelButton();">
+  onload="OnLoadEditCard()">
 
   <stringbundleset id="stringbundleset">
     <stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
@@ -24,6 +22,10 @@
 
   <script type="application/javascript" src="chrome://messenger/content/addressbook/abCommon.js"/>
   <script type="application/javascript" src="chrome://messenger/content/addressbook/abCard.js"/>
+  <script type="application/javascript"><![CDATA[
+    document.addEventListener("dialogaccept", EditCardOKButton);
+    document.addEventListener("dialogcancel", EditCardCancelButton);
+  ]]></script>
 
 #include abCard.inc.xul
 

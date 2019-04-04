@@ -21,8 +21,7 @@
         title="&sanitizeDialog2.title;"
         noneverythingtitle="&sanitizeDialog2.title;"
         style="width: &dialog.width;"
-        onload="gSanitizePromptDialog.init();"
-        ondialogaccept="gSanitizePromptDialog.sanitize();">
+        onload="gSanitizePromptDialog.init();">
 
   <vbox id="SanitizeDialogPane">
     <stringbundle id="bundleBrowser"

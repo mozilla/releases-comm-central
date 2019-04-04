@@ -25,8 +25,7 @@
   persist="width height screenX screenY"
   buttons="accept,cancel"
   onload="filterEditorOnLoad();"
-  onunload="filterEditorOnUnload();"
-  ondialogaccept="return onAccept();">
+  onunload="filterEditorOnUnload();">
 
   <stringbundleset id="stringbundleset">
     <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>

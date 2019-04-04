@@ -10,8 +10,6 @@
 <dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         style="max-width: 27em;"
         buttonpack="center"
-        ondialogaccept="return OkButtonCallback();"
-        ondialogcancel="return CancelButtonCallback();"
         onload="OnLoad();">
 
   <stringbundle id="bundle_news" src="chrome://messenger/locale/news.properties"/>

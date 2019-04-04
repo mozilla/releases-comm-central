@@ -16,9 +16,7 @@
     id="advancedEditDlg"
     style="width: 40em;"
     title="&WindowTitle.label;"
-    onload="Startup()"
-    ondialogaccept="return onAccept();"
-    ondialogcancel="return onCancel();">
+    onload="Startup()">
 
   <!-- Methods common to all editor dialogs -->
   <script type="application/javascript" src="chrome://editor/content/editorUtilities.js"/>

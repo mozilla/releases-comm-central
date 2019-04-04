@@ -5,6 +5,8 @@
 
 var gIdentity = null;
 
+document.addEventListener("dialogaccept", onAcceptArchiveOptions);
+
 /**
  * Load the archive options dialog, set the radio/checkbox items to the
  * appropriate values, and update the archive hierarchy example.

@@ -11,8 +11,7 @@
         xmlns:html="http://www.w3.org/1999/xhtml"
         style="padding: 20px; width: 350px"
         onload="onLoad()"
-        buttons="cancel"
-        ondialogcancel="return onCancel();">
+        buttons="cancel">
 
   <script type="application/javascript" src="chrome://messenger/content/shutdownWindow.js"/>
   <stringbundle id="bundle_shutdown" src="chrome://messenger/locale/shutdownWindow.properties"/>

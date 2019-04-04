@@ -9,6 +9,9 @@ var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var gServer;
 var gDialog;
 
+document.addEventListener("dialogdisclosure", showInfo);
+document.addEventListener("dialogaccept", onAccept);
+
 function onLoad(event) {
   gServer = window.arguments[0].account.incomingServer;
   gDialog = document.documentElement;

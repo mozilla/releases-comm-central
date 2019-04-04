@@ -9,6 +9,9 @@ var gHNodeArray = {};
 
 // dialog initialization code
 
+document.addEventListener("dialogaccept", onAccept);
+document.addEventListener("dialogcancel", onCancel);
+
 function Startup()
 {
   var editor = GetCurrentEditor();

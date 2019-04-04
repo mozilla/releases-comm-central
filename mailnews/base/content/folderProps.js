@@ -8,6 +8,8 @@ var {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
 var gMsgFolder;
 var gLockedPref = null;
 
+document.addEventListener("dialogaccept", folderPropsOKButton);
+
 // The folderPropsSink is the class that gets notified of an imap folder's properties
 
 var gFolderPropsSink = {

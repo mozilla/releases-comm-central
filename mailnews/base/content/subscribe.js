@@ -18,6 +18,9 @@ var gSearchView = null;
 var gSearchTree = null;
 var gSubscribeBundle;
 
+document.addEventListener("dialogaccept", subscribeOK);
+document.addEventListener("dialogcancel", subscribeCancel);
+
 function Stop()
 {
   if (gSubscribableServer) {

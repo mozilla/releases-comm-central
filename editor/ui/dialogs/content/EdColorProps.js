@@ -14,6 +14,9 @@
 
 //Cancel() is in EdDialogCommon.js
 
+document.addEventListener("dialogaccept", onAccept);
+document.addEventListener("dialogcancel", onCancel);
+
 var gBodyElement;
 var prefs;
 var gBackgroundImage;

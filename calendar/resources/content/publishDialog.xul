@@ -18,8 +18,6 @@
         title="&calendar.publish.dialog.title;"
         windowtype="Calendar:PublishDialog"
         buttons="accept,cancel"
-        ondialogaccept="return onOKCommand();"
-        ondialogcancel="return true;"
         onload="loadCalendarPublishDialog()"
         persist="screenX screenY"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"

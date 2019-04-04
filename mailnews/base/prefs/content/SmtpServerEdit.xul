@@ -15,8 +15,7 @@
 
 <dialog title="&smtpEditTitle.label;"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-        onload="onLoad();"
-        ondialogaccept="return onAccept();">
+        onload="onLoad();">
   <stringbundle id="bundle_prefs"
                 src="chrome://messenger/locale/prefs.properties"/>
   <stringbundle id="bundle_brand"

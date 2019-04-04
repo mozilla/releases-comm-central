@@ -11,7 +11,6 @@
 <dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         id="ablistWindow"
         title="&mailListWindowAdd.title;"
-        ondialogaccept="return MailListOKButton();"
         onload="OnLoadNewMailList();"
         ondragover="DragOverAddressListTree(event);"
         ondrop="DropOnAddressListTree(event);">
@@ -24,6 +23,9 @@
   <script type="application/javascript" src="chrome://messenger/content/messengercompose/addressingWidgetOverlay.js"/>
   <script type="application/javascript" src="chrome://messenger/content/addressbook/abCommon.js"/>
   <script type="application/javascript" src="chrome://messenger/content/addressbook/abMailListDialog.js"/>
+  <script type="application/javascript"><![CDATA[
+    document.addEventListener("dialogaccept", MailListOKButton);
+  ]]></script>
 
   <hbox align="center">
     <label control="abPopup" value="&addToAddressBook.label;" accesskey="&addToAddressBook.accesskey;"/>

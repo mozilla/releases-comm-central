@@ -29,6 +29,10 @@ const gUpperAlphaCSS = "upper-alpha";
 const gLowerAlphaCSS = "lower-alpha";
 
 // dialog initialization code
+
+document.addEventListener("dialogaccept", onAccept);
+document.addEventListener("dialogcancel", onCancel);
+
 function Startup()
 {
   var editor = GetCurrentEditor();

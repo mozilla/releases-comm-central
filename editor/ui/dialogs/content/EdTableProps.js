@@ -64,6 +64,11 @@ var gUseCSS = true;
 var gActiveEditor;
 
 // dialog initialization code
+
+document.addEventListener("dialogaccept", onAccept);
+document.addEventListener("dialogextra1", Apply);
+document.addEventListener("dialogcancel", onCancel);
+
 function Startup()
 {
   gActiveEditor = GetCurrentTableEditor();

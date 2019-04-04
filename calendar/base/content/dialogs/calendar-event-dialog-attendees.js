@@ -26,6 +26,9 @@ var gUndoStack = [];
 var gForce24Hours = false;
 var gZoomFactor = 100;
 
+document.addEventListener("dialogaccept", onAccept);
+document.addEventListener("dialogcancel", onCancel);
+
 /**
  * Sets up the attendee dialog
  */

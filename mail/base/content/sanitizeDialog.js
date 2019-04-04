@@ -231,3 +231,5 @@ var gSanitizePromptDialog = {
       this.hideItemList();
   },
 };
+
+document.addEventListener("dialogaccept", gSanitizePromptDialog.sanitize);

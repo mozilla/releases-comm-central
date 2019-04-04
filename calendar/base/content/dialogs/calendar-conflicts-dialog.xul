@@ -9,8 +9,6 @@
 <dialog id="calendar-conflicts-dialog"
         windowtype="Calendar:Conflicts"
         onload="onLoad()"
-        ondialogaccept="return onAccept();"
-        ondialogcancel="return onCancel();"
         persist="screenX screenY"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
   <script type="application/javascript" src="chrome://calendar/content/mouseoverPreviews.js"/>
@@ -45,13 +43,13 @@
         window.sizeToContent();
     }
 
-    function onAccept() {
+    document.addEventListener("dialogaccept", () => {
         window.arguments[0].overwrite = true;
-    }
+    });
 
-    function onCancel() {
+    document.addEventListener("dialogcancel", () => {
         window.arguments[0].overwrite = false;
-    }
+    });
   ]]></script>
 
   <vbox id="conflicts-vbox" flex="1">

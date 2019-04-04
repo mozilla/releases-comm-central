@@ -103,3 +103,6 @@ var gSelectVirtual = {
     gFolderTreeView.unload();
   }
 };
+
+document.addEventListener("dialogaccept", gSelectVirtual.onAccept);
+document.addEventListener("dialogcancel", gSelectVirtual.onCancel);

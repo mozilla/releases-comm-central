@@ -16,8 +16,7 @@
         title="&newFolderDialog.title;"
         onload="onLoad();"
         buttonlabelaccept="&accept.label;"
-        buttonaccesskeyaccept="&accept.accesskey;"
-        ondialogaccept="return onOK();">
+        buttonaccesskeyaccept="&accept.accesskey;">
 
   <stringbundleset id="stringbundleset"/>
   <script type="application/javascript" src="chrome://messenger/content/newFolderDialog.js"/>

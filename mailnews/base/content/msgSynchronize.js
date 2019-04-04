@@ -12,6 +12,8 @@ var gMsgWindow;
 
 var gInitialFolderStates = {};
 
+document.addEventListener("dialogaccept", syncOkButton);
+
 function OnLoad()
 {
     if (window.arguments && window.arguments[0]) {

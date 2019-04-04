@@ -6,6 +6,8 @@
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
+document.addEventListener("dialogaccept", onOk);
+
 // pull stuff out of window.arguments
 var gServerSettings = window.arguments[0];
 

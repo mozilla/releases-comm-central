@@ -13,7 +13,6 @@
   style="width: 50em;"
   buttons="cancel"
   buttonlabelcancel="&stop.label;"
-  ondialogcancel="return stopFetching();"
   onload="onLoad();">
 
   <stringbundle id="bundle_ldap" src="chrome://mozldap/locale/ldap.properties"/>

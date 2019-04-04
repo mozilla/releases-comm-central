@@ -11,6 +11,9 @@ var numberElement = null;
 var nntpServer = null;
 var args = null;
 
+document.addEventListener("dialogaccept", OkButtonCallback);
+document.addEventListener("dialogcancel", CancelButtonCallback);
+
 function OnLoad() {
   let newsBundle = document.getElementById("bundle_news");
 

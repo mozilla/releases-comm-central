@@ -15,6 +15,8 @@ var msgProgress = null;
 var itsASaveOperation = false;
 var gSendProgressStringBundle;
 
+document.addEventListener("dialogcancel", onCancel);
+
 // all progress notifications are done through the nsIWebProgressListener implementation...
 var progressListener = {
     onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus)

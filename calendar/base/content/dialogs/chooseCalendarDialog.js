@@ -8,6 +8,9 @@
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
+document.addEventListener("dialogaccept", doOK);
+document.addEventListener("dialogextra1", doExtra1);
+
 function loadCalendars() {
     const calendarManager = Cc["@mozilla.org/calendar/manager;1"]
                               .getService(Ci.calICalendarManager);

@@ -13,6 +13,9 @@ var gFirstTime = true;
 var gLastSelectedLang = null;
 var gDictCount = 0;
 
+document.addEventListener("dialogaccept", doDefault);
+document.addEventListener("dialogcancel", CancelSpellCheck);
+
 function Startup()
 {
   var editor = GetCurrentEditor();

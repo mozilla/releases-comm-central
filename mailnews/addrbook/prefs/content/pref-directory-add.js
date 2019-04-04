@@ -29,6 +29,9 @@ var kDefaultLDAPPort = 389;
 var kDefaultSecureLDAPPort = 636;
 var kLDAPDirectory = 0;  // defined in nsDirPrefs.h
 
+document.addEventListener("dialogaccept", onAccept);
+document.addEventListener("dialogcancel", onCancel);
+
 var ldapOfflineObserver = {
   observe(subject, topic, state) {
     // sanity checks

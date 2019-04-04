@@ -8,6 +8,10 @@ var insertNew = true;
 var tagname = "TAG NAME"
 
 // dialog initialization code
+
+document.addEventListener("dialogaccept", onAccept);
+document.addEventListener("dialogcancel", onCancel);
+
 function Startup()
 {
   if (!GetCurrentEditor())

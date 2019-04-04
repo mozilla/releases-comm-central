@@ -14,8 +14,7 @@
         windowtype="mailnews:synchronizeOffline"
         title="&MsgSynchronize.label;"
         onload="OnLoad();"
-        style="width: 35em;"
-        ondialogaccept="return syncOkButton();">
+        style="width: 35em;">
 
 <script type="application/javascript" src="chrome://messenger/content/msgSynchronize.js"/>
 

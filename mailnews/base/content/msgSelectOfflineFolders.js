@@ -102,3 +102,6 @@ var gSelectOffline = {
     }
   }
 };
+
+document.addEventListener("dialogaccept", gSelectOffline.onAccept);
+document.addEventListener("dialogcancel", gSelectOffline.onCancel);

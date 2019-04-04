@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported onLoad, onAccept, onCancel */
+/* exported onLoad */
 
 /* import-globals-from ../calendar-ui-utils.js */
 
@@ -14,6 +14,9 @@ var gIsReadOnly = false;
 var gStartTime = null;
 var gEndTime = null;
 var gUntilDate = null;
+
+document.addEventListener("dialogaccept", onAccept);
+document.addEventListener("dialogcancel", onCancel);
 
 /**
  * Object wrapping the methods and properties of recurrence-preview binding.

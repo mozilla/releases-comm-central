@@ -17,9 +17,7 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         onload="Startup()"
         buttons="accept,cancel"
-        buttonlabelaccept="&publishButton.label;"
-        ondialogaccept="return onAccept();"
-        ondialogcancel="return onCancel();">
+        buttonlabelaccept="&publishButton.label;">
 
   <!-- Methods common to all editor dialogs -->
   <script type="application/javascript" src="chrome://editor/content/editorUtilities.js"/>

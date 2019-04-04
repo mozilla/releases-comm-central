@@ -9,6 +9,9 @@ var gFullDataStrings = new Map();
 var gShortDataStrings = new Map();
 var gListenerAttached = false;
 
+document.addEventListener("dialogaccept", onAccept);
+document.addEventListener("dialogcancel", onCancel);
+
 function Startup()
 {
   let editor = GetCurrentEditor();

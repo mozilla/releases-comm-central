@@ -21,6 +21,8 @@ var {
 var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
+document.addEventListener("dialogaccept", onOK);
+
 function onLoad()
 {
   var windowArgs = window.arguments[0];

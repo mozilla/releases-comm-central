@@ -14,9 +14,7 @@
         windowtype="mailnews:virtualFolderList"
         style="width: 27em; height: 25em;"
         persist="width height screenX screenY"
-        onload="gSelectVirtual.load();"
-        ondialogaccept="return gSelectVirtual.onAccept();"
-        ondialogcancel="return gSelectVirtual.onCancel();">
+        onload="gSelectVirtual.load();">
 
   <script type="application/javascript"
           src="chrome://messenger/content/virtualFolderListEdit.js"/>

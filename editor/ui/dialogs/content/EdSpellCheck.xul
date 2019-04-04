@@ -12,9 +12,7 @@
 <dialog id="spellCheckDlg" buttons="cancel" title="&windowTitle.label;"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
     persist="screenX screenY"
-    onload = "Startup()"
-    ondialogaccept="return doDefault();"
-    ondialogcancel="return CancelSpellCheck();">
+    onload="Startup()">
 
   <script type="application/javascript" src="chrome://editor/content/editorUtilities.js"/>
   <script type="application/javascript" src="chrome://editor/content/EdDialogCommon.js"/>

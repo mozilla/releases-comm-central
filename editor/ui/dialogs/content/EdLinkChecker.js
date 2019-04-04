@@ -10,6 +10,9 @@ var gNumLinksCalledBack = 0;
 var gStartedAllChecks = false;
 var gLinkCheckTimerID = 0;
 
+document.addEventListener("dialogaccept", onAccept);
+document.addEventListener("dialogcancel", onCancelLinkChecker);
+
 // Implement nsIRequestObserver:
 var gRequestObserver =
 {

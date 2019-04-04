@@ -14,6 +14,10 @@ var gInitialSiteIndex = -1;
 var gPasswordManagerOn = true;
 
 // Dialog initialization code
+
+document.addEventListener("dialogaccept", onAccept);
+document.addEventListener("dialogcancel", onCancel);
+
 function Startup()
 {
   window.opener.ok = false;

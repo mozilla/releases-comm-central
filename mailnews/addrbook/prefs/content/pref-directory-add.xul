@@ -13,9 +13,7 @@
         xmlns:html="http://www.w3.org/1999/xhtml"
         onload="Startup();"
         onunload="onUnload();"
-        buttons="accept,cancel"
-        ondialogaccept="return onAccept();"
-        ondialogcancel="return onCancel();">
+        buttons="accept,cancel">
 
   <script type="application/javascript" src="chrome://messenger/content/addressbook/pref-directory-add.js"/>
   <stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>

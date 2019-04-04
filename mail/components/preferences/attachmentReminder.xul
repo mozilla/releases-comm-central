@@ -18,7 +18,6 @@
         dlgbuttons="accept,cancel"
         title="&attachmentReminderDialog.title;"
         onload="gAttachmentReminderOptionsDialog.init();"
-        ondialogaccept="gAttachmentReminderOptionsDialog.saveKeywords();"
         style="width:38em;">
 
   <prefpane id="attachmentReminderOptionsDialogPane">

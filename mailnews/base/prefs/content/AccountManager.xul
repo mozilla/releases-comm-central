@@ -15,9 +15,7 @@
         persist="width height screenX screenY"
         buttons="accept,cancel"
         onload="onLoad(event);"
-        onunload="onUnload();"
-        ondialogcancel="return onNotAccept();"
-        ondialogaccept="return onAccept(true);">
+        onunload="onUnload();">
 <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
 <stringbundle id="bundle_prefs" src="chrome://messenger/locale/prefs.properties"/>
 <script type="application/javascript" src="chrome://messenger/content/accountUtils.js"/>

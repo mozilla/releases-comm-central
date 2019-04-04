@@ -19,8 +19,6 @@
         title="&invite.title.label;"
         windowtype="Calendar:EventDialog:Attendees"
         onload="onLoad()"
-        ondialogaccept="return onAccept();"
-        ondialogcancel="return onCancel();"
         defaultButton="none"
         height="500"
         persist="screenX screenY height width"

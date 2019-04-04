@@ -8,6 +8,10 @@ var gOriginalName = "";
 const kTagName = "anchor";
 
 // dialog initialization code
+
+document.addEventListener("dialogaccept", onAccept);
+document.addEventListener("dialogcancel", onCancel);
+
 function Startup()
 {
   var editor = GetCurrentEditor();

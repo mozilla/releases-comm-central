@@ -27,6 +27,8 @@ var gCertDB;
 var gLdapOperation;
 var gLogin;
 
+document.addEventListener("dialogcancel", stopFetching);
+
 function onLoad()
 {
   gDirectoryPref = window.arguments[0];

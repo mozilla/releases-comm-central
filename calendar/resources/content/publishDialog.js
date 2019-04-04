@@ -2,12 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported loadCalendarPublishDialog, onOKCommand, closeDialog */
+/* exported loadCalendarPublishDialog, closeDialog */
 
 /* globals publishButtonLabel, closeButtonLabel */// From publishDialog.xul
 
 var gOnOkFunction;   // function to be called when user clicks OK
 var gPublishObject;
+
+document.addEventListener("dialogaccept", onOKCommand);
 
 /**
 *   Called when the dialog is loaded.
@@ -38,14 +40,14 @@ function loadCalendarPublishDialog() {
 /**
 *   Called when the OK button is clicked.
 */
-function onOKCommand() {
+function onOKCommand(event) {
     gPublishObject.remotePath = document.getElementById("publish-remotePath-textbox").value;
 
     // call caller's on OK function
     gOnOkFunction(gPublishObject, progressDialog);
     document.getElementById("calendar-publishwindow").getButton("accept").setAttribute("label", closeButtonLabel);
-    document.getElementById("calendar-publishwindow").setAttribute("ondialogaccept", "closeDialog()");
-    return false;
+    document.removeEventListener("dialogaccept", onOKCommand);
+    event.preventDefault();
 }
 
 function checkURLField() {
@@ -54,10 +56,6 @@ function checkURLField() {
     } else {
         document.getElementById("calendar-publishwindow").getButton("accept").removeAttribute("disabled");
     }
-}
-
-function closeDialog() {
-    self.close();
 }
 
 var progressDialog = {

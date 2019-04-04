@@ -26,8 +26,7 @@
         editFolderAcceptButtonLabel="&editFolderButton.label;"
         editFolderAcceptButtonAccessKey="&editFolderButton.accesskey;"
         style="width: 50em; height: 28em;"
-        windowtype="mailnews:virtualFolderProperties"
-        ondialogaccept="return onOK();">
+        windowtype="mailnews:virtualFolderProperties">
 
   <stringbundleset id="stringbundleset">
     <stringbundle id="bundle_search"    src="chrome://messenger/locale/search.properties"/>

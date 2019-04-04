@@ -8,6 +8,8 @@ var FOLDERS = 1;
 var MESSAGES = 2;
 var dialog;
 
+document.addEventListener("dialogaccept", onOK);
+
 function onLoad()
 {
   var windowArgs = window.arguments[0];

@@ -144,3 +144,6 @@ var gSystemIntegrationDialog = {
     return true;
   },
 };
+
+document.addEventListener("dialogaccept", () => gSystemIntegrationDialog.onDialogClose(true));
+document.addEventListener("dialogcancel", () => gSystemIntegrationDialog.onDialogClose(false));

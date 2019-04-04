@@ -9,6 +9,9 @@ const nsIDialogParamBlock = Ci.nsIDialogParamBlock;
 var dialogParams;
 var itemCount = 0;
 
+document.addEventListener("dialogaccept", doOK);
+document.addEventListener("dialogcancel", doCancel);
+
 function onLoad()
 {
   dialogParams = window.arguments[0].QueryInterface(nsIDialogParamBlock);

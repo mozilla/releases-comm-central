@@ -9,6 +9,9 @@
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 
+document.addEventListener("dialogextra1", unsubscribeCalendar);
+document.addEventListener("dialogaccept", onAcceptDialog);
+
 /**
  * The calendar to modify, is retrieved from window.arguments[0].calendar
  */

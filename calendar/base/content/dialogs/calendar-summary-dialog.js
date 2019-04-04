@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported onLoad, onUnload, onAccept, onCancel, updatePartStat, browseDocument,
+/* exported onLoad, onUnload, updatePartStat, browseDocument,
  *          sendMailToOrganizer, openAttachment, reply
  */
 
@@ -11,6 +11,9 @@
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { recurrenceRule2String } = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
+
+document.addEventListener("dialogaccept", onAccept);
+document.addEventListener("dialogcancel", onCancel);
 
 /**
  * Sets up the summary dialog, setting all needed fields on the dialog from the

@@ -18,6 +18,10 @@ var NoDefault = false;
 var gColorObj;
 
 // dialog initialization code
+
+document.addEventListener("dialogaccept", onAccept);
+document.addEventListener("dialogcancel", onCancelColor);
+
 function Startup()
 {
   if (!window.arguments[1])

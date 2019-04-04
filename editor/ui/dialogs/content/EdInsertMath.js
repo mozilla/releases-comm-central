@@ -7,6 +7,9 @@
 
 var XULNS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 
+document.addEventListener("dialogaccept", onAccept);
+document.addEventListener("dialogcancel", onCancel);
+
 function Startup()
 {
   var editor = GetCurrentEditor();

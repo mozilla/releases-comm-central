@@ -13,8 +13,7 @@
   windowtype="Messenger:JoinChat"
   title="&joinChatWindow.title;"
   buttons="accept,cancel"
-  onload="joinChat.onload()"
-  ondialogaccept="joinChat.join()">
+  onload="joinChat.onload()">
   <script type="application/javascript" src="chrome://messenger/content/chat/joinchat.js"/>
 
   <grid>

@@ -13,7 +13,6 @@
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
     xmlns:html="http://www.w3.org/1999/xhtml"
     onload="Startup();"
-    ondialogaccept="return BuildTOC(true);"
     oncancel="window.close(); return true;">
 
   <!-- Methods common to all editor dialogs -->

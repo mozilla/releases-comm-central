@@ -6,6 +6,8 @@
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
+document.addEventListener("dialogaccept", doOK);
+
 // Global variable, set to true if the user has picked a custom color.
 var customColorSelected = false;
 

@@ -5,6 +5,8 @@
 
 /* import-globals-from ../../../../mailnews/base/search/content/searchTerm.js */
 
+document.addEventListener("dialogaccept", onOK);
+
 var gMailView = null;
 
 var dialog;

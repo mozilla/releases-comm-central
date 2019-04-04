@@ -23,6 +23,10 @@ var gHaveDocumentUrl = false;
 var tagName = "href";
 
 // dialog initialization code
+
+document.addEventListener("dialogaccept", onAccept);
+document.addEventListener("dialogcancel", onCancel);
+
 function Startup()
 {
   gActiveEditor = GetCurrentEditor();

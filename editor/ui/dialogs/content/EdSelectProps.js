@@ -15,6 +15,9 @@ var currentItem = null;
 var selectedOption = null;
 var selectedOptionCount = 0;
 
+document.addEventListener("dialogaccept", onAccept);
+document.addEventListener("dialogcancel", onCancel);
+
 // Utility functions
 
 function getParentIndex(index)

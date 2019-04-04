@@ -30,9 +30,6 @@
             buttonlabelextra1="&continueButton.label;"
             buttonaccesskeyextra1="&continueButton.accesskey;"
             width="&window.width;"
-            ondialogaccept="return onOK()"
-            ondialogcancel="onCancel()"
-            ondialogextra1="window.close()"
             onload="onLoad();"
             buttondisabledaccept="true">
 

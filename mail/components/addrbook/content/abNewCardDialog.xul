@@ -19,9 +19,7 @@
     id="abcardWindow"
     icon="abcardWindow"
     windowtype="mailnews:newcarddialog"
-    onload="OnLoadNewCard()"
-    ondialogaccept="return NewCardOKButton();"
-    ondialogcancel="return NewCardCancelButton();">
+    onload="OnLoadNewCard()">
 
   <stringbundleset id="stringbundleset">
     <stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
@@ -29,6 +27,10 @@
 
   <script type="application/javascript" src="chrome://messenger/content/addressbook/abCommon.js"/>
   <script type="application/javascript" src="chrome://messenger/content/addressbook/abCard.js"/>
+  <script type="application/javascript"><![CDATA[
+    document.addEventListener("dialogaccept", NewCardOKButton);
+    document.addEventListener("dialogcancel", NewCardCancelButton);
+  ]]></script>
 
   <hbox align="center">
     <label id="abPopupLabel" control="abPopup" value="&chooseAddressBook.label;" accesskey="&chooseAddressBook.accesskey;"/>

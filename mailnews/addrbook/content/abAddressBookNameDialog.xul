@@ -9,8 +9,7 @@
 
 <dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         style="width: 36em;"
-        onload="abNameOnLoad();"
-        ondialogaccept="return abNameOKButton();">
+        onload="abNameOnLoad();">
 
   <stringbundleset id="stringbundleset">
     <stringbundle id="bundle_addressBook"

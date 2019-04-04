@@ -31,8 +31,6 @@
         windowtype="Calendar:EventSummaryDialog"
         onload="onLoad()"
         onunload="onUnload()"
-        ondialogaccept="return onAccept();"
-        ondialogcancel="return onCancel();"
         onresize="rearrangeAttendees();"
         persist="screenX screenY width height"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"

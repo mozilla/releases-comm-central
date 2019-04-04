@@ -12,6 +12,8 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 var printContent = "";
 
+document.addEventListener("dialogaccept", printAndClose);
+
 /**
  * Gets the calendar view from the opening window
  */

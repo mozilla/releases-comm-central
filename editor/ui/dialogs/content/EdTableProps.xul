@@ -21,10 +21,7 @@
     buttons="accept,extra1,cancel"
     buttonlabelclose="&closeButton.label;"
     buttonlabelextra1="&applyButton.label;"
-    buttonaccesskeyextra1="&applyButton.accesskey;"
-    ondialogaccept="return onAccept();"
-    ondialogextra1="return Apply();"
-    ondialogcancel="return onCancel();">
+    buttonaccesskeyextra1="&applyButton.accesskey;">
 
   <!-- Methods common to all editor dialogs -->
   <script type="application/javascript" src="chrome://editor/content/editorUtilities.js"/>

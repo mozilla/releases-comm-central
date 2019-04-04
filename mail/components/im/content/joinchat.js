@@ -151,3 +151,5 @@ var joinChat = {
     return true;
   },
 };
+
+document.addEventListener("dialogaccept", joinChat.join);

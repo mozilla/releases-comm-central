@@ -9,6 +9,8 @@ var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var gIdentity = null;  // the identity we are editing (may be null for a new identity)
 var gAccount = null;   // the account the identity is (or will be) associated with
 
+document.addEventListener("dialogaccept", onOk);
+
 function onLoadIdentityProperties()
 {
   // extract the account

@@ -13,8 +13,7 @@
    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
    persist="screenX screenY"
    buttons="cancel"
-   onload = "onLoad()"
-   ondialogaccept="onFindNext(); return false">
+   onload="onLoad()">
 
   <!-- Methods common to all editor dialogs -->
   <script type="application/javascript" src="chrome://editor/content/editorUtilities.js"/>

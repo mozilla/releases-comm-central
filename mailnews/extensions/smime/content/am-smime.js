@@ -29,6 +29,8 @@ var gSigningChoicesLocked;
 var kEncryptionCertPref = "identity.encryption_cert_name";
 var kSigningCertPref = "identity.signing_cert_name";
 
+document.addEventListener("dialogaccept", smimeOnAcceptEditor);
+
 function onInit()
 {
   smimeInitializeFields();
