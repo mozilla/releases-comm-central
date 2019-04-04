@@ -12,7 +12,6 @@ var TagUtils = {
   loadTagsIntoCSS,
   addTagToAllDocumentSheets,
   isColorContrastEnough,
-  getColor,
 };
 
 function loadTagsIntoCSS(aDocument) {
@@ -82,31 +81,14 @@ function findTagColorSheet(aDocument) {
   return tagSheet;
 }
 
-// Here comes some stuff that was originally in Windows8WindowFrameColor.jsm.
-
 /* Checks if black writing on 'aColor' background has enough contrast */
 function isColorContrastEnough(aColor) {
-  let bgColor = getColor(aColor);
-  return new Color(...bgColor).isContrastRatioAcceptable(new Color(0, 0, 0));
-}
-
-function getColor(customizationColorHex, colorizationColorBalance) {
   // Zero-pad the number just to make sure that it is 8 digits.
-  customizationColorHex = ("00000000" + customizationColorHex).substr(-8);
-  let customizationColorArray = customizationColorHex.match(/../g);
-  let [, fgR, fgG, fgB] = customizationColorArray.map(val => parseInt(val, 16));
-
-  if (colorizationColorBalance == undefined) {
-    colorizationColorBalance = 78;
-  }
-
-  // Window frame base color when Color Intensity is at 0, see bug 1004576.
-  let frameBaseColor = 217;
-  let alpha = colorizationColorBalance / 100;
-
-  // Alpha-blend the foreground color with the frame base color.
-  let r = Math.round(fgR * alpha + frameBaseColor * (1 - alpha));
-  let g = Math.round(fgG * alpha + frameBaseColor * (1 - alpha));
-  let b = Math.round(fgB * alpha + frameBaseColor * (1 - alpha));
-  return [r, g, b];
+  let colorHex = ("00000000" + aColor).substr(-8);
+  let colorArray = colorHex.match(/../g);
+  let [, cR, cG, cB] = colorArray.map(val => parseInt(val, 16));
+  // There appears to be a bug in Color.relativeLuminance, green and blue are
+  // interchanged there. Until that is fixed, we compensate here by passing
+  // RBG instead of RGB.
+  return new Color(cR, cB, cG).relativeLuminance > 0.179;
 }
