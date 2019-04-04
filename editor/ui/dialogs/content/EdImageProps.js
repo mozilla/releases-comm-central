@@ -166,7 +166,7 @@ function ValidateData()
   return ValidateImage();
 }
 
-function onAccept()
+function onAccept(event)
 {
   // Use this now (default = false) so Advanced Edit button dialog doesn't trigger error message
   gDoAltTextError = true;
@@ -301,7 +301,7 @@ function onAccept()
 
   gDoAltTextError = false;
 
-  return false;
+  event.preventDefault();
 }
 
 function onLinkAdvancedEdit()

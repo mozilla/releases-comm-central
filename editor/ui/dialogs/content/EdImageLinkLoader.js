@@ -51,7 +51,7 @@ function OnAcceptDialog() {
   }
   DoAttachSourceCheckbox();
 }
-addEventListener("dialogaccept", OnAcceptDialog, false);
+document.addEventListener("dialogaccept", OnAcceptDialog, true);
 
 function SetAttachCheckbox() {
   var resetCheckbox = false;
