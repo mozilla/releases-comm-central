@@ -14,6 +14,9 @@
 /* import-globals-from msgMail3PaneWindow.js */
 /* import-globals-from utilityOverlay.js */
 
+// From netError.js
+/* globals retryThis */
+
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {appIdleManager} = ChromeUtils.import("resource:///modules/appIdleManager.js");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -210,6 +213,15 @@ function InitMsgWindow() {
 
   document.addEventListener("copy", onCopyOrDragStart, true);
   document.addEventListener("dragstart", onCopyOrDragStart, true);
+  // Override Retry button to prevent unwanted url loads, see bug 1411748.
+  messagepane.addEventListener("DOMContentLoaded", (event) => {
+    if (!event.target.documentURI.startsWith("about:neterror?")) {
+      return;
+    }
+    let button = event.target.getElementById("errorTryAgain");
+    button.removeEventListener("click", function() { retryThis(this); });
+    button.addEventListener("click", function() { ReloadMessage(); });
+  });
 }
 
 // We're going to implement our status feedback for the mail window in JS now.
