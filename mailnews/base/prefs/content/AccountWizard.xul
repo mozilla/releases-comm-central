@@ -13,8 +13,6 @@
 ]>
 
 <wizard id="AccountWizard" title="&windowTitle.label;"
-        onwizardcancel="return onCancel();"
-        onwizardfinish="return FinishAccount();"
 #ifdef MOZ_THUNDERBIRD
         onload="onAccountWizardLoad(); initAccountWizardTB(window.arguments);"
 #else

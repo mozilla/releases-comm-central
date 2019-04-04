@@ -5,16 +5,18 @@
 
 var {FeedUtils} = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
 
-document.getElementById("accountsetuppage").addEventListener(
-  "pageshow", FeedAccountWizard.accountSetupPageValidate
-);
-document.getElementById("done").addEventListener(
-  "pageshow", FeedAccountWizard.donePageInit
-);
-
 /* Feed account standalone wizard functions */
 var FeedAccountWizard = {
   accountName: "",
+
+  onLoad() {
+    document.documentElement.addEventListener("wizardfinish", this.onFinish.bind(this));
+    let accountSetupPage = document.getElementById("accountsetuppage");
+    accountSetupPage.addEventListener("pageshow", this.accountSetupPageValidate.bind(this));
+    accountSetupPage.addEventListener("pagehide", this.accountSetupPageValidate.bind(this));
+    let donePage = document.getElementById("done");
+    donePage.addEventListener("pageshow", this.donePageInit.bind(this));
+  },
 
   accountSetupPageValidate() {
     this.accountName = document.getElementById("prettyName").value.trim();
@@ -23,10 +25,6 @@ var FeedAccountWizard = {
 
   donePageInit() {
     document.getElementById("account.name.text").value = this.accountName;
-  },
-
-  onCancel() {
-    return true;
   },
 
   onFinish() {

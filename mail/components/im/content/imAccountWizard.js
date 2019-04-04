@@ -10,14 +10,19 @@ var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var PREF_EXTENSIONS_GETMOREPROTOCOLSURL = "extensions.getMoreProtocolsURL";
 
-document.getElementById("accountprotocol").addEventListener("pageadvanced", accountWizard.selectProtocol);
-document.getElementById("accountusername").addEventListener("pageshow", accountWizard.showUsernamePage);
-document.getElementById("accountusername").addEventListener("pagehide", accountWizard.hideUsernamePage);
-document.getElementById("accountadvanced").addEventListener("pageshow", accountWizard.showAdvanced);
-document.getElementById("accountsummary").addEventListener("pageshow", accountWizard.showSummary);
-
 var accountWizard = {
   onload() {
+    document.documentElement.addEventListener("wizardfinish", this.createAccount.bind(this));
+    let accountProtocolPage = document.getElementById("accountprotocol");
+    accountProtocolPage.addEventListener("pageadvanced", this.selectProtocol.bind(this));
+    let accountUsernamePage = document.getElementById("accountusername");
+    accountUsernamePage.addEventListener("pageshow", this.showUsernamePage.bind(this));
+    accountUsernamePage.addEventListener("pagehide", this.hideUsernamePage.bind(this));
+    let accountAdvancedPage = document.getElementById("accountadvanced");
+    accountAdvancedPage.addEventListener("pageshow", this.showAdvanced.bind(this));
+    let accountSummaryPage = document.getElementById("accountsummary");
+    accountSummaryPage.addEventListener("pageshow", this.showSummary.bind(this));
+
     // Ensure the im core is initialized before we get a list of protocols.
     Services.core.init();
 

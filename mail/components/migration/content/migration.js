@@ -9,25 +9,6 @@ var kIPStartup = Ci.nsIProfileStartup;
 var kProfileMigratorContractIDPrefix = "@mozilla.org/profile/migrator;1?app=mail&type=";
 var nsISupportsString = Ci.nsISupportsString;
 
-var importSourcePage = document.getElementById("importSource");
-importSourcePage.addEventListener("pageadvanced", MigrationWizard.onImportSourcePageAdvanced);
-
-var selectProfilePage = document.getElementById("selectProfile");
-selectProfilePage.addEventListener("pageshow", MigrationWizard.onSelectProfilePageShow);
-selectProfilePage.addEventListener("pagerewound", MigrationWizard.onSelectProfilePageRewound);
-selectProfilePage.addEventListener("pageadvanced", MigrationWizard.onSelectProfilePageAdvanced);
-
-var importItemsPage = document.getElementById("importItems");
-importItemsPage.addEventListener("pageshow", MigrationWizard.onImportItemsPageShow);
-importItemsPage.addEventListener("pagerewound", MigrationWizard.onImportItemsPageAdvanced);
-importItemsPage.addEventListener("pageadvanced", MigrationWizard.onImportItemsPageAdvanced);
-
-var migratingPage = document.getElementById("migrating");
-migratingPage.addEventListener("pageshow", MigrationWizard.onMigratingPageShow);
-
-var donePage = document.getElementById("done");
-donePage.addEventListener("pageshow", MigrationWizard.onDonePageShow);
-
 var MigrationWizard = {
   _source: "",                  // Source Profile Migrator ContractID suffix
   _itemsFlags: kIMig.ALL,       // Selected Import Data Sources (16-bit bitfield)
@@ -37,6 +18,28 @@ var MigrationWizard = {
   _autoMigrate: null,
 
   init() {
+    document.documentElement.addEventListener("wizardback", this.onBack.bind(this));
+    document.documentElement.addEventListener("wizardcancel", this.onCancel.bind(this));
+
+    let importSourcePage = document.getElementById("importSource");
+    importSourcePage.addEventListener("pageadvanced", this.onImportSourcePageAdvanced.bind(this));
+
+    let selectProfilePage = document.getElementById("selectProfile");
+    selectProfilePage.addEventListener("pageshow", this.onSelectProfilePageShow.bind(this));
+    selectProfilePage.addEventListener("pagerewound", this.onSelectProfilePageRewound.bind(this));
+    selectProfilePage.addEventListener("pageadvanced", this.onSelectProfilePageAdvanced.bind(this));
+
+    let importItemsPage = document.getElementById("importItems");
+    importItemsPage.addEventListener("pageshow", this.onImportItemsPageShow.bind(this));
+    importItemsPage.addEventListener("pagerewound", this.onImportItemsPageAdvanced.bind(this));
+    importItemsPage.addEventListener("pageadvanced", this.onImportItemsPageAdvanced.bind(this));
+
+    let migratingPage = document.getElementById("migrating");
+    migratingPage.addEventListener("pageshow", this.onMigratingPageShow.bind(this));
+
+    let donePage = document.getElementById("done");
+    donePage.addEventListener("pageshow", this.onDonePageShow.bind(this));
+
     Services.obs.addObserver(this, "Migration:Started");
     Services.obs.addObserver(this, "Migration:ItemBeforeMigrate");
     Services.obs.addObserver(this, "Migration:ItemAfterMigrate");

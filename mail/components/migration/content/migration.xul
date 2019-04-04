@@ -13,8 +13,6 @@
         title="&migrationWizard.title;"
         onload="MigrationWizard.init()"
         onunload="MigrationWizard.uninit()"
-        onwizardback="MigrationWizard.onBack();"
-        onwizardcancel="MigrationWizard.onCancel();"
         style="width: 40em;"
         branded="true"
         buttons="accept,cancel">

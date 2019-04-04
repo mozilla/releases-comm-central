@@ -68,28 +68,30 @@ var gDefaultSpecialFolderPickerMode = "0";
 
 // event handlers
 function onAccountWizardLoad() {
+  document.documentElement.addEventListener("wizardcancel", onCancel);
+  document.documentElement.addEventListener("wizardfinish", FinishAccount);
   let accounttypePage = document.getElementById("accounttype");
   accounttypePage.addEventListener("pageshow", () => {
     document.documentElement.canAdvance = true;
   });
   accounttypePage.addEventListener("pageadvanced", acctTypePageUnload);
   let identityPage = document.getElementById("identitypage");
-  identityPage.addeEventListener("pageshow", identityPageInit);
+  identityPage.addEventListener("pageshow", identityPageInit);
   identityPage.addEventListener("pageadvanced", identityPageUnload);
   let incomingPage = document.getElementById("incomingpage");
-  incomingPage.addeEventListener("pageshow", incomingPageInit);
+  incomingPage.addEventListener("pageshow", incomingPageInit);
   incomingPage.addEventListener("pageadvanced", incomingPageUnload);
   let outgoingPage = document.getElementById("outgoingpage");
-  outgoingPage.addeEventListener("pageshow", outgoingPageInit);
+  outgoingPage.addEventListener("pageshow", outgoingPageInit);
   outgoingPage.addEventListener("pageadvanced", outgoingPageUnload);
   let newsserverPage = document.getElementById("newsserver");
-  newsserverPage.addeEventListener("pageshow", incomingPageInit);
+  newsserverPage.addEventListener("pageshow", incomingPageInit);
   newsserverPage.addEventListener("pageadvanced", incomingPageUnload);
   let accnamePage = document.getElementById("accnamepage");
   accnamePage.addEventListener("pageshow", acctNamePageInit);
   accnamePage.addEventListener("pageadvanced", acctNamePageUnload);
   let donePage = document.getElementById("done");
-  donePage.addeEventListener("pageshow", donePageInit);
+  donePage.addEventListener("pageshow", donePageInit);
 
   gPrefsBundle = document.getElementById("bundle_prefs");
   gMessengerBundle = document.getElementById("bundle_messenger");

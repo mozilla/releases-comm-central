@@ -16,8 +16,7 @@
 
 <wizard id="FeedAccountWizard"
         title="&feedWindowTitle.label;"
-        onwizardcancel="return FeedAccountWizard.onCancel();"
-        onwizardfinish="return FeedAccountWizard.onFinish();"
+        onload="FeedAccountWizard.onLoad();"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
 
   <script type="application/javascript"
