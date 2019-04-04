@@ -15,7 +15,16 @@ using mozilla::TransactionManager;
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsComponentManagerExtra)
 NS_DEFINE_NAMED_CID(NS_COMPONENTMANAGEREXTRA_CID);
 
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsBaseCommandController)
+// Hand-roll: NS_GENERIC_FACTORY_CONSTRUCTOR(nsBaseCommandController)
+static nsresult nsBaseCommandControllerConstructor(nsISupports *aOuter, REFNSIID aIID, void **aResult) {
+  RefPtr<nsBaseCommandController> inst;
+  *aResult = nullptr;
+  if (nullptr != aOuter) {
+    return NS_ERROR_NO_AGGREGATION;
+  }
+  inst = new nsBaseCommandController(new nsControllerCommandTable());
+  return inst->QueryInterface(aIID, aResult);
+}
 NS_DEFINE_NAMED_CID(NS_BASECOMMANDCONTROLLER_CID);
 
 NS_GENERIC_FACTORY_CONSTRUCTOR(TransactionManager)
