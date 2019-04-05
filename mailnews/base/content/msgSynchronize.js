@@ -52,8 +52,6 @@ function syncOkButton()
         if(offlineManager)
             offlineManager.synchronizeForOffline(syncNews, syncMail, sendMessage, workOffline, gParentMsgWindow)
     }
-
-    return true;
 }
 
 function OnSelect()

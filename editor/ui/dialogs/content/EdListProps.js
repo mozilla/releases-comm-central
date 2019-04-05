@@ -386,7 +386,7 @@ function ConvertArabicToLetters(num)
   return letters;
 }
 
-function onAccept()
+function onAccept(event)
 {
   if (ValidateData())
   {
@@ -439,7 +439,7 @@ function onAccept()
 
     SaveWindowLocation();
 
-    return true;
+    return;
   }
-  return false;
+  event.preventDefault();
 }

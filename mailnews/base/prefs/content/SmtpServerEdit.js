@@ -26,7 +26,7 @@ function onLoad(event)
   initSmtpSettings(gSmtpServer);
 }
 
-function onAccept()
+function onAccept(event)
 {
   if (!isLegalHostNameOrIP(cleanUpHostName(gSmtpHostname.value))) {
     let prefsBundle = document.getElementById("bundle_prefs");
@@ -36,7 +36,8 @@ function onAccept()
     Services.prompt.alert(window, alertTitle, alertMsg);
 
     window.arguments[0].result = false;
-    return false;
+    event.preventDefault();
+    return;
   }
 
   // If we didn't have an SMTP server to initialize with,
@@ -53,7 +54,6 @@ function onAccept()
   }
 
   window.arguments[0].result = true;
-  return true;
 }
 
 function initSmtpSettings(server) {

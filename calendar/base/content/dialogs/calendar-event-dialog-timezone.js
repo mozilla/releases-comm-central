@@ -9,7 +9,6 @@
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 document.addEventListener("dialogaccept", onAccept);
-document.addEventListener("dialogcancel", onCancel);
 
 /**
  * Sets up the timezone dialog from the window arguments, also setting up all
@@ -132,12 +131,4 @@ function onAccept() {
     let timezone = window.tzProvider.getTimezone(timezoneString);
     let datetime = window.time.getInTimezone(timezone);
     window.onAcceptCallback(datetime);
-    return true;
-}
-
-/**
- * Handler function to be called when the cancel button is pressed.
- *
- */
-function onCancel() {
 }

@@ -105,14 +105,15 @@ function ValidateData()
   return true;
 }
 
-function onAccept()
+function onAccept(event)
 {
   if (formActionWarning && !gForm.Action.value)
   {
     Services.prompt.alert(window, GetString("Alert"), GetString("NoFormAction"));
     gForm.Action.focus();
     formActionWarning = false;
-    return false;
+    event.preventDefault();
+    return;
   }
   // All values are valid - copy to actual element in doc or
   //   element created to insert
@@ -126,6 +127,4 @@ function onAccept()
     InsertElementAroundSelection(formElement);
 
   SaveWindowLocation();
-
-  return true;
 }

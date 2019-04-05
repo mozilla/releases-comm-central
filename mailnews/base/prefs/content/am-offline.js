@@ -206,7 +206,6 @@ function onCancel()
     // restore the offline flags for all folders
     restoreOfflineFolders(gOfflineMap);
     document.getElementById("offline.folders").checked = gOfflineFolders;
-    return true;
 }
 
 /**

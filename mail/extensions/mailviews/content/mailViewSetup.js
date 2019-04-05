@@ -67,8 +67,6 @@ function onOK() {
 
   if (dialog.okCallback)
     dialog.okCallback(gMailView ? gMailView : newMailView);
-
-  return true;
 }
 
 function initializeMailViewOverrides() {

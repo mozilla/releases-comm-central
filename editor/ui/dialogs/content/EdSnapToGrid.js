@@ -52,8 +52,6 @@ function onAccept()
 {
   gEditor.snapToGridEnabled = gDialog.enableSnapToGrid.checked;
   gEditor.gridSize = gDialog.sizeInput.value;
-
-  return true;
 }
 
 function toggleSnapToGrid()

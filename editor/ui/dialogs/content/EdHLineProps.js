@@ -185,7 +185,7 @@ function ValidateData()
   return true;
 }
 
-function onAccept()
+function onAccept(event)
 {
   if (ValidateData())
   {
@@ -193,7 +193,7 @@ function onAccept()
     try {
       GetCurrentEditor().cloneAttributes(gHLineElement, globalElement);
     } catch (e) {}
-    return true;
+    return;
   }
-  return false;
+  event.preventDefault();
 }

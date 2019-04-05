@@ -126,8 +126,6 @@ var gFontsDialog = {
     if (viewCharsetStr === defaultPrefs.getComplexValue(
           "view_default_charset", Ci.nsIPrefLocalizedString).data)
       Services.prefs.clearUserPref("mailnews.view_default_charset");
-
-    return true;
   },
 };
 

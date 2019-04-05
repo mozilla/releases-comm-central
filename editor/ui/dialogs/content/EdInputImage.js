@@ -114,7 +114,7 @@ function ValidateData()
   return true;
 }
 
-function onAccept()
+function onAccept(event)
 {
   // Show alt text error only once
   // (we don't initialize doAltTextError=true
@@ -175,8 +175,8 @@ function onAccept()
 
     SaveWindowLocation();
 
-    return true;
+    return;
   }
-  return false;
+  event.preventDefault();
 }
 

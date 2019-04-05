@@ -327,12 +327,12 @@ function AllowDefaultButton()
   gAllowEnterKey = true;
 }
 
-function onEnterKey()
+function onEnterKey(event)
 {
   if (gAllowEnterKey)
     return CloseDialog();
 
-  return false;
+  event.preventDefault();
 }
 
 function RequestCloseDialog()

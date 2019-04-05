@@ -65,8 +65,6 @@ function onOK()
     dialog.okCallback(name + "/", dialog.folder);
   else
     dialog.okCallback(name, dialog.folder);
-
-  return true;
 }
 
 function onFoldersOnly()

@@ -124,11 +124,11 @@ function removeAccount() {
   }
 }
 
-function onAccept() {
+function onAccept(event) {
   // If Cancel is disabled, we already tried to remove the account
   // and can only close the dialog.
   if (gDialog.getButton("cancel").disabled)
-    return true;
+    return;
 
   gDialog.getButton("accept").disabled = true;
   gDialog.getButton("cancel").disabled = true;
@@ -147,5 +147,5 @@ function onAccept() {
   removeAccount();
 
   gDialog.getButton("accept").disabled = false;
-  return false;
+  event.preventDefault();
 }

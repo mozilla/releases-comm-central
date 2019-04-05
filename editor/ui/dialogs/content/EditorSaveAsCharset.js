@@ -133,7 +133,6 @@ function onAccept()
   window.opener.ok = true;
   window.opener.exportToText = gDialog.exportToText.checked;
   SaveWindowLocation();
-  return true;
 }
 
 

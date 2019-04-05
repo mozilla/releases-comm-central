@@ -247,7 +247,7 @@ function refreshHtml(finishFunc) {
 /**
  * Prints the document and then closes the window
  */
-function printAndClose() {
+function printAndClose(event) {
     refreshHtml(() => {
         let printSettings = PrintUtils.getPrintSettings();
         // Evicts "about:blank" header
@@ -283,7 +283,7 @@ function printAndClose() {
                                            printSettings.kInitSavePrinterName);
         }
     });
-    return false; // leave open
+    event.preventDefault(); // leave open
 }
 
 /**

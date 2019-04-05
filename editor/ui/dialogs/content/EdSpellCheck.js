@@ -478,7 +478,7 @@ function SetReplaceEnable()
   }
 }
 
-function doDefault()
+function doDefault(event)
 {
   if (gDialog.ReplaceButton.getAttribute("default") == "true")
     Replace(gDialog.ReplaceWordInput.value);
@@ -487,7 +487,7 @@ function doDefault()
   else if (gDialog.CloseButton.getAttribute("default") == "true")
     onClose();
 
-  return false;
+  event.preventDefault();
 }
 
 function ExitSpellChecker()
@@ -516,7 +516,6 @@ function CancelSpellCheck()
 
   // Signal to calling window that we canceled
   window.opener.cancelSendMessage = true;
-  return true;
 }
 
 function onClose()

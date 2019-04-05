@@ -120,11 +120,13 @@ function onPaste(event)
   event.preventDefault();
 }
 
-function onAccept()
+function onAccept(event)
 {
   let html = gDialog.srcInput.value;
-  if (!html)
-    return false;
+  if (!html) {
+    event.preventDefault();
+    return;
+  }
 
   // Add back the original data URIs we stashed away earlier.
   html = html.replace(/(data:.+;base64,)([^"' >]+)/gi,
@@ -138,7 +140,5 @@ function onAccept()
     GetCurrentEditor().insertHTML(html);
   } catch (e) {}
   SaveWindowLocation();
-
-  return true;
 }
 

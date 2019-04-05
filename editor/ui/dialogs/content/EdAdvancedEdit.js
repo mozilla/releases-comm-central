@@ -110,8 +110,6 @@ function onAccept()
 
   window.opener.AdvancedEditOK = true;
   SaveWindowLocation();
-
-  return true; // do close the window
 }
 
 // Helpers for removing and setting attributes

@@ -348,7 +348,6 @@ function BuildTOC(update)
     }
   }
   SaveWindowLocation();
-  return true;
 }
 
 function selectHeader(elt, index)

@@ -179,7 +179,5 @@ function onAccept()
   }
 
   SaveWindowLocation();
-
-  return true;
 }
 

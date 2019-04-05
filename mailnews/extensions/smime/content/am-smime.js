@@ -158,17 +158,17 @@ function smimeSave()
   gIdentity.setCharAttribute("signing_cert_dbkey", gSignCertName.dbKey);
 }
 
-function smimeOnAcceptEditor()
+function smimeOnAcceptEditor(event)
 {
   try {
-    if (!onOk())
-      return false;
+    if (!onOk()) {
+      event.preventDefault();
+      return;
+    }
   }
   catch (ex) {}
 
   smimeSave();
-
-  return true;
 }
 
 function onLockPreference()

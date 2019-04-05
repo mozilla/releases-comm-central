@@ -465,8 +465,6 @@ function onAccept() {
     if (window.arguments[0].onOk) {
         window.arguments[0].onOk(reminders);
     }
-
-    return true;
 }
 
 /**

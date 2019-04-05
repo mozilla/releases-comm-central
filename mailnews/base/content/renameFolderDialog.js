@@ -33,8 +33,6 @@ function onLoad()
 function onOK()
 {
   dialog.okCallback(dialog.nameField.value, dialog.preselectedFolderURI);
-
-  return true;
 }
 
 function doEnabling()

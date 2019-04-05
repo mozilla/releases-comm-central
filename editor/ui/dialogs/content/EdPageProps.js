@@ -133,7 +133,7 @@ function ValidateData()
   return true;
 }
 
-function onAccept()
+function onAccept(event)
 {
   if (ValidateData())
   {
@@ -154,8 +154,8 @@ function onAccept()
     editor.endTransaction();
 
     SaveWindowLocation();
-    return true; // do close the window
+    return; // do close the window
   }
-  return false;
+  event.preventDefault();
 }
 

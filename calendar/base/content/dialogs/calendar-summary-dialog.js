@@ -251,13 +251,11 @@ function onUnload() {
 
 /**
  * Saves any changed information to the item.
- *
- * @return      Returns true if the dialog
  */
 function onAccept() {
     dispose();
     if (window.readOnly) {
-        return true;
+        return;
     }
     // let's make sure we have a response mode defined
     let resp = window.responseMode || "USER";
@@ -271,7 +269,6 @@ function onAccept() {
     adaptScheduleAgent(newItem);
     args.onOk(newItem, calendar, oldItem, null, respMode);
     window.calendarItem = newItem;
-    return true;
 }
 
 /**
@@ -279,7 +276,6 @@ function onAccept() {
  */
 function onCancel() {
     dispose();
-    return true;
 }
 
 /**

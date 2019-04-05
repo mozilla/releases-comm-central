@@ -1267,12 +1267,13 @@ function Apply()
   return false;
 }
 
-function onAccept()
+function onAccept(event)
 {
   // Do same as Apply and close window if ValidateData succeeded
   var retVal = Apply();
   if (retVal)
     SaveWindowLocation();
-
-  return retVal;
+  } else {
+    event.preventDefault();
+  }
 }

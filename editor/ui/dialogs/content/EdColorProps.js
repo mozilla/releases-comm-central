@@ -412,7 +412,7 @@ function ValidateData()
   return false;
 }
 
-function onAccept()
+function onAccept(event)
 {
   // If it's a file, convert to a data URL.
   if (gBackgroundImage && /^file:/i.test(gBackgroundImage)) {
@@ -430,7 +430,8 @@ function onAccept()
       File.createFromNsIFile(nsFile).then(file => {
         reader.readAsDataURL(file);
       });
-      return false; // Don't close just yet...
+      event.preventDefault(); // Don't close just yet...
+      return;
     }
   }
   if (ValidateData()) {
@@ -440,7 +441,7 @@ function onAccept()
     } catch (e) {}
 
     SaveWindowLocation();
-    return true; // do close the window
+    return; // do close the window
   }
-  return false;
+  event.preventDefault();
 }

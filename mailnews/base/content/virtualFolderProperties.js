@@ -156,7 +156,7 @@ function onFolderPick(aEvent) {
           .selectFolder(gPickedFolder);
 }
 
-function onOK()
+function onOK(event)
 {
   var name = document.getElementById("name").value;
   var searchOnline = document.getElementById('searchOnline').checked;
@@ -165,7 +165,8 @@ function onOK()
   {
     Services.prompt.alert(window, null,
                           gMessengerBundle.getString('alertNoSearchFoldersSelected'));
-    return false;
+    event.preventDefault();
+    return;
   }
 
   if (window.arguments[0].editExistingFolder)
@@ -184,7 +185,7 @@ function onOK()
 
     if (window.arguments[0].onOKCallback)
       window.arguments[0].onOKCallback(virtualFolderWrapper.virtualFolder.URI);
-    return true;
+    return;
   }
   var uri = gPickedFolder.URI;
   if (name && uri) // create a new virtual folder
@@ -198,13 +199,15 @@ function onOK()
     {
       Services.prompt.alert(window, null,
                             gMessengerBundle.getString("folderCreationFailed"));
-      return false;
+      event.preventDefault();
+      return;
     }
     else if (parentFolder.containsChildNamed(name))
     {
       Services.prompt.alert(window, null,
                             gMessengerBundle.getString("folderExists"));
-      return false;
+      event.preventDefault();
+      return;
     }
 
     saveSearchTerms(gSearchTermSession.searchTerms, gSearchTermSession);
@@ -212,8 +215,6 @@ function onOK()
                                                gSearchTermSession.searchTerms,
                                                searchOnline);
   }
-
-  return true;
 }
 
 function doEnabling()

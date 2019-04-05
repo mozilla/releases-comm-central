@@ -85,12 +85,10 @@ function loadCalendars() {
 function doOK() {
     let listbox = document.getElementById("calendar-list");
     window.arguments[0].onOk(listbox.selectedItem.calendar);
-    return true;
 }
 
 function doExtra1() {
     let listbox = document.getElementById("calendar-list");
     window.arguments[0].onExtra1(listbox.selectedItem.calendar);
     window.close();
-    return true;
 }

@@ -95,7 +95,7 @@ function onAccept()
   if (!str)
   {
     SaveWindowLocation();
-    return true;
+    return;
   }
 
   // Replace nbsp with spaces:
@@ -329,5 +329,4 @@ function onAccept()
     gDialog.sepRadioGroup.setAttribute("character", sepCharacter);
 
   SaveWindowLocation();
-  return true;
 }

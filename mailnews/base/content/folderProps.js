@@ -102,7 +102,7 @@ function doEnabling()
   document.documentElement.getButton("accept").disabled = !nameTextbox.value;
 }
 
-function folderPropsOKButton()
+function folderPropsOKButton(event)
 {
   if (gMsgFolder)
   {
@@ -155,12 +155,10 @@ function folderPropsOKButton()
     // This throws an exception when an illegal folder name was entered.
     okCallback(document.getElementById("name").value, window.arguments[0].name,
                gMsgFolder.URI);
-
-    return true;
   }
   catch (e)
   {
-    return false;
+    event.preventDefault();
   }
 }
 

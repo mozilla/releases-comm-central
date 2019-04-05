@@ -270,7 +270,7 @@ function hasCharacters(number) {
   return true;
 }
 
-function onAccept() {
+function onAccept(event) {
   try {
     let description = document.getElementById("description").value.trim();
     let hostname = cleanUpHostName(document.getElementById("hostname").value);
@@ -369,12 +369,12 @@ function onAccept() {
         errorText = addressBookBundle.getString(errorValue);
 
       Services.prompt.alert(window, document.title, errorText);
-      return false;
+      event.preventDefault();
+      return;
     }
   } catch (outer) {
     Cu.reportError("Internal error in pref-directory-add.js:onAccept() " + outer);
   }
-  return true;
 }
 
 function onCancel() {

@@ -204,19 +204,24 @@ function onEnterInSearchTerm(event)
   }
 }
 
-function onAccept()
+function onAccept(event)
 {
   try {
-    if (!saveFilter())
-      return false;
-  } catch(e) {Cu.reportError(e); return false;}
+    if (!saveFilter()) {
+      event.preventDefault();
+      return;
+    }
+  } catch (e) {
+    Cu.reportError(e);
+    event.preventDefault();
+    return;
+  }
 
   // parent should refresh filter list..
   // this should REALLY only happen when some criteria changes that
   // are displayed in the filter dialog, like the filter name
   window.arguments[0].refresh = true;
   window.arguments[0].newFilter = gFilter;
-  return true;
 }
 
 // the folderListener object

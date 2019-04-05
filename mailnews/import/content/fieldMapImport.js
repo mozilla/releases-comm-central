@@ -195,6 +195,4 @@ function FieldImportOKButton()
   top.fieldMap.skipFirstRecord = gSkipFirstRecordButton.checked;
 
   top.dialogResult.ok = true;
-
-  return true;
 }

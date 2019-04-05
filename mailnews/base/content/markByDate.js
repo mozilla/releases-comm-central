@@ -58,8 +58,6 @@ function onAccept()
   prUpper += MICROSECONDS_PER_DAY;
 
   markInDatabase( prLower, prUpper );
-
-  return true;  // allow closing
 }
 
 /** marks all headers in the database, whose time is between the two

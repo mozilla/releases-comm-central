@@ -73,7 +73,6 @@ function onAccept() {
     let args = window.arguments[0];
     fillJobQueue(args.queue);
     args.invitationsManager.processJobQueue(args.queue, args.finishedCallBack);
-    return true;
 }
 
 /**

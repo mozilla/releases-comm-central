@@ -150,7 +150,7 @@ function onUnload()
 }
 
 // If the user presses cancel, tell the app launcher and close the dialog...
-function onCancel()
+function onCancel(event)
 {
   // Cancel app launcher.
   try
@@ -158,9 +158,9 @@ function onCancel()
     msgProgress.processCanceledByUser = true;
   } catch (e)
   {
-    return true;
+    return;
   }
 
-  // don't Close up dialog by returning false, the backend will close the dialog when everything will be aborted.
-  return false;
+  // Don't close up dialog, the backend will close the dialog when everything will be aborted.
+  event.preventDefault();
 }

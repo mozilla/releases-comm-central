@@ -76,14 +76,17 @@ function onOKEditTag() {
  * on OK handler for creating a new tag. Alerts the user if a tag with
  * the name already exists.
  */
-function onOKNewTag() {
+function onOKNewTag(event) {
   var name = dialog.nameField.value;
 
   if (MailServices.tags.getKeyForTag(name)) {
     alertForExistingTag();
-    return false;
+    event.preventDefault();
+    return;
   }
-  return dialog.okCallback(name, document.getElementById("tagColorPicker").value);
+  if (!dialog.okCallback(name, document.getElementById("tagColorPicker").value)) {
+    event.preventDefault();
+  }
 }
 
 /**

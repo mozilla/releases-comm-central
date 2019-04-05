@@ -108,9 +108,6 @@ function onAcceptDialog() {
         gCalendar.setProperty("disabled", !document.getElementById("calendar-enabled-checkbox").checked);
         gCalendar.deleteProperty("auto-enabled");
     }
-
-    // tell standard dialog stuff to close the dialog
-    return true;
 }
 
 /**

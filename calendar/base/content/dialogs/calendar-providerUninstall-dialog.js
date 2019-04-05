@@ -29,13 +29,9 @@ function onAccept() {
     let calendars = calendarList.selectedCalendars || [];
     let calMgr = cal.getCalendarManager();
     calendars.forEach(calMgr.unregisterCalendar, calMgr);
-
-    return true;
 }
 
 function onCancel() {
     let args = window.arguments[0];
     args.shouldUninstall = false;
-
-    return true;
 }

@@ -70,12 +70,10 @@ function OkButtonCallback() {
     args.downloadAll = radio.selected;
 
   args.hitOK = true;
-  return true;
 }
 
 function CancelButtonCallback() {
   args.hitOK = false;
-  return true;
 }
 
 function setupDownloadUI(enable) {

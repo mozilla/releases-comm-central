@@ -80,7 +80,6 @@ function stopFetching()
     catch (e) {
     }
   }
-  return true;
 }
 
 function importCert(ber_value)

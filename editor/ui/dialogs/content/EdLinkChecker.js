@@ -181,16 +181,14 @@ function SetItemStatus(url, status)
 function onAccept()
 {
   SaveWindowLocation();
-  return true; // do close the window
 }
 
-function onCancelLinkChecker()
+function onCancelLinkChecker(event)
 {
   if (gLinkCheckTimerID)
     clearTimeout(gLinkCheckTimerID);
 
-/*
-  LinkCheckTimeOut();
-*/
-  return onCancel();
+  // LinkCheckTimeOut();
+
+  onCancel(event);
 }

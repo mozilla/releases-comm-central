@@ -78,7 +78,6 @@ function onOk()
   }
 
   window.arguments[0].selectedVal = gHdrsList.selectedItem ? gHdrsList.selectedItem.label : null;
-  return true;
 }
 
 function customHeaderOverflow()

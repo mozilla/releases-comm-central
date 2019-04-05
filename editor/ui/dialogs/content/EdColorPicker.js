@@ -254,10 +254,12 @@ function ValidateData()
   return true;
 }
 
-function onAccept()
+function onAccept(event)
 {
-  if (!ValidateData())
-    return false;
+  if (!ValidateData()) {
+    event.preventDefault();
+    return;
+  }
 
   // Set return values and save in persistent color attributes
   if (TextType)
@@ -291,8 +293,6 @@ function onAccept()
       gColorObj.Type = "Table";
   }
   SaveWindowLocation();
-
-  return true; // do close the window
 }
 
 function onCancelColor()
@@ -300,5 +300,4 @@ function onCancelColor()
   // Tells caller that user canceled
   gColorObj.Cancel = true;
   SaveWindowLocation();
-  return true;
 }

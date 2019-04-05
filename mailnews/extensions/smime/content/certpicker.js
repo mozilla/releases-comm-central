@@ -66,11 +66,9 @@ function doOK()
   // provided.
   let index = parseInt(document.getElementById("nicknames").value);
   dialogParams.SetInt(1, index);
-  return true;
 }
 
 function doCancel()
 {
   dialogParams.SetInt(0, 0); // Signal that the user cancelled.
-  return true;
 }

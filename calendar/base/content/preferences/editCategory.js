@@ -38,7 +38,6 @@ function doOK() {
 
     let categoryName = document.getElementById("categoryName").value;
     window.opener.gCategoriesPane.saveCategory(categoryName, color);
-    return true;
 }
 
 /**

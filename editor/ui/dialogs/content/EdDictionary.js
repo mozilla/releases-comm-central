@@ -6,8 +6,6 @@
 var gSpellChecker;
 var gWordToAdd;
 
-document.addEventListener("dialogcancel", onClose);
-
 function Startup()
 {
   if (!GetCurrentEditor())
@@ -177,9 +175,4 @@ function ResetSelectedItem(index)
     index = 0;
 
   gDialog.DictionaryList.selectedIndex = index;
-}
-
-function onClose()
-{
-  return true;
 }

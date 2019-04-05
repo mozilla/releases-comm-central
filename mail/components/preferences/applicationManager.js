@@ -58,10 +58,6 @@ var gAppManagerDialog = {
     this.handlerInfo.store();
   },
 
-  onCancel() {
-    // do nothing
-  },
-
   remove() {
     var list = document.getElementById("appList");
     this._removed.push(list.selectedItem.app);
@@ -103,4 +99,3 @@ var gAppManagerDialog = {
 };
 
 document.addEventListener("dialogaccept", gAppManagerDialog.onOK);
-document.addEventListener("dialogcancel", gAppManagerDialog.onCancel);

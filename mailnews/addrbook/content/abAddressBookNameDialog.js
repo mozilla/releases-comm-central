@@ -57,7 +57,7 @@ function abNameOnLoad() {
   }
 }
 
-function abNameOKButton() {
+function abNameOKButton(event) {
   var newName = gNameInput.value.trim();
 
   // Do not allow an already existing name.
@@ -70,7 +70,8 @@ function abNameOKButton() {
       const kAlertText = document.getElementById("bundle_addressBook")
                                  .getFormattedString("duplicateNameText", [ab.dirName]);
       Services.prompt.alert(window, kAlertTitle, kAlertText);
-      return false;
+      event.preventDefault();
+      return;
     }
   }
 
@@ -80,8 +81,6 @@ function abNameOKButton() {
     gDirectory.dirName = newName;
   else
     MailServices.ab.newAddressBook(newName, "", kPABDirectory);
-
-  return true;
 }
 
 function abNameDoOkEnabling() {

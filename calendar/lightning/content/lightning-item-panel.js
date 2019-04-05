@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported onLoadLightningItemPanel, onCommandSave,
+/* exported onLoadLightningItemPanel, onAccept, onCancel, onCommandSave,
  *          onCommandDeleteItem, editAttendees, editPrivacy, editPriority,
  *          editStatus, editShowTimeAs, updateShowTimeAs, editToDoStatus,
  *          postponeTask, toggleTimezoneLinks, toggleLink, attachURL,

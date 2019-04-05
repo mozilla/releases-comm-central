@@ -176,7 +176,7 @@ function onAccept(event)
     if ("arguments" in window && window.arguments[0])
     {
       SaveWindowLocation();
-      return true;
+      return;
     }
 
     var editor = GetCurrentEditor();
@@ -296,7 +296,7 @@ function onAccept(event)
     editor.endTransaction();
 
     SaveWindowLocation();
-    return true;
+    return;
   }
 
   gDoAltTextError = false;

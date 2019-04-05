@@ -223,7 +223,6 @@ function subscribeOK()
   if (gSubscribableServer) {
     gSubscribableServer.subscribeCleanup();
   }
-  return true;
 }
 
 function subscribeCancel()
@@ -232,7 +231,6 @@ function subscribeCancel()
   if (gSubscribableServer) {
     gSubscribableServer.subscribeCleanup();
   }
-  return true;
 }
 
 function SetState(name, state)

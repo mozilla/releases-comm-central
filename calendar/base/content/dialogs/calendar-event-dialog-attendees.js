@@ -27,7 +27,6 @@ var gForce24Hours = false;
 var gZoomFactor = 100;
 
 document.addEventListener("dialogaccept", onAccept);
-document.addEventListener("dialogcancel", onCancel);
 
 /**
  * Sets up the attendee dialog
@@ -133,17 +132,6 @@ function onAccept() {
         attendees.organizer,
         gStartDate.getInTimezone(gStartTimezone),
         gEndDate.getInTimezone(gEndTimezone));
-    return true;
-}
-
-/**
- * This function should be called when the cancel button was pressed on the
- * attendee dialog.
- *
- * @return      Returns true, if the dialog should be closed.
- */
-function onCancel() {
-    return true;
 }
 
 /**

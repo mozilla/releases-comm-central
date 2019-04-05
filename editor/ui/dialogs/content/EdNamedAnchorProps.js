@@ -135,7 +135,7 @@ function ValidateData()
   return true;
 }
 
-function onAccept()
+function onAccept(event)
 {
   if (ValidateData())
   {
@@ -162,7 +162,7 @@ function onAccept()
       editor.endTransaction();
     }
     SaveWindowLocation();
-    return true;
+    return;
   }
-  return false;
+  event.preventDefault();
 }

@@ -185,5 +185,4 @@ function onDelete(event)
 function onOk()
 {
   window.arguments[0].result = true;
-  return true;
 }

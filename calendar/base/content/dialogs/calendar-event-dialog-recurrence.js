@@ -764,12 +764,14 @@ function onSave(item) {
  *
  * @return      Returns true if the window should be closed
  */
-function onAccept() {
+function onAccept(event) {
     let args = window.arguments[0];
     let item = args.calendarEvent;
     args.onOk(onSave(item));
     // Don't close the dialog if a warning must be showed.
-    return !checkUntilDate.warning;
+    if (checkUntilDate.warning) {
+        event.preventDefault();
+    }
 }
 
 /**
@@ -780,7 +782,6 @@ function onAccept() {
 function onCancel() {
     // Don't show any warning if the dialog must be closed.
     checkUntilDate.warning = false;
-    return true;
 }
 
 /**

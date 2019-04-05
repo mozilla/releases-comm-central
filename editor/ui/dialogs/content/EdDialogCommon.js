@@ -560,8 +560,6 @@ function SaveWindowLocation()
 function onCancel()
 {
   SaveWindowLocation();
-  // Close dialog by returning true
-  return true;
 }
 
 function SetRelativeCheckbox(checkbox)

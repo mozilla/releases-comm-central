@@ -106,7 +106,7 @@ var joinChat = {
     let protoId = account.protocol.id;
     if (protoId != "prpl-irc" && protoId != "prpl-jabber" &&
         protoId != "prpl-gtalk")
-      return true;
+      return;
 
     let name;
     if (protoId == "prpl-irc")
@@ -147,8 +147,6 @@ var joinChat = {
         prefBranch.setStringPref(autoJoinPref, autojoin.join(","));
       }
     }
-
-    return true;
   },
 };
 

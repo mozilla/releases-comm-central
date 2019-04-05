@@ -277,7 +277,7 @@ function ValidateData()
   return true;
 }
 
-function onAccept()
+function onAccept(event)
 {
   if (ValidateData())
   {
@@ -301,7 +301,7 @@ function onAccept()
           gActiveEditor.insertElementAtSelection(anchorElement, false);
         } catch (e) {
           dump("Exception occurred in InsertElementAtSelection\n");
-          return true;
+          return;
         }
       } else if (insertNew || replaceExistingLink)
       {
@@ -312,7 +312,7 @@ function onAccept()
           gActiveEditor.insertLinkAroundSelection(anchorElement);
         } catch (e) {
           dump("Exception occurred in InsertElementAtSelection\n");
-          return true;
+          return;
         }
       }
       // Check if the link was to a heading
@@ -338,7 +338,7 @@ function onAccept()
       EditorRemoveTextProperty("href", "");
     }
     SaveWindowLocation();
-    return true;
+    return;
   }
-  return false;
+  event.preventDefault();
 }

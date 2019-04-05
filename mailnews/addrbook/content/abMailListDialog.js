@@ -116,15 +116,17 @@ function GetListValue(mailList, doAdd) {
   return true;
 }
 
-function MailListOKButton() {
+function MailListOKButton(event) {
   var popup = document.getElementById("abPopup");
   if (popup) {
     var uri = popup.getAttribute("value");
 
     // FIX ME - hack to avoid crashing if no ab selected because of blank option bug from template
     // should be able to just remove this if we are not seeing blank lines in the ab popup
-    if (!uri)
-      return false;  // don't close window
+    if (!uri) {
+      event.preventDefault();
+      return;  // don't close window
+    }
     // -----
 
     // Add mailing list to database
@@ -136,11 +138,9 @@ function MailListOKButton() {
       mailList = parentDirectory.addMailList(mailList);
       NotifySaveListeners(mailList);
     } else {
-      return false;
+      event.preventDefault();
     }
   }
-
-  return true;  // close the window
 }
 
 function OnLoadNewMailList() {
@@ -188,7 +188,7 @@ function OnLoadNewMailList() {
   NotifyLoadListeners(directory);
 }
 
-function EditListOKButton() {
+function EditListOKButton(event) {
   // edit mailing list in database
   if (GetListValue(gEditList, false)) {
     if (gListCard) {
@@ -203,10 +203,10 @@ function EditListOKButton() {
     gEditList.editMailListToDatabase(gListCard);
 
     window.arguments[0].refresh = true;
-    return true;  // close the window
+    return;  // close the window
   }
 
-  return false;
+  event.preventDefault();
 }
 
 function OnLoadEditList() {

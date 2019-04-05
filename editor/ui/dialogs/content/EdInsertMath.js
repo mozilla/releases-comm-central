@@ -254,7 +254,7 @@ function createSymbolPanels(aSymbolPanelList)
   }
 }
 
-function onAccept()
+function onAccept(event)
 {
   if (gDialog.output.firstChild)
   {
@@ -278,11 +278,9 @@ function onAccept()
   else
   {
     dump("Null value -- not inserting in MathML Source dialog\n");
-    return false;
+    event.preventDefault();
   }
   SaveWindowLocation();
-
-  return true;
 }
 
 function updateMath()

@@ -44,5 +44,4 @@ function onAccept()
   // If there's an error the user must correct, return false to keep dialog open.
 
   SaveWindowLocation();
-  return true; // do close the window
 }

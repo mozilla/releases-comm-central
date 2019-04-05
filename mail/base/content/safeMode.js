@@ -41,20 +41,21 @@ function disableAddons() {
   });
 }
 
-function onOK() {
+function onOK(event) {
   try {
     if (document.getElementById("resetToolbars").checked)
       deleteLocalstore();
     if (document.getElementById("disableAddons").checked) {
       disableAddons();
       // disableAddons will asynchronously restart the application
-      return false;
+      event.preventDefault();
+      return;
     }
   } catch (e) {
   }
 
   restartApp();
-  return false;
+  event.preventDefault();
 }
 
 function onCancel() {

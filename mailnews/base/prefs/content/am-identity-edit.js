@@ -134,10 +134,12 @@ function initCompositionAndAddressing(identity)
   onInitCompositionAndAddressing(); // am-addressing.js method
 }
 
-function onOk()
+function onOk(event)
 {
-  if (!validEmailAddress())
-    return false;
+  if (!validEmailAddress()) {
+    event.preventDefault();
+    return;
+  }
 
   // if we are adding a new identity, create an identity, set the fields and add it to the
   // account.
@@ -164,8 +166,6 @@ function onOk()
   saveAddressingAndCompositionSettings(gIdentity);
 
   window.arguments[0].result = true;
-
-  return true;
 }
 
 // returns false and prompts the user if

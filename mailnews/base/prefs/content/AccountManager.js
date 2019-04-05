@@ -34,7 +34,11 @@ var {allAccountsSorted} = ChromeUtils.import("resource:///modules/folderUtils.js
 var {cleanUpHostName, isLegalHostNameOrIP} = ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
 
 document.addEventListener("dialogcancel", onNotAccept);
-document.addEventListener("dialogaccept", () => onAccept(true));
+document.addEventListener("dialogaccept", (event) => {
+  if (!onAccept(true)) {
+    event.preventDefault();
+  }
+});
 
 // If Local directory has changed the app needs to restart. Once this is set
 // a restart will be attempted at each attempt to close the Account manager with OK.
@@ -286,13 +290,12 @@ function onAccept(aDoChecks) {
  * This function must not be called onCancel(), because it would call itself
  * recursively for pages that don't have an onCancel() implementation.
  */
-function onNotAccept()
+function onNotAccept(event)
 {
   // If onCancel() present in current page frame, call it.
-  if ("onCancel" in top.frames["contentFrame"])
-    return top.frames["contentFrame"].onCancel();
-
-  return true;
+  if ("onCancel" in top.frames.contentFrame) {
+    top.frames.contentFrame.onCancel(event);
+  }
 }
 
 /**

@@ -105,7 +105,5 @@ function onAccept()
   editor.endTransaction();
 
   SaveWindowLocation();
-
-  return true;
 }
 

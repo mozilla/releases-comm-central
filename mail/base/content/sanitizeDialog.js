@@ -102,7 +102,6 @@ var gSanitizePromptDialog = {
     } catch (er) {
       Cu.reportError("Exception during sanitize: " + er);
     }
-    return true;
   },
 
   /**

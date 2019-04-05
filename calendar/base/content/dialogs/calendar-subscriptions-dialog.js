@@ -7,7 +7,6 @@
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 document.addEventListener("dialogaccept", onAccept);
-document.addEventListener("dialogcancel", onCancel);
 
 /**
  * Cancels any pending search operations.
@@ -85,13 +84,6 @@ function onAccept() {
             }
         }
     }
-    return true;
-}
-
-/**
- * Handler function to be called when the cancel button is pressed.
- */
-function onCancel() {
 }
 
 /**

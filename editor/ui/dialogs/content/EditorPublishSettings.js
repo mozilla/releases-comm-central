@@ -320,11 +320,13 @@ function UpdateSettings()
   return true;
 }
 
-function onAccept()
+function onAccept(event)
 {
   // Save any pending changes locally first
-  if (!ApplyChanges())
-    return false;
+  if (!ApplyChanges()) {
+    event.preventDefault();
+    return;
+  }
 
   if (gSiteDataChanged)
   {
@@ -338,6 +340,4 @@ function onAccept()
   }
 
   SaveWindowLocation();
-
-  return true;
 }

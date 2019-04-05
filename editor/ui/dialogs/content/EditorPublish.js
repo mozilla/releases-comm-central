@@ -530,7 +530,7 @@ function ShowErrorInPanel(tab, errorMsgId, widgetWithError)
     SetTextboxFocus(widgetWithError);
 }
 
-function onAccept()
+function onAccept(event)
 {
   if (ValidateData())
   {
@@ -551,8 +551,8 @@ function onAccept()
 
     SaveWindowLocation();
     window.opener.ok = true;
-    return true;
+    return;
   }
 
-  return false;
+  event.preventDefault();
 }

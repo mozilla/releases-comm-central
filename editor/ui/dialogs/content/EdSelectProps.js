@@ -615,8 +615,6 @@ function onAccept()
   }
 
   SaveWindowLocation();
-
-  return true;
 }
 
 // Button actions

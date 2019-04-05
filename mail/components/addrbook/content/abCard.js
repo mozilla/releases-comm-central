@@ -187,9 +187,11 @@ function getContainingDirectory() {
   return directory;
 }
 
-function EditCardOKButton() {
-  if (!CheckCardRequiredDataPresence(document))
-    return false;  // don't close window
+function EditCardOKButton(event) {
+  if (!CheckCardRequiredDataPresence(document)) {
+    event.preventDefault();  // don't close window
+    return;
+  }
 
   // See if this card is in any mailing list
   // if so then we need to update the addresslists of those mailing lists
@@ -240,8 +242,6 @@ function EditCardOKButton() {
   // callback to allow caller to update
   if (gOkCallback)
     gOkCallback();
-
-  return true;  // close the window
 }
 
 function EditCardCancelButton() {
@@ -452,13 +452,15 @@ function InitEditCard() {
   }
 }
 
-function NewCardOKButton() {
+function NewCardOKButton(event) {
   if (gOkCallback) {
-    if (!CheckAndSetCardValues(gEditCard.card, document, true))
-      return false;  // don't close window
+    if (!CheckAndSetCardValues(gEditCard.card, document, true)) {
+      event.preventDefault();  // don't close window
+      return;
+    }
 
     gOkCallback(gEditCard.card.translateTo("vcard"));
-    return true;  // close the window
+    return;  // close the window
   }
 
   var popup = document.getElementById("abPopup");
@@ -467,13 +469,17 @@ function NewCardOKButton() {
 
     // FIX ME - hack to avoid crashing if no ab selected because of blank option bug from template
     // should be able to just remove this if we are not seeing blank lines in the ab popup
-    if (!uri)
-      return false;  // don't close window
+    if (!uri) {
+      event.preventDefault();
+      return;  // don't close window
+    }
     // -----
 
     if (gEditCard.card) {
-      if (!CheckAndSetCardValues(gEditCard.card, document, true))
-        return false;  // don't close window
+      if (!CheckAndSetCardValues(gEditCard.card, document, true)) {
+        event.preventDefault();
+        return;  // don't close window
+      }
 
       // replace gEditCard.card with the card we added
       // so that save listeners can get / set attributes on
@@ -483,8 +489,6 @@ function NewCardOKButton() {
       NotifySaveListeners(directory);
     }
   }
-
-  return true;  // close the window
 }
 
 function NewCardCancelButton() {
