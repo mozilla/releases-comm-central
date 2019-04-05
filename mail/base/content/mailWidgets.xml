@@ -217,7 +217,7 @@
       <!-- Get the preferred height (the height that would allow us to fit
            everything without scrollbars) of the attachmentlist's boxObject. -->
       <property name="preferredHeight" readonly="true"
-                onget="return this.scrollHeight - this.clientHeight + this.boxObject.height;"/>
+                onget="return this.scrollbox.scrollHeight - this.scrollbox.clientHeight + this.boxObject.height;"/>
 
       <!-- Find the attachmentitem node for the specified nsIMsgAttachment. -->
       <method name="findItemForAttachment">
@@ -237,6 +237,11 @@
       <property name="_childNodes" readonly="true">
         <getter><![CDATA[
           return this.querySelectorAll("richlistitem.attachmentItem");
+        ]]></getter>
+      </property>
+      <property name="scrollbox" readonly="true">
+        <getter><![CDATA[
+          return document.getAnonymousElementByAttribute(this, "anonid", "scrollbox");
         ]]></getter>
       </property>
 
@@ -318,6 +323,13 @@
   </binding>
 
   <binding id="attachmentlist-horizontal" extends="chrome://messenger/content/mailWidgets.xml#attachmentlist-base">
+    <content>
+      <xul:scrollbox flex="1" anonid="scrollbox" style="overflow: auto;">
+        <xul:hbox flex="1" class="attachmentlist-wrapper">
+          <children includes="richlistitem"/>
+        </xul:hbox>
+      </xul:scrollbox>
+    </content>
     <implementation>
       <method name="setOptimumWidth">
         <body><![CDATA[
