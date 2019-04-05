@@ -1271,7 +1271,7 @@ function onAccept(event)
 {
   // Do same as Apply and close window if ValidateData succeeded
   var retVal = Apply();
-  if (retVal)
+  if (retVal) {
     SaveWindowLocation();
   } else {
     event.preventDefault();
