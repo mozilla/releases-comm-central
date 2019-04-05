@@ -87,8 +87,5 @@ function isColorContrastEnough(aColor) {
   let colorHex = ("00000000" + aColor).substr(-8);
   let colorArray = colorHex.match(/../g);
   let [, cR, cG, cB] = colorArray.map(val => parseInt(val, 16));
-  // There appears to be a bug in Color.relativeLuminance, green and blue are
-  // interchanged there. Until that is fixed, we compensate here by passing
-  // RBG instead of RGB.
-  return new Color(cR, cB, cG).relativeLuminance > 0.179;
+  return !(new Color(cR, cG, cB)).useBrightText;
 }
