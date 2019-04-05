@@ -165,18 +165,9 @@ EmailConfigWizard.prototype = {
      */
     this._currentConfig = null;
 
-    let userFullname;
-    try {
-      let userInfo = Cc["@mozilla.org/userinfo;1"].getService(Ci.nsIUserInfo);
-      userFullname = userInfo.fullname;
-    } catch (e) {
-      // nsIUserInfo may not be implemented on all platforms, and name might
-      // not be available even if it is.
-    }
-
     this._domain = "";
     this._email = "";
-    this._realname = (userFullname) ? userFullname : "";
+    this._realname = "";
     e("realname").value = this._realname;
     this._password = "";
     this._exchangeUsername = ""; // only for Exchange AutoDiscover and only if needed

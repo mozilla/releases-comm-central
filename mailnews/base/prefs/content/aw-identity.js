@@ -126,16 +126,8 @@ function setEmailDescriptionText()
 }
 
 function checkForFullName() {
-    var name = document.getElementById("fullName");
-    if (name.value=="") {
-        try {
-            var userInfo = Cc["@mozilla.org/userinfo;1"].getService(Ci.nsIUserInfo);
-            name.value = userInfo.fullname;
-        }
-        catch (ex) {
-            // dump ("checkForFullName failed: " + ex + "\n");
-        }
-    }
+  // var name = document.getElementById("fullName");
+  // We currently have no way to propose any useful name here.
 }
 
 function checkForEmail()
