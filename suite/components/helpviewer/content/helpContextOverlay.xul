@@ -36,13 +36,13 @@
                 command="cmd_selectAll"/>
       <menuseparator/>
       <menuitem id="zoom-in"
-      	        label="&fullZoomEnlargeBtn.label;"
-      	        accesskey="&fullZoomEnlargeBtn.accesskey;"
-      	        oncommand="ZoomManager.enlarge();"/>
+                label="&fullZoomEnlargeBtn.label;"
+                accesskey="&fullZoomEnlargeBtn.accesskey;"
+                oncommand="ZoomManager.enlarge();"/>
       <menuitem id="zoom-out"
-      		label="&fullZoomReduceBtn.label;"
-      		accesskey="&fullZoomReduceBtn.accesskey;"
-      		oncommand="ZoomManager.reduce();"/>
+                label="&fullZoomReduceBtn.label;"
+                accesskey="&fullZoomReduceBtn.accesskey;"
+                oncommand="ZoomManager.reduce();"/>
 #ifdef XP_WIN
 #define HELP_ALWAYS_RAISED_TOGGLE
 #endif

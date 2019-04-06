@@ -73,7 +73,7 @@
                     an address in a mailto: link:
                       http://www.example.com/sendmail?link=%s
 -->
-			
+
 <RDF:RDF xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:NC="http://home.netscape.com/NC-rdf#">
 

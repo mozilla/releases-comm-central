@@ -42,8 +42,8 @@ pref("general.autoScroll", true);
 pref("general.useragent.compatMode.firefox", true);
 
 // 0 = blank, 1 = home (browser.startup.homepage), 2 = last visited page, 3 = resume previous browser session
-pref("browser.startup.page",                1);
-pref("browser.startup.homepage",	   "chrome://navigator-region/locale/region.properties");
+pref("browser.startup.page", 1);
+pref("browser.startup.homepage", "chrome://navigator-region/locale/region.properties");
 pref("browser.startup.homepage.count", 1);
 
 pref("browser.warnOnQuit", true);

@@ -15,7 +15,7 @@
             label="&pref.images.title;">
     <preferences id="images_preferences">
       <preference id="permissions.default.image"
-		  name="permissions.default.image" type="int"/>
+                  name="permissions.default.image" type="int"/>
       <preference id="pref.advanced.images.disable_button.view_image" type="bool"
                   name="pref.advanced.images.disable_button.view_image"/>
     </preferences>
