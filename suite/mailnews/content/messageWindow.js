@@ -455,8 +455,8 @@ function GetLoadedMessage()
 //Clear everything related to the current message. called after load start page.
 function ClearMessageSelection()
 {
-	gCurrentMessageUri = null;
-	gCurrentFolderUri = null;
+  gCurrentMessageUri = null;
+  gCurrentFolderUri = null;
   UpdateMailToolbar("clear msg, std alone window");
 }
 
@@ -637,15 +637,15 @@ var MessageWindowController =
     }
   },
 
-	isCommandEnabled: function(command)
-	{
+  isCommandEnabled: function(command)
+  {
     var loadedFolder;
     var enabled = new Object();
     enabled.value = false;
     var checkStatus = new Object();
 
-		switch (command)
-		{
+    switch (command)
+    {
       case "cmd_createFilterFromPopup":
       case "cmd_createFilterFromMenu":
         loadedFolder = GetLoadedMsgFolder();
@@ -665,7 +665,7 @@ var MessageWindowController =
         UpdateJunkToolbarButton();
         // fall through
       case "cmd_markAsJunk":
-			case "cmd_markAsNotJunk":
+      case "cmd_markAsNotJunk":
         if (gDBView)
           gDBView.getCommandStatus(nsMsgViewCommandType.junk, enabled, checkStatus);
         return enabled.value;
@@ -673,72 +673,72 @@ var MessageWindowController =
         if (GetNumSelectedMessages() > 0 && gDBView)
           gDBView.getCommandStatus(nsMsgViewCommandType.runJunkControls, enabled, checkStatus);
         return enabled.value;
-			case "cmd_reply":
-			case "button_reply":
-			case "cmd_replyList":
-			case "cmd_replyGroup":
-			case "cmd_replySender":
-			case "cmd_replyall":
-			case "button_replyall":
+      case "cmd_reply":
+      case "button_reply":
+      case "cmd_replyList":
+      case "cmd_replyGroup":
+      case "cmd_replySender":
+      case "cmd_replyall":
+      case "button_replyall":
       case "cmd_replySenderAndGroup":
       case "cmd_replyAllRecipients":
-			case "cmd_forward":
-			case "button_forward":
-			case "cmd_forwardInline":
-			case "cmd_forwardAttachment":
-			case "cmd_editAsNew":
-			case "cmd_print":
-			case "cmd_printpreview":
+      case "cmd_forward":
+      case "button_forward":
+      case "cmd_forwardInline":
+      case "cmd_forwardAttachment":
+      case "cmd_editAsNew":
+      case "cmd_print":
+      case "cmd_printpreview":
       case "button_print":
-			case "cmd_saveAsFile":
+      case "cmd_saveAsFile":
         return true;
-			case "cmd_saveAsTemplate":
+      case "cmd_saveAsTemplate":
         var target = gMessageBrowser.contentPrincipal.URI.scheme;
         return target != "news";
-			case "cmd_viewPageSource":
-			case "cmd_reload":
-			case "cmd_find":
+      case "cmd_viewPageSource":
+      case "cmd_reload":
+      case "cmd_find":
       case "button_mark":
-			case "cmd_markAsRead":
-			case "cmd_markAllRead":
-			case "cmd_markThreadAsRead":
-			case "cmd_markReadByDate":
+      case "cmd_markAsRead":
+      case "cmd_markAllRead":
+      case "cmd_markThreadAsRead":
+      case "cmd_markReadByDate":
         return true;
-			case "cmd_markAsFlagged":
+      case "cmd_markAsFlagged":
       case "button_file":
         return (gCurrentMessageUri != null);
       case "cmd_markAsShowRemote":
         return (GetNumSelectedMessages() > 0 && checkMsgHdrPropertyIsNot("remoteContentPolicy", kAllowRemoteContent));
       case "cmd_markAsNotPhish":
         return (GetNumSelectedMessages() > 0 && checkMsgHdrPropertyIsNot("notAPhishMessage", kNotAPhishMessage));
-			case "cmd_printSetup":
-			  return true;
-			case "cmd_getNewMessages":
+      case "cmd_printSetup":
+        return true;
+      case "cmd_getNewMessages":
       case "button_getNewMessages":
       case "cmd_getMsgsForAuthAccounts":
-				return IsGetNewMessagesEnabled();
-			case "cmd_getNextNMessages":
-				return IsGetNextNMessagesEnabled();
-			case "cmd_downloadFlagged":
-			case "cmd_downloadSelected":
+        return IsGetNewMessagesEnabled();
+      case "cmd_getNextNMessages":
+        return IsGetNextNMessagesEnabled();
+      case "cmd_downloadFlagged":
+      case "cmd_downloadSelected":
       case "cmd_synchronizeOffline":
         return !Services.io.offline;
-			case "cmd_settingsOffline":
-                return IsAccountOfflineEnabled();
-			case "cmd_close":
-			case "cmd_nextMsg":
+      case "cmd_settingsOffline":
+        return IsAccountOfflineEnabled();
+      case "cmd_close":
+      case "cmd_nextMsg":
       case "button_next":
-			case "cmd_nextUnreadMsg":
+      case "cmd_nextUnreadMsg":
       case "cmd_nextFlaggedMsg":
-			case "cmd_nextUnreadThread":
-			case "cmd_previousMsg":
-			case "cmd_previousUnreadMsg":
+      case "cmd_nextUnreadThread":
+      case "cmd_previousMsg":
+      case "cmd_previousUnreadMsg":
       case "cmd_previousFlaggedMsg":
       case "cmd_applyFiltersToSelection":
-				return true;
+        return true;
       case "cmd_findNext":
-			case "cmd_findPrev":
-				return MsgCanFindAgain();
+      case "cmd_findPrev":
+        return MsgCanFindAgain();
       case "cmd_goBack":
       case "button_goBack":
         return gDBView && gDBView.navigateStatus(nsMsgNavigationType.back);
@@ -758,72 +758,72 @@ var MessageWindowController =
       case "cmd_runJunkControls":
       case "cmd_deleteJunk":
         return false;
-			default:
-				return false;
-		}
-	},
+      default:
+        return false;
+    }
+  },
 
-	doCommand: function(command)
-	{
+  doCommand: function(command)
+  {
     // if the user invoked a key short cut then it is possible that we got here for a command which is
     // really disabled. kick out if the command should be disabled.
     if (!this.isCommandEnabled(command)) return;
 
     var navigationType = nsMsgNavigationType.nextUnreadMessage;
 
-		switch ( command )
-		{
-			case "cmd_close":
-				CloseMailWindow();
-				break;
-			case "cmd_getNewMessages":
-				MsgGetMessage();
-				break;
-            case "cmd_undo":
-                messenger.undo(msgWindow);
-                break;
-            case "cmd_redo":
-                messenger.redo(msgWindow);
-                break;
+    switch ( command )
+    {
+      case "cmd_close":
+        CloseMailWindow();
+        break;
+      case "cmd_getNewMessages":
+        MsgGetMessage();
+        break;
+      case "cmd_undo":
+        messenger.undo(msgWindow);
+        break;
+      case "cmd_redo":
+        messenger.redo(msgWindow);
+        break;
       case "cmd_getMsgsForAuthAccounts":
         MsgGetMessagesForAllAuthenticatedAccounts();
         break;
-			case "cmd_getNextNMessages":
-				MsgGetNextNMessages();
-				break;
-			case "cmd_reply":
-				MsgReplyMessage(null);
-				break;
-			case "cmd_replyList":
-				MsgReplyList(null);
-				break;
-			case "cmd_replyGroup":
-				MsgReplyGroup(null);
-				break;
-			case "cmd_replySender":
-				MsgReplySender(null);
-				break;
-			case "cmd_replyall":
-				MsgReplyToAllMessage(null);
-				break;
+      case "cmd_getNextNMessages":
+        MsgGetNextNMessages();
+        break;
+      case "cmd_reply":
+        MsgReplyMessage(null);
+        break;
+      case "cmd_replyList":
+        MsgReplyList(null);
+        break;
+      case "cmd_replyGroup":
+        MsgReplyGroup(null);
+        break;
+      case "cmd_replySender":
+        MsgReplySender(null);
+        break;
+      case "cmd_replyall":
+        MsgReplyToAllMessage(null);
+        break;
       case "cmd_replySenderAndGroup":
         MsgReplyToSenderAndGroup(null);
         break;
       case "cmd_replyAllRecipients":
         MsgReplyToAllRecipients(null);
         break;
-			case "cmd_forward":
-				MsgForwardMessage(null);
-				break;
-			case "cmd_forwardInline":
-				MsgForwardAsInline(null);
-				break;
-			case "cmd_forwardAttachment":
-				MsgForwardAsAttachment(null);
-				break;
-			case "cmd_editAsNew":
-				MsgEditMessageAsNew();
-				break;
+      case "cmd_forward":
+        MsgForwardMessage(null);
+        break;
+      case "cmd_forwardInline":
+        MsgForwardAsInline(null);
+        break;
+      case "cmd_forwardAttachment":
+        MsgForwardAsAttachment(null);
+        break;
+      case "cmd_editAsNew":
+        MsgEditMessageAsNew();
+        break;
       case "cmd_createFilterFromPopup":
         CreateFilter(document.popupNode);
         break;
@@ -848,59 +848,59 @@ var MessageWindowController =
       case "cmd_printSetup":
         PrintUtils.showPageSetup();
         break;
-			case "cmd_print":
-				PrintEnginePrint();
-				break;
-			case "cmd_printpreview":
-				PrintEnginePrintPreview();
-				break;
-			case "cmd_saveAsFile":
-				MsgSaveAsFile();
-				break;
-			case "cmd_saveAsTemplate":
-				MsgSaveAsTemplate();
-				break;
-			case "cmd_viewPageSource":
-				MsgViewPageSource();
-				break;
-			case "cmd_reload":
-				ReloadMessage();
-				break;
-			case "cmd_find":
-				MsgFind();
-				break;
+      case "cmd_print":
+        PrintEnginePrint();
+        break;
+      case "cmd_printpreview":
+        PrintEnginePrintPreview();
+        break;
+      case "cmd_saveAsFile":
+        MsgSaveAsFile();
+        break;
+      case "cmd_saveAsTemplate":
+        MsgSaveAsTemplate();
+        break;
+      case "cmd_viewPageSource":
+        MsgViewPageSource();
+        break;
+      case "cmd_reload":
+        ReloadMessage();
+        break;
+      case "cmd_find":
+        MsgFind();
+        break;
       case "cmd_findNext":
-				MsgFindAgain(false);
-				break;
-			case "cmd_findPrev":
-				MsgFindAgain(true);
-				break;
+        MsgFindAgain(false);
+        break;
+      case "cmd_findPrev":
+        MsgFindAgain(true);
+        break;
       case "button_search":
       case "cmd_search":
         MsgSearchMessages();
         break;
       case "button_mark":
-			case "cmd_markAsRead":
-				MsgMarkMsgAsRead(null);
-				return;
-			case "cmd_markThreadAsRead":
-				MsgMarkThreadAsRead();
-				return;
-			case "cmd_markAllRead":
-				MsgMarkAllRead();
-				return;
-			case "cmd_markReadByDate":
-				MsgMarkReadByDate();
-				return;
-			case "cmd_markAsFlagged":
-				MsgMarkAsFlagged(null);
-				return;
-			case "cmd_markAsJunk":
+      case "cmd_markAsRead":
+        MsgMarkMsgAsRead(null);
+        return;
+      case "cmd_markThreadAsRead":
+        MsgMarkThreadAsRead();
+        return;
+      case "cmd_markAllRead":
+        MsgMarkAllRead();
+        return;
+      case "cmd_markReadByDate":
+        MsgMarkReadByDate();
+        return;
+      case "cmd_markAsFlagged":
+        MsgMarkAsFlagged(null);
+        return;
+      case "cmd_markAsJunk":
         JunkSelectedMessages(true);
-				return;
-			case "cmd_markAsNotJunk":
+        return;
+      case "cmd_markAsNotJunk":
         JunkSelectedMessages(false);
-				return;
+        return;
       case "cmd_recalculateJunkScore":
         analyzeMessagesForJunk();
         return;
@@ -926,24 +926,24 @@ var MessageWindowController =
       case "button_next":
         performNavigation(nsMsgNavigationType.nextUnreadMessage);
         break;
-			case "cmd_nextUnreadThread":
+      case "cmd_nextUnreadThread":
         performNavigation(nsMsgNavigationType.nextUnreadThread);
-				break;
-			case "cmd_nextMsg":
+        break;
+      case "cmd_nextMsg":
         performNavigation(nsMsgNavigationType.nextMessage);
-				break;
-			case "cmd_nextFlaggedMsg":
+        break;
+      case "cmd_nextFlaggedMsg":
         performNavigation(nsMsgNavigationType.nextFlagged);
-				break;
-			case "cmd_previousMsg":
+        break;
+      case "cmd_previousMsg":
         performNavigation(nsMsgNavigationType.previousMessage);
-				break;
-			case "cmd_previousUnreadMsg":
+        break;
+      case "cmd_previousUnreadMsg":
         performNavigation(nsMsgNavigationType.previousUnreadMessage);
-				break;
-			case "cmd_previousFlaggedMsg":
+        break;
+      case "cmd_previousFlaggedMsg":
         performNavigation(nsMsgNavigationType.previousFlagged);
-				break;
+        break;
       case "cmd_goBack":
         performNavigation(nsMsgNavigationType.back);
         break;
@@ -953,12 +953,12 @@ var MessageWindowController =
       case "cmd_applyFiltersToSelection":
         MsgApplyFiltersToSelection();
         break;
-		}
-	},
+    }
+  },
 
-	onEvent: function(event)
-	{
-	}
+  onEvent: function(event)
+  {
+  }
 };
 
 function LoadMessageByNavigationType(type)

@@ -29,7 +29,7 @@ var gDragService = Cc["@mozilla.org/widget/dragservice;1"]
                      .getService(Ci.nsIDragService);
 
 var gSelectAddressesAbViewListener = {
-	onSelectionChanged: function() {
+  onSelectionChanged: function() {
     ResultsPaneSelectionChanged();
   },
   onCountChanged: function(total) {

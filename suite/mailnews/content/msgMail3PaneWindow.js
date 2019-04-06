@@ -1436,9 +1436,9 @@ function SetBusyCursor(window, enable)
             window.setCursor("auto");
     }
 
-	var numFrames = window.frames.length;
-	for(var i = 0; i < numFrames; i++)
-		SetBusyCursor(window.frames[i], enable);
+    var numFrames = window.frames.length;
+    for(var i = 0; i < numFrames; i++)
+      SetBusyCursor(window.frames[i], enable);
 }
 
 function GetDBView()

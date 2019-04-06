@@ -724,9 +724,9 @@ function awRecipientErrorCommand(errItem, element)
     //
     var generalErrString;
     if (errItem.value != "") {
-	generalErrString = errItem.value.slice(1, errItem.value.length-1);
+      generalErrString = errItem.value.slice(1, errItem.value.length-1);
     } else {
-	generalErrString = "Unknown LDAP server problem encountered";
+      generalErrString = "Unknown LDAP server problem encountered";
     }
 
     // try and get the string of the specific error to contruct the complete
@@ -737,13 +737,12 @@ function awRecipientErrorCommand(errItem, element)
     //
     var specificErrString = "";
     try {
-	var specificError = errItem.param.QueryInterface(
-	    Ci.nsISupportsString);
-	specificErrString = specificError.data;
+      var specificError = errItem.param.QueryInterface(Ci.nsISupportsString);
+      specificErrString = specificError.data;
     } catch (ex) {
     }
     if (specificErrString == "") {
-	specificErrString = "Internal error";
+      specificErrString = "Internal error";
     }
 
     Services.prompt.alert(window, generalErrString, specificErrString);

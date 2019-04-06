@@ -164,7 +164,7 @@
               </menupopup>
             </menulist>
           </row>
-	  <row align="center">
+          <row align="center">
             <label value="&size.label;"
                    accesskey="&size.accesskey;"
                    control="fontSizeSelect"/>

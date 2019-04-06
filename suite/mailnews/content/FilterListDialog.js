@@ -21,18 +21,18 @@ var gStatusText;
 var gCurrentFolder;
 
 var gStatusFeedback = {
-	showStatusString: function(status)
+  showStatusString: function(status)
   {
     gStatusText.setAttribute("value", status);
   },
-	startMeteors: function()
+  startMeteors: function()
   {
     // change run button to be a stop button
     gRunFiltersButton.setAttribute("label", gRunFiltersButton.getAttribute("stoplabel"));
     gRunFiltersButton.setAttribute("accesskey", gRunFiltersButton.getAttribute("stopaccesskey"));
     gStatusBar.setAttribute("mode", "undetermined");
   },
-	stopMeteors: function()
+  stopMeteors: function()
   {
     try {
       // change run button to be a stop button

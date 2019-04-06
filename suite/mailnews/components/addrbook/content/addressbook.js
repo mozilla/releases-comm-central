@@ -56,7 +56,7 @@ function OnLoadAddressBook()
 {
   gSearchInput = document.getElementById("searchInput");
 
-  verifyAccounts(null, false); 	// this will do migration, if we need to.
+  verifyAccounts(null, false); // this will do migration, if we need to.
 
   InitCommonJS();
 
@@ -100,25 +100,25 @@ function OnLoadAddressBook()
 
 function GetCurrentPrefs()
 {
-	// check "Show Name As" menu item based on pref
-	var menuitemID;
-	switch (Services.prefs.getIntPref(kPrefMailAddrBookLastNameFirst))
-	{
-		case kFirstNameFirst:
-			menuitemID = 'firstLastCmd';
-			break;
-		case kLastNameFirst:
-			menuitemID = 'lastFirstCmd';
-			break;
-		case kDisplayName:
-		default:
-			menuitemID = 'displayNameCmd';
-			break;
-	}
+  // check "Show Name As" menu item based on pref
+  var menuitemID;
+  switch (Services.prefs.getIntPref(kPrefMailAddrBookLastNameFirst))
+  {
+    case kFirstNameFirst:
+      menuitemID = 'firstLastCmd';
+      break;
+    case kLastNameFirst:
+      menuitemID = 'lastFirstCmd';
+      break;
+    case kDisplayName:
+    default:
+      menuitemID = 'displayNameCmd';
+      break;
+  }
 
-	var menuitem = top.document.getElementById(menuitemID);
-	if ( menuitem )
-		menuitem.setAttribute('checked', 'true');
+  var menuitem = top.document.getElementById(menuitemID);
+  if ( menuitem )
+    menuitem.setAttribute('checked', 'true');
 
   // show phonetic fields if indicated by the pref
   if (GetLocalizedStringPref("mail.addr_book.show_phonetic_fields") == "true")
@@ -210,10 +210,10 @@ function AbPrintCardInternal(doPrintPreview, msgType)
   }
 
   printEngineWindow = window.openDialog("chrome://messenger/content/msgPrintEngine.xul",
-                                         "",
-                                         "chrome,dialog=no,all",
-                                         selectionArray.length, selectionArray,
-                                         statusFeedback, doPrintPreview, msgType);
+                                        "",
+                                        "chrome,dialog=no,all",
+                                        selectionArray.length, selectionArray,
+                                        statusFeedback, doPrintPreview, msgType);
 
   return;
 }
@@ -240,8 +240,8 @@ function AbPrintAddressBookInternal(doPrintPreview, msgType)
     return;
 
   var statusFeedback;
-	statusFeedback = Cc["@mozilla.org/messenger/statusfeedback;1"].createInstance();
-	statusFeedback = statusFeedback.QueryInterface(Ci.nsIMsgStatusFeedback);
+  statusFeedback = Cc["@mozilla.org/messenger/statusfeedback;1"].createInstance();
+  statusFeedback = statusFeedback.QueryInterface(Ci.nsIMsgStatusFeedback);
 
   /*
     turn "moz-abmdbdirectory://abook.mab" into
@@ -251,12 +251,13 @@ function AbPrintAddressBookInternal(doPrintPreview, msgType)
   var abURIArr = uri.split("://");
   var printUrl = "addbook://" + abURIArr[0] + "/" + abURIArr[1] + "?action=print"
 
-	printEngineWindow = window.openDialog("chrome://messenger/content/msgPrintEngine.xul",
-										"",
-										"chrome,dialog=no,all",
-										1, [printUrl], statusFeedback, doPrintPreview, msgType);
+  printEngineWindow = window.openDialog("chrome://messenger/content/msgPrintEngine.xul",
+                                        "",
+                                        "chrome,dialog=no,all",
+                                        1, [printUrl],
+                                        statusFeedback, doPrintPreview, msgType);
 
-	return;
+  return;
 }
 
 function AbPrintAddressBook()

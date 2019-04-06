@@ -64,7 +64,7 @@
     <commandset id="mailMarkMenuItems"/>
     <commandset id="mailToolsMenuItems"/>
     <commandset id="mailEditContextMenuItems"/>
-	  <commandset id="tasksCommands"/>
+    <commandset id="tasksCommands"/>
     <commandset id="commandKeys"/>
   </commandset>
 

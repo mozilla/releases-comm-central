@@ -52,83 +52,83 @@ function OnLoadCardView()
   zCustom3 = gAddressBookBundle.getString("propertyCustom3");
   zCustom4 = gAddressBookBundle.getString("propertyCustom4");
 
-	var doc = document;
+  var doc = document;
 
-	/* data for address book, prefixes: "cvb" = card view box
-										"cvh" = crad view header
-										"cv"  = card view (normal fields) */
-	cvData = new Object;
+  /* data for address book, prefixes: "cvb" = card view box
+                                      "cvh" = crad view header
+                                      "cv"  = card view (normal fields) */
+  cvData = new Object;
 
-	// Card View Box
-	cvData.CardViewBox		= doc.getElementById("CardViewInnerBox");
-	// Title
-	cvData.CardTitle		= doc.getElementById("CardTitle");
-	// Name section
-	cvData.cvbContact = doc.getElementById("cvbContact");
-	cvData.cvhContact = doc.getElementById("cvhContact");
-	cvData.cvNickname		= doc.getElementById("cvNickname");
-	cvData.cvDisplayName	= doc.getElementById("cvDisplayName");
-	cvData.cvEmail1Box		= doc.getElementById("cvEmail1Box");
-	cvData.cvEmail1			= doc.getElementById("cvEmail1");
-	cvData.cvScreennameBox		= doc.getElementById("cvScreennameBox");
-	cvData.cvScreenname		= doc.getElementById("cvScreenname");
-	cvData.cvBuddyIcon              = doc.getElementById("cvBuddyIcon");
-	cvData.cvListNameBox		= doc.getElementById("cvListNameBox");
-	cvData.cvListName               = doc.getElementById("cvListName");
-	cvData.cvEmail2Box		= doc.getElementById("cvEmail2Box");
-	cvData.cvEmail2			= doc.getElementById("cvEmail2");
-	// Home section
-	cvData.cvbHome			= doc.getElementById("cvbHome");
-	cvData.cvhHome			= doc.getElementById("cvhHome");
-	cvData.cvHomeAddress	= doc.getElementById("cvHomeAddress");
-	cvData.cvHomeAddress2	= doc.getElementById("cvHomeAddress2");
-	cvData.cvHomeCityStZip	= doc.getElementById("cvHomeCityStZip");
-	cvData.cvHomeCountry	= doc.getElementById("cvHomeCountry");
-  cvData.cvbHomeMapItBox  = doc.getElementById("cvbHomeMapItBox");
+  // Card View Box
+  cvData.CardViewBox = doc.getElementById("CardViewInnerBox");
+  // Title
+  cvData.CardTitle = doc.getElementById("CardTitle");
+  // Name section
+  cvData.cvbContact = doc.getElementById("cvbContact");
+  cvData.cvhContact = doc.getElementById("cvhContact");
+  cvData.cvNickname = doc.getElementById("cvNickname");
+  cvData.cvDisplayName = doc.getElementById("cvDisplayName");
+  cvData.cvEmail1Box = doc.getElementById("cvEmail1Box");
+  cvData.cvEmail1 = doc.getElementById("cvEmail1");
+  cvData.cvScreennameBox = doc.getElementById("cvScreennameBox");
+  cvData.cvScreenname = doc.getElementById("cvScreenname");
+  cvData.cvBuddyIcon = doc.getElementById("cvBuddyIcon");
+  cvData.cvListNameBox = doc.getElementById("cvListNameBox");
+  cvData.cvListName = doc.getElementById("cvListName");
+  cvData.cvEmail2Box = doc.getElementById("cvEmail2Box");
+  cvData.cvEmail2 = doc.getElementById("cvEmail2");
+  // Home section
+  cvData.cvbHome = doc.getElementById("cvbHome");
+  cvData.cvhHome = doc.getElementById("cvhHome");
+  cvData.cvHomeAddress = doc.getElementById("cvHomeAddress");
+  cvData.cvHomeAddress2 = doc.getElementById("cvHomeAddress2");
+  cvData.cvHomeCityStZip = doc.getElementById("cvHomeCityStZip");
+  cvData.cvHomeCountry = doc.getElementById("cvHomeCountry");
+  cvData.cvbHomeMapItBox = doc.getElementById("cvbHomeMapItBox");
   cvData.cvHomeMapIt = doc.getElementById("cvHomeMapIt");
-	cvData.cvHomeWebPageBox = doc.getElementById("cvHomeWebPageBox");
-	cvData.cvHomeWebPage	= doc.getElementById("cvHomeWebPage");
-	// Other section
-	cvData.cvbOther			= doc.getElementById("cvbOther");
-	cvData.cvBirthday   = doc.getElementById("cvBirthday");
-	cvData.cvhOther			= doc.getElementById("cvhOther");
-	cvData.cvCustom1		= doc.getElementById("cvCustom1");
-	cvData.cvCustom2		= doc.getElementById("cvCustom2");
-	cvData.cvCustom3		= doc.getElementById("cvCustom3");
-	cvData.cvCustom4		= doc.getElementById("cvCustom4");
-	cvData.cvNotes			= doc.getElementById("cvNotes");
+  cvData.cvHomeWebPageBox = doc.getElementById("cvHomeWebPageBox");
+  cvData.cvHomeWebPage = doc.getElementById("cvHomeWebPage");
+  // Other section
+  cvData.cvbOther = doc.getElementById("cvbOther");
+  cvData.cvBirthday = doc.getElementById("cvBirthday");
+  cvData.cvhOther = doc.getElementById("cvhOther");
+  cvData.cvCustom1 = doc.getElementById("cvCustom1");
+  cvData.cvCustom2 = doc.getElementById("cvCustom2");
+  cvData.cvCustom3 = doc.getElementById("cvCustom3");
+  cvData.cvCustom4 = doc.getElementById("cvCustom4");
+  cvData.cvNotes = doc.getElementById("cvNotes");
   // Description section (mailing lists only)
-  cvData.cvbDescription			= doc.getElementById("cvbDescription");
-	cvData.cvhDescription			= doc.getElementById("cvhDescription");
-  cvData.cvDescription			= doc.getElementById("cvDescription");
+  cvData.cvbDescription = doc.getElementById("cvbDescription");
+  cvData.cvhDescription = doc.getElementById("cvhDescription");
+  cvData.cvDescription = doc.getElementById("cvDescription");
   // Addresses section (mailing lists only)
-  cvData.cvbAddresses			= doc.getElementById("cvbAddresses");
-	cvData.cvhAddresses			= doc.getElementById("cvhAddresses");
-  cvData.cvAddresses			= doc.getElementById("cvAddresses");
-	// Phone section
-	cvData.cvbPhone			= doc.getElementById("cvbPhone");
-	cvData.cvhPhone			= doc.getElementById("cvhPhone");
-	cvData.cvPhWork			= doc.getElementById("cvPhWork");
-	cvData.cvPhHome			= doc.getElementById("cvPhHome");
-	cvData.cvPhFax			= doc.getElementById("cvPhFax");
-	cvData.cvPhCellular		= doc.getElementById("cvPhCellular");
-	cvData.cvPhPager		= doc.getElementById("cvPhPager");
-	// Work section
-	cvData.cvbWork			= doc.getElementById("cvbWork");
-	cvData.cvhWork			= doc.getElementById("cvhWork");
-	cvData.cvJobTitle		= doc.getElementById("cvJobTitle");
-	cvData.cvDepartment		= doc.getElementById("cvDepartment");
-	cvData.cvCompany		= doc.getElementById("cvCompany");
-	cvData.cvWorkAddress	= doc.getElementById("cvWorkAddress");
-	cvData.cvWorkAddress2	= doc.getElementById("cvWorkAddress2");
-	cvData.cvWorkCityStZip	= doc.getElementById("cvWorkCityStZip");
-	cvData.cvWorkCountry	= doc.getElementById("cvWorkCountry");
-  cvData.cvbWorkMapItBox  = doc.getElementById("cvbWorkMapItBox");
+  cvData.cvbAddresses = doc.getElementById("cvbAddresses");
+  cvData.cvhAddresses = doc.getElementById("cvhAddresses");
+  cvData.cvAddresses = doc.getElementById("cvAddresses");
+  // Phone section
+  cvData.cvbPhone = doc.getElementById("cvbPhone");
+  cvData.cvhPhone = doc.getElementById("cvhPhone");
+  cvData.cvPhWork = doc.getElementById("cvPhWork");
+  cvData.cvPhHome = doc.getElementById("cvPhHome");
+  cvData.cvPhFax = doc.getElementById("cvPhFax");
+  cvData.cvPhCellular = doc.getElementById("cvPhCellular");
+  cvData.cvPhPager = doc.getElementById("cvPhPager");
+  // Work section
+  cvData.cvbWork = doc.getElementById("cvbWork");
+  cvData.cvhWork = doc.getElementById("cvhWork");
+  cvData.cvJobTitle = doc.getElementById("cvJobTitle");
+  cvData.cvDepartment = doc.getElementById("cvDepartment");
+  cvData.cvCompany = doc.getElementById("cvCompany");
+  cvData.cvWorkAddress = doc.getElementById("cvWorkAddress");
+  cvData.cvWorkAddress2 = doc.getElementById("cvWorkAddress2");
+  cvData.cvWorkCityStZip = doc.getElementById("cvWorkCityStZip");
+  cvData.cvWorkCountry = doc.getElementById("cvWorkCountry");
+  cvData.cvbWorkMapItBox = doc.getElementById("cvbWorkMapItBox");
   cvData.cvWorkMapIt = doc.getElementById("cvWorkMapIt");
-	cvData.cvWorkWebPageBox = doc.getElementById("cvWorkWebPageBox");
-	cvData.cvWorkWebPage	= doc.getElementById("cvWorkWebPage");
+  cvData.cvWorkWebPageBox = doc.getElementById("cvWorkWebPageBox");
+  cvData.cvWorkWebPage = doc.getElementById("cvWorkWebPage");
   cvData.cvbPhoto = doc.getElementById("cvbPhoto");
-  cvData.cvPhoto  = doc.getElementById("cvPhoto");
+  cvData.cvPhoto = doc.getElementById("cvPhoto");
 }
 
 // XXX todo
@@ -222,22 +222,22 @@ function DisplayCardViewPane(realCard)
 
   visible = HandleLink(data.cvHomeWebPage, "", card.getProperty("WebPage2"), data.cvHomeWebPageBox, card.getProperty("WebPage2")) || visible;
 
-	cvSetVisible(data.cvhHome, visible);
-	cvSetVisible(data.cvbHome, visible);
+  cvSetVisible(data.cvhHome, visible);
+  cvSetVisible(data.cvbHome, visible);
   if (card.isMailList) {
     // Description section
-	  visible = cvSetNode(data.cvDescription, card.getProperty("Notes"))
-  	cvSetVisible(data.cvbDescription, visible);
+    visible = cvSetNode(data.cvDescription, card.getProperty("Notes"))
+    cvSetVisible(data.cvbDescription, visible);
 
     // Addresses section
-	  visible = cvAddAddressNodes(data.cvAddresses, card.mailListURI);
-  	cvSetVisible(data.cvbAddresses, visible);
+    visible = cvAddAddressNodes(data.cvAddresses, card.mailListURI);
+    cvSetVisible(data.cvbAddresses, visible);
 
     // Other section, not shown for mailing lists.
     cvSetVisible(data.cvbOther, false);
   }
   else {
-	  // Other section
+    // Other section
     /// setup the birthday information
     var day = card.getProperty("BirthDay", null);
     var month = card.getProperty("BirthMonth", null);
@@ -266,11 +266,11 @@ function DisplayCardViewPane(realCard)
       dateStr = year;
     visible = cvSetNodeWithLabel(data.cvBirthday, zBirthday, dateStr);
 
-	  visible = cvSetNodeWithLabel(data.cvCustom1, zCustom1, card.getProperty("Custom1")) || visible;
-	  visible = cvSetNodeWithLabel(data.cvCustom2, zCustom2, card.getProperty("Custom2")) || visible;
-	  visible = cvSetNodeWithLabel(data.cvCustom3, zCustom3, card.getProperty("Custom3")) || visible;
-	  visible = cvSetNodeWithLabel(data.cvCustom4, zCustom4, card.getProperty("Custom4")) || visible;
-	  visible = cvSetNode(data.cvNotes, card.getProperty("Notes")) || visible;
+    visible = cvSetNodeWithLabel(data.cvCustom1, zCustom1, card.getProperty("Custom1")) || visible;
+    visible = cvSetNodeWithLabel(data.cvCustom2, zCustom2, card.getProperty("Custom2")) || visible;
+    visible = cvSetNodeWithLabel(data.cvCustom3, zCustom3, card.getProperty("Custom3")) || visible;
+    visible = cvSetNodeWithLabel(data.cvCustom4, zCustom4, card.getProperty("Custom4")) || visible;
+    visible = cvSetNode(data.cvNotes, card.getProperty("Notes")) || visible;
     visible = setBuddyIcon(card, data.cvBuddyIcon) || visible;
 
     cvSetVisible(data.cvhOther, visible);
@@ -283,23 +283,23 @@ function DisplayCardViewPane(realCard)
     cvSetVisible(data.cvbAddresses, false);
   }
 
-	// Phone section
-	visible = cvSetNodeWithLabel(data.cvPhWork, zWork, card.getProperty("WorkPhone"));
-	visible = cvSetNodeWithLabel(data.cvPhHome, zHome, card.getProperty("HomePhone")) || visible;
-	visible = cvSetNodeWithLabel(data.cvPhFax, zFax, card.getProperty("FaxNumber")) || visible;
-	visible = cvSetNodeWithLabel(data.cvPhCellular, zCellular, card.getProperty("CellularNumber")) || visible;
-	visible = cvSetNodeWithLabel(data.cvPhPager, zPager, card.getProperty("PagerNumber")) || visible;
-	cvSetVisible(data.cvhPhone, visible);
-	cvSetVisible(data.cvbPhone, visible);
-	// Work section
-	visible = cvSetNode(data.cvJobTitle, card.getProperty("JobTitle"));
-	visible = cvSetNode(data.cvDepartment, card.getProperty("Department")) || visible;
-	visible = cvSetNode(data.cvCompany, card.getProperty("Company")) || visible;
+  // Phone section
+  visible = cvSetNodeWithLabel(data.cvPhWork, zWork, card.getProperty("WorkPhone"));
+  visible = cvSetNodeWithLabel(data.cvPhHome, zHome, card.getProperty("HomePhone")) || visible;
+  visible = cvSetNodeWithLabel(data.cvPhFax, zFax, card.getProperty("FaxNumber")) || visible;
+  visible = cvSetNodeWithLabel(data.cvPhCellular, zCellular, card.getProperty("CellularNumber")) || visible;
+  visible = cvSetNodeWithLabel(data.cvPhPager, zPager, card.getProperty("PagerNumber")) || visible;
+  cvSetVisible(data.cvhPhone, visible);
+  cvSetVisible(data.cvbPhone, visible);
+  // Work section
+  visible = cvSetNode(data.cvJobTitle, card.getProperty("JobTitle"));
+  visible = cvSetNode(data.cvDepartment, card.getProperty("Department")) || visible;
+  visible = cvSetNode(data.cvCompany, card.getProperty("Company")) || visible;
 
-        var addressVisible = cvSetNode(data.cvWorkAddress, card.getProperty("WorkAddress"));
-	addressVisible = cvSetNode(data.cvWorkAddress2, card.getProperty("WorkAddress2")) || addressVisible;
-	addressVisible = cvSetCityStateZip(data.cvWorkCityStZip, card.getProperty("WorkCity"), card.getProperty("WorkState"), card.getProperty("WorkZipCode")) || addressVisible;
-	addressVisible = cvSetNode(data.cvWorkCountry, card.getProperty("WorkCountry")) || addressVisible;
+  var addressVisible = cvSetNode(data.cvWorkAddress, card.getProperty("WorkAddress"));
+  addressVisible = cvSetNode(data.cvWorkAddress2, card.getProperty("WorkAddress2")) || addressVisible;
+  addressVisible = cvSetCityStateZip(data.cvWorkCityStZip, card.getProperty("WorkCity"), card.getProperty("WorkState"), card.getProperty("WorkZipCode")) || addressVisible;
+  addressVisible = cvSetNode(data.cvWorkCountry, card.getProperty("WorkCountry")) || addressVisible;
 
   mapURLList = data.cvWorkMapIt.firstChild;
   if (addressVisible)
@@ -309,11 +309,11 @@ function DisplayCardViewPane(realCard)
 
         visible = HandleLink(data.cvWorkWebPage, "", card.getProperty("WebPage1"), data.cvWorkWebPageBox, card.getProperty("WebPage1")) || addressVisible || visible;
 
-	cvSetVisible(data.cvhWork, visible);
-	cvSetVisible(data.cvbWork, visible);
+  cvSetVisible(data.cvhWork, visible);
+  cvSetVisible(data.cvbWork, visible);
 
-	// make the card view box visible
-	cvSetVisible(top.cvData.CardViewBox, true);
+  // make the card view box visible
+  cvSetVisible(top.cvData.CardViewBox, true);
 }
 
 function setBuddyIcon(card, buddyIcon)
@@ -350,7 +350,7 @@ function setBuddyIcon(card, buddyIcon)
 
 function ClearCardViewPane()
 {
-	cvSetVisible(top.cvData.CardViewBox, false);
+  cvSetVisible(top.cvData.CardViewBox, false);
 }
 
 function cvSetNodeWithLabel(node, label, text)
@@ -388,27 +388,27 @@ function cvSetCityStateZip(node, city, state, zip)
 
 function cvSetNode(node, text)
 {
-	if ( node )
-	{
-		if ( !node.hasChildNodes() )
-		{
-			var textNode = document.createTextNode(text);
-			node.appendChild(textNode);
-		}
-		else if ( node.childNodes.length == 1 )
-			node.childNodes[0].nodeValue = text;
+  if ( node )
+  {
+    if ( !node.hasChildNodes() )
+    {
+      var textNode = document.createTextNode(text);
+      node.appendChild(textNode);
+    }
+    else if ( node.childNodes.length == 1 )
+      node.childNodes[0].nodeValue = text;
 
-		var visible;
+    var visible;
 
-		if ( text )
-			visible = true;
-		else
-			visible = false;
+    if ( text )
+      visible = true;
+    else
+      visible = false;
 
-		cvSetVisible(node, visible);
-	}
+    cvSetVisible(node, visible);
+  }
 
-	return visible;
+  return visible;
 }
 
 function cvAddAddressNodes(node, uri)
@@ -426,7 +426,7 @@ function cvAddAddressNodes(node, uri)
           node.lastChild.remove();
         }
         for (i = 0;  i < total; i++ ) {
-      	   var descNode = document.createElement("description");
+          var descNode = document.createElement("description");
           var card = addressList.queryElementAt(i, Ci.nsIAbCard);
 
           descNode.setAttribute("class", "CardViewLink");
@@ -450,10 +450,10 @@ function cvAddAddressNodes(node, uri)
 
 function cvSetVisible(node, visible)
 {
-	if ( visible )
-		node.removeAttribute("collapsed");
-	else
-		node.setAttribute("collapsed", "true");
+  if ( visible )
+    node.removeAttribute("collapsed");
+  else
+    node.setAttribute("collapsed", "true");
 }
 
 function HandleLink(node, label, value, box, link)
