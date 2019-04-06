@@ -137,13 +137,4 @@ function checkForEmail()
     if (pageData && pageData.identity && pageData.identity.email) {
         email.value = pageData.identity.email.value;
     }
-    if (email.value=="") {
-        try {
-            var userInfo = Cc["@mozilla.org/userinfo;1"].getService(Ci.nsIUserInfo);
-            email.value = userInfo.emailAddress;
-        }
-        catch (ex) {
-            // dump ("checkForEmail failed: " + ex + "\n");
-        }
-    }
 }
