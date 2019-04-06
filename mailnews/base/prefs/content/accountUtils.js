@@ -204,7 +204,7 @@ function msgOpenAccountWizard(wizardCallback, type)
 function initAccountWizardTB(args) {
   let type = args[0] && args[0].acctType;
   let selType = type == "newsgroups" ? "newsaccount" :
-                type == "movemail" ? "Movemail" : null;
+                type == "movemail" ? "movemail" : null;
   let accountwizard = document.getElementById("AccountWizard");
   let acctyperadio = document.getElementById("acctyperadio");
   let feedRadio = acctyperadio.querySelector("radio[value='Feeds']");

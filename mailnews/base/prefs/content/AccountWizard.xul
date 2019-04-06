@@ -42,7 +42,7 @@
       <description>&accountTypeDesc2.label;</description>
       <label control="acctyperadio">&accountTypeDirections.label;</label>
       <separator/>
-      <radiogroup id="acctyperadio" >
+      <radiogroup id="acctyperadio">
 #ifndef MOZ_THUNDERBIRD
         <radio id="mailaccount" value="mailaccount"
                label="&accountTypeMail.label;" accesskey="&accountTypeMail.accesskey;"
@@ -51,7 +51,7 @@
 #ifdef MOZ_MOVEMAIL
         <radio id="movemailaccount" label="&accountTypeMovemail.label;"
                accesskey="&accountTypeMovemail.accesskey;"
-               value="movemail" />
+               value="movemail"/>
 #endif
 #ifndef MOZ_THUNDERBIRD
         <radio id="rssaccount" value="rss" label="&feeds.wizardLongName;"
