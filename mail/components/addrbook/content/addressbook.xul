@@ -675,7 +675,7 @@
             onselect="DirPaneSelectionChange(); document.commandDispatcher.updateCommands('addrbook-select');"
             ondblclick="DirPaneDoubleClick(event);"
             onclick="DirPaneClick(event);"
-            onblur="goOnEvent(this,'blur')">
+            onblur="goOnEvent(this, 'blur')">
 
         <treecols>
           <treecol id="DirCol" flex="1" primary="true" hideheader="true"

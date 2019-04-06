@@ -92,7 +92,7 @@
                      forcecomplete="true"
                      completeselectedindex="true"
                      minresultsforpopup="1"
-                     onblur="if (this.localName == 'textbox') this.closest(&quot;attendees-list&quot;).returnHit(this, true)"
+                     onblur="if (this.localName == 'textbox') { this.closest(&quot;attendees-list&quot;).returnHit(this, true); }"
                      ignoreblurwhilesearching="true"
                      oninput="this.setAttribute('dirty', 'true');"
                      ontextentered="this.closest(&quot;attendees-list&quot;).returnHit(this);">

@@ -108,7 +108,7 @@
                     <toolbarbutton id="previous-day-button"
                                    class="miniday-nav-buttons"
                                    tooltiptext="&onedaybackward.tooltip;"
-                                   onmousedown="TodayPane.onMousedown(event, parseInt(this.getAttribute('dir')));"
+                                   onmousedown="TodayPane.onMousedown(event, -1);"
                                    dir="-1"/>
                     <toolbarbutton id="today-button"
                                    class="miniday-nav-buttons"
@@ -117,7 +117,7 @@
                     <toolbarbutton id="next-day-button"
                                    class="miniday-nav-buttons"
                                    tooltiptext="&onedayforward.tooltip;"
-                                   onmousedown="TodayPane.onMousedown(event, parseInt(this.getAttribute('dir')));"
+                                   onmousedown="TodayPane.onMousedown(event, 1);"
                                    dir="1"/>
                   </hbox>
                 </hbox>

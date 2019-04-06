@@ -139,7 +139,7 @@
               <toolbarbutton id="imipAcceptButton"
                              tooltiptext="&lightning.imipbar.btnAccept2.tooltiptext;"
                              label="&lightning.imipbar.btnAccept.label;"
-                             oncommand="if (event.target.id == this.id) ltnImipBar.executeAction('ACCEPTED', 'AUTO');"
+                             oncommand="if (event.target.id == this.id) { ltnImipBar.executeAction('ACCEPTED', 'AUTO'); }"
                              type="menu-button"
                              class="imip-button toolbarbutton-1 msgHeaderView-button imipAcceptButton"
                              hidden="true">
@@ -177,7 +177,7 @@
               <toolbarbutton id="imipAcceptRecurrencesButton"
                              tooltiptext="&lightning.imipbar.btnAcceptRecurrences2.tooltiptext;"
                              label="&lightning.imipbar.btnAcceptRecurrences.label;"
-                             oncommand="if (event.target.id == this.id) ltnImipBar.executeAction('ACCEPTED', 'AUTO');"
+                             oncommand="if (event.target.id == this.id) { ltnImipBar.executeAction('ACCEPTED', 'AUTO'); }"
                              type="menu-button"
                              class="imip-button toolbarbutton-1 msgHeaderView-button imipAcceptRecurrencesButton"
                              hidden="true">
@@ -217,7 +217,7 @@
                              label="&lightning.imipbar.btnTentative.label;"
                              tooltiptext="&lightning.imipbar.btnTentative2.tooltiptext;"
                              class="toolbarbutton-1 msgHeaderView-button imipTentativeButton"
-                             oncommand="if (event.target.id == this.id) ltnImipBar.executeAction('TENTATIVE', 'AUTO');"
+                             oncommand="if (event.target.id == this.id) { ltnImipBar.executeAction('TENTATIVE', 'AUTO'); }"
                              type="menu-button"
                              hidden="true">
                 <menupopup id="imipTentativeDropdown">
@@ -239,7 +239,7 @@
                              label="&lightning.imipbar.btnTentativeRecurrences.label;"
                              tooltiptext="&lightning.imipbar.btnTentativeRecurrences2.tooltiptext;"
                              class="toolbarbutton-1 msgHeaderView-button imipTentativeRecurrencesButton"
-                             oncommand="if (event.target.id == this.id) ltnImipBar.executeAction('TENTATIVE', 'AUTO');"
+                             oncommand="if (event.target.id == this.id) { ltnImipBar.executeAction('TENTATIVE', 'AUTO'); }"
                              type="menu-button"
                              hidden="true">
                 <menupopup id="imipTentativeRecurrencesDropdown">
@@ -259,7 +259,7 @@
               <toolbarbutton id="imipDeclineButton"
                              tooltiptext="&lightning.imipbar.btnDecline2.tooltiptext;"
                              label="&lightning.imipbar.btnDecline.label;"
-                             oncommand="if (event.target.id == this.id) ltnImipBar.executeAction('DECLINED', 'AUTO');"
+                             oncommand="if (event.target.id == this.id) { ltnImipBar.executeAction('DECLINED', 'AUTO'); }"
                              type="menu-button"
                              class="toolbarbutton-1 msgHeaderView-button imipDeclineButton"
                              hidden="true">
@@ -280,7 +280,7 @@
               <toolbarbutton id="imipDeclineRecurrencesButton"
                              tooltiptext="&lightning.imipbar.btnDeclineRecurrences2.tooltiptext;"
                              label="&lightning.imipbar.btnDeclineRecurrences.label;"
-                             oncommand="if (event.target.id == this.id) ltnImipBar.executeAction('DECLINED');"
+                             oncommand="if (event.target.id == this.id) { ltnImipBar.executeAction('DECLINED'); }"
                              type="menu-button"
                              class="toolbarbutton-1 msgHeaderView-button imipDeclineRecurrencesButton"
                              hidden="true">

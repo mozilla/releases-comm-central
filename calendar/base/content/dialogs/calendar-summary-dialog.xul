@@ -70,7 +70,7 @@
       <toolbarbutton id="acceptButton"
                      tooltiptext="&summary.dialog.accept.tooltiptext;"
                      label="&summary.dialog.accept.label;"
-                     oncommand="if (event.target.id == this.id) reply('AUTO', 'ACCEPTED');"
+                     oncommand="if (event.target.id == this.id) { reply('AUTO', 'ACCEPTED'); }"
                      value="ACCEPTED"
                      type="menu-button"
                      class="cal-event-toolbarbutton toolbarbutton-1 replyButton">
@@ -88,7 +88,7 @@
       <toolbarbutton id="tentativeButton"
                      tooltiptext="&summary.dialog.tentative.tooltiptext;"
                      label="&summary.dialog.tentative.label;"
-                     oncommand="if (event.target.id == this.id) reply('AUTO', 'TENTATIVE');"
+                     oncommand="if (event.target.id == this.id) { reply('AUTO', 'TENTATIVE'); }"
                      value="TENTATIVE"
                      type="menu-button"
                      class="cal-event-toolbarbutton toolbarbutton-1 replyButton">
@@ -106,7 +106,7 @@
       <toolbarbutton id="declineButton"
                      tooltiptext="&summary.dialog.decline.tooltiptext;"
                      label="&summary.dialog.decline.label;"
-                     oncommand="if (event.target.id == this.id) reply('AUTO', 'DECLINED');"
+                     oncommand="if (event.target.id == this.id) { reply('AUTO', 'DECLINED'); }"
                      type="menu-button"
                      value="DECLINED"
                      class="cal-event-toolbarbutton toolbarbutton-1 replyButton">

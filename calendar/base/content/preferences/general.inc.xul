@@ -52,8 +52,8 @@
                               min="0"
                               maxlength="3"
                               size="3"
-                              onselect="updateUnitLabelPlural('defaultlength','defaultlengthunit','minutes')"
-                              oninput="updateUnitLabelPlural('defaultlength','defaultlengthunit','minutes')"/>
+                              onselect="updateUnitLabelPlural('defaultlength', 'defaultlengthunit', 'minutes')"
+                              oninput="updateUnitLabelPlural('defaultlength', 'defaultlengthunit', 'minutes')"/>
                     <label id="defaultlengthunit"/>
                 </hbox>
                 <label><html:h3>&pref.tasks.label;</html:h3></label>

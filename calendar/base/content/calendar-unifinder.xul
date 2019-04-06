@@ -123,10 +123,10 @@
         <!-- on mousedown here happens before onclick above -->
         <treechildren tooltip="eventTreeTooltip"
                       context="calendar-item-context-menu"
-                      onkeypress="if (event.key == 'Enter') unifinderEditCommand();"
+                      onkeypress="if (event.key == 'Enter') { unifinderEditCommand(); }"
                       ondragenter="return false;"
                       ondblclick="unifinderDoubleClick(event)"
-                      onfocus="focusFirstItemIfNoSelection( );"/>
+                      onfocus="focusFirstItemIfNoSelection();"/>
       </tree>
     </vbox>
     <splitter id="calendar-view-splitter"

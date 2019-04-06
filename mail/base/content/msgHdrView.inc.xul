@@ -36,7 +36,7 @@
                                     <toolbarbutton id="hdrForwardButton"
                                                    label="&hdrForwardButton1.label;"
                                                    tooltiptext="&hdrForwardButton1.tooltip;"
-                                                   oncommand="MsgForwardMessage(event);RestoreFocusAfterHdrButton();"
+                                                   oncommand="MsgForwardMessage(event); RestoreFocusAfterHdrButton();"
                                                    observes="button_forward"
                                                    class="toolbarbutton-1 msgHeaderView-button hdrForwardButton"/>
                                     <toolbaritem id="hdrMenuForwardButton" label="&hdrMenuForwardButton.label;">
@@ -46,7 +46,7 @@
                                       <toolbarbutton id="hdrDualForwardButton"
                                                      label="&hdrForwardButton1.label;"
                                                      tooltiptext="&hdrForwardButton1.tooltip;"
-                                                     oncommand="MsgForwardMessage(event);RestoreFocusAfterHdrButton();"
+                                                     oncommand="MsgForwardMessage(event); RestoreFocusAfterHdrButton();"
                                                      observes="button_forward"
                                                      class="toolbarbutton-1 msgHeaderView-button hdrForwardButton"
                                                      type="menu-button">
@@ -65,30 +65,30 @@
                                     <toolbarbutton id="hdrArchiveButton"
                                                    label="&hdrArchiveButton1.label;"
                                                    tooltiptext="&hdrArchiveButton1.tooltip;"
-                                                   oncommand="MsgArchiveSelectedMessages(event);RestoreFocusAfterHdrButton();"
+                                                   oncommand="MsgArchiveSelectedMessages(event); RestoreFocusAfterHdrButton();"
                                                    observes="button_archive"
                                                    class="toolbarbutton-1 msgHeaderView-button hdrArchiveButton"/>
                                     <toolbarbutton id="hdrJunkButton" label="&hdrJunkButton1.label;"
                                                    tooltiptext="&hdrJunkButton1.tooltip;"
                                                    observes="button_junk"
                                                    class="toolbarbutton-1 msgHeaderView-button hdrJunkButton"
-                                                   oncommand="goDoCommand('button_junk');RestoreFocusAfterHdrButton();"/>
+                                                   oncommand="goDoCommand('button_junk'); RestoreFocusAfterHdrButton();"/>
                                     <toolbarbutton id="hdrTrashButton"
                                                    label="&hdrTrashButton1.label;"
                                                    tooltiptext="&hdrTrashButton1.tooltip;"
                                                    observes="button_delete"
                                                    class="toolbarbutton-1 msgHeaderView-button hdrTrashButton"
                                                    oncommand="goDoCommand(event.shiftKey ? 'button_shiftDelete' :
-                                                                          'button_delete');RestoreFocusAfterHdrButton();"/>
+                                                                          'button_delete'); RestoreFocusAfterHdrButton();"/>
                                     <toolbarbutton id="hdrOpenConversationButton"
                                                    label="&hdrOpenConversationButton1.label;"
                                                    tooltiptext="&hdrOpenConversationButton1.tooltip;"
                                                    observes="button_showconversation"
                                                    class="toolbarbutton-1 msgHeaderView-button hdrConversationButton"
-                                                   oncommand="gConversationOpener.openConversationForMessages(gFolderDisplay.selectedMessages);RestoreFocusAfterHdrButton();"/>
+                                                   oncommand="gConversationOpener.openConversationForMessages(gFolderDisplay.selectedMessages); RestoreFocusAfterHdrButton();"/>
                                     <toolbarbutton id="hdrReplyToSenderButton" label="&hdrReplyButton1.label;"
                                                    tooltiptext="&hdrReplyButton2.tooltip;"
-                                                   oncommand="MsgReplySender(event);RestoreFocusAfterHdrButton();"
+                                                   oncommand="MsgReplySender(event); RestoreFocusAfterHdrButton();"
                                                    observes="button_reply"
                                                    class="toolbarbutton-1 msgHeaderView-button hdrReplyToSenderButton"/>
                                     <toolbaritem id="hdrSmartReplyButton" label="&hdrSmartReplyButton1.label;">
@@ -100,13 +100,13 @@
                                                      class="toolbarbutton-1 msgHeaderView-button hdrDummyReplyButton"/>
                                       <toolbarbutton id="hdrReplyButton" label="&hdrReplyButton1.label;"
                                                      tooltiptext="&hdrReplyButton2.tooltip;"
-                                                     oncommand="MsgReplySender(event);RestoreFocusAfterHdrButton();"
+                                                     oncommand="MsgReplySender(event); RestoreFocusAfterHdrButton();"
                                                      observes="button_reply"
                                                      class="toolbarbutton-1 msgHeaderView-button hdrReplyButton"/>
                                       <toolbarbutton id="hdrReplyAllButton"
                                                      label="&hdrReplyAllButton1.label;"
                                                      tooltiptext="&hdrReplyAllButton1.tooltip;"
-                                                     oncommand="MsgReplyToAllMessage(event);RestoreFocusAfterHdrButton();"
+                                                     oncommand="MsgReplyToAllMessage(event); RestoreFocusAfterHdrButton();"
                                                      observes="button_replyall"
                                                      class="toolbarbutton-1 msgHeaderView-button hdrReplyButton hdrReplyAllButton"
                                                      type="menu-button"
@@ -128,7 +128,7 @@
                                       <toolbarbutton id="hdrReplyListButton"
                                                      label="&hdrReplyListButton1.label;"
                                                      tooltiptext="&hdrReplyListButton1.tooltip;"
-                                                     oncommand="MsgReplyToListMessage(event);RestoreFocusAfterHdrButton();"
+                                                     oncommand="MsgReplyToListMessage(event); RestoreFocusAfterHdrButton();"
                                                      observes="button_replylist"
                                                      class="toolbarbutton-1 msgHeaderView-button hdrReplyButton hdrReplyListButton"
                                                      type="menu-button"
@@ -155,7 +155,7 @@
                                       </toolbarbutton>
                                       <toolbarbutton id="hdrFollowupButton" label="&hdrFollowupButton1.label;"
                                                      tooltiptext="&hdrFollowupButton1.tooltip;"
-                                                     oncommand="MsgReplyGroup(event);RestoreFocusAfterHdrButton();"
+                                                     oncommand="MsgReplyGroup(event); RestoreFocusAfterHdrButton();"
                                                      observes="button_followup"
                                                      class="toolbarbutton-1 msgHeaderView-button hdrFollowupButton"
                                                      type="menu-button">

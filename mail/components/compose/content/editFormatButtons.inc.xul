@@ -246,36 +246,36 @@
                        observes="cmd_smiley">
           <menupopup id="smilyPopup">
             <menuitem id="smileySmile" class="menuitem-iconic" label="&smiley1Cmd.label;"
-                      oncommand="doStatefulCommand('cmd_smiley', ':-)'  )"/>
+                      oncommand="doStatefulCommand('cmd_smiley', ':-)')"/>
             <menuitem id="smileyFrown" class="menuitem-iconic" label="&smiley2Cmd.label;"
-                      oncommand="doStatefulCommand('cmd_smiley', ':-('  )"/>
+                      oncommand="doStatefulCommand('cmd_smiley', ':-(')"/>
             <menuitem id="smileyWink" class="menuitem-iconic" label="&smiley3Cmd.label;"
-                      oncommand="doStatefulCommand('cmd_smiley', ';-)'  )"/>
+                      oncommand="doStatefulCommand('cmd_smiley', ';-)')"/>
             <menuitem id="smileyTongue" class="menuitem-iconic" label="&smiley4Cmd.label;"
-                      oncommand="doStatefulCommand('cmd_smiley', ':-P'  )"/>
+                      oncommand="doStatefulCommand('cmd_smiley', ':-P')"/>
             <menuitem id="smileyLaughing" class="menuitem-iconic" label="&smiley5Cmd.label;"
-                      oncommand="doStatefulCommand('cmd_smiley', ':-D'  )"/>
+                      oncommand="doStatefulCommand('cmd_smiley', ':-D')"/>
             <menuitem id="smileyEmbarassed" class="menuitem-iconic" label="&smiley6Cmd.label;"
-                      oncommand="doStatefulCommand('cmd_smiley', ':-['  )"/>
+                      oncommand="doStatefulCommand('cmd_smiley', ':-[')"/>
             <menuitem id="smileyUndecided" class="menuitem-iconic" label="&smiley7Cmd.label;"
-                      oncommand="doStatefulCommand('cmd_smiley', ':-\\' )"/>
+                      oncommand="doStatefulCommand('cmd_smiley', ':-\\')"/>
             <menuitem id="smileySurprise" class="menuitem-iconic" label="&smiley8Cmd.label;"
-                      oncommand="doStatefulCommand('cmd_smiley', '=-O' )"/>
+                      oncommand="doStatefulCommand('cmd_smiley', '=-O')"/>
             <menuitem id="smileyKiss" class="menuitem-iconic" label="&smiley9Cmd.label;"
-                      oncommand="doStatefulCommand('cmd_smiley', ':-*' )"/>
+                      oncommand="doStatefulCommand('cmd_smiley', ':-*')"/>
             <menuitem id="smileyYell" class="menuitem-iconic" label="&smiley10Cmd.label;"
-                      oncommand="doStatefulCommand('cmd_smiley', '>:o' )"/>
+                      oncommand="doStatefulCommand('cmd_smiley', '>:o')"/>
             <menuitem id="smileyCool" class="menuitem-iconic" label="&smiley11Cmd.label;"
-                      oncommand="doStatefulCommand('cmd_smiley', '8-)' )"/>
+                      oncommand="doStatefulCommand('cmd_smiley', '8-)')"/>
             <menuitem id="smileyMoney" class="menuitem-iconic" label="&smiley12Cmd.label;"
-                      oncommand="doStatefulCommand('cmd_smiley', ':-$' )"/>
+                      oncommand="doStatefulCommand('cmd_smiley', ':-$')"/>
             <menuitem id="smileyFoot" class="menuitem-iconic" label="&smiley13Cmd.label;"
-                      oncommand="doStatefulCommand('cmd_smiley', ':-!' )"/>
+                      oncommand="doStatefulCommand('cmd_smiley', ':-!')"/>
             <menuitem id="smileyInnocent" class="menuitem-iconic" label="&smiley14Cmd.label;"
-                      oncommand="doStatefulCommand('cmd_smiley', 'O:-)' )"/>
+                      oncommand="doStatefulCommand('cmd_smiley', 'O:-)')"/>
             <menuitem id="smileyCry" class="menuitem-iconic" label="&smiley15Cmd.label;"
-                      oncommand="doStatefulCommand('cmd_smiley', ':\'(' )"/>
+                      oncommand="doStatefulCommand('cmd_smiley', ':\'(')"/>
             <menuitem id="smileySealed" class="menuitem-iconic" label="&smiley16Cmd.label;"
-                      oncommand="doStatefulCommand('cmd_smiley', ':-X' )"/>
+                      oncommand="doStatefulCommand('cmd_smiley', ':-X')"/>
           </menupopup>
         </toolbarbutton>

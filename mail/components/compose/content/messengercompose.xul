@@ -1986,7 +1986,7 @@
               <label id="subjectLabel" value="&subject.label;" accesskey="&subject.accesskey;" control="msgSubject"/>
             </hbox>
             <textbox id="msgSubject" flex="1" class="toolbar" disableonsend="true" spellcheck="true"
-                     oninput="gContentChanged=true;SetComposeWindowTitle();"
+                     oninput="gContentChanged = true; SetComposeWindowTitle();"
                      onkeypress="subjectKeyPress(event);" />
           </hbox>
         </vbox>

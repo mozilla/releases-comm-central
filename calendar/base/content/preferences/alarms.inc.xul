@@ -68,8 +68,8 @@
                                      min="0"
                                      maxlength="4"
                                      size="3"
-                                     onselect="updateUnitLabelPlural('defaultsnoozelength','defaultsnoozelengthunit','minutes')"
-                                     oninput="updateUnitLabelPlural('defaultsnoozelength','defaultsnoozelengthunit','minutes')"/>
+                                     onselect="updateUnitLabelPlural('defaultsnoozelength', 'defaultsnoozelengthunit', 'minutes')"
+                                     oninput="updateUnitLabelPlural('defaultsnoozelength', 'defaultsnoozelengthunit', 'minutes')"/>
                             <label id="defaultsnoozelengthunit"/>
                         </hbox>
                     </html:td>
@@ -133,8 +133,8 @@
                                       type="number"
                                       min="0"
                                       size="3"
-                                      onselect="updateMenuLabelsPlural('eventdefalarmlen','eventdefalarmunit')"
-                                      oninput="updateMenuLabelsPlural('eventdefalarmlen','eventdefalarmunit')"/>
+                                      onselect="updateMenuLabelsPlural('eventdefalarmlen', 'eventdefalarmunit')"
+                                      oninput="updateMenuLabelsPlural('eventdefalarmlen', 'eventdefalarmunit')"/>
                             <menulist id="eventdefalarmunit"
                                       flex="1"
                                       crop="none"
@@ -167,8 +167,8 @@
                                       type="number"
                                       min="0"
                                       size="3"
-                                      onselect="updateMenuLabelsPlural('tododefalarmlen','tododefalarmunit')"
-                                      oninput="updateMenuLabelsPlural('tododefalarmlen','tododefalarmunit')"/>
+                                      onselect="updateMenuLabelsPlural('tododefalarmlen', 'tododefalarmunit')"
+                                      oninput="updateMenuLabelsPlural('tododefalarmlen', 'tododefalarmunit')"/>
                             <menulist id="tododefalarmunit"
                                       flex="1"
                                       crop="none"
