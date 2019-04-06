@@ -143,6 +143,9 @@ libs-%:
 ifdef MOZ_IRC
 	@$(MAKE) -C $(DEPTH)/extensions/irc/locales libs-$*
 endif
+ifdef MOZ_DEBUGQA
+	@$(MAKE) -C ../extensions/debugQA/locales AB_CD=$* XPI_NAME=locale-$*
+endif
 	@$(MAKE) -C $(DEPTH)/extensions/spellcheck/locales AB_CD=$* XPI_NAME=locale-$*
 	@$(MAKE) -B searchplugins AB_CD=$* XPI_NAME=locale-$*
 	@$(MAKE) -C $(DEPTH)/devtools/client/locales AB_CD=$* XPI_NAME=locale-$*

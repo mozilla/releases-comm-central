@@ -81,7 +81,7 @@ endif
 ABS_STAGE = $(abspath $(STAGEDIST))
 
 define _PACKAGE_EXTENSIONS
-@echo "Packaging $(dir).xpi..."
+@echo "Packaging $(dir)..."
 if test -d "$(ABS_STAGE)/$(dir)"; then \
 cd $(ABS_STAGE)/$(dir)/; \
 $(ZIP) -r9mX ../$(dir).xpi * -x \*/.mkdir.done; \
