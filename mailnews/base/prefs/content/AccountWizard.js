@@ -448,12 +448,14 @@ function finishAccount(account, accountData)
     var srcServer = accountData.incomingServer;
     copyObjectToInterface(destServer, srcServer, true);
 
-    // see if there are any protocol-specific attributes
-    // if so, we use the type to get the IID, QueryInterface
-    // as appropriate, then copy the data over
-    dump("srcServer.ServerType-" + srcServer.type + " = " +
-         srcServer["ServerType-" + srcServer.type] + "\n");
-    if (srcServer["ServerType-" + srcServer.type]) {
+    // See if there are any protocol-specific attributes.
+    // If so, we use the type to get the IID, QueryInterface
+    // as appropriate, then copy the data over.
+    const typeProperty = "ServerType-" + srcServer.type;
+    let serverAttrs = (typeProperty in srcServer) ?
+                      srcServer[typeProperty] : null;
+    dump(`srcServer.${typeProperty} = ${serverAttrs}\n`);
+    if (serverAttrs) {
       // handle server-specific stuff
       var IID;
       try {

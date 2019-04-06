@@ -64,11 +64,8 @@ function incomingPageInit() {
   {
     var newsServer = document.getElementById("newsServer");
     var pageData = parent.GetPageData();
-    try
-    {
+    if (pageData.newsserver && pageData.newsserver.hostname)
       newsServer.value = pageData.newsserver.hostname.value;
-    }
-    catch (ex){}
   }
 
   var incomingServerbox = document.getElementById("incomingServerbox");
