@@ -24,6 +24,7 @@ jobs:
     - linux64-node
     - linux64-rust
     - linux64-rust-1.28
+    - linux64-rust-1.32
     - linux64-rust-macos
     - linux64-sccache
     - win64-cbindgen
