@@ -12,6 +12,8 @@ treechildren::-moz-tree-image(folderNameCol) {
   margin-inline-end: 4px;
   list-style-image: url("chrome://messenger/skin/icons/folder-pane.png");
   -moz-image-region: rect(0 16px 16px 0);
+  width: 16px;
+  height: 16px;
 }
 
 /* Disable Shared Folder Rule for now
@@ -31,19 +33,15 @@ treechildren::-moz-tree-image(folderNameCol, serverType-nntp) {
   -moz-image-region: rect(0 160px 16px 144px);
 }
 
-/* ..... Feed Folders ..... */
+/* ..... Feed folder, feed item ..... */
 treechildren::-moz-tree-image(folderNameCol, isFeed-true) {
   list-style-image: url("chrome://messenger-newsblog/skin/rss-feed.png");
-  -moz-image-region: rect(0 16px 16px 0);
-  width: 16px;
-  height: 16px;
+  -moz-image-region: rect(16px 16px 32px 0);
 }
 .tabmail-tab[type="folder"][IsFeedFolder="true"],
 treechildren::-moz-tree-image(folderNameCol, isFeedFolder-true) {
-  list-style-image: url("chrome://messenger/skin/icons/folder-pane.png");
-  -moz-image-region: rect(0 224px 16px 208px);
-  width: 16px;
-  height: 16px;
+  list-style-image: url("chrome://messenger-newsblog/skin/rss-feed-folder.png");
+  -moz-image-region: auto;
 }
 treechildren::-moz-tree-image(folderNameCol, serverIsPaused),
 treechildren::-moz-tree-cell-text(folderNameCol, serverIsPaused),
@@ -125,11 +123,6 @@ treechildren::-moz-tree-image(folderNameCol, specialFolder-Archive) {
 }
 
 @media (min-resolution: 2dppx) {
-  treechildren::-moz-tree-image(folderNameCol) {
-    width: 16px;
-    height: 16px;
-}
-
   .tabmail-tab[type="folder"],
   treechildren::-moz-tree-image(folderNameCol) {
     list-style-image: url("chrome://messenger/skin/icons/folder-pane@2x.png");
@@ -147,15 +140,15 @@ treechildren::-moz-tree-image(folderNameCol, specialFolder-Archive) {
     -moz-image-region: rect(0 320px 32px 288px);
   }
 
-  /* ..... Feed Folders ..... */
+  /* ..... Feed folder, feed item ..... */
   treechildren::-moz-tree-image(folderNameCol, isFeed-true) {
     list-style-image: url("chrome://messenger-newsblog/skin/rss-feed@2x.png");
-    -moz-image-region: rect(0 32px 32px 0);
+    -moz-image-region: rect(32px 32px 64px 0);
   }
   .tabmail-tab[type="folder"][IsFeedFolder="true"],
   treechildren::-moz-tree-image(folderNameCol, isFeedFolder-true) {
-    list-style-image: url("chrome://messenger/skin/icons/folder-pane@2x.png");
-    -moz-image-region: rect(0 448px 32px 416px);
+    list-style-image: url("chrome://messenger-newsblog/skin/rss-feed-folder@2x.png");
+    -moz-image-region: auto;
   }
   treechildren::-moz-tree-image(folderNameCol, isBusy) {
     list-style-image: url("chrome://messenger/skin/icons/status@2x.png");
@@ -271,11 +264,11 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-nntp, isS
   -moz-image-region: rect(0 80px 16px 64px);
 }
 
-/* ..... Feed Folders ..... */
+/* ..... Feed server ..... */
 .tabmail-tab[type="folder"][IsServer="true"][ServerType="rss"],
 treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-rss) {
-  list-style-image: url("chrome://messenger/skin/icons/server.png");
-  -moz-image-region: rect(0 96px 16px 80px);
+  list-style-image: url("chrome://messenger-newsblog/skin/rss-feed.png");
+  -moz-image-region: rect(0 16px 16px 0);
 }
 
 @media (min-resolution: 2dppx) {
@@ -317,11 +310,11 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-rss) {
     -moz-image-region: rect(0 160px 32px 128px);
   }
 
-  /* ..... Feed Folders ..... */
+  /* ..... Feed server ..... */
   .tabmail-tab[type="folder"][IsServer="true"][ServerType="rss"],
   treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-rss) {
-    list-style-image: url("chrome://messenger/skin/icons/server@2x.png");
-    -moz-image-region: rect(0 192px 32px 160px);
+    list-style-image: url("chrome://messenger-newsblog/skin/rss-feed@2x.png");
+    -moz-image-region: rect(0 32px 32px 0);
   }
 }
 

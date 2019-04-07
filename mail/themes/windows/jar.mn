@@ -190,8 +190,8 @@ classic.jar:
   skin/classic/messenger/icons/empty-search-results.png       (mail/icons/empty-search-results.png)
 % skin messenger-newsblog classic/1.0 %skin/classic/messenger-newsblog/
   skin/classic/messenger-newsblog/feed-subscriptions.css      (mail/newsblog/feed-subscriptions.css)
-  skin/classic/messenger-newsblog/icons/rss-feed.png          (mail/newsblog/rss-feed.png)
-  skin/classic/messenger-newsblog/icons/server-rss.png        (mail/newsblog/server-rss.png)
+  skin/classic/messenger-newsblog/rss-feed.png                (mail/newsblog/rss-feed.png)
+  skin/classic/messenger-newsblog/rss-feed-folder.png         (mail/newsblog/rss-feed-folder.png)
   skin/classic/messenger/newmailaccount/accountProvisioner.css (mail/newmailaccount/accountProvisioner.css)
   skin/classic/messenger/newmailaccount/search.gif            (mail/newmailaccount/search.gif)
   skin/classic/messenger/newmailaccount/spinner.gif           (mail/newmailaccount/spinner.gif)

@@ -111,6 +111,8 @@ classic.jar:
   skin/classic/messenger-newsblog/feed-subscriptions.css         (mail/newsblog/feed-subscriptions.css)
   skin/classic/messenger-newsblog/rss-feed.png                   (mail/newsblog/rss-feed.png)
   skin/classic/messenger-newsblog/rss-feed@2x.png                (mail/newsblog/rss-feed@2x.png)
+  skin/classic/messenger-newsblog/rss-feed-folder.png            (mail/newsblog/rss-feed-folder.png)
+  skin/classic/messenger-newsblog/rss-feed-folder@2x.png         (mail/newsblog/rss-feed-folder@2x.png)
   skin/classic/messenger/preferences/alwaysAsk.png               (mail/preferences/alwaysAsk.png)
   skin/classic/messenger/preferences/application.png             (mail/preferences/application.png)
   skin/classic/messenger/preferences/saveFile.png                (mail/preferences/saveFile.png)

@@ -22,7 +22,9 @@
 
 /* Feed folders */
 .folderMenuItem[IsFeedFolder="true"] {
-  -moz-image-region: rect(0 224px 16px 208px);
+  list-style-image: url("chrome://messenger-newsblog/skin/rss-feed-folder.png");
+  -moz-image-region: auto;
+}
 }
 
 /* ..... special folders ..... */
@@ -94,7 +96,8 @@
 
 /* Feed servers */
 .folderMenuItem[IsServer="true"][ServerType="rss"] {
-  -moz-image-region: rect(0 96px 16px 80px);
+  list-style-image: url("chrome://messenger-newsblog/skin/rss-feed.png");
+  -moz-image-region: rect(0 16px 16px 0);
 }
 
 .folderMenuItem > .menu-right {
@@ -121,7 +124,9 @@
 
   /* Feed folders */
   .folderMenuItem[IsFeedFolder="true"] {
-    -moz-image-region: rect(0 448px 32px 416px);
+    list-style-image: url("chrome://messenger-newsblog/skin/rss-feed-folder@2x.png");
+    -moz-image-region: auto;
+}
   }
 
   /* ..... special folders ..... */
@@ -193,6 +198,7 @@
 
   /* Feed servers */
   .folderMenuItem[IsServer="true"][ServerType="rss"] {
-    -moz-image-region: rect(0 192px 32px 160px);
+    list-style-image: url("chrome://messenger-newsblog/skin/rss-feed@2x.png");
+    -moz-image-region: rect(0 32px 32px 0);
   }
 }

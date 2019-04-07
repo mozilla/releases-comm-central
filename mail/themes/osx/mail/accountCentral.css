@@ -161,7 +161,7 @@ spacer {
 }
 
 #CreateAccountRSS {
-  background-image: -moz-image-rect(url("chrome://messenger/skin/icons/server.png"), 0, 96, 316, 80);
+  background-image: -moz-image-rect(url("chrome://messenger-newsblog/skin/rss-feed.png"), 0, 16, 16, 0);
   background-repeat: no-repeat;
 }
 
@@ -242,7 +242,7 @@ spacer {
   }
 
   #CreateAccountRSS {
-    background-image: -moz-image-rect(url("chrome://messenger/skin/icons/server@2x.png"), 0, 192, 32, 160);
+    background-image: -moz-image-rect(url("chrome://messenger-newsblog/skin/rss-feed@2x.png"), 0, 32, 32, 0);
     background-size: 16px 16px;
   }
 }

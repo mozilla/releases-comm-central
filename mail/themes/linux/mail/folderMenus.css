@@ -21,10 +21,10 @@
   -moz-image-region: rect(208px 16px 224px 0px);
 }
 
-/* Feed */
+/* Feed folder */
 .folderMenuItem[IsFeedFolder="true"] {
-  list-style-image: url("chrome://messenger-newsblog/skin/icons/rss-feed.png");
-  -moz-image-region: rect(0 16px 16px 0);
+  list-style-image: url("chrome://messenger-newsblog/skin/rss-feed-folder.png");
+  -moz-image-region: auto;
 }
 
 .folderMenuItem[SpecialFolder="Inbox"] {
@@ -96,10 +96,10 @@
   -moz-image-region: rect(0px 80px 16px 64px);
 }
 
-/* Feed account node */
+/* Feed server */
 .folderMenuItem[IsServer="true"][ServerType="rss"] {
-  list-style-image: url("chrome://messenger/skin/icons/folder-pane.png");
-  -moz-image-region: rect(32px 16px 48px 0px);
+  list-style-image: url("chrome://messenger-newsblog/skin/rss-feed.png");
+  -moz-image-region: rect(0 16px 16px 0);
 }
 
 .folderMenuItem .menu-iconic-left {
