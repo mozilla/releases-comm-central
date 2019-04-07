@@ -95,7 +95,6 @@ textbox[type="number"][size="5"] {
 radio[pane] {
   -moz-box-orient: horizontal;
   -moz-box-align: center;
-  -moz-binding: url("chrome://global/content/bindings/radio.xml#radio");
   -moz-appearance: none;
   width: 240px;
   color: var(--in-content-text-color);
