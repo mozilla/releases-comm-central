@@ -108,8 +108,17 @@ var taskDetailsView = {
             if (displayElement("calendar-task-details-category-row", categories.length > 0)) {
                 document.getElementById("calendar-task-details-category").value = categories.join(", ");
             }
-            document.getElementById("task-start-row").Item = item;
-            document.getElementById("task-due-row").Item = item;
+            document.getElementById("task-start-date").item = item;
+            document.getElementById("task-due-date").item = item;
+
+            let taskStartRowLabel = document.getElementById("task-start-row-label");
+            let taskStartDate = item[cal.dtz.startDateProp(item)];
+            taskStartRowLabel.style.visibility = taskStartDate ? "visible" : "collapse";
+
+            let taskDueRowLabel = document.getElementById("task-due-row-label");
+            let taskDueDate = item[cal.dtz.endDateProp(item)];
+            taskDueRowLabel.style.visibility = taskDueDate ? "visible" : "collapse";
+
             let parentItem = item;
             if (parentItem.parentItem != parentItem) {
                 // XXXdbo Didn't we want to get rid of these checks?

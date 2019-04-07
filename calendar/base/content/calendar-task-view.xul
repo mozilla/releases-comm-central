@@ -19,6 +19,7 @@
   <script type="application/javascript" src="chrome://calendar/content/calendar-task-view.js"/>
   <script type="application/javascript" src="chrome://calendar/content/calendar-dialog-utils.js"/>
   <script type="application/javascript" src="chrome://calendar/content/calApplicationUtils.js"/>
+  <script type="application/javascript" src="chrome://calendar/content/calendar-item-bindings.js"/>
   <script type="application/javascript" src="chrome://calendar/content/calFilter.js"/>
   <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
 
@@ -207,16 +208,20 @@
                          crop="end"
                          class="task-details-value"/>
                 </row>
-                <row class="item-date-row"
-                     id="task-start-row"
-                     mode="start"
-                     taskStartLabel="&calendar.task-details.start.label;"
-                     align="end"/>
-                <row class="item-date-row"
-                     id="task-due-row"
-                     mode="end"
-                     taskDueLabel="&calendar.task-details.due.label;"
-                     align="end"/>
+                <row class="item-date-row">
+                  <label id="task-start-row-label"
+                         class="headline"
+                         value="&calendar.task-details.start.label;"
+                         align="end"/>
+                  <calendar-item-date id="task-start-date" mode="start"/>
+                </row>
+                <row class="item-date-row">
+                  <label id="task-due-row-label"
+                         class="headline"
+                         value="&calendar.task-details.due.label;"
+                         align="end"/>
+                  <calendar-item-date id="task-due-date" mode="end"/>
+                </row>
                 <row id="calendar-task-details-repeat-row"
                      align="top"
                      hidden="true">

@@ -36,7 +36,3 @@ menupopup[type="task-priority"] > arrowscrollbox {
 task-menupopup {
   -moz-binding: url(chrome://calendar/content/calendar-menus.xml#task-menupopup);
 }
-
-.item-date-row {
-  -moz-binding: url(chrome://calendar/content/calendar-item-bindings.xml#item-date-row);
-}

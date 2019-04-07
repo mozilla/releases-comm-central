@@ -84,9 +84,25 @@ function onLoad() {
     document.getElementById("item-title").value = item.title;
 
     document.getElementById("item-calendar").value = calendar.name;
-    document.getElementById("item-start-row").Item = item;
-    document.getElementById("item-end-row").Item = item;
+    document.getElementById("item-date-row-start-date").item = item;
+    document.getElementById("item-date-row-end-date").item = item;
 
+    let isToDoItem = cal.item.isToDo(item);
+    let itemStartRowLabel = document.getElementById("item-start-row-label");
+    let itemStartDate = item[cal.dtz.startDateProp(item)];
+    itemStartRowLabel.style.visibility = itemStartDate ? "visible" : "collapse";
+    let itemStartLabelValue = itemStartRowLabel.getAttribute(isToDoItem ? "taskStartLabel" : "eventStartLabel");
+    if (itemStartDate) {
+        itemStartRowLabel.setAttribute("value", itemStartLabelValue);
+    }
+
+    let itemDueRowLabel = document.getElementById("item-due-row-label");
+    let itemDueDate = item[cal.dtz.endDateProp(item)];
+    itemDueRowLabel.style.visibility = itemDueDate ? "visible" : "collapse";
+    let itemDueLabelValue = itemDueRowLabel.getAttribute(isToDoItem ? "taskDueLabel" : "eventEndLabel");
+    if (itemDueDate) {
+        itemDueRowLabel.setAttribute("value", itemDueLabelValue);
+    }
     // show reminder if this item is *not* readonly.
     // this case happens for example if this is an invitation.
     let argCalendar = window.arguments[0].calendarEvent.calendar;

@@ -62,7 +62,7 @@
     opacity: 0.5; /* lower contrast */
 }
 
-.item-date-row > .selectable-label {
+.item-date-row > calendar-item-date > .selectable-label {
     margin-top: 1px !important;
     margin-bottom: 2px !important;
     margin-inline-start: 6px !important;
