@@ -38,7 +38,7 @@ function onInit(aPageId, aServerId) {
   let minutes = optionsAcct.updates.updateUnits == FeedUtils.kBiffUnitsMinutes ?
                   optionsAcct.updates.updateMinutes :
                   optionsAcct.updates.updateMinutes / (24 * 60);
-  gUpdateValue.valueNumber = minutes;
+  gUpdateValue.value = Number(minutes);
   onCheckItem("updateValue", ["updateEnabled"]);
 
   gAutotagEnable.checked = optionsAcct.category.enabled;
@@ -64,9 +64,9 @@ function setPrefs(aNode) {
       optionsAcct.updates.enabled = gUpdateEnabled.checked;
       onCheckItem("updateValue", ["updateEnabled"]);
       let minutes = gBiffUnits.value == FeedUtils.kBiffUnitsMinutes ?
-                      gUpdateValue.valueNumber :
-                      gUpdateValue.valueNumber * 24 * 60;
-      optionsAcct.updates.updateMinutes = minutes;
+                      gUpdateValue.value :
+                      gUpdateValue.value * 24 * 60;
+      optionsAcct.updates.updateMinutes = Number(minutes);
       optionsAcct.updates.updateUnits = gBiffUnits.value;
       break;
     case "autotagEnable":

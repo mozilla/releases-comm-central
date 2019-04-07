@@ -930,6 +930,7 @@ var FeedSubscriptions = {
     let locationValue = document.getElementById("locationValue");
     let locationValidate = document.getElementById("locationValidate");
     let isServer = aItem.folder && aItem.folder.isServer;
+    let isFolder = aItem.folder && !aItem.folder.isServer;
     let isFeed = !aItem.container;
     let server, displayFolder;
 
@@ -974,12 +975,13 @@ var FeedSubscriptions = {
                                   FeedUtils._optionsDefault.updates;
 
     updateEnabled.checked = updates.enabled;
-    updateValue.disabled = !updateEnabled.checked;
+    updateValue.disabled = !updateEnabled.checked || isFolder;
+    biffUnits.disabled = !updateEnabled.checked || isFolder;
     biffUnits.value = updates.updateUnits;
     let minutes = updates.updateUnits == FeedUtils.kBiffUnitsMinutes ?
                     updates.updateMinutes :
                     updates.updateMinutes / (24 * 60);
-    updateValue.valueNumber = minutes;
+    updateValue.value = Number(minutes);
     if (isFeed) {
       recommendedUnitsVal.value = this.getUpdateMinutesRec(updates);
     } else {
@@ -1149,6 +1151,7 @@ var FeedSubscriptions = {
       // Intend to subscribe a feed to a folder, a value must be in the url
       // field. Update states for addFeed() and return.
       updateValue.disabled = !updateEnabled.checked;
+      biffUnits.disabled = !updateEnabled.checked;
       autotagUsePrefix.disabled = !autotagEnable.checked;
       autotagPrefix.disabled = autotagUsePrefix.disabled || !autotagUsePrefix.checked;
       return;
@@ -1183,9 +1186,9 @@ var FeedSubscriptions = {
       case "biffUnits":
         item.options.updates.enabled = updateEnabled.checked;
         let minutes = biffUnits.value == FeedUtils.kBiffUnitsMinutes ?
-                        updateValue.valueNumber :
-                        updateValue.valueNumber * 24 * 60;
-        item.options.updates.updateMinutes = minutes;
+                        updateValue.value :
+                        updateValue.value * 24 * 60;
+        item.options.updates.updateMinutes = Number(minutes);
         item.options.updates.updateUnits = biffUnits.value;
         break;
       case "autotagEnable":
@@ -1212,6 +1215,10 @@ var FeedSubscriptions = {
       if (aNode.id == "updateEnabled") {
         FeedUtils.setStatus(item.parentFolder, item.url, "enabled", aNode.checked);
         this.mView.selection.tree.invalidateRow(this.mView.selection.currentIndex);
+      }
+      if (aNode.id == "updateValue") {
+        FeedUtils.setStatus(item.parentFolder, item.url, "updateMinutes",
+                            item.options.updates.updateMinutes);
       }
     }
 
@@ -1307,8 +1314,7 @@ var FeedSubscriptions = {
     let locationValue = document.getElementById("locationValue");
     let updateEnabled = document.getElementById("updateEnabled");
     let updateValue = document.getElementById("updateValue");
-    let biffMinutes = document.getElementById("biffMinutes");
-    let biffDays = document.getElementById("biffDays");
+    let biffUnits = document.getElementById("biffUnits");
     let quickMode = document.getElementById("quickMode");
     let autotagEnable = document.getElementById("autotagEnable");
     let autotagUsePrefix = document.getElementById("autotagUsePrefix");
@@ -1322,7 +1328,8 @@ var FeedSubscriptions = {
 
     // Enabled by default.
     updateEnabled.disabled = quickMode.disabled = autotagEnable.disabled = false;
-    updateValue.disabled = biffMinutes.disabled = biffDays.disabled = !updateEnabled.checked;
+    updateValue.disabled = !updateEnabled.checked;
+    biffUnits.disabled = !updateEnabled.checked;
     autotagUsePrefix.disabled = !autotagEnable.checked;
     autotagPrefix.disabled = autotagUsePrefix.disabled || !autotagUsePrefix.checked;
 
@@ -1337,7 +1344,10 @@ var FeedSubscriptions = {
       // Summary is enabled for a folder with feeds or if adding a feed.
       quickMode.disabled = disable && !FeedUtils.getFeedUrlsInFolder(item.folder);
       // All other options disabled unless intent is to add a feed.
-      updateEnabled.disabled = autotagEnable.disabled = disable;
+      updateEnabled.disabled = disable;
+      updateValue.disabled = disable;
+      biffUnits.disabled = disable;
+      autotagEnable.disabled = disable;
 
       addFeedButton.disabled = addFeedButton != focusedElement &&
                                !locationValue.hasAttribute("focused") &&
@@ -1488,10 +1498,10 @@ var FeedSubscriptions = {
       options = FeedUtils.optionsTemplate;
       options.updates.enabled = document.getElementById("updateEnabled").checked;
       let biffUnits = document.getElementById("biffUnits").value;
-      let units = document.getElementById("updateValue").valueNumber;
+      let units = document.getElementById("updateValue").value;
       let minutes = biffUnits == FeedUtils.kBiffUnitsMinutes ? units : units * 24 * 60;
       options.updates.updateUnits = biffUnits;
-      options.updates.updateMinutes = minutes;
+      options.updates.updateMinutes = Number(minutes);
       options.category.enabled = document.getElementById("autotagEnable").checked;
       options.category.prefixEnabled = document.getElementById("autotagUsePrefix").checked;
       options.category.prefix = document.getElementById("autotagPrefix").value;
@@ -1877,7 +1887,7 @@ var FeedSubscriptions = {
 
     onProgress(feed, aProgress, aProgressMax, aLengthComputable) {
       FeedSubscriptions.updateStatusItem("progressMeter",
-                                         (aProgress * 100) / aProgressMax);
+                                         (aProgress * 100) / (aProgressMax || 100));
     },
   },
 

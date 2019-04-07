@@ -170,13 +170,9 @@
                       orient="horizontal"
                       oncommand="FeedSubscriptions.setPrefs(this)">
             <radio id="biffMinutes" value="min" label="&biffMinutes.label;"
-                   accesskey="&biffMinutes.accesskey;">
-              <observes element="updateValue" attribute="disabled"/>
-            </radio>
+                   accesskey="&biffMinutes.accesskey;"/>
             <radio id="biffDays" value="d" label="&biffDays.label;"
-                   accesskey="&biffDays.accesskey;">
-              <observes element="updateValue" attribute="disabled"/>
-            </radio>
+                   accesskey="&biffDays.accesskey;"/>
           </radiogroup>
           <hbox id="recommendedBox">
             <label id="recommendedUnits"
