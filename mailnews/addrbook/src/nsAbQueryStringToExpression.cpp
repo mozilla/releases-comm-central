@@ -286,6 +286,10 @@ nsresult nsAbQueryStringToExpression::CreateBooleanConditionString (
         c = nsIAbBooleanConditionTypes::SoundsLike;
     else if (PL_strcasecmp (condition, "regex") == 0)
         c = nsIAbBooleanConditionTypes::RegExp;
+    else if (PL_strcasecmp (condition, "ex") == 0)
+        c = nsIAbBooleanConditionTypes::Exists;
+    else if (PL_strcasecmp (condition, "!ex") == 0)
+        c = nsIAbBooleanConditionTypes::DoesNotExist;
     else
         return NS_ERROR_FAILURE;
 
