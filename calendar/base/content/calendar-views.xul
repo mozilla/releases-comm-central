@@ -15,6 +15,7 @@
 
 <overlay id="calendar-views-overlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
+  <script type="application/javascript" src="chrome://calendar/content/calendar-event-gripbar.js"/>
   <vbox id="calendar-view-box" context="calendar-view-context-menu">
     <hbox id="calendar-nav-control">
       <vbox flex="1">

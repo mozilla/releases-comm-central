@@ -176,54 +176,6 @@
     </implementation>
   </binding>
 
-  <!--
-     - A simple gripbar that is displayed at the start and end of an
-     - event box.  Needs to handle being dragged and resizing the
-     - event, thus changing its start/end time.
-    -->
-  <binding id="calendar-event-gripbar">
-    <content>
-      <xul:box anonid="thebox"
-               flex="1"
-               pack="center"
-               xbl:inherits="align=whichside">
-        <xul:image xbl:inherits="class"/>
-      </xul:box>
-    </content>
-
-    <implementation>
-      <property name="parentorient">
-        <getter><![CDATA[
-            return this.getAttribute("parentorient");
-        ]]></getter>
-        <setter><![CDATA[
-            let thebox = document.getAnonymousElementByAttribute(this, "anonid", "thebox");
-            this.setAttribute("parentorient", val);
-            thebox.setAttribute("orient", getOtherOrientation(val));
-            return val;
-        ]]></setter>
-      </property>
-
-      <!-- private -->
-      <constructor><![CDATA[
-          this.parentorient = this.getAttribute("parentorient");
-      ]]></constructor>
-    </implementation>
-
-    <handlers>
-      <handler event="mousedown" button="0"><![CDATA[
-          // store the attribute 'whichside' in the event object
-          // but *don't* call stopPropagation(). as soon as the
-          // enclosing event box will receive the event it will
-          // make use of this information in order to invoke the
-          // appropriate action.
-          event.whichside = this.getAttribute("whichside");
-      ]]></handler>
-      <handler event="click" button="0"><![CDATA[
-          event.stopPropagation();
-      ]]></handler>
-    </handlers>
-  </binding>
 
   <!--
      - A column for displaying event boxes in.  One column per
