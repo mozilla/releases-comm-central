@@ -40,8 +40,8 @@ var FolderPaneController =
         if (command == "button_delete")
           UpdateDeleteToolbarButton(true);
       case "button_shiftDelete":
-      if ( command == "cmd_delete" )
-        goSetMenuValue(command, 'valueFolder');
+        if ( command == "cmd_delete" )
+          goSetMenuValue(command, 'valueFolder');
         let folders = GetSelectedMsgFolders();
 
         if (folders.length) {
