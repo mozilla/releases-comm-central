@@ -16,6 +16,7 @@ jobs:
     - deb7-32-pcre3
     - deb7-32-wayland
     - deb7-32-xkeyboard-config
+    - deb7-apt
     - deb7-atk
     - deb7-automake-1.14
     - deb7-cmake
