@@ -144,7 +144,7 @@ function test_display_about_support() {
   let tables = tab.browser.contentDocument.querySelectorAll("tbody");
   let emptyTables = [ "graphics-failures-tbody", "graphics-tbody",
                       "locked-prefs-tbody", "sandbox-syscalls-tbody",
-                      "crashes-tbody" ]; // some tables may be empty
+                      "crashes-tbody", "processes-tbody" ]; // some tables may be empty
   for (let table of tables) {
     if (!emptyTables.includes(table.id))
       assert_true(table.querySelectorAll("tr").length > 0,
