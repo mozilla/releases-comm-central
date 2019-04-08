@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../composer/content/editorUtilities.js */
+/* import-globals-from EdDialogCommon.js */
+
 // Cancel() is in EdDialogCommon.js
 
 var gTableElement;
@@ -503,7 +506,6 @@ function ChangeSelection(newType) {
 function MoveSelection(forward) {
   var newRowIndex = gCurRowIndex;
   var newColIndex = gCurColIndex;
-  var focusCell;
   var inRow = false;
 
   if (gSelectedCellsType == SELECT_ROW) {
@@ -527,8 +529,7 @@ function MoveSelection(forward) {
       // Skip to next cell
       if (forward)
         newColIndex += gCurColSpan;
-    } else  // SELECT_COLUMN
-    {
+    } else { // SELECT_COLUMN
       // Use first cell in column for focus cell
       newRowIndex = 0;
 
@@ -585,17 +586,17 @@ function MoveSelection(forward) {
       else
         // Cell spans from a row above, look for the next cell in row
         newRowIndex += gCellData.actualRowSpan;
-    } else if (gCellData.startColIndex == newColIndex)
-        break;
-      else
-        // Cell spans from a Col above, look for the next cell in column
-        newColIndex += gCellData.actualColSpan;
+    } else if (gCellData.startColIndex == newColIndex) {
+      break;
+    } else {
+      // Cell spans from a Col above, look for the next cell in column
+      newColIndex += gCellData.actualColSpan;
+    }
   }
   while (true);
 
   // Save data for current selection before changing
-  if (gCellDataChanged) // && gDialog.ApplyBeforeMove.checked)
-  {
+  if (gCellDataChanged) { // && gDialog.ApplyBeforeMove.checked)
     if (!ValidateCellData())
       return;
 
@@ -658,7 +659,7 @@ function DoCellSelection() {
         break;
     }
     // Get number of cells selected
-    var tableOrCellElement = gActiveEditor.getSelectedOrParentTableElement(tagNameObj, countObj);
+    gActiveEditor.getSelectedOrParentTableElement(tagNameObj, countObj);
   } catch (e) {}
 
   if (tagNameObj.value == "td")
@@ -746,7 +747,7 @@ function ValidateTableData() {
     if (gValidationError) return false;
   }
 
-  var border = ValidateNumber(gDialog.BorderWidthInput, null, 0, gMaxPixels, globalTableElement, "border");
+  ValidateNumber(gDialog.BorderWidthInput, null, 0, gMaxPixels, globalTableElement, "border");
   // TODO: Deal with "BORDER" without value issue
   if (gValidationError) return false;
 
@@ -877,6 +878,7 @@ function CloneAttribute(destElement, srcElement, attr) {
   } catch (e) {}
 }
 
+/* eslint-disable complexity */
 function ApplyTableAttributes() {
   var newAlign = gDialog.TableCaptionList.value;
   if (!newAlign) newAlign = "";
@@ -943,38 +945,35 @@ function ApplyTableAttributes() {
           dump("FAILED TO FIND FIRST CELL IN LAST ROW\n");
         }
       }
-    } else {
-      // Delete rows
-      if (gCanDelete) {
-        // Find first cell starting in first row we delete
-        var firstDeleteRow = gRowCount + countDelta;
-        foundCell = false;
-        for (i = 0; i <= gLastColIndex; i++) {
-          if (!GetCellData(firstDeleteRow, i))
-            break; // We failed to find a cell
+    } else if (gCanDelete) { // Delete rows
+      // Find first cell starting in first row we delete
+      var firstDeleteRow = gRowCount + countDelta;
+      foundCell = false;
+      for (i = 0; i <= gLastColIndex; i++) {
+        if (!GetCellData(firstDeleteRow, i))
+          break; // We failed to find a cell
 
-          if (gCellData.startRowIndex == firstDeleteRow) {
-            foundCell = true;
-            break;
-          }
+        if (gCellData.startRowIndex == firstDeleteRow) {
+          foundCell = true;
+          break;
         }
-        if (foundCell) {
-          try {
-            // Move selection to the cell we found
-            gSelection.collapse(gCellData.value, 0);
-            gActiveEditor.deleteTableRow(-countDelta);
-            gRowCount = gNewRowCount;
-            gLastRowIndex = gRowCount - 1;
-            if (gCurRowIndex > gLastRowIndex)
-              // We are deleting our selection
-              // move it to start of table
-              ChangeSelectionToFirstCell();
-            else
-              // Put selection back where it was
-              ChangeSelection(RESET_SELECTION);
-          } catch (ex) {
-            dump("FAILED TO FIND FIRST CELL IN LAST ROW\n");
-          }
+      }
+      if (foundCell) {
+        try {
+          // Move selection to the cell we found
+          gSelection.collapse(gCellData.value, 0);
+          gActiveEditor.deleteTableRow(-countDelta);
+          gRowCount = gNewRowCount;
+          gLastRowIndex = gRowCount - 1;
+          if (gCurRowIndex > gLastRowIndex)
+            // We are deleting our selection
+            // move it to start of table
+            ChangeSelectionToFirstCell();
+          else
+            // Put selection back where it was
+            ChangeSelection(RESET_SELECTION);
+        } catch (ex) {
+          dump("FAILED TO FIND FIRST CELL IN LAST ROW\n");
         }
       }
     }
@@ -999,35 +998,32 @@ function ApplyTableAttributes() {
           dump("FAILED TO FIND FIRST CELL IN LAST COLUMN\n");
         }
       }
-    } else {
-      // Delete columns
-      if (gCanDelete) {
-        var firstDeleteCol = gColCount + countDelta;
-        foundCell = false;
-        for (i = 0; i <= gLastRowIndex; i++) {
-          // Find first cell starting in first column we delete
-          if (!GetCellData(i, firstDeleteCol))
-            break; // We failed to find a cell
+    } else if (gCanDelete) { // Delete columns
+      var firstDeleteCol = gColCount + countDelta;
+      foundCell = false;
+      for (i = 0; i <= gLastRowIndex; i++) {
+        // Find first cell starting in first column we delete
+        if (!GetCellData(i, firstDeleteCol))
+          break; // We failed to find a cell
 
-          if (gCellData.startColIndex == firstDeleteCol) {
-            foundCell = true;
-            break;
-          }
+        if (gCellData.startColIndex == firstDeleteCol) {
+          foundCell = true;
+          break;
         }
-        if (foundCell) {
-          try {
-            // Move selection to the cell we found
-            gSelection.collapse(gCellData.value, 0);
-            gActiveEditor.deleteTableColumn(-countDelta);
-            gColCount = gNewColCount;
-            gLastColIndex = gColCount - 1;
-            if (gCurColIndex > gLastColIndex)
-              ChangeSelectionToFirstCell();
-            else
-              ChangeSelection(RESET_SELECTION);
-          } catch (ex) {
-            dump("FAILED TO FIND FIRST CELL IN LAST ROW\n");
-          }
+      }
+      if (foundCell) {
+        try {
+          // Move selection to the cell we found
+          gSelection.collapse(gCellData.value, 0);
+          gActiveEditor.deleteTableColumn(-countDelta);
+          gColCount = gNewColCount;
+          gLastColIndex = gColCount - 1;
+          if (gCurColIndex > gLastColIndex)
+            ChangeSelectionToFirstCell();
+          else
+            ChangeSelection(RESET_SELECTION);
+        } catch (ex) {
+          dump("FAILED TO FIND FIRST CELL IN LAST ROW\n");
         }
       }
     }
@@ -1039,6 +1035,7 @@ function ApplyTableAttributes() {
     gActiveEditor.cloneAttributes(gTableElement, globalTableElement);
   } catch (e) {}
 }
+/* eslint-enable complexity */
 
 function ApplyCellAttributes() {
   var rangeObj = { value: null };

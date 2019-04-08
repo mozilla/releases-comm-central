@@ -5,6 +5,9 @@
 
 /* Insert Source HTML dialog */
 
+/* import-globals-from ../../composer/content/editorUtilities.js */
+/* import-globals-from EdDialogCommon.js */
+
 var gFullDataStrings = new Map();
 var gShortDataStrings = new Map();
 var gListenerAttached = false;
@@ -54,6 +57,7 @@ function replaceDataURIs(input) {
       }
 
       let l = 5;
+      let key;
       // Normally we insert the ellipsis after five characters but if it's not unique
       // we include more data.
       do {

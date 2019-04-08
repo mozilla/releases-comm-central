@@ -3,6 +3,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../../../mail/base/content/utilityOverlay.js */
+/* import-globals-from ComposerCommands.js */
+/* import-globals-from editorUtilities.js */
+/* globals InlineSpellCheckerUI */
+
 var {GetNextUntitledValue} = ChromeUtils.import("resource:///modules/editorUtilities.jsm");
 var {Async} = ChromeUtils.import("resource://services-common/async.js");
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
@@ -102,8 +107,7 @@ function nsPrefListener(prefName) {
 }
 
 // implements nsIObserver
-nsPrefListener.prototype =
-{
+nsPrefListener.prototype = {
   domain: "",
   startup(prefName) {
     this.domain = prefName;
@@ -153,23 +157,22 @@ nsPrefListener.prototype =
         button.hidden = !Services.prefs.getBoolPref(prefName);
         ShowHideToolbarSeparators(button.parentNode);
       }
-    } else if (editor && (prefName == kCRInParagraphsPref))
+    } else if (editor && (prefName == kCRInParagraphsPref)) {
       editor.returnInParagraphCreatesNewParagraph = Services.prefs.getBoolPref(prefName);
+    }
   },
 };
 
-const gSourceTextListener =
-{
-  NotifyDocumentCreated: function NotifyDocumentCreated() {},
-  NotifyDocumentWillBeDestroyed: function NotifyDocumentWillBeDestroyed() {},
-  NotifyDocumentStateChanged: function NotifyDocumentStateChanged(isChanged) {
+const gSourceTextListener = {
+  NotifyDocumentCreated() {},
+  NotifyDocumentWillBeDestroyed() {},
+  NotifyDocumentStateChanged(isChanged) {
     window.updateCommands("save");
   },
 };
 
-const gSourceTextObserver =
-{
-  observe: function observe(aSubject, aTopic, aData) {
+const gSourceTextObserver = {
+  observe(aSubject, aTopic, aData) {
     // we currently only use this to update undo
     window.updateCommands("undo");
   },
@@ -180,8 +183,7 @@ function EditorCleanup() {
   SwitchInsertCharToAnotherEditorOrClose();
 }
 
-var DocumentReloadListener =
-{
+var DocumentReloadListener = {
   NotifyDocumentCreated() {},
   NotifyDocumentWillBeDestroyed() {},
 
@@ -200,8 +202,7 @@ var DocumentReloadListener =
 };
 
 // implements nsIObserver
-var gEditorDocumentObserver =
-{
+var gEditorDocumentObserver = {
   observe(aSubject, aTopic, aData) {
     // Should we allow this even if NOT the focused editor?
     var commandManager = GetCurrentCommandManager();
@@ -243,7 +244,9 @@ var gEditorDocumentObserver =
           }
           if (errorStringId)
             Services.prompt.alert(window, "", GetString(errorStringId));
-        } catch (e) { dump("EXCEPTION GETTING obs_documentCreated state " + e + "\n"); }
+        } catch (e) {
+          dump("EXCEPTION GETTING obs_documentCreated state " + e + "\n");
+        }
 
         // We have a bad editor -- nsIEditingSession will rebuild an editor
         //   with a blank page, so simply abort here
@@ -288,7 +291,9 @@ var gEditorDocumentObserver =
           if (editor.contentsMIMEType == "text/plain") {
             try {
               GetCurrentEditorElement().editortype = "text";
-            } catch (e) { dump(e) + "\n"; }
+            } catch (e) {
+              dump(e) + "\n";
+            }
 
             // Hide or disable UI not used for plaintext editing
             HideItem("FormatToolbar");
@@ -362,7 +367,9 @@ var gEditorDocumentObserver =
         if (editor)
           try {
             editor.updateBaseURL();
-          } catch (e) { dump(e); }
+          } catch (e) {
+            dump(e);
+          }
         break;
 
       case "cmd_bold":
@@ -388,7 +395,9 @@ function EditorLoadUrl(url) {
       };
       GetCurrentEditorElement().webNavigation.loadURI(url, loadURIOptions);
     }
-  } catch (e) { dump(" EditorLoadUrl failed: " + e + "\n"); }
+  } catch (e) {
+    dump(" EditorLoadUrl failed: " + e + "\n");
+  }
 }
 
 // This should be called by all Composer types
@@ -420,7 +429,9 @@ function EditorSharedStartup() {
     //  we will observe just the bold command to trigger update of
     //  all toolbar style items
     commandManager.addCommandObserver(gEditorDocumentObserver, "cmd_bold");
-  } catch (e) { dump(e); }
+  } catch (e) {
+    dump(e);
+  }
 
   var isMac = AppConstants.platform == "macosx";
 
@@ -486,7 +497,9 @@ async function CheckAndSaveDocument(command, allowDontSave) {
     document = editor.document;
     if (!document)
       return true;
-  } catch (e) { return true; }
+  } catch (e) {
+    return true;
+  }
 
   if (!IsDocumentModified() && !IsHTMLSourceChanged())
     return true;
@@ -557,7 +570,7 @@ async function CheckAndSaveDocument(command, allowDontSave) {
     }
 
     // Save to local disk
-    return await SaveDocument(false, false, editor.contentsMIMEType);
+    return SaveDocument(false, false, editor.contentsMIMEType);
   }
 
   if (result == 2) // "Don't Save"
@@ -713,12 +726,9 @@ function onFontFaceChange(fontFaceMenuList, commandID) {
             break;
         }
       }
-    } else {
-      // Some other element type.
-      if (menuItem == usedFontsSep) {
-        // We have now passed the section of used fonts and are now in the list of all.
-        afterUsedFontSection = true;
-      }
+    } else if (menuItem == usedFontsSep) { // Some other element type.
+      // We have now passed the section of used fonts and are now in the list of all.
+      afterUsedFontSection = true;
     }
   }
 
@@ -782,7 +792,6 @@ function onFontFaceChange(fontFaceMenuList, commandID) {
 function ClearUsedFonts() {
   let userFontSeps = document.querySelectorAll("menuseparator.fontFaceMenuAfterDefaultFonts");
   for (let userFontSep of userFontSeps) {
-    let parentList = userFontSep.parentNode;
     while (true) {
       let nextNode = userFontSep.nextSibling;
       if (nextNode.tagName != "menuseparator") {
@@ -904,10 +913,7 @@ function initFontFaceMenu(menuPopup) {
           if (menuFont == editorFont) {
             menuItem.setAttribute("checked", "true");
             break;
-          }
-
-          // Next compare the individual options.
-          else if (editorFontOptions.length > 1) {
+          } else if (editorFontOptions.length > 1) { // Next compare the individual options.
             var matchPos = editorFontOptions.indexOf(menuFont);
             if (matchPos >= 0 && matchPos < matchedOption) {
               // This menu font comes earlier in the list of options,
@@ -952,7 +958,7 @@ function initLocalFontFaceMenu(menuPopup) {
                          .getService(Ci.nsIFontEnumerator);
       var localFontCount = { value: 0 };
       gLocalFonts = enumerator.EnumerateAllFonts(localFontCount);
-    } catch (e) { }
+    } catch (e) {}
   }
 
   // Don't use radios for menulists.
@@ -1242,6 +1248,7 @@ function SetSmiley(smileyText) {
   } catch (e) {}
 }
 
+/* eslint-disable complexity */
 function EditorSelectColor(colorType, mouseEvent) {
   var editor = GetCurrentEditor();
   if (!editor || !gColorObj)
@@ -1302,8 +1309,9 @@ function EditorSelectColor(colorType, mouseEvent) {
         gColorObj.Type = colorType;
       else if (gColorObj.Type != "Table")
         return;
-    } else if (colorType == "Table" && gColorObj.Type == "Page")
+    } else if (colorType == "Table" && gColorObj.Type == "Page") {
       return;
+    }
 
     if (colorType == "" && gColorObj.Type == "Cell") {
       // Using empty string for requested type means
@@ -1402,6 +1410,7 @@ function EditorSelectColor(colorType, mouseEvent) {
   }
   gContentWindow.focus();
 }
+/* eslint-enable complexity */
 
 function GetParentTable(element) {
   var node = element;
@@ -1491,8 +1500,9 @@ function GetObjectForProperties() {
       // If the object is a MathML element, we collapse the selection on it and
       // we return its <math> ancestor. Hence the math dialog will be used.
       GetCurrentEditor().selection.collapse(element, 0);
-    } else
+    } else {
       return element;
+    }
   }
 
   // Find nearest parent of selection anchor node
@@ -1555,7 +1565,11 @@ function SetEditMode(mode) {
   if (mode == kDisplayModeSource) {
     // Display the DOCTYPE as a non-editable string above edit area
     var domdoc;
-    try { domdoc = editor.document; } catch (e) { dump(e + "\n"); }
+    try {
+      domdoc = editor.document;
+    } catch (e) {
+      dump(e + "\n");
+    }
     if (domdoc) {
       var doctypeNode = document.getElementById("doctype-text");
       var dt = domdoc.doctype;
@@ -1569,8 +1583,9 @@ function SetEditMode(mode) {
             doctypeText += " \"" + dt.systemId;
           doctypeText += "\">";
           doctypeNode.setAttribute("value", doctypeText);
-        } else
+        } else {
           doctypeNode.collapsed = true;
+        }
       }
     }
     // Get the entire document's source string
@@ -1586,7 +1601,7 @@ function SetEditMode(mode) {
         case "html" : flags = kOutputEncodeHTMLEntities; break;
         case "none" : flags = 0; break;
       }
-    } catch (e) { }
+    } catch (e) {}
 
     if (Services.prefs.getBoolPref("editor.prettyprint"))
       flags |= kOutputFormatted;
@@ -1621,9 +1636,10 @@ function SetEditMode(mode) {
         // We are coming from edit source mode,
         //   so transfer that back into the document
         source = gSourceTextEditor.outputToString(kTextMimeType, kOutputLFLineBreak).trim();
-        if (editor.contentsMIMEType != kXHTMLMimeType)
+        if (editor.contentsMIMEType != kXHTMLMimeType) {
           editor.rebuildDocumentFromSource(source);
-        else {
+        } else {
+          /* eslint-disable-next-line no-unsanitized/method */
           var fragment = editor.document.createRange().createContextualFragment(source);
           editor.enableUndo(false);
           GetBodyElement().remove();
@@ -1789,11 +1805,13 @@ function UpdateWindowTitle() {
     // Set window title with " - Composer" or " - Text Editor" appended.
     var xulWin = document.documentElement;
 
-    document.title = (title || filename || gUntitledString) +
+    document.title = (title || filename || window.gUntitledString) +
                      windowTitle +
                      xulWin.getAttribute("titlemenuseparator") +
                      xulWin.getAttribute("titlemodifier");
-  } catch (e) { dump(e); }
+  } catch (e) {
+    dump(e);
+  }
 }
 
 function SaveRecentFilesPrefs(aTitle, aFileType) {
@@ -2059,7 +2077,9 @@ function EditorSetDefaultPrefsAndDoctype() {
   var domdoc;
   try {
     domdoc = editor.document;
-  } catch (e) { dump(e + "\n"); }
+  } catch (e) {
+    dump(e + "\n");
+  }
   if (!domdoc) {
     dump("EditorSetDefaultPrefsAndDoctype: EDITOR DOCUMENT NOT FOUND\n");
     return;
@@ -2146,7 +2166,9 @@ function EditorSetDefaultPrefsAndDoctype() {
       let background_image = Services.prefs.getCharPref("editor.default_background_image");
       if (background_image)
         editor.setAttributeOrEquivalent(bodyelement, "background", background_image, true);
-    } catch (e) { dump("BACKGROUND EXCEPTION: " + e + "\n"); }
+    } catch (e) {
+      dump("BACKGROUND EXCEPTION: " + e + "\n");
+    }
   }
   // auto-save???
 }
@@ -2415,13 +2437,11 @@ function goUpdateTableMenuItems(commandset) {
           commandID == "cmd_ConvertToTable") {
         // Call the update method in the command class
         goUpdateCommand(commandID);
-      }
-      // Directly set with the values calculated here
-      else if (commandID == "cmd_DeleteTable" ||
-               commandID == "cmd_NormalizeTable" ||
-               commandID == "cmd_editTable" ||
-               commandID == "cmd_TableOrCellColor" ||
-               commandID == "cmd_SelectTable") {
+      } else if (commandID == "cmd_DeleteTable" ||
+                 commandID == "cmd_NormalizeTable" ||
+                 commandID == "cmd_editTable" ||
+                 commandID == "cmd_TableOrCellColor" ||
+                 commandID == "cmd_SelectTable") { // Directly set with the values calculated here
         goSetCommandEnabled(commandID, enabledIfTable);
       } else {
         goSetCommandEnabled(commandID, enabled);
@@ -2634,9 +2654,9 @@ function FindEditorWithInsertCharDialog() {
 }
 
 function EditorFindOrCreateInsertCharWindow() {
-  if ("InsertCharWindow" in window && window.InsertCharWindow)
+  if ("InsertCharWindow" in window && window.InsertCharWindow) {
     window.InsertCharWindow.focus();
-  else {
+  } else {
     // Since we switch the dialog during EditorOnFocus(),
     //   this should really never be found, but it's good to be sure
     var windowWithDialog = FindEditorWithInsertCharDialog();
@@ -2686,6 +2706,7 @@ function newCommandListener(element) {
 }
 
 function newContextmenuListener(button, element) {
+  /* globals InitStructBarContextMenu */// SeaMonkey only.
   return function() { return InitStructBarContextMenu(button, element); };
 }
 
@@ -2767,10 +2788,13 @@ function GetSelectionContainer() {
   var editor = GetCurrentEditor();
   if (!editor) return null;
 
+  var selection;
   try {
-    var selection = editor.selection;
+    selection = editor.selection;
     if (!selection) return null;
-  } catch (e) { return null; }
+  } catch (e) {
+    return null;
+  }
 
   var result = { oneElementSelected: false };
 

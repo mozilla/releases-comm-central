@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../composer/content/editorUtilities.js */
+/* import-globals-from EdAdvancedEdit.js */
+/* import-globals-from EdDialogCommon.js */
+
 function BuildJSEAttributeNameList() {
   gDialog.AddJSEAttributeNameList.removeAllItems();
 
@@ -46,8 +50,9 @@ function BuildJSEAttributeNameList() {
 
       if (popup && sep)
         popup.appendChild(sep);
-    } else
+    } else {
       gDialog.AddJSEAttributeNameList.appendItem(gCoreJSEvents[i], gCoreJSEvents[i]);
+    }
   }
 
   gDialog.AddJSEAttributeNameList.selectedIndex = 0;

@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../composer/content/editorUtilities.js */
+/* import-globals-from EdDialogCommon.js */
+
 var labelElement;
 
 // dialog initialization code
@@ -41,8 +44,9 @@ function Startup() {
       () => Services.prompt.alert(window, GetString("Alert"), GetString("EditTextWarning")),
       {capture: false, once: true});
     SetTextboxFocus(gDialog.labelFor);
-  } else
+  } else {
     SetTextboxFocus(gDialog.labelText);
+  }
 
   SetWindowLocation();
 }

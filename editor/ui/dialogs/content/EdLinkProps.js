@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../composer/content/editorUtilities.js */
+/* import-globals-from EdDialogCommon.js */
+
 var gActiveEditor;
 var anchorElement = null;
 var imageElement = null;
@@ -16,7 +19,6 @@ var gHaveNamedAnchors = false;
 var gHaveHeadings = false;
 var gCanChangeHeadingSelected = true;
 var gCanChangeAnchorSelected = true;
-var gHaveDocumentUrl = false;
 
 // NOTE: Use "href" instead of "a" to distinguish from Named Anchor
 // The returned node is has an "a" tagName
@@ -232,9 +234,9 @@ function ValidateData() {
     //  but it makes sense to validate it
     newLinkText = TrimString(gDialog.linkTextInput.value);
     if (!newLinkText) {
-      if (href)
+      if (href) {
         newLinkText = href;
-      else {
+      } else {
         ShowInputErrorMessage(GetString("EmptyLinkTextError"));
         SetTextboxFocus(gDialog.linkTextInput);
         return false;

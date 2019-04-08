@@ -5,10 +5,14 @@
 
 /* Implementations of nsIControllerCommand for composer commands */
 
+// Linting is disabled in chunks of this file because it contains code that never
+// runs in Thunderbird, and references things that don't exist in Thunderbird.
+
+/* import-globals-from editor.js */
+/* import-globals-from editorUtilities.js */
+
 var gComposerJSCommandControllerID = 0;
 
-
-// -----------------------------------------------------------------------------------
 function SetupHTMLEditorCommands() {
   var commandTable = GetComposerCommandTable();
   if (!commandTable)
@@ -171,7 +175,6 @@ function SetupComposerWindowCommands() {
   gComposerWindowControllerID = windowControllers.getControllerId(editorController);
 }
 
-// -----------------------------------------------------------------------------------
 function GetComposerCommandTable() {
   var controller;
   if (gComposerJSCommandControllerID) {
@@ -198,7 +201,7 @@ function GetComposerCommandTable() {
   return null;
 }
 
-// -----------------------------------------------------------------------------------
+/* eslint-disable complexity */
 function goUpdateCommandState(command) {
   try {
     var controller = top.document.commandDispatcher.getControllerForCommand(command);
@@ -257,8 +260,11 @@ function goUpdateCommandState(command) {
 
       default: dump("no update for command: " + command + "\n");
     }
-  } catch (e) { dump("An error occurred updating the " + command + " command: \n" + e + "\n"); }
+  } catch (e) {
+    dump("An error occurred updating the " + command + " command: \n" + e + "\n");
+  }
 }
+/* eslint-enable complexity */
 
 function goUpdateComposerMenuItems(commandset) {
   // dump("Updating commands for " + commandset.id + "\n");
@@ -274,7 +280,6 @@ function goUpdateComposerMenuItems(commandset) {
   }
 }
 
-// -----------------------------------------------------------------------------------
 function goDoCommandParams(command, params) {
   try {
     var controller = top.document.commandDispatcher.getControllerForCommand(command);
@@ -296,16 +301,18 @@ function goDoCommandParams(command, params) {
 }
 
 function pokeStyleUI(uiID, aDesiredState) {
- try {
-  var commandNode = top.document.getElementById(uiID);
-  if (!commandNode)
-    return;
+  try {
+    var commandNode = top.document.getElementById(uiID);
+    if (!commandNode)
+      return;
 
-  var uiState = ("true" == commandNode.getAttribute("state"));
-  if (aDesiredState != uiState) {
-    commandNode.setAttribute("state", aDesiredState ? "true" : "false");
+    var uiState = ("true" == commandNode.getAttribute("state"));
+    if (aDesiredState != uiState) {
+      commandNode.setAttribute("state", aDesiredState ? "true" : "false");
+    }
+  } catch (e) {
+    dump("poking UI for " + uiID + " failed: " + e + "\n");
   }
- } catch (e) { dump("poking UI for " + uiID + " failed: " + e + "\n"); }
 }
 
 function doStyleUICommand(cmdStr) {
@@ -336,9 +343,9 @@ function pokeMultiStateUI(uiID, cmdParams) {
 
     var isMixed = cmdParams.getBooleanValue("state_mixed");
     var desiredAttrib;
-    if (isMixed)
+    if (isMixed) {
       desiredAttrib = "mixed";
-    else {
+    } else {
       var valuetype = cmdParams.getValueType("state_attribute");
       if (valuetype == Ci.nsICommandParams.eStringType) {
         desiredAttrib = cmdParams.getCStringValue("state_attribute");
@@ -372,10 +379,11 @@ function doStatefulCommand(commandID, newState) {
     pokeMultiStateUI(commandID, cmdParams);
 
     ResetStructToolbar();
-  } catch (e) { dump("error thrown in doStatefulCommand: " + e + "\n"); }
+  } catch (e) {
+    dump("error thrown in doStatefulCommand: " + e + "\n");
+  }
 }
 
-// -----------------------------------------------------------------------------------
 function PrintObject(obj) {
   dump("-----" + obj + "------\n");
   var names = "";
@@ -391,14 +399,11 @@ function PrintObject(obj) {
   dump(names + "-----------\n");
 }
 
-// -----------------------------------------------------------------------------------
 function PrintNodeID(id) {
   PrintObject(document.getElementById(id));
 }
 
-// -----------------------------------------------------------------------------------
-var nsDummyHTMLCommand =
-{
+var nsDummyHTMLCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
@@ -413,9 +418,8 @@ var nsDummyHTMLCommand =
 
 };
 
-// -----------------------------------------------------------------------------------
-var nsOpenCommand =
-{
+/* eslint-disable */
+var nsOpenCommand = {
   isCommandEnabled(aCommand, dummy) {
     return true;    // we can always do this
   },
@@ -452,11 +456,11 @@ var nsOpenCommand =
     });
   },
 };
+/* eslint-enable */
 
 // STRUCTURE TOOLBAR
 //
-var nsUpdateStructToolbarCommand =
-{
+var nsUpdateStructToolbarCommand = {
   isCommandEnabled(aCommand, dummy) {
     UpdateStructToolbar();
     return true;
@@ -468,9 +472,7 @@ var nsUpdateStructToolbarCommand =
 };
 
 // ******* File output commands and utilities ******** //
-// -----------------------------------------------------------------------------------
-var nsSaveCommand =
-{
+var nsSaveCommand = {
   isCommandEnabled(aCommand, dummy) {
     // Always allow saving when editing a remote document,
     //  otherwise the document modified state would prevent that
@@ -480,7 +482,9 @@ var nsSaveCommand =
       return IsDocumentEditable() &&
         (IsDocumentModified() || IsHTMLSourceChanged() ||
          IsUrlAboutBlank(docUrl) || GetScheme(docUrl) != "file");
-    } catch (e) { return false; }
+    } catch (e) {
+      return false;
+    }
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -496,8 +500,7 @@ var nsSaveCommand =
   },
 };
 
-var nsSaveAsCommand =
-{
+var nsSaveAsCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable());
   },
@@ -515,8 +518,7 @@ var nsSaveAsCommand =
   },
 };
 
-var nsExportToTextCommand =
-{
+var nsExportToTextCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable());
   },
@@ -532,8 +534,7 @@ var nsExportToTextCommand =
   },
 };
 
-var nsSaveAndChangeEncodingCommand =
-{
+var nsSaveAndChangeEncodingCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable());
   },
@@ -562,8 +563,8 @@ var nsSaveAndChangeEncodingCommand =
   },
 };
 
-var nsPublishCommand =
-{
+/* eslint-disable */
+var nsPublishCommand = {
   isCommandEnabled(aCommand, dummy) {
     if (IsDocumentEditable()) {
       // Always allow publishing when editing a local document,
@@ -573,7 +574,9 @@ var nsPublishCommand =
         var docUrl = GetDocumentUrl();
         return IsDocumentModified() || IsHTMLSourceChanged()
                || IsUrlAboutBlank(docUrl) || GetScheme(docUrl) == "file";
-      } catch (e) { return false; }
+      } catch (e) {
+        return false;
+      }
     }
     return false;
   },
@@ -620,9 +623,9 @@ var nsPublishCommand =
     return false;
   },
 };
+/* eslint-enable */
 
-var nsPublishAsCommand =
-{
+var nsPublishAsCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable());
   },
@@ -763,7 +766,7 @@ function PromptForSaveLocation(aDoSaveAsText, aEditorType, aMIMEType, aDocumentU
   return new Promise(resolve => {
     fp.open(rv => {
       dialogResult.filepickerClick = rv;
-      if (rv != nsIFilePicker.returnCancel && fp.file) {  // Allow OK and replace.
+      if (rv != nsIFilePicker.returnCancel && fp.file) { // Allow OK and replace.
         // reset urlstring to new save location
         dialogResult.resultingURIString = fileHandler.getURLSpecFromFile(fp.file);
         dialogResult.resultingLocalFile = fp.file;
@@ -818,7 +821,7 @@ function OutputFileWithPersistAPI(editorDoc, aDestinationLocation, aRelatedFiles
 
   var isLocalFile = false;
   try {
-    var tmp1 = aDestinationLocation.QueryInterface(Ci.nsIFile);
+    aDestinationLocation.QueryInterface(Ci.nsIFile);
     isLocalFile = true;
   } catch (e) {
     try {
@@ -837,8 +840,7 @@ function OutputFileWithPersistAPI(editorDoc, aDestinationLocation, aRelatedFiles
 
     // for 4.x parity as well as improving readability of file locally on server
     // this will always send crlf for upload (http/ftp)
-    if (!isLocalFile) // if we aren't saving locally then send both cr and lf
-    {
+    if (!isLocalFile) { // if we aren't saving locally then send both cr and lf
       outputFlags |= webPersist.ENCODE_FLAGS_CR_LINEBREAKS | webPersist.ENCODE_FLAGS_LF_LINEBREAKS;
 
       // we want to serialize the output for all remote publishing
@@ -859,7 +861,10 @@ function OutputFileWithPersistAPI(editorDoc, aDestinationLocation, aRelatedFiles
     persistObj.saveDocument(editorDoc, aDestinationLocation, aRelatedFilesParentDir,
                             aMimeType, outputFlags, wrapColumn);
     gPersistObj = persistObj;
-  } catch (e) { dump("caught an error, bail\n"); return false; }
+  } catch (e) {
+    dump("caught an error, bail\n");
+    return false;
+  }
 
   return true;
 }
@@ -920,8 +925,9 @@ const kErrorBindingAborted = 2152398850;
 const kErrorBindingRedirected = 2152398851;
 const kFileNotFound = 2152857618;
 
-var gEditorOutputProgressListener =
-{
+/* eslint-disable */
+var gEditorOutputProgressListener = {
+  /* eslint-disable complexity */
   onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
     var editor = GetCurrentEditor();
 
@@ -1047,8 +1053,7 @@ var gEditorOutputProgressListener =
           && (!gPersistObj || gPersistObj.currentState == nsIWebBrowserPersist.PERSIST_STATE_FINISHED)) {
         aStateFlags |= nsIWebProgressListener.STATE_IS_NETWORK;
         if (!gPersistObj) {
-          gPersistObj =
-          {
+          gPersistObj = {
             result: aStatus,
             currentState: nsIWebBrowserPersist.PERSIST_STATE_FINISHED,
           };
@@ -1088,8 +1093,9 @@ var gEditorOutputProgressListener =
               //  save docDir and otherDir to prefs
               gPublishData.saveDirs = true;
               SavePublishDataToPrefs(gPublishData);
-            } else
+            } else {
               SavePassword(gPublishData);
+            }
           }
 
           // Ask progress dialog to close, but it may not
@@ -1104,6 +1110,7 @@ var gEditorOutputProgressListener =
       }
     }
   },
+  /* eslint-enable complexity */
 
   onProgressChange(aWebProgress, aRequest, aCurSelfProgress,
                               aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress) {
@@ -1144,7 +1151,9 @@ var gEditorOutputProgressListener =
       try {
         var channel = aRequest.QueryInterface(nsIChannel);
         dump("*****        request: " + channel.URI.spec + "\n");
-      } catch (e) { dump("          couldn't get request\n"); }
+      } catch (e) {
+        dump("          couldn't get request\n");
+      }
 
       DumpDebugStatus(aStatus);
 
@@ -1176,7 +1185,7 @@ var gEditorOutputProgressListener =
                                           "nsIPrompt",
                                           "nsIAuthPrompt"]),
 
-// nsIPrompt
+  // nsIPrompt
   alert(dlgTitle, text) {
     Services.prompt.alert(gProgressDialog ? gProgressDialog : window, dlgTitle, text);
   },
@@ -1245,7 +1254,7 @@ var gEditorOutputProgressListener =
     return Services.prompt.select(window, dlgTitle, text, count, selectList, outSelection);
   },
 
-// nsIAuthPrompt
+  // nsIAuthPrompt
   prompt(dlgTitle, text, pwrealm, savePW, defaultText, result) {
     var ret = Services.prompt.prompt(gProgressDialog ? gProgressDialog : window,
                                      dlgTitle, text, defaultText, pwrealm, savePWObj);
@@ -1286,6 +1295,7 @@ var gEditorOutputProgressListener =
     return ret;
   },
 };
+/* eslint-enable */
 
 function PromptUsernameAndPassword(dlgTitle, text, savePW, userObj, pwObj) {
   // HTTP prompts us twice even if user Cancels from 1st attempt!
@@ -1316,6 +1326,7 @@ function PromptUsernameAndPassword(dlgTitle, text, savePW, userObj, pwObj) {
   return ret;
 }
 
+/* eslint-disable complexity */
 function DumpDebugStatus(aStatus) {
   // see nsError.h and netCore.h and ftpCore.h
 
@@ -1392,6 +1403,7 @@ function DumpDebugStatus(aStatus) {
   else
     dump("***** status is " + aStatus + "\n");
 }
+/* eslint-enable complexity */
 
 // Update any data that the user supplied in a prompt dialog
 function UpdateUsernamePasswordFromPrompt(publishData, username, password, savePassword) {
@@ -1410,8 +1422,7 @@ function UpdateUsernamePasswordFromPrompt(publishData, username, password, saveP
   publishData.savePassword = savePassword;
 }
 
-const kSupportedTextMimeTypes =
-[
+const kSupportedTextMimeTypes = [
   "text/plain",
   "text/css",
   "text/rdf",
@@ -1433,6 +1444,8 @@ function IsSupportedTextMimeType(aMimeType) {
   return false;
 }
 
+/* eslint-disable */
+/* eslint-disable complexity */
 // throws an error or returns true if user attempted save; false if user canceled save
 async function SaveDocument(aSaveAs, aSaveCopy, aMimeType) {
   var editor = GetCurrentEditor();
@@ -1445,7 +1458,7 @@ async function SaveDocument(aSaveAs, aSaveCopy, aMimeType) {
 
   // if we don't have the right editor type bail (we handle text and html)
   var editorType = GetCurrentEditorType();
-  if (["text", "html", "htmlmail", "textmail"].indexOf(editorType) == -1)
+  if (!["text", "html", "htmlmail", "textmail"].includes(editorType))
     throw Cr.NS_ERROR_NOT_IMPLEMENTED;
 
   var saveAsTextFile = IsSupportedTextMimeType(aMimeType);
@@ -1464,8 +1477,6 @@ async function SaveDocument(aSaveAs, aSaveCopy, aMimeType) {
   if (!mustShowFileDialog && GetScheme(urlstring) != "file")
     mustShowFileDialog = true;
 
-  var replacing = !aSaveAs;
-  var titleChanged = false;
   var doUpdateURI = false;
   var tempLocalFile = null;
 
@@ -1540,7 +1551,9 @@ async function SaveDocument(aSaveAs, aSaveCopy, aMimeType) {
             relatedFilesDir = Services.io.newURI(relatedFilesDirString, editor.documentCharacterSet);
           }
         }
-      } catch (e) { relatedFilesDir = null; }
+      } catch (e) {
+        relatedFilesDir = null;
+      }
     }
 
     let destinationLocation = tempLocalFile ? tempLocalFile : docURI;
@@ -1578,14 +1591,17 @@ async function SaveDocument(aSaveAs, aSaveCopy, aMimeType) {
   }
   return success;
 }
+/* eslint-enable complexity */
+/* eslint-enable */
 
 function SetDocumentURI(uri) {
   try {
     // XXX WE'LL NEED TO GET "CURRENT" CONTENT FRAME ONCE MULTIPLE EDITORS ARE ALLOWED
     GetCurrentEditorElement().docShell.setCurrentURI(uri);
-  } catch (e) { dump("SetDocumentURI:\n" + e + "\n"); }
+  } catch (e) {
+    dump("SetDocumentURI:\n" + e + "\n");
+  }
 }
-
 
 // -------------------------------  Publishing
 var gPublishData;
@@ -1695,8 +1711,9 @@ function CancelPublishing() {
     // Close Progress dialog
     // (this will call FinishPublishing())
     gProgressDialog.CloseDialog();
-  } else
+  } else {
     FinishPublishing();
+  }
 }
 
 function FinishPublishing() {
@@ -1713,6 +1730,7 @@ function FinishPublishing() {
   }
 }
 
+/* eslint-disable */
 // Create a nsIURI object filled in with all required publishing info
 function CreateURIFromPublishData(publishData, doDocUri) {
   if (!publishData || !publishData.publishUrl)
@@ -1744,7 +1762,6 @@ function GetDocUrlFromPublishData(publishData) {
 
   // If user was previously editing an "ftp" url, then keep that as the new scheme
   var url;
-  var docScheme = GetScheme(GetDocumentUrl());
 
   // Always use the "HTTP" address if available
   // XXX Should we do some more validation here for bad urls???
@@ -1761,6 +1778,7 @@ function GetDocUrlFromPublishData(publishData) {
 
   return url;
 }
+/* eslint-enable */
 
 function SetSaveAndPublishUI(urlstring) {
   // Be sure enabled state of toolbar buttons are correct
@@ -1785,9 +1803,7 @@ function SetDocumentEditable(isDocEditable) {
 
 // ****** end of save / publish **********//
 
-// -----------------------------------------------------------------------------------
-var nsPublishSettingsCommand =
-{
+var nsPublishSettingsCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable());
   },
@@ -1806,9 +1822,7 @@ var nsPublishSettingsCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsRevertCommand =
-{
+var nsRevertCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() &&
             IsDocumentModified() &&
@@ -1837,9 +1851,7 @@ var nsRevertCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsCloseCommand =
-{
+var nsCloseCommand = {
   isCommandEnabled(aCommand, dummy) {
     return GetCurrentEditor() != null;
   },
@@ -1871,9 +1883,8 @@ async function CloseWindow() {
   }
 }
 
-// -----------------------------------------------------------------------------------
-var nsOpenRemoteCommand =
-{
+/* eslint-disable */
+var nsOpenRemoteCommand = {
   isCommandEnabled(aCommand, dummy) {
     return true;    // we can always do this
   },
@@ -1910,10 +1921,9 @@ var nsOpenRemoteCommand =
     }
   },
 };
+/* eslint-enable */
 
-// -----------------------------------------------------------------------------------
-var nsPreviewCommand =
-{
+var nsPreviewCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() &&
             IsHTMLEditor() &&
@@ -1959,9 +1969,8 @@ var nsPreviewCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsSendPageCommand =
-{
+/* eslint-disable */
+var nsSendPageCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() &&
             (DocumentHasBeenSaved() || IsDocumentModified()));
@@ -1981,14 +1990,15 @@ var nsSendPageCommand =
       // Launch Messenger Composer window with current page as contents
       try {
         openComposeWindow(GetDocumentUrl(), GetDocumentTitle());
-      } catch (ex) { dump("Cannot Send Page: " + ex + "\n"); }
+      } catch (ex) {
+        dump("Cannot Send Page: " + ex + "\n");
+      }
     }
   },
 };
+/* eslint-enable */
 
-// -----------------------------------------------------------------------------------
-var nsPrintCommand =
-{
+var nsPrintCommand = {
   isCommandEnabled(aCommand, dummy) {
     return true;    // we can always do this
   },
@@ -2006,9 +2016,8 @@ var nsPrintCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsPrintPreviewCommand =
-{
+/* eslint-disable */
+var nsPrintPreviewCommand = {
   isCommandEnabled(aCommand, dummy) {
     return true;    // we can always do this
   },
@@ -2024,10 +2033,9 @@ var nsPrintPreviewCommand =
     } catch (e) {}
   },
 };
+/* eslint-enable */
 
-// -----------------------------------------------------------------------------------
-var nsPrintSetupCommand =
-{
+var nsPrintSetupCommand = {
   isCommandEnabled(aCommand, dummy) {
     return true;    // we can always do this
   },
@@ -2042,9 +2050,7 @@ var nsPrintSetupCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsFindReplaceCommand =
-{
+var nsFindReplaceCommand = {
   isCommandEnabled(aCommand, editorElement) {
     return editorElement.getEditor(editorElement.contentWindow) != null;
   },
@@ -2058,9 +2064,7 @@ var nsFindReplaceCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsFindCommand =
-{
+var nsFindCommand = {
   isCommandEnabled(aCommand, editorElement) {
     return editorElement.getEditor(editorElement.contentWindow) != null;
   },
@@ -2073,9 +2077,7 @@ var nsFindCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsFindAgainCommand =
-{
+var nsFindAgainCommand = {
   isCommandEnabled(aCommand, editorElement) {
     // we can only do this if the search pattern is non-empty. Not sure how
     // to get that from here
@@ -2091,9 +2093,7 @@ var nsFindAgainCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsRewrapCommand =
-{
+var nsRewrapCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && !IsInHTMLSourceMode() &&
             GetCurrentEditor() instanceof Ci.nsIEditorMailSupport);
@@ -2107,9 +2107,7 @@ var nsRewrapCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsSpellingCommand =
-{
+var nsSpellingCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() &&
             !IsInHTMLSourceMode() && IsSpellCheckerInstalled());
@@ -2130,8 +2128,7 @@ var nsSpellingCommand =
 
 // Validate using http://validator.w3.org/file-upload.html
 var URL2Validate;
-var nsValidateCommand =
-{
+var nsValidateCommand = {
   isCommandEnabled(aCommand, dummy) {
     return GetCurrentEditor() != null;
   },
@@ -2158,7 +2155,9 @@ var nsValidateCommand =
       var fileHandler = GetFileProtocolHandler();
       ifile = fileHandler.getFileFromURLSpec(URL2Validate);
       // nsIFile throws an exception if it's not a file url
-    } catch (e) { ifile = null; }
+    } catch (e) {
+      ifile = null;
+    }
     if (ifile) {
       URL2Validate = ifile.path;
       var vwin = window.open("http://validator.w3.org/file-upload.html",
@@ -2166,10 +2165,8 @@ var nsValidateCommand =
       // Window loads asynchronously, so pass control to the load listener:
       vwin.addEventListener("load", this.validateFilePageLoaded);
     } else {
-      var vwin2 = window.open("http://validator.w3.org/check?uri="
-                              + URL2Validate
-                              + "&doctype=Inline",
-                              "EditorValidate");
+      window.open(`http://validator.w3.org/check?uri=${URL2Validate}&doctype=Inline`,
+                  "EditorValidate");
       // This does the validation, no need to wait for page loaded.
     }
   },
@@ -2178,8 +2175,7 @@ var nsValidateCommand =
   },
 };
 
-var nsCheckLinksCommand =
-{
+var nsCheckLinksCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable());
   },
@@ -2192,9 +2188,7 @@ var nsCheckLinksCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsFormCommand =
-{
+var nsFormCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
@@ -2207,9 +2201,7 @@ var nsFormCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsInputTagCommand =
-{
+var nsInputTagCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
@@ -2222,9 +2214,7 @@ var nsInputTagCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsInputImageCommand =
-{
+var nsInputImageCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
@@ -2237,9 +2227,7 @@ var nsInputImageCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsTextAreaCommand =
-{
+var nsTextAreaCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
@@ -2252,9 +2240,7 @@ var nsTextAreaCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsSelectCommand =
-{
+var nsSelectCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
@@ -2267,9 +2253,7 @@ var nsSelectCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsButtonCommand =
-{
+var nsButtonCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
@@ -2282,9 +2266,7 @@ var nsButtonCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsLabelCommand =
-{
+var nsLabelCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
@@ -2312,9 +2294,7 @@ var nsLabelCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsFieldSetCommand =
-{
+var nsFieldSetCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
@@ -2327,9 +2307,7 @@ var nsFieldSetCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsIsIndexCommand =
-{
+var nsIsIndexCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
@@ -2347,9 +2325,7 @@ var nsIsIndexCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsImageCommand =
-{
+var nsImageCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
@@ -2362,9 +2338,7 @@ var nsImageCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsHLineCommand =
-{
+var nsHLineCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
@@ -2383,7 +2357,9 @@ var nsHLineCommand =
     var hLine;
     try {
       hLine = editor.getSelectedElement(tagName);
-    } catch (e) { return; }
+    } catch (e) {
+      return;
+    }
 
     if (hLine) {
       // We only open the dialog for an existing HRule
@@ -2421,9 +2397,7 @@ var nsHLineCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsLinkCommand =
-{
+var nsLinkCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
@@ -2442,9 +2416,7 @@ var nsLinkCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsAnchorCommand =
-{
+var nsAnchorCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
@@ -2457,9 +2429,7 @@ var nsAnchorCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsInsertHTMLWithDialogCommand =
-{
+var nsInsertHTMLWithDialogCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
@@ -2472,9 +2442,7 @@ var nsInsertHTMLWithDialogCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsInsertMathWithDialogCommand =
-{
+var nsInsertMathWithDialogCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
@@ -2487,9 +2455,7 @@ var nsInsertMathWithDialogCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsInsertCharsCommand =
-{
+var nsInsertCharsCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable());
   },
@@ -2502,9 +2468,7 @@ var nsInsertCharsCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsInsertBreakCommand =
-{
+var nsInsertBreakCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
@@ -2519,9 +2483,7 @@ var nsInsertBreakCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsInsertBreakAllCommand =
-{
+var nsInsertBreakAllCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
@@ -2536,9 +2498,7 @@ var nsInsertBreakAllCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsGridCommand =
-{
+var nsGridCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
@@ -2551,10 +2511,7 @@ var nsGridCommand =
   },
 };
 
-
-// -----------------------------------------------------------------------------------
-var nsListPropertiesCommand =
-{
+var nsListPropertiesCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
@@ -2567,10 +2524,7 @@ var nsListPropertiesCommand =
   },
 };
 
-
-// -----------------------------------------------------------------------------------
-var nsPagePropertiesCommand =
-{
+var nsPagePropertiesCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
@@ -2589,9 +2543,7 @@ var nsPagePropertiesCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsObjectPropertiesCommand =
-{
+var nsObjectPropertiesCommand = {
   isCommandEnabled(aCommand, dummy) {
     var isEnabled = false;
     if (IsDocumentEditable() && IsEditingRenderedHTML()) {
@@ -2679,10 +2631,7 @@ var nsObjectPropertiesCommand =
   },
 };
 
-
-// -----------------------------------------------------------------------------------
-var nsSetSmiley =
-{
+var nsSetSmiley = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
@@ -2740,7 +2689,6 @@ var nsSetSmiley =
 
     try {
       var editor = GetCurrentEditor();
-      var selection = editor.selection;
       var extElement = editor.createElementWithDefaults("span");
       extElement.setAttribute("class", "moz-smiley-" + strSml);
 
@@ -2766,15 +2714,13 @@ var nsSetSmiley =
   doCommand(aCommand) {},
 };
 
-
 function doAdvancedProperties(element) {
   if (element) {
     window.openDialog("chrome://editor/content/EdAdvancedEdit.xul", "_blank", "chrome,close,titlebar,modal,resizable=yes", "", element);
   }
 }
 
-var nsAdvancedPropertiesCommand =
-{
+var nsAdvancedPropertiesCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
@@ -2791,9 +2737,7 @@ var nsAdvancedPropertiesCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsColorPropertiesCommand =
-{
+var nsColorPropertiesCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
@@ -2807,9 +2751,7 @@ var nsColorPropertiesCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsIncreaseFontCommand =
-{
+var nsIncreaseFontCommand = {
   isCommandEnabled(aCommand, dummy) {
     if (!(IsDocumentEditable() && IsEditingRenderedHTML()))
       return false;
@@ -2829,9 +2771,7 @@ var nsIncreaseFontCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsDecreaseFontCommand =
-{
+var nsDecreaseFontCommand = {
   isCommandEnabled(aCommand, dummy) {
     if (!(IsDocumentEditable() && IsEditingRenderedHTML()))
       return false;
@@ -2851,9 +2791,7 @@ var nsDecreaseFontCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsRemoveNamedAnchorsCommand =
-{
+var nsRemoveNamedAnchorsCommand = {
   isCommandEnabled(aCommand, dummy) {
     // We could see if there's any link in selection, but it doesn't seem worth the work!
     return (IsDocumentEditable() && IsEditingRenderedHTML());
@@ -2868,10 +2806,8 @@ var nsRemoveNamedAnchorsCommand =
   },
 };
 
-
-// -----------------------------------------------------------------------------------
-var nsEditLinkCommand =
-{
+/* eslint-disable */
+var nsEditLinkCommand = {
   isCommandEnabled(aCommand, dummy) {
     // Not really used -- this command is only in context menu, and we do enabling there
     return (IsDocumentEditable() && IsEditingRenderedHTML());
@@ -2889,11 +2825,9 @@ var nsEditLinkCommand =
     window.content.focus();
   },
 };
+/* eslint-enable */
 
-
-// -----------------------------------------------------------------------------------
-var nsNormalModeCommand =
-{
+var nsNormalModeCommand = {
   isCommandEnabled(aCommand, dummy) {
     return IsHTMLEditor() && IsDocumentEditable();
   },
@@ -2906,8 +2840,7 @@ var nsNormalModeCommand =
   },
 };
 
-var nsAllTagsModeCommand =
-{
+var nsAllTagsModeCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsHTMLEditor());
   },
@@ -2920,8 +2853,7 @@ var nsAllTagsModeCommand =
   },
 };
 
-var nsHTMLSourceModeCommand =
-{
+var nsHTMLSourceModeCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsHTMLEditor());
   },
@@ -2934,8 +2866,7 @@ var nsHTMLSourceModeCommand =
   },
 };
 
-var nsPreviewModeCommand =
-{
+var nsPreviewModeCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsHTMLEditor());
   },
@@ -2948,9 +2879,7 @@ var nsPreviewModeCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsInsertOrEditTableCommand =
-{
+var nsInsertOrEditTableCommand = {
   isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
@@ -2966,9 +2895,7 @@ var nsInsertOrEditTableCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsEditTableCommand =
-{
+var nsEditTableCommand = {
   isCommandEnabled(aCommand, dummy) {
     return IsInTable();
   },
@@ -2981,9 +2908,7 @@ var nsEditTableCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsSelectTableCommand =
-{
+var nsSelectTableCommand = {
   isCommandEnabled(aCommand, dummy) {
     return IsInTable();
   },
@@ -2999,8 +2924,7 @@ var nsSelectTableCommand =
   },
 };
 
-var nsSelectTableRowCommand =
-{
+var nsSelectTableRowCommand = {
   isCommandEnabled(aCommand, dummy) {
     return IsInTableCell();
   },
@@ -3016,8 +2940,7 @@ var nsSelectTableRowCommand =
   },
 };
 
-var nsSelectTableColumnCommand =
-{
+var nsSelectTableColumnCommand = {
   isCommandEnabled(aCommand, dummy) {
     return IsInTableCell();
   },
@@ -3033,8 +2956,7 @@ var nsSelectTableColumnCommand =
   },
 };
 
-var nsSelectTableCellCommand =
-{
+var nsSelectTableCellCommand = {
   isCommandEnabled(aCommand, dummy) {
     return IsInTableCell();
   },
@@ -3050,8 +2972,7 @@ var nsSelectTableCellCommand =
   },
 };
 
-var nsSelectAllTableCellsCommand =
-{
+var nsSelectAllTableCellsCommand = {
   isCommandEnabled(aCommand, dummy) {
     return IsInTable();
   },
@@ -3067,9 +2988,7 @@ var nsSelectAllTableCellsCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsInsertTableCommand =
-{
+var nsInsertTableCommand = {
   isCommandEnabled(aCommand, dummy) {
     return IsDocumentEditable() && IsEditingRenderedHTML();
   },
@@ -3082,8 +3001,7 @@ var nsInsertTableCommand =
   },
 };
 
-var nsInsertTableRowAboveCommand =
-{
+var nsInsertTableRowAboveCommand = {
   isCommandEnabled(aCommand, dummy) {
     return IsInTableCell();
   },
@@ -3099,8 +3017,7 @@ var nsInsertTableRowAboveCommand =
   },
 };
 
-var nsInsertTableRowBelowCommand =
-{
+var nsInsertTableRowBelowCommand = {
   isCommandEnabled(aCommand, dummy) {
     return IsInTableCell();
   },
@@ -3116,8 +3033,7 @@ var nsInsertTableRowBelowCommand =
   },
 };
 
-var nsInsertTableColumnBeforeCommand =
-{
+var nsInsertTableColumnBeforeCommand = {
   isCommandEnabled(aCommand, dummy) {
     return IsInTableCell();
   },
@@ -3133,8 +3049,7 @@ var nsInsertTableColumnBeforeCommand =
   },
 };
 
-var nsInsertTableColumnAfterCommand =
-{
+var nsInsertTableColumnAfterCommand = {
   isCommandEnabled(aCommand, dummy) {
     return IsInTableCell();
   },
@@ -3150,8 +3065,7 @@ var nsInsertTableColumnAfterCommand =
   },
 };
 
-var nsInsertTableCellBeforeCommand =
-{
+var nsInsertTableCellBeforeCommand = {
   isCommandEnabled(aCommand, dummy) {
     return IsInTableCell();
   },
@@ -3167,8 +3081,7 @@ var nsInsertTableCellBeforeCommand =
   },
 };
 
-var nsInsertTableCellAfterCommand =
-{
+var nsInsertTableCellAfterCommand = {
   isCommandEnabled(aCommand, dummy) {
     return IsInTableCell();
   },
@@ -3184,9 +3097,7 @@ var nsInsertTableCellAfterCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsDeleteTableCommand =
-{
+var nsDeleteTableCommand = {
   isCommandEnabled(aCommand, dummy) {
     return IsInTable();
   },
@@ -3202,8 +3113,7 @@ var nsDeleteTableCommand =
   },
 };
 
-var nsDeleteTableRowCommand =
-{
+var nsDeleteTableRowCommand = {
   isCommandEnabled(aCommand, dummy) {
     return IsInTableCell();
   },
@@ -3226,13 +3136,14 @@ var nsDeleteTableRowCommand =
         editor.deleteTableRow(rows);
         rows = GetNumberOfContiguousSelectedRows();
       }
-    } finally { editor.endTransaction(); }
+    } finally {
+      editor.endTransaction();
+    }
     window.content.focus();
   },
 };
 
-var nsDeleteTableColumnCommand =
-{
+var nsDeleteTableColumnCommand = {
   isCommandEnabled(aCommand, dummy) {
     return IsInTableCell();
   },
@@ -3255,13 +3166,14 @@ var nsDeleteTableColumnCommand =
         editor.deleteTableColumn(columns);
         columns = GetNumberOfContiguousSelectedColumns();
       }
-    } finally { editor.endTransaction(); }
+    } finally {
+      editor.endTransaction();
+    }
     window.content.focus();
   },
 };
 
-var nsDeleteTableCellCommand =
-{
+var nsDeleteTableCellCommand = {
   isCommandEnabled(aCommand, dummy) {
     return IsInTableCell();
   },
@@ -3277,8 +3189,7 @@ var nsDeleteTableCellCommand =
   },
 };
 
-var nsDeleteTableCellContentsCommand =
-{
+var nsDeleteTableCellContentsCommand = {
   isCommandEnabled(aCommand, dummy) {
     return IsInTableCell();
   },
@@ -3294,10 +3205,7 @@ var nsDeleteTableCellContentsCommand =
   },
 };
 
-
-// -----------------------------------------------------------------------------------
-var nsNormalizeTableCommand =
-{
+var nsNormalizeTableCommand = {
   isCommandEnabled(aCommand, dummy) {
     return IsInTable();
   },
@@ -3314,9 +3222,7 @@ var nsNormalizeTableCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsJoinTableCellsCommand =
-{
+var nsJoinTableCellsCommand = {
   isCommandEnabled(aCommand, dummy) {
     if (IsDocumentEditable() && IsEditingRenderedHTML()) {
       try {
@@ -3369,9 +3275,7 @@ var nsJoinTableCellsCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsSplitTableCellCommand =
-{
+var nsSplitTableCellCommand = {
   isCommandEnabled(aCommand, dummy) {
     if (IsDocumentEditable() && IsEditingRenderedHTML()) {
       var tagNameObj = { value: "" };
@@ -3408,9 +3312,7 @@ var nsSplitTableCellCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsTableOrCellColorCommand =
-{
+var nsTableOrCellColorCommand = {
   isCommandEnabled(aCommand, dummy) {
     return IsInTable();
   },
@@ -3423,9 +3325,8 @@ var nsTableOrCellColorCommand =
   },
 };
 
-// -----------------------------------------------------------------------------------
-var nsPreferencesCommand =
-{
+/* eslint-disable */
+var nsPreferencesCommand = {
   isCommandEnabled(aCommand, dummy) {
     return true;
   },
@@ -3437,10 +3338,9 @@ var nsPreferencesCommand =
     goPreferences("composer_pane");
   },
 };
+/* eslint-enable */
 
-
-var nsFinishHTMLSource =
-{
+var nsFinishHTMLSource = {
   isCommandEnabled(aCommand, dummy) {
     return true;
   },
@@ -3454,8 +3354,7 @@ var nsFinishHTMLSource =
   },
 };
 
-var nsCancelHTMLSource =
-{
+var nsCancelHTMLSource = {
   isCommandEnabled(aCommand, dummy) {
     return true;
   },
@@ -3469,8 +3368,7 @@ var nsCancelHTMLSource =
   },
 };
 
-var nsConvertToTable =
-{
+var nsConvertToTable = {
   isCommandEnabled(aCommand, dummy) {
     if (IsDocumentEditable() && IsEditingRenderedHTML()) {
       var selection;

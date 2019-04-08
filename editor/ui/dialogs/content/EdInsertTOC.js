@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../composer/content/editorUtilities.js */
+/* import-globals-from EdDialogCommon.js */
+
 // tocHeadersArray is the array containing the pairs tag/class
 // defining TOC entries
 var tocHeadersArray = new Array(6);
@@ -33,7 +36,7 @@ function Startup() {
     return;
   }
 
-  var i, j;
+  var i;
   // clean the table of tag/class pairs we look for
   for (i = 0; i < 6; ++i)
     tocHeadersArray[i] = [ "", "" ];
@@ -151,27 +154,19 @@ function BuildTOC(update) {
     switch (node.nodeName.toLowerCase()) {
       case tocHeadersArray[0][0]:
         return controlClass(node, 0);
-        break;
       case tocHeadersArray[1][0]:
         return controlClass(node, 1);
-        break;
       case tocHeadersArray[2][0]:
         return controlClass(node, 2);
-        break;
       case tocHeadersArray[3][0]:
         return controlClass(node, 3);
-        break;
       case tocHeadersArray[4][0]:
         return controlClass(node, 4);
-        break;
       case tocHeadersArray[5][0]:
         return controlClass(node, 5);
-        break;
       default:
         return NodeFilter.FILTER_SKIP;
-        break;
     }
-    return NodeFilter.FILTER_SKIP;   // placate the js compiler
   }
 
   var editor = GetCurrentEditor();
@@ -182,7 +177,7 @@ function BuildTOC(update) {
                                                 acceptNode,
                                                 true);
   // we need an array to store all TOC entries we find in the document
-  var tocArray = new Array();
+  var tocArray = [];
   if (treeWalker) {
     var tocSourceNode = treeWalker.nextNode();
     while (tocSourceNode) {
@@ -243,23 +238,23 @@ function BuildTOC(update) {
         toc.removeChild(pit);
         // we need to recognize later that this list is our TOC
         toc.setAttribute("id", kMozToc);
-      } else {
+      } else if (orderedList != (toc.nodeName.toLowerCase() == "ol")) {
         // we have to update an existing TOC, is the existing TOC of the
         // desired type (ordered or not) ?
-        if (orderedList != (toc.nodeName.toLowerCase() == "ol")) {
-          // nope, we have to recreate the list
-          var newToc = GetCurrentEditor().createElementWithDefaults(orderedList ? "ol" : "ul");
-          toc.parentNode.insertBefore(newToc, toc);
-          // and remove the old one
-          toc.remove();
-          toc = newToc;
-          toc.setAttribute("id", kMozToc);
-        } else {
-          // we can keep the list itself but let's get rid of the TOC entries
-          while (toc.hasChildNodes())
-            toc.lastChild.remove();
-        }
+
+        // nope, we have to recreate the list
+        var newToc = GetCurrentEditor().createElementWithDefaults(orderedList ? "ol" : "ul");
+        toc.parentNode.insertBefore(newToc, toc);
+        // and remove the old one
+        toc.remove();
+        toc = newToc;
+        toc.setAttribute("id", kMozToc);
+      } else {
+        // we can keep the list itself but let's get rid of the TOC entries
+        while (toc.hasChildNodes())
+          toc.lastChild.remove();
       }
+
       var commentText = "mozToc ";
       for (var j = 0; j < 6; j++) {
         if (tocHeadersArray[j][0] != "") {

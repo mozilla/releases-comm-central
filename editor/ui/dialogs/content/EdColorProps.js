@@ -12,6 +12,9 @@
  User cannot select "use default" for individual colors
 */
 
+/* import-globals-from ../../composer/content/editorUtilities.js */
+/* import-globals-from EdDialogCommon.js */
+
 // Cancel() is in EdDialogCommon.js
 
 document.addEventListener("dialogaccept", onAccept);
@@ -47,7 +50,6 @@ var customActiveColor;
 var customVisitedColor;
 var customBackgroundColor;
 var previewBGColor;
-var gHaveDocumentUrl = false;
 
 // dialog initialization code
 function Startup() {

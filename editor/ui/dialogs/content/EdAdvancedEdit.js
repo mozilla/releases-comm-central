@@ -2,6 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../composer/content/editorUtilities.js */
+/* import-globals-from EdAEAttributes.js */
+/* import-globals-from EdAECSSAttributes.js */
+/* import-globals-from EdAEHTMLAttributes.js */
+/* import-globals-from EdAEJSEAttributes.js */
+/* import-globals-from EdDialogCommon.js */
+
 /** ************         GLOBALS         **************/
 var gElement    = null; // handle to actual element edited
 

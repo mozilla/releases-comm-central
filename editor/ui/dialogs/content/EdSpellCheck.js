@@ -3,6 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../../../mail/base/content/utilityOverlay.js */
+/* import-globals-from ../../composer/content/editorUtilities.js */
+/* import-globals-from EdDialogCommon.js */
+
 var {InlineSpellChecker} = ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
 
 var gMisspelledWord;
@@ -233,7 +237,6 @@ function CheckWord() {
 
 function SelectSuggestedWord() {
   if (gAllowSelectWord) {
-    var selectedItem;
     if (gDialog.SuggestedList.selectedItem) {
       var selValue = gDialog.SuggestedList.selectedItem.label;
       gDialog.ReplaceWordInput.value = selValue;
@@ -252,7 +255,6 @@ function ChangeReplaceWord() {
   gAllowSelectWord = false;
 
   // Select matching word in list
-  var newIndex = -1;
   var newSelectedItem;
   var replaceWord = TrimString(gDialog.ReplaceWordInput.value);
   if (replaceWord) {
@@ -381,11 +383,8 @@ function FillSuggestedList(misspelledWord) {
   if (misspelledWord.length > 0) {
     // Get suggested words until an empty string is returned
     var count = 0;
-    var firstWord = 0;
     do {
       var word = gSpellChecker.GetSuggestedWord();
-      if (count == 0)
-        firstWord = word;
       if (word.length > 0) {
         list.appendItem(word, "");
         count++;

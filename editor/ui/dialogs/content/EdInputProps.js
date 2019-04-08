@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../composer/content/editorUtilities.js */
+/* import-globals-from EdDialogCommon.js */
+
 var insertNew;
 var inputElement;
 
@@ -47,10 +50,10 @@ function Startup() {
     inputElement = editor.getSelectedElement(kTagName);
   } catch (e) {}
 
-  if (inputElement)
+  if (inputElement) {
     // We found an element and don't need to insert one
     insertNew = false;
-  else {
+  } else {
     insertNew = true;
 
     // We don't have an element selected,
@@ -71,10 +74,11 @@ function Startup() {
       inputElement.setAttribute("type", "image");
 
       var attributes = ["src", "alt", "width", "height", "hspace", "vspace", "border", "align"];
-      for (i in attributes)
+      for (let i in attributes)
         inputElement.setAttribute(attributes[i], imgElement.getAttribute(attributes[i]));
-    } else
+    } else {
       inputElement.setAttribute("value", GetSelectionAsText());
+    }
   }
 
   // Make a copy to use for AdvancedEdit

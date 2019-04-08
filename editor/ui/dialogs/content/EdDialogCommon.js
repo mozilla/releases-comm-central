@@ -4,9 +4,13 @@
 
 // Each editor window must include this file
 
+/* import-globals-from ../../composer/content/editorUtilities.js */
+/* globals InitDialog, ChangeLinkLocation, ValidateData */
+
 // Object to attach commonly-used widgets (all dialogs should use this)
 var gDialog = {};
 
+var gHaveDocumentUrl = false;
 var gValidationError = false;
 
 // Use for 'defaultIndex' param in InitPixelOrPercentMenulist
@@ -77,7 +81,7 @@ function ValidateNumber(inputWidget, listWidget, minVal, maxVal, element, attNam
       SwitchToValidatePanel();
 
       // or expand dialog for users of "More / Fewer" button
-      if ("dialog" in window && dialog &&
+      if ("dialog" in window && window.dialog &&
            "MoreSection" in gDialog && gDialog.MoreSection) {
         if (!SeeMore)
           onMoreFewer();
@@ -187,7 +191,9 @@ function GetAppropriatePercentString(elementForAtt, elementInDoc) {
     if (editor.getElementOrParentByTagName("td", elementInDoc))
       return GetString("PercentOfCell");
     return GetString("PercentOfWindow");
-  } catch (e) { return ""; }
+  } catch (e) {
+    return "";
+  }
 }
 
 function ClearListbox(listbox) {
@@ -248,8 +254,9 @@ function InitPixelOrPercentMenulist(elementForAtt, elementInDoc, attribute, menu
         size = size.substr(0, size.indexOf("px"));
       menulist.selectedItem = pixelItem;
     }
-  } else
+  } else {
     menulist.selectedIndex = defaultIndex;
+  }
 
   return size;
 }
@@ -353,10 +360,9 @@ function GetLocalFileURL(filterType) {
     fp.init(window, GetString("SelectImageFile"), nsIFilePicker.modeOpen);
     fp.appendFilters(nsIFilePicker.filterImages);
     fileType = "image";
-  }
-  // Current usage of this is in Link dialog,
-  //  where we always want HTML first
-  else if (filterType.startsWith("html")) {
+  } else if (filterType.startsWith("html")) {
+    // Current usage of this is in Link dialog,
+    //  where we always want HTML first
     fp.init(window, GetString("OpenHTMLFile"), nsIFilePicker.modeOpen);
 
     // When loading into Composer, direct user to prefer HTML files and text files,
@@ -420,13 +426,14 @@ function SetMetaElementContent(metaElement, content, insertNew, prepend) {
         if (!insertNew)
           editor.deleteNode(metaElement);
       } else if (insertNew) {
-          metaElement.setAttribute("content", content);
-          if (prepend)
-            PrependHeadElement(metaElement);
-          else
-            AppendHeadElement(metaElement);
-        } else
-          editor.setAttribute(metaElement, "content", content);
+        metaElement.setAttribute("content", content);
+        if (prepend)
+          PrependHeadElement(metaElement);
+        else
+          AppendHeadElement(metaElement);
+      } else {
+        editor.setAttribute(metaElement, "content", content);
+      }
     } catch (e) {}
   }
 }
@@ -480,8 +487,6 @@ function SetWindowLocation() {
 
 function SaveWindowLocation() {
   if (gLocation) {
-    var newOffsetX = window.screenX - window.opener.screenX;
-    var newOffsetY = window.screenY - window.opener.screenY;
     gLocation.setAttribute("offsetX", window.screenX - window.opener.screenX);
     gLocation.setAttribute("offsetY", window.screenY - window.opener.screenY);
   }
@@ -527,20 +532,17 @@ function SetRelativeCheckbox(checkbox) {
       // If we can make a relative URL, then enable must be true!
       // (this lets the smarts of MakeRelativeUrl do all the hard work)
       enable = (GetScheme(MakeRelativeUrl(url)).length == 0);
-    } else {
-      // Url is relative
+    } else if (url[0] == "#") { // Url is relative
       // Check if url is a named anchor
       //  but document doesn't have a filename
       // (it's probably "index.html" or "index.htm",
       //  but we don't want to allow a malformed URL)
-      if (url[0] == "#") {
-        var docFilename = GetFilename(docUrl);
-        enable = docFilename.length > 0;
-      } else {
-        // Any other url is assumed
-        //  to be ok to try to make absolute
-        enable = true;
-      }
+      var docFilename = GetFilename(docUrl);
+      enable = docFilename.length > 0;
+    } else {
+      // Any other url is assumed
+      //  to be ok to try to make absolute
+      enable = true;
     }
   }
 
@@ -615,9 +617,9 @@ function InsertElementAroundSelection(element) {
     // First get the selection as a single range
     var range, start, end, offset;
     var count = editor.selection.rangeCount;
-    if (count == 1)
+    if (count == 1) {
       range = editor.selection.getRangeAt(0).cloneRange();
-    else {
+    } else {
       range = editor.document.createRange();
       start = editor.selection.getRangeAt(0);
       range.setStart(start.startContainer, start.startOffset);
@@ -631,25 +633,25 @@ function InsertElementAroundSelection(element) {
     while (range.endContainer != range.commonAncestorContainer)
       range.setEndAfter(range.endContainer);
 
-    if (editor.nodeIsBlock(element))
+    if (editor.nodeIsBlock(element)) {
       // Block element parent must be a valid block
       while (!IsBlockParent.includes(range.commonAncestorContainer.localName))
         range.selectNode(range.commonAncestorContainer);
-    else {
+    } else if (!nodeIsBreak(editor, range.commonAncestorContainer)) {
       // Fail if we're not inserting a block (use setInlineProperty instead)
-      if (!nodeIsBreak(editor, range.commonAncestorContainer))
-        return false;
-      else if (NotAnInlineParent.includes(range.commonAncestorContainer.localName))
-        // Inline element parent must not be an invalid block
-        do range.selectNode(range.commonAncestorContainer);
-        while (NotAnInlineParent.includes(range.commonAncestorContainer.localName));
-      else
-        // Further insert block check
-        for (var i = range.startOffset; ; i++)
-          if (i == range.endOffset)
-            return false;
-          else if (nodeIsBreak(editor, range.commonAncestorContainer.childNodes[i]))
-            break;
+      return false;
+    } else if (NotAnInlineParent.includes(range.commonAncestorContainer.localName)) {
+      // Inline element parent must not be an invalid block
+      do range.selectNode(range.commonAncestorContainer);
+      while (NotAnInlineParent.includes(range.commonAncestorContainer.localName));
+    } else {
+      // Further insert block check
+      for (var i = range.startOffset; ; i++) {
+        if (i == range.endOffset)
+          return false;
+        else if (nodeIsBreak(editor, range.commonAncestorContainer.childNodes[i]))
+          break;
+      }
     }
 
     // The range may be contained by body text, which should all be selected.
@@ -682,9 +684,9 @@ function InsertElementAroundSelection(element) {
       empty = false;
       start = next;
     }
-    if (!editor.nodeIsBlock(element))
+    if (!editor.nodeIsBlock(element)) {
       editor.setShouldTxnSetSelection(true);
-    else {
+    } else {
       // Also move a trailing <br>
       // XXX This doesn't work because .localName is lowercase (see bug 1306060).
       if (start && start.localName == "BR") {
@@ -832,7 +834,7 @@ function FillLinkMenulist(linkMenulist, headingsArray) {
     }
     if (anchorList.length) {
       // case insensitive sort
-      anchorList.sort(function compare(a, b) {
+      anchorList.sort((a, b) => {
         if (a.sortkey < b.sortkey) return -1;
         if (a.sortkey > b.sortkey) return 1;
         return 0;

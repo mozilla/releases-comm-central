@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from editor.js */
+
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
@@ -156,7 +158,9 @@ function GetCurrentEditor() {
     // Using "instanceof" does the QI for us.
     editor instanceof Ci.nsIPlaintextEditor;
     editor instanceof Ci.nsIHTMLEditor;
-  } catch (e) { dump(e) + "\n"; }
+  } catch (e) {
+    dump(e) + "\n";
+  }
 
   return editor;
 }
@@ -187,7 +191,9 @@ function GetCurrentEditorElement() {
 function GetCurrentCommandManager() {
   try {
     return GetCurrentEditorElement().commandManager;
-  } catch (e) { dump(e) + "\n"; }
+  } catch (e) {
+    dump(e) + "\n";
+  }
 
   return null;
 }
@@ -195,7 +201,9 @@ function GetCurrentCommandManager() {
 function GetCurrentEditorType() {
   try {
     return GetCurrentEditorElement().editortype;
-  } catch (e) { dump(e) + "\n"; }
+  } catch (e) {
+    dump(e) + "\n";
+  }
 
   return "";
 }
@@ -272,7 +280,9 @@ function IsHTMLSourceChanged() {
 function newCommandParams() {
   try {
     return Cu.createCommandParams();
-  } catch (e) { dump("error thrown in newCommandParams: " + e + "\n"); }
+  } catch (e) {
+    dump("error thrown in newCommandParams: " + e + "\n");
+  }
   return null;
 }
 
@@ -280,7 +290,7 @@ function newCommandParams() {
 
 function GetDocumentTitle() {
   try {
-    return new XPCNativeWrapper(GetCurrentEditor().document, "title").title;
+    return GetCurrentEditorElement().contentDocument.title;
   } catch (e) {}
 
   return "";
@@ -392,13 +402,11 @@ function SaveFilePickerDirectory(filePicker, fileType) {
 
 function GetDefaultBrowserColors() {
   var colors = { TextColor: 0, BackgroundColor: 0, LinkColor: 0, ActiveLinkColor: 0, VisitedLinkColor: 0 };
-  var useSysColors = false;
-  try { useSysColors = Services.prefs.getBoolPref("browser.display.use_system_colors"); } catch (e) {}
+  var useSysColors = Services.prefs.getBoolPref("browser.display.use_system_colors", false);
 
   if (!useSysColors) {
-    try { colors.TextColor = Services.prefs.getCharPref("browser.display.foreground_color"); } catch (e) {}
-
-    try { colors.BackgroundColor = Services.prefs.getCharPref("browser.display.background_color"); } catch (e) {}
+    colors.TextColor = Services.prefs.getCharPref("browser.display.foreground_color", 0);
+    colors.BackgroundColor = Services.prefs.getCharPref("browser.display.background_color", 0);
   }
   // Use OS colors for text and background if explicitly asked or pref is not set
   if (!colors.TextColor)
@@ -520,8 +528,9 @@ function MakeRelativeUrl(url) {
             AppConstants.platform != "unix")
           return inputUrl;
       }
-    } else  // No more doc dirs left, we're done
+    } else { // No more doc dirs left, we're done
       done = true;
+    }
 
     firstDirTest = false;
   }
@@ -723,7 +732,7 @@ function StripUsernamePasswordFromURI(uri) {
       urlspec = uri.spec;
       var userPass = uri.userPass;
       if (userPass) {
-        start = urlspec.indexOf(userPass);
+        let start = urlspec.indexOf(userPass);
         urlspec = urlspec.slice(0, start) + urlspec.slice(start + userPass.length + 1);
       }
     } catch (e) {}

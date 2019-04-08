@@ -12,6 +12,9 @@
  We trim all spaces at the beginning and end of user's alt text
 */
 
+/* import-globals-from ../../composer/content/editorUtilities.js */
+/* import-globals-from EdDialogCommon.js */
+
 var gInsertNewImage = true;
 var gDoAltTextError = false;
 var gConstrainOn = false;
@@ -27,9 +30,9 @@ var gImageMapDisabled = false;
 var gActualWidth = "";
 var gActualHeight = "";
 var gOriginalSrc = "";
-var gHaveDocumentUrl = false;
 var gTimerID;
 var gValidateTab;
+var gInsertNewIMap;
 
 // These must correspond to values in EditorDialog.css for each theme
 // (unfortunately, setting "style" attribute here doesn't work!)
@@ -109,8 +112,8 @@ function InitImage() {
   // Set actual radio button if both set values are the same as actual
   SetSizeWidgets(width, height);
 
-  gDialog.widthInput.value  = gConstrainWidth = width ? width : (gActualWidth ? gActualWidth : "");
-  gDialog.heightInput.value = gConstrainHeight = height ? height : (gActualHeight ? gActualHeight : "");
+  gDialog.widthInput.value  = gConstrainWidth = (width || gActualWidth || "");
+  gDialog.heightInput.value = gConstrainHeight = (height || gActualHeight || "");
 
   // set spacing editfields
   gDialog.imagelrInput.value = globalElement.getAttribute("hspace");
@@ -134,9 +137,6 @@ function InitImage() {
   var align = globalElement.getAttribute("align");
   if (align)
     align = align.toLowerCase();
-
-  var imgClass;
-  var textID;
 
   switch (align) {
     case "top":
@@ -432,7 +432,7 @@ function ValidateImage() {
       if (checkbox && !checkbox.checked) {
         src = Services.uriFixup.createFixupURI(src, Ci.nsIURIFixup.FIXUP_FLAG_NONE).spec;
       }
-    } catch (e) { }
+    } catch (e) {}
 
     globalElement.setAttribute("src", src);
   }

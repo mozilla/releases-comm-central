@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../composer/content/editorUtilities.js */
+/* import-globals-from EdDialogCommon.js */
+/* import-globals-from EdImageDialog.js */
+
 var gAnchorElement = null;
 var gLinkElement = null;
 var gOriginalHref = "";
@@ -104,8 +108,9 @@ function Startup() {
   if (gDialog.linkTab && "arguments" in window && window.arguments[1]) {
     document.getElementById("TabBox").selectedTab = gDialog.linkTab;
     SetTextboxFocus(gDialog.hrefInput);
-  } else
+  } else {
     SetTextboxFocus(gDialog.srcInput);
+  }
 
   SetWindowLocation();
 }
@@ -205,17 +210,19 @@ function onAccept(event) {
           // Use default = 2 if border attribute is empty
           if (!globalElement.hasAttribute("border"))
             globalElement.setAttribute("border", "2");
-        } else
+        } else {
           globalElement.setAttribute("border", "0");
+        }
       }
 
       if (gInsertNewImage) {
         if (href) {
           gLinkElement.appendChild(imageElement);
           editor.insertElementAtSelection(gLinkElement, true);
-        } else
+        } else {
           // 'true' means delete the selection before inserting
           editor.insertElementAtSelection(imageElement, true);
+        }
       }
 
       // Check to see if the link was to a heading

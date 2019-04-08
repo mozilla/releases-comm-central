@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../composer/content/editorUtilities.js */
+/* import-globals-from EdDialogCommon.js */
+
 document.addEventListener("dialogaccept", onAccept);
 document.addEventListener("dialogcancel", onCancel);
 
@@ -66,6 +69,7 @@ function SelectCharacter(radioGroupIndex) {
   SetElementEnabledById("CollapseSpaces", gIndex == gSpaceIndex);
 }
 
+/* eslint-disable complexity */
 function onAccept() {
   var sepCharacter = "";
   switch (gIndex) {
@@ -283,7 +287,7 @@ function onAccept() {
           } catch (e) {}
           break;
         }
-        node2 = node.nextSibling;
+        node2 = node2.nextSibling;
       } while (node2);
     }
   }
@@ -297,3 +301,4 @@ function onAccept() {
 
   SaveWindowLocation();
 }
+/* eslint-enable complexity */

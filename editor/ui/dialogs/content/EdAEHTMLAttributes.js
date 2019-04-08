@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../composer/content/editorUtilities.js */
+/* import-globals-from EdAdvancedEdit.js */
+/* import-globals-from EdDialogCommon.js */
+
 function BuildHTMLAttributeNameList() {
   gDialog.AddHTMLAttributeNameInput.removeAllItems();
 
@@ -25,8 +29,9 @@ function BuildHTMLAttributeNameList() {
             name = name.replace(/\^/g, "");
             menuitem = gDialog.AddHTMLAttributeNameInput.appendItem(name, name);
             menuitem.setAttribute("limitFirstChar", "true");
-          } else
+          } else {
             gDialog.AddHTMLAttributeNameInput.appendItem(name, name);
+          }
         }
       } else if (name == "-") {
         // Signal for separator

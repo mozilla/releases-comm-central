@@ -36,13 +36,13 @@
         <row align="center">
           <label control="TextAreaRows" value="&TextAreaRows.label;" accesskey="&TextAreaRows.accessKey;"/>
           <hbox>
-            <textbox id="TextAreaRows" class="narrow" oninput="forceInteger(this.id);onInput();"/>
+            <textbox id="TextAreaRows" class="narrow" oninput="forceInteger(this.id); onInput();"/>
           </hbox>
         </row>
         <row align="center">
           <label control="TextAreaCols" value="&TextAreaCols.label;" accesskey="&TextAreaCols.accessKey;"/>
           <hbox>
-            <textbox id="TextAreaCols" class="narrow" oninput="forceInteger(this.id);onInput();"/>
+            <textbox id="TextAreaCols" class="narrow" oninput="forceInteger(this.id); onInput();"/>
           </hbox>
         </row>
       </rows>

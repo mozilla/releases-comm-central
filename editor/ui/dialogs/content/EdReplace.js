@@ -4,6 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../composer/content/editorUtilities.js */
+/* import-globals-from EdDialogCommon.js */
+
 var gReplaceDialog;      // Quick access to document/form elements.
 var gFindInst;           // nsIWebBrowserFind that we're going to use
 var gFindService;        // Global service which remembers find params
@@ -67,7 +70,10 @@ function onLoad() {
   // get the find service, which stores global find state
     gFindService = Cc["@mozilla.org/find/find_service;1"]
                          .getService(Ci.nsIFindService);
-  } catch (e) { dump("No find service!\n"); gFindService = 0; }
+  } catch (e) {
+    dump("No find service!\n");
+    gFindService = 0;
+  }
 
   // Init gReplaceDialog.
   initDialogObject();
@@ -82,11 +88,6 @@ function onLoad() {
     gReplaceDialog.findInput.select();
   else
     gReplaceDialog.findInput.focus();
-}
-
-function onUnload() {
-  // Disconnect context from this dialog.
-  gFindReplaceData.replaceDialog = null;
 }
 
 function saveFindData() {
@@ -145,14 +146,14 @@ function onReplace() {
   var matches = true;
   var specLen = specStr.length;
   var selLen = selStr.length;
-  if (selLen < specLen)
+  if (selLen < specLen) {
     matches = false;
-  else {
+  } else {
     var specArray = specStr.match(/\S+|\s+/g);
     var selArray = selStr.match(/\S+|\s+/g);
-    if (specArray.length != selArray.length)
+    if (specArray.length != selArray.length) {
       matches = false;
-    else {
+    } else {
       for (var i = 0; i < selArray.length; i++) {
         if (selArray[i] != specArray[i]) {
           if (/\S/.test(selArray[i][0]) || /\S/.test(specArray[i][0])) {
@@ -334,15 +335,13 @@ function onReplaceAll() {
         selecRange = selection.getRangeAt(0);
       }
     }
-  } // end try
-  catch (e) { }
+  } catch (e) {}
 
   gEditor.endTransaction();
 }
 
 function doEnabling() {
   var findStr = gReplaceDialog.findInput.value;
-  var repStr = gReplaceDialog.replaceInput.value;
   gReplaceDialog.enabled = findStr;
   gReplaceDialog.findNext.disabled = !findStr;
   gReplaceDialog.replace.disabled = !findStr;

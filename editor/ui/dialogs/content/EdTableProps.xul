@@ -186,13 +186,13 @@
                 <row align="center">
                   <checkbox id="CellHeightCheckbox" label="&tableHeight.label;" accesskey="&tableHeight.accessKey;"/>
                   <textbox class="narrow" id="CellHeightInput"
-                           oninput="ChangeIntTextbox(this.id,'CellHeightCheckbox');"/>
+                           oninput="ChangeIntTextbox(this.id, 'CellHeightCheckbox');"/>
                   <menulist id="CellHeightUnits" oncommand="SetCheckbox('CellHeightCheckbox');"/>
                 </row>
                 <row align="center">
                   <checkbox id="CellWidthCheckbox" label="&tableWidth.label;" accesskey="&tableWidth.accessKey;"/>
                   <textbox class="narrow" id="CellWidthInput"
-                           oninput="ChangeIntTextbox(this.id,'CellWidthCheckbox');"/>
+                           oninput="ChangeIntTextbox(this.id, 'CellWidthCheckbox');"/>
                   <menulist id="CellWidthUnits" oncommand="SetCheckbox('CellWidthCheckbox');"/>
                 </row>
               </rows>

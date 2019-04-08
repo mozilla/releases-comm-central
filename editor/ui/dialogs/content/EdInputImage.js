@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../composer/content/editorUtilities.js */
+/* import-globals-from EdDialogCommon.js */
+/* import-globals-from EdImageDialog.js */
+
 // dialog initialization code
 
 document.addEventListener("dialogaccept", onAccept);
@@ -53,7 +57,7 @@ function Startup() {
     if (imgElement) {
       // We found an image element, convert it to an input type="image"
       var attributes = ["src", "alt", "width", "height", "hspace", "vspace", "border", "align", "usemap", "ismap"];
-      for (i in attributes)
+      for (let i in attributes)
         imageElement.setAttribute(attributes[i], imgElement.getAttribute(attributes[i]));
     }
   }

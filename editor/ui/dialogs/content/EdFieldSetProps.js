@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../composer/content/editorUtilities.js */
+/* import-globals-from EdDialogCommon.js */
+
 var insertNew;
 var fieldsetElement;
 var newLegend;
@@ -36,10 +39,10 @@ function Startup() {
       fieldsetElement = editor.getElementOrParentByTagName(kTagName, editor.selection.focusNode);
   } catch (e) {}
 
-  if (fieldsetElement)
+  if (fieldsetElement) {
     // We found an element and don't need to insert one
     insertNew = false;
-  else {
+  } else {
     insertNew = true;
 
     // We don't have an element selected,
@@ -71,8 +74,9 @@ function Startup() {
         () => Services.prompt.alert(window, GetString("Alert"), GetString("EditTextWarning")),
         {capture: false, once: true});
       gDialog.RemoveFieldSet.focus();
-    } else
+    } else {
       SetTextboxFocus(gDialog.legendText);
+    }
   } else {
     newLegend = true;
 
@@ -148,8 +152,9 @@ function onAccept() {
         else while (legendElement.firstChild)
           editor.deleteNode(legendElement.lastChild);
         editor.insertNode(editor.document.createTextNode(gDialog.legendText.value), legendElement, 0);
-      } else if (!newLegend)
+      } else if (!newLegend) {
         editor.deleteNode(legendElement);
+      }
 
       editor.setShouldTxnSetSelection(true);
     }

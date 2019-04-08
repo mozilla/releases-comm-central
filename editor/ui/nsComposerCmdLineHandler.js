@@ -19,7 +19,7 @@ nsComposerCmdLineHandler.prototype = {
   QueryInterface: ChromeUtils.generateQI([nsICommandLineHandler]),
 
   /* nsICommandLineHandler */
-  handle: function handle(cmdLine) {
+  handle(cmdLine) {
     var args = Cc["@mozilla.org/supports-string;1"]
                  .createInstance(nsISupportsString);
     try {

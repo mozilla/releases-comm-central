@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../composer/content/editorUtilities.js */
+/* import-globals-from EdDialogCommon.js */
+
 // Cancel() is in EdDialogCommon.js
 var gBulletStyleType = "";
 var gNumberStyleType = "";
@@ -99,7 +102,6 @@ function InitDialog() {
   // Last param = true means attribute value is case-sensitive
   var type = globalElement ? GetHTMLOrCSSStyleValue(globalElement, "type", "list-style-type") : null;
 
-  var index = 0;
   if (gListType == "ul") {
     if (type) {
       type = type.toLowerCase();
@@ -230,9 +232,9 @@ function SelectBulletStyle() {
   // Save the selected index so when user changes
   //   list style, restore index to associated list
   // Each bullet or number type is stored in the "value" of each menuitem
-  if (gListType == "ul")
+  if (gListType == "ul") {
     gBulletStyleType = gDialog.BulletStyleList.value;
-  else if (gListType == "ol") {
+  } else if (gListType == "ol") {
     var type = gDialog.BulletStyleList.value;
     if (gNumberStyleType != type) {
       // Convert existing input value to attr number first,
@@ -364,9 +366,10 @@ function onAccept(event) {
     var changeList;
     if (gListElement && gDialog.ChangeAllRadio.selected) {
       changeList = true;
-    } else
+    } else {
       changeList = gMixedListSelection || gListType != gOriginalListType ||
                    gBulletStyleType != gOriginalStyleType;
+    }
     if (changeList) {
       try {
         if (gListType) {

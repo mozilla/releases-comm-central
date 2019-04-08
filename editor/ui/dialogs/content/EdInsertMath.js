@@ -5,6 +5,9 @@
 
 /* Insert MathML dialog */
 
+/* import-globals-from ../../composer/content/editorUtilities.js */
+/* import-globals-from EdDialogCommon.js */
+
 var XULNS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 
 document.addEventListener("dialogaccept", onAccept);
@@ -32,9 +35,8 @@ function Startup() {
   // TeXZilla.js contains non-ASCII characters and explicitly sets
   // window.TeXZilla, so we have to specify the charset parameter but don't
   // need to worry about the targetObj parameter.
-  Cc["@mozilla.org/moz/jssubscript-loader;1"]
-    .getService(Ci.mozIJSSubScriptLoader)
-    .loadSubScript("chrome://editor/content/TeXZilla.js", {}, "UTF-8");
+  /* globals TeXZilla */
+  Services.scriptloader.loadSubScript("chrome://editor/content/TeXZilla.js", {}, "UTF-8");
 
   // Verify if the selection is on a <math> and initialize the dialog.
   gDialog.oldMath = editor.getElementOrParentByTagName("math", null);

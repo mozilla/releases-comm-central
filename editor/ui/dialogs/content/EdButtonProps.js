@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../composer/content/editorUtilities.js */
+/* import-globals-from EdDialogCommon.js */
+
 var insertNew;
 var buttonElement;
 
@@ -35,10 +38,10 @@ function Startup() {
     buttonElement = editor.getSelectedElement(kTagName);
   } catch (e) {}
 
-  if (buttonElement)
+  if (buttonElement) {
     // We found an element and don't need to insert one
     insertNew = false;
-  else {
+  } else {
     insertNew = true;
 
     // We don't have an element selected,
@@ -125,6 +128,7 @@ function onAccept() {
 
   if (insertNew) {
     if (!InsertElementAroundSelection(buttonElement)) {
+      /* eslint-disable-next-line no-unsanitized/property */
       buttonElement.innerHTML = editor.outputToString("text/html", kOutputSelectionOnly);
       editor.insertElementAtSelection(buttonElement, true);
     }

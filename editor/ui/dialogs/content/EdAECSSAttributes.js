@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../composer/content/editorUtilities.js */
+/* import-globals-from EdAdvancedEdit.js */
+/* import-globals-from EdDialogCommon.js */
+
 // build attribute list in tree form from element attributes
 function BuildCSSAttributeTable() {
   var style = gElement.style;
@@ -101,8 +105,9 @@ function UpdateCSSAttributes() {
     // Use editor transactions if modifying the element directly in the document
     doRemoveAttribute("style");
     doSetAttribute("style", styleString);  // NOTE BUG 18894!!!
-  } else if (gElement.getAttribute("style"))
+  } else if (gElement.getAttribute("style")) {
     doRemoveAttribute("style");
+  }
 }
 
 function RemoveCSSAttribute() {
