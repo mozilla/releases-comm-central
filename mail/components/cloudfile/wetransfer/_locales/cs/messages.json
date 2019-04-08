@@ -10,5 +10,8 @@
   },
   "moments_privacyPolicy": {
     "message": "Zásady ochrany osobních údajů"
+  },
+  "moments_tagline": {
+    "message": "WeTransfer je nejjednodušší způsob pro odeslání souboru na druhou stranu světa."
   }
 }

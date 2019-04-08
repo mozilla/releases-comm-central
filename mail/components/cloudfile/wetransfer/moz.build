@@ -22,6 +22,9 @@ FINAL_TARGET_FILES.images += [
 FINAL_TARGET_FILES._locales.ar += [
     '_locales/ar/messages.json',
 ]
+FINAL_TARGET_FILES._locales.bg += [
+    '_locales/bg/messages.json',
+]
 FINAL_TARGET_FILES._locales.br += [
     '_locales/br/messages.json',
 ]
@@ -60,6 +63,9 @@ FINAL_TARGET_FILES._locales.et += [
 ]
 FINAL_TARGET_FILES._locales.eu += [
     '_locales/eu/messages.json',
+]
+FINAL_TARGET_FILES._locales.fa += [
+    '_locales/fa/messages.json',
 ]
 FINAL_TARGET_FILES._locales.fi += [
     '_locales/fi/messages.json',
