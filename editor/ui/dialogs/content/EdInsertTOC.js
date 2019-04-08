@@ -26,8 +26,7 @@ const kMozTocClassPrefixLength = 6;
 document.addEventListener("dialogaccept", () => BuildTOC(true));
 
 // Startup() is called when EdInsertTOC.xul is opened
-function Startup()
-{
+function Startup() {
   // early way out if if we have no editor
   if (!GetCurrentEditor()) {
     window.close();
@@ -76,7 +75,7 @@ function Startup()
     var nodeList = toc.childNodes;
     // let's look at the children of the TOC ; if we find a comment beginning
     // with "mozToc", it contains the TOC definition
-    for (i = 0; i< nodeList.length; ++i) {
+    for (i = 0; i < nodeList.length; ++i) {
       if (nodeList.item(i).nodeType == Node.COMMENT_NODE &&
           nodeList.item(i).data.startsWith(kMozToc)) {
         // yep, there is already a definition here; parse it !
@@ -121,13 +120,11 @@ function Startup()
 }
 
 
-function BuildTOC(update)
-{
+function BuildTOC(update) {
   // controlClass() is a node filter that accepts a node if
   // (a) we don't look for a class (b) we look for a class and
   // node has it
-  function controlClass(node, index)
-  {
+  function controlClass(node, index) {
     currentHeaderLevel = index + 1;
     if (tocHeadersArray[index][1] == "") {
       // we are not looking for a specific class, this node is ok
@@ -150,10 +147,8 @@ function BuildTOC(update)
   // the main node filter for our node iterator
   // it selects the tag names as specified in the dialog
   // then calls the controlClass filter above
-  function acceptNode(node)
-  {
-    switch (node.nodeName.toLowerCase())
-    {
+  function acceptNode(node) {
+    switch (node.nodeName.toLowerCase()) {
       case tocHeadersArray[0][0]:
         return controlClass(node, 0);
         break;
@@ -211,15 +206,14 @@ function BuildTOC(update)
           anchor.getAttribute("name").startsWith(kMozTocIdPrefix)) {
         // yep, get its name
         id = anchor.getAttribute("name");
-      }
-      else {
+      } else {
         // no we don't and we need to create one
         anchor = theDocument.createElement("a");
         tocSourceNode.insertBefore(anchor, tocSourceNode.firstChild);
         // let's give it a random ID
         var c = 1000000 * Math.random();
         id = kMozTocIdPrefix + Math.round(c);
-        anchor.setAttribute("name",  id);
+        anchor.setAttribute("name", id);
         anchor.setAttribute("class", kMozTocClassPrefix +
                                      tocSourceNode.nodeName.toUpperCase());
       }
@@ -249,8 +243,7 @@ function BuildTOC(update)
         toc.removeChild(pit);
         // we need to recognize later that this list is our TOC
         toc.setAttribute("id", kMozToc);
-      }
-      else {
+      } else {
         // we have to update an existing TOC, is the existing TOC of the
         // desired type (ordered or not) ?
         if (orderedList != (toc.nodeName.toLowerCase() == "ol")) {
@@ -261,8 +254,7 @@ function BuildTOC(update)
           toc.remove();
           toc = newToc;
           toc.setAttribute("id", kMozToc);
-        }
-        else {
+        } else {
           // we can keep the list itself but let's get rid of the TOC entries
           while (toc.hasChildNodes())
             toc.lastChild.remove();
@@ -290,8 +282,7 @@ function BuildTOC(update)
       // the definition of this class is in EditorOverride.css
       if (readonly) {
         toc.setAttribute("class", "readonly");
-      }
-      else {
+      } else {
         toc.removeAttribute("class");
       }
 
@@ -312,8 +303,7 @@ function BuildTOC(update)
       tocItem.appendChild(tocAnchor);
       tocList.appendChild(tocItem);
       item = tocList;
-    }
-    else {
+    } else {
       if (tocArray[i] < headerIndex) {
         // if the depth of the new TOC entry is less than the depth of the
         // last entry we created, find the good ul/ol ancestor
@@ -323,8 +313,7 @@ function BuildTOC(update)
           }
         }
         tocItem = theDocument.createElement("li");
-      }
-      else if (tocArray[i] > headerIndex) {
+      } else if (tocArray[i] > headerIndex) {
         // to the contrary, it's deeper than the last one
         // we need to create sub ul/ol's and li's
         for (j = tocArray[i] - headerIndex; j > 0; --j) {
@@ -334,8 +323,7 @@ function BuildTOC(update)
           tocList.appendChild(tocItem);
           item = tocList;
         }
-      }
-      else {
+      } else {
         tocItem = theDocument.createElement("li");
       }
       tocAnchor = theDocument.createElement("a");
@@ -350,30 +338,25 @@ function BuildTOC(update)
   SaveWindowLocation();
 }
 
-function selectHeader(elt, index)
-{
+function selectHeader(elt, index) {
   var tag = elt.value;
   tocHeadersArray[index - 1][0] = tag;
   var textbox = document.getElementById("header" + index + "Class");
   if (tag == "") {
     textbox.setAttribute("disabled", "true");
-  }
-  else {
+  } else {
     textbox.removeAttribute("disabled");
   }
 }
 
-function changeClass(elt, index)
-{
+function changeClass(elt, index) {
   tocHeadersArray[index - 1][1] = elt.value;
 }
 
-function ToggleReadOnlyToc(elt)
-{
+function ToggleReadOnlyToc(elt) {
   readonly = elt.checked;
 }
 
-function ToggleOrderedList(elt)
-{
+function ToggleOrderedList(elt) {
   orderedList = elt.checked;
 }

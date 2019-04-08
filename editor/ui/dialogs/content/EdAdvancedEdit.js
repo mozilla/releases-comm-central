@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/**************         GLOBALS         **************/
+/** ************         GLOBALS         **************/
 var gElement    = null; // handle to actual element edited
 
 var HTMLAttrs   = [];   // html attributes
@@ -18,7 +18,7 @@ var JSERAttrs   = [];   // removed js events
 var gDoOnSelectTree = true;
 var gUpdateTreeValue = true;
 
-/************** INITIALISATION && SETUP **************/
+/** ************ INITIALISATION && SETUP **************/
 
 document.addEventListener("dialogaccept", onAccept);
 document.addEventListener("dialogcancel", onCancel);
@@ -29,13 +29,11 @@ document.addEventListener("dialogcancel", onCancel);
  * returns    : none
  * desc.      : startup and initialisation, prepares dialog.
  **/
-function Startup()
-{
+function Startup() {
   var editor = GetCurrentEditor();
 
   // Element to edit is passed in
-  if (!editor || !window.arguments[1])
-  {
+  if (!editor || !window.arguments[1]) {
     dump("Advanced Edit: No editor or element to edit not supplied\n");
     window.close();
     return;
@@ -94,8 +92,7 @@ function Startup()
  * returns    : boolean true to close the window
  * desc.      : event handler for ok button
  **/
-function onAccept()
-{
+function onAccept() {
   var editor = GetCurrentEditor();
   editor.beginTransaction();
   try {
@@ -103,7 +100,7 @@ function onAccept()
     UpdateHTMLAttributes();
     UpdateCSSAttributes();
     UpdateJSEAttributes();
-  } catch(ex) {
+  } catch (ex) {
     dump(ex);
   }
   editor.endTransaction();
@@ -115,26 +112,24 @@ function onAccept()
 // Helpers for removing and setting attributes
 // Use editor transactions if modifying the element already in the document
 // (Temporary element from a property dialog won't have a parent node)
-function doRemoveAttribute(attrib)
-{
+function doRemoveAttribute(attrib) {
   try {
     var editor = GetCurrentEditor();
     if (gElement.parentNode)
       editor.removeAttribute(gElement, attrib);
     else
       gElement.removeAttribute(attrib);
-  } catch(ex) {}
+  } catch (ex) {}
 }
 
-function doSetAttribute(attrib, value)
-{
+function doSetAttribute(attrib, value) {
   try {
     var editor = GetCurrentEditor();
     if (gElement.parentNode)
       editor.setAttribute(gElement, attrib, value);
     else
       gElement.setAttribute(attrib, value);
-  } catch(ex) {}
+  } catch (ex) {}
 }
 
 /**
@@ -144,10 +139,8 @@ function doSetAttribute(attrib, value)
  * desc.      : checks to see if any other attributes by the same name as the arg supplied
  *              already exist.
  **/
-function CheckAttributeNameSimilarity(attName, attArray)
-{
-  for (var i = 0; i < attArray.length; i++)
-  {
+function CheckAttributeNameSimilarity(attName, attArray) {
+  for (var i = 0; i < attArray.length; i++) {
     if (attName.toLowerCase() == attArray[i].toLowerCase())
       return true;
   }
@@ -161,8 +154,7 @@ function CheckAttributeNameSimilarity(attName, attArray)
  * desc.      : checks to see if any other attributes by the same name as the arg supplied
  *              already exist while setting the associated value if different from current value
  **/
-function UpdateExistingAttribute( attName, attValue, treeChildrenId )
-{
+function UpdateExistingAttribute(attName, attValue, treeChildrenId) {
   var treeChildren = document.getElementById(treeChildrenId);
   if (!treeChildren)
     return false;
@@ -172,12 +164,10 @@ function UpdateExistingAttribute( attName, attValue, treeChildrenId )
   attName = TrimString(attName).toLowerCase();
   attValue = TrimString(attValue);
 
-  for (i = 0; i < treeChildren.childNodes.length; i++)
-  {
+  for (i = 0; i < treeChildren.childNodes.length; i++) {
     var item = treeChildren.childNodes[i];
     name = GetTreeItemAttributeStr(item);
-    if (name.toLowerCase() == attName)
-    {
+    if (name.toLowerCase() == attName) {
       // Set the text in the "value' column treecell
       SetTreeItemValueStr(item, attValue);
 
@@ -200,8 +190,7 @@ function UpdateExistingAttribute( attName, attValue, treeChildrenId )
  * parameters : attribute to look for, ID of <treeChildren> node in XUL tree
  * returns    : value in from the tree or empty string if name not found
  **/
-function GetAndSelectExistingAttributeValue( attName, treeChildrenId )
-{
+function GetAndSelectExistingAttributeValue(attName, treeChildrenId) {
   if (!attName)
     return "";
 
@@ -209,12 +198,10 @@ function GetAndSelectExistingAttributeValue( attName, treeChildrenId )
   var name;
   var i;
 
-  for (i = 0; i < treeChildren.childNodes.length; i++)
-  {
+  for (i = 0; i < treeChildren.childNodes.length; i++) {
     var item = treeChildren.childNodes[i];
     name = GetTreeItemAttributeStr(item);
-    if (name.toLowerCase() == attName.toLowerCase())
-    {
+    if (name.toLowerCase() == attName.toLowerCase()) {
       // Select item in the tree
       //  but don't trigger the tree's onSelect handler
       gDoOnSelectTree = false;
@@ -244,69 +231,61 @@ function GetAndSelectExistingAttributeValue( attName, treeChildrenId )
       <treeCell> // Name Cell
       <treeCell  // Value Cell
 */
-function GetTreeItemAttributeStr(treeItem)
-{
+function GetTreeItemAttributeStr(treeItem) {
   if (treeItem)
     return TrimString(treeItem.firstChild.firstChild.getAttribute("label"));
 
   return "";
 }
 
-function GetTreeItemValueStr(treeItem)
-{
+function GetTreeItemValueStr(treeItem) {
   if (treeItem)
     return TrimString(treeItem.firstChild.lastChild.getAttribute("label"));
 
   return "";
 }
 
-function SetTreeItemValueStr(treeItem, value)
-{
+function SetTreeItemValueStr(treeItem, value) {
   if (treeItem && GetTreeItemValueStr(treeItem) != value)
     treeItem.firstChild.lastChild.setAttribute("label", value);
 }
 
-function IsNotTreeHeader(treeCell)
-{
+function IsNotTreeHeader(treeCell) {
   if (treeCell)
     return (treeCell.parentNode.parentNode.nodeName != "treehead");
 
   return false;
 }
 
-function RemoveNameFromAttArray(attName, attArray)
-{
-  for (var i=0; i < attArray.length; i++)
-  {
-    if (attName.toLowerCase() == attArray[i].toLowerCase())
-    {
+function RemoveNameFromAttArray(attName, attArray) {
+  for (var i = 0; i < attArray.length; i++) {
+    if (attName.toLowerCase() == attArray[i].toLowerCase()) {
       // Remove 1 array item
-      attArray.splice(i,1);
+      attArray.splice(i, 1);
       break;
     }
   }
 }
 
 // adds a generalised treeitem.
-function AddTreeItem ( name, value, treeChildrenId, attArray )
-{
+function AddTreeItem(name, value, treeChildrenId, attArray) {
   attArray[attArray.length] = name;
-  var treeChildren    = document.getElementById ( treeChildrenId );
-  var treeitem    = document.createElementNS ( XUL_NS, "treeitem" );
-  var treerow     = document.createElementNS ( XUL_NS, "treerow" );
+  var treeChildren    = document.getElementById(treeChildrenId);
+  var treeitem    = document.createElementNS(XUL_NS, "treeitem");
+  var treerow     = document.createElementNS(XUL_NS, "treerow");
 
-  var attrCell    = document.createElementNS ( XUL_NS, "treecell" );
-  attrCell.setAttribute( "class", "propertylist" );
-  attrCell.setAttribute( "label", name );
+  var attrCell    = document.createElementNS(XUL_NS, "treecell");
+  attrCell.setAttribute("class", "propertylist");
+  attrCell.setAttribute("label", name);
 
-  var valueCell    = document.createElementNS ( XUL_NS, "treecell" );
-  valueCell.setAttribute( "class", "propertylist" );
-  valueCell.setAttribute( "label", value );
+  var valueCell    = document.createElementNS(XUL_NS, "treecell");
+  valueCell.setAttribute("class", "propertylist");
+  valueCell.setAttribute("label", value);
 
-  treerow.appendChild ( attrCell );
-  treerow.appendChild ( valueCell );
-  treeitem.appendChild ( treerow );
-  treeChildren.appendChild ( treeitem );
+  treerow.appendChild(attrCell);
+  treerow.appendChild(valueCell);
+  treeitem.appendChild(treerow);
+  treeChildren.appendChild(treeitem);
 
   // Select item just added,
   //  but suppress calling the onSelect handler
@@ -319,16 +298,13 @@ function AddTreeItem ( name, value, treeChildrenId, attArray )
   return treeitem;
 }
 
-function selectTreeItem(treeChildren, item)
-{
+function selectTreeItem(treeChildren, item) {
   var index = treeChildren.parentNode.view.getIndexOfItem(item);
   treeChildren.parentNode.view.selection.select(index);
 }
 
-function getSelectedItem(tree)
-{
+function getSelectedItem(tree) {
   if (tree.view.selection.count == 1)
     return tree.view.getItemAtIndex(tree.currentIndex);
-  else
-    return null;
+  return null;
 }

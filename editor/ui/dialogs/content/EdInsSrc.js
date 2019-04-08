@@ -12,11 +12,9 @@ var gListenerAttached = false;
 document.addEventListener("dialogaccept", onAccept);
 document.addEventListener("dialogcancel", onCancel);
 
-function Startup()
-{
+function Startup() {
   let editor = GetCurrentEditor();
-  if (!editor)
-  {
+  if (!editor) {
     window.close();
     return;
   }
@@ -33,9 +31,8 @@ function Startup()
   try {
     selection = editor.outputToString("text/html", kOutputFormatted | kOutputSelectionOnly | kOutputWrap);
   } catch (e) {}
-  if (selection)
-  {
-    selection = (selection.replace(/<body[^>]*>/,"")).replace(/<\/body>/,"");
+  if (selection) {
+    selection = (selection.replace(/<body[^>]*>/, "")).replace(/<\/body>/, "");
 
     // Shorten data URIs for display.
     selection = replaceDataURIs(selection);
@@ -48,11 +45,9 @@ function Startup()
   SetWindowLocation();
 }
 
-function replaceDataURIs(input)
-{
+function replaceDataURIs(input) {
   return input.replace(/(data:.+;base64,)([^"' >]+)/gi,
     function(match, nonDataPart, dataPart) {
-
       if (gShortDataStrings.has(dataPart)) {
           // We found the exact same data URI, just return the shortened URI.
           return nonDataPart + gShortDataStrings.get(dataPart);
@@ -80,8 +75,7 @@ function replaceDataURIs(input)
     });
 }
 
-function onCopyOrCut(event)
-{
+function onCopyOrCut(event) {
   let startPos = gDialog.srcInput.selectionStart;
   if (startPos == undefined)
     return;
@@ -104,8 +98,7 @@ function onCopyOrCut(event)
   event.preventDefault();
 }
 
-function onPaste(event)
-{
+function onPaste(event) {
   let startPos = gDialog.srcInput.selectionStart;
   if (startPos == undefined)
     return;
@@ -120,8 +113,7 @@ function onPaste(event)
   event.preventDefault();
 }
 
-function onAccept(event)
-{
+function onAccept(event) {
   let html = gDialog.srcInput.value;
   if (!html) {
     event.preventDefault();

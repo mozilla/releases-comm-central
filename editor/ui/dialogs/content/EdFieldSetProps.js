@@ -12,11 +12,9 @@ var legendElement;
 document.addEventListener("dialogaccept", onAccept);
 document.addEventListener("dialogcancel", onCancel);
 
-function Startup()
-{
+function Startup() {
   var editor = GetCurrentEditor();
-  if (!editor)
-  {
+  if (!editor) {
     dump("Failed to get active editor!\n");
     window.close();
     return;
@@ -41,8 +39,7 @@ function Startup()
   if (fieldsetElement)
     // We found an element and don't need to insert one
     insertNew = false;
-  else
-  {
+  else {
     insertNew = true;
 
     // We don't have an element selected,
@@ -51,8 +48,7 @@ function Startup()
       fieldsetElement = editor.createElementWithDefaults(kTagName);
     } catch (e) {}
 
-    if (!fieldsetElement)
-    {
+    if (!fieldsetElement) {
       dump("Failed to get selected element or create a new one!\n");
       window.close();
       return;
@@ -62,14 +58,12 @@ function Startup()
   }
 
   legendElement = fieldsetElement.querySelector("legend");
-  if (legendElement)
-  {
+  if (legendElement) {
     newLegend = false;
     var range = editor.document.createRange();
     range.selectNode(legendElement);
     gDialog.legendText.value = range.toString();
-    if (legendElement.innerHTML.includes("<"))
-    {
+    if (legendElement.innerHTML.includes("<")) {
       gDialog.editText.checked = false;
       gDialog.editText.disabled = false;
       gDialog.legendText.disabled = true;
@@ -77,20 +71,16 @@ function Startup()
         () => Services.prompt.alert(window, GetString("Alert"), GetString("EditTextWarning")),
         {capture: false, once: true});
       gDialog.RemoveFieldSet.focus();
-    }
-    else
+    } else
       SetTextboxFocus(gDialog.legendText);
-  }
-  else
-  {
+  } else {
     newLegend = true;
 
     // We don't have an element selected,
     //  so create one with default attributes
 
     legendElement = editor.createElementWithDefaults("legend");
-    if (!legendElement)
-    {
+    if (!legendElement) {
       dump("Failed to get selected element or create a new one!\n");
       window.close();
       return;
@@ -106,13 +96,11 @@ function Startup()
   SetWindowLocation();
 }
 
-function InitDialog()
-{
+function InitDialog() {
   gDialog.legendAlign.value = GetHTMLOrCSSStyleValue(globalElement, "align", "caption-side");
 }
 
-function RemoveFieldSet()
-{
+function RemoveFieldSet() {
   var editor = GetCurrentEditor();
   editor.beginTransaction();
   try {
@@ -126,8 +114,7 @@ function RemoveFieldSet()
   window.close();
 }
 
-function ValidateData()
-{
+function ValidateData() {
   if (gDialog.legendAlign.value)
     globalElement.setAttribute("align", gDialog.legendAlign.value);
   else
@@ -135,8 +122,7 @@ function ValidateData()
   return true;
 }
 
-function onAccept()
-{
+function onAccept() {
   // All values are valid - copy to actual element in doc
   ValidateData();
 
@@ -147,34 +133,27 @@ function onAccept()
   try {
     editor.cloneAttributes(legendElement, globalElement);
 
-    if (insertNew)
-    {
-      if (gDialog.legendText.value)
-      {
+    if (insertNew) {
+      if (gDialog.legendText.value) {
         fieldsetElement.appendChild(legendElement);
         legendElement.appendChild(editor.document.createTextNode(gDialog.legendText.value));
       }
       InsertElementAroundSelection(fieldsetElement);
-    }
-    else if (gDialog.editText.checked)
-    {
+    } else if (gDialog.editText.checked) {
       editor.setShouldTxnSetSelection(false);
 
-      if (gDialog.legendText.value)
-      {
+      if (gDialog.legendText.value) {
         if (newLegend)
           editor.insertNode(legendElement, fieldsetElement, 0, true);
         else while (legendElement.firstChild)
           editor.deleteNode(legendElement.lastChild);
         editor.insertNode(editor.document.createTextNode(gDialog.legendText.value), legendElement, 0);
-      }
-      else if (!newLegend)
+      } else if (!newLegend)
         editor.deleteNode(legendElement);
 
       editor.setShouldTxnSetSelection(true);
     }
-  }
-  finally {
+  } finally {
     editor.endTransaction();
   }
 

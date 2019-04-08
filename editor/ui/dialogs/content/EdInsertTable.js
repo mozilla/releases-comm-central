@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-//Cancel() is in EdDialogCommon.js
+// Cancel() is in EdDialogCommon.js
 
 var gTableElement = null;
 var gRows;
@@ -14,11 +14,9 @@ var gActiveEditor;
 document.addEventListener("dialogaccept", onAccept);
 document.addEventListener("dialogcancel", onCancel);
 
-function Startup()
-{
+function Startup() {
   gActiveEditor = GetCurrentTableEditor();
-  if (!gActiveEditor)
-  {
+  if (!gActiveEditor) {
     dump("Failed to get active editor!\n");
     window.close();
     return;
@@ -28,8 +26,7 @@ function Startup()
     gTableElement = gActiveEditor.createElementWithDefaults("table");
   } catch (e) {}
 
-  if(!gTableElement)
-  {
+  if (!gTableElement) {
     dump("Failed to create a new table!\n");
     window.close();
     return;
@@ -45,8 +42,7 @@ function Startup()
   globalElement = gTableElement.cloneNode(false);
   try {
     if (Services.prefs.getBoolPref("editor.use_css") && IsHTMLEditor()
-        && !(gActiveEditor.flags & Ci.nsIPlaintextEditor.eEditorMailMask))
-    {
+        && !(gActiveEditor.flags & Ci.nsIPlaintextEditor.eEditorMailMask)) {
       // only for Composer and not for htmlmail
       globalElement.setAttribute("style", "text-align: left;");
     }
@@ -64,8 +60,7 @@ function Startup()
   gDialog.columnsInput.value = 2;
 
   // If no default value on the width, set to 100%
-  if (gDialog.widthInput.value.length == 0)
-  {
+  if (gDialog.widthInput.value.length == 0) {
     gDialog.widthInput.value = "100";
     gDialog.widthPixelOrPercentMenulist.selectedIndex = 1;
   }
@@ -78,8 +73,7 @@ function Startup()
 // Set dialog widgets with attribute data
 // We get them from globalElement copy so this can be used
 //   by AdvancedEdit(), which is shared by all property dialogs
-function InitDialog()
-{
+function InitDialog() {
   // Get default attributes set on the created table:
   // Get the width attribute of the element, stripping out "%"
   // This sets contents of menu combobox list
@@ -88,8 +82,7 @@ function InitDialog()
   gDialog.borderInput.value = globalElement.getAttribute("border");
 }
 
-function ChangeRowOrColumn(id)
-{
+function ChangeRowOrColumn(id) {
   // Allow only integers
   forceInteger(id);
 
@@ -106,13 +99,12 @@ function ChangeRowOrColumn(id)
 
 // Get and validate data from widgets.
 // Set attributes on globalElement so they can be accessed by AdvancedEdit()
-function ValidateData()
-{
-  gRows = ValidateNumber(gDialog.rowsInput, null, 1, gMaxRows, null, null, true)
+function ValidateData() {
+  gRows = ValidateNumber(gDialog.rowsInput, null, 1, gMaxRows, null, null, true);
   if (gValidationError)
     return false;
 
-  gColumns = ValidateNumber(gDialog.columnsInput, null, 1, gMaxColumns, null, null, true)
+  gColumns = ValidateNumber(gDialog.columnsInput, null, 1, gMaxColumns, null, null, true);
   if (gValidationError)
     return false;
 
@@ -130,32 +122,25 @@ function ValidateData()
 }
 
 
-function onAccept(event)
-{
-  if (ValidateData())
-  {
+function onAccept(event) {
+  if (ValidateData()) {
     gActiveEditor.beginTransaction();
     try {
       gActiveEditor.cloneAttributes(gTableElement, globalElement);
 
       // Create necessary rows and cells for the table
       var tableBody = gActiveEditor.createElementWithDefaults("tbody");
-      if (tableBody)
-      {
+      if (tableBody) {
         gTableElement.appendChild(tableBody);
 
         // Create necessary rows and cells for the table
-        for (var i = 0; i < gRows; i++)
-        {
+        for (var i = 0; i < gRows; i++) {
           var newRow = gActiveEditor.createElementWithDefaults("tr");
-          if (newRow)
-          {
+          if (newRow) {
             tableBody.appendChild(newRow);
-            for (var j = 0; j < gColumns; j++)
-            {
+            for (var j = 0; j < gColumns; j++) {
               var newCell = gActiveEditor.createElementWithDefaults("td");
-              if (newCell)
-              {
+              if (newCell) {
                 newRow.appendChild(newCell);
               }
             }
@@ -169,17 +154,12 @@ function onAccept(event)
       var element = gActiveEditor.getSelectedOrParentTableElement(tagNameObj, countObj);
       var deletePlaceholder = false;
 
-      if (tagNameObj.value == "table")
-      {
-        //Replace entire selected table with new table, so delete the table
+      if (tagNameObj.value == "table") {
+        // Replace entire selected table with new table, so delete the table
         gActiveEditor.deleteTable();
-      }
-      else if (tagNameObj.value == "td")
-      {
-        if (countObj.value >= 1)
-        {
-          if (countObj.value > 1)
-          {
+      } else if (tagNameObj.value == "td") {
+        if (countObj.value >= 1) {
+          if (countObj.value > 1) {
             // Assume user wants to replace a block of
             //  contiguous cells with a table, so
             //  join the selected cells
@@ -189,16 +169,15 @@ function onAccept(event)
             element = gActiveEditor.getFirstSelectedCell();
 
             // Collapse selection into just that cell
-            gActiveEditor.selection.collapse(element,0);
+            gActiveEditor.selection.collapse(element, 0);
           }
 
-          if (element)
-          {
+          if (element) {
             // Empty just the contents of the cell
             gActiveEditor.deleteTableCellContents();
 
             // Collapse selection to start of empty cell...
-            gActiveEditor.selection.collapse(element,0);
+            gActiveEditor.selection.collapse(element, 0);
             // ...but it will contain a <br> placeholder
             deletePlaceholder = true;
           }
@@ -208,8 +187,7 @@ function onAccept(event)
       // true means delete selection when inserting
       gActiveEditor.insertElementAtSelection(gTableElement, true);
 
-      if (deletePlaceholder && gTableElement && gTableElement.nextSibling)
-      {
+      if (deletePlaceholder && gTableElement && gTableElement.nextSibling) {
         // Delete the placeholder <br>
         gActiveEditor.deleteNode(gTableElement.nextSibling);
       }

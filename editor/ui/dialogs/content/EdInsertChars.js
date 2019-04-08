@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-//------------------------------------------------------------------
+// ------------------------------------------------------------------
 // From Unicode 3.0 Page 54. 3.11 Conjoining Jamo Behavior
 var SBase = 0xac00;
 var LBase = 0x1100;
@@ -15,10 +15,8 @@ var NCount = VCount * TCount;
 // End of Unicode 3.0
 
 // dialog initialization code
-function Startup()
-{
-  if (!GetCurrentEditor())
-  {
+function Startup() {
+  if (!GetCurrentEditor()) {
     window.close();
     return;
   }
@@ -33,12 +31,11 @@ function Startup()
   SetWindowLocation();
 }
 
-function onAccept()
-{
+function onAccept() {
   // Insert the character
   try {
     GetCurrentEditor().insertText(LatinM.label);
-  } catch(e) {}
+  } catch (e) {}
 
   // Set persistent attributes to save
   //  which category, letter, and character modifier was used
@@ -51,8 +48,7 @@ function onAccept()
 }
 
 // Don't allow inserting in HTML Source Mode
-function onFocus()
-{
+function onFocus() {
   var enable = true;
   if ("gEditorDisplayMode" in window.opener)
     enable = !window.opener.IsInHTMLSourceMode();
@@ -60,33 +56,30 @@ function onFocus()
   SetElementEnabled(document.documentElement.getButton("accept"), enable);
 }
 
-function onClose()
-{
+function onClose() {
   window.opener.InsertCharWindow = null;
   SaveWindowLocation();
   return true;
 }
 
-//------------------------------------------------------------------
+// ------------------------------------------------------------------
 var LatinL;
 var LatinM;
 var LatinL_Label;
 var LatinM_Label;
-var indexL=0;
-var indexM=0;
-var indexM_AU=0;
-var indexM_AL=0;
-var indexM_U=0;
-var indexM_L=0;
-var indexM_S=0;
-var LItems=0;
+var indexL = 0;
+var indexM = 0;
+var indexM_AU = 0;
+var indexM_AL = 0;
+var indexM_U = 0;
+var indexM_L = 0;
+var indexM_S = 0;
+var LItems = 0;
 var category;
 var CategoryGroup;
 var initialize = true;
 
-function StartupLatin()
-{
-
+function StartupLatin() {
   LatinL = document.getElementById("LatinL");
   LatinM = document.getElementById("LatinM");
   LatinL_Label = document.getElementById("LatinL_Label");
@@ -111,8 +104,7 @@ function StartupLatin()
     indexM = index;
 
 
-  switch (category)
-  {
+  switch (category) {
     case "AccentUpper": // Uppercase Diacritical
       CategoryGroup.selectedItem = AccentUpper;
       indexM_AU = indexM;
@@ -140,10 +132,8 @@ function StartupLatin()
   initialize = false;
 }
 
-function ChangeCategory(newCategory)
-{
-  if (category != newCategory || initialize)
-  {
+function ChangeCategory(newCategory) {
+  if (category != newCategory || initialize) {
     category = newCategory;
     // Note: Must do L before M to set LatinL.selectedIndex
     UpdateLatinL();
@@ -152,26 +142,21 @@ function ChangeCategory(newCategory)
   }
 }
 
-function SelectLatinLetter()
-{
-  if(LatinL.selectedIndex != indexL )
-  {
+function SelectLatinLetter() {
+  if (LatinL.selectedIndex != indexL) {
     indexL = LatinL.selectedIndex;
     UpdateLatinM();
     UpdateCharacter();
   }
 }
 
-function SelectLatinModifier()
-{
-  if(LatinM.selectedIndex != indexM )
-  {
+function SelectLatinModifier() {
+  if (LatinM.selectedIndex != indexM) {
     indexM = LatinM.selectedIndex;
     UpdateCharacter();
   }
 }
-function DisableLatinL(disable)
-{
+function DisableLatinL(disable) {
   if (disable) {
     LatinL_Label.setAttribute("disabled", "true");
     LatinL.setAttribute("disabled", "true");
@@ -181,11 +166,9 @@ function DisableLatinL(disable)
   }
 }
 
-function UpdateLatinL()
-{
+function UpdateLatinL() {
   LatinL.removeAllItems();
-  if (category == "AccentUpper" || category == "AccentLower")
-  {
+  if (category == "AccentUpper" || category == "AccentLower") {
     DisableLatinL(false);
     // No Q or q
     var alphabet = category == "AccentUpper" ? "ABCDEFGHIJKLMNOPRSTUVWXYZ" : "abcdefghijklmnoprstuvwxyz";
@@ -193,27 +176,23 @@ function UpdateLatinL()
       LatinL.appendItem(alphabet.charAt(letter));
 
     LatinL.selectedIndex = indexL;
-  }
-  else
-  {
+  } else {
     // Other categories don't hinge on a "letter"
     DisableLatinL(true);
     // Note: don't change the indexL so it can be used next time
   }
 }
 
-function UpdateLatinM()
-{
+function UpdateLatinM() {
   LatinM.removeAllItems();
   var i, accent;
-  switch(category)
-  {
+  switch (category) {
     case "AccentUpper": // Uppercase Diacritical
       accent = upper[indexL];
-      for(i=0; i < accent.length; i++)
+      for (i = 0; i < accent.length; i++)
         LatinM.appendItem(accent.charAt(i));
 
-      if(indexM_AU < accent.length)
+      if (indexM_AU < accent.length)
         indexM = indexM_AU;
       else
         indexM = accent.length - 1;
@@ -222,10 +201,10 @@ function UpdateLatinM()
 
     case "AccentLower": // Lowercase Diacritical
       accent = lower[indexL];
-      for(i=0; i < accent.length; i++)
+      for (i = 0; i < accent.length; i++)
         LatinM.appendItem(accent.charAt(i));
 
-      if(indexM_AL < accent.length)
+      if (indexM_AL < accent.length)
         indexM = indexM_AL;
       else
         indexM = lower[indexL].length - 1;
@@ -233,10 +212,10 @@ function UpdateLatinM()
       break;
 
     case "Upper": // Uppercase w/o Diacritical
-      for(i=0; i < otherupper.length; i++)
+      for (i = 0; i < otherupper.length; i++)
         LatinM.appendItem(otherupper.charAt(i));
 
-      if(indexM_U < otherupper.length)
+      if (indexM_U < otherupper.length)
         indexM = indexM_U;
       else
         indexM = otherupper.length - 1;
@@ -244,10 +223,10 @@ function UpdateLatinM()
       break;
 
     case "Lower": // Lowercase w/o Diacritical
-      for(i=0; i < otherlower.length; i++)
+      for (i = 0; i < otherlower.length; i++)
         LatinM.appendItem(otherlower.charAt(i));
 
-      if(indexM_L < otherlower.length)
+      if (indexM_L < otherlower.length)
         indexM = indexM_L;
       else
         indexM = otherlower.length - 1;
@@ -255,10 +234,10 @@ function UpdateLatinM()
       break;
 
     case "Symbol": // Symbol
-      for(i=0; i < symbol.length; i++)
+      for (i = 0; i < symbol.length; i++)
         LatinM.appendItem(symbol.charAt(i));
 
-      if(indexM_S < symbol.length)
+      if (indexM_S < symbol.length)
         indexM = indexM_S;
       else
         indexM = symbol.length - 1;
@@ -268,12 +247,10 @@ function UpdateLatinM()
   LatinM.selectedIndex = indexM;
 }
 
-function UpdateCharacter()
-{
+function UpdateCharacter() {
   indexM = LatinM.selectedIndex;
 
-  switch(category)
-  {
+  switch (category) {
     case "AccentUpper": // Uppercase Diacritical
       indexM_AU = indexM;
       break;
@@ -290,10 +267,10 @@ function UpdateCharacter()
       indexM_S = indexM;
       break;
   }
-//dump("Letter Index="+indexL+", Character Index="+indexM+", Character = "+LatinM.label+"\n");
+// dump("Letter Index="+indexL+", Character Index="+indexM+", Character = "+LatinM.label+"\n");
 }
 
-const upper=[
+const upper = [
   // A
   "\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5\u0100\u0102\u0104\u01cd\u01de\u01de\u01e0\u01fa\u0200\u0202\u0226\u1e00\u1ea0\u1ea2\u1ea4\u1ea6\u1ea8\u1eaa\u1eac\u1eae\u1eb0\u1eb2\u1eb4\u1eb6",
   // B
@@ -344,10 +321,10 @@ const upper=[
   // Y
   "\u00DD\u0176\u0178\u0232\u1e8e\u1ef2\u1ef4\u1ef6\u1ef8",
   // Z
-  "\u0179\u017B\u017D\u0224\u1e90\u1e92\u1e94"
+  "\u0179\u017B\u017D\u0224\u1e90\u1e92\u1e94",
 ];
 
-const lower=[
+const lower = [
   // a
   "\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u0101\u0103\u0105\u01ce\u01df\u01e1\u01fb\u0201\u0203\u0227\u1e01\u1e9a\u1ea1\u1ea3\u1ea5\u1ea7\u1ea9\u1eab\u1ead\u1eaf\u1eb1\u1eb3\u1eb5\u1eb7",
   // b
@@ -398,7 +375,7 @@ const lower=[
   // y
   "\u00fd\u00ff\u0177\u0233\u1e8f\u1e99\u1ef3\u1ef5\u1ef7\u1ef9",
   // z
-  "\u017a\u017c\u017e\u0225\u1e91\u1e93\u1e95"
+  "\u017a\u017c\u017e\u0225\u1e91\u1e93\u1e95",
 ];
 
 

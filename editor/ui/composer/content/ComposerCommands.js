@@ -8,9 +8,8 @@
 var gComposerJSCommandControllerID = 0;
 
 
-//-----------------------------------------------------------------------------------
-function SetupHTMLEditorCommands()
-{
+// -----------------------------------------------------------------------------------
+function SetupHTMLEditorCommands() {
   var commandTable = GetComposerCommandTable();
   if (!commandTable)
     return;
@@ -18,88 +17,86 @@ function SetupHTMLEditorCommands()
   // Include everything a text editor does
   SetupTextEditorCommands();
 
-  //dump("Registering HTML editor commands\n");
+  // dump("Registering HTML editor commands\n");
 
   commandTable.registerCommand("cmd_renderedHTMLEnabler", nsDummyHTMLCommand);
 
-  commandTable.registerCommand("cmd_grid",  nsGridCommand);
+  commandTable.registerCommand("cmd_grid", nsGridCommand);
 
-  commandTable.registerCommand("cmd_listProperties",  nsListPropertiesCommand);
-  commandTable.registerCommand("cmd_pageProperties",  nsPagePropertiesCommand);
+  commandTable.registerCommand("cmd_listProperties", nsListPropertiesCommand);
+  commandTable.registerCommand("cmd_pageProperties", nsPagePropertiesCommand);
   commandTable.registerCommand("cmd_colorProperties", nsColorPropertiesCommand);
   commandTable.registerCommand("cmd_increaseFontStep", nsIncreaseFontCommand);
   commandTable.registerCommand("cmd_decreaseFontStep", nsDecreaseFontCommand);
   commandTable.registerCommand("cmd_advancedProperties", nsAdvancedPropertiesCommand);
-  commandTable.registerCommand("cmd_objectProperties",   nsObjectPropertiesCommand);
+  commandTable.registerCommand("cmd_objectProperties", nsObjectPropertiesCommand);
   commandTable.registerCommand("cmd_removeNamedAnchors", nsRemoveNamedAnchorsCommand);
-  commandTable.registerCommand("cmd_editLink",        nsEditLinkCommand);
+  commandTable.registerCommand("cmd_editLink", nsEditLinkCommand);
 
-  commandTable.registerCommand("cmd_form",          nsFormCommand);
-  commandTable.registerCommand("cmd_inputtag",      nsInputTagCommand);
-  commandTable.registerCommand("cmd_inputimage",    nsInputImageCommand);
-  commandTable.registerCommand("cmd_textarea",      nsTextAreaCommand);
-  commandTable.registerCommand("cmd_select",        nsSelectCommand);
-  commandTable.registerCommand("cmd_button",        nsButtonCommand);
-  commandTable.registerCommand("cmd_label",         nsLabelCommand);
-  commandTable.registerCommand("cmd_fieldset",      nsFieldSetCommand);
-  commandTable.registerCommand("cmd_isindex",       nsIsIndexCommand);
-  commandTable.registerCommand("cmd_image",         nsImageCommand);
-  commandTable.registerCommand("cmd_hline",         nsHLineCommand);
-  commandTable.registerCommand("cmd_link",          nsLinkCommand);
-  commandTable.registerCommand("cmd_anchor",        nsAnchorCommand);
+  commandTable.registerCommand("cmd_form", nsFormCommand);
+  commandTable.registerCommand("cmd_inputtag", nsInputTagCommand);
+  commandTable.registerCommand("cmd_inputimage", nsInputImageCommand);
+  commandTable.registerCommand("cmd_textarea", nsTextAreaCommand);
+  commandTable.registerCommand("cmd_select", nsSelectCommand);
+  commandTable.registerCommand("cmd_button", nsButtonCommand);
+  commandTable.registerCommand("cmd_label", nsLabelCommand);
+  commandTable.registerCommand("cmd_fieldset", nsFieldSetCommand);
+  commandTable.registerCommand("cmd_isindex", nsIsIndexCommand);
+  commandTable.registerCommand("cmd_image", nsImageCommand);
+  commandTable.registerCommand("cmd_hline", nsHLineCommand);
+  commandTable.registerCommand("cmd_link", nsLinkCommand);
+  commandTable.registerCommand("cmd_anchor", nsAnchorCommand);
   commandTable.registerCommand("cmd_insertHTMLWithDialog", nsInsertHTMLWithDialogCommand);
   commandTable.registerCommand("cmd_insertMathWithDialog", nsInsertMathWithDialogCommand);
-  commandTable.registerCommand("cmd_insertBreak",   nsInsertBreakCommand);
-  commandTable.registerCommand("cmd_insertBreakAll",nsInsertBreakAllCommand);
+  commandTable.registerCommand("cmd_insertBreak", nsInsertBreakCommand);
+  commandTable.registerCommand("cmd_insertBreakAll", nsInsertBreakAllCommand);
 
-  commandTable.registerCommand("cmd_table",              nsInsertOrEditTableCommand);
-  commandTable.registerCommand("cmd_editTable",          nsEditTableCommand);
-  commandTable.registerCommand("cmd_SelectTable",        nsSelectTableCommand);
-  commandTable.registerCommand("cmd_SelectRow",          nsSelectTableRowCommand);
-  commandTable.registerCommand("cmd_SelectColumn",       nsSelectTableColumnCommand);
-  commandTable.registerCommand("cmd_SelectCell",         nsSelectTableCellCommand);
-  commandTable.registerCommand("cmd_SelectAllCells",     nsSelectAllTableCellsCommand);
-  commandTable.registerCommand("cmd_InsertTable",        nsInsertTableCommand);
-  commandTable.registerCommand("cmd_InsertRowAbove",     nsInsertTableRowAboveCommand);
-  commandTable.registerCommand("cmd_InsertRowBelow",     nsInsertTableRowBelowCommand);
+  commandTable.registerCommand("cmd_table", nsInsertOrEditTableCommand);
+  commandTable.registerCommand("cmd_editTable", nsEditTableCommand);
+  commandTable.registerCommand("cmd_SelectTable", nsSelectTableCommand);
+  commandTable.registerCommand("cmd_SelectRow", nsSelectTableRowCommand);
+  commandTable.registerCommand("cmd_SelectColumn", nsSelectTableColumnCommand);
+  commandTable.registerCommand("cmd_SelectCell", nsSelectTableCellCommand);
+  commandTable.registerCommand("cmd_SelectAllCells", nsSelectAllTableCellsCommand);
+  commandTable.registerCommand("cmd_InsertTable", nsInsertTableCommand);
+  commandTable.registerCommand("cmd_InsertRowAbove", nsInsertTableRowAboveCommand);
+  commandTable.registerCommand("cmd_InsertRowBelow", nsInsertTableRowBelowCommand);
   commandTable.registerCommand("cmd_InsertColumnBefore", nsInsertTableColumnBeforeCommand);
-  commandTable.registerCommand("cmd_InsertColumnAfter",  nsInsertTableColumnAfterCommand);
-  commandTable.registerCommand("cmd_InsertCellBefore",   nsInsertTableCellBeforeCommand);
-  commandTable.registerCommand("cmd_InsertCellAfter",    nsInsertTableCellAfterCommand);
-  commandTable.registerCommand("cmd_DeleteTable",        nsDeleteTableCommand);
-  commandTable.registerCommand("cmd_DeleteRow",          nsDeleteTableRowCommand);
-  commandTable.registerCommand("cmd_DeleteColumn",       nsDeleteTableColumnCommand);
-  commandTable.registerCommand("cmd_DeleteCell",         nsDeleteTableCellCommand);
+  commandTable.registerCommand("cmd_InsertColumnAfter", nsInsertTableColumnAfterCommand);
+  commandTable.registerCommand("cmd_InsertCellBefore", nsInsertTableCellBeforeCommand);
+  commandTable.registerCommand("cmd_InsertCellAfter", nsInsertTableCellAfterCommand);
+  commandTable.registerCommand("cmd_DeleteTable", nsDeleteTableCommand);
+  commandTable.registerCommand("cmd_DeleteRow", nsDeleteTableRowCommand);
+  commandTable.registerCommand("cmd_DeleteColumn", nsDeleteTableColumnCommand);
+  commandTable.registerCommand("cmd_DeleteCell", nsDeleteTableCellCommand);
   commandTable.registerCommand("cmd_DeleteCellContents", nsDeleteTableCellContentsCommand);
-  commandTable.registerCommand("cmd_JoinTableCells",     nsJoinTableCellsCommand);
-  commandTable.registerCommand("cmd_SplitTableCell",     nsSplitTableCellCommand);
-  commandTable.registerCommand("cmd_TableOrCellColor",   nsTableOrCellColorCommand);
-  commandTable.registerCommand("cmd_NormalizeTable",     nsNormalizeTableCommand);
-  commandTable.registerCommand("cmd_smiley",             nsSetSmiley);
-  commandTable.registerCommand("cmd_ConvertToTable",     nsConvertToTable);
+  commandTable.registerCommand("cmd_JoinTableCells", nsJoinTableCellsCommand);
+  commandTable.registerCommand("cmd_SplitTableCell", nsSplitTableCellCommand);
+  commandTable.registerCommand("cmd_TableOrCellColor", nsTableOrCellColorCommand);
+  commandTable.registerCommand("cmd_NormalizeTable", nsNormalizeTableCommand);
+  commandTable.registerCommand("cmd_smiley", nsSetSmiley);
+  commandTable.registerCommand("cmd_ConvertToTable", nsConvertToTable);
 }
 
-function SetupTextEditorCommands()
-{
+function SetupTextEditorCommands() {
   var commandTable = GetComposerCommandTable();
   if (!commandTable)
     return;
 
-  //dump("Registering plain text editor commands\n");
+  // dump("Registering plain text editor commands\n");
 
-  commandTable.registerCommand("cmd_findReplace",nsFindReplaceCommand);
-  commandTable.registerCommand("cmd_find",       nsFindCommand);
-  commandTable.registerCommand("cmd_findNext",   nsFindAgainCommand);
-  commandTable.registerCommand("cmd_findPrev",   nsFindAgainCommand);
-  commandTable.registerCommand("cmd_rewrap",     nsRewrapCommand);
-  commandTable.registerCommand("cmd_spelling",   nsSpellingCommand);
-  commandTable.registerCommand("cmd_validate",   nsValidateCommand);
+  commandTable.registerCommand("cmd_findReplace", nsFindReplaceCommand);
+  commandTable.registerCommand("cmd_find", nsFindCommand);
+  commandTable.registerCommand("cmd_findNext", nsFindAgainCommand);
+  commandTable.registerCommand("cmd_findPrev", nsFindAgainCommand);
+  commandTable.registerCommand("cmd_rewrap", nsRewrapCommand);
+  commandTable.registerCommand("cmd_spelling", nsSpellingCommand);
+  commandTable.registerCommand("cmd_validate", nsValidateCommand);
   commandTable.registerCommand("cmd_checkLinks", nsCheckLinksCommand);
   commandTable.registerCommand("cmd_insertChars", nsInsertCharsCommand);
 }
 
-function SetupComposerWindowCommands()
-{
+function SetupComposerWindowCommands() {
   // Don't need to do this if already done
   if (gComposerWindowControllerID)
     return;
@@ -127,48 +124,44 @@ function SetupComposerWindowCommands()
     // Get the nsIControllerCommandTable interface we need to register commands
     var interfaceRequestor = composerController.QueryInterface(Ci.nsIInterfaceRequestor);
     commandTable = interfaceRequestor.getInterface(Ci.nsIControllerCommandTable);
-  }
-  catch (e)
-  {
+  } catch (e) {
     dump("Failed to create composerController\n");
     return;
   }
 
 
-  if (!commandTable)
-  {
+  if (!commandTable) {
     dump("Failed to get interface for nsIControllerCommandManager\n");
     return;
   }
 
   // File-related commands
-  commandTable.registerCommand("cmd_open",           nsOpenCommand);
-  commandTable.registerCommand("cmd_save",           nsSaveCommand);
-  commandTable.registerCommand("cmd_saveAs",         nsSaveAsCommand);
-  commandTable.registerCommand("cmd_exportToText",   nsExportToTextCommand);
-  commandTable.registerCommand("cmd_saveAndChangeEncoding",  nsSaveAndChangeEncodingCommand);
-  commandTable.registerCommand("cmd_publish",        nsPublishCommand);
-  commandTable.registerCommand("cmd_publishAs",      nsPublishAsCommand);
-  commandTable.registerCommand("cmd_publishSettings",nsPublishSettingsCommand);
-  commandTable.registerCommand("cmd_revert",         nsRevertCommand);
-  commandTable.registerCommand("cmd_openRemote",     nsOpenRemoteCommand);
-  commandTable.registerCommand("cmd_preview",        nsPreviewCommand);
-  commandTable.registerCommand("cmd_editSendPage",   nsSendPageCommand);
-  commandTable.registerCommand("cmd_print",          nsPrintCommand);
-  commandTable.registerCommand("cmd_printpreview",   nsPrintPreviewCommand);
-  commandTable.registerCommand("cmd_printSetup",     nsPrintSetupCommand);
-  commandTable.registerCommand("cmd_close",          nsCloseCommand);
-  commandTable.registerCommand("cmd_preferences",    nsPreferencesCommand);
+  commandTable.registerCommand("cmd_open", nsOpenCommand);
+  commandTable.registerCommand("cmd_save", nsSaveCommand);
+  commandTable.registerCommand("cmd_saveAs", nsSaveAsCommand);
+  commandTable.registerCommand("cmd_exportToText", nsExportToTextCommand);
+  commandTable.registerCommand("cmd_saveAndChangeEncoding", nsSaveAndChangeEncodingCommand);
+  commandTable.registerCommand("cmd_publish", nsPublishCommand);
+  commandTable.registerCommand("cmd_publishAs", nsPublishAsCommand);
+  commandTable.registerCommand("cmd_publishSettings", nsPublishSettingsCommand);
+  commandTable.registerCommand("cmd_revert", nsRevertCommand);
+  commandTable.registerCommand("cmd_openRemote", nsOpenRemoteCommand);
+  commandTable.registerCommand("cmd_preview", nsPreviewCommand);
+  commandTable.registerCommand("cmd_editSendPage", nsSendPageCommand);
+  commandTable.registerCommand("cmd_print", nsPrintCommand);
+  commandTable.registerCommand("cmd_printpreview", nsPrintPreviewCommand);
+  commandTable.registerCommand("cmd_printSetup", nsPrintSetupCommand);
+  commandTable.registerCommand("cmd_close", nsCloseCommand);
+  commandTable.registerCommand("cmd_preferences", nsPreferencesCommand);
 
   // Edit Mode commands
-  if (GetCurrentEditorType() == "html")
-  {
-    commandTable.registerCommand("cmd_NormalMode",         nsNormalModeCommand);
-    commandTable.registerCommand("cmd_AllTagsMode",        nsAllTagsModeCommand);
-    commandTable.registerCommand("cmd_HTMLSourceMode",     nsHTMLSourceModeCommand);
-    commandTable.registerCommand("cmd_PreviewMode",        nsPreviewModeCommand);
-    commandTable.registerCommand("cmd_FinishHTMLSource",   nsFinishHTMLSource);
-    commandTable.registerCommand("cmd_CancelHTMLSource",   nsCancelHTMLSource);
+  if (GetCurrentEditorType() == "html") {
+    commandTable.registerCommand("cmd_NormalMode", nsNormalModeCommand);
+    commandTable.registerCommand("cmd_AllTagsMode", nsAllTagsModeCommand);
+    commandTable.registerCommand("cmd_HTMLSourceMode", nsHTMLSourceModeCommand);
+    commandTable.registerCommand("cmd_PreviewMode", nsPreviewModeCommand);
+    commandTable.registerCommand("cmd_FinishHTMLSource", nsFinishHTMLSource);
+    commandTable.registerCommand("cmd_CancelHTMLSource", nsCancelHTMLSource);
     commandTable.registerCommand("cmd_updateStructToolbar", nsUpdateStructToolbarCommand);
   }
 
@@ -178,19 +171,16 @@ function SetupComposerWindowCommands()
   gComposerWindowControllerID = windowControllers.getControllerId(editorController);
 }
 
-//-----------------------------------------------------------------------------------
-function GetComposerCommandTable()
-{
+// -----------------------------------------------------------------------------------
+function GetComposerCommandTable() {
   var controller;
-  if (gComposerJSCommandControllerID)
-  {
+  if (gComposerJSCommandControllerID) {
     try {
       controller = window.content.controllers.getControllerById(gComposerJSCommandControllerID);
     } catch (e) {}
   }
-  if (!controller)
-  {
-    //create it
+  if (!controller) {
+    // create it
     controller = Cc["@mozilla.org/embedcomp/base-command-controller;1"].createInstance();
 
     var editorController = controller.QueryInterface(Ci.nsIControllerContext);
@@ -201,19 +191,16 @@ function GetComposerCommandTable()
     gComposerJSCommandControllerID = window.content.controllers.getControllerId(controller);
   }
 
-  if (controller)
-  {
+  if (controller) {
     var interfaceRequestor = controller.QueryInterface(Ci.nsIInterfaceRequestor);
     return interfaceRequestor.getInterface(Ci.nsIControllerCommandTable);
   }
   return null;
 }
 
-//-----------------------------------------------------------------------------------
-function goUpdateCommandState(command)
-{
-  try
-  {
+// -----------------------------------------------------------------------------------
+function goUpdateCommandState(command) {
+  try {
     var controller = top.document.commandDispatcher.getControllerForCommand(command);
     if (!(controller instanceof Ci.nsICommandController))
       return;
@@ -223,8 +210,7 @@ function goUpdateCommandState(command)
 
     controller.getCommandStateWithParams(command, params);
 
-    switch (command)
-    {
+    switch (command) {
       case "cmd_bold":
       case "cmd_italic":
       case "cmd_underline":
@@ -269,22 +255,18 @@ function goUpdateCommandState(command)
       case "cmd_smiley":
         break;
 
-      default: dump("no update for command: " +command+"\n");
+      default: dump("no update for command: " + command + "\n");
     }
-  }
-  catch (e) { dump("An error occurred updating the "+command+" command: \n"+e+"\n"); }
+  } catch (e) { dump("An error occurred updating the " + command + " command: \n" + e + "\n"); }
 }
 
-function goUpdateComposerMenuItems(commandset)
-{
-  //dump("Updating commands for " + commandset.id + "\n");
+function goUpdateComposerMenuItems(commandset) {
+  // dump("Updating commands for " + commandset.id + "\n");
 
-  for (var i = 0; i < commandset.childNodes.length; i++)
-  {
+  for (var i = 0; i < commandset.childNodes.length; i++) {
     var commandNode = commandset.childNodes[i];
     var commandID = commandNode.id;
-    if (commandID)
-    {
+    if (commandID) {
       goUpdateCommand(commandID);  // enable or disable
       if (commandNode.hasAttribute("state"))
         goUpdateCommandState(commandID);
@@ -292,61 +274,49 @@ function goUpdateComposerMenuItems(commandset)
   }
 }
 
-//-----------------------------------------------------------------------------------
-function goDoCommandParams(command, params)
-{
-  try
-  {
+// -----------------------------------------------------------------------------------
+function goDoCommandParams(command, params) {
+  try {
     var controller = top.document.commandDispatcher.getControllerForCommand(command);
-    if (controller && controller.isCommandEnabled(command))
-    {
-      if (controller instanceof Ci.nsICommandController)
-      {
+    if (controller && controller.isCommandEnabled(command)) {
+      if (controller instanceof Ci.nsICommandController) {
         controller.doCommandWithParams(command, params);
 
         // the following two lines should be removed when we implement observers
         if (params)
           controller.getCommandStateWithParams(command, params);
-      }
-      else
-      {
+      } else {
         controller.doCommand(command);
       }
       ResetStructToolbar();
     }
-  }
-  catch (e)
-  {
-    dump("An error occurred executing the "+command+" command\n");
+  } catch (e) {
+    dump("An error occurred executing the " + command + " command\n");
   }
 }
 
-function pokeStyleUI(uiID, aDesiredState)
-{
+function pokeStyleUI(uiID, aDesiredState) {
  try {
   var commandNode = top.document.getElementById(uiID);
   if (!commandNode)
     return;
 
   var uiState = ("true" == commandNode.getAttribute("state"));
-  if (aDesiredState != uiState)
-  {
+  if (aDesiredState != uiState) {
     commandNode.setAttribute("state", aDesiredState ? "true" : "false");
   }
- } catch(e) { dump("poking UI for "+uiID+" failed: "+e+"\n"); }
+ } catch (e) { dump("poking UI for " + uiID + " failed: " + e + "\n"); }
 }
 
-function doStyleUICommand(cmdStr)
-{
-  try
-  {
+function doStyleUICommand(cmdStr) {
+  try {
     var cmdParams = newCommandParams();
     goDoCommandParams(cmdStr, cmdParams);
     if (cmdParams)
       pokeStyleUI(cmdStr, cmdParams.getBooleanValue("state_all"));
 
     ResetStructToolbar();
-  } catch(e) {}
+  } catch (e) {}
 }
 
 // Copied from jsmime.js.
@@ -358,10 +328,8 @@ function stringToTypedArray(buffer) {
   return typedarray;
 }
 
-function pokeMultiStateUI(uiID, cmdParams)
-{
-  try
-  {
+function pokeMultiStateUI(uiID, cmdParams) {
+  try {
     var commandNode = document.getElementById(uiID);
     if (!commandNode)
       return;
@@ -379,26 +347,22 @@ function pokeMultiStateUI(uiID, cmdParams)
       } else {
         desiredAttrib = cmdParams.getStringValue("state_attribute");
       }
-
     }
 
     var uiState = commandNode.getAttribute("state");
-    if (desiredAttrib != uiState)
-    {
+    if (desiredAttrib != uiState) {
       commandNode.setAttribute("state", desiredAttrib);
     }
-  } catch(e) {}
+  } catch (e) {}
 }
 
-function doStatefulCommand(commandID, newState)
-{
+function doStatefulCommand(commandID, newState) {
   var commandNode = document.getElementById(commandID);
   if (commandNode)
       commandNode.setAttribute("state", newState);
   gContentWindow.focus();   // needed for command dispatch to work
 
-  try
-  {
+  try {
     var cmdParams = newCommandParams();
     if (!cmdParams) return;
 
@@ -408,16 +372,14 @@ function doStatefulCommand(commandID, newState)
     pokeMultiStateUI(commandID, cmdParams);
 
     ResetStructToolbar();
-  } catch(e) { dump("error thrown in doStatefulCommand: "+e+"\n"); }
+  } catch (e) { dump("error thrown in doStatefulCommand: " + e + "\n"); }
 }
 
-//-----------------------------------------------------------------------------------
-function PrintObject(obj)
-{
+// -----------------------------------------------------------------------------------
+function PrintObject(obj) {
   dump("-----" + obj + "------\n");
   var names = "";
-  for (var i in obj)
-  {
+  for (var i in obj) {
     if (i == "value")
       names += i + ": " + obj.value + "\n";
     else if (i == "id")
@@ -429,44 +391,39 @@ function PrintObject(obj)
   dump(names + "-----------\n");
 }
 
-//-----------------------------------------------------------------------------------
-function PrintNodeID(id)
-{
+// -----------------------------------------------------------------------------------
+function PrintNodeID(id) {
   PrintObject(document.getElementById(id));
 }
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsDummyHTMLCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     // do nothing
     dump("Hey, who's calling the dummy command?\n");
-  }
+  },
 
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsOpenCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return true;    // we can always do this
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     var fileType = IsHTMLEditor() ? "html" : "text";
     var title = GetString(IsHTMLEditor() ? "OpenHTMLFile" : "OpenTextFile");
 
@@ -493,30 +450,28 @@ var nsOpenCommand =
         editPage(fp.fileURL.spec, fileType);
       }
     });
-  }
+  },
 };
 
 // STRUCTURE TOOLBAR
 //
 var nsUpdateStructToolbarCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     UpdateStructToolbar();
     return true;
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
-  doCommand: function(aCommand)  {}
-}
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
+  doCommand(aCommand) {},
+};
 
 // ******* File output commands and utilities ******** //
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsSaveCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     // Always allow saving when editing a remote document,
     //  otherwise the document modified state would prevent that
     //  when you first open a remote file.
@@ -525,108 +480,92 @@ var nsSaveCommand =
       return IsDocumentEditable() &&
         (IsDocumentModified() || IsHTMLSourceChanged() ||
          IsUrlAboutBlank(docUrl) || GetScheme(docUrl) != "file");
-    } catch (e) {return false;}
+    } catch (e) { return false; }
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     var editor = GetCurrentEditor();
-    if (editor)
-    {
+    if (editor) {
       if (IsHTMLEditor())
         SetEditMode(gPreviousNonSourceDisplayMode);
       SaveDocument(IsUrlAboutBlank(GetDocumentUrl()), false, editor.contentsMIMEType);
     }
-  }
-}
+  },
+};
 
 var nsSaveAsCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     var editor = GetCurrentEditor();
-    if (editor)
-    {
+    if (editor) {
       if (IsHTMLEditor())
         SetEditMode(gPreviousNonSourceDisplayMode);
       SaveDocument(true, false, editor.contentsMIMEType);
     }
-  }
-}
+  },
+};
 
 var nsExportToTextCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
-    if (GetCurrentEditor())
-    {
+  doCommand(aCommand) {
+    if (GetCurrentEditor()) {
       SetEditMode(gPreviousNonSourceDisplayMode);
       SaveDocument(true, true, "text/plain");
     }
-  }
-}
+  },
+};
 
 var nsSaveAndChangeEncodingCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     SetEditMode(gPreviousNonSourceDisplayMode);
     window.ok = false;
     window.exportToText = false;
     var oldTitle = GetDocumentTitle();
-    window.openDialog("chrome://editor/content/EditorSaveAsCharset.xul","_blank", "chrome,close,titlebar,modal,resizable=yes");
+    window.openDialog("chrome://editor/content/EditorSaveAsCharset.xul", "_blank", "chrome,close,titlebar,modal,resizable=yes");
 
     if (GetDocumentTitle() != oldTitle)
       UpdateWindowTitle();
 
-    if (window.ok)
-    {
-      if (window.exportToText)
-      {
+    if (window.ok) {
+      if (window.exportToText) {
         SaveDocument(true, true, "text/plain");
-      }
-      else
-      {
+      } else {
         var editor = GetCurrentEditor();
         SaveDocument(true, false, editor ? editor.contentsMIMEType : null);
       }
     }
-  }
+  },
 };
 
 var nsPublishCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
-    if (IsDocumentEditable())
-    {
+  isCommandEnabled(aCommand, dummy) {
+    if (IsDocumentEditable()) {
       // Always allow publishing when editing a local document,
       //  otherwise the document modified state would prevent that
       //  when you first open any local file.
@@ -634,18 +573,16 @@ var nsPublishCommand =
         var docUrl = GetDocumentUrl();
         return IsDocumentModified() || IsHTMLSourceChanged()
                || IsUrlAboutBlank(docUrl) || GetScheme(docUrl) == "file";
-      } catch (e) {return false;}
+      } catch (e) { return false; }
     }
     return false;
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
-    if (GetCurrentEditor())
-    {
+  doCommand(aCommand) {
+    if (GetCurrentEditor()) {
       let docUrl = GetDocumentUrl();
       let filename = GetFilename(docUrl);
       let publishData;
@@ -653,23 +590,21 @@ var nsPublishCommand =
       // First check pref to always show publish dialog
       let showPublishDialog = Services.prefs.getBoolPref("editor.always_show_publish_dialog");
 
-      if (!showPublishDialog && filename)
-      {
+      if (!showPublishDialog && filename) {
         // Try to get publish data from the document url
         publishData = CreatePublishDataFromUrl(docUrl);
 
         // If none, use default publishing site? Need a pref for this
-        //if (!publishData)
+        // if (!publishData)
         //  publishData = GetPublishDataFromSiteName(GetDefaultPublishSiteName(), filename);
       }
 
-      if (showPublishDialog || !publishData)
-      {
+      if (showPublishDialog || !publishData) {
         // Show the publish dialog
         publishData = {};
         window.ok = false;
         let oldTitle = GetDocumentTitle();
-        window.openDialog("chrome://editor/content/EditorPublish.xul","_blank",
+        window.openDialog("chrome://editor/content/EditorPublish.xul", "_blank",
                           "chrome,close,titlebar,modal", "", "", publishData);
         if (GetDocumentTitle() != oldTitle)
           UpdateWindowTitle();
@@ -677,36 +612,32 @@ var nsPublishCommand =
         if (!window.ok)
           return false;
       }
-      if (publishData)
-      {
+      if (publishData) {
         SetEditMode(gPreviousNonSourceDisplayMode);
         return Publish(publishData);
       }
     }
     return false;
-  }
-}
+  },
+};
 
 var nsPublishAsCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
-    if (GetCurrentEditor())
-    {
+  doCommand(aCommand) {
+    if (GetCurrentEditor()) {
       SetEditMode(gPreviousNonSourceDisplayMode);
 
       window.ok = false;
       var publishData = {};
       var oldTitle = GetDocumentTitle();
-      window.openDialog("chrome://editor/content/EditorPublish.xul","_blank",
+      window.openDialog("chrome://editor/content/EditorPublish.xul", "_blank",
                         "chrome,close,titlebar,modal", "", "", publishData);
       if (GetDocumentTitle() != oldTitle)
         UpdateWindowTitle();
@@ -715,14 +646,13 @@ var nsPublishAsCommand =
         return Publish(publishData);
     }
     return false;
-  }
-}
+  },
+};
 
 // ------- output utilities   ----- //
 
 // returns a fileExtension string
-function GetExtensionBasedOnMimeType(aMIMEType)
-{
+function GetExtensionBasedOnMimeType(aMIMEType) {
   try {
     var mimeService = null;
     mimeService = Cc["@mozilla.org/mime;1"]
@@ -736,20 +666,17 @@ function GetExtensionBasedOnMimeType(aMIMEType)
       fileExtension = "html";
 
     return fileExtension;
-  }
-  catch (e) {}
+  } catch (e) {}
   return "";
 }
 
-function GetSuggestedFileName(aDocumentURLString, aMIMEType)
-{
+function GetSuggestedFileName(aDocumentURLString, aMIMEType) {
   var extension = GetExtensionBasedOnMimeType(aMIMEType);
   if (extension)
     extension = "." + extension;
 
   // check for existing file name we can use
-  if (aDocumentURLString && !IsUrlAboutBlank(aDocumentURLString))
-  {
+  if (aDocumentURLString && !IsUrlAboutBlank(aDocumentURLString)) {
     try {
       let docURI = Services.io.newURI(aDocumentURLString,
         GetCurrentEditor().documentCharacterSet);
@@ -759,7 +686,7 @@ function GetSuggestedFileName(aDocumentURLString, aMIMEType)
       let url = validateFileName(decodeURIComponent(docURI.fileBaseName));
       if (url)
         return url + extension;
-    } catch(e) {}
+    } catch (e) {}
   }
 
   // Check if there is a title we can use to generate a valid filename,
@@ -772,8 +699,7 @@ function GetSuggestedFileName(aDocumentURLString, aMIMEType)
 /**
  * @return {Promise} dialogResult
  */
-function PromptForSaveLocation(aDoSaveAsText, aEditorType, aMIMEType, aDocumentURLString)
-{
+function PromptForSaveLocation(aDoSaveAsText, aEditorType, aMIMEType, aDocumentURLString) {
   var dialogResult = {};
   dialogResult.filepickerClick = nsIFilePicker.returnCancel;
   dialogResult.resultingURI = "";
@@ -815,30 +741,24 @@ function PromptForSaveLocation(aDoSaveAsText, aEditorType, aMIMEType, aDocumentU
     try {
       let docURI = Services.io.newURI(aDocumentURLString, GetCurrentEditor().documentCharacterSet);
       isLocalFile = docURI.schemeIs("file");
-    }
-    catch (e) {}
+    } catch (e) {}
 
     var parentLocation = null;
-    if (isLocalFile)
-    {
+    if (isLocalFile) {
       var fileLocation = fileHandler.getFileFromURLSpec(aDocumentURLString); // this asserts if url is not local
       parentLocation = fileLocation.parent;
     }
-    if (parentLocation)
-    {
+    if (parentLocation) {
       // Save current filepicker's default location
       if ("gFilePickerDirectory" in window)
         gFilePickerDirectory = fp.displayDirectory;
 
       fp.displayDirectory = parentLocation;
-    }
-    else
-    {
+    } else {
       // Initialize to the last-used directory for the particular type (saved in prefs)
       SetFilePickerDirectory(fp, aEditorType);
     }
-  }
-  catch(e) {}
+  } catch (e) {}
 
   return new Promise(resolve => {
     fp.open(rv => {
@@ -849,8 +769,7 @@ function PromptForSaveLocation(aDoSaveAsText, aEditorType, aMIMEType, aDocumentU
         dialogResult.resultingLocalFile = fp.file;
         SaveFilePickerDirectory(fp, aEditorType);
         resolve(dialogResult);
-      }
-      else if ("gFilePickerDirectory" in window && gFilePickerDirectory) {
+      } else if ("gFilePickerDirectory" in window && gFilePickerDirectory) {
         fp.displayDirectory = gFilePickerDirectory;
         resolve(null);
       }
@@ -864,15 +783,14 @@ function PromptForSaveLocation(aDoSaveAsText, aEditorType, aMIMEType, aDocumentU
  * @return true if the title was set up successfully;
  *         false if the user cancelled the title prompt
  */
-function PromptAndSetTitleIfNone()
-{
+function PromptAndSetTitleIfNone() {
   if (GetDocumentTitle()) // we have a title; no need to prompt!
     return true;
 
-  let result = {value:null};
+  let result = {value: null};
   let captionStr = GetString("DocumentTitle");
-  let msgStr = GetString("NeedDocTitle") + '\n' + GetString("DocTitleHelp");
-  let confirmed = Services.prompt.prompt(window, captionStr, msgStr, result, null, {value:0});
+  let msgStr = GetString("NeedDocTitle") + "\n" + GetString("DocTitleHelp");
+  let confirmed = Services.prompt.prompt(window, captionStr, msgStr, result, null, {value: 0});
   if (confirmed)
     SetDocumentTitle(TrimString(result.value));
 
@@ -891,8 +809,7 @@ var gPersistObj;
       // this should cause notification to listeners that document has changed
 
 const webPersist = Ci.nsIWebBrowserPersist;
-function OutputFileWithPersistAPI(editorDoc, aDestinationLocation, aRelatedFilesParentDir, aMimeType)
-{
+function OutputFileWithPersistAPI(editorDoc, aDestinationLocation, aRelatedFilesParentDir, aMimeType) {
   gPersistObj = null;
   var editor = GetCurrentEditor();
   try {
@@ -903,13 +820,11 @@ function OutputFileWithPersistAPI(editorDoc, aDestinationLocation, aRelatedFiles
   try {
     var tmp1 = aDestinationLocation.QueryInterface(Ci.nsIFile);
     isLocalFile = true;
-  }
-  catch (e) {
+  } catch (e) {
     try {
       var tmp = aDestinationLocation.QueryInterface(Ci.nsIURI);
       isLocalFile = tmp.schemeIs("file");
-    }
-    catch (e) {}
+    } catch (e) {}
   }
 
   try {
@@ -944,27 +859,22 @@ function OutputFileWithPersistAPI(editorDoc, aDestinationLocation, aRelatedFiles
     persistObj.saveDocument(editorDoc, aDestinationLocation, aRelatedFilesParentDir,
                             aMimeType, outputFlags, wrapColumn);
     gPersistObj = persistObj;
-  }
-  catch(e) { dump("caught an error, bail\n"); return false; }
+  } catch (e) { dump("caught an error, bail\n"); return false; }
 
   return true;
 }
 
 // returns output flags based on mimetype, wrapCol and prefs
-function GetOutputFlags(aMimeType, aWrapColumn)
-{
+function GetOutputFlags(aMimeType, aWrapColumn) {
   var outputFlags = 0;
   var editor = GetCurrentEditor();
   var outputEntity = (editor && editor.documentCharacterSet == "ISO-8859-1")
     ? webPersist.ENCODE_FLAGS_ENCODE_LATIN1_ENTITIES
     : webPersist.ENCODE_FLAGS_ENCODE_BASIC_ENTITIES;
-  if (aMimeType == "text/plain")
-  {
+  if (aMimeType == "text/plain") {
     // When saving in "text/plain" format, always do formatting
     outputFlags |= webPersist.ENCODE_FLAGS_FORMATTED;
-  }
-  else
-  {
+  } else {
     // Should we prettyprint? Check the pref
     if (Services.prefs.getBoolPref("editor.prettyprint"))
       outputFlags |= webPersist.ENCODE_FLAGS_FORMATTED;
@@ -972,13 +882,12 @@ function GetOutputFlags(aMimeType, aWrapColumn)
     try {
       // How much entity names should we output? Check the pref
       switch (Services.prefs.getCharPref("editor.encode_entity")) {
-        case "basic"  : outputEntity = webPersist.ENCODE_FLAGS_ENCODE_BASIC_ENTITIES; break;
+        case "basic" : outputEntity = webPersist.ENCODE_FLAGS_ENCODE_BASIC_ENTITIES; break;
         case "latin1" : outputEntity = webPersist.ENCODE_FLAGS_ENCODE_LATIN1_ENTITIES; break;
-        case "html"   : outputEntity = webPersist.ENCODE_FLAGS_ENCODE_HTML_ENTITIES; break;
-        case "none"   : outputEntity = 0; break;
+        case "html" : outputEntity = webPersist.ENCODE_FLAGS_ENCODE_HTML_ENTITIES; break;
+        case "none" : outputEntity = 0; break;
       }
-    }
-    catch (e) {}
+    } catch (e) {}
   }
   outputFlags |= outputEntity;
 
@@ -990,8 +899,7 @@ function GetOutputFlags(aMimeType, aWrapColumn)
 
 // returns number of column where to wrap
 const nsIWebBrowserPersist = Ci.nsIWebBrowserPersist;
-function GetWrapColumn()
-{
+function GetWrapColumn() {
   try {
     return GetCurrentEditor().wrapWidth;
   } catch (e) {}
@@ -1014,8 +922,7 @@ const kFileNotFound = 2152857618;
 
 var gEditorOutputProgressListener =
 {
-  onStateChange : function(aWebProgress, aRequest, aStateFlags, aStatus)
-  {
+  onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
     var editor = GetCurrentEditor();
 
     // Use this to access onStateChange flags
@@ -1032,8 +939,7 @@ var gEditorOutputProgressListener =
     if (gPublishData)
       pubSpec = gPublishData.publishUrl + gPublishData.docDir + gPublishData.filename;
 
-    if (gShowDebugOutputStateChange)
-    {
+    if (gShowDebugOutputStateChange) {
       dump("\n***** onStateChange request: " + requestSpec + "\n");
       dump("      state flags: ");
 
@@ -1044,7 +950,7 @@ var gEditorOutputProgressListener =
       if (aStateFlags & nsIWebProgressListener.STATE_IS_NETWORK)
         dump(" STATE_IS_NETWORK ");
 
-      dump("\n * requestSpec="+requestSpec+", pubSpec="+pubSpec+", aStatus="+aStatus+"\n");
+      dump("\n * requestSpec=" + requestSpec + ", pubSpec=" + pubSpec + ", aStatus=" + aStatus + "\n");
 
       DumpDebugStatus(aStatus);
     }
@@ -1056,17 +962,15 @@ var gEditorOutputProgressListener =
     // (We ignore any START messages after gPersistObj says publishing is finished
     if ((aStateFlags & nsIWebProgressListener.STATE_START)
          && gPersistObj && requestSpec
-         && (gPersistObj.currentState != gPersistObj.PERSIST_STATE_FINISHED))
-    {
+         && (gPersistObj.currentState != gPersistObj.PERSIST_STATE_FINISHED)) {
       try {
         // Add url to progress dialog's list showing each file uploading
         gProgressDialog.SetProgressStatus(GetFilename(requestSpec), "busy");
-      } catch(e) {}
+      } catch (e) {}
     }
 
     // Detect end of file upload of any file:
-    if (aStateFlags & nsIWebProgressListener.STATE_STOP)
-    {
+    if (aStateFlags & nsIWebProgressListener.STATE_STOP) {
       // ignore aStatus == kErrorBindingAborted; check http response for possible errors
       try {
         // check http channel for response: 200 range is ok; other ranges are not
@@ -1078,10 +982,8 @@ var gEditorOutputProgressListener =
           aStatus = 0;
 
         if (gShowDebugOutputStateChange)
-          dump("http response is: "+httpResponse+"\n");
-      }
-      catch(e)
-      {
+          dump("http response is: " + httpResponse + "\n");
+      } catch (e) {
         if (aStatus == kErrorBindingAborted)
           aStatus = 0;
       }
@@ -1094,16 +996,14 @@ var gEditorOutputProgressListener =
       //  or a successful finish
       //  (Check requestSpec to be sure message is for destination url)
       if (aStatus != 0
-           || (requestSpec && requestSpec.startsWith(GetScheme(gPublishData.publishUrl))))
-      {
+           || (requestSpec && requestSpec.startsWith(GetScheme(gPublishData.publishUrl)))) {
         try {
           gProgressDialog.SetProgressFinished(GetFilename(requestSpec), aStatus);
-        } catch(e) {}
+        } catch (e) {}
       }
 
 
-      if (abortPublishing)
-      {
+      if (abortPublishing) {
         // Cancel publishing
         gPersistObj.cancelSave();
 
@@ -1111,16 +1011,14 @@ var gEditorOutputProgressListener =
         gCommandAfterPublishing = null;
 
         // Restore original document to undo image src url adjustments
-        if (gRestoreDocumentSource)
-        {
+        if (gRestoreDocumentSource) {
           try {
             editor.rebuildDocumentFromSource(gRestoreDocumentSource);
 
             // Clear transaction cache since we just did a potentially
             //  very large insert and this will eat up memory
             editor.transactionManager.clear();
-          }
-          catch (e) {}
+          } catch (e) {}
         }
 
         // Notify progress dialog that we're finished
@@ -1131,7 +1029,7 @@ var gEditorOutputProgressListener =
         return;
       }
 
-      //XXX HACK: "file://" protocol is not supported in network code
+      // XXX HACK: "file://" protocol is not supported in network code
       //    (bug 151867 filed to add this support, bug 151869 filed
       //     to remove this and other code in nsIWebBrowserPersist)
       //    nsIWebBrowserPersist *does* copy the file(s), but we don't
@@ -1146,32 +1044,27 @@ var gEditorOutputProgressListener =
       //    the gPersistObj is destroyed before we get here!
       //    So create an new object so we can flow through normal processing below
       if (!requestSpec && GetScheme(gPublishData.publishUrl) == "file"
-          && (!gPersistObj || gPersistObj.currentState == nsIWebBrowserPersist.PERSIST_STATE_FINISHED))
-      {
+          && (!gPersistObj || gPersistObj.currentState == nsIWebBrowserPersist.PERSIST_STATE_FINISHED)) {
         aStateFlags |= nsIWebProgressListener.STATE_IS_NETWORK;
-        if (!gPersistObj)
-        {
+        if (!gPersistObj) {
           gPersistObj =
           {
-            result : aStatus,
-            currentState : nsIWebBrowserPersist.PERSIST_STATE_FINISHED
-          }
+            result: aStatus,
+            currentState: nsIWebBrowserPersist.PERSIST_STATE_FINISHED,
+          };
         }
       }
 
       // STATE_IS_NETWORK signals end of publishing, as does the gPersistObj.currentState
       if (aStateFlags & nsIWebProgressListener.STATE_IS_NETWORK
-          && gPersistObj.currentState == nsIWebBrowserPersist.PERSIST_STATE_FINISHED)
-      {
-        if (GetScheme(gPublishData.publishUrl) == "file")
-        {
-          //XXX "file://" hack: We don't get notified about the HTML file, so end progress for it
+          && gPersistObj.currentState == nsIWebBrowserPersist.PERSIST_STATE_FINISHED) {
+        if (GetScheme(gPublishData.publishUrl) == "file") {
+          // XXX "file://" hack: We don't get notified about the HTML file, so end progress for it
           // (This covers both "Case 1 and 2" described above)
           gProgressDialog.SetProgressFinished(gPublishData.filename, gPersistObj.result);
         }
 
-        if (gPersistObj.result == 0)
-        {
+        if (gPersistObj.result == 0) {
           // All files are finished and publishing succeeded (some images may have failed)
           try {
             // Make a new docURI from the "browse location" in case "publish location" was FTP
@@ -1186,29 +1079,23 @@ var gEditorOutputProgressListener =
 
             // Set UI based on whether we're editing a remote or local url
             SetSaveAndPublishUI(urlstring);
-
           } catch (e) {}
 
           // Save publishData to prefs
-          if (gPublishData)
-          {
-            if (gPublishData.savePublishData)
-            {
+          if (gPublishData) {
+            if (gPublishData.savePublishData) {
               // We published successfully, so we can safely
               //  save docDir and otherDir to prefs
               gPublishData.saveDirs = true;
               SavePublishDataToPrefs(gPublishData);
-            }
-            else
+            } else
               SavePassword(gPublishData);
           }
 
           // Ask progress dialog to close, but it may not
           // if user checked checkbox to keep it open
           gProgressDialog.RequestCloseDialog();
-        }
-        else
-        {
+        } else {
           // We previously aborted publishing because of error:
           //   Calling gPersistObj.cancelSave() resulted in a non-zero gPersistObj.result,
           //   so notify progress dialog we're finished
@@ -1218,22 +1105,19 @@ var gEditorOutputProgressListener =
     }
   },
 
-  onProgressChange : function(aWebProgress, aRequest, aCurSelfProgress,
-                              aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress)
-  {
+  onProgressChange(aWebProgress, aRequest, aCurSelfProgress,
+                              aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress) {
     if (!gPersistObj)
       return;
 
-    if (gShowDebugOutputProgress)
-    {
-      dump("\n onProgressChange: gPersistObj.result="+gPersistObj.result+"\n");
+    if (gShowDebugOutputProgress) {
+      dump("\n onProgressChange: gPersistObj.result=" + gPersistObj.result + "\n");
       try {
       var channel = aRequest.QueryInterface(nsIChannel);
       dump("***** onProgressChange request: " + channel.URI.spec + "\n");
-      }
-      catch (e) {}
-      dump("*****       self:  "+aCurSelfProgress+" / "+aMaxSelfProgress+"\n");
-      dump("*****       total: "+aCurTotalProgress+" / "+aMaxTotalProgress+"\n\n");
+      } catch (e) {}
+      dump("*****       self:  " + aCurSelfProgress + " / " + aMaxSelfProgress + "\n");
+      dump("*****       total: " + aCurTotalProgress + " / " + aMaxTotalProgress + "\n\n");
 
       if (gPersistObj.currentState == gPersistObj.PERSIST_STATE_READY)
         dump(" Persister is ready to save data\n\n");
@@ -1244,34 +1128,27 @@ var gEditorOutputProgressListener =
     }
   },
 
-  onLocationChange : function(aWebProgress, aRequest, aLocation, aFlags)
-  {
-    if (gShowDebugOutputLocationChange)
-    {
-      dump("***** onLocationChange: "+aLocation.spec+"\n");
+  onLocationChange(aWebProgress, aRequest, aLocation, aFlags) {
+    if (gShowDebugOutputLocationChange) {
+      dump("***** onLocationChange: " + aLocation.spec + "\n");
       try {
         var channel = aRequest.QueryInterface(nsIChannel);
         dump("*****          request: " + channel.URI.spec + "\n");
-      }
-      catch(e) {}
+      } catch (e) {}
     }
   },
 
-  onStatusChange : function(aWebProgress, aRequest, aStatus, aMessage)
-  {
-    if (gShowDebugOutputStatusChange)
-    {
-      dump("***** onStatusChange: "+aMessage+"\n");
+  onStatusChange(aWebProgress, aRequest, aStatus, aMessage) {
+    if (gShowDebugOutputStatusChange) {
+      dump("***** onStatusChange: " + aMessage + "\n");
       try {
         var channel = aRequest.QueryInterface(nsIChannel);
         dump("*****        request: " + channel.URI.spec + "\n");
-      }
-      catch (e) { dump("          couldn't get request\n"); }
+      } catch (e) { dump("          couldn't get request\n"); }
 
       DumpDebugStatus(aStatus);
 
-      if (gPersistObj)
-      {
+      if (gPersistObj) {
         if (gPersistObj.currentState == gPersistObj.PERSIST_STATE_READY)
           dump(" Persister is ready to save data\n\n");
         else if (gPersistObj.currentState == gPersistObj.PERSIST_STATE_SAVING)
@@ -1282,10 +1159,8 @@ var gEditorOutputProgressListener =
     }
   },
 
-  onSecurityChange : function(aWebProgress, aRequest, state)
-  {
-    if (gShowDebugOutputSecurityChange)
-    {
+  onSecurityChange(aWebProgress, aRequest, state) {
+    if (gShowDebugOutputSecurityChange) {
       try {
         var channel = aRequest.QueryInterface(nsIChannel);
         dump("***** onSecurityChange request: " + channel.URI.spec + "\n");
@@ -1293,8 +1168,7 @@ var gEditorOutputProgressListener =
     }
   },
 
-  onContentBlockingEvent: function(aWebProgress, aRequest, aEvent)
-  {
+  onContentBlockingEvent(aWebProgress, aRequest, aEvent) {
   },
 
   QueryInterface: ChromeUtils.generateQI(["nsIWebProgressListener",
@@ -1303,31 +1177,26 @@ var gEditorOutputProgressListener =
                                           "nsIAuthPrompt"]),
 
 // nsIPrompt
-  alert : function(dlgTitle, text)
-  {
+  alert(dlgTitle, text) {
     Services.prompt.alert(gProgressDialog ? gProgressDialog : window, dlgTitle, text);
   },
-  alertCheck : function(dialogTitle, text, checkBoxLabel, checkObj)
-  {
+  alertCheck(dialogTitle, text, checkBoxLabel, checkObj) {
     Services.prompt.alert(window, dialogTitle, text);
   },
-  confirm : function(dlgTitle, text)
-  {
+  confirm(dlgTitle, text) {
     return ConfirmWithTitle(dlgTitle, text, null, null);
   },
-  confirmCheck : function(dlgTitle, text, checkBoxLabel, checkObj)
-  {
+  confirmCheck(dlgTitle, text, checkBoxLabel, checkObj) {
     Services.prompt.confirmEx(window, dlgTitle, text, nsIPromptService.STD_OK_CANCEL_BUTTONS,
                               "", "", "", checkBoxLabel, checkObj);
   },
-  confirmEx : function(dlgTitle, text, btnFlags, btn0Title, btn1Title, btn2Title, checkBoxLabel, checkVal)
-  {
+  confirmEx(dlgTitle, text, btnFlags, btn0Title, btn1Title, btn2Title, checkBoxLabel, checkVal) {
     return Services.prompt.confirmEx(window, dlgTitle, text, btnFlags,
                                      btn0Title, btn1Title, btn2Title,
                                      checkBoxLabel, checkVal);
   },
 
-  /*************************************************************************
+  /** ***********************************************************************
    * gEditorOutputProgressListener needs to implement both nsIPrompt       *
    * (providing alert) and nsIAuthPrompt (providing password saving).      *
    * Unfortunately, both interfaces specify prompt/promptPassword/         *
@@ -1372,14 +1241,12 @@ var gEditorOutputProgressListener =
   },
    *************************************************************************/
 
-  select : function(dlgTitle, text, count, selectList, outSelection)
-  {
+  select(dlgTitle, text, count, selectList, outSelection) {
     return Services.prompt.select(window, dlgTitle, text, count, selectList, outSelection);
   },
 
 // nsIAuthPrompt
-  prompt : function(dlgTitle, text, pwrealm, savePW, defaultText, result)
-  {
+  prompt(dlgTitle, text, pwrealm, savePW, defaultText, result) {
     var ret = Services.prompt.prompt(gProgressDialog ? gProgressDialog : window,
                                      dlgTitle, text, defaultText, pwrealm, savePWObj);
     if (!ret)
@@ -1387,23 +1254,21 @@ var gEditorOutputProgressListener =
     return ret;
   },
 
-  promptUsernameAndPassword : function(dlgTitle, text, pwrealm, savePW, userObj, pwObj)
-  {
+  promptUsernameAndPassword(dlgTitle, text, pwrealm, savePW, userObj, pwObj) {
     var ret = PromptUsernameAndPassword(dlgTitle, text, savePW, userObj, pwObj);
     if (!ret)
       setTimeout(CancelPublishing, 0);
     return ret;
   },
 
-  promptPassword : function(dlgTitle, text, pwrealm, savePW, pwObj)
-  {
+  promptPassword(dlgTitle, text, pwrealm, savePW, pwObj) {
     var ret = false;
     try {
       // Note difference with nsIPrompt::promptPassword, which has
       // "inout" savePassword param, while nsIAuthPrompt is just "in"
       // Also nsIAuth doesn't supply "checkBoxLabel"
       // Initialize with user's previous preference for this site
-      var savePWObj = {value:savePW};
+      var savePWObj = {value: savePW};
       // Initialize with user's previous preference for this site
       if (gPublishData)
         savePWObj.value = gPublishData.savePassword;
@@ -1416,27 +1281,24 @@ var gEditorOutputProgressListener =
 
       if (ret && gPublishData)
         UpdateUsernamePasswordFromPrompt(gPublishData, gPublishData.username, pwObj.value, savePWObj.value);
-    } catch(e) {}
+    } catch (e) {}
 
     return ret;
-  }
-}
+  },
+};
 
-function PromptUsernameAndPassword(dlgTitle, text, savePW, userObj, pwObj)
-{
+function PromptUsernameAndPassword(dlgTitle, text, savePW, userObj, pwObj) {
   // HTTP prompts us twice even if user Cancels from 1st attempt!
   // So never put up dialog if there's no publish data
   if (!gPublishData)
-    return false
+    return false;
 
   var ret = false;
   try {
-
-    var savePWObj = {value:savePW};
+    var savePWObj = {value: savePW};
 
     // Initialize with user's previous preference for this site
-    if (gPublishData)
-    {
+    if (gPublishData) {
       // HTTP put uses this dialog if either username or password is bad,
       //   so prefill username input field with the previous value for modification
       savePWObj.value = gPublishData.savePassword;
@@ -1449,14 +1311,12 @@ function PromptUsernameAndPassword(dlgTitle, text, savePW, userObj, pwObj)
                                                     GetString("SavePassword"), savePWObj);
     if (ret && gPublishData)
       UpdateUsernamePasswordFromPrompt(gPublishData, userObj.value, pwObj.value, savePWObj.value);
-
   } catch (e) {}
 
   return ret;
 }
 
-function DumpDebugStatus(aStatus)
-{
+function DumpDebugStatus(aStatus) {
   // see nsError.h and netCore.h and ftpCore.h
 
   if (aStatus == kErrorBindingAborted)
@@ -1534,8 +1394,7 @@ function DumpDebugStatus(aStatus)
 }
 
 // Update any data that the user supplied in a prompt dialog
-function UpdateUsernamePasswordFromPrompt(publishData, username, password, savePassword)
-{
+function UpdateUsernamePasswordFromPrompt(publishData, username, password, savePassword) {
   if (!publishData)
     return;
 
@@ -1563,13 +1422,11 @@ const kSupportedTextMimeTypes =
   "application/ecmascript",
   "application/x-javascript",
   "text/xul",
-  "application/vnd.mozilla.xul+xml"
+  "application/vnd.mozilla.xul+xml",
 ];
 
-function IsSupportedTextMimeType(aMimeType)
-{
-  for (var i = 0; i < kSupportedTextMimeTypes.length; i++)
-  {
+function IsSupportedTextMimeType(aMimeType) {
+  for (var i = 0; i < kSupportedTextMimeTypes.length; i++) {
     if (kSupportedTextMimeTypes[i] == aMimeType)
       return true;
   }
@@ -1577,8 +1434,7 @@ function IsSupportedTextMimeType(aMimeType)
 }
 
 // throws an error or returns true if user attempted save; false if user canceled save
-async function SaveDocument(aSaveAs, aSaveCopy, aMimeType)
-{
+async function SaveDocument(aSaveAs, aSaveCopy, aMimeType) {
   var editor = GetCurrentEditor();
   if (!aMimeType || !editor)
     throw Cr.NS_ERROR_NOT_INITIALIZED;
@@ -1613,12 +1469,10 @@ async function SaveDocument(aSaveAs, aSaveCopy, aMimeType)
   var doUpdateURI = false;
   var tempLocalFile = null;
 
-  if (mustShowFileDialog)
-  {
+  if (mustShowFileDialog) {
     try {
       // Prompt for title if we are saving to HTML
-      if (!saveAsTextFile && (editorType == "html"))
-      {
+      if (!saveAsTextFile && (editorType == "html")) {
         var userContinuing = PromptAndSetTitleIfNone(); // not cancel
         if (!userContinuing)
           return false;
@@ -1646,12 +1500,10 @@ async function SaveDocument(aSaveAs, aSaveCopy, aMimeType)
     // if somehow we didn't get a local file but we did get a uri,
     // attempt to create the localfile if it's a "file" url
     var docURI;
-    if (!tempLocalFile)
-    {
+    if (!tempLocalFile) {
       docURI = Services.io.newURI(urlstring, editor.documentCharacterSet);
 
-      if (docURI.schemeIs("file"))
-      {
+      if (docURI.schemeIs("file")) {
         var fileHandler = GetFileProtocolHandler();
         tempLocalFile = fileHandler.getFileFromURLSpec(urlstring).QueryInterface(Ci.nsIFile);
       }
@@ -1662,11 +1514,9 @@ async function SaveDocument(aSaveAs, aSaveCopy, aMimeType)
 
     // Only change links or move files if pref is set
     // and we are saving to a new location
-    if (Services.prefs.getBoolPref("editor.save_associated_files") && aSaveAs)
-    {
+    if (Services.prefs.getBoolPref("editor.save_associated_files") && aSaveAs) {
       try {
-        if (tempLocalFile)
-        {
+        if (tempLocalFile) {
           // if we are saving to the same parent directory, don't set relatedFilesDir
           // grab old location, chop off file
           // grab new location, chop off file, compare
@@ -1683,33 +1533,26 @@ async function SaveDocument(aSaveAs, aSaveCopy, aMimeType)
             relatedFilesDir = null;
           else
             relatedFilesDir = tempLocalFile.parent;
-        }
-        else
-        {
+        } else {
           var lastSlash = urlstring.lastIndexOf("\/");
-          if (lastSlash != -1)
-          {
+          if (lastSlash != -1) {
             var relatedFilesDirString = urlstring.slice(0, lastSlash + 1);  // include last slash
             relatedFilesDir = Services.io.newURI(relatedFilesDirString, editor.documentCharacterSet);
           }
         }
-      } catch(e) { relatedFilesDir = null; }
+      } catch (e) { relatedFilesDir = null; }
     }
 
     let destinationLocation = tempLocalFile ? tempLocalFile : docURI;
 
     success = OutputFileWithPersistAPI(editorDoc, destinationLocation, relatedFilesDir, aMimeType);
-  }
-  catch (e)
-  {
+  } catch (e) {
     success = false;
   }
 
-  if (success)
-  {
+  if (success) {
     try {
-      if (doUpdateURI)
-      {
+      if (doUpdateURI) {
          // If a local file, we must create a new uri from nsIFile
         if (tempLocalFile)
           docURI = GetFileProtocolHandler().newFileURI(tempLocalFile);
@@ -1730,31 +1573,27 @@ async function SaveDocument(aSaveAs, aSaveCopy, aMimeType)
       // Set UI based on whether we're editing a remote or local url
       SetSaveAndPublishUI(urlstring);
     } catch (e) {}
-  }
-  else
-  {
+  } else {
     Services.prompt.alert(window, GetString("SaveDocument"), GetString("SaveFileFailed"));
   }
   return success;
 }
 
-function SetDocumentURI(uri)
-{
+function SetDocumentURI(uri) {
   try {
     // XXX WE'LL NEED TO GET "CURRENT" CONTENT FRAME ONCE MULTIPLE EDITORS ARE ALLOWED
     GetCurrentEditorElement().docShell.setCurrentURI(uri);
-  } catch (e) { dump("SetDocumentURI:\n"+e +"\n"); }
+  } catch (e) { dump("SetDocumentURI:\n" + e + "\n"); }
 }
 
 
-//-------------------------------  Publishing
+// -------------------------------  Publishing
 var gPublishData;
 var gProgressDialog;
 var gCommandAfterPublishing = null;
 var gRestoreDocumentSource;
 
-function Publish(publishData)
-{
+function Publish(publishData) {
   if (!publishData)
     return false;
 
@@ -1764,8 +1603,7 @@ function Publish(publishData)
   gPublishData = publishData;
 
   gPublishData.docURI = CreateURIFromPublishData(publishData, true);
-  if (!gPublishData.docURI)
-  {
+  if (!gPublishData.docURI) {
     Services.prompt.alert(window, GetString("Publish"), GetString("PublishFailed"));
     return false;
   }
@@ -1775,24 +1613,22 @@ function Publish(publishData)
   else
     gPublishData.otherFilesURI = null;
 
-  if (gShowDebugOutputStateChange)
-  {
-    dump("\n *** publishData: PublishUrl="+publishData.publishUrl+", BrowseUrl="+publishData.browseUrl+
-      ", Username="+publishData.username+", Dir="+publishData.docDir+
-      ", Filename="+publishData.filename+"\n");
-    dump(" * gPublishData.docURI.spec w/o pass="+StripPassword(gPublishData.docURI.spec)+", PublishOtherFiles="+gPublishData.publishOtherFiles+"\n");
+  if (gShowDebugOutputStateChange) {
+    dump("\n *** publishData: PublishUrl=" + publishData.publishUrl + ", BrowseUrl=" + publishData.browseUrl +
+      ", Username=" + publishData.username + ", Dir=" + publishData.docDir +
+      ", Filename=" + publishData.filename + "\n");
+    dump(" * gPublishData.docURI.spec w/o pass=" + StripPassword(gPublishData.docURI.spec) + ", PublishOtherFiles=" + gPublishData.publishOtherFiles + "\n");
   }
 
   // XXX Missing username will make FTP fail
   // and it won't call us for prompt dialog (bug 132320)
   // (It does prompt if just password is missing)
   // So we should do the prompt ourselves before trying to publish
-  if (GetScheme(publishData.publishUrl) == "ftp" && !publishData.username)
-  {
+  if (GetScheme(publishData.publishUrl) == "ftp" && !publishData.username) {
     var message = GetString("PromptFTPUsernamePassword").replace(/%host%/, GetHost(publishData.publishUrl));
-    var savePWobj = {value:publishData.savePassword};
-    var userObj = {value:publishData.username};
-    var pwObj = {value:publishData.password};
+    var savePWobj = {value: publishData.savePassword};
+    var userObj = {value: publishData.username};
+    var pwObj = {value: publishData.password};
     if (!PromptUsernameAndPassword(GetString("Prompt"), message, savePWobj, userObj, pwObj))
       return false; // User canceled out of dialog
 
@@ -1800,8 +1636,7 @@ function Publish(publishData)
     gPublishData.docURI.username = publishData.username;
     gPublishData.docURI.password = publishData.password;
 
-    if (gPublishData.otherFilesURI)
-    {
+    if (gPublishData.otherFilesURI) {
       gPublishData.otherFilesURI.username = publishData.username;
       gPublishData.otherFilesURI.password = publishData.password;
     }
@@ -1816,7 +1651,6 @@ function Publish(publishData)
     gProgressDialog =
       window.openDialog("chrome://editor/content/EditorPublishProgress.xul", "_blank",
                         "chrome,dependent,titlebar", gPublishData, gPersistObj);
-
   } catch (e) {}
 
   // Network transfer is often too quick for the progress dialog to be initialized
@@ -1826,17 +1660,14 @@ function Publish(publishData)
   return true;
 }
 
-function StartPublishing()
-{
+function StartPublishing() {
   var editor = GetCurrentEditor();
-  if (editor && gPublishData && gPublishData.docURI && gProgressDialog)
-  {
+  if (editor && gPublishData && gPublishData.docURI && gProgressDialog) {
     gRestoreDocumentSource = null;
 
     // Save backup document since nsIWebBrowserPersist changes image src urls
     // but we only need to do this if publishing images and other related files
-    if (gPublishData.otherFilesURI)
-    {
+    if (gPublishData.otherFilesURI) {
       try {
         gRestoreDocumentSource =
           editor.outputToString(editor.contentsMIMEType, kOutputEncodeW3CEntities);
@@ -1851,8 +1682,7 @@ function StartPublishing()
   return null;
 }
 
-function CancelPublishing()
-{
+function CancelPublishing() {
   try {
     gPersistObj.cancelSave();
     gProgressDialog.SetProgressStatusCancel();
@@ -1861,25 +1691,21 @@ function CancelPublishing()
   // If canceling publishing do not do any commands after this
   gCommandAfterPublishing = null;
 
-  if (gProgressDialog)
-  {
+  if (gProgressDialog) {
     // Close Progress dialog
     // (this will call FinishPublishing())
     gProgressDialog.CloseDialog();
-  }
-  else
+  } else
     FinishPublishing();
 }
 
-function FinishPublishing()
-{
+function FinishPublishing() {
   SetDocumentEditable(true);
   gProgressDialog = null;
   gPublishData = null;
   gRestoreDocumentSource = null;
 
-  if (gCommandAfterPublishing)
-  {
+  if (gCommandAfterPublishing) {
     // Be sure to null out the global now in case of trouble when executing command
     var command = gCommandAfterPublishing;
     gCommandAfterPublishing = null;
@@ -1888,8 +1714,7 @@ function FinishPublishing()
 }
 
 // Create a nsIURI object filled in with all required publishing info
-function CreateURIFromPublishData(publishData, doDocUri)
-{
+function CreateURIFromPublishData(publishData, doDocUri) {
   if (!publishData || !publishData.publishUrl)
     return null;
 
@@ -1907,15 +1732,13 @@ function CreateURIFromPublishData(publishData, doDocUri)
       URI.username = publishData.username;
     if (publishData.password)
       URI.password = publishData.password;
-  }
-  catch (e) {}
+  } catch (e) {}
 
   return URI;
 }
 
 // Resolve the correct "http:" document URL when publishing via ftp
-function GetDocUrlFromPublishData(publishData)
-{
+function GetDocUrlFromPublishData(publishData) {
   if (!publishData || !publishData.filename || !publishData.publishUrl)
     return "";
 
@@ -1939,24 +1762,21 @@ function GetDocUrlFromPublishData(publishData)
   return url;
 }
 
-function SetSaveAndPublishUI(urlstring)
-{
+function SetSaveAndPublishUI(urlstring) {
   // Be sure enabled state of toolbar buttons are correct
   goUpdateCommand("cmd_save");
   goUpdateCommand("cmd_publish");
 }
 
-function SetDocumentEditable(isDocEditable)
-{
+function SetDocumentEditable(isDocEditable) {
   var editor = GetCurrentEditor();
-  if (editor && editor.document)
-  {
+  if (editor && editor.document) {
     try {
       var flags = editor.flags;
       editor.flags = isDocEditable ?
             flags &= ~nsIPlaintextEditor.eEditorReadonlyMask :
             flags | nsIPlaintextEditor.eEditorReadonlyMask;
-    } catch(e) {}
+    } catch (e) {}
 
     // update all commands
     window.updateCommands("create");
@@ -1965,87 +1785,77 @@ function SetDocumentEditable(isDocEditable)
 
 // ****** end of save / publish **********//
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsPublishSettingsCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
-    if (GetCurrentEditor())
-    {
+  doCommand(aCommand) {
+    if (GetCurrentEditor()) {
       // Launch Publish Settings dialog
 
-      window.ok = window.openDialog("chrome://editor/content/EditorPublishSettings.xul","_blank", "chrome,close,titlebar,modal", "");
+      window.ok = window.openDialog("chrome://editor/content/EditorPublishSettings.xul", "_blank", "chrome,close,titlebar,modal", "");
       return window.ok;
     }
     return false;
-  }
-}
+  },
+};
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsRevertCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() &&
             IsDocumentModified() &&
             !IsUrlAboutBlank(GetDocumentUrl()));
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     // Confirm with the user to abandon current changes
     // Put the page title in the message string
     let title = GetDocumentTitle();
-    let msg = GetString("AbandonChanges").replace(/%title%/,title);
+    let msg = GetString("AbandonChanges").replace(/%title%/, title);
 
     let result = Services.prompt.confirmEx(window, GetString("RevertCaption"), msg,
                    (Services.prompt.BUTTON_TITLE_REVERT * Services.prompt.BUTTON_POS_0) +
                    (Services.prompt.BUTTON_TITLE_CANCEL * Services.prompt.BUTTON_POS_1),
-                   null, null, null, null, {value:0});
+                   null, null, null, null, {value: 0});
 
     // Reload page if first button (Revert) was pressed
-    if (result == 0)
-    {
+    if (result == 0) {
       CancelHTMLSource();
       EditorLoadUrl(GetDocumentUrl());
     }
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsCloseCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return GetCurrentEditor() != null;
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     CloseWindow();
-  }
+  },
 };
 
-async function CloseWindow()
-{
+async function CloseWindow() {
   // Check to make sure document is saved. "true" means allow "Don't Save" button,
   //   so user can choose to close without saving
-  if (await CheckAndSaveDocument("cmd_close", true))
-  {
+  if (await CheckAndSaveDocument("cmd_close", true)) {
     if (window.InsertCharWindow)
       SwitchInsertCharToAnotherEditorOrClose();
 
@@ -2061,19 +1871,17 @@ async function CloseWindow()
   }
 }
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsOpenRemoteCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return true;    // we can always do this
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     var params = { action: "2", url: "" };
     openDialog("chrome://communicator/content/openLocation.xul", "_blank", "chrome,modal,titlebar", params);
     var win = getTopWin();
@@ -2100,273 +1908,241 @@ var nsOpenRemoteCommand =
       default:
         break;
     }
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsPreviewCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() &&
             IsHTMLEditor() &&
             (DocumentHasBeenSaved() || IsDocumentModified()));
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: async function(aCommand)
-  {
+  async doCommand(aCommand) {
     // Don't continue if user canceled during prompt for saving
     // DocumentHasBeenSaved will test if we have a URL and suppress "Don't Save" button if not
     if (!(await CheckAndSaveDocument("cmd_preview", DocumentHasBeenSaved())))
       return;
 
     // Check if we saved again just in case?
-    if (DocumentHasBeenSaved())
-    {
+    if (DocumentHasBeenSaved()) {
       let browser;
       try {
         // Find a browser with this URL
         let enumerator = Services.wm.getEnumerator("navigator:browser");
 
         var documentURI = GetDocumentUrl();
-        while (enumerator.hasMoreElements())
-        {
+        while (enumerator.hasMoreElements()) {
           browser = enumerator.getNext();
           if (browser && (documentURI == browser.getBrowser().currentURI.spec))
             break;
 
           browser = null;
         }
-      }
-      catch (ex) {}
+      } catch (ex) {}
 
       // If none found, open a new browser
-      if (!browser)
-      {
+      if (!browser) {
         browser = window.openDialog(getBrowserURL(), "_blank", "chrome,all,dialog=no", documentURI);
-      }
-      else
-      {
+      } else {
         try {
           browser.BrowserReloadSkipCache();
           browser.focus();
         } catch (ex) {}
       }
     }
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsSendPageCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() &&
             (DocumentHasBeenSaved() || IsDocumentModified()));
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: async function(aCommand)
-  {
+  async doCommand(aCommand) {
     // Don't continue if user canceled during prompt for saving
     // DocumentHasBeenSaved will test if we have a URL and suppress "Don't Save" button if not
     if (!(await CheckAndSaveDocument("cmd_editSendPage", DocumentHasBeenSaved())))
       return;
 
     // Check if we saved again just in case?
-    if (DocumentHasBeenSaved())
-    {
+    if (DocumentHasBeenSaved()) {
       // Launch Messenger Composer window with current page as contents
-      try
-      {
+      try {
         openComposeWindow(GetDocumentUrl(), GetDocumentTitle());
       } catch (ex) { dump("Cannot Send Page: " + ex + "\n"); }
     }
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsPrintCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return true;    // we can always do this
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     // In editor.js
     SetEditMode(gPreviousNonSourceDisplayMode);
     try {
       let browser = GetCurrentEditorElement();
       PrintUtils.printWindow(browser.outerWindowID, browser);
     } catch (e) {}
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsPrintPreviewCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return true;    // we can always do this
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     // In editor.js
     SetEditMode(gPreviousNonSourceDisplayMode);
     try {
       PrintUtils.printPreview(PrintPreviewListener);
     } catch (e) {}
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsPrintSetupCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return true;    // we can always do this
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     // In editor.js
     SetEditMode(gPreviousNonSourceDisplayMode);
     PrintUtils.showPageSetup();
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsFindReplaceCommand =
 {
-  isCommandEnabled: function(aCommand, editorElement)
-  {
+  isCommandEnabled(aCommand, editorElement) {
     return editorElement.getEditor(editorElement.contentWindow) != null;
   },
 
-  getCommandStateParams: function(aCommand, aParams, editorElement) {},
-  doCommandParams: function(aCommand, aParams, editorElement) {},
+  getCommandStateParams(aCommand, aParams, editorElement) {},
+  doCommandParams(aCommand, aParams, editorElement) {},
 
-  doCommand: function(aCommand, editorElement)
-  {
+  doCommand(aCommand, editorElement) {
     window.openDialog("chrome://editor/content/EdReplace.xul", "_blank",
                       "chrome,modal,titlebar", editorElement);
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsFindCommand =
 {
-  isCommandEnabled: function(aCommand, editorElement)
-  {
+  isCommandEnabled(aCommand, editorElement) {
     return editorElement.getEditor(editorElement.contentWindow) != null;
   },
 
-  getCommandStateParams: function(aCommand, aParams, editorElement) {},
-  doCommandParams: function(aCommand, aParams, editorElement) {},
+  getCommandStateParams(aCommand, aParams, editorElement) {},
+  doCommandParams(aCommand, aParams, editorElement) {},
 
-  doCommand: function(aCommand, editorElement)
-  {
+  doCommand(aCommand, editorElement) {
     document.getElementById("FindToolbar").onFindCommand();
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsFindAgainCommand =
 {
-  isCommandEnabled: function(aCommand, editorElement)
-  {
+  isCommandEnabled(aCommand, editorElement) {
     // we can only do this if the search pattern is non-empty. Not sure how
     // to get that from here
     return editorElement.getEditor(editorElement.contentWindow) != null;
   },
 
-  getCommandStateParams: function(aCommand, aParams, editorElement) {},
-  doCommandParams: function(aCommand, aParams, editorElement) {},
+  getCommandStateParams(aCommand, aParams, editorElement) {},
+  doCommandParams(aCommand, aParams, editorElement) {},
 
-  doCommand: function(aCommand, editorElement)
-  {
+  doCommand(aCommand, editorElement) {
     let findPrev = (aCommand == "cmd_findPrev");
     document.getElementById("FindToolbar").onFindAgainCommand(findPrev);
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsRewrapCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && !IsInHTMLSourceMode() &&
             GetCurrentEditor() instanceof Ci.nsIEditorMailSupport);
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     GetCurrentEditor().QueryInterface(Ci.nsIEditorMailSupport).rewrap(false);
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsSpellingCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() &&
             !IsInHTMLSourceMode() && IsSpellCheckerInstalled());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     window.cancelSendMessage = false;
     try {
       var skipBlockQuotes = (window.document.documentElement.getAttribute("windowtype") == "msgcompose");
       window.openDialog("chrome://editor/content/EdSpellCheck.xul", "_blank",
               "dialog,close,titlebar,modal,resizable", false, skipBlockQuotes, true);
-    }
-    catch(ex) {}
-  }
+    } catch (ex) {}
+  },
 };
 
 // Validate using http://validator.w3.org/file-upload.html
 var URL2Validate;
 var nsValidateCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return GetCurrentEditor() != null;
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: async function(aCommand)
-  {
+  async doCommand(aCommand) {
     // If the document hasn't been modified,
     // then just validate the current url.
-    if (IsDocumentModified() || IsHTMLSourceChanged())
-    {
+    if (IsDocumentModified() || IsHTMLSourceChanged()) {
       if (!(await CheckAndSaveDocument("cmd_validate", false)))
         return;
 
@@ -2383,16 +2159,13 @@ var nsValidateCommand =
       ifile = fileHandler.getFileFromURLSpec(URL2Validate);
       // nsIFile throws an exception if it's not a file url
     } catch (e) { ifile = null; }
-    if (ifile)
-    {
+    if (ifile) {
       URL2Validate = ifile.path;
       var vwin = window.open("http://validator.w3.org/file-upload.html",
                              "EditorValidate");
       // Window loads asynchronously, so pass control to the load listener:
       vwin.addEventListener("load", this.validateFilePageLoaded);
-    }
-    else
-    {
+    } else {
       var vwin2 = window.open("http://validator.w3.org/check?uri="
                               + URL2Validate
                               + "&doctype=Inline",
@@ -2400,143 +2173,126 @@ var nsValidateCommand =
       // This does the validation, no need to wait for page loaded.
     }
   },
-  validateFilePageLoaded: function(event)
-  {
+  validateFilePageLoaded(event) {
     event.target.forms[0].uploaded_file.value = URL2Validate;
-  }
+  },
 };
 
 var nsCheckLinksCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
-    window.openDialog("chrome://editor/content/EdLinkChecker.xul","_blank", "chrome,close,titlebar,modal");
-  }
+  doCommand(aCommand) {
+    window.openDialog("chrome://editor/content/EdLinkChecker.xul", "_blank", "chrome,close,titlebar,modal");
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsFormCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     window.openDialog("chrome://editor/content/EdFormProps.xul", "_blank", "chrome,close,titlebar,modal");
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsInputTagCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     window.openDialog("chrome://editor/content/EdInputProps.xul", "_blank", "chrome,close,titlebar,modal");
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsInputImageCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     window.openDialog("chrome://editor/content/EdInputImage.xul", "_blank", "chrome,close,titlebar,modal");
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsTextAreaCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     window.openDialog("chrome://editor/content/EdTextAreaProps.xul", "_blank", "chrome,close,titlebar,modal");
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsSelectCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     window.openDialog("chrome://editor/content/EdSelectProps.xul", "_blank", "chrome,close,titlebar,modal");
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsButtonCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     window.openDialog("chrome://editor/content/EdButtonProps.xul", "_blank", "chrome,close,titlebar,modal");
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsLabelCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     var tagName = "label";
     try {
       var editor = GetCurrentEditor();
@@ -2553,78 +2309,70 @@ var nsLabelCommand =
         EditorSetTextProperty(tagName, "", "");
       }
     } catch (e) {}
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsFieldSetCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     window.openDialog("chrome://editor/content/EdFieldSetProps.xul", "_blank", "chrome,close,titlebar,modal");
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsIsIndexCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     try {
       var editor = GetCurrentEditor();
       var isindexElement = editor.createElementWithDefaults("isindex");
       isindexElement.setAttribute("prompt", editor.outputToString("text/plain", kOutputSelectionOnly));
       editor.insertElementAtSelection(isindexElement, true);
     } catch (e) {}
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsImageCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
-    window.openDialog("chrome://editor/content/EdImageProps.xul","_blank", "chrome,close,titlebar,modal");
-  }
+  doCommand(aCommand) {
+    window.openDialog("chrome://editor/content/EdImageProps.xul", "_blank", "chrome,close,titlebar,modal");
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsHLineCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     // Inserting an HLine is different in that we don't use properties dialog
     //  unless we are editing an existing line's attributes
     //  We get the last-used attributes from the prefs and insert immediately
@@ -2635,15 +2383,12 @@ var nsHLineCommand =
     var hLine;
     try {
       hLine = editor.getSelectedElement(tagName);
-    } catch (e) {return;}
+    } catch (e) { return; }
 
-    if (hLine)
-    {
+    if (hLine) {
       // We only open the dialog for an existing HRule
       window.openDialog("chrome://editor/content/EdHLineProps.xul", "_blank", "chrome,close,titlebar,modal");
-    }
-    else
-    {
+    } else {
       try {
         hLine = editor.createElementWithDefaults(tagName);
 
@@ -2654,11 +2399,11 @@ var nsHLineCommand =
         else if (align == 2)
           editor.setAttributeOrEquivalent(hLine, "align", "right", true);
 
-        //Note: Default is center (don't write attribute)
+        // Note: Default is center (don't write attribute)
 
         let width = Services.prefs.getIntPref("editor.hrule.width");
         if (Services.prefs.getBoolPref("editor.hrule.width_percent"))
-          width = width +"%";
+          width = width + "%";
 
         editor.setAttributeOrEquivalent(hLine, "width", width, true);
 
@@ -2671,281 +2416,252 @@ var nsHLineCommand =
           hLine.setAttribute("noshade", "noshade");
 
         editor.insertElementAtSelection(hLine, true);
-
       } catch (e) {}
     }
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsLinkCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     // If selected element is an image, launch that dialog instead
     // since last tab panel handles link around an image
     var element = GetObjectForProperties();
     if (element && element.nodeName.toLowerCase() == "img")
-      window.openDialog("chrome://editor/content/EdImageProps.xul","_blank", "chrome,close,titlebar,modal", null, true);
+      window.openDialog("chrome://editor/content/EdImageProps.xul", "_blank", "chrome,close,titlebar,modal", null, true);
     else
-      window.openDialog("chrome://editor/content/EdLinkProps.xul","_blank", "chrome,close,titlebar,modal");
-  }
+      window.openDialog("chrome://editor/content/EdLinkProps.xul", "_blank", "chrome,close,titlebar,modal");
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsAnchorCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     window.openDialog("chrome://editor/content/EdNamedAnchorProps.xul", "_blank", "chrome,close,titlebar,modal", "");
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsInsertHTMLWithDialogCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
-    window.openDialog("chrome://editor/content/EdInsSrc.xul","_blank", "chrome,close,titlebar,modal,resizable", "");
-  }
+  doCommand(aCommand) {
+    window.openDialog("chrome://editor/content/EdInsSrc.xul", "_blank", "chrome,close,titlebar,modal,resizable", "");
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsInsertMathWithDialogCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     window.openDialog("chrome://editor/content/EdInsertMath.xul", "_blank", "chrome,close,titlebar,modal,resizable", "");
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsInsertCharsCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     EditorFindOrCreateInsertCharWindow();
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsInsertBreakCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     try {
       GetCurrentEditor().insertHTML("<br>");
     } catch (e) {}
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsInsertBreakAllCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     try {
       GetCurrentEditor().insertHTML("<br clear='all'>");
     } catch (e) {}
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsGridCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
-    window.openDialog("chrome://editor/content/EdSnapToGrid.xul","_blank", "chrome,close,titlebar,modal");
-  }
+  doCommand(aCommand) {
+    window.openDialog("chrome://editor/content/EdSnapToGrid.xul", "_blank", "chrome,close,titlebar,modal");
+  },
 };
 
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsListPropertiesCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
-    window.openDialog("chrome://editor/content/EdListProps.xul","_blank", "chrome,close,titlebar,modal");
-  }
+  doCommand(aCommand) {
+    window.openDialog("chrome://editor/content/EdListProps.xul", "_blank", "chrome,close,titlebar,modal");
+  },
 };
 
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsPagePropertiesCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     var oldTitle = GetDocumentTitle();
-    window.openDialog("chrome://editor/content/EdPageProps.xul","_blank", "chrome,close,titlebar,modal", "");
+    window.openDialog("chrome://editor/content/EdPageProps.xul", "_blank", "chrome,close,titlebar,modal", "");
 
     // Update main window title and
     // recent menu data in prefs if doc title changed
     if (GetDocumentTitle() != oldTitle)
       UpdateWindowTitle();
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsObjectPropertiesCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     var isEnabled = false;
-    if (IsDocumentEditable() && IsEditingRenderedHTML())
-    {
+    if (IsDocumentEditable() && IsEditingRenderedHTML()) {
       isEnabled = (GetObjectForProperties() != null ||
                    GetCurrentEditor().getSelectedElement("href") != null);
     }
     return isEnabled;
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     // Launch Object properties for appropriate selected element
     var element = GetObjectForProperties();
-    if (element)
-    {
+    if (element) {
       var name = element.nodeName.toLowerCase();
-      switch (name)
-      {
-        case 'img':
+      switch (name) {
+        case "img":
           goDoCommand("cmd_image");
           break;
-        case 'hr':
+        case "hr":
           goDoCommand("cmd_hline");
           break;
-        case 'form':
+        case "form":
           goDoCommand("cmd_form");
           break;
-        case 'input':
+        case "input":
           var type = element.getAttribute("type");
           if (type && type.toLowerCase() == "image")
             goDoCommand("cmd_inputimage");
           else
             goDoCommand("cmd_inputtag");
           break;
-        case 'textarea':
+        case "textarea":
           goDoCommand("cmd_textarea");
           break;
-        case 'select':
+        case "select":
           goDoCommand("cmd_select");
           break;
-        case 'button':
+        case "button":
           goDoCommand("cmd_button");
           break;
-        case 'label':
+        case "label":
           goDoCommand("cmd_label");
           break;
-        case 'fieldset':
+        case "fieldset":
           goDoCommand("cmd_fieldset");
           break;
-        case 'table':
+        case "table":
           EditorInsertOrEditTable(false);
           break;
-        case 'td':
-        case 'th':
+        case "td":
+        case "th":
           EditorTableCellProperties();
           break;
-        case 'ol':
-        case 'ul':
-        case 'dl':
-        case 'li':
+        case "ol":
+        case "ul":
+        case "dl":
+        case "li":
           goDoCommand("cmd_listProperties");
           break;
-        case 'a':
-          if (element.name)
-          {
+        case "a":
+          if (element.name) {
             goDoCommand("cmd_anchor");
-          }
-          else if (element.href)
-          {
+          } else if (element.href) {
             goDoCommand("cmd_link");
           }
           break;
-        case 'math':
+        case "math":
           goDoCommand("cmd_insertMathWithDialog");
           break;
         default:
@@ -2960,73 +2676,69 @@ var nsObjectPropertiesCommand =
       if (element)
         goDoCommand("cmd_link");
     }
-  }
+  },
 };
 
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsSetSmiley =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon)
-  {
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {
     var smileyCode = aParams.getStringValue("state_attribute");
 
     var strSml;
-    switch(smileyCode)
-    {
-        case ":-)": strSml="s1";
+    switch (smileyCode) {
+        case ":-)": strSml = "s1";
         break;
-        case ":-(": strSml="s2";
+        case ":-(": strSml = "s2";
         break;
-        case ";-)": strSml="s3";
+        case ";-)": strSml = "s3";
         break;
         case ":-P":
         case ":-p":
-        case ":-b": strSml="s4";
+        case ":-b": strSml = "s4";
         break;
-        case ":-D": strSml="s5";
+        case ":-D": strSml = "s5";
         break;
-        case ":-[": strSml="s6";
+        case ":-[": strSml = "s6";
         break;
         case ":-/":
         case ":/":
         case ":-\\":
-        case ":\\": strSml="s7";
+        case ":\\": strSml = "s7";
         break;
         case "=-O":
-        case "=-o": strSml="s8";
+        case "=-o": strSml = "s8";
         break;
-        case ":-*": strSml="s9";
+        case ":-*": strSml = "s9";
         break;
         case ">:o":
-        case ">:-o": strSml="s10";
+        case ">:-o": strSml = "s10";
         break;
-        case "8-)": strSml="s11";
+        case "8-)": strSml = "s11";
         break;
-        case ":-$": strSml="s12";
+        case ":-$": strSml = "s12";
         break;
-        case ":-!": strSml="s13";
+        case ":-!": strSml = "s13";
         break;
         case "O:-)":
-        case "o:-)": strSml="s14";
+        case "o:-)": strSml = "s14";
         break;
-        case ":'(": strSml="s15";
+        case ":'(": strSml = "s15";
         break;
         case ":-X":
-        case ":-x": strSml="s16";
+        case ":-x": strSml = "s16";
         break;
-        default: strSml="";
+        default: strSml = "";
         break;
     }
 
-    try
-    {
+    try {
       var editor = GetCurrentEditor();
       var selection = editor.selection;
       var extElement = editor.createElementWithDefaults("span");
@@ -3040,523 +2752,466 @@ var nsSetSmiley =
       if (!txtElement)
         return;
 
-      intElement.appendChild (txtElement);
-      extElement.appendChild (intElement);
+      intElement.appendChild(txtElement);
+      extElement.appendChild(intElement);
 
 
-      editor.insertElementAtSelection(extElement,true);
+      editor.insertElementAtSelection(extElement, true);
       window.content.focus();
-
-    }
-    catch (e)
-    {
+    } catch (e) {
         dump("Exception occurred in smiley InsertElementAtSelection\n");
     }
   },
   // This is now deprecated in favor of "doCommandParams"
-  doCommand: function(aCommand) {}
+  doCommand(aCommand) {},
 };
 
 
-function doAdvancedProperties(element)
-{
-  if (element)
-  {
+function doAdvancedProperties(element) {
+  if (element) {
     window.openDialog("chrome://editor/content/EdAdvancedEdit.xul", "_blank", "chrome,close,titlebar,modal,resizable=yes", "", element);
   }
 }
 
 var nsAdvancedPropertiesCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     // Launch AdvancedEdit dialog for the selected element
     try {
       var element = GetCurrentEditor().getSelectedElement("");
       doAdvancedProperties(element);
     } catch (e) {}
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsColorPropertiesCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
-    window.openDialog("chrome://editor/content/EdColorProps.xul","_blank", "chrome,close,titlebar,modal", "");
+  doCommand(aCommand) {
+    window.openDialog("chrome://editor/content/EdColorProps.xul", "_blank", "chrome,close,titlebar,modal", "");
     UpdateDefaultColors();
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsIncreaseFontCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     if (!(IsDocumentEditable() && IsEditingRenderedHTML()))
       return false;
     var setIndex = getFontSizeIndex();
     return (setIndex >= 0 && setIndex < 5);
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     var setIndex = getFontSizeIndex();
     if (setIndex < 0 || setIndex >= 5)
       return;
-    var sizes = ['x-small', 'small', 'medium', 'large', 'x-large', 'xx-large' ];
-    EditorSetFontSize(sizes[setIndex+1]);
-  }
+    var sizes = ["x-small", "small", "medium", "large", "x-large", "xx-large" ];
+    EditorSetFontSize(sizes[setIndex + 1]);
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsDecreaseFontCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     if (!(IsDocumentEditable() && IsEditingRenderedHTML()))
       return false;
     var setIndex = getFontSizeIndex();
     return (setIndex > 0);
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     var setIndex = getFontSizeIndex();
     if (setIndex <= 0)
       return;
-    var sizes = ['x-small', 'small', 'medium', 'large', 'x-large', 'xx-large' ];
-    EditorSetFontSize(sizes[setIndex-1]);
-  }
+    var sizes = ["x-small", "small", "medium", "large", "x-large", "xx-large" ];
+    EditorSetFontSize(sizes[setIndex - 1]);
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsRemoveNamedAnchorsCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     // We could see if there's any link in selection, but it doesn't seem worth the work!
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     EditorRemoveTextProperty("name", "");
     window.content.focus();
-  }
+  },
 };
 
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsEditLinkCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     // Not really used -- this command is only in context menu, and we do enabling there
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     try {
       var element = GetCurrentEditor().getSelectedElement("href");
       if (element)
         editPage(element.href);
     } catch (e) {}
     window.content.focus();
-  }
+  },
 };
 
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsNormalModeCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return IsHTMLEditor() && IsDocumentEditable();
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     SetEditMode(kDisplayModeNormal);
-  }
+  },
 };
 
 var nsAllTagsModeCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsHTMLEditor());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     SetEditMode(kDisplayModeAllTags);
-  }
+  },
 };
 
 var nsHTMLSourceModeCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsHTMLEditor());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     SetEditMode(kDisplayModeSource);
-  }
+  },
 };
 
 var nsPreviewModeCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsHTMLEditor());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     SetEditMode(kDisplayModePreview);
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsInsertOrEditTableCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return (IsDocumentEditable() && IsEditingRenderedHTML());
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     if (IsInTableCell())
       EditorTableCellProperties();
     else
       EditorInsertOrEditTable(true);
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsEditTableCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return IsInTable();
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     EditorInsertOrEditTable(false);
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsSelectTableCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return IsInTable();
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     try {
       GetCurrentTableEditor().selectTable();
-    } catch(e) {}
+    } catch (e) {}
     window.content.focus();
-  }
+  },
 };
 
 var nsSelectTableRowCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return IsInTableCell();
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     try {
       GetCurrentTableEditor().selectTableRow();
-    } catch(e) {}
+    } catch (e) {}
     window.content.focus();
-  }
+  },
 };
 
 var nsSelectTableColumnCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return IsInTableCell();
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     try {
       GetCurrentTableEditor().selectTableColumn();
-    } catch(e) {}
+    } catch (e) {}
     window.content.focus();
-  }
+  },
 };
 
 var nsSelectTableCellCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return IsInTableCell();
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     try {
       GetCurrentTableEditor().selectTableCell();
-    } catch(e) {}
+    } catch (e) {}
     window.content.focus();
-  }
+  },
 };
 
 var nsSelectAllTableCellsCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return IsInTable();
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     try {
       GetCurrentTableEditor().selectAllTableCells();
-    } catch(e) {}
+    } catch (e) {}
     window.content.focus();
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsInsertTableCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return IsDocumentEditable() && IsEditingRenderedHTML();
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     EditorInsertTable();
-  }
+  },
 };
 
 var nsInsertTableRowAboveCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return IsInTableCell();
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     try {
       GetCurrentTableEditor().insertTableRow(1, false);
-    } catch(e) {}
+    } catch (e) {}
     window.content.focus();
-  }
+  },
 };
 
 var nsInsertTableRowBelowCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return IsInTableCell();
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     try {
       GetCurrentTableEditor().insertTableRow(1, true);
-    } catch(e) {}
+    } catch (e) {}
     window.content.focus();
-  }
+  },
 };
 
 var nsInsertTableColumnBeforeCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return IsInTableCell();
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     try {
       GetCurrentTableEditor().insertTableColumn(1, false);
-    } catch(e) {}
+    } catch (e) {}
     window.content.focus();
-  }
+  },
 };
 
 var nsInsertTableColumnAfterCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return IsInTableCell();
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     try {
       GetCurrentTableEditor().insertTableColumn(1, true);
-    } catch(e) {}
+    } catch (e) {}
     window.content.focus();
-  }
+  },
 };
 
 var nsInsertTableCellBeforeCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return IsInTableCell();
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     try {
       GetCurrentTableEditor().insertTableCell(1, false);
-    } catch(e) {}
+    } catch (e) {}
     window.content.focus();
-  }
+  },
 };
 
 var nsInsertTableCellAfterCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return IsInTableCell();
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     try {
       GetCurrentTableEditor().insertTableCell(1, true);
-    } catch(e) {}
+    } catch (e) {}
     window.content.focus();
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsDeleteTableCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return IsInTable();
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     try {
       GetCurrentTableEditor().deleteTable();
-    } catch(e) {}
+    } catch (e) {}
     window.content.focus();
-  }
+  },
 };
 
 var nsDeleteTableRowCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return IsInTableCell();
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     var rows = GetNumberOfContiguousSelectedRows();
     // Delete at least one row
     if (rows == 0)
@@ -3567,28 +3222,25 @@ var nsDeleteTableRowCommand =
       editor.beginTransaction();
 
       // Loop to delete all blocks of contiguous, selected rows
-      while (rows)
-      {
+      while (rows) {
         editor.deleteTableRow(rows);
         rows = GetNumberOfContiguousSelectedRows();
       }
     } finally { editor.endTransaction(); }
     window.content.focus();
-  }
+  },
 };
 
 var nsDeleteTableColumnCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return IsInTableCell();
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     var columns = GetNumberOfContiguousSelectedColumns();
     // Delete at least one column
     if (columns == 0)
@@ -3599,83 +3251,74 @@ var nsDeleteTableColumnCommand =
       editor.beginTransaction();
 
       // Loop to delete all blocks of contiguous, selected columns
-      while (columns)
-      {
+      while (columns) {
         editor.deleteTableColumn(columns);
         columns = GetNumberOfContiguousSelectedColumns();
       }
     } finally { editor.endTransaction(); }
     window.content.focus();
-  }
+  },
 };
 
 var nsDeleteTableCellCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return IsInTableCell();
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     try {
       GetCurrentTableEditor().deleteTableCell(1);
     } catch (e) {}
     window.content.focus();
-  }
+  },
 };
 
 var nsDeleteTableCellContentsCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return IsInTableCell();
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     try {
       GetCurrentTableEditor().deleteTableCellContents();
     } catch (e) {}
     window.content.focus();
-  }
+  },
 };
 
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsNormalizeTableCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return IsInTable();
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     // Use nullptr to let editor find table enclosing current selection
     try {
       GetCurrentTableEditor().normalizeTable(null);
     } catch (e) {}
     window.content.focus();
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsJoinTableCellsCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
-    if (IsDocumentEditable() && IsEditingRenderedHTML())
-    {
+  isCommandEnabled(aCommand, dummy) {
+    if (IsDocumentEditable() && IsEditingRenderedHTML()) {
       try {
         var editor = GetCurrentTableEditor();
         var tagNameObj = { value: "" };
@@ -3686,8 +3329,7 @@ var nsJoinTableCellsCommand =
         //  (this cell may originate in a row spanned from above current row)
         // Note that editor returns "td" for "th" also.
         // (this is a pain! Editor and gecko use lowercase tagNames, JS uses uppercase!)
-        if (cell && (tagNameObj.value == "td"))
-        {
+        if (cell && (tagNameObj.value == "td")) {
           // Selected cells
           if (countObj.value > 1) return true;
 
@@ -3715,26 +3357,23 @@ var nsJoinTableCellsCommand =
     return false;
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     // Param: Don't merge non-contiguous cells
     try {
       GetCurrentTableEditor().joinTableCells(false);
     } catch (e) {}
     window.content.focus();
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsSplitTableCellCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
-    if (IsDocumentEditable() && IsEditingRenderedHTML())
-    {
+  isCommandEnabled(aCommand, dummy) {
+    if (IsDocumentEditable() && IsEditingRenderedHTML()) {
       var tagNameObj = { value: "" };
       var countObj = { value: 0 };
       var cell;
@@ -3744,122 +3383,108 @@ var nsSplitTableCellCommand =
 
       // We need a cell parent and there's just 1 selected cell
       // or selection is entirely inside 1 cell
-      if ( cell && (tagNameObj.value == "td") &&
+      if (cell && (tagNameObj.value == "td") &&
            countObj.value <= 1 &&
-           IsSelectionInOneCell() )
-      {
+           IsSelectionInOneCell()) {
         var colSpan = cell.getAttribute("colspan");
         var rowSpan = cell.getAttribute("rowspan");
         if (!colSpan) colSpan = 1;
         if (!rowSpan) rowSpan = 1;
-        return (colSpan > 1  || rowSpan > 1 ||
+        return (colSpan > 1 || rowSpan > 1 ||
                 colSpan == 0 || rowSpan == 0);
       }
     }
     return false;
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     try {
       GetCurrentTableEditor().splitTableCell();
     } catch (e) {}
     window.content.focus();
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsTableOrCellColorCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return IsInTable();
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     EditorSelectColor("TableOrCell");
-  }
+  },
 };
 
-//-----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 var nsPreferencesCommand =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return true;
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
-    goPreferences('composer_pane');
-  }
+  doCommand(aCommand) {
+    goPreferences("composer_pane");
+  },
 };
 
 
 var nsFinishHTMLSource =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return true;
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     // In editor.js
     SetEditMode(gPreviousNonSourceDisplayMode);
-  }
+  },
 };
 
 var nsCancelHTMLSource =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
+  isCommandEnabled(aCommand, dummy) {
     return true;
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
+  doCommand(aCommand) {
     // In editor.js
     CancelHTMLSource();
-  }
+  },
 };
 
 var nsConvertToTable =
 {
-  isCommandEnabled: function(aCommand, dummy)
-  {
-    if (IsDocumentEditable() && IsEditingRenderedHTML())
-    {
+  isCommandEnabled(aCommand, dummy) {
+    if (IsDocumentEditable() && IsEditingRenderedHTML()) {
       var selection;
       try {
         selection = GetCurrentEditor().selection;
       } catch (e) {}
 
-      if (selection && !selection.isCollapsed)
-      {
+      if (selection && !selection.isCollapsed) {
         // Don't allow if table or cell is the selection
         var element;
         try {
           element = GetCurrentEditor().getSelectedElement("");
         } catch (e) {}
-        if (element)
-        {
+        if (element) {
           var name = element.nodeName.toLowerCase();
           if (name == "td" ||
               name == "th" ||
@@ -3870,9 +3495,9 @@ var nsConvertToTable =
 
         // Selection start and end must be in the same cell
         //   in same cell or both are NOT in a cell
-        if ( GetParentTableCell(selection.focusNode) !=
-             GetParentTableCell(selection.anchorNode) )
-          return false
+        if (GetParentTableCell(selection.focusNode) !=
+             GetParentTableCell(selection.anchorNode))
+          return false;
 
         return true;
       }
@@ -3880,15 +3505,13 @@ var nsConvertToTable =
     return false;
   },
 
-  getCommandStateParams: function(aCommand, aParams, aRefCon) {},
-  doCommandParams: function(aCommand, aParams, aRefCon) {},
+  getCommandStateParams(aCommand, aParams, aRefCon) {},
+  doCommandParams(aCommand, aParams, aRefCon) {},
 
-  doCommand: function(aCommand)
-  {
-    if (this.isCommandEnabled())
-    {
-      window.openDialog("chrome://editor/content/EdConvertToTable.xul","_blank", "chrome,close,titlebar,modal")
+  doCommand(aCommand) {
+    if (this.isCommandEnabled()) {
+      window.openDialog("chrome://editor/content/EdConvertToTable.xul", "_blank", "chrome,close,titlebar,modal");
     }
-  }
+  },
 };
 

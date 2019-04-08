@@ -3,19 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-//Cancel() is in EdDialogCommon.js
+// Cancel() is in EdDialogCommon.js
 var insertNew = true;
-var tagname = "TAG NAME"
+var tagname = "TAG NAME";
 
 // dialog initialization code
 
 document.addEventListener("dialogaccept", onAccept);
 document.addEventListener("dialogcancel", onCancel);
 
-function Startup()
-{
-  if (!GetCurrentEditor())
-  {
+function Startup() {
+  if (!GetCurrentEditor()) {
     window.close();
     return;
   }
@@ -32,14 +30,12 @@ function Startup()
   SetTextboxFocus(gDialog.fooButton);
 }
 
-function InitDialog()
-{
+function InitDialog() {
   // Initialize all dialog widgets here,
   // e.g., get attributes from an element for property dialog
 }
 
-function onAccept()
-{
+function onAccept() {
   // Validate all user data and set attributes and possibly insert new element here
   // If there's an error the user must correct, return false to keep dialog open.
 

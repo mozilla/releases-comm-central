@@ -15,11 +15,9 @@ const gMaxHRSize = 1000; // This is hard-coded in nsHTMLHRElement::StringToAttri
 document.addEventListener("dialogaccept", onAccept);
 document.addEventListener("dialogcancel", onCancel);
 
-function Startup()
-{
+function Startup() {
   var editor = GetCurrentEditor();
-  if (!editor)
-  {
+  if (!editor) {
     window.close();
     return;
   }
@@ -46,7 +44,7 @@ function Startup()
   globalElement = gHLineElement.cloneNode(false);
 
   // Initialize control values based on existing attributes
-  InitDialog()
+  InitDialog();
 
   // SET FOCUS TO FIRST CONTROL
   SetTextboxFocus(gDialog.widthInput);
@@ -60,16 +58,15 @@ function Startup()
 // Set dialog widgets with attribute data
 // We get them from globalElement copy so this can be used
 //   by AdvancedEdit(), which is shared by all property dialogs
-function InitDialog()
-{
+function InitDialog() {
   // Just to be confusing, "size" is used instead of height because it does
   // not accept % values, only pixels
-  var height = GetHTMLOrCSSStyleValue(globalElement, "size", "height")
+  var height = GetHTMLOrCSSStyleValue(globalElement, "size", "height");
   if (height.includes("px")) {
     height = height.substr(0, height.indexOf("px"));
   }
-  if(!height) {
-    height = 2; //Default value
+  if (!height) {
+    height = 2; // Default value
   }
 
   // We will use "height" here and in UI
@@ -77,30 +74,27 @@ function InitDialog()
 
   // Get the width attribute of the element, stripping out "%"
   // This sets contents of menulist (adds pixel and percent menuitems elements)
-  gDialog.widthInput.value = InitPixelOrPercentMenulist(globalElement, gHLineElement, "width","pixelOrPercentMenulist");
+  gDialog.widthInput.value = InitPixelOrPercentMenulist(globalElement, gHLineElement, "width", "pixelOrPercentMenulist");
 
   var marginLeft  = GetHTMLOrCSSStyleValue(globalElement, "align", "margin-left").toLowerCase();
   var marginRight = GetHTMLOrCSSStyleValue(globalElement, "align", "margin-right").toLowerCase();
   align = marginLeft + " " + marginRight;
-  gDialog.leftAlign.checked   = (align == "left left"     || align == "0px auto");
+  gDialog.leftAlign.checked   = (align == "left left" || align == "0px auto");
   gDialog.centerAlign.checked = (align == "center center" || align == "auto auto" || align == " ");
-  gDialog.rightAlign.checked  = (align == "right right"   || align == "auto 0px");
+  gDialog.rightAlign.checked  = (align == "right right" || align == "auto 0px");
 
   if (gDialog.centerAlign.checked) {
     gDialog.alignGroup.selectedItem = gDialog.centerAlign;
-  }
-  else if (gDialog.rightAlign.checked) {
+  } else if (gDialog.rightAlign.checked) {
     gDialog.alignGroup.selectedItem = gDialog.rightAlign;
-  }
-  else {
+  } else {
     gDialog.alignGroup.selectedItem = gDialog.leftAlign;
   }
 
   gDialog.shading.checked = !globalElement.hasAttribute("noshade");
 }
 
-function onSaveDefault()
-{
+function onSaveDefault() {
   // "false" means set attributes on the globalElement,
   //   not the real element being edited
   if (ValidateData()) {
@@ -118,8 +112,7 @@ function onSaveDefault()
     var widthInt;
     var heightInt;
 
-    if (width)
-    {
+    if (width) {
       if (width.includes("%")) {
         percent = true;
         widthInt = Number(width.substr(0, width.indexOf("%")));
@@ -127,9 +120,7 @@ function onSaveDefault()
         percent = false;
         widthInt = Number(width);
       }
-    }
-    else
-    {
+    } else {
       percent = true;
       widthInt = Number(100);
     }
@@ -148,8 +139,7 @@ function onSaveDefault()
 
 // Get and validate data from widgets.
 // Set attributes on globalElement so they can be accessed by AdvancedEdit()
-function ValidateData()
-{
+function ValidateData() {
   // Height is always pixels
   height = ValidateNumber(gDialog.heightInput, null, 1, gMaxHRSize,
                           globalElement, "size", false);
@@ -185,10 +175,8 @@ function ValidateData()
   return true;
 }
 
-function onAccept(event)
-{
-  if (ValidateData())
-  {
+function onAccept(event) {
+  if (ValidateData()) {
     // Copy attributes from the globalElement to the document element
     try {
       GetCurrentEditor().cloneAttributes(gHLineElement, globalElement);

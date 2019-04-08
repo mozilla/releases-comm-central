@@ -25,7 +25,6 @@ common/src/viewSource.xul
 # If you are enabling a directory, please add directory specific exclusions
 # below.
 build/**
-editor/**
 ldap/**
 suite/**
 
@@ -37,6 +36,29 @@ chat/protocols/matrix/matrix-sdk/**
 chat/protocols/twitter/twitter-text.jsm
 # preprocessed files
 chat/content/imtooltip.xml
+
+# editor exclusions (most files not shipped with Thunderbird)
+editor/ui/composer.js
+editor/ui/composer/content/**
+!editor/ui/composer/content/editor.js
+!editor/ui/composer/content/editorUtilities.js
+!editor/ui/composer/content/ComposerCommands.js
+editor/ui/dialogs/content/EditConflict.js
+editor/ui/dialogs/content/EditConflict.xul
+editor/ui/dialogs/content/EditorPublish.js
+editor/ui/dialogs/content/EditorPublish.xul
+editor/ui/dialogs/content/EditorPublishOverlay.xul
+editor/ui/dialogs/content/EditorPublishProgress.js
+editor/ui/dialogs/content/EditorPublishProgress.xul
+editor/ui/dialogs/content/EditorPublishSettings.js
+editor/ui/dialogs/content/EditorPublishSettings.xul
+editor/ui/dialogs/content/EditorSaveAsCharset.js
+editor/ui/dialogs/content/EditorSaveAsCharset.xul
+editor/ui/dialogs/content/EdLinkChecker.js
+editor/ui/dialogs/content/EdLinkChecker.xul
+editor/ui/dialogs/content/EdSnapToGrid.js
+editor/ui/dialogs/content/EdSnapToGrid.xul
+editor/ui/texzilla/**
 
 # mailnews exclusions
 mailnews/mailnews.js

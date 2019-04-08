@@ -12,7 +12,7 @@
  User cannot select "use default" for individual colors
 */
 
-//Cancel() is in EdDialogCommon.js
+// Cancel() is in EdDialogCommon.js
 
 document.addEventListener("dialogaccept", onAccept);
 document.addEventListener("dialogcancel", onCancel);
@@ -22,11 +22,11 @@ var prefs;
 var gBackgroundImage;
 
 // Initialize in case we can't get them from prefs???
-var defaultTextColor="#000000";
-var defaultLinkColor="#000099";
-var defaultActiveColor="#000099";
-var defaultVisitedColor="#990099";
-var defaultBackgroundColor="#FFFFFF";
+var defaultTextColor = "#000000";
+var defaultLinkColor = "#000099";
+var defaultActiveColor = "#000099";
+var defaultVisitedColor = "#990099";
+var defaultBackgroundColor = "#FFFFFF";
 const styleStr =       "style";
 const textStr =        "text";
 const linkStr =        "link";
@@ -50,11 +50,9 @@ var previewBGColor;
 var gHaveDocumentUrl = false;
 
 // dialog initialization code
-function Startup()
-{
+function Startup() {
   var editor = GetCurrentEditor();
-  if (!editor)
-  {
+  if (!editor) {
     window.close();
     return;
   }
@@ -73,8 +71,7 @@ function Startup()
     gBodyElement = editor.rootElement;
   } catch (e) {}
 
-  if (!gBodyElement)
-  {
+  if (!gBodyElement) {
     dump("Failed to get BODY element!\n");
     window.close();
   }
@@ -84,14 +81,13 @@ function Startup()
 
   // Initialize default colors from browser prefs
   var browserColors = GetDefaultBrowserColors();
-  if (browserColors)
-  {
+  if (browserColors) {
     // Use author's browser pref colors passed into dialog
     defaultTextColor = browserColors.TextColor;
     defaultLinkColor = browserColors.LinkColor;
     defaultActiveColor = browserColors.ActiveLinkColor;
     defaultVisitedColor =  browserColors.VisitedLinkColor;
-    defaultBackgroundColor=  browserColors.BackgroundColor;
+    defaultBackgroundColor =  browserColors.BackgroundColor;
   }
 
   // We only need to test for this once per dialog load
@@ -104,17 +100,16 @@ function Startup()
   SetWindowLocation();
 }
 
-function InitDialog()
-{
+function InitDialog() {
   // Get image from document
   gBackgroundImage = GetHTMLOrCSSStyleValue(globalElement, backgroundStr, cssBackgroundImageStr);
-  if (/url\((.*)\)/.test( gBackgroundImage ))
+  if (/url\((.*)\)/.test(gBackgroundImage))
     gBackgroundImage = RegExp.$1;
 
   if (gBackgroundImage) {
     // Shorten data URIs for display.
     shortenImageData(gBackgroundImage, gDialog.BackgroundImageInput);
-    gDialog.ColorPreview.setAttribute(styleStr, backImageStyle+gBackgroundImage+");");
+    gDialog.ColorPreview.setAttribute(styleStr, backImageStyle + gBackgroundImage + ");");
   }
 
   SetRelativeCheckbox();
@@ -128,10 +123,10 @@ function InitDialog()
   customBackgroundColor  = ConvertRGBColorIntoHEXColor(customBackgroundColor);
 
   var haveCustomColor =
-        customTextColor       ||
-        customLinkColor       ||
-        customVisitedColor    ||
-        customActiveColor     ||
+        customTextColor ||
+        customLinkColor ||
+        customVisitedColor ||
+        customActiveColor ||
         customBackgroundColor;
 
   // Set default color explicitly for any that are missing
@@ -145,21 +140,17 @@ function InitDialog()
   if (!customVisitedColor) customVisitedColor = defaultVisitedColor;
   if (!customBackgroundColor) customBackgroundColor = defaultBackgroundColor;
 
-  if (haveCustomColor)
-  {
+  if (haveCustomColor) {
     // If any colors are set, then check the "Custom" radio button
     gDialog.PageColorGroup.selectedItem = gDialog.CustomColorsRadio;
     UseCustomColors();
-  }
-  else
-  {
+  } else {
     gDialog.PageColorGroup.selectedItem = gDialog.DefaultColorsRadio;
     UseDefaultColors();
   }
 }
 
-function GetColorAndUpdate(ColorWellID)
-{
+function GetColorAndUpdate(ColorWellID) {
   // Only allow selecting when in custom mode
   if (!gDialog.CustomColorsRadio.selected) return;
 
@@ -167,10 +158,9 @@ function GetColorAndUpdate(ColorWellID)
   if (!colorWell) return;
 
   // Don't allow a blank color, i.e., using the "default"
-  var colorObj = { NoDefault:true, Type:"", TextColor:0, PageColor:0, Cancel:false };
+  var colorObj = { NoDefault: true, Type: "", TextColor: 0, PageColor: 0, Cancel: false };
 
-  switch( ColorWellID )
-  {
+  switch (ColorWellID) {
     case "textCW":
       colorObj.Type = "Text";
       colorObj.TextColor = customTextColor;
@@ -200,8 +190,7 @@ function GetColorAndUpdate(ColorWellID)
     return;
 
   var color = "";
-  switch( ColorWellID )
-  {
+  switch (ColorWellID) {
     case "textCW":
       color = customTextColor = colorObj.TextColor;
       break;
@@ -223,36 +212,33 @@ function GetColorAndUpdate(ColorWellID)
   SetColorPreview(ColorWellID, color);
 }
 
-function SetColorPreview(ColorWellID, color)
-{
-  switch( ColorWellID )
-  {
+function SetColorPreview(ColorWellID, color) {
+  switch (ColorWellID) {
     case "textCW":
-      gDialog.NormalText.setAttribute(styleStr,colorStyle+color);
+      gDialog.NormalText.setAttribute(styleStr, colorStyle + color);
       break;
     case "linkCW":
-      gDialog.LinkText.setAttribute(styleStr,colorStyle+color);
+      gDialog.LinkText.setAttribute(styleStr, colorStyle + color);
       break;
     case "activeCW":
-      gDialog.ActiveLinkText.setAttribute(styleStr,colorStyle+color);
+      gDialog.ActiveLinkText.setAttribute(styleStr, colorStyle + color);
       break;
     case "visitedCW":
-      gDialog.VisitedLinkText.setAttribute(styleStr,colorStyle+color);
+      gDialog.VisitedLinkText.setAttribute(styleStr, colorStyle + color);
       break;
     case "backgroundCW":
       // Must combine background color and image style values
-      var styleValue = backColorStyle+color;
+      var styleValue = backColorStyle + color;
       if (gBackgroundImage)
-        styleValue += ";"+backImageStyle+gBackgroundImage+");";
+        styleValue += ";" + backImageStyle + gBackgroundImage + ");";
 
-      gDialog.ColorPreview.setAttribute(styleStr,styleValue);
+      gDialog.ColorPreview.setAttribute(styleStr, styleValue);
       previewBGColor = color;
       break;
   }
 }
 
-function UseCustomColors()
-{
+function UseCustomColors() {
   SetElementEnabledById("TextButton", true);
   SetElementEnabledById("LinkButton", true);
   SetElementEnabledById("ActiveLinkButton", true);
@@ -264,32 +250,31 @@ function UseCustomColors()
   SetElementEnabledById("Visited", true);
   SetElementEnabledById("Background", true);
 
-  SetColorPreview("textCW",       customTextColor);
-  SetColorPreview("linkCW",       customLinkColor);
-  SetColorPreview("activeCW",     customActiveColor);
-  SetColorPreview("visitedCW",    customVisitedColor);
+  SetColorPreview("textCW", customTextColor);
+  SetColorPreview("linkCW", customLinkColor);
+  SetColorPreview("activeCW", customActiveColor);
+  SetColorPreview("visitedCW", customVisitedColor);
   SetColorPreview("backgroundCW", customBackgroundColor);
 
-  setColorWell("textCW",          customTextColor);
-  setColorWell("linkCW",          customLinkColor);
-  setColorWell("activeCW",        customActiveColor);
-  setColorWell("visitedCW",       customVisitedColor);
-  setColorWell("backgroundCW",    customBackgroundColor);
+  setColorWell("textCW", customTextColor);
+  setColorWell("linkCW", customLinkColor);
+  setColorWell("activeCW", customActiveColor);
+  setColorWell("visitedCW", customVisitedColor);
+  setColorWell("backgroundCW", customBackgroundColor);
 }
 
-function UseDefaultColors()
-{
-  SetColorPreview("textCW",       defaultTextColor);
-  SetColorPreview("linkCW",       defaultLinkColor);
-  SetColorPreview("activeCW",     defaultActiveColor);
-  SetColorPreview("visitedCW",    defaultVisitedColor);
+function UseDefaultColors() {
+  SetColorPreview("textCW", defaultTextColor);
+  SetColorPreview("linkCW", defaultLinkColor);
+  SetColorPreview("activeCW", defaultActiveColor);
+  SetColorPreview("visitedCW", defaultVisitedColor);
   SetColorPreview("backgroundCW", defaultBackgroundColor);
 
   // Setting to blank color will remove color from buttons,
-  setColorWell("textCW",       "");
-  setColorWell("linkCW",       "");
-  setColorWell("activeCW",     "");
-  setColorWell("visitedCW",    "");
+  setColorWell("textCW", "");
+  setColorWell("linkCW", "");
+  setColorWell("activeCW", "");
+  setColorWell("visitedCW", "");
   setColorWell("backgroundCW", "");
 
   // Disable color buttons and labels
@@ -305,8 +290,7 @@ function UseDefaultColors()
   SetElementEnabledById("Background", false);
 }
 
-function chooseFile()
-{
+function chooseFile() {
   // Get a local image file, converted into URL format
   GetLocalFileURL("img").then(fileURL => {
     // Always try to relativize local file URLs
@@ -321,37 +305,29 @@ function chooseFile()
   });
 }
 
-function ChangeBackgroundImage()
-{
+function ChangeBackgroundImage() {
   // Don't show error message for image while user is typing
   ValidateAndPreviewImage(false);
   SetRelativeCheckbox();
 }
 
-function ValidateAndPreviewImage(ShowErrorMessage)
-{
+function ValidateAndPreviewImage(ShowErrorMessage) {
   // First make a string with just background color
-  var styleValue = backColorStyle+previewBGColor+";";
+  var styleValue = backColorStyle + previewBGColor + ";";
 
   var retVal = true;
   var image = TrimString(gDialog.BackgroundImageInput.value);
-  if (image)
-  {
-    if (isImageDataShortened(image))
-    {
+  if (image) {
+    if (isImageDataShortened(image)) {
       gBackgroundImage = restoredImageData(gDialog.BackgroundImageInput);
-    }
-    else
-    {
+    } else {
       gBackgroundImage = image;
 
       // Display must use absolute URL if possible
       var displayImage = gHaveDocumentUrl ? MakeAbsoluteUrl(image) : image;
-      styleValue += backImageStyle+displayImage+");";
+      styleValue += backImageStyle + displayImage + ");";
     }
-  }
-  else
-  {
+  } else {
     gBackgroundImage = null;
   }
 
@@ -362,22 +338,18 @@ function ValidateAndPreviewImage(ShowErrorMessage)
   return retVal;
 }
 
-function ValidateData()
-{
+function ValidateData() {
   var editor = GetCurrentEditor();
   try {
     // Colors values are updated as they are picked, no validation necessary
-    if (gDialog.DefaultColorsRadio.selected)
-    {
+    if (gDialog.DefaultColorsRadio.selected) {
       editor.removeAttributeOrEquivalent(globalElement, textStr, true);
       globalElement.removeAttribute(linkStr);
       globalElement.removeAttribute(vlinkStr);
       globalElement.removeAttribute(alinkStr);
       editor.removeAttributeOrEquivalent(globalElement, bgcolorStr, true);
-    }
-    else
-    {
-      //Do NOT accept the CSS "WindowsOS" color strings!
+    } else {
+      // Do NOT accept the CSS "WindowsOS" color strings!
       // Problem: We really should try to get the actual color values
       //  from windows, but I don't know how to do that!
       var tmpColor = customTextColor.toLowerCase();
@@ -393,13 +365,12 @@ function ValidateData()
       else
         editor.removeAttributeOrEquivalent(globalElement, bgcolorStr, true);
 
-      globalElement.setAttribute(linkStr,    customLinkColor);
-      globalElement.setAttribute(vlinkStr,   customVisitedColor);
-      globalElement.setAttribute(alinkStr,   customActiveColor);
+      globalElement.setAttribute(linkStr, customLinkColor);
+      globalElement.setAttribute(vlinkStr, customVisitedColor);
+      globalElement.setAttribute(alinkStr, customActiveColor);
     }
 
-    if (ValidateAndPreviewImage(true))
-    {
+    if (ValidateAndPreviewImage(true)) {
       // A valid image may be null for no image
       if (gBackgroundImage)
         globalElement.setAttribute(backgroundStr, gBackgroundImage);
@@ -412,8 +383,7 @@ function ValidateData()
   return false;
 }
 
-function onAccept(event)
-{
+function onAccept(event) {
   // If it's a file, convert to a data URL.
   if (gBackgroundImage && /^file:/i.test(gBackgroundImage)) {
     let nsFile = Services.io.newURI(gBackgroundImage)

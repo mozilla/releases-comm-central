@@ -11,10 +11,8 @@ var gSpaceIndex = "1";
 var gOtherIndex = "2";
 
 // dialog initialization code
-function Startup()
-{
-  if (!GetCurrentEditor())
-  {
+function Startup() {
+  if (!GetCurrentEditor()) {
     window.close();
     return;
   }
@@ -29,8 +27,7 @@ function Startup()
 
   gIndex = gDialog.sepRadioGroup.getAttribute("index");
 
-  switch (gIndex)
-  {
+  switch (gIndex) {
     case gCommaIndex:
     default:
       gDialog.sepRadioGroup.selectedItem = document.getElementById("comma");
@@ -49,13 +46,12 @@ function Startup()
   SetWindowLocation();
 }
 
-function InputSepCharacter()
-{
+function InputSepCharacter() {
   var str = gDialog.sepCharacterInput.value;
 
   // Limit input to 1 character
   if (str.length > 1)
-    str = str.slice(0,1);
+    str = str.slice(0, 1);
 
   // We can never allow tag or entity delimiters for separator character
   if (str == "<" || str == ">" || str == "&" || str == ";" || str == " ")
@@ -64,18 +60,15 @@ function InputSepCharacter()
   gDialog.sepCharacterInput.value = str;
 }
 
-function SelectCharacter(radioGroupIndex)
-{
+function SelectCharacter(radioGroupIndex) {
   gIndex = radioGroupIndex;
   SetElementEnabledById("SepCharacterInput", gIndex == gOtherIndex);
   SetElementEnabledById("CollapseSpaces", gIndex == gSpaceIndex);
 }
 
-function onAccept()
-{
+function onAccept() {
   var sepCharacter = "";
-  switch (gIndex)
-  {
+  switch (gIndex) {
     case gCommaIndex:
       sepCharacter = ",";
       break;
@@ -83,7 +76,7 @@ function onAccept()
       sepCharacter = " ";
       break;
     case gOtherIndex:
-      sepCharacter = gDialog.sepCharacterInput.value.slice(0,1);
+      sepCharacter = gDialog.sepCharacterInput.value.slice(0, 1);
       break;
   }
 
@@ -92,8 +85,7 @@ function onAccept()
   try {
     str = editor.outputToString("text/html", kOutputLFLineBreak | kOutputSelectionOnly);
   } catch (e) {}
-  if (!str)
-  {
+  if (!str) {
     SaveWindowLocation();
     return;
   }
@@ -117,7 +109,7 @@ function onAccept()
 
   // Reduce multiple internal <br> to just 1
   // TODO: Maybe add a checkbox to let user decide
-  //str = str.replace(/(<br>)+/g, "<br>");
+  // str = str.replace(/(<br>)+/g, "<br>");
 
   // Trim leading and trailing spaces
   str = str.trim();
@@ -136,49 +128,39 @@ function onAccept()
   do {
     start = str.indexOf("<", searchStart);
 
-    if (start >= 0)
-    {
-      end = str.indexOf(">", start+1);
-      if (end > start)
-      {
+    if (start >= 0) {
+      end = str.indexOf(">", start + 1);
+      if (end > start) {
         let tagContent = str.slice(start + 1, end).trim();
 
-        if (/^ol|^ul|^dl/.test(tagContent))
-        {
+        if (/^ol|^ul|^dl/.test(tagContent)) {
           //  Replace list tag with <BR> to start new row
           //   at beginning of second or greater list tag
-          str = str.slice(0, start) + listSeparator + str.slice(end+1);
+          str = str.slice(0, start) + listSeparator + str.slice(end + 1);
           if (listSeparator == "")
             listSeparator = "<br>";
 
           // Reset for list item separation into cells
           listItemSeparator = "";
-        }
-        else if (/^li|^dt|^dd/.test(tagContent))
-        {
+        } else if (/^li|^dt|^dd/.test(tagContent)) {
           // Start a new row if this is first item after the ending the last list
           if (endList)
             listItemSeparator = "<br>";
 
           // Start new cell at beginning of second or greater list items
-          str = str.slice(0, start) + listItemSeparator + str.slice(end+1);
+          str = str.slice(0, start) + listItemSeparator + str.slice(end + 1);
 
           if (endList || listItemSeparator == "")
             listItemSeparator = sepCharacter;
 
           endList = false;
-        }
-        else
-        {
+        } else {
           // Find end tags
           endList = /^\/ol|^\/ul|^\/dl/.test(tagContent);
-          if (endList || /^\/li|^\/dt|^\/dd/.test(tagContent))
-          {
+          if (endList || /^\/li|^\/dt|^\/dd/.test(tagContent)) {
             // Strip out tag
-            str = str.slice(0, start) + str.slice(end+1);
-          }
-          else
-          {
+            str = str.slice(0, start) + str.slice(end + 1);
+          } else {
             // Not a list-related tag: Store tag contents in an array
             stack.push(tagContent);
 
@@ -194,12 +176,9 @@ function onAccept()
 
   // Replace separator characters with table cells
   var replaceString;
-  if (gDialog.deleteSepCharacter.checked)
-  {
+  if (gDialog.deleteSepCharacter.checked) {
     replaceString = "";
-  }
-  else
-  {
+  } else {
     // Don't delete separator character,
     //  so include it at start of string to replace
     replaceString = sepCharacter;
@@ -207,19 +186,17 @@ function onAccept()
 
   replaceString += "<td>";
 
-  if (sepCharacter.length > 0)
-  {
+  if (sepCharacter.length > 0) {
     var tempStr = sepCharacter;
     var regExpChars = ".!@#$%^&*-+[]{}()\|\\\/";
     if (regExpChars.includes(sepCharacter))
       tempStr = "\\" + sepCharacter;
 
-    if (gIndex == gSpaceIndex)
-    {
+    if (gIndex == gSpaceIndex) {
       // If checkbox is checked,
       //   one or more adjacent spaces are one separator
       if (gDialog.collapseSpaces.checked)
-          tempStr = "\\s+"
+          tempStr = "\\s+";
         else
           tempStr = "\\s";
     }
@@ -233,13 +210,11 @@ function onAccept()
   do {
     start = str.indexOf("<", searchStart);
     end = start + 1;
-    if (start >= 0 && str.charAt(end) == ">")
-    {
+    if (start >= 0 && str.charAt(end) == ">") {
       // We really need a FIFO stack!
       str = str.slice(0, end) + stack[stackIndex++] + str.slice(end);
     }
     searchStart = end;
-
   } while (start >= 0);
 
   // End table row and start another for each br or p
@@ -260,14 +235,11 @@ function onAccept()
 
     var anchorNodeBeforeInsert = editor.selection.anchorNode;
     var offset = editor.selection.anchorOffset;
-    if (anchorNodeBeforeInsert.nodeType == Node.TEXT_NODE)
-    {
+    if (anchorNodeBeforeInsert.nodeType == Node.TEXT_NODE) {
       // Text was split. Table should be right after the first or before
       nodeBeforeTable = anchorNodeBeforeInsert.previousSibling;
       nodeAfterTable = anchorNodeBeforeInsert;
-    }
-    else
-    {
+    } else {
       // Table should be inserted right after node pointed to by selection
       if (offset > 0)
         nodeBeforeTable = anchorNodeBeforeInsert.childNodes.item(offset - 1);
@@ -279,21 +251,18 @@ function onAccept()
   } catch (e) {}
 
   var table = null;
-  if (nodeAfterTable)
-  {
+  if (nodeAfterTable) {
     var previous = nodeAfterTable.previousSibling;
     if (previous && previous.nodeName.toLowerCase() == "table")
       table = previous;
   }
-  if (!table && nodeBeforeTable)
-  {
+  if (!table && nodeBeforeTable) {
     var next = nodeBeforeTable.nextSibling;
     if (next && next.nodeName.toLowerCase() == "table")
       table = next;
   }
 
-  if (table)
-  {
+  if (table) {
     // Fixup table only if pref is set
     var firstRow;
     try {
@@ -301,19 +270,17 @@ function onAccept()
         editor.normalizeTable(table);
 
       firstRow = editor.getFirstRow(table);
-    } catch(e) {}
+    } catch (e) {}
 
     // Put caret in first cell
-    if (firstRow)
-    {
+    if (firstRow) {
       var node2 = firstRow.firstChild;
       do {
         if (node2.nodeName.toLowerCase() == "td" ||
-            node2.nodeName.toLowerCase() == "th")
-        {
+            node2.nodeName.toLowerCase() == "th") {
           try {
             editor.selection.collapse(node2, 0);
-          } catch(e) {}
+          } catch (e) {}
           break;
         }
         node2 = node.nextSibling;

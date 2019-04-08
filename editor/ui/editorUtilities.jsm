@@ -7,7 +7,6 @@ var EXPORTED_SYMBOLS = ["GetNextUntitledValue"];
 
 var sUntitledCount = 1;
 
-function GetNextUntitledValue()
-{
+function GetNextUntitledValue() {
   return sUntitledCount++;
 }

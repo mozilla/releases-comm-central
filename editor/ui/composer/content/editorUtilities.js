@@ -5,7 +5,7 @@
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
-/**** NAMESPACES ****/
+/** ** NAMESPACES ****/
 const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 
 // Each editor window must include this file
@@ -26,32 +26,28 @@ var kOutputWrap = Ci.nsIDocumentEncoder.OutputWrap;
 var gStringBundle;
 var gFilePickerDirectory;
 
-/************* Message dialogs ***************/
+/** *********** Message dialogs ***************/
 
 // Optional: Caller may supply text to substitute for "Ok" and/or "Cancel"
-function ConfirmWithTitle(title, message, okButtonText, cancelButtonText)
-{
+function ConfirmWithTitle(title, message, okButtonText, cancelButtonText) {
   let okFlag = okButtonText ? Services.prompt.BUTTON_TITLE_IS_STRING : Services.prompt.BUTTON_TITLE_OK;
   let cancelFlag = cancelButtonText ? Services.prompt.BUTTON_TITLE_IS_STRING : Services.prompt.BUTTON_TITLE_CANCEL;
 
   return Services.prompt.confirmEx(window, title, message,
                                    (okFlag * Services.prompt.BUTTON_POS_0) +
                                    (cancelFlag * Services.prompt.BUTTON_POS_1),
-                                   okButtonText, cancelButtonText, null, null, {value:0}) == 0;
+                                   okButtonText, cancelButtonText, null, null, {value: 0}) == 0;
 }
 
-/************* String Utilities ***************/
+/** *********** String Utilities ***************/
 
-function GetString(name)
-{
-  if (!gStringBundle)
-  {
+function GetString(name) {
+  if (!gStringBundle) {
     try {
       gStringBundle = Services.strings.createBundle("chrome://editor/locale/editor.properties");
     } catch (ex) {}
   }
-  if (gStringBundle)
-  {
+  if (gStringBundle) {
     try {
       return gStringBundle.GetStringFromName(name);
     } catch (e) {}
@@ -59,16 +55,13 @@ function GetString(name)
   return null;
 }
 
-function GetFormattedString(aName, aVal)
-{
-  if (!gStringBundle)
-  {
+function GetFormattedString(aName, aVal) {
+  if (!gStringBundle) {
     try {
       gStringBundle = Services.strings.createBundle("chrome://editor/locale/editor.properties");
     } catch (ex) {}
   }
-  if (gStringBundle)
-  {
+  if (gStringBundle) {
     try {
       return gStringBundle.formatStringFromName(aName, [aVal], 1);
     } catch (e) {}
@@ -76,30 +69,26 @@ function GetFormattedString(aName, aVal)
   return null;
 }
 
-function TrimStringLeft(string)
-{
+function TrimStringLeft(string) {
   if (!string)
     return "";
   return string.trimLeft();
 }
 
-function TrimStringRight(string)
-{
+function TrimStringRight(string) {
   if (!string)
     return "";
   return string.trimRight();
 }
 
 // Remove whitespace from both ends of a string
-function TrimString(string)
-{
+function TrimString(string) {
   if (!string)
     return "";
   return string.trim();
 }
 
-function TruncateStringAtWordEnd(string, maxLength, addEllipses)
-{
+function TruncateStringAtWordEnd(string, maxLength, addEllipses) {
   // Return empty if string is null, undefined, or the empty string
   if (!string)
     return "";
@@ -112,7 +101,7 @@ function TruncateStringAtWordEnd(string, maxLength, addEllipses)
   // We need to truncate the string to maxLength or fewer chars
   if (addEllipses)
     maxLength -= 3;
-  string = string.replace(RegExp("(.{0," + maxLength + "})\\s.*"), "$1")
+  string = string.replace(RegExp("(.{0," + maxLength + "})\\s.*"), "$1");
 
   if (string.length > maxLength)
     string = string.slice(0, maxLength);
@@ -125,21 +114,18 @@ function TruncateStringAtWordEnd(string, maxLength, addEllipses)
 // Replace all whitespace characters with supplied character
 // E.g.: Use charReplace = " ", to "unwrap" the string by removing line-end chars
 //       Use charReplace = "_" when you don't want spaces (like in a URL)
-function ReplaceWhitespace(string, charReplace)
-{
+function ReplaceWhitespace(string, charReplace) {
   return string.trim().replace(/\s+/g, charReplace);
 }
 
 // Replace whitespace with "_" and allow only HTML CDATA
 //   characters: "a"-"z","A"-"Z","0"-"9", "_", ":", "-", ".",
 //   and characters above ASCII 127
-function ConvertToCDATAString(string)
-{
-  return string.replace(/\s+/g,"_").replace(/[^a-zA-Z0-9_\.\-\:\u0080-\uFFFF]+/g,'');
+function ConvertToCDATAString(string) {
+  return string.replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_\.\-\:\u0080-\uFFFF]+/g, "");
 }
 
-function GetSelectionAsText()
-{
+function GetSelectionAsText() {
   try {
     return GetCurrentEditor().outputToString("text/plain", kOutputSelectionOnly);
   } catch (e) {}
@@ -148,15 +134,14 @@ function GetSelectionAsText()
 }
 
 
-/************* Get Current Editor and associated interfaces or info ***************/
+/** *********** Get Current Editor and associated interfaces or info ***************/
 const nsIPlaintextEditor = Ci.nsIPlaintextEditor;
 const nsIHTMLEditor = Ci.nsIHTMLEditor;
 const nsITableEditor = Ci.nsITableEditor;
 const nsIEditorStyleSheets = Ci.nsIEditorStyleSheets;
 const nsIEditingSession = Ci.nsIEditingSession;
 
-function GetCurrentEditor()
-{
+function GetCurrentEditor() {
   // Get the active editor from the <editor> tag
   // XXX This will probably change if we support > 1 editor in main Composer window
   //      (e.g. a plaintext editor for HTMLSource)
@@ -171,19 +156,17 @@ function GetCurrentEditor()
     // Using "instanceof" does the QI for us.
     editor instanceof Ci.nsIPlaintextEditor;
     editor instanceof Ci.nsIHTMLEditor;
-  } catch (e) { dump (e)+"\n"; }
+  } catch (e) { dump(e) + "\n"; }
 
   return editor;
 }
 
-function GetCurrentTableEditor()
-{
+function GetCurrentTableEditor() {
   var editor = GetCurrentEditor();
   return (editor && (editor instanceof nsITableEditor)) ? editor : null;
 }
 
-function GetCurrentEditorElement()
-{
+function GetCurrentEditorElement() {
   var tmpWindow = window;
 
   do {
@@ -201,40 +184,36 @@ function GetCurrentEditorElement()
   return null;
 }
 
-function GetCurrentCommandManager()
-{
+function GetCurrentCommandManager() {
   try {
     return GetCurrentEditorElement().commandManager;
-  } catch (e) { dump (e)+"\n"; }
+  } catch (e) { dump(e) + "\n"; }
 
   return null;
 }
 
-function GetCurrentEditorType()
-{
+function GetCurrentEditorType() {
   try {
     return GetCurrentEditorElement().editortype;
-  } catch (e) { dump (e)+"\n"; }
+  } catch (e) { dump(e) + "\n"; }
 
   return "";
 }
 
-function IsHTMLEditor()
-{
+function IsHTMLEditor() {
   // We don't have an editorElement, just return false
   if (!GetCurrentEditorElement())
     return false;
 
   var editortype = GetCurrentEditorType();
-  switch (editortype)
-  {
+  switch (editortype) {
       case "html":
       case "htmlmail":
         return true;
 
       case "text":
       case "textmail":
-        return false
+        return false;
 
       default:
         dump("INVALID EDITOR TYPE: " + editortype + "\n");
@@ -243,75 +222,63 @@ function IsHTMLEditor()
   return false;
 }
 
-function PageIsEmptyAndUntouched()
-{
+function PageIsEmptyAndUntouched() {
   return IsDocumentEmpty() && !IsDocumentModified() && !IsHTMLSourceChanged();
 }
 
-function IsInHTMLSourceMode()
-{
+function IsInHTMLSourceMode() {
   return (gEditorDisplayMode == kDisplayModeSource);
 }
 
-function IsInPreviewMode()
-{
+function IsInPreviewMode() {
   return (gEditorDisplayMode == kDisplayModePreview);
 }
 
 // are we editing HTML (i.e. neither in HTML source mode, nor editing a text file)
-function IsEditingRenderedHTML()
-{
+function IsEditingRenderedHTML() {
   return IsHTMLEditor() && !IsInHTMLSourceMode();
 }
 
-function IsWebComposer()
-{
+function IsWebComposer() {
   return document.documentElement.id == "editorWindow";
 }
 
-function IsDocumentEditable()
-{
+function IsDocumentEditable() {
   try {
     return GetCurrentEditor().isDocumentEditable;
   } catch (e) {}
   return false;
 }
 
-function IsDocumentEmpty()
-{
+function IsDocumentEmpty() {
   try {
     return GetCurrentEditor().documentIsEmpty;
   } catch (e) {}
   return false;
 }
 
-function IsDocumentModified()
-{
+function IsDocumentModified() {
   try {
     return GetCurrentEditor().documentModified;
   } catch (e) {}
   return false;
 }
 
-function IsHTMLSourceChanged()
-{
+function IsHTMLSourceChanged() {
   // gSourceTextEditor will not be defined if we're just a text editor.
   return gSourceTextEditor ? gSourceTextEditor.documentModified : false;
 }
 
-function newCommandParams()
-{
+function newCommandParams() {
   try {
     return Cu.createCommandParams();
-  }
-  catch(e) { dump("error thrown in newCommandParams: "+e+"\n"); }
+  } catch (e) { dump("error thrown in newCommandParams: " + e + "\n"); }
   return null;
 }
 
-/************* General editing command utilities ***************/
+/** *********** General editing command utilities ***************/
 
-function GetDocumentTitle()
-{
+function GetDocumentTitle() {
   try {
     return new XPCNativeWrapper(GetCurrentEditor().document, "title").title;
   } catch (e) {}
@@ -319,9 +286,7 @@ function GetDocumentTitle()
   return "";
 }
 
-function SetDocumentTitle(title)
-{
-
+function SetDocumentTitle(title) {
   try {
     GetCurrentEditorElement().contentDocument.title = title;
 
@@ -331,99 +296,80 @@ function SetDocumentTitle(title)
   } catch (e) {}
 }
 
-function EditorGetTextProperty(property, attribute, value, firstHas, anyHas, allHas)
-{
+function EditorGetTextProperty(property, attribute, value, firstHas, anyHas, allHas) {
   try {
     return GetCurrentEditor().getInlinePropertyWithAttrValue(property,
                                 attribute, value, firstHas, anyHas, allHas);
-  }
-  catch(e) {}
+  } catch (e) {}
 }
 
-function EditorSetTextProperty(property, attribute, value)
-{
+function EditorSetTextProperty(property, attribute, value) {
   try {
     GetCurrentEditor().setInlineProperty(property, attribute, value);
     if ("gContentWindow" in window)
       window.gContentWindow.focus();
-  }
-  catch(e) {}
+  } catch (e) {}
 }
 
-function EditorRemoveTextProperty(property, attribute)
-{
+function EditorRemoveTextProperty(property, attribute) {
   try {
     GetCurrentEditor().removeInlineProperty(property, attribute);
     if ("gContentWindow" in window)
       window.gContentWindow.focus();
-  }
-  catch(e) {}
+  } catch (e) {}
 }
 
-/************* Element enbabling/disabling ***************/
+/** *********** Element enbabling/disabling ***************/
 
 // this function takes an elementID and a flag
 // if the element can be found by ID, then it is either enabled (by removing "disabled" attr)
 // or disabled (setAttribute) as specified in the "doEnable" parameter
-function SetElementEnabledById(elementID, doEnable)
-{
+function SetElementEnabledById(elementID, doEnable) {
   SetElementEnabled(document.getElementById(elementID), doEnable);
 }
 
-function SetElementEnabled(element, doEnable)
-{
-  if ( element )
-  {
-    if ( doEnable )
+function SetElementEnabled(element, doEnable) {
+  if (element) {
+    if (doEnable)
       element.removeAttribute("disabled");
     else
       element.setAttribute("disabled", "true");
-  }
-  else
-  {
+  } else {
     dump("Element  not found in SetElementEnabled\n");
   }
 }
 
-/************* Services / Prefs ***************/
+/** *********** Services / Prefs ***************/
 
-function GetFileProtocolHandler()
-{
+function GetFileProtocolHandler() {
   let handler = Services.io.getProtocolHandler("file");
   return handler.QueryInterface(Ci.nsIFileProtocolHandler);
 }
 
-function SetStringPref(aPrefName, aPrefValue)
-{
+function SetStringPref(aPrefName, aPrefValue) {
   try {
     Services.prefs.setStringPref(aPrefName, aPrefValue);
-  }
-  catch(e) {}
+  } catch (e) {}
 }
 
 // Set initial directory for a filepicker from URLs saved in prefs
-function SetFilePickerDirectory(filePicker, fileType)
-{
-  if (filePicker)
-  {
+function SetFilePickerDirectory(filePicker, fileType) {
+  if (filePicker) {
     try {
       // Save current directory so we can reset it in SaveFilePickerDirectory
       gFilePickerDirectory = filePicker.displayDirectory;
 
-      let location = Services.prefs.getComplexValue("editor.lastFileLocation."+fileType,
+      let location = Services.prefs.getComplexValue("editor.lastFileLocation." + fileType,
                                                     Ci.nsIFile);
       if (location)
         filePicker.displayDirectory = location;
-    }
-    catch(e) {}
+    } catch (e) {}
   }
 }
 
 // Save the directory of the selected file to prefs
-function SaveFilePickerDirectory(filePicker, fileType)
-{
-  if (filePicker && filePicker.file)
-  {
+function SaveFilePickerDirectory(filePicker, fileType) {
+  if (filePicker && filePicker.file) {
     try {
       var fileDir;
       if (filePicker.file.parent)
@@ -444,14 +390,12 @@ function SaveFilePickerDirectory(filePicker, fileType)
   gFilePickerDirectory = null;
 }
 
-function GetDefaultBrowserColors()
-{
-  var colors = { TextColor:0, BackgroundColor:0, LinkColor:0, ActiveLinkColor:0 , VisitedLinkColor:0 };
+function GetDefaultBrowserColors() {
+  var colors = { TextColor: 0, BackgroundColor: 0, LinkColor: 0, ActiveLinkColor: 0, VisitedLinkColor: 0 };
   var useSysColors = false;
   try { useSysColors = Services.prefs.getBoolPref("browser.display.use_system_colors"); } catch (e) {}
 
-  if (!useSysColors)
-  {
+  if (!useSysColors) {
     try { colors.TextColor = Services.prefs.getCharPref("browser.display.foreground_color"); } catch (e) {}
 
     try { colors.BackgroundColor = Services.prefs.getCharPref("browser.display.background_color"); } catch (e) {}
@@ -470,20 +414,17 @@ function GetDefaultBrowserColors()
   return colors;
 }
 
-/************* URL handling ***************/
+/** *********** URL handling ***************/
 
-function TextIsURI(selectedText)
-{
+function TextIsURI(selectedText) {
   return selectedText && /^http:\/\/|^https:\/\/|^file:\/\/|^ftp:\/\/|^about:|^mailto:|^news:|^snews:|^telnet:|^ldap:|^ldaps:|^gopher:|^finger:|^javascript:/i.test(selectedText);
 }
 
-function IsUrlAboutBlank(urlString)
-{
+function IsUrlAboutBlank(urlString) {
   return (urlString == "about:blank");
 }
 
-function MakeRelativeUrl(url)
-{
+function MakeRelativeUrl(url) {
   let inputUrl = url.trim();
   if (!inputUrl)
     return inputUrl;
@@ -539,42 +480,34 @@ function MakeRelativeUrl(url)
     nextDocSlash = docPath.indexOf("\/");
     var nextUrlSlash = urlPath.indexOf("\/");
 
-    if (nextUrlSlash == -1)
-    {
+    if (nextUrlSlash == -1) {
       // We're done matching and all dirs in url
       // what's left is the filename
       done = true;
 
       // Remove filename for named anchors in the same file
-      if (nextDocSlash == -1 && docFilename)
-      {
+      if (nextDocSlash == -1 && docFilename) {
         var anchorIndex = urlPath.indexOf("#");
-        if (anchorIndex > 0)
-        {
+        if (anchorIndex > 0) {
           var urlFilename = doCaseInsensitive ? urlPath.toLowerCase() : urlPath;
 
           if (urlFilename.startsWith(docFilename))
             urlPath = urlPath.slice(anchorIndex);
         }
       }
-    }
-    else if (nextDocSlash >= 0)
-    {
+    } else if (nextDocSlash >= 0) {
       // Test for matching subdir
       var docDir = docPath.slice(0, nextDocSlash);
       var urlDir = urlPath.slice(0, nextUrlSlash);
       if (doCaseInsensitive)
         urlDir = urlDir.toLowerCase();
 
-      if (urlDir == docDir)
-      {
+      if (urlDir == docDir) {
         // Remove matching dir+"/" from each path
         // and continue to next dir.
-        docPath = docPath.slice(nextDocSlash+1);
-        urlPath = urlPath.slice(nextUrlSlash+1);
-      }
-      else
-      {
+        docPath = docPath.slice(nextDocSlash + 1);
+        urlPath = urlPath.slice(nextUrlSlash + 1);
+      } else {
         // No match, we're done.
         done = true;
 
@@ -587,8 +520,7 @@ function MakeRelativeUrl(url)
             AppConstants.platform != "unix")
           return inputUrl;
       }
-    }
-    else  // No more doc dirs left, we're done
+    } else  // No more doc dirs left, we're done
       done = true;
 
     firstDirTest = false;
@@ -596,16 +528,14 @@ function MakeRelativeUrl(url)
   while (!done);
 
   // Add "../" for each dir left in docPath
-  while (nextDocSlash > 0)
-  {
+  while (nextDocSlash > 0) {
     urlPath = "../" + urlPath;
-    nextDocSlash = docPath.indexOf("\/", nextDocSlash+1);
+    nextDocSlash = docPath.indexOf("\/", nextDocSlash + 1);
   }
   return urlPath;
 }
 
-function MakeAbsoluteUrl(url)
-{
+function MakeAbsoluteUrl(url) {
   let resultUrl = TrimString(url);
   if (!resultUrl)
     return resultUrl;
@@ -631,7 +561,7 @@ function MakeAbsoluteUrl(url)
     absoluteUrl = docUri.resolve(resultUrl);
     // This is deprecated and buggy!
     // If used, we must make it a path for the parent directory (remove filename)
-    //absoluteUrl = IOService.resolveRelativePath(resultUrl, docUrl);
+    // absoluteUrl = IOService.resolveRelativePath(resultUrl, docUrl);
   } catch (e) {}
 
   return absoluteUrl;
@@ -639,8 +569,7 @@ function MakeAbsoluteUrl(url)
 
 // Get the HREF of the page's <base> tag or the document location
 // returns empty string if no base href and document hasn't been saved yet
-function GetDocumentBaseUrl()
-{
+function GetDocumentBaseUrl() {
   try {
     var docUrl;
 
@@ -657,18 +586,15 @@ function GetDocumentBaseUrl()
   return "";
 }
 
-function GetDocumentUrl()
-{
+function GetDocumentUrl() {
   try {
-    return GetCurrentEditor().document.URL;;
-  }
-  catch (e) {}
+    return GetCurrentEditor().document.URL;
+  } catch (e) {}
   return "";
 }
 
 // Extract the scheme (e.g., 'file', 'http') from a URL string
-function GetScheme(urlspec)
-{
+function GetScheme(urlspec) {
   var resultUrl = TrimString(urlspec);
   // Unsaved document URL has no acceptable scheme yet
   if (!resultUrl || IsUrlAboutBlank(resultUrl))
@@ -683,8 +609,7 @@ function GetScheme(urlspec)
   return scheme ? scheme.toLowerCase() : "";
 }
 
-function GetHost(urlspec)
-{
+function GetHost(urlspec) {
   if (!urlspec)
     return "";
 
@@ -696,8 +621,7 @@ function GetHost(urlspec)
   return host;
 }
 
-function GetUsername(urlspec)
-{
+function GetUsername(urlspec) {
   if (!urlspec)
     return "";
 
@@ -709,8 +633,7 @@ function GetUsername(urlspec)
   return username;
 }
 
-function GetFilename(urlspec)
-{
+function GetFilename(urlspec) {
   if (!urlspec || IsUrlAboutBlank(urlspec))
     return "";
 
@@ -718,8 +641,7 @@ function GetFilename(urlspec)
 
   try {
     let uri = Services.io.newURI(urlspec);
-    if (uri)
-    {
+    if (uri) {
       let url = uri.QueryInterface(Ci.nsIURL);
       if (url)
         filename = url.fileName;
@@ -732,8 +654,7 @@ function GetFilename(urlspec)
 // Return the url without username and password
 // Optional output objects return extracted username and password strings
 // This uses just string routines via nsIIOServices
-function StripUsernamePassword(urlspec, usernameObj, passwordObj)
-{
+function StripUsernamePassword(urlspec, usernameObj, passwordObj) {
   urlspec = TrimString(urlspec);
   if (!urlspec || IsUrlAboutBlank(urlspec))
     return urlspec;
@@ -745,8 +666,7 @@ function StripUsernamePassword(urlspec, usernameObj, passwordObj)
 
   // "@" must exist else we will never detect username or password
   var atIndex = urlspec.indexOf("@");
-  if (atIndex > 0)
-  {
+  if (atIndex > 0) {
     try {
       let uri = Services.io.newURI(urlspec);
       let username = uri.username;
@@ -756,19 +676,17 @@ function StripUsernamePassword(urlspec, usernameObj, passwordObj)
         usernameObj.value = username;
       if (passwordObj && password)
         passwordObj.value = password;
-      if (username)
-      {
+      if (username) {
         let usernameStart = urlspec.indexOf(username);
         if (usernameStart != -1)
-          return urlspec.slice(0, usernameStart) + urlspec.slice(atIndex+1);
+          return urlspec.slice(0, usernameStart) + urlspec.slice(atIndex + 1);
       }
     } catch (e) {}
   }
   return urlspec;
 }
 
-function StripPassword(urlspec, passwordObj)
-{
+function StripPassword(urlspec, passwordObj) {
   urlspec = TrimString(urlspec);
   if (!urlspec || IsUrlAboutBlank(urlspec))
     return urlspec;
@@ -778,19 +696,16 @@ function StripPassword(urlspec, passwordObj)
 
   // "@" must exist else we will never detect password
   var atIndex = urlspec.indexOf("@");
-  if (atIndex > 0)
-  {
+  if (atIndex > 0) {
     try {
       let password = Services.io.newURI(urlspec).password;
 
       if (passwordObj && password)
         passwordObj.value = password;
-      if (password)
-      {
+      if (password) {
         // Find last ":" before "@"
         let colon = urlspec.lastIndexOf(":", atIndex);
-        if (colon != -1)
-        {
+        if (colon != -1) {
           // Include the "@"
           return urlspec.slice(0, colon) + urlspec.slice(atIndex);
         }
@@ -801,26 +716,22 @@ function StripPassword(urlspec, passwordObj)
 }
 
 // Version to use when you have an nsIURI object
-function StripUsernamePasswordFromURI(uri)
-{
+function StripUsernamePasswordFromURI(uri) {
   var urlspec = "";
-  if (uri)
-  {
+  if (uri) {
     try {
       urlspec = uri.spec;
       var userPass = uri.userPass;
-      if (userPass)
-      {
+      if (userPass) {
         start = urlspec.indexOf(userPass);
-        urlspec = urlspec.slice(0, start) + urlspec.slice(start+userPass.length+1);
+        urlspec = urlspec.slice(0, start) + urlspec.slice(start + userPass.length + 1);
       }
     } catch (e) {}
   }
   return urlspec;
 }
 
-function InsertUsernameIntoUrl(urlspec, username)
-{
+function InsertUsernameIntoUrl(urlspec, username) {
   if (!urlspec || !username)
     return urlspec;
 
@@ -833,27 +744,23 @@ function InsertUsernameIntoUrl(urlspec, username)
   return urlspec;
 }
 
-function ConvertRGBColorIntoHEXColor(color)
-{
-  if ( /rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/.test(color) ) {
+function ConvertRGBColorIntoHEXColor(color) {
+  if (/rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/.test(color)) {
     var r = Number(RegExp.$1).toString(16);
-    if (r.length == 1) r = "0"+r;
+    if (r.length == 1) r = "0" + r;
     var g = Number(RegExp.$2).toString(16);
-    if (g.length == 1) g = "0"+g;
+    if (g.length == 1) g = "0" + g;
     var b = Number(RegExp.$3).toString(16);
-    if (b.length == 1) b = "0"+b;
-    return "#"+r+g+b;
+    if (b.length == 1) b = "0" + b;
+    return "#" + r + g + b;
   }
-  else
-  {
+
     return color;
-  }
 }
 
-/************* CSS ***************/
+/** *********** CSS ***************/
 
-function GetHTMLOrCSSStyleValue(element, attrName, cssPropertyName)
-{
+function GetHTMLOrCSSStyleValue(element, attrName, cssPropertyName) {
   var value;
   if (Services.prefs.getBoolPref("editor.use_css") && IsHTMLEditor())
     value = element.style.getPropertyValue(cssPropertyName);
@@ -867,14 +774,12 @@ function GetHTMLOrCSSStyleValue(element, attrName, cssPropertyName)
   return value;
 }
 
-/************* Miscellaneous ***************/
+/** *********** Miscellaneous ***************/
 // Clone simple JS objects
-function Clone(obj)
-{
+function Clone(obj) {
   var clone = {};
-  for (var i in obj)
-  {
-    if (typeof obj[i] == 'object')
+  for (var i in obj) {
+    if (typeof obj[i] == "object")
       clone[i] = Clone(obj[i]);
     else
       clone[i] = obj[i];

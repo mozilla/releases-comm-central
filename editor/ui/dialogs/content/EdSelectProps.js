@@ -20,10 +20,8 @@ document.addEventListener("dialogcancel", onCancel);
 
 // Utility functions
 
-function getParentIndex(index)
-{
-  switch (itemArray[index].level)
-  {
+function getParentIndex(index) {
+  switch (itemArray[index].level) {
   case 0: return -1;
   case 1: return 0;
   }
@@ -31,14 +29,11 @@ function getParentIndex(index)
   return index;
 }
 
-function UpdateSelectMultiple()
-{
-  if (selectedOptionCount > 1)
-  {
+function UpdateSelectMultiple() {
+  if (selectedOptionCount > 1) {
     gDialog.selectMultiple.checked = true;
     gDialog.selectMultiple.disabled = true;
-  }
-  else
+  } else
     gDialog.selectMultiple.disabled = false;
 }
 
@@ -61,8 +56,7 @@ function UpdateSelectMultiple()
 // OPTION element wrapper object
 
 // Create a wrapper for the given element at the given level
-function optionObject(option, level)
-{
+function optionObject(option, level) {
   // select an added option (when loading from document)
   if (option.hasAttribute("selected"))
     selectedOptionCount++;
@@ -72,38 +66,32 @@ function optionObject(option, level)
 
 optionObject.prototype.container = false;
 
-optionObject.prototype.getCellText = function getCellText(column)
-{
+optionObject.prototype.getCellText = function getCellText(column) {
   if (column.id == "SelectSelCol")
     return "";
   if (column.id == "SelectValCol" && this.element.hasAttribute("value"))
     return this.element.getAttribute("value");
   return this.element.text;
-}
+};
 
-optionObject.prototype.cycleCell = function cycleCell(index)
-{
-  if (this.element.hasAttribute("selected"))
-  {
+optionObject.prototype.cycleCell = function cycleCell(index) {
+  if (this.element.hasAttribute("selected")) {
     this.element.removeAttribute("selected");
     selectedOptionCount--;
     selectedOption = null;
-  }
-  else
-  {
+  } else {
     // Different handling for multiselect lists
     if (gDialog.selectMultiple.checked || !selectedOption)
       selectedOptionCount++;
-    else if (selectedOption)
-    {
+    else if (selectedOption) {
       selectedOption.removeAttribute("selected");
-      var column = theTree.columns["SelectSelCol"];
+      var column = theTree.columns.SelectSelCol;
       theTree.invalidateColumn(column);
       selectedOption = null;
     }
     this.element.setAttribute("selected", "");
     selectedOption = this.element;
-    var column = theTree.columns["SelectSelCol"];
+    var column = theTree.columns.SelectSelCol;
     theTree.invalidateCell(index, column);
   }
   if (currentItem == this)
@@ -112,8 +100,7 @@ optionObject.prototype.cycleCell = function cycleCell(index)
   UpdateSelectMultiple();
 };
 
-optionObject.prototype.onFocus = function onFocus()
-{
+optionObject.prototype.onFocus = function onFocus() {
   gDialog.optionText.value = this.element.text;
   hasValue = this.element.hasAttribute("value");
   oldValue = this.element.value;
@@ -124,8 +111,7 @@ optionObject.prototype.onFocus = function onFocus()
   gDialog.selectDeck.setAttribute("selectedIndex", "2");
 };
 
-optionObject.prototype.onBlur = function onBlur()
-{
+optionObject.prototype.onBlur = function onBlur() {
   this.element.text = gDialog.optionText.value;
   if (gDialog.optionHasValue.checked)
     this.element.value = gDialog.optionValue.value;
@@ -141,20 +127,17 @@ optionObject.prototype.onBlur = function onBlur()
     this.element.removeAttribute("disabled");
 };
 
-optionObject.prototype.canDestroy = function canDestroy(prompt)
-{
+optionObject.prototype.canDestroy = function canDestroy(prompt) {
   return true;
-/*return !prompt ||
+/* return !prompt ||
     ConfirmWithTitle(GetString("DeleteOption"),
                      GetString("DeleteOptionMsg"),
                      GetString("DeleteOption"));*/
 };
 
-optionObject.prototype.destroy = function destroy()
-{
+optionObject.prototype.destroy = function destroy() {
   // Deselect a removed option
-  if (this.element.hasAttribute("selected"))
-  {
+  if (this.element.hasAttribute("selected")) {
     selectedOptionCount--;
     selectedOption = null;
     UpdateSelectMultiple();
@@ -174,58 +157,48 @@ optionObject.prototype.destroy = function destroy()
  *      option
  */
 
-optionObject.prototype.moveUp = function moveUp()
-{
+optionObject.prototype.moveUp = function moveUp() {
   var i;
   var index = treeSelection.currentIndex;
-  if (itemArray[index].level < itemArray[index - 1].level + itemArray[index - 1].container)
-  {
+  if (itemArray[index].level < itemArray[index - 1].level + itemArray[index - 1].container) {
     // we need to repaint the tree's lines
     theTree.invalidateRange(getParentIndex(index), index);
     // a) option is just after an optgroup, so it becomes the last child
     itemArray[index].level = 2;
     theTree.view.selectionChanged();
-  }
-  else
-  {
+  } else {
     // otherwise new option level is now the same as the previous item
     itemArray[index].level = itemArray[index - 1].level;
     // swap the option with the previous item
     itemArray.splice(index, 0, itemArray.splice(--index, 1)[0]);
   }
   selectTreeIndex(index, true);
-}
+};
 
-optionObject.prototype.canMoveDown = function canMoveDown()
-{
+optionObject.prototype.canMoveDown = function canMoveDown() {
   // move down is not allowed on the last option if its level is 1
   return this.level > 1 || itemArray.length - treeSelection.currentIndex > 1;
-}
+};
 
-optionObject.prototype.moveDown = function moveDown()
-{
+optionObject.prototype.moveDown = function moveDown() {
   var i;
   var index = treeSelection.currentIndex;
-  if (index + 1 == itemArray.length || itemArray[index].level > itemArray[index + 1].level)
-  {
+  if (index + 1 == itemArray.length || itemArray[index].level > itemArray[index + 1].level) {
     // we need to repaint the tree's lines
     theTree.invalidateRange(getParentIndex(index), index);
     // a) option is last child of an optgroup, so it moves just after
     itemArray[index].level = 1;
     theTree.view.selectionChanged();
-  }
-  else
-  {
+  } else {
     // level increases if the option was preceding an optgroup
     itemArray[index].level += itemArray[index + 1].container;
     // swap the option with the next item
     itemArray.splice(index, 0, itemArray.splice(++index, 1)[0]);
   }
   selectTreeIndex(index, true);
-}
+};
 
-optionObject.prototype.appendOption = function appendOption(child, parent)
-{
+optionObject.prototype.appendOption = function appendOption(child, parent) {
   // special case quick check
   if (this.level == 1)
     return gDialog.appendOption(child, 0);
@@ -237,8 +210,7 @@ optionObject.prototype.appendOption = function appendOption(child, parent)
 
 // OPTGROUP element wrapper object
 
-function optgroupObject(optgroup)
-{
+function optgroupObject(optgroup) {
   this.element = optgroup;
 }
 
@@ -246,45 +218,38 @@ optgroupObject.prototype.level = 1;
 
 optgroupObject.prototype.container = true;
 
-optgroupObject.prototype.getCellText = function getCellText(column)
-{
+optgroupObject.prototype.getCellText = function getCellText(column) {
   return column.id == "SelectTextCol" ? this.element.label : "";
-}
-
-optgroupObject.prototype.cycleCell = function cycleCell(index)
-{
 };
 
-optgroupObject.prototype.onFocus = function onFocus()
-{
+optgroupObject.prototype.cycleCell = function cycleCell(index) {
+};
+
+optgroupObject.prototype.onFocus = function onFocus() {
   gDialog.optgroupLabel.value = this.element.label;
   gDialog.optgroupDisabled.checked = this.element.disabled;
   gDialog.selectDeck.setAttribute("selectedIndex", "1");
 };
 
-optgroupObject.prototype.onBlur = function onBlur()
-{
+optgroupObject.prototype.onBlur = function onBlur() {
   this.element.label = gDialog.optgroupLabel.value;
   this.element.disabled = gDialog.optgroupDisabled.checked;
 };
 
-optgroupObject.prototype.canDestroy = function canDestroy(prompt)
-{
+optgroupObject.prototype.canDestroy = function canDestroy(prompt) {
   // Only removing empty option groups for now
   return gDialog.nextChild(treeSelection.currentIndex) - treeSelection.currentIndex == 1;
-/*&& (!prompt ||
+/* && (!prompt ||
     ConfirmWithTitle(GetString("DeleteOptGroup"),
                      GetString("DeleteOptGroupMsg"),
                      GetString("DeleteOptGroup")));
 */
 };
 
-optgroupObject.prototype.destroy = function destroy()
-{
+optgroupObject.prototype.destroy = function destroy() {
 };
 
-optgroupObject.prototype.moveUp = function moveUp()
-{
+optgroupObject.prototype.moveUp = function moveUp() {
   // Find the index of the previous and next elements at the same level
   var index = treeSelection.currentIndex;
   var i = index;
@@ -297,15 +262,13 @@ optgroupObject.prototype.moveUp = function moveUp()
   // Repaint the lot
   theTree.invalidateRange(index, j);
   selectTreeIndex(index, true);
-}
+};
 
-optgroupObject.prototype.canMoveDown = function canMoveDown()
-{
+optgroupObject.prototype.canMoveDown = function canMoveDown() {
   return gDialog.lastChild() > treeSelection.currentIndex;
-}
+};
 
-optgroupObject.prototype.moveDown = function moveDown()
-{
+optgroupObject.prototype.moveDown = function moveDown() {
   // Find the index of the next two elements at the same level
   var index = treeSelection.currentIndex;
   var i = gDialog.nextChild(index);
@@ -318,10 +281,9 @@ optgroupObject.prototype.moveDown = function moveDown()
   theTree.invalidateRange(index, j);
   index += j - i;
   selectTreeIndex(index, true);
-}
+};
 
-optgroupObject.prototype.appendOption = function appendOption(child, parent)
-{
+optgroupObject.prototype.appendOption = function appendOption(child, parent) {
   var index = gDialog.nextChild(parent);
   // XXX need to repaint the lines, tree won't do this
   var primaryCol = theTree.columns.getPrimaryColumn();
@@ -334,11 +296,9 @@ optgroupObject.prototype.appendOption = function appendOption(child, parent)
 
 // dialog initialization code
 
-function Startup()
-{
+function Startup() {
   var editor = GetCurrentEditor();
-  if (!editor)
-  {
+  if (!editor) {
     dump("Failed to get active editor!\n");
     window.close();
     return;
@@ -353,8 +313,7 @@ function Startup()
   if (selectElement)
     // We found an element and don't need to insert one
     insertNew = false;
-  else
-  {
+  else {
     insertNew = true;
 
     // We don't have an element selected,
@@ -363,8 +322,7 @@ function Startup()
       selectElement = editor.createElementWithDefaults(kTagName);
     } catch (e) {}
 
-    if(!selectElement)
-    {
+    if (!selectElement) {
       dump("Failed to get selected element or create a new one!\n");
       window.close();
       return;
@@ -396,13 +354,11 @@ function Startup()
     element:          selectElement.cloneNode(false),
     level:            0,
     container:        true,
-    getCellText:      function getCellText(column)
-    {
+    getCellText:      function getCellText(column) {
       return column.id == "SelectTextCol" ? this.element.getAttribute("name") : "";
     },
     cycleCell:        function cycleCell(index) {},
-    onFocus:          function onFocus()
-    {
+    onFocus:          function onFocus() {
       gDialog.selectName.value = this.element.getAttribute("name");
       gDialog.selectSize.value = this.element.getAttribute("size");
       gDialog.selectMultiple.checked = this.element.hasAttribute("multiple");
@@ -411,8 +367,7 @@ function Startup()
       this.selectDeck.setAttribute("selectedIndex", "0");
       onNameInput();
     },
-    onBlur:           function onBlur()
-    {
+    onBlur:           function onBlur() {
       this.element.setAttribute("name", gDialog.selectName.value);
       if (gDialog.selectSize.value)
         this.element.setAttribute("size", gDialog.selectSize.value);
@@ -431,8 +386,7 @@ function Startup()
       else
         this.element.removeAttribute("tabindex");
     },
-    appendOption:     function appendOption(child, parent)
-    {
+    appendOption:     function appendOption(child, parent) {
       var index = itemArray.length;
       // XXX need to repaint the lines, tree won't do this
       theTree.invalidateRange(this.lastChild(), index);
@@ -441,39 +395,33 @@ function Startup()
       theTree.rowCountChanged(index, 1);
       selectTreeIndex(index, false);
     },
-    canDestroy:       function canDestroy(prompt)
-    {
+    canDestroy:       function canDestroy(prompt) {
       return false;
     },
-    canMoveDown:      function canMoveDown()
-    {
+    canMoveDown:      function canMoveDown() {
       return false;
     },
     // helper methods
     // Find the index of the next immediate child of the select
-    nextChild:        function nextChild(index)
-    {
+    nextChild:        function nextChild(index) {
       while (++index < itemArray.length && itemArray[index].level > 1);
       return index;
     },
     // Find the index of the last immediate child of the select
-    lastChild:        function lastChild()
-    {
+    lastChild:        function lastChild() {
       var index = itemArray.length;
       while (itemArray[--index].level > 1);
       return index;
-    }
-  }
+    },
+  };
   // Start with the <select> wrapper
   itemArray = [gDialog];
 
   // We modify the actual option and optgroup elements so clone them first
-  for (var child = selectElement.firstChild; child; child = child.nextSibling)
-  {
+  for (var child = selectElement.firstChild; child; child = child.nextSibling) {
     if (child.tagName == "OPTION")
       itemArray.push(new optionObject(child.cloneNode(true), 1));
-    else if (child.tagName == "OPTGROUP")
-    {
+    else if (child.tagName == "OPTGROUP") {
       itemArray.push(new optgroupObject(child.cloneNode(false)));
       for (var grandchild = child.firstChild; grandchild; grandchild = grandchild.nextSibling)
         if (grandchild.tagName == "OPTION")
@@ -495,8 +443,7 @@ function Startup()
     set selection(selection) { return treeSelection = selection; },
     getRowProperties: function getRowProperties(index) { return ""; },
     // could have used a wrapper for this
-    getCellProperties: function getCellProperties(index, column)
-    {
+    getCellProperties: function getCellProperties(index, column) {
       if (column.id == "SelectSelCol" && !itemArray[index].container)
         return "checked-" + itemArray[index].element.hasAttribute("selected");
       return "";
@@ -510,18 +457,16 @@ function Startup()
     isSorted: function isSorted() { return false; },
     // d&d not implemented yet!
     canDrop: function canDrop(index, orientation) { return false; },
-    drop: function drop(index, orientation) { alert('drop:' + index + ',' + orientation); },
+    drop: function drop(index, orientation) { alert("drop:" + index + "," + orientation); },
     // same as the global helper
-    getParentIndex: getParentIndex,
+    getParentIndex,
     // tree needs to know when to paint lines
-    hasNextSibling: function hasNextSibling(index, after)
-    {
+    hasNextSibling: function hasNextSibling(index, after) {
       if (!index)
         return false;
       var level = itemArray[index].level;
       while (++after < itemArray.length)
-        switch (level - itemArray[after].level)
-        {
+        switch (level - itemArray[after].level) {
         case 1: return false;
         case 0: return true;
         }
@@ -529,14 +474,13 @@ function Startup()
     },
     getLevel: function getLevel(index) { return itemArray[index].level; },
     getImageSrc: function getImageSrc(index, column) { },
-    getProgressMode : function getProgressMode(index,column) { },
+    getProgressMode: function getProgressMode(index, column) { },
     getCellValue: function getCellValue(index, column) { },
     getCellText: function getCellText(index, column) { return itemArray[index].getCellText(column); },
     setTree: function setTree(tree) { this.tree = tree; },
     toggleOpenState: function toggleOpenState(index) { },
     cycleHeader: function cycleHeader(col) { },
-    selectionChanged: function selectionChanged()
-    {
+    selectionChanged: function selectionChanged() {
       // Save current values and update buttons and deck
       if (currentItem)
         currentItem.onBlur();
@@ -552,11 +496,11 @@ function Startup()
     cycleCell: function cycleCell(index, column) { itemArray[index].cycleCell(index); },
     isEditable: function isEditable(index, column) { return false; },
     performAction: function performAction(action) { },
-    performActionOnCell: function performActionOnCell(action, index, column) { }
+    performActionOnCell: function performActionOnCell(action, index, column) { },
   };
   treeSelection.select(0);
   currentItem = gDialog;
-  //onNameInput();
+  // onNameInput();
 
   SetTextboxFocus(gDialog.selectName);
 
@@ -564,20 +508,17 @@ function Startup()
 }
 
 // Called from Advanced Edit
-function InitDialog()
-{
+function InitDialog() {
   currentItem.onFocus();
 }
 
 // Called from Advanced Edit
-function ValidateData()
-{
+function ValidateData() {
   currentItem.onBlur();
   return true;
 }
 
-function onAccept()
-{
+function onAccept() {
   // All values are valid - copy to actual element in doc or
   //   element created to insert
   ValidateData();
@@ -587,8 +528,7 @@ function onAccept()
   // Coalesce into one undo transaction
   editor.beginTransaction();
 
-  try
-  {
+  try {
     editor.cloneAttributes(selectElement, gDialog.element);
 
     if (insertNew)
@@ -608,9 +548,7 @@ function onAccept()
         editor.insertNode(itemArray[i].element, selectElement, offset++, true);
 
     editor.setShouldTxnSetSelection(true);
-  }
-  finally
-  {
+  } finally {
     editor.endTransaction();
   }
 
@@ -618,14 +556,12 @@ function onAccept()
 }
 
 // Button actions
-function AddOption()
-{
+function AddOption() {
   currentItem.appendOption(GetCurrentEditor().createElementWithDefaults("option"), treeSelection.currentIndex);
   SetTextboxFocus(gDialog.optionText);
 }
 
-function AddOptGroup()
-{
+function AddOptGroup() {
   var optgroupElement = GetCurrentEditor().createElementWithDefaults("optgroup");
   var index = itemArray.length;
   // XXX need to repaint the lines, tree won't do this
@@ -637,10 +573,8 @@ function AddOptGroup()
   SetTextboxFocus(gDialog.optgroupLabel);
 }
 
-function RemoveElement()
-{
-  if (currentItem.canDestroy(true))
-  {
+function RemoveElement() {
+  if (currentItem.canDestroy(true)) {
     // Only removing empty option groups for now
     var index = treeSelection.currentIndex;
     var level = itemArray[index].level;
@@ -660,14 +594,12 @@ function RemoveElement()
 }
 
 // Event handler
-function onTreeKeyUp(event)
-{
+function onTreeKeyUp(event) {
   if (event.keyCode == event.DOM_VK_SPACE)
     currentItem.cycleCell();
 }
 
-function onNameInput()
-{
+function onNameInput() {
   var disabled = !gDialog.selectName.value;
   if (gDialog.accept.disabled != disabled)
     gDialog.accept.disabled = disabled;
@@ -677,67 +609,56 @@ function onNameInput()
   theTree.invalidateCell(treeSelection.currentIndex, primaryCol);
 }
 
-function onLabelInput()
-{
+function onLabelInput() {
   currentItem.element.setAttribute("label", gDialog.optgroupLabel.value);
   // repaint the tree
   var primaryCol = theTree.columns.getPrimaryColumn();
   theTree.invalidateCell(treeSelection.currentIndex, primaryCol);
 }
 
-function onTextInput()
-{
+function onTextInput() {
   currentItem.element.text = gDialog.optionText.value;
   // repaint the tree
   if (hasValue) {
     var primaryCol = theTree.columns.getPrimaryColumn();
     theTree.invalidateCell(treeSelection.currentIndex, primaryCol);
-  }
-  else
-  {
+  } else {
     gDialog.optionValue.value = gDialog.optionText.value;
     theTree.invalidateRow(treeSelection.currentIndex);
   }
 }
 
-function onValueInput()
-{
+function onValueInput() {
   gDialog.optionHasValue.checked = hasValue = true;
   oldValue = gDialog.optionValue.value;
   currentItem.element.setAttribute("value", oldValue);
   // repaint the tree
-  var column = theTree.columns["SelectValCol"];
+  var column = theTree.columns.SelectValCol;
   theTree.invalidateCell(treeSelection.currentIndex, column);
 }
 
-function onHasValueClick()
-{
+function onHasValueClick() {
   hasValue = gDialog.optionHasValue.checked;
-  if (hasValue)
-  {
+  if (hasValue) {
     gDialog.optionValue.value = oldValue;
     currentItem.element.setAttribute("value", oldValue);
-  }
-  else
-  {
+  } else {
     oldValue = gDialog.optionValue.value;
     gDialog.optionValue.value = gDialog.optionText.value;
     currentItem.element.removeAttribute("value");
   }
   // repaint the tree
-  var column = theTree.columns["SelectValCol"];
+  var column = theTree.columns.SelectValCol;
   theTree.invalidateCell(treeSelection.currentIndex, column);
 }
 
-function onSelectMultipleClick()
-{
+function onSelectMultipleClick() {
   // Recalculate the unique selected option if we need it and have lost it
   if (!gDialog.selectMultiple.checked && selectedOptionCount == 1 && !selectedOption)
     for (var i = 1; !(selectedOption = itemArray[i].element).hasAttribute("selected"); i++);
 }
 
-function selectTreeIndex(index, focus)
-{
+function selectTreeIndex(index, focus) {
   treeSelection.select(index);
   theTree.ensureRowIsVisible(index);
   if (focus)

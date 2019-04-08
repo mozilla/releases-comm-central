@@ -10,11 +10,9 @@ var inputElement;
 document.addEventListener("dialogaccept", onAccept);
 document.addEventListener("dialogcancel", onCancel);
 
-function Startup()
-{
+function Startup() {
   var editor = GetCurrentEditor();
-  if (!editor)
-  {
+  if (!editor) {
     dump("Failed to get active editor!\n");
     window.close();
     return;
@@ -40,7 +38,7 @@ function Startup()
     MoreSection:        document.getElementById("MoreSection"),
     MoreFewerButton:    document.getElementById("MoreFewerButton"),
     AdvancedEditButton: document.getElementById("AdvancedEditButton"),
-    AdvancedEditDeck:   document.getElementById("AdvancedEditDeck")
+    AdvancedEditDeck:   document.getElementById("AdvancedEditDeck"),
   };
 
   // Get a single selected input element
@@ -52,8 +50,7 @@ function Startup()
   if (inputElement)
     // We found an element and don't need to insert one
     insertNew = false;
-  else
-  {
+  else {
     insertNew = true;
 
     // We don't have an element selected,
@@ -62,24 +59,21 @@ function Startup()
       inputElement = editor.createElementWithDefaults(kTagName);
     } catch (e) {}
 
-    if (!inputElement)
-    {
+    if (!inputElement) {
       dump("Failed to get selected element or create a new one!\n");
       window.close();
       return;
     }
 
     var imgElement = editor.getSelectedElement("img");
-    if (imgElement)
-    {
+    if (imgElement) {
       // We found an image element, convert it to an input type="image"
       inputElement.setAttribute("type", "image");
 
       var attributes = ["src", "alt", "width", "height", "hspace", "vspace", "border", "align"];
       for (i in attributes)
         inputElement.setAttribute(attributes[i], imgElement.getAttribute(attributes[i]));
-    }
-    else
+    } else
       inputElement.setAttribute("value", GetSelectionAsText());
   }
 
@@ -95,12 +89,10 @@ function Startup()
   SetWindowLocation();
 }
 
-function InitDialog()
-{
+function InitDialog() {
   var type = globalElement.getAttribute("type");
   var index = 0;
-  switch (type)
-  {
+  switch (type) {
     case "button":
       index = 9;
       break;
@@ -144,8 +136,7 @@ function InitDialog()
   SelectInputType();
 }
 
-function SelectInputType()
-{
+function SelectInputType() {
   var index = gDialog.inputType.selectedIndex;
   gDialog.AdvancedEditDeck.setAttribute("selectedIndex", 0);
   gDialog.inputNameDeck.setAttribute("selectedIndex", 0);
@@ -159,8 +150,7 @@ function SelectInputType()
   gDialog.inputSize.disabled = index > 1;
   gDialog.inputMaxLength.disabled = index > 1;
   gDialog.inputAccept.disabled = index != 6;
-  switch (index)
-  {
+  switch (index) {
     case 0:
     case 1:
       gDialog.inputValueDeck.setAttribute("selectedIndex", 1);
@@ -189,11 +179,9 @@ function SelectInputType()
   onInput();
 }
 
-function onInput()
-{
-  var disabled = false;;
-  switch (gDialog.inputType.selectedIndex)
-  {
+function onInput() {
+  var disabled = false;
+  switch (gDialog.inputType.selectedIndex) {
   case 3:
     disabled = disabled || !gDialog.inputValue.value;
   case 4:
@@ -203,26 +191,23 @@ function onInput()
     disabled = !globalElement.hasAttribute("src");
     break;
   default:
-    disabled = !gDialog.inputName.value
+    disabled = !gDialog.inputName.value;
     break;
   }
-  if (gDialog.accept.disabled != disabled)
-  {
+  if (gDialog.accept.disabled != disabled) {
     gDialog.accept.disabled = disabled;
     gDialog.AdvancedEditButton.disabled = disabled;
   }
 }
 
-function doImageProperties()
-{
+function doImageProperties() {
   window.openDialog("chrome://editor/content/EdImageProps.xul",
                     "_blank", "chrome,close,titlebar,modal", globalElement);
   window.focus();
   onInput();
 }
 
-function ValidateData()
-{
+function ValidateData() {
   var attributes = {
     type: "",
     name: gDialog.inputName.value,
@@ -231,16 +216,15 @@ function ValidateData()
     accesskey: "",
     size: "",
     maxlength: "",
-    accept: ""
+    accept: "",
   };
   var index = gDialog.inputType.selectedIndex;
   var flags = {
     checked: false,
     readonly: false,
-    disabled: gDialog.inputDisabled.checked
+    disabled: gDialog.inputDisabled.checked,
   };
-  switch (index)
-  {
+  switch (index) {
     case 1:
       attributes.type = "password";
     case 0:
@@ -282,15 +266,13 @@ function ValidateData()
       attributes.accesskey = gDialog.inputAccessKey.value;
       break;
   }
-  for (var a in attributes)
-  {
+  for (var a in attributes) {
     if (attributes[a])
       globalElement.setAttribute(a, attributes[a]);
     else
       globalElement.removeAttribute(a);
   }
-  for (var f in flags)
-  {
+  for (var f in flags) {
     if (flags[f])
       globalElement.setAttribute(f, "");
     else
@@ -299,10 +281,8 @@ function ValidateData()
   return true;
 }
 
-function onAccept(event)
-{
-  if (ValidateData())
-  {
+function onAccept(event) {
+  if (ValidateData()) {
     // All values are valid - copy to actual element in doc or
     //   element created to insert
 
@@ -310,8 +290,7 @@ function onAccept(event)
 
     editor.cloneAttributes(inputElement, globalElement);
 
-    if (insertNew)
-    {
+    if (insertNew) {
       try {
         // 'true' means delete the selection before inserting
         // in case were are converting an image to an input type="image"

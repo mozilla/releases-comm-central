@@ -10,11 +10,9 @@ var buttonElement;
 document.addEventListener("dialogaccept", onAccept);
 document.addEventListener("dialogcancel", onCancel);
 
-function Startup()
-{
+function Startup() {
   var editor = GetCurrentEditor();
-  if (!editor)
-  {
+  if (!editor) {
     window.close();
     return;
   }
@@ -28,7 +26,7 @@ function Startup()
     buttonAccessKey:  document.getElementById("ButtonAccessKey"),
     MoreSection:      document.getElementById("MoreSection"),
     MoreFewerButton:  document.getElementById("MoreFewerButton"),
-    RemoveButton:     document.getElementById("RemoveButton")
+    RemoveButton:     document.getElementById("RemoveButton"),
   };
 
   // Get a single selected button element
@@ -40,8 +38,7 @@ function Startup()
   if (buttonElement)
     // We found an element and don't need to insert one
     insertNew = false;
-  else
-  {
+  else {
     insertNew = true;
 
     // We don't have an element selected,
@@ -50,8 +47,7 @@ function Startup()
       buttonElement = editor.createElementWithDefaults(kTagName);
     } catch (e) {}
 
-    if (!buttonElement)
-    {
+    if (!buttonElement) {
       dump("Failed to get selected element or create a new one!\n");
       window.close();
       return;
@@ -72,12 +68,10 @@ function Startup()
   SetWindowLocation();
 }
 
-function InitDialog()
-{
+function InitDialog() {
   var type = globalElement.getAttribute("type");
   var index = 0;
-  switch (type)
-  {
+  switch (type) {
     case "button":
       index = 2;
       break;
@@ -93,24 +87,21 @@ function InitDialog()
   gDialog.buttonAccessKey.value = globalElement.getAttribute("accesskey");
 }
 
-function RemoveButton()
-{
+function RemoveButton() {
   RemoveContainer(buttonElement);
   SaveWindowLocation();
   window.close();
 }
 
-function ValidateData()
-{
+function ValidateData() {
   var attributes = {
     type: ["", "reset", "button"][gDialog.buttonType.selectedIndex],
     name: gDialog.buttonName.value,
     value: gDialog.buttonValue.value,
     tabindex: gDialog.buttonTabIndex.value,
-    accesskey: gDialog.buttonAccessKey.value
+    accesskey: gDialog.buttonAccessKey.value,
   };
-  for (var a in attributes)
-  {
+  for (var a in attributes) {
     if (attributes[a])
       globalElement.setAttribute(a, attributes[a]);
     else
@@ -123,8 +114,7 @@ function ValidateData()
   return true;
 }
 
-function onAccept()
-{
+function onAccept() {
   // All values are valid - copy to actual element in doc or
   //   element created to insert
   ValidateData();
@@ -133,10 +123,8 @@ function onAccept()
 
   editor.cloneAttributes(buttonElement, globalElement);
 
-  if (insertNew)
-  {
-    if (!InsertElementAroundSelection(buttonElement))
-    {
+  if (insertNew) {
+    if (!InsertElementAroundSelection(buttonElement)) {
       buttonElement.innerHTML = editor.outputToString("text/html", kOutputSelectionOnly);
       editor.insertElementAtSelection(buttonElement, true);
     }

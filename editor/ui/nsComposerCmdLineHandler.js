@@ -19,7 +19,7 @@ nsComposerCmdLineHandler.prototype = {
   QueryInterface: ChromeUtils.generateQI([nsICommandLineHandler]),
 
   /* nsICommandLineHandler */
-  handle : function handle(cmdLine) {
+  handle: function handle(cmdLine) {
     var args = Cc["@mozilla.org/supports-string;1"]
                  .createInstance(nsISupportsString);
     try {
@@ -33,12 +33,10 @@ nsComposerCmdLineHandler.prototype = {
 
       try {
         args.data = cmdLine.resolveURI(uristr).spec;
-      }
-      catch (e) {
+      } catch (e) {
         return;
       }
-    }
-    catch (e) {
+    } catch (e) {
       // One of the flags is present but no data, so set default arg.
       args.data = "about:blank";
     }
@@ -48,10 +46,10 @@ nsComposerCmdLineHandler.prototype = {
     cmdLine.preventDefault = true;
   },
 
-  helpInfo : "  -edit <url>        Open Composer.\n",
+  helpInfo: "  -edit <url>        Open Composer.\n",
 
   /* XPCOMUtils */
-  classID: Components.ID("{f7d8db95-ab5d-4393-a796-9112fe758cfa}")
+  classID: Components.ID("{f7d8db95-ab5d-4393-a796-9112fe758cfa}"),
 };
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory([nsComposerCmdLineHandler]);
