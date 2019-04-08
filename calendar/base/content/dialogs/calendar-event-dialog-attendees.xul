@@ -115,9 +115,9 @@
             <richlistitem class="freebusy-listitem"
                           allowevents="true">
               <hbox flex="1">
-                <scroll-container flex="1">
+                <calendar-event-scroll-container flex="1">
                   <freebusy-day/>
-                </scroll-container>
+                </calendar-event-scroll-container>
               </hbox>
             </richlistitem>
           </calendar-event-freebusy-timebar>
