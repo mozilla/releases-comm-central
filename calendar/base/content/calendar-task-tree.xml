@@ -6,7 +6,7 @@
 <!-- import-globals-from agenda-listbox-utils.js -->
 <!-- import-globals-from calendar-common-sets.js -->
 <!-- import-globals-from calendar-dnd-listener.js -->
-<!-- import-globals-from calendar-task-tree.js -->
+<!-- import-globals-from calendar-task-tree-utils.js -->
 
 <!DOCTYPE dialog [
   <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/global.dtd" > %dtd1;
