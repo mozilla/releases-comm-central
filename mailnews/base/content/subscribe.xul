@@ -32,132 +32,147 @@
   <script type="application/javascript"
           src="chrome://messenger/content/subscribe.js"/>
 
-  <grid flex="1" style="width: 40em; height: 25em;">
-    <columns>
-      <column flex="1"/>
-      <column/>
-    </columns>
-
-    <rows>
-      <row>
-        <grid flex="1">
-          <columns>
-            <column/>
-            <column flex="1"/>
-          </columns>
-
-          <rows>
-            <row>
-              <hbox pack="end" align="center">
-                <label value="&server.label;" accesskey="&server.accesskey;" control="serverMenu"/>
-              </hbox>
-              <menulist id="serverMenu" flex="1" class="folderMenuItem">
-                <menupopup type="folder" mode="subscribe" expandFolders="false"
-                           oncommand="onServerClick(event.target._folder);"/>
-              </menulist>
-            </row>
-            <row align="center">
-              <label value="&namefield.label;" accesskey="&namefield.accesskey;"
-                     id="namefieldlabel" control="namefield"/>
-              <textbox id="namefield" flex="1" type="search" timeout="300"
-                       aria-controls="subscribeTree"
-                       oncommand="Search();"/>
-            </row>
-          </rows>
-        </grid>
-        <spacer/>
-      </row>
-      <row>
-        <separator class="thin"/>
-        <spacer/>
-      </row>
-      <row flex="1">
-        <tabbox>
-          <tabs id="subscribeTabs">
-            <tab id="currentListTab"
-                 selected="true"
-                 oncommand="ShowCurrentList()"/>
-            <tab id="newGroupsTab"
-                 label="&newGroupsTab.label;"
-                 accesskey="&newGroupsTab.accesskey;"
-                 oncommand="ShowNewGroupsList()"/>
-          </tabs>
-          <tabpanels flex="1">
-            <tabpanel id="treepanel" flex="1" orient="vertical">
-              <label id="subscribeLabel"/>
-              <hbox flex="1">
-                <deck id="subscribedeck" selectedIndex="0" flex="1">
-                  <hbox id="normalview">
-                    <tree id="subscribeTree"
-                          treelines="true"
-                          flex="1"
-                          hidecolumnpicker="true"
-                          seltype="multiple"
-                          disableKeyNavigation="true"
-                          onkeypress="onSubscribeTreeKeyPress(event);"
-                          onclick="SubscribeOnClick(event);">
-                      <treecols id="theSubscribeColumns">
-                        <treecol id="nameColumn" primary="true" flex="10"
-                                 hideheader="true" crop="center"/>
-                        <splitter class="tree-splitter"/>
-                        <treecol id="subscribedColumn" type="checkbox" flex="1"
-                                 hideheader="true"/>
-                      </treecols>
-                      <treechildren id="subscribeTreeBody"/>
-                    </tree>
-                  </hbox>
-
-                  <hbox id="searchview">
-                    <tree id="searchTree" flex="1"
-                          disableKeyNavigation="true"
-                          hidecolumnpicker="true"
-                          onkeypress="onSearchTreeKeyPress(event);"
-                          onclick="SearchOnClick(event);">
-                      <treecols>
-                        <treecol id="nameColumn2" primary="true"
-                                 flex="10" hideheader="true"
-                                 sortDirection="ascending"/>
-                        <splitter class="tree-splitter"/>
-                        <treecol id="subscribedColumn2"
-                                 flex="1" hideheader="true"/>
-                      </treecols>
-                      <treechildren id="searchTreeBody"/>
-                    </tree>
-                  </hbox>
-                </deck>
-
-                <vbox>
-                  <button id="subscribe" label="&subscribeButton.label;"
-                          accesskey="&subscribeButton.accesskey;"
-                          oncommand="SetSubscribeState(true)"/>
-                  <button id="unsubscribe" label="&unsubscribeButton.label;"
-                          accesskey="&unsubscribeButton.accesskey;"
-                          oncommand="SetSubscribeState(false)"/>
-                  <button id="refreshButton" label="&refreshButton.label;"
-                          accesskey="&refreshButton.accesskey;"
-                          oncommand="Refresh()"/>
-                  <button id="stopButton" label="&stopButton.label;"
-                          accesskey="&stopButton.accesskey;"
-                          oncommand="Stop()" disabled="true"/>
-                  <spacer flex="1"/>
-                </vbox>
-
-              </hbox>
-            </tabpanel>
-          </tabpanels>
-        </tabbox>
-      </row>
-      <row>
-        <hbox id="statusContainerBox">
-           <statusbarpanel id="statusText" crop="right" flex="1"/>
-           <hbox id="statusbar-progresspanel"
-                 class="statusbarpanel statusbarpanel-progress"
-                 collapsed="true">
-             <html:progress class="progressmeter-statusbar" id="statusbar-icon" value="0" max="100"/>
-           </hbox>
-         </hbox>
-         <hbox/>
-      </row>
-    </rows>
-  </grid>
+  <vbox flex="1" style="width: 40em; height: 25em;">
+    <hbox>
+      <vbox>
+        <hbox pack="end" align="center" flex="1">
+          <label value="&server.label;"
+                 accesskey="&server.accesskey;"
+                 control="serverMenu"/>
+        </hbox>
+        <hbox flex="1" align="center">
+          <label value="&namefield.label;"
+                 accesskey="&namefield.accesskey;"
+                 id="namefieldlabel"
+                 control="namefield"/>
+        </hbox>
+      </vbox>
+      <vbox flex="1">
+        <menulist id="serverMenu" flex="1" class="folderMenuItem">
+          <menupopup type="folder"
+                     mode="subscribe"
+                     expandFolders="false"
+                     oncommand="onServerClick(event.target._folder);"/>
+        </menulist>
+        <textbox id="namefield"
+                 flex="1"
+                 type="search"
+                 timeout="300"
+                 aria-controls="subscribeTree"
+                 oncommand="Search();"/>
+      </vbox>
+    </hbox>
+    <spacer/>
+    <separator class="thin"/>
+    <spacer/>
+    <vbox flex="1">
+      <tabbox flex="1">
+        <tabs id="subscribeTabs">
+          <tab id="currentListTab"
+               selected="true"
+               oncommand="ShowCurrentList()"/>
+          <tab id="newGroupsTab"
+               label="&newGroupsTab.label;"
+               accesskey="&newGroupsTab.accesskey;"
+               oncommand="ShowNewGroupsList()"/>
+        </tabs>
+        <tabpanels flex="1">
+          <tabpanel id="treepanel"
+                    flex="1"
+                    orient="vertical">
+            <label id="subscribeLabel"/>
+            <hbox flex="1">
+              <deck id="subscribedeck"
+                    selectedIndex="0"
+                    flex="1">
+                <hbox id="normalview">
+                  <tree id="subscribeTree"
+                        treelines="true"
+                        flex="1"
+                        hidecolumnpicker="true"
+                        seltype="multiple"
+                        disableKeyNavigation="true"
+                        onkeypress="onSubscribeTreeKeyPress(event);"
+                        onclick="SubscribeOnClick(event);">
+                    <treecols id="theSubscribeColumns">
+                      <treecol id="nameColumn"
+                               primary="true"
+                               flex="10"
+                               hideheader="true"
+                               crop="center"/>
+                      <splitter class="tree-splitter"/>
+                      <treecol id="subscribedColumn"
+                               type="checkbox"
+                               flex="1"
+                               hideheader="true"/>
+                    </treecols>
+                    <treechildren id="subscribeTreeBody"/>
+                  </tree>
+                </hbox>
+                <hbox id="searchview">
+                  <tree id="searchTree"
+                        flex="1"
+                        disableKeyNavigation="true"
+                        hidecolumnpicker="true"
+                        onkeypress="onSearchTreeKeyPress(event);"
+                        onclick="SearchOnClick(event);">
+                    <treecols>
+                      <treecol id="nameColumn2"
+                               primary="true"
+                               flex="10"
+                               hideheader="true"
+                               sortDirection="ascending"/>
+                      <splitter class="tree-splitter"/>
+                      <treecol id="subscribedColumn2"
+                               flex="1"
+                               hideheader="true"/>
+                    </treecols>
+                    <treechildren id="searchTreeBody"/>
+                  </tree>
+                </hbox>
+              </deck>
+              <vbox>
+                <button id="subscribe"
+                        label="&subscribeButton.label;"
+                        accesskey="&subscribeButton.accesskey;"
+                        oncommand="SetSubscribeState(true)"/>
+                <button id="unsubscribe"
+                        label="&unsubscribeButton.label;"
+                        accesskey="&unsubscribeButton.accesskey;"
+                        oncommand="SetSubscribeState(false)"/>
+                <button id="refreshButton"
+                        label="&refreshButton.label;"
+                        accesskey="&refreshButton.accesskey;"
+                        oncommand="Refresh()"/>
+                <button id="stopButton"
+                        label="&stopButton.label;"
+                        accesskey="&stopButton.accesskey;"
+                        oncommand="Stop()"
+                        disabled="true"/>
+                <spacer flex="1"/>
+              </vbox>
+            </hbox>
+          </tabpanel>
+        </tabpanels>
+      </tabbox>
+    </vbox>
+    <hbox>
+      <hbox id="statusContainerBox" flex="1">
+        <statusbarpanel id="statusText"
+                        crop="right"
+                        flex="1"/>
+        <hbox id="statusbar-progresspanel"
+              class="statusbarpanel statusbarpanel-progress"
+              collapsed="true"
+              pack="end"
+              flex="1">
+          <html:progress class="progressmeter-statusbar"
+                         id="statusbar-icon"
+                         value="0"
+                         max="100"/>
+        </hbox>
+      </hbox>
+      <hbox/>
+    </hbox>
+  </vbox>
 </dialog>
