@@ -31,3 +31,7 @@ SOURCES += [
 
 FINAL_LIBRARY = 'mail'
 
+LOCAL_INCLUDES += [
+    # for nsImapProtocol.cpp
+    '/netwerk/base',
+]

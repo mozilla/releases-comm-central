@@ -154,6 +154,12 @@ class nsImapProtocol : public nsIImapProtocol,
                        public nsIProtocolProxyCallback
 {
 public:
+  struct TCPKeepalive {
+    // For enabling and setting TCP keepalive (not related to IMAP IDLE).
+    std::atomic<bool> enabled;
+    std::atomic<int32_t> idleTimeS;
+    std::atomic<int32_t> retryIntervalS;
+  };
 
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIINPUTSTREAMCALLBACK

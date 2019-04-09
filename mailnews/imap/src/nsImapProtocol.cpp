@@ -23,6 +23,7 @@
 #include "nsImapServerResponseParser.h"
 #include "nspr.h"
 #include "plbase64.h"
+#include "nsIEventTarget.h"
 #include "nsIImapService.h"
 #include "nsISocketTransportService.h"
 #include "nsIStreamListenerTee.h"
@@ -33,6 +34,7 @@
 #include "nsIMsgFolder.h"
 #include "nsMsgMessageFlags.h"
 #include "nsTextFormatter.h"
+#include "nsTransportUtils.h"
 #include "nsIMsgHdr.h"
 #include "nsMsgI18N.h"
 // for the memory cache...
@@ -48,6 +50,7 @@
 #include "nsIInterfaceRequestor.h"
 #include "nsXPCOMCIDInternal.h"
 #include "nsIXULAppInfo.h"
+#include "nsSocketTransportService2.h"
 #include "nsSyncRunnableHelpers.h"
 #include "nsICancelable.h"
 
@@ -325,6 +328,7 @@ static bool gCheckDeletedBeforeExpunge = false; //bug 235004
 static int32_t gResponseTimeout = 60;
 static nsCString gForceSelectDetect;
 static nsTArray<nsCString> gForceSelectServersArray;
+static nsImapProtocol::TCPKeepalive gTCPKeepalive;
 
 // let delete model control expunging, i.e., don't ever expunge when the
 // user chooses the imap delete model, otherwise, expunge when over the
@@ -373,6 +377,10 @@ nsresult nsImapProtocol::GlobalInitialization(nsIPrefBranch *aPrefBranch)
                              gForceSelectDetect);
     ParseString(gForceSelectDetect, ';', gForceSelectServersArray);
 
+    gTCPKeepalive.enabled.store(false, std::memory_order_relaxed);
+    gTCPKeepalive.idleTimeS.store(-1, std::memory_order_relaxed);
+    gTCPKeepalive.retryIntervalS.store(-1, std::memory_order_relaxed);
+
     nsCOMPtr<nsIXULAppInfo> appInfo(do_GetService(XULAPPINFO_SERVICE_CONTRACTID));
 
     if (appInfo)
@@ -384,6 +392,98 @@ nsresult nsImapProtocol::GlobalInitialization(nsIPrefBranch *aPrefBranch)
       PL_strncpyz(gAppVersion, appVersion.get(), kAppBufSize);
     }
     return NS_OK;
+}
+
+class nsImapTransportEventSink final : public nsITransportEventSink
+{
+public:
+  NS_DECL_THREADSAFE_ISUPPORTS
+  NS_DECL_NSITRANSPORTEVENTSINK
+
+private:
+  friend class nsImapProtocol;
+
+  virtual ~nsImapTransportEventSink() = default;
+  nsresult ApplyTCPKeepalive(nsISocketTransport *aTransport);
+
+  nsCOMPtr<nsITransportEventSink> m_proxy;
+};
+
+NS_IMPL_ISUPPORTS(nsImapTransportEventSink, nsITransportEventSink)
+
+NS_IMETHODIMP
+nsImapTransportEventSink::OnTransportStatus(nsITransport *aTransport,
+                                            nsresult aStatus,
+                                            int64_t aProgress,
+                                            int64_t aProgressMax)
+{
+  if (aStatus == NS_NET_STATUS_CONNECTED_TO) {
+    nsCOMPtr<nsISocketTransport> sockTrans(do_QueryInterface(aTransport));
+    if (!NS_WARN_IF(!sockTrans))
+      ApplyTCPKeepalive(sockTrans);
+  }
+
+  if (NS_WARN_IF(!m_proxy))
+    return NS_OK;
+
+  return m_proxy->OnTransportStatus(aTransport, aStatus, aProgress,
+                                    aProgressMax);
+}
+
+nsresult
+nsImapTransportEventSink::ApplyTCPKeepalive(nsISocketTransport *aTransport)
+{
+  nsresult rv;
+
+  bool kaEnabled = gTCPKeepalive.enabled.load(std::memory_order_relaxed);
+  if (kaEnabled) {
+    // TCP keepalive idle time, don't mistake with IMAP IDLE.
+    int32_t kaIdleTime = gTCPKeepalive.idleTimeS.load(std::memory_order_relaxed);
+    int32_t kaRetryInterval = gTCPKeepalive.retryIntervalS.load(std::memory_order_relaxed);
+
+    if (kaIdleTime < 0 || kaRetryInterval < 0) {
+      if (NS_WARN_IF(!net::gSocketTransportService))
+        return NS_ERROR_NOT_INITIALIZED;
+    }
+    if (kaIdleTime < 0) {
+      rv = net::gSocketTransportService->GetKeepaliveIdleTime(&kaIdleTime);
+      if (NS_FAILED(rv)) {
+        MOZ_LOG(IMAP, LogLevel::Error,
+                ("GetKeepaliveIdleTime() failed, %" PRIx32,
+                 static_cast<uint32_t>(rv)));
+        return rv;
+      }
+    }
+    if (kaRetryInterval < 0) {
+      rv = net::gSocketTransportService->GetKeepaliveRetryInterval(&kaRetryInterval);
+      if (NS_FAILED(rv)) {
+        MOZ_LOG(IMAP, LogLevel::Error,
+                ("GetKeepaliveRetryInterval() failed, %" PRIx32,
+                 static_cast<uint32_t>(rv)));
+        return rv;
+      }
+    }
+
+    MOZ_ASSERT(kaIdleTime > 0);
+    MOZ_ASSERT(kaRetryInterval > 0);
+    rv = aTransport->SetKeepaliveVals(kaIdleTime, kaRetryInterval);
+    if (NS_FAILED(rv)) {
+      MOZ_LOG(IMAP, LogLevel::Error,
+              ("SetKeepaliveVals(%" PRId32 ", %" PRId32 ") failed, %" PRIx32,
+               kaIdleTime, kaRetryInterval, static_cast<uint32_t>(rv)));
+      return rv;
+    }
+  }
+
+  rv = aTransport->SetKeepaliveEnabled(kaEnabled);
+  if (NS_FAILED(rv)) {
+    MOZ_LOG(IMAP, LogLevel::Error,
+            ("SetKeepaliveEnabled(%s) failed, %" PRIx32,
+             kaEnabled ? "true" : "false",
+             static_cast<uint32_t>(rv)));
+    return rv;
+  }
+  return NS_OK;
 }
 
 nsImapProtocol::nsImapProtocol() : nsMsgProtocol(nullptr),
@@ -442,6 +542,29 @@ nsImapProtocol::nsImapProtocol() : nsMsgProtocol(nullptr),
     prefBranch->GetCharPref("mailnews.customHeaders", customHeaders);
     customHeaders.StripWhitespace();
     ParseString(customHeaders, ':', mCustomHeaders);
+
+    nsresult rv;
+    bool bVal = false;
+    rv = prefBranch->GetBoolPref("mail.imap.tcp_keepalive.enabled", &bVal);
+    if (NS_SUCCEEDED(rv))
+      gTCPKeepalive.enabled.store(bVal, std::memory_order_relaxed);
+
+    if (bVal) {
+      int32_t val;
+      // TCP keepalive idle time, don't mistake with IMAP IDLE.
+      rv = prefBranch->GetIntPref("mail.imap.tcp_keepalive.idle_time", &val);
+      if (NS_SUCCEEDED(rv) && val >= 0)
+        gTCPKeepalive.idleTimeS.store(std::min(std::max(val, 1),
+                                      net::kMaxTCPKeepIdle),
+                                      std::memory_order_relaxed);
+
+      rv = prefBranch->GetIntPref("mail.imap.tcp_keepalive.retry_interval",
+                                  &val);
+      if (NS_SUCCEEDED(rv) && val >= 0)
+        gTCPKeepalive.retryIntervalS.store(std::min(std::max(val, 1),
+                                           net::kMaxTCPKeepIntvl),
+                                           std::memory_order_relaxed);
+    }
   }
 
     // ***** Thread support *****
@@ -2206,10 +2329,14 @@ nsresult nsImapProtocol::LoadImapUrlInternal()
 
     SetSecurityCallbacksFromChannel(m_transport, m_mockChannel);
 
-    nsCOMPtr<nsITransportEventSink> sink = do_QueryInterface(m_mockChannel);
-    if (sink) {
+    nsCOMPtr<nsITransportEventSink> sinkMC = do_QueryInterface(m_mockChannel);
+    if (sinkMC) {
       nsCOMPtr<nsIThread> thread = do_GetMainThread();
-      m_transport->SetEventSink(sink, thread);
+      RefPtr<nsImapTransportEventSink> sink = new nsImapTransportEventSink;
+      rv = net_NewTransportEventSinkProxy(getter_AddRefs(sink->m_proxy), sinkMC,
+                                          thread);
+      NS_ENSURE_SUCCESS(rv, rv);
+      m_transport->SetEventSink(sink, nullptr);
     }
 
     // and if we have a cache entry that we are saving the message to, set the security info on it too.

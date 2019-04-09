@@ -131,6 +131,13 @@ pref("mail.imap.hdr_chunk_size", 200);
 // highest UUID seen instead of unread?
 pref("mail.imap.filter_on_new", true);
 
+pref("mail.imap.tcp_keepalive.enabled", true);
+// For both items below if set less than 0 it means "use network.tcp.keepalive.*"
+// values. Or if set to 0, the value will be changed to 1, both in units of seconds.
+// Note: idle_time is the TCP keepalive idle time and not related to IMAP IDLE.
+pref("mail.imap.tcp_keepalive.idle_time", 100);
+pref("mail.imap.tcp_keepalive.retry_interval", 5);
+
 // if true, we assume that a user access a folder in the other users namespace
 // is acting as a delegate for that folder, and wishes to use the other users
 // identity when acting on messages in other users folders.
