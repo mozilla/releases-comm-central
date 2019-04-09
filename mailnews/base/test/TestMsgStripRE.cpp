@@ -2,8 +2,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-#include <stdio.h>
-#include "TestHarness.h"
+
+#include "gtest/gtest.h"
 #include "mozilla/ArrayUtils.h"
 #include "nsCOMPtr.h"
 #include "nsMsgUtils.h"
@@ -24,21 +24,19 @@ testStripRe(const char *encodedInput, char *expectedOutput,
             bool expectedDidModify)
 {
   // call NS_StripRE with the appropriate args
-  char *modifiedSubject;
+  nsCString modifiedSubject;
   bool didModify;
-  const char *encodedInout = encodedInput;
-  uint32_t length = strlen(encodedInout);
-  didModify = NS_MsgStripRE(&encodedInout, &length, &modifiedSubject);
+  didModify = NS_MsgStripRE(nsDependentCString(encodedInput), modifiedSubject);
 
   // make sure we got the right results
   if (didModify != expectedDidModify)
     return 2;
 
   if (didModify) {
-    if (strcmp(expectedOutput, modifiedSubject)) {
+    if (strcmp(expectedOutput, modifiedSubject.get())) {
       return 3;
     }
-  } else if (strcmp(expectedOutput, encodedInout)) {
+  } else if (strcmp(expectedOutput, encodedInput)) {
       return 4;
   }
 
@@ -46,31 +44,26 @@ testStripRe(const char *encodedInput, char *expectedOutput,
   return 0;
 }
 
-// General note about return values:
-// return 1 for a setup or xpcom type failure, return 2 for a real test failure
-int main(int argc, char** argv)
+// int main(int argc, char** argv)
+TEST(TestMsgStripRE,TestMsgStripREMain)
 {
-
-  ScopedXPCOM xpcom("TestMsgStripRE.cpp");
-  if (xpcom.failed())
-    return 1;
-
   nsresult rv;
   nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID,
                                      &rv));
-  NS_ENSURE_SUCCESS(rv, 1);
+  EXPECT_TRUE(NS_SUCCEEDED(rv));
 
   // set localizedRe pref, value "SV,ÆØÅ",
   // \xC3\x86, \xC3\x98 and \xC3\x85 are the UTF-8 encodings of Æ, Ø and Å.
   rv = prefBranch->SetStringPref("mailnews.localizedRe",
                                  NS_LITERAL_CSTRING("SV,\xC3\x86\xC3\x98\xC3\x85"));
-  NS_ENSURE_SUCCESS(rv, 1);
+  EXPECT_TRUE(NS_SUCCEEDED(rv));
 
   // run our tests
   struct testInfo testInfoStructs[] = {
-    {"SV: =?ISO-8859-1?Q?=C6blegr=F8d?=", "=?ISO-8859-1?Q?=C6blegr=F8d?=",
+    // Note that re-encoding always happens in UTF-8.
+    {"SV: =?ISO-8859-1?Q?=C6blegr=F8d?=", "=?UTF-8?B?w4ZibGVncsO4ZA==?=",
      true},
-    {"=?ISO-8859-1?Q?SV=3A=C6blegr=F8d?=", "=?ISO-8859-1?Q?=C6blegr=F8d?=",
+    {"=?ISO-8859-1?Q?SV=3A=C6blegr=F8d?=", "=?UTF-8?B?w4ZibGVncsO4ZA==?=",
      true},
 
      // Note that in the next two tests, the only ISO-8859-1 chars are in the
@@ -89,14 +82,14 @@ int main(int argc, char** argv)
                          testInfoStructs[i].expectedDidModify);
     if (result)
     {
-      fail("%s, i=%d | result=%d\n", __FILE__, i, result);
+      printf("Failed: %s, i=%d | result=%d\n", __FILE__, i, result);
       allTestsPassed = false;
     }
+    EXPECT_TRUE(result == 0);
   }
 
   if (allTestsPassed) {
-    passed("all tests passed\n");
+    printf("all tests passed\n");
   }
-
-  return allTestsPassed ? 0 : 2;
+  EXPECT_TRUE(allTestsPassed);
 }
