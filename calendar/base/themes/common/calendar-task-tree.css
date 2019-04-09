@@ -75,6 +75,6 @@
     -moz-image-region: rect(0 39px 13px 26px);
 }
 
-treecol[anonid="calendar-task-tree-col-percentcomplete"] {
-  text-align: end;
+treecol.calendar-task-tree-col-percentcomplete {
+    text-align: end;
 }

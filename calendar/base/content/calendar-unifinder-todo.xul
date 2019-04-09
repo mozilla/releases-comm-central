@@ -33,10 +33,11 @@
                   persist="checked"/>
       </box>
       <vbox id="calendar-task-tree-detail" flex="1">
-        <calendar-task-tree id="unifinder-todo-tree" flex="1"
-                            visible-columns="completed priority title"
-                            persist="visible-columns ordinals widths sort-active sort-direction"
-                            context="taskitem-context-menu"/>
+        <tree is="calendar-task-tree-todaypane" id="unifinder-todo-tree"
+              flex="1"
+              visible-columns="completed priority title"
+              persist="visible-columns ordinals widths sort-active sort-direction"
+              context="taskitem-context-menu"/>
         <textbox id="unifinder-task-edit-field"
                  class="task-edit-field themeableSearchBox"
                  onfocus="taskEdit.onFocus(event)"

@@ -160,13 +160,16 @@ var cal = {
      * The function is cached, once this is called QueryInterface is replaced with
      * cal.generateQI()'s result.
      *
-     * @param {Object} aGlobal      The object to define the method on
-     * @param {nsIIDRef} aIID       The IID to query for
-     * @param {nsIIDRef[]}          The interfaces that this object implements
-     * @return {nsQIResult}         The object queried for aIID
+     * @param {Object} aGlobal          The object to define the method on
+     * @param {nsIIDRef} aIID           The IID to query for
+     * @param {nsIIDRef[]} aInterfaces  The interfaces that this object implements
+     * @return {nsQIResult}             The object queried for aIID
      */
     generateClassQI: function(aGlobal, aIID, aInterfaces) {
-        Object.defineProperty(aGlobal, "QueryInterface", { value: cal.generateQI(aInterfaces) });
+        const generatedQI = aInterfaces.length > 1
+            ? cal.generateQI(aInterfaces)
+            : ChromeUtils.generateQI(aInterfaces);
+        Object.defineProperty(aGlobal, "QueryInterface", { value: generatedQI });
         return aGlobal.QueryInterface(aIID);
     },
 

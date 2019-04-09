@@ -65,21 +65,18 @@ function setAttributeOnChildrenOrTheirCommands(aAttribute, aValue, aElement) {
 function changeContextMenuForTask(aEvent) {
     handleTaskContextMenuStateChange(aEvent);
 
-    let idnode = document.popupNode.id;
-    let items = getSelectedTasks(aEvent);
-    document.getElementById("task-context-menu-new").hidden =
-        (idnode == "unifinder-todo-tree");
-    document.getElementById("task-context-menu-modify").hidden =
-        (idnode == "unifinder-todo-tree");
-    document.getElementById("task-context-menu-new-todaypane").hidden =
-        (idnode == "calendar-task-tree");
-    document.getElementById("task-context-menu-modify-todaypane").hidden =
-        (idnode == "calendar-task-tree");
-    document.getElementById("task-context-menu-filter-todaypane").hidden =
-        (idnode == "calendar-task-tree");
-    document.getElementById("task-context-menu-separator-filter").hidden =
-        (idnode == "calendar-task-tree");
+    const treeNodeId = aEvent.target.triggerNode.closest(".calendar-task-tree").id;
+    const isTodaypane = treeNodeId == "unifinder-todo-tree";
+    const isMainTaskTree = treeNodeId == "calendar-task-tree";
 
+    document.getElementById("task-context-menu-new").hidden = isTodaypane;
+    document.getElementById("task-context-menu-modify").hidden = isTodaypane;
+    document.getElementById("task-context-menu-new-todaypane").hidden = isMainTaskTree;
+    document.getElementById("task-context-menu-modify-todaypane").hidden = isMainTaskTree;
+    document.getElementById("task-context-menu-filter-todaypane").hidden = isMainTaskTree;
+    document.getElementById("task-context-menu-separator-filter").hidden = isMainTaskTree;
+
+    let items = getSelectedTasks(aEvent);
     let tasksSelected = (items.length > 0);
 
     setAttributeOnChildrenOrTheirCommands("disabled", !tasksSelected, aEvent.target);
@@ -115,7 +112,7 @@ function changeContextMenuForTask(aEvent) {
  * @param aEvent    The popupshowing or popuphiding event of the menu.
  */
 function handleTaskContextMenuStateChange(aEvent) {
-    let tree = document.popupNode;
+    let tree = aEvent.target.triggerNode.closest(".calendar-task-tree");
 
     if (tree) {
         tree.updateFocus();

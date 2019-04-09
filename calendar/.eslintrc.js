@@ -406,8 +406,9 @@ module.exports = {
         // Enforce consistent line breaks inside braces
         "object-curly-newline": [2, { multiline: true }],
 
-        // Require Object Literal Shorthand Syntax (consistent for now)
-        "object-shorthand": [2, "consistent"],
+        // Do Not Require Object Literal Shorthand Syntax
+        // (Override the parent eslintrc setting for this.)
+        "object-shorthand": "off",
 
         // Disallow whitespace before properties
         "no-whitespace-before-property": 2,

@@ -40,7 +40,6 @@ lightning.jar:
     content/lightning/lightning-migration.xul              (content/lightning-migration.xul)
     content/lightning/lightning-toolbar.xul                (content/lightning-toolbar.xul)
     content/lightning/lightning-utils.js                   (content/lightning-utils.js)
-    content/lightning/lightning-widgets.css                (content/lightning-widgets.css)
     content/lightning/messenger-overlay-accountCentral.xul (content/messenger-overlay-accountCentral.xul)
     content/lightning/messenger-overlay-messageWindow.xul  (content/messenger-overlay-messageWindow.xul)
     content/lightning/messenger-overlay-sidebar.js         (content/messenger-overlay-sidebar.js)

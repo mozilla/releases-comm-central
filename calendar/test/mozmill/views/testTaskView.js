@@ -39,10 +39,7 @@ function setupModule(module) {
 // checked.
 function testTaskView() {
     // paths
-    let treeChildren = `
-        ${TASK_VIEW}/[1]/id("calendar-task-tree")/anon({"anonid":"calendar-task-tree"})/
-        {"tooltip":"taskTreeTooltip"}
-    `;
+    let treeChildren = `${TASK_VIEW}/[1]/id("calendar-task-tree")/{"class":"calendar-task-treechildren"}`;
     let taskTree = TASK_VIEW + '[1]/id("calendar-task-tree")';
     let toolTip = '/id("messengerWindow")/id("calendar-popupset")/id("taskTreeTooltip")';
     let toolTipGrid = toolTip + '/{"class":"tooltipBox"}/{"class":"tooltipHeaderGrid"}/';

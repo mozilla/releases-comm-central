@@ -4,8 +4,7 @@
 
 @import url(chrome://calendar-common/skin/calendar-task-tree.css);
 
-.calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed),
-.calendar-task-tree-col-completed-checkboximg {
+.calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed) {
     list-style-image: url(chrome://calendar/skin/checkbox-images.png);
     width: 16px;
     height: 16px;

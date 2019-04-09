@@ -76,8 +76,7 @@ function testSmokeTest() {
     // Check for filtered tasks list.
     controller.assertNode(lookup(`
         ${CALENDAR_PANEL}/id("calendarDisplayDeck")/id("calendar-task-box")/[1]/
-        id("calendar-task-tree")/anon({"anonid":"calendar-task-tree"})/
-        {"tooltip":"taskTreeTooltip"}
+        id("calendar-task-tree")/{"class":"calendar-task-treechildren"}
     `));
 
     // Create test calendar.
