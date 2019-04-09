@@ -279,6 +279,24 @@
         "description": "Gets all the contacts in the address book with the id <code>parentId</code>."
       },
       {
+        "name": "quickSearch",
+        "type": "function",
+        "async": true,
+        "parameters": [
+          {
+            "name": "parentId",
+            "type": "string",
+            "optional": true,
+            "description": "The ID of the address book to search. If not specified, all address books are searched."
+          }, {
+            "name": "searchString",
+            "type": "string",
+            "description": "One or more space-separated terms to search for."
+          }
+        ],
+        "description": "Gets all contacts matching <code>searchString</code> in the address book with the id <code>parentId</code>."
+      },
+      {
         "name": "get",
         "type": "function",
         "async": true,

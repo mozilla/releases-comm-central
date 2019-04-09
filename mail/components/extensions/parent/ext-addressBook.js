@@ -380,6 +380,34 @@ this.addressBook = class extends ExtensionAPI {
           let parentNode = addressBookCache.findAddressBookById(parentId);
           return addressBookCache.convert(parentNode.contacts, false);
         },
+        quickSearch(parentId, searchString) {
+          const {
+            getSearchTokens,
+            getModelQuery,
+            generateQueryURI,
+          } = ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
+
+          let searchWords = getSearchTokens(searchString);
+          if (searchWords.length == 0) {
+            return [];
+          }
+          let searchFormat = getModelQuery("mail.addr_book.quicksearchquery.format");
+
+          let results = [];
+          let booksToSearch;
+          if (parentId == null) {
+            booksToSearch = addressBookCache.tree;
+          } else {
+            booksToSearch = [addressBookCache.findAddressBookById(parentId)];
+          }
+          for (let book of booksToSearch) {
+            let searchURI = book.item.URI + generateQueryURI(searchFormat, searchWords);
+            let node = addressBookCache._makeDirectoryNode(MailServices.ab.getDirectory(searchURI));
+            results = results.concat(addressBookCache.convert(node.contacts, false));
+          }
+
+          return results;
+        },
         get(id) {
           return addressBookCache.convert(addressBookCache.findContactById(id), false);
         },
