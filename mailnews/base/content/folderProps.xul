@@ -73,25 +73,19 @@
                   accesskey="&folderCharsetEnforce2.accesskey;"/>
       </vbox>
       <groupbox id="folderRebuildSummaryGroupBox" align="baseline">
-        <grid>
-          <columns>
-            <column flex="1"/>
-            <column/>
-          </columns>
-          <rows>
-            <row>
-              <description id="folderRebuildSummaryExplanation">&folderRebuildSummaryFile.explanation;</description>
-              <vbox>
-                <button id="folderRebuildSummaryButton"
-                        label="&folderRebuildSummaryFile2.label;"
-                        oncommand="RebuildSummaryInformation();"
-                        accesskey="&folderRebuildSummaryFile2.accesskey;"
-                        tooltiptext="&folderRebuildSummaryFileTip2.label;"
-                        align="center"/>
-              </vbox>
-            </row>
-          </rows>
-        </grid>
+        <hbox>
+          <description id="folderRebuildSummaryExplanation" flex="1">
+            &folderRebuildSummaryFile.explanation;
+          </description>
+          <vbox>
+            <button id="folderRebuildSummaryButton"
+                    label="&folderRebuildSummaryFile2.label;"
+                    oncommand="RebuildSummaryInformation();"
+                    accesskey="&folderRebuildSummaryFile2.accesskey;"
+                    tooltiptext="&folderRebuildSummaryFileTip2.label;"
+                    align="center"/>
+          </vbox>
+        </hbox>
       </groupbox>
     </vbox>
 
@@ -175,33 +169,30 @@
       </vbox>
     </vbox>
 
-    <vbox id="QuotaPanel" valign="top">
+    <vbox id="QuotaPanel">
       <label id="folderQuotaStatus" flex="1"/>
-
-      <grid id="folderQuotaData" hidden="true" flex="1">
-        <columns>
-          <column/>
-          <column flex="1"/>
-        </columns>
-        <rows>
-          <row align="center">
+      <hbox id="folderQuotaData" hidden="true">
+        <vbox>
+          <hbox align="end" flex="1">
             <label value="&folderQuotaRoot.label;" control="quotaRoot"/>
-            <textbox id="quotaRoot" readonly="true"/>
-          </row>
-          <row>
+          </hbox>
+          <hbox align="end" flex="1">
             <label value="&folderQuotaUsage.label;"/>
-            <description id="quotaUsedFree"/>
-          </row>
-          <row align="center">
+          </hbox>
+          <hbox align="end" flex="1">
             <label value="&folderQuotaStatus.label;"/>
-            <hbox align="center">
-              <html:progress id="quotaPercentageBar" value="0" max="100"/>
-              <label id="quotaPercentUsed"/>
-            </hbox>
-          </row>
-        </rows>
-      </grid>
-     </vbox>
+          </hbox>
+        </vbox>
+        <vbox>
+          <textbox id="quotaRoot" readonly="true"/>
+          <description id="quotaUsedFree"/>
+          <hbox align="center">
+            <html:progress id="quotaPercentageBar" value="0" max="100"/>
+            <label id="quotaPercentUsed"/>
+          </hbox>
+        </vbox>
+      </hbox>
+    </vbox>
   </tabpanels>
 </tabbox>
 
