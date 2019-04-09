@@ -55,7 +55,12 @@
         if (this.contactsById.hasOwnProperty(aContact.id))
           return null;
 
-        let contactElt = document.createElement(aTagName || "imcontact");
+        let contactElt;
+        if (aTagName) {
+          contactElt = document.createElement(aTagName);
+        } else {
+          contactElt = document.createElement("richlistitem", { is: "chat-contact" });
+        }
         if (this.hasAttribute("closed"))
           contactElt.setAttribute("collapsed", "true");
 

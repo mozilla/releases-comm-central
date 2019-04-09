@@ -96,12 +96,12 @@
 
 /* move the scrollbar to the left */
 #contactlistbox:-moz-locale-dir(ltr),
-#contactlistbox:-moz-locale-dir(rtl) > :-moz-any(imconv, imcontact, imgroup) {
+#contactlistbox:-moz-locale-dir(rtl) > :-moz-any(imconv, richlistitem[is="chat-contact"], imgroup) {
   direction: rtl;
 }
 
 #contactlistbox:-moz-locale-dir(rtl),
-#contactlistbox:-moz-locale-dir(ltr) > :-moz-any(imconv, imcontact, imgroup) {
+#contactlistbox:-moz-locale-dir(ltr) > :-moz-any(imconv, richlistitem[is="chat-contact"], imgroup) {
   direction: ltr;
 }
 
@@ -129,7 +129,7 @@ imgroup[selected] {
 }
 
 imconv,
-imcontact {
+richlistitem[is="chat-contact"] {
   border-top: 1px solid transparent;
   border-bottom: 1px solid transparent;
   -moz-box-align: stretch;
@@ -139,7 +139,7 @@ imcontact {
   width: 2px;
 }
 
-imcontact > .box-line {
+richlistitem[is="chat-contact"] > .box-line {
   /* equalize the space, the .closeConversationButton uses */
   margin-inline-end: 22px;
 }
@@ -148,45 +148,45 @@ imcontact > .box-line {
   background-color: var(--tabline-color);
 }
 
-:-moz-any(imconv, imcontact, imgroup) {
+:-moz-any(imconv, richlistitem[is="chat-contact"], imgroup) {
   pointer-events: auto;
 }
 
-:-moz-any(imconv, imcontact, imgroup):not([selected=true]):hover {
+:-moz-any(imconv, richlistitem[is="chat-contact"], imgroup):not([selected=true]):hover {
   background-color: rgba(0,0,0,.1);
 }
 
 :root[lwt-tree] imgroup,
 :root[lwt-tree] imconv:not([selected]),
-:root[lwt-tree] imcontact:not([selected]) {
+:root[lwt-tree] richlistitem[is="chat-contact"]:not([selected]) {
   color: var(--sidebar-text-color);
 }
 
 imconv[selected=true],
-imcontact[selected=true] {
+richlistitem[is="chat-contact"][selected=true] {
   background-color: var(--imbox-selected-background-color);
   border-color: var(--imbox-selected-border-color);
   color: var(--imbox-selected-text-color);
 }
 
 :root[lwt-tree] imgroup[selected],
-:root[lwt-tree] :-moz-any(imconv, imcontact, imgroup):not([selected=true]):hover {
+:root[lwt-tree] :-moz-any(imconv, richlistitem[is="chat-contact"], imgroup):not([selected=true]):hover {
   background-color: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.3));
   color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
 }
 
 :root[lwt-tree-brighttext] imgroup[selected],
-:root[lwt-tree-brighttext] :-moz-any(imconv, imcontact, imgroup):not([selected=true]):hover {
+:root[lwt-tree-brighttext] :-moz-any(imconv, richlistitem[is="chat-contact"], imgroup):not([selected=true]):hover {
   background-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
 }
 
 :root[lwt-tree] imconv[selected=true],
-:root[lwt-tree] imcontact[selected=true] {
+:root[lwt-tree] richlistitem[is="chat-contact"][selected=true] {
   border-color: var(--sidebar-border-color, hsla(0,0%,60%,.4))
 }
 
 :root[lwt-tree-brighttext] imconv[selected=true],
-:root[lwt-tree-brighttext] imcontact[selected=true] {
+:root[lwt-tree-brighttext] richlistitem[is="chat-contact"][selected=true] {
   border-color: var(--sidebar-border-color, rgba(249,249,250,.2))
 }
 

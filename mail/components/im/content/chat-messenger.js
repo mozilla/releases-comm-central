@@ -18,7 +18,9 @@ function buddyListContextMenu(aXulMenu) {
   this.target = aXulMenu.triggerNode;
   this.menu = aXulMenu;
   let localName = this.target.localName;
-  this.onContact = localName == "imcontact";
+  document.getElementById("contactlistbox").selectedItem = this.target;
+  this.onContact = (localName == "richlistitem" &&
+    this.target.getAttribute("is") == "chat-contact");
   this.onConv = localName == "imconv";
   this.shouldDisplay = this.onContact || this.onConv;
 
@@ -283,8 +285,9 @@ var chatHandler = {
       (!selectedItem || (selectedItem == convs &&
                         convs.nextSibling.localName != "imconv"));
     let elt = convs.addContact(aConv, "imconv");
-    if (shouldSelect)
+    if (shouldSelect) {
       list.selectedItem = elt;
+    }
 
     if (aConv.isChat || !aConv.buddy)
       return;
@@ -293,8 +296,9 @@ var chatHandler = {
     elt.imContact = contact;
     let groupName = (contact.online ? "on" : "off") + "linecontactsGroup";
     let item = document.getElementById(groupName).removeContact(contact);
-    if (list.selectedItem == item)
+    if (list.selectedItem == item) {
       list.selectedItem = elt;
+    }
   },
 
   _hasConversationForContact(aContact) {
@@ -552,7 +556,7 @@ var chatHandler = {
       document.getElementById("conversationsDeck").selectedPanel = item.convView;
       document.getElementById("logTree").view.selection.clearSelection();
       item.convView.focus();
-    } else if (item.localName == "imcontact") {
+    } else if (item.localName == "richlistitem" && item.getAttribute("is") == "chat-contact") {
       item.openConversation();
     }
   },
@@ -680,12 +684,12 @@ var chatHandler = {
       button.label = bundle.getString("goBackToCurrentConversation.button");
       button.disabled = false;
       this.observedContact = null;
-    } else if (item.localName == "imcontact") {
+    } else if (item.localName == "richlistitem" && item.getAttribute("is") == "chat-contact") {
       let contact = item.contact;
       if (this.observedContact && contact &&
           this.observedContact.id == contact.id) {
         return; // onselect has just been fired again because a status
-                // change caused the imcontact to move.
+                // change caused the chat-contact to move.
                 // Return early to avoid flickering and changing the selected log.
       }
 

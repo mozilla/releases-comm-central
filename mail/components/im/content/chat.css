@@ -11,8 +11,7 @@ imgroup {
   -moz-box-align: center;
 }
 
-imcontact {
-  -moz-binding: url("chrome://messenger/content/chat/imcontact.xml#contact");
+richlistitem[is="chat-contact"] {
   -moz-box-align: center;
 }
 
@@ -25,7 +24,7 @@ imcontact {
   display: none;
 }
 
-imcontact[cansend]:hover .startChatBubble {
+richlistitem[is="chat-contact"][cansend]:hover .startChatBubble {
   display: -moz-box;
 }
 
