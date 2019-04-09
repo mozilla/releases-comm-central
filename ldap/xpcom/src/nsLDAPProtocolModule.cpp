@@ -120,7 +120,7 @@ nsLDAPInitialize()
     return NS_OK;
 }
 
-static const mozilla::Module kLDAPProtocolModule = {
+extern const mozilla::Module kLDAPProtocolModule = {
     mozilla::Module::kVersion,
     kLDAPProtocolCIDs,
     kLDAPProtocolContracts,
@@ -129,5 +129,3 @@ static const mozilla::Module kLDAPProtocolModule = {
     nsLDAPInitialize,
     NULL
 };
-
-NSMODULE_DEFN(nsLDAPProtocolModule) = &kLDAPProtocolModule;

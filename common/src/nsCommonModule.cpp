@@ -9,6 +9,7 @@
 #include "nsComponentManagerExtra.h"
 #include "nsSyncStreamListener.h"
 #include "nsSAXXMLReader.h"  // Sax parser.
+#include "nsXULAppAPI.h"
 
 using mozilla::TransactionManager;
 
@@ -71,4 +72,50 @@ static const mozilla::Module kCommonModule = {
   nullptr
 };
 
-NSMODULE_DEFN(nsCommonModule) = &kCommonModule;
+#ifdef MOZ_CALENDAR
+extern const mozilla::Module kCalBaseModule;
+#endif
+extern const mozilla::Module kMorkModule;
+#ifdef MOZ_LDAP_XPCOM
+extern const mozilla::Module kLDAPProtocolModule;
+#endif
+#ifdef MOZ_THUNDERBIRD
+extern const mozilla::Module kMailCompsModule;
+#endif
+extern const mozilla::Module kMailNewsModule;
+extern const mozilla::Module kMailNewsImportModule;
+#ifdef MOZ_MAPI_SUPPORT
+extern const mozilla::Module kMAPIModule;
+#endif
+extern const mozilla::Module kRDFModule;
+#ifdef MOZ_SUITE
+extern const mozilla::Module kSuiteModule;
+#endif
+
+class ModulesInit {
+public:
+  ModulesInit() {
+    XRE_AddStaticComponent(&kCommonModule);
+#ifdef MOZ_CALENDAR
+    XRE_AddStaticComponent(&kCalBaseModule);
+#endif
+    XRE_AddStaticComponent(&kMorkModule);
+#ifdef MOZ_LDAP_XPCOM
+    XRE_AddStaticComponent(&kLDAPProtocolModule);
+#endif
+#ifdef MOZ_THUNDERBIRD
+    XRE_AddStaticComponent(&kMailCompsModule);
+#endif
+    XRE_AddStaticComponent(&kMailNewsModule);
+    XRE_AddStaticComponent(&kMailNewsImportModule);
+#ifdef MOZ_MAPI_SUPPORT
+    XRE_AddStaticComponent(&kMAPIModule);
+#endif
+    XRE_AddStaticComponent(&kRDFModule);
+#ifdef MOZ_SUITE
+    XRE_AddStaticComponent(&kSuiteModule);
+#endif
+  }
+};
+
+ModulesInit gInit;

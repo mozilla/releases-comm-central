@@ -178,7 +178,7 @@ static void importModuleDtor()
 #endif
 }
 
-static const mozilla::Module kMailNewsImportModule = {
+extern const mozilla::Module kMailNewsImportModule = {
   mozilla::Module::kVersion,
   kMailNewsImportCIDs,
   kMailNewsImportContracts,
@@ -187,7 +187,3 @@ static const mozilla::Module kMailNewsImportModule = {
   NULL,
   importModuleDtor
 };
-
-NSMODULE_DEFN(nsImportServiceModule) = &kMailNewsImportModule;
-
-

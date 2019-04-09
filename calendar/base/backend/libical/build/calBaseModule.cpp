@@ -54,7 +54,7 @@ nsInitBaseModule()
     return NS_OK;
 }
 
-static const mozilla::Module kCalBaseModule = {
+extern const mozilla::Module kCalBaseModule = {
     mozilla::Module::kVersion,
     kCalBaseCIDs,
     kCalBaseContracts,
@@ -62,5 +62,3 @@ static const mozilla::Module kCalBaseModule = {
     NULL,
     nsInitBaseModule
 };
-
-NSMODULE_DEFN(calBaseModule) = &kCalBaseModule;

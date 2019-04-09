@@ -136,13 +136,9 @@ const mozilla::Module::ContractIDEntry kMAPIContracts[] = {
   { NULL }
 };
 
-static const mozilla::Module kMAPIModule = {
+extern const mozilla::Module kMAPIModule = {
     mozilla::Module::kVersion,
     kMAPICIDs,
     kMAPIContracts,
     kMAPICategories
 };
-
-NSMODULE_DEFN(msgMapiModule) = &kMAPIModule;
-
-

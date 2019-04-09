@@ -37,13 +37,11 @@ const mozilla::Module::ContractIDEntry kMorkContracts[] = {
   { NULL }
 };
 
-static const mozilla::Module kMorkModule = {
+extern const mozilla::Module kMorkModule = {
   mozilla::Module::kVersion,
   kMorkCIDs,
   kMorkContracts
 };
-
-NSMODULE_DEFN(nsMorkModule) = &kMorkModule;
 
 NS_IMPL_ISUPPORTS(nsMorkFactoryService, nsIMdbFactoryService)
 

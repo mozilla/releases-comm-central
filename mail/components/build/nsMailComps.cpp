@@ -97,11 +97,9 @@ static const mozilla::Module::CategoryEntry kMailCategories[] = {
   { NULL }
 };
 
-static const mozilla::Module kMailCompsModule = {
+extern const mozilla::Module kMailCompsModule = {
   mozilla::Module::kVersion,
   kMailCIDs,
   kMailContracts,
   kMailCategories
 };
-
-NSMODULE_DEFN(nsMailCompsModule) = &kMailCompsModule;

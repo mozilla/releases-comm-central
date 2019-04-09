@@ -81,11 +81,9 @@ static const mozilla::Module::CategoryEntry kSuiteCategories[] = {
   { NULL }
 };
 
-static const mozilla::Module kSuiteModule = {
+extern const mozilla::Module kSuiteModule = {
   mozilla::Module::kVersion,
   kSuiteCIDs,
   kSuiteContracts,
   kSuiteCategories
 };
-
-NSMODULE_DEFN(SuiteModule) = &kSuiteModule;

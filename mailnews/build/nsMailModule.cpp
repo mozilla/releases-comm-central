@@ -1327,7 +1327,7 @@ msgMailNewsModuleDtor()
   nsAddrDatabase::CleanupCache();
 }
 
-static const mozilla::Module kMailNewsModule = {
+extern const mozilla::Module kMailNewsModule = {
   mozilla::Module::kVersion,
   kMailNewsCIDs,
   kMailNewsContracts,
@@ -1336,5 +1336,3 @@ static const mozilla::Module kMailNewsModule = {
   NULL,
   msgMailNewsModuleDtor
 };
-
-NSMODULE_DEFN(nsMailModule) = &kMailNewsModule;

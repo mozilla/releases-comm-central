@@ -107,7 +107,7 @@ static const mozilla::Module::ContractIDEntry kRDFContracts[] = {
     { nullptr }
 };
 
-static const mozilla::Module kRDFModule = {
+extern const mozilla::Module kRDFModule = {
     mozilla::Module::kVersion,
     kRDFCIDs,
     kRDFContracts,
@@ -116,5 +116,3 @@ static const mozilla::Module kRDFModule = {
     nullptr,
     nullptr
 };
-
-NSMODULE_DEFN(nsRDFModule) = &kRDFModule;
