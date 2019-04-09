@@ -25,6 +25,9 @@ only-for-build-platforms:
     - win64-nightly/opt
 
 job-template:
+    worker-type: 'aws-provisioner-v1/gecko-{level}-b-linux'
+    worker:
+        docker-image: {"in-tree": "debian7-amd64-build"}
     mozharness:
         comm-checkout: true
         config-paths:
@@ -62,3 +65,7 @@ job-template:
                     macosx64.*: [mar, dmg]
                     win32.*: [mar, installer]
                     win64.*: [mar, installer]
+    fetches:
+        toolchain:
+            - linux64-mar-tools
+            - linux64-upx

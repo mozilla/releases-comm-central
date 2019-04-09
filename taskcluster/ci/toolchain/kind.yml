@@ -13,13 +13,13 @@ jobs:
     - linux64-cbindgen
     - linux64-cctools-port
     - linux64-clang
-    - linux64-clang-3.9
+    - linux64-clang-7
     - linux64-clang-mingw-x64
     - linux64-gcc
-    - linux64-gcc-4.9
     - linux64-hfsplus
     - linux64-libdmg
     - linux64-llvm-dsymutil
+    - linux64-mar-tools
     - linux64-nasm
     - linux64-node
     - linux64-rust
@@ -27,6 +27,7 @@ jobs:
     - linux64-rust-1.32
     - linux64-rust-macos
     - linux64-sccache
+    - linux64-upx
     - win64-cbindgen
     - win64-clang-cl
     - win64-nasm
