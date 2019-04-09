@@ -135,10 +135,10 @@ function create_simple_filter() {
     let filterName = fec.e("filterName");
     filterName.value = "A Simple Filter";
     let searchAttr = fec.e("searchAttr0");
-    let attrList = fec.window.document.getAnonymousNodes(searchAttr)[0];
+    let attrList = searchAttr.childNodes[0];
     attrList.value = Ci.nsMsgSearchAttrib.To;
     let searchOp = fec.e("searchOp0");
-    let opList = fec.window.document.getAnonymousNodes(searchOp)[0];
+    let opList = searchOp.childNodes[0];
     opList.value = Ci.nsMsgSearchOp.Is;
     let searchValList = fec.e("searchVal0");
     let searchVal = fec.window.document.getAnonymousNodes(searchValList)[0];
@@ -180,10 +180,10 @@ function test_address_books_appear_in_message_filter_dropdown()
   // has opened
   function filterEditorOpened(fec) {
     let searchAttr = fec.e("searchAttr0");
-    let attrList = fec.window.document.getAnonymousNodes(searchAttr)[0];
+    let attrList = searchAttr.childNodes[0];
     attrList.value = Ci.nsMsgSearchAttrib.To;
     let searchOp = fec.e("searchOp0");
-    let opList = fec.window.document.getAnonymousNodes(searchOp)[0];
+    let opList = searchOp.childNodes[0];
     opList.value = Ci.nsMsgSearchOp.IsInAB;
     let searchValue = fec.e("searchVal0");
 

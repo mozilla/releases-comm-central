@@ -191,8 +191,8 @@ function updateSearchTermsListbox(matchAllValue)
 {
   var searchTerms = document.getElementById("searchTermList");
   searchTerms.setAttribute("disabled", matchAllValue);
-  var searchAttributeList = searchTerms.getElementsByTagName("searchattribute");
-  var searchOperatorList = searchTerms.getElementsByTagName("searchoperator");
+  var searchAttributeList = searchTerms.getElementsByTagName("search-attribute");
+  var searchOperatorList = searchTerms.getElementsByTagName("search-operator");
   var searchValueList = searchTerms.getElementsByTagName("searchvalue");
   for (var i = 0; i < searchAttributeList.length; i++) {
       searchAttributeList[i].setAttribute("disabled", matchAllValue);
@@ -319,8 +319,8 @@ function booleanChanged(event) {
  */
 function createSearchRow(index, scope, searchTerm, aUserAdded)
 {
-    var searchAttr = document.createElement("searchattribute");
-    var searchOp = document.createElement("searchoperator");
+    var searchAttr = document.createElement("search-attribute");
+    var searchOp = document.createElement("search-operator");
     var searchVal = document.createElement("searchvalue");
 
     var moreButton = document.createElement("button");

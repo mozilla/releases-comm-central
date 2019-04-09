@@ -39,14 +39,6 @@ mail-tagfield[collapsed="true"] {
   -moz-binding: url("chrome://messenger/content/searchWidgets.xml#filterlistitem");
 }
 
-searchattribute {
-  -moz-binding: url("chrome://messenger/content/mailWidgets.xml#searchattribute");
-}
-
-searchoperator {
-  -moz-binding: url("chrome://messenger/content/mailWidgets.xml#searchoperator");
-}
-
 searchvalue {
   display: -moz-deck;
   -moz-binding: url("chrome://messenger/content/mailWidgets.xml#searchvalue");

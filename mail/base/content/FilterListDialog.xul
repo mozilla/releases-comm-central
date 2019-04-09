@@ -23,6 +23,7 @@
   persist="width height screenX screenY"
   title="&window.title;">
 
+  <script type="application/javascript" src="chrome://messenger/content/searchWidgets.js"/>
   <script type="application/javascript" src="chrome://messenger/content/generalBindings.js"/>
   <script type="application/javascript" src="chrome://messenger/content/FilterListDialog.js"/>
   <stringbundleset id="stringbundleset">
