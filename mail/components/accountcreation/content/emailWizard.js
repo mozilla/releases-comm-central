@@ -406,6 +406,7 @@ EmailConfigWizard.prototype = {
    * Start from beginning with possibly new email address.
    */
   onStartOver() {
+    this._currentConfig = null;
     if (this._abortable) {
       this.onStop();
     }
