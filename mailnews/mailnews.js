@@ -923,6 +923,9 @@ pref("mailnews.auto_config.fetchFromISP.sendEmailAddress", true);
 // This also sends the email address and password to the server,
 // which the protocol unfortunately requires in practice.
 pref("mailnews.auto_config.fetchFromExchange.enabled", true);
+// Whether we will attempt to guess the account configuration based on
+// protocol default ports and common domain practices
+// (e.g. {mail,pop,imap,smtp}.<email-domain>).
 pref("mailnews.auto_config.guess.enabled", true);
 // Work around bug 1454325 by disabling mimetype mungling in XmlHttpRequest
 pref("dom.xhr.standard_content_type_normalization", false);
