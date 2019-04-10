@@ -653,8 +653,9 @@ EmailConfigWizard.prototype = {
     var self = this;
     self._abortable = guessConfig(domain,
       function(type, hostname, port, ssl, done, config) { // progress
-        gEmailWizardLogger.info("progress callback host " + hostname +
-                                " port " + port + " type " + type);
+        var msg = hostname + ":" + port + " ssl=" + ssl + " " +
+                  type + ": progress callback";
+        gEmailWizardLogger.info(msg);
       },
       function(config) { // success
         self._abortable = null;
