@@ -552,6 +552,10 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
   list-style-image: url("chrome://messenger/skin/icons/conversation.svg");
 }
 
+#button-addons {
+  list-style-image: url("chrome://mozapps/skin/extensions/extensionGeneric-16.svg");
+}
+
 .button-appmenu {
   list-style-image: url("chrome://messenger/skin/icons/appbutton.svg");
   min-width: 35px !important;
