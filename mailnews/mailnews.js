@@ -927,6 +927,8 @@ pref("mailnews.auto_config.fetchFromExchange.enabled", true);
 // protocol default ports and common domain practices
 // (e.g. {mail,pop,imap,smtp}.<email-domain>).
 pref("mailnews.auto_config.guess.enabled", true);
+// The timeout (in seconds) for each guess
+pref("mailnews.auto_config.guess.timeout", 10);
 // Work around bug 1454325 by disabling mimetype mungling in XmlHttpRequest
 pref("dom.xhr.standard_content_type_normalization", false);
 
