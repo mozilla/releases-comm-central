@@ -75,7 +75,7 @@ messenger.jar:
     content/messenger/renameFolderDialog.js                                    (base/content/renameFolderDialog.js)
     content/messenger/retention.js                                             (base/content/retention.js)
     content/messenger/subscribe.js                                             (base/content/subscribe.js)
-*   content/messenger/subscribe.xul                                            (base/content/subscribe.xul)
+    content/messenger/subscribe.xul                                            (base/content/subscribe.xul)
     content/messenger/virtualFolderListEdit.xul                                (base/content/virtualFolderListEdit.xul)
     content/messenger/virtualFolderListEdit.js                                 (base/content/virtualFolderListEdit.js)
 *   content/messenger/virtualFolderProperties.xul                              (base/content/virtualFolderProperties.xul)

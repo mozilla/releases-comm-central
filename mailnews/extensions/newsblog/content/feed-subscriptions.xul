@@ -5,9 +5,7 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/" type="text/css"?>
-#ifndef MOZ_SUITE
-<?xml-stylesheet href="chrome://messenger/content/bindings.css" type="text/css"?>
-#endif
+<?xml-stylesheet href="chrome://messenger/skin/textbox.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderPane.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger-newsblog/skin/feed-subscriptions.css" type="text/css"?>
