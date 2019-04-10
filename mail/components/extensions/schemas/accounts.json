@@ -8,6 +8,7 @@
           {
             "type": "string",
             "enum": [
+              "accountsFolders",
               "accountsRead"
             ]
           }
@@ -65,6 +66,57 @@
           {
             "name": "accountId",
             "type": "string"
+          }
+        ]
+      },
+      {
+        "name": "createSubfolder",
+        "type": "function",
+        "description": "Creates a new subfolder of <code>parentFolder</code>.",
+        "permissions": [
+          "accountsFolders"
+        ],
+        "async": true,
+        "parameters": [
+          {
+            "name": "parentFolder",
+            "$ref": "accounts.MailFolder"
+          }, {
+            "name": "childName",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "name": "renameFolder",
+        "type": "function",
+        "description": "Renames a folder.",
+        "permissions": [
+          "accountsFolders"
+        ],
+        "async": true,
+        "parameters": [
+          {
+            "name": "folder",
+            "$ref": "accounts.MailFolder"
+          }, {
+            "name": "newName",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "name": "deleteFolder",
+        "type": "function",
+        "description": "Deletes a folder.",
+        "permissions": [
+          "accountsFolders"
+        ],
+        "async": true,
+        "parameters": [
+          {
+            "name": "folder",
+            "$ref": "accounts.MailFolder"
           }
         ]
       }

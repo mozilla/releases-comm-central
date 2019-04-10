@@ -15,10 +15,6 @@ Services.prefs.deleteBranch("ldap_2.servers.oe.");
 Services.prefs.deleteBranch("ldap_2.servers.osx.");
 
 function createAccount() {
-  registerCleanupFunction(() => {
-    [...MailServices.accounts.accounts.enumerate()].forEach(cleanUpAccount);
-  });
-
   MailServices.accounts.createLocalMailAccount();
   let account = MailServices.accounts.accounts.enumerate().getNext().QueryInterface(Ci.nsIMsgAccount);
   account.incomingServer = MailServices.accounts.localFoldersServer;
@@ -32,6 +28,10 @@ function cleanUpAccount(account) {
   MailServices.accounts.removeIncomingServer(account.incomingServer, true);
   MailServices.accounts.removeAccount(account, true);
 }
+
+registerCleanupFunction(() => {
+  [...MailServices.accounts.accounts.enumerate()].forEach(cleanUpAccount);
+});
 
 function createMessages(folder, count) {
   const {
