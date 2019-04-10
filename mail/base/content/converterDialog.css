@@ -1,0 +1,50 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://global/skin/plugins.css");
+
+body {
+  color: -moz-DialogText;
+  font: message-box;
+  position: relative;
+  min-width: 330px;
+  max-width: 50em;
+}
+
+#warning:not([hidden="hidden"]),
+#progressDiv:not([hidden="hidden"]) {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.iconContainer {
+  flex: 1;
+  max-width: 70px;
+  height: 60px;
+}
+
+.infoIcon {
+  background-image: url("moz-icon://stock/gtk-dialog-warning?size=dialog");
+  max-width: 48px;
+  max-height: 48px;
+  margin: 3px 5px 4px;
+  display: block;
+  height: 100%;
+}
+
+#warningSpan,
+#progressSpan {
+  flex: 1;
+  margin-left: 15px;
+  margin-right: 15px;
+}
+
+.controls {
+  width: 100%;
+  text-align: end;
+}
+
+#progress {
+  width: 80%;
+}

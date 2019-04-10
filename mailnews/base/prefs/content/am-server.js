@@ -26,7 +26,7 @@ function clickStoreTypeMenu(aStoreTypeElement) {
   let response = { newRootFolder: null };
   // Send 'response' as an argument to converterDialog.xhtml.
   window.openDialog("converterDialog.xhtml","mailnews:mailstoreconverter",
-                    "modal,centerscreen,width=800,height=180", gServer,
+                    "modal,centerscreen,resizable=no,width=700,height=130", gServer,
                     aStoreTypeElement.value, response);
   changeStoreType(response);
 }

@@ -125,7 +125,6 @@ function placeAccountName(aServer) {
       bundle.formatStringFromName("converterDialog.messageForDeferredAccount",
                                   [accountsToConvert, storeContractId], 2);
     gServer = deferredToAccount.incomingServer;
-
   } else {
     // No account is deferred.
     let storeContractId = Services.prefs.getCharPref(
@@ -152,6 +151,9 @@ function placeAccountName(aServer) {
                                   [tempName, storeContractId], 2);
     gServer = aServer;
   }
+
+  // Forces the resize of the dialog to the actual content
+  window.sizeToContent();
 }
 
 /**
@@ -172,8 +174,8 @@ function startContinue(aSelectedStoreType, aResponse) {
      bundle.formatStringFromName("converterDialog.percentDone", [e.detail], 1);
   });
 
-  document.getElementById("warning").style.display = "none";
-  document.getElementById("progressDiv").style.display = "block";
+  document.getElementById("warning").setAttribute("hidden", "hidden");
+  document.getElementById("progressDiv").removeAttribute("hidden");
 
   // Storing original prefs and root folder path
   // to revert changes in case of error.
@@ -198,7 +200,7 @@ function startContinue(aSelectedStoreType, aResponse) {
    * Called when promise returned by convertMailStoreTo() is rejected.
    * @param {String} aReason - error because of which the promise was rejected.
    */
-  function promiseRejected(aReason){
+  function promiseRejected(aReason) {
     log.error("Conversion to '" + aSelectedStoreType + "' failed: " + aReason);
     document.getElementById("messageSpan").style.display = "none";
 
@@ -269,9 +271,9 @@ function startContinue(aSelectedStoreType, aResponse) {
     &&
     canCompact(gServer.rootFolder)) {
     let urlListener = {
-      OnStartRunningUrl: function (aUrl) {
+      OnStartRunningUrl(aUrl) {
       },
-      OnStopRunningUrl: function (aUrl, aExitCode) {
+      OnStopRunningUrl(aUrl, aExitCode) {
         let pConvert = MailstoreConverter.convertMailStoreTo(originalStoreContractID,
           gServer, document.getElementById("progress"));
         pConvert.then(function(val) {
@@ -279,12 +281,11 @@ function startContinue(aSelectedStoreType, aResponse) {
         }).catch(function(reason) {
           promiseRejected(reason);
         });
-      }
+      },
     };
     gServer.rootFolder.compactAll(urlListener, null, gServer.type == "imap" ||
       gServer.type == "nntp");
-  }
-  else {
+  } else {
     let pConvert = MailstoreConverter.convertMailStoreTo(originalStoreContractID,
       gServer, document.getElementById("progress"));
     pConvert.then(function(val) {
