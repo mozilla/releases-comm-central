@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 ChromeUtils.defineModuleGetter(this, "MailServices", "resource:///modules/MailServices.jsm");
+ChromeUtils.defineModuleGetter(this, "MessageArchiver", "resource:///modules/MessageArchiver.jsm");
 ChromeUtils.defineModuleGetter(this, "MsgHdrToMimeMessage", "resource:///modules/gloda/mimemsg.js");
 ChromeUtils.defineModuleGetter(this, "toXPCOMArray", "resource:///modules/iteratorUtils.jsm");
 
@@ -172,6 +173,22 @@ this.messages = class extends ExtensionAPI {
             Cu.reportError(ex);
             throw new ExtensionError(`Unexpected error deleting messages: ${ex}`);
           }
+        },
+        async archive(messageIds) {
+          let messages = [];
+          for (let id of messageIds) {
+            let msgHdr = messageTracker.getMessage(id);
+            if (!msgHdr) {
+              continue;
+            }
+            messages.push(msgHdr);
+          }
+
+          return new Promise((resolve) => {
+            let archiver = new MessageArchiver();
+            archiver.oncomplete = resolve;
+            archiver.archiveMessages(messages);
+          });
         },
         async listTags() {
           return MailServices.tags.getAllTags({}).map(({ key, tag, color, ordinal }) => {

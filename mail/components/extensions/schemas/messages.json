@@ -184,6 +184,26 @@
         ]
       },
       {
+        "name": "archive",
+        "type": "function",
+        "description": "Archives messages using the current settings.",
+        "async": true,
+        "permissions": [
+          "messagesMove"
+        ],
+        "parameters": [
+          {
+            "name": "messageIds",
+            "type": "array",
+            "description": "The IDs of the messages to archive.",
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ]
+      },
+      {
         "name": "listTags",
         "type": "function",
         "description": "Returns a list of tags that can be set on messages, and their human-friendly name, colour, and sort order.",
