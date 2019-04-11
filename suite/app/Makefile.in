@@ -116,6 +116,7 @@ clean clobber repackage::
 	$(RM) -r '$(dist_dest)'
 
 tools:: $(DIST)/bin/$(MOZ_APP_NAME)
+	rm -rf $(dist_dest)
 	mkdir -p '$(dist_dest)/Contents/MacOS'
 	rsync -a --exclude "*.in" $(srcdir)/macbuild/Contents '$(dist_dest)' --exclude English.lproj
 	mkdir -p '$(dist_dest)/$(LPROJ)'
