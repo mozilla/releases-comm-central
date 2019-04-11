@@ -4,7 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsGNOMEShellService.h"
-#include "nsIGConfService.h"
 #include "nsIGIOService.h"
 #include "nsCOMPtr.h"
 #include "nsIServiceManager.h"
@@ -74,12 +73,9 @@ nsGNOMEShellService::Init()
 {
   nsresult rv;
 
-  // GConf _must_ be available, or we do not allow CreateInstance to succeed.
-
-  nsCOMPtr<nsIGConfService> gconf = do_GetService(NS_GCONFSERVICE_CONTRACTID);
   nsCOMPtr<nsIGIOService> giovfs = do_GetService(NS_GIOSERVICE_CONTRACTID);
 
-  if (!gconf && !giovfs)
+  if (!giovfs)
     return NS_ERROR_NOT_AVAILABLE;
 
   // Check G_BROKEN_FILENAMES.  If it's set, then filenames in glib use
@@ -235,23 +231,12 @@ nsGNOMEShellService::CheckHandlerMatchesAppName(const nsACString &handler) const
 bool
 nsGNOMEShellService::checkDefault(const char* const *aProtocols, unsigned int aLength)
 {
-  nsCOMPtr<nsIGConfService> gconf = do_GetService(NS_GCONFSERVICE_CONTRACTID);
   nsCOMPtr<nsIGIOService> giovfs = do_GetService(NS_GIOSERVICE_CONTRACTID);
 
-  bool enabled;
   nsAutoCString handler;
   nsresult rv;
 
   for (unsigned int i = 0; i < aLength; ++i) {
-    if (gconf) {
-      handler.Truncate();
-      rv = gconf->GetAppForProtocol(nsDependentCString(aProtocols[i]),
-                                    &enabled, handler);
-      if (NS_SUCCEEDED(rv) && (!CheckHandlerMatchesAppName(handler) || !enabled)) {
-        return false;
-      }
-    }
-
     if (giovfs) {
       handler.Truncate();
       nsCOMPtr<nsIHandlerApp> handlerApp;
@@ -278,7 +263,6 @@ nsGNOMEShellService::MakeDefault(const char* const *aProtocols,
                                     const char *aExtensions)
 {
   nsAutoCString appKeyValue;
-  nsCOMPtr<nsIGConfService> gconf = do_GetService(NS_GCONFSERVICE_CONTRACTID);
   nsCOMPtr<nsIGIOService> giovfs = do_GetService(NS_GIOSERVICE_CONTRACTID);
   if(mAppIsInPath) {
     // mAppPath is in the users path, so use only the basename as the launcher
@@ -292,14 +276,6 @@ nsGNOMEShellService::MakeDefault(const char* const *aProtocols,
   appKeyValue.AppendLiteral(" %s");
 
   nsresult rv;
-  if (gconf) {
-    for (unsigned int i = 0; i < aProtocolsLength; ++i) {
-      rv = gconf->SetAppForProtocol(nsDependentCString(aProtocols[i]),
-                                    appKeyValue);
-      NS_ENSURE_SUCCESS(rv, rv);
-    }
-  }
-
   if (giovfs) {
     nsCOMPtr<nsIStringBundleService> bundleService =
       mozilla::services::GetStringBundleService();
