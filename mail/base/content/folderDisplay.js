@@ -2138,7 +2138,7 @@ FolderDisplayWidget.prototype = {
     // Either we've selected a small number of messages or we just can't
     // fast-path the result; examine all the messages.
     return this.selectedMessages.every(function(msg) {
-      let identity = MailUtils.getIdentityForHeader(msg);
+      let identity = getIdentityForHeader(msg);
       return Boolean(identity && identity.archiveEnabled);
     });
   },
