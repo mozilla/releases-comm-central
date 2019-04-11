@@ -279,8 +279,7 @@ var gXPInstallObserver = {
     let restartRequired = false;
     let icon = DEFAULT_EXTENSION_ICON;
     if (addon.isWebExtension) {
-      let uri = addon.getResourceURI().spec;
-      let data = new ExtensionData(Services.io.newURI(`jar:${uri}!/`));
+      let data = new ExtensionData(addon.getResourceURI());
       await data.loadManifest();
       restartRequired = data.manifest.legacy;
       icon = AddonManager.getPreferredIconURL(addon, 32, window) || icon;
@@ -556,11 +555,9 @@ var gXPInstallObserver = {
           progressNotification.remove();
         }
 
-        info.unsigned = info.addon.signedState <= AddonManager.SIGNEDSTATE_MISSING;
-        if (info.unsigned && Cu.isInAutomation &&
-            Services.prefs.getBoolPref("extensions.ui.ignoreUnsigned", false)) {
-          info.unsigned = false;
-        }
+        // This is where we should check for unsigned extensions, but Thunderbird
+        // doesn't require signing, so we just skip checking.
+        info.unsigned = false;
 
         let strings = this._buildStrings(info);
 
