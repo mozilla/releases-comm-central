@@ -72,6 +72,12 @@ if CONFIG['MOZ_LINUX_32_SSE2_STARTUP_ERROR']:
         '-mno-sse', '-mno-sse2', '-mfpmath=387',
     ]
 
+# For splash.rc
+DEFINES['SEAMONKEY_ICO'] = '"%s/%s/icons/windows/main-window.ico"' % (
+    TOPSRCDIR, CONFIG['MOZ_BRANDING_DIRECTORY'])
+DEFINES['HTML_FILE_ICO'] = '"%s/%s/icons/windows/html-file.ico"' % (
+    TOPSRCDIR, CONFIG['MOZ_BRANDING_DIRECTORY'])
+
 DEFINES['APP_VERSION'] = CONFIG['MOZ_APP_VERSION']
 
 DisableStlWrapping()

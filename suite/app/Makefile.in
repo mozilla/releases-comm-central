@@ -6,12 +6,6 @@ dist_dest   = $(DIST)/$(MOZ_MACBUNDLE_NAME)
 
 AB_CD = $(MOZ_UI_LOCALE)
 
-# For splash.rc
-DEFINES += \
-	-DSEAMONKEY_ICO='"$(topsrcdir)/$(MOZ_BRANDING_DIRECTORY)/icons/windows/main-window.ico"' \
-	-DHTML_FILE_ICO='"$(topsrcdir)/$(MOZ_BRANDING_DIRECTORY)/icons/windows/html-file.ico"' \
-	$(NULL)
-
 # Build a binary bootstrapping with XRE_main
 
 ifndef MOZ_WINCONSOLE
