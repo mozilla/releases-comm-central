@@ -57,7 +57,8 @@ libs::
 endif
 
 libs:: blocklist.xml
-	$(INSTALL) $(IFLAGS1) $^ $(DIST)/bin
+	$(INSTALL) $(IFLAGS1) $^ $(FINAL_TARGET)
+
 
 ifneq (,$(filter-out WINNT Darwin,$(OS_ARCH)))
 $(MOZ_APP_NAME).1: seamonkey.man.in $(GLOBAL_DEPS) $(DEPTH)/config/autoconf.mk
@@ -70,7 +71,7 @@ libs:: $(MOZ_APP_NAME).1
 	$(INSTALL) $< $(DIST)/man/man1
 
 GARBAGE += $(MOZ_APP_NAME).1
-GARBAGE += $(addprefix $(DIST)/bin/defaults/pref/, browser-prefs.js)
+GARBAGE += $(addprefix $(FINAL_TARGET)/defaults/pref/, browser-prefs.js)
 endif
 
 # Make extensions end up as XPIs instead of flat chrome when doing omni.jar.
