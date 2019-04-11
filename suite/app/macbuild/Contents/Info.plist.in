@@ -237,5 +237,9 @@
 	<true/>
 	<key>NSPrincipalClass</key>
 	<string>GeckoNSApplication</string>
+  <key>MozillaDeveloperRepoPath</key>
+  <string>@MOZ_DEVELOPER_REPO_PATH@</string>
+  <key>MozillaDeveloperObjPath</key>
+  <string>@MOZ_DEVELOPER_OBJ_PATH@</string>
 </dict>
 </plist>
