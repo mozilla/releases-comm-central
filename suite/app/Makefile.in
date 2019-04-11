@@ -114,8 +114,6 @@ ifdef MOZ_DEBUG
 MAC_APP_NAME := $(MAC_APP_NAME)Debug
 endif
 
-LOWER_MAC_APP_NAME = $(shell echo $(MAC_APP_NAME) | tr '[A-Z]' '[a-z]')
-
 ifeq (zh-TW,$(AB_CD))
 LPROJ_ROOT := $(subst -,_,$(AB_CD))
 else
@@ -131,7 +129,7 @@ tools:: $(PROGRAM)
 	rsync -a --exclude "*.in" $(srcdir)/macbuild/Contents '$(dist_dest)' --exclude English.lproj
 	mkdir -p '$(dist_dest)/$(LPROJ)'
 	rsync -a --exclude "*.in" $(srcdir)/macbuild/Contents/Resources/English.lproj/ '$(dist_dest)/$(LPROJ)'
-	sed -e "s/\@MOZ_APP_NAME\@/$(MOZ_APP_NAME)/" -e "s/\@MAC_APP_NAME\@/$(MAC_APP_NAME)/" -e "s/\@MOZ_APP_DISPLAYNAME\@/$(MOZ_APP_DISPLAYNAME)/" -e "s/\@MOZ_APP_VERSION\@/$(MOZ_APP_VERSION)/" $(srcdir)/macbuild/Contents/Info.plist.in > '$(dist_dest)/Contents/Info.plist'
+	sed -e "s/\@MOZ_APP_NAME\@/$(MOZ_APP_NAME)/" -e "s/\@MAC_APP_NAME\@/$(MAC_APP_NAME)/" -e "s/\@MOZ_APP_DISPLAYNAME\@/$(MOZ_APP_DISPLAYNAME)/" -e "s/\@MOZ_APP_VERSION\@/$(MOZ_APP_VERSION)/" -e "s/\@MOZ_MACBUNDLE_ID\@/$(MOZ_MACBUNDLE_ID)/" $(srcdir)/macbuild/Contents/Info.plist.in > '$(dist_dest)/Contents/Info.plist'
 	sed  -e "s/\@MAC_APP_NAME\@/$(MAC_APP_NAME)/" $(srcdir)/macbuild/Contents/Resources/English.lproj/InfoPlist.strings.in | iconv -f UTF-8 -t UTF-16 > '$(dist_dest)/$(LPROJ)/InfoPlist.strings'
 	rsync -a --exclude-from='$(srcdir)/macbuild/Contents/MacOS-files.in' $(DIST)/bin/ '$(dist_dest)/Contents/Resources'
 	rsync -a --include-from='$(srcdir)/macbuild/Contents/MacOS-files.in' --exclude '*' $(DIST)/bin/ '$(dist_dest)/Contents/MacOS'
