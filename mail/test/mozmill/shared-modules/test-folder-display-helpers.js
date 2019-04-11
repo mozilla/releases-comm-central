@@ -2138,7 +2138,9 @@ function assert_selected_and_displayed(...aArgs) {
 function archive_messages(aMsgHdrs) {
   plan_to_wait_for_folder_events("DeleteOrMoveMsgCompleted",
                                  "DeleteOrMoveMsgFailed");
-  let batchMover = new mc.window.BatchMessageMover();
+
+  let {MessageArchiver} = ChromeUtils.import("resource:///modules/MessageArchiver.jsm");
+  let batchMover = new MessageArchiver();
   batchMover.archiveMessages(aMsgHdrs);
   wait_for_folder_events();
 }
