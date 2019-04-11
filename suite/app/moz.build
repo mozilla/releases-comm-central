@@ -65,8 +65,13 @@ if CONFIG['MOZ_SANDBOX'] and CONFIG['OS_ARCH'] == 'WINNT':
 if CONFIG['OS_ARCH'] == 'WINNT' and CONFIG['CC_TYPE'] not in ('clang', 'gcc'):
     LDFLAGS += ['/HEAP:0x40000']
 
+DisableStlWrapping()
+
 if CONFIG['MOZ_LINKER']:
     OS_LIBS += CONFIG['MOZ_ZLIB_LIBS']
+
+if CONFIG['HAVE_CLOCK_MONOTONIC']:
+    OS_LIBS += CONFIG['REALTIME_LIBS']
 
 if CONFIG['MOZ_LINUX_32_SSE2_STARTUP_ERROR']:
     DEFINES['MOZ_LINUX_32_SSE2_STARTUP_ERROR'] = True
@@ -84,8 +89,6 @@ DEFINES['HTML_FILE_ICO'] = '"%s/%s/icons/windows/html-file.ico"' % (
     TOPSRCDIR, CONFIG['MOZ_BRANDING_DIRECTORY'])
 
 DEFINES['APP_VERSION'] = CONFIG['MOZ_APP_VERSION']
-
-DisableStlWrapping()
 
 FINAL_TARGET_FILES += ['blocklist.xml']
 FINAL_TARGET_FILES.defaults += ['permissions']
