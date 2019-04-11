@@ -76,5 +76,6 @@ DEFINES['APP_VERSION'] = CONFIG['MOZ_APP_VERSION']
 
 DisableStlWrapping()
 
+FINAL_TARGET_FILES += ['blocklist.xml']
 FINAL_TARGET_FILES.defaults += ['permissions']
 

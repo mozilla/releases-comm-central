@@ -56,10 +56,6 @@ libs::
 
 endif
 
-libs:: blocklist.xml
-	$(INSTALL) $(IFLAGS1) $^ $(FINAL_TARGET)
-
-
 ifneq (,$(filter-out WINNT Darwin,$(OS_ARCH)))
 $(MOZ_APP_NAME).1: seamonkey.man.in $(GLOBAL_DEPS) $(DEPTH)/config/autoconf.mk
 	@sed -e "s|\@bindir\@|$(bindir)|g" -e "s|\@mozappdir\@|$(mozappdir)|g" \
