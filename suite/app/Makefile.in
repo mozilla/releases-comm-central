@@ -45,8 +45,10 @@ endif
 
 ifneq ($(OS_ARCH),WINNT)
 
+ifdef COMPILE_ENVIRONMENT
 libs::
 	cp -p $(DIST)/bin/$(MOZ_APP_NAME)$(BIN_SUFFIX) $(DIST)/bin/$(MOZ_APP_NAME)-bin$(BIN_SUFFIX)
+endif
 
 endif
 
