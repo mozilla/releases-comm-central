@@ -11,134 +11,6 @@
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
-/**
- * Get the identity that most likely is the best one to use, given the hint.
- * @param identities    nsIArray<nsIMsgIdentity> of identities
- * @param optionalHint  string containing comma separated mailboxes
- * @param useDefault    If true, use the default identity of the default
- *                      account as last choice. This is useful when all
- *                      identities are passed in. Otherwise, use the first
- *                      entity in the list.
- */
-function getBestIdentity(identities, optionalHint, useDefault = false) {
-  let identityCount = identities.length;
-  if (identityCount < 1)
-    return null;
-
-  // If we have more than one identity and a hint to help us pick one.
-  if (identityCount > 1 && optionalHint) {
-    // Normalize case on the optional hint to improve our chances of
-    // finding a match.
-    optionalHint = optionalHint.toLowerCase();
-    let hints = optionalHint.toLowerCase().split(",");
-
-    for (let i = 0; i < hints.length; i++) {
-      for (let identity of fixIterator(identities,
-                                       Ci.nsIMsgIdentity)) {
-        if (!identity.email)
-          continue;
-        if (hints[i].trim() == identity.email.toLowerCase() ||
-            hints[i].includes("<" + identity.email.toLowerCase() + ">"))
-          return identity;
-      }
-    }
-  }
-
-  // Still no matches? Give up and pick the default or the first one.
-  if (useDefault) {
-    let defaultAccount = accountManager.defaultAccount;
-    if (defaultAccount && defaultAccount.defaultIdentity)
-      return defaultAccount.defaultIdentity;
-  }
-
-  return identities.queryElementAt(0, Ci.nsIMsgIdentity);
-}
-
-function getIdentityForServer(server, optionalHint) {
-  var identities = accountManager.getIdentitiesForServer(server);
-  return getBestIdentity(identities, optionalHint);
-}
-
-/**
- * Get the identity for the given header.
- * @param hdr nsIMsgHdr message header
- * @param type nsIMsgCompType compose type the identity ise used for.
- */
-function getIdentityForHeader(hdr, type) {
-  function findDeliveredToIdentityEmail() {
-    // This function reads from currentHeaderData, which is only useful if we're
-    // looking at the currently-displayed message. Otherwise, just return
-    // immediately so we don't waste time.
-    if (hdr != gMessageDisplay.displayedMessage)
-      return "";
-
-    // Get the delivered-to headers.
-    let key = "delivered-to";
-    let deliveredTos = [];
-    let index = 0;
-    let header = "";
-    while ((header = currentHeaderData[key])) {
-      deliveredTos.push(header.headerValue.toLowerCase().trim());
-      key = "delivered-to" + index++;
-    }
-
-    // Reverse the array so that the last delivered-to header will show at front.
-    deliveredTos.reverse();
-
-    for (let i = 0; i < deliveredTos.length; i++) {
-      for (let identity of fixIterator(accountManager.allIdentities,
-                                       Ci.nsIMsgIdentity)) {
-        if (!identity.email)
-          continue;
-        // If the deliver-to header contains the defined identity, that's it.
-        if (deliveredTos[i] == identity.email.toLowerCase() ||
-            deliveredTos[i].includes("<" + identity.email.toLowerCase() + ">"))
-          return identity.email;
-      }
-    }
-    return "";
-  }
-
-  let server = null;
-  let identity = null;
-  let folder = hdr.folder;
-  if (folder) {
-    server = folder.server;
-    identity = folder.customIdentity;
-    if (identity)
-      return identity;
-  }
-
-  if (!server) {
-    let accountKey = hdr.accountKey;
-    if (accountKey) {
-      let account = accountManager.getAccount(accountKey);
-      if (account)
-        server = account.incomingServer;
-    }
-  }
-
-  let hintForIdentity = "";
-  if (type == Ci.nsIMsgCompType.ReplyToList)
-    hintForIdentity = findDeliveredToIdentityEmail();
-  else if (type == Ci.nsIMsgCompType.Template ||
-           type == Ci.nsIMsgCompType.EditTemplate ||
-           type == Ci.nsIMsgCompType.EditAsNew)
-    hintForIdentity = hdr.author;
-  else
-    hintForIdentity = hdr.recipients + "," + hdr.ccList + "," +
-                      findDeliveredToIdentityEmail();
-
-  if (server)
-    identity = getIdentityForServer(server, hintForIdentity);
-
-  if (!identity)
-    identity = getBestIdentity(accountManager.allIdentities,
-                               hintForIdentity, true);
-
-  return identity;
-}
-
 function GetNextNMessages(folder) {
   if (folder) {
     var newsFolder = folder.QueryInterface(
@@ -236,7 +108,7 @@ function ComposeMessage(type, format, folder, messageArray) {
 
       identity = folder.customIdentity;
       if (!identity)
-        identity = getIdentityForServer(server);
+        identity = MailUtils.getIdentityForServer(server);
       // dump("identity = " + identity + "\n");
     }
   } catch (ex) {
@@ -293,7 +165,7 @@ function ComposeMessage(type, format, folder, messageArray) {
                                          format, identity, msgWindow);
         } else {
           // Replies come here.
-          let hdrIdentity = getIdentityForHeader(hdr, type);
+          let hdrIdentity = MailUtils.getIdentityForHeader(hdr, type);
           if (ignoreQuote)
             type += msgComposeType.ReplyIgnoreQuote;
           MailServices.compose.OpenComposeWindow(null, hdr, messageUri, type,
@@ -439,7 +311,7 @@ saveAsUrlListener.prototype = {
 function SaveAsTemplate(uri) {
   if (uri) {
     let hdr = messenger.msgHdrFromURI(uri);
-    let identity = getIdentityForHeader(hdr, Ci.nsIMsgCompType.Template);
+    let identity = MailUtils.getIdentityForHeader(hdr, Ci.nsIMsgCompType.Template);
     let templates = MailUtils.getOrCreateFolder(identity.stationeryFolder);
     if (!templates.parent) {
       templates.setFlag(Ci.nsMsgFolderFlags.Templates);

@@ -364,4 +364,109 @@ var MailUtils = {
                            this.INTER_FOLDER_PROCESSING_DELAY_MS,
                            Ci.nsITimer.TYPE_REPEATING_SLACK);
   },
+
+  /**
+   * Get the identity that most likely is the best one to use, given the hint.
+   * @param identities    nsIArray<nsIMsgIdentity> of identities
+   * @param optionalHint  string containing comma separated mailboxes
+   * @param useDefault    If true, use the default identity of the default
+   *                      account as last choice. This is useful when all
+   *                      identities are passed in. Otherwise, use the first
+   *                      entity in the list.
+   */
+  getBestIdentity(identities, optionalHint, useDefault = false) {
+    let identityCount = identities.length;
+    if (identityCount < 1)
+      return null;
+
+    // If we have more than one identity and a hint to help us pick one.
+    if (identityCount > 1 && optionalHint) {
+      // Normalize case on the optional hint to improve our chances of
+      // finding a match.
+      optionalHint = optionalHint.toLowerCase();
+      let hints = optionalHint.toLowerCase().split(",");
+
+      for (let i = 0; i < hints.length; i++) {
+        for (let identity of fixIterator(identities,
+                                         Ci.nsIMsgIdentity)) {
+          if (!identity.email)
+            continue;
+          if (hints[i].trim() == identity.email.toLowerCase() ||
+              hints[i].includes("<" + identity.email.toLowerCase() + ">"))
+            return identity;
+        }
+      }
+    }
+
+    // Still no matches? Give up and pick the default or the first one.
+    if (useDefault) {
+      let defaultAccount = MailServices.accounts.defaultAccount;
+      if (defaultAccount && defaultAccount.defaultIdentity)
+        return defaultAccount.defaultIdentity;
+    }
+
+    return identities.queryElementAt(0, Ci.nsIMsgIdentity);
+  },
+
+  getIdentityForServer(server, optionalHint) {
+    var identities = MailServices.accounts.getIdentitiesForServer(server);
+    return this.getBestIdentity(identities, optionalHint);
+  },
+
+  /**
+   * Get the identity for the given header.
+   * @param hdr nsIMsgHdr message header
+   * @param type nsIMsgCompType compose type the identity is used for.
+   */
+  getIdentityForHeader(hdr, type) {
+    let server = null;
+    let identity = null;
+    let folder = hdr.folder;
+    if (folder) {
+      server = folder.server;
+      identity = folder.customIdentity;
+      if (identity)
+        return identity;
+    }
+
+    if (!server) {
+      let accountKey = hdr.accountKey;
+      if (accountKey) {
+        let account = MailServices.accounts.getAccount(accountKey);
+        if (account)
+          server = account.incomingServer;
+      }
+    }
+
+    let hintForIdentity = "";
+    if (type == Ci.nsIMsgCompType.ReplyToList)
+      hintForIdentity = "";
+    else if (type == Ci.nsIMsgCompType.Template ||
+             type == Ci.nsIMsgCompType.EditTemplate ||
+             type == Ci.nsIMsgCompType.EditAsNew)
+      hintForIdentity = hdr.author;
+    else
+      hintForIdentity = hdr.recipients + "," + hdr.ccList;
+
+    if (server)
+      identity = this.getIdentityForServer(server, hintForIdentity);
+
+    if (!identity)
+      identity = this.getBestIdentity(MailServices.accounts.allIdentities,
+                                 hintForIdentity, true);
+
+    return identity;
+  },
+
+  getInboxFolder(server) {
+    try {
+      var rootMsgFolder = server.rootMsgFolder;
+
+      // Now find the Inbox.
+      return rootMsgFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
+    } catch (ex) {
+      dump(ex + "\n");
+    }
+    return null;
+  },
 };

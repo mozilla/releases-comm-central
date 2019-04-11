@@ -595,7 +595,7 @@ function getNotificationBox(aWindow) {
 // on inbox of that server.
 // prompt if offline.
 function OpenInboxForServer(server) {
-  gFolderTreeView.selectFolder(GetInboxFolder(server));
+  gFolderTreeView.selectFolder(MailUtils.getInboxFolder(server));
 
   if (MailOfflineMgr.isOnline() || MailOfflineMgr.getNewMail()) {
     if (server.type != "imap")
