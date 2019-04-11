@@ -1641,7 +1641,7 @@ var gApplicationsPane = {
             this._isValidHandlerExecutable(fp.file)) {
           handlerApp = Cc["@mozilla.org/uriloader/local-handler-app;1"]
                          .createInstance(Ci.nsILocalHandlerApp);
-          handlerApp.name = getDisplayNameForFile(fp.file);
+          handlerApp.name = getFileDisplayName(fp.file);
           handlerApp.executable = fp.file;
 
           // Add the app to the type's list of possible handlers.
