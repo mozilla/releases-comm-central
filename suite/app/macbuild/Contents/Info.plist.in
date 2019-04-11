@@ -28,6 +28,11 @@
 	<true/>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.productivity</string>
+	<key>LSEnvironment</key>
+	<dict>
+		<key>MallocNanoZone</key>
+		<string>0</string>
+	</dict>
 	<key>LSMinimumSystemVersion</key>
 	<string>10.9.0</string>
 	<key>CFBundleDocumentTypes</key>
@@ -70,11 +75,32 @@
 					<string>htm</string>
 					<string>shtml</string>
 					<string>xml</string>
+					<string>xht</string>
 					<string>xhtml</string>
 					</array>
 				<key>CFBundleTypeIconFile</key>
 				<string>document.icns</string>
 			</dict>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>JSON File</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>CFBundleTypeOSTypes</key>
+			<array>
+				<string>TEXT</string>
+			</array>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>json</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>document.icns</string>
+			<key>CFBundleTypeMIMETypes</key>
+			<array>
+				<string>application/json</string>
+			</array>
+		</dict>
 			<dict>
 				<key>CFBundleTypeName</key>
 				<string>@MOZ_APP_DISPLAYNAME@ E-mail</string>
@@ -232,8 +258,6 @@
 		</dict>
 	</array>
 	<key>NSSupportsAutomaticGraphicsSwitching</key>
-	<true/>
-	<key>NSDisablePersistence</key>
 	<true/>
 	<key>NSPrincipalClass</key>
 	<string>GeckoNSApplication</string>
