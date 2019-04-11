@@ -8,8 +8,9 @@ DIRS += [
 ]
 
 GeckoProgram(CONFIG['MOZ_APP_NAME'])
-USE_LIBS += ['mozglue']
+
 SOURCES += ['nsSuiteApp.cpp']
+
 LOCAL_INCLUDES += [
     '!/build',
     '/ipc/contentproc/',
