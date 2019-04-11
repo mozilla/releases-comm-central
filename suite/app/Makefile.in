@@ -121,7 +121,7 @@ LPROJ := Contents/Resources/$(LPROJ_ROOT).lproj
 clean clobber repackage::
 	$(RM) -r '$(dist_dest)'
 
-tools:: $(PROGRAM)
+tools:: $(DIST)/bin/$(MOZ_APP_NAME)
 	mkdir -p '$(dist_dest)/Contents/MacOS'
 	rsync -a --exclude "*.in" $(srcdir)/macbuild/Contents '$(dist_dest)' --exclude English.lproj
 	mkdir -p '$(dist_dest)/$(LPROJ)'
@@ -130,8 +130,8 @@ tools:: $(PROGRAM)
 	sed  -e "s/\@MAC_APP_NAME\@/$(MAC_APP_NAME)/" $(srcdir)/macbuild/Contents/Resources/English.lproj/InfoPlist.strings.in | iconv -f UTF-8 -t UTF-16 > '$(dist_dest)/$(LPROJ)/InfoPlist.strings'
 	rsync -a --exclude-from='$(srcdir)/macbuild/Contents/MacOS-files.in' $(DIST)/bin/ '$(dist_dest)/Contents/Resources'
 	rsync -a --include-from='$(srcdir)/macbuild/Contents/MacOS-files.in' --exclude '*' $(DIST)/bin/ '$(dist_dest)/Contents/MacOS'
-	rm -f '$(dist_dest)/Contents/MacOS/$(PROGRAM)'
-	rsync -aL $(PROGRAM) '$(dist_dest)/Contents/MacOS'
+	rm -f '$(dist_dest)/Contents/MacOS/$(MOZ_APP_NAME)'
+	rsync -aL $(DIST)/bin/$(MOZ_APP_NAME) '$(dist_dest)/Contents/MacOS'
 	cp -RL $(topsrcdir)/$(MOZ_BRANDING_DIRECTORY)/seamonkey.icns '$(dist_dest)/Contents/Resources/seamonkey.icns'
 	cp -RL $(topsrcdir)/$(MOZ_BRANDING_DIRECTORY)/document.icns '$(dist_dest)/Contents/Resources/document.icns'
 	printf APPLMOZZ > '$(dist_dest)/Contents/PkgInfo'
