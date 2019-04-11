@@ -97,6 +97,7 @@ function test_load_accounts_and_properly_order() {
  * Tests that a link in the management pane is loaded in
  * a browser and not in the management pane.
  */
+test_external_link.__force_skip__ = true;
 function test_external_link() {
   gMockExtProtSvcReg.register();
 
