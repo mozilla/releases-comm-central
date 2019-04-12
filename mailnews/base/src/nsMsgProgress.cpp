@@ -53,7 +53,6 @@ NS_IMETHODIMP nsMsgProgress::OpenProgressDialog(mozIDOMWindowProxy *parentDOMWin
   NS_ENSURE_ARG_POINTER(dialogURL);
   NS_ENSURE_ARG_POINTER(parentDOMWindow);
   nsCOMPtr<nsPIDOMWindowOuter> parent = nsPIDOMWindowOuter::From(parentDOMWindow);
-  parent = parent->GetOuterWindow();
   NS_ENSURE_ARG_POINTER(parent);
 
   // Set up window.arguments[0]...
