@@ -13,6 +13,7 @@ var baseFolder, savedFolder;
 var setUntagged, setTagged;
 
 var {MailViewConstants} = ChromeUtils.import("resource:///modules/MailViewManager.jsm");
+var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
 
 var setupModule = function(module) {
   let fdh = collector.getModule('folder-display-helpers');
@@ -62,8 +63,17 @@ function subtest_save_mail_view(savc) {
   // - make sure the name is right
   savc.assertValue(savc.eid("name"), baseFolder.prettyName + "-Important");
 
+  let elem = savc.window.document.getElementById("searchVal0");
+  let index = 0;
+
+  if (elem.hasAttribute("selectedIndex")) {
+    index = parseInt(elem.getAttribute("selectedIndex"));
+  }
+
+  elem = elem.childNodes[index];
+
   // - make sure the constraint is right
-  savc.assertValue(savc.aid("searchVal0", {crazyDeck: 0}), "$label1");
+  savc.assertValue(new elib.Elem(elem), "$label1");
 
   // - save it
   savc.window.onOK();

@@ -648,7 +648,7 @@ function AssignMeaningfulName()
     // Assign a name based on the first search term.
     let searchValue = termRoot.searchvalue;
     let selIndex = searchValue.getAttribute( "selectedIndex" );
-    let children = document.getAnonymousNodes(searchValue);
+    let children = searchValue.childNodes;
     let activeItem = children[selIndex];
     let attribs = Ci.nsMsgSearchAttrib;
 

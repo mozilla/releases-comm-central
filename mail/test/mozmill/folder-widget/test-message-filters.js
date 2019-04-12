@@ -141,7 +141,7 @@ function create_simple_filter() {
     let opList = searchOp.childNodes[0];
     opList.value = Ci.nsMsgSearchOp.Is;
     let searchValList = fec.e("searchVal0");
-    let searchVal = fec.window.document.getAnonymousNodes(searchValList)[0];
+    let searchVal = searchValList.childNodes[0];
     searchVal.setAttribute("value", "test@foo.invalid");
 
     let filterActions = fec.e("filterActionList");
@@ -188,8 +188,8 @@ function test_address_books_appear_in_message_filter_dropdown()
     let searchValue = fec.e("searchVal0");
 
     // The magic number "4" is because the address book list is the
-    // 4th child node of the searchvalue widget.
-    let abList = fec.window.document.getAnonymousNodes(searchValue)[4];
+    // 4th child node of the search-value widget.
+    let abList = searchValue.childNodes[4];
 
     // We should have 2 address books here - one for the Personal Address
     // Book, and one for Collected Addresses.  The LDAP address book should

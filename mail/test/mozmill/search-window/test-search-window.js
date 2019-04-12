@@ -14,6 +14,7 @@ var MODULE_NAME = 'test-search-window';
 var RELATIVE_ROOT = '../shared-modules';
 var MODULE_REQUIRES = ['folder-display-helpers', 'search-window-helpers',
                        'window-helpers'];
+var elib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
 
 function setupModule(module) {
   let fdh = collector.getModule('folder-display-helpers');
@@ -71,7 +72,14 @@ function test_enter_some_stuff() {
   //  get the text in there reliably.  I am just going to poke things directly
   //  into the text widget. (We used to use .aid instead of .a with swc.click
   //  and swc.type.)
-  let searchVal0 = swc.a("searchVal0", {crazyDeck: 0});
+  let searchVal0 = swc.window.document.getElementById("searchVal0");
+  let index = 0;
+
+  if (searchVal0.hasAttribute("selectedIndex")) {
+    index = parseInt(searchVal0.getAttribute("selectedIndex"));
+  }
+
+  searchVal0 = searchVal0.childNodes[index];
   searchVal0.value = "foo";
 
   // - add another subject box
@@ -79,7 +87,14 @@ function test_enter_some_stuff() {
   swc.click(plusButton);
 
   // - put "bar" in it
-  let searchVal1 = swc.a("searchVal1", {crazyDeck: 0});
+  let searchVal1 = swc.window.document.getElementById("searchVal1");
+  index = 0;
+
+  if (searchVal1.hasAttribute("selectedIndex")) {
+    index = parseInt(searchVal1.getAttribute("selectedIndex"));
+  }
+
+  searchVal1 = searchVal1.childNodes[index];
   searchVal1.value = "bar";
 }
 
@@ -231,10 +246,27 @@ function subtest_save_search(savc) {
   // - make sure our constraint propagated
   // The query constraints are displayed using the same widgets (and code) that
   //  we used to enter them, so it's very similar to check.
-  let searchVal0 = savc.aid("searchVal0", {crazyDeck: 0});
+  let searchVal0 = swc.window.document.getElementById("searchVal0");
+  let index = 0;
+
+  if (searchVal0.hasAttribute("selectedIndex")) {
+    index = parseInt(searchVal0.getAttribute("selectedIndex"));
+  }
+
+  searchVal0 = new elib.Elem(searchVal0.childNodes[index]);
+
   savc.assertNode(searchVal0);
   savc.assertValue(searchVal0, "foo");
-  let searchVal1 = savc.aid("searchVal1", {crazyDeck: 0});
+
+  let searchVal1 = swc.window.document.getElementById("searchVal1");
+  index = 0;
+
+  if (searchVal1.hasAttribute("selectedIndex")) {
+    index = parseInt(searchVal1.getAttribute("selectedIndex"));
+  }
+
+  searchVal1 = new elib.Elem(searchVal1.childNodes[index]);
+
   savc.assertNode(searchVal1);
   savc.assertValue(searchVal1, "bar");
 

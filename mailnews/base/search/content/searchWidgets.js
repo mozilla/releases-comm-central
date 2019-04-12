@@ -3,7 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global MozXULElement, gFilter, gFilterList */
+/* global MozXULElement, gFilter, gFilterList, onEnterInSearchTerm, convertDateToString */
+/* global convertPRTimeToString, convertStringToPRTime */
 
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
@@ -595,3 +596,433 @@ class MozSearchOperator extends MozSearchMenulistAbstract {
   }
 }
 customElements.define("search-operator", MozSearchOperator);
+
+/**
+ * MozSearchValue is a widget that allows selecting the value to search or filter on. It can be a
+ * text entry, priority, status, junk status, tags, hasAttachment status, and addressbook etc.
+ *
+ * @extends MozXULElement
+ */
+class MozSearchValue extends MozXULElement {
+  static get observedAttributes() {
+    return ["disabled"];
+  }
+
+  constructor() {
+    super();
+
+    this.addEventListener("keypress", (event) => {
+      if (event.keyCode != KeyEvent.DOM_VK_RETURN) {
+        return;
+      }
+      onEnterInSearchTerm(event);
+    });
+
+    this.internalOperator = null;
+    this.internalAttribute = null;
+    this.internalValue = null;
+  }
+
+  connectedCallback() {
+    if (this.delayConnectedCallback()) {
+        return;
+    }
+
+    // Initialize strings.
+    const bundle = Services.strings.createBundle("chrome://messenger/locale/messenger.properties");
+
+    if (!this.hasChildNodes()) {
+      this.appendChild(MozXULElement.parseXULToFragment(`
+        <textbox flex="1" class="search-value-textbox" inherits="disabled"></textbox>
+        <menulist flex="1" class="search-value-menulist" inherits="disabled">
+          <menupopup class="search-value-popup">
+            <menuitem value="6" stringTag="priorityHighest" class="search-value-menuitem"></menuitem>
+            <menuitem value="5" stringTag="priorityHigh" class="search-value-menuitem"></menuitem>
+            <menuitem value="4" stringTag="priorityNormal" class="search-value-menuitem"></menuitem>
+            <menuitem value="3" stringTag="priorityLow" class="search-value-menuitem"></menuitem>
+            <menuitem value="2" stringTag="priorityLowest" class="search-value-menuitem"></menuitem>
+          </menupopup>
+        </menulist>
+        <menulist flex="1" class="search-value-menulist" inherits="disabled">
+          <menupopup class="search-value-popup">
+            <menuitem value="2" stringTag="replied" class="search-value-menuitem"></menuitem>
+            <menuitem value="1" stringTag="read" class="search-value-menuitem"></menuitem>
+            <menuitem value="65536" stringTag="new" class="search-value-menuitem"></menuitem>
+            <menuitem value="4096" stringTag="forwarded" class="search-value-menuitem"></menuitem>
+            <menuitem value="4" stringTag="flagged" class="search-value-menuitem"></menuitem>
+          </menupopup>
+        </menulist>
+        <textbox flex="1" class="search-value-textbox" inherits="disabled"></textbox>
+        <menulist flex="1" class="search-value-menulist" inherits="disabled">
+          <menupopup class="addrbooksPopup" localonly="true"></menupopup>
+        </menulist>
+        <menulist flex="1" class="search-value-menulist" inherits="disabled">
+          <menupopup class="search-value-popup"></menupopup>
+        </menulist>
+        <menulist flex="1" class="search-value-menulist" inherits="disabled">
+          <menupopup class="search-value-popup">
+            <menuitem value="2" stringTag="junk" class="search-value-menuitem"></menuitem>
+          </menupopup>
+        </menulist>
+        <menulist flex="1" class="search-value-menulist" inherits="disabled">
+          <menupopup class="search-value-popup">
+            <menuitem value="0" stringTag="hasAttachments" class="search-value-menuitem"></menuitem>
+          </menupopup>
+        </menulist>
+        <menulist flex="1" class="search-value-menulist" inherits="disabled">
+          <menupopup class="search-value-popup">
+            <menuitem value="plugin" stringTag="junkScoreOriginPlugin" class="search-value-menuitem"></menuitem>
+            <menuitem value="user" stringTag="junkScoreOriginUser" class="search-value-menuitem"></menuitem>
+            <menuitem value="filter" stringTag="junkScoreOriginFilter" class="search-value-menuitem"></menuitem>
+            <menuitem value="whitelist" stringTag="junkScoreOriginWhitelist" class="search-value-menuitem"></menuitem>
+            <menuitem value="imapflag" stringTag="junkScoreOriginImapFlag" class="search-value-menuitem"></menuitem>
+          </menupopup>
+        </menulist>
+        <textbox flex="1" class="search-value-textbox" inherits="disabled" type="number"></textbox>
+        <hbox flex="1" class="search-value-custom" inherits="disabled"></hbox>
+      `));
+
+      // Initialize the priority picker.
+      this.fillStringsForChildren(this.childNodes[1].querySelector("menupopup"), bundle);
+
+      // Initialize the status picker.
+      this.fillStringsForChildren(this.childNodes[2].querySelector("menupopup"), bundle);
+
+      // initialize the address book picker
+      this.fillStringsForChildren(this.childNodes[4].querySelector("menupopup"), bundle);
+
+      // initialize the junk status picker
+      this.fillStringsForChildren(this.childNodes[6].querySelector("menupopup"), bundle);
+
+      // initialize the has attachment status picker
+      this.fillStringsForChildren(this.childNodes[7].querySelector("menupopup"), bundle);
+
+      // initialize the junk score origin picker
+      this.fillStringsForChildren(this.childNodes[8].querySelector("menupopup"), bundle);
+    }
+
+    // Initialize the date picker.
+    const datePicker = this.childNodes[3];
+    const searchAttribute = this.searchAttribute;
+    const time = searchAttribute == Ci.nsMsgSearchAttrib.Date ? datePicker.value : new Date();
+
+    // The search-value widget has two textboxes one for text, one as a placeholder for a
+    // date/calendar widget.
+    datePicker.setAttribute("value", convertDateToString(time));
+
+    // initialize the tag list
+    this.fillInTags();
+
+    this._updateAttributes();
+  }
+
+  attributeChangedCallback() {
+    if (!this.isConnectedAndReady) {
+      return;
+    }
+
+    this._updateAttributes();
+  }
+
+  _updateAttributes() {
+    this.querySelectorAll("[inherits='disabled']").forEach(elem => {
+      if (this.hasAttribute("disabled")) {
+        elem.setAttribute("disabled", this.getAttribute("disabled"));
+      } else {
+        elem.removeAttribute("disabled");
+      }
+    });
+  }
+
+  set opParentValue(val) {
+    // Noop if we're not changing it.
+    if (this.internalOperator == val) {
+      return val;
+    }
+
+    // Keywords has the null field IsEmpty.
+    if (this.searchAttribute == Ci.nsMsgSearchAttrib.Keywords) {
+      if (val == Ci.nsMsgSearchOp.IsEmpty || val == Ci.nsMsgSearchOp.IsntEmpty) {
+        this.setAttribute("selectedIndex", "-1");
+      } else {
+        this.setAttribute("selectedIndex", "5");
+      }
+    }
+
+    // JunkStatus has the null field IsEmpty.
+    if (this.searchAttribute == Ci.nsMsgSearchAttrib.JunkStatus) {
+      if (val == Ci.nsMsgSearchOp.IsEmpty || val == Ci.nsMsgSearchOp.IsntEmpty) {
+        this.setAttribute("selectedIndex", "-1");
+      } else {
+        this.setAttribute("selectedIndex", "6");
+      }
+    }
+
+    // If it's not sender, to, cc, alladdresses, or to or cc, we don't care.
+    if (this.searchAttribute != Ci.nsMsgSearchAttrib.Sender &&
+      this.searchAttribute != Ci.nsMsgSearchAttrib.To &&
+      this.searchAttribute != Ci.nsMsgSearchAttrib.ToOrCC &&
+      this.searchAttribute != Ci.nsMsgSearchAttrib.AllAddresses &&
+      this.searchAttribute != Ci.nsMsgSearchAttrib.CC) {
+      this.internalOperator = val;
+      return val;
+    }
+
+    const children = this.childNodes;
+    if (val == Ci.nsMsgSearchOp.IsntInAB || val == Ci.nsMsgSearchOp.IsInAB) {
+      // If the old internalOperator was IsntInAB or IsInAB, and the new internalOperator is
+      // IsntInAB or IsInAB, noop because the search value was an ab type, and it still is.
+      // Otherwise, switch to the ab picker and select the PAB.
+      if (this.internalOperator != Ci.nsMsgSearchOp.IsntInAB &&
+        this.internalOperator != Ci.nsMsgSearchOp.IsInAB) {
+        const abs = children[4].querySelector(`[value="moz-abmdbdirectory://abook.mab"]`);
+        if (abs) {
+          children[4].selectedItem = abs;
+        }
+        this.setAttribute("selectedIndex", "4");
+      }
+    } else if (this.internalOperator == Ci.nsMsgSearchOp.IsntInAB ||
+      this.internalOperator == Ci.nsMsgSearchOp.IsInAB) {
+      // If the old internalOperator wasn't IsntInAB or IsInAB, and the new internalOperator isn't
+      // IsntInAB or IsInAB, noop because the search value wasn't an ab type, and it still isn't.
+      // Otherwise, switch to the textbox and clear it
+      children[0].value = "";
+      this.setAttribute("selectedIndex", "0");
+    }
+
+    this.internalOperator = val;
+    return val;
+  }
+
+  get opParentValue() {
+    return this.internalOperator;
+  }
+
+  set parentValue(val) {
+    return this.searchAttribute = val;
+  }
+
+  get parentValue() {
+    return this.searchAttribute;
+  }
+
+  set searchAttribute(val) {
+    // noop if we're not changing it.
+    if (this.internalAttribute == val) {
+      return val;
+    }
+    this.internalAttribute = val;
+
+    // If the searchAttribute changing, null out the internalOperator.
+    this.internalOperator = null;
+
+    // We inherit from a deck, so just use it's index attribute to hide/show widgets.
+    if (isNaN(val)) { // Is this a custom attribute?
+      this.setAttribute("selectedIndex", "10");
+      let customHbox = this.childNodes[10];
+      if (this.internalValue) {
+        customHbox.setAttribute("value", this.internalValue.str);
+      }
+      // the searchAttribute attribute is intended as a selector in
+      // CSS for custom search terms to bind a custom value
+      customHbox.setAttribute("searchAttribute", val);
+    } else if (val == Ci.nsMsgSearchAttrib.Priority) {
+      this.setAttribute("selectedIndex", "1");
+    } else if (val == Ci.nsMsgSearchAttrib.MsgStatus) {
+      this.setAttribute("selectedIndex", "2");
+    } else if (val == Ci.nsMsgSearchAttrib.Date) {
+      this.setAttribute("selectedIndex", "3");
+    } else if (val == Ci.nsMsgSearchAttrib.Sender) {
+      // Since the internalOperator is null, this is the same as the initial state.
+      // The initial state for Sender isn't an ab type search, it's a text search,
+      // so show the textbox.
+      this.setAttribute("selectedIndex", "0");
+    } else if (val == Ci.nsMsgSearchAttrib.Keywords) {
+      this.setAttribute("selectedIndex", "5");
+    } else if (val == Ci.nsMsgSearchAttrib.JunkStatus) {
+      this.setAttribute("selectedIndex", "6");
+    } else if (val == Ci.nsMsgSearchAttrib.HasAttachmentStatus) {
+      this.setAttribute("selectedIndex", "7");
+    } else if (val == Ci.nsMsgSearchAttrib.JunkScoreOrigin) {
+      this.setAttribute("selectedIndex", "8");
+    } else if (val == Ci.nsMsgSearchAttrib.AgeInDays) {
+      let valueBox = this.childNodes[9];
+      valueBox.min = -40000; // ~-100 years
+      valueBox.max = 40000; // ~100 years
+      this.setAttribute("selectedIndex", "9");
+    } else if (val == Ci.nsMsgSearchAttrib.Size) {
+      let valueBox = this.childNodes[9];
+      valueBox.min = 0;
+      valueBox.max = 1000000000;
+      this.setAttribute("selectedIndex", "9");
+    } else if (val == Ci.nsMsgSearchAttrib.JunkPercent) {
+      let valueBox = this.childNodes[9];
+      valueBox.min = 0;
+      valueBox.max = 100;
+      this.setAttribute("selectedIndex", "9");
+    } else {
+      // a normal text field
+      this.setAttribute("selectedIndex", "0");
+    }
+    return val;
+  }
+
+  get searchAttribute() {
+    return this.internalAttribute;
+  }
+
+  set value(val) {
+    // val is a nsIMsgSearchValue object
+    this.internalValue = val;
+    const attrib = this.internalAttribute;
+    const children = this.childNodes;
+    this.searchAttribute = attrib;
+    if (isNaN(attrib)) { // a custom term
+      let customHbox = this.childNodes[10];
+      customHbox.setAttribute("value", val.str);
+      return val;
+    }
+    if (attrib == Ci.nsMsgSearchAttrib.Priority) {
+      const matchingPriority = children[1].querySelector(`[value="${val.priority}"]`);
+      if (matchingPriority) {
+        children[1].selectedItem = matchingPriority;
+      }
+    } else if (attrib == Ci.nsMsgSearchAttrib.MsgStatus) {
+      const matchingStatus = children[2].querySelector(`[value="${val.status}"]`);
+      if (matchingStatus) {
+        children[2].selectedItem = matchingStatus;
+      }
+    } else if (attrib == Ci.nsMsgSearchAttrib.AgeInDays) {
+      children[9].value = val.age;
+    } else if (attrib == Ci.nsMsgSearchAttrib.Date) {
+      children[3].value = convertPRTimeToString(val.date);
+    } else if (attrib == Ci.nsMsgSearchAttrib.Sender ||
+      attrib == Ci.nsMsgSearchAttrib.To ||
+      attrib == Ci.nsMsgSearchAttrib.CC ||
+      attrib == Ci.nsMsgSearchAttrib.AllAddresses ||
+      attrib == Ci.nsMsgSearchAttrib.ToOrCC) {
+      if (this.internalOperator == Ci.nsMsgSearchOp.IsntInAB ||
+        this.internalOperator == Ci.nsMsgSearchOp.IsInAB) {
+        const abs = children[4].querySelector(`[value="${val.str}"]`);
+        if (abs) {
+          children[4].selectedItem = abs;
+        }
+      } else {
+        children[0].value = val.str;
+      }
+    } else if (attrib == Ci.nsMsgSearchAttrib.Keywords) {
+      const keywordVal = children[5].querySelector(`[value="${val.str}"]`);
+      if (keywordVal) {
+        children[5].value = val.str;
+        children[5].selectedItem = keywordVal;
+      }
+    } else if (attrib == Ci.nsMsgSearchAttrib.JunkStatus) {
+      const junkStatus =
+        children[6].querySelector(`[value="${val.junkStatus}"]`);
+      if (junkStatus) {
+        children[6].selectedItem = junkStatus;
+      }
+    } else if (attrib == Ci.nsMsgSearchAttrib.HasAttachmentStatus) {
+      const hasAttachmentStatus =
+        children[7].querySelector(`[value="${val.hasAttachmentStatus}"]`);
+      if (hasAttachmentStatus) {
+        children[7].selectedItem = hasAttachmentStatus;
+      }
+    } else if (attrib == Ci.nsMsgSearchAttrib.JunkScoreOrigin) {
+      const junkScoreOrigin =
+        children[8].querySelector(`[value="${val.str}"]`);
+      if (junkScoreOrigin) {
+        children[8].selectedItem = junkScoreOrigin;
+      }
+    } else if (attrib == Ci.nsMsgSearchAttrib.JunkPercent) {
+      children[9].value = val.junkPercent;
+    } else if (attrib == Ci.nsMsgSearchAttrib.Size) {
+      children[9].value = val.size;
+    } else {
+      children[0].value = val.str;
+    }
+    return val;
+  }
+
+  get value() {
+    return this.internalValue;
+  }
+
+  save() {
+    const searchValue = this.value;
+    const searchAttribute = this.searchAttribute;
+    const children = this.childNodes;
+
+    searchValue.attrib = searchAttribute;
+    if (searchAttribute == Ci.nsMsgSearchAttrib.Priority) {
+      searchValue.priority = children[1].selectedItem.value;
+    } else if (searchAttribute == Ci.nsMsgSearchAttrib.MsgStatus) {
+      searchValue.status = children[2].value;
+    } else if (searchAttribute == Ci.nsMsgSearchAttrib.AgeInDays) {
+      searchValue.age = children[9].value;
+    } else if (searchAttribute == Ci.nsMsgSearchAttrib.Date) {
+      searchValue.date = convertStringToPRTime(children[3].value);
+    } else if (searchAttribute == Ci.nsMsgSearchAttrib.Sender ||
+      searchAttribute == Ci.nsMsgSearchAttrib.To ||
+      searchAttribute == Ci.nsMsgSearchAttrib.CC ||
+      searchAttribute == Ci.nsMsgSearchAttrib.AllAddresses ||
+      searchAttribute == Ci.nsMsgSearchAttrib.ToOrCC) {
+      if (this.internalOperator == Ci.nsMsgSearchOp.IsntInAB ||
+        this.internalOperator == Ci.nsMsgSearchOp.IsInAB) {
+        searchValue.str = children[4].selectedItem.value;
+      } else {
+        searchValue.str = children[0].value;
+      }
+    } else if (searchAttribute == Ci.nsMsgSearchAttrib.Keywords) {
+      searchValue.str = children[5].value;
+    } else if (searchAttribute == Ci.nsMsgSearchAttrib.JunkStatus) {
+      searchValue.junkStatus = children[6].value;
+    } else if (searchAttribute == Ci.nsMsgSearchAttrib.JunkPercent) {
+      searchValue.junkPercent = children[9].value;
+    } else if (searchAttribute == Ci.nsMsgSearchAttrib.Size) {
+      searchValue.size = children[9].value;
+    } else if (searchAttribute == Ci.nsMsgSearchAttrib.HasAttachmentStatus) {
+      searchValue.status = Ci.nsMsgMessageFlags.Attachment;
+    } else if (searchAttribute == Ci.nsMsgSearchAttrib.JunkScoreOrigin) {
+      searchValue.str = children[8].value;
+    } else if (isNaN(searchAttribute)) { // a custom term
+      searchValue.attrib = Ci.nsMsgSearchAttrib.Custom;
+      searchValue.str = children[10].getAttribute("value");
+    } else {
+      searchValue.str = children[0].value;
+    }
+  }
+
+  saveTo(searchValue) {
+    this.internalValue = searchValue;
+    this.save();
+  }
+
+  fillInTags() {
+    let menulist = this.childNodes[5];
+    // Force initialization of the menulist custom element first.
+    customElements.upgrade(menulist);
+    let tagArray = MailServices.tags.getAllTags({});
+    for (let i = 0; i < tagArray.length; i++) {
+      const taginfo = tagArray[i];
+      const newMenuItem = menulist.appendItem(taginfo.tag, taginfo.key);
+      if (i == 0) {
+        menulist.selectedItem = newMenuItem;
+      }
+    }
+  }
+
+  fillStringsForChildren(parentNode, bundle) {
+    for (let node of parentNode.childNodes) {
+      const stringTag = node.getAttribute("stringTag");
+      if (stringTag) {
+        const attr = (node.tagName == "label") ? "value" : "label";
+        node.setAttribute(attr, bundle.GetStringFromName(stringTag));
+      }
+    }
+
+    // Force initialization of the menulist custom element.
+    customElements.upgrade(parentNode);
+  }
+}
+customElements.define("search-value", MozSearchValue);
