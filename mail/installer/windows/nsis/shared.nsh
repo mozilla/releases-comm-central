@@ -597,8 +597,9 @@
   ${WriteRegStr2} $TmpVal "$0" "GeckoVer" "${GREVersion}" 0
 
   StrCpy $0 "Software\Mozilla\${BrandFullNameInternal}"
-  ${WriteRegStr2} $TmpVal "$0" "" "${GREVersion}" 0
+  ${WriteRegStr2} $TmpVal "$0" "" "${AppVersion}" 0
   ${WriteRegStr2} $TmpVal "$0" "CurrentVersion" "${AppVersion} (${AB_CD})" 0
+  ${WriteRegStr2} $TmpVal "$0" "GeckoVersion" "${GREVersion}" 0
 !macroend
 !define SetAppKeys "!insertmacro SetAppKeys"
 
