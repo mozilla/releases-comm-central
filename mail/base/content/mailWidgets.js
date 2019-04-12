@@ -570,6 +570,11 @@ class MozThreadPaneTreeColpicker extends customElements.get("treecolpicker") {
 }
 customElements.define("thread-pane-treecolpicker", MozThreadPaneTreeColpicker, { extends: "treecolpicker" });
 
+// The menulist CE is defined lazily. Create one now to get menulist defined,
+// allowing us to inherit from it.
+if (!customElements.get("menulist")) {
+  delete document.createElement("menulist");
+}
 customElements.whenDefined("menulist").then(() => {
   /**
    * MozMenulistEditable is a menulist widget that can be made editable by setting editable="true".

@@ -6,7 +6,7 @@
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-customElements.whenDefined("menulist-editable").then(() => {
+{
     class MozTimepickerMinute extends MozXULElement {
         static get observedAttributes() {
             return ["label", "selected"];
@@ -1111,7 +1111,7 @@ customElements.whenDefined("menulist-editable").then(() => {
     customElements.define("datepicker", CalendarDatePicker);
     customElements.define("timepicker", CalendarTimePicker);
     customElements.define("datetimepicker", CalendarDateTimePicker);
-});
+}
 
 /**
  * Parameter aValue may be a date or a date time. Dates are
