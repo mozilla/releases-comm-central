@@ -37,7 +37,7 @@ endif
 
 include $(topsrcdir)/config/rules.mk
 
-libs::
+libs:: $(LICENSE_TXT_FILE)
 ifeq ($(OS_ARCH),WINNT)
 	$(EXIT_ON_ERROR) \
 	$(PERL) -pe 's/(?<!\r)\n/\r\n/g;' < $^ > $(DIST)/bin/license.txt
