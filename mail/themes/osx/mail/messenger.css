@@ -26,7 +26,7 @@
   --toolbarbutton-icon-fill-opacity: .85;
   --toolbarbutton-hover-background: hsla(0, 0%, 100%, .1)
                                     linear-gradient(hsla(0, 0%, 100%, .3),
-                                    hsla(0, 0%, 100%, .1));
+                                    hsla(0, 0%, 100%, .1)) no-repeat;
   --toolbarbutton-hover-bordercolor: hsla(0, 0%, 0%, .2);
   --toolbarbutton-header-bordercolor: hsla(0, 0%, 0%, .2);
   --toolbarbutton-hover-boxshadow: 0 1px 0 hsla(0, 0%, 100%, .5),
