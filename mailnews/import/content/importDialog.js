@@ -820,7 +820,10 @@ async function ImportAddress(module, success, error) {
           filePicker.appendFilter(addressbookBundle.getString('LDIFFiles'), "*.ldi; *.ldif");
           filePicker.appendFilter(addressbookBundle.getString('CSVFiles'), "*.csv");
           filePicker.appendFilter(addressbookBundle.getString('TABFiles'), "*.tab; *.txt");
+          filePicker.appendFilter(addressbookBundle.getString('SupportedABFiles'), ".csv; *.ldi; *.ldif; *.tab; *.txt");
           filePicker.appendFilters(filePicker.filterAll);
+          // Use "Supported Address Book Files" as default file filter.
+          filePicker.filterIndex = 3;
         }
 
         file = await promptForFile(filePicker);
