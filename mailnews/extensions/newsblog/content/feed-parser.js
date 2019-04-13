@@ -42,7 +42,7 @@ FeedParser.prototype = {
     } else if (aDOM.querySelector("redirect")) {
       // Check for RSS2.0 redirect document.
       let channel = aDOM.querySelector("redirect");
-      if (this.isPermanentRedirect(aFeed, channel, null, null)) {
+      if (this.isPermanentRedirect(aFeed, channel, null)) {
         return [];
       }
 
@@ -53,13 +53,8 @@ FeedParser.prototype = {
       aFeed.mFeedType = "RSS_1.xRDF";
       FeedUtils.log.debug("FeedParser.parseFeed: type:url - " +
                           aFeed.mFeedType + " : " + aFeed.url);
-      // aSource can be misencoded (XMLHttpRequest converts to UTF-8 by default),
-      // but the DOM is almost always right because it uses the hints in the
-      // XML file.  This is slower, but not noticeably so.  Mozilla doesn't have
-      // the XMLHttpRequest.responseBody property that IE has, which provides
-      // access to the unencoded response.
-      let xmlString = this.mSerializer.serializeToString(doc);
-      return this.parseAsRSS1(aFeed, xmlString, aFeed.request.channel.URI);
+
+      return this.parseAsRSS1(aFeed, aDOM);
     } else if (doc.namespaceURI == FeedUtils.ATOM_03_NS) {
       aFeed.mFeedType = "ATOM_0.3";
       FeedUtils.log.debug("FeedParser.parseFeed: type:url - " +
@@ -101,7 +96,7 @@ FeedParser.prototype = {
     // Usually the empty string, unless this is RSS .90.
     let nsURI = channel.namespaceURI || "";
 
-    if (this.isPermanentRedirect(aFeed, null, channel, null)) {
+    if (this.isPermanentRedirect(aFeed, null, channel)) {
       return [];
     }
 
@@ -316,69 +311,84 @@ FeedParser.prototype = {
     return this.parsedItems;
   },
 
-  parseAsRSS1(aFeed, aSource, aBaseURI) {
-    // RSS 1.0 is valid RDF, so use the RDF parser/service to extract data.
-    // Create a new RDF data source and parse the feed into it.
-    let ds = Cc["@mozilla.org/rdf/datasource;1?name=in-memory-datasource"].
-             createInstance(Ci.nsIRDFDataSource);
-
-    let rdfparser = Cc["@mozilla.org/rdf/xml-parser;1"].
-                    createInstance(Ci.nsIRDFXMLParser);
-    rdfparser.parseString(ds, aBaseURI, aSource);
-
-    // Get information about the feed as a whole.
-    let channel = ds.GetSource(FeedUtils.RDF_TYPE, FeedUtils.RSS_CHANNEL, true);
+  /**
+   * Extracts feed details and (optionally) items from an RSS1
+   * feed which has already been XML-parsed as an XMLDocument.
+   * The feed items are extracted only if feed.parseItems is set.
+   *
+   * Technically RSS1 is supposed to be treated as RDFXML, but in practice
+   * no feed parser anywhere ever does this, and feeds in the wild are
+   * pretty shakey on their RDF encoding too. So we just treat it as raw
+   * XML and pick out the bits we want.
+   *
+   * @param {Feed} feed        - The Feed object.
+   * @param {XMLDocument} doc  - The document to parse.
+   * @returns {Array} - array of FeedItems or empty array for error returns or
+   *                    nothing to do condition (ie unset feed.parseItems).
+   */
+  parseAsRSS1(feed, doc) {
+    let channel = doc.querySelector("channel");
     if (!channel) {
-      aFeed.onParseError(aFeed);
+      feed.onParseError(feed);
       return [];
     }
 
-    if (this.isPermanentRedirect(aFeed, null, channel, ds)) {
+    if (this.isPermanentRedirect(feed, null, channel)) {
       return [];
     }
 
-    aFeed.title = aFeed.title ||
-                  this.getRDFTargetValue(ds, channel, FeedUtils.RSS_TITLE) ||
-                  aFeed.url;
-    aFeed.description = this.getRDFTargetValueFormatted(ds, channel, FeedUtils.RSS_DESCRIPTION) ||
-                        "";
-    aFeed.link = this.validLink(this.getRDFTargetValue(ds, channel, FeedUtils.RSS_LINK)) ||
-                 aFeed.url;
+    let titleNode = this.childByTagNameNS(channel, FeedUtils.RSS_NS, "title");
+    // If user entered a title manually, retain it.
+    feed.title = feed.title || this.getNodeValue(titleNode) || feed.url;
 
-    if (!(aFeed.title || aFeed.description) || !aFeed.link) {
+    let descNode = this.childByTagNameNS(channel, FeedUtils.RSS_NS, "description");
+    feed.description = this.getNodeValueFormatted(descNode) || "";
+
+    let linkNode = this.childByTagNameNS(channel, FeedUtils.RSS_NS, "link");
+    feed.link = this.validLink(this.getNodeValue(linkNode)) || feed.url;
+
+    if (!(feed.title || feed.description) || !feed.link) {
       FeedUtils.log.error("FeedParser.parseAsRSS1: missing mandatory element " +
                           "<title> and <description>, or <link>");
-      aFeed.onParseError(aFeed);
+      feed.onParseError(feed);
       return [];
     }
 
-    if (!aFeed.parseItems) {
+    // If we're only interested in the overall feed description, we're done.
+    if (!feed.parseItems) {
       return [];
     }
 
-    this.findSyUpdateTags(aFeed, channel, ds);
+    this.findSyUpdateTags(feed, channel);
 
-    aFeed.invalidateItems();
+    feed.invalidateItems();
 
-    // Ignore the <items> list and just get the <item>s.
-    let items = ds.GetSources(FeedUtils.RDF_TYPE, FeedUtils.RSS_ITEM, true);
+    // Now process all the individual items in the feed.
+    let itemNodes = doc.getElementsByTagNameNS(FeedUtils.RSS_NS, "item");
+    itemNodes = itemNodes ? itemNodes : [];
 
-    while (items.hasMoreElements()) {
-      let itemResource = items.getNext().QueryInterface(Ci.nsIRDFResource);
+    for (let itemNode of itemNodes) {
       let item = new FeedItem();
-      item.feed = aFeed;
+      item.feed = feed;
 
       // Prefer the value of the link tag to the item URI since the URI could be
       // a relative URN.
-      let uri = itemResource.ValueUTF8;
-      let link = this.validLink(this.getRDFTargetValue(ds, itemResource, FeedUtils.RSS_LINK));
-      item.url = link || uri;
-      item.description = this.getRDFTargetValueFormatted(ds, itemResource,
-                                                         FeedUtils.RSS_DESCRIPTION);
-      item.title = this.getRDFTargetValue(ds, itemResource, FeedUtils.RSS_TITLE) ||
-                   this.getRDFTargetValue(ds, itemResource, FeedUtils.DC_SUBJECT) ||
-                   (item.description ?
-                     (this.stripTags(item.description).substr(0, 150)) : null);
+      let itemURI = itemNode.getAttribute("about") || "";
+      itemURI = this.removeUnprintableASCII(itemURI.trim());
+      let linkNode = this.childByTagNameNS(itemNode, FeedUtils.RSS_NS, "link");
+      item.id = this.getNodeValue(linkNode) || itemURI;
+      item.url = this.validLink(item.id);
+
+      let descNode = this.childByTagNameNS(itemNode, FeedUtils.RSS_NS, "description");
+      item.description = this.getNodeValueFormatted(descNode);
+
+      let titleNode = this.childByTagNameNS(itemNode, FeedUtils.RSS_NS, "title");
+      let subjectNode = this.childByTagNameNS(itemNode, FeedUtils.DC_NS, "subject");
+
+      item.title = this.getNodeValue(titleNode) || this.getNodeValue(subjectNode);
+      if (!item.title && item.description) {
+        item.title = this.stripTags(item.description).substr(0, 150);
+      }
       if (!item.url || !item.title) {
         FeedUtils.log.info("FeedParser.parseAsRSS1: <item> missing mandatory " +
                            "element <item rdf:about> and <link>, or <title> and " +
@@ -386,19 +396,21 @@ FeedParser.prototype = {
         continue;
       }
 
-      item.id = item.url;
-      item.url = this.validLink(item.url);
 
-      let author = this.getRDFTargetValue(ds, itemResource, FeedUtils.DC_CREATOR) ||
-                   this.getRDFTargetValue(ds, channel, FeedUtils.DC_CREATOR) ||
-                   aFeed.title;
+      // TODO XXX: ignores multiple authors.
+      let authorNode = this.childByTagNameNS(itemNode, FeedUtils.DC_NS, "creator");
+      let channelCreatorNode = this.childByTagNameNS(channel, FeedUtils.DC_NS, "creator");
+      let author = this.getNodeValue(authorNode) ||
+                   this.getNodeValue(channelCreatorNode) ||
+                   feed.title;
       author = this.cleanAuthorName(author);
       item.author = author ? ["<" + author + ">"] : item.author;
 
-      item.date = this.getRDFTargetValue(ds, itemResource, FeedUtils.DC_DATE) ||
-                  item.date;
-      item.content = this.getRDFTargetValueFormatted(ds, itemResource,
-                                                     FeedUtils.RSS_CONTENT_ENCODED);
+      let dateNode = this.childByTagNameNS(itemNode, FeedUtils.DC_NS, "date");
+      item.date = this.getNodeValue(dateNode) || item.date;
+
+      let contentNode = this.childByTagNameNS(itemNode, FeedUtils.RSS_CONTENT_NS, "encoded");
+      item.content = this.getNodeValueFormatted(contentNode);
 
       this.parsedItems.push(item);
     }
@@ -417,7 +429,7 @@ FeedParser.prototype = {
       return [];
     }
 
-    if (this.isPermanentRedirect(aFeed, null, channel, null)) {
+    if (this.isPermanentRedirect(aFeed, null, channel)) {
       return [];
     }
 
@@ -556,7 +568,7 @@ FeedParser.prototype = {
       return [];
     }
 
-    if (this.isPermanentRedirect(aFeed, null, channel, null)) {
+    if (this.isPermanentRedirect(aFeed, null, channel)) {
       return [];
     }
 
@@ -779,7 +791,7 @@ FeedParser.prototype = {
     return this.parsedItems;
   },
 
-  isPermanentRedirect(aFeed, aRedirDocChannel, aFeedChannel, aDS) {
+  isPermanentRedirect(aFeed, aRedirDocChannel, aFeedChannel) {
     // If subscribing to a new feed, do not check redirect tags.
     if (!aFeed.downloadCallback || aFeed.downloadCallback.mSubscribeMode) {
       return false;
@@ -798,13 +810,8 @@ FeedParser.prototype = {
     // Check for <itunes:new-feed-url> tag.
     if (aFeedChannel) {
       tagName = "new-feed-url";
-      if (aDS) {
-        tags = FeedUtils.rdf.GetResource(FeedUtils.ITUNES_NS + tagName);
-        newUrl = this.getRDFTargetValue(aDS, aFeedChannel, tags);
-      } else {
-        tags = this.childrenByTagNameNS(aFeedChannel, FeedUtils.ITUNES_NS, tagName);
-        newUrl = this.getNodeValue(tags ? tags[0] : null);
-      }
+      tags = this.childrenByTagNameNS(aFeedChannel, FeedUtils.ITUNES_NS, tagName);
+      newUrl = this.getNodeValue(tags ? tags[0] : null);
       tagName = "itunes:" + tagName;
     }
 
@@ -875,45 +882,6 @@ FeedParser.prototype = {
     FeedUtils.log.trace("FeedParser.cleanAuthor: author2 - " + author);
 
     return author;
-  },
-
-  getRDFTargetValue(ds, source, property) {
-    let nodeValue = this.getRDFTargetValueRaw(ds, source, property);
-    if (!nodeValue) {
-      return null;
-    }
-
-    nodeValue = nodeValue.replace(/[\n\r\t]+/g, " ");
-    return this.removeUnprintableASCII(nodeValue);
-  },
-
-  getRDFTargetValueFormatted(ds, source, property) {
-    let nodeValue = this.getRDFTargetValueRaw(ds, source, property);
-    if (!nodeValue) {
-      return null;
-    }
-
-    return this.removeUnprintableASCIIexCRLFTAB(nodeValue);
-  },
-
-  getRDFTargetValueRaw(ds, source, property) {
-    let node = ds.GetTarget(source, property, true);
-    if (node) {
-      try {
-        node = node.QueryInterface(Ci.nsIRDFLiteral);
-        if (node) {
-          return node.Value.trim();
-        }
-      } catch (ex) {
-        // If the RDF was bogus, do nothing.  Rethrow if it's some other problem.
-        if (!((ex instanceof Ci.nsIXPCException) &&
-              ex.result == Cr.NS_ERROR_NO_INTERFACE)) {
-          throw new Error("FeedParser.getRDFTargetValue: " + ex);
-        }
-      }
-    }
-
-    return null;
   },
 
   /**
@@ -998,6 +966,22 @@ FeedParser.prototype = {
   },
 
   /**
+   * Returns first matching descendent of element, or null.
+   *
+   * @param {Element} element  - DOM element to search.
+   * @param {String} namespace - Namespace of the search tag.
+   * @param {String} tagName   - Tag to search for.
+   * @returns {Element|null}   - Matching element, or null.
+   */
+  childByTagNameNS(element, namespace, tagName) {
+    if (!element) {
+      return null;
+    }
+    // Handily, item() returns null for out-of-bounds access.
+    return element.getElementsByTagNameNS(namespace, tagName).item(0);
+  },
+
+  /**
    * Ensure <link> type tags start with http[s]://, ftp:// or magnet:
    * for values stored in mail headers (content-base and remote enclosures),
    * particularly to prevent data: uris, javascript, and other spoofing.
@@ -1005,7 +989,6 @@ FeedParser.prototype = {
    * @param {String} link  - An intended http url string.
    * @returns {String}     - A clean string starting with http, ftp or magnet,
    *                         else null.
-   * @returns {String} or null
    */
   validLink(link) {
     if (/^((https?|ftp):\/\/|magnet:)/.test(link)) {
@@ -1058,29 +1041,18 @@ FeedParser.prototype = {
    * Find RSS Syndication extension tags.
    * http://web.resource.org/rss/1.0/modules/syndication/
    *
-   * @param {Feed} aFeed           - the feed object.
-   * @param {Node} aChannel        - dom node for the <channel>.
-   * @param {nsIRDFDataSource} aDS - passed in for rdf feeds only.
+   * @param {Feed} aFeed            - the feed object.
+   * @param {Node|String} aChannel  - dom node for the <channel>.
    * @returns {void}
    */
-  findSyUpdateTags(aFeed, aChannel, aDS) {
+  findSyUpdateTags(aFeed, aChannel) {
     let tag, updatePeriod, updateFrequency, updateBase;
-    if (aDS) {
-      // For rdf feeds.
-      tag = FeedUtils.rdf.GetResource(FeedUtils.RSS_SY_NS + "updatePeriod");
-      updatePeriod = this.getRDFTargetValue(aDS, aChannel, tag) || "";
-      tag = FeedUtils.rdf.GetResource(FeedUtils.RSS_SY_NS + "updateFrequency");
-      updateFrequency = this.getRDFTargetValue(aDS, aChannel, tag) || "";
-      tag = FeedUtils.rdf.GetResource(FeedUtils.RSS_SY_NS + "updateBase");
-      updateBase = this.getRDFTargetValue(aDS, aChannel, tag) || "";
-    } else {
-      tag = this.childrenByTagNameNS(aChannel, FeedUtils.RSS_SY_NS, "updatePeriod");
-      updatePeriod = this.getNodeValue(tag ? tag[0] : null) || "";
-      tag = this.childrenByTagNameNS(aChannel, FeedUtils.RSS_SY_NS, "updateFrequency");
-      updateFrequency = this.getNodeValue(tag ? tag[0] : null) || "";
-      tag = this.childrenByTagNameNS(aChannel, FeedUtils.RSS_SY_NS, "updateBase");
-      updateBase = this.getNodeValue(tag ? tag[0] : null) || "";
-    }
+    tag = this.childrenByTagNameNS(aChannel, FeedUtils.RSS_SY_NS, "updatePeriod");
+    updatePeriod = this.getNodeValue(tag ? tag[0] : null) || "";
+    tag = this.childrenByTagNameNS(aChannel, FeedUtils.RSS_SY_NS, "updateFrequency");
+    updateFrequency = this.getNodeValue(tag ? tag[0] : null) || "";
+    tag = this.childrenByTagNameNS(aChannel, FeedUtils.RSS_SY_NS, "updateBase");
+    updateBase = this.getNodeValue(tag ? tag[0] : null) || "";
     FeedUtils.log.debug("FeedParser.findSyUpdateTags: updatePeriod:updateFrequency - " +
                         updatePeriod + ":" + updateFrequency);
 
