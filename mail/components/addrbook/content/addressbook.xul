@@ -46,6 +46,7 @@
 <script type="application/javascript" src="chrome://messenger/content/mailCore.js"/>
 <script type="application/javascript" src="chrome://messenger/content/mail-compacttheme.js"/>
 <script type="application/javascript" src="chrome://messenger/content/addressbook/addressbook.js"/>
+<script type="application/javascript" src="chrome://messenger/content/addressbook/map-list.js"/>
 <script type="application/javascript" src="chrome://messenger/content/addressbook/abCommon.js"/>
 <script type="application/javascript" src="chrome://communicator/content/contentAreaClick.js"/>
 <script type="application/javascript" src="chrome://global/content/printUtils.js"/>
@@ -817,7 +818,7 @@
                                 type="menu-button"
                                 oncommand="openLinkWithUrl(this.firstChild.mapURL);"
                                 tooltiptext="&mapIt.tooltip;">
-                          <menupopup class="map-list"/>
+                          <menupopup is="map-list"/>
                         </button>
                       </vbox>
                     </hbox>
@@ -886,7 +887,7 @@
                                 type="menu-button"
                                 oncommand="openLinkWithUrl(this.firstChild.mapURL);"
                                 tooltiptext="&mapIt.tooltip;">
-                          <menupopup class="map-list"/>
+                          <menupopup is="map-list"/>
                         </button>
                       </vbox>
                     </hbox>

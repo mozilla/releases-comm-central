@@ -79,10 +79,6 @@ menupopup[type="folder"] {
   -moz-binding: url("chrome://messenger/content/addressbook/addrbookWidgets.xml#addrbooks-menupopup");
 }
 
-.map-list {
-  -moz-binding: url("chrome://messenger/content/addressbook/addrbookWidgets.xml#map-list");
-}
-
 .chromeclass-toolbar {
   overflow-x: hidden;
 }
