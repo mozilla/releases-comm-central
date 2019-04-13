@@ -462,7 +462,7 @@ module.exports = {
                 /* loop indices */ "i", "j", "k", "n",
                 /* coordinates */ "x", "y",
                 /* regexes */ "re",
-                /* known words */ "rc", "rv", "id", "OS", "os", "db",
+                /* known words */ "rc", "rv", "id", "OS", "os", "db", "is",
                 /* mail/calendar words */ "to", "cc",
                 /* Components */ "Ci", "Cc", "Cu", "Cr",
             ]

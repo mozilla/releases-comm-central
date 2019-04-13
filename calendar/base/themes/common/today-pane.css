@@ -264,20 +264,18 @@
   color: var(--sidebar-text-color);
 }
 
-agenda-checkbox-richlist-item {
-  -moz-binding: url("chrome://calendar/content/agenda-listbox.xml#agenda-checkbox-richlist-item");
+agenda-header-richlist-item {
   -moz-user-focus: normal;
 }
 
 agenda-richlist-item {
-  -moz-binding: url("chrome://calendar/content/agenda-listbox.xml#agenda-richlist-item");
   -moz-user-focus: normal;
 }
 
 agenda-allday-richlist-item {
-  -moz-binding: url("chrome://calendar/content/agenda-listbox.xml#agenda-allday-richlist-item");
   -moz-user-focus: normal;
 }
+
 .wrap {
   overflow: visible;
 }

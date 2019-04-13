@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from ../../lightning/content/messenger-overlay-sidebar.js */
-/* import-globals-from agenda-listbox.js */
+/* import-globals-from agenda-listbox-utils.js */
 /* import-globals-from calendar-chrome-startup.js */
 /* import-globals-from calendar-unifinder-todo.js */
 

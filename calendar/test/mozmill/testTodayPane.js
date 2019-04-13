@@ -92,7 +92,7 @@ function testTodayPane() {
     controller.assertValue(eid("datevalue-label"), (new Date()).getDate());
 
     let expandArrow = `
-        anon({"anonid":"agenda-checkbox-widget"})/anon({"class":"checkbox-check"})
+        anon({"class":"agenda-checkbox treenode-checkbox"})/anon({"class":"checkbox-check"})
     `;
     // Tomorrow and soon are collapsed by default.
     controller.click(lookup(`${AGENDA_LISTBOX}/id("tomorrow-header")/${expandArrow}`));
@@ -109,8 +109,8 @@ function testTodayPane() {
     let startTime = dateFormatter.formatTime(probeDate);
 
     let eventStart = `
-        anon({"anonid":"agenda-container-box"})/anon({"anonid":"agenda-description"})/[0]/
-        anon({"anonid":"agenda-event-start"})
+        anon({"class":"agenda-container-box"})/anon({"class":"agenda-description"})/[0]/
+        anon({"class":"agenda-event-start"})
     `;
     controller.assertText(lookup(
         `${AGENDA_LISTBOX}/[2]/${eventStart}`), startTime + " Today's Event"
@@ -132,8 +132,8 @@ function testTodayPane() {
 
     // Future event's title.
     controller.assertText(lookup(`
-        ${AGENDA_LISTBOX}/[6]/anon({"anonid":"agenda-container-box"})/
-        anon({"anonid":"agenda-description"})/anon({"anonid":"agenda-event-title"})
+        ${AGENDA_LISTBOX}/[6]/anon({"class":"agenda-container-box"})/
+        anon({"class":"agenda-description"})/anon({"class":"agenda-event-title"})
     `), "Future Event");
 
     // Delete events.

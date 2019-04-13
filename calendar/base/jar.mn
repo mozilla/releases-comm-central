@@ -6,8 +6,8 @@
 calendar.jar:
 % resource calendar .
 % content calendar %content/calendar/
+    content/calendar/agenda-listbox-utils.js               (content/agenda-listbox-utils.js)
     content/calendar/agenda-listbox.js                     (content/agenda-listbox.js)
-    content/calendar/agenda-listbox.xml                    (content/agenda-listbox.xml)
     content/calendar/calendar-bindings.css                 (content/calendar-bindings.css)
     content/calendar/calendar-calendars-list.xul           (content/calendar-calendars-list.xul)
     content/calendar/calendar-chrome-startup.js            (content/calendar-chrome-startup.js)
