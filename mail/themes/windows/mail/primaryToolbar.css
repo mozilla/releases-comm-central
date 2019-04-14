@@ -85,7 +85,6 @@
      * we have to reorder this element to come last, hence the
      * ordinal group value (see bug 853415). */
     -moz-box-ordinal-group: 1001;
-    box-shadow: 0 0 50px 8px ActiveCaption;
     content: "";
     display: -moz-box;
     height: 0;
@@ -94,11 +93,6 @@
     pointer-events: none;
     top: 100%;
     width: -moz-available;
-  }
-
-  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
-  #tabs-toolbar:not(:-moz-lwtheme):-moz-window-inactive::after {
-    box-shadow: 0 0 50px 8px InactiveCaption;
   }
 
   #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
