@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported onLoadLightningItemPanel, onAccept, onCancel, onCommandSave,
+/* exported onLoadLightningItemPanel, onCancel, onCommandSave,
  *          onCommandDeleteItem, editAttendees, editPrivacy, editPriority,
  *          editStatus, editShowTimeAs, updateShowTimeAs, editToDoStatus,
  *          postponeTask, toggleTimezoneLinks, toggleLink, attachURL,
@@ -61,9 +61,6 @@ if (!gTabmail) {
         goUpdateCommand("cmd_paste");
     };
 }
-
-document.addEventListener("dialogaccept", onAccept);
-document.addEventListener("dialogcancel", onCancel);
 
 // Stores the ids of the iframes of currently open event/task tabs, used
 // when window is closed to prompt for saving changes.
@@ -377,13 +374,23 @@ function initializeItemMenu(aLabel, aAccessKey) {
 /**
  * Handler for when dialog is accepted.
  */
-function onAccept() {
+document.addEventListener("dialogaccept", () => {
     sendMessage({ command: "onAccept" });
     return false;
-}
+});
 
 /**
- * Handler for when dialog is canceled.
+ * Handler for when dialog is cancelled. (calendar.item.editInTab = false)
+ */
+document.addEventListener("dialogcancel", (event) => {
+    sendMessage({ command: "onCancel" });
+    // We prevent closing of a window until we
+    // can ask the user about saving any unsaved changes.
+    event.preventDefault();
+});
+
+/**
+ * Handler for when tab is cancelled. (calendar.item.editInTab = true)
  *
  * @param {string} aIframeId  The id of the iframe
  */

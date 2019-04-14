@@ -6,9 +6,6 @@
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
-document.addEventListener("dialogaccept", onAccept);
-document.addEventListener("dialogcancel", onCancel);
-
 function onLoad() {
     let extension = window.arguments[0].extension;
     document.getElementById("provider-name-label").value = extension.name;
@@ -19,7 +16,7 @@ function onLoad() {
     document.getElementById("calendar-list-tree").calendars = calendars;
 }
 
-function onAccept() {
+document.addEventListener("dialogaccept", () => {
     // Tell our caller that the extension should be uninstalled.
     let args = window.arguments[0];
     args.shouldUninstall = true;
@@ -29,9 +26,9 @@ function onAccept() {
     let calendars = calendarList.selectedCalendars || [];
     let calMgr = cal.getCalendarManager();
     calendars.forEach(calMgr.unregisterCalendar, calMgr);
-}
+});
 
-function onCancel() {
+document.addEventListener("dialogcancel", () => {
     let args = window.arguments[0];
     args.shouldUninstall = false;
-}
+});

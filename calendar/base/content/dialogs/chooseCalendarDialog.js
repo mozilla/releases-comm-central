@@ -2,14 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported loadCalendars, doOK, doExtra1 */
+/* exported loadCalendars */
 
 /* import-globals-from ../calendar-ui-utils.js */
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-
-document.addEventListener("dialogaccept", doOK);
-document.addEventListener("dialogextra1", doExtra1);
 
 function loadCalendars() {
     const calendarManager = Cc["@mozilla.org/calendar/manager;1"]
@@ -82,13 +79,13 @@ function loadCalendars() {
     window.sizeToContent();
 }
 
-function doOK() {
+document.addEventListener("dialogaccept", () => {
     let listbox = document.getElementById("calendar-list");
     window.arguments[0].onOk(listbox.selectedItem.calendar);
-}
+});
 
-function doExtra1() {
+document.addEventListener("dialogextra1", () => {
     let listbox = document.getElementById("calendar-list");
     window.arguments[0].onExtra1(listbox.selectedItem.calendar);
     window.close();
-}
+});

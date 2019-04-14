@@ -6,8 +6,6 @@
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
-document.addEventListener("dialogaccept", onAccept);
-
 /**
  * Cancels any pending search operations.
  */
@@ -66,10 +64,8 @@ function onTextBoxKeyPress(event) {
 
 /**
  * Handler function to be called when the accept button is pressed.
- *
- * @return      Returns true if the window should be closed
  */
-function onAccept() {
+document.addEventListener("dialogaccept", () => {
     let richListBox = document.getElementById("subscriptions-listbox");
     let rowCount = richListBox.getRowCount();
     for (let i = 0; i < rowCount; i++) {
@@ -84,7 +80,7 @@ function onAccept() {
             }
         }
     }
-}
+});
 
 /**
  * Performs the search for subscriptions, canceling any pending searches.

@@ -2,11 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported editCategoryLoad, doOK, categoryNameChanged, clickColor, delay */
+/* exported editCategoryLoad, categoryNameChanged, clickColor, delay */
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-
-document.addEventListener("dialogaccept", doOK);
 
 // Global variable, set to true if the user has picked a custom color.
 var customColorSelected = false;
@@ -31,14 +29,14 @@ function editCategoryLoad() {
  * Handler function to be called when the category dialog is accepted and
  * the opener should further process the selected name and color
  */
-function doOK() {
+document.addEventListener("dialogaccept", () => {
     let color = document.getElementById("useColor").checked
                     ? document.getElementById("categoryColor").value
                     : null;
 
     let categoryName = document.getElementById("categoryName").value;
     window.opener.gCategoriesPane.saveCategory(categoryName, color);
-}
+});
 
 /**
  * Handler function to be called when the category name changed

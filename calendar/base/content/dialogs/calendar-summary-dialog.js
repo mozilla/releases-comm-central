@@ -12,9 +12,6 @@
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { recurrenceRule2String } = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
 
-document.addEventListener("dialogaccept", onAccept);
-document.addEventListener("dialogcancel", onCancel);
-
 /**
  * Sets up the summary dialog, setting all needed fields on the dialog from the
  * item received in the window arguments.
@@ -268,7 +265,7 @@ function onUnload() {
 /**
  * Saves any changed information to the item.
  */
-function onAccept() {
+document.addEventListener("dialogaccept", () => {
     dispose();
     if (window.readOnly) {
         return;
@@ -285,14 +282,14 @@ function onAccept() {
     adaptScheduleAgent(newItem);
     args.onOk(newItem, calendar, oldItem, null, respMode);
     window.calendarItem = newItem;
-}
+});
 
 /**
  * Called when closing the dialog and any changes should be thrown away.
  */
-function onCancel() {
+document.addEventListener("dialogcancel", () => {
     dispose();
-}
+});
 
 /**
  * Updates the user's partstat, sends a notification if requested and closes the

@@ -8,8 +8,6 @@
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
-document.addEventListener("dialogaccept", onAccept);
-
 /**
  * Sets up the timezone dialog from the window arguments, also setting up all
  * dialog controls from the window's dates.
@@ -119,16 +117,15 @@ function updateTimezone() {
     let image = document.getElementById("highlighter");
     image.setAttribute("tzid", standardTZOffset);
 }
+
 /**
  * Handler function to be called when the accept button is pressed.
- *
- * @return      Returns true if the window should be closed
  */
-function onAccept() {
+document.addEventListener("dialogaccept", () => {
     let menulist = document.getElementById("timezone-menulist");
     let menuitem = menulist.selectedItem;
     let timezoneString = menuitem.getAttribute("value");
     let timezone = window.tzProvider.getTimezone(timezoneString);
     let datetime = window.time.getInTimezone(timezone);
     window.onAcceptCallback(datetime);
-}
+});

@@ -8,9 +8,6 @@
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
-document.addEventListener("dialogaccept", onAccept);
-document.addEventListener("dialogcancel", onCancel);
-
 /**
  * Sets up the invitations dialog from the window arguments, retrieves the
  * invitations from the invitations manager.
@@ -66,24 +63,22 @@ function onUnload() {
 
 /**
  * Handler function to be called when the accept button is pressed.
- *
- * @return      Returns true if the window should be closed
  */
-function onAccept() {
+document.addEventListener("dialogaccept", () => {
     let args = window.arguments[0];
     fillJobQueue(args.queue);
     args.invitationsManager.processJobQueue(args.queue, args.finishedCallBack);
-}
+});
 
 /**
  * Handler function to be called when the cancel button is pressed.
  */
-function onCancel() {
+document.addEventListener("dialogcancel", () => {
     let args = window.arguments[0];
     if (args.finishedCallBack) {
         args.finishedCallBack();
     }
-}
+});
 
 /**
  * Fills the job queue from the invitations-listbox's items. The job queue

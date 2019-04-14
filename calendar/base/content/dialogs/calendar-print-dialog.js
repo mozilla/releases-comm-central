@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported loadCalendarPrintDialog, printAndClose, onDatePick */
+/* exported loadCalendarPrintDialog, onDatePick */
 
 /* import-globals-from ../../../../../toolkit/components/printing/content/printUtils.js */
 /* import-globals-from ../calendar-ui-utils.js */
@@ -11,8 +11,6 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 var printContent = "";
-
-document.addEventListener("dialogaccept", printAndClose);
 
 /**
  * Gets the calendar view from the opening window
@@ -247,7 +245,7 @@ function refreshHtml(finishFunc) {
 /**
  * Prints the document and then closes the window
  */
-function printAndClose(event) {
+document.addEventListener("dialogaccept", (event) => {
     refreshHtml(() => {
         let printSettings = PrintUtils.getPrintSettings();
         // Evicts "about:blank" header
@@ -284,7 +282,7 @@ function printAndClose(event) {
         }
     });
     event.preventDefault(); // leave open
-}
+});
 
 /**
  * Called when once a date has been selected in the datepicker.

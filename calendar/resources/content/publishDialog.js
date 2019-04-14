@@ -9,8 +9,6 @@
 var gOnOkFunction;   // function to be called when user clicks OK
 var gPublishObject;
 
-document.addEventListener("dialogaccept", onOKCommand);
-
 /**
 *   Called when the dialog is loaded.
 */
@@ -49,6 +47,7 @@ function onOKCommand(event) {
     document.removeEventListener("dialogaccept", onOKCommand);
     event.preventDefault();
 }
+document.addEventListener("dialogaccept", onOKCommand);
 
 function checkURLField() {
     if (document.getElementById("publish-remotePath-textbox").value.length == 0) {

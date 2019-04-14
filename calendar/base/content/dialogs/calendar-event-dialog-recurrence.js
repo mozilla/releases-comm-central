@@ -15,9 +15,6 @@ var gStartTime = null;
 var gEndTime = null;
 var gUntilDate = null;
 
-document.addEventListener("dialogaccept", onAccept);
-document.addEventListener("dialogcancel", onCancel);
-
 /**
  * Object wrapping the methods and properties of recurrence-preview binding.
  */
@@ -761,10 +758,8 @@ function onSave(item) {
 
 /**
  * Handler function to be called when the accept button is pressed.
- *
- * @return      Returns true if the window should be closed
  */
-function onAccept(event) {
+document.addEventListener("dialogaccept", (event) => {
     let args = window.arguments[0];
     let item = args.calendarEvent;
     args.onOk(onSave(item));
@@ -772,17 +767,15 @@ function onAccept(event) {
     if (checkUntilDate.warning) {
         event.preventDefault();
     }
-}
+});
 
 /**
  * Handler function to be called when the Cancel button is pressed.
- *
- * @return      Returns true if the window should be closed
  */
-function onCancel() {
+document.addEventListener("dialogcancel", () => {
     // Don't show any warning if the dialog must be closed.
     checkUntilDate.warning = false;
-}
+});
 
 /**
  * Handler function called when the calendar is changed (also for initial

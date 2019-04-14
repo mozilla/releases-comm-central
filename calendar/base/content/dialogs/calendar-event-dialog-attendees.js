@@ -26,8 +26,6 @@ var gUndoStack = [];
 var gForce24Hours = false;
 var gZoomFactor = 100;
 
-document.addEventListener("dialogaccept", onAccept);
-
 /**
  * Sets up the attendee dialog
  */
@@ -122,17 +120,15 @@ function onLoad() {
 /**
  * This function should be called when the accept button was pressed on the
  * attendee dialog. Calls the accept function specified in the window arguments.
- *
- * @return      Returns true, if the dialog should be closed.
  */
-function onAccept() {
+document.addEventListener("dialogaccept", () => {
     let attendees = document.getElementById("attendees-list");
     window.arguments[0].onOk(
         attendees.attendees,
         attendees.organizer,
         gStartDate.getInTimezone(gStartTimezone),
         gEndDate.getInTimezone(gEndTimezone));
-}
+});
 
 /**
  * Function called when zoom buttons (+/-) are clicked.

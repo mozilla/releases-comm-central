@@ -14,9 +14,6 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var allowedActionsMap = {};
 var suppressListUpdate = false;
 
-document.addEventListener("dialogaccept", onAccept);
-document.addEventListener("dialogcancel", onCancel);
-
 /**
  * Sets up the reminder dialog.
  */
@@ -456,22 +453,20 @@ function onRemoveReminder() {
 
 /**
  * Handler function to be called when the accept button is pressed.
- *
- * @return      Returns true if the window should be closed
  */
-function onAccept() {
+document.addEventListener("dialogaccept", () => {
     let listbox = document.getElementById("reminder-listbox");
     let reminders = Array.from(listbox.childNodes).map(node => node.reminder);
     if (window.arguments[0].onOk) {
         window.arguments[0].onOk(reminders);
     }
-}
+});
 
 /**
  * Handler function to be called when the cancel button is pressed.
  */
-function onCancel() {
+document.addEventListener("dialogcancel", () => {
     if (window.arguments[0].onCancel) {
         window.arguments[0].onCancel();
     }
-}
+});

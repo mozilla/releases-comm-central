@@ -2,15 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported onLoad, onAcceptDialog, unsubscribeCalendar */
+/* exported onLoad */
 
 /* import-globals-from ../calendar-ui-utils.js */
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-
-document.addEventListener("dialogextra1", unsubscribeCalendar);
-document.addEventListener("dialogaccept", onAcceptDialog);
 
 /**
  * The calendar to modify, is retrieved from window.arguments[0].calendar
@@ -75,8 +72,6 @@ function onLoad() {
 
 /**
  * Called when the dialog is accepted, to save settings.
- *
- * @return      Returns true if the dialog should be closed.
  */
 function onAcceptDialog() {
     // Save calendar name
@@ -109,6 +104,7 @@ function onAcceptDialog() {
         gCalendar.deleteProperty("auto-enabled");
     }
 }
+document.addEventListener("dialogaccept", onAcceptDialog);
 
 /**
  * When the calendar is disabled, we need to disable a number of other elements
@@ -125,12 +121,12 @@ function setupEnabledCheckbox() {
  * Called to unsubscribe from a calendar. The button for this function is not
  * shown unless the provider for the calendar is missing (i.e force-disabled)
  */
-function unsubscribeCalendar() {
+document.addEventListener("dialogextra1", () => {
     let calmgr = cal.getCalendarManager();
 
     calmgr.unregisterCalendar(gCalendar);
     window.close();
-}
+});
 
 function initRefreshInterval() {
     function createMenuItem(minutes) {
