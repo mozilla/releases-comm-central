@@ -12,5 +12,3 @@ messenger.jar:
     content/messenger/messengercompose/msgComposeContextOverlay.xul            (content/msgComposeContextOverlay.xul)
     content/messenger/messengercompose/MsgComposeCommands.js                   (content/MsgComposeCommands.js)
     content/messenger/messengercompose/addressingWidgetOverlay.js              (content/addressingWidgetOverlay.js)
-    content/messenger/messengercompose/addressingWidgetOverlay.xul             (content/addressingWidgetOverlay.xul)
-    content/messenger/messengercompose/mailComposeExtrasOverlay.xul            (content/mailComposeExtrasOverlay.xul)

@@ -13,12 +13,10 @@
 <?xul-overlay href="chrome://communicator/content/sidebar/sidebarOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/contentAreaContextOverlay.xul"?>
 <?xul-overlay href="chrome://messenger/content/messengercompose/msgComposeContextOverlay.xul"?>
-<?xul-overlay href="chrome://messenger/content/messengercompose/addressingWidgetOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/utilityOverlay.xul"?>
 <?xul-overlay href="chrome://editor/content/editorOverlay.xul"?>
 <?xul-overlay href="chrome://editor/content/editorSmileyOverlay.xul"?>
 <?xul-overlay href="chrome://messenger/content/messengercompose/mailComposeOverlay.xul"?>
-<?xul-overlay href="chrome://messenger/content/messengercompose/mailComposeExtrasOverlay.xul"?>
 <?xul-overlay href="chrome://messenger/content/mailOverlay.xul"?>
 <?xul-overlay href="chrome://messenger/content/platformMailnewsOverlay.xul"?>
 
@@ -68,9 +66,11 @@
   <script type="application/javascript" src="chrome://messenger/content/mail-offline.js"/>
   <script type="application/javascript" src="chrome://editor/content/editor.js"/>
   <script type="application/javascript" src="chrome://messenger/content/messengercompose/MsgComposeCommands.js"/>
+  <script type="application/javascript" src="chrome://messenger/content/messengercompose/addressingWidgetOverlay.js"/>
 
   <!-- drag and drop -->
   <script type="application/javascript" src="chrome://global/content/nsDragAndDrop.js"/>
+  <script type="application/javascript" src="chrome://messenger/content/addressbook/abDragDrop.js"/>
 
   <commandset id="composeCommands">
     <commandset id="msgComposeCommandUpdate"
@@ -563,7 +563,60 @@
               <menupopup id="msgIdentityPopup"/>
             </menulist>
           </hbox>
-          <listbox id="addressingWidget" flex="1"/>
+          <!-- Addressing Widget -->
+          <listbox id="addressingWidget" flex="1"
+                   seltype="multiple" rows="4"
+                   onkeydown="awKeyDown(event, this);"
+                   onclick="awClickEmptySpace(event.originalTarget, true);"
+                   ondragover="DragAddressOverTargetControl(event);"
+                   ondrop="DropAddressOverTargetControl(event);">
+
+            <listcols>
+              <listcol id="typecol-addressingWidget"/>
+              <listcol id="textcol-addressingWidget" flex="1"/>
+            </listcols>
+
+            <listitem class="addressingWidgetItem" allowevents="true">
+              <listcell class="addressingWidgetCell" align="stretch">
+                <menulist id="addressCol1#1" disableonsend="true"
+                          class="aw-menulist menulist-compact" flex="1"
+                          onkeypress="awMenulistKeyPress(event, this);"
+                          oncommand="gContentChanged=true; awSetAutoComplete(this.id.slice(this.id.lastIndexOf('#') + 1));">
+                  <menupopup>
+                    <menuitem value="addr_to" label="&toAddr.label;"/>
+                    <menuitem value="addr_cc" label="&ccAddr.label;"/>
+                    <menuitem value="addr_bcc" label="&bccAddr.label;"/>
+                    <menuitem value="addr_reply" label="&replyAddr.label;"/>
+                    <menuitem value="addr_newsgroups"
+                              label="&newsgroupsAddr.label;"/>
+                    <menuitem value="addr_followup"
+                              label="&followupAddr.label;"/>
+                  </menupopup>
+                </menulist>
+              </listcell>
+
+              <listcell class="addressingWidgetCell">
+                <textbox id="addressCol2#1"
+                         class="plain textbox-addressingWidget uri-element"
+                         aria-labelledby="addressCol1#1"
+                         type="autocomplete" flex="1" maxrows="4"
+                         newlines="replacewithcommas"
+                         autocompletesearch="mydomain addrbook ldap news"
+                         timeout="300" autocompletesearchparam="{}"
+                         completedefaultindex="true" forcecomplete="true"
+                         minresultsforpopup="2" ignoreblurwhilesearching="true"
+                         ontextentered="awRecipientTextCommand(eventParam, this);"
+                         onerrorcommand="awRecipientErrorCommand(eventParam, this);"
+                         oninput="gContentChanged=true; setupAutocomplete();"
+                         disableonsend="true"
+                         onkeypress="awRecipientKeyPress(event, this);"
+                         onkeydown="awRecipientKeyDown(event, this);">
+                  <image class="person-icon"
+                         onclick="this.parentNode.select();"/>
+                </textbox>
+              </listcell>
+            </listitem>
+          </listbox>
           <hbox align="center">
             <label value="&subject.label;" accesskey="&subject.accesskey;" control="msgSubject"/>
             <textbox id="msgSubject" flex="1" class="toolbar" disableonsend="true"

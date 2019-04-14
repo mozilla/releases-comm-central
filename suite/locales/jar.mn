@@ -280,7 +280,6 @@
   locale/@AB_CD@/messenger/markByDate.dtd                                   (%chrome/mailnews/markByDate.dtd)
   locale/@AB_CD@/messenger/messenger.dtd                                    (%chrome/mailnews/messenger.dtd)
   locale/@AB_CD@/messenger/messenger.properties                             (%chrome/mailnews/messenger.properties)
-  locale/@AB_CD@/messenger/messengercompose/addressingWidgetOverlay.dtd     (%chrome/mailnews/compose/addressingWidgetOverlay.dtd)
   locale/@AB_CD@/messenger/messengercompose/askSendFormat.dtd               (%chrome/mailnews/compose/askSendFormat.dtd)
   locale/@AB_CD@/messenger/messengercompose/askSendFormat.properties        (%chrome/mailnews/compose/askSendFormat.properties)
   locale/@AB_CD@/messenger/messengercompose/composeMsgs.properties          (%chrome/mailnews/compose/composeMsgs.properties)
