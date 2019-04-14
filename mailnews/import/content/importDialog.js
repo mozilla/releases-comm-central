@@ -609,6 +609,7 @@ function promptForFile(fp) {
     fp.open(rv => {
       if (rv != Ci.nsIFilePicker.returnOK || !fp.file) {
         resolve(null);
+        return;
       }
       resolve(fp.file);
     });
