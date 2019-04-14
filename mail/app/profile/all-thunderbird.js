@@ -398,7 +398,6 @@ pref("view_source.syntax_highlight", false);
 
 pref("toolkit.telemetry.infoURL", "https://www.mozilla.org/thunderbird/legal/privacy/#telemetry");
 
-pref("mousewheel.withcontrolkey.action", 3);
 /////////////////////////////////////////////////////////////////
 // End core all.js pref overrides
 /////////////////////////////////////////////////////////////////

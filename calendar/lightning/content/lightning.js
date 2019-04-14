@@ -123,10 +123,6 @@ pref("calendar.timezone.recent", "[]");
 //     and include a list of locale specific default categories
 pref("calendar.categories.names", "");
 
-// Make sure mouse wheel shift and no key actions to scroll lines.
-pref("mousewheel.withnokey.action", 0);
-pref("mousewheel.withshiftkey.action", 0);
-
 // Disable use of worker threads. Restart needed.
 pref("calendar.threading.disabled", false);
 
