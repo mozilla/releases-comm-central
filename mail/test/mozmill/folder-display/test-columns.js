@@ -335,7 +335,7 @@ function test_column_visibility_persists_through_folder_changes() {
 /**
  * Test that reordering persists through tab changes and folder changes.
  */
-function disabled_test_column_reordering_persists() {
+function test_column_reordering_persists() {
   let tabA = be_in_folder(folderA);
   let tabB = open_folder_in_new_tab(folderB);
 
