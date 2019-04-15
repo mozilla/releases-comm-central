@@ -33,9 +33,6 @@
               flex="1"
               insertbefore="paneAdvanced"
               label="&lightning.preferencesLabel;">
-        <stringbundle id="bundleCalendarPreferences"
-                      src="chrome://calendar/locale/calendar.properties"/>
-
         <tabbox id="calPreferencesTabbox"
                 flex="1">
             <tabs>

@@ -153,16 +153,8 @@ var gChatPane = {
     // XXX todo, persist the last sound directory and pass it in
     fp.init(window, document.getElementById("bundlePreferences")
                             .getString("soundFilePickerTitle"), nsIFilePicker.modeOpen);
-
-    // On Mac, allow AIFF and CAF files too
-    let bundlePrefs = document.getElementById("bundlePreferences");
-    let soundFilesText = bundlePrefs.getString("soundFilesDescription");
-    if (AppConstants.platform == "macosx")
-      fp.appendFilter(soundFilesText, "*.wav; *.aif; *.aiff; *.caf");
-    else if (AppConstants.platform == "linux")
-      fp.appendFilter(soundFilesText, "*.wav; *.ogg");
-    else
-      fp.appendFilter(soundFilesText, "*.wav");
+    fp.appendFilters(Ci.nsIFilePicker.filterAudio);
+    fp.appendFilters(Ci.nsIFilePicker.filterAll);
 
     fp.open(rv => {
       if (rv != nsIFilePicker.returnOK) {

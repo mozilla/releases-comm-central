@@ -97,7 +97,12 @@ calAlarmMonitor.prototype = {
             if (maxAlarmSoundCount > this.mAlarmSoundCount) {
                 // Only ring the alarm sound if we haven't hit the max count.
                 try {
-                    let soundURL = Services.prefs.getStringPref("calendar.alarms.soundURL", null);
+                    let soundURL;
+                    if (Services.prefs.getIntPref("calendar.alarms.soundType", 0) == 0) {
+                        soundURL = "chrome://calendar/content/sound.wav";
+                    } else {
+                        soundURL = Services.prefs.getStringPref("calendar.alarms.soundURL", null);
+                    }
                     if (soundURL && soundURL.length > 0) {
                         soundURL = Services.io.newURI(soundURL);
                         this.mSound.play(soundURL);
