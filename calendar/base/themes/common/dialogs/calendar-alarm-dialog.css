@@ -2,11 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* Bindings */
-calendar-alarm-widget {
-    -moz-binding: url(chrome://calendar/content/widgets/calendar-alarm-widget.xml#calendar-alarm-widget);
-}
-
 /* Alarm dialog styles */
 #alarm-richlist {
     margin: 10px;

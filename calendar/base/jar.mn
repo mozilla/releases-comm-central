@@ -92,7 +92,7 @@ calendar.jar:
     content/calendar/preferences/general.js                (content/preferences/general.js)
     content/calendar/preferences/views.js                  (content/preferences/views.js)
     content/calendar/widgets/minimonth.xml                 (content/widgets/minimonth.xml)
-    content/calendar/widgets/calendar-alarm-widget.xml     (content/widgets/calendar-alarm-widget.xml)
+    content/calendar/widgets/calendar-alarm-widget.js      (content/widgets/calendar-alarm-widget.js)
     content/calendar/widgets/calendar-widgets.xml          (content/widgets/calendar-widgets.xml)
     content/calendar/widgets/calendar-list-tree.xml        (content/widgets/calendar-list-tree.xml)
     content/calendar/calendar-subscriptions-list.xml       (content/widgets/calendar-subscriptions-list.xml)

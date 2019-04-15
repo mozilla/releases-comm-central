@@ -85,7 +85,7 @@ function testAlarmDialog() {
         let { eid: alarmid } = helpersForController(alarm);
         let snoozeAllButton = alarmid("alarm-snooze-all-button");
         let popup = alarmid("alarm-snooze-all-popup").getNode();
-        let menuitems = alarm.window.document.getAnonymousNodes(popup);
+        let menuitems = popup.querySelectorAll(":scope > menuitem");
 
         alarm.waitThenClick(snoozeAllButton);
         menuitems[5].click();

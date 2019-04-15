@@ -27,6 +27,7 @@
         height="300">
   <script type="application/javascript" src="chrome://calendar/content/calendar-alarm-dialog.js"/>
   <script type="application/javascript" src="chrome://calendar/content/calendar-item-editing.js"/>
+  <script type="application/javascript" src="chrome://calendar/content/widgets/calendar-alarm-widget.js"/>
 
   <notificationbox id="readonly-notification" notificationside="top"/>
   <richlistbox id="alarm-richlist" flex="1" onselect="onSelectAlarm(event)"/>
@@ -35,8 +36,7 @@
     <button id="alarm-snooze-all-button"
             type="menu"
             label="&calendar.alarm.snoozeallfor.label;">
-      <menupopup id="alarm-snooze-all-popup"
-                 type="snooze-menupopup"
+      <menupopup is="calendar-snooze-popup" id="alarm-snooze-all-popup"
                  ignorekeys="true"/>
     </button>
     <button id="alarm-dismiss-all-button"
