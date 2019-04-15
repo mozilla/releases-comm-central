@@ -75,6 +75,18 @@ function getTabBrowser(nativeTabInfo) {
 }
 global.getTabBrowser = getTabBrowser;
 
+/* global searchInitialized */
+// This promise is used to wait for the search service to be initialized.
+// None of the code in the WebExtension modules requests that initialization.
+// It is assumed that it is started at some point. That might never happen,
+// e.g. if the application shuts down before the search service initializes.
+XPCOMUtils.defineLazyGetter(global, "searchInitialized", () => {
+  if (Services.search.isInitialized) {
+    return Promise.resolve();
+  }
+  return ExtensionUtils.promiseObserved("browser-search-service", (_, data) => data == "init-complete");
+});
+
 /**
  * The window tracker tracks opening and closing Thunderbird windows. Each window has an id, which
  * is mapped to native window objects.

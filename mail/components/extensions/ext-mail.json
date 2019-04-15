@@ -24,6 +24,13 @@
       ["browserAction"]
     ]
   },
+  "chrome_settings_overrides": {
+    "url": "chrome://messenger/content/parent/ext-chrome-settings-overrides.js",
+    "scopes": [],
+    "events": ["update", "uninstall"],
+    "schema": "chrome://messenger/content/schemas/chrome_settings_overrides.json",
+    "manifest": ["chrome_settings_overrides"]
+  },
   "cloudFile": {
     "url": "chrome://messenger/content/parent/ext-cloudFile.js",
     "schema": "chrome://messenger/content/schemas/cloudFile.json",

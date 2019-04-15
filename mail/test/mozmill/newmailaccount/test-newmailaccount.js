@@ -95,7 +95,6 @@ function nAccounts() {
  *                         restore the Account Provisioner tab before filling
  *                         in the form. Defaults to false.
  */
-test_get_an_account.__force_skip__ = true;
 function test_get_an_account(aCloseAndRestore) {
   let originalEngine = Services.search.defaultEngine;
   // Open the provisioner - once opened, let subtest_get_an_account run.
@@ -206,7 +205,6 @@ function subtest_get_an_account_part_2(w) {
  * Runs test_get_an_account again, but this time, closes and restores the
  * order form tab before submitting it.
  */
-test_restored_ap_tab_works.__force_skip__ = true;
 function test_restored_ap_tab_works() {
   test_get_an_account(true);
 }
