@@ -199,7 +199,6 @@ calStorageCalendar.prototype = {
             }
             // open the database
             this.mDB = Services.storage.openDatabase(fileURL.file);
-            this.mDB.executeSimpleSQL("PRAGMA journal_mode=WAL");
             upgradeDB(this.mDB);
         } else if (this.uri.schemeIs("moz-profile-calendar")) {
             // This is an old-style moz-profile-calendar. It requires some
@@ -1096,6 +1095,8 @@ calStorageCalendar.prototype = {
         cal.ASSERT(this.mDB, "Database has not been opened!", true);
 
         try {
+            this.mDB.executeSimpleSQL("PRAGMA journal_mode=WAL");
+
             this.mSelectEvent = this.mDB.createStatement(
                 "SELECT * FROM cal_events " +
                 "WHERE id = :id AND cal_id = :cal_id " +
