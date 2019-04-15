@@ -937,20 +937,19 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
                     this._inputBoxValue = this._gridValue;
                     return;
                 }
-                this._inputBoxValue = this._gridValue = value;
-
-                this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
+                this.value = value;
             });
             this._menulist.menupopup.addEventListener("popupshowing", () => {
                 this._grid.onPopupShowing();
             });
+            this._menulist.menupopup.addEventListener("popuphiding", () => {
+                this.value = this._gridValue;
+            });
             this._grid.addEventListener("select", (event) => {
                 event.stopPropagation();
 
-                this._inputBoxValue = this._gridValue;
+                this.value = this._gridValue;
                 this._popup.hidePopup();
-
-                this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
             });
         }
 
@@ -997,15 +996,16 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
                 val.setHours(hours);
                 val.setMinutes(minutes);
             }
-            let [existingHours, existingMinutes] = this._gridValue;
-            if (val.getHours() != existingHours ||
-                val.getMinutes() != existingMinutes) {
+            if (val.getHours() != this._hours || val.getMinutes() != this._minutes) {
                 this._inputBoxValue = this._gridValue = val;
+                [this._hours, this._minutes] = this._gridValue;
+
+                this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
             }
         }
 
         get value() {
-            return this._gridValue;
+            return [this._hours, this._minutes];
         }
 
         set _inputBoxValue(val) {
