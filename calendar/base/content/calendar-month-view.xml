@@ -985,6 +985,15 @@
                 return boxes;
             }
 
+            if (targetDate.compare(this.mStartDate) < 0) {
+                targetDate = this.mStartDate.clone();
+            }
+
+            if (finishDate.compare(this.mEndDate) > 0) {
+                finishDate = this.mEndDate.clone();
+                finishDate.day++;
+            }
+
             if (!targetDate.isDate) {
                 // Reset the time to 00:00, so that we really get all the boxes
                 targetDate.hour = 0;
@@ -1079,6 +1088,10 @@
         <parameter name="aAlarmItem"/>
         <parameter name="aStop"/>
         <body><![CDATA[
+            if (!this.initialized) {
+                return;
+            }
+
             let showIndicator = Services.prefs.getBoolPref("calendar.alarms.indicator.show", true);
             let totaltime = Services.prefs.getIntPref("calendar.alarms.indicator.totaltime", 3600);
 

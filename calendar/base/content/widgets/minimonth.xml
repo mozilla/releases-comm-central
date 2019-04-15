@@ -356,6 +356,15 @@
                 return;
             }
 
+            if (start.compare(this.firstDate) < 0) {
+                start = this.firstDate.clone();
+            }
+
+            if (end.compare(this.lastDate) > 0) {
+                end = this.lastDate.clone();
+                end.day++;
+            }
+
             // We need to compare with midnight of the current day, so reset the
             // time here.
             let current = start.clone().getInTimezone(cal.dtz.defaultTimezone);
