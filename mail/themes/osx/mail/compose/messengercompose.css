@@ -74,12 +74,12 @@ toolbar[nowindowdrag="true"] {
 /* ::::: special toolbar colors ::::: */
 
 #composeContentBox {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6) inset;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2) inset;
   background-color: rgb(242, 242, 242);
 }
 
 #composeContentBox:-moz-window-inactive {
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) inset;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1) inset;
 }
 
 #headers-box {
@@ -89,7 +89,6 @@ toolbar[nowindowdrag="true"] {
 #MsgHeadersToolbar {
   color: -moz-DialogText;
   text-shadow: none;
-  background-image: url("chrome://messenger/skin/noise.png");
   border-bottom: 0 solid;
 }
 
@@ -357,7 +356,6 @@ textbox.textbox-addressingWidget:hover {
 
 #FormatToolbar {
   border-bottom: none;
-  background-image: url("chrome://messenger/skin/messengercompose/osx-noise.png");
   background-color: rgb(242, 242, 242) !important;
   padding-top: 2px;
   margin-left: 3px;

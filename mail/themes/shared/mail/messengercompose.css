@@ -194,6 +194,10 @@
   padding-left: 3px;
 }
 
+#appcontent {
+  border-top: 1px solid var(--splitter-color);
+}
+
 /* :::: primary toolbar buttons :::: */
 
 #button-send {
