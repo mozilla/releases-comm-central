@@ -10,95 +10,95 @@ var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var gPrefsBundle;
 
 function donePageInit() {
-    var pageData = parent.GetPageData();
-    gPrefsBundle = document.getElementById("bundle_prefs");
+  var pageData = parent.GetPageData();
+  gPrefsBundle = document.getElementById("bundle_prefs");
 
-    // Find out if we need to hide details for incoming servers
-    var hideIncoming = pageData.server &&
-      pageData.server.servertype.value == "movemail";
+  // Find out if we need to hide details for incoming servers
+  var hideIncoming = pageData.server &&
+    pageData.server.servertype.value == "movemail";
 
-    var email = "";
-    if (pageData.identity && pageData.identity.email) {
-        // fixup the email
-        email = pageData.identity.email.value;
+  var email = "";
+  if (pageData.identity && pageData.identity.email) {
+    // fixup the email
+    email = pageData.identity.email.value;
+  }
+  setDivTextFromForm("identity.email", email);
+
+  let userName = "";
+  if (pageData.login && pageData.login.username)
+    userName = pageData.login.username.value;
+  if (!userName && email)
+    userName = getUsernameFromEmail(email);
+
+  // Hide the "username" field if we don't want to show information
+  // on the incoming server.
+  setDivTextFromForm("server.username", hideIncoming ? null : userName);
+
+  let smtpUserName = "";
+  if (pageData.login && pageData.login.smtpusername)
+    smtpUserName = pageData.login.smtpusername.value;
+  if (!smtpUserName && email)
+    smtpUserName = getUsernameFromEmail(email);
+  setDivTextFromForm("smtpServer.username", smtpUserName);
+
+  if (pageData.accname && pageData.accname.prettyName) {
+    setDivTextFromForm("account.name", pageData.accname.prettyName.value);
+  } else {
+    setDivTextFromForm("account.name", "");
+  }
+
+  // Show mail servers (incoming & outgoing) details based on current account
+  // data.
+  if (!serverIsNntp(pageData)) {
+    let incomingServerName = "";
+    if (pageData.server && pageData.server.hostname) {
+      incomingServerName = pageData.server.hostname.value;
     }
-    setDivTextFromForm("identity.email", email);
-
-    let userName = "";
-    if (pageData.login && pageData.login.username)
-        userName = pageData.login.username.value;
-    if (!userName && email)
-        userName = getUsernameFromEmail(email);
-
-    // Hide the "username" field if we don't want to show information
-    // on the incoming server.
-    setDivTextFromForm("server.username", hideIncoming ? null : userName);
-
-    let smtpUserName = "";
-    if (pageData.login && pageData.login.smtpusername)
-        smtpUserName = pageData.login.smtpusername.value;
-    if (!smtpUserName && email)
-        smtpUserName = getUsernameFromEmail(email);
-    setDivTextFromForm("smtpServer.username", smtpUserName);
-
-    if (pageData.accname && pageData.accname.prettyName) {
-      setDivTextFromForm("account.name", pageData.accname.prettyName.value);
-    } else {
-      setDivTextFromForm("account.name", "");
-    }
-
-    // Show mail servers (incoming & outgoing) details based on current account
-    // data.
-    if (!serverIsNntp(pageData)) {
-        let incomingServerName = "";
-        if (pageData.server && pageData.server.hostname) {
-            incomingServerName = pageData.server.hostname.value;
-        }
-        // Hide the incoming server name field if the user specified
-        // wizardHideIncoming in the ISP defaults file
-        setDivTextFromForm("server.name", hideIncoming ? null : incomingServerName);
-        setDivTextFromForm("server.port", pageData.server.port ? pageData.server.port.value : null);
-        let incomingServerType = "";
-        if (pageData.server && pageData.server.servertype) {
-            incomingServerType = pageData.server.servertype.value;
-        }
-        setDivTextFromForm("server.type", incomingServerType.toUpperCase());
-
-        let smtpServerName = "";
-        if (pageData.server && pageData.server.smtphostname) {
-          let smtpServer = MailServices.smtp.defaultServer;
-          smtpServerName = pageData.server.smtphostname.value;
-          if (!smtpServerName && smtpServer && smtpServer.hostname)
-              smtpServerName = smtpServer.hostname;
-        }
-        setDivTextFromForm("smtpServer.name", smtpServerName);
-    } else {
-        setDivTextFromForm("server.name", null);
-        setDivTextFromForm("server.type", null);
-        setDivTextFromForm("server.port", null);
-        setDivTextFromForm("smtpServer.name", null);
-    }
-
-    if (serverIsNntp(pageData)) {
-        let newsServerName = "";
-        if (pageData.newsserver && pageData.newsserver.hostname)
-            newsServerName = pageData.newsserver.hostname.value;
-        if (newsServerName) {
-            // No need to show username for news account
-            setDivTextFromForm("server.username", null);
-        }
-        setDivTextFromForm("newsServer.name", newsServerName);
-        setDivTextFromForm("server.port", null);
-    } else {
-        setDivTextFromForm("newsServer.name", null);
-    }
-
-    var isPop = false;
+    // Hide the incoming server name field if the user specified
+    // wizardHideIncoming in the ISP defaults file
+    setDivTextFromForm("server.name", hideIncoming ? null : incomingServerName);
+    setDivTextFromForm("server.port", pageData.server.port ? pageData.server.port.value : null);
+    let incomingServerType = "";
     if (pageData.server && pageData.server.servertype) {
-      isPop = (pageData.server.servertype.value == "pop3");
+      incomingServerType = pageData.server.servertype.value;
     }
+    setDivTextFromForm("server.type", incomingServerType.toUpperCase());
 
-    hideShowDownloadMsgsUI(isPop);
+    let smtpServerName = "";
+    if (pageData.server && pageData.server.smtphostname) {
+      let smtpServer = MailServices.smtp.defaultServer;
+      smtpServerName = pageData.server.smtphostname.value;
+      if (!smtpServerName && smtpServer && smtpServer.hostname)
+          smtpServerName = smtpServer.hostname;
+    }
+    setDivTextFromForm("smtpServer.name", smtpServerName);
+  } else {
+    setDivTextFromForm("server.name", null);
+    setDivTextFromForm("server.type", null);
+    setDivTextFromForm("server.port", null);
+    setDivTextFromForm("smtpServer.name", null);
+  }
+
+  if (serverIsNntp(pageData)) {
+    let newsServerName = "";
+    if (pageData.newsserver && pageData.newsserver.hostname)
+      newsServerName = pageData.newsserver.hostname.value;
+    if (newsServerName) {
+      // No need to show username for news account
+      setDivTextFromForm("server.username", null);
+    }
+    setDivTextFromForm("newsServer.name", newsServerName);
+    setDivTextFromForm("server.port", null);
+  } else {
+    setDivTextFromForm("newsServer.name", null);
+  }
+
+  var isPop = false;
+  if (pageData.server && pageData.server.servertype) {
+    isPop = (pageData.server.servertype.value == "pop3");
+  }
+
+  hideShowDownloadMsgsUI(isPop);
 }
 
 function hideShowDownloadMsgsUI(isPop) {
@@ -120,19 +120,20 @@ function hideShowDownloadMsgsUI(isPop) {
 }
 
 function setDivTextFromForm(divid, value) {
-    // collapse the row if the div has no value
-    var div = document.getElementById(divid);
-    if (!value) {
-        div.setAttribute("collapsed", "true");
-        return;
-    }
+  // collapse the row if the div has no value
+  var div = document.getElementById(divid);
+  if (!value) {
+    div.setAttribute("collapsed", "true");
+    return;
+  }
 
-    div.removeAttribute("collapsed");
+  div.removeAttribute("collapsed");
 
-    // otherwise fill in the .text element
-    div = document.getElementById(divid + ".text");
-    if (!div) return;
+  // otherwise fill in the .text element
+  div = document.getElementById(divid + ".text");
+  if (!div)
+    return;
 
-    // set the value
-    div.setAttribute("value", value);
+  // set the value
+  div.setAttribute("value", value);
 }

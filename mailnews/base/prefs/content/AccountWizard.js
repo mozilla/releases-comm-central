@@ -276,11 +276,11 @@ function AccountDataToPageData(accountData, pageData) {
   var identity;
 
   if (accountData.identity) {
-      dump("This is an accountdata\n");
-      identity = accountData.identity;
+    dump("This is an accountdata\n");
+    identity = accountData.identity;
   } else if (accountData.identities) {
-      identity = accountData.identities.queryElementAt(0, Ci.nsIMsgIdentity);
-      dump("this is an account, id= " + identity + "\n");
+    identity = accountData.identities.queryElementAt(0, Ci.nsIMsgIdentity);
+    dump("this is an account, id= " + identity + "\n");
   }
 
   setPageData(pageData, "identity", "email", identity.email || "");
@@ -289,9 +289,9 @@ function AccountDataToPageData(accountData, pageData) {
   var smtp;
 
   if (accountData.smtp) {
-      smtp = accountData.smtp;
-      setPageData(pageData, "server", "smtphostname", smtp.hostname);
-      setPageData(pageData, "login", "smtpusername", smtp.username);
+    smtp = accountData.smtp;
+    setPageData(pageData, "server", "smtphostname", smtp.hostname);
+    setPageData(pageData, "login", "smtpusername", smtp.username);
   }
 }
 

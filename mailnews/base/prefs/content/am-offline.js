@@ -19,18 +19,18 @@ var gOfflineFolders;    // initial state of allFoldersOffline checkbox
 var gToggleOccurred = false;
 
 function onInit(aPageId, aServerId) {
-    onLockPreference();
+  onLockPreference();
 
-    // init values here
-    initServerSettings();
-    initRetentionSettings();
-    initDownloadSettings();
-    initOfflineSettings();
+  // init values here
+  initServerSettings();
+  initRetentionSettings();
+  initDownloadSettings();
+  initOfflineSettings();
 
-    onCheckItem("offline.notDownloadMin", "offline.notDownload");
-    onCheckItem("nntp.downloadMsgMin", "nntp.downloadMsg");
-    onCheckItem("nntp.removeBodyMin", "nntp.removeBody");
-    onCheckKeepMsg();
+  onCheckItem("offline.notDownloadMin", "offline.notDownload");
+  onCheckItem("nntp.downloadMsgMin", "nntp.downloadMsg");
+  onCheckItem("nntp.removeBodyMin", "nntp.removeBody");
+  onCheckKeepMsg();
 }
 
 /**
@@ -38,23 +38,23 @@ function onInit(aPageId, aServerId) {
  * checkbox. Use to restore the flags and checkbox if edits are canceled.
  */
 function initOfflineSettings() {
-    gOfflineMap = collectOfflineFolders();
-    gOfflineFolders = document.getElementById("offline.folders").checked;
-    gToggleOccurred = false;
+  gOfflineMap = collectOfflineFolders();
+  gOfflineFolders = document.getElementById("offline.folders").checked;
+  gToggleOccurred = false;
 }
 
 function initServerSettings() {
-    document.getElementById("offline.notDownload").checked =  gIncomingServer.limitOfflineMessageSize;
-    document.getElementById("autosync.notDownload").checked =  gIncomingServer.limitOfflineMessageSize;
-    if (gIncomingServer.maxMessageSize > 0)
-        document.getElementById("offline.notDownloadMin").value = gIncomingServer.maxMessageSize;
-    else
-        document.getElementById("offline.notDownloadMin").value = "50";
+  document.getElementById("offline.notDownload").checked =  gIncomingServer.limitOfflineMessageSize;
+  document.getElementById("autosync.notDownload").checked =  gIncomingServer.limitOfflineMessageSize;
+  if (gIncomingServer.maxMessageSize > 0)
+    document.getElementById("offline.notDownloadMin").value = gIncomingServer.maxMessageSize;
+  else
+    document.getElementById("offline.notDownloadMin").value = "50";
 
-    if (gServerType == "imap") {
-        gImapIncomingServer = gIncomingServer.QueryInterface(Ci.nsIImapIncomingServer);
-        document.getElementById("offline.folders").checked =  gImapIncomingServer.offlineDownload;
-    }
+  if (gServerType == "imap") {
+    gImapIncomingServer = gIncomingServer.QueryInterface(Ci.nsIImapIncomingServer);
+    document.getElementById("offline.folders").checked =  gImapIncomingServer.offlineDownload;
+  }
 }
 
 function initRetentionSettings() {
@@ -148,9 +148,9 @@ function onPreInit(account, accountValues) {
 }
 
 function onClickSelect() {
-    top.window.openDialog("chrome://messenger/content/msgSelectOfflineFolders.xul",
-                          "", "centerscreen,chrome,modal,titlebar,resizable=yes");
-    return true;
+  top.window.openDialog("chrome://messenger/content/msgSelectOfflineFolders.xul",
+                        "", "centerscreen,chrome,modal,titlebar,resizable=yes");
+  return true;
 }
 
 /**
@@ -196,9 +196,9 @@ function onAutosyncNotDownload() {
 }
 
 function onCancel() {
-    // restore the offline flags for all folders
-    restoreOfflineFolders(gOfflineMap);
-    document.getElementById("offline.folders").checked = gOfflineFolders;
+  // restore the offline flags for all folders
+  restoreOfflineFolders(gOfflineMap);
+  document.getElementById("offline.folders").checked = gOfflineFolders;
 }
 
 /**
@@ -245,121 +245,120 @@ function onLeave() {
 }
 
 function onSave() {
-    var downloadSettings =
-      Cc["@mozilla.org/msgDatabase/downloadSettings;1"]
-        .createInstance(Ci.nsIMsgDownloadSettings);
+  var downloadSettings = Cc["@mozilla.org/msgDatabase/downloadSettings;1"]
+                           .createInstance(Ci.nsIMsgDownloadSettings);
 
-    gIncomingServer.limitOfflineMessageSize = document.getElementById("offline.notDownload").checked;
-    gIncomingServer.maxMessageSize = document.getElementById("offline.notDownloadMin").value;
+  gIncomingServer.limitOfflineMessageSize = document.getElementById("offline.notDownload").checked;
+  gIncomingServer.maxMessageSize = document.getElementById("offline.notDownloadMin").value;
 
-    var retentionSettings = saveCommonRetentionSettings(gIncomingServer.retentionSettings);
+  var retentionSettings = saveCommonRetentionSettings(gIncomingServer.retentionSettings);
 
-    retentionSettings.daysToKeepBodies = document.getElementById("nntp.removeBodyMin").value;
-    retentionSettings.cleanupBodiesByDays = document.getElementById("nntp.removeBody").checked;
+  retentionSettings.daysToKeepBodies = document.getElementById("nntp.removeBodyMin").value;
+  retentionSettings.cleanupBodiesByDays = document.getElementById("nntp.removeBody").checked;
 
-    downloadSettings.downloadByDate = document.getElementById("nntp.downloadMsg").checked;
-    downloadSettings.downloadUnreadOnly = document.getElementById("nntp.notDownloadRead").checked;
-    downloadSettings.ageLimitOfMsgsToDownload = document.getElementById("nntp.downloadMsgMin").value;
+  downloadSettings.downloadByDate = document.getElementById("nntp.downloadMsg").checked;
+  downloadSettings.downloadUnreadOnly = document.getElementById("nntp.notDownloadRead").checked;
+  downloadSettings.ageLimitOfMsgsToDownload = document.getElementById("nntp.downloadMsgMin").value;
 
-    gIncomingServer.retentionSettings = retentionSettings;
-    gIncomingServer.downloadSettings = downloadSettings;
+  gIncomingServer.retentionSettings = retentionSettings;
+  gIncomingServer.downloadSettings = downloadSettings;
 
-    if (gImapIncomingServer) {
-        // Set the pref on the incomingserver, and set the flag on all folders.
-        gImapIncomingServer.offlineDownload = document.getElementById("offline.folders").checked;
-    }
+  if (gImapIncomingServer) {
+    // Set the pref on the incomingserver, and set the flag on all folders.
+    gImapIncomingServer.offlineDownload = document.getElementById("offline.folders").checked;
+  }
 }
 
 // Does the work of disabling an element given the array which contains xul id/prefstring pairs.
 // Also saves the id/locked state in an array so that other areas of the code can avoid
 // stomping on the disabled state indiscriminately.
 function disableIfLocked(prefstrArray) {
-    if (!gLockedPref)
-      gLockedPref = [];
+  if (!gLockedPref)
+    gLockedPref = [];
 
-    for (let i = 0; i < prefstrArray.length; i++) {
-        var id = prefstrArray[i].id;
-        var element = document.getElementById(id);
-        if (gPref.prefIsLocked(prefstrArray[i].prefstring)) {
-            element.disabled = true;
-            gLockedPref[id] = true;
-        } else {
-            element.removeAttribute("disabled");
-            gLockedPref[id] = false;
-        }
+  for (let i = 0; i < prefstrArray.length; i++) {
+    var id = prefstrArray[i].id;
+    var element = document.getElementById(id);
+    if (gPref.prefIsLocked(prefstrArray[i].prefstring)) {
+      element.disabled = true;
+      gLockedPref[id] = true;
+    } else {
+      element.removeAttribute("disabled");
+      gLockedPref[id] = false;
     }
+  }
 }
 
 // Disables xul elements that have associated preferences locked.
 function onLockPreference() {
-    var initPrefString = "mail.server";
-    var finalPrefString;
+  var initPrefString = "mail.server";
+  var finalPrefString;
 
-    // This panel does not use the code in AccountManager.js to handle
-    // the load/unload/disable.  keep in mind new prefstrings and changes
-    // to code in AccountManager, and update these as well.
-    var allPrefElements = [
-      { prefstring: "limit_offline_message_size", id: "offline.notDownload" },
-      { prefstring: "limit_offline_message_size", id: "autosync.notDownload" },
-      { prefstring: "max_size", id: "offline.notDownloadMin" },
-      { prefstring: "downloadUnreadOnly", id: "nntp.notDownloadRead" },
-      { prefstring: "downloadByDate", id: "nntp.downloadMsg" },
-      { prefstring: "ageLimit", id: "nntp.downloadMsgMin" },
-      { prefstring: "retainBy", id: "retention.keepMsg" },
-      { prefstring: "daysToKeepHdrs", id: "retention.keepOldMsgMin" },
-      { prefstring: "numHdrsToKeep", id: "retention.keepNewMsgMin" },
-      { prefstring: "daysToKeepBodies", id: "nntp.removeBodyMin" },
-      { prefstring: "cleanupBodies", id: "nntp.removeBody" },
-      { prefstring: "applyToFlagged", id: "retention.applyToFlagged" },
-      { prefstring: "disable_button.selectFolder", id: "selectNewsgroupsButton" },
-      { prefstring: "disable_button.selectFolder", id: "selectImapFoldersButton" },
-    ];
+  // This panel does not use the code in AccountManager.js to handle
+  // the load/unload/disable.  keep in mind new prefstrings and changes
+  // to code in AccountManager, and update these as well.
+  var allPrefElements = [
+    { prefstring: "limit_offline_message_size", id: "offline.notDownload" },
+    { prefstring: "limit_offline_message_size", id: "autosync.notDownload" },
+    { prefstring: "max_size", id: "offline.notDownloadMin" },
+    { prefstring: "downloadUnreadOnly", id: "nntp.notDownloadRead" },
+    { prefstring: "downloadByDate", id: "nntp.downloadMsg" },
+    { prefstring: "ageLimit", id: "nntp.downloadMsgMin" },
+    { prefstring: "retainBy", id: "retention.keepMsg" },
+    { prefstring: "daysToKeepHdrs", id: "retention.keepOldMsgMin" },
+    { prefstring: "numHdrsToKeep", id: "retention.keepNewMsgMin" },
+    { prefstring: "daysToKeepBodies", id: "nntp.removeBodyMin" },
+    { prefstring: "cleanupBodies", id: "nntp.removeBody" },
+    { prefstring: "applyToFlagged", id: "retention.applyToFlagged" },
+    { prefstring: "disable_button.selectFolder", id: "selectNewsgroupsButton" },
+    { prefstring: "disable_button.selectFolder", id: "selectImapFoldersButton" },
+  ];
 
-    finalPrefString = initPrefString + "." + gIncomingServer.key + ".";
-    gPref = Services.prefs.getBranch(finalPrefString);
+  finalPrefString = initPrefString + "." + gIncomingServer.key + ".";
+  gPref = Services.prefs.getBranch(finalPrefString);
 
-    disableIfLocked(allPrefElements);
+  disableIfLocked(allPrefElements);
 }
 
 function onCheckItem(changeElementId, checkElementId) {
-    var element = document.getElementById(changeElementId);
-    var checked = document.getElementById(checkElementId).checked;
-    if (checked && !gLockedPref[checkElementId]) {
-        element.removeAttribute("disabled");
-    } else {
-        element.setAttribute("disabled", "true");
-    }
+  var element = document.getElementById(changeElementId);
+  var checked = document.getElementById(checkElementId).checked;
+  if (checked && !gLockedPref[checkElementId]) {
+    element.removeAttribute("disabled");
+  } else {
+    element.setAttribute("disabled", "true");
+  }
 }
 
 function toggleOffline() {
-    let offline = document.getElementById("offline.folders").checked;
-    let allFolders = gIncomingServer.rootFolder.descendants;
-    for (let folder of fixIterator(allFolders, Ci.nsIMsgFolder)) {
-      if (offline)
-        folder.setFlag(Ci.nsMsgFolderFlags.Offline);
-      else
-        folder.clearFlag(Ci.nsMsgFolderFlags.Offline);
-    }
-    gToggleOccurred = true;
+  let offline = document.getElementById("offline.folders").checked;
+  let allFolders = gIncomingServer.rootFolder.descendants;
+  for (let folder of fixIterator(allFolders, Ci.nsIMsgFolder)) {
+    if (offline)
+      folder.setFlag(Ci.nsMsgFolderFlags.Offline);
+    else
+      folder.clearFlag(Ci.nsMsgFolderFlags.Offline);
+  }
+  gToggleOccurred = true;
 }
 
 function collectOfflineFolders() {
-    let offlineFolderMap = {};
-    let allFolders = gIncomingServer.rootFolder.descendants;
-    for (let folder of fixIterator(allFolders, Ci.nsIMsgFolder))
-      offlineFolderMap[folder.folderURL] = folder.getFlag(Ci.nsMsgFolderFlags.Offline);
+  let offlineFolderMap = {};
+  let allFolders = gIncomingServer.rootFolder.descendants;
+  for (let folder of fixIterator(allFolders, Ci.nsIMsgFolder))
+    offlineFolderMap[folder.folderURL] = folder.getFlag(Ci.nsMsgFolderFlags.Offline);
 
-    return offlineFolderMap;
+  return offlineFolderMap;
 }
 
 function restoreOfflineFolders(offlineFolderMap) {
-    let allFolders = gIncomingServer.rootFolder.descendants;
-    for (let folder of fixIterator(allFolders, Ci.nsIMsgFolder)) {
-      if (offlineFolderMap[folder.folderURL])
-        folder.setFlag(Ci.nsMsgFolderFlags.Offline);
-      else
-        folder.clearFlag(Ci.nsMsgFolderFlags.Offline);
-    }
+  let allFolders = gIncomingServer.rootFolder.descendants;
+  for (let folder of fixIterator(allFolders, Ci.nsIMsgFolder)) {
+    if (offlineFolderMap[folder.folderURL])
+      folder.setFlag(Ci.nsMsgFolderFlags.Offline);
+    else
+      folder.clearFlag(Ci.nsMsgFolderFlags.Offline);
+  }
 }
 
 /**

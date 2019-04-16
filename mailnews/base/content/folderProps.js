@@ -15,76 +15,75 @@ document.addEventListener("dialogaccept", folderPropsOKButton);
 // The folderPropsSink is the class that gets notified of an imap folder's properties
 
 var gFolderPropsSink = {
-    setFolderType(folderTypeString) {
-      var typeLabel = document.getElementById("folderType.text");
-      if (typeLabel) {
-        typeLabel.setAttribute("value", folderTypeString);
-      }
-      // get the element for the folder type label and set value on it.
-    },
+  setFolderType(folderTypeString) {
+    var typeLabel = document.getElementById("folderType.text");
+    if (typeLabel) {
+      typeLabel.setAttribute("value", folderTypeString);
+    }
+    // get the element for the folder type label and set value on it.
+  },
 
-    setFolderTypeDescription(folderDescription) {
-      var folderTypeLabel = document.getElementById("folderDescription.text");
-      if (folderTypeLabel)
-        folderTypeLabel.setAttribute("value", folderDescription);
-    },
+  setFolderTypeDescription(folderDescription) {
+    var folderTypeLabel = document.getElementById("folderDescription.text");
+    if (folderTypeLabel)
+      folderTypeLabel.setAttribute("value", folderDescription);
+  },
 
-    setFolderPermissions(folderPermissions) {
-      var permissionsLabel = document.getElementById("folderPermissions.text");
-      var descTextNode =  document.createTextNode(folderPermissions);
-      permissionsLabel.appendChild(descTextNode);
-    },
+  setFolderPermissions(folderPermissions) {
+    var permissionsLabel = document.getElementById("folderPermissions.text");
+    var descTextNode =  document.createTextNode(folderPermissions);
+    permissionsLabel.appendChild(descTextNode);
+  },
 
-    serverDoesntSupportACL() {
-      var typeLabel = document.getElementById("folderTypeLabel");
-      if (typeLabel)
-        typeLabel.setAttribute("hidden", "true");
-      var permissionsLabel = document.getElementById("permissionsDescLabel");
-      if (permissionsLabel)
-        permissionsLabel.setAttribute("hidden", "true");
-    },
+  serverDoesntSupportACL() {
+    var typeLabel = document.getElementById("folderTypeLabel");
+    if (typeLabel)
+      typeLabel.setAttribute("hidden", "true");
+    var permissionsLabel = document.getElementById("permissionsDescLabel");
+    if (permissionsLabel)
+      permissionsLabel.setAttribute("hidden", "true");
+  },
 
-    setQuotaStatus(folderQuotaStatus) {
-      var quotaStatusLabel = document.getElementById("folderQuotaStatus");
-      if (quotaStatusLabel)
-        quotaStatusLabel.setAttribute("value", folderQuotaStatus);
-    },
+  setQuotaStatus(folderQuotaStatus) {
+    var quotaStatusLabel = document.getElementById("folderQuotaStatus");
+    if (quotaStatusLabel)
+      quotaStatusLabel.setAttribute("value", folderQuotaStatus);
+  },
 
-    showQuotaData(showData) {
-      var quotaStatusLabel = document.getElementById("folderQuotaStatus");
-      var folderQuotaData = document.getElementById("folderQuotaData");
+  showQuotaData(showData) {
+    var quotaStatusLabel = document.getElementById("folderQuotaStatus");
+    var folderQuotaData = document.getElementById("folderQuotaData");
 
-      if (quotaStatusLabel && folderQuotaData) {
-        quotaStatusLabel.hidden = showData;
-        folderQuotaData.hidden = !showData;
-      }
-    },
+    if (quotaStatusLabel && folderQuotaData) {
+      quotaStatusLabel.hidden = showData;
+      folderQuotaData.hidden = !showData;
+    }
+  },
 
-    setQuotaData(root, usedKB, maxKB) {
-      var quotaRoot = document.getElementById("quotaRoot");
-      if (quotaRoot)
-        quotaRoot.setAttribute("value", '"' + root + '"');
+  setQuotaData(root, usedKB, maxKB) {
+    var quotaRoot = document.getElementById("quotaRoot");
+    if (quotaRoot)
+      quotaRoot.setAttribute("value", '"' + root + '"');
 
-      var percentage = (maxKB != 0) ? Math.round(usedKB / maxKB * 100) : 0;
+    var percentage = (maxKB != 0) ? Math.round(usedKB / maxKB * 100) : 0;
 
-      var quotaPercentageBar = document.getElementById("quotaPercentageBar");
-      if (quotaPercentageBar)
-        quotaPercentageBar.setAttribute("value", percentage);
+    var quotaPercentageBar = document.getElementById("quotaPercentageBar");
+    if (quotaPercentageBar)
+      quotaPercentageBar.setAttribute("value", percentage);
 
-      var bundle = document.getElementById("bundle_messenger");
-      if (bundle) {
-        var usedFreeCaption = bundle.getFormattedString("quotaUsedFree", [usedKB, maxKB], 2);
-        var quotaCaption = document.getElementById("quotaUsedFree");
-        if (quotaCaption)
-          quotaCaption.setAttribute("value", usedFreeCaption);
+    var bundle = document.getElementById("bundle_messenger");
+    if (bundle) {
+      var usedFreeCaption = bundle.getFormattedString("quotaUsedFree", [usedKB, maxKB], 2);
+      var quotaCaption = document.getElementById("quotaUsedFree");
+      if (quotaCaption)
+        quotaCaption.setAttribute("value", usedFreeCaption);
 
-        var percentUsedCaption = bundle.getFormattedString("quotaPercentUsed", [percentage], 1);
-        var percentUsed = document.getElementById("quotaPercentUsed");
-        if (percentUsed)
-          percentUsed.setAttribute("value", percentUsedCaption);
-      }
-    },
-
+      var percentUsedCaption = bundle.getFormattedString("quotaPercentUsed", [percentage], 1);
+      var percentUsed = document.getElementById("quotaPercentUsed");
+      if (percentUsed)
+        percentUsed.setAttribute("value", percentUsedCaption);
+    }
+  },
 };
 
 function doEnabling() {
@@ -170,8 +169,8 @@ function folderPropsOnLoad() {
     var nameTextbox = document.getElementById("name");
     nameTextbox.value = window.arguments[0].name;
 
-//  name.setSelectionRange(0,-1);
-//  name.focusTextField();
+    // name.setSelectionRange(0,-1);
+    // name.focusTextField();
   }
 
   const serverType = window.arguments[0].serverType;
@@ -259,7 +258,7 @@ function folderPropsOnLoad() {
                        .createInstance(Ci.nsIMessenger)
                        .formatFileSize(gMsgFolder.sizeOnDisk, true);
     document.getElementById("sizeOnDisk").value = sizeOnDisk;
-  } catch (e) { }
+  } catch (e) {}
 
   // select the initial tab
   if (window.arguments[0].tabID) {

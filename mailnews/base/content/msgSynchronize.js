@@ -15,163 +15,163 @@ var gInitialFolderStates = {};
 document.addEventListener("dialogaccept", syncOkButton);
 
 function OnLoad() {
-    if (window.arguments && window.arguments[0]) {
-        if (window.arguments[0].msgWindow) {
-            gParentMsgWindow = window.arguments[0].msgWindow;
-        }
+  if (window.arguments && window.arguments[0]) {
+    if (window.arguments[0].msgWindow) {
+      gParentMsgWindow = window.arguments[0].msgWindow;
     }
+  }
 
-    document.getElementById("syncMail").checked =
-      Services.prefs.getBoolPref("mailnews.offline_sync_mail");
-    document.getElementById("syncNews").checked =
-      Services.prefs.getBoolPref("mailnews.offline_sync_news");
-    document.getElementById("sendMessage").checked =
-      Services.prefs.getBoolPref("mailnews.offline_sync_send_unsent");
-    document.getElementById("workOffline").checked =
-      Services.prefs.getBoolPref("mailnews.offline_sync_work_offline");
+  document.getElementById("syncMail").checked =
+    Services.prefs.getBoolPref("mailnews.offline_sync_mail");
+  document.getElementById("syncNews").checked =
+    Services.prefs.getBoolPref("mailnews.offline_sync_news");
+  document.getElementById("sendMessage").checked =
+    Services.prefs.getBoolPref("mailnews.offline_sync_send_unsent");
+  document.getElementById("workOffline").checked =
+    Services.prefs.getBoolPref("mailnews.offline_sync_work_offline");
 
-    return true;
+  return true;
 }
 
 function syncOkButton() {
-    var syncMail = document.getElementById("syncMail").checked;
-    var syncNews = document.getElementById("syncNews").checked;
-    var sendMessage = document.getElementById("sendMessage").checked;
-    var workOffline = document.getElementById("workOffline").checked;
+  var syncMail = document.getElementById("syncMail").checked;
+  var syncNews = document.getElementById("syncNews").checked;
+  var sendMessage = document.getElementById("sendMessage").checked;
+  var workOffline = document.getElementById("workOffline").checked;
 
-    Services.prefs.setBoolPref("mailnews.offline_sync_mail", syncMail);
-    Services.prefs.setBoolPref("mailnews.offline_sync_news", syncNews);
-    Services.prefs.setBoolPref("mailnews.offline_sync_send_unsent", sendMessage);
-    Services.prefs.setBoolPref("mailnews.offline_sync_work_offline", workOffline);
+  Services.prefs.setBoolPref("mailnews.offline_sync_mail", syncMail);
+  Services.prefs.setBoolPref("mailnews.offline_sync_news", syncNews);
+  Services.prefs.setBoolPref("mailnews.offline_sync_send_unsent", sendMessage);
+  Services.prefs.setBoolPref("mailnews.offline_sync_work_offline", workOffline);
 
-    if (syncMail || syncNews || sendMessage || workOffline) {
-        var offlineManager = Cc["@mozilla.org/messenger/offline-manager;1"]
-                               .getService(Ci.nsIMsgOfflineManager);
-        if (offlineManager)
-            offlineManager.synchronizeForOffline(syncNews, syncMail, sendMessage, workOffline, gParentMsgWindow);
-    }
+  if (syncMail || syncNews || sendMessage || workOffline) {
+    var offlineManager = Cc["@mozilla.org/messenger/offline-manager;1"]
+                           .getService(Ci.nsIMsgOfflineManager);
+    if (offlineManager)
+      offlineManager.synchronizeForOffline(syncNews, syncMail, sendMessage, workOffline, gParentMsgWindow);
+  }
 }
 
 function OnSelect() {
-   top.window.openDialog("chrome://messenger/content/msgSelectOfflineFolders.xul", "",
-                         "centerscreen,chrome,modal,titlebar,resizable=yes");
-   return true;
+  top.window.openDialog("chrome://messenger/content/msgSelectOfflineFolders.xul", "",
+                        "centerscreen,chrome,modal,titlebar,resizable=yes");
+  return true;
 }
 
 // All the code below is only used by Seamonkey.
 
 function selectOkButton() {
-    return true;
+  return true;
 }
 
 function selectCancelButton() {
-    for (var resourceValue in gInitialFolderStates) {
-      let folder = MailUtils.getExistingFolder(resourceValue);
-      if (gInitialFolderStates[resourceValue])
-        folder.setFlag(Ci.nsMsgFolderFlags.Offline);
-      else
-        folder.clearFlag(Ci.nsMsgFolderFlags.Offline);
-    }
-    return true;
+  for (var resourceValue in gInitialFolderStates) {
+    let folder = MailUtils.getExistingFolder(resourceValue);
+    if (gInitialFolderStates[resourceValue])
+      folder.setFlag(Ci.nsMsgFolderFlags.Offline);
+    else
+      folder.clearFlag(Ci.nsMsgFolderFlags.Offline);
+  }
+  return true;
 }
 
 function selectOnLoad() {
-    gMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
-                   .createInstance(Ci.nsIMsgWindow);
-    gMsgWindow.domWindow = window;
-    gMsgWindow.rootDocShell.appType = Ci.nsIDocShell.APP_TYPE_MAIL;
+  gMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
+                 .createInstance(Ci.nsIMsgWindow);
+  gMsgWindow.domWindow = window;
+  gMsgWindow.rootDocShell.appType = Ci.nsIDocShell.APP_TYPE_MAIL;
 
-    gSynchronizeTree = document.getElementById("synchronizeTree");
+  gSynchronizeTree = document.getElementById("synchronizeTree");
 
-    SortSynchronizePane("folderNameCol", "?folderTreeNameSort");
+  SortSynchronizePane("folderNameCol", "?folderTreeNameSort");
 }
 
 function SortSynchronizePane(column, sortKey) {
-    var node = FindInWindow(window, column);
-    if (!node) {
-        dump("Couldnt find sort column\n");
-        return;
-    }
+  var node = FindInWindow(window, column);
+  if (!node) {
+    dump("Couldnt find sort column\n");
+    return;
+  }
 
-    node.setAttribute("sort", sortKey);
-    node.setAttribute("sortDirection", "natural");
-    var col = gSynchronizeTree.columns[column];
-    gSynchronizeTree.view.cycleHeader(col);
+  node.setAttribute("sort", sortKey);
+  node.setAttribute("sortDirection", "natural");
+  var col = gSynchronizeTree.columns[column];
+  gSynchronizeTree.view.cycleHeader(col);
 }
 
 function FindInWindow(currentWindow, id) {
-    var item = currentWindow.document.getElementById(id);
-    if (item)
-      return item;
+  var item = currentWindow.document.getElementById(id);
+  if (item)
+    return item;
 
-    for (var i = 0; i < currentWindow.frames.length; i++) {
-        var frameItem = FindInWindow(currentWindow.frames[i], id);
-        if (frameItem)
-            return frameItem;
-    }
+  for (var i = 0; i < currentWindow.frames.length; i++) {
+    var frameItem = FindInWindow(currentWindow.frames[i], id);
+    if (frameItem)
+      return frameItem;
+  }
 
-    return null;
+  return null;
 }
 
 
 function onSynchronizeClick(event) {
-    // we only care about button 0 (left click) events
-    if (event.button != 0)
-      return;
+  // we only care about button 0 (left click) events
+  if (event.button != 0)
+    return;
 
-    let treeCellInfo = gSynchronizeTree.getCellAt(event.clientX, event.clientY);
-    if (treeCellInfo.row == -1)
-      return;
+  let treeCellInfo = gSynchronizeTree.getCellAt(event.clientX, event.clientY);
+  if (treeCellInfo.row == -1)
+    return;
 
-    if (treeCellInfo.childElt == "twisty") {
-        var folderResource = GetFolderResource(gSynchronizeTree, treeCellInfo.row);
-        var folder = folderResource.QueryInterface(Ci.nsIMsgFolder);
+  if (treeCellInfo.childElt == "twisty") {
+    var folderResource = GetFolderResource(gSynchronizeTree, treeCellInfo.row);
+    var folder = folderResource.QueryInterface(Ci.nsIMsgFolder);
 
-        if (!(gSynchronizeTree.view.isContainerOpen(treeCellInfo.row))) {
-            var serverType = folder.server.type;
-            // imap is the only server type that does folder discovery
-            if (serverType != "imap") return;
+    if (!(gSynchronizeTree.view.isContainerOpen(treeCellInfo.row))) {
+      var serverType = folder.server.type;
+      // imap is the only server type that does folder discovery
+      if (serverType != "imap") return;
 
-            if (folder.isServer) {
-                var server = folder.server;
-                server.performExpand(gMsgWindow);
-            } else {
-                var imapFolder = folderResource.QueryInterface(Ci.nsIMsgImapMailFolder);
-                if (imapFolder) {
-                  imapFolder.performExpand(gMsgWindow);
-                }
-            }
+      if (folder.isServer) {
+        var server = folder.server;
+        server.performExpand(gMsgWindow);
+      } else {
+        var imapFolder = folderResource.QueryInterface(Ci.nsIMsgImapMailFolder);
+        if (imapFolder) {
+          imapFolder.performExpand(gMsgWindow);
         }
-    } else if (treeCellInfo.col.id == "syncCol") {
-        UpdateNode(GetFolderResource(gSynchronizeTree, treeCellInfo.row), treeCellInfo.row);
+      }
     }
+  } else if (treeCellInfo.col.id == "syncCol") {
+    UpdateNode(GetFolderResource(gSynchronizeTree, treeCellInfo.row), treeCellInfo.row);
+  }
 }
 
 function onSynchronizeTreeKeyPress(event) {
-    // for now, only do something on space key
-    if (event.charCode != KeyEvent.DOM_VK_SPACE)
-      return;
+  // for now, only do something on space key
+  if (event.charCode != KeyEvent.DOM_VK_SPACE)
+    return;
 
-    var treeSelection = gSynchronizeTree.view.selection;
-    for (let i = 0; i < treeSelection.getRangeCount(); i++) {
-      var start = {}, end = {};
-      treeSelection.getRangeAt(i, start, end);
-      for (let k = start.value; k <= end.value; k++)
-        UpdateNode(GetFolderResource(gSynchronizeTree, k), k);
-    }
+  var treeSelection = gSynchronizeTree.view.selection;
+  for (let i = 0; i < treeSelection.getRangeCount(); i++) {
+    var start = {}, end = {};
+    treeSelection.getRangeAt(i, start, end);
+    for (let k = start.value; k <= end.value; k++)
+      UpdateNode(GetFolderResource(gSynchronizeTree, k), k);
+  }
 }
 
 function UpdateNode(resource, row) {
-    var folder = resource.QueryInterface(Ci.nsIMsgFolder);
+  var folder = resource.QueryInterface(Ci.nsIMsgFolder);
 
-    if (folder.isServer)
-      return;
+  if (folder.isServer)
+    return;
 
-    if (!(resource.Value in gInitialFolderStates)) {
-      gInitialFolderStates[resource.Value] = folder.getFlag(Ci.nsMsgFolderFlags.Offline);
-    }
+  if (!(resource.Value in gInitialFolderStates)) {
+    gInitialFolderStates[resource.Value] = folder.getFlag(Ci.nsMsgFolderFlags.Offline);
+  }
 
-    folder.toggleFlag(Ci.nsMsgFolderFlags.Offline);
+  folder.toggleFlag(Ci.nsMsgFolderFlags.Offline);
 }
 
 function GetFolderResource(aTree, aIndex) {

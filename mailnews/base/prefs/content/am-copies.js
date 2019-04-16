@@ -31,61 +31,61 @@ function onInit(aPageId, aServerId) {
 }
 
 function onInitCopiesAndFolders() {
-    SetGlobalRadioElemChoices();
+  SetGlobalRadioElemChoices();
 
-    SetFolderDisplay(gFccRadioElemChoice, gFccRadioElemChoiceLocked,
-                     "fcc",
-                     "msgFccAccountPicker",
-                     "identity.fccFolder",
-                     "msgFccFolderPicker");
+  SetFolderDisplay(gFccRadioElemChoice, gFccRadioElemChoiceLocked,
+                   "fcc",
+                   "msgFccAccountPicker",
+                   "identity.fccFolder",
+                   "msgFccFolderPicker");
 
-    SetFolderDisplay(gArchivesRadioElemChoice, gArchivesRadioElemChoiceLocked,
-                     "archive",
-                     "msgArchivesAccountPicker",
-                     "identity.archiveFolder",
-                     "msgArchivesFolderPicker");
+  SetFolderDisplay(gArchivesRadioElemChoice, gArchivesRadioElemChoiceLocked,
+                   "archive",
+                   "msgArchivesAccountPicker",
+                   "identity.archiveFolder",
+                   "msgArchivesFolderPicker");
 
-    SetFolderDisplay(gDraftsRadioElemChoice, gDraftsRadioElemChoiceLocked,
-                     "draft",
-                     "msgDraftsAccountPicker",
-                     "identity.draftFolder",
-                     "msgDraftsFolderPicker");
+  SetFolderDisplay(gDraftsRadioElemChoice, gDraftsRadioElemChoiceLocked,
+                   "draft",
+                   "msgDraftsAccountPicker",
+                   "identity.draftFolder",
+                   "msgDraftsFolderPicker");
 
-    SetFolderDisplay(gTmplRadioElemChoice, gTmplRadioElemChoiceLocked,
-                     "tmpl",
-                     "msgStationeryAccountPicker",
-                     "identity.stationeryFolder",
-                     "msgStationeryFolderPicker");
+  SetFolderDisplay(gTmplRadioElemChoice, gTmplRadioElemChoiceLocked,
+                   "tmpl",
+                   "msgStationeryAccountPicker",
+                   "identity.stationeryFolder",
+                   "msgStationeryFolderPicker");
 
-    setupCcTextbox(true);
-    setupBccTextbox(true);
-    setupFccItems();
-    setupArchiveItems();
+  setupCcTextbox(true);
+  setupBccTextbox(true);
+  setupFccItems();
+  setupArchiveItems();
 
-    SetSpecialFolderNamesWithDelims();
+  SetSpecialFolderNamesWithDelims();
 }
 
 // Initialize the picker mode choices (account/folder picker) into global vars
 function SetGlobalRadioElemChoices() {
-    var pickerModeElement = document.getElementById("identity.fccFolderPickerMode");
-    gFccRadioElemChoice = pickerModeElement.getAttribute("value");
-    gFccRadioElemChoiceLocked = pickerModeElement.getAttribute("disabled");
-    if (!gFccRadioElemChoice) gFccRadioElemChoice = gDefaultPickerMode;
+  var pickerModeElement = document.getElementById("identity.fccFolderPickerMode");
+  gFccRadioElemChoice = pickerModeElement.getAttribute("value");
+  gFccRadioElemChoiceLocked = pickerModeElement.getAttribute("disabled");
+  if (!gFccRadioElemChoice) gFccRadioElemChoice = gDefaultPickerMode;
 
-    pickerModeElement = document.getElementById("identity.archivesFolderPickerMode");
-    gArchivesRadioElemChoice = pickerModeElement.getAttribute("value");
-    gArchivesRadioElemChoiceLocked = pickerModeElement.getAttribute("disabled");
-    if (!gArchivesRadioElemChoice) gArchivesRadioElemChoice = gDefaultPickerMode;
+  pickerModeElement = document.getElementById("identity.archivesFolderPickerMode");
+  gArchivesRadioElemChoice = pickerModeElement.getAttribute("value");
+  gArchivesRadioElemChoiceLocked = pickerModeElement.getAttribute("disabled");
+  if (!gArchivesRadioElemChoice) gArchivesRadioElemChoice = gDefaultPickerMode;
 
-    pickerModeElement = document.getElementById("identity.draftsFolderPickerMode");
-    gDraftsRadioElemChoice = pickerModeElement.getAttribute("value");
-    gDraftsRadioElemChoiceLocked = pickerModeElement.getAttribute("disabled");
-    if (!gDraftsRadioElemChoice) gDraftsRadioElemChoice = gDefaultPickerMode;
+  pickerModeElement = document.getElementById("identity.draftsFolderPickerMode");
+  gDraftsRadioElemChoice = pickerModeElement.getAttribute("value");
+  gDraftsRadioElemChoiceLocked = pickerModeElement.getAttribute("disabled");
+  if (!gDraftsRadioElemChoice) gDraftsRadioElemChoice = gDefaultPickerMode;
 
-    pickerModeElement = document.getElementById("identity.tmplFolderPickerMode");
-    gTmplRadioElemChoice = pickerModeElement.getAttribute("value");
-    gTmplRadioElemChoiceLocked = pickerModeElement.getAttribute("disabled");
-    if (!gTmplRadioElemChoice) gTmplRadioElemChoice = gDefaultPickerMode;
+  pickerModeElement = document.getElementById("identity.tmplFolderPickerMode");
+  gTmplRadioElemChoice = pickerModeElement.getAttribute("value");
+  gTmplRadioElemChoiceLocked = pickerModeElement.getAttribute("disabled");
+  if (!gTmplRadioElemChoice) gTmplRadioElemChoice = gDefaultPickerMode;
 }
 
 /*
@@ -99,56 +99,56 @@ function SetFolderDisplay(pickerMode, disableMode,
                           accountPickerId,
                           folderPickedField,
                           folderPickerId) {
-    if (!pickerMode)
-        pickerMode = gDefaultPickerMode;
+  if (!pickerMode)
+    pickerMode = gDefaultPickerMode;
 
-    var selectAccountRadioId = radioElemPrefix + "_selectAccount";
-    var selectAccountRadioElem = document.getElementById(selectAccountRadioId);
-    var selectFolderRadioId = radioElemPrefix + "_selectFolder";
-    var selectFolderRadioElem = document.getElementById(selectFolderRadioId);
-    var accountPicker = document.getElementById(accountPickerId);
-    var folderPicker = document.getElementById(folderPickerId);
-    var rg = selectAccountRadioElem.radioGroup;
-    var folderPickedElement = document.getElementById(folderPickedField);
-    var uri = folderPickedElement.getAttribute("value");
-    // Get message folder from the given uri.
-    // There is no need to check for the existence of special folders as
-    // these folders are created on demand at runtime in case of imap accounts.
-    // For POP3 accounts, special folders are created at the account creation time.
-    var msgFolder = MailUtils.getOrCreateFolder(uri);
-    InitFolderDisplay(msgFolder.server.rootFolder, accountPicker);
-    InitFolderDisplay(msgFolder, folderPicker);
+  var selectAccountRadioId = radioElemPrefix + "_selectAccount";
+  var selectAccountRadioElem = document.getElementById(selectAccountRadioId);
+  var selectFolderRadioId = radioElemPrefix + "_selectFolder";
+  var selectFolderRadioElem = document.getElementById(selectFolderRadioId);
+  var accountPicker = document.getElementById(accountPickerId);
+  var folderPicker = document.getElementById(folderPickerId);
+  var rg = selectAccountRadioElem.radioGroup;
+  var folderPickedElement = document.getElementById(folderPickedField);
+  var uri = folderPickedElement.getAttribute("value");
+  // Get message folder from the given uri.
+  // There is no need to check for the existence of special folders as
+  // these folders are created on demand at runtime in case of imap accounts.
+  // For POP3 accounts, special folders are created at the account creation time.
+  var msgFolder = MailUtils.getOrCreateFolder(uri);
+  InitFolderDisplay(msgFolder.server.rootFolder, accountPicker);
+  InitFolderDisplay(msgFolder, folderPicker);
 
-    switch (pickerMode) {
-        case "0" :
-            rg.selectedItem = selectAccountRadioElem;
-            SetPickerEnabling(accountPickerId, folderPickerId);
-            break;
+  switch (pickerMode) {
+    case "0" :
+      rg.selectedItem = selectAccountRadioElem;
+      SetPickerEnabling(accountPickerId, folderPickerId);
+      break;
 
-        case "1" :
-            rg.selectedItem = selectFolderRadioElem;
-            SetPickerEnabling(folderPickerId, accountPickerId);
-            break;
+    case "1" :
+      rg.selectedItem = selectFolderRadioElem;
+      SetPickerEnabling(folderPickerId, accountPickerId);
+      break;
 
-        default :
-            dump("Error in setting initial folder display on pickers\n");
-            break;
-    }
+    default :
+      dump("Error in setting initial folder display on pickers\n");
+      break;
+  }
 
-    // Check to see if we need to lock page elements. Disable radio buttons
-    // and account/folder pickers when locked.
-    if (disableMode) {
-      selectAccountRadioElem.setAttribute("disabled", "true");
-      selectFolderRadioElem.setAttribute("disabled", "true");
-      accountPicker.setAttribute("disabled", "true");
-      folderPicker.setAttribute("disabled", "true");
-    }
+  // Check to see if we need to lock page elements. Disable radio buttons
+  // and account/folder pickers when locked.
+  if (disableMode) {
+    selectAccountRadioElem.setAttribute("disabled", "true");
+    selectFolderRadioElem.setAttribute("disabled", "true");
+    accountPicker.setAttribute("disabled", "true");
+    folderPicker.setAttribute("disabled", "true");
+  }
 }
 
 // Initialize the folder display based on prefs values
 function InitFolderDisplay(folder, folderPicker) {
-    folderPicker.menupopup.selectFolder(folder);
-    folderPicker.folder = folder;
+  folderPicker.menupopup.selectFolder(folder);
+  folderPicker.folder = folder;
 }
 
 /**
@@ -197,52 +197,52 @@ function noteSelectionChange(aGroup, aType, aEvent) {
 // Create a set of global special folder vars to be suffixed to the
 // server URI of the selected account.
 function SetSpecialFolderNamesWithDelims() {
-    var folderDelim = "/";
-    /* we use internal names known to everyone like "Sent", "Templates" and "Drafts" */
+  var folderDelim = "/";
+  /* we use internal names known to everyone like "Sent", "Templates" and "Drafts" */
 
-    gFccFolderWithDelim = folderDelim + "Sent";
-    gArchivesFolderWithDelim = folderDelim + "Archives";
-    gDraftsFolderWithDelim = folderDelim + "Drafts";
-    gTemplatesFolderWithDelim = folderDelim + "Templates";
+  gFccFolderWithDelim = folderDelim + "Sent";
+  gArchivesFolderWithDelim = folderDelim + "Archives";
+  gDraftsFolderWithDelim = folderDelim + "Drafts";
+  gTemplatesFolderWithDelim = folderDelim + "Templates";
 }
 
 // Save all changes on this page
 function onSave() {
-    onSaveCopiesAndFolders();
+  onSaveCopiesAndFolders();
 }
 
 function onSaveCopiesAndFolders() {
-    SaveFolderSettings(gFccRadioElemChoice,
-                        "doFcc",
-                        gFccFolderWithDelim,
-                        "msgFccAccountPicker",
-                        "msgFccFolderPicker",
-                        "identity.fccFolder",
-                        "identity.fccFolderPickerMode");
+  SaveFolderSettings(gFccRadioElemChoice,
+                      "doFcc",
+                      gFccFolderWithDelim,
+                      "msgFccAccountPicker",
+                      "msgFccFolderPicker",
+                      "identity.fccFolder",
+                      "identity.fccFolderPickerMode");
 
-    SaveFolderSettings(gArchivesRadioElemChoice,
-                        "messageArchives",
-                        gArchivesFolderWithDelim,
-                        "msgArchivesAccountPicker",
-                        "msgArchivesFolderPicker",
-                        "identity.archiveFolder",
-                        "identity.archivesFolderPickerMode");
+  SaveFolderSettings(gArchivesRadioElemChoice,
+                      "messageArchives",
+                      gArchivesFolderWithDelim,
+                      "msgArchivesAccountPicker",
+                      "msgArchivesFolderPicker",
+                      "identity.archiveFolder",
+                      "identity.archivesFolderPickerMode");
 
-    SaveFolderSettings(gDraftsRadioElemChoice,
-                        "messageDrafts",
-                        gDraftsFolderWithDelim,
-                        "msgDraftsAccountPicker",
-                        "msgDraftsFolderPicker",
-                        "identity.draftFolder",
-                        "identity.draftsFolderPickerMode");
+  SaveFolderSettings(gDraftsRadioElemChoice,
+                      "messageDrafts",
+                      gDraftsFolderWithDelim,
+                      "msgDraftsAccountPicker",
+                      "msgDraftsFolderPicker",
+                      "identity.draftFolder",
+                      "identity.draftsFolderPickerMode");
 
-    SaveFolderSettings(gTmplRadioElemChoice,
-                        "messageTemplates",
-                        gTemplatesFolderWithDelim,
-                        "msgStationeryAccountPicker",
-                        "msgStationeryFolderPicker",
-                        "identity.stationeryFolder",
-                        "identity.tmplFolderPickerMode");
+  SaveFolderSettings(gTmplRadioElemChoice,
+                      "messageTemplates",
+                      gTemplatesFolderWithDelim,
+                      "msgStationeryAccountPicker",
+                      "msgStationeryFolderPicker",
+                      "identity.stationeryFolder",
+                      "identity.tmplFolderPickerMode");
 }
 
 // Save folder settings and radio element choices
@@ -253,29 +253,29 @@ function SaveFolderSettings(radioElemChoice,
                             folderPickerId,
                             folderElementId,
                             folderPickerModeId) {
-    var formElement = document.getElementById(folderElementId);
-    var uri;
+  var formElement = document.getElementById(folderElementId);
+  var uri;
 
-    if (radioElemChoice == "0" ||
-        !document.getElementById(folderPickerId).value) {
-      // Default or revert to default if no folder chosen.
-      radioElemChoice = "0";
-      uri = document.getElementById(accountPickerId).folder.URI;
-      if (uri) {
-        // Create Folder URI.
-        uri = uri + folderSuffix;
-      }
-    } else if (radioElemChoice == "1") {
-      uri = document.getElementById(folderPickerId).folder.URI;
-    } else {
-      dump("Error saving folder preferences.\n");
-      return;
+  if (radioElemChoice == "0" ||
+      !document.getElementById(folderPickerId).value) {
+    // Default or revert to default if no folder chosen.
+    radioElemChoice = "0";
+    uri = document.getElementById(accountPickerId).folder.URI;
+    if (uri) {
+      // Create Folder URI.
+      uri = uri + folderSuffix;
     }
+  } else if (radioElemChoice == "1") {
+    uri = document.getElementById(folderPickerId).folder.URI;
+  } else {
+    dump("Error saving folder preferences.\n");
+    return;
+  }
 
-    formElement.setAttribute("value", uri);
+  formElement.setAttribute("value", uri);
 
-    formElement = document.getElementById(folderPickerModeId);
-    formElement.setAttribute("value", radioElemChoice);
+  formElement = document.getElementById(folderPickerModeId);
+  formElement.setAttribute("value", radioElemChoice);
 }
 
 // Check the Fcc Self item and setup associated picker state
@@ -313,49 +313,49 @@ function setupFccItems() {
 
 // Disable CC textbox if CC checkbox is not checked
 function setupCcTextbox(init) {
-    var ccChecked = document.getElementById("identity.doCc").checked;
-    var ccTextbox = document.getElementById("identity.doCcList");
+  var ccChecked = document.getElementById("identity.doCc").checked;
+  var ccTextbox = document.getElementById("identity.doCcList");
 
-    ccTextbox.disabled = !ccChecked;
+  ccTextbox.disabled = !ccChecked;
 
-    if (ccChecked) {
-        if (ccTextbox.value == "") {
-            ccTextbox.value = document.getElementById("identity.email").value;
-            if (!init)
-                ccTextbox.select();
-        }
-    } else if ((ccTextbox.value == document.getElementById("identity.email").value) ||
-               (init && ccTextbox.getAttribute("value") == "")) {
-        ccTextbox.value = "";
+  if (ccChecked) {
+    if (ccTextbox.value == "") {
+        ccTextbox.value = document.getElementById("identity.email").value;
+      if (!init)
+          ccTextbox.select();
     }
+  } else if ((ccTextbox.value == document.getElementById("identity.email").value) ||
+             (init && ccTextbox.getAttribute("value") == "")) {
+    ccTextbox.value = "";
+  }
 }
 
 // Disable BCC textbox if BCC checkbox is not checked
 function setupBccTextbox(init) {
-    var bccChecked = document.getElementById("identity.doBcc").checked;
-    var bccTextbox = document.getElementById("identity.doBccList");
+  var bccChecked = document.getElementById("identity.doBcc").checked;
+  var bccTextbox = document.getElementById("identity.doBccList");
 
-    bccTextbox.disabled = !bccChecked;
+  bccTextbox.disabled = !bccChecked;
 
-    if (bccChecked) {
-        if (bccTextbox.value == "") {
-            bccTextbox.value = document.getElementById("identity.email").value;
-            if (!init)
-                bccTextbox.select();
-        }
-    } else if ((bccTextbox.value == document.getElementById("identity.email").value) ||
-               (init && bccTextbox.getAttribute("value") == "")) {
-        bccTextbox.value = "";
+  if (bccChecked) {
+    if (bccTextbox.value == "") {
+        bccTextbox.value = document.getElementById("identity.email").value;
+      if (!init)
+        bccTextbox.select();
     }
+  } else if ((bccTextbox.value == document.getElementById("identity.email").value) ||
+             (init && bccTextbox.getAttribute("value") == "")) {
+    bccTextbox.value = "";
+  }
 }
 
 // Enable and disable pickers based on the radio element clicked
 function SetPickerEnabling(enablePickerId, disablePickerId) {
-    var activePicker = document.getElementById(enablePickerId);
-    activePicker.removeAttribute("disabled");
+  var activePicker = document.getElementById(enablePickerId);
+  activePicker.removeAttribute("disabled");
 
-    var inactivePicker = document.getElementById(disablePickerId);
-    inactivePicker.setAttribute("disabled", "true");
+  var inactivePicker = document.getElementById(disablePickerId);
+  inactivePicker.setAttribute("disabled", "true");
 }
 
 // Set radio element choices and picker states

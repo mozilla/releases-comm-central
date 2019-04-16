@@ -260,28 +260,28 @@ function onAdvanced() {
 }
 
 function secureSelect(aLoading) {
-    var socketType = document.getElementById("server.socketType").value;
-    var defaultPort = gServer.protocolInfo.getDefaultServerPort(false);
-    var defaultPortSecure = gServer.protocolInfo.getDefaultServerPort(true);
-    var port = document.getElementById("server.port");
-    var portDefault = document.getElementById("defaultPort");
-    var prevDefaultPort = portDefault.value;
+  var socketType = document.getElementById("server.socketType").value;
+  var defaultPort = gServer.protocolInfo.getDefaultServerPort(false);
+  var defaultPortSecure = gServer.protocolInfo.getDefaultServerPort(true);
+  var port = document.getElementById("server.port");
+  var portDefault = document.getElementById("defaultPort");
+  var prevDefaultPort = portDefault.value;
 
-    if (socketType == Ci.nsMsgSocketType.SSL) {
-      portDefault.value = defaultPortSecure;
-      if (port.value == "" || (!aLoading && port.value == defaultPort && prevDefaultPort != portDefault.value))
-        port.value = defaultPortSecure;
-    } else {
-        portDefault.value = defaultPort;
-        if (port.value == "" || (!aLoading && port.value == defaultPortSecure && prevDefaultPort != portDefault.value))
-          port.value = defaultPort;
-    }
+  if (socketType == Ci.nsMsgSocketType.SSL) {
+    portDefault.value = defaultPortSecure;
+    if (port.value == "" || (!aLoading && port.value == defaultPort && prevDefaultPort != portDefault.value))
+      port.value = defaultPortSecure;
+  } else {
+    portDefault.value = defaultPort;
+    if (port.value == "" || (!aLoading && port.value == defaultPortSecure && prevDefaultPort != portDefault.value))
+      port.value = defaultPort;
+  }
 
-    // switch "insecure password" label
-    setLabelFromStringBundle("authMethod-password-cleartext",
-        socketType == Ci.nsMsgSocketType.SSL ||
-        socketType == Ci.nsMsgSocketType.alwaysSTARTTLS ?
-        "authPasswordCleartextViaSSL" : "authPasswordCleartextInsecurely");
+  // switch "insecure password" label
+  setLabelFromStringBundle("authMethod-password-cleartext",
+    socketType == Ci.nsMsgSocketType.SSL ||
+    socketType == Ci.nsMsgSocketType.alwaysSTARTTLS ?
+    "authPasswordCleartextViaSSL" : "authPasswordCleartextInsecurely");
 }
 
 function setupMailOnServerUI() {

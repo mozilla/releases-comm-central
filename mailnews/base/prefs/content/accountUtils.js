@@ -17,35 +17,35 @@ var gAnyValidIdentity = false; // If there are no valid identities for any accou
 var gNewAccountToLoad = null;   // used to load new messages if we come from the mail3pane
 
 function getInvalidAccounts(accounts) {
-    let numAccounts = accounts.length;
-    let invalidAccounts = [];
-    let numIdentities = 0;
-    for (let i = 0; i < numAccounts; i++) {
-        let account = accounts.queryElementAt(i, Ci.nsIMsgAccount);
-        try {
-            if (!account.incomingServer.valid) {
-                invalidAccounts[invalidAccounts.length] = account;
-                // skip to the next account
-                continue;
-            }
-        } catch (ex) {
-            // this account is busted, just keep going
-            continue;
-        }
-
-        var identities = account.identities;
-        numIdentities = identities.length;
-
-        for (var j = 0; j < numIdentities; j++) {
-            let identity = identities.queryElementAt(j, Ci.nsIMsgIdentity);
-            if (identity.valid) {
-              gAnyValidIdentity = true;
-            } else {
-              invalidAccounts[invalidAccounts.length] = account;
-            }
-        }
+  let numAccounts = accounts.length;
+  let invalidAccounts = [];
+  let numIdentities = 0;
+  for (let i = 0; i < numAccounts; i++) {
+    let account = accounts.queryElementAt(i, Ci.nsIMsgAccount);
+    try {
+      if (!account.incomingServer.valid) {
+          invalidAccounts[invalidAccounts.length] = account;
+        // skip to the next account
+        continue;
+      }
+    } catch (ex) {
+      // this account is busted, just keep going
+      continue;
     }
-    return invalidAccounts;
+
+    var identities = account.identities;
+    numIdentities = identities.length;
+
+    for (var j = 0; j < numIdentities; j++) {
+      let identity = identities.queryElementAt(j, Ci.nsIMsgIdentity);
+      if (identity.valid) {
+        gAnyValidIdentity = true;
+      } else {
+        invalidAccounts[invalidAccounts.length] = account;
+      }
+    }
+  }
+  return invalidAccounts;
 }
 
 function showMailIntegrationDialog() {
@@ -85,74 +85,74 @@ function verifyAccounts(wizardCallback, needsIdentity, wizardOpen) {
   var prefillAccount;
   var ret = true;
 
-    try {
-        // migrate quoting preferences from global to per account. This function returns
-        // true if it had to migrate, which we will use to mean this is a just migrated
-        // or new profile
-        var newProfile = migrateGlobalQuotingPrefs(MailServices.accounts.allIdentities);
+  try {
+    // migrate quoting preferences from global to per account. This function returns
+    // true if it had to migrate, which we will use to mean this is a just migrated
+    // or new profile
+    var newProfile = migrateGlobalQuotingPrefs(MailServices.accounts.allIdentities);
 
-        var accounts = MailServices.accounts.accounts;
+    var accounts = MailServices.accounts.accounts;
 
-        // as long as we have some accounts, we're fine.
-        var accountCount = accounts.length;
-        var invalidAccounts = getInvalidAccounts(accounts);
-        if (invalidAccounts.length > 0 && invalidAccounts.length == accountCount) {
-            prefillAccount = invalidAccounts[0];
-        }
-
-        // if there are no accounts, or all accounts are "invalid"
-        // then kick off the account migration. Or if this is a new (to Mozilla) profile.
-        // MCD can set up accounts without the profile being used yet
-        if (newProfile) {
-          // check if MCD is configured. If not, say this is not a new profile
-          // so that we don't accidentally remigrate non MCD profiles.
-          var adminUrl = Services.prefs.getCharPref("autoadmin.global_config_url", "");
-          if (!adminUrl)
-            newProfile = false;
-        }
-        if ((newProfile && !accountCount) || accountCount == invalidAccounts.length)
-          openWizard = true;
-
-        // openWizard is true if messenger migration returns some kind of
-        // error (including those cases where there is nothing to migrate).
-        // prefillAccount is non-null if there is at least one invalid account.
-        // gAnyValidIdentity is true when you've got at least one *valid*
-        // identity. Since local and RSS folders are identity-less accounts, if you
-        // only have one of those, it will be false.
-        // needsIdentity is true only when verifyAccounts is called from the
-        // compose window. This last condition is so that we open the account
-        // wizard if the user does not have any identities defined and tries to
-        // compose mail.
-
-        if (openWizard || prefillAccount || ((!gAnyValidIdentity) && needsIdentity)) {
-          if (wizardOpen != undefined)
-            wizardOpen(wizardCallback);
-          else
-            MsgAccountWizard(wizardCallback);
-          ret = false;
-        } else {
-          var localFoldersExists;
-          try {
-            localFoldersExists = MailServices.accounts.localFoldersServer;
-          } catch (ex) {
-            localFoldersExists = false;
-          }
-
-          // we didn't create the MsgAccountWizard - we need to verify that local folders exists.
-          if (!localFoldersExists)
-            MailServices.accounts.createLocalMailAccount();
-        }
-
-        // This will do nothing on platforms without a shell service
-        if ("@mozilla.org/suite/shell-service;1" in Cc) {
-          // hack, set a time out to do this, so that the window can load first
-          setTimeout(showMailIntegrationDialog, 0);
-        }
-        return ret;
-    } catch (ex) {
-        dump("error verifying accounts " + ex + "\n");
-        return false;
+    // as long as we have some accounts, we're fine.
+    var accountCount = accounts.length;
+    var invalidAccounts = getInvalidAccounts(accounts);
+    if (invalidAccounts.length > 0 && invalidAccounts.length == accountCount) {
+      prefillAccount = invalidAccounts[0];
     }
+
+    // if there are no accounts, or all accounts are "invalid"
+    // then kick off the account migration. Or if this is a new (to Mozilla) profile.
+    // MCD can set up accounts without the profile being used yet
+    if (newProfile) {
+      // check if MCD is configured. If not, say this is not a new profile
+      // so that we don't accidentally remigrate non MCD profiles.
+      var adminUrl = Services.prefs.getCharPref("autoadmin.global_config_url", "");
+      if (!adminUrl)
+        newProfile = false;
+    }
+    if ((newProfile && !accountCount) || accountCount == invalidAccounts.length)
+      openWizard = true;
+
+    // openWizard is true if messenger migration returns some kind of
+    // error (including those cases where there is nothing to migrate).
+    // prefillAccount is non-null if there is at least one invalid account.
+    // gAnyValidIdentity is true when you've got at least one *valid*
+    // identity. Since local and RSS folders are identity-less accounts, if you
+    // only have one of those, it will be false.
+    // needsIdentity is true only when verifyAccounts is called from the
+    // compose window. This last condition is so that we open the account
+    // wizard if the user does not have any identities defined and tries to
+    // compose mail.
+
+    if (openWizard || prefillAccount || ((!gAnyValidIdentity) && needsIdentity)) {
+      if (wizardOpen != undefined)
+        wizardOpen(wizardCallback);
+      else
+        MsgAccountWizard(wizardCallback);
+      ret = false;
+    } else {
+      var localFoldersExists;
+      try {
+        localFoldersExists = MailServices.accounts.localFoldersServer;
+      } catch (ex) {
+        localFoldersExists = false;
+      }
+
+      // we didn't create the MsgAccountWizard - we need to verify that local folders exists.
+      if (!localFoldersExists)
+        MailServices.accounts.createLocalMailAccount();
+    }
+
+    // This will do nothing on platforms without a shell service
+    if ("@mozilla.org/suite/shell-service;1" in Cc) {
+      // hack, set a time out to do this, so that the window can load first
+      setTimeout(showMailIntegrationDialog, 0);
+    }
+    return ret;
+  } catch (ex) {
+    dump("error verifying accounts " + ex + "\n");
+    return false;
+  }
 }
 
 // we do this from a timer because if this is called from the onload=
@@ -223,29 +223,29 @@ function AddFeedAccount() {
  * @param  aServer    The server of the account to select. Optional.
  */
 function MsgAccountManager(selectPage, aServer) {
-    var existingAccountManager = Services.wm.getMostRecentWindow("mailnews:accountmanager");
+  var existingAccountManager = Services.wm.getMostRecentWindow("mailnews:accountmanager");
 
-    if (existingAccountManager) {
-        existingAccountManager.focus();
-    } else {
-        if (!aServer) {
-          if (typeof window.GetSelectedMsgFolders === "function") {
-            let folders = window.GetSelectedMsgFolders();
-            if (folders.length > 0)
-              aServer = folders[0].server;
-          }
-          if (!aServer && (typeof window.GetDefaultAccountRootFolder === "function")) {
-            let folder = window.GetDefaultAccountRootFolder();
-            if (folder instanceof Ci.nsIMsgFolder)
-              aServer = folder.server;
-          }
-        }
-
-        window.openDialog("chrome://messenger/content/AccountManager.xul",
-                          "AccountManager",
-                          "chrome,centerscreen,modal,titlebar,resizable",
-                          { server: aServer, selectPage });
+  if (existingAccountManager) {
+    existingAccountManager.focus();
+  } else {
+    if (!aServer) {
+      if (typeof window.GetSelectedMsgFolders === "function") {
+        let folders = window.GetSelectedMsgFolders();
+        if (folders.length > 0)
+          aServer = folders[0].server;
+      }
+      if (!aServer && (typeof window.GetDefaultAccountRootFolder === "function")) {
+        let folder = window.GetDefaultAccountRootFolder();
+        if (folder instanceof Ci.nsIMsgFolder)
+          aServer = folder.server;
+      }
     }
+
+    window.openDialog("chrome://messenger/content/AccountManager.xul",
+                      "AccountManager",
+                      "chrome,centerscreen,modal,titlebar,resizable",
+                      { server: aServer, selectPage });
+  }
 }
 
 function loadInboxForNewAccount() {
