@@ -78,20 +78,20 @@ macosx64/opt:
         - linux64-rust-macos
         - linux64-sccache
 
-macosx64-nightly/opt:
-    description: "MacOS X x64 Cross-compile Nightly"
+macosx64-shippable/opt:
+    description: "MacOS X x64 Cross-compile"
     attributes:
-        nightly: true
+        shippable: true
         enable-full-crashsymbols: true
     shipping-phase: build
     shipping-product: thunderbird
     index:
         product: thunderbird
         job-name: macosx64-opt
-        type: nightly
+        type: shippable
     treeherder:
-        platform: osx-cross/opt
-        symbol: N
+        platform: osx-shippable/opt
+        symbol: B
         tier: 1
     worker-type: b-linux
     worker:
