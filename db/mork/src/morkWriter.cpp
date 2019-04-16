@@ -765,7 +765,7 @@ morkWriter::StartGroup(morkEnv* ev)
   mWriter_DidStartGroup = morkBool_kTrue;
   mWriter_DidEndGroup = morkBool_kFalse;
 
-  char buf[ 64 ];
+  char buf[4 + morkWriter_kGroupBufSize + 2]; // "@$${" + groupid + "{@"
   char* p = buf;
   *p++ = '@';
   *p++ = '$';
@@ -803,7 +803,7 @@ morkWriter::StartGroup(morkEnv* ev)
   }
 
   mork_size bytesWritten;
-  stream->Write(mdbev, buf, idFill + 6, &bytesWritten); // '@$${' + idFill + '{@'
+  stream->Write(mdbev, buf, 4 + idFill + 2, &bytesWritten); // '@$${' + idFill + '{@'
   stream->PutLineBreak(ev);
   mWriter_LineSize = 0;
 
