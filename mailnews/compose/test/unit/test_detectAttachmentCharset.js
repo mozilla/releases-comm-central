@@ -39,15 +39,37 @@ async function testUTF16LE() {
 }
 
 async function testShiftJIS() {
+  Services.prefs.setStringPref("intl.charset.detector", "ja_parallel_state_machine");
   await createMessage(do_get_file("data/test-SHIFT_JIS.txt"));
-  checkAttachmentCharset(null); // do not detect SHIFT_JIS in this file anymore
+  checkAttachmentCharset("Shift_JIS");
+}
+
+async function testISO2022JP() {
+  Services.prefs.setStringPref("intl.charset.detector", "ja_parallel_state_machine");
+  await createMessage(do_get_file("data/test-ISO-2022-JP.txt"));
+  checkAttachmentCharset("ISO-2022-JP");
+}
+
+async function testKOI8R() {
+  Services.prefs.setStringPref("intl.charset.detector", "ruprob");
+  await createMessage(do_get_file("data/test-KOI8-R.txt"));
+  checkAttachmentCharset("KOI8-R");
+}
+
+async function testWindows1252() {
+  Services.prefs.clearUserPref("intl.charset.detector");
+  await createMessage(do_get_file("data/test-windows-1252.txt"));
+  checkAttachmentCharset(null);  // windows-1252 is not directly detected.
 }
 
 var tests = [
   testUTF8,
   testUTF16BE,
   testUTF16LE,
-  testShiftJIS
+  testShiftJIS,
+  testISO2022JP,
+  testKOI8R,
+  testWindows1252
 ]
 
 function run_test() {

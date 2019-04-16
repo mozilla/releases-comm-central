@@ -1954,8 +1954,7 @@ MsgDetectCharsetFromFile(nsIFile *aFile, nsACString &aCharset)
   // If no BOM, run localized detection (Russian, Ukranian or Japanese).
   // We need to run this first, since ISO-2022-JP is 7bit ASCII and would be detected as UTF-8.
   // If ISO-2022-JP not detected, check for UTF-8.
-  // If no UTF-8, but detector detected something, use that,
-  // otherwisefall back to a localization-specific value.
+  // If no UTF-8, but detector detected something, use that, otherwise return an error.
   aCharset.Truncate();
 
   nsresult rv;
@@ -2047,10 +2046,8 @@ MsgDetectCharsetFromFile(nsIFile *aFile, nsACString &aCharset)
   if (!aCharset.IsEmpty())
     return NS_OK;
 
-  // Use file system charset. Note that this is not very good after bug 1381762,
-  // for example ISO-8859-2 (Latin-2) is returned instead of windows-1250.
-  aCharset = nsMsgI18NFileSystemCharset();
-  return NS_OK;
+  // Nothing found, leave it to the caller.
+  return NS_ERROR_FAILURE;
 }
 
 /*
