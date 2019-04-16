@@ -1917,9 +1917,80 @@ private:
 
 NS_IMPL_ISUPPORTS(CharsetDetectionObserver, nsICharsetDetectionObserver)
 
+static bool IsStreamUTF8(nsIInputStream* aStream) {
+  mozilla::Array<uint8_t, 1024> bufferArr;
+  mozilla::Array<uint8_t, 1028> discardedArr; // 4 slots longer than buffer
+  auto buffer = MakeSpan(bufferArr);
+  auto discarded = MakeSpan(discardedArr);
+  auto decoder = UTF_8_ENCODING->NewDecoderWithoutBOMHandling();
+  for (;;) {
+    uint32_t numRead = 0;
+    nsresult rv = aStream->Read(reinterpret_cast<char*>(buffer.Elements()),
+                                buffer.Length(), &numRead);
+    if (NS_FAILED(rv)) {
+      return false;
+    }
+    uint32_t result;
+    size_t read;
+    size_t written;
+    bool last = (numRead == 0);
+    mozilla::Tie(result, read, written) =
+      decoder->DecodeToUTF8WithoutReplacement(buffer.To(numRead), discarded, last);
+    MOZ_ASSERT(result != kOutputFull);
+    if (last) {
+      return (result == kInputEmpty);
+    }
+    if (result != kInputEmpty) {
+      return false;
+    }
+  }
+}
+
 NS_MSG_BASE nsresult
 MsgDetectCharsetFromFile(nsIFile *aFile, nsACString &aCharset)
 {
+  // We do the detection in this order:
+  // Check BOM.
+  // If no BOM, run localized detection (Russian, Ukranian or Japanese).
+  // We need to run this first, since ISO-2022-JP is 7bit ASCII and would be detected as UTF-8.
+  // If ISO-2022-JP not detected, check for UTF-8.
+  // If no UTF-8, but detector detected something, use that,
+  // otherwisefall back to a localization-specific value.
+  aCharset.Truncate();
+
+  nsresult rv;
+  nsCOMPtr<nsIInputStream> inputStream;
+  rv = NS_NewLocalFileInputStream(getter_AddRefs(inputStream), aFile);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Check the BOM.
+  char sniffBuf[3];
+  uint32_t numRead;
+  rv = inputStream->Read(sniffBuf, sizeof(sniffBuf), &numRead);
+
+  if (numRead >= 2 &&
+             sniffBuf[0] == (char)0xfe &&
+             sniffBuf[1] == (char)0xff) {
+    aCharset = "UTF-16BE";
+  } else if (numRead >= 2 &&
+             sniffBuf[0] == (char)0xff &&
+             sniffBuf[1] == (char)0xfe) {
+    aCharset = "UTF-16LE";
+  } else if (numRead >= 3 &&
+             sniffBuf[0] == (char)0xef &&
+             sniffBuf[1] == (char)0xbb &&
+             sniffBuf[2] == (char)0xbf) {
+    aCharset = "UTF-8";
+  }
+  if (!aCharset.IsEmpty())
+    return NS_OK;
+
+  // Position back to the beginning.
+  nsCOMPtr<nsISeekableStream> seekStream = do_QueryInterface(inputStream);
+  if (seekStream)
+    seekStream->Seek(nsISeekableStream::NS_SEEK_SET, 0);
+
+  // Use detector.
   nsCOMPtr<nsICharsetDetector> detector;
   nsAutoCString detectorName;
   Preferences::GetLocalizedCString("intl.charset.detector", detectorName);
@@ -1934,80 +2005,51 @@ MsgDetectCharsetFromFile(nsIFile *aFile, nsACString &aCharset)
     }
   }
 
-  nsresult rv;
-  nsCOMPtr<nsIInputStream> inputStream;
-  rv = NS_NewLocalFileInputStream(getter_AddRefs(inputStream), aFile);
-  NS_ENSURE_SUCCESS(rv, rv);
-
   if (detector) {
-    nsAutoCString buffer;
-
     RefPtr<CharsetDetectionObserver> observer = new CharsetDetectionObserver();
 
     rv = detector->Init(observer);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMPtr<nsILineInputStream> lineInputStream = do_QueryInterface(inputStream, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    bool isMore = true;
+    char buffer[1024];
+    uint32_t numRead = 0;
     bool dontFeed = false;
-    while (isMore &&
-           NS_SUCCEEDED(lineInputStream->ReadLine(buffer, &isMore)) &&
-           buffer.Length() > 0) {
-      detector->DoIt(buffer.get(), buffer.Length(), &dontFeed);
+    while (NS_SUCCEEDED(inputStream->Read(buffer, sizeof(buffer), &numRead))) {
+      // XXX: We need to break early here to work around a problem in Shift-JIS
+      // detection. If we call `DoIt()` with any empty buffer, Shift-JIS is not
+      // detected, however ISO-2022-JP is detected.
+      if (numRead == 0)
+        break;
+      detector->DoIt(buffer, numRead, &dontFeed);
       NS_ENSURE_SUCCESS(rv, rv);
-      if (dontFeed)
+      if (dontFeed)  // XXX: We should really break here with: if (dontFeed || numRead == 0).
         break;
     }
     rv = detector->Done();
     NS_ENSURE_SUCCESS(rv, rv);
 
     observer->GetDetectedCharset(aCharset);
-  } else {
-    // no charset detector available, check the BOM
-    char sniffBuf[3];
-    uint32_t numRead;
-    rv = inputStream->Read(sniffBuf, sizeof(sniffBuf), &numRead);
-
-    if (numRead >= 2 &&
-               sniffBuf[0] == (char)0xfe &&
-               sniffBuf[1] == (char)0xff) {
-      aCharset = "UTF-16BE";
-    } else if (numRead >= 2 &&
-               sniffBuf[0] == (char)0xff &&
-               sniffBuf[1] == (char)0xfe) {
-      aCharset = "UTF-16LE";
-    } else if (numRead >= 3 &&
-               sniffBuf[0] == (char)0xef &&
-               sniffBuf[1] == (char)0xbb &&
-               sniffBuf[2] == (char)0xbf) {
-      aCharset = "UTF-8";
-    }
   }
 
-  if (aCharset.IsEmpty()) { // No sniffed or charset.
-    nsAutoCString buffer;
-    nsCOMPtr<nsILineInputStream> lineInputStream =
-      do_QueryInterface(inputStream, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
+  if (aCharset.EqualsLiteral("ISO-2022-JP"))
+    return NS_OK;
 
-    bool isMore = true;
-    bool isUTF8Compat = true;
-    while (isMore && isUTF8Compat &&
-           NS_SUCCEEDED(lineInputStream->ReadLine(buffer, &isMore))) {
-      isUTF8Compat = MsgIsUTF8(buffer);
-    }
+  // Rewind file again.
+  seekStream->Seek(nsISeekableStream::NS_SEEK_SET, 0);
 
-    // If the file content is UTF-8 compatible, use that. Otherwise let's not
-    // make a bad guess.
-    if (isUTF8Compat)
-      aCharset.AssignLiteral("UTF-8");
+  // Check UTF-8.
+  if (IsStreamUTF8(inputStream)) {
+    aCharset.AssignLiteral("UTF-8");
+    return NS_OK;
   }
 
-  if (aCharset.IsEmpty()) {
-    return NS_ERROR_FAILURE;
-  }
+  // No UTF-8 detected, use previous detection result.
+  if (!aCharset.IsEmpty())
+    return NS_OK;
+
+  // Use file system charset. Note that this is not very good after bug 1381762,
+  // for example ISO-8859-2 (Latin-2) is returned instead of windows-1250.
+  aCharset = nsMsgI18NFileSystemCharset();
   return NS_OK;
 }
 
