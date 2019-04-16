@@ -13,7 +13,7 @@ kind-dependencies:
     - repackage-msi
 
 only-for-build-platforms:
-    - win32-shippableopt
+    - win32-nightly/opt
     - win32/opt
-    - win64-shippable/opt
+    - win64-nightly/opt
     - win64/opt

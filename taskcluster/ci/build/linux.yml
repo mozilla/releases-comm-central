@@ -30,20 +30,20 @@ linux64/opt:
         - linux64-rust
         - linux64-sccache
 
-linux64-shippable/opt:
-    description: "Linux64 Shippable"
+linux64-nightly/opt:
+    description: "Linux64 Nightly"
     attributes:
-        shippable: true
+        nightly: true
         enable-full-crashsymbols: true
     shipping-phase: build
     shipping-product: thunderbird
     index:
         product: thunderbird
         job-name: linux64-opt
-        type: shippable
+        type: nightly
     treeherder:
-        platform: linux64-shippable/opt
-        symbol: B
+        platform: linux64/opt
+        symbol: N
     worker-type: aws-provisioner-v1/gecko-{level}-b-linux
     worker:
         docker-image: {in-tree: "debian7-amd64-build"}
@@ -134,20 +134,20 @@ linux/opt:
         - linux64-rust
         - linux64-sccache
 
-linux-shippable/opt:
-    description: "Linux32 Shippable"
+linux-nightly/opt:
+    description: "Linux32 Nightly"
     attributes:
-        shippable: true
+        nightly: true
         enable-full-crashsymbols: true
     shipping-phase: build
     shipping-product: thunderbird
     index:
         product: thunderbird
         job-name: linux32-opt
-        type: shippable
+        type: nightly
     treeherder:
-        platform: linux32-shippable/opt
-        symbol: B
+        platform: linux32/opt
+        symbol: N
     worker-type: aws-provisioner-v1/gecko-{level}-b-linux
     worker:
         docker-image: {in-tree: "debian7-i386-build"}
