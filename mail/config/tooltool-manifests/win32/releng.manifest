@@ -38,12 +38,12 @@
     "unpack": true
   },
   {
-    "version": "Outlook 2010 Messaging API (repacked)",
-    "filename": "mapiheader.zip",
+    "version": "Outlook 2010 Messaging API (repacked w/ updated MAPI.h)",
+    "filename": "mapiheader-20190415.zip",
     "unpack": true,
-    "size": 87041,
+    "size": 87349,
     "algorithm": "sha512",
-    "digest": "f5e963fb86e17e7d8a802a9f07954b80df3e734863dc8e809c6d2005e727eee3bcd71433108aff1aa27912ce1d593b5fbc3b4287b35c98331e44049afba3205d",
+    "digest": "c4a9362fb688ceab7959ff7b48770f56ea1f626f640f32dab03a14f0f5908b4fa1da811593afa3003c5f15ef4a63880c6ed790863e69a9938c4357d0534dfc1e",
     "origin": "http://www.microsoft.com/en-us/download/details.aspx?id=12905"
   }
 ]
