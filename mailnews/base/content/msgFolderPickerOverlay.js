@@ -8,25 +8,23 @@ var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var gMessengerBundle;
 
 // call this from dialog onload() to set the menu item to the correct value
-function MsgFolderPickerOnLoad(pickerID)
-{
+function MsgFolderPickerOnLoad(pickerID) {
   var uri = null;
   try {
     uri = window.arguments[0].preselectedURI;
-  }
-  catch (ex) {
+  } catch (ex) {
     uri = null;
   }
 
   if (uri) {
-    //dump("on loading, set titled button to " + uri + "\n");
+    // dump("on loading, set titled button to " + uri + "\n");
 
     // verify that the value we are attempting to
     // pre-flight the menu with is valid for this
     // picker type
     var msgfolder = MailUtils.getExistingFolder(uri);
           if (!msgfolder) return;
-    
+
     var verifyFunction = null;
 
     switch (pickerID) {
@@ -42,19 +40,17 @@ function MsgFolderPickerOnLoad(pickerID)
     }
 
     if (verifyFunction) {
-      SetFolderPicker(uri,pickerID);
+      SetFolderPicker(uri, pickerID);
     }
   }
 }
 
-function PickedMsgFolder(selection,pickerID)
-{
-  var selectedUri = selection.getAttribute('id');
-  SetFolderPicker(selectedUri,pickerID);
+function PickedMsgFolder(selection, pickerID) {
+  var selectedUri = selection.getAttribute("id");
+  SetFolderPicker(selectedUri, pickerID);
 }
 
-function SetFolderPickerElement(uri, picker)
-{
+function SetFolderPickerElement(uri, picker) {
   var msgfolder = MailUtils.getExistingFolder(uri);
 
   if (!msgfolder)
@@ -63,37 +59,36 @@ function SetFolderPickerElement(uri, picker)
   var selectedValue = null;
   var serverName;
 
-  if (msgfolder.isServer)
+  if (msgfolder.isServer) {
     selectedValue = msgfolder.name;
-  else {
-    if (msgfolder.server)
+  } else {
+    if (msgfolder.server) {
       serverName = msgfolder.server.prettyName;
-    else {
+    } else {
      dump("Can't find server for " + uri + "\n");
      serverName = "???";
     }
 
-  switch (picker.id) {
-    case "runFiltersFolder":
-      selectedValue = msgfolder.name;
-      break;
-    case "msgTrashFolderPicker":
-      selectedValue = msgfolder.name;
-      break;
-    default:
-      if (!gMessengerBundle)
-        gMessengerBundle = document.getElementById("bundle_messenger");
-      selectedValue = gMessengerBundle.getFormattedString("verboseFolderFormat",
-        [msgfolder.name, serverName]);
-      break;
+    switch (picker.id) {
+      case "runFiltersFolder":
+        selectedValue = msgfolder.name;
+        break;
+      case "msgTrashFolderPicker":
+        selectedValue = msgfolder.name;
+        break;
+      default:
+        if (!gMessengerBundle)
+          gMessengerBundle = document.getElementById("bundle_messenger");
+        selectedValue = gMessengerBundle.getFormattedString("verboseFolderFormat",
+          [msgfolder.name, serverName]);
+        break;
     }
   }
 
-  picker.setAttribute("label",selectedValue);
-  picker.setAttribute("uri",uri);
+  picker.setAttribute("label", selectedValue);
+  picker.setAttribute("uri", uri);
 }
 
-function SetFolderPicker(uri,pickerID)
-{
+function SetFolderPicker(uri, pickerID) {
   SetFolderPickerElement(uri, document.getElementById(pickerID));
 }

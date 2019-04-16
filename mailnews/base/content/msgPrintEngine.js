@@ -5,6 +5,8 @@
 
 /* This is where functions related to the print engine are kept */
 
+/* import-globals-from ../../../../toolkit/components/printing/content/printUtils.js */
+
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /* globals for a particular window */
@@ -15,15 +17,13 @@ var printSettings = null;
 var printOpener = null;
 
 /* Functions related to startup */
-function OnLoadPrintEngine()
-{
+function OnLoadPrintEngine() {
   PrintEngineCreateGlobals();
   InitPrintEngineWindow();
   printEngine.startPrintOperation(printSettings);
 }
 
-function PrintEngineCreateGlobals()
-{
+function PrintEngineCreateGlobals() {
   /* get the print engine instance */
   printEngine = Cc[printEngineContractID].createInstance();
   printEngine = printEngine.QueryInterface(Ci.nsIMsgPrintEngine);
@@ -34,7 +34,7 @@ function PrintEngineCreateGlobals()
 }
 
 var PrintPreviewListener = {
-  getPrintPreviewBrowser: function () {
+  getPrintPreviewBrowser() {
     var browser = document.getElementById("ppBrowser");
     if (!browser) {
       browser = document.createElement("browser");
@@ -47,24 +47,23 @@ var PrintPreviewListener = {
     }
     return browser;
   },
-  getSourceBrowser: function () {
+  getSourceBrowser() {
     return document.getElementById("content");
   },
-  getNavToolbox: function () {
+  getNavToolbox() {
     return document.getElementById("content");
   },
-  onEnter: function () {
+  onEnter() {
     setPPTitle(document.getElementById("content").contentDocument.title);
     document.getElementById("content").collapsed = true;
     printEngine.showWindow(true);
   },
-  onExit: function () {
+  onExit() {
     window.close();
-  }
+  },
 };
 
-function setPPTitle(aTitle)
-{
+function setPPTitle(aTitle) {
   let title = aTitle;
   let gBrandBundle = document.getElementById("bundle_brand");
   let msgBundle = document.getElementById("bundle_messenger");
@@ -76,16 +75,13 @@ function setPPTitle(aTitle)
 }
 
 // Pref listener constants
-var gStartupPPObserver =
-{
-  observe: function(subject, topic, prefName)
-  {
+var gStartupPPObserver = {
+  observe(subject, topic, prefName) {
     PrintUtils.printPreview(PrintPreviewListener);
-  }
+  },
 };
 
-function ReplaceWithSelection()
-{
+function ReplaceWithSelection() {
   if (!printOpener.content)
     return;
 
@@ -105,8 +101,7 @@ function ReplaceWithSelection()
   }
 }
 
-function InitPrintEngineWindow()
-{
+function InitPrintEngineWindow() {
   /* Store the current opener for later access in ReplaceWithSelection() */
   printOpener = opener;
 
@@ -160,23 +155,19 @@ function InitPrintEngineWindow()
   }
 }
 
-function ClearPrintEnginePane()
-{
-  if (window.frames["content"].location.href != "about:blank")
-    window.frames["content"].location.href = "about:blank";
+function ClearPrintEnginePane() {
+  if (window.frames.content.location.href != "about:blank")
+    window.frames.content.location.href = "about:blank";
 }
 
-function StopUrls()
-{
+function StopUrls() {
   printEngine.stopUrls();
 }
 
-function PrintEnginePrint()
-{
+function PrintEnginePrint() {
   printEngineWindow = window.openDialog("chrome://messenger/content/msgPrintEngine.xul", "", "chrome,dialog=no,all,centerscreen", false);
 }
 
-function PrintEnginePrintPreview()
-{
+function PrintEnginePrintPreview() {
   printEngineWindow = window.openDialog("chrome://messenger/content/msgPrintEngine.xul", "", "chrome,dialog=no,all,centerscreen", true);
 }

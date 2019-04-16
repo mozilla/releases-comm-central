@@ -69,19 +69,18 @@ function fixIterator(aEnum, aIface) {
       ITERATOR_SYMBOL in aEnum) {
     if (!aIface) {
       return aEnum[ITERATOR_SYMBOL]();
-    } else {
-      return (function*() {
-        for (let o of aEnum)
-          yield o.QueryInterface(aIface);
-      })();
     }
+    return (function* () {
+      for (let o of aEnum)
+        yield o.QueryInterface(aIface);
+    })();
   }
 
   let face = aIface || Ci.nsISupports;
   // Figure out which kind of array object we have.
   // First try nsIArray (covers nsIMutableArray too).
   if (aEnum instanceof Ci.nsIArray) {
-    return (function*() {
+    return (function* () {
       let count = aEnum.length;
       for (let i = 0; i < count; i++)
         yield aEnum.queryElementAt(i, face);

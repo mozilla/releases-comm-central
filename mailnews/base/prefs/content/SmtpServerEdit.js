@@ -20,14 +20,12 @@ var gDefaultPort;
 
 document.addEventListener("dialogaccept", onAccept);
 
-function onLoad(event)
-{
+function onLoad(event) {
   gSmtpServer = window.arguments[0].server;
   initSmtpSettings(gSmtpServer);
 }
 
-function onAccept(event)
-{
+function onAccept(event) {
   if (!isLegalHostNameOrIP(cleanUpHostName(gSmtpHostname.value))) {
     let prefsBundle = document.getElementById("bundle_prefs");
     let brandBundle = document.getElementById("bundle_brand");
@@ -111,27 +109,24 @@ function initSmtpSettings(server) {
     hideUnlessSelected(document.getElementById("connectionSecurityType-1"));
 }
 
-function hideUnlessSelected(element)
-{
+function hideUnlessSelected(element) {
   element.hidden = !element.selected;
 }
 
-function setLabelFromStringBundle(elementID, stringName)
-{
+function setLabelFromStringBundle(elementID, stringName) {
   document.getElementById(elementID).label =
     document.getElementById("bundle_messenger").getString(stringName);
 }
 
 // Disables xul elements that have associated preferences locked.
-function onLockPreference()
-{
+function onLockPreference() {
   try {
     let allPrefElements = {
       hostname:     gSmtpHostname,
       description:  gSmtpDescription,
       port:         gSmtpPort,
       authMethod:   gSmtpAuthMethod,
-      try_ssl:      gSmtpSocketType
+      try_ssl:      gSmtpSocketType,
     };
     disableIfLocked(allPrefElements);
   } catch (e) { // non-fatal
@@ -146,8 +141,7 @@ function onLockPreference()
  *
  * TODO: try to merge this with disableIfLocked function in am-offline.js (bug 755885)
  */
-function disableIfLocked(prefstrArray)
-{
+function disableIfLocked(prefstrArray) {
   let finalPrefString = "mail.smtpserver." +
     MailServices.smtp.defaultServer.key + ".";
   let smtpPrefBranch = Services.prefs.getBranch(finalPrefString);
@@ -157,9 +151,8 @@ function disableIfLocked(prefstrArray)
       prefstrArray[prefstring].disabled = true;
 }
 
-function saveSmtpSettings(server)
-{
-    //dump("Saving to " + server + "\n");
+function saveSmtpSettings(server) {
+    // dump("Saving to " + server + "\n");
     if (server) {
         server.hostname = cleanUpHostName(gSmtpHostname.value);
         server.description = gSmtpDescription.value;
@@ -170,8 +163,7 @@ function saveSmtpSettings(server)
     }
 }
 
-function authMethodChanged(userAction)
-{
+function authMethodChanged(userAction) {
   var noUsername = gSmtpAuthMethod.value == Ci.nsMsgAuthMethod.none;
   gSmtpUsername.disabled = noUsername;
   gSmtpUsernameLabel.disabled = noUsername;
@@ -185,8 +177,7 @@ function authMethodChanged(userAction)
  * @param userAction  false for dialog initialization,
  *                    true for user action.
  */
-function sslChanged(userAction)
-{
+function sslChanged(userAction) {
   const DEFAULT_SMTP_PORT = "587";
   const DEFAULT_SMTPS_PORT = "465";
   var socketType = gSmtpSocketType.value;

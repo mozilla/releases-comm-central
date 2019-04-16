@@ -14,12 +14,9 @@ var JXON = new (function() {
   const sElementListPrefix = "$";
   const sConflictSuffix = "_"; // used when there's a name conflict with special JXON properties
   const aCache = [];
-  const rIsNull = /^\s*$/;
   const rIsBool = /^(?:true|false)$/i;
 
   function parseText(sValue) {
-    //if (rIsNull.test(sValue))
-    //  return null;
     if (rIsBool.test(sValue))
       return sValue.toLowerCase() === "true";
     if (isFinite(sValue))
@@ -27,15 +24,15 @@ var JXON = new (function() {
     if (isFinite(Date.parse(sValue)))
       return new Date(sValue);
     return sValue;
-  };
+  }
 
   function EmptyTree() {
   }
   EmptyTree.prototype = {
-    toString : function () {
+    toString() {
       return "null";
     },
-    valueOf : function () {
+    valueOf() {
       return null;
     },
   };
@@ -45,9 +42,8 @@ var JXON = new (function() {
       return new EmptyTree();
     else if (vValue instanceof Object)
       return vValue;
-    else
-      return new vValue.constructor(vValue); // What does this? copy?
-  };
+    return new vValue.constructor(vValue); // What does this? copy?
+  }
 
   function createObjTree(oParentNode, nVerb, bFreeze, bNesteAttr) {
     const nLevelStart = aCache.length;
@@ -122,7 +118,7 @@ var JXON = new (function() {
     aCache.length = nLevelStart;
 
     return vResult;
-  };
+  }
 
   function loadObjTree(oXMLDoc, oParentEl, oParentObj) {
     var vValue, oChild;
@@ -162,7 +158,7 @@ var JXON = new (function() {
         oParentEl.appendChild(oChild);
      }
    }
-  };
+  }
 
   this.build = function(oXMLParent, nVerbosity /* optional */, bFreeze /* optional */, bNesteAttributes /* optional */) {
     const _nVerb =

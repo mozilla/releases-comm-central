@@ -217,7 +217,6 @@ function mboxToMaildir(mboxPath, maildirPath, progressFn) {
       writeToMsg(buf.substring(pos, endPos));
     }
     buf = buf.substring(endPos);
-
   }
   closeExistingMsg();
 }

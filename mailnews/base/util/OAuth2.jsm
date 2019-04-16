@@ -9,12 +9,11 @@ var EXPORTED_SYMBOLS = ["OAuth2"];
 
 const {httpRequest} = ChromeUtils.import("resource://gre/modules/Http.jsm");
 const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
 function parseURLData(aData) {
   let result = {};
-  aData.split(/[?#]/, 2)[1].split("&").forEach(function (aParam) {
+  aData.split(/[?#]/, 2)[1].split("&").forEach(function(aParam) {
     let [key, value] = aParam.split("=");
     result[key] = value;
   });
@@ -39,7 +38,6 @@ OAuth2.CODE_AUTHORIZATION = "authorization_code";
 OAuth2.CODE_REFRESH = "refresh_token";
 
 OAuth2.prototype = {
-
     responseType: "code",
     consumerKey: null,
     consumerSecret: null,
@@ -53,8 +51,7 @@ OAuth2.prototype = {
     refreshToken: null,
     tokenExpires: 0,
 
-    connect: function connect(aSuccess, aFailure, aWithUI, aRefresh) {
-
+    connect(aSuccess, aFailure, aWithUI, aRefresh) {
         this.connectSuccessCallback = aSuccess;
         this.connectFailureCallback = aFailure;
 
@@ -75,7 +72,7 @@ OAuth2.prototype = {
         }
     },
 
-    requestAuthorization: function requestAuthorization() {
+    requestAuthorization() {
         let params = [
             ["response_type", this.responseType],
             ["client_id", this.consumerKey],
@@ -90,14 +87,14 @@ OAuth2.prototype = {
         params.push(...this.extraAuthParams);
 
         // Now map the parameters to a string
-        params = params.map(([k,v]) => k + "=" + encodeURIComponent(v)).join("&");
+        params = params.map(([k, v]) => k + "=" + encodeURIComponent(v)).join("&");
 
         this._browserRequest = {
             account: this,
             url: this.authURI + "?" + params,
             _active: true,
             iconURI: "",
-            cancelled: function() {
+            cancelled() {
                 if (!this._active) {
                     return;
                 }
@@ -106,7 +103,7 @@ OAuth2.prototype = {
                 this.account.onAuthorizationFailed(Cr.NS_ERROR_ABORT, '{ "error": "cancelled"}');
             },
 
-            loaded: function (aWindow, aWebProgress) {
+            loaded(aWindow, aWebProgress) {
                 if (!this._active) {
                     return;
                 }
@@ -119,13 +116,13 @@ OAuth2.prototype = {
                     QueryInterface: ChromeUtils.generateQI([Ci.nsIWebProgressListener,
                                                             Ci.nsISupportsWeakReference]),
 
-                    _cleanUp: function() {
+                    _cleanUp() {
                       this.webProgress.removeProgressListener(this);
                       this.window.close();
                       delete this.window;
                     },
 
-                    _checkForRedirect: function(aURL) {
+                    _checkForRedirect(aURL) {
                       if (aURL.indexOf(this._parent.completionURI) != 0)
                         return;
 
@@ -133,29 +130,29 @@ OAuth2.prototype = {
                       this._parent.onAuthorizationReceived(aURL);
                     },
 
-                    onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus) {
+                    onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
                       const wpl = Ci.nsIWebProgressListener;
                       if (aStateFlags & (wpl.STATE_START | wpl.STATE_IS_NETWORK))
                         this._checkForRedirect(aRequest.name);
                     },
-                    onLocationChange: function(aWebProgress, aRequest, aLocation) {
+                    onLocationChange(aWebProgress, aRequest, aLocation) {
                       this._checkForRedirect(aLocation.spec);
                     },
-                    onProgressChange: function() {},
-                    onStatusChange: function() {},
-                    onSecurityChange: function() {},
+                    onProgressChange() {},
+                    onStatusChange() {},
+                    onSecurityChange() {},
                 };
                 aWebProgress.addProgressListener(this._listener,
                                                  Ci.nsIWebProgress.NOTIFY_ALL);
                 aWindow.document.title = this.account.requestWindowTitle;
-            }
+            },
         };
 
         this.wrappedJSObject = this._browserRequest;
         gConnecting[this.authURI] = true;
         Services.ww.openWindow(null, this.requestWindowURI, null, this.requestWindowFeatures, this);
     },
-    finishAuthorizationRequest: function() {
+    finishAuthorizationRequest() {
         gConnecting[this.authURI] = false;
         if (!("_browserRequest" in this)) {
             return;
@@ -168,23 +165,23 @@ OAuth2.prototype = {
         delete this._browserRequest;
     },
 
-    onAuthorizationReceived: function(aData) {
+    onAuthorizationReceived(aData) {
         this.log.info("authorization received" + aData);
         let results = parseURLData(aData);
         if (this.responseType == "code" && results.code) {
             this.requestAccessToken(results.code, OAuth2.CODE_AUTHORIZATION);
         } else if (this.responseType == "token") {
             this.onAccessTokenReceived(JSON.stringify(results));
+        } else {
+            this.onAuthorizationFailed(null, aData);
         }
-        else
-          this.onAuthorizationFailed(null, aData);
     },
 
-    onAuthorizationFailed: function(aError, aData) {
+    onAuthorizationFailed(aError, aData) {
         this.connectFailureCallback(aData);
     },
 
-    requestAccessToken: function requestAccessToken(aCode, aType) {
+    requestAccessToken(aCode, aType) {
         let params = [
             ["client_id", this.consumerKey],
             ["client_secret", this.consumerSecret],
@@ -201,19 +198,19 @@ OAuth2.prototype = {
         let options = {
           postData: params,
           onLoad: this.onAccessTokenReceived.bind(this),
-          onError: this.onAccessTokenFailed.bind(this)
-        }
+          onError: this.onAccessTokenFailed.bind(this),
+        };
         httpRequest(this.tokenURI, options);
     },
 
-    onAccessTokenFailed: function onAccessTokenFailed(aError, aData) {
+    onAccessTokenFailed(aError, aData) {
         if (aError != "offline") {
             this.refreshToken = null;
         }
         this.connectFailureCallback(aData);
     },
 
-    onAccessTokenReceived: function onRequestTokenReceived(aData) {
+    onAccessTokenReceived(aData) {
         let result = JSON.parse(aData);
 
         this.accessToken = result.access_token;
@@ -228,5 +225,5 @@ OAuth2.prototype = {
         this.tokenType = result.token_type;
 
         this.connectSuccessCallback();
-    }
+    },
 };

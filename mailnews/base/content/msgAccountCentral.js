@@ -3,12 +3,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../../mail/base/content/mailCore.js */
+/* import-globals-from ../prefs/content/AccountManager.js */
+/* import-globals-from ../prefs/content/accountUtils.js */
+
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var selectedServer = null;
 
-function OnInit()
-{
+function OnInit() {
     // Set the header for the page.
     // Title contains the brand name of the application and the account
     // type (mail/news) and the name of the account
@@ -52,16 +55,15 @@ function OnInit()
 
         // Set the title for the document
         document.getElementById("AccountCentralTitle").setAttribute("value", title);
-    }
-    catch(ex) {
+    } catch (ex) {
         Cu.reportError("Error getting selected account: " + ex + "\n");
     }
 }
 
 // Show items in the AccountCentral page depending on the capabilities
 // of the given account
-function ArrangeAccountCentralItems(server, msgFolder)
-{
+/* eslint-disable complexity */
+function ArrangeAccountCentralItems(server, msgFolder) {
     let exceptions = [];
     let protocolInfo = null;
     try {
@@ -71,9 +73,9 @@ function ArrangeAccountCentralItems(server, msgFolder)
     }
 
     // Is this a RSS account?
-    let displayRssHeader = server && server.type == 'rss';
+    let displayRssHeader = server && server.type == "rss";
 
-    /***** Email header and items : Begin *****/
+    /* Email header and items : Begin */
 
     // Read Messages
     let canGetMessages = false;
@@ -90,7 +92,7 @@ function ArrangeAccountCentralItems(server, msgFolder)
     } catch (e) { exceptions.push(e); }
 
     // Junk mail settings (false, until ready for prime time)
-    let canControlJunkEmail = false
+    let canControlJunkEmail = false;
     try {
         canControlJunkEmail = false && protocolInfo &&
                               protocolInfo.canGetIncomingMessages &&
@@ -104,9 +106,9 @@ function ArrangeAccountCentralItems(server, msgFolder)
                               canControlJunkEmail);
     SetItemDisplay("EmailHeader", displayEmailHeader);
 
-    /***** Email header and items : End *****/
+    /* Email header and items : End */
 
-    /***** News header and items : Begin *****/
+    /* News header and items : Begin */
 
     // Subscribe to Newsgroups
     let canSubscribe = false;
@@ -129,9 +131,9 @@ function ArrangeAccountCentralItems(server, msgFolder)
     let displayNewsHeader = canSubscribe || canControlJunkNews;
     SetItemDisplay("NewsHeader", displayNewsHeader);
 
-    /***** News header and items : End *****/
+    /* News header and items : End */
 
-    /***** RSS header and items : Begin *****/
+    /* RSS header and items : Begin */
 
     // Display RSS header, only if this is RSS account
     SetItemDisplay("rssHeader", displayRssHeader);
@@ -139,13 +141,13 @@ function ArrangeAccountCentralItems(server, msgFolder)
     // Subscribe to RSS Feeds
     SetItemDisplay("SubscribeRSS", displayRssHeader);
 
-    /***** RSS header and items : End *****/
+    /* RSS header and items : End */
 
     // If either of above sections exists, show section separators
     SetItemDisplay("MessagesSection",
                    displayNewsHeader || displayEmailHeader || displayRssHeader);
 
-    /***** Accounts : Begin *****/
+    /* Accounts : Begin */
 
     // Account Settings if a server is found
     let canShowAccountSettings = server != null;
@@ -161,12 +163,11 @@ function ArrangeAccountCentralItems(server, msgFolder)
     } catch (e) { exceptions.push(e); }
 
     // Display Accounts header, only if any of the items are displayed
-    let displayAccountsHeader = canShowAccountSettings || canShowCreateAccount;
     SetItemDisplay("AccountsHeader", canShowCreateAccount);
 
-    /***** Accounts : End *****/
+    /* Accounts : End */
 
-    /***** Advanced Features header and items : Begin *****/
+    /* Advanced Features header and items : Begin */
 
     // Search Messages
     let canSearchMessages = false;
@@ -199,10 +200,10 @@ function ArrangeAccountCentralItems(server, msgFolder)
 
     // Display Adv Features header, only if any of the items are displayed
     let displayAdvFeatures = canSearchMessages || canHaveFilters ||
-                             canSubscribeImapFolders|| supportsOffline;
+                             canSubscribeImapFolders || supportsOffline;
     SetItemDisplay("AdvancedFeaturesHeader", displayAdvFeatures);
 
-    /***** Advanced Featuers header and items : End *****/
+    /* Advanced Featuers header and items : End */
 
     // If either of above features exist, show section separators
     SetItemDisplay("AccountsSection", displayAdvFeatures);
@@ -212,10 +213,10 @@ function ArrangeAccountCentralItems(server, msgFolder)
             + exceptions.pop() + "\n");
     }
 }
+/* eslint-enable complexity */
 
 // Show the item if the item feature is supported
-function SetItemDisplay(elemId, displayThisItem)
-{
+function SetItemDisplay(elemId, displayThisItem) {
     if (displayThisItem) {
         let elem = document.getElementById(elemId);
         if (elem)
@@ -228,16 +229,14 @@ function SetItemDisplay(elemId, displayThisItem)
 }
 
 // From the current folder tree, return the selected server or null
-function GetSelectedServer()
-{
+function GetSelectedServer() {
     let currentFolder = GetSelectedMsgFolder();
     return currentFolder ? currentFolder.server : null;
 }
 
 // From the current folder tree, return the selected folder,
 // the root folder of default account or null
-function GetSelectedMsgFolder()
-{
+function GetSelectedMsgFolder() {
     return window.parent.GetSelectedMsgFolders()[0] ||
            window.parent.GetDefaultAccountRootFolder();
 }
@@ -246,21 +245,18 @@ function GetSelectedMsgFolder()
  * Open Inbox for selected server.
  * If needed, open the twisty and select Inbox.
  */
-function ReadMessages()
-{
+function ReadMessages() {
     if (!selectedServer)
         return;
     try {
         window.parent.OpenInboxForServer(selectedServer);
-    }
-    catch(ex) {
+    } catch (ex) {
         Cu.reportError("Error opening Inbox for server: " + ex + "\n");
     }
 }
 
 // Trigger composer for a new message
-function ComposeAMessage(event)
-{
+function ComposeAMessage(event) {
     // Pass event to allow holding Shift key for toggling HTML vs. plaintext format
     window.parent.MsgNewMessage(event);
 }
@@ -272,19 +268,16 @@ function ComposeAMessage(event)
  *                    'am-server.xul', 'am-copies.xul', 'am-offline.xul',
  *                    'am-addressing.xul', 'am-smtp.xul'
  */
-function ViewSettings(selectPage)
-{
+function ViewSettings(selectPage) {
     window.parent.MsgAccountManager(selectPage);
 }
 
 // Open AccountWizard to create an account
-function CreateNewAccount()
-{
+function CreateNewAccount() {
     window.parent.msgOpenAccountWizard();
 }
 
-function CreateNewAccountTB(type)
-{
+function CreateNewAccountTB(type) {
   if (type == "mail") {
     AddMailAccount();
     return;
@@ -307,31 +300,27 @@ function CreateNewAccountTB(type)
 }
 
 // Bring up search interface for selected account
-function SearchMessages()
-{
+function SearchMessages() {
     window.parent.MsgSearchMessages();
 }
 
 // Open filters window
-function CreateMsgFilters()
-{
+function CreateMsgFilters() {
     window.parent.MsgFilters(null, null);
 }
 
 // Open Subscribe dialog
-function Subscribe()
-{
+function Subscribe() {
     if (!selectedServer)
         return;
-    if (selectedServer.type == 'rss')
+    if (selectedServer.type == "rss")
         window.parent.openSubscriptionsDialog(selectedServer.rootFolder);
     else
         window.parent.MsgSubscribe();
 }
 
 // Open junk mail settings dialog
-function JunkSettings()
-{
+function JunkSettings() {
     // TODO: function does not exist yet, will throw an exception if exposed
     window.parent.MsgJunkMail();
 }

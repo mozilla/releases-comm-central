@@ -12,21 +12,18 @@ var _traits = {};
 
 var traitsBranch = Services.prefs.getBranch("mailnews.traits.");
 
-function _registerTrait(aId, aIndex)
-{
+function _registerTrait(aId, aIndex) {
   var trait = {};
   trait.enabled = false;
   trait.name = "";
   trait.antiId = "";
   trait.index = aIndex;
   _traits[aId] = trait;
-  return;
 }
 
 function nsMsgTraitService() {}
 
-nsMsgTraitService.prototype =
-{
+nsMsgTraitService.prototype = {
   // Component setup
   classID: Components.ID("{A2E95F4F-DA72-4a41-9493-661AD353C00A}"),
 
@@ -34,13 +31,11 @@ nsMsgTraitService.prototype =
 
   // nsIMsgTraitService implementation
 
-  get lastIndex()
-  {
+  get lastIndex() {
     return _lastIndex;
   },
 
-  registerTrait: function(aId)
-  {
+  registerTrait(aId) {
     if (_traits[aId])
       return 0;  // meaning already registered
     _registerTrait(aId, ++_lastIndex);
@@ -49,10 +44,8 @@ nsMsgTraitService.prototype =
     return _lastIndex;
   },
 
-  unRegisterTrait: function(aId)
-  {
-    if (_traits[aId])
-    {
+  unRegisterTrait(aId) {
+    if (_traits[aId]) {
       var index = _traits[aId].index;
       _traits[aId] = null;
       traitsBranch.clearUserPref("id." + index);
@@ -60,125 +53,92 @@ nsMsgTraitService.prototype =
       traitsBranch.clearUserPref("antiId." + index);
       traitsBranch.clearUserPref("name." + index);
     }
-    return;
   },
 
-  isRegistered: function(aId)
-  {
-    return _traits[aId] ? true : false;
+  isRegistered(aId) {
+    return !!_traits[aId];
   },
 
-  setName: function(aId, aName)
-  {
+  setName(aId, aName) {
     traitsBranch.setCharPref("name." + _traits[aId].index, aName);
     _traits[aId].name = aName;
   },
 
-  getName: function(aId)
-  {
+  getName(aId) {
     return _traits[aId].name;
   },
 
-  getIndex: function(aId)
-  {
+  getIndex(aId) {
     return _traits[aId].index;
   },
 
-  getId: function(aIndex)
-  {
+  getId(aIndex) {
     for (let id in _traits)
       if (_traits[id].index == aIndex)
         return id;
     return null;
   },
 
-  setEnabled: function(aId, aEnabled)
-  {
+  setEnabled(aId, aEnabled) {
     traitsBranch.setBoolPref("enabled." + _traits[aId].index, aEnabled);
     _traits[aId].enabled = aEnabled;
   },
 
-  getEnabled: function(aId)
-  {
+  getEnabled(aId) {
     return _traits[aId].enabled;
   },
 
-  setAntiId: function(aId, aAntiId)
-  {
+  setAntiId(aId, aAntiId) {
     traitsBranch.setCharPref("antiId." + _traits[aId].index, aAntiId);
     _traits[aId].antiId = aAntiId;
   },
 
-  getAntiId: function(aId)
-  {
+  getAntiId(aId) {
     return _traits[aId].antiId;
   },
 
-  getEnabledIndices: function(aCount, aProIndices, aAntiIndices)
-  {
+  getEnabledIndices(aCount, aProIndices, aAntiIndices) {
     let proIndices = [];
     let antiIndices = [];
     for (let id in _traits)
-      if (_traits[id].enabled)
-      {
+      if (_traits[id].enabled) {
         proIndices.push(_traits[id].index);
         antiIndices.push(_traits[_traits[id].antiId].index);
       }
     aCount.value = proIndices.length;
     aProIndices.value = proIndices;
     aAntiIndices.value = antiIndices;
-    return;
   },
 
-  addAlias: function addAlias(aTraitIndex, aTraitAliasIndex)
-  {
-    let aliasesString = "";
-    try {
-      aliasesString = traitsBranch.getCharPref("aliases." + aTraitIndex);
-    }
-    catch (e) {}
+  addAlias(aTraitIndex, aTraitAliasIndex) {
+    let aliasesString = traitsBranch.getCharPref("aliases." + aTraitIndex, "");
     let aliases;
     if (aliasesString.length)
       aliases = aliasesString.split(",");
     else
       aliases = [];
-    if (aliases.indexOf(aTraitAliasIndex.toString()) == -1)
-    {
+    if (!aliases.includes(aTraitAliasIndex.toString())) {
       aliases.push(aTraitAliasIndex);
       traitsBranch.setCharPref("aliases." + aTraitIndex, aliases.join());
     }
   },
 
-  removeAlias: function removeAlias(aTraitIndex, aTraitAliasIndex)
-  {
-    let aliasesString = "";
-    try {
-      aliasesString = traitsBranch.getCharPref("aliases." + aTraitIndex);
-    }
-    catch (e) {
-      return;
-    }
+  removeAlias(aTraitIndex, aTraitAliasIndex) {
+    let aliasesString = traitsBranch.getCharPref("aliases." + aTraitIndex, "");
     let aliases;
     if (aliasesString.length)
       aliases = aliasesString.split(",");
     else
       aliases = [];
-    let location;
-    if ((location = aliases.indexOf(aTraitAliasIndex.toString())) != -1)
-    {
+    let location = aliases.indexOf(aTraitAliasIndex.toString());
+    if (location != -1) {
       aliases.splice(location, 1);
       traitsBranch.setCharPref("aliases." + aTraitIndex, aliases.join());
     }
   },
 
-  getAliases: function getAliases(aTraitIndex, aLength)
-  {
-    let aliasesString = "";
-    try {
-      aliasesString = traitsBranch.getCharPref("aliases." + aTraitIndex);
-    }
-    catch (e) {}
-
+  getAliases(aTraitIndex, aLength) {
+    let aliasesString = traitsBranch.getCharPref("aliases." + aTraitIndex, "");
     let aliases;
     if (aliasesString.length)
       aliases = aliasesString.split(",");
@@ -193,8 +153,7 @@ nsMsgTraitService.prototype =
 
 _init();
 
-function _init()
-{
+function _init() {
   // get existing traits
   var idBranch = Services.prefs.getBranch("mailnews.traits.id.");
   var nameBranch = Services.prefs.getBranch("mailnews.traits.name.");
@@ -202,36 +161,28 @@ function _init()
   var antiIdBranch = Services.prefs.getBranch("mailnews.traits.antiId.");
   _lastIndex = Services.prefs.getBranch("mailnews.traits.").getIntPref("lastIndex");
   var ids = idBranch.getChildList("");
-  for (var i = 0; i < ids.length; i++)
-  {
+  for (let i = 0; i < ids.length; i++) {
     var id = idBranch.getCharPref(ids[i]);
     var index = parseInt(ids[i]);
     _registerTrait(id, index, false);
 
-    // Read in values, ignore errors since that usually means the
-    // value does not exist
-    try {
+    if (nameBranch.getPrefType(ids[i]) == Services.prefs.PREF_STRING) {
       _traits[id].name = nameBranch.getCharPref(ids[i]);
     }
-    catch (e) {}
-
-    try {
+    if (enabledBranch.getPrefType(ids[i]) == Services.prefs.PREF_BOOL) {
       _traits[id].enabled = enabledBranch.getBoolPref(ids[i]);
     }
-    catch (e) {}
-
-    try {
+    if (antiIdBranch.getPrefType(ids[i]) == Services.prefs.PREF_STRING) {
       _traits[id].antiId = antiIdBranch.getCharPref(ids[i]);
     }
-    catch (e) {}
 
     if (_lastIndex < index)
       _lastIndex = index;
   }
 
-  //for (traitId in _traits)
+  // for (traitId in _traits)
   //  dump("\nindex of " + traitId + " is " + _traits[traitId].index);
-  //dump("\n");
+  // dump("\n");
 }
 
 var components = [nsMsgTraitService];

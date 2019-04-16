@@ -1,19 +1,20 @@
 /* -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*-
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- */
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* import-globals-from AccountManager.js */
+
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 var gDeferredToAccount = "";
 
-function onInit(aPageId, aServerId)
-{
+function onInit(aPageId, aServerId) {
   // manually adjust several pref UI elements
-  document.getElementById('server.spamLevel.visible').setAttribute("checked",
-    document.getElementById('server.spamLevel').value > 0);
+  document.getElementById("server.spamLevel.visible").setAttribute("checked",
+    document.getElementById("server.spamLevel").value > 0);
 
   let deferredToURI = null;
   if (gDeferredToAccount)
@@ -107,8 +108,7 @@ function onInit(aPageId, aServerId)
   updateJunkTargetsAndRetention();
 }
 
-function onPreInit(account, accountValues)
-{
+function onPreInit(account, accountValues) {
   if (getAccountValue(account, accountValues, "server", "type", null, false) == "pop3")
     gDeferredToAccount = getAccountValue(account, accountValues,
                                          "pop3", "deferredToAccount",
@@ -123,9 +123,8 @@ function onPreInit(account, accountValues)
  *
  * @param aValue  the boolean value of the checkbox
  */
-function updateSpamLevel(aValue)
-{
-  document.getElementById('server.spamLevel').value = aValue ? 100 : 0;
+function updateSpamLevel(aValue) {
+  document.getElementById("server.spamLevel").value = aValue ? 100 : 0;
   onAdaptiveJunkToggle();
 }
 
@@ -133,9 +132,8 @@ function updateSpamLevel(aValue)
  * Propagate changes to the server filter menu list back to
  * our hidden wsm element.
  */
-function onServerFilterListChange()
-{
-  document.getElementById('server.serverFilterName').value =
+function onServerFilterListChange() {
+  document.getElementById("server.serverFilterName").value =
     document.getElementById("useServerFilterList").value;
 }
 
@@ -143,8 +141,7 @@ function onServerFilterListChange()
  * Called when someone checks or unchecks the adaptive junk mail checkbox.
  * We need to enable or disable the whitelist accordingly.
  */
-function onAdaptiveJunkToggle()
-{
+function onAdaptiveJunkToggle() {
   onCheckItem("whiteListAbURI", ["server.spamLevel.visible"]);
   onCheckItem("whiteListLabel", ["server.spamLevel.visible"]);
 
@@ -178,7 +175,7 @@ function updateJunkTargetsAndRetention() {
  */
 function updateJunkTargets() {
   onCheckItem("actionTargetAccount", ["server.moveOnSpam", "moveTargetMode0"]);
-  onCheckItem("actionTargetFolder",  ["server.moveOnSpam", "moveTargetMode1"]);
+  onCheckItem("actionTargetFolder", ["server.moveOnSpam", "moveTargetMode1"]);
 }
 
 /**
@@ -189,8 +186,7 @@ function updateJunkRetention() {
   onCheckItem("server.purgeSpamInterval", ["server.purgeSpam", "server.moveOnSpam"]);
 }
 
-function onSave()
-{
+function onSave() {
   onSaveWhiteList();
 }
 
@@ -198,13 +194,11 @@ function onSave()
  * Propagate changes to the whitelist menu list back to
  * our hidden wsm element.
  */
-function onSaveWhiteList()
-{
+function onSaveWhiteList() {
   var wList = document.getElementById("whiteListAbURI");
   var wlArray = [];
 
-  for (var i = 0; i < wList.getRowCount(); i++)
-  {
+  for (let i = 0; i < wList.getRowCount(); i++) {
     // Due to bug 448582, do not trust any properties of the listitems
     // as they may not return the right value or may even not exist.
     // Always get the attributes only.
@@ -223,8 +217,7 @@ function onSaveWhiteList()
  * Called when a new value is chosen in one of the junk target folder pickers.
  * Sets the menu label according to the folder name.
  */
-function onActionTargetChange(aEvent, aWSMElementId)
-{
+function onActionTargetChange(aEvent, aWSMElementId) {
   let folder = aEvent.target._folder;
   document.getElementById(aWSMElementId).value = folder.URI;
   document.getElementById("actionFolderPopup").selectFolder(folder);
@@ -234,8 +227,7 @@ function onActionTargetChange(aEvent, aWSMElementId)
  * Enumerates over the "ISPDL" directories, calling buildServerFilterListFromDir
  * for each one.
  */
-function buildServerFilterMenuList()
-{
+function buildServerFilterMenuList() {
   const KEY_ISP_DIRECTORY_LIST = "ISPDL";
   let ispHeaderList = document.getElementById("useServerFilterList");
 
@@ -247,8 +239,7 @@ function buildServerFilterMenuList()
                                            Ci.nsISimpleEnumerator);
 
   let menuEntries = [];
-  while (ispDirectories.hasMoreElements())
-  {
+  while (ispDirectories.hasMoreElements()) {
     let ispDirectory = ispDirectories.getNext()
                                      .QueryInterface(Ci.nsIFile);
     if (ispDirectory)
@@ -269,8 +260,7 @@ function buildServerFilterMenuList()
  * @param aDir              directory to look for .sfd files
  * @param aExistingEntries  Filter names already found.
  */
-function buildServerFilterListFromDir(aDir, aExistingEntries)
-{
+function buildServerFilterListFromDir(aDir, aExistingEntries) {
   let newEntries = [];
   // Now iterate over each file in the directory looking for .sfd files.
   const kSuffix = ".sfd";
@@ -283,7 +273,7 @@ function buildServerFilterListFromDir(aDir, aExistingEntries)
     if (entry.isFile() && entry.leafName.endsWith(kSuffix)) {
       let fileName = entry.leafName.slice(0, -kSuffix.length);
       // If we've already added an item with this name, then don't add it again.
-      if (aExistingEntries.indexOf(fileName) == -1)
+      if (!aExistingEntries.includes(fileName))
         newEntries.push(fileName);
     }
   }
@@ -293,7 +283,6 @@ function buildServerFilterListFromDir(aDir, aExistingEntries)
 /**
  * Open the Preferences dialog on the Junk settings tab.
  */
-function showGlobalJunkPrefs()
-{
+function showGlobalJunkPrefs() {
   openPrefsFromAccountManager("paneSecurity", "junkTab", null, "junk_pane");
 }

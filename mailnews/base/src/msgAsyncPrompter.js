@@ -16,12 +16,12 @@ runnablePrompter.prototype = {
   _asyncPrompter: null,
   _hashKey: null,
 
-  _promiseAuthPrompt: function(listener) {
+  _promiseAuthPrompt(listener) {
     return new Promise((resolve, reject) => {
       try {
         listener.onPromptStartAsync({ onAuthResult: resolve });
       } catch (e) {
-        if (e.result == Components.results.NS_ERROR_XPC_JSOBJECT_HAS_NO_FUNCTION_NAMED) {
+        if (e.result == Cr.NS_ERROR_XPC_JSOBJECT_HAS_NO_FUNCTION_NAMED) {
           // Fall back to onPromptStart, for add-ons compat
           Deprecated.warning("onPromptStart has been replaced by onPromptStartAsync",
                              "https://bugzilla.mozilla.org/show_bug.cgi?id=1176399");
@@ -64,7 +64,7 @@ runnablePrompter.prototype = {
 
     this._asyncPrompter._log.debug("Finished running prompter for " + this._hashKey);
     this._asyncPrompter._doAsyncAuthPrompt();
-  }
+  },
 };
 
 function msgAsyncPrompter() {
@@ -88,7 +88,7 @@ msgAsyncPrompter.prototype = {
   _asyncPromptInProgress: 0,
   _log: null,
 
-  queueAsyncAuthPrompt: function(aKey, aJumpQueue, aCaller) {
+  queueAsyncAuthPrompt(aKey, aJumpQueue, aCaller) {
     if (aKey in this._pendingPrompts) {
       this._log.debug("Prompt bound to an existing one in the queue, key: " + aKey);
       this._pendingPrompts[aKey].consumers.push(aCaller);
@@ -98,7 +98,7 @@ msgAsyncPrompter.prototype = {
     this._log.debug("Adding new prompt to the queue, key: " + aKey);
     let asyncPrompt = {
       first: aCaller,
-      consumers: []
+      consumers: [],
     };
 
     this._pendingPrompts[aKey] = asyncPrompt;
@@ -109,12 +109,12 @@ msgAsyncPrompter.prototype = {
 
       let runnable = new runnablePrompter(this, aKey);
       Services.tm.mainThread.dispatch(runnable, Ci.nsIThread.DISPATCH_NORMAL);
-    }
-    else
+    } else {
       this._doAsyncAuthPrompt();
+    }
   },
 
-  _doAsyncAuthPrompt: function() {
+  _doAsyncAuthPrompt() {
     if (this._asyncPromptInProgress > 0) {
       this._log.debug("_doAsyncAuthPrompt bypassed - prompt already in progress");
       return;
@@ -134,7 +134,7 @@ msgAsyncPrompter.prototype = {
 
     let runnable = new runnablePrompter(this, hashKey);
     Services.tm.mainThread.dispatch(runnable, Ci.nsIThread.DISPATCH_NORMAL);
-  }
+  },
 };
 
 var components = [msgAsyncPrompter];

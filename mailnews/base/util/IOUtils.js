@@ -9,8 +9,7 @@ var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var kStringBlockSize = 4096;
 var kStreamBlockSize = 8192;
 
-var IOUtils =
-{
+var IOUtils = {
   /**
    * Read a file containing ASCII text into a string.
    *
@@ -19,7 +18,7 @@ var IOUtils =
    * @returns A string containing the contents of the file, presumed to be ASCII
    *          text. If the file didn't exist, returns null.
    */
-  loadFileToString: function(aFile) {
+  loadFileToString(aFile) {
     let file;
     if (!(aFile instanceof Ci.nsIFile)) {
       file = Services.dirsvc.get("ProfD", Ci.nsIFile);
@@ -61,7 +60,7 @@ var IOUtils =
    * @param aPerms  The octal file permissions for the created file. If unset
    *                the default of 0o600 is used.
    */
-  saveStringToFile: function(aFile, aData, aPerms = 0o600) {
+  saveStringToFile(aFile, aData, aPerms = 0o600) {
     let file;
     if (!(aFile instanceof Ci.nsIFile)) {
       file = Services.dirsvc.get("ProfD", Ci.nsIFile);
@@ -92,7 +91,7 @@ var IOUtils =
    * @param aPerms   The octal file permissions for the created file. If unset
    *                 the default of 0o600 is used.
    */
-  saveStreamToFile: function(aIStream, aFile, aPerms = 0o600) {
+  saveStreamToFile(aIStream, aFile, aPerms = 0o600) {
     if (!(aIStream instanceof Ci.nsIInputStream))
       throw new Error("Invalid stream passed to saveStreamToFile");
     if (!(aFile instanceof Ci.nsIFile))
@@ -128,7 +127,7 @@ var IOUtils =
   /**
    * Returns size of system memory.
    */
-  getPhysicalMemorySize: function() {
+  getPhysicalMemorySize() {
     return Services.sysinfo.getPropertyAsInt64("memsize");
   },
 };

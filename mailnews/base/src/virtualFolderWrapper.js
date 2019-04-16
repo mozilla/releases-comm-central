@@ -6,7 +6,7 @@
  * Wrap everything about virtual folders.
  */
 
-this.EXPORTED_SYMBOLS = ['VirtualFolderHelper'];
+this.EXPORTED_SYMBOLS = ["VirtualFolderHelper"];
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
@@ -35,8 +35,8 @@ var VirtualFolderHelper = {
    *     the nsIMsgFolder we created.  Be careful about accessing any of the
    *     other attributes, as they will bring its message database back to life.
    */
-  createNewVirtualFolder: function (aFolderName, aParentFolder, aSearchFolders,
-                                    aSearchTerms, aOnlineSearch) {
+  createNewVirtualFolder(aFolderName, aParentFolder, aSearchFolders,
+                         aSearchTerms, aOnlineSearch) {
     let msgFolder = aParentFolder.addSubfolder(aFolderName);
     msgFolder.prettyName = aFolderName;
     msgFolder.setFlag(Ci.nsMsgFolderFlags.Virtual);
@@ -60,7 +60,7 @@ var VirtualFolderHelper = {
    * Given an existing nsIMsgFolder that is a virtual folder, wrap it into a
    *  VirtualFolderWrapper.
    */
-  wrapVirtualFolder: function (aMsgFolder) {
+  wrapVirtualFolder(aMsgFolder) {
     return new VirtualFolderWrapper(aMsgFolder);
   },
 };
@@ -105,7 +105,7 @@ var VirtualFolderHelper = {
  */
 function VirtualFolderWrapper(aVirtualFolder) {
   this.virtualFolder = aVirtualFolder;
-};
+}
 VirtualFolderWrapper.prototype = {
   /**
    * @return the list of nsIMsgFolders that this virtual folder is a
@@ -130,8 +130,7 @@ VirtualFolderWrapper.prototype = {
   set searchFolders(aFolders) {
     if (typeof(aFolders) == "string") {
       this.dbFolderInfo.setCharProperty("searchFolderUri", aFolders);
-    }
-    else {
+    } else {
       let uris = Array.from(fixIterator(aFolders, Ci.nsIMsgFolder))
                       .map(folder => folder.URI);
       this.dbFolderInfo.setCharProperty("searchFolderUri", uris.join("|"));
@@ -238,9 +237,8 @@ VirtualFolderWrapper.prototype = {
    *  having references to it from places other than the nsIMsgFolder), the
    *  folder will be able to re-establish the reference for minimal cost.
    */
-  cleanUpMessageDatabase:
-      function VirtualFolderWrapper_cleanUpMessageDatabase() {
+  cleanUpMessageDatabase() {
     this.virtualFolder.msgDatabase.Close(true);
     this.virtualFolder.msgDatabase = null;
-  }
+  },
 };

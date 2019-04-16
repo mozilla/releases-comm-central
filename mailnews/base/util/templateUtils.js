@@ -13,13 +13,13 @@ function PluralStringFormatter(aBundleURI) {
 }
 
 PluralStringFormatter.prototype = {
-  get: function(aStringName, aReplacements, aPluralCount) {
+  get(aStringName, aReplacements, aPluralCount) {
     let str = this._bundle.get(aStringName);
     if (aPluralCount !== undefined)
       str = PluralForm.get(aPluralCount, str);
     if (aReplacements !== undefined) {
       for (let i = 0; i < aReplacements.length; i++)
-        str = str.replace("#" + (i+1), aReplacements[i]);
+        str = str.replace("#" + (i + 1), aReplacements[i]);
     }
     return str;
   },
@@ -51,8 +51,7 @@ const _weekdayFormatter = new Services.intl.DateTimeFormat(undefined,
  * @return {string}  A "human-friendly" representation of that time
  *                   relative to now.
  */
-function makeFriendlyDateAgo(time)
-{
+function makeFriendlyDateAgo(time) {
   // Figure out when today begins
   let now = new Date();
   let today = new Date(now.getFullYear(), now.getMonth(),

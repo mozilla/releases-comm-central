@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from retention.js */
+
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
 
@@ -13,62 +15,52 @@ document.addEventListener("dialogaccept", folderPropsOKButton);
 // The folderPropsSink is the class that gets notified of an imap folder's properties
 
 var gFolderPropsSink = {
-    setFolderType: function(folderTypeString)
-    {
+    setFolderType(folderTypeString) {
       var typeLabel = document.getElementById("folderType.text");
-      if (typeLabel)
-      {
-        typeLabel.setAttribute("value",folderTypeString);
+      if (typeLabel) {
+        typeLabel.setAttribute("value", folderTypeString);
       }
       // get the element for the folder type label and set value on it.
     },
 
-    setFolderTypeDescription: function(folderDescription)
-    {
+    setFolderTypeDescription(folderDescription) {
       var folderTypeLabel = document.getElementById("folderDescription.text");
       if (folderTypeLabel)
         folderTypeLabel.setAttribute("value", folderDescription);
     },
 
-    setFolderPermissions: function(folderPermissions)
-    {
+    setFolderPermissions(folderPermissions) {
       var permissionsLabel = document.getElementById("folderPermissions.text");
       var descTextNode =  document.createTextNode(folderPermissions);
       permissionsLabel.appendChild(descTextNode);
     },
 
-    serverDoesntSupportACL : function()
-    {
+    serverDoesntSupportACL() {
       var typeLabel = document.getElementById("folderTypeLabel");
       if (typeLabel)
         typeLabel.setAttribute("hidden", "true");
       var permissionsLabel = document.getElementById("permissionsDescLabel");
       if (permissionsLabel)
         permissionsLabel.setAttribute("hidden", "true");
-
     },
 
-    setQuotaStatus : function(folderQuotaStatus)
-    {
+    setQuotaStatus(folderQuotaStatus) {
       var quotaStatusLabel = document.getElementById("folderQuotaStatus");
-      if(quotaStatusLabel)
+      if (quotaStatusLabel)
         quotaStatusLabel.setAttribute("value", folderQuotaStatus);
     },
 
-    showQuotaData : function(showData)
-    {
+    showQuotaData(showData) {
       var quotaStatusLabel = document.getElementById("folderQuotaStatus");
       var folderQuotaData = document.getElementById("folderQuotaData");
 
-      if(quotaStatusLabel && folderQuotaData)
-      {
+      if (quotaStatusLabel && folderQuotaData) {
         quotaStatusLabel.hidden = showData;
-        folderQuotaData.hidden = ! showData;
+        folderQuotaData.hidden = !showData;
       }
     },
 
-    setQuotaData : function(root, usedKB, maxKB)
-    {
+    setQuotaData(root, usedKB, maxKB) {
       var quotaRoot = document.getElementById("quotaRoot");
       if (quotaRoot)
         quotaRoot.setAttribute("value", '"' + root + '"');
@@ -80,39 +72,34 @@ var gFolderPropsSink = {
         quotaPercentageBar.setAttribute("value", percentage);
 
       var bundle = document.getElementById("bundle_messenger");
-      if(bundle)
-      {
+      if (bundle) {
         var usedFreeCaption = bundle.getFormattedString("quotaUsedFree", [usedKB, maxKB], 2);
         var quotaCaption = document.getElementById("quotaUsedFree");
-        if(quotaCaption)
+        if (quotaCaption)
           quotaCaption.setAttribute("value", usedFreeCaption);
 
         var percentUsedCaption = bundle.getFormattedString("quotaPercentUsed", [percentage], 1);
         var percentUsed = document.getElementById("quotaPercentUsed");
-        if(percentUsed)
+        if (percentUsed)
           percentUsed.setAttribute("value", percentUsedCaption);
       }
-    }
+    },
 
 };
 
-function doEnabling()
-{
+function doEnabling() {
   var nameTextbox = document.getElementById("name");
   document.documentElement.getButton("accept").disabled = !nameTextbox.value;
 }
 
-function folderPropsOKButton(event)
-{
-  if (gMsgFolder)
-  {
+function folderPropsOKButton(event) {
+  if (gMsgFolder) {
     // set charset attributes
     var folderCharsetList = document.getElementById("folderCharsetList");
 
     // Log to the Error Console the charset value for the folder
     // if it is unknown to us. Value will be preserved by the menu-item.
-    if (folderCharsetList.selectedIndex == -1)
-    {
+    if (folderCharsetList.selectedIndex == -1) {
       Cu.reportError("Unknown folder encoding; folder=" +
         gMsgFolder.name + ", charset=" + gMsgFolder.charset);
     }
@@ -121,20 +108,20 @@ function folderPropsOKButton(event)
     gMsgFolder.charsetOverride = document.getElementById("folderCharsetOverride")
                                          .checked;
 
-    if(document.getElementById("offline.selectForOfflineFolder").checked ||
+    if (document.getElementById("offline.selectForOfflineFolder").checked ||
       document.getElementById("offline.selectForOfflineNewsgroup").checked)
       gMsgFolder.setFlag(Ci.nsMsgFolderFlags.Offline);
     else
       gMsgFolder.clearFlag(Ci.nsMsgFolderFlags.Offline);
 
-    if(document.getElementById("folderCheckForNewMessages").checked)
+    if (document.getElementById("folderCheckForNewMessages").checked)
       gMsgFolder.setFlag(Ci.nsMsgFolderFlags.CheckNew);
     else
       gMsgFolder.clearFlag(Ci.nsMsgFolderFlags.CheckNew);
 
     let glodaCheckbox = document.getElementById("folderIncludeInGlobalSearch");
     if (!glodaCheckbox.hidden) {
-      if(glodaCheckbox.checked) {
+      if (glodaCheckbox.checked) {
         // We pass true here so that folders such as trash and junk can still
         // have a priority set.
         Gloda.resetFolderIndexingPriority(gMsgFolder, true);
@@ -147,29 +134,24 @@ function folderPropsOKButton(event)
     var retentionSettings = saveCommonRetentionSettings(gMsgFolder.retentionSettings);
     retentionSettings.useServerDefaults = document.getElementById("retention.useDefault").checked;
     gMsgFolder.retentionSettings = retentionSettings;
-
   }
 
-  try
-  {
+  try {
     // This throws an exception when an illegal folder name was entered.
-    okCallback(document.getElementById("name").value, window.arguments[0].name,
-               gMsgFolder.URI);
-  }
-  catch (e)
-  {
+    top.okCallback(document.getElementById("name").value, window.arguments[0].name,
+                   gMsgFolder.URI);
+  } catch (e) {
     event.preventDefault();
   }
 }
 
-function folderPropsOnLoad()
-{
+function folderPropsOnLoad() {
   // look in arguments[0] for parameters
   if (window.arguments && window.arguments[0]) {
-    if ( window.arguments[0].title ) {
+    if (window.arguments[0].title) {
       document.title = window.arguments[0].title;
     }
-    if ( window.arguments[0].okCallback ) {
+    if (window.arguments[0].okCallback) {
       top.okCallback = window.arguments[0].okCallback;
     }
   }
@@ -181,8 +163,7 @@ function folderPropsOnLoad()
     dump("passed null for folder, do nothing\n");
   }
 
-  if(window.arguments[0].name)
-  {
+  if (window.arguments[0].name) {
     // Initialize name textbox with the given name and remember this
     // value so we can tell whether the folder needs to be renamed
     // when the dialog is accepted.
@@ -203,9 +184,8 @@ function folderPropsOnLoad()
     // We really need a functioning database, so we'll detect problems
     // and create one if we have to.
     try {
-      var db = gMsgFolder.getDatabase(null);
-    }
-    catch (e) {
+      gMsgFolder.getDatabase(null);
+    } catch (e) {
       gMsgFolder.updateFolder(window.arguments[0].msgWindow);
     }
 
@@ -220,18 +200,16 @@ function folderPropsOnLoad()
       document.getElementById("name").removeAttribute("readonly");
 
     if (gMsgFolder.getFlag(Ci.nsMsgFolderFlags.Offline)) {
-
-      if(serverType == "imap" || serverType == "pop3")
+      if (serverType == "imap" || serverType == "pop3")
         document.getElementById("offline.selectForOfflineFolder").checked = true;
 
-      if(serverType == "nntp")
+      if (serverType == "nntp")
         document.getElementById("offline.selectForOfflineNewsgroup").checked = true;
-    }
-    else {
-      if(serverType == "imap" || serverType == "pop3")
+    } else {
+      if (serverType == "imap" || serverType == "pop3")
         document.getElementById("offline.selectForOfflineFolder").checked = false;
 
-      if(serverType == "nntp")
+      if (serverType == "nntp")
         document.getElementById("offline.selectForOfflineNewsgroup").checked = false;
     }
 
@@ -261,8 +239,7 @@ function folderPropsOnLoad()
     }
   }
 
-  if (serverType == "imap")
-  {
+  if (serverType == "imap") {
     var imapFolder = gMsgFolder.QueryInterface(Ci.nsIMsgImapMailFolder);
     if (imapFolder)
       imapFolder.fillInFolderProps(gFolderPropsSink);
@@ -289,22 +266,20 @@ function folderPropsOnLoad()
     try {
       document.getElementById("folderPropTabBox").selectedTab =
         document.getElementById(window.arguments[0].tabID);
-    }
-    catch (ex) {}
+    } catch (ex) {}
   }
   onCheckKeepMsg();
   onUseDefaultRetentionSettings();
 }
 
-function hideShowControls(serverType)
-{
+function hideShowControls(serverType) {
   let controls = document.querySelectorAll("[hidefor]");
   var len = controls.length;
-  for (var i=0; i<len; i++) {
+  for (var i = 0; i < len; i++) {
     var control = controls[i];
     var hideFor = control.getAttribute("hidefor");
     if (!hideFor)
-      throw "hidefor empty";
+      throw new Error("hidefor empty");
 
     // hide unsupported server type
     // adding support for hiding multiple server types using hideFor="server1,server2"
@@ -323,20 +298,16 @@ function hideShowControls(serverType)
   // mabye should leave this hidden by default and only show it in this case instead
   try {
     var imapFolder = gMsgFolder.QueryInterface(Ci.nsIMsgImapMailFolder);
-    if (imapFolder)
-    {
+    if (imapFolder) {
       var privilegesButton = document.getElementById("imap.FolderPrivileges");
-      if (privilegesButton)
-      {
+      if (privilegesButton) {
         if (!imapFolder.hasAdminUrl)
           privilegesButton.setAttribute("hidden", "true");
       }
     }
-  }
-  catch (ex) {}
+  } catch (ex) {}
 
-  if (gMsgFolder)
-  {
+  if (gMsgFolder) {
     // Hide "check for new mail" checkbox if this is an Inbox.
     if (gMsgFolder.getFlag(Ci.nsMsgFolderFlags.Inbox))
       document.getElementById("folderCheckForNewMessages").hidden = true;
@@ -348,14 +319,12 @@ function hideShowControls(serverType)
   }
 }
 
-function onOfflineFolderDownload()
-{
+function onOfflineFolderDownload() {
   // we need to create a progress window and pass that in as the second parameter here.
   gMsgFolder.downloadAllForOffline(null, window.arguments[0].msgWindow);
 }
 
-function onFolderPrivileges()
-{
+function onFolderPrivileges() {
   var imapFolder = gMsgFolder.QueryInterface(Ci.nsIMsgImapMailFolder);
   if (imapFolder)
     imapFolder.folderPrivileges(window.arguments[0].msgWindow);
@@ -364,22 +333,20 @@ function onFolderPrivileges()
 }
 
 
-function onUseDefaultRetentionSettings()
-{
+function onUseDefaultRetentionSettings() {
   var useDefault = document.getElementById("retention.useDefault").checked;
-  document.getElementById('retention.keepMsg').disabled = useDefault;
-  document.getElementById('retention.keepNewMsgMinLabel').disabled = useDefault;
-  document.getElementById('retention.keepOldMsgMinLabel').disabled = useDefault;
+  document.getElementById("retention.keepMsg").disabled = useDefault;
+  document.getElementById("retention.keepNewMsgMinLabel").disabled = useDefault;
+  document.getElementById("retention.keepOldMsgMinLabel").disabled = useDefault;
 
   var keepMsg = document.getElementById("retention.keepMsg").value;
   const nsIMsgRetentionSettings = Ci.nsIMsgRetentionSettings;
-  document.getElementById('retention.keepOldMsgMin').disabled =
+  document.getElementById("retention.keepOldMsgMin").disabled =
     useDefault || (keepMsg != nsIMsgRetentionSettings.nsMsgRetainByAge);
-  document.getElementById('retention.keepNewMsgMin').disabled =
+  document.getElementById("retention.keepNewMsgMin").disabled =
     useDefault || (keepMsg != nsIMsgRetentionSettings.nsMsgRetainByNumHeaders);
 }
 
-function RebuildSummaryInformation()
-{
+function RebuildSummaryInformation() {
   window.arguments[0].rebuildSummaryCallback(gMsgFolder);
 }

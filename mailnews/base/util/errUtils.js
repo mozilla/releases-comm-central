@@ -72,26 +72,26 @@ function errorWithDebug(aString) {
   return new Error(aString);
 }
 
-function Stringifier() {};
+function Stringifier() {}
 
 Stringifier.prototype = {
-  dumpObj: function (o, name) {
+  dumpObj(o, name) {
     this._reset();
     this._append(this.objectTreeAsString(o, true, true, 0));
     dump(this._asString());
   },
 
-  dumpDOM: function(node, level, recursive) {
+  dumpDOM(node, level, recursive) {
     this._reset();
     let s = this.DOMNodeAsString(node, level, recursive);
     dump(s);
   },
 
-  dumpEvent: function(event) {
+  dumpEvent(event) {
     dump(this.eventAsString(event));
   },
 
-  dumpException: function(exc, message) {
+  dumpException(exc, message) {
     dump(exc + "\n");
     this._reset();
     if (message)
@@ -106,21 +106,21 @@ Stringifier.prototype = {
     dump(this._asString());
   },
 
-  _reset: function() {
+  _reset() {
     this._buffer = [];
   },
 
-  _append: function(string) {
+  _append(string) {
     this._buffer.push(string);
   },
 
-  _asString: function() {
-    let str = this._buffer.join('');
+  _asString() {
+    let str = this._buffer.join("");
     this._reset();
     return str;
   },
 
-  getStack: function(skipCount) {
+  getStack(skipCount) {
     if (typeof Components != "object" || typeof Cc != "object")
       return "No stack trace available.";
     if (typeof(skipCount) === undefined)
@@ -133,18 +133,17 @@ Stringifier.prototype = {
       if (skipCount > 0) {
         // Skip this frame.
         skipCount -= 1;
-      }
-      else {
+      } else {
         // Include the data from this frame.
         let name = frame.name ? frame.name : "[anonymous]";
-        str += "\n" + name + "@" + frame.filename + ':' + frame.lineNumber;
+        str += "\n" + name + "@" + frame.filename + ":" + frame.lineNumber;
       }
       frame = frame.caller;
     }
     return str + "\n";
   },
 
-  objectTreeAsString: function(o, recurse, compress, level) {
+  objectTreeAsString(o, recurse, compress, level) {
     let s = "";
     if (recurse === undefined)
       recurse = 0;
@@ -161,8 +160,7 @@ Stringifier.prototype = {
 
     if (typeof(o) != "object") {
       s += pfx + tee + " (" + typeof(o) + ") " + o + "\n";
-    }
-    else {
+    } else {
       for (let i in o) {
         try {
           let t = typeof o[i];
@@ -203,46 +201,43 @@ Stringifier.prototype = {
     return s;
   },
 
-  _repeatStr: function (str, aCount) {
+  _repeatStr(str, aCount) {
     let res = "";
     while (--aCount >= 0)
       res += str;
     return res;
   },
 
-  DOMNodeAsString: function(node, level, recursive) {
+  DOMNodeAsString(node, level, recursive) {
     if (level === undefined)
-      level = 0
+      level = 0;
     if (recursive === undefined)
       recursive = true;
-    this._append(this._repeatStr(" ", 2*level) + "<" + node.nodeName + "\n");
+    this._append(this._repeatStr(" ", 2 * level) + "<" + node.nodeName + "\n");
 
     if (node.nodeType == 3) {
-        this._append(this._repeatStr(" ", (2*level) + 4) + node.nodeValue + "'\n");
-    }
-    else {
+      this._append(this._repeatStr(" ", (2 * level) + 4) + node.nodeValue + "'\n");
+    } else {
       if (node.attributes) {
         for (let i = 0; i < node.attributes.length; i++) {
-          this._append(this._repeatStr(
-                         " ", (2*level) + 4) + node.attributes[i].nodeName +
-                         "='" + node.attributes[i].nodeValue + "'\n");
+          this._append(this._repeatStr(" ", (2 * level) + 4) +
+                       node.attributes[i].nodeName + "='" + node.attributes[i].nodeValue + "'\n");
         }
       }
       if (node.childNodes.length == 0) {
-        this._append(this._repeatStr(" ", (2*level)) + "/>\n");
-      }
-      else if (recursive) {
-        this._append(this._repeatStr(" ", (2*level)) + ">\n");
+        this._append(this._repeatStr(" ", (2 * level)) + "/>\n");
+      } else if (recursive) {
+        this._append(this._repeatStr(" ", (2 * level)) + ">\n");
         for (let i = 0; i < node.childNodes.length; i++) {
           this._append(this.DOMNodeAsString(node.childNodes[i], level + 1));
         }
-        this._append(this._repeatStr(" ", 2*level) + "</" + node.nodeName + ">\n");
+        this._append(this._repeatStr(" ", 2 * level) + "</" + node.nodeName + ">\n");
       }
     }
     return this._asString();
   },
 
-  eventAsString: function (event) {
+  eventAsString(event) {
     this._reset();
     this._append("-EVENT --------------------------\n");
     this._append("type:           " + event.type + "\n");
@@ -262,47 +257,47 @@ Stringifier.prototype = {
     if (("currentTarget" in event) && event.currentTarget) {
       this._append("currentTarget: " + event.currentTarget + "\n");
       if ("nodeName" in event.currentTarget)
-        this._append("currentTarget.nodeName: "+ event.currentTarget.nodeName + "\n");
+        this._append("currentTarget.nodeName: " + event.currentTarget.nodeName + "\n");
       if ("getAttribute" in event.currentTarget)
-        this._append("currentTarget.id: "+ event.currentTarget.getAttribute("id") + "\n");
+        this._append("currentTarget.id: " + event.currentTarget.getAttribute("id") + "\n");
     }
     if (("originalTarget" in event) && event.originalTarget) {
       this._append("originalTarget: " + event.originalTarget + "\n");
       if ("nodeName" in event.originalTarget)
-        this._append("originalTarget.nodeName: "+ event.originalTarget.nodeName + "\n");
+        this._append("originalTarget.nodeName: " + event.originalTarget.nodeName + "\n");
       if ("getAttribute" in event.originalTarget)
-        this._append("originalTarget.id: "+ event.originalTarget.getAttribute("id") + "\n");
+        this._append("originalTarget.id: " + event.originalTarget.getAttribute("id") + "\n");
     }
     let names = [
-        "bubbles",
-        "cancelable",
-        "detail",
-        "button",
-        "keyCode",
-        "isChar",
-        "shiftKey",
-        "altKey",
-        "ctrlKey",
-        "metaKey",
-        "clientX",
-        "clientY",
-        "screenX",
-        "screenY",
-        "layerX",
-        "layerY",
-        "isTrusted",
-        "timeStamp",
-        "currentTargetXPath",
-        "targetXPath",
-        "originalTargetXPath"
-                ];
-    for (let i in names) {
-      if (names[i] in event)
-        this._append(names[i] + ": " + event[names[i]] + "\n");
+      "bubbles",
+      "cancelable",
+      "detail",
+      "button",
+      "keyCode",
+      "isChar",
+      "shiftKey",
+      "altKey",
+      "ctrlKey",
+      "metaKey",
+      "clientX",
+      "clientY",
+      "screenX",
+      "screenY",
+      "layerX",
+      "layerY",
+      "isTrusted",
+      "timeStamp",
+      "currentTargetXPath",
+      "targetXPath",
+      "originalTargetXPath",
+    ];
+    for (let name of names) {
+      if (name in event)
+        this._append(name + ": " + event[name] + "\n");
     }
     this._append("-------------------------------------\n");
     return this._asString();
-  }
+  },
 };
 
 var stringifier = new Stringifier();

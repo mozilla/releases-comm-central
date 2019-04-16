@@ -67,7 +67,7 @@ function openLocalDirectory() {
   let localDir = gServer.localPath.path;
   try {
     new nsLocalFile(localDir).reveal();
-  } catch(e) {
+  } catch (e) {
     // Reveal may fail e.g. on Linux, then just show the path as a string.
     document.getElementById("localDirectory").value = localDir;
     document.getElementById("localDirectory").collapsed = false;

@@ -10,8 +10,7 @@ var dialog;
 
 document.addEventListener("dialogaccept", onOK);
 
-function onLoad()
-{
+function onLoad() {
   var windowArgs = window.arguments[0];
 
   dialog = {};
@@ -26,7 +25,7 @@ function onLoad()
   dialog.folder = windowArgs.folder;
   try {
     document.getElementById("MsgNewFolderPopup").selectFolder(windowArgs.folder);
-  } catch(ex) {
+  } catch (ex) {
     // selected a child folder
       document.getElementById("msgNewFolderPicker")
           .setAttribute("label", windowArgs.folder.prettyName);
@@ -53,10 +52,8 @@ function onFolderSelect(event) {
           .setAttribute("label", dialog.folder.prettyName);
 }
 
-function onOK()
-{
+function onOK() {
   var name = dialog.nameField.value;
-  var uri = dialog.folder;
 
   // do name validity check?
 
@@ -67,18 +64,15 @@ function onOK()
     dialog.okCallback(name, dialog.folder);
 }
 
-function onFoldersOnly()
-{
+function onFoldersOnly() {
   dialog.folderType = FOLDERS;
 }
 
-function onMessagesOnly()
-{
+function onMessagesOnly() {
   dialog.folderType = MESSAGES;
 }
 
-function doEnabling()
-{
+function doEnabling() {
   document.documentElement.getButton("accept").disabled = !dialog.nameField.value;
 }
 

@@ -8,25 +8,21 @@ var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var gLogView;
 var gLogFile;
 
-function onLoad()
-{
+function onLoad() {
   gLogView = document.getElementById("logView");
   gLogView.docShell.allowJavascript = false; // for security, disable JS
 
   gLogFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
   gLogFile.append("junklog.html");
 
-  if (gLogFile.exists())
-  {
+  if (gLogFile.exists()) {
     // convert the file to a URL so we can load it.
     gLogView.setAttribute("src", Services.io.newFileURI(gLogFile).spec);
   }
 }
 
-function clearLog()
-{
-  if (gLogFile.exists())
-  {
+function clearLog() {
+  if (gLogFile.exists()) {
     gLogFile.remove(false);
     gLogView.setAttribute("src", "about:blank"); // we don't have a log file to show
   }

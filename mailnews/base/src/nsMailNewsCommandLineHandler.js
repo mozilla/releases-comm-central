@@ -12,8 +12,7 @@ var MESSAGE_ID_PARAM = "?messageid=";
 var CMDLINEHANDLER_CID = Components.ID("{2f86d554-f9d9-4e76-8eb7-243f047333ee}");
 var CMDLINEHANDLER_CONTRACTID = "@mozilla.org/commandlinehandler/general-startup;1?type=mail";
 
-var nsMailNewsCommandLineHandler =
-{
+var nsMailNewsCommandLineHandler = {
   get _messenger() {
     delete this._messenger;
     return this._messenger = Cc["@mozilla.org/messenger;1"]
@@ -28,15 +27,14 @@ var nsMailNewsCommandLineHandler =
    * - -MapiStartup: indicates that this startup is due to MAPI.
    *   Don't do anything for now.
    */
-  handle: function nsMailNewsCommandLineHandler_handle(aCommandLine) {
+  handle(aCommandLine) {
     // Do this here because xpcshell isn't too happy with this at startup
     var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
     // -mail <URL>
     let mailURL = null;
     try {
       mailURL = aCommandLine.handleFlagWithParam("mail", false);
-    }
-    catch (e) {
+    } catch (e) {
       // We're going to cover -mail without a parameter later
     }
 
@@ -60,19 +58,16 @@ var nsMailNewsCommandLineHandler =
           // The folder might not exist, so guard against that
           if (folder && messageID.length > 0)
             msgHdr = folder.msgDatabase.getMsgHdrForMessageID(messageID);
-        }
-        else {
+        } else {
           // message URI
           msgHdr = this._messenger.msgHdrFromURI(mailURL);
         }
-      }
-      else {
+      } else {
         // Necko URL, so convert it into a message header
         let neckoURL = null;
         try {
           neckoURL = Services.io.newURI(mailURL);
-        }
-        catch (e) {
+        } catch (e) {
           // We failed to convert the URI. Oh well.
         }
 
@@ -83,9 +78,7 @@ var nsMailNewsCommandLineHandler =
       if (msgHdr) {
         aCommandLine.preventDefault = true;
         MailUtils.displayMessage(msgHdr);
-      }
-      else if (AppConstants.MOZ_APP_NAME == "seamonkey" &&
-               /\.(eml|msg)$/i.test(mailURL)) {
+      } else if (AppConstants.MOZ_APP_NAME == "seamonkey" && /\.(eml|msg)$/i.test(mailURL)) {
         try {
           let file = aCommandLine.resolveFile(mailURL);
           // No point in trying to open a file if it doesn't exist or is empty
@@ -101,11 +94,9 @@ var nsMailNewsCommandLineHandler =
                                    fileURL);
             aCommandLine.preventDefault = true;
           }
+        } catch (e) {
         }
-        catch (e) {
-        }
-      }
-      else {
+      } else {
         dump("Unrecognized URL: " + mailURL + "\n");
         Services.console.logStringMessage("Unrecognized URL: " + mailURL);
       }
@@ -118,8 +109,7 @@ var nsMailNewsCommandLineHandler =
       let mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
       if (mail3PaneWindow) {
         mail3PaneWindow.focus();
-      }
-      else {
+      } else {
         Services.ww.openWindow(null, "chrome://messenger/content/", "_blank",
             "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar,dialog=no",
             null);
@@ -135,7 +125,7 @@ var nsMailNewsCommandLineHandler =
             "  -mail <URL>        Open the message specified by this URL.\n",
 
   /* nsIFactory */
-  createInstance: function(outer, iid) {
+  createInstance(outer, iid) {
     if (outer != null)
       throw Cr.NS_ERROR_NO_AGGREGATION;
 
@@ -143,18 +133,17 @@ var nsMailNewsCommandLineHandler =
   },
 
   QueryInterface: ChromeUtils.generateQI([Ci.nsICommandLineHandler,
-                                          Ci.nsIFactory])
+                                          Ci.nsIFactory]),
 };
 
 function mailNewsCommandLineHandlerModule() {}
-mailNewsCommandLineHandlerModule.prototype =
-{
+mailNewsCommandLineHandlerModule.prototype = {
   // XPCOM registration
   classID: CMDLINEHANDLER_CID,
 
   QueryInterface: ChromeUtils.generateQI([Ci.nsIModule]),
 
-  _xpcom_factory: nsMailNewsCommandLineHandler
+  _xpcom_factory: nsMailNewsCommandLineHandler,
 };
 
 var components = [mailNewsCommandLineHandlerModule];

@@ -21,8 +21,7 @@ var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
  * Any tokens which do not have associated attribute value
  * are not substituted, and left in the string as-is.
  */
-function substPrefTokens(aStr, aElement)
-{
+function substPrefTokens(aStr, aElement) {
   let tokenpat = /%(\w+)%/;
   let token;
   let newprefstr = "";
@@ -63,8 +62,7 @@ function substPrefTokens(aStr, aElement)
  *          locked (true/false).
  *          If it does not have a valid prefstring, a false is returned.
  */
-function getAccountValueIsLocked(aElement)
-{
+function getAccountValueIsLocked(aElement) {
   let prefstring = aElement.getAttribute("prefstring");
   if (prefstring) {
     let prefstr = substPrefTokens(prefstring, aElement);
@@ -86,8 +84,7 @@ function getAccountValueIsLocked(aElement)
  *
  * See bug 728681 for the pattern on how this is used.
  */
-function onCheckItem(aChangeElementId, aCheckElementIds)
-{
+function onCheckItem(aChangeElementId, aCheckElementIds) {
   let elementToControl = document.getElementById(aChangeElementId);
   let disabled = false;
 

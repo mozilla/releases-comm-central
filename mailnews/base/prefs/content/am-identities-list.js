@@ -18,8 +18,7 @@ var gAccount = null;  // the account we are showing the identities for
 document.addEventListener("dialogaccept", onOk);
 document.addEventListener("dialogcancel", onOk);
 
-function onLoad()
-{
+function onLoad() {
   gIdentityListBox  = document.getElementById("identitiesList");
   gAddButton        = document.getElementById("cmd_add");
   gEditButton       = document.getElementById("cmd_edit");
@@ -41,19 +40,15 @@ function onLoad()
  *
  * @param aSelectIndex  Attempt to select the identity with this index.
  */
-function refreshIdentityList(aSelectIndex)
-{
+function refreshIdentityList(aSelectIndex) {
   // Remove all children.
   while (gIdentityListBox.hasChildNodes())
     gIdentityListBox.lastChild.remove();
 
   // Build the list from the identities array.
   let identities = gAccount.identities;
-  for (let identity of fixIterator(identities,
-                                   Ci.nsIMsgIdentity))
-  {
-    if (identity.valid)
-    {
+  for (let identity of fixIterator(identities, Ci.nsIMsgIdentity)) {
+    if (identity.valid) {
       let label = document.createElement("label");
       label.setAttribute("value", identity.identityName);
 
@@ -79,9 +74,8 @@ function refreshIdentityList(aSelectIndex)
  *
  * @param identity  the identity (if any) to load in the dialog
  */
-function openIdentityEditor(identity)
-{
-  let args = { identity: identity, account: gAccount, result: false };
+function openIdentityEditor(identity) {
+  let args = { identity, account: gAccount, result: false };
 
   let indexToSelect = identity ? gIdentityListBox.selectedIndex :
                                  gIdentityListBox.itemCount;
@@ -93,16 +87,13 @@ function openIdentityEditor(identity)
     refreshIdentityList(indexToSelect);
 }
 
-function getSelectedIdentity()
-{
+function getSelectedIdentity() {
   if (gIdentityListBox.selectedItems.length != 1)
     return null;
 
   var identityKey = gIdentityListBox.selectedItems[0].getAttribute("key");
   let identities = gAccount.identities;
-  for (let identity of fixIterator(identities,
-                                   Ci.nsIMsgIdentity))
-  {
+  for (let identity of fixIterator(identities, Ci.nsIMsgIdentity)) {
     if (identity.valid && identity.key == identityKey)
       return identity;
   }
@@ -110,17 +101,15 @@ function getSelectedIdentity()
   return null; // no identity found
 }
 
-function onEdit(event)
-{
-  var id = (event.target.localName == 'listbox') ? null : getSelectedIdentity();
+function onEdit(event) {
+  var id = (event.target.localName == "listbox") ? null : getSelectedIdentity();
   openIdentityEditor(id);
 }
 
 /**
  * Enable/disable buttons depending on number of identities and current selection.
  */
-function updateButtons()
-{
+function updateButtons() {
   // In this listbox there should always be one item selected.
   if (gIdentityListBox.selectedItems.length != 1 || gIdentityListBox.itemCount == 0) {
     // But in case this is not met (e.g. there is no identity for some reason,
@@ -137,8 +126,7 @@ function updateButtons()
   // The Add command is always enabled.
 }
 
-function onSetDefault(event)
-{
+function onSetDefault(event) {
   let identity = getSelectedIdentity();
   if (!identity)
     return;
@@ -154,8 +142,7 @@ function onSetDefault(event)
   Gloda._initMyIdentities();
 }
 
-function onDelete(event)
-{
+function onDelete(event) {
   if (gIdentityListBox.itemCount <= 1)  // don't support deleting the last identity
     return;
 
@@ -182,7 +169,6 @@ function onDelete(event)
   refreshIdentityList(selectedItemIndex);
 }
 
-function onOk()
-{
+function onOk() {
   window.arguments[0].result = true;
 }

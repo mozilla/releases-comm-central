@@ -107,7 +107,7 @@
         -->
       <field name="_filters"><![CDATA[({
         // Returns true if messages can be filed in the folder
-        filing: function filter_filing(aFolder) {
+        filing(aFolder) {
           if (!aFolder.server.canFileMessagesOnServer)
             return false;
 
@@ -116,7 +116,7 @@
 
         // Returns true if we can get mail for this folder. (usually this just
         // means the "root" fake folder)
-        getMail: function filter_getMail(aFolder) {
+        getMail(aFolder) {
           if (aFolder.isServer && aFolder.server.type != "none")
             return true;
           if (aFolder.server.type == "nntp" || aFolder.server.type == "rss")
@@ -125,7 +125,7 @@
         },
 
         // Returns true if we can add filters to this folder/account
-        filters: function filter_filter(aFolder) {
+        filters(aFolder) {
           // We can always filter news
           if (aFolder.server.type == "nntp")
             return true;
@@ -133,29 +133,29 @@
           return aFolder.server.canHaveFilters;
         },
 
-        subscribe: function filter_subscribe(aFolder) {
+        subscribe(aFolder) {
           return aFolder.canSubscribe;
         },
 
-        newFolder: function filter_newFolder(aFolder) {
+        newFolder(aFolder) {
           return aFolder.canCreateSubfolders &&
                  aFolder.server.canCreateFoldersOnServer;
         },
 
-        deferred: function filter_defered(aFolder) {
+        deferred(aFolder) {
           return aFolder.server.canCreateFoldersOnServer &&
                  !aFolder.supportsOffline;
         },
 
         // Folders that are not in a deferred account
-        notDeferred: function(aFolder) {
+        notDeferred(aFolder) {
           let server = aFolder.server;
           return !(server instanceof Ci.nsIPop3IncomingServer &&
                    server.deferredToAccount);
         },
 
         // Folders that can be searched.
-        search: function filter_search(aFolder) {
+        search(aFolder) {
           if (!aFolder.server.canSearchMessages ||
               aFolder.getFlag(Ci.nsMsgFolderFlags.Virtual))
             return false;
@@ -163,7 +163,7 @@
         },
 
         // Folders that can subscribe feeds.
-        feeds: function filter_feeds(aFolder) {
+        feeds(aFolder) {
           if (aFolder.server.type != "rss" ||
               aFolder.getFlag(Ci.nsMsgFolderFlags.Trash) ||
               aFolder.getFlag(Ci.nsMsgFolderFlags.Virtual))
@@ -171,7 +171,7 @@
           return true;
         },
 
-        junk: function filter_junk(aFolder) {
+        junk(aFolder) {
           // Don't show servers (nntp & any others) which do not allow search or filing
           // I don't really understand why canSearchMessages is needed, but it was included in
           // earlier code, so I include it as well.
@@ -179,7 +179,7 @@
             return false;
           // show parents that might have usable subfolders, or usable folders
           return aFolder.hasSubFolders || aFolder.canFileMessages;
-        }
+        },
       })]]></field>
 
       <!--
@@ -200,35 +200,35 @@
           <![CDATA[({
         _menu: this,
         _clearMenu(menu) {
-          //xxx I'm not quite sure why this isn't always a function (bug 514445)
+          // xxx I'm not quite sure why this isn't always a function (bug 514445)
           if (menu._teardown)
             menu._teardown();
         },
-        OnItemAdded: function act_add(aRDFParentItem, aItem) {
+        OnItemAdded(aRDFParentItem, aItem) {
           if (!(aItem instanceof Ci.nsIMsgFolder))
             return;
           if (this._filterFunction && !this._filterFunction(aItem)) {
             return;
           }
-          //xxx we can optimize this later
+          // xxx we can optimize this later
           this._clearMenu(this._menu);
         },
 
-        OnItemRemoved: function act_remove(aRDFParentItem, aItem) {
+        OnItemRemoved(aRDFParentItem, aItem) {
           if (!(aItem instanceof Ci.nsIMsgFolder))
             return;
           if (this._filterFunction && !this._filterFunction(aItem)) {
             return;
           }
-          //xxx we can optimize this later
+          // xxx we can optimize this later
           this._clearMenu(this._menu);
         },
 
-        //xxx I stole this listener list from nsMsgFolderDatasource.cpp, but
-        //    someone should really document what events are fired when, so that
-        //    we make sure we're updating at the right times.
-        OnItemPropertyChanged: function(aItem, aProperty, aOld, aNew) {},
-        OnItemIntPropertyChanged: function(aItem, aProperty, aOld, aNew) {
+        // xxx I stole this listener list from nsMsgFolderDatasource.cpp, but
+        //     someone should really document what events are fired when, so that
+        //     we make sure we're updating at the right times.
+        OnItemPropertyChanged(aItem, aProperty, aOld, aNew) {},
+        OnItemIntPropertyChanged(aItem, aProperty, aOld, aNew) {
           if (aItem instanceof Ci.nsIMsgFolder) {
             if (aProperty == "FolderFlag") {
               if (this._menu.getAttribute("showFavorites") != "true" ||
@@ -244,18 +244,18 @@
           if (child)
             this._menu._setCssSelectors(child._folder, child);
         },
-        OnItemBoolPropertyChanged: function(aItem, aProperty, aOld, aNew) {
+        OnItemBoolPropertyChanged(aItem, aProperty, aOld, aNew) {
           var child = this._getChildForItem(aItem);
           if (child)
             this._menu._setCssSelectors(child._folder, child);
         },
-        OnItemUnicharPropertyChanged: function(aItem, aProperty, aOld, aNew) {
+        OnItemUnicharPropertyChanged(aItem, aProperty, aOld, aNew) {
           var child = this._getChildForItem(aItem);
           if (child)
             this._menu._setCssSelectors(child._folder, child);
         },
-        OnItemPropertyFlagChanged: function(aItem, aProperty, aOld, aNew) {},
-        OnItemEvent: function(aFolder, aEvent) {
+        OnItemPropertyFlagChanged(aItem, aProperty, aOld, aNew) {},
+        OnItemEvent(aFolder, aEvent) {
           if (aEvent == "MRMTimeChanged") {
             if (this._menu.getAttribute("showRecent") != "true" ||
                 !this._menu._initializedSpecials.has("recent") ||
@@ -265,15 +265,14 @@
             if (this._getChildForItem(aFolder,
                                       this._menu.firstChild.firstChild))
               return;
-          }
-          // Special casing folder renames here, since they require more work
-          // since sort-order may have changed.
-          else if (aEvent == "RenameCompleted") {
+          } else if (aEvent == "RenameCompleted") {
+            // Special casing folder renames here, since they require more work
+            // since sort-order may have changed.
             if (!this._getChildForItem(aFolder))
               return;
-          }
-          else
+          } else {
             return;
+          }
           // folder renamed, or new recent folder, so rebuild.
           setTimeout(this._clearMenu, 0, this._menu);
         },
@@ -287,7 +286,7 @@
          * @returns      null if no child for that folder exists, otherwise the
          *               menuitem for that child
          */
-        _getChildForItem: function act__itemIsChild(aItem, aMenu) {
+        _getChildForItem(aItem, aMenu) {
           aMenu = aMenu || this._menu;
           if (!aMenu || !aMenu.hasChildNodes())
             return null;
@@ -300,7 +299,7 @@
                return aMenu.childNodes[i];
            }
            return null;
-        }
+        },
       })]]></field>
 
        <!--
@@ -387,7 +386,8 @@
 
           if (excludeServers.length > 0) {
             folders = folders.filter(function(aFolder) {
-              return !(excludeServers.indexOf(aFolder.server.key) != -1); });
+              return !excludeServers.includes(aFolder.server.key);
+            });
           }
 
           /* This code block will do the following: Add a menu item that refers
@@ -429,7 +429,7 @@
               if (this._parentFolder.noSelect)
                 menuitem.setAttribute("disabled", "true");
 
-              var sep= document.createElement("menuseparator");
+              let sep = document.createElement("menuseparator");
               sep.setAttribute("generated", "true");
               this.appendChild(sep);
             }
@@ -473,9 +473,7 @@
             // Sorts the list of folders. We give first priority to the sortKey
             // property if it is available, otherwise a case-insensitive
             // comparison of names.
-            folders = folders.sort(function nameCompare(a, b) {
-              return a.compareSortKeys(b);
-            });
+            folders = folders.sort((a, b) => a.compareSortKeys(b));
           }
 
           /* In some cases, the user wants to have a list of subfolders for only
@@ -486,9 +484,9 @@
            var labels = null;
            if (this.getAttribute("expandFolders") == "true" ||
                !this.hasAttribute("expandFolders")) {
-             shouldExpand = function (e) { return true; };
+             shouldExpand = () => true;
            } else if (this.getAttribute("expandFolders") == "false") {
-             shouldExpand = function (e) { return false; };
+             shouldExpand = () => false;
            } else {
              /* We want a subfolder list for only some servers. We also may need
               * to create headers to select the servers. If so, then headlabels
@@ -507,7 +505,7 @@
                    labels[types[index]] = labelNames[index];
                }
              }
-             shouldExpand = function (e) { return types.indexOf(e) != -1; };
+             shouldExpand = (e) => types.includes(e);
            }
 
           // We need to call this, or hasSubFolders will always return false.
@@ -531,8 +529,8 @@
               this.appendChild(node);
             } else {
               this._serversOnly = false;
-              //xxx this is slightly problematic in that we haven't confirmed
-              //    whether any of the subfolders will pass the filter
+              // xxx this is slightly problematic in that we haven't confirmed
+              //     whether any of the subfolders will pass the filter
               node = document.createElement("menu");
               node.setAttribute("class", "folderMenuItem menu-iconic");
               node.setAttribute("generated", "true");
@@ -570,7 +568,7 @@
                 serverNode._folder = folder;
                 serverNode.setAttribute("generated", "true");
                 popup.appendChild(serverNode);
-                var sep = document.createElement("menuseparator");
+                let sep = document.createElement("menuseparator");
                 sep.setAttribute("generated", "true");
                 popup.appendChild(sep);
               }
@@ -579,7 +577,7 @@
               node.appendChild(popup);
             }
 
-            if (disableServers.indexOf(folder.server.key) != -1)
+            if (disableServers.includes(folder.server.key))
               node.setAttribute("disabled", "true");
 
             node._folder = folder;
@@ -658,8 +656,12 @@
 
           // Cache the pretty names so that they do not need to be fetched
           // _MAXRECENT^2 times later.
-          let specialFoldersMap = specialFolders.map(
-            function (f) { return { folder: f, name: f.prettyName } });
+          let specialFoldersMap = specialFolders.map(function(f) {
+            return {
+              folder: f,
+              name: f.prettyName,
+            };
+          });
 
           // Because we're scanning across multiple accounts, we can end up with
           // several folders with the same name. Find those dupes.
@@ -737,8 +739,7 @@
           aMenuNode.setAttribute("IsServer", aFolder.isServer);
           aMenuNode.setAttribute("IsSecure", aFolder.server.isSecure);
           aMenuNode.setAttribute("ServerType", aFolder.server.type);
-          aMenuNode.setAttribute("IsFeedFolder",
-            (this.FeedUtils.getFeedUrlsInFolder(aFolder) ? true : false));
+          aMenuNode.setAttribute("IsFeedFolder", !!this.FeedUtils.getFeedUrlsInFolder(aFolder));
         ]]></body>
       </method>
 
@@ -787,10 +788,12 @@
             let menupopup = aMenulist.menupopup;
             if (aFolder) {
               aMenulist.setAttribute("label", menupopup.getDisplayName(aFolder));
+            } else if (aNoFolders) {
+              aMenulist.setAttribute("label", menupopup._stringBundle.getString("noFolders"));
+            } else if (menupopup._serversOnly) {
+              aMenulist.setAttribute("label", menupopup._stringBundle.getString("chooseAccount"));
             } else {
-              aMenulist.setAttribute("label", menupopup._stringBundle.getString(
-                aNoFolders ? "noFolders" :
-                             (menupopup._serversOnly ? "chooseAccount" : "chooseFolder")));
+              aMenulist.setAttribute("label", menupopup._stringBundle.getString("chooseFolder"));
             }
             aMenulist.setAttribute("value",
               aFolder ? aFolder.URI : "");
@@ -829,19 +832,16 @@
           // no children, then no folder passed the filter; disable the menulist
           // as there's nothing to choose from.
           let noFolders;
-          if (!this.childElementCount)
-          {
+          if (!this.childElementCount) {
             this.parentNode.setAttribute("disabled", true);
             noFolders = true;
-          }
-          else
-          {
+          } else {
             this.parentNode.removeAttribute("disabled");
             noFolders = false;
           }
 
           setupParent(folder, this.parentNode, noFolders);
-          return folder ? true : false;
+          return !!folder;
         ]]></body>
       </method>
 

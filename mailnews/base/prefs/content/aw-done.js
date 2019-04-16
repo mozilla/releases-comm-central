@@ -3,6 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from AccountWizard.js */
+
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var gPrefsBundle;
@@ -22,7 +24,7 @@ function donePageInit() {
     }
     setDivTextFromForm("identity.email", email);
 
-    var userName="";
+    let userName = "";
     if (pageData.login && pageData.login.username)
         userName = pageData.login.username.value;
     if (!userName && email)
@@ -32,7 +34,7 @@ function donePageInit() {
     // on the incoming server.
     setDivTextFromForm("server.username", hideIncoming ? null : userName);
 
-    var smtpUserName="";
+    let smtpUserName = "";
     if (pageData.login && pageData.login.smtpusername)
         smtpUserName = pageData.login.smtpusername.value;
     if (!smtpUserName && email)
@@ -48,7 +50,7 @@ function donePageInit() {
     // Show mail servers (incoming & outgoing) details based on current account
     // data.
     if (!serverIsNntp(pageData)) {
-        var incomingServerName="";
+        let incomingServerName = "";
         if (pageData.server && pageData.server.hostname) {
             incomingServerName = pageData.server.hostname.value;
         }
@@ -56,13 +58,13 @@ function donePageInit() {
         // wizardHideIncoming in the ISP defaults file
         setDivTextFromForm("server.name", hideIncoming ? null : incomingServerName);
         setDivTextFromForm("server.port", pageData.server.port ? pageData.server.port.value : null);
-        var incomingServerType="";
+        let incomingServerType = "";
         if (pageData.server && pageData.server.servertype) {
             incomingServerType = pageData.server.servertype.value;
         }
         setDivTextFromForm("server.type", incomingServerType.toUpperCase());
 
-        var smtpServerName="";
+        let smtpServerName = "";
         if (pageData.server && pageData.server.smtphostname) {
           let smtpServer = MailServices.smtp.defaultServer;
           smtpServerName = pageData.server.smtphostname.value;
@@ -70,8 +72,7 @@ function donePageInit() {
               smtpServerName = smtpServer.hostname;
         }
         setDivTextFromForm("smtpServer.name", smtpServerName);
-    }
-    else {
+    } else {
         setDivTextFromForm("server.name", null);
         setDivTextFromForm("server.type", null);
         setDivTextFromForm("server.port", null);
@@ -79,7 +80,7 @@ function donePageInit() {
     }
 
     if (serverIsNntp(pageData)) {
-        var newsServerName="";
+        let newsServerName = "";
         if (pageData.newsserver && pageData.newsserver.hostname)
             newsServerName = pageData.newsserver.hostname.value;
         if (newsServerName) {
@@ -88,8 +89,7 @@ function donePageInit() {
         }
         setDivTextFromForm("newsServer.name", newsServerName);
         setDivTextFromForm("server.port", null);
-    }
-    else {
+    } else {
         setDivTextFromForm("newsServer.name", null);
     }
 
@@ -101,8 +101,7 @@ function donePageInit() {
     hideShowDownloadMsgsUI(isPop);
 }
 
-function hideShowDownloadMsgsUI(isPop)
-{
+function hideShowDownloadMsgsUI(isPop) {
   // only show the "download messages now" UI
   // if this is a pop account, we are online, and this was opened
   // from the 3 pane
@@ -121,19 +120,17 @@ function hideShowDownloadMsgsUI(isPop)
 }
 
 function setDivTextFromForm(divid, value) {
-
     // collapse the row if the div has no value
     var div = document.getElementById(divid);
     if (!value) {
-        div.setAttribute("collapsed","true");
+        div.setAttribute("collapsed", "true");
         return;
     }
-    else {
-        div.removeAttribute("collapsed");
-    }
+
+    div.removeAttribute("collapsed");
 
     // otherwise fill in the .text element
-    div = document.getElementById(divid+".text");
+    div = document.getElementById(divid + ".text");
     if (!div) return;
 
     // set the value

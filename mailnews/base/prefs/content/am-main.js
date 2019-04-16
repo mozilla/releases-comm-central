@@ -3,17 +3,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from am-identity-edit.js */
+
 var gAccount;
 
-function onInit(aPageId, aServerId)
-{
+function onInit(aPageId, aServerId) {
   var accountName = document.getElementById("server.prettyName");
   var title = document.querySelector("#am-main-title .dialogheader-title");
   var defaultTitle = title.getAttribute("defaultTitle");
   var titleValue;
 
-  if(accountName.value)
-    titleValue = defaultTitle+" - <"+accountName.value+">";
+  if (accountName.value)
+    titleValue = defaultTitle + " - <" + accountName.value + ">";
   else
     titleValue = defaultTitle;
 
@@ -23,14 +24,12 @@ function onInit(aPageId, aServerId)
   setupSignatureItems();
 }
 
-function onPreInit(account, accountValues)
-{
+function onPreInit(account, accountValues) {
   gAccount = account;
   loadSMTPServerList();
 }
 
-function manageIdentities()
-{
+function manageIdentities() {
   // We want to save the current identity information before bringing up the multiple identities
   // UI. This ensures that the changes are reflected in the identity list dialog
   // onSave();
@@ -40,7 +39,7 @@ function manageIdentities()
 
   var accountName = document.getElementById("server.prettyName").value;
 
-  var args = { account: gAccount, accountName: accountName, result: false };
+  var args = { account: gAccount, accountName, result: false };
 
   // save the current identity settings so they show up correctly
   // if the user just changed them in the manage identities dialog

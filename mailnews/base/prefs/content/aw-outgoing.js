@@ -3,6 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from AccountWizard.js */
+
 var {cleanUpHostName, isLegalHostNameOrIP} = ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
@@ -57,11 +59,10 @@ function outgoingPageInit() {
     if (smtpServer && smtpServer.hostname) {
       // we have a hostname, so modify and show the static text and
       // store the value of the default smtp server in the textbox.
-      modifyStaticText(smtpServer.hostname, "1")
+      modifyStaticText(smtpServer.hostname, "1");
       boxToShow = haveSmtpBox;
       boxToHide = noSmtpBox;
-    }
-    else {
+    } else {
       // no default hostname yet
       boxToShow = noSmtpBox;
       boxToHide = haveSmtpBox;
@@ -78,11 +79,10 @@ function outgoingPageInit() {
     if (smtpServer && smtpServer.hostname && smtpServer.username) {
       // we have a default SMTP server, so modify and show the static text
       // and store the username for the default server in the textbox.
-      modifyStaticText(smtpServer.username, "2")
+      modifyStaticText(smtpServer.username, "2");
       hideShowLoginSettings(2, 1, 3);
       smtpNameInput.value = smtpServer.username;
-    }
-    else {
+    } else {
       // no default SMTP server yet, so need to compare
       // incoming and outgoing server names
       var smtpServerName = pageData.server.smtphostname.value;
@@ -90,39 +90,37 @@ function outgoingPageInit() {
       if (smtpServerName == incomingServerName) {
         // incoming and outgoing server names are the same, so show
         // the static text and make sure textbox blank for later tests.
-        modifyStaticText(smtpServerName, "3")
+        modifyStaticText(smtpServerName, "3");
         hideShowLoginSettings(3, 1, 2);
         smtpNameInput.value = "";
-      }
-      else {
+      } else {
         // incoming and outgoing server names are different, so set smtp
         // username's textbox to be the same as incoming's one, unless already set.
         hideShowLoginSettings(1, 2, 3);
+        var loginNameInput = document.getElementById("username");
         smtpNameInput.value = smtpNameInput.value || loginNameInput.value;
       }
     }
     outgoingPageValidate();
 }
 
-function modifyStaticText(smtpMod, smtpBox)
-{
+function modifyStaticText(smtpMod, smtpBox) {
   // modify the value in the smtp display if we already have a
   // smtp server so that the single string displays the hostname
   // or username for the smtp server.
-  var smtpStatic = document.getElementById("smtpStaticText"+smtpBox);
+  var smtpStatic = document.getElementById("smtpStaticText" + smtpBox);
   if (smtpStatic && smtpStatic.hasChildNodes())
     smtpStatic.childNodes[0].nodeValue = smtpStatic.getAttribute("prefix") +
                                          smtpMod + smtpStatic.getAttribute("suffix");
 }
 
-function hideShowLoginSettings(aEle, bEle, cEle)
-{
+function hideShowLoginSettings(aEle, bEle, cEle) {
     document.getElementById("loginSet" + aEle).hidden = false;
     document.getElementById("loginSet" + bEle).hidden = true;
     document.getElementById("loginSet" + cEle).hidden = true;
 }
 
-var savedPassword="";
+var savedPassword = "";
 
 function onSavePassword(target) {
     dump("savePassword changed! (" + target.checked + ")\n");
@@ -132,11 +130,9 @@ function onSavePassword(target) {
     if (target.checked) {
         passwordField.removeAttribute("disabled");
         passwordField.value = savedPassword;
-    }
-    else {
+    } else {
         passwordField.setAttribute("disabled", "true");
         savedPassword = passwordField.value;
         passwordField.value = "";
     }
-
 }

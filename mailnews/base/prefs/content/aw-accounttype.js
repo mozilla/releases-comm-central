@@ -3,8 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-function setAccountTypeData()
-{
+/* import-globals-from AccountWizard.js */
+
+function setAccountTypeData() {
   var rg = document.getElementById("acctyperadio");
   var selectedItemId = rg.selectedItem.id;
   var mail = selectedItemId == "mailaccount";
@@ -50,7 +51,7 @@ function setupWizardPanels() {
       setPageData(pageData, "server", "hostname", "localhost");
       setPageData(pageData, "server", "port", "");
     } else {
-      wizardPanels = button.value.split(/ *, */);
+      wizardPanels = pages.split(/ *, */);
     }
   }
   wizardPanels.push("done");
@@ -61,6 +62,6 @@ function setupWizardPanels() {
 
   // make the account type page go to the very first of our approved wizard panels...this is usually going to
   // be accounttype --> identitypage unless we were configured to skip the identity page
-  setNextPage("accounttype",wizardPanels[0]);
+  setNextPage("accounttype", wizardPanels[0]);
 }
 

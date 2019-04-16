@@ -8,8 +8,7 @@ var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
-function BrowseForLocalFolders()
-{
+function BrowseForLocalFolders() {
   const nsIFilePicker = Ci.nsIFilePicker;
   const nsIFile = Ci.nsIFile;
 
@@ -49,8 +48,7 @@ function BrowseForLocalFolders()
  *                       If target.isServer then only its name is returned.
  *                       Otherwise return the name as "<foldername> on <servername>".
  */
-function prettyFolderName(aTargetFolder)
-{
+function prettyFolderName(aTargetFolder) {
   if (aTargetFolder.isServer)
     return aTargetFolder.prettyName;
 
@@ -68,8 +66,7 @@ function prettyFolderName(aTargetFolder)
  *
  * @return  the value of aTargetURI if it is valid (usable), otherwise null
  */
-function checkJunkTargetFolder(aTargetURI, aIsServer)
-{
+function checkJunkTargetFolder(aTargetURI, aIsServer) {
   try {
     // Does the target account exist?
     let targetServer;
@@ -98,8 +95,7 @@ function checkJunkTargetFolder(aTargetURI, aIsServer)
  *
  * @return  the server/folder URI of a usable target for storing Junk
  */
-function chooseJunkTargetFolder(aTargetURI, aIsServer)
-{
+function chooseJunkTargetFolder(aTargetURI, aIsServer) {
   let server = null;
 
   if (aTargetURI) {
@@ -137,8 +133,7 @@ function sanitizeJunkTargets(aSpamActionTargetAccount,
                              aProposedTarget,
                              aMoveTargetModeValue,
                              aServerSpamSettings,
-                             aMoveOnSpam)
-{
+                             aMoveOnSpam) {
   // Check if folder targets are valid.
   aSpamActionTargetAccount = checkJunkTargetFolder(aSpamActionTargetAccount, true);
   if (!aSpamActionTargetAccount) {
@@ -196,11 +191,9 @@ function openPrefsFromAccountManager(aTBPaneId, aTBTabId, aTBOtherArgs, aSMPaneI
  * @param aAccountKey   Optional. The key of an account that is skipped when
  *                      searching the name. If unset, do not skip any account.
  */
-function accountNameExists(aAccountName, aAccountKey)
-{
+function accountNameExists(aAccountName, aAccountKey) {
   for (let account of fixIterator(MailServices.accounts.accounts,
-                                  Ci.nsIMsgAccount))
-  {
+                                  Ci.nsIMsgAccount)) {
     if (account.key != aAccountKey && account.incomingServer &&
         aAccountName == account.incomingServer.prettyName) {
       return true;

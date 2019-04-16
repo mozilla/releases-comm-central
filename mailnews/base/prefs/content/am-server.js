@@ -3,6 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from AccountManager.js */
+
 var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
@@ -25,7 +27,7 @@ function clickStoreTypeMenu(aStoreTypeElement) {
   // otherwise 'response.newRootFolder' will be null.
   let response = { newRootFolder: null };
   // Send 'response' as an argument to converterDialog.xhtml.
-  window.openDialog("converterDialog.xhtml","mailnews:mailstoreconverter",
+  window.openDialog("converterDialog.xhtml", "mailnews:mailstoreconverter",
                     "modal,centerscreen,resizable=no,width=700,height=130", gServer,
                     aStoreTypeElement.value, response);
   changeStoreType(response);
@@ -62,8 +64,7 @@ function changeStoreType(aResponse) {
   }
 }
 
-function onSave()
-{
+function onSave() {
   let storeContractID = document.getElementById("server.storeTypeMenulist")
                                 .selectedItem
                                 .value;
@@ -71,8 +72,7 @@ function onSave()
           .setAttribute("value", storeContractID);
 }
 
-function onInit(aPageId, aServerId)
-{
+function onInit(aPageId, aServerId) {
   initServerType();
 
   onCheckItem("server.biffMinutes", ["server.doBiff"]);
@@ -107,22 +107,19 @@ function onInit(aPageId, aServerId)
   gOriginalStoreType = storeTypeElement.value;
 }
 
-function onPreInit(account, accountValues)
-{
+function onPreInit(account, accountValues) {
   var type = parent.getAccountValue(account, accountValues, "server", "type", null, false);
   hideShowControls(type);
 
   gServer = account.incomingServer;
 
-  if(!account.incomingServer.canEmptyTrashOnExit)
-  {
+  if (!account.incomingServer.canEmptyTrashOnExit) {
     document.getElementById("server.emptyTrashOnExit").setAttribute("hidden", "true");
     document.getElementById("imap.deleteModel.box").setAttribute("hidden", "true");
   }
 }
 
-function initServerType()
-{
+function initServerType() {
   var serverType = document.getElementById("server.type").getAttribute("value");
   var propertyName = "serverType-" + serverType;
 
@@ -151,19 +148,16 @@ function initServerType()
   hideUnlessSelected(document.getElementById("authMethod-any"));
 }
 
-function hideUnlessSelected(element)
-{
+function hideUnlessSelected(element) {
   element.hidden = !element.selected;
 }
 
-function setLabelFromStringBundle(elementID, stringName)
-{
+function setLabelFromStringBundle(elementID, stringName) {
   document.getElementById(elementID).label =
       document.getElementById("bundle_messenger").getString(stringName);
 }
 
-function setDivText(divname, value)
-{
+function setDivText(divname, value) {
   var div = document.getElementById(divname);
   if (!div)
     return;
@@ -171,8 +165,7 @@ function setDivText(divname, value)
 }
 
 
-function onAdvanced()
-{
+function onAdvanced() {
   // Store the server type and, if an IMAP or POP3 server,
   // the settings needed for the IMAP/POP3 tab into the array
   var serverSettings = {};
@@ -182,8 +175,7 @@ function onAdvanced()
   serverSettings.serverPrettyName = gServer.prettyName;
   serverSettings.account = top.getCurrentAccount();
 
-  if (serverType == "imap")
-  {
+  if (serverType == "imap") {
     serverSettings.dualUseFolders = document.getElementById("imap.dualUseFolders").checked;
     serverSettings.usingSubscription = document.getElementById("imap.usingSubscription").checked;
     serverSettings.maximumConnectionsNumber = document.getElementById("imap.maximumConnectionsNumber").getAttribute("value");
@@ -193,9 +185,7 @@ function onAdvanced()
     serverSettings.serverDirectory = document.getElementById("imap.serverDirectory").getAttribute("value");
     serverSettings.otherUsersNamespace = document.getElementById("imap.otherUsersNamespace").getAttribute("value");
     serverSettings.overrideNamespaces = document.getElementById("imap.overrideNamespaces").checked;
-  }
-  else if (serverType == "pop3")
-  {
+  } else if (serverType == "pop3") {
     serverSettings.deferGetNewMail = document.getElementById("pop3.deferGetNewMail").checked;
     serverSettings.deferredToAccount = document.getElementById("pop3.deferredToAccount").getAttribute("value");
   }
@@ -203,8 +193,7 @@ function onAdvanced()
   window.openDialog("chrome://messenger/content/am-server-advanced.xul",
                     "_blank", "chrome,modal,titlebar", serverSettings);
 
-  if (serverType == "imap")
-  {
+  if (serverType == "imap") {
     document.getElementById("imap.dualUseFolders").checked = serverSettings.dualUseFolders;
     document.getElementById("imap.usingSubscription").checked = serverSettings.usingSubscription;
     document.getElementById("imap.maximumConnectionsNumber").setAttribute("value", serverSettings.maximumConnectionsNumber);
@@ -214,9 +203,7 @@ function onAdvanced()
     document.getElementById("imap.serverDirectory").setAttribute("value", serverSettings.serverDirectory);
     document.getElementById("imap.otherUsersNamespace").setAttribute("value", serverSettings.otherUsersNamespace);
     document.getElementById("imap.overrideNamespaces").checked = serverSettings.overrideNamespaces;
-  }
-  else if (serverType == "pop3")
-  {
+  } else if (serverType == "pop3") {
     document.getElementById("pop3.deferGetNewMail").checked = serverSettings.deferGetNewMail;
     document.getElementById("pop3.deferredToAccount").setAttribute("value", serverSettings.deferredToAccount);
     let pop3Server = gServer.QueryInterface(Ci.nsIPop3IncomingServer);
@@ -272,10 +259,8 @@ function onAdvanced()
   }
 }
 
-function secureSelect(aLoading)
-{
+function secureSelect(aLoading) {
     var socketType = document.getElementById("server.socketType").value;
-    var serverType = document.getElementById("server.type").value;
     var defaultPort = gServer.protocolInfo.getDefaultServerPort(false);
     var defaultPortSecure = gServer.protocolInfo.getDefaultServerPort(true);
     var port = document.getElementById("server.port");
@@ -299,14 +284,12 @@ function secureSelect(aLoading)
         "authPasswordCleartextViaSSL" : "authPasswordCleartextInsecurely");
 }
 
-function setupMailOnServerUI()
-{
+function setupMailOnServerUI() {
   onCheckItem("pop3.deleteMailLeftOnServer", ["pop3.leaveMessagesOnServer"]);
   setupAgeMsgOnServerUI();
 }
 
-function setupAgeMsgOnServerUI()
-{
+function setupAgeMsgOnServerUI() {
   const kLeaveMsgsId = "pop3.leaveMessagesOnServer";
   const kDeleteByAgeId = "pop3.deleteByAgeFromServer";
   onCheckItem(kDeleteByAgeId, [kLeaveMsgsId]);
@@ -314,14 +297,13 @@ function setupAgeMsgOnServerUI()
   onCheckItem("pop3.numDaysToLeaveOnServer", [kLeaveMsgsId, kDeleteByAgeId]);
 }
 
-function setupFixedUI()
-{
+function setupFixedUI() {
   var controls = [document.getElementById("fixedServerName"),
                   document.getElementById("fixedUserName"),
                   document.getElementById("fixedServerPort")];
 
   var len = controls.length;
-  for (var i=0; i<len; i++) {
+  for (let i = 0; i < len; i++) {
     var fixedElement = controls[i];
     var otherElement = document.getElementById(fixedElement.getAttribute("use"));
 
@@ -330,8 +312,7 @@ function setupFixedUI()
   }
 }
 
-function BrowseForNewsrc()
-{
+function BrowseForNewsrc() {
   const nsIFilePicker = Ci.nsIFilePicker;
   const nsIFile = Ci.nsIFile;
 
@@ -365,8 +346,7 @@ function BrowseForNewsrc()
   });
 }
 
-function setupImapDeleteUI(aServerId)
-{
+function setupImapDeleteUI(aServerId) {
   // read delete_model preference
   var deleteModel = document.getElementById("imap.deleteModel").getAttribute("value");
   selectImapDeleteModel(deleteModel);
@@ -381,28 +361,26 @@ function setupImapDeleteUI(aServerId)
   trashPopup._ensureInitialized();
 
   // Convert the folder path in Unicode to MUTF-7.
-  let manager = Cc['@mozilla.org/charset-converter-manager;1']
+  let manager = Cc["@mozilla.org/charset-converter-manager;1"]
                   .getService(Ci.nsICharsetConverterManager);
   // Escape backslash and double-quote with another backslash before encoding.
-  let trashMutf7 = manager.unicodeToMutf7(trashFolderName.replace(/([\\"])/g, '\\$1'));
+  let trashMutf7 = manager.unicodeToMutf7(trashFolderName.replace(/([\\"])/g, "\\$1"));
   // TODO: There is something wrong here, selectFolder() fails even if the
   // folder does exist. Try to fix in bug 802609.
   let trashFolder = MailUtils.getOrCreateFolder(aServerId + "/" + trashMutf7);
   try {
     trashPopup.selectFolder(trashFolder);
-  } catch(ex) {
+  } catch (ex) {
     trashPopup.parentNode.setAttribute("label", trashFolder.prettyName);
   }
   trashPopup.parentNode.folder = trashFolder;
 }
 
-function selectImapDeleteModel(choice)
-{
+function selectImapDeleteModel(choice) {
   // set deleteModel to selected mode
   document.getElementById("imap.deleteModel").setAttribute("value", choice);
 
-  switch (choice)
-  {
+  switch (choice) {
     case "0" : // markDeleted
       // disable folderPicker
       document.getElementById("msgTrashFolderPicker").setAttribute("disabled", "true");
@@ -422,15 +400,14 @@ function selectImapDeleteModel(choice)
 }
 
 // Capture any menulist changes from folderPicker
-function folderPickerChange(aEvent)
-{
+function folderPickerChange(aEvent) {
   var folder = aEvent.target._folder;
   // Since we need to deal with localised folder names, we simply use
   // the path of the URI like we do in nsImapIncomingServer::DiscoveryDone().
   // Note that the path is returned with a leading slash which we need to remove.
   var folderPath = Services.io.newURI(folder.URI).pathQueryRef.substring(1);
   // We need to convert that from MUTF-7 to Unicode.
-  var manager = Cc['@mozilla.org/charset-converter-manager;1']
+  var manager = Cc["@mozilla.org/charset-converter-manager;1"]
                   .getService(Ci.nsICharsetConverterManager);
   var trashUnicode = manager.mutf7ToUnicode(
     Services.netUtils.unescapeString(folderPath, Ci.nsINetUtil.ESCAPE_URL_PATH));
@@ -446,13 +423,12 @@ function folderPickerChange(aEvent)
 
 // Get trash_folder_name from prefs. Despite its name this returns
 // a folder path, for example INBOX/Trash.
-function getTrashFolderName()
-{
+function getTrashFolderName() {
   var trashFolderName = document.getElementById("imap.trashFolderName").getAttribute("value");
   // if the preference hasn't been set, set it to a sane default
   if (!trashFolderName) {
     trashFolderName = "Trash";  // XXX Is this a useful default?
-    document.getElementById("imap.trashFolderName").setAttribute("value",trashFolderName);
+    document.getElementById("imap.trashFolderName").setAttribute("value", trashFolderName);
   }
   return trashFolderName;
 }

@@ -20,32 +20,35 @@ var kSmtpPrefVersion = 1;
 var kABRemoteContentPrefVersion = 1;
 var kDefaultCharsetsPrefVersion = 1;
 
-function migrateMailnews()
-{
+function migrateMailnews() {
   try {
     MigrateServerAuthPref();
-  } catch (e) { logException(e); }
+  } catch (e) {
+    logException(e);
+  }
 
   try {
     MigrateABRemoteContentSettings();
-  } catch (e) { logException(e); }
+  } catch (e) {
+    logException(e);
+  }
 
   try {
     MigrateDefaultCharsets();
-  } catch (e) { logException(e); }
+  } catch (e) {
+    logException(e);
+  }
 }
 
 /**
  * Migrates from pref useSecAuth to pref authMethod
  */
-function MigrateServerAuthPref()
-{
+function MigrateServerAuthPref() {
   try {
     // comma-separated list of all accounts.
     var accounts = Services.prefs.getCharPref("mail.accountmanager.accounts")
         .split(",");
-    for (let i = 0; i < accounts.length; i++)
-    {
+    for (let i = 0; i < accounts.length; i++) {
       let accountKey = accounts[i]; // e.g. "account1"
       if (!accountKey)
         continue;
@@ -62,27 +65,25 @@ function MigrateServerAuthPref()
       // auth_login = false => old-style auth
       // else: useSecAuth = true => "secure auth"
       // else: cleartext pw
-      let auth_login = true;
-      let useSecAuth = false; // old default, default pref now removed
-      try {
-        auth_login = Services.prefs.getBoolPref(server + "auth_login");
-      } catch (e) {}
-      try {
-        useSecAuth = Services.prefs.getBoolPref(server + "useSecAuth");
-      } catch (e) {}
+      let auth_login = Services.prefs.getBoolPref(server + "auth_login", true);
+      // old default, default pref now removed
+      let useSecAuth = Services.prefs.getBoolPref(server + "useSecAuth", false);
 
-      Services.prefs.setIntPref(server + "authMethod",
-          auth_login ? (useSecAuth ?
-                           Ci.nsMsgAuthMethod.secure :
-                           Ci.nsMsgAuthMethod.passwordCleartext) :
-                       Ci.nsMsgAuthMethod.old);
+      if (auth_login) {
+        if (useSecAuth) {
+          Services.prefs.setIntPref(server + "authMethod", Ci.nsMsgAuthMethod.secure);
+        } else {
+          Services.prefs.setIntPref(server + "authMethod", Ci.nsMsgAuthMethod.passwordCleartext);
+        }
+      } else {
+        Services.prefs.setIntPref(server + "authMethod", Ci.nsMsgAuthMethod.old);
+      }
       Services.prefs.setIntPref(server + "migrated", kServerPrefVersion);
     }
 
     // same again for SMTP servers
     var smtpservers = Services.prefs.getCharPref("mail.smtpservers").split(",");
-    for (let i = 0; i < smtpservers.length; i++)
-    {
+    for (let i = 0; i < smtpservers.length; i++) {
       if (!smtpservers[i])
         continue;
       let server = "mail.smtpserver." + smtpservers[i] + ".";
@@ -96,23 +97,23 @@ function MigrateServerAuthPref()
       // auth_method = 0 => no auth
       // else: useSecAuth = true => "secure auth"
       // else: cleartext pw
-      let auth_method = 1;
-      let useSecAuth = false;
-      try {
-        auth_method = Services.prefs.getIntPref(server + "auth_method");
-      } catch (e) {}
-      try {
-        useSecAuth = Services.prefs.getBoolPref(server + "useSecAuth");
-      } catch (e) {}
+      let auth_method = Services.prefs.getIntPref(server + "auth_method", 1);
+      let useSecAuth = Services.prefs.getBoolPref(server + "useSecAuth", false);
 
-      Services.prefs.setIntPref(server + "authMethod",
-          auth_method ? (useSecAuth ?
-                            Ci.nsMsgAuthMethod.secure :
-                            Ci.nsMsgAuthMethod.passwordCleartext) :
-                        Ci.nsMsgAuthMethod.none);
+      if (auth_method) {
+        if (useSecAuth) {
+          Services.prefs.setIntPref(server + "authMethod", Ci.nsMsgAuthMethod.secure);
+        } else {
+          Services.prefs.setIntPref(server + "authMethod", Ci.nsMsgAuthMethod.passwordCleartext);
+        }
+      } else {
+        Services.prefs.setIntPref(server + "authMethod", Ci.nsMsgAuthMethod.none);
+      }
       Services.prefs.setIntPref(server + "migrated", kSmtpPrefVersion);
     }
-  } catch(e) { logException(e); }
+  } catch (e) {
+    logException(e);
+  }
 }
 
 /**
@@ -120,20 +121,18 @@ function MigrateServerAuthPref()
  * content for a given contact. Now we use the permission manager for that.
  * Do a one-time migration for it.
  */
-function MigrateABRemoteContentSettings()
-{
+function MigrateABRemoteContentSettings() {
   if (Services.prefs.prefHasUserValue("mail.ab_remote_content.migrated"))
     return;
 
   // Search through all of our local address books looking for a match.
   let enumerator = MailServices.ab.directories;
-  while (enumerator.hasMoreElements())
-  {
+  while (enumerator.hasMoreElements()) {
     let migrateAddress = function(aEmail) {
       let uri = Services.io.newURI(
         "chrome://messenger/content/email=" + aEmail);
       Services.perms.add(uri, "image", Services.perms.ALLOW_ACTION);
-    }
+    };
 
     let addrbook = enumerator.getNext()
       .QueryInterface(Ci.nsIAbDirectory);
@@ -144,12 +143,11 @@ function MigrateABRemoteContentSettings()
         continue;
 
       let childCards = addrbook.childCards;
-      while (childCards.hasMoreElements())
-      {
+      while (childCards.hasMoreElements()) {
         let card = childCards.getNext()
                              .QueryInterface(Ci.nsIAbCard);
 
-        if (card.getProperty("AllowRemoteContent", false) == false)
+        if (card.getProperty("AllowRemoteContent", "0") == "0")
           continue; // not allowed for this contact
 
         if (card.primaryEmail)
@@ -158,7 +156,9 @@ function MigrateABRemoteContentSettings()
         if (card.getProperty("SecondEmail", ""))
           migrateAddress(card.getProperty("SecondEmail", ""));
       }
-    } catch (e) { logException(e); }
+    } catch (e) {
+      logException(e);
+    }
   }
 
   Services.prefs.setIntPref("mail.ab_remote_content.migrated",
@@ -169,12 +169,11 @@ function MigrateABRemoteContentSettings()
  * If the default sending or viewing charset is one that is no longer available,
  * change it back to the default.
  */
-function MigrateDefaultCharsets()
-{
+function MigrateDefaultCharsets() {
   if (Services.prefs.prefHasUserValue("mail.default_charsets.migrated"))
     return;
 
-  let charsetConvertManager = Cc['@mozilla.org/charset-converter-manager;1']
+  let charsetConvertManager = Cc["@mozilla.org/charset-converter-manager;1"]
     .getService(Ci.nsICharsetConverterManager);
 
   let sendCharsetStr = Services.prefs.getComplexValue(

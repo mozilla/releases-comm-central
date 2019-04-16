@@ -2,15 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../../mail/base/content/folderPane.js */
+
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 var gSelectVirtual = {
   _treeElement: null,
   _selectedList: new Set(),
 
-  load: function() {
+  load() {
     if (window.arguments[0].searchFolderURIs) {
-      let srchFolderUriArray = window.arguments[0].searchFolderURIs.split('|');
+      let srchFolderUriArray = window.arguments[0].searchFolderURIs.split("|");
       for (let uri of srchFolderUriArray) {
         this._selectedList.add(MailUtils.getOrCreateFolder(uri));
       }
@@ -27,21 +29,21 @@ var gSelectVirtual = {
         properties += " selected-true";
 
       return properties;
-    }
+    };
 
     let modeVirtual = {
       __proto__: IFolderTreeMode,
 
-      generateMap: function(ftv) {
+      generateMap(ftv) {
         let accounts = gFolderTreeView._sortedAccounts();
         // Force each root folder to do its local subfolder discovery.
         MailUtils.discoverFolders();
         let filterVirtual = function(aFolder) {
           return !aFolder.getFlag(Ci.nsMsgFolderFlags.Virtual);
-        }
+        };
         return accounts.map(acct => new ftvItem(acct.incomingServer.rootFolder,
                                                 filterVirtual));
-      }
+      },
     };
     this._treeElement = document.getElementById("folderPickerTree");
 
@@ -50,7 +52,7 @@ var gSelectVirtual = {
     gFolderTreeView.load(this._treeElement);
   },
 
-  onKeyPress: function(aEvent) {
+  onKeyPress(aEvent) {
     // For now, only do something on space key.
     if (aEvent.charCode != aEvent.DOM_VK_SPACE)
       return;
@@ -68,7 +70,7 @@ var gSelectVirtual = {
     }
   },
 
-  onClick: function(aEvent) {
+  onClick(aEvent) {
     // We only care about button 0 (left click) events.
     if (aEvent.button != 0)
       return;
@@ -80,7 +82,7 @@ var gSelectVirtual = {
     this._toggle(treeCellInfo.row);
   },
 
-  _toggle: function(aRow) {
+  _toggle(aRow) {
     let folder = gFolderTreeView._rowMap[aRow]._folder;
     if (this._selectedList.has(folder))
       this._selectedList.delete(folder);
@@ -90,7 +92,7 @@ var gSelectVirtual = {
     gFolderTreeView._tree.invalidateRow(aRow);
   },
 
-  onAccept: function() {
+  onAccept() {
     gFolderTreeView.unload();
     // XXX We should just pass the folder objects around...
     let uris = [...this._selectedList.values()].map(folder => folder.URI).join("|");
@@ -99,9 +101,9 @@ var gSelectVirtual = {
       window.arguments[0].okCallback(uris);
   },
 
-  onCancel: function() {
+  onCancel() {
     gFolderTreeView.unload();
-  }
+  },
 };
 
 document.addEventListener("dialogaccept", gSelectVirtual.onAccept);

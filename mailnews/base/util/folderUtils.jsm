@@ -82,16 +82,12 @@ function getFolderProperties(aFolder, aOpen) {
 
   if (aFolder.isServer) {
     properties.push("isServer-true");
-  }
-  else
-  {
+  } else {
     // We only set this if we're not a server
     let shallowUnread = aFolder.getNumUnread(false);
     if (shallowUnread > 0) {
       properties.push("hasUnreadMessages-true");
-    }
-    else
-    {
+    } else {
       // Make sure that shallowUnread isn't negative
       shallowUnread = 0;
     }
@@ -145,15 +141,11 @@ function allAccountsSorted(aExcludeIMAccounts) {
   // This is a HACK to work around bug 41133. If we have one of the
   // dummy "news" accounts there, that account won't have an
   // incomingServer attached to it, and everything will blow up.
-  accountList = accountList.filter(function hasServer(a) {
-    return a.incomingServer;
-  });
+  accountList = accountList.filter((a) => a.incomingServer);
 
   // Remove IM servers.
   if (aExcludeIMAccounts) {
-    accountList = accountList.filter(function(a) {
-      return a.incomingServer.type != "im";
-    });
+    accountList = accountList.filter((a) => a.incomingServer.type != "im");
   }
 
   return accountList.sort(compareAccounts);
@@ -184,24 +176,23 @@ function getMostRecentFolders(aFolderList, aMaxHits, aTimeProperty) {
     let time = 0;
     try {
       time = Number(aFolder.getStringProperty(aTimeProperty)) || 0;
-    } catch(e) {}
+    } catch (e) {}
     if (time <= oldestTime)
       return;
 
     if (recentFolders.length == aMaxHits) {
-      recentFolders.sort(function sort_folders_by_time(a, b) {
-                         return a.time < b.time; });
+      recentFolders.sort((a, b) => a.time < b.time);
       recentFolders.pop();
       oldestTime = recentFolders[recentFolders.length - 1].time;
     }
-    recentFolders.push({ folder: aFolder, time: time });
+    recentFolders.push({ folder: aFolder, time });
   }
 
   for (let folder of aFolderList) {
     addIfRecent(folder);
   }
 
-  return recentFolders.map(function (f) { return f.folder; });
+  return recentFolders.map((f) => f.folder);
 }
 
 /**

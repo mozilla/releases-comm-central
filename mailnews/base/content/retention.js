@@ -4,9 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* globals gLockedPref */// From either folderProps.js or am-offline.js.
 
-function initCommonRetentionSettings(retentionSettings)
-{
+function initCommonRetentionSettings(retentionSettings) {
   document.getElementById("retention.keepMsg").value = retentionSettings.retainByPreference;
   document.getElementById("retention.keepOldMsgMin").value =
     (retentionSettings.daysToKeepHdrs > 0) ? retentionSettings.daysToKeepHdrs : 30;
@@ -17,8 +17,7 @@ function initCommonRetentionSettings(retentionSettings)
     !retentionSettings.applyToFlaggedMessages;
 }
 
-function saveCommonRetentionSettings(aRetentionSettings)
-{
+function saveCommonRetentionSettings(aRetentionSettings) {
   aRetentionSettings.retainByPreference = document.getElementById("retention.keepMsg").value;
 
   aRetentionSettings.daysToKeepHdrs = document.getElementById("retention.keepOldMsgMin").value;
@@ -30,8 +29,7 @@ function saveCommonRetentionSettings(aRetentionSettings)
   return aRetentionSettings;
 }
 
-function onCheckKeepMsg()
-{
+function onCheckKeepMsg() {
   if (gLockedPref && gLockedPref["retention.keepMsg"]) {
     // if the pref associated with the radiobutton is locked, as indicated
     // by the gLockedPref, skip this function.  All elements in this

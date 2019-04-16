@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ['DebugTraceHelper'];
+this.EXPORTED_SYMBOLS = ["DebugTraceHelper"];
 
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
@@ -47,7 +47,7 @@ var STOP_COLORS = "\x1b[0m";
  *                          "JSTreeSelection", /.+/, {color: "yellow"});
  */
 var DebugTraceHelper = {
-  tracify: function(aObj, aDesc, aPat, aContext, aSettings) {
+  tracify(aObj, aDesc, aPat, aContext, aSettings) {
     aContext.depth = 0;
     let color = aSettings.color || "cyan";
     aSettings.introCode = BRIGHT_COLORS[color];
@@ -68,7 +68,7 @@ var DebugTraceHelper = {
             if (arg == null)
               argstr += " null";
             else if (typeof(arg) == "function")
-              argstr += " function "+ arg.name;
+              argstr += " function " + arg.name;
             else
               argstr += " " + arg.toString();
           }
@@ -80,13 +80,11 @@ var DebugTraceHelper = {
           let ret;
           try {
             ret = prev.apply(this, aArgs);
-          }
-          catch (ex) {
+          } catch (ex) {
             if (ex.stack) {
               dump(BRIGHT_COLORS.red + "Exception: " + ex + "\n  " +
                    ex.stack.replace("\n", "\n  ") + STOP_COLORS + "\n");
-            }
-            else {
+            } else {
               dump(BRIGHT_COLORS.red + "Exception: " + ex.fileName + ":" +
                    ex.lineNumber + ": " + ex + STOP_COLORS + "\n");
             }
@@ -103,5 +101,5 @@ var DebugTraceHelper = {
         };
       }
     }
-  }
+  },
 };

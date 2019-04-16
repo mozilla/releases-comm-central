@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {BrowserUtils} = ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
 
 var gAccount;
@@ -22,7 +23,7 @@ function clickStoreTypeMenu(aStoreTypeElement) {
   // otherwise 'response.newRootFolder' will be null.
   let response = { newRootFolder: null };
   // Send 'response' as an argument to converterDialog.xhtml.
-  window.openDialog("converterDialog.xhtml","mailnews:mailstoreconverter",
+  window.openDialog("converterDialog.xhtml", "mailnews:mailstoreconverter",
                     "modal,centerscreen,width=800,height=180",
                     gAccount.incomingServer,
                     aStoreTypeElement.value, response);
@@ -72,8 +73,7 @@ function onPreInit(account, accountValues) {
   gAccount = account;
 }
 
-function onSave()
-{
+function onSave() {
   let storeContractID = document.getElementById("server.storeTypeMenulist")
                                 .selectedItem
                                 .value;

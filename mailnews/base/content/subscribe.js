@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../../mail/base/content/mailWindow.js */
+
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 var gSubscribeTree = null;
@@ -21,15 +23,13 @@ var gSubscribeBundle;
 document.addEventListener("dialogaccept", subscribeOK);
 document.addEventListener("dialogcancel", subscribeCancel);
 
-function Stop()
-{
+function Stop() {
   if (gSubscribableServer) {
     gSubscribableServer.stopPopulating(msgWindow);
   }
 }
 
-function SetServerTypeSpecificTextValues()
-{
+function SetServerTypeSpecificTextValues() {
   if (!gServerURI)
     return;
 
@@ -47,8 +47,7 @@ function SetServerTypeSpecificTextValues()
   document.getElementById("subscribeLabel").setAttribute("value", subscribeLabelString);
 }
 
-function onServerClick(aFolder)
-{
+function onServerClick(aFolder) {
   gServerURI = aFolder.server.serverURI;
   let serverMenu = document.getElementById("serverMenu");
   serverMenu.menupopup.selectFolder(aFolder);
@@ -58,23 +57,21 @@ function onServerClick(aFolder)
 }
 
 var MySubscribeListener = {
-  OnDonePopulating: function() {
+  OnDonePopulating() {
     gStatusFeedback._stopMeteors();
     document.getElementById("stopButton").disabled = true;
     document.getElementById("refreshButton").disabled = false;
     document.getElementById("currentListTab").disabled = false;
     document.getElementById("newGroupsTab").disabled = false;
-  }
+  },
 };
 
-function SetUpTree(forceToServer, getOnlyNew)
-{
+function SetUpTree(forceToServer, getOnlyNew) {
   if (!gServerURI)
     return;
 
   var server = MailUtils.getExistingFolder(gServerURI).server;
-  try
-  {
+  try {
     CleanUpSearchView();
     gSubscribableServer = server.QueryInterface(Ci.nsISubscribableServer);
 
@@ -106,9 +103,7 @@ function SetUpTree(forceToServer, getOnlyNew)
     document.getElementById("stopButton").disabled = false;
 
     gSubscribableServer.startPopulating(msgWindow, forceToServer, getOnlyNew);
-  }
-  catch (e)
-  {
+  } catch (e) {
     if (e.result == 0x80550014) {  // NS_MSG_ERROR_OFFLINE
       gStatusFeedback.setStatusString(gSubscribeBundle.getString("offlineState"));
     } else {
@@ -120,30 +115,25 @@ function SetUpTree(forceToServer, getOnlyNew)
 }
 
 
-function SubscribeOnUnload()
-{
+function SubscribeOnUnload() {
   try {
     CleanUpSearchView();
-  }
-  catch (ex) {
+  } catch (ex) {
     dump("Failed to remove the subscribe tree: " + ex + "\n");
   }
 }
 
-function EnableSearchUI()
-{
+function EnableSearchUI() {
   if (gSubscribableServer.supportsSubscribeSearch) {
-    gNameField.removeAttribute('disabled');
-    gNameFieldLabel.removeAttribute('disabled');
-  }
-  else {
-    gNameField.setAttribute('disabled',true);
-    gNameFieldLabel.setAttribute('disabled',true);
+    gNameField.removeAttribute("disabled");
+    gNameFieldLabel.removeAttribute("disabled");
+  } else {
+    gNameField.setAttribute("disabled", true);
+    gNameFieldLabel.setAttribute("disabled", true);
   }
 }
 
-function SubscribeOnLoad()
-{
+function SubscribeOnLoad() {
   gSubscribeBundle = document.getElementById("bundle_subscribe");
 
   gSubscribeTree = document.getElementById("subscribeTree");
@@ -182,9 +172,8 @@ function SubscribeOnLoad()
       // Enable (or disable) the search related UI.
       EnableSearchUI();
       gServerURI = folder.server.serverURI;
-    }
-    catch (ex) {
-      //dump("not a subscribable server\n");
+    } catch (ex) {
+      // dump("not a subscribable server\n");
       CleanUpSearchView();
       gSubscribableServer = null;
       gServerURI = null;
@@ -192,17 +181,16 @@ function SubscribeOnLoad()
   }
 
   if (!gServerURI) {
-    //dump("subscribe: no uri\n");
-    //dump("xxx todo:  use the default news server.  right now, I'm just using the first server\n");
+    // dump("subscribe: no uri\n");
+    // dump("xxx todo:  use the default news server.  right now, I'm just using the first server\n");
 
     serverMenu.selectedIndex = 0;
 
     if (serverMenu.selectedItem) {
       gServerURI = serverMenu.selectedItem.getAttribute("id");
-    }
-    else {
-      //dump("xxx todo none of your servers are subscribable\n");
-      //dump("xxx todo fix this by disabling subscribe if no subscribable server or, add a CREATE SERVER button, like in 4.x\n");
+    } else {
+      // dump("xxx todo none of your servers are subscribable\n");
+      // dump("xxx todo fix this by disabling subscribe if no subscribable server or, add a CREATE SERVER button, like in 4.x\n");
       return;
     }
   }
@@ -214,8 +202,7 @@ function SubscribeOnLoad()
   gNameField.focus();
 }
 
-function subscribeOK()
-{
+function subscribeOK() {
   if (top.okCallback) {
     top.okCallback(top.gChangeTable);
   }
@@ -225,52 +212,45 @@ function subscribeOK()
   }
 }
 
-function subscribeCancel()
-{
+function subscribeCancel() {
   Stop();
   if (gSubscribableServer) {
     gSubscribableServer.subscribeCleanup();
   }
 }
 
-function SetState(name, state)
-{
+function SetState(name, state) {
   var changed = gSubscribableServer.setState(name, state);
   if (changed)
     StateChanged(name, state);
 }
 
-function StateChanged(name,state)
-{
+function StateChanged(name, state) {
   if (gServerURI in gChangeTable) {
     if (name in gChangeTable[gServerURI]) {
       var oldValue = gChangeTable[gServerURI][name];
       if (oldValue != state)
         delete gChangeTable[gServerURI][name];
-    }
-    else {
+    } else {
       gChangeTable[gServerURI][name] = state;
     }
-  }
-  else {
+  } else {
     gChangeTable[gServerURI] = {};
     gChangeTable[gServerURI][name] = state;
   }
 }
 
-function InSearchMode()
-{
+function InSearchMode() {
   // search is the second card in the deck
   return (gSubscribeDeck.getAttribute("selectedIndex") == "1");
 }
 
-function SearchOnClick(event)
-{
+function SearchOnClick(event) {
   // we only care about button 0 (left click) events
   if (event.button != 0 || event.originalTarget.localName != "treechildren") return;
 
   let treeCellInfo = gSearchTree.getCellAt(event.clientX, event.clientY);
-  if (treeCellInfo.row == -1 || treeCellInfo.row > gSearchView.rowCount-1)
+  if (treeCellInfo.row == -1 || treeCellInfo.row > gSearchView.rowCount - 1)
     return;
 
   if (treeCellInfo.col.id == "subscribedColumn2") {
@@ -289,28 +269,25 @@ function SearchOnClick(event)
   InvalidateSearchTreeRow(treeCellInfo.row);
 }
 
-function ReverseStateFromRow(aRow)
-{
+function ReverseStateFromRow(aRow) {
   // To determine if the row is subscribed or not,
   // we get the properties for the "subscribedColumn2" cell in the row
   // and look for the "subscribed" property.
   // If the "subscribed" string is in the list of properties
   // we are subscribed.
-  let col = gSearchTree.columns["nameColumn2"];
+  let col = gSearchTree.columns.nameColumn2;
   let name = gSearchView.getCellValue(aRow, col);
   let isSubscribed = gSubscribableServer.isSubscribed(name);
   SetStateFromRow(aRow, !isSubscribed);
 }
 
-function SetStateFromRow(row, state)
-{
-  var col = gSearchTree.columns["nameColumn2"];
+function SetStateFromRow(row, state) {
+  var col = gSearchTree.columns.nameColumn2;
   var name = gSearchView.getCellValue(row, col);
   SetState(name, state);
 }
 
-function SetSubscribeState(state)
-{
+function SetSubscribeState(state) {
   try {
     // we need to iterate over the tree selection, and set the state for
     // all rows in the selection
@@ -323,9 +300,9 @@ function SetSubscribeState(state)
       var start = {}, end = {};
       sel.getRangeAt(i, start, end);
       for (var k = start.value; k <= end.value; ++k) {
-        if (inSearchMode)
+        if (inSearchMode) {
           SetStateFromRow(k, state);
-        else {
+        } else {
           let name = view.getCellValue(k, gSubscribeTree.columns[colId]);
           SetState(name, state, k);
         }
@@ -336,20 +313,17 @@ function SetSubscribeState(state)
       // force a repaint
       InvalidateSearchTree();
     }
-  }
-  catch (ex) {
+  } catch (ex) {
     dump("SetSubscribedState failed:  " + ex + "\n");
   }
 }
 
-function ReverseStateFromNode(row)
-{
-  let name = gSubscribeTree.view.getCellValue(row, gSubscribeTree.columns["nameColumn"]);
+function ReverseStateFromNode(row) {
+  let name = gSubscribeTree.view.getCellValue(row, gSubscribeTree.columns.nameColumn);
   SetState(name, !gSubscribableServer.isSubscribed(name), row);
 }
 
-function SubscribeOnClick(event)
-{
+function SubscribeOnClick(event) {
   // we only care about button 0 (left click) events
   if (event.button != 0 || event.originalTarget.localName != "treechildren")
    return;
@@ -363,19 +337,15 @@ function SubscribeOnClick(event)
     // that isn't a container
     if (!gSubscribeTree.view.isContainer(treeCellInfo.row)) {
       ReverseStateFromNode(treeCellInfo.row);
-      return;
     }
-  }
-  else if (event.detail == 1)
-  {
+  } else if (event.detail == 1) {
     // if the user single clicks on the subscribe check box, we handle it here
     if (treeCellInfo.col.id == "subscribedColumn")
       ReverseStateFromNode(treeCellInfo.row);
   }
 }
 
-function Refresh()
-{
+function Refresh() {
   // clear out the textfield's entry
   gNameField.value = "";
 
@@ -383,8 +353,7 @@ function Refresh()
   SetUpTree(true, newGroupsTab.selected);
 }
 
-function ShowCurrentList()
-{
+function ShowCurrentList() {
   // clear out the textfield's entry on call of Refresh()
   gNameField.value = "";
 
@@ -395,8 +364,7 @@ function ShowCurrentList()
   SetUpTree(false, false);
 }
 
-function ShowNewGroupsList()
-{
+function ShowNewGroupsList() {
   // clear out the textfield's entry
   gNameField.value = "";
 
@@ -407,30 +375,25 @@ function ShowNewGroupsList()
   SetUpTree(true, true);
 }
 
-function InvalidateSearchTreeRow(row)
-{
-    gSearchTree.invalidateRow(row);
+function InvalidateSearchTreeRow(row) {
+  gSearchTree.invalidateRow(row);
 }
 
-function InvalidateSearchTree()
-{
-    gSearchTree.invalidate();
+function InvalidateSearchTree() {
+  gSearchTree.invalidate();
 }
 
-function SwitchToNormalView()
-{
+function SwitchToNormalView() {
   // the first card in the deck is the "normal" view
-  gSubscribeDeck.setAttribute("selectedIndex","0");
+  gSubscribeDeck.setAttribute("selectedIndex", "0");
 }
 
-function SwitchToSearchView()
-{
+function SwitchToSearchView() {
   // the second card in the deck is the "search" view
-  gSubscribeDeck.setAttribute("selectedIndex","1");
+  gSubscribeDeck.setAttribute("selectedIndex", "1");
 }
 
-function Search()
-{
+function Search() {
   var searchValue = gNameField.value;
   if (searchValue.length && gSubscribableServer.supportsSubscribeSearch) {
     SwitchToSearchView();
@@ -441,31 +404,28 @@ function Search()
       gSearchView.selection = null;
     gSearchTree.view = gSearchView;
   }
-  }
-  else {
+  } else {
     SwitchToNormalView();
   }
 }
 
-function CleanUpSearchView()
-{
+function CleanUpSearchView() {
   if (gSearchView) {
     gSearchView.selection = null;
     gSearchView = null;
   }
 }
 
-function onSearchTreeKeyPress(event)
-{
+function onSearchTreeKeyPress(event) {
   // for now, only do something on space key
   if (event.charCode != KeyEvent.DOM_VK_SPACE)
     return;
 
   var treeSelection = gSearchView.selection;
-  for (var i=0;i<treeSelection.getRangeCount();i++) {
+  for (let i = 0; i < treeSelection.getRangeCount(); i++) {
     var start = {}, end = {};
-    treeSelection.getRangeAt(i,start,end);
-    for (var k=start.value;k<=end.value;k++)
+    treeSelection.getRangeAt(i, start, end);
+    for (let k = start.value; k <= end.value; k++)
       ReverseStateFromRow(k);
 
     // force a repaint
@@ -473,17 +433,16 @@ function onSearchTreeKeyPress(event)
   }
 }
 
-function onSubscribeTreeKeyPress(event)
-{
+function onSubscribeTreeKeyPress(event) {
   // for now, only do something on space key
   if (event.charCode != KeyEvent.DOM_VK_SPACE)
     return;
 
   var treeSelection = gSubscribeTree.view.selection;
-  for (var i=0;i<treeSelection.getRangeCount();i++) {
+  for (let i = 0; i < treeSelection.getRangeCount(); i++) {
     var start = {}, end = {};
-    treeSelection.getRangeAt(i,start,end);
-    for (var k=start.value;k<=end.value;k++)
+    treeSelection.getRangeAt(i, start, end);
+    for (let k = start.value; k <= end.value; k++)
       ReverseStateFromNode(k);
   }
 }

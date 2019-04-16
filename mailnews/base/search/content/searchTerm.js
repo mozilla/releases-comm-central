@@ -3,10 +3,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var gTotalSearchTerms=0;
+/* import-globals-from ../../../../mail/base/content/ABSearchDialog.js */
+
+var gTotalSearchTerms = 0;
 var gSearchTermList;
-var gSearchTerms = new Array;
-var gSearchRemovedTerms = new Array;
+var gSearchTerms = [];
+var gSearchRemovedTerms = [];
 var gSearchScope;
 var gSearchBooleanRadiogroup;
 
@@ -22,8 +24,8 @@ var gLoading = true;
 function searchTermContainer() {}
 
 searchTermContainer.prototype = {
-    internalSearchTerm : '',
-    internalBooleanAnd : '',
+    internalSearchTerm: "",
+    internalBooleanAnd: "",
 
     // this.searchTerm: the actual nsIMsgSearchTerm object
     get searchTerm() { return this.internalSearchTerm; },
@@ -32,13 +34,12 @@ searchTermContainer.prototype = {
 
         var term = val;
         // val is a nsIMsgSearchTerm
-        var searchAttribute=this.searchattribute;
-        var searchOperator=this.searchoperator;
-        var searchValue=this.searchvalue;
+        var searchAttribute = this.searchattribute;
+        var searchOperator = this.searchoperator;
+        var searchValue = this.searchvalue;
 
         // now reflect all attributes of the searchterm into the widgets
-        if (searchAttribute)
-        {
+        if (searchAttribute) {
           // for custom, the value is the custom id, not the integer attribute
           if (term.attrib == Ci.nsMsgSearchAttrib.Custom)
             searchAttribute.value = term.customId;
@@ -61,15 +62,16 @@ searchTermContainer.prototype = {
     },
     set searchScope(val) {
         var searchAttribute = this.searchattribute;
-        if (searchAttribute) searchAttribute.searchScope=val;
+        if (searchAttribute)
+          searchAttribute.searchScope = val;
         return val;
     },
 
-    saveId: function (element, slot) {
+    saveId(element, slot) {
         this[slot] = element.id;
     },
 
-    getElement: function (slot) {
+    getElement(slot) {
         return document.getElementById(this[slot]);
     },
 
@@ -101,17 +103,14 @@ searchTermContainer.prototype = {
         return val;
     },
 
-    save: function () {
+    save() {
         var searchTerm = this.searchTerm;
         var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
 
-        if (isNaN(this.searchattribute.value)) // is this a custom term?
-        {
+        if (isNaN(this.searchattribute.value)) { // is this a custom term?
           searchTerm.attrib = nsMsgSearchAttrib.Custom;
           searchTerm.customId = this.searchattribute.value;
-        }
-        else
-        {
+        } else {
           searchTerm.attrib = this.searchattribute.value;
         }
 
@@ -127,33 +126,30 @@ searchTermContainer.prototype = {
         searchTerm.matchAll = this.matchAll;
     },
     // if you have a search term element with no search term
-    saveTo: function(searchTerm) {
+    saveTo(searchTerm) {
         this.internalSearchTerm = searchTerm;
         this.save();
-    }
-}
+    },
+};
 
 var nsIMsgSearchTerm = Ci.nsIMsgSearchTerm;
 
-function initializeSearchWidgets()
-{
+function initializeSearchWidgets() {
     gSearchBooleanRadiogroup = document.getElementById("booleanAndGroup");
     gSearchTermList = document.getElementById("searchTermList");
 
     // initialize some strings
-    var bundle = document.getElementById('bundle_search');
-    gMoreButtonTooltipText = bundle.getString('moreButtonTooltipText');
-    gLessButtonTooltipText = bundle.getString('lessButtonTooltipText');
+    var bundle = document.getElementById("bundle_search");
+    gMoreButtonTooltipText = bundle.getString("moreButtonTooltipText");
+    gLessButtonTooltipText = bundle.getString("lessButtonTooltipText");
 }
 
-function initializeBooleanWidgets()
-{
+function initializeBooleanWidgets() {
     var booleanAnd = true;
     var matchAll = false;
     // get the boolean value from the first term
     var firstTerm = gSearchTerms[0].searchTerm;
-    if (firstTerm)
-    {
+    if (firstTerm) {
         // If there is a second term, it should actually define whether we're
         //  using 'and' or not.  Note that our UI is not as rich as the
         //  underlying search model, so there's the potential to lose here when
@@ -163,16 +159,19 @@ function initializeBooleanWidgets()
         matchAll = firstTerm.matchAll;
     }
     // target radio items have value="and" or value="or" or "all"
-    gSearchBooleanRadiogroup.value = matchAll
-      ? "matchAll"
-      : (booleanAnd ? "and" : "or")
+    if (matchAll) {
+      gSearchBooleanRadiogroup.value = "matchAll";
+    } else if (booleanAnd) {
+      gSearchBooleanRadiogroup.value = "and";
+    } else {
+      gSearchBooleanRadiogroup.value = "or";
+    }
     var searchTerms = document.getElementById("searchTermList");
     if (searchTerms)
       updateSearchTermsListbox(matchAll);
 }
 
-function initializeSearchRows(scope, searchTerms)
-{
+function initializeSearchRows(scope, searchTerms) {
     for (let i = 0; i < searchTerms.length; i++) {
         let searchTerm = searchTerms.queryElementAt(i, nsIMsgSearchTerm);
         createSearchRow(i, scope, searchTerm, false);
@@ -187,14 +186,13 @@ function initializeSearchRows(scope, searchTerms)
  *
  * @param matchAllValue boolean value from the first search term
  */
-function updateSearchTermsListbox(matchAllValue)
-{
+function updateSearchTermsListbox(matchAllValue) {
   var searchTerms = document.getElementById("searchTermList");
   searchTerms.setAttribute("disabled", matchAllValue);
   var searchAttributeList = searchTerms.getElementsByTagName("search-attribute");
   var searchOperatorList = searchTerms.getElementsByTagName("search-operator");
   var searchValueList = searchTerms.getElementsByTagName("search-value");
-  for (var i = 0; i < searchAttributeList.length; i++) {
+  for (let i = 0; i < searchAttributeList.length; i++) {
       searchAttributeList[i].setAttribute("disabled", matchAllValue);
       searchOperatorList[i].setAttribute("disabled", matchAllValue);
       searchValueList[i].setAttribute("disabled", matchAllValue);
@@ -202,7 +200,7 @@ function updateSearchTermsListbox(matchAllValue)
         searchValueList[i].removeAttribute("disabled");
   }
   var moreOrLessButtonsList = searchTerms.getElementsByTagName("button");
-  for (var i = 0; i < moreOrLessButtonsList.length; i++) {
+  for (let i = 0; i < moreOrLessButtonsList.length; i++) {
       moreOrLessButtonsList[i].setAttribute("disabled", matchAllValue);
   }
   if (!matchAllValue)
@@ -210,8 +208,7 @@ function updateSearchTermsListbox(matchAllValue)
 }
 
 // enables/disables the less button for the first row of search terms.
-function updateRemoveRowButton()
-{
+function updateRemoveRowButton() {
   var firstListItem = gSearchTermList.getItemAtIndex(0);
   if (firstListItem)
     firstListItem.lastChild.lastChild.setAttribute("disabled", gTotalSearchTerms == 1);
@@ -219,8 +216,7 @@ function updateRemoveRowButton()
 
 // Returns the actual list item row index in the list of search rows
 // that contains the passed in element id.
-function getSearchRowIndexForElement(aElement)
-{
+function getSearchRowIndexForElement(aElement) {
   var listItem = aElement;
 
   while (listItem && listItem.localName != "richlistitem")
@@ -229,8 +225,7 @@ function getSearchRowIndexForElement(aElement)
   return gSearchTermList.getIndexOfItem(listItem);
 }
 
-function onMore(event)
-{
+function onMore(event) {
   // if we have an event, extract the list row index and use that as the row number
   // for our insertion point. If there is no event, append to the end....
   var rowIndex;
@@ -248,10 +243,8 @@ function onMore(event)
   gSearchTermList.ensureIndexIsVisible(rowIndex);
 }
 
-function onLess(event)
-{
-  if (event && gTotalSearchTerms > 1)
-  {
+function onLess(event) {
+  if (event && gTotalSearchTerms > 1) {
     removeSearchRow(getSearchRowIndexForElement(event.target));
     --gTotalSearchTerms;
   }
@@ -260,14 +253,11 @@ function onLess(event)
 }
 
 // set scope on all visible searchattribute tags
-function setSearchScope(scope)
-{
+function setSearchScope(scope) {
   gSearchScope = scope;
-  for (var i = 0; i < gSearchTerms.length; i++)
-  {
+  for (var i = 0; i < gSearchTerms.length; i++) {
     // don't set element attributes if XBL hasn't loaded
-    if (!(gSearchTerms[i].obj.searchattribute.searchScope === undefined))
-    {
+    if (!(gSearchTerms[i].obj.searchattribute.searchScope === undefined)) {
       gSearchTerms[i].obj.searchattribute.searchScope = scope;
       // act like the user "selected" this, see bug #202848
       gSearchTerms[i].obj.searchattribute.onSelect(null /* no event */);
@@ -276,9 +266,8 @@ function setSearchScope(scope)
   }
 }
 
-function updateSearchAttributes()
-{
-    for (var i=0; i<gSearchTerms.length; i++)
+function updateSearchAttributes() {
+    for (var i = 0; i < gSearchTerms.length; i++)
         gSearchTerms[i].obj.searchattribute.refreshList();
     }
 
@@ -290,7 +279,7 @@ function booleanChanged(event) {
       var selectedAB = document.getElementById("abPopup").selectedItem.value;
       setSearchScope(GetScopeForDirectoryURI(selectedAB));
     }
-    for (var i=0; i<gSearchTerms.length; i++) {
+    for (var i = 0; i < gSearchTerms.length; i++) {
         let searchTerm = gSearchTerms[i].obj;
         // If term is not yet initialized in the UI, change the original object.
         if (!searchTerm || !gSearchTerms[i].initialized)
@@ -300,8 +289,7 @@ function booleanChanged(event) {
         searchTerm.matchAll = matchAllValue;
     }
     var searchTerms = document.getElementById("searchTermList");
-    if (searchTerms)
-    {
+    if (searchTerms) {
       if (!matchAllValue && searchTerms.hidden && !gTotalSearchTerms)
         onMore(null); // fake to get empty row.
       updateSearchTermsListbox(matchAllValue);
@@ -317,8 +305,7 @@ function booleanChanged(event) {
  * @param aUserAdded  boolean indicating if the row addition was initiated by the user
  *                    (e.g. via the '+' button)
  */
-function createSearchRow(index, scope, searchTerm, aUserAdded)
-{
+function createSearchRow(index, scope, searchTerm, aUserAdded) {
     var searchAttr = document.createElement("search-attribute");
     var searchOp = document.createElement("search-operator");
     var searchVal = document.createElement("search-value");
@@ -327,12 +314,12 @@ function createSearchRow(index, scope, searchTerm, aUserAdded)
     var lessButton = document.createElement("button");
     moreButton.setAttribute("class", "small-button");
     moreButton.setAttribute("oncommand", "onMore(event);");
-    moreButton.setAttribute('label', '+');
-    moreButton.setAttribute('tooltiptext', gMoreButtonTooltipText);
+    moreButton.setAttribute("label", "+");
+    moreButton.setAttribute("tooltiptext", gMoreButtonTooltipText);
     lessButton.setAttribute("class", "small-button");
     lessButton.setAttribute("oncommand", "onLess(event);");
-    lessButton.setAttribute('label', '\u2212');
-    lessButton.setAttribute('tooltiptext', gLessButtonTooltipText);
+    lessButton.setAttribute("label", "\u2212");
+    lessButton.setAttribute("tooltiptext", gLessButtonTooltipText);
 
     // now set up ids:
     searchAttr.id = "searchAttr" + gUniqueSearchTermCounter;
@@ -353,13 +340,10 @@ function createSearchRow(index, scope, searchTerm, aUserAdded)
     searchTermObj.searchvalue = searchVal;
 
     // now insert the new search term into our list of terms
-    gSearchTerms.splice(index, 0, {obj:searchTermObj, scope:scope, searchTerm:searchTerm, initialized:false});
+    gSearchTerms.splice(index, 0, {obj: searchTermObj, scope, searchTerm, initialized: false});
 
-    var editFilter = null;
-    try { editFilter = gFilter; } catch(e) { }
-
-    var editMailView = null;
-    try { editMailView = gMailView; } catch(e) { }
+    var editFilter = window.gFilter || null;
+    var editMailView = window.gMailView || null;
 
     if ((!editFilter && !editMailView) ||
         (editFilter && index == gTotalSearchTerms) ||
@@ -370,8 +354,7 @@ function createSearchRow(index, scope, searchTerm, aUserAdded)
     // gTotalSearchTerms has not been updated yet
     if (gLoading || index == gTotalSearchTerms) {
       gSearchTermList.appendChild(searchrow);
-    }
-    else {
+    } else {
       var currentItem = gSearchTermList.getItemAtIndex(index);
       gSearchTermList.insertBefore(searchrow, currentItem);
     }
@@ -386,28 +369,24 @@ function createSearchRow(index, scope, searchTerm, aUserAdded)
     gUniqueSearchTermCounter++;
 }
 
-function initializeTermFromId(id)
-{
+function initializeTermFromId(id) {
   initializeTermFromIndex(getSearchRowIndexForElement(document.getElementById(id)));
 }
 
-function initializeTermFromIndex(index)
-{
+function initializeTermFromIndex(index) {
     var searchTermObj = gSearchTerms[index].obj;
 
     searchTermObj.searchScope = gSearchTerms[index].scope;
     // the search term will initialize the searchTerm element, including
     // .booleanAnd
-    if (gSearchTerms[index].searchTerm)
+    if (gSearchTerms[index].searchTerm) {
         searchTermObj.searchTerm = gSearchTerms[index].searchTerm;
     // here, we don't have a searchTerm, so it's probably a new element -
     // we'll initialize the .booleanAnd from the existing setting in
     // the UI
-    else
-    {
+    } else {
       searchTermObj.booleanAnd = (gSearchBooleanRadiogroup.value == "and");
-      if (index)
-      {
+      if (index) {
         // If we weren't pre-initialized with a searchTerm then steal the
         // search attribute and operator from the previous row.
         searchTermObj.searchattribute.value =  gSearchTerms[index - 1].obj.searchattribute.value;
@@ -426,8 +405,7 @@ function initializeTermFromIndex(index)
  *                   If the member itself is an array of elements,
  *                   all of them are put into the same listcell.
  */
-function constructRow(aChildren)
-{
+function constructRow(aChildren) {
     let cols = gSearchTermList.firstChild.childNodes; // treecol elements
     let listitem = document.createElement("richlistitem");
     listitem.setAttribute("allowevents", "true");
@@ -449,8 +427,7 @@ function constructRow(aChildren)
     return listitem;
 }
 
-function removeSearchRow(index)
-{
+function removeSearchRow(index) {
     var searchTermObj = gSearchTerms[index].obj;
     if (!searchTermObj) {
         return;
@@ -479,7 +456,7 @@ function removeSearchRow(index)
     if (searchTermObj.searchTerm) {
         gSearchRemovedTerms.push(searchTermObj.searchTerm);
     } else {
-        //dump("That wasn't real. ignoring \n");
+        // dump("That wasn't real. ignoring \n");
     }
 
     listitem.remove();
@@ -493,9 +470,8 @@ function removeSearchRow(index)
 // termOwner:   object which can contain and create the terms
 //              (will be unnecessary if we just make terms creatable
 //               via XPCOM)
-function saveSearchTerms(searchTerms, termOwner)
-{
-    var matchAll = gSearchBooleanRadiogroup.value == 'matchAll';
+function saveSearchTerms(searchTerms, termOwner) {
+    var matchAll = gSearchBooleanRadiogroup.value == "matchAll";
     var i;
     for (i = 0; i < gSearchRemovedTerms.length; i++)
         searchTerms.removeElementAt(searchTerms.indexOf(0, gSearchRemovedTerms[i]));
@@ -524,16 +500,14 @@ function saveSearchTerms(searchTerms, termOwner)
     }
 }
 
-function onReset(event)
-{
-    while (gTotalSearchTerms>0)
+function onReset(event) {
+    while (gTotalSearchTerms > 0)
         removeSearchRow(--gTotalSearchTerms);
     onMore(null);
 }
 
-function hideMatchAllItem()
-{
-    var allItems = document.getElementById('matchAllItem');
+function hideMatchAllItem() {
+    var allItems = document.getElementById("matchAllItem");
     if (allItems)
       allItems.hidden = true;
 }

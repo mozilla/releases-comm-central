@@ -14,8 +14,7 @@ var gInitialFolderStates = {};
 
 document.addEventListener("dialogaccept", syncOkButton);
 
-function OnLoad()
-{
+function OnLoad() {
     if (window.arguments && window.arguments[0]) {
         if (window.arguments[0].msgWindow) {
             gParentMsgWindow = window.arguments[0].msgWindow;
@@ -34,8 +33,7 @@ function OnLoad()
     return true;
 }
 
-function syncOkButton()
-{
+function syncOkButton() {
     var syncMail = document.getElementById("syncMail").checked;
     var syncNews = document.getElementById("syncNews").checked;
     var sendMessage = document.getElementById("sendMessage").checked;
@@ -49,13 +47,12 @@ function syncOkButton()
     if (syncMail || syncNews || sendMessage || workOffline) {
         var offlineManager = Cc["@mozilla.org/messenger/offline-manager;1"]
                                .getService(Ci.nsIMsgOfflineManager);
-        if(offlineManager)
-            offlineManager.synchronizeForOffline(syncNews, syncMail, sendMessage, workOffline, gParentMsgWindow)
+        if (offlineManager)
+            offlineManager.synchronizeForOffline(syncNews, syncMail, sendMessage, workOffline, gParentMsgWindow);
     }
 }
 
-function OnSelect()
-{
+function OnSelect() {
    top.window.openDialog("chrome://messenger/content/msgSelectOfflineFolders.xul", "",
                          "centerscreen,chrome,modal,titlebar,resizable=yes");
    return true;
@@ -63,13 +60,11 @@ function OnSelect()
 
 // All the code below is only used by Seamonkey.
 
-function selectOkButton()
-{
+function selectOkButton() {
     return true;
 }
 
-function selectCancelButton()
-{
+function selectCancelButton() {
     for (var resourceValue in gInitialFolderStates) {
       let folder = MailUtils.getExistingFolder(resourceValue);
       if (gInitialFolderStates[resourceValue])
@@ -80,23 +75,21 @@ function selectCancelButton()
     return true;
 }
 
-function selectOnLoad()
-{
+function selectOnLoad() {
     gMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
                    .createInstance(Ci.nsIMsgWindow);
     gMsgWindow.domWindow = window;
     gMsgWindow.rootDocShell.appType = Ci.nsIDocShell.APP_TYPE_MAIL;
 
-    gSynchronizeTree = document.getElementById('synchronizeTree');
+    gSynchronizeTree = document.getElementById("synchronizeTree");
 
-    SortSynchronizePane('folderNameCol', '?folderTreeNameSort');
+    SortSynchronizePane("folderNameCol", "?folderTreeNameSort");
 }
 
-function SortSynchronizePane(column, sortKey)
-{
+function SortSynchronizePane(column, sortKey) {
     var node = FindInWindow(window, column);
-    if(!node) {
-        dump('Couldnt find sort column\n');
+    if (!node) {
+        dump("Couldnt find sort column\n");
         return;
     }
 
@@ -106,15 +99,14 @@ function SortSynchronizePane(column, sortKey)
     gSynchronizeTree.view.cycleHeader(col);
 }
 
-function FindInWindow(currentWindow, id)
-{
+function FindInWindow(currentWindow, id) {
     var item = currentWindow.document.getElementById(id);
-    if(item)
-    return item;
+    if (item)
+      return item;
 
-    for(var i = 0; i < currentWindow.frames.length; i++) {
+    for (var i = 0; i < currentWindow.frames.length; i++) {
         var frameItem = FindInWindow(currentWindow.frames[i], id);
-        if(frameItem)
+        if (frameItem)
             return frameItem;
     }
 
@@ -122,8 +114,7 @@ function FindInWindow(currentWindow, id)
 }
 
 
-function onSynchronizeClick(event)
-{
+function onSynchronizeClick(event) {
     // we only care about button 0 (left click) events
     if (event.button != 0)
       return;
@@ -144,39 +135,33 @@ function onSynchronizeClick(event)
             if (folder.isServer) {
                 var server = folder.server;
                 server.performExpand(gMsgWindow);
-            }
-            else {
+            } else {
                 var imapFolder = folderResource.QueryInterface(Ci.nsIMsgImapMailFolder);
                 if (imapFolder) {
                   imapFolder.performExpand(gMsgWindow);
                 }
             }
         }
-    }
-    else {
-      if (treeCellInfo.col.id == "syncCol") {
+    } else if (treeCellInfo.col.id == "syncCol") {
         UpdateNode(GetFolderResource(gSynchronizeTree, treeCellInfo.row), treeCellInfo.row);
-      }
     }
 }
 
-function onSynchronizeTreeKeyPress(event)
-{
+function onSynchronizeTreeKeyPress(event) {
     // for now, only do something on space key
     if (event.charCode != KeyEvent.DOM_VK_SPACE)
       return;
 
     var treeSelection = gSynchronizeTree.view.selection;
-    for (var i=0;i<treeSelection.getRangeCount();i++) {
+    for (let i = 0; i < treeSelection.getRangeCount(); i++) {
       var start = {}, end = {};
-      treeSelection.getRangeAt(i,start,end);
-      for (var k=start.value;k<=end.value;k++)
+      treeSelection.getRangeAt(i, start, end);
+      for (let k = start.value; k <= end.value; k++)
         UpdateNode(GetFolderResource(gSynchronizeTree, k), k);
     }
 }
 
-function UpdateNode(resource, row)
-{
+function UpdateNode(resource, row) {
     var folder = resource.QueryInterface(Ci.nsIMsgFolder);
 
     if (folder.isServer)

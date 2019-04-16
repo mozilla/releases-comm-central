@@ -7,7 +7,7 @@
 
       function initPage() {
         let uri = document.documentURI;
-        let query = uri.slice(uri.indexOf("?")+1);
+        let query = uri.slice(uri.indexOf("?") + 1);
         let params = {};
         for (let piece of query.split("&")) {
           let [key, value] = piece.split("=");

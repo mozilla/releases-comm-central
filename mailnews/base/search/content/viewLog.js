@@ -6,8 +6,7 @@ var gFilterList;
 var gLogFilters;
 var gLogView;
 
-function onLoad()
-{
+function onLoad() {
   gFilterList = window.arguments[0].filterList;
 
   gLogFilters = document.getElementById("logFilters");
@@ -21,13 +20,11 @@ function onLoad()
   gLogView.setAttribute("src", gFilterList.logURL);
 }
 
-function toggleLogFilters()
-{
+function toggleLogFilters() {
   gFilterList.loggingEnabled =  gLogFilters.checked;
 }
 
-function clearLog()
-{
+function clearLog() {
   gFilterList.clearLog();
 
   // reload the newly truncated file

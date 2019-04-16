@@ -3,19 +3,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from AccountManager.js */
+/* globals SelectFolder */// From messageWindow.js or msgMail3PaneWindow.js.
+/* globals MsgGetMessage */// From mailWindowOverlay.js.
+
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-var gAnyValidIdentity = false; //If there are no valid identities for any account
+var gAnyValidIdentity = false; // If there are no valid identities for any account
 // returns the first account with an invalid server or identity
 
 var gNewAccountToLoad = null;   // used to load new messages if we come from the mail3pane
 
-function getInvalidAccounts(accounts)
-{
+function getInvalidAccounts(accounts) {
     let numAccounts = accounts.length;
-    let invalidAccounts = new Array;
+    let invalidAccounts = [];
     let numIdentities = 0;
     for (let i = 0; i < numAccounts; i++) {
         let account = accounts.queryElementAt(i, Ci.nsIMsgAccount);
@@ -37,8 +40,7 @@ function getInvalidAccounts(accounts)
             let identity = identities.queryElementAt(j, Ci.nsIMsgIdentity);
             if (identity.valid) {
               gAnyValidIdentity = true;
-            }
-            else {
+            } else {
               invalidAccounts[invalidAccounts.length] = account;
             }
         }
@@ -78,11 +80,9 @@ function showMailIntegrationDialog() {
  *                   takes wizardCallback as an argument. The wizardCallback
  *                   doesn't take any arguments.
  */
-function verifyAccounts(wizardCallback, needsIdentity, wizardOpen)
-{
+function verifyAccounts(wizardCallback, needsIdentity, wizardOpen) {
   var openWizard = false;
   var prefillAccount;
-  var state=true;
   var ret = true;
 
     try {
@@ -106,15 +106,11 @@ function verifyAccounts(wizardCallback, needsIdentity, wizardOpen)
         if (newProfile) {
           // check if MCD is configured. If not, say this is not a new profile
           // so that we don't accidentally remigrate non MCD profiles.
-          var adminUrl;
-          try {
-            adminUrl = Services.prefs.getCharPref("autoadmin.global_config_url");
-          }
-          catch (ex) {}
+          var adminUrl = Services.prefs.getCharPref("autoadmin.global_config_url", "");
           if (!adminUrl)
             newProfile = false;
         }
-        if ((newProfile  && !accountCount) || accountCount == invalidAccounts.length)
+        if ((newProfile && !accountCount) || accountCount == invalidAccounts.length)
           openWizard = true;
 
         // openWizard is true if messenger migration returns some kind of
@@ -128,23 +124,17 @@ function verifyAccounts(wizardCallback, needsIdentity, wizardOpen)
         // wizard if the user does not have any identities defined and tries to
         // compose mail.
 
-        if (openWizard || prefillAccount || ((!gAnyValidIdentity) && needsIdentity))
-        {
+        if (openWizard || prefillAccount || ((!gAnyValidIdentity) && needsIdentity)) {
           if (wizardOpen != undefined)
-            wizardOpen(wizardCallback)
+            wizardOpen(wizardCallback);
           else
             MsgAccountWizard(wizardCallback);
           ret = false;
-        }
-        else
-        {
+        } else {
           var localFoldersExists;
-          try
-          {
+          try {
             localFoldersExists = MailServices.accounts.localFoldersServer;
-          }
-          catch (ex)
-          {
+          } catch (ex) {
             localFoldersExists = false;
           }
 
@@ -154,15 +144,12 @@ function verifyAccounts(wizardCallback, needsIdentity, wizardOpen)
         }
 
         // This will do nothing on platforms without a shell service
-        const NS_SHELLSERVICE_CID = "@mozilla.org/suite/shell-service;1"
-        if (NS_SHELLSERVICE_CID in Cc)
-        {
+        if ("@mozilla.org/suite/shell-service;1" in Cc) {
           // hack, set a time out to do this, so that the window can load first
           setTimeout(showMailIntegrationDialog, 0);
         }
         return ret;
-    }
-    catch (ex) {
+    } catch (ex) {
         dump("error verifying accounts " + ex + "\n");
         return false;
     }
@@ -171,8 +158,7 @@ function verifyAccounts(wizardCallback, needsIdentity, wizardOpen)
 // we do this from a timer because if this is called from the onload=
 // handler, then the parent window doesn't appear until after the wizard
 // has closed, and this is confusing to the user
-function MsgAccountWizard(wizardCallback)
-{
+function MsgAccountWizard(wizardCallback) {
   setTimeout(function() { msgOpenAccountWizard(wizardCallback); }, 0);
 }
 
@@ -183,8 +169,7 @@ function MsgAccountWizard(wizardCallback)
  * @param type - optional account type token, for Tb.
  * @see msgNewMailAccount below for the new implementation.
  */
-function msgOpenAccountWizard(wizardCallback, type)
-{
+function msgOpenAccountWizard(wizardCallback, type) {
   gNewAccountToLoad = null;
 
   window.openDialog("chrome://messenger/content/AccountWizard.xul", "AccountWizard",
@@ -203,19 +188,23 @@ function msgOpenAccountWizard(wizardCallback, type)
 
 function initAccountWizardTB(args) {
   let type = args[0] && args[0].acctType;
-  let selType = type == "newsgroups" ? "newsaccount" :
-                type == "movemail" ? "movemail" : null;
+  let selType = null;
+  if (type == "newsgroups") {
+    selType = "newsaccount";
+  } else if (type == "movemail") {
+    selType = "Movemail";
+  }
   let accountwizard = document.getElementById("AccountWizard");
   let acctyperadio = document.getElementById("acctyperadio");
   let feedRadio = acctyperadio.querySelector("radio[value='Feeds']");
   if (feedRadio)
     feedRadio.remove();
   if (selType) {
-    acctyperadio.selectedItem = acctyperadio.querySelector("radio[value='"+selType+"']");
+    acctyperadio.selectedItem = acctyperadio.querySelector("radio[value='" + selType + "']");
     accountwizard.advance("identitypage");
-  }
-  else
+  } else {
     acctyperadio.selectedItem = acctyperadio.getItemAtIndex(0);
+  }
 }
 
 function AddFeedAccount() {
@@ -233,21 +222,20 @@ function AddFeedAccount() {
  *                    'am-addressing.xul', 'am-smtp.xul'
  * @param  aServer    The server of the account to select. Optional.
  */
-function MsgAccountManager(selectPage, aServer)
-{
+function MsgAccountManager(selectPage, aServer) {
     var existingAccountManager = Services.wm.getMostRecentWindow("mailnews:accountmanager");
 
-    if (existingAccountManager)
+    if (existingAccountManager) {
         existingAccountManager.focus();
-    else {
+    } else {
         if (!aServer) {
-          if (typeof GetSelectedMsgFolders === "function") {
-            let folders = GetSelectedMsgFolders();
+          if (typeof window.GetSelectedMsgFolders === "function") {
+            let folders = window.GetSelectedMsgFolders();
             if (folders.length > 0)
               aServer = folders[0].server;
           }
-          if (!aServer && (typeof GetDefaultAccountRootFolder === "function")) {
-            let folder = GetDefaultAccountRootFolder();
+          if (!aServer && (typeof window.GetDefaultAccountRootFolder === "function")) {
+            let folder = window.GetDefaultAccountRootFolder();
             if (folder instanceof Ci.nsIMsgFolder)
               aServer = folder.server;
           }
@@ -256,12 +244,11 @@ function MsgAccountManager(selectPage, aServer)
         window.openDialog("chrome://messenger/content/AccountManager.xul",
                           "AccountManager",
                           "chrome,centerscreen,modal,titlebar,resizable",
-                          { server: aServer, selectPage: selectPage });
+                          { server: aServer, selectPage });
     }
 }
 
-function loadInboxForNewAccount()
-{
+function loadInboxForNewAccount() {
   // gNewAccountToLoad is set in the final screen of the Account Wizard if a POP account
   // was created, the download messages box is checked, and the wizard was opened from the 3pane
   if (gNewAccountToLoad) {
@@ -278,17 +265,13 @@ function loadInboxForNewAccount()
 // returns true if we migrated - it knows this because 4.x did not have the
 // pref mailnews.quotingPrefs.version, so if it's not set, we're either
 // migrating from 4.x, or a much older version of Mozilla.
-function migrateGlobalQuotingPrefs(allIdentities)
-{
+function migrateGlobalQuotingPrefs(allIdentities) {
   // if reply_on_top and auto_quote exist then, if non-default
   // migrate and delete, if default just delete.
   var reply_on_top = 0;
   var auto_quote = true;
-  var quotingPrefs = 0;
+  var quotingPrefs = Services.prefs.getIntPref("mailnews.quotingPrefs.version", 0);
   var migrated = false;
-  try {
-    quotingPrefs = Services.prefs.getIntPref("mailnews.quotingPrefs.version");
-  } catch (ex) {}
 
   // If the quotingPrefs version is 0 then we need to migrate our preferences
   if (quotingPrefs == 0) {
@@ -317,8 +300,7 @@ function migrateGlobalQuotingPrefs(allIdentities)
 // we do this from a timer because if this is called from the onload=
 // handler, then the parent window doesn't appear until after the wizard
 // has closed, and this is confusing to the user
-function NewMailAccount(msgWindow, okCallback, extraData)
-{
+function NewMailAccount(msgWindow, okCallback, extraData) {
   if (!msgWindow)
     throw new Error("NewMailAccount must be given a msgWindow.");
 
@@ -376,7 +358,7 @@ function NewMailAccountProvisioner(aMsgWindow, args) {
   // If there's already an accountProvisionerTab open, just focus it instead
   // of opening a new dialog.
   let apTab = tabmail.getTabInfoForCurrentOrFirstModeInstance(
-    tabmail.tabModes["accountProvisionerTab"]);
+    tabmail.tabModes.accountProvisionerTab);
 
   if (apTab) {
     tabmail.switchToTab(apTab);
@@ -430,8 +412,7 @@ function NewMailAccountProvisioner(aMsgWindow, args) {
  *                  out.  Used in the upcoming AccountProvisioner add-on.
  * @see msgOpenAccountWizard above for the previous implementation.
  */
-function msgNewMailAccount(msgWindow, okCallback, extraData)
-{
+function msgNewMailAccount(msgWindow, okCallback, extraData) {
   if (!msgWindow)
     throw new Error("msgNewMailAccount must be given a msgWindow.");
 
@@ -442,9 +423,7 @@ function msgNewMailAccount(msgWindow, okCallback, extraData)
     // disabling modal for the time being, see 688273 REMOVEME
     window.openDialog("chrome://messenger/content/accountcreation/emailWizard.xul",
                       "AccountSetup", "chrome,titlebar,centerscreen",
-                      {msgWindow:msgWindow,
-                       okCallback:okCallback,
-                       extraData:extraData});
+                      { msgWindow, okCallback, extraData });
   }
 
   /*

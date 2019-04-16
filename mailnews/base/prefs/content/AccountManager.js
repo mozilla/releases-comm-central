@@ -25,6 +25,10 @@
  *   on values set in the previous step.
  */
 
+/* import-globals-from accountUtils.js */
+/* import-globals-from am-prefs.js */
+/* import-globals-from amUtils.js */
+
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {BrowserUtils} = ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
 var {Gloda} = ChromeUtils.import("resource:///modules/gloda/gloda.js");
@@ -89,7 +93,7 @@ var gDangerousLocalStorageDirs = [
   // process info folder
   { dir:    "/proc",    OS: "Linux" },
   // system state folder
-  { dir:    "/sys",     OS: "Linux" }
+  { dir:    "/sys",     OS: "Linux" },
 ];
 
 // This sets an attribute in a xul element so that we can later
@@ -97,20 +101,19 @@ var gDangerousLocalStorageDirs = [
 // preference types set different attributes.  We get the value
 // in the same way as the function getAccountValue() determines it.
 function updateElementWithKeys(account, element, type) {
-  switch (type)
-  {
+  switch (type) {
     case "identity":
-      element["identitykey"] = account.defaultIdentity.key;
+      element.identitykey = account.defaultIdentity.key;
       break;
     case "pop3":
     case "imap":
     case "nntp":
     case "server":
-      element["serverkey"] = account.incomingServer.key;
+      element.serverkey = account.incomingServer.key;
       break;
     case "smtp":
       if (MailServices.smtp.defaultServer)
-        element["serverkey"] = MailServices.smtp.defaultServer.key;
+        element.serverkey = MailServices.smtp.defaultServer.key;
       break;
     default:
 //      dump("unknown element type! "+type+"\n");
@@ -154,8 +157,8 @@ function onLoad() {
     selectPage = window.arguments[0].selectPage;
   }
 
-  accountArray = new Object();
-  gGenericAttributeTypes = new Object();
+  accountArray = {};
+  gGenericAttributeTypes = {};
 
   gAccountTree.load();
 
@@ -170,8 +173,7 @@ function onUnload() {
   gAccountTree.unload();
 }
 
-function selectServer(server, selectPageId)
-{
+function selectServer(server, selectPageId) {
   let childrenNode = document.getElementById("account-tree-children");
 
   // Default to showing the first account.
@@ -214,8 +216,7 @@ function selectServer(server, selectPageId)
   accountTree.ensureRowIsVisible(index);
 }
 
-function replaceWithDefaultSmtpServer(deletedSmtpServerKey)
-{
+function replaceWithDefaultSmtpServer(deletedSmtpServerKey) {
   // First we replace the smtpserverkey in every identity.
   let am = MailServices.accounts;
   for (let identity of fixIterator(am.allIdentities,
@@ -262,8 +263,8 @@ function onAccept(aDoChecks) {
   }
 
   // Run checks as if the page was being left.
-  if ("onLeave" in top.frames["contentFrame"]) {
-    if (!top.frames["contentFrame"].onLeave()) {
+  if ("onLeave" in top.frames.contentFrame) {
+    if (!top.frames.contentFrame.onLeave()) {
       // Prevent closing Account manager if user declined the changes.
       return false;
     }
@@ -290,8 +291,7 @@ function onAccept(aDoChecks) {
  * This function must not be called onCancel(), because it would call itself
  * recursively for pages that don't have an onCancel() implementation.
  */
-function onNotAccept(event)
-{
+function onNotAccept(event) {
   // If onCancel() present in current page frame, call it.
   if ("onCancel" in top.frames.contentFrame) {
     top.frames.contentFrame.onCancel(event);
@@ -322,7 +322,7 @@ function checkDirectoryIsValid(aLocalPath) {
       "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
       "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9",
       "CON", "PRN", "AUX", "NUL", "CLOCK$" ];
-    if (kForbiddenNames.indexOf(dirLeafName) != -1)
+    if (kForbiddenNames.includes(dirLeafName))
       return false;
   }
 
@@ -361,7 +361,7 @@ function checkDirectoryIsAllowed(aLocalPath) {
    */
   function checkLocalDirectoryIsSafe(aDirToCheck, aLocalPath) {
     if (aDirToCheck.OS) {
-      if (aDirToCheck.OS.split(",").indexOf(Services.appinfo.OS) == -1)
+      if (!(aDirToCheck.OS.split(",").includes(Services.appinfo.OS)))
         return true;
     }
 
@@ -376,8 +376,7 @@ function checkDirectoryIsAllowed(aLocalPath) {
 
       if (!testDir)
         return true;
-    }
-    else if ("dir" in aDirToCheck) {
+    } else if ("dir" in aDirToCheck) {
       testDir = Cc["@mozilla.org/file/local;1"]
                   .createInstance(Ci.nsIFile);
       testDir.initWithPath(aDirToCheck.dir);
@@ -447,7 +446,7 @@ function checkDirectoryIsUsable(aLocalPath) {
   const originalPath = aLocalPath;
 
   let invalidPath = false;
-  try{
+  try {
     aLocalPath.normalize();
   } catch (e) { invalidPath = true; }
 
@@ -471,8 +470,7 @@ function checkDirectoryIsUsable(aLocalPath) {
   let allServers = MailServices.accounts.allServers;
 
   for (let server of fixIterator(allServers,
-                                 Ci.nsIMsgIncomingServer))
-  {
+                                 Ci.nsIMsgIncomingServer)) {
     if (server.key == currentAccount.incomingServer.key)
       continue;
 
@@ -524,7 +522,7 @@ function checkUserServerChanges(showAlert) {
   let currentServer = currentAccount ? currentAccount.incomingServer : null;
 
   // If this type doesn't exist (just removed) then return.
-  if (!("server" in accountValues) || !accountValues["server"])
+  if (!("server" in accountValues) || !accountValues.server)
     return true;
 
   // Get the new username, hostname and type from the page.
@@ -553,11 +551,9 @@ function checkUserServerChanges(showAlert) {
     newHost = cleanUpHostName(newHost);
     if (checkUser && (newUser == "")) {
       alertText = prefBundle.getString("userNameEmpty");
-    }
-    else if (!isLegalHostNameOrIP(newHost)) {
+    } else if (!isLegalHostNameOrIP(newHost)) {
       alertText = prefBundle.getString("enterValidServerName");
-    }
-    else {
+    } else {
       let sameServer = MailServices.accounts
                                    .findRealServer(newUser, newHost, newType, 0);
       if (sameServer && (sameServer != currentServer)) {
@@ -691,13 +687,11 @@ function onAddAccount() {
   MsgAccountWizard();
 }
 
-function AddMailAccount()
-{
+function AddMailAccount() {
   NewMailAccount(MailServices.mailSession.topmostMsgWindow);
 }
 
-function AddIMAccount()
-{
+function AddIMAccount() {
   window.openDialog("chrome://messenger/content/chat/imAccountWizard.xul",
                     "", "chrome,modal,titlebar,centerscreen");
 }
@@ -788,7 +782,7 @@ function onRemoveAccount(event) {
   for (let i = 0; i < accountTreeNode.childNodes.length; i++) {
     if ("_account" in accountTreeNode.childNodes[i]) {
       let curServer = accountTreeNode.childNodes[i]._account.incomingServer;
-      if (serverList.indexOf(curServer) == -1)
+      if (!serverList.includes(curServer))
         serverList.push(curServer);
     }
   }
@@ -807,8 +801,11 @@ function onRemoveAccount(event) {
   let serverId = server.serverURI;
 
   // Confirm account deletion.
-  let removeArgs = { server: server, account: currentAccount,
-                     result: false };
+  let removeArgs = {
+    server,
+    account: currentAccount,
+    result: false,
+  };
 
   window.openDialog("chrome://messenger/content/removeAccount.xul",
                     "removeAccount",
@@ -834,8 +831,7 @@ function onRemoveAccount(event) {
   markDefaultServer(MailServices.accounts.defaultAccount, null);
 }
 
-function saveAccount(accountValues, account)
-{
+function saveAccount(accountValues, account) {
   var identity = null;
   var server = null;
 
@@ -850,25 +846,25 @@ function saveAccount(accountValues, account)
     for (var slot in typeArray) {
       var dest;
       try {
-      if (type == "identity")
-        dest = identity;
-      else if (type == "server")
-        dest = server;
-      else if (type == "pop3")
-        dest = server.QueryInterface(Ci.nsIPop3IncomingServer);
-      else if (type == "imap")
-        dest = server.QueryInterface(Ci.nsIImapIncomingServer);
-      else if (type == "none")
-        dest = server.QueryInterface(Ci.nsINoIncomingServer);
-      else if (type == "nntp")
-        dest = server.QueryInterface(Ci.nsINntpIncomingServer);
-      else if (type == "smtp")
-        dest = MailServices.smtp.defaultServer;
-
+        if (type == "identity")
+          dest = identity;
+        else if (type == "server")
+          dest = server;
+        else if (type == "pop3")
+          dest = server.QueryInterface(Ci.nsIPop3IncomingServer);
+        else if (type == "imap")
+          dest = server.QueryInterface(Ci.nsIImapIncomingServer);
+        else if (type == "none")
+          dest = server.QueryInterface(Ci.nsINoIncomingServer);
+        else if (type == "nntp")
+          dest = server.QueryInterface(Ci.nsINntpIncomingServer);
+        else if (type == "smtp")
+          dest = MailServices.smtp.defaultServer;
       } catch (ex) {
         // don't do anything, just means we don't support that
       }
-      if (dest == undefined) continue;
+      if (dest == undefined)
+        continue;
 
       if ((type in gGenericAttributeTypes) && (slot in gGenericAttributeTypes[type])) {
         var methodName = "get";
@@ -895,7 +891,7 @@ function saveAccount(accountValues, account)
             methodName += "Bool";
             break;
           default:
-            dump("unexpected preftype: " + preftype + "\n");
+            dump("unexpected preftype: " + gGenericAttributeTypes[type][slot] + "\n");
             break;
         }
         methodName += ((methodName + "Value") in dest ? "Value" : "Attribute");
@@ -903,8 +899,7 @@ function saveAccount(accountValues, account)
           methodName = methodName.replace("get", "set");
           dest[methodName](slot, typeArray[slot]);
         }
-      }
-      else if (slot in dest && typeArray[slot] != undefined && dest[slot] != typeArray[slot]) {
+      } else if (slot in dest && typeArray[slot] != undefined && dest[slot] != typeArray[slot]) {
         try {
           dest[slot] = typeArray[slot];
         } catch (ex) {
@@ -919,7 +914,7 @@ function saveAccount(accountValues, account)
   if (server && server.spamSettings) {
     try {
       server.spamSettings.initialize(server);
-    } catch(e) {
+    } catch (e) {
       let accountName = getAccountValue(account, getValueArrayFor(account), "server",
                                         "prettyName", null, false);
       let alertText = document.getElementById("bundle_prefs")
@@ -1024,8 +1019,7 @@ function updateBlockedItems(aItems, aMustBeTrue) {
 /**
  * Set enabled/disabled state for the control.
  */
-function setEnabled(control, enabled)
-{
+function setEnabled(control, enabled) {
   if (!control)
     return;
 
@@ -1038,8 +1032,7 @@ function setEnabled(control, enabled)
 // Called when someone clicks on an account. Figure out context by what they
 // clicked on. This is also called when an account is removed. In this case,
 // nothing is selected.
-function onAccountTreeSelect(pageId, account)
-{
+function onAccountTreeSelect(pageId, account) {
   let tree = document.getElementById("accounttree");
 
   let changeView = pageId && account;
@@ -1050,7 +1043,7 @@ function onAccountTreeSelect(pageId, account)
     let node = tree.view.getItemAtIndex(tree.currentIndex);
     account = ("_account" in node) ? node._account : null;
 
-    pageId = node.getAttribute("PageTag")
+    pageId = node.getAttribute("PageTag");
   }
 
   if (pageId == currentPageId && account == currentAccount)
@@ -1085,8 +1078,8 @@ function onAccountTreeSelect(pageId, account)
   }
 
   // Provide opportunity to do cleanups or checks when the current page is being left.
-  if ("onLeave" in top.frames["contentFrame"])
-    top.frames["contentFrame"].onLeave();
+  if ("onLeave" in top.frames.contentFrame)
+    top.frames.contentFrame.onLeave();
 
   // save the previous page
   savePage(currentAccount);
@@ -1125,7 +1118,8 @@ function onPanelLoaded(pageId) {
     // the account data, and then restore theh page
     if (pageId == currentPageId) {
       var serverId = currentAccount ?
-                     currentAccount.incomingServer.serverURI : "global"
+                     currentAccount.incomingServer.serverURI :
+                     "global";
       delete accountArray[serverId];
       restorePage(currentPageId, currentAccount);
     }
@@ -1138,8 +1132,7 @@ function onPanelLoaded(pageId) {
   pendingPageId = null;
 }
 
-function pageURL(pageId)
-{
+function pageURL(pageId) {
   // If we have a special non account manager pane (e.g. about:blank),
   // do not translate it into ChromePackageName URL.
   if (!pageId.startsWith("am-"))
@@ -1152,15 +1145,13 @@ function pageURL(pageId)
     // as some of these might be turned into extensions (for thunderbird)
     let packageName = pageId.split("am-")[1].split(".xul")[0];
     chromePackageName = MailServices.accounts.getChromePackageName(packageName);
-  }
-  catch (ex) {
+  } catch (ex) {
     chromePackageName = "messenger";
   }
   return "chrome://" + chromePackageName + "/content/" + pageId;
 }
 
-function loadPage(pageId)
-{
+function loadPage(pageId) {
   const loadURIOptions = {
     triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
   };
@@ -1169,14 +1160,13 @@ function loadPage(pageId)
 }
 
 // save the values of the widgets to the given server
-function savePage(account)
-{
+function savePage(account) {
   if (!account)
     return;
 
   // tell the page that it's about to save
-  if ("onSave" in top.frames["contentFrame"])
-    top.frames["contentFrame"].onSave();
+  if ("onSave" in top.frames.contentFrame)
+    top.frames.contentFrame.onSave();
 
   var accountValues = getValueArrayFor(account);
   if (!accountValues)
@@ -1204,20 +1194,20 @@ function savePage(account)
 
 function setAccountValue(accountValues, type, slot, value) {
   if (!(type in accountValues))
-    accountValues[type] = new Object();
+    accountValues[type] = {};
 
   accountValues[type][slot] = value;
 }
 
 function getAccountValue(account, accountValues, type, slot, preftype, isGeneric) {
   if (!(type in accountValues))
-    accountValues[type] = new Object();
+    accountValues[type] = {};
 
   // fill in the slot from the account if necessary
   if (!(slot in accountValues[type]) || accountValues[type][slot] == undefined) {
     var server;
     if (account)
-      server= account.incomingServer;
+      server = account.incomingServer;
     var source = null;
     try {
     if (type == "identity")
@@ -1240,7 +1230,7 @@ function getAccountValue(account, accountValues, type, slot, preftype, isGeneric
     if (source) {
       if (isGeneric) {
         if (!(type in gGenericAttributeTypes))
-          gGenericAttributeTypes[type] = new Object();
+          gGenericAttributeTypes[type] = {};
 
         // we need the preftype later, for setting when we save.
         gGenericAttributeTypes[type][slot] = preftype;
@@ -1264,14 +1254,12 @@ function getAccountValue(account, accountValues, type, slot, preftype, isGeneric
         }
         methodName += ((methodName + "Value") in source ? "Value" : "Attribute");
         accountValues[type][slot] = source[methodName](slot);
-      }
-      else if (slot in source) {
+      } else if (slot in source) {
         accountValues[type][slot] = source[slot];
       } else {
         accountValues[type][slot] = null;
       }
-    }
-    else {
+    } else {
       accountValues[type][slot] = null;
     }
   }
@@ -1279,8 +1267,7 @@ function getAccountValue(account, accountValues, type, slot, preftype, isGeneric
 }
 
 // restore the values of the widgets from the given server
-function restorePage(pageId, account)
-{
+function restorePage(pageId, account) {
   if (!account)
     return;
 
@@ -1288,8 +1275,8 @@ function restorePage(pageId, account)
   if (!accountValues)
     return;
 
-  if ("onPreInit" in top.frames["contentFrame"])
-    top.frames["contentFrame"].onPreInit(account, accountValues);
+  if ("onPreInit" in top.frames.contentFrame)
+    top.frames.contentFrame.onPreInit(account, accountValues);
 
   var pageElements = getPageFormElements();
   if (!pageElements)
@@ -1312,17 +1299,17 @@ function restorePage(pageId, account)
         var element = pageElements[i];
         switch (type) {
           case "identity":
-            element["identitykey"] = account.defaultIdentity.key;
+            element.identitykey = account.defaultIdentity.key;
             break;
           case "pop3":
           case "imap":
           case "nntp":
           case "server":
-            element["serverkey"] = account.incomingServer.key;
+            element.serverkey = account.incomingServer.key;
             break;
           case "smtp":
             if (MailServices.smtp.defaultServer)
-              element["serverkey"] = MailServices.smtp.defaultServer.key;
+              element.serverkey = MailServices.smtp.defaultServer.key;
             break;
         }
         var isLocked = getAccountValueIsLocked(pageElements[i]);
@@ -1332,8 +1319,8 @@ function restorePage(pageId, account)
   }
 
   // tell the page that new values have been loaded
-  if ("onInit" in top.frames["contentFrame"])
-    top.frames["contentFrame"].onInit(pageId, account.incomingServer.serverURI);
+  if ("onInit" in top.frames.contentFrame)
+    top.frames.contentFrame.onInit(pageId, account.incomingServer.serverURI);
 
   // everything has succeeded, vervied by setting currentPageId
   currentPageId = pageId;
@@ -1369,8 +1356,7 @@ function getFormElementValue(formElement) {
       return formElement.value.trim();
     }
     return null;
-  }
-  catch (ex) {
+  } catch (ex) {
     Cu.reportError("getFormElementValue failed, ex=" + ex + "\n");
   }
   return null;
@@ -1388,22 +1374,18 @@ function setFormElementValue(formElement, value) {
   if (type == "checkbox") {
     if (value == null) {
       formElement.checked = false;
+    } else if (formElement.getAttribute("reversed")) {
+      formElement.checked = !value;
     } else {
-      if (formElement.getAttribute("reversed"))
-        formElement.checked = !value;
-      else
-        formElement.checked = value;
+      formElement.checked = value;
     }
-  }
-  else if (type == "radiogroup" || type == "menulist") {
+  } else if (type == "radiogroup" || type == "menulist") {
     if (value == null)
       formElement.selectedIndex = 0;
     else
       formElement.value = value;
-  }
-  // handle nsIFile
-  else if (type == "textbox" &&
-           formElement.getAttribute("datatype") == "nsIFile") {
+  } else if (type == "textbox" && formElement.getAttribute("datatype") == "nsIFile") {
+    // handle nsIFile
     if (value) {
       let localfile = value.QueryInterface(Ci.nsIFile);
       try {
@@ -1414,22 +1396,17 @@ function setFormElementValue(formElement, value) {
     } else {
       formElement.value = "";
     }
-  }
-  else if (type == "textbox") {
+  } else if (type == "textbox") {
     if (value == null)
       formElement.value = null;
     else
       formElement.value = value;
-  }
-  else if (type == "label") {
+  } else if (type == "label") {
     formElement.value = value || "";
-  }
-  // let the form figure out what to do with it
-  else {
-    if (value == null)
-      formElement.value = null;
-    else
-      formElement.value = value;
+  } else if (value == null) { // let the form figure out what to do with it
+    formElement.value = null;
+  } else {
+    formElement.value = value;
   }
 }
 
@@ -1439,8 +1416,7 @@ function setFormElementValue(formElement, value) {
 //
 
 // helper routine for account manager panels to get the current account for the selected server
-function getCurrentAccount()
-{
+function getCurrentAccount() {
   return currentAccount;
 }
 
@@ -1450,9 +1426,10 @@ function getCurrentAccount()
 function getPageFormElements() {
   // Uses getElementsByAttribute() which returns a live NodeList which is usually
   // faster than e.g. querySelector().
-  if ("getElementsByAttribute" in top.frames["contentFrame"].document)
-    return top.frames["contentFrame"].document
+  if ("getElementsByAttribute" in top.frames.contentFrame.document) {
+    return top.frames.contentFrame.document
               .getElementsByAttribute("wsm_persist", "true");
+  }
 
   return null;
 }
@@ -1463,7 +1440,7 @@ function getPageFormElements() {
  * @param aId  ID of the element requested.
  */
 function getPageFormElement(aId) {
-  let elem = top.frames["contentFrame"].document.getElementById(aId);
+  let elem = top.frames.contentFrame.document.getElementById(aId);
   if (elem && (elem.getAttribute("wsm_persist") == "true"))
     return elem;
 
@@ -1475,7 +1452,7 @@ function getValueArrayFor(account) {
   var serverId = account ? account.incomingServer.serverURI : "global";
 
   if (!(serverId in accountArray)) {
-    accountArray[serverId] = new Object();
+    accountArray[serverId] = {};
     accountArray[serverId]._account = account;
   }
 
@@ -1483,21 +1460,21 @@ function getValueArrayFor(account) {
 }
 
 var gAccountTree = {
-  load: function at_load() {
+  load() {
     this._build();
 
     MailServices.accounts.addIncomingServerListener(this);
   },
-  unload: function at_unload() {
+  unload() {
     MailServices.accounts.removeIncomingServerListener(this);
   },
-  onServerLoaded: function at_onServerLoaded(aServer) {
+  onServerLoaded(aServer) {
     this._build();
   },
-  onServerUnloaded: function at_onServerUnloaded(aServer) {
+  onServerUnloaded(aServer) {
     this._build();
   },
-  onServerChanged: function at_onServerChanged(aServer) {},
+  onServerChanged(aServer) {},
 
   _dataStore: Services.xulStore,
 
@@ -1507,19 +1484,18 @@ var gAccountTree = {
    *
    * @param aAccountKey  key of the account to check
    */
-  _getAccountOpenState: function at_getAccountOpenState(aAccountKey) {
+  _getAccountOpenState(aAccountKey) {
     if (!this._dataStore.hasValue(document.documentURI, aAccountKey, "open")) {
-    // If there was no value stored, use opened state.
+      // If there was no value stored, use opened state.
       return "true";
-    } else {
-      // Retrieve the persisted value from XULStore.json.
-      // It is stored under the URI of the current document and ID of the XUL element.
-      return this._dataStore
-                 .getValue(document.documentURI, aAccountKey, "open");
     }
+    // Retrieve the persisted value from XULStore.json.
+    // It is stored under the URI of the current document and ID of the XUL element.
+    return this._dataStore
+               .getValue(document.documentURI, aAccountKey, "open");
   },
 
-  _build: function at_build() {
+  _build() {
     var bundle = document.getElementById("bundle_prefs");
     function getString(aString) { return bundle.getString(aString); }
     var panels = [{string: getString("prefPanel-server"), src: "am-server.xul"},
@@ -1589,7 +1565,7 @@ var gAccountTree = {
               let title = bundle.GetStringFromName("prefPanel-" + svc.name);
               panelsToKeep.push({string: title, src: "am-" + svc.name + ".xul"});
             }
-          } catch(e) {
+          } catch (e) {
             // Fetching of this extension panel failed so do not show it,
             // just log error.
             let extName = data || "(unknown)";
@@ -1598,7 +1574,7 @@ var gAccountTree = {
           }
         }
         amChrome = server.accountManagerChrome;
-      } catch(e) {
+      } catch (e) {
         // Show only a placeholder in the account list saying this account
         // is broken, with no child panels.
         let accountID = (accountName || accountKey);
@@ -1608,11 +1584,11 @@ var gAccountTree = {
       }
 
       // Create the top level tree-item.
-      var treeitem = document.createElement("treeitem");
+      let treeitem = document.createElement("treeitem");
       mainTree.appendChild(treeitem);
-      var treerow = document.createElement("treerow");
+      let treerow = document.createElement("treerow");
       treeitem.appendChild(treerow);
-      var treecell = document.createElement("treecell");
+      let treecell = document.createElement("treecell");
       treerow.appendChild(treecell);
       treecell.setAttribute("label", accountName);
       treeitem.setAttribute("PageTag", amChrome);
@@ -1655,15 +1631,15 @@ var gAccountTree = {
     markDefaultServer(MailServices.accounts.defaultAccount, null);
 
     // Now add the outgoing server node.
-    var treeitem = document.createElement("treeitem");
+    let treeitem = document.createElement("treeitem");
     mainTree.appendChild(treeitem);
-    var treerow = document.createElement("treerow");
+    let treerow = document.createElement("treerow");
     treeitem.appendChild(treerow);
-    var treecell = document.createElement("treecell");
+    let treecell = document.createElement("treecell");
     treerow.appendChild(treecell);
     treecell.setAttribute("label", getString("prefPanel-smtp"));
     treeitem.setAttribute("PageTag", "am-smtp.xul");
     treecell.setAttribute("properties",
                           "folderNameCol isServer-true serverType-smtp");
-  }
+  },
 };

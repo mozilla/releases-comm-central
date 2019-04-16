@@ -3,11 +3,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from AccountWizard.js */
+
 var gCurrentDomain;
 var gPrefsBundle;
 
-function identityPageValidate()
-{
+function identityPageValidate() {
   var canAdvance = false;
   var name = document.getElementById("fullName").value;
   let email = document.getElementById("email").value.trim();
@@ -32,8 +33,7 @@ function identityPageValidate()
   document.documentElement.canAdvance = canAdvance;
 }
 
-function identityPageUnload()
-{
+function identityPageUnload() {
   var pageData = parent.GetPageData();
   var name = document.getElementById("fullName").value;
   let email = document.getElementById("email").value.trim();
@@ -47,11 +47,10 @@ function identityPageUnload()
 // unnecessarily.
 // This simply gets rid  of "@domain" from "foo@domain"
 
-function fixPreFilledEmail()
-{
+function fixPreFilledEmail() {
   var emailElement = document.getElementById("email");
   var email = emailElement.value;
-  var emailArray = email.split('@');
+  var emailArray = email.split("@");
 
   if (gCurrentDomain) {
     // check if user entered an @ sign even though we have a domain
@@ -66,18 +65,15 @@ function fixPreFilledEmail()
  * This function checks for common illegal characters.
  * It shouldn't be too strict, since we do more extensive tests later.
  */
-function emailNameIsLegal(aString)
-{
+function emailNameIsLegal(aString) {
   return aString && !/[^!-?A-~]/.test(aString);
 }
 
-function emailNameAndDomainAreLegal(aString)
-{
+function emailNameAndDomainAreLegal(aString) {
   return /^[!-?A-~]+\@[A-Za-z0-9.-]+$/.test(aString);
 }
 
-function identityPageInit()
-{
+function identityPageInit() {
   gCurrentDomain = null;
   gPrefsBundle = document.getElementById("bundle_prefs");
   clearEmailTextItems();
@@ -88,8 +84,7 @@ function identityPageInit()
   identityPageValidate();
 }
 
-function clearEmailTextItems()
-{
+function clearEmailTextItems() {
   var emailDescText = document.getElementById("emailDescText");
 
   if (emailDescText.hasChildNodes())
@@ -103,8 +98,7 @@ function clearEmailTextItems()
 // Use email example data that ISP has provided. ISP data, if available
 // for the choice user has made, will be read into CurrentAccountData.
 // Default example data from properties will be used when the info is missing.
-function setEmailDescriptionText()
-{
+function setEmailDescriptionText() {
     var emailDescText = document.getElementById("emailDescText");
     var emailFieldLabel = document.getElementById("emailFieldLabel");
 
@@ -130,8 +124,7 @@ function checkForFullName() {
   // We currently have no way to propose any useful name here.
 }
 
-function checkForEmail()
-{
+function checkForEmail() {
     var email = document.getElementById("email");
     var pageData = parent.GetPageData();
     if (pageData && pageData.identity && pageData.identity.email) {

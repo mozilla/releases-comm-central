@@ -150,7 +150,7 @@
     </hbox>
     <hbox align="center" class="indent" hidefor="movemail,pop3,imap,none,rss">
         <checkbox id="nntp.removeBody" accesskey="&nntpRemoveMsgBody.accesskey;"
-                  label="&nntpRemoveMsgBody.label;" oncommand="onCheckItem('nntp.removeBodyMin','nntp.removeBody');"/>
+                  label="&nntpRemoveMsgBody.label;" oncommand="onCheckItem('nntp.removeBodyMin', 'nntp.removeBody');"/>
         <textbox id="nntp.removeBodyMin" size="2" value="30"
                  type="number" min="1"
                  aria-labelledby="nntp.removeBody nntp.removeBodyMin daysOldMsg"/>

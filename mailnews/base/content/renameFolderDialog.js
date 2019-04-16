@@ -8,8 +8,7 @@ var dialog;
 
 document.addEventListener("dialogaccept", onOK);
 
-function onLoad()
-{
+function onLoad() {
   var windowArgs = window.arguments[0];
 
   dialog = {};
@@ -30,18 +29,15 @@ function onLoad()
   doEnabling();
 }
 
-function onOK()
-{
+function onOK() {
   dialog.okCallback(dialog.nameField.value, dialog.preselectedFolderURI);
 }
 
-function doEnabling()
-{
+function doEnabling() {
   if (dialog.nameField.value) {
     if (dialog.OKButton.disabled)
       dialog.OKButton.disabled = false;
-  } else {
-    if (!dialog.OKButton.disabled)
-      dialog.OKButton.disabled = true;
+  } else if (!dialog.OKButton.disabled) {
+    dialog.OKButton.disabled = true;
   }
 }

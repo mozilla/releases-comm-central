@@ -31,30 +31,30 @@ var kHostnames = new Map([
 // own application--register it yourself. This code (and possibly even the
 // registration itself) will disappear when this is switched to dynamic
 // client registration.
-var kIssuers = new Map ([
+var kIssuers = new Map([
   ["accounts.google.com", [
-    '406964657835-aq8lmia8j95dhl1a2bvharmfk3t1hgqj.apps.googleusercontent.com',
-    'kSmqreRr0qwBWJgbf5Y-PjSU',
-    'https://accounts.google.com/o/oauth2/auth',
-    'https://www.googleapis.com/oauth2/v3/token'
+    "406964657835-aq8lmia8j95dhl1a2bvharmfk3t1hgqj.apps.googleusercontent.com",
+    "kSmqreRr0qwBWJgbf5Y-PjSU",
+    "https://accounts.google.com/o/oauth2/auth",
+    "https://www.googleapis.com/oauth2/v3/token",
   ]],
   ["o2.mail.ru", [
-    'thunderbird',
-    'I0dCAXrcaNFujaaY',
-    'https://o2.mail.ru/login',
-    'https://o2.mail.ru/token'
+    "thunderbird",
+    "I0dCAXrcaNFujaaY",
+    "https://o2.mail.ru/login",
+    "https://o2.mail.ru/token",
   ]],
   ["login.yahoo.com", [
-    'dj0yJmk9NUtCTWFMNVpTaVJmJmQ9WVdrOVJ6UjVTa2xJTXpRbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD0yYw--',
-    'f2de6a30ae123cdbc258c15e0812799010d589cc',
-    'https://api.login.yahoo.com/oauth2/request_auth',
-    'https://api.login.yahoo.com/oauth2/get_token'
+    "dj0yJmk9NUtCTWFMNVpTaVJmJmQ9WVdrOVJ6UjVTa2xJTXpRbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD0yYw--",
+    "f2de6a30ae123cdbc258c15e0812799010d589cc",
+    "https://api.login.yahoo.com/oauth2/request_auth",
+    "https://api.login.yahoo.com/oauth2/get_token",
   ]],
   ["login.aol.com", [
-    'dj0yJmk9OXRHc1FqZHRQYzVvJmQ9WVdrOU1UQnJOR0pvTjJrbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD02NQ--',
-    '79c1c11991d148ddd02a919000d69879942fc278',
-    'https://api.login.aol.com/oauth2/request_auth',
-    'https://api.login.aol.com/oauth2/get_token'
+    "dj0yJmk9OXRHc1FqZHRQYzVvJmQ9WVdrOU1UQnJOR0pvTjJrbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD02NQ--",
+    "79c1c11991d148ddd02a919000d69879942fc278",
+    "https://api.login.aol.com/oauth2/request_auth",
+    "https://api.login.aol.com/oauth2/get_token",
   ]],
 ]);
 
@@ -75,7 +75,9 @@ var OAuth2Providers = {
    *                   organization, scope is an oauth parameter describing\
    *                   the required access level.
    */
-  getHostnameDetails: function (aHostname) { return kHostnames.get(aHostname);},
+  getHostnameDetails(aHostname) {
+    return kHostnames.get(aHostname);
+  },
 
   /**
    * Map an issuer to OAuth2 account details.
@@ -89,5 +91,7 @@ var OAuth2Providers = {
    *                   authURI and tokenURI are url strings representing
    *                   endpoints to access OAuth2 authentication.
    */
-  getIssuerDetails: function (aIssuer) { return kIssuers.get(aIssuer);}
-}
+  getIssuerDetails(aIssuer) {
+    return kIssuers.get(aIssuer);
+  },
+};

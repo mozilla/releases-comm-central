@@ -26,7 +26,6 @@
   <script type="application/javascript" src="chrome://messenger/content/accountUtils.js"/>
   <script type="application/javascript" src="chrome://messenger/content/amUtils.js"/>
   <script type="application/javascript" src="chrome://messenger/content/AccountWizard.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/ispUtils.js"/>
   <script type="application/javascript" src="chrome://messenger/content/aw-accounttype.js"/>
   <script type="application/javascript" src="chrome://messenger/content/aw-identity.js"/>
   <script type="application/javascript" src="chrome://messenger/content/aw-incoming.js"/>

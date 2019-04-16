@@ -21,8 +21,7 @@ var DBCACHE_INTERVAL_DEFAULT_MS = 60000; // 1 minute
 
 /* :::::::: The Module ::::::::::::::: */
 
-var msgDBCacheManager =
-{
+var msgDBCacheManager = {
   _initialized: false,
 
   _msgDBCacheTimer: null,
@@ -34,8 +33,7 @@ var msgDBCacheManager =
   /**
    * This is called on startup
    */
-  init: function dbcachemgr_init()
-  {
+  init() {
     if (this._initialized)
       return;
 
@@ -54,14 +52,13 @@ var msgDBCacheManager =
 
 /* ........ Timer Callback ................*/
 
-  _dbCacheCheckTimerCallback: function dbCache_CheckTimerCallback()
-  {
+  _dbCacheCheckTimerCallback() {
     msgDBCacheManager.checkCachedDBs();
   },
 
 /* ........ Observer Notification Handler ................*/
 
-  observe: function dbCache_observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic, aData) {
     switch (aTopic) {
     // This is observed before any windows start unloading if something other
     // than the last 3pane window closing requested the application be
@@ -78,8 +75,7 @@ var msgDBCacheManager =
   /**
    * Stops db cache check
    */
-  stopPeriodicCheck: function dbcache_stopPeriodicCheck()
-  {
+  stopPeriodicCheck() {
     if (this._dbCacheCheckTimer) {
       this._dbCacheCheckTimer.cancel();
 
@@ -91,8 +87,7 @@ var msgDBCacheManager =
   /**
    * Starts periodic db cache check
    */
-  startPeriodicCheck: function dbcache_startPeriodicCheck()
-  {
+  startPeriodicCheck() {
     if (!this._dbCacheCheckTimer) {
       this._dbCacheCheckTimer = Cc["@mozilla.org/timer;1"]
                                    .createInstance(Ci.nsITimer);
@@ -107,8 +102,7 @@ var msgDBCacheManager =
   /**
    * Checks if any DBs need to be closed due to inactivity or too many of them open.
    */
-  checkCachedDBs: function()
-  {
+  checkCachedDBs() {
     let idleLimit = Services.prefs.getIntPref("mail.db.idle_limit");
     let maxOpenDBs = Services.prefs.getIntPref("mail.db.max_open");
 
@@ -138,8 +132,7 @@ var msgDBCacheManager =
         continue;
       }
 
-      if (db.lastUseTime < closeThreshold)
-      {
+      if (db.lastUseTime < closeThreshold) {
         // DB open too log without activity.
         log.debug("Closing expired DB for folder: " + db.folder.name);
         db.folder.msgDatabase = null;

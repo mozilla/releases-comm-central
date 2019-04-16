@@ -3,12 +3,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from AccountWizard.js */
+
 var gPrefsBundle;
 
-function acctNamePageValidate()
-{
+function acctNamePageValidate() {
   var accountname = document.getElementById("prettyName").value;
-  var canAdvance = accountname ? true : false;
+  var canAdvance = !!accountname;
 
   // Check if this accountname already exists. If so, return false so that
   // user can enter a different unique account name.
@@ -27,11 +28,10 @@ function acctNamePageUnload() {
   return true;
 }
 
-function acctNamePageInit()
-{
+function acctNamePageInit() {
     gPrefsBundle = document.getElementById("bundle_prefs");
     var accountNameInput = document.getElementById("prettyName");
-    if (accountNameInput.value=="") {
+    if (accountNameInput.value == "") {
         var pageData = parent.GetPageData();
         var type = parent.getCurrentServerType(pageData);
         var accountName;

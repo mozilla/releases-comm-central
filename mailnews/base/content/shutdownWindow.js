@@ -13,8 +13,7 @@ var msgShutdownService = Cc["@mozilla.org/messenger/msgshutdownservice;1"]
 
 document.addEventListener("dialogcancel", onCancel);
 
-function onLoad()
-{
+function onLoad() {
   numTasks = msgShutdownService.getNumTasks();
 
   stringBundle = document.getElementById("bundle_shutdown");
@@ -26,31 +25,26 @@ function onLoad()
   msgShutdownService.startShutdownTasks();
 }
 
-function updateProgressLabel(inTaskName)
-{
+function updateProgressLabel(inTaskName) {
   var curTaskLabel = document.getElementById("shutdownStatus_label");
   curTaskLabel.value = inTaskName;
 }
 
-function updateTaskProgressLabel(inCurTaskNum)
-{
+function updateTaskProgressLabel(inCurTaskNum) {
   var taskProgressLabel = document.getElementById("shutdownTask_label");
   taskProgressLabel.value = stringBundle.getFormattedString("taskProgress", [inCurTaskNum, numTasks]);
 }
 
-function updateProgressMeter(inPercent)
-{
-  var taskProgressmeter = document.getElementById('shutdown_progressmeter');
+function updateProgressMeter(inPercent) {
+  var taskProgressmeter = document.getElementById("shutdown_progressmeter");
   taskProgressmeter.value = inPercent;
 }
 
-function onCancel()
-{
+function onCancel() {
   msgShutdownService.cancelShutdownTasks();
 }
 
-function nsMsgShutdownTaskListener()
-{
+function nsMsgShutdownTaskListener() {
   msgShutdownService.setShutdownListener(this);
 }
 
@@ -59,41 +53,34 @@ nsMsgShutdownTaskListener.prototype =
   QueryInterface: ChromeUtils.generateQI(["nsIWebProgressListener",
                                           "nsISupportsWeakReference"]),
 
-  onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus)
-  {
-    if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP)
-    {
+  onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
+    if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
       window.close();
     }
   },
 
-  onProgressChange: function(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress)
-  {
+  onProgressChange(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress) {
     updateProgressMeter(((aCurTotalProgress / aMaxTotalProgress) * 100));
     updateTaskProgressLabel(aCurTotalProgress + 1);
   },
 
-  onLocationChange: function(aWebProgress, aRequest, aLocation, aFlags)
-  {
+  onLocationChange(aWebProgress, aRequest, aLocation, aFlags) {
     // we can ignore this notification
   },
 
-  onStatusChange: function(aWebProgress, aRequest, aStatus, aMessage)
-  {
+  onStatusChange(aWebProgress, aRequest, aStatus, aMessage) {
     if (aMessage)
       updateProgressLabel(aMessage);
   },
 
-  onSecurityChange: function(aWebProgress, aRequest, state)
-  {
-    // we can ignore this notification
-  }
-
-  onContentBlockingEvent: function(aWebProgress, aRequest, aEvent)
-  {
+  onSecurityChange(aWebProgress, aRequest, state) {
     // we can ignore this notification
   },
-}
+
+  onContentBlockingEvent(aWebProgress, aRequest, aEvent) {
+    // we can ignore this notification
+  },
+};
 
 var MsgShutdownTaskListener = new nsMsgShutdownTaskListener();
 

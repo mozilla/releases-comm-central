@@ -18,64 +18,50 @@ var gSearchDateLeadingZeros;
  * This supports the common case which the date separator is
  * either '/', '-', '.' and using Christian year.
  */
-function initLocaleShortDateFormat()
-{
+function initLocaleShortDateFormat() {
   try {
     const dateFormatter = new Services.intl.DateTimeFormat(undefined,
       { dateStyle: "short" });
     var aDate = new Date(1999, 11, 1);
-    var dateString = dateFormatter.format(aDate).replace(/ /g,"");
+    var dateString = dateFormatter.format(aDate).replace(/ /g, "");
 
     // find out the separator
     var possibleSeparators = "/-.";
     var arrayOfStrings;
-    for (let i = 0; i < possibleSeparators.length; ++i)
-    {
+    for (let i = 0; i < possibleSeparators.length; ++i) {
       arrayOfStrings = dateString.split(possibleSeparators[i]);
-      if (arrayOfStrings.length == 3)
-      {
+      if (arrayOfStrings.length == 3) {
         gSearchDateSeparator = possibleSeparators[i];
         break;
       }
     }
 
     // check the format option
-    if (arrayOfStrings.length != 3)  // no successful split
-    {
+    if (arrayOfStrings.length != 3) { // no successful split
       Cu.reportError("initLocaleShortDateFormat: could not analyze the date format, defaulting to mm/dd/yyyy");
-    }
-    else
-    {
+    } else {
       // The date will contain a zero if the system settings include leading zeros.
       gSearchDateLeadingZeros = dateString.includes("0");
 
       // match 1 as number, since that will match both "1" and "01"
-      if (arrayOfStrings[0] == 1)
-      {
+      if (arrayOfStrings[0] == 1) {
         // 01.12.1999 or 01.1999.12
         gSearchDateFormat = arrayOfStrings[1] == "12" ? 5 : 6;
-      }
-      else if (arrayOfStrings[1] == 1)
-      {
+      } else if (arrayOfStrings[1] == 1) {
         // 12.01.1999 or 1999.01.12
         gSearchDateFormat = arrayOfStrings[0] == "12" ? 3 : 2;
-      }
-      else  // implies arrayOfStrings[2] == 1
-      {
+      } else { // implies arrayOfStrings[2] == 1
         // 12.1999.01 or 1999.12.01
         gSearchDateFormat = arrayOfStrings[0] == "12" ? 4 : 1;
       }
     }
-  }
-  catch (e)
-  {
+  } catch (e) {
     Cu.reportError("initLocaleShortDateFormat: caught an exception: " + e);
     gSearchDateFormat = 0;
   }
 }
 
-function initializeSearchDateFormat()
-{
+function initializeSearchDateFormat() {
   if (gSearchDateFormat > 0)
     return;
 
@@ -88,10 +74,9 @@ function initializeSearchDateFormat()
     gSearchDateFormat = parseInt(gSearchDateFormat);
 
     // if the option is 0 then try to use the format of the current locale
-    if (gSearchDateFormat == 0)
+    if (gSearchDateFormat == 0) {
       initLocaleShortDateFormat();
-    else
-    {
+    } else {
       // initialize the search date format based on preferences
       if (gSearchDateFormat < 1 || gSearchDateFormat > 6)
         gSearchDateFormat = 3;
@@ -105,15 +90,12 @@ function initializeSearchDateFormat()
            "mailnews.search_date_leading_zeros",
            Ci.nsIPrefLocalizedString).data == "true");
     }
-  }
-  catch (e)
-  {
+  } catch (e) {
     Cu.reportError("initializeSearchDateFormat: caught an exception: " + e);
     gSearchDateFormat = 0;
   }
 
-  if (gSearchDateFormat == 0)
-  {
+  if (gSearchDateFormat == 0) {
     // Set to mm/dd/yyyy in case we couldn't determine in any way.
     gSearchDateFormat = 3;
     gSearchDateSeparator = "/";
@@ -121,8 +103,7 @@ function initializeSearchDateFormat()
   }
 }
 
-function convertPRTimeToString(tm)
-{
+function convertPRTimeToString(tm) {
   var time = new Date();
   // PRTime is in microseconds, JavaScript time is in milliseconds
   // so divide by 1000 when converting
@@ -131,8 +112,7 @@ function convertPRTimeToString(tm)
   return convertDateToString(time);
 }
 
-function convertDateToString(time)
-{
+function convertDateToString(time) {
   initializeSearchDateFormat();
 
   var year = time.getFullYear();
@@ -146,8 +126,7 @@ function convertDateToString(time)
   var dateStr;
   var sep = gSearchDateSeparator;
 
-  switch (gSearchDateFormat)
-  {
+  switch (gSearchDateFormat) {
     case 1:
       dateStr = year + sep + month + sep + date;
       break;
@@ -173,16 +152,14 @@ function convertDateToString(time)
   return dateStr;
 }
 
-function convertStringToPRTime(str)
-{
+function convertStringToPRTime(str) {
   initializeSearchDateFormat();
 
   var arrayOfStrings = str.split(gSearchDateSeparator);
   var year, month, date;
 
   // set year, month, date based on the format option
-  switch (gSearchDateFormat)
-  {
+  switch (gSearchDateFormat) {
     case 1:
       year = arrayOfStrings[0];
       month = arrayOfStrings[1];

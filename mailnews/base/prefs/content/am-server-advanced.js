@@ -15,21 +15,18 @@ var gFirstDeferredAccount;
 // initialize the controls with the "gServerSettings" argument
 
 var gControls;
-function getControls()
-{
+function getControls() {
   if (!gControls)
     gControls = document.getElementsByAttribute("amsa_persist", "true");
   return gControls;
 }
 
-function getLocalFoldersAccount()
-{
+function getLocalFoldersAccount() {
   return MailServices.accounts
     .FindAccountForServer(MailServices.accounts.localFoldersServer);
 }
 
-function onLoad()
-{
+function onLoad() {
   var prettyName = gServerSettings.serverPrettyName;
 
   if (prettyName)
@@ -37,12 +34,9 @@ function onLoad()
       document.getElementById("bundle_prefs")
               .getFormattedString("forAccount", [prettyName]);
 
-  if (gServerSettings.serverType == "imap")
-  {
+  if (gServerSettings.serverType == "imap") {
     document.getElementById("pop3Panel").hidden = true;
-  }
-  else if (gServerSettings.serverType == "pop3")
-  {
+  } else if (gServerSettings.serverType == "pop3") {
     document.getElementById("imapPanel").hidden = true;
     let radioGroup = document.getElementById("folderStorage");
 
@@ -56,15 +50,12 @@ function onLoad()
                              gServerSettings.account.incomingServer.key);
     folderPopup._ensureInitialized();
 
-    if (gFirstDeferredAccount.length)
-    {
+    if (gFirstDeferredAccount.length) {
       // The current account is deferred.
       let account = MailServices.accounts.getAccount(gFirstDeferredAccount);
       radioGroup.value = "otherAccount";
       folderPopup.selectFolder(account.incomingServer.rootFolder);
-    }
-    else
-    {
+    } else {
       // Current account is not deferred.
       radioGroup.value = "currentAccount";
       // If there are no suitable accounts to defer to, then the menulist is
@@ -83,11 +74,9 @@ function onLoad()
 
   var controls = getControls();
 
-  for (var i = 0; i < controls.length; i++)
-  {
+  for (let i = 0; i < controls.length; i++) {
     var slot = controls[i].id;
-    if (slot in gServerSettings)
-    {
+    if (slot in gServerSettings) {
       if (controls[i].localName == "checkbox")
         controls[i].checked = gServerSettings[slot];
       else
@@ -96,18 +85,15 @@ function onLoad()
   }
 }
 
-function onOk(event)
-{
+function onOk(event) {
   // Handle account deferral settings for POP3 accounts.
-  if (gServerSettings.serverType == "pop3")
-  {
+  if (gServerSettings.serverType == "pop3") {
     var radioGroup = document.getElementById("folderStorage");
     var gPrefsBundle = document.getElementById("bundle_prefs");
     let picker = document.getElementById("deferredServerFolderPicker");
 
     // This account wasn't previously deferred, but is now deferred.
-    if (radioGroup.value != "currentAccount" && !gFirstDeferredAccount.length)
-    {
+    if (radioGroup.value != "currentAccount" && !gFirstDeferredAccount.length) {
       // If the user hasn't selected a folder, keep the default.
       if (!picker.selectedItem)
         return;
@@ -122,26 +108,23 @@ function onOk(event)
         return;
       }
     }
-    switch (radioGroup.value)
-    {
+    switch (radioGroup.value) {
       case "currentAccount":
-        gServerSettings['deferredToAccount'] = "";
+        gServerSettings.deferredToAccount = "";
         break;
       case "otherAccount":
         let server = picker.selectedItem._folder.server;
         let account = MailServices.accounts.FindAccountForServer(server);
-        gServerSettings['deferredToAccount'] = account.key;
+        gServerSettings.deferredToAccount = account.key;
         break;
     }
   }
 
   // Save the controls back to the "gServerSettings" array.
   var controls = getControls();
-  for (var i = 0; i < controls.length; i++)
-  {
+  for (let i = 0; i < controls.length; i++) {
     var slot = controls[i].id;
-    if (slot in gServerSettings)
-    {
+    if (slot in gServerSettings) {
       if (controls[i].localName == "checkbox")
         gServerSettings[slot] = controls[i].checked;
       else
@@ -152,8 +135,7 @@ function onOk(event)
 
 
 // Set radio element choices and picker states
-function updateInboxAccount(enablePicker)
-{
+function updateInboxAccount(enablePicker) {
   document.getElementById("deferredServerFolderPicker").disabled = !enablePicker;
   document.getElementById("deferGetNewMail").disabled = !enablePicker;
 }

@@ -3,6 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../search/content/searchTerm.js */
+
 var gPickedFolder;
 var gMailView = null;
 var msgWindow; // important, don't change the name of this variable. it's really a global used by commandglue.js
@@ -23,8 +25,7 @@ var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 document.addEventListener("dialogaccept", onOK);
 
-function onLoad()
-{
+function onLoad() {
   var windowArgs = window.arguments[0];
   var acceptButton = document.documentElement.getButton("accept");
 
@@ -36,16 +37,13 @@ function onLoad()
   initializeSearchWidgets();
 
   setSearchScope(nsMsgSearchScope.offlineMail);
-  if (windowArgs.editExistingFolder)
-  {
+  if (windowArgs.editExistingFolder) {
     acceptButton.label =
         document.documentElement.getAttribute("editFolderAcceptButtonLabel");
     acceptButton.accesskey =
         document.documentElement.getAttribute("editFolderAcceptButtonAccessKey");
     InitDialogWithVirtualFolder(windowArgs.folder);
-  }
-  else // we are creating a new virtual folder
-  {
+  } else { // we are creating a new virtual folder
     acceptButton.label =
         document.documentElement.getAttribute("newFolderAcceptButtonLabel");
     acceptButton.accesskey =
@@ -54,19 +52,17 @@ function onLoad()
     gSearchTermSession = Cc["@mozilla.org/messenger/searchSession;1"]
                            .createInstance(Ci.nsIMsgSearchSession);
 
-    if (windowArgs.searchTerms) // then add them to our search session
-    {
+    if (windowArgs.searchTerms) { // then add them to our search session
       for (let searchTerm of fixIterator(windowArgs.searchTerms,
                                          Ci.nsIMsgSearchTerm))
         gSearchTermSession.appendTerm(searchTerm);
     }
-    if (windowArgs.folder)
-    {
+    if (windowArgs.folder) {
       // pre select the folderPicker, based on what they selected in the folder pane
       gPickedFolder = windowArgs.folder;
       try {
         document.getElementById("msgNewFolderPopup").selectFolder(windowArgs.folder);
-      } catch(ex) {
+      } catch (ex) {
         document.getElementById("msgNewFolderPicker")
                 .setAttribute("label", windowArgs.folder.prettyName);
       }
@@ -89,42 +85,37 @@ function onLoad()
   }
 
   if (typeof windowArgs.searchOnline != "undefined")
-    document.getElementById('searchOnline').checked = windowArgs.searchOnline;
+    document.getElementById("searchOnline").checked = windowArgs.searchOnline;
   updateOnlineSearchState();
   updateFoldersCount();
 }
 
-function setupSearchRows(aSearchTerms)
-{
+function setupSearchRows(aSearchTerms) {
   if (aSearchTerms && aSearchTerms.length > 0)
-    initializeSearchRows(nsMsgSearchScope.offlineMail, aSearchTerms); // load the search terms for the folder
+    initializeSearchRows(Ci.nsMsgSearchScope.offlineMail, aSearchTerms); // load the search terms for the folder
   else
     onMore(null);
 }
 
-function updateOnlineSearchState()
-{
+function updateOnlineSearchState() {
   var enableCheckbox = false;
-  var checkbox = document.getElementById('searchOnline');
+  var checkbox = document.getElementById("searchOnline");
   // only enable the checkbox for selection, for online servers
-  var srchFolderUriArray = gSearchFolderURIs.split('|');
-  if (srchFolderUriArray[0])
-  {
+  var srchFolderUriArray = gSearchFolderURIs.split("|");
+  if (srchFolderUriArray[0]) {
     var realFolder = MailUtils.getOrCreateFolder(srchFolderUriArray[0]);
-    enableCheckbox =  realFolder.server.offlineSupportLevel; // anything greater than 0 is an online server like IMAP or news
+    enableCheckbox = realFolder.server.offlineSupportLevel; // anything greater than 0 is an online server like IMAP or news
   }
 
-  if (enableCheckbox)
-    checkbox.removeAttribute('disabled');
-  else
-  {
-    checkbox.setAttribute('disabled', true);
+  if (enableCheckbox) {
+    checkbox.removeAttribute("disabled");
+  } else {
+    checkbox.setAttribute("disabled", true);
     checkbox.checked = false;
   }
 }
 
-function InitDialogWithVirtualFolder(aVirtualFolder)
-{
+function InitDialogWithVirtualFolder(aVirtualFolder) {
   let virtualFolderWrapper =
     VirtualFolderHelper.wrapVirtualFolder(window.arguments[0].folder);
 
@@ -135,7 +126,7 @@ function InitDialogWithVirtualFolder(aVirtualFolder)
 
   gSearchFolderURIs = virtualFolderWrapper.searchFolderURIs;
   updateFoldersCount();
-  document.getElementById('searchOnline').checked = virtualFolderWrapper.onlineSearch;
+  document.getElementById("searchOnline").checked = virtualFolderWrapper.onlineSearch;
   gSearchTermSession = virtualFolderWrapper.searchTermsSession;
 
   setupSearchRows(gSearchTermSession.searchTerms);
@@ -156,21 +147,18 @@ function onFolderPick(aEvent) {
           .selectFolder(gPickedFolder);
 }
 
-function onOK(event)
-{
+function onOK(event) {
   var name = document.getElementById("name").value;
-  var searchOnline = document.getElementById('searchOnline').checked;
+  var searchOnline = document.getElementById("searchOnline").checked;
 
-  if (!gSearchFolderURIs)
-  {
+  if (!gSearchFolderURIs) {
     Services.prompt.alert(window, null,
-                          gMessengerBundle.getString('alertNoSearchFoldersSelected'));
+                          gMessengerBundle.getString("alertNoSearchFoldersSelected"));
     event.preventDefault();
     return;
   }
 
-  if (window.arguments[0].editExistingFolder)
-  {
+  if (window.arguments[0].editExistingFolder) {
     // update the search terms
     saveSearchTerms(gSearchTermSession.searchTerms, gSearchTermSession);
     // save the settings
@@ -188,22 +176,18 @@ function onOK(event)
     return;
   }
   var uri = gPickedFolder.URI;
-  if (name && uri) // create a new virtual folder
-  {
+  if (name && uri) { // create a new virtual folder
     // check to see if we already have a folder with the same name and alert the user if so...
     var parentFolder = MailUtils.getOrCreateFolder(uri);
 
     // sanity check the name based on the logic used by nsMsgBaseUtils.cpp. It can't start with a '.', it can't end with a '.', '~' or ' '.
     // it can't contain a ';' or '#'.
-    if (/^\.|[\.\~ ]$|[\;\#]/.test(name))
-    {
+    if (/^\.|[\.\~ ]$|[\;\#]/.test(name)) {
       Services.prompt.alert(window, null,
                             gMessengerBundle.getString("folderCreationFailed"));
       event.preventDefault();
       return;
-    }
-    else if (parentFolder.containsChildNamed(name))
-    {
+    } else if (parentFolder.containsChildNamed(name)) {
       Services.prompt.alert(window, null,
                             gMessengerBundle.getString("folderExists"));
       event.preventDefault();
@@ -217,34 +201,32 @@ function onOK(event)
   }
 }
 
-function doEnabling()
-{
+function doEnabling() {
   var acceptButton = document.documentElement.getButton("accept");
   acceptButton.disabled = !document.getElementById("name").value;
 }
 
-function chooseFoldersToSearch()
-{
+function chooseFoldersToSearch() {
   // if we have some search folders already, then root the folder picker dialog off the account
   // for those folders. Otherwise fall back to the preselectedfolderURI which is the parent folder
   // for this new virtual folder.
-  var dialog = window.openDialog("chrome://messenger/content/virtualFolderListEdit.xul", "",
-                                 "chrome,titlebar,modal,centerscreen,resizable",
-                                 {searchFolderURIs:gSearchFolderURIs,
-                                  okCallback:onFolderListDialogCallback});
+  window.openDialog("chrome://messenger/content/virtualFolderListEdit.xul", "",
+                    "chrome,titlebar,modal,centerscreen,resizable",
+                    {
+                      searchFolderURIs: gSearchFolderURIs,
+                      okCallback: onFolderListDialogCallback,
+                    });
 }
 
 // callback routine from chooseFoldersToSearch
-function onFolderListDialogCallback(searchFolderURIs)
-{
+function onFolderListDialogCallback(searchFolderURIs) {
   gSearchFolderURIs = searchFolderURIs;
   updateFoldersCount();
   updateOnlineSearchState(); // we may have changed the server type we are searching...
 }
 
-function updateFoldersCount()
-{
-  let srchFolderUriArray = gSearchFolderURIs.split('|');
+function updateFoldersCount() {
+  let srchFolderUriArray = gSearchFolderURIs.split("|");
   let folderCount = gSearchFolderURIs ? srchFolderUriArray.length : 0;
   let foldersList = document.getElementById("chosenFoldersCount");
   foldersList.textContent =
@@ -264,8 +246,7 @@ function updateFoldersCount()
   }
 }
 
-function onEnterInSearchTerm()
-{
+function onEnterInSearchTerm() {
   // stub function called by the core search widget code...
   // nothing for us to do here
 }

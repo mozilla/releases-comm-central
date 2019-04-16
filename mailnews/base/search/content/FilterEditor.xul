@@ -22,8 +22,7 @@
   windowtype="mailnews:filtereditor"
   persist="width height screenX screenY"
   buttons="accept,cancel"
-  onload="filterEditorOnLoad();"
-  onunload="filterEditorOnUnload();">
+  onload="filterEditorOnLoad();">
 
   <stringbundleset id="stringbundleset">
     <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>

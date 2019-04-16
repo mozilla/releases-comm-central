@@ -3,6 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// This file is SeaMonkey-only.
+
+/* globals openHelp */// suite/components/helpviewer/content/contextHelp.js
+
 /**
  * Key value pairs to derive the tag based on the page loaded.
  * Each key is the page loaded when user clicks on one of the items on
@@ -21,12 +25,11 @@ var pageTagPairs = {
   "chrome://messenger/content/am-smime.xul": "mail_security_settings",
   "chrome://messenger/content/am-serverwithnoidentities.xul": "mail_local_folders_settings",
   "chrome://messenger/content/am-mdn.xul": "mail-account-receipts",
-}
+};
 
-function doHelpButton()
-{
+function doHelpButton() {
   // Get the URI of the page loaded in the AccountManager's content frame.
-  var pageSourceURI = contentFrame.location.href;
+  var pageSourceURI = top.frames.contentFrame.location.href;
   // Get the help tag corresponding to the page loaded.
   var helpTag = pageTagPairs[pageSourceURI];
 
@@ -57,17 +60,16 @@ function doHelpButton()
     }
   }
 
-  if ( helpTag )
+  if (helpTag)
     openHelp(helpTag);
   else
-    openHelp('mail');
+    openHelp("mail");
 }
 
 /**
  * Get server type of the selected item
  */
-function GetServerType()
-{
+function GetServerType() {
   var serverType = null;
   var currentAccount = parent.getCurrentAccount();
   if (currentAccount)

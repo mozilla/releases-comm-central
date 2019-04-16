@@ -2,11 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../../mail/base/content/folderPane.js */
+
 var gSelectOffline = {
   _treeElement: null,
   _rollbackMap: new Map(),
 
-  load: function() {
+  load() {
     let oldProps = ftvItem.prototype.getProperties;
     ftvItem.prototype.getProperties = function(aColumn) {
       if (!aColumn || aColumn.id != "syncCol")
@@ -21,20 +23,20 @@ var gSelectOffline = {
         properties += " synchronize-true";
 
       return properties;
-    }
+    };
 
     let modeOffline = {
       __proto__: IFolderTreeMode,
 
-      generateMap: function(ftv) {
-        let filterOffline = function(aFolder) { return aFolder.supportsOffline; }
+      generateMap(ftv) {
+        let filterOffline = function(aFolder) { return aFolder.supportsOffline; };
         let accounts = gFolderTreeView._sortedAccounts()
                          .filter(acct => filterOffline(acct.incomingServer.rootFolder));
         // Force each root folder to do its local subfolder discovery.
         MailUtils.discoverFolders();
         return accounts.map(acct => new ftvItem(acct.incomingServer.rootFolder,
                                                 filterOffline));
-      }
+      },
     };
 
     this._treeElement = document.getElementById("synchronizeTree");
@@ -42,10 +44,9 @@ var gSelectOffline = {
     gFolderTreeView.registerFolderTreeMode(this._treeElement.getAttribute("mode"),
                                            modeOffline, "Offline Folders");
     gFolderTreeView.load(this._treeElement);
-
   },
 
-  onKeyPress: function(aEvent) {
+  onKeyPress(aEvent) {
     // For now, only do something on space key.
     if (aEvent.charCode != aEvent.DOM_VK_SPACE)
       return;
@@ -63,7 +64,7 @@ var gSelectOffline = {
     }
   },
 
-  onClick: function(aEvent) {
+  onClick(aEvent) {
     // We only care about button 0 (left click) events.
     if (aEvent.button != 0)
       return;
@@ -76,7 +77,7 @@ var gSelectOffline = {
     this._toggle(treeCellInfo.row);
   },
 
-  _toggle: function(aRow) {
+  _toggle(aRow) {
     let folder = gFolderTreeView._rowMap[aRow]._folder;
 
     if (folder.isServer)
@@ -90,17 +91,17 @@ var gSelectOffline = {
     gFolderTreeView._tree.invalidateRow(aRow);
   },
 
-  onAccept: function() {
+  onAccept() {
     gFolderTreeView.unload();
   },
 
-  onCancel: function() {
+  onCancel() {
     gFolderTreeView.unload();
     for (let [folder, value] of this._rollbackMap) {
       if (value != folder.getFlag(Ci.nsMsgFolderFlags.Offline))
         folder.toggleFlag(Ci.nsMsgFolderFlags.Offline);
     }
-  }
+  },
 };
 
 document.addEventListener("dialogaccept", gSelectOffline.onAccept);

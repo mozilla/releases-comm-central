@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ['JSTreeSelection'];
+this.EXPORTED_SYMBOLS = ["JSTreeSelection"];
 
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
@@ -105,7 +105,7 @@ JSTreeSelection.prototype = {
     return false;
   },
 
-  _updateCount: function JSTreeSelection__updateCount() {
+  _updateCount() {
     this._count = 0;
     for (let [low, high] of this._ranges) {
       this._count += high - low + 1;
@@ -116,7 +116,7 @@ JSTreeSelection.prototype = {
     return this._count;
   },
 
-  isSelected: function JSTreeSelection_isSelected(aViewIndex) {
+  isSelected(aViewIndex) {
     for (let [low, high] of this._ranges) {
       if (aViewIndex >= low && aViewIndex <= high)
         return true;
@@ -127,7 +127,7 @@ JSTreeSelection.prototype = {
   /**
    * Select the given row.  It does nothing if that row was already selected.
    */
-  select: function JSTreeSelection_select(aViewIndex) {
+  select(aViewIndex) {
     // current index will provide our effective shift pivot
     this._shiftSelectPivot = null;
     this.currentIndex = aViewIndex;
@@ -144,66 +144,67 @@ JSTreeSelection.prototype = {
     this._fireSelectionChanged();
   },
 
-  timedSelect: function JSTreeSelection_timedSelect(aIndex, aDelay) {
+  timedSelect(aIndex, aDelay) {
     throw new Error("We do not implement timed selection.");
   },
 
-  toggleSelect: function JSTreeSelection_toggleSelect(aIndex) {
+  toggleSelect(aIndex) {
     this.currentIndex = aIndex;
     // If nothing's selected, select aIndex
     if (this._count == 0) {
       this._count = 1;
       this._ranges = [[aIndex, aIndex]];
-    }
-    else for (let [iTupe, [low, high]] of this._ranges.entries()) {
-      // below the range? add it to the existing range or create a new one
-      if (aIndex < low) {
-        this._count++;
-        // is it just below an existing range? (range fusion only happens in the
-        //  high case, not here.)
-        if (aIndex == low - 1) {
-          this._ranges[iTupe][0] = aIndex;
+    } else {
+      for (let [iTupe, [low, high]] of this._ranges.entries()) {
+        // below the range? add it to the existing range or create a new one
+        if (aIndex < low) {
+          this._count++;
+          // is it just below an existing range? (range fusion only happens in the
+          //  high case, not here.)
+          if (aIndex == low - 1) {
+            this._ranges[iTupe][0] = aIndex;
+            break;
+          }
+          // then it gets its own range
+          this._ranges.splice(iTupe, 0, [aIndex, aIndex]);
           break;
         }
-        // then it gets its own range
-        this._ranges.splice(iTupe, 0, [aIndex, aIndex]);
-        break;
-      }
-      // in the range?  will need to either nuke, shrink, or split the range to
-      //  remove it
-      if (aIndex >= low && aIndex <= high) {
-        this._count--;
-        // nuke
-        if (aIndex == low && aIndex == high)
-          this._ranges.splice(iTupe, 1);
-        // lower shrink
-        else if (aIndex == low)
-          this._ranges[iTupe][0] = aIndex + 1;
-        // upper shrink
-        else if (aIndex == high)
-          this._ranges[iTupe][1] = aIndex - 1;
-        // split
-        else
-          this._ranges.splice(iTupe, 1, [low, aIndex - 1], [aIndex + 1, high]);
-        break;
-      }
-      // just above the range?  fuse into the range, and possibly the next
-      //  range up.
-      if (aIndex == high + 1) {
-        this._count++;
-        // see if there is another range and there was just a gap of one between
-        //  the two ranges.
-        if ((iTupe + 1 < this._ranges.length) &&
-            (this._ranges[iTupe+1][0] == aIndex + 1)) {
-          // yes, merge the ranges
-          this._ranges.splice(iTupe, 2, [low, this._ranges[iTupe+1][1]]);
+        // in the range?  will need to either nuke, shrink, or split the range to
+        //  remove it
+        if (aIndex >= low && aIndex <= high) {
+          this._count--;
+          // nuke
+          if (aIndex == low && aIndex == high)
+            this._ranges.splice(iTupe, 1);
+          // lower shrink
+          else if (aIndex == low)
+            this._ranges[iTupe][0] = aIndex + 1;
+          // upper shrink
+          else if (aIndex == high)
+            this._ranges[iTupe][1] = aIndex - 1;
+          // split
+          else
+            this._ranges.splice(iTupe, 1, [low, aIndex - 1], [aIndex + 1, high]);
           break;
         }
-        // nope, no merge required, just update the range
-        this._ranges[iTupe][1] = aIndex;
-        break;
+        // just above the range?  fuse into the range, and possibly the next
+        //  range up.
+        if (aIndex == high + 1) {
+          this._count++;
+          // see if there is another range and there was just a gap of one between
+          //  the two ranges.
+          if ((iTupe + 1 < this._ranges.length) &&
+              (this._ranges[iTupe + 1][0] == aIndex + 1)) {
+            // yes, merge the ranges
+            this._ranges.splice(iTupe, 2, [low, this._ranges[iTupe + 1][1]]);
+            break;
+          }
+          // nope, no merge required, just update the range
+          this._ranges[iTupe][1] = aIndex;
+          break;
+        }
+        // otherwise we need to keep going
       }
-      // otherwise we need to keep going
     }
 
     if (this._tree)
@@ -220,8 +221,7 @@ JSTreeSelection.prototype = {
    * @param aAugment Does this set a new selection or should it be merged with
    *     the existing selection?
    */
-  rangedSelect: function JSTreeSelection_rangedSelect(aRangeStart, aRangeEnd,
-                                                      aAugment) {
+  rangedSelect(aRangeStart, aRangeEnd, aAugment) {
     if (aRangeStart == -1) {
       if (this._shiftSelectPivot != null)
         aRangeStart = this._shiftSelectPivot;
@@ -302,7 +302,7 @@ JSTreeSelection.prototype = {
    *  don't need to worry about adjacency.
    * Oddly, nsTreeSelection doesn't fire a selection changed event here...
    */
-  clearRange: function JSTreeSelection_clearRange(aRangeStart, aRangeEnd) {
+  clearRange(aRangeStart, aRangeEnd) {
     // Iterate over our existing set of ranges, finding the 'range' of ranges
     //  that our clear range overlaps or simply obviates.
     // Overlap variables track blocks we need to keep some part of, Nuke
@@ -358,7 +358,7 @@ JSTreeSelection.prototype = {
    * nsTreeSelection always fires a select notification when the range is
    *  cleared, even if there is no effective chance in selection.
    */
-  clearSelection: function JSTreeSelection_clearSelection() {
+  clearSelection() {
     this._shiftSelectPivot = null;
     this._count = 0;
     this._ranges = [];
@@ -370,14 +370,14 @@ JSTreeSelection.prototype = {
   /**
    * Not even nsTreeSelection implements this.
    */
-  invertSelection: function JSTreeSelection_invertSelection() {
+  invertSelection() {
     throw new Error("Who really was going to use this?");
   },
 
   /**
    * Select all with no rows is a no-op, otherwise we select all and notify.
    */
-  selectAll: function JSTreeSelection_selectAll() {
+  selectAll() {
     if (!this._view)
       return;
 
@@ -396,17 +396,16 @@ JSTreeSelection.prototype = {
     this._fireSelectionChanged();
   },
 
-  getRangeCount: function JSTreeSelection_getRangeCount() {
+  getRangeCount() {
     return this._ranges.length;
   },
-  getRangeAt: function JSTreeSelection_getRangeAt(aRangeIndex, aMinObj,
-                                                  aMaxObj) {
+  getRangeAt(aRangeIndex, aMinObj, aMaxObj) {
     if (aRangeIndex < 0 || aRangeIndex > this._ranges.length)
-      throw new Exception("Try a real range index next time.");
+      throw new Error("Try a real range index next time.");
     [aMinObj.value, aMaxObj.value] = this._ranges[aRangeIndex];
   },
 
-  invalidateSelection: function JSTreeSelection_invalidateSelection() {
+  invalidateSelection() {
     if (this._tree)
       this._tree.invalidate();
   },
@@ -418,8 +417,7 @@ JSTreeSelection.prototype = {
    * @param aDelta The number of rows added if positive, or the (negative)
    *     number of rows removed.
    */
-  _adjustPoint: function JSTreeSelection__adjustPoint(aPoint, aDeltaAt,
-                                                      aDelta) {
+  _adjustPoint(aPoint, aDeltaAt, aDelta) {
     // if there is no point, no change
     if (aPoint == null)
       return aPoint;
@@ -439,8 +437,7 @@ JSTreeSelection.prototype = {
    * @return A tuple containing: 1) the index if there is one, null otherwise,
    *     2) the index at which to insert a range that would contain the point.
    */
-  _findRangeContainingRow:
-      function JSTreeSelection__findRangeContainingRow(aIndex) {
+  _findRangeContainingRow(aIndex) {
     for (let [iTupe, [low, high]] of this._ranges.entries()) {
       if (aIndex >= low && aIndex <= high)
         return [iTupe, iTupe];
@@ -464,8 +461,7 @@ JSTreeSelection.prototype = {
    *  you go to put it back, so then you can call replayAdjustSelectionLog
    *  with that selection object and everything will be peachy.
    */
-  logAdjustSelectionForReplay:
-      function JSTreeSelection_logAdjustSelectionForReplay() {
+  logAdjustSelectionForReplay() {
     this._adjustSelectionLog = [];
   },
   /**
@@ -474,8 +470,7 @@ JSTreeSelection.prototype = {
    *
    * @param aSelection {nsITreeSelection}.
    */
-  replayAdjustSelectionLog:
-      function JSTreeSelection_replayAdjustSelectionLog(aSelection) {
+  replayAdjustSelectionLog(aSelection) {
     if (this._adjustSelectionLog.length) {
       // Temporarily disable selection events because adjustSelection is going
       //  to generate an event each time otherwise, and better 1 event than
@@ -489,7 +484,7 @@ JSTreeSelection.prototype = {
     this._adjustSelectionLog = null;
   },
 
-  adjustSelection: function JSTreeSelection_adjustSelection(aIndex, aCount) {
+  adjustSelection(aIndex, aCount) {
     // nothing to do if there is no actual change
     if (!aCount)
       return;
@@ -548,8 +543,8 @@ JSTreeSelection.prototype = {
     // we may have to merge the lowest translated block because it may now be
     //  adjacent to the previous block
     if (iTrans > 0 && iTrans < this._ranges.length &&
-        this._ranges[iTrans-1][1] == this_ranges[iTrans][0]) {
-      this._ranges[iTrans-1][1] = this._ranges[iTrans][1];
+        this._ranges[iTrans - 1][1] == this._ranges[iTrans][0]) {
+      this._ranges[iTrans - 1][1] = this._ranges[iTrans][1];
       this._ranges.splice(iTrans, 1);
     }
 
@@ -577,7 +572,7 @@ JSTreeSelection.prototype = {
    *  straight to the view.  If you have a tree, you shouldn't be using us,
    *  so this seems aboot right.
    */
-  _fireSelectionChanged: function JSTreeSelection__fireSelectionChanged() {
+  _fireSelectionChanged() {
     // don't fire if we are suppressed; we will fire when un-suppressed
     if (this.selectEventsSuppressed)
       return;
@@ -636,7 +631,7 @@ JSTreeSelection.prototype = {
    *
    * @param aSelection an nsITreeSelection to duplicate this selection onto
    */
-  duplicateSelection: function JSTreeSelection_duplicateSelection(aSelection) {
+  duplicateSelection(aSelection) {
     aSelection.selectEventsSuppressed = true;
     aSelection.clearSelection();
     for (let [iTupe, [low, high]] of this._ranges.entries())

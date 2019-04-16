@@ -19,8 +19,7 @@ var gPendingPreviewFetchRequests = 0;
 var gUserInitiated = false;
 var gOrigin = 0; // Default value: alert from bottom right.
 
-function prefillAlertInfo()
-{
+function prefillAlertInfo() {
   // unwrap all the args....
   // arguments[0] --> nsIArray of folders with new mail
   // arguments[1] --> the observer to call back with notifications about the alert
@@ -41,7 +40,7 @@ function prefillAlertInfo()
                                      .QueryReferent(Ci.nsIMsgFolder);
 
   // Generate an account label string based on the root folder.
-  var label = document.getElementById('alertTitle');
+  var label = document.getElementById("alertTitle");
   var totalNumNewMessages = rootFolder.getNumNewMessages(true);
   let message = document.getElementById("bundle_messenger")
                         .getString("newMailAlert_message");
@@ -52,10 +51,9 @@ function prefillAlertInfo()
   // This is really the root folder and we have to walk through the list to
   // find the real folder that has new mail in it...:(
   let allFolders = rootFolder.descendants;
-  var folderSummaryInfoEl = document.getElementById('folderSummaryInfo');
+  var folderSummaryInfoEl = document.getElementById("folderSummaryInfo");
   folderSummaryInfoEl.mMaxMsgHdrsInPopup = gNumNewMsgsToShowInAlert;
-  for (let folder of fixIterator(allFolders, Ci.nsIMsgFolder))
-  {
+  for (let folder of fixIterator(allFolders, Ci.nsIMsgFolder)) {
     if (folder.hasNewMessages) {
       let notify =
         // Any folder which is an inbox or ...
@@ -74,19 +72,15 @@ function prefillAlertInfo()
   }
 }
 
-function urlListener(aFolder)
-{
+function urlListener(aFolder) {
   this.mFolder = aFolder;
 }
 
-urlListener.prototype =
-{
-  OnStartRunningUrl: function(aUrl)
-  {
+urlListener.prototype = {
+  OnStartRunningUrl(aUrl) {
   },
 
-  OnStopRunningUrl: function(aUrl, aExitCode)
-  {
+  OnStopRunningUrl(aUrl, aExitCode) {
     let folderSummaryInfoEl = document.getElementById("folderSummaryInfo");
     folderSummaryInfoEl.parseFolder(this.mFolder, null, {});
     gPendingPreviewFetchRequests--;
@@ -95,11 +89,10 @@ urlListener.prototype =
     // start the alert.
     if (!gPendingPreviewFetchRequests)
       showAlert();
-  }
-}
+  },
+};
 
-function onAlertLoad()
-{
+function onAlertLoad() {
   prefillAlertInfo();
 
   gOpenTime = Services.prefs.getIntPref("alerts.totalOpenTime");
@@ -116,8 +109,7 @@ function onAlertLoad()
 
 // If the user initiated the alert, show it right away, otherwise start opening the alert with
 // the fade effect.
-function showAlert()
-{
+function showAlert() {
   if (!document.getElementById("folderSummaryInfo").hasMessages) {
     closeAlert(); // no mail, so don't bother showing the alert...
     return;
@@ -145,8 +137,7 @@ function showAlert()
   alertContainer.setAttribute("fade-in", true);
 }
 
-function resizeAlert(aMoveOffScreen)
-{
+function resizeAlert(aMoveOffScreen) {
   var alertTextBox = document.getElementById("alertTextBox");
   var alertImageBox = document.getElementById("alertImageBox");
   alertImageBox.style.minHeight = alertTextBox.scrollHeight + "px";
@@ -170,8 +161,7 @@ function resizeAlert(aMoveOffScreen)
   window.moveTo(x, y);
 }
 
-function fadeOutAlert()
-{
+function fadeOutAlert() {
   var alertContainer = document.getElementById("alertContainer");
   alertContainer.addEventListener("animationend", function fadeOut(event) {
     if (event.animationName == "fade-out") {
@@ -182,8 +172,7 @@ function fadeOutAlert()
   alertContainer.setAttribute("fade-out", true);
 }
 
-function closeAlert()
-{
+function closeAlert() {
   if (gAlertListener)
     gAlertListener.observe(null, "alertfinished", "");
   window.close();

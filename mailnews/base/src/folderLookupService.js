@@ -42,7 +42,7 @@ folderLookupService.prototype = {
   classID: Components.ID("{a30be08c-afc8-4fed-9af7-79778a23db23}"),
 
   // nsIFolderLookupService impl
-  getFolderForURL: function (aUrl) {
+  getFolderForURL(aUrl) {
     let folder = null;
     // First, see if the folder is in our cache.
     if (this._map.has(aUrl)) {
@@ -85,13 +85,13 @@ folderLookupService.prototype = {
     this._map.set(aUrl, weakRef);
     return folder;
   },
-  getOrCreateFolderForURL: function (aUrl) {
+  getOrCreateFolderForURL(aUrl) {
     // Check that aUrl has an active scheme, in case this folder is from
     // an extension that is currently disabled or hasn't started up yet.
     // Extract the scheme in the same way that the RDF service does.
     let scheme = aUrl.match(/\w*/)[0];
     let contractID = "@mozilla.org/rdf/resource-factory;1?name=" + scheme;
-    if (!(contractID in Components.classes))
+    if (!(contractID in Cc))
       return null;
 
     // NOTE: this doesn't update _map, but it'll work fine and
@@ -107,7 +107,7 @@ folderLookupService.prototype = {
       // a folder. Return null in this case.
       return null;
     }
-  }
+  },
 };
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory([folderLookupService]);

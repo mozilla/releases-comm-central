@@ -3,14 +3,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from AccountWizard.js */
+
 var {cleanUpHostName, isLegalHostNameOrIP} = ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
 
 var gOnMailServersPage;
 var gOnNewsServerPage;
 var gProtocolInfo = null;
 
-function incomingPageValidate()
-{
+function incomingPageValidate() {
   var canAdvance = true;
   var hostName;
 
@@ -37,8 +38,7 @@ function incomingPageValidate()
   document.documentElement.canAdvance = canAdvance;
 }
 
-function incomingPageUnload()
-{
+function incomingPageUnload() {
   var pageData = parent.GetPageData();
 
   if (gOnMailServersPage) {
@@ -48,8 +48,7 @@ function incomingPageUnload()
     setPageData(pageData, "server", "port", serverport);
     var username = document.getElementById("username").value;
     setPageData(pageData, "login", "username", username);
-  }
-  else if (gOnNewsServerPage) {
+  } else if (gOnNewsServerPage) {
     var newsServerName = document.getElementById("newsServer");
     setPageData(pageData, "newsserver", "hostname", cleanUpHostName(newsServerName.value));
   }
@@ -60,10 +59,9 @@ function incomingPageUnload()
 function incomingPageInit() {
   gOnMailServersPage = (document.documentElement.currentPage.id == "incomingpage");
   gOnNewsServerPage = (document.documentElement.currentPage.id == "newsserver");
-  if (gOnNewsServerPage)
-  {
+  var pageData = parent.GetPageData();
+  if (gOnNewsServerPage) {
     var newsServer = document.getElementById("newsServer");
-    var pageData = parent.GetPageData();
     if (pageData.newsserver && pageData.newsserver.hostname)
       newsServer.value = pageData.newsserver.hostname.value;
   }
@@ -76,7 +74,6 @@ function incomingPageInit() {
   }
 
   // Server type selection (pop3 or imap) is for mail accounts only
-  var pageData = parent.GetPageData();
   var isMailAccount = pageData.accounttype.mailaccount.value;
   var isOtherAccount = pageData.accounttype.otheraccount.value;
   if (isMailAccount) {
@@ -106,8 +103,7 @@ function incomingPageInit() {
     setServerType();
     setServerPrefs(leaveMessages);
     setServerPrefs(deferStorage);
-  }
-  else if (isOtherAccount) {
+  } else if (isOtherAccount) {
     document.getElementById("deferStorageBox").hidden = true;
   }
 
@@ -133,8 +129,7 @@ function incomingPageInit() {
   incomingPageValidate();
 }
 
-function setServerType()
-{
+function setServerType() {
   var pageData = parent.GetPageData();
   var serverType = document.getElementById("servertype").value;
   var deferStorageBox = document.getElementById("deferStorageBox");
@@ -151,7 +146,6 @@ function setServerType()
   incomingPageValidate();
 }
 
-function setServerPrefs(aThis)
-{
+function setServerPrefs(aThis) {
   setPageData(parent.GetPageData(), "server", aThis.id, aThis.checked);
 }

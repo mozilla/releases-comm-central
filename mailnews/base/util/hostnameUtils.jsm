@@ -28,8 +28,7 @@ var kMaxPort = 65535;
  * @return  Unobscured host name if aHostName is valid.
  *          Returns null if it's not.
  */
-function isLegalHostNameOrIP(aHostName, aAllowExtendedIPFormats)
-{
+function isLegalHostNameOrIP(aHostName, aAllowExtendedIPFormats) {
   /*
    RFC 1123:
    Whenever a user inputs the identity of an Internet host, it SHOULD
@@ -49,8 +48,7 @@ function isLegalHostNameOrIP(aHostName, aAllowExtendedIPFormats)
  * @return  The host name if it is valid.
  *          Returns null if it's not.
  */
-function isLegalHostName(aHostName)
-{
+function isLegalHostName(aHostName) {
   /*
    RFC 952:
    A "name" (Net, Host, Gateway, or Domain name) is a text string up
@@ -101,8 +99,7 @@ function isLegalHostName(aHostName)
  * @return  Unobscured canonicalized address if aHostName is an IPv4 address.
  *          Returns null if it's not.
  */
-function isLegalIPv4Address(aHostName, aAllowExtendedIPFormats)
-{
+function isLegalIPv4Address(aHostName, aAllowExtendedIPFormats) {
   // Scammers frequently obscure the IP address by encoding each component as
   // decimal, octal, hex or in some cases a mix match of each. There can even
   // be less than 4 components where the last number covers the missing components.
@@ -180,8 +177,7 @@ function isLegalIPv4Address(aHostName, aAllowExtendedIPFormats)
  * @return  Unobscured canonicalized address if aHostName is an IPv6 address.
  *          Returns null if it's not.
  */
-function isLegalIPv6Address(aHostName)
-{
+function isLegalIPv6Address(aHostName) {
   if (!aHostName)
     return null;
 
@@ -196,8 +192,7 @@ function isLegalIPv6Address(aHostName)
 
   // Take care if the last part is written in decimal using dots as separators.
   let lastPart = isLegalIPv4Address(ipComponents[ipLength], false);
-  if (lastPart)
-  {
+  if (lastPart) {
     let lastPartComponents = lastPart.split(".");
     // Convert it into standard IPv6 components.
     ipComponents[ipLength] =
@@ -208,10 +203,8 @@ function isLegalIPv6Address(aHostName)
 
   // Make sure that there is only one empty component.
   let emptyIndex;
-  for (let i = 1; i < ipComponents.length - 1; i++)
-  {
-    if (ipComponents[i] == "")
-    {
+  for (let i = 1; i < ipComponents.length - 1; i++) {
+    if (ipComponents[i] == "") {
       // If we already found an empty component return null.
       if (emptyIndex)
         return null;
@@ -221,8 +214,7 @@ function isLegalIPv6Address(aHostName)
   }
 
   // If we found an empty component, extend it.
-  if (emptyIndex)
-  {
+  if (emptyIndex) {
     ipComponents[emptyIndex] = 0;
 
     // Add components so we have a total of 8.
@@ -235,8 +227,7 @@ function isLegalIPv6Address(aHostName)
     return null;
 
   // Format all components to 4 character hex value.
-  for (let i = 0; i < ipComponents.length; i++)
-  {
+  for (let i = 0; i < ipComponents.length; i++) {
     if (ipComponents[i] == "")
       ipComponents[i] = 0;
 
@@ -245,8 +236,7 @@ function isLegalIPv6Address(aHostName)
       ipComponents[i] = parseInt(ipComponents[i], 16);
       if (isNaN(ipComponents[i]) || ipComponents[i] > 0xffff)
         return null;
-    }
-    else {
+    } else {
       return null;
     }
 
@@ -271,8 +261,7 @@ function isLegalIPv6Address(aHostName)
  * @return  Unobscured canonicalized IPv4 or IPv6 address if it is valid,
  *          otherwise null.
  */
-function isLegalIPAddress(aHostName, aAllowExtendedIPFormats)
-{
+function isLegalIPAddress(aHostName, aAllowExtendedIPFormats) {
   return isLegalIPv4Address(aHostName, aAllowExtendedIPFormats) ||
          isLegalIPv6Address(aHostName);
 }
@@ -287,12 +276,10 @@ function isLegalIPAddress(aHostName, aAllowExtendedIPFormats)
  * Note: if the passed in address is not in canonical (unobscured form),
  *       the result may be wrong.
  */
-function isLegalLocalIPAddress(aIPAddress)
-{
+function isLegalLocalIPAddress(aIPAddress) {
   // IPv4 address?
   let ipComponents = aIPAddress.split(".");
-  if (ipComponents.length == 4)
-  {
+  if (ipComponents.length == 4) {
      // Check if it's a local or private IPv4 address.
     return ipComponents[0] == 10 ||
            ipComponents[0] == 127 || // loopback address
@@ -303,8 +290,7 @@ function isLegalLocalIPAddress(aIPAddress)
 
   // IPv6 address?
   ipComponents = aIPAddress.split(":");
-  if (ipComponents.length == 8)
-  {
+  if (ipComponents.length == 8) {
     // ::1/128 - localhost
     if (ipComponents[0] == "0000" && ipComponents[1] == "0000" &&
         ipComponents[2] == "0000" && ipComponents[3] == "0000" &&
@@ -333,8 +319,7 @@ function isLegalLocalIPAddress(aIPAddress)
  *
  * @param aHostName  The hostname or IP string to clean up.
  */
-function cleanUpHostName(aHostName)
-{
+function cleanUpHostName(aHostName) {
   // TODO: Bug 235312: if UTF8 string was input, convert to punycode using convertUTF8toACE()
   // but bug 563172 needs resolving first.
   return aHostName.trim();

@@ -106,14 +106,14 @@ function placeAccountName(aServer) {
     }
 
     if (aServer.rootFolder.filePath.path != deferredToRootFolder) {
-      document.getElementById("warningSpan").innerHTML =
+      document.getElementById("warningSpan").textContent =
         bundle.formatStringFromName(
           "converterDialog.warningForDeferredAccount",
           [aServer.username, deferredToAccountName, deferredToAccountName,
           deferredAccountsString,
           accountsToConvert, storeContractId, brandShortName], 7);
     } else {
-      document.getElementById("warningSpan").innerHTML =
+      document.getElementById("warningSpan").textContent =
         bundle.formatStringFromName(
           "converterDialog.warningForDeferredToAccount",
           [deferredToAccountName,
@@ -121,7 +121,7 @@ function placeAccountName(aServer) {
           accountsToConvert, storeContractId, brandShortName], 5);
     }
 
-    document.getElementById("messageSpan").innerHTML =
+    document.getElementById("messageSpan").textContent =
       bundle.formatStringFromName("converterDialog.messageForDeferredAccount",
                                   [accountsToConvert, storeContractId], 2);
     gServer = deferredToAccount.incomingServer;
@@ -142,11 +142,11 @@ function placeAccountName(aServer) {
       tempName = aServer.hostName;
     }
 
-    document.getElementById("warningSpan").innerHTML =
+    document.getElementById("warningSpan").textContent =
       bundle.formatStringFromName("converterDialog.warning",
                                   [tempName, storeContractId, brandShortName],
                                   3);
-    document.getElementById("messageSpan").innerHTML =
+    document.getElementById("messageSpan").textContent =
       bundle.formatStringFromName("converterDialog.message",
                                   [tempName, storeContractId], 2);
     gServer = aServer;
@@ -170,7 +170,7 @@ function startContinue(aSelectedStoreType, aResponse) {
 
   document.getElementById("progress").addEventListener("progress", function(e) {
    document.getElementById("progress").value = e.detail;
-   document.getElementById("progressPrcnt").innerHTML =
+   document.getElementById("progressPrcnt").textContent =
      bundle.formatStringFromName("converterDialog.percentDone", [e.detail], 1);
   });
 

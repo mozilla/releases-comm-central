@@ -33,21 +33,21 @@ PROTO_TREE_VIEW.prototype = {
    * CSS files will cue off of these.  Note that we reach into the rowMap's
    * items so that custom data-displays can define their own properties
    */
-  getCellProperties: function jstv_getCellProperties(aRow, aCol) {
+  getCellProperties(aRow, aCol) {
     return this._rowMap[aRow].getProperties(aCol);
   },
 
   /**
    * The actual text to display in the tree
    */
-  getCellText: function jstv_getCellText(aRow, aCol) {
+  getCellText(aRow, aCol) {
     return this._rowMap[aRow].getText(aCol.id);
   },
 
   /**
    * The jstv items take care of assigning this when building children lists
    */
-  getLevel: function jstv_getLevel(aIndex) {
+  getLevel(aIndex) {
     return this._rowMap[aIndex].level;
   },
 
@@ -55,7 +55,7 @@ PROTO_TREE_VIEW.prototype = {
    * This is easy since the jstv items assigned the _parent property when making
    * the child lists
    */
-  getParentIndex: function jstv_getParentIndex(aIndex) {
+  getParentIndex(aIndex) {
     return this._rowMap.indexOf(this._rowMap[aIndex]._parent);
   },
 
@@ -63,14 +63,14 @@ PROTO_TREE_VIEW.prototype = {
    * This is duplicative for our normal jstv views, but custom data-displays may
    * want to do something special here
    */
-  getRowProperties: function jstv_getRowProperties(aRow) {
+  getRowProperties(aRow) {
     return this._rowMap[aRow].getProperties();
   },
 
   /**
    * If an item in our list has the same level and parent as us, it's a sibling
    */
-  hasNextSibling: function jstv_hasNextSibling(aIndex, aNextIndex) {
+  hasNextSibling(aIndex, aNextIndex) {
     let targetLevel = this._rowMap[aIndex].level;
     for (let i = aNextIndex + 1; i < this._rowMap.length; i++) {
       if (this._rowMap[i].level == targetLevel)
@@ -84,11 +84,11 @@ PROTO_TREE_VIEW.prototype = {
   /**
    * If we have a child-list with at least one element, we are a container.
    */
-  isContainer: function jstv_isContainer(aIndex) {
+  isContainer(aIndex) {
     return this._rowMap[aIndex].children.length > 0;
   },
 
-  isContainerEmpty: function jstv_isContainerEmpty(aIndex) {
+  isContainerEmpty(aIndex) {
     // If the container has no children, the container is empty.
     return !this._rowMap[aIndex].children.length;
   },
@@ -96,30 +96,30 @@ PROTO_TREE_VIEW.prototype = {
   /**
    * Just look at the jstv item here
    */
-  isContainerOpen: function jstv_isContainerOpen(aIndex) {
+  isContainerOpen(aIndex) {
     return this._rowMap[aIndex].open;
   },
 
-  isEditable: function jstv_isEditable(aRow, aCol) {
+  isEditable(aRow, aCol) {
     // We don't support editing rows in the tree yet.
     return false;
   },
 
-  isSeparator: function jstv_isSeparator(aIndex) {
+  isSeparator(aIndex) {
     // There are no separators in our trees
     return false;
   },
 
-  isSorted: function jstv_isSorted() {
+  isSorted() {
     // We do our own customized sorting
     return false;
   },
 
-  setTree: function jstv_setTree(aTree) {
+  setTree(aTree) {
     this._tree = aTree;
   },
 
-  recursivelyAddToMap: function jstv_recursivelyAddToMap(aChild, aNewIndex) {
+  recursivelyAddToMap(aChild, aNewIndex) {
     // When we add sub-children, we're going to need to increase our index
     // for the next add item at our own level.
     let currentCount = this._rowMap.length;
@@ -137,8 +137,7 @@ PROTO_TREE_VIEW.prototype = {
    * Opens or closes a container with children.  The logic here is a bit hairy, so
    * be very careful about changing anything.
    */
-  toggleOpenState: function jstv_toggleOpenState(aIndex) {
-
+  toggleOpenState(aIndex) {
     // Ok, this is a bit tricky.
     this._rowMap[aIndex]._open = !this._rowMap[aIndex].open;
 
@@ -175,7 +174,7 @@ PROTO_TREE_VIEW.prototype = {
 
       // Add this container to the persist map
       let id = this._rowMap[aIndex].id;
-      if (this._persistOpenMap.indexOf(id) == -1)
+      if (!this._persistOpenMap.includes(id))
         this._persistOpenMap.push(id);
 
       // Notify the tree of changes
@@ -189,20 +188,20 @@ PROTO_TREE_VIEW.prototype = {
   },
 
   // We don't implement any of these at the moment
-  canDrop: function jstv_canDrop(aIndex, aOrientation) {},
-  drop: function jstv_drop(aRow, aOrientation) {},
-  performAction: function jstv_performAction(aAction) {},
-  performActionOnCell: function jstv_performActionOnCell(aAction, aRow, aCol) {},
-  performActionOnRow: function jstv_performActionOnRow(aAction, aRow) {},
-  selectionChanged: function jstv_selectionChanged() {},
-  setCellText: function jstv_setCellText(aRow, aCol, aValue) {},
-  setCellValue: function jstv_setCellValue(aRow, aCol, aValue) {},
-  getCellValue: function jstv_getCellValue(aRow, aCol) {},
-  getColumnProperties: function jstv_getColumnProperties(aCol) { return ""; },
-  getImageSrc: function jstv_getImageSrc(aRow, aCol) {},
-  getProgressMode: function jstv_getProgressMode(aRow, aCol) {},
-  cycleCell: function jstv_cycleCell(aRow, aCol) {},
-  cycleHeader: function jstv_cycleHeader(aCol) {},
+  canDrop(aIndex, aOrientation) {},
+  drop(aRow, aOrientation) {},
+  performAction(aAction) {},
+  performActionOnCell(aAction, aRow, aCol) {},
+  performActionOnRow(aAction, aRow) {},
+  selectionChanged() {},
+  setCellText(aRow, aCol, aValue) {},
+  setCellValue(aRow, aCol, aValue) {},
+  getCellValue(aRow, aCol) {},
+  getColumnProperties(aCol) { return ""; },
+  getImageSrc(aRow, aCol) {},
+  getProgressMode(aRow, aCol) {},
+  cycleCell(aRow, aCol) {},
+  cycleHeader(aCol) {},
 
   _tree: null,
 
@@ -217,10 +216,10 @@ PROTO_TREE_VIEW.prototype = {
    */
   _persistOpenMap: null,
 
-  _restoreOpenStates: function jstv__restoreOpenStates() {
+  _restoreOpenStates() {
     // Note that as we iterate through here, .length may grow
     for (let i = 0; i < this._rowMap.length; i++) {
-      if (this._persistOpenMap.indexOf(this._rowMap[i].id) != -1)
+      if (this._persistOpenMap.includes(this._rowMap[i].id))
         this.toggleOpenState(i);
     }
   },

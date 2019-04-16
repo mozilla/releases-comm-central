@@ -13,6 +13,7 @@
       -gFilterType from FilterEditor.js
       -checkActionsReorder from FilterEditor.js
 -->
+<!-- import-globals-from FilterEditor.js -->
 
 <!DOCTYPE dialog [
   <!ENTITY % filterEditorDTD SYSTEM "chrome://messenger/locale/FilterEditor.dtd" >
@@ -21,10 +22,10 @@
 %messengerDTD;
 ]>
 
-<bindings   id="filterBindings"
-            xmlns="http://www.mozilla.org/xbl"
-            xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-            xmlns:xbl="http://www.mozilla.org/xbl">
+<bindings id="filterBindings"
+          xmlns="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:xbl="http://www.mozilla.org/xbl">
 
   <binding id="ruleactiontype-menulist">
     <content>
@@ -65,23 +66,18 @@
           this.hideInvalidActions();
           // differentiate between creating a new, next available action,
           // and creating a row which will be initialized with an action
-          if (!this.parentNode.hasAttribute('initialActionIndex'))
-          {
+          if (!this.parentNode.hasAttribute("initialActionIndex")) {
             var unavailableActions = this.usedActionsList();
             // select the first one that's not in the list
-            for (var index = 0; index < this.menuitems.length; index++)
-            {
+            for (let index = 0; index < this.menuitems.length; index++) {
               var menu = this.menuitems[index];
-              if (!(menu.value in unavailableActions) && !menu.hidden)
-              {
+              if (!(menu.value in unavailableActions) && !menu.hidden) {
                 this.menulist.value = menu.value;
-                this.parentNode.setAttribute('value', menu.value);
+                this.parentNode.setAttribute("value", menu.value);
                 break;
               }
             }
-          }
-          else
-          {
+          } else {
             this.parentNode.mActionTypeInitialized = true;
             this.parentNode.clearInitialActionIndex();
           }
@@ -89,7 +85,9 @@
       </constructor>
 
       <field name="menulist">document.getAnonymousNodes(this)[0]</field>
-      <field name="menuitems">this.menulist.getElementsByTagNameNS(this.menulist.namespaceURI, 'menuitem')</field>
+      <field name="menuitems"><![CDATA[
+        this.menulist.getElementsByTagNameNS(this.menulist.namespaceURI, "menuitem")
+      ]]></field>
 
       <method name="hideInvalidActions">
         <body>
@@ -138,8 +136,7 @@
         <body>
           <![CDATA[
             var menupopup = this.menulist.menupopup;
-            for (var i = 0; i < gCustomActions.length; i++)
-            {
+            for (let i = 0; i < gCustomActions.length; i++) {
               var customAction = gCustomActions[i];
               var menuitem = document.createElementNS(
                 "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
@@ -161,19 +158,15 @@
             var currentFilterActionRow = this.parentNode;
             var listBox = currentFilterActionRow.mListBox; // need to account for the list item
             // now iterate over each list item in the list box
-            for (var index = 0; index < listBox.getRowCount(); index++)
-            {
+            for (let index = 0; index < listBox.getRowCount(); index++) {
               var filterActionRow = listBox.getItemAtIndex(index);
-              if (filterActionRow != currentFilterActionRow)
-              {
-                var actionValue = filterActionRow.getAttribute('value');
+              if (filterActionRow != currentFilterActionRow) {
+                let actionValue = filterActionRow.getAttribute("value");
 
                 // let custom actions decide if dups are allowed
                 var isCustom = false;
-                for (var i = 0; i < gCustomActions.length; i++)
-                {
-                  if (gCustomActions[i].id == actionValue)
-                  {
+                for (let i = 0; i < gCustomActions.length; i++) {
+                  if (gCustomActions[i].id == actionValue) {
                     isCustom = true;
                     if (!gCustomActions[i].allowDuplicates)
                       usedActions[actionValue] = true;
@@ -184,21 +177,21 @@
                 if (!isCustom) {
                   // The following actions can appear more than once in a single filter
                   // so do not set them as already used.
-                  if (actionValue != 'addtagtomessage' &&
-                      actionValue != 'forwardmessage' &&
-                      actionValue != 'copymessage')
+                  if (actionValue != "addtagtomessage" &&
+                      actionValue != "forwardmessage" &&
+                      actionValue != "copymessage")
                     usedActions[actionValue] = true;
                   // If either Delete message or Move message exists, disable the other one.
                   // It does not make sense to apply both to the same message.
-                  if (actionValue == 'deletemessage')
-                    usedActions['movemessage'] = true;
-                  else if (actionValue == 'movemessage')
-                    usedActions['deletemessage'] = true;
+                  if (actionValue == "deletemessage")
+                    usedActions.movemessage = true;
+                  else if (actionValue == "movemessage")
+                    usedActions.deletemessage = true;
                   // The same with Mark as read/Mark as Unread.
-                  else if (actionValue == 'markasread')
-                    usedActions['markasunread'] = true;
-                  else if (actionValue == 'markasunread')
-                    usedActions['markasread'] = true;
+                  else if (actionValue == "markasread")
+                    usedActions.markasunread = true;
+                  else if (actionValue == "markasunread")
+                    usedActions.markasread = true;
                 }
               }
             }
@@ -256,9 +249,8 @@
                   if (!populateTemplateList)
                     return true;
                   let msgTemplateUri = msgFolder.URI + "?messageId=" +
-                    header.messageId + '&subject=' + header.mime2DecodedSubject;
-                  let newItem = templateMenuList.appendItem(header.mime2DecodedSubject,
-                                                            msgTemplateUri);
+                    header.messageId + "&subject=" + header.mime2DecodedSubject;
+                  templateMenuList.appendItem(header.mime2DecodedSubject, msgTemplateUri);
                 }
               }
             }
@@ -273,7 +265,7 @@
     <handlers>
       <handler event="command">
         <![CDATA[
-          this.parentNode.setAttribute('value', this.menulist.value);
+          this.parentNode.setAttribute("value", this.menulist.value);
           checkActionsReorder();
         ]]>
       </handler>
@@ -281,10 +273,9 @@
       <handler event="popupshowing">
         <![CDATA[
           var unavailableActions = this.usedActionsList();
-          for (var index = 0; index < this.menuitems.length; index++)
-          {
+          for (let index = 0; index < this.menuitems.length; index++) {
             var menu = this.menuitems[index];
-            menu.setAttribute('disabled', menu.value in unavailableActions);
+            menu.setAttribute("disabled", menu.value in unavailableActions);
           }
         ]]>
       </handler>
@@ -354,7 +345,7 @@
             // bound asynchronously after the search row has been constructed
 
             if (this.mActionTypeInitialized && this.mRuleActionTargetInitialized)
-              this.removeAttribute('initialActionIndex');
+              this.removeAttribute("initialActionIndex");
           ]]>
         </body>
       </method>
@@ -367,8 +358,7 @@
             var actionTarget = document.getAnonymousNodes(this)[1];
             let actionItem = actionTarget.ruleactiontargetElement;
             var nsMsgFilterAction = Ci.nsMsgFilterAction;
-            switch (aFilterAction.type)
-            {
+            switch (aFilterAction.type) {
               case nsMsgFilterAction.Custom:
                 filterActionStr = aFilterAction.customId;
                 if (actionItem)
@@ -378,16 +368,13 @@
                 // probably was from an extension that has been removed. We'll
                 // show a dummy menuitem to warn the user.
                 var needCustomLabel = true;
-                for (var i = 0; i < gCustomActions.length; i++)
-                {
-                  if (gCustomActions[i].id == filterActionStr)
-                  {
+                for (let i = 0; i < gCustomActions.length; i++) {
+                  if (gCustomActions[i].id == filterActionStr) {
                     needCustomLabel = false;
                     break;
                   }
                 }
-                if (needCustomLabel)
-                {
+                if (needCustomLabel) {
                   var menuitem = document.createElementNS(
                       "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
                       "xul:menuitem");
@@ -445,14 +432,13 @@
             // returns true if this row represents a valid filter action and false otherwise.
             // This routine also prompts the user.
             ChromeUtils.import("resource:///modules/MailUtils.jsm", this);
-            var filterActionString = this.getAttribute('value');
+            var filterActionString = this.getAttribute("value");
             var actionTarget = document.getAnonymousNodes(this)[1];
             let actionTargetLabel = actionTarget.ruleactiontargetElement &&
                                     actionTarget.ruleactiontargetElement.childNodes[0].value;
             var errorString, customError;
 
-            switch (filterActionString)
-            {
+            switch (filterActionString) {
               case "movemessage":
               case "copymessage":
                 let msgFolder = actionTargetLabel ?
@@ -462,7 +448,7 @@
                 break;
               case "forwardmessage":
                 if (actionTargetLabel.length < 3 ||
-                    actionTargetLabel.indexOf('@') < 1)
+                    actionTargetLabel.indexOf("@") < 1)
                   errorString = "enterValidEmailAddress";
                 break;
               case "replytomessage":
@@ -474,15 +460,15 @@
                 if (!document.getAnonymousNodes(actionTarget))
                   return true;
                 // locate the correct custom action, and check validity
-                for (var i = 0; i < gCustomActions.length; i++)
-                  if (gCustomActions[i].id == filterActionString)
-                  {
+                for (let i = 0; i < gCustomActions.length; i++) {
+                  if (gCustomActions[i].id == filterActionString) {
                     customError =
                         gCustomActions[i].validateActionValue(
                           actionTargetLabel,
                           gFilterList.folder, gFilterType);
                     break;
                   }
+                }
                 break;
             }
 
@@ -503,13 +489,12 @@
           <![CDATA[
             // create a new filter action, fill it in, and then append it to the filter
             var filterAction = aFilter.createAction();
-            var filterActionString = this.getAttribute('value');
+            var filterActionString = this.getAttribute("value");
             filterAction.type = gFilterActionStrings.indexOf(filterActionString);
             var actionTarget = document.getAnonymousNodes(this)[1];
             let actionItem = actionTarget.ruleactiontargetElement;
             var nsMsgFilterAction = Ci.nsMsgFilterAction;
-            switch (filterAction.type)
-            {
+            switch (filterAction.type) {
               case nsMsgFilterAction.Label:
                 filterAction.label = actionItem.childNodes[0].getAttribute("value");
                 break;
@@ -545,12 +530,18 @@
             let actionItem = actionTarget.ruleactiontargetElement;
             let actionItemLabel = actionItem && actionItem.childNodes[0].label;
 
-            aActionStrings.push({
+            let actionString = {
               label: document.getAnonymousNodes(this.mRuleActionType)[0].label,
-              argument: actionItem ?
-                        (actionItemLabel ?
-                         actionItemLabel : actionItem.childNodes[0].value) : ""
-            });
+              argument: "",
+            };
+            if (actionItem) {
+              if (actionItemLabel) {
+                actionString.argument = actionItemLabel;
+              } else {
+                actionString.argument = actionItem.childNodes[0].value;
+              }
+            }
+            aActionStrings.push(actionString);
           ]]>
         </body>
       </method>
@@ -568,8 +559,8 @@
         <body>
           <![CDATA[
             let listItem = document.createElement("richlistitem");
-            listItem.className = 'ruleaction';
-            listItem.setAttribute('onfocus','this.storeFocus();');
+            listItem.className = "ruleaction";
+            listItem.setAttribute("onfocus", "this.storeFocus();");
             this.mListBox.insertBefore(listItem, this.nextSibling);
             this.mListBox.ensureElementIsVisible(listItem);
 
