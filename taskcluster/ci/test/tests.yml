@@ -10,13 +10,12 @@
 job-defaults:
     when:
         files-changed:
-            # Include everything in comm-central except suite/ and im/
+            # Include everything in comm-central except suite/
             # https://bugzilla.mozilla.org/show_bug.cgi?id=1422060
             - comm/build
             - comm/calendar
             - comm/chat
             - comm/common
-            - comm/config
             - comm/db
             - comm/editor
             - comm/ldap
@@ -24,12 +23,11 @@ job-defaults:
             - comm/mailnews
             - comm/mozharness
             - comm/other-licenses
-            - comm/python
             - comm/rdf
             - comm/taskcluster
             - comm/testing
+            - comm/.gecko_rev.yml
             - comm/.taskcluster.yml
-            - comm/AUTHORS
             - comm/moz.build
 
 xpcshell:
