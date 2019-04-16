@@ -807,8 +807,7 @@ function editToDoStatus(aPercentComplete) {
 
 /**
  * Check or uncheck the "Mark updated" menu item in "Events and Tasks"
- * menu based on the percent complete value. (The percent complete menu
- * items are updated by changeMenuByPropertyName in calendar-menus.xml)
+ * menu based on the percent complete value.
  *
  * @param {Object} aArg                 Container
  * @param {short} aArg.percentComplete  The percent complete value

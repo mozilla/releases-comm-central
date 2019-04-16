@@ -25,14 +25,8 @@ calendar-task-tree {
   -moz-binding: url(chrome://calendar/content/calendar-task-tree.xml#calendar-task-tree);
 }
 
-menupopup[type="task-progress"] > arrowscrollbox {
-  -moz-binding: url(chrome://calendar/content/calendar-menus.xml#task-progress-menupopup);
-}
-
-menupopup[type="task-priority"] > arrowscrollbox {
-  -moz-binding: url(chrome://calendar/content/calendar-menus.xml#task-priority-menupopup);
-}
-
-task-menupopup {
-  -moz-binding: url(chrome://calendar/content/calendar-menus.xml#task-menupopup);
+/* Needed until menupopup is fully converted to a custom element (see bug 1531296). */
+menupopup[is="calendar-task-progress-menupopup"],
+menupopup[is="calendar-task-priority-menupopup"] {
+  -moz-binding: none;
 }

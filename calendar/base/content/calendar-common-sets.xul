@@ -487,14 +487,14 @@
             accesskey="&calendar.context.progress.accesskey;"
             command="calendar_general-progress_command"
             observes="calendar_general-progress_command">
-        <menupopup id="progress-menupopup" type="task-progress"/>
+        <menupopup is="calendar-task-progress-menupopup"/>
       </menu>
       <menu id="task-context-menu-priority"
             label="&calendar.context.priority.label;"
             accesskey="&calendar.context.priority.accesskey;"
             command="calendar_general-priority_command"
             observes="calendar_general-priority_command">
-        <menupopup id="priority-menupopup" type="task-priority"/>
+        <menupopup is="calendar-task-priority-menupopup"/>
       </menu>
       <menu id="task-context-menu-postpone"
             label="&calendar.context.postpone.label;"

@@ -406,14 +406,14 @@
               accesskey="&calendar.context.priority.accesskey;"
               command="calendar_general-priority_command"
               observes="calendar_general-priority_command">
-          <menupopup type="task-priority"/>
+          <menupopup is="calendar-task-priority-menupopup"/>
         </menu>
         <menu id="ltnTaskActionsProgressMenuitem"
               label="&calendar.context.progress.label;"
               accesskey="&calendar.context.progress.accesskey;"
               command="calendar_general-progress_command"
               observes="calendar_general-progress_command">
-          <menupopup type="task-progress"/>
+          <menupopup is="calendar-task-progress-menupopup"/>
         </menu>
         <menu id="ltnTaskActionsPostponeMenuitem"
               label="&calendar.context.postpone.label;"
@@ -768,13 +768,13 @@
               label="&calendar.context.priority.label;"
               command="calendar_general-priority_command"
               observes="calendar_general-priority_command">
-          <menupopup type="task-priority"/>
+          <menupopup is="calendar-task-priority-menupopup"/>
         </menu>
         <menu id="appmenu_ltnTaskActionsProgressMenuitem"
               label="&calendar.context.progress.label;"
               command="calendar_general-progress_command"
               observes="calendar_general-progress_command">
-          <menupopup type="task-progress"/>
+          <menupopup is="calendar-task-progress-menupopup"/>
         </menu>
         <menu id="appmenu_ltnTaskActionsPostponeMenuitem"
               label="&calendar.context.postpone.label;"

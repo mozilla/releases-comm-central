@@ -11,6 +11,8 @@
 /* import-globals-from calendar-common-sets.js */
 /* import-globals-from calendar-dnd-listener.js */
 
+/* globals gTabmail editToDoStatus editConfigState postponeTask */
+
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 /**
@@ -38,29 +40,20 @@ function addCalendarNames(aEvent) {
 }
 
 /**
- * Applies a value to all children of a menu. If the respective child nodes define
- * a command the value is applied to the disabled attribute of the command of the
- * child node.
+ * For each child of an element (for example all menuitems in a menu), if it defines a command
+ * set an attribute on the command, otherwise set it on the child node itself.
  *
- * @param aElement The parent node of the elements
- * @param aValue The value of the attribute
+ * @param aAttribute {string}       The attribute to set.
+ * @param aValue {boolean|string}   The value to set.
+ * @param aElement {Element}        The parent node.
  */
-function applyDisabledAttributeToMenuChildren(aElement, aValue) {
-    let sibling = aElement.firstChild;
+function setAttributeOnChildrenOrTheirCommands(aAttribute, aValue, aElement) {
+    for (let child of aElement.children) {
+        const commandName = child.getAttribute("command");
+        const command = commandName && document.getElementById(commandName);
 
-    while (sibling) {
-        let domObject = sibling;
-
-        if (domObject.hasAttribute("command")) {
-            let commandName = domObject.getAttribute("command");
-            let command = document.getElementById(commandName);
-            if (command) {
-                domObject = command;
-            }
-        }
-
-        domObject.setAttribute("disabled", aValue);
-        sibling = sibling.nextSibling;
+        const domObject = command || child;
+        domObject.setAttribute(aAttribute, aValue);
     }
 }
 
@@ -88,7 +81,8 @@ function changeContextMenuForTask(aEvent) {
         (idnode == "calendar-task-tree");
 
     let tasksSelected = (items.length > 0);
-    applyDisabledAttributeToMenuChildren(aEvent.target, !tasksSelected);
+
+    setAttributeOnChildrenOrTheirCommands("disabled", !tasksSelected, aEvent.target);
 
     if (calendarController.isCommandEnabled("calendar_new_todo_command") &&
         calendarController.isCommandEnabled("calendar_new_todo_todaypane_command")) {
@@ -105,10 +99,9 @@ function changeContextMenuForTask(aEvent) {
 
     // make sure the filter menu is enabled
     document.getElementById("task-context-menu-filter-todaypane").removeAttribute("disabled");
-    applyDisabledAttributeToMenuChildren(
-        document.getElementById("task-context-menu-filter-todaypane-popup"),
-        false
-    );
+
+    setAttributeOnChildrenOrTheirCommands("disabled", false,
+        document.getElementById("task-context-menu-filter-todaypane-popup"));
 
     changeMenuForTask(aEvent);
 

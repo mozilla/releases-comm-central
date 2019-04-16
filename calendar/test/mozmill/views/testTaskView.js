@@ -124,7 +124,7 @@ function testTaskView() {
         id("calendar-task-details-priority-row")/{"flex":"1"}/
         id("other-actions-box")/id("task-actions-toolbox")/id("task-actions-toolbar")/
         id("task-actions-priority")/id("task-actions-priority-menupopup")/
-        anon({"class":"popup-internal-box"})/anon({"id":"priority-1-menuitem"})`));
+        {"class":"popup-internal-box"}/{"class":"priority-1-menuitem"}`));
     sleep();
     let priorityNode = eid("calendar-task-details-priority-high");
     controller.assertNotDOMProperty(priorityNode, "hidden");
