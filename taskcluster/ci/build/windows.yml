@@ -38,24 +38,24 @@ win32/opt:
         - win64-rust
         - win64-sccache
 
-win32-nightly/opt:
-    description: "Win32 Nightly"
-    attributes:
-        nightly: true
-        enable-full-crashsymbols: true
-    shipping-phase: build
-    shipping-product: thunderbird
+win32-shippable/opt:
+    description: "Win32 Opt Shippable"
     index:
         product: thunderbird
         job-name: win32-opt
-        type: nightly
+        type: shippable
+    attributes:
+        shippable: true
+        enable-full-crashsymbols: true
+    shipping-phase: build
+    shipping-product: thunderbird
     treeherder:
-        platform: windows2012-32/opt
-        symbol: N
+        platform: windows2012-32-shippable/opt
+        symbol: B
         tier: 1
     worker-type: b-win2012
     worker:
-        max-run-time: 7200
+        max-run-time: 10800
         env:
             TOOLTOOL_MANIFEST: "comm/mail/config/tooltool-manifests/win32/releng.manifest"
     run:
@@ -140,24 +140,24 @@ win64/opt:
         - win64-rust
         - win64-sccache
 
-win64-nightly/opt:
-    description: "Win64 Nightly"
-    attributes:
-        nightly: true
-        enable-full-crashsymbols: true
-    shipping-phase: build
-    shipping-product: thunderbird
+win64-shippable/opt:
+    description: "Win64 Opt Shippable"
     index:
         product: thunderbird
         job-name: win64-opt
-        type: nightly
+        type: shippable
+    attributes:
+        shippable: true
+        enable-full-crashsymbols: true
+    shipping-phase: build
+    shipping-product: thunderbird
     treeherder:
-        platform: windows2012-64/opt
-        symbol: N
+        platform: windows2012-64-shippable/opt
+        symbol: B
         tier: 1
     worker-type: b-win2012
     worker:
-        max-run-time: 7200
+        max-run-time: 10800
         env:
             TOOLTOOL_MANIFEST: "comm/mail/config/tooltool-manifests/win64/releng.manifest"
     run:

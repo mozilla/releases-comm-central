@@ -20,8 +20,8 @@ linux64/opt:
         - common-tests
         - optimized-tests
 
-linux64-nightly/opt:
-    build-platform: linux64-nightly/opt
+linux64-shippable/opt:
+    build-platform: linux64-shippable/opt
     test-sets:
         - common-tests
         - optimized-tests
@@ -31,14 +31,8 @@ linux64/debug:
     test-sets:
         - common-tests
 
-linux32/opt:
-    build-platform: linux/opt
-    test-sets:
-        - common-tests
-        - optimized-tests
-
-linux32-nightly/opt:
-    build-platform: linux-nightly/opt
+linux32-shippable/opt:
+    build-platform: linux-shippable/opt
     test-sets:
         - common-tests
         - optimized-tests
@@ -57,8 +51,8 @@ windows7-32/opt:
         - common-tests
         - optimized-tests
 
-windows7-32-nightly/opt:
-    build-platform: win32-nightly/opt
+windows7-32-shippable/opt:
+    build-platform: win32-shippable/opt
     test-sets:
         - common-tests
         - optimized-tests
@@ -75,8 +69,8 @@ windows10-64/opt:
         - common-tests
         - optimized-tests
 
-windows10-64-nightly/opt:
-    build-platform: win64-nightly/opt
+windows10-64-shippable/opt:
+    build-platform: win64-shippable/opt
     test-sets:
         - common-tests
         - optimized-tests
@@ -93,14 +87,8 @@ macosx64/debug:
     test-sets:
         - common-tests
 
-macosx64/opt:
-    build-platform: macosx64/opt
-    test-sets:
-        - common-tests
-        - optimized-tests
-
-macosx64-nightly/opt:
-    build-platform: macosx64-nightly/opt
+macosx64-shippable/opt:
+    build-platform: macosx64-shippable/opt
     test-sets:
         - common-tests
         - optimized-tests
