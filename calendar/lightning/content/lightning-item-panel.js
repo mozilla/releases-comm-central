@@ -253,6 +253,16 @@ function onLoadLightningItemPanel(aIframeId, aUrl) {
         cancel.setAttribute("collapsed", "true");
         cancel.parentNode.setAttribute("collapsed", "true");
 
+        document.addEventListener("dialogaccept", (event) => {
+            sendMessage({ command: "onAccept" });
+            event.preventDefault();
+        });
+
+        document.addEventListener("dialogcancel", (event) => {
+            sendMessage({ command: "onCancel" });
+            event.preventDefault();
+        });
+
         // set toolbar icon color for light or dark themes
         if (typeof window.ToolbarIconColor !== "undefined") {
             window.ToolbarIconColor.init();
@@ -370,24 +380,6 @@ function initializeItemMenu(aLabel, aAccessKey) {
     menuItem.setAttribute("label", aLabel);
     menuItem.setAttribute("accesskey", aAccessKey);
 }
-
-/**
- * Handler for when dialog is accepted.
- */
-document.addEventListener("dialogaccept", () => {
-    sendMessage({ command: "onAccept" });
-    return false;
-});
-
-/**
- * Handler for when dialog is cancelled. (calendar.item.editInTab = false)
- */
-document.addEventListener("dialogcancel", (event) => {
-    sendMessage({ command: "onCancel" });
-    // We prevent closing of a window until we
-    // can ask the user about saving any unsaved changes.
-    event.preventDefault();
-});
 
 /**
  * Handler for when tab is cancelled. (calendar.item.editInTab = true)

@@ -91,7 +91,7 @@
           <!-- accept, attachments, timezone -->
           <command id="cmd_accept"
                    disable-on-readonly="true"
-                   oncommand="onAccept();"/>
+                   oncommand="sendMessage({ command: 'onAccept' });"/>
           <command id="cmd_attach_url"
                    disable-on-readonly="true"
                    oncommand="attachURL()"/>
