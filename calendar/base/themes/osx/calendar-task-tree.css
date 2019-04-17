@@ -4,7 +4,8 @@
 
 @import url(chrome://calendar-common/skin/calendar-task-tree.css);
 
-.calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed) {
+.calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed),
+.calendar-task-tree-col-completed > .treecol-icon {
     list-style-image: url(chrome://calendar/skin/checkbox-images.png);
     width: 16px;
     height: 16px;
@@ -12,13 +13,13 @@
 
 @media (-moz-mac-graphite-theme) {
     .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed),
-    .calendar-task-tree-col-completed-checkboximg {
+    .calendar-task-tree-col-completed > .treecol-icon {
         list-style-image: url(chrome://calendar/skin/checkbox-images-graphite.png);
     }
 }
 
 .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed, completed),
-.calendar-task-tree-col-completed-checkboximg {
+.calendar-task-tree-col-completed > .treecol-icon {
     -moz-image-region: rect(0 64px 32px 32px);
 }
 
