@@ -12,11 +12,6 @@
 
 /****************************************************************************************/
 
-attendees-list {
-    -moz-binding: url(chrome://calendar/content/calendar-event-dialog-attendees.xml#attendees-list);
-    -moz-user-focus: normal;
-}
-
 selection-bar {
     -moz-binding: url(chrome://calendar/content/calendar-event-dialog-attendees.xml#selection-bar);
     -moz-user-focus: normal;

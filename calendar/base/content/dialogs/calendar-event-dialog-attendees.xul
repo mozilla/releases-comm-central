@@ -72,7 +72,7 @@
   <hbox flex="1">
     <vbox id="attendees-container" flex="1" width="250" persist="width">
       <box class="attendee-spacer-top"/>
-      <attendees-list flex="1" id="attendees-list" class="listbox-noborder">
+      <calendar-event-attendees-list flex="1" id="attendees-list" class="listbox-noborder">
         <richlistitem class="addressingWidgetItem" allowevents="true">
           <hbox class="addressingWidgetCell" width="27" align="center" pack="center">
             <image class="status-icon"/>
@@ -92,14 +92,14 @@
                      forcecomplete="true"
                      completeselectedindex="true"
                      minresultsforpopup="1"
-                     onblur="if (this.localName == 'textbox') { this.closest(&quot;attendees-list&quot;).returnHit(this, true); }"
+                     onblur="if (this.localName == 'textbox') { this.closest(&quot;calendar-event-attendees-list&quot;).returnHit(this, true) }"
                      ignoreblurwhilesearching="true"
                      oninput="this.setAttribute('dirty', 'true');"
-                     ontextentered="this.closest(&quot;attendees-list&quot;).returnHit(this);">
+                     ontextentered="this.closest(&quot;calendar-event-attendees-list&quot;).returnHit(this);">
             </textbox>
           </hbox>
         </richlistitem>
-      </attendees-list>
+      </calendar-event-attendees-list>
       <box class="attendee-spacer-bottom"/>
     </vbox>
     <splitter id="splitter"/>

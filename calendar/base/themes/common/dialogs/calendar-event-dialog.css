@@ -506,7 +506,7 @@ freebusy-day > box {
     border-right: 1px solid var(--eventWidgetBorderColor);
 }
 
-/* This applies to rows of the attendee-list and the freebusy-grid */
+/* This applies to rows of the calendar-event-attendees-list and the freebusy-grid */
 .addressingWidgetItem,
 .dummy-row {
     border: none !important;
@@ -619,6 +619,34 @@ freebusy-day > box {
     min-width: 10px;
     min-height: 10px;
     height: 400px;
+}
+
+#attendees-list {
+    -moz-user-focus: normal;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+#attendees-list > richlistitem {
+    max-height: 17px;
+    min-height: 17px;
+    flex: 1;
+    display: flex;
+}
+
+#attendees-list .addressingWidgetCell {
+    width: 27px;
+    text-align: center;
+}
+
+#attendees-list hbox:nth-child(3) {
+    flex: 1;
+    text-align: left;
+}
+
+#attendees-list hbox textbox {
+    width: 100%;
 }
 
 .attendees-list-listbox > listboxbody {

@@ -36,6 +36,8 @@ function onLoad() {
     // set up some calendar-event-freebusy-timebar properties
     onFreebusyTimebarInit();
 
+    onCalendarEventAttendeesListLoad();
+
     // first of all, attach all event handlers
     window.addEventListener("resize", onResize, true);
     window.addEventListener("modify", onModify, true);
@@ -823,7 +825,7 @@ function initTimeRange() {
 }
 
 /**
- * Handler function for the "modify" event, emitted from the attendees-list
+ * Handler function for the "modify" event, emitted from the calendar-event-attendees-list
  * binding. event.details is an array of objects containing the user's email
  * (calid) and a flag that tells if the user has entered text before the last
  * onModify was called (dirty).
@@ -836,7 +838,7 @@ function onModify(event) {
 }
 
 /**
- * Handler function for the "rowchange" event, emitted from the attendees-list
+ * Handler function for the "rowchange" event, emitted from the calendar-event-attendees-list
  * binding. event.details is the row that was changed to.
  *
  * @param event     The DOM event caused by the row change.
@@ -1054,4 +1056,76 @@ function onFreebusyTimebarInit() {
     }
 
     timebar.dispatchTimebarEvent();
+}
+
+function onCalendarEventAttendeesListLoad() {
+    let attendeesList = document.getElementById("attendees-list");
+    let args = window.arguments[0];
+    let organizer = args.organizer;
+    let attendees = args.attendees;
+    let calendar = args.calendar;
+
+    attendeesList.isReadOnly = calendar.readOnly;
+
+    // assume we're the organizer [in case that the calendar
+    // does not support the concept of identities].
+    let organizerID = ((organizer && organizer.id) ?
+        organizer.id
+        : calendar.getProperty("organizerId"));
+
+    calendar = cal.wrapInstance(calendar, Ci.calISchedulingSupport);
+    attendeesList.isInvitation = (calendar && calendar.isInvitation(args.item));
+
+    let template = attendeesList.querySelector(".addressingWidgetItem");
+    template.focus();
+
+    if (attendeesList.isReadOnly || attendeesList.isInvitation) {
+        attendeesList.setAttribute("disabled", "true");
+    }
+
+    // TODO: the organizer should show up in the attendee list, but this information
+    // should be based on the organizer contained in the appropriate field of calIItemBase.
+    // This is currently not supported, since we're still missing calendar identities.
+    if (organizerID && organizerID != "") {
+        if (organizer) {
+            if (!organizer.id) {
+                organizer.id = organizerID;
+            }
+            if (!organizer.role) {
+                organizer.role = "CHAIR";
+            }
+            if (!organizer.participationStatus) {
+                organizer.participationStatus = "ACCEPTED";
+            }
+        } else {
+            organizer = attendeesList.createAttendee();
+            organizer.id = organizerID;
+            organizer.role = "CHAIR";
+            organizer.participationStatus = "ACCEPTED";
+        }
+        if (!organizer.commonName || !organizer.commonName.length) {
+            organizer.commonName = calendar.getProperty("organizerCN");
+        }
+        organizer.isOrganizer = true;
+        attendeesList.appendAttendee(organizer, template, true);
+    }
+
+    let numRowsAdded = 0;
+    if (attendees.length > 0) {
+        for (let attendee of attendees) {
+            attendeesList.appendAttendee(attendee, template, false);
+            numRowsAdded++;
+        }
+    }
+    if (numRowsAdded == 0) {
+        attendeesList.appendAttendee(null, template, false);
+    }
+
+    // detach the template item from the listbox, but hold the reference.
+    // until this function returns we add at least a single copy of this template back again.
+    template.remove();
+
+    attendeesList.setFocus(attendeesList.mMaxAttendees);
+
+    attendeesList.init();
 }
