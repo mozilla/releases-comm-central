@@ -71,6 +71,8 @@ def rmtree_onerror(func, path, exc_info):
 
 class ThunderTestProfile(mozprofile.ThunderbirdProfile):
     preferences = {
+        # Force the use of libical as a workaround for bug 1545004.
+        'calendar.icaljs': False,
         # say yes to debug output via dump
         'browser.dom.window.dump.enabled': True,
         # say no to slow script warnings
