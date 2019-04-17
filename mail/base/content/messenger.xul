@@ -151,6 +151,7 @@
 <script type="application/javascript" src="chrome://messenger/content/chat/chat-conversation-info.js"/>
 <script type="application/javascript" src="chrome://gloda/content/autocomplete-richlistitem.js"/>
 <script type="application/javascript" src="chrome://messenger/content/chat/chat-contact.js"/>
+<script type="application/javascript" src="chrome://messenger/content/chat/chat-group.js"/>
 #ifdef XP_MACOSX
 <script type="application/javascript" src="chrome://messenger/content/macMessengerMenu.js"/>
 <script type="application/javascript" src="chrome://global/content/macWindowMenu.js"/>

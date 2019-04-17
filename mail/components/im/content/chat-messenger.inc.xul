@@ -99,10 +99,14 @@
                 <richlistbox id="contactlistbox"
                              context="buddyListContextMenu"
                              tooltip="imTooltip" flex="1">
-                  <imgroup id="conversationsGroup" name="&conversationsHeader.label;"/>
+                  <richlistitem is="chat-group" id="conversationsGroup"
+                                name="&conversationsHeader.label;"/>
                   <imconv id="searchResultConv" displayname="&searchResultConversation.label;" hidden="true"/>
-                  <imgroup id="onlinecontactsGroup" name="&onlineContactsHeader.label;"/>
-                  <imgroup id="offlinecontactsGroup" name="&offlineContactsHeader.label;" closed="true"/>
+                  <richlistitem is="chat-group" id="onlinecontactsGroup"
+                                name="&onlineContactsHeader.label;"/>
+                  <richlistitem is="chat-group" id="offlinecontactsGroup"
+                                name="&offlineContactsHeader.label;"
+                                class="closed"/>
                 </richlistbox>
               </vbox>
               <splitter id="listSplitter" collapse="before"/>
