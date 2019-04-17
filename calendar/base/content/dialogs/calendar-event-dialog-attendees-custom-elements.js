@@ -31,11 +31,11 @@ class MozCalendarEventFreebusyTimebar extends MozElements.RichListBox {
     }
 
     /**
-     * Sets zoom factor to a new value, clears freebusy-day's children, and updates zoom factor and
+     * Sets mZoomFactor to a new value, clears freebusy-day's children, and updates zoomFactor and
      * force24Hours properties of freebusy-day element.
      *
-     * @param {Number} val       New zoom factor
-     * @returns {Number}         New zoom factor
+     * @param {Number} val       new mZoomFactor value
+     * @returns {Number}         new mZoomFactor value
      */
     set zoomFactor(val) {
         this.mZoomFactor = val;
@@ -53,21 +53,19 @@ class MozCalendarEventFreebusyTimebar extends MozElements.RichListBox {
     }
 
     /**
-     * Gets zoom factor of freebusy timebar.
-     *
-     * @returns {Number}       Zoom factor value
+     * @returns {Number}       mZoomFactor value
      */
     get zoomFactor() {
         return this.mZoomFactor;
     }
 
     /**
-     * Changes time to 24 hour format, updates startHour and endHour properties, clears
+     * Sets mForce24Hours to a new value, updates startHour and endHour properties, clears
      * freebusy-day's children, and updates zoomFactor and force24Hours properties of freebusy-day
      * element.
      *
-     * @param {Boolean} val       New force24Hours value
-     * @returns {Boolean}         New force24Hours value
+     * @param {Boolean} val       new mForce24Hours value
+     * @returns {Boolean}         new mForce24Hours value
      */
     set force24Hours(val) {
         this.mForce24Hours = val;
@@ -87,18 +85,14 @@ class MozCalendarEventFreebusyTimebar extends MozElements.RichListBox {
     }
 
     /**
-     * Gets force24hours value which represents whether the time is in 12 hour or 24 hour format.
-     *
-     * @returns {Boolean}       force24Hours value
+     * @returns {Boolean}       mForce24Hours value
      */
     get force24Hours() {
         return this.mForce24Hours;
     }
 
     /**
-     * Gets the difference between the x coordinate of the first two freebusy-day elements.
-     *
-     * @returns {Number}       X coordinate difference value
+     * @returns {Number}       The difference between the first two day-elements
      */
     get contentWidth() {
         let template = this.getElementsByTagName("freebusy-day")[0];
@@ -106,8 +100,6 @@ class MozCalendarEventFreebusyTimebar extends MozElements.RichListBox {
     }
 
     /**
-     * Gets parent node's width.
-     *
      * @returns {Number}       Parent node's width
      */
     get containerWidth() {
@@ -115,10 +107,10 @@ class MozCalendarEventFreebusyTimebar extends MozElements.RichListBox {
     }
 
     /**
-     * Sets startDate to a new value and make it immutable.
+     * Sets mStartDate to a new value and make it immutable.
      *
-     * @param {calIDateTime} val       New startDate value
-     * @returns {calIDateTime}         New startDate value
+     * @param {calDateTime} val       new mStartDate value
+     * @returns {calDateTime}         new mStartDate value
      */
     set startDate(val) {
         this.mStartDate = val.clone();
@@ -127,19 +119,17 @@ class MozCalendarEventFreebusyTimebar extends MozElements.RichListBox {
     }
 
     /**
-     * Gets start date of freebusy-timebar.
-     *
-     * @returns {calIDateTime}       startDate value
+     * @returns {calDateTime}       mStartDate value
      */
     get startDate() {
         return this.mStartDate;
     }
 
     /**
-     * Sets end date of timebar to a new value and make it immutable.
+     * Sets mEndDate to a new value and make it immutable.
      *
-     * @param {calIDateTime} val       New end date value
-     * @returns {calIDateTime}         New end date value
+     * @param {calDateTime} val       new mEndDate value
+     * @returns {calDateTime}         new mEndDate value
      */
     set endDate(val) {
         this.mEndDate = val.clone();
@@ -148,28 +138,26 @@ class MozCalendarEventFreebusyTimebar extends MozElements.RichListBox {
     }
 
     /**
-     * Gets end date of freebusy-timebar.
-     *
-     * @returns {calIDateTime}       endDate value
+     * @returns {calDateTime}       mEndDate value
      */
     get endDate() {
         return this.mEndDate;
     }
 
     /**
-     * Adds days `dayOffset` to freebusy day date.
+     * Sets mDayOffset to a new value and adjust scroll-container children according to it.
      *
-     * @param {Number} val       New day offset value
-     * @returns {Number}         New day offset value
+     * @param {Number} val       new mDayOffset value
+     * @returns {Number}         new mDayOffset value
      */
     set dayOffset(val) {
         this.mDayOffset = val;
-        let container = this.getElementsByTagName("calendar-event-scroll-container")[0];
+        let container = this.getElementsByTagName("scroll-container")[0];
         let date = this.mStartDate.clone();
         date.day += val;
-        let numChilds = container.content.childNodes.length;
+        let numChilds = container.childNodes.length;
         for (let i = 0; i < numChilds; i++) {
-            let child = container.content.childNodes[i];
+            let child = container.childNodes[i];
             child.date = date;
             date.day++;
         }
@@ -177,9 +165,7 @@ class MozCalendarEventFreebusyTimebar extends MozElements.RichListBox {
     }
 
     /**
-     * Gets the scale of the total shift needed to step one block further.
-     *
-     * @returns {Number}        The total shift needed to step one block further
+     * @returns {Number}       The scale of the total shift needed to step one block further
      */
     get step() {
         // How much pixels spans a single day
@@ -195,10 +181,10 @@ class MozCalendarEventFreebusyTimebar extends MozElements.RichListBox {
     }
 
     /**
-     * Scrolls to a new date.
+     * Sets mScrollOffset value.
      *
-     * @param {Number} val       New scroll offset value
-     * @returns {Number}         New scroll offset value
+     * @param {Number} val       new mScrollOffset value
+     * @returns {Number}         new mScrollOffset value
      */
     set scroll(val) {
         this.mScrollOffset = val;
@@ -222,23 +208,21 @@ class MozCalendarEventFreebusyTimebar extends MozElements.RichListBox {
         offset %= oneday;
 
         // Set the offset at the content node.
-        let container = this.getElementsByTagName("calendar-event-scroll-container")[0];
+        let container = this.getElementsByTagName("scroll-container")[0];
         container.x = offset;
         return val;
     }
 
     /**
-     * Gets scroll offset of freebusy-timebar.
-     *
-     * @returns {Number}       Scroll offset value.
+     * @returns {Number}       mScrollOffset value.
      */
     get scroll() {
         return this.mScrollOffset;
     }
 
     /**
-     * Refreshes calendar-event-scroll-container's children. calendar-event-scroll-container
-     * contains date and time labels with regular interval gap.
+     * Refreshes scroll-container's children. scroll-container contains date and time labels with
+     * regular interval gap.
      */
     refresh() {
         let date = this.mStartDate.clone();
@@ -268,7 +252,7 @@ class MozCalendarEventFreebusyTimebar extends MozElements.RichListBox {
     }
 
     /**
-     * Updates end hour and start hour of freebusy-timebar.
+     * Updates mEndHour and mStartHour values.
      */
     initTimeRange() {
         if (this.force24Hours) {
@@ -1372,7 +1356,7 @@ customElements.define("calendar-event-attendees-list", MozCalendarEventAttendees
 class MozCalendarEventFreebusyRow extends MozXULElement {
     connectedCallback() {
         if (!this.hasChildNodes()) {
-            this.containerNodeElem = document.createElement("calendar-event-scroll-container");
+            this.containerNodeElem = document.createElement("scroll-container");
             this.containerNodeElem.setAttribute("flex", "1");
             this.hoursNodeElem = document.createElement("box");
             this.hoursNodeElem.setAttribute("equalsize", "always");
@@ -1402,7 +1386,7 @@ class MozCalendarEventFreebusyRow extends MozXULElement {
      */
     get hoursNode() {
         if (!this.hoursNodeElem) {
-            this.hoursNodeElem = this.querySelector("calendar-event-scroll-container > box");
+            this.hoursNodeElem = this.querySelector("scroll-container > box");
         }
 
         return this.hoursNodeElem;
@@ -1415,7 +1399,7 @@ class MozCalendarEventFreebusyRow extends MozXULElement {
      */
     get containerNode() {
         if (!this.containerNodeElem) {
-            this.containerNodeElem = this.querySelector("calendar-event-scroll-container");
+            this.containerNodeElem = this.querySelector("scroll-container");
         }
 
         return this.containerNodeElem;
@@ -1575,7 +1559,7 @@ class MozCalendarEventFreebusyRow extends MozXULElement {
      * @returns {Number}        New x value
      */
     set scroll(val) {
-        let timebarContainer = document.querySelector("#timebar calendar-event-scroll-container");
+        let timebarContainer = document.querySelector("#timebar scroll-container");
         let offset = timebarContainer.x;
         // Set the offset at the content node.
         this.containerNode.x = offset;
@@ -1827,112 +1811,3 @@ class MozCalendarEventFreebusyRow extends MozXULElement {
     }
 }
 customElements.define("calendar-event-freebusy-row", MozCalendarEventFreebusyRow);
-
-/**
- * MozCalendarEventScrollContainer widgets is a container that allows elements to horizonatally and
- * vertically scrollable in attendees-list dialog.
- *
- * @extends {MozXULElement}
- */
-class MozCalendarEventScrollContainer extends MozXULElement {
-    static get observedAttributes() {
-        return ["flex", "orient"];
-    }
-
-    connectedCallback() {
-        if (this.delayConnectedCallback() || this.firstChild.classList.contains("container")) {
-            return;
-        }
-
-        const childrenFragment = this._getChildrenFragment();
-
-        this.container = document.createElement("box");
-        this.container.classList.add("container");
-
-        this.content = document.createElement("box");
-        this.content.classList.add("content");
-
-        this.content.appendChild(childrenFragment);
-        this.container.appendChild(this.content);
-        this.appendChild(this.container);
-
-        this._updateAttributes();
-    }
-
-    attributeChangedCallback() {
-        this._updateAttributes();
-    }
-
-    _updateAttributes() {
-        if (!this.isConnected || !this.container || !this.content) {
-            return;
-        }
-
-        if (this.hasAttribute("flex")) {
-            this.content.setAttribute("flex", this.getAttribute("flex"));
-            this.container.setAttribute("flex", this.getAttribute("flex"));
-        }
-
-        if (this.hasAttribute("orient")) {
-            this.content.setAttribute("orient", this.getAttribute("orient"));
-        }
-    }
-
-    /**
-     * Returns document fragment containing the children that were wrapped inside
-     * calendar-event-scroll-container tag before the execution of connectedCallback.
-     */
-    _getChildrenFragment() {
-        const frag = document.createDocumentFragment();
-
-        while (this.hasChildNodes()) {
-            frag.appendChild(this.firstChild);
-        }
-
-        return frag;
-    }
-
-    /**
-     * Gets inline start margin of calendar-event-scroll-container.
-     *
-     * @returns {Number}        margin-inline-start value for the content box
-     */
-    get x() {
-        let margin = getComputedStyle(this.content, null).marginInlineStart;
-        return -parseInt(margin.replace(/px/, ""), 10);
-    }
-
-    /**
-     * Sets inline start margin of calendar-event-scroll-container.
-     *
-     * @param {Number} val      margin-inline-start value for the content box
-     * @returns {Number}        margin-inline-start value for the content box
-     */
-    set x(val) {
-        this.content.setAttribute("style", `margin-inline-start: ${(-val)}px;`);
-        return val;
-    }
-
-    /**
-     * Gets top margin of scroll-container.
-     *
-     * @returns {Number}        margin-top value for the content box
-     */
-    get y() {
-        let margin = getComputedStyle(this.content, null).marginTop;
-        return -parseInt(margin.replace(/px/, ""), 10);
-    }
-
-    /**
-     * Sets top margin of scroll-container.
-     *
-     * @param {Number} val      margin-top value for the content box
-     * @returns {Number}        margin-top value for the content box
-     */
-    set y(val) {
-        this.content.setAttribute("style", `margin-top: ${(-val)}px;`);
-        return val;
-    }
-}
-
-customElements.define("calendar-event-scroll-container", MozCalendarEventScrollContainer);

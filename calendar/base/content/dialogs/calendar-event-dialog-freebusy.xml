@@ -15,6 +15,60 @@
 <bindings xmlns="http://www.mozilla.org/xbl"
           xmlns:xbl="http://www.mozilla.org/xbl"
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <binding id="scroll-container">
+    <content>
+      <xul:box class="container"
+               xbl:inherits="flex"
+               anonid="container"
+               style="overflow: hidden; clip: rect(0px 0px 0px 0px);">
+        <xul:box class="content"
+                 xbl:inherits="flex,orient"
+                 anonid="content">
+          <children/>
+        </xul:box>
+      </xul:box>
+    </content>
+
+    <implementation>
+      <property name="x">
+        <getter><![CDATA[
+            let content =
+                document.getAnonymousElementByAttribute(
+                    this, "anonid", "content");
+            let margin = getComputedStyle(content, null).marginInlineStart;
+            return -parseInt(margin.replace(/px/, ""), 10);
+        ]]></getter>
+        <setter><![CDATA[
+            let content =
+                document.getAnonymousElementByAttribute(
+                    this, "anonid", "content");
+            content.setAttribute("style",
+                                 "margin-inline-start: " + (-val) + "px;");
+            return val;
+        ]]></setter>
+      </property>
+
+      <property name="y">
+        <getter><![CDATA[
+            let content =
+                document.getAnonymousElementByAttribute(
+                    this, "anonid", "content");
+            let margin = getComputedStyle(content, null).marginTop;
+            return -parseInt(margin.replace(/px/, ""), 10);
+        ]]></getter>
+        <setter><![CDATA[
+            let content =
+                document.getAnonymousElementByAttribute(
+                    this, "anonid", "content");
+            content.setAttribute("style",
+                                 "margin-top: " + (-val) + "px;");
+            return val;
+        ]]></setter>
+      </property>
+    </implementation>
+  </binding>
+
   <binding id="freebusy-day">
     <content>
       <xul:box orient="vertical">

@@ -410,11 +410,6 @@ freebusy-day:last-child {
     border-inline-end: 1px solid transparent;
 }
 
-calendar-event-scroll-container > box {
-    overflow: hidden;
-    clip: rect(0px 0px 0px 0px);
-}
-
 /* negative margins to clear freebusy-day's border and margin */
 freebusy-day > box {
     margin-inline-start: -1px;
