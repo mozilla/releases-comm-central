@@ -2,9 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#nav-header,
+:root {
+  --in-content-categories-background: #ebebef;
+}
+
+@supports -moz-bool-pref("browser.in-content.dark-mode") {
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --in-content-categories-background: rgba(249,249,250,0.1);
+    }
+  }
+}
+
 #category-box {
-  background-color: #ebebef;
+  background-color: var(--in-content-categories-background);
 }
 
 .nav-button {

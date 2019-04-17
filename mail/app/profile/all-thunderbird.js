@@ -815,3 +815,6 @@ pref("intl.multilingual.enabled", false);
 
 // We don't support yet language pack download from ATN
 pref("intl.multilingual.downloadEnabled", false);
+
+// Dark in-content pages
+pref("browser.in-content.dark-mode", false);
