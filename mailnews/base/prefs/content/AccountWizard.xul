@@ -65,40 +65,44 @@
   <!-- Identity page : Collects user's full name and email address -->
   <wizardpage id="identitypage" pageid="identitypage"
               label="&identityTitle.label;">
-    <vbox flex="1">
-      <description>&identityDesc.label;</description>
+    <vbox>
+      <description flex="1">&identityDesc.label;</description>
       <separator/>
-      <description>&fullnameDesc.label; &fullnameExample.label;</description>
+      <description flex="1">&fullnameDesc.label; &fullnameExample.label;</description>
       <separator class="thin"/>
       <hbox align="center">
         <label class="awIdentityLabel" value="&fullnameLabel.label;"
                accesskey="&fullnameLabel.accesskey;" control="fullName"/>
-        <textbox mailtype="identity" wsm_persist="true" name="fullName" id="fullName" flex="1" oninput="identityPageValidate();"/>
+        <textbox id="fullName"
+                 mailtype="identity"
+                 wsm_persist="true"
+                 name="fullName"
+                 flex="1"
+                 oninput="identityPageValidate();"/>
       </hbox>
       <separator/>
-      <grid>
-        <columns>
-          <column flex="1"/>
-        </columns>
-        <rows>
-          <row>
-            <description id="emailDescText"/>
-          </row>
-          <separator class="thin"/>
-          <row>
-            <hbox align="center">
-              <label class="awIdentityLabel" id="emailFieldLabel" value="&emailLabel.label;"
-                     accesskey="&emailLabel.accesskey;" control="email"/>
-              <hbox class="uri-element" align="center" flex="1">
-                <textbox wsm_persist="true" mailtype="identity" name="email"
-                         oninput="identityPageValidate();"
-                         id="email" flex="6" class="uri-element"/>
-                <label id="postEmailText"/>
-              </hbox>
-            </hbox>
-          </row>
-        </rows>
-      </grid>
+      <vbox>
+        <hbox>
+          <description id="emailDescText" flex="1"/>
+        </hbox>
+        <hbox align="center">
+          <label id="emailFieldLabel"
+                 class="awIdentityLabel"
+                 value="&emailLabel.label;"
+                 accesskey="&emailLabel.accesskey;"
+                 control="email"/>
+          <hbox class="uri-element" align="center" flex="1">
+            <textbox id="email"
+                     wsm_persist="true"
+                     mailtype="identity"
+                     name="email"
+                     flex="1"
+                     oninput="identityPageValidate();"
+                     class="uri-element"/>
+            <label id="postEmailText"/>
+          </hbox>
+        </hbox>
+      </vbox>
     </vbox>
   </wizardpage>
 
@@ -115,9 +119,9 @@
           <hbox align="center" class="serverDataBox">
             <!-- The initial value for the servertype radiogroup is set in onInit() -->
             <radiogroup id="servertype" wsm_persist="true" orient="horizontal">
-                <radio group="servertype" value="pop3" id="pop3" label="&popType.label;"
+                <radio id="pop3" group="servertype" value="pop3" label="&popType.label;"
                        wsm_persist="true" oncommand="setServerType();" accesskey="&popType.accesskey;"/>
-                <radio group="servertype" value="imap" id="imap" label="&imapType.label;"
+                <radio id="imap" group="servertype" value="imap" label="&imapType.label;"
                        wsm_persist="true" oncommand="setServerType();" accesskey="&imapType.accesskey;"/>
             </radiogroup>
             <label id="serverPortLabel" control="serverPort"
@@ -137,8 +141,8 @@
                    value="&incomingServer.label;"
                    accesskey="&incomingServer.accesskey;"
                    control="incomingServer"/>
-            <textbox wsm_persist="true"
-                     id="incomingServer"
+            <textbox id="incomingServer"
+                     wsm_persist="true"
                      flex="1"
                      class="uri-element"
                      oninput="incomingPageValidate();"/>
@@ -274,50 +278,44 @@
     <vbox flex="1">
       <description>&completionText.label;</description>
       <separator class="thin"/>
-      <grid>
-        <columns>
-          <column/>
-          <column flex="1"/>
-        </columns>
-        <rows>
-          <row align="center" id="account.name">
-            <label class="label" flex="1" id="account.name.label" value="&accnameLabel.label;"/>
-            <label class="label" id="account.name.text"/>
-          </row>
-          <row align="center" id="identity.email">
-            <label class="label" flex="1" id="identity.email.label" value="&emailLabel.label;"/>
-            <label class="label" id="identity.email.text"/>
-          </row>
-          <row align="center" id="server.username">
-            <label class="label" flex="1" id="server.username.label" value="&incomingUsername.label;"/>
-            <label class="label" id="server.username.text"/>
-          </row>
-          <row align="center" id="server.name">
-            <label class="label" flex="1" id="server.name.label" value="&serverNamePrefix.label;"/>
-            <label class="label" id="server.name.text"/>
-          </row>
-          <row align="center" id="server.type">
-            <label class="label" flex="1" id="server.type.label" value="&serverTypePrefix.label;"/>
-            <label class="label" id="server.type.text"/>
-          </row>
-          <row align="center" id="server.port">
-            <label class="label" id="server.port.label" flex="1" value="&portNum.label;"/>
-            <label class="label" id="server.port.text"/>
-          </row>
-          <row align="center" id="newsServer.name">
-            <label class="label" flex="1" id="newsServer.name.label" value="&newsServerNamePrefix.label;"/>
-            <label class="label" id="newsServer.name.text"/>
-          </row>
-          <row align="center" id="smtpServer.username">
-            <label class="label" flex="1" id="smtpServer.username.label" value="&outgoingUsername.label;"/>
-            <label class="label" id="smtpServer.username.text"/>
-          </row>
-          <row align="center" id="smtpServer.name">
-            <label class="label" flex="1" id="smtpServer.name.label" value="&smtpServerNamePrefix.label;"/>
-            <label class="label" id="smtpServer.name.text"/>
-          </row>
-        </rows>
-      </grid>
+      <vbox>
+        <hbox id="account.name" equalsize="always" align="start">
+          <label id="account.name.label" flex="1" class="label" value="&accnameLabel.label;"/>
+          <label id="account.name.text" flex="1" class="label"/>
+        </hbox>
+        <hbox id="identity.email" equalsize="always" align="start">
+          <label id="identity.email.label" flex="1" class="label" value="&emailLabel.label;"/>
+          <label id="identity.email.text" flex="1" class="label"/>
+        </hbox>
+        <hbox id="server.username" equalsize="always" align="start">
+          <label id="server.username.label" flex="1" class="label" value="&incomingUsername.label;"/>
+          <label id="server.username.text" flex="1" class="label"/>
+        </hbox>
+        <hbox id="server.name" equalsize="always" align="start">
+          <label id="server.name.label" flex="1" class="label" value="&serverNamePrefix.label;"/>
+          <label id="server.name.text" flex="1" class="label"/>
+        </hbox>
+        <hbox id="server.type" equalsize="always" align="start">
+          <label id="server.type.label" flex="1" class="label" value="&serverTypePrefix.label;"/>
+          <label id="server.type.text" flex="1" class="label"/>
+        </hbox>
+        <hbox id="server.port" equalsize="always" align="start">
+          <label id="server.port.label" flex="1" class="label" value="&portNum.label;"/>
+          <label id="server.port.text" flex="1" class="label" />
+        </hbox>
+        <hbox id="newsServer.name" equalsize="always" align="start">
+          <label id="newsServer.name.label" flex="1" class="label" value="&newsServerNamePrefix.label;"/>
+          <label id="newsServer.name.text" flex="1" class="label"/>
+        </hbox>
+        <hbox id="smtpServer.username" equalsize="always" align="start">
+          <label id="smtpServer.username.label" flex="1" class="label" value="&outgoingUsername.label;"/>
+          <label id="smtpServer.username.text" flex="1" class="label"/>
+        </hbox>
+        <hbox id="smtpServer.name" equalsize="always" align="start">
+          <label id="smtpServer.name.label" flex="1" class="label" value="&smtpServerNamePrefix.label;"/>
+          <label id="smtpServer.name.text" flex="1" class="label"/>
+        </hbox>
+      </vbox>
       <separator/>
       <hbox id="downloadMsgsBox">
         <checkbox id="downloadMsgs"
