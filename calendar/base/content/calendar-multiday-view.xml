@@ -1348,11 +1348,11 @@
             let scrollbox = document.getAnonymousElementByAttribute(
                            event.target, "anonid", "scrollbox");
             if (orient == "vertical") {
-                diffStart = event.clientY - scrollbox.boxObject.y;
-                diffEnd = scrollbox.boxObject.y + scrollbox.boxObject.height - event.clientY;
+                diffStart = event.clientY - scrollbox.getBoundingClientRect().y;
+                diffEnd = scrollbox.getBoundingClientRect().y + scrollbox.getBoundingClientRect().height - event.clientY;
             } else {
-                diffStart = event.clientX - scrollbox.boxObject.x;
-                diffEnd = scrollbox.boxObject.x + scrollbox.boxObject.width - event.clientX;
+                diffStart = event.clientX - scrollbox.getBoundingClientRect().x;
+                diffEnd = scrollbox.getBoundingClientRect().x + scrollbox.getBoundingClientRect().width - event.clientX;
             }
 
             const SCROLLZONE = 55;     // Size (pixels) of the top/bottom view where the scroll starts.
@@ -1403,10 +1403,10 @@
             // If we leave the view, then stop our internal sweeping and start a
             // real drag session. Someday we need to fix the sweep to soely be a
             // drag session, no sweeping.
-            if (event.clientX < (event.target.boxObject.x) ||
-                event.clientX > (event.target.boxObject.x + event.target.boxObject.width) ||
-                event.clientY < (event.target.boxObject.y) ||
-                event.clientY > (event.target.boxObject.y + event.target.boxObject.height)) {
+            if (event.clientX < (event.target.getBoundingClientRect().x) ||
+                event.clientX > (event.target.getBoundingClientRect().x + event.target.getBoundingClientRect().width) ||
+                event.clientY < (event.target.getBoundingClientRect().y) ||
+                event.clientY > (event.target.getBoundingClientRect().y + event.target.getBoundingClientRect().height)) {
                 // Remove the drag state
                 for (let column = firstCol, i = firstIndex;
                      column && i < col.mDragState.shadows;
@@ -1488,10 +1488,10 @@
             let mousePos;
             let sizeattr;
             if (col.getAttribute("orient") == "vertical") {
-                mousePos = event.screenY - col.parentNode.boxObject.screenY;
+                mousePos = event.screenY - col.parentNode.screenY;
                 sizeattr = "height";
             } else {
-                mousePos = event.screenX - col.parentNode.boxObject.screenX;
+                mousePos = event.screenX - col.parentNode.screenX;
                 sizeattr = "width";
             }
             // don't let mouse position go outside the window edges
@@ -1863,9 +1863,9 @@
                 // one end of the element
                 if (aEventBox) {
                     if (this.getAttribute("orient") == "vertical") {
-                        this.mDragState.mouseOffset = aMouseY - aEventBox.boxObject.screenY;
+                        this.mDragState.mouseOffset = aMouseY - aEventBox.screenY;
                     } else {
-                        this.mDragState.mouseOffset = aMouseX - aEventBox.boxObject.screenX;
+                        this.mDragState.mouseOffset = aMouseX - aEventBox.screenX;
                     }
                 }
             } else {
@@ -1967,9 +1967,9 @@
             let interval = this.mPixPerMin * ROUND_INTERVAL;
             let pos;
             if (this.getAttribute("orient") == "vertical") {
-                pos = event.screenY - this.parentNode.boxObject.screenY;
+                pos = event.screenY - this.parentNode.screenY;
             } else {
-                pos = event.screenX - this.parentNode.boxObject.screenX;
+                pos = event.screenX - this.parentNode.screenX;
             }
             newStart.minute = (Math.round(pos / interval) * ROUND_INTERVAL) + this.mStartMin;
             event.stopPropagation();
@@ -2037,13 +2037,13 @@
 
           if (this.getAttribute("orient") == "vertical") {
               this.mDragState.origLoc = event.screenY;
-              this.mDragState.origMin = Math.floor((event.screenY - this.parentNode.boxObject.screenY) / interval) * snapIntMin;
+              this.mDragState.origMin = Math.floor((event.screenY - this.parentNode.screenY) / interval) * snapIntMin;
               this.mDragState.limitEndMin = this.mDragState.origMin;
               this.mDragState.limitStartMin = this.mDragState.origMin;
               this.fgboxes.dragspacer.setAttribute("height", this.mDragState.origMin * this.mPixPerMin);
           } else {
               this.mDragState.origLoc = event.screenX;
-              this.mDragState.origMin = Math.floor((event.screenX - this.parentNode.boxObject.screenX) / interval) * snapIntMin;
+              this.mDragState.origMin = Math.floor((event.screenX - this.parentNode.screenX) / interval) * snapIntMin;
               this.fgboxes.dragspacer.setAttribute("width", this.mDragState.origMin * this.mPixPerMin);
           }
 
@@ -2343,8 +2343,8 @@
                 evl.textContent = cal.l10n.getCalString("eventUntitled");
             }
 
-            let gripbar = document.getAnonymousElementByAttribute(this, "anonid", "gripbar1").boxObject.height;
-            let height = document.getAnonymousElementByAttribute(this, "anonid", "eventbox").boxObject.height;
+            let gripbar = document.getAnonymousElementByAttribute(this, "anonid", "gripbar1").getBoundingClientRect().height;
+            let height = document.getAnonymousElementByAttribute(this, "anonid", "eventbox").getBoundingClientRect().height;
             evl.setAttribute("style", "max-height: " + Math.max(0, height-gripbar * 2) + "px");
         ]]></body>
       </method>
@@ -2637,9 +2637,9 @@
             let scrollbox = document.getAnonymousElementByAttribute(self, "anonid", "scrollbox");
             let size;
             if (self.orient == "horizontal") {
-                size = scrollbox.boxObject.width;
+                size = scrollbox.getBoundingClientRect().width;
             } else {
-                size = scrollbox.boxObject.height;
+                size = scrollbox.getBoundingClientRect().height;
             }
             let ppm = size / self.mVisibleMinutes;
             ppm = Math.floor(ppm * 1000) / 1000;
@@ -3566,11 +3566,11 @@
                 return null;
             }
             for (let col of this.mDateColumns) {
-                let boxObject = document.getAnonymousElementByAttribute(col.column, "anonid", "boxstack").boxObject;
-                if (aClientX >= boxObject.screenX &&
-                    aClientX <= (boxObject.screenX + boxObject.width) &&
-                    aClientY >= boxObject.screenY &&
-                    aClientY <= (boxObject.screenY + boxObject.height)) {
+                let element = document.getAnonymousElementByAttribute(col.column, "anonid", "boxstack");
+                if (aClientX >= element.screenX &&
+                    aClientX <= (element.screenX + element.getBoundingClientRect().width) &&
+                    aClientY >= element.screenY &&
+                    aClientY <= (element.screenY + element.getBoundingClientRect().height)) {
                     return col.column;
                 }
             }
@@ -3694,7 +3694,7 @@
                 let headerDayBoxMaxHeight = parseInt(document.defaultView.getComputedStyle(headerDayBox)
                                                              .getPropertyValue("max-height"), 10);
                 if (this.getAttribute("orient") == "vertical" &&
-                    headerDayBox.boxObject.height >= headerDayBoxMaxHeight) {
+                    headerDayBox.getBoundingClientRect().height >= headerDayBoxMaxHeight) {
                     // If the headerDayBox is just as high as the max-height, then
                     // there is already a scrollbar and we don't need to show the
                     // headerScrollbarSpacer. This is only valid for the non-rotated
@@ -3722,7 +3722,7 @@
             // belong to the range 0 <-> (24*60 - minutes_showed_in_the_view) but
             // we consider 25 hours instead of 24 to let the view scroll until
             // showing events that start just before 0.00
-            let maxFirstMin = 25 * 60 - Math.round(scrollbox.boxObject.height / this.mPixPerMin);
+            let maxFirstMin = 25 * 60 - Math.round(scrollbox.getBoundingClientRect().height / this.mPixPerMin);
             aMinute = Math.min(maxFirstMin, Math.max(0, aMinute));
 
             if (scrollbox.scrollHeight > 0) {

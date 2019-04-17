@@ -185,7 +185,7 @@ var TodayPane = {
             dragCenterImage.removeAttribute("hidden");
             // Move the starting point in the center so we have a fixed
             // point where stopping the day switching while still dragging
-            let centerObj = dragCenterImage.boxObject;
+            let centerObj = dragCenterImage.getBoundingClientRect();
             TodayPane.minidayDrag.startX = Math.floor(centerObj.x + centerObj.width / 2);
             TodayPane.minidayDrag.startY = Math.floor(centerObj.y + centerObj.height / 2);
 

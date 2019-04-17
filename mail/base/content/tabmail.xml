@@ -2153,7 +2153,7 @@
             this.setAttribute("closebuttons", "activetab");
             break;
           case 1:
-            var width = this.firstChild.boxObject.width;
+            var width = this.firstChild.getBoundingClientRect().width;
             // 0 width is an invalid value and indicates
             // an item without display, so ignore.
             if (width > this.mTabClipWidth || width == 0)
@@ -2186,7 +2186,7 @@
             case "underflow":
               break;
             case "resize":
-              var width = this.arrowScrollbox.boxObject.width;
+              var width = this.arrowScrollbox.getBoundingClientRect().width;
               if (width != this.arrowScrollboxWidth) {
                 this._updateCloseButtons();
                 // XXX without this line the tab bar won't budge
@@ -2245,13 +2245,12 @@
       <method name="_notifyBackgroundTab">
         <parameter name="aTab"/>
         <body><![CDATA[
-          var tsbo = this.arrowScrollbox.boxObject;
+          var tsbo = this.arrowScrollbox;
           var tsboStart = tsbo.screenX;
-          var tsboEnd = tsboStart + tsbo.width;
+          var tsboEnd = tsboStart + tsbo.getBoundingClientRect().width;
 
-          var ctbo = aTab.boxObject;
-          var ctboStart = ctbo.screenX;
-          var ctboEnd = ctboStart + ctbo.width;
+          var ctboStart = aTab.screenX;
+          var ctboEnd = ctboStart + aTab.getBoundingClientRect().width;
 
           // only start the flash timer if the new tab (which was loaded in
           // the background) is not completely visible
@@ -2301,12 +2300,10 @@
           if ((event.type != "drop") && (event.type != "dragover"))
             return tab;
 
-          let boxObject = tab.boxObject;
-
-          if (event.screenX < boxObject.screenX + boxObject.width * .25)
+          if (event.screenX < tab.screenX + tab.getBoundingClientRect().width * .25)
             return null;
 
-          if (event.screenX > boxObject.screenX + boxObject.width * .75)
+          if (event.screenX > tab.screenX + tab.getBoundingClientRect().width * .75)
             return null;
 
           return tab;
@@ -2321,11 +2318,11 @@
 
           if (window.getComputedStyle(this).direction == "ltr") {
             for (let i = 0; i < tabs.length; i++)
-              if (event.screenX < (tabs[i].boxObject.screenX + (tabs[i].boxObject.width / 2)))
+              if (event.screenX < (tabs[i].screenX + (tabs[i].getBoundingClientRect().width / 2)))
                 return i;
           } else {
             for (let i = 0; i < tabs.length; i++)
-              if (event.screenX > (tabs[i].boxObject.screenX + (tabs[i].boxObject.width / 2)))
+              if (event.screenX > (tabs[i].screenX + (tabs[i].getBoundingClientRect().width / 2)))
                 return i;
           }
 
@@ -2385,7 +2382,7 @@
         thumbnail.width = Math.ceil(screen.availWidth / 5.75);
         thumbnail.height = Math.round(thumbnail.width * 0.5625);
 
-        let snippetWidth = panel.boxObject.width * .6;
+        let snippetWidth = panel.getBoundingClientRect().width * .6;
         let scale = thumbnail.width / snippetWidth;
 
         let ctx = thumbnail.getContext("2d");
@@ -2393,8 +2390,8 @@
         ctx.scale(scale, scale);
 
         ctx.drawWindow(window,
-                panel.boxObject.screenX - window.mozInnerScreenX,
-                panel.boxObject.screenY - window.mozInnerScreenY,
+                panel.screenX - window.mozInnerScreenX,
+                panel.screenY - window.mozInnerScreenY,
                 snippetWidth,
                 snippetWidth * 0.5625,
                 "rgb(255,255,255)");
@@ -2641,10 +2638,10 @@
 
         // check if the drop point is horizontally within the window
         if (eX > wX && eX < (wX + window.outerWidth)) {
-          let bo = this.arrowScrollbox.boxObject;
+          let bo = this.arrowScrollbox;
           // also avoid detaching if the the tab was dropped too close to
           // the tabbar (half a tab)
-          let endScreenY = bo.screenY + 1.5 * bo.height;
+          let endScreenY = bo.screenY + 1.5 * bo.getBoundingClientRect().height;
           let eY = event.screenY;
 
           if (eY < endScreenY && eY > window.screenY)
@@ -2756,11 +2753,11 @@
           if (tabContainer.getAttribute("overflow") != "true")
             return;
 
-          var tabstripBO = tabContainer.arrowScrollbox.boxObject;
+          var tabstripBO = tabContainer.arrowScrollbox;
           for (var i = 0; i < this.childNodes.length; i++) {
-            var curTabBO = this.childNodes[i].tab.boxObject;
+            var curTabBO = this.childNodes[i].tab;
             if (curTabBO.screenX >= tabstripBO.screenX &&
-                curTabBO.screenX + curTabBO.width <= tabstripBO.screenX + tabstripBO.width)
+                curTabBO.screenX + curTabBO.getBoundingClientRect().width <= tabstripBO.screenX + tabstripBO.getBoundingClientRect().width)
               this.childNodes[i].setAttribute("tabIsVisible", "true");
             else
               this.childNodes[i].removeAttribute("tabIsVisible");

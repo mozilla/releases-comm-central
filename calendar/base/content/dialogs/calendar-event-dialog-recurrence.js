@@ -62,16 +62,16 @@ const RecurrencePreview = {
         let row = this.node.querySelector("row");
         let rows = row.parentNode;
 
-        let contentWidth = minimonth.boxObject.width;
-        let containerWidth = this.node.boxObject.width;
+        let contentWidth = minimonth.getBoundingClientRect().width;
+        let containerWidth = this.node.getBoundingClientRect().width;
 
         // Now find out how much elements can be displayed.
         // this is a simple division which always yields a positive integer value.
         const cWidth = containerWidth % contentWidth;
         let numHorizontal = (containerWidth - cWidth) / contentWidth;
 
-        let contentHeight = minimonth.boxObject.height;
-        let containerHeight = this.node.boxObject.height;
+        let contentHeight = minimonth.getBoundingClientRect().height;
+        let containerHeight = this.node.getBoundingClientRect().height;
 
         const cHeight = containerHeight % contentHeight;
         // Now find out how much elements can be displayed.
@@ -146,7 +146,7 @@ const RecurrencePreview = {
      */
     updatePreview(recurrenceInfo) {
         let minimonth = this.node.querySelector("minimonth");
-        this.node.style.minHeight = minimonth.boxObject.height + "px";
+        this.node.style.minHeight = minimonth.getBoundingClientRect().height + "px";
 
         this.mRecurrenceInfo = recurrenceInfo;
         let start = this.dateTime.clone();

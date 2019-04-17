@@ -882,7 +882,7 @@
         <parameter name="event"/>
         <body><![CDATA[
             let hasDropped;
-            if (event.clientY < this.tree.boxObject.y) {
+            if (event.clientY < this.tree.getBoundingClientRect().y) {
                 hasDropped = this.drop(this.treebox.getFirstVisibleRow(), -1);
             } else {
                 hasDropped = this.drop(this.treebox.getLastVisibleRow(), 1);
@@ -903,7 +903,7 @@
         <body><![CDATA[
             // The dragenter/dragover events expect false to be returned when
             // dropping is allowed, therefore we return !canDrop.
-            if (event.clientY < this.tree.boxObject.y) {
+            if (event.clientY < this.tree.getBoundingClientRect().y) {
                 return !this.canDrop(this.treebox.getFirstVisibleRow(), -1);
             } else {
                 return !this.canDrop(this.treebox.getLastVisibleRow(), 1);

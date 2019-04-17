@@ -103,7 +103,7 @@ class MozCalendarDayLabel extends MozXULElement {
 
     getLongWeekdayPixels() {
         // Only do this if the long weekdays are visible and we haven't already cached.
-        let longNameWidth = this.longWeekdayName.boxObject.width;
+        let longNameWidth = this.longWeekdayName.getBoundingClientRect().width;
 
         if (longNameWidth == 0) {
             // weekdaypixels have not yet been laid out

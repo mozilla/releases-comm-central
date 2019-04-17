@@ -101,7 +101,7 @@
             let day =
                 document.getAnonymousElementByAttribute(
                     this, "anonid", "day");
-            return day.boxObject.height;
+            return day.getBoundingClientRect().height;
         ]]></getter>
       </property>
 
@@ -610,7 +610,7 @@
             if (items.length > 0) {
                 let i = 0;
                 do {
-                    this.mRowHeight = items[i].boxObject.height;
+                    this.mRowHeight = items[i].getBoundingClientRect().height;
                     ++i;
                 } while (i < items.length && !this.mRowHeight);
                 this.mContentHeight = this.mRowHeight * items.length;
@@ -620,7 +620,7 @@
 
       <method name="createOrRemoveDummyRows">
         <body><![CDATA[
-            let listboxHeight = this.boxObject.height;
+            let listboxHeight = this.getBoundingClientRect().height;
 
             // Remove rows to remove scrollbar
             let kids = this.childNodes;

@@ -380,7 +380,7 @@
 
         // Compute the overhead size.
         let textboxHeight = textbox.clientHeight;
-        let deckHeight = textbox.parentNode.boxObject.height;
+        let deckHeight = textbox.parentNode.getBoundingClientRect().height;
         this._TEXTBOX_VERTICAL_OVERHEAD = deckHeight - textboxHeight;
 
         // Calculate the number of lines to display.

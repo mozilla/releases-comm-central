@@ -72,7 +72,7 @@ var gSanitizePromptDialog = {
       this.prepareWarning();
       if (warningBox.hidden) {
         warningBox.hidden = false;
-        window.resizeBy(0, warningBox.boxObject.height);
+        window.resizeBy(0, warningBox.getBoundingClientRect().height);
       }
       window.document.title =
         this.bundleBrowser.getString("sanitizeDialog2.everything.title");
@@ -81,7 +81,7 @@ var gSanitizePromptDialog = {
 
     // If clearing a specific time range
     if (!warningBox.hidden) {
-      window.resizeBy(0, -warningBox.boxObject.height);
+      window.resizeBy(0, -warningBox.getBoundingClientRect().height);
       warningBox.hidden = true;
     }
     window.document.title =
@@ -199,8 +199,8 @@ var gSanitizePromptDialog = {
     if (itemList.collapsed) {
       expanderButton.className = "expander-up";
       itemList.setAttribute("collapsed", "false");
-      if (document.documentElement.boxObject.height)
-        window.resizeBy(0, itemList.boxObject.height);
+      if (document.documentElement.getBoundingClientRect().height)
+        window.resizeBy(0, itemList.getBoundingClientRect().height);
     }
   },
 
@@ -213,7 +213,7 @@ var gSanitizePromptDialog = {
 
     if (!itemList.collapsed) {
       expanderButton.className = "expander-down";
-      window.resizeBy(0, -itemList.boxObject.height);
+      window.resizeBy(0, -itemList.getBoundingClientRect().height);
       itemList.setAttribute("collapsed", "true");
     }
   },

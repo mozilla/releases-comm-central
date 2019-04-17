@@ -56,10 +56,10 @@ function drag_n_drop_element(aDragObject, aDragWindow, aDropObject,
   synthesize_drag_over(aDropWindow, aDropObject, dt);
 
   synthesize_drop(aDropWindow, aDropObject, dt,
-      { screenX : aDropObject.boxObject.screenX +
-                    (aDropObject.boxObject.width * aRelDropX),
-        screenY : aDropObject.boxObject.screenY +
-                    (aDropObject.boxObject.width * aRelDropY)
+      { screenX : aDropObject.screenX +
+                    (aDropObject.getBoundingClientRect().width * aRelDropX),
+        screenY : aDropObject.screenY +
+                    (aDropObject.getBoundingClientRect().width * aRelDropY)
       });
 }
 
@@ -171,13 +171,13 @@ function _synthesizeDragEvent(aType, aWindow, aDispatcher, aDt, aArgs)
   if (aArgs && ("screenX" in aArgs))
     screenX = aArgs.screenX;
   else
-    screenX = aDispatcher.boxObject.ScreenX;
+    screenX = aDispatcher.ScreenX;
 
   let screenY;
   if (aArgs && ("screenY" in aArgs))
     screenY = aArgs.screenY;
   else
-    screenY = aDispatcher.boxObject.ScreenY;
+    screenY = aDispatcher.ScreenY;
 
   let event = aWindow.document.createEvent("DragEvent");
   event.initDragEvent(aType, true, true, aWindow, 0,

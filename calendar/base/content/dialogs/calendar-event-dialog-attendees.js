@@ -564,7 +564,7 @@ function onResize() {
     let grid = document.getElementById("freebusy-grid");
     let gridScrollbar = document.getElementById("horizontal-scrollbar");
     grid.fitDummyRows();
-    let gridRatio = grid.boxObject.width / grid.documentSize;
+    let gridRatio = grid.getBoundingClientRect().width / grid.documentSize;
     let gridMaxpos = gridScrollbar.getAttribute("maxpos");
     let gridInc = gridMaxpos * gridRatio / (1 - gridRatio);
     gridScrollbar.setAttribute("pageincrement", gridInc);
@@ -573,7 +573,7 @@ function onResize() {
     let attendeesScrollbar = document.getElementById("vertical-scrollbar");
     let box = document.getElementById("vertical-scrollbar-box");
     attendees.fitDummyRows();
-    let attRatio = attendees.boxObject.height / attendees.documentSize;
+    let attRatio = attendees.getBoundingClientRect().height / attendees.documentSize;
     let attMaxpos = attendeesScrollbar.getAttribute("maxpos");
     if (attRatio < 1) {
         box.removeAttribute("collapsed");
@@ -870,7 +870,7 @@ function onMouseScroll(event) {
 function onAttrModified(event) {
     if (event.attrName == "width") {
         let selectionbar = document.getElementById("selection-bar");
-        selectionbar.setWidth(selectionbar.boxObject.width);
+        selectionbar.setWidth(selectionbar.getBoundingClientRect().width);
         return;
     }
 
@@ -933,8 +933,8 @@ function onTimebar(event) {
     // with plain xul and css, at least as far as i know.
     let timebar = document.getElementById("timebar");
     let scrollbar = document.getElementById("horizontal-scrollbar");
-    document.documentElement.style.setProperty("--spacer-top-height", timebar.boxObject.height + "px");
-    document.documentElement.style.setProperty("--spacer-bottom-height", scrollbar.boxObject.height + "px");
+    document.documentElement.style.setProperty("--spacer-top-height", timebar.getBoundingClientRect().height + "px");
+    document.documentElement.style.setProperty("--spacer-bottom-height", scrollbar.getBoundingClientRect().height + "px");
 }
 
 /**

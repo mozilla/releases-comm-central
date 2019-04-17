@@ -150,7 +150,7 @@
                     document.getAnonymousElementByAttribute(
                         this, "anonid", "leftbox");
             }
-            return this.mLeftBox.boxObject.width;
+            return this.mLeftBox.getBoundingClientRect().width;
         ]]></getter>
       </property>
       <property name="rightdragWidth">
@@ -160,7 +160,7 @@
                     document.getAnonymousElementByAttribute(
                         this, "anonid", "rightbox");
             }
-            return this.mRightBox.boxObject.width;
+            return this.mRightBox.getBoundingClientRect().width;
         ]]></getter>
       </property>
 
@@ -227,7 +227,7 @@
             // Calculate the difference between content and container in pixels.
             // The container is the window showing this control, the content is the
             // total number of pixels the selection bar can theoretically take up.
-            let total_width = this.mContentWidth * this.mRange - this.parentNode.boxObject.width;
+            let total_width = this.mContentWidth * this.mRange - this.parentNode.getBoundingClientRect().width;
 
             // Calculate the current scroll offset.
             offset = Math.floor(total_width * this.mRatio);
@@ -333,7 +333,7 @@
       <handler event="mousedown"><![CDATA[
           let element = event.target;
           this.mMouseX = event.screenX;
-          let mouseX = event.clientX - element.boxObject.x;
+          let mouseX = event.clientX - element.getBoundingClientRect().x;
 
           if (mouseX >= this.mMargin) {
               if (mouseX <= (this.mMargin + this.mWidth)) {
@@ -377,7 +377,7 @@
               }
           } else if (this.mDragState == 2) {
               // Move the startdate only...
-              let delta = event.screenX - this.mSelectionbar.boxObject.screenX;
+              let delta = event.screenX - this.mSelectionbar.screenX;
               let newStart = this.moveTime(this.mStartDate, delta, true);
               if (newStart.compare(this.mEndDate) >= 0) {
                   if (this.mStartDate.isDate) {
@@ -391,8 +391,8 @@
               }
           } else if (this.mDragState == 3) {
               // Move the enddate only..
-              let delta = mouseX - (this.mSelectionbar.boxObject.screenX +
-                                    this.mSelectionbar.boxObject.width);
+              let delta = mouseX - (this.mSelectionbar.screenX +
+                                    this.mSelectionbar.getBoundingClientRect().width);
               let newEnd = this.moveTime(this.mEndDate, delta, true);
               if (newEnd.compare(this.mStartDate) < 0) {
                   newEnd = this.mStartDate;

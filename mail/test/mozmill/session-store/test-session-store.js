@@ -204,7 +204,7 @@ function test_message_pane_height_persistence() {
   // 3pane window.
   let mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
 
-  let oldHeight = mc.e("messagepaneboxwrapper").boxObject.height;
+  let oldHeight = mc.e("messagepaneboxwrapper").getBoundingClientRect().height;
   let minHeight = Math.floor(mc.e("messagepaneboxwrapper").getAttribute("minheight"));
   let newHeight = Math.floor((minHeight + oldHeight) / 2);
   let diffHeight = oldHeight - newHeight;
@@ -217,7 +217,7 @@ function test_message_pane_height_persistence() {
   _move_splitter(mc.e("threadpane-splitter"), 0, diffHeight);
 
   // Check that the moving of the threadpane-splitter resulted in the correct height.
-  let actualHeight = mc.e("messagepaneboxwrapper").boxObject.height;
+  let actualHeight = mc.e("messagepaneboxwrapper").getBoundingClientRect().height;
 
   assert_equals(newHeight, actualHeight,
     "The message pane height should be " + newHeight + ", but is actually " +
@@ -236,7 +236,7 @@ function test_message_pane_height_persistence() {
   be_in_folder(folderA);
   assert_message_pane_visible();
 
-  actualHeight = mc.e("messagepaneboxwrapper").boxObject.height;
+  actualHeight = mc.e("messagepaneboxwrapper").getBoundingClientRect().height;
 
   assert_equals(newHeight, actualHeight,
     "The message pane height should be " + newHeight + ", but is actually " +
@@ -254,7 +254,7 @@ function test_message_pane_height_persistence() {
   be_in_folder(folderA);
   assert_message_pane_visible();
 
-  actualHeight = mc.e("messagepaneboxwrapper").boxObject.height;
+  actualHeight = mc.e("messagepaneboxwrapper").getBoundingClientRect().height;
   assert_equals(oldHeight, actualHeight,
     "The message pane height should be " + oldHeight + ", but is actually " +
     actualHeight);
@@ -279,7 +279,7 @@ function test_message_pane_width_persistence() {
   // 3pane window.
   let mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
 
-  let oldWidth = mc.e("messagepaneboxwrapper").boxObject.width;
+  let oldWidth = mc.e("messagepaneboxwrapper").getBoundingClientRect().width;
   let minWidth = Math.floor(mc.e("messagepaneboxwrapper").getAttribute("minwidth"));
   let newWidth = Math.floor((minWidth + oldWidth) / 2);
   let diffWidth = oldWidth - newWidth;
@@ -292,7 +292,7 @@ function test_message_pane_width_persistence() {
   // we are in vertical layout.
   _move_splitter(mc.e("threadpane-splitter"), diffWidth, 0);
   // Check that the moving of the folderpane_splitter resulted in the correct width.
-  let actualWidth = mc.e("messagepaneboxwrapper").boxObject.width;
+  let actualWidth = mc.e("messagepaneboxwrapper").getBoundingClientRect().width;
 
   // FIXME: For whatever reasons the new width is off by one pixel on Mac OSX
   // But this test case is not for testing moving around a splitter but for
@@ -317,13 +317,13 @@ function test_message_pane_width_persistence() {
   assert_message_pane_visible();
   assert_pane_layout(kVerticalMailLayout);
 
-  actualWidth = mc.e("messagepaneboxwrapper").boxObject.width;
+  actualWidth = mc.e("messagepaneboxwrapper").getBoundingClientRect().width;
   assert_equals(newWidth, actualWidth, "The message pane width should be " +
     newWidth + ", but is actually " + actualWidth);
 
   // The old width is restored.
   _move_splitter(mc.e("threadpane-splitter"), -diffWidth, 0);
-  actualWidth = mc.e("messagepaneboxwrapper").boxObject.width;
+  actualWidth = mc.e("messagepaneboxwrapper").getBoundingClientRect().width;
 
   // FIXME: For whatever reasons the new width is off by two pixels on Mac OSX
   // But this test case is not for testing moving around a splitter but for
@@ -344,7 +344,7 @@ function test_message_pane_width_persistence() {
   assert_message_pane_visible();
   assert_pane_layout(kVerticalMailLayout);
 
-  actualWidth = mc.e("messagepaneboxwrapper").boxObject.width;
+  actualWidth = mc.e("messagepaneboxwrapper").getBoundingClientRect().width;
   assert_equals(oldWidth, actualWidth, "The message pane width should be " +
     oldWidth + ", but is actually " + actualWidth);
 

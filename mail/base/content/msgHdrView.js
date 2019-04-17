@@ -2601,12 +2601,12 @@ function toggleAttachmentList(expanded, updateFocus) {
 
     attachmentList.setOptimumWidth();
 
-    var attachmentHeight = attachmentView.boxObject.height -
-      attachmentList.boxObject.height + attachmentList.preferredHeight;
+    var attachmentHeight = attachmentView.getBoundingClientRect().height -
+      attachmentList.getBoundingClientRect().height + attachmentList.preferredHeight;
 
     // If the attachments box takes up too much of the message pane, downsize:
     var maxAttachmentHeight = document.getElementById("messagepanebox")
-                                      .boxObject.height / 4;
+                                      .getBoundingClientRect().height / 4;
 
     attachmentView.setAttribute("height", Math.min(attachmentHeight,
                                                    maxAttachmentHeight));

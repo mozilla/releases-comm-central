@@ -194,7 +194,7 @@ function test_long_attachment_name() {
   let messagepaneBox = mc.e("messagepanebox");
   let attachmentBar = mc.e("attachmentBar");
 
-  assert_true(messagepaneBox.boxObject.width >= attachmentBar.boxObject.width,
+  assert_true(messagepaneBox.getBoundingClientRect().width >= attachmentBar.getBoundingClientRect().width,
               "Attachment bar has expanded off the edge of the window!");
 }
 

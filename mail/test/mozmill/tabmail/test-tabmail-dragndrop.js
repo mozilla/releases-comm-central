@@ -228,7 +228,6 @@ function test_tab_reorder_detach(){
 
   let tab1 = mc.tabmail.tabContainer.childNodes[1];
   let dropContent = mc.e("tabpanelcontainer");
-  let box = dropContent.boxObject;
 
   let dt = synthesize_drag_start(mc.window, tab1, mc.tabmail.tabContainer);
 
@@ -236,8 +235,8 @@ function test_tab_reorder_detach(){
 
   // notify tab1 drag has ended
   synthesize_drag_end(mc.window, dropContent, tab1, dt,
-      { screenX : (box.screenX + box.width / 2 ),
-        screenY : (box.screenY + box.height / 2 ) });
+      { screenX : (dropContent.screenX + dropContent.getBoundingClientRect().width / 2 ),
+        screenY : (dropContent.screenY + dropContent.getBoundingClientRect().height / 2 ) });
 
   // ... and wait for the new window
   mc2 = wait_for_new_window("mail:3pane");

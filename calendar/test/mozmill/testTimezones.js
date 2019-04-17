@@ -266,7 +266,7 @@ function verify(controller, dates, timezones, times) {
             let [correctHour, minutes, day] = selectedTime[tzIdx];
 
             let timeNode = lookup(`${timeLine}/[${correctHour}]`).getNode();
-            let timeY = timeNode.boxObject.y + timeNode.boxObject.height * (minutes / 60);
+            let timeY = timeNode.getBoundingClientRect().y + timeNode.getBoundingClientRect().height * (minutes / 60);
 
             let eventNodes = [];
 
@@ -283,7 +283,7 @@ function verify(controller, dates, timezones, times) {
 
             findEventsInNode(stackNode, eventNodes);
             eventNodes = eventNodes.filter(node => node.mOccurrence.title == timezones[tzIdx])
-                                   .map(node => node.boxObject.y);
+                                   .map(node => node.getBoundingClientRect().y);
 
             dump(`Looking for ${timezones[tzIdx]} at ${timeY}: found `);
             dump(eventNodes.join(", ") + "\n");

@@ -25,11 +25,11 @@ var calview = {
      *                      resides over the xulelement
      */
     isMouseOverBox: function(aMouseEvent, aXULElement) {
-        let boxObject = aXULElement.boxObject;
-        let boxWidth = boxObject.width;
-        let boxHeight = boxObject.height;
-        let boxScreenX = boxObject.screenX;
-        let boxScreenY = boxObject.screenY;
+        let boundingRect = aXULElement.getBoundingClientRect();
+        let boxWidth = boundingRect.width;
+        let boxHeight = boundingRect.height;
+        let boxScreenX = aXULElement.screenX;
+        let boxScreenY = aXULElement.screenY;
         let mouseX = aMouseEvent.screenX;
         let mouseY = aMouseEvent.screenY;
         let xIsWithin = (mouseX >= boxScreenX) &&

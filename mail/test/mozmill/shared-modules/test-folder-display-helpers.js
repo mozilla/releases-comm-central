@@ -1096,18 +1096,18 @@ function _row_click_helper(aController, aTree, aViewIndex, aButton, aExtra) {
   // very important, gotta be able to see the row
   aTree.ensureRowIsVisible(aViewIndex);
   // coordinates of the upper left of the entire tree widget (headers included)
-  let tx = aTree.boxObject.x, ty = aTree.boxObject.y;
+  let tx = aTree.getBoundingClientRect().x, ty = aTree.getBoundingClientRect().y;
   // coordinates of the row display region of the tree (below the headers)
   let children = aController.e(aTree.id, {tagName: "treechildren"});
-  let x = children.boxObject.x, y = children.boxObject.y;
+  let x = children.getBoundingClientRect().x, y = children.getBoundingClientRect().y;
   // Click in the middle of the row by default
-  let rowX = children.boxObject.width / 2;
+  let rowX = children.getBoundingClientRect().width / 2;
   // For the thread tree, Position our click on the subject column (which cannot
   // be hidden), and far enough in that we are in no danger of clicking the
   // expand toggler unless that is explicitly requested.
   if (aTree.id == "threadTree") {
     let subjectCol = aController.e("subjectCol");
-    rowX = subjectCol.boxObject.x - tx + 8;
+    rowX = subjectCol.getBoundingClientRect().x - tx + 8;
     // click on the toggle if so requested
     if (aExtra !== "toggle")
       rowX += 32;

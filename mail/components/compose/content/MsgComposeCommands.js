@@ -5658,8 +5658,7 @@ var envelopeDragObserver = {
 
     if (target == bucket) {
       // Dragging or dropping at top/bottom border of the listbox
-      let box = target.boxObject;
-      if ((aEvent.screenY - box.screenY) / box.height < 0.5) {
+      if ((aEvent.screenY - target.screenY) / target.getBoundingClientRect().height < 0.5) {
         target = bucket.firstChild;
       } else {
         target = bucket.lastChild;
@@ -5669,8 +5668,7 @@ var envelopeDragObserver = {
       // Dragging or dropping at top border of the listbox.
       // Allow bottom half of attachment list header as extended drop target
       // for top of list, because otherwise it would be too small.
-      let box = target.boxObject;
-      if ((aEvent.screenY - box.screenY) / box.height >= 0.5) {
+      if ((aEvent.screenY - target.screenY) / target.getBoundingClientRect().height >= 0.5) {
         target = bucket.firstChild;
         // We'll check below if this is a valid target.
       } else {
@@ -5683,8 +5681,7 @@ var envelopeDragObserver = {
     if (target.matches("richlistitem.attachmentItem")) {
       // If we're dragging/dropping in bottom half of attachmentitem,
       // adjust target to target.nextSibling (to show dropmarker above that).
-      let box = target.boxObject;
-      if ((aEvent.screenY - box.screenY) / box.height >= 0.5) {
+      if ((aEvent.screenY - target.screenY) / target.getBoundingClientRect().height >= 0.5) {
         target = target.nextSibling;
 
         // If there's no target.nextSibling, we're dragging/dropping

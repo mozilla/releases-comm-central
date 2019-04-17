@@ -61,10 +61,10 @@ function awInitializeNumberOfRowsShown() {
   // This lets users shrink the address widget to one row (with delicate UX)
   // and thus maximize the space available for composition body,
   // especially on small screens.
-  msgHeadersToolbar.minHeight = msgHeadersToolbar.boxObject.height;
+  msgHeadersToolbar.minHeight = msgHeadersToolbar.getBoundingClientRect().height;
 
-  msgHeadersToolbar.height = msgHeadersToolbar.boxObject.height +
-    addressingWidget.boxObject.height * (awNumRowsShownDefault - 1) +
+  msgHeadersToolbar.height = msgHeadersToolbar.getBoundingClientRect().height +
+    addressingWidget.getBoundingClientRect().height * (awNumRowsShownDefault - 1) +
     extraHeight;
 
   // Update addressingWidget internals.
@@ -881,7 +881,7 @@ function awFitDummyRows() {
 
 function awCreateOrRemoveDummyRows() {
   let listbox = document.getElementById("addressingWidget");
-  let listboxHeight = listbox.boxObject.height;
+  let listboxHeight = listbox.getBoundingClientRect().height;
 
   // remove rows to remove scrollbar
   let kids = listbox.querySelectorAll("[_isDummyRow]");
@@ -909,7 +909,7 @@ function awCalcContentHeight() {
     // find the first listitem with a boxObject and use it as precedent
     var i = 0;
     do {
-      gAWRowHeight = items[i].boxObject.height;
+      gAWRowHeight = items[i].getBoundingClientRect().height;
       ++i;
     } while (i < items.length && !gAWRowHeight);
     gAWContentHeight = gAWRowHeight * items.length;
@@ -923,7 +923,7 @@ function awCreateDummyItem(aParent) {
   var titem = document.createElement("richlistitem");
   titem.setAttribute("_isDummyRow", "true");
   titem.setAttribute("class", "dummy-row");
-  titem.style.height = item.boxObject.height + "px";
+  titem.style.height = item.getBoundingClientRect().height + "px";
 
   for (let i = 0; i < awGetNumberOfCols(); i++) {
     let cell = awCreateDummyCell(titem);

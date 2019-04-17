@@ -153,8 +153,8 @@ var triggerMouseEvent = function(element, eventType, canBubble, clientX, clientY
 
   // Fixing this - make the mouse understand where it is on the screen, needed
   // for double click.
-  var screenX = element.boxObject.screenX ? element.boxObject.screenX : 0;
-  var screenY = element.boxObject.screenY ? element.boxObject.screenY : 0;
+  var screenX = element.screenX ? element.screenX : 0;
+  var screenY = element.screenY ? element.screenY : 0;
 
   canBubble = (typeof(canBubble) == undefined) ? true : canBubble;
 

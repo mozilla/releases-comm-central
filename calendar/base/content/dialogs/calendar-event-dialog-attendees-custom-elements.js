@@ -102,7 +102,7 @@ class MozCalendarEventFreebusyTimebar extends MozElements.RichListBox {
      */
     get contentWidth() {
         let template = this.getElementsByTagName("freebusy-day")[0];
-        return template.nextSibling.boxObject.x - template.boxObject.x;
+        return template.nextSibling.getBoundingClientRect().x - template.getBoundingClientRect().x;
     }
 
     /**
@@ -111,7 +111,7 @@ class MozCalendarEventFreebusyTimebar extends MozElements.RichListBox {
      * @returns {Number}       Parent node's width
      */
     get containerWidth() {
-        return this.parentNode.boxObject.width;
+        return this.parentNode.getBoundingClientRect().width;
     }
 
     /**
@@ -1068,7 +1068,7 @@ class MozCalendarEventAttendeesList extends MozElements.RichListBox {
         if (items.length > 0) {
             let i = 0;
             do {
-                this.mRowHeight = items[i].boxObject.height;
+                this.mRowHeight = items[i].getBoundingClientRect().height;
                 ++i;
             } while (i < items.length && !this.mRowHeight);
             this.mContentHeight = this.mRowHeight * items.length;
@@ -1079,7 +1079,7 @@ class MozCalendarEventAttendeesList extends MozElements.RichListBox {
      * Creates or removes dummy rows from the calendar-event-attendees-list.
      */
     createOrRemoveDummyRows() {
-        let listboxHeight = this.boxObject.height;
+        let listboxHeight = this.getBoundingClientRect().height;
 
         // Remove rows to remove scrollbar.
         let kids = this.childNodes;
@@ -1535,7 +1535,7 @@ class MozCalendarEventFreebusyRow extends MozXULElement {
      */
     get contentWidth() {
         // Difference between the x coordinate of first and second child of hours node
-        const diffX = this.hoursNode.childNodes[1].boxObject.x - this.hoursNode.childNodes[0].boxObject.x;
+        const diffX = this.hoursNode.childNodes[1].getBoundingClientRect().x - this.hoursNode.childNodes[0].getBoundingClientRect().x;
         return diffX * this.numHours;
     }
 
@@ -1545,7 +1545,7 @@ class MozCalendarEventFreebusyRow extends MozXULElement {
      * @returns {Number}        Nearest listbox width
      */
     get containerWidth() {
-        return this.closest("listbox").boxObject.width;
+        return this.closest("listbox").getBoundingClientRect().width;
     }
 
     /**

@@ -100,18 +100,18 @@
           // the same height.
           let box = this;
           let estimatedRow = Math.floor(box.scrollTop /
-                                        this._childNodes[0].boxObject.height);
+                                        this._childNodes[0].getBoundingClientRect().height);
           let estimatedIndex = estimatedRow * this._itemsPerRow();
-          let offset = this._childNodes[estimatedIndex].boxObject.screenY -
-                       box.boxObject.screenY;
+          let offset = this._childNodes[estimatedIndex].screenY -
+                       box.screenY;
 
           if (offset > 0) {
             // We went too far! Go back until we find an item totally off-
             // screen, then return the one after that.
             for (let i = estimatedIndex - 1; i >= 0; i--) {
-              let childBoxObj = this._childNodes[i].boxObject;
-              if (childBoxObj.screenY + childBoxObj.height <=
-                  box.boxObject.screenY)
+              let element = this._childNodes[i];
+              if (element.screenY + element.getBoundingClientRect().height <=
+                  box.screenY)
                 return i + 1;
             }
 
@@ -122,9 +122,9 @@
           // We didn't go far enough! Keep going until we find an item at
           // least partially on-screen.
           for (let i = estimatedIndex; i < this._childNodes.length; i++) {
-            let childBoxObj = this._childNodes[i].boxObject;
-            if (childBoxObj.screenY + childBoxObj.height >
-                box.boxObject.screenY > 0)
+            let element = this._childNodes[i];
+            if (element.screenY + element.getBoundingClientRect().height >
+                box.screenY > 0)
               return i;
           }
 
@@ -146,13 +146,13 @@
           let box = this;
 
           // Are we too far down?
-          if (item.boxObject.screenY < box.boxObject.screenY)
-            box.scrollTop = item.boxObject.y - box.boxObject.y;
+          if (item.screenY < box.screenY)
+            box.scrollTop = item.getBoundingClientRect().y - box.getBoundingClientRect().y;
           // ... or not far enough?
-          else if (item.boxObject.screenY + item.boxObject.height >
-                   box.boxObject.screenY + box.boxObject.height)
-            box.scrollTop = item.boxObject.y + item.boxObject.height -
-                            box.boxObject.y - box.boxObject.height;
+          else if (item.screenY + item.getBoundingClientRect().height >
+                   box.screenY + box.getBoundingClientRect().height)
+            box.scrollTop = item.getBoundingClientRect().y + item.getBoundingClientRect().height -
+                            box.getBoundingClientRect().y - box.getBoundingClientRect().height;
         ]]></body>
       </method>
       <method name="scrollToIndex">
@@ -162,7 +162,7 @@
           let item = this.getItemAtIndex(index);
           if (!item)
             return;
-          box.scrollTop = item.boxObject.y - box.boxObject.y;
+          box.scrollTop = item.getBoundingClientRect().y - box.getBoundingClientRect().y;
         ]]></body>
       </method>
       <method name="appendItem">
@@ -215,9 +215,9 @@
       </method>
 
       <!-- Get the preferred height (the height that would allow us to fit
-           everything without scrollbars) of the attachmentlist's boxObject. -->
+           everything without scrollbars) of the attachmentlist's bounding rectangle. -->
       <property name="preferredHeight" readonly="true"
-                onget="return this.scrollbox.scrollHeight - this.scrollbox.clientHeight + this.boxObject.height;"/>
+                onget="return this.scrollbox.scrollHeight - this.scrollbox.clientHeight + this.getBoundingClientRect().height;"/>
 
       <!-- Find the attachmentitem node for the specified nsIMsgAttachment. -->
       <method name="findItemForAttachment">
@@ -260,8 +260,8 @@
           if (this._childNodes.length < 2)
             return this._childNodes.length;
 
-          let itemWidth = this._childNodes[1].boxObject.x -
-                          this._childNodes[0].boxObject.x;
+          let itemWidth = this._childNodes[1].getBoundingClientRect().x -
+                          this._childNodes[0].getBoundingClientRect().x;
 
           if (itemWidth == 0) // Each item takes up a full row
             return 1;
@@ -279,8 +279,8 @@
           else if (this._childNodes.length <= itemsPerRow)
             return 1;
 
-          let itemHeight = this._childNodes[itemsPerRow].boxObject.y -
-                           this._childNodes[0].boxObject.y;
+          let itemHeight = this._childNodes[itemsPerRow].getBoundingClientRect().y -
+                           this._childNodes[0].getBoundingClientRect().y;
 
           return Math.floor(this.clientHeight / itemHeight);
         ]]></body>
@@ -337,7 +337,7 @@
             return;
 
           let width = 0;
-          let border = this._childNodes[0].boxObject.width -
+          let border = this._childNodes[0].getBoundingClientRect().width -
                        this._childNodes[0].clientWidth;
 
           // If widths have changed after the initial calculation (updated

@@ -283,7 +283,7 @@
           <![CDATA[
             this._finishAnimation();
 
-            var height = aNotification.boxObject.height;
+            var height = aNotification.getBoundingClientRect().height;
             var skipAnimation = aSkipAnimation || height == 0 ||
                                 !this._allowAnimation;
             aNotification.classList.toggle("animated", !skipAnimation);
@@ -351,8 +351,8 @@
                    content.localName != "browser")
                 return;
 
-              var width = content.boxObject.width;
-              var height = content.boxObject.height;
+              var width = content.getBoundingClientRect().width;
+              var height = content.getBoundingClientRect().height;
               content.collapsed = true;
 
               canvas.setAttribute("width", width);

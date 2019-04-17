@@ -168,10 +168,10 @@ function test_open_message_in_existing_window() {
  */
 
 function check_message_pane_in_tab_full_height() {
-  let messagesBoxHeight = mc.e("messagesBox").boxObject.height;
-  let displayDeckHeight = mc.e("displayDeck").boxObject.height;
-  let messagePaneBoxWrapperHeight = mc.e("messagepaneboxwrapper").boxObject.height;
-  let notificationBoxHeight = mc.e("msg-footer-notification-box").boxObject.height;
+  let messagesBoxHeight = mc.e("messagesBox").getBoundingClientRect().height;
+  let displayDeckHeight = mc.e("displayDeck").getBoundingClientRect().height;
+  let messagePaneBoxWrapperHeight = mc.e("messagepaneboxwrapper").getBoundingClientRect().height;
+  let notificationBoxHeight = mc.e("msg-footer-notification-box").getBoundingClientRect().height;
 
   assert_equals(messagesBoxHeight, displayDeckHeight + messagePaneBoxWrapperHeight + notificationBoxHeight,
       "messanges box height (" + messagesBoxHeight +
@@ -187,14 +187,14 @@ function check_message_pane_in_tab_full_height() {
  */
 
 function check_message_pane_in_window_full_height(aWC) {
-  let messengerWindowHeight = aWC.e("messengerWindow").boxObject.height;
+  let messengerWindowHeight = aWC.e("messengerWindow").getBoundingClientRect().height;
   let messengerChildren = aWC.e("messengerWindow").children;
   let childrenHeightsSum = 0;
   let childrenHeightsStr = "";
   for (let child of messengerChildren) {
     if ("boxObject" in child) {
-      childrenHeightsSum += child.boxObject.height;
-      childrenHeightsStr += '"' + child.id + '": ' + child.boxObject.height + ', ';
+      childrenHeightsSum += child.getBoundingClientRect().height;
+      childrenHeightsStr += '"' + child.id + '": ' + child.getBoundingClientRect().height + ', ';
     }
   }
 

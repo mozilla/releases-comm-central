@@ -154,11 +154,11 @@
       // Start with the parent's width and subtract off its children.
       let tooltip = [];
       let children = aParentBox.childNodes;
-      let widthDiff = aParentBox.boxObject.width;
+      let widthDiff = aParentBox.getBoundingClientRect().width;
 
       for (let i = 0; i < children.length; i++) {
         // Only consider a child if it actually takes up space.
-        let childWidth = children[i].boxObject.width;
+        let childWidth = children[i].getBoundingClientRect().width;
         if (childWidth > 0) {
           // Subtract a little less to account for subpixel rounding.
           widthDiff -= childWidth - .5;

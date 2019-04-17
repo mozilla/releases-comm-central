@@ -545,16 +545,16 @@
             // (including the currently selected one), and determine
             // the index of the first one lying (partially) outside
             var height = this.clientHeight;
-            var startBorder = this.currentItem.boxObject.y;
+            var startBorder = this.currentItem.getBoundingClientRect().y;
             if (aDirection == -1)
               startBorder += this.currentItem.clientHeight;
 
             var index = this.currentIndex;
             for (var ix = index; 0 <= ix && ix < children.length; ix += aDirection) {
-              var boxObject = children[ix].boxObject;
-              if (boxObject.height == 0)
+              var boundingRect = children[ix].getBoundingClientRect();
+              if (boundingRect.height == 0)
                 continue; // hidden children have a y of 0
-              var endBorder = boxObject.y + (aDirection == -1 ? boxObject.height : 0);
+              var endBorder = boundingRect.y + (aDirection == -1 ? boundingRect.height : 0);
               if ((endBorder - startBorder) * aDirection > height)
                 break; // we've reached the desired distance
               index = ix;
@@ -668,11 +668,11 @@
             if (!aItem)
               return false;
 
-            var y = this.scrollTop + this.boxObject.y;
+            var y = this.scrollTop + this.getBoundingClientRect().y;
 
             // Partially visible items are also considered visible
-            return (aItem.boxObject.y + aItem.clientHeight > y) &&
-                   (aItem.boxObject.y < y + this.clientHeight);
+            return (aItem.getBoundingClientRect().y + aItem.clientHeight > y) &&
+                   (aItem.getBoundingClientRect().y < y + this.clientHeight);
           ]]>
         </body>
       </method>
