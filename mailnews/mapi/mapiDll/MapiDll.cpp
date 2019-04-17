@@ -9,6 +9,72 @@
 #include <mapi.h>
 #include "msgMapi.h"
 
+// Ensure that our COM structs match MS MAPI structs - thoroughly check each struct layout
+// This needs that MAPI.h is not used from https://www.microsoft.com/en-us/download/details.aspx?id=12905
+// because the newer MAPI.h is the part of Windows SDK, and it includes MapiFileDescW and friends.
+
+static_assert(sizeof(nsMapiFileDesc) == sizeof(MapiFileDesc), "Size mismatch!");
+static_assert(offsetof(nsMapiFileDesc, ulReserved) == offsetof(MapiFileDesc, ulReserved), "Member offset mismatch!");
+static_assert(offsetof(nsMapiFileDesc, flFlags) == offsetof(MapiFileDesc, flFlags), "Member offset mismatch!");
+static_assert(offsetof(nsMapiFileDesc, nPosition_NotUsed) == offsetof(MapiFileDesc, nPosition), "Member offset mismatch!");
+static_assert(offsetof(nsMapiFileDesc, lpszPathName) == offsetof(MapiFileDesc, lpszPathName), "Member offset mismatch!");
+static_assert(offsetof(nsMapiFileDesc, lpszFileName) == offsetof(MapiFileDesc, lpszFileName), "Member offset mismatch!");
+static_assert(offsetof(nsMapiFileDesc, lpFileType_NotUsed) == offsetof(MapiFileDesc, lpFileType), "Member offset mismatch!");
+
+static_assert(sizeof(nsMapiRecipDesc) == sizeof(MapiRecipDesc), "Size mismatch!");
+static_assert(offsetof(nsMapiRecipDesc, ulReserved) == offsetof(MapiRecipDesc, ulReserved), "Member offset mismatch!");
+static_assert(offsetof(nsMapiRecipDesc, ulRecipClass) == offsetof(MapiRecipDesc, ulRecipClass), "Member offset mismatch!");
+static_assert(offsetof(nsMapiRecipDesc, lpszName) == offsetof(MapiRecipDesc, lpszName), "Member offset mismatch!");
+static_assert(offsetof(nsMapiRecipDesc, lpszAddress) == offsetof(MapiRecipDesc, lpszAddress), "Member offset mismatch!");
+static_assert(offsetof(nsMapiRecipDesc, ulEIDSize_NotUsed) == offsetof(MapiRecipDesc, ulEIDSize), "Member offset mismatch!");
+static_assert(offsetof(nsMapiRecipDesc, lpEntryID_NotUsed) == offsetof(MapiRecipDesc, lpEntryID), "Member offset mismatch!");
+
+static_assert(sizeof(nsMapiMessage) == sizeof(MapiMessage), "Size mismatch!");
+static_assert(offsetof(nsMapiMessage, ulReserved) == offsetof(MapiMessage, ulReserved), "Member offset mismatch!");
+static_assert(offsetof(nsMapiMessage, lpszSubject) == offsetof(MapiMessage, lpszSubject), "Member offset mismatch!");
+static_assert(offsetof(nsMapiMessage, lpszNoteText) == offsetof(MapiMessage, lpszNoteText), "Member offset mismatch!");
+static_assert(offsetof(nsMapiMessage, lpszMessageType) == offsetof(MapiMessage, lpszMessageType), "Member offset mismatch!");
+static_assert(offsetof(nsMapiMessage, lpszDateReceived) == offsetof(MapiMessage, lpszDateReceived), "Member offset mismatch!");
+static_assert(offsetof(nsMapiMessage, lpszConversationID_NotUsed) == offsetof(MapiMessage, lpszConversationID), "Member offset mismatch!");
+static_assert(offsetof(nsMapiMessage, flFlags) == offsetof(MapiMessage, flFlags), "Member offset mismatch!");
+static_assert(offsetof(nsMapiMessage, lpOriginator) == offsetof(MapiMessage, lpOriginator), "Member offset mismatch!");
+static_assert(offsetof(nsMapiMessage, nRecipCount) == offsetof(MapiMessage, nRecipCount), "Member offset mismatch!");
+static_assert(offsetof(nsMapiMessage, lpRecips) == offsetof(MapiMessage, lpRecips), "Member offset mismatch!");
+static_assert(offsetof(nsMapiMessage, nFileCount) == offsetof(MapiMessage, nFileCount), "Member offset mismatch!");
+static_assert(offsetof(nsMapiMessage, lpFiles) == offsetof(MapiMessage, lpFiles), "Member offset mismatch!");
+
+static_assert(sizeof(nsMapiFileDescW) == sizeof(MapiFileDescW), "Size mismatch!");
+static_assert(offsetof(nsMapiFileDescW, ulReserved) == offsetof(MapiFileDescW, ulReserved), "Member offset mismatch!");
+static_assert(offsetof(nsMapiFileDescW, flFlags) == offsetof(MapiFileDescW, flFlags), "Member offset mismatch!");
+static_assert(offsetof(nsMapiFileDescW, nPosition_NotUsed) == offsetof(MapiFileDescW, nPosition), "Member offset mismatch!");
+static_assert(offsetof(nsMapiFileDescW, lpszPathName) == offsetof(MapiFileDescW, lpszPathName), "Member offset mismatch!");
+static_assert(offsetof(nsMapiFileDescW, lpszFileName) == offsetof(MapiFileDescW, lpszFileName), "Member offset mismatch!");
+static_assert(offsetof(nsMapiFileDescW, lpFileType_NotUsed) == offsetof(MapiFileDescW, lpFileType), "Member offset mismatch!");
+
+static_assert(sizeof(nsMapiRecipDescW) == sizeof(MapiRecipDescW), "Size mismatch!");
+static_assert(offsetof(nsMapiRecipDescW, ulReserved) == offsetof(MapiRecipDescW, ulReserved), "Member offset mismatch!");
+static_assert(offsetof(nsMapiRecipDescW, ulRecipClass) == offsetof(MapiRecipDescW, ulRecipClass), "Member offset mismatch!");
+static_assert(offsetof(nsMapiRecipDescW, lpszName) == offsetof(MapiRecipDescW, lpszName), "Member offset mismatch!");
+static_assert(offsetof(nsMapiRecipDescW, lpszAddress) == offsetof(MapiRecipDescW, lpszAddress), "Member offset mismatch!");
+static_assert(offsetof(nsMapiRecipDescW, ulEIDSize_NotUsed) == offsetof(MapiRecipDescW, ulEIDSize), "Member offset mismatch!");
+static_assert(offsetof(nsMapiRecipDescW, lpEntryID_NotUsed) == offsetof(MapiRecipDescW, lpEntryID), "Member offset mismatch!");
+
+static_assert(sizeof(nsMapiMessageW) == sizeof(MapiMessageW), "Size mismatch!");
+static_assert(offsetof(nsMapiMessageW, ulReserved) == offsetof(MapiMessageW, ulReserved), "Member offset mismatch!");
+static_assert(offsetof(nsMapiMessageW, lpszSubject) == offsetof(MapiMessageW, lpszSubject), "Member offset mismatch!");
+static_assert(offsetof(nsMapiMessageW, ulReserved) == offsetof(MapiMessageW, ulReserved), "Member offset mismatch!");
+static_assert(offsetof(nsMapiMessageW, lpszSubject) == offsetof(MapiMessageW, lpszSubject), "Member offset mismatch!");
+static_assert(offsetof(nsMapiMessageW, lpszNoteText) == offsetof(MapiMessageW, lpszNoteText), "Member offset mismatch!");
+static_assert(offsetof(nsMapiMessageW, lpszMessageType) == offsetof(MapiMessageW, lpszMessageType), "Member offset mismatch!");
+static_assert(offsetof(nsMapiMessageW, lpszDateReceived) == offsetof(MapiMessageW, lpszDateReceived), "Member offset mismatch!");
+static_assert(offsetof(nsMapiMessageW, lpszConversationID_NotUsed) == offsetof(MapiMessageW, lpszConversationID), "Member offset mismatch!");
+static_assert(offsetof(nsMapiMessageW, flFlags) == offsetof(MapiMessageW, flFlags), "Member offset mismatch!");
+static_assert(offsetof(nsMapiMessageW, lpOriginator) == offsetof(MapiMessageW, lpOriginator), "Member offset mismatch!");
+static_assert(offsetof(nsMapiMessageW, nRecipCount) == offsetof(MapiMessageW, nRecipCount), "Member offset mismatch!");
+static_assert(offsetof(nsMapiMessageW, lpRecips) == offsetof(MapiMessageW, lpRecips), "Member offset mismatch!");
+static_assert(offsetof(nsMapiMessageW, nFileCount) == offsetof(MapiMessageW, nFileCount), "Member offset mismatch!");
+static_assert(offsetof(nsMapiMessageW, lpFiles) == offsetof(MapiMessageW, lpFiles), "Member offset mismatch!");
+
 #define MAX_RECIPS  2000
 #define MAX_FILES   100
 
