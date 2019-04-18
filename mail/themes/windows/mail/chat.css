@@ -133,7 +133,7 @@
     background-color: -moz-field;
   }
 
-  richlistitem[selected] > label,
+  #nicklist > richlistitem[selected] > label,
   #nicklist:focus > richlistitem[inactive][selected] > label {
     color: -moz-dialogtext !important;
   }

@@ -125,7 +125,7 @@ imconv[attention] {
 
 richlistitem[is="chat-group"][selected] {
   background-color: var(--imgroup-selected-background-color);
-  color: var(--imbox-selected-text-color) !important;
+  color: var(--imbox-selected-text-color);
 }
 
 imconv,
@@ -713,20 +713,20 @@ richlistitem[state="disconnected"] .accountStateIcon {
 }
 %endif
 
-richlistitem[inactive] > image {
+#nicklist > richlistitem[inactive] > image {
   opacity: 0.45;
 }
 
-richlistitem[inactive][selected] > image {
+#nicklist > richlistitem[inactive][selected] > image {
   opacity: 0.7;
 }
 
-richlistitem[inactive] > label {
+#nicklist > richlistitem[inactive] > label {
   color: GrayText !important;
   font-weight: normal;
 }
 
-richlistitem[inactive][selected] > label {
+#nicklist > richlistitem[inactive][selected] > label {
 %ifdef MACOSX
   color: -moz-DialogText !important;
 %else
@@ -869,6 +869,14 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
 :root[lwt-tree-brighttext] .conv-nicklist-header,
 :root[lwt-tree-brighttext] .conv-logs-header-label {
   border-bottom-color: var(--sidebar-border-color, rgba(249,249,250,.2));
+}
+
+:root[lwt-tree] #nicklist {
+  scrollbar-color: rgba(204,204,204,.5) rgba(230,230,235,.5);
+}
+
+:root[lwt-tree-brighttext] #nicklist {
+  scrollbar-color: rgba(249,249,250,.4) rgba(20,20,25,.3);
 }
 
 :root[lwt-tree] #participantCount {
