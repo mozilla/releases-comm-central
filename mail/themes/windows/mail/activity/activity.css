@@ -193,10 +193,6 @@ activity-warning .statusText {
   list-style-image: url(chrome://messenger/skin/activity/defaultEventIcon.png);
 }
 
-.blockedIcon {
-  list-style-image: url(chrome://global/skin/icons/Error.png);
-}
-
 .processIconBox image {
   list-style-image: url(chrome://messenger/skin/activity/defaultProcessIcon.png);
 }

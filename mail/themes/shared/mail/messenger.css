@@ -36,10 +36,6 @@ description.error {
   color: #f00;
 }
 
-toolbar[printpreview="true"] {
-  -moz-binding: url("chrome://global/content/printPreviewBindings.xml#printpreviewtoolbar");
-}
-
 #notification-popup-box > image.notification-anchor-icon {
   width: 16px;
   height: 16px;

@@ -578,7 +578,7 @@ button[type="menu-button"] > button {
   }
 }
 
--.button-menubutton-dropmarker {
+.button-menubutton-dropmarker {
   -moz-appearance: none !important;
   margin: 1px;
   width: 11px;

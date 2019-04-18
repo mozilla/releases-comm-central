@@ -155,7 +155,7 @@ treechildren::-moz-tree-image(folderNameCol, specialFolder-Archive) {
     -moz-image-region: rect(0 64px 32px 32px);
   }
   treechildren::-moz-tree-image(folderNameCol, hasError) {
-    list-style-image: url("chrome://global/skin/icons/error.png");
+    list-style-image: url("chrome://mozapps/skin/extensions/alerticon-error.svg");
     -moz-image-region: rect(0 16px 16px 0);
   }
 

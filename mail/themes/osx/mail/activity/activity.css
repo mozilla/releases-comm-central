@@ -99,10 +99,6 @@ activity-process button {
   display: inline;
 }
 
-.blockedIcon {
-  list-style-image: url(chrome://messenger/skin/activity/error.png);
-}
-
 activity-process button {
   -moz-appearance: none;
   min-height: 16px;

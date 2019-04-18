@@ -18,11 +18,6 @@ radio[pane][focused="true"] > .radio-check {
   outline: none;
 }
 
-prefpane .groupbox-title {
-  background: none;
-  margin-bottom: 0;
-}
-
 html|h2 {
   border-bottom-width: 0;
   padding-bottom: 2px !important;

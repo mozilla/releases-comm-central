@@ -17,7 +17,6 @@
 
 .tooltipBuddies {
   margin-left: -3px;
-  --blist-item-height: 20px; /* 16px icon plus padding */
 }
 
 .tooltipDisplayName {

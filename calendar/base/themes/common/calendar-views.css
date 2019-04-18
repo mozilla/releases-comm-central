@@ -6,7 +6,6 @@ window {
     --viewColor: #000;
     --viewBackground: #fff;
     --viewBorderColor: #d2d2d2;
-    --viewDoubleBorderColor: var(--viewBackground) var(--viewBorderColor);
     --viewHighlightBorderColor: #67acd8;
     --viewTodayBorderColor: #7fb9ee;
     --viewTodayBackground: #e1f0fd;
@@ -1020,7 +1019,7 @@ radio[calview] > .tab-middle {
 :root[lwt-tree-brighttext] .today-navigation-button:not([disabled="true"]):hover:active {
   background: rgba(255, 255, 255, .4);
   border-color: rgba(255, 255, 255, .7);
-  box-shadow: rgba(255, 255, 255, .4) inset;
+  box-shadow: 0 0 rgba(255, 255, 255, .4) inset;
 }
 
 .view-navigation-button > .toolbarbutton-text {

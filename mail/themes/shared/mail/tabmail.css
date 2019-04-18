@@ -378,7 +378,7 @@
   background-image: url("chrome://global/skin/icons/loading.png");
 }
 
-@media (min-resolution: 1.1ddpx) {
+@media (min-resolution: 1.1dppx) {
   #security-button[loading="true"] {
     background-image: url("chrome://global/skin/icons/loading@2x.png");
     background-size: 16px;

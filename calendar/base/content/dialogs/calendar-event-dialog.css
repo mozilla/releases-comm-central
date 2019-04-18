@@ -41,10 +41,3 @@ freebusy-grid {
     -moz-binding: url(chrome://calendar/content/calendar-event-dialog-freebusy.xml#freebusy-grid);
     -moz-user-focus: normal;
 }
-
-/****************************************************************************************/
-
-timezone-page {
-    -moz-binding: url(chrome://calendar/content/calendar-event-dialog-timezone.xml#timezone-page);
-    -moz-user-focus: normal;
-}

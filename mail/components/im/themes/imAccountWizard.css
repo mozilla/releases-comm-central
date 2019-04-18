@@ -54,7 +54,7 @@
   background-image: url("chrome://global/skin/icons/twisty-collapsed.svg");
 }
 
-.collapsable[closed="true"] .caption-icon:Z:-moz-locale-dir(rtl) {
+.collapsable[closed="true"] .caption-icon:-moz-locale-dir(rtl) {
   background-image: url("chrome://global/skin/icons/twisty-collapsed-rtl.svg");
 }
 

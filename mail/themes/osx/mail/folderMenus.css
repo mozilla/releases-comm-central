@@ -25,7 +25,6 @@
   list-style-image: url("chrome://messenger-newsblog/skin/rss-feed-folder.png");
   -moz-image-region: auto;
 }
-}
 
 /* ..... special folders ..... */
 
@@ -126,7 +125,6 @@
   .folderMenuItem[IsFeedFolder="true"] {
     list-style-image: url("chrome://messenger-newsblog/skin/rss-feed-folder@2x.png");
     -moz-image-region: auto;
-}
   }
 
   /* ..... special folders ..... */

@@ -33,7 +33,6 @@ messenger.jar:
     content/messenger/customizeToolbar.css          (../../common/src/customizeToolbar.css)
     content/messenger/customizeToolbar.js           (../../common/src/customizeToolbar.js)
 *   content/messenger/customizeToolbar.xul          (../../common/src/customizeToolbar.xul)
-    content/messenger/viewSource.css                (../../common/src/viewSource.css)
     content/messenger/viewSource.js                 (../../common/src/viewSource.js)
 *   content/messenger/viewSource.xul                (../../common/src/viewSource.xul)
     content/messenger/generalBindings.xml           (../../common/bindings/generalBindings.xml)

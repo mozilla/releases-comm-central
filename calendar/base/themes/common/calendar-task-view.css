@@ -199,7 +199,7 @@ window[toolboxId="task-actions-toolbox"] #modelist menuitem:first-child {
 :root[lwt-tree-brighttext] #calendar-add-task-button:not([disabled="true"]):hover:active {
     background: rgba(255, 255, 255, .4);
     border-color: rgba(255, 255, 255, .7);
-    box-shadow: rgba(255, 255, 255, .4) inset;
+    box-shadow: 0 0 rgba(255, 255, 255, .4) inset;
 }
 
 #calendar-add-task-button > .toolbarbutton-text {

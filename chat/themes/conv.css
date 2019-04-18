@@ -28,7 +28,7 @@
 
 #Chat * {
   overflow: visible !important;
-  unicode-bidi: -moz-plaintext;
+  unicode-bidi: plaintext;
 }
 
 #unread-ruler {

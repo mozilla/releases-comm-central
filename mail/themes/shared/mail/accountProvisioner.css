@@ -196,13 +196,6 @@ input[type="submit"].search {
   font-weight: bold;
 }
 
-#search #Name {
-  padding-left: 24px;
-  background-image: url("chrome://messenger/content/newmailaccount/search.gif");
-  background-position: 5px center;
-  background-repeat: no-repeat;
-}
-
 #searchFields {
   margin-bottom: 13px;
   width: 100%;

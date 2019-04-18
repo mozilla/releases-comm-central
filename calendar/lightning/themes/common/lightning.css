@@ -70,7 +70,7 @@
 :root[lwthemetextcolor="bright"] #calendar-status-todaypane-button:hover:active {
   background: rgba(255, 255, 255, .4);
   border-color: rgba(255, 255, 255, .7);
-  box-shadow: rgba(255, 255, 255, .4) inset;
+  box-shadow: 0 0 rgba(255, 255, 255, .4) inset;
 }
 
 #calendar-status-todaypane-button > stack > .toolbarbutton-icon-begin {

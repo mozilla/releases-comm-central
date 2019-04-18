@@ -2,24 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* Activity Management System Bindings */
-
-activity-group {
-  -moz-binding: url('chrome://messenger/content/activity.xml#activity-group');
-}
-
-activity-process {
-  -moz-binding: url('chrome://messenger/content/activity.xml#activity-process');
-}
-
-activity-event {
-  -moz-binding: url('chrome://messenger/content/activity.xml#activity-event');
-}
-
-activity-warning {
-  -moz-binding: url('chrome://messenger/content/activity.xml#activity-warning');
-}
-
 /* Only focus buttons in the selected item */
 
 activity-process:not([selected="true"]) button {

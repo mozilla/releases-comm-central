@@ -34,16 +34,6 @@ menulist > menupopup > menuitem {
   padding-inline-end: 2px;
 }
 
-prefpane .groupbox-body {
-  -moz-appearance: none;
-  padding: 8px 4px 4px;
-}
-
-prefpane .groupbox-title {
-  background: url("chrome://global/skin/50pct_transparent_grey.png") repeat-x bottom left;
-  margin-bottom: 4px;
-}
-
 caption {
   border-bottom: 1px solid #ECECEC;
   padding-top: 4px !important;

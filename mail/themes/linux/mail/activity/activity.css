@@ -81,10 +81,6 @@ activity-process button {
   display: inline;
 }
 
-.blockedIcon {
-  list-style-image: url(chrome://global/skin/icons/Error.png);
-}
-
 activity-process button {
   -moz-appearance: none;
   min-height: 16px;

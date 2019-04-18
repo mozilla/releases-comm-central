@@ -267,7 +267,6 @@ html|span.ac-emphasize-text {
     .item-attendees-cell {
         border-radius: 3px;
         --attendees-focusBorder: var(--attendees-currentColor);
-        --attendees-focusBottomBorder: var(--attendees-currentColor);
         --attendees-focusImage: linear-gradient(rgba(131, 183, 249, .28),
                                                 rgba(131, 183, 249, .5));
         --attendees-focusShadow: inset 0 0 1px white, inset 0 0 1px white;
@@ -279,7 +278,6 @@ html|span.ac-emphasize-text {
     #calendar-event-dialog-inner .item-attendees-cell {
         --attendees-focusColor: rgb(123, 195, 255);
         --attendees-focusBorder: var(--attendees-focusColor);
-        --attendees-focusBottomBorder: var(--attendees-focusColor);
         --attendees-focusImage: linear-gradient(rgb(205, 232, 255),
                                                 rgb(205, 232, 255));
         --attendees-focusShadow: none;
