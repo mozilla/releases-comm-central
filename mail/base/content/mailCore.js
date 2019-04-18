@@ -139,8 +139,6 @@ function overlayOnLoad() {
 
   let toolbarWindow = document.getElementById("CustomizeToolbarWindow");
   toolbarWindow.setAttribute("toolboxId", toolbox.id);
-  if (toolbox.getAttribute("inlinetoolbox") == "true")
-    toolbarWindow.setAttribute("inlinetoolbox", "true");
   toolbox.setAttribute("doCustomization", "true");
 
   let mode = toolbox.getAttribute("mode");

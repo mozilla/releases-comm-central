@@ -144,6 +144,11 @@ var gFolderTreeView = {
    * folder-pane to the view last shown before the application was closed.
    */
   load(aTree, aJSONFile) {
+    // Add the folder pane toolbar to the list of toolbars that can be shown and hidden.
+    // It's really not a toolbar any more, but some people like it, some don't.
+    document.getElementById("mail-toolbox")
+            .externalToolbars.push(document.getElementById("folderPane-toolbar"));
+
     this._treeElement = aTree;
     this.messengerBundle = document.getElementById("bundle_messenger");
 

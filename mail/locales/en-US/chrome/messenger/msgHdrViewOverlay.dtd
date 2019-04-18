@@ -24,8 +24,6 @@
 
 <!ENTITY hdrArchiveButton1.label "Archive">
 <!ENTITY hdrArchiveButton1.tooltip "Archive this message">
-<!ENTITY hdrOpenConversationButton1.label "Conversation">
-<!ENTITY hdrOpenConversationButton1.tooltip "Show conversation of this message">
 <!ENTITY hdrSmartReplyButton1.label "Smart Reply">
 <!ENTITY hdrReplyButton1.label "Reply">
 <!ENTITY hdrReplyButton2.tooltip "Reply to the sender of this message">
@@ -35,7 +33,6 @@
 <!ENTITY hdrReplyListButton1.tooltip "Reply to mailing list">
 <!ENTITY hdrFollowupButton1.label "Followup">
 <!ENTITY hdrFollowupButton1.tooltip "Post a followup to this newsgroup">
-<!ENTITY hdrMenuForwardButton.label "Forward As">
 <!ENTITY hdrForwardButton1.label "Forward">
 <!ENTITY hdrForwardButton1.tooltip "Forward this message">
 <!ENTITY hdrJunkButton1.label "Junk">

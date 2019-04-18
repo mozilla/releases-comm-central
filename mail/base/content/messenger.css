@@ -268,8 +268,7 @@ toolbar[type="menubar"][autohide="true"][inactive="true"]:not([customizing="true
   list-style-image: var(--mark-icon) !important;
 }
 
-:root[lwthemeicons~="--tag-icon"] #button-tag:-moz-lwtheme,
-:root[lwthemeicons~="--tag-icon"] #hdrTagButton:-moz-lwtheme {
+:root[lwthemeicons~="--tag-icon"] #button-tag:-moz-lwtheme {
   list-style-image: var(--tag-icon) !important;
 }
 
@@ -306,8 +305,7 @@ toolbar[type="menubar"][autohide="true"][inactive="true"]:not([customizing="true
   list-style-image: var(--QFB-icon) !important;
 }
 
-:root[lwthemeicons~="--conversation-icon"] #button-showconversation:-moz-lwtheme,
-:root[lwthemeicons~="--conversation-icon"] #hdrOpenConversationButton:-moz-lwtheme {
+:root[lwthemeicons~="--conversation-icon"] #button-showconversation:-moz-lwtheme {
   list-style-image: var(--conversation-icon) !important;
 }
 

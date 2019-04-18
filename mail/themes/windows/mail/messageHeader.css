@@ -28,13 +28,6 @@
   display: block;
 }
 
-/* ::::: expanded header pane ::::: */
-
-/* toolbars are optimized to look like OS-provided widgets; override this */
-.inline-toolbox {
-  -moz-appearance: none;
-}
-
 /* ::::: attachment view ::::: */
 
 #attachmentList {
@@ -105,21 +98,6 @@
   -moz-user-select: text;
   -moz-user-focus: normal;
   cursor: text;
-}
-
-#header-view-toolbox toolbarpaletteitem toolbarseparator,
-#header-view-toolbox toolbarseparator {
-  margin-top: 1px;
-}
-
-window[inlinetoolbox] #smallicons,
-window[inlinetoolbox] #newtoolbar {
-  display: none;
-}
-
-.inline-toolbox[doCustomization] #attachment-view-toolbar {
-  min-width: 100px;
-  min-height: 10px;
 }
 
 .msgHeaderView-button[type="menu-button"] {
@@ -284,12 +262,6 @@ mail-headerfield.headerValue:focus {
 }
 
 @media (-moz-windows-default-theme) {
-  toolbar[mode="icons"] .msgHeaderView-button.toolbarbutton-menubutton-button,
-  toolbar[mode="icons"] .msgHeaderView-button:not([type="menu-button"]) {
-    padding-inline-start: 3px !important;
-    padding-inline-end: 3px !important;
-  }
-
   .toolbarbutton-1.msgHeaderView-button,
   .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-button,
   .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-dropmarker {
@@ -329,27 +301,6 @@ mail-headerfield.headerValue:focus {
   padding-inline-end: 3px !important;
 }
 
-/* toolbar[mode="text"] is necessary so that we end up with more specificity
-*  than the !important rule in toolkit's toolbar.css.
-*/
-toolbar[mode="text"] .msgHeaderView-button .toolbarbutton-text,
-toolbar[mode="text"] toolbarpaletteitem
-.msgHeaderView-button .toolbarbutton-text {
-  margin: 0 !important;
-  padding-top: 1px !important;
-  padding-bottom: 0px !important;
-  padding-inline-start: 0px !important;
-  padding-inline-end: 0px !important;
-}
-
-toolbar[iconsize="small"] .msgHeaderView-button .toolbarbutton-text {
-  margin-bottom: 1px !important;
-}
-
-toolbar[mode="text"] .msgHeaderView-button .toolbarbutton-text {
-  padding-top: 0 !important;
-}
-
 /* For unclear reasons, toolkit's toolbarbutton.css forces a margin of 0,
 *  jamming the image up against the text, so we need this !important
 *  rule to override that.
@@ -358,9 +309,6 @@ toolbar[mode="text"] .msgHeaderView-button .toolbarbutton-text {
 *  so that we effect both buttons and menubuttons.
 */
 
-toolbox[labelalign="end"] toolbar[mode="full"]
-toolbarpaletteitem .msgHeaderView-button .toolbarbutton-text,
-toolbox[labelalign="end"] toolbar[mode="full"]
 .msgHeaderView-button .toolbarbutton-text {
   margin-inline-start: 2px !important;
 }
@@ -396,14 +344,6 @@ toolbox[labelalign="end"] toolbar[mode="full"]
   list-style-image: url("chrome://messenger/skin/icons/delete.svg");
 }
 
-.hdrTagButton {
-  list-style-image: url("chrome://messenger/skin/icons/tag.svg");
-}
-
-.hdrConversationButton {
-  list-style-image: url("chrome://messenger/skin/icons/conversation.svg");
-}
-
 #attachmentSaveAllSingle,
 #attachmentSaveAllMultiple {
   list-style-image: url("chrome://messenger/skin/icons/save.svg");
@@ -417,20 +357,7 @@ toolbox[labelalign="end"] toolbar[mode="full"]
   padding-inline-end: 3px;
 }
 
-/* show a icon in customize window */
-#CustomizeToolbarWindow toolbarpaletteitem > #otherActionsButton >
-  .toolbarbutton-icon {
-  display: -moz-box;
-  width: 9px;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
-}
-
-.msgHeaderView-button,
-toolbarpaletteitem .msgHeaderView-button {
+.msgHeaderView-button {
   -moz-appearance: none;
 }
 

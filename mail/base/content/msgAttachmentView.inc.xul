@@ -27,14 +27,9 @@
                                enough space. -->
                           <spacer flex="9999"/>
 
-                          <toolbox id="attachment-view-toolbox"
-                                   class="inline-toolbox"
-                                   defaulticonsize="small"
-                                   minwidth="50px"
-                                   defaultlabelalign="end"
-                                   defaultmode="full"
-                                   inlinetoolbox="true">
-                            <toolbarpalette id="attachment-view-toolbar-palette">
+                          <vbox id="attachment-view-toolbox">
+                            <hbox id="attachment-view-toolbar"
+                                  context="attachment-toolbar-context-menu">
                               <toolbaritem id="attachmentSaveAll"
                                            title="&saveAllAttachmentsButton1.label;">
                                 <toolbarbutton type="menu-button" id="attachmentSaveAllSingle"
@@ -93,13 +88,8 @@
                                   </menupopup>
                                 </toolbarbutton>
                               </toolbaritem>
-                            </toolbarpalette>
-                            <toolbar id="attachment-view-toolbar" class="inline-toolbar"
-                                     customizable="true" mode="full"
-                                     context="attachment-toolbar-context-menu"
-                                     defaulticonsize="small" defaultmode="full"
-                                     defaultset="attachmentSaveAll"/>
-                          </toolbox>
+                            </hbox>
+                          </vbox>
                         </hbox>
                         <richlistbox id="attachmentList"
                                      class="attachmentList"

@@ -15,7 +15,16 @@
 }
 
 .toolbarbutton-1.msgHeaderView-button {
+  -moz-box-orient: horizontal;
   fill: currentColor;
+}
+
+.msgHeaderView-button[type="menu"] {
+  -moz-binding: url("chrome://global/content/bindings/toolbarbutton.xml#menu");
+}
+
+.msgHeaderView-button[type="menu-button"] > toolbarbutton {
+  -moz-box-orient: horizontal;
 }
 
 /* ::::: msg header toolbars ::::: */
@@ -66,35 +75,8 @@
   display: none;
 }
 
-toolbarpaletteitem > #hdrReplyToSenderButton {
-  display: -moz-box;
-}
-
-window[inlinetoolbox] #wrapper-spring {
-  display: none;
-}
-
-window[inlinetoolbox] #modefull {
-  display: none;
-}
-
-.inline-toolbox[doCustomization] {
-  background: grey;
-}
-
 #header-view-toolbar {
   -moz-box-pack: end;
-}
-
-/* Only show the dummy smart reply button when customizing. */
-.inline-toolbox[doCustomization] #hdrSmartReplyButton > toolbarbutton,
-toolbarpaletteitem #hdrSmartReplyButton > toolbarbutton {
-  display: none;
-}
-
-.inline-toolbox[doCustomization] #hdrDummyReplyButton,
-toolbarpaletteitem #hdrDummyReplyButton {
-  display: -moz-box !important;
 }
 
 .headerValue {
