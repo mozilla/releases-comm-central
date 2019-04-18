@@ -467,7 +467,6 @@
   WriteRegStr HKLM "$0" "" "${BrandFullNameInternal}"
   WriteRegStr HKLM "$0\DefaultIcon" "" "$8,0"
   WriteRegStr HKLM "$0" "DLLPath" "$6"
-  WriteRegDWORD HKLM "$0" "SupportUTF8" 0
 
   ; The MapiProxy dll can be used by multiple applications but
   ; is only registered for the last application installed. When the last
@@ -792,6 +791,11 @@
   ${If} "$2" == "SeamonkeyURL"
     DeleteRegKey HKCU "$0"
   ${EndIf}
+
+  ; Remove the SupportUTF8 registry value as it causes MAPI issues on some locales
+  ; with non-ASCII characters in file names.
+  StrCpy $0 "Software\Clients\Mail\${ClientsRegName}"
+  DeleteRegValue HKLM $0 "SupportUTF8"
 !macroend
 !define RemoveDeprecatedKeys "!insertmacro RemoveDeprecatedKeys"
 

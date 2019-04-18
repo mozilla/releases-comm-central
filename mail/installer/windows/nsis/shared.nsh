@@ -361,7 +361,6 @@
   WriteRegStr ${RegKey} "$0" "" "${ClientsRegName}"
   WriteRegStr ${RegKey} "$0\DefaultIcon" "" "$8,0"
   WriteRegStr ${RegKey} "$0" "DLLPath" "$6"
-  WriteRegDWORD ${RegKey} "$0" "SupportUTF8" 0
 
   ; The MapiProxy dll can exist in multiple installs of the application.
   ; Registration occurs as follows with the last action to occur being the one
@@ -824,6 +823,11 @@
   StrCpy $0 "Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers"
   DeleteRegValue HKLM "$0" "$INSTDIR\${FileMainEXE}"
   DeleteRegValue HKCU "$0" "$INSTDIR\${FileMainEXE}"
+
+  ; Remove the SupportUTF8 registry value as it causes MAPI issues on some locales
+  ; with non-ASCII characters in file names.
+  StrCpy $0 "Software\Clients\Mail\${ClientsRegName}"
+  DeleteRegValue HKLM $0 "SupportUTF8"
 
 !macroend
 !define RemoveDeprecatedKeys "!insertmacro RemoveDeprecatedKeys"
