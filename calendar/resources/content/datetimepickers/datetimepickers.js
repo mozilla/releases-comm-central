@@ -1017,10 +1017,14 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
                 val.setMinutes(minutes);
             }
             if (val.getHours() != this._hours || val.getMinutes() != this._minutes) {
+                let settingInitalValue = this._hours === undefined;
+
                 this._inputBoxValue = this._gridValue = val;
                 [this._hours, this._minutes] = this._gridValue;
 
-                this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
+                if (!settingInitalValue) {
+                    this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
+                }
             }
         }
 
