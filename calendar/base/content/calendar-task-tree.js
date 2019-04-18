@@ -266,6 +266,12 @@
                 }
             };
 
+            // Set up the tree filter.
+            this.mFilter = new calFilter();
+
+            // This refresh call sets up the tree view and observers.
+            this.refresh();
+
             // We want to make several attributes on the column
             // elements persistent, but unfortunately there's no
             // reliable way with the 'persist' feature.
@@ -274,8 +280,8 @@
             let visibleColumns = this.getAttribute("visible-columns").split(" ");
             let ordinals = this.getAttribute("ordinals").split(" ");
             let widths = this.getAttribute("widths").split(" ");
-            let sorted = this.getAttribute("sort-active");
-            let sortDirection = this.getAttribute("sort-direction") || "ascending";
+            let sorted = this.getAttribute("sortActive");
+            let sortDirection = this.getAttribute("sortDirection") || "ascending";
 
             this.querySelectorAll("treecol").forEach((col) => {
                 const itemProperty = col.getAttribute("itemproperty");
@@ -295,12 +301,6 @@
                     this.mTreeView.selectedColumn = col;
                 }
             });
-
-            // Set up the tree filter.
-            this.mFilter = new calFilter();
-
-            // This refresh call sets up the tree view and observers.
-            this.refresh();
 
             this.dispatchEvent(new CustomEvent("bindingattached", { bubbles: false }));
         }
