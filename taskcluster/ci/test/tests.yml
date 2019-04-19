@@ -112,7 +112,6 @@ mochitest-thunderbird:
     loopback-video: true
     max-run-time: 3600
     e10s: false
-    serviceworker-e10s: false
     mozharness:
         script: desktop_unittest.py
         mochitest-flavor: browser
