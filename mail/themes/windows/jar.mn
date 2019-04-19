@@ -199,6 +199,7 @@ classic.jar:
   skin/classic/messenger/newmailaccount/success-signature.png (mail/newmailaccount/success-signature.png)
   skin/classic/messenger/newmailaccount/search.png            (mail/newmailaccount/search.png)
   skin/classic/messenger/sanitizeDialog.css                   (mail/sanitizeDialog.css)
+  skin/classic/messenger/converterDialog.css                  (mail/converterDialog.css)
   skin/classic/messenger/icons/hightail.png                   (mail/icons/hightail.png)
   skin/classic/messenger/icons/box-logo.png                   (mail/icons/box-logo.png)
 % skin communicator classic/1.0 %skin/classic/communicator/

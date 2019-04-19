@@ -2,6 +2,10 @@
 * License, v. 2.0. If a copy of the MPL was not distributed with this
 * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+html {
+  background-color: -moz-Dialog;
+}
+
 body {
   color: -moz-DialogText;
   font: message-box;
@@ -23,7 +27,6 @@ body {
 }
 
 .infoIcon {
-  background-image: url("moz-icon://stock/gtk-dialog-warning?size=dialog");
   max-width: 48px;
   max-height: 48px;
   margin: 3px 5px 4px;
