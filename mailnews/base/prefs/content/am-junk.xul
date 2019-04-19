@@ -149,47 +149,44 @@
                   genericattr="true"
                   oncommand="updateJunkTargets();"
                   prefvalue="value">
-
-        <grid class="specialFolderPickerGrid indent">
-          <columns>
-            <column/>
-            <column flex="1"/>
-          </columns>
-          <rows>
-            <row>
+        <hbox class="specialFolderPickerGrid indent">
+          <vbox>
+            <hbox flex="1" align="center">
               <radio id="moveTargetMode0"
                      value="0"
                      label="&junkFolderOn.label;"
                      accesskey="&junkFolderOn.accesskey;"/>
-              <menulist id="actionTargetAccount"
-                        class="folderMenuItem"
-                        aria-labelledby="moveTargetMode0">
-                <menupopup id="actionAccountPopup"
-                           type="folder"
-                           class="menulist-menupopup"
-                           expandFolders="false"
-                           mode="filing"
-                           oncommand="onActionTargetChange(event, 'server.spamActionTargetAccount');"/>
-              </menulist>
-            </row>
-            <row>
+            </hbox>
+            <hbox flex="1" align="center">
               <radio id="moveTargetMode1"
                      value="1"
                      label="&otherFolder.label;"
                      accesskey="&otherFolder.accesskey;"/>
-              <menulist id="actionTargetFolder"
-                        class="folderMenuItem"
-                        aria-labelledby="moveTargetMode1"
-                        displayformat="verbose">
-                <menupopup id="actionFolderPopup"
-                           type="folder"
-                           mode="junk"
-                           showFileHereLabel="true"
-                           oncommand="onActionTargetChange(event, 'server.spamActionTargetFolder');"/>
-              </menulist>
-            </row>
-          </rows>
-        </grid>
+            </hbox>
+          </vbox>
+          <vbox flex="1">
+            <menulist id="actionTargetAccount"
+                      class="folderMenuItem"
+                      aria-labelledby="moveTargetMode0">
+              <menupopup id="actionAccountPopup"
+                         type="folder"
+                         class="menulist-menupopup"
+                         expandFolders="false"
+                         mode="filing"
+                         oncommand="onActionTargetChange(event, 'server.spamActionTargetAccount');"/>
+            </menulist>
+            <menulist id="actionTargetFolder"
+                      class="folderMenuItem"
+                      aria-labelledby="moveTargetMode1"
+                      displayformat="verbose">
+              <menupopup id="actionFolderPopup"
+                         type="folder"
+                         mode="junk"
+                         showFileHereLabel="true"
+                         oncommand="onActionTargetChange(event, 'server.spamActionTargetFolder');"/>
+            </menulist>
+          </vbox>
+        </hbox>
       </radiogroup>
 
       <hbox align="center" class="indent">
