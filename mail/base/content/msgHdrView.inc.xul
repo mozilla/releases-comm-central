@@ -124,27 +124,27 @@
                                     <toolbarbutton id="hdrForwardButton"
                                                    label="&hdrForwardButton1.label;"
                                                    tooltiptext="&hdrForwardButton1.tooltip;"
-                                                   oncommand="MsgForwardMessage(event);RestoreFocusAfterHdrButton();"
+                                                   oncommand="MsgForwardMessage(event); RestoreFocusAfterHdrButton();"
                                                    observes="button_forward"
                                                    class="toolbarbutton-1 msgHeaderView-button hdrForwardButton"/>
                                     <toolbarbutton id="hdrArchiveButton"
                                                    label="&hdrArchiveButton1.label;"
                                                    tooltiptext="&hdrArchiveButton1.tooltip;"
-                                                   oncommand="MsgArchiveSelectedMessages(event);RestoreFocusAfterHdrButton();"
+                                                   oncommand="MsgArchiveSelectedMessages(event); RestoreFocusAfterHdrButton();"
                                                    observes="button_archive"
                                                    class="toolbarbutton-1 msgHeaderView-button hdrArchiveButton"/>
                                     <toolbarbutton id="hdrJunkButton" label="&hdrJunkButton1.label;"
                                                    tooltiptext="&hdrJunkButton1.tooltip;"
                                                    observes="button_junk"
                                                    class="toolbarbutton-1 msgHeaderView-button hdrJunkButton"
-                                                   oncommand="goDoCommand('button_junk');RestoreFocusAfterHdrButton();"/>
+                                                   oncommand="goDoCommand('button_junk'); RestoreFocusAfterHdrButton();"/>
                                     <toolbarbutton id="hdrTrashButton"
                                                    label="&hdrTrashButton1.label;"
                                                    tooltiptext="&hdrTrashButton1.tooltip;"
                                                    observes="button_delete"
                                                    class="toolbarbutton-1 msgHeaderView-button hdrTrashButton"
                                                    oncommand="goDoCommand(event.shiftKey ? 'button_shiftDelete' :
-                                                                          'button_delete');RestoreFocusAfterHdrButton();"/>
+                                                                          'button_delete'); RestoreFocusAfterHdrButton();"/>
                                     <toolbarbutton type="menu"
                                                    id="otherActionsButton"
                                                    label="&otherActionsButton2.label;"
