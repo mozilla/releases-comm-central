@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/// Test that nsIMsgCompFields works properly
+// Test that nsIMsgCompFields works properly
 
 var nsMsgCompFields = Components.Constructor(
   "@mozilla.org/messengercompose/composefields;1",

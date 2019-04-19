@@ -12,16 +12,16 @@ var gMsgCompose;
 var gExpectedFiles;
 
 var progressListener = {
-  onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus) {
+  onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
     if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP)
       do_timeout(0, check_result);
   },
 
-  onProgressChange: function(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress) {},
-  onLocationChange: function(aWebProgress, aRequest, aLocation, aFlags) {},
-  onStatusChange: function(aWebProgress, aRequest, aStatus, aMessage) {},
-  onSecurityChange: function(aWebProgress, aRequest, state) {},
-  onContentBlockingEvent: function(aWebProgress, aRequest, aEvent) {},
+  onProgressChange(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress) {},
+  onLocationChange(aWebProgress, aRequest, aLocation, aFlags) {},
+  onStatusChange(aWebProgress, aRequest, aStatus, aMessage) {},
+  onSecurityChange(aWebProgress, aRequest, state) {},
+  onContentBlockingEvent(aWebProgress, aRequest, aEvent) {},
 
   QueryInterface: ChromeUtils.generateQI(["nsIWebProgressListener",
                                           "nsISupportsWeakReference"]),
@@ -90,7 +90,7 @@ function run_test() {
 
   let identity = getSmtpIdentity(null, getBasicSmtpServer());
 
-  let draftFolder = localAccountUtils.rootFolder.createLocalSubfolder("Drafts");
+  localAccountUtils.rootFolder.createLocalSubfolder("Drafts");
 
   let progress = Cc["@mozilla.org/messenger/progress;1"]
                    .createInstance(Ci.nsIMsgProgress);

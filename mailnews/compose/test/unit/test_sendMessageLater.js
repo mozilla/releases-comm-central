@@ -13,11 +13,8 @@
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-var type = null;
-var test = null;
 var server;
 var smtpServer;
-var sentFolder;
 var originalData;
 var finished = false;
 var identity = null;
@@ -26,7 +23,6 @@ var kTestFileSender = "from_A@foo.invalid";
 var kTestFileRecipient = "to_A@foo.invalid";
 
 var kIdentityMail = "identity@foo.invalid";
-var kToEncodedDisplayName = "=?UTF-8?B?RnLDqcOpZGxlLCBUZXN0?="; // "Fréédle, Test"
 
 var msgSendLater = Cc["@mozilla.org/messengercompose/sendlater;1"]
   .getService(Ci.nsIMsgSendLater);
@@ -41,23 +37,21 @@ msll.prototype = {
   _startedSending: false,
 
   // nsIMsgSendLaterListener
-  onStartSending: function (aTotalMessageCount) {
+  onStartSending(aTotalMessageCount) {
     this._initialTotal = 1;
     Assert.equal(msgSendLater.sendingMessages, true);
   },
-  onMessageStartSending: function (aCurrentMessage, aTotalMessageCount,
-                                   aMessageHeader, aIdentity) {
+  onMessageStartSending(aCurrentMessage, aTotalMessageCount, aMessageHeader, aIdentity) {
     this._startedSending = true;
   },
-  onMessageSendProgress: function (aCurrentMessage, aTotalMessageCount,
-                                   aMessageSendPercent, aMessageCopyPercent) {
+  onMessageSendProgress(aCurrentMessage, aTotalMessageCount,
+                        aMessageSendPercent, aMessageCopyPercent) {
     // XXX Enable this function
   },
-  onMessageSendError: function (aCurrentMessage, aMessageHeader, aStatus,
-                                aMsg) {
+  onMessageSendError(aCurrentMessage, aMessageHeader, aStatus, aMsg) {
     do_throw("onMessageSendError should not have been called, status: " + aStatus);
   },
-  onStopSending: function (aStatus, aMsg, aTotalTried, aSuccessful) {
+  onStopSending(aStatus, aMsg, aTotalTried, aSuccessful) {
     do_test_finished();
     print("msll onStopSending\n");
     try {
@@ -88,9 +82,10 @@ msll.prototype = {
       while (thread.hasPendingEvents())
         thread.processNextEvent(true);
     }
-  }
+  },
 };
 
+/* exported OnStopCopy */// for head_compose.js
 function OnStopCopy(aStatus) {
   dump("OnStopCopy()\n");
 
@@ -135,12 +130,9 @@ function OnStopCopy(aStatus) {
 }
 
 // This function does the actual send later
-function sendMessageLater()
-{
+function sendMessageLater() {
   // Set up the SMTP server.
   server = setupServerDaemon();
-
-  type = "sendMessageLater";
 
   // Handle the server in a try/catch/finally loop so that we always will stop
   // the server if something fails.
@@ -162,9 +154,10 @@ function sendMessageLater()
 
     server.performTest();
 
-    do_timeout(10000, function()
-        {if (!finished) do_throw('Notifications of message send/copy not received');}
-      );
+    do_timeout(10000, function() {
+      if (!finished)
+        do_throw("Notifications of message send/copy not received");
+    });
   } catch (e) {
     do_throw(e);
   } finally {
@@ -200,7 +193,7 @@ function run_test() {
   account.incomingServer = incomingServer;
   MailServices.accounts.defaultAccount = account;
 
-  sentFolder = localAccountUtils.rootFolder.createLocalSubfolder("Sent");
+  localAccountUtils.rootFolder.createLocalSubfolder("Sent");
 
   Assert.equal(identity.doFcc, true);
 

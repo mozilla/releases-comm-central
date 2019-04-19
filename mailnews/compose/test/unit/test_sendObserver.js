@@ -6,8 +6,6 @@
  */
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {MimeParser} = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 
 var CompFields = CC("@mozilla.org/messengercompose/composefields;1",
                     Ci.nsIMsgCompFields);
@@ -15,13 +13,13 @@ var CompFields = CC("@mozilla.org/messengercompose/composefields;1",
 // nsIObserver implementation.
 var gData = "";
 var observer = {
-  observe: function (aSubject, aTopic, aData) {
+  observe(aSubject, aTopic, aData) {
     if (aTopic == "mail-set-sender") {
       Assert.ok(aSubject instanceof Ci.nsIMsgCompose);
       gData = aData;
     }
-  }
-}
+  },
+};
 
 add_task(async function testObserver() {
   let fields = new CompFields();

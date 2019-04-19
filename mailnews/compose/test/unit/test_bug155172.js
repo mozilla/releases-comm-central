@@ -3,6 +3,8 @@
  * Authentication tests for SMTP.
  */
 
+/* import-globals-from ../../../test/resources/alertTestUtils.js */
+/* import-globals-from ../../../test/resources/passwordStorage.js */
 load("../../../resources/alertTestUtils.js");
 load("../../../resources/passwordStorage.js");
 
@@ -10,6 +12,7 @@ var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var gNewPassword = null;
 
+/* exported confirmEx, promptPasswordPS */// for alertTestUtils.js
 function confirmEx(aDialogTitle, aText, aButtonFlags, aButton0Title,
                    aButton1Title, aButton2Title, aCheckMsg, aCheckState) {
   // Just return 2 which will is pressing button 2 - enter a new password.
@@ -33,7 +36,7 @@ var kUsername = "test.smtp@fakeserver";
 var kPasswordWrong = "wrong";
 var kPasswordSaved = "smtptest";
 
-add_task(async function () {
+add_task(async function() {
   registerAlertTestUtils();
 
   function createHandler(d) {
@@ -91,7 +94,6 @@ add_task(async function () {
                                        "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=159",
                                        "RCPT TO:<" + kTo + ">",
                                        "DATA"]);
-
   } catch (e) {
     do_throw(e);
   } finally {
@@ -102,7 +104,3 @@ add_task(async function () {
       thread.processNextEvent(true);
   }
 });
-
-function run_test() {
-  run_next_test();
-}

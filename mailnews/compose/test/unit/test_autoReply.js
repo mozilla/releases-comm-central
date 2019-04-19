@@ -83,13 +83,12 @@ add_task(async function copy_gTemplateMailFile2() {
   await promiseCopyListener.promise;
 });
 
-/// Test that a reply is NOT sent when the message is not addressed to "me".
+// Test that a reply is NOT sent when the message is not addressed to "me".
 add_task(function testReplyingToUnaddressedFails() {
   try {
     testReply(0); // mail 0 is not to us!
     do_throw("Replied to a message not addressed to us!");
-  }
-  catch (e) {
+  } catch (e) {
     if (e.result != Cr.NS_ERROR_ABORT)
       throw e;
     // Ok! We didn't reply to the message not specifically addressed to
@@ -97,40 +96,37 @@ add_task(function testReplyingToUnaddressedFails() {
   }
 });
 
-/// Test that a reply is sent when the message is addressed to "me".
+// Test that a reply is sent when the message is addressed to "me".
 add_task(function testReplyingToAdressedWorksLatin1() {
   try {
     testReply(1); // mail 1 is addressed to us, using template-latin1
-  }
-  catch (e) {
-    do_throw("Didn't reply properly to a message addressed to us! "  + e);
+  } catch (e) {
+    do_throw("Didn't reply properly to a message addressed to us! " + e);
   }
 });
 
-/// Test that a reply is sent when the message is addressed to "me".
+// Test that a reply is sent when the message is addressed to "me".
 add_task(function testReplyingToAdressedWorksUTF8() {
   try {
     testReply(1, 1); // mail 1 is addressed to us, template-utf8
-  }
-  catch (e) {
-    do_throw("Didn't reply properly to a message addressed to us! "  + e);
+  } catch (e) {
+    do_throw("Didn't reply properly to a message addressed to us! " + e);
   }
 });
 
-/// Test that a reply is NOT even tried when the message has no From.
+// Test that a reply is NOT even tried when the message has no From.
 add_task(function testReplyingToMailWithNoFrom() {
   try {
     testReply(2); // mail 2 has no From
     do_throw("Shouldn't even have tried to reply reply to the message " +
              "with no From and no Reply-To");
-  }
-  catch (e) {
+  } catch (e) {
     if (e.result != Cr.NS_ERROR_FAILURE)
       throw e;
   }
 });
 
-/// Test reply with template.
+// Test reply with template.
 function testReply(aHrdIdx, aTemplateHdrIdx = 0) {
   let smtpServer = getBasicSmtpServer();
   smtpServer.port = gServer.port;
@@ -139,7 +135,7 @@ function testReply(aHrdIdx, aTemplateHdrIdx = 0) {
   localAccountUtils.msgAccount.addIdentity(identity);
 
   let msgHdr = mailTestUtils.getMsgHdrN(localAccountUtils.inboxFolder, aHrdIdx);
-  info("Msg#" + aHrdIdx +  " author=" + msgHdr.author + ", recipients=" +
+  info("Msg#" + aHrdIdx + " author=" + msgHdr.author + ", recipients=" +
        msgHdr.recipients);
   let templateHdr = mailTestUtils.getMsgHdrN(gTemplateFolder, aTemplateHdrIdx);
 
@@ -153,7 +149,7 @@ function testReply(aHrdIdx, aTemplateHdrIdx = 0) {
 
   let headers, body;
   [headers, body] = MimeParser.extractHeadersAndBody(gServer._daemon.post);
-  //dump("xxxmagnus gServer._daemon.post=" + gServer._daemon.post + "\n");
+  // dump("xxxmagnus gServer._daemon.post=" + gServer._daemon.post + "\n");
   Assert.ok(headers.get("Subject").startsWith("Auto: "));
   Assert.equal(headers.get("Auto-submitted"), "auto-replied");
   Assert.equal(headers.get("In-Reply-To"), "<" + msgHdr.messageId + ">");

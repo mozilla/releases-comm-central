@@ -15,27 +15,26 @@ var kTo = "to@foo.invalid";
 var msgSend = Cc["@mozilla.org/messengercompose/send;1"]
                 .createInstance(Ci.nsIMsgSend);
 
-var gCopyListener =
-{
+var gCopyListener = {
   callbackFunction: null,
   copiedMessageHeaderKeys: [],
-  OnStartCopy: function() {},
-  OnProgress: function(aProgress, aProgressMax) {},
-  SetMessageKey: function(aKey) {
+  OnStartCopy() {},
+  OnProgress(aProgress, aProgressMax) {},
+  SetMessageKey(aKey) {
     try {
       this.copiedMessageHeaderKeys.push(aKey);
     } catch (ex) {
       dump(ex);
     }
   },
-  GetMessageId: function(aMessageId) {},
-  OnStopCopy: function(aStatus) {
+  GetMessageId(aMessageId) {},
+  OnStopCopy(aStatus) {
     if (this.callbackFunction) {
       mailTestUtils.do_timeout_function(0, this.callbackFunction,
                                         null,
                                         [ this.copiedMessageHeaderKeys, aStatus ]);
     }
-  }
+  },
 };
 
 /**
@@ -92,6 +91,7 @@ function createExpectedTemporaryFile() {
   return expectedFile;
 }
 
+/* exported OnStopCopy */// for head_compose.js
 function OnStopCopy(aStatus) {
   msgSend.abort();
 
@@ -111,7 +111,6 @@ function send_message_later(aMessageHeaderKeys, aStatus) {
   let params = Cc["@mozilla.org/messengercompose/composeparams;1"]
                  .createInstance(Ci.nsIMsgComposeParams);
   params.composeFields = compFields;
-  let msgCompose = MailServices.compose.initCompose(params);
   localAccountUtils.rootFolder.createLocalSubfolder("Drafts");
 
   let smtpServer = getBasicSmtpServer();
@@ -126,8 +125,8 @@ function send_message_later(aMessageHeaderKeys, aStatus) {
   let attachment = Cc["@mozilla.org/messengercompose/attachment;1"]
                      .createInstance(Ci.nsIMsgAttachment);
   attachment.url = messageUri;
-  attachment.contentType = 'message/rfc822';
-  attachment.name = 'Attachment e-mail';
+  attachment.contentType = "message/rfc822";
+  attachment.name = "Attachment e-mail";
   compFields.addAttachment(attachment);
 
   expectedTemporaryFile = createExpectedTemporaryFile();
@@ -139,8 +138,8 @@ function send_message_later(aMessageHeaderKeys, aStatus) {
                                false,
                                Ci.nsIMsgSend.nsMsgQueueForLater,
                                null,
-                               'text/plain',
-                               'bodyText\n',
+                               "text/plain",
+                               "bodyText\n",
                                null,
                                null,
                                null,

@@ -23,43 +23,47 @@ var RCPTTO = "RCPT TO:<" + kTo + ">";
 var AUTHPLAIN = "AUTH PLAIN " + AuthPLAIN.encodeLine(kUsername, kPassword);
 
 var tests = [
-  { title: "Cleartext password, with server supporting AUTH PLAIN, LOGIN, and CRAM",
-    clientAuthMethod : Ci.nsMsgAuthMethod.passwordCleartext,
-    serverAuthMethods : [ "PLAIN", "LOGIN", "CRAM-MD5" ],
-    expectSuccess : true,
-    transaction: [ "EHLO test", AUTHPLAIN, MAILFROM, RCPTTO, "DATA" ] },
-  { title: "Cleartext password, with server only supporting AUTH LOGIN",
-    clientAuthMethod : Ci.nsMsgAuthMethod.passwordCleartext,
-    serverAuthMethods : [ "LOGIN" ],
-    expectSuccess : true,
-    transaction: [ "EHLO test", "AUTH LOGIN", MAILFROM, RCPTTO, "DATA" ] },
-  { title: "Encrypted password, with server supporting AUTH PLAIN, LOGIN and CRAM",
-    clientAuthMethod : Ci.nsMsgAuthMethod.passwordEncrypted,
-    serverAuthMethods : [ "PLAIN", "LOGIN", "CRAM-MD5" ],
-    expectSuccess : true,
-    transaction: [ "EHLO test", "AUTH CRAM-MD5", MAILFROM, RCPTTO, "DATA" ] },
-  { title: "Encrypted password, with server only supporting AUTH PLAIN (must fail)",
-    clientAuthMethod : Ci.nsMsgAuthMethod.passwordEncrypted,
-    serverAuthMethods : [ "PLAIN" ],
-    expectSuccess : false,
-    transaction: [ "EHLO test"] },
-  { title: "Any secure method, with server supporting AUTH PLAIN, LOGIN and CRAM",
-    clientAuthMethod : Ci.nsMsgAuthMethod.secure,
-    serverAuthMethods : [ "PLAIN" , "LOGIN", "CRAM-MD5" ],
-    expectSuccess : true,
-    transaction: [ "EHLO test", "AUTH CRAM-MD5", MAILFROM, RCPTTO, "DATA" ] },
-  { title: "Any secure method, with server only supporting AUTH PLAIN (must fail)",
-    clientAuthMethod : Ci.nsMsgAuthMethod.secure,
-    serverAuthMethods : [ "PLAIN" ],
-    expectSuccess : false,
-    transaction: [ "EHLO test" ] },
+  {
+    title: "Cleartext password, with server supporting AUTH PLAIN, LOGIN, and CRAM",
+    clientAuthMethod: Ci.nsMsgAuthMethod.passwordCleartext,
+    serverAuthMethods: [ "PLAIN", "LOGIN", "CRAM-MD5" ],
+    expectSuccess: true,
+    transaction: [ "EHLO test", AUTHPLAIN, MAILFROM, RCPTTO, "DATA" ],
+  }, {
+    title: "Cleartext password, with server only supporting AUTH LOGIN",
+    clientAuthMethod: Ci.nsMsgAuthMethod.passwordCleartext,
+    serverAuthMethods: [ "LOGIN" ],
+    expectSuccess: true,
+    transaction: [ "EHLO test", "AUTH LOGIN", MAILFROM, RCPTTO, "DATA" ],
+  }, {
+    title: "Encrypted password, with server supporting AUTH PLAIN, LOGIN and CRAM",
+    clientAuthMethod: Ci.nsMsgAuthMethod.passwordEncrypted,
+    serverAuthMethods: [ "PLAIN", "LOGIN", "CRAM-MD5" ],
+    expectSuccess: true,
+    transaction: [ "EHLO test", "AUTH CRAM-MD5", MAILFROM, RCPTTO, "DATA" ],
+  }, {
+    title: "Encrypted password, with server only supporting AUTH PLAIN (must fail)",
+    clientAuthMethod: Ci.nsMsgAuthMethod.passwordEncrypted,
+    serverAuthMethods: [ "PLAIN" ],
+    expectSuccess: false,
+    transaction: [ "EHLO test"],
+  }, {
+    title: "Any secure method, with server supporting AUTH PLAIN, LOGIN and CRAM",
+    clientAuthMethod: Ci.nsMsgAuthMethod.secure,
+    serverAuthMethods: [ "PLAIN", "LOGIN", "CRAM-MD5" ],
+    expectSuccess: true,
+    transaction: [ "EHLO test", "AUTH CRAM-MD5", MAILFROM, RCPTTO, "DATA" ],
+  }, {
+    title: "Any secure method, with server only supporting AUTH PLAIN (must fail)",
+    clientAuthMethod: Ci.nsMsgAuthMethod.secure,
+    serverAuthMethods: [ "PLAIN" ],
+    expectSuccess: false,
+    transaction: [ "EHLO test" ],
+  },
 ];
 
-
-
 function nextTest() {
-  if (tests.length == 0)
-  {
+  if (tests.length == 0) {
     // this is sync, so we run into endTest() at the end of run_test() now
     return;
   }
@@ -111,7 +115,6 @@ function run_test() {
     testFile = do_get_file("data/message1.eml");
 
     nextTest();
-
   } catch (e) {
     do_throw(e);
   } finally {

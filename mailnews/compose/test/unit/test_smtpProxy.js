@@ -16,9 +16,6 @@ add_task(async function setup() {
   localserver = getBasicSmtpServer(PORT, "smtp.tinderbox.invalid");
 });
 
-let CompFields = CC("@mozilla.org/messengercompose/composefields;1",
-                    Ci.nsIMsgCompFields);
-
 add_task(async function sendMessage() {
   equal(daemon.post, undefined);
   let identity = getSmtpIdentity("test@tinderbox.invalid", localserver);

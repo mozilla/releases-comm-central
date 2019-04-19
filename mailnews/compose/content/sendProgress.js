@@ -19,16 +19,13 @@ document.addEventListener("dialogcancel", onCancel);
 
 // all progress notifications are done through the nsIWebProgressListener implementation...
 var progressListener = {
-    onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus)
-    {
-      if (aStateFlags & Ci.nsIWebProgressListener.STATE_START)
-      {
+    onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
+      if (aStateFlags & Ci.nsIWebProgressListener.STATE_START) {
         // Set no value to progress meter when undetermined.
         dialog.progress.removeAttribute("value");
       }
 
-      if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP)
-      {
+      if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
         // we are done sending/saving the message...
         // Indicate completion in status area.
         var msg;
@@ -47,12 +44,10 @@ var progressListener = {
       }
     },
 
-    onProgressChange: function(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress)
-    {
+    onProgressChange(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress) {
       // Calculate percentage.
       var percent;
-      if (aMaxTotalProgress > 0)
-      {
+      if (aMaxTotalProgress > 0) {
         percent = Math.round(aCurTotalProgress / aMaxTotalProgress * 100);
         if (percent > 100)
           percent = 100;
@@ -63,32 +58,26 @@ var progressListener = {
         // Update percentage label on progress meter.
         var percentMsg = gSendProgressStringBundle.getFormattedString("percentMsg", [percent]);
         dialog.progressText.value = percentMsg;
-      }
-      else
-      {
+      } else {
         // Progress meter should show no value in this case.
         dialog.progress.removeAttribute("value");
       }
     },
 
-    onLocationChange: function(aWebProgress, aRequest, aLocation, aFlags)
-    {
+    onLocationChange(aWebProgress, aRequest, aLocation, aFlags) {
       // we can ignore this notification
     },
 
-    onStatusChange: function(aWebProgress, aRequest, aStatus, aMessage)
-    {
+    onStatusChange(aWebProgress, aRequest, aStatus, aMessage) {
       if (aMessage != "")
         dialog.status.setAttribute("value", aMessage);
     },
 
-    onSecurityChange: function(aWebProgress, aRequest, state)
-    {
+    onSecurityChange(aWebProgress, aRequest, state) {
       // we can ignore this notification
     },
 
-    onContentBlockingEvent: function(aWebProgress, aRequest, aEvent)
-    {
+    onContentBlockingEvent(aWebProgress, aRequest, aEvent) {
       // we can ignore this notification
     },
 
@@ -96,25 +85,21 @@ var progressListener = {
                                             "nsISupportsWeakReference"]),
 };
 
-function onLoad()
-{
+function onLoad() {
     // Set global variables.
     let subject = "";
     gSendProgressStringBundle = document.getElementById("sendProgressStringBundle");
 
     msgProgress = window.arguments[0];
-    if (!msgProgress)
-    {
+    if (!msgProgress) {
       Cu.reportError("Invalid argument to sendProgress.xul.");
       window.close();
       return;
     }
 
-    if (window.arguments[1])
-    {
+    if (window.arguments[1]) {
       let progressParams = window.arguments[1].QueryInterface(Ci.nsIMsgComposeProgressParams);
-      if (progressParams)
-      {
+      if (progressParams) {
         itsASaveOperation = (progressParams.deliveryMode != nsIMsgCompDeliverMode.Now);
         subject = progressParams.subject;
       }
@@ -137,12 +122,9 @@ function onLoad()
     msgProgress.registerListener(progressListener);
 }
 
-function onUnload()
-{
-  if (msgProgress)
-  {
-    try
-    {
+function onUnload() {
+  if (msgProgress) {
+    try {
       msgProgress.unregisterListener(progressListener);
       msgProgress = null;
     } catch (e) {}
@@ -150,14 +132,11 @@ function onUnload()
 }
 
 // If the user presses cancel, tell the app launcher and close the dialog...
-function onCancel(event)
-{
+function onCancel(event) {
   // Cancel app launcher.
-  try
-  {
+  try {
     msgProgress.processCanceledByUser = true;
-  } catch (e)
-  {
+  } catch (e) {
     return;
   }
 

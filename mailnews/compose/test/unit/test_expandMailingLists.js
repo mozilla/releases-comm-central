@@ -11,7 +11,6 @@ var nsIMsgCompose = Ci.nsIMsgCompose;
 var nsIMsgComposeParams = Ci.nsIMsgComposeParams;
 var nsIMsgCompFields = Ci.nsIMsgCompFields;
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 /**
@@ -19,8 +18,7 @@ var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
  * @param aTo - text in the To field
  * @param aCheckTo - the expected To addresses (after possible list population)
  */
-function checkPopulate(aTo, aCheckTo)
-{
+function checkPopulate(aTo, aCheckTo) {
   let msgCompose = Cc[MsgComposeContractID]
                      .createInstance(nsIMsgCompose);
 
@@ -74,7 +72,7 @@ function run_test() {
   checkPopulate("older-kids <older-kids>", "\"lisa@example.com\" <lisa@example.com>, Bart <bart@foobar.invalid>");
   checkPopulate("bad-kids <bad-kids>", "\"lisa@example.com\" <lisa@example.com>, Bart <bart@foobar.invalid>, " +
     "Maggie <maggie@example.com>");
-  checkPopulate("bad-younger-kids <bad-younger-kids>", "Maggie <maggie@example.com>, "+
+  checkPopulate("bad-younger-kids <bad-younger-kids>", "Maggie <maggie@example.com>, " +
     "\"lisa@example.com\" <lisa@example.com>, Bart <bart@foobar.invalid>");
 
   // Test we don't mistake an email address for a list, with a few variations.
@@ -85,5 +83,4 @@ function run_test() {
   checkPopulate("Marge <marge@example.com>", "Marge <marge@example.com>");
   checkPopulate("marge <marge@example.com>", "marge <marge@example.com>");
   checkPopulate("marge <marge@not-in-ab.invalid>", "marge <marge@not-in-ab.invalid>");
-
-};
+}

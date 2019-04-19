@@ -10,8 +10,7 @@ document.addEventListener("dialogaccept", Send);
  * This dialog should be opened with arguments like e.g.
  * {action: nsIMsgCompSendFormat.AskUser, convertible: nsIMsgCompConvertible.Yes}
  */
-function Startup()
-{
+function Startup() {
   gParam = window.arguments[0];
 
   const msgCompSendFormat = Ci.nsIMsgCompSendFormat;
@@ -26,8 +25,7 @@ function Startup()
   var mailSendFormatExplanation = document.getElementById("mailSendFormatExplanation");
   var icon = document.getElementById("convertDefault");
 
-  switch (gParam.convertible)
-  {
+  switch (gParam.convertible) {
     case msgCompConvertible.Altering:
       mailSendFormatExplanation.textContent = bundle.getString("convertibleAltering");
       icon.className = "question-icon";
@@ -45,15 +43,13 @@ function Startup()
 
   // Set the default radio array value and recommendation.
   var group = document.getElementById("mailDefaultHTMLAction");
-  if (gParam.action != msgCompSendFormat.AskUser)
-  {
+  if (gParam.action != msgCompSendFormat.AskUser) {
     group.value = gParam.action;
     group.selectedItem.label += " " + bundle.getString("recommended");
   }
 }
 
-function Send()
-{
+function Send() {
   // gParam.action should be an integer for when it is returned to MsgComposeCommands.js
   gParam.action = parseInt(document.getElementById("mailDefaultHTMLAction").value);
   gParam.abort = false;

@@ -4,13 +4,6 @@
  * Tests nsMsgCompose expandMailingLists.
  */
 
-var MsgComposeContractID = "@mozilla.org/messengercompose/compose;1";
-var MsgComposeParamsContractID = "@mozilla.org/messengercompose/composeparams;1";
-var MsgComposeFieldsContractID = "@mozilla.org/messengercompose/composefields;1";
-var nsIMsgCompose = Ci.nsIMsgCompose;
-var nsIMsgComposeParams = Ci.nsIMsgComposeParams;
-var nsIMsgCompFields = Ci.nsIMsgCompFields;
-
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
@@ -18,20 +11,19 @@ var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
  * @param aTo - text in the To field
  * @param aCheckTo - the expected To addresses (after possible ist population)
  */
-function checkPopulate(aTo, aCheckTo)
-{
-  var msgCompose = Cc[MsgComposeContractID]
-                     .createInstance(nsIMsgCompose);
+function checkPopulate(aTo, aCheckTo) {
+  var msgCompose = Cc["@mozilla.org/messengercompose/compose;1"]
+                     .createInstance(Ci.nsIMsgCompose);
 
   // Set up some basic fields for compose.
-  var fields = Cc[MsgComposeFieldsContractID]
-                 .createInstance(nsIMsgCompFields);
+  var fields = Cc["@mozilla.org/messengercompose/composefields;1"]
+                 .createInstance(Ci.nsIMsgCompFields);
 
   fields.to = aTo;
 
   // Set up some params
-  var params = Cc[MsgComposeParamsContractID]
-                 .createInstance(nsIMsgComposeParams);
+  var params = Cc["@mozilla.org/messengercompose/composeparams;1"]
+                 .createInstance(Ci.nsIMsgComposeParams);
 
   params.composeFields = fields;
 
@@ -62,24 +54,24 @@ function run_test() {
   // Test - Check we can initialize with fewest specified
   // parameters and don't fail/crash like we did in bug 411646.
 
-  var msgCompose = Cc[MsgComposeContractID]
-                     .createInstance(nsIMsgCompose);
+  var msgCompose = Cc["@mozilla.org/messengercompose/compose;1"]
+                     .createInstance(Ci.nsIMsgCompose);
 
   // Set up some params
-  var params = Cc[MsgComposeParamsContractID]
-                 .createInstance(nsIMsgComposeParams);
+  var params = Cc["@mozilla.org/messengercompose/composeparams;1"]
+                 .createInstance(Ci.nsIMsgComposeParams);
 
   msgCompose.initialize(params);
 
   // Test - expandMailingLists basic functionality.
 
   // Re-initialize
-  msgCompose = Cc[MsgComposeContractID]
-                 .createInstance(nsIMsgCompose);
+  msgCompose = Cc["@mozilla.org/messengercompose/compose;1"]
+                 .createInstance(Ci.nsIMsgCompose);
 
   // Set up some basic fields for compose.
-  var fields = Cc[MsgComposeFieldsContractID]
-                 .createInstance(nsIMsgCompFields);
+  var fields = Cc["@mozilla.org/messengercompose/composefields;1"]
+                 .createInstance(Ci.nsIMsgCompFields);
 
   // These aren't in the address book copied above.
   fields.from = "test1@foo1.invalid";
@@ -88,8 +80,8 @@ function run_test() {
   fields.bcc = "test4@foo1.invalid";
 
   // Set up some params
-  params = Cc[MsgComposeParamsContractID]
-             .createInstance(nsIMsgComposeParams);
+  params = Cc["@mozilla.org/messengercompose/composeparams;1"]
+             .createInstance(Ci.nsIMsgComposeParams);
 
   params.composeFields = fields;
 
@@ -147,4 +139,4 @@ function run_test() {
   // test bug 254519 rfc 2047 encoding
   checkPopulate("=?iso-8859-1?Q?Sure=F6name=2C_Forename_Dr=2E?= <pb@bieringer.invalid>",
                 "\"Sure\u00F6name, Forename Dr.\" <pb@bieringer.invalid>");
-};
+}

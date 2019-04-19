@@ -76,7 +76,7 @@ function run_test() {
   var found = [false, false, false];
 
   while (smtpServers.hasMoreElements()) {
-    var smtpServer = smtpServers.getNext();
+    smtpServer = smtpServers.getNext();
 
     for (i = 0; i < 3; ++i)
       if (smtpServer == smtpServerArray[i])
@@ -107,4 +107,4 @@ function run_test() {
 
   smtpServers = smtpService.servers;
   Assert.ok(!smtpServers.hasMoreElements());
-};
+}

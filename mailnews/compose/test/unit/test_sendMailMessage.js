@@ -8,7 +8,6 @@
  */
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-var test = null;
 var server;
 
 var kIdentityMail = "identity@foo.invalid";
@@ -17,11 +16,7 @@ var kTo = "to@foo.invalid";
 var kUsername = "testsmtp";
 var kPassword = "smtptest";
 
-var kTestFileSender = "from_B@foo.invalid";
-var kTestFileRecipient = "to_B@foo.invalid";
-
 function test_RFC2821() {
-
   // Test file
   var testFile = do_get_file("data/message1.eml");
 
@@ -64,7 +59,7 @@ function test_RFC2821() {
 
     server.performTest();
 
-    var transaction = server.playTransaction();
+    transaction = server.playTransaction();
     do_check_transaction(transaction, ["EHLO test",
                                        "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=159",
                                        "RCPT TO:<" + kTo + ">",
@@ -89,7 +84,7 @@ function test_RFC2821() {
 
     server.performTest();
 
-    var transaction = server.playTransaction();
+    transaction = server.playTransaction();
     do_check_transaction(transaction, ["EHLO test",
                                        "AUTH PLAIN " + AuthPLAIN.encodeLine(kUsername, kPassword),
                                        "MAIL FROM:<" + kIdentityMail + "> BODY=8BITMIME SIZE=159",
@@ -107,13 +102,12 @@ function test_RFC2821() {
 
     server.performTest();
 
-    var transaction = server.playTransaction();
+    transaction = server.playTransaction();
     do_check_transaction(transaction, ["EHLO test",
                                        "AUTH PLAIN " + AuthPLAIN.encodeLine(kUsername, kPassword),
                                        "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=159",
                                        "RCPT TO:<" + kTo + ">",
                                        "DATA"]);
-
   } catch (e) {
     do_throw(e);
   } finally {

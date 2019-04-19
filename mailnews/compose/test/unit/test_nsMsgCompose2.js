@@ -3,11 +3,8 @@
  * Test suite for nsMsgCompose functions relating to send listeners.
  */
 
-var MsgComposeContractID = "@mozilla.org/messengercompose/compose;1";
-var nsIMsgCompose = Ci.nsIMsgCompose;
-
-var gMsgCompose = Cc[MsgComposeContractID]
-                    .createInstance(nsIMsgCompose);
+var gMsgCompose = Cc["@mozilla.org/messengercompose/compose;1"]
+                    .createInstance(Ci.nsIMsgCompose);
 
 var numSendListenerFunctions = 6;
 
@@ -19,36 +16,36 @@ sendListener.prototype = {
   mReceived: 0,
   mAutoRemoveItem: 0,
 
-  onStartSending: function (aMsgID, aMsgSize) {
+  onStartSending(aMsgID, aMsgSize) {
     this.mReceived |= 0x01;
     if (this.mAutoRemoveItem == 0x01)
       gMsgCompose.removeMsgSendListener(this);
   },
-  onProgress: function (aMsgID, aProgress, aProgressMax) {
+  onProgress(aMsgID, aProgress, aProgressMax) {
     this.mReceived |= 0x02;
     if (this.mAutoRemoveItem == 0x02)
       gMsgCompose.removeMsgSendListener(this);
   },
-  onStatus: function (aMsgID, aMsg) {
+  onStatus(aMsgID, aMsg) {
     this.mReceived |= 0x04;
     if (this.mAutoRemoveItem == 0x04)
       gMsgCompose.removeMsgSendListener(this);
   },
-  onStopSending: function (aMsgID, aStatus, aMsg, aReturnFile) {
+  onStopSending(aMsgID, aStatus, aMsg, aReturnFile) {
     this.mReceived |= 0x08;
     if (this.mAutoRemoveItem == 0x08)
       gMsgCompose.removeMsgSendListener(this);
   },
-  onGetDraftFolderURI: function (aFolderURI) {
+  onGetDraftFolderURI(aFolderURI) {
     this.mReceived |= 0x10;
     if (this.mAutoRemoveItem == 0x10)
       gMsgCompose.removeMsgSendListener(this);
   },
-  onSendNotPerformed: function (aMsgID, aStatus) {
+  onSendNotPerformed(aMsgID, aStatus) {
     this.mReceived |= 0x20;
     if (this.mAutoRemoveItem == 0x20)
       gMsgCompose.removeMsgSendListener(this);
-  }
+  },
 };
 
 function NotifySendListeners() {
@@ -112,4 +109,4 @@ function run_test() {
   // Test - Remove main listener
 
   gMsgCompose.removeMsgSendListener(gSLAll[numSendListenerFunctions]);
-};
+}

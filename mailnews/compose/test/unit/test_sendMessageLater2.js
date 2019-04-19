@@ -12,43 +12,33 @@
  * messages option.
  */
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-var test = "sendMessageLater";
 var server = null;
 var smtpServer;
 var gSentFolder;
-var originalData;
 var identity = null;
-var gMsgFile =
-[
+var gMsgFile = [
   do_get_file("data/message1.eml"),
-  do_get_file("data/429891_testcase.eml")
+  do_get_file("data/429891_testcase.eml"),
 ];
-var kTestFileSender =
-[
+var kTestFileSender = [
   "from_B@foo.invalid",
-  "from_A@foo.invalid"
+  "from_A@foo.invalid",
 ];
-var kTestFileRecipient =
-[
+var kTestFileRecipient = [
   "to_B@foo.invalid",
-  "to_A@foo.invalid"
+  "to_A@foo.invalid",
 ];
 
 var gMsgFileData = [];
 var gMsgOrder = [];
-var gCurTestNum = 0;
 var gLastSentMessage = 0;
-
-// gMessageSendStatus
-// 0 = initial value
-// 1 = send completed before exiting sendUnsentMessages
-// 2 = sendUnsentMessages has exited.
-var gMessageSendStatus = 0;
 
 var kIdentityMail = "identity@foo.invalid";
 
@@ -61,7 +51,7 @@ function msll() {
 }
 
 msll.prototype = {
-  checkMessageSend: function(aCurrentMessage) {
+  checkMessageSend(aCurrentMessage) {
     do_check_transaction(server.playTransaction(),
                          ["EHLO test",
                           "MAIL FROM:<" + kTestFileSender[gMsgOrder[aCurrentMessage - 1]] + "> BODY=8BITMIME SIZE=" + gMsgFileData[gMsgOrder[aCurrentMessage - 1]].length,
@@ -73,28 +63,26 @@ msll.prototype = {
   },
 
   // nsIMsgSendLaterListener
-  onStartSending: function (aTotalMessageCount) {
+  onStartSending(aTotalMessageCount) {
     Assert.equal(aTotalMessageCount, gMsgOrder.length);
     Assert.equal(msgSendLater.sendingMessages, true);
   },
-  onMessageStartSending: function (aCurrentMessage, aTotalMessageCount,
-                                   aMessageHeader, aIdentity) {
+  onMessageStartSending(aCurrentMessage, aTotalMessageCount, aMessageHeader, aIdentity) {
     if (gLastSentMessage > 0)
       this.checkMessageSend(aCurrentMessage);
     Assert.equal(gLastSentMessage + 1, aCurrentMessage);
     gLastSentMessage = aCurrentMessage;
   },
-  onMessageSendProgress: function (aCurrentMessage, aTotalMessageCount,
-                                   aMessageSendPercent, aMessageCopyPercent) {
+  onMessageSendProgress(aCurrentMessage, aTotalMessageCount,
+                        aMessageSendPercent, aMessageCopyPercent) {
     Assert.equal(aTotalMessageCount, gMsgOrder.length);
     Assert.equal(gLastSentMessage, aCurrentMessage);
     Assert.equal(msgSendLater.sendingMessages, true);
   },
-  onMessageSendError: function (aCurrentMessage, aMessageHeader, aStatus,
-                                aMsg) {
+  onMessageSendError(aCurrentMessage, aMessageHeader, aStatus, aMsg) {
     do_throw("onMessageSendError should not have been called, status: " + aStatus);
   },
-  onStopSending: function (aStatus, aMsg, aTotalTried, aSuccessful) {
+  onStopSending(aStatus, aMsg, aTotalTried, aSuccessful) {
     try {
       Assert.equal(aStatus, 0);
       Assert.equal(aTotalTried, aSuccessful);
@@ -115,14 +103,14 @@ msll.prototype = {
     // allow the sendUnsentMessages function to complete and exit before we
     // call async_driver.
     do_timeout(0, async_driver);
-  }
+  },
 };
 
+/* exported OnStopCopy */// for head_compose.js
 // This function is used to find out when the copying of the message to the
 // unsent message folder is completed, and hence can fire off the actual
 // sending of the message.
-function OnStopCopy(aStatus)
-{
+function OnStopCopy(aStatus) {
   Assert.equal(aStatus, 0);
 
   // Check this is false before we start sending
@@ -139,8 +127,7 @@ function OnStopCopy(aStatus)
   async_driver();
 }
 
-function sendMessageLater(aTestFileIndex)
-{
+function sendMessageLater(aTestFileIndex) {
   gMsgOrder.push(aTestFileIndex);
 
   // Prepare to actually "send" the message later, i.e. dump it in the
@@ -165,16 +152,13 @@ function sendMessageLater(aTestFileIndex)
   return false;
 }
 
-function resetCounts()
-{
+function resetCounts() {
   gMsgOrder = [];
   gLastSentMessage = 0;
 }
 
 // This function does the actual send later
-function sendUnsentMessages()
-{
-  gMessageSendStatus = 0;
+function sendUnsentMessages() {
   // Handle the server in a try/catch/finally loop so that we always will stop
   // the server if something fails.
   try {
@@ -189,11 +173,6 @@ function sendUnsentMessages()
     do_throw(e);
   }
   return false;
-}
-
-function runServerTest()
-{
-  server.performTest();
 }
 
 function* actually_run_test() {

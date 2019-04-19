@@ -13,8 +13,6 @@
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-var type = null;
-var test = null;
 var server;
 var sentFolder;
 var originalData;
@@ -27,13 +25,13 @@ function msl() {}
 
 msl.prototype = {
   // nsIMsgSendListener
-  onStartSending: function (aMsgID, aMsgSize) {
+  onStartSending(aMsgID, aMsgSize) {
   },
-  onProgress: function (aMsgID, aProgress, aProgressMax) {
+  onProgress(aMsgID, aProgress, aProgressMax) {
   },
-  onStatus: function (aMsgID, aMsg) {
+  onStatus(aMsgID, aMsg) {
   },
-  onStopSending: function (aMsgID, aStatus, aMsg, aReturnFile) {
+  onStopSending(aMsgID, aStatus, aMsg, aReturnFile) {
     try {
       Assert.equal(aStatus, 0);
 
@@ -55,21 +53,21 @@ msl.prototype = {
         thread.processNextEvent(false);
     }
   },
-  onGetDraftFolderURI: function (aFolderURI) {
+  onGetDraftFolderURI(aFolderURI) {
   },
-  onSendNotPerformed: function (aMsgID, aStatus) {
+  onSendNotPerformed(aMsgID, aStatus) {
   },
 
   // nsIMsgCopyServiceListener
-  OnStartCopy: function () {
+  OnStartCopy() {
   },
-  OnProgress: function (aProgress, aProgressMax) {
+  OnProgress(aProgress, aProgressMax) {
   },
-  SetMessageKey: function (aKey) {
+  SetMessageKey(aKey) {
   },
-  GetMessageId: function (aMessageId) {
+  GetMessageId(aMessageId) {
   },
-  OnStopCopy: function (aStatus) {
+  OnStopCopy(aStatus) {
     Assert.equal(aStatus, 0);
     try {
       // Now do a comparison of what is in the sent mail folder
@@ -94,12 +92,10 @@ msl.prototype = {
   // QueryInterface
   QueryInterface: ChromeUtils.generateQI(["nsIMsgSendListener",
                                           "nsIMsgCopyServiceListener"]),
-}
+};
 
 function run_test() {
   server = setupServerDaemon();
-
-  type = "sendMessageFile";
 
   // Test file - for bug 429891
   var testFile = do_get_file("data/429891_testcase.eml");
@@ -144,12 +140,12 @@ function run_test() {
 
     server.performTest();
 
-    do_timeout(10000, function()
-        {if (!finished) do_throw('Notifications of message send/copy not received');}
-      );
+    do_timeout(10000, function() {
+      if (!finished)
+        do_throw("Notifications of message send/copy not received");
+    });
 
     do_test_pending();
-
   } catch (e) {
     do_throw(e);
   } finally {

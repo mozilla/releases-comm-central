@@ -17,6 +17,8 @@ do_get_profile();
 var gDEPTH = "../../../../";
 
 // Import the required setup scripts.
+
+/* import-globals-from ../../../test/resources/abSetup.js */
 load("../../../resources/abSetup.js");
 
 // Import the smtp server scripts
@@ -38,19 +40,17 @@ var {
   AuthCRAM,
 } = ChromeUtils.import("resource://testing-common/mailnews/auth.js");
 
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-
 var gDraftFolder;
 
 // Setup the daemon and server
 function setupServerDaemon(handler) {
   if (!handler)
-    handler = function (d) { return new SMTP_RFC2821_handler(d); };
+    handler = function(d) { return new SMTP_RFC2821_handler(d); };
   var server = new nsMailServer(handler, new smtpDaemon());
   return server;
 }
 
-function getBasicSmtpServer(port=1, hostname="localhost") {
+function getBasicSmtpServer(port = 1, hostname = "localhost") {
   let server = localAccountUtils.create_outgoing_server(port, "user",
     "password", hostname);
 
@@ -76,7 +76,7 @@ function do_check_transaction(real, expected) {
   // real.them may have an extra QUIT on the end, where the stream is only
   // closed after we have a chance to process it and not them. We therefore
   // excise this from the list
-  if (real.them[real.them.length-1] == "QUIT")
+  if (real.them[real.them.length - 1] == "QUIT")
     real.them.pop();
 
   Assert.equal(real.them.join(","), expected.join(","));
@@ -89,19 +89,20 @@ function do_check_transaction(real, expected) {
 // nsIMsgSendListener interface as well).
 var copyListener = {
   // nsIMsgSendListener
-  onStartSending: function (aMsgID, aMsgSize) {},
-  onProgress: function (aMsgID, aProgress, aProgressMax) {},
-  onStatus: function (aMsgID, aMsg) {},
-  onStopSending: function (aMsgID, aStatus, aMsg, aReturnFile) {},
-  onGetDraftFolderURI: function (aFolderURI) {},
-  onSendNotPerformed: function (aMsgID, aStatus) {},
+  onStartSending(aMsgID, aMsgSize) {},
+  onProgress(aMsgID, aProgress, aProgressMax) {},
+  onStatus(aMsgID, aMsg) {},
+  onStopSending(aMsgID, aStatus, aMsg, aReturnFile) {},
+  onGetDraftFolderURI(aFolderURI) {},
+  onSendNotPerformed(aMsgID, aStatus) {},
 
   // nsIMsgCopyServiceListener
-  OnStartCopy: function () {},
-  OnProgress: function (aProgress, aProgressMax) {},
-  SetMessageKey: function (aKey) {},
-  GetMessageId: function (aMessageId) {},
-  OnStopCopy: function (aStatus) {
+  OnStartCopy() {},
+  OnProgress(aProgress, aProgressMax) {},
+  SetMessageKey(aKey) {},
+  GetMessageId(aMessageId) {},
+  OnStopCopy(aStatus) {
+    /* globals OnStopCopy */
     OnStopCopy(aStatus);
   },
 
@@ -111,17 +112,17 @@ var copyListener = {
 };
 
 var progressListener = {
-  onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus) {
+  onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
     if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP)
       this.resolve(mailTestUtils.firstMsgHdr(gDraftFolder));
   },
 
-  onProgressChange: function(aWebProgress, aRequest, aCurSelfProgress,
+  onProgressChange(aWebProgress, aRequest, aCurSelfProgress,
     aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress) {},
-  onLocationChange: function(aWebProgress, aRequest, aLocation, aFlags) {},
-  onStatusChange: function(aWebProgress, aRequest, aStatus, aMessage) {},
-  onSecurityChange: function(aWebProgress, aRequest, state) {},
-  onContentBlockingEvent: function(aWebProgress, aRequest, aEvent) {},
+  onLocationChange(aWebProgress, aRequest, aLocation, aFlags) {},
+  onStatusChange(aWebProgress, aRequest, aStatus, aMessage) {},
+  onSecurityChange(aWebProgress, aRequest, state) {},
+  onContentBlockingEvent(aWebProgress, aRequest, aEvent) {},
 
   QueryInterface: ChromeUtils.generateQI(["nsIWebProgressListener",
                                           "nsISupportsWeakReference"]),
@@ -136,7 +137,7 @@ function createMessage(aAttachment) {
                        .createInstance(Ci.nsIMsgAttachment);
     if (aAttachment instanceof Ci.nsIFile) {
       attachment.url = "file://" + aAttachment.path;
-      attachment.contentType = 'text/plain';
+      attachment.contentType = "text/plain";
       attachment.name = aAttachment.leafName;
     } else {
       attachment.url = "data:,sometext";
@@ -147,8 +148,8 @@ function createMessage(aAttachment) {
   return richCreateMessage(fields, attachments);
 }
 
-function richCreateMessage(fields, attachments=[], identity=null,
-                           account=null) {
+function richCreateMessage(fields, attachments = [], identity = null,
+                           account = null) {
   let params = Cc["@mozilla.org/messengercompose/composeparams;1"]
                  .createInstance(Ci.nsIMsgComposeParams);
   params.composeFields = fields;
@@ -193,13 +194,13 @@ function richCreateMessage(fields, attachments=[], identity=null,
 }
 
 function getAttachmentFromContent(aContent) {
-  function getBoundaryStringFromContent(aContent) {
+  function getBoundaryStringFromContent() {
     let found = aContent.match(/Content-Type: multipart\/mixed;\s+boundary="(.*?)"/);
     Assert.notEqual(found, null);
     Assert.equal(found.length, 2);
 
     return found[1];
-  };
+  }
 
   let boundary = getBoundaryStringFromContent(aContent);
   let regex = new RegExp("\\r\\n\\r\\n--" + boundary + "\\r\\n" +

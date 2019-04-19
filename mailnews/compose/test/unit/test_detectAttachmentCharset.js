@@ -4,7 +4,6 @@
  */
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 function checkAttachmentCharset(expectedCharset) {
   let msgData = mailTestUtils
@@ -69,8 +68,8 @@ var tests = [
   testShiftJIS,
   testISO2022JP,
   testKOI8R,
-  testWindows1252
-]
+  testWindows1252,
+];
 
 function run_test() {
   // Ensure we have at least one mail account

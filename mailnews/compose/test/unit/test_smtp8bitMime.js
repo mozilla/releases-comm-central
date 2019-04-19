@@ -8,7 +8,6 @@
  */
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-var test = null;
 var server;
 
 var kIdentityMail = "identity@foo.invalid";
@@ -19,7 +18,6 @@ var kTo = "to@foo.invalid";
 // aServer8bit: Test if BODY=8BITMIME is only sent if advertised by the server.
 
 function test_8bitmime(aStrictMime, aServer8bit) {
-
   // Test file
   var testFile = do_get_file("data/message1.eml");
 
@@ -33,7 +31,6 @@ function test_8bitmime(aStrictMime, aServer8bit) {
   // Handle the server in a try/catch/finally loop so that we always will stop
   // the server if something fails.
   try {
-
     test = "Strictly MIME" + (aStrictMime ? "on (7bit" : "off (8bit") +
              ", 8BITMIME " + (aServer8bit ? "" : "not ") + "advertised)";
 
@@ -54,8 +51,6 @@ function test_8bitmime(aStrictMime, aServer8bit) {
                                        "DATA"]);
 
     server.resetTest();
-
-
   } catch (e) {
     do_throw(e);
   } finally {

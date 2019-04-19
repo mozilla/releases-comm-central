@@ -50,10 +50,9 @@ function run_test() {
 
   // Ensure we have at least one mail account
   localAccountUtils.loadLocalMailAccount();
-  let composeService = MailServices.compose;
+  MailServices.compose; // Initialise the compose service.
   do_test_pending();
   check_files_not_exist(gExpectedFiles);
   do_test_finished();
-
 }
 

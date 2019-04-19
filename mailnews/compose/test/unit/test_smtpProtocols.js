@@ -10,15 +10,14 @@ var defaultProtocolFlags =
   Ci.nsIProtocolHandler.ALLOWS_PROXY |
   Ci.nsIProtocolHandler.URI_FORBIDS_AUTOMATIC_DOCUMENT_REPLACEMENT;
 
-var protocols =
-  [ { protocol: "smtp",
-      urlSpec: "smtp://user@localhost/",
-      defaultPort: Ci.nsISmtpUrl.DEFAULT_SMTP_PORT
-    },
-    { protocol: "smtps",
-      urlSpec: "smtps://user@localhost/",
-      defaultPort: Ci.nsISmtpUrl.DEFAULT_SMTPS_PORT
-    } ];
+var protocols = [{
+  protocol: "smtp", urlSpec: "smtp://user@localhost/",
+  defaultPort: Ci.nsISmtpUrl.DEFAULT_SMTP_PORT,
+}, {
+  protocol: "smtps",
+  urlSpec: "smtps://user@localhost/",
+  defaultPort: Ci.nsISmtpUrl.DEFAULT_SMTPS_PORT,
+}];
 
 function run_test() {
   for (var part = 0; part < protocols.length; ++part) {
@@ -49,8 +48,7 @@ function run_test() {
       pH.newChannel(uri, null);
       // If it didn't throw, then shout about it.
       do_throw("newChannel not throwing NS_ERROR_NOT_IMPLEMENTED.");
-    }
-    catch (ex) {
+    } catch (ex) {
       Assert.equal(ex.result, Cr.NS_ERROR_NOT_IMPLEMENTED);
     }
   }

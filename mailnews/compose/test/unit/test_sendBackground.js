@@ -5,10 +5,7 @@
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-var type = null;
-var test = null;
 var server;
-var sentFolder;
 var originalData;
 var finished = false;
 var identity = null;
@@ -19,7 +16,6 @@ var kTestFile1Sender = "from_A@foo.invalid";
 var kTestFile1Recipient = "to_A@foo.invalid";
 
 var kIdentityMail = "identity@foo.invalid";
-var kTo = "to@foo.invalid";
 
 var gMsgSendLater;
 
@@ -32,22 +28,20 @@ msll.prototype = {
   _initialTotal: 0,
 
   // nsIMsgSendLaterListener
-  onStartSending: function (aTotal) {
+  onStartSending(aTotal) {
     this._initialTotal = 1;
     Assert.equal(gMsgSendLater.sendingMessages, true);
     Assert.equal(aTotal, 1);
   },
-  onMessageStartSending: function (aCurrentMessage, aTotalMessageCount,
-                                   aMessageHeader, aIdentity) {
+  onMessageStartSending(aCurrentMessage, aTotalMessageCount, aMessageHeader, aIdentity) {
   },
-  onMessageSendProgress: function (aCurrentMessage, aTotalMessageCount,
-                                   aMessageSendPercent, aMessageCopyPercent) {
+  onMessageSendProgress(aCurrentMessage, aTotalMessageCount,
+                        aMessageSendPercent, aMessageCopyPercent) {
   },
-  onMessageSendError: function (aCurrentMessage, aMessageHeader, aStatus,
-                                aMsg) {
+  onMessageSendError(aCurrentMessage, aMessageHeader, aStatus, aMsg) {
     do_throw("onMessageSendError should not have been called, status: " + aStatus);
   },
-  onStopSending: function (aStatus, aMsg, aTotalTried, aSuccessful) {
+  onStopSending(aStatus, aMsg, aTotalTried, aSuccessful) {
     do_test_finished();
     print("msll onStopSending\n");
     try {
@@ -81,7 +75,7 @@ msll.prototype = {
       while (thread.hasPendingEvents())
         thread.processNextEvent(true);
     }
-  }
+  },
 };
 
 
@@ -119,7 +113,7 @@ function run_test() {
   account.incomingServer = incomingServer;
   MailServices.accounts.defaultAccount = account;
 
-  sentFolder = localAccountUtils.rootFolder.createLocalSubfolder("Sent");
+  localAccountUtils.rootFolder.createLocalSubfolder("Sent");
 
   Assert.equal(identity.doFcc, true);
 
@@ -139,12 +133,9 @@ function run_test() {
   var msgSend = Cc["@mozilla.org/messengercompose/send;1"]
                   .createInstance(Ci.nsIMsgSend);
 
-  type = "sendMessageLater";
-
   // Handle the server in a try/catch/finally loop so that we always will stop
   // the server if something fails.
   try {
-
     // A test to check that we are sending files correctly, including checking
     // what the server receives and what we output.
     test = "sendMessageLater";
@@ -167,12 +158,12 @@ function run_test() {
 
     server.performTest();
 
-    do_timeout(10000, function()
-        {if (!finished) do_throw('Notifications of message send/copy not received');}
-      );
+    do_timeout(10000, function() {
+      if (!finished)
+        do_throw("Notifications of message send/copy not received");
+    });
 
     do_test_pending();
-
   } catch (e) {
     do_throw(e);
   } finally {

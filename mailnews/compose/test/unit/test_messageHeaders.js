@@ -56,24 +56,28 @@ function checkDraftHeaders(expectedHeaders, partNum = "") {
 function checkMessageHeaders(msgData, expectedHeaders, partNum = "") {
   let seen = false;
   let handler = {
-    startPart: function (part, headers) {
+    startPart(part, headers) {
       if (part != partNum)
         return;
       seen = true;
       for (let header in expectedHeaders) {
         let expected = expectedHeaders[header];
-        if (expected === undefined)
+        if (expected === undefined) {
           Assert.ok(!headers.has(header));
-        else {
+        } else {
           let value = headers.getRawHeader(header);
           Assert.equal(value.length, 1);
           value[0] = value[0].replace(/boundary=[^;]*(;|$)/, "boundary=.");
           Assert.equal(value[0], expected);
         }
       }
-    }
+    },
   };
-  MimeParser.parseSync(msgData, handler, {onerror: function (e) { throw e; }});
+  MimeParser.parseSync(msgData, handler, {
+    onerror(e) {
+      throw e;
+    },
+  });
   Assert.ok(seen);
 }
 
@@ -148,7 +152,7 @@ async function testIDNEnvelope() {
     "From": "from@tinderbox.invalid",
     "To": "Nobody <nobody@" + utf8Domain + ">",
     "Cc": "Alex <alex@" + utf8Domain + ">",
-    "Bcc": "Boris <boris@" + utf8Domain +">",
+    "Bcc": "Boris <boris@" + utf8Domain + ">",
     "Reply-To": "Charles <charles@" + utf8Domain + ">",
     "Subject": "This is an obscure reference",
   });
@@ -324,7 +328,7 @@ async function testContentHeaders() {
   await richCreateMessage(fields, [], identity);
   checkDraftHeaders({
     "Content-Type": "text/html; charset=UTF-8",
-    "Content-Transfer-Encoding": "7bit"
+    "Content-Transfer-Encoding": "7bit",
   });
 
   // non-ASCII body should be 8-bit...
@@ -332,7 +336,7 @@ async function testContentHeaders() {
   await richCreateMessage(fields, [], identity);
   checkDraftHeaders({
     "Content-Type": "text/html; charset=UTF-8",
-    "Content-Transfer-Encoding": "8bit"
+    "Content-Transfer-Encoding": "8bit",
   });
 
   // What if we change the message charset?
@@ -341,14 +345,14 @@ async function testContentHeaders() {
   await richCreateMessage(fields, [], identity);
   checkDraftHeaders({
     "Content-Type": "text/html; charset=ISO-8859-1",
-    "Content-Transfer-Encoding": "8bit"
+    "Content-Transfer-Encoding": "8bit",
   });
 
   // Attachments
   fields.body = "";
   let plainAttachment = makeAttachment({
     url: "data:text/plain,oïl",
-    name: "attachment.txt"
+    name: "attachment.txt",
   });
   let plainAttachmentHeaders = {
     "Content-Type": "text/plain; charset=UTF-8",
@@ -358,7 +362,7 @@ async function testContentHeaders() {
   await richCreateMessage(fields, [plainAttachment], identity);
   checkDraftHeaders({
     "Content-Type": "text/html; charset=ISO-8859-1",
-    "Content-Transfer-Encoding": "7bit"
+    "Content-Transfer-Encoding": "7bit",
   }, "1");
   checkDraftHeaders(plainAttachmentHeaders, "2");
 
@@ -387,7 +391,7 @@ async function testContentHeaders() {
   await richCreateMessage(fields, [httpAttachment], identity);
   checkDraftHeaders({
     "Content-Base": undefined,
-    "Content-Location": undefined
+    "Content-Location": undefined,
   }, "1");
   checkDraftHeaders(httpAttachmentHeaders, "2");
 
@@ -414,15 +418,15 @@ async function testContentHeaders() {
   fields.useMultipartAlternative = true;
   await richCreateMessage(fields, [], identity);
   checkDraftHeaders({
-    "Content-Type": "multipart/alternative; boundary=."
+    "Content-Type": "multipart/alternative; boundary=.",
   });
   checkDraftHeaders({
     "Content-Type": "text/plain; charset=UTF-8; format=flowed",
-    "Content-Transfer-Encoding": "7bit"
+    "Content-Transfer-Encoding": "7bit",
   }, "1");
   checkDraftHeaders({
     "Content-Type": "text/html; charset=UTF-8",
-    "Content-Transfer-Encoding": "7bit"
+    "Content-Transfer-Encoding": "7bit",
   }, "2");
 
   // multipart/mixed
@@ -432,18 +436,18 @@ async function testContentHeaders() {
   // + text/plain attachment
   await richCreateMessage(fields, [plainAttachment], identity);
   checkDraftHeaders({
-    "Content-Type": "multipart/mixed; boundary=."
+    "Content-Type": "multipart/mixed; boundary=.",
   });
   checkDraftHeaders({
-    "Content-Type": "multipart/alternative; boundary=."
+    "Content-Type": "multipart/alternative; boundary=.",
   }, "1");
   checkDraftHeaders({
     "Content-Type": "text/plain; charset=UTF-8; format=flowed",
-    "Content-Transfer-Encoding": "7bit"
+    "Content-Transfer-Encoding": "7bit",
   }, "1.1");
   checkDraftHeaders({
     "Content-Type": "text/html; charset=UTF-8",
-    "Content-Transfer-Encoding": "7bit"
+    "Content-Transfer-Encoding": "7bit",
   }, "1.2");
   checkDraftHeaders(plainAttachmentHeaders, "2");
 
@@ -451,18 +455,18 @@ async function testContentHeaders() {
   await richCreateMessage(fields,
     [plainAttachment, httpAttachment, cloudAttachment], identity);
   checkDraftHeaders({
-    "Content-Type": "multipart/mixed; boundary=."
+    "Content-Type": "multipart/mixed; boundary=.",
   });
   checkDraftHeaders({
-    "Content-Type": "multipart/alternative; boundary=."
+    "Content-Type": "multipart/alternative; boundary=.",
   }, "1");
   checkDraftHeaders({
     "Content-Type": "text/plain; charset=UTF-8; format=flowed",
-    "Content-Transfer-Encoding": "7bit"
+    "Content-Transfer-Encoding": "7bit",
   }, "1.1");
   checkDraftHeaders({
     "Content-Type": "text/html; charset=UTF-8",
-    "Content-Transfer-Encoding": "7bit"
+    "Content-Transfer-Encoding": "7bit",
   }, "1.2");
   checkDraftHeaders(cloudAttachmentHeaders, "2");
   checkDraftHeaders(plainAttachmentHeaders, "3");
@@ -474,7 +478,7 @@ async function testContentHeaders() {
   await richCreateMessage(fields, [], identity);
   checkDraftHeaders({
     "Content-Type": "text/plain; charset=UTF-8; format=flowed",
-    "Content-Transfer-Encoding": "7bit"
+    "Content-Transfer-Encoding": "7bit",
   });
 }
 
@@ -500,11 +504,11 @@ async function testSentMessage() {
       "X-Mozilla-Status": undefined,
       "X-Mozilla-Keys": undefined,
       "X-Mozilla-Draft-Info": undefined,
-      "Fcc": undefined
+      "Fcc": undefined,
     });
     await sendMessage({"bcc": "Somebody <test@tinderbox.invalid"}, identity);
     checkMessageHeaders(daemon.post, {
-      "To": "undisclosed-recipients: ;"
+      "To": "undisclosed-recipients: ;",
     });
     await sendMessage({
       "to": "Somebody <test@tinderbox.invalid>",
@@ -544,7 +548,7 @@ var tests = [
   testSendHeaders,
   testContentHeaders,
   testSentMessage,
-]
+];
 
 function run_test() {
   // Ensure we have at least one mail account

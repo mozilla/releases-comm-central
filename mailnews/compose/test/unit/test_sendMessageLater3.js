@@ -8,17 +8,12 @@
  *   - A correct state at the end of attempting to send.
  */
 
+/* import-globals-from ../../../test/resources/alertTestUtils.js */
 load("../../../resources/alertTestUtils.js");
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-var type = null;
-var test = null;
-var server;
-var sentFolder;
-var transaction;
 var originalData;
-var finished = false;
 var identity = null;
 var testFile = do_get_file("data/429891_testcase.eml");
 
@@ -28,6 +23,7 @@ var kTo = "to@foo.invalid";
 var msgSendLater = Cc["@mozilla.org/messengercompose/sendlater;1"]
   .getService(Ci.nsIMsgSendLater);
 
+/* exported alert */// for alertTestUtils.js
 function alert(aDialogTitle, aText) {
   dump("Hiding Alert {\n" + aText + "\n} End Alert\n");
 }
@@ -42,21 +38,19 @@ msll.prototype = {
   _errorRaised: false,
 
   // nsIMsgSendLaterListener
-  onStartSending: function (aTotal) {
+  onStartSending(aTotal) {
     this._initialTotal = 1;
     Assert.equal(msgSendLater.sendingMessages, true);
   },
-  onMessageStartSending: function (aCurrentMessage, aTotalMessageCount,
-                                   aMessageHeader, aIdentity) {
+  onMessageStartSending(aCurrentMessage, aTotalMessageCount, aMessageHeader, aIdentity) {
   },
-  onMessageSendProgress: function (aCurrentMessage, aTotalMessageCount,
-                                   aMessageSendPercent, aMessageCopyPercent) {
+  onMessageSendProgress(aCurrentMessage, aTotalMessageCount,
+                        aMessageSendPercent, aMessageCopyPercent) {
   },
-  onMessageSendError: function (aCurrentMessage, aMessageHeader, aStatus,
-                                aMsg) {
+  onMessageSendError(aCurrentMessage, aMessageHeader, aStatus, aMsg) {
     this._errorRaised = true;
   },
-  onStopSending: function (aStatus, aMsg, aTotal, aSuccessful) {
+  onStopSending(aStatus, aMsg, aTotal, aSuccessful) {
     print("msll onStopSending\n");
 
     // NS_ERROR_SMTP_SEND_FAILED_REFUSED is 2153066798
@@ -70,9 +64,10 @@ msll.prototype = {
     Assert.equal(msgSendLater.hasUnsentMessages(identity), true);
 
     do_test_finished();
-  }
+  },
 };
 
+/* exported OnStopCopy */// for head_compose.js
 function OnStopCopy(aStatus) {
   Assert.equal(aStatus, 0);
 
@@ -105,8 +100,7 @@ function OnStopCopy(aStatus) {
 }
 
 // This function does the actual send later
-function sendMessageLater()
-{
+function sendMessageLater() {
   // No server for this test, just attempt to send unsent and wait.
   var messageListener = new msll();
 
@@ -142,7 +136,7 @@ function run_test() {
   account.incomingServer = incomingServer;
   MailServices.accounts.defaultAccount = account;
 
-  sentFolder = localAccountUtils.rootFolder.createLocalSubfolder("Sent");
+  localAccountUtils.rootFolder.createLocalSubfolder("Sent");
 
   identity.doFcc = false;
 

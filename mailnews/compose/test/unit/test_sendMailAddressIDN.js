@@ -2,9 +2,9 @@
 /**
  * Tests sending messages to addresses with non-ASCII characters.
  */
+/* import-globals-from ../../../test/resources/alertTestUtils.js */
 load("../../../resources/alertTestUtils.js");
 
-var type = null;
 var test = null;
 var server;
 var finished = false;
@@ -21,10 +21,8 @@ var kToInvalid  = "b\u00F8rken.to@invalid.foo.invalid";
 var kToInvalidWithoutDomain = "b\u00F8rken.to";
 var NS_ERROR_BUT_DONT_SHOW_ALERT = 0x805530ef;
 
-
-// nsIPrompt
-function alert(aDialogText, aText)
-{
+/* exported alert */// for alertTestUtils.js
+function alert(aDialogText, aText) {
   // ignore without domain situation (this is crash test)
   if (test == kToInvalidWithoutDomain)
     return;
@@ -36,21 +34,17 @@ function alert(aDialogText, aText)
 
 
 // message listener implementations
-function msgListener(aRecipient)
-{
+function msgListener(aRecipient) {
   this.rcpt = aRecipient;
 }
 
-msgListener.prototype =
-{
+msgListener.prototype = {
   // nsIMsgSendListener
-  onStartSending: function (aMsgID, aMsgSize) {},
-  onProgress: function (aMsgID, aProgress, aProgressMax) {},
-  onStatus: function (aMsgID, aMsg) {},
-  onStopSending: function (aMsgID, aStatus, aMsg, aReturnFile)
-  {
-    try
-    {
+  onStartSending(aMsgID, aMsgSize) {},
+  onProgress(aMsgID, aProgress, aProgressMax) {},
+  onStatus(aMsgID, aMsg) {},
+  onStopSending(aMsgID, aStatus, aMsg, aReturnFile) {
+    try {
       Assert.equal(aStatus, 0);
       do_check_transaction(server.playTransaction(),
                            ["EHLO test",
@@ -59,32 +53,26 @@ msgListener.prototype =
                             "DATA"]);
       // Compare data file to what the server received
       Assert.equal(originalData, server._daemon.post);
-    }
-    catch (e)
-    {
+    } catch (e) {
       do_throw(e);
-    }
-    finally
-    {
+    } finally {
       server.stop();
       var thread = gThreadManager.currentThread;
       while (thread.hasPendingEvents())
         thread.processNextEvent(false);
     }
   },
-  onGetDraftFolderURI: function (aFolderURI) {},
-  onSendNotPerformed: function (aMsgID, aStatus) {},
+  onGetDraftFolderURI(aFolderURI) {},
+  onSendNotPerformed(aMsgID, aStatus) {},
 
   // nsIMsgCopyServiceListener
-  OnStartCopy: function () {},
-  OnProgress: function (aProgress, aProgressMax) {},
-  SetMessageKey: function (aKey) {},
-  GetMessageId: function (aMessageId) {},
-  OnStopCopy: function (aStatus)
-  {
+  OnStartCopy() {},
+  OnProgress(aProgress, aProgressMax) {},
+  SetMessageKey(aKey) {},
+  GetMessageId(aMessageId) {},
+  OnStopCopy(aStatus) {
     Assert.equal(aStatus, 0);
-    try
-    {
+    try {
       // Now do a comparison of what is in the sent mail folder
       let msgData = mailTestUtils
         .loadMessageToString(sentFolder, mailTestUtils.firstMsgHdr(sentFolder));
@@ -93,13 +81,9 @@ msgListener.prototype =
       Assert.notEqual(pos, -1);
       msgData = msgData.substr(pos);
       Assert.equal(originalData, msgData);
-    }
-    catch (e)
-    {
+    } catch (e) {
       do_throw(e);
-    }
-    finally
-    {
+    } finally {
       finished = true;
       do_test_finished();
     }
@@ -108,11 +92,10 @@ msgListener.prototype =
   // QueryInterface
   QueryInterface: ChromeUtils.generateQI(["nsIMsgSendListener",
                                           "nsIMsgCopyServiceListener"]),
-}
+};
 
 
-function DoSendTest(aRecipient, aRecipientExpected, aExceptionExpected)
-{
+function DoSendTest(aRecipient, aRecipientExpected, aExceptionExpected) {
   server = setupServerDaemon();
   server.start();
   var smtpServer = getBasicSmtpServer(server.port);
@@ -126,8 +109,7 @@ function DoSendTest(aRecipient, aRecipientExpected, aExceptionExpected)
   // Handle the server in a try/catch/finally loop so that we always will stop
   // the server if something fails.
   var exceptionCaught = 0;
-  try
-  {
+  try {
     var compFields = Cc["@mozilla.org/messengercompose/composefields;1"]
                        .createInstance(Ci.nsIMsgCompFields);
     compFields.from = identity.email;
@@ -141,17 +123,14 @@ function DoSendTest(aRecipient, aRecipientExpected, aExceptionExpected)
 
     server.performTest();
 
-    do_timeout(10000, function()
-        {if (!finished) do_throw('Notifications of message send/copy not received');}
-      );
+    do_timeout(10000, function() {
+      if (!finished)
+        do_throw("Notifications of message send/copy not received");
+    });
     do_test_pending();
-  }
-  catch (e)
-  {
+  } catch (e) {
     exceptionCaught = e.result;
-  }
-  finally
-  {
+  } finally {
     server.stop();
     var thread = gThreadManager.currentThread;
     while (thread.hasPendingEvents())
@@ -161,9 +140,7 @@ function DoSendTest(aRecipient, aRecipientExpected, aExceptionExpected)
 }
 
 
-function run_test()
-{
-  type = "sendMailAddressIDN";
+function run_test() {
   registerAlertTestUtils();
   var composeProps = Services.strings.createBundle("chrome://messenger/locale/messengercompose/composeMsgs.properties");
   expectedAlertMessage = composeProps.GetStringFromName("errorIllegalLocalPart")

@@ -4,7 +4,6 @@
  */
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 const {MimeParser} = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 
 var CompFields = CC("@mozilla.org/messengercompose/composefields;1",
@@ -52,24 +51,28 @@ function checkDraftHeadersAndBody(expectedHeaders, expectedBody, charset = "UTF-
 function checkMessageHeaders(msgData, expectedHeaders, partNum = "") {
   let seen = false;
   let handler = {
-    startPart: function (part, headers) {
+    startPart(part, headers) {
       if (part != partNum)
         return;
       seen = true;
       for (let header in expectedHeaders) {
         let expected = expectedHeaders[header];
-        if (expected === undefined)
+        if (expected === undefined) {
           Assert.ok(!headers.has(header));
-        else {
+        } else {
           let value = headers.getRawHeader(header);
           Assert.equal(value.length, 1);
           value[0] = value[0].replace(/boundary=[^;]*(;|$)/, "boundary=.");
           Assert.equal(value[0], expected);
         }
       }
-    }
+    },
   };
-  MimeParser.parseSync(msgData, handler, {onerror: function (e) { throw e; }});
+  MimeParser.parseSync(msgData, handler, {
+    onerror(e) {
+      throw e;
+    },
+  });
   Assert.ok(seen);
 }
 
@@ -112,7 +115,7 @@ async function testBodyWithLongLine() {
   checkDraftHeadersAndBody(
     {
       "Content-Type": "text/html; charset=UTF-8",
-      "Content-Transfer-Encoding": "base64"
+      "Content-Transfer-Encoding": "base64",
     },
     htmlMessage
   );
@@ -125,7 +128,7 @@ async function testBodyWithLongLine() {
   checkDraftHeadersAndBody(
     {
       "Content-Type": "text/plain; charset=UTF-8; format=flowed",
-      "Content-Transfer-Encoding": "base64"
+      "Content-Transfer-Encoding": "base64",
     },
     longMultibyteLine + newline // Expected body: The message without the tags.
   );
@@ -140,7 +143,7 @@ async function testBodyWithLongLine() {
   checkDraftHeadersAndBody(
     {
       "Content-Type": "text/html; charset=UTF-8",
-      "Content-Transfer-Encoding": "base64"
+      "Content-Transfer-Encoding": "base64",
     },
     htmlMessage
   );
@@ -153,7 +156,7 @@ async function testBodyWithLongLine() {
   checkDraftHeadersAndBody(
     {
       "Content-Type": "text/plain; charset=UTF-8; format=flowed",
-      "Content-Transfer-Encoding": "base64"
+      "Content-Transfer-Encoding": "base64",
     },
     longMultibyteLineCJK + newline // Expected body: The message without the tags.
   );
@@ -170,7 +173,7 @@ async function testBodyWithLongLine() {
   checkDraftHeadersAndBody(
     {
       "Content-Type": "text/html; charset=ISO-2022-JP",
-      "Content-Transfer-Encoding": "base64"
+      "Content-Transfer-Encoding": "base64",
     },
     htmlMessage,
     "ISO-2022-JP"
@@ -195,7 +198,7 @@ async function testBodyWithLongLine() {
   checkDraftHeadersAndBody(
     {
       "Content-Type": "text/plain; charset=ISO-2022-JP; format=flowed; delsp=yes",
-      "Content-Transfer-Encoding": "7bit"
+      "Content-Transfer-Encoding": "7bit",
     },
     expectedBody,
     "ISO-2022-JP"
@@ -209,7 +212,7 @@ async function testBodyWithLongLine() {
   checkDraftHeadersAndBody(
     {
       "Content-Type": "text/plain; charset=ISO-2022-JP",
-      "Content-Transfer-Encoding": "7bit"
+      "Content-Transfer-Encoding": "7bit",
     },
     expectedBody.replace(/ /g, ""), // No spaces expected this time.
     "ISO-2022-JP"
@@ -218,7 +221,7 @@ async function testBodyWithLongLine() {
 
 var tests = [
   testBodyWithLongLine,
-]
+];
 
 function run_test() {
   // Ensure we have at least one mail account

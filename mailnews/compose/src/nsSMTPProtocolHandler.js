@@ -20,7 +20,7 @@ function makeProtocolHandler(aProtocol, aDefaultPort, aClassID) {
       nsIProtocolHandler.ALLOWS_PROXY |
       nsIProtocolHandler.URI_FORBIDS_AUTOMATIC_DOCUMENT_REPLACEMENT,
 
-    newURI: function (aSpec, aOriginCharset, aBaseURI) {
+    newURI(aSpec, aOriginCharset, aBaseURI) {
       var url = Cc["@mozilla.org/messengercompose/smtpurl;1"]
                   .createInstance(Ci.nsIURI);
       if (url instanceof Ci.nsISmtpUrl)
@@ -28,13 +28,13 @@ function makeProtocolHandler(aProtocol, aDefaultPort, aClassID) {
       return url;
     },
 
-    newChannel: function(aURI, aLoadInfo) {
+    newChannel(aURI, aLoadInfo) {
       throw Cr.NS_ERROR_NOT_IMPLEMENTED;
     },
 
-    allowPort: function (port, scheme) {
+    allowPort(port, scheme) {
       return port == aDefaultPort;
-    }
+    },
   };
 }
 
