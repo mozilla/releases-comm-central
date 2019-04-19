@@ -24,6 +24,8 @@ class MozFolderSummary extends MozXULElement {
     this.showSubject = Services.prefs.getBoolPref("mail.biff.alert.show_subject");
     this.showSender = Services.prefs.getBoolPref("mail.biff.alert.show_sender");
     this.showPreview = Services.prefs.getBoolPref("mail.biff.alert.show_preview");
+    this.messengerBundle = Services.strings.createBundle(
+                             "chrome://messenger/locale/messenger.properties");
   }
 
   hasMessages() {
@@ -133,8 +135,13 @@ class MozFolderSummary extends MozXULElement {
         if (this.showSender) {
           let addrs = MailServices.headerParser.parseEncodedHeader(
             msgHdr.author, msgHdr.effectiveCharset, false);
-          msgPopup.querySelector(".folderSummary-sender").textContent =
+          let folderSummarySender = msgPopup.querySelector(".folderSummary-sender");
+          folderSummarySender.textContent =
             (addrs.length > 0) ? (addrs[0].name || addrs[0].email) : "";
+          if (addrs.length > 1) {
+            let andOthersStr = this.messengerBundle.GetStringFromName("andOthers");
+            folderSummarySender.textContent += " " + andOthersStr;
+          }
         }
 
         if (this.showPreview && msgHdr.getProperty("preview")) {

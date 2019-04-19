@@ -122,14 +122,18 @@ function formatDisplayNameList(aHeaderValue, aContext) {
   if (addresses.length > 0) {
     let displayName = formatDisplayName(addresses[0].email,
                                         addresses[0].name, aContext);
+    let andOthersStr = "";
+    if (addresses.length > 1)
+      andOthersStr = " " + gMessengerBundle.getString("andOthers");
+
     if (displayName)
-      return displayName;
+      return displayName + andOthersStr;
 
     // Construct default display.
     if (addresses[0].email) {
       return MailServices.headerParser
-                         .makeMailboxObject(addresses[0].name,
-                                            addresses[0].email).toString();
+                         .makeMailboxObject(addresses[0].name, addresses[0].email)
+                         .toString() + andOthersStr;
     }
   }
 
