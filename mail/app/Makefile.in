@@ -65,8 +65,12 @@ $(RESFILE): embedded-icons
 endif
 
 ifneq ($(OS_ARCH),WINNT)
+ifdef COMPILE_ENVIRONMENT
+ifndef MOZ_NO_PIE_COMPAT
 libs::
 	cp -p $(DIST)/bin/$(MOZ_APP_NAME)$(BIN_SUFFIX) $(DIST)/bin/$(MOZ_APP_NAME)-bin$(BIN_SUFFIX)
+endif
+endif
 
 GARBAGE += $(addprefix $(DIST)/bin/defaults/pref/, all.js all-thunderbird.js mailnews.js)
 endif # ! WinNT
