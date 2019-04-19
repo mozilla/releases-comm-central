@@ -90,6 +90,29 @@
     </toolbarbutton>
   </toolbarpalette>
 
+  <toolbarpalette id="header-view-toolbar-palette">
+    <toolbarbutton id="hdrExtractEventButton"
+                   class="toolbarbutton-1 msgHeaderView-button"
+                   type="menu-button"
+                   label="&calendar.extract.event.button;"
+                   tooltiptext="&calendar.extract.event.button.tooltip;"
+                   oncommand="calendarExtract.extractFromEmail(true)">
+      <menupopup id="hdrExtractEventLocaleList"
+                 oncommand="calendarExtract.extractWithLocale(event, true);"
+                 onpopupshowing="calendarExtract.onShowLocaleMenu(event.target);"/>
+    </toolbarbutton>
+    <toolbarbutton id="hdrExtractTaskButton"
+                   class="toolbarbutton-1 msgHeaderView-button"
+                   type="menu-button"
+                   label="&calendar.extract.task.button;"
+                   tooltiptext="&calendar.extract.task.button.tooltip;"
+                   oncommand="calendarExtract.extractFromEmail(false)">
+      <menupopup id="hdrExtractTaskLocaleList"
+                 oncommand="calendarExtract.extractWithLocale(event, false);"
+                 onpopupshowing="calendarExtract.onShowLocaleMenu(event.target);"/>
+    </toolbarbutton>
+  </toolbarpalette>
+
   <toolbox id="calendar-toolbox"
            class="mail-toolbox"
            mode="full"

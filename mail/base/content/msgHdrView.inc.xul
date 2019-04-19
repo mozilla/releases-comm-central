@@ -18,8 +18,14 @@
                                    fit alongside each other. -->
                               <hbox id="expandedHeadersTopBox" flex="1">
 
-                                <vbox id="header-view-toolbox">
-                                  <hbox id="header-view-toolbar">
+                                <toolbox id="header-view-toolbox"
+                                         class="inline-toolbox"
+                                         defaulticonsize="small"
+                                         minwidth="50px"
+                                         defaultlabelalign="end"
+                                         defaultmode="full"
+                                         inlinetoolbox="true">
+                                  <toolbarpalette id="header-view-toolbar-palette">
                                     <!-- XXXdmose need to move these commands to a controller, either
                                          on the header view, the message pane, or the default
                                          controller -->
@@ -27,6 +33,59 @@
                                     <!-- XXXdmose need to audit our shortcut/a11y setup and make sure
                                          these buttons are doing the right thing -->
 
+                                    <toolbarbutton id="hdrForwardButton"
+                                                   label="&hdrForwardButton1.label;"
+                                                   tooltiptext="&hdrForwardButton1.tooltip;"
+                                                   oncommand="MsgForwardMessage(event); RestoreFocusAfterHdrButton();"
+                                                   observes="button_forward"
+                                                   class="toolbarbutton-1 msgHeaderView-button hdrForwardButton"/>
+                                    <toolbaritem id="hdrMenuForwardButton" label="&hdrMenuForwardButton.label;">
+                                    <!-- This toolbaritem is a dummy and should only be shown when
+                                         customizing the toolbar to distinguish the forward button
+                                         from the forward dual-button. -->
+                                      <toolbarbutton id="hdrDualForwardButton"
+                                                     label="&hdrForwardButton1.label;"
+                                                     tooltiptext="&hdrForwardButton1.tooltip;"
+                                                     oncommand="MsgForwardMessage(event); RestoreFocusAfterHdrButton();"
+                                                     observes="button_forward"
+                                                     class="toolbarbutton-1 msgHeaderView-button hdrForwardButton"
+                                                     type="menu-button">
+                                        <menupopup id="hdrForwardDropdown">
+                                          <menuitem id="hdrForwardAsInlineMenu"
+                                                    label="&buttonMenuForwardAsInline.label;"
+                                                    tooltiptext="&forwardAsInline.tooltip;"
+                                                    command="cmd_forwardInline"/>
+                                          <menuitem id="hdrForwardAsAttachmentMenu"
+                                                    label="&buttonMenuForwardAsAttachment.label;"
+                                                    tooltiptext="&forwardAsAttachment.tooltip;"
+                                                    command="cmd_forwardAttachment"/>
+                                        </menupopup>
+                                      </toolbarbutton>
+                                    </toolbaritem>
+                                    <toolbarbutton id="hdrArchiveButton"
+                                                   label="&hdrArchiveButton1.label;"
+                                                   tooltiptext="&hdrArchiveButton1.tooltip;"
+                                                   oncommand="MsgArchiveSelectedMessages(event); RestoreFocusAfterHdrButton();"
+                                                   observes="button_archive"
+                                                   class="toolbarbutton-1 msgHeaderView-button hdrArchiveButton"/>
+                                    <toolbarbutton id="hdrJunkButton" label="&hdrJunkButton1.label;"
+                                                   tooltiptext="&hdrJunkButton1.tooltip;"
+                                                   observes="button_junk"
+                                                   class="toolbarbutton-1 msgHeaderView-button hdrJunkButton"
+                                                   oncommand="goDoCommand('button_junk'); RestoreFocusAfterHdrButton();"/>
+                                    <toolbarbutton id="hdrTrashButton"
+                                                   label="&hdrTrashButton1.label;"
+                                                   tooltiptext="&hdrTrashButton1.tooltip;"
+                                                   observes="button_delete"
+                                                   class="toolbarbutton-1 msgHeaderView-button hdrTrashButton"
+                                                   oncommand="goDoCommand(event.shiftKey ? 'button_shiftDelete' :
+                                                                          'button_delete'); RestoreFocusAfterHdrButton();"/>
+                                    <toolbarbutton id="hdrOpenConversationButton"
+                                                   label="&hdrOpenConversationButton1.label;"
+                                                   tooltiptext="&hdrOpenConversationButton1.tooltip;"
+                                                   observes="button_showconversation"
+                                                   class="toolbarbutton-1 msgHeaderView-button hdrConversationButton"
+                                                   oncommand="gConversationOpener.openConversationForMessages(gFolderDisplay.selectedMessages); RestoreFocusAfterHdrButton();"/>
                                     <toolbarbutton id="hdrReplyToSenderButton" label="&hdrReplyButton1.label;"
                                                    tooltiptext="&hdrReplyButton2.tooltip;"
                                                    oncommand="MsgReplySender(event); RestoreFocusAfterHdrButton();"
@@ -121,30 +180,28 @@
                                         </menupopup>
                                       </toolbarbutton>
                                     </toolbaritem>
-                                    <toolbarbutton id="hdrForwardButton"
-                                                   label="&hdrForwardButton1.label;"
-                                                   tooltiptext="&hdrForwardButton1.tooltip;"
-                                                   oncommand="MsgForwardMessage(event); RestoreFocusAfterHdrButton();"
-                                                   observes="button_forward"
-                                                   class="toolbarbutton-1 msgHeaderView-button hdrForwardButton"/>
-                                    <toolbarbutton id="hdrArchiveButton"
-                                                   label="&hdrArchiveButton1.label;"
-                                                   tooltiptext="&hdrArchiveButton1.tooltip;"
-                                                   oncommand="MsgArchiveSelectedMessages(event); RestoreFocusAfterHdrButton();"
-                                                   observes="button_archive"
-                                                   class="toolbarbutton-1 msgHeaderView-button hdrArchiveButton"/>
-                                    <toolbarbutton id="hdrJunkButton" label="&hdrJunkButton1.label;"
-                                                   tooltiptext="&hdrJunkButton1.tooltip;"
-                                                   observes="button_junk"
-                                                   class="toolbarbutton-1 msgHeaderView-button hdrJunkButton"
-                                                   oncommand="goDoCommand('button_junk'); RestoreFocusAfterHdrButton();"/>
-                                    <toolbarbutton id="hdrTrashButton"
-                                                   label="&hdrTrashButton1.label;"
-                                                   tooltiptext="&hdrTrashButton1.tooltip;"
-                                                   observes="button_delete"
-                                                   class="toolbarbutton-1 msgHeaderView-button hdrTrashButton"
-                                                   oncommand="goDoCommand(event.shiftKey ? 'button_shiftDelete' :
-                                                                          'button_delete'); RestoreFocusAfterHdrButton();"/>
+                                    <toolbarbutton id="hdrTagButton"
+                                                   type="menu"
+                                                   class="toolbarbutton-1 msgHeaderView-button hdrTagButton"
+                                                   label="&tagButton.label;"
+                                                   tooltiptext="&tagButton.tooltip;"
+                                                   command="cmd_tag">
+                                      <menupopup id="hdrTagDropdown"
+                                                 onpopupshowing="InitMessageTags(this);">
+                                        <menuitem id="hdrTagDropdown-addNewTag"
+                                                  label="&addNewTag.label;"
+                                                  accesskey="&addNewTag.accesskey;"
+                                                  command="cmd_addTag"/>
+                                        <menuitem id="manageTags"
+                                                  label="&manageTags.label;"
+                                                  accesskey="&manageTags.accesskey;"
+                                                  command="cmd_manageTags"/>
+                                        <menuseparator id="hdrTagDropdown-sep-afterAddNewTag"/>
+                                        <menuitem id="hdrTagDropdown-tagRemoveAll"
+                                                  command="cmd_removeTags"/>
+                                        <menuseparator id="hdrTagDropdown-sep-afterTagRemoveAll"/>
+                                      </menupopup>
+                                    </toolbarbutton>
                                     <toolbarbutton type="menu"
                                                    id="otherActionsButton"
                                                    label="&otherActionsButton2.label;"
@@ -171,25 +228,6 @@
                                                   accesskey="&viewSourceMenuItem1.accesskey;"
                                                   oncommand="ViewPageSource(gFolderDisplay.selectedMessageUris);" />
                                         <menuseparator id="otherActionsSeparator"/>
-                                        <menu id="otherActionsTag"
-                                              label="&tagMenu.label;"
-                                              accesskey="&tagMenu.accesskey;">
-                                          <menupopup id="hdrTagDropdown"
-                                                     onpopupshowing="InitMessageTags(this);">
-                                            <menuitem id="hdrTagDropdown-addNewTag"
-                                                      label="&addNewTag.label;"
-                                                      accesskey="&addNewTag.accesskey;"
-                                                      command="cmd_addTag"/>
-                                            <menuitem id="manageTags"
-                                                      label="&manageTags.label;"
-                                                      accesskey="&manageTags.accesskey;"
-                                                      command="cmd_manageTags"/>
-                                            <menuseparator id="hdrTagDropdown-sep-afterAddNewTag"/>
-                                            <menuitem id="hdrTagDropdown-tagRemoveAll"
-                                                      command="cmd_removeTags"/>
-                                            <menuseparator id="hdrTagDropdown-sep-afterTagRemoveAll"/>
-                                          </menupopup>
-                                        </menu>
                                         <menuitem id="markAsReadMenuItem"
                                                   label="&markAsReadMenuItem1.label;"
                                                   accesskey="&markAsReadMenuItem1.accesskey;"
@@ -207,8 +245,14 @@
                                                   oncommand="PrintEnginePrint();"/>
                                       </menupopup>
                                     </toolbarbutton>
-                                  </hbox>
-                                </vbox>
+                                  </toolbarpalette>
+
+                                  <toolbar id="header-view-toolbar" class="inline-toolbar" align="start"
+                                           customizable="true" mode="full"
+                                           context="header-toolbar-context-menu"
+                                           defaulticonsize="small" defaultmode="full"
+                                           defaultset="hdrReplyToSenderButton,hdrSmartReplyButton,hdrForwardButton,hdrArchiveButton,hdrJunkButton,hdrTrashButton,otherActionsButton"/>
+                                </toolbox>
 
                                 <!-- This box ensures that the expandedHeaders grid below is aligned
                                      with the bottom of the message header toolbar. Like the

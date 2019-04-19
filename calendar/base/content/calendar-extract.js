@@ -231,6 +231,8 @@ var calendarExtract = {
     setState: function() {
         let eventButton = document.getElementById("extractEventButton");
         let taskButton = document.getElementById("extractTaskButton");
+        let hdrEventButton = document.getElementById("hdrExtractEventButton");
+        let hdrTaskButton = document.getElementById("hdrExtractTaskButton");
         let contextMenu = document.getElementById("mailContext-calendar-convert-menu");
         let contextMenuEvent = document.getElementById("mailContext-calendar-convert-event-menuitem");
         let contextMenuTask = document.getElementById("mailContext-calendar-convert-task-menuitem");
@@ -256,6 +258,12 @@ var calendarExtract = {
         }
         if (taskButton) {
             taskButton.disabled = taskDisabled;
+        }
+        if (hdrEventButton) {
+            hdrEventButton.disabled = eventDisabled;
+        }
+        if (hdrTaskButton) {
+            hdrTaskButton.disabled = taskDisabled;
         }
 
         contextMenuEvent.disabled = contextEventDisabled;

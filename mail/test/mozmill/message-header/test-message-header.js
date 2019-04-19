@@ -893,14 +893,42 @@ function test_toolbar_collapse_and_expand() {
     let toolbar = mc.e("header-view-toolbar");
     let mode = toolbar.getAttribute("mode");
 
+    // Get really big, so that we can figure out how big we actually want to be.
     resize_to(mc, 1200, gDefaultWindowHeight);
-    let shortHeight = expandedHeadersTopBox.clientHeight;
 
-    resize_to(mc, 600, gDefaultWindowHeight);
+    let fromWidth = mc.e("expandedfromRow").clientWidth;
+
+    // This is the biggest we need to be.
+    let bigWidth = fromWidth + toolbar.clientWidth;
+
+    // Now change to icons-only mode for a much smaller toolbar.
+    toolbar.setAttribute("mode", "icons");
+    let smallWidth = fromWidth + toolbar.clientWidth;
+
+    // Re-set the mode to its original value.
+    toolbar.setAttribute("mode", mode);
+
+    // And resize to half way between the big and small widths, so that we
+    //  can toggle the mode to force the overflow.
+    resize_to(mc, Math.round((bigWidth + smallWidth) / 2), gDefaultWindowHeight);
+
+    // Make sure we are too small to contain the buttons and from line, so
+    //  we will be tall.
     let tallHeight = expandedHeadersTopBox.clientHeight;
 
+    // Change from icons and text to just icons to make our toolbar
+    //  narrower, and by extension our header shorter.
+    toolbar.setAttribute("mode", "icons");
+
+    let shortHeight = expandedHeadersTopBox.clientHeight;
     if (shortHeight >= tallHeight)
       throw new Error("The header box should have been made smaller!");
+
+    // Change back to icons and text to make our toolbar wider and our
+    //   header taller again.
+    toolbar.setAttribute("mode", mode);
+    if (expandedHeadersTopBox.clientHeight != tallHeight)
+      throw new Error("The header box should have returned to its original size!");
 
     // And make our window big to achieve the same effect as the just icons mode.
     resize_to(mc, 1200, gDefaultWindowHeight);

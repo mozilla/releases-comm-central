@@ -264,7 +264,62 @@ function OnLoadMsgHeaderPane() {
   headerViewElement.dispatchEvent(new Event("messagepane-loaded",
     { bubbles: false, cancelable: true }));
 
+  initInlineToolbox("header-view-toolbox", "header-view-toolbar",
+                    "CustomizeHeaderToolbar", function() {
+                      UpdateJunkButton();
+                      UpdateReplyButtons();
+                    });
+  initInlineToolbox("attachment-view-toolbox", "attachment-view-toolbar",
+                    "CustomizeAttachmentToolbar", function() {
+                      updateSaveAllAttachmentsButton();
+                    });
+
   top.controllers.appendController(AttachmentMenuController);
+}
+
+/**
+ * Initialize an inline toolbox and its toolbar to have the appropriate
+ * attributes necessary for customization and persistence.
+ *
+ * @param toolboxId  the id for the toolbox to initialize
+ * @param toolbarId  the id for the toolbar to initialize
+ * @param popupId  the id for the menupopup to initialize
+ * @param customizeChange  (optional) a function to call when a toolbar button
+ *                         has been added or removed from the toolbar
+ */
+function initInlineToolbox(toolboxId, toolbarId, popupId, customizeChange) {
+  let toolbox = document.getElementById(toolboxId);
+  toolbox.customizeDone = function(aEvent) {
+    MailToolboxCustomizeDone(aEvent, popupId);
+  };
+  if (customizeChange)
+    toolbox.customizeChange = customizeChange;
+
+  let toolbarset = document.getElementById("customToolbars");
+  toolbox.toolbarset = toolbarset;
+
+  // Check whether we did an upgrade to a customizable header pane.
+  // If yes, set the header pane toolbar mode to icons besides text
+  let toolbar = document.getElementById(toolbarId);
+  if (toolbox && toolbar) {
+    if (!toolbox.getAttribute("mode")) {
+      /* set toolbox attributes to default values */
+      let mode = toolbox.getAttribute("defaultmode");
+      let align = toolbox.getAttribute("defaultlabelalign");
+      let iconsize = toolbox.getAttribute("defaulticonsize");
+      toolbox.setAttribute("mode", mode);
+      toolbox.setAttribute("labelalign", align);
+      toolbox.setAttribute("iconsize", iconsize);
+      Services.xulStore.persist(toolbox, "mode");
+      Services.xulStore.persist(toolbox, "iconsize");
+      Services.xulStore.persist(toolbox, "labelalign");
+
+      /* set toolbar attributes to default values */
+      iconsize = toolbar.getAttribute("defaulticonsize");
+      toolbar.setAttribute("iconsize", iconsize);
+      Services.xulStore.persist(toolbar, "iconsize");
+    }
+  }
 }
 
 function OnUnloadMsgHeaderPane() {

@@ -20,12 +20,14 @@
 
 #extractEventButton,
 #task-newevent-button,
+#hdrExtractEventButton,
 #calendar-newevent-button {
     list-style-image: url(chrome://calendar-common/skin/icons/newevent.svg);
 }
 
 #extractTaskButton,
 #task-newtask-button,
+#hdrExtractTaskButton,
 #calendar-newtask-button {
     list-style-image: url(chrome://calendar-common/skin/icons/newtask.svg);
 }

@@ -319,6 +319,19 @@
                    class="toolbarbutton-1 button-appmenu"
                    label="&appmenuButton.label;"
                    tooltiptext="&appmenuButton1.tooltip;"/>
+    <toolbaritem id="folderpane-mode-selector"
+                 title="&folderModeSelector.label;"
+                 align="center">
+      <menulist id="folderpane-mode-selector-menulist"
+                sizetopopup="none"
+                crop="center"
+                flex="1"
+                label="&folderModeSelector.label;"
+                oncommand="gFolderTreeView.mode = this.value;">
+        <menupopup id="folderpane-mode-selector-popup"
+                   onpopupshowing="gFolderTreeView._initFolderModeSelector();"/>
+      </menulist>
+    </toolbaritem>
 #ifdef MAIN_WINDOW
     <!-- gloda search widget; provides global (message) searching.  -->
     <toolbaritem id="gloda-search" insertafter="button-stop"
