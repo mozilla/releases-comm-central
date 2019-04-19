@@ -295,7 +295,8 @@
 #else
             <menupopup id="menu_FilePopup">
 #endif
-                <menu id="menu_New" label="&newMenu.label;" accesskey="&newMenu.accesskey;">
+                <menu id="menu_New" class="menu-iconic"
+                      label="&newMenu.label;" accesskey="&newMenu.accesskey;">
                     <menupopup id="menu_NewPopup">
                       <menuitem id="menu_newContact"
                                 label="&newContact.label;"

@@ -549,7 +549,6 @@ menuitem:not([type]) {
 }
 
 #menu_New {
-  -moz-binding: url("chrome://global/content/bindings/menu.xml#menu-iconic");
   list-style-image: url("moz-icon://stock/gtk-new?size=menu");
 }
 
@@ -571,7 +570,6 @@ menuitem:not([type]) {
 }
 
 #menu_saveAs {
-  -moz-binding: url("chrome://global/content/bindings/menu.xml#menu-iconic");
   list-style-image: url("moz-icon://stock/gtk-save-as?size=menu");
 }
 
@@ -655,10 +653,6 @@ menuitem:not([type]) {
 
 #menu_SelectAll {
   list-style-image: url("moz-icon://stock/gtk-select-all?size=menu");
-}
-
-#menu_find {
-  -moz-binding: url("chrome://global/content/bindings/menu.xml#menu-iconic");
 }
 
 #menu_find {

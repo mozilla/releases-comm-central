@@ -810,7 +810,8 @@
       <menubar id="mail-menubar">
       <menu id="menu_File" label="&fileMenu.label;" accesskey="&fileMenu.accesskey;">
         <menupopup id="menu_FilePopup">
-          <menu id="menu_New" label="&newMenu.label;" accesskey="&newMenu.accesskey;">
+          <menu id="menu_New" class="menu-iconic"
+                label="&newMenu.label;" accesskey="&newMenu.accesskey;">
             <menupopup id="menu_NewPopup">
               <menuitem id="menu_NewMessage"
                         label="&newMessage.label;" accesskey="&newMessage.accesskey;"
@@ -840,7 +841,8 @@
           <menuseparator/>
           <menuitem id="menu_SaveCmd" label="&saveCmd.label;" accesskey="&saveCmd.accesskey;"
                     key="key_save" command="cmd_saveDefault"/>
-          <menu id="menu_SaveAsCmd" label="&saveAsCmd.label;" accesskey="&saveAsCmd.accesskey;">
+          <menu id="menu_SaveAsCmd" class="menu-iconic"
+                label="&saveAsCmd.label;" accesskey="&saveAsCmd.accesskey;">
             <menupopup id="menu_SaveAsCmdPopup" onpopupshowing="InitFileSaveAsMenu();">
               <menuitem id="menu_SaveAsFileCmd"
                         label="&saveAsFileCmd.label;" accesskey="&saveAsFileCmd.accesskey;"
@@ -1081,7 +1083,8 @@
       <menu id="formatMenu" label="&formatMenu.label;" accesskey="&formatMenu.accesskey;" command="cmd_renderedHTMLEnabler">
         <menupopup id="formatMenuPopup" onpopupshowing="EditorInitFormatMenu()">
           <!-- Font face submenu -->
-          <menu id="fontFaceMenu" label="&fontfaceMenu.label;" accesskey="&fontfaceMenu.accesskey;"
+          <menu id="fontFaceMenu" class="menu-iconic"
+                label="&fontfaceMenu.label;" accesskey="&fontfaceMenu.accesskey;"
                 position="1">
             <menupopup id="fontFaceMenuPopup"
                        oncommand="if (event.target.localName == 'menuitem')

@@ -73,7 +73,7 @@
   <!-- File menu items -->
   <menu id="menu_File">
     <menupopup id="menu_FilePopup" onpopupshowing="EditorInitFileMenu();">
-      <menu id="menu_New">
+      <menu id="menu_New" class="menu-iconic">
         <menupopup id="menu_NewPopup">
           <menuitem id="menu_newEditor"/>
           <menuseparator id="sep_NewPopup"/>

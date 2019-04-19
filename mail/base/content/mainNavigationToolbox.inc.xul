@@ -39,7 +39,7 @@
               label="&fileMenu.label;"
               accesskey="&fileMenu.accesskey;">
           <menupopup id="menu_FilePopup" onpopupshowing="file_init();">
-          <menu id="menu_New"
+          <menu id="menu_New" class="menu-iconic"
                 label="&newMenu.label;"
                 accesskey="&newMenu.accesskey;">
             <menupopup id="menu_NewPopup" onpopupshowing="menu_new_init();">
@@ -94,7 +94,8 @@
                     accesskey="&closeCmd.accesskey;"
                     command="cmd_close"/>
           <menuseparator id="fileMenuAfterCloseSeparator"/>
-          <menu id="menu_saveAs" label="&saveAsMenu.label;" accesskey="&saveAsMenu.accesskey;">
+          <menu id="menu_saveAs" class="menu-iconic"
+                label="&saveAsMenu.label;" accesskey="&saveAsMenu.accesskey;">
             <menupopup id="menu_SavePopup">
               <menuitem id="menu_saveAsFile" label="&saveAsFileCmd.label;"
                accesskey="&saveAsFileCmd.accesskey;"
@@ -228,7 +229,8 @@
           </menupopup>
         </menu>
         <menuseparator id="editMenuAfterSelectSeparator"/>
-        <menu id="menu_find" label="&findMenu.label;" accesskey="&findMenu.accesskey;">
+        <menu id="menu_find" class="menu-iconic"
+              label="&findMenu.label;" accesskey="&findMenu.accesskey;">
           <menupopup id="menu_FindPopup">
             <menuitem id="menu_findCmd" label="&findCmd.label;" key="key_find" accesskey="&findCmd.accesskey;" command="cmd_find"/>
             <menuitem id="menu_findAgainCmd" label="&findAgainCmd.label;" key="key_findAgain" accesskey="&findAgainCmd.accesskey;" command="cmd_findAgain"/>
