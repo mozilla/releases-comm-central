@@ -410,7 +410,12 @@ calendar-event-freebusy-day:last-child {
     border-inline-end: 1px solid transparent;
 }
 
-/* negative margins to clear calendar-event-freebusy-day's border and margin */
+calendar-event-scroll-container > box {
+    overflow: hidden;
+    clip: rect(0px 0px 0px 0px);
+}
+
+/* negative margins to clear freebusy-day's border and margin */
 calendar-event-freebusy-day > box {
     margin-inline-start: -1px;
     margin-inline-end: -3px;

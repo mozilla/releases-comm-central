@@ -19,8 +19,7 @@ selection-bar {
 
 /****************************************************************************************/
 
-scroll-container {
-    -moz-binding: url(chrome://calendar/content/calendar-event-dialog-freebusy.xml#scroll-container);
+calendar-event-scroll-container {
     -moz-user-focus: normal;
 }
 
