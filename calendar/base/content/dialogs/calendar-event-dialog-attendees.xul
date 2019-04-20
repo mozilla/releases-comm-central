@@ -116,7 +116,7 @@
                           allowevents="true">
               <hbox flex="1">
                 <scroll-container flex="1">
-                  <freebusy-day/>
+                  <calendar-event-freebusy-day/>
                 </scroll-container>
               </hbox>
             </richlistitem>

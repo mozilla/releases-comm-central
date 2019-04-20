@@ -24,8 +24,7 @@ scroll-container {
     -moz-user-focus: normal;
 }
 
-freebusy-day {
-    -moz-binding: url(chrome://calendar/content/calendar-event-dialog-freebusy.xml#freebusy-day);
+calendar-event-freebusy-day {
     -moz-user-focus: normal;
 }
 

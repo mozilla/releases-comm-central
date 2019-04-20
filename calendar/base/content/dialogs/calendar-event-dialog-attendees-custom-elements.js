@@ -40,7 +40,7 @@ class MozCalendarEventFreebusyTimebar extends MozElements.RichListBox {
     set zoomFactor(val) {
         this.mZoomFactor = val;
 
-        let template = this.getElementsByTagName("freebusy-day")[0];
+        let template = this.getElementsByTagName("calendar-event-freebusy-day")[0];
         let parent = template.parentNode;
         while (parent.childNodes.length > 1) {
             parent.lastChild.remove();
@@ -71,7 +71,7 @@ class MozCalendarEventFreebusyTimebar extends MozElements.RichListBox {
         this.mForce24Hours = val;
         this.initTimeRange();
 
-        let template = this.getElementsByTagName("freebusy-day")[0];
+        let template = this.getElementsByTagName("calendar-event-freebusy-day")[0];
 
         let parent = template.parentNode;
         while (parent.childNodes.length > 1) {
@@ -95,7 +95,7 @@ class MozCalendarEventFreebusyTimebar extends MozElements.RichListBox {
      * @returns {Number}       The difference between the first two day-elements
      */
     get contentWidth() {
-        let template = this.getElementsByTagName("freebusy-day")[0];
+        let template = this.getElementsByTagName("calendar-event-freebusy-day")[0];
         return template.nextSibling.getBoundingClientRect().x - template.getBoundingClientRect().x;
     }
 
@@ -226,7 +226,7 @@ class MozCalendarEventFreebusyTimebar extends MozElements.RichListBox {
      */
     refresh() {
         let date = this.mStartDate.clone();
-        let template = this.getElementsByTagName("freebusy-day")[0];
+        let template = this.getElementsByTagName("calendar-event-freebusy-day")[0];
         let parent = template.parentNode;
         for (let child of parent.childNodes) {
             child.startDate = this.mStartDate;
@@ -243,7 +243,7 @@ class MozCalendarEventFreebusyTimebar extends MozElements.RichListBox {
      * selection-bar.
      */
     dispatchTimebarEvent() {
-        let template = this.getElementsByTagName("freebusy-day")[0];
+        let template = this.getElementsByTagName("calendar-event-freebusy-day")[0];
         let event = document.createEvent("Events");
         event.initEvent("timebar", true, false);
         event.details = this.contentWidth;
@@ -1811,3 +1811,214 @@ class MozCalendarEventFreebusyRow extends MozXULElement {
     }
 }
 customElements.define("calendar-event-freebusy-row", MozCalendarEventFreebusyRow);
+
+/**
+ * MozFreebusyDay is a widget showing time slots labels - dates and a number of times instances of a
+ * particular day.
+ *
+ * @extends {MozXULElement}
+ */
+class MozCalendarEventFreebusyDay extends MozXULElement {
+    connectedCallback() {
+        if (!this.hasChildNodes()) {
+            const wrapper = document.createElement("box");
+            wrapper.setAttribute("orient", "vertical");
+
+            this.text = document.createElement("text");
+            this.text.classList.add("freebusy-timebar-title");
+            this.text.style.fontWeight = "bold";
+
+            this.box = document.createElement("box");
+            this.box.setAttribute("equalsize", "always");
+
+            wrapper.appendChild(this.text);
+            wrapper.appendChild(this.box);
+            this.appendChild(wrapper);
+        }
+
+        this.mDateFormatter = null;
+        this.mStartDate = null;
+        this.mEndDate = null;
+        this.mStartHour = 0;
+        this.mEndHour = 24;
+        this.mForce24Hours = false;
+        this.mZoomFactor = 100;
+        this.initTimeRange();
+    }
+
+    /**
+     * Returns zoom factor of the free busy day.
+     *
+     * @returns {Number}        Zoom factor
+     */
+    get zoomFactor() {
+        return this.mZoomFactor;
+    }
+
+    /**
+     * Sets the zoom factor for the free busy day.
+     *
+     * @param {Number} val      New zoom factor
+     * @returns {Number}        New zoom factor
+     */
+    set zoomFactor(val) {
+        this.mZoomFactor = val;
+        removeChildren(this.box);
+        return val;
+    }
+
+    /**
+     * Gets force24Hours property which sets time format to 24 hour format.
+     *
+     * @returns {Boolean}       force24Hours value
+     */
+    get force24Hours() {
+        return this.mForce24Hours;
+    }
+
+    /**
+     * Sets force24Hours property to a new value. If true, forces the freebusy view to 24 hours and
+     * updates the UI accordingly
+     *
+     * @param {Boolean} val     New force24Hours value
+     * @returns {Boolean}       New force24Hours value
+     */
+    set force24Hours(val) {
+        this.mForce24Hours = val;
+        this.initTimeRange();
+
+        removeChildren(this.box);
+        return val;
+    }
+
+    /**
+     * Returns start date of the free busy grid.
+     *
+     * @returns {calIDateTime}      The start date
+     */
+    get startDate() {
+        return this.mStartDate;
+    }
+
+    /**
+     * Sets start date of the free busy grid and make it immutable.
+     *
+     * @param {calIDateTime} val        The start date
+     * @returns {calIDateTime}          The start date
+     */
+    set startDate(val) {
+        if (val == null) {
+            return null;
+        }
+
+        this.mStartDate = val.clone();
+        this.mStartDate.minute = 0;
+        this.mStartDate.second = 0;
+        this.mStartDate.makeImmutable();
+        return val;
+    }
+
+    /**
+     * Getss end date of the free busy grid.
+     *
+     * @returns {calIDateTime}      The end date
+     */
+    get endDate() {
+        return this.mEndDate;
+    }
+
+    /**
+     * Sets end date of the free busy grid and make it immutable.
+     *
+     * @param {calIDateTime} val        The end date
+     * @returns {calIDateTime}          The end date
+     */
+    set endDate(val) {
+        if (val == null) {
+            return null;
+        }
+
+        this.mEndDate = val.clone();
+        this.mEndDate.makeImmutable();
+        return val;
+    }
+
+    /**
+     * Gets text element's height.
+     *
+     * @returns {Number}        Text element height
+     */
+    get dayHeight() {
+        return this.text.getBoundingClientRect().height;
+    }
+
+    /**
+     * Sets a new date for the freebusy-day element and update the UI accordingly.
+     *
+     * @param {calIDateTime} val        Date object to be modified
+     * @returns {calIDateTime}          Modified date object
+     */
+    set date(val) {
+        if (val == null) {
+            return null;
+        }
+
+        let date = val.clone();
+        date.hour = 0;
+        date.minute = 0;
+        date.isDate = false;
+
+        if (!this.dateFormatter) {
+            this.dateFormatter = Cc["@mozilla.org/calendar/datetime-formatter;1"]
+                                   .getService(Ci.calIDateTimeFormatter);
+        }
+
+        // First set the formatted date string as title
+        let dateValue = this.zoomFactor > 100 ? this.dateFormatter.formatDateShort(date)
+                                              : this.dateFormatter.formatDateLong(date);
+        this.text.setAttribute("value", dateValue);
+
+        // Now create as many 'hour' elements as needed
+        let step_in_minutes = Math.floor(60 * this.zoomFactor / 100);
+        let hours = this.box;
+        date.hour = this.startHour;
+        if (hours.childNodes.length <= 0) {
+            let template = document.createXULElement("text");
+            template.className = "freebusy-timebar-hour";
+            let count = Math.ceil((this.endHour - this.startHour) * 60 / step_in_minutes);
+            let remain = count;
+            let first = true;
+            while (remain--) {
+                let newNode = template.cloneNode(false);
+                let value = this.dateFormatter.formatTime(date);
+                if (first) {
+                    newNode.classList.add("first-in-day");
+                    first = false;
+                }
+                newNode.setAttribute("value", value);
+                hours.appendChild(newNode);
+                date.minute += step_in_minutes;
+
+                if (remain == 0) {
+                    newNode.classList.add("last-in-day");
+                }
+            }
+        }
+
+        return val;
+    }
+
+    /**
+     * Updates endHour and startHour values of the free busy day.
+     */
+    initTimeRange() {
+        if (this.force24Hours) {
+            this.startHour = 0;
+            this.endHour = 24;
+        } else {
+            this.startHour = Services.prefs.getIntPref("calendar.view.daystarthour", 8);
+            this.endHour = Services.prefs.getIntPref("calendar.view.dayendhour", 19);
+        }
+    }
+}
+customElements.define("calendar-event-freebusy-day", MozCalendarEventFreebusyDay);

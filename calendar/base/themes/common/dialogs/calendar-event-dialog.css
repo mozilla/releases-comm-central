@@ -395,23 +395,23 @@ listbox[disabled="true"] {
     border-width: 0px;
 }
 
-freebusy-day {
+calendar-event-freebusy-day {
     margin-inline-end: 2px;
     border-inline-start: 1px solid var(--eventBorderColor);
     border-inline-end: 1px solid var(--eventBorderColor);
     border-bottom: 1px solid var(--eventBorderColor);
 }
 
-freebusy-day:first-child {
+calendar-event-freebusy-day:first-child {
     border-inline-start: 1px solid transparent;
 }
 
-freebusy-day:last-child {
+calendar-event-freebusy-day:last-child {
     border-inline-end: 1px solid transparent;
 }
 
-/* negative margins to clear freebusy-day's border and margin */
-freebusy-day > box {
+/* negative margins to clear calendar-event-freebusy-day's border and margin */
+calendar-event-freebusy-day > box {
     margin-inline-start: -1px;
     margin-inline-end: -3px;
 }

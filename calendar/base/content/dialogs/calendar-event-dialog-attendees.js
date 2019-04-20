@@ -1022,7 +1022,7 @@ function onFreebusyTimebarInit() {
     timebar.mStartDate = startTime.getInTimezone(kDefaultTimezone);
     timebar.mEndDate = endTime.getInTimezone(kDefaultTimezone);
 
-    // Set the number of 'freebusy-day'-elements
+    // Set the number of 'calendar-event-freebusy-day'-elements
     // we need to fill up the content box.
     // TODO: hardcoded value
     timebar.mNumDays = 4 * timebar.mZoomFactor / 100;
@@ -1032,7 +1032,7 @@ function onFreebusyTimebarInit() {
 
     // Now create those elements and set their date property.
     let date = timebar.mStartDate.clone();
-    let template = timebar.getElementsByTagName("freebusy-day")[0];
+    let template = timebar.getElementsByTagName("calendar-event-freebusy-day")[0];
     template.force24Hours = timebar.mForce24Hours;
     template.zoomFactor = timebar.mZoomFactor;
     template.startDate = timebar.mStartDate;
