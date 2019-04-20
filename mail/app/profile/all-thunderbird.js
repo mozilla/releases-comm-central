@@ -117,6 +117,11 @@ pref("app.update.idletime", 60);
 pref("app.update.service.enabled", true);
 #endif
 
+#ifdef XP_WIN
+// This pref prevents BITS from being used by Thunderbird to download updates.
+pref("app.update.BITS.enabled", false);
+#endif
+
 // Release notes URL
 pref("app.releaseNotesURL", "https://live.thunderbird.net/%APP%/releasenotes?locale=%LOCALE%&version=%VERSION%&channel=%CHANNEL%&os=%OS%&buildid=%APPBUILDID%");
 

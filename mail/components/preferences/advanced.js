@@ -785,6 +785,9 @@ var gAdvancedPane = {
   handleEvent(aEvent) {
     if (aEvent.type == "unload") {
       this.destroy();
+      if (AppConstants.MOZ_UPDATER) {
+        onUnload();
+      }
     }
   },
 
