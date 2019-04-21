@@ -822,7 +822,7 @@ int ConvertToUTF8(const char *stringToUse, int32_t inLength,
 
   if (newCharset.Equals("UTF-7", nsCaseInsensitiveCStringComparator())) {
     nsAutoString utf16;
-    rv = CopyUTF7toUTF16(nsDependentCString(stringToUse, inLength), utf16);
+    rv = CopyUTF7toUTF16(nsDependentCSubstring(stringToUse, inLength), utf16);
     if (NS_FAILED(rv))
       return -1;
     CopyUTF16toUTF8(utf16, outString);
