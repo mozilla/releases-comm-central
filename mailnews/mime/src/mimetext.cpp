@@ -222,7 +222,7 @@ MimeInlineText_parse_eof (MimeObject *obj, bool abort_p)
     obj->ibuffer_fp = 0;
     if (status < 0)
     {
-      //we haven't find charset yet? Do it before return
+      // We haven't found charset yet? Do it before return.
       if (text->inputAutodetect)
         status = MimeInlineText_open_dam(nullptr, 0, obj);
 
@@ -231,7 +231,7 @@ MimeInlineText_parse_eof (MimeObject *obj, bool abort_p)
     }
   }
 
-  //we haven't find charset yet? now its the time
+  // We haven't found charset yet? Now is the time.
   if (text->inputAutodetect)
      status = MimeInlineText_open_dam(nullptr, 0, obj);
 

@@ -248,7 +248,7 @@ var FeedUtils = {
    * @param {nsIMsgFolder} aFolder         - The folder.
    * @param {nsIUrlListener} aUrlListener  - Feed url.
    * @param {Boolean} aIsBiff              - true if biff, false if manual get.
-   * @param {nsIDOMWindow} aMsgWindow      - Thr window.
+   * @param {nsIDOMWindow} aMsgWindow      - The window.
    *
    * @returns {void}
    */
