@@ -206,11 +206,6 @@
   box-shadow: 0 0 0 1px hsla(0, 0%, 100%, .2);
 }
 
-toolbar[mode="text"] .msgHeaderView-button .toolbarbutton-text {
-  margin-right: 2px;
-  margin-left: 2px;
-}
-
 .hdrReplyToSenderButton,
 .hdrDummyReplyButton,
 .hdrReplyButton {
@@ -242,14 +237,6 @@ toolbar[mode="text"] .msgHeaderView-button .toolbarbutton-text {
   list-style-image: url("chrome://messenger/skin/icons/delete.svg");
 }
 
-.hdrTagButton {
-  list-style-image: url("chrome://messenger/skin/icons/tag.svg");
-}
-
-.hdrConversationButton {
-  list-style-image: url("chrome://messenger/skin/icons/conversation.svg");
-}
-
 #attachmentSaveAllSingle,
 #attachmentSaveAllMultiple {
   list-style-image: url("chrome://messenger/skin/icons/save.svg");
@@ -257,28 +244,6 @@ toolbar[mode="text"] .msgHeaderView-button .toolbarbutton-text {
 
 #otherActionsButton > .toolbarbutton-icon {
   display: none;
-}
-
-toolbar[mode="icons"] > #otherActionsButton > .toolbarbutton-menu-dropmarker >
-  .dropmarker-icon {
-  list-style-image: url("chrome://messenger/skin/icons/arrow-dn-grey.png");
-}
-
-/* show a icon in customize window */
-#CustomizeToolbarWindow toolbarpaletteitem > #otherActionsButton >
-  .toolbarbutton-icon {
-  display: -moz-box;
-  width: 9px;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
-}
-
-.inline-toolbox[doCustomization] .inline-toolbar {
-  min-width: 100px;
-  min-height: 10px;
 }
 
 #msgHeaderView textbox {
@@ -399,10 +364,6 @@ mail-emailaddress[selected="true"] > .emailDisplayButton {
 }
 
 /* ::::: collapsed view styles ::::: */
-
-window[inlinetoolbox] #newtoolbar {
-  display: none;
-}
 
 #header-view-toolbox {
   float: right;

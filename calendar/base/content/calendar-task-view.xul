@@ -65,7 +65,6 @@
               class="main-header-area"
               flex="1"
               persist="height"
-              context="task-actions-toolbar-context-menu"
               hidden="true">
           <hbox id="calendar-task-details">
             <grid id="calendar-task-details-grid" flex="1">
@@ -103,22 +102,8 @@
                            flex="1"
                            hidden="true"/>
                     <hbox id="other-actions-box" align="end" flex="1" pack="end">
-                      <menupopup id="task-actions-toolbar-context-menu">
-                        <menuitem id="CustomizeTaskActionsToolbar"
-                                  oncommand="CustomizeMailToolbar('task-actions-toolbox', 'CustomizeTaskActionsToolbar')"
-                                  label="&calendar.menu.customize.label;"
-                                  accesskey="&calendar.menu.customize.accesskey;"/>
-                      </menupopup>
-
-                      <toolbox id="task-actions-toolbox"
-                               minwidth="50px"
-                               mode="full"
-                               iconsize="small"
-                               labelalign="end"
-                               defaultmode="full"
-                               defaulticonsize="small"
-                               defaultlabelalign="end">
-                        <toolbarpalette id="task-actions-toolbar-palette">
+                      <vbox id="task-actions-toolbox">
+                        <hbox id="task-actions-toolbar">
                           <toolbarbutton id="task-actions-category"
                                          type="menu"
                                          label="&calendar.unifinder.tree.categories.label;"
@@ -160,19 +145,8 @@
                                          label="&calendar.taskview.delete.label;"
                                          tooltiptext="&calendar.context.deletetask.label;"
                                          observes="calendar_delete_todo_command"/>
-                        </toolbarpalette>
-
-                        <toolbar id="task-actions-toolbar" align="start"
-                                 class="inline-toolbar"
-                                 customizable="true"
-                                 mode="full"
-                                 iconsize="small"
-                                 labelalign="end"
-                                 defaultmode="full"
-                                 defaulticonsize="small"
-                                 context="task-actions-toolbar-context-menu"
-                                 defaultset="task-actions-category,task-actions-markcompleted,task-actions-priority,calendar-delete-task-button"/>
-                      </toolbox>
+                        </hbox>
+                      </vbox>
                     </hbox>
                   </hbox>
                 </row>

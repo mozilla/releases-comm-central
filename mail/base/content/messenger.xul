@@ -454,20 +454,27 @@
           <box id="messengerBox" orient="horizontal" flex="1" minheight="100" height="100" persist="height">
             <vbox id="folderPaneBox" minwidth="125" width="200" persist="width">
               <sidebarheader id="folderPaneHeader" hidden="true" align="center"/>
-              <toolbox id="folderPane-toolbox">
-                <toolbar id="folderPane-toolbar"
-                         class="inline-toolbar"
-                         toolboxid="mail-toolbox"
-                         toolbarname="&folderPaneBar.label;"
-                         accesskey="&folderPaneBar.accesskey;"
-                         customizable="true"
-                         align="start"
-                         mode="icons" defaultmode="icons" lockmode="true"
-                         iconsize="small" defaulticonsize="small" lockiconsize="true"
-                         context="toolbar-context-menu"
-                         defaultset="folderpane-mode-selector"
-                         collapsed="true"/>
-              </toolbox>
+              <vbox id="folderPane-toolbox">
+                <hbox id="folderPane-toolbar"
+                      class="inline-toolbar"
+                      toolboxid="mail-toolbox"
+                      toolbarname="&folderPaneBar.label;"
+                      accesskey="&folderPaneBar.accesskey;"
+                      context="toolbar-context-menu"
+                      collapsed="true">
+                  <toolbaritem id="folderpane-mode-selector"
+                               flex="1">
+                    <menulist id="folderpane-mode-selector-menulist"
+                              sizetopopup="none"
+                              crop="center"
+                              flex="1"
+                              oncommand="gFolderTreeView.mode = this.value;">
+                      <menupopup id="folderpane-mode-selector-popup"
+                                 onpopupshowing="gFolderTreeView._initFolderModeSelector();"/>
+                    </menulist>
+                  </toolbaritem>
+                </hbox>
+              </vbox>
               <tree id="folderTree" class="plain" flex="1"
                     hidecolumnpicker="true" persist="mode" mode="all"
                     keepcurrentinview="true"
@@ -705,17 +712,16 @@
     </tabmail>
     <vbox id="contentTab" collapsed="true">
       <vbox flex="1" class="contentTabInstance">
-        <toolbox id="dummycontenttoolbox" class="contentTabToolbox">
-          <toolbar id="dummycontenttoolbar" class="contentTabToolbar">
-            <toolbarspacer/>
-            <toolbaritem class="contentTabAddress" align="center">
-              <hbox class="themeableSearchBox" align="center">
+        <vbox id="dummycontenttoolbox" class="contentTabToolbox">
+          <hbox id="dummycontenttoolbar" class="contentTabToolbar">
+            <toolbaritem class="contentTabAddress" align="center" flex="1">
+              <hbox class="themeableSearchBox" align="center" flex="1">
                 <image class="contentTabSecurity"/>
-                <description class="contentTabUrlbar"/>
+                <label class="contentTabUrlbar" crop="end" flex="1"/>
               </hbox>
             </toolbaritem>
-          </toolbar>
-        </toolbox>
+          </hbox>
+        </vbox>
         <notificationbox flex="1" notificationside="top">
           <browser id="dummycontentbrowser" type="content" flex="1"
                    disablehistory="true" autocompletepopup="PopupAutoComplete"
@@ -726,9 +732,9 @@
 
     <vbox id="chromeTab" collapsed="true">
       <vbox flex="1" class="chromeTabInstance">
-        <toolbox id="dummychrometoolbox" class="contentTabToolbox">
-          <toolbar id="dummychrometoolbar" class="contentTabToolbar"></toolbar>
-        </toolbox>
+        <vbox id="dummychrometoolbox" class="contentTabToolbox">
+          <hbox id="dummychrometoolbar" class="contentTabToolbar"></hbox>
+        </vbox>
         <notificationbox flex="1" notificationside="top">
           <browser id="dummychromebrowser" flex="1"
                    disablesecurity="true" disablehistory="true"
@@ -739,8 +745,8 @@
 
     <vbox id="glodaTab" collapsed="true">
       <vbox flex="1" class="chromeTabInstance">
-        <toolbox class="contentTabToolbox">
-          <toolbar class="glodaTabToolbar inline-toolbar chromeclass-toolbar">
+        <vbox class="contentTabToolbox">
+          <hbox class="glodaTabToolbar inline-toolbar chromeclass-toolbar" flex="1">
             <spacer flex="1" />
             <spacer flex="1" />
             <hbox flex="1" class="remote-gloda-search-container">
@@ -762,8 +768,8 @@
                 </hbox>
               </textbox>
             </hbox>
-          </toolbar>
-        </toolbox>
+          </hbox>
+        </vbox>
         <iframe flex="1"/>
       </vbox>
     </vbox>

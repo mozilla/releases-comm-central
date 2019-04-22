@@ -16,8 +16,7 @@
   %startDTD;
   ]>
 
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <link rel="stylesheet" media="screen" type="text/css"
           href="chrome://messenger/skin/messenger.css"/>
@@ -35,12 +34,9 @@
   </head>
   <body>
     <div id="heading_wrapper">
-      <xul:toolbox id="header-view-toolbox" class="inline-toolbox"
-                   labelalign="end"
-                   xmlns:html="http://www.w3.org/1999/xhtml"
-                   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-        <toolbar id="header-view-toolbar" class="inline-toolbar"
-                 align="start" iconsize="small" mode="full">
+      <vbox id="header-view-toolbox" class="inline-toolbox"
+            xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+        <hbox id="header-view-toolbar">
           <toolbarbutton id="hdrArchiveButton"
                          class="toolbarbutton-1 msgHeaderView-button hdrArchiveButton"
                          label="&archiveButton.label;"
@@ -49,8 +45,8 @@
                          class="toolbarbutton-1 msgHeaderView-button hdrTrashButton"
                          label="&deleteButton.label;"
                          onclick="if (event.button == 0) window.top.DefaultController.doCommand('cmd_delete');"/>
-        </toolbar>
-      </xul:toolbox>
+        </hbox>
+      </vbox>
 
       <h1 id="heading">
         <span id="summary_title">&selectedmessages.label;</span>&#x200B;<span

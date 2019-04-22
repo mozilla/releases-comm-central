@@ -65,17 +65,8 @@
              -      e.g. "if (event.target.id == this.id) ltnImipBar.executeAction('ACCEPTED');"
              -      and "ltnImipBar.executeAction('ACCEPTED');"
              //-->
-          <toolbox id="imip-view-toolbox"
-                   class="inline-toolbox"
-                   defaulticonsize="small"
-                   minwidth="50px"
-                   defaultlabelalign="end"
-                   labelalign="end"
-                   defaultmode="full"
-                   inlinetoolbox="true">
-            <toolbar id="imip-view-toolbar" class="inline-toolbar" align="start"
-                     customizable="false" mode="full"
-                     defaulticonsize="small" defaultmode="full">
+          <vbox id="imip-view-toolbox">
+            <hbox id="imip-view-toolbar">
 
               <!-- show event/invitation details -->
               <toolbarbutton id="imipDetailsButton"
@@ -310,8 +301,8 @@
                   <!-- add here a menuitem as needed -->
                 </menupopup>
               </toolbarbutton>
-            </toolbar>
-          </toolbox>
+            </hbox>
+          </vbox>
         </hbox>
       </vbox>
     </vbox>

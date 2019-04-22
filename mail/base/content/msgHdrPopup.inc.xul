@@ -115,13 +115,6 @@
                command="cmd_deleteAllAttachments" />
   </menupopup>
 
-  <menupopup id="header-toolbar-context-menu">
-    <menuitem id="CustomizeHeaderToolbar"
-              oncommand="CustomizeMailToolbar('header-view-toolbox', 'CustomizeHeaderToolbar')"
-              label="&customizeToolbar.label;"
-              accesskey="&customizeToolbar.accesskey;"/>
-  </menupopup>
-
   <menupopup id="attachment-toolbar-context-menu"
              onpopupshowing="return onShowAttachmentToolbarContextMenu(event);">
     <menuitem id="context-expandAttachmentBar"
@@ -129,11 +122,6 @@
               label="&startExpandedCmd.label;"
               accesskey="&startExpandedCmd.accesskey;"
               oncommand="Services.prefs.setBoolPref('mailnews.attachments.display.start_expanded', this.getAttribute('checked'));"/>
-    <menuseparator/>
-    <menuitem id="CustomizeAttachmentToolbar"
-              oncommand="CustomizeMailToolbar('attachment-view-toolbox', 'CustomizeAttachmentToolbar')"
-              label="&customizeToolbar.label;"
-              accesskey="&customizeToolbar.accesskey;"/>
   </menupopup>
 
   <menupopup id="copyUrlPopup"

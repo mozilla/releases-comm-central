@@ -142,18 +142,6 @@
   border-color: var(--toolbarbutton-active-bordercolor);
 }
 
-/* toolbar[mode="text"] is necessary so that we end up with more specificity
- * than the !important rule in toolkit's toolbar.css.
- */
-toolbar[mode="text"] .msgHeaderView-button .toolbarbutton-text,
-toolbar[mode="text"] toolbarpaletteitem .msgHeaderView-button .toolbarbutton-text {
-  margin: 0 !important;
-  padding-top: 1px !important;
-  padding-bottom: 2px !important;
-  padding-inline-start: 0px !important;
-  padding-inline-end: 0px !important;
-}
-
 /* For unclear reasons, toolkit's toolbarbutton.css forces a margin of 0,
  * jamming the image up against the text, so we need this !important
  * rule to override that.
@@ -161,7 +149,7 @@ toolbar[mode="text"] toolbarpaletteitem .msgHeaderView-button .toolbarbutton-tex
  * The second selector is a descendent selector rather than a child selector
  * so that we effect both buttons and menubuttons.
  */
-toolbox[labelalign="end"] toolbar[mode="full"] .msgHeaderView-button .toolbarbutton-text {
+.msgHeaderView-button .toolbarbutton-text {
   margin-inline-start: 2px !important;
 }
 
@@ -196,36 +184,9 @@ toolbox[labelalign="end"] toolbar[mode="full"] .msgHeaderView-button .toolbarbut
   list-style-image: url("chrome://messenger/skin/icons/delete.svg");
 }
 
-.hdrTagButton {
-  list-style-image: url("chrome://messenger/skin/icons/tag.svg");
-}
-
-.hdrConversationButton {
-  list-style-image: url("chrome://messenger/skin/icons/conversation.svg");
-}
-
 #attachmentSaveAllSingle,
 #attachmentSaveAllMultiple {
   list-style-image: url("chrome://messenger/skin/icons/save.svg");
-}
-
-toolbar[mode="icons"] > #otherActionsButton > .toolbarbutton-menu-dropmarker {
-  margin-inline-start: 0;
-}
-
-/* show a icon in customize window */
-#CustomizeToolbarWindow toolbarpaletteitem > #otherActionsButton >
-  .toolbarbutton-icon {
-  display: -moz-box;
-  width: 8px;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  list-style-image: url("chrome://messenger/skin/icons/dropmarker.svg");
-}
-
-.inline-toolbox[doCustomization] .inline-toolbar {
-  min-width: 100px;
-  min-height: 10px;
 }
 
 .headerName {
@@ -310,11 +271,6 @@ mail-headerfield.headerValue:focus {
   max-height: 7px; /* the height of the image */
   margin: 0.2em 2px 0px; /* 0.2em just to move it off the top of the text */
   list-style-image: url("chrome://messenger/skin/icons/arrow-dn-grey.png");
-}
-
-window[inlinetoolbox] #smallicons,
-window[inlinetoolbox] #newtoolbar {
-  display: none;
 }
 
 /* This is a workaround for #562608 in the rare case where the buttons_have_icons gconf key is set to true */
