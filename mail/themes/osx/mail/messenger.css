@@ -643,10 +643,7 @@ button[type="menu-button"] > button {
 }
 
 .button-menubutton-dropmarker {
-  -moz-appearance: none !important;
-  border: none;
-  background-color: transparent !important;
-  margin: 1px;
+  -moz-appearance: none;
 }
 
 button .dropmarker-icon {

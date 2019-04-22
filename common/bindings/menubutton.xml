@@ -107,9 +107,6 @@
 
   <binding id="menu-button"
            extends="chrome://messenger/content/menubutton.xml#menu-button-base">
-    <resources>
-      <stylesheet src="chrome://global/skin/button.css"/>
-    </resources>
 
     <content>
       <children includes="observes|template|menupopup|panel|tooltip"/>

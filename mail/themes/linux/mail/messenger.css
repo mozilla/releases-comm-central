@@ -838,10 +838,7 @@ button[type="menu-button"] {
 }
 
 .button-menubutton-dropmarker {
-  -moz-appearance: toolbarbutton-dropdown !important;
-}
-
-.button-menubutton-dropmarker {
+  -moz-appearance: toolbarbutton-dropdown;
   margin-left: 3px;
   margin-right: 3px;
 }

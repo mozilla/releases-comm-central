@@ -576,13 +576,20 @@ button[type="menu-button"] > button {
   button[type="menu-button"] > button {
     margin: -2px;
   }
-}
 
-.button-menubutton-dropmarker {
-  -moz-appearance: none !important;
-  margin: 1px;
-  width: 11px;
-  height: 11px;
+  .button-menubutton-dropmarker {
+   -moz-appearance: none;
+   margin: 1px;
+   padding-inline-start: 5px;
+  }
+
+  .button-menubutton-dropmarker > .dropmarker-icon {
+    list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
+    width: 9px;
+    height: 7px;
+    -moz-context-properties: fill;
+    fill: currentColor;
+  }
 }
 
 button.notification-button {
