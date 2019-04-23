@@ -516,20 +516,6 @@
     </content>
   </binding>
 
-  <binding id="toolbarpaletteitem-palette-wrapping-label"
-#ifdef MOZ_SUITE
-           extends="chrome://communicator/content/bindings/toolbar.xml#toolbarpaletteitem">
-#else
-           extends="chrome://messenger/content/toolbar.xml#toolbarpaletteitem">
-#endif
-    <content>
-      <xul:hbox class="toolbarpaletteitem-box" xbl:inherits="type,place">
-        <children/>
-      </xul:hbox>
-      <xul:label xbl:inherits="xbl:text=title"/>
-    </content>
-  </binding>
-
   <binding id="menu-button"
            extends="chrome://global/content/bindings/button.xml#button-base">
 
