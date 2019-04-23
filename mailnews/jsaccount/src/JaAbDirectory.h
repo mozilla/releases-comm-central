@@ -26,52 +26,52 @@ namespace mailnews {
 // This class is an XPCOM component, usable in JS, that calls the methods
 // in the C++ base class (bypassing any JS override).
 class JaBaseCppAbDirectory : public nsAbDirProperty,
-                             public nsIInterfaceRequestor
-{
-public:
+                             public nsIInterfaceRequestor {
+ public:
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIINTERFACEREQUESTOR
-  JaBaseCppAbDirectory() { }
+  JaBaseCppAbDirectory() {}
 
-protected:
-  virtual ~JaBaseCppAbDirectory() { }
-
+ protected:
+  virtual ~JaBaseCppAbDirectory() {}
 };
 
 class JaCppAbDirectoryDelegator : public JaBaseCppAbDirectory,
-                                  public msgIOverride
-{
-public:
+                                  public msgIOverride {
+ public:
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_MSGIOVERRIDE
 
   // use mCppBase as a raw pointer where possible
   NS_FORWARD_NSIABDIRECTORY(DELEGATE_JS(mJsIAbDirectory, mMethods, mCppBase)->)
-  NS_FORWARD_NSIABCOLLECTION(DELEGATE_JS(mJsIAbCollection, mMethods, (mCppBase.get()))->)
+  NS_FORWARD_NSIABCOLLECTION(
+      DELEGATE_JS(mJsIAbCollection, mMethods, (mCppBase.get()))->)
   NS_FORWARD_NSIABITEM(DELEGATE_JS(mJsIAbItem, mMethods, (mCppBase.get()))->)
-  NS_FORWARD_NSIINTERFACEREQUESTOR(DELEGATE_JS(mJsIInterfaceRequestor, mMethods,
-    (nsCOMPtr<nsIInterfaceRequestor>(do_QueryInterface(mCppBase))))->)
+  NS_FORWARD_NSIINTERFACEREQUESTOR(
+      DELEGATE_JS(
+          mJsIInterfaceRequestor, mMethods,
+          (nsCOMPtr<nsIInterfaceRequestor>(do_QueryInterface(mCppBase))))
+          ->)
 
   JaCppAbDirectoryDelegator();
 
-private:
-  virtual ~JaCppAbDirectoryDelegator() {
-  }
+ private:
+  virtual ~JaCppAbDirectoryDelegator() {}
 
   // nsIAbDirectory inherits from nsIAbCollection which inherits from nsIAbItem.
-  class Super : public nsIAbDirectory,
-                public nsIInterfaceRequestor
-  {
-    public:
-      explicit Super(JaCppAbDirectoryDelegator* aFakeThis) {mFakeThis = aFakeThis;}
-      NS_DECL_ISUPPORTS
-      NS_FORWARD_NSIABDIRECTORY(mFakeThis->JaBaseCppAbDirectory::)
-      NS_FORWARD_NSIABCOLLECTION(mFakeThis->JaBaseCppAbDirectory::)
-      NS_FORWARD_NSIABITEM(mFakeThis->JaBaseCppAbDirectory::)
-      NS_FORWARD_NSIINTERFACEREQUESTOR(mFakeThis->JaBaseCppAbDirectory::)
-    private:
-      virtual ~Super() {}
-      JaCppAbDirectoryDelegator* mFakeThis;
+  class Super : public nsIAbDirectory, public nsIInterfaceRequestor {
+   public:
+    explicit Super(JaCppAbDirectoryDelegator* aFakeThis) {
+      mFakeThis = aFakeThis;
+    }
+    NS_DECL_ISUPPORTS
+    NS_FORWARD_NSIABDIRECTORY(mFakeThis->JaBaseCppAbDirectory::)
+    NS_FORWARD_NSIABCOLLECTION(mFakeThis->JaBaseCppAbDirectory::)
+    NS_FORWARD_NSIABITEM(mFakeThis->JaBaseCppAbDirectory::)
+    NS_FORWARD_NSIINTERFACEREQUESTOR(mFakeThis->JaBaseCppAbDirectory::)
+   private:
+    virtual ~Super() {}
+    JaCppAbDirectoryDelegator* mFakeThis;
   };
 
   // Interfaces that may be overridden by JS.
@@ -87,10 +87,9 @@ private:
 
   RefPtr<DelegateList> mDelegateList;
   nsDataHashtable<nsCStringHashKey, bool>* mMethods;
-
 };
 
-} // namespace mailnews
-} // namespace mozilla
+}  // namespace mailnews
+}  // namespace mozilla
 
 #endif

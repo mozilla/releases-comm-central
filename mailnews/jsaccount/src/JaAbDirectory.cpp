@@ -15,51 +15,43 @@ NS_IMPL_ISUPPORTS_INHERITED(JaBaseCppAbDirectory, nsAbDirProperty,
                             nsIInterfaceRequestor)
 
 // nsIInterfaceRequestor implementation
-NS_IMETHODIMP JaBaseCppAbDirectory::GetInterface(const nsIID & aIID, void **aSink)
-{
+NS_IMETHODIMP JaBaseCppAbDirectory::GetInterface(const nsIID& aIID,
+                                                 void** aSink) {
   return QueryInterface(aIID, aSink);
 }
 
 // Delegator
-NS_IMPL_ISUPPORTS_INHERITED(JaCppAbDirectoryDelegator,
-                           JaBaseCppAbDirectory,
-                           msgIOverride)
+NS_IMPL_ISUPPORTS_INHERITED(JaCppAbDirectoryDelegator, JaBaseCppAbDirectory,
+                            msgIOverride)
 
 // Delegator object to bypass JS method override.
-NS_IMPL_ISUPPORTS(JaCppAbDirectoryDelegator::Super,
-                  nsIAbDirectory,
-                  nsIAbCollection,
-                  nsIAbItem,
-                  nsIInterfaceRequestor)
+NS_IMPL_ISUPPORTS(JaCppAbDirectoryDelegator::Super, nsIAbDirectory,
+                  nsIAbCollection, nsIAbItem, nsIInterfaceRequestor)
 
-JaCppAbDirectoryDelegator::JaCppAbDirectoryDelegator() :
-  mCppBase(new Super(this)),
-  mMethods(nullptr)
-{ }
+JaCppAbDirectoryDelegator::JaCppAbDirectoryDelegator()
+    : mCppBase(new Super(this)), mMethods(nullptr) {}
 
-NS_IMETHODIMP JaCppAbDirectoryDelegator::SetMethodsToDelegate(msgIDelegateList* aDelegateList)
-{
-  if (!aDelegateList)
-  {
+NS_IMETHODIMP JaCppAbDirectoryDelegator::SetMethodsToDelegate(
+    msgIDelegateList* aDelegateList) {
+  if (!aDelegateList) {
     NS_WARNING("Null delegate list");
     return NS_ERROR_NULL_POINTER;
   }
   // We static_cast since we want to use the hash object directly.
-  mDelegateList = static_cast<DelegateList*> (aDelegateList);
+  mDelegateList = static_cast<DelegateList*>(aDelegateList);
   mMethods = &(mDelegateList->mMethods);
   return NS_OK;
 }
-NS_IMETHODIMP JaCppAbDirectoryDelegator::GetMethodsToDelegate(msgIDelegateList** aDelegateList)
-{
-  if (!mDelegateList)
-    mDelegateList = new DelegateList();
+NS_IMETHODIMP JaCppAbDirectoryDelegator::GetMethodsToDelegate(
+    msgIDelegateList** aDelegateList) {
+  if (!mDelegateList) mDelegateList = new DelegateList();
   mMethods = &(mDelegateList->mMethods);
   NS_ADDREF(*aDelegateList = mDelegateList);
   return NS_OK;
 }
 
-NS_IMETHODIMP JaCppAbDirectoryDelegator::SetJsDelegate(nsISupports* aJsDelegate)
-{
+NS_IMETHODIMP JaCppAbDirectoryDelegator::SetJsDelegate(
+    nsISupports* aJsDelegate) {
   // If these QIs fail, then overrides are not provided for methods in that
   // interface, which is OK.
   mJsISupports = aJsDelegate;
@@ -69,19 +61,17 @@ NS_IMETHODIMP JaCppAbDirectoryDelegator::SetJsDelegate(nsISupports* aJsDelegate)
   mJsIInterfaceRequestor = do_QueryInterface(aJsDelegate);
   return NS_OK;
 }
-NS_IMETHODIMP JaCppAbDirectoryDelegator::GetJsDelegate(nsISupports **aJsDelegate)
-{
+NS_IMETHODIMP JaCppAbDirectoryDelegator::GetJsDelegate(
+    nsISupports** aJsDelegate) {
   NS_ENSURE_ARG_POINTER(aJsDelegate);
-  if (mJsISupports)
-  {
+  if (mJsISupports) {
     NS_ADDREF(*aJsDelegate = mJsISupports);
     return NS_OK;
   }
   return NS_ERROR_NOT_INITIALIZED;
 }
 
-NS_IMETHODIMP JaCppAbDirectoryDelegator::GetCppBase(nsISupports** aCppBase)
-{
+NS_IMETHODIMP JaCppAbDirectoryDelegator::GetCppBase(nsISupports** aCppBase) {
   nsCOMPtr<nsISupports> cppBaseSupports;
   cppBaseSupports = NS_ISUPPORTS_CAST(nsIAbDirectory*, mCppBase);
   NS_ENSURE_STATE(cppBaseSupports);
@@ -90,5 +80,5 @@ NS_IMETHODIMP JaCppAbDirectoryDelegator::GetCppBase(nsISupports** aCppBase)
   return NS_OK;
 }
 
-} // namespace mailnews
-} // namespace mozilla
+}  // namespace mailnews
+}  // namespace mozilla

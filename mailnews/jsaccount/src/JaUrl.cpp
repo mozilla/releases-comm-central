@@ -17,104 +17,86 @@
 namespace mozilla {
 namespace mailnews {
 
-NS_IMPL_ISUPPORTS_INHERITED(JaBaseCppUrl, nsMsgMailNewsUrl,
-                            nsIMsgMessageUrl,
-                            msgIJaUrl,
-                            nsIInterfaceRequestor,
+NS_IMPL_ISUPPORTS_INHERITED(JaBaseCppUrl, nsMsgMailNewsUrl, nsIMsgMessageUrl,
+                            msgIJaUrl, nsIInterfaceRequestor,
                             nsISupportsWeakReference)
 
 // nsIMsgMailNewsUrl overrides
-NS_IMETHODIMP JaBaseCppUrl::GetFolder(nsIMsgFolder **aFolder)
-{
+NS_IMETHODIMP JaBaseCppUrl::GetFolder(nsIMsgFolder **aFolder) {
   NS_ENSURE_ARG_POINTER(aFolder);
   NS_IF_ADDREF(*aFolder = mFolder);
   return NS_OK;
 }
 
-NS_IMETHODIMP JaBaseCppUrl::SetFolder(nsIMsgFolder *aFolder)
-{
+NS_IMETHODIMP JaBaseCppUrl::SetFolder(nsIMsgFolder *aFolder) {
   mFolder = aFolder;
   return NS_OK;
 }
 
-NS_IMETHODIMP JaBaseCppUrl::GetServer(nsIMsgIncomingServer **aIncomingServer)
-{
+NS_IMETHODIMP JaBaseCppUrl::GetServer(nsIMsgIncomingServer **aIncomingServer) {
   if (mFolder) {
     return mFolder->GetServer(aIncomingServer);
   }
   return NS_ERROR_NOT_INITIALIZED;
 }
 
-NS_IMETHODIMP JaBaseCppUrl::IsUrlType(uint32_t type, bool *isType)
-{
+NS_IMETHODIMP JaBaseCppUrl::IsUrlType(uint32_t type, bool *isType) {
   NS_ENSURE_ARG(isType);
   *isType = (m_urlType == type);
   return NS_OK;
 }
 
 // nsIMsgMessageUrl implementation
-NS_IMETHODIMP JaBaseCppUrl::GetUri(char **aUri)
-{
+NS_IMETHODIMP JaBaseCppUrl::GetUri(char **aUri) {
   if (!mUri.IsEmpty())
     *aUri = ToNewCString(mUri);
   else
     return NS_ERROR_NOT_INITIALIZED;
   return NS_OK;
 }
-NS_IMETHODIMP JaBaseCppUrl::SetUri(const char *aUri)
-{
+NS_IMETHODIMP JaBaseCppUrl::SetUri(const char *aUri) {
   mUri = aUri;
   return NS_OK;
 }
 
-NS_IMETHODIMP JaBaseCppUrl::GetMessageFile(nsIFile **aMessageFile)
-{
+NS_IMETHODIMP JaBaseCppUrl::GetMessageFile(nsIFile **aMessageFile) {
   NS_ENSURE_ARG_POINTER(aMessageFile);
   NS_IF_ADDREF(*aMessageFile = mMessageFile);
   return NS_OK;
 }
-NS_IMETHODIMP JaBaseCppUrl::SetMessageFile(nsIFile *aMessageFile)
-{
+NS_IMETHODIMP JaBaseCppUrl::SetMessageFile(nsIFile *aMessageFile) {
   mMessageFile = aMessageFile;
   return NS_OK;
 }
 
-NS_IMETHODIMP JaBaseCppUrl::GetAddDummyEnvelope(bool *aAddDummyEnvelope)
-{
-    return NS_ERROR_NOT_IMPLEMENTED;
+NS_IMETHODIMP JaBaseCppUrl::GetAddDummyEnvelope(bool *aAddDummyEnvelope) {
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
-NS_IMETHODIMP JaBaseCppUrl::SetAddDummyEnvelope(bool aAddDummyEnvelope)
-{
-    return NS_ERROR_NOT_IMPLEMENTED;
+NS_IMETHODIMP JaBaseCppUrl::SetAddDummyEnvelope(bool aAddDummyEnvelope) {
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP JaBaseCppUrl::GetCanonicalLineEnding(bool *aCanonicalLineEnding)
-{
+NS_IMETHODIMP JaBaseCppUrl::GetCanonicalLineEnding(bool *aCanonicalLineEnding) {
   NS_ENSURE_ARG_POINTER(aCanonicalLineEnding);
   *aCanonicalLineEnding = mCanonicalLineEnding;
   return NS_OK;
 }
-NS_IMETHODIMP JaBaseCppUrl::SetCanonicalLineEnding(bool aCanonicalLineEnding)
-{
+NS_IMETHODIMP JaBaseCppUrl::SetCanonicalLineEnding(bool aCanonicalLineEnding) {
   mCanonicalLineEnding = aCanonicalLineEnding;
   return NS_OK;
 }
 
-NS_IMETHODIMP JaBaseCppUrl::GetOriginalSpec(char **aOriginalSpec)
-{
-  if (!aOriginalSpec || mOriginalSpec.IsEmpty())
-    return NS_ERROR_NULL_POINTER;
+NS_IMETHODIMP JaBaseCppUrl::GetOriginalSpec(char **aOriginalSpec) {
+  if (!aOriginalSpec || mOriginalSpec.IsEmpty()) return NS_ERROR_NULL_POINTER;
   *aOriginalSpec = ToNewCString(mOriginalSpec);
   return NS_OK;
 }
-NS_IMETHODIMP JaBaseCppUrl::SetOriginalSpec(const char *aOriginalSpec)
-{
+NS_IMETHODIMP JaBaseCppUrl::SetOriginalSpec(const char *aOriginalSpec) {
   mOriginalSpec = aOriginalSpec;
   return NS_OK;
 }
 
-NS_IMETHODIMP JaBaseCppUrl::GetNormalizedSpec(nsACString& aPrincipalSpec)
-{
+NS_IMETHODIMP JaBaseCppUrl::GetNormalizedSpec(nsACString &aPrincipalSpec) {
   // URLs contain a lot of query parts. We want need a normalized form:
   // scheme://server/folder?number=123
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsURL;
@@ -127,27 +109,24 @@ NS_IMETHODIMP JaBaseCppUrl::GetNormalizedSpec(nsACString& aPrincipalSpec)
 
   // Strip any query part beginning with ? or /;
   int32_t ind = spec.Find("/;");
-  if (ind != kNotFound)
-    spec.SetLength(ind);
+  if (ind != kNotFound) spec.SetLength(ind);
 
   ind = spec.FindChar('?');
-  if (ind != kNotFound)
-    spec.SetLength(ind);
+  if (ind != kNotFound) spec.SetLength(ind);
 
-  if (!queryPart.IsEmpty())
-    spec += NS_LITERAL_CSTRING("?") + queryPart;
+  if (!queryPart.IsEmpty()) spec += NS_LITERAL_CSTRING("?") + queryPart;
 
   aPrincipalSpec.Assign(spec);
   return NS_OK;
 }
 
-NS_IMETHODIMP JaBaseCppUrl::GetMessageHeader(nsIMsgDBHdr **aMessageHeader)
-{
+NS_IMETHODIMP JaBaseCppUrl::GetMessageHeader(nsIMsgDBHdr **aMessageHeader) {
   // This routine does a lookup using messenger, assumming that the message URI
   // has been set in mUri.
   NS_ENSURE_TRUE(!mUri.IsEmpty(), NS_ERROR_NOT_INITIALIZED);
   nsresult rv;
-  nsCOMPtr<nsIMessenger> messenger(do_CreateInstance(NS_MESSENGER_CONTRACTID, &rv));
+  nsCOMPtr<nsIMessenger> messenger(
+      do_CreateInstance(NS_MESSENGER_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
   rv = messenger->MsgHdrFromURI(mUri, getter_AddRefs(msgHdr));
@@ -156,73 +135,56 @@ NS_IMETHODIMP JaBaseCppUrl::GetMessageHeader(nsIMsgDBHdr **aMessageHeader)
   return NS_OK;
 }
 
-NS_IMETHODIMP JaBaseCppUrl::SetMessageHeader(nsIMsgDBHdr *aMsgHdr)
-{
+NS_IMETHODIMP JaBaseCppUrl::SetMessageHeader(nsIMsgDBHdr *aMsgHdr) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 // msgIJaUrl implementation
-NS_IMETHODIMP JaBaseCppUrl::SetUrlType(unsigned int type)
-{
+NS_IMETHODIMP JaBaseCppUrl::SetUrlType(unsigned int type) {
   m_urlType = type;
   return NS_OK;
 }
 
-NS_IMETHODIMP JaBaseCppUrl::SetSpec(const nsACString& aSpec)
-{
+NS_IMETHODIMP JaBaseCppUrl::SetSpec(const nsACString &aSpec) {
   return SetSpecInternal(aSpec);
 }
 
 // nsIInterfaceRequestor implementation
-NS_IMETHODIMP JaBaseCppUrl::GetInterface(const nsIID & aIID, void **aSink)
-{
+NS_IMETHODIMP JaBaseCppUrl::GetInterface(const nsIID &aIID, void **aSink) {
   return QueryInterface(aIID, aSink);
 }
 
 // Delegator
-NS_IMPL_ISUPPORTS_INHERITED(JaCppUrlDelegator,
-                            JaBaseCppUrl,
-                            msgIOverride)
+NS_IMPL_ISUPPORTS_INHERITED(JaCppUrlDelegator, JaBaseCppUrl, msgIOverride)
 
 // Delegator object to bypass JS method override.
-NS_IMPL_ISUPPORTS(JaCppUrlDelegator::Super,
-                  nsIMsgMessageUrl,
-                  nsIURI,
-                  nsIURL,
-                  nsIURIWithSpecialOrigin,
-                  nsIMsgMailNewsUrl,
-                  msgIJaUrl,
-                  nsIInterfaceRequestor,
-                  nsISupportsWeakReference)
+NS_IMPL_ISUPPORTS(JaCppUrlDelegator::Super, nsIMsgMessageUrl, nsIURI, nsIURL,
+                  nsIURIWithSpecialOrigin, nsIMsgMailNewsUrl, msgIJaUrl,
+                  nsIInterfaceRequestor, nsISupportsWeakReference)
 
-JaCppUrlDelegator::JaCppUrlDelegator() :
-  mCppBase(new Super(this)),
-  mMethods(nullptr)
-{ }
+JaCppUrlDelegator::JaCppUrlDelegator()
+    : mCppBase(new Super(this)), mMethods(nullptr) {}
 
-NS_IMETHODIMP JaCppUrlDelegator::SetMethodsToDelegate(msgIDelegateList *aDelegateList)
-{
-  if (!aDelegateList)
-  {
+NS_IMETHODIMP JaCppUrlDelegator::SetMethodsToDelegate(
+    msgIDelegateList *aDelegateList) {
+  if (!aDelegateList) {
     NS_WARNING("Null delegate list");
     return NS_ERROR_NULL_POINTER;
   }
   // We static_cast since we want to use the hash object directly.
-  mDelegateList = static_cast<DelegateList*> (aDelegateList);
+  mDelegateList = static_cast<DelegateList *>(aDelegateList);
   mMethods = &(mDelegateList->mMethods);
   return NS_OK;
 }
-NS_IMETHODIMP JaCppUrlDelegator::GetMethodsToDelegate(msgIDelegateList **aDelegateList)
-{
-  if (!mDelegateList)
-    mDelegateList = new DelegateList();
+NS_IMETHODIMP JaCppUrlDelegator::GetMethodsToDelegate(
+    msgIDelegateList **aDelegateList) {
+  if (!mDelegateList) mDelegateList = new DelegateList();
   mMethods = &(mDelegateList->mMethods);
   NS_ADDREF(*aDelegateList = mDelegateList);
   return NS_OK;
 }
 
-NS_IMETHODIMP JaCppUrlDelegator::SetJsDelegate(nsISupports *aJsDelegate)
-{
+NS_IMETHODIMP JaCppUrlDelegator::SetJsDelegate(nsISupports *aJsDelegate) {
   // If these QIs fail, then overrides are not provided for methods in that
   // interface, which is OK.
   mJsISupports = aJsDelegate;
@@ -230,26 +192,23 @@ NS_IMETHODIMP JaCppUrlDelegator::SetJsDelegate(nsISupports *aJsDelegate)
   mJsIInterfaceRequestor = do_QueryInterface(aJsDelegate);
   return NS_OK;
 }
-NS_IMETHODIMP JaCppUrlDelegator::GetJsDelegate(nsISupports **aJsDelegate)
-{
+NS_IMETHODIMP JaCppUrlDelegator::GetJsDelegate(nsISupports **aJsDelegate) {
   NS_ENSURE_ARG_POINTER(aJsDelegate);
-  if (mJsISupports)
-  {
+  if (mJsISupports) {
     NS_ADDREF(*aJsDelegate = mJsISupports);
     return NS_OK;
   }
   return NS_ERROR_NOT_INITIALIZED;
 }
 
-NS_IMETHODIMP JaCppUrlDelegator::GetCppBase(nsISupports **aCppBase)
-{
+NS_IMETHODIMP JaCppUrlDelegator::GetCppBase(nsISupports **aCppBase) {
   nsCOMPtr<nsISupports> cppBaseSupports;
-  cppBaseSupports = NS_ISUPPORTS_CAST(nsIMsgMailNewsUrl*, mCppBase);
+  cppBaseSupports = NS_ISUPPORTS_CAST(nsIMsgMailNewsUrl *, mCppBase);
   NS_ENSURE_STATE(cppBaseSupports);
   cppBaseSupports.forget(aCppBase);
 
   return NS_OK;
 }
 
-} // namespace mailnews
-} // namespace mozilla
+}  // namespace mailnews
+}  // namespace mozilla

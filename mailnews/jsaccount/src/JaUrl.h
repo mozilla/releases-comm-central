@@ -37,12 +37,12 @@ class JaBaseCppUrl : public nsMsgMailNewsUrl,
                      public nsSupportsWeakReference
 
 {
-public:
+ public:
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIMSGMESSAGEURL
   NS_DECL_MSGIJAURL
   NS_DECL_NSIINTERFACEREQUESTOR
-  JaBaseCppUrl() { }
+  JaBaseCppUrl() {}
 
   // nsIMsgMailNewsUrl overrides
   NS_IMETHOD GetFolder(nsIMsgFolder **aFolder) override;
@@ -50,8 +50,8 @@ public:
   NS_IMETHOD IsUrlType(uint32_t type, bool *isType) override;
   NS_IMETHOD GetServer(nsIMsgIncomingServer **aIncomingServer) override;
 
-protected:
-  virtual ~JaBaseCppUrl() { }
+ protected:
+  virtual ~JaBaseCppUrl() {}
 
   // nsIMsgMailUrl variables.
 
@@ -69,17 +69,20 @@ protected:
   unsigned int m_urlType;
 };
 
-class JaCppUrlDelegator : public JaBaseCppUrl,
-                          public msgIOverride
-{
-public:
+class JaCppUrlDelegator : public JaBaseCppUrl, public msgIOverride {
+ public:
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_MSGIOVERRIDE
 
-  NS_FORWARD_NSIMSGMESSAGEURL(DELEGATE_JS(mJsIMsgMessageUrl, mMethods,
-    (nsCOMPtr<nsIMsgMessageUrl>(do_QueryInterface(mCppBase))))->)
-  NS_FORWARD_NSIINTERFACEREQUESTOR(DELEGATE_JS(mJsIInterfaceRequestor, mMethods,
-    (nsCOMPtr<nsIInterfaceRequestor>(do_QueryInterface(mCppBase))))->)
+  NS_FORWARD_NSIMSGMESSAGEURL(
+      DELEGATE_JS(mJsIMsgMessageUrl, mMethods,
+                  (nsCOMPtr<nsIMsgMessageUrl>(do_QueryInterface(mCppBase))))
+          ->)
+  NS_FORWARD_NSIINTERFACEREQUESTOR(
+      DELEGATE_JS(
+          mJsIInterfaceRequestor, mMethods,
+          (nsCOMPtr<nsIInterfaceRequestor>(do_QueryInterface(mCppBase))))
+          ->)
 
   JaCppUrlDelegator();
 
@@ -88,27 +91,25 @@ public:
                 public nsIMsgMessageUrl,
                 public msgIJaUrl,
                 public nsIInterfaceRequestor,
-                public nsISupportsWeakReference
-  {
-    public:
-      explicit Super(JaCppUrlDelegator *aFakeThis) {mFakeThis = aFakeThis;}
-      NS_DECL_ISUPPORTS
-      NS_FORWARD_NSIMSGMAILNEWSURL(mFakeThis->JaBaseCppUrl::)
-      NS_FORWARD_NSIURI(mFakeThis->JaBaseCppUrl::)
-      NS_FORWARD_NSIURL(mFakeThis->JaBaseCppUrl::)
-      NS_FORWARD_NSIURIWITHSPECIALORIGIN(mFakeThis->JaBaseCppUrl::)
-      NS_FORWARD_NSIMSGMESSAGEURL(mFakeThis->JaBaseCppUrl::)
-      NS_FORWARD_MSGIJAURL(mFakeThis->JaBaseCppUrl::)
-      NS_FORWARD_NSIINTERFACEREQUESTOR(mFakeThis->JaBaseCppUrl::)
-      NS_FORWARD_NSISUPPORTSWEAKREFERENCE(mFakeThis->JaBaseCppUrl::)
-    private:
-      virtual ~Super() {}
-      JaCppUrlDelegator *mFakeThis;
+                public nsISupportsWeakReference {
+   public:
+    explicit Super(JaCppUrlDelegator *aFakeThis) { mFakeThis = aFakeThis; }
+    NS_DECL_ISUPPORTS
+    NS_FORWARD_NSIMSGMAILNEWSURL(mFakeThis->JaBaseCppUrl::)
+    NS_FORWARD_NSIURI(mFakeThis->JaBaseCppUrl::)
+    NS_FORWARD_NSIURL(mFakeThis->JaBaseCppUrl::)
+    NS_FORWARD_NSIURIWITHSPECIALORIGIN(mFakeThis->JaBaseCppUrl::)
+    NS_FORWARD_NSIMSGMESSAGEURL(mFakeThis->JaBaseCppUrl::)
+    NS_FORWARD_MSGIJAURL(mFakeThis->JaBaseCppUrl::)
+    NS_FORWARD_NSIINTERFACEREQUESTOR(mFakeThis->JaBaseCppUrl::)
+    NS_FORWARD_NSISUPPORTSWEAKREFERENCE(mFakeThis->JaBaseCppUrl::)
+   private:
+    virtual ~Super() {}
+    JaCppUrlDelegator *mFakeThis;
   };
 
-private:
-  virtual ~JaCppUrlDelegator() {
-  }
+ private:
+  virtual ~JaCppUrlDelegator() {}
 
   // Interfaces that may be overridden by JS.
   nsCOMPtr<nsIMsgMessageUrl> mJsIMsgMessageUrl;
@@ -124,7 +125,7 @@ private:
   nsDataHashtable<nsCStringHashKey, bool> *mMethods;
 };
 
-} // namespace mailnews
-} // namespace mozilla
+}  // namespace mailnews
+}  // namespace mozilla
 
 #endif

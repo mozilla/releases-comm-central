@@ -16,20 +16,19 @@ namespace mozilla {
 namespace mailnews {
 
 // This class provides a list of method names to delegate to another object.
-class DelegateList : public msgIDelegateList
-{
-public:
+class DelegateList : public msgIDelegateList {
+ public:
   NS_DECL_ISUPPORTS
   NS_DECL_MSGIDELEGATELIST
-  DelegateList() { }
+  DelegateList() {}
   nsDataHashtable<nsCStringHashKey, bool> mMethods;
 
-protected:
-  virtual ~DelegateList() { }
+ protected:
+  virtual ~DelegateList() {}
 };
 
-} // namespace mailnews
-} // namespace mozilla
+}  // namespace mailnews
+}  // namespace mozilla
 
 /*
  * This macro is used in forwarding functions.
@@ -40,10 +39,10 @@ protected:
  *
  **/
 
-#define DELEGATE_JS(_jsdelegate, _jsmethods, _cppbase) (\
-    _jsdelegate && _jsmethods && \
-    _jsmethods->Contains(nsLiteralCString(__func__)) ? \
-       _jsdelegate : (_cppbase))
-
+#define DELEGATE_JS(_jsdelegate, _jsmethods, _cppbase)      \
+  (_jsdelegate && _jsmethods &&                             \
+           _jsmethods->Contains(nsLiteralCString(__func__)) \
+       ? _jsdelegate                                        \
+       : (_cppbase))
 
 #endif

@@ -15,11 +15,10 @@ namespace mailnews {
 
 NS_IMPL_ISUPPORTS(DelegateList, msgIDelegateList)
 
-NS_IMETHODIMP DelegateList::Add(const nsACString& aMethodName)
-{
+NS_IMETHODIMP DelegateList::Add(const nsACString& aMethodName) {
   mMethods.Put(aMethodName, true);
   return NS_OK;
 }
 
-} // namespace mailnews
-} // namespace mozilla
+}  // namespace mailnews
+}  // namespace mozilla

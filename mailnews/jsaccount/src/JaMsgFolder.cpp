@@ -19,68 +19,63 @@ NS_IMPL_ISUPPORTS_INHERITED(JaBaseCppMsgFolder, nsMsgDBFolder,
 
 // nsIInterfaceRequestor implementation
 NS_IMETHODIMP
-JaBaseCppMsgFolder::GetInterface(const nsIID & aIID, void **aSink)
-{
+JaBaseCppMsgFolder::GetInterface(const nsIID& aIID, void** aSink) {
   return QueryInterface(aIID, aSink);
 }
 
 // Definition of abstract nsMsgDBFolder methods.
-nsresult
-JaBaseCppMsgFolder::GetDatabase()
-{
+nsresult JaBaseCppMsgFolder::GetDatabase() {
   nsresult rv = NS_OK;
-  if (!mDatabase)
-  {
-
-    nsCOMPtr<nsIMsgDBService> msgDBService = do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
+  if (!mDatabase) {
+    nsCOMPtr<nsIMsgDBService> msgDBService =
+        do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     // Create the database, keeping it if it is "out of date"
     rv = msgDBService->OpenFolderDB(this, true, getter_AddRefs(mDatabase));
-    if (rv == NS_MSG_ERROR_FOLDER_SUMMARY_MISSING)
-    {
+    if (rv == NS_MSG_ERROR_FOLDER_SUMMARY_MISSING) {
       rv = msgDBService->CreateNewDB(this, getter_AddRefs(mDatabase));
       NS_ENSURE_STATE(mDatabase);
-      // not sure about this ... the issue is that if the summary is not valid, then
+      // not sure about this ... the issue is that if the summary is not valid,
+      // then
       //  the db does not get added to the cache in the future, and reindexes
       //  do not show all of the messages.
-      //mDatabase->SetSummaryValid(true);
+      // mDatabase->SetSummaryValid(true);
       mDatabase->SetSummaryValid(false);
       CreateDummyFile(this);
     }
 
     if (rv != NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE)
       NS_ENSURE_SUCCESS(rv, rv);
-    else if (mDatabase)
-    {
+    else if (mDatabase) {
       // Not going to warn here, because on initialization we set all
       //  databases as invalid.
-      //NS_WARNING("Mail Summary database is out of date");
-      // Grrr, the only way to get this into the cache is to set the db as valid,
+      // NS_WARNING("Mail Summary database is out of date");
+      // Grrr, the only way to get this into the cache is to set the db as
+      // valid,
       //  close, reopen, then set as invalid.
       mDatabase->SetSummaryValid(true);
       msgDBService->ForceFolderDBClosed(this);
       rv = msgDBService->OpenFolderDB(this, true, getter_AddRefs(mDatabase));
-      if (mDatabase)
-        mDatabase->SetSummaryValid(false);
+      if (mDatabase) mDatabase->SetSummaryValid(false);
     }
 
-    if (mDatabase)
-    {
+    if (mDatabase) {
       //
-      // When I inadvertently deleted the out-of-date database, I hit this code with
-      //  the db's m_dbFolderInfo as null from the delete, yet the local mDatabase
-      //  reference kept the database alive. So I hit an assert when I tried to open
-      //  the database. Be careful if you try to fix the out-of-date issues!
+      // When I inadvertently deleted the out-of-date database, I hit this code
+      // with
+      //  the db's m_dbFolderInfo as null from the delete, yet the local
+      //  mDatabase reference kept the database alive. So I hit an assert when I
+      //  tried to open the database. Be careful if you try to fix the
+      //  out-of-date issues!
       //
-      //UpdateNewMessages();
-      if(mAddListener)
-        mDatabase->AddListener(this);
-      // UpdateSummaryTotals can null mDatabase during initialization, so we save a local copy
+      // UpdateNewMessages();
+      if (mAddListener) mDatabase->AddListener(this);
+      // UpdateSummaryTotals can null mDatabase during initialization, so we
+      // save a local copy
       nsCOMPtr<nsIMsgDatabase> database(mDatabase);
       UpdateSummaryTotals(true);
       mDatabase = database;
-
     }
   }
 
@@ -94,21 +89,16 @@ JaBaseCppMsgFolder::GetDatabase()
  *  creates an appropriate file as a placeholder, or you may use the file if
  *  appropriate.
  */
-nsresult
-JaBaseCppMsgFolder::CreateDummyFile(nsIMsgFolder* aMailFolder)
-{
+nsresult JaBaseCppMsgFolder::CreateDummyFile(nsIMsgFolder* aMailFolder) {
   nsresult rv;
-  if (!aMailFolder)
-    return NS_OK;
-  nsCOMPtr <nsIFile> path;
+  if (!aMailFolder) return NS_OK;
+  nsCOMPtr<nsIFile> path;
   // need to make sure folder exists...
   aMailFolder->GetFilePath(getter_AddRefs(path));
-  if (path)
-  {
+  if (path) {
     bool exists;
     rv = path->Exists(&exists);
-    if (!exists)
-    {
+    if (!exists) {
       rv = path->Create(nsIFile::NORMAL_FILE_TYPE, 0644);
       NS_ENSURE_SUCCESS(rv, rv);
     }
@@ -117,57 +107,45 @@ JaBaseCppMsgFolder::CreateDummyFile(nsIMsgFolder* aMailFolder)
 }
 
 // AFAICT this is unused in mailnews code.
-nsresult
-JaBaseCppMsgFolder::CreateChildFromURI(const nsCString &uri, nsIMsgFolder **folder)
-{
+nsresult JaBaseCppMsgFolder::CreateChildFromURI(const nsCString& uri,
+                                                nsIMsgFolder** folder) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 // Delegator object to bypass JS method override.
 
-JaCppMsgFolderDelegator::JaCppMsgFolderDelegator() :
-  mCppBase(new Super(this)),
-  mMethods(nullptr)
-{ }
+JaCppMsgFolderDelegator::JaCppMsgFolderDelegator()
+    : mCppBase(new Super(this)), mMethods(nullptr) {}
 
 NS_IMPL_ISUPPORTS_INHERITED(JaCppMsgFolderDelegator, JaBaseCppMsgFolder,
                             msgIOverride)
 
-NS_IMPL_ISUPPORTS(JaCppMsgFolderDelegator::Super,
-                  nsIMsgFolder,
-                  nsIRDFResource,
-                  nsIRDFNode,
-                  nsIDBChangeListener,
-                  nsIUrlListener,
+NS_IMPL_ISUPPORTS(JaCppMsgFolderDelegator::Super, nsIMsgFolder, nsIRDFResource,
+                  nsIRDFNode, nsIDBChangeListener, nsIUrlListener,
                   nsIJunkMailClassificationListener,
-                  nsIMsgTraitClassificationListener,
-                  nsIInterfaceRequestor)
+                  nsIMsgTraitClassificationListener, nsIInterfaceRequestor)
 
 NS_IMETHODIMP
-JaCppMsgFolderDelegator::SetMethodsToDelegate(msgIDelegateList* aDelegateList)
-{
-  if (!aDelegateList)
-  {
+JaCppMsgFolderDelegator::SetMethodsToDelegate(msgIDelegateList* aDelegateList) {
+  if (!aDelegateList) {
     NS_WARNING("Null delegate list");
     return NS_ERROR_NULL_POINTER;
   }
   // We static_cast since we want to use the hash object directly.
-  mDelegateList = static_cast<DelegateList*> (aDelegateList);
+  mDelegateList = static_cast<DelegateList*>(aDelegateList);
   mMethods = &(mDelegateList->mMethods);
   return NS_OK;
 }
 NS_IMETHODIMP
-JaCppMsgFolderDelegator::GetMethodsToDelegate(msgIDelegateList** aDelegateList)
-{
-  if (!mDelegateList)
-    mDelegateList = new DelegateList();
+JaCppMsgFolderDelegator::GetMethodsToDelegate(
+    msgIDelegateList** aDelegateList) {
+  if (!mDelegateList) mDelegateList = new DelegateList();
   mMethods = &(mDelegateList->mMethods);
   NS_ADDREF(*aDelegateList = mDelegateList);
   return NS_OK;
 }
 
-NS_IMETHODIMP JaCppMsgFolderDelegator::SetJsDelegate(nsISupports* aJsDelegate)
-{
+NS_IMETHODIMP JaCppMsgFolderDelegator::SetJsDelegate(nsISupports* aJsDelegate) {
   // If these QIs fail, then overrides are not provided for methods in that
   // interface, which is OK.
   mJsISupports = aJsDelegate;
@@ -179,19 +157,17 @@ NS_IMETHODIMP JaCppMsgFolderDelegator::SetJsDelegate(nsISupports* aJsDelegate)
   mJsIInterfaceRequestor = do_QueryInterface(aJsDelegate);
   return NS_OK;
 }
-NS_IMETHODIMP JaCppMsgFolderDelegator::GetJsDelegate(nsISupports **aJsDelegate)
-{
+NS_IMETHODIMP JaCppMsgFolderDelegator::GetJsDelegate(
+    nsISupports** aJsDelegate) {
   NS_ENSURE_ARG_POINTER(aJsDelegate);
-  if (mJsISupports)
-  {
+  if (mJsISupports) {
     NS_ADDREF(*aJsDelegate = mJsISupports);
     return NS_OK;
   }
   return NS_ERROR_NOT_INITIALIZED;
 }
 
-NS_IMETHODIMP JaCppMsgFolderDelegator::GetCppBase(nsISupports** aCppBase)
-{
+NS_IMETHODIMP JaCppMsgFolderDelegator::GetCppBase(nsISupports** aCppBase) {
   nsCOMPtr<nsISupports> cppBaseSupports;
   cppBaseSupports = NS_ISUPPORTS_CAST(nsIMsgFolder*, mCppBase);
   NS_ENSURE_STATE(cppBaseSupports);
@@ -200,5 +176,5 @@ NS_IMETHODIMP JaCppMsgFolderDelegator::GetCppBase(nsISupports** aCppBase)
   return NS_OK;
 }
 
-} // namespace mailnews
-} // namespace mozilla
+}  // namespace mailnews
+}  // namespace mozilla

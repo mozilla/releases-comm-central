@@ -33,14 +33,15 @@ class JaBaseCppMsgFolder : public nsMsgDBFolder,
                            public nsIInterfaceRequestor
 
 {
-public:
+ public:
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIINTERFACEREQUESTOR
-  JaBaseCppMsgFolder() { }
+  JaBaseCppMsgFolder() {}
 
   // nsMsgDBFolder overrides
 
-  nsresult CreateChildFromURI(const nsCString &uri, nsIMsgFolder **folder) override;
+  nsresult CreateChildFromURI(const nsCString& uri,
+                              nsIMsgFolder** folder) override;
   nsresult GetDatabase() override;
 
   // Local Utility Functions
@@ -48,44 +49,47 @@ public:
   // Create a placeholder file to represent a folder.
   nsresult CreateDummyFile(nsIMsgFolder* aMailFolder);
 
-protected:
-  virtual ~JaBaseCppMsgFolder() { }
-
+ protected:
+  virtual ~JaBaseCppMsgFolder() {}
 };
 
-class JaCppMsgFolderDelegator : public JaBaseCppMsgFolder,
-                                public msgIOverride
-{
-public:
+class JaCppMsgFolderDelegator : public JaBaseCppMsgFolder, public msgIOverride {
+ public:
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_MSGIOVERRIDE
 
   // Note that we do not support override of RDF methods.
   NS_FORWARD_NSIRDFRESOURCE(JaBaseCppMsgFolder::)
   NS_FORWARD_NSIRDFNODE(JaBaseCppMsgFolder::)
-  NS_FORWARD_NSIMSGFOLDER(
-    DELEGATE_JS(mJsIMsgFolder, mMethods, mCppBase)->)
+  NS_FORWARD_NSIMSGFOLDER(DELEGATE_JS(mJsIMsgFolder, mMethods, mCppBase)->)
   NS_FORWARD_NSIDBCHANGELISTENER(
-    DELEGATE_JS(mJsIDBChangeListener, mMethods,
-      (nsCOMPtr<nsIDBChangeListener>(do_QueryInterface(mCppBase))))->)
+      DELEGATE_JS(mJsIDBChangeListener, mMethods,
+                  (nsCOMPtr<nsIDBChangeListener>(do_QueryInterface(mCppBase))))
+          ->)
   NS_FORWARD_NSIURLLISTENER(
-    DELEGATE_JS(mJsIUrlListener, mMethods,
-      (nsCOMPtr<nsIUrlListener>(do_QueryInterface(mCppBase))))->)
+      DELEGATE_JS(mJsIUrlListener, mMethods,
+                  (nsCOMPtr<nsIUrlListener>(do_QueryInterface(mCppBase))))
+          ->)
   NS_FORWARD_NSIJUNKMAILCLASSIFICATIONLISTENER(
-    DELEGATE_JS(mJsIJunkMailClassificationListener, mMethods,
-      (nsCOMPtr<nsIJunkMailClassificationListener>(do_QueryInterface(mCppBase))))->)
+      DELEGATE_JS(mJsIJunkMailClassificationListener, mMethods,
+                  (nsCOMPtr<nsIJunkMailClassificationListener>(
+                      do_QueryInterface(mCppBase))))
+          ->)
   NS_FORWARD_NSIMSGTRAITCLASSIFICATIONLISTENER(
-    DELEGATE_JS(mJsIMsgTraitClassificationListener, mMethods,
-      (nsCOMPtr<nsIMsgTraitClassificationListener>(do_QueryInterface(mCppBase))))->)
+      DELEGATE_JS(mJsIMsgTraitClassificationListener, mMethods,
+                  (nsCOMPtr<nsIMsgTraitClassificationListener>(
+                      do_QueryInterface(mCppBase))))
+          ->)
   NS_FORWARD_NSIINTERFACEREQUESTOR(
-    DELEGATE_JS(mJsIInterfaceRequestor, mMethods,
-      (nsCOMPtr<nsIInterfaceRequestor>(do_QueryInterface(mCppBase))))->)
+      DELEGATE_JS(
+          mJsIInterfaceRequestor, mMethods,
+          (nsCOMPtr<nsIInterfaceRequestor>(do_QueryInterface(mCppBase))))
+          ->)
 
   JaCppMsgFolderDelegator();
 
-private:
-  virtual ~JaCppMsgFolderDelegator() {
-  }
+ private:
+  virtual ~JaCppMsgFolderDelegator() {}
 
   class Super : public nsIMsgFolder,
                 public nsIRDFResource,
@@ -93,33 +97,38 @@ private:
                 public nsIUrlListener,
                 public nsIJunkMailClassificationListener,
                 public nsIMsgTraitClassificationListener,
-                public nsIInterfaceRequestor
-  {
-    public:
-      // Why fake this? Because this method is fully owned by
-      // JaCppMsgFolderDelegator, and this reference is to the "this" of the
-      // main method. But it is not really the local "this".
-      explicit Super(JaCppMsgFolderDelegator* aFakeThis) {mFakeThis = aFakeThis;}
-      NS_DECL_ISUPPORTS
-      NS_FORWARD_NSIMSGFOLDER(mFakeThis->JaBaseCppMsgFolder::)
-      NS_FORWARD_NSIRDFRESOURCE(mFakeThis->JaBaseCppMsgFolder::)
-      NS_FORWARD_NSIRDFNODE(mFakeThis->JaBaseCppMsgFolder::)
-      NS_FORWARD_NSIDBCHANGELISTENER(mFakeThis->JaBaseCppMsgFolder::)
-      NS_FORWARD_NSIURLLISTENER(mFakeThis->JaBaseCppMsgFolder::)
-      NS_FORWARD_NSIJUNKMAILCLASSIFICATIONLISTENER(mFakeThis->JaBaseCppMsgFolder::)
-      NS_FORWARD_NSIMSGTRAITCLASSIFICATIONLISTENER(mFakeThis->JaBaseCppMsgFolder::)
-      NS_FORWARD_NSIINTERFACEREQUESTOR(mFakeThis->JaBaseCppMsgFolder::)
-    private:
-      virtual ~Super() {}
-      JaCppMsgFolderDelegator* mFakeThis;
+                public nsIInterfaceRequestor {
+   public:
+    // Why fake this? Because this method is fully owned by
+    // JaCppMsgFolderDelegator, and this reference is to the "this" of the
+    // main method. But it is not really the local "this".
+    explicit Super(JaCppMsgFolderDelegator* aFakeThis) {
+      mFakeThis = aFakeThis;
+    }
+    NS_DECL_ISUPPORTS
+    NS_FORWARD_NSIMSGFOLDER(mFakeThis->JaBaseCppMsgFolder::)
+    NS_FORWARD_NSIRDFRESOURCE(mFakeThis->JaBaseCppMsgFolder::)
+    NS_FORWARD_NSIRDFNODE(mFakeThis->JaBaseCppMsgFolder::)
+    NS_FORWARD_NSIDBCHANGELISTENER(mFakeThis->JaBaseCppMsgFolder::)
+    NS_FORWARD_NSIURLLISTENER(mFakeThis->JaBaseCppMsgFolder::)
+    NS_FORWARD_NSIJUNKMAILCLASSIFICATIONLISTENER(
+        mFakeThis->JaBaseCppMsgFolder::)
+    NS_FORWARD_NSIMSGTRAITCLASSIFICATIONLISTENER(
+        mFakeThis->JaBaseCppMsgFolder::)
+    NS_FORWARD_NSIINTERFACEREQUESTOR(mFakeThis->JaBaseCppMsgFolder::)
+   private:
+    virtual ~Super() {}
+    JaCppMsgFolderDelegator* mFakeThis;
   };
 
   // Interfaces that may be overridden by JS.
   nsCOMPtr<nsIMsgFolder> mJsIMsgFolder;
   nsCOMPtr<nsIDBChangeListener> mJsIDBChangeListener;
   nsCOMPtr<nsIUrlListener> mJsIUrlListener;
-  nsCOMPtr<nsIJunkMailClassificationListener> mJsIJunkMailClassificationListener;
-  nsCOMPtr<nsIMsgTraitClassificationListener> mJsIMsgTraitClassificationListener;
+  nsCOMPtr<nsIJunkMailClassificationListener>
+      mJsIJunkMailClassificationListener;
+  nsCOMPtr<nsIMsgTraitClassificationListener>
+      mJsIMsgTraitClassificationListener;
   nsCOMPtr<nsIInterfaceRequestor> mJsIInterfaceRequestor;
 
   nsCOMPtr<nsISupports> mJsISupports;
@@ -127,10 +136,9 @@ private:
   nsCOMPtr<nsIMsgFolder> mCppBase;
   RefPtr<DelegateList> mDelegateList;
   nsDataHashtable<nsCStringHashKey, bool>* mMethods;
-
 };
 
-} // namespace mailnews
-} // namespace mozilla
+}  // namespace mailnews
+}  // namespace mozilla
 
 #endif

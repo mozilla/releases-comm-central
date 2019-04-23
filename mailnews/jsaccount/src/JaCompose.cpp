@@ -13,60 +13,50 @@
 namespace mozilla {
 namespace mailnews {
 
-NS_IMPL_ISUPPORTS_INHERITED(JaBaseCppCompose,
-                            nsMsgCompose,
+NS_IMPL_ISUPPORTS_INHERITED(JaBaseCppCompose, nsMsgCompose,
                             nsIInterfaceRequestor)
 
 // nsIInterfaceRequestor implementation
 NS_IMETHODIMP
-JaBaseCppCompose::GetInterface(const nsIID & aIID, void **aSink)
-{
+JaBaseCppCompose::GetInterface(const nsIID& aIID, void** aSink) {
   return QueryInterface(aIID, aSink);
 }
 
 // Delegator object to bypass JS method override.
 
 JaCppComposeDelegator::JaCppComposeDelegator() {
-  mCppBase = do_QueryInterface(
-      NS_ISUPPORTS_CAST(nsIMsgCompose*, new Super(this)));
+  mCppBase =
+      do_QueryInterface(NS_ISUPPORTS_CAST(nsIMsgCompose*, new Super(this)));
   mMethods = nullptr;
 }
 
-NS_IMPL_ISUPPORTS_INHERITED(JaCppComposeDelegator,
-                            JaBaseCppCompose,
+NS_IMPL_ISUPPORTS_INHERITED(JaCppComposeDelegator, JaBaseCppCompose,
                             msgIOverride)
 
-NS_IMPL_ISUPPORTS(JaCppComposeDelegator::Super,
-                  nsIMsgCompose,
-                  nsIMsgSendListener,
-                  nsIInterfaceRequestor)
+NS_IMPL_ISUPPORTS(JaCppComposeDelegator::Super, nsIMsgCompose,
+                  nsIMsgSendListener, nsIInterfaceRequestor)
 
 NS_IMETHODIMP
-JaCppComposeDelegator::SetMethodsToDelegate(msgIDelegateList* aDelegateList)
-{
-  if (!aDelegateList)
-  {
+JaCppComposeDelegator::SetMethodsToDelegate(msgIDelegateList* aDelegateList) {
+  if (!aDelegateList) {
     NS_WARNING("Null delegate list");
     return NS_ERROR_NULL_POINTER;
   }
   // We static_cast since we want to use the hash object directly.
-  mDelegateList = static_cast<DelegateList*> (aDelegateList);
+  mDelegateList = static_cast<DelegateList*>(aDelegateList);
   mMethods = &(mDelegateList->mMethods);
   return NS_OK;
 }
 NS_IMETHODIMP
-JaCppComposeDelegator::GetMethodsToDelegate(msgIDelegateList** aDelegateList)
-{
-  if (!mDelegateList)
-    mDelegateList = new DelegateList();
+JaCppComposeDelegator::GetMethodsToDelegate(msgIDelegateList** aDelegateList) {
+  if (!mDelegateList) mDelegateList = new DelegateList();
   mMethods = &(mDelegateList->mMethods);
   NS_ADDREF(*aDelegateList = mDelegateList);
   return NS_OK;
 }
 
 NS_IMETHODIMP
-JaCppComposeDelegator::SetJsDelegate(nsISupports* aJsDelegate)
-{
+JaCppComposeDelegator::SetJsDelegate(nsISupports* aJsDelegate) {
   // If these QIs fail, then overrides are not provided for methods in that
   // interface, which is OK.
   mJsISupports = aJsDelegate;
@@ -76,11 +66,9 @@ JaCppComposeDelegator::SetJsDelegate(nsISupports* aJsDelegate)
   return NS_OK;
 }
 NS_IMETHODIMP
-JaCppComposeDelegator::GetJsDelegate(nsISupports **aJsDelegate)
-{
+JaCppComposeDelegator::GetJsDelegate(nsISupports** aJsDelegate) {
   NS_ENSURE_ARG_POINTER(aJsDelegate);
-  if (mJsISupports)
-  {
+  if (mJsISupports) {
     NS_ADDREF(*aJsDelegate = mJsISupports);
     return NS_OK;
   }
@@ -88,8 +76,7 @@ JaCppComposeDelegator::GetJsDelegate(nsISupports **aJsDelegate)
 }
 
 NS_IMETHODIMP
-JaCppComposeDelegator::GetCppBase(nsISupports** aCppBase)
-{
+JaCppComposeDelegator::GetCppBase(nsISupports** aCppBase) {
   nsCOMPtr<nsISupports> cppBaseSupports;
   cppBaseSupports = NS_ISUPPORTS_CAST(nsIMsgCompose*, mCppBase);
   NS_ENSURE_STATE(cppBaseSupports);
@@ -98,5 +85,5 @@ JaCppComposeDelegator::GetCppBase(nsISupports** aCppBase)
   return NS_OK;
 }
 
-} // namespace mailnews
-} // namespace mozilla
+}  // namespace mailnews
+}  // namespace mozilla
