@@ -44,46 +44,46 @@
 extern "C" {
 #endif
 
-#if defined (WIN32) || defined (_WIN32) || defined( _CONSOLE )
-#include <windows.h>
-#  if defined( _WINDOWS )
-#  include <winsock.h>
+#if defined(WIN32) || defined(_WIN32) || defined(_CONSOLE)
+#  include <windows.h>
+#  if defined(_WINDOWS)
+#    include <winsock.h>
 #  endif
 #elif defined(macintosh)
-#ifndef LDAP_TYPE_TIMEVAL_DEFINED
-#include <utime.h>
-#endif
-#ifndef LDAP_TYPE_SOCKET_DEFINED  /* API extension */
-#include "macsocket.h"
-#endif
+#  ifndef LDAP_TYPE_TIMEVAL_DEFINED
+#    include <utime.h>
+#  endif
+#  ifndef LDAP_TYPE_SOCKET_DEFINED /* API extension */
+#    include "macsocket.h"
+#  endif
 #else /* everything else, e.g., Unix */
-#ifndef LDAP_TYPE_TIMEVAL_DEFINED
-#include <sys/time.h>
-#endif
-#ifndef LDAP_TYPE_SOCKET_DEFINED  /* API extension */
-#include <sys/types.h>
-#include <sys/socket.h>
-#endif
+#  ifndef LDAP_TYPE_TIMEVAL_DEFINED
+#    include <sys/time.h>
+#  endif
+#  ifndef LDAP_TYPE_SOCKET_DEFINED /* API extension */
+#    include <sys/types.h>
+#    include <sys/socket.h>
+#  endif
 #endif
 
 #ifdef _AIX
-#include <sys/select.h>
+#  include <sys/select.h>
 #endif /* _AIX */
 
 #ifdef XP_OS2
-#include <sys/select.h>
+#  include <sys/select.h>
 #endif /* XP_OS2 */
 
 /*
  * LDAP_API macro definition:
  */
 #ifndef LDAP_API
-#if defined( _WINDOWS ) || defined( _WIN32 )
-#define LDAP_API(rt) rt
-#else /* _WINDOWS */
-#define LDAP_API(rt) rt
-#endif /* _WINDOWS */
-#endif /* LDAP_API */
+#  if defined(_WINDOWS) || defined(_WIN32)
+#    define LDAP_API(rt) rt
+#  else /* _WINDOWS */
+#    define LDAP_API(rt) rt
+#  endif /* _WINDOWS */
+#endif   /* LDAP_API */
 
 #ifdef __cplusplus
 }

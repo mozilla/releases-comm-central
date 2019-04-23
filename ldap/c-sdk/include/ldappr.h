@@ -64,8 +64,7 @@ extern "C" {
  * with this function prldap_init.  Prldap_init installs the appropriate
  * set of NSPR functions and prevents calling deprecated functions accidentally.
  */
-LDAP * LDAP_CALL prldap_init( const char *defhost, int defport, int shared );
-
+LDAP *LDAP_CALL prldap_init(const char *defhost, int defport, int shared);
 
 /*
  * Function: prldap_install_routines().
@@ -81,8 +80,7 @@ LDAP * LDAP_CALL prldap_init( const char *defhost, int defport, int shared );
  *
  * Returns an LDAP API error code (LDAP_SUCCESS if all goes well).
  */
-int LDAP_CALL prldap_install_routines( LDAP *ld, int shared );
-
+int LDAP_CALL prldap_install_routines(LDAP *ld, int shared);
 
 /*
  * Function: prldap_set_session_option().
@@ -96,9 +94,8 @@ int LDAP_CALL prldap_install_routines( LDAP *ld, int shared );
  *
  * Returns an LDAP API error code (LDAP_SUCCESS if all goes well).
  */
-int LDAP_CALL prldap_set_session_option( LDAP *ld, void *sessionarg,
-  int option, ... );
-
+int LDAP_CALL prldap_set_session_option(LDAP *ld, void *sessionarg, int option,
+                                        ...);
 
 /*
  * Function: prldap_get_session_option().
@@ -112,9 +109,8 @@ int LDAP_CALL prldap_set_session_option( LDAP *ld, void *sessionarg,
  *
  * Returns an LDAP API error code (LDAP_SUCCESS if all goes well).
  */
-int LDAP_CALL prldap_get_session_option( LDAP *ld, void *sessionarg,
-  int option, ... );
-
+int LDAP_CALL prldap_get_session_option(LDAP *ld, void *sessionarg, int option,
+                                        ...);
 
 /*
  * Available options.
@@ -131,7 +127,6 @@ int LDAP_CALL prldap_get_session_option( LDAP *ld, void *sessionarg,
  *    LDAP_X_IO_TIMEOUT_NO_WAIT
  */
 #define PRLDAP_OPT_IO_MAX_TIMEOUT 1
-
 
 /**
  ** Note: the types and functions below are only useful for developers
@@ -161,8 +156,7 @@ typedef struct prldap_session_info {
   int seinfo_size;
   struct prldap_session_private *seinfo_appdata;
 } PRLDAPSessionInfo;
-#define PRLDAP_SESSIONINFO_SIZE sizeof( PRLDAPSessionInfo )
-
+#define PRLDAP_SESSIONINFO_SIZE sizeof(PRLDAPSessionInfo)
 
 /*
  * Function: prldap_set_session_info().
@@ -174,9 +168,8 @@ typedef struct prldap_session_info {
  *
  * Returns an LDAP API error code (LDAP_SUCCESS if all goes well).
  */
-int LDAP_CALL prldap_set_session_info( LDAP *ld, void *sessionarg,
-  PRLDAPSessionInfo *seip );
-
+int LDAP_CALL prldap_set_session_info(LDAP *ld, void *sessionarg,
+                                      PRLDAPSessionInfo *seip);
 
 /*
  * Function: prldap_get_session_info().
@@ -189,9 +182,8 @@ int LDAP_CALL prldap_set_session_info( LDAP *ld, void *sessionarg,
  * Returns an LDAP API error code (LDAP_SUCCESS if all goes well, in
  * which case the fields in the structure that seip points to are filled in).
  */
-int LDAP_CALL prldap_get_session_info( LDAP *ld, void *sessionarg,
-  PRLDAPSessionInfo *seip );
-
+int LDAP_CALL prldap_get_session_info(LDAP *ld, void *sessionarg,
+                                      PRLDAPSessionInfo *seip);
 
 /*
  * Data structure for socket specific information.
@@ -203,8 +195,7 @@ typedef struct prldap_socket_info {
   PRFileDesc *soinfo_prfd;
   struct prldap_socket_private *soinfo_appdata;
 } PRLDAPSocketInfo;
-#define PRLDAP_SOCKETINFO_SIZE sizeof( PRLDAPSocketInfo )
-
+#define PRLDAP_SOCKETINFO_SIZE sizeof(PRLDAPSocketInfo)
 
 /*
  * Function: prldap_set_socket_info().
@@ -217,8 +208,8 @@ typedef struct prldap_socket_info {
  * Note: it is only safe to change soinfo_prfd from within the CONNECT
  * extended I/O callback function.
  */
-int LDAP_CALL prldap_set_socket_info( int fd, void *socketarg,
-                                      PRLDAPSocketInfo *soip );
+int LDAP_CALL prldap_set_socket_info(int fd, void *socketarg,
+                                     PRLDAPSocketInfo *soip);
 
 /*
  * Function: prldap_get_socket_info().
@@ -229,8 +220,8 @@ int LDAP_CALL prldap_set_socket_info( int fd, void *socketarg,
  * Returns an LDAP API error code (LDAP_SUCCESS if all goes well, in
  * which case the fields in the structure that soip points to are filled in).
  */
-int LDAP_CALL prldap_get_socket_info( int fd, void *socketarg,
-                                      PRLDAPSocketInfo *soip );
+int LDAP_CALL prldap_get_socket_info(int fd, void *socketarg,
+                                     PRLDAPSocketInfo *soip);
 
 /*
  * Function: prldap_get_default_socket_info().
@@ -241,7 +232,7 @@ int LDAP_CALL prldap_get_socket_info( int fd, void *socketarg,
  * Returns an LDAP API error code (LDAP_SUCCESS if all goes well, in
  * which case the fields in the structure that soip points to are filled in).
  */
-int LDAP_CALL prldap_get_default_socket_info( LDAP *ld, PRLDAPSocketInfo *soip );
+int LDAP_CALL prldap_get_default_socket_info(LDAP *ld, PRLDAPSocketInfo *soip);
 
 /*
  * Function: prldap_set_default_socket_info().
@@ -252,12 +243,12 @@ int LDAP_CALL prldap_get_default_socket_info( LDAP *ld, PRLDAPSocketInfo *soip )
  * Returns an LDAP API error code (LDAP_SUCCESS if all goes well, in
  * which case the fields in the structure that soip points to are filled in).
  */
-int LDAP_CALL prldap_set_default_socket_info( LDAP *ld, PRLDAPSocketInfo *soip );
+int LDAP_CALL prldap_set_default_socket_info(LDAP *ld, PRLDAPSocketInfo *soip);
 
 /* Function: prldap_is_installed()
  * Check if NSPR routine is installed
  */
-PRBool prldap_is_installed( LDAP *ld );
+PRBool prldap_is_installed(LDAP *ld);
 
 /* Function: prldap_import_connection().
  * Given a ldap handle with connection already done with ldap_init()
@@ -265,7 +256,7 @@ PRBool prldap_is_installed( LDAP *ld );
  *
  * Returns an LDAP API error code (LDAP_SUCCESS if all goes well).
  */
-int LDAP_CALL prldap_import_connection (LDAP *ld);
+int LDAP_CALL prldap_import_connection(LDAP *ld);
 
 #ifdef __cplusplus
 }

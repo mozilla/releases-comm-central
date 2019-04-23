@@ -11,9 +11,12 @@
 #include "nsIURIMutator.h"
 
 // cb7c67f8-0053-4072-89e9-501cbd1b35ab
-#define NS_LDAPURL_CID \
-{ 0xcb7c67f8, 0x0053, 0x4072, \
-  { 0x89, 0xe9, 0x50, 0x1c, 0xbd, 0x1b, 0x35, 0xab}}
+#define NS_LDAPURL_CID                               \
+  {                                                  \
+    0xcb7c67f8, 0x0053, 0x4072, {                    \
+      0x89, 0xe9, 0x50, 0x1c, 0xbd, 0x1b, 0x35, 0xab \
+    }                                                \
+  }
 
 /**
  * nsLDAPURL
@@ -30,16 +33,15 @@
  * consistent.
  */
 
-class nsLDAPURL : public nsILDAPURL
-{
-public:
+class nsLDAPURL : public nsILDAPURL {
+ public:
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIURI
   NS_DECL_NSILDAPURL
 
   nsLDAPURL();
 
-protected:
+ protected:
   virtual nsresult Clone(nsIURI **_retval);
   virtual nsresult SetSpecInternal(const nsACString &aSpec);
   virtual nsresult SetScheme(const nsACString &aScheme);
@@ -53,53 +55,49 @@ protected:
   virtual nsresult SetRef(const nsACString &aRef);
   virtual nsresult SetFilePath(const nsACString &aFilePath);
   virtual nsresult SetQuery(const nsACString &aQuery);
-  virtual nsresult SetQueryWithEncoding(const nsACString &aQuery, const mozilla::Encoding* aEncoding);
+  virtual nsresult SetQueryWithEncoding(const nsACString &aQuery,
+                                        const mozilla::Encoding *aEncoding);
 
-public:
-  class Mutator
-      : public nsIURIMutator
-      , public BaseURIMutator<nsLDAPURL>
-  {
+ public:
+  class Mutator : public nsIURIMutator, public BaseURIMutator<nsLDAPURL> {
     NS_DECL_ISUPPORTS
     NS_FORWARD_SAFE_NSIURISETTERS_RET(mURI)
 
-    NS_IMETHOD Deserialize(const mozilla::ipc::URIParams& aParams) override
-    {
+    NS_IMETHOD Deserialize(const mozilla::ipc::URIParams &aParams) override {
       return NS_ERROR_NOT_IMPLEMENTED;
     }
 
-    NS_IMETHOD Finalize(nsIURI** aURI) override
-    {
+    NS_IMETHOD Finalize(nsIURI **aURI) override {
       mURI.forget(aURI);
       return NS_OK;
     }
 
-    NS_IMETHOD SetSpec(const nsACString & aSpec, nsIURIMutator** aMutator) override
-    {
-      if (aMutator)
-        NS_ADDREF(*aMutator = this);
+    NS_IMETHOD SetSpec(const nsACString &aSpec,
+                       nsIURIMutator **aMutator) override {
+      if (aMutator) NS_ADDREF(*aMutator = this);
       return InitFromSpec(aSpec);
     }
 
-    explicit Mutator() { }
-  private:
-    virtual ~Mutator() { }
+    explicit Mutator() {}
+
+   private:
+    virtual ~Mutator() {}
 
     friend class nsLDAPURL;
   };
   friend BaseURIMutator<nsLDAPURL>;
 
-protected:
+ protected:
   virtual ~nsLDAPURL();
 
   void GetPathInternal(nsCString &aPath);
   nsresult SetPathInternal(const nsCString &aPath);
-  nsresult SetAttributeArray(char** aAttributes);
+  nsresult SetAttributeArray(char **aAttributes);
 
-  nsCString mDN;                // Base Distinguished Name (Base DN)
-  int32_t mScope;               // Search scope (base, one or sub)
-  nsCString mFilter;            // LDAP search filter
-  uint32_t mOptions;            // Options
+  nsCString mDN;      // Base Distinguished Name (Base DN)
+  int32_t mScope;     // Search scope (base, one or sub)
+  nsCString mFilter;  // LDAP search filter
+  uint32_t mOptions;  // Options
   nsCString mAttributes;
   nsCOMPtr<nsIURI> mBaseURL;
 };

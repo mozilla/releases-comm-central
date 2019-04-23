@@ -12,47 +12,46 @@
 #include "nsILDAPSyncQuery.h"
 
 // DDDEE14E-ED81-4182-9323-C2AB22FBA68E
-#define NS_LDAPSYNCQUERY_CID \
-{ 0xdddee14e, 0xed81, 0x4182, \
- { 0x93, 0x23, 0xc2, 0xab, 0x22, 0xfb, 0xa6, 0x8e }}
-
+#define NS_LDAPSYNCQUERY_CID                         \
+  {                                                  \
+    0xdddee14e, 0xed81, 0x4182, {                    \
+      0x93, 0x23, 0xc2, 0xab, 0x22, 0xfb, 0xa6, 0x8e \
+    }                                                \
+  }
 
 class nsLDAPSyncQuery : public nsILDAPSyncQuery,
                         public nsILDAPMessageListener
 
 {
-  public:
+ public:
+  NS_DECL_THREADSAFE_ISUPPORTS
+  NS_DECL_NSILDAPMESSAGELISTENER
+  NS_DECL_NSILDAPSYNCQUERY
 
-    NS_DECL_THREADSAFE_ISUPPORTS
-    NS_DECL_NSILDAPMESSAGELISTENER
-    NS_DECL_NSILDAPSYNCQUERY
+  nsLDAPSyncQuery();
 
-    nsLDAPSyncQuery();
+ protected:
+  virtual ~nsLDAPSyncQuery();
 
-  protected:
-    virtual ~nsLDAPSyncQuery();
+  nsCOMPtr<nsILDAPConnection> mConnection;  // connection used for search
+  nsCOMPtr<nsILDAPOperation> mOperation;    // current ldap op
+  nsCOMPtr<nsILDAPURL> mServerURL;          // LDAP URL
+  bool mFinished;                           // control variable for eventQ
+  nsString mResults;                        // values to return
+  uint32_t mProtocolVersion;                // LDAP version to use
 
-    nsCOMPtr<nsILDAPConnection> mConnection; // connection used for search
-    nsCOMPtr<nsILDAPOperation> mOperation;   // current ldap op
-    nsCOMPtr<nsILDAPURL> mServerURL;         // LDAP URL
-    bool mFinished;                        // control variable for eventQ
-    nsString mResults;                       // values to return
-    uint32_t mProtocolVersion;               // LDAP version to use
+  nsresult InitConnection();
+  // check that we bound ok and start then call StartLDAPSearch
+  nsresult OnLDAPBind(nsILDAPMessage *aMessage);
 
-    nsresult InitConnection();
-    // check that we bound ok and start then call StartLDAPSearch
-    nsresult OnLDAPBind(nsILDAPMessage *aMessage);
+  // add to the results set
+  nsresult OnLDAPSearchEntry(nsILDAPMessage *aMessage);
 
-    // add to the results set
-    nsresult OnLDAPSearchEntry(nsILDAPMessage *aMessage);
+  nsresult OnLDAPSearchResult(nsILDAPMessage *aMessage);
 
+  // kick off a search
+  nsresult StartLDAPSearch();
 
-    nsresult OnLDAPSearchResult(nsILDAPMessage *aMessage);
-
-    // kick off a search
-    nsresult StartLDAPSearch();
-
-    // Clean up after the LDAP Query is done.
-    void FinishLDAPQuery();
+  // Clean up after the LDAP Query is done.
+  void FinishLDAPQuery();
 };
-

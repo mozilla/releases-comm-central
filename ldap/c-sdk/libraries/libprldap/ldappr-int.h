@@ -53,7 +53,7 @@
  * Macros:
  */
 
-/* #define PRLDAP_DEBUG 1 */   /* uncomment to enable debugging printfs */
+/* #define PRLDAP_DEBUG 1 */ /* uncomment to enable debugging printfs */
 
 /*
  * All of the sockets we use are IPv6 capable.
@@ -68,7 +68,7 @@
  * on Microsoft Windows at least where attempts to send really large
  * messages in one PR_Send() call result in an error.
  */
-#define PRLDAP_MAX_SEND_SIZE (8*1024*1024) /* 8MB */
+#define PRLDAP_MAX_SEND_SIZE (8 * 1024 * 1024) /* 8MB */
 
 /*
  * Macro to set port to the 'port' field of a NSPR PRNetAddr union.
@@ -77,8 +77,10 @@
  ** PRUint16   myport   port to set to the 'port' field of 'addr'.
  ** RETURN: none
  */
-#define PRLDAP_SET_PORT(myaddr,myport) \
-    ((myaddr)->raw.family == PR_AF_INET6 ? ((myaddr)->ipv6.port = PR_htons(myport)) : ((myaddr)->inet.port = PR_htons(myport)))
+#define PRLDAP_SET_PORT(myaddr, myport)           \
+  ((myaddr)->raw.family == PR_AF_INET6            \
+       ? ((myaddr)->ipv6.port = PR_htons(myport)) \
+       : ((myaddr)->inet.port = PR_htons(myport)))
 
 /*
  * Data structures:
@@ -86,19 +88,18 @@
 
 /* data structure that populates the I/O callback session arg. */
 typedef struct lextiof_session_private {
-  PRPollDesc *prsess_pollds;  /* for poll callback */
-  int prsess_pollds_count;  /* # of elements in pollds */
-  int prsess_io_max_timeout;  /* in milliseconds */
-  void *prsess_appdata;  /* application specific data */
+  PRPollDesc *prsess_pollds; /* for poll callback */
+  int prsess_pollds_count;   /* # of elements in pollds */
+  int prsess_io_max_timeout; /* in milliseconds */
+  void *prsess_appdata;      /* application specific data */
 } PRLDAPIOSessionArg;
 
 /* data structure that populates the I/O callback socket-specific arg. */
 typedef struct lextiof_socket_private {
-  PRFileDesc *prsock_prfd;  /* associated NSPR file desc. */
-  int prsock_io_max_timeout;  /* in milliseconds */
-  void *prsock_appdata;  /* application specific data */
+  PRFileDesc *prsock_prfd;   /* associated NSPR file desc. */
+  int prsock_io_max_timeout; /* in milliseconds */
+  void *prsock_appdata;      /* application specific data */
 } PRLDAPIOSocketArg;
-
 
 /*
  * Function prototypes:
@@ -107,33 +108,29 @@ typedef struct lextiof_socket_private {
 /*
  * From ldapprio.c:
  */
-int prldap_install_io_functions( LDAP *ld, int shared );
-int prldap_session_arg_from_ld( LDAP *ld, PRLDAPIOSessionArg **sessargpp );
-int prldap_set_io_max_timeout( PRLDAPIOSessionArg *prsessp,
-  int io_max_timeout );
-int prldap_get_io_max_timeout( PRLDAPIOSessionArg *prsessp,
-  int *io_max_timeoutp );
-int prldap_socket_arg_from_ld( LDAP *ld, PRLDAPIOSocketArg **sockargpp );
-PRLDAPIOSocketArg *prldap_socket_arg_alloc( PRLDAPIOSessionArg *sessionarg );
-
+int prldap_install_io_functions(LDAP *ld, int shared);
+int prldap_session_arg_from_ld(LDAP *ld, PRLDAPIOSessionArg **sessargpp);
+int prldap_set_io_max_timeout(PRLDAPIOSessionArg *prsessp, int io_max_timeout);
+int prldap_get_io_max_timeout(PRLDAPIOSessionArg *prsessp,
+                              int *io_max_timeoutp);
+int prldap_socket_arg_from_ld(LDAP *ld, PRLDAPIOSocketArg **sockargpp);
+PRLDAPIOSocketArg *prldap_socket_arg_alloc(PRLDAPIOSessionArg *sessionarg);
 
 /*
  * From ldapprthreads.c:
  */
-int prldap_install_thread_functions( LDAP *ld, int shared );
-int prldap_thread_new_handle( LDAP *ld, void *sessionarg );
-void prldap_thread_dispose_handle( LDAP *ld, void *sessionarg );
-
+int prldap_install_thread_functions(LDAP *ld, int shared);
+int prldap_thread_new_handle(LDAP *ld, void *sessionarg);
+void prldap_thread_dispose_handle(LDAP *ld, void *sessionarg);
 
 /*
  * From ldapprdns.c:
  */
-int prldap_install_dns_functions( LDAP *ld );
-
+int prldap_install_dns_functions(LDAP *ld);
 
 /*
  * From ldapprerror.c:
  */
-void prldap_set_system_errno( int e );
-int prldap_get_system_errno( void );
-int prldap_prerr2errno( void );
+void prldap_set_system_errno(int e);
+int prldap_get_system_errno(void);
+int prldap_prerr2errno(void);

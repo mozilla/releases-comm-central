@@ -16,60 +16,46 @@ NS_IMPL_ISUPPORTS(nsLDAPModification, nsILDAPModification)
 // constructor
 //
 nsLDAPModification::nsLDAPModification()
-    : mValuesLock("nsLDAPModification.mValuesLock")
-{
-}
+    : mValuesLock("nsLDAPModification.mValuesLock") {}
 
 // destructor
 //
-nsLDAPModification::~nsLDAPModification()
-{
-}
+nsLDAPModification::~nsLDAPModification() {}
 
-nsresult
-nsLDAPModification::Init()
-{
-  return NS_OK;
-}
+nsresult nsLDAPModification::Init() { return NS_OK; }
 
 NS_IMETHODIMP
-nsLDAPModification::GetOperation(int32_t *aOperation)
-{
+nsLDAPModification::GetOperation(int32_t *aOperation) {
   NS_ENSURE_ARG_POINTER(aOperation);
 
   *aOperation = mOperation;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsLDAPModification::SetOperation(int32_t aOperation)
-{
+NS_IMETHODIMP nsLDAPModification::SetOperation(int32_t aOperation) {
   mOperation = aOperation;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsLDAPModification::GetType(nsACString& aType)
-{
+nsLDAPModification::GetType(nsACString &aType) {
   aType.Assign(mType);
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsLDAPModification::SetType(const nsACString& aType)
-{
+nsLDAPModification::SetType(const nsACString &aType) {
   mType.Assign(aType);
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsLDAPModification::GetValues(nsIArray** aResult)
-{
+nsLDAPModification::GetValues(nsIArray **aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
   MutexAutoLock lock(mValuesLock);
 
-  if (!mValues)
-    return NS_ERROR_NOT_INITIALIZED;
+  if (!mValues) return NS_ERROR_NOT_INITIALIZED;
 
   NS_ADDREF(*aResult = mValues);
 
@@ -77,8 +63,7 @@ nsLDAPModification::GetValues(nsIArray** aResult)
 }
 
 NS_IMETHODIMP
-nsLDAPModification::SetValues(nsIArray* aValues)
-{
+nsLDAPModification::SetValues(nsIArray *aValues) {
   NS_ENSURE_ARG_POINTER(aValues);
 
   MutexAutoLock lock(mValuesLock);
@@ -101,8 +86,7 @@ nsLDAPModification::SetValues(nsIArray* aValues)
 
   nsCOMPtr<nsISupports> value;
 
-  while (hasMoreElements)
-  {
+  while (hasMoreElements) {
     rv = enumerator->GetNext(getter_AddRefs(value));
     NS_ENSURE_SUCCESS(rv, rv);
 
@@ -119,8 +103,7 @@ nsLDAPModification::SetValues(nsIArray* aValues)
 NS_IMETHODIMP
 nsLDAPModification::SetUpModification(int32_t aOperation,
                                       const nsACString &aType,
-                                      nsIArray *aValues)
-{
+                                      nsIArray *aValues) {
   // Set the values using our local function before entering lock
   // to avoid deadlocks due to holding the same lock twice.
   nsresult rv = SetValues(aValues);
@@ -136,8 +119,7 @@ nsLDAPModification::SetUpModification(int32_t aOperation,
 NS_IMETHODIMP
 nsLDAPModification::SetUpModificationOneValue(int32_t aOperation,
                                               const nsACString &aType,
-                                              nsILDAPBERValue *aValue)
-{
+                                              nsILDAPBERValue *aValue) {
   NS_ENSURE_ARG_POINTER(aValue);
 
   MutexAutoLock lock(mValuesLock);

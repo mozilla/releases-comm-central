@@ -20,51 +20,46 @@
 #include "nsMemory.h"
 
 // Helper function
-static nsresult TranslateLDAPErrorToNSError(const int ldapError)
-{
+static nsresult TranslateLDAPErrorToNSError(const int ldapError) {
   switch (ldapError) {
-  case LDAP_SUCCESS:
-    return NS_OK;
+    case LDAP_SUCCESS:
+      return NS_OK;
 
-  case LDAP_ENCODING_ERROR:
-    return NS_ERROR_LDAP_ENCODING_ERROR;
+    case LDAP_ENCODING_ERROR:
+      return NS_ERROR_LDAP_ENCODING_ERROR;
 
-  case LDAP_CONNECT_ERROR:
-    return NS_ERROR_LDAP_CONNECT_ERROR;
+    case LDAP_CONNECT_ERROR:
+      return NS_ERROR_LDAP_CONNECT_ERROR;
 
-  case LDAP_SERVER_DOWN:
-    return NS_ERROR_LDAP_SERVER_DOWN;
+    case LDAP_SERVER_DOWN:
+      return NS_ERROR_LDAP_SERVER_DOWN;
 
-  case LDAP_NO_MEMORY:
-    return NS_ERROR_OUT_OF_MEMORY;
+    case LDAP_NO_MEMORY:
+      return NS_ERROR_OUT_OF_MEMORY;
 
-  case LDAP_NOT_SUPPORTED:
-    return NS_ERROR_LDAP_NOT_SUPPORTED;
+    case LDAP_NOT_SUPPORTED:
+      return NS_ERROR_LDAP_NOT_SUPPORTED;
 
-  case LDAP_PARAM_ERROR:
-    return NS_ERROR_INVALID_ARG;
+    case LDAP_PARAM_ERROR:
+      return NS_ERROR_INVALID_ARG;
 
-  case LDAP_FILTER_ERROR:
-    return NS_ERROR_LDAP_FILTER_ERROR;
+    case LDAP_FILTER_ERROR:
+      return NS_ERROR_LDAP_FILTER_ERROR;
 
-  default:
-    MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Error,
-           ("TranslateLDAPErrorToNSError: "
-            "Do not know how to translate LDAP error: 0x%x", ldapError));
-    return NS_ERROR_UNEXPECTED;
+    default:
+      MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Error,
+              ("TranslateLDAPErrorToNSError: "
+               "Do not know how to translate LDAP error: 0x%x",
+               ldapError));
+      return NS_ERROR_UNEXPECTED;
   }
 }
 
-
 // constructor
-nsLDAPOperation::nsLDAPOperation()
-{
-}
+nsLDAPOperation::nsLDAPOperation() {}
 
 // destructor
-nsLDAPOperation::~nsLDAPOperation()
-{
-}
+nsLDAPOperation::~nsLDAPOperation() {}
 
 NS_IMPL_CLASSINFO(nsLDAPOperation, NULL, nsIClassInfo::THREADSAFE,
                   NS_LDAPOPERATION_CID)
@@ -87,87 +82,78 @@ NS_IMPL_CI_INTERFACE_GETTER(nsLDAPOperation, nsILDAPOperation)
 NS_IMETHODIMP
 nsLDAPOperation::Init(nsILDAPConnection *aConnection,
                       nsILDAPMessageListener *aMessageListener,
-                      nsISupports *aClosure)
-{
-    if (!aConnection) {
-        return NS_ERROR_ILLEGAL_VALUE;
-    }
+                      nsISupports *aClosure) {
+  if (!aConnection) {
+    return NS_ERROR_ILLEGAL_VALUE;
+  }
 
-    // so we know that the operation is not yet running (and therefore don't
-    // try and call ldap_abandon_ext() on it) or remove it from the queue.
-    //
-    mMsgID = 0;
+  // so we know that the operation is not yet running (and therefore don't
+  // try and call ldap_abandon_ext() on it) or remove it from the queue.
+  //
+  mMsgID = 0;
 
-    // set the member vars
-    //
-    mConnection = static_cast<nsLDAPConnection*>(aConnection);
-    mMessageListener = aMessageListener;
-    mClosure = aClosure;
+  // set the member vars
+  //
+  mConnection = static_cast<nsLDAPConnection *>(aConnection);
+  mMessageListener = aMessageListener;
+  mClosure = aClosure;
 
-    // cache the connection handle
-    //
-    mConnectionHandle =
-        mConnection->mConnectionHandle;
+  // cache the connection handle
+  //
+  mConnectionHandle = mConnection->mConnectionHandle;
 
-    return NS_OK;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
-nsLDAPOperation::GetClosure(nsISupports **_retval)
-{
-    if (!_retval) {
-        return NS_ERROR_ILLEGAL_VALUE;
-    }
-    NS_IF_ADDREF(*_retval = mClosure);
-    return NS_OK;
+nsLDAPOperation::GetClosure(nsISupports **_retval) {
+  if (!_retval) {
+    return NS_ERROR_ILLEGAL_VALUE;
+  }
+  NS_IF_ADDREF(*_retval = mClosure);
+  return NS_OK;
 }
 
 NS_IMETHODIMP
-nsLDAPOperation::SetClosure(nsISupports *aClosure)
-{
-    mClosure = aClosure;
-    return NS_OK;
+nsLDAPOperation::SetClosure(nsISupports *aClosure) {
+  mClosure = aClosure;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
-nsLDAPOperation::GetConnection(nsILDAPConnection* *aConnection)
-{
-    if (!aConnection) {
-        return NS_ERROR_ILLEGAL_VALUE;
-    }
+nsLDAPOperation::GetConnection(nsILDAPConnection **aConnection) {
+  if (!aConnection) {
+    return NS_ERROR_ILLEGAL_VALUE;
+  }
 
-    *aConnection = mConnection;
-    NS_IF_ADDREF(*aConnection);
+  *aConnection = mConnection;
+  NS_IF_ADDREF(*aConnection);
 
-    return NS_OK;
+  return NS_OK;
 }
 
-void
-nsLDAPOperation::Clear()
-{
+void nsLDAPOperation::Clear() {
   mMessageListener = nullptr;
   mClosure = nullptr;
   mConnection = nullptr;
 }
 
 NS_IMETHODIMP
-nsLDAPOperation::GetMessageListener(nsILDAPMessageListener **aMessageListener)
-{
-    if (!aMessageListener) {
-        return NS_ERROR_ILLEGAL_VALUE;
-    }
+nsLDAPOperation::GetMessageListener(nsILDAPMessageListener **aMessageListener) {
+  if (!aMessageListener) {
+    return NS_ERROR_ILLEGAL_VALUE;
+  }
 
-    *aMessageListener = mMessageListener;
-    NS_IF_ADDREF(*aMessageListener);
+  *aMessageListener = mMessageListener;
+  NS_IF_ADDREF(*aMessageListener);
 
-    return NS_OK;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsLDAPOperation::SaslBind(const nsACString &service,
                           const nsACString &mechanism,
-                          nsIAuthModule *authModule)
-{
+                          nsIAuthModule *authModule) {
   nsresult rv;
   nsAutoCString bindName;
   struct berval creds;
@@ -184,33 +170,28 @@ nsLDAPOperation::SaslBind(const nsACString &service,
                     nsIAuthModule::REQ_DEFAULT, nullptr,
                     NS_ConvertUTF8toUTF16(bindName).get(), nullptr);
 
-  rv = mAuthModule->GetNextToken(nullptr, 0, (void **)&creds.bv_val,
-                                 &credlen);
-  if (NS_FAILED(rv) || !creds.bv_val)
-    return rv;
+  rv = mAuthModule->GetNextToken(nullptr, 0, (void **)&creds.bv_val, &credlen);
+  if (NS_FAILED(rv) || !creds.bv_val) return rv;
 
   creds.bv_len = credlen;
-  const int lderrno = ldap_sasl_bind(mConnectionHandle, bindName.get(),
-                                     mMechanism.get(), &creds, NULL, NULL,
-                                     &mMsgID);
+  const int lderrno =
+      ldap_sasl_bind(mConnectionHandle, bindName.get(), mMechanism.get(),
+                     &creds, NULL, NULL, &mMsgID);
   free(creds.bv_val);
 
-  if (lderrno != LDAP_SUCCESS)
-    return TranslateLDAPErrorToNSError(lderrno);
+  if (lderrno != LDAP_SUCCESS) return TranslateLDAPErrorToNSError(lderrno);
 
   // make sure the connection knows where to call back once the messages
   // for this operation start coming in
   rv = mConnection->AddPendingOperation(mMsgID, this);
 
-  if (NS_FAILED(rv))
-    (void)ldap_abandon_ext(mConnectionHandle, mMsgID, 0, 0);
+  if (NS_FAILED(rv)) (void)ldap_abandon_ext(mConnectionHandle, mMsgID, 0, 0);
 
   return rv;
 }
 
 NS_IMETHODIMP
-nsLDAPOperation::SaslStep(const char *token, uint32_t tokenLen)
-{
+nsLDAPOperation::SaslStep(const char *token, uint32_t tokenLen) {
   nsresult rv;
   nsAutoCString bindName;
   struct berval clientCreds;
@@ -220,394 +201,372 @@ nsLDAPOperation::SaslStep(const char *token, uint32_t tokenLen)
   rv = mConnection->RemovePendingOperation(mMsgID);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  serverCreds.bv_val = (char *) token;
+  serverCreds.bv_val = (char *)token;
   serverCreds.bv_len = tokenLen;
 
   rv = mConnection->GetBindName(bindName);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = mAuthModule->GetNextToken(serverCreds.bv_val, serverCreds.bv_len,
-                                 (void **) &clientCreds.bv_val, &credlen);
+                                 (void **)&clientCreds.bv_val, &credlen);
   NS_ENSURE_SUCCESS(rv, rv);
 
   clientCreds.bv_len = credlen;
 
-  const int lderrno = ldap_sasl_bind(mConnectionHandle, bindName.get(),
-                                     mMechanism.get(), &clientCreds, NULL,
-                                     NULL, &mMsgID);
+  const int lderrno =
+      ldap_sasl_bind(mConnectionHandle, bindName.get(), mMechanism.get(),
+                     &clientCreds, NULL, NULL, &mMsgID);
 
   free(clientCreds.bv_val);
 
-  if (lderrno != LDAP_SUCCESS)
-    return TranslateLDAPErrorToNSError(lderrno);
+  if (lderrno != LDAP_SUCCESS) return TranslateLDAPErrorToNSError(lderrno);
 
   // make sure the connection knows where to call back once the messages
   // for this operation start coming in
   rv = mConnection->AddPendingOperation(mMsgID, this);
-  if (NS_FAILED(rv))
-    (void)ldap_abandon_ext(mConnectionHandle, mMsgID, 0, 0);
+  if (NS_FAILED(rv)) (void)ldap_abandon_ext(mConnectionHandle, mMsgID, 0, 0);
 
   return rv;
 }
 
-
 // wrapper for ldap_simple_bind()
 //
 NS_IMETHODIMP
-nsLDAPOperation::SimpleBind(const nsACString& passwd)
-{
-    RefPtr<nsLDAPConnection> connection = mConnection;
-    // There is a possibility that mConnection can be cleared by another
-    // thread. Grabbing a local reference to mConnection may avoid this.
-    // See https://bugzilla.mozilla.org/show_bug.cgi?id=557928#c1
-    nsresult rv;
-    nsAutoCString bindName;
-    int32_t originalMsgID = mMsgID;
-    // Ugly hack alert:
-    // the first time we get called with a passwd, remember it.
-    // Then, if we get called again w/o a password, use the
-    // saved one. Getting called again means we're trying to
-    // fall back to VERSION2.
-    // Since LDAP operations are thrown away when done, it won't stay
-    // around in memory.
-    if (!passwd.IsEmpty())
-      mSavePassword = passwd;
+nsLDAPOperation::SimpleBind(const nsACString &passwd) {
+  RefPtr<nsLDAPConnection> connection = mConnection;
+  // There is a possibility that mConnection can be cleared by another
+  // thread. Grabbing a local reference to mConnection may avoid this.
+  // See https://bugzilla.mozilla.org/show_bug.cgi?id=557928#c1
+  nsresult rv;
+  nsAutoCString bindName;
+  int32_t originalMsgID = mMsgID;
+  // Ugly hack alert:
+  // the first time we get called with a passwd, remember it.
+  // Then, if we get called again w/o a password, use the
+  // saved one. Getting called again means we're trying to
+  // fall back to VERSION2.
+  // Since LDAP operations are thrown away when done, it won't stay
+  // around in memory.
+  if (!passwd.IsEmpty()) mSavePassword = passwd;
 
-    NS_ASSERTION(mMessageListener, "MessageListener not set");
+  NS_ASSERTION(mMessageListener, "MessageListener not set");
 
-    rv = connection->GetBindName(bindName);
-    if (NS_FAILED(rv))
-        return rv;
+  rv = connection->GetBindName(bindName);
+  if (NS_FAILED(rv)) return rv;
 
-    MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
-           ("nsLDAPOperation::SimpleBind(): called; bindName = '%s'; ",
-            bindName.get()));
+  MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
+          ("nsLDAPOperation::SimpleBind(): called; bindName = '%s'; ",
+           bindName.get()));
 
-    // this (nsLDAPOperation) may be released by RemovePendingOperation()
-    // See https://bugzilla.mozilla.org/show_bug.cgi?id=1063829.
-    RefPtr<nsLDAPOperation> kungFuDeathGrip = this;
+  // this (nsLDAPOperation) may be released by RemovePendingOperation()
+  // See https://bugzilla.mozilla.org/show_bug.cgi?id=1063829.
+  RefPtr<nsLDAPOperation> kungFuDeathGrip = this;
 
-    // If this is a second try at binding, remove the operation from pending ops
-    // because msg id has changed...
-    if (originalMsgID)
-      connection->RemovePendingOperation(originalMsgID);
+  // If this is a second try at binding, remove the operation from pending ops
+  // because msg id has changed...
+  if (originalMsgID) connection->RemovePendingOperation(originalMsgID);
 
-    mMsgID = ldap_simple_bind(mConnectionHandle, bindName.get(),
-                              mSavePassword.get());
+  mMsgID =
+      ldap_simple_bind(mConnectionHandle, bindName.get(), mSavePassword.get());
 
-    if (mMsgID == -1) {
-      // XXX Should NS_ERROR_LDAP_SERVER_DOWN cause a rebind here?
-      return TranslateLDAPErrorToNSError(ldap_get_lderrno(mConnectionHandle,
-                                                          0, 0));
-    }
+  if (mMsgID == -1) {
+    // XXX Should NS_ERROR_LDAP_SERVER_DOWN cause a rebind here?
+    return TranslateLDAPErrorToNSError(
+        ldap_get_lderrno(mConnectionHandle, 0, 0));
+  }
 
-    // make sure the connection knows where to call back once the messages
-    // for this operation start coming in
-    rv = connection->AddPendingOperation(mMsgID, this);
-    switch (rv) {
+  // make sure the connection knows where to call back once the messages
+  // for this operation start coming in
+  rv = connection->AddPendingOperation(mMsgID, this);
+  switch (rv) {
     case NS_OK:
-        break;
+      break;
 
-        // note that the return value of ldap_abandon_ext() is ignored, as
-        // there's nothing useful to do with it
+      // note that the return value of ldap_abandon_ext() is ignored, as
+      // there's nothing useful to do with it
 
     case NS_ERROR_OUT_OF_MEMORY:
-        (void)ldap_abandon_ext(mConnectionHandle, mMsgID, 0, 0);
-        return NS_ERROR_OUT_OF_MEMORY;
-        break;
+      (void)ldap_abandon_ext(mConnectionHandle, mMsgID, 0, 0);
+      return NS_ERROR_OUT_OF_MEMORY;
+      break;
 
     case NS_ERROR_UNEXPECTED:
     case NS_ERROR_ILLEGAL_VALUE:
     default:
-        (void)ldap_abandon_ext(mConnectionHandle, mMsgID, 0, 0);
-        return NS_ERROR_UNEXPECTED;
-    }
+      (void)ldap_abandon_ext(mConnectionHandle, mMsgID, 0, 0);
+      return NS_ERROR_UNEXPECTED;
+  }
 
-    return NS_OK;
+  return NS_OK;
 }
 
 /**
  * Given an nsIArray of nsILDAPControls, return the appropriate
  * zero-terminated array of LDAPControls ready to pass in to the C SDK.
  */
-static nsresult
-convertControlArray(nsIArray *aXpcomArray, LDAPControl ***aArray)
-{
-    // get the size of the original array
-    uint32_t length;
-    nsresult rv  = aXpcomArray->GetLength(&length);
-    NS_ENSURE_SUCCESS(rv, rv);
+static nsresult convertControlArray(nsIArray *aXpcomArray,
+                                    LDAPControl ***aArray) {
+  // get the size of the original array
+  uint32_t length;
+  nsresult rv = aXpcomArray->GetLength(&length);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-    // don't allocate an array if someone passed us in an empty one
-    if (!length) {
-        *aArray = 0;
-        return NS_OK;
+  // don't allocate an array if someone passed us in an empty one
+  if (!length) {
+    *aArray = 0;
+    return NS_OK;
+  }
+
+  // allocate a local array of the form understood by the C-SDK;
+  // +1 is to account for the final null terminator.  PR_Calloc is
+  // is used so that ldap_controls_free will work anywhere during the
+  // iteration
+  LDAPControl **controls =
+      static_cast<LDAPControl **>(PR_Calloc(length + 1, sizeof(LDAPControl)));
+
+  // prepare to enumerate the array
+  nsCOMPtr<nsISimpleEnumerator> enumerator;
+  rv = aXpcomArray->Enumerate(getter_AddRefs(enumerator));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  bool moreElements;
+  rv = enumerator->HasMoreElements(&moreElements);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  uint32_t i = 0;
+  while (moreElements) {
+    // get the next array element
+    nsCOMPtr<nsISupports> isupports;
+    rv = enumerator->GetNext(getter_AddRefs(isupports));
+    if (NS_FAILED(rv)) {
+      ldap_controls_free(controls);
+      return rv;
+    }
+    nsCOMPtr<nsILDAPControl> control = do_QueryInterface(isupports, &rv);
+    if (NS_FAILED(rv)) {
+      ldap_controls_free(controls);
+      return NS_ERROR_INVALID_ARG;  // bogus element in the array
+    }
+    nsLDAPControl *ctl = static_cast<nsLDAPControl *>(
+        static_cast<nsILDAPControl *>(control.get()));
+
+    // convert it to an LDAPControl structure placed in the new array
+    rv = ctl->ToLDAPControl(&controls[i]);
+    if (NS_FAILED(rv)) {
+      ldap_controls_free(controls);
+      return rv;
     }
 
-    // allocate a local array of the form understood by the C-SDK;
-    // +1 is to account for the final null terminator.  PR_Calloc is
-    // is used so that ldap_controls_free will work anywhere during the
-    // iteration
-    LDAPControl **controls =
-        static_cast<LDAPControl **>
-                   (PR_Calloc(length+1, sizeof(LDAPControl)));
-
-    // prepare to enumerate the array
-    nsCOMPtr<nsISimpleEnumerator> enumerator;
-    rv = aXpcomArray->Enumerate(getter_AddRefs(enumerator));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    bool moreElements;
+    // on to the next element
     rv = enumerator->HasMoreElements(&moreElements);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    uint32_t i = 0;
-    while (moreElements) {
-
-        // get the next array element
-        nsCOMPtr<nsISupports> isupports;
-        rv = enumerator->GetNext(getter_AddRefs(isupports));
-        if (NS_FAILED(rv)) {
-            ldap_controls_free(controls);
-            return rv;
-        }
-        nsCOMPtr<nsILDAPControl> control = do_QueryInterface(isupports, &rv);
-        if (NS_FAILED(rv)) {
-            ldap_controls_free(controls);
-            return NS_ERROR_INVALID_ARG; // bogus element in the array
-        }
-        nsLDAPControl *ctl = static_cast<nsLDAPControl *>
-                                        (static_cast<nsILDAPControl *>
-                                                    (control.get()));
-
-        // convert it to an LDAPControl structure placed in the new array
-        rv = ctl->ToLDAPControl(&controls[i]);
-        if (NS_FAILED(rv)) {
-            ldap_controls_free(controls);
-            return rv;
-        }
-
-        // on to the next element
-        rv = enumerator->HasMoreElements(&moreElements);
-        if (NS_FAILED(rv)) {
-            ldap_controls_free(controls);
-            return NS_ERROR_UNEXPECTED;
-        }
-        ++i;
+    if (NS_FAILED(rv)) {
+      ldap_controls_free(controls);
+      return NS_ERROR_UNEXPECTED;
     }
+    ++i;
+  }
 
-    *aArray = controls;
-    return NS_OK;
+  *aArray = controls;
+  return NS_OK;
 }
 
-  /* attribute unsigned long requestNum; */
-NS_IMETHODIMP nsLDAPOperation::GetRequestNum(uint32_t *aRequestNum)
-{
-    *aRequestNum = mRequestNum;
-    return NS_OK;
+/* attribute unsigned long requestNum; */
+NS_IMETHODIMP nsLDAPOperation::GetRequestNum(uint32_t *aRequestNum) {
+  *aRequestNum = mRequestNum;
+  return NS_OK;
 }
 
-NS_IMETHODIMP nsLDAPOperation::SetRequestNum(uint32_t aRequestNum)
-{
-    mRequestNum = aRequestNum;
-    return NS_OK;
+NS_IMETHODIMP nsLDAPOperation::SetRequestNum(uint32_t aRequestNum) {
+  mRequestNum = aRequestNum;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
-nsLDAPOperation::SearchExt(const nsACString& aBaseDn, int32_t aScope,
-                           const nsACString& aFilter,
+nsLDAPOperation::SearchExt(const nsACString &aBaseDn, int32_t aScope,
+                           const nsACString &aFilter,
                            const nsACString &aAttributes,
-                           PRIntervalTime aTimeOut, int32_t aSizeLimit)
-{
-    if (!mMessageListener) {
-        NS_ERROR("nsLDAPOperation::SearchExt(): mMessageListener not set");
-        return NS_ERROR_NOT_INITIALIZED;
+                           PRIntervalTime aTimeOut, int32_t aSizeLimit) {
+  if (!mMessageListener) {
+    NS_ERROR("nsLDAPOperation::SearchExt(): mMessageListener not set");
+    return NS_ERROR_NOT_INITIALIZED;
+  }
+
+  // XXX add control logging
+  MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
+          ("nsLDAPOperation::SearchExt(): called with aBaseDn = '%s'; "
+           "aFilter = '%s'; aAttributes = %s; aSizeLimit = %d",
+           PromiseFlatCString(aBaseDn).get(), PromiseFlatCString(aFilter).get(),
+           PromiseFlatCString(aAttributes).get(), aSizeLimit));
+
+  LDAPControl **serverctls = 0;
+  nsresult rv;
+  if (mServerControls) {
+    rv = convertControlArray(mServerControls, &serverctls);
+    if (NS_FAILED(rv)) {
+      MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Error,
+              ("nsLDAPOperation::SearchExt(): error converting server "
+               "control array: %" PRIx32,
+               static_cast<uint32_t>(rv)));
+      return rv;
     }
+  }
 
-    // XXX add control logging
-    MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
-           ("nsLDAPOperation::SearchExt(): called with aBaseDn = '%s'; "
-            "aFilter = '%s'; aAttributes = %s; aSizeLimit = %d",
-            PromiseFlatCString(aBaseDn).get(),
-            PromiseFlatCString(aFilter).get(),
-            PromiseFlatCString(aAttributes).get(), aSizeLimit));
-
-    LDAPControl **serverctls = 0;
-    nsresult rv;
-    if (mServerControls) {
-        rv = convertControlArray(mServerControls, &serverctls);
-        if (NS_FAILED(rv)) {
-            MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Error,
-                   ("nsLDAPOperation::SearchExt(): error converting server "
-                    "control array: %" PRIx32, static_cast<uint32_t>(rv)));
-            return rv;
-        }
+  LDAPControl **clientctls = 0;
+  if (mClientControls) {
+    rv = convertControlArray(mClientControls, &clientctls);
+    if (NS_FAILED(rv)) {
+      MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Error,
+              ("nsLDAPOperation::SearchExt(): error converting client "
+               "control array: %" PRIx32,
+               static_cast<uint32_t>(rv)));
+      ldap_controls_free(serverctls);
+      return rv;
     }
+  }
 
-    LDAPControl **clientctls = 0;
-    if (mClientControls) {
-        rv = convertControlArray(mClientControls, &clientctls);
-        if (NS_FAILED(rv)) {
-            MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Error,
-                   ("nsLDAPOperation::SearchExt(): error converting client "
-                    "control array: %" PRIx32, static_cast<uint32_t>(rv)));
-            ldap_controls_free(serverctls);
-            return rv;
-        }
-    }
+  // Convert our comma separated string to one that the C-SDK will like, i.e.
+  // convert to a char array and add a last NULL element.
+  nsTArray<nsCString> attrArray;
+  ParseString(aAttributes, ',', attrArray);
+  char **attrs = nullptr;
+  uint32_t origLength = attrArray.Length();
+  if (origLength) {
+    attrs =
+        static_cast<char **>(moz_xmalloc((origLength + 1) * sizeof(char *)));
+    if (!attrs) return NS_ERROR_OUT_OF_MEMORY;
 
-    // Convert our comma separated string to one that the C-SDK will like, i.e.
-    // convert to a char array and add a last NULL element.
-    nsTArray<nsCString> attrArray;
-    ParseString(aAttributes, ',', attrArray);
-    char **attrs = nullptr;
-    uint32_t origLength = attrArray.Length();
-    if (origLength)
-    {
-      attrs = static_cast<char **> (moz_xmalloc((origLength + 1) * sizeof(char *)));
-      if (!attrs)
+    for (uint32_t i = 0; i < origLength; ++i)
+      attrs[i] = ToNewCString(attrArray[i]);
+
+    attrs[origLength] = 0;
+  }
+
+  // XXX deal with timeout here
+  int retVal =
+      ldap_search_ext(mConnectionHandle, PromiseFlatCString(aBaseDn).get(),
+                      aScope, PromiseFlatCString(aFilter).get(), attrs, 0,
+                      serverctls, clientctls, 0, aSizeLimit, &mMsgID);
+
+  // clean up
+  ldap_controls_free(serverctls);
+  ldap_controls_free(clientctls);
+  // The last entry is null, so no need to free that.
+  NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(origLength, attrs);
+
+  rv = TranslateLDAPErrorToNSError(retVal);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // make sure the connection knows where to call back once the messages
+  // for this operation start coming in
+  //
+  rv = mConnection->AddPendingOperation(mMsgID, this);
+  if (NS_FAILED(rv)) {
+    switch (rv) {
+      case NS_ERROR_OUT_OF_MEMORY:
+        (void)ldap_abandon_ext(mConnectionHandle, mMsgID, 0, 0);
         return NS_ERROR_OUT_OF_MEMORY;
 
-      for (uint32_t i = 0; i < origLength; ++i)
-        attrs[i] = ToNewCString(attrArray[i]);
-
-      attrs[origLength] = 0;
+      default:
+        (void)ldap_abandon_ext(mConnectionHandle, mMsgID, 0, 0);
+        NS_ERROR(
+            "nsLDAPOperation::SearchExt(): unexpected error in "
+            "mConnection->AddPendingOperation");
+        return NS_ERROR_UNEXPECTED;
     }
+  }
 
-    // XXX deal with timeout here
-    int retVal = ldap_search_ext(mConnectionHandle,
-                                 PromiseFlatCString(aBaseDn).get(),
-                                 aScope, PromiseFlatCString(aFilter).get(),
-                                 attrs, 0, serverctls, clientctls, 0,
-                                 aSizeLimit, &mMsgID);
-
-    // clean up
-    ldap_controls_free(serverctls);
-    ldap_controls_free(clientctls);
-    // The last entry is null, so no need to free that.
-    NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(origLength, attrs);
-
-    rv = TranslateLDAPErrorToNSError(retVal);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    // make sure the connection knows where to call back once the messages
-    // for this operation start coming in
-    //
-    rv = mConnection->AddPendingOperation(mMsgID, this);
-    if (NS_FAILED(rv)) {
-        switch (rv) {
-        case NS_ERROR_OUT_OF_MEMORY:
-            (void)ldap_abandon_ext(mConnectionHandle, mMsgID, 0, 0);
-            return NS_ERROR_OUT_OF_MEMORY;
-
-        default:
-            (void)ldap_abandon_ext(mConnectionHandle, mMsgID, 0, 0);
-            NS_ERROR("nsLDAPOperation::SearchExt(): unexpected error in "
-                     "mConnection->AddPendingOperation");
-            return NS_ERROR_UNEXPECTED;
-        }
-    }
-
-    return NS_OK;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
-nsLDAPOperation::GetMessageID(int32_t *aMsgID)
-{
-    if (!aMsgID) {
-        return NS_ERROR_ILLEGAL_VALUE;
-    }
+nsLDAPOperation::GetMessageID(int32_t *aMsgID) {
+  if (!aMsgID) {
+    return NS_ERROR_ILLEGAL_VALUE;
+  }
 
-    *aMsgID = mMsgID;
+  *aMsgID = mMsgID;
 
-    return NS_OK;
+  return NS_OK;
 }
 
 // as far as I can tell from reading the LDAP C SDK code, abandoning something
 // that has already been abandoned does not return an error
 //
 NS_IMETHODIMP
-nsLDAPOperation::AbandonExt()
-{
-    nsresult rv;
-    nsresult retStatus = NS_OK;
+nsLDAPOperation::AbandonExt() {
+  nsresult rv;
+  nsresult retStatus = NS_OK;
 
-    if (!mMessageListener || mMsgID == 0) {
-        NS_ERROR("nsLDAPOperation::AbandonExt(): mMessageListener or "
-                 "mMsgId not initialized");
-        return NS_ERROR_NOT_INITIALIZED;
+  if (!mMessageListener || mMsgID == 0) {
+    NS_ERROR(
+        "nsLDAPOperation::AbandonExt(): mMessageListener or "
+        "mMsgId not initialized");
+    return NS_ERROR_NOT_INITIALIZED;
+  }
+
+  // XXX handle controls here
+  if (mServerControls || mClientControls) {
+    return NS_ERROR_NOT_IMPLEMENTED;
+  }
+
+  rv = TranslateLDAPErrorToNSError(
+      ldap_abandon_ext(mConnectionHandle, mMsgID, 0, 0));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // try to remove it from the pendingOperations queue, if it's there.
+  // even if something goes wrong here, the abandon() has already succeeded
+  // succeeded (and there's nothing else the caller can reasonably do),
+  // so we only pay attention to this in debug builds.
+  //
+  // check mConnection in case we're getting bit by
+  // http://bugzilla.mozilla.org/show_bug.cgi?id=239729, wherein we
+  // theorize that ::Clearing the operation is nulling out the mConnection
+  // from another thread.
+  if (mConnection) {
+    rv = mConnection->RemovePendingOperation(mMsgID);
+
+    if (NS_FAILED(rv)) {
+      // XXXdmose should we keep AbandonExt from happening on multiple
+      // threads at the same time?  that's when this condition is most
+      // likely to occur.  i _think_ the LDAP C SDK is ok with this; need
+      // to verify.
+      //
+      NS_WARNING(
+          "nsLDAPOperation::AbandonExt: "
+          "mConnection->RemovePendingOperation(this) failed.");
     }
+  }
 
-    // XXX handle controls here
-    if (mServerControls || mClientControls) {
-        return NS_ERROR_NOT_IMPLEMENTED;
-    }
-
-    rv = TranslateLDAPErrorToNSError(ldap_abandon_ext(mConnectionHandle,
-                                                      mMsgID, 0, 0));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    // try to remove it from the pendingOperations queue, if it's there.
-    // even if something goes wrong here, the abandon() has already succeeded
-    // succeeded (and there's nothing else the caller can reasonably do),
-    // so we only pay attention to this in debug builds.
-    //
-    // check mConnection in case we're getting bit by
-    // http://bugzilla.mozilla.org/show_bug.cgi?id=239729, wherein we
-    // theorize that ::Clearing the operation is nulling out the mConnection
-    // from another thread.
-    if (mConnection)
-    {
-      rv = mConnection->RemovePendingOperation(mMsgID);
-
-      if (NS_FAILED(rv)) {
-          // XXXdmose should we keep AbandonExt from happening on multiple
-          // threads at the same time?  that's when this condition is most
-          // likely to occur.  i _think_ the LDAP C SDK is ok with this; need
-          // to verify.
-          //
-          NS_WARNING("nsLDAPOperation::AbandonExt: "
-                     "mConnection->RemovePendingOperation(this) failed.");
-      }
-    }
-
-    return retStatus;
+  return retStatus;
 }
 
 NS_IMETHODIMP
-nsLDAPOperation::GetClientControls(nsIMutableArray **aControls)
-{
-    NS_IF_ADDREF(*aControls = mClientControls);
-    return NS_OK;
+nsLDAPOperation::GetClientControls(nsIMutableArray **aControls) {
+  NS_IF_ADDREF(*aControls = mClientControls);
+  return NS_OK;
 }
 
 NS_IMETHODIMP
-nsLDAPOperation::SetClientControls(nsIMutableArray *aControls)
-{
-    mClientControls = aControls;
-    return NS_OK;
+nsLDAPOperation::SetClientControls(nsIMutableArray *aControls) {
+  mClientControls = aControls;
+  return NS_OK;
 }
 
-NS_IMETHODIMP nsLDAPOperation::GetServerControls(nsIMutableArray **aControls)
-{
-    NS_IF_ADDREF(*aControls = mServerControls);
-    return NS_OK;
+NS_IMETHODIMP nsLDAPOperation::GetServerControls(nsIMutableArray **aControls) {
+  NS_IF_ADDREF(*aControls = mServerControls);
+  return NS_OK;
 }
 
-NS_IMETHODIMP nsLDAPOperation::SetServerControls(nsIMutableArray *aControls)
-{
-    mServerControls = aControls;
-    return NS_OK;
+NS_IMETHODIMP nsLDAPOperation::SetServerControls(nsIMutableArray *aControls) {
+  mServerControls = aControls;
+  return NS_OK;
 }
 
 // wrappers for ldap_add_ext
 //
-nsresult
-nsLDAPOperation::AddExt(const char *base,
-                        nsIArray *mods,
-                        LDAPControl **serverctrls,
-                        LDAPControl **clientctrls)
-{
+nsresult nsLDAPOperation::AddExt(const char *base, nsIArray *mods,
+                                 LDAPControl **serverctrls,
+                                 LDAPControl **clientctrls) {
   if (!mMessageListener) {
     NS_ERROR("nsLDAPOperation::AddExt(): mMessageListener not set");
     return NS_ERROR_NOT_INITIALIZED;
@@ -620,8 +579,8 @@ nsLDAPOperation::AddExt(const char *base,
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (mods && modCount) {
-    attrs = static_cast<LDAPMod **>(moz_xmalloc((modCount + 1) *
-                                                       sizeof(LDAPMod *)));
+    attrs = static_cast<LDAPMod **>(
+        moz_xmalloc((modCount + 1) * sizeof(LDAPMod *)));
     if (!attrs) {
       NS_ERROR("nsLDAPOperation::AddExt: out of memory ");
       return NS_ERROR_OUT_OF_MEMORY;
@@ -632,40 +591,35 @@ nsLDAPOperation::AddExt(const char *base,
     for (index = 0; index < modCount && NS_SUCCEEDED(rv); ++index) {
       attrs[index] = new LDAPMod();
 
-      if (!attrs[index])
-        return NS_ERROR_OUT_OF_MEMORY;
+      if (!attrs[index]) return NS_ERROR_OUT_OF_MEMORY;
 
       nsCOMPtr<nsILDAPModification> modif(do_QueryElementAt(mods, index, &rv));
-      if (NS_FAILED(rv))
-        break;
+      if (NS_FAILED(rv)) break;
 
 #ifdef NS_DEBUG
       int32_t operation;
       NS_ASSERTION(NS_SUCCEEDED(modif->GetOperation(&operation)) &&
-                   ((operation & ~LDAP_MOD_BVALUES) == LDAP_MOD_ADD),
+                       ((operation & ~LDAP_MOD_BVALUES) == LDAP_MOD_ADD),
                    "AddExt can only add.");
 #endif
 
       attrs[index]->mod_op = LDAP_MOD_ADD | LDAP_MOD_BVALUES;
 
       nsresult rv = modif->GetType(type);
-      if (NS_FAILED(rv))
-        break;
+      if (NS_FAILED(rv)) break;
 
       attrs[index]->mod_type = ToNewCString(type);
 
       rv = CopyValues(modif, &attrs[index]->mod_bvalues);
-      if (NS_FAILED(rv))
-        break;
+      if (NS_FAILED(rv)) break;
     }
 
     if (NS_SUCCEEDED(rv)) {
       attrs[modCount] = 0;
 
-      retVal = ldap_add_ext(mConnectionHandle, base, attrs,
-                            serverctrls, clientctrls, &mMsgID);
-    }
-    else
+      retVal = ldap_add_ext(mConnectionHandle, base, attrs, serverctrls,
+                            clientctrls, &mMsgID);
+    } else
       // reset the modCount so we correctly free the array.
       modCount = index;
   }
@@ -691,16 +645,13 @@ nsLDAPOperation::AddExt(const char *base,
  *              [array, size_is (aModCount)] in nsILDAPModification aMods);
  */
 NS_IMETHODIMP
-nsLDAPOperation::AddExt(const nsACString& aBaseDn,
-                        nsIArray *aMods)
-{
+nsLDAPOperation::AddExt(const nsACString &aBaseDn, nsIArray *aMods) {
   MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
-         ("nsLDAPOperation::AddExt(): called with aBaseDn = '%s'",
-          PromiseFlatCString(aBaseDn).get()));
+          ("nsLDAPOperation::AddExt(): called with aBaseDn = '%s'",
+           PromiseFlatCString(aBaseDn).get()));
 
   nsresult rv = AddExt(PromiseFlatCString(aBaseDn).get(), aMods, 0, 0);
-  if (NS_FAILED(rv))
-    return rv;
+  if (NS_FAILED(rv)) return rv;
 
   // make sure the connection knows where to call back once the messages
   // for this operation start coming in
@@ -709,27 +660,23 @@ nsLDAPOperation::AddExt(const nsACString& aBaseDn,
   if (NS_FAILED(rv)) {
     (void)ldap_abandon_ext(mConnectionHandle, mMsgID, 0, 0);
     MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
-           ("nsLDAPOperation::AddExt(): abandoned due to rv %" PRIx32,
-            static_cast<uint32_t>(rv)));
+            ("nsLDAPOperation::AddExt(): abandoned due to rv %" PRIx32,
+             static_cast<uint32_t>(rv)));
   }
   return rv;
 }
 
 // wrappers for ldap_delete_ext
 //
-nsresult
-nsLDAPOperation::DeleteExt(const char *base,
-                           LDAPControl **serverctrls,
-                           LDAPControl **clientctrls)
-{
+nsresult nsLDAPOperation::DeleteExt(const char *base, LDAPControl **serverctrls,
+                                    LDAPControl **clientctrls) {
   if (!mMessageListener) {
     NS_ERROR("nsLDAPOperation::DeleteExt(): mMessageListener not set");
     return NS_ERROR_NOT_INITIALIZED;
   }
 
-  return TranslateLDAPErrorToNSError(ldap_delete_ext(mConnectionHandle, base,
-                                                     serverctrls, clientctrls,
-                                                     &mMsgID));
+  return TranslateLDAPErrorToNSError(ldap_delete_ext(
+      mConnectionHandle, base, serverctrls, clientctrls, &mMsgID));
 }
 
 /**
@@ -742,15 +689,13 @@ nsLDAPOperation::DeleteExt(const char *base,
  * void deleteExt(in AUTF8String aBaseDn);
  */
 NS_IMETHODIMP
-nsLDAPOperation::DeleteExt(const nsACString& aBaseDn)
-{
+nsLDAPOperation::DeleteExt(const nsACString &aBaseDn) {
   MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
-         ("nsLDAPOperation::DeleteExt(): called with aBaseDn = '%s'",
-          PromiseFlatCString(aBaseDn).get()));
+          ("nsLDAPOperation::DeleteExt(): called with aBaseDn = '%s'",
+           PromiseFlatCString(aBaseDn).get()));
 
   nsresult rv = DeleteExt(PromiseFlatCString(aBaseDn).get(), 0, 0);
-  if (NS_FAILED(rv))
-    return rv;
+  if (NS_FAILED(rv)) return rv;
 
   // make sure the connection knows where to call back once the messages
   // for this operation start coming in
@@ -759,20 +704,17 @@ nsLDAPOperation::DeleteExt(const nsACString& aBaseDn)
   if (NS_FAILED(rv)) {
     (void)ldap_abandon_ext(mConnectionHandle, mMsgID, 0, 0);
     MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
-           ("nsLDAPOperation::AddExt(): abandoned due to rv %" PRIx32,
-            static_cast<uint32_t>(rv)));
+            ("nsLDAPOperation::AddExt(): abandoned due to rv %" PRIx32,
+             static_cast<uint32_t>(rv)));
   }
   return rv;
 }
 
 // wrappers for ldap_modify_ext
 //
-nsresult
-nsLDAPOperation::ModifyExt(const char *base,
-                           nsIArray *mods,
-                           LDAPControl **serverctrls,
-                           LDAPControl **clientctrls)
-{
+nsresult nsLDAPOperation::ModifyExt(const char *base, nsIArray *mods,
+                                    LDAPControl **serverctrls,
+                                    LDAPControl **clientctrls) {
   if (!mMessageListener) {
     NS_ERROR("nsLDAPOperation::ModifyExt(): mMessageListener not set");
     return NS_ERROR_NOT_INITIALIZED;
@@ -784,8 +726,8 @@ nsLDAPOperation::ModifyExt(const char *base,
   nsresult rv = mods->GetLength(&modCount);
   NS_ENSURE_SUCCESS(rv, rv);
   if (modCount && mods) {
-    attrs = static_cast<LDAPMod **>(moz_xmalloc((modCount + 1) *
-                                                       sizeof(LDAPMod *)));
+    attrs = static_cast<LDAPMod **>(
+        moz_xmalloc((modCount + 1) * sizeof(LDAPMod *)));
     if (!attrs) {
       NS_ERROR("nsLDAPOperation::ModifyExt: out of memory ");
       return NS_ERROR_OUT_OF_MEMORY;
@@ -795,41 +737,34 @@ nsLDAPOperation::ModifyExt(const char *base,
     uint32_t index;
     for (index = 0; index < modCount && NS_SUCCEEDED(rv); ++index) {
       attrs[index] = new LDAPMod();
-      if (!attrs[index])
-        return NS_ERROR_OUT_OF_MEMORY;
+      if (!attrs[index]) return NS_ERROR_OUT_OF_MEMORY;
 
       nsCOMPtr<nsILDAPModification> modif(do_QueryElementAt(mods, index, &rv));
-      if (NS_FAILED(rv))
-        break;
+      if (NS_FAILED(rv)) break;
 
       int32_t operation;
       nsresult rv = modif->GetOperation(&operation);
-      if (NS_FAILED(rv))
-        break;
+      if (NS_FAILED(rv)) break;
 
       attrs[index]->mod_op = operation | LDAP_MOD_BVALUES;
 
       rv = modif->GetType(type);
-      if (NS_FAILED(rv))
-        break;
+      if (NS_FAILED(rv)) break;
 
       attrs[index]->mod_type = ToNewCString(type);
 
       rv = CopyValues(modif, &attrs[index]->mod_bvalues);
-      if (NS_FAILED(rv))
-        break;
+      if (NS_FAILED(rv)) break;
     }
 
     if (NS_SUCCEEDED(rv)) {
       attrs[modCount] = 0;
 
-      retVal = ldap_modify_ext(mConnectionHandle, base, attrs,
-                               serverctrls, clientctrls, &mMsgID);
-    }
-    else
+      retVal = ldap_modify_ext(mConnectionHandle, base, attrs, serverctrls,
+                               clientctrls, &mMsgID);
+    } else
       // reset the modCount so we correctly free the array.
       modCount = index;
-
   }
 
   for (uint32_t counter = 0; counter < modCount; ++counter)
@@ -853,17 +788,13 @@ nsLDAPOperation::ModifyExt(const char *base,
  *                 [array, size_is (aModCount)] in nsILDAPModification aMods);
  */
 NS_IMETHODIMP
-nsLDAPOperation::ModifyExt(const nsACString& aBaseDn,
-                           nsIArray *aMods)
-{
+nsLDAPOperation::ModifyExt(const nsACString &aBaseDn, nsIArray *aMods) {
   MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
-         ("nsLDAPOperation::ModifyExt(): called with aBaseDn = '%s'",
-          PromiseFlatCString(aBaseDn).get()));
+          ("nsLDAPOperation::ModifyExt(): called with aBaseDn = '%s'",
+           PromiseFlatCString(aBaseDn).get()));
 
-  nsresult rv = ModifyExt(PromiseFlatCString(aBaseDn).get(),
-                          aMods, 0, 0);
-  if (NS_FAILED(rv))
-    return rv;
+  nsresult rv = ModifyExt(PromiseFlatCString(aBaseDn).get(), aMods, 0, 0);
+  if (NS_FAILED(rv)) return rv;
 
   // make sure the connection knows where to call back once the messages
   // for this operation start coming in
@@ -872,31 +803,26 @@ nsLDAPOperation::ModifyExt(const nsACString& aBaseDn,
   if (NS_FAILED(rv)) {
     (void)ldap_abandon_ext(mConnectionHandle, mMsgID, 0, 0);
     MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
-           ("nsLDAPOperation::AddExt(): abandoned due to rv %" PRIx32,
-            static_cast<uint32_t>(rv)));
+            ("nsLDAPOperation::AddExt(): abandoned due to rv %" PRIx32,
+             static_cast<uint32_t>(rv)));
   }
   return rv;
 }
 
 // wrappers for ldap_rename
 //
-nsresult
-nsLDAPOperation::Rename(const char *base,
-                        const char *newRDn,
-                        const char *newParent,
-                        bool deleteOldRDn,
-                        LDAPControl **serverctrls,
-                        LDAPControl **clientctrls)
-{
+nsresult nsLDAPOperation::Rename(const char *base, const char *newRDn,
+                                 const char *newParent, bool deleteOldRDn,
+                                 LDAPControl **serverctrls,
+                                 LDAPControl **clientctrls) {
   if (!mMessageListener) {
     NS_ERROR("nsLDAPOperation::Rename(): mMessageListener not set");
     return NS_ERROR_NOT_INITIALIZED;
   }
 
-  return TranslateLDAPErrorToNSError(ldap_rename(mConnectionHandle, base,
-                                                 newRDn, newParent,
-                                                 deleteOldRDn, serverctrls,
-                                                 clientctrls, &mMsgID));
+  return TranslateLDAPErrorToNSError(
+      ldap_rename(mConnectionHandle, base, newRDn, newParent, deleteOldRDn,
+                  serverctrls, clientctrls, &mMsgID));
 }
 
 /**
@@ -912,21 +838,16 @@ nsLDAPOperation::Rename(const char *base,
  *             in AUTF8String aNewParent, in boolean aDeleteOldRDn);
  */
 NS_IMETHODIMP
-nsLDAPOperation::Rename(const nsACString& aBaseDn,
-                        const nsACString& aNewRDn,
-                        const nsACString& aNewParent,
-                        bool aDeleteOldRDn)
-{
+nsLDAPOperation::Rename(const nsACString &aBaseDn, const nsACString &aNewRDn,
+                        const nsACString &aNewParent, bool aDeleteOldRDn) {
   MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
-         ("nsLDAPOperation::Rename(): called with aBaseDn = '%s'",
-          PromiseFlatCString(aBaseDn).get()));
+          ("nsLDAPOperation::Rename(): called with aBaseDn = '%s'",
+           PromiseFlatCString(aBaseDn).get()));
 
-  nsresult rv = Rename(PromiseFlatCString(aBaseDn).get(),
-                       PromiseFlatCString(aNewRDn).get(),
-                       PromiseFlatCString(aNewParent).get(),
-                       aDeleteOldRDn, 0, 0);
-  if (NS_FAILED(rv))
-    return rv;
+  nsresult rv = Rename(
+      PromiseFlatCString(aBaseDn).get(), PromiseFlatCString(aNewRDn).get(),
+      PromiseFlatCString(aNewParent).get(), aDeleteOldRDn, 0, 0);
+  if (NS_FAILED(rv)) return rv;
 
   // make sure the connection knows where to call back once the messages
   // for this operation start coming in
@@ -935,8 +856,8 @@ nsLDAPOperation::Rename(const nsACString& aBaseDn,
   if (NS_FAILED(rv)) {
     (void)ldap_abandon_ext(mConnectionHandle, mMsgID, 0, 0);
     MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
-           ("nsLDAPOperation::AddExt(): abandoned due to rv %" PRIx32,
-            static_cast<uint32_t>(rv)));
+            ("nsLDAPOperation::AddExt(): abandoned due to rv %" PRIx32,
+             static_cast<uint32_t>(rv)));
   }
   return rv;
 }
@@ -945,9 +866,8 @@ nsLDAPOperation::Rename(const nsACString& aBaseDn,
 //
 
 /* static */
-nsresult
-nsLDAPOperation::CopyValues(nsILDAPModification* aMod, berval*** aBValues)
-{
+nsresult nsLDAPOperation::CopyValues(nsILDAPModification *aMod,
+                                     berval ***aBValues) {
   nsCOMPtr<nsIArray> values;
   nsresult rv = aMod->GetValues(getter_AddRefs(values));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -956,20 +876,17 @@ nsLDAPOperation::CopyValues(nsILDAPModification* aMod, berval*** aBValues)
   rv = values->GetLength(&valuesCount);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  *aBValues = static_cast<berval **>
-                         (moz_xmalloc((valuesCount + 1) *
-                                             sizeof(berval *)));
-  if (!*aBValues)
-    return NS_ERROR_OUT_OF_MEMORY;
+  *aBValues =
+      static_cast<berval **>(moz_xmalloc((valuesCount + 1) * sizeof(berval *)));
+  if (!*aBValues) return NS_ERROR_OUT_OF_MEMORY;
 
   uint32_t valueIndex;
   for (valueIndex = 0; valueIndex < valuesCount; ++valueIndex) {
     nsCOMPtr<nsILDAPBERValue> value(do_QueryElementAt(values, valueIndex, &rv));
 
-    berval* bval = new berval;
+    berval *bval = new berval;
     if (NS_FAILED(rv) || !bval) {
-      for (uint32_t counter = 0;
-           counter < valueIndex && counter < valuesCount;
+      for (uint32_t counter = 0; counter < valueIndex && counter < valuesCount;
            ++counter)
         delete (*aBValues)[valueIndex];
 
@@ -977,8 +894,7 @@ nsLDAPOperation::CopyValues(nsILDAPModification* aMod, berval*** aBValues)
       delete bval;
       return NS_ERROR_OUT_OF_MEMORY;
     }
-    value->Get((uint32_t*)&bval->bv_len,
-               (uint8_t**)&bval->bv_val);
+    value->Get((uint32_t *)&bval->bv_len, (uint8_t **)&bval->bv_val);
     (*aBValues)[valueIndex] = bval;
   }
 

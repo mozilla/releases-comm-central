@@ -11,13 +11,15 @@
 #include "ldap.h"
 
 // {5B608BBE-C0EA-4f74-B209-9CDCD79EC401}
-#define NS_LDAPCONTROL_CID \
-  { 0x5b608bbe, 0xc0ea, 0x4f74, \
-      { 0xb2, 0x9, 0x9c, 0xdc, 0xd7, 0x9e, 0xc4, 0x1 } }
+#define NS_LDAPCONTROL_CID                         \
+  {                                                \
+    0x5b608bbe, 0xc0ea, 0x4f74, {                  \
+      0xb2, 0x9, 0x9c, 0xdc, 0xd7, 0x9e, 0xc4, 0x1 \
+    }                                              \
+  }
 
-class nsLDAPControl final : public nsILDAPControl
-{
-public:
+class nsLDAPControl final : public nsILDAPControl {
+ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSILDAPCONTROL
 
@@ -32,11 +34,11 @@ public:
    */
   nsresult ToLDAPControl(LDAPControl **aControl);
 
-private:
+ private:
   ~nsLDAPControl();
 
-protected:
+ protected:
   nsCOMPtr<nsILDAPBERValue> mValue;  // the value portion of this control
-  bool mIsCritical;      // should server abort if control not understood?
-  nsCString mOid;          // Object ID for this control
+  bool mIsCritical;  // should server abort if control not understood?
+  nsCString mOid;    // Object ID for this control
 };

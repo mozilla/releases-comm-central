@@ -14,13 +14,15 @@
 
 // 5b0f4d00-062e-11d6-a7f2-fc943c3c039c
 //
-#define NS_LDAPMODIFICATION_CID \
-{ 0x5b0f4d00, 0x062e, 0x11d6, \
-  { 0xa7, 0xf2, 0xfc, 0x94, 0x3c, 0x3c, 0x03, 0x9c }}
+#define NS_LDAPMODIFICATION_CID                      \
+  {                                                  \
+    0x5b0f4d00, 0x062e, 0x11d6, {                    \
+      0xa7, 0xf2, 0xfc, 0x94, 0x3c, 0x3c, 0x03, 0x9c \
+    }                                                \
+  }
 
-class nsLDAPModification : public nsILDAPModification
-{
-public:
+class nsLDAPModification : public nsILDAPModification {
+ public:
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSILDAPMODIFICATION
 
@@ -30,7 +32,7 @@ public:
 
   nsresult Init();
 
-private:
+ private:
   virtual ~nsLDAPModification();
 
   int32_t mOperation;
@@ -39,4 +41,4 @@ private:
   mozilla::Mutex mValuesLock;
 };
 
-#endif // _nsLDAPModification_h_
+#endif  // _nsLDAPModification_h_

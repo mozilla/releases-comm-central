@@ -37,94 +37,75 @@
 #include "ldap-int.h"
 
 /* ldap_whoami */
-int
-LDAP_CALL
-ldap_whoami ( 	
-				LDAP          *ld, 
-				LDAPControl   **serverctrls,
-				LDAPControl   **clientctrls,
-				int           *msgidp
-												)
-{
-	int				rc;
-	struct berval   *requestdata = NULL;
-	
-	if ( !NSLDAPI_VALID_LDAP_POINTER( ld )) {
-		LDAP_SET_LDERRNO( ld, LDAP_PARAM_ERROR, NULL, NULL );
-		return( LDAP_PARAM_ERROR );
-	}
-	
-	rc = ldap_extended_operation( ld, LDAP_EXOP_WHO_AM_I, requestdata, 
-									serverctrls, clientctrls, msgidp );
-	
-	return( rc );
+int LDAP_CALL ldap_whoami(LDAP *ld, LDAPControl **serverctrls,
+                          LDAPControl **clientctrls, int *msgidp) {
+  int rc;
+  struct berval *requestdata = NULL;
+
+  if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
+    LDAP_SET_LDERRNO(ld, LDAP_PARAM_ERROR, NULL, NULL);
+    return (LDAP_PARAM_ERROR);
+  }
+
+  rc = ldap_extended_operation(ld, LDAP_EXOP_WHO_AM_I, requestdata, serverctrls,
+                               clientctrls, msgidp);
+
+  return (rc);
 }
 
 /* ldap_parse_whoami */
-int
-LDAP_CALL
-ldap_parse_whoami ( 	
-						LDAP			*ld, 
-						LDAPMessage		*result,
-						struct berval	**authzid
-													)
-{	
-	int				rc;
-	char			*retoidp = NULL;
-	
-	if ( !NSLDAPI_VALID_LDAP_POINTER( ld )) {
-		LDAP_SET_LDERRNO( ld, LDAP_PARAM_ERROR, NULL, NULL );
-		return( LDAP_PARAM_ERROR );
-	}
-	if ( !result ) {
-		LDAP_SET_LDERRNO( ld, LDAP_PARAM_ERROR, NULL, NULL );
-		return( LDAP_PARAM_ERROR );
-	}
-	
-	*authzid = NULL;
-	
-	rc = ldap_parse_extended_result( ld, result, &retoidp, authzid, 0 );
-	
-	if ( rc != LDAP_SUCCESS ) {
-		return( rc );
-    }
-	
-	ldap_memfree( retoidp );
-	return( LDAP_SUCCESS );
+int LDAP_CALL ldap_parse_whoami(LDAP *ld, LDAPMessage *result,
+                                struct berval **authzid) {
+  int rc;
+  char *retoidp = NULL;
+
+  if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
+    LDAP_SET_LDERRNO(ld, LDAP_PARAM_ERROR, NULL, NULL);
+    return (LDAP_PARAM_ERROR);
+  }
+  if (!result) {
+    LDAP_SET_LDERRNO(ld, LDAP_PARAM_ERROR, NULL, NULL);
+    return (LDAP_PARAM_ERROR);
+  }
+
+  *authzid = NULL;
+
+  rc = ldap_parse_extended_result(ld, result, &retoidp, authzid, 0);
+
+  if (rc != LDAP_SUCCESS) {
+    return (rc);
+  }
+
+  ldap_memfree(retoidp);
+  return (LDAP_SUCCESS);
 }
 
 /* ldap_whoami_s */
-int
-LDAP_CALL
-ldap_whoami_s ( 	
-				LDAP          *ld,
-				struct berval **authzid,
-				LDAPControl   **serverctrls,
-				LDAPControl   **clientctrls
-												)
-{
-	int			rc;
-	int			msgid;
-	LDAPMessage	*result = NULL;
-	
-	if ( !NSLDAPI_VALID_LDAP_POINTER( ld )) {
-		LDAP_SET_LDERRNO( ld, LDAP_PARAM_ERROR, NULL, NULL );
-		return( LDAP_PARAM_ERROR );
-	}	
-	
-	rc = ldap_whoami( ld, serverctrls, clientctrls, &msgid );
-	if ( rc != LDAP_SUCCESS ) {
-		return( rc );
-	}
-	
-	rc = ldap_result( ld, msgid, LDAP_MSG_ALL, NULL, &result );
-	if ( rc == -1 ) {
-		return( LDAP_GET_LDERRNO( ld, NULL, NULL ) );
-	}
+int LDAP_CALL ldap_whoami_s(LDAP *ld, struct berval **authzid,
+                            LDAPControl **serverctrls,
+                            LDAPControl **clientctrls) {
+  int rc;
+  int msgid;
+  LDAPMessage *result = NULL;
 
-	rc = ldap_parse_whoami( ld, result, authzid );
-	
-	ldap_msgfree( result );
-	
-	return( rc );
+  if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
+    LDAP_SET_LDERRNO(ld, LDAP_PARAM_ERROR, NULL, NULL);
+    return (LDAP_PARAM_ERROR);
+  }
+
+  rc = ldap_whoami(ld, serverctrls, clientctrls, &msgid);
+  if (rc != LDAP_SUCCESS) {
+    return (rc);
+  }
+
+  rc = ldap_result(ld, msgid, LDAP_MSG_ALL, NULL, &result);
+  if (rc == -1) {
+    return (LDAP_GET_LDERRNO(ld, NULL, NULL));
+  }
+
+  rc = ldap_parse_whoami(ld, result, authzid);
+
+  ldap_msgfree(result);
+
+  return (rc);
 }

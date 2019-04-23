@@ -37,58 +37,66 @@
 
 /* lcache.h - ldap persistent cache */
 #ifndef _LCACHE_H
-#define _LCACHE_H
+#  define _LCACHE_H
 
-#ifdef __cplusplus
+#  ifdef __cplusplus
 extern "C" {
-#endif
+#  endif
 
 /* calling conventions used by library */
-#ifndef LDAP_CALL
-#if defined( _WINDOWS ) || defined( _WIN32 )
-#define LDAP_C __cdecl
-#ifndef _WIN32
-#define __stdcall _far _pascal
-#define LDAP_CALLBACK _loadds
-#else
-#define LDAP_CALLBACK
-#endif /* _WIN32 */
-#define LDAP_PASCAL __stdcall
-#define LDAP_CALL LDAP_PASCAL
-#else /* _WINDOWS */
-#define LDAP_C
-#define LDAP_CALLBACK
-#define LDAP_PASCAL
-#define LDAP_CALL
-#endif /* _WINDOWS */
-#endif /* LDAP_CALL */
+#  ifndef LDAP_CALL
+#    if defined(_WINDOWS) || defined(_WIN32)
+#      define LDAP_C __cdecl
+#      ifndef _WIN32
+#        define __stdcall _far _pascal
+#        define LDAP_CALLBACK _loadds
+#      else
+#        define LDAP_CALLBACK
+#      endif /* _WIN32 */
+#      define LDAP_PASCAL __stdcall
+#      define LDAP_CALL LDAP_PASCAL
+#    else /* _WINDOWS */
+#      define LDAP_C
+#      define LDAP_CALLBACK
+#      define LDAP_PASCAL
+#      define LDAP_CALL
+#    endif /* _WINDOWS */
+#  endif   /* LDAP_CALL */
 
-LDAP_API(int) LDAP_C lcache_init( LDAP *ld, void *arg );
-LDAP_API(int) LDAP_C lcache_bind( LDAP *ld, int msgid, unsigned long tag,
-  const char *dn, struct berval *cred, int method );
-LDAP_API(int) LDAP_C lcache_unbind( LDAP *ld, int msgid, unsigned long tag );
-LDAP_API(int) LDAP_C lcache_search( LDAP *ld, int msgid, unsigned long tag,
-  const char *dn, int scope, const char *filter, char **attrs,
-  int attrsonly );
-LDAP_API(int) LDAP_C lcache_compare( LDAP *ld, int msgid, unsigned long tag,
-  const char *dn, const char *attr, struct berval *val );
-LDAP_API(int) LDAP_C lcache_add( LDAP *ld, int msgid, unsigned long tag,
-  const char *dn, LDAPMod **entry );
-LDAP_API(int) LDAP_C lcache_delete( LDAP *ld, int msgid, unsigned long tag,
-  const char *dn );
-LDAP_API(int) LDAP_C lcache_rename( LDAP *ld, int msgid, unsigned long tag,
-  const char *dn, const char *newrdn, const char *newparent,
-  int deleteoldrdn );
-LDAP_API(int) LDAP_C lcache_modify( LDAP *ld, int msgid, unsigned long tag,
-  const char *dn, LDAPMod **mods );
-LDAP_API(int) LDAP_C lcache_modrdn( LDAP *ld, int msgid, unsigned long tag,
-  const char *dn, const char *newrdn, int deleteoldrdn );
-LDAP_API(int) LDAP_C lcache_result( LDAP *ld, int msgid, int all,
-  struct timeval *timeout, LDAPMessage **result );
-LDAP_API(int) LDAP_C lcache_flush( LDAP *ld, char *dn, char *filter );
+LDAP_API(int) LDAP_C lcache_init(LDAP *ld, void *arg);
+LDAP_API(int)
+LDAP_C lcache_bind(LDAP *ld, int msgid, unsigned long tag, const char *dn,
+                   struct berval *cred, int method);
+LDAP_API(int) LDAP_C lcache_unbind(LDAP *ld, int msgid, unsigned long tag);
+LDAP_API(int)
+LDAP_C
+    lcache_search(LDAP *ld, int msgid, unsigned long tag, const char *dn,
+                  int scope, const char *filter, char **attrs, int attrsonly);
+LDAP_API(int)
+LDAP_C lcache_compare(LDAP *ld, int msgid, unsigned long tag, const char *dn,
+                      const char *attr, struct berval *val);
+LDAP_API(int)
+LDAP_C lcache_add(LDAP *ld, int msgid, unsigned long tag, const char *dn,
+                  LDAPMod **entry);
+LDAP_API(int)
+LDAP_C lcache_delete(LDAP *ld, int msgid, unsigned long tag, const char *dn);
+LDAP_API(int)
+LDAP_C
+    lcache_rename(LDAP *ld, int msgid, unsigned long tag, const char *dn,
+                  const char *newrdn, const char *newparent, int deleteoldrdn);
+LDAP_API(int)
+LDAP_C lcache_modify(LDAP *ld, int msgid, unsigned long tag, const char *dn,
+                     LDAPMod **mods);
+LDAP_API(int)
+LDAP_C lcache_modrdn(LDAP *ld, int msgid, unsigned long tag, const char *dn,
+                     const char *newrdn, int deleteoldrdn);
+LDAP_API(int)
+LDAP_C lcache_result(LDAP *ld, int msgid, int all, struct timeval *timeout,
+                     LDAPMessage **result);
+LDAP_API(int) LDAP_C lcache_flush(LDAP *ld, char *dn, char *filter);
 
-#ifdef __cplusplus
+#  ifdef __cplusplus
 }
-#endif
+#  endif
 
 #endif /* _LCACHE_H */

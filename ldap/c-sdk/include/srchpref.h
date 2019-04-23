@@ -49,33 +49,32 @@
  * searchpref.h:  display template library defines
  */
 
-
 #ifndef _SRCHPREF_H
-#define _SRCHPREF_H
+#  define _SRCHPREF_H
 
-#ifdef __cplusplus
+#  ifdef __cplusplus
 extern "C" {
-#endif
+#  endif
 
 /* calling conventions used by library */
-#ifndef LDAP_CALL
-#if defined( _WINDOWS ) || defined( _WIN32 )
-#define LDAP_C __cdecl
-#ifndef _WIN32
-#define __stdcall _far _pascal
-#define LDAP_CALLBACK _loadds
-#else
-#define LDAP_CALLBACK
-#endif /* _WIN32 */
-#define LDAP_PASCAL __stdcall
-#define LDAP_CALL LDAP_PASCAL
-#else /* _WINDOWS */
-#define LDAP_C
-#define LDAP_CALLBACK
-#define LDAP_PASCAL
-#define LDAP_CALL
-#endif /* _WINDOWS */
-#endif /* LDAP_CALL */
+#  ifndef LDAP_CALL
+#    if defined(_WINDOWS) || defined(_WIN32)
+#      define LDAP_C __cdecl
+#      ifndef _WIN32
+#        define __stdcall _far _pascal
+#        define LDAP_CALLBACK _loadds
+#      else
+#        define LDAP_CALLBACK
+#      endif /* _WIN32 */
+#      define LDAP_PASCAL __stdcall
+#      define LDAP_CALL LDAP_PASCAL
+#    else /* _WINDOWS */
+#      define LDAP_C
+#      define LDAP_CALLBACK
+#      define LDAP_PASCAL
+#      define LDAP_CALL
+#    endif /* _WINDOWS */
+#  endif   /* LDAP_CALL */
 
 struct ldap_searchattr {
   char *sa_attrlabel;
@@ -107,48 +106,46 @@ struct ldap_searchobj {
   struct ldap_searchobj *so_next;
 };
 
-#define NULLSEARCHOBJ ((struct ldap_searchobj *)0)
+#  define NULLSEARCHOBJ ((struct ldap_searchobj *)0)
 
 /*
  * global search object options
  */
-#define LDAP_SEARCHOBJ_OPT_INTERNAL 0x00000001
+#  define LDAP_SEARCHOBJ_OPT_INTERNAL 0x00000001
 
-#define LDAP_IS_SEARCHOBJ_OPTION_SET( so, option ) \
-  (((so)->so_options & option ) != 0 )
+#  define LDAP_IS_SEARCHOBJ_OPTION_SET(so, option) \
+    (((so)->so_options & option) != 0)
 
-#define LDAP_SEARCHPREF_VERSION_ZERO 0
-#define LDAP_SEARCHPREF_VERSION 1
+#  define LDAP_SEARCHPREF_VERSION_ZERO 0
+#  define LDAP_SEARCHPREF_VERSION 1
 
-#define LDAP_SEARCHPREF_ERR_VERSION 1
-#define LDAP_SEARCHPREF_ERR_MEM 2
-#define LDAP_SEARCHPREF_ERR_SYNTAX 3
-#define LDAP_SEARCHPREF_ERR_FILE 4
-
-
-LDAP_API(int)
-LDAP_CALL
-ldap_init_searchprefs( char *file, struct ldap_searchobj **solistp );
+#  define LDAP_SEARCHPREF_ERR_VERSION 1
+#  define LDAP_SEARCHPREF_ERR_MEM 2
+#  define LDAP_SEARCHPREF_ERR_SYNTAX 3
+#  define LDAP_SEARCHPREF_ERR_FILE 4
 
 LDAP_API(int)
 LDAP_CALL
-ldap_init_searchprefs_buf( char *buf, long buflen,
-  struct ldap_searchobj **solistp );
+ldap_init_searchprefs(char *file, struct ldap_searchobj **solistp);
+
+LDAP_API(int)
+LDAP_CALL
+ldap_init_searchprefs_buf(char *buf, long buflen,
+                          struct ldap_searchobj **solistp);
 
 LDAP_API(void)
 LDAP_CALL
-ldap_free_searchprefs( struct ldap_searchobj *solist );
+ldap_free_searchprefs(struct ldap_searchobj *solist);
 
 LDAP_API(struct ldap_searchobj *)
 LDAP_CALL
-ldap_first_searchobj( struct ldap_searchobj *solist );
+ldap_first_searchobj(struct ldap_searchobj *solist);
 
 LDAP_API(struct ldap_searchobj *)
 LDAP_CALL
-ldap_next_searchobj( struct ldap_searchobj *sollist,
-  struct ldap_searchobj *so );
+ldap_next_searchobj(struct ldap_searchobj *sollist, struct ldap_searchobj *so);
 
-#ifdef __cplusplus
+#  ifdef __cplusplus
 }
-#endif
+#  endif
 #endif /* _SRCHPREF_H */

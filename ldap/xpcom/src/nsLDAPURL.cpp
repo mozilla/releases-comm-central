@@ -21,29 +21,21 @@ NS_NAMED_LITERAL_CSTRING(LDAP_SSL_SCHEME, "ldaps");
 
 NS_IMPL_ISUPPORTS(nsLDAPURL, nsILDAPURL, nsIURI)
 
-nsLDAPURL::nsLDAPURL()
-    : mScope(SCOPE_BASE),
-      mOptions(0)
-{
-}
+nsLDAPURL::nsLDAPURL() : mScope(SCOPE_BASE), mOptions(0) {}
 
-nsLDAPURL::~nsLDAPURL()
-{
-}
+nsLDAPURL::~nsLDAPURL() {}
 
-nsresult
-nsLDAPURL::Init(uint32_t aUrlType, int32_t aDefaultPort,
-                const nsACString &aSpec, const char* aOriginCharset,
-                nsIURI *aBaseURI)
-{
+nsresult nsLDAPURL::Init(uint32_t aUrlType, int32_t aDefaultPort,
+                         const nsACString &aSpec, const char *aOriginCharset,
+                         nsIURI *aBaseURI) {
   nsresult rv;
   nsCOMPtr<nsIURI> base(aBaseURI);
   rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
-         .Apply(NS_MutatorMethod(&nsIStandardURLMutator::Init,
-                                 nsIStandardURL::URLTYPE_STANDARD,
-                                 aDefaultPort, PromiseFlatCString(aSpec),
-                                 aOriginCharset, base, nullptr))
-         .Finalize(mBaseURL);
+           .Apply(NS_MutatorMethod(&nsIStandardURLMutator::Init,
+                                   nsIStandardURL::URLTYPE_STANDARD,
+                                   aDefaultPort, PromiseFlatCString(aSpec),
+                                   aOriginCharset, base, nullptr))
+           .Finalize(mBaseURL);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Now get the spec from the mBaseURL in case it was a relative one
@@ -54,43 +46,34 @@ nsLDAPURL::Init(uint32_t aUrlType, int32_t aDefaultPort,
   return SetSpecInternal(spec);
 }
 
-void
-nsLDAPURL::GetPathInternal(nsCString &aPath)
-{
+void nsLDAPURL::GetPathInternal(nsCString &aPath) {
   aPath.Assign('/');
 
-  if (!mDN.IsEmpty())
-    aPath.Append(mDN);
+  if (!mDN.IsEmpty()) aPath.Append(mDN);
 
-  if (!mAttributes.IsEmpty())
-    aPath.Append('?');
+  if (!mAttributes.IsEmpty()) aPath.Append('?');
 
   // If mAttributes isn't empty, cut off the internally stored commas at start
   // and end, and append to the path.
   if (!mAttributes.IsEmpty())
     aPath.Append(Substring(mAttributes, 1, mAttributes.Length() - 2));
 
-  if (mScope || !mFilter.IsEmpty())
-  {
+  if (mScope || !mFilter.IsEmpty()) {
     aPath.Append((mAttributes.IsEmpty() ? "??" : "?"));
-    if (mScope)
-    {
+    if (mScope) {
       if (mScope == SCOPE_ONELEVEL)
         aPath.Append("one");
       else if (mScope == SCOPE_SUBTREE)
         aPath.Append("sub");
     }
-    if (!mFilter.IsEmpty())
-    {
+    if (!mFilter.IsEmpty()) {
       aPath.Append('?');
       aPath.Append(mFilter);
     }
   }
 }
 
-nsresult
-nsLDAPURL::SetPathInternal(const nsCString &aPath)
-{
+nsresult nsLDAPURL::SetPathInternal(const nsCString &aPath) {
   LDAPURLDesc *desc;
 
   // This is from the LDAP C-SDK, which currently doesn't
@@ -98,32 +81,31 @@ nsLDAPURL::SetPathInternal(const nsCString &aPath)
   //
   int err = ldap_url_parse(aPath.get(), &desc);
   switch (err) {
-  case LDAP_SUCCESS: {
-    // The base URL can pick up the host & port details and deal with them
-    // better than we can
-    mDN = desc->lud_dn;
-    mScope = desc->lud_scope;
-    mFilter = desc->lud_filter;
-    mOptions = desc->lud_options;
-    nsresult rv = SetAttributeArray(desc->lud_attrs);
-    if (NS_FAILED(rv))
-      return rv;
+    case LDAP_SUCCESS: {
+      // The base URL can pick up the host & port details and deal with them
+      // better than we can
+      mDN = desc->lud_dn;
+      mScope = desc->lud_scope;
+      mFilter = desc->lud_filter;
+      mOptions = desc->lud_options;
+      nsresult rv = SetAttributeArray(desc->lud_attrs);
+      if (NS_FAILED(rv)) return rv;
 
-    ldap_free_urldesc(desc);
-    return NS_OK;
-  }
+      ldap_free_urldesc(desc);
+      return NS_OK;
+    }
 
-  case LDAP_URL_ERR_NOTLDAP:
-  case LDAP_URL_ERR_NODN:
-  case LDAP_URL_ERR_BADSCOPE:
-    return NS_ERROR_MALFORMED_URI;
+    case LDAP_URL_ERR_NOTLDAP:
+    case LDAP_URL_ERR_NODN:
+    case LDAP_URL_ERR_BADSCOPE:
+      return NS_ERROR_MALFORMED_URI;
 
-  case LDAP_URL_ERR_MEM:
-    NS_ERROR("nsLDAPURL::SetSpec: out of memory ");
-    return NS_ERROR_OUT_OF_MEMORY;
+    case LDAP_URL_ERR_MEM:
+      NS_ERROR("nsLDAPURL::SetSpec: out of memory ");
+      return NS_ERROR_OUT_OF_MEMORY;
 
-  case LDAP_URL_ERR_PARAM:
-    return NS_ERROR_INVALID_POINTER;
+    case LDAP_URL_ERR_PARAM:
+      return NS_ERROR_INVALID_POINTER;
   }
 
   // This shouldn't happen...
@@ -136,18 +118,14 @@ nsLDAPURL::SetPathInternal(const nsCString &aPath)
 // open streams on the URI's channel to be closed.
 
 NS_IMETHODIMP
-nsLDAPURL::GetSpec(nsACString &_retval)
-{
-  if (!mBaseURL)
-    return NS_ERROR_NOT_INITIALIZED;
+nsLDAPURL::GetSpec(nsACString &_retval) {
+  if (!mBaseURL) return NS_ERROR_NOT_INITIALIZED;
 
   return mBaseURL->GetSpec(_retval);
 }
 
-nsresult nsLDAPURL::SetSpecInternal(const nsACString &aSpec)
-{
-  if (!mBaseURL)
-    return NS_ERROR_NOT_INITIALIZED;
+nsresult nsLDAPURL::SetSpecInternal(const nsACString &aSpec) {
+  if (!mBaseURL) return NS_ERROR_NOT_INITIALIZED;
 
   // Cache the original spec in case we don't like what we've been passed and
   // need to reset ourselves.
@@ -160,33 +138,28 @@ nsresult nsLDAPURL::SetSpecInternal(const nsACString &aSpec)
 
   rv = SetPathInternal(PromiseFlatCString(aSpec));
   if (NS_FAILED(rv)) {
-    nsresult rv2 = NS_MutateURI(mBaseURL).SetSpec(originalSpec).Finalize(mBaseURL);
+    nsresult rv2 =
+        NS_MutateURI(mBaseURL).SetSpec(originalSpec).Finalize(mBaseURL);
     NS_ENSURE_SUCCESS(rv2, rv2);
   }
 
   return rv;
 }
 
-NS_IMETHODIMP nsLDAPURL::GetPrePath(nsACString &_retval)
-{
-  if (!mBaseURL)
-    return NS_ERROR_NOT_INITIALIZED;
+NS_IMETHODIMP nsLDAPURL::GetPrePath(nsACString &_retval) {
+  if (!mBaseURL) return NS_ERROR_NOT_INITIALIZED;
 
   return mBaseURL->GetPrePath(_retval);
 }
 
-NS_IMETHODIMP nsLDAPURL::GetScheme(nsACString &_retval)
-{
-  if (!mBaseURL)
-    return NS_ERROR_NOT_INITIALIZED;
+NS_IMETHODIMP nsLDAPURL::GetScheme(nsACString &_retval) {
+  if (!mBaseURL) return NS_ERROR_NOT_INITIALIZED;
 
   return mBaseURL->GetScheme(_retval);
 }
 
-nsresult nsLDAPURL::SetScheme(const nsACString &aScheme)
-{
-  if (!mBaseURL)
-    return NS_ERROR_NOT_INITIALIZED;
+nsresult nsLDAPURL::SetScheme(const nsACString &aScheme) {
+  if (!mBaseURL) return NS_ERROR_NOT_INITIALIZED;
 
   if (aScheme.Equals(LDAP_SCHEME, nsCaseInsensitiveCStringComparator()))
     mOptions &= !OPT_SECURE;
@@ -200,104 +173,76 @@ nsresult nsLDAPURL::SetScheme(const nsACString &aScheme)
 }
 
 NS_IMETHODIMP
-nsLDAPURL::GetUserPass(nsACString &_retval)
-{
+nsLDAPURL::GetUserPass(nsACString &_retval) {
   _retval.Truncate();
   return NS_OK;
 }
 
-nsresult nsLDAPURL::SetUserPass(const nsACString &aUserPass)
-{
-  return NS_OK;
-}
+nsresult nsLDAPURL::SetUserPass(const nsACString &aUserPass) { return NS_OK; }
 
 NS_IMETHODIMP
-nsLDAPURL::GetUsername(nsACString &_retval)
-{
+nsLDAPURL::GetUsername(nsACString &_retval) {
   _retval.Truncate();
   return NS_OK;
 }
 
-nsresult nsLDAPURL::SetUsername(const nsACString &aUsername)
-{
-  return NS_OK;
-}
+nsresult nsLDAPURL::SetUsername(const nsACString &aUsername) { return NS_OK; }
 
 NS_IMETHODIMP
-nsLDAPURL::GetPassword(nsACString &_retval)
-{
+nsLDAPURL::GetPassword(nsACString &_retval) {
   _retval.Truncate();
   return NS_OK;
 }
 
-nsresult nsLDAPURL::SetPassword(const nsACString &aPassword)
-{
-  return NS_OK;
-}
+nsresult nsLDAPURL::SetPassword(const nsACString &aPassword) { return NS_OK; }
 
 NS_IMETHODIMP
-nsLDAPURL::GetHostPort(nsACString &_retval)
-{
-  if (!mBaseURL)
-    return NS_ERROR_NOT_INITIALIZED;
+nsLDAPURL::GetHostPort(nsACString &_retval) {
+  if (!mBaseURL) return NS_ERROR_NOT_INITIALIZED;
 
   return mBaseURL->GetHostPort(_retval);
 }
 
-nsresult nsLDAPURL::SetHostPort(const nsACString &aHostPort)
-{
-  if (!mBaseURL)
-    return NS_ERROR_NOT_INITIALIZED;
+nsresult nsLDAPURL::SetHostPort(const nsACString &aHostPort) {
+  if (!mBaseURL) return NS_ERROR_NOT_INITIALIZED;
 
   return NS_MutateURI(mBaseURL).SetHostPort(aHostPort).Finalize(mBaseURL);
 }
 
 NS_IMETHODIMP
-nsLDAPURL::GetHost(nsACString &_retval)
-{
-  if (!mBaseURL)
-    return NS_ERROR_NOT_INITIALIZED;
+nsLDAPURL::GetHost(nsACString &_retval) {
+  if (!mBaseURL) return NS_ERROR_NOT_INITIALIZED;
 
   return mBaseURL->GetHost(_retval);
 }
 
-nsresult nsLDAPURL::SetHost(const nsACString &aHost)
-{
-  if (!mBaseURL)
-    return NS_ERROR_NOT_INITIALIZED;
+nsresult nsLDAPURL::SetHost(const nsACString &aHost) {
+  if (!mBaseURL) return NS_ERROR_NOT_INITIALIZED;
 
   return NS_MutateURI(mBaseURL).SetHost(aHost).Finalize(mBaseURL);
 }
 
 NS_IMETHODIMP
-nsLDAPURL::GetPort(int32_t *_retval)
-{
-  if (!mBaseURL)
-    return NS_ERROR_NOT_INITIALIZED;
+nsLDAPURL::GetPort(int32_t *_retval) {
+  if (!mBaseURL) return NS_ERROR_NOT_INITIALIZED;
 
   return mBaseURL->GetPort(_retval);
 }
 
-nsresult nsLDAPURL::SetPort(int32_t aPort)
-{
-  if (!mBaseURL)
-    return NS_ERROR_NOT_INITIALIZED;
+nsresult nsLDAPURL::SetPort(int32_t aPort) {
+  if (!mBaseURL) return NS_ERROR_NOT_INITIALIZED;
 
   return NS_MutateURI(mBaseURL).SetPort(aPort).Finalize(mBaseURL);
 }
 
-NS_IMETHODIMP nsLDAPURL::GetPathQueryRef(nsACString &_retval)
-{
-  if (!mBaseURL)
-    return NS_ERROR_NOT_INITIALIZED;
+NS_IMETHODIMP nsLDAPURL::GetPathQueryRef(nsACString &_retval) {
+  if (!mBaseURL) return NS_ERROR_NOT_INITIALIZED;
 
   return mBaseURL->GetPathQueryRef(_retval);
 }
 
-nsresult nsLDAPURL::SetPathQueryRef(const nsACString &aPath)
-{
-  if (!mBaseURL)
-    return NS_ERROR_NOT_INITIALIZED;
+nsresult nsLDAPURL::SetPathQueryRef(const nsACString &aPath) {
+  if (!mBaseURL) return NS_ERROR_NOT_INITIALIZED;
 
   nsresult rv = SetPathInternal(PromiseFlatCString(aPath));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -305,43 +250,34 @@ nsresult nsLDAPURL::SetPathQueryRef(const nsACString &aPath)
   return NS_MutateURI(mBaseURL).SetPathQueryRef(aPath).Finalize(mBaseURL);
 }
 
-NS_IMETHODIMP nsLDAPURL::GetAsciiSpec(nsACString &_retval)
-{
-  if (!mBaseURL)
-    return NS_ERROR_NOT_INITIALIZED;
+NS_IMETHODIMP nsLDAPURL::GetAsciiSpec(nsACString &_retval) {
+  if (!mBaseURL) return NS_ERROR_NOT_INITIALIZED;
 
   // XXX handle extra items?
   return mBaseURL->GetAsciiSpec(_retval);
 }
 
-NS_IMETHODIMP nsLDAPURL::GetAsciiHost(nsACString &_retval)
-{
-  if (!mBaseURL)
-    return NS_ERROR_NOT_INITIALIZED;
+NS_IMETHODIMP nsLDAPURL::GetAsciiHost(nsACString &_retval) {
+  if (!mBaseURL) return NS_ERROR_NOT_INITIALIZED;
 
   return mBaseURL->GetAsciiHost(_retval);
 }
 
 NS_IMETHODIMP
-nsLDAPURL::GetAsciiHostPort(nsACString &_retval)
-{
-  if (!mBaseURL)
-    return NS_ERROR_NOT_INITIALIZED;
+nsLDAPURL::GetAsciiHostPort(nsACString &_retval) {
+  if (!mBaseURL) return NS_ERROR_NOT_INITIALIZED;
 
   return mBaseURL->GetAsciiHostPort(_retval);
 }
 
 // boolean equals (in nsIURI other)
 // (based on nsSimpleURI::Equals)
-NS_IMETHODIMP nsLDAPURL::Equals(nsIURI *other, bool *_retval)
-{
+NS_IMETHODIMP nsLDAPURL::Equals(nsIURI *other, bool *_retval) {
   *_retval = false;
-  if (other)
-  {
+  if (other) {
     nsresult rv;
     nsCOMPtr<nsILDAPURL> otherURL(do_QueryInterface(other, &rv));
-    if (NS_SUCCEEDED(rv))
-    {
+    if (NS_SUCCEEDED(rv)) {
       nsAutoCString thisSpec, otherSpec;
       uint32_t otherOptions;
 
@@ -354,8 +290,7 @@ NS_IMETHODIMP nsLDAPURL::Equals(nsIURI *other, bool *_retval)
       rv = otherURL->GetOptions(&otherOptions);
       NS_ENSURE_SUCCESS(rv, rv);
 
-      if (thisSpec == otherSpec && mOptions == otherOptions)
-        *_retval = true;
+      if (thisSpec == otherSpec && mOptions == otherOptions) *_retval = true;
     }
   }
   return NS_OK;
@@ -363,25 +298,20 @@ NS_IMETHODIMP nsLDAPURL::Equals(nsIURI *other, bool *_retval)
 
 // boolean schemeIs(in const char * scheme);
 //
-NS_IMETHODIMP nsLDAPURL::SchemeIs(const char *aScheme, bool *aEquals)
-{
-  if (!mBaseURL)
-    return NS_ERROR_NOT_INITIALIZED;
+NS_IMETHODIMP nsLDAPURL::SchemeIs(const char *aScheme, bool *aEquals) {
+  if (!mBaseURL) return NS_ERROR_NOT_INITIALIZED;
 
   return mBaseURL->SchemeIs(aScheme, aEquals);
 }
 
 // nsIURI clone ();
 //
-nsresult
-nsLDAPURL::Clone(nsIURI** aResult)
-{
+nsresult nsLDAPURL::Clone(nsIURI **aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
   nsLDAPURL *clone = new nsLDAPURL();
 
-  if (!clone)
-    return NS_ERROR_OUT_OF_MEMORY;
+  if (!clone) return NS_ERROR_OUT_OF_MEMORY;
 
   clone->mDN = mDN;
   clone->mScope = mScope;
@@ -399,8 +329,7 @@ nsLDAPURL::Clone(nsIURI** aResult)
 // string resolve (in string relativePath);
 //
 NS_IMETHODIMP nsLDAPURL::Resolve(const nsACString &relativePath,
-                                 nsACString &_retval)
-{
+                                 nsACString &_retval) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -408,15 +337,12 @@ NS_IMETHODIMP nsLDAPURL::Resolve(const nsACString &relativePath,
 
 // attribute AUTF8String dn;
 //
-NS_IMETHODIMP nsLDAPURL::GetDn(nsACString& _retval)
-{
-    _retval.Assign(mDN);
-    return NS_OK;
+NS_IMETHODIMP nsLDAPURL::GetDn(nsACString &_retval) {
+  _retval.Assign(mDN);
+  return NS_OK;
 }
-NS_IMETHODIMP nsLDAPURL::SetDn(const nsACString& aDn)
-{
-  if (!mBaseURL)
-    return NS_ERROR_NOT_INITIALIZED;
+NS_IMETHODIMP nsLDAPURL::SetDn(const nsACString &aDn) {
+  if (!mBaseURL) return NS_ERROR_NOT_INITIALIZED;
 
   mDN.Assign(aDn);
 
@@ -428,17 +354,15 @@ NS_IMETHODIMP nsLDAPURL::SetDn(const nsACString& aDn)
   return NS_MutateURI(mBaseURL).SetPathQueryRef(newPath).Finalize(mBaseURL);
 }
 
-NS_IMETHODIMP nsLDAPURL::GetAttributes(nsACString &aAttributes)
-{
-  if (mAttributes.IsEmpty())
-  {
+NS_IMETHODIMP nsLDAPURL::GetAttributes(nsACString &aAttributes) {
+  if (mAttributes.IsEmpty()) {
     aAttributes.Truncate();
     return NS_OK;
   }
 
-  NS_ASSERTION(mAttributes[0] == ',' &&
-               mAttributes[mAttributes.Length() - 1] == ',',
-               "mAttributes does not begin and end with a comma");
+  NS_ASSERTION(
+      mAttributes[0] == ',' && mAttributes[mAttributes.Length() - 1] == ',',
+      "mAttributes does not begin and end with a comma");
 
   // We store the string internally with comma before and after, so strip
   // them off here.
@@ -446,24 +370,19 @@ NS_IMETHODIMP nsLDAPURL::GetAttributes(nsACString &aAttributes)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsLDAPURL::SetAttributes(const nsACString &aAttributes)
-{
-  if (!mBaseURL)
-    return NS_ERROR_NOT_INITIALIZED;
+NS_IMETHODIMP nsLDAPURL::SetAttributes(const nsACString &aAttributes) {
+  if (!mBaseURL) return NS_ERROR_NOT_INITIALIZED;
 
   if (aAttributes.IsEmpty())
     mAttributes.Truncate();
-  else
-  {
+  else {
     // We need to make sure we start off the string with a comma.
-    if (aAttributes[0] != ',')
-      mAttributes = ',';
+    if (aAttributes[0] != ',') mAttributes = ',';
 
     mAttributes.Append(aAttributes);
 
     // Also end with a comma if appropriate.
-    if (mAttributes[mAttributes.Length() - 1] != ',')
-      mAttributes.Append(',');
+    if (mAttributes[mAttributes.Length() - 1] != ',') mAttributes.Append(',');
   }
 
   // Now get the current path
@@ -474,12 +393,10 @@ NS_IMETHODIMP nsLDAPURL::SetAttributes(const nsACString &aAttributes)
   return NS_MutateURI(mBaseURL).SetPathQueryRef(newPath).Finalize(mBaseURL);
 }
 
-nsresult nsLDAPURL::SetAttributeArray(char** aAttributes)
-{
+nsresult nsLDAPURL::SetAttributeArray(char **aAttributes) {
   mAttributes.Truncate();
 
-  while (aAttributes && *aAttributes)
-  {
+  while (aAttributes && *aAttributes) {
     // Always start with a comma as that's what we store internally.
     mAttributes.Append(',');
     mAttributes.Append(*aAttributes);
@@ -487,25 +404,19 @@ nsresult nsLDAPURL::SetAttributeArray(char** aAttributes)
   }
 
   // Add a comma on the end if we have something.
-  if (!mAttributes.IsEmpty())
-    mAttributes.Append(',');
+  if (!mAttributes.IsEmpty()) mAttributes.Append(',');
 
   return NS_OK;
 }
 
-NS_IMETHODIMP nsLDAPURL::AddAttribute(const nsACString &aAttribute)
-{
-  if (!mBaseURL)
-    return NS_ERROR_NOT_INITIALIZED;
+NS_IMETHODIMP nsLDAPURL::AddAttribute(const nsACString &aAttribute) {
+  if (!mBaseURL) return NS_ERROR_NOT_INITIALIZED;
 
-  if (mAttributes.IsEmpty())
-  {
+  if (mAttributes.IsEmpty()) {
     mAttributes = ',';
     mAttributes.Append(aAttribute);
     mAttributes.Append(',');
-  }
-  else
-  {
+  } else {
     // Wrap the attribute in commas, so that we can do an exact match.
     nsAutoCString findAttribute(",");
     findAttribute.Append(aAttribute);
@@ -515,8 +426,7 @@ NS_IMETHODIMP nsLDAPURL::AddAttribute(const nsACString &aAttribute)
     // check to see if it is the last attribute in the string, or if the next
     // character is a comma, this means we won't match substrings.
     int32_t pos = mAttributes.Find(findAttribute, /* ignoreCase = */ true);
-    if (pos != -1)
-      return NS_OK;
+    if (pos != -1) return NS_OK;
 
     mAttributes.Append(Substring(findAttribute, 1));
   }
@@ -529,13 +439,10 @@ NS_IMETHODIMP nsLDAPURL::AddAttribute(const nsACString &aAttribute)
   return NS_MutateURI(mBaseURL).SetPathQueryRef(newPath).Finalize(mBaseURL);
 }
 
-NS_IMETHODIMP nsLDAPURL::RemoveAttribute(const nsACString &aAttribute)
-{
-  if (!mBaseURL)
-    return NS_ERROR_NOT_INITIALIZED;
+NS_IMETHODIMP nsLDAPURL::RemoveAttribute(const nsACString &aAttribute) {
+  if (!mBaseURL) return NS_ERROR_NOT_INITIALIZED;
 
-  if (mAttributes.IsEmpty())
-    return NS_OK;
+  if (mAttributes.IsEmpty()) return NS_OK;
 
   nsAutoCString findAttribute(",");
   findAttribute.Append(aAttribute);
@@ -543,11 +450,9 @@ NS_IMETHODIMP nsLDAPURL::RemoveAttribute(const nsACString &aAttribute)
 
   if (mAttributes.Equals(findAttribute, nsCaseInsensitiveCStringComparator()))
     mAttributes.Truncate();
-  else
-  {
+  else {
     int32_t pos = mAttributes.Find(findAttribute, /* ignoreCase = */ true);
-    if (pos == -1)
-      return NS_OK;
+    if (pos == -1) return NS_OK;
 
     mAttributes.Cut(pos, findAttribute.Length() - 1);
   }
@@ -561,8 +466,7 @@ NS_IMETHODIMP nsLDAPURL::RemoveAttribute(const nsACString &aAttribute)
 }
 
 NS_IMETHODIMP nsLDAPURL::HasAttribute(const nsACString &aAttribute,
-                                      bool *_retval)
-{
+                                      bool *_retval) {
   NS_ENSURE_ARG_POINTER(_retval);
 
   nsAutoCString findAttribute(",");
@@ -573,17 +477,14 @@ NS_IMETHODIMP nsLDAPURL::HasAttribute(const nsACString &aAttribute,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsLDAPURL::GetScope(int32_t *_retval)
-{
+NS_IMETHODIMP nsLDAPURL::GetScope(int32_t *_retval) {
   NS_ENSURE_ARG_POINTER(_retval);
   *_retval = mScope;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsLDAPURL::SetScope(int32_t aScope)
-{
-  if (!mBaseURL)
-    return NS_ERROR_NOT_INITIALIZED;
+NS_IMETHODIMP nsLDAPURL::SetScope(int32_t aScope) {
+  if (!mBaseURL) return NS_ERROR_NOT_INITIALIZED;
 
   // Only allow scopes supported by the C-SDK
   if ((aScope != SCOPE_BASE) && (aScope != SCOPE_ONELEVEL) &&
@@ -600,20 +501,16 @@ NS_IMETHODIMP nsLDAPURL::SetScope(int32_t aScope)
   return NS_MutateURI(mBaseURL).SetPathQueryRef(newPath).Finalize(mBaseURL);
 }
 
-NS_IMETHODIMP nsLDAPURL::GetFilter(nsACString& _retval)
-{
-    _retval.Assign(mFilter);
-    return NS_OK;
+NS_IMETHODIMP nsLDAPURL::GetFilter(nsACString &_retval) {
+  _retval.Assign(mFilter);
+  return NS_OK;
 }
-NS_IMETHODIMP nsLDAPURL::SetFilter(const nsACString& aFilter)
-{
-  if (!mBaseURL)
-    return NS_ERROR_NOT_INITIALIZED;
+NS_IMETHODIMP nsLDAPURL::SetFilter(const nsACString &aFilter) {
+  if (!mBaseURL) return NS_ERROR_NOT_INITIALIZED;
 
   mFilter.Assign(aFilter);
 
-  if (mFilter.IsEmpty())
-    mFilter.AssignLiteral("(objectclass=*)");
+  if (mFilter.IsEmpty()) mFilter.AssignLiteral("(objectclass=*)");
 
   // Now get the current path
   nsCString newPath;
@@ -623,117 +520,94 @@ NS_IMETHODIMP nsLDAPURL::SetFilter(const nsACString& aFilter)
   return NS_MutateURI(mBaseURL).SetPathQueryRef(newPath).Finalize(mBaseURL);
 }
 
-NS_IMETHODIMP nsLDAPURL::GetOptions(uint32_t *_retval)
-{
+NS_IMETHODIMP nsLDAPURL::GetOptions(uint32_t *_retval) {
   NS_ENSURE_ARG_POINTER(_retval);
   *_retval = mOptions;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsLDAPURL::SetOptions(uint32_t aOptions)
-{
+NS_IMETHODIMP nsLDAPURL::SetOptions(uint32_t aOptions) {
   // Secure is the only option supported at the moment
-  if ((mOptions & OPT_SECURE) == (aOptions & OPT_SECURE))
-    return NS_OK;
+  if ((mOptions & OPT_SECURE) == (aOptions & OPT_SECURE)) return NS_OK;
 
   mOptions = aOptions;
 
-  if ((aOptions & OPT_SECURE) == OPT_SECURE)
-    return SetScheme(LDAP_SSL_SCHEME);
+  if ((aOptions & OPT_SECURE) == OPT_SECURE) return SetScheme(LDAP_SSL_SCHEME);
 
   return SetScheme(LDAP_SCHEME);
 }
 
-nsresult nsLDAPURL::SetRef(const nsACString &aRef)
-{
+nsresult nsLDAPURL::SetRef(const nsACString &aRef) {
   return NS_MutateURI(mBaseURL).SetRef(aRef).Finalize(mBaseURL);
 }
 
 NS_IMETHODIMP
-nsLDAPURL::GetRef(nsACString &result)
-{
-  return mBaseURL->GetRef(result);
-}
+nsLDAPURL::GetRef(nsACString &result) { return mBaseURL->GetRef(result); }
 
-NS_IMETHODIMP nsLDAPURL::EqualsExceptRef(nsIURI *other, bool *result)
-{
+NS_IMETHODIMP nsLDAPURL::EqualsExceptRef(nsIURI *other, bool *result) {
   return mBaseURL->EqualsExceptRef(other, result);
 }
 
 NS_IMETHODIMP
-nsLDAPURL::GetSpecIgnoringRef(nsACString &result)
-{
+nsLDAPURL::GetSpecIgnoringRef(nsACString &result) {
   return mBaseURL->GetSpecIgnoringRef(result);
 }
 
 NS_IMETHODIMP
-nsLDAPURL::GetDisplaySpec(nsACString& aUnicodeSpec)
-{
+nsLDAPURL::GetDisplaySpec(nsACString &aUnicodeSpec) {
   return mBaseURL->GetDisplaySpec(aUnicodeSpec);
 }
 
 NS_IMETHODIMP
-nsLDAPURL::GetDisplayHostPort(nsACString& aUnicodeHostPort)
-{
+nsLDAPURL::GetDisplayHostPort(nsACString &aUnicodeHostPort) {
   return mBaseURL->GetDisplayHostPort(aUnicodeHostPort);
 }
 
 NS_IMETHODIMP
-nsLDAPURL::GetDisplayHost(nsACString& aUnicodeHost)
-{
+nsLDAPURL::GetDisplayHost(nsACString &aUnicodeHost) {
   return mBaseURL->GetDisplayHost(aUnicodeHost);
 }
 
 NS_IMETHODIMP
-nsLDAPURL::GetDisplayPrePath(nsACString& aPrePath)
-{
+nsLDAPURL::GetDisplayPrePath(nsACString &aPrePath) {
   return mBaseURL->GetDisplayPrePath(aPrePath);
 }
 
 NS_IMETHODIMP
-nsLDAPURL::GetHasRef(bool *result)
-{
-  return mBaseURL->GetHasRef(result);
-}
+nsLDAPURL::GetHasRef(bool *result) { return mBaseURL->GetHasRef(result); }
 
 NS_IMETHODIMP
-nsLDAPURL::GetFilePath(nsACString &aFilePath)
-{
+nsLDAPURL::GetFilePath(nsACString &aFilePath) {
   return mBaseURL->GetFilePath(aFilePath);
 }
 
-nsresult nsLDAPURL::SetFilePath(const nsACString &aFilePath)
-{
+nsresult nsLDAPURL::SetFilePath(const nsACString &aFilePath) {
   return NS_MutateURI(mBaseURL).SetFilePath(aFilePath).Finalize(mBaseURL);
 }
 
 NS_IMETHODIMP
-nsLDAPURL::GetQuery(nsACString &aQuery)
-{
-  return mBaseURL->GetQuery(aQuery);
-}
+nsLDAPURL::GetQuery(nsACString &aQuery) { return mBaseURL->GetQuery(aQuery); }
 
-nsresult nsLDAPURL::SetQuery(const nsACString &aQuery)
-{
+nsresult nsLDAPURL::SetQuery(const nsACString &aQuery) {
   return NS_MutateURI(mBaseURL).SetQuery(aQuery).Finalize(mBaseURL);
 }
 
-nsresult nsLDAPURL::SetQueryWithEncoding(const nsACString &aQuery, const mozilla::Encoding* aEncoding)
-{
-  return NS_MutateURI(mBaseURL).SetQueryWithEncoding(aQuery, aEncoding).Finalize(mBaseURL);
+nsresult nsLDAPURL::SetQueryWithEncoding(const nsACString &aQuery,
+                                         const mozilla::Encoding *aEncoding) {
+  return NS_MutateURI(mBaseURL)
+      .SetQueryWithEncoding(aQuery, aEncoding)
+      .Finalize(mBaseURL);
 }
 
 NS_IMETHODIMP_(void)
-nsLDAPURL::Serialize(mozilla::ipc::URIParams &aParams)
-{
+nsLDAPURL::Serialize(mozilla::ipc::URIParams &aParams) {
   mBaseURL->Serialize(aParams);
 }
 
 NS_IMPL_ISUPPORTS(nsLDAPURL::Mutator, nsIURISetters, nsIURIMutator)
 
 NS_IMETHODIMP
-nsLDAPURL::Mutate(nsIURIMutator** aMutator)
-{
+nsLDAPURL::Mutate(nsIURIMutator **aMutator) {
   RefPtr<nsLDAPURL::Mutator> mutator = new nsLDAPURL::Mutator();
   nsresult rv = mutator->InitFromURI(this);
   if (NS_FAILED(rv)) {

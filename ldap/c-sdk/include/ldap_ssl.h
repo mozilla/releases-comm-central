@@ -36,34 +36,33 @@
  * ***** END LICENSE BLOCK ***** */
 
 #if !defined(LDAP_SSL_H)
-#define LDAP_SSL_H
+#  define LDAP_SSL_H
 
 /* ldap_ssl.h - prototypes for LDAP over SSL functions */
 
-#ifdef __cplusplus
+#  ifdef __cplusplus
 extern "C" {
-#endif
+#  endif
 
 /*
  * these three defines resolve the SSL strength
  * setting auth weak, disables all cert checking
  * the CNCHECK tests for the man in the middle hack
  */
-#define LDAPSSL_AUTH_WEAK       0
-#define LDAPSSL_AUTH_CERT       1
-#define LDAPSSL_AUTH_CNCHECK    2
+#  define LDAPSSL_AUTH_WEAK 0
+#  define LDAPSSL_AUTH_CERT 1
+#  define LDAPSSL_AUTH_CNCHECK 2
 
 /*
  * an ExtendedRequest [LDAPv3] specifying the OID for the
  * Start TLS operation: RFC 2830
  */
-#define LDAP_EXOP_START_TLS "1.3.6.1.4.1.1466.20037"
+#  define LDAP_EXOP_START_TLS "1.3.6.1.4.1.1466.20037"
 
 /*
  * Initialize LDAP library for SSL
  */
-LDAP * LDAP_CALL ldapssl_init( const char *defhost, int defport,
-  int defsecure );
+LDAP *LDAP_CALL ldapssl_init(const char *defhost, int defport, int defsecure);
 
 /*
  * Shutdown LDAP library for SSL :
@@ -76,15 +75,14 @@ int LDAP_CALL ldapssl_shutdown();
  * operation to the Directory Server.
  * Returns LDAP_SUCCESS if all goes well.
  */
-int LDAP_CALL ldap_start_tls_s( LDAP *ld, LDAPControl **serverctrls,
-                                LDAPControl **clientctrls );
+int LDAP_CALL ldap_start_tls_s(LDAP *ld, LDAPControl **serverctrls,
+                               LDAPControl **clientctrls);
 /*
  * Install I/O routines to make SSL over LDAP possible.
  * Use this after ldap_init() or just use ldapssl_init() instead.
  * Returns 0 if all goes well.
  */
-int LDAP_CALL ldapssl_install_routines( LDAP *ld );
-
+int LDAP_CALL ldapssl_install_routines(LDAP *ld);
 
 /* The next four functions initialize the security code for SSL
  * The first one ldapssl_client_init() does initialization for SSL only
@@ -116,15 +114,13 @@ int LDAP_CALL ldapssl_install_routines( LDAP *ld );
  *     appropriate initialization function for the life of the process.
  */
 
-
 /*
  * Initialize the secure parts (Security and SSL) of the runtime for use
  * by a client application.  This is only called once.
  * Returns 0 if all goes well.
  */
 
-int LDAP_CALL ldapssl_client_init(
-    const char *certdbpath, void *certdbhandle );
+int LDAP_CALL ldapssl_client_init(const char *certdbpath, void *certdbhandle);
 
 /*
  * Initialize the secure parts (Security and SSL) of the runtime for use
@@ -158,8 +154,9 @@ int LDAP_CALL ldapssl_client_init(
  * Returns 0 if all goes well.
  */
 
-int LDAP_CALL ldapssl_serverauth_init(
-    const char *certdbpath, void *certdbhandle, const int sslstrength );
+int LDAP_CALL ldapssl_serverauth_init(const char *certdbpath,
+                                      void *certdbhandle,
+                                      const int sslstrength);
 
 /*
  * Initialize the secure parts (Security and SSL) of the runtime for use
@@ -167,9 +164,9 @@ int LDAP_CALL ldapssl_serverauth_init(
  * Returns 0 if all goes well.
  */
 
-int LDAP_CALL ldapssl_clientauth_init(
-    const char *certdbpath, void *certdbhandle,
-    const int needkeydb, const char *keydbpath, void *keydbhandle );
+int LDAP_CALL ldapssl_clientauth_init(const char *certdbpath,
+                                      void *certdbhandle, const int needkeydb,
+                                      const char *keydbpath, void *keydbhandle);
 
 /*
  * Initialize the secure parts (Security and SSL) of the runtime for use
@@ -185,27 +182,23 @@ int LDAP_CALL ldapssl_clientauth_init(
  */
 
 int LDAP_CALL ldapssl_advclientauth_init(
-    const char *certdbpath, void *certdbhandle,
-    const int needkeydb, const char *keydbpath, void *keydbhandle,
-    const int needsecmoddb, const char *secmoddbpath,
-    const int sslstrength );
-
-
+    const char *certdbpath, void *certdbhandle, const int needkeydb,
+    const char *keydbpath, void *keydbhandle, const int needsecmoddb,
+    const char *secmoddbpath, const int sslstrength);
 
 /*
  * get a meaningful error string back from the security library
  * this function should be called, if ldap_err2string doesn't
  * identify the error code.
  */
-const char * LDAP_CALL ldapssl_err2string( const int prerrno );
-
+const char *LDAP_CALL ldapssl_err2string(const int prerrno);
 
 /*
  * Enable SSL client authentication on the given ld.
  * Returns 0 if all goes well.
  */
-int LDAP_CALL ldapssl_enable_clientauth( LDAP *ld, char *keynickname,
-  char *keypasswd, char *certnickname );
+int LDAP_CALL ldapssl_enable_clientauth(LDAP *ld, char *keynickname,
+                                        char *keypasswd, char *certnickname);
 
 /*
  * Set the SSL strength for an existing SSL-enabled LDAP session handle.
@@ -216,8 +209,7 @@ int LDAP_CALL ldapssl_enable_clientauth( LDAP *ld, char *keynickname,
  *
  * Returns 0 if all goes well.
  */
-int LDAP_CALL ldapssl_set_strength( LDAP *ld, int sslstrength );
-
+int LDAP_CALL ldapssl_set_strength(LDAP *ld, int sslstrength);
 
 /*
  * Set or get SSL options for an existing SSL-enabled LDAP session handle.
@@ -231,24 +223,24 @@ int LDAP_CALL ldapssl_set_strength( LDAP *ld, int sslstrength );
  *
  * Both functions return 0 if all goes well.
  */
-int LDAP_CALL ldapssl_set_option( LDAP *ld, int option, int on );
-int LDAP_CALL ldapssl_get_option( LDAP *ld, int option, int *onp );
+int LDAP_CALL ldapssl_set_option(LDAP *ld, int option, int on);
+int LDAP_CALL ldapssl_get_option(LDAP *ld, int option, int *onp);
 
 /*
  * Import the file descriptor corresponding to the socket of an already
  * open LDAP connection into SSL, and update the socket and session
  * information accordingly. Returns 0 if all goes well.
  */
-int LDAP_CALL ldapssl_import_fd ( LDAP *ld, int secure );
+int LDAP_CALL ldapssl_import_fd(LDAP *ld, int secure);
 
 /*
  * Reset an LDAP session from SSL to a non-secure status. Basically,
  * this function undoes the work done by ldapssl_install_routines.
  * Returns 0 if all goes well.
  */
-int LDAP_CALL ldapssl_reset_to_nonsecure ( LDAP *ld );
+int LDAP_CALL ldapssl_reset_to_nonsecure(LDAP *ld);
 
-#ifdef __cplusplus
+#  ifdef __cplusplus
 }
-#endif
+#  endif
 #endif /* !defined(LDAP_SSL_H) */

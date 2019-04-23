@@ -10,6 +10,4 @@
 #include <ctype.h>
 
 /* Internal API helper macros */
-#define LdapCompressWhitespace(str) \
-        (str).CompressWhitespace()
-
+#define LdapCompressWhitespace(str) (str).CompressWhitespace()

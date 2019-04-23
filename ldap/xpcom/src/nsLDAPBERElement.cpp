@@ -11,13 +11,9 @@
 
 NS_IMPL_ISUPPORTS(nsLDAPBERElement, nsILDAPBERElement)
 
-nsLDAPBERElement::nsLDAPBERElement()
-  : mElement(0)
-{
-}
+nsLDAPBERElement::nsLDAPBERElement() : mElement(0) {}
 
-nsLDAPBERElement::~nsLDAPBERElement()
-{
+nsLDAPBERElement::~nsLDAPBERElement() {
   if (mElement) {
     // anything inside here is not something that we own separately from
     // this object, so free it
@@ -28,8 +24,7 @@ nsLDAPBERElement::~nsLDAPBERElement()
 }
 
 NS_IMETHODIMP
-nsLDAPBERElement::Init(nsILDAPBERValue *aValue)
-{
+nsLDAPBERElement::Init(nsILDAPBERValue *aValue) {
   if (aValue) {
     return NS_ERROR_NOT_IMPLEMENTED;
   }
@@ -40,9 +35,8 @@ nsLDAPBERElement::Init(nsILDAPBERValue *aValue)
 
 /* void putString (in AUTF8String aString, in unsigned long aTag); */
 NS_IMETHODIMP
-nsLDAPBERElement::PutString(const nsACString & aString, uint32_t aTag,
-                            uint32_t *aBytesWritten)
-{
+nsLDAPBERElement::PutString(const nsACString &aString, uint32_t aTag,
+                            uint32_t *aBytesWritten) {
   // XXX if the string translation feature of the C SDK is ever used,
   // this const_cast will break
   int i = ber_put_ostring(mElement,
@@ -58,8 +52,7 @@ nsLDAPBERElement::PutString(const nsACString & aString, uint32_t aTag,
 }
 
 /* void startSet (); */
-NS_IMETHODIMP nsLDAPBERElement::StartSet(uint32_t aTag)
-{
+NS_IMETHODIMP nsLDAPBERElement::StartSet(uint32_t aTag) {
   int i = ber_start_set(mElement, aTag);
 
   if (i < 0) {
@@ -70,8 +63,7 @@ NS_IMETHODIMP nsLDAPBERElement::StartSet(uint32_t aTag)
 }
 
 /* void putSet (); */
-NS_IMETHODIMP nsLDAPBERElement::PutSet(uint32_t *aBytesWritten)
-{
+NS_IMETHODIMP nsLDAPBERElement::PutSet(uint32_t *aBytesWritten) {
   int i = ber_put_set(mElement);
 
   if (i < 0) {
@@ -83,24 +75,24 @@ NS_IMETHODIMP nsLDAPBERElement::PutSet(uint32_t *aBytesWritten)
 }
 
 /* nsILDAPBERValue flatten (); */
-NS_IMETHODIMP nsLDAPBERElement::GetAsValue(nsILDAPBERValue **_retval)
-{
+NS_IMETHODIMP nsLDAPBERElement::GetAsValue(nsILDAPBERValue **_retval) {
   // create the value object
   nsCOMPtr<nsILDAPBERValue> berValue = new nsLDAPBERValue();
 
   if (!berValue) {
-    NS_ERROR("nsLDAPBERElement::GetAsValue(): out of memory"
-             " creating nsLDAPBERValue object");
+    NS_ERROR(
+        "nsLDAPBERElement::GetAsValue(): out of memory"
+        " creating nsLDAPBERValue object");
     return NS_ERROR_OUT_OF_MEMORY;
   }
 
   struct berval *bv;
-  if ( ber_flatten(mElement, &bv) < 0 ) {
+  if (ber_flatten(mElement, &bv) < 0) {
     return NS_ERROR_OUT_OF_MEMORY;
   }
 
-  nsresult rv = berValue->Set(bv->bv_len,
-                              reinterpret_cast<uint8_t *>(bv->bv_val));
+  nsresult rv =
+      berValue->Set(bv->bv_len, reinterpret_cast<uint8_t *>(bv->bv_val));
 
   // whether or not we've succeeded, we're done with the ldap c sdk struct
   ber_bvfree(bv);

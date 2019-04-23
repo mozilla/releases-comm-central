@@ -12,29 +12,31 @@
 
 // 7c9fa10e-1dd2-11b2-a097-ac379e6803b2
 //
-#define NS_LDAPBERVALUE_CID \
-{ 0x7c9fa10e, 0x1dd2, 0x11b2, \
-  {0xa0, 0x97, 0xac, 0x37, 0x9e, 0x68, 0x03, 0xb2 }}
+#define NS_LDAPBERVALUE_CID                          \
+  {                                                  \
+    0x7c9fa10e, 0x1dd2, 0x11b2, {                    \
+      0xa0, 0x97, 0xac, 0x37, 0x9e, 0x68, 0x03, 0xb2 \
+    }                                                \
+  }
 
-class nsLDAPBERValue : public nsILDAPBERValue
-{
-public:
-    NS_DECL_THREADSAFE_ISUPPORTS
-    NS_DECL_NSILDAPBERVALUE
+class nsLDAPBERValue : public nsILDAPBERValue {
+ public:
+  NS_DECL_THREADSAFE_ISUPPORTS
+  NS_DECL_NSILDAPBERVALUE
 
-    nsLDAPBERValue();
+  nsLDAPBERValue();
 
-protected:
-    virtual ~nsLDAPBERValue();
+ protected:
+  virtual ~nsLDAPBERValue();
 
-    /**
-     * nsLDAPControl needs to be able to grovel through this without an
-     * an extra copy
-     */
-    friend class nsLDAPControl;
+  /**
+   * nsLDAPControl needs to be able to grovel through this without an
+   * an extra copy
+   */
+  friend class nsLDAPControl;
 
-    uint8_t *mValue;    // pointer to an array
-    uint32_t mSize;     // size of the value, in bytes
+  uint8_t *mValue;  // pointer to an array
+  uint32_t mSize;   // size of the value, in bytes
 };
 
-#endif // _nsLDAPBERValue_h_
+#endif  // _nsLDAPBERValue_h_

@@ -40,18 +40,14 @@ nsLDAPConnection::nsLDAPConnection()
       mPendingOperations(10),
       mSSL(false),
       mVersion(nsILDAPConnection::VERSION3),
-      mDNSRequest(nullptr)
-{
-}
+      mDNSRequest(nullptr) {}
 
 // destructor
 //
-nsLDAPConnection::~nsLDAPConnection()
-{
+nsLDAPConnection::~nsLDAPConnection() {
   nsCOMPtr<nsIObserverService> obsServ =
       do_GetService(NS_OBSERVERSERVICE_CONTRACTID);
-  if (obsServ)
-      obsServ->RemoveObserver(this, "profile-change-net-teardown");
+  if (obsServ) obsServ->RemoveObserver(this, "profile-change-net-teardown");
   Close();
 }
 
@@ -69,20 +65,19 @@ NS_INTERFACE_MAP_BEGIN(nsLDAPConnection)
   NS_IMPL_QUERY_CLASSINFO(nsLDAPConnection)
 NS_INTERFACE_MAP_END
 NS_IMPL_CI_INTERFACE_GETTER(nsLDAPConnection, nsILDAPConnection,
-                             nsISupportsWeakReference, nsIDNSListener,
-                             nsIObserver)
+                            nsISupportsWeakReference, nsIDNSListener,
+                            nsIObserver)
 
 NS_IMETHODIMP
 nsLDAPConnection::Init(nsILDAPURL *aUrl, const nsACString &aBindName,
                        nsILDAPMessageListener *aMessageListener,
-                       nsISupports *aClosure, uint32_t aVersion)
-{
+                       nsISupports *aClosure, uint32_t aVersion) {
   NS_ENSURE_ARG_POINTER(aUrl);
   NS_ENSURE_ARG_POINTER(aMessageListener);
 
   nsresult rv;
   nsCOMPtr<nsIObserverService> obsServ =
-        do_GetService(NS_OBSERVERSERVICE_CONTRACTID, &rv);
+      do_GetService(NS_OBSERVERSERVICE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   // We have to abort all LDAP pending operation before shutdown.
   obsServ->AddObserver(this, "profile-change-net-teardown", true);
@@ -94,7 +89,8 @@ nsLDAPConnection::Init(nsILDAPURL *aUrl, const nsACString &aBindName,
 
   // Make sure we haven't called Init earlier, i.e. there's a DNS
   // request pending.
-  NS_ASSERTION(!mDNSRequest, "nsLDAPConnection::Init() "
+  NS_ASSERTION(!mDNSRequest,
+               "nsLDAPConnection::Init() "
                "Connection was already initialized\n");
 
   // Check and save the version number
@@ -129,11 +125,12 @@ nsLDAPConnection::Init(nsILDAPURL *aUrl, const nsACString &aBindName,
   //
   // XXX - What return codes can we expect from the DNS service?
   //
-  nsCOMPtr<nsIDNSService>
-    pDNSService(do_GetService(kDNSServiceContractId, &rv));
+  nsCOMPtr<nsIDNSService> pDNSService(
+      do_GetService(kDNSServiceContractId, &rv));
 
   if (NS_FAILED(rv)) {
-    NS_ERROR("nsLDAPConnection::Init(): couldn't create the DNS Service object");
+    NS_ERROR(
+        "nsLDAPConnection::Init(): couldn't create the DNS Service object");
     return NS_ERROR_FAILURE;
   }
 
@@ -148,8 +145,7 @@ nsLDAPConnection::Init(nsILDAPURL *aUrl, const nsACString &aBindName,
 
   int32_t spacePos = mDNSHost.FindChar(' ');
   // trim off trailing host(s)
-  if (spacePos != kNotFound)
-    mDNSHost.SetLength(spacePos);
+  if (spacePos != kNotFound) mDNSHost.SetLength(spacePos);
 
   mozilla::OriginAttributes attrs;
   rv = pDNSService->AsyncResolveNative(mDNSHost, 0, this, curThread, attrs,
@@ -157,14 +153,14 @@ nsLDAPConnection::Init(nsILDAPURL *aUrl, const nsACString &aBindName,
 
   if (NS_FAILED(rv)) {
     switch (rv) {
-    case NS_ERROR_OUT_OF_MEMORY:
-    case NS_ERROR_UNKNOWN_HOST:
-    case NS_ERROR_FAILURE:
-    case NS_ERROR_OFFLINE:
-      break;
+      case NS_ERROR_OUT_OF_MEMORY:
+      case NS_ERROR_UNKNOWN_HOST:
+      case NS_ERROR_FAILURE:
+      case NS_ERROR_OFFLINE:
+        break;
 
-    default:
-      rv = NS_ERROR_UNEXPECTED;
+      default:
+        rv = NS_ERROR_UNEXPECTED;
     }
     mDNSHost.Truncate();
   }
@@ -173,24 +169,21 @@ nsLDAPConnection::Init(nsILDAPURL *aUrl, const nsACString &aBindName,
 
 // this might get exposed to clients, so we've broken it
 // out of the destructor.
-void
-nsLDAPConnection::Close()
-{
+void nsLDAPConnection::Close() {
   int rc;
   MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug, ("unbinding\n"));
 
   if (mConnectionHandle) {
-      // note that the ldap_unbind() call in the 5.0 version of the LDAP C SDK
-      // appears to be exactly identical to ldap_unbind_s(), so it may in fact
-      // still be synchronous
-      //
-      rc = ldap_unbind(mConnectionHandle);
-      if (rc != LDAP_SUCCESS) {
-          MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Warning,
-                 ("nsLDAPConnection::Close(): %s\n",
-                  ldap_err2string(rc)));
-      }
-      mConnectionHandle = nullptr;
+    // note that the ldap_unbind() call in the 5.0 version of the LDAP C SDK
+    // appears to be exactly identical to ldap_unbind_s(), so it may in fact
+    // still be synchronous
+    //
+    rc = ldap_unbind(mConnectionHandle);
+    if (rc != LDAP_SUCCESS) {
+      MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Warning,
+              ("nsLDAPConnection::Close(): %s\n", ldap_err2string(rc)));
+    }
+    mConnectionHandle = nullptr;
   }
 
   MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug, ("unbound\n"));
@@ -202,17 +195,15 @@ nsLDAPConnection::Close()
   // Init listener (if still there).
   //
   if (mDNSRequest) {
-      mDNSRequest->Cancel(NS_ERROR_ABORT);
-      mDNSRequest = nullptr;
+    mDNSRequest->Cancel(NS_ERROR_ABORT);
+    mDNSRequest = nullptr;
   }
   mInitListener = nullptr;
-
 }
 
 NS_IMETHODIMP
 nsLDAPConnection::Observe(nsISupports *aSubject, const char *aTopic,
-                          const char16_t *aData)
-{
+                          const char16_t *aData) {
   if (!strcmp(aTopic, "profile-change-net-teardown")) {
     // Abort all ldap requests.
     /* We cannot use enumerate function to abort operations because
@@ -220,7 +211,7 @@ nsLDAPConnection::Observe(nsISupports *aSubject, const char *aTopic,
      * and this leads to starvation.
      * We have to do a copy of pending operations.
      */
-    nsTArray<nsILDAPOperation*> pending_operations;
+    nsTArray<nsILDAPOperation *> pending_operations;
     {
       MutexAutoLock lock(mPendingOperationsMutex);
       for (auto iter = mPendingOperations.Iter(); !iter.Done(); iter.Next()) {
@@ -239,20 +230,18 @@ nsLDAPConnection::Observe(nsISupports *aSubject, const char *aTopic,
 }
 
 NS_IMETHODIMP
-nsLDAPConnection::GetClosure(nsISupports **_retval)
-{
-    if (!_retval) {
-        return NS_ERROR_ILLEGAL_VALUE;
-    }
-    NS_IF_ADDREF(*_retval = mClosure);
-    return NS_OK;
+nsLDAPConnection::GetClosure(nsISupports **_retval) {
+  if (!_retval) {
+    return NS_ERROR_ILLEGAL_VALUE;
+  }
+  NS_IF_ADDREF(*_retval = mClosure);
+  return NS_OK;
 }
 
 NS_IMETHODIMP
-nsLDAPConnection::SetClosure(nsISupports *aClosure)
-{
-    mClosure = aClosure;
-    return NS_OK;
+nsLDAPConnection::SetClosure(nsISupports *aClosure) {
+  mClosure = aClosure;
+  return NS_OK;
 }
 
 // who we're binding as
@@ -260,27 +249,25 @@ nsLDAPConnection::SetClosure(nsISupports *aClosure)
 // readonly attribute AUTF8String bindName
 //
 NS_IMETHODIMP
-nsLDAPConnection::GetBindName(nsACString& _retval)
-{
-    _retval.Assign(mBindName);
-    return NS_OK;
+nsLDAPConnection::GetBindName(nsACString &_retval) {
+  _retval.Assign(mBindName);
+  return NS_OK;
 }
 
 // wrapper for ldap_get_lderrno
 // XXX should copy before returning
 //
 NS_IMETHODIMP
-nsLDAPConnection::GetLdErrno(nsACString& matched, nsACString& errString,
-                             int32_t *_retval)
-{
-    char *match, *err;
+nsLDAPConnection::GetLdErrno(nsACString &matched, nsACString &errString,
+                             int32_t *_retval) {
+  char *match, *err;
 
-    NS_ENSURE_ARG_POINTER(_retval);
+  NS_ENSURE_ARG_POINTER(_retval);
 
-    *_retval = ldap_get_lderrno(mConnectionHandle, &match, &err);
-    matched.Assign(match);
-    errString.Assign(err);
-    return NS_OK;
+  *_retval = ldap_get_lderrno(mConnectionHandle, &match, &err);
+  matched.Assign(match);
+  errString.Assign(err);
+  return NS_OK;
 }
 
 // return the error string corresponding to GetLdErrno.
@@ -289,24 +276,23 @@ nsLDAPConnection::GetLdErrno(nsACString& matched, nsACString& errString,
 // XXX - how does ldap_perror know to look at the global errno?
 //
 NS_IMETHODIMP
-nsLDAPConnection::GetErrorString(char16_t **_retval)
-{
-    NS_ENSURE_ARG_POINTER(_retval);
+nsLDAPConnection::GetErrorString(char16_t **_retval) {
+  NS_ENSURE_ARG_POINTER(_retval);
 
-    // get the error string
-    //
-    char *rv = ldap_err2string(ldap_get_lderrno(mConnectionHandle, 0, 0));
-    if (!rv) {
-        return NS_ERROR_OUT_OF_MEMORY;
-    }
+  // get the error string
+  //
+  char *rv = ldap_err2string(ldap_get_lderrno(mConnectionHandle, 0, 0));
+  if (!rv) {
+    return NS_ERROR_OUT_OF_MEMORY;
+  }
 
-    // make a copy using the XPCOM shared allocator
-    //
-    *_retval = ToNewUnicode(NS_ConvertUTF8toUTF16(rv));
-    if (!*_retval) {
-        return NS_ERROR_OUT_OF_MEMORY;
-    }
-    return NS_OK;
+  // make a copy using the XPCOM shared allocator
+  //
+  *_retval = ToNewUnicode(NS_ConvertUTF8toUTF16(rv));
+  if (!*_retval) {
+    return NS_ERROR_OUT_OF_MEMORY;
+  }
+  return NS_OK;
 }
 
 /**
@@ -314,29 +300,25 @@ nsLDAPConnection::GetErrorString(char16_t **_retval)
  * this connection.  This is also mainly intended for use by the
  * nsLDAPOperation code.
  */
-nsresult
-nsLDAPConnection::AddPendingOperation(uint32_t aOperationID, nsILDAPOperation *aOperation)
-{
+nsresult nsLDAPConnection::AddPendingOperation(uint32_t aOperationID,
+                                               nsILDAPOperation *aOperation) {
   NS_ENSURE_ARG_POINTER(aOperation);
 
-  nsIRunnable* runnable = new nsLDAPConnectionRunnable(aOperationID, aOperation,
-                                                       this);
+  nsIRunnable *runnable =
+      new nsLDAPConnectionRunnable(aOperationID, aOperation, this);
   {
     MutexAutoLock lock(mPendingOperationsMutex);
     mPendingOperations.Put((uint32_t)aOperationID, aOperation);
     MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
-           ("pending operation added; total pending operations now = %d\n",
-            mPendingOperations.Count()));
+            ("pending operation added; total pending operations now = %d\n",
+             mPendingOperations.Count()));
   }
 
   nsresult rv;
-  if (!mThread)
-  {
+  if (!mThread) {
     rv = NS_NewThread(getter_AddRefs(mThread), runnable);
     NS_ENSURE_SUCCESS(rv, rv);
-  }
-  else
-  {
+  } else {
     rv = mThread->Dispatch(runnable, nsIEventTarget::DISPATCH_NORMAL);
     NS_ENSURE_SUCCESS(rv, rv);
   }
@@ -355,72 +337,65 @@ nsLDAPConnection::AddPendingOperation(uint32_t aOperationID, nsILDAPOperation *a
  *
  * void removePendingOperation(in nsILDAPOperation aOperation);
  */
-nsresult
-nsLDAPConnection::RemovePendingOperation(uint32_t aOperationID)
-{
+nsresult nsLDAPConnection::RemovePendingOperation(uint32_t aOperationID) {
   NS_ENSURE_TRUE(aOperationID > 0, NS_ERROR_UNEXPECTED);
 
   MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
-         ("nsLDAPConnection::RemovePendingOperation(): operation removed\n"));
+          ("nsLDAPConnection::RemovePendingOperation(): operation removed\n"));
 
   {
     MutexAutoLock lock(mPendingOperationsMutex);
     mPendingOperations.Remove(aOperationID);
     MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
-           ("nsLDAPConnection::RemovePendingOperation(): operation "
-            "removed; total pending operations now = %d\n",
-            mPendingOperations.Count()));
+            ("nsLDAPConnection::RemovePendingOperation(): operation "
+             "removed; total pending operations now = %d\n",
+             mPendingOperations.Count()));
   }
 
   return NS_OK;
 }
 
-class nsOnLDAPMessageRunnable : public Runnable
-{
-public:
+class nsOnLDAPMessageRunnable : public Runnable {
+ public:
   nsOnLDAPMessageRunnable(nsLDAPMessage *aMsg, bool aClear)
-    : Runnable("nsOnLDAPMessageRunnable")
-    , m_msg(aMsg)
-    , m_clear(aClear)
-  {}
+      : Runnable("nsOnLDAPMessageRunnable"), m_msg(aMsg), m_clear(aClear) {}
   NS_DECL_NSIRUNNABLE
-private:
+ private:
   RefPtr<nsLDAPMessage> m_msg;
   bool m_clear;
 };
 
-NS_IMETHODIMP nsOnLDAPMessageRunnable::Run()
-{
+NS_IMETHODIMP nsOnLDAPMessageRunnable::Run() {
   // get the message listener object.
-  nsLDAPOperation *nsoperation = static_cast<nsLDAPOperation *>(m_msg->mOperation.get());
+  nsLDAPOperation *nsoperation =
+      static_cast<nsLDAPOperation *>(m_msg->mOperation.get());
   nsCOMPtr<nsILDAPMessageListener> listener;
   nsresult rv = nsoperation->GetMessageListener(getter_AddRefs(listener));
 
-  if (m_clear)
-  {
+  if (m_clear) {
     // try to break cycles
     nsoperation->Clear();
   }
 
-  if (!listener)
-  {
-    NS_ERROR("nsLDAPConnection::InvokeMessageCallback(): probable "
-             "memory corruption: GetMessageListener() returned nullptr");
+  if (!listener) {
+    NS_ERROR(
+        "nsLDAPConnection::InvokeMessageCallback(): probable "
+        "memory corruption: GetMessageListener() returned nullptr");
     return rv;
   }
 
   return listener->OnLDAPMessage(m_msg);
 }
 
-nsresult
-nsLDAPConnection::InvokeMessageCallback(LDAPMessage *aMsgHandle,
-                                        nsILDAPMessage *aMsg,
-                                        int32_t aOperation,
-                                        bool aRemoveOpFromConnQ)
-{
+nsresult nsLDAPConnection::InvokeMessageCallback(LDAPMessage *aMsgHandle,
+                                                 nsILDAPMessage *aMsg,
+                                                 int32_t aOperation,
+                                                 bool aRemoveOpFromConnQ) {
 #if defined(DEBUG)
-  // We only want this being logged for debug builds so as not to affect performance too much.
-  MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug, ("InvokeMessageCallback entered\n"));
+  // We only want this being logged for debug builds so as not to affect
+  // performance too much.
+  MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
+          ("InvokeMessageCallback entered\n"));
 #endif
 
   // Get the operation.
@@ -437,20 +412,20 @@ nsLDAPConnection::InvokeMessageCallback(LDAPMessage *aMsgHandle,
 
   // proxy the listener callback to the ui thread.
   RefPtr<nsOnLDAPMessageRunnable> runnable =
-    new nsOnLDAPMessageRunnable(msg, aRemoveOpFromConnQ);
+      new nsOnLDAPMessageRunnable(msg, aRemoveOpFromConnQ);
   // invoke the callback
   NS_DispatchToMainThread(runnable);
 
   // if requested (ie the operation is done), remove the operation
   // from the connection queue.
-  if (aRemoveOpFromConnQ)
-  {
+  if (aRemoveOpFromConnQ) {
     MutexAutoLock lock(mPendingOperationsMutex);
     mPendingOperations.Remove(aOperation);
 
     MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
-           ("pending operation removed; total pending operations now ="
-            " %d\n", mPendingOperations.Count()));
+            ("pending operation removed; total pending operations now ="
+             " %d\n",
+             mPendingOperations.Count()));
   }
 
   return NS_OK;
@@ -458,173 +433,171 @@ nsLDAPConnection::InvokeMessageCallback(LDAPMessage *aMsgHandle,
 
 NS_IMETHODIMP
 nsLDAPConnection::OnLookupComplete(nsICancelable *aRequest,
-                                   nsIDNSRecord  *aRecord,
-                                   nsresult       aStatus)
-{
-    nsresult rv = NS_OK;
+                                   nsIDNSRecord *aRecord, nsresult aStatus) {
+  nsresult rv = NS_OK;
 
-    if (aRecord) {
-        // Build mResolvedIP list
+  if (aRecord) {
+    // Build mResolvedIP list
+    //
+    mResolvedIP.Truncate();
+
+    int32_t index = 0;
+    nsCString addrbuf;
+    nsCOMPtr<nsINetAddr> addr;
+
+    while (
+        NS_SUCCEEDED(aRecord->GetScriptableNextAddr(0, getter_AddRefs(addr)))) {
+      // We can only use v4 addresses
+      //
+      uint16_t family = 0;
+      bool v4mapped = false;
+      addr->GetFamily(&family);
+      addr->GetIsV4Mapped(&v4mapped);
+      if (family == nsINetAddr::FAMILY_INET || v4mapped) {
+        // If there are more IPs in the list, we separate them with
+        // a space, as supported/used by the LDAP C-SDK.
         //
-        mResolvedIP.Truncate();
+        if (index++) mResolvedIP.Append(' ');
 
-        int32_t index = 0;
-        nsCString addrbuf;
-        nsCOMPtr<nsINetAddr> addr;
-
-        while (NS_SUCCEEDED(aRecord->GetScriptableNextAddr(0, getter_AddRefs(addr)))) {
-            // We can only use v4 addresses
-            //
-            uint16_t family = 0;
-            bool v4mapped = false;
-            addr->GetFamily(&family);
-            addr->GetIsV4Mapped(&v4mapped);
-            if (family == nsINetAddr::FAMILY_INET || v4mapped) {
-                // If there are more IPs in the list, we separate them with
-                // a space, as supported/used by the LDAP C-SDK.
-                //
-                if (index++)
-                    mResolvedIP.Append(' ');
-
-                // Convert the IPv4 address to a string, and append it to our
-                // list of IPs.  Strip leading '::FFFF:' (the IPv4-mapped-IPv6
-                // indicator) if present.
-                //
-                addr->GetAddress(addrbuf);
-                if (addrbuf[0] == ':' && addrbuf.Length() > 7)
-                    mResolvedIP.Append(Substring(addrbuf, 7));
-                else
-                    mResolvedIP.Append(addrbuf);
-            }
-        }
+        // Convert the IPv4 address to a string, and append it to our
+        // list of IPs.  Strip leading '::FFFF:' (the IPv4-mapped-IPv6
+        // indicator) if present.
+        //
+        addr->GetAddress(addrbuf);
+        if (addrbuf[0] == ':' && addrbuf.Length() > 7)
+          mResolvedIP.Append(Substring(addrbuf, 7));
+        else
+          mResolvedIP.Append(addrbuf);
+      }
     }
+  }
 
-    if (NS_FAILED(aStatus)) {
-        // The DNS service failed, lets pass something reasonable
-        // back to the listener.
-        //
-        switch (aStatus) {
-        case NS_ERROR_OUT_OF_MEMORY:
-        case NS_ERROR_UNKNOWN_HOST:
-        case NS_ERROR_FAILURE:
-        case NS_ERROR_OFFLINE:
-            rv = aStatus;
-            break;
+  if (NS_FAILED(aStatus)) {
+    // The DNS service failed, lets pass something reasonable
+    // back to the listener.
+    //
+    switch (aStatus) {
+      case NS_ERROR_OUT_OF_MEMORY:
+      case NS_ERROR_UNKNOWN_HOST:
+      case NS_ERROR_FAILURE:
+      case NS_ERROR_OFFLINE:
+        rv = aStatus;
+        break;
 
-        default:
-            rv = NS_ERROR_UNEXPECTED;
-            break;
-        }
-    } else if (!mResolvedIP.Length()) {
-        // We have no host resolved, that is very bad, and should most
-        // likely have been caught earlier.
-        //
-        NS_ERROR("nsLDAPConnection::OnStopLookup(): the resolved IP "
-                 "string is empty.\n");
+      default:
+        rv = NS_ERROR_UNEXPECTED;
+        break;
+    }
+  } else if (!mResolvedIP.Length()) {
+    // We have no host resolved, that is very bad, and should most
+    // likely have been caught earlier.
+    //
+    NS_ERROR(
+        "nsLDAPConnection::OnStopLookup(): the resolved IP "
+        "string is empty.\n");
 
-        rv = NS_ERROR_UNKNOWN_HOST;
+    rv = NS_ERROR_UNKNOWN_HOST;
+  } else {
+    // We've got the IP(s) for the hostname, now lets setup the
+    // LDAP connection using this information. Note that if the
+    // LDAP server returns a referral, the C-SDK will perform a
+    // new, synchronous DNS lookup, which might hang (but hopefully
+    // if we've come this far, DNS is working properly).
+    //
+    mConnectionHandle =
+        ldap_init(mResolvedIP.get(),
+                  mPort == -1 ? (mSSL ? LDAPS_PORT : LDAP_PORT) : mPort);
+    // Check that we got a proper connection, and if so, setup the
+    // threading functions for this connection.
+    //
+    if (!mConnectionHandle) {
+      rv = NS_ERROR_FAILURE;  // LDAP C SDK API gives no useful error
     } else {
-        // We've got the IP(s) for the hostname, now lets setup the
-        // LDAP connection using this information. Note that if the
-        // LDAP server returns a referral, the C-SDK will perform a
-        // new, synchronous DNS lookup, which might hang (but hopefully
-        // if we've come this far, DNS is working properly).
-        //
-        mConnectionHandle = ldap_init(mResolvedIP.get(),
-                                      mPort == -1 ?
-                                      (mSSL ? LDAPS_PORT : LDAP_PORT) : mPort);
-        // Check that we got a proper connection, and if so, setup the
-        // threading functions for this connection.
-        //
-        if ( !mConnectionHandle ) {
-            rv = NS_ERROR_FAILURE;  // LDAP C SDK API gives no useful error
-        } else {
 #if defined(DEBUG_dmose) || defined(DEBUG_bienvenu)
-            const int lDebug = 0;
-            ldap_set_option(mConnectionHandle, LDAP_OPT_DEBUG_LEVEL, &lDebug);
+      const int lDebug = 0;
+      ldap_set_option(mConnectionHandle, LDAP_OPT_DEBUG_LEVEL, &lDebug);
 #endif
 
-            // the C SDK currently defaults to v2.  if we're to use v3,
-            // tell it so.
-            //
-            int version;
-            switch (mVersion) {
-            case 2:
-                break;
-            case 3:
-                version = LDAP_VERSION3;
-                ldap_set_option(mConnectionHandle, LDAP_OPT_PROTOCOL_VERSION,
-                                &version);
-                break;
-            default:
-                NS_ERROR("nsLDAPConnection::OnLookupComplete(): mVersion"
-                         " invalid");
-            }
+      // the C SDK currently defaults to v2.  if we're to use v3,
+      // tell it so.
+      //
+      int version;
+      switch (mVersion) {
+        case 2:
+          break;
+        case 3:
+          version = LDAP_VERSION3;
+          ldap_set_option(mConnectionHandle, LDAP_OPT_PROTOCOL_VERSION,
+                          &version);
+          break;
+        default:
+          NS_ERROR(
+              "nsLDAPConnection::OnLookupComplete(): mVersion"
+              " invalid");
+      }
 
-            // This code sets up the current connection to use PSM for SSL
-            // functionality.  Making this use libssldap instead for
-            // non-browser user shouldn't be hard.
+      // This code sets up the current connection to use PSM for SSL
+      // functionality.  Making this use libssldap instead for
+      // non-browser user shouldn't be hard.
 
-            extern nsresult nsLDAPInstallSSL(LDAP *ld, const char *aHostName);
+      extern nsresult nsLDAPInstallSSL(LDAP * ld, const char *aHostName);
 
-            if (mSSL) {
-                if (ldap_set_option(mConnectionHandle, LDAP_OPT_SSL,
-                                    LDAP_OPT_ON) != LDAP_SUCCESS ) {
-                    NS_ERROR("nsLDAPConnection::OnStopLookup(): Error"
-                             " configuring connection to use SSL");
-                    rv = NS_ERROR_UNEXPECTED;
-                }
-
-                rv = nsLDAPInstallSSL(mConnectionHandle, mDNSHost.get());
-                if (NS_FAILED(rv)) {
-                    NS_ERROR("nsLDAPConnection::OnStopLookup(): Error"
-                             " installing secure LDAP routines for"
-                             " connection");
-                }
-            }
+      if (mSSL) {
+        if (ldap_set_option(mConnectionHandle, LDAP_OPT_SSL, LDAP_OPT_ON) !=
+            LDAP_SUCCESS) {
+          NS_ERROR(
+              "nsLDAPConnection::OnStopLookup(): Error"
+              " configuring connection to use SSL");
+          rv = NS_ERROR_UNEXPECTED;
         }
+
+        rv = nsLDAPInstallSSL(mConnectionHandle, mDNSHost.get());
+        if (NS_FAILED(rv)) {
+          NS_ERROR(
+              "nsLDAPConnection::OnStopLookup(): Error"
+              " installing secure LDAP routines for"
+              " connection");
+        }
+      }
     }
+  }
 
-    // Drop the DNS request object, we no longer need it, and set the flag
-    // indicating that DNS has finished.
-    //
-    mDNSRequest = nullptr;
-    mDNSHost.Truncate();
+  // Drop the DNS request object, we no longer need it, and set the flag
+  // indicating that DNS has finished.
+  //
+  mDNSRequest = nullptr;
+  mDNSHost.Truncate();
 
-    // Call the listener, and then we can release our reference to it.
-    //
-    mInitListener->OnLDAPInit(this, rv);
-    mInitListener = nullptr;
+  // Call the listener, and then we can release our reference to it.
+  //
+  mInitListener->OnLDAPInit(this, rv);
+  mInitListener = nullptr;
 
-    return rv;
+  return rv;
 }
 
 NS_IMETHODIMP
-nsLDAPConnection::OnLookupByTypeComplete(nsICancelable      *aRequest,
+nsLDAPConnection::OnLookupByTypeComplete(nsICancelable *aRequest,
                                          nsIDNSByTypeRecord *aRes,
-                                         nsresult            aStatus)
-{
+                                         nsresult aStatus) {
   return NS_OK;
 }
 
-nsLDAPConnectionRunnable::nsLDAPConnectionRunnable(int32_t aOperationID,
-                                                   nsILDAPOperation *aOperation,
-                                                   nsLDAPConnection *aConnection)
-  : mOperationID(aOperationID),  mConnection(aConnection)
-{
-}
+nsLDAPConnectionRunnable::nsLDAPConnectionRunnable(
+    int32_t aOperationID, nsILDAPOperation *aOperation,
+    nsLDAPConnection *aConnection)
+    : mOperationID(aOperationID), mConnection(aConnection) {}
 
-nsLDAPConnectionRunnable::~nsLDAPConnectionRunnable()
-{
+nsLDAPConnectionRunnable::~nsLDAPConnectionRunnable() {
   if (mConnection) {
-    NS_ReleaseOnMainThreadSystemGroup("nsLDAPConnectionRunnable::mConnection", mConnection.forget());
+    NS_ReleaseOnMainThreadSystemGroup("nsLDAPConnectionRunnable::mConnection",
+                                      mConnection.forget());
   }
 }
 
 NS_IMPL_ISUPPORTS(nsLDAPConnectionRunnable, nsIRunnable)
 
-NS_IMETHODIMP nsLDAPConnectionRunnable::Run()
-{
+NS_IMETHODIMP nsLDAPConnectionRunnable::Run() {
   if (!mOperationID) {
     NS_ERROR("mOperationID is null");
     return NS_ERROR_NULL_POINTER;
@@ -634,12 +607,12 @@ NS_IMETHODIMP nsLDAPConnectionRunnable::Run()
   bool operationFinished = true;
   RefPtr<nsLDAPMessage> msg;
 
-  struct timeval timeout = { 0, 0 };
+  struct timeval timeout = {0, 0};
 
   nsCOMPtr<nsIThread> thread = do_GetCurrentThread();
-  int32_t returnCode = ldap_result(mConnection->mConnectionHandle, mOperationID, LDAP_MSG_ONE, &timeout, &msgHandle);
-  switch (returnCode)
-  {
+  int32_t returnCode = ldap_result(mConnection->mConnectionHandle, mOperationID,
+                                   LDAP_MSG_ONE, &timeout, &msgHandle);
+  switch (returnCode) {
     // timeout
     case 0:
       // XXX do we need a timer?
@@ -653,35 +626,29 @@ NS_IMETHODIMP nsLDAPConnectionRunnable::Run()
       // XXX what should we do with LDAP_RES_SEARCH_EXTENDED
       operationFinished = false;
       MOZ_FALLTHROUGH;
-    default:
-    {
+    default: {
       msg = new nsLDAPMessage;
-      if (!msg)
-        return NS_ERROR_NULL_POINTER;
+      if (!msg) return NS_ERROR_NULL_POINTER;
 
       // initialize the message, using a protected method not available
       // through nsILDAPMessage (which is why we need the raw pointer)
       nsresult rv = msg->Init(mConnection, msgHandle);
 
-      switch (rv)
-      {
-        case NS_OK:
-        {
+      switch (rv) {
+        case NS_OK: {
           int32_t errorCode;
           msg->GetErrorCode(&errorCode);
 
           // maybe a version error, e.g., using v3 on a v2 server.
           // if we're using v3, try v2.
           if (errorCode == LDAP_PROTOCOL_ERROR &&
-              mConnection->mVersion == nsILDAPConnection::VERSION3)
-          {
+              mConnection->mVersion == nsILDAPConnection::VERSION3) {
             nsAutoCString password;
             mConnection->mVersion = nsILDAPConnection::VERSION2;
             ldap_set_option(mConnection->mConnectionHandle,
                             LDAP_OPT_PROTOCOL_VERSION, &mConnection->mVersion);
 
-            if (NS_SUCCEEDED(rv))
-            {
+            if (NS_SUCCEEDED(rv)) {
               // We don't want to notify callers that we are done, so
               // redispatch the runnable.
               // XXX do we need a timer?
@@ -695,21 +662,20 @@ NS_IMETHODIMP nsLDAPConnectionRunnable::Run()
           //
           if (errorCode == LDAP_SASL_BIND_IN_PROGRESS) {
             struct berval *creds;
-            ldap_parse_sasl_bind_result(
-              mConnection->mConnectionHandle, msgHandle,
-              &creds, 0);
+            ldap_parse_sasl_bind_result(mConnection->mConnectionHandle,
+                                        msgHandle, &creds, 0);
 
             nsCOMPtr<nsILDAPOperation> operation;
             {
               MutexAutoLock lock(mConnection->mPendingOperationsMutex);
-              mConnection->mPendingOperations.Get((uint32_t)mOperationID, getter_AddRefs(operation));
+              mConnection->mPendingOperations.Get((uint32_t)mOperationID,
+                                                  getter_AddRefs(operation));
             }
 
             NS_ENSURE_TRUE(operation, NS_ERROR_NULL_POINTER);
 
             nsresult rv = operation->SaslStep(creds->bv_val, creds->bv_len);
-            if (NS_SUCCEEDED(rv))
-              return NS_OK;
+            if (NS_SUCCEEDED(rv)) return NS_OK;
           }
           break;
         }
@@ -722,16 +688,15 @@ NS_IMETHODIMP nsLDAPConnectionRunnable::Run()
       // this message
       rv = mConnection->InvokeMessageCallback(msgHandle, msg, mOperationID,
                                               operationFinished);
-      if (NS_FAILED(rv))
-      {
-        NS_ERROR("CheckLDAPOperationResult(): error invoking message"
-                 " callback");
+      if (NS_FAILED(rv)) {
+        NS_ERROR(
+            "CheckLDAPOperationResult(): error invoking message"
+            " callback");
         // punt and hope things work out better next time around
         return NS_OK;
       }
 
-      if (!operationFinished)
-      {
+      if (!operationFinished) {
         // XXX do we need a timer?
         rv = thread->Dispatch(this, nsIEventTarget::DISPATCH_NORMAL);
         NS_ENSURE_SUCCESS(rv, rv);

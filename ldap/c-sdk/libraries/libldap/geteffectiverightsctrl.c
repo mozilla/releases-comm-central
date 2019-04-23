@@ -40,16 +40,16 @@
 
    Create Effective Rights control.
 
-   Parameters are  
+   Parameters are
 
-   ld              LDAP pointer to the desired connection 
+   ld              LDAP pointer to the desired connection
 
    authzid		   RFC2829 section 9, eg "dn:<DN>".
-                   NULL or empty string means get bound user's rights, 
+                   NULL or empty string means get bound user's rights,
                    just "dn:" means get anonymous user's rights.
-                   
-   attrlist        additional attributes for which rights info is 
-                   requested. NULL means "just the ones returned 
+
+   attrlist        additional attributes for which rights info is
+                   requested. NULL means "just the ones returned
                    with the search operation".
 
    ctl_iscritical  Indicates whether the control is critical of not. If
@@ -57,53 +57,44 @@
                    ried out if the control is recognized by the server
                    and/or client
 
-   ctrlp           the address of a place to put the constructed control 
+   ctrlp           the address of a place to put the constructed control
 */
 
-int
-LDAP_CALL
-ldap_create_geteffectiveRights_control (
-     LDAP *ld, 
-     const char *authzid,
-	 const char **attrlist, 
-     const char ctl_iscritical,
-     LDAPControl **ctrlp   
-)
-{
-	BerElement		*ber;
-	int				rc;
+int LDAP_CALL ldap_create_geteffectiveRights_control(LDAP *ld,
+                                                     const char *authzid,
+                                                     const char **attrlist,
+                                                     const char ctl_iscritical,
+                                                     LDAPControl **ctrlp) {
+  BerElement *ber;
+  int rc;
 
-	if ( !NSLDAPI_VALID_LDAP_POINTER( ld )) {
-		return( LDAP_PARAM_ERROR );
-	}
+  if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
+    return (LDAP_PARAM_ERROR);
+  }
 
-	if (  ctrlp == NULL ) {
-		LDAP_SET_LDERRNO( ld, LDAP_PARAM_ERROR, NULL, NULL );
-		return ( LDAP_PARAM_ERROR );
-	}
-	if (NULL == authzid)
-	{
-	    authzid = "";
-	}
+  if (ctrlp == NULL) {
+    LDAP_SET_LDERRNO(ld, LDAP_PARAM_ERROR, NULL, NULL);
+    return (LDAP_PARAM_ERROR);
+  }
+  if (NULL == authzid) {
+    authzid = "";
+  }
 
-	/* create a ber package to hold the controlValue */
-	if ( ( nsldapi_alloc_ber_with_options( ld, &ber ) ) != LDAP_SUCCESS ) {
-		LDAP_SET_LDERRNO( ld, LDAP_NO_MEMORY, NULL, NULL );
-		return( LDAP_NO_MEMORY );
-	}
+  /* create a ber package to hold the controlValue */
+  if ((nsldapi_alloc_ber_with_options(ld, &ber)) != LDAP_SUCCESS) {
+    LDAP_SET_LDERRNO(ld, LDAP_NO_MEMORY, NULL, NULL);
+    return (LDAP_NO_MEMORY);
+  }
 
-	if ( LBER_ERROR == ber_printf( ber, "{s{v}}", authzid, attrlist ) ) {
-        LDAP_SET_LDERRNO( ld, LDAP_ENCODING_ERROR, NULL, NULL );
-        ber_free( ber, 1 );
-        return( LDAP_ENCODING_ERROR );
-    }
+  if (LBER_ERROR == ber_printf(ber, "{s{v}}", authzid, attrlist)) {
+    LDAP_SET_LDERRNO(ld, LDAP_ENCODING_ERROR, NULL, NULL);
+    ber_free(ber, 1);
+    return (LDAP_ENCODING_ERROR);
+  }
 
-	rc = nsldapi_build_control( LDAP_CONTROL_GETEFFECTIVERIGHTS_REQUEST, ber, 1,
-	    ctl_iscritical, ctrlp );
+  rc = nsldapi_build_control(LDAP_CONTROL_GETEFFECTIVERIGHTS_REQUEST, ber, 1,
+                             ctl_iscritical, ctrlp);
 
-	LDAP_SET_LDERRNO( ld, rc, NULL, NULL );
-	return( rc );
-
+  LDAP_SET_LDERRNO(ld, rc, NULL, NULL);
+  return (rc);
 }
-
-

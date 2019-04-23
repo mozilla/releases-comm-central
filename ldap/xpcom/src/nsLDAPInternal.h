@@ -9,6 +9,6 @@
 
 #include "mozilla/Logging.h"
 
-extern mozilla::LazyLogModule gLDAPLogModule; // defined in nsLDAPService.cpp
+extern mozilla::LazyLogModule gLDAPLogModule;  // defined in nsLDAPService.cpp
 
-#endif // nsLDAPInternal_h_
+#endif  // nsLDAPInternal_h_

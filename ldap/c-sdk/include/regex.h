@@ -35,7 +35,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#if defined( macintosh ) || defined( DOS ) || defined( _WINDOWS ) || defined( NEED_BSDREGEX ) || defined( XP_OS2 )
+#if defined(macintosh) || defined(DOS) || defined(_WINDOWS) || \
+    defined(NEED_BSDREGEX) || defined(XP_OS2)
 /*
  * Copyright (c) 1993 Regents of the University of Michigan.
  * All rights reserved.
@@ -52,44 +53,44 @@
  * 13 August 1993 Mark C Smith
  */
 
-#ifdef __cplusplus
+#  ifdef __cplusplus
 extern "C" {
-#endif
+#  endif
 
-#include "ldap.h"
+#  include "ldap.h"
 
-#if !defined( NEEDPROTOS ) && defined( __STDC__ )
-#define NEEDPROTOS
-#endif
+#  if !defined(NEEDPROTOS) && defined(__STDC__)
+#    define NEEDPROTOS
+#  endif
 
-#ifdef _SLDAPD_H_  /* server build: no need to use LDAP_CALL stuff */
-#ifdef LDAP_CALL
-#undef LDAP_CALL
-#define LDAP_CALL
-#endif
-#endif
+#  ifdef _SLDAPD_H_ /* server build: no need to use LDAP_CALL stuff */
+#    ifdef LDAP_CALL
+#      undef LDAP_CALL
+#      define LDAP_CALL
+#    endif
+#  endif
 
-#ifdef NEEDPROTOS
-int re_init( void );
-void re_lock( void );
-int re_unlock( void );
-char * LDAP_CALL re_comp( const char *pat );
-int LDAP_CALL re_exec( const char *lp );
-void LDAP_CALL re_modw( char *s );
-int LDAP_CALL re_subs( char *src, char *dst );
-#else /* NEEDPROTOS */
+#  ifdef NEEDPROTOS
+int re_init(void);
+void re_lock(void);
+int re_unlock(void);
+char *LDAP_CALL re_comp(const char *pat);
+int LDAP_CALL re_exec(const char *lp);
+void LDAP_CALL re_modw(char *s);
+int LDAP_CALL re_subs(char *src, char *dst);
+#  else  /* NEEDPROTOS */
 int re_init();
 void re_lock();
 int re_unlock();
-char * LDAP_CALL re_comp();
+char* LDAP_CALL re_comp();
 int LDAP_CALL re_exec();
 void LDAP_CALL re_modw();
 int LDAP_CALL re_subs();
-#endif /* NEEDPROTOS */
+#  endif /* NEEDPROTOS */
 
-#define re_fail( m, p )
+#  define re_fail(m, p)
 
-#ifdef __cplusplus
+#  ifdef __cplusplus
 }
-#endif
+#  endif
 #endif /* macintosh or DOS or or _WIN32 or NEED_BSDREGEX */

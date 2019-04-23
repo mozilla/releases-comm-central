@@ -59,4 +59,3 @@
 #include "ldap-deprecated.h"
 
 #endif /* _LDAP_H */
-

@@ -50,19 +50,19 @@ extern "C" {
 /* from iutil-lock.c */
 
 #ifdef _WINDOWS
-#define LDAP_MUTEX_T HANDLE
+#  define LDAP_MUTEX_T HANDLE
 
 extern char *ldap_strdup();
 extern unsigned char *ldap_utf8_nextchar();
 extern char **ldap_explode_ava();
 extern int ldap_utf8_toupper();
 
-int pthread_mutex_init( LDAP_MUTEX_T *mp, void *attr);
-static void  * pthread_mutex_alloc( void );
-int pthread_mutex_destroy( LDAP_MUTEX_T *mp );
-static void pthread_mutex_free( void *mutexp );
-int pthread_mutex_lock( LDAP_MUTEX_T *mp );
-int pthread_mutex_unlock( LDAP_MUTEX_T *mp );
+int pthread_mutex_init(LDAP_MUTEX_T *mp, void *attr);
+static void *pthread_mutex_alloc(void);
+int pthread_mutex_destroy(LDAP_MUTEX_T *mp);
+static void pthread_mutex_free(void *mutexp);
+int pthread_mutex_lock(LDAP_MUTEX_T *mp);
+int pthread_mutex_unlock(LDAP_MUTEX_T *mp);
 
 #endif /* _WINDOWS */
 
