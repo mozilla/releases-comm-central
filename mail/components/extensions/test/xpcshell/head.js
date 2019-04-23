@@ -5,6 +5,8 @@
 ChromeUtils.defineModuleGetter(this, "Services", "resource://gre/modules/Services.jsm");
 ChromeUtils.defineModuleGetter(this, "MailServices", "resource:///modules/MailServices.jsm");
 
+var {AddonTestUtils} = ChromeUtils.import("resource://testing-common/AddonTestUtils.jsm");
+
 // Ensure the profile directory is set up
 do_get_profile();
 
@@ -13,6 +15,11 @@ Services.prefs.deleteBranch("ldap_2.servers.oe.");
 
 // OSX Address Book deactivation (Bug 955842)
 Services.prefs.deleteBranch("ldap_2.servers.osx.");
+
+var createHttpServer = (...args) => {
+  AddonTestUtils.maybeInit(this);
+  return AddonTestUtils.createHttpServer(...args);
+};
 
 function createAccount() {
   MailServices.accounts.createLocalMailAccount();

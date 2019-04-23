@@ -10,11 +10,72 @@ XPCOMUtils.defineLazyServiceGetter(
 
 var {
   ExtensionError,
+  getInnerWindowID,
 } = ExtensionUtils;
 
 var {
   defineLazyGetter,
 } = ExtensionCommon;
+
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  ExtensionPageChild: "resource://gre/modules/ExtensionPageChild.jsm",
+  ExtensionProcessScript: "resource://gre/modules/ExtensionProcessScript.jsm",
+  ExtensionContent: "resource://gre/modules/ExtensionContent.jsm",
+  ProxyScriptContext: "resource://gre/modules/ProxyScriptContext.jsm",
+  Schemas: "resource://gre/modules/Schemas.jsm",
+});
+
+// Inject the |messenger| object as an alias to |browser| in all known contexts. This is a bit
+// fragile since it uses monkeypatching. If a test fails, the best way to debug is to search for
+// Schemas.exportLazyGetter where it does the injections, add |messenger| alias to those files until
+// the test passes again, and then find out why the monkeypatching is not catching it.
+(function() {
+  let loadContentScript = ExtensionProcessScript.loadContentScript;
+  let initExtensionContext = ExtensionContent.initExtensionContext;
+  let initPageChildExtensionContext = ExtensionPageChild.initExtensionContext;
+  let loadProxyScriptContext = ProxyScriptContext.prototype.load;
+
+  // This patches constructor of ContentScriptContextChild adding the object to the sandbox
+  ExtensionProcessScript.loadContentScript = function(contentScript, window) {
+    let script = ExtensionContent.contentScripts.get(contentScript);
+    let context = script.extension.getContext(window);
+    Schemas.exportLazyGetter(context.sandbox, "messenger", () => context.chromeObj);
+
+    return loadContentScript.apply(ExtensionProcessScript, arguments);
+  };
+
+  // This patches extension content within unprivileged pages, so an iframe on a web page that
+  // points to a moz-extension:// page exposed via web_accessible_content
+  ExtensionContent.initExtensionContext = function(extension, window) {
+    let context = extension.getContext(window);
+    Schemas.exportLazyGetter(window, "messenger", () => context.chromeObj);
+
+    return initExtensionContext.apply(ExtensionContent, arguments);
+  };
+
+  // This patches priviledged pages such as the background script
+  ExtensionPageChild.initExtensionContext = function(extension, window) {
+    let retval = initPageChildExtensionContext.apply(ExtensionPageChild, arguments);
+
+    let windowId = getInnerWindowID(window);
+    let context = ExtensionPageChild.extensionContexts.get(windowId);
+
+    Schemas.exportLazyGetter(window, "messenger", () => {
+      let messengerObj = Cu.createObjectIn(window);
+      context.childManager.inject(messengerObj);
+      return messengerObj;
+    });
+
+    return retval;
+  };
+
+  // This patches proxy scripts using browser.proxy.register()
+  ProxyScriptContext.prototype.load = function() {
+    Schemas.exportLazyGetter(this.sandbox, "messenger", () => this.browserObj);
+    return loadProxyScriptContext.apply(this, arguments);
+  };
+})();
 
 let tabTracker;
 let windowTracker;
