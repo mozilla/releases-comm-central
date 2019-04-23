@@ -334,6 +334,7 @@
 
   <popupnotification id="addon-installed-notification" hidden="true">
     <popupnotificationcontent class="addon-installed-notification-content" orient="vertical">
+      <html:ul id="addon-installed-list" class="addon-installed-list"/>
       <description id="addon-installed-restart-text" class="addon-installed-restart-text"/>
     </popupnotificationcontent>
   </popupnotification>

@@ -270,20 +270,36 @@ var gXPInstallObserver = {
     let document = browser.ownerDocument;
     let window = browser.ownerGlobal;
 
-    let brandBundle = window.document.getElementById("bundle_brand");
+    let brandBundle = document.getElementById("bundle_brand");
     let appName = brandBundle.getString("brandShortName");
 
     let message = addonsBundle.getFormattedString("addonPostInstall.message1",
                                                   ["<>", appName]);
 
-    let restartRequired = false;
+    let restartRequired = await this._installRequiresRestart(addon);
     let icon = DEFAULT_EXTENSION_ICON;
     if (addon.isWebExtension) {
-      let data = new ExtensionData(addon.getResourceURI());
-      await data.loadManifest();
-      restartRequired = data.manifest.legacy;
       icon = AddonManager.getPreferredIconURL(addon, 32, window) || icon;
     }
+
+    let options = {
+      hideClose: true,
+      timeout: Date.now() + 30000,
+      popupIconURL: icon,
+      name: addon.name,
+    };
+
+    let list = document.getElementById("addon-installed-list");
+    list.hidden = true;
+
+    this._showInstallNotification(browser, restartRequired, message, options);
+  },
+
+  _showInstallNotification(browser, restartRequired, message, options) {
+    let document = browser.ownerDocument;
+
+    let brandBundle = document.getElementById("bundle_brand");
+    let appName = brandBundle.getString("brandShortName");
 
     let action;
     let secondaryActions = null;
@@ -313,13 +329,6 @@ var gXPInstallObserver = {
       };
       textEl.hidden = true;
     }
-
-    let options = {
-      hideClose: true,
-      timeout: Date.now() + 30000,
-      popupIconURL: icon,
-      name: addon.name,
-    };
 
     showNotification(browser, "addon-installed", message, "addons-notification-icon",
                      action, secondaryActions, options);
@@ -641,8 +650,25 @@ var gXPInstallObserver = {
     }
   },
 
+  async _installRequiresRestart(addon) {
+    if (!addon.isWebExtension) {
+      return false;
+    }
+
+    let data = new ExtensionData(addon.getResourceURI());
+    await data.loadManifest();
+    return !!data.manifest.legacy;
+  },
+
   async _checkForSideloaded(browser) {
     let sideloaded = await AddonManagerPrivate.getNewSideloads();
+    if (sideloaded.length == 0) {
+      return;
+    }
+
+    // Check if the user wants any sideloaded add-ons installed.
+
+    let enabled = [];
     for (let addon of sideloaded) {
       let strings = this._buildStrings({
         addon,
@@ -652,8 +678,56 @@ var gXPInstallObserver = {
       let answer = await this.showPermissionsPrompt(browser, strings, addon.iconURL);
       if (answer) {
         await addon.enable();
+        enabled.push(addon);
       }
     }
+
+    if (enabled.length == 0) {
+      return;
+    }
+
+    // Confirm sideloaded add-ons were installed and ask to restart if necessary.
+
+    if (enabled.length == 1) {
+      this.showInstallNotification(browser, enabled[0]);
+      return;
+    }
+
+    let document = browser.ownerDocument;
+
+    let brandBundle = document.getElementById("bundle_brand");
+    let appName = brandBundle.getString("brandShortName");
+
+    let message = addonsBundle.getFormattedString(
+      "addonPostInstall.multiple.message", [appName]
+    );
+
+    let list = document.getElementById("addon-installed-list");
+    list.hidden = false;
+    while (list.firstChild) {
+      list.firstChild.remove();
+    }
+    let textEl = document.getElementById("addon-installed-restart-text");
+    textEl.textContent = addonsBundle.getFormattedString(
+      "addonPostInstall.restartRequired.message", [appName]
+    );
+    textEl.hidden = false;
+
+    let restartRequired = false;
+    for (let addon of enabled) {
+      let item = document.createElementNS(HTML_NS, "li");
+      item.textContent = addon.name;
+      list.appendChild(item);
+      restartRequired = restartRequired || await this._installRequiresRestart(addon);
+    }
+
+    let options = {
+      popupIconURL: DEFAULT_EXTENSION_ICON,
+      hideClose: true,
+      timeout: Date.now() + 30000,
+    };
+
+    this._showInstallNotification(browser, restartRequired, message, options);
   },
 };
 

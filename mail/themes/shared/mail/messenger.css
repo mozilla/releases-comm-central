@@ -44,6 +44,10 @@ description.error {
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
+html|ul.addon-installed-list {
+  margin-top: 0;
+}
+
 #tabbar-toolbar {
   -moz-appearance: none;
   padding: 0;
