@@ -6,15 +6,13 @@
 #include "nsIComponentManagerExtra.h"
 #include "nsLiteralString.h"
 
-class nsComponentManagerExtra : public nsIComponentManagerExtra
-{
-public:
-
+class nsComponentManagerExtra : public nsIComponentManagerExtra {
+ public:
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSICOMPONENTMANAGEREXTRA
 
-private:
+ private:
   virtual ~nsComponentManagerExtra();
 };
 
-#endif // nsComponentManagerExtra_h__
+#endif  // nsComponentManagerExtra_h__

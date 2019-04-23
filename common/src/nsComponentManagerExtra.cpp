@@ -8,9 +8,8 @@
 #include "mozilla/Services.h"
 #include "nsXULAppAPI.h"
 
-static already_AddRefed<nsIFile>
-CloneAndAppend(nsIFile* aBase, const nsACString& aAppend)
-{
+static already_AddRefed<nsIFile> CloneAndAppend(nsIFile* aBase,
+                                                const nsACString& aAppend) {
   nsCOMPtr<nsIFile> f;
   aBase->Clone(getter_AddRefs(f));
   if (!f) {
@@ -21,11 +20,10 @@ CloneAndAppend(nsIFile* aBase, const nsACString& aAppend)
   return f.forget();
 }
 
-NS_IMPL_ISUPPORTS(nsComponentManagerExtra,
-                  nsIComponentManagerExtra)
+NS_IMPL_ISUPPORTS(nsComponentManagerExtra, nsIComponentManagerExtra)
 
-NS_IMETHODIMP nsComponentManagerExtra::AddLegacyExtensionManifestLocation(nsIFile *aLocation)
-{
+NS_IMETHODIMP nsComponentManagerExtra::AddLegacyExtensionManifestLocation(
+    nsIFile* aLocation) {
   nsString path;
   nsresult rv = aLocation->GetPath(path);
   if (NS_FAILED(rv)) {
@@ -37,10 +35,8 @@ NS_IMETHODIMP nsComponentManagerExtra::AddLegacyExtensionManifestLocation(nsIFil
   }
 
   nsCOMPtr<nsIFile> manifest =
-    CloneAndAppend(aLocation, NS_LITERAL_CSTRING("chrome.manifest"));
+      CloneAndAppend(aLocation, NS_LITERAL_CSTRING("chrome.manifest"));
   return XRE_AddManifestLocation(NS_EXTENSION_LOCATION, manifest);
 }
 
-nsComponentManagerExtra::~nsComponentManagerExtra()
-{
-}
+nsComponentManagerExtra::~nsComponentManagerExtra() {}
