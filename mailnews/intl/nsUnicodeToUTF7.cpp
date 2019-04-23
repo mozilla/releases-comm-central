@@ -9,35 +9,32 @@
 //----------------------------------------------------------------------
 // Global functions and data [declaration]
 
-#define ENC_DIRECT      0
-#define ENC_BASE64      1
+#define ENC_DIRECT 0
+#define ENC_BASE64 1
 
 //----------------------------------------------------------------------
 // Class nsBasicUTF7Encoder [implementation]
 
-nsBasicUTF7Encoder::nsBasicUTF7Encoder(char aLastChar, char aEscChar)
-{
+nsBasicUTF7Encoder::nsBasicUTF7Encoder(char aLastChar, char aEscChar) {
   mLastChar = aLastChar;
   mEscChar = aEscChar;
   Reset();
 }
 
-nsresult nsBasicUTF7Encoder::ShiftEncoding(int32_t aEncoding,
-                                          char * aDest,
-                                          int32_t * aDestLength)
-{
+nsresult nsBasicUTF7Encoder::ShiftEncoding(int32_t aEncoding, char* aDest,
+                                           int32_t* aDestLength) {
   if (aEncoding == mEncoding) {
     *aDestLength = 0;
     return NS_OK;
   }
 
   nsresult res = NS_OK;
-  char * dest = aDest;
-  char * destEnd = aDest + *aDestLength;
+  char* dest = aDest;
+  char* destEnd = aDest + *aDestLength;
 
   if (mEncStep != 0) {
     if (dest >= destEnd) return NS_OK_UENC_MOREOUTPUT;
-    *(dest++)=ValueToChar(mEncBits);
+    *(dest++) = ValueToChar(mEncBits);
     mEncStep = 0;
     mEncBits = 0;
   }
@@ -58,21 +55,18 @@ nsresult nsBasicUTF7Encoder::ShiftEncoding(int32_t aEncoding,
     mEncoding = aEncoding;
   }
 
-  *aDestLength  = dest - aDest;
+  *aDestLength = dest - aDest;
   return res;
 }
 
-nsresult nsBasicUTF7Encoder::EncodeDirect(
-                            const char16_t * aSrc,
-                            int32_t * aSrcLength,
-                            char * aDest,
-                            int32_t * aDestLength)
-{
+nsresult nsBasicUTF7Encoder::EncodeDirect(const char16_t* aSrc,
+                                          int32_t* aSrcLength, char* aDest,
+                                          int32_t* aDestLength) {
   nsresult res = NS_OK;
-  const char16_t * src = aSrc;
-  const char16_t * srcEnd = aSrc + *aSrcLength;
-  char * dest = aDest;
-  char * destEnd = aDest + *aDestLength;
+  const char16_t* src = aSrc;
+  const char16_t* srcEnd = aSrc + *aSrcLength;
+  char* dest = aDest;
+  char* destEnd = aDest + *aDestLength;
   char16_t ch;
 
   while (src < srcEnd) {
@@ -92,7 +86,7 @@ nsresult nsBasicUTF7Encoder::EncodeDirect(
         src++;
       }
     } else {
-      //classic direct encoding
+      // classic direct encoding
       if (dest >= destEnd) {
         res = NS_OK_UENC_MOREOUTPUT;
         break;
@@ -104,21 +98,18 @@ nsresult nsBasicUTF7Encoder::EncodeDirect(
   }
 
   *aSrcLength = src - aSrc;
-  *aDestLength  = dest - aDest;
+  *aDestLength = dest - aDest;
   return res;
 }
 
-nsresult nsBasicUTF7Encoder::EncodeBase64(
-                             const char16_t * aSrc,
-                             int32_t * aSrcLength,
-                             char * aDest,
-                             int32_t * aDestLength)
-{
+nsresult nsBasicUTF7Encoder::EncodeBase64(const char16_t* aSrc,
+                                          int32_t* aSrcLength, char* aDest,
+                                          int32_t* aDestLength) {
   nsresult res = NS_OK;
-  const char16_t * src = aSrc;
-  const char16_t * srcEnd = aSrc + *aSrcLength;
-  char * dest = aDest;
-  char * destEnd = aDest + *aDestLength;
+  const char16_t* src = aSrc;
+  const char16_t* srcEnd = aSrc + *aSrcLength;
+  char* dest = aDest;
+  char* destEnd = aDest + *aDestLength;
   char16_t ch;
   uint32_t value;
 
@@ -134,54 +125,54 @@ nsresult nsBasicUTF7Encoder::EncodeBase64(
           res = NS_OK_UENC_MOREOUTPUT;
           break;
         }
-        value=ch>>10;
-        *(dest++)=ValueToChar(value);
-        value=(ch>>4)&0x3f;
-        *(dest++)=ValueToChar(value);
-        mEncBits=(ch&0x0f)<<2;
+        value = ch >> 10;
+        *(dest++) = ValueToChar(value);
+        value = (ch >> 4) & 0x3f;
+        *(dest++) = ValueToChar(value);
+        mEncBits = (ch & 0x0f) << 2;
         break;
       case 1:
         if (destEnd - dest < 3) {
           res = NS_OK_UENC_MOREOUTPUT;
           break;
         }
-        value=mEncBits+(ch>>14);
-        *(dest++)=ValueToChar(value);
-        value=(ch>>8)&0x3f;
-        *(dest++)=ValueToChar(value);
-        value=(ch>>2)&0x3f;
-        *(dest++)=ValueToChar(value);
-        mEncBits=(ch&0x03)<<4;
+        value = mEncBits + (ch >> 14);
+        *(dest++) = ValueToChar(value);
+        value = (ch >> 8) & 0x3f;
+        *(dest++) = ValueToChar(value);
+        value = (ch >> 2) & 0x3f;
+        *(dest++) = ValueToChar(value);
+        mEncBits = (ch & 0x03) << 4;
         break;
       case 2:
         if (destEnd - dest < 3) {
           res = NS_OK_UENC_MOREOUTPUT;
           break;
         }
-        value=mEncBits+(ch>>12);
-        *(dest++)=ValueToChar(value);
-        value=(ch>>6)&0x3f;
-        *(dest++)=ValueToChar(value);
-        value=ch&0x3f;
-        *(dest++)=ValueToChar(value);
-        mEncBits=0;
+        value = mEncBits + (ch >> 12);
+        *(dest++) = ValueToChar(value);
+        value = (ch >> 6) & 0x3f;
+        *(dest++) = ValueToChar(value);
+        value = ch & 0x3f;
+        *(dest++) = ValueToChar(value);
+        mEncBits = 0;
         break;
     }
 
     if (res != NS_OK) break;
 
     src++;
-    (++mEncStep)%=3;
+    (++mEncStep) %= 3;
   }
 
   *aSrcLength = src - aSrc;
-  *aDestLength  = dest - aDest;
+  *aDestLength = dest - aDest;
   return res;
 }
 
 char nsBasicUTF7Encoder::ValueToChar(uint32_t aValue) {
   if (aValue < 26)
-    return (char)('A'+aValue);
+    return (char)('A' + aValue);
   else if (aValue < 26 + 26)
     return (char)('a' + aValue - 26);
   else if (aValue < 26 + 26 + 10)
@@ -196,25 +187,25 @@ char nsBasicUTF7Encoder::ValueToChar(uint32_t aValue) {
 
 bool nsBasicUTF7Encoder::DirectEncodable(char16_t aChar) {
   // spec says: printable US-ASCII chars
-  if ((aChar >= 0x20) && (aChar <= 0x7e)) return true;
-  else return false;
+  if ((aChar >= 0x20) && (aChar <= 0x7e))
+    return true;
+  else
+    return false;
 }
 
 //----------------------------------------------------------------------
 // Subclassing of nsEncoderSupport class [implementation]
 
-NS_IMETHODIMP nsBasicUTF7Encoder::ConvertNoBuffNoErr(
-                                  const char16_t * aSrc,
-                                  int32_t * aSrcLength,
-                                  char * aDest,
-                                  int32_t * aDestLength)
-{
+NS_IMETHODIMP nsBasicUTF7Encoder::ConvertNoBuffNoErr(const char16_t* aSrc,
+                                                     int32_t* aSrcLength,
+                                                     char* aDest,
+                                                     int32_t* aDestLength) {
   nsresult res = NS_OK;
-  const char16_t * src = aSrc;
-  const char16_t * srcEnd = aSrc + *aSrcLength;
-  char * dest = aDest;
-  char * destEnd = aDest + *aDestLength;
-  int32_t bcr,bcw;
+  const char16_t* src = aSrc;
+  const char16_t* srcEnd = aSrc + *aSrcLength;
+  char* dest = aDest;
+  char* destEnd = aDest + *aDestLength;
+  int32_t bcr, bcw;
   char16_t ch;
   int32_t enc;
 
@@ -246,18 +237,16 @@ NS_IMETHODIMP nsBasicUTF7Encoder::ConvertNoBuffNoErr(
   }
 
   *aSrcLength = src - aSrc;
-  *aDestLength  = dest - aDest;
+  *aDestLength = dest - aDest;
   return res;
 }
 
-NS_IMETHODIMP nsBasicUTF7Encoder::FinishNoBuff(char * aDest,
-                                               int32_t * aDestLength)
-{
+NS_IMETHODIMP nsBasicUTF7Encoder::FinishNoBuff(char* aDest,
+                                               int32_t* aDestLength) {
   return ShiftEncoding(ENC_DIRECT, aDest, aDestLength);
 }
 
-NS_IMETHODIMP nsBasicUTF7Encoder::Reset()
-{
+NS_IMETHODIMP nsBasicUTF7Encoder::Reset() {
   mEncoding = ENC_DIRECT;
   mEncBits = 0;
   mEncStep = 0;
@@ -267,31 +256,47 @@ NS_IMETHODIMP nsBasicUTF7Encoder::Reset()
 //----------------------------------------------------------------------
 // Class nsUnicodeToUTF7 [implementation]
 
-nsUnicodeToUTF7::nsUnicodeToUTF7()
-: nsBasicUTF7Encoder('/', '+')
-{
-}
-
+nsUnicodeToUTF7::nsUnicodeToUTF7() : nsBasicUTF7Encoder('/', '+') {}
 
 bool nsUnicodeToUTF7::DirectEncodable(char16_t aChar) {
-  if ((aChar >= 'A') && (aChar <= 'Z')) return true;
-  else if ((aChar >= 'a') && (aChar <= 'z')) return true;
-  else if ((aChar >= '0') && (aChar <= '9')) return true;
-  else if ((aChar >= 39) && (aChar <= 41)) return true;
-  else if ((aChar >= 44) && (aChar <= 47)) return true;
-  else if (aChar == 58) return true;
-  else if (aChar == 63) return true;
-  else if (aChar == ' ') return true;
-  else if (aChar == 9) return true;
-  else if (aChar == 13) return true;
-  else if (aChar == 10) return true;
-  else if (aChar == 60) return true;  // '<'
-  else if (aChar == 33) return true;  // '!'
-  else if (aChar == 34) return true;  // '"'
-  else if (aChar == 62) return true;  // '>'
-  else if (aChar == 61) return true;  // '='
-  else if (aChar == 59) return true;  // ';'
-  else if (aChar == 91) return true;  // '['
-  else if (aChar == 93) return true;  // ']'
-  else return false;
+  if ((aChar >= 'A') && (aChar <= 'Z'))
+    return true;
+  else if ((aChar >= 'a') && (aChar <= 'z'))
+    return true;
+  else if ((aChar >= '0') && (aChar <= '9'))
+    return true;
+  else if ((aChar >= 39) && (aChar <= 41))
+    return true;
+  else if ((aChar >= 44) && (aChar <= 47))
+    return true;
+  else if (aChar == 58)
+    return true;
+  else if (aChar == 63)
+    return true;
+  else if (aChar == ' ')
+    return true;
+  else if (aChar == 9)
+    return true;
+  else if (aChar == 13)
+    return true;
+  else if (aChar == 10)
+    return true;
+  else if (aChar == 60)
+    return true;  // '<'
+  else if (aChar == 33)
+    return true;  // '!'
+  else if (aChar == 34)
+    return true;  // '"'
+  else if (aChar == 62)
+    return true;  // '>'
+  else if (aChar == 61)
+    return true;  // '='
+  else if (aChar == 59)
+    return true;  // ';'
+  else if (aChar == 91)
+    return true;  // '['
+  else if (aChar == 93)
+    return true;  // ']'
+  else
+    return false;
 }

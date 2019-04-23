@@ -6,7 +6,6 @@
 #ifndef nsUTF7ToUnicode_h___
 #define nsUTF7ToUnicode_h___
 
-
 //----------------------------------------------------------------------
 // Class nsBasicUTF7Decoder [declaration]
 
@@ -16,30 +15,27 @@
  * @created         03/Jun/1999
  * @author  Catalin Rotaru [CATA]
  */
-class nsBasicUTF7Decoder
-{
-public:
-
+class nsBasicUTF7Decoder {
+ public:
   /**
    * Class constructor.
    */
   nsBasicUTF7Decoder(char aLastChar, char aEscChar);
-  NS_IMETHOD ConvertNoBuff(const char * aSrc, int32_t * aSrcLength,
-      char16_t * aDest, int32_t * aDestLength);
+  NS_IMETHOD ConvertNoBuff(const char* aSrc, int32_t* aSrcLength,
+                           char16_t* aDest, int32_t* aDestLength);
 
-protected:
+ protected:
+  int32_t mEncoding;  // current encoding
+  uint32_t mEncBits;
+  int32_t mEncStep;
+  char mLastChar;
+  char mEscChar;
+  bool mFreshBase64;
 
-  int32_t                   mEncoding;      // current encoding
-  uint32_t                  mEncBits;
-  int32_t                   mEncStep;
-  char                      mLastChar;
-  char                      mEscChar;
-  bool                      mFreshBase64;
-
-  nsresult DecodeDirect(const char * aSrc, int32_t * aSrcLength,
-      char16_t * aDest, int32_t * aDestLength);
-  nsresult DecodeBase64(const char * aSrc, int32_t * aSrcLength,
-      char16_t * aDest, int32_t * aDestLength);
+  nsresult DecodeDirect(const char* aSrc, int32_t* aSrcLength, char16_t* aDest,
+                        int32_t* aDestLength);
+  nsresult DecodeBase64(const char* aSrc, int32_t* aSrcLength, char16_t* aDest,
+                        int32_t* aDestLength);
   uint32_t CharToValue(char aChar);
 
   //--------------------------------------------------------------------
@@ -57,15 +53,12 @@ protected:
  * @created         18/May/1999
  * @author  Catalin Rotaru [CATA]
  */
-class nsUTF7ToUnicode : public nsBasicUTF7Decoder
-{
-public:
-
+class nsUTF7ToUnicode : public nsBasicUTF7Decoder {
+ public:
   /**
    * Class constructor.
    */
   nsUTF7ToUnicode();
-
 };
 
 #endif /* nsUTF7ToUnicode_h___ */

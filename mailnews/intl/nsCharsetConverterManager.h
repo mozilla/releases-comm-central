@@ -9,22 +9,19 @@
 
 class nsCharsetAlias;
 
-class nsCharsetConverterManager : public nsICharsetConverterManager
-{
+class nsCharsetConverterManager : public nsICharsetConverterManager {
   friend class nsCharsetAlias;
 
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSICHARSETCONVERTERMANAGER
 
-public:
+ public:
   nsCharsetConverterManager();
 
-private:
+ private:
   virtual ~nsCharsetConverterManager();
 
   static bool IsInternal(const nsACString& aCharset);
 };
 
-#endif // nsCharsetConverterManager_h__
-
-
+#endif  // nsCharsetConverterManager_h__

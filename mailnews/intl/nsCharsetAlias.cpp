@@ -22,75 +22,65 @@ static const nsUConvProp kAliases[] = {
 
 //--------------------------------------------------------------
 // static
-nsresult
-nsCharsetAlias::GetPreferredInternal(const nsACString& aAlias,
-                                     nsACString& oResult)
-{
-   // First check charsetalias.properties and if there is no match, continue to
-   // call Encoding::ForLabel.
-   nsAutoCString key(aAlias);
-   ToLowerCase(key);
+nsresult nsCharsetAlias::GetPreferredInternal(const nsACString& aAlias,
+                                              nsACString& oResult) {
+  // First check charsetalias.properties and if there is no match, continue to
+  // call Encoding::ForLabel.
+  nsAutoCString key(aAlias);
+  ToLowerCase(key);
 
-   nsresult rv = nsUConvPropertySearch::SearchPropertyValue(kAliases,
-      ArrayLength(kAliases), key, oResult);
-   if (NS_SUCCEEDED(rv)) {
-     return NS_OK;
-   }
+  nsresult rv = nsUConvPropertySearch::SearchPropertyValue(
+      kAliases, ArrayLength(kAliases), key, oResult);
+  if (NS_SUCCEEDED(rv)) {
+    return NS_OK;
+  }
 
-   const Encoding* encoding = Encoding::ForLabel(key);
-   if (!encoding)
-     return NS_ERROR_NOT_AVAILABLE;
-   encoding->Name(oResult);
-   return NS_OK;
+  const Encoding* encoding = Encoding::ForLabel(key);
+  if (!encoding) return NS_ERROR_NOT_AVAILABLE;
+  encoding->Name(oResult);
+  return NS_OK;
 }
 
 //--------------------------------------------------------------
 // static
-nsresult
-nsCharsetAlias::GetPreferred(const nsACString& aAlias,
-                             nsACString& oResult)
-{
-   if (aAlias.IsEmpty()) return NS_ERROR_NULL_POINTER;
+nsresult nsCharsetAlias::GetPreferred(const nsACString& aAlias,
+                                      nsACString& oResult) {
+  if (aAlias.IsEmpty()) return NS_ERROR_NULL_POINTER;
 
-   nsresult res = GetPreferredInternal(aAlias, oResult);
-   if (NS_FAILED(res))
-      return res;
+  nsresult res = GetPreferredInternal(aAlias, oResult);
+  if (NS_FAILED(res)) return res;
 
-   if (nsCharsetConverterManager::IsInternal(oResult))
-      return NS_ERROR_UCONV_NOCONV;
+  if (nsCharsetConverterManager::IsInternal(oResult))
+    return NS_ERROR_UCONV_NOCONV;
 
-   return res;
+  return res;
 }
 
 //--------------------------------------------------------------
 // static
-nsresult
-nsCharsetAlias::Equals(const nsACString& aCharset1,
-                       const nsACString& aCharset2, bool* oResult)
-{
-   nsresult res = NS_OK;
+nsresult nsCharsetAlias::Equals(const nsACString& aCharset1,
+                                const nsACString& aCharset2, bool* oResult) {
+  nsresult res = NS_OK;
 
-   if(aCharset1.Equals(aCharset2, nsCaseInsensitiveCStringComparator())) {
-      *oResult = true;
-      return res;
-   }
+  if (aCharset1.Equals(aCharset2, nsCaseInsensitiveCStringComparator())) {
+    *oResult = true;
+    return res;
+  }
 
-   if(aCharset1.IsEmpty() || aCharset2.IsEmpty()) {
-      *oResult = false;
-      return res;
-   }
+  if (aCharset1.IsEmpty() || aCharset2.IsEmpty()) {
+    *oResult = false;
+    return res;
+  }
 
-   *oResult = false;
-   nsAutoCString name1;
-   res = GetPreferredInternal(aCharset1, name1);
-   if (NS_FAILED(res))
-     return res;
+  *oResult = false;
+  nsAutoCString name1;
+  res = GetPreferredInternal(aCharset1, name1);
+  if (NS_FAILED(res)) return res;
 
-   nsAutoCString name2;
-   res = GetPreferredInternal(aCharset2, name2);
-   if (NS_FAILED(res))
-     return res;
+  nsAutoCString name2;
+  res = GetPreferredInternal(aCharset2, name2);
+  if (NS_FAILED(res)) return res;
 
-   *oResult = name1.Equals(name2);
-   return NS_OK;
+  *oResult = name1.Equals(name2);
+  return NS_OK;
 }

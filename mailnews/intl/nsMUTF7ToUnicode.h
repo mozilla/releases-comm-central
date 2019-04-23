@@ -17,15 +17,12 @@
  * @created         18/May/1999
  * @author  Catalin Rotaru [CATA]
  */
-class nsMUTF7ToUnicode : public nsBasicUTF7Decoder
-{
-public:
-
+class nsMUTF7ToUnicode : public nsBasicUTF7Decoder {
+ public:
   /**
    * Class constructor.
    */
   nsMUTF7ToUnicode();
-
 };
 
 #endif /* nsMUTF7ToUnicode_h___ */

@@ -26,85 +26,67 @@ static nsCOMPtr<nsIStringBundle> sTitleBundle;
 
 NS_IMPL_ISUPPORTS(nsCharsetConverterManager, nsICharsetConverterManager)
 
-nsCharsetConverterManager::nsCharsetConverterManager()
-{
-}
+nsCharsetConverterManager::nsCharsetConverterManager() {}
 
-nsCharsetConverterManager::~nsCharsetConverterManager()
-{
+nsCharsetConverterManager::~nsCharsetConverterManager() {
   sDataBundle = nullptr;
   sTitleBundle = nullptr;
 }
 
-static
-nsresult LoadBundle(const char* aBundleURLSpec, nsIStringBundle ** aResult)
-{
+static nsresult LoadBundle(const char* aBundleURLSpec,
+                           nsIStringBundle** aResult) {
   nsCOMPtr<nsIStringBundleService> sbServ =
-    mozilla::services::GetStringBundleService();
-  if (!sbServ)
-    return NS_ERROR_FAILURE;
+      mozilla::services::GetStringBundleService();
+  if (!sbServ) return NS_ERROR_FAILURE;
 
   return sbServ->CreateBundle(aBundleURLSpec, aResult);
 }
 
-static
-nsresult GetBundleValueInner(nsIStringBundle * aBundle,
-                        const char * aName,
-                        const nsString& aProp,
-                        nsAString& aResult)
-{
+static nsresult GetBundleValueInner(nsIStringBundle* aBundle, const char* aName,
+                                    const nsString& aProp, nsAString& aResult) {
   nsAutoString key;
 
   CopyASCIItoUTF16(mozilla::MakeStringSpan(aName), key);
-  ToLowerCase(key); // we lowercase the main comparison key
+  ToLowerCase(key);  // we lowercase the main comparison key
   key.Append(aProp);
 
   return aBundle->GetStringFromName(NS_ConvertUTF16toUTF8(key).get(), aResult);
 }
 
-static
-nsresult GetBundleValue(nsIStringBundle * aBundle,
-                        const char * aName,
-                        const nsString& aProp,
-                        nsAString& aResult)
-{
+static nsresult GetBundleValue(nsIStringBundle* aBundle, const char* aName,
+                               const nsString& aProp, nsAString& aResult) {
   nsresult rv = NS_OK;
 
   nsAutoString value;
   rv = GetBundleValueInner(aBundle, aName, aProp, value);
-  if (NS_FAILED(rv))
-    return rv;
+  if (NS_FAILED(rv)) return rv;
 
   aResult = value;
 
   return NS_OK;
 }
 
-static
-nsresult GetCharsetDataImpl(const char * aCharset, const char16_t * aProp,
-                            nsAString& aResult)
-{
+static nsresult GetCharsetDataImpl(const char* aCharset, const char16_t* aProp,
+                                   nsAString& aResult) {
   NS_ENSURE_ARG_POINTER(aCharset);
   // aProp can be nullptr
 
   if (!sDataBundle) {
     nsresult rv = LoadBundle("resource://gre-resources/charsetData.properties",
                              getter_AddRefs(sDataBundle));
-    if (NS_FAILED(rv))
-      return rv;
+    if (NS_FAILED(rv)) return rv;
   }
 
-  return GetBundleValue(sDataBundle, aCharset, nsDependentString(aProp), aResult);
+  return GetBundleValue(sDataBundle, aCharset, nsDependentString(aProp),
+                        aResult);
 }
 
-//static
-bool nsCharsetConverterManager::IsInternal(const nsACString& aCharset)
-{
+// static
+bool nsCharsetConverterManager::IsInternal(const nsACString& aCharset) {
   nsAutoString str;
   // fully qualify to possibly avoid vtable call
   nsresult rv = GetCharsetDataImpl(PromiseFlatCString(aCharset).get(),
-                                   u".isInternal",
-                                   str);
+                                   u".isInternal", str);
 
   return NS_SUCCEEDED(rv);
 }
@@ -112,15 +94,13 @@ bool nsCharsetConverterManager::IsInternal(const nsACString& aCharset)
 //----------------------------------------------------------------------------//----------------------------------------------------------------------------
 // Interface nsICharsetConverterManager [implementation]
 
-
 // XXX Improve the implementation of this method. Right now, it is build on
 // top of the nsCharsetAlias service. We can make the nsCharsetAlias
 // better, with its own hash table (not the StringBundle anymore) and
 // a nicer file format.
 NS_IMETHODIMP
-nsCharsetConverterManager::GetCharsetAlias(const char * aCharset,
-                                           nsACString& aResult)
-{
+nsCharsetConverterManager::GetCharsetAlias(const char* aCharset,
+                                           nsACString& aResult) {
   NS_ENSURE_ARG_POINTER(aCharset);
 
   // We try to obtain the preferred name for this charset from the charset
@@ -133,34 +113,32 @@ nsCharsetConverterManager::GetCharsetAlias(const char * aCharset,
   return NS_OK;
 }
 
-
 NS_IMETHODIMP
-nsCharsetConverterManager::GetCharsetTitle(const char * aCharset,
-                                           nsAString& aResult)
-{
+nsCharsetConverterManager::GetCharsetTitle(const char* aCharset,
+                                           nsAString& aResult) {
   NS_ENSURE_ARG_POINTER(aCharset);
 
   if (!sTitleBundle) {
-    nsresult rv = LoadBundle("chrome://messenger/locale/charsetTitles.properties",
-                             getter_AddRefs(sTitleBundle));
+    nsresult rv =
+        LoadBundle("chrome://messenger/locale/charsetTitles.properties",
+                   getter_AddRefs(sTitleBundle));
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  return GetBundleValue(sTitleBundle, aCharset, NS_LITERAL_STRING(".title"), aResult);
+  return GetBundleValue(sTitleBundle, aCharset, NS_LITERAL_STRING(".title"),
+                        aResult);
 }
 
 NS_IMETHODIMP
-nsCharsetConverterManager::GetCharsetData(const char * aCharset,
-                                          const char16_t * aProp,
-                                          nsAString& aResult)
-{
+nsCharsetConverterManager::GetCharsetData(const char* aCharset,
+                                          const char16_t* aProp,
+                                          nsAString& aResult) {
   return GetCharsetDataImpl(aCharset, aProp, aResult);
 }
 
 NS_IMETHODIMP
-nsCharsetConverterManager::GetCharsetLangGroup(const char * aCharset,
-                                               nsACString& aResult)
-{
+nsCharsetConverterManager::GetCharsetLangGroup(const char* aCharset,
+                                               nsACString& aResult) {
   // resolve the charset first
   nsAutoCString charset;
 
@@ -173,16 +151,15 @@ nsCharsetConverterManager::GetCharsetLangGroup(const char * aCharset,
 }
 
 NS_IMETHODIMP
-nsCharsetConverterManager::GetCharsetLangGroupRaw(const char * aCharset,
-                                                  nsACString& aResult)
-{
+nsCharsetConverterManager::GetCharsetLangGroupRaw(const char* aCharset,
+                                                  nsACString& aResult) {
   nsAutoString langGroup;
   // fully qualify to possibly avoid vtable call
   nsresult rv = nsCharsetConverterManager::GetCharsetData(
       aCharset, u".LangGroup", langGroup);
 
   if (NS_SUCCEEDED(rv)) {
-    ToLowerCase(langGroup); // use lowercase for all language groups
+    ToLowerCase(langGroup);  // use lowercase for all language groups
     aResult = NS_ConvertUTF16toUTF8(langGroup);
   }
 
@@ -190,19 +167,19 @@ nsCharsetConverterManager::GetCharsetLangGroupRaw(const char * aCharset,
 }
 
 NS_IMETHODIMP
-nsCharsetConverterManager::Utf7ToUnicode(const nsACString& aSrc, nsAString& aDest)
-{
+nsCharsetConverterManager::Utf7ToUnicode(const nsACString& aSrc,
+                                         nsAString& aDest) {
   return CopyUTF7toUTF16(aSrc, aDest);
 }
 
 NS_IMETHODIMP
-nsCharsetConverterManager::Mutf7ToUnicode(const nsACString& aSrc, nsAString& aDest)
-{
+nsCharsetConverterManager::Mutf7ToUnicode(const nsACString& aSrc,
+                                          nsAString& aDest) {
   return CopyMUTF7toUTF16(aSrc, aDest);
 }
 
 NS_IMETHODIMP
-nsCharsetConverterManager::UnicodeToMutf7(const nsAString& aSrc, nsACString& aDest)
-{
+nsCharsetConverterManager::UnicodeToMutf7(const nsAString& aSrc,
+                                          nsACString& aDest) {
   return CopyUTF16toMUTF7(aSrc, aDest);
 }

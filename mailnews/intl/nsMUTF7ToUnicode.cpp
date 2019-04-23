@@ -8,7 +8,4 @@
 //----------------------------------------------------------------------
 // Class nsMUTF7ToUnicode [implementation]
 
-nsMUTF7ToUnicode::nsMUTF7ToUnicode()
-: nsBasicUTF7Decoder(',', '&')
-{
-}
+nsMUTF7ToUnicode::nsMUTF7ToUnicode() : nsBasicUTF7Decoder(',', '&') {}

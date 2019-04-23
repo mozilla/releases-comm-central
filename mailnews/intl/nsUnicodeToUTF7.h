@@ -15,32 +15,28 @@
  * @created         03/Jun/1999
  * @author  Catalin Rotaru [CATA]
  */
-class nsBasicUTF7Encoder
-{
-public:
-
+class nsBasicUTF7Encoder {
+ public:
   /**
    * Class constructor.
    */
   nsBasicUTF7Encoder(char aLastChar, char aEscChar);
-  NS_IMETHOD ConvertNoBuffNoErr(const char16_t * aSrc, int32_t * aSrcLength,
-      char * aDest, int32_t * aDestLength);
-  NS_IMETHOD FinishNoBuff(char * aDest, int32_t * aDestLength);
+  NS_IMETHOD ConvertNoBuffNoErr(const char16_t* aSrc, int32_t* aSrcLength,
+                                char* aDest, int32_t* aDestLength);
+  NS_IMETHOD FinishNoBuff(char* aDest, int32_t* aDestLength);
 
-protected:
+ protected:
+  int32_t mEncoding;  // current encoding
+  uint32_t mEncBits;
+  int32_t mEncStep;
+  char mLastChar;
+  char mEscChar;
 
-  int32_t                   mEncoding;      // current encoding
-  uint32_t                  mEncBits;
-  int32_t                   mEncStep;
-  char                      mLastChar;
-  char                      mEscChar;
-
-  nsresult ShiftEncoding(int32_t aEncoding, char * aDest,
-      int32_t * aDestLength);
-  nsresult EncodeDirect(const char16_t * aSrc, int32_t * aSrcLength,
-      char * aDest, int32_t * aDestLength);
-  nsresult EncodeBase64(const char16_t * aSrc, int32_t * aSrcLength,
-      char * aDest, int32_t * aDestLength);
+  nsresult ShiftEncoding(int32_t aEncoding, char* aDest, int32_t* aDestLength);
+  nsresult EncodeDirect(const char16_t* aSrc, int32_t* aSrcLength, char* aDest,
+                        int32_t* aDestLength);
+  nsresult EncodeBase64(const char16_t* aSrc, int32_t* aSrcLength, char* aDest,
+                        int32_t* aDestLength);
   char ValueToChar(uint32_t aValue);
   virtual bool DirectEncodable(char16_t aChar);
 
@@ -59,17 +55,14 @@ protected:
  * @created         03/Jun/1999
  * @author  Catalin Rotaru [CATA]
  */
-class nsUnicodeToUTF7 : public nsBasicUTF7Encoder
-{
-public:
-
+class nsUnicodeToUTF7 : public nsBasicUTF7Encoder {
+ public:
   /**
    * Class constructor.
    */
   nsUnicodeToUTF7();
 
-protected:
-
+ protected:
   virtual bool DirectEncodable(char16_t aChar);
 };
 
