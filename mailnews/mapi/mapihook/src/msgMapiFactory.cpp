@@ -9,77 +9,56 @@
 #include "msgMapiImp.h"
 #include "msgMapi.h"
 
-CMapiFactory ::CMapiFactory()
-: m_cRef(1)
-{
+CMapiFactory ::CMapiFactory() : m_cRef(1) {}
+
+CMapiFactory::~CMapiFactory() {}
+
+STDMETHODIMP CMapiFactory::QueryInterface(const IID& aIid, void** aPpv) {
+  if ((aIid == IID_IUnknown) || (aIid == IID_IClassFactory)) {
+    *aPpv = static_cast<IClassFactory*>(this);
+  } else {
+    *aPpv = nullptr;
+    return E_NOINTERFACE;
+  }
+  reinterpret_cast<IUnknown*>(*aPpv)->AddRef();
+  return S_OK;
 }
 
-CMapiFactory::~CMapiFactory()
-{
-}
+STDMETHODIMP_(ULONG) CMapiFactory::AddRef() { return ++m_cRef; }
 
-STDMETHODIMP CMapiFactory::QueryInterface(const IID& aIid, void** aPpv)
-{
-    if ((aIid == IID_IUnknown) || (aIid == IID_IClassFactory))
-    {
-        *aPpv = static_cast<IClassFactory*>(this);
-    }
-    else
-    {
-        *aPpv = nullptr;
-        return E_NOINTERFACE;
-    }
-    reinterpret_cast<IUnknown*>(*aPpv)->AddRef();
-    return S_OK;
-}
+STDMETHODIMP_(ULONG) CMapiFactory::Release() {
+  int32_t temp = --m_cRef;
+  if (m_cRef == 0) {
+    delete this;
+    return 0;
+  }
 
-STDMETHODIMP_(ULONG) CMapiFactory::AddRef()
-{
-    return ++m_cRef;
-}
-
-STDMETHODIMP_(ULONG) CMapiFactory::Release()
-{
-    int32_t temp = --m_cRef;
-    if (m_cRef == 0)
-    {
-        delete this;
-        return 0;
-    }
-
-    return temp;
+  return temp;
 }
 
 STDMETHODIMP CMapiFactory::CreateInstance(IUnknown* aUnknownOuter,
-                                           const IID& aIid,
-                                           void** aPpv)
-{
-    // Cannot aggregate.
+                                          const IID& aIid, void** aPpv) {
+  // Cannot aggregate.
 
-    if (aUnknownOuter != nullptr)
-    {
-        return CLASS_E_NOAGGREGATION ;
-    }
+  if (aUnknownOuter != nullptr) {
+    return CLASS_E_NOAGGREGATION;
+  }
 
-    // Create component.
+  // Create component.
 
-    CMapiImp* pImp = new CMapiImp();
-    if (pImp == nullptr)
-    {
-        return E_OUTOFMEMORY ;
-    }
+  CMapiImp* pImp = new CMapiImp();
+  if (pImp == nullptr) {
+    return E_OUTOFMEMORY;
+  }
 
-    // Get the requested interface.
-    HRESULT hr = pImp->QueryInterface(aIid, aPpv);
+  // Get the requested interface.
+  HRESULT hr = pImp->QueryInterface(aIid, aPpv);
 
-    // Release the IUnknown pointer.
-    // (If QueryInterface failed, component will delete itself.)
+  // Release the IUnknown pointer.
+  // (If QueryInterface failed, component will delete itself.)
 
-    pImp->Release();
-    return hr;
+  pImp->Release();
+  return hr;
 }
 
-STDMETHODIMP CMapiFactory::LockServer(BOOL aLock)
-{
-    return S_OK ;
-}
+STDMETHODIMP CMapiFactory::LockServer(BOOL aLock) { return S_OK; }

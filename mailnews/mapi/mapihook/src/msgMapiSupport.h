@@ -9,26 +9,27 @@
 #include "nsIMapiSupport.h"
 #include "msgMapiFactory.h"
 
-#define NS_IMAPISUPPORT_CID \
-  {0x8967fed2, 0xc8bb, 0x11d5, \
-    { 0xa3, 0xe9, 0x00, 0xb0, 0xd0, 0xf3, 0xba, 0xa7 }}
+#define NS_IMAPISUPPORT_CID                          \
+  {                                                  \
+    0x8967fed2, 0xc8bb, 0x11d5, {                    \
+      0xa3, 0xe9, 0x00, 0xb0, 0xd0, 0xf3, 0xba, 0xa7 \
+    }                                                \
+  }
 
-class nsMapiSupport : public nsIMapiSupport,
-                      public nsIObserver
-{
-    public :
-        nsMapiSupport();
+class nsMapiSupport : public nsIMapiSupport, public nsIObserver {
+ public:
+  nsMapiSupport();
 
-        // Declare all interface methods we must implement.
-        NS_DECL_THREADSAFE_ISUPPORTS
-        NS_DECL_NSIOBSERVER
-        NS_DECL_NSIMAPISUPPORT
+  // Declare all interface methods we must implement.
+  NS_DECL_THREADSAFE_ISUPPORTS
+  NS_DECL_NSIOBSERVER
+  NS_DECL_NSIMAPISUPPORT
 
-    private :
-        virtual ~nsMapiSupport();
+ private:
+  virtual ~nsMapiSupport();
 
-        DWORD   m_dwRegister;
-        CMapiFactory *m_nsMapiFactory;
+  DWORD m_dwRegister;
+  CMapiFactory *m_nsMapiFactory;
 };
 
 #endif  // MSG_MAPI_SUPPORT_H_

@@ -8,32 +8,28 @@
 #include <windows.h>
 #include <objbase.h>
 #include "nspr.h"
-#include "nsISupportsImpl.h" // ThreadSafeAutoRefCnt
+#include "nsISupportsImpl.h"  // ThreadSafeAutoRefCnt
 #include <stdint.h>
 
+class CMapiFactory : public IClassFactory {
+ public:
+  // IUnknown
 
-class CMapiFactory : public IClassFactory
-{
-public :
+  STDMETHODIMP QueryInterface(REFIID aIid, void** aPpv);
+  STDMETHODIMP_(ULONG) AddRef(void);
+  STDMETHODIMP_(ULONG) Release(void);
 
-    // IUnknown
+  // IClassFactory
 
-    STDMETHODIMP            QueryInterface (REFIID aIid, void** aPpv);
-    STDMETHODIMP_(ULONG)    AddRef(void);
-    STDMETHODIMP_(ULONG)    Release(void);
+  STDMETHODIMP CreateInstance(LPUNKNOWN aUnkOuter, REFIID aIid, void** aPpv);
+  STDMETHODIMP LockServer(BOOL aLock);
 
-    // IClassFactory
+  CMapiFactory();
 
-    STDMETHODIMP        CreateInstance (LPUNKNOWN aUnkOuter, REFIID aIid, void **aPpv);
-    STDMETHODIMP        LockServer (BOOL aLock);
+ private:
+  mozilla::ThreadSafeAutoRefCnt m_cRef;
 
-    CMapiFactory ();
-
-private:
-    mozilla::ThreadSafeAutoRefCnt m_cRef;
-
-    virtual ~CMapiFactory ();
+  virtual ~CMapiFactory();
 };
 
 #endif  // MSG_MAPI_FACTORY_H
-

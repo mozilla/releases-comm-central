@@ -7,29 +7,33 @@
 
 #include "prtypes.h"
 
-class nsMapiHook
-{
-    public :
+class nsMapiHook {
+ public:
+  static bool DisplayLoginDialog(bool aLogin, char16_t **aUsername,
+                                 char16_t **aPassword);
+  static bool VerifyUserName(const nsCString &aUsername, nsCString &aIdKey);
 
-        static bool DisplayLoginDialog(bool aLogin, char16_t **aUsername,
-                        char16_t **aPassword);
-        static bool VerifyUserName(const nsCString& aUsername, nsCString& aIdKey);
+  static bool IsBlindSendAllowed();
+  static nsresult BlindSendMail(unsigned long aSession,
+                                nsIMsgCompFields *aCompFields);
+  static nsresult ShowComposerWindow(unsigned long aSession,
+                                     nsIMsgCompFields *aCompFields);
+  static nsresult PopulateCompFieldsWithConversion(
+      lpnsMapiMessage aMessage, nsIMsgCompFields *aCompFields);
+  static nsresult PopulateCompFieldsW(lpnsMapiMessageW aMessage,
+                                      nsIMsgCompFields *aCompFields);
+  static nsresult PopulateCompFieldsForSendDocs(nsIMsgCompFields *aCompFields,
+                                                ULONG aFlags, LPSTR aDelimChar,
+                                                LPSTR aFilePaths);
+  static nsresult HandleAttachments(nsIMsgCompFields *aCompFields,
+                                    int32_t aFileCount, lpnsMapiFileDesc aFiles,
+                                    bool aIsUTF8);
+  static nsresult HandleAttachmentsW(nsIMsgCompFields *aCompFields,
+                                     int32_t aFileCount,
+                                     lpnsMapiFileDescW aFiles);
+  static void CleanUp();
 
-        static bool IsBlindSendAllowed () ;
-        static nsresult BlindSendMail (unsigned long aSession, nsIMsgCompFields * aCompFields) ;
-        static nsresult ShowComposerWindow (unsigned long aSession, nsIMsgCompFields * aCompFields) ;
-        static nsresult PopulateCompFieldsWithConversion(lpnsMapiMessage aMessage,
-                                        nsIMsgCompFields * aCompFields) ;
-        static nsresult PopulateCompFieldsW(lpnsMapiMessageW aMessage, nsIMsgCompFields *aCompFields);
-        static nsresult PopulateCompFieldsForSendDocs(nsIMsgCompFields * aCompFields,
-                                        ULONG aFlags, LPSTR aDelimChar, LPSTR aFilePaths);
-        static nsresult HandleAttachments(nsIMsgCompFields *aCompFields, int32_t aFileCount,
-                                          lpnsMapiFileDesc aFiles, bool aIsUTF8);
-        static nsresult HandleAttachmentsW(nsIMsgCompFields *aCompFields, int32_t aFileCount,
-                                           lpnsMapiFileDescW aFiles);
-        static void CleanUp();
-
-        static bool isMapiService;
+  static bool isMapiService;
 };
 
 #endif  // MSG_MAPI_HOOK_H_

@@ -21,97 +21,81 @@
 NS_IMPL_ISUPPORTS(nsMapiSupport, nsIMapiSupport, nsIObserver)
 
 NS_IMETHODIMP
-nsMapiSupport::Observe(nsISupports *aSubject, const char *aTopic, const char16_t *aData)
-{
-    nsresult rv = NS_OK ;
+nsMapiSupport::Observe(nsISupports *aSubject, const char *aTopic,
+                       const char16_t *aData) {
+  nsresult rv = NS_OK;
 
-    if (!strcmp(aTopic, "profile-after-change"))
-        return InitializeMAPISupport();
+  if (!strcmp(aTopic, "profile-after-change")) return InitializeMAPISupport();
 
-    if (!strcmp(aTopic, NS_XPCOM_SHUTDOWN_OBSERVER_ID))
-        return ShutdownMAPISupport();
+  if (!strcmp(aTopic, NS_XPCOM_SHUTDOWN_OBSERVER_ID))
+    return ShutdownMAPISupport();
 
-    nsCOMPtr<nsIObserverService> observerService =
+  nsCOMPtr<nsIObserverService> observerService =
       mozilla::services::GetObserverService();
-    NS_ENSURE_TRUE(observerService, NS_ERROR_UNEXPECTED);
+  NS_ENSURE_TRUE(observerService, NS_ERROR_UNEXPECTED);
 
-    rv = observerService->AddObserver(this,"profile-after-change", false);
-    if (NS_FAILED(rv)) return rv;
+  rv = observerService->AddObserver(this, "profile-after-change", false);
+  if (NS_FAILED(rv)) return rv;
 
-    rv = observerService->AddObserver(this, NS_XPCOM_SHUTDOWN_OBSERVER_ID, false);
-    if (NS_FAILED(rv))  return rv;
+  rv = observerService->AddObserver(this, NS_XPCOM_SHUTDOWN_OBSERVER_ID, false);
+  if (NS_FAILED(rv)) return rv;
 
-    return rv;
+  return rv;
 }
 
+nsMapiSupport::nsMapiSupport() : m_dwRegister(0), m_nsMapiFactory(nullptr) {}
 
-nsMapiSupport::nsMapiSupport()
-: m_dwRegister(0),
-  m_nsMapiFactory(nullptr)
-{
-}
-
-nsMapiSupport::~nsMapiSupport()
-{
-}
+nsMapiSupport::~nsMapiSupport() {}
 
 NS_IMETHODIMP
-nsMapiSupport::InitializeMAPISupport()
-{
-    ::OleInitialize(nullptr) ;
+nsMapiSupport::InitializeMAPISupport() {
+  ::OleInitialize(nullptr);
 
-    if (m_nsMapiFactory == nullptr)    // No Registering if already done.  Sanity Check!!
-    {
-        m_nsMapiFactory = new CMapiFactory();
+  if (m_nsMapiFactory ==
+      nullptr)  // No Registering if already done.  Sanity Check!!
+  {
+    m_nsMapiFactory = new CMapiFactory();
 
-        if (m_nsMapiFactory != nullptr)
-        {
-            HRESULT hr = ::CoRegisterClassObject(CLSID_CMapiImp, \
-                                                 m_nsMapiFactory, \
-                                                 CLSCTX_LOCAL_SERVER, \
-                                                 REGCLS_MULTIPLEUSE, \
-                                                 &m_dwRegister);
+    if (m_nsMapiFactory != nullptr) {
+      HRESULT hr = ::CoRegisterClassObject(CLSID_CMapiImp, m_nsMapiFactory,
+                                           CLSCTX_LOCAL_SERVER,
+                                           REGCLS_MULTIPLEUSE, &m_dwRegister);
 
-            if (FAILED(hr))
-            {
-                m_nsMapiFactory->Release() ;
-                m_nsMapiFactory = nullptr;
-                return NS_ERROR_FAILURE;
-            }
-        }
-    }
-
-    return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMapiSupport::ShutdownMAPISupport()
-{
-    if (m_dwRegister != 0)
-        ::CoRevokeClassObject(m_dwRegister);
-
-    if (m_nsMapiFactory != nullptr)
-    {
+      if (FAILED(hr)) {
         m_nsMapiFactory->Release();
         m_nsMapiFactory = nullptr;
+        return NS_ERROR_FAILURE;
+      }
     }
+  }
 
-    ::OleUninitialize();
-
-    return NS_OK ;
-}
-
-NS_IMETHODIMP
-nsMapiSupport::RegisterServer()
-{
-  // TODO: Figure out what kind of error propagation to pass back
-  ::RegisterServer(CLSID_CMapiImp, "Mozilla MAPI", "MozillaMapi", "MozillaMapi.1");
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMapiSupport::UnRegisterServer()
-{
+nsMapiSupport::ShutdownMAPISupport() {
+  if (m_dwRegister != 0) ::CoRevokeClassObject(m_dwRegister);
+
+  if (m_nsMapiFactory != nullptr) {
+    m_nsMapiFactory->Release();
+    m_nsMapiFactory = nullptr;
+  }
+
+  ::OleUninitialize();
+
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMapiSupport::RegisterServer() {
+  // TODO: Figure out what kind of error propagation to pass back
+  ::RegisterServer(CLSID_CMapiImp, "Mozilla MAPI", "MozillaMapi",
+                   "MozillaMapi.1");
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMapiSupport::UnRegisterServer() {
   // TODO: Figure out what kind of error propagation to pass back
   ::UnregisterServer(CLSID_CMapiImp, "MozillaMapi", "MozillaMapi.1");
   return NS_OK;
@@ -122,23 +106,18 @@ NS_DEFINE_NAMED_CID(NS_IMAPISUPPORT_CID);
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsMapiSupport)
 
 static const mozilla::Module::CategoryEntry kMAPICategories[] = {
-  { APPSTARTUP_CATEGORY, "Mapi Support", "service," NS_IMAPISUPPORT_CONTRACTID, },
-  { NULL }
-};
+    {
+        APPSTARTUP_CATEGORY,
+        "Mapi Support",
+        "service," NS_IMAPISUPPORT_CONTRACTID,
+    },
+    {NULL}};
 
 const mozilla::Module::CIDEntry kMAPICIDs[] = {
-  { &kNS_IMAPISUPPORT_CID, false, NULL, nsMapiSupportConstructor },
-  { NULL }
-};
+    {&kNS_IMAPISUPPORT_CID, false, NULL, nsMapiSupportConstructor}, {NULL}};
 
 const mozilla::Module::ContractIDEntry kMAPIContracts[] = {
-  { NS_IMAPISUPPORT_CONTRACTID, &kNS_IMAPISUPPORT_CID },
-  { NULL }
-};
+    {NS_IMAPISUPPORT_CONTRACTID, &kNS_IMAPISUPPORT_CID}, {NULL}};
 
 extern const mozilla::Module kMAPIModule = {
-    mozilla::Module::kVersion,
-    kMAPICIDs,
-    kMAPIContracts,
-    kMAPICategories
-};
+    mozilla::Module::kVersion, kMAPICIDs, kMAPIContracts, kMAPICategories};
