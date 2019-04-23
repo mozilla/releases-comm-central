@@ -155,7 +155,7 @@ var FeedMessageHandler = {
         }
 
         showSummary = targetRes && targetRes.QueryInterface(Ci.nsIRDFLiteral).
-                                             Value == "false";
+                                             Value != "false";
         break;
     }
 
