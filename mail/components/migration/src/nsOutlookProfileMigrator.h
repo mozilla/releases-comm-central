@@ -12,9 +12,8 @@
 
 class nsOutlookProfileMigrator : public nsIMailProfileMigrator,
                                  public nsITimerCallback,
-                                 public nsProfileMigratorBase
-{
-public:
+                                 public nsProfileMigratorBase {
+ public:
   NS_DECL_NSIMAILPROFILEMIGRATOR
   NS_DECL_ISUPPORTS
   NS_DECL_NSITIMERCALLBACK
@@ -22,7 +21,7 @@ public:
   nsOutlookProfileMigrator();
   virtual nsresult ContinueImport();
 
-private:
+ private:
   virtual ~nsOutlookProfileMigrator();
 };
 

@@ -11,51 +11,43 @@
 #include "nsIFile.h"
 #include "nsComponentManagerUtils.h"
 
-NS_IMPL_ISUPPORTS(nsOutlookProfileMigrator, nsIMailProfileMigrator, nsITimerCallback)
+NS_IMPL_ISUPPORTS(nsOutlookProfileMigrator, nsIMailProfileMigrator,
+                  nsITimerCallback)
 
-
-nsOutlookProfileMigrator::nsOutlookProfileMigrator()
-{
+nsOutlookProfileMigrator::nsOutlookProfileMigrator() {
   mProcessingMailFolders = false;
   // get the import service
   mImportModule = do_CreateInstance("@mozilla.org/import/import-outlook;1");
 }
 
-nsOutlookProfileMigrator::~nsOutlookProfileMigrator()
-{
-}
+nsOutlookProfileMigrator::~nsOutlookProfileMigrator() {}
 
-nsresult nsOutlookProfileMigrator::ContinueImport()
-{
-  return Notify(nullptr);
-}
+nsresult nsOutlookProfileMigrator::ContinueImport() { return Notify(nullptr); }
 
 ///////////////////////////////////////////////////////////////////////////////
 // nsITimerCallback
 
 NS_IMETHODIMP
-nsOutlookProfileMigrator::Notify(nsITimer *timer)
-{
+nsOutlookProfileMigrator::Notify(nsITimer* timer) {
   int32_t progress;
   mGenericImporter->GetProgress(&progress);
 
   nsAutoString index;
-  index.AppendInt( progress );
+  index.AppendInt(progress);
   NOTIFY_OBSERVERS(MIGRATION_PROGRESS, index.get());
 
-  if (progress == 100) // are we done yet?
+  if (progress == 100)  // are we done yet?
   {
     if (mProcessingMailFolders)
       return FinishCopyingMailFolders();
     else
       return FinishCopyingAddressBookData();
-  }
-  else
-  {
+  } else {
     // fire a timer to handle the next one.
     mFileIOTimer = do_CreateInstance("@mozilla.org/timer;1");
     if (mFileIOTimer)
-      mFileIOTimer->InitWithCallback(static_cast<nsITimerCallback *>(this), 100, nsITimer::TYPE_ONE_SHOT);
+      mFileIOTimer->InitWithCallback(static_cast<nsITimerCallback*>(this), 100,
+                                     nsITimer::TYPE_ONE_SHOT);
   }
   return NS_OK;
 }
@@ -64,12 +56,11 @@ nsOutlookProfileMigrator::Notify(nsITimer *timer)
 // nsIMailProfileMigrator
 
 NS_IMETHODIMP
-nsOutlookProfileMigrator::Migrate(uint16_t aItems, nsIProfileStartup* aStartup, const char16_t* aProfile)
-{
+nsOutlookProfileMigrator::Migrate(uint16_t aItems, nsIProfileStartup* aStartup,
+                                  const char16_t* aProfile) {
   nsresult rv = NS_OK;
 
-  if (aStartup)
-  {
+  if (aStartup) {
     rv = aStartup->DoStartup();
     NS_ENSURE_SUCCESS(rv, rv);
   }
@@ -79,52 +70,52 @@ nsOutlookProfileMigrator::Migrate(uint16_t aItems, nsIProfileStartup* aStartup, 
   rv = ImportSettings(mImportModule);
 
   // now import address books
-  // this routine will asynchronously import address book data and it will then kick off
-  // the final migration step, copying the mail folders over.
+  // this routine will asynchronously import address book data and it will then
+  // kick off the final migration step, copying the mail folders over.
   rv = ImportAddressBook(mImportModule);
 
-  // don't broadcast an on end migration here. We aren't done until our asynch import process says we are done.
+  // don't broadcast an on end migration here. We aren't done until our asynch
+  // import process says we are done.
   return rv;
 }
 
 NS_IMETHODIMP
-nsOutlookProfileMigrator::GetMigrateData(const char16_t* aProfile, bool aReplace, uint16_t* aResult)
-{
+nsOutlookProfileMigrator::GetMigrateData(const char16_t* aProfile,
+                                         bool aReplace, uint16_t* aResult) {
   // There's no harm in assuming everything is available.
-  *aResult = nsIMailProfileMigrator::ACCOUNT_SETTINGS | nsIMailProfileMigrator::ADDRESSBOOK_DATA |
+  *aResult = nsIMailProfileMigrator::ACCOUNT_SETTINGS |
+             nsIMailProfileMigrator::ADDRESSBOOK_DATA |
              nsIMailProfileMigrator::MAILDATA;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsOutlookProfileMigrator::GetSourceExists(bool* aResult)
-{
+nsOutlookProfileMigrator::GetSourceExists(bool* aResult) {
   *aResult = false;
 
   nsCOMPtr<nsISupports> supports;
-  mImportModule->GetImportInterface(NS_IMPORT_SETTINGS_STR, getter_AddRefs(supports));
+  mImportModule->GetImportInterface(NS_IMPORT_SETTINGS_STR,
+                                    getter_AddRefs(supports));
   nsCOMPtr<nsIImportSettings> importSettings = do_QueryInterface(supports);
 
-  if (importSettings)
-  {
+  if (importSettings) {
     nsString description;
     nsCOMPtr<nsIFile> location;
-    importSettings->AutoLocate(getter_Copies(description), getter_AddRefs(location), aResult);
+    importSettings->AutoLocate(getter_Copies(description),
+                               getter_AddRefs(location), aResult);
   }
 
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsOutlookProfileMigrator::GetSourceHasMultipleProfiles(bool* aResult)
-{
+nsOutlookProfileMigrator::GetSourceHasMultipleProfiles(bool* aResult) {
   *aResult = false;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsOutlookProfileMigrator::GetSourceProfiles(nsIArray** aResult)
-{
+nsOutlookProfileMigrator::GetSourceProfiles(nsIArray** aResult) {
   *aResult = nullptr;
   return NS_OK;
 }

@@ -7,21 +7,21 @@
 #define mailprofilemigratorutils___h___
 
 #define MIGRATION_ITEMBEFOREMIGRATE "Migration:ItemBeforeMigrate"
-#define MIGRATION_ITEMAFTERMIGRATE  "Migration:ItemAfterMigrate"
-#define MIGRATION_STARTED           "Migration:Started"
-#define MIGRATION_ENDED             "Migration:Ended"
-#define MIGRATION_PROGRESS          "Migration:Progress"
+#define MIGRATION_ITEMAFTERMIGRATE "Migration:ItemAfterMigrate"
+#define MIGRATION_STARTED "Migration:Started"
+#define MIGRATION_ENDED "Migration:Ended"
+#define MIGRATION_PROGRESS "Migration:Progress"
 
 #define NOTIFY_OBSERVERS(message, item) \
   mObserverService->NotifyObservers(nullptr, message, item)
 
-#define COPY_DATA(func, replace, itemIndex) \
-  if (NS_SUCCEEDED(rv) && (aItems & itemIndex || !aItems)) { \
-    nsAutoString index; \
-    index.AppendInt(itemIndex); \
+#define COPY_DATA(func, replace, itemIndex)                     \
+  if (NS_SUCCEEDED(rv) && (aItems & itemIndex || !aItems)) {    \
+    nsAutoString index;                                         \
+    index.AppendInt(itemIndex);                                 \
     NOTIFY_OBSERVERS(MIGRATION_ITEMBEFOREMIGRATE, index.get()); \
-    rv = func(replace); \
-    NOTIFY_OBSERVERS(MIGRATION_ITEMAFTERMIGRATE, index.get()); \
+    rv = func(replace);                                         \
+    NOTIFY_OBSERVERS(MIGRATION_ITEMAFTERMIGRATE, index.get());  \
   }
 
 #include "nsIPrefBranch.h"
@@ -43,15 +43,12 @@ struct MigrationData {
 
 class nsIFile;
 void GetMigrateDataFromArray(MigrationData* aDataArray,
-                             int32_t aDataArrayLength,
-                             bool aReplace,
-                             nsIFile* aSourceProfile,
-                             uint16_t* aResult);
-
+                             int32_t aDataArrayLength, bool aReplace,
+                             nsIFile* aSourceProfile, uint16_t* aResult);
 
 // get the base directory of the *target* profile
 // this is already cloned, modify it to your heart's content
-void GetProfilePath(nsIProfileStartup* aStartup, nsCOMPtr<nsIFile>& aProfileDir);
+void GetProfilePath(nsIProfileStartup* aStartup,
+                    nsCOMPtr<nsIFile>& aProfileDir);
 
 #endif
-

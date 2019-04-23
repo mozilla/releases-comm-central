@@ -13,21 +13,20 @@
 class nsIPrefBranch;
 class nsIPrefService;
 
-class nsSeamonkeyProfileMigrator : public nsNetscapeProfileMigratorBase
-{
-public:
+class nsSeamonkeyProfileMigrator : public nsNetscapeProfileMigratorBase {
+ public:
   NS_DECL_ISUPPORTS_INHERITED
 
   nsSeamonkeyProfileMigrator();
 
   // nsIMailProfileMigrator methods
   NS_IMETHOD Migrate(uint16_t aItems, nsIProfileStartup* aStartup,
-                        const char16_t* aProfile) override;
+                     const char16_t* aProfile) override;
   NS_IMETHOD GetMigrateData(const char16_t* aProfile, bool aReplace,
                             uint16_t* aResult) override;
   NS_IMETHOD GetSourceProfiles(nsIArray** aResult) override;
 
-protected:
+ protected:
   virtual ~nsSeamonkeyProfileMigrator();
   nsresult FillProfileDataFromSeamonkeyRegistry();
   nsresult GetSourceProfile(const char16_t* aProfile);
@@ -39,19 +38,19 @@ protected:
   nsresult DummyCopyRoutine(bool aReplace);
   nsresult CopyJunkTraining(bool aReplace);
   nsresult CopyPasswords(bool aReplace);
-  nsresult CopyMailFolders(PBStructArray &aMailServers,
+  nsresult CopyMailFolders(PBStructArray& aMailServers,
                            nsIPrefService* aPrefBranch);
-  nsresult CopyAddressBookDirectories(PBStructArray &aLdapServers,
+  nsresult CopyAddressBookDirectories(PBStructArray& aLdapServers,
                                       nsIPrefService* aPrefService);
-  nsresult CopySignatureFiles(PBStructArray &aIdentities,
+  nsresult CopySignatureFiles(PBStructArray& aIdentities,
                               nsIPrefService* aPrefBranch);
 
-  void ReadBranch(const char *branchName,  nsIPrefService *aPrefService,
-                  PBStructArray &aPrefs);
-  void WriteBranch(const char *branchName, nsIPrefService *aPrefService,
-                   PBStructArray &aPrefs);
+  void ReadBranch(const char* branchName, nsIPrefService* aPrefService,
+                  PBStructArray& aPrefs);
+  void WriteBranch(const char* branchName, nsIPrefService* aPrefService,
+                   PBStructArray& aPrefs);
 
-private:
+ private:
   nsCOMPtr<nsIMutableArray> mProfileNames;
   nsCOMPtr<nsIMutableArray> mProfileLocations;
 };

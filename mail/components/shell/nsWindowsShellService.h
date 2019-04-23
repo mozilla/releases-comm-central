@@ -14,8 +14,12 @@
 #include <ole2.h>
 #include <windows.h>
 
-#define NS_MAILWININTEGRATION_CID \
-{0x2ebbe84, 0xc179, 0x4598, {0xaf, 0x18, 0x1b, 0xf2, 0xc4, 0xbc, 0x1d, 0xf9}}
+#define NS_MAILWININTEGRATION_CID                    \
+  {                                                  \
+    0x2ebbe84, 0xc179, 0x4598, {                     \
+      0xaf, 0x18, 0x1b, 0xf2, 0xc4, 0xbc, 0x1d, 0xf9 \
+    }                                                \
+  }
 
 typedef struct {
   const char* keyName;
@@ -25,23 +29,23 @@ typedef struct {
   int32_t flags;
 } SETTING;
 
-class nsWindowsShellService : public nsIShellService, public nsToolkitShellService
-{
-public:
+class nsWindowsShellService : public nsIShellService,
+                              public nsToolkitShellService {
+ public:
   nsWindowsShellService();
   NS_HIDDEN_(nsresult) Init();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSISHELLSERVICE
 
-protected:
+ protected:
   bool TestForDefault(SETTING aSettings[], int32_t aSize);
   bool IsDefaultClientVista(uint16_t aApps, bool* aIsDefaultClient);
 
-private:
-  virtual ~nsWindowsShellService() {};
+ private:
+  virtual ~nsWindowsShellService(){};
   bool mCheckedThisSession;
   nsAutoString mAppLongPath;
- };
+};
 
 #endif

@@ -13,18 +13,17 @@
 #include "nsIImportModule.h"
 #include "nsIMsgAccount.h"
 
-class nsProfileMigratorBase
-{
-public:
+class nsProfileMigratorBase {
+ public:
   nsProfileMigratorBase();
   virtual ~nsProfileMigratorBase();
   virtual nsresult ContinueImport() = 0;
 
-protected:
-  nsresult ImportSettings(nsIImportModule * aImportModule);
-  nsresult ImportAddressBook(nsIImportModule * aImportModule);
-  nsresult ImportMailData(nsIImportModule * aImportModule);
-  nsresult ImportFilters(nsIImportModule * aImportModule);
+ protected:
+  nsresult ImportSettings(nsIImportModule* aImportModule);
+  nsresult ImportAddressBook(nsIImportModule* aImportModule);
+  nsresult ImportMailData(nsIImportModule* aImportModule);
+  nsresult ImportFilters(nsIImportModule* aImportModule);
   nsresult FinishCopyingAddressBookData();
   nsresult FinishCopyingMailFolders();
 
@@ -32,8 +31,10 @@ protected:
   nsCOMPtr<nsITimer> mFileIOTimer;
   nsCOMPtr<nsIImportGeneric> mGenericImporter;
   nsCOMPtr<nsIImportModule> mImportModule;
-  nsCOMPtr<nsIMsgAccount> mLocalFolderAccount; // needed for nsIImportSettings::Import
-  bool mProcessingMailFolders; // we are either asynchronously parsing address books or mail folders
+  nsCOMPtr<nsIMsgAccount>
+      mLocalFolderAccount;      // needed for nsIImportSettings::Import
+  bool mProcessingMailFolders;  // we are either asynchronously parsing address
+                                // books or mail folders
 };
 
 #endif

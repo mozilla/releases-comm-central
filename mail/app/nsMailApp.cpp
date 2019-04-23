@@ -8,11 +8,11 @@
 #include "application.ini.h"
 #include "mozilla/Bootstrap.h"
 #if defined(XP_WIN)
-#include <windows.h>
-#include <stdlib.h>
+#  include <windows.h>
+#  include <stdlib.h>
 #elif defined(XP_UNIX)
-#include <sys/resource.h>
-#include <unistd.h>
+#  include <sys/resource.h>
+#  include <unistd.h>
 #endif
 
 #include <stdio.h>
@@ -23,31 +23,29 @@
 #include "nsIFile.h"
 
 #ifdef XP_WIN
-#define XRE_WANT_ENVIRON
-#define strcasecmp _stricmp
-#ifdef MOZ_SANDBOX
-#include "mozilla/sandboxing/SandboxInitialization.h"
-#endif
+#  define XRE_WANT_ENVIRON
+#  define strcasecmp _stricmp
+#  ifdef MOZ_SANDBOX
+#    include "mozilla/sandboxing/SandboxInitialization.h"
+#  endif
 #endif
 #include "BinaryPath.h"
 
-#include "nsXPCOMPrivate.h" // for MAXPATHLEN and XPCOM_DLL
+#include "nsXPCOMPrivate.h"  // for MAXPATHLEN and XPCOM_DLL
 
 #include "mozilla/Sprintf.h"
 #include "mozilla/StartupTimeline.h"
 #include "mozilla/WindowsDllBlocklist.h"
 
 #ifdef LIBFUZZER
-#include "FuzzerDefs.h"
+#  include "FuzzerDefs.h"
 #endif
 
 #ifdef MOZ_LINUX_32_SSE2_STARTUP_ERROR
-#include <cpuid.h>
-#include "mozilla/Unused.h"
+#  include <cpuid.h>
+#  include "mozilla/Unused.h"
 
-static bool
-IsSSE2Available()
-{
+static bool IsSSE2Available() {
   // The rest of the app has been compiled to assume that SSE2 is present
   // unconditionally, so we can't use the normal copy of SSE.cpp here.
   // Since SSE.cpp caches the results and we need them only transiently,
@@ -55,7 +53,7 @@ IsSSE2Available()
   // that's needed.
   unsigned int level = 1u;
   unsigned int eax, ebx, ecx, edx;
-  unsigned int bits = (1u<<26);
+  unsigned int bits = (1u << 26);
   unsigned int max = __get_cpuid_max(0, nullptr);
   if (level > max) {
     return false;
@@ -69,38 +67,33 @@ static const char sSSE2Message[] =
     "set extension.\nYou may be able to obtain a version that does not "
     "require SSE2 from your Linux distribution.\n";
 
-__attribute__((constructor))
-static void
-SSE2Check()
-{
+__attribute__((constructor)) static void SSE2Check() {
   if (IsSSE2Available()) {
     return;
   }
   // Using write() in order to avoid jemalloc-based buffering. Ignoring return
   // values, since there isn't much we could do on failure and there is no
   // point in trying to recover from errors.
-  MOZ_UNUSED(write(STDERR_FILENO,
-                   sSSE2Message,
-                   MOZ_ARRAY_LENGTH(sSSE2Message) - 1));
+  MOZ_UNUSED(
+      write(STDERR_FILENO, sSSE2Message, MOZ_ARRAY_LENGTH(sSSE2Message) - 1));
   // _exit() instead of exit() to avoid running the usual "at exit" code.
   _exit(255);
 }
 #endif
 
 #if !defined(MOZ_WIDGET_COCOA) && !defined(MOZ_WIDGET_ANDROID)
-#define MOZ_BROWSER_CAN_BE_CONTENTPROC
-#include "plugin-container.cpp"
+#  define MOZ_BROWSER_CAN_BE_CONTENTPROC
+#  include "plugin-container.cpp"
 #endif
 
 using namespace mozilla;
 
 #ifdef XP_MACOSX
-#define kOSXResourcesFolder "Resources"
+#  define kOSXResourcesFolder "Resources"
 #endif
 #define kDesktopFolder ""
 
-static MOZ_FORMAT_PRINTF(1, 2) void Output(const char *fmt, ... )
-{
+static MOZ_FORMAT_PRINTF(1, 2) void Output(const char* fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
 
@@ -111,29 +104,23 @@ static MOZ_FORMAT_PRINTF(1, 2) void Output(const char *fmt, ... )
   vsnprintf_s(msg, _countof(msg), _TRUNCATE, fmt, ap);
 
   wchar_t wide_msg[2048];
-  MultiByteToWideChar(CP_UTF8,
-                      0,
-                      msg,
-                      -1,
-                      wide_msg,
-                      _countof(wide_msg));
-#if MOZ_WINCONSOLE
+  MultiByteToWideChar(CP_UTF8, 0, msg, -1, wide_msg, _countof(wide_msg));
+#  if MOZ_WINCONSOLE
   fwprintf_s(stderr, wide_msg);
-#else
+#  else
   // Linking user32 at load-time interferes with the DLL blocklist (bug 932100).
   // This is a rare codepath, so we can load user32 at run-time instead.
   HMODULE user32 = LoadLibraryW(L"user32.dll");
   if (user32) {
     decltype(MessageBoxW)* messageBoxW =
-      (decltype(MessageBoxW)*) GetProcAddress(user32, "MessageBoxW");
+        (decltype(MessageBoxW)*)GetProcAddress(user32, "MessageBoxW");
     if (messageBoxW) {
-      messageBoxW(nullptr, wide_msg, L"Thunderbird", MB_OK
-                                                   | MB_ICONERROR
-                                                   | MB_SETFOREGROUND);
+      messageBoxW(nullptr, wide_msg, L"Thunderbird",
+                  MB_OK | MB_ICONERROR | MB_SETFOREGROUND);
     }
     FreeLibrary(user32);
   }
-#endif
+#  endif
 #endif
 
   va_end(ap);
@@ -142,18 +129,14 @@ static MOZ_FORMAT_PRINTF(1, 2) void Output(const char *fmt, ... )
 /**
  * Return true if |arg| matches the given argument name.
  */
-static bool IsArg(const char* arg, const char* s)
-{
-  if (*arg == '-')
-  {
-    if (*++arg == '-')
-      ++arg;
+static bool IsArg(const char* arg, const char* s) {
+  if (*arg == '-') {
+    if (*++arg == '-') ++arg;
     return !strcasecmp(arg, s);
   }
 
 #if defined(XP_WIN)
-  if (*arg == '/')
-    return !strcasecmp(++arg, s);
+  if (*arg == '/') return !strcasecmp(++arg, s);
 #endif
 
   return false;
@@ -161,14 +144,11 @@ static bool IsArg(const char* arg, const char* s)
 
 Bootstrap::UniquePtr gBootstrap;
 
-static int do_main(int argc, char* argv[], char* envp[])
-{
-
+static int do_main(int argc, char* argv[], char* envp[]) {
   // Allow thunderbird.exe to launch XULRunner apps via -app <application.ini>
   // Note that -app must be the *first* argument.
-  const char *appDataFile = getenv("XUL_APP_FILE");
-  if ((!appDataFile || !*appDataFile) &&
-      (argc > 1 && IsArg(argv[1], "app"))) {
+  const char* appDataFile = getenv("XUL_APP_FILE");
+  if ((!appDataFile || !*appDataFile) && (argc > 1 && IsArg(argv[1], "app"))) {
     if (argc == 2) {
       Output("Incorrect number of arguments passed to -app");
       return 255;
@@ -192,7 +172,7 @@ static int do_main(int argc, char* argv[], char* envp[])
     XREShellData shellData;
 #if defined(XP_WIN) && defined(MOZ_SANDBOX)
     shellData.sandboxBrokerServices =
-      sandboxing::GetInitializedBrokerServices();
+        sandboxing::GetInitializedBrokerServices();
 #endif
 
     return gBootstrap->XRE_XPCShellMain(--argc, argv, envp, &shellData);
@@ -211,9 +191,9 @@ static int do_main(int argc, char* argv[], char* envp[])
 
 #if defined(XP_WIN) && defined(MOZ_SANDBOX)
   sandbox::BrokerServices* brokerServices =
-    sandboxing::GetInitializedBrokerServices();
+      sandboxing::GetInitializedBrokerServices();
   sandboxing::PermissionsService* permissionsService =
-    sandboxing::GetPermissionsService();
+      sandboxing::GetPermissionsService();
   if (!brokerServices) {
     Output("Couldn't initialize the broker services.\n");
     return 255;
@@ -230,9 +210,7 @@ static int do_main(int argc, char* argv[], char* envp[])
   return gBootstrap->XRE_main(argc, argv, config);
 }
 
-static nsresult
-InitXPCOMGlue()
-{
+static nsresult InitXPCOMGlue() {
   UniqueFreePtr<char> exePath = BinaryPath::Get();
   if (!exePath) {
     Output("Couldn't find the application directory.\n");
@@ -256,25 +234,24 @@ InitXPCOMGlue()
 uint32_t gBlocklistInitFlags = eDllBlocklistInitFlagDefault;
 #endif
 
-int main(int argc, char* argv[], char* envp[])
-{
+int main(int argc, char* argv[], char* envp[]) {
   mozilla::TimeStamp start = mozilla::TimeStamp::Now();
 
 #ifdef MOZ_BROWSER_CAN_BE_CONTENTPROC
   // We are launching as a content process, delegate to the appropriate
   // main
   if (argc > 1 && IsArg(argv[1], "contentproc")) {
-#ifdef HAS_DLL_BLOCKLIST
+#  ifdef HAS_DLL_BLOCKLIST
     DllBlocklist_Initialize(eDllBlocklistInitFlagIsChildProcess);
-#endif
-#if defined(XP_WIN) && defined(MOZ_SANDBOX)
+#  endif
+#  if defined(XP_WIN) && defined(MOZ_SANDBOX)
     // We need to initialize the sandbox TargetServices before InitXPCOMGlue
     // because we might need the sandbox broker to give access to some files.
     if (IsSandboxedProcess() && !sandboxing::GetInitializedTargetServices()) {
       Output("Failed to initialize the sandbox target services.");
       return 255;
     }
-#endif
+#  endif
 
     nsresult rv = InitXPCOMGlue();
     if (NS_FAILED(rv)) {
@@ -293,7 +270,6 @@ int main(int argc, char* argv[], char* envp[])
 #ifdef HAS_DLL_BLOCKLIST
   DllBlocklist_Initialize(gBlocklistInitFlags);
 #endif
-
 
   nsresult rv = InitXPCOMGlue();
   if (NS_FAILED(rv)) {

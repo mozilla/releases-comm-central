@@ -10,19 +10,22 @@
 #include "nsIFile.h"
 #include "nsCOMPtr.h"
 
-#define NS_MAILWINSEARCHHELPER_CID \
-{0x5dd31c99, 0x8c7, 0x4a3b, {0xae, 0xb3, 0xd2, 0xe6, 0x6, 0x65, 0xa3, 0x1a}}
+#define NS_MAILWINSEARCHHELPER_CID                  \
+  {                                                 \
+    0x5dd31c99, 0x8c7, 0x4a3b, {                    \
+      0xae, 0xb3, 0xd2, 0xe6, 0x6, 0x65, 0xa3, 0x1a \
+    }                                               \
+  }
 
-class nsMailWinSearchHelper : public nsIMailWinSearchHelper
-{
-public:
+class nsMailWinSearchHelper : public nsIMailWinSearchHelper {
+ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMAILWINSEARCHHELPER
 
   NS_HIDDEN_(nsresult) Init();
   nsMailWinSearchHelper();
 
-private:
+ private:
   virtual ~nsMailWinSearchHelper();
   nsCOMPtr<nsIFile> mProfD;
   nsCOMPtr<nsIFile> mCurProcD;

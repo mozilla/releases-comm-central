@@ -25,65 +25,47 @@
 
 using mozilla::ArrayLength;
 
-static const char* const sMailProtocols[] = {
-  "mailto"
-};
+static const char *const sMailProtocols[] = {"mailto"};
 
-static const char* const sNewsProtocols[] = {
-  "news",
-  "snews",
-  "nntp"
-};
+static const char *const sNewsProtocols[] = {"news", "snews", "nntp"};
 
-static const char* const sFeedProtocols[] = {
-  "feed"
-};
+static const char *const sFeedProtocols[] = {"feed"};
 
 struct AppTypeAssociation {
   uint16_t type;
-  const char * const *protocols;
+  const char *const *protocols;
   unsigned int protocolsLength;
   const char *mimeType;
   const char *extensions;
 };
 
 static const AppTypeAssociation sAppTypes[] = {
-  {
-    nsIShellService::MAIL, sMailProtocols, ArrayLength(sMailProtocols),
-    "message/rfc822",
-    nullptr // don't associate .eml extension, as that breaks printing those
-  },
-  {
-    nsIShellService::NEWS, sNewsProtocols, ArrayLength(sNewsProtocols),
-    nullptr, nullptr
-  },
-  {
-    nsIShellService::RSS, sFeedProtocols, ArrayLength(sFeedProtocols),
-    "application/rss+xml", "rss"
-  }
-};
+    {
+        nsIShellService::MAIL, sMailProtocols, ArrayLength(sMailProtocols),
+        "message/rfc822",
+        nullptr  // don't associate .eml extension, as that breaks printing
+                 // those
+    },
+    {nsIShellService::NEWS, sNewsProtocols, ArrayLength(sNewsProtocols),
+     nullptr, nullptr},
+    {nsIShellService::RSS, sFeedProtocols, ArrayLength(sFeedProtocols),
+     "application/rss+xml", "rss"}};
 
-nsGNOMEShellService::nsGNOMEShellService():
-                          mCheckedThisSession(false),
-                          mAppIsInPath(false)
-{}
+nsGNOMEShellService::nsGNOMEShellService()
+    : mCheckedThisSession(false), mAppIsInPath(false) {}
 
-nsresult
-nsGNOMEShellService::Init()
-{
+nsresult nsGNOMEShellService::Init() {
   nsresult rv;
 
   nsCOMPtr<nsIGIOService> giovfs = do_GetService(NS_GIOSERVICE_CONTRACTID);
 
-  if (!giovfs)
-    return NS_ERROR_NOT_AVAILABLE;
+  if (!giovfs) return NS_ERROR_NOT_AVAILABLE;
 
   // Check G_BROKEN_FILENAMES.  If it's set, then filenames in glib use
   // the locale encoding.  If it's not set, they use UTF-8.
   mUseLocaleFilenames = PR_GetEnv("G_BROKEN_FILENAMES") != nullptr;
 
-  if (GetAppPathFromLauncher())
-      return NS_OK;
+  if (GetAppPathFromLauncher()) return NS_OK;
 
   nsCOMPtr<nsIFile> appPath;
   rv = NS_GetSpecialDirectory(NS_XPCOM_CURRENT_PROCESS_DIR,
@@ -99,14 +81,11 @@ nsGNOMEShellService::Init()
 
 NS_IMPL_ISUPPORTS(nsGNOMEShellService, nsIShellService, nsIToolkitShellService)
 
-bool
-nsGNOMEShellService::GetAppPathFromLauncher()
-{
+bool nsGNOMEShellService::GetAppPathFromLauncher() {
   gchar *tmp;
 
   const char *launcher = PR_GetEnv("MOZ_APP_LAUNCHER");
-  if (!launcher)
-    return false;
+  if (!launcher) return false;
 
   if (g_path_is_absolute(launcher)) {
     mAppPath = launcher;
@@ -118,8 +97,7 @@ nsGNOMEShellService::GetAppPathFromLauncher()
     g_free(fullpath);
   } else {
     tmp = g_find_program_in_path(launcher);
-    if (!tmp)
-      return false;
+    if (!tmp) return false;
     mAppPath = tmp;
     mAppIsInPath = true;
   }
@@ -129,34 +107,31 @@ nsGNOMEShellService::GetAppPathFromLauncher()
 }
 
 NS_IMETHODIMP
-nsGNOMEShellService::IsDefaultClient(bool aStartupCheck, uint16_t aApps, bool * aIsDefaultClient)
-{
+nsGNOMEShellService::IsDefaultClient(bool aStartupCheck, uint16_t aApps,
+                                     bool *aIsDefaultClient) {
   *aIsDefaultClient = true;
 
   for (unsigned int i = 0; i < MOZ_ARRAY_LENGTH(sAppTypes); i++) {
     if (aApps & sAppTypes[i].type)
-      *aIsDefaultClient &= checkDefault(sAppTypes[i].protocols,
-                                        sAppTypes[i].protocolsLength);
+      *aIsDefaultClient &=
+          checkDefault(sAppTypes[i].protocols, sAppTypes[i].protocolsLength);
   }
 
   // If this is the first mail window, maintain internal state that we've
   // checked this session (so that subsequent window opens don't show the
   // default client dialog).
-  if (aStartupCheck)
-    mCheckedThisSession = true;
+  if (aStartupCheck) mCheckedThisSession = true;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsGNOMEShellService::SetDefaultClient(bool aForAllUsers, uint16_t aApps)
-{
+nsGNOMEShellService::SetDefaultClient(bool aForAllUsers, uint16_t aApps) {
   nsresult rv = NS_OK;
   for (unsigned int i = 0; i < MOZ_ARRAY_LENGTH(sAppTypes); i++) {
     if (aApps & sAppTypes[i].type) {
-      nsresult tmp = MakeDefault(sAppTypes[i].protocols,
-                                 sAppTypes[i].protocolsLength,
-                                 sAppTypes[i].mimeType,
-                                 sAppTypes[i].extensions);
+      nsresult tmp =
+          MakeDefault(sAppTypes[i].protocols, sAppTypes[i].protocolsLength,
+                      sAppTypes[i].mimeType, sAppTypes[i].extensions);
       if (NS_FAILED(tmp)) {
         rv = tmp;
       }
@@ -167,10 +142,8 @@ nsGNOMEShellService::SetDefaultClient(bool aForAllUsers, uint16_t aApps)
 }
 
 NS_IMETHODIMP
-nsGNOMEShellService::GetShouldCheckDefaultClient(bool* aResult)
-{
-  if (mCheckedThisSession)
-  {
+nsGNOMEShellService::GetShouldCheckDefaultClient(bool *aResult) {
+  if (mCheckedThisSession) {
     *aResult = false;
     return NS_OK;
   }
@@ -180,15 +153,12 @@ nsGNOMEShellService::GetShouldCheckDefaultClient(bool* aResult)
 }
 
 NS_IMETHODIMP
-nsGNOMEShellService::SetShouldCheckDefaultClient(bool aShouldCheck)
-{
+nsGNOMEShellService::SetShouldCheckDefaultClient(bool aShouldCheck) {
   nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID));
   return prefs->SetBoolPref("mail.shell.checkDefaultClient", aShouldCheck);
 }
 
-bool
-nsGNOMEShellService::KeyMatchesAppName(const char *aKeyValue) const
-{
+bool nsGNOMEShellService::KeyMatchesAppName(const char *aKeyValue) const {
   gchar *commandPath;
   if (mUseLocaleFilenames) {
     gchar *nativePath = g_filename_from_utf8(aKeyValue, -1, NULL, NULL, NULL);
@@ -203,17 +173,15 @@ nsGNOMEShellService::KeyMatchesAppName(const char *aKeyValue) const
     commandPath = g_find_program_in_path(aKeyValue);
   }
 
-  if (!commandPath)
-    return false;
+  if (!commandPath) return false;
 
   bool matches = mAppPath.Equals(commandPath);
   g_free(commandPath);
   return matches;
 }
 
-bool
-nsGNOMEShellService::CheckHandlerMatchesAppName(const nsACString &handler) const
-{
+bool nsGNOMEShellService::CheckHandlerMatchesAppName(
+    const nsACString &handler) const {
   gint argc;
   gchar **argv;
   nsAutoCString command(handler);
@@ -228,9 +196,8 @@ nsGNOMEShellService::CheckHandlerMatchesAppName(const nsACString &handler) const
   return KeyMatchesAppName(command.get());
 }
 
-bool
-nsGNOMEShellService::checkDefault(const char* const *aProtocols, unsigned int aLength)
-{
+bool nsGNOMEShellService::checkDefault(const char *const *aProtocols,
+                                       unsigned int aLength) {
   nsCOMPtr<nsIGIOService> giovfs = do_GetService(NS_GIOSERVICE_CONTRACTID);
 
   nsAutoCString handler;
@@ -256,15 +223,13 @@ nsGNOMEShellService::checkDefault(const char* const *aProtocols, unsigned int aL
   return true;
 }
 
-nsresult
-nsGNOMEShellService::MakeDefault(const char* const *aProtocols,
-                                    unsigned int aProtocolsLength,
-                                    const char *aMimeType,
-                                    const char *aExtensions)
-{
+nsresult nsGNOMEShellService::MakeDefault(const char *const *aProtocols,
+                                          unsigned int aProtocolsLength,
+                                          const char *aMimeType,
+                                          const char *aExtensions) {
   nsAutoCString appKeyValue;
   nsCOMPtr<nsIGIOService> giovfs = do_GetService(NS_GIOSERVICE_CONTRACTID);
-  if(mAppIsInPath) {
+  if (mAppIsInPath) {
     // mAppPath is in the users path, so use only the basename as the launcher
     gchar *tmp = g_path_get_basename(mAppPath.get());
     appKeyValue = tmp;
@@ -278,11 +243,12 @@ nsGNOMEShellService::MakeDefault(const char* const *aProtocols,
   nsresult rv;
   if (giovfs) {
     nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::services::GetStringBundleService();
+        mozilla::services::GetStringBundleService();
     NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
 
     nsCOMPtr<nsIStringBundle> brandBundle;
-    rv = bundleService->CreateBundle(BRAND_PROPERTIES, getter_AddRefs(brandBundle));
+    rv = bundleService->CreateBundle(BRAND_PROPERTIES,
+                                     getter_AddRefs(brandBundle));
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsString brandShortName;
@@ -302,7 +268,8 @@ nsGNOMEShellService::MakeDefault(const char* const *aProtocols,
         rv = app->SetAsDefaultForMimeType(nsDependentCString(aMimeType));
       NS_ENSURE_SUCCESS(rv, rv);
       if (aExtensions)
-        rv = app->SetAsDefaultForFileExtensions(nsDependentCString(aExtensions));
+        rv =
+            app->SetAsDefaultForFileExtensions(nsDependentCString(aExtensions));
       NS_ENSURE_SUCCESS(rv, rv);
     }
   }

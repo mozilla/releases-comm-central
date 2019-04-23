@@ -16,23 +16,22 @@
 // These Launch Services functions are undocumented. We're using them since
 // they're the only way to set the default opener for URLs
 extern "C" {
-  // Returns the CFURL for application currently set as the default opener for
-  // the given URL scheme. appURL must be released by the caller.
-  extern OSStatus _LSCopyDefaultSchemeHandlerURL(CFStringRef scheme,
-                                                 CFURLRef *appURL);
-  extern OSStatus _LSSetDefaultSchemeHandlerURL(CFStringRef scheme,
-                                                CFURLRef appURL);
-  extern OSStatus _LSSaveAndRefresh(void);
+// Returns the CFURL for application currently set as the default opener for
+// the given URL scheme. appURL must be released by the caller.
+extern OSStatus _LSCopyDefaultSchemeHandlerURL(CFStringRef scheme,
+                                               CFURLRef* appURL);
+extern OSStatus _LSSetDefaultSchemeHandlerURL(CFStringRef scheme,
+                                              CFURLRef appURL);
+extern OSStatus _LSSaveAndRefresh(void);
 }
 
 NS_IMPL_ISUPPORTS(nsMacShellService, nsIShellService, nsIToolkitShellService)
 
-nsMacShellService::nsMacShellService(): mCheckedThisSession(false)
-{}
+nsMacShellService::nsMacShellService() : mCheckedThisSession(false) {}
 
 NS_IMETHODIMP
-nsMacShellService::IsDefaultClient(bool aStartupCheck, uint16_t aApps, bool * aIsDefaultClient)
-{
+nsMacShellService::IsDefaultClient(bool aStartupCheck, uint16_t aApps,
+                                   bool* aIsDefaultClient) {
   *aIsDefaultClient = true;
   if (aApps & nsIShellService::MAIL)
     *aIsDefaultClient &= isDefaultHandlerForProtocol(CFSTR("mailto"));
@@ -45,14 +44,12 @@ nsMacShellService::IsDefaultClient(bool aStartupCheck, uint16_t aApps, bool * aI
   // checked this session (so that subsequent window opens don't show the
   // default client dialog.
 
-  if (aStartupCheck)
-    mCheckedThisSession = true;
+  if (aStartupCheck) mCheckedThisSession = true;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMacShellService::SetDefaultClient(bool aForAllUsers, uint16_t aApps)
-{
+nsMacShellService::SetDefaultClient(bool aForAllUsers, uint16_t aApps) {
   nsresult rv = NS_OK;
   if (aApps & nsIShellService::MAIL)
     rv = setAsDefaultHandlerForProtocol(CFSTR("mailto"));
@@ -65,10 +62,8 @@ nsMacShellService::SetDefaultClient(bool aForAllUsers, uint16_t aApps)
 }
 
 NS_IMETHODIMP
-nsMacShellService::GetShouldCheckDefaultClient(bool* aResult)
-{
-  if (mCheckedThisSession)
-  {
+nsMacShellService::GetShouldCheckDefaultClient(bool* aResult) {
+  if (mCheckedThisSession) {
     *aResult = false;
     return NS_OK;
   }
@@ -78,15 +73,12 @@ nsMacShellService::GetShouldCheckDefaultClient(bool* aResult)
 }
 
 NS_IMETHODIMP
-nsMacShellService::SetShouldCheckDefaultClient(bool aShouldCheck)
-{
+nsMacShellService::SetShouldCheckDefaultClient(bool aShouldCheck) {
   nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID));
   return prefs->SetBoolPref("mail.shell.checkDefaultClient", aShouldCheck);
 }
 
-bool
-nsMacShellService::isDefaultHandlerForProtocol(CFStringRef aScheme)
-{
+bool nsMacShellService::isDefaultHandlerForProtocol(CFStringRef aScheme) {
   bool isDefault = false;
   // Since neither Launch Services nor Internet Config actually differ between
   // bundles which have the same bundle identifier (That is, if we set our
@@ -107,24 +99,22 @@ nsMacShellService::isDefaultHandlerForProtocol(CFStringRef aScheme)
 
   // Get the default handler URL of the given protocol
   CFURLRef defaultHandlerURL;
-  OSStatus err = ::_LSCopyDefaultSchemeHandlerURL(aScheme,
-                                                  &defaultHandlerURL);
+  OSStatus err = ::_LSCopyDefaultSchemeHandlerURL(aScheme, &defaultHandlerURL);
 
   if (err == noErr) {
     // Get a reference to the bundle (based on its URL)
-    CFBundleRef defaultHandlerBundle = ::CFBundleCreate(NULL,
-                                                        defaultHandlerURL);
+    CFBundleRef defaultHandlerBundle =
+        ::CFBundleCreate(NULL, defaultHandlerURL);
     if (defaultHandlerBundle) {
       CFStringRef defaultHandlerID =
-        ::CFBundleGetIdentifier(defaultHandlerBundle);
+          ::CFBundleGetIdentifier(defaultHandlerBundle);
       if (defaultHandlerID) {
         ::CFRetain(defaultHandlerID);
         // and compare it to our bundle identifier
-        isDefault = ::CFStringCompare(tbirdID, defaultHandlerID, 0)
-                       == kCFCompareEqualTo;
+        isDefault = ::CFStringCompare(tbirdID, defaultHandlerID, 0) ==
+                    kCFCompareEqualTo;
         ::CFRelease(defaultHandlerID);
-      }
-      else {
+      } else {
         // If the bundle doesn't have an identifier in its info property list,
         // it's not our bundle.
         isDefault = false;
@@ -134,8 +124,7 @@ nsMacShellService::isDefaultHandlerForProtocol(CFStringRef aScheme)
     }
 
     ::CFRelease(defaultHandlerURL);
-  }
-  else {
+  } else {
     // If |_LSCopyDefaultSchemeHandlerURL| failed, there's no default
     // handler for the given protocol
     isDefault = false;
@@ -145,9 +134,8 @@ nsMacShellService::isDefaultHandlerForProtocol(CFStringRef aScheme)
   return isDefault;
 }
 
-nsresult
-nsMacShellService::setAsDefaultHandlerForProtocol(CFStringRef aScheme)
-{
+nsresult nsMacShellService::setAsDefaultHandlerForProtocol(
+    CFStringRef aScheme) {
   CFURLRef tbirdURL = ::CFBundleCopyBundleURL(CFBundleGetMainBundle());
 
   ::_LSSetDefaultSchemeHandlerURL(aScheme, tbirdURL);
@@ -156,6 +144,3 @@ nsMacShellService::setAsDefaultHandlerForProtocol(CFStringRef aScheme)
 
   return NS_OK;
 }
-
-
-

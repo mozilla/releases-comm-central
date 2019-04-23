@@ -21,32 +21,35 @@
 #include "nsMailMigrationCID.h"
 
 #ifdef XP_WIN
-#include <windows.h>
+#  include <windows.h>
 #else
-#include <limits.h>
+#  include <limits.h>
 #endif
 
 NS_IMPL_ISUPPORTS(nsProfileMigrator, nsIProfileMigrator)
 
-#define MIGRATION_WIZARD_FE_URL "chrome://messenger/content/migration/migration.xul"
+#define MIGRATION_WIZARD_FE_URL \
+  "chrome://messenger/content/migration/migration.xul"
 #define MIGRATION_WIZARD_FE_FEATURES "chrome,dialog,modal,centerscreen"
 
 NS_IMETHODIMP
-nsProfileMigrator::Migrate(nsIProfileStartup* aStartup, const nsACString& aKey, const nsACString& aProfileName)
-{
+nsProfileMigrator::Migrate(nsIProfileStartup* aStartup, const nsACString& aKey,
+                           const nsACString& aProfileName) {
   nsAutoCString key;
   nsCOMPtr<nsIMailProfileMigrator> mailMigrator;
   nsresult rv = GetDefaultMailMigratorKey(key, mailMigrator);
-  NS_ENSURE_SUCCESS(rv, rv); // abort migration if we failed to get a mailMigrator (if we were supposed to)
+  NS_ENSURE_SUCCESS(rv, rv);  // abort migration if we failed to get a
+                              // mailMigrator (if we were supposed to)
 
-  nsCOMPtr<nsISupportsCString> cstr (do_CreateInstance("@mozilla.org/supports-cstring;1"));
+  nsCOMPtr<nsISupportsCString> cstr(
+      do_CreateInstance("@mozilla.org/supports-cstring;1"));
   NS_ENSURE_TRUE(cstr, NS_ERROR_OUT_OF_MEMORY);
   cstr->SetData(key);
 
-  // By opening the Migration FE with a supplied mailMigrator, it will automatically
-  // migrate from it.
-  nsCOMPtr<nsIWindowWatcher> ww (do_GetService(NS_WINDOWWATCHER_CONTRACTID));
-  nsCOMPtr<nsIMutableArray> params (do_CreateInstance(NS_ARRAY_CONTRACTID));
+  // By opening the Migration FE with a supplied mailMigrator, it will
+  // automatically migrate from it.
+  nsCOMPtr<nsIWindowWatcher> ww(do_GetService(NS_WINDOWWATCHER_CONTRACTID));
+  nsCOMPtr<nsIMutableArray> params(do_CreateInstance(NS_ARRAY_CONTRACTID));
   if (!ww || !params) return NS_ERROR_FAILURE;
 
   params->AppendElement(cstr);
@@ -54,11 +57,8 @@ nsProfileMigrator::Migrate(nsIProfileStartup* aStartup, const nsACString& aKey, 
   params->AppendElement(aStartup);
 
   nsCOMPtr<mozIDOMWindowProxy> migrateWizard;
-  return ww->OpenWindow(nullptr,
-                        MIGRATION_WIZARD_FE_URL,
-                        "_blank",
-                        MIGRATION_WIZARD_FE_FEATURES,
-                        params,
+  return ww->OpenWindow(nullptr, MIGRATION_WIZARD_FE_URL, "_blank",
+                        MIGRATION_WIZARD_FE_FEATURES, params,
                         getter_AddRefs(migrateWizard));
 }
 
@@ -68,15 +68,14 @@ typedef struct {
   WORD wCodePage;
 } LANGANDCODEPAGE;
 
-#define INTERNAL_NAME_THUNDERBIRD     "Thunderbird"
-#define INTERNAL_NAME_SEAMONKEY       "Mozilla"
+#  define INTERNAL_NAME_THUNDERBIRD "Thunderbird"
+#  define INTERNAL_NAME_SEAMONKEY "Mozilla"
 #endif
 
-nsresult
-nsProfileMigrator::GetDefaultMailMigratorKey(nsACString& aKey, nsCOMPtr<nsIMailProfileMigrator>& mailMigrator)
-{
-  // look up the value of profile.force.migration in case we are supposed to force migration using a particular
-  // migrator....
+nsresult nsProfileMigrator::GetDefaultMailMigratorKey(
+    nsACString& aKey, nsCOMPtr<nsIMailProfileMigrator>& mailMigrator) {
+  // look up the value of profile.force.migration in case we are supposed to
+  // force migration using a particular migrator....
   nsresult rv = NS_OK;
   nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -84,48 +83,38 @@ nsProfileMigrator::GetDefaultMailMigratorKey(nsACString& aKey, nsCOMPtr<nsIMailP
   nsCString forceMigrationType;
   prefs->GetCharPref("profile.force.migration", forceMigrationType);
 
-  // if we are being forced to migrate to a particular migration type, then create an instance of that migrator
-  // and return it.
+  // if we are being forced to migrate to a particular migration type, then
+  // create an instance of that migrator and return it.
   NS_NAMED_LITERAL_CSTRING(migratorPrefix,
                            NS_MAILPROFILEMIGRATOR_CONTRACTID_PREFIX);
   nsAutoCString migratorID;
-  if (!forceMigrationType.IsEmpty())
-  {
+  if (!forceMigrationType.IsEmpty()) {
     bool exists = false;
     migratorID = migratorPrefix;
     migratorID.Append(forceMigrationType);
     mailMigrator = do_CreateInstance(migratorID.get());
-    if (!mailMigrator)
-      return NS_ERROR_NOT_AVAILABLE;
+    if (!mailMigrator) return NS_ERROR_NOT_AVAILABLE;
 
     mailMigrator->GetSourceExists(&exists);
     /* trying to force migration on a source which doesn't
      * have any profiles.
      */
-    if (!exists)
-      return NS_ERROR_NOT_AVAILABLE;
+    if (!exists) return NS_ERROR_NOT_AVAILABLE;
     aKey = forceMigrationType;
     return NS_OK;
   }
 
-  #define MAX_SOURCE_LENGTH 10
-  const char sources[][MAX_SOURCE_LENGTH] = {
-    "seamonkey",
-    "outlook",
-    ""
-  };
-  for (uint32_t i = 0; sources[i][0]; ++i)
-  {
+#define MAX_SOURCE_LENGTH 10
+  const char sources[][MAX_SOURCE_LENGTH] = {"seamonkey", "outlook", ""};
+  for (uint32_t i = 0; sources[i][0]; ++i) {
     migratorID = migratorPrefix;
     migratorID.Append(sources[i]);
     mailMigrator = do_CreateInstance(migratorID.get());
-    if (!mailMigrator)
-      continue;
+    if (!mailMigrator) continue;
 
     bool exists = false;
     mailMigrator->GetSourceExists(&exists);
-    if (exists)
-    {
+    if (exists) {
       mailMigrator = nullptr;
       return NS_OK;
     }

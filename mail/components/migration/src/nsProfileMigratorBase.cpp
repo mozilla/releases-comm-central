@@ -15,20 +15,16 @@
 
 #define kPersonalAddressbookUri "moz-abmdbdirectory://abook.mab"
 
-nsProfileMigratorBase::nsProfileMigratorBase()
-{
+nsProfileMigratorBase::nsProfileMigratorBase() {
   mObserverService = do_GetService("@mozilla.org/observer-service;1");
   mProcessingMailFolders = false;
 }
 
-nsProfileMigratorBase::~nsProfileMigratorBase()
-{
-  if (mFileIOTimer)
-    mFileIOTimer->Cancel();
+nsProfileMigratorBase::~nsProfileMigratorBase() {
+  if (mFileIOTimer) mFileIOTimer->Cancel();
 }
 
-nsresult nsProfileMigratorBase::ImportSettings(nsIImportModule * aImportModule)
-{
+nsresult nsProfileMigratorBase::ImportSettings(nsIImportModule* aImportModule) {
   nsresult rv;
 
   nsAutoString index;
@@ -36,7 +32,8 @@ nsresult nsProfileMigratorBase::ImportSettings(nsIImportModule * aImportModule)
   NOTIFY_OBSERVERS(MIGRATION_ITEMBEFOREMIGRATE, index.get());
 
   nsCOMPtr<nsISupports> supports;
-  rv = aImportModule->GetImportInterface(NS_IMPORT_SETTINGS_STR, getter_AddRefs(supports));
+  rv = aImportModule->GetImportInterface(NS_IMPORT_SETTINGS_STR,
+                                         getter_AddRefs(supports));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIImportSettings> importSettings = do_QueryInterface(supports);
@@ -44,15 +41,16 @@ nsresult nsProfileMigratorBase::ImportSettings(nsIImportModule * aImportModule)
 
   bool importedSettings = false;
 
-  rv = importSettings->Import(getter_AddRefs(mLocalFolderAccount), &importedSettings);
+  rv = importSettings->Import(getter_AddRefs(mLocalFolderAccount),
+                              &importedSettings);
 
   NOTIFY_OBSERVERS(MIGRATION_ITEMAFTERMIGRATE, index.get());
 
   return rv;
 }
 
-nsresult nsProfileMigratorBase::ImportAddressBook(nsIImportModule * aImportModule)
-{
+nsresult nsProfileMigratorBase::ImportAddressBook(
+    nsIImportModule* aImportModule) {
   nsresult rv;
 
   nsAutoString index;
@@ -60,16 +58,19 @@ nsresult nsProfileMigratorBase::ImportAddressBook(nsIImportModule * aImportModul
   NOTIFY_OBSERVERS(MIGRATION_ITEMBEFOREMIGRATE, index.get());
 
   nsCOMPtr<nsISupports> supports;
-  rv = aImportModule->GetImportInterface(NS_IMPORT_ADDRESS_STR, getter_AddRefs(supports));
+  rv = aImportModule->GetImportInterface(NS_IMPORT_ADDRESS_STR,
+                                         getter_AddRefs(supports));
   NS_ENSURE_SUCCESS(rv, rv);
 
   mGenericImporter = do_QueryInterface(supports);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsISupportsCString> pabString = do_CreateInstance(NS_SUPPORTS_CSTRING_CONTRACTID, &rv);
+  nsCOMPtr<nsISupportsCString> pabString =
+      do_CreateInstance(NS_SUPPORTS_CSTRING_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // we want to migrate the outlook express addressbook into our personal address book
+  // we want to migrate the outlook express addressbook into our personal
+  // address book
   pabString->SetData(nsDependentCString(kPersonalAddressbookUri));
   mGenericImporter->SetData("addressDestination", pabString);
 
@@ -86,8 +87,7 @@ nsresult nsProfileMigratorBase::ImportAddressBook(nsIImportModule * aImportModul
   return rv;
 }
 
-nsresult nsProfileMigratorBase::FinishCopyingAddressBookData()
-{
+nsresult nsProfileMigratorBase::FinishCopyingAddressBookData() {
   nsAutoString index;
   index.AppendInt(nsIMailProfileMigrator::ADDRESSBOOK_DATA);
   NOTIFY_OBSERVERS(MIGRATION_ITEMAFTERMIGRATE, index.get());
@@ -98,8 +98,7 @@ nsresult nsProfileMigratorBase::FinishCopyingAddressBookData()
   return NS_OK;
 }
 
-nsresult nsProfileMigratorBase::ImportMailData(nsIImportModule * aImportModule)
-{
+nsresult nsProfileMigratorBase::ImportMailData(nsIImportModule* aImportModule) {
   nsresult rv;
 
   nsAutoString index;
@@ -107,17 +106,19 @@ nsresult nsProfileMigratorBase::ImportMailData(nsIImportModule * aImportModule)
   NOTIFY_OBSERVERS(MIGRATION_ITEMBEFOREMIGRATE, index.get());
 
   nsCOMPtr<nsISupports> supports;
-  rv = aImportModule->GetImportInterface(NS_IMPORT_MAIL_STR, getter_AddRefs(supports));
+  rv = aImportModule->GetImportInterface(NS_IMPORT_MAIL_STR,
+                                         getter_AddRefs(supports));
   NS_ENSURE_SUCCESS(rv, rv);
 
   mGenericImporter = do_QueryInterface(supports);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsISupportsPRBool> migrating = do_CreateInstance(NS_SUPPORTS_PRBOOL_CONTRACTID, &rv);
+  nsCOMPtr<nsISupportsPRBool> migrating =
+      do_CreateInstance(NS_SUPPORTS_PRBOOL_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // by setting the migration flag, we force the import utility to install local folders from OE
-  // directly into Local Folders and not as a subfolder
+  // by setting the migration flag, we force the import utility to install local
+  // folders from OE directly into Local Folders and not as a subfolder
   migrating->SetData(true);
   mGenericImporter->SetData("migration", migrating);
 
@@ -136,8 +137,7 @@ nsresult nsProfileMigratorBase::ImportMailData(nsIImportModule * aImportModule)
   return rv;
 }
 
-nsresult nsProfileMigratorBase::FinishCopyingMailFolders()
-{
+nsresult nsProfileMigratorBase::FinishCopyingMailFolders() {
   nsAutoString index;
   index.AppendInt(nsIMailProfileMigrator::MAILDATA);
   NOTIFY_OBSERVERS(MIGRATION_ITEMAFTERMIGRATE, index.get());
@@ -146,16 +146,15 @@ nsresult nsProfileMigratorBase::FinishCopyingMailFolders()
   return ImportFilters(mImportModule);
 }
 
-nsresult nsProfileMigratorBase::ImportFilters(nsIImportModule * aImportModule)
-{
+nsresult nsProfileMigratorBase::ImportFilters(nsIImportModule* aImportModule) {
   nsresult rv = NS_OK;
 
   nsCOMPtr<nsISupports> supports;
-  nsresult rv2 = aImportModule->GetImportInterface(NS_IMPORT_FILTERS_STR, getter_AddRefs(supports));
+  nsresult rv2 = aImportModule->GetImportInterface(NS_IMPORT_FILTERS_STR,
+                                                   getter_AddRefs(supports));
   nsCOMPtr<nsIImportFilters> importFilters = do_QueryInterface(supports);
 
-  if (NS_SUCCEEDED(rv2) && importFilters)
-  {
+  if (NS_SUCCEEDED(rv2) && importFilters) {
     nsAutoString index;
     index.AppendInt(nsIMailProfileMigrator::FILTERS);
     NOTIFY_OBSERVERS(MIGRATION_ITEMBEFOREMIGRATE, index.get());
@@ -173,4 +172,3 @@ nsresult nsProfileMigratorBase::ImportFilters(nsIImportModule * aImportModule)
 
   return rv;
 }
-
