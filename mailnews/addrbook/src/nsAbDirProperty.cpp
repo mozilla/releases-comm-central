@@ -472,7 +472,16 @@ NS_IMETHODIMP nsAbDirProperty::UseForAutocomplete(const nsACString &aIdentityKey
                                                    &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return prefBranch->GetBoolPref("mail.enable_autocomplete", aResult);
+  rv = prefBranch->GetBoolPref("mail.enable_autocomplete", aResult);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // If autocomplete is generally enabled, check if it has been disabled explicitly for this directory.
+  if (*aResult)
+  {
+    (void) GetBoolValue("enable_autocomplete", true, aResult);
+  }
+
+  return rv;
 }
 
 NS_IMETHODIMP nsAbDirProperty::GetDirPrefId(nsACString &aDirPrefId)
