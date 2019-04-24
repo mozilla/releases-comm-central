@@ -37,12 +37,6 @@
 #include <limits.h>
 #include <stdlib.h>
 
-#define OGDB_SCHEMA "org.gnome.desktop.background"
-#define OGDB_OPTIONS "picture-options"
-#define OGDB_IMAGE "picture-uri"
-#define OGDB_DRAWBG "draw-background"
-#define OGDB_COLOR "primary-color"
-
 using namespace mozilla;
 
 struct ProtocolAssociation {
@@ -71,6 +65,12 @@ static const MimeTypeAssociation gMimeTypes[] = {
   { nsIShellService::MAIL, "message/rfc822", "eml" },
   { nsIShellService::RSS, "application/rss+xml", "rss" }
 };
+
+#define kDesktopBGSchema "org.gnome.desktop.background"
+#define kDesktopImageGSKey "picture-uri"
+#define kDesktopOptionGSKey "picture-options"
+#define kDesktopDrawBGGSKey "draw-background"
+#define kDesktopColorGSKey "primary-color"
 
 NS_IMPL_ISUPPORTS(nsGNOMEShellService, nsIGNOMEShellService, nsIShellService)
 
@@ -321,19 +321,20 @@ nsGNOMEShellService::SetDesktopBackground(dom::Element* aElement,
   nsCOMPtr<nsIGSettingsService> gsettings(do_GetService(NS_GSETTINGSSERVICE_CONTRACTID));
   if (gsettings) {
     nsCOMPtr<nsIGSettingsCollection> background_settings;
-    gsettings->GetCollectionForSchema(NS_LITERAL_CSTRING(OGDB_SCHEMA),
+    gsettings->GetCollectionForSchema(NS_LITERAL_CSTRING(kDesktopBGSchema),
                                       getter_AddRefs(background_settings));
     if (background_settings) {
       gchar *file_uri = g_filename_to_uri(filePath.get(), nullptr, nullptr);
       if (!file_uri)
        return NS_ERROR_FAILURE;
 
-      background_settings->SetString(NS_LITERAL_CSTRING(OGDB_OPTIONS),
+      background_settings->SetString(NS_LITERAL_CSTRING(kDesktopOptionGSKey),
                                      options);
-      background_settings->SetString(NS_LITERAL_CSTRING(OGDB_IMAGE),
+      background_settings->SetString(NS_LITERAL_CSTRING(kDesktopImageGSKey),
                                      nsDependentCString(file_uri));
       g_free(file_uri);
-      background_settings->SetBoolean(NS_LITERAL_CSTRING(OGDB_DRAWBG), true);
+      background_settings->SetBoolean(NS_LITERAL_CSTRING(kDesktopDrawBGGSKey),
+                                      true);
       return NS_OK;
     }
   }
@@ -350,12 +351,12 @@ nsGNOMEShellService::GetDesktopBackgroundColor(uint32_t *aColor)
   nsCOMPtr<nsIGSettingsCollection> background_settings;
 
   if (gsettings)
-    gsettings->GetCollectionForSchema(NS_LITERAL_CSTRING(OGDB_SCHEMA),
+    gsettings->GetCollectionForSchema(NS_LITERAL_CSTRING(kDesktopBGSchema),
                                       getter_AddRefs(background_settings));
 
   nsCString background;
   if (background_settings)
-    background_settings->GetString(NS_LITERAL_CSTRING(OGDB_COLOR),
+    background_settings->GetString(NS_LITERAL_CSTRING(kDesktopColorGSKey),
                                    background);
 
   if (background.IsEmpty())
@@ -387,10 +388,10 @@ nsGNOMEShellService::SetDesktopBackgroundColor(uint32_t aColor)
   nsCOMPtr<nsIGSettingsService> gsettings(do_GetService(NS_GSETTINGSSERVICE_CONTRACTID));
   if (gsettings) {
     nsCOMPtr<nsIGSettingsCollection> background_settings;
-    gsettings->GetCollectionForSchema(NS_LITERAL_CSTRING(OGDB_SCHEMA),
+    gsettings->GetCollectionForSchema(NS_LITERAL_CSTRING(kDesktopBGSchema),
                                       getter_AddRefs(background_settings));
     if (background_settings) {
-      background_settings->SetString(NS_LITERAL_CSTRING(OGDB_COLOR),
+      background_settings->SetString(NS_LITERAL_CSTRING(kDesktopColorGSKey),
                                      nsDependentCString(colorString));
       return NS_OK;
     }
