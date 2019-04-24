@@ -20,78 +20,56 @@ NS_IMPL_ISUPPORTS(nsMimeObjectClassAccess, nsIMimeObjectClassAccess)
 /*
  * Inherited methods for nsMimeObjectClassAccess
  */
-nsMimeObjectClassAccess::nsMimeObjectClassAccess()
-{
-}
+nsMimeObjectClassAccess::nsMimeObjectClassAccess() {}
 
-nsMimeObjectClassAccess::~nsMimeObjectClassAccess()
-{
-}
+nsMimeObjectClassAccess::~nsMimeObjectClassAccess() {}
 
-nsresult
-nsMimeObjectClassAccess::MimeObjectWrite(void *mimeObject,
-                                         char *data,
-                                         int32_t length,
-                                         bool user_visible_p)
-{
+nsresult nsMimeObjectClassAccess::MimeObjectWrite(void *mimeObject, char *data,
+                                                  int32_t length,
+                                                  bool user_visible_p) {
   int rc = XPCOM_MimeObject_write(mimeObject, data, length, user_visible_p);
   NS_ENSURE_FALSE(rc < 0, NS_ERROR_FAILURE);
 
   return NS_OK;
 }
 
-nsresult
-nsMimeObjectClassAccess::GetmimeInlineTextClass(void **ptr)
-{
+nsresult nsMimeObjectClassAccess::GetmimeInlineTextClass(void **ptr) {
   *ptr = XPCOM_GetmimeInlineTextClass();
   return NS_OK;
 }
 
-nsresult
-nsMimeObjectClassAccess::GetmimeLeafClass(void **ptr)
-{
+nsresult nsMimeObjectClassAccess::GetmimeLeafClass(void **ptr) {
   *ptr = XPCOM_GetmimeLeafClass();
   return NS_OK;
 }
 
-nsresult
-nsMimeObjectClassAccess::GetmimeObjectClass(void **ptr)
-{
+nsresult nsMimeObjectClassAccess::GetmimeObjectClass(void **ptr) {
   *ptr = XPCOM_GetmimeObjectClass();
   return NS_OK;
 }
 
-nsresult
-nsMimeObjectClassAccess::GetmimeContainerClass(void **ptr)
-{
+nsresult nsMimeObjectClassAccess::GetmimeContainerClass(void **ptr) {
   *ptr = XPCOM_GetmimeContainerClass();
   return NS_OK;
 }
 
-nsresult
-nsMimeObjectClassAccess::GetmimeMultipartClass(void **ptr)
-{
+nsresult nsMimeObjectClassAccess::GetmimeMultipartClass(void **ptr) {
   *ptr = XPCOM_GetmimeMultipartClass();
   return NS_OK;
 }
 
-nsresult
-nsMimeObjectClassAccess::GetmimeMultipartSignedClass(void **ptr)
-{
+nsresult nsMimeObjectClassAccess::GetmimeMultipartSignedClass(void **ptr) {
   *ptr = XPCOM_GetmimeMultipartSignedClass();
   return NS_OK;
 }
 
-nsresult
-nsMimeObjectClassAccess::GetmimeEncryptedClass(void **ptr)
-{
+nsresult nsMimeObjectClassAccess::GetmimeEncryptedClass(void **ptr) {
   *ptr = XPCOM_GetmimeEncryptedClass();
   return NS_OK;
 }
 
-nsresult
-nsMimeObjectClassAccess::MimeCreate(char * content_type, void * hdrs, void * opts, void **ptr)
-{
+nsresult nsMimeObjectClassAccess::MimeCreate(char *content_type, void *hdrs,
+                                             void *opts, void **ptr) {
   *ptr = XPCOM_Mime_create(content_type, hdrs, opts);
   return NS_OK;
 }

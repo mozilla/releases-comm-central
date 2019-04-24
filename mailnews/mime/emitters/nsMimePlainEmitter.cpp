@@ -16,30 +16,21 @@
 /*
  * nsMimePlainEmitter definitions....
  */
-nsMimePlainEmitter::nsMimePlainEmitter()
-{
-}
+nsMimePlainEmitter::nsMimePlainEmitter() {}
 
-
-nsMimePlainEmitter::~nsMimePlainEmitter(void)
-{
-}
-
+nsMimePlainEmitter::~nsMimePlainEmitter(void) {}
 
 // Header handling routines.
-nsresult
-nsMimePlainEmitter::StartHeader(bool rootMailHeader, bool headerOnly, const char *msgID,
-                           const char *outCharset)
-{
+nsresult nsMimePlainEmitter::StartHeader(bool rootMailHeader, bool headerOnly,
+                                         const char *msgID,
+                                         const char *outCharset) {
   mDocHeader = rootMailHeader;
   return NS_OK;
 }
 
-nsresult
-nsMimePlainEmitter::AddHeaderField(const char *field, const char *value)
-{
-  if ( (!field) || (!value) )
-    return NS_OK;
+nsresult nsMimePlainEmitter::AddHeaderField(const char *field,
+                                            const char *value) {
+  if ((!field) || (!value)) return NS_OK;
 
   UtilityWrite(field);
   UtilityWrite(":\t");
@@ -47,17 +38,13 @@ nsMimePlainEmitter::AddHeaderField(const char *field, const char *value)
   return NS_OK;
 }
 
-nsresult
-nsMimePlainEmitter::EndHeader(const nsACString &name)
-{
+nsresult nsMimePlainEmitter::EndHeader(const nsACString &name) {
   UtilityWriteCRLF("");
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMimePlainEmitter::WriteBody(const nsACString &buf, uint32_t *amountWritten)
-{
+nsMimePlainEmitter::WriteBody(const nsACString &buf, uint32_t *amountWritten) {
   Write(buf, amountWritten);
   return NS_OK;
 }
-

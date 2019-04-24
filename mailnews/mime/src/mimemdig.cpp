@@ -9,16 +9,14 @@
 
 #define MIME_SUPERCLASS mimeMultipartClass
 MimeDefClass(MimeMultipartDigest, MimeMultipartDigestClass,
-       mimeMultipartDigestClass, &MIME_SUPERCLASS);
+             mimeMultipartDigestClass, &MIME_SUPERCLASS);
 
-static int
-MimeMultipartDigestClassInitialize(MimeMultipartDigestClass *clazz)
-{
+static int MimeMultipartDigestClassInitialize(MimeMultipartDigestClass *clazz) {
 #ifdef DEBUG
-  MimeObjectClass    *oclass = (MimeObjectClass *)    clazz;
+  MimeObjectClass *oclass = (MimeObjectClass *)clazz;
   PR_ASSERT(!oclass->class_initialized);
 #endif
-  MimeMultipartClass *mclass = (MimeMultipartClass *) clazz;
+  MimeMultipartClass *mclass = (MimeMultipartClass *)clazz;
   mclass->default_part_type = MESSAGE_RFC822;
   return 0;
 }

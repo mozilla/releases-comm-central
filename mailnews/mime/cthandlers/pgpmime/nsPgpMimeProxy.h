@@ -12,10 +12,11 @@
 #include "nsIInputStream.h"
 #include "nsILoadGroup.h"
 
-#define PGPMIME_JS_DECRYPTOR_CONTRACTID "@mozilla.org/mime/pgp-mime-js-decrypt;1"
+#define PGPMIME_JS_DECRYPTOR_CONTRACTID \
+  "@mozilla.org/mime/pgp-mime-js-decrypt;1"
 
 typedef struct MimeEncryptedPgpClass MimeEncryptedPgpClass;
-typedef struct MimeEncryptedPgp      MimeEncryptedPgp;
+typedef struct MimeEncryptedPgp MimeEncryptedPgp;
 
 struct MimeEncryptedPgpClass {
   MimeEncryptedClass encrypted;
@@ -27,9 +28,8 @@ struct MimeEncryptedPgp {
 
 class nsPgpMimeProxy : public nsIPgpMimeProxy,
                        public nsIRequest,
-                       public nsIInputStream
-{
-public:
+                       public nsIInputStream {
+ public:
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIPGPMIMEPROXY
   NS_DECL_NSIREQUESTOBSERVER
@@ -40,31 +40,30 @@ public:
   nsPgpMimeProxy();
 
   // Define a Create method to be used with a factory:
-  static nsresult
-  Create(nsISupports *aOuter, REFNSIID aIID, void **aResult);
+  static nsresult Create(nsISupports *aOuter, REFNSIID aIID, void **aResult);
 
-protected:
+ protected:
   virtual ~nsPgpMimeProxy();
-  bool                          mInitialized;
-  nsCOMPtr<nsIStreamListener>   mDecryptor;
+  bool mInitialized;
+  nsCOMPtr<nsIStreamListener> mDecryptor;
 
-  MimeDecodeCallbackFun         mOutputFun;
-  void*                         mOutputClosure;
+  MimeDecodeCallbackFun mOutputFun;
+  void *mOutputClosure;
 
-  nsCOMPtr<nsILoadGroup>        mLoadGroup;
-  nsLoadFlags                   mLoadFlags;
-  nsresult                      mCancelStatus;
+  nsCOMPtr<nsILoadGroup> mLoadGroup;
+  nsLoadFlags mLoadFlags;
+  nsresult mCancelStatus;
 
-  uint32_t                      mStreamOffset;
-  nsCString                     mByteBuf;
-  nsCString                     mContentType;
-  nsCString                     mMimePart;
+  uint32_t mStreamOffset;
+  nsCString mByteBuf;
+  nsCString mContentType;
+  nsCString mMimePart;
 
-  nsCOMPtr<nsIURI>              mMessageURI;
+  nsCOMPtr<nsIURI> mMessageURI;
   nsresult Finalize();
 };
 
-#define MimeEncryptedPgpClassInitializer(ITYPE,CSUPER) \
-  { MimeEncryptedClassInitializer(ITYPE,CSUPER) }
+#define MimeEncryptedPgpClassInitializer(ITYPE, CSUPER) \
+  { MimeEncryptedClassInitializer(ITYPE, CSUPER) }
 
 #endif

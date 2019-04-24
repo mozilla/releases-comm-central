@@ -74,9 +74,8 @@
 /*
  * This is the write call for outputting processed stream data.
  */
-extern "C" int  COM_MimeObject_write(void *mimeObject, const char *data,
-                                      int32_t length,
-                                      bool user_visible_p);
+extern "C" int COM_MimeObject_write(void *mimeObject, const char *data,
+                                    int32_t length, bool user_visible_p);
 /*
  * The following group of calls expose the pointers for the object
  * system within libmime.
@@ -88,6 +87,6 @@ extern "C" void *COM_GetmimeContainerClass(void);
 extern "C" void *COM_GetmimeMultipartClass(void);
 extern "C" void *COM_GetmimeMultipartSignedClass(void);
 
-extern "C" void *COM_MimeCreate(char * content_type, void * hdrs, void * opts);
+extern "C" void *COM_MimeCreate(char *content_type, void *hdrs, void *opts);
 
 #endif /* _MIMEXPCOM_H_ */

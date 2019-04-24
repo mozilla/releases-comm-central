@@ -55,148 +55,118 @@ static char *
 test_file_type (const char *filename, void *stream_closure)
 {
   const char *suf = PL_strrchr(filename, '.');
-  if (!suf)
-  return 0;
+  if (!suf) return 0;
   suf++;
 
-  if (!PL_strcasecmp(suf, "txt") ||
-    !PL_strcasecmp(suf, "text"))
-  return strdup("text/plain");
-  else if (!PL_strcasecmp(suf, "htm") ||
-       !PL_strcasecmp(suf, "html"))
-  return strdup("text/html");
+  if (!PL_strcasecmp(suf, "txt") || !PL_strcasecmp(suf, "text"))
+    return strdup("text/plain");
+  else if (!PL_strcasecmp(suf, "htm") || !PL_strcasecmp(suf, "html"))
+    return strdup("text/html");
   else if (!PL_strcasecmp(suf, "gif"))
-  return strdup("image/gif");
+    return strdup("image/gif");
   else if (!PL_strcasecmp(suf, "svg"))
-  return strdup("image/svg+xml");
-  else if (!PL_strcasecmp(suf, "jpg") ||
-       !PL_strcasecmp(suf, "jpeg"))
-  return strdup("image/jpeg");
-  else if (!PL_strcasecmp(suf, "pjpg") ||
-       !PL_strcasecmp(suf, "pjpeg"))
-  return strdup("image/pjpeg");
+    return strdup("image/svg+xml");
+  else if (!PL_strcasecmp(suf, "jpg") || !PL_strcasecmp(suf, "jpeg"))
+    return strdup("image/jpeg");
+  else if (!PL_strcasecmp(suf, "pjpg") || !PL_strcasecmp(suf, "pjpeg"))
+    return strdup("image/pjpeg");
   else if (!PL_strcasecmp(suf, "xbm"))
-  return strdup("image/x-xbitmap");
+    return strdup("image/x-xbitmap");
   else if (!PL_strcasecmp(suf, "xpm"))
-  return strdup("image/x-xpixmap");
+    return strdup("image/x-xpixmap");
   else if (!PL_strcasecmp(suf, "xwd"))
-  return strdup("image/x-xwindowdump");
+    return strdup("image/x-xwindowdump");
   else if (!PL_strcasecmp(suf, "bmp"))
-  return strdup("image/x-MS-bmp");
+    return strdup("image/x-MS-bmp");
   else if (!PL_strcasecmp(suf, "au"))
-  return strdup("audio/basic");
-  else if (!PL_strcasecmp(suf, "aif") ||
-       !PL_strcasecmp(suf, "aiff") ||
-       !PL_strcasecmp(suf, "aifc"))
-  return strdup("audio/x-aiff");
+    return strdup("audio/basic");
+  else if (!PL_strcasecmp(suf, "aif") || !PL_strcasecmp(suf, "aiff") ||
+           !PL_strcasecmp(suf, "aifc"))
+    return strdup("audio/x-aiff");
   else if (!PL_strcasecmp(suf, "ps"))
-  return strdup("application/postscript");
+    return strdup("application/postscript");
   else
-  return 0;
+    return 0;
 }
 
-static int
-test_output_fn(char *buf, int32_t size, void *closure)
-{
-  FILE *out = (FILE *) closure;
+static int test_output_fn(char *buf, int32_t size, void *closure) {
+  FILE *out = (FILE *)closure;
   if (out)
-  return fwrite(buf, sizeof(*buf), size, out);
+    return fwrite(buf, sizeof(*buf), size, out);
   else
-  return 0;
+    return 0;
 }
 
-static int
-test_output_init_fn (const char *type,
-           const char *charset,
-           const char *name,
-           const char *x_mac_type,
-           const char *x_mac_creator,
-           void *stream_closure)
-{
-  FILE *out = (FILE *) stream_closure;
+static int test_output_init_fn(const char *type, const char *charset,
+                               const char *name, const char *x_mac_type,
+                               const char *x_mac_creator,
+                               void *stream_closure) {
+  FILE *out = (FILE *)stream_closure;
   fprintf(out, "CONTENT-TYPE: %s", type);
-  if (charset)
-  fprintf(out, "; charset=\"%s\"", charset);
-  if (name)
-  fprintf(out, "; name=\"%s\"", name);
+  if (charset) fprintf(out, "; charset=\"%s\"", charset);
+  if (name) fprintf(out, "; name=\"%s\"", name);
   if (x_mac_type || x_mac_creator)
-  fprintf(out, "; x-mac-type=\"%s\"; x-mac-creator=\"%s\"",
-      x_mac_type ? x_mac_type : "",
-      x_mac_creator ? x_mac_type : "");
+    fprintf(out, "; x-mac-type=\"%s\"; x-mac-creator=\"%s\"",
+            x_mac_type ? x_mac_type : "", x_mac_creator ? x_mac_type : "");
   fprintf(out, CRLF CRLF);
   return 0;
 }
 
-static void *
-test_image_begin(const char *image_url, const char *content_type,
-         void *stream_closure)
-{
-  return ((void *) strdup(image_url));
+static void *test_image_begin(const char *image_url, const char *content_type,
+                              void *stream_closure) {
+  return ((void *)strdup(image_url));
 }
 
-static void
-test_image_end(void *image_closure, int status)
-{
-  char *url = (char *) image_closure;
+static void test_image_end(void *image_closure, int status) {
+  char *url = (char *)image_closure;
   if (url) PR_Free(url);
 }
 
-static char *
-test_image_make_image_html(void *image_data)
-{
-  char *url = (char *) image_data;
+static char *test_image_make_image_html(void *image_data) {
+  char *url = (char *)image_data;
 #if 0
   const char *prefix = "<P><CENTER><IMG SRC=\"";
   const char *suffix = "\"></CENTER><P>";
 #else
-  const char *prefix = ("<P><CENTER><TABLE BORDER=2 CELLPADDING=20"
-            " BGCOLOR=WHITE>"
-            "<TR><TD ALIGN=CENTER>"
-            "an inlined image would have gone here for<BR>");
+  const char *prefix =
+      ("<P><CENTER><TABLE BORDER=2 CELLPADDING=20"
+       " BGCOLOR=WHITE>"
+       "<TR><TD ALIGN=CENTER>"
+       "an inlined image would have gone here for<BR>");
   const char *suffix = "</TD></TR></TABLE></CENTER><P>";
 #endif
-  uint32_t buflen = strlen (prefix) + strlen (suffix) + strlen (url) + 20;
-  char *buf = (char *) PR_MALLOC (buflen);
+  uint32_t buflen = strlen(prefix) + strlen(suffix) + strlen(url) + 20;
+  char *buf = (char *)PR_MALLOC(buflen);
   if (!buf) return 0;
   *buf = 0;
-  PL_strcatn (buf, buflen, prefix);
-  PL_strcatn (buf, buflen, url);
-  PL_strcatn (buf, buflen, suffix);
+  PL_strcatn(buf, buflen, prefix);
+  PL_strcatn(buf, buflen, url);
+  PL_strcatn(buf, buflen, suffix);
   return buf;
 }
 
-static int test_image_write_buffer(const char *buf, int32_t size, void *image_closure)
-{
+static int test_image_write_buffer(const char *buf, int32_t size,
+                                   void *image_closure) {
   return 0;
 }
 
-static char *
-test_passwd_prompt (PK11SlotInfo *slot, void *wincx)
-{
+static char *test_passwd_prompt(PK11SlotInfo *slot, void *wincx) {
   char buf[2048], *s;
   fprintf(stdout, "#### Password required: ");
-  s = fgets(buf, sizeof(buf)-1, stdin);
+  s = fgets(buf, sizeof(buf) - 1, stdin);
   if (!s) return s;
-  if (s[strlen(s)-1] == '\r' ||
-    s[strlen(s)-1] == '\n')
-  s[strlen(s)-1] = '\0';
+  if (s[strlen(s) - 1] == '\r' || s[strlen(s) - 1] == '\n')
+    s[strlen(s) - 1] = '\0';
   return s;
 }
 
-
-int
-test(FILE *in, FILE *out,
-   const char *url,
-   bool fancy_headers_p,
-   bool html_p,
-   bool outline_p,
-   bool dexlate_p,
-   bool variable_width_plaintext_p)
-{
+int test(FILE *in, FILE *out, const char *url, bool fancy_headers_p,
+         bool html_p, bool outline_p, bool dexlate_p,
+         bool variable_width_plaintext_p) {
   int status = 0;
   MimeObject *obj = 0;
   MimeDisplayOptions *opt = new MimeDisplayOptions;
-//  memset(opt, 0, sizeof(*opt));
+  //  memset(opt, 0, sizeof(*opt));
 
   if (dexlate_p) html_p = false;
 
@@ -205,57 +175,50 @@ test(FILE *in, FILE *out,
   opt->rot13_p = false;
 
   status = mime_parse_url_options(url, opt);
-  if (status < 0)
-  {
+  if (status < 0) {
     PR_Free(opt);
     return MIME_OUT_OF_MEMORY;
   }
 
-  opt->url          = url;
-  opt->write_html_p      = html_p;
-  opt->dexlate_p      = dexlate_p;
-  opt->output_init_fn    = test_output_init_fn;
-  opt->output_fn      = test_output_fn;
-  opt->charset_conversion_fn= 0;
+  opt->url = url;
+  opt->write_html_p = html_p;
+  opt->dexlate_p = dexlate_p;
+  opt->output_init_fn = test_output_init_fn;
+  opt->output_fn = test_output_fn;
+  opt->charset_conversion_fn = 0;
   opt->rfc1522_conversion_p = false;
-  opt->file_type_fn      = test_file_type;
-  opt->stream_closure    = out;
+  opt->file_type_fn = test_file_type;
+  opt->stream_closure = out;
 
-  opt->image_begin      = test_image_begin;
-  opt->image_end      = test_image_end;
-  opt->make_image_html    = test_image_make_image_html;
-  opt->image_write_buffer  = test_image_write_buffer;
+  opt->image_begin = test_image_begin;
+  opt->image_end = test_image_end;
+  opt->make_image_html = test_image_make_image_html;
+  opt->image_write_buffer = test_image_write_buffer;
 
   opt->variable_width_plaintext_p = variable_width_plaintext_p;
 
-  obj = mime_new ((MimeObjectClass *)&mimeMessageClass,
-          (MimeHeaders *) NULL,
-          MESSAGE_RFC822);
-  if (!obj)
-  {
+  obj = mime_new((MimeObjectClass *)&mimeMessageClass, (MimeHeaders *)NULL,
+                 MESSAGE_RFC822);
+  if (!obj) {
     PR_Free(opt);
     return MIME_OUT_OF_MEMORY;
   }
   obj->options = opt;
 
   status = obj->class->initialize(obj);
-  if (status >= 0)
-  status = obj->class->parse_begin(obj);
-  if (status < 0)
-  {
+  if (status >= 0) status = obj->class->parse_begin(obj);
+  if (status < 0) {
     PR_Free(opt);
     PR_Free(obj);
     return MIME_OUT_OF_MEMORY;
   }
 
-  while (1)
-  {
+  while (1) {
     char buf[255];
     int size = fread(buf, sizeof(*buf), sizeof(buf), stdin);
     if (size <= 0) break;
     status = obj->class->parse_buffer(buf, size, obj);
-    if (status < 0)
-    {
+    if (status < 0) {
       mime_free(obj);
       PR_Free(opt);
       return status;
@@ -263,57 +226,50 @@ test(FILE *in, FILE *out,
   }
 
   status = obj->class->parse_eof(obj, false);
-  if (status >= 0)
-  status = obj->class->parse_end(obj, false);
-  if (status < 0)
-  {
+  if (status >= 0) status = obj->class->parse_end(obj, false);
+  if (status < 0) {
     mime_free(obj);
     PR_Free(opt);
     return status;
   }
 
-  if (outline_p)
-  {
-    fprintf(out, "\n\n"
-      "###############################################################\n");
+  if (outline_p) {
+    fprintf(
+        out,
+        "\n\n"
+        "###############################################################\n");
     obj->class->debug_print(obj, stderr, 0);
-    fprintf(out,
-      "###############################################################\n");
+    fprintf(
+        out,
+        "###############################################################\n");
   }
 
-  mime_free (obj);
+  mime_free(obj);
   PR_Free(opt);
   return 0;
 }
 
-
-static char *
-test_cdb_name_cb (void *arg, int vers)
-{
+static char *test_cdb_name_cb(void *arg, int vers) {
   static char f[1024];
   if (vers <= 4)
-  sprintf(f, "%s/.netscape/cert.db", getenv("HOME"));
+    sprintf(f, "%s/.netscape/cert.db", getenv("HOME"));
   else
-  sprintf(f, "%s/.netscape/cert%d.db", getenv("HOME"), vers);
+    sprintf(f, "%s/.netscape/cert%d.db", getenv("HOME"), vers);
   return f;
 }
 
-static char *
-test_kdb_name_cb (void *arg, int vers)
-{
+static char *test_kdb_name_cb(void *arg, int vers) {
   static char f[1024];
   if (vers <= 2)
-  sprintf(f, "%s/.netscape/key.db", getenv("HOME"));
+    sprintf(f, "%s/.netscape/key.db", getenv("HOME"));
   else
-  sprintf(f, "%s/.netscape/key%d.db", getenv("HOME"), vers);
+    sprintf(f, "%s/.netscape/key%d.db", getenv("HOME"), vers);
   return f;
 }
 
 extern void SEC_Init(void);
 
-int
-main (int argc, char **argv)
-{
+int main(int argc, char **argv) {
   int32_t i = 1;
   char *url = "";
   bool fancy_p = true;
@@ -326,10 +282,10 @@ main (int argc, char **argv)
 
   PR_Init("mimefilt", 24, 1, 0);
 
-  cdb_handle = (CERTCertDBHandle *)  calloc(1, sizeof(*cdb_handle));
+  cdb_handle = (CERTCertDBHandle *)calloc(1, sizeof(*cdb_handle));
 
   if (SECSuccess != CERT_OpenCertDB(cdb_handle, false, test_cdb_name_cb, NULL))
-  CERT_OpenVolatileCertDB(cdb_handle);
+    CERT_OpenVolatileCertDB(cdb_handle);
   CERT_SetDefaultCertDB(cdb_handle);
 
   RNG_RNGInit();
@@ -344,42 +300,36 @@ main (int argc, char **argv)
 
   SEC_Init();
 
-
-  if (i < argc)
-  {
+  if (i < argc) {
     if (argv[i][0] == '-')
-    url = strdup("");
+      url = strdup("");
     else
-    url = argv[i++];
+      url = argv[i++];
   }
 
-  if (url &&
-    (PL_strstr(url, "?part=") ||
-     PL_strstr(url, "&part=")))
-  html_p = false;
-
-  while (i < argc)
-  {
-    if (!strcmp(argv[i], "-fancy"))
-    fancy_p = true;
-    else if (!strcmp(argv[i], "-no-fancy"))
-    fancy_p = false;
-    else if (!strcmp(argv[i], "-html"))
-    html_p = true;
-    else if (!strcmp(argv[i], "-raw"))
+  if (url && (PL_strstr(url, "?part=") || PL_strstr(url, "&part=")))
     html_p = false;
+
+  while (i < argc) {
+    if (!strcmp(argv[i], "-fancy"))
+      fancy_p = true;
+    else if (!strcmp(argv[i], "-no-fancy"))
+      fancy_p = false;
+    else if (!strcmp(argv[i], "-html"))
+      html_p = true;
+    else if (!strcmp(argv[i], "-raw"))
+      html_p = false;
     else if (!strcmp(argv[i], "-outline"))
-    outline_p = true;
+      outline_p = true;
     else if (!strcmp(argv[i], "-dexlate"))
-    dexlate_p = true;
-    else
-    {
-      fprintf(stderr,
-      "usage: %s [ URL [ -fancy | -no-fancy | -html | -raw | -outline | -dexlate ]]\n"
+      dexlate_p = true;
+    else {
+      fprintf(
+          stderr,
+          "usage: %s [ URL [ -fancy | -no-fancy | -html | -raw | -outline | "
+          "-dexlate ]]\n"
           "     < message/rfc822 > output\n",
-          (PL_strrchr(argv[0], '/') ?
-           PL_strrchr(argv[0], '/') + 1 :
-           argv[0]));
+          (PL_strrchr(argv[0], '/') ? PL_strrchr(argv[0], '/') + 1 : argv[0]));
       i = 1;
       goto FAIL;
     }
@@ -390,7 +340,7 @@ main (int argc, char **argv)
   fprintf(stdout, "\n");
   fflush(stdout);
 
- FAIL:
+FAIL:
 
   CERT_ClosePermCertDB(cdb_handle);
   SECKEY_CloseKeyDB(kdb_handle);

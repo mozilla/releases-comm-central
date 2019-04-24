@@ -14,7 +14,7 @@
  */
 
 typedef struct MimeMultipartParallelClass MimeMultipartParallelClass;
-typedef struct MimeMultipartParallel      MimeMultipartParallel;
+typedef struct MimeMultipartParallel MimeMultipartParallel;
 
 struct MimeMultipartParallelClass {
   MimeMultipartClass multipart;
@@ -26,7 +26,7 @@ struct MimeMultipartParallel {
   MimeMultipart multipart;
 };
 
-#define MimeMultipartParallelClassInitializer(ITYPE,CSUPER) \
-  { MimeMultipartClassInitializer(ITYPE,CSUPER) }
+#define MimeMultipartParallelClassInitializer(ITYPE, CSUPER) \
+  { MimeMultipartClassInitializer(ITYPE, CSUPER) }
 
 #endif /* _MIMEMPAR_H_ */

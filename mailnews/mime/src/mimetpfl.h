@@ -16,7 +16,7 @@
  */
 
 typedef struct MimeInlineTextPlainFlowedClass MimeInlineTextPlainFlowedClass;
-typedef struct MimeInlineTextPlainFlowed      MimeInlineTextPlainFlowed;
+typedef struct MimeInlineTextPlainFlowed MimeInlineTextPlainFlowed;
 
 struct MimeInlineTextPlainFlowedClass {
   MimeInlineTextClass text;
@@ -25,28 +25,27 @@ struct MimeInlineTextPlainFlowedClass {
 extern MimeInlineTextPlainFlowedClass mimeInlineTextPlainFlowedClass;
 
 struct MimeInlineTextPlainFlowed {
-  MimeInlineText  text;
-  bool            delSp;                // DelSp=yes (RFC 3676)
-  int32_t         mQuotedSizeSetting;   // mail.quoted_size
-  int32_t         mQuotedStyleSetting;  // mail.quoted_style
-  nsCString       mCitationColor;       // mail.citation_color
-  bool            mStripSig;            // mail.strip_sig_on_reply
+  MimeInlineText text;
+  bool delSp;                   // DelSp=yes (RFC 3676)
+  int32_t mQuotedSizeSetting;   // mail.quoted_size
+  int32_t mQuotedStyleSetting;  // mail.quoted_style
+  nsCString mCitationColor;     // mail.citation_color
+  bool mStripSig;               // mail.strip_sig_on_reply
 };
-
 
 /*
  * Made to contain information to be kept during the whole message parsing.
  */
 struct MimeInlineTextPlainFlowedExData {
   struct MimeObject *ownerobj; /* The owner of this struct */
-  bool inflow; /* If we currently are in flow */
-  bool fixedwidthfont; /* If we output text for fixed width font */
+  bool inflow;                 /* If we currently are in flow */
+  bool fixedwidthfont;         /* If we output text for fixed width font */
   uint32_t quotelevel; /* How deep is your love, uhr, quotelevel I meen. */
-  bool isSig;  // we're currently in a signature
+  bool isSig;          // we're currently in a signature
   struct MimeInlineTextPlainFlowedExData *next;
 };
 
-#define MimeInlineTextPlainFlowedClassInitializer(ITYPE,CSUPER) \
-  { MimeInlineTextClassInitializer(ITYPE,CSUPER) }
+#define MimeInlineTextPlainFlowedClassInitializer(ITYPE, CSUPER) \
+  { MimeInlineTextClassInitializer(ITYPE, CSUPER) }
 
 #endif /* _MIMETPFL_H_ */

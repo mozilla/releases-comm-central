@@ -9,7 +9,7 @@
 #include "mimethtm.h"
 
 typedef struct MimeInlineTextHTMLParsedClass MimeInlineTextHTMLParsedClass;
-typedef struct MimeInlineTextHTMLParsed      MimeInlineTextHTMLParsed;
+typedef struct MimeInlineTextHTMLParsed MimeInlineTextHTMLParsed;
 
 struct MimeInlineTextHTMLParsedClass {
   MimeInlineTextHTMLClass html;
@@ -18,11 +18,11 @@ struct MimeInlineTextHTMLParsedClass {
 extern MimeInlineTextHTMLParsedClass mimeInlineTextHTMLParsedClass;
 
 struct MimeInlineTextHTMLParsed {
-  MimeInlineTextHTML    html;
-  nsString             *complete_buffer;  // Gecko parser expects wide strings
+  MimeInlineTextHTML html;
+  nsString *complete_buffer;  // Gecko parser expects wide strings
 };
 
-#define MimeInlineTextHTMLParsedClassInitializer(ITYPE,CSUPER) \
-  { MimeInlineTextHTMLClassInitializer(ITYPE,CSUPER) }
+#define MimeInlineTextHTMLParsedClassInitializer(ITYPE, CSUPER) \
+  { MimeInlineTextHTMLClassInitializer(ITYPE, CSUPER) }
 
 #endif /* _MIMETEXTHTMLPARSED_H_ */

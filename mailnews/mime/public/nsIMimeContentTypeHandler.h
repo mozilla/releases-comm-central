@@ -19,44 +19,58 @@
 #define nsIMimeContentTypeHandler_h_
 
 typedef struct {
-  bool        force_inline_display;
+  bool force_inline_display;
 } contentTypeHandlerInitStruct;
 
 #include "nsISupports.h"
 #include "mimecth.h"
 
 // {20DABD99-F8B5-11d2-8EE0-00A024A7D144}
-#define NS_IMIME_CONTENT_TYPE_HANDLER_IID \
-      { 0x20dabd99, 0xf8b5, 0x11d2,   \
-      { 0x8e, 0xe0, 0x0, 0xa0, 0x24, 0xa7, 0xd1, 0x44 } }
+#define NS_IMIME_CONTENT_TYPE_HANDLER_IID           \
+  {                                                 \
+    0x20dabd99, 0xf8b5, 0x11d2, {                   \
+      0x8e, 0xe0, 0x0, 0xa0, 0x24, 0xa7, 0xd1, 0x44 \
+    }                                               \
+  }
 
 // {20DABDA1-F8B5-11d2-8EE0-00A024A7D144}
-#define NS_VCARD_CONTENT_TYPE_HANDLER_CID \
-      { 0x20dabda1, 0xf8b5, 0x11d2, \
-      { 0x8e, 0xe0, 0x0, 0xa0, 0x24, 0xa7, 0xd1, 0x44 } }
+#define NS_VCARD_CONTENT_TYPE_HANDLER_CID           \
+  {                                                 \
+    0x20dabda1, 0xf8b5, 0x11d2, {                   \
+      0x8e, 0xe0, 0x0, 0xa0, 0x24, 0xa7, 0xd1, 0x44 \
+    }                                               \
+  }
 
-#define NS_SMIME_CONTENT_TYPE_HANDLER_CID \
-      { 0x20dabdac, 0xf8b5, 0x11d2, \
-      { 0xFF, 0xe0, 0x0, 0xa0, 0x24, 0xa7, 0xd1, 0x44 } }
+#define NS_SMIME_CONTENT_TYPE_HANDLER_CID           \
+  {                                                 \
+    0x20dabdac, 0xf8b5, 0x11d2, {                   \
+      0xFF, 0xe0, 0x0, 0xa0, 0x24, 0xa7, 0xd1, 0x44 \
+    }                                               \
+  }
 
-#define NS_SIGNED_CONTENT_TYPE_HANDLER_CID \
-      { 0x20dabdac, 0xf8b5, 0x11d2, \
-      { 0xFF, 0xe0, 0x0, 0xaf, 0x19, 0xa7, 0xd1, 0x44 } }
+#define NS_SIGNED_CONTENT_TYPE_HANDLER_CID          \
+  {                                                 \
+    0x20dabdac, 0xf8b5, 0x11d2, {                   \
+      0xFF, 0xe0, 0x0, 0xaf, 0x19, 0xa7, 0xd1, 0x44 \
+    }                                               \
+  }
 
-#define NS_PGPMIME_CONTENT_TYPE_HANDLER_CID \
-      { 0x212f415f, 0xf8b5, 0x11d2, \
-      { 0xFF, 0xe0, 0x0, 0xaf, 0x19, 0xa7, 0xd1, 0x44 } }
-
+#define NS_PGPMIME_CONTENT_TYPE_HANDLER_CID         \
+  {                                                 \
+    0x212f415f, 0xf8b5, 0x11d2, {                   \
+      0xFF, 0xe0, 0x0, 0xaf, 0x19, 0xa7, 0xd1, 0x44 \
+    }                                               \
+  }
 
 class nsIMimeContentTypeHandler : public nsISupports {
-public:
+ public:
   NS_DECLARE_STATIC_IID_ACCESSOR(NS_IMIME_CONTENT_TYPE_HANDLER_IID)
 
-  NS_IMETHOD    GetContentType(char **contentType) = 0;
+  NS_IMETHOD GetContentType(char **contentType) = 0;
 
-  NS_IMETHOD    CreateContentTypeHandlerClass(const char *content_type,
-                                              contentTypeHandlerInitStruct *initStruct,
-                                              MimeObjectClass **objClass) = 0;
+  NS_IMETHOD CreateContentTypeHandlerClass(
+      const char *content_type, contentTypeHandlerInitStruct *initStruct,
+      MimeObjectClass **objClass) = 0;
 };
 
 NS_DEFINE_STATIC_IID_ACCESSOR(nsIMimeContentTypeHandler,

@@ -10,34 +10,23 @@
 #include "nsIMimeEmitter.h"
 #include "prprf.h"
 
-extern "C" bool
-EmitThisHeaderForPrefSetting(int32_t dispType, const char *header)
-{
-  if (nsMimeHeaderDisplayTypes::AllHeaders == dispType)
-    return true;
+extern "C" bool EmitThisHeaderForPrefSetting(int32_t dispType,
+                                             const char *header) {
+  if (nsMimeHeaderDisplayTypes::AllHeaders == dispType) return true;
 
-  if ((!header) || (!*header))
-    return false;
+  if ((!header) || (!*header)) return false;
 
-  if (nsMimeHeaderDisplayTypes::MicroHeaders == dispType)
-  {
-    if (
-          (!strcmp(header, HEADER_SUBJECT)) ||
-          (!strcmp(header, HEADER_FROM)) ||
-          (!strcmp(header, HEADER_DATE))
-       )
+  if (nsMimeHeaderDisplayTypes::MicroHeaders == dispType) {
+    if ((!strcmp(header, HEADER_SUBJECT)) || (!strcmp(header, HEADER_FROM)) ||
+        (!strcmp(header, HEADER_DATE)))
       return true;
     else
       return false;
   }
 
-  if (nsMimeHeaderDisplayTypes::NormalHeaders == dispType)
-  {
-    if (
-        (!strcmp(header, HEADER_DATE)) ||
-        (!strcmp(header, HEADER_TO)) ||
-        (!strcmp(header, HEADER_SUBJECT)) ||
-        (!strcmp(header, HEADER_SENDER)) ||
+  if (nsMimeHeaderDisplayTypes::NormalHeaders == dispType) {
+    if ((!strcmp(header, HEADER_DATE)) || (!strcmp(header, HEADER_TO)) ||
+        (!strcmp(header, HEADER_SUBJECT)) || (!strcmp(header, HEADER_SENDER)) ||
         (!strcmp(header, HEADER_RESENT_TO)) ||
         (!strcmp(header, HEADER_RESENT_SENDER)) ||
         (!strcmp(header, HEADER_RESENT_FROM)) ||
@@ -47,17 +36,13 @@ EmitThisHeaderForPrefSetting(int32_t dispType, const char *header)
         (!strcmp(header, HEADER_NEWSGROUPS)) ||
         (!strcmp(header, HEADER_MESSAGE_ID)) ||
         (!strcmp(header, HEADER_FROM)) ||
-        (!strcmp(header, HEADER_FOLLOWUP_TO)) ||
-        (!strcmp(header, HEADER_CC)) ||
+        (!strcmp(header, HEADER_FOLLOWUP_TO)) || (!strcmp(header, HEADER_CC)) ||
         (!strcmp(header, HEADER_ORGANIZATION)) ||
-        (!strcmp(header, HEADER_REPLY_TO)) ||
-        (!strcmp(header, HEADER_BCC))
-       )
-       return true;
+        (!strcmp(header, HEADER_REPLY_TO)) || (!strcmp(header, HEADER_BCC)))
+      return true;
     else
       return false;
   }
 
   return true;
 }
-

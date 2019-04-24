@@ -201,37 +201,32 @@
 #include "mimehdrs.h"
 #include "nsTArray.h"
 
-typedef struct MimeObject      MimeObject;
+typedef struct MimeObject MimeObject;
 typedef struct MimeObjectClass MimeObjectClass;
 
 /* (I don't pretend to understand this.) */
-#define cpp_stringify_noop_helper(x)#x
+#define cpp_stringify_noop_helper(x) #x
 #define cpp_stringify(x) cpp_stringify_noop_helper(x)
 
-#define MimeObjectClassInitializer(ITYPE,CSUPER) \
-  cpp_stringify(ITYPE), \
-  sizeof(ITYPE), \
-  (MimeObjectClass *) CSUPER, \
-  (int (*) (MimeObjectClass *)) ITYPE##ClassInitialize, \
-  0
+#define MimeObjectClassInitializer(ITYPE, CSUPER)                 \
+  cpp_stringify(ITYPE), sizeof(ITYPE), (MimeObjectClass *)CSUPER, \
+      (int (*)(MimeObjectClass *))ITYPE##ClassInitialize, 0
 
 /* Macro used for setting up class definitions.
  */
-#define MimeDefClass(ITYPE,CTYPE,CVAR,CSUPER) \
- static int ITYPE##ClassInitialize(ITYPE##Class *); \
- ITYPE##Class CVAR = { ITYPE##ClassInitializer(ITYPE,CSUPER) }
-
+#define MimeDefClass(ITYPE, CTYPE, CVAR, CSUPER)     \
+  static int ITYPE##ClassInitialize(ITYPE##Class *); \
+  ITYPE##Class CVAR = {ITYPE##ClassInitializer(ITYPE, CSUPER)}
 
 /* Creates a new (subclass of) MimeObject of the given class, with the
    given headers (which are copied.)
  */
-extern MimeObject *mime_new (MimeObjectClass *clazz, MimeHeaders *hdrs,
-               const char *override_content_type);
-
+extern MimeObject *mime_new(MimeObjectClass *clazz, MimeHeaders *hdrs,
+                            const char *override_content_type);
 
 /* Destroys a MimeObject (or subclass) and all data associated with it.
  */
-extern "C" void mime_free (MimeObject *object);
+extern "C" void mime_free(MimeObject *object);
 
 /* Given a content-type string, finds and returns an appropriate subclass
    of MimeObject.  A class object is returned.  If `exact_match_p' is true,
@@ -239,10 +234,10 @@ extern "C" void mime_free (MimeObject *object);
    then "text/x-unknown" will return MimeInlineTextPlainType, but if it is
    false, it will return NULL.
  */
-extern MimeObjectClass *mime_find_class (const char *content_type,
-                     MimeHeaders *hdrs,
-                     MimeDisplayOptions *opts,
-                     bool exact_match_p);
+extern MimeObjectClass *mime_find_class(const char *content_type,
+                                        MimeHeaders *hdrs,
+                                        MimeDisplayOptions *opts,
+                                        bool exact_match_p);
 
 /** Given a content-type string, creates and returns an appropriate subclass
  * of MimeObject.  The headers (from which the content-type was presumably
@@ -250,13 +245,12 @@ extern MimeObjectClass *mime_find_class (const char *content_type,
  * the function to ignore opts->show_attachment_inline_p and force inline
  * display, e.g., mimemalt wants the body part to be shown inline.
  */
-extern MimeObject *mime_create (const char *content_type, MimeHeaders *hdrs,
-                MimeDisplayOptions *opts, bool forceInline = false);
-
+extern MimeObject *mime_create(const char *content_type, MimeHeaders *hdrs,
+                               MimeDisplayOptions *opts,
+                               bool forceInline = false);
 
 /* Querying the type hierarchy */
-extern bool mime_subclass_p(MimeObjectClass *child,
-                 MimeObjectClass *parent);
+extern bool mime_subclass_p(MimeObjectClass *child, MimeObjectClass *parent);
 extern bool mime_typep(MimeObject *obj, MimeObjectClass *clazz);
 
 /* Returns a string describing the location of the part (like "2.5.3").
@@ -277,7 +271,8 @@ extern char *mime_external_attachment_url(MimeObject *obj);
    is appended to any existing part-number already in that URL; otherwise,
    it replaces it.
  */
-extern char *mime_set_url_part(const char *url, const char *part, bool append_p);
+extern char *mime_set_url_part(const char *url, const char *part,
+                               bool append_p);
 
 /*
   cut the part of url for display a attachment as a email.
@@ -286,8 +281,8 @@ extern char *mime_get_base_url(const char *url);
 
 /* Puts an *IMAP* part-number into a URL.
  */
-extern char *mime_set_url_imap_part(const char *url, const char *part, const char *libmimepart);
-
+extern char *mime_set_url_imap_part(const char *url, const char *part,
+                                    const char *libmimepart);
 
 /* Given a part ID, looks through the MimeObject tree for a sub-part whose ID
    number matches, and returns the MimeObject (else NULL.)
@@ -295,13 +290,12 @@ extern char *mime_set_url_imap_part(const char *url, const char *part, const cha
  */
 extern MimeObject *mime_address_to_part(const char *part, MimeObject *obj);
 
-
 /* Given a part ID, looks through the MimeObject tree for a sub-part whose ID
    number matches; if one is found, returns the Content-Name of that part.
    Else returns NULL.  (part is not a URL -- it's of the form "1.3.5".)
  */
 extern char *mime_find_suggested_name_of_part(const char *part,
-                        MimeObject *obj);
+                                              MimeObject *obj);
 
 /* Given a part ID, looks through the MimeObject tree for a sub-part whose ID
    number matches; if one is found, returns the Content-Name of that part.
@@ -319,15 +313,15 @@ extern int mime_parse_url_options(const char *url, MimeDisplayOptions *);
    or encrypted objects that we know about.  (MimeMessageClass uses this
    to decide if the headers need to be presented differently.)
  */
-extern bool mime_crypto_object_p(MimeHeaders *, bool clearsigned_counts, MimeDisplayOptions *);
+extern bool mime_crypto_object_p(MimeHeaders *, bool clearsigned_counts,
+                                 MimeDisplayOptions *);
 
 /* Tells whether the given MimeObject is a message which has been encrypted
    or signed.  (Helper for MIME_GetMessageCryptoState()).
  */
-extern void mime_get_crypto_state (MimeObject *obj,
-                   bool *signed_p, bool *encrypted_p,
-                   bool *signed_ok, bool *encrypted_ok);
-
+extern void mime_get_crypto_state(MimeObject *obj, bool *signed_p,
+                                  bool *encrypted_p, bool *signed_ok,
+                                  bool *encrypted_ok);
 
 /* Whether the given object has written out the HTML version of its headers
    in such a way that it will have a "crypto stamp" next to the headers.  If
@@ -338,50 +332,56 @@ extern bool mime_crypto_stamped_p(MimeObject *obj);
 
 /* How the crypto code tells the MimeMessage object what the crypto stamp
    on it says. */
-extern void mime_set_crypto_stamp(MimeObject *obj,
-                  bool signed_p, bool encrypted_p);
-#endif // ENABLE_SMIME
+extern void mime_set_crypto_stamp(MimeObject *obj, bool signed_p,
+                                  bool encrypted_p);
+#endif  // ENABLE_SMIME
 
 class MimeParseStateObject {
-public:
+ public:
+  MimeParseStateObject() {
+    root = 0;
+    separator_queued_p = false;
+    separator_suppressed_p = false;
+    first_part_written_p = false;
+    post_header_html_run_p = false;
+    first_data_written_p = false;
+    decrypted_p = false;
+    strippingPart = false;
+  }
+  MimeObject *root; /* The outermost parser object. */
 
-  MimeParseStateObject()
-      {root = 0; separator_queued_p = false; separator_suppressed_p = false;
-        first_part_written_p = false; post_header_html_run_p = false; first_data_written_p = false;
-        decrypted_p = false; strippingPart = false;
-      }
-  MimeObject *root;        /* The outermost parser object. */
-
-  bool separator_queued_p;  /* Whether a separator should be written out
-                   before the next text is written (this lets
-                   us write separators lazily, so that one
-                   doesn't appear at the end, and so that more
-                   than one don't appear in a row.) */
+  bool separator_queued_p; /* Whether a separator should be written out
+                  before the next text is written (this lets
+                  us write separators lazily, so that one
+                  doesn't appear at the end, and so that more
+                  than one don't appear in a row.) */
 
   bool separator_suppressed_p; /* Whether the currently-queued separator
                    should not be printed; this is a kludge to
                    prevent seps from being printed just after
                    a header block... */
 
-  bool first_part_written_p;  /* State used for the `Show Attachments As
-                   Links' kludge. */
+  bool first_part_written_p; /* State used for the `Show Attachments As
+                  Links' kludge. */
 
   bool post_header_html_run_p; /* Whether we've run the
                    options->generate_post_header_html_fn */
 
-  bool first_data_written_p;  /* State used for Mozilla lazy-stream-
-                   creation evilness. */
+  bool first_data_written_p; /* State used for Mozilla lazy-stream-
+                  creation evilness. */
 
   bool decrypted_p; /* If options->dexlate_p is true, then this
                         will be set to indicate whether any
                         dexlateion did in fact occur.
                       */
-  nsTArray<nsCString> partsToStrip; /* if we're stripping parts, what parts to strip */
-  nsTArray<nsCString> detachToFiles; /* if we're detaching parts, where each part was detached to */
+  nsTArray<nsCString>
+      partsToStrip; /* if we're stripping parts, what parts to strip */
+  nsTArray<nsCString> detachToFiles; /* if we're detaching parts, where each
+                                        part was detached to */
   bool strippingPart;
-  nsCString detachedFilePath;       /* if we've detached this part, filepath of detached part */
+  nsCString detachedFilePath; /* if we've detached this part, filepath of
+                                 detached part */
 };
-
 
 /* Some output-generation utility functions...
  */
@@ -395,8 +395,7 @@ extern int MimeObject_output_init(MimeObject *obj, const char *content_type);
  */
 extern int MimeObject_write(MimeObject *, const char *data, int32_t length,
                             bool user_visible_p);
-extern int MimeOptions_write(MimeHeaders *,
-                             MimeDisplayOptions *,
+extern int MimeOptions_write(MimeHeaders *, MimeDisplayOptions *,
                              const char *data, int32_t length,
                              bool user_visible_p);
 
@@ -405,12 +404,12 @@ extern int MimeObject_write_separator(MimeObject *);
 
 extern bool MimeObjectIsMessageBody(MimeObject *obj);
 
-struct MimeDisplayData {            /* This struct is what we hang off of
-                                       (context)->mime_data, to remember info
-                                       about the last MIME object we've
-                                       parsed and displayed.  See
-                                       MimeGuessURLContentName() below.
-                                     */
+struct MimeDisplayData { /* This struct is what we hang off of
+                            (context)->mime_data, to remember info
+                            about the last MIME object we've
+                            parsed and displayed.  See
+                            MimeGuessURLContentName() below.
+                          */
   MimeObject *last_parsed_object;
   char *last_parsed_url;
 };

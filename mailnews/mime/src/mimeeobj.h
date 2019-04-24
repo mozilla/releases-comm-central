@@ -16,7 +16,7 @@
  */
 
 typedef struct MimeExternalObjectClass MimeExternalObjectClass;
-typedef struct MimeExternalObject      MimeExternalObject;
+typedef struct MimeExternalObject MimeExternalObject;
 
 struct MimeExternalObjectClass {
   MimeLeafClass leaf;
@@ -28,7 +28,7 @@ struct MimeExternalObject {
   MimeLeaf leaf;
 };
 
-#define MimeExternalObjectClassInitializer(ITYPE,CSUPER) \
-  { MimeLeafClassInitializer(ITYPE,CSUPER) }
+#define MimeExternalObjectClassInitializer(ITYPE, CSUPER) \
+  { MimeLeafClassInitializer(ITYPE, CSUPER) }
 
 #endif /* _MIMEEOBJ_H_ */

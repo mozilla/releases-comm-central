@@ -17,17 +17,19 @@ NS_IMPL_ISUPPORTS(nsMimeContentTypeHandler, nsIMimeContentTypeHandler)
 /*
  * nsIMimeEmitter definitions....
  */
-nsMimeContentTypeHandler::nsMimeContentTypeHandler(const char *aMimeType,
-                                                   MCTHCreateCTHClass callback)
-{
-  NS_ASSERTION(aMimeType, "nsMimeContentTypeHandler should be initialized with non-null mime type");
-  NS_ASSERTION(callback, "nsMimeContentTypeHandler should be initialized with non-null callback");
+nsMimeContentTypeHandler::nsMimeContentTypeHandler(
+    const char *aMimeType, MCTHCreateCTHClass callback) {
+  NS_ASSERTION(
+      aMimeType,
+      "nsMimeContentTypeHandler should be initialized with non-null mime type");
+  NS_ASSERTION(
+      callback,
+      "nsMimeContentTypeHandler should be initialized with non-null callback");
   mimeType = PL_strdup(aMimeType);
   realCreateContentTypeHandlerClass = callback;
 }
 
-nsMimeContentTypeHandler::~nsMimeContentTypeHandler(void)
-{
+nsMimeContentTypeHandler::~nsMimeContentTypeHandler(void) {
   if (mimeType) {
     free(mimeType);
     mimeType = 0;
@@ -36,25 +38,18 @@ nsMimeContentTypeHandler::~nsMimeContentTypeHandler(void)
 }
 
 // Get the content type if necessary
-nsresult
-nsMimeContentTypeHandler::GetContentType(char **contentType)
-{
+nsresult nsMimeContentTypeHandler::GetContentType(char **contentType) {
   *contentType = PL_strdup(mimeType);
   return NS_OK;
 }
 
 // Set the output stream for processed data.
-nsresult
-nsMimeContentTypeHandler::CreateContentTypeHandlerClass(const char *content_type,
-                                                contentTypeHandlerInitStruct *initStruct,
-                                                MimeObjectClass **objClass)
-{
+nsresult nsMimeContentTypeHandler::CreateContentTypeHandlerClass(
+    const char *content_type, contentTypeHandlerInitStruct *initStruct,
+    MimeObjectClass **objClass) {
   *objClass = realCreateContentTypeHandlerClass(content_type, initStruct);
   if (!*objClass)
     return NS_ERROR_OUT_OF_MEMORY; /* we couldn't allocate the object */
   else
     return NS_OK;
 }
-
-
-

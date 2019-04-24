@@ -41,39 +41,39 @@
  */
 
 typedef struct MimeInlineTextClass MimeInlineTextClass;
-typedef struct MimeInlineText      MimeInlineText;
+typedef struct MimeInlineText MimeInlineText;
 
 struct MimeInlineTextClass {
-  MimeLeafClass   leaf;
-  int (*rot13_line) (MimeObject *obj, char *line, int32_t length);
-  int (*convert_line_charset) (MimeObject *obj, char *line, int32_t length);
-  int (*initialize_charset) (MimeObject *obj);
+  MimeLeafClass leaf;
+  int (*rot13_line)(MimeObject *obj, char *line, int32_t length);
+  int (*convert_line_charset)(MimeObject *obj, char *line, int32_t length);
+  int (*initialize_charset)(MimeObject *obj);
 };
 
 extern MimeInlineTextClass mimeInlineTextClass;
 
-#define DAM_MAX_BUFFER_SIZE 8*1024
-#define DAM_MAX_LINES  1024
+#define DAM_MAX_BUFFER_SIZE 8 * 1024
+#define DAM_MAX_LINES 1024
 
 struct MimeInlineText {
-  MimeLeaf leaf;      /* superclass variables */
-  char *charset;      /* The charset from the content-type of this
-                         object, or the caller-specified overrides
-                         or defaults. */
+  MimeLeaf leaf; /* superclass variables */
+  char *charset; /* The charset from the content-type of this
+                    object, or the caller-specified overrides
+                    or defaults. */
   bool charsetOverridable;
   bool needUpdateMsgWinCharset;
-  char *cbuffer;      /* Buffer used for charset conversion. */
+  char *cbuffer; /* Buffer used for charset conversion. */
   int32_t cbuffer_size;
 
-  bool    inputAutodetect;
-  bool    initializeCharset;
+  bool inputAutodetect;
+  bool initializeCharset;
   int32_t lastLineInDam;
   int32_t curDamOffset;
   char *lineDamBuffer;
   char **lineDamPtrs;
 };
 
-#define MimeInlineTextClassInitializer(ITYPE,CSUPER) \
-  { MimeLeafClassInitializer(ITYPE,CSUPER) }
+#define MimeInlineTextClassInitializer(ITYPE, CSUPER) \
+  { MimeLeafClassInitializer(ITYPE, CSUPER) }
 
 #endif /* _MIMETEXT_H_ */

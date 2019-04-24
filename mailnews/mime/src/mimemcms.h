@@ -17,7 +17,7 @@ class nsICMSMessage;  // for function arguments in mimemcms.c
  */
 
 typedef struct MimeMultipartSignedCMSClass MimeMultipartSignedCMSClass;
-typedef struct MimeMultipartSignedCMS      MimeMultipartSignedCMS;
+typedef struct MimeMultipartSignedCMS MimeMultipartSignedCMS;
 
 struct MimeMultipartSignedCMSClass {
   MimeMultipartSignedClass msigned;
@@ -29,7 +29,7 @@ struct MimeMultipartSignedCMS {
   MimeMultipartSigned msigned;
 };
 
-#define MimeMultipartSignedCMSClassInitializer(ITYPE,CSUPER) \
-  { MimeMultipartSignedClassInitializer(ITYPE,CSUPER) }
+#define MimeMultipartSignedCMSClassInitializer(ITYPE, CSUPER) \
+  { MimeMultipartSignedClassInitializer(ITYPE, CSUPER) }
 
 #endif /* _MIMEMPKC_H_ */

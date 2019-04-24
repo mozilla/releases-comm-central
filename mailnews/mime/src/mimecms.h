@@ -8,7 +8,7 @@
 
 #include "mimecryp.h"
 
-class nsICMSMessage; // for function arguments in mimecms.h
+class nsICMSMessage;  // for function arguments in mimecms.h
 
 /* The MimeEncryptedCMS class implements a type of MIME object where the
    object is passed through a CMS decryption engine to decrypt or verify
@@ -18,7 +18,7 @@ class nsICMSMessage; // for function arguments in mimecms.h
  */
 
 typedef struct MimeEncryptedCMSClass MimeEncryptedCMSClass;
-typedef struct MimeEncryptedCMS      MimeEncryptedCMS;
+typedef struct MimeEncryptedCMS MimeEncryptedCMS;
 
 struct MimeEncryptedCMSClass {
   MimeEncryptedClass encrypted;
@@ -27,10 +27,10 @@ struct MimeEncryptedCMSClass {
 extern MimeEncryptedCMSClass mimeEncryptedCMSClass;
 
 struct MimeEncryptedCMS {
-  MimeEncrypted encrypted;    /* superclass variables */
+  MimeEncrypted encrypted; /* superclass variables */
 };
 
-#define MimeEncryptedCMSClassInitializer(ITYPE,CSUPER) \
-  { MimeEncryptedClassInitializer(ITYPE,CSUPER) }
+#define MimeEncryptedCMSClassInitializer(ITYPE, CSUPER) \
+  { MimeEncryptedClassInitializer(ITYPE, CSUPER) }
 
 #endif /* _MIMEPKCS_H_ */

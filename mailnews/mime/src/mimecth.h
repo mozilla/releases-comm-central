@@ -15,10 +15,10 @@
 
 #include "mimei.h"
 #include "mimeobj.h"  /*  MimeObject (abstract)              */
-#include "mimecont.h"  /*   |--- MimeContainer (abstract)          */
-#include "mimemult.h"  /*   |     |--- MimeMultipart (abstract)      */
-#include "mimemsig.h"  /*   |     |     |--- MimeMultipartSigned (abstract)*/
-#include "mimetext.h"  /*   |     |--- MimeInlineText (abstract)      */
+#include "mimecont.h" /*   |--- MimeContainer (abstract)          */
+#include "mimemult.h" /*   |     |--- MimeMultipart (abstract)      */
+#include "mimemsig.h" /*   |     |     |--- MimeMultipartSigned (abstract)*/
+#include "mimetext.h" /*   |     |--- MimeInlineText (abstract)      */
 #include "mimecryp.h"
 
 /*
@@ -87,21 +87,19 @@
 /*
  * This is the write call for outputting processed stream data.
  */
-extern int                        MIME_MimeObject_write(MimeObject *,
-                                                        const char *data,
-                                                        int32_t length,
-                                                        bool user_visible_p);
+extern int MIME_MimeObject_write(MimeObject *, const char *data, int32_t length,
+                                 bool user_visible_p);
 /*
  * The following group of calls expose the pointers for the object
  * system within libmime.
  */
-extern MimeInlineTextClass       *MIME_GetmimeInlineTextClass(void);
-extern MimeLeafClass             *MIME_GetmimeLeafClass(void);
-extern MimeObjectClass           *MIME_GetmimeObjectClass(void);
-extern MimeContainerClass        *MIME_GetmimeContainerClass(void);
-extern MimeMultipartClass        *MIME_GetmimeMultipartClass(void);
-extern MimeMultipartSignedClass  *MIME_GetmimeMultipartSignedClass(void);
-extern MimeEncryptedClass        *MIME_GetmimeEncryptedClass(void);
+extern MimeInlineTextClass *MIME_GetmimeInlineTextClass(void);
+extern MimeLeafClass *MIME_GetmimeLeafClass(void);
+extern MimeObjectClass *MIME_GetmimeObjectClass(void);
+extern MimeContainerClass *MIME_GetmimeContainerClass(void);
+extern MimeMultipartClass *MIME_GetmimeMultipartClass(void);
+extern MimeMultipartSignedClass *MIME_GetmimeMultipartSignedClass(void);
+extern MimeEncryptedClass *MIME_GetmimeEncryptedClass(void);
 
 /*
  * These are the functions that need to be implemented by the
@@ -113,23 +111,21 @@ extern MimeEncryptedClass        *MIME_GetmimeEncryptedClass(void);
  * MIME_GetContentType() is called by libmime to identify the content
  * type handled by this plugin.
  */
-extern "C"
-char            *MIME_GetContentType(void);
+extern "C" char *MIME_GetContentType(void);
 
 /*
  * This will create the MimeObjectClass object to be used by the libmime
  * object system.
  */
-extern "C"
-MimeObjectClass *MIME_CreateContentTypeHandlerClass(const char *content_type,
-                                   contentTypeHandlerInitStruct *initStruct);
+extern "C" MimeObjectClass *MIME_CreateContentTypeHandlerClass(
+    const char *content_type, contentTypeHandlerInitStruct *initStruct);
 
 /*
  * Typedefs for libmime to use when locating and calling the above
  * defined functions.
  */
-typedef char * (*mime_get_ct_fn_type)(void);
-typedef MimeObjectClass * (*mime_create_class_fn_type)
-                              (const char *, contentTypeHandlerInitStruct *);
+typedef char *(*mime_get_ct_fn_type)(void);
+typedef MimeObjectClass *(*mime_create_class_fn_type)(
+    const char *, contentTypeHandlerInitStruct *);
 
 #endif /* _MIMECTH_H_ */

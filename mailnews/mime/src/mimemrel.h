@@ -10,14 +10,14 @@
 #include "plhash.h"
 #include "prio.h"
 #include "nsNetUtil.h"
-#include "modmimee.h" // for MimeConverterOutputCallback
+#include "modmimee.h"  // for MimeConverterOutputCallback
 
 /* The MimeMultipartRelated class implements the multipart/related MIME
    container, which allows `sibling' sub-parts to refer to each other.
  */
 
 typedef struct MimeMultipartRelatedClass MimeMultipartRelatedClass;
-typedef struct MimeMultipartRelated      MimeMultipartRelated;
+typedef struct MimeMultipartRelated MimeMultipartRelated;
 
 struct MimeMultipartRelatedClass {
   MimeMultipartClass multipart;
@@ -26,28 +26,28 @@ struct MimeMultipartRelatedClass {
 extern "C" MimeMultipartRelatedClass mimeMultipartRelatedClass;
 
 struct MimeMultipartRelated {
-  MimeMultipart multipart;  /* superclass variables */
+  MimeMultipart multipart; /* superclass variables */
 
-  char* base_url;        /* Base URL (if any) for the whole
-                   multipart/related. */
+  char* base_url; /* Base URL (if any) for the whole
+            multipart/related. */
 
-  char* head_buffer;      /* Buffer used to remember the text/html 'head'
-                   part. */
-  uint32_t head_buffer_fp;    /* Active length. */
-  uint32_t head_buffer_size;    /* How big it is. */
+  char* head_buffer;         /* Buffer used to remember the text/html 'head'
+                      part. */
+  uint32_t head_buffer_fp;   /* Active length. */
+  uint32_t head_buffer_size; /* How big it is. */
 
-  nsCOMPtr <nsIFile>          file_buffer;    /* The nsIFile of a temp file used when we
-                                               run out of room in the head_buffer. */
-  nsCOMPtr <nsIInputStream>   input_file_stream;    /* A stream to it. */
-  nsCOMPtr <nsIOutputStream>  output_file_stream;  /* A stream to it. */
+  nsCOMPtr<nsIFile> file_buffer; /* The nsIFile of a temp file used when we
+                                  run out of room in the head_buffer. */
+  nsCOMPtr<nsIInputStream> input_file_stream;   /* A stream to it. */
+  nsCOMPtr<nsIOutputStream> output_file_stream; /* A stream to it. */
 
-  MimeHeaders* buffered_hdrs;  /* The headers of the 'head' part. */
+  MimeHeaders* buffered_hdrs; /* The headers of the 'head' part. */
 
   bool head_loaded;    /* Whether we've already passed the 'head'
                    part. */
-  MimeObject* headobj;    /* The actual text/html head object. */
+  MimeObject* headobj; /* The actual text/html head object. */
 
-  PLHashTable    *hash;
+  PLHashTable* hash;
 
   MimeConverterOutputCallback real_output_fn;
   void* real_output_closure;
@@ -55,12 +55,9 @@ struct MimeMultipartRelated {
   char* curtag;
   int32_t curtag_max;
   int32_t curtag_length;
-
-
-
 };
 
-#define MimeMultipartRelatedClassInitializer(ITYPE,CSUPER) \
-  { MimeMultipartClassInitializer(ITYPE,CSUPER) }
+#define MimeMultipartRelatedClassInitializer(ITYPE, CSUPER) \
+  { MimeMultipartClassInitializer(ITYPE, CSUPER) }
 
 #endif /* _MIMEMREL_H_ */

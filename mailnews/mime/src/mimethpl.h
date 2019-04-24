@@ -15,8 +15,9 @@
 #include "mimetpla.h"
 #include "nsString.h"
 
-typedef struct MimeInlineTextHTMLAsPlaintextClass MimeInlineTextHTMLAsPlaintextClass;
-typedef struct MimeInlineTextHTMLAsPlaintext      MimeInlineTextHTMLAsPlaintext;
+typedef struct MimeInlineTextHTMLAsPlaintextClass
+    MimeInlineTextHTMLAsPlaintextClass;
+typedef struct MimeInlineTextHTMLAsPlaintext MimeInlineTextHTMLAsPlaintext;
 
 struct MimeInlineTextHTMLAsPlaintextClass {
   MimeInlineTextPlainClass plaintext;
@@ -25,11 +26,11 @@ struct MimeInlineTextHTMLAsPlaintextClass {
 extern MimeInlineTextHTMLAsPlaintextClass mimeInlineTextHTMLAsPlaintextClass;
 
 struct MimeInlineTextHTMLAsPlaintext {
-  MimeInlineTextPlain  plaintext;
-  nsString             *complete_buffer;  // Gecko parser expects wide strings
+  MimeInlineTextPlain plaintext;
+  nsString *complete_buffer;  // Gecko parser expects wide strings
 };
 
-#define MimeInlineTextHTMLAsPlaintextClassInitializer(ITYPE,CSUPER) \
-  { MimeInlineTextPlainClassInitializer(ITYPE,CSUPER) }
+#define MimeInlineTextHTMLAsPlaintextClassInitializer(ITYPE, CSUPER) \
+  { MimeInlineTextPlainClassInitializer(ITYPE, CSUPER) }
 
 #endif /* _MIMETHPL_H_ */

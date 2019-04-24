@@ -13,7 +13,7 @@
 #include "mimetext.h"
 
 typedef struct MimeInlineTextPlainClass MimeInlineTextPlainClass;
-typedef struct MimeInlineTextPlain      MimeInlineTextPlain;
+typedef struct MimeInlineTextPlain MimeInlineTextPlain;
 
 struct MimeInlineTextPlainClass {
   MimeInlineTextClass text;
@@ -24,16 +24,16 @@ extern MimeInlineTextPlainClass mimeInlineTextPlainClass;
 struct MimeInlineTextPlain {
   MimeInlineText text;
   uint32_t mCiteLevel;
-  bool            mBlockquoting;
-  //bool            mInsideQuote;
-  int32_t         mQuotedSizeSetting;   // mail.quoted_size
-  int32_t         mQuotedStyleSetting;  // mail.quoted_style
-  nsCString       mCitationColor;       // mail.citation_color
-  bool            mStripSig;            // mail.strip_sig_on_reply
-  bool            mIsSig;
+  bool mBlockquoting;
+  // bool            mInsideQuote;
+  int32_t mQuotedSizeSetting;   // mail.quoted_size
+  int32_t mQuotedStyleSetting;  // mail.quoted_style
+  nsCString mCitationColor;     // mail.citation_color
+  bool mStripSig;               // mail.strip_sig_on_reply
+  bool mIsSig;
 };
 
-#define MimeInlineTextPlainClassInitializer(ITYPE,CSUPER) \
-  { MimeInlineTextClassInitializer(ITYPE,CSUPER) }
+#define MimeInlineTextPlainClassInitializer(ITYPE, CSUPER) \
+  { MimeInlineTextClassInitializer(ITYPE, CSUPER) }
 
 #endif /* _MIMETPLA_H_ */

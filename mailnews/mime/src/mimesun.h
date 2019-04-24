@@ -41,7 +41,7 @@
  */
 
 typedef struct MimeSunAttachmentClass MimeSunAttachmentClass;
-typedef struct MimeSunAttachment      MimeSunAttachment;
+typedef struct MimeSunAttachment MimeSunAttachment;
 
 struct MimeSunAttachmentClass {
   MimeMultipartClass multipart;
@@ -53,7 +53,7 @@ struct MimeSunAttachment {
   MimeMultipart multipart;
 };
 
-#define MimeSunAttachmentClassInitializer(ITYPE,CSUPER) \
-  { MimeMultipartClassInitializer(ITYPE,CSUPER) }
+#define MimeSunAttachmentClassInitializer(ITYPE, CSUPER) \
+  { MimeMultipartClassInitializer(ITYPE, CSUPER) }
 
 #endif /* _MIMESUN_H_ */

@@ -12,7 +12,7 @@
  */
 
 typedef struct MimeInlineTextHTMLClass MimeInlineTextHTMLClass;
-typedef struct MimeInlineTextHTML      MimeInlineTextHTML;
+typedef struct MimeInlineTextHTML MimeInlineTextHTML;
 
 struct MimeInlineTextHTMLClass {
   MimeInlineTextClass text;
@@ -21,15 +21,14 @@ struct MimeInlineTextHTMLClass {
 extern MimeInlineTextHTMLClass mimeInlineTextHTMLClass;
 
 struct MimeInlineTextHTML {
-  MimeInlineText  text;
-  char            *charset;  /* If we sniffed a charset, do some converting! */
+  MimeInlineText text;
+  char *charset; /* If we sniffed a charset, do some converting! */
 };
 
-#define MimeInlineTextHTMLClassInitializer(ITYPE,CSUPER) \
-  { MimeInlineTextClassInitializer(ITYPE,CSUPER) }
+#define MimeInlineTextHTMLClassInitializer(ITYPE, CSUPER) \
+  { MimeInlineTextClassInitializer(ITYPE, CSUPER) }
 
-void
-MimeInlineTextHTML_insert_lang_div(MimeObject *obj, nsCString &message);
-void
-MimeInlineTextHTML_remove_plaintext_tag(MimeObject *obj, nsCString &message);
+void MimeInlineTextHTML_insert_lang_div(MimeObject *obj, nsCString &message);
+void MimeInlineTextHTML_remove_plaintext_tag(MimeObject *obj,
+                                             nsCString &message);
 #endif /* _MIMETHTM_H_ */

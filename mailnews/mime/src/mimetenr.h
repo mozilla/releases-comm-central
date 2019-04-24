@@ -14,7 +14,7 @@
  */
 
 typedef struct MimeInlineTextEnrichedClass MimeInlineTextEnrichedClass;
-typedef struct MimeInlineTextEnriched      MimeInlineTextEnriched;
+typedef struct MimeInlineTextEnriched MimeInlineTextEnriched;
 
 struct MimeInlineTextEnrichedClass {
   MimeInlineTextRichtextClass text;
@@ -26,7 +26,7 @@ struct MimeInlineTextEnriched {
   MimeInlineTextRichtext richtext;
 };
 
-#define MimeInlineTextEnrichedClassInitializer(ITYPE,CSUPER) \
-  { MimeInlineTextRichtextClassInitializer(ITYPE,CSUPER) }
+#define MimeInlineTextEnrichedClassInitializer(ITYPE, CSUPER) \
+  { MimeInlineTextRichtextClassInitializer(ITYPE, CSUPER) }
 
 #endif /* _MIMETENR_H_ */

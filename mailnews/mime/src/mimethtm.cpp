@@ -14,28 +14,24 @@
 
 #define MIME_SUPERCLASS mimeInlineTextClass
 MimeDefClass(MimeInlineTextHTML, MimeInlineTextHTMLClass,
-       mimeInlineTextHTMLClass, &MIME_SUPERCLASS);
+             mimeInlineTextHTMLClass, &MIME_SUPERCLASS);
 
-static int MimeInlineTextHTML_parse_line (const char *, int32_t, MimeObject *);
-static int MimeInlineTextHTML_parse_eof (MimeObject *, bool);
-static int MimeInlineTextHTML_parse_begin (MimeObject *obj);
+static int MimeInlineTextHTML_parse_line(const char *, int32_t, MimeObject *);
+static int MimeInlineTextHTML_parse_eof(MimeObject *, bool);
+static int MimeInlineTextHTML_parse_begin(MimeObject *obj);
 
-static int
-MimeInlineTextHTMLClassInitialize(MimeInlineTextHTMLClass *clazz)
-{
-  MimeObjectClass *oclass = (MimeObjectClass *) clazz;
+static int MimeInlineTextHTMLClassInitialize(MimeInlineTextHTMLClass *clazz) {
+  MimeObjectClass *oclass = (MimeObjectClass *)clazz;
   PR_ASSERT(!oclass->class_initialized);
   oclass->parse_begin = MimeInlineTextHTML_parse_begin;
-  oclass->parse_line  = MimeInlineTextHTML_parse_line;
-  oclass->parse_eof   = MimeInlineTextHTML_parse_eof;
+  oclass->parse_line = MimeInlineTextHTML_parse_line;
+  oclass->parse_eof = MimeInlineTextHTML_parse_eof;
 
   return 0;
 }
 
-static int
-MimeInlineTextHTML_parse_begin (MimeObject *obj)
-{
-  int status = ((MimeObjectClass*)&mimeLeafClass)->parse_begin(obj);
+static int MimeInlineTextHTML_parse_begin(MimeObject *obj) {
+  int status = ((MimeObjectClass *)&mimeLeafClass)->parse_begin(obj);
   if (status < 0) return status;
 
   if (!obj->output_p) return 0;
@@ -43,7 +39,7 @@ MimeInlineTextHTML_parse_begin (MimeObject *obj)
   status = MimeObject_write_separator(obj);
   if (status < 0) return status;
 
-  MimeInlineTextHTML  *textHTML = (MimeInlineTextHTML *) obj;
+  MimeInlineTextHTML *textHTML = (MimeInlineTextHTML *)obj;
 
   textHTML->charset = nullptr;
 
@@ -51,43 +47,36 @@ MimeInlineTextHTML_parse_begin (MimeObject *obj)
    to the screen (that is, not writing this part "raw") then translate
    that Content-Base header into a <BASE> tag in the HTML.
   */
-  if (obj->options &&
-    obj->options->write_html_p &&
-    obj->options->output_fn)
-  {
-    char *base_hdr = MimeHeaders_get (obj->headers, HEADER_CONTENT_BASE,
-      false, false);
+  if (obj->options && obj->options->write_html_p && obj->options->output_fn) {
+    char *base_hdr =
+        MimeHeaders_get(obj->headers, HEADER_CONTENT_BASE, false, false);
 
     /* rhp - for MHTML Spec changes!!! */
-    if (!base_hdr)
-    {
-      base_hdr = MimeHeaders_get (obj->headers, HEADER_CONTENT_LOCATION, false, false);
+    if (!base_hdr) {
+      base_hdr =
+          MimeHeaders_get(obj->headers, HEADER_CONTENT_LOCATION, false, false);
     }
     /* rhp - for MHTML Spec changes!!! */
 
-    if (base_hdr)
-    {
+    if (base_hdr) {
       uint32_t buflen = strlen(base_hdr) + 20;
-      char *buf = (char *) PR_MALLOC(buflen);
+      char *buf = (char *)PR_MALLOC(buflen);
       const char *in;
       char *out;
-      if (!buf)
-        return MIME_OUT_OF_MEMORY;
+      if (!buf) return MIME_OUT_OF_MEMORY;
 
-        /* The value of the Content-Base header is a number of "words".
-        Whitespace in this header is not significant -- it is assumed
-        that any real whitespace in the URL has already been encoded,
-        and whitespace has been inserted to allow the lines in the
-        mail header to be wrapped reasonably.  Creators are supposed
-        to insert whitespace every 40 characters or less.
-      */
+      /* The value of the Content-Base header is a number of "words".
+      Whitespace in this header is not significant -- it is assumed
+      that any real whitespace in the URL has already been encoded,
+      and whitespace has been inserted to allow the lines in the
+      mail header to be wrapped reasonably.  Creators are supposed
+      to insert whitespace every 40 characters or less.
+    */
       PL_strncpyz(buf, "<BASE HREF=\"", buflen);
       out = buf + strlen(buf);
 
-      for (in = base_hdr; *in; in++)
-        /* ignore whitespace and quotes */
-        if (!IS_SPACE(*in) && *in != '"')
-          *out++ = *in;
+      for (in = base_hdr; *in; in++) /* ignore whitespace and quotes */
+        if (!IS_SPACE(*in) && *in != '"') *out++ = *in;
 
       /* Close the tag and argument. */
       *out++ = '"';
@@ -105,33 +94,25 @@ MimeInlineTextHTML_parse_begin (MimeObject *obj)
   return 0;
 }
 
+static int MimeInlineTextHTML_parse_line(const char *line, int32_t length,
+                                         MimeObject *obj) {
+  MimeInlineTextHTML *textHTML = (MimeInlineTextHTML *)obj;
 
-static int
-MimeInlineTextHTML_parse_line (const char *line, int32_t length, MimeObject *obj)
-{
-  MimeInlineTextHTML  *textHTML = (MimeInlineTextHTML *) obj;
+  if (!obj->output_p) return 0;
 
-  if (!obj->output_p)
-    return 0;
+  if (!obj->options || !obj->options->output_fn) return 0;
 
-  if (!obj->options || !obj->options->output_fn)
-    return 0;
-
-  if (!textHTML->charset)
-  {
-    char * cp;
+  if (!textHTML->charset) {
+    char *cp;
     // First, try to detect a charset via a META tag!
     if ((cp = PL_strncasestr(line, "META", length)) &&
         (cp = PL_strncasestr(cp, "HTTP-EQUIV=", length - (int)(cp - line))) &&
         (cp = PL_strncasestr(cp, "CONTENT=", length - (int)(cp - line))) &&
-        (cp = PL_strncasestr(cp, "CHARSET=", length - (int)(cp - line)))
-        )
-    {
-      char* cp1 = cp + 8;  //8 for the length of "CHARSET="
-      char* cp2 = PL_strnpbrk(cp1, " \"\'", length - (int)(cp1 - line));
-      if (cp2)
-      {
-        char* charset = PL_strndup(cp1, (int)(cp2 - cp1));
+        (cp = PL_strncasestr(cp, "CHARSET=", length - (int)(cp - line)))) {
+      char *cp1 = cp + 8;  // 8 for the length of "CHARSET="
+      char *cp2 = PL_strnpbrk(cp1, " \"\'", length - (int)(cp1 - line));
+      if (cp2) {
+        char *charset = PL_strndup(cp1, (int)(cp2 - cp1));
 
         // Fix bug 101434, in this case since this parsing is a char*
         // operation, a real UTF-16 or UTF-32 document won't be parse
@@ -139,18 +120,16 @@ MimeInlineTextHTML_parse_line (const char *line, int32_t length, MimeObject *obj
         // there fore, we ignore them if somehow we got that value
         // 6 == strlen("UTF-16") or strlen("UTF-32"), this will cover
         // UTF-16, UTF-16BE, UTF-16LE, UTF-32, UTF-32BE, UTF-32LE
-        if ((charset != nullptr) &&
-            PL_strncasecmp(charset, "UTF-16", 6) &&
-            PL_strncasecmp(charset, "UTF-32", 6))
-        {
+        if ((charset != nullptr) && PL_strncasecmp(charset, "UTF-16", 6) &&
+            PL_strncasecmp(charset, "UTF-32", 6)) {
           textHTML->charset = charset;
 
           // write out the data without the charset part...
-          if (textHTML->charset)
-          {
+          if (textHTML->charset) {
             int err = MimeObject_write(obj, line, cp - line, true);
             if (err == 0)
-              err = MimeObject_write(obj, cp2, length - (int)(cp2 - line), true);
+              err =
+                  MimeObject_write(obj, cp2, length - (int)(cp2 - line), true);
 
             return err;
           }
@@ -164,17 +143,15 @@ MimeInlineTextHTML_parse_line (const char *line, int32_t length, MimeObject *obj
   return MimeObject_write(obj, line, length, true);
 }
 
-static int
-MimeInlineTextHTML_parse_eof (MimeObject *obj, bool abort_p)
-{
+static int MimeInlineTextHTML_parse_eof(MimeObject *obj, bool abort_p) {
   int status;
-  MimeInlineTextHTML  *textHTML = (MimeInlineTextHTML *) obj;
+  MimeInlineTextHTML *textHTML = (MimeInlineTextHTML *)obj;
   if (obj->closed_p) return 0;
 
   PR_FREEIF(textHTML->charset);
 
   /* Run parent method first, to flush out any buffered data. */
-  status = ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_eof(obj, abort_p);
+  status = ((MimeObjectClass *)&MIME_SUPERCLASS)->parse_eof(obj, abort_p);
   if (status < 0) return status;
 
   return 0;
@@ -185,42 +162,35 @@ MimeInlineTextHTML_parse_eof (MimeObject *obj, bool abort_p)
  * <div class="moz-text-html"> as the first tag following the <body> tag in the
  * serialised HTML of a message. This becomes a no-op if no <body> tag is found.
  */
-void
-MimeInlineTextHTML_insert_lang_div(MimeObject *obj, nsCString &message)
-{
+void MimeInlineTextHTML_insert_lang_div(MimeObject *obj, nsCString &message) {
   if (obj->options->format_out != nsMimeOutput::nsMimeMessageBodyDisplay &&
       obj->options->format_out != nsMimeOutput::nsMimeMessagePrintOutput)
     return;
 
   // Make sure we have a <body> before we start.
   int32_t index = message.Find("<body", /* ignoreCase = */ true);
-  if (index == kNotFound)
-    return;
+  if (index == kNotFound) return;
   index = message.FindChar('>', index) + 1;
 
-  // Insert <div class="moz-text-html" lang="..."> for the following two purposes:
-  // 1) Users can configure their HTML display via CSS for .moz-text-html.
-  // 2) The language group in the 'lang' attribure is used by Gecko to determine
+  // Insert <div class="moz-text-html" lang="..."> for the following two
+  // purposes: 1) Users can configure their HTML display via CSS for
+  // .moz-text-html. 2) The language group in the 'lang' attribure is used by
+  // Gecko to determine
   //    which font to use.
-  int32_t fontSize;             // default font size
-  int32_t fontSizePercentage;   // size percentage
-  nsAutoCString fontLang;       // langgroup of the font.
-  if (NS_SUCCEEDED(GetMailNewsFont(obj, false, &fontSize, &fontSizePercentage, fontLang)))
-  {
+  int32_t fontSize;            // default font size
+  int32_t fontSizePercentage;  // size percentage
+  nsAutoCString fontLang;      // langgroup of the font.
+  if (NS_SUCCEEDED(GetMailNewsFont(obj, false, &fontSize, &fontSizePercentage,
+                                   fontLang))) {
     message.Insert(NS_LITERAL_CSTRING("<div class=\"moz-text-html\" lang=\"") +
-                   fontLang +
-                   NS_LITERAL_CSTRING("\">"),
+                       fontLang + NS_LITERAL_CSTRING("\">"),
                    index);
-  }
-  else
-  {
-    message.Insert(NS_LITERAL_CSTRING("<div class=\"moz-text-html\">"),
-                   index);
+  } else {
+    message.Insert(NS_LITERAL_CSTRING("<div class=\"moz-text-html\">"), index);
   }
 
   index = message.RFind("</body>", /* ignoreCase = */ true);
-  if (index != kNotFound)
-    message.Insert(NS_LITERAL_CSTRING("</div>"), index);
+  if (index != kNotFound) message.Insert(NS_LITERAL_CSTRING("</div>"), index);
 }
 
 /*
@@ -228,9 +198,8 @@ MimeInlineTextHTML_insert_lang_div(MimeObject *obj, nsCString &message)
  * <plaintext> is a funny beast: It leads to everything following it
  * being displayed verbatim, even a </plaintext> tag is ignored.
  */
-void
-MimeInlineTextHTML_remove_plaintext_tag(MimeObject *obj, nsCString &message)
-{
+void MimeInlineTextHTML_remove_plaintext_tag(MimeObject *obj,
+                                             nsCString &message) {
   if (obj->options->format_out != nsMimeOutput::nsMimeMessageBodyDisplay &&
       obj->options->format_out != nsMimeOutput::nsMimeMessagePrintOutput)
     return;
@@ -238,17 +207,18 @@ MimeInlineTextHTML_remove_plaintext_tag(MimeObject *obj, nsCString &message)
   // Replace all <plaintext> and </plaintext> tags.
   int32_t index = 0;
   bool replaced = false;
-  while ((index = message.Find("<plaintext", /* ignoreCase = */ true, index)) != kNotFound) {
-    message.Insert("x-", index+1);
+  while ((index = message.Find("<plaintext", /* ignoreCase = */ true, index)) !=
+         kNotFound) {
+    message.Insert("x-", index + 1);
     index += 12;
     replaced = true;
   }
   if (replaced) {
     index = 0;
-    while ((index = message.Find("</plaintext", /* ignoreCase = */ true, index)) != kNotFound) {
-      message.Insert("x-", index+2);
+    while ((index = message.Find("</plaintext", /* ignoreCase = */ true,
+                                 index)) != kNotFound) {
+      message.Insert("x-", index + 2);
       index += 13;
     }
   }
 }
-

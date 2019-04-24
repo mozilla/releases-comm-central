@@ -14,7 +14,7 @@
  */
 
 typedef struct MimeMultipartAppleDoubleClass MimeMultipartAppleDoubleClass;
-typedef struct MimeMultipartAppleDouble      MimeMultipartAppleDouble;
+typedef struct MimeMultipartAppleDouble MimeMultipartAppleDouble;
 
 struct MimeMultipartAppleDoubleClass {
   MimeMultipartClass multipart;
@@ -26,7 +26,7 @@ struct MimeMultipartAppleDouble {
   MimeMultipart multipart;
 };
 
-#define MimeMultipartAppleDoubleClassInitializer(ITYPE,CSUPER) \
-  { MimeMultipartClassInitializer(ITYPE,CSUPER) }
+#define MimeMultipartAppleDoubleClassInitializer(ITYPE, CSUPER) \
+  { MimeMultipartClassInitializer(ITYPE, CSUPER) }
 
 #endif /* _MIMEMAPL_H_ */

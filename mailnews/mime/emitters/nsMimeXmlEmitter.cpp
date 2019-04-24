@@ -17,23 +17,15 @@
 /*
  * nsMimeXmlEmitter definitions....
  */
-nsMimeXmlEmitter::nsMimeXmlEmitter()
-{
-}
+nsMimeXmlEmitter::nsMimeXmlEmitter() {}
 
-
-nsMimeXmlEmitter::~nsMimeXmlEmitter(void)
-{
-}
-
+nsMimeXmlEmitter::~nsMimeXmlEmitter(void) {}
 
 // Note - this is teardown only...you should not write
 // anything to the stream since these may be image data
 // output streams, etc...
-nsresult
-nsMimeXmlEmitter::Complete()
-{
-  char  buf[16];
+nsresult nsMimeXmlEmitter::Complete() {
+  char buf[16];
 
   // Now write out the total count of attachments for this message
   UtilityWrite("<mailattachcount>");
@@ -44,21 +36,19 @@ nsMimeXmlEmitter::Complete()
   UtilityWrite("</message>");
 
   return nsMimeBaseEmitter::Complete();
-
 }
 
-nsresult
-nsMimeXmlEmitter::WriteXMLHeader(const char *msgID)
-{
-  if ( (!msgID) || (!*msgID) )
-    msgID = "none";
+nsresult nsMimeXmlEmitter::WriteXMLHeader(const char *msgID) {
+  if ((!msgID) || (!*msgID)) msgID = "none";
 
   nsCString newValue;
   nsAppendEscapedHTML(nsDependentCString(msgID), newValue);
 
   UtilityWrite("<?xml version=\"1.0\"?>");
 
-  UtilityWriteCRLF("<?xml-stylesheet href=\"chrome://messagebody/skin/messageBody.css\" type=\"text/css\"?>");
+  UtilityWriteCRLF(
+      "<?xml-stylesheet href=\"chrome://messagebody/skin/messageBody.css\" "
+      "type=\"text/css\"?>");
 
   UtilityWrite("<message id=\"");
   UtilityWrite(newValue.get());
@@ -68,13 +58,10 @@ nsMimeXmlEmitter::WriteXMLHeader(const char *msgID)
   return NS_OK;
 }
 
-nsresult
-nsMimeXmlEmitter::WriteXMLTag(const char *tagName, const char *value)
-{
-  if ( (!value) || (!*value) )
-    return NS_OK;
+nsresult nsMimeXmlEmitter::WriteXMLTag(const char *tagName, const char *value) {
+  if ((!value) || (!*value)) return NS_OK;
 
-  char  *upCaseTag = NULL;
+  char *upCaseTag = NULL;
   nsCString newValue;
   nsAppendEscapedHTML(nsDependentCString(value), newValue);
 
@@ -93,10 +80,9 @@ nsMimeXmlEmitter::WriteXMLTag(const char *tagName, const char *value)
   //
   UtilityWrite("<headerdisplayname>");
   char *l10nTagName = LocalizeHeaderName(upCaseTag, tagName);
-  if ( (!l10nTagName) || (!*l10nTagName) )
+  if ((!l10nTagName) || (!*l10nTagName))
     UtilityWrite(tagName);
-  else
-  {
+  else {
     UtilityWrite(l10nTagName);
   }
   PR_FREEIF(l10nTagName);
@@ -115,10 +101,9 @@ nsMimeXmlEmitter::WriteXMLTag(const char *tagName, const char *value)
 }
 
 // Header handling routines.
-nsresult
-nsMimeXmlEmitter::StartHeader(bool rootMailHeader, bool headerOnly, const char *msgID,
-                           const char *outCharset)
-{
+nsresult nsMimeXmlEmitter::StartHeader(bool rootMailHeader, bool headerOnly,
+                                       const char *msgID,
+                                       const char *outCharset) {
   mDocHeader = rootMailHeader;
   WriteXMLHeader(msgID);
   UtilityWrite("<mailheader>");
@@ -126,32 +111,25 @@ nsMimeXmlEmitter::StartHeader(bool rootMailHeader, bool headerOnly, const char *
   return NS_OK;
 }
 
-nsresult
-nsMimeXmlEmitter::AddHeaderField(const char *field, const char *value)
-{
-  if ( (!field) || (!value) )
-    return NS_OK;
+nsresult nsMimeXmlEmitter::AddHeaderField(const char *field,
+                                          const char *value) {
+  if ((!field) || (!value)) return NS_OK;
 
   WriteXMLTag(field, value);
   return NS_OK;
 }
 
-nsresult
-nsMimeXmlEmitter::EndHeader(const nsACString &name)
-{
+nsresult nsMimeXmlEmitter::EndHeader(const nsACString &name) {
   UtilityWrite("</mailheader>");
   return NS_OK;
 }
 
-
 // Attachment handling routines
-nsresult
-nsMimeXmlEmitter::StartAttachment(const nsACString &name,
-                                  const char *contentType,
-                                  const char *url,
-                                  bool aIsExternalAttachment)
-{
-  char    buf[128];
+nsresult nsMimeXmlEmitter::StartAttachment(const nsACString &name,
+                                           const char *contentType,
+                                           const char *url,
+                                           bool aIsExternalAttachment) {
+  char buf[128];
 
   ++mAttachCount;
 
@@ -162,18 +140,13 @@ nsMimeXmlEmitter::StartAttachment(const nsACString &name,
   return NS_OK;
 }
 
-nsresult
-nsMimeXmlEmitter::AddAttachmentField(const char *field, const char *value)
-{
+nsresult nsMimeXmlEmitter::AddAttachmentField(const char *field,
+                                              const char *value) {
   WriteXMLTag(field, value);
   return NS_OK;
 }
 
-nsresult
-nsMimeXmlEmitter::EndAttachment()
-{
+nsresult nsMimeXmlEmitter::EndAttachment() {
   UtilityWrite("</mailattachment>");
   return NS_OK;
 }
-
-

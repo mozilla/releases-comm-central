@@ -14,12 +14,12 @@ namespace mailnews {
 
 /// A class for encoding the bodies of MIME parts.
 class MimeEncoder {
-public:
+ public:
   virtual ~MimeEncoder() {}
 
   /// A callback for writing the encoded output
-  typedef nsresult (*OutputCallback)
-    (const char *buf, int32_t size, void *closure);
+  typedef nsresult (*OutputCallback)(const char *buf, int32_t size,
+                                     void *closure);
 
   /// Encodes the string in the buffer and sends it to the callback
   virtual nsresult Write(const char *buffer, int32_t size) = 0;
@@ -31,14 +31,14 @@ public:
   /// Get an encoder that outputs quoted-printable data
   static MimeEncoder *GetQPEncoder(OutputCallback callback, void *closure);
 
-protected:
+ protected:
   MimeEncoder(OutputCallback callback, void *closure);
   OutputCallback mCallback;
   void *mClosure;
   uint32_t mCurrentColumn;
 };
 
-} // namespace mailnews
-} // namespace mozilla
+}  // namespace mailnews
+}  // namespace mozilla
 
 #endif

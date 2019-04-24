@@ -15,7 +15,7 @@
  */
 
 typedef struct MimeMultipartDigestClass MimeMultipartDigestClass;
-typedef struct MimeMultipartDigest      MimeMultipartDigest;
+typedef struct MimeMultipartDigest MimeMultipartDigest;
 
 struct MimeMultipartDigestClass {
   MimeMultipartClass multipart;
@@ -27,7 +27,7 @@ struct MimeMultipartDigest {
   MimeMultipart multipart;
 };
 
-#define MimeMultipartDigestClassInitializer(ITYPE,CSUPER) \
-  { MimeMultipartClassInitializer(ITYPE,CSUPER) }
+#define MimeMultipartDigestClassInitializer(ITYPE, CSUPER) \
+  { MimeMultipartClassInitializer(ITYPE, CSUPER) }
 
 #endif /* _MIMEMDIG_H_ */

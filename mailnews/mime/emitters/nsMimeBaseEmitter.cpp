@@ -29,13 +29,12 @@
 
 static mozilla::LazyLogModule gMimeEmitterLogModule("MIME");
 
-#define   MIME_HEADER_URL      "chrome://messenger/locale/mimeheader.properties"
-#define   MIME_URL             "chrome://messenger/locale/mime.properties"
+#define MIME_HEADER_URL "chrome://messenger/locale/mimeheader.properties"
+#define MIME_URL "chrome://messenger/locale/mime.properties"
 
 NS_IMPL_ISUPPORTS(nsMimeBaseEmitter, nsIMimeEmitter, nsIInterfaceRequestor)
 
-nsMimeBaseEmitter::nsMimeBaseEmitter()
-{
+nsMimeBaseEmitter::nsMimeBaseEmitter() {
   // Initialize data output vars...
   mFirstHeaders = true;
 
@@ -54,22 +53,22 @@ nsMimeBaseEmitter::nsMimeBaseEmitter()
 
   // Setup array for attachments
   mAttachCount = 0;
-  mAttachArray = new nsTArray<attachmentInfoType*>();
+  mAttachArray = new nsTArray<attachmentInfoType *>();
   mCurrentAttachment = nullptr;
 
   // Header cache...
-  mHeaderArray = new nsTArray<headerInfoType*>();
+  mHeaderArray = new nsTArray<headerInfoType *>();
 
   // Embedded Header Cache...
   mEmbeddedHeaderArray = nullptr;
 
   // HTML Header Data...
-//  mHTMLHeaders = "";
-//  mCharset = "";
+  //  mHTMLHeaders = "";
+  //  mCharset = "";
 
   // Init the body...
   mBodyStarted = false;
-//  mBody = "";
+  //  mBody = "";
 
   // This is needed for conversion of I18N Strings...
   mUnicodeConverter = do_GetService(NS_MIME_CONVERTER_CONTRACTID);
@@ -80,27 +79,21 @@ nsMimeBaseEmitter::nsMimeBaseEmitter()
     pPrefBranch->GetIntPref("mail.show_headers", &mHeaderDisplayType);
 }
 
-nsMimeBaseEmitter::~nsMimeBaseEmitter(void)
-{
+nsMimeBaseEmitter::~nsMimeBaseEmitter(void) {
   // Delete the buffer manager...
-  if (mBufferMgr)
-  {
+  if (mBufferMgr) {
     delete mBufferMgr;
     mBufferMgr = nullptr;
   }
 
   // Clean up the attachment array structures...
-  if (mAttachArray)
-  {
-    for (size_t i = 0; i < mAttachArray->Length(); i++)
-    {
+  if (mAttachArray) {
+    for (size_t i = 0; i < mAttachArray->Length(); i++) {
       attachmentInfoType *attachInfo = mAttachArray->ElementAt(i);
-      if (!attachInfo)
-        continue;
+      if (!attachInfo) continue;
 
       PR_FREEIF(attachInfo->contentType);
-      if (attachInfo->displayName)
-        free(attachInfo->displayName);
+      if (attachInfo->displayName) free(attachInfo->displayName);
       PR_FREEIF(attachInfo->urlSpec);
       PR_FREEIF(attachInfo);
     }
@@ -115,23 +108,18 @@ nsMimeBaseEmitter::~nsMimeBaseEmitter(void)
   mEmbeddedHeaderArray = nullptr;
 }
 
-NS_IMETHODIMP nsMimeBaseEmitter::GetInterface(const nsIID & aIID, void * *aInstancePtr)
-{
+NS_IMETHODIMP nsMimeBaseEmitter::GetInterface(const nsIID &aIID,
+                                              void **aInstancePtr) {
   NS_ENSURE_ARG_POINTER(aInstancePtr);
   return QueryInterface(aIID, aInstancePtr);
 }
 
-void
-nsMimeBaseEmitter::CleanupHeaderArray(nsTArray<headerInfoType*> *aArray)
-{
-  if (!aArray)
-    return;
+void nsMimeBaseEmitter::CleanupHeaderArray(nsTArray<headerInfoType *> *aArray) {
+  if (!aArray) return;
 
-  for (size_t i = 0; i < aArray->Length(); i++)
-  {
+  for (size_t i = 0; i < aArray->Length(); i++) {
     headerInfoType *headerInfo = aArray->ElementAt(i);
-    if (!headerInfo)
-      continue;
+    if (!headerInfo) continue;
 
     PR_FREEIF(headerInfo->name);
     PR_FREEIF(headerInfo->value);
@@ -141,8 +129,7 @@ nsMimeBaseEmitter::CleanupHeaderArray(nsTArray<headerInfoType*> *aArray)
   delete aArray;
 }
 
-static int32_t MapHeaderNameToID(const char *header)
-{
+static int32_t MapHeaderNameToID(const char *header) {
   // emitter passes UPPERCASE for header names
   if (!strcmp(header, "DATE"))
     return MIME_MHTML_DATE;
@@ -182,70 +169,58 @@ static int32_t MapHeaderNameToID(const char *header)
   return 0;
 }
 
-char *
-nsMimeBaseEmitter::MimeGetStringByName(const char *aHeaderName)
-{
+char *nsMimeBaseEmitter::MimeGetStringByName(const char *aHeaderName) {
   nsresult res = NS_OK;
 
-  if (!m_headerStringBundle)
-  {
+  if (!m_headerStringBundle) {
     static const char propertyURL[] = MIME_HEADER_URL;
 
     nsCOMPtr<nsIStringBundleService> sBundleService =
-      mozilla::services::GetStringBundleService();
-    if (sBundleService)
-    {
-      res = sBundleService->CreateBundle(propertyURL, getter_AddRefs(m_headerStringBundle));
+        mozilla::services::GetStringBundleService();
+    if (sBundleService) {
+      res = sBundleService->CreateBundle(propertyURL,
+                                         getter_AddRefs(m_headerStringBundle));
     }
   }
 
-  if (m_headerStringBundle)
-  {
+  if (m_headerStringBundle) {
     nsString val;
 
     res = m_headerStringBundle->GetStringFromName(aHeaderName, val);
 
-    if (NS_FAILED(res))
-      return nullptr;
+    if (NS_FAILED(res)) return nullptr;
 
     // Here we need to return a new copy of the string
     // This returns a UTF-8 string so the caller needs to perform a conversion
     // if this is used as UCS-2 (e.g. cannot do nsString(utfStr);
     //
     return ToNewUTF8String(val);
-  }
-  else
-  {
+  } else {
     return nullptr;
   }
 }
 
-char *
-nsMimeBaseEmitter::MimeGetStringByID(int32_t aID)
-{
+char *nsMimeBaseEmitter::MimeGetStringByID(int32_t aID) {
   nsresult res = NS_OK;
 
-  if (!m_stringBundle)
-  {
+  if (!m_stringBundle) {
     static const char propertyURL[] = MIME_URL;
 
     nsCOMPtr<nsIStringBundleService> sBundleService =
-      mozilla::services::GetStringBundleService();
+        mozilla::services::GetStringBundleService();
     if (sBundleService)
-      res = sBundleService->CreateBundle(propertyURL, getter_AddRefs(m_stringBundle));
+      res = sBundleService->CreateBundle(propertyURL,
+                                         getter_AddRefs(m_stringBundle));
   }
 
-  if (m_stringBundle)
-  {
+  if (m_stringBundle) {
     nsString val;
     res = m_stringBundle->GetStringFromID(aID, val);
 
-    if (NS_FAILED(res))
-      return nullptr;
+    if (NS_FAILED(res)) return nullptr;
 
     return ToNewUTF8String(val);
-  }
-  else
+  } else
     return nullptr;
 }
 
@@ -255,24 +230,20 @@ nsMimeBaseEmitter::MimeGetStringByID(int32_t aID)
 // in all caps and a dropback default name is provided. The caller needs to free
 // the memory returned by this function.
 //
-char *
-nsMimeBaseEmitter::LocalizeHeaderName(const char *aHeaderName, const char *aDefaultName)
-{
+char *nsMimeBaseEmitter::LocalizeHeaderName(const char *aHeaderName,
+                                            const char *aDefaultName) {
   char *retVal = nullptr;
 
   // prefer to use translated strings if not for quoting
   if (mFormat != nsMimeOutput::nsMimeMessageQuoting &&
-      mFormat != nsMimeOutput::nsMimeMessageBodyQuoting)
-  {
+      mFormat != nsMimeOutput::nsMimeMessageBodyQuoting) {
     // map name to id and get the translated string
     int32_t id = MapHeaderNameToID(aHeaderName);
-    if (id > 0)
-      retVal = MimeGetStringByID(id);
+    if (id > 0) retVal = MimeGetStringByID(id);
   }
 
   // get the string from the other bundle (usually not translated)
-  if (!retVal)
-    retVal = MimeGetStringByName(aHeaderName);
+  if (!retVal) retVal = MimeGetStringByName(aHeaderName);
 
   if (retVal)
     return retVal;
@@ -284,8 +255,8 @@ nsMimeBaseEmitter::LocalizeHeaderName(const char *aHeaderName, const char *aDefa
 // nsMimeBaseEmitter Interface
 ///////////////////////////////////////////////////////////////////////////
 NS_IMETHODIMP
-nsMimeBaseEmitter::SetPipe(nsIInputStream * aInputStream, nsIOutputStream *outStream)
-{
+nsMimeBaseEmitter::SetPipe(nsIInputStream *aInputStream,
+                           nsIOutputStream *outStream) {
   mInputStream = aInputStream;
   mOutStream = outStream;
   return NS_OK;
@@ -295,8 +266,8 @@ nsMimeBaseEmitter::SetPipe(nsIInputStream * aInputStream, nsIOutputStream *outSt
 // anything to the stream since these may be image data
 // output streams, etc...
 NS_IMETHODIMP
-nsMimeBaseEmitter::Initialize(nsIURI *url, nsIChannel * aChannel, int32_t aFormat)
-{
+nsMimeBaseEmitter::Initialize(nsIURI *url, nsIChannel *aChannel,
+                              int32_t aFormat) {
   // set the url
   mURL = url;
   mChannel = aChannel;
@@ -314,33 +285,27 @@ nsMimeBaseEmitter::Initialize(nsIURI *url, nsIChannel * aChannel, int32_t aForma
 }
 
 NS_IMETHODIMP
-nsMimeBaseEmitter::SetOutputListener(nsIStreamListener *listener)
-{
+nsMimeBaseEmitter::SetOutputListener(nsIStreamListener *listener) {
   mOutListener = listener;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMimeBaseEmitter::GetOutputListener(nsIStreamListener **listener)
-{
+nsMimeBaseEmitter::GetOutputListener(nsIStreamListener **listener) {
   NS_ENSURE_ARG_POINTER(listener);
 
   NS_IF_ADDREF(*listener = mOutListener);
   return NS_OK;
 }
 
-
 // Attachment handling routines
-nsresult
-nsMimeBaseEmitter::StartAttachment(const nsACString &name,
-                                   const char *contentType,
-                                   const char *url,
-                                   bool aIsExternalAttachment)
-{
+nsresult nsMimeBaseEmitter::StartAttachment(const nsACString &name,
+                                            const char *contentType,
+                                            const char *url,
+                                            bool aIsExternalAttachment) {
   // Ok, now we will setup the attachment info
-  mCurrentAttachment = (attachmentInfoType *) PR_NEWZAP(attachmentInfoType);
-  if ( (mCurrentAttachment) && mAttachArray)
-  {
+  mCurrentAttachment = (attachmentInfoType *)PR_NEWZAP(attachmentInfoType);
+  if ((mCurrentAttachment) && mAttachArray) {
     ++mAttachCount;
 
     mCurrentAttachment->displayName = ToNewCString(name);
@@ -352,12 +317,9 @@ nsMimeBaseEmitter::StartAttachment(const nsACString &name,
   return NS_OK;
 }
 
-nsresult
-nsMimeBaseEmitter::EndAttachment()
-{
+nsresult nsMimeBaseEmitter::EndAttachment() {
   // Ok, add the attachment info to the attachment array...
-  if ( (mCurrentAttachment) && (mAttachArray) )
-  {
+  if ((mCurrentAttachment) && (mAttachArray)) {
     mAttachArray->AppendElement(mCurrentAttachment);
     mCurrentAttachment = nullptr;
   }
@@ -365,60 +327,52 @@ nsMimeBaseEmitter::EndAttachment()
   return NS_OK;
 }
 
-nsresult
-nsMimeBaseEmitter::EndAllAttachments()
-{
+nsresult nsMimeBaseEmitter::EndAllAttachments() { return NS_OK; }
+
+NS_IMETHODIMP
+nsMimeBaseEmitter::AddAttachmentField(const char *field, const char *value) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMimeBaseEmitter::AddAttachmentField(const char *field, const char *value)
-{
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMimeBaseEmitter::UtilityWrite(const char *buf)
-{
+nsMimeBaseEmitter::UtilityWrite(const char *buf) {
   NS_ENSURE_ARG_POINTER(buf);
 
-  uint32_t    written;
+  uint32_t written;
   Write(nsDependentCString(buf), &written);
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMimeBaseEmitter::UtilityWrite(const nsACString &buf)
-{
-  uint32_t    written;
+nsMimeBaseEmitter::UtilityWrite(const nsACString &buf) {
+  uint32_t written;
   Write(buf, &written);
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMimeBaseEmitter::UtilityWriteCRLF(const char *buf)
-{
+nsMimeBaseEmitter::UtilityWriteCRLF(const char *buf) {
   NS_ENSURE_ARG_POINTER(buf);
 
-  uint32_t    written;
+  uint32_t written;
   Write(nsDependentCString(buf), &written);
   Write(NS_LITERAL_CSTRING(CRLF), &written);
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMimeBaseEmitter::Write(const nsACString &buf, uint32_t *amountWritten)
-{
-  unsigned int        written = 0;
+nsMimeBaseEmitter::Write(const nsACString &buf, uint32_t *amountWritten) {
+  unsigned int written = 0;
   nsresult rv = NS_OK;
-  uint32_t            needToWrite;
+  uint32_t needToWrite;
 
 #ifdef DEBUG_BenB
   // If you want to see libmime output...
   printf("%s", buf);
 #endif
 
-  MOZ_LOG(gMimeEmitterLogModule, mozilla::LogLevel::Info, ("%s", PromiseFlatCString(buf).get()));
+  MOZ_LOG(gMimeEmitterLogModule, mozilla::LogLevel::Info,
+          ("%s", PromiseFlatCString(buf).get()));
   //
   // Make sure that the buffer we are "pushing" into has enough room
   // for the write operation. If not, we have to buffer, return, and get
@@ -428,8 +382,7 @@ nsMimeBaseEmitter::Write(const nsACString &buf, uint32_t *amountWritten)
 
   needToWrite = mBufferMgr->GetSize();
   // First, handle any old buffer data...
-  if (needToWrite > 0)
-  {
+  if (needToWrite > 0) {
     rv = WriteHelper(mBufferMgr->GetBuffer(), &written);
 
     mTotalWritten += written;
@@ -438,13 +391,11 @@ nsMimeBaseEmitter::Write(const nsACString &buf, uint32_t *amountWritten)
 
     // if we couldn't write all the old data, buffer the new data
     // and return
-    if (mBufferMgr->GetSize() > 0)
-    {
+    if (mBufferMgr->GetSize() > 0) {
       mBufferMgr->IncreaseBuffer(buf);
       return rv;
     }
   }
-
 
   // if we get here, we are dealing with new data...try to write
   // and then do the right thing...
@@ -460,12 +411,12 @@ nsMimeBaseEmitter::Write(const nsACString &buf, uint32_t *amountWritten)
   return rv;
 }
 
-nsresult
-nsMimeBaseEmitter::WriteHelper(const nsACString &buf, uint32_t *countWritten)
-{
+nsresult nsMimeBaseEmitter::WriteHelper(const nsACString &buf,
+                                        uint32_t *countWritten) {
   NS_ENSURE_TRUE(mOutStream, NS_ERROR_NOT_INITIALIZED);
 
-  nsresult rv = mOutStream->Write(buf.BeginReading(), buf.Length(), countWritten);
+  nsresult rv =
+      mOutStream->Write(buf.BeginReading(), buf.Length(), countWritten);
   if (rv == NS_BASE_STREAM_WOULD_BLOCK) {
     // pipe is full, push contents of pipe to listener...
     uint64_t avail;
@@ -484,23 +435,19 @@ nsMimeBaseEmitter::WriteHelper(const nsACString &buf, uint32_t *countWritten)
 //
 // Find a cached header! Note: Do NOT free this value!
 //
-const char *
-nsMimeBaseEmitter::GetHeaderValue(const char  *aHeaderName)
-{
-  char        *retVal = nullptr;
-  nsTArray<headerInfoType*> *array = mDocHeader? mHeaderArray : mEmbeddedHeaderArray;
+const char *nsMimeBaseEmitter::GetHeaderValue(const char *aHeaderName) {
+  char *retVal = nullptr;
+  nsTArray<headerInfoType *> *array =
+      mDocHeader ? mHeaderArray : mEmbeddedHeaderArray;
 
-  if (!array)
-    return nullptr;
+  if (!array) return nullptr;
 
-  for (size_t i = 0; i < array->Length(); i++)
-  {
+  for (size_t i = 0; i < array->Length(); i++) {
     headerInfoType *headerInfo = array->ElementAt(i);
-    if ( (!headerInfo) || (!headerInfo->name) || (!(*headerInfo->name)) )
+    if ((!headerInfo) || (!headerInfo->name) || (!(*headerInfo->name)))
       continue;
 
-    if (!PL_strcasecmp(aHeaderName, headerInfo->name))
-    {
+    if (!PL_strcasecmp(aHeaderName, headerInfo->name)) {
       retVal = headerInfo->value;
       break;
     }
@@ -510,17 +457,16 @@ nsMimeBaseEmitter::GetHeaderValue(const char  *aHeaderName)
 }
 
 //
-// This is called at the start of the header block for all header information in ANY
-// AND ALL MESSAGES (yes, quoted, attached, etc...)
+// This is called at the start of the header block for all header information in
+// ANY AND ALL MESSAGES (yes, quoted, attached, etc...)
 //
 // NOTE: This will be called even when headers are will not follow. This is
 // to allow us to be notified of the charset of the original message. This is
 // important for forward and reply operations
 //
 NS_IMETHODIMP
-nsMimeBaseEmitter::StartHeader(bool rootMailHeader, bool headerOnly, const char *msgID,
-                               const char *outCharset)
-{
+nsMimeBaseEmitter::StartHeader(bool rootMailHeader, bool headerOnly,
+                               const char *msgID, const char *outCharset) {
   NS_ENSURE_ARG_POINTER(outCharset);
 
   mDocHeader = rootMailHeader;
@@ -528,18 +474,15 @@ nsMimeBaseEmitter::StartHeader(bool rootMailHeader, bool headerOnly, const char 
   // If this is not the mail messages header, then we need to create
   // the mEmbeddedHeaderArray structure for use with this internal header
   // structure.
-  if (!mDocHeader)
-  {
-    if (mEmbeddedHeaderArray)
-      CleanupHeaderArray(mEmbeddedHeaderArray);
+  if (!mDocHeader) {
+    if (mEmbeddedHeaderArray) CleanupHeaderArray(mEmbeddedHeaderArray);
 
-    mEmbeddedHeaderArray = new nsTArray<headerInfoType*>();
+    mEmbeddedHeaderArray = new nsTArray<headerInfoType *>();
     NS_ENSURE_TRUE(mEmbeddedHeaderArray, NS_ERROR_OUT_OF_MEMORY);
   }
 
   // If the main doc, check on updated character set
-  if (mDocHeader)
-    UpdateCharacterSet(outCharset);
+  if (mDocHeader) UpdateCharacterSet(outCharset);
   CopyASCIItoUTF16(nsDependentCString(outCharset), mCharset);
   return NS_OK;
 }
@@ -550,27 +493,21 @@ nsMimeBaseEmitter::StartHeader(bool rootMailHeader, bool headerOnly, const char 
 // need to be tagged as that charset by default.
 //
 NS_IMETHODIMP
-nsMimeBaseEmitter::UpdateCharacterSet(const char *aCharset)
-{
-  if (aCharset)
-  {
+nsMimeBaseEmitter::UpdateCharacterSet(const char *aCharset) {
+  if (aCharset) {
     nsAutoCString contentType;
 
-    if (NS_SUCCEEDED(mChannel->GetContentType(contentType)) && !contentType.IsEmpty())
-    {
+    if (NS_SUCCEEDED(mChannel->GetContentType(contentType)) &&
+        !contentType.IsEmpty()) {
       char *cBegin = contentType.BeginWriting();
 
       const char *cPtr = PL_strcasestr(cBegin, "charset=");
 
-      if (cPtr)
-      {
-        char  *ptr = cBegin;
-        while (*ptr)
-        {
-          if ( (*ptr == ' ') || (*ptr == ';') )
-          {
-            if ((ptr + 1) >= cPtr)
-            {
+      if (cPtr) {
+        char *ptr = cBegin;
+        while (*ptr) {
+          if ((*ptr == ' ') || (*ptr == ';')) {
+            if ((ptr + 1) >= cPtr) {
               *ptr = '\0';
               break;
             }
@@ -598,12 +535,10 @@ nsMimeBaseEmitter::UpdateCharacterSet(const char *aCharset)
 // internal body or the outer message.
 //
 NS_IMETHODIMP
-nsMimeBaseEmitter::AddHeaderField(const char *field, const char *value)
-{
-  if ( (!field) || (!value) )
-    return NS_OK;
+nsMimeBaseEmitter::AddHeaderField(const char *field, const char *value) {
+  if ((!field) || (!value)) return NS_OK;
 
-  nsTArray<headerInfoType*>  *tPtr;
+  nsTArray<headerInfoType *> *tPtr;
   if (mDocHeader)
     tPtr = mHeaderArray;
   else
@@ -611,9 +546,8 @@ nsMimeBaseEmitter::AddHeaderField(const char *field, const char *value)
 
   // This is a header so we need to cache and output later.
   // Ok, now we will setup the header info for the header array!
-  headerInfoType  *ptr = (headerInfoType *) PR_NEWZAP(headerInfoType);
-  if ( (ptr) && tPtr)
-  {
+  headerInfoType *ptr = (headerInfoType *)PR_NEWZAP(headerInfoType);
+  if ((ptr) && tPtr) {
     ptr->name = strdup(field);
     ptr->value = strdup(value);
     tPtr->AppendElement(ptr);
@@ -623,18 +557,18 @@ nsMimeBaseEmitter::AddHeaderField(const char *field, const char *value)
 }
 
 NS_IMETHODIMP
-nsMimeBaseEmitter::AddAllHeaders(const nsACString &allheaders)
-{
-  if (mDocHeader) //We want to set only the main headers of a message, not the potentially embedded one
+nsMimeBaseEmitter::AddAllHeaders(const nsACString &allheaders) {
+  if (mDocHeader)  // We want to set only the main headers of a message, not the
+                   // potentially embedded one
   {
     nsresult rv;
-    nsCOMPtr<nsIMsgMailNewsUrl> msgurl (do_QueryInterface(mURL));
-    if (msgurl)
-    {
-        nsCOMPtr<nsIMimeHeaders> mimeHeaders = do_CreateInstance(NS_IMIMEHEADERS_CONTRACTID, &rv);
-        NS_ENSURE_SUCCESS(rv, rv);
-        mimeHeaders->Initialize(allheaders);
-        msgurl->SetMimeHeaders(mimeHeaders);
+    nsCOMPtr<nsIMsgMailNewsUrl> msgurl(do_QueryInterface(mURL));
+    if (msgurl) {
+      nsCOMPtr<nsIMimeHeaders> mimeHeaders =
+          do_CreateInstance(NS_IMIMEHEADERS_CONTRACTID, &rv);
+      NS_ENSURE_SUCCESS(rv, rv);
+      mimeHeaders->Initialize(allheaders);
+      msgurl->SetMimeHeaders(mimeHeaders);
     }
   }
   return NS_OK;
@@ -645,11 +579,9 @@ nsMimeBaseEmitter::AddAllHeaders(const nsACString &allheaders)
 // identical to the normal XUL output.
 ////////////////////////////////////////////////////////////////////////////////
 
-nsresult
-nsMimeBaseEmitter::GenerateDateString(const char * dateString,
-                                      nsACString &formattedDate,
-                                      bool showDateForToday)
-{
+nsresult nsMimeBaseEmitter::GenerateDateString(const char *dateString,
+                                               nsACString &formattedDate,
+                                               bool showDateForToday) {
   nsresult rv = NS_OK;
 
   /**
@@ -661,7 +593,8 @@ nsMimeBaseEmitter::GenerateDateString(const char * dateString,
   bool displaySenderTimezone = false;
   bool displayOriginalDate = false;
 
-  nsCOMPtr<nsIPrefService> prefs = do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
+  nsCOMPtr<nsIPrefService> prefs =
+      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIPrefBranch> dateFormatPrefs;
@@ -677,9 +610,10 @@ nsMimeBaseEmitter::GenerateDateString(const char * dateString,
   PRExplodedTime explodedMsgTime;
 
   // Bogus date string may leave some fields uninitialized, so take precaution.
-  memset(&explodedMsgTime, 0, sizeof (PRExplodedTime));
+  memset(&explodedMsgTime, 0, sizeof(PRExplodedTime));
 
-  if (PR_ParseTimeStringToExplodedTime(dateString, false, &explodedMsgTime) != PR_SUCCESS)
+  if (PR_ParseTimeStringToExplodedTime(dateString, false, &explodedMsgTime) !=
+      PR_SUCCESS)
     return NS_ERROR_FAILURE;
 
   /**
@@ -695,7 +629,8 @@ nsMimeBaseEmitter::GenerateDateString(const char * dateString,
   if (displaySenderTimezone)
     explodedCompTime = explodedMsgTime;
   else
-    PR_ExplodeTime(PR_ImplodeTime(&explodedMsgTime), PR_LocalTimeParameters, &explodedCompTime);
+    PR_ExplodeTime(PR_ImplodeTime(&explodedMsgTime), PR_LocalTimeParameters,
+                   &explodedCompTime);
 
   PRExplodedTime explodedCurrentTime;
   PR_ExplodeTime(PR_Now(), PR_LocalTimeParameters, &explodedCurrentTime);
@@ -706,31 +641,27 @@ nsMimeBaseEmitter::GenerateDateString(const char * dateString,
   if (!showDateForToday &&
       explodedCurrentTime.tm_year == explodedCompTime.tm_year &&
       explodedCurrentTime.tm_month == explodedCompTime.tm_month &&
-      explodedCurrentTime.tm_mday == explodedCompTime.tm_mday)
-  {
+      explodedCurrentTime.tm_mday == explodedCompTime.tm_mday) {
     // same day...
     dateFormat = mozilla::kDateFormatNone;
   }
 
   nsAutoString formattedDateString;
 
-  rv = mozilla::DateTimeFormat::FormatPRExplodedTime(dateFormat,
-                                                     mozilla::kTimeFormatNoSeconds,
-                                                     &explodedCompTime,
-                                                     formattedDateString);
+  rv = mozilla::DateTimeFormat::FormatPRExplodedTime(
+      dateFormat, mozilla::kTimeFormatNoSeconds, &explodedCompTime,
+      formattedDateString);
 
-  if (NS_SUCCEEDED(rv))
-  {
-    if (displaySenderTimezone)
-    {
+  if (NS_SUCCEEDED(rv)) {
+    if (displaySenderTimezone) {
       // offset of local time from UTC in minutes
       int32_t senderoffset = (explodedMsgTime.tm_params.tp_gmt_offset +
-                              explodedMsgTime.tm_params.tp_dst_offset) / 60;
+                              explodedMsgTime.tm_params.tp_dst_offset) /
+                             60;
       // append offset to date string
       nsString tzstring;
-      nsTextFormatter::ssprintf(tzstring, u" %+05d",
-                                (senderoffset / 60 * 100) +
-                                (senderoffset % 60));
+      nsTextFormatter::ssprintf(
+          tzstring, u" %+05d", (senderoffset / 60 * 100) + (senderoffset % 60));
       formattedDateString.Append(tzstring);
     }
 
@@ -740,9 +671,7 @@ nsMimeBaseEmitter::GenerateDateString(const char * dateString,
   return rv;
 }
 
-char*
-nsMimeBaseEmitter::GetLocalizedDateString(const char * dateString)
-{
+char *nsMimeBaseEmitter::GetLocalizedDateString(const char *dateString) {
   char *i18nValue = nullptr;
 
   bool displayOriginalDate = false;
@@ -752,67 +681,58 @@ nsMimeBaseEmitter::GetLocalizedDateString(const char * dateString)
     prefBranch->GetBoolPref("mailnews.display.original_date",
                             &displayOriginalDate);
 
-  if (!displayOriginalDate)
-  {
+  if (!displayOriginalDate) {
     nsAutoCString convertedDateString;
     nsresult rv = GenerateDateString(dateString, convertedDateString, true);
     if (NS_SUCCEEDED(rv))
       i18nValue = strdup(convertedDateString.get());
     else
       i18nValue = strdup(dateString);
-  }
-  else
+  } else
     i18nValue = strdup(dateString);
 
   return i18nValue;
 }
 
-nsresult
-nsMimeBaseEmitter::WriteHeaderFieldHTML(const char *field, const char *value)
-{
+nsresult nsMimeBaseEmitter::WriteHeaderFieldHTML(const char *field,
+                                                 const char *value) {
   nsCString newValue;
   char *i18nValue = nullptr;
 
-  if ( (!field) || (!value) )
-    return NS_OK;
+  if ((!field) || (!value)) return NS_OK;
 
   //
   // This is a check to see what the pref is for header display. If
   // We should only output stuff that corresponds with that setting.
   //
-  if (!EmitThisHeaderForPrefSetting(mHeaderDisplayType, field))
-    return NS_OK;
+  if (!EmitThisHeaderForPrefSetting(mHeaderDisplayType, field)) return NS_OK;
 
   //
   // If we encounter the 'Date' header we try to convert it's value
   // into localized format.
   //
-  if ( strcmp(field, "Date") == 0 )
+  if (strcmp(field, "Date") == 0)
     i18nValue = GetLocalizedDateString(value);
   else
     i18nValue = strdup(value);
 
-  if ( (mUnicodeConverter) && (mFormat != nsMimeOutput::nsMimeMessageSaveAs) )
-  {
+  if ((mUnicodeConverter) && (mFormat != nsMimeOutput::nsMimeMessageSaveAs)) {
     nsCString tValue;
 
     // we're going to need a converter to convert
     nsresult rv = mUnicodeConverter->DecodeMimeHeaderToUTF8(
-      nsDependentCString(i18nValue), nullptr, false, true, tValue);
+        nsDependentCString(i18nValue), nullptr, false, true, tValue);
     if (NS_SUCCEEDED(rv) && !tValue.IsEmpty())
       nsAppendEscapedHTML(tValue, newValue);
     else
       nsAppendEscapedHTML(nsDependentCString(i18nValue), newValue);
-  }
-  else
-  {
+  } else {
     nsAppendEscapedHTML(nsDependentCString(i18nValue), newValue);
   }
 
   free(i18nValue);
 
-  if (newValue.IsEmpty())
-    return NS_OK;
+  if (newValue.IsEmpty()) return NS_OK;
 
   mHTMLHeaders.AppendLiteral("<tr>");
   mHTMLHeaders.AppendLiteral("<td>");
@@ -820,7 +740,8 @@ nsMimeBaseEmitter::WriteHeaderFieldHTML(const char *field, const char *value)
   if (mFormat == nsMimeOutput::nsMimeMessageSaveAs)
     mHTMLHeaders.AppendLiteral("<b>");
   else
-    mHTMLHeaders.AppendLiteral("<div class=\"headerdisplayname\" style=\"display:inline;\">");
+    mHTMLHeaders.AppendLiteral(
+        "<div class=\"headerdisplayname\" style=\"display:inline;\">");
 
   // Here is where we are going to try to L10N the tagName so we will always
   // get a field name next to an emitted header value. Note: Default will always
@@ -831,10 +752,9 @@ nsMimeBaseEmitter::WriteHeaderFieldHTML(const char *field, const char *value)
   ToUpperCase(newTagName);
 
   char *l10nTagName = LocalizeHeaderName(newTagName.get(), field);
-  if ( (!l10nTagName) || (!*l10nTagName) )
+  if ((!l10nTagName) || (!*l10nTagName))
     mHTMLHeaders.Append(field);
-  else
-  {
+  else {
     mHTMLHeaders.Append(l10nTagName);
     PR_FREEIF(l10nTagName);
   }
@@ -855,15 +775,12 @@ nsMimeBaseEmitter::WriteHeaderFieldHTML(const char *field, const char *value)
   return NS_OK;
 }
 
-nsresult
-nsMimeBaseEmitter::WriteHeaderFieldHTMLPrefix(const nsACString &name)
-{
-  if (
-      ( (mFormat == nsMimeOutput::nsMimeMessageSaveAs) && (mFirstHeaders) ) ||
-      ( (mFormat == nsMimeOutput::nsMimeMessagePrintOutput) && (mFirstHeaders) )
-     )
-     /* DO NOTHING */ ;   // rhp: Do nothing...leaving the conditional like this so its
-                          //      easier to see the logic of what is going on.
+nsresult nsMimeBaseEmitter::WriteHeaderFieldHTMLPrefix(const nsACString &name) {
+  if (((mFormat == nsMimeOutput::nsMimeMessageSaveAs) && (mFirstHeaders)) ||
+      ((mFormat == nsMimeOutput::nsMimeMessagePrintOutput) && (mFirstHeaders)))
+    /* DO NOTHING */;  // rhp: Do nothing...leaving the conditional like this so
+                       // its
+                       //      easier to see the logic of what is going on.
   else {
     mHTMLHeaders.AppendLiteral("<br><fieldset class=\"mimeAttachmentHeader\">");
     if (!name.IsEmpty()) {
@@ -878,16 +795,13 @@ nsMimeBaseEmitter::WriteHeaderFieldHTMLPrefix(const nsACString &name)
   return NS_OK;
 }
 
-nsresult
-nsMimeBaseEmitter::WriteHeaderFieldHTMLPostfix()
-{
+nsresult nsMimeBaseEmitter::WriteHeaderFieldHTMLPostfix() {
   mHTMLHeaders.AppendLiteral("<br>");
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMimeBaseEmitter::WriteHTMLHeaders(const nsACString &name)
-{
+nsMimeBaseEmitter::WriteHTMLHeaders(const nsACString &name) {
   WriteHeaderFieldHTMLPrefix(name);
 
   // Start with the subject, from date info!
@@ -912,49 +826,44 @@ nsMimeBaseEmitter::WriteHTMLHeaders(const nsACString &name)
   return NS_OK;
 }
 
-nsresult
-nsMimeBaseEmitter::DumpSubjectFromDate()
-{
-  mHTMLHeaders.AppendLiteral("<table border=0 cellspacing=0 cellpadding=0 width=\"100%\" class=\"header-part1\">");
+nsresult nsMimeBaseEmitter::DumpSubjectFromDate() {
+  mHTMLHeaders.AppendLiteral(
+      "<table border=0 cellspacing=0 cellpadding=0 width=\"100%\" "
+      "class=\"header-part1\">");
 
-    // This is the envelope information
-    OutputGenericHeader(HEADER_SUBJECT);
-    OutputGenericHeader(HEADER_FROM);
-    OutputGenericHeader(HEADER_DATE);
+  // This is the envelope information
+  OutputGenericHeader(HEADER_SUBJECT);
+  OutputGenericHeader(HEADER_FROM);
+  OutputGenericHeader(HEADER_DATE);
 
-    // If we are Quoting a message, then we should dump the To: also
-    if ( ( mFormat == nsMimeOutput::nsMimeMessageQuoting ) ||
-         ( mFormat == nsMimeOutput::nsMimeMessageBodyQuoting ) )
-      OutputGenericHeader(HEADER_TO);
+  // If we are Quoting a message, then we should dump the To: also
+  if ((mFormat == nsMimeOutput::nsMimeMessageQuoting) ||
+      (mFormat == nsMimeOutput::nsMimeMessageBodyQuoting))
+    OutputGenericHeader(HEADER_TO);
 
   mHTMLHeaders.AppendLiteral("</table>");
 
   return NS_OK;
 }
 
-nsresult
-nsMimeBaseEmitter::DumpToCC()
-{
-  const char * toField = GetHeaderValue(HEADER_TO);
-  const char * ccField = GetHeaderValue(HEADER_CC);
-  const char * bccField = GetHeaderValue(HEADER_BCC);
-  const char * newsgroupField = GetHeaderValue(HEADER_NEWSGROUPS);
+nsresult nsMimeBaseEmitter::DumpToCC() {
+  const char *toField = GetHeaderValue(HEADER_TO);
+  const char *ccField = GetHeaderValue(HEADER_CC);
+  const char *bccField = GetHeaderValue(HEADER_BCC);
+  const char *newsgroupField = GetHeaderValue(HEADER_NEWSGROUPS);
 
-  // only dump these fields if we have at least one of them! When displaying news
-  // messages that didn't have a To or Cc field, we'd always get an empty box
-  // which looked weird.
-  if (toField || ccField || bccField || newsgroupField)
-  {
-    mHTMLHeaders.AppendLiteral("<table border=0 cellspacing=0 cellpadding=0 width=\"100%\" class=\"header-part2\">");
+  // only dump these fields if we have at least one of them! When displaying
+  // news messages that didn't have a To or Cc field, we'd always get an empty
+  // box which looked weird.
+  if (toField || ccField || bccField || newsgroupField) {
+    mHTMLHeaders.AppendLiteral(
+        "<table border=0 cellspacing=0 cellpadding=0 width=\"100%\" "
+        "class=\"header-part2\">");
 
-    if (toField)
-      WriteHeaderFieldHTML(HEADER_TO, toField);
-    if (ccField)
-      WriteHeaderFieldHTML(HEADER_CC, ccField);
-    if (bccField)
-      WriteHeaderFieldHTML(HEADER_BCC, bccField);
-    if (newsgroupField)
-      WriteHeaderFieldHTML(HEADER_NEWSGROUPS, newsgroupField);
+    if (toField) WriteHeaderFieldHTML(HEADER_TO, toField);
+    if (ccField) WriteHeaderFieldHTML(HEADER_CC, ccField);
+    if (bccField) WriteHeaderFieldHTML(HEADER_BCC, bccField);
+    if (newsgroupField) WriteHeaderFieldHTML(HEADER_NEWSGROUPS, newsgroupField);
 
     mHTMLHeaders.AppendLiteral("</table>");
   }
@@ -962,25 +871,25 @@ nsMimeBaseEmitter::DumpToCC()
   return NS_OK;
 }
 
-nsresult
-nsMimeBaseEmitter::DumpRestOfHeaders()
-{
-  nsTArray<headerInfoType*> *array = mDocHeader? mHeaderArray : mEmbeddedHeaderArray;
+nsresult nsMimeBaseEmitter::DumpRestOfHeaders() {
+  nsTArray<headerInfoType *> *array =
+      mDocHeader ? mHeaderArray : mEmbeddedHeaderArray;
 
-  mHTMLHeaders.AppendLiteral("<table border=0 cellspacing=0 cellpadding=0 width=\"100%\" class=\"header-part3\">");
+  mHTMLHeaders.AppendLiteral(
+      "<table border=0 cellspacing=0 cellpadding=0 width=\"100%\" "
+      "class=\"header-part3\">");
 
-  for (size_t i = 0; i < array->Length(); i++)
-  {
+  for (size_t i = 0; i < array->Length(); i++) {
     headerInfoType *headerInfo = array->ElementAt(i);
-    if ( (!headerInfo) || (!headerInfo->name) || (!(*headerInfo->name)) ||
-      (!headerInfo->value) || (!(*headerInfo->value)))
+    if ((!headerInfo) || (!headerInfo->name) || (!(*headerInfo->name)) ||
+        (!headerInfo->value) || (!(*headerInfo->value)))
       continue;
 
-    if ( (!PL_strcasecmp(HEADER_SUBJECT, headerInfo->name)) ||
-      (!PL_strcasecmp(HEADER_DATE, headerInfo->name)) ||
-      (!PL_strcasecmp(HEADER_FROM, headerInfo->name)) ||
-      (!PL_strcasecmp(HEADER_TO, headerInfo->name)) ||
-      (!PL_strcasecmp(HEADER_CC, headerInfo->name)) )
+    if ((!PL_strcasecmp(HEADER_SUBJECT, headerInfo->name)) ||
+        (!PL_strcasecmp(HEADER_DATE, headerInfo->name)) ||
+        (!PL_strcasecmp(HEADER_FROM, headerInfo->name)) ||
+        (!PL_strcasecmp(HEADER_TO, headerInfo->name)) ||
+        (!PL_strcasecmp(HEADER_CC, headerInfo->name)))
       continue;
 
     WriteHeaderFieldHTML(headerInfo->name, headerInfo->value);
@@ -990,13 +899,10 @@ nsMimeBaseEmitter::DumpRestOfHeaders()
   return NS_OK;
 }
 
-nsresult
-nsMimeBaseEmitter::OutputGenericHeader(const char *aHeaderVal)
-{
+nsresult nsMimeBaseEmitter::OutputGenericHeader(const char *aHeaderVal) {
   const char *val = GetHeaderValue(aHeaderVal);
 
-  if (val)
-    return WriteHeaderFieldHTML(aHeaderVal, val);
+  if (val) return WriteHeaderFieldHTML(aHeaderVal, val);
 
   return NS_ERROR_FAILURE;
 }
@@ -1014,25 +920,24 @@ nsMimeBaseEmitter::OutputGenericHeader(const char *aHeaderVal)
 // needs to be done when the entire message is read.
 //
 NS_IMETHODIMP
-nsMimeBaseEmitter::Complete()
-{
+nsMimeBaseEmitter::Complete() {
   // If we are here and still have data to write, we should try
   // to flush it...if we try and fail, we should probably return
   // an error!
-  uint32_t      written;
+  uint32_t written;
 
   nsresult rv = NS_OK;
-  while ( NS_SUCCEEDED(rv) && (mBufferMgr) && (mBufferMgr->GetSize() > 0))
+  while (NS_SUCCEEDED(rv) && (mBufferMgr) && (mBufferMgr->GetSize() > 0))
     rv = Write(EmptyCString(), &written);
 
-  if (mOutListener)
-  {
+  if (mOutListener) {
     uint64_t bytesInStream = 0;
     mozilla::DebugOnly<nsresult> rv2 = mInputStream->Available(&bytesInStream);
     NS_ASSERTION(NS_SUCCEEDED(rv2), "Available failed");
-    if (bytesInStream)
-    {
-      mOutListener->OnDataAvailable(mChannel, mInputStream, 0, std::min(bytesInStream, uint64_t(PR_UINT32_MAX)));
+    if (bytesInStream) {
+      mOutListener->OnDataAvailable(
+          mChannel, mInputStream, 0,
+          std::min(bytesInStream, uint64_t(PR_UINT32_MAX)));
     }
   }
 
@@ -1045,26 +950,19 @@ nsMimeBaseEmitter::Complete()
 // memory cleanup
 //
 NS_IMETHODIMP
-nsMimeBaseEmitter::EndHeader(const nsACString &name)
-{
-  return NS_OK;
-}
+nsMimeBaseEmitter::EndHeader(const nsACString &name) { return NS_OK; }
 
 // body handling routines
 NS_IMETHODIMP
-nsMimeBaseEmitter::StartBody(bool bodyOnly, const char *msgID, const char *outCharset)
-{
+nsMimeBaseEmitter::StartBody(bool bodyOnly, const char *msgID,
+                             const char *outCharset) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMimeBaseEmitter::WriteBody(const nsACString &buf, uint32_t *amountWritten)
-{
+nsMimeBaseEmitter::WriteBody(const nsACString &buf, uint32_t *amountWritten) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMimeBaseEmitter::EndBody()
-{
-  return NS_OK;
-}
+nsMimeBaseEmitter::EndBody() { return NS_OK; }

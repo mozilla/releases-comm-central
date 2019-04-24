@@ -13,24 +13,27 @@
 // nsCMSManager - implementation of nsICMSManager
 // ===============================================
 
-#define NS_CMSSECUREMESSAGE_CID \
-  { 0x5fb907e0, 0x1dd2, 0x11b2, { 0xa7, 0xc0, 0xf1, 0x4c, 0x41, 0x6a, 0x62, 0xa1 } }
+#define NS_CMSSECUREMESSAGE_CID                      \
+  {                                                  \
+    0x5fb907e0, 0x1dd2, 0x11b2, {                    \
+      0xa7, 0xc0, 0xf1, 0x4c, 0x41, 0x6a, 0x62, 0xa1 \
+    }                                                \
+  }
 
-class nsCMSSecureMessage
-: public nsICMSSecureMessage
-{
-public:
+class nsCMSSecureMessage : public nsICMSSecureMessage {
+ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSICMSSECUREMESSAGE
 
   nsCMSSecureMessage();
   nsresult Init();
 
-private:
+ private:
   virtual ~nsCMSSecureMessage();
   nsresult encode(const unsigned char *data, int32_t dataLen, char **_retval);
-  nsresult decode(const char *data, unsigned char **result, int32_t * _retval);
-  nsresult CheckUsageOk(nsIX509Cert* cert, SECCertificateUsage usage, bool* _retval);
+  nsresult decode(const char *data, unsigned char **result, int32_t *_retval);
+  nsresult CheckUsageOk(nsIX509Cert *cert, SECCertificateUsage usage,
+                        bool *_retval);
 };
 
-#endif // nsCMSSecureMessage_h
+#endif  // nsCMSSecureMessage_h

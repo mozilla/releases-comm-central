@@ -8,44 +8,26 @@
  * These calls are necessary to expose the object class hierarchy
  * to externally developed content type handlers.
  */
-MimeInlineTextClass *
-MIME_GetmimeInlineTextClass(void)
-{
+MimeInlineTextClass* MIME_GetmimeInlineTextClass(void) {
   return &mimeInlineTextClass;
 }
 
-MimeLeafClass *
-MIME_GetmimeLeafClass(void)
-{
-  return &mimeLeafClass;
-}
+MimeLeafClass* MIME_GetmimeLeafClass(void) { return &mimeLeafClass; }
 
-MimeObjectClass *
-MIME_GetmimeObjectClass(void)
-{
-  return &mimeObjectClass;
-}
+MimeObjectClass* MIME_GetmimeObjectClass(void) { return &mimeObjectClass; }
 
-MimeContainerClass *
-MIME_GetmimeContainerClass(void)
-{
+MimeContainerClass* MIME_GetmimeContainerClass(void) {
   return &mimeContainerClass;
 }
 
-MimeMultipartClass *
-MIME_GetmimeMultipartClass(void)
-{
+MimeMultipartClass* MIME_GetmimeMultipartClass(void) {
   return &mimeMultipartClass;
 }
 
-MimeMultipartSignedClass *
-MIME_GetmimeMultipartSignedClass(void)
-{
+MimeMultipartSignedClass* MIME_GetmimeMultipartSignedClass(void) {
   return &mimeMultipartSignedClass;
 }
 
-MimeEncryptedClass *
-MIME_GetmimeEncryptedClass(void)
-{
+MimeEncryptedClass* MIME_GetmimeEncryptedClass(void) {
   return &mimeEncryptedClass;
 }

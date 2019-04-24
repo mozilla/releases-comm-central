@@ -3,9 +3,10 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * This Original Code has been modified by IBM Corporation. Modifications made by IBM
- * described herein are Copyright (c) International Business Machines Corporation, 2000.
- * Modifications to Mozilla code or documentation identified per MPL Section 3.3
+ * This Original Code has been modified by IBM Corporation. Modifications made
+ * by IBM described herein are Copyright (c) International Business Machines
+ * Corporation, 2000. Modifications to Mozilla code or documentation identified
+ * per MPL Section 3.3
  *
  * Date             Modified by     Description of modification
  * 04/20/2000       IBM Corp.      OS/2 VisualAge build.
@@ -115,41 +116,34 @@
 // External Defines...
 //
 
-extern nsresult
-nsMsgCreateTempFile(const char *tFileName, nsIFile **tFile);
+extern nsresult nsMsgCreateTempFile(const char *tFileName, nsIFile **tFile);
 
 #define MIME_SUPERCLASS mimeMultipartClass
 MimeDefClass(MimeMultipartRelated, MimeMultipartRelatedClass,
-       mimeMultipartRelatedClass, &MIME_SUPERCLASS);
+             mimeMultipartRelatedClass, &MIME_SUPERCLASS);
 
-
-class MimeHashValue
-{
-public:
+class MimeHashValue {
+ public:
   MimeHashValue(MimeObject *obj, char *url) {
     m_obj = obj;
     m_url = strdup(url);
   }
   virtual ~MimeHashValue() {
-    if (m_url)
-      PR_Free((void *)m_url);
+    if (m_url) PR_Free((void *)m_url);
   }
 
-  MimeObject  *m_obj;
-  char        *m_url;
+  MimeObject *m_obj;
+  char *m_url;
 };
 
-static int
-MimeMultipartRelated_initialize(MimeObject* obj)
-{
-  MimeMultipartRelated* relobj = (MimeMultipartRelated*) obj;
-  relobj->base_url = MimeHeaders_get(obj->headers, HEADER_CONTENT_BASE,
-                     false, false);
+static int MimeMultipartRelated_initialize(MimeObject *obj) {
+  MimeMultipartRelated *relobj = (MimeMultipartRelated *)obj;
+  relobj->base_url =
+      MimeHeaders_get(obj->headers, HEADER_CONTENT_BASE, false, false);
   /* rhp: need this for supporting Content-Location */
-  if (!relobj->base_url)
-  {
-    relobj->base_url = MimeHeaders_get(obj->headers, HEADER_CONTENT_LOCATION,
-      false, false);
+  if (!relobj->base_url) {
+    relobj->base_url =
+        MimeHeaders_get(obj->headers, HEADER_CONTENT_LOCATION, false, false);
   }
   /* rhp: need this for supporting Content-Location */
 
@@ -161,34 +155,29 @@ MimeMultipartRelated_initialize(MimeObject* obj)
      generates to adjust tags to point into the other parts.  This probably
      works out to something reasonable in most cases. */
 
-  relobj->hash = PL_NewHashTable(20, PL_HashString, PL_CompareStrings, PL_CompareValues,
-                                (PLHashAllocOps *)NULL, NULL);
+  relobj->hash =
+      PL_NewHashTable(20, PL_HashString, PL_CompareStrings, PL_CompareValues,
+                      (PLHashAllocOps *)NULL, NULL);
 
   if (!relobj->hash) return MIME_OUT_OF_MEMORY;
 
   relobj->input_file_stream = nullptr;
   relobj->output_file_stream = nullptr;
 
-  return ((MimeObjectClass*)&MIME_SUPERCLASS)->initialize(obj);
+  return ((MimeObjectClass *)&MIME_SUPERCLASS)->initialize(obj);
 }
 
-static int
-mime_multipart_related_nukehash(PLHashEntry *table,
-                                       int indx, void *arg)
-{
-  if (table->key)
-    PR_Free((char*) table->key);
+static int mime_multipart_related_nukehash(PLHashEntry *table, int indx,
+                                           void *arg) {
+  if (table->key) PR_Free((char *)table->key);
 
-  if (table->value)
-    delete (MimeHashValue *)table->value;
+  if (table->value) delete (MimeHashValue *)table->value;
 
-  return HT_ENUMERATE_NEXT;   /* XP_Maphash will continue traversing the hash */
+  return HT_ENUMERATE_NEXT; /* XP_Maphash will continue traversing the hash */
 }
 
-static void
-MimeMultipartRelated_finalize (MimeObject *obj)
-{
-  MimeMultipartRelated* relobj = (MimeMultipartRelated*) obj;
+static void MimeMultipartRelated_finalize(MimeObject *obj) {
+  MimeMultipartRelated *relobj = (MimeMultipartRelated *)obj;
   PR_FREEIF(relobj->base_url);
   PR_FREEIF(relobj->curtag);
   if (relobj->buffered_hdrs) {
@@ -200,25 +189,23 @@ MimeMultipartRelated_finalize (MimeObject *obj)
   relobj->head_buffer_fp = 0;
   relobj->head_buffer_size = 0;
   if (relobj->hash) {
-    PL_HashTableEnumerateEntries(relobj->hash, mime_multipart_related_nukehash, NULL);
+    PL_HashTableEnumerateEntries(relobj->hash, mime_multipart_related_nukehash,
+                                 NULL);
     PL_HashTableDestroy(relobj->hash);
     relobj->hash = NULL;
   }
 
-  if (relobj->input_file_stream)
-  {
+  if (relobj->input_file_stream) {
     relobj->input_file_stream->Close();
     relobj->input_file_stream = nullptr;
   }
 
-  if (relobj->output_file_stream)
-  {
+  if (relobj->output_file_stream) {
     relobj->output_file_stream->Close();
     relobj->output_file_stream = nullptr;
   }
 
-  if (relobj->file_buffer)
-  {
+  if (relobj->file_buffer) {
     relobj->file_buffer->Remove(false);
     relobj->file_buffer = nullptr;
   }
@@ -232,8 +219,8 @@ MimeMultipartRelated_finalize (MimeObject *obj)
     for (int i = 0; i < cont->nchildren; i++) {
       if (cont->children[i] == relobj->headobj) {
         // Shift remaining children down.
-        for (int j = i+1; j < cont->nchildren; j++) {
-          cont->children[j-1] = cont->children[j];
+        for (int j = i + 1; j < cont->nchildren; j++) {
+          cont->children[j - 1] = cont->children[j];
         }
         cont->children[--cont->nchildren] = nullptr;
         break;
@@ -244,40 +231,36 @@ MimeMultipartRelated_finalize (MimeObject *obj)
     relobj->headobj = nullptr;
   }
 
-  ((MimeObjectClass*)&MIME_SUPERCLASS)->finalize(obj);
+  ((MimeObjectClass *)&MIME_SUPERCLASS)->finalize(obj);
 }
 
-#define ISHEX(c) ( ((c) >= '0' && (c) <= '9') || ((c) >= 'a' && (c) <= 'f') || ((c) >= 'A' && (c) <= 'F') )
+#define ISHEX(c)                                               \
+  (((c) >= '0' && (c) <= '9') || ((c) >= 'a' && (c) <= 'f') || \
+   ((c) >= 'A' && (c) <= 'F'))
 #define NONHEX(c) (!ISHEX(c))
 
-extern "C" char *
-escape_unescaped_percents(const char *incomingURL)
-{
+extern "C" char *escape_unescaped_percents(const char *incomingURL) {
   const char *inC;
   char *outC;
-  char *result = (char *) PR_Malloc(strlen(incomingURL)*3+1);
+  char *result = (char *)PR_Malloc(strlen(incomingURL) * 3 + 1);
 
-  if (result)
-  {
-    for(inC = incomingURL, outC = result; *inC != '\0'; inC++)
-    {
-      if (*inC == '%')
-      {
+  if (result) {
+    for (inC = incomingURL, outC = result; *inC != '\0'; inC++) {
+      if (*inC == '%') {
         /* Check if either of the next two characters are non-hex. */
-        if ( !*(inC+1) || NONHEX(*(inC+1)) || !*(inC+2) || NONHEX(*(inC+2)) )
-        {
+        if (!*(inC + 1) || NONHEX(*(inC + 1)) || !*(inC + 2) ||
+            NONHEX(*(inC + 2))) {
           /* Hex characters don't follow, escape the
              percent char */
-          *outC++ = '%'; *outC++ = '2'; *outC++ = '5';
-        }
-        else
-        {
+          *outC++ = '%';
+          *outC++ = '2';
+          *outC++ = '5';
+        } else {
           /* Hex characters follow, so assume the percent
              is escaping something else */
           *outC++ = *inC;
         }
-      }
-      else
+      } else
         *outC++ = *inC;
     }
     *outC = '\0';
@@ -288,35 +271,31 @@ escape_unescaped_percents(const char *incomingURL)
 
 /* This routine is only necessary because the mailbox URL fed to us
    by the winfe can contain spaces and '>'s in it. It's a hack. */
-static char *
-escape_for_mrel_subst(char *inURL)
-{
+static char *escape_for_mrel_subst(char *inURL) {
   char *output, *inC, *outC, *temp;
 
   int size = strlen(inURL) + 1;
 
-  for(inC = inURL; *inC; inC++)
+  for (inC = inURL; *inC; inC++)
     if ((*inC == ' ') || (*inC == '>'))
       size += 2; /* space -> '%20', '>' -> '%3E', etc. */
 
   output = (char *)PR_MALLOC(size);
-  if (output)
-  {
+  if (output) {
     /* Walk through the source string, copying all chars
       except for spaces, which get escaped. */
     inC = inURL;
     outC = output;
-    while(*inC)
-    {
-      if (*inC == ' ')
-      {
-        *outC++ = '%'; *outC++ = '2'; *outC++ = '0';
-      }
-      else if (*inC == '>')
-      {
-        *outC++ = '%'; *outC++ = '3'; *outC++ = 'E';
-      }
-      else
+    while (*inC) {
+      if (*inC == ' ') {
+        *outC++ = '%';
+        *outC++ = '2';
+        *outC++ = '0';
+      } else if (*inC == '>') {
+        *outC++ = '%';
+        *outC++ = '3';
+        *outC++ = 'E';
+      } else
         *outC++ = *inC;
 
       inC++;
@@ -324,8 +303,7 @@ escape_for_mrel_subst(char *inURL)
     *outC = '\0';
 
     temp = escape_unescaped_percents(output);
-    if (temp)
-    {
+    if (temp) {
       PR_FREEIF(output);
       output = temp;
     }
@@ -333,50 +311,38 @@ escape_for_mrel_subst(char *inURL)
   return output;
 }
 
-static bool
-MimeStartParamExists(MimeObject *obj, MimeObject* child)
-{
-  char *ct = MimeHeaders_get (obj->headers, HEADER_CONTENT_TYPE, false, false);
-  char *st = (ct
-              ? MimeHeaders_get_parameter(ct, HEADER_PARM_START, NULL, NULL)
-              : 0);
+static bool MimeStartParamExists(MimeObject *obj, MimeObject *child) {
+  char *ct = MimeHeaders_get(obj->headers, HEADER_CONTENT_TYPE, false, false);
+  char *st =
+      (ct ? MimeHeaders_get_parameter(ct, HEADER_PARM_START, NULL, NULL) : 0);
 
   PR_FREEIF(ct);
-  if (!st)
-    return false;
+  if (!st) return false;
 
   PR_FREEIF(st);
   return true;
 }
 
-static bool
-MimeThisIsStartPart(MimeObject *obj, MimeObject* child)
-{
+static bool MimeThisIsStartPart(MimeObject *obj, MimeObject *child) {
   bool rval = false;
   char *ct, *st, *cst;
 
-  ct = MimeHeaders_get (obj->headers, HEADER_CONTENT_TYPE, false, false);
-  st = (ct
-        ? MimeHeaders_get_parameter(ct, HEADER_PARM_START, NULL, NULL)
-        : 0);
+  ct = MimeHeaders_get(obj->headers, HEADER_CONTENT_TYPE, false, false);
+  st = (ct ? MimeHeaders_get_parameter(ct, HEADER_PARM_START, NULL, NULL) : 0);
 
   PR_FREEIF(ct);
-  if (!st)
-    return false;
+  if (!st) return false;
 
   cst = MimeHeaders_get(child->headers, HEADER_CONTENT_ID, false, false);
   if (!cst)
     rval = false;
-  else
-  {
+  else {
     char *tmp = cst;
-    if (*tmp == '<')
-    {
+    if (*tmp == '<') {
       int length;
       tmp++;
       length = strlen(tmp);
-      if (length > 0 && tmp[length - 1] == '>')
-      {
+      if (length > 0 && tmp[length - 1] == '>') {
         tmp[length - 1] = '\0';
       }
     }
@@ -390,36 +356,29 @@ MimeThisIsStartPart(MimeObject *obj, MimeObject* child)
 }
 /* rhp - gotta support the "start" parameter */
 
-char *
-MakeAbsoluteURL(char *base_url, char *relative_url)
-{
-  char            *retString = nullptr;
-  nsIURI          *base = nullptr;
+char *MakeAbsoluteURL(char *base_url, char *relative_url) {
+  char *retString = nullptr;
+  nsIURI *base = nullptr;
 
   // if either is NULL, just return the relative if safe...
-  if (!base_url || !relative_url)
-  {
-    if (!relative_url)
-      return nullptr;
+  if (!base_url || !relative_url) {
+    if (!relative_url) return nullptr;
 
     NS_MsgSACopy(&retString, relative_url);
     return retString;
   }
 
   nsresult err = nsMimeNewURI(&base, base_url, nullptr);
-  if (NS_FAILED(err))
-    return nullptr;
+  if (NS_FAILED(err)) return nullptr;
 
   nsAutoCString spec;
 
-  nsIURI    *url = nullptr;
+  nsIURI *url = nullptr;
   err = nsMimeNewURI(&url, relative_url, base);
-  if (NS_FAILED(err))
-    goto done;
+  if (NS_FAILED(err)) goto done;
 
   err = url->GetSpec(spec);
-  if (NS_FAILED(err))
-  {
+  if (NS_FAILED(err)) {
     retString = nullptr;
     goto done;
   }
@@ -431,29 +390,25 @@ done:
   return retString;
 }
 
-static bool
-MimeMultipartRelated_output_child_p(MimeObject *obj, MimeObject* child)
-{
-  MimeMultipartRelated *relobj = (MimeMultipartRelated *) obj;
+static bool MimeMultipartRelated_output_child_p(MimeObject *obj,
+                                                MimeObject *child) {
+  MimeMultipartRelated *relobj = (MimeMultipartRelated *)obj;
 
   /* rhp - Changed from "if (relobj->head_loaded)" alone to support the
            start parameter
    */
-  if (
-       (relobj->head_loaded) ||
-       (MimeStartParamExists(obj, child) && !MimeThisIsStartPart(obj, child))
-     )
-  {
+  if ((relobj->head_loaded) ||
+      (MimeStartParamExists(obj, child) && !MimeThisIsStartPart(obj, child))) {
     /* This is a child part.  Just remember the mapping between the URL
        it represents and the part-URL to get it back. */
 
-    char* location = MimeHeaders_get(child->headers, HEADER_CONTENT_LOCATION,
-                     false, false);
+    char *location =
+        MimeHeaders_get(child->headers, HEADER_CONTENT_LOCATION, false, false);
     if (!location) {
-      char* tmp = MimeHeaders_get(child->headers, HEADER_CONTENT_ID,
-                    false, false);
+      char *tmp =
+          MimeHeaders_get(child->headers, HEADER_CONTENT_ID, false, false);
       if (tmp) {
-        char* tmp2 = tmp;
+        char *tmp2 = tmp;
         if (*tmp2 == '<') {
           int length;
           tmp2++;
@@ -469,9 +424,10 @@ MimeMultipartRelated_output_child_p(MimeObject *obj, MimeObject* child)
 
     if (location) {
       char *absolute;
-      char *base_url = MimeHeaders_get(child->headers, HEADER_CONTENT_BASE,
-                       false, false);
-      absolute = MakeAbsoluteURL(base_url ? base_url : relobj->base_url, location);
+      char *base_url =
+          MimeHeaders_get(child->headers, HEADER_CONTENT_BASE, false, false);
+      absolute =
+          MakeAbsoluteURL(base_url ? base_url : relobj->base_url, location);
 
       PR_FREEIF(base_url);
       PR_Free(location);
@@ -480,43 +436,41 @@ MimeMultipartRelated_output_child_p(MimeObject *obj, MimeObject* child)
         nsAutoCString imappartnum;
         partnum.Adopt(mime_part_address(child));
         if (!partnum.IsEmpty()) {
-          if (obj->options->missing_parts)
-          {
-            char * imappart = mime_imap_part_address(child);
-            if (imappart)
-              imappartnum.Adopt(imappart);
+          if (obj->options->missing_parts) {
+            char *imappart = mime_imap_part_address(child);
+            if (imappart) imappartnum.Adopt(imappart);
           }
 
           /*
-            AppleDouble part need special care: we need to output only the data fork part of it.
-            The problem at this point is that we haven't yet decoded the children of the AppleDouble
-            part therefore we will have to hope the datafork is the second one!
+            AppleDouble part need special care: we need to output only the data
+            fork part of it. The problem at this point is that we haven't yet
+            decoded the children of the AppleDouble part therefore we will have
+            to hope the datafork is the second one!
           */
-          if (mime_typep(child, (MimeObjectClass *) &mimeMultipartAppleDoubleClass))
+          if (mime_typep(child,
+                         (MimeObjectClass *)&mimeMultipartAppleDoubleClass))
             partnum.AppendLiteral(".2");
 
-          char* part;
+          char *part;
           if (!imappartnum.IsEmpty())
-            part = mime_set_url_imap_part(obj->options->url, imappartnum.get(), partnum.get());
-          else
-          {
+            part = mime_set_url_imap_part(obj->options->url, imappartnum.get(),
+                                          partnum.get());
+          else {
             char *no_part_url = nullptr;
-            if (obj->options->part_to_load && obj->options->format_out == nsMimeOutput::nsMimeMessageBodyDisplay)
+            if (obj->options->part_to_load &&
+                obj->options->format_out ==
+                    nsMimeOutput::nsMimeMessageBodyDisplay)
               no_part_url = mime_get_base_url(obj->options->url);
-            if (no_part_url)
-            {
+            if (no_part_url) {
               part = mime_set_url_part(no_part_url, partnum.get(), false);
               PR_Free(no_part_url);
-            }
-            else
+            } else
               part = mime_set_url_part(obj->options->url, partnum.get(), false);
           }
-          if (part)
-          {
+          if (part) {
             char *name = MimeHeaders_get_name(child->headers, child->options);
             // let's stick the filename in the part so save as will work.
-            if (name)
-            {
+            if (name) {
               char *savePart = part;
               part = PR_smprintf("%s&filename=%s", savePart, name);
               PR_Free(savePart);
@@ -525,9 +479,10 @@ MimeMultipartRelated_output_child_p(MimeObject *obj, MimeObject* child)
             char *temp = part;
             /* If there's a space in the url, escape the url.
                (This happens primarily on Windows and Unix.) */
-            if (PL_strchr(part, ' ') || PL_strchr(part, '>') || PL_strchr(part, '%'))
+            if (PL_strchr(part, ' ') || PL_strchr(part, '>') ||
+                PL_strchr(part, '%'))
               temp = escape_for_mrel_subst(part);
-            MimeHashValue * value = new MimeHashValue(child, temp);
+            MimeHashValue *value = new MimeHashValue(child, temp);
             PL_HashTableAdd(relobj->hash, absolute, value);
 
             /* rhp - If this part ALSO has a Content-ID we need to put that into
@@ -535,61 +490,57 @@ MimeMultipartRelated_output_child_p(MimeObject *obj, MimeObject* child)
              */
             {
               char *tloc;
-              char *tmp = MimeHeaders_get(child->headers, HEADER_CONTENT_ID, false, false);
-              if (tmp)
-              {
-                char* tmp2 = tmp;
-                if (*tmp2 == '<')
-                {
+              char *tmp = MimeHeaders_get(child->headers, HEADER_CONTENT_ID,
+                                          false, false);
+              if (tmp) {
+                char *tmp2 = tmp;
+                if (*tmp2 == '<') {
                   int length;
                   tmp2++;
                   length = strlen(tmp2);
-                  if (length > 0 && tmp2[length - 1] == '>')
-                  {
+                  if (length > 0 && tmp2[length - 1] == '>') {
                     tmp2[length - 1] = '\0';
                   }
                 }
 
                 tloc = PR_smprintf("cid:%s", tmp2);
                 PR_Free(tmp);
-                if (tloc)
-                {
+                if (tloc) {
                   MimeHashValue *value;
-                  value = (MimeHashValue*)PL_HashTableLookup(relobj->hash, tloc);
+                  value =
+                      (MimeHashValue *)PL_HashTableLookup(relobj->hash, tloc);
 
-                  if (!value)
-                  {
+                  if (!value) {
                     value = new MimeHashValue(child, temp);
                     PL_HashTableAdd(relobj->hash, tloc, value);
-                  }
-                  else
+                  } else
                     PR_smprintf_free(tloc);
                 }
               }
             }
             /*  rhp - End of putting more stuff into the hash table */
 
-              /* it's possible that temp pointer is the same than the part pointer,
-                 therefore be careful to not freeing twice the same pointer */
-              if (temp && temp != part)
-                PR_Free(temp);
-              PR_Free(part);
-            }
+            /* it's possible that temp pointer is the same than the part
+               pointer, therefore be careful to not freeing twice the same
+               pointer */
+            if (temp && temp != part) PR_Free(temp);
+            PR_Free(part);
           }
         }
       }
+    }
   } else {
     /* Ah-hah!  We're the head object.  */
-    char* base_url;
+    char *base_url;
     relobj->head_loaded = true;
     relobj->headobj = child;
     relobj->buffered_hdrs = MimeHeaders_copy(child->headers);
-    base_url = MimeHeaders_get(child->headers, HEADER_CONTENT_BASE,
-                   false, false);
+    base_url =
+        MimeHeaders_get(child->headers, HEADER_CONTENT_BASE, false, false);
     /* rhp: need this for supporting Content-Location */
-    if (!base_url)
-    {
-      base_url = MimeHeaders_get(child->headers, HEADER_CONTENT_LOCATION, false, false);
+    if (!base_url) {
+      base_url = MimeHeaders_get(child->headers, HEADER_CONTENT_LOCATION, false,
+                                 false);
     }
     /* rhp: need this for supporting Content-Location */
 
@@ -603,43 +554,39 @@ MimeMultipartRelated_output_child_p(MimeObject *obj, MimeObject* child)
   }
   if (obj->options && !obj->options->write_html_p
 #ifdef MIME_DRAFTS
-    && !obj->options->decompose_file_p
+      && !obj->options->decompose_file_p
 #endif /* MIME_DRAFTS */
-    )
-    {
+  ) {
     return true;
-    }
+  }
 
-  return false;      /* Don't actually parse this child; we'll handle
-                 all that at eof time. */
+  return false; /* Don't actually parse this child; we'll handle
+            all that at eof time. */
 }
 
-static int
-MimeMultipartRelated_parse_child_line (MimeObject *obj,
-                     const char *line, int32_t length,
-                     bool first_line_p)
-{
-  MimeContainer *cont = (MimeContainer *) obj;
-  MimeMultipartRelated *relobj = (MimeMultipartRelated *) obj;
+static int MimeMultipartRelated_parse_child_line(MimeObject *obj,
+                                                 const char *line,
+                                                 int32_t length,
+                                                 bool first_line_p) {
+  MimeContainer *cont = (MimeContainer *)obj;
+  MimeMultipartRelated *relobj = (MimeMultipartRelated *)obj;
   MimeObject *kid;
 
   if (obj->options && !obj->options->write_html_p
 #ifdef MIME_DRAFTS
-    && !obj->options->decompose_file_p
+      && !obj->options->decompose_file_p
 #endif /* MIME_DRAFTS */
-    )
-    {
+  ) {
     /* Oh, just go do the normal thing... */
-    return ((MimeMultipartClass*)&MIME_SUPERCLASS)->
-      parse_child_line(obj, line, length, first_line_p);
-    }
+    return ((MimeMultipartClass *)&MIME_SUPERCLASS)
+        ->parse_child_line(obj, line, length, first_line_p);
+  }
 
   /* Throw it away if this isn't the head object.  (Someday, maybe we'll
      cache it instead.) */
   PR_ASSERT(cont->nchildren > 0);
-  if (cont->nchildren <= 0)
-    return -1;
-  kid = cont->children[cont->nchildren-1];
+  if (cont->nchildren <= 0) return -1;
+  kid = cont->children[cont->nchildren - 1];
   PR_ASSERT(kid);
   if (!kid) return -1;
   if (kid != relobj->headobj) return 0;
@@ -648,11 +595,11 @@ MimeMultipartRelated_parse_child_line (MimeObject *obj,
   /* If we don't yet have a buffer (either memory or file) try and make a
      memory buffer. */
   if (!relobj->head_buffer && !relobj->file_buffer) {
-    int target_size = 1024 * 50;       /* try for 50k */
+    int target_size = 1024 * 50; /* try for 50k */
     while (target_size > 0) {
-      relobj->head_buffer = (char *) PR_MALLOC(target_size);
-      if (relobj->head_buffer) break;  /* got it! */
-      target_size -= (1024 * 5);     /* decrease it and try again */
+      relobj->head_buffer = (char *)PR_MALLOC(target_size);
+      if (relobj->head_buffer) break; /* got it! */
+      target_size -= (1024 * 5);      /* decrease it and try again */
     }
 
     if (relobj->head_buffer) {
@@ -667,19 +614,19 @@ MimeMultipartRelated_parse_child_line (MimeObject *obj,
   nsresult rv;
   /* Ok, if at this point we still don't have either kind of buffer, try and
      make a file buffer. */
-  if (!relobj->head_buffer && !relobj->file_buffer)
-  {
-    nsCOMPtr <nsIFile> file;
+  if (!relobj->head_buffer && !relobj->file_buffer) {
+    nsCOMPtr<nsIFile> file;
     rv = nsMsgCreateTempFile("nsma", getter_AddRefs(file));
     NS_ENSURE_SUCCESS(rv, -1);
     relobj->file_buffer = file;
 
-    rv = MsgNewBufferedFileOutputStream(getter_AddRefs(relobj->output_file_stream), relobj->file_buffer, PR_WRONLY | PR_CREATE_FILE, 00600);
+    rv = MsgNewBufferedFileOutputStream(
+        getter_AddRefs(relobj->output_file_stream), relobj->file_buffer,
+        PR_WRONLY | PR_CREATE_FILE, 00600);
     NS_ENSURE_SUCCESS(rv, -1);
   }
 
   PR_ASSERT(relobj->head_buffer || relobj->output_file_stream);
-
 
   /* If this line will fit in the memory buffer, put it there.
    */
@@ -692,23 +639,23 @@ MimeMultipartRelated_parse_child_line (MimeObject *obj,
 
     /* If the file isn't open yet, open it, and dump the memory buffer
        to it. */
-    if (!relobj->output_file_stream)
-    {
-      if (!relobj->file_buffer)
-      {
-        nsCOMPtr <nsIFile> file;
+    if (!relobj->output_file_stream) {
+      if (!relobj->file_buffer) {
+        nsCOMPtr<nsIFile> file;
         rv = nsMsgCreateTempFile("nsma", getter_AddRefs(file));
         NS_ENSURE_SUCCESS(rv, -1);
         relobj->file_buffer = file;
       }
 
-      nsresult rv = MsgNewBufferedFileOutputStream(getter_AddRefs(relobj->output_file_stream), relobj->file_buffer, PR_WRONLY | PR_CREATE_FILE, 00600);
+      nsresult rv = MsgNewBufferedFileOutputStream(
+          getter_AddRefs(relobj->output_file_stream), relobj->file_buffer,
+          PR_WRONLY | PR_CREATE_FILE, 00600);
       NS_ENSURE_SUCCESS(rv, -1);
 
-      if (relobj->head_buffer && relobj->head_buffer_fp)
-      {
+      if (relobj->head_buffer && relobj->head_buffer_fp) {
         uint32_t bytesWritten;
-        rv = relobj->output_file_stream->Write(relobj->head_buffer, relobj->head_buffer_fp, &bytesWritten);
+        rv = relobj->output_file_stream->Write(
+            relobj->head_buffer, relobj->head_buffer_fp, &bytesWritten);
         if (NS_FAILED(rv) || (bytesWritten < relobj->head_buffer_fp))
           return MIME_UNABLE_TO_OPEN_TMP_FILE;
       }
@@ -721,63 +668,51 @@ MimeMultipartRelated_parse_child_line (MimeObject *obj,
     /* Dump this line to the file. */
     uint32_t bytesWritten;
     rv = relobj->output_file_stream->Write(line, length, &bytesWritten);
-    if ((int32_t) bytesWritten < length || NS_FAILED(rv))
+    if ((int32_t)bytesWritten < length || NS_FAILED(rv))
       return MIME_UNABLE_TO_OPEN_TMP_FILE;
   }
 
   return 0;
 }
 
-
-
-
-static int
-real_write(MimeMultipartRelated* relobj, const char* buf, int32_t size)
-{
-  MimeObject* obj = (MimeObject*) relobj;
-  void* closure = relobj->real_output_closure;
+static int real_write(MimeMultipartRelated *relobj, const char *buf,
+                      int32_t size) {
+  MimeObject *obj = (MimeObject *)relobj;
+  void *closure = relobj->real_output_closure;
 
 #ifdef MIME_DRAFTS
-  if ( obj->options &&
-     obj->options->decompose_file_p &&
-     obj->options->decompose_file_output_fn )
-  {
-
+  if (obj->options && obj->options->decompose_file_p &&
+      obj->options->decompose_file_output_fn) {
     // the buf here has already been decoded, but we want to use general output
     // functions here that permit decoded or encoded input, using the closure
     // to tell the difference. We'll temporarily disable the closure's decoder,
-    // then restore it when we are done. Not sure if we shouldn't just turn it off
-    // permanently though.
+    // then restore it when we are done. Not sure if we shouldn't just turn it
+    // off permanently though.
 
-    mime_draft_data *mdd = (mime_draft_data *) obj->options->stream_closure;
-    MimeDecoderData* old_decoder_data = mdd->decoder_data;
+    mime_draft_data *mdd = (mime_draft_data *)obj->options->stream_closure;
+    MimeDecoderData *old_decoder_data = mdd->decoder_data;
     mdd->decoder_data = nullptr;
-    int status = obj->options->decompose_file_output_fn
-                 (buf, size, (void *)mdd);
+    int status = obj->options->decompose_file_output_fn(buf, size, (void *)mdd);
     mdd->decoder_data = old_decoder_data;
     return status;
-  }
-  else
+  } else
 #endif /* MIME_DRAFTS */
   {
     if (!closure) {
-      MimeObject* lobj = (MimeObject*) relobj;
+      MimeObject *lobj = (MimeObject *)relobj;
       closure = lobj->options->stream_closure;
     }
     return relobj->real_output_fn(buf, size, closure);
   }
 }
 
-
-static int
-push_tag(MimeMultipartRelated* relobj, const char* buf, int32_t size)
-{
+static int push_tag(MimeMultipartRelated *relobj, const char *buf,
+                    int32_t size) {
   if (size + relobj->curtag_length > relobj->curtag_max) {
     relobj->curtag_max += 2 * size;
-    if (relobj->curtag_max < 1024)
-      relobj->curtag_max = 1024;
+    if (relobj->curtag_max < 1024) relobj->curtag_max = 1024;
 
-    char* newBuf = (char*) PR_Realloc(relobj->curtag, relobj->curtag_max);
+    char *newBuf = (char *)PR_Realloc(relobj->curtag, relobj->curtag_max);
     NS_ENSURE_TRUE(newBuf, MIME_OUT_OF_MEMORY);
     relobj->curtag = newBuf;
   }
@@ -786,28 +721,27 @@ push_tag(MimeMultipartRelated* relobj, const char* buf, int32_t size)
   return 0;
 }
 
-static bool accept_related_part(MimeMultipartRelated* relobj, MimeObject* part_obj)
-{
-  if (!relobj || !part_obj)
-    return false;
+static bool accept_related_part(MimeMultipartRelated *relobj,
+                                MimeObject *part_obj) {
+  if (!relobj || !part_obj) return false;
 
   /* before accepting it as a valid related part, make sure we
      are able to display it inline as an embedded object. Else just ignore
      it, that will prevent any bad surprise... */
-  MimeObjectClass *clazz = mime_find_class (part_obj->content_type, part_obj->headers, part_obj->options, false);
+  MimeObjectClass *clazz = mime_find_class(
+      part_obj->content_type, part_obj->headers, part_obj->options, false);
   if (clazz ? clazz->displayable_inline_p(clazz, part_obj->headers) : false)
     return true;
 
   /* ...but we always accept it if it's referenced by an anchor */
   return (relobj->curtag && relobj->curtag_length >= 3 &&
-    (relobj->curtag[1] == 'A' || relobj->curtag[1] == 'a') && IS_SPACE(relobj->curtag[2]));
+          (relobj->curtag[1] == 'A' || relobj->curtag[1] == 'a') &&
+          IS_SPACE(relobj->curtag[2]));
 }
 
-static int
-flush_tag(MimeMultipartRelated* relobj)
-{
+static int flush_tag(MimeMultipartRelated *relobj) {
   int length = relobj->curtag_length;
-  char* buf;
+  char *buf;
   int status;
 
   if (relobj->curtag == NULL || length == 0) return 0;
@@ -818,56 +752,58 @@ flush_tag(MimeMultipartRelated* relobj)
   PR_ASSERT(*buf == '<' && buf[length - 1] == '>');
   while (*buf) {
     char c;
-    char* absolute;
-    char* part_url;
-    char* ptr = buf;
+    char *absolute;
+    char *part_url;
+    char *ptr = buf;
     char *ptr2;
     char quoteDelimiter = '\0';
     while (*ptr && *ptr != '=') ptr++;
     if (*ptr == '=') {
       /* Ignore = and leading space. */
       /* Safe, because there's a '>' at the end! */
-      do {ptr++;} while (IS_SPACE(*ptr));
+      do {
+        ptr++;
+      } while (IS_SPACE(*ptr));
       if (*ptr == '"' || *ptr == '\'') {
         quoteDelimiter = *ptr;
         /* Take up the quote and leading space here as well. */
         /* Safe because there's a '>' at the end */
-        do {ptr++;} while (IS_SPACE(*ptr));
+        do {
+          ptr++;
+        } while (IS_SPACE(*ptr));
       }
     }
     status = real_write(relobj, buf, ptr - buf);
     if (status < 0) return status;
     buf = ptr;
     if (!*buf) break;
-    if (quoteDelimiter)
-    {
+    if (quoteDelimiter) {
       ptr = PL_strnchr(buf, quoteDelimiter, length - (buf - relobj->curtag));
     } else {
-      for (ptr = buf; *ptr ; ptr++) {
+      for (ptr = buf; *ptr; ptr++) {
         if (*ptr == '>' || IS_SPACE(*ptr)) break;
       }
       PR_ASSERT(*ptr);
     }
     if (!ptr || !*ptr) break;
 
-    while(buf < ptr)
-    {
+    while (buf < ptr) {
       /* ### mwelch For each word in the value string, see if
                       the word is a cid: URL. If so, attempt to
               substitute the appropriate mailbox part URL in
               its place. */
-      ptr2=buf; /* walk from the left end rightward */
-      while((ptr2<ptr) && (!IS_SPACE(*ptr2)))
-        ptr2++;
+      ptr2 = buf; /* walk from the left end rightward */
+      while ((ptr2 < ptr) && (!IS_SPACE(*ptr2))) ptr2++;
       /* Compare the beginning of the word with "cid:". Yuck. */
       if (((ptr2 - buf) > 4) &&
-        ((buf[0]=='c' || buf[0]=='C') &&
-         (buf[1]=='i' || buf[1]=='I') &&
-         (buf[2]=='d' || buf[2]=='D') &&
-          buf[3]==':'))
-      {
-        // Make sure it's lowercase, otherwise it won't be found in the hash table
-        buf[0] = 'c'; buf[1] = 'i'; buf[2] = 'd';
+          ((buf[0] == 'c' || buf[0] == 'C') &&
+           (buf[1] == 'i' || buf[1] == 'I') &&
+           (buf[2] == 'd' || buf[2] == 'D') && buf[3] == ':')) {
+        // Make sure it's lowercase, otherwise it won't be found in the hash
+        // table
+        buf[0] = 'c';
+        buf[1] = 'i';
+        buf[2] = 'd';
 
         /* Null terminate the word so we can... */
         c = *ptr2;
@@ -879,32 +815,28 @@ flush_tag(MimeMultipartRelated* relobj)
         /* See if we have a mailbox part URL
            corresponding to this cid. */
         part_url = nullptr;
-        MimeHashValue * value = nullptr;
-        if (absolute)
-        {
+        MimeHashValue *value = nullptr;
+        if (absolute) {
           value = (MimeHashValue *)PL_HashTableLookup(relobj->hash, buf);
           part_url = value ? value->m_url : nullptr;
           PR_FREEIF(absolute);
         }
 
         /*If we found a mailbox part URL, write that out instead.*/
-        if (part_url && accept_related_part(relobj, value->m_obj))
-        {
+        if (part_url && accept_related_part(relobj, value->m_obj)) {
           status = real_write(relobj, part_url, strlen(part_url));
           if (status < 0) return status;
           buf = ptr2; /* skip over the cid: URL we substituted */
 
           /* don't show that object as attachment */
-          if (value->m_obj)
-            value->m_obj->dontShowAsAttachment = true;
+          if (value->m_obj) value->m_obj->dontShowAsAttachment = true;
         }
 
         /* Restore the character that we nulled. */
         *ptr2 = c;
       }
       /* rhp - if we get here, we should still check against the hash table! */
-      else
-      {
+      else {
         char holder = *ptr2;
         char *realout;
 
@@ -915,7 +847,7 @@ flush_tag(MimeMultipartRelated* relobj)
 
         /* See if we have a mailbox part URL
            corresponding to this cid. */
-        MimeHashValue * value;
+        MimeHashValue *value;
         if (absolute)
           value = (MimeHashValue *)PL_HashTableLookup(relobj->hash, absolute);
         else
@@ -925,27 +857,24 @@ flush_tag(MimeMultipartRelated* relobj)
         *ptr2 = holder;
         PR_FREEIF(absolute);
 
-        if (realout && accept_related_part(relobj, value->m_obj))
-        {
+        if (realout && accept_related_part(relobj, value->m_obj)) {
           status = real_write(relobj, realout, strlen(realout));
           if (status < 0) return status;
           buf = ptr2; /* skip over the cid: URL we substituted */
 
           /* don't show that object as attachment */
-          if (value->m_obj)
-            value->m_obj->dontShowAsAttachment = true;
+          if (value->m_obj) value->m_obj->dontShowAsAttachment = true;
         }
       }
       /* rhp - if we get here, we should still check against the hash table! */
 
       /* Advance to the beginning of the next word, or to
          the end of the value string. */
-      while((ptr2<ptr) && (IS_SPACE(*ptr2)))
-        ptr2++;
+      while ((ptr2 < ptr) && (IS_SPACE(*ptr2))) ptr2++;
 
       /* Write whatever original text remains after
          cid: URL substitution. */
-      status = real_write(relobj, buf, ptr2-buf);
+      status = real_write(relobj, buf, ptr2 - buf);
       if (status < 0) return status;
       buf = ptr2;
     }
@@ -958,13 +887,10 @@ flush_tag(MimeMultipartRelated* relobj)
   return 0;
 }
 
-
-
-static int
-mime_multipart_related_output_fn(const char* buf, int32_t size, void *stream_closure)
-{
-  MimeMultipartRelated *relobj = (MimeMultipartRelated *) stream_closure;
-  char* ptr;
+static int mime_multipart_related_output_fn(const char *buf, int32_t size,
+                                            void *stream_closure) {
+  MimeMultipartRelated *relobj = (MimeMultipartRelated *)stream_closure;
+  char *ptr;
   int32_t delta;
   int status;
   while (size > 0) {
@@ -1001,31 +927,28 @@ mime_multipart_related_output_fn(const char* buf, int32_t size, void *stream_clo
   return 0;
 }
 
-
-static int
-MimeMultipartRelated_parse_eof (MimeObject *obj, bool abort_p)
-{
+static int MimeMultipartRelated_parse_eof(MimeObject *obj, bool abort_p) {
   /* OK, all the necessary data has been collected.  We now have to spew out
      the HTML.  We let it go through all the normal mechanisms (which
      includes content-encoding handling), and intercept the output data to do
      translation of the tags.  Whee. */
-  MimeMultipartRelated *relobj = (MimeMultipartRelated *) obj;
+  MimeMultipartRelated *relobj = (MimeMultipartRelated *)obj;
   MimeContainer *cont = (MimeContainer *)obj;
   int status = 0;
   MimeObject *body;
-  char* ct;
-  const char* dct;
+  char *ct;
+  const char *dct;
 
-  status = ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_eof(obj, abort_p);
+  status = ((MimeObjectClass *)&MIME_SUPERCLASS)->parse_eof(obj, abort_p);
   if (status < 0) goto FAIL;
 
   if (!relobj->headobj) return 0;
 
-  ct = (relobj->buffered_hdrs
-      ? MimeHeaders_get (relobj->buffered_hdrs, HEADER_CONTENT_TYPE,
-               true, false)
-      : 0);
-  dct = (((MimeMultipartClass *) obj->clazz)->default_part_type);
+  ct =
+      (relobj->buffered_hdrs ? MimeHeaders_get(relobj->buffered_hdrs,
+                                               HEADER_CONTENT_TYPE, true, false)
+                             : 0);
+  dct = (((MimeMultipartClass *)obj->clazz)->default_part_type);
 
   relobj->real_output_fn = obj->options->output_fn;
   relobj->real_output_closure = obj->options->output_closure;
@@ -1034,7 +957,7 @@ MimeMultipartRelated_parse_eof (MimeObject *obj, bool abort_p)
   obj->options->output_closure = obj;
 
   body = mime_create(((ct && *ct) ? ct : (dct ? dct : TEXT_HTML)),
-             relobj->buffered_hdrs, obj->options);
+                     relobj->buffered_hdrs, obj->options);
 
   PR_FREEIF(ct);
   if (!body) {
@@ -1057,29 +980,25 @@ MimeMultipartRelated_parse_eof (MimeObject *obj, bool abort_p)
     goto FAIL;
   }
 
-  body->dontShowAsAttachment = body->clazz->displayable_inline_p(body->clazz, body->headers);
+  body->dontShowAsAttachment =
+      body->clazz->displayable_inline_p(body->clazz, body->headers);
 
 #ifdef MIME_DRAFTS
-  if ( obj->options &&
-     obj->options->decompose_file_p &&
-     obj->options->decompose_file_init_fn &&
-     (relobj->file_buffer || relobj->head_buffer))
-  {
-    status = obj->options->decompose_file_init_fn ( obj->options->stream_closure,
-                            relobj->buffered_hdrs );
+  if (obj->options && obj->options->decompose_file_p &&
+      obj->options->decompose_file_init_fn &&
+      (relobj->file_buffer || relobj->head_buffer)) {
+    status = obj->options->decompose_file_init_fn(obj->options->stream_closure,
+                                                  relobj->buffered_hdrs);
     if (status < 0) return status;
   }
 #endif /* MIME_DRAFTS */
 
   /* if the emitter wants to know about nested bodies, then it needs
      to know that we jumped back to this body part. */
-  if (obj->options->notify_nested_bodies)
-  {
+  if (obj->options->notify_nested_bodies) {
     char *part_path = mime_part_address(body);
-    if (part_path)
-    {
-      mimeEmitterAddHeaderField(obj->options,
-                                "x-jsemitter-part-path",
+    if (part_path) {
+      mimeEmitterAddHeaderField(obj->options, "x-jsemitter-part-path",
                                 part_path);
       PR_Free(part_path);
     }
@@ -1090,59 +1009,48 @@ MimeMultipartRelated_parse_eof (MimeObject *obj, bool abort_p)
   status = body->clazz->parse_begin(body);
   if (status < 0) goto FAIL;
 
-  if (relobj->head_buffer)
-  {
+  if (relobj->head_buffer) {
     /* Read it out of memory. */
     PR_ASSERT(!relobj->file_buffer && !relobj->input_file_stream);
 
     status = body->clazz->parse_buffer(relobj->head_buffer,
-                         relobj->head_buffer_fp,
-                         body);
-  }
-  else if (relobj->file_buffer)
-  {
+                                       relobj->head_buffer_fp, body);
+  } else if (relobj->file_buffer) {
     /* Read it off disk. */
     char *buf;
 
-    PR_ASSERT(relobj->head_buffer_size == 0 &&
-          relobj->head_buffer_fp == 0);
+    PR_ASSERT(relobj->head_buffer_size == 0 && relobj->head_buffer_fp == 0);
     PR_ASSERT(relobj->file_buffer);
-    if (!relobj->file_buffer)
-    {
+    if (!relobj->file_buffer) {
       status = -1;
       goto FAIL;
     }
 
-    buf = (char *) PR_MALLOC(FILE_IO_BUFFER_SIZE);
-    if (!buf)
-    {
+    buf = (char *)PR_MALLOC(FILE_IO_BUFFER_SIZE);
+    if (!buf) {
       status = MIME_OUT_OF_MEMORY;
       goto FAIL;
     }
 
     // First, close the output file to open the input file!
-    if (relobj->output_file_stream)
-      relobj->output_file_stream->Close();
+    if (relobj->output_file_stream) relobj->output_file_stream->Close();
 
-    nsresult rv = NS_NewLocalFileInputStream(getter_AddRefs(relobj->input_file_stream), relobj->file_buffer);
-    if (NS_FAILED(rv))
-    {
+    nsresult rv = NS_NewLocalFileInputStream(
+        getter_AddRefs(relobj->input_file_stream), relobj->file_buffer);
+    if (NS_FAILED(rv)) {
       PR_Free(buf);
       status = MIME_UNABLE_TO_OPEN_TMP_FILE;
       goto FAIL;
     }
 
-    while(1)
-    {
+    while (1) {
       uint32_t bytesRead = 0;
-      rv = relobj->input_file_stream->Read(buf, FILE_IO_BUFFER_SIZE - 1, &bytesRead);
-      if (NS_FAILED(rv) || !bytesRead)
-      {
+      rv = relobj->input_file_stream->Read(buf, FILE_IO_BUFFER_SIZE - 1,
+                                           &bytesRead);
+      if (NS_FAILED(rv) || !bytesRead) {
         status = NS_FAILED(rv) ? -1 : 0;
         break;
-      }
-      else
-      {
+      } else {
         /* It would be really nice to be able to yield here, and let
            some user events and other input sources get processed.
            Oh well. */
@@ -1165,12 +1073,12 @@ MimeMultipartRelated_parse_eof (MimeObject *obj, bool abort_p)
 FAIL:
 
 #ifdef MIME_DRAFTS
-  if ( obj->options &&
-     obj->options->decompose_file_p &&
-     obj->options->decompose_file_close_fn &&
-     (relobj->file_buffer || relobj->head_buffer)) {
-  status = obj->options->decompose_file_close_fn ( obj->options->stream_closure );
-  if (status < 0) return status;
+  if (obj->options && obj->options->decompose_file_p &&
+      obj->options->decompose_file_close_fn &&
+      (relobj->file_buffer || relobj->head_buffer)) {
+    status =
+        obj->options->decompose_file_close_fn(obj->options->stream_closure);
+    if (status < 0) return status;
   }
 #endif /* MIME_DRAFTS */
 
@@ -1180,19 +1088,15 @@ FAIL:
   return status;
 }
 
-
-
-
-static int
-MimeMultipartRelatedClassInitialize(MimeMultipartRelatedClass *clazz)
-{
-  MimeObjectClass    *oclass = (MimeObjectClass *) clazz;
-  MimeMultipartClass *mclass = (MimeMultipartClass *) clazz;
+static int MimeMultipartRelatedClassInitialize(
+    MimeMultipartRelatedClass *clazz) {
+  MimeObjectClass *oclass = (MimeObjectClass *)clazz;
+  MimeMultipartClass *mclass = (MimeMultipartClass *)clazz;
   PR_ASSERT(!oclass->class_initialized);
-  oclass->initialize       = MimeMultipartRelated_initialize;
-  oclass->finalize         = MimeMultipartRelated_finalize;
-  oclass->parse_eof        = MimeMultipartRelated_parse_eof;
-  mclass->output_child_p   = MimeMultipartRelated_output_child_p;
+  oclass->initialize = MimeMultipartRelated_initialize;
+  oclass->finalize = MimeMultipartRelated_finalize;
+  oclass->parse_eof = MimeMultipartRelated_parse_eof;
+  mclass->output_child_p = MimeMultipartRelated_output_child_p;
   mclass->parse_child_line = MimeMultipartRelated_parse_child_line;
   return 0;
 }

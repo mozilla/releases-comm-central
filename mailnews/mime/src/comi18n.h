@@ -18,8 +18,10 @@ extern "C" {
  *
  *
  * @param header      [IN] A header to decode.
- * @param default_charset     [IN] Default charset to apply to ulabeled non-UTF-8 8bit data
- * @param override_charset    [IN] If true, default_charset used instead of any charset labeling other than UTF-8
+ * @param default_charset     [IN] Default charset to apply to ulabeled
+ * non-UTF-8 8bit data
+ * @param override_charset    [IN] If true, default_charset used instead of any
+ * charset labeling other than UTF-8
  * @param eatContinuations    [IN] If true, unfold headers
  * @param result      [OUT] Decoded buffer
  */
@@ -27,11 +29,11 @@ void MIME_DecodeMimeHeader(const char *header, const char *default_charset,
                            bool override_charset, bool eatContinuations,
                            nsACString &result);
 
-nsresult MIME_detect_charset(const char *aBuf, int32_t aLength, nsACString& aCharset);
+nsresult MIME_detect_charset(const char *aBuf, int32_t aLength,
+                             nsACString &aCharset);
 
 #ifdef __cplusplus
 } /* extern "C" */
 #endif /* __cplusplus */
 
-#endif // _COMI18N_LOADED_H_
-
+#endif  // _COMI18N_LOADED_H_

@@ -16,8 +16,7 @@ namespace mozilla {
 namespace mailnews {
 
 void detail::DoConversion(const nsTArray<nsString> &aUTF16Array,
-                          nsTArray<nsCString> &aUTF8Array)
-{
+                          nsTArray<nsCString> &aUTF8Array) {
   uint32_t count = aUTF16Array.Length();
   aUTF8Array.SetLength(count);
   for (uint32_t i = 0; i < count; ++i)
@@ -25,8 +24,7 @@ void detail::DoConversion(const nsTArray<nsString> &aUTF16Array,
 }
 
 void MakeMimeAddress(const nsACString &aName, const nsACString &aEmail,
-                     nsACString &full)
-{
+                     nsACString &full) {
   nsAutoString utf16Address;
   MakeMimeAddress(NS_ConvertUTF8toUTF16(aName), NS_ConvertUTF8toUTF16(aEmail),
                   utf16Address);
@@ -35,8 +33,7 @@ void MakeMimeAddress(const nsACString &aName, const nsACString &aEmail,
 }
 
 void MakeMimeAddress(const nsAString &aName, const nsAString &aEmail,
-                     nsAString &full)
-{
+                     nsAString &full) {
   nsCOMPtr<nsIMsgHeaderParser> headerParser(services::GetHeaderParser());
 
   nsCOMPtr<msgIAddressObject> address;
@@ -46,8 +43,7 @@ void MakeMimeAddress(const nsAString &aName, const nsAString &aEmail,
 }
 
 void MakeDisplayAddress(const nsAString &aName, const nsAString &aEmail,
-                        nsAString &full)
-{
+                        nsAString &full) {
   nsCOMPtr<nsIMsgHeaderParser> headerParser(services::GetHeaderParser());
 
   nsCOMPtr<msgIAddressObject> object;
@@ -57,8 +53,7 @@ void MakeDisplayAddress(const nsAString &aName, const nsAString &aEmail,
 
 void RemoveDuplicateAddresses(const nsACString &aHeader,
                               const nsACString &aOtherEmails,
-                              nsACString &result)
-{
+                              nsACString &result) {
   nsCOMPtr<nsIMsgHeaderParser> headerParser(services::GetHeaderParser());
 
   headerParser->RemoveDuplicateAddresses(aHeader, aOtherEmails, result);
@@ -68,8 +63,7 @@ void RemoveDuplicateAddresses(const nsACString &aHeader,
 // These are the core shim methods we need //
 /////////////////////////////////////////////
 
-nsCOMArray<msgIAddressObject> DecodedHeader(const nsAString &aHeader)
-{
+nsCOMArray<msgIAddressObject> DecodedHeader(const nsAString &aHeader) {
   nsCOMArray<msgIAddressObject> retval;
   if (aHeader.IsEmpty()) {
     return retval;
@@ -78,8 +72,8 @@ nsCOMArray<msgIAddressObject> DecodedHeader(const nsAString &aHeader)
   NS_ENSURE_TRUE(headerParser, retval);
   msgIAddressObject **addresses = nullptr;
   uint32_t length;
-  nsresult rv = headerParser->ParseDecodedHeader(aHeader, false,
-    &length, &addresses);
+  nsresult rv =
+      headerParser->ParseDecodedHeader(aHeader, false, &length, &addresses);
   MOZ_ASSERT(NS_SUCCEEDED(rv), "Javascript jsmime returned an error!");
   if (NS_SUCCEEDED(rv) && length > 0 && addresses) {
     retval.Adopt(addresses, length);
@@ -88,8 +82,7 @@ nsCOMArray<msgIAddressObject> DecodedHeader(const nsAString &aHeader)
 }
 
 nsCOMArray<msgIAddressObject> EncodedHeader(const nsACString &aHeader,
-                                            const char *aCharset)
-{
+                                            const char *aCharset) {
   nsCOMArray<msgIAddressObject> retval;
   if (aHeader.IsEmpty()) {
     return retval;
@@ -98,8 +91,8 @@ nsCOMArray<msgIAddressObject> EncodedHeader(const nsACString &aHeader,
   NS_ENSURE_TRUE(headerParser, retval);
   msgIAddressObject **addresses = nullptr;
   uint32_t length;
-  nsresult rv = headerParser->ParseEncodedHeader(aHeader, aCharset,
-    false, &length, &addresses);
+  nsresult rv = headerParser->ParseEncodedHeader(aHeader, aCharset, false,
+                                                 &length, &addresses);
   MOZ_ASSERT(NS_SUCCEEDED(rv), "This should never fail!");
   if (NS_SUCCEEDED(rv) && length > 0 && addresses) {
     retval.Adopt(addresses, length);
@@ -107,8 +100,7 @@ nsCOMArray<msgIAddressObject> EncodedHeader(const nsACString &aHeader,
   return retval;
 }
 
-nsCOMArray<msgIAddressObject> EncodedHeaderW(const nsAString &aHeader)
-{
+nsCOMArray<msgIAddressObject> EncodedHeaderW(const nsAString &aHeader) {
   nsCOMArray<msgIAddressObject> retval;
   if (aHeader.IsEmpty()) {
     return retval;
@@ -126,38 +118,33 @@ nsCOMArray<msgIAddressObject> EncodedHeaderW(const nsAString &aHeader)
 }
 
 void ExtractAllAddresses(const nsCOMArray<msgIAddressObject> &aHeader,
-                         nsTArray<nsString> &names, nsTArray<nsString> &emails)
-{
+                         nsTArray<nsString> &names,
+                         nsTArray<nsString> &emails) {
   uint32_t count = aHeader.Length();
 
   // Prefill arrays before we start
   names.SetLength(count);
   emails.SetLength(count);
 
-  for (uint32_t i = 0; i < count; i++)
-  {
+  for (uint32_t i = 0; i < count; i++) {
     aHeader[i]->GetName(names[i]);
     aHeader[i]->GetEmail(emails[i]);
   }
 
-  if (count == 1 && names[0].IsEmpty() && emails[0].IsEmpty())
-  {
+  if (count == 1 && names[0].IsEmpty() && emails[0].IsEmpty()) {
     names.Clear();
     emails.Clear();
   }
 }
 
 void ExtractDisplayAddresses(const nsCOMArray<msgIAddressObject> &aHeader,
-                             nsTArray<nsString> &displayAddrs)
-{
+                             nsTArray<nsString> &displayAddrs) {
   uint32_t count = aHeader.Length();
 
   displayAddrs.SetLength(count);
-  for (uint32_t i = 0; i < count; i++)
-    aHeader[i]->ToString(displayAddrs[i]);
+  for (uint32_t i = 0; i < count; i++) aHeader[i]->ToString(displayAddrs[i]);
 
-  if (count == 1 && displayAddrs[0].IsEmpty())
-    displayAddrs.Clear();
+  if (count == 1 && displayAddrs[0].IsEmpty()) displayAddrs.Clear();
 }
 
 /////////////////////////////////////////////////
@@ -165,15 +152,13 @@ void ExtractDisplayAddresses(const nsCOMArray<msgIAddressObject> &aHeader,
 /////////////////////////////////////////////////
 
 void ExtractEmails(const nsCOMArray<msgIAddressObject> &aHeader,
-                   nsTArray<nsString> &emails)
-{
+                   nsTArray<nsString> &emails) {
   nsTArray<nsString> names;
   ExtractAllAddresses(aHeader, names, emails);
 }
 
 void ExtractEmail(const nsCOMArray<msgIAddressObject> &aHeader,
-                  nsACString &email)
-{
+                  nsACString &email) {
   AutoTArray<nsString, 1> names;
   AutoTArray<nsString, 1> emails;
   ExtractAllAddresses(aHeader, names, emails);
@@ -185,64 +170,52 @@ void ExtractEmail(const nsCOMArray<msgIAddressObject> &aHeader,
 }
 
 void ExtractFirstAddress(const nsCOMArray<msgIAddressObject> &aHeader,
-                         nsACString &name, nsACString &email)
-{
+                         nsACString &name, nsACString &email) {
   AutoTArray<nsString, 1> names, emails;
   ExtractAllAddresses(aHeader, names, emails);
-  if (names.Length() > 0)
-  {
+  if (names.Length() > 0) {
     CopyUTF16toUTF8(names[0], name);
     CopyUTF16toUTF8(emails[0], email);
-  }
-  else
-  {
+  } else {
     name.Truncate();
     email.Truncate();
   }
 }
 
 void ExtractFirstAddress(const nsCOMArray<msgIAddressObject> &aHeader,
-                         nsAString &name, nsACString &email)
-{
+                         nsAString &name, nsACString &email) {
   AutoTArray<nsString, 1> names, emails;
   ExtractAllAddresses(aHeader, names, emails);
-  if (names.Length() > 0)
-  {
+  if (names.Length() > 0) {
     name = names[0];
     CopyUTF16toUTF8(emails[0], email);
-  }
-  else
-  {
+  } else {
     name.Truncate();
     email.Truncate();
   }
 }
 
-void ExtractName(const nsCOMArray<msgIAddressObject> &aHeader, nsACString &name)
-{
+void ExtractName(const nsCOMArray<msgIAddressObject> &aHeader,
+                 nsACString &name) {
   nsCString email;
   ExtractFirstAddress(aHeader, name, email);
-  if (name.IsEmpty())
-    name = email;
+  if (name.IsEmpty()) name = email;
 }
 
-void ExtractName(const nsCOMArray<msgIAddressObject> &aHeader, nsAString &name)
-{
+void ExtractName(const nsCOMArray<msgIAddressObject> &aHeader,
+                 nsAString &name) {
   AutoTArray<nsString, 1> names;
   AutoTArray<nsString, 1> emails;
   ExtractAllAddresses(aHeader, names, emails);
-  if (names.Length() > 0)
-  {
+  if (names.Length() > 0) {
     if (names[0].IsEmpty())
       name = emails[0];
     else
       name = names[0];
-  }
-  else
-  {
+  } else {
     name.Truncate();
   }
 }
 
-} // namespace mailnews
-} // namespace mozilla
+}  // namespace mailnews
+}  // namespace mozilla

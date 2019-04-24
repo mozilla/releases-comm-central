@@ -15,12 +15,15 @@
 #include "sechash.h"
 #include "cms.h"
 
-#define NS_CMSMESSAGE_CID \
-  { 0xa4557478, 0xae16, 0x11d5, { 0xba,0x4b,0x00,0x10,0x83,0x03,0xb1,0x17 } }
+#define NS_CMSMESSAGE_CID                            \
+  {                                                  \
+    0xa4557478, 0xae16, 0x11d5, {                    \
+      0xba, 0x4b, 0x00, 0x10, 0x83, 0x03, 0xb1, 0x17 \
+    }                                                \
+  }
 
-class nsCMSMessage : public nsICMSMessage
-{
-public:
+class nsCMSMessage : public nsICMSMessage {
+ public:
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSICMSMESSAGE
 
@@ -28,45 +31,49 @@ public:
   explicit nsCMSMessage(NSSCMSMessage* aCMSMsg);
   nsresult Init();
 
-  void referenceContext(nsIInterfaceRequestor* aContext) {m_ctx = aContext;}
-  NSSCMSMessage* getCMS() {return m_cmsMsg;}
-private:
+  void referenceContext(nsIInterfaceRequestor* aContext) { m_ctx = aContext; }
+  NSSCMSMessage* getCMS() { return m_cmsMsg; }
+
+ private:
   virtual ~nsCMSMessage();
   nsCOMPtr<nsIInterfaceRequestor> m_ctx;
-  NSSCMSMessage * m_cmsMsg;
+  NSSCMSMessage* m_cmsMsg;
   NSSCMSSignerInfo* GetTopLevelSignerInfo();
-  nsresult CommonVerifySignature(unsigned char* aDigestData, uint32_t aDigestDataLen,
-                                 int16_t aDigestType);
+  nsresult CommonVerifySignature(unsigned char* aDigestData,
+                                 uint32_t aDigestDataLen, int16_t aDigestType);
 
-  nsresult CommonAsyncVerifySignature(nsISMimeVerificationListener *aListener,
-                                      unsigned char* aDigestData, uint32_t aDigestDataLen,
+  nsresult CommonAsyncVerifySignature(nsISMimeVerificationListener* aListener,
+                                      unsigned char* aDigestData,
+                                      uint32_t aDigestDataLen,
                                       int16_t aDigestType);
   bool IsAllowedHash(const int16_t aCryptoHashInt);
 
   void destructorSafeDestroyNSSReference();
-
 };
 
 // ===============================================
 // nsCMSDecoder - implementation of nsICMSDecoder
 // ===============================================
 
-#define NS_CMSDECODER_CID \
-  { 0x9dcef3a4, 0xa3bc, 0x11d5, { 0xba, 0x47, 0x00, 0x10, 0x83, 0x03, 0xb1, 0x17 } }
+#define NS_CMSDECODER_CID                            \
+  {                                                  \
+    0x9dcef3a4, 0xa3bc, 0x11d5, {                    \
+      0xba, 0x47, 0x00, 0x10, 0x83, 0x03, 0xb1, 0x17 \
+    }                                                \
+  }
 
-class nsCMSDecoder : public nsICMSDecoder
-{
-public:
+class nsCMSDecoder : public nsICMSDecoder {
+ public:
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSICMSDECODER
 
   nsCMSDecoder();
   nsresult Init();
 
-private:
+ private:
   virtual ~nsCMSDecoder();
   nsCOMPtr<nsIInterfaceRequestor> m_ctx;
-  NSSCMSDecoderContext *m_dcx;
+  NSSCMSDecoderContext* m_dcx;
   void destructorSafeDestroyNSSReference();
 };
 
@@ -74,21 +81,24 @@ private:
 // nsCMSEncoder - implementation of nsICMSEncoder
 // ===============================================
 
-#define NS_CMSENCODER_CID \
-  { 0xa15789aa, 0x8903, 0x462b, { 0x81, 0xe9, 0x4a, 0xa2, 0xcf, 0xf4, 0xd5, 0xcb } }
-class nsCMSEncoder : public nsICMSEncoder
-{
-public:
+#define NS_CMSENCODER_CID                            \
+  {                                                  \
+    0xa15789aa, 0x8903, 0x462b, {                    \
+      0x81, 0xe9, 0x4a, 0xa2, 0xcf, 0xf4, 0xd5, 0xcb \
+    }                                                \
+  }
+class nsCMSEncoder : public nsICMSEncoder {
+ public:
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSICMSENCODER
 
   nsCMSEncoder();
   nsresult Init();
 
-private:
+ private:
   virtual ~nsCMSEncoder();
   nsCOMPtr<nsIInterfaceRequestor> m_ctx;
-  NSSCMSEncoderContext *m_ecx;
+  NSSCMSEncoderContext* m_ecx;
   void destructorSafeDestroyNSSReference();
 };
 

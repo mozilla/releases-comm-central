@@ -14,11 +14,11 @@
  */
 
 typedef struct MimeInlineTextRichtextClass MimeInlineTextRichtextClass;
-typedef struct MimeInlineTextRichtext      MimeInlineTextRichtext;
+typedef struct MimeInlineTextRichtext MimeInlineTextRichtext;
 
 struct MimeInlineTextRichtextClass {
   MimeInlineTextClass text;
-  bool enriched_p;  /* Whether we should act like text/enriched instead. */
+  bool enriched_p; /* Whether we should act like text/enriched instead. */
 };
 
 extern MimeInlineTextRichtextClass mimeInlineTextRichtextClass;
@@ -27,7 +27,7 @@ struct MimeInlineTextRichtext {
   MimeInlineText text;
 };
 
-#define MimeInlineTextRichtextClassInitializer(ITYPE,CSUPER) \
-  { MimeInlineTextClassInitializer(ITYPE,CSUPER) }
+#define MimeInlineTextRichtextClassInitializer(ITYPE, CSUPER) \
+  { MimeInlineTextClassInitializer(ITYPE, CSUPER) }
 
 #endif /* _MIMETRIC_H_ */

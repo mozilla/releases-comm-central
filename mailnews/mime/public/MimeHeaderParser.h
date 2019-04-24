@@ -48,14 +48,14 @@ void DoConversion(const nsTArray<nsString> &aUTF16, nsTArray<nsCString> &aUTF8);
  * instead, it converts the UTF-16 array to a UTF-8 array on destruction.
  */
 template <uint32_t N = 5>
-class UTF16ArrayAdapter
-{
-public:
+class UTF16ArrayAdapter {
+ public:
   explicit UTF16ArrayAdapter(nsTArray<nsCString> &aUTF8Array)
-  : mUTF8Array(aUTF8Array) {}
+      : mUTF8Array(aUTF8Array) {}
   ~UTF16ArrayAdapter() { detail::DoConversion(mUTF16Array, mUTF8Array); }
-  operator nsTArray<nsString>&() { return mUTF16Array; }
-private:
+  operator nsTArray<nsString> &() { return mUTF16Array; }
+
+ private:
   nsTArray<nsCString> &mUTF8Array;
   AutoTArray<nsString, N> mUTF16Array;
 };
@@ -172,7 +172,7 @@ void ExtractName(const nsCOMArray<msgIAddressObject> &aHeader,
 void ExtractName(const nsCOMArray<msgIAddressObject> &aDecodedHeader,
                  nsAString &name);
 
-} // namespace mailnews
-} // namespace mozilla
+}  // namespace mailnews
+}  // namespace mozilla
 
 #endif

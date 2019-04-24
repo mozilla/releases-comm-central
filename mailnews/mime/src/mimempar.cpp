@@ -8,13 +8,12 @@
 
 #define MIME_SUPERCLASS mimeMultipartClass
 MimeDefClass(MimeMultipartParallel, MimeMultipartParallelClass,
-       mimeMultipartParallelClass, &MIME_SUPERCLASS);
+             mimeMultipartParallelClass, &MIME_SUPERCLASS);
 
-static int
-MimeMultipartParallelClassInitialize(MimeMultipartParallelClass *clazz)
-{
+static int MimeMultipartParallelClassInitialize(
+    MimeMultipartParallelClass *clazz) {
 #ifdef DEBUG
-  MimeObjectClass *oclass = (MimeObjectClass *) clazz;
+  MimeObjectClass *oclass = (MimeObjectClass *)clazz;
   PR_ASSERT(!oclass->class_initialized);
 #endif
   return 0;

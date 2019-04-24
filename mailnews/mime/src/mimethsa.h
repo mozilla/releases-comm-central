@@ -9,8 +9,9 @@
 #include "mimethtm.h"
 #include "nsString.h"
 
-typedef struct MimeInlineTextHTMLSanitizedClass MimeInlineTextHTMLSanitizedClass;
-typedef struct MimeInlineTextHTMLSanitized      MimeInlineTextHTMLSanitized;
+typedef struct MimeInlineTextHTMLSanitizedClass
+    MimeInlineTextHTMLSanitizedClass;
+typedef struct MimeInlineTextHTMLSanitized MimeInlineTextHTMLSanitized;
 
 struct MimeInlineTextHTMLSanitizedClass {
   MimeInlineTextHTMLClass html;
@@ -19,11 +20,11 @@ struct MimeInlineTextHTMLSanitizedClass {
 extern MimeInlineTextHTMLSanitizedClass mimeInlineTextHTMLSanitizedClass;
 
 struct MimeInlineTextHTMLSanitized {
-  MimeInlineTextHTML    html;
-  nsString             *complete_buffer;  // Gecko parser expects wide strings
+  MimeInlineTextHTML html;
+  nsString *complete_buffer;  // Gecko parser expects wide strings
 };
 
-#define MimeInlineTextHTMLSanitizedClassInitializer(ITYPE,CSUPER) \
-  { MimeInlineTextHTMLClassInitializer(ITYPE,CSUPER) }
+#define MimeInlineTextHTMLSanitizedClassInitializer(ITYPE, CSUPER) \
+  { MimeInlineTextHTMLClassInitializer(ITYPE, CSUPER) }
 
 #endif /* _MIMETHPL_H_ */

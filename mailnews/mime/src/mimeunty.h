@@ -42,7 +42,7 @@
  */
 
 typedef struct MimeUntypedTextClass MimeUntypedTextClass;
-typedef struct MimeUntypedText      MimeUntypedText;
+typedef struct MimeUntypedText MimeUntypedText;
 
 struct MimeUntypedTextClass {
   MimeContainerClass container;
@@ -52,19 +52,19 @@ extern MimeUntypedTextClass mimeUntypedTextClass;
 
 typedef enum {
   MimeUntypedTextSubpartTypeText,  /* text/plain */
-  MimeUntypedTextSubpartTypeUUE,  /* uuencoded data */
+  MimeUntypedTextSubpartTypeUUE,   /* uuencoded data */
   MimeUntypedTextSubpartTypeYEnc,  /* yencoded data */
-  MimeUntypedTextSubpartTypeBinhex  /* Mac BinHex data */
+  MimeUntypedTextSubpartTypeBinhex /* Mac BinHex data */
 } MimeUntypedTextSubpartType;
 
 struct MimeUntypedText {
-  MimeContainer container;      /* superclass variables */
-  MimeObject *open_subpart;      /* The part still-being-parsed */
-  MimeUntypedTextSubpartType type;  /* What kind of type it is */
-  MimeHeaders *open_hdrs;      /* The faked-up headers describing it */
+  MimeContainer container;         /* superclass variables */
+  MimeObject *open_subpart;        /* The part still-being-parsed */
+  MimeUntypedTextSubpartType type; /* What kind of type it is */
+  MimeHeaders *open_hdrs;          /* The faked-up headers describing it */
 };
 
-#define MimeUntypedTextClassInitializer(ITYPE,CSUPER) \
-  { MimeContainerClassInitializer(ITYPE,CSUPER) }
+#define MimeUntypedTextClassInitializer(ITYPE, CSUPER) \
+  { MimeContainerClassInitializer(ITYPE, CSUPER) }
 
 #endif /* _MIMEUNTY_H_ */

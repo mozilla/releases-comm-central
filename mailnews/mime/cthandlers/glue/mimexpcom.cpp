@@ -8,85 +8,69 @@
 #include "nsCOMPtr.h"
 #include "nsComponentManagerUtils.h"
 
-static NS_DEFINE_CID(kMimeObjectClassAccessCID, NS_MIME_OBJECT_CLASS_ACCESS_CID);
+static NS_DEFINE_CID(kMimeObjectClassAccessCID,
+                     NS_MIME_OBJECT_CLASS_ACCESS_CID);
 
 /*
  * These calls are necessary to expose the object class hierarchy
  * to externally developed content type handlers.
  */
-extern "C" void *
-COM_GetmimeInlineTextClass(void)
-{
-  void *ptr = NULL;
-
-  nsresult res;
-  nsCOMPtr<nsIMimeObjectClassAccess>  objAccess =
-      do_CreateInstance(kMimeObjectClassAccessCID, &res);
-  if (NS_SUCCEEDED(res) && objAccess)
-    objAccess->GetmimeInlineTextClass(&ptr);
-
-  return ptr;
-}
-
-extern "C" void *
-COM_GetmimeLeafClass(void)
-{
+extern "C" void *COM_GetmimeInlineTextClass(void) {
   void *ptr = NULL;
 
   nsresult res;
   nsCOMPtr<nsIMimeObjectClassAccess> objAccess =
       do_CreateInstance(kMimeObjectClassAccessCID, &res);
-  if (NS_SUCCEEDED(res) && objAccess)
-    objAccess->GetmimeLeafClass(&ptr);
+  if (NS_SUCCEEDED(res) && objAccess) objAccess->GetmimeInlineTextClass(&ptr);
 
   return ptr;
 }
 
-extern "C" void *
-COM_GetmimeObjectClass(void)
-{
+extern "C" void *COM_GetmimeLeafClass(void) {
   void *ptr = NULL;
 
   nsresult res;
   nsCOMPtr<nsIMimeObjectClassAccess> objAccess =
       do_CreateInstance(kMimeObjectClassAccessCID, &res);
-  if (NS_SUCCEEDED(res) && objAccess)
-    objAccess->GetmimeObjectClass(&ptr);
+  if (NS_SUCCEEDED(res) && objAccess) objAccess->GetmimeLeafClass(&ptr);
 
   return ptr;
 }
 
-extern "C" void *
-COM_GetmimeContainerClass(void)
-{
+extern "C" void *COM_GetmimeObjectClass(void) {
   void *ptr = NULL;
 
   nsresult res;
   nsCOMPtr<nsIMimeObjectClassAccess> objAccess =
       do_CreateInstance(kMimeObjectClassAccessCID, &res);
-  if (NS_SUCCEEDED(res) && objAccess)
-    objAccess->GetmimeContainerClass(&ptr);
+  if (NS_SUCCEEDED(res) && objAccess) objAccess->GetmimeObjectClass(&ptr);
 
   return ptr;
 }
 
-extern "C" void *
-COM_GetmimeMultipartClass(void)
-{
+extern "C" void *COM_GetmimeContainerClass(void) {
   void *ptr = NULL;
 
   nsresult res;
   nsCOMPtr<nsIMimeObjectClassAccess> objAccess =
       do_CreateInstance(kMimeObjectClassAccessCID, &res);
-  if (NS_SUCCEEDED(res) && objAccess)
-    objAccess->GetmimeMultipartClass(&ptr);
+  if (NS_SUCCEEDED(res) && objAccess) objAccess->GetmimeContainerClass(&ptr);
 
   return ptr;
 }
 
-extern "C" void *
-COM_GetmimeMultipartSignedClass(void)
-{
+extern "C" void *COM_GetmimeMultipartClass(void) {
+  void *ptr = NULL;
+
+  nsresult res;
+  nsCOMPtr<nsIMimeObjectClassAccess> objAccess =
+      do_CreateInstance(kMimeObjectClassAccessCID, &res);
+  if (NS_SUCCEEDED(res) && objAccess) objAccess->GetmimeMultipartClass(&ptr);
+
+  return ptr;
+}
+
+extern "C" void *COM_GetmimeMultipartSignedClass(void) {
   void *ptr = NULL;
 
   nsresult res;
@@ -98,18 +82,16 @@ COM_GetmimeMultipartSignedClass(void)
   return ptr;
 }
 
-extern "C" int
-COM_MimeObject_write(void *mimeObject, char *data, int32_t length,
-                     bool user_visible_p)
-{
+extern "C" int COM_MimeObject_write(void *mimeObject, char *data,
+                                    int32_t length, bool user_visible_p) {
   int32_t rc = -1;
 
   nsresult res;
   nsCOMPtr<nsIMimeObjectClassAccess> objAccess =
       do_CreateInstance(kMimeObjectClassAccessCID, &res);
-  if (NS_SUCCEEDED(res) && objAccess)
-  {
-    if (NS_SUCCEEDED(objAccess->MimeObjectWrite(mimeObject, data, length, user_visible_p)))
+  if (NS_SUCCEEDED(res) && objAccess) {
+    if (NS_SUCCEEDED(objAccess->MimeObjectWrite(mimeObject, data, length,
+                                                user_visible_p)))
       rc = length;
     else
       rc = -1;
@@ -118,9 +100,7 @@ COM_MimeObject_write(void *mimeObject, char *data, int32_t length,
   return rc;
 }
 
-extern "C" void *
-COM_MimeCreate(char * content_type, void * hdrs, void * opts)
-{
+extern "C" void *COM_MimeCreate(char *content_type, void *hdrs, void *opts) {
   void *ptr = NULL;
 
   nsresult res;

@@ -15,7 +15,8 @@
    applied to their data.  This class provides that service in its
    parse_buffer() method:
 
-     int (*parse_decoded_buffer) (const char *buf, int32_t size, MimeObject *obj)
+     int (*parse_decoded_buffer) (const char *buf, int32_t size, MimeObject
+   *obj)
 
    The `parse_buffer' method of MimeLeaf passes each block of data through
    the appropriate decoder (if any) and then calls `parse_decoded_buffer'
@@ -29,19 +30,19 @@
  */
 
 typedef struct MimeLeafClass MimeLeafClass;
-typedef struct MimeLeaf      MimeLeaf;
+typedef struct MimeLeaf MimeLeaf;
 
 struct MimeLeafClass {
   MimeObjectClass object;
   /* This is the callback that is handed to the decoder. */
-  int (*parse_decoded_buffer) (const char *buf, int32_t size, MimeObject *obj);
-  int (*close_decoder) (MimeObject *obj);
+  int (*parse_decoded_buffer)(const char *buf, int32_t size, MimeObject *obj);
+  int (*close_decoder)(MimeObject *obj);
 };
 
 extern MimeLeafClass mimeLeafClass;
 
 struct MimeLeaf {
-  MimeObject object;    /* superclass variables */
+  MimeObject object; /* superclass variables */
 
   /* If we're doing Base64, Quoted-Printable, or UU decoding, this is the
    state object for the decoder. */
@@ -53,7 +54,7 @@ struct MimeLeaf {
   int sizeSoFar;
 };
 
-#define MimeLeafClassInitializer(ITYPE,CSUPER) \
-  { MimeObjectClassInitializer(ITYPE,CSUPER) }
+#define MimeLeafClassInitializer(ITYPE, CSUPER) \
+  { MimeObjectClassInitializer(ITYPE, CSUPER) }
 
 #endif /* _MIMELEAF_H_ */

@@ -13,7 +13,7 @@
  */
 
 typedef struct MimeInlineImageClass MimeInlineImageClass;
-typedef struct MimeInlineImage      MimeInlineImage;
+typedef struct MimeInlineImage MimeInlineImage;
 
 struct MimeInlineImageClass {
   MimeLeafClass leaf;
@@ -29,7 +29,7 @@ struct MimeInlineImage {
   void *image_data;
 };
 
-#define MimeInlineImageClassInitializer(ITYPE,CSUPER) \
-  { MimeLeafClassInitializer(ITYPE,CSUPER) }
+#define MimeInlineImageClassInitializer(ITYPE, CSUPER) \
+  { MimeLeafClassInitializer(ITYPE, CSUPER) }
 
 #endif /* _MIMEIIMG_H_ */

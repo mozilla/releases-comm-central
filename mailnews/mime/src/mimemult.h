@@ -54,7 +54,7 @@
  */
 
 typedef struct MimeMultipartClass MimeMultipartClass;
-typedef struct MimeMultipart      MimeMultipart;
+typedef struct MimeMultipart MimeMultipart;
 
 typedef enum {
   MimeMultipartPreamble,
@@ -70,33 +70,32 @@ typedef enum {
   MimeMultipartBoundaryTypeTerminator
 } MimeMultipartBoundaryType;
 
-
 struct MimeMultipartClass {
   MimeContainerClass container;
   const char *default_part_type;
 
-  int (*create_child) (MimeObject *);
-  bool (*output_child_p) (MimeObject *self, MimeObject *child);
-  int (*close_child) (MimeObject *);
-  int (*parse_child_line) (MimeObject *, const char *line, int32_t length,
-               bool first_line_p);
-  MimeMultipartBoundaryType (*check_boundary) (MimeObject *, const char *line,
-                         int32_t length);
+  int (*create_child)(MimeObject *);
+  bool (*output_child_p)(MimeObject *self, MimeObject *child);
+  int (*close_child)(MimeObject *);
+  int (*parse_child_line)(MimeObject *, const char *line, int32_t length,
+                          bool first_line_p);
+  MimeMultipartBoundaryType (*check_boundary)(MimeObject *, const char *line,
+                                              int32_t length);
 };
 
 extern MimeMultipartClass mimeMultipartClass;
 
 struct MimeMultipart {
-  MimeContainer container;      /* superclass variables */
-  char *boundary;          /* Inter-part delimiter string */
-  MimeHeaders *hdrs;        /* headers of the part currently
-                     being parsed, if any */
-  MimeMultipartParseState state;  /* State of parser */
+  MimeContainer container;       /* superclass variables */
+  char *boundary;                /* Inter-part delimiter string */
+  MimeHeaders *hdrs;             /* headers of the part currently
+                          being parsed, if any */
+  MimeMultipartParseState state; /* State of parser */
 };
 
 extern void MimeMultipart_notify_emitter(MimeObject *);
 
-#define MimeMultipartClassInitializer(ITYPE,CSUPER) \
-  { MimeContainerClassInitializer(ITYPE,CSUPER) }
+#define MimeMultipartClassInitializer(ITYPE, CSUPER) \
+  { MimeContainerClassInitializer(ITYPE, CSUPER) }
 
 #endif /* _MIMEMULT_H_ */

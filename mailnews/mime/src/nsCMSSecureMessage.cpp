@@ -39,53 +39,50 @@ using namespace mozilla::psm;
 NS_IMPL_ISUPPORTS(nsCMSSecureMessage, nsICMSSecureMessage)
 
 // nsCMSSecureMessage constructor
-nsCMSSecureMessage::nsCMSSecureMessage()
-{
+nsCMSSecureMessage::nsCMSSecureMessage() {
   // initialize superclass
 }
 
 // nsCMSMessage destructor
-nsCMSSecureMessage::~nsCMSSecureMessage()
-{
-}
+nsCMSSecureMessage::~nsCMSSecureMessage() {}
 
-nsresult nsCMSSecureMessage::Init()
-{
+nsresult nsCMSSecureMessage::Init() {
   nsresult rv;
-  nsCOMPtr<nsISupports> nssInitialized = do_GetService("@mozilla.org/psm;1", &rv);
+  nsCOMPtr<nsISupports> nssInitialized =
+      do_GetService("@mozilla.org/psm;1", &rv);
   return rv;
 }
 
-nsresult nsCMSSecureMessage::CheckUsageOk(
-  nsIX509Cert* aCert, SECCertificateUsage aUsage, bool* aCanBeUsed) {
+nsresult nsCMSSecureMessage::CheckUsageOk(nsIX509Cert* aCert,
+                                          SECCertificateUsage aUsage,
+                                          bool* aCanBeUsed) {
   NS_ENSURE_ARG_POINTER(aCert);
   *aCanBeUsed = false;
 
   nsresult rv;
-  nsCOMPtr<nsIX509CertDB> certdb = do_GetService(
-    "@mozilla.org/security/x509certdb;1", &rv);
+  nsCOMPtr<nsIX509CertDB> certdb =
+      do_GetService("@mozilla.org/security/x509certdb;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   RefPtr<SharedCertVerifier> certVerifier(GetDefaultCertVerifier());
   NS_ENSURE_TRUE(certVerifier, NS_ERROR_UNEXPECTED);
 
   UniqueCERTCertList unusedBuiltChain;
-  if (certVerifier->VerifyCert(aCert->GetCert(),
-                               aUsage,
-                               mozilla::pkix::Now(),
-                               nullptr,
-                               nullptr,
-                               unusedBuiltChain,
-                               CertVerifier::FLAG_LOCAL_ONLY) == mozilla::pkix::Success) {
+  if (certVerifier->VerifyCert(aCert->GetCert(), aUsage, mozilla::pkix::Now(),
+                               nullptr, nullptr, unusedBuiltChain,
+                               CertVerifier::FLAG_LOCAL_ONLY) ==
+      mozilla::pkix::Success) {
     *aCanBeUsed = true;
   }
   return NS_OK;
 }
 
-NS_IMETHODIMP nsCMSSecureMessage::CanBeUsedForEmailEncryption(nsIX509Cert* aCert, bool* aCanBeUsed) {
+NS_IMETHODIMP nsCMSSecureMessage::CanBeUsedForEmailEncryption(
+    nsIX509Cert* aCert, bool* aCanBeUsed) {
   return CheckUsageOk(aCert, certificateUsageEmailRecipient, aCanBeUsed);
 }
 
-NS_IMETHODIMP nsCMSSecureMessage::CanBeUsedForEmailSigning(nsIX509Cert* aCert, bool* aCanBeUsed) {
+NS_IMETHODIMP nsCMSSecureMessage::CanBeUsedForEmailSigning(nsIX509Cert* aCert,
+                                                           bool* aCanBeUsed) {
   return CheckUsageOk(aCert, certificateUsageEmailSigner, aCanBeUsed);
 }

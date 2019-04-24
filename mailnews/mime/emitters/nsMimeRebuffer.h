@@ -13,17 +13,17 @@
 //////////////////////////////////////////////////////////////
 
 class MimeRebuffer {
-public:
-    MimeRebuffer (void);
-    virtual       ~MimeRebuffer (void);
+ public:
+  MimeRebuffer(void);
+  virtual ~MimeRebuffer(void);
 
-    uint32_t      GetSize();
-    uint32_t      IncreaseBuffer(const nsACString &addBuf);
-    uint32_t      ReduceBuffer(uint32_t numBytes);
-    nsACString &  GetBuffer();
+  uint32_t GetSize();
+  uint32_t IncreaseBuffer(const nsACString &addBuf);
+  uint32_t ReduceBuffer(uint32_t numBytes);
+  nsACString &GetBuffer();
 
-protected:
-    nsCString     mBuf;
+ protected:
+  nsCString mBuf;
 };
 
 #endif /* _rebuffer_h_ */

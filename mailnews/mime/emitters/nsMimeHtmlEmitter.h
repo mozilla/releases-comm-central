@@ -11,47 +11,46 @@
 #include "nsIMimeMiscStatus.h"
 
 class nsMimeHtmlDisplayEmitter : public nsMimeBaseEmitter {
-public:
-    nsMimeHtmlDisplayEmitter ();
-    nsresult Init();
+ public:
+  nsMimeHtmlDisplayEmitter();
+  nsresult Init();
 
-    virtual       ~nsMimeHtmlDisplayEmitter (void);
+  virtual ~nsMimeHtmlDisplayEmitter(void);
 
-    // Header handling routines.
-    NS_IMETHOD    EndHeader(const nsACString &name) override;
+  // Header handling routines.
+  NS_IMETHOD EndHeader(const nsACString &name) override;
 
-    // Attachment handling routines
-    NS_IMETHOD    StartAttachment(const nsACString &name,
-                                  const char *contentType, const char *url,
-                                  bool aIsExternalAttachment) override;
-    NS_IMETHOD    AddAttachmentField(const char *field, const char *value) override;
-    NS_IMETHOD    EndAttachment() override;
-    NS_IMETHOD    EndAllAttachments() override;
+  // Attachment handling routines
+  NS_IMETHOD StartAttachment(const nsACString &name, const char *contentType,
+                             const char *url,
+                             bool aIsExternalAttachment) override;
+  NS_IMETHOD AddAttachmentField(const char *field, const char *value) override;
+  NS_IMETHOD EndAttachment() override;
+  NS_IMETHOD EndAllAttachments() override;
 
-    // Body handling routines
-    NS_IMETHOD    WriteBody(const nsACString &buf, uint32_t *amountWritten) override;
-    NS_IMETHOD    EndBody() override;
-    NS_IMETHOD    WriteHTMLHeaders(const nsACString &name) override;
+  // Body handling routines
+  NS_IMETHOD WriteBody(const nsACString &buf, uint32_t *amountWritten) override;
+  NS_IMETHOD EndBody() override;
+  NS_IMETHOD WriteHTMLHeaders(const nsACString &name) override;
 
-    virtual nsresult    WriteHeaderFieldHTMLPrefix(const nsACString &name
-                                                   ) override;
-    virtual nsresult    WriteHeaderFieldHTML(const char *field,
-                                             const char *value) override;
-    virtual nsresult    WriteHeaderFieldHTMLPostfix() override;
+  virtual nsresult WriteHeaderFieldHTMLPrefix(const nsACString &name) override;
+  virtual nsresult WriteHeaderFieldHTML(const char *field,
+                                        const char *value) override;
+  virtual nsresult WriteHeaderFieldHTMLPostfix() override;
 
-protected:
-    bool          mFirst;  // Attachment flag...
-    bool          mSkipAttachment;  // attachments we shouldn't show...
+ protected:
+  bool mFirst;           // Attachment flag...
+  bool mSkipAttachment;  // attachments we shouldn't show...
 
-    nsCOMPtr<nsIMsgHeaderSink> mHeaderSink;
+  nsCOMPtr<nsIMsgHeaderSink> mHeaderSink;
 
-    nsresult GetHeaderSink(nsIMsgHeaderSink ** aHeaderSink);
-    bool BroadCastHeadersAndAttachments();
-    nsresult StartAttachmentInBody(const nsACString &name,
-                                   const char *contentType, const char *url);
+  nsresult GetHeaderSink(nsIMsgHeaderSink **aHeaderSink);
+  bool BroadCastHeadersAndAttachments();
+  nsresult StartAttachmentInBody(const nsACString &name,
+                                 const char *contentType, const char *url);
 
-    nsresult BroadcastHeaders(nsIMsgHeaderSink * aHeaderSink, int32_t aHeaderMode, bool aFromNewsgroup);
+  nsresult BroadcastHeaders(nsIMsgHeaderSink *aHeaderSink, int32_t aHeaderMode,
+                            bool aFromNewsgroup);
 };
-
 
 #endif /* _nsMimeHtmlEmitter_h_ */

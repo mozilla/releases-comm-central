@@ -29,38 +29,30 @@
 // Forward declares...
 int32_t MimeHeaders_build_heads_list(MimeHeaders *hdrs);
 
-void
-MimeHeaders_convert_header_value(MimeDisplayOptions *opt, nsCString &value,
-                                 bool convert_charset_only)
-{
-  if (value.IsEmpty())
-    return;
+void MimeHeaders_convert_header_value(MimeDisplayOptions *opt, nsCString &value,
+                                      bool convert_charset_only) {
+  if (value.IsEmpty()) return;
 
-  if (convert_charset_only)
-  {
+  if (convert_charset_only) {
     nsAutoCString output;
-    nsMsgI18NConvertRawBytesToUTF8(value,
-                                   opt->default_charset ?
-                                     nsDependentCString(opt->default_charset) :
-                                     EmptyCString(),
-                                   output);
+    nsMsgI18NConvertRawBytesToUTF8(
+        value,
+        opt->default_charset ? nsDependentCString(opt->default_charset)
+                             : EmptyCString(),
+        output);
     value.Assign(output);
     return;
   }
 
-  if (opt && opt->rfc1522_conversion_p)
-  {
+  if (opt && opt->rfc1522_conversion_p) {
     nsAutoCString temporary;
     MIME_DecodeMimeHeader(value.get(), opt->default_charset,
                           opt->override_charset, true, temporary);
 
-    if (!temporary.IsEmpty())
-    {
+    if (!temporary.IsEmpty()) {
       value = temporary;
     }
-  }
-  else
-  {
+  } else {
     // This behavior, though highly unusual, was carefully preserved
     // from the previous implementation.  It may be that this is dead
     // code, in which case opt->rfc1522_conversion_p is no longer
@@ -69,10 +61,8 @@ MimeHeaders_convert_header_value(MimeDisplayOptions *opt, nsCString &value,
   }
 }
 
-MimeHeaders *
-MimeHeaders_new (void)
-{
-  MimeHeaders *hdrs = (MimeHeaders *) PR_MALLOC(sizeof(MimeHeaders));
+MimeHeaders *MimeHeaders_new(void) {
+  MimeHeaders *hdrs = (MimeHeaders *)PR_MALLOC(sizeof(MimeHeaders));
   if (!hdrs) return 0;
 
   memset(hdrs, 0, sizeof(*hdrs));
@@ -81,9 +71,7 @@ MimeHeaders_new (void)
   return hdrs;
 }
 
-void
-MimeHeaders_free (MimeHeaders *hdrs)
-{
+void MimeHeaders_free(MimeHeaders *hdrs) {
   if (!hdrs) return;
   PR_FREEIF(hdrs->all_headers);
   PR_FREEIF(hdrs->heads);
@@ -92,21 +80,20 @@ MimeHeaders_free (MimeHeaders *hdrs)
   hdrs->obuffer_fp = 0;
   hdrs->obuffer_size = 0;
 
-# ifdef DEBUG__
+#ifdef DEBUG__
   {
-  int i, size = sizeof(*hdrs);
-  uint32_t *array = (uint32_t*) hdrs;
-  for (i = 0; i < (size / sizeof(*array)); i++)
-    array[i] = (uint32_t) 0xDEADBEEF;
+    int i, size = sizeof(*hdrs);
+    uint32_t *array = (uint32_t *)hdrs;
+    for (i = 0; i < (size / sizeof(*array)); i++)
+      array[i] = (uint32_t)0xDEADBEEF;
   }
-# endif /* DEBUG */
+#endif /* DEBUG */
 
   PR_Free(hdrs);
 }
 
-int
-MimeHeaders_parse_line (const char *buffer, int32_t size, MimeHeaders *hdrs)
-{
+int MimeHeaders_parse_line(const char *buffer, int32_t size,
+                           MimeHeaders *hdrs) {
   int status = 0;
   int desired_size;
 
@@ -117,8 +104,7 @@ MimeHeaders_parse_line (const char *buffer, int32_t size, MimeHeaders *hdrs)
   NS_ASSERTION(!hdrs->done_p, "1.22 <rhp@netscape.com> 22 Aug 1999 08:48");
   if (hdrs->done_p) return -1;
 
-  if (!buffer || size == 0 || *buffer == '\r' || *buffer == '\n')
-  {
+  if (!buffer || size == 0 || *buffer == '\r' || *buffer == '\n') {
     /* If this is a blank line, we're done.
      */
     hdrs->done_p = true;
@@ -128,82 +114,70 @@ MimeHeaders_parse_line (const char *buffer, int32_t size, MimeHeaders *hdrs)
   /* Tack this data on to the end of our copy.
    */
   desired_size = hdrs->all_headers_fp + size + 1;
-  if (desired_size >= hdrs->all_headers_size)
-  {
-    status = mime_GrowBuffer (desired_size, sizeof(char), 255,
-                 &hdrs->all_headers, &hdrs->all_headers_size);
+  if (desired_size >= hdrs->all_headers_size) {
+    status = mime_GrowBuffer(desired_size, sizeof(char), 255,
+                             &hdrs->all_headers, &hdrs->all_headers_size);
     if (status < 0) return status;
   }
-  memcpy(hdrs->all_headers+hdrs->all_headers_fp, buffer, size);
+  memcpy(hdrs->all_headers + hdrs->all_headers_fp, buffer, size);
   hdrs->all_headers_fp += size;
 
   return 0;
 }
 
-MimeHeaders *
-MimeHeaders_copy (MimeHeaders *hdrs)
-{
+MimeHeaders *MimeHeaders_copy(MimeHeaders *hdrs) {
   MimeHeaders *hdrs2;
   if (!hdrs) return 0;
 
-  hdrs2 = (MimeHeaders *) PR_MALLOC(sizeof(*hdrs));
+  hdrs2 = (MimeHeaders *)PR_MALLOC(sizeof(*hdrs));
   if (!hdrs2) return 0;
   memset(hdrs2, 0, sizeof(*hdrs2));
 
-  if (hdrs->all_headers)
-  {
-    hdrs2->all_headers = (char *) PR_MALLOC(hdrs->all_headers_fp);
-    if (!hdrs2->all_headers)
-    {
+  if (hdrs->all_headers) {
+    hdrs2->all_headers = (char *)PR_MALLOC(hdrs->all_headers_fp);
+    if (!hdrs2->all_headers) {
       PR_Free(hdrs2);
       return 0;
     }
     memcpy(hdrs2->all_headers, hdrs->all_headers, hdrs->all_headers_fp);
 
-    hdrs2->all_headers_fp   = hdrs->all_headers_fp;
+    hdrs2->all_headers_fp = hdrs->all_headers_fp;
     hdrs2->all_headers_size = hdrs->all_headers_fp;
   }
 
   hdrs2->done_p = hdrs->done_p;
 
-  if (hdrs->heads)
-  {
+  if (hdrs->heads) {
     int i;
-    hdrs2->heads = (char **) PR_MALLOC(hdrs->heads_size
-                    * sizeof(*hdrs->heads));
-    if (!hdrs2->heads)
-    {
+    hdrs2->heads = (char **)PR_MALLOC(hdrs->heads_size * sizeof(*hdrs->heads));
+    if (!hdrs2->heads) {
       PR_FREEIF(hdrs2->all_headers);
       PR_Free(hdrs2);
       return 0;
     }
     hdrs2->heads_size = hdrs->heads_size;
-    for (i = 0; i < hdrs->heads_size; i++)
-    {
-      hdrs2->heads[i] = (hdrs2->all_headers +
-               (hdrs->heads[i] - hdrs->all_headers));
+    for (i = 0; i < hdrs->heads_size; i++) {
+      hdrs2->heads[i] =
+          (hdrs2->all_headers + (hdrs->heads[i] - hdrs->all_headers));
     }
   }
   return hdrs2;
 }
 
-int
-MimeHeaders_build_heads_list(MimeHeaders *hdrs)
-{
+int MimeHeaders_build_heads_list(MimeHeaders *hdrs) {
   char *s;
   char *end;
   int i;
   NS_ASSERTION(hdrs, "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
   if (!hdrs) return -1;
 
-  NS_ASSERTION(hdrs->done_p && !hdrs->heads, "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
-  if (!hdrs->done_p || hdrs->heads)
-  return -1;
+  NS_ASSERTION(hdrs->done_p && !hdrs->heads,
+               "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
+  if (!hdrs->done_p || hdrs->heads) return -1;
 
-  if (hdrs->all_headers_fp == 0)
-  {
+  if (hdrs->all_headers_fp == 0) {
     /* Must not have been any headers (we got the blank line right away.) */
-    PR_FREEIF (hdrs->all_headers);
+    PR_FREEIF(hdrs->all_headers);
     hdrs->all_headers_size = 0;
     return 0;
   }
@@ -211,13 +185,13 @@ MimeHeaders_build_heads_list(MimeHeaders *hdrs)
   /* At this point, we might as well realloc all_headers back down to the
    minimum size it must be (it could be up to 1k bigger.)  But don't
    bother if we're only off by a tiny bit. */
-  NS_ASSERTION(hdrs->all_headers_fp <= hdrs->all_headers_size, "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
-  if (hdrs->all_headers_fp + 60 <= hdrs->all_headers_size)
-  {
+  NS_ASSERTION(hdrs->all_headers_fp <= hdrs->all_headers_size,
+               "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
+  if (hdrs->all_headers_fp + 60 <= hdrs->all_headers_size) {
     char *ls = (char *)PR_Realloc(hdrs->all_headers, hdrs->all_headers_fp);
     if (ls) /* can this ever fail?  we're making it smaller... */
     {
-      hdrs->all_headers = ls;  /* in case it got relocated */
+      hdrs->all_headers = ls; /* in case it got relocated */
       hdrs->all_headers_size = hdrs->all_headers_fp;
     }
   }
@@ -225,22 +199,20 @@ MimeHeaders_build_heads_list(MimeHeaders *hdrs)
   /* First go through and count up the number of headers in the block.
    */
   end = hdrs->all_headers + hdrs->all_headers_fp;
-  for (s = hdrs->all_headers; s < end; s++)
-  {
-    if (s < (end-1) && s[0] == '\r' && s[1] == '\n') /* CRLF -> LF */
+  for (s = hdrs->all_headers; s < end; s++) {
+    if (s < (end - 1) && s[0] == '\r' && s[1] == '\n') /* CRLF -> LF */
       s++;
 
-    if ((s[0] == '\r' || s[0] == '\n') &&      /* we're at a newline, and */
-      (s >= (end-1) ||            /* we're at EOF, or */
-       !(s[1] == ' ' || s[1] == '\t')))    /* next char is nonwhite */
-    hdrs->heads_size++;
+    if ((s[0] == '\r' || s[0] == '\n') && /* we're at a newline, and */
+        (s >= (end - 1) ||                /* we're at EOF, or */
+         !(s[1] == ' ' || s[1] == '\t'))) /* next char is nonwhite */
+      hdrs->heads_size++;
   }
 
   /* Now allocate storage for the pointers to each of those headers.
    */
-  hdrs->heads = (char **) PR_MALLOC((hdrs->heads_size + 1) * sizeof(char *));
-  if (!hdrs->heads)
-    return MIME_OUT_OF_MEMORY;
+  hdrs->heads = (char **)PR_MALLOC((hdrs->heads_size + 1) * sizeof(char *));
+  if (!hdrs->heads) return MIME_OUT_OF_MEMORY;
   memset(hdrs->heads, 0, (hdrs->heads_size + 1) * sizeof(char *));
 
   /* Now make another pass through the headers, and this time, record the
@@ -251,29 +223,22 @@ MimeHeaders_build_heads_list(MimeHeaders *hdrs)
   hdrs->heads[i++] = hdrs->all_headers;
   s = hdrs->all_headers;
 
-  while (s < end)
-  {
+  while (s < end) {
   SEARCH_NEWLINE:
-    while (s < end && *s != '\r' && *s != '\n')
-      s++;
+    while (s < end && *s != '\r' && *s != '\n') s++;
 
-    if (s >= end)
-      break;
+    if (s >= end) break;
 
     /* If "\r\n " or "\r\n\t" is next, that doesn't terminate the header. */
-    else if (s+2 < end &&
-         (s[0] == '\r'  && s[1] == '\n') &&
-         (s[2] == ' ' || s[2] == '\t'))
-    {
+    else if (s + 2 < end && (s[0] == '\r' && s[1] == '\n') &&
+             (s[2] == ' ' || s[2] == '\t')) {
       s += 3;
       goto SEARCH_NEWLINE;
     }
     /* If "\r " or "\r\t" or "\n " or "\n\t" is next, that doesn't terminate
      the header either. */
-    else if (s+1 < end &&
-         (s[0] == '\r'  || s[0] == '\n') &&
-         (s[1] == ' ' || s[1] == '\t'))
-    {
+    else if (s + 1 < end && (s[0] == '\r' || s[0] == '\n') &&
+             (s[1] == ' ' || s[1] == '\t')) {
       s += 2;
       goto SEARCH_NEWLINE;
     }
@@ -281,20 +246,16 @@ MimeHeaders_build_heads_list(MimeHeaders *hdrs)
     /* At this point, `s' points before a header-terminating newline.
      Move past that newline, and store that new position in `heads'.
      */
-    if (*s == '\r')
-      s++;
+    if (*s == '\r') s++;
 
-    if (s >= end)
-      break;
+    if (s >= end) break;
 
-    if (*s == '\n')
-      s++;
+    if (*s == '\n') s++;
 
-    if (s < end)
-    {
-      NS_ASSERTION(! (i > hdrs->heads_size), "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
-      if (i > hdrs->heads_size)
-        return -1;
+    if (s < end) {
+      NS_ASSERTION(!(i > hdrs->heads_size),
+                   "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
+      if (i > hdrs->heads_size) return -1;
       hdrs->heads[i++] = s;
     }
   }
@@ -302,10 +263,8 @@ MimeHeaders_build_heads_list(MimeHeaders *hdrs)
   return 0;
 }
 
-char *
-MimeHeaders_get (MimeHeaders *hdrs, const char *header_name,
-         bool strip_p, bool all_p)
-{
+char *MimeHeaders_get(MimeHeaders *hdrs, const char *header_name, bool strip_p,
+                      bool all_p) {
   int i;
   int name_length;
   char *result = 0;
@@ -324,157 +283,141 @@ MimeHeaders_get (MimeHeaders *hdrs, const char *header_name,
    let's assume that the headers are now finished.  If they aren't
    in fact finished, then a later attempt to write to them will assert.
    */
-  if (!hdrs->done_p)
-  {
+  if (!hdrs->done_p) {
     int status;
     hdrs->done_p = true;
     status = MimeHeaders_build_heads_list(hdrs);
     if (status < 0) return 0;
   }
 
-  if (!hdrs->heads)    /* Must not have been any headers. */
+  if (!hdrs->heads) /* Must not have been any headers. */
   {
-    NS_ASSERTION(hdrs->all_headers_fp == 0, "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
+    NS_ASSERTION(hdrs->all_headers_fp == 0,
+                 "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
     return 0;
   }
 
   name_length = strlen(header_name);
 
-  for (i = 0; i < hdrs->heads_size; i++)
-  {
+  for (i = 0; i < hdrs->heads_size; i++) {
     char *head = hdrs->heads[i];
-    char *end = (i == hdrs->heads_size-1
-           ? hdrs->all_headers + hdrs->all_headers_fp
-           : hdrs->heads[i+1]);
+    char *end =
+        (i == hdrs->heads_size - 1 ? hdrs->all_headers + hdrs->all_headers_fp
+                                   : hdrs->heads[i + 1]);
     char *colon, *ocolon;
 
     NS_ASSERTION(head, "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
     if (!head) continue;
 
     /* Quick hack to skip over BSD Mailbox delimiter. */
-    if (i == 0 && head[0] == 'F' && !strncmp(head, "From ", 5))
-    continue;
+    if (i == 0 && head[0] == 'F' && !strncmp(head, "From ", 5)) continue;
 
     /* Find the colon. */
     for (colon = head; colon < end; colon++)
-    if (*colon == ':') break;
+      if (*colon == ':') break;
 
     if (colon >= end) continue;
 
     /* Back up over whitespace before the colon. */
     ocolon = colon;
     for (; colon > head && IS_SPACE(colon[-1]); colon--)
-    ;
+      ;
 
     /* If the strings aren't the same length, it doesn't match. */
-    if (name_length != colon - head )
-    continue;
+    if (name_length != colon - head) continue;
 
     /* If the strings differ, it doesn't match. */
-    if (PL_strncasecmp(header_name, head, name_length))
-    continue;
+    if (PL_strncasecmp(header_name, head, name_length)) continue;
 
     /* Otherwise, we've got a match. */
     {
-    char *contents = ocolon + 1;
-    char *s;
+      char *contents = ocolon + 1;
+      char *s;
 
-    /* Skip over whitespace after colon. */
-    while (contents < end && IS_SPACE(contents[0])) {
-      /* Mac or Unix style line break, followed by space or tab. */
-      if (contents < (end - 1) &&
-         (contents[0] == '\r' || contents[0] == '\n') &&
-         (contents[1] == ' ' || contents[1] == '\t'))
-        contents += 2;
-      /* Windows style line break, followed by space or tab. */
-      else if (contents < (end - 2) &&
-               contents[0] == '\r' && contents[1] == '\n' &&
-              (contents[2] == ' ' || contents[2] == '\t'))
-        contents += 3;
-      /* Any space or tab. */
-      else if (contents[0] == ' ' || contents[0] == '\t')
-        contents++;
-      /* If we get here, it's because this character is a line break
-         followed by non-whitespace, or a line break followed by
-         another line break
-       */
-      else {
-        end = contents;
-        break;
-      }
-    }
-
-    /* If we're supposed to strip at the first token, pull `end' back to
-       the first whitespace or ';' after the first token.
-     */
-    if (strip_p)
-      {
-      for (s = contents;
-         s < end && *s != ';' && *s != ',' && !IS_SPACE(*s);
-         s++)
-        ;
-      end = s;
-      }
-
-    /* Now allocate some storage.
-       If `result' already has a value, enlarge it.
-       Otherwise, just allocate a block.
-       `s' gets set to the place where the new data goes.
-     */
-    if (!result)
-      {
-      result = (char *) PR_MALLOC(end - contents + 1);
-      if (!result)
-        return 0;
-      s = result;
-      }
-    else
-      {
-      int32_t L = strlen(result);
-      s = (char *) PR_Realloc(result, (L + (end - contents + 10)));
-      if (!s)
-        {
-        PR_Free(result);
-        return 0;
+      /* Skip over whitespace after colon. */
+      while (contents < end && IS_SPACE(contents[0])) {
+        /* Mac or Unix style line break, followed by space or tab. */
+        if (contents < (end - 1) &&
+            (contents[0] == '\r' || contents[0] == '\n') &&
+            (contents[1] == ' ' || contents[1] == '\t'))
+          contents += 2;
+        /* Windows style line break, followed by space or tab. */
+        else if (contents < (end - 2) && contents[0] == '\r' &&
+                 contents[1] == '\n' &&
+                 (contents[2] == ' ' || contents[2] == '\t'))
+          contents += 3;
+        /* Any space or tab. */
+        else if (contents[0] == ' ' || contents[0] == '\t')
+          contents++;
+        /* If we get here, it's because this character is a line break
+           followed by non-whitespace, or a line break followed by
+           another line break
+         */
+        else {
+          end = contents;
+          break;
         }
-      result = s;
-      s = result + L;
-
-      /* Since we are tacking more data onto the end of the header
-         field, we must make it be a well-formed continuation line,
-                          by separating the old and new data with CR-LF-TAB.
-       */
-      *s++ = ',';        /* #### only do this for addr headers? */
-      *s++ = MSG_LINEBREAK[0];
-# if (MSG_LINEBREAK_LEN == 2)
-      *s++ = MSG_LINEBREAK[1];
-# endif
-      *s++ = '\t';
       }
 
+      /* If we're supposed to strip at the first token, pull `end' back to
+         the first whitespace or ';' after the first token.
+       */
+      if (strip_p) {
+        for (s = contents; s < end && *s != ';' && *s != ',' && !IS_SPACE(*s);
+             s++)
+          ;
+        end = s;
+      }
 
-    /* Take off trailing whitespace... */
-    while (end > contents && IS_SPACE(end[-1]))
-      end--;
+      /* Now allocate some storage.
+         If `result' already has a value, enlarge it.
+         Otherwise, just allocate a block.
+         `s' gets set to the place where the new data goes.
+       */
+      if (!result) {
+        result = (char *)PR_MALLOC(end - contents + 1);
+        if (!result) return 0;
+        s = result;
+      } else {
+        int32_t L = strlen(result);
+        s = (char *)PR_Realloc(result, (L + (end - contents + 10)));
+        if (!s) {
+          PR_Free(result);
+          return 0;
+        }
+        result = s;
+        s = result + L;
 
-    if (end > contents)
-      {
+        /* Since we are tacking more data onto the end of the header
+           field, we must make it be a well-formed continuation line,
+                            by separating the old and new data with CR-LF-TAB.
+         */
+        *s++ = ','; /* #### only do this for addr headers? */
+        *s++ = MSG_LINEBREAK[0];
+#if (MSG_LINEBREAK_LEN == 2)
+        *s++ = MSG_LINEBREAK[1];
+#endif
+        *s++ = '\t';
+      }
+
+      /* Take off trailing whitespace... */
+      while (end > contents && IS_SPACE(end[-1])) end--;
+
+      if (end > contents) {
         /* Now copy the header's contents in...
          */
         memcpy(s, contents, end - contents);
         s[end - contents] = 0;
-      }
-    else
-      {
+      } else {
         s[0] = 0;
       }
 
-    /* If we only wanted the first occurrence of this header, we're done. */
-    if (!all_p) break;
+      /* If we only wanted the first occurrence of this header, we're done. */
+      if (!all_p) break;
     }
   }
 
-  if (result && !*result)  /* empty string */
+  if (result && !*result) /* empty string */
   {
     PR_Free(result);
     return 0;
@@ -483,19 +426,16 @@ MimeHeaders_get (MimeHeaders *hdrs, const char *header_name,
   return result;
 }
 
-char *
-MimeHeaders_get_parameter (const char *header_value, const char *parm_name,
-                           char **charset, char **language)
-{
+char *MimeHeaders_get_parameter(const char *header_value, const char *parm_name,
+                                char **charset, char **language) {
   if (!header_value || !parm_name || !*header_value || !*parm_name)
     return nullptr;
 
   nsresult rv;
-  nsCOMPtr <nsIMIMEHeaderParam> mimehdrpar =
-    do_GetService(NS_MIMEHEADERPARAM_CONTRACTID, &rv);
+  nsCOMPtr<nsIMIMEHeaderParam> mimehdrpar =
+      do_GetService(NS_MIMEHEADERPARAM_CONTRACTID, &rv);
 
-  if (NS_FAILED(rv))
-    return nullptr;
+  if (NS_FAILED(rv)) return nullptr;
 
   nsCString result;
   rv = mimehdrpar->GetParameterInternal(header_value, parm_name, charset,
@@ -503,26 +443,23 @@ MimeHeaders_get_parameter (const char *header_value, const char *parm_name,
   return NS_SUCCEEDED(rv) ? PL_strdup(result.get()) : nullptr;
 }
 
-#define MimeHeaders_write(HDRS,OPT,DATA,LENGTH) \
-    MimeOptions_write((HDRS), (OPT), (DATA), (LENGTH), true);
+#define MimeHeaders_write(HDRS, OPT, DATA, LENGTH) \
+  MimeOptions_write((HDRS), (OPT), (DATA), (LENGTH), true);
 
+#define MimeHeaders_grow_obuffer(hdrs, desired_size)                          \
+  ((((long)(desired_size)) >= ((long)(hdrs)->obuffer_size))                   \
+       ? mime_GrowBuffer((desired_size), sizeof(char), 255, &(hdrs)->obuffer, \
+                         &(hdrs)->obuffer_size)                               \
+       : 0)
 
-#define MimeHeaders_grow_obuffer(hdrs, desired_size) \
-  ((((long) (desired_size)) >= ((long) (hdrs)->obuffer_size)) ? \
-   mime_GrowBuffer ((desired_size), sizeof(char), 255, \
-           &(hdrs)->obuffer, &(hdrs)->obuffer_size) \
-   : 0)
-
-int
-MimeHeaders_write_all_headers (MimeHeaders *hdrs, MimeDisplayOptions *opt, bool attachment)
-{
+int MimeHeaders_write_all_headers(MimeHeaders *hdrs, MimeDisplayOptions *opt,
+                                  bool attachment) {
   int status = 0;
   int i;
   bool wrote_any_p = false;
 
   NS_ASSERTION(hdrs, "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
-  if (!hdrs)
-    return -1;
+  if (!hdrs) return -1;
 
   /* One shouldn't be trying to read headers when one hasn't finished
      parsing them yet... but this can happen if the message ended
@@ -531,104 +468,97 @@ MimeHeaders_write_all_headers (MimeHeaders *hdrs, MimeDisplayOptions *opt, bool 
      let's assume that the headers are now finished.  If they aren't
      in fact finished, then a later attempt to write to them will assert.
    */
-  if (!hdrs->done_p)
-  {
+  if (!hdrs->done_p) {
     hdrs->done_p = true;
     status = MimeHeaders_build_heads_list(hdrs);
     if (status < 0) return 0;
   }
 
   char *charset = nullptr;
-  if (opt->format_out == nsMimeOutput::nsMimeMessageSaveAs)
-  {
+  if (opt->format_out == nsMimeOutput::nsMimeMessageSaveAs) {
     if (opt->override_charset)
       charset = PL_strdup(opt->default_charset);
-    else
-    {
-      char *contentType = MimeHeaders_get(hdrs, HEADER_CONTENT_TYPE, false, false);
+    else {
+      char *contentType =
+          MimeHeaders_get(hdrs, HEADER_CONTENT_TYPE, false, false);
       if (contentType)
-        charset = MimeHeaders_get_parameter(contentType, HEADER_PARM_CHARSET, nullptr, nullptr);
+        charset = MimeHeaders_get_parameter(contentType, HEADER_PARM_CHARSET,
+                                            nullptr, nullptr);
       PR_FREEIF(contentType);
     }
   }
 
-  for (i = 0; i < hdrs->heads_size; i++)
-  {
+  for (i = 0; i < hdrs->heads_size; i++) {
     char *head = hdrs->heads[i];
-    char *end = (i == hdrs->heads_size-1
-                      ? hdrs->all_headers + hdrs->all_headers_fp
-                      : hdrs->heads[i+1]);
+    char *end =
+        (i == hdrs->heads_size - 1 ? hdrs->all_headers + hdrs->all_headers_fp
+                                   : hdrs->heads[i + 1]);
     char *colon, *ocolon;
     char *contents = end;
 
     /* Hack for BSD Mailbox delimiter. */
-    if (i == 0 && head[0] == 'F' && !strncmp(head, "From ", 5))
-    {
+    if (i == 0 && head[0] == 'F' && !strncmp(head, "From ", 5)) {
       /* For now, we don't really want this header to be output so
          we are going to just continue */
       continue;
       /* colon = head + 4; contents = colon + 1; */
-    }
-    else
-    {
+    } else {
       /* Find the colon. */
       for (colon = head; colon < end && *colon != ':'; colon++)
         ;
 
-        /* Back up over whitespace before the colon. */
-        ocolon = colon;
-        for (; colon > head && IS_SPACE(colon[-1]); colon--)
-          ;
+      /* Back up over whitespace before the colon. */
+      ocolon = colon;
+      for (; colon > head && IS_SPACE(colon[-1]); colon--)
+        ;
 
-        contents = ocolon + 1;
+      contents = ocolon + 1;
     }
 
     /* Skip over whitespace after colon. */
-    while (contents < end && IS_SPACE(*contents))
-      contents++;
+    while (contents < end && IS_SPACE(*contents)) contents++;
 
     /* Take off trailing whitespace... */
-    while (end > contents && IS_SPACE(end[-1]))
-      end--;
+    while (end > contents && IS_SPACE(end[-1])) end--;
 
     nsAutoCString name(Substring(head, colon));
     nsAutoCString hdr_value;
 
-    if ( (end - contents) > 0 )
-    {
+    if ((end - contents) > 0) {
       hdr_value = Substring(contents, end);
     }
 
     // MW Fixme: more?
-    bool convert_charset_only =
-          MsgLowerCaseEqualsLiteral(name, "to") || MsgLowerCaseEqualsLiteral(name, "from") ||
-          MsgLowerCaseEqualsLiteral(name, "cc") || MsgLowerCaseEqualsLiteral(name, "bcc") ||
-          MsgLowerCaseEqualsLiteral(name, "reply-to") || MsgLowerCaseEqualsLiteral(name, "sender");
+    bool convert_charset_only = MsgLowerCaseEqualsLiteral(name, "to") ||
+                                MsgLowerCaseEqualsLiteral(name, "from") ||
+                                MsgLowerCaseEqualsLiteral(name, "cc") ||
+                                MsgLowerCaseEqualsLiteral(name, "bcc") ||
+                                MsgLowerCaseEqualsLiteral(name, "reply-to") ||
+                                MsgLowerCaseEqualsLiteral(name, "sender");
     MimeHeaders_convert_header_value(opt, hdr_value, convert_charset_only);
-    // if we're saving as html, we need to convert headers from utf8 to message charset, if any
-    if (opt->format_out == nsMimeOutput::nsMimeMessageSaveAs && charset)
-    {
+    // if we're saving as html, we need to convert headers from utf8 to message
+    // charset, if any
+    if (opt->format_out == nsMimeOutput::nsMimeMessageSaveAs && charset) {
       nsAutoCString convertedStr;
-      if (NS_SUCCEEDED(nsMsgI18NConvertFromUnicode(nsDependentCString(charset),
-                       NS_ConvertUTF8toUTF16(hdr_value),
-                       convertedStr)))
-      {
+      if (NS_SUCCEEDED(nsMsgI18NConvertFromUnicode(
+              nsDependentCString(charset), NS_ConvertUTF8toUTF16(hdr_value),
+              convertedStr))) {
         hdr_value = convertedStr;
       }
     }
 
     if (attachment) {
-      if (NS_FAILED(mimeEmitterAddAttachmentField(opt, name.get(), hdr_value.get())))
+      if (NS_FAILED(
+              mimeEmitterAddAttachmentField(opt, name.get(), hdr_value.get())))
         status = -1;
-    }
-    else {
-      if (NS_FAILED(mimeEmitterAddHeaderField(opt, name.get(), hdr_value.get())))
+    } else {
+      if (NS_FAILED(
+              mimeEmitterAddHeaderField(opt, name.get(), hdr_value.get())))
         status = -1;
     }
 
     if (status < 0) return status;
-    if (!wrote_any_p)
-      wrote_any_p = (status > 0);
+    if (!wrote_any_p) wrote_any_p = (status > 0);
   }
   mimeEmitterAddAllHeaders(opt, hdrs->all_headers, hdrs->all_headers_fp);
   PR_FREEIF(charset);
@@ -640,9 +570,7 @@ MimeHeaders_write_all_headers (MimeHeaders *hdrs, MimeDisplayOptions *opt, bool 
    Since the string at (original) can only shrink,
    this conversion is done in place. (original)
    is returned. */
-extern "C" char *
-MIME_StripContinuations(char *original)
-{
+extern "C" char *MIME_StripContinuations(char *original) {
   char *p1, *p2;
 
   /* If we were given a null string, return it as is */
@@ -671,21 +599,17 @@ extern int16_t INTL_DefaultMailToWinCharSetID(int16_t csid);
 
 /* Given text purporting to be a qtext header value, strip backslashes that
   may be escaping other chars in the string. */
-char *
-mime_decode_filename(const char *name, const char *charset,
-                     MimeDisplayOptions *opt)
-{
+char *mime_decode_filename(const char *name, const char *charset,
+                           MimeDisplayOptions *opt) {
   nsresult rv;
-  nsCOMPtr <nsIMIMEHeaderParam> mimehdrpar =
-    do_GetService(NS_MIMEHEADERPARAM_CONTRACTID, &rv);
+  nsCOMPtr<nsIMIMEHeaderParam> mimehdrpar =
+      do_GetService(NS_MIMEHEADERPARAM_CONTRACTID, &rv);
 
-  if (NS_FAILED(rv))
-    return nullptr;
+  if (NS_FAILED(rv)) return nullptr;
   nsAutoCString result;
   rv = mimehdrpar->DecodeParameter(nsDependentCString(name), charset,
                                    opt ? opt->default_charset : nullptr,
-                                   opt ? opt->override_charset : false,
-                                   result);
+                                   opt ? opt->override_charset : false, result);
   return NS_SUCCEEDED(rv) ? PL_strdup(result.get()) : nullptr;
 }
 
@@ -695,24 +619,19 @@ mime_decode_filename(const char *name, const char *charset,
    Content-Name: NAME (no RFC, but seen to occur)
    X-Sun-Data-Name: NAME (no RFC, but used by MailTool)
  */
-char *
-MimeHeaders_get_name(MimeHeaders *hdrs, MimeDisplayOptions *opt)
-{
+char *MimeHeaders_get_name(MimeHeaders *hdrs, MimeDisplayOptions *opt) {
   char *s = 0, *name = 0, *cvt = 0;
-  char *charset = nullptr; // for RFC2231 support
+  char *charset = nullptr;  // for RFC2231 support
 
   s = MimeHeaders_get(hdrs, HEADER_CONTENT_DISPOSITION, false, false);
-  if (s)
-  {
+  if (s) {
     name = MimeHeaders_get_parameter(s, HEADER_PARM_FILENAME, &charset, NULL);
     PR_Free(s);
   }
 
-  if (! name)
-  {
+  if (!name) {
     s = MimeHeaders_get(hdrs, HEADER_CONTENT_TYPE, false, false);
-    if (s)
-    {
+    if (s) {
       free(charset);
 
       name = MimeHeaders_get_parameter(s, HEADER_PARM_NAME, &charset, NULL);
@@ -720,14 +639,11 @@ MimeHeaders_get_name(MimeHeaders *hdrs, MimeDisplayOptions *opt)
     }
   }
 
-  if (! name)
-    name = MimeHeaders_get (hdrs, HEADER_CONTENT_NAME, false, false);
+  if (!name) name = MimeHeaders_get(hdrs, HEADER_CONTENT_NAME, false, false);
 
-  if (! name)
-    name = MimeHeaders_get (hdrs, HEADER_X_SUN_DATA_NAME, false, false);
+  if (!name) name = MimeHeaders_get(hdrs, HEADER_X_SUN_DATA_NAME, false, false);
 
-  if (name)
-  {
+  if (name) {
     /* First remove continuation delimiters (CR+LF+space), then
        remove escape ('\\') characters, then attempt to decode
        mime-2 encoded-words. The latter two are done in
@@ -742,8 +658,7 @@ MimeHeaders_get_name(MimeHeaders *hdrs, MimeDisplayOptions *opt)
 
     free(charset);
 
-    if (cvt && cvt != name)
-    {
+    if (cvt && cvt != name) {
       PR_Free(name);
       name = cvt;
     }
@@ -760,27 +675,21 @@ MimeHeaders_get_name(MimeHeaders *hdrs, MimeDisplayOptions *opt)
    = Put (gnuserv-start) in ~/.emacs
    = setenv NS_MSG_DISPLAY_HOOK bbdb-srv.perl
  */
-void
-MimeHeaders_do_unix_display_hook_hack(MimeHeaders *hdrs)
-{
+void MimeHeaders_do_unix_display_hook_hack(MimeHeaders *hdrs) {
   static const char *cmd = 0;
-  if (!cmd)
-  {
-  /* The first time we're invoked, look up the command in the
-    environment.  Use "" as the `no command' tag. */
+  if (!cmd) {
+    /* The first time we're invoked, look up the command in the
+      environment.  Use "" as the `no command' tag. */
     cmd = getenv("NS_MSG_DISPLAY_HOOK");
-    if (!cmd)
-      cmd = "";
+    if (!cmd) cmd = "";
   }
 
   /* Invoke "cmd" at the end of a pipe, and give it the headers on stdin.
    The command is expected to be safe from hostile input!!
   */
-  if (cmd && *cmd)
-  {
+  if (cmd && *cmd) {
     FILE *fp = popen(cmd, "w");
-    if (fp)
-    {
+    if (fp) {
       mozilla::Unused << fwrite(hdrs->all_headers, 1, hdrs->all_headers_fp, fp);
       pclose(fp);
     }
@@ -788,9 +697,7 @@ MimeHeaders_do_unix_display_hook_hack(MimeHeaders *hdrs)
 }
 #endif /* XP_UNIX */
 
-static void
-MimeHeaders_compact (MimeHeaders *hdrs)
-{
+static void MimeHeaders_compact(MimeHeaders *hdrs) {
   NS_ASSERTION(hdrs, "1.22 <rhp@netscape.com> 22 Aug 1999 08:48");
   if (!hdrs) return;
 
@@ -800,7 +707,8 @@ MimeHeaders_compact (MimeHeaders *hdrs)
 
   /* These really shouldn't have gotten out of whack again. */
   NS_ASSERTION(hdrs->all_headers_fp <= hdrs->all_headers_size &&
-            hdrs->all_headers_fp + 100 > hdrs->all_headers_size, "1.22 <rhp@netscape.com> 22 Aug 1999 08:48");
+                   hdrs->all_headers_fp + 100 > hdrs->all_headers_size,
+               "1.22 <rhp@netscape.com> 22 Aug 1999 08:48");
 }
 
 /* Writes the headers as text/plain.
@@ -808,47 +716,38 @@ MimeHeaders_compact (MimeHeaders *hdrs)
    dont_write_content_type is true, in which case the header-block
    is not closed off, and none of the Content- headers are written.
  */
-int
-MimeHeaders_write_raw_headers (MimeHeaders *hdrs, MimeDisplayOptions *opt,
-                 bool dont_write_content_type)
-{
+int MimeHeaders_write_raw_headers(MimeHeaders *hdrs, MimeDisplayOptions *opt,
+                                  bool dont_write_content_type) {
   int status;
 
-  if (hdrs && !hdrs->done_p)
-  {
+  if (hdrs && !hdrs->done_p) {
     hdrs->done_p = true;
     status = MimeHeaders_build_heads_list(hdrs);
     if (status < 0) return 0;
   }
 
-  if (!dont_write_content_type)
-  {
+  if (!dont_write_content_type) {
     char nl[] = MSG_LINEBREAK;
-    if (hdrs)
-    {
-      status = MimeHeaders_write(hdrs, opt, hdrs->all_headers,
-                                 hdrs->all_headers_fp);
+    if (hdrs) {
+      status =
+          MimeHeaders_write(hdrs, opt, hdrs->all_headers, hdrs->all_headers_fp);
       if (status < 0) return status;
     }
     status = MimeHeaders_write(hdrs, opt, nl, strlen(nl));
     if (status < 0) return status;
-  }
-  else if (hdrs)
-  {
+  } else if (hdrs) {
     int32_t i;
-    for (i = 0; i < hdrs->heads_size; i++)
-    {
+    for (i = 0; i < hdrs->heads_size; i++) {
       char *head = hdrs->heads[i];
-      char *end = (i == hdrs->heads_size-1
-             ? hdrs->all_headers + hdrs->all_headers_fp
-             : hdrs->heads[i+1]);
+      char *end =
+          (i == hdrs->heads_size - 1 ? hdrs->all_headers + hdrs->all_headers_fp
+                                     : hdrs->heads[i + 1]);
 
       NS_ASSERTION(head, "1.22 <rhp@netscape.com> 22 Aug 1999 08:48");
       if (!head) continue;
 
       /* Don't write out any Content- header. */
-      if (!PL_strncasecmp(head, "Content-", 8))
-      continue;
+      if (!PL_strncasecmp(head, "Content-", 8)) continue;
 
       /* Write out this (possibly multi-line) header. */
       status = MimeHeaders_write(hdrs, opt, head, end - head);
@@ -856,38 +755,21 @@ MimeHeaders_write_raw_headers (MimeHeaders *hdrs, MimeDisplayOptions *opt,
     }
   }
 
-  if (hdrs)
-    MimeHeaders_compact(hdrs);
+  if (hdrs) MimeHeaders_compact(hdrs);
 
   return 0;
 }
 
 // XXX Fix this XXX //
-char *
-MimeHeaders_open_crypto_stamp(void)
-{
-  return nullptr;
-}
+char *MimeHeaders_open_crypto_stamp(void) { return nullptr; }
 
-char *
-MimeHeaders_finish_open_crypto_stamp(void)
-{
-  return nullptr;
-}
+char *MimeHeaders_finish_open_crypto_stamp(void) { return nullptr; }
 
-char *
-MimeHeaders_close_crypto_stamp(void)
-{
-  return nullptr;
-}
+char *MimeHeaders_close_crypto_stamp(void) { return nullptr; }
 
-char *
-MimeHeaders_make_crypto_stamp(bool encrypted_p,
-                              bool signed_p,
-                              bool good_p,
-                              bool unverified_p,
-                              bool close_parent_stamp_p,
-                              const char *stamp_url)
-{
+char *MimeHeaders_make_crypto_stamp(bool encrypted_p, bool signed_p,
+                                    bool good_p, bool unverified_p,
+                                    bool close_parent_stamp_p,
+                                    const char *stamp_url) {
   return nullptr;
 }

@@ -21,14 +21,12 @@ using namespace mozilla;
 // BEGIN PUBLIC INTERFACE
 extern "C" {
 
-
 void MIME_DecodeMimeHeader(const char *header, const char *default_charset,
                            bool override_charset, bool eatContinuations,
-                           nsACString &result)
-{
+                           nsACString &result) {
   nsresult rv;
-  nsCOMPtr <nsIMimeConverter> mimeConverter =
-    do_GetService(NS_MIME_CONVERTER_CONTRACTID, &rv);
+  nsCOMPtr<nsIMimeConverter> mimeConverter =
+      do_GetService(NS_MIME_CONVERTER_CONTRACTID, &rv);
   if (NS_FAILED(rv)) {
     result.Truncate();
     return;
@@ -39,30 +37,27 @@ void MIME_DecodeMimeHeader(const char *header, const char *default_charset,
 }
 
 // UTF-8 utility functions.
-//detect charset soly based on aBuf. return in aCharset
-class CharsetDetectionObserver : public nsICharsetDetectionObserver
-{
-public:
+// detect charset soly based on aBuf. return in aCharset
+class CharsetDetectionObserver : public nsICharsetDetectionObserver {
+ public:
   NS_DECL_ISUPPORTS
-  CharsetDetectionObserver() {};
-  NS_IMETHOD Notify(const char* aCharset, nsDetectionConfident aConf) override
-  {
+  CharsetDetectionObserver(){};
+  NS_IMETHOD Notify(const char *aCharset, nsDetectionConfident aConf) override {
     mCharset.AssignASCII(aCharset);
     mConf = aConf;
     return NS_OK;
   };
-  void GetDetectedCharset(nsACString& aCharset) { aCharset = mCharset; }
+  void GetDetectedCharset(nsACString &aCharset) { aCharset = mCharset; }
   nsDetectionConfident GetDetectionConfident() { return mConf; }
 
-private:
+ private:
   virtual ~CharsetDetectionObserver() {}
   nsCString mCharset;
   nsDetectionConfident mConf;
 };
 
-nsresult
-MIME_detect_charset(const char *aBuf, int32_t aLength, nsACString& aCharset)
-{
+nsresult MIME_detect_charset(const char *aBuf, int32_t aLength,
+                             nsACString &aCharset) {
   nsresult rv = NS_ERROR_UNEXPECTED;
   nsCOMPtr<nsICharsetDetector> detector;
   nsAutoCString detectorName;
@@ -108,4 +103,3 @@ MIME_detect_charset(const char *aBuf, int32_t aLength, nsACString& aCharset)
 
 } /* end of extern "C" */
 // END PUBLIC INTERFACE
-

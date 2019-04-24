@@ -21,23 +21,23 @@
  */
 
 typedef struct MimeContainerClass MimeContainerClass;
-typedef struct MimeContainer      MimeContainer;
+typedef struct MimeContainer MimeContainer;
 
 struct MimeContainerClass {
   MimeObjectClass object;
-  int (*add_child) (MimeObject *parent, MimeObject *child);
+  int (*add_child)(MimeObject *parent, MimeObject *child);
 };
 
 extern MimeContainerClass mimeContainerClass;
 
 struct MimeContainer {
-  MimeObject object;    /* superclass variables */
+  MimeObject object; /* superclass variables */
 
-  MimeObject **children;  /* list of contained objects */
-  int32_t nchildren;      /* how many */
+  MimeObject **children; /* list of contained objects */
+  int32_t nchildren;     /* how many */
 };
 
-#define MimeContainerClassInitializer(ITYPE,CSUPER) \
-  { MimeObjectClassInitializer(ITYPE,CSUPER) }
+#define MimeContainerClassInitializer(ITYPE, CSUPER) \
+  { MimeObjectClassInitializer(ITYPE, CSUPER) }
 
 #endif /* _MIMECONT_H_ */

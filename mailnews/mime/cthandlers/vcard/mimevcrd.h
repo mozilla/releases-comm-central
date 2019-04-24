@@ -14,11 +14,11 @@
  */
 
 typedef struct MimeInlineTextVCardClass MimeInlineTextVCardClass;
-typedef struct MimeInlineTextVCard      MimeInlineTextVCard;
+typedef struct MimeInlineTextVCard MimeInlineTextVCard;
 
 struct MimeInlineTextVCardClass {
-  MimeInlineTextClass         text;
-  char                        *vCardString;
+  MimeInlineTextClass text;
+  char *vCardString;
 };
 
 extern MimeInlineTextVCardClass mimeInlineTextVCardClass;
@@ -27,7 +27,7 @@ struct MimeInlineTextVCard {
   MimeInlineText text;
 };
 
-#define MimeInlineTextVCardClassInitializer(ITYPE,CSUPER) \
-  { MimeInlineTextClassInitializer(ITYPE,CSUPER) }
+#define MimeInlineTextVCardClassInitializer(ITYPE, CSUPER) \
+  { MimeInlineTextClassInitializer(ITYPE, CSUPER) }
 
 #endif /* _MIMEVCRD_H_ */

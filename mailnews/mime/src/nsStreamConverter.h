@@ -17,8 +17,9 @@
 
 #define MIME_FORWARD_HTML_PREFIX "<HTML><BODY><BR><BR>"
 
-class nsStreamConverter : public nsIStreamConverter, public nsIMimeStreamConverter {
-public:
+class nsStreamConverter : public nsIStreamConverter,
+                          public nsIMimeStreamConverter {
+ public:
   nsStreamConverter();
 
   NS_DECL_THREADSAFE_ISUPPORTS
@@ -36,52 +37,58 @@ public:
   ////////////////////////////////////////////////////////////////////////////
   // nsStreamConverter specific methods:
   ////////////////////////////////////////////////////////////////////////////
-  NS_IMETHOD Init(nsIURI *aURI, nsIStreamListener * aOutListener, nsIChannel *aChannel);
+  NS_IMETHOD Init(nsIURI *aURI, nsIStreamListener *aOutListener,
+                  nsIChannel *aChannel);
   NS_IMETHOD GetContentType(char **aOutputContentType);
   NS_IMETHOD InternalCleanup(void);
   NS_IMETHOD DetermineOutputFormat(const char *url, nsMimeOutputType *newType);
   NS_IMETHOD FirePendingStartRequest(void);
 
-private:
+ private:
   virtual ~nsStreamConverter();
   nsresult Close();
 
-  // the input and output streams form a pipe...they need to be passed around together..
-  nsCOMPtr<nsIAsyncOutputStream>     mOutputStream;     // output stream
-  nsCOMPtr<nsIAsyncInputStream>      mInputStream;
+  // the input and output streams form a pipe...they need to be passed around
+  // together..
+  nsCOMPtr<nsIAsyncOutputStream> mOutputStream;  // output stream
+  nsCOMPtr<nsIAsyncInputStream> mInputStream;
 
-  nsCOMPtr<nsIStreamListener>   mOutListener;   // output stream listener
-  nsCOMPtr<nsIChannel>          mOutgoingChannel;
+  nsCOMPtr<nsIStreamListener> mOutListener;  // output stream listener
+  nsCOMPtr<nsIChannel> mOutgoingChannel;
 
-  nsCOMPtr<nsIMimeEmitter>      mEmitter;         // emitter being used...
-  nsCOMPtr<nsIURI>              mURI;             // URI being processed
-  nsMimeOutputType              mOutputType;      // the output type we should use for the operation
-  bool                          mAlreadyKnowOutputType;
+  nsCOMPtr<nsIMimeEmitter> mEmitter;  // emitter being used...
+  nsCOMPtr<nsIURI> mURI;              // URI being processed
+  nsMimeOutputType
+      mOutputType;  // the output type we should use for the operation
+  bool mAlreadyKnowOutputType;
 
-  void                          *mBridgeStream;   // internal libmime data stream
+  void *mBridgeStream;  // internal libmime data stream
 
   // Type of output, entire message, header only, body only
-  nsCString                     mOutputFormat;
-  nsCString                     mRealContentType; // if we know the content type for real, this will be set (used by attachments)
+  nsCString mOutputFormat;
+  nsCString mRealContentType;  // if we know the content type for real, this
+                               // will be set (used by attachments)
 
-  nsCString                     mOverrideFormat;  // this is a possible override for emitter creation
-  bool                          mWrapperOutput;   // Should we output the frame split message display
+  nsCString
+      mOverrideFormat;  // this is a possible override for emitter creation
+  bool mWrapperOutput;  // Should we output the frame split message display
 
-  nsCOMPtr<nsIMimeStreamConverterListener>  mMimeStreamConverterListener;
-  bool                          mForwardInline;
-  bool                          mForwardInlineFilter;
-  bool                          mOverrideComposeFormat;
-  nsString                      mForwardToAddress;
-  nsCOMPtr<nsIMsgIdentity>      mIdentity;
-  nsCString                     mOriginalMsgURI;
-  nsCOMPtr<nsIMsgDBHdr>         mOrigMsgHdr;
+  nsCOMPtr<nsIMimeStreamConverterListener> mMimeStreamConverterListener;
+  bool mForwardInline;
+  bool mForwardInlineFilter;
+  bool mOverrideComposeFormat;
+  nsString mForwardToAddress;
+  nsCOMPtr<nsIMsgIdentity> mIdentity;
+  nsCString mOriginalMsgURI;
+  nsCOMPtr<nsIMsgDBHdr> mOrigMsgHdr;
 
-  nsCString                     mFromType;
-  nsCString                     mToType;
+  nsCString mFromType;
+  nsCString mToType;
 #ifdef DEBUG_mscott
   PRTime mConvertContentTime;
 #endif
-  nsIRequest *                  mPendingRequest;  // used when we need to delay to fire onStartRequest
+  nsIRequest
+      *mPendingRequest;  // used when we need to delay to fire onStartRequest
 };
 
 #endif /* nsStreamConverter_h_ */

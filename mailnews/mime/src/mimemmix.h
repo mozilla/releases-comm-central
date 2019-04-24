@@ -14,7 +14,7 @@
  */
 
 typedef struct MimeMultipartMixedClass MimeMultipartMixedClass;
-typedef struct MimeMultipartMixed      MimeMultipartMixed;
+typedef struct MimeMultipartMixed MimeMultipartMixed;
 
 struct MimeMultipartMixedClass {
   MimeMultipartClass multipart;
@@ -26,7 +26,7 @@ struct MimeMultipartMixed {
   MimeMultipart multipart;
 };
 
-#define MimeMultipartMixedClassInitializer(ITYPE,CSUPER) \
-  { MimeMultipartClassInitializer(ITYPE,CSUPER) }
+#define MimeMultipartMixedClassInitializer(ITYPE, CSUPER) \
+  { MimeMultipartClassInitializer(ITYPE, CSUPER) }
 
 #endif /* _MIMEMMIX_H_ */

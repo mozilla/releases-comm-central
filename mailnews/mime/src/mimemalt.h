@@ -15,7 +15,7 @@
  */
 
 typedef struct MimeMultipartAlternativeClass MimeMultipartAlternativeClass;
-typedef struct MimeMultipartAlternative      MimeMultipartAlternative;
+typedef struct MimeMultipartAlternative MimeMultipartAlternative;
 
 struct MimeMultipartAlternativeClass {
   MimeMultipartClass multipart;
@@ -23,26 +23,28 @@ struct MimeMultipartAlternativeClass {
 
 extern "C" MimeMultipartAlternativeClass mimeMultipartAlternativeClass;
 
-enum priority_t {PRIORITY_UNDISPLAYABLE,
-                 PRIORITY_LOW,
-                 PRIORITY_TEXT_UNKNOWN,
-                 PRIORITY_TEXT_PLAIN,
-                 PRIORITY_NORMAL,
-                 PRIORITY_HIGH,
-                 PRIORITY_HIGHEST};
+enum priority_t {
+  PRIORITY_UNDISPLAYABLE,
+  PRIORITY_LOW,
+  PRIORITY_TEXT_UNKNOWN,
+  PRIORITY_TEXT_PLAIN,
+  PRIORITY_NORMAL,
+  PRIORITY_HIGH,
+  PRIORITY_HIGHEST
+};
 
 struct MimeMultipartAlternative {
-  MimeMultipart multipart;      /* superclass variables */
+  MimeMultipart multipart; /* superclass variables */
 
-  MimeHeaders **buffered_hdrs;    /* The headers of pending parts */
-  MimePartBufferData **part_buffers;  /* The data of pending parts
-                                         (see mimepbuf.h) */
+  MimeHeaders **buffered_hdrs;       /* The headers of pending parts */
+  MimePartBufferData **part_buffers; /* The data of pending parts
+                                        (see mimepbuf.h) */
   int32_t pending_parts;
   int32_t max_parts;
   priority_t buffered_priority; /* Priority of head of pending parts */
 };
 
-#define MimeMultipartAlternativeClassInitializer(ITYPE,CSUPER) \
-  { MimeMultipartClassInitializer(ITYPE,CSUPER) }
+#define MimeMultipartAlternativeClassInitializer(ITYPE, CSUPER) \
+  { MimeMultipartClassInitializer(ITYPE, CSUPER) }
 
 #endif /* _MIMEMALT_H_ */

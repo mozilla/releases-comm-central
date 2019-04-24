@@ -6,8 +6,7 @@
 #ifndef NS_SIMPLE_MIME_CONVERTER_STUB_H_
 #define NS_SIMPLE_MIME_CONVERTER_STUB_H_
 
-nsresult
-MIME_NewSimpleMimeConverterStub(const char *aContentType,
-                                nsIMimeContentTypeHandler **aResult);
+nsresult MIME_NewSimpleMimeConverterStub(const char *aContentType,
+                                         nsIMimeContentTypeHandler **aResult);
 
 #endif /* NS_SIMPLE_MIME_CONVERTER_STUB_H_ */

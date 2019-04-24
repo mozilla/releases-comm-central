@@ -13,16 +13,15 @@
 
 #define MIME_SUPERCLASS mimeInlineTextRichtextClass
 MimeDefClass(MimeInlineTextEnriched, MimeInlineTextEnrichedClass,
-       mimeInlineTextEnrichedClass, &MIME_SUPERCLASS);
+             mimeInlineTextEnrichedClass, &MIME_SUPERCLASS);
 
-static int
-MimeInlineTextEnrichedClassInitialize(MimeInlineTextEnrichedClass *clazz)
-{
+static int MimeInlineTextEnrichedClassInitialize(
+    MimeInlineTextEnrichedClass *clazz) {
 #ifdef DEBUG
-  MimeObjectClass *oclass = (MimeObjectClass *) clazz;
+  MimeObjectClass *oclass = (MimeObjectClass *)clazz;
   PR_ASSERT(!oclass->class_initialized);
 #endif
-  MimeInlineTextRichtextClass *rclass = (MimeInlineTextRichtextClass *) clazz;
+  MimeInlineTextRichtextClass *rclass = (MimeInlineTextRichtextClass *)clazz;
   rclass->enriched_p = true;
   return 0;
 }

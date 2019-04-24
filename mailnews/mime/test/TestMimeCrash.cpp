@@ -10,21 +10,17 @@
 
 #include "TestHarness.h"
 
-nsresult
-mime_encoder_output_fn(const char *buf, int32_t size, void *closure)
-{
+nsresult mime_encoder_output_fn(const char *buf, int32_t size, void *closure) {
   return NS_OK;
 }
 
-nsresult
-do_test(const char *aBuffer, const uint32_t aSize)
-{
+nsresult do_test(const char *aBuffer, const uint32_t aSize) {
   nsresult rv;
   MimeEncoderData *encodeData = nullptr;
   int32_t written = 0;
 
   nsCOMPtr<nsIMimeConverter> converter =
-    do_GetService(NS_MIME_CONVERTER_CONTRACTID, &rv);
+      do_GetService(NS_MIME_CONVERTER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = converter->QPEncoderInit(mime_encoder_output_fn, nullptr, &encodeData);
@@ -37,11 +33,9 @@ do_test(const char *aBuffer, const uint32_t aSize)
   return rv;
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
   ScopedXPCOM xpcom("TestMimeCrash");
-  if (xpcom.failed())
-    return 1;
+  if (xpcom.failed()) return 1;
 
   // We cannot use malloc() since this crashes depends on memory allocation.
   // By using mmap()/PR_MemMap(), end of buffer that is last in the page
@@ -49,11 +43,9 @@ int main(int argc, char **argv)
 
   uint32_t bufsize = PR_GetPageSize();
   PRFileMap *fm = PR_OpenAnonFileMap(".", bufsize, PR_PROT_READWRITE);
-  if (!fm)
-    return 1;
-  char *addr = (char *) PR_MemMap(fm, 0, bufsize);
-  if (!addr)
-    return 1;
+  if (!fm) return 1;
+  char *addr = (char *)PR_MemMap(fm, 0, bufsize);
+  if (!addr) return 1;
   memset(addr, '\r', bufsize);
 
   nsresult rv = do_test(addr, bufsize);
