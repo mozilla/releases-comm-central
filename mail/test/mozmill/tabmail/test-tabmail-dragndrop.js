@@ -234,7 +234,7 @@ function test_tab_reorder_detach(){
   synthesize_drag_over(mc.window, dropContent, dt);
 
   // notify tab1 drag has ended
-  let dropRect = aDropObject.getBoundingClientRect();
+  let dropRect = dropContent.getBoundingClientRect();
   synthesize_drag_end(mc.window, dropContent, tab1, dt,
       { screenX : (dropContent.screenX + dropRect.width / 2 ),
         screenY : (dropContent.screenY + dropRect.height / 2 ) });
