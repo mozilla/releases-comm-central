@@ -103,32 +103,36 @@ nsGNOMEShellService::Init()
   // the locale encoding.  If it's not set, they use UTF-8.
   mUseLocaleFilenames = PR_GetEnv("G_BROKEN_FILENAMES") != nullptr;
 
-  const char* launcher = PR_GetEnv("MOZ_APP_LAUNCHER");
-  if (launcher) {
-    if (g_path_is_absolute(launcher)) {
-      mAppPath = launcher;
-      gchar* basename = g_path_get_basename(launcher);
-      gchar* fullpath = g_find_program_in_path(basename);
-      mAppIsInPath = fullpath && mAppPath.Equals(fullpath);
-      g_free(fullpath);
-      g_free(basename);
-      return NS_OK;
-    }
-
-    gchar* fullpath = g_find_program_in_path(launcher);
-    if (fullpath) {
-      mAppPath = fullpath;
-      mAppIsInPath = true;
-      g_free(fullpath);
-      return NS_OK;
-    }
-  }
+ if (GetAppPathFromLauncher()) return NS_OK;
 
   nsCOMPtr<nsIFile> appPath;
   rv = NS_GetSpecialDirectory(XRE_EXECUTABLE_FILE, getter_AddRefs(appPath));
   NS_ENSURE_SUCCESS(rv, rv);
 
   return appPath->GetNativePath(mAppPath);
+}
+
+bool nsGNOMEShellService::GetAppPathFromLauncher() {
+  gchar *tmp;
+
+  const char* launcher = PR_GetEnv("MOZ_APP_LAUNCHER");
+  if (!launcher) return false;
+
+  if (g_path_is_absolute(launcher)) {
+    mAppPath = launcher;
+    tmp = g_path_get_basename(launcher);
+    gchar* fullpath = g_find_program_in_path(tmp);
+    if (fullpath && mAppPath.Equals(fullpath)) mAppIsInPath = true;
+    g_free(fullpath);
+  } else {
+    tmp = g_find_program_in_path(launcher);
+    if (!tmp) return false;
+    mAppPath = tmp;
+    mAppIsInPath = true;
+  }
+
+  g_free(tmp);
+  return true;
 }
 
 bool

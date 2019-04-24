@@ -16,7 +16,7 @@ struct ProtocolAssociation;
 class nsGNOMEShellService final : public nsIGNOMEShellService
 {
 public:
-  nsGNOMEShellService() {};
+  nsGNOMEShellService() : mAppIsInPath(false) {}
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSISHELLSERVICE
@@ -29,6 +29,7 @@ private:
 
   bool HandlerMatchesAppName(const char* aHandler);
 
+  bool GetAppPathFromLauncher();
   bool mUseLocaleFilenames;
   nsCString mAppPath;
   bool mAppIsInPath;
