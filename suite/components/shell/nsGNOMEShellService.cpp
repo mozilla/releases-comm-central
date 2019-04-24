@@ -381,24 +381,29 @@ nsGNOMEShellService::SetDesktopBackground(dom::Element* aElement,
 }
 
 #define COLOR_16_TO_8_BIT(_c) ((_c) >> 8)
+#define COLOR_8_TO_16_BIT(_c) ((_c) << 8 | (_c))
 
 NS_IMETHODIMP
 nsGNOMEShellService::GetDesktopBackgroundColor(uint32_t *aColor)
 {
-  nsCOMPtr<nsIGSettingsService> gsettings(do_GetService(NS_GSETTINGSSERVICE_CONTRACTID));
+  nsCOMPtr<nsIGSettingsService> gsettings =
+      do_GetService(NS_GSETTINGSSERVICE_CONTRACTID);
   nsCOMPtr<nsIGSettingsCollection> background_settings;
+  nsAutoCString background;
 
-  if (gsettings)
+  if (gsettings) {
     gsettings->GetCollectionForSchema(NS_LITERAL_CSTRING(kDesktopBGSchema),
                                       getter_AddRefs(background_settings));
+    if (background_settings) {
+      background_settings->GetString(NS_LITERAL_CSTRING(kDesktopColorGSKey),
+                                     background);
+    }
+  }
 
-  nsCString background;
-  if (background_settings)
-    background_settings->GetString(NS_LITERAL_CSTRING(kDesktopColorGSKey),
-                                   background);
-
-  if (background.IsEmpty())
-    return NS_ERROR_FAILURE;
+  if (background.IsEmpty()) {
+    *aColor = 0;
+    return NS_OK;
+  }
 
   GdkColor color;
   NS_ENSURE_TRUE(gdk_color_parse(background.get(), &color), NS_ERROR_FAILURE);
@@ -409,21 +414,19 @@ nsGNOMEShellService::GetDesktopBackgroundColor(uint32_t *aColor)
   return NS_OK;
 }
 
-#define COLOR_8_TO_16_BIT(_c) ((_c) << 8 | (_c))
-
 NS_IMETHODIMP
 nsGNOMEShellService::SetDesktopBackgroundColor(uint32_t aColor)
 {
   NS_ENSURE_ARG_MAX(aColor, 0xFFFFFF);
 
-  uint8_t red = aColor >> 16;
-  uint8_t green = aColor >> 8;
-  uint8_t blue = aColor;
+  uint16_t red = COLOR_8_TO_16_BIT((aColor >> 16) & 0xff);
+  uint16_t green = COLOR_8_TO_16_BIT((aColor >> 8) & 0xff);
+  uint16_t blue = COLOR_8_TO_16_BIT(aColor & 0xff);
   char colorString[14];
-  sprintf(colorString, "#%04x%04x%04x", COLOR_8_TO_16_BIT(red),
-          COLOR_8_TO_16_BIT(green), COLOR_8_TO_16_BIT(blue));
+  sprintf(colorString, "#%04x%04x%04x", red, green, blue);
 
-  nsCOMPtr<nsIGSettingsService> gsettings(do_GetService(NS_GSETTINGSSERVICE_CONTRACTID));
+  nsCOMPtr<nsIGSettingsService> gsettings =
+      do_GetService(NS_GSETTINGSSERVICE_CONTRACTID);
   if (gsettings) {
     nsCOMPtr<nsIGSettingsCollection> background_settings;
     gsettings->GetCollectionForSchema(NS_LITERAL_CSTRING(kDesktopBGSchema),
