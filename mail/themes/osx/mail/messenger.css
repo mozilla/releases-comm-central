@@ -306,13 +306,8 @@ toolbarbutton[type="menu-button"][disabled="true"]:hover:active {
   border-bottom-left-radius: 0;
 }
 
-.toolbarbutton-1[type="menu"] {
-  -moz-binding: url("chrome://messenger/content/generalBindings.xml#menu-vertical");
-}
-
-toolbox[labelalign="end"] .toolbarbutton-1[type="menu"],
 toolbox[labelalign="end"] toolbarpaletteitem .toolbarbutton-1[type="menu"] {
-  -moz-binding: url("chrome://global/content/bindings/toolbarbutton.xml#menu");
+  -moz-binding: url("chrome://global/content/bindings/toolbarbutton.xml#toolbarbutton");
 }
 
 .toolbarbutton-1[type="menu-button"] {
@@ -356,15 +351,6 @@ toolbox[labelalign="end"] .toolbarbutton-1[type="menu-button"]
 toolbox[labelalign="end"] toolbarpaletteitem
   .toolbarbutton-1[type="menu-button"] > .toolbarbutton-menubutton-button {
   -moz-box-orient: horizontal;
-}
-
-toolbox[labelalign="end"] .toolbarbutton-1 .toolbarbutton-text {
-  /* !important for overriding toolbarbutton.css */
-  margin-inline-start: 2px !important;
-}
-
-toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
-  text-align: start;
 }
 
 .toolbarbutton-1:not([type="menu-button"]),

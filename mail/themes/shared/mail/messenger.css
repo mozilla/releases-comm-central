@@ -32,6 +32,22 @@
   --space-above-tabbar: 8px;
 }
 
+toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1 .toolbarbutton-text {
+  padding-inline-start: 2px;
+}
+
+toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
+  text-align: start;
+}
+
+.toolbarbutton-1[type="menu"] {
+  -moz-binding: url("chrome://messenger/content/generalBindings.xml#menu-vertical");
+}
+
+toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1[type="menu"] {
+  -moz-binding: url("chrome://global/content/bindings/toolbarbutton.xml#toolbarbutton");
+}
+
 description.error {
   color: #f00;
 }
