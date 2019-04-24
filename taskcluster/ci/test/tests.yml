@@ -106,7 +106,9 @@ mozmill:
 
 mochitest-thunderbird:
     description: "Mochitest browser-chrome-thunderbird run"
-    suite: mochitest/browser-chrome-thunderbird
+    suite:
+        category: mochitest
+        name: browser-chrome-thunderbird
     treeherder-symbol: M(bct)
     run-on-projects: built-projects
     loopback-video: true
