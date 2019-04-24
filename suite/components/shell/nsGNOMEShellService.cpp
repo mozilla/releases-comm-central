@@ -30,6 +30,7 @@
 #include "nsIImageToPixbuf.h"
 #endif
 #include "nsXULAppAPI.h"
+#include "gfxPlatform.h"
 
 #include <glib.h>
 #include <glib-object.h>
@@ -103,6 +104,10 @@ nsresult
 nsGNOMEShellService::Init()
 {
   nsresult rv;
+
+  if (gfxPlatform::IsHeadless()) {
+    return NS_ERROR_NOT_AVAILABLE;
+  }
 
   // Check G_BROKEN_FILENAMES.  If it's set, then filenames in glib use
   // the locale encoding.  If it's not set, they use UTF-8.
