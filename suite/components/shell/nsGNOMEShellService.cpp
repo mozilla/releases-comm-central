@@ -298,23 +298,23 @@ nsGNOMEShellService::SetDesktopBackground(dom::Element* aElement,
   if (!res)
     return NS_ERROR_FAILURE;
 
-  // set desktop wallpaper filling style
-  const char* options;
+  // Set desktop wallpaper filling style.
+  nsAutoCString options;
   switch (aPosition) {
     case BACKGROUND_TILE:
-      options = "wallpaper";
+      options.AssignLiteral("wallpaper");
       break;
     case BACKGROUND_STRETCH:
-      options = "stretched";
+      options.AssignLiteral("stretched");
       break;
     case BACKGROUND_FILL:
-      options = "zoom";
+      options.AssignLiteral("zoom");
       break;
     case BACKGROUND_FIT:
-      options = "scaled";
+      options.AssignLiteral("scaled");
       break;
     default:
-      options = "centered";
+      options.AssignLiteral("centered");
       break;
   }
 
@@ -329,7 +329,7 @@ nsGNOMEShellService::SetDesktopBackground(dom::Element* aElement,
        return NS_ERROR_FAILURE;
 
       background_settings->SetString(NS_LITERAL_CSTRING(OGDB_OPTIONS),
-                                     nsDependentCString(options));
+                                     options);
       background_settings->SetString(NS_LITERAL_CSTRING(OGDB_IMAGE),
                                      nsDependentCString(file_uri));
       g_free(file_uri);
