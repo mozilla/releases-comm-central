@@ -4,35 +4,34 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #ifndef _MDB_
-#include "mdb.h"
+#  include "mdb.h"
 #endif
 
 #ifndef _MORK_
-#include "mork.h"
+#  include "mork.h"
 #endif
 
 #ifndef _MORKNODE_
-#include "morkNode.h"
+#  include "morkNode.h"
 #endif
 
 #ifndef _MORKENV_
-#include "morkEnv.h"
+#  include "morkEnv.h"
 #endif
 
 #ifndef _MORKYARN_
-#include "morkYarn.h"
+#  include "morkYarn.h"
 #endif
 
-//3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 // ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
-/*public virtual*/ void
-morkYarn::CloseMorkNode(morkEnv* ev) /*i*/ // CloseYarn() only if open
+/*public virtual*/ void morkYarn::CloseMorkNode(
+    morkEnv* ev) /*i*/  // CloseYarn() only if open
 {
-  if ( this->IsOpenNode() )
-  {
+  if (this->IsOpenNode()) {
     this->MarkClosing();
     this->CloseYarn(ev);
     this->MarkShut();
@@ -40,36 +39,32 @@ morkYarn::CloseMorkNode(morkEnv* ev) /*i*/ // CloseYarn() only if open
 }
 
 /*public virtual*/
-morkYarn::~morkYarn() /*i*/ // assert CloseYarn() executed earlier
+morkYarn::~morkYarn() /*i*/  // assert CloseYarn() executed earlier
 {
-  MORK_ASSERT(mYarn_Body.mYarn_Buf==0);
+  MORK_ASSERT(mYarn_Body.mYarn_Buf == 0);
 }
 
 /*public non-poly*/
 morkYarn::morkYarn(morkEnv* ev, /*i*/
-  const morkUsage& inUsage, nsIMdbHeap* ioHeap)
-  : morkNode(ev, inUsage, ioHeap)
-{
-  if ( ev->Good() )
-    mNode_Derived = morkDerived_kYarn;
+                   const morkUsage& inUsage, nsIMdbHeap* ioHeap)
+    : morkNode(ev, inUsage, ioHeap) {
+  if (ev->Good()) mNode_Derived = morkDerived_kYarn;
 }
 
-/*public non-poly*/ void
-morkYarn::CloseYarn(morkEnv* ev) /*i*/ // called by CloseMorkNode();
+/*public non-poly*/ void morkYarn::CloseYarn(
+    morkEnv* ev) /*i*/  // called by CloseMorkNode();
 {
-    if ( this->IsNode() )
-      this->MarkShut();
-    else
-      this->NonNodeError(ev);
+  if (this->IsNode())
+    this->MarkShut();
+  else
+    this->NonNodeError(ev);
 }
 
 // } ===== end morkNode methods =====
 // ````` ````` ````` ````` `````
 
-/*static*/ void
-morkYarn::NonYarnTypeError(morkEnv* ev)
-{
+/*static*/ void morkYarn::NonYarnTypeError(morkEnv* ev) {
   ev->NewError("non morkYarn");
 }
 
-//3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789

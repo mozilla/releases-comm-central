@@ -7,31 +7,31 @@
 #define _MORKSPACE_ 1
 
 #ifndef _MORK_
-#include "mork.h"
+#  include "mork.h"
 #endif
 
 #ifndef _MORKNODE_
-#include "morkNode.h"
+#  include "morkNode.h"
 #endif
 
 #ifndef _MORKBEAD_
-#include "morkBead.h"
+#  include "morkBead.h"
 #endif
 
 #ifndef _MORKMAP_
-#include "morkMap.h"
+#  include "morkMap.h"
 #endif
 
-//3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-#define morkSpace_kInitialSpaceSlots  /*i*/ 1024 /* default */
-#define morkDerived_kSpace  /*i*/ 0x5370 /* ascii 'Sp' */
+#define morkSpace_kInitialSpaceSlots /*i*/ 1024 /* default */
+#define morkDerived_kSpace /*i*/ 0x5370         /* ascii 'Sp' */
 
 /*| morkSpace:
 |*/
-class morkSpace : public morkBead { //
+class morkSpace : public morkBead {  //
 
-// public: // slots inherited from morkNode (meant to inform only)
+  // public: // slots inherited from morkNode (meant to inform only)
   // nsIMdbHeap*       mNode_Heap;
 
   // mork_base      mNode_Base;     // must equal morkBase_kNode
@@ -47,47 +47,45 @@ class morkSpace : public morkBead { //
 
   // mork_color      mBead_Color;   // ID for this bead
 
-public: // bead color setter & getter replace obsolete member mTable_Id:
+ public:  // bead color setter & getter replace obsolete member mTable_Id:
+  mork_tid SpaceScope() const { return mBead_Color; }
+  void SetSpaceScope(mork_scope inScope) { mBead_Color = inScope; }
 
-  mork_tid     SpaceScope() const { return mBead_Color; }
-  void         SetSpaceScope(mork_scope inScope) { mBead_Color = inScope; }
+ public:  // state is public because the entire Mork system is private
+  morkStore* mSpace_Store;  // weak ref to containing store
 
-public: // state is public because the entire Mork system is private
+  mork_bool mSpace_DoAutoIDs;        // whether db should assign member IDs
+  mork_bool mSpace_HaveDoneAutoIDs;  // whether actually auto assigned IDs
+  mork_bool mSpace_CanDirty;         // changes imply the store becomes dirty?
+  mork_u1 mSpace_Pad;                // pad to u4 alignment
 
-  morkStore*  mSpace_Store; // weak ref to containing store
-
-  mork_bool   mSpace_DoAutoIDs;    // whether db should assign member IDs
-  mork_bool   mSpace_HaveDoneAutoIDs; // whether actually auto assigned IDs
-  mork_bool   mSpace_CanDirty; // changes imply the store becomes dirty?
-  mork_u1     mSpace_Pad;    // pad to u4 alignment
-
-public: // more specific dirty methods for space:
+ public:  // more specific dirty methods for space:
   void SetSpaceDirty() { this->SetNodeDirty(); }
   void SetSpaceClean() { this->SetNodeClean(); }
 
   mork_bool IsSpaceClean() const { return this->IsNodeClean(); }
   mork_bool IsSpaceDirty() const { return this->IsNodeDirty(); }
 
-// { ===== begin morkNode interface =====
-public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // CloseSpace() only if open
-  virtual ~morkSpace(); // assert that CloseSpace() executed earlier
+  // { ===== begin morkNode interface =====
+ public:                                    // morkNode virtual methods
+  virtual void CloseMorkNode(morkEnv* ev);  // CloseSpace() only if open
+  virtual ~morkSpace();  // assert that CloseSpace() executed earlier
 
-public: // morkMap construction & destruction
-  //morkSpace(morkEnv* ev, const morkUsage& inUsage, nsIMdbHeap* ioNodeHeap,
+ public:  // morkMap construction & destruction
+  // morkSpace(morkEnv* ev, const morkUsage& inUsage, nsIMdbHeap* ioNodeHeap,
   //  const morkMapForm& inForm, nsIMdbHeap* ioSlotHeap);
 
-  morkSpace(morkEnv* ev, const morkUsage& inUsage,mork_scope inScope,
-    morkStore* ioStore, nsIMdbHeap* ioNodeHeap, nsIMdbHeap* ioSlotHeap);
-  void CloseSpace(morkEnv* ev); // called by CloseMorkNode();
+  morkSpace(morkEnv* ev, const morkUsage& inUsage, mork_scope inScope,
+            morkStore* ioStore, nsIMdbHeap* ioNodeHeap, nsIMdbHeap* ioSlotHeap);
+  void CloseSpace(morkEnv* ev);  // called by CloseMorkNode();
 
-public: // dynamic type identification
-  mork_bool IsSpace() const
-  { return IsNode() && mNode_Derived == morkDerived_kSpace; }
-// } ===== end morkNode methods =====
+ public:  // dynamic type identification
+  mork_bool IsSpace() const {
+    return IsNode() && mNode_Derived == morkDerived_kSpace;
+  }
+  // } ===== end morkNode methods =====
 
-public: // other space methods
-
+ public:  // other space methods
   mork_bool MaybeDirtyStoreAndSpace();
 
   static void NonAsciiSpaceScopeName(morkEnv* ev);
@@ -95,16 +93,16 @@ public: // other space methods
 
   morkPool* GetSpaceStorePool() const;
 
-public: // typesafe refcounting inlines calling inherited morkNode methods
-  static void SlotWeakSpace(morkSpace* me,
-    morkEnv* ev, morkSpace** ioSlot)
-  { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
+ public:  // typesafe refcounting inlines calling inherited morkNode methods
+  static void SlotWeakSpace(morkSpace* me, morkEnv* ev, morkSpace** ioSlot) {
+    morkNode::SlotWeakNode((morkNode*)me, ev, (morkNode**)ioSlot);
+  }
 
-  static void SlotStrongSpace(morkSpace* me,
-    morkEnv* ev, morkSpace** ioSlot)
-  { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }
+  static void SlotStrongSpace(morkSpace* me, morkEnv* ev, morkSpace** ioSlot) {
+    morkNode::SlotStrongNode((morkNode*)me, ev, (morkNode**)ioSlot);
+  }
 };
 
-//3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 #endif /* _MORKSPACE_ */

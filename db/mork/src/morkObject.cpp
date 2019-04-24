@@ -4,44 +4,42 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #ifndef _MDB_
-#include "mdb.h"
+#  include "mdb.h"
 #endif
 
 #ifndef _MORK_
-#include "mork.h"
+#  include "mork.h"
 #endif
 
 #ifndef _MORKNODE_
-#include "morkNode.h"
+#  include "morkNode.h"
 #endif
 
 #ifndef _MORKENV_
-#include "morkEnv.h"
+#  include "morkEnv.h"
 #endif
 
 #ifndef _MORKOBJECT_
-#include "morkObject.h"
+#  include "morkObject.h"
 #endif
 
 #ifndef _MORKHANDLE_
-#include "morkHandle.h"
+#  include "morkHandle.h"
 #endif
 
 #include "nsCOMPtr.h"
 
-
-//3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 NS_IMPL_ISUPPORTS(morkObject, nsIMdbObject)
 
 // ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
-/*public virtual*/ void
-morkObject::CloseMorkNode(morkEnv* ev) // CloseObject() only if open
+/*public virtual*/ void morkObject::CloseMorkNode(
+    morkEnv* ev)  // CloseObject() only if open
 {
-  if ( this->IsOpenNode() )
-  {
+  if (this->IsOpenNode()) {
     this->MarkClosing();
     this->CloseObject(ev);
     this->MarkShut();
@@ -49,56 +47,45 @@ morkObject::CloseMorkNode(morkEnv* ev) // CloseObject() only if open
 }
 
 /*public virtual*/
-morkObject::~morkObject() // assert CloseObject() executed earlier
+morkObject::~morkObject()  // assert CloseObject() executed earlier
 {
-  if (!IsShutNode())
-    CloseMorkNode(this->mMorkEnv);
-  MORK_ASSERT(mObject_Handle==0);
+  if (!IsShutNode()) CloseMorkNode(this->mMorkEnv);
+  MORK_ASSERT(mObject_Handle == 0);
 }
 
 /*public non-poly*/
 morkObject::morkObject(const morkUsage& inUsage, nsIMdbHeap* ioHeap,
-  mork_color inBeadColor)
-: morkBead(inUsage, ioHeap, inBeadColor)
-, mObject_Handle( 0 )
-{
+                       mork_color inBeadColor)
+    : morkBead(inUsage, ioHeap, inBeadColor), mObject_Handle(0) {
   mMorkEnv = nullptr;
 }
 
 /*public non-poly*/
-morkObject::morkObject(morkEnv* ev,
-  const morkUsage& inUsage, nsIMdbHeap* ioHeap,
-  mork_color inBeadColor, morkHandle* ioHandle)
-: morkBead(ev, inUsage, ioHeap, inBeadColor)
-, mObject_Handle( 0 )
-{
+morkObject::morkObject(morkEnv* ev, const morkUsage& inUsage,
+                       nsIMdbHeap* ioHeap, mork_color inBeadColor,
+                       morkHandle* ioHandle)
+    : morkBead(ev, inUsage, ioHeap, inBeadColor), mObject_Handle(0) {
   mMorkEnv = ev;
-  if ( ev->Good() )
-  {
-    if ( ioHandle )
-      morkHandle::SlotWeakHandle(ioHandle, ev, &mObject_Handle);
+  if (ev->Good()) {
+    if (ioHandle) morkHandle::SlotWeakHandle(ioHandle, ev, &mObject_Handle);
 
-    if ( ev->Good() )
-      mNode_Derived = morkDerived_kObject;
+    if (ev->Good()) mNode_Derived = morkDerived_kObject;
   }
 }
 
-/*public non-poly*/ void
-morkObject::CloseObject(morkEnv* ev) // called by CloseMorkNode();
+/*public non-poly*/ void morkObject::CloseObject(
+    morkEnv* ev)  // called by CloseMorkNode();
 {
-    if ( this->IsNode() )
-    {
-      if ( !this->IsShutNode() )
-      {
-        if ( mObject_Handle )
-          morkHandle::SlotWeakHandle((morkHandle*) 0L, ev, &mObject_Handle);
+  if (this->IsNode()) {
+    if (!this->IsShutNode()) {
+      if (mObject_Handle)
+        morkHandle::SlotWeakHandle((morkHandle*)0L, ev, &mObject_Handle);
 
-        mBead_Color = 0; // this->CloseBead(ev);
-        this->MarkShut();
-      }
+      mBead_Color = 0;  // this->CloseBead(ev);
+      this->MarkShut();
     }
-    else
-      this->NonNodeError(ev);
+  } else
+    this->NonNodeError(ev);
 }
 
 // } ===== end morkNode methods =====
@@ -106,10 +93,9 @@ morkObject::CloseObject(morkEnv* ev) // called by CloseMorkNode();
 
 // { ----- begin factory methods -----
 NS_IMETHODIMP
-morkObject::GetMdbFactory(nsIMdbEnv* mev, nsIMdbFactory** acqFactory)
-{
+morkObject::GetMdbFactory(nsIMdbEnv* mev, nsIMdbFactory** acqFactory) {
   nsresult rv;
-  nsCOMPtr <nsIMdbObject> obj = do_QueryInterface(mev);
+  nsCOMPtr<nsIMdbObject> obj = do_QueryInterface(mev);
   if (obj)
     rv = obj->GetMdbFactory(mev, acqFactory);
   else
@@ -121,86 +107,70 @@ morkObject::GetMdbFactory(nsIMdbEnv* mev, nsIMdbFactory** acqFactory)
 
 // { ----- begin ref counting for well-behaved cyclic graphs -----
 NS_IMETHODIMP
-morkObject::GetWeakRefCount(nsIMdbEnv* mev, // weak refs
-  mdb_count* outCount)
-{
+morkObject::GetWeakRefCount(nsIMdbEnv* mev,  // weak refs
+                            mdb_count* outCount) {
   *outCount = WeakRefsOnly();
   return NS_OK;
 }
 NS_IMETHODIMP
-morkObject::GetStrongRefCount(nsIMdbEnv* mev, // strong refs
-  mdb_count* outCount)
-{
+morkObject::GetStrongRefCount(nsIMdbEnv* mev,  // strong refs
+                              mdb_count* outCount) {
   *outCount = StrongRefsOnly();
   return NS_OK;
 }
 // ### TODO - clean up this cast, if required
 NS_IMETHODIMP
-morkObject::AddWeakRef(nsIMdbEnv* mev)
-{
+morkObject::AddWeakRef(nsIMdbEnv* mev) {
   // XXX Casting mork_refs to nsresult
-  return static_cast<nsresult>(morkNode::AddWeakRef((morkEnv *) mev));
+  return static_cast<nsresult>(morkNode::AddWeakRef((morkEnv*)mev));
 }
 
 #ifndef _MSC_VER
 NS_IMETHODIMP_(mork_uses)
-morkObject::AddStrongRef(morkEnv* mev)
-{
-  return morkNode::AddStrongRef(mev);
-}
+morkObject::AddStrongRef(morkEnv* mev) { return morkNode::AddStrongRef(mev); }
 #endif
 
 NS_IMETHODIMP_(mork_uses)
-morkObject::AddStrongRef(nsIMdbEnv* mev)
-{
-  return morkNode::AddStrongRef((morkEnv *) mev);
+morkObject::AddStrongRef(nsIMdbEnv* mev) {
+  return morkNode::AddStrongRef((morkEnv*)mev);
 }
 
 NS_IMETHODIMP
-morkObject::CutWeakRef(nsIMdbEnv* mev)
-{
+morkObject::CutWeakRef(nsIMdbEnv* mev) {
   // XXX Casting mork_refs to nsresult
-  return static_cast<nsresult>(morkNode::CutWeakRef((morkEnv *) mev));
+  return static_cast<nsresult>(morkNode::CutWeakRef((morkEnv*)mev));
 }
 
 #ifndef _MSC_VER
 NS_IMETHODIMP_(mork_uses)
-morkObject::CutStrongRef(morkEnv* mev)
-{
-  return morkNode::CutStrongRef(mev);
-}
+morkObject::CutStrongRef(morkEnv* mev) { return morkNode::CutStrongRef(mev); }
 #endif
 
 NS_IMETHODIMP
-morkObject::CutStrongRef(nsIMdbEnv* mev)
-{
+morkObject::CutStrongRef(nsIMdbEnv* mev) {
   // XXX Casting mork_refs to nsresult
-  return static_cast<nsresult>(morkNode::CutStrongRef((morkEnv *) mev));
+  return static_cast<nsresult>(morkNode::CutStrongRef((morkEnv*)mev));
 }
 
 NS_IMETHODIMP
-morkObject::CloseMdbObject(nsIMdbEnv* mev)
-{
-  return morkNode::CloseMdbObject((morkEnv *) mev);
+morkObject::CloseMdbObject(nsIMdbEnv* mev) {
+  return morkNode::CloseMdbObject((morkEnv*)mev);
 }
 
 NS_IMETHODIMP
-morkObject::IsOpenMdbObject(nsIMdbEnv* mev, mdb_bool* outOpen)
-{
+morkObject::IsOpenMdbObject(nsIMdbEnv* mev, mdb_bool* outOpen) {
   *outOpen = IsOpenNode();
   return NS_OK;
 }
 NS_IMETHODIMP
-morkObject::IsFrozenMdbObject(nsIMdbEnv* mev, mdb_bool* outIsReadonly)
-{
+morkObject::IsFrozenMdbObject(nsIMdbEnv* mev, mdb_bool* outIsReadonly) {
   *outIsReadonly = IsFrozen();
   return NS_OK;
 }
 
-//void morkObject::NewNilHandleError(morkEnv* ev) // mObject_Handle is nil
+// void morkObject::NewNilHandleError(morkEnv* ev) // mObject_Handle is nil
 //{
 //  ev->NewError("nil mObject_Handle");
 //}
 
-
-//3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789

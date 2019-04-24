@@ -7,22 +7,21 @@
 #define _MORKYARN_ 1
 
 #ifndef _MORK_
-#include "mork.h"
+#  include "mork.h"
 #endif
 
-//3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-
-#define morkDerived_kYarn     /*i*/ 0x7952 /* ascii 'yR' */
+#define morkDerived_kYarn /*i*/ 0x7952 /* ascii 'yR' */
 
 /*| morkYarn: a reference counted nsIMdbYarn C struct.  This is for use in those
 **| few cases where single instances of reference counted buffers are needed
 **| in Mork, and we expect few enough instances that overhead is not a factor
 **| in decided whether to use such a thing.
 |*/
-class morkYarn : public morkNode { // refcounted yarn
+class morkYarn : public morkNode {  // refcounted yarn
 
-// public: // slots inherited from morkNode (meant to inform only)
+  // public: // slots inherited from morkNode (meant to inform only)
   // nsIMdbHeap*       mNode_Heap;
 
   // mork_base      mNode_Base;     // must equal morkBase_kNode
@@ -36,40 +35,41 @@ class morkYarn : public morkNode { // refcounted yarn
   // mork_uses      mNode_Uses;     // refcount for strong refs
   // mork_refs      mNode_Refs;     // refcount for strong refs + weak refs
 
-public: // state is public because the entire Mork system is private
-  mdbYarn  mYarn_Body;
+ public:  // state is public because the entire Mork system is private
+  mdbYarn mYarn_Body;
 
-// { ===== begin morkNode interface =====
-public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev) override; // CloseYarn() only if open
-  virtual ~morkYarn(); // assert that CloseYarn() executed earlier
+  // { ===== begin morkNode interface =====
+ public:                                             // morkNode virtual methods
+  virtual void CloseMorkNode(morkEnv* ev) override;  // CloseYarn() only if open
+  virtual ~morkYarn();  // assert that CloseYarn() executed earlier
 
-public: // morkYarn construction & destruction
+ public:  // morkYarn construction & destruction
   morkYarn(morkEnv* ev, const morkUsage& inUsage, nsIMdbHeap* ioHeap);
-  void CloseYarn(morkEnv* ev); // called by CloseMorkNode();
+  void CloseYarn(morkEnv* ev);  // called by CloseMorkNode();
 
-private: // copying is not allowed
+ private:  // copying is not allowed
   morkYarn(const morkYarn& other);
   morkYarn& operator=(const morkYarn& other);
 
-public: // dynamic type identification
-  mork_bool IsYarn() const
-  { return IsNode() && mNode_Derived == morkDerived_kYarn; }
-// } ===== end morkNode methods =====
+ public:  // dynamic type identification
+  mork_bool IsYarn() const {
+    return IsNode() && mNode_Derived == morkDerived_kYarn;
+  }
+  // } ===== end morkNode methods =====
 
-public: // typing
+ public:  // typing
   static void NonYarnTypeError(morkEnv* ev);
 
-public: // typesafe refcounting inlines calling inherited morkNode methods
-  static void SlotWeakYarn(morkYarn* me,
-    morkEnv* ev, morkYarn** ioSlot)
-  { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
+ public:  // typesafe refcounting inlines calling inherited morkNode methods
+  static void SlotWeakYarn(morkYarn* me, morkEnv* ev, morkYarn** ioSlot) {
+    morkNode::SlotWeakNode((morkNode*)me, ev, (morkNode**)ioSlot);
+  }
 
-  static void SlotStrongYarn(morkYarn* me,
-    morkEnv* ev, morkYarn** ioSlot)
-  { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }
+  static void SlotStrongYarn(morkYarn* me, morkEnv* ev, morkYarn** ioSlot) {
+    morkNode::SlotStrongNode((morkNode*)me, ev, (morkNode**)ioSlot);
+  }
 };
 
-//3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 #endif /* _MORKYARN_ */

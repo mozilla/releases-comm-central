@@ -7,14 +7,14 @@
 #define _MORKSINK_ 1
 
 #ifndef _MORK_
-#include "mork.h"
+#  include "mork.h"
 #endif
 
 #ifndef _MORKBLOB_
-#include "morkBlob.h"
+#  include "morkBlob.h"
 #endif
 
-//3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 /*| morkSink is intended to be a very cheap buffered i/o sink which
 **| writes to bufs and other strings a single byte at a time.  The
@@ -68,34 +68,29 @@
 **| both these pointers to null as an indication the sink is disabled.
 |*/
 class morkSink {
-
-// ````` ````` ````` `````   ````` ````` ````` `````
-public: // public sink virtual methods
-
+  // ````` ````` ````` `````   ````` ````` ````` `````
+ public:  // public sink virtual methods
   virtual void FlushSink(morkEnv* ev) = 0;
   virtual void SpillPutc(morkEnv* ev, int c) = 0;
 
-// ````` ````` ````` `````   ````` ````` ````` `````
-public: // member variables
+  // ````` ````` ````` `````   ````` ````` ````` `````
+ public:               // member variables
+  mork_u1* mSink_At;   // pointer into mSink_Buf
+  mork_u1* mSink_End;  // one byte past last content byte
 
-  mork_u1*     mSink_At;     // pointer into mSink_Buf
-  mork_u1*     mSink_End;    // one byte past last content byte
-
-// define morkSink_kBufSize 256 /* small enough to go on stack */
+  // define morkSink_kBufSize 256 /* small enough to go on stack */
 
   // mork_u1      mSink_Buf[ morkSink_kBufSize + 4 ];
   // want plus one for any needed end null byte; use plus 4 for alignment
 
-// ````` ````` ````` `````   ````` ````` ````` `````
-public: // public non-poly morkSink methods
+  // ````` ````` ````` `````   ````` ````` ````` `````
+ public:                // public non-poly morkSink methods
+  virtual ~morkSink();  // zero both At and End; virtual for subclasses
+  morkSink() {}         // does nothing; subclasses must set At and End suitably
 
-  virtual ~morkSink(); // zero both At and End; virtual for subclasses
-  morkSink() { } // does nothing; subclasses must set At and End suitably
-
-  void Putc(morkEnv* ev, int c)
-  {
-    if ( mSink_At < mSink_End )
-      *mSink_At++ = (mork_u1) c;
+  void Putc(morkEnv* ev, int c) {
+    if (mSink_At < mSink_End)
+      *mSink_At++ = (mork_u1)c;
     else
       this->SpillPutc(ev, c);
   }
@@ -111,23 +106,21 @@ public: // public non-poly morkSink methods
 **| instance of morkCoil and an instance of morkSpool in the same
 **| owning parent object, which uses the spool with the associated coil.
 |*/
-class morkSpool : public morkSink { // for buffered i/o to a morkCoil
+class morkSpool : public morkSink {  // for buffered i/o to a morkCoil
 
-// ````` ````` ````` `````   ````` ````` ````` `````
-public: // public sink virtual methods
-
+  // ````` ````` ````` `````   ````` ````` ````` `````
+ public:  // public sink virtual methods
   // when morkSink::Putc() moves mSink_At, mSpool_Coil->mBuf_Fill is wrong:
 
-  virtual void FlushSink(morkEnv* ev); // sync mSpool_Coil->mBuf_Fill
-  virtual void SpillPutc(morkEnv* ev, int c); // grow coil and write byte
+  virtual void FlushSink(morkEnv* ev);         // sync mSpool_Coil->mBuf_Fill
+  virtual void SpillPutc(morkEnv* ev, int c);  // grow coil and write byte
 
-// ````` ````` ````` `````   ````` ````` ````` `````
-public: // member variables
-  morkCoil*   mSpool_Coil; // destination medium for written bytes
+  // ````` ````` ````` `````   ````` ````` ````` `````
+ public:                  // member variables
+  morkCoil* mSpool_Coil;  // destination medium for written bytes
 
-// ````` ````` ````` `````   ````` ````` ````` `````
-public: // public non-poly morkSink methods
-
+  // ````` ````` ````` `````   ````` ````` ````` `````
+ public:  // public non-poly morkSink methods
   static void BadSpoolCursorOrderError(morkEnv* ev);
   static void NilSpoolCoilError(morkEnv* ev);
 
@@ -148,14 +141,15 @@ public: // public non-poly morkSink methods
   mork_bool Write(morkEnv* ev, const void* inBuf, mork_size inSize);
   // write inSize bytes of inBuf to current position inside coil's buffer
 
-  mork_bool PutBuf(morkEnv* ev, const morkBuf& inBuffer)
-  { return this->Write(ev, inBuffer.mBuf_Body, inBuffer.mBuf_Fill); }
+  mork_bool PutBuf(morkEnv* ev, const morkBuf& inBuffer) {
+    return this->Write(ev, inBuffer.mBuf_Body, inBuffer.mBuf_Fill);
+  }
 
   mork_bool PutString(morkEnv* ev, const char* inString);
   // call Write() with inBuf=inString and inSize=strlen(inString),
   // unless inString is null, in which case we then do nothing at all.
 };
 
-//3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 #endif /* _MORKSINK_ */

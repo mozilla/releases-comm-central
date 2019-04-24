@@ -30,85 +30,86 @@
  */
 
 #ifndef _MDB_
-#include "mdb.h"
+#  include "mdb.h"
 #endif
 
 #ifndef _MORK_
-#include "mork.h"
+#  include "mork.h"
 #endif
 
 #ifndef _MORKQUICKSORT_
-#include "morkQuickSort.h"
+#  include "morkQuickSort.h"
 #endif
 
 #if !defined(DEBUG) && (defined(__cplusplus) || defined(__gcc))
-# ifndef INLINE
-#  define INLINE inline
-# endif
+#  ifndef INLINE
+#    define INLINE inline
+#  endif
 #else
-# define INLINE
+#  define INLINE
 #endif
 
-static INLINE mork_u1*
-morkQS_med3(mork_u1 *, mork_u1 *, mork_u1 *, mdbAny_Order, void *);
+static INLINE mork_u1 *morkQS_med3(mork_u1 *, mork_u1 *, mork_u1 *,
+                                   mdbAny_Order, void *);
 
-static INLINE void
-morkQS_swapfunc(mork_u1 *, mork_u1 *, int, int);
+static INLINE void morkQS_swapfunc(mork_u1 *, mork_u1 *, int, int);
 
 /*
  * Qsort routine from Bentley & McIlroy's "Engineering a Sort Function".
  */
-#define morkQS_swapcode(TYPE, parmi, parmj, n) {     \
-  long i = (n) / sizeof (TYPE);       \
-  TYPE *pi = (TYPE *) (parmi);     \
-  TYPE *pj = (TYPE *) (parmj);     \
-  do {             \
-    TYPE  t = *pi;    \
-    *pi++ = *pj;        \
-    *pj++ = t;        \
-        } while (--i > 0);        \
+#define morkQS_swapcode(TYPE, parmi, parmj, n) \
+  {                                            \
+    long i = (n) / sizeof(TYPE);               \
+    TYPE *pi = (TYPE *)(parmi);                \
+    TYPE *pj = (TYPE *)(parmj);                \
+    do {                                       \
+      TYPE t = *pi;                            \
+      *pi++ = *pj;                             \
+      *pj++ = t;                               \
+    } while (--i > 0);                         \
+  }
+
+#define morkQS_SwapInit(a, es)                                      \
+  swaptype = (a - (mork_u1 *)0) % sizeof(long) || es % sizeof(long) \
+                 ? 2                                                \
+                 : es == sizeof(long) ? 0 : 1;
+
+static INLINE void morkQS_swapfunc(mork_u1 *a, mork_u1 *b, int n,
+                                   int swaptype) {
+  if (swaptype <= 1)
+    morkQS_swapcode(long, a, b, n) else morkQS_swapcode(mork_u1, a, b, n)
 }
 
-#define morkQS_SwapInit(a, es) swaptype = (a - (mork_u1 *)0) % sizeof(long) || \
-  es % sizeof(long) ? 2 : es == sizeof(long)? 0 : 1;
-
-static INLINE void
-morkQS_swapfunc(mork_u1* a, mork_u1* b, int n, int swaptype)
-{
-  if(swaptype <= 1)
-    morkQS_swapcode(long, a, b, n)
-  else
-    morkQS_swapcode(mork_u1, a, b, n)
-}
-
-#define morkQS_swap(a, b)          \
-  if (swaptype == 0) {        \
-    long t = *(long *)(a);      \
-    *(long *)(a) = *(long *)(b);    \
-    *(long *)(b) = t;      \
-  } else            \
+#define morkQS_swap(a, b)        \
+  if (swaptype == 0) {           \
+    long t = *(long *)(a);       \
+    *(long *)(a) = *(long *)(b); \
+    *(long *)(b) = t;            \
+  } else                         \
     morkQS_swapfunc(a, b, (int)inSize, swaptype)
 
-#define morkQS_vecswap(a, b, n)   if ((n) > 0) morkQS_swapfunc(a, b, (int)n, swaptype)
+#define morkQS_vecswap(a, b, n) \
+  if ((n) > 0) morkQS_swapfunc(a, b, (int)n, swaptype)
 
-static INLINE mork_u1 *
-morkQS_med3(mork_u1* a, mork_u1* b, mork_u1* c, mdbAny_Order cmp, void* closure)
-{
-  return (*cmp)(a, b, closure) < 0 ?
-    ((*cmp)(b, c, closure) < 0 ? b : ((*cmp)(a, c, closure) < 0 ? c : a ))
-      :((*cmp)(b, c, closure) > 0 ? b : ((*cmp)(a, c, closure) < 0 ? a : c ));
+static INLINE mork_u1 *morkQS_med3(mork_u1 *a, mork_u1 *b, mork_u1 *c,
+                                   mdbAny_Order cmp, void *closure) {
+  return (*cmp)(a, b, closure) < 0
+             ? ((*cmp)(b, c, closure) < 0 ? b
+                                          : ((*cmp)(a, c, closure) < 0 ? c : a))
+             : ((*cmp)(b, c, closure) > 0
+                    ? b
+                    : ((*cmp)(a, c, closure) < 0 ? a : c));
 }
 
-#define morkQS_MIN(x,y)     ((x)<(y)?(x):(y))
+#define morkQS_MIN(x, y) ((x) < (y) ? (x) : (y))
 
-void
-morkQuickSort(mork_u1* ioVec, mork_u4 inCount, mork_u4 inSize,
-  mdbAny_Order inOrder, void* ioClosure)
-{
-  mork_u1* pa, *pb, *pc, *pd, *pl, *pm, *pn;
+void morkQuickSort(mork_u1 *ioVec, mork_u4 inCount, mork_u4 inSize,
+                   mdbAny_Order inOrder, void *ioClosure) {
+  mork_u1 *pa, *pb, *pc, *pd, *pl, *pm, *pn;
   int d, r, swaptype, swap_cnt;
 
-tailCall:  morkQS_SwapInit(ioVec, inSize);
+tailCall:
+  morkQS_SwapInit(ioVec, inSize);
   swap_cnt = 0;
   if (inCount < 7) {
     for (pm = ioVec + inSize; pm < ioVec + inCount * inSize; pm += inSize)
@@ -150,14 +151,13 @@ tailCall:  morkQS_SwapInit(ioVec, inSize);
       }
       pc -= inSize;
     }
-    if (pb > pc)
-      break;
+    if (pb > pc) break;
     morkQS_swap(pb, pc);
     swap_cnt = 1;
     pb += inSize;
     pc -= inSize;
   }
-  if (swap_cnt == 0) {  /* Switch to insertion sort */
+  if (swap_cnt == 0) { /* Switch to insertion sort */
     for (pm = ioVec + inSize; pm < ioVec + inCount * inSize; pm += inSize)
       for (pl = pm; pl > ioVec && (*inOrder)(pl - inSize, pl, ioClosure) > 0;
            pl -= inSize)
@@ -171,13 +171,12 @@ tailCall:  morkQS_SwapInit(ioVec, inSize);
   r = morkQS_MIN(pd - pc, (int)(pn - pd - inSize));
   morkQS_vecswap(pb, pn - r, r);
   if ((r = pb - pa) > (int)inSize)
-        morkQuickSort(ioVec, r / inSize, inSize, inOrder, ioClosure);
+    morkQuickSort(ioVec, r / inSize, inSize, inOrder, ioClosure);
   if ((r = pd - pc) > (int)inSize) {
     /* Iterate rather than recurse to save stack space */
     ioVec = pn - r;
     inCount = r / inSize;
     goto tailCall;
   }
-/*    morkQuickSort(pn - r, r / inSize, inSize, inOrder, ioClosure);*/
+  /*    morkQuickSort(pn - r, r / inSize, inSize, inOrder, ioClosure);*/
 }
-

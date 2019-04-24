@@ -9,16 +9,15 @@
 #include "nsIMdbFactoryFactory.h"
 #include "mdb.h"
 
-class nsMorkFactoryService final : public nsIMdbFactoryService
-{
-public:
-  nsMorkFactoryService() {};
+class nsMorkFactoryService final : public nsIMdbFactoryService {
+ public:
+  nsMorkFactoryService(){};
   // nsISupports methods
   NS_DECL_ISUPPORTS
 
   NS_IMETHOD GetMdbFactory(nsIMdbFactory **aFactory) override;
 
-protected:
+ protected:
   ~nsMorkFactoryService() {}
   nsCOMPtr<nsIMdbFactory> mMdbFactory;
 };
@@ -28,27 +27,18 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(nsMorkFactoryService)
 NS_DEFINE_NAMED_CID(NS_MORK_CID);
 
 const mozilla::Module::CIDEntry kMorkCIDs[] = {
-  { &kNS_MORK_CID, false, NULL, nsMorkFactoryServiceConstructor },
-  { NULL }
-};
+    {&kNS_MORK_CID, false, NULL, nsMorkFactoryServiceConstructor}, {NULL}};
 
 const mozilla::Module::ContractIDEntry kMorkContracts[] = {
-  { NS_MORK_CONTRACTID, &kNS_MORK_CID },
-  { NULL }
-};
+    {NS_MORK_CONTRACTID, &kNS_MORK_CID}, {NULL}};
 
-extern const mozilla::Module kMorkModule = {
-  mozilla::Module::kVersion,
-  kMorkCIDs,
-  kMorkContracts
-};
+extern const mozilla::Module kMorkModule = {mozilla::Module::kVersion,
+                                            kMorkCIDs, kMorkContracts};
 
 NS_IMPL_ISUPPORTS(nsMorkFactoryService, nsIMdbFactoryService)
 
-NS_IMETHODIMP nsMorkFactoryService::GetMdbFactory(nsIMdbFactory **aFactory)
-{
-  if (!mMdbFactory)
-    mMdbFactory = MakeMdbFactory();
+NS_IMETHODIMP nsMorkFactoryService::GetMdbFactory(nsIMdbFactory **aFactory) {
+  if (!mMdbFactory) mMdbFactory = MakeMdbFactory();
   NS_IF_ADDREF(*aFactory = mMdbFactory);
   return *aFactory ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
 }

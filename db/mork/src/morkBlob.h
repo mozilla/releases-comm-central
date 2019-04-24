@@ -7,30 +7,30 @@
 #define _MORKBLOB_ 1
 
 #ifndef _MORK_
-#include "mork.h"
+#  include "mork.h"
 #endif
 
-//3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 /*| Buf: the minimum needed to describe location and content length.
 **| This is typically only enough to read from this buffer, since
 **| one cannot write effectively without knowing the size of a buf.
 |*/
-class morkBuf { // subset of nsIMdbYarn slots
-public:
-  void*         mBuf_Body;  // space for holding any binary content
-  mork_fill     mBuf_Fill;  // logical content in Buf in bytes
+class morkBuf {  // subset of nsIMdbYarn slots
+ public:
+  void* mBuf_Body;      // space for holding any binary content
+  mork_fill mBuf_Fill;  // logical content in Buf in bytes
 
-public:
-  morkBuf() { }
+ public:
+  morkBuf() {}
   morkBuf(const void* ioBuf, mork_fill inFill)
-  : mBuf_Body((void*) ioBuf), mBuf_Fill(inFill) { }
+      : mBuf_Body((void*)ioBuf), mBuf_Fill(inFill) {}
 
   void ClearBufFill() { mBuf_Fill = 0; }
 
   static void NilBufBodyError(morkEnv* ev);
 
-private: // copying is not allowed
+ private:  // copying is not allowed
   morkBuf(const morkBuf& other);
   morkBuf& operator=(const morkBuf& other);
 };
@@ -41,28 +41,26 @@ private: // copying is not allowed
 **| which can share the same managing heap stored elsewhere, and that
 **| is why we don't include a pointer to a heap in this blob class.
 |*/
-class morkBlob : public morkBuf { // greater subset of nsIMdbYarn slots
+class morkBlob : public morkBuf {  // greater subset of nsIMdbYarn slots
 
   // void*         mBuf_Body;  // space for holding any binary content
   // mdb_fill      mBuf_Fill;  // logical content in Buf in bytes
-public:
-  mork_size      mBlob_Size;  // physical size of Buf in bytes
+ public:
+  mork_size mBlob_Size;  // physical size of Buf in bytes
 
-public:
-  morkBlob() { }
+ public:
+  morkBlob() {}
   morkBlob(const void* ioBuf, mork_fill inFill, mork_size inSize)
-  : morkBuf(ioBuf, inFill), mBlob_Size(inSize) { }
+      : morkBuf(ioBuf, inFill), mBlob_Size(inSize) {}
 
   static void BlobFillOverSizeError(morkEnv* ev);
 
-public:
-  mork_bool GrowBlob(morkEnv* ev, nsIMdbHeap* ioHeap,
-    mork_size inNewSize);
+ public:
+  mork_bool GrowBlob(morkEnv* ev, nsIMdbHeap* ioHeap, mork_size inNewSize);
 
-private: // copying is not allowed
+ private:  // copying is not allowed
   morkBlob(const morkBlob& other);
   morkBlob& operator=(const morkBlob& other);
-
 };
 
 /*| Text: a blob with an associated charset annotation, where the
@@ -72,18 +70,18 @@ private: // copying is not allowed
 **| (We avoid including a nsIMdbHeap pointer in morkText for the same
 **| reason morkBlob does: we want minimal size vectors of morkText.)
 |*/
-class morkText : public morkBlob { // greater subset of nsIMdbYarn slots
+class morkText : public morkBlob {  // greater subset of nsIMdbYarn slots
 
   // void*         mBuf_Body;  // space for holding any binary content
   // mdb_fill      mBuf_Fill;  // logical content in Buf in bytes
   // mdb_size      mBlob_Size;  // physical size of Buf in bytes
 
-public:
-  mork_cscode    mText_Form;  // charset format encoding
+ public:
+  mork_cscode mText_Form;  // charset format encoding
 
-  morkText() { }
+  morkText() {}
 
-private: // copying is not allowed
+ private:  // copying is not allowed
   morkText(const morkText& other);
   morkText& operator=(const morkText& other);
 };
@@ -114,28 +112,29 @@ private: // copying is not allowed
 **| is consistent with the fact that morkCoil itself is not refcounted,
 **| and is not intended for use as a standalone object.
 |*/
-class morkCoil : public morkText { // self-managing text blob object
+class morkCoil : public morkText {  // self-managing text blob object
 
   // void*         mBuf_Body;  // space for holding any binary content
   // mdb_fill      mBuf_Fill;  // logical content in Buf in bytes
   // mdb_size      mBlob_Size;  // physical size of Buf in bytes
   // mdb_cscode    mText_Form;  // charset format encoding
-public:
-  nsIMdbHeap*      mCoil_Heap;  // storage manager for mBuf_Body pointer
+ public:
+  nsIMdbHeap* mCoil_Heap;  // storage manager for mBuf_Body pointer
 
-public:
+ public:
   morkCoil(morkEnv* ev, nsIMdbHeap* ioHeap);
 
   void CloseCoil(morkEnv* ev);
 
-  mork_bool GrowCoil(morkEnv* ev, mork_size inNewSize)
-  { return this->GrowBlob(ev, mCoil_Heap, inNewSize); }
+  mork_bool GrowCoil(morkEnv* ev, mork_size inNewSize) {
+    return this->GrowBlob(ev, mCoil_Heap, inNewSize);
+  }
 
-private: // copying is not allowed
+ private:  // copying is not allowed
   morkCoil(const morkCoil& other);
   morkCoil& operator=(const morkCoil& other);
 };
 
-//3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 #endif /* _MORKBLOB_ */

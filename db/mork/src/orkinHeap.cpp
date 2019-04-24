@@ -4,81 +4,69 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #ifndef _MDB_
-#include "mdb.h"
+#  include "mdb.h"
 #endif
 
 #ifndef _MORK_
-#include "mork.h"
+#  include "mork.h"
 #endif
 
 #ifndef _ORKINHEAP_
-#include "orkinHeap.h"
+#  include "orkinHeap.h"
 #endif
 
 #ifndef _MORKENV_
-#include "morkEnv.h"
+#  include "morkEnv.h"
 #endif
 
 #include "nsIMemoryReporter.h"
 
 #include <stdlib.h>
 
-//3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-
-orkinHeap::orkinHeap() // does nothing
-  : mUsedSize(0)
-{
-}
+orkinHeap::orkinHeap()  // does nothing
+    : mUsedSize(0) {}
 
 /*virtual*/
-orkinHeap::~orkinHeap() // does nothing
-{
-}
+orkinHeap::~orkinHeap()  // does nothing
+{}
 
 MOZ_DEFINE_MALLOC_SIZE_OF_ON_ALLOC(MorkSizeOfOnAlloc)
 MOZ_DEFINE_MALLOC_SIZE_OF_ON_FREE(MorkSizeOfOnFree)
 
 // { ===== begin nsIMdbHeap methods =====
-/*virtual*/ nsresult
-orkinHeap::Alloc(nsIMdbEnv* mev, // allocate a piece of memory
-  mdb_size inSize,  // requested size of new memory block
-  void** outBlock)  // memory block of inSize bytes, or nil
+/*virtual*/ nsresult orkinHeap::Alloc(
+    nsIMdbEnv* mev,   // allocate a piece of memory
+    mdb_size inSize,  // requested size of new memory block
+    void** outBlock)  // memory block of inSize bytes, or nil
 {
-
   MORK_USED_1(mev);
   nsresult outErr = NS_OK;
   void* block = malloc(inSize);
-  if ( !block )
+  if (!block)
     outErr = morkEnv_kOutOfMemoryError;
   else
     mUsedSize += MorkSizeOfOnAlloc(block);
 
   MORK_ASSERT(outBlock);
-  if ( outBlock )
-    *outBlock = block;
+  if (outBlock) *outBlock = block;
   return outErr;
 }
 
-/*virtual*/ nsresult
-orkinHeap::Free(nsIMdbEnv* mev, // free block allocated earlier by Alloc()
-  void* inBlock)
-{
+/*virtual*/ nsresult orkinHeap::Free(
+    nsIMdbEnv* mev,  // free block allocated earlier by Alloc()
+    void* inBlock) {
   MORK_USED_1(mev);
   MORK_ASSERT(inBlock);
-  if ( inBlock )
-  {
+  if (inBlock) {
     mUsedSize -= MorkSizeOfOnFree(inBlock);
     free(inBlock);
   }
   return NS_OK;
 }
 
-size_t
-orkinHeap::GetUsedSize()
-{
-  return mUsedSize;
-}
+size_t orkinHeap::GetUsedSize() { return mUsedSize; }
 // } ===== end nsIMdbHeap methods =====
 
-//3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789

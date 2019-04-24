@@ -7,19 +7,18 @@
 #define _MORKQUICKSORT_ 1
 
 #ifndef _MDB_
-#include "mdb.h"
+#  include "mdb.h"
 #endif
 
 #ifndef _MORK_
-#include "mork.h"
+#  include "mork.h"
 #endif
 
-//3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-extern void
-morkQuickSort(mork_u1* ioVec, mork_u4 inCount, mork_u4 inSize,
-  mdbAny_Order inOrder, void* ioClosure);
+extern void morkQuickSort(mork_u1* ioVec, mork_u4 inCount, mork_u4 inSize,
+                          mdbAny_Order inOrder, void* ioClosure);
 
-//3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 #endif /* _MORKQUICKSORT_ */

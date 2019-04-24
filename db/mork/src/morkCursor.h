@@ -7,20 +7,21 @@
 #define _MORKCURSOR_ 1
 
 #ifndef _MORK_
-#include "mork.h"
+#  include "mork.h"
 #endif
 
 #ifndef _MORKOBJECT_
-#include "morkObject.h"
+#  include "morkObject.h"
 #endif
 
-//3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-#define morkDerived_kCursor  /*i*/ 0x4375 /* ascii 'Cu' */
+#define morkDerived_kCursor /*i*/ 0x4375 /* ascii 'Cu' */
 
-class morkCursor : public morkObject, public nsIMdbCursor{ // collection iterator
+class morkCursor : public morkObject,
+                   public nsIMdbCursor {  // collection iterator
 
-// public: // slots inherited from morkObject (meant to inform only)
+  // public: // slots inherited from morkObject (meant to inform only)
   // nsIMdbHeap*     mNode_Heap;
   // mork_able    mNode_Mutable; // can this node be modified?
   // mork_load    mNode_Load;    // is this node clean or dirty?
@@ -34,7 +35,7 @@ class morkCursor : public morkObject, public nsIMdbCursor{ // collection iterato
   // mork_color   mBead_Color;   // ID for this bead
   // morkHandle*  mObject_Handle;  // weak ref to handle for this object
 
-public: // state is public because the entire Mork system is private
+ public:  // state is public because the entire Mork system is private
   NS_DECL_ISUPPORTS_INHERITED
 
   // { ----- begin attribute methods -----
@@ -43,85 +44,91 @@ public: // state is public because the entire Mork system is private
   // } ----- end attribute methods -----
 
   // { ----- begin ref counting for well-behaved cyclic graphs -----
-  NS_IMETHOD GetWeakRefCount(nsIMdbEnv* ev, // weak refs
-    mdb_count* outCount) override;
-  NS_IMETHOD GetStrongRefCount(nsIMdbEnv* ev, // strong refs
-    mdb_count* outCount) override;
+  NS_IMETHOD GetWeakRefCount(nsIMdbEnv* ev,  // weak refs
+                             mdb_count* outCount) override;
+  NS_IMETHOD GetStrongRefCount(nsIMdbEnv* ev,  // strong refs
+                               mdb_count* outCount) override;
 
   NS_IMETHOD AddWeakRef(nsIMdbEnv* ev) override;
 #ifndef _MSC_VER
-  // The first declaration of AddStrongRef is to suppress -Werror,-Woverloaded-virtual.
+  // The first declaration of AddStrongRef is to suppress
+  // -Werror,-Woverloaded-virtual.
   NS_IMETHOD_(mork_uses) AddStrongRef(morkEnv* ev) override;
 #endif
   NS_IMETHOD_(mork_uses) AddStrongRef(nsIMdbEnv* ev) override;
 
   NS_IMETHOD CutWeakRef(nsIMdbEnv* ev) override;
 #ifndef _MSC_VER
-  // The first declaration of CutStrongRef is to suppress -Werror,-Woverloaded-virtual.
+  // The first declaration of CutStrongRef is to suppress
+  // -Werror,-Woverloaded-virtual.
   NS_IMETHOD_(mork_uses) CutStrongRef(morkEnv* ev) override;
 #endif
   NS_IMETHOD CutStrongRef(nsIMdbEnv* ev) override;
 
-  NS_IMETHOD CloseMdbObject(nsIMdbEnv* ev) override; // called at strong refs zero
+  NS_IMETHOD CloseMdbObject(
+      nsIMdbEnv* ev) override;  // called at strong refs zero
   NS_IMETHOD IsOpenMdbObject(nsIMdbEnv* ev, mdb_bool* outOpen) override;
   // } ----- end ref counting -----
 
-// } ===== end nsIMdbObject methods =====
+  // } ===== end nsIMdbObject methods =====
 
-// { ===== begin nsIMdbCursor methods =====
+  // { ===== begin nsIMdbCursor methods =====
 
   // { ----- begin attribute methods -----
-  NS_IMETHOD GetCount(nsIMdbEnv* ev, mdb_count* outCount) override; // readonly
-  NS_IMETHOD GetSeed(nsIMdbEnv* ev, mdb_seed* outSeed) override;    // readonly
+  NS_IMETHOD GetCount(nsIMdbEnv* ev, mdb_count* outCount) override;  // readonly
+  NS_IMETHOD GetSeed(nsIMdbEnv* ev, mdb_seed* outSeed) override;     // readonly
 
-  NS_IMETHOD SetPos(nsIMdbEnv* ev, mdb_pos inPos) override;   // mutable
+  NS_IMETHOD SetPos(nsIMdbEnv* ev, mdb_pos inPos) override;  // mutable
   NS_IMETHOD GetPos(nsIMdbEnv* ev, mdb_pos* outPos) override;
 
   NS_IMETHOD SetDoFailOnSeedOutOfSync(nsIMdbEnv* ev, mdb_bool inFail) override;
-  NS_IMETHOD GetDoFailOnSeedOutOfSync(nsIMdbEnv* ev, mdb_bool* outFail) override;
+  NS_IMETHOD GetDoFailOnSeedOutOfSync(nsIMdbEnv* ev,
+                                      mdb_bool* outFail) override;
   // } ----- end attribute methods -----
 
-// } ===== end nsIMdbCursor methods =====
+  // } ===== end nsIMdbCursor methods =====
 
   // } ----- end attribute methods -----
 
-  mork_seed  mCursor_Seed;
-  mork_pos   mCursor_Pos;
-  mork_bool  mCursor_DoFailOnSeedOutOfSync;
-  mork_u1    mCursor_Pad[ 3 ]; // explicitly pad to u4 alignment
+  mork_seed mCursor_Seed;
+  mork_pos mCursor_Pos;
+  mork_bool mCursor_DoFailOnSeedOutOfSync;
+  mork_u1 mCursor_Pad[3];  // explicitly pad to u4 alignment
 
-// { ===== begin morkNode interface =====
-public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev) override; // CloseCursor() only if open
+  // { ===== begin morkNode interface =====
+ public:  // morkNode virtual methods
+  virtual void CloseMorkNode(
+      morkEnv* ev) override;  // CloseCursor() only if open
 
-public: // morkCursor construction & destruction
+ public:  // morkCursor construction & destruction
   morkCursor(morkEnv* ev, const morkUsage& inUsage, nsIMdbHeap* ioHeap);
-  void CloseCursor(morkEnv* ev); // called by CloseMorkNode();
+  void CloseCursor(morkEnv* ev);  // called by CloseMorkNode();
 
-protected:
-  virtual ~morkCursor(); // assert that CloseCursor() executed earlier
+ protected:
+  virtual ~morkCursor();  // assert that CloseCursor() executed earlier
 
-private: // copying is not allowed
+ private:  // copying is not allowed
   morkCursor(const morkCursor& other);
   morkCursor& operator=(const morkCursor& other);
 
-public: // dynamic type identification
-  mork_bool IsCursor() const
-  { return IsNode() && mNode_Derived == morkDerived_kCursor; }
-// } ===== end morkNode methods =====
+ public:  // dynamic type identification
+  mork_bool IsCursor() const {
+    return IsNode() && mNode_Derived == morkDerived_kCursor;
+  }
+  // } ===== end morkNode methods =====
 
-public: // other cursor methods
+ public:  // other cursor methods
+ public:  // typesafe refcounting inlines calling inherited morkNode methods
+  static void SlotWeakCursor(morkCursor* me, morkEnv* ev, morkCursor** ioSlot) {
+    morkNode::SlotWeakNode((morkNode*)me, ev, (morkNode**)ioSlot);
+  }
 
-public: // typesafe refcounting inlines calling inherited morkNode methods
-  static void SlotWeakCursor(morkCursor* me,
-    morkEnv* ev, morkCursor** ioSlot)
-  { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
-
-  static void SlotStrongCursor(morkCursor* me,
-    morkEnv* ev, morkCursor** ioSlot)
-  { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }
+  static void SlotStrongCursor(morkCursor* me, morkEnv* ev,
+                               morkCursor** ioSlot) {
+    morkNode::SlotStrongNode((morkNode*)me, ev, (morkNode**)ioSlot);
+  }
 };
 
-//3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 #endif /* _MORKCURSOR_ */

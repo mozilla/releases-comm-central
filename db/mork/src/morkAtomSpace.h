@@ -7,26 +7,26 @@
 #define _MORKATOMSPACE_ 1
 
 #ifndef _MORK_
-#include "mork.h"
+#  include "mork.h"
 #endif
 
 #ifndef _MORKNODE_
-#include "morkNode.h"
+#  include "morkNode.h"
 #endif
 
 #ifndef _MORKSPACE_
-#include "morkSpace.h"
+#  include "morkSpace.h"
 #endif
 
 #ifndef _MORKATOMMAP_
-#include "morkAtomMap.h"
+#  include "morkAtomMap.h"
 #endif
 
 #ifndef _MORKNODEMAP_
-#include "morkNodeMap.h"
+#  include "morkNodeMap.h"
 #endif
 
-//3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 /*| kMinUnderId: the smallest ID we auto-assign to the 'under' namespace
 **| reserved for tokens expected to occur very frequently, such as the names
@@ -36,9 +36,9 @@
 **| then reserve the upper half of two hex digit ids and all the three hex
 **| digit IDs for the 'under' namespace for common tokens.
 |*/
-#define morkAtomSpace_kMinUnderId 0x80   /* low 7 bits mean byte tokens */
+#define morkAtomSpace_kMinUnderId 0x80 /* low 7 bits mean byte tokens */
 
-#define morkAtomSpace_kMaxSevenBitAid 0x7F  /* low seven bit integer ID */
+#define morkAtomSpace_kMaxSevenBitAid 0x7F /* low seven bit integer ID */
 
 /*| kMinOverId: the smallest ID we auto-assign to the 'over' namespace that
 **| might include very large numbers of tokens that are used infrequently,
@@ -47,17 +47,18 @@
 **| needs at least four hex digits, so we can reserve three hex digits and
 **| shorter for more commonly occurring tokens in the 'under' category.
 |*/
-#define morkAtomSpace_kMinOverId 0x1000  /* using at least four hex bytes */
+#define morkAtomSpace_kMinOverId 0x1000 /* using at least four hex bytes */
 
-#define morkDerived_kAtomSpace  /*i*/ 0x6153 /* ascii 'aS' */
+#define morkDerived_kAtomSpace /*i*/ 0x6153 /* ascii 'aS' */
 
-#define morkAtomSpace_kColumnScope ((mork_scope) 'c') /* column scope is forever */
+#define morkAtomSpace_kColumnScope \
+  ((mork_scope)'c') /* column scope is forever */
 
 /*| morkAtomSpace:
 |*/
-class morkAtomSpace : public morkSpace { //
+class morkAtomSpace : public morkSpace {  //
 
-// public: // slots inherited from morkSpace (meant to inform only)
+  // public: // slots inherited from morkSpace (meant to inform only)
   // nsIMdbHeap*    mNode_Heap;
 
   // mork_base      mNode_Base;     // must equal morkBase_kNode
@@ -77,41 +78,42 @@ class morkAtomSpace : public morkSpace { //
   // mork_bool   mSpace_HaveDoneAutoIDs; // whether actually auto assigned IDs
   // mork_u1     mSpace_Pad[ 2 ];     // pad to u4 alignment
 
-public: // state is public because the entire Mork system is private
+ public:  // state is public because the entire Mork system is private
+  mork_aid mAtomSpace_HighUnderId;  // high ID in 'under' range
+  mork_aid mAtomSpace_HighOverId;   // high ID in 'over' range
 
-  mork_aid         mAtomSpace_HighUnderId; // high ID in 'under' range
-  mork_aid         mAtomSpace_HighOverId;  // high ID in 'over' range
+  morkAtomAidMap mAtomSpace_AtomAids;     // all atoms in space by ID
+  morkAtomBodyMap mAtomSpace_AtomBodies;  // all atoms in space by body
 
-  morkAtomAidMap   mAtomSpace_AtomAids; // all atoms in space by ID
-  morkAtomBodyMap  mAtomSpace_AtomBodies; // all atoms in space by body
-
-public: // more specific dirty methods for atom space:
+ public:  // more specific dirty methods for atom space:
   void SetAtomSpaceDirty() { this->SetNodeDirty(); }
   void SetAtomSpaceClean() { this->SetNodeClean(); }
 
   mork_bool IsAtomSpaceClean() const { return this->IsNodeClean(); }
   mork_bool IsAtomSpaceDirty() const { return this->IsNodeDirty(); }
 
-// { ===== begin morkNode interface =====
-public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev) override; // CloseAtomSpace() only if open
-  virtual ~morkAtomSpace(); // assert that CloseAtomSpace() executed earlier
+  // { ===== begin morkNode interface =====
+ public:  // morkNode virtual methods
+  virtual void CloseMorkNode(
+      morkEnv* ev) override;  // CloseAtomSpace() only if open
+  virtual ~morkAtomSpace();   // assert that CloseAtomSpace() executed earlier
 
-public: // morkMap construction & destruction
+ public:  // morkMap construction & destruction
   morkAtomSpace(morkEnv* ev, const morkUsage& inUsage, mork_scope inScope,
-    morkStore* ioStore, nsIMdbHeap* ioNodeHeap, nsIMdbHeap* ioSlotHeap);
-  void CloseAtomSpace(morkEnv* ev); // called by CloseMorkNode();
+                morkStore* ioStore, nsIMdbHeap* ioNodeHeap,
+                nsIMdbHeap* ioSlotHeap);
+  void CloseAtomSpace(morkEnv* ev);  // called by CloseMorkNode();
 
-public: // dynamic type identification
-  mork_bool IsAtomSpace() const
-  { return IsNode() && mNode_Derived == morkDerived_kAtomSpace; }
-// } ===== end morkNode methods =====
+ public:  // dynamic type identification
+  mork_bool IsAtomSpace() const {
+    return IsNode() && mNode_Derived == morkDerived_kAtomSpace;
+  }
+  // } ===== end morkNode methods =====
 
-public: // typing
+ public:  // typing
   void NonAtomSpaceTypeError(morkEnv* ev);
 
-public: // setup
-
+ public:  // setup
   mork_bool MarkAllAtomSpaceContentDirty(morkEnv* ev);
   // MarkAllAtomSpaceContentDirty() visits every space object and marks
   // them dirty, including every table, row, cell, and atom.  The return
@@ -122,8 +124,7 @@ public: // setup
   // written, and organize the process of serialization so that objects are
   // written only at need (because of being dirty).
 
-public: // other space methods
-
+ public:  // other space methods
   // void ReserveColumnAidCount(mork_count inCount)
   // {
   //   mAtomSpace_HighUnderId = morkAtomSpace_kMinUnderId + inCount;
@@ -134,7 +135,8 @@ public: // other space methods
   // CutAllAtoms() puts all the atoms back in the pool.
 
   morkBookAtom* MakeBookAtomCopyWithAid(morkEnv* ev,
-     const morkFarBookAtom& inAtom,  mork_aid inAid);
+                                        const morkFarBookAtom& inAtom,
+                                        mork_aid inAid);
   // Make copy of inAtom and put it in both maps, using specified ID.
 
   morkBookAtom* MakeBookAtomCopy(morkEnv* ev, const morkFarBookAtom& inAtom);
@@ -143,77 +145,83 @@ public: // other space methods
   mork_aid MakeNewAtomId(morkEnv* ev, morkBookAtom* ioAtom);
   // generate an unused atom id.
 
-public: // typesafe refcounting inlines calling inherited morkNode methods
-  static void SlotWeakAtomSpace(morkAtomSpace* me,
-    morkEnv* ev, morkAtomSpace** ioSlot)
-  { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
+ public:  // typesafe refcounting inlines calling inherited morkNode methods
+  static void SlotWeakAtomSpace(morkAtomSpace* me, morkEnv* ev,
+                                morkAtomSpace** ioSlot) {
+    morkNode::SlotWeakNode((morkNode*)me, ev, (morkNode**)ioSlot);
+  }
 
-  static void SlotStrongAtomSpace(morkAtomSpace* me,
-    morkEnv* ev, morkAtomSpace** ioSlot)
-  { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }
+  static void SlotStrongAtomSpace(morkAtomSpace* me, morkEnv* ev,
+                                  morkAtomSpace** ioSlot) {
+    morkNode::SlotStrongNode((morkNode*)me, ev, (morkNode**)ioSlot);
+  }
 };
 
-//3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-#define morkDerived_kAtomSpaceMap  /*i*/ 0x615A /* ascii 'aZ' */
+#define morkDerived_kAtomSpaceMap /*i*/ 0x615A /* ascii 'aZ' */
 
 /*| morkAtomSpaceMap: maps mork_scope -> morkAtomSpace
 |*/
-class morkAtomSpaceMap : public morkNodeMap { // for mapping tokens to tables
+class morkAtomSpaceMap : public morkNodeMap {  // for mapping tokens to tables
 
-public:
-
+ public:
   virtual ~morkAtomSpaceMap();
-  morkAtomSpaceMap(morkEnv* ev, const morkUsage& inUsage,
-    nsIMdbHeap* ioHeap, nsIMdbHeap* ioSlotHeap);
+  morkAtomSpaceMap(morkEnv* ev, const morkUsage& inUsage, nsIMdbHeap* ioHeap,
+                   nsIMdbHeap* ioSlotHeap);
 
-public: // other map methods
-
-  mork_bool  AddAtomSpace(morkEnv* ev, morkAtomSpace* ioAtomSpace)
-  { return this->AddNode(ev, ioAtomSpace->SpaceScope(), ioAtomSpace); }
+ public:  // other map methods
+  mork_bool AddAtomSpace(morkEnv* ev, morkAtomSpace* ioAtomSpace) {
+    return this->AddNode(ev, ioAtomSpace->SpaceScope(), ioAtomSpace);
+  }
   // the AddAtomSpace() boolean return equals ev->Good().
 
-  mork_bool  CutAtomSpace(morkEnv* ev, mork_scope inScope)
-  { return this->CutNode(ev, inScope); }
+  mork_bool CutAtomSpace(morkEnv* ev, mork_scope inScope) {
+    return this->CutNode(ev, inScope);
+  }
   // The CutAtomSpace() boolean return indicates whether removal happened.
 
-  morkAtomSpace*  GetAtomSpace(morkEnv* ev, mork_scope inScope)
-  { return (morkAtomSpace*) this->GetNode(ev, inScope); }
+  morkAtomSpace* GetAtomSpace(morkEnv* ev, mork_scope inScope) {
+    return (morkAtomSpace*)this->GetNode(ev, inScope);
+  }
   // Note the returned space does NOT have an increase in refcount for this.
 
-  mork_num CutAllAtomSpaces(morkEnv* ev)
-  { return this->CutAllNodes(ev); }
+  mork_num CutAllAtomSpaces(morkEnv* ev) { return this->CutAllNodes(ev); }
   // CutAllAtomSpaces() releases all the referenced table values.
 };
 
-class morkAtomSpaceMapIter: public morkMapIter{ // typesafe wrapper class
+class morkAtomSpaceMapIter : public morkMapIter {  // typesafe wrapper class
 
-public:
+ public:
   morkAtomSpaceMapIter(morkEnv* ev, morkAtomSpaceMap* ioMap)
-  : morkMapIter(ev, ioMap) { }
+      : morkMapIter(ev, ioMap) {}
 
-  morkAtomSpaceMapIter( ) : morkMapIter()  { }
-  void InitAtomSpaceMapIter(morkEnv* ev, morkAtomSpaceMap* ioMap)
-  { this->InitMapIter(ev, ioMap); }
+  morkAtomSpaceMapIter() : morkMapIter() {}
+  void InitAtomSpaceMapIter(morkEnv* ev, morkAtomSpaceMap* ioMap) {
+    this->InitMapIter(ev, ioMap);
+  }
 
-  mork_change*
-  FirstAtomSpace(morkEnv* ev, mork_scope* outScope, morkAtomSpace** outAtomSpace)
-  { return this->First(ev, outScope, outAtomSpace); }
+  mork_change* FirstAtomSpace(morkEnv* ev, mork_scope* outScope,
+                              morkAtomSpace** outAtomSpace) {
+    return this->First(ev, outScope, outAtomSpace);
+  }
 
-  mork_change*
-  NextAtomSpace(morkEnv* ev, mork_scope* outScope, morkAtomSpace** outAtomSpace)
-  { return this->Next(ev, outScope, outAtomSpace); }
+  mork_change* NextAtomSpace(morkEnv* ev, mork_scope* outScope,
+                             morkAtomSpace** outAtomSpace) {
+    return this->Next(ev, outScope, outAtomSpace);
+  }
 
-  mork_change*
-  HereAtomSpace(morkEnv* ev, mork_scope* outScope, morkAtomSpace** outAtomSpace)
-  { return this->Here(ev, outScope, outAtomSpace); }
+  mork_change* HereAtomSpace(morkEnv* ev, mork_scope* outScope,
+                             morkAtomSpace** outAtomSpace) {
+    return this->Here(ev, outScope, outAtomSpace);
+  }
 
-  mork_change*
-  CutHereAtomSpace(morkEnv* ev, mork_scope* outScope, morkAtomSpace** outAtomSpace)
-  { return this->CutHere(ev, outScope, outAtomSpace); }
+  mork_change* CutHereAtomSpace(morkEnv* ev, mork_scope* outScope,
+                                morkAtomSpace** outAtomSpace) {
+    return this->CutHere(ev, outScope, outAtomSpace);
+  }
 };
 
-//3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 #endif /* _MORKATOMSPACE_ */
-

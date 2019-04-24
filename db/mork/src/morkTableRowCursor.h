@@ -7,25 +7,26 @@
 #define _MORKTABLEROWCURSOR_ 1
 
 #ifndef _MORK_
-#include "mork.h"
+#  include "mork.h"
 #endif
 
 #ifndef _MORKCURSOR_
-#include "morkCursor.h"
+#  include "morkCursor.h"
 #endif
 
 #ifndef _MORKMAP_
-#include "morkMap.h"
+#  include "morkMap.h"
 #endif
 
-//3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 class orkinTableRowCursor;
-#define morkDerived_kTableRowCursor  /*i*/ 0x7243 /* ascii 'rC' */
+#define morkDerived_kTableRowCursor /*i*/ 0x7243 /* ascii 'rC' */
 
-class morkTableRowCursor : public morkCursor, public nsIMdbTableRowCursor { // row iterator
+class morkTableRowCursor : public morkCursor,
+                           public nsIMdbTableRowCursor {  // row iterator
 
-// public: // slots inherited from morkObject (meant to inform only)
+  // public: // slots inherited from morkObject (meant to inform only)
   // nsIMdbHeap*     mNode_Heap;
   // mork_able    mNode_Mutable; // can this node be modified?
   // mork_load    mNode_Load;    // is this node clean or dirty?
@@ -43,104 +44,106 @@ class morkTableRowCursor : public morkCursor, public nsIMdbTableRowCursor { // r
   // mork_bool  mCursor_DoFailOnSeedOutOfSync;
   // mork_u1    mCursor_Pad[ 3 ]; // explicitly pad to u4 alignment
 
-public: // state is public because the entire Mork system is private
-  morkTable*  mTableRowCursor_Table; // weak ref to table
+ public:  // state is public because the entire Mork system is private
+  morkTable* mTableRowCursor_Table;  // weak ref to table
 
-// { ===== begin morkNode interface =====
-public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev) override; // CloseTableRowCursor()
+  // { ===== begin morkNode interface =====
+ public:                                             // morkNode virtual methods
+  virtual void CloseMorkNode(morkEnv* ev) override;  // CloseTableRowCursor()
 
-protected:
-  virtual ~morkTableRowCursor(); // assert that close executed earlier
+ protected:
+  virtual ~morkTableRowCursor();  // assert that close executed earlier
 
-public: // morkTableRowCursor construction & destruction
-  morkTableRowCursor(morkEnv* ev, const morkUsage& inUsage,
-    nsIMdbHeap* ioHeap, morkTable* ioTable, mork_pos inRowPos);
-  void CloseTableRowCursor(morkEnv* ev); // called by CloseMorkNode();
+ public:  // morkTableRowCursor construction & destruction
+  morkTableRowCursor(morkEnv* ev, const morkUsage& inUsage, nsIMdbHeap* ioHeap,
+                     morkTable* ioTable, mork_pos inRowPos);
+  void CloseTableRowCursor(morkEnv* ev);  // called by CloseMorkNode();
 
-private: // copying is not allowed
+ private:  // copying is not allowed
   morkTableRowCursor(const morkTableRowCursor& other);
   morkTableRowCursor& operator=(const morkTableRowCursor& other);
 
-public:
+ public:
   NS_DECL_ISUPPORTS_INHERITED
 
   // { ----- begin attribute methods -----
-  NS_IMETHOD GetCount(nsIMdbEnv* ev, mdb_count* outCount) override; // readonly
-  NS_IMETHOD GetSeed(nsIMdbEnv* ev, mdb_seed* outSeed) override;    // readonly
+  NS_IMETHOD GetCount(nsIMdbEnv* ev, mdb_count* outCount) override;  // readonly
+  NS_IMETHOD GetSeed(nsIMdbEnv* ev, mdb_seed* outSeed) override;     // readonly
 
-  NS_IMETHOD SetPos(nsIMdbEnv* ev, mdb_pos inPos) override;   // mutable
+  NS_IMETHOD SetPos(nsIMdbEnv* ev, mdb_pos inPos) override;  // mutable
   NS_IMETHOD GetPos(nsIMdbEnv* ev, mdb_pos* outPos) override;
 
   NS_IMETHOD SetDoFailOnSeedOutOfSync(nsIMdbEnv* ev, mdb_bool inFail) override;
-  NS_IMETHOD GetDoFailOnSeedOutOfSync(nsIMdbEnv* ev, mdb_bool* outFail) override;
+  NS_IMETHOD GetDoFailOnSeedOutOfSync(nsIMdbEnv* ev,
+                                      mdb_bool* outFail) override;
 
   // } ----- end attribute methods -----
-    NS_IMETHOD GetTable(nsIMdbEnv* ev, nsIMdbTable** acqTable) override;
+  NS_IMETHOD GetTable(nsIMdbEnv* ev, nsIMdbTable** acqTable) override;
   // } ----- end attribute methods -----
 
   // { ----- begin duplicate row removal methods -----
-  NS_IMETHOD CanHaveDupRowMembers(nsIMdbEnv* ev, // cursor might hold dups?
-    mdb_bool* outCanHaveDups) override;
+  NS_IMETHOD CanHaveDupRowMembers(nsIMdbEnv* ev,  // cursor might hold dups?
+                                  mdb_bool* outCanHaveDups) override;
 
-  NS_IMETHOD MakeUniqueCursor( // clone cursor, removing duplicate rows
-    nsIMdbEnv* ev, // context
-    nsIMdbTableRowCursor** acqCursor) override;    // acquire clone with no dups
+  NS_IMETHOD MakeUniqueCursor(  // clone cursor, removing duplicate rows
+      nsIMdbEnv* ev,            // context
+      nsIMdbTableRowCursor** acqCursor) override;  // acquire clone with no dups
   // } ----- end duplicate row removal methods -----
 
   // { ----- begin oid iteration methods -----
-  NS_IMETHOD NextRowOid( // get row id of next row in the table
-    nsIMdbEnv* ev, // context
-    mdbOid* outOid, // out row oid
-    mdb_pos* outRowPos) override; // zero-based position of the row in table
-  NS_IMETHOD PrevRowOid( // get row id of previous row in the table
-    nsIMdbEnv* ev, // context
-    mdbOid* outOid, // out row oid
-    mdb_pos* outRowPos) override; // zero-based position of the row in table
+  NS_IMETHOD NextRowOid(             // get row id of next row in the table
+      nsIMdbEnv* ev,                 // context
+      mdbOid* outOid,                // out row oid
+      mdb_pos* outRowPos) override;  // zero-based position of the row in table
+  NS_IMETHOD PrevRowOid(             // get row id of previous row in the table
+      nsIMdbEnv* ev,                 // context
+      mdbOid* outOid,                // out row oid
+      mdb_pos* outRowPos) override;  // zero-based position of the row in table
   // } ----- end oid iteration methods -----
 
   // { ----- begin row iteration methods -----
-  NS_IMETHOD NextRow( // get row cells from table for cells already in row
-    nsIMdbEnv* ev, // context
-    nsIMdbRow** acqRow, // acquire next row in table
-    mdb_pos* outRowPos) override; // zero-based position of the row in table
-  NS_IMETHOD PrevRow( // get row cells from table for cells already in row
-    nsIMdbEnv* ev, // context
-    nsIMdbRow** acqRow, // acquire previous row in table
-    mdb_pos* outRowPos) override; // zero-based position of the row in table
+  NS_IMETHOD NextRow(      // get row cells from table for cells already in row
+      nsIMdbEnv* ev,       // context
+      nsIMdbRow** acqRow,  // acquire next row in table
+      mdb_pos* outRowPos) override;  // zero-based position of the row in table
+  NS_IMETHOD PrevRow(      // get row cells from table for cells already in row
+      nsIMdbEnv* ev,       // context
+      nsIMdbRow** acqRow,  // acquire previous row in table
+      mdb_pos* outRowPos) override;  // zero-based position of the row in table
   // } ----- end row iteration methods -----
 
+ public:  // dynamic type identification
+  mork_bool IsTableRowCursor() const {
+    return IsNode() && mNode_Derived == morkDerived_kTableRowCursor;
+  }
+  // } ===== end morkNode methods =====
 
-public: // dynamic type identification
-  mork_bool IsTableRowCursor() const
-  { return IsNode() && mNode_Derived == morkDerived_kTableRowCursor; }
-// } ===== end morkNode methods =====
-
-public: // typing
+ public:  // typing
   static void NonTableRowCursorTypeError(morkEnv* ev);
 
-public: // oid only iteration
+ public:  // oid only iteration
   mdb_pos NextRowOid(morkEnv* ev, mdbOid* outOid);
   mdb_pos PrevRowOid(morkEnv* ev, mdbOid* outOid);
 
-public: // other table row cursor methods
-
+ public:  // other table row cursor methods
   virtual mork_bool CanHaveDupRowMembers(morkEnv* ev);
   virtual mork_count GetMemberCount(morkEnv* ev);
 
   virtual morkRow* NextRow(morkEnv* ev, mdbOid* outOid, mdb_pos* outPos);
   virtual morkRow* PrevRow(morkEnv* ev, mdbOid* outOid, mdb_pos* outPos);
 
-public: // typesafe refcounting inlines calling inherited morkNode methods
-  static void SlotWeakTableRowCursor(morkTableRowCursor* me,
-    morkEnv* ev, morkTableRowCursor** ioSlot)
-  { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
+ public:  // typesafe refcounting inlines calling inherited morkNode methods
+  static void SlotWeakTableRowCursor(morkTableRowCursor* me, morkEnv* ev,
+                                     morkTableRowCursor** ioSlot) {
+    morkNode::SlotWeakNode((morkNode*)me, ev, (morkNode**)ioSlot);
+  }
 
-  static void SlotStrongTableRowCursor(morkTableRowCursor* me,
-    morkEnv* ev, morkTableRowCursor** ioSlot)
-  { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }
+  static void SlotStrongTableRowCursor(morkTableRowCursor* me, morkEnv* ev,
+                                       morkTableRowCursor** ioSlot) {
+    morkNode::SlotStrongNode((morkNode*)me, ev, (morkNode**)ioSlot);
+  }
 };
 
-//3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 #endif /* _MORKTABLEROWCURSOR_ */

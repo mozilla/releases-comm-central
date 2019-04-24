@@ -4,55 +4,54 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #ifndef _MDB_
-#include "mdb.h"
+#  include "mdb.h"
 #endif
 
 #ifndef _MORK_
-#include "mork.h"
+#  include "mork.h"
 #endif
 
 #ifndef _MORKNODE_
-#include "morkNode.h"
+#  include "morkNode.h"
 #endif
 
 #ifndef _MORKENV_
-#include "morkEnv.h"
+#  include "morkEnv.h"
 #endif
 
 #ifndef _MORKCURSOR_
-#include "morkCursor.h"
+#  include "morkCursor.h"
 #endif
 
 #ifndef _MORKSEARCHROWCURSOR_
-#include "morkSearchRowCursor.h"
+#  include "morkSearchRowCursor.h"
 #endif
 
 #ifndef _MORKUNIQROWCURSOR_
-#include "morkUniqRowCursor.h"
+#  include "morkUniqRowCursor.h"
 #endif
 
 #ifndef _MORKSTORE_
-#include "morkStore.h"
+#  include "morkStore.h"
 #endif
 
 #ifndef _MORKTABLE_
-#include "morkTable.h"
+#  include "morkTable.h"
 #endif
 
 #ifndef _MORKROW_
-#include "morkRow.h"
+#  include "morkRow.h"
 #endif
 
-//3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 // ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
-/*public virtual*/ void
-morkSearchRowCursor::CloseMorkNode(morkEnv* ev) // CloseSearchRowCursor() only if open
+/*public virtual*/ void morkSearchRowCursor::CloseMorkNode(
+    morkEnv* ev)  // CloseSearchRowCursor() only if open
 {
-  if ( this->IsOpenNode() )
-  {
+  if (this->IsOpenNode()) {
     this->MarkClosing();
     this->CloseSearchRowCursor(ev);
     this->MarkShut();
@@ -60,59 +59,51 @@ morkSearchRowCursor::CloseMorkNode(morkEnv* ev) // CloseSearchRowCursor() only i
 }
 
 /*public virtual*/
-morkSearchRowCursor::~morkSearchRowCursor() // CloseSearchRowCursor() executed earlier
+morkSearchRowCursor::~morkSearchRowCursor()  // CloseSearchRowCursor() executed
+                                             // earlier
 {
   MORK_ASSERT(this->IsShutNode());
 }
 
 /*public non-poly*/
-morkSearchRowCursor::morkSearchRowCursor(morkEnv* ev,
-  const morkUsage& inUsage,
-  nsIMdbHeap* ioHeap, morkTable* ioTable, mork_pos inRowPos)
-: morkTableRowCursor(ev, inUsage, ioHeap, ioTable, inRowPos)
+morkSearchRowCursor::morkSearchRowCursor(morkEnv* ev, const morkUsage& inUsage,
+                                         nsIMdbHeap* ioHeap, morkTable* ioTable,
+                                         mork_pos inRowPos)
+    : morkTableRowCursor(ev, inUsage, ioHeap, ioTable, inRowPos)
 // , mSortingRowCursor_Sorting( 0 )
 {
-  if ( ev->Good() )
-  {
-    if ( ioTable )
-    {
-      // morkSorting::SlotWeakSorting(ioSorting, ev, &mSortingRowCursor_Sorting);
-      if ( ev->Good() )
-      {
+  if (ev->Good()) {
+    if (ioTable) {
+      // morkSorting::SlotWeakSorting(ioSorting, ev,
+      // &mSortingRowCursor_Sorting);
+      if (ev->Good()) {
         // mNode_Derived = morkDerived_kTableRowCursor;
         // mNode_Derived must stay equal to  kTableRowCursor
       }
-    }
-    else
+    } else
       ev->NilPointerError();
   }
 }
 
-/*public non-poly*/ void
-morkSearchRowCursor::CloseSearchRowCursor(morkEnv* ev)
-{
-    if ( this->IsNode() )
-    {
-      // morkSorting::SlotWeakSorting((morkSorting*) 0, ev, &mSortingRowCursor_Sorting);
-      this->CloseTableRowCursor(ev);
-      this->MarkShut();
-    }
-    else
-      this->NonNodeError(ev);
+/*public non-poly*/ void morkSearchRowCursor::CloseSearchRowCursor(
+    morkEnv* ev) {
+  if (this->IsNode()) {
+    // morkSorting::SlotWeakSorting((morkSorting*) 0, ev,
+    // &mSortingRowCursor_Sorting);
+    this->CloseTableRowCursor(ev);
+    this->MarkShut();
+  } else
+    this->NonNodeError(ev);
 }
 
 // } ===== end morkNode methods =====
 // ````` ````` ````` ````` `````
 
-/*static*/ void
-morkSearchRowCursor::NonSearchRowCursorTypeError(morkEnv* ev)
-{
+/*static*/ void morkSearchRowCursor::NonSearchRowCursorTypeError(morkEnv* ev) {
   ev->NewError("non morkSearchRowCursor");
 }
 
-morkUniqRowCursor*
-morkSearchRowCursor::MakeUniqCursor(morkEnv* ev)
-{
+morkUniqRowCursor* morkSearchRowCursor::MakeUniqCursor(morkEnv* ev) {
   morkUniqRowCursor* outCursor = 0;
 
   return outCursor;
@@ -133,37 +124,30 @@ morkSearchRowCursor::AcquireUniqueRowCursorHandle(morkEnv* ev)
   return outCursor;
 }
 #endif
-mork_bool
-morkSearchRowCursor::CanHaveDupRowMembers(morkEnv* ev)
-{
-  return morkBool_kTrue; // true is correct
+mork_bool morkSearchRowCursor::CanHaveDupRowMembers(morkEnv* ev) {
+  return morkBool_kTrue;  // true is correct
 }
 
-mork_count
-morkSearchRowCursor::GetMemberCount(morkEnv* ev)
-{
+mork_count morkSearchRowCursor::GetMemberCount(morkEnv* ev) {
   morkTable* table = mTableRowCursor_Table;
-  if ( table )
+  if (table)
     return table->mTable_RowArray.mArray_Fill;
   else
     return 0;
 }
 
-morkRow*
-morkSearchRowCursor::NextRow(morkEnv* ev, mdbOid* outOid, mdb_pos* outPos)
-{
+morkRow* morkSearchRowCursor::NextRow(morkEnv* ev, mdbOid* outOid,
+                                      mdb_pos* outPos) {
   morkRow* outRow = 0;
   mork_pos pos = -1;
 
   morkTable* table = mTableRowCursor_Table;
-  if ( table )
-  {
-  }
-  else
+  if (table) {
+  } else
     ev->NilPointerError();
 
   *outPos = pos;
   return outRow;
 }
 
-//3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789

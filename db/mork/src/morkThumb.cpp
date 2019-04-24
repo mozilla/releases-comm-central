@@ -4,27 +4,27 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #ifndef _MDB_
-#include "mdb.h"
+#  include "mdb.h"
 #endif
 
 #ifndef _MORK_
-#include "mork.h"
+#  include "mork.h"
 #endif
 
 #ifndef _MORKNODE_
-#include "morkNode.h"
+#  include "morkNode.h"
 #endif
 
 #ifndef _MORKENV_
-#include "morkEnv.h"
+#  include "morkEnv.h"
 #endif
 
 #ifndef _MORKTHUMB_
-#include "morkThumb.h"
+#  include "morkThumb.h"
 #endif
 
 #ifndef _MORKSTORE_
-#include "morkStore.h"
+#  include "morkStore.h"
 #endif
 
 // #ifndef _MORKFILE_
@@ -32,27 +32,26 @@
 // #endif
 
 #ifndef _MORKWRITER_
-#include "morkWriter.h"
+#  include "morkWriter.h"
 #endif
 
 #ifndef _MORKPARSER_
-#include "morkParser.h"
+#  include "morkParser.h"
 #endif
 
 #ifndef _MORKBUILDER_
-#include "morkBuilder.h"
+#  include "morkBuilder.h"
 #endif
 
-//3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 // ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
 
-/*public virtual*/ void
-morkThumb::CloseMorkNode(morkEnv* ev) // CloseThumb() only if open
+/*public virtual*/ void morkThumb::CloseMorkNode(
+    morkEnv* ev)  // CloseThumb() only if open
 {
-  if ( this->IsOpenNode() )
-  {
+  if (this->IsOpenNode()) {
     this->MarkClosing();
     this->CloseThumb(ev);
     this->MarkShut();
@@ -60,67 +59,62 @@ morkThumb::CloseMorkNode(morkEnv* ev) // CloseThumb() only if open
 }
 
 /*public virtual*/
-morkThumb::~morkThumb() // assert CloseThumb() executed earlier
+morkThumb::~morkThumb()  // assert CloseThumb() executed earlier
 {
   CloseMorkNode(mMorkEnv);
-  MORK_ASSERT(mThumb_Magic==0);
-  MORK_ASSERT(mThumb_Store==0);
-  MORK_ASSERT(mThumb_File==0);
+  MORK_ASSERT(mThumb_Magic == 0);
+  MORK_ASSERT(mThumb_Store == 0);
+  MORK_ASSERT(mThumb_File == 0);
 }
 
 /*public non-poly*/
-morkThumb::morkThumb(morkEnv* ev,
-  const morkUsage& inUsage, nsIMdbHeap* ioHeap,
-  nsIMdbHeap* ioSlotHeap, mork_magic inMagic)
-: morkObject(ev, inUsage, ioHeap, morkColor_kNone, (morkHandle*) 0)
-, mThumb_Magic( 0 )
-, mThumb_Total( 0 )
-, mThumb_Current( 0 )
+morkThumb::morkThumb(morkEnv* ev, const morkUsage& inUsage, nsIMdbHeap* ioHeap,
+                     nsIMdbHeap* ioSlotHeap, mork_magic inMagic)
+    : morkObject(ev, inUsage, ioHeap, morkColor_kNone, (morkHandle*)0),
+      mThumb_Magic(0),
+      mThumb_Total(0),
+      mThumb_Current(0)
 
-, mThumb_Done( morkBool_kFalse )
-, mThumb_Broken( morkBool_kFalse )
-, mThumb_Seed( 0 )
+      ,
+      mThumb_Done(morkBool_kFalse),
+      mThumb_Broken(morkBool_kFalse),
+      mThumb_Seed(0)
 
-, mThumb_Store( 0 )
-, mThumb_File( 0 )
-, mThumb_Writer( 0 )
-, mThumb_Builder( 0 )
-, mThumb_SourcePort( 0 )
+      ,
+      mThumb_Store(0),
+      mThumb_File(0),
+      mThumb_Writer(0),
+      mThumb_Builder(0),
+      mThumb_SourcePort(0)
 
-, mThumb_DoCollect( morkBool_kFalse )
-{
-  if ( ev->Good() )
-  {
-    if ( ioSlotHeap )
-    {
+      ,
+      mThumb_DoCollect(morkBool_kFalse) {
+  if (ev->Good()) {
+    if (ioSlotHeap) {
       mThumb_Magic = inMagic;
       mNode_Derived = morkDerived_kThumb;
-    }
-    else
+    } else
       ev->NilPointerError();
   }
 }
 
 NS_IMPL_ISUPPORTS_INHERITED(morkThumb, morkObject, nsIMdbThumb)
 
-/*public non-poly*/ void
-morkThumb::CloseThumb(morkEnv* ev) // called by CloseMorkNode();
+/*public non-poly*/ void morkThumb::CloseThumb(
+    morkEnv* ev)  // called by CloseMorkNode();
 {
-    if ( this->IsNode() )
-    {
-      mThumb_Magic = 0;
-      if ( mThumb_Builder && mThumb_Store )
-        mThumb_Store->ForgetBuilder(ev);
-      morkBuilder::SlotStrongBuilder((morkBuilder*) 0, ev, &mThumb_Builder);
+  if (this->IsNode()) {
+    mThumb_Magic = 0;
+    if (mThumb_Builder && mThumb_Store) mThumb_Store->ForgetBuilder(ev);
+    morkBuilder::SlotStrongBuilder((morkBuilder*)0, ev, &mThumb_Builder);
 
-      morkWriter::SlotStrongWriter((morkWriter*) 0, ev, &mThumb_Writer);
-      nsIMdbFile_SlotStrongFile((nsIMdbFile*) 0, ev, &mThumb_File);
-      morkStore::SlotStrongStore((morkStore*) 0, ev, &mThumb_Store);
-      morkStore::SlotStrongPort((morkPort*) 0, ev, &mThumb_SourcePort);
-      this->MarkShut();
-    }
-    else
-      this->NonNodeError(ev);
+    morkWriter::SlotStrongWriter((morkWriter*)0, ev, &mThumb_Writer);
+    nsIMdbFile_SlotStrongFile((nsIMdbFile*)0, ev, &mThumb_File);
+    morkStore::SlotStrongStore((morkStore*)0, ev, &mThumb_Store);
+    morkStore::SlotStrongPort((morkPort*)0, ev, &mThumb_SourcePort);
+    this->MarkShut();
+  } else
+    this->NonNodeError(ev);
 }
 
 // } ===== end morkNode methods =====
@@ -129,12 +123,11 @@ morkThumb::CloseThumb(morkEnv* ev) // called by CloseMorkNode();
 // { ===== begin nsIMdbThumb methods =====
 NS_IMETHODIMP
 morkThumb::GetProgress(nsIMdbEnv* mev, mdb_count* outTotal,
-  mdb_count* outCurrent, mdb_bool* outDone, mdb_bool* outBroken)
-{
+                       mdb_count* outCurrent, mdb_bool* outDone,
+                       mdb_bool* outBroken) {
   nsresult outErr = NS_OK;
   morkEnv* ev = morkEnv::FromMdbEnv(mev);
-  if ( ev )
-  {
+  if (ev) {
     GetProgress(ev, outTotal, outCurrent, outDone, outBroken);
     outErr = ev->AsErr();
   }
@@ -142,13 +135,11 @@ morkThumb::GetProgress(nsIMdbEnv* mev, mdb_count* outTotal,
 }
 
 NS_IMETHODIMP
-morkThumb::DoMore(nsIMdbEnv* mev, mdb_count* outTotal,
-  mdb_count* outCurrent, mdb_bool* outDone, mdb_bool* outBroken)
-{
+morkThumb::DoMore(nsIMdbEnv* mev, mdb_count* outTotal, mdb_count* outCurrent,
+                  mdb_bool* outDone, mdb_bool* outBroken) {
   nsresult outErr = NS_OK;
   morkEnv* ev = morkEnv::FromMdbEnv(mev);
-  if ( ev )
-  {
+  if (ev) {
     DoMore(ev, outTotal, outCurrent, outDone, outBroken);
     outErr = ev->AsErr();
   }
@@ -156,174 +147,142 @@ morkThumb::DoMore(nsIMdbEnv* mev, mdb_count* outTotal,
 }
 
 NS_IMETHODIMP
-morkThumb::CancelAndBreakThumb(nsIMdbEnv* mev)
-{
+morkThumb::CancelAndBreakThumb(nsIMdbEnv* mev) {
   nsresult outErr = NS_OK;
   morkEnv* ev = morkEnv::FromMdbEnv(mev);
-  if ( ev )
-  {
+  if (ev) {
     mThumb_Done = morkBool_kTrue;
     mThumb_Broken = morkBool_kTrue;
-    CloseMorkNode(ev); // should I close this here?
+    CloseMorkNode(ev);  // should I close this here?
     outErr = ev->AsErr();
   }
   return outErr;
 }
 // } ===== end nsIMdbThumb methods =====
 
-/*static*/ void morkThumb::NonThumbTypeError(morkEnv* ev)
-{
+/*static*/ void morkThumb::NonThumbTypeError(morkEnv* ev) {
   ev->NewError("non morkThumb");
 }
 
-/*static*/ void morkThumb::UnsupportedThumbMagicError(morkEnv* ev)
-{
+/*static*/ void morkThumb::UnsupportedThumbMagicError(morkEnv* ev) {
   ev->NewError("unsupported mThumb_Magic");
 }
 
-/*static*/ void morkThumb::NilThumbStoreError(morkEnv* ev)
-{
+/*static*/ void morkThumb::NilThumbStoreError(morkEnv* ev) {
   ev->NewError("nil mThumb_Store");
 }
 
-/*static*/ void morkThumb::NilThumbFileError(morkEnv* ev)
-{
+/*static*/ void morkThumb::NilThumbFileError(morkEnv* ev) {
   ev->NewError("nil mThumb_File");
 }
 
-/*static*/ void morkThumb::NilThumbWriterError(morkEnv* ev)
-{
+/*static*/ void morkThumb::NilThumbWriterError(morkEnv* ev) {
   ev->NewError("nil mThumb_Writer");
 }
 
-/*static*/ void morkThumb::NilThumbBuilderError(morkEnv* ev)
-{
+/*static*/ void morkThumb::NilThumbBuilderError(morkEnv* ev) {
   ev->NewError("nil mThumb_Builder");
 }
 
-/*static*/ void morkThumb::NilThumbSourcePortError(morkEnv* ev)
-{
+/*static*/ void morkThumb::NilThumbSourcePortError(morkEnv* ev) {
   ev->NewError("nil mThumb_SourcePort");
 }
 
-/*static*/ morkThumb*
-morkThumb::Make_OpenFileStore(morkEnv* ev, nsIMdbHeap* ioHeap,
-  morkStore* ioStore)
-{
+/*static*/ morkThumb* morkThumb::Make_OpenFileStore(morkEnv* ev,
+                                                    nsIMdbHeap* ioHeap,
+                                                    morkStore* ioStore) {
   morkThumb* outThumb = 0;
-  if ( ioHeap && ioStore )
-  {
+  if (ioHeap && ioStore) {
     nsIMdbFile* file = ioStore->mStore_File;
-    if ( file )
-    {
+    if (file) {
       mork_pos fileEof = 0;
       file->Eof(ev->AsMdbEnv(), &fileEof);
-      if ( ev->Good() )
-      {
-        outThumb = new(*ioHeap, ev)
-          morkThumb(ev, morkUsage::kHeap, ioHeap, ioHeap,
-            morkThumb_kMagic_OpenFileStore);
+      if (ev->Good()) {
+        outThumb =
+            new (*ioHeap, ev) morkThumb(ev, morkUsage::kHeap, ioHeap, ioHeap,
+                                        morkThumb_kMagic_OpenFileStore);
 
-        if ( outThumb )
-        {
+        if (outThumb) {
           morkBuilder* builder = ioStore->LazyGetBuilder(ev);
-          if ( builder )
-          {
-            outThumb->mThumb_Total = (mork_count) fileEof;
+          if (builder) {
+            outThumb->mThumb_Total = (mork_count)fileEof;
             morkStore::SlotStrongStore(ioStore, ev, &outThumb->mThumb_Store);
             morkBuilder::SlotStrongBuilder(builder, ev,
-              &outThumb->mThumb_Builder);
+                                           &outThumb->mThumb_Builder);
           }
         }
       }
-    }
-    else
+    } else
       ioStore->NilStoreFileError(ev);
-  }
-  else
+  } else
     ev->NilPointerError();
 
   return outThumb;
 }
 
-
-/*static*/ morkThumb*
-morkThumb::Make_LargeCommit(morkEnv* ev,
-  nsIMdbHeap* ioHeap, morkStore* ioStore)
-{
+/*static*/ morkThumb* morkThumb::Make_LargeCommit(morkEnv* ev,
+                                                  nsIMdbHeap* ioHeap,
+                                                  morkStore* ioStore) {
   morkThumb* outThumb = 0;
-  if ( ioHeap && ioStore )
-  {
+  if (ioHeap && ioStore) {
     nsIMdbFile* file = ioStore->mStore_File;
-    if ( file )
-    {
-      outThumb = new(*ioHeap, ev)
-        morkThumb(ev, morkUsage::kHeap, ioHeap, ioHeap,
-          morkThumb_kMagic_LargeCommit);
+    if (file) {
+      outThumb = new (*ioHeap, ev) morkThumb(
+          ev, morkUsage::kHeap, ioHeap, ioHeap, morkThumb_kMagic_LargeCommit);
 
-      if ( outThumb )
-      {
-        morkWriter* writer = new(*ioHeap, ev)
-          morkWriter(ev, morkUsage::kHeap, ioHeap, ioStore, file, ioHeap);
-        if ( writer )
-        {
+      if (outThumb) {
+        morkWriter* writer = new (*ioHeap, ev)
+            morkWriter(ev, morkUsage::kHeap, ioHeap, ioStore, file, ioHeap);
+        if (writer) {
           writer->mWriter_CommitGroupIdentity =
-            ++ioStore->mStore_CommitGroupIdentity;
+              ++ioStore->mStore_CommitGroupIdentity;
           writer->mWriter_NeedDirtyAll = morkBool_kFalse;
           outThumb->mThumb_DoCollect = morkBool_kFalse;
           morkStore::SlotStrongStore(ioStore, ev, &outThumb->mThumb_Store);
 
           nsIMdbFile_SlotStrongFile(file, ev, &outThumb->mThumb_File);
 
-          outThumb->mThumb_Writer = writer; // pass writer ownership to thumb
+          outThumb->mThumb_Writer = writer;  // pass writer ownership to thumb
         }
       }
-    }
-    else
+    } else
       ioStore->NilStoreFileError(ev);
-  }
-  else
+  } else
     ev->NilPointerError();
 
   return outThumb;
 }
 
-/*static*/ morkThumb*
-morkThumb::Make_CompressCommit(morkEnv* ev,
-  nsIMdbHeap* ioHeap, morkStore* ioStore, mork_bool inDoCollect)
-{
+/*static*/ morkThumb* morkThumb::Make_CompressCommit(morkEnv* ev,
+                                                     nsIMdbHeap* ioHeap,
+                                                     morkStore* ioStore,
+                                                     mork_bool inDoCollect) {
   morkThumb* outThumb = 0;
-  if ( ioHeap && ioStore )
-  {
+  if (ioHeap && ioStore) {
     nsIMdbFile* file = ioStore->mStore_File;
-    if ( file )
-    {
-      outThumb = new(*ioHeap, ev)
-        morkThumb(ev, morkUsage::kHeap, ioHeap, ioHeap,
-          morkThumb_kMagic_CompressCommit);
+    if (file) {
+      outThumb =
+          new (*ioHeap, ev) morkThumb(ev, morkUsage::kHeap, ioHeap, ioHeap,
+                                      morkThumb_kMagic_CompressCommit);
 
-      if ( outThumb )
-      {
-        morkWriter* writer = new(*ioHeap, ev)
-          morkWriter(ev, morkUsage::kHeap, ioHeap, ioStore, file, ioHeap);
-        if ( writer )
-        {
+      if (outThumb) {
+        morkWriter* writer = new (*ioHeap, ev)
+            morkWriter(ev, morkUsage::kHeap, ioHeap, ioStore, file, ioHeap);
+        if (writer) {
           writer->mWriter_NeedDirtyAll = morkBool_kTrue;
           outThumb->mThumb_DoCollect = inDoCollect;
           morkStore::SlotStrongStore(ioStore, ev, &outThumb->mThumb_Store);
           nsIMdbFile_SlotStrongFile(file, ev, &outThumb->mThumb_File);
-          outThumb->mThumb_Writer = writer; // pass writer ownership to thumb
+          outThumb->mThumb_Writer = writer;  // pass writer ownership to thumb
 
           // cope with fact that parsed transaction groups are going away:
           ioStore->mStore_FirstCommitGroupPos = 0;
           ioStore->mStore_SecondCommitGroupPos = 0;
         }
       }
-    }
-    else
+    } else
       ioStore->NilStoreFileError(ev);
-  }
-  else
+  } else
     ev->NilPointerError();
 
   return outThumb;
@@ -331,193 +290,166 @@ morkThumb::Make_CompressCommit(morkEnv* ev,
 
 // { ===== begin non-poly methods imitating nsIMdbThumb =====
 void morkThumb::GetProgress(morkEnv* ev, mdb_count* outTotal,
-  mdb_count* outCurrent, mdb_bool* outDone, mdb_bool* outBroken)
-{
+                            mdb_count* outCurrent, mdb_bool* outDone,
+                            mdb_bool* outBroken) {
   MORK_USED_1(ev);
-  if ( outTotal )
-    *outTotal = mThumb_Total;
-  if ( outCurrent )
-    *outCurrent = mThumb_Current;
-  if ( outDone )
-    *outDone = mThumb_Done;
-  if ( outBroken )
-    *outBroken = mThumb_Broken;
+  if (outTotal) *outTotal = mThumb_Total;
+  if (outCurrent) *outCurrent = mThumb_Current;
+  if (outDone) *outDone = mThumb_Done;
+  if (outBroken) *outBroken = mThumb_Broken;
 }
 
-void morkThumb::DoMore(morkEnv* ev, mdb_count* outTotal,
-  mdb_count* outCurrent, mdb_bool* outDone, mdb_bool* outBroken)
-{
-  if ( !mThumb_Done && !mThumb_Broken )
-  {
-    switch ( mThumb_Magic )
-    {
-      case morkThumb_kMagic_OpenFilePort: // 1 /* factory method */
-        this->DoMore_OpenFilePort(ev); break;
+void morkThumb::DoMore(morkEnv* ev, mdb_count* outTotal, mdb_count* outCurrent,
+                       mdb_bool* outDone, mdb_bool* outBroken) {
+  if (!mThumb_Done && !mThumb_Broken) {
+    switch (mThumb_Magic) {
+      case morkThumb_kMagic_OpenFilePort:  // 1 /* factory method */
+        this->DoMore_OpenFilePort(ev);
+        break;
 
-      case morkThumb_kMagic_OpenFileStore: // 2 /* factory method */
-        this->DoMore_OpenFileStore(ev); break;
+      case morkThumb_kMagic_OpenFileStore:  // 2 /* factory method */
+        this->DoMore_OpenFileStore(ev);
+        break;
 
-      case morkThumb_kMagic_ExportToFormat: // 3 /* port method */
-        this->DoMore_ExportToFormat(ev); break;
+      case morkThumb_kMagic_ExportToFormat:  // 3 /* port method */
+        this->DoMore_ExportToFormat(ev);
+        break;
 
-      case morkThumb_kMagic_ImportContent: // 4 /* store method */
-        this->DoMore_ImportContent(ev); break;
+      case morkThumb_kMagic_ImportContent:  // 4 /* store method */
+        this->DoMore_ImportContent(ev);
+        break;
 
-      case morkThumb_kMagic_LargeCommit: // 5 /* store method */
-        this->DoMore_LargeCommit(ev); break;
+      case morkThumb_kMagic_LargeCommit:  // 5 /* store method */
+        this->DoMore_LargeCommit(ev);
+        break;
 
-      case morkThumb_kMagic_SessionCommit: // 6 /* store method */
-        this->DoMore_SessionCommit(ev); break;
+      case morkThumb_kMagic_SessionCommit:  // 6 /* store method */
+        this->DoMore_SessionCommit(ev);
+        break;
 
-      case morkThumb_kMagic_CompressCommit: // 7 /* store method */
-        this->DoMore_CompressCommit(ev); break;
+      case morkThumb_kMagic_CompressCommit:  // 7 /* store method */
+        this->DoMore_CompressCommit(ev);
+        break;
 
-      case morkThumb_kMagic_SearchManyColumns: // 8 /* table method */
-        this->DoMore_SearchManyColumns(ev); break;
+      case morkThumb_kMagic_SearchManyColumns:  // 8 /* table method */
+        this->DoMore_SearchManyColumns(ev);
+        break;
 
-      case morkThumb_kMagic_NewSortColumn: // 9 /* table metho) */
-        this->DoMore_NewSortColumn(ev); break;
+      case morkThumb_kMagic_NewSortColumn:  // 9 /* table metho) */
+        this->DoMore_NewSortColumn(ev);
+        break;
 
-      case morkThumb_kMagic_NewSortColumnWithCompare: // 10 /* table method */
-        this->DoMore_NewSortColumnWithCompare(ev); break;
+      case morkThumb_kMagic_NewSortColumnWithCompare:  // 10 /* table method */
+        this->DoMore_NewSortColumnWithCompare(ev);
+        break;
 
-      case morkThumb_kMagic_CloneSortColumn: // 11 /* table method */
-        this->DoMore_CloneSortColumn(ev); break;
+      case morkThumb_kMagic_CloneSortColumn:  // 11 /* table method */
+        this->DoMore_CloneSortColumn(ev);
+        break;
 
-      case morkThumb_kMagic_AddIndex: // 12 /* table method */
-        this->DoMore_AddIndex(ev); break;
+      case morkThumb_kMagic_AddIndex:  // 12 /* table method */
+        this->DoMore_AddIndex(ev);
+        break;
 
-      case morkThumb_kMagic_CutIndex: // 13 /* table method */
-        this->DoMore_CutIndex(ev); break;
+      case morkThumb_kMagic_CutIndex:  // 13 /* table method */
+        this->DoMore_CutIndex(ev);
+        break;
 
       default:
         this->UnsupportedThumbMagicError(ev);
         break;
     }
   }
-  if ( outTotal )
-    *outTotal = mThumb_Total;
-  if ( outCurrent )
-    *outCurrent = mThumb_Current;
-  if ( outDone )
-    *outDone = mThumb_Done;
-  if ( outBroken )
-    *outBroken = mThumb_Broken;
+  if (outTotal) *outTotal = mThumb_Total;
+  if (outCurrent) *outCurrent = mThumb_Current;
+  if (outDone) *outDone = mThumb_Done;
+  if (outBroken) *outBroken = mThumb_Broken;
 }
 
-void morkThumb::CancelAndBreakThumb(morkEnv* ev)
-{
+void morkThumb::CancelAndBreakThumb(morkEnv* ev) {
   MORK_USED_1(ev);
   mThumb_Broken = morkBool_kTrue;
 }
 
 // } ===== end non-poly methods imitating nsIMdbThumb =====
 
-morkStore*
-morkThumb::ThumbToOpenStore(morkEnv* ev)
+morkStore* morkThumb::ThumbToOpenStore(morkEnv* ev)
 // for orkinFactory::ThumbToOpenStore() after OpenFileStore()
 {
   MORK_USED_1(ev);
   return mThumb_Store;
 }
 
-void morkThumb::DoMore_OpenFilePort(morkEnv* ev)
-{
+void morkThumb::DoMore_OpenFilePort(morkEnv* ev) {
   this->UnsupportedThumbMagicError(ev);
 }
 
-void morkThumb::DoMore_OpenFileStore(morkEnv* ev)
-{
+void morkThumb::DoMore_OpenFileStore(morkEnv* ev) {
   morkBuilder* builder = mThumb_Builder;
-  if ( builder )
-  {
+  if (builder) {
     mork_pos pos = 0;
     builder->ParseMore(ev, &pos, &mThumb_Done, &mThumb_Broken);
     // mThumb_Total = builder->mBuilder_TotalCount;
     // mThumb_Current = builder->mBuilder_DoneCount;
-    mThumb_Current = (mork_count) pos;
-  }
-  else
-  {
+    mThumb_Current = (mork_count)pos;
+  } else {
     this->NilThumbBuilderError(ev);
     mThumb_Broken = morkBool_kTrue;
     mThumb_Done = morkBool_kTrue;
   }
 }
 
-void morkThumb::DoMore_ExportToFormat(morkEnv* ev)
-{
+void morkThumb::DoMore_ExportToFormat(morkEnv* ev) {
   this->UnsupportedThumbMagicError(ev);
 }
 
-void morkThumb::DoMore_ImportContent(morkEnv* ev)
-{
+void morkThumb::DoMore_ImportContent(morkEnv* ev) {
   this->UnsupportedThumbMagicError(ev);
 }
 
-void morkThumb::DoMore_LargeCommit(morkEnv* ev)
-{
-  this->DoMore_Commit(ev);
-}
+void morkThumb::DoMore_LargeCommit(morkEnv* ev) { this->DoMore_Commit(ev); }
 
-void morkThumb::DoMore_SessionCommit(morkEnv* ev)
-{
-  this->DoMore_Commit(ev);
-}
+void morkThumb::DoMore_SessionCommit(morkEnv* ev) { this->DoMore_Commit(ev); }
 
-void morkThumb::DoMore_Commit(morkEnv* ev)
-{
+void morkThumb::DoMore_Commit(morkEnv* ev) {
   morkWriter* writer = mThumb_Writer;
-  if ( writer )
-  {
+  if (writer) {
     writer->WriteMore(ev);
     mThumb_Total = writer->mWriter_TotalCount;
     mThumb_Current = writer->mWriter_DoneCount;
-    mThumb_Done = ( ev->Bad() || writer->IsWritingDone() );
+    mThumb_Done = (ev->Bad() || writer->IsWritingDone());
     mThumb_Broken = ev->Bad();
-  }
-  else
-  {
+  } else {
     this->NilThumbWriterError(ev);
     mThumb_Broken = morkBool_kTrue;
     mThumb_Done = morkBool_kTrue;
   }
 }
 
-void morkThumb::DoMore_CompressCommit(morkEnv* ev)
-{
-  this->DoMore_Commit(ev);
-}
+void morkThumb::DoMore_CompressCommit(morkEnv* ev) { this->DoMore_Commit(ev); }
 
-void morkThumb::DoMore_SearchManyColumns(morkEnv* ev)
-{
+void morkThumb::DoMore_SearchManyColumns(morkEnv* ev) {
   this->UnsupportedThumbMagicError(ev);
 }
 
-void morkThumb::DoMore_NewSortColumn(morkEnv* ev)
-{
+void morkThumb::DoMore_NewSortColumn(morkEnv* ev) {
   this->UnsupportedThumbMagicError(ev);
 }
 
-void morkThumb::DoMore_NewSortColumnWithCompare(morkEnv* ev)
-{
+void morkThumb::DoMore_NewSortColumnWithCompare(morkEnv* ev) {
   this->UnsupportedThumbMagicError(ev);
 }
 
-void morkThumb::DoMore_CloneSortColumn(morkEnv* ev)
-{
+void morkThumb::DoMore_CloneSortColumn(morkEnv* ev) {
   this->UnsupportedThumbMagicError(ev);
 }
 
-void morkThumb::DoMore_AddIndex(morkEnv* ev)
-{
+void morkThumb::DoMore_AddIndex(morkEnv* ev) {
   this->UnsupportedThumbMagicError(ev);
 }
 
-void morkThumb::DoMore_CutIndex(morkEnv* ev)
-{
+void morkThumb::DoMore_CutIndex(morkEnv* ev) {
   this->UnsupportedThumbMagicError(ev);
 }
 
-
-//3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789

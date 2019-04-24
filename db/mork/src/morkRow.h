@@ -7,112 +7,107 @@
 #define _MORKROW_ 1
 
 #ifndef _MORK_
-#include "mork.h"
+#  include "mork.h"
 #endif
 
 #ifndef _MORKCELL_
-#include "morkCell.h"
+#  include "morkCell.h"
 #endif
 
-//3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 class nsIMdbRow;
 class nsIMdbCell;
-#define morkDerived_kRow  /*i*/ 0x5277 /* ascii 'Rw' */
+#define morkDerived_kRow /*i*/ 0x5277 /* ascii 'Rw' */
 
-#define morkRow_kMaxGcUses 0x0FF /* max for 8-bit unsigned int */
+#define morkRow_kMaxGcUses 0x0FF   /* max for 8-bit unsigned int */
 #define morkRow_kMaxLength 0x0FFFF /* max for 16-bit unsigned int */
-#define morkRow_kMinusOneRid ((mork_rid) -1)
+#define morkRow_kMinusOneRid ((mork_rid)-1)
 
 #define morkRow_kTag 'r' /* magic signature for mRow_Tag */
 
-#define morkRow_kNotedBit   ((mork_u1) (1 << 0)) /* space has change notes */
-#define morkRow_kRewriteBit ((mork_u1) (1 << 1)) /* must rewrite all cells */
-#define morkRow_kDirtyBit   ((mork_u1) (1 << 2)) /* row has been changed */
+#define morkRow_kNotedBit ((mork_u1)(1 << 0))   /* space has change notes */
+#define morkRow_kRewriteBit ((mork_u1)(1 << 1)) /* must rewrite all cells */
+#define morkRow_kDirtyBit ((mork_u1)(1 << 2))   /* row has been changed */
 
-class morkRow{ // row of cells
+class morkRow {  // row of cells
 
-public: // state is public because the entire Mork system is private
+ public:  // state is public because the entire Mork system is private
+  morkRowSpace* mRow_Space;    // mRow_Space->SpaceScope() is the row scope
+  morkRowObject* mRow_Object;  // refcount & other state for object sharing
+  morkCell* mRow_Cells;
+  mdbOid mRow_Oid;
 
-  morkRowSpace*   mRow_Space;  // mRow_Space->SpaceScope() is the row scope
-  morkRowObject*  mRow_Object; // refcount & other state for object sharing
-  morkCell*       mRow_Cells;
-  mdbOid          mRow_Oid;
+  mork_delta mRow_Delta;  // space to note a single column change
 
-  mork_delta      mRow_Delta;   // space to note a single column change
+  mork_u2 mRow_Length;  // physical count of cells in mRow_Cells
+  mork_u2 mRow_Seed;    // count changes in mRow_Cells structure
 
-  mork_u2         mRow_Length;     // physical count of cells in mRow_Cells
-  mork_u2         mRow_Seed;       // count changes in mRow_Cells structure
+  mork_u1 mRow_GcUses;  // persistent references from tables
+  mork_u1 mRow_Pad;     // for u1 alignment
+  mork_u1 mRow_Flags;   // one-byte flags slot
+  mork_u1 mRow_Tag;     // one-byte tag (need u4 alignment pad)
 
-  mork_u1         mRow_GcUses;  // persistent references from tables
-  mork_u1         mRow_Pad;     // for u1 alignment
-  mork_u1         mRow_Flags;   // one-byte flags slot
-  mork_u1         mRow_Tag;     // one-byte tag (need u4 alignment pad)
-
-public: // interpreting mRow_Delta
-
-  mork_bool HasRowDelta() const { return ( mRow_Delta != 0 ); }
+ public:  // interpreting mRow_Delta
+  mork_bool HasRowDelta() const { return (mRow_Delta != 0); }
 
   void ClearRowDelta() { mRow_Delta = 0; }
 
-  void SetRowDelta(mork_column inCol, mork_change inChange)
-  { morkDelta_Init(mRow_Delta, inCol, inChange); }
+  void SetRowDelta(mork_column inCol, mork_change inChange) {
+    morkDelta_Init(mRow_Delta, inCol, inChange);
+  }
 
-  mork_column  GetDeltaColumn() const { return morkDelta_Column(mRow_Delta); }
-  mork_change  GetDeltaChange() const { return morkDelta_Change(mRow_Delta); }
+  mork_column GetDeltaColumn() const { return morkDelta_Column(mRow_Delta); }
+  mork_change GetDeltaChange() const { return morkDelta_Change(mRow_Delta); }
 
-public: // noting row changes
-
+ public:  // noting row changes
   void NoteRowSetAll(morkEnv* ev);
   void NoteRowSetCol(morkEnv* ev, mork_column inCol);
   void NoteRowAddCol(morkEnv* ev, mork_column inCol);
   void NoteRowCutCol(morkEnv* ev, mork_column inCol);
 
-public: // flags bit twiddling
-
+ public:  // flags bit twiddling
   void SetRowNoted() { mRow_Flags |= morkRow_kNotedBit; }
   void SetRowRewrite() { mRow_Flags |= morkRow_kRewriteBit; }
   void SetRowDirty() { mRow_Flags |= morkRow_kDirtyBit; }
 
-  void ClearRowNoted() { mRow_Flags &= (mork_u1) ~morkRow_kNotedBit; }
-  void ClearRowRewrite() { mRow_Flags &= (mork_u1) ~morkRow_kRewriteBit; }
-  void SetRowClean() { mRow_Flags = 0; mRow_Delta = 0; }
+  void ClearRowNoted() { mRow_Flags &= (mork_u1)~morkRow_kNotedBit; }
+  void ClearRowRewrite() { mRow_Flags &= (mork_u1)~morkRow_kRewriteBit; }
+  void SetRowClean() {
+    mRow_Flags = 0;
+    mRow_Delta = 0;
+  }
 
-  mork_bool IsRowNoted() const
-  { return ( mRow_Flags & morkRow_kNotedBit ) != 0; }
+  mork_bool IsRowNoted() const { return (mRow_Flags & morkRow_kNotedBit) != 0; }
 
-  mork_bool IsRowRewrite() const
-  { return ( mRow_Flags & morkRow_kRewriteBit ) != 0; }
+  mork_bool IsRowRewrite() const {
+    return (mRow_Flags & morkRow_kRewriteBit) != 0;
+  }
 
-  mork_bool IsRowClean() const
-  { return ( mRow_Flags & morkRow_kDirtyBit ) == 0; }
+  mork_bool IsRowClean() const { return (mRow_Flags & morkRow_kDirtyBit) == 0; }
 
-  mork_bool IsRowDirty() const
-  { return ( mRow_Flags & morkRow_kDirtyBit ) != 0; }
+  mork_bool IsRowDirty() const { return (mRow_Flags & morkRow_kDirtyBit) != 0; }
 
-  mork_bool IsRowUsed() const
-  { return mRow_GcUses != 0; }
+  mork_bool IsRowUsed() const { return mRow_GcUses != 0; }
 
-public: // other row methods
-  morkRow( ) { }
-  explicit morkRow(const mdbOid* inOid) :mRow_Oid(*inOid) { }
+ public:  // other row methods
+  morkRow() {}
+  explicit morkRow(const mdbOid* inOid) : mRow_Oid(*inOid) {}
   void InitRow(morkEnv* ev, const mdbOid* inOid, morkRowSpace* ioSpace,
-    mork_size inLength, morkPool* ioPool);
-    // if inLength is nonzero, cells will be allocated from ioPool
+               mork_size inLength, morkPool* ioPool);
+  // if inLength is nonzero, cells will be allocated from ioPool
 
   morkRowObject* AcquireRowObject(morkEnv* ev, morkStore* ioStore);
   nsIMdbRow* AcquireRowHandle(morkEnv* ev, morkStore* ioStore);
   nsIMdbCell* AcquireCellHandle(morkEnv* ev, morkCell* ioCell,
-    mdb_column inColumn, mork_pos inPos);
+                                mdb_column inColumn, mork_pos inPos);
 
   mork_u2 AddRowGcUse(morkEnv* ev);
   mork_u2 CutRowGcUse(morkEnv* ev);
 
-
   mork_bool MaybeDirtySpaceStoreAndRow();
 
-public: // internal row methods
-
+ public:  // internal row methods
   void cut_all_index_entries(morkEnv* ev);
 
   // void cut_cell_from_space_index(morkEnv* ev, morkCell* ioCell);
@@ -129,17 +124,17 @@ public: // internal row methods
   // in this row with change also equal to kCut; this tells callers later
   // they need not look for that cell in the row again on a second pass.
 
-  void MergeCells(morkEnv* ev, morkCell* ioVector,
-    mork_fill inVecLength, mork_fill inOldRowFill, mork_fill inOverlap);
+  void MergeCells(morkEnv* ev, morkCell* ioVector, mork_fill inVecLength,
+                  mork_fill inOldRowFill, mork_fill inOverlap);
   // MergeCells() is the part of TakeCells() that does the insertion.
   // inOldRowFill is the old value of mRow_Length, and inOverlap is the
   // number of cells in the intersection that must be updated.
 
   void TakeCells(morkEnv* ev, morkCell* ioVector, mork_fill inVecLength,
-    morkStore* ioStore);
+                 morkStore* ioStore);
 
   morkCell* NewCell(morkEnv* ev, mdb_column inColumn, mork_pos* outPos,
-    morkStore* ioStore);
+                    morkStore* ioStore);
   morkCell* GetCell(morkEnv* ev, mdb_column inColumn, mork_pos* outPos) const;
   morkCell* CellAt(morkEnv* ev, mork_pos inPos) const;
 
@@ -150,21 +145,20 @@ public: // internal row methods
   // the atom has no ID to return.  This method is intended to support
   // efficient updating of column indexes for rows in a row space.
 
-public: // external row methods
-
+ public:  // external row methods
   void DirtyAllRowContent(morkEnv* ev);
 
   morkStore* GetRowSpaceStore(morkEnv* ev) const;
 
-  void AddColumn(morkEnv* ev, mdb_column inColumn,
-    const mdbYarn* inYarn, morkStore* ioStore);
+  void AddColumn(morkEnv* ev, mdb_column inColumn, const mdbYarn* inYarn,
+                 morkStore* ioStore);
 
   morkAtom* GetColumnAtom(morkEnv* ev, mdb_column inColumn);
 
   void NextColumn(morkEnv* ev, mdb_column* ioColumn, mdbYarn* outYarn);
 
-  void SeekColumn(morkEnv* ev, mdb_pos inPos,
-  mdb_column* outColumn, mdbYarn* outYarn);
+  void SeekColumn(morkEnv* ev, mdb_pos inPos, mdb_column* outColumn,
+                  mdbYarn* outYarn);
 
   void CutColumn(morkEnv* ev, mdb_column inColumn);
 
@@ -178,36 +172,25 @@ public: // external row methods
   void OnZeroRowGcUse(morkEnv* ev);
   // OnZeroRowGcUse() is called when CutRowGcUse() returns zero.
 
-public: // dynamic typing
-
+ public:  // dynamic typing
   mork_bool IsRow() const { return mRow_Tag == morkRow_kTag; }
 
-public: // hash and equal
-
-  mork_u4 HashRow() const
-  {
+ public:  // hash and equal
+  mork_u4 HashRow() const {
     return (mRow_Oid.mOid_Scope << 16) ^ mRow_Oid.mOid_Id;
   }
 
-  mork_bool EqualRow(const morkRow* ioRow) const
-  {
-    return
-    (
-      ( mRow_Oid.mOid_Scope == ioRow->mRow_Oid.mOid_Scope )
-      && ( mRow_Oid.mOid_Id == ioRow->mRow_Oid.mOid_Id )
-    );
+  mork_bool EqualRow(const morkRow* ioRow) const {
+    return ((mRow_Oid.mOid_Scope == ioRow->mRow_Oid.mOid_Scope) &&
+            (mRow_Oid.mOid_Id == ioRow->mRow_Oid.mOid_Id));
   }
 
-  mork_bool EqualOid(const mdbOid* ioOid) const
-  {
-    return
-    (
-      ( mRow_Oid.mOid_Scope == ioOid->mOid_Scope )
-      && ( mRow_Oid.mOid_Id == ioOid->mOid_Id )
-    );
+  mork_bool EqualOid(const mdbOid* ioOid) const {
+    return ((mRow_Oid.mOid_Scope == ioOid->mOid_Scope) &&
+            (mRow_Oid.mOid_Id == ioOid->mOid_Id));
   }
 
-public: // errors
+ public:  // errors
   static void ZeroColumnError(morkEnv* ev);
   static void LengthBeyondMaxError(morkEnv* ev);
   static void NilCellsError(morkEnv* ev);
@@ -215,12 +198,11 @@ public: // errors
   static void NonRowTypeWarning(morkEnv* ev);
   static void GcUsesUnderflowWarning(morkEnv* ev);
 
-private: // copying is not allowed
+ private:  // copying is not allowed
   morkRow(const morkRow& other);
   morkRow& operator=(const morkRow& other);
 };
 
-//3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 #endif /* _MORKROW_ */
-

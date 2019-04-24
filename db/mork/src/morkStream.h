@@ -39,18 +39,18 @@
 #define _MORKSTREAM_ 1
 
 #ifndef _MORK_
-#include "mork.h"
+#  include "mork.h"
 #endif
 
 #ifndef _MORKNODE_
-#include "morkNode.h"
+#  include "morkNode.h"
 #endif
 
 #ifndef _MORKFILE_
-#include "morkFile.h"
+#  include "morkFile.h"
 #endif
 
-//3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 /*=============================================================================
  * morkStream: buffered file i/o
@@ -89,52 +89,54 @@
 
 #define morkStream_kPrintBufSize /*i*/ 512 /* buffer size used by printf() */
 
-#define morkStream_kMinBufSize /*i*/ 512 /* buffer no fewer bytes */
+#define morkStream_kMinBufSize /*i*/ 512         /* buffer no fewer bytes */
 #define morkStream_kMaxBufSize /*i*/ (32 * 1024) /* buffer no more bytes */
 
-#define morkDerived_kStream     /*i*/ 0x7A74 /* ascii 'zt' */
+#define morkDerived_kStream /*i*/ 0x7A74 /* ascii 'zt' */
 
 class morkStream /*d*/ : public morkFile { /* from Mithril's AgStream class */
 
-// ````` ````` ````` `````   ````` ````` ````` `````
-protected: // protected morkStream members
-  mork_u1*    mStream_At;       // pointer into mStream_Buf
-  mork_u1*    mStream_ReadEnd;  // null or one byte past last readable byte
-  mork_u1*    mStream_WriteEnd; // null or mStream_Buf + mStream_BufSize
+  // ````` ````` ````` `````   ````` ````` ````` `````
+ protected:                   // protected morkStream members
+  mork_u1* mStream_At;        // pointer into mStream_Buf
+  mork_u1* mStream_ReadEnd;   // null or one byte past last readable byte
+  mork_u1* mStream_WriteEnd;  // null or mStream_Buf + mStream_BufSize
 
   nsIMdbFile* mStream_ContentFile;  // where content is read and written
 
-  mork_u1*    mStream_Buf;      // dynamically allocated memory to buffer io
-  mork_size   mStream_BufSize;  // requested buf size (fixed by min and max)
-  mork_pos    mStream_BufPos;   // logical position of byte at mStream_Buf
-  mork_bool   mStream_Dirty;    // does the buffer need to be flushed?
-  mork_bool   mStream_HitEof;   // has eof been reached? (only frozen streams)
+  mork_u1* mStream_Buf;       // dynamically allocated memory to buffer io
+  mork_size mStream_BufSize;  // requested buf size (fixed by min and max)
+  mork_pos mStream_BufPos;    // logical position of byte at mStream_Buf
+  mork_bool mStream_Dirty;    // does the buffer need to be flushed?
+  mork_bool mStream_HitEof;   // has eof been reached? (only frozen streams)
 
-// { ===== begin morkNode interface =====
-public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev) override; // CloseStream() only if open
-  virtual ~morkStream(); // assert that CloseStream() executed earlier
+  // { ===== begin morkNode interface =====
+ public:  // morkNode virtual methods
+  virtual void CloseMorkNode(
+      morkEnv* ev) override;  // CloseStream() only if open
+  virtual ~morkStream();      // assert that CloseStream() executed earlier
 
-public: // morkStream construction & destruction
+ public:  // morkStream construction & destruction
   morkStream(morkEnv* ev, const morkUsage& inUsage, nsIMdbHeap* ioHeap,
-      nsIMdbFile* ioContentFile, mork_size inBufSize, mork_bool inFrozen);
-  void CloseStream(morkEnv* ev); // called by CloseMorkNode();
+             nsIMdbFile* ioContentFile, mork_size inBufSize,
+             mork_bool inFrozen);
+  void CloseStream(morkEnv* ev);  // called by CloseMorkNode();
 
-private: // copying is not allowed
+ private:  // copying is not allowed
   morkStream(const morkStream& other);
   morkStream& operator=(const morkStream& other);
 
-public: // dynamic type identification
-  mork_bool IsStream() const
-  { return IsNode() && mNode_Derived == morkDerived_kStream; }
-// } ===== end morkNode methods =====
+ public:  // dynamic type identification
+  mork_bool IsStream() const {
+    return IsNode() && mNode_Derived == morkDerived_kStream;
+  }
+  // } ===== end morkNode methods =====
 
-public: // typing
+ public:  // typing
   void NonStreamTypeError(morkEnv* ev);
 
-// ````` ````` ````` `````   ````` ````` ````` `````
-public: // virtual morkFile methods
-
+  // ````` ````` ````` `````   ````` ````` ````` `````
+ public:  // virtual morkFile methods
   NS_IMETHOD Steal(nsIMdbEnv* ev, nsIMdbFile* ioThief) override;
   // Steal: tell this file to close any associated i/o stream in the file
   // system, because the file ioThief intends to reopen the file in order
@@ -151,7 +153,8 @@ public: // virtual morkFile methods
   // BecomeTrunk() causes this file's content to replace the original
   // file's content, typically by assuming the original file's identity.
 
-  NS_IMETHOD AcquireBud(nsIMdbEnv* ev, nsIMdbHeap* ioHeap, nsIMdbFile** acqBud) override;
+  NS_IMETHOD AcquireBud(nsIMdbEnv* ev, nsIMdbHeap* ioHeap,
+                        nsIMdbFile** acqBud) override;
   // AcquireBud() starts a new "branch" version of the file, empty of content,
   // so that a new version of the file can be written.  This new file
   // can later be told to BecomeTrunk() the original file, so the branch
@@ -167,23 +170,23 @@ public: // virtual morkFile methods
   // behavior is exhibited by the file, so crashes protect old files.
   // Note that AcquireBud() is an illegal operation on readonly files.
 
-  virtual mork_pos Length(morkEnv* ev) const override; // eof
-  NS_IMETHOD  Tell(nsIMdbEnv* ev, mork_pos *aOutPos  ) const override;
-  NS_IMETHOD  Read(nsIMdbEnv* ev, void* outBuf, mork_size inSize, mork_size *aOutCount) override;
-  NS_IMETHOD  Seek(nsIMdbEnv* ev, mork_pos inPos, mork_pos *aOutPos) override;
-  NS_IMETHOD  Write(nsIMdbEnv* ev, const void* inBuf, mork_size inSize, mork_size *aOutCount) override;
-  NS_IMETHOD  Flush(nsIMdbEnv* ev) override;
+  virtual mork_pos Length(morkEnv* ev) const override;  // eof
+  NS_IMETHOD Tell(nsIMdbEnv* ev, mork_pos* aOutPos) const override;
+  NS_IMETHOD Read(nsIMdbEnv* ev, void* outBuf, mork_size inSize,
+                  mork_size* aOutCount) override;
+  NS_IMETHOD Seek(nsIMdbEnv* ev, mork_pos inPos, mork_pos* aOutPos) override;
+  NS_IMETHOD Write(nsIMdbEnv* ev, const void* inBuf, mork_size inSize,
+                   mork_size* aOutCount) override;
+  NS_IMETHOD Flush(nsIMdbEnv* ev) override;
 
-// ````` ````` ````` `````   ````` ````` ````` `````
-protected: // protected non-poly morkStream methods (for char io)
+  // ````` ````` ````` `````   ````` ````` ````` `````
+ protected:  // protected non-poly morkStream methods (for char io)
+  int fill_getc(morkEnv* ev);
+  void spill_putc(morkEnv* ev, int c);
+  void spill_buf(morkEnv* ev);  // spill/flush from buffer to file
 
-  int     fill_getc(morkEnv* ev);
-  void    spill_putc(morkEnv* ev, int c);
-  void    spill_buf(morkEnv* ev); // spill/flush from buffer to file
-
-// ````` ````` ````` `````   ````` ````` ````` `````
-public: // public non-poly morkStream methods
-
+  // ````` ````` ````` `````   ````` ````` ````` `````
+ public:  // public non-poly morkStream methods
   void NewBadCursorSlotsError(morkEnv* ev) const;
   void NewBadCursorOrderError(morkEnv* ev) const;
   void NewNullStreamBufferError(morkEnv* ev) const;
@@ -192,60 +195,64 @@ public: // public non-poly morkStream methods
   void NewPosBeyondEofError(morkEnv* ev) const;
 
   nsIMdbFile* GetStreamContentFile() const { return mStream_ContentFile; }
-  mork_size   GetStreamBufferSize() const { return mStream_BufSize; }
+  mork_size GetStreamBufferSize() const { return mStream_BufSize; }
 
-  mork_size  PutIndent(morkEnv* ev, mork_count inDepth);
+  mork_size PutIndent(morkEnv* ev, mork_count inDepth);
   // PutIndent() puts a linebreak, and then
   // "indents" by inDepth, and returns the line length after indentation.
 
-  mork_size  PutByteThenIndent(morkEnv* ev, int inByte, mork_count inDepth);
+  mork_size PutByteThenIndent(morkEnv* ev, int inByte, mork_count inDepth);
   // PutByteThenIndent() puts the byte, then a linebreak, and then
   // "indents" by inDepth, and returns the line length after indentation.
 
-  mork_size  PutStringThenIndent(morkEnv* ev,
-    const char* inString, mork_count inDepth);
+  mork_size PutStringThenIndent(morkEnv* ev, const char* inString,
+                                mork_count inDepth);
   // PutStringThenIndent() puts the string, then a linebreak, and then
   // "indents" by inDepth, and returns the line length after indentation.
 
-  mork_size  PutString(morkEnv* ev, const char* inString);
+  mork_size PutString(morkEnv* ev, const char* inString);
   // PutString() returns the length of the string written.
 
-  mork_size  PutStringThenNewline(morkEnv* ev, const char* inString);
+  mork_size PutStringThenNewline(morkEnv* ev, const char* inString);
   // PutStringThenNewline() returns total number of bytes written.
 
-  mork_size  PutByteThenNewline(morkEnv* ev, int inByte);
+  mork_size PutByteThenNewline(morkEnv* ev, int inByte);
   // PutByteThenNewline() returns total number of bytes written.
 
   // ````` ````` stdio type methods ````` `````
-  void    Ungetc(int c) /*i*/
-  { if ( mStream_At > mStream_Buf && c > 0 ) *--mStream_At = (mork_u1) c; }
+  void Ungetc(int c) /*i*/
+  {
+    if (mStream_At > mStream_Buf && c > 0) *--mStream_At = (mork_u1)c;
+  }
 
   // Note Getc() returns EOF consistently after any fill_getc() error occurs.
-  int     Getc(morkEnv* ev) /*i*/
-  { return ( mStream_At < mStream_ReadEnd )? *mStream_At++ : fill_getc(ev); }
+  int Getc(morkEnv* ev) /*i*/
+  {
+    return (mStream_At < mStream_ReadEnd) ? *mStream_At++ : fill_getc(ev);
+  }
 
-  void    Putc(morkEnv* ev, int c) /*i*/
+  void Putc(morkEnv* ev, int c) /*i*/
   {
     mStream_Dirty = morkBool_kTrue;
-    if ( mStream_At < mStream_WriteEnd )
-      *mStream_At++ = (mork_u1) c;
+    if (mStream_At < mStream_WriteEnd)
+      *mStream_At++ = (mork_u1)c;
     else
       spill_putc(ev, c);
   }
 
   mork_size PutLineBreak(morkEnv* ev);
 
-public: // typesafe refcounting inlines calling inherited morkNode methods
-  static void SlotWeakStream(morkStream* me,
-    morkEnv* ev, morkStream** ioSlot)
-  { morkNode::SlotWeakNode((morkNode*) me, ev, (morkNode**) ioSlot); }
+ public:  // typesafe refcounting inlines calling inherited morkNode methods
+  static void SlotWeakStream(morkStream* me, morkEnv* ev, morkStream** ioSlot) {
+    morkNode::SlotWeakNode((morkNode*)me, ev, (morkNode**)ioSlot);
+  }
 
-  static void SlotStrongStream(morkStream* me,
-    morkEnv* ev, morkStream** ioSlot)
-  { morkNode::SlotStrongNode((morkNode*) me, ev, (morkNode**) ioSlot); }
+  static void SlotStrongStream(morkStream* me, morkEnv* ev,
+                               morkStream** ioSlot) {
+    morkNode::SlotStrongNode((morkNode*)me, ev, (morkNode**)ioSlot);
+  }
 };
 
-
-//3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 #endif /* _MORKSTREAM_ */

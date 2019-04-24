@@ -26,52 +26,45 @@ which are used interchangeably with the name IronDoc in the sources.)
  */
 
 #ifndef _MDB_
-#include "mdb.h"
+#  include "mdb.h"
 #endif
 
 #ifndef _MORK_
-#include "mork.h"
+#  include "mork.h"
 #endif
 
 #ifndef _MORKDEQUE_
-#include "morkDeque.h"
+#  include "morkDeque.h"
 #endif
 
 #ifndef _MORKNODE_
-#include "morkNode.h"
+#  include "morkNode.h"
 #endif
 
 #ifndef _MORKENV_
-#include "morkEnv.h"
+#  include "morkEnv.h"
 #endif
 
 /*=============================================================================
  * morkNext: linked list node for very simple, singly-linked list
  */
 
-morkNext::morkNext() : mNext_Link( 0 )
-{
-}
+morkNext::morkNext() : mNext_Link(0) {}
 
-/*static*/ void*
-morkNext::MakeNewNext(size_t inSize, nsIMdbHeap& ioHeap, morkEnv* ev)
-{
+/*static*/ void* morkNext::MakeNewNext(size_t inSize, nsIMdbHeap& ioHeap,
+                                       morkEnv* ev) {
   void* next = 0;
-    ioHeap.Alloc(ev->AsMdbEnv(), inSize, (void**) &next);
-    if ( !next )
-      ev->OutOfMemoryError();
+  ioHeap.Alloc(ev->AsMdbEnv(), inSize, (void**)&next);
+  if (!next) ev->OutOfMemoryError();
 
   return next;
 }
 
 /*static*/
-void morkNext::ZapOldNext(morkEnv* ev, nsIMdbHeap* ioHeap)
-{
-  if ( ioHeap )
-  {
-      ioHeap->Free(ev->AsMdbEnv(), this);
-  }
-  else
+void morkNext::ZapOldNext(morkEnv* ev, nsIMdbHeap* ioHeap) {
+  if (ioHeap) {
+    ioHeap->Free(ev->AsMdbEnv(), this);
+  } else
     ev->NilPointerError();
 }
 
@@ -79,110 +72,95 @@ void morkNext::ZapOldNext(morkEnv* ev, nsIMdbHeap* ioHeap)
  * morkList: simple, singly-linked list
  */
 
-morkList::morkList() : mList_Head( 0 ), mList_Tail( 0 )
-{
-}
+morkList::morkList() : mList_Head(0), mList_Tail(0) {}
 
 void morkList::CutAndZapAllListMembers(morkEnv* ev, nsIMdbHeap* ioHeap)
 // make empty list, zapping every member by calling ZapOldNext()
 {
-  if ( ioHeap )
-  {
+  if (ioHeap) {
     morkNext* next = 0;
-    while ( (next = this->PopHead()) != 0 )
-      next->ZapOldNext(ev, ioHeap);
+    while ((next = this->PopHead()) != 0) next->ZapOldNext(ev, ioHeap);
 
     mList_Head = 0;
     mList_Tail = 0;
-  }
-  else
+  } else
     ev->NilPointerError();
 }
 
 void morkList::CutAllListMembers()
 // just make list empty, dropping members without zapping
 {
-  while ( this->PopHead() )
-    /* empty */;
+  while (this->PopHead()) /* empty */;
 
   mList_Head = 0;
   mList_Tail = 0;
 }
 
-morkNext* morkList::PopHead() // cut head of list
+morkNext* morkList::PopHead()  // cut head of list
 {
   morkNext* outHead = mList_Head;
-  if ( outHead ) // anything to cut from list?
+  if (outHead)  // anything to cut from list?
   {
     morkNext* next = outHead->mNext_Link;
     mList_Head = next;
-    if ( !next ) // cut the last member, so tail no longer exists?
+    if (!next)  // cut the last member, so tail no longer exists?
       mList_Tail = 0;
 
-    outHead->mNext_Link = 0; // nil outgoing node link; unnecessary, but tidy
+    outHead->mNext_Link = 0;  // nil outgoing node link; unnecessary, but tidy
   }
   return outHead;
 }
 
-
-void morkList::PushHead(morkNext* ioLink) // add to head of list
+void morkList::PushHead(morkNext* ioLink)  // add to head of list
 {
-  morkNext* head = mList_Head; // old head of list
-  morkNext* tail = mList_Tail; // old tail of list
+  morkNext* head = mList_Head;  // old head of list
+  morkNext* tail = mList_Tail;  // old tail of list
 
-  MORK_ASSERT( (head && tail) || (!head && !tail));
+  MORK_ASSERT((head && tail) || (!head && !tail));
 
-  ioLink->mNext_Link = head; // make old head follow the new link
-  if ( !head ) // list was previously empty?
-    mList_Tail = ioLink; // head is also tail for first member added
+  ioLink->mNext_Link = head;  // make old head follow the new link
+  if (!head)                  // list was previously empty?
+    mList_Tail = ioLink;      // head is also tail for first member added
 
-  mList_Head = ioLink; // head of list is the new link
+  mList_Head = ioLink;  // head of list is the new link
 }
 
-void morkList::PushTail(morkNext* ioLink) // add to tail of list
+void morkList::PushTail(morkNext* ioLink)  // add to tail of list
 {
-  morkNext* head = mList_Head; // old head of list
-  morkNext* tail = mList_Tail; // old tail of list
+  morkNext* head = mList_Head;  // old head of list
+  morkNext* tail = mList_Tail;  // old tail of list
 
-  MORK_ASSERT( (head && tail) || (!head && !tail));
+  MORK_ASSERT((head && tail) || (!head && !tail));
 
   ioLink->mNext_Link = 0;
-  if ( tail )
-  {
+  if (tail) {
     tail->mNext_Link = ioLink;
     mList_Tail = ioLink;
-  }
-  else // list was previously empty?
-    mList_Head = mList_Tail = ioLink; // tail is also head for first member added
+  } else  // list was previously empty?
+    mList_Head = mList_Tail =
+        ioLink;  // tail is also head for first member added
 }
 
 /*=============================================================================
  * morkLink: linked list node embedded in objs to allow insertion in morkDeques
  */
 
-morkLink::morkLink() : mLink_Next( 0 ), mLink_Prev( 0 )
-{
-}
+morkLink::morkLink() : mLink_Next(0), mLink_Prev(0) {}
 
-/*static*/ void*
-morkLink::MakeNewLink(size_t inSize, nsIMdbHeap& ioHeap, morkEnv* ev)
-{
+/*static*/ void* morkLink::MakeNewLink(size_t inSize, nsIMdbHeap& ioHeap,
+                                       morkEnv* ev) {
   void* alink = 0;
-    ioHeap.Alloc(ev->AsMdbEnv(), inSize, (void**) &alink);
-    if ( !alink )
-      ev->OutOfMemoryError();
+  ioHeap.Alloc(ev->AsMdbEnv(), inSize, (void**)&alink);
+  if (!alink) ev->OutOfMemoryError();
 
   return alink;
 }
 
 /*static*/
-void morkLink::ZapOldLink(morkEnv* ev, nsIMdbHeap* ioHeap)
-{
-  if ( ioHeap )
-  {
-      ioHeap->Free(ev->AsMdbEnv(), this);
-  }
-  else
+void morkLink::ZapOldLink(morkEnv* ev, nsIMdbHeap* ioHeap) {
+  if (ioHeap) {
+    ioHeap->Free(ev->AsMdbEnv(), this);
+  } else
     ev->NilPointerError();
 }
 
@@ -190,99 +168,78 @@ void morkLink::ZapOldLink(morkEnv* ev, nsIMdbHeap* ioHeap)
  * morkDeque: doubly linked list modeled after VAX queue instructions
  */
 
-morkDeque::morkDeque()
-{
-  mDeque_Head.SelfRefer();
-}
-
+morkDeque::morkDeque() { mDeque_Head.SelfRefer(); }
 
 /*| RemoveFirst:
 |*/
-morkLink*
-morkDeque::RemoveFirst() /*i*/
+morkLink* morkDeque::RemoveFirst() /*i*/
 {
   morkLink* alink = mDeque_Head.mLink_Next;
-  if ( alink != &mDeque_Head )
-  {
-    (mDeque_Head.mLink_Next = alink->mLink_Next)->mLink_Prev =
-      &mDeque_Head;
+  if (alink != &mDeque_Head) {
+    (mDeque_Head.mLink_Next = alink->mLink_Next)->mLink_Prev = &mDeque_Head;
     return alink;
   }
-  return (morkLink*) 0;
+  return (morkLink*)0;
 }
 
 /*| RemoveLast:
 |*/
-morkLink*
-morkDeque::RemoveLast() /*i*/
+morkLink* morkDeque::RemoveLast() /*i*/
 {
   morkLink* alink = mDeque_Head.mLink_Prev;
-  if ( alink != &mDeque_Head )
-  {
-    (mDeque_Head.mLink_Prev = alink->mLink_Prev)->mLink_Next =
-      &mDeque_Head;
+  if (alink != &mDeque_Head) {
+    (mDeque_Head.mLink_Prev = alink->mLink_Prev)->mLink_Next = &mDeque_Head;
     return alink;
   }
-  return (morkLink*) 0;
+  return (morkLink*)0;
 }
 
 /*| At:
 |*/
-morkLink*
-morkDeque::At(mork_pos index) const /*i*/
-  /* indexes are one based (and not zero based) */
+morkLink* morkDeque::At(mork_pos index) const /*i*/
+/* indexes are one based (and not zero based) */
 {
   mork_num count = 0;
   morkLink* alink;
-  for ( alink = this->First(); alink; alink = this->After(alink) )
-  {
-    if ( ++count == (mork_num) index )
-      break;
+  for (alink = this->First(); alink; alink = this->After(alink)) {
+    if (++count == (mork_num)index) break;
   }
   return alink;
 }
 
 /*| IndexOf:
 |*/
-mork_pos
-morkDeque::IndexOf(const morkLink* member) const /*i*/
-  /* indexes are one based (and not zero based) */
-  /* zero means member is not in deque */
+mork_pos morkDeque::IndexOf(const morkLink* member) const /*i*/
+/* indexes are one based (and not zero based) */
+/* zero means member is not in deque */
 {
   mork_num count = 0;
   const morkLink* alink;
-  for ( alink = this->First(); alink; alink = this->After(alink) )
-  {
+  for (alink = this->First(); alink; alink = this->After(alink)) {
     ++count;
-    if ( member == alink )
-      return (mork_pos) count;
+    if (member == alink) return (mork_pos)count;
   }
   return 0;
 }
 
 /*| Length:
 |*/
-mork_num
-morkDeque::Length() const /*i*/
+mork_num morkDeque::Length() const /*i*/
 {
   mork_num count = 0;
   morkLink* alink;
-  for ( alink = this->First(); alink; alink = this->After(alink) )
-    ++count;
+  for (alink = this->First(); alink; alink = this->After(alink)) ++count;
   return count;
 }
 
 /*| LengthCompare:
 |*/
-int
-morkDeque::LengthCompare(mork_num c) const /*i*/
+int morkDeque::LengthCompare(mork_num c) const /*i*/
 {
   mork_num count = 0;
   const morkLink* alink;
-  for ( alink = this->First(); alink; alink = this->After(alink) )
-  {
-    if ( ++count > c )
-      return 1;
+  for (alink = this->First(); alink; alink = this->After(alink)) {
+    if (++count > c) return 1;
   }
-  return ( count == c )? 0 : -1;
+  return (count == c) ? 0 : -1;
 }
