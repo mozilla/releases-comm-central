@@ -30,7 +30,7 @@ var gAppManagerDialog = {
     var apps = this.handlerInfo.possibleApplicationHandlers.enumerate();
     while (apps.hasMoreElements()) {
       let app = apps.getNext();
-      app.QueryInterface(nsIHandlerApp);
+      app.QueryInterface(Ci.nsIHandlerApp);
       var item = list.appendItem(app.name);
       item.className = "listitem-iconic";
       item.setAttribute("image", gApplicationsPane._getIconURLForHandlerApp(app));
@@ -83,16 +83,16 @@ var gAppManagerDialog = {
     document.getElementById("cmd_delete").removeAttribute("disabled");
     var app = list.selectedItem.app;
     var address = "";
-    if (app instanceof nsILocalHandlerApp)
+    if (app instanceof Ci.nsILocalHandlerApp)
       address = app.executable.path;
-    else if (app instanceof nsIWebHandlerApp)
+    else if (app instanceof Ci.nsIWebHandlerApp)
       address = app.uriTemplate;
-    else if (app instanceof nsIWebContentHandlerInfo)
+    else if (app instanceof Ci.nsIWebContentHandlerInfo)
       address = app.uri;
     document.getElementById("appLocation").value = address;
     var bundle = document.getElementById("appManagerBundle");
-    var appType = app instanceof nsILocalHandlerApp ? "descriptionLocalApp"
-                                                    : "descriptionWebApp";
+    var appType = app instanceof Ci.nsILocalHandlerApp ? "descriptionLocalApp"
+                                                       : "descriptionWebApp";
     document.getElementById("appType").value = bundle.getString(appType);
   }
 };

@@ -65,19 +65,18 @@ function ReadCacheFolder(aField)
 
 function CacheSelectFolder()
 {
-  const nsIFilePicker = Ci.nsIFilePicker;
   let fp = Cc["@mozilla.org/filepicker;1"]
-             .createInstance(nsIFilePicker);
+             .createInstance(Ci.nsIFilePicker);
   let title = document.getElementById("bundle_prefutilities")
                       .getString("cachefolder");
 
-  fp.init(window, title, nsIFilePicker.modeGetFolder);
+  fp.init(window, title, Ci.nsIFilePicker.modeGetFolder);
   fp.displayDirectory = 
     document.getElementById("browser.cache.disk.parent_directory").value;
-  fp.appendFilters(nsIFilePicker.filterAll);
+  fp.appendFilters(Ci.nsIFilePicker.filterAll);
 
   fp.open(rv => {
-    if (rv != nsIFilePicker.returnOK || !fp.file) {
+    if (rv != Ci.nsIFilePicker.returnOK || !fp.file) {
       return;
     }
     document.getElementById("browser.cache.disk.parent_directory").value = fp.file;

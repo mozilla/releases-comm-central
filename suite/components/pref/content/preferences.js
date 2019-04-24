@@ -59,12 +59,11 @@ function WriteSoundField(aField, aValue)
 function SelectSound(aSoundUrlPref)
 {
   var soundUrlPref = aSoundUrlPref;
-  const nsIFilePicker = Ci.nsIFilePicker;
   let fp = Cc["@mozilla.org/filepicker;1"]
-             .createInstance(nsIFilePicker);
+             .createInstance(Ci.nsIFilePicker);
   var prefutilitiesBundle = document.getElementById("bundle_prefutilities");
   fp.init(window, prefutilitiesBundle.getString("choosesound"),
-          nsIFilePicker.modeOpen);
+          Ci.nsIFilePicker.modeOpen);
 
   let file = GetFileFromString(soundUrlPref.value);
   if (file && file.parent && file.parent.exists())
@@ -76,9 +75,9 @@ function SelectSound(aSoundUrlPref)
     filterExts += "; *.aif; *.aiff; *.caf";
   }
   fp.appendFilter(prefutilitiesBundle.getString("SoundFiles"), filterExts);
-  fp.appendFilters(nsIFilePicker.filterAll);
+  fp.appendFilters(Ci.nsIFilePicker.filterAll);
   fp.open(rv => {
-    if (rv == nsIFilePicker.returnOK && fp.fileURL.spec && 
+    if (rv == Ci.nsIFilePicker.returnOK && fp.fileURL.spec &&
         fp.fileURL.spec.length > 0) {
       soundUrlPref.value = fp.fileURL.spec;
     }

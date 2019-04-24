@@ -202,20 +202,19 @@ function UpdateHomePageList(aSingleURL)
 
 function SelectFile()
 {
-  const nsIFilePicker = Ci.nsIFilePicker;
   let fp = Cc["@mozilla.org/filepicker;1"]
-             .createInstance(nsIFilePicker);
+             .createInstance(Ci.nsIFilePicker);
   let title = document.getElementById("bundle_prefutilities")
                       .getString("choosehomepage");
-  fp.init(window, title, nsIFilePicker.modeOpen);
-  fp.appendFilters(nsIFilePicker.filterAll  |
-                   nsIFilePicker.filterText |
-                   nsIFilePicker.filterXML  |
-                   nsIFilePicker.filterHTML |
-                   nsIFilePicker.filterImages);
+  fp.init(window, title, Ci.nsIFilePicker.modeOpen);
+  fp.appendFilters(Ci.nsIFilePicker.filterAll  |
+                   Ci.nsIFilePicker.filterText |
+                   Ci.nsIFilePicker.filterXML  |
+                   Ci.nsIFilePicker.filterHTML |
+                   Ci.nsIFilePicker.filterImages);
 
   fp.open(rv => {
-    if (rv == nsIFilePicker.returnOK && fp.fileURL.spec && 
+    if (rv == Ci.nsIFilePicker.returnOK && fp.fileURL.spec &&
         fp.fileURL.spec.length > 0) {
       UpdateHomePageList(fp.fileURL.spec);
     }

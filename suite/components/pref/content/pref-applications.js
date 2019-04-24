@@ -14,16 +14,6 @@ function Startup()
 //****************************************************************************//
 // Constants & Enumeration Values
 
-// constants for interfaces we need multiple times
-const nsIHandlerApp = Ci.nsIHandlerApp;
-const nsIHandlerInfo = Ci.nsIHandlerInfo;
-const nsILocalHandlerApp = Ci.nsILocalHandlerApp;
-const nsIWebHandlerApp = Ci.nsIWebHandlerApp;
-const nsIWebContentHandlerInfo = Ci.nsIWebContentHandlerInfo;
-const nsIFilePicker = Ci.nsIFilePicker;
-const nsIMIMEInfo = Ci.nsIMIMEInfo;
-const nsIPropertyBag = Ci.nsIPropertyBag;
-
 // global services
 var handlerSvc = Cc["@mozilla.org/uriloader/handler-service;1"]
                    .getService(Ci.nsIHandlerService);
@@ -116,7 +106,7 @@ function getFileDisplayName(aFile) {
 
 function getLocalHandlerApp(aFile) {
   var localHandlerApp = Cc["@mozilla.org/uriloader/local-handler-app;1"]
-                          .createInstance(nsILocalHandlerApp);
+                          .createInstance(Ci.nsILocalHandlerApp);
   localHandlerApp.name = getFileDisplayName(aFile);
   localHandlerApp.executable = aFile;
 
@@ -261,11 +251,11 @@ HandlerInfoWrapper.prototype = {
     // Note: "save to disk" is an invalid value for protocol info objects,
     // but the alwaysAskBeforeHandling getter will detect that situation
     // and always return true in that case to override this invalid value.
-    if (this.wrappedHandlerInfo.preferredAction == nsIHandlerInfo.useHelperApp &&
+    if (this.wrappedHandlerInfo.preferredAction == Ci.nsIHandlerInfo.useHelperApp &&
         !gApplicationsPane.isValidHandlerApp(this.preferredApplicationHandler)) {
       return this.wrappedHandlerInfo.hasDefaultHandler ?
-             nsIHandlerInfo.useSystemDefault :
-             nsIHandlerInfo.saveToDisk;
+             Ci.nsIHandlerInfo.useSystemDefault :
+             Ci.nsIHandlerInfo.saveToDisk;
     }
 
     return this.wrappedHandlerInfo.preferredAction;
@@ -296,8 +286,8 @@ HandlerInfoWrapper.prototype = {
     // app, but the preferredApplicationHandler is invalid, and there isn't
     // a default handler, so the preferredAction getter returns save to disk
     // instead.
-    if (!(this.wrappedHandlerInfo instanceof nsIMIMEInfo) &&
-        this.preferredAction == nsIHandlerInfo.saveToDisk)
+    if (!(this.wrappedHandlerInfo instanceof Ci.nsIMIMEInfo) &&
+        this.preferredAction == Ci.nsIHandlerInfo.saveToDisk)
       return true;
 
     return this.wrappedHandlerInfo.alwaysAskBeforeHandling;
@@ -318,7 +308,7 @@ HandlerInfoWrapper.prototype = {
   // those properties for an extension?
   get primaryExtension() {
     try {
-      if (this.wrappedHandlerInfo instanceof nsIMIMEInfo &&
+      if (this.wrappedHandlerInfo instanceof Ci.nsIMIMEInfo &&
           this.wrappedHandlerInfo.primaryExtension)
         return this.wrappedHandlerInfo.primaryExtension;
     } catch(ex) {}
@@ -423,7 +413,7 @@ HandlerInfoWrapper.prototype = {
     if (this.primaryExtension)
       return "moz-icon://goat." + this.primaryExtension + "?size=" + aSize;
 
-    if (this.wrappedHandlerInfo instanceof nsIMIMEInfo)
+    if (this.wrappedHandlerInfo instanceof Ci.nsIMIMEInfo)
       return "moz-icon://goat?size=" + aSize + "&contentType=" + this.type;
 
     // We're falling back to a generic icon when we can't get a URL for one
@@ -493,11 +483,11 @@ FeedHandlerInfo.prototype = {
   },
 
   set preferredApplicationHandler(aNewValue) {
-    if (aNewValue instanceof nsILocalHandlerApp) {
+    if (aNewValue instanceof Ci.nsILocalHandlerApp) {
       document.getElementById(this._prefSelectedApp).value = aNewValue.executable;
       document.getElementById(this._prefSelectedReader).value = "client";
     }
-    else if (aNewValue instanceof nsIWebContentHandlerInfo) {
+    else if (aNewValue instanceof Ci.nsIWebContentHandlerInfo) {
       document.getElementById(this._prefSelectedWeb).value = aNewValue.uri;
       document.getElementById(this._prefSelectedReader).value = "web";
       // Make the web handler be the new "auto handler" for feeds.
@@ -597,9 +587,9 @@ FeedHandlerInfo.prototype = {
 
     if (defaultFeedReader) {
       let handlerApp = Cc["@mozilla.org/uriloader/local-handler-app;1"]
-                         .createInstance(nsIHandlerApp);
+                         .createInstance(Ci.nsIHandlerApp);
       handlerApp.name = getFileDisplayName(defaultFeedReader);
-      handlerApp.QueryInterface(nsILocalHandlerApp);
+      handlerApp.QueryInterface(Ci.nsILocalHandlerApp);
       handlerApp.executable = defaultFeedReader;
 
       this.__defaultApplicationHandler = handlerApp;
@@ -643,16 +633,16 @@ FeedHandlerInfo.prototype = {
         // the default app; otherwise return useHelperApp.
         if (gApplicationsPane.isValidHandlerApp(preferredApp)) {
           if (defaultApp && defaultApp.equals(preferredApp))
-            return nsIHandlerInfo.useSystemDefault;
+            return Ci.nsIHandlerInfo.useSystemDefault;
 
-          return nsIHandlerInfo.useHelperApp;
+          return Ci.nsIHandlerInfo.useHelperApp;
         }
 
         // The pref is set to "reader", but we don't have a valid preferred app.
         // What do we do now?  Not sure this is the best option (perhaps we
         // should direct the user to the default app, if any), but for now let's
         // direct the user to live bookmarks.
-        return nsIHandlerInfo.handleInternally;
+        return Ci.nsIHandlerInfo.handleInternally;
       }
 
       // If the action is "ask", then alwaysAskBeforeHandling will override
@@ -661,24 +651,24 @@ FeedHandlerInfo.prototype = {
       case "ask":
       case "messenger":
       default:
-        return nsIHandlerInfo.handleInternally;
+        return Ci.nsIHandlerInfo.handleInternally;
     }
   },
 
   set preferredAction(aNewValue) {
     switch (aNewValue) {
 
-      case nsIHandlerInfo.handleInternally:
+      case Ci.nsIHandlerInfo.handleInternally:
         document.getElementById(this._prefSelectedReader).value = "messenger";
         break;
 
-      case nsIHandlerInfo.useHelperApp:
+      case Ci.nsIHandlerInfo.useHelperApp:
         document.getElementById(this._prefSelectedAction).value = "reader";
         // The controller has already set preferredApplicationHandler
         // to the new helper app.
         break;
 
-      case nsIHandlerInfo.useSystemDefault:
+      case Ci.nsIHandlerInfo.useSystemDefault:
         document.getElementById(this._prefSelectedAction).value = "reader";
         this.preferredApplicationHandler = this._defaultApplicationHandler;
         break;
@@ -721,7 +711,7 @@ FeedHandlerInfo.prototype = {
   // XXX Should we hold off on making the changes until this method gets called?
   store: function() {
     for (let app of this._possibleApplicationHandlers._removed) {
-      if (app instanceof nsILocalHandlerApp) {
+      if (app instanceof Ci.nsILocalHandlerApp) {
         let pref = document.getElementById(PREF_FEED_SELECTED_APP);
         var preferredAppFile = pref.value;
         if (preferredAppFile) {
@@ -731,7 +721,7 @@ FeedHandlerInfo.prototype = {
         }
       }
       else {
-        app.QueryInterface(nsIWebContentHandlerInfo);
+        app.QueryInterface(Ci.nsIWebContentHandlerInfo);
         converterSvc.removeContentHandler(app.contentType, app.uri);
       }
     }
@@ -1036,7 +1026,7 @@ var gApplicationsPane = {
     var wrappedHandlerInfos = handlerSvc.enumerate();
     while (wrappedHandlerInfos.hasMoreElements()) {
       let wrappedHandlerInfo =
-        wrappedHandlerInfos.getNext().QueryInterface(nsIHandlerInfo);
+        wrappedHandlerInfos.getNext().QueryInterface(Ci.nsIHandlerInfo);
       let type = wrappedHandlerInfo.type;
 
       let handlerInfoWrapper;
@@ -1076,7 +1066,7 @@ var gApplicationsPane = {
       // FIXME: should we also check the "suffixes" property of the plugin?
       // Filed as bug 395135.
       if (hidePluginsWithoutExtensions && handlerInfo.handledOnlyByPlugin &&
-          handlerInfo.wrappedHandlerInfo instanceof nsIMIMEInfo &&
+          handlerInfo.wrappedHandlerInfo instanceof Ci.nsIMIMEInfo &&
           !handlerInfo.primaryExtension)
         continue;
 
@@ -1180,17 +1170,17 @@ var gApplicationsPane = {
     }
 
     switch (aHandlerInfo.preferredAction) {
-      case nsIHandlerInfo.saveToDisk:
+      case Ci.nsIHandlerInfo.saveToDisk:
         return this._prefsBundle.getString("saveFile");
 
-      case nsIHandlerInfo.useHelperApp:
+      case Ci.nsIHandlerInfo.useHelperApp:
         var preferredApp = aHandlerInfo.preferredApplicationHandler;
-        var name = (preferredApp instanceof nsILocalHandlerApp) ?
+        var name = (preferredApp instanceof Ci.nsILocalHandlerApp) ?
                    getFileDisplayName(preferredApp.executable) :
                    preferredApp.name;
         return this._prefsBundle.getFormattedString("useApp", [name]);
 
-      case nsIHandlerInfo.handleInternally:
+      case Ci.nsIHandlerInfo.handleInternally:
         // For the feed type, handleInternally means News & Blogs.
         if (isFeedType(aHandlerInfo.type))
           return this._prefsBundle.getFormattedString("addNewsBlogsInApp",
@@ -1208,7 +1198,7 @@ var gApplicationsPane = {
         // then why would a preferredAction ever get set to this value
         // in the first place?
 
-      case nsIHandlerInfo.useSystemDefault:
+      case Ci.nsIHandlerInfo.useSystemDefault:
         return this._prefsBundle.getFormattedString("useDefault",
                                                     [aHandlerInfo.defaultDescription]);
 
@@ -1232,13 +1222,13 @@ var gApplicationsPane = {
     if (!aHandlerApp)
       return false;
 
-    if (aHandlerApp instanceof nsILocalHandlerApp)
+    if (aHandlerApp instanceof Ci.nsILocalHandlerApp)
       return this._isValidHandlerExecutable(aHandlerApp.executable);
 
-    if (aHandlerApp instanceof nsIWebHandlerApp)
+    if (aHandlerApp instanceof Ci.nsIWebHandlerApp)
       return aHandlerApp.uriTemplate;
 
-    if (aHandlerApp instanceof nsIWebContentHandlerInfo)
+    if (aHandlerApp instanceof Ci.nsIWebContentHandlerInfo)
       return aHandlerApp.uri;
 
     return false;
@@ -1275,7 +1265,7 @@ var gApplicationsPane = {
     {
       let askMenuItem = document.createElement("menuitem");
       askMenuItem.setAttribute("class", "handler-action");
-      askMenuItem.setAttribute("value", nsIHandlerInfo.alwaysAsk);
+      askMenuItem.setAttribute("value", Ci.nsIHandlerInfo.alwaysAsk);
       let label;
       if (isFeedType(handlerInfo.type))
         label = this._prefsBundle.getFormattedString("previewInApp",
@@ -1292,11 +1282,11 @@ var gApplicationsPane = {
     // Note: this option isn't available to protocol types, since we don't know
     // what it means to save a URL having a certain scheme to disk, nor is it
     // available to feeds, since the feed code doesn't implement the capability.
-    if ((handlerInfo.wrappedHandlerInfo instanceof nsIMIMEInfo) &&
+    if ((handlerInfo.wrappedHandlerInfo instanceof Ci.nsIMIMEInfo) &&
         !isFeedType(handlerInfo.type)) {
       let saveMenuItem = document.createElement("menuitem");
       saveMenuItem.setAttribute("class", "handler-action");
-      saveMenuItem.setAttribute("value", nsIHandlerInfo.saveToDisk);
+      saveMenuItem.setAttribute("value", Ci.nsIHandlerInfo.saveToDisk);
       let label = this._prefsBundle.getString("saveFile");
       saveMenuItem.setAttribute("label", label);
       saveMenuItem.setAttribute("tooltiptext", label);
@@ -1308,7 +1298,7 @@ var gApplicationsPane = {
     if (isFeedType(handlerInfo.type)) {
       let internalMenuItem = document.createElement("menuitem");
       internalMenuItem.setAttribute("class", "handler-action");
-      internalMenuItem.setAttribute("value", nsIHandlerInfo.handleInternally);
+      internalMenuItem.setAttribute("value", Ci.nsIHandlerInfo.handleInternally);
       let label = this._prefsBundle.getFormattedString("addNewsBlogsInApp",
                                                        [this._brandShortName]);
       internalMenuItem.setAttribute("label", label);
@@ -1326,7 +1316,7 @@ var gApplicationsPane = {
     if (handlerInfo.hasDefaultHandler) {
       let defaultMenuItem = document.createElement("menuitem");
       defaultMenuItem.setAttribute("class", "handler-action");
-      defaultMenuItem.setAttribute("value", nsIHandlerInfo.useSystemDefault);
+      defaultMenuItem.setAttribute("value", Ci.nsIHandlerInfo.useSystemDefault);
       let label = this._prefsBundle.getFormattedString("useDefault",
                                                        [handlerInfo.defaultDescription]);
       defaultMenuItem.setAttribute("label", label);
@@ -1351,9 +1341,9 @@ var gApplicationsPane = {
 
       let menuItem = document.createElement("menuitem");
       menuItem.setAttribute("class", "handler-action");
-      menuItem.setAttribute("value", nsIHandlerInfo.useHelperApp);
+      menuItem.setAttribute("value", Ci.nsIHandlerInfo.useHelperApp);
       let label;
-      if (possibleApp instanceof nsILocalHandlerApp)
+      if (possibleApp instanceof Ci.nsILocalHandlerApp)
         label = getFileDisplayName(possibleApp.executable);
       else
         label = possibleApp.name;
@@ -1421,8 +1411,8 @@ var gApplicationsPane = {
     // the item identified by the preferred action (when the preferred action
     // is to use a helper app, we have to pick the specific helper app item).
     if (handlerInfo.alwaysAskBeforeHandling)
-      menu.value = nsIHandlerInfo.alwaysAsk;
-    else if (handlerInfo.preferredAction == nsIHandlerInfo.useHelperApp &&
+      menu.value = Ci.nsIHandlerInfo.alwaysAsk;
+    else if (handlerInfo.preferredAction == Ci.nsIHandlerInfo.useHelperApp &&
              preferredApp)
       menu.selectedItem =
         possibleAppMenuItems.filter(v => v.handlerApp.equals(preferredApp))[0];
@@ -1521,14 +1511,14 @@ var gApplicationsPane = {
     // legacy datastores that don't have the preferred app in the list
     // of possible apps still include the preferred app in the list of apps
     // the user can choose to handle the type.
-    if (action == nsIHandlerInfo.useHelperApp)
+    if (action == Ci.nsIHandlerInfo.useHelperApp)
       handlerInfo.preferredApplicationHandler = aActionItem.handlerApp;
 
     // Set the preferred action.
     handlerInfo.preferredAction = action;
 
     // Set the "always ask" flag.
-    handlerInfo.alwaysAskBeforeHandling = action == nsIHandlerInfo.alwaysAsk;
+    handlerInfo.alwaysAskBeforeHandling = action == Ci.nsIHandlerInfo.alwaysAsk;
 
     handlerInfo.store();
 
@@ -1627,17 +1617,16 @@ var gApplicationsPane = {
       }
       onSelectionDone();
     } else {
-      const nsIFilePicker = Ci.nsIFilePicker;
       let fp = Cc["@mozilla.org/filepicker;1"]
-                 .createInstance(nsIFilePicker);
+                 .createInstance(Ci.nsIFilePicker);
       let winTitle = this._prefsBundle.getString("fpTitleChooseApp");
-      fp.init(window, winTitle, nsIFilePicker.modeOpen);
-      fp.appendFilters(nsIFilePicker.filterApps);
+      fp.init(window, winTitle, Ci.nsIFilePicker.modeOpen);
+      fp.appendFilters(Ci.nsIFilePicker.filterApps);
 
       // Prompt the user to pick an app.  If they pick one, and it's a valid
       // selection, then add it to the list of possible handlers.
       fp.open(rv => {
-        if (rv == nsIFilePicker.returnOK && fp.file &&
+        if (rv == Ci.nsIFilePicker.returnOK && fp.file &&
             this._isValidHandlerExecutable(fp.file)) {
           handlerApp = Cc["@mozilla.org/uriloader/local-handler-app;1"]
                          .createInstance(Ci.nsILocalHandlerApp);
@@ -1665,11 +1654,11 @@ var gApplicationsPane = {
     }
 
     switch (aHandlerInfo.preferredAction) {
-      case nsIHandlerInfo.saveToDisk:
+      case Ci.nsIHandlerInfo.saveToDisk:
         aElement.setAttribute("appHandlerIcon", "save");
         return true;
 
-      case nsIHandlerInfo.handleInternally:
+      case Ci.nsIHandlerInfo.handleInternally:
         if (isFeedType(aHandlerInfo.type)) {
           aElement.setAttribute("appHandlerIcon", "feed");
           return true;
@@ -1686,10 +1675,10 @@ var gApplicationsPane = {
 
   _getIconURLForPreferredAction: function(aHandlerInfo) {
     switch (aHandlerInfo.preferredAction) {
-      case nsIHandlerInfo.useSystemDefault:
+      case Ci.nsIHandlerInfo.useSystemDefault:
         return this._getIconURLForSystemDefault(aHandlerInfo);
 
-      case nsIHandlerInfo.useHelperApp:
+      case Ci.nsIHandlerInfo.useHelperApp:
         let preferredApp = aHandlerInfo.preferredApplicationHandler;
         if (this.isValidHandlerApp(preferredApp))
           return this._getIconURLForHandlerApp(preferredApp);
@@ -1701,14 +1690,14 @@ var gApplicationsPane = {
   },
 
   _getIconURLForHandlerApp: function(aHandlerApp) {
-    if (aHandlerApp instanceof nsILocalHandlerApp)
+    if (aHandlerApp instanceof Ci.nsILocalHandlerApp)
       return this._getIconURLForFile(aHandlerApp.executable);
 
     if (Services.prefs.getBoolPref("browser.chrome.favicons")) { // q.v. Bug 514671
-      if (aHandlerApp instanceof nsIWebHandlerApp)
+      if (aHandlerApp instanceof Ci.nsIWebHandlerApp)
         return this._getIconURLForWebApp(aHandlerApp.uriTemplate);
 
-      if (aHandlerApp instanceof nsIWebContentHandlerInfo)
+      if (aHandlerApp instanceof Ci.nsIWebContentHandlerInfo)
         return this._getIconURLForWebApp(aHandlerApp.uri)
     }
 
@@ -1742,8 +1731,8 @@ var gApplicationsPane = {
     if ("wrappedHandlerInfo" in aHandlerInfo) {
       let wrappedHandlerInfo = aHandlerInfo.wrappedHandlerInfo;
 
-      if (wrappedHandlerInfo instanceof nsIMIMEInfo &&
-          wrappedHandlerInfo instanceof nsIPropertyBag) {
+      if (wrappedHandlerInfo instanceof Ci.nsIMIMEInfo &&
+          wrappedHandlerInfo instanceof Ci.nsIPropertyBag) {
         try {
           let url = wrappedHandlerInfo.getProperty("defaultApplicationIconURL");
           if (url)
