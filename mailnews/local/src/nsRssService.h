@@ -8,17 +8,15 @@
 #include "nsIRssService.h"
 #include "nsIMsgProtocolInfo.h"
 
-class nsRssService : public nsIMsgProtocolInfo, public nsIRssService
-{
-public:
-
+class nsRssService : public nsIMsgProtocolInfo, public nsIRssService {
+ public:
   nsRssService();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIRSSSERVICE
   NS_DECL_NSIMSGPROTOCOLINFO
 
-private:
+ private:
   virtual ~nsRssService();
 };
 

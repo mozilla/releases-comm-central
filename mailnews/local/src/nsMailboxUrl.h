@@ -15,46 +15,45 @@
 #include "MailNewsTypes.h"
 #include "nsTArray.h"
 
-class nsMailboxUrl : public nsIMailboxUrl, public nsMsgMailNewsUrl, public nsIMsgMessageUrl, public nsIMsgI18NUrl
-{
-public:
+class nsMailboxUrl : public nsIMailboxUrl,
+                     public nsMsgMailNewsUrl,
+                     public nsIMsgMessageUrl,
+                     public nsIMsgI18NUrl {
+ public:
   // nsIMsgMailNewsUrl override
   nsresult SetSpecInternal(const nsACString &aSpec) override;
   nsresult SetQuery(const nsACString &aQuery) override;
-  nsresult CreateURL(const nsACString& aSpec, nsIURL **aURL) override;
+  nsresult CreateURL(const nsACString &aSpec, nsIURL **aURL) override;
 
   // from nsIMailboxUrl:
-  NS_IMETHOD SetMailboxParser(nsIStreamListener * aConsumer) override;
-  NS_IMETHOD GetMailboxParser(nsIStreamListener ** aConsumer) override;
-  NS_IMETHOD SetMailboxCopyHandler(nsIStreamListener *  aConsumer) override;
-  NS_IMETHOD GetMailboxCopyHandler(nsIStreamListener ** aConsumer) override;
+  NS_IMETHOD SetMailboxParser(nsIStreamListener *aConsumer) override;
+  NS_IMETHOD GetMailboxParser(nsIStreamListener **aConsumer) override;
+  NS_IMETHOD SetMailboxCopyHandler(nsIStreamListener *aConsumer) override;
+  NS_IMETHOD GetMailboxCopyHandler(nsIStreamListener **aConsumer) override;
 
-  NS_IMETHOD GetMessageKey(nsMsgKey* aMessageKey) override;
+  NS_IMETHOD GetMessageKey(nsMsgKey *aMessageKey) override;
   NS_IMETHOD GetMessageSize(uint32_t *aMessageSize) override;
   NS_IMETHOD SetMessageSize(uint32_t aMessageSize) override;
-  NS_IMETHOD GetMailboxAction(nsMailboxAction *result) override
-  {
+  NS_IMETHOD GetMailboxAction(nsMailboxAction *result) override {
     NS_ENSURE_ARG_POINTER(result);
     *result = m_mailboxAction;
     return NS_OK;
   }
-  NS_IMETHOD SetMailboxAction(nsMailboxAction aAction) override
-  {
+  NS_IMETHOD SetMailboxAction(nsMailboxAction aAction) override {
     m_mailboxAction = aAction;
     return NS_OK;
   }
   NS_IMETHOD IsUrlType(uint32_t type, bool *isType) override;
   NS_IMETHOD SetMoveCopyMsgKeys(nsMsgKey *keysToFlag, int32_t numKeys) override;
-  NS_IMETHOD GetMoveCopyMsgHdrForIndex(uint32_t msgIndex, nsIMsgDBHdr **msgHdr) override;
+  NS_IMETHOD GetMoveCopyMsgHdrForIndex(uint32_t msgIndex,
+                                       nsIMsgDBHdr **msgHdr) override;
   NS_IMETHOD GetNumMoveCopyMsgs(uint32_t *numMsgs) override;
-  NS_IMETHOD GetCurMoveCopyMsgIndex(uint32_t *result) override
-  {
+  NS_IMETHOD GetCurMoveCopyMsgIndex(uint32_t *result) override {
     NS_ENSURE_ARG_POINTER(result);
     *result = m_curMsgIndex;
     return NS_OK;
   }
-  NS_IMETHOD SetCurMoveCopyMsgIndex(uint32_t aIndex) override
-  {
+  NS_IMETHOD SetCurMoveCopyMsgIndex(uint32_t aIndex) override {
     m_curMsgIndex = aIndex;
     return NS_OK;
   }
@@ -70,18 +69,19 @@ public:
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIMSGI18NURL
 
-protected:
+ protected:
   virtual ~nsMailboxUrl();
   // protocol specific code to parse a url...
   virtual nsresult ParseUrl();
-  nsresult GetMsgHdrForKey(nsMsgKey  msgKey, nsIMsgDBHdr ** aMsgHdr);
+  nsresult GetMsgHdrForKey(nsMsgKey msgKey, nsIMsgDBHdr **aMsgHdr);
 
   // mailboxurl specific state
   nsCOMPtr<nsIStreamListener> m_mailboxParser;
   nsCOMPtr<nsIStreamListener> m_mailboxCopyHandler;
 
-  nsMailboxAction m_mailboxAction; // the action this url represents...parse mailbox, display messages, etc.
-  nsCOMPtr <nsIFile>  m_filePath;
+  nsMailboxAction m_mailboxAction;  // the action this url represents...parse
+                                    // mailbox, display messages, etc.
+  nsCOMPtr<nsIFile> m_filePath;
   char *m_messageID;
   uint32_t m_messageSize;
   nsMsgKey m_messageKey;
@@ -92,8 +92,8 @@ protected:
 
   // used by save message to disk
   nsCOMPtr<nsIFile> m_messageFile;
-  bool                  m_addDummyEnvelope;
-  bool                  m_canonicalLineEnding;
+  bool m_addDummyEnvelope;
+  bool m_canonicalLineEnding;
   nsresult ParseSearchPart();
 
   // for multiple msg move/copy
@@ -102,8 +102,8 @@ protected:
 
   // truncated message support
   nsCString m_originalSpec;
-  nsCString mURI; // the RDF URI associated with this url.
-  nsCString mCharsetOverride; // used by nsIMsgI18NUrl...
+  nsCString mURI;              // the RDF URI associated with this url.
+  nsCString mCharsetOverride;  // used by nsIMsgI18NUrl...
 };
 
-#endif // nsMailboxUrl_h__
+#endif  // nsMailboxUrl_h__

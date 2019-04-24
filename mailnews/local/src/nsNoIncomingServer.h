@@ -19,7 +19,7 @@ class nsNoIncomingServer : public nsMailboxServer,
                            public nsILocalMailIncomingServer
 
 {
-public:
+ public:
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSINOINCOMINGSERVER
   NS_DECL_NSILOCALMAILINCOMINGSERVER
@@ -28,14 +28,14 @@ public:
 
   NS_IMETHOD GetLocalStoreType(nsACString& type) override;
   NS_IMETHOD GetLocalDatabaseType(nsACString& type) override;
-  NS_IMETHOD GetCanSearchMessages(bool *canSearchMessages) override;
-  NS_IMETHOD GetServerRequiresPasswordForBiff(bool *aServerRequiresPasswordForBiff) override;
+  NS_IMETHOD GetCanSearchMessages(bool* canSearchMessages) override;
+  NS_IMETHOD GetServerRequiresPasswordForBiff(
+      bool* aServerRequiresPasswordForBiff) override;
   NS_IMETHOD GetAccountManagerChrome(nsAString& aResult) override;
   NS_IMETHOD GetSortOrder(int32_t* aSortOrder) override;
 
-private:
+ private:
   virtual ~nsNoIncomingServer();
 };
-
 
 #endif

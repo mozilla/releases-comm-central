@@ -3,33 +3,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "msgCore.h"    // precompiled header...
+#include "msgCore.h"  // precompiled header...
 #include "nsMsgLocalStoreUtils.h"
 #include "nsIFile.h"
 #include "nsIDBFolderInfo.h"
 #include "nsIMsgDatabase.h"
 #include "prprf.h"
 
-#define EXTRA_SAFETY_SPACE 0x400000 // (4MiB)
+#define EXTRA_SAFETY_SPACE 0x400000  // (4MiB)
 
-nsMsgLocalStoreUtils::nsMsgLocalStoreUtils()
-{
-}
+nsMsgLocalStoreUtils::nsMsgLocalStoreUtils() {}
 
-nsresult
-nsMsgLocalStoreUtils::AddDirectorySeparator(nsIFile *path)
-{
+nsresult nsMsgLocalStoreUtils::AddDirectorySeparator(nsIFile *path) {
   nsAutoString leafName;
   path->GetLeafName(leafName);
   leafName.AppendLiteral(FOLDER_SUFFIX);
   return path->SetLeafName(leafName);
 }
 
-bool
-nsMsgLocalStoreUtils::nsShouldIgnoreFile(nsAString& name)
-{
-  if (name.IsEmpty())
-    return true;
+bool nsMsgLocalStoreUtils::nsShouldIgnoreFile(nsAString &name) {
+  if (name.IsEmpty()) return true;
 
   char16_t firstChar = name.First();
   if (firstChar == '.' || firstChar == '#' ||
@@ -60,9 +53,9 @@ nsMsgLocalStoreUtils::nsShouldIgnoreFile(nsAString& name)
     return true;
 
   // The .mozmsgs dir is for spotlight support
-    return (StringEndsWith(name, NS_LITERAL_STRING(".mozmsgs")) ||
-            StringEndsWith(name, NS_LITERAL_STRING(FOLDER_SUFFIX)) ||
-            StringEndsWith(name, NS_LITERAL_STRING(SUMMARY_SUFFIX)));
+  return (StringEndsWith(name, NS_LITERAL_STRING(".mozmsgs")) ||
+          StringEndsWith(name, NS_LITERAL_STRING(FOLDER_SUFFIX)) ||
+          StringEndsWith(name, NS_LITERAL_STRING(SUMMARY_SUFFIX)));
 }
 
 /**
@@ -79,20 +72,14 @@ nsMsgLocalStoreUtils::nsShouldIgnoreFile(nsAString& name)
  * This is not true for maildir, however, since it won't require compaction.
  */
 
-void
-nsMsgLocalStoreUtils::ChangeKeywordsHelper(nsIMsgDBHdr *message,
-                                           uint64_t desiredOffset,
-                                           nsLineBuffer<char> *lineBuffer,
-                                           nsTArray<nsCString> &keywordArray,
-                                           bool aAdd,
-                                           nsIOutputStream *outputStream,
-                                           nsISeekableStream *seekableStream,
-                                           nsIInputStream *inputStream)
-{
+void nsMsgLocalStoreUtils::ChangeKeywordsHelper(
+    nsIMsgDBHdr *message, uint64_t desiredOffset,
+    nsLineBuffer<char> *lineBuffer, nsTArray<nsCString> &keywordArray,
+    bool aAdd, nsIOutputStream *outputStream, nsISeekableStream *seekableStream,
+    nsIInputStream *inputStream) {
   uint32_t bytesWritten;
 
-  for (uint32_t i = 0; i < keywordArray.Length(); i++)
-  {
+  for (uint32_t i = 0; i < keywordArray.Length(); i++) {
     nsAutoCString header;
     nsAutoCString keywords;
     bool done = false;
@@ -109,8 +96,7 @@ nsMsgLocalStoreUtils::ChangeKeywordsHelper(nsIMsgDBHdr *message,
     bool more;
     message->GetMessageSize(&len);
     // loop through
-    while (!done)
-    {
+    while (!done) {
       int64_t lineStartPos;
       seekableStream->Tell(&lineStartPos);
       // we need to adjust the linestart pos by how much extra the line
@@ -119,16 +105,15 @@ nsMsgLocalStoreUtils::ChangeKeywordsHelper(nsIMsgDBHdr *message,
       // NS_ReadLine doesn't return line termination chars.
       nsCString keywordHeaders;
       nsresult rv = NS_ReadLine(inputStream, lineBuffer, keywordHeaders, &more);
-      if (NS_SUCCEEDED(rv))
-      {
+      if (NS_SUCCEEDED(rv)) {
         if (keywordHeaders.IsEmpty())
-          break; // passed headers; no x-mozilla-keywords header; give up.
+          break;  // passed headers; no x-mozilla-keywords header; give up.
         if (StringBeginsWith(keywordHeaders,
                              NS_LITERAL_CSTRING(HEADER_X_MOZILLA_KEYWORDS)))
           inKeywordHeader = true;
         else if (inKeywordHeader && (keywordHeaders.CharAt(0) == ' ' ||
                                      keywordHeaders.CharAt(0) == '\t'))
-          ; // continuation header line
+          ;  // continuation header line
         else if (inKeywordHeader)
           break;
         else
@@ -137,10 +122,9 @@ nsMsgLocalStoreUtils::ChangeKeywordsHelper(nsIMsgDBHdr *message,
         int32_t startOffset, keywordLength;
         // check if we have the keyword
         if (MsgFindKeyword(keywordArray[i], keywordHeaders, &startOffset,
-                           &keywordLength))
-        {
+                           &keywordLength)) {
           foundKeyword = true;
-          if (!aAdd) // if we're removing, remove it, and break;
+          if (!aAdd)  // if we're removing, remove it, and break;
           {
             keywordHeaders.Cut(startOffset, keywordLength);
             for (int32_t j = keywordLength; j > 0; j--)
@@ -157,23 +141,21 @@ nsMsgLocalStoreUtils::ChangeKeywordsHelper(nsIMsgDBHdr *message,
         // argh, we need to check all the lines to see if we already have the
         // keyword, but if we don't find it, we want to remember the line and
         // position where we have room to add the keyword.
-        if (aAdd)
-        {
+        if (aAdd) {
           nsAutoCString curKeywordHdr(keywordHeaders);
           // strip off line ending spaces.
           curKeywordHdr.Trim(" ", false, true);
-          if (!offsetToAddKeyword && curKeywordHdr.Length() +
-                keywordToWrite.Length() < keywordHdrLength)
+          if (!offsetToAddKeyword &&
+              curKeywordHdr.Length() + keywordToWrite.Length() <
+                  keywordHdrLength)
             offsetToAddKeyword = lineStartPos + curKeywordHdr.Length();
         }
       }
     }
-    if (aAdd && !foundKeyword)
-    {
+    if (aAdd && !foundKeyword) {
       if (!offsetToAddKeyword)
         message->SetUint32Property("growKeywords", 1);
-      else
-      {
+      else {
         seekableStream->Seek(nsISeekableStream::NS_SEEK_SET,
                              offsetToAddKeyword);
         outputStream->Write(keywordToWrite.get(), keywordToWrite.Length(),
@@ -183,22 +165,20 @@ nsMsgLocalStoreUtils::ChangeKeywordsHelper(nsIMsgDBHdr *message,
   }
 }
 
-nsresult
-nsMsgLocalStoreUtils::UpdateFolderFlag(nsIMsgDBHdr *mailHdr, bool bSet,
-                                       nsMsgMessageFlagType flag,
-                                       nsIOutputStream *fileStream)
-{
+nsresult nsMsgLocalStoreUtils::UpdateFolderFlag(nsIMsgDBHdr *mailHdr, bool bSet,
+                                                nsMsgMessageFlagType flag,
+                                                nsIOutputStream *fileStream) {
   uint32_t statusOffset;
   uint64_t msgOffset;
   nsresult rv = mailHdr->GetStatusOffset(&statusOffset);
   // This probably means there's no x-mozilla-status header, so
   // we just ignore this.
-  if (NS_FAILED(rv) || (statusOffset == 0))
-    return NS_OK;
+  if (NS_FAILED(rv) || (statusOffset == 0)) return NS_OK;
   rv = mailHdr->GetMessageOffset(&msgOffset);
   NS_ENSURE_SUCCESS(rv, rv);
   uint64_t statusPos = msgOffset + statusOffset;
-  nsCOMPtr<nsISeekableStream> seekableStream(do_QueryInterface(fileStream, &rv));
+  nsCOMPtr<nsISeekableStream> seekableStream(
+      do_QueryInterface(fileStream, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
   rv = seekableStream->Seek(nsISeekableStream::NS_SEEK_SET, statusPos);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -207,19 +187,16 @@ nsMsgLocalStoreUtils::UpdateFolderFlag(nsIMsgDBHdr *mailHdr, bool bSet,
   nsCOMPtr<nsIInputStream> inputStream = do_QueryInterface(fileStream, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   uint32_t bytesRead;
-  if (NS_SUCCEEDED(inputStream->Read(buf, X_MOZILLA_STATUS_LEN + 6,
-                                     &bytesRead)))
-  {
+  if (NS_SUCCEEDED(
+          inputStream->Read(buf, X_MOZILLA_STATUS_LEN + 6, &bytesRead))) {
     buf[bytesRead] = '\0';
     if (strncmp(buf, X_MOZILLA_STATUS, X_MOZILLA_STATUS_LEN) == 0 &&
-      strncmp(buf + X_MOZILLA_STATUS_LEN, ": ", 2) == 0 &&
-      strlen(buf) >= X_MOZILLA_STATUS_LEN + 6)
-    {
+        strncmp(buf + X_MOZILLA_STATUS_LEN, ": ", 2) == 0 &&
+        strlen(buf) >= X_MOZILLA_STATUS_LEN + 6) {
       uint32_t flags;
       uint32_t bytesWritten;
       (void)mailHdr->GetFlags(&flags);
-      if (!(flags & nsMsgMessageFlags::Expunged))
-      {
+      if (!(flags & nsMsgMessageFlags::Expunged)) {
         char *p = buf + X_MOZILLA_STATUS_LEN + 2;
 
         nsresult errorCode = NS_OK;
@@ -228,43 +205,37 @@ nsMsgLocalStoreUtils::UpdateFolderFlag(nsIMsgDBHdr *mailHdr, bool bSet,
         uint32_t curFlags;
         (void)mailHdr->GetFlags(&curFlags);
         flags = (flags & nsMsgMessageFlags::Queued) |
-          (curFlags & ~nsMsgMessageFlags::RuntimeOnly);
+                (curFlags & ~nsMsgMessageFlags::RuntimeOnly);
         if (bSet)
           flags |= flag;
         else
           flags &= ~flag;
-      }
-      else
-      {
+      } else {
         flags &= ~nsMsgMessageFlags::RuntimeOnly;
       }
       seekableStream->Seek(nsISeekableStream::NS_SEEK_SET, statusPos);
       // We are filing out x-mozilla-status flags here
       PR_snprintf(buf, sizeof(buf), X_MOZILLA_STATUS_FORMAT,
-        flags & 0x0000FFFF);
+                  flags & 0x0000FFFF);
       int32_t lineLen = PL_strlen(buf);
       uint64_t status2Pos = statusPos + lineLen;
       fileStream->Write(buf, lineLen, &bytesWritten);
 
-      if (flag & 0xFFFF0000)
-      {
+      if (flag & 0xFFFF0000) {
         // Time to update x-mozilla-status2,
         // first find it by finding end of previous line, see bug 234935.
         seekableStream->Seek(nsISeekableStream::NS_SEEK_SET, status2Pos);
-        do
-        {
+        do {
           rv = inputStream->Read(buf, 1, &bytesRead);
           status2Pos++;
         } while (NS_SUCCEEDED(rv) && (*buf == '\n' || *buf == '\r'));
         status2Pos--;
         seekableStream->Seek(nsISeekableStream::NS_SEEK_SET, status2Pos);
         if (NS_SUCCEEDED(inputStream->Read(buf, X_MOZILLA_STATUS2_LEN + 10,
-                                           &bytesRead)))
-        {
+                                           &bytesRead))) {
           if (strncmp(buf, X_MOZILLA_STATUS2, X_MOZILLA_STATUS2_LEN) == 0 &&
-            strncmp(buf + X_MOZILLA_STATUS2_LEN, ": ", 2) == 0 &&
-            strlen(buf) >= X_MOZILLA_STATUS2_LEN + 10)
-          {
+              strncmp(buf + X_MOZILLA_STATUS2_LEN, ": ", 2) == 0 &&
+              strlen(buf) >= X_MOZILLA_STATUS2_LEN + 10) {
             uint32_t dbFlags;
             (void)mailHdr->GetFlags(&dbFlags);
             dbFlags &= 0xFFFF0000;
@@ -274,18 +245,16 @@ nsMsgLocalStoreUtils::UpdateFolderFlag(nsIMsgDBHdr *mailHdr, bool bSet,
           }
         }
       }
-    }
-    else
-    {
+    } else {
 #ifdef DEBUG
-      printf("Didn't find %s where expected at position %ld\n"
-        "instead, found %s.\n",
-        X_MOZILLA_STATUS, (long) statusPos, buf);
+      printf(
+          "Didn't find %s where expected at position %ld\n"
+          "instead, found %s.\n",
+          X_MOZILLA_STATUS, (long)statusPos, buf);
 #endif
       rv = NS_ERROR_FAILURE;
     }
-  }
-  else
+  } else
     rv = NS_ERROR_FAILURE;
   return rv;
 }
@@ -298,9 +267,8 @@ nsMsgLocalStoreUtils::UpdateFolderFlag(nsIMsgDBHdr *mailHdr, bool bSet,
  * @param aSpaceRequested  The size of free space there must be on the disk
  *                         to return true.
  */
-bool
-nsMsgLocalStoreUtils::DiskSpaceAvailableInStore(nsIFile *aFile, uint64_t aSpaceRequested)
-{
+bool nsMsgLocalStoreUtils::DiskSpaceAvailableInStore(nsIFile *aFile,
+                                                     uint64_t aSpaceRequested) {
   int64_t diskFree;
   nsresult rv = aFile->GetDiskSpaceAvailable(&diskFree);
   if (NS_SUCCEEDED(rv)) {
@@ -310,9 +278,9 @@ nsMsgLocalStoreUtils::DiskSpaceAvailableInStore(nsIFile *aFile, uint64_t aSpaceR
     // When checking for disk space available, take into consideration
     // possible database changes, therefore ask for a little more
     // (EXTRA_SAFETY_SPACE) than what the requested size is. Also, due to disk
-    // sector sizes, allocation blocks, etc. The space "available" may be greater
-    // than the actual space usable.
-    return ((aSpaceRequested + EXTRA_SAFETY_SPACE) < (uint64_t) diskFree);
+    // sector sizes, allocation blocks, etc. The space "available" may be
+    // greater than the actual space usable.
+    return ((aSpaceRequested + EXTRA_SAFETY_SPACE) < (uint64_t)diskFree);
   } else if (rv == NS_ERROR_NOT_IMPLEMENTED) {
     // The call to GetDiskSpaceAvailable is not implemented!
     // This will happen on certain platforms where GetDiskSpaceAvailable
@@ -321,7 +289,9 @@ nsMsgLocalStoreUtils::DiskSpaceAvailableInStore(nsIFile *aFile, uint64_t aSpaceR
     //
     // We'll leave a debug message to warn people.
 #ifdef DEBUG
-    printf("Call to GetDiskSpaceAvailable FAILED because it is not implemented!\n");
+    printf(
+        "Call to GetDiskSpaceAvailable FAILED because it is not "
+        "implemented!\n");
 #endif
     return true;
   } else {
@@ -335,14 +305,10 @@ nsMsgLocalStoreUtils::DiskSpaceAvailableInStore(nsIFile *aFile, uint64_t aSpaceR
  *
  * @param aMsgDb The database to reset.
  */
-void
-nsMsgLocalStoreUtils::ResetForceReparse(nsIMsgDatabase *aMsgDB)
-{
-  if (aMsgDB)
-  {
+void nsMsgLocalStoreUtils::ResetForceReparse(nsIMsgDatabase *aMsgDB) {
+  if (aMsgDB) {
     nsCOMPtr<nsIDBFolderInfo> folderInfo;
     aMsgDB->GetDBFolderInfo(getter_AddRefs(folderInfo));
-    if (folderInfo)
-      folderInfo->SetBooleanProperty("forceReparse", false);
+    if (folderInfo) folderInfo->SetBooleanProperty("forceReparse", false);
   }
 }

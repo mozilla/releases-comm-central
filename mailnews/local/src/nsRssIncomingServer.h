@@ -18,26 +18,30 @@ class nsRssIncomingServer : public nsMailboxServer,
                             public nsIMsgFolderListener
 
 {
-public:
-    NS_DECL_ISUPPORTS_INHERITED
-    NS_DECL_NSIRSSINCOMINGSERVER
-    NS_DECL_NSILOCALMAILINCOMINGSERVER
-    NS_DECL_NSIMSGFOLDERLISTENER
+ public:
+  NS_DECL_ISUPPORTS_INHERITED
+  NS_DECL_NSIRSSINCOMINGSERVER
+  NS_DECL_NSILOCALMAILINCOMINGSERVER
+  NS_DECL_NSIMSGFOLDERLISTENER
 
-    NS_IMETHOD GetOfflineSupportLevel(int32_t *aSupportLevel) override;
-    NS_IMETHOD GetSupportsDiskSpace(bool *aSupportsDiskSpace) override;
-    NS_IMETHOD GetAccountManagerChrome(nsAString& aResult) override;
-    NS_IMETHOD PerformBiff(nsIMsgWindow *aMsgWindow) override;
-    NS_IMETHOD GetServerRequiresPasswordForBiff(bool *aServerRequiresPasswordForBiff) override;
-    NS_IMETHOD GetCanSearchMessages(bool *canSearchMessages) override;
-    NS_IMETHOD GetSortOrder(int32_t* aSortOrder) override;
+  NS_IMETHOD GetOfflineSupportLevel(int32_t *aSupportLevel) override;
+  NS_IMETHOD GetSupportsDiskSpace(bool *aSupportsDiskSpace) override;
+  NS_IMETHOD GetAccountManagerChrome(nsAString &aResult) override;
+  NS_IMETHOD PerformBiff(nsIMsgWindow *aMsgWindow) override;
+  NS_IMETHOD GetServerRequiresPasswordForBiff(
+      bool *aServerRequiresPasswordForBiff) override;
+  NS_IMETHOD GetCanSearchMessages(bool *canSearchMessages) override;
+  NS_IMETHOD GetSortOrder(int32_t *aSortOrder) override;
 
-    nsRssIncomingServer();
-protected:
-    virtual ~nsRssIncomingServer();
-    nsresult FolderChanged(nsIMsgFolder *aFolder, nsIMsgFolder *aOrigFolder, const char *aAction);
-    nsresult FillInDataSourcePath(const nsAString& aDataSourceName, nsIFile ** aLocation);
-    static nsrefcnt gInstanceCount;
+  nsRssIncomingServer();
+
+ protected:
+  virtual ~nsRssIncomingServer();
+  nsresult FolderChanged(nsIMsgFolder *aFolder, nsIMsgFolder *aOrigFolder,
+                         const char *aAction);
+  nsresult FillInDataSourcePath(const nsAString &aDataSourceName,
+                                nsIFile **aLocation);
+  static nsrefcnt gInstanceCount;
 };
 
 #endif /* __nsRssIncomingServer_h */

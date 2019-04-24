@@ -18,23 +18,23 @@ class nsMovemailIncomingServer : public nsMailboxServer,
                                  public nsILocalMailIncomingServer
 
 {
-public:
-    NS_DECL_ISUPPORTS_INHERITED
-    NS_DECL_NSIMOVEMAILINCOMINGSERVER
-    NS_DECL_NSILOCALMAILINCOMINGSERVER
+ public:
+  NS_DECL_ISUPPORTS_INHERITED
+  NS_DECL_NSIMOVEMAILINCOMINGSERVER
+  NS_DECL_NSILOCALMAILINCOMINGSERVER
 
-    nsMovemailIncomingServer();
+  nsMovemailIncomingServer();
 
-    NS_IMETHOD PerformBiff(nsIMsgWindow *aMsgWindow) override;
-    NS_IMETHOD GetDownloadMessagesAtStartup(bool *getMessages) override;
-    NS_IMETHOD GetCanBeDefaultServer(bool *canBeDefaultServer) override;
-    NS_IMETHOD GetCanSearchMessages(bool *canSearchMessages) override;
-    NS_IMETHOD GetServerRequiresPasswordForBiff(bool *aServerRequiresPasswordForBiff) override;
-    NS_IMETHOD GetAccountManagerChrome(nsAString& aResult) override;
+  NS_IMETHOD PerformBiff(nsIMsgWindow *aMsgWindow) override;
+  NS_IMETHOD GetDownloadMessagesAtStartup(bool *getMessages) override;
+  NS_IMETHOD GetCanBeDefaultServer(bool *canBeDefaultServer) override;
+  NS_IMETHOD GetCanSearchMessages(bool *canSearchMessages) override;
+  NS_IMETHOD GetServerRequiresPasswordForBiff(
+      bool *aServerRequiresPasswordForBiff) override;
+  NS_IMETHOD GetAccountManagerChrome(nsAString &aResult) override;
 
-private:
-    virtual ~nsMovemailIncomingServer();
+ private:
+  virtual ~nsMovemailIncomingServer();
 };
-
 
 #endif

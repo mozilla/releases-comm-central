@@ -7,26 +7,21 @@
 #include "nsLocalMailFolder.h"
 
 NS_IMETHODIMP
-nsMailboxServer::GetLocalStoreType(nsACString& type)
-{
+nsMailboxServer::GetLocalStoreType(nsACString &type) {
   type.AssignLiteral("mailbox");
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMailboxServer::GetLocalDatabaseType(nsACString& type)
-{
+nsMailboxServer::GetLocalDatabaseType(nsACString &type) {
   type.AssignLiteral("mailbox");
   return NS_OK;
 }
 
-nsresult
-nsMailboxServer::CreateRootFolderFromUri(const nsCString &serverUri,
-                                         nsIMsgFolder **rootFolder)
-{
+nsresult nsMailboxServer::CreateRootFolderFromUri(const nsCString &serverUri,
+                                                  nsIMsgFolder **rootFolder) {
   nsMsgLocalMailFolder *newRootFolder = new nsMsgLocalMailFolder;
-  if (!newRootFolder)
-    return NS_ERROR_OUT_OF_MEMORY;
+  if (!newRootFolder) return NS_ERROR_OUT_OF_MEMORY;
   NS_ADDREF(*rootFolder = newRootFolder);
   newRootFolder->Init(serverUri.get());
   return NS_OK;

@@ -28,103 +28,78 @@
 
 static NS_DEFINE_CID(kCPop3ServiceCID, NS_POP3SERVICE_CID);
 
-class nsPop3GetMailChainer final : public nsIUrlListener
-{
-public:
+class nsPop3GetMailChainer final : public nsIUrlListener {
+ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIURLLISTENER
 
   nsPop3GetMailChainer();
-  nsresult GetNewMailForServers(nsIPop3IncomingServer** servers, uint32_t count,
+  nsresult GetNewMailForServers(nsIPop3IncomingServer **servers, uint32_t count,
                                 nsIMsgWindow *msgWindow,
-                                nsIMsgFolder *folderToDownloadTo, nsIUrlListener *listener);
+                                nsIMsgFolder *folderToDownloadTo,
+                                nsIUrlListener *listener);
   nsresult RunNextGetNewMail();
-protected:
+
+ protected:
   ~nsPop3GetMailChainer();
-  nsCOMPtr <nsIMsgFolder> m_folderToDownloadTo;
-  nsCOMPtr <nsIMsgWindow> m_downloadingMsgWindow;
+  nsCOMPtr<nsIMsgFolder> m_folderToDownloadTo;
+  nsCOMPtr<nsIMsgWindow> m_downloadingMsgWindow;
   nsCOMArray<nsIPop3IncomingServer> m_serversToGetNewMailFor;
-  nsCOMPtr <nsIUrlListener> m_listener;
+  nsCOMPtr<nsIUrlListener> m_listener;
 };
 
+NS_IMPL_ISUPPORTS_INHERITED(nsPop3IncomingServer, nsMsgIncomingServer,
+                            nsIPop3IncomingServer, nsILocalMailIncomingServer)
 
-
-NS_IMPL_ISUPPORTS_INHERITED(nsPop3IncomingServer,
-                             nsMsgIncomingServer,
-                             nsIPop3IncomingServer,
-                             nsILocalMailIncomingServer)
-
-nsPop3IncomingServer::nsPop3IncomingServer()
-{
-  m_capabilityFlags =
-  POP3_AUTH_MECH_UNDEFINED |
-  POP3_HAS_AUTH_USER |               // should be always there
-  POP3_GURL_UNDEFINED |
-  POP3_UIDL_UNDEFINED |
-  POP3_TOP_UNDEFINED |
-  POP3_XTND_XLST_UNDEFINED;
+nsPop3IncomingServer::nsPop3IncomingServer() {
+  m_capabilityFlags = POP3_AUTH_MECH_UNDEFINED |
+                      POP3_HAS_AUTH_USER |  // should be always there
+                      POP3_GURL_UNDEFINED | POP3_UIDL_UNDEFINED |
+                      POP3_TOP_UNDEFINED | POP3_XTND_XLST_UNDEFINED;
 
   m_canHaveFilters = true;
   m_authenticated = false;
 }
 
-nsPop3IncomingServer::~nsPop3IncomingServer()
-{
-}
+nsPop3IncomingServer::~nsPop3IncomingServer() {}
 
-NS_IMPL_SERVERPREF_BOOL(nsPop3IncomingServer,
-                        LeaveMessagesOnServer,
+NS_IMPL_SERVERPREF_BOOL(nsPop3IncomingServer, LeaveMessagesOnServer,
                         "leave_on_server")
 
-NS_IMPL_SERVERPREF_BOOL(nsPop3IncomingServer,
-                        HeadersOnly,
-                        "headers_only")
+NS_IMPL_SERVERPREF_BOOL(nsPop3IncomingServer, HeadersOnly, "headers_only")
 
-NS_IMPL_SERVERPREF_BOOL(nsPop3IncomingServer,
-                        DeleteMailLeftOnServer,
+NS_IMPL_SERVERPREF_BOOL(nsPop3IncomingServer, DeleteMailLeftOnServer,
                         "delete_mail_left_on_server")
 
-NS_IMPL_SERVERPREF_BOOL(nsPop3IncomingServer,
-                        DotFix,
-                        "dot_fix")
+NS_IMPL_SERVERPREF_BOOL(nsPop3IncomingServer, DotFix, "dot_fix")
 
-NS_IMPL_SERVERPREF_BOOL(nsPop3IncomingServer,
-                        DeleteByAgeFromServer,
+NS_IMPL_SERVERPREF_BOOL(nsPop3IncomingServer, DeleteByAgeFromServer,
                         "delete_by_age_from_server")
 
-NS_IMPL_SERVERPREF_INT(nsPop3IncomingServer,
-                        NumDaysToLeaveOnServer,
-                        "num_days_to_leave_on_server")
+NS_IMPL_SERVERPREF_INT(nsPop3IncomingServer, NumDaysToLeaveOnServer,
+                       "num_days_to_leave_on_server")
 
+NS_IMPL_SERVERPREF_BOOL(nsPop3IncomingServer, DeferGetNewMail,
+                        "defer_get_new_mail")
 
-NS_IMPL_SERVERPREF_BOOL(nsPop3IncomingServer,
-                            DeferGetNewMail,
-                            "defer_get_new_mail")
-
-NS_IMETHODIMP nsPop3IncomingServer::GetDeferredToAccount(nsACString& aRetVal)
-{
+NS_IMETHODIMP nsPop3IncomingServer::GetDeferredToAccount(nsACString &aRetVal) {
   nsresult rv = GetCharValue("deferred_to_account", aRetVal);
-  if (aRetVal.IsEmpty())
-    return rv;
+  if (aRetVal.IsEmpty()) return rv;
   // We need to repair broken profiles that defer to hidden or invalid servers,
   // so find out if the deferred to account has a valid non-hidden server, and
   // if not, defer to the local folders inbox.
   nsCOMPtr<nsIMsgAccountManager> acctMgr =
-                      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID);
+      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID);
   bool invalidAccount = true;
-  if (acctMgr)
-  {
+  if (acctMgr) {
     nsCOMPtr<nsIMsgAccount> account;
     nsCOMPtr<nsIMsgIncomingServer> server;
     rv = acctMgr->GetAccount(aRetVal, getter_AddRefs(account));
-    if (account)
-    {
+    if (account) {
       account->GetIncomingServer(getter_AddRefs(server));
-      if (server)
-        server->GetHidden(&invalidAccount);
+      if (server) server->GetHidden(&invalidAccount);
     }
-    if (invalidAccount)
-    {
+    if (invalidAccount) {
       nsCOMPtr<nsIMsgIncomingServer> localServer;
       nsCOMPtr<nsIMsgAccount> localAccount;
 
@@ -132,14 +107,12 @@ NS_IMETHODIMP nsPop3IncomingServer::GetDeferredToAccount(nsACString& aRetVal)
       NS_ENSURE_SUCCESS(rv, rv);
       // Try to copy any folders that have been stranded in the hidden account
       // into the local folders account.
-      if (server)
-      {
+      if (server) {
         nsCOMPtr<nsIMsgFolder> hiddenRootFolder;
         nsCOMPtr<nsIMsgFolder> localFoldersRoot;
         server->GetRootFolder(getter_AddRefs(hiddenRootFolder));
         localServer->GetRootFolder(getter_AddRefs(localFoldersRoot));
-        if (hiddenRootFolder && localFoldersRoot)
-        {
+        if (hiddenRootFolder && localFoldersRoot) {
           // We're going to iterate over the folders in Local Folders-1,
           // though I suspect only the Inbox will have messages. I don't
           // think Sent Mail could end up here, but if any folders have
@@ -147,32 +120,27 @@ NS_IMETHODIMP nsPop3IncomingServer::GetDeferredToAccount(nsACString& aRetVal)
           // account.
           nsCOMPtr<nsISimpleEnumerator> enumerator;
           rv = hiddenRootFolder->GetSubFolders(getter_AddRefs(enumerator));
-          if (NS_SUCCEEDED(rv))
-          {
+          if (NS_SUCCEEDED(rv)) {
             bool hasMore;
             while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMore)) &&
-                   hasMore)
-            {
+                   hasMore) {
               nsCOMPtr<nsISupports> item;
               enumerator->GetNext(getter_AddRefs(item));
               nsCOMPtr<nsIMsgFolder> subFolder(do_QueryInterface(item));
-              if (subFolder)
-              {
+              if (subFolder) {
                 nsCOMPtr<nsIMsgDatabase> subFolderDB;
                 subFolder->GetMsgDatabase(getter_AddRefs(subFolderDB));
-                if (subFolderDB)
-                {
+                if (subFolderDB) {
                   // Copy any messages in this sub-folder of the hidden
                   // account to the corresponding folder in Local Folders.
                   RefPtr<nsMsgKeyArray> keys = new nsMsgKeyArray;
                   rv = subFolderDB->ListAllKeys(keys);
-                  nsCOMPtr<nsIMutableArray> hdrsToCopy(do_CreateInstance(NS_ARRAY_CONTRACTID));
+                  nsCOMPtr<nsIMutableArray> hdrsToCopy(
+                      do_CreateInstance(NS_ARRAY_CONTRACTID));
                   MsgGetHeadersFromKeys(subFolderDB, keys->m_keys, hdrsToCopy);
                   uint32_t numHdrs = 0;
-                  if (hdrsToCopy)
-                    hdrsToCopy->GetLength(&numHdrs);
-                  if (numHdrs)
-                  {
+                  if (hdrsToCopy) hdrsToCopy->GetLength(&numHdrs);
+                  if (numHdrs) {
                     // Look for a folder with the same name in Local Folders.
                     nsCOMPtr<nsIMsgFolder> dest;
                     nsString folderName;
@@ -180,8 +148,8 @@ NS_IMETHODIMP nsPop3IncomingServer::GetDeferredToAccount(nsACString& aRetVal)
                     localFoldersRoot->GetChildNamed(folderName,
                                                     getter_AddRefs(dest));
                     if (dest)
-                      dest->CopyMessages(subFolder, hdrsToCopy, false,
-                                         nullptr, nullptr, false,false);
+                      dest->CopyMessages(subFolder, hdrsToCopy, false, nullptr,
+                                         nullptr, false, false);
                     // Should we copy the folder if the dest doesn't exist?
                   }
                 }
@@ -190,10 +158,10 @@ NS_IMETHODIMP nsPop3IncomingServer::GetDeferredToAccount(nsACString& aRetVal)
           }
         }
       }
-      rv = acctMgr->FindAccountForServer(localServer, getter_AddRefs(localAccount));
+      rv = acctMgr->FindAccountForServer(localServer,
+                                         getter_AddRefs(localAccount));
       NS_ENSURE_SUCCESS(rv, rv);
-      if (!localAccount)
-        return NS_ERROR_NOT_AVAILABLE;
+      if (!localAccount) return NS_ERROR_NOT_AVAILABLE;
 
       localAccount->GetKey(aRetVal);
       // Can't call SetDeferredToAccount because it calls GetDeferredToAccount.
@@ -203,63 +171,58 @@ NS_IMETHODIMP nsPop3IncomingServer::GetDeferredToAccount(nsACString& aRetVal)
   return rv;
 }
 
-NS_IMETHODIMP nsPop3IncomingServer::SetDeferredToAccount(const nsACString& aAccountKey)
-{
+NS_IMETHODIMP nsPop3IncomingServer::SetDeferredToAccount(
+    const nsACString &aAccountKey) {
   nsCString deferredToAccount;
   GetDeferredToAccount(deferredToAccount);
-  m_rootMsgFolder = nullptr; // clear this so we'll recalculate it on demand.
-  //Notify listeners who listen to every folder
+  m_rootMsgFolder = nullptr;  // clear this so we'll recalculate it on demand.
+  // Notify listeners who listen to every folder
 
-  nsresult rv =  SetCharValue("deferred_to_account", aAccountKey);
+  nsresult rv = SetCharValue("deferred_to_account", aAccountKey);
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIFolderListener> folderListenerManager =
-           do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
-  if (NS_SUCCEEDED(rv))
-  {
-
+      do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+  if (NS_SUCCEEDED(rv)) {
     nsCOMPtr<nsIMsgFolder> rootFolder;
     // use GetRootFolder, because that returns the real
     // root, not the deferred to root.
     rv = GetRootFolder(getter_AddRefs(rootFolder));
-    if (rootFolder)
-    {
+    if (rootFolder) {
       // if isDeferred state has changed, send notification
-      if (aAccountKey.IsEmpty() != deferredToAccount.IsEmpty())
-      {
-        folderListenerManager->OnItemBoolPropertyChanged(rootFolder, kIsDeferred,
-                  !deferredToAccount.IsEmpty(), deferredToAccount.IsEmpty());
-        folderListenerManager->OnItemBoolPropertyChanged(rootFolder, kCanFileMessages,
-                  deferredToAccount.IsEmpty(), !deferredToAccount.IsEmpty());
+      if (aAccountKey.IsEmpty() != deferredToAccount.IsEmpty()) {
+        folderListenerManager->OnItemBoolPropertyChanged(
+            rootFolder, kIsDeferred, !deferredToAccount.IsEmpty(),
+            deferredToAccount.IsEmpty());
+        folderListenerManager->OnItemBoolPropertyChanged(
+            rootFolder, kCanFileMessages, deferredToAccount.IsEmpty(),
+            !deferredToAccount.IsEmpty());
 
         // this hack causes the account manager ds to send notifications to the
         // xul content builder that make the changed acct appear or disappear
         // from the folder pane and related menus.
         nsCOMPtr<nsIMsgAccountManager> acctMgr =
-                            do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID);
-        if (acctMgr)
-        {
+            do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID);
+        if (acctMgr) {
           acctMgr->NotifyServerUnloaded(this);
           acctMgr->NotifyServerLoaded(this);
-          // check if this newly deferred to account is the local folders account
-          // and needs to have a newly created INBOX.
-          if (!aAccountKey.IsEmpty())
-          {
-            nsCOMPtr <nsIMsgAccount> account;
+          // check if this newly deferred to account is the local folders
+          // account and needs to have a newly created INBOX.
+          if (!aAccountKey.IsEmpty()) {
+            nsCOMPtr<nsIMsgAccount> account;
             acctMgr->GetAccount(aAccountKey, getter_AddRefs(account));
-            if (account)
-            {
-              nsCOMPtr <nsIMsgIncomingServer> server;
+            if (account) {
+              nsCOMPtr<nsIMsgIncomingServer> server;
               account->GetIncomingServer(getter_AddRefs(server));
-              if (server)
-              {
-                nsCOMPtr <nsILocalMailIncomingServer> incomingLocalServer = do_QueryInterface(server);
-                if (incomingLocalServer)
-                {
-                  nsCOMPtr <nsIMsgFolder> rootFolder;
+              if (server) {
+                nsCOMPtr<nsILocalMailIncomingServer> incomingLocalServer =
+                    do_QueryInterface(server);
+                if (incomingLocalServer) {
+                  nsCOMPtr<nsIMsgFolder> rootFolder;
                   rv = server->GetRootFolder(getter_AddRefs(rootFolder));
                   NS_ENSURE_SUCCESS(rv, rv);
                   // this will fail if it already exists, which is fine.
-                  rootFolder->CreateSubfolder(NS_LITERAL_STRING("Inbox"), nullptr);
+                  rootFolder->CreateSubfolder(NS_LITERAL_STRING("Inbox"),
+                                              nullptr);
                 }
               }
             }
@@ -271,64 +234,55 @@ NS_IMETHODIMP nsPop3IncomingServer::SetDeferredToAccount(const nsACString& aAcco
   return rv;
 }
 
-//NS_IMPL_GETSET(nsPop3IncomingServer, Authenticated, bool, m_authenticated);
+// NS_IMPL_GETSET(nsPop3IncomingServer, Authenticated, bool, m_authenticated);
 
-NS_IMETHODIMP nsPop3IncomingServer::GetAuthenticated(bool *aAuthenticated)
-{
+NS_IMETHODIMP nsPop3IncomingServer::GetAuthenticated(bool *aAuthenticated) {
   NS_ENSURE_ARG_POINTER(aAuthenticated);
   *aAuthenticated = m_authenticated;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsPop3IncomingServer::SetAuthenticated(bool aAuthenticated)
-{
+NS_IMETHODIMP nsPop3IncomingServer::SetAuthenticated(bool aAuthenticated) {
   m_authenticated = aAuthenticated;
   return NS_OK;
 }
 
-nsresult
-nsPop3IncomingServer::GetPop3CapabilityFlags(uint32_t *flags)
-{
+nsresult nsPop3IncomingServer::GetPop3CapabilityFlags(uint32_t *flags) {
   *flags = m_capabilityFlags;
   return NS_OK;
 }
 
-nsresult
-nsPop3IncomingServer::SetPop3CapabilityFlags(uint32_t flags)
-{
+nsresult nsPop3IncomingServer::SetPop3CapabilityFlags(uint32_t flags) {
   m_capabilityFlags = flags;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsPop3IncomingServer::GetRootMsgFolder(nsIMsgFolder **aRootMsgFolder)
-{
+nsPop3IncomingServer::GetRootMsgFolder(nsIMsgFolder **aRootMsgFolder) {
   NS_ENSURE_ARG_POINTER(aRootMsgFolder);
   nsresult rv = NS_OK;
-  if (!m_rootMsgFolder)
-  {
+  if (!m_rootMsgFolder) {
     nsCString deferredToAccount;
     GetDeferredToAccount(deferredToAccount);
-    if (deferredToAccount.IsEmpty())
-    {
+    if (deferredToAccount.IsEmpty()) {
       rv = CreateRootFolder();
       m_rootMsgFolder = m_rootFolder;
-    }
-    else
-    {
-      nsCOMPtr <nsIMsgAccountManager> accountManager = do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
-      NS_ENSURE_SUCCESS(rv,rv);
-      nsCOMPtr <nsIMsgAccount> account;
-      rv = accountManager->GetAccount(deferredToAccount, getter_AddRefs(account));
-      NS_ENSURE_SUCCESS(rv,rv);
-      if (account)
-      {
-        nsCOMPtr <nsIMsgIncomingServer> incomingServer;
+    } else {
+      nsCOMPtr<nsIMsgAccountManager> accountManager =
+          do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      NS_ENSURE_SUCCESS(rv, rv);
+      nsCOMPtr<nsIMsgAccount> account;
+      rv = accountManager->GetAccount(deferredToAccount,
+                                      getter_AddRefs(account));
+      NS_ENSURE_SUCCESS(rv, rv);
+      if (account) {
+        nsCOMPtr<nsIMsgIncomingServer> incomingServer;
         rv = account->GetIncomingServer(getter_AddRefs(incomingServer));
-        NS_ENSURE_SUCCESS(rv,rv);
+        NS_ENSURE_SUCCESS(rv, rv);
         // make sure we're not deferred to ourself...
         if (incomingServer && incomingServer != this)
-          rv = incomingServer->GetRootMsgFolder(getter_AddRefs(m_rootMsgFolder));
+          rv =
+              incomingServer->GetRootMsgFolder(getter_AddRefs(m_rootMsgFolder));
         else
           rv = NS_ERROR_FAILURE;
       }
@@ -339,35 +293,32 @@ nsPop3IncomingServer::GetRootMsgFolder(nsIMsgFolder **aRootMsgFolder)
   return m_rootMsgFolder ? rv : NS_ERROR_FAILURE;
 }
 
-nsresult nsPop3IncomingServer::GetInbox(nsIMsgWindow *msgWindow, nsIMsgFolder **inbox)
-{
+nsresult nsPop3IncomingServer::GetInbox(nsIMsgWindow *msgWindow,
+                                        nsIMsgFolder **inbox) {
   NS_ENSURE_ARG_POINTER(inbox);
   nsCOMPtr<nsIMsgFolder> rootFolder;
   nsresult rv = GetRootMsgFolder(getter_AddRefs(rootFolder));
-  if(NS_SUCCEEDED(rv) && rootFolder)
-  {
+  if (NS_SUCCEEDED(rv) && rootFolder) {
     rootFolder->GetFolderWithFlags(nsMsgFolderFlags::Inbox, inbox);
   }
 
   nsCOMPtr<nsIMsgLocalMailFolder> localInbox = do_QueryInterface(*inbox, &rv);
-  if (NS_SUCCEEDED(rv) && localInbox)
-  {
-    nsCOMPtr <nsIMsgDatabase> db;
+  if (NS_SUCCEEDED(rv) && localInbox) {
+    nsCOMPtr<nsIMsgDatabase> db;
     rv = (*inbox)->GetMsgDatabase(getter_AddRefs(db));
-    if (NS_FAILED(rv))
-    {
+    if (NS_FAILED(rv)) {
       (*inbox)->SetMsgDatabase(nullptr);
-      (void) localInbox->SetCheckForNewMessagesAfterParsing(true);
+      (void)localInbox->SetCheckForNewMessagesAfterParsing(true);
       // this will cause a reparse of the mail folder.
-      localInbox->GetDatabaseWithReparse(nullptr, msgWindow, getter_AddRefs(db));
+      localInbox->GetDatabaseWithReparse(nullptr, msgWindow,
+                                         getter_AddRefs(db));
       rv = NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE;
     }
   }
   return rv;
 }
 
-NS_IMETHODIMP nsPop3IncomingServer::PerformBiff(nsIMsgWindow *aMsgWindow)
-{
+NS_IMETHODIMP nsPop3IncomingServer::PerformBiff(nsIMsgWindow *aMsgWindow) {
   nsresult rv;
   nsCOMPtr<nsIPop3Service> pop3Service(do_GetService(kCPop3ServiceCID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -380,10 +331,9 @@ NS_IMETHODIMP nsPop3IncomingServer::PerformBiff(nsIMsgWindow *aMsgWindow)
 
   rootMsgFolder->GetFolderWithFlags(nsMsgFolderFlags::Inbox,
                                     getter_AddRefs(inbox));
-  if (!inbox)
-    return NS_ERROR_FAILURE;
+  if (!inbox) return NS_ERROR_FAILURE;
 
-  nsCOMPtr <nsIMsgIncomingServer> server;
+  nsCOMPtr<nsIMsgIncomingServer> server;
   inbox->GetServer(getter_AddRefs(server));
 
   server->SetPerformingBiff(true);
@@ -392,53 +342,49 @@ NS_IMETHODIMP nsPop3IncomingServer::PerformBiff(nsIMsgWindow *aMsgWindow)
 
   bool downloadOnBiff = false;
   rv = GetDownloadOnBiff(&downloadOnBiff);
-  if (downloadOnBiff)
-  {
-    nsCOMPtr <nsIMsgLocalMailFolder> localInbox = do_QueryInterface(inbox, &rv);
-    if (localInbox && NS_SUCCEEDED(rv))
-    {
+  if (downloadOnBiff) {
+    nsCOMPtr<nsIMsgLocalMailFolder> localInbox = do_QueryInterface(inbox, &rv);
+    if (localInbox && NS_SUCCEEDED(rv)) {
       bool valid = false;
-      nsCOMPtr <nsIMsgDatabase> db;
+      nsCOMPtr<nsIMsgDatabase> db;
       rv = inbox->GetMsgDatabase(getter_AddRefs(db));
-      if (NS_SUCCEEDED(rv) && db)
-        rv = db->GetSummaryValid(&valid);
+      if (NS_SUCCEEDED(rv) && db) rv = db->GetSummaryValid(&valid);
       if (NS_SUCCEEDED(rv) && valid)
-        rv = pop3Service->GetNewMail(aMsgWindow, urlListener, inbox, this, nullptr);
-      else
-      {
+        rv = pop3Service->GetNewMail(aMsgWindow, urlListener, inbox, this,
+                                     nullptr);
+      else {
         bool isLocked;
         inbox->GetLocked(&isLocked);
         if (!isLocked)
-          rv = localInbox->GetDatabaseWithReparse(urlListener, aMsgWindow, getter_AddRefs(db));
+          rv = localInbox->GetDatabaseWithReparse(urlListener, aMsgWindow,
+                                                  getter_AddRefs(db));
         if (NS_SUCCEEDED(rv))
           rv = localInbox->SetCheckForNewMessagesAfterParsing(true);
       }
     }
-  }
-  else
-    rv = pop3Service->CheckForNewMail(aMsgWindow, urlListener, inbox, this, nullptr);
+  } else
+    rv = pop3Service->CheckForNewMail(aMsgWindow, urlListener, inbox, this,
+                                      nullptr);
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsPop3IncomingServer::SetFlagsOnDefaultMailboxes()
-{
+nsPop3IncomingServer::SetFlagsOnDefaultMailboxes() {
   nsCOMPtr<nsIMsgFolder> rootFolder;
   nsresult rv = GetRootFolder(getter_AddRefs(rootFolder));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIMsgLocalMailFolder> localFolder = do_QueryInterface(rootFolder, &rv);
+  nsCOMPtr<nsIMsgLocalMailFolder> localFolder =
+      do_QueryInterface(rootFolder, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // pop3 gets an inbox, but no queue (unsent messages)
   localFolder->SetFlagsOnDefaultMailboxes(nsMsgFolderFlags::SpecialUse &
-                                         ~nsMsgFolderFlags::Queue);
+                                          ~nsMsgFolderFlags::Queue);
   return NS_OK;
 }
 
-
-NS_IMETHODIMP nsPop3IncomingServer::CreateDefaultMailboxes()
-{
+NS_IMETHODIMP nsPop3IncomingServer::CreateDefaultMailboxes() {
   nsresult rv = CreateLocalFolder(NS_LITERAL_STRING("Inbox"));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -449,8 +395,8 @@ NS_IMETHODIMP nsPop3IncomingServer::CreateDefaultMailboxes()
 // filed to them, which will remove them as targets of all the move/copy
 // menu items.
 NS_IMETHODIMP
-nsPop3IncomingServer::GetCanFileMessagesOnServer(bool *aCanFileMessagesOnServer)
-{
+nsPop3IncomingServer::GetCanFileMessagesOnServer(
+    bool *aCanFileMessagesOnServer) {
   NS_ENSURE_ARG_POINTER(aCanFileMessagesOnServer);
 
   nsCString deferredToAccount;
@@ -459,10 +405,9 @@ nsPop3IncomingServer::GetCanFileMessagesOnServer(bool *aCanFileMessagesOnServer)
   return NS_OK;
 }
 
-
 NS_IMETHODIMP
-nsPop3IncomingServer::GetCanCreateFoldersOnServer(bool *aCanCreateFoldersOnServer)
-{
+nsPop3IncomingServer::GetCanCreateFoldersOnServer(
+    bool *aCanCreateFoldersOnServer) {
   NS_ENSURE_ARG_POINTER(aCanCreateFoldersOnServer);
 
   nsCString deferredToAccount;
@@ -473,77 +418,72 @@ nsPop3IncomingServer::GetCanCreateFoldersOnServer(bool *aCanCreateFoldersOnServe
 
 NS_IMETHODIMP
 nsPop3IncomingServer::VerifyLogon(nsIUrlListener *aUrlListener,
-                                  nsIMsgWindow *aMsgWindow, nsIURI **aURL)
-{
+                                  nsIMsgWindow *aMsgWindow, nsIURI **aURL) {
   nsresult rv;
   nsCOMPtr<nsIPop3Service> pop3Service = do_GetService(kCPop3ServiceCID, &rv);
-  NS_ENSURE_SUCCESS(rv,rv);
+  NS_ENSURE_SUCCESS(rv, rv);
   return pop3Service->VerifyLogon(this, aUrlListener, aMsgWindow, aURL);
 }
 
-NS_IMETHODIMP nsPop3IncomingServer::DownloadMailFromServers(nsIPop3IncomingServer** aServers,
-                              uint32_t aCount,
-                              nsIMsgWindow *aMsgWindow,
-                              nsIMsgFolder *aFolder,
-                              nsIUrlListener *aUrlListener)
-{
+NS_IMETHODIMP nsPop3IncomingServer::DownloadMailFromServers(
+    nsIPop3IncomingServer **aServers, uint32_t aCount, nsIMsgWindow *aMsgWindow,
+    nsIMsgFolder *aFolder, nsIUrlListener *aUrlListener) {
   RefPtr<nsPop3GetMailChainer> getMailChainer = new nsPop3GetMailChainer;
-  return getMailChainer->GetNewMailForServers(aServers, aCount, aMsgWindow, aFolder, aUrlListener);
+  return getMailChainer->GetNewMailForServers(aServers, aCount, aMsgWindow,
+                                              aFolder, aUrlListener);
 }
 
 NS_IMETHODIMP nsPop3IncomingServer::GetNewMail(nsIMsgWindow *aMsgWindow,
                                                nsIUrlListener *aUrlListener,
                                                nsIMsgFolder *aInbox,
-                                               nsIURI **aResult)
-{
+                                               nsIURI **aResult) {
   nsresult rv;
   nsCOMPtr<nsIPop3Service> pop3Service = do_GetService(kCPop3ServiceCID, &rv);
-  NS_ENSURE_SUCCESS(rv,rv);
-  return pop3Service->GetNewMail(aMsgWindow, aUrlListener, aInbox, this, aResult);
+  NS_ENSURE_SUCCESS(rv, rv);
+  return pop3Service->GetNewMail(aMsgWindow, aUrlListener, aInbox, this,
+                                 aResult);
 }
 
-// user has clicked get new messages on this server. If other servers defer to this server,
-// we need to get new mail for them. But if this server defers to an other server,
-// I think we only get new mail for this server.
+// user has clicked get new messages on this server. If other servers defer to
+// this server, we need to get new mail for them. But if this server defers to
+// an other server, I think we only get new mail for this server.
 NS_IMETHODIMP
-nsPop3IncomingServer::GetNewMessages(nsIMsgFolder *aFolder, nsIMsgWindow *aMsgWindow,
-                      nsIUrlListener *aUrlListener)
-{
+nsPop3IncomingServer::GetNewMessages(nsIMsgFolder *aFolder,
+                                     nsIMsgWindow *aMsgWindow,
+                                     nsIUrlListener *aUrlListener) {
   nsresult rv;
 
   nsCOMPtr<nsIPop3Service> pop3Service = do_GetService(kCPop3ServiceCID, &rv);
-  NS_ENSURE_SUCCESS(rv,rv);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr <nsIMsgFolder> inbox;
+  nsCOMPtr<nsIMsgFolder> inbox;
   rv = GetInbox(aMsgWindow, getter_AddRefs(inbox));
   NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr <nsIURI> url;
-  nsCOMPtr <nsIMsgIncomingServer> server;
+  nsCOMPtr<nsIURI> url;
+  nsCOMPtr<nsIMsgIncomingServer> server;
   nsCOMArray<nsIPop3IncomingServer> deferredServers;
   nsCString deferredToAccount;
   GetDeferredToAccount(deferredToAccount);
 
-  if (deferredToAccount.IsEmpty())
-  {
+  if (deferredToAccount.IsEmpty()) {
     aFolder->GetServer(getter_AddRefs(server));
     GetDeferredServers(server, deferredServers);
   }
-  if (deferredToAccount.IsEmpty() && !deferredServers.IsEmpty())
-  {
+  if (deferredToAccount.IsEmpty() && !deferredServers.IsEmpty()) {
     RefPtr<nsPop3GetMailChainer> getMailChainer = new nsPop3GetMailChainer;
     deferredServers.InsertElementAt(0, this);
-    return getMailChainer->GetNewMailForServers(deferredServers.Elements(),
-          deferredServers.Length(), aMsgWindow, inbox, aUrlListener);
+    return getMailChainer->GetNewMailForServers(
+        deferredServers.Elements(), deferredServers.Length(), aMsgWindow, inbox,
+        aUrlListener);
   }
-  if (m_runningProtocol)
-    return NS_MSG_FOLDER_BUSY;
+  if (m_runningProtocol) return NS_MSG_FOLDER_BUSY;
 
-  return pop3Service->GetNewMail(aMsgWindow, aUrlListener, inbox, this, getter_AddRefs(url));
+  return pop3Service->GetNewMail(aMsgWindow, aUrlListener, inbox, this,
+                                 getter_AddRefs(url));
 }
 
 NS_IMETHODIMP
-nsPop3IncomingServer::GetDownloadMessagesAtStartup(bool *getMessagesAtStartup)
-{
+nsPop3IncomingServer::GetDownloadMessagesAtStartup(bool *getMessagesAtStartup) {
   NS_ENSURE_ARG_POINTER(getMessagesAtStartup);
   // GetMessages is not automatically done for pop servers at startup.
   // We need to trigger that action. Return true.
@@ -552,32 +492,27 @@ nsPop3IncomingServer::GetDownloadMessagesAtStartup(bool *getMessagesAtStartup)
 }
 
 NS_IMETHODIMP
-nsPop3IncomingServer::GetCanBeDefaultServer(bool *canBeDefaultServer)
-{
+nsPop3IncomingServer::GetCanBeDefaultServer(bool *canBeDefaultServer) {
   NS_ENSURE_ARG_POINTER(canBeDefaultServer);
   *canBeDefaultServer = true;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsPop3IncomingServer::GetCanSearchMessages(bool *canSearchMessages)
-{
+nsPop3IncomingServer::GetCanSearchMessages(bool *canSearchMessages) {
   // this will return false if this server is deferred, which is what we want.
   return GetCanFileMessagesOnServer(canSearchMessages);
 }
 
 NS_IMETHODIMP
-nsPop3IncomingServer::CloseCachedConnections()
-{
+nsPop3IncomingServer::CloseCachedConnections() {
   nsCOMPtr<nsIRequest> channel = do_QueryInterface(m_runningProtocol);
-  if (channel)
-    channel->Cancel(NS_ERROR_ABORT);
+  if (channel) channel->Cancel(NS_ERROR_ABORT);
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsPop3IncomingServer::GetOfflineSupportLevel(int32_t *aSupportLevel)
-{
+nsPop3IncomingServer::GetOfflineSupportLevel(int32_t *aSupportLevel) {
   NS_ENSURE_ARG_POINTER(aSupportLevel);
 
   nsresult rv;
@@ -590,22 +525,21 @@ nsPop3IncomingServer::GetOfflineSupportLevel(int32_t *aSupportLevel)
 }
 
 NS_IMETHODIMP
-nsPop3IncomingServer::SetRunningProtocol(nsIPop3Protocol *aProtocol)
-{
+nsPop3IncomingServer::SetRunningProtocol(nsIPop3Protocol *aProtocol) {
   NS_ASSERTION(!aProtocol || !m_runningProtocol, "overriding running protocol");
   m_runningProtocol = aProtocol;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsPop3IncomingServer::GetRunningProtocol(nsIPop3Protocol **aProtocol)
-{
+NS_IMETHODIMP nsPop3IncomingServer::GetRunningProtocol(
+    nsIPop3Protocol **aProtocol) {
   NS_ENSURE_ARG_POINTER(aProtocol);
   NS_IF_ADDREF(*aProtocol = m_runningProtocol);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsPop3IncomingServer::AddUidlToMark(const char *aUidl, int32_t aMark)
-{
+NS_IMETHODIMP nsPop3IncomingServer::AddUidlToMark(const char *aUidl,
+                                                  int32_t aMark) {
   NS_ENSURE_ARG_POINTER(aUidl);
 
   Pop3UidlEntry *uidlEntry = PR_NEWZAP(Pop3UidlEntry);
@@ -617,19 +551,18 @@ NS_IMETHODIMP nsPop3IncomingServer::AddUidlToMark(const char *aUidl, int32_t aMa
     return NS_ERROR_OUT_OF_MEMORY;
   }
 
-  uidlEntry->status = (aMark == POP3_DELETE) ? DELETE_CHAR :
-                      (aMark == POP3_FETCH_BODY) ? FETCH_BODY : KEEP;
+  uidlEntry->status = (aMark == POP3_DELETE)
+                          ? DELETE_CHAR
+                          : (aMark == POP3_FETCH_BODY) ? FETCH_BODY : KEEP;
   m_uidlsToMark.AppendElement(uidlEntry);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsPop3IncomingServer::MarkMessages()
-{
+NS_IMETHODIMP nsPop3IncomingServer::MarkMessages() {
   nsresult rv;
   if (m_runningProtocol)
     rv = m_runningProtocol->MarkMessages(&m_uidlsToMark);
-  else
-  {
+  else {
     nsCString hostName;
     nsCString userName;
     nsCOMPtr<nsIFile> localPath;
@@ -639,11 +572,11 @@ NS_IMETHODIMP nsPop3IncomingServer::MarkMessages()
     GetHostName(hostName);
     GetUsername(userName);
     // do it all in one fell swoop
-    rv = nsPop3Protocol::MarkMsgForHost(hostName.get(), userName.get(), localPath, m_uidlsToMark);
+    rv = nsPop3Protocol::MarkMsgForHost(hostName.get(), userName.get(),
+                                        localPath, m_uidlsToMark);
   }
   uint32_t count = m_uidlsToMark.Length();
-  for (uint32_t i = 0; i < count; i++)
-  {
+  for (uint32_t i = 0; i < count; i++) {
     Pop3UidlEntry *ue = m_uidlsToMark[i];
     PR_Free(ue->uidl);
     PR_Free(ue);
@@ -654,32 +587,28 @@ NS_IMETHODIMP nsPop3IncomingServer::MarkMessages()
 
 NS_IMPL_ISUPPORTS(nsPop3GetMailChainer, nsIUrlListener)
 
-nsPop3GetMailChainer::nsPop3GetMailChainer()
-{
-}
-nsPop3GetMailChainer::~nsPop3GetMailChainer()
-{
-}
+nsPop3GetMailChainer::nsPop3GetMailChainer() {}
+nsPop3GetMailChainer::~nsPop3GetMailChainer() {}
 
-nsresult nsPop3GetMailChainer::GetNewMailForServers(nsIPop3IncomingServer** servers,
-                                uint32_t count, nsIMsgWindow *msgWindow,
-                                nsIMsgFolder *folderToDownloadTo, nsIUrlListener *listener)
-{
+nsresult nsPop3GetMailChainer::GetNewMailForServers(
+    nsIPop3IncomingServer **servers, uint32_t count, nsIMsgWindow *msgWindow,
+    nsIMsgFolder *folderToDownloadTo, nsIUrlListener *listener) {
   NS_ENSURE_ARG_POINTER(folderToDownloadTo);
 
   m_serversToGetNewMailFor.AppendElements(servers, count);
   m_folderToDownloadTo = folderToDownloadTo;
   m_downloadingMsgWindow = msgWindow;
   m_listener = listener;
-  nsCOMPtr <nsIMsgDatabase> destFolderDB;
+  nsCOMPtr<nsIMsgDatabase> destFolderDB;
 
-  nsresult rv = folderToDownloadTo->GetMsgDatabase(getter_AddRefs(destFolderDB));
-  if (NS_FAILED(rv) || !destFolderDB)
-  {
-    nsCOMPtr <nsIMsgLocalMailFolder> localFolder = do_QueryInterface(folderToDownloadTo);
-    if (localFolder)
-    {
-      localFolder->GetDatabaseWithReparse(this, msgWindow, getter_AddRefs(destFolderDB));
+  nsresult rv =
+      folderToDownloadTo->GetMsgDatabase(getter_AddRefs(destFolderDB));
+  if (NS_FAILED(rv) || !destFolderDB) {
+    nsCOMPtr<nsIMsgLocalMailFolder> localFolder =
+        do_QueryInterface(folderToDownloadTo);
+    if (localFolder) {
+      localFolder->GetDatabaseWithReparse(this, msgWindow,
+                                          getter_AddRefs(destFolderDB));
       return NS_OK;
     }
   }
@@ -687,46 +616,40 @@ nsresult nsPop3GetMailChainer::GetNewMailForServers(nsIPop3IncomingServer** serv
 }
 
 NS_IMETHODIMP
-nsPop3GetMailChainer::OnStartRunningUrl(nsIURI *url)
-{
-  return NS_OK;
-}
+nsPop3GetMailChainer::OnStartRunningUrl(nsIURI *url) { return NS_OK; }
 
 NS_IMETHODIMP
-nsPop3GetMailChainer::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode)
-{
+nsPop3GetMailChainer::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode) {
   return RunNextGetNewMail();
 }
 
-nsresult nsPop3GetMailChainer::RunNextGetNewMail()
-{
+nsresult nsPop3GetMailChainer::RunNextGetNewMail() {
   nsresult rv;
   uint32_t numServersLeft = m_serversToGetNewMailFor.Count();
 
-  for (; numServersLeft > 0;)
-  {
+  for (; numServersLeft > 0;) {
     nsCOMPtr<nsIPop3IncomingServer> popServer(m_serversToGetNewMailFor[0]);
     m_serversToGetNewMailFor.RemoveObjectAt(0);
     numServersLeft--;
-    if (popServer)
-    {
+    if (popServer) {
       bool deferGetNewMail = false;
-      nsCOMPtr <nsIMsgIncomingServer> downloadingToServer;
+      nsCOMPtr<nsIMsgIncomingServer> downloadingToServer;
       m_folderToDownloadTo->GetServer(getter_AddRefs(downloadingToServer));
       popServer->GetDeferGetNewMail(&deferGetNewMail);
       nsCOMPtr<nsIMsgIncomingServer> server = do_QueryInterface(popServer);
       nsCOMPtr<nsIPop3Protocol> protocol;
       popServer->GetRunningProtocol(getter_AddRefs(protocol));
-      if ((deferGetNewMail || downloadingToServer == server) && !protocol)
-      {
+      if ((deferGetNewMail || downloadingToServer == server) && !protocol) {
         // have to call routine that just gets mail for one server,
         // and ignores deferred servers...
-        if (server)
-        {
-          nsCOMPtr <nsIURI> url;
-          nsCOMPtr<nsIPop3Service> pop3Service = do_GetService(kCPop3ServiceCID, &rv);
-          NS_ENSURE_SUCCESS(rv,rv);
-          return pop3Service->GetNewMail(m_downloadingMsgWindow, this, m_folderToDownloadTo, popServer, getter_AddRefs(url));
+        if (server) {
+          nsCOMPtr<nsIURI> url;
+          nsCOMPtr<nsIPop3Service> pop3Service =
+              do_GetService(kCPop3ServiceCID, &rv);
+          NS_ENSURE_SUCCESS(rv, rv);
+          return pop3Service->GetNewMail(m_downloadingMsgWindow, this,
+                                         m_folderToDownloadTo, popServer,
+                                         getter_AddRefs(url));
         }
       }
     }

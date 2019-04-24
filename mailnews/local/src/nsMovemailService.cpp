@@ -3,13 +3,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include <unistd.h>    // for link(), used in spool-file locking
+#include <unistd.h>  // for link(), used in spool-file locking
 
 #include "prenv.h"
-#include "private/pprio.h"     // for our kernel-based locking
+#include "private/pprio.h"  // for our kernel-based locking
 #include "nspr.h"
 
-#include "msgCore.h"    // precompiled header...
+#include "msgCore.h"  // precompiled header...
 
 #include "nsMovemailService.h"
 #include "nsIMovemailService.h"
@@ -41,24 +41,21 @@
 static mozilla::LazyLogModule gMovemailLog("Movemail");
 #define LOG(args) MOZ_LOG(gMovemailLog, mozilla::LogLevel::Debug, args)
 
-#define PREF_MAIL_ROOT_MOVEMAIL "mail.root.movemail"            // old - for backward compatibility only
+#define PREF_MAIL_ROOT_MOVEMAIL \
+  "mail.root.movemail"  // old - for backward compatibility only
 #define PREF_MAIL_ROOT_MOVEMAIL_REL "mail.root.movemail-rel"
 
 #define LOCK_SUFFIX ".lock"
 #define MOZLOCK_SUFFIX ".mozlock"
 
-const char * gDefaultSpoolPaths[] = {
-  "/var/spool/mail/",
-  "/usr/spool/mail/",
-  "/var/mail/",
-  "/usr/mail/"
-};
-#define NUM_DEFAULT_SPOOL_PATHS (sizeof(gDefaultSpoolPaths)/sizeof(gDefaultSpoolPaths[0]))
+const char *gDefaultSpoolPaths[] = {"/var/spool/mail/", "/usr/spool/mail/",
+                                    "/var/mail/", "/usr/mail/"};
+#define NUM_DEFAULT_SPOOL_PATHS \
+  (sizeof(gDefaultSpoolPaths) / sizeof(gDefaultSpoolPaths[0]))
 
 namespace {
-class MOZ_STACK_CLASS SpoolLock
-{
-public:
+class MOZ_STACK_CLASS SpoolLock {
+ public:
   /**
    * Try to create a lock for the spool file while we operate on it.
    *
@@ -74,7 +71,7 @@ public:
 
   bool isLocked();
 
-private:
+ private:
   bool mLocked;
   nsCString mSpoolName;
   bool mUsingLockFile;
@@ -85,59 +82,46 @@ private:
   bool YieldSpoolLock();
 };
 
-}
+}  // namespace
 
-nsMovemailService::nsMovemailService()
-{
+nsMovemailService::nsMovemailService() {
   LOG(("nsMovemailService created: 0x%p\n", this));
 }
 
-nsMovemailService::~nsMovemailService()
-{}
+nsMovemailService::~nsMovemailService() {}
 
-
-NS_IMPL_ISUPPORTS(nsMovemailService,
-                   nsIMovemailService,
-                   nsIMsgProtocolInfo)
-
+NS_IMPL_ISUPPORTS(nsMovemailService, nsIMovemailService, nsIMsgProtocolInfo)
 
 NS_IMETHODIMP
-nsMovemailService::CheckForNewMail(nsIUrlListener * aUrlListener,
+nsMovemailService::CheckForNewMail(nsIUrlListener *aUrlListener,
                                    nsIMsgFolder *inbox,
                                    nsIMovemailIncomingServer *movemailServer,
-                                   nsIURI ** aURL)
-{
+                                   nsIURI **aURL) {
   nsresult rv = NS_OK;
   LOG(("nsMovemailService::CheckForNewMail\n"));
   return rv;
 }
 
-void
-nsMovemailService::Error(const char* errorCode,
-                         const char16_t **params,
-                         uint32_t length)
-{
+void nsMovemailService::Error(const char *errorCode, const char16_t **params,
+                              uint32_t length) {
   if (!mMsgWindow) return;
 
   nsCOMPtr<nsIPrompt> dialog;
   nsresult rv = mMsgWindow->GetPromptDialog(getter_AddRefs(dialog));
-  if (NS_FAILED(rv))
-    return;
+  if (NS_FAILED(rv)) return;
 
   nsCOMPtr<nsIStringBundleService> bundleService =
-    mozilla::services::GetStringBundleService();
-  if (!bundleService)
-    return;
+      mozilla::services::GetStringBundleService();
+  if (!bundleService) return;
   nsCOMPtr<nsIStringBundle> bundle;
-  rv = bundleService->CreateBundle("chrome://messenger/locale/localMsgs.properties", getter_AddRefs(bundle));
-  if (NS_FAILED(rv))
-    return;
+  rv = bundleService->CreateBundle(
+      "chrome://messenger/locale/localMsgs.properties", getter_AddRefs(bundle));
+  if (NS_FAILED(rv)) return;
 
   nsString errStr;
   // Format the error string if necessary
   if (params)
-    bundle->FormatStringFromName(errorCode,
-                                 params, length, errStr);
+    bundle->FormatStringFromName(errorCode, params, length, errStr);
   else
     bundle->GetStringFromName(errorCode, errStr);
 
@@ -149,15 +133,14 @@ nsMovemailService::Error(const char* errorCode,
 SpoolLock::SpoolLock(nsACString *aSpoolName, int aSeconds,
                      nsMovemailService &aMovemail,
                      nsIMsgIncomingServer *aServer)
-: mLocked(false),
-  mSpoolName(*aSpoolName),
-  mOwningService(&aMovemail),
-  mServer(aServer)
-{
+    : mLocked(false),
+      mSpoolName(*aSpoolName),
+      mOwningService(&aMovemail),
+      mServer(aServer) {
   if (!ObtainSpoolLock(aSeconds)) {
     NS_ConvertUTF8toUTF16 lockFile(mSpoolName);
     lockFile.AppendLiteral(LOCK_SUFFIX);
-    const char16_t* params[] = { lockFile.get() };
+    const char16_t *params[] = {lockFile.get()};
     mOwningService->Error("movemailCantCreateLock", params, 1);
     return;
   }
@@ -169,20 +152,16 @@ SpoolLock::~SpoolLock() {
   if (mLocked && !YieldSpoolLock()) {
     NS_ConvertUTF8toUTF16 lockFile(mSpoolName);
     lockFile.AppendLiteral(LOCK_SUFFIX);
-    const char16_t* params[] = { lockFile.get() };
+    const char16_t *params[] = {lockFile.get()};
     mOwningService->Error("movemailCantDeleteLock", params, 1);
   }
   mServer->SetServerBusy(false);
 }
 
-bool
-SpoolLock::isLocked() {
-  return mLocked;
-}
+bool SpoolLock::isLocked() { return mLocked; }
 
-bool
-SpoolLock::ObtainSpoolLock(unsigned int aSeconds /* number of seconds to retry */)
-{
+bool SpoolLock::ObtainSpoolLock(
+    unsigned int aSeconds /* number of seconds to retry */) {
   /*
    * Locking procedures:
    * If the directory is not writable, we want to use the appropriate system
@@ -193,9 +172,8 @@ SpoolLock::ObtainSpoolLock(unsigned int aSeconds /* number of seconds to retry *
    * the customary .lock file.
    */
   nsCOMPtr<nsIFile> spoolFile;
-  nsresult rv = NS_NewNativeLocalFile(mSpoolName,
-                                      true,
-                                      getter_AddRefs(spoolFile));
+  nsresult rv =
+      NS_NewNativeLocalFile(mSpoolName, true, getter_AddRefs(spoolFile));
   NS_ENSURE_SUCCESS(rv, false);
 
   nsCOMPtr<nsIFile> directory;
@@ -220,7 +198,7 @@ SpoolLock::ObtainSpoolLock(unsigned int aSeconds /* number of seconds to retry *
       LOG(("Attempt %d of %d to lock file", retry_count, aSeconds));
       if (aSeconds > 0 && lock_result == PR_FAILURE) {
         // pause 1sec, waiting for .lock to go away
-        PRIntervalTime sleepTime = 1000; // 1 second
+        PRIntervalTime sleepTime = 1000;  // 1 second
         PR_Sleep(sleepTime);
       }
     } while (lock_result == PR_FAILURE && retry_count < aSeconds);
@@ -276,7 +254,7 @@ SpoolLock::ObtainSpoolLock(unsigned int aSeconds /* number of seconds to retry *
 
     if (aSeconds > 0 && link_result == -1) {
       // pause 1sec, waiting for .lock to go away
-      PRIntervalTime sleepTime = 1000; // 1 second
+      PRIntervalTime sleepTime = 1000;  // 1 second
       PR_Sleep(sleepTime);
     }
   } while (link_result == -1 && retry_count < aSeconds);
@@ -294,21 +272,18 @@ SpoolLock::ObtainSpoolLock(unsigned int aSeconds /* number of seconds to retry *
   return link_result == 0;
 }
 
-
 /**
  * Remove our mail-spool-file lock (n.b. we should only try this if
- * we're the ones who made the lock in the first place! I.e. if mLocked is true.)
+ * we're the ones who made the lock in the first place! I.e. if mLocked is
+ * true.)
  */
-bool
-SpoolLock::YieldSpoolLock()
-{
+bool SpoolLock::YieldSpoolLock() {
   LOG(("YieldSpoolLock(%s)", mSpoolName.get()));
 
   if (!mUsingLockFile) {
     nsCOMPtr<nsIFile> spoolFile;
-    nsresult rv = NS_NewNativeLocalFile(mSpoolName,
-                                        true,
-                                        getter_AddRefs(spoolFile));
+    nsresult rv =
+        NS_NewNativeLocalFile(mSpoolName, true, getter_AddRefs(spoolFile));
     NS_ENSURE_SUCCESS(rv, false);
 
     PRFileDesc *fd;
@@ -317,8 +292,7 @@ SpoolLock::YieldSpoolLock()
 
     bool unlockSucceeded = PR_UnlockFile(fd) == PR_SUCCESS;
     PR_Close(fd);
-    if (unlockSucceeded)
-      LOG(("YieldSpoolLock was successful."));
+    if (unlockSucceeded) LOG(("YieldSpoolLock was successful."));
     return unlockSucceeded;
   }
 
@@ -349,9 +323,7 @@ SpoolLock::YieldSpoolLock()
   return true;
 }
 
-static nsresult
-LocateSpoolFile(nsACString & spoolPath)
-{
+static nsresult LocateSpoolFile(nsACString &spoolPath) {
   bool isFile;
   nsresult rv;
 
@@ -359,19 +331,16 @@ LocateSpoolFile(nsACString & spoolPath)
   rv = NS_NewNativeLocalFile(EmptyCString(), true, getter_AddRefs(spoolFile));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  char * mailEnv = PR_GetEnv("MAIL");
-  char * userEnv = PR_GetEnv("USER");
-  if (!userEnv)
-    userEnv = PR_GetEnv("USERNAME");
+  char *mailEnv = PR_GetEnv("MAIL");
+  char *userEnv = PR_GetEnv("USER");
+  if (!userEnv) userEnv = PR_GetEnv("USERNAME");
 
   if (mailEnv) {
     rv = spoolFile->InitWithNativePath(nsDependentCString(mailEnv));
     NS_ENSURE_SUCCESS(rv, rv);
     rv = spoolFile->IsFile(&isFile);
-    if (NS_SUCCEEDED(rv) && isFile)
-      spoolPath = mailEnv;
-  }
-  else if (userEnv) {
+    if (NS_SUCCEEDED(rv) && isFile) spoolPath = mailEnv;
+  } else if (userEnv) {
     // Try to build the mailbox path from the username and a number
     // of guessed spool directory paths.
     nsAutoCString tmpPath;
@@ -392,13 +361,10 @@ LocateSpoolFile(nsACString & spoolPath)
   return rv;
 }
 
-nsresult
-nsMovemailService::GetNewMail(nsIMsgWindow *aMsgWindow,
-                              nsIUrlListener* /* aUrlListener */,
-                              nsIMsgFolder* /* aMsgFolder */,
-                              nsIMovemailIncomingServer *aMovemailServer,
-                              nsIURI ** /* aURL */)
-{
+nsresult nsMovemailService::GetNewMail(
+    nsIMsgWindow *aMsgWindow, nsIUrlListener * /* aUrlListener */,
+    nsIMsgFolder * /* aMsgFolder */, nsIMovemailIncomingServer *aMovemailServer,
+    nsIURI ** /* aURL */) {
   LOG(("nsMovemailService::GetNewMail"));
 
   NS_ENSURE_ARG_POINTER(aMovemailServer);
@@ -410,20 +376,19 @@ nsMovemailService::GetNewMail(nsIMsgWindow *aMsgWindow,
   nsCOMPtr<nsIMsgIncomingServer> in_server =
       do_QueryInterface(aMovemailServer, &rv);
   NS_ENSURE_TRUE(NS_SUCCEEDED(rv) && in_server,
-    NS_MSG_INVALID_OR_MISSING_SERVER);
+                 NS_MSG_INVALID_OR_MISSING_SERVER);
 
   // Attempt to locate the mail spool file
   nsAutoCString spoolPath;
   rv = in_server->GetCharValue("spoolDir", spoolPath);
-  if (NS_FAILED(rv) || spoolPath.IsEmpty())
-    rv = LocateSpoolFile(spoolPath);
+  if (NS_FAILED(rv) || spoolPath.IsEmpty()) rv = LocateSpoolFile(spoolPath);
   if (NS_FAILED(rv) || spoolPath.IsEmpty()) {
     Error("movemailSpoolFileNotFound", nullptr, 0);
     return NS_ERROR_FAILURE;
   }
 
   NS_ConvertUTF8toUTF16 wideSpoolPath(spoolPath);
-  const char16_t* spoolPathString[] = { wideSpoolPath.get() };
+  const char16_t *spoolPathString[] = {wideSpoolPath.get()};
 
   // Create an input stream for the spool file
   nsCOMPtr<nsIFile> spoolFile;
@@ -438,7 +403,7 @@ nsMovemailService::GetNewMail(nsIMsgWindow *aMsgWindow,
 
   // Get a line input interface for the spool file
   nsCOMPtr<nsILineInputStream> lineInputStream =
-    do_QueryInterface(spoolInputStream, &rv);
+      do_QueryInterface(spoolInputStream, &rv);
   NS_ENSURE_TRUE(NS_SUCCEEDED(rv) && lineInputStream, rv);
 
   nsCOMPtr<nsIMsgFolder> serverFolder;
@@ -460,8 +425,7 @@ nsMovemailService::GetNewMail(nsIMsgWindow *aMsgWindow,
 
   // Try and obtain the lock for the spool file.
   SpoolLock lock(&spoolPath, 5, *this, in_server);
-  if (!lock.isLocked())
-    return NS_ERROR_FAILURE;
+  if (!lock.isLocked()) return NS_ERROR_FAILURE;
 
   nsCOMPtr<nsIMsgDBHdr> newHdr;
   nsCOMPtr<nsIOutputStream> outputStream;
@@ -470,9 +434,7 @@ nsMovemailService::GetNewMail(nsIMsgWindow *aMsgWindow,
   bool isMore = true;
   nsAutoCString buffer;
   uint32_t bytesWritten = 0;
-  while (isMore &&
-         NS_SUCCEEDED(lineInputStream->ReadLine(buffer, &isMore)))
-  {
+  while (isMore && NS_SUCCEEDED(lineInputStream->ReadLine(buffer, &isMore))) {
     // If first string is empty and we're now at EOF then abort parsing.
     if (buffer.IsEmpty() && !isMore && !bytesWritten) {
       LOG(("Empty spool file"));
@@ -492,11 +454,12 @@ nsMovemailService::GetNewMail(nsIMsgWindow *aMsgWindow,
       }
       bool reusable;
       rv = msgStore->GetNewMsgOutputStream(inbox, getter_AddRefs(newHdr),
-                                           &reusable, getter_AddRefs(outputStream));
+                                           &reusable,
+                                           getter_AddRefs(outputStream));
       NS_ENSURE_SUCCESS(rv, rv);
 
-      rv = newMailParser->Init(serverFolder, inbox,
-                               nullptr, newHdr, outputStream);
+      rv = newMailParser->Init(serverFolder, inbox, nullptr, newHdr,
+                               outputStream);
       NS_ENSURE_SUCCESS(rv, rv);
     }
     if (!outputStream) {
@@ -545,17 +508,15 @@ nsMovemailService::GetNewMail(nsIMsgWindow *aMsgWindow,
   return rv;
 }
 
-
 NS_IMETHODIMP
-nsMovemailService::SetDefaultLocalPath(nsIFile *aPath)
-{
+nsMovemailService::SetDefaultLocalPath(nsIFile *aPath) {
   NS_ENSURE_ARG(aPath);
-  return NS_SetPersistentFile(PREF_MAIL_ROOT_MOVEMAIL_REL, PREF_MAIL_ROOT_MOVEMAIL, aPath);
+  return NS_SetPersistentFile(PREF_MAIL_ROOT_MOVEMAIL_REL,
+                              PREF_MAIL_ROOT_MOVEMAIL, aPath);
 }
 
 NS_IMETHODIMP
-nsMovemailService::GetDefaultLocalPath(nsIFile ** aResult)
-{
+nsMovemailService::GetDefaultLocalPath(nsIFile **aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   *aResult = nullptr;
 
@@ -563,10 +524,8 @@ nsMovemailService::GetDefaultLocalPath(nsIFile ** aResult)
   bool havePref;
   nsCOMPtr<nsIFile> localFile;
   rv = NS_GetPersistentFile(PREF_MAIL_ROOT_MOVEMAIL_REL,
-                            PREF_MAIL_ROOT_MOVEMAIL,
-                            NS_APP_MAIL_50_DIR,
-                            havePref,
-                            getter_AddRefs(localFile));
+                            PREF_MAIL_ROOT_MOVEMAIL, NS_APP_MAIL_50_DIR,
+                            havePref, getter_AddRefs(localFile));
   if (NS_FAILED(rv)) return rv;
 
   bool exists;
@@ -576,7 +535,8 @@ nsMovemailService::GetDefaultLocalPath(nsIFile ** aResult)
   if (NS_FAILED(rv)) return rv;
 
   if (!havePref || !exists) {
-    rv = NS_SetPersistentFile(PREF_MAIL_ROOT_MOVEMAIL_REL, PREF_MAIL_ROOT_MOVEMAIL, localFile);
+    rv = NS_SetPersistentFile(PREF_MAIL_ROOT_MOVEMAIL_REL,
+                              PREF_MAIL_ROOT_MOVEMAIL, localFile);
     NS_ASSERTION(NS_SUCCEEDED(rv), "Failed to set root dir pref.");
   }
 
@@ -584,73 +544,64 @@ nsMovemailService::GetDefaultLocalPath(nsIFile ** aResult)
   return NS_OK;
 }
 
-
 NS_IMETHODIMP
-nsMovemailService::GetServerIID(nsIID* *aServerIID)
-{
+nsMovemailService::GetServerIID(nsIID **aServerIID) {
   *aServerIID = new nsIID(NS_GET_IID(nsIMovemailIncomingServer));
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMovemailService::GetRequiresUsername(bool *aRequiresUsername)
-{
+nsMovemailService::GetRequiresUsername(bool *aRequiresUsername) {
   NS_ENSURE_ARG_POINTER(aRequiresUsername);
   *aRequiresUsername = false;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMovemailService::GetPreflightPrettyNameWithEmailAddress(bool *aPreflightPrettyNameWithEmailAddress)
-{
+nsMovemailService::GetPreflightPrettyNameWithEmailAddress(
+    bool *aPreflightPrettyNameWithEmailAddress) {
   NS_ENSURE_ARG_POINTER(aPreflightPrettyNameWithEmailAddress);
   *aPreflightPrettyNameWithEmailAddress = true;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMovemailService::GetCanLoginAtStartUp(bool *aCanLoginAtStartUp)
-{
+nsMovemailService::GetCanLoginAtStartUp(bool *aCanLoginAtStartUp) {
   NS_ENSURE_ARG_POINTER(aCanLoginAtStartUp);
   *aCanLoginAtStartUp = true;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMovemailService::GetCanDelete(bool *aCanDelete)
-{
+nsMovemailService::GetCanDelete(bool *aCanDelete) {
   NS_ENSURE_ARG_POINTER(aCanDelete);
   *aCanDelete = true;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMovemailService::GetCanGetMessages(bool *aCanGetMessages)
-{
+nsMovemailService::GetCanGetMessages(bool *aCanGetMessages) {
   NS_ENSURE_ARG_POINTER(aCanGetMessages);
   *aCanGetMessages = true;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMovemailService::GetCanGetIncomingMessages(bool *aCanGetIncomingMessages)
-{
+nsMovemailService::GetCanGetIncomingMessages(bool *aCanGetIncomingMessages) {
   NS_ENSURE_ARG_POINTER(aCanGetIncomingMessages);
   *aCanGetIncomingMessages = true;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMovemailService::GetCanDuplicate(bool *aCanDuplicate)
-{
+nsMovemailService::GetCanDuplicate(bool *aCanDuplicate) {
   NS_ENSURE_ARG_POINTER(aCanDuplicate);
   *aCanDuplicate = false;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMovemailService::GetDefaultDoBiff(bool *aDoBiff)
-{
+nsMovemailService::GetDefaultDoBiff(bool *aDoBiff) {
   NS_ENSURE_ARG_POINTER(aDoBiff);
   // by default, do biff for movemail
   *aDoBiff = true;
@@ -658,24 +609,21 @@ nsMovemailService::GetDefaultDoBiff(bool *aDoBiff)
 }
 
 NS_IMETHODIMP
-nsMovemailService::GetDefaultServerPort(bool isSecure, int32_t *aDefaultPort)
-{
+nsMovemailService::GetDefaultServerPort(bool isSecure, int32_t *aDefaultPort) {
   NS_ENSURE_ARG_POINTER(aDefaultPort);
   *aDefaultPort = -1;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMovemailService::GetShowComposeMsgLink(bool *showComposeMsgLink)
-{
+nsMovemailService::GetShowComposeMsgLink(bool *showComposeMsgLink) {
   NS_ENSURE_ARG_POINTER(showComposeMsgLink);
   *showComposeMsgLink = true;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMovemailService::GetFoldersCreatedAsync(bool *aAsyncCreation)
-{
+nsMovemailService::GetFoldersCreatedAsync(bool *aAsyncCreation) {
   NS_ENSURE_ARG_POINTER(aAsyncCreation);
   *aAsyncCreation = false;
   return NS_OK;

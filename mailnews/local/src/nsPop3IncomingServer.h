@@ -23,7 +23,7 @@ class nsPop3IncomingServer : public nsMailboxServer,
                              public nsILocalMailIncomingServer
 
 {
-public:
+ public:
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIPOP3INCOMINGSERVER
   NS_DECL_NSILOCALMAILINCOMINGSERVER
@@ -37,23 +37,25 @@ public:
   NS_IMETHOD GetOfflineSupportLevel(int32_t *aSupportLevel) override;
   NS_IMETHOD CloseCachedConnections() override;
   NS_IMETHOD GetRootMsgFolder(nsIMsgFolder **aRootMsgFolder) override;
-  NS_IMETHOD GetCanFileMessagesOnServer(bool *aCanFileMessagesOnServer) override;
-  NS_IMETHOD GetCanCreateFoldersOnServer(bool *aCanCreateFoldersOnServer) override;
+  NS_IMETHOD GetCanFileMessagesOnServer(
+      bool *aCanFileMessagesOnServer) override;
+  NS_IMETHOD GetCanCreateFoldersOnServer(
+      bool *aCanCreateFoldersOnServer) override;
   NS_IMETHOD VerifyLogon(nsIUrlListener *aUrlListener, nsIMsgWindow *aMsgWindow,
                          nsIURI **aURL) override;
   NS_IMETHOD GetNewMessages(nsIMsgFolder *aFolder, nsIMsgWindow *aMsgWindow,
                             nsIUrlListener *aUrlListener) override;
 
-protected:
+ protected:
   virtual ~nsPop3IncomingServer();
   nsresult GetInbox(nsIMsgWindow *msgWindow, nsIMsgFolder **inbox);
 
-private:
+ private:
   uint32_t m_capabilityFlags;
   bool m_authenticated;
-  nsCOMPtr <nsIPop3Protocol> m_runningProtocol;
-  nsCOMPtr <nsIMsgFolder> m_rootMsgFolder;
-  nsTArray<Pop3UidlEntry*> m_uidlsToMark;
+  nsCOMPtr<nsIPop3Protocol> m_runningProtocol;
+  nsCOMPtr<nsIMsgFolder> m_rootMsgFolder;
+  nsTArray<Pop3UidlEntry *> m_uidlsToMark;
 };
 
 #endif

@@ -13,18 +13,17 @@
 #include "nsIMsgProtocolInfo.h"
 #include "nsIMsgWindow.h"
 
-class nsMovemailService : public nsIMsgProtocolInfo, public nsIMovemailService
-{
-public:
+class nsMovemailService : public nsIMsgProtocolInfo, public nsIMovemailService {
+ public:
   nsMovemailService();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMOVEMAILSERVICE
   NS_DECL_NSIMSGPROTOCOLINFO
 
-  void Error(const char* errorCode, const char16_t **params, uint32_t length);
+  void Error(const char* errorCode, const char16_t** params, uint32_t length);
 
-private:
+ private:
   virtual ~nsMovemailService();
   nsCOMPtr<nsIMsgWindow> mMsgWindow;
 };

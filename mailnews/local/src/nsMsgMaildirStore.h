@@ -15,18 +15,18 @@
 #include "nsIFile.h"
 #include "nsMsgMessageFlags.h"
 
-class nsMsgMaildirStore final : public nsMsgLocalStoreUtils, nsIMsgPluggableStore
-{
-public:
+class nsMsgMaildirStore final : public nsMsgLocalStoreUtils,
+                                nsIMsgPluggableStore {
+ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGPLUGGABLESTORE
 
   nsMsgMaildirStore();
 
-private:
+ private:
   ~nsMsgMaildirStore();
 
-protected:
+ protected:
   nsresult GetDirectoryForFolder(nsIFile *path);
   nsresult CreateDirectoryForFolder(nsIFile *path, bool aIsServer);
 
@@ -34,6 +34,5 @@ protected:
   nsresult AddSubFolders(nsIMsgFolder *parent, nsIFile *path, bool deep);
   nsresult GetOutputStream(nsIMsgDBHdr *aHdr,
                            nsCOMPtr<nsIOutputStream> &aOutputStream);
-
 };
 #endif

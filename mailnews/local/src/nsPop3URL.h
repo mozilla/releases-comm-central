@@ -10,14 +10,13 @@
 #include "nsMsgMailNewsUrl.h"
 #include "nsCOMPtr.h"
 
-class nsPop3URL : public nsIPop3URL, public nsMsgMailNewsUrl
-{
-public:
+class nsPop3URL : public nsIPop3URL, public nsMsgMailNewsUrl {
+ public:
   NS_DECL_NSIPOP3URL
   nsPop3URL();
   NS_DECL_ISUPPORTS_INHERITED
 
-protected:
+ protected:
   virtual ~nsPop3URL();
 
   nsCString m_messageUri;
@@ -26,4 +25,4 @@ protected:
   nsCOMPtr<nsIPop3Sink> m_pop3Sink;
 };
 
-#endif // nsPop3URL_h__
+#endif  // nsPop3URL_h__

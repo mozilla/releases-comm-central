@@ -19,67 +19,63 @@
 
 class nsLocalUndoFolderListener;
 
-class nsLocalMoveCopyMsgTxn : public nsIFolderListener, public nsMsgTxn
-{
-public:
-    nsLocalMoveCopyMsgTxn();
-    NS_DECL_ISUPPORTS_INHERITED
-    NS_DECL_NSIFOLDERLISTENER
+class nsLocalMoveCopyMsgTxn : public nsIFolderListener, public nsMsgTxn {
+ public:
+  nsLocalMoveCopyMsgTxn();
+  NS_DECL_ISUPPORTS_INHERITED
+  NS_DECL_NSIFOLDERLISTENER
 
-    // overloading nsITransaction methods
-    NS_IMETHOD UndoTransaction(void) override;
-    NS_IMETHOD RedoTransaction(void) override;
+  // overloading nsITransaction methods
+  NS_IMETHOD UndoTransaction(void) override;
+  NS_IMETHOD RedoTransaction(void) override;
 
-    // helper
-    nsresult AddSrcKey(nsMsgKey aKey);
-    nsresult AddSrcStatusOffset(uint32_t statusOffset);
-    nsresult AddDstKey(nsMsgKey aKey);
-    nsresult AddDstMsgSize(uint32_t msgSize);
-    nsresult SetSrcFolder(nsIMsgFolder* srcFolder);
-    nsresult GetSrcIsImap(bool *isImap);
-    nsresult SetDstFolder(nsIMsgFolder* dstFolder);
-    nsresult Init(nsIMsgFolder* srcFolder,
-                  nsIMsgFolder* dstFolder, bool isMove);
-    nsresult UndoImapDeleteFlag(nsIMsgFolder* aFolder,
-                                nsTArray<nsMsgKey>& aKeyArray,
-                                bool deleteFlag);
-    nsresult UndoTransactionInternal();
-    // If the store using this undo transaction can "undelete" a message,
-    // it will call this function on the transaction; This makes undo/redo
-    // easy because message keys don't change after undo/redo. Otherwise,
-    // we need to adjust the src or dst keys after every undo/redo action
-    // to note the new keys.
-    void SetCanUndelete(bool canUndelete) {m_canUndelete = canUndelete;}
+  // helper
+  nsresult AddSrcKey(nsMsgKey aKey);
+  nsresult AddSrcStatusOffset(uint32_t statusOffset);
+  nsresult AddDstKey(nsMsgKey aKey);
+  nsresult AddDstMsgSize(uint32_t msgSize);
+  nsresult SetSrcFolder(nsIMsgFolder* srcFolder);
+  nsresult GetSrcIsImap(bool* isImap);
+  nsresult SetDstFolder(nsIMsgFolder* dstFolder);
+  nsresult Init(nsIMsgFolder* srcFolder, nsIMsgFolder* dstFolder, bool isMove);
+  nsresult UndoImapDeleteFlag(nsIMsgFolder* aFolder,
+                              nsTArray<nsMsgKey>& aKeyArray, bool deleteFlag);
+  nsresult UndoTransactionInternal();
+  // If the store using this undo transaction can "undelete" a message,
+  // it will call this function on the transaction; This makes undo/redo
+  // easy because message keys don't change after undo/redo. Otherwise,
+  // we need to adjust the src or dst keys after every undo/redo action
+  // to note the new keys.
+  void SetCanUndelete(bool canUndelete) { m_canUndelete = canUndelete; }
 
-private:
-    virtual ~nsLocalMoveCopyMsgTxn();
-    nsWeakPtr m_srcFolder;
-    nsTArray<nsMsgKey> m_srcKeyArray; // used when src is local or imap
-    nsTArray<uint32_t> m_srcStatusOffsetArray; // used when src is local
-    nsWeakPtr m_dstFolder;
-    nsTArray<nsMsgKey> m_dstKeyArray;
-    bool m_isMove;
-    bool m_srcIsImap4;
-    bool m_canUndelete;
-    nsTArray<uint32_t> m_dstSizeArray;
-    bool m_undoing; // if false, re-doing
-    uint32_t m_numHdrsCopied;
-    nsTArray<nsCString> m_copiedMsgIds;
-    nsLocalUndoFolderListener *mUndoFolderListener;
+ private:
+  virtual ~nsLocalMoveCopyMsgTxn();
+  nsWeakPtr m_srcFolder;
+  nsTArray<nsMsgKey> m_srcKeyArray;           // used when src is local or imap
+  nsTArray<uint32_t> m_srcStatusOffsetArray;  // used when src is local
+  nsWeakPtr m_dstFolder;
+  nsTArray<nsMsgKey> m_dstKeyArray;
+  bool m_isMove;
+  bool m_srcIsImap4;
+  bool m_canUndelete;
+  nsTArray<uint32_t> m_dstSizeArray;
+  bool m_undoing;  // if false, re-doing
+  uint32_t m_numHdrsCopied;
+  nsTArray<nsCString> m_copiedMsgIds;
+  nsLocalUndoFolderListener* mUndoFolderListener;
 };
 
-class nsLocalUndoFolderListener : public nsIFolderListener
-{
-public:
+class nsLocalUndoFolderListener : public nsIFolderListener {
+ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIFOLDERLISTENER
 
-  nsLocalUndoFolderListener(nsLocalMoveCopyMsgTxn *aTxn, nsIMsgFolder *aFolder);
+  nsLocalUndoFolderListener(nsLocalMoveCopyMsgTxn* aTxn, nsIMsgFolder* aFolder);
 
-private:
+ private:
   virtual ~nsLocalUndoFolderListener();
-  nsLocalMoveCopyMsgTxn *mTxn;
-  nsIMsgFolder *mFolder;
+  nsLocalMoveCopyMsgTxn* mTxn;
+  nsIMsgFolder* mFolder;
 };
 
 #endif

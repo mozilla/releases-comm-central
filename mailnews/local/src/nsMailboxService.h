@@ -18,10 +18,11 @@
 #include "nsIUrlListener.h"
 #include "nsIProtocolHandler.h"
 
-class nsMailboxService : public nsIMailboxService, public nsIMsgMessageService, public nsIMsgMessageFetchPartService, public nsIProtocolHandler
-{
-public:
-
+class nsMailboxService : public nsIMailboxService,
+                         public nsIMsgMessageService,
+                         public nsIMsgMessageFetchPartService,
+                         public nsIProtocolHandler {
+ public:
   nsMailboxService();
 
   NS_DECL_ISUPPORTS
@@ -30,27 +31,29 @@ public:
   NS_DECL_NSIMSGMESSAGEFETCHPARTSERVICE
   NS_DECL_NSIPROTOCOLHANDLER
 
-protected:
+ protected:
   virtual ~nsMailboxService();
-  bool          mPrintingOperation;
+  bool mPrintingOperation;
 
   // helper functions used by the service
-  nsresult PrepareMessageUrl(const char * aSrcMsgMailboxURI, nsIUrlListener * aUrlListener,
-                 nsMailboxAction aMailboxAction, nsIMailboxUrl ** aMailboxUrl,
-                 nsIMsgWindow *msgWindow);
+  nsresult PrepareMessageUrl(const char *aSrcMsgMailboxURI,
+                             nsIUrlListener *aUrlListener,
+                             nsMailboxAction aMailboxAction,
+                             nsIMailboxUrl **aMailboxUrl,
+                             nsIMsgWindow *msgWindow);
 
-  nsresult RunMailboxUrl(nsIURI * aMailboxUrl, nsISupports * aDisplayConsumer = nullptr);
+  nsresult RunMailboxUrl(nsIURI *aMailboxUrl,
+                         nsISupports *aDisplayConsumer = nullptr);
 
-  nsresult FetchMessage(const char* aMessageURI,
-                        nsISupports * aDisplayConsumer,
-                        nsIMsgWindow * aMsgWindow,
-                        nsIUrlListener * aUrlListener,
-                        const char * aFileName, /* only used by open attachment */
-                        nsMailboxAction mailboxAction,
-                        const char * aCharsetOverride,
-                        nsIURI ** aURL);
+  nsresult FetchMessage(
+      const char *aMessageURI, nsISupports *aDisplayConsumer,
+      nsIMsgWindow *aMsgWindow, nsIUrlListener *aUrlListener,
+      const char *aFileName, /* only used by open attachment */
+      nsMailboxAction mailboxAction, const char *aCharsetOverride,
+      nsIURI **aURL);
 
-  nsresult DecomposeMailboxURI(const char * aMessageURI, nsIMsgFolder ** aFolder, nsMsgKey *aMsgKey);
+  nsresult DecomposeMailboxURI(const char *aMessageURI, nsIMsgFolder **aFolder,
+                               nsMsgKey *aMsgKey);
 };
 
 #endif /* nsMailboxService_h___ */

@@ -19,30 +19,26 @@
 /**
  * Utility Class for handling local mail stores. Berkeley Mailbox
  * and MailDir stores inherit from this class to share some code.
-*/
+ */
 
-class nsMsgLocalStoreUtils
-{
-public:
+class nsMsgLocalStoreUtils {
+ public:
   nsMsgLocalStoreUtils();
 
   static nsresult AddDirectorySeparator(nsIFile *path);
-  static bool nsShouldIgnoreFile(nsAString& name);
-  static void ChangeKeywordsHelper(nsIMsgDBHdr *message,
-                            uint64_t desiredOffset,
-                            nsLineBuffer<char> *lineBuffer,
-                            nsTArray<nsCString> &keywordArray,
-                            bool aAdd,
-                            nsIOutputStream *outputStream,
-                            nsISeekableStream *seekableStream,
-                            nsIInputStream *inputStream);
+  static bool nsShouldIgnoreFile(nsAString &name);
+  static void ChangeKeywordsHelper(nsIMsgDBHdr *message, uint64_t desiredOffset,
+                                   nsLineBuffer<char> *lineBuffer,
+                                   nsTArray<nsCString> &keywordArray, bool aAdd,
+                                   nsIOutputStream *outputStream,
+                                   nsISeekableStream *seekableStream,
+                                   nsIInputStream *inputStream);
   static void ResetForceReparse(nsIMsgDatabase *aMsgDB);
 
   nsresult UpdateFolderFlag(nsIMsgDBHdr *mailHdr, bool bSet,
                             nsMsgMessageFlagType flag,
                             nsIOutputStream *fileStream);
-  bool DiskSpaceAvailableInStore(nsIFile *aFile,
-                                 uint64_t aSpaceRequested);
+  bool DiskSpaceAvailableInStore(nsIFile *aFile, uint64_t aSpaceRequested);
 };
 
 #endif

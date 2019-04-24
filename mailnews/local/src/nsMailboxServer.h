@@ -9,14 +9,14 @@
 #include "mozilla/Attributes.h"
 #include "nsMsgIncomingServer.h"
 
-class nsMailboxServer : public nsMsgIncomingServer
-{
-public:
+class nsMailboxServer : public nsMsgIncomingServer {
+ public:
   NS_IMETHOD GetLocalStoreType(nsACString& type) override;
   NS_IMETHOD GetLocalDatabaseType(nsACString& type) override;
-protected:
-  virtual nsresult CreateRootFolderFromUri(const nsCString &serverUri,
-                                           nsIMsgFolder **rootFolder) override;
+
+ protected:
+  virtual nsresult CreateRootFolderFromUri(const nsCString& serverUri,
+                                           nsIMsgFolder** rootFolder) override;
 };
 
 #endif

@@ -22,19 +22,19 @@
 // - cache the last hostname->path match
 // - if no such server exists, behave like an old-style mailbox URL
 // (i.e. return the mail.directory preference or something)
-static nsresult
-nsGetMailboxServer(const char *uriStr, nsIMsgIncomingServer** aResult)
-{
+static nsresult nsGetMailboxServer(const char* uriStr,
+                                   nsIMsgIncomingServer** aResult) {
   nsresult rv = NS_OK;
 
   nsCOMPtr<nsIURL> url;
-  rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID).SetSpec(nsDependentCString(uriStr))
-                                                     .Finalize(url);
+  rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
+           .SetSpec(nsDependentCString(uriStr))
+           .Finalize(url);
   if (NS_FAILED(rv)) return rv;
 
   // retrieve the AccountManager
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-    do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
   if (NS_FAILED(rv)) return rv;
 
   // find all local mail "no servers" matching the given hostname
@@ -43,8 +43,7 @@ nsGetMailboxServer(const char *uriStr, nsIMsgIncomingServer** aResult)
   NS_ENSURE_SUCCESS(rv, rv);
   // No unescaping of username or hostname done here.
   // The unescaping is done inside of FindServerByURI
-  rv = accountManager->FindServerByURI(url, false,
-                                  getter_AddRefs(none_server));
+  rv = accountManager->FindServerByURI(url, false, getter_AddRefs(none_server));
   if (NS_SUCCEEDED(rv)) {
     none_server.forget(aResult);
     return rv;
@@ -54,20 +53,19 @@ nsGetMailboxServer(const char *uriStr, nsIMsgIncomingServer** aResult)
   nsCOMPtr<nsIMsgIncomingServer> rss_server;
   rv = NS_MutateURI(url).SetScheme(NS_LITERAL_CSTRING("rss")).Finalize(url);
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = accountManager->FindServerByURI(url, false,
-                                  getter_AddRefs(rss_server));
-  if (NS_SUCCEEDED(rv))
-  {
-     rss_server.forget(aResult);
-     return rv;
+  rv = accountManager->FindServerByURI(url, false, getter_AddRefs(rss_server));
+  if (NS_SUCCEEDED(rv)) {
+    rss_server.forget(aResult);
+    return rv;
   }
 #ifdef HAVE_MOVEMAIL
   // find all movemail "servers" matching the given hostname
   nsCOMPtr<nsIMsgIncomingServer> movemail_server;
-  rv = NS_MutateURI(url).SetScheme(NS_LITERAL_CSTRING("movemail")).Finalize(url);
+  rv =
+      NS_MutateURI(url).SetScheme(NS_LITERAL_CSTRING("movemail")).Finalize(url);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = accountManager->FindServerByURI(url, false,
-                                  getter_AddRefs(movemail_server));
+                                       getter_AddRefs(movemail_server));
   if (NS_SUCCEEDED(rv)) {
     movemail_server.forget(aResult);
     return rv;
@@ -76,37 +74,32 @@ nsGetMailboxServer(const char *uriStr, nsIMsgIncomingServer** aResult)
 
   // if that fails, look for the pop hosts matching the given hostname
   nsCOMPtr<nsIMsgIncomingServer> server;
-  if (NS_FAILED(rv))
-  {
+  if (NS_FAILED(rv)) {
     rv = NS_MutateURI(url).SetScheme(NS_LITERAL_CSTRING("pop3")).Finalize(url);
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = accountManager->FindServerByURI(url, false,
-                                    getter_AddRefs(server));
+    rv = accountManager->FindServerByURI(url, false, getter_AddRefs(server));
 
     // if we can't find a pop server, maybe it's a local message
     // in an imap hierarchy. look for an imap server.
-    if (NS_FAILED(rv))
-    {
-      rv = NS_MutateURI(url).SetScheme(NS_LITERAL_CSTRING("imap")).Finalize(url);
+    if (NS_FAILED(rv)) {
+      rv =
+          NS_MutateURI(url).SetScheme(NS_LITERAL_CSTRING("imap")).Finalize(url);
       NS_ENSURE_SUCCESS(rv, rv);
-      rv = accountManager->FindServerByURI(url, false,
-                                    getter_AddRefs(server));
+      rv = accountManager->FindServerByURI(url, false, getter_AddRefs(server));
     }
   }
-  if (NS_SUCCEEDED(rv))
-  {
+  if (NS_SUCCEEDED(rv)) {
     server.forget(aResult);
     return rv;
   }
 
-  // if you fail after looking at all "pop3", "movemail" and "none" servers, you fail.
- return rv;
+  // if you fail after looking at all "pop3", "movemail" and "none" servers, you
+  // fail.
+  return rv;
 }
 
-static nsresult
-nsLocalURI2Server(const char* uriStr,
-                  nsIMsgIncomingServer ** aResult)
-{
+static nsresult nsLocalURI2Server(const char* uriStr,
+                                  nsIMsgIncomingServer** aResult) {
   nsresult rv;
   nsCOMPtr<nsIMsgIncomingServer> server;
   rv = nsGetMailboxServer(uriStr, getter_AddRefs(server));
@@ -115,10 +108,8 @@ nsLocalURI2Server(const char* uriStr,
 }
 
 // given rootURI and rootURI##folder, return on-disk path of folder
-nsresult
-nsLocalURI2Path(const char* rootURI, const char* uriStr,
-                nsCString& pathResult)
-{
+nsresult nsLocalURI2Path(const char* rootURI, const char* uriStr,
+                         nsCString& pathResult) {
   nsresult rv;
 
   // verify that rootURI starts with "mailbox:/" or "mailbox-message:/"
@@ -129,15 +120,12 @@ nsLocalURI2Path(const char* rootURI, const char* uriStr,
 
   // verify that uristr starts with rooturi
   nsAutoCString uri(uriStr);
-  if (uri.Find(rootURI) != 0)
-    return NS_ERROR_FAILURE;
-
+  if (uri.Find(rootURI) != 0) return NS_ERROR_FAILURE;
 
   nsCOMPtr<nsIMsgIncomingServer> server;
   rv = nsLocalURI2Server(uriStr, getter_AddRefs(server));
 
-  if (NS_FAILED(rv))
-    return rv;
+  if (NS_FAILED(rv)) return rv;
 
   // now ask the server what it's root is
   // and begin pathResult with the mailbox root
@@ -154,11 +142,11 @@ nsLocalURI2Path(const char* rootURI, const char* uriStr,
 #endif
   nsEscapeNativePath(localNativePath);
   pathResult = localNativePath.get();
-  const char *curPos = uriStr + PL_strlen(rootURI);
+  const char* curPos = uriStr + PL_strlen(rootURI);
   if (curPos) {
     // advance past hostname
-    while ((*curPos)=='/') curPos++;
-    while (*curPos && (*curPos)!='/') curPos++;
+    while ((*curPos) == '/') curPos++;
+    while (*curPos && (*curPos) != '/') curPos++;
 
     nsAutoCString newPath("");
 
@@ -166,9 +154,11 @@ nsLocalURI2Path(const char* rootURI, const char* uriStr,
     if (curPos) {
       nsCString unescapedStr;
       MsgUnescapeString(nsDependentCString(curPos), 0, unescapedStr);
-      NS_MsgCreatePathStringFromFolderURI(unescapedStr.get(), newPath, NS_LITERAL_CSTRING("none"));
+      NS_MsgCreatePathStringFromFolderURI(unescapedStr.get(), newPath,
+                                          NS_LITERAL_CSTRING("none"));
     } else
-      NS_MsgCreatePathStringFromFolderURI(curPos, newPath, NS_LITERAL_CSTRING("none"));
+      NS_MsgCreatePathStringFromFolderURI(curPos, newPath,
+                                          NS_LITERAL_CSTRING("none"));
 
     pathResult.Append('/');
     pathResult.Append(newPath);
@@ -184,20 +174,16 @@ nsLocalURI2Path(const char* rootURI, const char* uriStr,
  * puts folder URI in folderURI (mailbox://folder1/folder2)
  * message key number in key
  */
-nsresult nsParseLocalMessageURI(const char* uri,
-                                nsCString& folderURI,
-                                nsMsgKey *key)
-{
-  if(!key)
-    return NS_ERROR_NULL_POINTER;
+nsresult nsParseLocalMessageURI(const char* uri, nsCString& folderURI,
+                                nsMsgKey* key) {
+  if (!key) return NS_ERROR_NULL_POINTER;
 
   nsAutoCString uriStr(uri);
   int32_t keySeparator = uriStr.FindChar('#');
-  if(keySeparator != -1)
-  {
+  if (keySeparator != -1) {
     int32_t keyEndSeparator = MsgFindCharInSet(uriStr, "?&", keySeparator);
     folderURI = StringHead(uriStr, keySeparator);
-    folderURI.Cut(7, 8);    // cut out the -message part of mailbox-message:
+    folderURI.Cut(7, 8);  // cut out the -message part of mailbox-message:
 
     nsAutoCString keyStr;
     if (keyEndSeparator != -1)
@@ -210,11 +196,10 @@ nsresult nsParseLocalMessageURI(const char* uri,
     return NS_OK;
   }
   return NS_ERROR_FAILURE;
-
 }
 
-nsresult nsBuildLocalMessageURI(const char *baseURI, nsMsgKey key, nsCString& uri)
-{
+nsresult nsBuildLocalMessageURI(const char* baseURI, nsMsgKey key,
+                                nsCString& uri) {
   // need to convert mailbox://hostname/.. to mailbox-message://hostname/..
   uri.Append(baseURI);
   uri.Append('#');
@@ -222,8 +207,8 @@ nsresult nsBuildLocalMessageURI(const char *baseURI, nsMsgKey key, nsCString& ur
   return NS_OK;
 }
 
-nsresult nsCreateLocalBaseMessageURI(const nsACString& baseURI, nsCString &baseMessageURI)
-{
+nsresult nsCreateLocalBaseMessageURI(const nsACString& baseURI,
+                                     nsCString& baseMessageURI) {
   nsAutoCString tailURI(baseURI);
 
   // chop off mailbox:/
@@ -236,8 +221,7 @@ nsresult nsCreateLocalBaseMessageURI(const nsACString& baseURI, nsCString &baseM
   return NS_OK;
 }
 
-void nsEscapeNativePath(nsCString& nativePath)
-{
+void nsEscapeNativePath(nsCString& nativePath) {
 #if defined(XP_WIN)
   nativePath.Insert('/', 0);
   MsgReplaceChar(nativePath, '\\', '/');

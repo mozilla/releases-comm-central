@@ -12,19 +12,18 @@
 static const char kMailboxRootURI[] = "mailbox:/";
 static const char kMailboxMessageRootURI[] = "mailbox-message:/";
 
-nsresult
-nsLocalURI2Path(const char* rootURI, const char* uriStr, nsCString& pathResult);
+nsresult nsLocalURI2Path(const char* rootURI, const char* uriStr,
+                         nsCString& pathResult);
 
-nsresult
-nsParseLocalMessageURI(const char* uri, nsCString& folderURI, nsMsgKey *key);
+nsresult nsParseLocalMessageURI(const char* uri, nsCString& folderURI,
+                                nsMsgKey* key);
 
-nsresult
-nsBuildLocalMessageURI(const char* baseURI, nsMsgKey key, nsCString& uri);
+nsresult nsBuildLocalMessageURI(const char* baseURI, nsMsgKey key,
+                                nsCString& uri);
 
-nsresult
-nsCreateLocalBaseMessageURI(const nsACString& baseURI, nsCString &baseMessageURI);
+nsresult nsCreateLocalBaseMessageURI(const nsACString& baseURI,
+                                     nsCString& baseMessageURI);
 
-void
-nsEscapeNativePath(nsCString& nativePath);
+void nsEscapeNativePath(nsCString& nativePath);
 
-#endif //NS_LOCALUTILS_H
+#endif  // NS_LOCALUTILS_H

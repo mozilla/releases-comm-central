@@ -11,17 +11,15 @@
 #include "nsIMsgProtocolInfo.h"
 #include "nsINoneService.h"
 
-class nsNoneService : public nsIMsgProtocolInfo, public nsINoneService
-{
-public:
-
+class nsNoneService : public nsIMsgProtocolInfo, public nsINoneService {
+ public:
   nsNoneService();
 
   NS_DECL_ISUPPORTS
-    NS_DECL_NSIMSGPROTOCOLINFO
+  NS_DECL_NSIMSGPROTOCOLINFO
   NS_DECL_NSINONESERVICE
 
-private:
+ private:
   virtual ~nsNoneService();
 };
 
