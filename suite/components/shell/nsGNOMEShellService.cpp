@@ -60,8 +60,8 @@ static const ProtocolAssociation gProtocols[] = {
 };
 
 static const MimeTypeAssociation gMimeTypes[] = {
-  { nsIShellService::BROWSER, "text/html", "htm html" },
-  { nsIShellService::BROWSER, "application/xhtml+xml", "xhtml" },
+  { nsIShellService::BROWSER, "text/html", "htm html shtml" },
+  { nsIShellService::BROWSER, "application/xhtml+xml", "xhtml xht" },
   { nsIShellService::MAIL, "message/rfc822", "eml" },
   { nsIShellService::RSS, "application/rss+xml", "rss" }
 };
