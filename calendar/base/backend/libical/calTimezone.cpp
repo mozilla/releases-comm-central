@@ -11,50 +11,49 @@ CAL_ISUPPORTS_ATTR_GETTER(calTimezone, calIIcalComponent, IcalComponent)
 CAL_STRINGTYPE_ATTR_GETTER(calTimezone, nsACString, Tzid)
 
 NS_IMETHODIMP
-calTimezone::GetIsFloating(bool * _retval) {
-    NS_ENSURE_ARG_POINTER(_retval);
-    *_retval = false;
-    return NS_OK;
+calTimezone::GetIsFloating(bool* _retval) {
+  NS_ENSURE_ARG_POINTER(_retval);
+  *_retval = false;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
-calTimezone::GetIsUTC(bool * _retval) {
-    NS_ENSURE_ARG_POINTER(_retval);
-    *_retval = false;
-    return NS_OK;
+calTimezone::GetIsUTC(bool* _retval) {
+  NS_ENSURE_ARG_POINTER(_retval);
+  *_retval = false;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
-calTimezone::GetDisplayName(nsAString & _retval) {
-    _retval = NS_ConvertUTF8toUTF16(mTzid);
-    return NS_OK;
+calTimezone::GetDisplayName(nsAString& _retval) {
+  _retval = NS_ConvertUTF8toUTF16(mTzid);
+  return NS_OK;
 }
 
 NS_IMETHODIMP
-calTimezone::GetLatitude(nsACString & _retval) {
-    _retval.SetIsVoid(true);
-    return NS_OK;
+calTimezone::GetLatitude(nsACString& _retval) {
+  _retval.SetIsVoid(true);
+  return NS_OK;
 }
 
 NS_IMETHODIMP
-calTimezone::GetLongitude(nsACString & _retval) {
-    _retval.SetIsVoid(true);
-    return NS_OK;
+calTimezone::GetLongitude(nsACString& _retval) {
+  _retval.SetIsVoid(true);
+  return NS_OK;
 }
 
 NS_IMETHODIMP
-calTimezone::GetProvider(calITimezoneProvider ** _retval) {
-    NS_ENSURE_ARG_POINTER(_retval);
-    *_retval = nullptr;
-    return NS_OK;
+calTimezone::GetProvider(calITimezoneProvider** _retval) {
+  NS_ENSURE_ARG_POINTER(_retval);
+  *_retval = nullptr;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
-calTimezone::ToString(nsACString & aResult) {
-    if (mIcalComponent) {
-        return mIcalComponent->ToString(aResult);
-    } else {
-        return GetTzid(aResult);
-    }
+calTimezone::ToString(nsACString& aResult) {
+  if (mIcalComponent) {
+    return mIcalComponent->ToString(aResult);
+  } else {
+    return GetTzid(aResult);
+  }
 }
-

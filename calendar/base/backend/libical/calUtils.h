@@ -2,26 +2,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 #if !defined(INCLUDED_CAL_UTILS_H)
-#define INCLUDED_CAL_UTILS_H
+#  define INCLUDED_CAL_UTILS_H
 
-#include "nsCRT.h"
-#include "nsString.h"
+#  include "nsCRT.h"
+#  include "nsString.h"
 
-#include "nsAutoPtr.h"
-#include "nsIStringEnumerator.h"
+#  include "nsAutoPtr.h"
+#  include "nsIStringEnumerator.h"
 
-#include "calITimezone.h"
-#include "calITimezoneProvider.h"
-#include "calIICSService.h"
-#include "nsIConsoleService.h"
-#include "nsServiceManagerUtils.h"
-#include "nsIClassInfoImpl.h"
-#include "nsCOMPtr.h"
+#  include "calITimezone.h"
+#  include "calITimezoneProvider.h"
+#  include "calIICSService.h"
+#  include "nsIConsoleService.h"
+#  include "nsServiceManagerUtils.h"
+#  include "nsIClassInfoImpl.h"
+#  include "nsCOMPtr.h"
 
-#include "calBaseCID.h"
+#  include "calBaseCID.h"
 
-#define CAL_STRLEN_ARGS(x) x, sizeof(x)-1
-#define CAL_ENSURE_MEMORY(p) NS_ENSURE_TRUE(p, NS_ERROR_OUT_OF_MEMORY)
+#  define CAL_STRLEN_ARGS(x) x, sizeof(x) - 1
+#  define CAL_ENSURE_MEMORY(p) NS_ENSURE_TRUE(p, NS_ERROR_OUT_OF_MEMORY)
 
 typedef struct _icaltimezone icaltimezone;
 typedef struct icaltimetype icaltimetype;
@@ -32,28 +32,30 @@ namespace cal {
  * Gets the global console service.
  */
 inline nsCOMPtr<nsIConsoleService> getConsoleService() {
-    return do_GetService("@mozilla.org/consoleservice;1");
+  return do_GetService("@mozilla.org/consoleservice;1");
 }
 
 /**
  * Gets the global ICS service.
  */
 inline nsCOMPtr<calIICSService> getICSService() {
-    return do_GetService(CAL_ICSSERVICE_CONTRACTID);
+  return do_GetService(CAL_ICSSERVICE_CONTRACTID);
 }
 
 /**
  * Gets the global timezone service.
  */
 inline nsCOMPtr<calITimezoneService> getTimezoneService() {
-    nsresult rv;
-    nsCOMPtr<calITimezoneService> tzs;
+  nsresult rv;
+  nsCOMPtr<calITimezoneService> tzs;
 
-    tzs = do_GetService(CAL_TIMEZONESERVICE_CONTRACTID, &rv);
-    if (NS_FAILED(rv)) {
-        MOZ_CRASH("Could not load timezone service, brace yourself and prepare for crash");
-    }
-    return tzs;
+  tzs = do_GetService(CAL_TIMEZONESERVICE_CONTRACTID, &rv);
+  if (NS_FAILED(rv)) {
+    MOZ_CRASH(
+        "Could not load timezone service, brace yourself and prepare for "
+        "crash");
+  }
+  return tzs;
 }
 
 /**
@@ -61,10 +63,10 @@ inline nsCOMPtr<calITimezoneService> getTimezoneService() {
  */
 nsresult logError(const nsAString& msg);
 inline nsresult logError(char const* msg) {
-    return logError(NS_ConvertASCIItoUTF16(msg));
+  return logError(NS_ConvertASCIItoUTF16(msg));
 }
 inline nsresult logError(nsACString const& msg) {
-    return logError(NS_ConvertASCIItoUTF16(msg));
+  return logError(NS_ConvertASCIItoUTF16(msg));
 }
 
 /**
@@ -72,10 +74,10 @@ inline nsresult logError(nsACString const& msg) {
  */
 nsresult logWarning(const nsAString& msg);
 inline nsresult logWarning(char const* msg) {
-    return logWarning(NS_ConvertASCIItoUTF16(msg));
+  return logWarning(NS_ConvertASCIItoUTF16(msg));
 }
 inline nsresult logWarning(nsACString const& msg) {
-    return logWarning(NS_ConvertASCIItoUTF16(msg));
+  return logWarning(NS_ConvertASCIItoUTF16(msg));
 }
 
 /**
@@ -83,10 +85,10 @@ inline nsresult logWarning(nsACString const& msg) {
  */
 nsresult log(char16_t const* msg);
 inline nsresult log(char const* msg) {
-    return log(NS_ConvertASCIItoUTF16(msg).get());
+  return log(NS_ConvertASCIItoUTF16(msg).get());
 }
 inline nsresult log(nsACString const& msg) {
-    return log(NS_ConvertASCIItoUTF16(msg).get());
+  return log(NS_ConvertASCIItoUTF16(msg).get());
 }
 
 // some timezone helpers
@@ -95,41 +97,44 @@ inline nsresult log(nsACString const& msg) {
  * Gets the "UTC" timezone.
  */
 inline nsCOMPtr<calITimezone> UTC() {
-    nsresult rv;
-    nsCOMPtr<calITimezone> tz;
+  nsresult rv;
+  nsCOMPtr<calITimezone> tz;
 
-    rv = getTimezoneService()->GetUTC(getter_AddRefs(tz));
-    if (NS_FAILED(rv)) {
-        MOZ_CRASH("Could not load UTC timezone, brace yourself and prepare for crash");
-    }
+  rv = getTimezoneService()->GetUTC(getter_AddRefs(tz));
+  if (NS_FAILED(rv)) {
+    MOZ_CRASH(
+        "Could not load UTC timezone, brace yourself and prepare for crash");
+  }
 
-    return tz;
+  return tz;
 }
 
 /**
  * Gets the "floating" timezone
  */
 inline nsCOMPtr<calITimezone> floating() {
-    nsresult rv;
-    nsCOMPtr<calITimezone> tz;
+  nsresult rv;
+  nsCOMPtr<calITimezone> tz;
 
-    rv = getTimezoneService()->GetFloating(getter_AddRefs(tz));
-    if (NS_FAILED(rv)) {
-        MOZ_CRASH("Could not load floating timezone, brace yourself and prepare for crash");
-    }
+  rv = getTimezoneService()->GetFloating(getter_AddRefs(tz));
+  if (NS_FAILED(rv)) {
+    MOZ_CRASH(
+        "Could not load floating timezone, brace yourself and prepare for "
+        "crash");
+  }
 
-    return tz;
+  return tz;
 }
 
 /**
  * Returns the libical VTIMEZONE component, null if floating.
- * 
+ *
  * @attention
  * Every timezone provider needs to use calICSService for
  * creating its timezone components since we need to stick to the
  * same libical.
- */    
-icaltimezone * getIcalTimezone(calITimezone * tz);
+ */
+icaltimezone* getIcalTimezone(calITimezone* tz);
 
 /**
  * Detects the timezone icalt refers to, either using the
@@ -140,7 +145,7 @@ icaltimezone * getIcalTimezone(calITimezone * tz);
  *                   defaults to the timezone service
  */
 nsCOMPtr<calITimezone> detectTimezone(icaltimetype const& icalt,
-                                      calITimezoneProvider * tzProvider);
+                                      calITimezoneProvider* tzProvider);
 
 /**
  * Logs a missing timezone into the js console.
@@ -153,14 +158,15 @@ void logMissingTimezone(char const* tzid);
  * - disallows copy semantics (no assignment, no copy ctor)
  */
 class XpcomBase {
-protected:
-    XpcomBase() {}
-    virtual ~XpcomBase();
-private:
-    XpcomBase(XpcomBase const&); // left unimplemented
-    XpcomBase const& operator=(XpcomBase const&); // left unimplemented
+ protected:
+  XpcomBase() {}
+  virtual ~XpcomBase();
+
+ private:
+  XpcomBase(XpcomBase const&);                   // left unimplemented
+  XpcomBase const& operator=(XpcomBase const&);  // left unimplemented
 };
 
-} // namespace cal
+}  // namespace cal
 
-#endif // !defined(INCLUDED_CAL_UTILS_H)
+#endif  // !defined(INCLUDED_CAL_UTILS_H)

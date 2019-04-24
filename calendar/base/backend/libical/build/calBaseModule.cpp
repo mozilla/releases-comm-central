@@ -26,39 +26,29 @@ NS_DEFINE_NAMED_CID(CAL_PERIOD_CID);
 NS_GENERIC_FACTORY_CONSTRUCTOR(calRecurrenceRule)
 NS_DEFINE_NAMED_CID(CAL_RECURRENCERULE_CID);
 
-
 const mozilla::Module::CIDEntry kCalBaseCIDs[] = {
-    { &kCAL_DATETIME_CID, false, NULL, calDateTimeConstructor },
-    { &kCAL_DURATION_CID, false, NULL, calDurationConstructor },
-    { &kCAL_ICSSERVICE_CID, true, NULL, calICSServiceConstructor },
-    { &kCAL_PERIOD_CID, false, NULL, calPeriodConstructor },
-    { &kCAL_RECURRENCERULE_CID, false, NULL, calRecurrenceRuleConstructor },
-    { NULL }
-};
+    {&kCAL_DATETIME_CID, false, NULL, calDateTimeConstructor},
+    {&kCAL_DURATION_CID, false, NULL, calDurationConstructor},
+    {&kCAL_ICSSERVICE_CID, true, NULL, calICSServiceConstructor},
+    {&kCAL_PERIOD_CID, false, NULL, calPeriodConstructor},
+    {&kCAL_RECURRENCERULE_CID, false, NULL, calRecurrenceRuleConstructor},
+    {NULL}};
 
 const mozilla::Module::ContractIDEntry kCalBaseContracts[] = {
-    { CAL_DATETIME_CONTRACTID, &kCAL_DATETIME_CID },
-    { CAL_DURATION_CONTRACTID, &kCAL_DURATION_CID },
-    { CAL_ICSSERVICE_CONTRACTID, &kCAL_ICSSERVICE_CID },
-    { CAL_PERIOD_CONTRACTID, &kCAL_PERIOD_CID },
-    { CAL_RECURRENCERULE_CONTRACTID, &kCAL_RECURRENCERULE_CID },
-    { NULL }
-};
+    {CAL_DATETIME_CONTRACTID, &kCAL_DATETIME_CID},
+    {CAL_DURATION_CONTRACTID, &kCAL_DURATION_CID},
+    {CAL_ICSSERVICE_CONTRACTID, &kCAL_ICSSERVICE_CID},
+    {CAL_PERIOD_CONTRACTID, &kCAL_PERIOD_CID},
+    {CAL_RECURRENCERULE_CONTRACTID, &kCAL_RECURRENCERULE_CID},
+    {NULL}};
 
-static nsresult
-nsInitBaseModule()
-{
-    // This needs to be done once in the application, we want to make
-    // sure that new parameters are not thrown away
-    ical_set_unknown_token_handling_setting(ICAL_ASSUME_IANA_TOKEN);
-    return NS_OK;
+static nsresult nsInitBaseModule() {
+  // This needs to be done once in the application, we want to make
+  // sure that new parameters are not thrown away
+  ical_set_unknown_token_handling_setting(ICAL_ASSUME_IANA_TOKEN);
+  return NS_OK;
 }
 
 extern const mozilla::Module kCalBaseModule = {
-    mozilla::Module::kVersion,
-    kCalBaseCIDs,
-    kCalBaseContracts,
-    NULL,
-    NULL,
-    nsInitBaseModule
-};
+    mozilla::Module::kVersion, kCalBaseCIDs, kCalBaseContracts, NULL, NULL,
+    nsInitBaseModule};

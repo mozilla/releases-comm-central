@@ -13,81 +13,86 @@ extern "C" {
 namespace cal {
 
 nsresult logError(const nsAString& msg) {
-    nsresult rc;
-    nsCOMPtr<nsIScriptError> const scriptError(do_CreateInstance("@mozilla.org/scripterror;1", &rc));
-    NS_ENSURE_SUCCESS(rc, rc);
-    rc = scriptError->Init(msg, EmptyString(), EmptyString(), 0, 0, nsIScriptError::errorFlag, "calendar", false, false);
-    return getConsoleService()->LogMessage(scriptError);
+  nsresult rc;
+  nsCOMPtr<nsIScriptError> const scriptError(
+      do_CreateInstance("@mozilla.org/scripterror;1", &rc));
+  NS_ENSURE_SUCCESS(rc, rc);
+  rc = scriptError->Init(msg, EmptyString(), EmptyString(), 0, 0,
+                         nsIScriptError::errorFlag, "calendar", false, false);
+  return getConsoleService()->LogMessage(scriptError);
 }
 
 nsresult logWarning(const nsAString& msg) {
-    nsresult rc;
-    nsCOMPtr<nsIScriptError> const scriptError(do_CreateInstance("@mozilla.org/scripterror;1", &rc));
-    NS_ENSURE_SUCCESS(rc, rc);
-    rc = scriptError->Init(msg, EmptyString(), EmptyString(), 0, 0, nsIScriptError::warningFlag, "calendar", false, false);
-    return getConsoleService()->LogMessage(scriptError);
+  nsresult rc;
+  nsCOMPtr<nsIScriptError> const scriptError(
+      do_CreateInstance("@mozilla.org/scripterror;1", &rc));
+  NS_ENSURE_SUCCESS(rc, rc);
+  rc = scriptError->Init(msg, EmptyString(), EmptyString(), 0, 0,
+                         nsIScriptError::warningFlag, "calendar", false, false);
+  return getConsoleService()->LogMessage(scriptError);
 }
 
 nsresult log(char16_t const* msg) {
-    return getConsoleService()->LogStringMessage(msg);
+  return getConsoleService()->LogStringMessage(msg);
 }
 
 nsCOMPtr<calITimezone> detectTimezone(icaltimetype const& icalt,
-                                      calITimezoneProvider * tzProvider)
-{
-    if (icalt.is_utc) {
-        return UTC();
+                                      calITimezoneProvider* tzProvider) {
+  if (icalt.is_utc) {
+    return UTC();
+  }
+  if (icalt.zone) {
+    char const* const tzid =
+        icaltimezone_get_tzid(const_cast<icaltimezone*>(icalt.zone));
+    if (tzid) {
+      nsCOMPtr<calITimezone> tz;
+      if (tzProvider) {
+        tzProvider->GetTimezone(nsDependentCString(tzid), getter_AddRefs(tz));
+      } else {
+        getTimezoneService()->GetTimezone(nsDependentCString(tzid),
+                                          getter_AddRefs(tz));
+      }
+      if (tz) {
+        return tz;
+      }
+      NS_ASSERTION(tz, "no timezone found, falling back to floating!");
+      logMissingTimezone(tzid);
     }
-    if (icalt.zone) {
-        char const* const tzid = icaltimezone_get_tzid(const_cast<icaltimezone *>(icalt.zone));
-        if (tzid) {
-            nsCOMPtr<calITimezone> tz;
-            if (tzProvider) {
-                tzProvider->GetTimezone(nsDependentCString(tzid), getter_AddRefs(tz));
-            } else {
-                getTimezoneService()->GetTimezone(nsDependentCString(tzid), getter_AddRefs(tz));
-            }
-            if (tz) {
-                return tz;
-            }
-            NS_ASSERTION(tz, "no timezone found, falling back to floating!");
-            logMissingTimezone(tzid);
-        }
-    }
-    return floating();
+  }
+  return floating();
 }
 
 void logMissingTimezone(char const* tzid) {
-    // xxx todo: needs l10n
-    nsString msg(NS_LITERAL_STRING("Timezone \""));
-    msg += NS_ConvertUTF8toUTF16(tzid);
-    msg += NS_LITERAL_STRING("\" not found, falling back to floating!");
-    logError(msg);
+  // xxx todo: needs l10n
+  nsString msg(NS_LITERAL_STRING("Timezone \""));
+  msg += NS_ConvertUTF8toUTF16(tzid);
+  msg += NS_LITERAL_STRING("\" not found, falling back to floating!");
+  logError(msg);
 }
 
-icaltimezone * getIcalTimezone(calITimezone * tz) {
-    icaltimezone * icaltz = nullptr;
-    if (!tz) {
-        NS_ASSERTION(false, "No Timezone passed to getIcalTimezone");
-        return nullptr;
-    }
+icaltimezone* getIcalTimezone(calITimezone* tz) {
+  icaltimezone* icaltz = nullptr;
+  if (!tz) {
+    NS_ASSERTION(false, "No Timezone passed to getIcalTimezone");
+    return nullptr;
+  }
 
-    bool b;
-    tz->GetIsUTC(&b);
-    if (b) {
-        icaltz = icaltimezone_get_utc_timezone();
-    } else {
-        nsCOMPtr<calIIcalComponent> tzComp;
-        tz->GetIcalComponent(getter_AddRefs(tzComp));
-        if (tzComp) {
-            nsCOMPtr<calIIcalComponentLibical> tzCompLibical = do_QueryInterface(tzComp);
-            icaltz = tzCompLibical->GetLibicalTimezone();
-        } // else floating or phantom timezone
-    }
-    return icaltz;
+  bool b;
+  tz->GetIsUTC(&b);
+  if (b) {
+    icaltz = icaltimezone_get_utc_timezone();
+  } else {
+    nsCOMPtr<calIIcalComponent> tzComp;
+    tz->GetIcalComponent(getter_AddRefs(tzComp));
+    if (tzComp) {
+      nsCOMPtr<calIIcalComponentLibical> tzCompLibical =
+          do_QueryInterface(tzComp);
+      icaltz = tzCompLibical->GetLibicalTimezone();
+    }  // else floating or phantom timezone
+  }
+  return icaltz;
 }
 
-XpcomBase::~XpcomBase() {
-}
+XpcomBase::~XpcomBase() {}
 
-}
+}  // namespace cal

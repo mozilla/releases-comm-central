@@ -9,31 +9,29 @@
 #include "calIDuration.h"
 
 extern "C" {
-    #include "ical.h"
+#include "ical.h"
 }
 
-class calDuration final : public calIDurationLibical
-{
-public:
-    calDuration ();
-    calDuration (const calDuration& cdt);
-    explicit calDuration (const struct icaldurationtype * const aDurationPtr);
+class calDuration final : public calIDurationLibical {
+ public:
+  calDuration();
+  calDuration(const calDuration& cdt);
+  explicit calDuration(const struct icaldurationtype* const aDurationPtr);
 
-    // nsISupports interface
-    NS_DECL_ISUPPORTS
+  // nsISupports interface
+  NS_DECL_ISUPPORTS
 
-    // calIDateTime interface
-    NS_DECL_CALIDURATION
-    NS_DECL_CALIDURATIONLIBICAL
+  // calIDateTime interface
+  NS_DECL_CALIDURATION
+  NS_DECL_CALIDURATIONLIBICAL
 
-protected:
-    ~calDuration() {}
-    bool mImmutable;
+ protected:
+  ~calDuration() {}
+  bool mImmutable;
 
-    struct icaldurationtype mDuration;
+  struct icaldurationtype mDuration;
 
-    void FromIcalDuration(const struct icaldurationtype * const icald);
+  void FromIcalDuration(const struct icaldurationtype* const icald);
 };
 
 #endif /* CALDURATION_H_ */
-

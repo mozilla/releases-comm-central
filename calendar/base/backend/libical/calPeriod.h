@@ -13,35 +13,33 @@
 #include "calIDuration.h"
 
 extern "C" {
-    #include "ical.h"
+#include "ical.h"
 }
 
-class calPeriod final : public calIPeriodLibical
-{
-public:
-    calPeriod ();
-    explicit calPeriod (const calPeriod& cpt);
-    explicit calPeriod (struct icalperiodtype const* aPeriodPtr);
+class calPeriod final : public calIPeriodLibical {
+ public:
+  calPeriod();
+  explicit calPeriod(const calPeriod& cpt);
+  explicit calPeriod(struct icalperiodtype const* aPeriodPtr);
 
-    // nsISupports interface
-    NS_DECL_ISUPPORTS
+  // nsISupports interface
+  NS_DECL_ISUPPORTS
 
-    // calIPeriod interface
-    NS_DECL_CALIPERIOD
-    NS_DECL_CALIPERIODLIBICAL
+  // calIPeriod interface
+  NS_DECL_CALIPERIOD
+  NS_DECL_CALIPERIODLIBICAL
 
-protected:
-    ~calPeriod() {}
-    calPeriod const& operator=(calPeriod const&);
+ protected:
+  ~calPeriod() {}
+  calPeriod const& operator=(calPeriod const&);
 
-    bool mImmutable;
+  bool mImmutable;
 
-    //struct icaldurationtype mPeriod;
-    nsCOMPtr<calIDateTimeLibical> mStart;
-    nsCOMPtr<calIDateTimeLibical> mEnd;
-    
-    void FromIcalPeriod(struct icalperiodtype const* icalp);
+  // struct icaldurationtype mPeriod;
+  nsCOMPtr<calIDateTimeLibical> mStart;
+  nsCOMPtr<calIDateTimeLibical> mEnd;
+
+  void FromIcalPeriod(struct icalperiodtype const* icalp);
 };
 
 #endif /* CALPERIOD_H_ */
-
