@@ -11,8 +11,6 @@
 #include "mozilla/Attributes.h"
 #include "nsSuiteCID.h"
 
-struct ProtocolAssociation;
-
 class nsGNOMEShellService final : public nsIGNOMEShellService
 {
 public:

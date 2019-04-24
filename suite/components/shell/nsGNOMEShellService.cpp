@@ -42,6 +42,7 @@ using namespace mozilla;
 struct ProtocolAssociation {
   uint16_t app;
   const char* protocol;
+  bool essential;
 };
 
 struct MimeTypeAssociation {
@@ -51,12 +52,14 @@ struct MimeTypeAssociation {
 };
 
 static const ProtocolAssociation gProtocols[] = {
-  { nsIShellService::BROWSER, "http" },
-  { nsIShellService::BROWSER, "https" },
-  { nsIShellService::MAIL, "mailto" },
-  { nsIShellService::NEWS, "news" },
-  { nsIShellService::NEWS, "snews" },
-  { nsIShellService::RSS, "feed" }
+  { nsIShellService::BROWSER, "http", true },
+  { nsIShellService::BROWSER, "https", true },
+  { nsIShellService::BROWSER, "ftp", false },
+  { nsIShellService::BROWSER, "chrome", false },
+  { nsIShellService::MAIL, "mailto", true },
+  { nsIShellService::NEWS, "news", true },
+  { nsIShellService::NEWS, "snews", true },
+  { nsIShellService::RSS, "feed", true }
 };
 
 static const MimeTypeAssociation gMimeTypes[] = {
@@ -178,21 +181,23 @@ nsGNOMEShellService::IsDefaultClient(bool aStartupCheck, uint16_t aApps,
 {
   *aIsDefaultClient = false;
 
-  nsCString handler;
-  nsCOMPtr<nsIGIOMimeApp> gioApp;
   nsCOMPtr<nsIGIOService> giovfs = do_GetService(NS_GIOSERVICE_CONTRACTID);
+  nsAutoCString handler;
+  nsCOMPtr<nsIGIOMimeApp> gioApp;
 
-  for (unsigned i = 0; i < mozilla::ArrayLength(gProtocols); i++) {
+  for (unsigned int i = 0; i < ArrayLength(gProtocols); i++) {
     if (aApps & gProtocols[i].app) {
-      nsDependentCString protocol(gProtocols[i].protocol);
-      if (giovfs) {
-        nsCOMPtr<nsIHandlerApp> handlerApp;
-        giovfs->GetAppForURIScheme(protocol, getter_AddRefs(handlerApp));
+      if (!gProtocols[i].essential) continue;
 
+      if (giovfs) {
+        handler.Truncate();
+        nsCOMPtr<nsIHandlerApp> handlerApp;
+        nsDependentCString protocol(gProtocols[i].protocol);
+        giovfs->GetAppForURIScheme(protocol, getter_AddRefs(handlerApp));
         gioApp = do_QueryInterface(handlerApp);
         if (!gioApp)
           return NS_OK;
-        
+
         if (NS_SUCCEEDED(gioApp->GetCommand(handler)) &&
             !CheckHandlerMatchesAppName(handler))
          return NS_OK;
@@ -201,6 +206,7 @@ nsGNOMEShellService::IsDefaultClient(bool aStartupCheck, uint16_t aApps,
   }
 
   *aIsDefaultClient = true;
+
   return NS_OK;
 }
 
@@ -208,40 +214,41 @@ NS_IMETHODIMP
 nsGNOMEShellService::SetDefaultClient(bool aForAllUsers,
                                       bool aClaimAllTypes, uint16_t aApps)
 {
-  nsresult rv;
-
-  nsCOMPtr<nsIGIOMimeApp> app;
   nsCOMPtr<nsIGIOService> giovfs = do_GetService(NS_GIOSERVICE_CONTRACTID);
   if (giovfs) {
+    nsresult rv;
     nsCString brandName;
     rv = GetBrandName(brandName);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    rv = giovfs->FindAppFromCommand(mAppPath, getter_AddRefs(app));
+    nsCOMPtr<nsIGIOMimeApp> appInfo;
+    rv = giovfs->FindAppFromCommand(mAppPath, getter_AddRefs(appInfo));
     if (NS_FAILED(rv)) {
       // Application was not found in the list of installed applications
       // provided by OS. Fallback to create appInfo from command and name.
-      rv = giovfs->CreateAppFromCommand(mAppPath, brandName, getter_AddRefs(app));
+      rv = giovfs->CreateAppFromCommand(mAppPath, brandName,
+                                        getter_AddRefs(appInfo));
       NS_ENSURE_SUCCESS(rv, rv);
     }
 
     // set handler for the protocols
     for (unsigned int i = 0; i < ArrayLength(gProtocols); ++i) {
       if (aApps & gProtocols[i].app) {
-        nsDependentCString protocol(gProtocols[i].protocol);
-        if (app) {
-          rv = app->SetAsDefaultForURIScheme(protocol);
-          NS_ENSURE_SUCCESS(rv, rv);
+        if (appInfo && (gProtocols[i].essential || aClaimAllTypes)) {
+          nsDependentCString protocol(gProtocols[i].protocol);
+          appInfo->SetAsDefaultForURIScheme(protocol);
         }
       }
     }
 
-    for (unsigned i = 0; i < mozilla::ArrayLength(gMimeTypes); i++) {
-      if (aApps & gMimeTypes[i].app) {
-        rv = app->SetAsDefaultForMimeType(nsDependentCString(gMimeTypes[i].mimeType));
-        NS_ENSURE_SUCCESS(rv, rv);
-        rv = app->SetAsDefaultForFileExtensions(nsDependentCString(gMimeTypes[i].extensions));
-        NS_ENSURE_SUCCESS(rv, rv);
+    if (aClaimAllTypes) {
+      for (unsigned int i = 0; i < ArrayLength(gMimeTypes); i++) {
+        if (aApps & gMimeTypes[i].app) {
+          nsDependentCString type(gMimeTypes[i].mimeType);
+          appInfo->SetAsDefaultForMimeType(type);
+          nsDependentCString extensions(gMimeTypes[i].extensions);
+          appInfo->SetAsDefaultForFileExtensions(extensions);
+        }
       }
     }
   }
