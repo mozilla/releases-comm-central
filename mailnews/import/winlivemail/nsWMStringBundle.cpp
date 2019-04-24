@@ -11,40 +11,34 @@
 #include "nsWMStringBundle.h"
 #include "mozilla/Services.h"
 
-#define WM_MSGS_URL       "chrome://messenger/locale/wmImportMsgs.properties"
+#define WM_MSGS_URL "chrome://messenger/locale/wmImportMsgs.properties"
 
 nsCOMPtr<nsIStringBundle> nsWMStringBundle::m_pBundle = nullptr;
 
-void nsWMStringBundle::GetStringBundle(void)
-{
-  if (m_pBundle)
-    return;
+void nsWMStringBundle::GetStringBundle(void) {
+  if (m_pBundle) return;
 
   nsCOMPtr<nsIStringBundleService> sBundleService =
-    mozilla::services::GetStringBundleService();
+      mozilla::services::GetStringBundleService();
   if (sBundleService) {
     sBundleService->CreateBundle(WM_MSGS_URL, getter_AddRefs(m_pBundle));
   }
 }
 
-void nsWMStringBundle::GetStringByID(int32_t stringID, nsString& result)
-{
+void nsWMStringBundle::GetStringByID(int32_t stringID, nsString &result) {
   char16_t *ptrv = GetStringByID(stringID);
   result = ptrv;
   FreeString(ptrv);
 }
 
-char16_t *nsWMStringBundle::GetStringByID(int32_t stringID)
-{
-  if (!m_pBundle)
-    GetStringBundle();
+char16_t *nsWMStringBundle::GetStringByID(int32_t stringID) {
+  if (!m_pBundle) GetStringBundle();
 
   if (m_pBundle) {
     nsAutoString str;
     nsresult rv = m_pBundle->GetStringFromID(stringID, str);
 
-    if (NS_SUCCEEDED(rv))
-      return ToNewUnicode(str);
+    if (NS_SUCCEEDED(rv)) return ToNewUnicode(str);
   }
 
   nsString resultString;
@@ -55,7 +49,4 @@ char16_t *nsWMStringBundle::GetStringByID(int32_t stringID)
   return ToNewUnicode(resultString);
 }
 
-void nsWMStringBundle::Cleanup(void)
-{
-  m_pBundle = nullptr;
-}
+void nsWMStringBundle::Cleanup(void) { m_pBundle = nullptr; }

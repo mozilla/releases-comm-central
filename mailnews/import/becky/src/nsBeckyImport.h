@@ -8,29 +8,31 @@
 
 #include "nsIImportModule.h"
 
-#define NS_BECKYIMPORT_CID          \
-{                                   \
-  0x7952a6cf, 0x2442,0x4c04,        \
-  {0x9f, 0x02, 0x15, 0x0b, 0x15, 0xa0, 0xa8, 0x41}}
+#define NS_BECKYIMPORT_CID                           \
+  {                                                  \
+    0x7952a6cf, 0x2442, 0x4c04, {                    \
+      0x9f, 0x02, 0x15, 0x0b, 0x15, 0xa0, 0xa8, 0x41 \
+    }                                                \
+  }
 
-#define kBeckySupportsString NS_IMPORT_MAIL_STR "," NS_IMPORT_ADDRESS_STR "," NS_IMPORT_SETTINGS_STR "," NS_IMPORT_FILTERS_STR
+#define kBeckySupportsString                                              \
+  NS_IMPORT_MAIL_STR "," NS_IMPORT_ADDRESS_STR "," NS_IMPORT_SETTINGS_STR \
+                     "," NS_IMPORT_FILTERS_STR
 
-class nsBeckyImport final : public nsIImportModule
-{
-public:
+class nsBeckyImport final : public nsIImportModule {
+ public:
   nsBeckyImport();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIIMPORTMODULE
 
-private:
+ private:
   virtual ~nsBeckyImport();
 
   nsresult GetMailImportInterface(nsISupports **aInterface);
   nsresult GetAddressBookImportInterface(nsISupports **aInterface);
   nsresult GetSettingsImportInterface(nsISupports **aInterface);
   nsresult GetFiltersImportInterface(nsISupports **aInterface);
-
 };
 
 #endif /* nsBeckyImport_h___ */

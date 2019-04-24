@@ -6,9 +6,9 @@
 #include <string>
 #include "rtfDecoder.h"
 
-class CRTFMailDecoder: public CRTFDecoder {
-public:
-  enum Mode {mNone, mText, mHTML};
+class CRTFMailDecoder : public CRTFDecoder {
+ public:
+  enum Mode { mNone, mText, mHTML };
   CRTFMailDecoder() : m_mode(mNone), m_state(sNormal), m_skipLevel(0) {}
   void BeginGroup() override;
   void EndGroup() override;
@@ -18,24 +18,27 @@ public:
   const wchar_t* text() { return m_text.c_str(); }
   std::wstring::size_type textSize() { return m_text.size(); }
   Mode mode() { return m_mode; }
-private:
-  enum State {sNormal = 0x0000,
-              sBeginGroup = 0x0001,
-              sAsterisk = 0x0002,
-              sHtmlRtf = 0x0004};
+
+ private:
+  enum State {
+    sNormal = 0x0000,
+    sBeginGroup = 0x0001,
+    sAsterisk = 0x0002,
+    sHtmlRtf = 0x0004
+  };
 
   std::wstring m_text;
   Mode m_mode;
-  unsigned int m_state; // bitmask of State
-// bool m_beginGroup; // true just after the {
-//bool m_asterisk; // true just after the {\*
-  int m_skipLevel; // if >0 then we ignore everything
-// bool m_htmlrtf;
+  unsigned int m_state;  // bitmask of State
+                         // bool m_beginGroup; // true just after the {
+                         // bool m_asterisk; // true just after the {\*
+  int m_skipLevel;       // if >0 then we ignore everything
+                         // bool m_htmlrtf;
   inline void SetState(unsigned int s) { m_state |= s; }
   inline void ClearState(unsigned int s) { m_state &= ~s; }
   inline bool CheckState(State s) { return (m_state & s) != 0; }
   inline bool IsAsterisk() { return CheckState(sAsterisk); }
   inline bool IsBeginGroup() { return CheckState(sBeginGroup); }
   inline bool IsHtmlRtf() { return CheckState(sHtmlRtf); }
-  void AddText(const wchar_t* txt, size_t cch=static_cast<size_t>(-1));
+  void AddText(const wchar_t* txt, size_t cch = static_cast<size_t>(-1));
 };

@@ -9,17 +9,18 @@
 #include "nsIStringBundle.h"
 #include "nsCOMPtr.h"
 
-#define NS_VCARDIMPORT_CID \
-{ /* 0EB034A3-964A-4E2F-92EBCC55D9AE9DD2 */ \
-  0x0eb034a3, 0x964a, 0x4e2f, \
-  {0x92, 0xeb, 0xcc, 0x55, 0xd9, 0xae, 0x9d, 0xd2}}
+#define NS_VCARDIMPORT_CID                           \
+  { /* 0EB034A3-964A-4E2F-92EBCC55D9AE9DD2 */        \
+    0x0eb034a3, 0x964a, 0x4e2f, {                    \
+      0x92, 0xeb, 0xcc, 0x55, 0xd9, 0xae, 0x9d, 0xd2 \
+    }                                                \
+  }
 
-#define VCARDIMPORT_MSGS_URL "chrome://messenger/locale/vCardImportMsgs.properties"
+#define VCARDIMPORT_MSGS_URL \
+  "chrome://messenger/locale/vCardImportMsgs.properties"
 
-class nsVCardImport : public nsIImportModule
-{
-public:
-
+class nsVCardImport : public nsIImportModule {
+ public:
   nsVCardImport();
 
   NS_DECL_ISUPPORTS
@@ -30,7 +31,7 @@ public:
 
   NS_DECL_NSIIMPORTMODULE
 
-protected:
+ protected:
   virtual ~nsVCardImport();
   nsCOMPtr<nsIStringBundle> m_stringBundle;
 };

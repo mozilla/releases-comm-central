@@ -9,21 +9,18 @@
 #include "nsIImportModule.h"
 #include "nsCOMPtr.h"
 
+#define NS_OUTLOOKIMPORT_CID                       \
+  { /* 1DB469A0-8B00-11d3-A206-00A0CC26DA63 */     \
+    0x1db469a0, 0x8b00, 0x11d3, {                  \
+      0xa2, 0x6, 0x0, 0xa0, 0xcc, 0x26, 0xda, 0x63 \
+    }                                              \
+  }
 
-#define NS_OUTLOOKIMPORT_CID          \
-{ /* 1DB469A0-8B00-11d3-A206-00A0CC26DA63 */      \
-  0x1db469a0, 0x8b00, 0x11d3,            \
-  {0xa2, 0x6, 0x0, 0xa0, 0xcc, 0x26, 0xda, 0x63 }}
+#define kOutlookSupportsString \
+  NS_IMPORT_MAIL_STR "," NS_IMPORT_ADDRESS_STR "," NS_IMPORT_SETTINGS_STR
 
-
-
-
-#define kOutlookSupportsString NS_IMPORT_MAIL_STR "," NS_IMPORT_ADDRESS_STR "," NS_IMPORT_SETTINGS_STR
-
-class nsOutlookImport : public nsIImportModule
-{
-public:
-
+class nsOutlookImport : public nsIImportModule {
+ public:
   nsOutlookImport();
 
   NS_DECL_ISUPPORTS
@@ -34,11 +31,8 @@ public:
 
   NS_DECL_NSIIMPORTMODULE
 
-protected:
+ protected:
   virtual ~nsOutlookImport();
 };
-
-
-
 
 #endif /* nsOutlookImport_h___ */

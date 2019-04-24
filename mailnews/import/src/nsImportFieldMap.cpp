@@ -3,7 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
 #include "nscore.h"
 #include "nsIStringBundle.h"
 #include "nsImportFieldMap.h"
@@ -14,10 +13,9 @@
 
 ////////////////////////////////////////////////////////////////////////
 
-nsresult nsImportFieldMap::Create(nsIStringBundle *aBundle, nsISupports *aOuter, REFNSIID aIID, void **aResult)
-{
-  if (aOuter)
-    return NS_ERROR_NO_AGGREGATION;
+nsresult nsImportFieldMap::Create(nsIStringBundle *aBundle, nsISupports *aOuter,
+                                  REFNSIID aIID, void **aResult) {
+  if (aOuter) return NS_ERROR_NO_AGGREGATION;
 
   RefPtr<nsImportFieldMap> it = new nsImportFieldMap(aBundle);
   return it->QueryInterface(aIID, aResult);
@@ -25,50 +23,44 @@ nsresult nsImportFieldMap::Create(nsIStringBundle *aBundle, nsISupports *aOuter,
 
 NS_IMPL_ISUPPORTS(nsImportFieldMap, nsIImportFieldMap)
 
-NS_IMETHODIMP nsImportFieldMap::GetSkipFirstRecord(bool *result)
-{
+NS_IMETHODIMP nsImportFieldMap::GetSkipFirstRecord(bool *result) {
   NS_ENSURE_ARG_POINTER(result);
   *result = m_skipFirstRecord;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImportFieldMap::SetSkipFirstRecord(bool aResult)
-{
+NS_IMETHODIMP nsImportFieldMap::SetSkipFirstRecord(bool aResult) {
   m_skipFirstRecord = aResult;
   return NS_OK;
 }
 
-nsImportFieldMap::nsImportFieldMap(nsIStringBundle *aBundle)
-{
+nsImportFieldMap::nsImportFieldMap(nsIStringBundle *aBundle) {
   m_numFields = 0;
   m_pFields = nullptr;
   m_pActive = nullptr;
   m_allocated = 0;
   // need to init the description array
   m_mozFieldCount = 0;
-    m_skipFirstRecord = false;
+  m_skipFirstRecord = false;
   nsCOMPtr<nsIStringBundle> pBundle = aBundle;
 
   nsString *pStr;
-  for (int32_t i = IMPORT_FIELD_DESC_START; i <= IMPORT_FIELD_DESC_END; i++, m_mozFieldCount++) {
+  for (int32_t i = IMPORT_FIELD_DESC_START; i <= IMPORT_FIELD_DESC_END;
+       i++, m_mozFieldCount++) {
     pStr = new nsString();
     if (pBundle) {
       nsImportStringBundle::GetStringByID(i, pBundle, *pStr);
-    }
-    else
+    } else
       pStr->AppendInt(i);
     m_descriptions.AppendElement(pStr);
   }
 }
 
-nsImportFieldMap::~nsImportFieldMap()
-{
-  if (m_pFields)
-    delete [] m_pFields;
-  if (m_pActive)
-    delete [] m_pActive;
+nsImportFieldMap::~nsImportFieldMap() {
+  if (m_pFields) delete[] m_pFields;
+  if (m_pActive) delete[] m_pActive;
 
-  nsString *  pStr;
+  nsString *pStr;
   for (int32_t i = 0; i < m_mozFieldCount; i++) {
     pStr = m_descriptions.ElementAt(i);
     delete pStr;
@@ -76,32 +68,26 @@ nsImportFieldMap::~nsImportFieldMap()
   m_descriptions.Clear();
 }
 
-
-NS_IMETHODIMP nsImportFieldMap::GetNumMozFields(int32_t *aNumFields)
-{
+NS_IMETHODIMP nsImportFieldMap::GetNumMozFields(int32_t *aNumFields) {
   NS_ASSERTION(aNumFields != nullptr, "null ptr");
-  if (!aNumFields)
-    return NS_ERROR_NULL_POINTER;
+  if (!aNumFields) return NS_ERROR_NULL_POINTER;
 
   *aNumFields = m_mozFieldCount;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImportFieldMap::GetMapSize(int32_t *aNumFields)
-{
+NS_IMETHODIMP nsImportFieldMap::GetMapSize(int32_t *aNumFields) {
   NS_ASSERTION(aNumFields != nullptr, "null ptr");
-  if (!aNumFields)
-    return NS_ERROR_NULL_POINTER;
+  if (!aNumFields) return NS_ERROR_NULL_POINTER;
 
   *aNumFields = m_numFields;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImportFieldMap::GetFieldDescription(int32_t index, char16_t **_retval)
-{
+NS_IMETHODIMP nsImportFieldMap::GetFieldDescription(int32_t index,
+                                                    char16_t **_retval) {
   NS_ASSERTION(_retval != nullptr, "null ptr");
-  if (!_retval)
-    return NS_ERROR_NULL_POINTER;
+  if (!_retval) return NS_ERROR_NULL_POINTER;
 
   *_retval = nullptr;
   if ((index < 0) || ((size_t)index >= m_descriptions.Length()))
@@ -111,23 +97,18 @@ NS_IMETHODIMP nsImportFieldMap::GetFieldDescription(int32_t index, char16_t **_r
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImportFieldMap::SetFieldMapSize(int32_t size)
-{
+NS_IMETHODIMP nsImportFieldMap::SetFieldMapSize(int32_t size) {
   nsresult rv = Allocate(size);
-  if (NS_FAILED(rv))
-    return rv;
+  if (NS_FAILED(rv)) return rv;
 
   m_numFields = size;
 
   return NS_OK;
 }
 
-
-NS_IMETHODIMP nsImportFieldMap::DefaultFieldMap(int32_t size)
-{
+NS_IMETHODIMP nsImportFieldMap::DefaultFieldMap(int32_t size) {
   nsresult rv = SetFieldMapSize(size);
-  if (NS_FAILED(rv))
-    return rv;
+  if (NS_FAILED(rv)) return rv;
   for (int32_t i = 0; i < size; i++) {
     m_pFields[i] = i;
     m_pActive[i] = true;
@@ -136,32 +117,24 @@ NS_IMETHODIMP nsImportFieldMap::DefaultFieldMap(int32_t size)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImportFieldMap::GetFieldMap(int32_t index, int32_t *_retval)
-{
+NS_IMETHODIMP nsImportFieldMap::GetFieldMap(int32_t index, int32_t *_retval) {
   NS_ASSERTION(_retval != nullptr, "null ptr");
-  if (!_retval)
-    return NS_ERROR_NULL_POINTER;
+  if (!_retval) return NS_ERROR_NULL_POINTER;
 
-
-  if ((index < 0) || (index >= m_numFields))
-    return NS_ERROR_FAILURE;
+  if ((index < 0) || (index >= m_numFields)) return NS_ERROR_FAILURE;
 
   *_retval = m_pFields[index];
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImportFieldMap::SetFieldMap(int32_t index, int32_t fieldNum)
-{
+NS_IMETHODIMP nsImportFieldMap::SetFieldMap(int32_t index, int32_t fieldNum) {
   if (index == -1) {
     nsresult rv = Allocate(m_numFields + 1);
-    if (NS_FAILED(rv))
-      return rv;
+    if (NS_FAILED(rv)) return rv;
     index = m_numFields;
     m_numFields++;
-  }
-  else {
-    if ((index < 0) || (index >= m_numFields))
-      return NS_ERROR_FAILURE;
+  } else {
+    if ((index < 0) || (index >= m_numFields)) return NS_ERROR_FAILURE;
   }
 
   if ((fieldNum != -1) && ((fieldNum < 0) || (fieldNum >= m_mozFieldCount)))
@@ -171,42 +144,34 @@ NS_IMETHODIMP nsImportFieldMap::SetFieldMap(int32_t index, int32_t fieldNum)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImportFieldMap::GetFieldActive(int32_t index, bool *active)
-{
+NS_IMETHODIMP nsImportFieldMap::GetFieldActive(int32_t index, bool *active) {
   NS_ASSERTION(active != nullptr, "null ptr");
-  if (!active)
-    return NS_ERROR_NULL_POINTER;
-  if ((index < 0) || (index >= m_numFields))
-    return NS_ERROR_FAILURE;
+  if (!active) return NS_ERROR_NULL_POINTER;
+  if ((index < 0) || (index >= m_numFields)) return NS_ERROR_FAILURE;
 
   *active = m_pActive[index];
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImportFieldMap::SetFieldActive(int32_t index, bool active)
-{
-  if ((index < 0) || (index >= m_numFields))
-    return NS_ERROR_FAILURE;
+NS_IMETHODIMP nsImportFieldMap::SetFieldActive(int32_t index, bool active) {
+  if ((index < 0) || (index >= m_numFields)) return NS_ERROR_FAILURE;
 
   m_pActive[index] = active;
   return NS_OK;
 }
 
-
-NS_IMETHODIMP nsImportFieldMap::SetFieldValue(nsIAddrDatabase *database, nsIMdbRow *row, int32_t fieldNum, const char16_t *value)
-{
+NS_IMETHODIMP nsImportFieldMap::SetFieldValue(nsIAddrDatabase *database,
+                                              nsIMdbRow *row, int32_t fieldNum,
+                                              const char16_t *value) {
   NS_ASSERTION(database != nullptr, "null ptr");
   NS_ASSERTION(row != nullptr, "null ptr");
   NS_ASSERTION(value != nullptr, "null ptr");
-  if (!database || !row || !value)
-    return NS_ERROR_NULL_POINTER;
+  if (!database || !row || !value) return NS_ERROR_NULL_POINTER;
 
   // Allow the special value for a null field
-  if (fieldNum == -1)
-    return NS_OK;
+  if (fieldNum == -1) return NS_OK;
 
-  if ((fieldNum < 0) || (fieldNum >= m_mozFieldCount))
-    return NS_ERROR_FAILURE;
+  if ((fieldNum < 0) || (fieldNum >= m_mozFieldCount)) return NS_ERROR_FAILURE;
 
   // UGGG!!!!! lot's of typing here!
   nsresult rv;
@@ -214,124 +179,122 @@ NS_IMETHODIMP nsImportFieldMap::SetFieldValue(nsIAddrDatabase *database, nsIMdbR
   nsString str(value);
   char *pVal = ToNewUTF8String(str);
 
-  switch(fieldNum) {
-  case 0:
-    rv = database->AddFirstName(row, pVal);
-    break;
-  case 1:
-    rv = database->AddLastName(row, pVal);
-    break;
-  case 2:
-    rv = database->AddDisplayName(row, pVal);
-    break;
-  case 3:
-    rv = database->AddNickName(row, pVal);
-    break;
-  case 4:
-    rv = database->AddPrimaryEmail(row, pVal);
-    break;
-  case 5:
-    rv = database->Add2ndEmail(row, pVal);
-    break;
-  case 6:
-    rv = database->AddWorkPhone(row, pVal);
-    break;
-  case 7:
-    rv = database->AddHomePhone(row, pVal);
-    break;
-  case 8:
-    rv = database->AddFaxNumber(row, pVal);
-    break;
-  case 9:
-    rv = database->AddPagerNumber(row, pVal);
-    break;
-  case 10:
-    rv = database->AddCellularNumber(row, pVal);
-    break;
-  case 11:
-    rv = database->AddHomeAddress(row, pVal);
-    break;
-  case 12:
-    rv = database->AddHomeAddress2(row, pVal);
-    break;
-  case 13:
-    rv = database->AddHomeCity(row, pVal);
-    break;
-  case 14:
-    rv = database->AddHomeState(row, pVal);
-    break;
-  case 15:
-    rv = database->AddHomeZipCode(row, pVal);
-    break;
-  case 16:
-    rv = database->AddHomeCountry(row, pVal);
-    break;
-  case 17:
-    rv = database->AddWorkAddress(row, pVal);
-    break;
-  case 18:
-    rv = database->AddWorkAddress2(row, pVal);
-    break;
-  case 19:
-    rv = database->AddWorkCity(row, pVal);
-    break;
-  case 20:
-    rv = database->AddWorkState(row, pVal);
-    break;
-  case 21:
-    rv = database->AddWorkZipCode(row, pVal);
-    break;
-  case 22:
-    rv = database->AddWorkCountry(row, pVal);
-    break;
-  case 23:
-    rv = database->AddJobTitle(row, pVal);
-    break;
-  case 24:
-    rv = database->AddDepartment(row, pVal);
-    break;
-  case 25:
-    rv = database->AddCompany(row, pVal);
-    break;
-  case 26:
-    rv = database->AddWebPage1(row, pVal);
-    break;
-  case 27:
-    rv = database->AddWebPage2(row, pVal);
-    break;
-  case 28:
-    rv = database->AddBirthYear(row, pVal);
-    break;
-  case 29:
-    rv = database->AddBirthMonth(row, pVal);
-    break;
-  case 30:
-    rv = database->AddBirthDay(row, pVal);
-    break;
-  case 31:
-    rv = database->AddCustom1(row, pVal);
-    break;
-  case 32:
-    rv = database->AddCustom2(row, pVal);
-    break;
-  case 33:
-    rv = database->AddCustom3(row, pVal);
-    break;
-  case 34:
-    rv = database->AddCustom4(row, pVal);
-    break;
-  case 35:
-    rv = database->AddNotes(row, pVal);
-    break;
-  case 36:
-    rv = database->AddAimScreenName(row, pVal);
-    break;
-  default:
-    /* Get the field description, and add it as an anonymous attr? */
-    /* OR WHAT???? */
-    {
-      rv = NS_ERROR_FAILURE;
-    }
+  switch (fieldNum) {
+    case 0:
+      rv = database->AddFirstName(row, pVal);
+      break;
+    case 1:
+      rv = database->AddLastName(row, pVal);
+      break;
+    case 2:
+      rv = database->AddDisplayName(row, pVal);
+      break;
+    case 3:
+      rv = database->AddNickName(row, pVal);
+      break;
+    case 4:
+      rv = database->AddPrimaryEmail(row, pVal);
+      break;
+    case 5:
+      rv = database->Add2ndEmail(row, pVal);
+      break;
+    case 6:
+      rv = database->AddWorkPhone(row, pVal);
+      break;
+    case 7:
+      rv = database->AddHomePhone(row, pVal);
+      break;
+    case 8:
+      rv = database->AddFaxNumber(row, pVal);
+      break;
+    case 9:
+      rv = database->AddPagerNumber(row, pVal);
+      break;
+    case 10:
+      rv = database->AddCellularNumber(row, pVal);
+      break;
+    case 11:
+      rv = database->AddHomeAddress(row, pVal);
+      break;
+    case 12:
+      rv = database->AddHomeAddress2(row, pVal);
+      break;
+    case 13:
+      rv = database->AddHomeCity(row, pVal);
+      break;
+    case 14:
+      rv = database->AddHomeState(row, pVal);
+      break;
+    case 15:
+      rv = database->AddHomeZipCode(row, pVal);
+      break;
+    case 16:
+      rv = database->AddHomeCountry(row, pVal);
+      break;
+    case 17:
+      rv = database->AddWorkAddress(row, pVal);
+      break;
+    case 18:
+      rv = database->AddWorkAddress2(row, pVal);
+      break;
+    case 19:
+      rv = database->AddWorkCity(row, pVal);
+      break;
+    case 20:
+      rv = database->AddWorkState(row, pVal);
+      break;
+    case 21:
+      rv = database->AddWorkZipCode(row, pVal);
+      break;
+    case 22:
+      rv = database->AddWorkCountry(row, pVal);
+      break;
+    case 23:
+      rv = database->AddJobTitle(row, pVal);
+      break;
+    case 24:
+      rv = database->AddDepartment(row, pVal);
+      break;
+    case 25:
+      rv = database->AddCompany(row, pVal);
+      break;
+    case 26:
+      rv = database->AddWebPage1(row, pVal);
+      break;
+    case 27:
+      rv = database->AddWebPage2(row, pVal);
+      break;
+    case 28:
+      rv = database->AddBirthYear(row, pVal);
+      break;
+    case 29:
+      rv = database->AddBirthMonth(row, pVal);
+      break;
+    case 30:
+      rv = database->AddBirthDay(row, pVal);
+      break;
+    case 31:
+      rv = database->AddCustom1(row, pVal);
+      break;
+    case 32:
+      rv = database->AddCustom2(row, pVal);
+      break;
+    case 33:
+      rv = database->AddCustom3(row, pVal);
+      break;
+    case 34:
+      rv = database->AddCustom4(row, pVal);
+      break;
+    case 35:
+      rv = database->AddNotes(row, pVal);
+      break;
+    case 36:
+      rv = database->AddAimScreenName(row, pVal);
+      break;
+    default:
+      /* Get the field description, and add it as an anonymous attr? */
+      /* OR WHAT???? */
+      { rv = NS_ERROR_FAILURE; }
   }
 
   free(pVal);
@@ -339,26 +302,21 @@ NS_IMETHODIMP nsImportFieldMap::SetFieldValue(nsIAddrDatabase *database, nsIMdbR
   return rv;
 }
 
-
-nsresult nsImportFieldMap::Allocate(int32_t newSize)
-{
-  if (newSize <= m_allocated)
-    return NS_OK;
+nsresult nsImportFieldMap::Allocate(int32_t newSize) {
+  if (newSize <= m_allocated) return NS_OK;
 
   int32_t sz = m_allocated;
-  while (sz < newSize)
-    sz += 30;
+  while (sz < newSize) sz += 30;
 
-  int32_t  *pData = new int32_t[ sz];
-  if (!pData)
-    return NS_ERROR_OUT_OF_MEMORY;
+  int32_t *pData = new int32_t[sz];
+  if (!pData) return NS_ERROR_OUT_OF_MEMORY;
   bool *pActive = new bool[sz];
   if (!pActive) {
-    delete [] pData;
+    delete[] pData;
     return NS_ERROR_OUT_OF_MEMORY;
   }
 
-  int32_t  i;
+  int32_t i;
   for (i = 0; i < sz; i++) {
     pData[i] = -1;
     pActive[i] = true;
@@ -368,8 +326,8 @@ nsresult nsImportFieldMap::Allocate(int32_t newSize)
       pData[i] = m_pFields[i];
       pActive[i] = m_pActive[i];
     }
-    delete [] m_pFields;
-    delete [] m_pActive;
+    delete[] m_pFields;
+    delete[] m_pActive;
   }
   m_allocated = sz;
   m_pFields = pData;

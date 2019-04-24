@@ -10,29 +10,26 @@ class nsILineInputStream;
 class nsIINIParser;
 
 class nsBeckyUtils final {
-public:
+ public:
   static nsresult FindUserDirectoryOnWindows7(nsIFile **aLocation);
   static nsresult FindUserDirectoryOnWindowsXP(nsIFile **aLocation);
   static nsresult FindUserDirectory(nsIFile **aFile);
-  static nsresult ConvertNativeStringToUTF8(const nsACString& aOriginal,
-                                            nsACString& _retval);
+  static nsresult ConvertNativeStringToUTF8(const nsACString &aOriginal,
+                                            nsACString &_retval);
   static nsresult CreateLineInputStream(nsIFile *aFile,
                                         nsILineInputStream **_retval);
   static nsresult GetDefaultMailboxDirectory(nsIFile **_retval);
-  static nsresult GetFolderListFile(nsIFile *aLocation,
-                                    nsIFile **_retval);
+  static nsresult GetFolderListFile(nsIFile *aLocation, nsIFile **_retval);
   static nsresult GetDefaultFolderName(nsIFile *aFolderListFile,
-                                       nsACString& name);
+                                       nsACString &name);
   static nsresult GetDefaultMailboxINIFile(nsIFile **_retval);
   static nsresult GetMailboxINIFile(nsIFile *aDirectory, nsIFile **_retval);
   static nsresult CreateINIParserForFile(nsIFile *aFile,
                                          nsIINIParser **aParser);
   static nsresult GetMailboxNameFromINIFile(nsIFile *aFile, nsCString &aName);
-  static nsresult ConvertToUTF8File(nsIFile *aSourceFile,
-                                    nsIFile **_retval);
-  static nsresult TranslateFolderName(const nsAString & aFolderName,
-                                      nsAString & _retval);
+  static nsresult ConvertToUTF8File(nsIFile *aSourceFile, nsIFile **_retval);
+  static nsresult TranslateFolderName(const nsAString &aFolderName,
+                                      nsAString &_retval);
 };
-
 
 #endif /* _nsBeckyUtils_H__ */

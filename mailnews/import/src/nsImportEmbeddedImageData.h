@@ -11,11 +11,11 @@
 #include "nsCOMPtr.h"
 #include "nsIURI.h"
 
-class nsImportEmbeddedImageData final : public nsIMsgEmbeddedImageData
-{
-public:
+class nsImportEmbeddedImageData final : public nsIMsgEmbeddedImageData {
+ public:
   nsImportEmbeddedImageData(nsIURI *aUri, const nsACString &aCID);
-  nsImportEmbeddedImageData(nsIURI *aUri, const nsACString &aCID, const nsACString &aName);
+  nsImportEmbeddedImageData(nsIURI *aUri, const nsACString &aCID,
+                            const nsACString &aName);
   nsImportEmbeddedImageData();
   NS_DECL_NSIMSGEMBEDDEDIMAGEDATA
   NS_DECL_ISUPPORTS
@@ -24,9 +24,8 @@ public:
   nsCString m_cid;
   nsCString m_name;
 
-private:
+ private:
   ~nsImportEmbeddedImageData();
 };
-
 
 #endif

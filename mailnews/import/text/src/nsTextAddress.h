@@ -22,36 +22,38 @@ class nsIUnicharLineInputStream;
 /////////////////////////////////////////////////////////////////////////////////////
 
 class nsTextAddress {
-public:
+ public:
   nsTextAddress();
   virtual ~nsTextAddress();
 
-  nsresult ImportAddresses(bool *pAbort, const char16_t *pName, nsIFile *pSrc, nsIAddrDatabase *pDb, nsIImportFieldMap *fieldMap, nsString& errors, uint32_t *pProgress);
+  nsresult ImportAddresses(bool *pAbort, const char16_t *pName, nsIFile *pSrc,
+                           nsIAddrDatabase *pDb, nsIImportFieldMap *fieldMap,
+                           nsString &errors, uint32_t *pProgress);
 
   nsresult DetermineDelim(nsIFile *pSrc);
   char16_t GetDelim(void) { return m_delim; }
 
-  static nsresult ReadRecordNumber(nsIFile *pSrc, nsAString &aLine, int32_t rNum);
-  static bool GetField(const nsAString &aLine, int32_t index, nsString &field, char16_t delim);
+  static nsresult ReadRecordNumber(nsIFile *pSrc, nsAString &aLine,
+                                   int32_t rNum);
+  static bool GetField(const nsAString &aLine, int32_t index, nsString &field,
+                       char16_t delim);
 
-private:
+ private:
   nsresult ProcessLine(const nsAString &aLine, nsString &errors);
 
   static int32_t CountFields(const nsAString &aLine, char16_t delim);
-  static nsresult ReadRecord(nsIUnicharLineInputStream *pSrc, nsAString &aLine, bool *aMore);
-  static nsresult GetUnicharLineStreamForFile(nsIFile *aFile,
-                                              nsIInputStream *aInputStream,
-                                              nsIUnicharLineInputStream **aStream);
+  static nsresult ReadRecord(nsIUnicharLineInputStream *pSrc, nsAString &aLine,
+                             bool *aMore);
+  static nsresult GetUnicharLineStreamForFile(
+      nsIFile *aFile, nsIInputStream *aInputStream,
+      nsIUnicharLineInputStream **aStream);
 
   char16_t m_delim;
   int32_t m_LFCount;
   int32_t m_CRCount;
-  nsCOMPtr<nsIAddrDatabase>   m_database;
+  nsCOMPtr<nsIAddrDatabase> m_database;
   nsCOMPtr<nsIImportFieldMap> m_fieldMap;
-  nsCOMPtr<nsIImportService>  m_pService;
+  nsCOMPtr<nsIImportService> m_pService;
 };
 
-
-
 #endif /* nsTextAddress_h__ */
-

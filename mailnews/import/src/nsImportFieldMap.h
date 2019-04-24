@@ -8,7 +8,7 @@
 
 #include "nscore.h"
 #include "nsIImportFieldMap.h"
-#include "nsIAddrDatabase.h" // For SetFieldValue() arguments
+#include "nsIAddrDatabase.h"  // For SetFieldValue() arguments
 #include "nsTArray.h"
 #include "nsString.h"
 #include "nsIStringBundle.h"
@@ -17,30 +17,29 @@
 
 class nsIStringBundle;
 
-class nsImportFieldMap : public nsIImportFieldMap
-{
-public:
+class nsImportFieldMap : public nsIImportFieldMap {
+ public:
   NS_DECL_THREADSAFE_ISUPPORTS
 
   NS_DECL_NSIIMPORTFIELDMAP
 
   explicit nsImportFieldMap(nsIStringBundle *aBundle);
 
-  static nsresult Create(nsIStringBundle *aBundle, nsISupports *aOuter, REFNSIID aIID, void **aResult);
+  static nsresult Create(nsIStringBundle *aBundle, nsISupports *aOuter,
+                         REFNSIID aIID, void **aResult);
 
-private:
+ private:
   virtual ~nsImportFieldMap();
-  nsresult  Allocate(int32_t newSize);
+  nsresult Allocate(int32_t newSize);
 
-private:
-  int32_t    m_numFields;
-  int32_t  *  m_pFields;
-  bool *  m_pActive;
-  int32_t    m_allocated;
-  nsTArray<nsString*>  m_descriptions;
-  int32_t    m_mozFieldCount;
-  bool        m_skipFirstRecord;
+ private:
+  int32_t m_numFields;
+  int32_t *m_pFields;
+  bool *m_pActive;
+  int32_t m_allocated;
+  nsTArray<nsString *> m_descriptions;
+  int32_t m_mozFieldCount;
+  bool m_skipFirstRecord;
 };
-
 
 #endif

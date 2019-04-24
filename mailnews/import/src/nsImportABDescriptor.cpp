@@ -3,16 +3,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
 #include "nscore.h"
 #include "nsImportABDescriptor.h"
 
 ////////////////////////////////////////////////////////////////////////
 
-nsresult nsImportABDescriptor::Create(nsISupports *aOuter, REFNSIID aIID, void **aResult)
-{
-  if (aOuter)
-    return NS_ERROR_NO_AGGREGATION;
+nsresult nsImportABDescriptor::Create(nsISupports *aOuter, REFNSIID aIID,
+                                      void **aResult) {
+  if (aOuter) return NS_ERROR_NO_AGGREGATION;
 
   RefPtr<nsImportABDescriptor> it = new nsImportABDescriptor();
   return it->QueryInterface(aIID, aResult);
@@ -21,6 +19,4 @@ nsresult nsImportABDescriptor::Create(nsISupports *aOuter, REFNSIID aIID, void *
 NS_IMPL_ISUPPORTS(nsImportABDescriptor, nsIImportABDescriptor)
 
 nsImportABDescriptor::nsImportABDescriptor()
-  : mId(0), mRef(0), mSize(0), mImport(true)
-{
-}
+    : mId(0), mRef(0), mSize(0), mImport(true) {}

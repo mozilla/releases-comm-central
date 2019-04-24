@@ -15,9 +15,8 @@
 
 ////////////////////////////////////////////////////////////////////////
 
-class nsImportABDescriptor : public nsIImportABDescriptor
-{
-public:
+class nsImportABDescriptor : public nsIImportABDescriptor {
+ public:
   NS_DECL_THREADSAFE_ISUPPORTS
 
   NS_IMETHOD GetIdentifier(uint32_t *pIdentifier) override {
@@ -60,8 +59,7 @@ public:
 
   /* readonly attribute nsIFile fileSpec; */
   NS_IMETHOD GetAbFile(nsIFile **aFile) override {
-    if (!mFile)
-      return NS_ERROR_NULL_POINTER;
+    if (!mFile) return NS_ERROR_NULL_POINTER;
 
     return mFile->Clone(aFile);
   }
@@ -89,15 +87,14 @@ public:
 
   static nsresult Create(nsISupports *aOuter, REFNSIID aIID, void **aResult);
 
-private:
+ private:
   virtual ~nsImportABDescriptor() {}
-  uint32_t mId; // used by creator of the structure
-  uint32_t mRef; // depth in the hierarchy
-  nsString mDisplayName; // name of this mailbox
-  nsCOMPtr<nsIFile> mFile; // source file (if applicable)
-  uint32_t mSize; // size
-  bool mImport; // import it or not?
+  uint32_t mId;             // used by creator of the structure
+  uint32_t mRef;            // depth in the hierarchy
+  nsString mDisplayName;    // name of this mailbox
+  nsCOMPtr<nsIFile> mFile;  // source file (if applicable)
+  uint32_t mSize;           // size
+  bool mImport;             // import it or not?
 };
-
 
 #endif

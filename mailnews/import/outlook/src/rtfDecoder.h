@@ -5,13 +5,12 @@
 #include <istream>
 
 template <size_t len>
-inline bool eq(const char* str1, const char (&str2)[len])
-{
+inline bool eq(const char* str1, const char (&str2)[len]) {
   return ::strncmp(str1, str2, len) == 0;
 };
 
 class CRTFDecoder {
-public:
+ public:
   virtual void BeginGroup() = 0;
   virtual void EndGroup() = 0;
   virtual void Keyword(const char* name, const int* Val) = 0;

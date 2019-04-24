@@ -12,32 +12,27 @@
 
 #include "nsBeckyStringBundle.h"
 
-#define BECKY_MESSAGES_URL "chrome://messenger/locale/beckyImportMsgs.properties"
+#define BECKY_MESSAGES_URL \
+  "chrome://messenger/locale/beckyImportMsgs.properties"
 
 nsCOMPtr<nsIStringBundle> nsBeckyStringBundle::mBundle = nullptr;
 
-void
-nsBeckyStringBundle::GetStringBundle(void)
-{
-  if (mBundle)
-    return;
+void nsBeckyStringBundle::GetStringBundle(void) {
+  if (mBundle) return;
 
   nsresult rv;
-  nsCOMPtr<nsIStringBundleService> bundleService = do_GetService(NS_STRINGBUNDLE_CONTRACTID, &rv);
+  nsCOMPtr<nsIStringBundleService> bundleService =
+      do_GetService(NS_STRINGBUNDLE_CONTRACTID, &rv);
   if (NS_SUCCEEDED(rv) && bundleService)
-    rv = bundleService->CreateBundle(BECKY_MESSAGES_URL, getter_AddRefs(mBundle));
+    rv = bundleService->CreateBundle(BECKY_MESSAGES_URL,
+                                     getter_AddRefs(mBundle));
 }
 
-void
-nsBeckyStringBundle::EnsureStringBundle(void)
-{
-  if (!mBundle)
-    GetStringBundle();
+void nsBeckyStringBundle::EnsureStringBundle(void) {
+  if (!mBundle) GetStringBundle();
 }
 
-char16_t *
-nsBeckyStringBundle::GetStringByName(const char *aName)
-{
+char16_t *nsBeckyStringBundle::GetStringByName(const char *aName) {
   EnsureStringBundle();
 
   if (mBundle) {
@@ -49,22 +44,13 @@ nsBeckyStringBundle::GetStringByName(const char *aName)
   return nullptr;
 }
 
-nsresult
-nsBeckyStringBundle::FormatStringFromName(const char *name,
-                                          const char16_t **params,
-                                          uint32_t length,
-                                          nsAString& _retval)
-{
+nsresult nsBeckyStringBundle::FormatStringFromName(const char *name,
+                                                   const char16_t **params,
+                                                   uint32_t length,
+                                                   nsAString &_retval) {
   EnsureStringBundle();
 
-  return mBundle->FormatStringFromName(name,
-                                       params,
-                                       length,
-                                       _retval);
+  return mBundle->FormatStringFromName(name, params, length, _retval);
 }
 
-void
-nsBeckyStringBundle::Cleanup(void)
-{
-  mBundle = nullptr;
-}
+void nsBeckyStringBundle::Cleanup(void) { mBundle = nullptr; }

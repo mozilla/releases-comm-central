@@ -9,25 +9,24 @@
 class nsIStringBundle;
 
 class nsBeckyStringBundle final {
-public:
+ public:
   static char16_t *GetStringByName(const char *name);
   static nsresult FormatStringFromName(const char *name,
-                                       const char16_t **params,
-                                       uint32_t length,
-                                       nsAString& _retval);
+                                       const char16_t **params, uint32_t length,
+                                       nsAString &_retval);
   static void GetStringBundle(void);
   static void EnsureStringBundle(void);
   static void Cleanup(void);
-private:
+
+ private:
   static nsCOMPtr<nsIStringBundle> mBundle;
 };
 
-#define BECKYIMPORT_NAME                     2000
-#define BECKYIMPORT_DESCRIPTION              2001
-#define BECKYIMPORT_MAILBOX_SUCCESS          2002
-#define BECKYIMPORT_MAILBOX_BADPARAM         2003
-#define BECKYIMPORT_MAILBOX_CONVERTERROR     2004
-#define BECKYIMPORT_ADDRESS_SUCCESS          2005
-
+#define BECKYIMPORT_NAME 2000
+#define BECKYIMPORT_DESCRIPTION 2001
+#define BECKYIMPORT_MAILBOX_SUCCESS 2002
+#define BECKYIMPORT_MAILBOX_BADPARAM 2003
+#define BECKYIMPORT_MAILBOX_CONVERTERROR 2004
+#define BECKYIMPORT_ADDRESS_SUCCESS 2005
 
 #endif /* _nsBeckyStringBundle_H__ */

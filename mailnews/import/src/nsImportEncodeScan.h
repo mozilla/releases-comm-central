@@ -12,28 +12,28 @@
 #include "nsString.h"
 
 class nsImportEncodeScan : public nsImportScanFile {
-public:
+ public:
   nsImportEncodeScan();
   ~nsImportEncodeScan();
 
-  bool    InitEncodeScan(bool appleSingleEncode, nsIFile *pFile, const char *pName, uint8_t * pBuf, uint32_t sz);
-  void  CleanUpEncodeScan(void);
+  bool InitEncodeScan(bool appleSingleEncode, nsIFile *pFile, const char *pName,
+                      uint8_t *pBuf, uint32_t sz);
+  void CleanUpEncodeScan(void);
 
-  virtual bool    Scan(bool *pDone) override;
+  virtual bool Scan(bool *pDone) override;
 
-protected:
-  void   FillInEntries(int numEntries);
-  bool     AddEntries(void);
+ protected:
+  void FillInEntries(int numEntries);
+  bool AddEntries(void);
 
-protected:
-  bool        m_isAppleSingle;
-  nsCOMPtr<nsIFile>   m_pInputFile;
-        nsCOMPtr<nsIInputStream> m_inputStream;
-  int      m_encodeScanState;
-  long      m_resourceForkSize;
-  long      m_dataForkSize;
-  nsCString    m_useFileName;
+ protected:
+  bool m_isAppleSingle;
+  nsCOMPtr<nsIFile> m_pInputFile;
+  nsCOMPtr<nsIInputStream> m_inputStream;
+  int m_encodeScanState;
+  long m_resourceForkSize;
+  long m_dataForkSize;
+  nsCString m_useFileName;
 };
 
 #endif /* nsImportEncodeScan_h__ */
-

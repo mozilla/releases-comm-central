@@ -18,33 +18,29 @@
 
 #import <Cocoa/Cocoa.h>
 
-
 nsresult nsEmlxHelperUtils::ConvertToMozillaStatusFlags(const char *aXMLBufferStart,
                                                         const char *aXMLBufferEnd,
-                                                        uint32_t *aMozillaStatusFlags)
-{
+                                                        uint32_t *aMozillaStatusFlags) {
   // create a NSData wrapper around the buffer, so we can use the Cocoa call below
-  NSData *metadata =
-    [[[NSData alloc] initWithBytesNoCopy:(void *)aXMLBufferStart length:(aXMLBufferEnd-aXMLBufferStart) freeWhenDone:NO] autorelease];
+  NSData *metadata = [[[NSData alloc] initWithBytesNoCopy:(void *)aXMLBufferStart
+                                                   length:(aXMLBufferEnd - aXMLBufferStart)
+                                             freeWhenDone:NO] autorelease];
 
   // get the XML data as a dictionary
   NSPropertyListFormat format;
   id plist = [NSPropertyListSerialization propertyListWithData:metadata
-                                              options:NSPropertyListImmutable
+                                                       options:NSPropertyListImmutable
                                                         format:&format
-                                              error:NULL];
+                                                         error:NULL];
 
-  if (!plist)
-    return NS_ERROR_FAILURE;
+  if (!plist) return NS_ERROR_FAILURE;
 
   // find the <flags>...</flags> value and convert to int
   const uint32_t emlxMessageFlags = [[(NSDictionary *)plist objectForKey:@"flags"] intValue];
 
-  if (emlxMessageFlags == 0)
-    return NS_ERROR_FAILURE;
+  if (emlxMessageFlags == 0) return NS_ERROR_FAILURE;
 
-  if (emlxMessageFlags & nsEmlxHelperUtils::kRead)
-    *aMozillaStatusFlags |= nsMsgMessageFlags::Read;
+  if (emlxMessageFlags & nsEmlxHelperUtils::kRead) *aMozillaStatusFlags |= nsMsgMessageFlags::Read;
   if (emlxMessageFlags & nsEmlxHelperUtils::kForwarded)
     *aMozillaStatusFlags |= nsMsgMessageFlags::Forwarded;
   if (emlxMessageFlags & nsEmlxHelperUtils::kAnswered)
@@ -55,26 +51,23 @@ nsresult nsEmlxHelperUtils::ConvertToMozillaStatusFlags(const char *aXMLBufferSt
   return NS_OK;
 }
 
-nsresult nsEmlxHelperUtils::ConvertToMboxRD(const char *aMessageBufferStart, const char *aMessageBufferEnd, nsCString &aOutBuffer)
-{
+nsresult nsEmlxHelperUtils::ConvertToMboxRD(const char *aMessageBufferStart,
+                                            const char *aMessageBufferEnd, nsCString &aOutBuffer) {
   nsTArray<const char *> foundFromLines;
 
   const char *cur = aMessageBufferStart;
   while (cur < aMessageBufferEnd) {
-
-    const char *foundFromStr = strnstr(cur, "From ", aMessageBufferEnd-cur);
+    const char *foundFromStr = strnstr(cur, "From ", aMessageBufferEnd - cur);
 
     if (foundFromStr) {
       // skip all prepending '>' chars
       const char *fromLineStart = foundFromStr;
       while (fromLineStart-- >= aMessageBufferStart) {
         if (*fromLineStart == '\n' || fromLineStart == aMessageBufferStart) {
-          if (fromLineStart > aMessageBufferStart)
-            fromLineStart++;
+          if (fromLineStart > aMessageBufferStart) fromLineStart++;
           foundFromLines.AppendElement(fromLineStart);
           break;
-        }
-        else if (*fromLineStart != '>')
+        } else if (*fromLineStart != '>')
           break;
       }
 
@@ -90,10 +83,9 @@ nsresult nsEmlxHelperUtils::ConvertToMboxRD(const char *aMessageBufferStart, con
 
   // go through foundFromLines
   if (foundFromLines.Length()) {
-
     const char *chunkStart = aMessageBufferStart;
-    for (unsigned i=0; i<foundFromLines.Length(); ++i) {
-      aOutBuffer.Append(chunkStart, (foundFromLines[i]-chunkStart));
+    for (unsigned i = 0; i < foundFromLines.Length(); ++i) {
+      aOutBuffer.Append(chunkStart, (foundFromLines[i] - chunkStart));
       aOutBuffer.Append(NS_LITERAL_CSTRING(">"));
 
       chunkStart = foundFromLines[i];
@@ -104,8 +96,7 @@ nsresult nsEmlxHelperUtils::ConvertToMboxRD(const char *aMessageBufferStart, con
   return NS_OK;
 }
 
-nsresult nsEmlxHelperUtils::AddEmlxMessageToStream(nsIFile *aMessage, nsIOutputStream *aOut)
-{
+nsresult nsEmlxHelperUtils::AddEmlxMessageToStream(nsIFile *aMessage, nsIOutputStream *aOut) {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NSRESULT;
 
   // needed to be sure autoreleased objects are released too, which they might not
@@ -143,9 +134,7 @@ nsresult nsEmlxHelperUtils::AddEmlxMessageToStream(nsIFile *aMessage, nsIOutputS
   }
 
   // skip whitespace
-  while (*startOfMessageData == ' '  ||
-         *startOfMessageData == '\n' ||
-         *startOfMessageData == '\r' ||
+  while (*startOfMessageData == ' ' || *startOfMessageData == '\n' || *startOfMessageData == '\r' ||
          *startOfMessageData == '\t')
     ++startOfMessageData;
 
@@ -159,7 +148,8 @@ nsresult nsEmlxHelperUtils::AddEmlxMessageToStream(nsIFile *aMessage, nsIOutputS
     return rv;
   }
 
-  // now read the XML metadata, so we can extract info like which flags (read? replied? flagged? etc) this message has.
+  // now read the XML metadata, so we can extract info like which flags (read? replied? flagged?
+  // etc) this message has.
   const char *startOfXMLMetadata = startOfMessageData + numberOfBytesToRead;
   const char *endOfXMLMetadata = (char *)[data bytes] + [data length];
 
@@ -205,7 +195,8 @@ nsresult nsEmlxHelperUtils::AddEmlxMessageToStream(nsIFile *aMessage, nsIOutputS
 
   // do any conversion needed for the mbox data to be valid mboxrd.
   nsCString convertedData;
-  rv = ConvertToMboxRD(startOfMessageData, (startOfMessageData + numberOfBytesToRead), convertedData);
+  rv = ConvertToMboxRD(startOfMessageData, (startOfMessageData + numberOfBytesToRead),
+                       convertedData);
   if (NS_FAILED(rv)) {
     [pool release];
     return rv;
@@ -224,7 +215,8 @@ nsresult nsEmlxHelperUtils::AddEmlxMessageToStream(nsIFile *aMessage, nsIOutputS
     return rv;
   }
 
-  NS_ASSERTION(actualBytesWritten == (convertedData.IsEmpty() ? numberOfBytesToRead : convertedData.Length()),
+  NS_ASSERTION(actualBytesWritten ==
+                   (convertedData.IsEmpty() ? numberOfBytesToRead : convertedData.Length()),
                "Didn't write as many bytes as expected for .emlx file?");
 
   // add newlines to denote the end of this message in the mbox

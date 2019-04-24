@@ -13,12 +13,11 @@
 #include "mozilla/Services.h"
 
 nsresult nsImportStringBundle::GetStringBundle(const char *aPropertyURL,
-                                               nsIStringBundle **aBundle)
-{
+                                               nsIStringBundle **aBundle) {
   nsresult rv;
 
   nsCOMPtr<nsIStringBundleService> sBundleService =
-    mozilla::services::GetStringBundleService();
+      mozilla::services::GetStringBundleService();
   NS_ENSURE_TRUE(sBundleService, NS_ERROR_UNEXPECTED);
   rv = sBundleService->CreateBundle(aPropertyURL, aBundle);
 
@@ -27,20 +26,16 @@ nsresult nsImportStringBundle::GetStringBundle(const char *aPropertyURL,
 
 void nsImportStringBundle::GetStringByID(int32_t aStringID,
                                          nsIStringBundle *aBundle,
-                                         nsString &aResult)
-{
+                                         nsString &aResult) {
   aResult.Adopt(GetStringByID(aStringID, aBundle));
 }
 
 char16_t *nsImportStringBundle::GetStringByID(int32_t aStringID,
-                                               nsIStringBundle *aBundle)
-{
-  if (aBundle)
-  {
+                                              nsIStringBundle *aBundle) {
+  if (aBundle) {
     nsAutoString str;
     nsresult rv = aBundle->GetStringFromID(aStringID, str);
-    if (NS_SUCCEEDED(rv))
-      return ToNewUnicode(str);
+    if (NS_SUCCEEDED(rv)) return ToNewUnicode(str);
   }
 
   nsString resultString(NS_LITERAL_STRING("[StringID "));
@@ -52,20 +47,16 @@ char16_t *nsImportStringBundle::GetStringByID(int32_t aStringID,
 
 void nsImportStringBundle::GetStringByName(const char *aName,
                                            nsIStringBundle *aBundle,
-                                           nsString &aResult)
-{
+                                           nsString &aResult) {
   aResult.Adopt(GetStringByName(aName, aBundle));
 }
 
 char16_t *nsImportStringBundle::GetStringByName(const char *aName,
-                                                 nsIStringBundle *aBundle)
-{
-  if (aBundle)
-  {
+                                                nsIStringBundle *aBundle) {
+  if (aBundle) {
     nsAutoString str;
     nsresult rv = aBundle->GetStringFromName(aName, str);
-    if (NS_SUCCEEDED(rv))
-      return ToNewUnicode(str);
+    if (NS_SUCCEEDED(rv)) return ToNewUnicode(str);
   }
 
   nsString resultString(NS_LITERAL_STRING("[StringName "));

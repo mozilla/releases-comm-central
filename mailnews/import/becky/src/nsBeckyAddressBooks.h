@@ -10,16 +10,15 @@
 #include "nsIFile.h"
 #include "nsIMutableArray.h"
 
-class nsBeckyAddressBooks final : public nsIImportAddressBooks
-{
-public:
+class nsBeckyAddressBooks final : public nsIImportAddressBooks {
+ public:
   nsBeckyAddressBooks();
   static nsresult Create(nsIImportAddressBooks **aImport);
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIIMPORTADDRESSBOOKS
 
-private:
+ private:
   virtual ~nsBeckyAddressBooks();
 
   uint32_t mReadBytes;

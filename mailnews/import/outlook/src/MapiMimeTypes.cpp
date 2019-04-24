@@ -9,17 +9,16 @@
 
 uint8_t CMimeTypes::m_mimeBuffer[kMaxMimeTypeSize];
 
-
-BOOL CMimeTypes::GetKey(HKEY root, LPCTSTR pName, PHKEY pKey)
-{
-  LONG result = RegOpenKeyEx(root, pName, 0, KEY_QUERY_VALUE | KEY_ENUMERATE_SUB_KEYS, pKey);
+BOOL CMimeTypes::GetKey(HKEY root, LPCTSTR pName, PHKEY pKey) {
+  LONG result = RegOpenKeyEx(root, pName, 0,
+                             KEY_QUERY_VALUE | KEY_ENUMERATE_SUB_KEYS, pKey);
   return result == ERROR_SUCCESS;
 }
 
-BOOL CMimeTypes::GetValueBytes(HKEY rootKey, LPCTSTR pValName, LPBYTE *ppBytes)
-{
-  LONG  err;
-  DWORD  bufSz;
+BOOL CMimeTypes::GetValueBytes(HKEY rootKey, LPCTSTR pValName,
+                               LPBYTE* ppBytes) {
+  LONG err;
+  DWORD bufSz;
 
   *ppBytes = NULL;
   // Get the installed directory
@@ -36,16 +35,13 @@ BOOL CMimeTypes::GetValueBytes(HKEY rootKey, LPCTSTR pValName, LPBYTE *ppBytes)
   return FALSE;
 }
 
-void CMimeTypes::ReleaseValueBytes(LPBYTE pBytes)
-{
-  if (pBytes)
-    delete pBytes;
+void CMimeTypes::ReleaseValueBytes(LPBYTE pBytes) {
+  if (pBytes) delete pBytes;
 }
 
-BOOL CMimeTypes::GetMimeTypeFromReg(const nsCString& ext, LPBYTE *ppBytes)
-{
-  HKEY  extensionKey;
-  BOOL  result = FALSE;
+BOOL CMimeTypes::GetMimeTypeFromReg(const nsCString& ext, LPBYTE* ppBytes) {
+  HKEY extensionKey;
+  BOOL result = FALSE;
   *ppBytes = NULL;
   if (GetKey(HKEY_CLASSES_ROOT, ext.get(), &extensionKey)) {
     result = GetValueBytes(extensionKey, "Content Type", ppBytes);
@@ -55,16 +51,14 @@ BOOL CMimeTypes::GetMimeTypeFromReg(const nsCString& ext, LPBYTE *ppBytes)
   return result;
 }
 
-uint8_t * CMimeTypes::GetMimeType(const nsString& theExt)
-{
+uint8_t* CMimeTypes::GetMimeType(const nsString& theExt) {
   nsCString ext;
   LossyCopyUTF16toASCII(theExt, ext);
   return GetMimeType(ext);
 }
 
-uint8_t * CMimeTypes::GetMimeType(const nsCString& theExt)
-{
-  nsCString  ext = theExt;
+uint8_t* CMimeTypes::GetMimeType(const nsCString& theExt) {
+  nsCString ext = theExt;
   if (ext.Length()) {
     if (ext.First() != '.') {
       ext = ".";
@@ -72,15 +66,13 @@ uint8_t * CMimeTypes::GetMimeType(const nsCString& theExt)
     }
   }
 
+  BOOL result = FALSE;
+  int len;
 
-  BOOL  result = FALSE;
-  int    len;
-
-  if (!ext.Length())
-    return NULL;
-  LPBYTE  pByte;
+  if (!ext.Length()) return NULL;
+  LPBYTE pByte;
   if (GetMimeTypeFromReg(ext, &pByte)) {
-    len = strlen((const char *) pByte);
+    len = strlen((const char*)pByte);
     if (len && (len < kMaxMimeTypeSize)) {
       memcpy(m_mimeBuffer, pByte, len);
       m_mimeBuffer[len] = 0;
@@ -89,8 +81,7 @@ uint8_t * CMimeTypes::GetMimeType(const nsCString& theExt)
     ReleaseValueBytes(pByte);
   }
 
-  if (result)
-    return m_mimeBuffer;
+  if (result) return m_mimeBuffer;
 
   return NULL;
 }

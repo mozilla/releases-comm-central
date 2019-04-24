@@ -1,6 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
-  * You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsCOMArray.h"
 #include "nsCOMPtr.h"
@@ -20,12 +20,10 @@
 #include "mozilla/ErrorResult.h"
 #include "mozilla/dom/DOMParser.h"
 
-nsresult
-nsWMUtils::FindWMKey(nsIWindowsRegKey **aKey)
-{
+nsresult nsWMUtils::FindWMKey(nsIWindowsRegKey **aKey) {
   nsresult rv;
   nsCOMPtr<nsIWindowsRegKey> key =
-    do_CreateInstance("@mozilla.org/windows-registry-key;1", &rv);
+      do_CreateInstance("@mozilla.org/windows-registry-key;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = key->Open(nsIWindowsRegKey::ROOT_KEY_CURRENT_USER,
@@ -43,35 +41,36 @@ nsWMUtils::FindWMKey(nsIWindowsRegKey **aKey)
   return rv;
 }
 
-nsresult
-nsWMUtils::GetRootFolder(nsIFile **aRootFolder)
-{
+nsresult nsWMUtils::GetRootFolder(nsIFile **aRootFolder) {
   nsCOMPtr<nsIWindowsRegKey> key;
   if (NS_FAILED(nsWMUtils::FindWMKey(getter_AddRefs(key)))) {
     IMPORT_LOG0("*** Error finding Windows Live Mail registry account keys\n");
     return NS_ERROR_NOT_AVAILABLE;
   }
-  // This is essential to proceed; it is the location on disk of xml-type account files;
-  // it is in reg_expand_sz so it will need expanding to absolute path.
-  nsString  storeRoot;
-  nsresult rv = key->ReadStringValue(NS_LITERAL_STRING("Store Root"), storeRoot);
-  key->Close();  // Finished with windows registry key. We do not want to return before this closing
+  // This is essential to proceed; it is the location on disk of xml-type
+  // account files; it is in reg_expand_sz so it will need expanding to absolute
+  // path.
+  nsString storeRoot;
+  nsresult rv =
+      key->ReadStringValue(NS_LITERAL_STRING("Store Root"), storeRoot);
+  key->Close();  // Finished with windows registry key. We do not want to return
+                 // before this closing
   if (NS_FAILED(rv) || storeRoot.IsEmpty()) {
     IMPORT_LOG0("*** Error finding Windows Live Mail Store Root\n");
     return rv;
   }
 
-  uint32_t size = ::ExpandEnvironmentStringsW((LPCWSTR)storeRoot.get(), nullptr, 0);
+  uint32_t size =
+      ::ExpandEnvironmentStringsW((LPCWSTR)storeRoot.get(), nullptr, 0);
   nsString expandedStoreRoot;
   expandedStoreRoot.SetLength(size - 1);
-  if (expandedStoreRoot.Length() != size - 1)
-    return NS_ERROR_FAILURE;
+  if (expandedStoreRoot.Length() != size - 1) return NS_ERROR_FAILURE;
   ::ExpandEnvironmentStringsW((LPCWSTR)storeRoot.get(),
-                              (LPWSTR)expandedStoreRoot.BeginWriting(),
-                              size);
+                              (LPWSTR)expandedStoreRoot.BeginWriting(), size);
   storeRoot = expandedStoreRoot;
 
-  nsCOMPtr<nsIFile> rootFolder(do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv));
+  nsCOMPtr<nsIFile> rootFolder(
+      do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = rootFolder->InitWithPath(storeRoot);
@@ -82,9 +81,7 @@ nsWMUtils::GetRootFolder(nsIFile **aRootFolder)
   return NS_OK;
 }
 
-nsresult
-nsWMUtils::GetOEAccountFiles(nsCOMArray<nsIFile> &aFileArray)
-{
+nsresult nsWMUtils::GetOEAccountFiles(nsCOMArray<nsIFile> &aFileArray) {
   nsCOMPtr<nsIFile> rootFolder;
 
   nsresult rv = GetRootFolder(getter_AddRefs(rootFolder));
@@ -93,14 +90,11 @@ nsWMUtils::GetOEAccountFiles(nsCOMArray<nsIFile> &aFileArray)
   return GetOEAccountFilesInFolder(rootFolder, aFileArray);
 }
 
-nsresult
-nsWMUtils::GetOEAccountFilesInFolder(nsIFile *aFolder,
-                                     nsCOMArray<nsIFile> &aFileArray)
-{
+nsresult nsWMUtils::GetOEAccountFilesInFolder(nsIFile *aFolder,
+                                              nsCOMArray<nsIFile> &aFileArray) {
   nsCOMPtr<nsIDirectoryEnumerator> entries;
   nsresult rv = aFolder->GetDirectoryEntries(getter_AddRefs(entries));
-  if (NS_FAILED(rv) || !entries)
-    return NS_ERROR_FAILURE;
+  if (NS_FAILED(rv) || !entries) return NS_ERROR_FAILURE;
 
   bool hasMore;
   while (NS_SUCCEEDED(entries->HasMoreElements(&hasMore)) && hasMore) {
@@ -114,8 +108,7 @@ nsWMUtils::GetOEAccountFilesInFolder(nsIFile *aFolder,
 
     if (isDirectory) {
       GetOEAccountFilesInFolder(file, aFileArray);
-    }
-    else {
+    } else {
       nsString name;
       rv = file->GetLeafName(name);
       NS_ENSURE_SUCCESS(rv, rv);
@@ -126,43 +119,37 @@ nsWMUtils::GetOEAccountFilesInFolder(nsIFile *aFolder,
   return NS_OK;
 }
 
-nsresult
-nsWMUtils::MakeXMLdoc(mozilla::dom::Document **aXmlDoc,
-                      nsIFile *aFile)
-{
+nsresult nsWMUtils::MakeXMLdoc(mozilla::dom::Document **aXmlDoc,
+                               nsIFile *aFile) {
   nsresult rv;
   nsCOMPtr<nsIFileInputStream> stream =
-    do_CreateInstance(NS_LOCALFILEINPUTSTREAM_CONTRACTID, &rv);
+      do_CreateInstance(NS_LOCALFILEINPUTSTREAM_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = stream->Init(aFile, PR_RDONLY, -1, 0);
   mozilla::ErrorResult rv2;
-  RefPtr<mozilla::dom::DOMParser> parser = mozilla::dom::DOMParser::CreateWithoutGlobal(rv2);
+  RefPtr<mozilla::dom::DOMParser> parser =
+      mozilla::dom::DOMParser::CreateWithoutGlobal(rv2);
   if (rv2.Failed()) {
     return rv2.StealNSResult();
   }
   int64_t filesize;
   aFile->GetFileSize(&filesize);
-  nsCOMPtr<mozilla::dom::Document> xmldoc =
-    parser->ParseFromStream(stream, EmptyString(), int32_t(filesize),
-                            mozilla::dom::SupportedType::Application_xml, rv2);
+  nsCOMPtr<mozilla::dom::Document> xmldoc = parser->ParseFromStream(
+      stream, EmptyString(), int32_t(filesize),
+      mozilla::dom::SupportedType::Application_xml, rv2);
   xmldoc.forget(aXmlDoc);
   return rv2.StealNSResult();
 }
 
-nsresult
-nsWMUtils::GetValueForTag(mozilla::dom::Document *aXmlDoc,
-                          const char *aTagName,
-                          nsAString &aValue)
-{
+nsresult nsWMUtils::GetValueForTag(mozilla::dom::Document *aXmlDoc,
+                                   const char *aTagName, nsAString &aValue) {
   nsAutoString tagName;
   tagName.AssignASCII(aTagName);
   nsCOMPtr<nsINodeList> list = aXmlDoc->GetElementsByTagName(tagName);
   nsCOMPtr<nsINode> node = list->Item(0);
-  if (!node)
-    return NS_ERROR_FAILURE;
+  if (!node) return NS_ERROR_FAILURE;
   mozilla::ErrorResult rv2;
   node->GetTextContent(aValue, rv2);
   return rv2.StealNSResult();
 }
-

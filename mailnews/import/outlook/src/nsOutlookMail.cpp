@@ -31,53 +31,49 @@
 
 /* ------------ Address book stuff ----------------- */
 typedef struct {
-  int32_t    mozField;
-  int32_t    multiLine;
-  ULONG    mapiTag;
+  int32_t mozField;
+  int32_t multiLine;
+  ULONG mapiTag;
 } MAPIFields;
 
 /*
   Fields in MAPI, not in Mozilla
   PR_OFFICE_LOCATION
-  FIX - PR_BIRTHDAY - stored as PT_SYSTIME - FIX to extract for moz address book birthday
-  PR_DISPLAY_NAME_PREFIX - Mr., Mrs. Dr., etc.
-  PR_SPOUSE_NAME
-  PR_GENDER - integer, not text
-  FIX - PR_CONTACT_EMAIL_ADDRESSES - multiuline strings for email addresses, needs
-    parsing to get secondary email address for mozilla
+  FIX - PR_BIRTHDAY - stored as PT_SYSTIME - FIX to extract for moz address book
+  birthday PR_DISPLAY_NAME_PREFIX - Mr., Mrs. Dr., etc. PR_SPOUSE_NAME PR_GENDER
+  - integer, not text FIX - PR_CONTACT_EMAIL_ADDRESSES - multiuline strings for
+  email addresses, needs parsing to get secondary email address for mozilla
 */
 
-#define kIsMultiLine  -2
-#define  kNoMultiLine  -1
+#define kIsMultiLine -2
+#define kNoMultiLine -1
 
-static MAPIFields  gMapiFields[] = {
-  { 35, kIsMultiLine, PR_BODY},
-  { 6, kNoMultiLine, PR_BUSINESS_TELEPHONE_NUMBER},
-  { 7, kNoMultiLine, PR_HOME_TELEPHONE_NUMBER},
-  { 25, kNoMultiLine, PR_COMPANY_NAME},
-  { 23, kNoMultiLine, PR_TITLE},
-  { 10, kNoMultiLine, PR_CELLULAR_TELEPHONE_NUMBER},
-  { 9, kNoMultiLine, PR_PAGER_TELEPHONE_NUMBER},
-  { 8, kNoMultiLine, PR_BUSINESS_FAX_NUMBER},
-  { 8, kNoMultiLine, PR_HOME_FAX_NUMBER},
-  { 22, kNoMultiLine, PR_COUNTRY},
-  { 19, kNoMultiLine, PR_LOCALITY},
-  { 20, kNoMultiLine, PR_STATE_OR_PROVINCE},
-  { 17, 18, PR_STREET_ADDRESS},
-  { 21, kNoMultiLine, PR_POSTAL_CODE},
-  { 27, kNoMultiLine, PR_PERSONAL_HOME_PAGE},
-  { 26, kNoMultiLine, PR_BUSINESS_HOME_PAGE},
-  { 13, kNoMultiLine, PR_HOME_ADDRESS_CITY},
-  { 16, kNoMultiLine, PR_HOME_ADDRESS_COUNTRY},
-  { 15, kNoMultiLine, PR_HOME_ADDRESS_POSTAL_CODE},
-  { 14, kNoMultiLine, PR_HOME_ADDRESS_STATE_OR_PROVINCE},
-  { 11, 12, PR_HOME_ADDRESS_STREET},
-  { 24, kNoMultiLine, PR_DEPARTMENT_NAME}
-};
+static MAPIFields gMapiFields[] = {
+    {35, kIsMultiLine, PR_BODY},
+    {6, kNoMultiLine, PR_BUSINESS_TELEPHONE_NUMBER},
+    {7, kNoMultiLine, PR_HOME_TELEPHONE_NUMBER},
+    {25, kNoMultiLine, PR_COMPANY_NAME},
+    {23, kNoMultiLine, PR_TITLE},
+    {10, kNoMultiLine, PR_CELLULAR_TELEPHONE_NUMBER},
+    {9, kNoMultiLine, PR_PAGER_TELEPHONE_NUMBER},
+    {8, kNoMultiLine, PR_BUSINESS_FAX_NUMBER},
+    {8, kNoMultiLine, PR_HOME_FAX_NUMBER},
+    {22, kNoMultiLine, PR_COUNTRY},
+    {19, kNoMultiLine, PR_LOCALITY},
+    {20, kNoMultiLine, PR_STATE_OR_PROVINCE},
+    {17, 18, PR_STREET_ADDRESS},
+    {21, kNoMultiLine, PR_POSTAL_CODE},
+    {27, kNoMultiLine, PR_PERSONAL_HOME_PAGE},
+    {26, kNoMultiLine, PR_BUSINESS_HOME_PAGE},
+    {13, kNoMultiLine, PR_HOME_ADDRESS_CITY},
+    {16, kNoMultiLine, PR_HOME_ADDRESS_COUNTRY},
+    {15, kNoMultiLine, PR_HOME_ADDRESS_POSTAL_CODE},
+    {14, kNoMultiLine, PR_HOME_ADDRESS_STATE_OR_PROVINCE},
+    {11, 12, PR_HOME_ADDRESS_STREET},
+    {24, kNoMultiLine, PR_DEPARTMENT_NAME}};
 /* ---------------------------------------------------- */
 
-
-#define  kCopyBufferSize    (16 * 1024)
+#define kCopyBufferSize (16 * 1024)
 
 // The email address in Outlook Contacts doesn't have a named
 // property,  we need to use this mapi name ID to access the email
@@ -86,28 +82,25 @@ static MAPIFields  gMapiFields[] = {
 // 32915/32916 for Email2, 32931/32932 for Email3
 // Current we use OUTLOOK_EMAIL1_MAPI_ID1 for primary email
 // OUTLOOK_EMAIL2_MAPI_ID1 for secondary email
-#define  OUTLOOK_EMAIL1_MAPI_ID1 32899
-#define  OUTLOOK_EMAIL1_MAPI_ID2 32900
-#define  OUTLOOK_EMAIL2_MAPI_ID1 32915
-#define  OUTLOOK_EMAIL2_MAPI_ID2 32916
-#define  OUTLOOK_EMAIL3_MAPI_ID1 32931
-#define  OUTLOOK_EMAIL3_MAPI_ID2 32932
+#define OUTLOOK_EMAIL1_MAPI_ID1 32899
+#define OUTLOOK_EMAIL1_MAPI_ID2 32900
+#define OUTLOOK_EMAIL2_MAPI_ID1 32915
+#define OUTLOOK_EMAIL2_MAPI_ID2 32916
+#define OUTLOOK_EMAIL3_MAPI_ID1 32931
+#define OUTLOOK_EMAIL3_MAPI_ID2 32932
 
-nsOutlookMail::nsOutlookMail()
-{
+nsOutlookMail::nsOutlookMail() {
   m_gotAddresses = false;
   m_gotFolders = false;
   m_haveMapi = CMapiApi::LoadMapi();
   m_lpMdb = NULL;
 }
 
-nsOutlookMail::~nsOutlookMail()
-{
-//  EmptyAttachments();
+nsOutlookMail::~nsOutlookMail() {
+  //  EmptyAttachments();
 }
 
-nsresult nsOutlookMail::GetMailFolders(nsIArray **pArray)
-{
+nsresult nsOutlookMail::GetMailFolders(nsIArray **pArray) {
   if (!m_haveMapi) {
     IMPORT_LOG0("GetMailFolders called before Mapi is initialized\n");
     return NS_ERROR_FAILURE;
@@ -116,13 +109,14 @@ nsresult nsOutlookMail::GetMailFolders(nsIArray **pArray)
   nsresult rv;
   nsCOMPtr<nsIMutableArray> array(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
   if (NS_FAILED(rv)) {
-    IMPORT_LOG0("FAILED to allocate the nsIMutableArray for the mail folder list\n");
+    IMPORT_LOG0(
+        "FAILED to allocate the nsIMutableArray for the mail folder list\n");
     return rv;
   }
 
-  nsCOMPtr<nsIImportService> impSvc(do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
-  if (NS_FAILED(rv))
-    return rv;
+  nsCOMPtr<nsIImportService> impSvc(
+      do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
+  if (NS_FAILED(rv)) return rv;
 
   m_gotFolders = true;
 
@@ -131,8 +125,7 @@ nsresult nsOutlookMail::GetMailFolders(nsIArray **pArray)
   m_mapi.Initialize();
   m_mapi.LogOn();
 
-  if (m_storeList.GetSize() == 0)
-    m_mapi.IterateStores(m_storeList);
+  if (m_storeList.GetSize() == 0) m_mapi.IterateStores(m_storeList);
 
   int i = 0;
   CMapiFolder *pFolder;
@@ -141,15 +134,16 @@ nsresult nsOutlookMail::GetMailFolders(nsIArray **pArray)
       CMapiFolder *pItem = new CMapiFolder(pFolder);
       pItem->SetDepth(1);
       m_folderList.AddItem(pItem);
-      if (!m_mapi.GetStoreFolders(pItem->GetCBEntryID(), pItem->GetEntryID(), m_folderList, 2)) {
+      if (!m_mapi.GetStoreFolders(pItem->GetCBEntryID(), pItem->GetEntryID(),
+                                  m_folderList, 2)) {
         IMPORT_LOG1("GetStoreFolders for index %d failed.\n", i);
       }
       i++;
     }
-  }
-  else {
+  } else {
     if ((pFolder = m_storeList.GetItem(i))) {
-      if (!m_mapi.GetStoreFolders(pFolder->GetCBEntryID(), pFolder->GetEntryID(), m_folderList, 1)) {
+      if (!m_mapi.GetStoreFolders(pFolder->GetCBEntryID(),
+                                  pFolder->GetEntryID(), m_folderList, 1)) {
         IMPORT_LOG1("GetStoreFolders for index %d failed.\n", i);
       }
     }
@@ -157,8 +151,8 @@ nsresult nsOutlookMail::GetMailFolders(nsIArray **pArray)
 
   // Create the mailbox descriptors for the list of folders
   nsCOMPtr<nsIImportMailboxDescriptor> pID;
-  nsString            name;
-  nsString            uniName;
+  nsString name;
+  nsString uniName;
 
   for (i = 0; i < m_folderList.GetSize(); i++) {
     pFolder = m_folderList.GetItem(i);
@@ -179,9 +173,8 @@ nsresult nsOutlookMail::GetMailFolders(nsIArray **pArray)
   return NS_OK;
 }
 
-bool nsOutlookMail::IsAddressBookNameUnique(nsString& name, nsString& list)
-{
-  nsString    usedName;
+bool nsOutlookMail::IsAddressBookNameUnique(nsString &name, nsString &list) {
+  nsString usedName;
   usedName.Append('[');
   usedName.Append(name);
   usedName.AppendLiteral("],");
@@ -189,16 +182,15 @@ bool nsOutlookMail::IsAddressBookNameUnique(nsString& name, nsString& list)
   return list.Find(usedName) == -1;
 }
 
-void nsOutlookMail::MakeAddressBookNameUnique(nsString& name, nsString& list)
-{
-  nsString    newName;
-  int        idx = 1;
+void nsOutlookMail::MakeAddressBookNameUnique(nsString &name, nsString &list) {
+  nsString newName;
+  int idx = 1;
 
   newName = name;
   while (!IsAddressBookNameUnique(newName, list)) {
     newName = name;
     newName.Append(char16_t(' '));
-    newName.AppendInt((int32_t) idx);
+    newName.AppendInt((int32_t)idx);
     idx++;
   }
 
@@ -208,8 +200,7 @@ void nsOutlookMail::MakeAddressBookNameUnique(nsString& name, nsString& list)
   list.AppendLiteral("],");
 }
 
-nsresult nsOutlookMail::GetAddressBooks(nsIArray **pArray)
-{
+nsresult nsOutlookMail::GetAddressBooks(nsIArray **pArray) {
   if (!m_haveMapi) {
     IMPORT_LOG0("GetAddressBooks called before Mapi is initialized\n");
     return NS_ERROR_FAILURE;
@@ -218,21 +209,21 @@ nsresult nsOutlookMail::GetAddressBooks(nsIArray **pArray)
   nsresult rv;
   nsCOMPtr<nsIMutableArray> array(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
   if (NS_FAILED(rv)) {
-    IMPORT_LOG0("FAILED to allocate the nsIMutableArray for the address book list\n");
+    IMPORT_LOG0(
+        "FAILED to allocate the nsIMutableArray for the address book list\n");
     return rv;
   }
 
-  nsCOMPtr<nsIImportService> impSvc(do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
-  if (NS_FAILED(rv))
-    return rv;
+  nsCOMPtr<nsIImportService> impSvc(
+      do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
+  if (NS_FAILED(rv)) return rv;
 
   m_gotAddresses = true;
 
   m_addressList.ClearAll();
   m_mapi.Initialize();
   m_mapi.LogOn();
-  if (m_storeList.GetSize() == 0)
-    m_mapi.IterateStores(m_storeList);
+  if (m_storeList.GetSize() == 0) m_mapi.IterateStores(m_storeList);
 
   int i = 0;
   CMapiFolder *pFolder;
@@ -241,15 +232,16 @@ nsresult nsOutlookMail::GetAddressBooks(nsIArray **pArray)
       CMapiFolder *pItem = new CMapiFolder(pFolder);
       pItem->SetDepth(1);
       m_addressList.AddItem(pItem);
-      if (!m_mapi.GetStoreAddressFolders(pItem->GetCBEntryID(), pItem->GetEntryID(), m_addressList)) {
+      if (!m_mapi.GetStoreAddressFolders(pItem->GetCBEntryID(),
+                                         pItem->GetEntryID(), m_addressList)) {
         IMPORT_LOG1("GetStoreAddressFolders for index %d failed.\n", i);
       }
       i++;
     }
-  }
-  else {
+  } else {
     if ((pFolder = m_storeList.GetItem(i))) {
-      if (!m_mapi.GetStoreAddressFolders(pFolder->GetCBEntryID(), pFolder->GetEntryID(), m_addressList)) {
+      if (!m_mapi.GetStoreAddressFolders(
+              pFolder->GetCBEntryID(), pFolder->GetEntryID(), m_addressList)) {
         IMPORT_LOG1("GetStoreFolders for index %d failed.\n", i);
       }
     }
@@ -257,8 +249,8 @@ nsresult nsOutlookMail::GetAddressBooks(nsIArray **pArray)
 
   // Create the mailbox descriptors for the list of folders
   nsCOMPtr<nsIImportABDescriptor> pID;
-  nsString            name;
-  nsString            list;
+  nsString name;
+  nsString list;
 
   for (i = 0; i < m_addressList.GetSize(); i++) {
     pFolder = m_addressList.GetItem(i);
@@ -279,11 +271,11 @@ nsresult nsOutlookMail::GetAddressBooks(nsIArray **pArray)
   return NS_OK;
 }
 
-void nsOutlookMail::OpenMessageStore(CMapiFolder *pNextFolder)
-{
+void nsOutlookMail::OpenMessageStore(CMapiFolder *pNextFolder) {
   // Open the store specified
   if (pNextFolder->IsStore()) {
-    if (!m_mapi.OpenStore(pNextFolder->GetCBEntryID(), pNextFolder->GetEntryID(), &m_lpMdb)) {
+    if (!m_mapi.OpenStore(pNextFolder->GetCBEntryID(),
+                          pNextFolder->GetEntryID(), &m_lpMdb)) {
       m_lpMdb = NULL;
       IMPORT_LOG0("CMapiApi::OpenStore failed\n");
     }
@@ -294,19 +286,19 @@ void nsOutlookMail::OpenMessageStore(CMapiFolder *pNextFolder)
   // Check to see if we should open the one and only store
   if (!m_lpMdb) {
     if (m_storeList.GetSize() == 1) {
-      CMapiFolder * pFolder = m_storeList.GetItem(0);
+      CMapiFolder *pFolder = m_storeList.GetItem(0);
       if (pFolder) {
-        if (!m_mapi.OpenStore(pFolder->GetCBEntryID(), pFolder->GetEntryID(), &m_lpMdb)) {
+        if (!m_mapi.OpenStore(pFolder->GetCBEntryID(), pFolder->GetEntryID(),
+                              &m_lpMdb)) {
           m_lpMdb = NULL;
           IMPORT_LOG0("CMapiApi::OpenStore failed\n");
         }
-      }
-      else {
+      } else {
         IMPORT_LOG0("Error retrieving the one & only message store\n");
       }
-    }
-    else {
-      IMPORT_LOG0("*** Error importing a folder without a valid message store\n");
+    } else {
+      IMPORT_LOG0(
+          "*** Error importing a folder without a valid message store\n");
     }
   }
 }
@@ -322,7 +314,8 @@ void nsOutlookMail::OpenMessageStore(CMapiFolder *pNextFolder)
 // nsOutlookCompose
 //   - Establish a TB session
 //   - Connect to all required services
-//   - Perform the composition of the RC822 document from the data gathered by CMapiMessage
+//   - Perform the composition of the RC822 document from the data gathered by
+//   CMapiMessage
 //   - Save the composed message to the TB mailbox
 //   - Ensure the proper cleanup
 //
@@ -330,24 +323,19 @@ void nsOutlookMail::OpenMessageStore(CMapiFolder *pNextFolder)
 //   - Encapsulate the MAPI message interface
 //   - Gather the information required to (re)compose the message
 
-ImportMailboxRunnable::ImportMailboxRunnable(uint32_t *pDoneSoFar, bool *pAbort,
-                                             int32_t index, const char16_t *pName,
-                                             nsIMsgFolder *dstFolder,
-                                             int32_t *pMsgCount,
-                                             nsOutlookMail *aCaller) :
-  mozilla::Runnable("ImportMailboxRunnable"),
-  mResult(NS_OK),
-  mCaller(aCaller),
-  mDoneSoFar(pDoneSoFar),
-  mAbort(pAbort),
-  mIndex(index),
-  mName(pName),
-  mDstFolder(dstFolder),
-  mMsgCount(pMsgCount)
-{
-}
-NS_IMETHODIMP ImportMailboxRunnable::Run()
-{
+ImportMailboxRunnable::ImportMailboxRunnable(
+    uint32_t *pDoneSoFar, bool *pAbort, int32_t index, const char16_t *pName,
+    nsIMsgFolder *dstFolder, int32_t *pMsgCount, nsOutlookMail *aCaller)
+    : mozilla::Runnable("ImportMailboxRunnable"),
+      mResult(NS_OK),
+      mCaller(aCaller),
+      mDoneSoFar(pDoneSoFar),
+      mAbort(pAbort),
+      mIndex(index),
+      mName(pName),
+      mDstFolder(dstFolder),
+      mMsgCount(pMsgCount) {}
+NS_IMETHODIMP ImportMailboxRunnable::Run() {
   if ((mIndex < 0) || (mIndex >= mCaller->m_folderList.GetSize())) {
     IMPORT_LOG0("*** Bad mailbox identifier, unable to import\n");
     *mAbort = true;
@@ -355,7 +343,7 @@ NS_IMETHODIMP ImportMailboxRunnable::Run()
     return NS_OK;  // Sync runnable must return OK.
   }
 
-  int32_t    dummyMsgCount = 0;
+  int32_t dummyMsgCount = 0;
   if (mMsgCount)
     *mMsgCount = 0;
   else
@@ -364,24 +352,25 @@ NS_IMETHODIMP ImportMailboxRunnable::Run()
   CMapiFolder *pFolder = mCaller->m_folderList.GetItem(mIndex);
   mCaller->OpenMessageStore(pFolder);
   if (!mCaller->m_lpMdb) {
-    IMPORT_LOG1("*** Unable to obtain mapi message store for mailbox: %S\n", mName);
+    IMPORT_LOG1("*** Unable to obtain mapi message store for mailbox: %S\n",
+                mName);
     mResult = NS_ERROR_FAILURE;
     return NS_OK;  // Sync runnable must return OK.
   }
 
-  if (pFolder->IsStore())
-    return NS_OK;
+  if (pFolder->IsStore()) return NS_OK;
 
   // now what?
-  CMapiFolderContents    contents(mCaller->m_lpMdb, pFolder->GetCBEntryID(), pFolder->GetEntryID());
+  CMapiFolderContents contents(mCaller->m_lpMdb, pFolder->GetCBEntryID(),
+                               pFolder->GetEntryID());
 
-  BOOL    done = FALSE;
-  ULONG    cbEid;
-  LPENTRYID  lpEid;
-  ULONG    oType;
-  LPMESSAGE  lpMsg = nullptr;
-  ULONG    totalCount;
-  double  doneCalc;
+  BOOL done = FALSE;
+  ULONG cbEid;
+  LPENTRYID lpEid;
+  ULONG oType;
+  LPMESSAGE lpMsg = nullptr;
+  ULONG totalCount;
+  double doneCalc;
 
   nsCOMPtr<nsIOutputStream> outputStream;
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
@@ -398,7 +387,8 @@ NS_IMETHODIMP ImportMailboxRunnable::Run()
     nsCOMPtr<nsIMsgDBHdr> msgHdr;
     bool reusable;
 
-    rv = msgStore->GetNewMsgOutputStream(mDstFolder, getter_AddRefs(msgHdr), &reusable,
+    rv = msgStore->GetNewMsgOutputStream(mDstFolder, getter_AddRefs(msgHdr),
+                                         &reusable,
                                          getter_AddRefs(outputStream));
     if (NS_FAILED(rv)) {
       IMPORT_LOG1("*** Error getting nsIOutputStream of mailbox: %S\n", mName);
@@ -410,13 +400,13 @@ NS_IMETHODIMP ImportMailboxRunnable::Run()
     doneCalc /= totalCount;
     doneCalc *= 1000;
     if (mDoneSoFar) {
-      *mDoneSoFar = (uint32_t) doneCalc;
-      if (*mDoneSoFar > 1000)
-        *mDoneSoFar = 1000;
+      *mDoneSoFar = (uint32_t)doneCalc;
+      if (*mDoneSoFar > 1000) *mDoneSoFar = 1000;
     }
 
     if (!done && (oType == MAPI_MESSAGE)) {
-      if (!mCaller->m_mapi.OpenMdbEntry(mCaller->m_lpMdb, cbEid, lpEid, (LPUNKNOWN *) &lpMsg)) {
+      if (!mCaller->m_mapi.OpenMdbEntry(mCaller->m_lpMdb, cbEid, lpEid,
+                                        (LPUNKNOWN *)&lpMsg)) {
         IMPORT_LOG1("*** Error opening messages in mailbox: %S\n", mName);
         mResult = NS_ERROR_FAILURE;
         return NS_OK;  // Sync runnable must return OK.
@@ -431,32 +421,26 @@ NS_IMETHODIMP ImportMailboxRunnable::Run()
         mode = nsIMsgSend::nsMsgSaveAsDraft;
 
       rv = ImportMessage(lpMsg, outputStream, mode);
-      if (NS_SUCCEEDED(rv)){ // No errors & really imported
-         (*mMsgCount)++;
+      if (NS_SUCCEEDED(rv)) {  // No errors & really imported
+        (*mMsgCount)++;
         msgStore->FinishNewMessage(outputStream, msgHdr);
-      }
-      else {
-        IMPORT_LOG1( "*** Error reading message from mailbox: %S\n", mName);
+      } else {
+        IMPORT_LOG1("*** Error reading message from mailbox: %S\n", mName);
         msgStore->DiscardNewMessage(outputStream, msgHdr);
       }
-      if (!reusable)
-        outputStream->Close();
+      if (!reusable) outputStream->Close();
     }
   }
 
-  if (outputStream)
-    outputStream->Close();
+  if (outputStream) outputStream->Close();
   return NS_OK;
 }
 
-nsresult ProxyImportMailbox(uint32_t *pDoneSoFar, bool *pAbort,
-                            int32_t index, const char16_t *pName,
-                            nsIMsgFolder *dstFolder,
-                            int32_t *pMsgCount,
-                            nsOutlookMail *aCaller)
-{
-  RefPtr<ImportMailboxRunnable> importMailbox =
-    new ImportMailboxRunnable(pDoneSoFar, pAbort, index, pName, dstFolder, pMsgCount, aCaller);
+nsresult ProxyImportMailbox(uint32_t *pDoneSoFar, bool *pAbort, int32_t index,
+                            const char16_t *pName, nsIMsgFolder *dstFolder,
+                            int32_t *pMsgCount, nsOutlookMail *aCaller) {
+  RefPtr<ImportMailboxRunnable> importMailbox = new ImportMailboxRunnable(
+      pDoneSoFar, pAbort, index, pName, dstFolder, pMsgCount, aCaller);
   nsresult rv = NS_DispatchToMainThread(importMailbox, NS_DISPATCH_SYNC);
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -466,32 +450,33 @@ nsresult ProxyImportMailbox(uint32_t *pDoneSoFar, bool *pAbort,
 nsresult nsOutlookMail::ImportMailbox(uint32_t *pDoneSoFar, bool *pAbort,
                                       int32_t index, const char16_t *pName,
                                       nsIMsgFolder *dstFolder,
-                                      int32_t *pMsgCount)
-{
-  return ProxyImportMailbox(pDoneSoFar, pAbort, index, pName, dstFolder, pMsgCount, this);
+                                      int32_t *pMsgCount) {
+  return ProxyImportMailbox(pDoneSoFar, pAbort, index, pName, dstFolder,
+                            pMsgCount, this);
 }
 
-nsresult ImportMailboxRunnable::ImportMessage(LPMESSAGE lpMsg, nsIOutputStream *pDest, nsMsgDeliverMode mode)
-{
-  CMapiMessage  msg(lpMsg);
+nsresult ImportMailboxRunnable::ImportMessage(LPMESSAGE lpMsg,
+                                              nsIOutputStream *pDest,
+                                              nsMsgDeliverMode mode) {
+  CMapiMessage msg(lpMsg);
   // If we wanted to skip messages that were downloaded in header only mode, we
   // would return NS_ERROR_FAILURE if !msg.FullMessageDownloaded. However, we
   // don't do this because it may cause seemingly wrong import results.
-  // A user will get less mails in his imported folder than were in the original folder,
-  // and this may make user feel like TB import is bad.
-  // In reality, the skipped messages are those that have not been downloaded yet, because
-  // they were downloaded in the "headers-only" mode. This is different from the case when
-  // the message is downloaded completely, but consists only of headers - in this case
-  // the message will be imported anyway.
+  // A user will get less mails in his imported folder than were in the original
+  // folder, and this may make user feel like TB import is bad. In reality, the
+  // skipped messages are those that have not been downloaded yet, because they
+  // were downloaded in the "headers-only" mode. This is different from the case
+  // when the message is downloaded completely, but consists only of headers -
+  // in this case the message will be imported anyway.
 
-  if (!msg.ValidState())
-    return NS_ERROR_FAILURE;
+  if (!msg.ValidState()) return NS_ERROR_FAILURE;
 
-  // I have to create a composer for each message, since it turns out that if we create
-  // one composer for several messages, the Send Proxy object that is shared between those messages
-  // isn't reset properly (at least in the current implementation), which leads to crash.
-  // If there's a proper way to reinitialize the Send Proxy object,
-  // then we could slightly optimize the send process.
+  // I have to create a composer for each message, since it turns out that if we
+  // create one composer for several messages, the Send Proxy object that is
+  // shared between those messages isn't reset properly (at least in the current
+  // implementation), which leads to crash. If there's a proper way to
+  // reinitialize the Send Proxy object, then we could slightly optimize the
+  // send process.
   nsOutlookCompose compose;
   nsresult rv = compose.ProcessMessage(mode, msg, pDest);
 
@@ -501,21 +486,23 @@ nsresult ImportMailboxRunnable::ImportMessage(LPMESSAGE lpMsg, nsIOutputStream *
   return rv;
 }
 
-BOOL nsOutlookMail::WriteData(nsIOutputStream *pDest, const char *pData, int32_t len)
-{
-  uint32_t    written;
+BOOL nsOutlookMail::WriteData(nsIOutputStream *pDest, const char *pData,
+                              int32_t len) {
+  uint32_t written;
   nsresult rv = pDest->Write(pData, len, &written);
   return NS_SUCCEEDED(rv) && written == len;
 }
 
-nsresult nsOutlookMail::ImportAddresses(uint32_t *pCount, uint32_t *pTotal, const char16_t *pName, uint32_t id, nsIAddrDatabase *pDb, nsString& errors)
-{
+nsresult nsOutlookMail::ImportAddresses(uint32_t *pCount, uint32_t *pTotal,
+                                        const char16_t *pName, uint32_t id,
+                                        nsIAddrDatabase *pDb,
+                                        nsString &errors) {
   if (id >= (uint32_t)(m_addressList.GetSize())) {
     IMPORT_LOG0("*** Bad address identifier, unable to import\n");
     return NS_ERROR_FAILURE;
   }
 
-  uint32_t  dummyCount = 0;
+  uint32_t dummyCount = 0;
   if (pCount)
     *pCount = 0;
   else
@@ -523,7 +510,7 @@ nsresult nsOutlookMail::ImportAddresses(uint32_t *pCount, uint32_t *pTotal, cons
 
   CMapiFolder *pFolder;
   if (id > 0) {
-    int32_t idx = (int32_t) id;
+    int32_t idx = (int32_t)id;
     idx--;
     while (idx >= 0) {
       pFolder = m_addressList.GetItem(idx);
@@ -538,32 +525,35 @@ nsresult nsOutlookMail::ImportAddresses(uint32_t *pCount, uint32_t *pTotal, cons
   pFolder = m_addressList.GetItem(id);
   OpenMessageStore(pFolder);
   if (!m_lpMdb) {
-    IMPORT_LOG1("*** Unable to obtain mapi message store for address book: %S\n", pName);
+    IMPORT_LOG1(
+        "*** Unable to obtain mapi message store for address book: %S\n",
+        pName);
     return NS_ERROR_FAILURE;
   }
 
-  if (pFolder->IsStore())
-    return NS_OK;
+  if (pFolder->IsStore()) return NS_OK;
 
-  nsresult  rv;
+  nsresult rv;
 
-  nsCOMPtr<nsIImportFieldMap>    pFieldMap;
+  nsCOMPtr<nsIImportFieldMap> pFieldMap;
 
-  nsCOMPtr<nsIImportService> impSvc(do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
+  nsCOMPtr<nsIImportService> impSvc(
+      do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
   if (NS_SUCCEEDED(rv)) {
     rv = impSvc->CreateNewFieldMap(getter_AddRefs(pFieldMap));
   }
 
-  CMapiFolderContents    contents(m_lpMdb, pFolder->GetCBEntryID(), pFolder->GetEntryID());
+  CMapiFolderContents contents(m_lpMdb, pFolder->GetCBEntryID(),
+                               pFolder->GetEntryID());
 
-  BOOL      done = FALSE;
-  ULONG      cbEid;
-  LPENTRYID    lpEid;
-  ULONG      oType;
-  LPMESSAGE    lpMsg;
-  nsCString    type;
-  LPSPropValue  pVal;
-  nsString    subject;
+  BOOL done = FALSE;
+  ULONG cbEid;
+  LPENTRYID lpEid;
+  ULONG oType;
+  LPMESSAGE lpMsg;
+  nsCString type;
+  LPSPropValue pVal;
+  nsString subject;
 
   while (!done) {
     (*pCount)++;
@@ -573,11 +563,10 @@ nsresult nsOutlookMail::ImportAddresses(uint32_t *pCount, uint32_t *pTotal, cons
       return NS_ERROR_FAILURE;
     }
 
-    if (pTotal && (*pTotal == 0))
-      *pTotal = contents.GetCount();
+    if (pTotal && (*pTotal == 0)) *pTotal = contents.GetCount();
 
     if (!done && (oType == MAPI_MESSAGE)) {
-      if (!m_mapi.OpenMdbEntry(m_lpMdb, cbEid, lpEid, (LPUNKNOWN *) &lpMsg)) {
+      if (!m_mapi.OpenMdbEntry(m_lpMdb, cbEid, lpEid, (LPUNKNOWN *)&lpMsg)) {
         IMPORT_LOG1("*** Error opening messages in mailbox: %S\n", pName);
         return NS_ERROR_FAILURE;
       }
@@ -592,10 +581,9 @@ nsresult nsOutlookMail::ImportAddresses(uint32_t *pCount, uint32_t *pTotal, cons
           // This is a contact, add it to the address book!
           subject.Truncate();
           pVal = m_mapi.GetMapiProperty(lpMsg, PR_SUBJECT);
-          if (pVal)
-            m_mapi.GetStringFromProp(pVal, subject);
+          if (pVal) m_mapi.GetStringFromProp(pVal, subject);
 
-          nsIMdbRow* newRow = nullptr;
+          nsIMdbRow *newRow = nullptr;
           pDb->GetNewRow(&newRow);
           // FIXME: Check with Candice about releasing the newRow if it
           // isn't added to the database.  Candice's code in nsAddressBook
@@ -605,14 +593,11 @@ nsresult nsOutlookMail::ImportAddresses(uint32_t *pCount, uint32_t *pTotal, cons
               pDb->AddCardRowToDB(newRow);
             }
           }
-        }
-        else if (type.EqualsLiteral("IPM.DistList"))
-        {
+        } else if (type.EqualsLiteral("IPM.DistList")) {
           // This is a list/group, add it to the address book!
           subject.Truncate();
           pVal = m_mapi.GetMapiProperty(lpMsg, PR_SUBJECT);
-          if (pVal)
-            m_mapi.GetStringFromProp(pVal, subject);
+          if (pVal) m_mapi.GetStringFromProp(pVal, subject);
           CreateList(subject.get(), pDb, lpMsg, pFieldMap);
         }
       }
@@ -624,21 +609,17 @@ nsresult nsOutlookMail::ImportAddresses(uint32_t *pCount, uint32_t *pTotal, cons
   rv = pDb->Commit(nsAddrDBCommitType::kLargeCommit);
   return rv;
 }
-nsresult nsOutlookMail::CreateList(const char16_t * pName,
-                                   nsIAddrDatabase *pDb,
+nsresult nsOutlookMail::CreateList(const char16_t *pName, nsIAddrDatabase *pDb,
                                    LPMAPIPROP pUserList,
-                                   nsIImportFieldMap *pFieldMap)
-{
+                                   nsIImportFieldMap *pFieldMap) {
   // If no name provided then we're done.
-  if (!pName || !(*pName))
-    return NS_OK;
+  if (!pName || !(*pName)) return NS_OK;
 
   nsresult rv = NS_ERROR_FAILURE;
   // Make sure we have db to work with.
-  if (!pDb)
-    return rv;
+  if (!pDb) return rv;
 
-  nsCOMPtr <nsIMdbRow> newListRow;
+  nsCOMPtr<nsIMdbRow> newListRow;
   rv = pDb->GetNewListRow(getter_AddRefs(newListRow));
   NS_ENSURE_SUCCESS(rv, rv);
   nsAutoCString column;
@@ -646,47 +627,41 @@ nsresult nsOutlookMail::CreateList(const char16_t * pName,
   rv = pDb->AddListName(newListRow, column.get());
   NS_ENSURE_SUCCESS(rv, rv);
 
-  HRESULT             hr;
+  HRESULT hr;
   LPSPropValue value = NULL;
   ULONG valueCount = 0;
 
   LPSPropTagArray properties = NULL;
-  m_mapi.MAPIAllocateBuffer(CbNewSPropTagArray(1),
-    (void **)&properties);
+  m_mapi.MAPIAllocateBuffer(CbNewSPropTagArray(1), (void **)&properties);
   properties->cValues = 1;
-  properties->aulPropTag [0] = m_mapi.GetEmailPropertyTag(pUserList, 0x8054);
+  properties->aulPropTag[0] = m_mapi.GetEmailPropertyTag(pUserList, 0x8054);
   hr = pUserList->GetProps(properties, 0, &valueCount, &value);
   m_mapi.MAPIFreeBuffer(properties);
-  if (HR_FAILED(hr))
-    return NS_ERROR_FAILURE;
-  if (!value)
-    return NS_ERROR_NOT_AVAILABLE;
+  if (HR_FAILED(hr)) return NS_ERROR_FAILURE;
+  if (!value) return NS_ERROR_NOT_AVAILABLE;
   // XXX from here out, value must be freed with MAPIFreeBuffer
 
-  SBinaryArray *sa=(SBinaryArray *)&value->Value.bin;
+  SBinaryArray *sa = (SBinaryArray *)&value->Value.bin;
   if (!sa || !sa->lpbin) {
     m_mapi.MAPIFreeBuffer(value);
     return NS_ERROR_NULL_POINTER;
   }
 
-  LPENTRYID    lpEid;
-  ULONG        cbEid;
-  ULONG        idx;
-  LPMESSAGE    lpMsg;
-  nsCString    type;
+  LPENTRYID lpEid;
+  ULONG cbEid;
+  ULONG idx;
+  LPMESSAGE lpMsg;
+  nsCString type;
   LPSPropValue pVal;
-  nsString     subject;
-  ULONG        total;
+  nsString subject;
+  ULONG total;
 
   total = sa->cValues;
-  for (idx = 0; idx < total; idx++)
-  {
-    lpEid= (LPENTRYID) sa->lpbin[idx].lpb;
+  for (idx = 0; idx < total; idx++) {
+    lpEid = (LPENTRYID)sa->lpbin[idx].lpb;
     cbEid = sa->lpbin[idx].cb;
 
-    if (!m_mapi.OpenEntry(cbEid, lpEid, (LPUNKNOWN *) &lpMsg))
-    {
-
+    if (!m_mapi.OpenEntry(cbEid, lpEid, (LPUNKNOWN *)&lpMsg)) {
       IMPORT_LOG1("*** Error opening messages in mailbox: %S\n", pName);
       m_mapi.MAPIFreeBuffer(value);
       return NS_ERROR_FAILURE;
@@ -694,32 +669,30 @@ nsresult nsOutlookMail::CreateList(const char16_t * pName,
     // This is a contact, add it to the address book!
     subject.Truncate();
     pVal = m_mapi.GetMapiProperty(lpMsg, PR_SUBJECT);
-    if (pVal)
-      m_mapi.GetStringFromProp(pVal, subject);
+    if (pVal) m_mapi.GetStringFromProp(pVal, subject);
 
-    nsCOMPtr <nsIMdbRow> newRow;
-    nsCOMPtr <nsIMdbRow> oldRow;
+    nsCOMPtr<nsIMdbRow> newRow;
+    nsCOMPtr<nsIMdbRow> oldRow;
     pDb->GetNewRow(getter_AddRefs(newRow));
     if (newRow) {
-      if (BuildCard(subject.get(), pDb, newRow, lpMsg, pFieldMap))
-      {
-        nsCOMPtr <nsIAbCard> userCard;
-        nsCOMPtr <nsIAbCard> newCard;
+      if (BuildCard(subject.get(), pDb, newRow, lpMsg, pFieldMap)) {
+        nsCOMPtr<nsIAbCard> userCard;
+        nsCOMPtr<nsIAbCard> newCard;
         userCard = do_CreateInstance(NS_ABMDBCARD_CONTRACTID, &rv);
         NS_ENSURE_SUCCESS(rv, rv);
-        pDb->InitCardFromRow(userCard,newRow);
+        pDb->InitCardFromRow(userCard, newRow);
 
-        //add card to db
-        pDb->FindRowByCard(userCard,getter_AddRefs(oldRow));
+        // add card to db
+        pDb->FindRowByCard(userCard, getter_AddRefs(oldRow));
         if (oldRow)
           newRow = oldRow;
         else
           pDb->AddCardRowToDB(newRow);
 
-        //add card list
-        pDb->AddListCardColumnsToRow(userCard,
-                                     newListRow,idx+1, getter_AddRefs(newCard),
-                                     true, nullptr, nullptr);
+        // add card list
+        pDb->AddListCardColumnsToRow(userCard, newListRow, idx + 1,
+                                     getter_AddRefs(newCard), true, nullptr,
+                                     nullptr);
       }
     }
   }
@@ -733,23 +706,20 @@ nsresult nsOutlookMail::CreateList(const char16_t * pName,
   return rv;
 }
 
-void nsOutlookMail::SanitizeValue(nsString& val)
-{
+void nsOutlookMail::SanitizeValue(nsString &val) {
   MsgReplaceSubstring(val, NS_LITERAL_STRING("\r\n"), NS_LITERAL_STRING(", "));
   MsgReplaceChar(val, "\r\n", ',');
 }
 
-void nsOutlookMail::SplitString(nsString& val1, nsString& val2)
-{
+void nsOutlookMail::SplitString(nsString &val1, nsString &val2) {
   // Find the last line if there is more than one!
   int32_t idx = val1.RFind("\x0D\x0A");
-  int32_t  cnt = 2;
+  int32_t cnt = 2;
   if (idx == -1) {
     cnt = 1;
     idx = val1.RFindChar(13);
   }
-  if (idx == -1)
-    idx= val1.RFindChar(10);
+  if (idx == -1) idx = val1.RFindChar(10);
   if (idx != -1) {
     val2 = Substring(val1, idx + cnt);
     val1.SetLength(idx);
@@ -757,18 +727,18 @@ void nsOutlookMail::SplitString(nsString& val1, nsString& val2)
   }
 }
 
-bool nsOutlookMail::BuildCard(const char16_t *pName, nsIAddrDatabase *pDb, nsIMdbRow *newRow, LPMAPIPROP pUser, nsIImportFieldMap *pFieldMap)
-{
+bool nsOutlookMail::BuildCard(const char16_t *pName, nsIAddrDatabase *pDb,
+                              nsIMdbRow *newRow, LPMAPIPROP pUser,
+                              nsIImportFieldMap *pFieldMap) {
+  nsString lastName;
+  nsString firstName;
+  nsString eMail;
+  nsString nickName;
+  nsString middleName;
+  nsString secondEMail;
+  ULONG emailTag;
 
-  nsString    lastName;
-  nsString    firstName;
-  nsString    eMail;
-  nsString    nickName;
-  nsString    middleName;
-  nsString    secondEMail;
-  ULONG       emailTag;
-
-  LPSPropValue  pProp = m_mapi.GetMapiProperty(pUser, PR_EMAIL_ADDRESS);
+  LPSPropValue pProp = m_mapi.GetMapiProperty(pUser, PR_EMAIL_ADDRESS);
   if (!pProp) {
     emailTag = m_mapi.GetEmailPropertyTag(pUser, OUTLOOK_EMAIL1_MAPI_ID1);
     if (emailTag) {
@@ -814,7 +784,7 @@ bool nsOutlookMail::BuildCard(const char16_t *pName, nsIAddrDatabase *pDb, nsIMd
     firstName = pName;
   }
 
-  nsString  displayName;
+  nsString displayName;
   pProp = m_mapi.GetMapiProperty(pUser, PR_DISPLAY_NAME);
   if (pProp) {
     m_mapi.GetStringFromProp(pProp, displayName);
@@ -859,8 +829,8 @@ bool nsOutlookMail::BuildCard(const char16_t *pName, nsIAddrDatabase *pDb, nsIMd
 
   // Do all of the extra fields!
 
-  nsString  value;
-  nsString  line2;
+  nsString value;
+  nsString line2;
 
   if (pFieldMap) {
     int max = sizeof(gMapiFields) / sizeof(MAPIFields);
@@ -871,18 +841,20 @@ bool nsOutlookMail::BuildCard(const char16_t *pName, nsIAddrDatabase *pDb, nsIMd
         if (!value.IsEmpty()) {
           if (gMapiFields[i].multiLine == kNoMultiLine) {
             SanitizeValue(value);
-            pFieldMap->SetFieldValue(pDb, newRow, gMapiFields[i].mozField, value.get());
-          }
-          else if (gMapiFields[i].multiLine == kIsMultiLine) {
-            pFieldMap->SetFieldValue(pDb, newRow, gMapiFields[i].mozField, value.get());
-          }
-          else {
+            pFieldMap->SetFieldValue(pDb, newRow, gMapiFields[i].mozField,
+                                     value.get());
+          } else if (gMapiFields[i].multiLine == kIsMultiLine) {
+            pFieldMap->SetFieldValue(pDb, newRow, gMapiFields[i].mozField,
+                                     value.get());
+          } else {
             line2.Truncate();
             SplitString(value, line2);
             if (!value.IsEmpty())
-              pFieldMap->SetFieldValue(pDb, newRow, gMapiFields[i].mozField, value.get());
+              pFieldMap->SetFieldValue(pDb, newRow, gMapiFields[i].mozField,
+                                       value.get());
             if (!line2.IsEmpty())
-              pFieldMap->SetFieldValue(pDb, newRow, gMapiFields[i].multiLine, line2.get());
+              pFieldMap->SetFieldValue(pDb, newRow, gMapiFields[i].multiLine,
+                                       line2.get());
           }
         }
       }

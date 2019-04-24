@@ -14,17 +14,18 @@ class nsIFile;
 
 class nsEmlxHelperUtils {
   /* All emlx messages have a "flags" number in the metadata.
-     These are the masks to decode that, found via http://jwz.livejournal.com/505711.html */
+     These are the masks to decode that, found via
+     http://jwz.livejournal.com/505711.html */
   enum EmlxMetadataMask {
-    kRead       = 1 << 0,  // read
+    kRead = 1 << 0,  // read
     // 1 << 1,             // deleted
-    kAnswered   = 1 << 2,  // answered
+    kAnswered = 1 << 2,  // answered
     // 1 << 3,             // encrypted
-    kFlagged    = 1 << 4,  // flagged
+    kFlagged = 1 << 4,  // flagged
     // 1 << 5,             // recent
     // 1 << 6,             // draft
     // 1 << 7,             // initial (no longer used)
-    kForwarded  = 1 << 8,  // forwarded
+    kForwarded = 1 << 8,  // forwarded
     // 1 << 9,             // redirected
     // 3F << 10,           // attachment count (6 bits)
     // 7F << 16,           // priority level (7 bits)
@@ -37,19 +38,24 @@ class nsEmlxHelperUtils {
     // 1 << 31             // (unused)
   };
 
-  // This method will scan the raw EMLX message buffer for "dangerous" so-called "From-lines" that we need to escape.
-  // If it needs to modify any lines, it will return a non-NULL aOutBuffer. If aOutBuffer is NULL, no modification needed
-  // to be made.
-  static nsresult ConvertToMboxRD(const char *aMessageBufferStart, const char *aMessageBufferEnd, nsCString &aOutBuffer);
+  // This method will scan the raw EMLX message buffer for "dangerous" so-called
+  // "From-lines" that we need to escape. If it needs to modify any lines, it
+  // will return a non-NULL aOutBuffer. If aOutBuffer is NULL, no modification
+  // needed to be made.
+  static nsresult ConvertToMboxRD(const char *aMessageBufferStart,
+                                  const char *aMessageBufferEnd,
+                                  nsCString &aOutBuffer);
 
-  // returns an int representing the X-Mozilla-Status flags set (e.g. "read", "flagged") converted from EMLX flags.
-  static nsresult ConvertToMozillaStatusFlags(const char *aXMLBufferStart, const char *aXMLBufferEnd, uint32_t *aMozillaStatusFlags);
+  // returns an int representing the X-Mozilla-Status flags set (e.g. "read",
+  // "flagged") converted from EMLX flags.
+  static nsresult ConvertToMozillaStatusFlags(const char *aXMLBufferStart,
+                                              const char *aXMLBufferEnd,
+                                              uint32_t *aMozillaStatusFlags);
 
-  public:
-
+ public:
   // add an .emlx message to the mbox output
-  static nsresult AddEmlxMessageToStream(nsIFile *aEmlxFile, nsIOutputStream *aOutoutStream);
-
+  static nsresult AddEmlxMessageToStream(nsIFile *aEmlxFile,
+                                         nsIOutputStream *aOutoutStream);
 };
 
-#endif // nsEmlxHelperUtils_h___
+#endif  // nsEmlxHelperUtils_h___

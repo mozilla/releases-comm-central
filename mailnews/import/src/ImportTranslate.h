@@ -10,14 +10,14 @@
 #include "nsImportTranslator.h"
 
 class ImportTranslate {
-public:
-  static bool ConvertString(const nsCString& inStr, nsCString& outStr, bool mimeHeader);
+ public:
+  static bool ConvertString(const nsCString &inStr, nsCString &outStr,
+                            bool mimeHeader);
   static nsImportTranslator *GetTranslator(void);
   static nsImportTranslator *GetMatchingTranslator(const char *pCharSet);
 
-protected:
+ protected:
   static int m_useTranslator;
 };
 
-
-#endif  /* ImportTranslate_h__ */
+#endif /* ImportTranslate_h__ */

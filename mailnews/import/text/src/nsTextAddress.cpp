@@ -21,22 +21,18 @@
 #include "plstr.h"
 #include "msgCore.h"
 
-#define kWhitespace    " \t\b\r\n"
+#define kWhitespace " \t\b\r\n"
 
-nsTextAddress::nsTextAddress()
-{
+nsTextAddress::nsTextAddress() {
   m_LFCount = 0;
   m_CRCount = 0;
 }
 
-nsTextAddress::~nsTextAddress()
-{
-}
+nsTextAddress::~nsTextAddress() {}
 
-nsresult nsTextAddress::GetUnicharLineStreamForFile(nsIFile *aFile,
-                                                    nsIInputStream *aInputStream,
-                                                    nsIUnicharLineInputStream **aStream)
-{
+nsresult nsTextAddress::GetUnicharLineStreamForFile(
+    nsIFile *aFile, nsIInputStream *aInputStream,
+    nsIUnicharLineInputStream **aStream) {
   nsAutoCString charset;
   nsresult rv = MsgDetectCharsetFromFile(aFile, charset);
   if (NS_FAILED(rv)) {
@@ -44,19 +40,20 @@ nsresult nsTextAddress::GetUnicharLineStreamForFile(nsIFile *aFile,
   }
 
   nsCOMPtr<nsIConverterInputStream> converterStream =
-    do_CreateInstance("@mozilla.org/intl/converter-input-stream;1", &rv);
+      do_CreateInstance("@mozilla.org/intl/converter-input-stream;1", &rv);
   if (NS_SUCCEEDED(rv)) {
-    rv = converterStream->Init(aInputStream,
-                               charset.get(),
-                               8192,
-                               nsIConverterInputStream::DEFAULT_REPLACEMENT_CHARACTER);
+    rv = converterStream->Init(
+        aInputStream, charset.get(), 8192,
+        nsIConverterInputStream::DEFAULT_REPLACEMENT_CHARACTER);
   }
 
   return CallQueryInterface(converterStream, aStream);
 }
 
-nsresult nsTextAddress::ImportAddresses(bool *pAbort, const char16_t *pName, nsIFile *pSrc, nsIAddrDatabase *pDb, nsIImportFieldMap *fieldMap, nsString& errors, uint32_t *pProgress)
-{
+nsresult nsTextAddress::ImportAddresses(bool *pAbort, const char16_t *pName,
+                                        nsIFile *pSrc, nsIAddrDatabase *pDb,
+                                        nsIImportFieldMap *fieldMap,
+                                        nsString &errors, uint32_t *pProgress) {
   // Open the source file for reading, read each line and process it!
   m_database = pDb;
   m_fieldMap = fieldMap;
@@ -84,12 +81,14 @@ nsresult nsTextAddress::ImportAddresses(bool *pAbort, const char16_t *pName, nsI
 
   rv = m_fieldMap->GetSkipFirstRecord(&skipRecord);
   if (NS_FAILED(rv)) {
-    IMPORT_LOG0("*** Error checking to see if we should skip the first record\n");
+    IMPORT_LOG0(
+        "*** Error checking to see if we should skip the first record\n");
     return rv;
   }
 
   nsCOMPtr<nsIUnicharLineInputStream> lineStream;
-  rv = GetUnicharLineStreamForFile(pSrc, inputStream, getter_AddRefs(lineStream));
+  rv = GetUnicharLineStreamForFile(pSrc, inputStream,
+                                   getter_AddRefs(lineStream));
   if (NS_FAILED(rv)) {
     IMPORT_LOG0("*** Error opening converter stream for importer\n");
     return rv;
@@ -99,8 +98,7 @@ nsresult nsTextAddress::ImportAddresses(bool *pAbort, const char16_t *pName, nsI
   nsAutoString line;
 
   // Skip the first record if the user has requested it.
-  if (skipRecord)
-    rv = ReadRecord(lineStream, line, &more);
+  if (skipRecord) rv = ReadRecord(lineStream, line, &more);
 
   while (!(*pAbort) && more && NS_SUCCEEDED(rv)) {
     // Read the line in
@@ -125,7 +123,8 @@ nsresult nsTextAddress::ImportAddresses(bool *pAbort, const char16_t *pName, nsI
   inputStream->Close();
 
   if (NS_FAILED(rv)) {
-    IMPORT_LOG0("*** Error reading the address book - probably incorrect ending\n");
+    IMPORT_LOG0(
+        "*** Error reading the address book - probably incorrect ending\n");
     return NS_ERROR_FAILURE;
   }
 
@@ -133,9 +132,7 @@ nsresult nsTextAddress::ImportAddresses(bool *pAbort, const char16_t *pName, nsI
 }
 
 nsresult nsTextAddress::ReadRecord(nsIUnicharLineInputStream *aLineStream,
-                                   nsAString &aLine,
-                                   bool *aMore)
-{
+                                   nsAString &aLine, bool *aMore) {
   bool more = true;
   uint32_t numQuotes = 0;
   nsresult rv;
@@ -148,13 +145,11 @@ nsresult nsTextAddress::ReadRecord(nsIUnicharLineInputStream *aLineStream,
     if (!more) {
       // No more, so we must have an incorrect file.
       rv = NS_ERROR_FAILURE;
-    }
-    else {
+    } else {
       // Read the line and append it
       rv = aLineStream->ReadLine(line, &more);
       if (NS_SUCCEEDED(rv)) {
-        if (!aLine.IsEmpty())
-          aLine.AppendLiteral(MSG_LINEBREAK);
+        if (!aLine.IsEmpty()) aLine.AppendLiteral(MSG_LINEBREAK);
         aLine.Append(line);
 
         numQuotes += MsgCountChar(line, char16_t('"'));
@@ -167,8 +162,8 @@ nsresult nsTextAddress::ReadRecord(nsIUnicharLineInputStream *aLineStream,
   return rv;
 }
 
-nsresult nsTextAddress::ReadRecordNumber(nsIFile *aSrc, nsAString &aLine, int32_t rNum)
-{
+nsresult nsTextAddress::ReadRecordNumber(nsIFile *aSrc, nsAString &aLine,
+                                         int32_t rNum) {
   nsCOMPtr<nsIInputStream> inputStream;
   nsresult rv = NS_NewLocalFileInputStream(getter_AddRefs(inputStream), aSrc);
   if (NS_FAILED(rv)) {
@@ -187,7 +182,8 @@ nsresult nsTextAddress::ReadRecordNumber(nsIFile *aSrc, nsAString &aLine, int32_
   }
 
   nsCOMPtr<nsIUnicharLineInputStream> lineStream;
-  rv = GetUnicharLineStreamForFile(aSrc, inputStream, getter_AddRefs(lineStream));
+  rv = GetUnicharLineStreamForFile(aSrc, inputStream,
+                                   getter_AddRefs(lineStream));
   if (NS_FAILED(rv)) {
     IMPORT_LOG0("*** Error opening converter stream for importer\n");
     return rv;
@@ -212,146 +208,126 @@ nsresult nsTextAddress::ReadRecordNumber(nsIFile *aSrc, nsAString &aLine, int32_
   return NS_ERROR_FAILURE;
 }
 
-int32_t nsTextAddress::CountFields(const nsAString &aLine, char16_t delim)
-{
-    int32_t pos = 0;
-    int32_t maxLen = aLine.Length();
-    int32_t count = 0;
-    char16_t tab = char16_t('\t');
-    char16_t doubleQuote = char16_t('"');
+int32_t nsTextAddress::CountFields(const nsAString &aLine, char16_t delim) {
+  int32_t pos = 0;
+  int32_t maxLen = aLine.Length();
+  int32_t count = 0;
+  char16_t tab = char16_t('\t');
+  char16_t doubleQuote = char16_t('"');
 
-    if (delim == tab)
-        tab = char16_t('\0');
+  if (delim == tab) tab = char16_t('\0');
 
-    while (pos < maxLen) {
-        while (((aLine[pos] == char16_t(' ')) || (aLine[pos] == tab)) &&
-               (pos < maxLen)) {
-            pos++;
-        }
-        if ((pos < maxLen) && (aLine[pos] == doubleQuote)) {
-            pos++;
-            while ((pos < maxLen) && (aLine[pos] != doubleQuote)) {
-                pos++;
-                if (((pos + 1) < maxLen) &&
-                    (aLine[pos] == doubleQuote) &&
-                    (aLine[pos + 1] == doubleQuote)) {
-                    pos += 2;
-                }
-            }
-            if (pos < maxLen)
-                pos++;
-        }
-        while ((pos < maxLen) && (aLine[pos] != delim))
-            pos++;
-
-        count++;
+  while (pos < maxLen) {
+    while (((aLine[pos] == char16_t(' ')) || (aLine[pos] == tab)) &&
+           (pos < maxLen)) {
+      pos++;
+    }
+    if ((pos < maxLen) && (aLine[pos] == doubleQuote)) {
+      pos++;
+      while ((pos < maxLen) && (aLine[pos] != doubleQuote)) {
         pos++;
-    }
-
-    return count;
-}
-
-bool nsTextAddress::GetField(const nsAString &aLine,
-                             int32_t index,
-                             nsString &field,
-                             char16_t delim)
-{
-    bool result = false;
-    int32_t pos = 0;
-    int32_t maxLen = aLine.Length();
-    char16_t tab = char16_t('\t');
-    char16_t doubleQuote = char16_t('"');
-
-    field.Truncate();
-
-    if (delim == tab)
-        tab = 0;
-
-    while (index && (pos < maxLen)) {
-        while (((aLine[pos] == char16_t(' ')) || (aLine[pos] == tab)) &&
-               (pos < maxLen)) {
-            pos++;
+        if (((pos + 1) < maxLen) && (aLine[pos] == doubleQuote) &&
+            (aLine[pos + 1] == doubleQuote)) {
+          pos += 2;
         }
-        if (pos >= maxLen)
-            break;
-        if (aLine[pos] == doubleQuote) {
-            do {
-                pos++;
-                if (((pos + 1) < maxLen) &&
-                    (aLine[pos] == doubleQuote) &&
-                    (aLine[pos + 1] == doubleQuote)) {
-                    pos += 2;
-                }
-            } while ((pos < maxLen) && (aLine[pos] != doubleQuote));
-            if (pos < maxLen)
-                pos++;
-        }
-        if (pos >= maxLen)
-            break;
-
-        while ((pos < maxLen) && (aLine[pos] != delim))
-            pos++;
-
-        if (pos >= maxLen)
-            break;
-
-        index--;
-        pos++;
-    }
-
-    if (pos >= maxLen)
-        return result;
-
-    result = true;
-
-    while ((pos < maxLen) && ((aLine[pos] == ' ') || (aLine[pos] == tab)))
-        pos++;
-
-    int32_t fLen = 0;
-    int32_t startPos = pos;
-    bool    quoted = false;
-    if (aLine[pos] == '"') {
-        startPos++;
-        fLen = -1;
-        do {
-            pos++;
-            fLen++;
-            if (((pos + 1) < maxLen) &&
-                (aLine[pos] == doubleQuote) &&
-                (aLine[pos + 1] == doubleQuote)) {
-                quoted = true;
-                pos += 2;
-                fLen += 2;
-            }
-        } while ((pos < maxLen) && (aLine[pos] != doubleQuote));
-    }
-    else {
-        while ((pos < maxLen) && (aLine[pos] != delim)) {
-            pos++;
-            fLen++;
-        }
-    }
-
-    if (!fLen) {
-        return result;
-    }
-
-    field.Append(nsDependentSubstring(aLine, startPos, fLen));
-    field.Trim(kWhitespace);
-
-    if (quoted) {
-      int32_t offset = field.Find("\"\"");
-      while (offset != -1) {
-        field.Cut(offset, 1);
-        offset = MsgFind(field, "\"\"", false, offset + 1);
       }
+      if (pos < maxLen) pos++;
     }
+    while ((pos < maxLen) && (aLine[pos] != delim)) pos++;
 
-    return result;
+    count++;
+    pos++;
+  }
+
+  return count;
 }
 
-nsresult nsTextAddress::DetermineDelim(nsIFile *aSrc)
-{
+bool nsTextAddress::GetField(const nsAString &aLine, int32_t index,
+                             nsString &field, char16_t delim) {
+  bool result = false;
+  int32_t pos = 0;
+  int32_t maxLen = aLine.Length();
+  char16_t tab = char16_t('\t');
+  char16_t doubleQuote = char16_t('"');
+
+  field.Truncate();
+
+  if (delim == tab) tab = 0;
+
+  while (index && (pos < maxLen)) {
+    while (((aLine[pos] == char16_t(' ')) || (aLine[pos] == tab)) &&
+           (pos < maxLen)) {
+      pos++;
+    }
+    if (pos >= maxLen) break;
+    if (aLine[pos] == doubleQuote) {
+      do {
+        pos++;
+        if (((pos + 1) < maxLen) && (aLine[pos] == doubleQuote) &&
+            (aLine[pos + 1] == doubleQuote)) {
+          pos += 2;
+        }
+      } while ((pos < maxLen) && (aLine[pos] != doubleQuote));
+      if (pos < maxLen) pos++;
+    }
+    if (pos >= maxLen) break;
+
+    while ((pos < maxLen) && (aLine[pos] != delim)) pos++;
+
+    if (pos >= maxLen) break;
+
+    index--;
+    pos++;
+  }
+
+  if (pos >= maxLen) return result;
+
+  result = true;
+
+  while ((pos < maxLen) && ((aLine[pos] == ' ') || (aLine[pos] == tab))) pos++;
+
+  int32_t fLen = 0;
+  int32_t startPos = pos;
+  bool quoted = false;
+  if (aLine[pos] == '"') {
+    startPos++;
+    fLen = -1;
+    do {
+      pos++;
+      fLen++;
+      if (((pos + 1) < maxLen) && (aLine[pos] == doubleQuote) &&
+          (aLine[pos + 1] == doubleQuote)) {
+        quoted = true;
+        pos += 2;
+        fLen += 2;
+      }
+    } while ((pos < maxLen) && (aLine[pos] != doubleQuote));
+  } else {
+    while ((pos < maxLen) && (aLine[pos] != delim)) {
+      pos++;
+      fLen++;
+    }
+  }
+
+  if (!fLen) {
+    return result;
+  }
+
+  field.Append(nsDependentSubstring(aLine, startPos, fLen));
+  field.Trim(kWhitespace);
+
+  if (quoted) {
+    int32_t offset = field.Find("\"\"");
+    while (offset != -1) {
+      field.Cut(offset, 1);
+      offset = MsgFind(field, "\"\"", false, offset + 1);
+    }
+  }
+
+  return result;
+}
+
+nsresult nsTextAddress::DetermineDelim(nsIFile *aSrc) {
   nsCOMPtr<nsIInputStream> inputStream;
   nsresult rv = NS_NewLocalFileInputStream(getter_AddRefs(inputStream), aSrc);
   if (NS_FAILED(rv)) {
@@ -368,7 +344,8 @@ nsresult nsTextAddress::DetermineDelim(nsIFile *aSrc)
   bool more = true;
 
   nsCOMPtr<nsIUnicharLineInputStream> lineStream;
-  rv = GetUnicharLineStreamForFile(aSrc, inputStream, getter_AddRefs(lineStream));
+  rv = GetUnicharLineStreamForFile(aSrc, inputStream,
+                                   getter_AddRefs(lineStream));
   if (NS_FAILED(rv)) {
     IMPORT_LOG0("*** Error opening converter stream for importer\n");
     return rv;
@@ -394,7 +371,7 @@ nsresult nsTextAddress::DetermineDelim(nsIFile *aSrc)
   else
     m_delim = char16_t(',');
 
-  IMPORT_LOG2( "Tab count = %d, Comma count = %d\n", tabLines, commaLines);
+  IMPORT_LOG2("Tab count = %d, Comma count = %d\n", tabLines, commaLines);
 
   return rv;
 }
@@ -403,53 +380,48 @@ nsresult nsTextAddress::DetermineDelim(nsIFile *aSrc)
     This is where the real work happens!
     Go through the field map and set the data in a new database row
 */
-nsresult nsTextAddress::ProcessLine(const nsAString &aLine, nsString& errors)
-{
-    if (!m_fieldMap) {
-        IMPORT_LOG0("*** Error, text import needs a field map\n");
-        return NS_ERROR_FAILURE;
-    }
+nsresult nsTextAddress::ProcessLine(const nsAString &aLine, nsString &errors) {
+  if (!m_fieldMap) {
+    IMPORT_LOG0("*** Error, text import needs a field map\n");
+    return NS_ERROR_FAILURE;
+  }
 
-    nsresult rv;
+  nsresult rv;
 
-    // Wait until we get our first non-empty field, then create a new row,
-    // fill in the data, then add the row to the database.
-    nsCOMPtr<nsIMdbRow> newRow;
-    nsAutoString   fieldVal;
-    int32_t        fieldNum;
-    int32_t        numFields = 0;
-    bool           active;
-    rv = m_fieldMap->GetMapSize(&numFields);
-    for (int32_t i = 0; (i < numFields) && NS_SUCCEEDED(rv); i++) {
-        active = false;
-        rv = m_fieldMap->GetFieldMap(i, &fieldNum);
-        if (NS_SUCCEEDED(rv))
-            rv = m_fieldMap->GetFieldActive(i, &active);
-        if (NS_SUCCEEDED(rv) && active) {
-            if (GetField(aLine, i, fieldVal, m_delim)) {
-                if (!fieldVal.IsEmpty()) {
-                    if (!newRow) {
-                        rv = m_database->GetNewRow(getter_AddRefs(newRow));
-                        if (NS_FAILED(rv)) {
-                            IMPORT_LOG0("*** Error getting new address database row\n");
-                        }
-                    }
-                    if (newRow) {
-                        rv = m_fieldMap->SetFieldValue(m_database, newRow, fieldNum, fieldVal.get());
-                    }
-                }
+  // Wait until we get our first non-empty field, then create a new row,
+  // fill in the data, then add the row to the database.
+  nsCOMPtr<nsIMdbRow> newRow;
+  nsAutoString fieldVal;
+  int32_t fieldNum;
+  int32_t numFields = 0;
+  bool active;
+  rv = m_fieldMap->GetMapSize(&numFields);
+  for (int32_t i = 0; (i < numFields) && NS_SUCCEEDED(rv); i++) {
+    active = false;
+    rv = m_fieldMap->GetFieldMap(i, &fieldNum);
+    if (NS_SUCCEEDED(rv)) rv = m_fieldMap->GetFieldActive(i, &active);
+    if (NS_SUCCEEDED(rv) && active) {
+      if (GetField(aLine, i, fieldVal, m_delim)) {
+        if (!fieldVal.IsEmpty()) {
+          if (!newRow) {
+            rv = m_database->GetNewRow(getter_AddRefs(newRow));
+            if (NS_FAILED(rv)) {
+              IMPORT_LOG0("*** Error getting new address database row\n");
             }
-            else
-                break;
+          }
+          if (newRow) {
+            rv = m_fieldMap->SetFieldValue(m_database, newRow, fieldNum,
+                                           fieldVal.get());
+          }
         }
-        else if (active) {
-          IMPORT_LOG1("*** Error getting field map for index %ld\n", (long) i);
-        }
+      } else
+        break;
+    } else if (active) {
+      IMPORT_LOG1("*** Error getting field map for index %ld\n", (long)i);
     }
+  }
 
-    if (NS_SUCCEEDED(rv) && newRow)
-      rv = m_database->AddCardRowToDB(newRow);
+  if (NS_SUCCEEDED(rv) && newRow) rv = m_database->AddCardRowToDB(newRow);
 
-    return rv;
+  return rv;
 }
-

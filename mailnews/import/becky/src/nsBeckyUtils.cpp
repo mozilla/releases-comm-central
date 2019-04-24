@@ -29,9 +29,7 @@
 #include "nsBeckyUtils.h"
 #include "SpecialSystemDirectory.h"
 
-nsresult
-nsBeckyUtils::FindUserDirectoryOnWindows7(nsIFile **aLocation)
-{
+nsresult nsBeckyUtils::FindUserDirectoryOnWindows7(nsIFile **aLocation) {
   NS_ENSURE_ARG_POINTER(aLocation);
 
   nsresult rv;
@@ -44,26 +42,23 @@ nsBeckyUtils::FindUserDirectoryOnWindows7(nsIFile **aLocation)
   bool exists = false;
   rv = directory->Exists(&exists);
   NS_ENSURE_SUCCESS(rv, rv);
-  if (!exists)
-    return NS_ERROR_FILE_NOT_FOUND;
+  if (!exists) return NS_ERROR_FILE_NOT_FOUND;
 
   bool isDirectory = false;
   rv = directory->IsDirectory(&isDirectory);
   NS_ENSURE_SUCCESS(rv, rv);
-  if (!isDirectory)
-    return NS_ERROR_FILE_NOT_FOUND;
+  if (!isDirectory) return NS_ERROR_FILE_NOT_FOUND;
 
   directory.forget(aLocation);
   return NS_OK;
 }
 
-nsresult
-nsBeckyUtils::FindUserDirectoryOnWindowsXP(nsIFile **aLocation)
-{
+nsresult nsBeckyUtils::FindUserDirectoryOnWindowsXP(nsIFile **aLocation) {
   NS_ENSURE_ARG_POINTER(aLocation);
 
   nsresult rv;
-  nsCOMPtr<nsIFile> directory = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
+  nsCOMPtr<nsIFile> directory =
+      do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = directory->InitWithPath(NS_LITERAL_STRING("C:\\Becky!"));
@@ -72,14 +67,12 @@ nsBeckyUtils::FindUserDirectoryOnWindowsXP(nsIFile **aLocation)
   bool exists = false;
   rv = directory->Exists(&exists);
   NS_ENSURE_SUCCESS(rv, rv);
-  if (!exists)
-    return NS_ERROR_FILE_NOT_FOUND;
+  if (!exists) return NS_ERROR_FILE_NOT_FOUND;
 
   bool isDirectory = false;
   rv = directory->IsDirectory(&isDirectory);
   NS_ENSURE_SUCCESS(rv, rv);
-  if (!isDirectory)
-    return NS_ERROR_FILE_NOT_FOUND;
+  if (!isDirectory) return NS_ERROR_FILE_NOT_FOUND;
 
   nsCOMPtr<nsIDirectoryEnumerator> entries;
   rv = directory->GetDirectoryEntries(getter_AddRefs(entries));
@@ -105,9 +98,7 @@ nsBeckyUtils::FindUserDirectoryOnWindowsXP(nsIFile **aLocation)
   return NS_OK;
 }
 
-nsresult
-nsBeckyUtils::FindUserDirectory(nsIFile **aLocation)
-{
+nsresult nsBeckyUtils::FindUserDirectory(nsIFile **aLocation) {
   nsresult rv = FindUserDirectoryOnWindows7(aLocation);
   if (rv == NS_ERROR_FILE_NOT_FOUND) {
     rv = FindUserDirectoryOnWindowsXP(aLocation);
@@ -115,10 +106,8 @@ nsBeckyUtils::FindUserDirectory(nsIFile **aLocation)
   return rv;
 }
 
-nsresult
-nsBeckyUtils::ConvertNativeStringToUTF8(const nsACString& aOriginal,
-                                        nsACString& _retval)
-{
+nsresult nsBeckyUtils::ConvertNativeStringToUTF8(const nsACString &aOriginal,
+                                                 nsACString &_retval) {
   nsresult rv;
   nsAutoString unicodeString;
   rv = NS_CopyNativeToUnicode(aOriginal, unicodeString);
@@ -128,10 +117,8 @@ nsBeckyUtils::ConvertNativeStringToUTF8(const nsACString& aOriginal,
   return NS_OK;
 }
 
-nsresult
-nsBeckyUtils::CreateLineInputStream(nsIFile *aFile,
-                                    nsILineInputStream **_retval)
-{
+nsresult nsBeckyUtils::CreateLineInputStream(nsIFile *aFile,
+                                             nsILineInputStream **_retval) {
   NS_ENSURE_ARG_POINTER(_retval);
 
   nsCOMPtr<nsIInputStream> inputStream;
@@ -141,9 +128,8 @@ nsBeckyUtils::CreateLineInputStream(nsIFile *aFile,
   return CallQueryInterface(inputStream, _retval);
 }
 
-nsresult
-nsBeckyUtils::GetFolderListFile(nsIFile *aLocation, nsIFile **_retval)
-{
+nsresult nsBeckyUtils::GetFolderListFile(nsIFile *aLocation,
+                                         nsIFile **_retval) {
   nsresult rv;
   nsCOMPtr<nsIFile> folderListFile;
   rv = aLocation->Clone(getter_AddRefs(folderListFile));
@@ -156,16 +142,14 @@ nsBeckyUtils::GetFolderListFile(nsIFile *aLocation, nsIFile **_retval)
   rv = folderListFile->Exists(&exists);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (!exists)
-    return NS_ERROR_FILE_NOT_FOUND;
+  if (!exists) return NS_ERROR_FILE_NOT_FOUND;
 
   folderListFile.forget(_retval);
   return NS_OK;
 }
 
-nsresult
-nsBeckyUtils::GetDefaultFolderName(nsIFile *aFolderListFile, nsACString& name)
-{
+nsresult nsBeckyUtils::GetDefaultFolderName(nsIFile *aFolderListFile,
+                                            nsACString &name) {
   nsresult rv;
   nsCOMPtr<nsILineInputStream> lineStream;
   rv = CreateLineInputStream(aFolderListFile, getter_AddRefs(lineStream));
@@ -178,9 +162,7 @@ nsBeckyUtils::GetDefaultFolderName(nsIFile *aFolderListFile, nsACString& name)
   return NS_OK;
 }
 
-nsresult
-nsBeckyUtils::GetDefaultMailboxDirectory(nsIFile **_retval)
-{
+nsresult nsBeckyUtils::GetDefaultMailboxDirectory(nsIFile **_retval) {
   nsCOMPtr<nsIFile> userDirectory;
   nsresult rv = FindUserDirectory(getter_AddRefs(userDirectory));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -199,22 +181,18 @@ nsBeckyUtils::GetDefaultMailboxDirectory(nsIFile **_retval)
   bool exists;
   rv = userDirectory->Exists(&exists);
   NS_ENSURE_SUCCESS(rv, rv);
-  if (!exists)
-    return NS_ERROR_FILE_NOT_FOUND;
+  if (!exists) return NS_ERROR_FILE_NOT_FOUND;
 
   bool isDirectory = false;
   rv = userDirectory->IsDirectory(&isDirectory);
   NS_ENSURE_SUCCESS(rv, rv);
-  if (!isDirectory)
-    return NS_ERROR_FILE_NOT_FOUND;
+  if (!isDirectory) return NS_ERROR_FILE_NOT_FOUND;
 
   userDirectory.forget(_retval);
   return NS_OK;
 }
 
-nsresult
-nsBeckyUtils::GetDefaultMailboxINIFile(nsIFile **_retval)
-{
+nsresult nsBeckyUtils::GetDefaultMailboxINIFile(nsIFile **_retval) {
   nsresult rv;
   nsCOMPtr<nsIFile> mailboxDirectory;
   rv = GetDefaultMailboxDirectory(getter_AddRefs(mailboxDirectory));
@@ -223,9 +201,8 @@ nsBeckyUtils::GetDefaultMailboxINIFile(nsIFile **_retval)
   return GetMailboxINIFile(mailboxDirectory, _retval);
 }
 
-nsresult
-nsBeckyUtils::GetMailboxINIFile(nsIFile *aDirectory, nsIFile **_retval)
-{
+nsresult nsBeckyUtils::GetMailboxINIFile(nsIFile *aDirectory,
+                                         nsIFile **_retval) {
   nsresult rv;
   nsCOMPtr<nsIFile> target;
   rv = aDirectory->Clone(getter_AddRefs(target));
@@ -235,42 +212,35 @@ nsBeckyUtils::GetMailboxINIFile(nsIFile *aDirectory, nsIFile **_retval)
   NS_ENSURE_SUCCESS(rv, rv);
   bool exists;
   rv = target->Exists(&exists);
-  if (!exists)
-    return NS_ERROR_FILE_NOT_FOUND;
+  if (!exists) return NS_ERROR_FILE_NOT_FOUND;
 
   target.forget(_retval);
   return NS_OK;
 }
 
-nsresult
-nsBeckyUtils::CreateINIParserForFile(nsIFile *aFile,
-                                     nsIINIParser **aParser)
-{
+nsresult nsBeckyUtils::CreateINIParserForFile(nsIFile *aFile,
+                                              nsIINIParser **aParser) {
   nsresult rv;
   nsCOMPtr<nsIINIParserFactory> factory =
-    do_GetService("@mozilla.org/xpcom/ini-processor-factory;1", &rv);
+      do_GetService("@mozilla.org/xpcom/ini-processor-factory;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   return factory->CreateINIParser(aFile, aParser);
 }
 
-nsresult
-nsBeckyUtils::GetMailboxNameFromINIFile(nsIFile *aFile, nsCString &aName)
-{
+nsresult nsBeckyUtils::GetMailboxNameFromINIFile(nsIFile *aFile,
+                                                 nsCString &aName) {
   nsresult rv;
   nsCOMPtr<nsIINIParser> parser;
   rv = CreateINIParserForFile(aFile, getter_AddRefs(parser));
   NS_ENSURE_SUCCESS(rv, rv);
 
   return parser->GetString(NS_LITERAL_CSTRING("Account"),
-                           NS_LITERAL_CSTRING("Name"),
-                           aName);
+                           NS_LITERAL_CSTRING("Name"), aName);
 }
 
-nsresult
-nsBeckyUtils::ConvertToUTF8File(nsIFile *aSourceFile,
-                                nsIFile **_retval)
-{
+nsresult nsBeckyUtils::ConvertToUTF8File(nsIFile *aSourceFile,
+                                         nsIFile **_retval) {
   nsresult rv;
   nsCOMPtr<nsIFile> convertedFile;
   rv = GetSpecialDirectoryWithFileName(NS_OS_TEMP_DIR,
@@ -285,21 +255,19 @@ nsBeckyUtils::ConvertToUTF8File(nsIFile *aSourceFile,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIOutputStream> destination;
-  rv = NS_NewLocalFileOutputStream(getter_AddRefs(destination),
-                                   convertedFile);
+  rv = NS_NewLocalFileOutputStream(getter_AddRefs(destination), convertedFile);
   NS_ENSURE_SUCCESS(rv, rv);
 
   const uint32_t kBlock = 8192;
 
   nsCOMPtr<nsIConverterInputStream> convertedInput =
-    do_CreateInstance("@mozilla.org/intl/converter-input-stream;1");
+      do_CreateInstance("@mozilla.org/intl/converter-input-stream;1");
   convertedInput->Init(source,
                        PromiseFlatCString(nsMsgI18NFileSystemCharset()).get(),
-                       kBlock,
-                       0x0000);
+                       kBlock, 0x0000);
 
   nsCOMPtr<nsIConverterOutputStream> convertedOutput =
-    do_CreateInstance("@mozilla.org/intl/converter-output-stream;1");
+      do_CreateInstance("@mozilla.org/intl/converter-output-stream;1");
   convertedOutput->Init(destination, "UTF-8");
 
   char16_t *line = (char16_t *)moz_xmalloc(kBlock);
@@ -316,10 +284,8 @@ nsBeckyUtils::ConvertToUTF8File(nsIFile *aSourceFile,
   return NS_OK;
 }
 
-nsresult
-nsBeckyUtils::TranslateFolderName(const nsAString & aFolderName,
-                                  nsAString & _retval)
-{
+nsresult nsBeckyUtils::TranslateFolderName(const nsAString &aFolderName,
+                                           nsAString &_retval) {
   if (aFolderName.LowerCaseEqualsLiteral("!trash"))
     _retval = NS_LITERAL_STRING(kDestTrashFolderName);
   else if (aFolderName.LowerCaseEqualsLiteral("!!!!inbox"))

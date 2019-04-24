@@ -7,9 +7,8 @@
 
 int ImportTranslate::m_useTranslator = -1;
 
-
-bool ImportTranslate::ConvertString(const nsCString& inStr, nsCString& outStr, bool mimeHeader)
-{
+bool ImportTranslate::ConvertString(const nsCString &inStr, nsCString &outStr,
+                                    bool mimeHeader) {
   if (inStr.IsEmpty()) {
     outStr = inStr;
     return true;
@@ -18,8 +17,8 @@ bool ImportTranslate::ConvertString(const nsCString& inStr, nsCString& outStr, b
   nsImportTranslator *pTrans = GetTranslator();
   // int      maxLen = (int) pTrans->GetMaxBufferSize(inStr.Length());
   // int      hLen = 0;
-  nsCString  set;
-  nsCString  lang;
+  nsCString set;
+  nsCString lang;
 
   if (mimeHeader) {
     // add the charset and language
@@ -36,7 +35,7 @@ bool ImportTranslate::ConvertString(const nsCString& inStr, nsCString& outStr, b
   set.Truncate();
   lang.Truncate();
 
-  uint8_t *  pBuf;
+  uint8_t *pBuf;
   /*
   pBuf = (P_U8) outStr.GetBuffer(maxLen);
   if (!pBuf) {
@@ -48,7 +47,6 @@ bool ImportTranslate::ConvertString(const nsCString& inStr, nsCString& outStr, b
   */
   outStr = inStr;
   delete pTrans;
-
 
   // Now I need to run the string through the mime-header special char
   // encoder.
@@ -65,14 +63,12 @@ bool ImportTranslate::ConvertString(const nsCString& inStr, nsCString& outStr, b
     outStr += "'";
   }
   outStr += (const char *)pBuf;
-  delete [] pBuf;
+  delete[] pBuf;
 
   return true;
 }
 
-
-nsImportTranslator *ImportTranslate::GetTranslator(void)
-{
+nsImportTranslator *ImportTranslate::GetTranslator(void) {
   if (m_useTranslator == -1) {
     // get the translator to use...
     // CString    trans;
@@ -82,24 +78,23 @@ nsImportTranslator *ImportTranslate::GetTranslator(void)
     //  gWizData.m_useTranslator = 1;
   }
 
-  switch(m_useTranslator) {
-  case 0:
-    return new nsImportTranslator;
-  //case 1:
-  //  return new CSJis2JisTranslator;
-  default:
-    return new nsImportTranslator;
+  switch (m_useTranslator) {
+    case 0:
+      return new nsImportTranslator;
+    // case 1:
+    //  return new CSJis2JisTranslator;
+    default:
+      return new nsImportTranslator;
   }
 }
 
-nsImportTranslator *ImportTranslate::GetMatchingTranslator(const char *pCharSet)
-{
-/*
-  CString    jp = "iso-2022-jp";
-  if (!jp.CompareNoCase(pCharSet))
-    return new CSJis2JisTranslator;
-*/
+nsImportTranslator *ImportTranslate::GetMatchingTranslator(
+    const char *pCharSet) {
+  /*
+    CString    jp = "iso-2022-jp";
+    if (!jp.CompareNoCase(pCharSet))
+      return new CSJis2JisTranslator;
+  */
 
   return nullptr;
 }
-

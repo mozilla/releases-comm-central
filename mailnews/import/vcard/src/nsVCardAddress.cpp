@@ -18,22 +18,14 @@
 #include "msgCore.h"
 #include "nsMsgUtils.h"
 
-nsVCardAddress::nsVCardAddress()
-{
-}
+nsVCardAddress::nsVCardAddress() {}
 
-nsVCardAddress::~nsVCardAddress()
-{
-}
+nsVCardAddress::~nsVCardAddress() {}
 
-nsresult nsVCardAddress::ImportAddresses(
-    bool *pAbort,
-    const char16_t *pName,
-    nsIFile *pSrc,
-    nsIAddrDatabase *pDb,
-    nsString& errors,
-    uint32_t *pProgress)
-{
+nsresult nsVCardAddress::ImportAddresses(bool *pAbort, const char16_t *pName,
+                                         nsIFile *pSrc, nsIAddrDatabase *pDb,
+                                         nsString &errors,
+                                         uint32_t *pProgress) {
   // Open the source file for reading, read each line and process it!
   nsCOMPtr<nsIInputStream> inputStream;
   nsresult rv = NS_NewLocalFileInputStream(getter_AddRefs(inputStream), pSrc);
@@ -68,7 +60,8 @@ nsresult nsVCardAddress::ImportAddresses(
     if (NS_SUCCEEDED(rv) && !record.IsEmpty()) {
       // Parse the vCard and build an nsIAbCard from it
       nsCOMPtr<nsIAbCard> cardFromVCard;
-      rv = ab->EscapedVCardToAbCard(record.get(), getter_AddRefs(cardFromVCard));
+      rv =
+          ab->EscapedVCardToAbCard(record.get(), getter_AddRefs(cardFromVCard));
       NS_ENSURE_SUCCESS(rv, rv);
 
       rv = pDb->CreateNewCardAndAddToDB(cardFromVCard, false, nullptr);
@@ -89,16 +82,16 @@ nsresult nsVCardAddress::ImportAddresses(
   inputStream->Close();
 
   if (NS_FAILED(rv)) {
-    IMPORT_LOG0("*** Error reading the address book - probably incorrect ending\n");
+    IMPORT_LOG0(
+        "*** Error reading the address book - probably incorrect ending\n");
     return NS_ERROR_FAILURE;
   }
 
   return pDb->Commit(nsAddrDBCommitType::kLargeCommit);
 }
 
-nsresult nsVCardAddress::ReadRecord(
-    nsILineInputStream *aLineStream, nsCString &aRecord, bool *aMore)
-{
+nsresult nsVCardAddress::ReadRecord(nsILineInputStream *aLineStream,
+                                    nsCString &aRecord, bool *aMore) {
   bool more = true;
   nsresult rv;
   nsCString line;
@@ -108,14 +101,13 @@ nsresult nsVCardAddress::ReadRecord(
   // remove the empty lines.
   do {
     rv = aLineStream->ReadLine(line, aMore);
-  }
-  while (line.IsEmpty() && *aMore);
-  if (!*aMore)
-    return rv;
+  } while (line.IsEmpty() && *aMore);
+  if (!*aMore) return rv;
 
   // read BEGIN:VCARD
   if (!line.LowerCaseEqualsLiteral("begin:vcard")) {
-    IMPORT_LOG0("*** Expected case-insensitive BEGIN:VCARD at start of vCard\n");
+    IMPORT_LOG0(
+        "*** Expected case-insensitive BEGIN:VCARD at start of vCard\n");
     rv = NS_ERROR_FAILURE;
     *aMore = more;
     return rv;
@@ -125,7 +117,8 @@ nsresult nsVCardAddress::ReadRecord(
   // read until END:VCARD
   do {
     if (!more) {
-      IMPORT_LOG0("*** Expected case-insensitive END:VCARD at start of vCard\n");
+      IMPORT_LOG0(
+          "*** Expected case-insensitive END:VCARD at start of vCard\n");
       rv = NS_ERROR_FAILURE;
       break;
     }

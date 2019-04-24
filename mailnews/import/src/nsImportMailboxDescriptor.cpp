@@ -3,19 +3,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
 #include "nscore.h"
 #include "nsImportMailboxDescriptor.h"
 #include "nsComponentManagerUtils.h"
 
 ////////////////////////////////////////////////////////////////////////
 
-
-
-nsresult nsImportMailboxDescriptor::Create(nsISupports *aOuter, REFNSIID aIID, void **aResult)
-{
-  if (aOuter)
-    return NS_ERROR_NO_AGGREGATION;
+nsresult nsImportMailboxDescriptor::Create(nsISupports *aOuter, REFNSIID aIID,
+                                           void **aResult) {
+  if (aOuter) return NS_ERROR_NO_AGGREGATION;
 
   RefPtr<nsImportMailboxDescriptor> it = new nsImportMailboxDescriptor();
   return it->QueryInterface(aIID, aResult);
@@ -23,11 +19,10 @@ nsresult nsImportMailboxDescriptor::Create(nsISupports *aOuter, REFNSIID aIID, v
 
 NS_IMPL_ISUPPORTS(nsImportMailboxDescriptor, nsIImportMailboxDescriptor)
 
-nsImportMailboxDescriptor::nsImportMailboxDescriptor()
-{
+nsImportMailboxDescriptor::nsImportMailboxDescriptor() {
   m_import = true;
   m_size = 0;
   m_depth = 0;
   m_id = 0;
-        m_pFile = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID);
+  m_pFile = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID);
 }

@@ -28,28 +28,36 @@ class nsIMsgSendListener;
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 class nsOutlookCompose {
-public:
+ public:
   nsOutlookCompose();
   ~nsOutlookCompose();
 
-  nsresult ProcessMessage(nsMsgDeliverMode mode, CMapiMessage &msg, nsIOutputStream *pDst);
+  nsresult ProcessMessage(nsMsgDeliverMode mode, CMapiMessage& msg,
+                          nsIOutputStream* pDst);
   static nsresult CreateIdentity(void);
   static void ReleaseIdentity(void);
-private:
-  nsresult  CreateComponents(void);
 
-  void      UpdateHeader(CMapiMessageHeaders& oldHeaders, const CMapiMessageHeaders& newHeaders, CMapiMessageHeaders::SpecialHeader header, bool addIfAbsent = true);
-  void      UpdateHeaders(CMapiMessageHeaders& oldHeaders, const CMapiMessageHeaders& newHeaders);
+ private:
+  nsresult CreateComponents(void);
 
-  nsresult  ComposeTheMessage(nsMsgDeliverMode mode, CMapiMessage &msg, nsIFile **pMsg);
-  nsresult  CopyComposedMessage(nsIFile *pSrc, nsIOutputStream *pDst, CMapiMessage& origMsg);
+  void UpdateHeader(CMapiMessageHeaders& oldHeaders,
+                    const CMapiMessageHeaders& newHeaders,
+                    CMapiMessageHeaders::SpecialHeader header,
+                    bool addIfAbsent = true);
+  void UpdateHeaders(CMapiMessageHeaders& oldHeaders,
+                     const CMapiMessageHeaders& newHeaders);
 
-private:
+  nsresult ComposeTheMessage(nsMsgDeliverMode mode, CMapiMessage& msg,
+                             nsIFile** pMsg);
+  nsresult CopyComposedMessage(nsIFile* pSrc, nsIOutputStream* pDst,
+                               CMapiMessage& origMsg);
+
+ private:
   nsCOMPtr<nsIMsgSendListener> m_pListener;
   nsCOMPtr<nsIMsgCompFields> m_pMsgFields;
   static nsCOMPtr<nsIMsgIdentity> m_pIdentity;
   char* m_optimizationBuffer;
-  nsCOMPtr<nsIImportService>  m_pImportService;
+  nsCOMPtr<nsIImportService> m_pImportService;
 };
 
 #endif /* nsOutlookCompose_h__ */

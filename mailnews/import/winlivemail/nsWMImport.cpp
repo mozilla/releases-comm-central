@@ -21,69 +21,65 @@
 
 #include "ImportDebug.h"
 
-class ImportWMMailImpl : public nsIImportMail
-{
-public:
+class ImportWMMailImpl : public nsIImportMail {
+ public:
   ImportWMMailImpl();
 
-  static nsresult Create(nsIImportMail** aImport);
+  static nsresult Create(nsIImportMail **aImport);
 
   // nsISupports interface
   NS_DECL_THREADSAFE_ISUPPORTS
 
   // nsIImportmail interface
 
-  /* void GetDefaultLocation (out nsIFile location, out boolean found, out boolean userVerify); */
-  NS_IMETHOD GetDefaultLocation(nsIFile **location, bool *found, bool *userVerify);
+  /* void GetDefaultLocation (out nsIFile location, out boolean found, out
+   * boolean userVerify); */
+  NS_IMETHOD GetDefaultLocation(nsIFile **location, bool *found,
+                                bool *userVerify);
 
   /* nsIArray FindMailboxes (in nsIFile location); */
   NS_IMETHOD FindMailboxes(nsIFile *location, nsIArray **_retval);
 
   NS_IMETHOD ImportMailbox(nsIImportMailboxDescriptor *source,
-                           nsIMsgFolder *dstFolder,
-                           char16_t **pErrorLog, char16_t **pSuccessLog,
-                           bool *fatalError);
+                           nsIMsgFolder *dstFolder, char16_t **pErrorLog,
+                           char16_t **pSuccessLog, bool *fatalError);
 
   /* unsigned long GetImportProgress (); */
   NS_IMETHOD GetImportProgress(uint32_t *_retval);
 
-  NS_IMETHOD TranslateFolderName(const nsAString & aFolderName, nsAString & _retval);
+  NS_IMETHOD TranslateFolderName(const nsAString &aFolderName,
+                                 nsAString &_retval);
 
-public:
-  static void ReportSuccess(nsString& name, int32_t count, nsString *pStream);
-  static void ReportError(int32_t errorNum, nsString& name, nsString *pStream);
+ public:
+  static void ReportSuccess(nsString &name, int32_t count, nsString *pStream);
+  static void ReportError(int32_t errorNum, nsString &name, nsString *pStream);
   static void AddLinebreak(nsString *pStream);
-  static void SetLogs(nsString& success, nsString& error, char16_t **pError, char16_t **pSuccess);
+  static void SetLogs(nsString &success, nsString &error, char16_t **pError,
+                      char16_t **pSuccess);
 
-private:
+ private:
   virtual ~ImportWMMailImpl();
 };
 
-nsWMImport::nsWMImport()
-{
+nsWMImport::nsWMImport() {
   IMPORT_LOG0("nsWMImport Module Created\n");
   nsWMStringBundle::GetStringBundle();
 }
 
-nsWMImport::~nsWMImport()
-{
-  IMPORT_LOG0("nsWMImport Module Deleted\n");
-}
+nsWMImport::~nsWMImport() { IMPORT_LOG0("nsWMImport Module Deleted\n"); }
 
 NS_IMPL_ISUPPORTS(nsWMImport, nsIImportModule)
 
-NS_IMETHODIMP nsWMImport::GetName(char16_t **name)
-{
+NS_IMETHODIMP nsWMImport::GetName(char16_t **name) {
   NS_ENSURE_ARG_POINTER(name);
   // nsString  title = "Windows Live Mail";
   // *name = ToNewUnicode(title);
   *name = nsWMStringBundle::GetStringByID(WMIMPORT_NAME);
 
-    return NS_OK;
+  return NS_OK;
 }
 
-NS_IMETHODIMP nsWMImport::GetDescription(char16_t **name)
-{
+NS_IMETHODIMP nsWMImport::GetDescription(char16_t **name) {
   NS_ENSURE_ARG_POINTER(name);
 
   // nsString  desc = "Windows Live Mail mail and address books";
@@ -92,29 +88,24 @@ NS_IMETHODIMP nsWMImport::GetDescription(char16_t **name)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsWMImport::GetSupports(char **supports)
-{
+NS_IMETHODIMP nsWMImport::GetSupports(char **supports) {
   NS_ASSERTION(supports != nullptr, "null ptr");
-  if (! supports)
-      return NS_ERROR_NULL_POINTER;
+  if (!supports) return NS_ERROR_NULL_POINTER;
 
   *supports = strdup(kWMSupportsString);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsWMImport::GetSupportsUpgrade(bool *pUpgrade)
-{
+NS_IMETHODIMP nsWMImport::GetSupportsUpgrade(bool *pUpgrade) {
   NS_ASSERTION(pUpgrade != nullptr, "null ptr");
-  if (! pUpgrade)
-    return NS_ERROR_NULL_POINTER;
+  if (!pUpgrade) return NS_ERROR_NULL_POINTER;
 
   *pUpgrade = true;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsWMImport::GetImportInterface(const char *pImportType,
-                                             nsISupports **ppInterface)
-{
+                                             nsISupports **ppInterface) {
   NS_ENSURE_ARG_POINTER(pImportType);
   NS_ENSURE_ARG_POINTER(ppInterface);
 
@@ -135,50 +126,40 @@ NS_IMETHODIMP nsWMImport::GetImportInterface(const char *pImportType,
 }
 
 /////////////////////////////////////////////////////////////////////////////////
-nsresult ImportWMMailImpl::Create(nsIImportMail** aImport)
-{
+nsresult ImportWMMailImpl::Create(nsIImportMail **aImport) {
   NS_ENSURE_ARG_POINTER(aImport);
   NS_ADDREF(*aImport = new ImportWMMailImpl());
   return NS_OK;
 }
 
-ImportWMMailImpl::ImportWMMailImpl()
-{
-}
+ImportWMMailImpl::ImportWMMailImpl() {}
 
-ImportWMMailImpl::~ImportWMMailImpl()
-{
-}
+ImportWMMailImpl::~ImportWMMailImpl() {}
 
 NS_IMPL_ISUPPORTS(ImportWMMailImpl, nsIImportMail)
 
-NS_IMETHODIMP ImportWMMailImpl::TranslateFolderName(const nsAString & aFolderName, nsAString & _retval)
-{
+NS_IMETHODIMP ImportWMMailImpl::TranslateFolderName(
+    const nsAString &aFolderName, nsAString &_retval) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP ImportWMMailImpl::GetDefaultLocation(nsIFile **ppLoc, bool *found,
-                                                   bool *userVerify)
-{
+                                                   bool *userVerify) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP ImportWMMailImpl::FindMailboxes(nsIFile *pLoc,
-                                              nsIArray **ppArray)
-{
+                                              nsIArray **ppArray) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-void ImportWMMailImpl::AddLinebreak(nsString *pStream)
-{
-  if (pStream)
-    pStream->Append(char16_t('\n'));
+void ImportWMMailImpl::AddLinebreak(nsString *pStream) {
+  if (pStream) pStream->Append(char16_t('\n'));
 }
 
-void ImportWMMailImpl::ReportSuccess(nsString& name, int32_t count, nsString *pStream)
-{
-  if (!pStream)
-    return;
+void ImportWMMailImpl::ReportSuccess(nsString &name, int32_t count,
+                                     nsString *pStream) {
+  if (!pStream) return;
   // load the success string
   char16_t *pFmt = nsWMStringBundle::GetStringByID(WMIMPORT_MAILBOX_SUCCESS);
   nsString pText;
@@ -188,10 +169,9 @@ void ImportWMMailImpl::ReportSuccess(nsString& name, int32_t count, nsString *pS
   AddLinebreak(pStream);
 }
 
-void ImportWMMailImpl::ReportError(int32_t errorNum, nsString& name, nsString *pStream)
-{
-  if (!pStream)
-    return;
+void ImportWMMailImpl::ReportError(int32_t errorNum, nsString &name,
+                                   nsString *pStream) {
+  if (!pStream) return;
   // load the error string
   char16_t *pFmt = nsWMStringBundle::GetStringByID(errorNum);
   nsString pText;
@@ -201,25 +181,18 @@ void ImportWMMailImpl::ReportError(int32_t errorNum, nsString& name, nsString *p
   AddLinebreak(pStream);
 }
 
-void ImportWMMailImpl::SetLogs(nsString& success, nsString& error,
-                               char16_t **pError, char16_t **pSuccess)
-{
-  if (pError)
-    *pError = ToNewUnicode(error);
-  if (pSuccess)
-    *pSuccess = ToNewUnicode(success);
+void ImportWMMailImpl::SetLogs(nsString &success, nsString &error,
+                               char16_t **pError, char16_t **pSuccess) {
+  if (pError) *pError = ToNewUnicode(error);
+  if (pSuccess) *pSuccess = ToNewUnicode(success);
 }
 
-NS_IMETHODIMP ImportWMMailImpl::ImportMailbox(nsIImportMailboxDescriptor *pSource,
-                                              nsIMsgFolder *pDstFolder,
-                                              char16_t **pErrorLog,
-                                              char16_t **pSuccessLog,
-                                              bool *fatalError)
-{
+NS_IMETHODIMP ImportWMMailImpl::ImportMailbox(
+    nsIImportMailboxDescriptor *pSource, nsIMsgFolder *pDstFolder,
+    char16_t **pErrorLog, char16_t **pSuccessLog, bool *fatalError) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP ImportWMMailImpl::GetImportProgress(uint32_t *pDoneSoFar)
-{
+NS_IMETHODIMP ImportWMMailImpl::GetImportProgress(uint32_t *pDoneSoFar) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }

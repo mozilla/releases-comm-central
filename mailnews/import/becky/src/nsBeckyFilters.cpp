@@ -25,28 +25,18 @@
 
 NS_IMPL_ISUPPORTS(nsBeckyFilters, nsIImportFilters)
 
-nsresult
-nsBeckyFilters::Create(nsIImportFilters **aImport)
-{
+nsresult nsBeckyFilters::Create(nsIImportFilters **aImport) {
   NS_ENSURE_ARG_POINTER(aImport);
   NS_ADDREF(*aImport = new nsBeckyFilters());
   return NS_OK;
 }
 
 nsBeckyFilters::nsBeckyFilters()
-: mLocation(nullptr),
-  mServer(nullptr),
-  mConvertedFile(nullptr)
-{
-}
+    : mLocation(nullptr), mServer(nullptr), mConvertedFile(nullptr) {}
 
-nsBeckyFilters::~nsBeckyFilters()
-{
-}
+nsBeckyFilters::~nsBeckyFilters() {}
 
-nsresult
-nsBeckyFilters::GetDefaultFilterLocation(nsIFile **aFile)
-{
+nsresult nsBeckyFilters::GetDefaultFilterLocation(nsIFile **aFile) {
   NS_ENSURE_ARG_POINTER(aFile);
 
   nsresult rv;
@@ -58,9 +48,8 @@ nsBeckyFilters::GetDefaultFilterLocation(nsIFile **aFile)
   return NS_OK;
 }
 
-nsresult
-nsBeckyFilters::GetFilterFile(bool aIncoming, nsIFile *aLocation, nsIFile **aFile)
-{
+nsresult nsBeckyFilters::GetFilterFile(bool aIncoming, nsIFile *aLocation,
+                                       nsIFile **aFile) {
   NS_ENSURE_ARG_POINTER(aLocation);
   NS_ENSURE_ARG_POINTER(aFile);
 
@@ -79,24 +68,21 @@ nsBeckyFilters::GetFilterFile(bool aIncoming, nsIFile *aLocation, nsIFile **aFil
   bool exists = false;
   rv = filter->Exists(&exists);
   NS_ENSURE_SUCCESS(rv, rv);
-  if (!exists)
-    return NS_ERROR_FILE_NOT_FOUND;
+  if (!exists) return NS_ERROR_FILE_NOT_FOUND;
 
   filter.forget(aFile);
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsBeckyFilters::AutoLocate(char16_t **aDescription,
-                           nsIFile **aLocation,
-                           bool *_retval)
-{
+nsBeckyFilters::AutoLocate(char16_t **aDescription, nsIFile **aLocation,
+                           bool *_retval) {
   NS_ENSURE_ARG_POINTER(aLocation);
   NS_ENSURE_ARG_POINTER(_retval);
 
   if (aDescription) {
     *aDescription =
-      nsBeckyStringBundle::GetStringByName("BeckyImportDescription");
+        nsBeckyStringBundle::GetStringByName("BeckyImportDescription");
   }
   *aLocation = nullptr;
   *_retval = false;
@@ -114,25 +100,20 @@ nsBeckyFilters::AutoLocate(char16_t **aDescription,
 }
 
 NS_IMETHODIMP
-nsBeckyFilters::SetLocation(nsIFile *aLocation)
-{
+nsBeckyFilters::SetLocation(nsIFile *aLocation) {
   NS_ENSURE_ARG_POINTER(aLocation);
 
   bool exists = false;
   nsresult rv = aLocation->Exists(&exists);
   NS_ENSURE_SUCCESS(rv, rv);
-  if (!exists)
-    return NS_ERROR_FILE_NOT_FOUND;
+  if (!exists) return NS_ERROR_FILE_NOT_FOUND;
 
   mLocation = aLocation;
   return NS_OK;
 }
 
-static nsMsgSearchAttribValue
-ConvertSearchKeyToAttrib(const nsACString &aKey)
-{
-  if (aKey.EqualsLiteral("From") ||
-      aKey.EqualsLiteral("Sender") ||
+static nsMsgSearchAttribValue ConvertSearchKeyToAttrib(const nsACString &aKey) {
+  if (aKey.EqualsLiteral("From") || aKey.EqualsLiteral("Sender") ||
       aKey.EqualsLiteral("From, Sender, X-Sender")) {
     return nsMsgSearchAttrib::Sender;
   } else if (aKey.EqualsLiteral("Subject")) {
@@ -151,9 +132,8 @@ ConvertSearchKeyToAttrib(const nsACString &aKey)
   return -1;
 }
 
-static nsMsgSearchOpValue
-ConvertSearchFlagsToOperator(const nsACString &aFlags)
-{
+static nsMsgSearchOpValue ConvertSearchFlagsToOperator(
+    const nsACString &aFlags) {
   nsCString flags(aFlags);
   int32_t lastTabPosition = flags.RFindChar('\t');
   if ((lastTabPosition == -1) ||
@@ -173,12 +153,10 @@ ConvertSearchFlagsToOperator(const nsACString &aFlags)
   }
 }
 
-nsresult
-nsBeckyFilters::ParseRuleLine(const nsCString &aLine,
-                              nsMsgSearchAttribValue *aSearchAttribute,
-                              nsMsgSearchOpValue *aSearchOperator,
-                              nsString &aSearchKeyword)
-{
+nsresult nsBeckyFilters::ParseRuleLine(const nsCString &aLine,
+                                       nsMsgSearchAttribValue *aSearchAttribute,
+                                       nsMsgSearchOpValue *aSearchOperator,
+                                       nsString &aSearchKeyword) {
   int32_t firstColonPosition = aLine.FindChar(':');
   if (firstColonPosition == -1 ||
       (int32_t)aLine.Length() == firstColonPosition - 1) {
@@ -193,31 +171,30 @@ nsBeckyFilters::ParseRuleLine(const nsCString &aLine,
 
   int32_t length = secondColonPosition - firstColonPosition - 1;
   nsMsgSearchAttribValue searchAttribute;
-  searchAttribute = ConvertSearchKeyToAttrib(Substring(aLine, firstColonPosition + 1, length));
-  if (searchAttribute < 0)
-    return NS_ERROR_FAILURE;
+  searchAttribute = ConvertSearchKeyToAttrib(
+      Substring(aLine, firstColonPosition + 1, length));
+  if (searchAttribute < 0) return NS_ERROR_FAILURE;
 
   int32_t tabPosition = aLine.FindChar('\t');
-  if (tabPosition == -1 ||
-      (int32_t)aLine.Length() == tabPosition - 1) {
+  if (tabPosition == -1 || (int32_t)aLine.Length() == tabPosition - 1) {
     return NS_ERROR_FAILURE;
   }
 
   nsMsgSearchOpValue searchOperator;
-  searchOperator = ConvertSearchFlagsToOperator(Substring(aLine, tabPosition + 1));
-  if (searchOperator < 0)
-    return NS_ERROR_FAILURE;
+  searchOperator =
+      ConvertSearchFlagsToOperator(Substring(aLine, tabPosition + 1));
+  if (searchOperator < 0) return NS_ERROR_FAILURE;
 
   *aSearchOperator = searchOperator;
   *aSearchAttribute = searchAttribute;
   length = tabPosition - secondColonPosition - 1;
-  CopyUTF8toUTF16(Substring(aLine, secondColonPosition + 1, length), aSearchKeyword);
+  CopyUTF8toUTF16(Substring(aLine, secondColonPosition + 1, length),
+                  aSearchKeyword);
   return NS_OK;
 }
 
-nsresult
-nsBeckyFilters::SetSearchTerm(const nsCString &aLine, nsIMsgFilter *aFilter)
-{
+nsresult nsBeckyFilters::SetSearchTerm(const nsCString &aLine,
+                                       nsIMsgFilter *aFilter) {
   NS_ENSURE_ARG_POINTER(aFilter);
 
   nsresult rv;
@@ -258,11 +235,9 @@ nsBeckyFilters::SetSearchTerm(const nsCString &aLine, nsIMsgFilter *aFilter)
   return aFilter->AppendTerm(term);
 }
 
-nsresult
-nsBeckyFilters::CreateRuleAction(nsIMsgFilter *aFilter,
-                                 nsMsgRuleActionType actionType,
-                                 nsIMsgRuleAction **_retval)
-{
+nsresult nsBeckyFilters::CreateRuleAction(nsIMsgFilter *aFilter,
+                                          nsMsgRuleActionType actionType,
+                                          nsIMsgRuleAction **_retval) {
   nsresult rv;
   nsCOMPtr<nsIMsgRuleAction> action;
   rv = aFilter->CreateAction(getter_AddRefs(action));
@@ -275,10 +250,8 @@ nsBeckyFilters::CreateRuleAction(nsIMsgFilter *aFilter,
   return NS_OK;
 }
 
-nsresult
-nsBeckyFilters::GetActionTarget(const nsCString &aLine,
-                                nsCString &aTarget)
-{
+nsresult nsBeckyFilters::GetActionTarget(const nsCString &aLine,
+                                         nsCString &aTarget) {
   int32_t firstColonPosition = aLine.FindChar(':');
   if (firstColonPosition < -1 ||
       aLine.Length() == static_cast<uint32_t>(firstColonPosition)) {
@@ -290,11 +263,9 @@ nsBeckyFilters::GetActionTarget(const nsCString &aLine,
   return NS_OK;
 }
 
-nsresult
-nsBeckyFilters::GetResendTarget(const nsCString &aLine,
-                                nsCString &aTemplate,
-                                nsCString &aTargetAddress)
-{
+nsresult nsBeckyFilters::GetResendTarget(const nsCString &aLine,
+                                         nsCString &aTemplate,
+                                         nsCString &aTargetAddress) {
   nsresult rv;
   nsAutoCString target;
   rv = GetActionTarget(aLine, target);
@@ -315,12 +286,9 @@ nsBeckyFilters::GetResendTarget(const nsCString &aLine,
   return NS_OK;
 }
 
-nsresult
-nsBeckyFilters::CreateResendAction(const nsCString &aLine,
-                                   nsIMsgFilter *aFilter,
-                                   const nsMsgRuleActionType &aActionType,
-                                   nsIMsgRuleAction **_retval)
-{
+nsresult nsBeckyFilters::CreateResendAction(
+    const nsCString &aLine, nsIMsgFilter *aFilter,
+    const nsMsgRuleActionType &aActionType, nsIMsgRuleAction **_retval) {
   nsresult rv;
   nsCOMPtr<nsIMsgRuleAction> action;
   rv = CreateRuleAction(aFilter, aActionType, getter_AddRefs(action));
@@ -342,22 +310,20 @@ nsBeckyFilters::CreateResendAction(const nsCString &aLine,
   return NS_OK;
 }
 
-nsresult
-nsBeckyFilters::GetFolderNameFromTarget(const nsCString &aTarget, nsAString &aName)
-{
+nsresult nsBeckyFilters::GetFolderNameFromTarget(const nsCString &aTarget,
+                                                 nsAString &aName) {
   int32_t backslashPosition = aTarget.RFindChar('\\');
   if (backslashPosition > 0) {
-    NS_ConvertUTF8toUTF16 utf16String(Substring(aTarget, backslashPosition + 1));
+    NS_ConvertUTF8toUTF16 utf16String(
+        Substring(aTarget, backslashPosition + 1));
     nsBeckyUtils::TranslateFolderName(utf16String, aName);
   }
 
   return NS_OK;
 }
 
-nsresult
-nsBeckyFilters::GetDistributeTarget(const nsCString &aLine,
-                                    nsCString &aTargetFolder)
-{
+nsresult nsBeckyFilters::GetDistributeTarget(const nsCString &aLine,
+                                             nsCString &aTargetFolder) {
   nsresult rv;
   nsAutoCString target;
   rv = GetActionTarget(aLine, target);
@@ -368,7 +334,7 @@ nsBeckyFilters::GetDistributeTarget(const nsCString &aLine,
   rv = GetFolderNameFromTarget(target, folderName);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr <nsIMsgFolder> folder;
+  nsCOMPtr<nsIMsgFolder> folder;
   rv = GetMessageFolder(folderName, getter_AddRefs(folder));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -379,12 +345,9 @@ nsBeckyFilters::GetDistributeTarget(const nsCString &aLine,
   return folder->GetURI(aTargetFolder);
 }
 
-nsresult
-nsBeckyFilters::CreateDistributeAction(const nsCString &aLine,
-                                       nsIMsgFilter *aFilter,
-                                       const nsMsgRuleActionType &aActionType,
-                                       nsIMsgRuleAction **_retval)
-{
+nsresult nsBeckyFilters::CreateDistributeAction(
+    const nsCString &aLine, nsIMsgFilter *aFilter,
+    const nsMsgRuleActionType &aActionType, nsIMsgRuleAction **_retval) {
   nsresult rv;
   nsCOMPtr<nsIMsgRuleAction> action;
   rv = CreateRuleAction(aFilter, aActionType, getter_AddRefs(action));
@@ -400,11 +363,9 @@ nsBeckyFilters::CreateDistributeAction(const nsCString &aLine,
   return NS_OK;
 }
 
-nsresult
-nsBeckyFilters::CreateLeaveOrDeleteAction(const nsCString &aLine,
-                                          nsIMsgFilter *aFilter,
-                                          nsIMsgRuleAction **_retval)
-{
+nsresult nsBeckyFilters::CreateLeaveOrDeleteAction(const nsCString &aLine,
+                                                   nsIMsgFilter *aFilter,
+                                                   nsIMsgRuleAction **_retval) {
   nsresult rv;
   nsMsgRuleActionType actionType;
   if (aLine.CharAt(3) == '0') {
@@ -426,45 +387,38 @@ nsBeckyFilters::CreateLeaveOrDeleteAction(const nsCString &aLine,
   return NS_OK;
 }
 
-nsresult
-nsBeckyFilters::SetRuleAction(const nsCString &aLine, nsIMsgFilter *aFilter)
-{
-  if (!aFilter || aLine.Length() < 4)
-    return NS_ERROR_FAILURE;
+nsresult nsBeckyFilters::SetRuleAction(const nsCString &aLine,
+                                       nsIMsgFilter *aFilter) {
+  if (!aFilter || aLine.Length() < 4) return NS_ERROR_FAILURE;
 
   nsresult rv = NS_OK;
   nsCOMPtr<nsIMsgRuleAction> action;
   switch (aLine.CharAt(1)) {
-    case 'R': // Reply
-      rv = CreateResendAction(aLine,
-                              aFilter,
-                              nsMsgFilterAction::Reply,
+    case 'R':  // Reply
+      rv = CreateResendAction(aLine, aFilter, nsMsgFilterAction::Reply,
                               getter_AddRefs(action));
       break;
-    case 'F': // Forward
-      rv = CreateResendAction(aLine,
-                              aFilter,
-                              nsMsgFilterAction::Forward,
+    case 'F':  // Forward
+      rv = CreateResendAction(aLine, aFilter, nsMsgFilterAction::Forward,
                               getter_AddRefs(action));
       break;
-    case 'L': // Leave or delete
+    case 'L':  // Leave or delete
       rv = CreateLeaveOrDeleteAction(aLine, aFilter, getter_AddRefs(action));
       break;
-    case 'Y': // Copy
-      rv = CreateDistributeAction(aLine,
-                                  aFilter,
+    case 'Y':  // Copy
+      rv = CreateDistributeAction(aLine, aFilter,
                                   nsMsgFilterAction::CopyToFolder,
                                   getter_AddRefs(action));
       break;
-    case 'M': // Move
-      rv = CreateDistributeAction(aLine,
-                                  aFilter,
+    case 'M':  // Move
+      rv = CreateDistributeAction(aLine, aFilter,
                                   nsMsgFilterAction::MoveToFolder,
                                   getter_AddRefs(action));
       break;
-    case 'G': // Set flag
-      if (aLine.CharAt(3) == 'R') // Read
-        rv = CreateRuleAction(aFilter, nsMsgFilterAction::MarkRead, getter_AddRefs(action));
+    case 'G':                      // Set flag
+      if (aLine.CharAt(3) == 'R')  // Read
+        rv = CreateRuleAction(aFilter, nsMsgFilterAction::MarkRead,
+                              getter_AddRefs(action));
       break;
     default:
       return NS_OK;
@@ -479,12 +433,10 @@ nsBeckyFilters::SetRuleAction(const nsCString &aLine, nsIMsgFilter *aFilter)
   return NS_OK;
 }
 
-nsresult
-nsBeckyFilters::CreateFilter(bool aIncoming, nsIMsgFilter **_retval)
-{
+nsresult nsBeckyFilters::CreateFilter(bool aIncoming, nsIMsgFilter **_retval) {
   NS_ENSURE_STATE(mServer);
 
-  nsCOMPtr <nsIMsgFilterList> filterList;
+  nsCOMPtr<nsIMsgFilterList> filterList;
   nsresult rv = mServer->GetFilterList(nullptr, getter_AddRefs(filterList));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -495,7 +447,8 @@ nsBeckyFilters::CreateFilter(bool aIncoming, nsIMsgFilter **_retval)
   if (aIncoming)
     filter->SetFilterType(nsMsgFilterType::InboxRule | nsMsgFilterType::Manual);
   else
-    filter->SetFilterType(nsMsgFilterType::PostOutgoing | nsMsgFilterType::Manual);
+    filter->SetFilterType(nsMsgFilterType::PostOutgoing |
+                          nsMsgFilterType::Manual);
 
   filter->SetEnabled(true);
   filter.forget(_retval);
@@ -503,12 +456,10 @@ nsBeckyFilters::CreateFilter(bool aIncoming, nsIMsgFilter **_retval)
   return NS_OK;
 }
 
-nsresult
-nsBeckyFilters::AppendFilter(nsIMsgFilter *aFilter)
-{
+nsresult nsBeckyFilters::AppendFilter(nsIMsgFilter *aFilter) {
   NS_ENSURE_STATE(mServer);
 
-  nsCOMPtr <nsIMsgFilterList> filterList;
+  nsCOMPtr<nsIMsgFilterList> filterList;
   nsresult rv = mServer->GetFilterList(nullptr, getter_AddRefs(filterList));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -519,9 +470,7 @@ nsBeckyFilters::AppendFilter(nsIMsgFilter *aFilter)
   return filterList->InsertFilterAt(count, aFilter);
 }
 
-nsresult
-nsBeckyFilters::ParseFilterFile(nsIFile *aFile, bool aIncoming)
-{
+nsresult nsBeckyFilters::ParseFilterFile(nsIFile *aFile, bool aIncoming) {
   nsresult rv;
   nsCOMPtr<nsILineInputStream> lineStream;
   rv = nsBeckyUtils::CreateLineInputStream(aFile, getter_AddRefs(lineStream));
@@ -539,8 +488,7 @@ nsBeckyFilters::ParseFilterFile(nsIFile *aFile, bool aIncoming)
         if (line.EqualsLiteral(":Begin \"\"")) {
           CreateFilter(aIncoming, getter_AddRefs(filter));
         } else if (line.EqualsLiteral(":End \"\"")) {
-          if (filter)
-            AppendFilter(filter);
+          if (filter) AppendFilter(filter);
           filter = nullptr;
         }
         break;
@@ -550,7 +498,7 @@ nsBeckyFilters::ParseFilterFile(nsIFile *aFile, bool aIncoming)
       case '@':
         SetSearchTerm(line, filter);
         break;
-      case '$': // $X: disabled
+      case '$':  // $X: disabled
         if (StringBeginsWith(line, NS_LITERAL_CSTRING("$X")) && filter) {
           filter->SetEnabled(false);
         }
@@ -564,9 +512,7 @@ nsBeckyFilters::ParseFilterFile(nsIFile *aFile, bool aIncoming)
 }
 
 NS_IMETHODIMP
-nsBeckyFilters::Import(char16_t **aError,
-                       bool *_retval)
-{
+nsBeckyFilters::Import(char16_t **aError, bool *_retval) {
   NS_ENSURE_ARG_POINTER(aError);
   NS_ENSURE_ARG_POINTER(_retval);
 
@@ -585,8 +531,7 @@ nsBeckyFilters::Import(char16_t **aError,
     bool retval = false;
     rv = AutoLocate(nullptr, getter_AddRefs(mLocation), &retval);
     NS_ENSURE_SUCCESS(rv, rv);
-    if (!retval)
-      return NS_ERROR_FILE_NOT_FOUND;
+    if (!retval) return NS_ERROR_FILE_NOT_FOUND;
   }
 
   // What type of location do we have?
@@ -615,40 +560,40 @@ nsBeckyFilters::Import(char16_t **aError,
     nsAutoString fileName;
     rv = mLocation->GetLeafName(fileName);
     NS_ENSURE_SUCCESS(rv, rv);
-    if (fileName.EqualsLiteral("OFilter.def"))
-      haveIncoming = false;
+    if (fileName.EqualsLiteral("OFilter.def")) haveIncoming = false;
   }
 
   // Try importing from the passed in file or the default incoming filters file.
-  if ((haveFile && haveIncoming) || (!haveFile &&
-      NS_SUCCEEDED(GetFilterFile(true, mLocation, getter_AddRefs(filterFile)))))
-  {
+  if ((haveFile && haveIncoming) ||
+      (!haveFile && NS_SUCCEEDED(GetFilterFile(true, mLocation,
+                                               getter_AddRefs(filterFile))))) {
     rv = CollectServers();
     NS_ENSURE_SUCCESS(rv, rv);
 
-    rv = nsBeckyUtils::ConvertToUTF8File(filterFile, getter_AddRefs(mConvertedFile));
+    rv = nsBeckyUtils::ConvertToUTF8File(filterFile,
+                                         getter_AddRefs(mConvertedFile));
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = ParseFilterFile(mConvertedFile, true);
-    if (NS_SUCCEEDED(rv))
-      *_retval = true;
+    if (NS_SUCCEEDED(rv)) *_retval = true;
 
     (void)RemoveConvertedFile();
   }
 
-  // If we didn't have a file passed (but a directory), try finding also outgoing filters.
-  if ((haveFile && !haveIncoming) || (!haveFile &&
-      NS_SUCCEEDED(GetFilterFile(false, mLocation, getter_AddRefs(filterFile)))))
-  {
+  // If we didn't have a file passed (but a directory), try finding also
+  // outgoing filters.
+  if ((haveFile && !haveIncoming) ||
+      (!haveFile && NS_SUCCEEDED(GetFilterFile(false, mLocation,
+                                               getter_AddRefs(filterFile))))) {
     rv = CollectServers();
     NS_ENSURE_SUCCESS(rv, rv);
 
-    rv = nsBeckyUtils::ConvertToUTF8File(filterFile, getter_AddRefs(mConvertedFile));
+    rv = nsBeckyUtils::ConvertToUTF8File(filterFile,
+                                         getter_AddRefs(mConvertedFile));
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = ParseFilterFile(mConvertedFile, false);
-    if (NS_SUCCEEDED(rv))
-      *_retval = true;
+    if (NS_SUCCEEDED(rv)) *_retval = true;
 
     (void)RemoveConvertedFile();
   }
@@ -656,11 +601,9 @@ nsBeckyFilters::Import(char16_t **aError,
   return rv;
 }
 
-nsresult
-nsBeckyFilters::FindMessageFolder(const nsAString &aName,
-                                  nsIMsgFolder *aParentFolder,
-                                  nsIMsgFolder **_retval)
-{
+nsresult nsBeckyFilters::FindMessageFolder(const nsAString &aName,
+                                           nsIMsgFolder *aParentFolder,
+                                           nsIMsgFolder **_retval) {
   nsresult rv;
 
   nsCOMPtr<nsIMsgFolder> found;
@@ -693,23 +636,19 @@ nsBeckyFilters::FindMessageFolder(const nsAString &aName,
   return NS_MSG_ERROR_INVALID_FOLDER_NAME;
 }
 
-nsresult
-nsBeckyFilters::FindMessageFolderInServer(const nsAString &aName,
-                                          nsIMsgIncomingServer *aServer,
-                                          nsIMsgFolder **_retval)
-{
+nsresult nsBeckyFilters::FindMessageFolderInServer(
+    const nsAString &aName, nsIMsgIncomingServer *aServer,
+    nsIMsgFolder **_retval) {
   nsresult rv;
-  nsCOMPtr <nsIMsgFolder> rootFolder;
+  nsCOMPtr<nsIMsgFolder> rootFolder;
   rv = aServer->GetRootMsgFolder(getter_AddRefs(rootFolder));
   NS_ENSURE_SUCCESS(rv, rv);
 
   return FindMessageFolder(aName, rootFolder, _retval);
 }
 
-nsresult
-nsBeckyFilters::GetMessageFolder(const nsAString &aName,
-                                 nsIMsgFolder **_retval)
-{
+nsresult nsBeckyFilters::GetMessageFolder(const nsAString &aName,
+                                          nsIMsgFolder **_retval) {
   nsresult rv;
 
   nsCOMPtr<nsIMsgAccountManager> accountManager;
@@ -727,16 +666,13 @@ nsBeckyFilters::GetMessageFolder(const nsAString &aName,
   nsCOMPtr<nsIMsgFolder> found;
   for (uint32_t i = 0; i < accountCount; i++) {
     nsCOMPtr<nsIMsgAccount> account(do_QueryElementAt(accounts, i));
-    if (!account)
-      continue;
+    if (!account) continue;
 
     nsCOMPtr<nsIMsgIncomingServer> server;
     account->GetIncomingServer(getter_AddRefs(server));
-    if (!server)
-      continue;
+    if (!server) continue;
     FindMessageFolderInServer(aName, server, getter_AddRefs(found));
-    if (found)
-      break;
+    if (found) break;
   }
 
   if (!found) {
@@ -747,17 +683,14 @@ nsBeckyFilters::GetMessageFolder(const nsAString &aName,
     FindMessageFolderInServer(aName, server, getter_AddRefs(found));
   }
 
-  if (!found)
-    return NS_MSG_ERROR_INVALID_FOLDER_NAME;
+  if (!found) return NS_MSG_ERROR_INVALID_FOLDER_NAME;
 
   found.forget(_retval);
 
   return NS_OK;
 }
 
-nsresult
-nsBeckyFilters::CollectServers()
-{
+nsresult nsBeckyFilters::CollectServers() {
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager;
   accountManager = do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
@@ -772,25 +705,20 @@ nsBeckyFilters::CollectServers()
   // We can also import filters into the Local Folders account.
   rv = accountManager->GetLocalFoldersServer(getter_AddRefs(mServer));
   NS_ENSURE_SUCCESS(rv, rv);
-  if (!mServer)
-    return NS_ERROR_UNEXPECTED;
+  if (!mServer) return NS_ERROR_UNEXPECTED;
 
   return NS_OK;
 }
 
-nsresult
-nsBeckyFilters::RemoveConvertedFile()
-{
+nsresult nsBeckyFilters::RemoveConvertedFile() {
   nsresult rv = NS_OK;
   if (mConvertedFile) {
     bool exists = false;
     mConvertedFile->Exists(&exists);
     if (exists) {
       rv = mConvertedFile->Remove(false);
-      if (NS_SUCCEEDED(rv))
-        mConvertedFile = nullptr;
+      if (NS_SUCCEEDED(rv)) mConvertedFile = nullptr;
     }
   }
   return rv;
 }
-

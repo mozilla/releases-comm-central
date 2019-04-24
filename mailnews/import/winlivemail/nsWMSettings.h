@@ -9,13 +9,13 @@
 #include "nsIImportSettings.h"
 
 class nsWMSettings : public nsIImportSettings {
-public:
+ public:
   nsWMSettings();
   static nsresult Create(nsIImportSettings** aImport);
   NS_DECL_ISUPPORTS
   NS_DECL_NSIIMPORTSETTINGS
 
-private:
+ private:
   virtual ~nsWMSettings();
 };
 

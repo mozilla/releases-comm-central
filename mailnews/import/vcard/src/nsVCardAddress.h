@@ -12,22 +12,17 @@ class nsIFile;
 class nsILineInputStream;
 
 class nsVCardAddress {
-public:
+ public:
   nsVCardAddress();
   virtual ~nsVCardAddress();
 
-  nsresult ImportAddresses(
-      bool *pAbort,
-      const char16_t *pName,
-      nsIFile *pSrc,
-      nsIAddrDatabase *pDb,
-      nsString& errors,
-      uint32_t *pProgress);
+  nsresult ImportAddresses(bool *pAbort, const char16_t *pName, nsIFile *pSrc,
+                           nsIAddrDatabase *pDb, nsString &errors,
+                           uint32_t *pProgress);
 
-private:
-  static nsresult ReadRecord(
-      nsILineInputStream *aLineStream, nsCString &aRecord, bool *aMore);
+ private:
+  static nsresult ReadRecord(nsILineInputStream *aLineStream,
+                             nsCString &aRecord, bool *aMore);
 };
 
 #endif /* nsVCardAddress_h__ */
-

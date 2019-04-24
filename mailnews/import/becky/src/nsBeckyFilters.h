@@ -15,16 +15,15 @@
 class nsIMsgFilter;
 class nsIMsgRuleAction;
 
-class nsBeckyFilters final : public nsIImportFilters
-{
-public:
+class nsBeckyFilters final : public nsIImportFilters {
+ public:
   nsBeckyFilters();
   static nsresult Create(nsIImportFilters **aImport);
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIIMPORTFILTERS
 
-private:
+ private:
   virtual ~nsBeckyFilters();
 
   nsCOMPtr<nsIFile> mLocation;
@@ -39,32 +38,29 @@ private:
                          nsMsgSearchOpValue *aSearchOperator,
                          nsString &aSearchKeyword);
   nsresult CollectServers();
-  nsresult FindMessageFolder(const nsAString& aName,
+  nsresult FindMessageFolder(const nsAString &aName,
                              nsIMsgFolder *aParantFolder,
                              nsIMsgFolder **_retval);
-  nsresult FindMessageFolderInServer(const nsAString& aName,
+  nsresult FindMessageFolderInServer(const nsAString &aName,
                                      nsIMsgIncomingServer *aServer,
                                      nsIMsgFolder **_retval);
-  nsresult GetMessageFolder(const nsAString& aName, nsIMsgFolder **_retval);
+  nsresult GetMessageFolder(const nsAString &aName, nsIMsgFolder **_retval);
   nsresult GetActionTarget(const nsCString &aLine, nsCString &aTarget);
   nsresult GetFolderNameFromTarget(const nsCString &aTarget, nsAString &aName);
   nsresult GetDistributeTarget(const nsCString &aLine,
                                nsCString &aTargetFolder);
-  nsresult GetResendTarget(const nsCString &aLine,
-                           nsCString &aTemplate,
+  nsresult GetResendTarget(const nsCString &aLine, nsCString &aTemplate,
                            nsCString &aTargetAddress);
   nsresult CreateRuleAction(nsIMsgFilter *aFilter,
                             nsMsgRuleActionType actionType,
                             nsIMsgRuleAction **_retval);
-  nsresult CreateDistributeAction(const nsCString &aLine,
-                                  nsIMsgFilter *aFilter,
+  nsresult CreateDistributeAction(const nsCString &aLine, nsIMsgFilter *aFilter,
                                   const nsMsgRuleActionType &aActionType,
                                   nsIMsgRuleAction **_retval);
   nsresult CreateLeaveOrDeleteAction(const nsCString &aLine,
                                      nsIMsgFilter *aFilter,
                                      nsIMsgRuleAction **_retval);
-  nsresult CreateResendAction(const nsCString &aLine,
-                              nsIMsgFilter *aFilter,
+  nsresult CreateResendAction(const nsCString &aLine, nsIMsgFilter *aFilter,
                               const nsMsgRuleActionType &aActionType,
                               nsIMsgRuleAction **_retval);
   nsresult CreateFilter(bool aIncoming, nsIMsgFilter **_retval);

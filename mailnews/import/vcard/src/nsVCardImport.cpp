@@ -24,13 +24,12 @@
 #include "nsVCardAddress.h"
 #include "nsVCardImport.h"
 
-class ImportVCardAddressImpl : public nsIImportAddressBooks
-{
-public:
-  explicit ImportVCardAddressImpl(nsIStringBundle* aStringBundle);
+class ImportVCardAddressImpl : public nsIImportAddressBooks {
+ public:
+  explicit ImportVCardAddressImpl(nsIStringBundle *aStringBundle);
 
-  static nsresult Create(
-      nsIImportAddressBooks** aImport, nsIStringBundle* aStringBundle);
+  static nsresult Create(nsIImportAddressBooks **aImport,
+                         nsIStringBundle *aStringBundle);
 
   // nsISupports interface
   NS_DECL_THREADSAFE_ISUPPORTS
@@ -39,104 +38,100 @@ public:
 
   // TODO: support multiple vCard files in future - shouldn't be too hard,
   // since you just import each file in turn.
-  NS_IMETHOD GetSupportsMultiple(bool *_retval) override
-  { *_retval = false; return NS_OK;}
+  NS_IMETHOD GetSupportsMultiple(bool *_retval) override {
+    *_retval = false;
+    return NS_OK;
+  }
 
   NS_IMETHOD GetAutoFind(char16_t **description, bool *_retval) override;
 
-  NS_IMETHOD GetNeedsFieldMap(nsIFile *location, bool *_retval) override
-  { *_retval = false; return NS_OK;}
+  NS_IMETHOD GetNeedsFieldMap(nsIFile *location, bool *_retval) override {
+    *_retval = false;
+    return NS_OK;
+  }
 
-  NS_IMETHOD GetDefaultLocation(
-      nsIFile **location, bool *found, bool *userVerify) override;
+  NS_IMETHOD GetDefaultLocation(nsIFile **location, bool *found,
+                                bool *userVerify) override;
 
   NS_IMETHOD FindAddressBooks(nsIFile *location, nsIArray **_retval) override;
 
-  NS_IMETHOD InitFieldMap(nsIImportFieldMap *fieldMap) override
-  { return NS_ERROR_FAILURE;}
+  NS_IMETHOD InitFieldMap(nsIImportFieldMap *fieldMap) override {
+    return NS_ERROR_FAILURE;
+  }
 
   NS_IMETHOD ImportAddressBook(nsIImportABDescriptor *source,
                                nsIAddrDatabase *destination,
                                nsIImportFieldMap *fieldMap,
                                nsISupports *aSupportService,
-                               char16_t **errorLog,
-                               char16_t **successLog,
+                               char16_t **errorLog, char16_t **successLog,
                                bool *fatalError) override;
 
   NS_IMETHOD GetImportProgress(uint32_t *_retval) override;
 
-  NS_IMETHOD GetSampleData(int32_t index, bool *pFound, char16_t **pStr) override
-  { return NS_ERROR_FAILURE;}
+  NS_IMETHOD GetSampleData(int32_t index, bool *pFound,
+                           char16_t **pStr) override {
+    return NS_ERROR_FAILURE;
+  }
 
-  NS_IMETHOD SetSampleLocation(nsIFile *) override
-  { return NS_ERROR_FAILURE; }
+  NS_IMETHOD SetSampleLocation(nsIFile *) override { return NS_ERROR_FAILURE; }
 
-private:
+ private:
   virtual ~ImportVCardAddressImpl();
-  static void ReportSuccess(
-      nsString& name, nsString *pStream, nsIStringBundle* pBundle);
-  static void SetLogs(
-      nsString& success, nsString& error,
-      char16_t **pError, char16_t **pSuccess);
-  static void ReportError(
-      const char *errorName, nsString& name, nsString *pStream,
-      nsIStringBundle* pBundle);
+  static void ReportSuccess(nsString &name, nsString *pStream,
+                            nsIStringBundle *pBundle);
+  static void SetLogs(nsString &success, nsString &error, char16_t **pError,
+                      char16_t **pSuccess);
+  static void ReportError(const char *errorName, nsString &name,
+                          nsString *pStream, nsIStringBundle *pBundle);
 
-private:
+ private:
   nsVCardAddress m_vCard;
   nsCOMPtr<nsIFile> m_fileLoc;
   uint32_t m_bytesImported;
   nsCOMPtr<nsIStringBundle> m_notProxyBundle;
 };
 
-nsVCardImport::nsVCardImport()
-{
-  nsImportStringBundle::GetStringBundle(
-      VCARDIMPORT_MSGS_URL, getter_AddRefs(m_stringBundle));
+nsVCardImport::nsVCardImport() {
+  nsImportStringBundle::GetStringBundle(VCARDIMPORT_MSGS_URL,
+                                        getter_AddRefs(m_stringBundle));
 
   IMPORT_LOG0("nsVCardImport Module Created\n");
 }
 
-nsVCardImport::~nsVCardImport()
-{
+nsVCardImport::~nsVCardImport() {
   IMPORT_LOG0("nsVCardImport Module Deleted\n");
 }
 
 NS_IMPL_ISUPPORTS(nsVCardImport, nsIImportModule)
 
-NS_IMETHODIMP nsVCardImport::GetName(char16_t **name)
-{
+NS_IMETHODIMP nsVCardImport::GetName(char16_t **name) {
   NS_ENSURE_ARG_POINTER(name);
-  *name = nsImportStringBundle::GetStringByName(
-      "vCardImportName", m_stringBundle);
+  *name =
+      nsImportStringBundle::GetStringByName("vCardImportName", m_stringBundle);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsVCardImport::GetDescription(char16_t **name)
-{
+NS_IMETHODIMP nsVCardImport::GetDescription(char16_t **name) {
   NS_ENSURE_ARG_POINTER(name);
-  *name = nsImportStringBundle::GetStringByName(
-      "vCardImportDescription", m_stringBundle);
+  *name = nsImportStringBundle::GetStringByName("vCardImportDescription",
+                                                m_stringBundle);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsVCardImport::GetSupports(char **supports)
-{
+NS_IMETHODIMP nsVCardImport::GetSupports(char **supports) {
   NS_ENSURE_ARG_POINTER(supports);
   *supports = strdup(NS_IMPORT_ADDRESS_STR);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsVCardImport::GetSupportsUpgrade(bool *pUpgrade)
-{
+NS_IMETHODIMP nsVCardImport::GetSupportsUpgrade(bool *pUpgrade) {
   NS_ENSURE_ARG_POINTER(pUpgrade);
   *pUpgrade = true;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsVCardImport::GetImportInterface(
-    const char *pImportType, nsISupports **ppInterface)
-{
+NS_IMETHODIMP nsVCardImport::GetImportInterface(const char *pImportType,
+                                                nsISupports **ppInterface) {
   NS_ENSURE_ARG_POINTER(pImportType);
   NS_ENSURE_ARG_POINTER(ppInterface);
   *ppInterface = nullptr;
@@ -145,7 +140,8 @@ NS_IMETHODIMP nsVCardImport::GetImportInterface(
     // create the nsIImportMail interface and return it!
     nsCOMPtr<nsIImportAddressBooks> pAddress;
     nsCOMPtr<nsIImportGeneric> pGeneric;
-    rv = ImportVCardAddressImpl::Create(getter_AddRefs(pAddress), m_stringBundle);
+    rv = ImportVCardAddressImpl::Create(getter_AddRefs(pAddress),
+                                        m_stringBundle);
     if (NS_SUCCEEDED(rv)) {
       nsCOMPtr<nsIImportService> impSvc(
           do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
@@ -163,45 +159,39 @@ NS_IMETHODIMP nsVCardImport::GetImportInterface(
   return NS_ERROR_NOT_AVAILABLE;
 }
 
-nsresult ImportVCardAddressImpl::Create(
-    nsIImportAddressBooks** aImport, nsIStringBundle* aStringBundle)
-{
+nsresult ImportVCardAddressImpl::Create(nsIImportAddressBooks **aImport,
+                                        nsIStringBundle *aStringBundle) {
   NS_ENSURE_ARG_POINTER(aImport);
   NS_ADDREF(*aImport = new ImportVCardAddressImpl(aStringBundle));
   return NS_OK;
 }
 
-ImportVCardAddressImpl::ImportVCardAddressImpl(
-    nsIStringBundle* aStringBundle) : m_notProxyBundle(aStringBundle)
-{
-}
+ImportVCardAddressImpl::ImportVCardAddressImpl(nsIStringBundle *aStringBundle)
+    : m_notProxyBundle(aStringBundle) {}
 
-ImportVCardAddressImpl::~ImportVCardAddressImpl()
-{
-}
+ImportVCardAddressImpl::~ImportVCardAddressImpl() {}
 
 NS_IMPL_ISUPPORTS(ImportVCardAddressImpl, nsIImportAddressBooks)
 
-NS_IMETHODIMP ImportVCardAddressImpl::GetAutoFind(
-    char16_t **addrDescription, bool *_retval)
-{
+NS_IMETHODIMP ImportVCardAddressImpl::GetAutoFind(char16_t **addrDescription,
+                                                  bool *_retval) {
   NS_ENSURE_ARG_POINTER(addrDescription);
   NS_ENSURE_ARG_POINTER(_retval);
 
   nsString str;
   *_retval = false;
 
-  if (!m_notProxyBundle)
-    return NS_ERROR_FAILURE;
+  if (!m_notProxyBundle) return NS_ERROR_FAILURE;
 
-  nsImportStringBundle::GetStringByName("vCardImportAddressName", m_notProxyBundle, str);
+  nsImportStringBundle::GetStringByName("vCardImportAddressName",
+                                        m_notProxyBundle, str);
   *addrDescription = ToNewUnicode(str);
   return NS_OK;
 }
 
-NS_IMETHODIMP ImportVCardAddressImpl::GetDefaultLocation(
-    nsIFile **ppLoc, bool *found, bool *userVerify)
-{
+NS_IMETHODIMP ImportVCardAddressImpl::GetDefaultLocation(nsIFile **ppLoc,
+                                                         bool *found,
+                                                         bool *userVerify) {
   NS_ENSURE_ARG_POINTER(found);
   NS_ENSURE_ARG_POINTER(ppLoc);
   NS_ENSURE_ARG_POINTER(userVerify);
@@ -212,22 +202,19 @@ NS_IMETHODIMP ImportVCardAddressImpl::GetDefaultLocation(
   return NS_OK;
 }
 
-NS_IMETHODIMP ImportVCardAddressImpl::FindAddressBooks(
-    nsIFile *pLoc, nsIArray **ppArray)
-{
+NS_IMETHODIMP ImportVCardAddressImpl::FindAddressBooks(nsIFile *pLoc,
+                                                       nsIArray **ppArray) {
   NS_ENSURE_ARG_POINTER(pLoc);
   NS_ENSURE_ARG_POINTER(ppArray);
 
   *ppArray = nullptr;
   bool exists = false;
   nsresult rv = pLoc->Exists(&exists);
-  if (NS_FAILED(rv) || !exists)
-    return NS_ERROR_FAILURE;
+  if (NS_FAILED(rv) || !exists) return NS_ERROR_FAILURE;
 
   bool isFile = false;
   rv = pLoc->IsFile(&isFile);
-  if (NS_FAILED(rv) || !isFile)
-    return NS_ERROR_FAILURE;
+  if (NS_FAILED(rv) || !isFile) return NS_ERROR_FAILURE;
 
   m_fileLoc = pLoc;
 
@@ -250,7 +237,7 @@ NS_IMETHODIMP ImportVCardAddressImpl::FindAddressBooks(
     name.SetLength(idx);
   }
 
-  nsCOMPtr<nsIImportABDescriptor>  desc;
+  nsCOMPtr<nsIImportABDescriptor> desc;
   nsCOMPtr<nsIImportService> impSvc(
       do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
   if (NS_FAILED(rv)) {
@@ -263,7 +250,7 @@ NS_IMETHODIMP ImportVCardAddressImpl::FindAddressBooks(
     int64_t sz = 0;
     pLoc->GetFileSize(&sz);
     desc->SetPreferredName(name);
-    desc->SetSize((uint32_t) sz);
+    desc->SetSize((uint32_t)sz);
     desc->SetAbFile(m_fileLoc);
     nsCOMPtr<nsISupports> pInterface(do_QueryInterface(desc, &rv));
     array->AppendElement(pInterface);
@@ -278,11 +265,9 @@ NS_IMETHODIMP ImportVCardAddressImpl::FindAddressBooks(
   return NS_OK;
 }
 
-void ImportVCardAddressImpl::ReportSuccess(
-    nsString& name, nsString *pStream, nsIStringBundle* pBundle)
-{
-  if (!pStream)
-    return;
+void ImportVCardAddressImpl::ReportSuccess(nsString &name, nsString *pStream,
+                                           nsIStringBundle *pBundle) {
+  if (!pStream) return;
 
   // load the success string
   char16_t *pFmt = nsImportStringBundle::GetStringByName(
@@ -295,12 +280,10 @@ void ImportVCardAddressImpl::ReportSuccess(
   pStream->Append(char16_t('\n'));
 }
 
-void ImportVCardAddressImpl::ReportError(
-    const char *errorName, nsString& name, nsString *pStream,
-    nsIStringBundle* pBundle)
-{
-  if (!pStream)
-    return;
+void ImportVCardAddressImpl::ReportError(const char *errorName, nsString &name,
+                                         nsString *pStream,
+                                         nsIStringBundle *pBundle) {
+  if (!pStream) return;
 
   // load the error string
   char16_t *pFmt = nsImportStringBundle::GetStringByName(errorName, pBundle);
@@ -311,31 +294,21 @@ void ImportVCardAddressImpl::ReportError(
   pStream->Append(char16_t('\n'));
 }
 
-void ImportVCardAddressImpl::SetLogs(
-    nsString& success, nsString& error,
-    char16_t **pError, char16_t **pSuccess)
-{
-  if (pError)
-    *pError = ToNewUnicode(error);
-  if (pSuccess)
-    *pSuccess = ToNewUnicode(success);
+void ImportVCardAddressImpl::SetLogs(nsString &success, nsString &error,
+                                     char16_t **pError, char16_t **pSuccess) {
+  if (pError) *pError = ToNewUnicode(error);
+  if (pSuccess) *pSuccess = ToNewUnicode(success);
 }
 
 NS_IMETHODIMP ImportVCardAddressImpl::ImportAddressBook(
-    nsIImportABDescriptor *pSource,
-    nsIAddrDatabase *pDestination,
-    nsIImportFieldMap *fieldMap,
-    nsISupports *aSupportService,
-    char16_t ** pErrorLog,
-    char16_t ** pSuccessLog,
-    bool * fatalError)
-{
+    nsIImportABDescriptor *pSource, nsIAddrDatabase *pDestination,
+    nsIImportFieldMap *fieldMap, nsISupports *aSupportService,
+    char16_t **pErrorLog, char16_t **pSuccessLog, bool *fatalError) {
   NS_ENSURE_ARG_POINTER(pSource);
   NS_ENSURE_ARG_POINTER(pDestination);
   NS_ENSURE_ARG_POINTER(fatalError);
 
-  if (!m_notProxyBundle)
-    return NS_ERROR_FAILURE;
+  if (!m_notProxyBundle) return NS_ERROR_FAILURE;
 
   m_bytesImported = 0;
   nsString success, error;
@@ -354,7 +327,8 @@ NS_IMETHODIMP ImportVCardAddressImpl::ImportAddressBook(
 
   nsCOMPtr<nsIFile> inFile;
   if (NS_FAILED(pSource->GetAbFile(getter_AddRefs(inFile)))) {
-    ReportError("vCardImportAddressBadSourceFile", name, &error, m_notProxyBundle);
+    ReportError("vCardImportAddressBadSourceFile", name, &error,
+                m_notProxyBundle);
     SetLogs(success, error, pErrorLog, pSuccessLog);
     return NS_ERROR_FAILURE;
   }
@@ -364,15 +338,15 @@ NS_IMETHODIMP ImportVCardAddressImpl::ImportAddressBook(
     return NS_ERROR_FAILURE;
   }
 
-  nsresult rv = m_vCard.ImportAddresses(
-      &addrAbort, name.get(), inFile, pDestination, error, &m_bytesImported);
+  nsresult rv = m_vCard.ImportAddresses(&addrAbort, name.get(), inFile,
+                                        pDestination, error, &m_bytesImported);
 
   if (NS_SUCCEEDED(rv) && error.IsEmpty()) {
     ReportSuccess(name, &success, m_notProxyBundle);
     SetLogs(success, error, pErrorLog, pSuccessLog);
-  }
-  else {
-    ReportError("vCardImportAddressConvertError", name, &error, m_notProxyBundle);
+  } else {
+    ReportError("vCardImportAddressConvertError", name, &error,
+                m_notProxyBundle);
     SetLogs(success, error, pErrorLog, pSuccessLog);
   }
 
@@ -380,8 +354,7 @@ NS_IMETHODIMP ImportVCardAddressImpl::ImportAddressBook(
   return rv;
 }
 
-NS_IMETHODIMP ImportVCardAddressImpl::GetImportProgress(uint32_t *_retval)
-{
+NS_IMETHODIMP ImportVCardAddressImpl::GetImportProgress(uint32_t *_retval) {
   NS_ENSURE_ARG_POINTER(_retval);
   *_retval = m_bytesImported;
   return NS_OK;

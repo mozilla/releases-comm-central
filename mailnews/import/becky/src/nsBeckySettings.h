@@ -14,16 +14,15 @@ class nsIMsgIncomingServer;
 class nsIMsgIdentity;
 class nsISmtpServer;
 
-class nsBeckySettings final : public nsIImportSettings
-{
-public:
+class nsBeckySettings final : public nsIImportSettings {
+ public:
   nsBeckySettings();
   static nsresult Create(nsIImportSettings **aImport);
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIIMPORTSETTINGS
 
-private:
+ private:
   virtual ~nsBeckySettings();
 
   nsCOMPtr<nsIFile> mLocation;
@@ -37,8 +36,7 @@ private:
                          nsIMsgAccount **aAccount);
   nsresult CreateSmtpServer(const nsCString &aUserName,
                             const nsCString &aServerName,
-                            nsISmtpServer **aServer,
-                            bool *existing);
+                            nsISmtpServer **aServer, bool *existing);
   nsresult CreateIncomingServer(const nsCString &aUserName,
                                 const nsCString &aServerName,
                                 const nsCString &aProtocol,

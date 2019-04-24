@@ -8,22 +8,20 @@
 
 #include "nsIImportSettings.h"
 
-
 class nsOutlookSettings : public nsIImportSettings {
-public:
-    nsOutlookSettings();
+ public:
+  nsOutlookSettings();
 
   static nsresult Create(nsIImportSettings** aImport);
 
-    // nsISupports interface
-    NS_DECL_ISUPPORTS
+  // nsISupports interface
+  NS_DECL_ISUPPORTS
 
   // nsIImportSettings interface
   NS_DECL_NSIIMPORTSETTINGS
 
-private:
+ private:
   virtual ~nsOutlookSettings();
-
 };
 
 #endif /* nsOutlookSettings_h___ */
