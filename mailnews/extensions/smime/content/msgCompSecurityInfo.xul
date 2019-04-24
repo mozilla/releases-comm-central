@@ -20,10 +20,10 @@
       function resizeColumns() {
         let list = document.getElementById("infolist");
         let cols = list.getElementsByTagName("treecol");
-        list.style.setProperty("--recipientWidth", cols[0].boxObject.width + "px");
-        list.style.setProperty("--statusWidth", cols[1].boxObject.width + "px");
-        list.style.setProperty("--issuedWidth", cols[2].boxObject.width + "px");
-        list.style.setProperty("--expireWidth", cols[3].boxObject.width - 5 + "px");
+        list.style.setProperty("--recipientWidth", cols[0].getBoundingClientRect().width + "px");
+        list.style.setProperty("--statusWidth", cols[1].getBoundingClientRect().width + "px");
+        list.style.setProperty("--issuedWidth", cols[2].getBoundingClientRect().width + "px");
+        list.style.setProperty("--expireWidth", cols[3].getBoundingClientRect().width - 5 + "px");
       }
       addEventListener("load", resizeColumns, { once: true });
       addEventListener("resize", resizeColumns);

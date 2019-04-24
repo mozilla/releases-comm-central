@@ -2300,10 +2300,11 @@
           if ((event.type != "drop") && (event.type != "dragover"))
             return tab;
 
-          if (event.screenX < tab.screenX + tab.getBoundingClientRect().width * .25)
+          let tabRect = tab.getBoundingClientRect();
+          if (event.screenX < tab.screenX + tabRect.width * .25)
             return null;
 
-          if (event.screenX > tab.screenX + tab.getBoundingClientRect().width * .75)
+          if (event.screenX > tab.screenX + tabRect.width * .75)
             return null;
 
           return tab;

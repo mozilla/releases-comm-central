@@ -61,9 +61,10 @@ function awInitializeNumberOfRowsShown() {
   // This lets users shrink the address widget to one row (with delicate UX)
   // and thus maximize the space available for composition body,
   // especially on small screens.
-  msgHeadersToolbar.minHeight = msgHeadersToolbar.getBoundingClientRect().height;
+  let toolbarRect = msgHeadersToolbar.getBoundingClientRect();
+  msgHeadersToolbar.minHeight = toolbarRect.height;
 
-  msgHeadersToolbar.height = msgHeadersToolbar.getBoundingClientRect().height +
+  msgHeadersToolbar.height = toolbarRect.height +
     addressingWidget.getBoundingClientRect().height * (awNumRowsShownDefault - 1) +
     extraHeight;
 

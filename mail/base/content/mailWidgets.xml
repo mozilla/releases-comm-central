@@ -144,15 +144,15 @@
         <parameter name="item"/>
         <body><![CDATA[
           let box = this;
+          let boxRect = box.getBoundingClientRect();
+          let itemRect = item.getBoundingClientRect();
 
           // Are we too far down?
           if (item.screenY < box.screenY)
-            box.scrollTop = item.getBoundingClientRect().y - box.getBoundingClientRect().y;
+            box.scrollTop = itemRect.y - boxRect.y;
           // ... or not far enough?
-          else if (item.screenY + item.getBoundingClientRect().height >
-                   box.screenY + box.getBoundingClientRect().height)
-            box.scrollTop = item.getBoundingClientRect().y + item.getBoundingClientRect().height -
-                            box.getBoundingClientRect().y - box.getBoundingClientRect().height;
+          else if (item.screenY + itemRect.height > box.screenY + boxRect.height)
+            box.scrollTop = itemRect.y + itemRect.height - boxRect.y - boxRect.height;
         ]]></body>
       </method>
       <method name="scrollToIndex">

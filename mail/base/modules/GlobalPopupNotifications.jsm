@@ -832,23 +832,29 @@ PopupNotifications.prototype = {
 
     this._refreshPanel(notificationsToShow);
 
+    function isNullOrHidden(elem) {
+      if (!elem) {
+        return true;
+      }
+
+      let anchorRect = elem.getBoundingClientRect();
+      return (anchorRect.width == 0 && anchorRect.height == 0);
+    }
+
     // If the anchor element is hidden or null, fall back to the identity icon.
-    if (!anchorElement || (anchorElement.getBoundingClientRect().height == 0 &&
-                           anchorElement.getBoundingClientRect().width == 0)) {
+    if (isNullOrHidden(anchorElement)) {
       anchorElement = this.window.document.getElementById("identity-icon");
 
       // If the identity icon is not available in this window, or maybe the
       // entire location bar is hidden for any reason, use the tab as the
       // anchor. We only ever show notifications for the current browser, so we
       // can just use the current tab.
-      if (!anchorElement || (anchorElement.getBoundingClientRect().height == 0 &&
-                             anchorElement.getBoundingClientRect().width == 0)) {
+      if (isNullOrHidden(anchorElement)) {
         anchorElement = this.tabbrowser.selectedTab;
 
         // If we're in an entirely chromeless environment, set the anchorElement
         // to null and let openPopup show the notification at (0,0) later.
-        if (!anchorElement || (anchorElement.getBoundingClientRect().height == 0 &&
-                               anchorElement.getBoundingClientRect().width == 0)) {
+        if (isNullOrHidden(anchorElement)) {
           anchorElement = null;
         }
       }

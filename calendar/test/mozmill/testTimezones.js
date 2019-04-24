@@ -266,7 +266,8 @@ function verify(controller, dates, timezones, times) {
             let [correctHour, minutes, day] = selectedTime[tzIdx];
 
             let timeNode = lookup(`${timeLine}/[${correctHour}]`).getNode();
-            let timeY = timeNode.getBoundingClientRect().y + timeNode.getBoundingClientRect().height * (minutes / 60);
+            let boundingRect = timeNode.getBoundingClientRect();
+            let timeY = boundingRect.y + boundingRect.height * (minutes / 60);
 
             let eventNodes = [];
 

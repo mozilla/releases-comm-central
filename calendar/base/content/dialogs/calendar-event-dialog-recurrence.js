@@ -62,16 +62,18 @@ const RecurrencePreview = {
         let row = this.node.querySelector("row");
         let rows = row.parentNode;
 
-        let contentWidth = minimonth.getBoundingClientRect().width;
-        let containerWidth = this.node.getBoundingClientRect().width;
+        let minimonthRect = minimonth.getBoundingClientRect();
+        let nodeRect = this.node.getBoundingClientRect();
+        let contentWidth = minimonthRect.width;
+        let containerWidth = nodeRect.width;
 
         // Now find out how much elements can be displayed.
         // this is a simple division which always yields a positive integer value.
         const cWidth = containerWidth % contentWidth;
         let numHorizontal = (containerWidth - cWidth) / contentWidth;
 
-        let contentHeight = minimonth.getBoundingClientRect().height;
-        let containerHeight = this.node.getBoundingClientRect().height;
+        let contentHeight = minimonthRect.height;
+        let containerHeight = nodeRect.height;
 
         const cHeight = containerHeight % contentHeight;
         // Now find out how much elements can be displayed.

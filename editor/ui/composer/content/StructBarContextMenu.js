@@ -111,7 +111,7 @@ function StructChangeTag()
 {
   var textbox = document.createElementNS(XUL_NS, "textbox");
   textbox.setAttribute("value", gContextMenuNode.getAttribute("value"));
-  textbox.setAttribute("width", gContextMenuNode.boxObject.width);
+  textbox.setAttribute("width", gContextMenuNode.getBoundingClientRect().width);
   textbox.className = "struct-textbox";
 
   gContextMenuNode.parentNode.replaceChild(textbox, gContextMenuNode);

@@ -192,10 +192,11 @@ function check_message_pane_in_window_full_height(aWC) {
   let childrenHeightsSum = 0;
   let childrenHeightsStr = "";
   for (let child of messengerChildren) {
-    if ("boxObject" in child) {
-      childrenHeightsSum += child.getBoundingClientRect().height;
-      childrenHeightsStr += '"' + child.id + '": ' + child.getBoundingClientRect().height + ', ';
-    }
+    try {
+      let childRect = child.getBoundingClientRect();
+      childrenHeightsSum += childRect.height;
+      childrenHeightsStr += '"' + child.id + '": ' + childRect.height + ', ';
+    } catch (ex) {}
   }
 
   assert_equals(messengerWindowHeight, childrenHeightsSum,

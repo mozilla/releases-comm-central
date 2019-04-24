@@ -1347,12 +1347,13 @@
             let orient = event.target.getAttribute("orient");
             let scrollbox = document.getAnonymousElementByAttribute(
                            event.target, "anonid", "scrollbox");
+            let boundingRect = scrollbox.getBoundingClientRect();
             if (orient == "vertical") {
-                diffStart = event.clientY - scrollbox.getBoundingClientRect().y;
-                diffEnd = scrollbox.getBoundingClientRect().y + scrollbox.getBoundingClientRect().height - event.clientY;
+                diffStart = event.clientY - boundingRect.y;
+                diffEnd = boundingRect.y + boundingRect.height - event.clientY;
             } else {
-                diffStart = event.clientX - scrollbox.getBoundingClientRect().x;
-                diffEnd = scrollbox.getBoundingClientRect().x + scrollbox.getBoundingClientRect().width - event.clientX;
+                diffStart = event.clientX - boundingRect.x;
+                diffEnd = boundingRect.x + boundingRect.width - event.clientX;
             }
 
             const SCROLLZONE = 55;     // Size (pixels) of the top/bottom view where the scroll starts.
@@ -1370,11 +1371,10 @@
             }
 
             if (insideScrollZone) {
-                let sbo = scrollbox.boxObject;
                 let timeout = MAXTIMEOUT - insideScrollZone * (MAXTIMEOUT - MINTIMEOUT) / SCROLLZONE;
                 this.mMagicScrollTimer = setTimeout(() => {
-                    sbo.scrollBy(orient == "horizontal" && scrollBy,
-                                 orient == "vertical" && scrollBy);
+                    scrollbox.scrollBy(orient == "horizontal" && scrollBy,
+                                       orient == "vertical" && scrollBy);
                     this.onEventSweepMouseMove(event);
                 }, timeout);
             }
@@ -1403,10 +1403,11 @@
             // If we leave the view, then stop our internal sweeping and start a
             // real drag session. Someday we need to fix the sweep to soely be a
             // drag session, no sweeping.
-            if (event.clientX < (event.target.getBoundingClientRect().x) ||
-                event.clientX > (event.target.getBoundingClientRect().x + event.target.getBoundingClientRect().width) ||
-                event.clientY < (event.target.getBoundingClientRect().y) ||
-                event.clientY > (event.target.getBoundingClientRect().y + event.target.getBoundingClientRect().height)) {
+            let boundingRect = event.target.getBoundingClientRect();
+            if (event.clientX < (boundingRect.x) ||
+                event.clientX > (boundingRect.x + boundingRect.width) ||
+                event.clientY < (boundingRect.y) ||
+                event.clientY > (boundingRect.y + boundingRect.height)) {
                 // Remove the drag state
                 for (let column = firstCol, i = firstIndex;
                      column && i < col.mDragState.shadows;
@@ -3567,10 +3568,11 @@
             }
             for (let col of this.mDateColumns) {
                 let element = document.getAnonymousElementByAttribute(col.column, "anonid", "boxstack");
+                let boundingRect = element.getBoundingClientRect();
                 if (aClientX >= element.screenX &&
-                    aClientX <= (element.screenX + element.getBoundingClientRect().width) &&
+                    aClientX <= (element.screenX + boundingRect.width) &&
                     aClientY >= element.screenY &&
-                    aClientY <= (element.screenY + element.getBoundingClientRect().height)) {
+                    aClientY <= (element.screenY + boundingRect.height)) {
                     return col.column;
                 }
             }

@@ -671,8 +671,9 @@
             var y = this.scrollTop + this.getBoundingClientRect().y;
 
             // Partially visible items are also considered visible
-            return (aItem.getBoundingClientRect().y + aItem.clientHeight > y) &&
-                   (aItem.getBoundingClientRect().y < y + this.clientHeight);
+            let boundingRect = aItem.getBoundingClientRect();
+            return (boundingRect.y + aItem.clientHeight > y) &&
+                   (boundingRect.y < y + this.clientHeight);
           ]]>
         </body>
       </method>

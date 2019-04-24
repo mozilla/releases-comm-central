@@ -113,9 +113,10 @@ function repositionDialog(aWindow) {
     width = document.documentElement.getAttribute("width");
   else
     width = parseInt(document.documentElement.style.width);
+  var boundingRect = gToolbox.getBoundingClientRect();
   var screenX = gToolbox.screenX
-                + ((gToolbox.getBoundingClientRect().width - width) / 2);
-  var screenY = gToolbox.screenY + gToolbox.getBoundingClientRect().height;
+                + ((boundingRect.width - width) / 2);
+  var screenY = gToolbox.screenY + boundingRect.height;
 
   aWindow.moveTo(screenX, screenY);
 }
@@ -674,7 +675,8 @@ function onToolbarDragOver(aEvent) {
     gCurrentDragOverItem = null;
 
     var direction = window.getComputedStyle(dropTarget.parentNode).direction;
-    var dropTargetCenter = dropTarget.getBoundingClientRect().x + (dropTarget.getBoundingClientRect().width / 2);
+    var boundingRect = dropTarget.getBoundingClientRect();
+    var dropTargetCenter = boundingRect.x + (boundingRect.width / 2);
     var dragAfter;
     if (direction == "ltr")
       dragAfter = aEvent.clientX > dropTargetCenter;

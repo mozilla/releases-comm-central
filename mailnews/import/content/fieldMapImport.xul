@@ -23,8 +23,8 @@
       function resizeColumns() {
         let list = document.getElementById("fieldList");
         let cols = list.getElementsByTagName("treecol");
-        list.style.setProperty("--column1width", cols[0].boxObject.width + "px");
-        list.style.setProperty("--column2width", cols[1].boxObject.width + "px");
+        list.style.setProperty("--column1width", cols[0].getBoundingClientRect().width + "px");
+        list.style.setProperty("--column2width", cols[1].getBoundingClientRect().width + "px");
       }
       addEventListener("load", resizeColumns, { once: true });
       addEventListener("resize", resizeColumns);
