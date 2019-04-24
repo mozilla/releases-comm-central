@@ -13,45 +13,36 @@
 #include "nsString.h"
 
 extern "C" void sqlite3Fts3PorterTokenizerModule(
-  sqlite3_tokenizer_module const**ppModule);
+    sqlite3_tokenizer_module const **ppModule);
 
-extern "C" void glodaRankFunc(sqlite3_context *pCtx,
-                              int nVal,
+extern "C" void glodaRankFunc(sqlite3_context *pCtx, int nVal,
                               sqlite3_value **apVal);
 
-NS_IMPL_ISUPPORTS(nsFts3Tokenizer,nsIFts3Tokenizer)
+NS_IMPL_ISUPPORTS(nsFts3Tokenizer, nsIFts3Tokenizer)
 
-nsFts3Tokenizer::nsFts3Tokenizer()
-{
-}
+nsFts3Tokenizer::nsFts3Tokenizer() {}
 
-nsFts3Tokenizer::~nsFts3Tokenizer()
-{
-}
+nsFts3Tokenizer::~nsFts3Tokenizer() {}
 
 NS_IMETHODIMP
-nsFts3Tokenizer::RegisterTokenizer(mozIStorageConnection *connection)
-{
+nsFts3Tokenizer::RegisterTokenizer(mozIStorageConnection *connection) {
   nsresult rv;
   nsCOMPtr<mozIStorageStatement> selectStatement;
 
   // -- register the tokenizer
-  rv = connection->CreateStatement(NS_LITERAL_CSTRING(
-    "SELECT fts3_tokenizer(?1, ?2)"),
-    getter_AddRefs(selectStatement));
+  rv = connection->CreateStatement(
+      NS_LITERAL_CSTRING("SELECT fts3_tokenizer(?1, ?2)"),
+      getter_AddRefs(selectStatement));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  const sqlite3_tokenizer_module* module = nullptr;
+  const sqlite3_tokenizer_module *module = nullptr;
   sqlite3Fts3PorterTokenizerModule(&module);
-  if (!module)
-    return NS_ERROR_FAILURE;
+  if (!module) return NS_ERROR_FAILURE;
 
-  rv = selectStatement->BindUTF8StringByIndex(
-         0, NS_LITERAL_CSTRING("mozporter"));
+  rv = selectStatement->BindUTF8StringByIndex(0,
+                                              NS_LITERAL_CSTRING("mozporter"));
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = selectStatement->BindBlobByIndex(1,
-                                        (uint8_t*)&module,
-                                        sizeof(module));
+  rv = selectStatement->BindBlobByIndex(1, (uint8_t *)&module, sizeof(module));
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool hasMore;
@@ -61,11 +52,9 @@ nsFts3Tokenizer::RegisterTokenizer(mozIStorageConnection *connection)
   // -- register the ranking function
   nsCOMPtr<mozIStorageFunction> func = new nsGlodaRankerFunction();
   NS_ENSURE_TRUE(func, NS_ERROR_OUT_OF_MEMORY);
-  rv = connection->CreateFunction(
-         NS_LITERAL_CSTRING("glodaRank"),
-         -1, // variable argument support
-         func
-       );
+  rv = connection->CreateFunction(NS_LITERAL_CSTRING("glodaRank"),
+                                  -1,  // variable argument support
+                                  func);
   NS_ENSURE_SUCCESS(rv, rv);
 
   return rv;

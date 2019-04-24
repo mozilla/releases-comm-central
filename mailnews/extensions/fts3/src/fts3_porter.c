@@ -55,30 +55,27 @@
 */
 #if !defined(SQLITE_CORE) || defined(SQLITE_ENABLE_FTS3)
 
+#  include <assert.h>
+#  include <stdlib.h>
+#  include <stdio.h>
+#  include <string.h>
+#  include <ctype.h>
 
-#include <assert.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
-
-#include "fts3_tokenizer.h"
+#  include "fts3_tokenizer.h"
 
 /* need some defined to compile without sqlite3 code */
 
-#define sqlite3_malloc malloc
-#define sqlite3_free free
-#define sqlite3_realloc realloc
+#  define sqlite3_malloc malloc
+#  define sqlite3_free free
+#  define sqlite3_realloc realloc
 
 static const unsigned char sqlite3Utf8Trans1[] = {
-  0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-  0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
-  0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
-  0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
-  0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-  0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
-  0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-  0x00, 0x01, 0x02, 0x03, 0x00, 0x01, 0x00, 0x00,
+    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a,
+    0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15,
+    0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x00,
+    0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b,
+    0x0c, 0x0d, 0x0e, 0x0f, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
+    0x07, 0x00, 0x01, 0x02, 0x03, 0x00, 0x01, 0x00, 0x00,
 };
 
 typedef unsigned char u8;
@@ -92,25 +89,24 @@ typedef unsigned char u8;
  *     encoded byte.  The same holds true at exit.
  * @param c The character to encode; this should be an unsigned int.
  */
-#define WRITE_UTF8(zOut, c) {                          \
-  if( c<0x0080 ){                                      \
-    *zOut++ = (u8)(c&0xff);                            \
-  }                                                    \
-  else if( c<0x0800 ){                                 \
-    *zOut++ = 0xC0 + (u8)((c>>6) & 0x1F);              \
-    *zOut++ = 0x80 + (u8)(c & 0x3F);                   \
-  }                                                    \
-  else if( c<0x10000 ){                                \
-    *zOut++ = 0xE0 + (u8)((c>>12) & 0x0F);             \
-    *zOut++ = 0x80 + (u8)((c>>6) & 0x3F);              \
-    *zOut++ = 0x80 + (u8)(c & 0x3F);                   \
-  }else{                                               \
-    *zOut++ = 0xf0 + (u8)((c>>18) & 0x07);             \
-    *zOut++ = 0x80 + (u8)((c>>12) & 0x3F);             \
-    *zOut++ = 0x80 + (u8)((c>>6) & 0x3F);              \
-    *zOut++ = 0x80 + (u8)(c & 0x3F);                   \
-  }                                                    \
-}
+#  define WRITE_UTF8(zOut, c)                    \
+    {                                            \
+      if (c < 0x0080) {                          \
+        *zOut++ = (u8)(c & 0xff);                \
+      } else if (c < 0x0800) {                   \
+        *zOut++ = 0xC0 + (u8)((c >> 6) & 0x1F);  \
+        *zOut++ = 0x80 + (u8)(c & 0x3F);         \
+      } else if (c < 0x10000) {                  \
+        *zOut++ = 0xE0 + (u8)((c >> 12) & 0x0F); \
+        *zOut++ = 0x80 + (u8)((c >> 6) & 0x3F);  \
+        *zOut++ = 0x80 + (u8)(c & 0x3F);         \
+      } else {                                   \
+        *zOut++ = 0xf0 + (u8)((c >> 18) & 0x07); \
+        *zOut++ = 0x80 + (u8)((c >> 12) & 0x3F); \
+        *zOut++ = 0x80 + (u8)((c >> 6) & 0x3F);  \
+        *zOut++ = 0x80 + (u8)(c & 0x3F);         \
+      }                                          \
+    }
 
 /**
  * Fudge factor to avoid buffer overwrites when WRITE_UTF8 is involved.
@@ -125,7 +121,7 @@ typedef unsigned char u8;
  *  potential growth for 2-byte to 4-byte growth.  We can afford to do this
  *  because we're not talking about a lot of memory here as a rule.
  */
-#define MAX_UTF8_GROWTH_FACTOR 2
+#  define MAX_UTF8_GROWTH_FACTOR 2
 
 /**
  * Helper from sqlite3.c to read a single UTF8 character.
@@ -145,18 +141,20 @@ typedef unsigned char u8;
  * @param c The 'unsigned int' to hold the resulting character value.  Do not
  *      use a short or a char.
  */
-#define READ_UTF8(zIn, zTerm, c) {                         \
-  c = *(zIn++);                                            \
-  if( c>=0xc0 ){                                           \
-    c = sqlite3Utf8Trans1[c-0xc0];                         \
-    while( zIn!=zTerm && (*zIn & 0xc0)==0x80 ){            \
-      c = (c<<6) + (0x3f & *(zIn++));                      \
-    }                                                      \
-    if( c<0x80                                             \
-        || (c&0xFFFFF800)==0xD800                          \
-        || (c&0xFFFFFFFE)==0xFFFE ){  c = 0xFFFD; }        \
-  }                                                        \
-}
+#  define READ_UTF8(zIn, zTerm, c)                      \
+    {                                                   \
+      c = *(zIn++);                                     \
+      if (c >= 0xc0) {                                  \
+        c = sqlite3Utf8Trans1[c - 0xc0];                \
+        while (zIn != zTerm && (*zIn & 0xc0) == 0x80) { \
+          c = (c << 6) + (0x3f & *(zIn++));             \
+        }                                               \
+        if (c < 0x80 || (c & 0xFFFFF800) == 0xD800 ||   \
+            (c & 0xFFFFFFFE) == 0xFFFE) {               \
+          c = 0xFFFD;                                   \
+        }                                               \
+      }                                                 \
+    }
 
 /* end of compatible block to complie codes */
 
@@ -164,7 +162,7 @@ typedef unsigned char u8;
 ** Class derived from sqlite3_tokenizer
 */
 typedef struct porter_tokenizer {
-  sqlite3_tokenizer base;      /* Base class */
+  sqlite3_tokenizer base; /* Base class */
 } porter_tokenizer;
 
 /*
@@ -172,12 +170,12 @@ typedef struct porter_tokenizer {
 */
 typedef struct porter_tokenizer_cursor {
   sqlite3_tokenizer_cursor base;
-  const char *zInput;          /* input we are tokenizing */
-  int nInput;                  /* size of the input */
-  int iOffset;                 /* current position in zInput */
-  int iToken;                  /* index of next token to be returned */
-  unsigned char *zToken;       /* storage for current token */
-  int nAllocated;              /* space allocated to zToken buffer */
+  const char *zInput;    /* input we are tokenizing */
+  int nInput;            /* size of the input */
+  int iOffset;           /* current position in zInput */
+  int iToken;            /* index of next token to be returned */
+  unsigned char *zToken; /* storage for current token */
+  int nAllocated;        /* space allocated to zToken buffer */
   /**
    * Store the offset of the second character in the bi-gram pair that we just
    *  emitted so that we can consider it being the first character in a bi-gram
@@ -186,7 +184,7 @@ typedef struct porter_tokenizer_cursor {
    *  an acceptable sentinel value because the 0th offset can never be the
    *  offset of the second in a bi-gram pair.
    *
-   * For example, let us say we are tokenizing a string of 4 CJK characters 
+   * For example, let us say we are tokenizing a string of 4 CJK characters
    *  represented by the byte-string "11223344" where each repeated digit
    *  indicates 2-bytes of storage used to encode the character in UTF-8.
    *  (It actually takes 3, btw.)  Then on the passes to emit each token,
@@ -197,9 +195,8 @@ typedef struct porter_tokenizer_cursor {
    * 3344: iOffset = 6, iPrevBigramOffset = 4
    * (nothing will be emitted): iOffset = 8, iPrevBigramOffset = 6
    */
-  int iPrevBigramOffset;       /* previous result was bi-gram */
+  int iPrevBigramOffset; /* previous result was bi-gram */
 } porter_tokenizer_cursor;
-
 
 /* Forward declaration */
 static const sqlite3_tokenizer_module porterTokenizerModule;
@@ -210,13 +207,11 @@ extern unsigned int normalize_character(const unsigned int c);
 /*
 ** Create a new tokenizer instance.
 */
-static int porterCreate(
-  int argc, const char * const *argv,
-  sqlite3_tokenizer **ppTokenizer
-){
+static int porterCreate(int argc, const char *const *argv,
+                        sqlite3_tokenizer **ppTokenizer) {
   porter_tokenizer *t;
-  t = (porter_tokenizer *) sqlite3_malloc(sizeof(*t));
-  if( t==NULL ) return SQLITE_NOMEM;
+  t = (porter_tokenizer *)sqlite3_malloc(sizeof(*t));
+  if (t == NULL) return SQLITE_NOMEM;
   memset(t, 0, sizeof(*t));
   *ppTokenizer = &t->base;
   return SQLITE_OK;
@@ -225,7 +220,7 @@ static int porterCreate(
 /*
 ** Destroy a tokenizer
 */
-static int porterDestroy(sqlite3_tokenizer *pTokenizer){
+static int porterDestroy(sqlite3_tokenizer *pTokenizer) {
   sqlite3_free(pTokenizer);
   return SQLITE_OK;
 }
@@ -233,30 +228,30 @@ static int porterDestroy(sqlite3_tokenizer *pTokenizer){
 /*
 ** Prepare to begin tokenizing a particular string.  The input
 ** string to be tokenized is zInput[0..nInput-1].  A cursor
-** used to incrementally tokenize this string is returned in 
+** used to incrementally tokenize this string is returned in
 ** *ppCursor.
 */
 static int porterOpen(
-  sqlite3_tokenizer *pTokenizer,         /* The tokenizer */
-  const char *zInput, int nInput,        /* String to be tokenized */
-  sqlite3_tokenizer_cursor **ppCursor    /* OUT: Tokenization cursor */
-){
+    sqlite3_tokenizer *pTokenizer,      /* The tokenizer */
+    const char *zInput, int nInput,     /* String to be tokenized */
+    sqlite3_tokenizer_cursor **ppCursor /* OUT: Tokenization cursor */
+) {
   porter_tokenizer_cursor *c;
 
-  c = (porter_tokenizer_cursor *) sqlite3_malloc(sizeof(*c));
-  if( c==NULL ) return SQLITE_NOMEM;
+  c = (porter_tokenizer_cursor *)sqlite3_malloc(sizeof(*c));
+  if (c == NULL) return SQLITE_NOMEM;
 
   c->zInput = zInput;
-  if( zInput==0 ){
+  if (zInput == 0) {
     c->nInput = 0;
-  }else if( nInput<0 ){
+  } else if (nInput < 0) {
     c->nInput = (int)strlen(zInput);
-  }else{
+  } else {
     c->nInput = nInput;
   }
-  c->iOffset = 0;                 /* start tokenizing at the beginning */
+  c->iOffset = 0; /* start tokenizing at the beginning */
   c->iToken = 0;
-  c->zToken = NULL;               /* no space allocated, yet. */
+  c->zToken = NULL; /* no space allocated, yet. */
   c->nAllocated = 0;
   c->iPrevBigramOffset = 0;
 
@@ -268,8 +263,8 @@ static int porterOpen(
 ** Close a tokenization cursor previously opened by a call to
 ** porterOpen() above.
 */
-static int porterClose(sqlite3_tokenizer_cursor *pCursor){
-  porter_tokenizer_cursor *c = (porter_tokenizer_cursor *) pCursor;
+static int porterClose(sqlite3_tokenizer_cursor *pCursor) {
+  porter_tokenizer_cursor *c = (porter_tokenizer_cursor *)pCursor;
   sqlite3_free(c->zToken);
   sqlite3_free(c);
   return SQLITE_OK;
@@ -277,15 +272,13 @@ static int porterClose(sqlite3_tokenizer_cursor *pCursor){
 /*
 ** Vowel or consonant
 */
-static const char cType[] = {
-   0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0,
-   1, 1, 1, 2, 1
-};
+static const char cType[] = {0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1,
+                             1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 2, 1};
 
 /*
 ** isConsonant() and isVowel() determine if their first character in
 ** the string they point to is a consonant or a vowel, according
-** to Porter ruls.  
+** to Porter ruls.
 **
 ** A consonate is any letter other than 'a', 'e', 'i', 'o', or 'u'.
 ** 'Y' is a consonant unless it follows another consonant,
@@ -295,23 +288,23 @@ static const char cType[] = {
 ** is that 'y' is a consonant unless it is followed by another
 ** consonant.
 */
-static int isVowel(const char*);
-static int isConsonant(const char *z){
+static int isVowel(const char *);
+static int isConsonant(const char *z) {
   int j;
   char x = *z;
-  if( x==0 ) return 0;
-  assert( x>='a' && x<='z' );
-  j = cType[x-'a'];
-  if( j<2 ) return j;
-  return z[1]==0 || isVowel(z + 1);
+  if (x == 0) return 0;
+  assert(x >= 'a' && x <= 'z');
+  j = cType[x - 'a'];
+  if (j < 2) return j;
+  return z[1] == 0 || isVowel(z + 1);
 }
-static int isVowel(const char *z){
+static int isVowel(const char *z) {
   int j;
   char x = *z;
-  if( x==0 ) return 0;
-  assert( x>='a' && x<='z' );
-  j = cType[x-'a'];
-  if( j<2 ) return 1-j;
+  if (x == 0) return 0;
+  assert(x >= 'a' && x <= 'z');
+  j = cType[x - 'a'];
+  if (j < 2) return 1 - j;
   return isConsonant(z + 1);
 }
 
@@ -334,47 +327,69 @@ static int isVowel(const char *z){
 ** In this routine z[] is in reverse order.  So we are really looking
 ** for an instance of of a consonant followed by a vowel.
 */
-static int m_gt_0(const char *z){
-  while( isVowel(z) ){ z++; }
-  if( *z==0 ) return 0;
-  while( isConsonant(z) ){ z++; }
-  return *z!=0;
+static int m_gt_0(const char *z) {
+  while (isVowel(z)) {
+    z++;
+  }
+  if (*z == 0) return 0;
+  while (isConsonant(z)) {
+    z++;
+  }
+  return *z != 0;
 }
 
 /* Like mgt0 above except we are looking for a value of m which is
 ** exactly 1
 */
-static int m_eq_1(const char *z){
-  while( isVowel(z) ){ z++; }
-  if( *z==0 ) return 0;
-  while( isConsonant(z) ){ z++; }
-  if( *z==0 ) return 0;
-  while( isVowel(z) ){ z++; }
-  if( *z==0 ) return 1;
-  while( isConsonant(z) ){ z++; }
-  return *z==0;
+static int m_eq_1(const char *z) {
+  while (isVowel(z)) {
+    z++;
+  }
+  if (*z == 0) return 0;
+  while (isConsonant(z)) {
+    z++;
+  }
+  if (*z == 0) return 0;
+  while (isVowel(z)) {
+    z++;
+  }
+  if (*z == 0) return 1;
+  while (isConsonant(z)) {
+    z++;
+  }
+  return *z == 0;
 }
 
 /* Like mgt0 above except we are looking for a value of m>1 instead
 ** or m>0
 */
-static int m_gt_1(const char *z){
-  while( isVowel(z) ){ z++; }
-  if( *z==0 ) return 0;
-  while( isConsonant(z) ){ z++; }
-  if( *z==0 ) return 0;
-  while( isVowel(z) ){ z++; }
-  if( *z==0 ) return 0;
-  while( isConsonant(z) ){ z++; }
-  return *z!=0;
+static int m_gt_1(const char *z) {
+  while (isVowel(z)) {
+    z++;
+  }
+  if (*z == 0) return 0;
+  while (isConsonant(z)) {
+    z++;
+  }
+  if (*z == 0) return 0;
+  while (isVowel(z)) {
+    z++;
+  }
+  if (*z == 0) return 0;
+  while (isConsonant(z)) {
+    z++;
+  }
+  return *z != 0;
 }
 
 /*
 ** Return TRUE if there is a vowel anywhere within z[0..n-1]
 */
-static int hasVowel(const char *z){
-  while( isConsonant(z) ){ z++; }
-  return *z!=0;
+static int hasVowel(const char *z) {
+  while (isConsonant(z)) {
+    z++;
+  }
+  return *z != 0;
 }
 
 /*
@@ -383,8 +398,8 @@ static int hasVowel(const char *z){
 ** The text is reversed here. So we are really looking at
 ** the first two characters of z[].
 */
-static int doubleConsonant(const char *z){
-  return isConsonant(z) && z[0]==z[1] && isConsonant(z+1);
+static int doubleConsonant(const char *z) {
+  return isConsonant(z) && z[0] == z[1] && isConsonant(z + 1);
 }
 
 /*
@@ -395,37 +410,38 @@ static int doubleConsonant(const char *z){
 ** The word is reversed here.  So we are really checking the
 ** first three letters and the first one cannot be in [wxy].
 */
-static int star_oh(const char *z){
-  return
-    z[0]!=0 && isConsonant(z) &&
-    z[0]!='w' && z[0]!='x' && z[0]!='y' &&
-    z[1]!=0 && isVowel(z+1) &&
-    z[2]!=0 && isConsonant(z+2);
+static int star_oh(const char *z) {
+  return z[0] != 0 && isConsonant(z) && z[0] != 'w' && z[0] != 'x' &&
+         z[0] != 'y' && z[1] != 0 && isVowel(z + 1) && z[2] != 0 &&
+         isConsonant(z + 2);
 }
 
 /*
 ** If the word ends with zFrom and xCond() is true for the stem
-** of the word that precedes the zFrom ending, then change the 
+** of the word that precedes the zFrom ending, then change the
 ** ending to zTo.
 **
 ** The input word *pz and zFrom are both in reverse order.  zTo
-** is in normal order. 
+** is in normal order.
 **
 ** Return TRUE if zFrom matches.  Return FALSE if zFrom does not
 ** match.  Not that TRUE is returned even if xCond() fails and
 ** no substitution occurs.
 */
 static int stem(
-  char **pz,             /* The word being stemmed (Reversed) */
-  const char *zFrom,     /* If the ending matches this... (Reversed) */
-  const char *zTo,       /* ... change the ending to this (not reversed) */
-  int (*xCond)(const char*)   /* Condition that must be true */
-){
+    char **pz,         /* The word being stemmed (Reversed) */
+    const char *zFrom, /* If the ending matches this... (Reversed) */
+    const char *zTo,   /* ... change the ending to this (not reversed) */
+    int (*xCond)(const char *) /* Condition that must be true */
+) {
   char *z = *pz;
-  while( *zFrom && *zFrom==*z ){ z++; zFrom++; }
-  if( *zFrom!=0 ) return 0;
-  if( xCond && !xCond(z) ) return 1;
-  while( *zTo ){
+  while (*zFrom && *zFrom == *z) {
+    z++;
+    zFrom++;
+  }
+  if (*zFrom != 0) return 0;
+  if (xCond && !xCond(z)) return 1;
+  while (*zTo) {
     *(--z) = *(zTo++);
   }
   *pz = z;
@@ -434,14 +450,13 @@ static int stem(
 
 /**
  * Voiced sound mark is only on Japanese.  It is like accent.  It combines with
- * previous character.  Example, "サ" (Katakana) with "゛" (voiced sound mark) is
- * "ザ".  Although full-width character mapping has combined character like "ザ",
- * there is no combined character on half-width Katanaka character mapping.
+ * previous character.  Example, "サ" (Katakana) with "゛" (voiced sound mark)
+ * is "ザ".  Although full-width character mapping has combined character like
+ * "ザ", there is no combined character on half-width Katanaka character
+ * mapping.
  */
-static int isVoicedSoundMark(const unsigned int c)
-{
-  if (c == 0xff9e || c == 0xff9f || c == 0x3099 || c == 0x309a)
-    return 1;
+static int isVoicedSoundMark(const unsigned int c) {
+  if (c == 0xff9e || c == 0xff9f || c == 0x3099 || c == 0x309a) return 1;
   return 0;
 }
 
@@ -449,7 +464,7 @@ static int isVoicedSoundMark(const unsigned int c)
  * How many unicode characters to take from the front and back of a term in
  * |copy_stemmer|.
  */
-#define COPY_STEMMER_COPY_HALF_LEN 10
+#  define COPY_STEMMER_COPY_HALF_LEN 10
 
 /**
  * Normalizing but non-stemming term copying.
@@ -492,7 +507,7 @@ static int isVoicedSoundMark(const unsigned int c)
  * @param pnBytesOut Integer to write the number of bytes in zOut into.
  */
 static void copy_stemmer(const unsigned char *zIn, const int nBytesIn,
-                         unsigned char *zOut, int *pnBytesOut){
+                         unsigned char *zOut, int *pnBytesOut) {
   const unsigned char *zInTerm = zIn + nBytesIn;
   unsigned char *zOutStart = zOut;
   unsigned int c;
@@ -508,8 +523,7 @@ static void copy_stemmer(const unsigned char *zIn, const int nBytesIn,
     /* ignore voiced/semi-voiced sound mark */
     if (!isVoicedSoundMark(c)) {
       /* advance one non-voiced sound mark character. */
-      if (zBackStart)
-        READ_UTF8(zBackStart, zOut, trashC);
+      if (zBackStart) READ_UTF8(zBackStart, zOut, trashC);
 
       WRITE_UTF8(zOut, c);
       charCount++;
@@ -530,7 +544,6 @@ static void copy_stemmer(const unsigned char *zIn, const int nBytesIn,
   *pnBytesOut = zOut - zOutStart;
 }
 
-
 /*
 ** Stem the input word zIn[0..nIn-1].  Store the output in zOut.
 ** zOut is at least big enough to hold nIn bytes.  Write the actual
@@ -545,28 +558,24 @@ static void copy_stemmer(const unsigned char *zIn, const int nBytesIn,
 ** word contains digits, 3 bytes are taken from the beginning and
 ** 3 bytes from the end.  For long words without digits, 10 bytes
 ** are taken from each end.  US-ASCII case folding still applies.
-** 
-** If the input word contains not digits but does characters not 
-** in [a-zA-Z] then no stemming is attempted and this routine just 
+**
+** If the input word contains not digits but does characters not
+** in [a-zA-Z] then no stemming is attempted and this routine just
 ** copies the input into the input into the output with US-ASCII
 ** case folding.
 **
 ** Stemming never increases the length of the word.  So there is
 ** no chance of overflowing the zOut buffer.
 */
-static void porter_stemmer(
-  const unsigned char *zIn,
-  unsigned int nIn,
-  unsigned char *zOut,
-  int *pnOut
-){
+static void porter_stemmer(const unsigned char *zIn, unsigned int nIn,
+                           unsigned char *zOut, int *pnOut) {
   unsigned int i, j, c;
   char zReverse[28];
   char *z, *z2;
   const unsigned char *zTerm = zIn + nIn;
   const unsigned char *zTmp = zIn;
 
-  if( nIn<3 || nIn>=sizeof(zReverse)-7 ){
+  if (nIn < 3 || nIn >= sizeof(zReverse) - 7) {
     /* The word is too big or too small for the porter stemmer.
     ** Fallback to the copy stemmer */
     copy_stemmer(zIn, nIn, zOut, pnOut);
@@ -575,196 +584,185 @@ static void porter_stemmer(
   for (j = sizeof(zReverse) - 6; zTmp < zTerm; j--) {
     READ_UTF8(zTmp, zTerm, c);
     c = normalize_character(c);
-    if( c>='a' && c<='z' ){
+    if (c >= 'a' && c <= 'z') {
       zReverse[j] = c;
-    }else{
+    } else {
       /* The use of a character not in [a-zA-Z] means that we fallback
       ** to the copy stemmer */
       copy_stemmer(zIn, nIn, zOut, pnOut);
       return;
     }
   }
-  memset(&zReverse[sizeof(zReverse)-5], 0, 5);
-  z = &zReverse[j+1];
-
+  memset(&zReverse[sizeof(zReverse) - 5], 0, 5);
+  z = &zReverse[j + 1];
 
   /* Step 1a */
-  if( z[0]=='s' ){
-    if(
-     !stem(&z, "sess", "ss", 0) &&
-     !stem(&z, "sei", "i", 0)  &&
-     !stem(&z, "ss", "ss", 0)
-    ){
+  if (z[0] == 's') {
+    if (!stem(&z, "sess", "ss", 0) && !stem(&z, "sei", "i", 0) &&
+        !stem(&z, "ss", "ss", 0)) {
       z++;
     }
   }
 
-  /* Step 1b */  
+  /* Step 1b */
   z2 = z;
-  if( stem(&z, "dee", "ee", m_gt_0) ){
+  if (stem(&z, "dee", "ee", m_gt_0)) {
     /* Do nothing.  The work was all in the test */
-  }else if( 
-     (stem(&z, "gni", "", hasVowel) || stem(&z, "de", "", hasVowel))
-      && z!=z2
-  ){
-     if( stem(&z, "ta", "ate", 0) ||
-         stem(&z, "lb", "ble", 0) ||
-         stem(&z, "zi", "ize", 0) ){
-       /* Do nothing.  The work was all in the test */
-     }else if( doubleConsonant(z) && (*z!='l' && *z!='s' && *z!='z') ){
-       z++;
-     }else if( m_eq_1(z) && star_oh(z) ){
-       *(--z) = 'e';
-     }
+  } else if ((stem(&z, "gni", "", hasVowel) || stem(&z, "de", "", hasVowel)) &&
+             z != z2) {
+    if (stem(&z, "ta", "ate", 0) || stem(&z, "lb", "ble", 0) ||
+        stem(&z, "zi", "ize", 0)) {
+      /* Do nothing.  The work was all in the test */
+    } else if (doubleConsonant(z) && (*z != 'l' && *z != 's' && *z != 'z')) {
+      z++;
+    } else if (m_eq_1(z) && star_oh(z)) {
+      *(--z) = 'e';
+    }
   }
 
   /* Step 1c */
-  if( z[0]=='y' && hasVowel(z+1) ){
+  if (z[0] == 'y' && hasVowel(z + 1)) {
     z[0] = 'i';
   }
 
   /* Step 2 */
-  switch( z[1] ){
-   case 'a':
-     (void) (stem(&z, "lanoita", "ate", m_gt_0) ||
+  switch (z[1]) {
+    case 'a':
+      (void)(stem(&z, "lanoita", "ate", m_gt_0) ||
              stem(&z, "lanoit", "tion", m_gt_0));
-     break;
-   case 'c':
-     (void) (stem(&z, "icne", "ence", m_gt_0) ||
+      break;
+    case 'c':
+      (void)(stem(&z, "icne", "ence", m_gt_0) ||
              stem(&z, "icna", "ance", m_gt_0));
-     break;
-   case 'e':
-     (void) (stem(&z, "rezi", "ize", m_gt_0));
-     break;
-   case 'g':
-     (void) (stem(&z, "igol", "log", m_gt_0));
-     break;
-   case 'l':
-     (void) (stem(&z, "ilb", "ble", m_gt_0) ||
-             stem(&z, "illa", "al", m_gt_0) ||
-             stem(&z, "iltne", "ent", m_gt_0) ||
-             stem(&z, "ile", "e", m_gt_0) ||
+      break;
+    case 'e':
+      (void)(stem(&z, "rezi", "ize", m_gt_0));
+      break;
+    case 'g':
+      (void)(stem(&z, "igol", "log", m_gt_0));
+      break;
+    case 'l':
+      (void)(stem(&z, "ilb", "ble", m_gt_0) || stem(&z, "illa", "al", m_gt_0) ||
+             stem(&z, "iltne", "ent", m_gt_0) || stem(&z, "ile", "e", m_gt_0) ||
              stem(&z, "ilsuo", "ous", m_gt_0));
-     break;
-   case 'o':
-     (void) (stem(&z, "noitazi", "ize", m_gt_0) ||
+      break;
+    case 'o':
+      (void)(stem(&z, "noitazi", "ize", m_gt_0) ||
              stem(&z, "noita", "ate", m_gt_0) ||
              stem(&z, "rota", "ate", m_gt_0));
-     break;
-   case 's':
-     (void) (stem(&z, "msila", "al", m_gt_0) ||
+      break;
+    case 's':
+      (void)(stem(&z, "msila", "al", m_gt_0) ||
              stem(&z, "ssenevi", "ive", m_gt_0) ||
              stem(&z, "ssenluf", "ful", m_gt_0) ||
              stem(&z, "ssensuo", "ous", m_gt_0));
-     break;
-   case 't':
-     (void) (stem(&z, "itila", "al", m_gt_0) ||
+      break;
+    case 't':
+      (void)(stem(&z, "itila", "al", m_gt_0) ||
              stem(&z, "itivi", "ive", m_gt_0) ||
              stem(&z, "itilib", "ble", m_gt_0));
-     break;
+      break;
   }
 
   /* Step 3 */
-  switch( z[0] ){
-   case 'e':
-     (void) (stem(&z, "etaci", "ic", m_gt_0) ||
-             stem(&z, "evita", "", m_gt_0)   ||
+  switch (z[0]) {
+    case 'e':
+      (void)(stem(&z, "etaci", "ic", m_gt_0) || stem(&z, "evita", "", m_gt_0) ||
              stem(&z, "ezila", "al", m_gt_0));
-     break;
-   case 'i':
-     (void) (stem(&z, "itici", "ic", m_gt_0));
-     break;
-   case 'l':
-     (void) (stem(&z, "laci", "ic", m_gt_0) ||
-             stem(&z, "luf", "", m_gt_0));
-     break;
-   case 's':
-     (void) (stem(&z, "ssen", "", m_gt_0));
-     break;
+      break;
+    case 'i':
+      (void)(stem(&z, "itici", "ic", m_gt_0));
+      break;
+    case 'l':
+      (void)(stem(&z, "laci", "ic", m_gt_0) || stem(&z, "luf", "", m_gt_0));
+      break;
+    case 's':
+      (void)(stem(&z, "ssen", "", m_gt_0));
+      break;
   }
 
   /* Step 4 */
-  switch( z[1] ){
-   case 'a':
-     if( z[0]=='l' && m_gt_1(z+2) ){
-       z += 2;
-     }
-     break;
-   case 'c':
-     if( z[0]=='e' && z[2]=='n' && (z[3]=='a' || z[3]=='e')  && m_gt_1(z+4)  ){
-       z += 4;
-     }
-     break;
-   case 'e':
-     if( z[0]=='r' && m_gt_1(z+2) ){
-       z += 2;
-     }
-     break;
-   case 'i':
-     if( z[0]=='c' && m_gt_1(z+2) ){
-       z += 2;
-     }
-     break;
-   case 'l':
-     if( z[0]=='e' && z[2]=='b' && (z[3]=='a' || z[3]=='i') && m_gt_1(z+4) ){
-       z += 4;
-     }
-     break;
-   case 'n':
-     if( z[0]=='t' ){
-       if( z[2]=='a' ){
-         if( m_gt_1(z+3) ){
-           z += 3;
-         }
-       }else if( z[2]=='e' ){
-         (void) (stem(&z, "tneme", "", m_gt_1) ||
-                 stem(&z, "tnem", "", m_gt_1) ||
-                 stem(&z, "tne", "", m_gt_1));
-       }
-     }
-     break;
-   case 'o':
-     if( z[0]=='u' ){
-       if( m_gt_1(z+2) ){
-         z += 2;
-       }
-     }else if( z[3]=='s' || z[3]=='t' ){
-       (void) (stem(&z, "noi", "", m_gt_1));
-     }
-     break;
-   case 's':
-     if( z[0]=='m' && z[2]=='i' && m_gt_1(z+3) ){
-       z += 3;
-     }
-     break;
-   case 't':
-     (void) (stem(&z, "eta", "", m_gt_1) ||
-             stem(&z, "iti", "", m_gt_1));
-     break;
-   case 'u':
-     if( z[0]=='s' && z[2]=='o' && m_gt_1(z+3) ){
-       z += 3;
-     }
-     break;
-   case 'v':
-   case 'z':
-     if( z[0]=='e' && z[2]=='i' && m_gt_1(z+3) ){
-       z += 3;
-     }
-     break;
+  switch (z[1]) {
+    case 'a':
+      if (z[0] == 'l' && m_gt_1(z + 2)) {
+        z += 2;
+      }
+      break;
+    case 'c':
+      if (z[0] == 'e' && z[2] == 'n' && (z[3] == 'a' || z[3] == 'e') &&
+          m_gt_1(z + 4)) {
+        z += 4;
+      }
+      break;
+    case 'e':
+      if (z[0] == 'r' && m_gt_1(z + 2)) {
+        z += 2;
+      }
+      break;
+    case 'i':
+      if (z[0] == 'c' && m_gt_1(z + 2)) {
+        z += 2;
+      }
+      break;
+    case 'l':
+      if (z[0] == 'e' && z[2] == 'b' && (z[3] == 'a' || z[3] == 'i') &&
+          m_gt_1(z + 4)) {
+        z += 4;
+      }
+      break;
+    case 'n':
+      if (z[0] == 't') {
+        if (z[2] == 'a') {
+          if (m_gt_1(z + 3)) {
+            z += 3;
+          }
+        } else if (z[2] == 'e') {
+          (void)(stem(&z, "tneme", "", m_gt_1) ||
+                 stem(&z, "tnem", "", m_gt_1) || stem(&z, "tne", "", m_gt_1));
+        }
+      }
+      break;
+    case 'o':
+      if (z[0] == 'u') {
+        if (m_gt_1(z + 2)) {
+          z += 2;
+        }
+      } else if (z[3] == 's' || z[3] == 't') {
+        (void)(stem(&z, "noi", "", m_gt_1));
+      }
+      break;
+    case 's':
+      if (z[0] == 'm' && z[2] == 'i' && m_gt_1(z + 3)) {
+        z += 3;
+      }
+      break;
+    case 't':
+      (void)(stem(&z, "eta", "", m_gt_1) || stem(&z, "iti", "", m_gt_1));
+      break;
+    case 'u':
+      if (z[0] == 's' && z[2] == 'o' && m_gt_1(z + 3)) {
+        z += 3;
+      }
+      break;
+    case 'v':
+    case 'z':
+      if (z[0] == 'e' && z[2] == 'i' && m_gt_1(z + 3)) {
+        z += 3;
+      }
+      break;
   }
 
   /* Step 5a */
-  if( z[0]=='e' ){
-    if( m_gt_1(z+1) ){
+  if (z[0] == 'e') {
+    if (m_gt_1(z + 1)) {
       z++;
-    }else if( m_eq_1(z+1) && !star_oh(z+1) ){
+    } else if (m_eq_1(z + 1) && !star_oh(z + 1)) {
       z++;
     }
   }
 
   /* Step 5b */
-  if( m_gt_1(z) && z[0]=='l' && z[1]=='l' ){
+  if (m_gt_1(z) && z[0] == 'l' && z[1] == 'l') {
     z++;
   }
 
@@ -773,7 +771,7 @@ static void porter_stemmer(
   */
   *pnOut = i = strlen(z);
   zOut[i] = 0;
-  while( *z ){
+  while (*z) {
     zOut[--i] = *(z++);
   }
 }
@@ -783,12 +781,12 @@ static void porter_stemmer(
  * Letters and numbers can; punctuation (and 'del') can't.
  */
 static const char porterIdChar[] = {
-/* x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 xA xB xC xD xE xF */
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,  /* 3x */
-    0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  /* 4x */
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1,  /* 5x */
-    0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  /* 6x */
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,  /* 7x */
+    /* x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 xA xB xC xD xE xF */
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, /* 3x */
+    0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /* 4x */
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, /* 5x */
+    0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /* 6x */
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, /* 7x */
 };
 
 /**
@@ -803,7 +801,8 @@ static const char porterIdChar[] = {
  *  0x20 space.  0x205f is a "medium mathematical space" and defined as roughly
  *  equivalent to an 0x20 space.
  */
-#define IS_UNI_SPACE(x) (((x)>=0x2000&&(x)<=0x200a) || (x)==0x202f || (x)==0x205f)
+#  define IS_UNI_SPACE(x) \
+    (((x) >= 0x2000 && (x) <= 0x200a) || (x) == 0x202f || (x) == 0x205f)
 /**
  * What we are checking for:
  * - 0x3001: Ideographic comma (-> 0x2c ',')
@@ -815,36 +814,38 @@ static const char porterIdChar[] = {
  *
  * It is possible we should be treating other things as delimiters!
  */
-#define IS_JA_DELIM(x) (((x)==0x3001)||((x)==0xFF64)||((x)==0xFF0E)||((x)==0x3002)||((x)==0xFF61)||((x)==0xFF0C))
+#  define IS_JA_DELIM(x)                                      \
+    (((x) == 0x3001) || ((x) == 0xFF64) || ((x) == 0xFF0E) || \
+     ((x) == 0x3002) || ((x) == 0xFF61) || ((x) == 0xFF0C))
 
 /**
  * The previous character was a delimiter (which includes the start of the
  *  string).
  */
-#define BIGRAM_RESET   0
+#  define BIGRAM_RESET 0
 /**
  * The previous character was a CJK character and we have only seen one of them.
  *  If we had seen more than one in a row it would be the BIGRAM_USE state.
  */
-#define BIGRAM_UNKNOWN 1
+#  define BIGRAM_UNKNOWN 1
 /**
  * We have seen two or more CJK characters in a row.
  */
-#define BIGRAM_USE     2
+#  define BIGRAM_USE 2
 /**
  * The previous character was ASCII or something in the unicode general scripts
  *  area that we do not believe is a delimiter.  We call it 'alpha' as in
  *  alphabetic/alphanumeric and something that should be tokenized based on
  *  delimiters rather than on a bi-gram basis.
  */
-#define BIGRAM_ALPHA   3
+#  define BIGRAM_ALPHA 3
 
 static int isDelim(
-  const unsigned char *zCur,    /* IN: current pointer of token */
-  const unsigned char *zTerm,   /* IN: one character beyond end of token */
-  int *len,                     /* OUT: analyzed bytes in this token */
-  int *state                    /* IN/OUT: analyze state */
-){
+    const unsigned char *zCur,  /* IN: current pointer of token */
+    const unsigned char *zTerm, /* IN: one character beyond end of token */
+    int *len,                   /* OUT: analyzed bytes in this token */
+    int *state                  /* IN/OUT: analyze state */
+) {
   const unsigned char *zIn = zCur;
   unsigned int c;
   int delim;
@@ -855,16 +856,16 @@ static int isDelim(
   *len = zIn - zCur;
 
   /* ASCII character range has rule */
-  if( c < 0x80 ){
+  if (c < 0x80) {
     // This is original porter stemmer isDelim logic.
     // 0x0 - 0x1f are all control characters, 0x20 is space, 0x21-0x2f are
     //  punctuation.
     delim = (c < 0x30 || !porterIdChar[c - 0x30]);
     // cases: "&a", "&."
-    if (*state == BIGRAM_USE || *state == BIGRAM_UNKNOWN ){
+    if (*state == BIGRAM_USE || *state == BIGRAM_UNKNOWN) {
       /* previous maybe CJK and current is ascii */
       *state = BIGRAM_ALPHA; /*ascii*/
-      delim = 1; /* must break */
+      delim = 1;             /* must break */
     } else if (delim == 1) {
       // cases: "a.", ".."
       /* this is delimiter character */
@@ -881,11 +882,11 @@ static int isDelim(
   /* voiced/semi-voiced sound mark is ignore */
   if (isVoicedSoundMark(c) && *state != BIGRAM_ALPHA) {
     /* ignore this because it is combined with previous char */
-   return 0;
+    return 0;
   }
 
   /* this isn't CJK range, so return as no delim */
-  // Anything less than 0x2000 (except to U+0E00-U+0EFF and  U+1780-U+17FF) 
+  // Anything less than 0x2000 (except to U+0E00-U+0EFF and  U+1780-U+17FF)
   // is the general scripts area and should not be bi-gram indexed.
   // 0xa000 - 0a4cf is the Yi area.  It is apparently a phonetic language whose
   //  usage does not appear to have simple delimiter rules, so we're leaving it
@@ -893,11 +894,9 @@ static int isDelim(
   //  (We previously bailed on this range too.)
   // Addition, U+0E00-U+0E7F is Thai, U+0E80-U+0EFF is Laos,
   // and U+1780-U+17FF is Khmer.  It is no easy way to break each word.
-  // So these should use bi-gram too. 
+  // So these should use bi-gram too.
   // cases: "aa", ".a", "&a"
-  if (c < 0xe00 ||
-     (c >= 0xf00 && c < 0x1780) ||
-     (c >= 0x1800 && c < 0x2000)) {
+  if (c < 0xe00 || (c >= 0xf00 && c < 0x1780) || (c >= 0x1800 && c < 0x2000)) {
     *state = BIGRAM_ALPHA; /* not really ASCII but same idea; tokenize it */
     return 0;
   }
@@ -906,23 +905,23 @@ static int isDelim(
 
   /* this is space character or delim character */
   // cases: "a.", "..", "&."
-  if( IS_UNI_SPACE(c) || IS_JA_DELIM(c) ){
+  if (IS_UNI_SPACE(c) || IS_JA_DELIM(c)) {
     *state = BIGRAM_RESET; /* reset */
-    return 1; /* it actually is a delimiter; report as such */
+    return 1;              /* it actually is a delimiter; report as such */
   }
 
   // (at this point we must be a bi-grammable char)
 
   // cases: "a&"
-  if( *state==BIGRAM_ALPHA ){
+  if (*state == BIGRAM_ALPHA) {
     /* Previous is ascii and current maybe CJK */
     *state = BIGRAM_UNKNOWN; /* mark as unknown */
-    return 1; /* break to emit the ASCII token*/
+    return 1;                /* break to emit the ASCII token*/
   }
 
   /* We have no rule for CJK!. use bi-gram */
   // cases: "&&"
-  if( *state==BIGRAM_UNKNOWN || *state==BIGRAM_USE ){
+  if (*state == BIGRAM_UNKNOWN || *state == BIGRAM_USE) {
     /* previous state is unknown.  mark as bi-gram */
     *state = BIGRAM_USE;
     return 1; /* break to emit the digram */
@@ -930,7 +929,7 @@ static int isDelim(
 
   // cases: ".&" (*state == BIGRAM_RESET)
   *state = BIGRAM_UNKNOWN; /* mark as unknown */
-  return 0; /* no need to break; nothing to emit */
+  return 0;                /* no need to break; nothing to emit */
 }
 
 /**
@@ -980,19 +979,19 @@ static int isDelim(
  *        BIGRAM_USE, gets set to BIGRAM_USE.
  */
 static int porterNext(
-  sqlite3_tokenizer_cursor *pCursor,  /* Cursor returned by porterOpen */
-  const char **pzToken,               /* OUT: *pzToken is the token text */
-  int *pnBytes,                       /* OUT: Number of bytes in token */
-  int *piStartOffset,                 /* OUT: Starting offset of token */
-  int *piEndOffset,                   /* OUT: Ending offset of token */
-  int *piPosition                     /* OUT: Position integer of token */
-){
-  porter_tokenizer_cursor *c = (porter_tokenizer_cursor *) pCursor;
-  const unsigned char *z = (unsigned char *) c->zInput;
+    sqlite3_tokenizer_cursor *pCursor, /* Cursor returned by porterOpen */
+    const char **pzToken,              /* OUT: *pzToken is the token text */
+    int *pnBytes,                      /* OUT: Number of bytes in token */
+    int *piStartOffset,                /* OUT: Starting offset of token */
+    int *piEndOffset,                  /* OUT: Ending offset of token */
+    int *piPosition                    /* OUT: Position integer of token */
+) {
+  porter_tokenizer_cursor *c = (porter_tokenizer_cursor *)pCursor;
+  const unsigned char *z = (unsigned char *)c->zInput;
   int len = 0;
   int state;
 
-  while( c->iOffset < c->nInput ){
+  while (c->iOffset < c->nInput) {
     int iStartOffset, numChars;
 
     /*
@@ -1010,13 +1009,13 @@ static int porterNext(
      *  delimiter we hit was a CJK character, the next time through we will
      *  not treat it as a delimiter though; the entry state for that scan is
      *  BIGRAM_RESET so the transition is not treated as a delimiter!
-     * 
+     *
      * The CJK pass always starts with the second character in a bi-gram emitted
      *  as a token in the previous step.  No delimiter skipping is required
      *  because we know that first character might produce a token for us.  It
      *  only 'might' produce a token because the previous pass performed no
      *  lookahead and cannot be sure it is followed by another CJK character.
-     *  This is why 
+     *  This is why
      */
 
     // If we have a previous bigram offset
@@ -1090,23 +1089,20 @@ static int porterNext(
     // It is possible we have no token to emit here if iPrevBigramOffset was not
     //  0 on entry and there was no second CJK character.  iPrevBigramOffset
     //  will now be 0 if that is the case (and c->iOffset == iStartOffset).
-    if (// allow two-character words only if in bigram
+    if (  // allow two-character words only if in bigram
         (numChars == 2 && state == BIGRAM_USE) ||
         // otherwise, drop two-letter words (considered stop-words)
-        (numChars >=3) ||
+        (numChars >= 3) ||
         // wildcard case:
-        (numChars == 1 && iStartOffset == 0 &&
-         (c->iOffset >= 3) &&
-         (c->iOffset == c->nInput - 1) &&
-         (z[c->iOffset] == '*'))) {
+        (numChars == 1 && iStartOffset == 0 && (c->iOffset >= 3) &&
+         (c->iOffset == c->nInput - 1) && (z[c->iOffset] == '*'))) {
       /* figure out the number of bytes to copy/stem */
       int n = c->iOffset - iStartOffset;
       /* make sure there is enough buffer space */
       if (n * MAX_UTF8_GROWTH_FACTOR > c->nAllocated) {
         c->nAllocated = n * MAX_UTF8_GROWTH_FACTOR + 20;
         c->zToken = sqlite3_realloc(c->zToken, c->nAllocated);
-        if (c->zToken == NULL)
-          return SQLITE_NOMEM;
+        if (c->zToken == NULL) return SQLITE_NOMEM;
       }
 
       if (state == BIGRAM_USE) {
@@ -1115,7 +1111,7 @@ static int porterNext(
       } else {
         porter_stemmer(&z[iStartOffset], n, c->zToken, pnBytes);
       }
-      *pzToken = (const char*)c->zToken;
+      *pzToken = (const char *)c->zToken;
       *piStartOffset = iStartOffset;
       *piEndOffset = c->iOffset;
       *piPosition = c->iToken++;
@@ -1129,12 +1125,7 @@ static int porterNext(
 ** The set of routines that implement the porter-stemmer tokenizer
 */
 static const sqlite3_tokenizer_module porterTokenizerModule = {
-  0,
-  porterCreate,
-  porterDestroy,
-  porterOpen,
-  porterClose,
-  porterNext,
+    0, porterCreate, porterDestroy, porterOpen, porterClose, porterNext,
 };
 
 /*
@@ -1142,8 +1133,7 @@ static const sqlite3_tokenizer_module porterTokenizerModule = {
 ** tokenizer in *ppModule
 */
 void sqlite3Fts3PorterTokenizerModule(
-  sqlite3_tokenizer_module const**ppModule
-){
+    sqlite3_tokenizer_module const **ppModule) {
   *ppModule = &porterTokenizerModule;
 }
 

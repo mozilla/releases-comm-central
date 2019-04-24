@@ -28,12 +28,10 @@
 using namespace mozilla;
 
 MOZ_TYPE_SPECIFIC_UNIQUE_PTR_TEMPLATE(UniqueCERTCertNicknames,
-                                      CERTCertNicknames,
-                                      CERT_FreeNicknames)
+                                      CERTCertNicknames, CERT_FreeNicknames)
 
-CERTCertNicknames*
-getNSSCertNicknamesFromCertList(const UniqueCERTCertList& certList)
-{
+CERTCertNicknames *getNSSCertNicknamesFromCertList(
+    const UniqueCERTCertList &certList) {
   nsAutoString expiredString, notYetValidString;
   nsAutoString expiredStringLeadingSpace, notYetValidStringLeadingSpace;
 
@@ -49,15 +47,13 @@ getNSSCertNicknamesFromCertList(const UniqueCERTCertList& certList)
   NS_ConvertUTF16toUTF8 aUtf8ExpiredString(expiredStringLeadingSpace);
   NS_ConvertUTF16toUTF8 aUtf8NotYetValidString(notYetValidStringLeadingSpace);
 
-  return CERT_NicknameStringsFromCertList(certList.get(),
-                                          const_cast<char*>(aUtf8ExpiredString.get()),
-                                          const_cast<char*>(aUtf8NotYetValidString.get()));
+  return CERT_NicknameStringsFromCertList(
+      certList.get(), const_cast<char *>(aUtf8ExpiredString.get()),
+      const_cast<char *>(aUtf8NotYetValidString.get()));
 }
 
-nsresult
-FormatUIStrings(nsIX509Cert* cert, const nsAutoString& nickname,
-                nsAutoString& nickWithSerial, nsAutoString& details)
-{
+nsresult FormatUIStrings(nsIX509Cert *cert, const nsAutoString &nickname,
+                         nsAutoString &nickWithSerial, nsAutoString &details) {
   if (!NS_IsMainThread()) {
     NS_ERROR("nsNSSCertificate::FormatUIStrings called off the main thread");
     return NS_ERROR_NOT_SAME_THREAD;
@@ -105,7 +101,8 @@ FormatUIStrings(nsIX509Cert* cert, const nsAutoString& nickname,
       details.Append(info);
     }
 
-    if (NS_SUCCEEDED(validity->GetNotBeforeLocalTime(temp1)) && !temp1.IsEmpty()) {
+    if (NS_SUCCEEDED(validity->GetNotBeforeLocalTime(temp1)) &&
+        !temp1.IsEmpty()) {
       details.Append(char16_t(' '));
       if (NS_SUCCEEDED(mcs->GetSMIMEBundleString(u"CertInfoFrom", info))) {
         details.Append(info);
@@ -114,7 +111,8 @@ FormatUIStrings(nsIX509Cert* cert, const nsAutoString& nickname,
       details.Append(temp1);
     }
 
-    if (NS_SUCCEEDED(validity->GetNotAfterLocalTime(temp1)) && !temp1.IsEmpty()) {
+    if (NS_SUCCEEDED(validity->GetNotAfterLocalTime(temp1)) &&
+        !temp1.IsEmpty()) {
       details.Append(char16_t(' '));
       if (NS_SUCCEEDED(mcs->GetSMIMEBundleString(u"CertInfoTo", info))) {
         details.Append(info);
@@ -142,16 +140,11 @@ FormatUIStrings(nsIX509Cert* cert, const nsAutoString& nickname,
   }
 
   nsAutoString firstEmail;
-  const char* aWalkAddr;
-  for (aWalkAddr = CERT_GetFirstEmailAddress(nssCert.get())
-        ;
-        aWalkAddr
-        ;
-        aWalkAddr = CERT_GetNextEmailAddress(nssCert.get(), aWalkAddr))
-  {
+  const char *aWalkAddr;
+  for (aWalkAddr = CERT_GetFirstEmailAddress(nssCert.get()); aWalkAddr;
+       aWalkAddr = CERT_GetNextEmailAddress(nssCert.get(), aWalkAddr)) {
     NS_ConvertUTF8toUTF16 email(aWalkAddr);
-    if (email.IsEmpty())
-      continue;
+    if (email.IsEmpty()) continue;
 
     if (firstEmail.IsEmpty()) {
       // If the first email address from the subject DN is also present
@@ -166,8 +159,7 @@ FormatUIStrings(nsIX509Cert* cert, const nsAutoString& nickname,
         details.AppendLiteral(": ");
       }
       details.Append(email);
-    }
-    else {
+    } else {
       // Append current address if it's different from the first one.
       if (!firstEmail.Equals(email)) {
         details.AppendLiteral(", ");
@@ -216,17 +208,11 @@ FormatUIStrings(nsIX509Cert* cert, const nsAutoString& nickname,
 
 NS_IMPL_ISUPPORTS(nsCertPicker, nsICertPickDialogs, nsIUserCertPicker)
 
-nsCertPicker::nsCertPicker()
-{
-}
+nsCertPicker::nsCertPicker() {}
 
-nsCertPicker::~nsCertPicker()
-{
-}
+nsCertPicker::~nsCertPicker() {}
 
-nsresult
-nsCertPicker::Init()
-{
+nsresult nsCertPicker::Init() {
   nsresult rv;
   nsCOMPtr<nsISupports> psm = do_GetService("@mozilla.org/psm;1", &rv);
   return rv;
@@ -235,21 +221,18 @@ nsCertPicker::Init()
 NS_IMETHODIMP
 nsCertPicker::PickCertificate(nsIInterfaceRequestor *ctx,
                               const char16_t **certNickList,
-                              const char16_t **certDetailsList,
-                              uint32_t count,
-                              int32_t *selectedIndex,
-                              bool *canceled)
-{
+                              const char16_t **certDetailsList, uint32_t count,
+                              int32_t *selectedIndex, bool *canceled) {
   nsresult rv;
   uint32_t i;
 
   *canceled = false;
 
   nsCOMPtr<nsIDialogParamBlock> block =
-           do_CreateInstance(NS_DIALOGPARAMBLOCK_CONTRACTID);
+      do_CreateInstance(NS_DIALOGPARAMBLOCK_CONTRACTID);
   if (!block) return NS_ERROR_FAILURE;
 
-  block->SetNumberStrings(1+count*2);
+  block->SetNumberStrings(1 + count * 2);
 
   for (i = 0; i < count; i++) {
     rv = block->SetString(i, certNickList[i]);
@@ -257,7 +240,7 @@ nsCertPicker::PickCertificate(nsIInterfaceRequestor *ctx,
   }
 
   for (i = 0; i < count; i++) {
-    rv = block->SetString(i+count, certDetailsList[i]);
+    rv = block->SetString(i + count, certDetailsList[i]);
     if (NS_FAILED(rv)) return rv;
   }
 
@@ -267,9 +250,8 @@ nsCertPicker::PickCertificate(nsIInterfaceRequestor *ctx,
   rv = block->SetInt(1, *selectedIndex);
   if (NS_FAILED(rv)) return rv;
 
-  rv = nsNSSDialogHelper::openDialog(nullptr,
-                                     "chrome://messenger/content/certpicker.xul",
-                                     block);
+  rv = nsNSSDialogHelper::openDialog(
+      nullptr, "chrome://messenger/content/certpicker.xul", block);
   if (NS_FAILED(rv)) return rv;
 
   int32_t status;
@@ -277,7 +259,7 @@ nsCertPicker::PickCertificate(nsIInterfaceRequestor *ctx,
   rv = block->GetInt(0, &status);
   if (NS_FAILED(rv)) return rv;
 
-  *canceled = (status == 0)?true:false;
+  *canceled = (status == 0) ? true : false;
   if (!*canceled) {
     rv = block->GetInt(1, selectedIndex);
   }
@@ -286,34 +268,29 @@ nsCertPicker::PickCertificate(nsIInterfaceRequestor *ctx,
 
 NS_IMETHODIMP nsCertPicker::PickByUsage(nsIInterfaceRequestor *ctx,
                                         const char16_t *selectedNickname,
-                                        int32_t certUsage,
-                                        bool allowInvalid,
+                                        int32_t certUsage, bool allowInvalid,
                                         bool allowDuplicateNicknames,
                                         const nsAString &emailAddress,
-                                        bool *canceled,
-                                        nsIX509Cert **_retval)
-{
+                                        bool *canceled, nsIX509Cert **_retval) {
   int32_t selectedIndex = -1;
   bool selectionFound = false;
   char16_t **certNicknameList = nullptr;
   char16_t **certDetailsList = nullptr;
-  CERTCertListNode* node = nullptr;
+  CERTCertListNode *node = nullptr;
   nsresult rv = NS_OK;
 
   {
-    // Iterate over all certs. This assures that user is logged in to all hardware tokens.
+    // Iterate over all certs. This assures that user is logged in to all
+    // hardware tokens.
     nsCOMPtr<nsIInterfaceRequestor> ctx = new PipUIContext();
     UniqueCERTCertList allcerts(PK11_ListCerts(PK11CertListUnique, ctx));
   }
 
   /* find all user certs that are valid for the specified usage */
   /* note that we are allowing expired certs in this list */
-  UniqueCERTCertList certList(
-    CERT_FindUserCertsByUsage(CERT_GetDefaultCertDB(),
-                              (SECCertUsage)certUsage,
-                              !allowDuplicateNicknames,
-                              !allowInvalid,
-                              ctx));
+  UniqueCERTCertList certList(CERT_FindUserCertsByUsage(
+      CERT_GetDefaultCertDB(), (SECCertUsage)certUsage,
+      !allowDuplicateNicknames, !allowInvalid, ctx));
   if (!certList) {
     return NS_ERROR_NOT_AVAILABLE;
   }
@@ -334,7 +311,7 @@ NS_IMETHODIMP nsCertPicker::PickByUsage(nsIInterfaceRequestor *ctx,
         }
         if (!match) {
           /* doesn't contain the specified address, so remove from the list */
-          CERTCertListNode* freenode = node;
+          CERTCertListNode *freenode = node;
           node = CERT_LIST_NEXT(node);
           CERT_RemoveCertListNode(freenode);
           continue;
@@ -349,8 +326,10 @@ NS_IMETHODIMP nsCertPicker::PickByUsage(nsIInterfaceRequestor *ctx,
     return NS_ERROR_NOT_AVAILABLE;
   }
 
-  certNicknameList = (char16_t **)moz_xmalloc(sizeof(char16_t *) * nicknames->numnicknames);
-  certDetailsList = (char16_t **)moz_xmalloc(sizeof(char16_t *) * nicknames->numnicknames);
+  certNicknameList =
+      (char16_t **)moz_xmalloc(sizeof(char16_t *) * nicknames->numnicknames);
+  certDetailsList =
+      (char16_t **)moz_xmalloc(sizeof(char16_t *) * nicknames->numnicknames);
 
   if (!certNicknameList || !certDetailsList) {
     free(certNicknameList);
@@ -362,15 +341,13 @@ NS_IMETHODIMP nsCertPicker::PickByUsage(nsIInterfaceRequestor *ctx,
 
   for (CertsToUse = 0, node = CERT_LIST_HEAD(certList.get());
        !CERT_LIST_END(node, certList.get()) &&
-         CertsToUse < nicknames->numnicknames;
-       node = CERT_LIST_NEXT(node)
-      )
-  {
+       CertsToUse < nicknames->numnicknames;
+       node = CERT_LIST_NEXT(node)) {
     RefPtr<nsNSSCertificate> tempCert(nsNSSCertificate::Create(node->cert));
 
     if (tempCert) {
-
-      nsAutoString i_nickname(NS_ConvertUTF8toUTF16(nicknames->nicknames[CertsToUse]));
+      nsAutoString i_nickname(
+          NS_ConvertUTF8toUTF16(nicknames->nicknames[CertsToUse]));
       nsAutoString nickWithSerial;
       nsAutoString details;
 
@@ -382,8 +359,8 @@ NS_IMETHODIMP nsCertPicker::PickByUsage(nsIInterfaceRequestor *ctx,
         }
       }
 
-      if (NS_SUCCEEDED(FormatUIStrings(tempCert, i_nickname, nickWithSerial,
-                                       details))) {
+      if (NS_SUCCEEDED(
+              FormatUIStrings(tempCert, i_nickname, nickWithSerial, details))) {
         certNicknameList[CertsToUse] = ToNewUnicode(nickWithSerial);
         certDetailsList[CertsToUse] = ToNewUnicode(details);
         if (!selectionFound) {
@@ -393,8 +370,7 @@ NS_IMETHODIMP nsCertPicker::PickByUsage(nsIInterfaceRequestor *ctx,
             selectionFound = true;
           }
         }
-      }
-      else {
+      } else {
         certNicknameList[CertsToUse] = nullptr;
         certDetailsList[CertsToUse] = nullptr;
       }
@@ -410,8 +386,8 @@ NS_IMETHODIMP nsCertPicker::PickByUsage(nsIInterfaceRequestor *ctx,
 
     if (NS_SUCCEEDED(rv)) {
       // Show the cert picker dialog and get the index of the selected cert.
-      rv = dialogs->PickCertificate(ctx, (const char16_t**)certNicknameList,
-                                    (const char16_t**)certDetailsList,
+      rv = dialogs->PickCertificate(ctx, (const char16_t **)certNicknameList,
+                                    (const char16_t **)certDetailsList,
                                     CertsToUse, &selectedIndex, canceled);
     }
   }
@@ -429,10 +405,8 @@ NS_IMETHODIMP nsCertPicker::PickByUsage(nsIInterfaceRequestor *ctx,
   }
 
   if (NS_SUCCEEDED(rv) && !*canceled) {
-    for (i = 0, node = CERT_LIST_HEAD(certList);
-         !CERT_LIST_END(node, certList);
+    for (i = 0, node = CERT_LIST_HEAD(certList); !CERT_LIST_END(node, certList);
          ++i, node = CERT_LIST_NEXT(node)) {
-
       if (i == selectedIndex) {
         RefPtr<nsNSSCertificate> cert = nsNSSCertificate::Create(node->cert);
         if (!cert) {

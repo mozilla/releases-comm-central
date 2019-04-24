@@ -6,10 +6,12 @@
 #ifndef nsFts3TokenizerCID_h__
 #define nsFts3TokenizerCID_h__
 
-#define NS_FTS3TOKENIZER_CONTRACTID \
-  "@mozilla.org/messenger/fts3tokenizer;1"
-#define NS_FTS3TOKENIZER_CID  \
-{ 0xa67d724d, 0x0015, 0x4e2e, \
-{ 0x8c, 0xad, 0xb8, 0x47, 0x75, 0x33, 0x09, 0x24 }}
+#define NS_FTS3TOKENIZER_CONTRACTID "@mozilla.org/messenger/fts3tokenizer;1"
+#define NS_FTS3TOKENIZER_CID                         \
+  {                                                  \
+    0xa67d724d, 0x0015, 0x4e2e, {                    \
+      0x8c, 0xad, 0xb8, 0x47, 0x75, 0x33, 0x09, 0x24 \
+    }                                                \
+  }
 
 #endif /* nsFts3TokenizerCID_h__ */

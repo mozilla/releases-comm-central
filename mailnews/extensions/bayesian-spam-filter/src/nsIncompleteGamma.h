@@ -56,7 +56,7 @@
 #include <float.h>
 
 // the main routine
-static double nsIncompleteGammaP (double a, double x, int *error);
+static double nsIncompleteGammaP(double a, double x, int *error);
 
 // nsLnGamma(z): either a wrapper around lgamma_r or the internal function.
 // C_m = B[2*m]/(2*m*(2*m-1)) where B is a Bernoulli number
@@ -73,20 +73,27 @@ static const double C_10 = -174611.0 / 125400.0;
 static const double C_11 = 77683.0 / 5796.0;
 
 // truncated asymptotic series in 1/z
-static inline double lngamma_asymp (double z)
-{
+static inline double lngamma_asymp(double z) {
   double w, w2, sum;
   w = 1.0 / z;
   w2 = w * w;
-  sum = w * (w2 * (w2 * (w2 * (w2 * (w2 * (w2 * (w2 * (w2 * (w2
-        * (C_11 * w2 + C_10) + C_9) + C_8) + C_7) + C_6)
-        + C_5) + C_4) + C_3) + C_2) + C_1);
+  sum =
+      w *
+      (w2 * (w2 * (w2 * (w2 * (w2 * (w2 * (w2 * (w2 * (w2 * (C_11 * w2 + C_10) +
+                                                       C_9) +
+                                                 C_8) +
+                                           C_7) +
+                                     C_6) +
+                               C_5) +
+                         C_4) +
+                   C_3) +
+             C_2) +
+       C_1);
 
   return sum;
 }
 
-struct fact_table_s
-{
+struct fact_table_s {
   double fact;
   double lnfact;
 };
@@ -111,9 +118,8 @@ static const struct fact_table_s FactTable[] = {
     {1307674368000.000, 2.7899271383840891566988e+01},
     {20922789888000.00, 3.0671860106080672803835e+01},
     {355687428096000.0, 3.3505073450136888885825e+01},
-    {6402373705728000., 3.6395445208033053576674e+01}
-};
-#define FactTableLength (int)(sizeof(FactTable)/sizeof(FactTable[0]))
+    {6402373705728000., 3.6395445208033053576674e+01}};
+#define FactTableLength (int)(sizeof(FactTable) / sizeof(FactTable[0]))
 
 // for speed
 static const double ln_2pi_2 = 0.918938533204672741803;  // log(2*PI)/2
@@ -127,133 +133,107 @@ static const double ln_2pi_2 = 0.918938533204672741803;  // log(2*PI)/2
    < 1e-10. In two small regions, 1 +/- .001 and 2 +/- .001 errors
    increase quickly.
 */
-static double nsLnGamma (double z_in, int *gsign)
-{
+static double nsLnGamma(double z_in, int *gsign) {
   double scale, z, sum, result;
   *gsign = 1;
 
-  int zi = (int) z_in;
-  if (z_in == (double) zi)
-  {
+  int zi = (int)z_in;
+  if (z_in == (double)zi) {
     if (0 < zi && zi <= FactTableLength)
       return FactTable[zi - 1].lnfact;  // gamma(z) = (z-1)!
   }
 
-  for (scale = 1.0, z = z_in; z < 8.0; ++z)
-    scale *= z;
+  for (scale = 1.0, z = z_in; z < 8.0; ++z) scale *= z;
 
-  sum = lngamma_asymp (z);
-  result = (z - 0.5) * log (z) - z + ln_2pi_2 - log (scale);
+  sum = lngamma_asymp(z);
+  result = (z - 0.5) * log(z) - z + ln_2pi_2 - log(scale);
   result += sum;
   return result;
 }
 
 // log( e^(-x)*x^a/Gamma(a) )
-static inline double lnPQfactor (double a, double x)
-{
+static inline double lnPQfactor(double a, double x) {
   int gsign;  // ignored because a > 0
-  return a * log (x) - x - nsLnGamma (a, &gsign);
+  return a * log(x) - x - nsLnGamma(a, &gsign);
 }
 
-static double Pseries (double a, double x, int *error)
-{
+static double Pseries(double a, double x, int *error) {
   double sum, term;
   const double eps = 2.0 * DBL_EPSILON;
   const int imax = 5000;
   int i;
 
   sum = term = 1.0 / a;
-  for (i = 1; i < imax; ++i)
-  {
+  for (i = 1; i < imax; ++i) {
     term *= x / (a + i);
     sum += term;
-    if (fabs (term) < eps * fabs (sum))
-      break;
+    if (fabs(term) < eps * fabs(sum)) break;
   }
 
-  if (i >= imax)
-    *error = 1;
+  if (i >= imax) *error = 1;
 
   return sum;
 }
 
-static double Qcontfrac (double a, double x, int *error)
-{
+static double Qcontfrac(double a, double x, int *error) {
   double result, D, C, e, f, term;
   const double eps = 2.0 * DBL_EPSILON;
-  const double small =
-  DBL_EPSILON * DBL_EPSILON * DBL_EPSILON * DBL_EPSILON;
+  const double small = DBL_EPSILON * DBL_EPSILON * DBL_EPSILON * DBL_EPSILON;
   const int imax = 5000;
   int i;
 
   // modified Lentz method
   f = x - a + 1.0;
-  if (fabs (f) < small)
-    f = small;
+  if (fabs(f) < small) f = small;
   C = f + 1.0 / small;
   D = 1.0 / f;
   result = D;
-  for (i = 1; i < imax; ++i)
-  {
+  for (i = 1; i < imax; ++i) {
     e = i * (a - i);
     f += 2.0;
     D = f + e * D;
-    if (fabs (D) < small)
-      D = small;
+    if (fabs(D) < small) D = small;
     D = 1.0 / D;
     C = f + e / C;
-    if (fabs (C) < small)
-      C = small;
+    if (fabs(C) < small) C = small;
     term = C * D;
     result *= term;
-    if (fabs (term - 1.0) < eps)
-      break;
+    if (fabs(term - 1.0) < eps) break;
   }
 
-  if (i >= imax)
-    *error = 1;
+  if (i >= imax) *error = 1;
   return result;
 }
 
-static double nsIncompleteGammaP (double a, double x, int *error)
-{
+static double nsIncompleteGammaP(double a, double x, int *error) {
   double result, dom, ldom;
   //  domain errors. the return values are meaningless but have
   //  to return something.
   *error = -1;
-  if (a <= 0.0)
-    return 1.0;
-  if (x < 0.0)
-    return 0.0;
+  if (a <= 0.0) return 1.0;
+  if (x < 0.0) return 0.0;
   *error = 0;
-  if (x == 0.0)
-    return 0.0;
+  if (x == 0.0) return 0.0;
 
-  ldom = lnPQfactor (a, x);
-  dom = exp (ldom);
+  ldom = lnPQfactor(a, x);
+  dom = exp(ldom);
   // might need to adjust the crossover point
-  if (a <= 0.5)
-  {
+  if (a <= 0.5) {
     if (x < a + 1.0)
-      result = dom * Pseries (a, x, error);
+      result = dom * Pseries(a, x, error);
     else
-      result = 1.0 - dom * Qcontfrac (a, x, error);
-  }
-  else
-  {
+      result = 1.0 - dom * Qcontfrac(a, x, error);
+  } else {
     if (x < a)
-      result = dom * Pseries (a, x, error);
+      result = dom * Pseries(a, x, error);
     else
-      result = 1.0 - dom * Qcontfrac (a, x, error);
+      result = 1.0 - dom * Qcontfrac(a, x, error);
   }
 
   // not clear if this can ever happen
-  if (result > 1.0)
-    result = 1.0;
-  if (result < 0.0)
-    result = 0.0;
+  if (result > 1.0) result = 1.0;
+  if (result < 0.0) result = 0.0;
   return result;
 }
 
 #endif
-

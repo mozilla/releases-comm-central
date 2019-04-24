@@ -9,15 +9,14 @@
 #include "nsTArray.h"
 #include "nsString.h"
 
-class nsEncryptedSMIMEURIsService : public nsIEncryptedSMIMEURIsService
-{
-public:
+class nsEncryptedSMIMEURIsService : public nsIEncryptedSMIMEURIsService {
+ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIENCRYPTEDSMIMEURISSERVICE
 
   nsEncryptedSMIMEURIsService();
 
-protected:
+ protected:
   virtual ~nsEncryptedSMIMEURIsService();
   nsTArray<nsCString> mEncryptedURIs;
 };

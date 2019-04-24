@@ -23,7 +23,7 @@ namespace mozilla {
 namespace mailnews {
 class MimeEncoder;
 }
-}
+}  // namespace mozilla
 
 typedef enum {
   mime_crypto_none,            /* normal unencapsulated MIME message */
@@ -33,31 +33,36 @@ typedef enum {
   mime_crypto_signed_encrypted /* application/x-pkcs7-mime */
 } mimeDeliveryCryptoState;
 
-class nsMsgComposeSecure : public nsIMsgComposeSecure
-{
-public:
+class nsMsgComposeSecure : public nsIMsgComposeSecure {
+ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGCOMPOSESECURE
 
   nsMsgComposeSecure();
 
-  void GetOutputStream(nsIOutputStream **stream) { NS_IF_ADDREF(*stream = mStream);}
+  void GetOutputStream(nsIOutputStream **stream) {
+    NS_IF_ADDREF(*stream = mStream);
+  }
   nsresult GetSMIMEBundleString(const char16_t *name, nsString &outString);
 
-private:
+ private:
   virtual ~nsMsgComposeSecure();
   typedef mozilla::mailnews::MimeEncoder MimeEncoder;
   nsresult MimeInitMultipartSigned(bool aOuter, nsIMsgSendReport *sendReport);
   nsresult MimeInitEncryption(bool aSign, nsIMsgSendReport *sendReport);
-  nsresult MimeFinishMultipartSigned (bool aOuter, nsIMsgSendReport *sendReport);
-  nsresult MimeFinishEncryption (bool aSign, nsIMsgSendReport *sendReport);
-  nsresult MimeCryptoHackCerts(const char *aRecipients, nsIMsgSendReport *sendReport, bool aEncrypt, bool aSign, nsIMsgIdentity *aIdentity);
+  nsresult MimeFinishMultipartSigned(bool aOuter, nsIMsgSendReport *sendReport);
+  nsresult MimeFinishEncryption(bool aSign, nsIMsgSendReport *sendReport);
+  nsresult MimeCryptoHackCerts(const char *aRecipients,
+                               nsIMsgSendReport *sendReport, bool aEncrypt,
+                               bool aSign, nsIMsgIdentity *aIdentity);
   bool InitializeSMIMEBundle();
   nsresult SMIMEBundleFormatStringFromName(const char *name,
                                            const char16_t **params,
                                            uint32_t numParams,
-                                           nsAString& outString);
-  nsresult ExtractEncryptionState(nsIMsgIdentity * aIdentity, nsIMsgCompFields * aComposeFields, bool * aSignMessage, bool * aEncrypt);
+                                           nsAString &outString);
+  nsresult ExtractEncryptionState(nsIMsgIdentity *aIdentity,
+                                  nsIMsgCompFields *aComposeFields,
+                                  bool *aSignMessage, bool *aEncrypt);
 
   bool mSignMessage;
   bool mAlwaysEncryptMessage;
@@ -81,13 +86,14 @@ private:
   nsAutoPtr<MimeEncoder> mCryptoEncoder;
   bool mIsDraft;
 
-  enum {eBufferSize = 8192};
+  enum { eBufferSize = 8192 };
   char *mBuffer;
   uint32_t mBufferedBytes;
 
   bool mErrorAlreadyReported;
   void SetError(nsIMsgSendReport *sendReport, const char16_t *bundle_string);
-  void SetErrorWithParam(nsIMsgSendReport *sendReport, const char *bundle_string, const char *param);
+  void SetErrorWithParam(nsIMsgSendReport *sendReport,
+                         const char *bundle_string, const char *param);
 };
 
 #endif

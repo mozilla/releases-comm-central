@@ -8,18 +8,17 @@
 #include "nsISMimeJSHelper.h"
 #include "nsIMsgCompFields.h"
 
-class nsSMimeJSHelper : public nsISMimeJSHelper
-{
-public:
+class nsSMimeJSHelper : public nsISMimeJSHelper {
+ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSISMIMEJSHELPER
 
   nsSMimeJSHelper();
 
-private:
+ private:
   virtual ~nsSMimeJSHelper();
   nsresult getMailboxList(nsIMsgCompFields *compFields,
-    nsTArray<nsCString> &mailboxes);
+                          nsTArray<nsCString> &mailboxes);
 };
 
 #endif

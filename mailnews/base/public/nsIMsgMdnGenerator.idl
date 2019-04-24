@@ -14,16 +14,6 @@ typedef long EDisposeType;
 typedef long ReceiptHdrType;
 typedef long MDNIncorporateType;
 
-%{C++
-#define NS_MSGMDNGENERATOR_CONTRACTID \
-  "@mozilla.org/messenger-mdn/generator;1"
-
-#define NS_MSGMDNGENERATOR_CID                    \
-{ /* ec917b13-8f73-4d4d-9146-d7f7aafe9076 */      \
- 0xec917b13, 0x8f73, 0x4d4d,                      \
- { 0x91, 0x46, 0xd7, 0xf7, 0xaa, 0xfe, 0x90, 0x76 }}
-%}
-
 [scriptable, uuid(440EA3DE-DACA-4886-9875-84E6CD7D7927)]
 interface nsIMsgMdnGenerator : nsISupports
 {
