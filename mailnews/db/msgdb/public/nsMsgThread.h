@@ -17,7 +17,7 @@ class nsIMsgDBHdr;
 class nsMsgDatabase;
 
 class nsMsgThread : public nsIMsgThread {
-public:
+ public:
   nsMsgThread();
   nsMsgThread(nsMsgDatabase *db, nsIMdbTable *table);
 
@@ -29,35 +29,38 @@ public:
 
   RefPtr<nsMsgDatabase> m_mdbDB;
 
-protected:
+ protected:
   virtual ~nsMsgThread();
 
-  void                  Init();
-  void                  Clear();
-  virtual nsresult      InitCachedValues();
-  nsresult              ChangeChildCount(int32_t delta);
-  nsresult              ChangeUnreadChildCount(int32_t delta);
-  nsresult              RemoveChild(nsMsgKey msgKey);
-  nsresult              SetThreadRootKey(nsMsgKey threadRootKey);
-  nsresult              GetChildHdrForKey(nsMsgKey desiredKey,
-                                          nsIMsgDBHdr **result, int32_t *resultIndex);
-  nsresult              RerootThread(nsIMsgDBHdr *newParentOfOldRoot, nsIMsgDBHdr *oldRoot, nsIDBChangeAnnouncer *announcer);
-  nsresult              ReparentChildrenOf(nsMsgKey oldParent, nsMsgKey newParent, nsIDBChangeAnnouncer *announcer);
+  void Init();
+  void Clear();
+  virtual nsresult InitCachedValues();
+  nsresult ChangeChildCount(int32_t delta);
+  nsresult ChangeUnreadChildCount(int32_t delta);
+  nsresult RemoveChild(nsMsgKey msgKey);
+  nsresult SetThreadRootKey(nsMsgKey threadRootKey);
+  nsresult GetChildHdrForKey(nsMsgKey desiredKey, nsIMsgDBHdr **result,
+                             int32_t *resultIndex);
+  nsresult RerootThread(nsIMsgDBHdr *newParentOfOldRoot, nsIMsgDBHdr *oldRoot,
+                        nsIDBChangeAnnouncer *announcer);
+  nsresult ReparentChildrenOf(nsMsgKey oldParent, nsMsgKey newParent,
+                              nsIDBChangeAnnouncer *announcer);
 
-  nsresult              ReparentNonReferenceChildrenOf(nsIMsgDBHdr *topLevelHdr, nsMsgKey newParentKey,
-                                                       nsIDBChangeAnnouncer *announcer);
-  nsresult              ReparentMsgsWithInvalidParent(uint32_t numChildren, nsMsgKey threadParentKey);
+  nsresult ReparentNonReferenceChildrenOf(nsIMsgDBHdr *topLevelHdr,
+                                          nsMsgKey newParentKey,
+                                          nsIDBChangeAnnouncer *announcer);
+  nsresult ReparentMsgsWithInvalidParent(uint32_t numChildren,
+                                         nsMsgKey threadParentKey);
 
-  nsMsgKey              m_threadKey;
-  uint32_t              m_numChildren;
-  uint32_t              m_numUnreadChildren;
-  uint32_t              m_flags;
+  nsMsgKey m_threadKey;
+  uint32_t m_numChildren;
+  uint32_t m_numUnreadChildren;
+  uint32_t m_flags;
   nsCOMPtr<nsIMdbTable> m_mdbTable;
-  nsCOMPtr<nsIMdbRow>   m_metaRow;
-  bool                  m_cachedValuesInitialized;
-  nsMsgKey              m_threadRootKey;
-  uint32_t              m_newestMsgDate;
+  nsCOMPtr<nsIMdbRow> m_metaRow;
+  bool m_cachedValuesInitialized;
+  nsMsgKey m_threadRootKey;
+  uint32_t m_newestMsgDate;
 };
 
 #endif
-

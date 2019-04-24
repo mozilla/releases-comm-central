@@ -17,78 +17,79 @@ class nsMsgDatabase;
 class nsIMsgThread;
 
 class nsMsgHdr : public nsIMsgDBHdr {
-public:
-    NS_DECL_NSIMSGDBHDR
-    friend class nsMsgDatabase;
-    friend class nsImapMailDatabase;
-    friend class nsMsgPropertyEnumerator;
-    friend class nsMsgThread;
+ public:
+  NS_DECL_NSIMSGDBHDR
+  friend class nsMsgDatabase;
+  friend class nsImapMailDatabase;
+  friend class nsMsgPropertyEnumerator;
+  friend class nsMsgThread;
 
-    ////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////
-    // nsMsgHdr methods:
-    nsMsgHdr(nsMsgDatabase *db, nsIMdbRow *dbRow);
+  ////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////
+  // nsMsgHdr methods:
+  nsMsgHdr(nsMsgDatabase *db, nsIMdbRow *dbRow);
 
-    NS_DECL_ISUPPORTS
+  NS_DECL_ISUPPORTS
 
-    size_t SizeOfExcludingThis(mozilla::MallocSizeOf aMallocSizeOfFun) const
-    {
-      return m_references.ShallowSizeOfExcludingThis(aMallocSizeOfFun);
-    }
-    size_t SizeOfIncludingThis(mozilla::MallocSizeOf aMallocSizeOfFun) const
-    {
-      return aMallocSizeOfFun(this) + SizeOfExcludingThis(aMallocSizeOfFun);
-    }
+  size_t SizeOfExcludingThis(mozilla::MallocSizeOf aMallocSizeOfFun) const {
+    return m_references.ShallowSizeOfExcludingThis(aMallocSizeOfFun);
+  }
+  size_t SizeOfIncludingThis(mozilla::MallocSizeOf aMallocSizeOfFun) const {
+    return aMallocSizeOfFun(this) + SizeOfExcludingThis(aMallocSizeOfFun);
+  }
 
-protected:
-    nsIMdbRow*       GetMDBRow() { return m_mdbRow; }
-    void             ReleaseMDBRow() { NS_IF_RELEASE(m_mdbRow); }
-    nsMsgDatabase*   GetMdb() { return m_mdb; }
-    void             ClearCachedValues() { m_initedValues = 0; }
+ protected:
+  nsIMdbRow *GetMDBRow() { return m_mdbRow; }
+  void ReleaseMDBRow() { NS_IF_RELEASE(m_mdbRow); }
+  nsMsgDatabase *GetMdb() { return m_mdb; }
+  void ClearCachedValues() { m_initedValues = 0; }
 
-    virtual nsresult GetRawFlags(uint32_t *result);
+  virtual nsresult GetRawFlags(uint32_t *result);
 
-    bool             IsParentOf(nsIMsgDBHdr *possibleChild);
-    bool             IsAncestorOf(nsIMsgDBHdr *possibleChild);
+  bool IsParentOf(nsIMsgDBHdr *possibleChild);
+  bool IsAncestorOf(nsIMsgDBHdr *possibleChild);
 
-private:
-    virtual ~nsMsgHdr();
+ private:
+  virtual ~nsMsgHdr();
 
-    void             Init();
-    virtual nsresult InitFlags();
-    virtual nsresult InitCachedValues();
+  void Init();
+  virtual nsresult InitFlags();
+  virtual nsresult InitCachedValues();
 
-    bool             IsAncestorKilled(uint32_t ancestorsToCheck);
-    void             ReparentInThread(nsIMsgThread *thread);
+  bool IsAncestorKilled(uint32_t ancestorsToCheck);
+  void ReparentInThread(nsIMsgThread *thread);
 
-    nsresult SetStringColumn(const char *str, mdb_token token);
-    nsresult SetUInt32Column(uint32_t value, mdb_token token);
-    nsresult GetUInt32Column(mdb_token token, uint32_t *pvalue, uint32_t defaultValue = 0);
-    nsresult SetUInt64Column(uint64_t value, mdb_token token);
-    nsresult GetUInt64Column(mdb_token token, uint64_t *pvalue, uint64_t defaultValue = 0);
+  nsresult SetStringColumn(const char *str, mdb_token token);
+  nsresult SetUInt32Column(uint32_t value, mdb_token token);
+  nsresult GetUInt32Column(mdb_token token, uint32_t *pvalue,
+                           uint32_t defaultValue = 0);
+  nsresult SetUInt64Column(uint64_t value, mdb_token token);
+  nsresult GetUInt64Column(mdb_token token, uint64_t *pvalue,
+                           uint64_t defaultValue = 0);
 
-    // reference and threading stuff.
-    nsresult ParseReferences(const char *references);
-    const char* GetNextReference(const char *startNextRef, nsCString &reference,
-                                 bool acceptNonDelimitedReferences);
+  // reference and threading stuff.
+  nsresult ParseReferences(const char *references);
+  const char *GetNextReference(const char *startNextRef, nsCString &reference,
+                               bool acceptNonDelimitedReferences);
 
-    nsMsgKey    m_threadId;
-    nsMsgKey    m_messageKey;   // news: article number, local mail: key, imap: uid...
-    nsMsgKey    m_threadParent; // message this is a reply to, in thread.
-    PRTime      m_date;
-    uint32_t    m_messageSize;  // lines for news articles, bytes for mail messages
-    uint32_t    m_statusOffset; // offset in a local mail message of the x-mozilla-status header
-    uint32_t    m_flags;
-    // avoid parsing references every time we want one
-    nsTArray<nsCString> m_references;
-    nsMsgPriorityValue  m_priority;
+  nsMsgKey m_threadId;
+  nsMsgKey m_messageKey;  // news: article number, local mail: key, imap: uid...
+  nsMsgKey m_threadParent;  // message this is a reply to, in thread.
+  PRTime m_date;
+  uint32_t m_messageSize;   // lines for news articles, bytes for mail messages
+  uint32_t m_statusOffset;  // offset in a local mail message of the
+                            // x-mozilla-status header
+  uint32_t m_flags;
+  // avoid parsing references every time we want one
+  nsTArray<nsCString> m_references;
+  nsMsgPriorityValue m_priority;
 
-    // nsMsgHdrs will have to know what db and row they belong to, since they are really
-    // just a wrapper around the msg row in the mdb. This could cause problems,
-    // though I hope not.
-    nsMsgDatabase *m_mdb;
-    nsIMdbRow     *m_mdbRow;
-    uint32_t      m_initedValues;
+  // nsMsgHdrs will have to know what db and row they belong to, since they are
+  // really just a wrapper around the msg row in the mdb. This could cause
+  // problems, though I hope not.
+  nsMsgDatabase *m_mdb;
+  nsIMdbRow *m_mdbRow;
+  uint32_t m_initedValues;
 };
 
 #endif
