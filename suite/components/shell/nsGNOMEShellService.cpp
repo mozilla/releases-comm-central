@@ -26,7 +26,9 @@
 #include "imgIContainer.h"
 #include "mozilla/Sprintf.h"
 #include "mozilla/dom/Element.h"
+#if defined(MOZ_WIDGET_GTK)
 #include "nsIImageToPixbuf.h"
+#endif
 #include "nsXULAppAPI.h"
 
 #include <glib.h>
@@ -265,6 +267,7 @@ nsGNOMEShellService::GetCanSetDesktopBackground(bool* aResult)
     *aResult = true;
     return NS_OK;
   }
+
   const char *gnomeSession = getenv("GNOME_DESKTOP_SESSION_ID");
   if (gnomeSession) {
     *aResult = true;
@@ -275,50 +278,42 @@ nsGNOMEShellService::GetCanSetDesktopBackground(bool* aResult)
   return NS_OK;
 }
 
+static nsresult WriteImage(const nsCString &aPath, imgIContainer *aImage) {
+#if !defined(MOZ_WIDGET_GTK)
+  return NS_ERROR_NOT_AVAILABLE;
+#else
+  nsCOMPtr<nsIImageToPixbuf> imgToPixbuf =
+      do_GetService("@mozilla.org/widget/image-to-gdk-pixbuf;1");
+  if (!imgToPixbuf) return NS_ERROR_NOT_AVAILABLE;
+
+  GdkPixbuf *pixbuf = imgToPixbuf->ConvertImageToPixbuf(aImage);
+  if (!pixbuf) return NS_ERROR_NOT_AVAILABLE;
+
+  gboolean res = gdk_pixbuf_save(pixbuf, aPath.get(), "png", nullptr, nullptr);
+
+  g_object_unref(pixbuf);
+  return res ? NS_OK : NS_ERROR_FAILURE;
+#endif
+}
+
 NS_IMETHODIMP
 nsGNOMEShellService::SetDesktopBackground(dom::Element* aElement,
                                           int32_t aPosition,
                                           const nsACString& aImageName)
-
 {
-  nsCString brandName;
-  nsresult rv = GetBrandName(brandName);
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsresult rv;
+  nsCOMPtr<nsIImageLoadingContent> imageContent =
+      do_QueryInterface(aElement, &rv);
+  if (!imageContent) return rv;
 
-  // build the file name
-  nsCString filePath(PR_GetEnv("HOME"));
-  filePath.Append('/');
-  filePath.Append(brandName);
-  filePath.AppendLiteral("_wallpaper.png");
-
-  // get the image container
-  nsCOMPtr<nsIImageLoadingContent> imageContent(do_QueryInterface(aElement, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
+  // Get the image container.
   nsCOMPtr<imgIRequest> request;
   rv = imageContent->GetRequest(nsIImageLoadingContent::CURRENT_REQUEST,
                                 getter_AddRefs(request));
-  NS_ENSURE_TRUE(request, rv);
-
+  if (!request) return rv;
   nsCOMPtr<imgIContainer> container;
   rv = request->GetImage(getter_AddRefs(container));
-  NS_ENSURE_TRUE(request, rv);
-
-  nsCOMPtr<nsIImageToPixbuf> imgToPixbuf(do_GetService("@mozilla.org/widget/image-to-gdk-pixbuf;1"));
-  if (!imgToPixbuf)
-    return NS_ERROR_NOT_AVAILABLE;
-
-  GdkPixbuf* pixbuf = imgToPixbuf->ConvertImageToPixbuf(container);
-  if (!pixbuf)
-    return NS_ERROR_NOT_AVAILABLE;
-
-  // write the image to a file in the home dir
-  gboolean res = gdk_pixbuf_save(pixbuf, filePath.get(), "png",
-                                 nullptr, nullptr);
-
-  g_object_unref(pixbuf);
-  if (!res)
-    return NS_ERROR_FAILURE;
+  if (!container) return rv;
 
   // Set desktop wallpaper filling style.
   nsAutoCString options;
@@ -340,15 +335,31 @@ nsGNOMEShellService::SetDesktopBackground(dom::Element* aElement,
       break;
   }
 
-  nsCOMPtr<nsIGSettingsService> gsettings(do_GetService(NS_GSETTINGSSERVICE_CONTRACTID));
+  // Write the background file to the home directory.
+  nsCString filePath(PR_GetEnv("HOME"));
+
+  nsCString brandName;
+  rv = GetBrandName(brandName);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Build the file name.
+  filePath.Append('/');
+  filePath.Append(brandName);
+  filePath.AppendLiteral("_wallpaper.png");
+
+  // Write the image to a file in the home dir.
+  rv = WriteImage(filePath, container);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIGSettingsService> gsettings =
+      do_GetService(NS_GSETTINGSSERVICE_CONTRACTID);
   if (gsettings) {
     nsCOMPtr<nsIGSettingsCollection> background_settings;
     gsettings->GetCollectionForSchema(NS_LITERAL_CSTRING(kDesktopBGSchema),
                                       getter_AddRefs(background_settings));
     if (background_settings) {
       gchar *file_uri = g_filename_to_uri(filePath.get(), nullptr, nullptr);
-      if (!file_uri)
-       return NS_ERROR_FAILURE;
+      if (!file_uri) return NS_ERROR_FAILURE;
 
       background_settings->SetString(NS_LITERAL_CSTRING(kDesktopOptionGSKey),
                                      options);
@@ -357,7 +368,7 @@ nsGNOMEShellService::SetDesktopBackground(dom::Element* aElement,
       g_free(file_uri);
       background_settings->SetBoolean(NS_LITERAL_CSTRING(kDesktopDrawBGGSKey),
                                       true);
-      return NS_OK;
+      return rv;
     }
   }
 
