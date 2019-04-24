@@ -41,53 +41,37 @@
   <script type="application/javascript" src="chrome://messenger/content/searchTerm.js"/>
   <script type="application/javascript" src="chrome://messenger/content/dateFormat.js"/>
 
-  <grid>
-    <columns>
-      <column/>
-      <column flex="1"/>
-      <column flex="2"/>
-    </columns>
-
-    <rows>
-      <row align="center">
+  <hbox>
+    <vbox>
+      <hbox flex="1" align="center">
         <label value="&name.label;" accesskey="&name.accesskey;" control="name"/>
-        <textbox id="name" hidden="true"
-                 oninput="doEnabling();"/>
-        <textbox id="existingName"
-                 readonly="true"
-                 hidden="true"
-                 tabindex="0"/>
-        <spring/>
-      </row>
-
-      <row align="center"  id="chooseFolderLocationRow">
+      </hbox>
+      <hbox id="chooseFolderLocationLabel" flex="1" align="center">
         <label value="&description.label;" accesskey="&description.accesskey;"
                control="msgNewFolderPicker"/>
-        <menulist id="msgNewFolderPicker" class="folderMenuItem" flex="1"
-                  displayformat="verbose">
-          <menupopup id="msgNewFolderPopup"
-                     class="menulist-menupopup"
-                     type="folder"
-                     mode="newFolder"
-                     showFileHereLabel="true"
-                     oncommand="onFolderPick(event);"/>
-        </menulist>
-        <spring/>
-      </row>
-
-      <row align="center">
+      </hbox>
+      <hbox flex="1" align="center">
         <label value="&folderSelectionCaption.label;"/>
-        <hbox align="center">
-          <label id="chosenFoldersCount"/>
-          <spacer flex="1"/>
-          <button id="folderListPicker"
-                  label="&chooseFoldersButton.label;"
-                  accesskey="&chooseFoldersButton.accesskey;"
-                  oncommand="chooseFoldersToSearch();"/>
-        </hbox>
-      </row>
-    </rows>
-  </grid>
+      </hbox>
+    </vbox>
+    <vbox flex="1">
+      <textbox id="name" hidden="true" oninput="doEnabling();"/>
+      <textbox id="existingName" readonly="true" hidden="true" tabindex="0"/>
+      <menulist id="msgNewFolderPicker" class="folderMenuItem" align="center"
+                displayformat="verbose">
+        <menupopup id="msgNewFolderPopup" class="menulist-menupopup"
+                   type="folder" mode="newFolder"
+                   showFileHereLabel="true" oncommand="onFolderPick(event);"/>
+      </menulist>
+      <hbox align="center">
+        <label id="chosenFoldersCount"/>
+        <spacer flex="1"/>
+        <button id="folderListPicker" label="&chooseFoldersButton.label;"
+                accesskey="&chooseFoldersButton.accesskey;"
+                oncommand="chooseFoldersToSearch();"/>
+      </hbox>
+    </vbox>
+  </hbox>
 
   <hbox flex="1">
     <checkbox id="searchOnline" label="&searchOnline.label;"
