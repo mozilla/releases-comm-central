@@ -136,28 +136,39 @@ bool nsGNOMEShellService::GetAppPathFromLauncher() {
 }
 
 bool
-nsGNOMEShellService::HandlerMatchesAppName(const char* aHandler)
+nsGNOMEShellService::CheckHandlerMatchesAppName(const nsACString &handler) const
 {
-  bool matches = false;
   gint argc;
   gchar** argv;
-  if (g_shell_parse_argv(aHandler, &argc, &argv, nullptr) && argc > 0) {
-    gchar* command = nullptr;
-    if (!mUseLocaleFilenames)
-      command = g_find_program_in_path(argv[0]);
-    else {
-      gchar* nativeFile = g_filename_from_utf8(argv[0], -1,
-                                               nullptr, nullptr, nullptr);
-      if (nativeFile) {
-        command = g_find_program_in_path(nativeFile);
-        g_free(nativeFile);
-      }
-    }
-    matches = command && mAppPath.Equals(command);
-    g_free(command);
+  nsAutoCString command(handler);
+
+  // The string will be something of the form: [/path/to/]application "%s"
+  // We want to remove all of the parameters and get just the binary name.
+
+  if (g_shell_parse_argv(command.get(), &argc, &argv, nullptr) && argc > 0) {
+    command.Assign(argv[0]);
     g_strfreev(argv);
   }
 
+  gchar *commandPath;
+  if (mUseLocaleFilenames) {
+    gchar *nativePath =
+        g_filename_from_utf8(command.get(), -1, nullptr, nullptr, nullptr);
+    if (!nativePath) {
+      NS_ERROR("Error converting path to filesystem encoding");
+      return false;
+    }
+
+    commandPath = g_find_program_in_path(nativePath);
+    g_free(nativePath);
+  } else {
+    commandPath = g_find_program_in_path(command.get());
+  }
+
+  if (!commandPath) return false;
+
+  bool matches = mAppPath.Equals(commandPath);
+  g_free(commandPath);
   return matches;
 }
 
@@ -183,7 +194,7 @@ nsGNOMEShellService::IsDefaultClient(bool aStartupCheck, uint16_t aApps,
           return NS_OK;
         
         if (NS_SUCCEEDED(gioApp->GetCommand(handler)) &&
-            !HandlerMatchesAppName(handler.get()))
+            !CheckHandlerMatchesAppName(handler))
          return NS_OK;
       }
     }

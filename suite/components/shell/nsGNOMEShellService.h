@@ -27,7 +27,7 @@ public:
 private:
   ~nsGNOMEShellService() {}
 
-  bool HandlerMatchesAppName(const char* aHandler);
+  bool CheckHandlerMatchesAppName(const nsACString& handler) const;
 
   bool GetAppPathFromLauncher();
   bool mUseLocaleFilenames;
