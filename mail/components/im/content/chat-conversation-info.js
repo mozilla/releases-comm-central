@@ -14,13 +14,21 @@
  * @extends {MozXULElement}
  */
 class MozChatConversationInfo extends MozXULElement {
-  static get observedAttributes() {
-    return ["userIcon", "status", "typing", "statusTypeTooltiptext",
-      "displayName", "prplIcon", "statusMessage", "statusTooltiptext",
-      "topicEditable", "editing", "noTopic"];
+  static get inheritedAttributes() {
+    return {
+      ".userIconHolder": "userIcon",
+      ".userIcon": "src=userIcon",
+      ".statusTypeIcon": "status,typing,tooltiptext=statusTypeTooltiptext",
+      ".displayName": "value=displayName",
+      ".prplIcon": "src=prplIcon",
+      ".statusMessage": "value=statusMessage,tooltiptext=statusTooltiptext,editable=topicEditable,editing,noTopic",
+    };
   }
 
   connectedCallback() {
+    if (this.hasChildNodes() || this.delayConnectedCallback()) {
+      return;
+    }
     this.appendChild(MozXULElement.parseXULToFragment(`
       <stack class="statusImageStack">
         <box class="userIconHolder">
@@ -39,39 +47,7 @@ class MozChatConversationInfo extends MozXULElement {
       </stack>
     `));
     this.topic.addEventListener("click", this.startEditTopic.bind(this));
-  }
-
-  attributeChangedCallback(name, oldValue, newValue) {
-    if (!this.firstChild) {
-      return;
-    }
-    this._updateAttributes();
-  }
-
-  _updateAttributes() {
-    let userIconHolder = this.querySelector(".userIconHolder");
-    this.inheritAttribute(userIconHolder, "userIcon");
-
-    let userIcon = this.querySelector(".userIcon");
-    this.inheritAttribute(userIcon, "src=userIcon");
-
-    let statusTypeIcon = this.querySelector(".statusTypeIcon");
-    this.inheritAttribute(statusTypeIcon, "status");
-    this.inheritAttribute(statusTypeIcon, "typing");
-    this.inheritAttribute(statusTypeIcon, "tooltiptext=statusTypeTooltiptext");
-
-    let displayName = this.querySelector(".displayName");
-    this.inheritAttribute(displayName, "value=displayName");
-
-    let prplIcon = this.querySelector(".prplIcon");
-    this.inheritAttribute(prplIcon, "src=prplIcon");
-
-    let description = this.querySelector(".statusMessage");
-    this.inheritAttribute(description, "value=statusMessage");
-    this.inheritAttribute(description, "tooltiptext=statusTooltiptext");
-    this.inheritAttribute(description, "editable=topicEditable");
-    this.inheritAttribute(description, "editing");
-    this.inheritAttribute(description, "noTopic");
+    this.initializeAttributeInheritance();
   }
 
   get topic() {
