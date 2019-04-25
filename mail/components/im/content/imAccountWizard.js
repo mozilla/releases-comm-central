@@ -203,8 +203,9 @@ var accountWizard = {
   },
 
   createSummaryRow(aLabel, aValue) {
-    var row = document.createElement("row");
-    row.setAttribute("align", "baseline");
+    var hbox = document.createElement("hbox");
+    hbox.setAttribute("align", "baseline");
+    hbox.setAttribute("equalsize", "always");
 
     var label = document.createElement("label");
     label.setAttribute("class", "header");
@@ -212,16 +213,19 @@ var accountWizard = {
       aLabel = aLabel.substring(0, 20);
       aLabel += "…";
     }
+
     label.setAttribute("value", aLabel);
-    row.appendChild(label);
+    var hboxWrapper = document.createElement("hbox");
+    hboxWrapper.appendChild(label);
+    hbox.appendChild(hboxWrapper);
 
     var textbox = document.createElement("textbox");
     textbox.setAttribute("value", aValue);
     textbox.setAttribute("class", "plain");
     textbox.setAttribute("readonly", true);
-    row.appendChild(textbox);
+    hbox.appendChild(textbox);
 
-    return row;
+    return hbox;
   },
 
   showSummary() {
@@ -251,11 +255,11 @@ var accountWizard = {
       rows.appendChild(this.createSummaryRow(label, this.alias));
     }
 
-/* FIXME
+    /* FIXME
     if (this.proto.newMailNotification)
       rows.appendChild(this.createSummaryRow("Notify of new mails:",
                                              this.getValue("newMailNotification")));
-*/
+    */
 
     var id = this.proto.id;
     this.prefs = [ ];

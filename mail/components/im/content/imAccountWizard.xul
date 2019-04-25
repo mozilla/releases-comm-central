@@ -22,6 +22,7 @@
 
   <script type="application/javascript" src="chrome://chat/content/imAccountOptionsHelper.js"/>
   <script type="application/javascript" src="chrome://messenger/content/chat/imAccountWizard.js"/>
+
   <stringbundle id="accountsBundle" src="chrome://messenger/locale/imAccounts.properties"/>
 
   <wizardpage id="accountprotocol" pageid="accountprotocol" next="accountusername"
@@ -81,13 +82,7 @@
               onkeypress="accountWizard.onGroupboxKeypress(event)">
       <caption id="protoSpecificCaption"
                onclick="accountWizard.toggleGroupbox('protoSpecificGroupbox')"/>
-      <grid flex="1">
-        <columns>
-          <column id="label-column" flex="1"/>
-          <column id="value-column" flex="1"/>
-        </columns>
-        <rows id="protoSpecific"/>
-      </grid>
+      <vbox id="protoSpecific" flex="1"/>
     </groupbox>
   </wizardpage>
 
@@ -95,13 +90,7 @@
               label="&accountSummaryTitle.label;">
     <description>&accountSummaryInfo.label;</description>
     <separator/>
-    <grid id="summarygrid" flex="1">
-      <columns>
-        <column/>
-        <column flex="1"/>
-      </columns>
-      <rows id="summaryRows"/>
-    </grid>
+    <vbox id="summaryRows"/>
     <separator/>
     <checkbox id="connectNow" label= "&accountSummary.connectNow.label;" checked="true"/>
   </wizardpage>

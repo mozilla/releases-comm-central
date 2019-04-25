@@ -27,12 +27,12 @@ var joinChat = {
   },
 
   onAccountSelect() {
-    let ab = document.getElementById("separatorRow1");
-    while (ab.nextSibling && ab.nextSibling.id != "separatorRow2")
-      ab.nextSibling.remove();
+    let joinChatGrid = document.getElementById("joinChatGrid");
+    while (joinChatGrid.children.length > 3) { // leave the first 3 cols
+      joinChatGrid.lastChild.remove();
+    }
 
     let acc = document.getElementById("accountlist").selectedItem.account;
-    let sep = document.getElementById("separatorRow2");
     let defaultValues = acc.getChatRoomDefaultFieldValues();
     joinChat._values = defaultValues;
     joinChat._fields = [];
@@ -44,8 +44,7 @@ var joinChat = {
       protoId == "prpl-gtalk");
 
     for (let field of fixIterator(acc.getChatRoomFields())) {
-      let row = document.createElement("row");
-
+      let div1 = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
       let label = document.createElement("label");
       let text = field.label;
       let match = /_(.)/.exec(text);
@@ -55,13 +54,16 @@ var joinChat = {
       }
       label.setAttribute("value", text);
       label.setAttribute("control", "field-" + field.identifier);
-      row.appendChild(label);
+      div1.appendChild(label);
+      joinChatGrid.appendChild(div1);
 
+      let div2 = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
       let textbox = document.createElement("textbox");
       textbox.setAttribute("id", "field-" + field.identifier);
       let val = defaultValues.getValue(field.identifier);
-      if (val)
+      if (val) {
         textbox.setAttribute("value", val);
+      }
       if (field.type == Ci.prplIChatRoomField.TYPE_PASSWORD) {
         textbox.setAttribute("type", "password");
       } else if (field.type == Ci.prplIChatRoomField.TYPE_INT) {
@@ -69,18 +71,13 @@ var joinChat = {
         textbox.setAttribute("min", field.min);
         textbox.setAttribute("max", field.max);
       }
-      row.appendChild(textbox);
+      div2.appendChild(textbox);
+      joinChatGrid.appendChild(div2);
 
-      if (!field.required) {
-        label = document.createElement("label");
-        text = document.getElementById("optionalcolumn")
-                       .getAttribute("labeltxt");
-        label.setAttribute("value", text);
-        row.appendChild(label);
-      }
+      let div3 = document.querySelector(".optional-col").cloneNode(true);
+      div3.classList.toggle("required", field.required);
+      joinChatGrid.appendChild(div3);
 
-      row.setAttribute("align", "baseline");
-      sep.parentNode.insertBefore(row, sep);
       joinChat._fields.push({field, textbox});
     }
 

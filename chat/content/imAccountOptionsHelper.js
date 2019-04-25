@@ -3,39 +3,47 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var accountOptionsHelper = {
-  createTextbox(aType, aValue, aLabel, aName, aContainerType) {
-    let container = document.createElement(aContainerType);
-    if (aContainerType == "row")
-      container.setAttribute("align", "center");
+  createTextbox(aType, aValue, aLabel, aName) {
+    let container = document.createElement("hbox");
+    container.setAttribute("align", "baseline");
+    container.setAttribute("equalsize", "always");
 
     let label = document.createElement("label");
     label.textContent = aLabel;
     label.setAttribute("control", aName);
+    label.setAttribute("flex", "1");
     container.appendChild(label);
 
+    let hbox = document.createElement("hbox");
     let textbox = document.createElement("textbox");
-    if (aType)
+    if (aType) {
       textbox.setAttribute("type", aType);
+    }
     textbox.setAttribute("value", aValue);
     textbox.setAttribute("id", aName);
     textbox.setAttribute("flex", "1");
+    hbox.setAttribute("flex", "1");
+    hbox.setAttribute("align", "start");
+    hbox.appendChild(textbox);
 
-    container.appendChild(textbox);
+    container.appendChild(hbox);
     return container;
   },
 
   createMenulist(aList, aLabel, aName) {
     let vbox = document.createElement("vbox");
-    vbox.setAttribute("flex", "1");
+    let hbox = document.createElement("hbox");
 
     let label = document.createElement("label");
     label.setAttribute("value", aLabel);
     label.setAttribute("control", aName);
-    vbox.appendChild(label);
+    hbox.appendChild(label);
+    vbox.appendChild(hbox);
 
     aList.QueryInterface(Ci.nsISimpleEnumerator);
     let menulist = document.createElement("menulist");
     menulist.setAttribute("id", aName);
+    menulist.setAttribute("flex", "1");
     let popup = menulist.appendChild(document.createElement("menupopup"));
     while (aList.hasMoreElements()) {
       let elt = aList.getNext();
@@ -52,15 +60,10 @@ var accountOptionsHelper = {
   // with optional attributes for each type and returns true if at least one
   // option has been added to UI, otherwise returns false.
   addOptions(aIdPrefix, aOptions, aAttributes) {
-    let rows = document.getElementById("protoSpecific");
-    while (rows.hasChildNodes())
-      rows.lastChild.remove();
-
-    let containerType = "row";
-
-    // TB's account options dialog doesn't use a grid element.
-    if (rows.localName != "rows")
-      containerType = "vbox";
+    let vbox = document.getElementById("protoSpecific");
+    while (vbox.hasChildNodes()) {
+      vbox.lastChild.remove();
+    }
 
     let haveOptions = false;
     for (let opt of aOptions) {
@@ -69,22 +72,24 @@ var accountOptionsHelper = {
       switch (opt.type) {
         case Ci.prplIPref.typeBool:
           let chk = document.createElement("checkbox");
+          let hbox = document.createElement("hbox");
+          hbox.setAttribute("flex", "1");
           chk.setAttribute("label", text);
           chk.setAttribute("id", name);
-          if (opt.getBool())
+          if (opt.getBool()) {
             chk.setAttribute("checked", "true");
-          rows.appendChild(chk);
+          }
+          hbox.appendChild(chk);
+          vbox.appendChild(hbox);
           break;
         case Ci.prplIPref.typeInt:
-          rows.appendChild(this.createTextbox("number", opt.getInt(), text,
-                                              name, containerType));
+          vbox.appendChild(this.createTextbox("number", opt.getInt(), text, name));
           break;
         case Ci.prplIPref.typeString:
-          rows.appendChild(this.createTextbox(null, opt.getString(), text, name,
-                                              containerType));
+          vbox.appendChild(this.createTextbox(null, opt.getString(), text, name));
           break;
         case Ci.prplIPref.typeList:
-          rows.appendChild(this.createMenulist(opt.getList(), text, name));
+          vbox.appendChild(this.createMenulist(opt.getList(), text, name));
           document.getElementById(name).value = opt.getListDefault();
           break;
         default:

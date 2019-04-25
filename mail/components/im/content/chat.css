@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+@namespace html url(http://www.w3.org/1999/xhtml);
+
 imconversation {
   -moz-binding: url("chrome://messenger/content/chat/imconversation.xml#conversation");
 }
@@ -106,4 +108,21 @@ toolbar[mode="text"] .badgeButton-badge {
 
 .badgeButton-badgeLabel {
   margin: 0;
+}
+
+#joinChatGrid {
+  display: inline-grid;
+  grid-template-columns: auto auto auto;
+}
+
+#joinChatGrid textbox, menulist {
+  width: 100%;
+}
+
+#joinChatGrid html|div {
+  display: flex;
+  align-items: center;
+}
+.required {
+  visibility: hidden;
 }
