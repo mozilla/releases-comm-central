@@ -1,3 +1,5 @@
+import os
+
 # Paths are relative to mozilla-central
 config = {
     "package-name": "thunderbird",
@@ -5,4 +7,5 @@ config = {
     "sfx-stub": "comm/other-licenses/7zstub/thunderbird/7zSD.sfx",
     "stub-installer-tag": "",
     "wsx-stub": "comm/mail/installer/windows/msi/installer.wxs",
+    "fetch-dir": os.environ.get('MOZ_FETCHES_DIR'),
 }

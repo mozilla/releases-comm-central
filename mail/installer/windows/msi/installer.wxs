@@ -2,13 +2,10 @@
 
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
 
-<!-- The version field only supports MSI version numbers, which cannot include
-     letters, and therefore cannot represent our version numbers. Set it to all
-     zeros to show it isn't valid, and add the real version to the Name. -->
-<Product Name="$(var.BrandFullName) $(var.Version) $(var.Architecture) $(var.AB_CD)"
-         Manufacturer="$(var.Vendor)" Language="0" Codepage="1252"
-         Version="0.0.0.0" Id="1294a4c5-9977-480f-9497-c0ea1e630130"
-         UpgradeCode="3118ab4c-b433-4fbb-b9fa-8f9ca4b5c103" >
+<Product Name="Mozilla Thunderbird $(var.Version) $(var.Architecture) $(var.AB_CD)"
+         Manufacturer="*" Language="0" Codepage="1252"
+         Version="$(var.EmbeddedVersionCode)" Id="18d4d2f4-b394-48a2-8886-9c68180cead5"
+         UpgradeCode="53ba97bb-f0fb-476d-baf5-e2d649f39a31" >
 
   <Package Id="*" InstallerVersion="200" Compressed="yes"
            Platform="$(var.Architecture)" />
@@ -19,7 +16,7 @@
   <!-- We need a component and feature, or msiexec will refuse to load us. -->
   <Directory Id="TARGETDIR" Name="SourceDir">
     <Directory Id="TempFolder">
-      <Component Id="EmptyComponent" Guid="55a76b76-7496-4b47-a7a6-c5fbdd5e51a4">
+      <Component Id="EmptyComponent" Guid="d7fd8e89-04a4-4dd4-affc-35d8695a50a2">
         <CreateFolder />
       </Component>
     </Directory>
@@ -60,13 +57,13 @@
        too long, but they actually work just fine, the warning is spurious. -->
   <CustomAction Id="RunInstallNoDir" Return="check" Execute="deferred"
                 HideTarget="no" Impersonate="no" BinaryKey="WrappedExe"
-                ExeCommand="/S /TaskbarShortcut=[TASKBAR_SHORTCUT] /DesktopShortcut=[DESKTOP_SHORTCUT] /StartMenuShortcut=[START_MENU_SHORTCUT] /MaintenanceService=[INSTALL_MAINTENANCE_SERVICE] /RemoveDistributionDir=[REMOTE_DISTRIBUTION_DIR] /PreventRebootRequired=[PREVENT_REBOOT_REQUIRED] /OptionalExtensions=[OPTIONAL_EXTENSIONS] /LaunchedFromMSI" />
+                ExeCommand="/S /TaskbarShortcut=[TASKBAR_SHORTCUT] /DesktopShortcut=[DESKTOP_SHORTCUT] /StartMenuShortcut=[START_MENU_SHORTCUT] /MaintenanceService=[INSTALL_MAINTENANCE_SERVICE] /RemoveDistributionDir=[REMOVE_DISTRIBUTION_DIR] /PreventRebootRequired=[PREVENT_REBOOT_REQUIRED] /OptionalExtensions=[OPTIONAL_EXTENSIONS] /LaunchedFromMSI" />
   <CustomAction Id="RunInstallDirPath" Return="check" Execute="deferred"
                 HideTarget="no" Impersonate="no" BinaryKey="WrappedExe"
-                ExeCommand="/S /InstallDirectoryPath=[INSTALL_DIRECTORY_PATH] /TaskbarShortcut=[TASKBAR_SHORTCUT] /DesktopShortcut=[DESKTOP_SHORTCUT] /StartMenuShortcut=[START_MENU_SHORTCUT] /MaintenanceService=[INSTALL_MAINTENANCE_SERVICE] /RemoveDistributionDir=[REMOTE_DISTRIBUTION_DIR] /PreventRebootRequired=[PREVENT_REBOOT_REQUIRED] /OptionalExtensions=[OPTIONAL_EXTENSIONS] /LaunchedFromMSI" />
+                ExeCommand="/S /InstallDirectoryPath=[INSTALL_DIRECTORY_PATH] /TaskbarShortcut=[TASKBAR_SHORTCUT] /DesktopShortcut=[DESKTOP_SHORTCUT] /StartMenuShortcut=[START_MENU_SHORTCUT] /MaintenanceService=[INSTALL_MAINTENANCE_SERVICE] /RemoveDistributionDir=[REMOVE_DISTRIBUTION_DIR] /PreventRebootRequired=[PREVENT_REBOOT_REQUIRED] /OptionalExtensions=[OPTIONAL_EXTENSIONS] /LaunchedFromMSI" />
   <CustomAction Id="RunInstallDirName" Return="check" Execute="deferred"
                 HideTarget="no" Impersonate="no" BinaryKey="WrappedExe"
-                ExeCommand="/S /InstallDirectoryName=[INSTALL_DIRECTORY_NAME] /TaskbarShortcut=[TASKBAR_SHORTCUT] /DesktopShortcut=[DESKTOP_SHORTCUT] /StartMenuShortcut=[START_MENU_SHORTCUT] /MaintenanceService=[INSTALL_MAINTENANCE_SERVICE] /RemoveDistributionDir=[REMOTE_DISTRIBUTION_DIR] /PreventRebootRequired=[PREVENT_REBOOT_REQUIRED] /OptionalExtensions=[OPTIONAL_EXTENSIONS] /LaunchedFromMSI" />
+                ExeCommand="/S /InstallDirectoryName=[INSTALL_DIRECTORY_NAME] /TaskbarShortcut=[TASKBAR_SHORTCUT] /DesktopShortcut=[DESKTOP_SHORTCUT] /StartMenuShortcut=[START_MENU_SHORTCUT] /MaintenanceService=[INSTALL_MAINTENANCE_SERVICE] /RemoveDistributionDir=[REMOVE_DISTRIBUTION_DIR] /PreventRebootRequired=[PREVENT_REBOOT_REQUIRED] /OptionalExtensions=[OPTIONAL_EXTENSIONS] /LaunchedFromMSI" />
   <CustomAction Id="RunExtractOnly" Return="check" Execute="deferred"
                 HideTarget="no" Impersonate="no" BinaryKey="WrappedExe"
                 ExeCommand="/ExtractDir=[EXTRACT_DIR]" />

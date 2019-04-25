@@ -22,6 +22,9 @@ only-for-build-platforms:
 
 job-template:
     mozharness:
+        comm-checkout: true
+        config-paths:
+            - comm/mozharness
         config:
             by-build-platform:
                 win32\b.*:
