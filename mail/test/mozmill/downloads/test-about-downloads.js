@@ -175,8 +175,9 @@ function test_save_attachment_files_in_list() {
 
   let actualNames = [];
   let child = list.firstChild;
+  dump(child.querySelector(".fileName").getAttribute("value"));
   while (child) {
-    actualNames.push(child.getAttribute("displayName"));
+    actualNames.push(child.querySelector(".fileName").getAttribute("value"));
     child = child.nextSibling;
   }
   actualNames.sort();
@@ -194,8 +195,8 @@ function test_remove_file() {
   test_save_attachment_files_in_list();
 
   let list = content_tab_e(downloadsTab, "msgDownloadsRichListBox");
-  let firstElement = list.firstChild.nextSibling;
-  let removingFileName = firstElement.getAttribute("displayName");
+  let firstElement = list.firstChild;
+  let removingFileName = firstElement.querySelector(".fileName").getAttribute("value");
 
   // select first element
   mc.click(new elementslib.Elem(firstElement));
@@ -211,7 +212,7 @@ function test_remove_file() {
 
   let child = list.firstChild;
   while (child) {
-    assert_not_equals(removingFileName, child.getAttribute("displayName"));
+    assert_not_equals(removingFileName, child.querySelector(".fileName").getAttribute("value"));
     child = child.nextSibling;
   }
 }
@@ -227,8 +228,8 @@ function test_remove_multiple_files() {
   let secondElement = firstElement.nextSibling;
   let removingFileNames = [];
 
-  removingFileNames.push(firstElement.getAttribute("displayName"));
-  removingFileNames.push(secondElement.getAttribute("displayName"));
+  removingFileNames.push(firstElement.querySelector(".fileName").getAttribute("value"));
+  removingFileNames.push(secondElement.querySelector(".fileName").getAttribute("value"));
 
   // select two elements
   mc.click(new elementslib.Elem(firstElement));
@@ -246,7 +247,7 @@ function test_remove_multiple_files() {
   let child = list.firstChild;
   while (child) {
     for (let name of removingFileNames) {
-      assert_not_equals(name, child.getAttribute("displayName"));
+      assert_not_equals(name, child.querySelector(".fileName").getAttribute("value"));
     }
     child = child.nextSibling;
   }

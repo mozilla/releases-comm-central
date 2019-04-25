@@ -228,8 +228,38 @@ DownloadItem.prototype = {
   },
 
   createElement() {
-    let element = document.createElement("richlistitem", { is: "downloads-view-item" });
+    let element = document.createElement("richlistitem");
     element.classList.add("download");
+
+    let image = document.createElement("image");
+    image.setAttribute("validate", "always");
+    image.classList.add("fileTypeIcon");
+
+    let vbox = document.createElement("vbox");
+    vbox.setAttribute("pack", "center");
+    vbox.setAttribute("flex", "1");
+
+    let sender = document.createElement("description");
+    sender.classList.add("sender");
+
+    let fileName = document.createElement("description");
+    fileName.setAttribute("crop", "center");
+    fileName.classList.add("fileName");
+
+    let size = document.createElement("description");
+    size.classList.add("size");
+
+    let startDate = document.createElement("description");
+    startDate.setAttribute("crop", "end");
+    startDate.classList.add("startDate");
+
+    vbox.appendChild(fileName);
+    vbox.appendChild(size);
+    vbox.appendChild(startDate);
+
+    element.appendChild(image);
+    element.appendChild(vbox);
+    element.appendChild(sender);
 
     // launch the download if double clicked
     element.addEventListener("dblclick", aEvent => this.launch());
@@ -243,12 +273,25 @@ DownloadItem.prototype = {
     return element;
   },
 
-  updateElement(aElement) {
-    aElement.setAttribute("image", this.iconUrl);
-    aElement.setAttribute("size", this.size);
-    aElement.setAttribute("displayName", this.fileName);
-    aElement.setAttribute("sender", this.sender);
-    aElement.setAttribute("startDate", this.startDate);
+  updateElement(element) {
+    let fileTypeIcon = element.querySelector(".fileTypeIcon");
+    fileTypeIcon.setAttribute("src", this.iconUrl);
+
+    let size = element.querySelector(".size");
+    size.setAttribute("value", this.size);
+    size.setAttribute("tooltiptext", this.size);
+
+    let fileName = element.querySelector(".fileName");
+    fileName.setAttribute("value", this.fileName);
+    fileName.setAttribute("tooltiptext", this.fileName);
+
+    let sender = element.querySelector(".sender");
+    sender.setAttribute("value", this.sender);
+    sender.setAttribute("tooltiptext", this.sender);
+
+    let startDate = element.querySelector(".startDate");
+    startDate.setAttribute("value", this.startDate);
+    startDate.setAttribute("tooltiptext", this.startDate);
   },
 
   launch() {
