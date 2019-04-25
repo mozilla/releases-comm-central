@@ -430,7 +430,7 @@
          let localName = elt.localName;
 
 #ifdef MOZ_THUNDERBIRD
-         if (localName == "imconv" && elt.conv)
+         if (localName == "richlistitem" && elt.getAttribute("is") == "chat-imconv" && elt.conv)
            return updateTooltipFromConversation(elt.conv);
 
          if (localName == "richlistitem" && elt.getAttribute("is") == "chat-contact")

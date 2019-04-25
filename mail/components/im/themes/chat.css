@@ -96,12 +96,12 @@
 
 /* move the scrollbar to the left */
 #contactlistbox:-moz-locale-dir(ltr),
-#contactlistbox:-moz-locale-dir(rtl) > :-moz-any(imconv, richlistitem[is="chat-contact"], richlistitem[is="chat-group"]) {
+#contactlistbox:-moz-locale-dir(rtl) > richlistitem:-moz-any([is="chat-imconv"], [is="chat-contact"], [is="chat-group"]) {
   direction: rtl;
 }
 
 #contactlistbox:-moz-locale-dir(rtl),
-#contactlistbox:-moz-locale-dir(ltr) > :-moz-any(imconv, richlistitem[is="chat-contact"], richlistitem[is="chat-group"]) {
+#contactlistbox:-moz-locale-dir(ltr) > richlistitem:-moz-any([is="chat-imconv"], [is="chat-contact"], [is="chat-group"]) {
   direction: ltr;
 }
 
@@ -115,11 +115,11 @@ richlistitem[is="chat-group"] > label {
 }
 
 richlistitem[is="chat-group"],
-imconv[unread] {
+richlistitem[is="chat-imconv"][unread] {
   font-weight: bold;
 }
 
-imconv[attention] {
+richlistitem[is="chat-imconv"][attention] {
   color: blue;
 }
 
@@ -128,7 +128,12 @@ richlistitem[is="chat-group"][selected] {
   color: var(--imbox-selected-text-color);
 }
 
-imconv,
+richlistbox:focus > richlistitem[is="chat-group"][selected="true"] {
+  background-color: var(--imgroup-selected-background-color);
+  color: var(--imbox-selected-text-color);
+}
+
+richlistitem[is="chat-imconv"],
 richlistitem[is="chat-contact"] {
   border-top: 1px solid transparent;
   border-bottom: 1px solid transparent;
@@ -148,49 +153,49 @@ richlistitem[is="chat-contact"] > .box-line {
   background-color: var(--tabline-color);
 }
 
-:-moz-any(imconv, richlistitem[is="chat-contact"], richlistitem[is="chat-group"]) {
+richlistitem:-moz-any([is="chat-imconv"], [is="chat-contact"], [is="chat-group"]) {
   pointer-events: auto;
 }
 
-:-moz-any(imconv, richlistitem[is="chat-contact"], richlistitem[is="chat-group"]):not([selected=true]):hover {
+richlistitem:-moz-any([is="chat-imconv"], [is="chat-contact"], [is="chat-group"]):not([selected=true]):hover {
   background-color: rgba(0,0,0,.1);
 }
 
 :root[lwt-tree] richlistitem[is="chat-group"],
-:root[lwt-tree] imconv:not([selected]),
+:root[lwt-tree] richlistitem[is="chat-imconv"]:not([selected]),
 :root[lwt-tree] richlistitem[is="chat-contact"]:not([selected]) {
   color: var(--sidebar-text-color);
 }
 
-imconv[selected=true],
+richlistitem[is="chat-imconv"][selected=true],
 richlistitem[is="chat-contact"][selected=true] {
-  background-color: var(--imbox-selected-background-color);
-  border-color: var(--imbox-selected-border-color);
-  color: var(--imbox-selected-text-color);
+  background-color: var(--imbox-selected-background-color) !important;
+  border-color: var(--imbox-selected-border-color) !important;
+  color: var(--imbox-selected-text-color) !important;
 }
 
 :root[lwt-tree] richlistitem[is="chat-group"][selected],
-:root[lwt-tree] :-moz-any(imconv, richlistitem[is="chat-contact"], richlistitem[is="chat-group"]):not([selected=true]):hover {
+:root[lwt-tree] richlistitem:-moz-any([is="chat-imconv"], [is="chat-contact"], [is="chat-group"]):not([selected=true]):hover {
   background-color: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.3));
   color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
 }
 
 :root[lwt-tree-brighttext] richlistitem[is="chat-group"][selected],
-:root[lwt-tree-brighttext] :-moz-any(imconv, richlistitem[is="chat-contact"], richlistitem[is="chat-group"]):not([selected=true]):hover {
+:root[lwt-tree-brighttext] richlistitem:-moz-any([is="chat-imconv"], [is="chat-contact"], [is="chat-group"]):not([selected=true]):hover {
   background-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
 }
 
-:root[lwt-tree] imconv[selected=true],
+:root[lwt-tree] richlistitem[is="chat-imconv"][selected=true],
 :root[lwt-tree] richlistitem[is="chat-contact"][selected=true] {
   border-color: var(--sidebar-border-color, hsla(0,0%,60%,.4))
 }
 
-:root[lwt-tree-brighttext] imconv[selected=true],
+:root[lwt-tree-brighttext] richlistitem[is="chat-imconv"][selected=true],
 :root[lwt-tree-brighttext] richlistitem[is="chat-contact"][selected=true] {
   border-color: var(--sidebar-border-color, rgba(249,249,250,.2))
 }
 
-imconv:not(:hover) > .closeConversationButton {
+richlistitem[is="chat-imconv"]:not(:hover) > .closeConversationButton {
   visibility: hidden;
 }
 

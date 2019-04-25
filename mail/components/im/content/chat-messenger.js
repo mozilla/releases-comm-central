@@ -20,10 +20,10 @@ function buddyListContextMenu(aXulMenu) {
   this.target = aXulMenu.triggerNode;
   this.menu = aXulMenu;
   let localName = this.target.localName;
-  document.getElementById("contactlistbox").selectedItem = this.target;
   this.onContact = (localName == "richlistitem" &&
     this.target.getAttribute("is") == "chat-contact");
-  this.onConv = localName == "imconv";
+  this.onConv = (localName == "richlistitem" &&
+    this.target.getAttribute("is") == "chat-imconv");
   this.shouldDisplay = this.onContact || this.onConv;
 
   let hide = !this.onContact;
@@ -178,7 +178,7 @@ var chatTabType = {
     gChatTab = aTab;
     chatHandler._onTabActivated();
     // The next call may change the selected conversation, but that
-    // will be handled by the selected mutation observer of the imconv.
+    // will be handled by the selected mutation observer of the chat-imconv.
     chatHandler._updateSelectedConversation();
     chatHandler._updateFocus();
   },
@@ -296,7 +296,8 @@ var chatHandler = {
     let shouldSelect =
       gChatTab && gChatTab.tabNode.selected &&
       (!selectedItem || (selectedItem == convs &&
-                        convs.nextSibling.localName != "imconv"));
+                         convs.nextSibling.localName != "richlistitem" &&
+                         convs.nextSibling.getAttribute("is") != "chat-imconv"));
     let elt = convs.addContact(aConv, "imconv");
     if (shouldSelect) {
       list.selectedItem = elt;
@@ -377,8 +378,8 @@ var chatHandler = {
       title += " (" + unreadTargettedCount + ")";
     } else {
       let selectedItem = document.getElementById("contactlistbox").selectedItem;
-      if (selectedItem && selectedItem.localName == "imconv" &&
-          !selectedItem.hidden)
+      if (selectedItem && selectedItem.localName == "richlistitem" &&
+          selectedItem.getAttribute("is") == "chat-imconv" && !selectedItem.hidden)
         title += " - " + selectedItem.getAttribute("displayname");
     }
     gChatTab.title = title;
@@ -565,7 +566,7 @@ var chatHandler = {
     let item = document.getElementById("contactlistbox").selectedItem;
     if (!item)
       return;
-    if (item.localName == "imconv") {
+    if (item.localName == "richlistitem" && item.getAttribute("is") == "chat-imconv") {
       document.getElementById("conversationsDeck").selectedPanel = item.convView;
       document.getElementById("logTree").view.selection.clearSelection();
       item.convView.focus();
@@ -615,7 +616,7 @@ var chatHandler = {
     if (aEvent.button != 0 || aEvent.detail != 1)
       return;
     let item = document.getElementById("contactlistbox").selectedItem;
-    if (item.localName == "imconv" && item.convView)
+    if (item.localName == "richlistitem" && item.getAttribute("is") == "chat-imconv" && item.convView)
       item.convView.focus();
   },
   onListItemSelected() {
@@ -658,7 +659,7 @@ var chatHandler = {
           this._showLogList(aSimilarLogs, aLog);
         });
       });
-    } else if (item.localName == "imconv") {
+    } else if (item.localName == "richlistitem" && item.getAttribute("is") == "chat-imconv") {
       let convDeck = document.getElementById("conversationsDeck");
       if (!item.convView) {
         // Create new conversation binding.
@@ -863,8 +864,8 @@ var chatHandler = {
 
     // If the selection is already a conversation with unread messages, keep it.
     let selectedItem = list.selectedItem;
-    if (selectedItem && selectedItem.localName == "imconv" &&
-        selectedItem.directedUnreadCount) {
+    if (selectedItem && selectedItem.localName == "richlistitem" &&
+        selectedItem.getAttribute("is") == "chat-imconv" && selectedItem.directedUnreadCount) {
       selectedItem.update();
       return;
     }
@@ -916,7 +917,8 @@ var chatHandler = {
     if (list.disabled)
       return null;
     let selectedItem = list.selectedItem;
-    if (!selectedItem || selectedItem.localName != "imconv")
+    if (!selectedItem || (selectedItem.localName != "richlistitem" &&
+                          selectedItem.getAttribute("is") != "chat-imconv"))
       return null;
     let convView = selectedItem.convView;
     if (!convView || !convView.loaded)
@@ -1140,7 +1142,7 @@ var chatHandler = {
 
     let rawConversations = conversations.map((c) => c.conv);
     let current;
-    if (aList.selectedItem.localName === "imconv")
+    if (aList.selectedItem.localName == "richlistitem" && aList.selectedItem.getAttribute("is") == "chat-imconv")
       current = aList.selectedIndex - aList.getIndexOfItem(conversations[0]);
     let newIndex = this._getNextUnreadConversation(rawConversations, current, aReverse);
     if (newIndex !== -1)
@@ -1196,7 +1198,7 @@ var chatHandler = {
         listbox.moveByOffset(reverse ? -1 : 1, true, false);
       listbox._userSelecting = false;
       let item = listbox.selectedItem;
-      if (item.localName == "imconv" && item.convView)
+      if (item.localName == "richlistitem" && item.getAttribute("is") == "chat-imconv" && item.convView)
         item.convView.focus();
       else
         listbox.focus();

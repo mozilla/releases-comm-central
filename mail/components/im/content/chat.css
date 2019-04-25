@@ -29,8 +29,7 @@ richlistitem[is="chat-contact"][cansend]:hover .startChatBubble {
   display: -moz-box;
 }
 
-imconv {
-  -moz-binding: url("chrome://messenger/content/chat/imconv.xml#conv");
+richlistitem[is="chat-imconv"] {
   -moz-box-align: center;
 }
 
