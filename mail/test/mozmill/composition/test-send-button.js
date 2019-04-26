@@ -222,6 +222,8 @@ function test_send_enabled_address_contacts_sidebar() {
     "chrome://messenger/content/addressbook/abContactsPanel.xul?focus");
 
   let abTree = sidebar.contentDocument.getElementById("abResultsTree");
+  // The results are loaded async so wait for the population of the tree.
+  utils.waitFor(() => abTree.view.rowCount > 0, "Addressbook cards didn't load");
   click_tree_row(abTree, 0, cwc);
 
   sidebar.contentDocument.getElementById("ccButton").click();
