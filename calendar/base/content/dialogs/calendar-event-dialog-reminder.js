@@ -4,15 +4,25 @@
 
 /* exported onLoad, onReminderSelected, updateReminder, onNewReminder, onRemoveReminder */
 
+/* global MozElements */
+
 /* import-globals-from ../calendar-ui-utils.js */
 
 var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var allowedActionsMap = {};
 var suppressListUpdate = false;
+
+const gNotification = {};
+XPCOMUtils.defineLazyGetter(gNotification, "notificationbox", () => {
+    return new MozElements.NotificationBox(element => {
+        element.setAttribute("flex", "1");
+        document.getElementById("reminder-notifications").append(element);
+    });
+});
 
 /**
  * Sets up the reminder dialog.
@@ -158,7 +168,6 @@ function setupRadioEnabledState(aDisableAll) {
 function setupMaxReminders() {
     let args = window.arguments[0];
     let listbox = document.getElementById("reminder-listbox");
-    let notificationbox = document.getElementById("reminder-notifications");
     let maxReminders = args.calendar.getProperty("capabilities.alarms.maxCount");
 
     // != null is needed here to ensure cond to be true/false, instead of
@@ -169,33 +178,22 @@ function setupMaxReminders() {
     // disable the new button.
     setElementValue("reminder-new-button", cond && "true", "disabled");
 
-    if (!setupMaxReminders.notification) {
-        let notification = document.createXULElement("xbl-notification");
-        let localeErrorString =
-            cal.l10n.getString("calendar-alarms",
-                               getItemBundleStringName("reminderErrorMaxCountReached"),
-                               [maxReminders]);
-        let pluralErrorLabel = PluralForm.get(maxReminders, localeErrorString)
-                                         .replace("#1", maxReminders);
-
-        notification.setAttribute("label", pluralErrorLabel);
-        notification.setAttribute("type", "warning");
-        notification.setAttribute("hideclose", "true");
-        setupMaxReminders.notification = notification;
-    }
+    let localeErrorString = cal.l10n.getString("calendar-alarms",
+        getItemBundleStringName("reminderErrorMaxCountReached"), [maxReminders]);
+    let pluralErrorLabel = PluralForm.get(maxReminders, localeErrorString)
+        .replace("#1", maxReminders);
 
     if (cond) {
-        notificationbox.appendChild(setupMaxReminders.notification);
+        let notification = gNotification.notificationbox.appendNotification(
+            pluralErrorLabel,
+            "reminderNotification",
+            null,
+            gNotification.notificationbox.PRIORITY_WARNING_MEDIUM);
+
+        let closeButton = notification.messageDetails.nextSibling;
+        closeButton.setAttribute("hidden", "true");
     } else {
-        try {
-            notificationbox.removeNotification(setupMaxReminders.notification);
-        } catch (e) {
-            // It's only ok to swallow this if the notification element hasn't been
-            // added. Then the call will throw a DOM NOT_FOUND_ERR.
-            if (e.code != e.NOT_FOUND_ERR) {
-                throw e;
-            }
-        }
+        gNotification.notificationbox.removeAllNotifications();
     }
 }
 

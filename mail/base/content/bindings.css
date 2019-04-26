@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("chrome://messenger/skin/textbox.css");
-@import url("chrome://messenger/skin/xbl-notification.css");
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
@@ -32,18 +31,6 @@ toolbarpaletteitem {
 toolbarpaletteitem[place="palette"] {
   -moz-box-orient: vertical;
   -moz-binding: url("chrome://messenger/content/toolbar.xml#toolbarpaletteitem-palette");
-}
-
-notificationbox {
-  -moz-binding: url("chrome://messenger/content/notificationbox.xml#notificationbox");
-  -moz-box-orient: vertical;
-}
-.notificationbox-stack {
-  overflow: -moz-hidden-unscrollable;
-}
-
-xbl-notification {
-  -moz-binding: url("chrome://messenger/content/notificationbox.xml#notification");
 }
 
 button[type="menu-button"] {

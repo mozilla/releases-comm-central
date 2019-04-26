@@ -4,6 +4,8 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/.
 -->
 
+<?xml-stylesheet href="chrome://messenger/content/notification.css" type="text/css"?>
+
 <!DOCTYPE overlay SYSTEM "chrome://lightning/locale/lightning.dtd">
 
 <overlay id="ltnCalendarCreationOverlay"
@@ -17,9 +19,9 @@
           src="chrome://lightning/content/lightning-calendar-creation.js"/>
 
   <rows id="customize-rows">
-    <notificationbox id="no-identity-notification"
-                     flex="1"
-                     insertafter="customize-suppressAlarms-row" />
+    <hbox id="no-identity-notification" class="notification-inline" flex="1">
+      <!-- notificationbox will be added here lazily. -->
+    </hbox>
     <row id="calendar-email-identity-row"
          align="center"
          insertafter="no-identity-notification">

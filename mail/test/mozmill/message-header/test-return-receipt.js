@@ -18,7 +18,7 @@ var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
 
 var folder;
 
-var kBoxId = "msgNotificationBar";
+var kBoxId = "mail-notification-top";
 var kNotificationValue = "mdnRequested";
 
 function setupModule(module) {
@@ -88,7 +88,7 @@ function gotoMsg(row) {
  * Utility to make sure the MDN bar is shown / not shown.
  */
 function assert_mdn_shown(shouldShow) {
-  let msgNotBar = mc.e("msgNotificationBar");
+  let msgNotBar = mc.e("mail-notification-top");
   assert_notification_displayed(mc, kBoxId, kNotificationValue, shouldShow);
 }
 
@@ -97,7 +97,8 @@ function assert_mdn_shown(shouldShow) {
  */
 function assert_mdn_text_contains(text, shouldContain) {
   let nb = mc.window.document.getElementById(kBoxId);
-  let notificationText = nb.currentNotification.label;
+  let box = nb.querySelector(".notificationbox-stack")._notificationBox;
+  let notificationText = box.currentNotification.messageText.textContent;
   if (shouldContain && !notificationText.includes(text))
     throw new Error("mdnBar should contain text=" + text +
                     "; notificationText=" + notificationText);

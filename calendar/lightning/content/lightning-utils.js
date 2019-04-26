@@ -6,12 +6,15 @@
  *          ltnSaveMailIdentitySelection, ltnNotifyOnIdentitySelection
  */
 
+/* global MozElements */
+
 /* import-globals-from ../../base/content/calendar-ui-utils.js */
 /* globals gCalendar */
 
 var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 /**
  * Initializing the email identity row
@@ -102,18 +105,25 @@ function ltnSaveMailIdentitySelection() {
  * (shared between calendar creation wizard and properties dialog)
  */
 function ltnNotifyOnIdentitySelection() {
-    let notificationBox = document.getElementById("no-identity-notification");
+    let gNotification = {};
+    XPCOMUtils.defineLazyGetter(gNotification, "notificationbox", () => {
+        return new MozElements.NotificationBox(element => {
+            element.setAttribute("flex", "1");
+            document.getElementById("no-identity-notification").append(element);
+        });
+    });
+
     let msg = cal.l10n.getLtnString("noIdentitySelectedNotification");
     let sel = ltnGetMailIdentitySelection();
 
     if (sel == "none") {
-        notificationBox.appendNotification(
+        gNotification.notificationbox.appendNotification(
             msg,
             "noIdentitySelected",
             null,
-            notificationBox.PRIORITY_WARNING_MEDIUM
+            gNotification.notificationbox.PRIORITY_WARNING_MEDIUM
         );
     } else {
-        notificationBox.removeAllNotifications();
+        gNotification.notificationbox.removeAllNotifications();
     }
 }

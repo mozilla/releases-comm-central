@@ -137,7 +137,9 @@
     </vbox>
   </hbox>
 
-  <notificationbox id="event-dialog-notifications" notificationside="top"/>
+  <hbox id="event-dialog-notifications" flex="1">
+    <!-- notificationbox will be added here lazily. -->
+  </hbox>
 
   <grid id="event-grid"
         flex="1"

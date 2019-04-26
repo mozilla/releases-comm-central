@@ -322,7 +322,7 @@ function UpdateMailPaneConfig(aMsgWindowInitialized) {
     document.getElementById("messagepane").destroy();
     document.getElementById("FindToolbar").destroy();
     let footerBox = desiredParent.lastChild;
-    if (footerBox && footerBox.id == "msg-footer-notification-box") {
+    if (footerBox && footerBox.id == "messenger-notification-footer") {
       desiredParent.insertBefore(messagePaneSplitter, footerBox);
       desiredParent.insertBefore(messagePaneBoxWrapper, footerBox);
     } else {

@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* global MozElements */
+
 /* import-globals-from MsgComposeCommands.js */
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -136,7 +138,7 @@ var gBigFileObserver = {
   },
 
   updateNotification() {
-    let nb = document.getElementById("attachmentNotificationBox");
+    let nb = gNotification.notificationbox;
     let notification = nb.getNotificationWithValue("bigAttachment");
 
     if (this.bigFiles.length) {
@@ -228,7 +230,7 @@ var gBigFileObserver = {
                  .getBoolPref("mail.compose.big_attachments.insert_notification"))
       return;
 
-    let nb = document.getElementById("attachmentNotificationBox");
+    let nb = gNotification.notificationbox;
     let notification = nb.getNotificationWithValue(kUploadNotificationValue);
 
     if (notification)
@@ -250,7 +252,7 @@ var gBigFileObserver = {
   },
 
   hideUploadingNotification() {
-    let nb = document.getElementById("attachmentNotificationBox");
+    let nb = gNotification.notificationbox;
     let notification = nb.getNotificationWithValue(kUploadNotificationValue);
 
     if (notification) {
@@ -269,8 +271,7 @@ var gBigFileObserver = {
 
   showPrivacyNotification() {
     const kPrivacyNotificationValue = "bigAttachmentPrivacyWarning";
-
-    let nb = document.getElementById("attachmentNotificationBox");
+    let nb = gNotification.notificationbox;
     let notification = nb.getNotificationWithValue(kPrivacyNotificationValue);
 
     if (notification)

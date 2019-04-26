@@ -5,6 +5,7 @@
 
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/content/bindings.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/content/notification.css" type="text/css"?>
 <?xml-stylesheet href="chrome://calendar-common/skin/calendar-creation-wizard.css" type="text/css"?>
 
 <!DOCTYPE dialog [
@@ -67,7 +68,11 @@
                     checked="true"
                     label="&calendarproperties.cache3.label;"/>
         </row>
-        <notificationbox id="location-notifications" flex="1"/>
+        <hbox id="calendar-notification-location"
+              class="notification-inline"
+              flex="1">
+          <!-- notificationbox will be added here lazily. -->
+        </hbox>
         <!--
         <description>&locationpage.login.description;</description>
         <row align="center">

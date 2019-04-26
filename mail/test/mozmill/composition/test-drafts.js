@@ -20,7 +20,7 @@ var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers",
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-var kBoxId = "msgNotificationBar";
+var kBoxId = "mail-notification-top";
 var draftsFolder;
 
 function setupModule(module) {

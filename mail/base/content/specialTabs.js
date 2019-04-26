@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* global MozElements */
+
 /* import-globals-from ../../../../toolkit/components/printing/content/printUtils.js */
 /* import-globals-from mailWindow.js */
 /* import-globals-from utilityOverlay.js */
@@ -508,6 +510,18 @@ var specialTabs = {
         .getService(Ci.nsIFaviconService);
   },
 
+  get msgNotificationBar() {
+    delete this.msgNotificationBar;
+
+    let newNotificationBox = new MozElements.NotificationBox(element => {
+      element.setAttribute("flex", "1");
+      element.setAttribute("notificationside", "bottom");
+      document.getElementById("messenger-notification-bottom").append(element);
+    });
+
+    return this.msgNotificationBar = newNotificationBox;
+  },
+
   /**
    * We use an html image node to test the favicon, errors are well returned.
    * Returning a url for nsITreeView.getImageSrc() will not indicate any
@@ -916,8 +930,6 @@ var specialTabs = {
   },
 
   showTelemetryNotification() {
-    var notifyBox = document.getElementById("mail-notification-box");
-
     var brandBundle =
       new StringBundle("chrome://branding/locale/brand.properties");
     var telemetryBundle =
@@ -954,7 +966,8 @@ var specialTabs = {
     // Set pref to indicate we've shown the notification.
     Services.prefs.setIntPref(kTelemetryPrompted, kTelemetryPromptRev);
 
-    var notification = notifyBox.appendNotification(telemetryText, "telemetry", null, notifyBox.PRIORITY_INFO_LOW, buttons);
+    let notification = this.msgNotificationBar.appendNotification(
+      telemetryText, "telemetry", null, this.msgNotificationBar.PRIORITY_INFO_LOW, buttons);
     notification.persistence = 3; // arbitrary number, just so bar sticks around for a bit
 
     let link = notification.ownerDocument.createXULElement("label", {is: "text-link"});
@@ -965,11 +978,11 @@ var specialTabs = {
       // Remove the notification on which the user clicked
       notification.parentNode.removeNotification(notification, true);
       // Add a new notification to that tab, with no "Learn more" link
-      notifyBox.appendNotification(telemetryText, "telemetry", null, notifyBox.PRIORITY_INFO_LOW, buttons);
+      this.msgNotificationBar.appendNotification(
+        telemetryText, "telemetry", null, this.msgNotificationBar.PRIORITY_INFO_LOW, buttons);
     });
 
-    let description = notification.ownerDocument.getAnonymousElementByAttribute(notification, "anonid", "messageText");
-    description.appendChild(link);
+    notification.messageText.appendChild(link);
   },
   /**
    * Looks at the existing prefs and determines if we should show about:rights
@@ -997,8 +1010,6 @@ var specialTabs = {
   },
 
   showAboutRightsNotification() {
-    var notifyBox = document.getElementById("mail-notification-box");
-
     var brandBundle =
       Services.strings.createBundle("chrome://branding/locale/brand.properties");
     var rightsBundle =
@@ -1022,9 +1033,9 @@ var specialTabs = {
       },
     ];
 
-    var box = notifyBox.appendNotification(notifyRightsText, "about-rights",
-                                           null, notifyBox.PRIORITY_INFO_LOW,
-                                           buttons);
+    var box = this.msgNotificationBar.appendNotification(
+      notifyRightsText, "about-rights", null,
+      this.msgNotificationBar.PRIORITY_INFO_LOW, buttons);
     // arbitrary number, just so bar sticks around for a bit
     box.persistence = 3;
 

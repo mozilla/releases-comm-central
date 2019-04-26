@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* global MozElements */
+
 // This file is loaded in messenger.xul.
 /* globals fixIterator, MailToolboxCustomizeDone, Notifications, openIMAccountMgr,
    PROTO_TREE_VIEW, Services, Status, statusSelector, ZoomManager */
@@ -276,6 +278,17 @@ var chatTabType = {
 };
 
 var chatHandler = {
+  get msgNotificationBar() {
+    delete this.msgNotificationBar;
+
+    let newNotificationBox = new MozElements.NotificationBox(element => {
+      element.setAttribute("notificationside", "top");
+      document.getElementById("chat-notification-top").prepend(element);
+    });
+
+    return this.msgNotificationBar = newNotificationBox;
+  },
+
   _addConversation(aConv) {
     let list = document.getElementById("contactlistbox");
     let convs = document.getElementById("conversationsGroup");
@@ -1035,7 +1048,7 @@ var chatHandler = {
         label: bundle.getString("buddy.authRequest.deny.label"),
         callback() { aSubject.deny(); },
       };
-      let box = document.getElementById("chatNotificationBox");
+      let box = this.msgNotificationBar;
       box.appendNotification(label, value, null, box.PRIORITY_INFO_HIGH,
                             [acceptButton, denyButton]);
       if (!gChatTab) {
@@ -1048,10 +1061,11 @@ var chatHandler = {
       aSubject.QueryInterface(Ci.prplIBuddyRequest);
       let value =
         "buddy-auth-request-" + aSubject.account.id + aSubject.userName;
-      let box = document.getElementById("chatNotificationBox");
+      let box = this.msgNotificationBar;
       let notification = box.getNotificationWithValue(value);
-      if (notification)
+      if (notification) {
         notification.close();
+      }
     }
   },
   initAfterChatCore() {

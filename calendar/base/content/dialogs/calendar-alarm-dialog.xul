@@ -5,6 +5,7 @@
 
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/content/bindings.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/content/notification.css" type="text/css"?>
 <?xml-stylesheet href="chrome://calendar/skin/calendar-alarm-dialog.css" type="text/css"?>
 
 <!-- used for button-text and button-menu-dropmarker classes -->
@@ -29,7 +30,10 @@
   <script type="application/javascript" src="chrome://calendar/content/calendar-item-editing.js"/>
   <script type="application/javascript" src="chrome://calendar/content/widgets/calendar-alarm-widget.js"/>
 
-  <notificationbox id="readonly-notification" notificationside="top"/>
+  <hbox id="readonly-notification">
+    <!-- notificationbox will be added here lazily. -->
+  </hbox>
+
   <richlistbox id="alarm-richlist" flex="1" onselect="onSelectAlarm(event)"/>
 
   <hbox pack="end" id="alarm-actionbar" align="center">

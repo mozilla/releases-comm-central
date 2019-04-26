@@ -111,10 +111,10 @@ function test_wrong_reply_charset() {
   msg = select_click_row(0);
 
   // Wait for the notification with the Edit button.
-  wait_for_notification_to_show(mc, "msgNotificationBar", "draftMsgContent");
+  wait_for_notification_to_show(mc, "mail-notification-top", "draftMsgContent");
 
   plan_for_new_window("msgcompose");
-  mc.click(mc.eid("msgNotificationBar", {tagName: "button", label: "Edit"}));
+  mc.click(mc.eid("mail-notification-top", {tagName: "button", label: "Edit"}));
   rwc = wait_for_compose_window();
   rwc.keypress(null, "s", {shiftKey: false, accelKey: true});
   close_compose_window(rwc);
@@ -157,10 +157,10 @@ function test_no_mojibake() {
   msg = select_click_row(0);
 
   // Wait for the notification with the Edit button.
-  wait_for_notification_to_show(mc, "msgNotificationBar", "draftMsgContent");
+  wait_for_notification_to_show(mc, "mail-notification-top", "draftMsgContent");
 
   plan_for_new_window("msgcompose");
-  mc.click(mc.eid("msgNotificationBar", {tagName: "button", label: "Edit"}));
+  mc.click(mc.eid("mail-notification-top", {tagName: "button", label: "Edit"}));
   rwc = wait_for_compose_window();
   rwc.keypress(null, "s", {shiftKey: false, accelKey: true});
   close_compose_window(rwc);

@@ -1,0 +1,40 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* ===== notification.css ===============================================
+  == Content specific styles for Notification.
+  ======================================================================= */
+
+notification[type="warning"] {
+  background: #fff160;
+}
+
+notification[type="info"] > hbox > .messageImage {
+  list-style-image: url("chrome://global/skin/icons/help.svg");
+}
+
+notification[type="warning"] > hbox > .messageImage {
+  list-style-image: url("chrome://global/skin/icons/warning.svg");
+}
+
+notification[type="critical"] > hbox > .messageImage {
+  list-style-image: url("chrome://global/skin/icons/error.svg");
+}
+
+notification[value="draftMsgContent"] > hbox > .messageImage {
+  list-style-image: url("chrome://messenger/skin/icons/newmsg.svg");
+}
+
+.notification-inline notification {
+  border-width: 1px;
+  border-radius: 2px;
+}
+
+button.button-menu-list {
+  -moz-appearance: menulist-button;
+}
+
+.messageText > .text-link {
+  margin-inline-start: 6px;
+}

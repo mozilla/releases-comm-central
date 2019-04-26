@@ -3,13 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #customize-rows > row {
-    min-height: 26px;
+  min-height: 26px;
 }
 
 .checkbox-no-label > .checkbox-label-box {
-    display: none;
+  display: none;
 }
 
 #calendar-uri > .textbox-input-box > .textbox-search-icons {
-    display: none;
+  display: none;
+}
+
+.wizard-buttons-separator {
+  border-top: none !important;
 }

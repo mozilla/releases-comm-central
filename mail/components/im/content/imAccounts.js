@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // mail/base/content/nsDragAndDrop.js
-/* globals FlavourSet, TransferData */
+/* globals FlavourSet, TransferData, MozElements */
 // imStatusSelector.js
 /* globals statusSelector */
 
@@ -37,6 +37,17 @@ var gAccountManager = {
   _disabledDelay: 500,
   disableTimerID: 0,
   _connectedLabelInterval: 0,
+
+  get msgNotificationBar() {
+    delete this.msgNotificationBar;
+
+    let newNotificationBox = new MozElements.NotificationBox(element => {
+      document.getElementById("accounts-notification-box").prepend(element);
+    });
+
+    return this.msgNotificationBar = newNotificationBox;
+  },
+
   load() {
     // Wait until the password service is ready before offering anything.
     Services.logins.initializationPromise.then(() => {
@@ -117,8 +128,8 @@ var gAccountManager = {
       this.close();
       return;
     } else if (aTopic == "autologin-processed") {
-      var notification = document.getElementById("accountsNotificationBox")
-                                 .getNotificationWithValue("autoLoginStatus");
+      let notification = this.msgNotificationBar
+                             .getNotificationWithValue("autoLoginStatus");
       if (notification)
         notification.close();
       return;
@@ -468,14 +479,17 @@ var gAccountManager = {
     window.openDialog(aUrl, "", "chrome,modal,titlebar,centerscreen", aArgs);
     this.modalDialog = false;
   },
+
   setAutoLoginNotification() {
     var as = Services.accounts;
     var autoLoginStatus = as.autoLoginStatus;
     let isOffline = false;
     let crashCount = 0;
-    for (let acc of this.getAccounts())
-      if (acc.autoLogin && acc.firstConnectionState == acc.FIRST_CONNECTION_CRASHED)
+    for (let acc of this.getAccounts()) {
+      if (acc.autoLogin && acc.firstConnectionState == acc.FIRST_CONNECTION_CRASHED) {
         ++crashCount;
+      }
+    }
 
     if (autoLoginStatus == as.AUTOLOGIN_ENABLED && crashCount == 0) {
       let status = Services.core.globalUserStatus.statusType;
@@ -484,7 +498,7 @@ var gAccountManager = {
     }
 
     var bundle = document.getElementById("accountsBundle");
-    var box = document.getElementById("accountsNotificationBox");
+    let box = this.msgNotificationBar;
     var priority = box.PRIORITY_INFO_HIGH;
     var connectNowButton = {
       accessKey: bundle.getString("accountsManager.notification.button.accessKey"),
@@ -527,7 +541,11 @@ var gAccountManager = {
     let status = Services.core.globalUserStatus.statusType;
     this.setOffline(isOffline || status == Ci.imIStatusInfo.STATUS_OFFLINE);
 
-    box.appendNotification(label, "autologinStatus", null, priority, [connectNowButton]);
+    box.appendNotification(label,
+                           "autologinStatus",
+                           null,
+                           priority,
+                           [connectNowButton]);
   },
   processAutoLogin() {
     var ioService = Services.io;
@@ -541,15 +559,18 @@ var gAccountManager = {
     gAccountManager.accountList.selectedItem.buttons.setFocus();
   },
   processCrashedAccountsLogin() {
-    for (let acc in gAccountManager.getAccounts())
+    for (let acc in gAccountManager.getAccounts()) {
       if (acc.disconnected && acc.autoLogin &&
-          acc.firstConnectionState == acc.FIRST_CONNECTION_CRASHED)
+          acc.firstConnectionState == acc.FIRST_CONNECTION_CRASHED) {
         acc.connect();
+      }
+    }
 
-    let notification = document.getElementById("accountsNotificationBox")
-                               .getNotificationWithValue("autoLoginStatus");
-    if (notification)
+    let notification = this.msgNotificationBar
+                           .getNotificationWithValue("autoLoginStatus");
+    if (notification) {
       notification.close();
+    }
 
     gAccountManager.accountList.selectedItem.buttons.setFocus();
   },

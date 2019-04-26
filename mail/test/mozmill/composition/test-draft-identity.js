@@ -178,10 +178,10 @@ function test_draft_identity_selection() {
     checkCompIdentity(cwc, gIdentities[test.idIndex].key,
                       test.from ? test.from : test.draftFrom);
     if (test.warning) {
-      wait_for_notification_to_show(cwc, "attachmentNotificationBox",
+      wait_for_notification_to_show(cwc, "compose-notification-bottom",
                                     "identityWarning");
     } else {
-      assert_notification_displayed(cwc, "attachmentNotificationBox",
+      assert_notification_displayed(cwc, "compose-notification-bottom",
                                     "identityWarning", false);
     }
 
@@ -193,14 +193,14 @@ function test_draft_identity_selection() {
   be_in_folder(gDrafts);
   select_click_row(tests[tests.length-1].draftIndex);
   let cwc = open_compose_from_draft();
-  wait_for_notification_to_show(cwc, "attachmentNotificationBox",
+  wait_for_notification_to_show(cwc, "compose-notification-bottom",
                                 "identityWarning");
   // Notification should go away when another identity is chosen.
   cwc.click(cwc.eid("msgIdentity"));
   cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"),
                               [ { identitykey: gIdentities[0].key } ]);
 
-  wait_for_notification_to_stop(cwc, "attachmentNotificationBox",
+  wait_for_notification_to_stop(cwc, "compose-notification-bottom",
                                 "identityWarning");
   close_compose_window(cwc, false);
 */

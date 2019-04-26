@@ -20,7 +20,7 @@ var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 
 var folder;
 
-var kBoxId = "msgNotificationBar";
+var kBoxId = "mail-notification-top";
 var kNotificationValue = "maybeScam";
 
 function setupModule(module) {

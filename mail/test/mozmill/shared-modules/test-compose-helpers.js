@@ -212,7 +212,7 @@ function open_compose_from_draft(aController) {
     aController = mc;
 
   windowHelper.plan_for_new_window("msgcompose");
-  aController.click(aController.eid("msgNotificationBar",
+  aController.click(aController.eid("mail-notification-top",
                                     {tagName: "button", label: "Edit"}));
   return wait_for_compose_window();
 }

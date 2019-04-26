@@ -50,18 +50,14 @@
     display: -moz-box;
 }
 
-#reminder-notifications {
-    overflow-y: visible;
-}
-
-#reminder-notifications > xbl-notification {
-    background-color: transparent;
-    border-width: 0;
-}
-#reminder-notifications > xbl-notification[type="warning"] > hbox > .messageImage {
+#reminder-notifications > notification[type="warning"] > hbox > .messageImage {
     width: 32px;
     height: 32px;
     fill: #ffbf00;
+}
+
+#reminder-notifications {
+  padding: 0 4px 4px;
 }
 
 #reminder-actions-caption,

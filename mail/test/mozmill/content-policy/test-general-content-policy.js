@@ -206,9 +206,9 @@ function checkStandaloneMessageWindow(test, loadAllowed) {
  */
  function checkEMLMessageWindow(test, emlFile) {
   let msgc = open_message_from_file(emlFile);
-  if (!msgc.e("msgNotificationBar"))
+  if (!msgc.e("mail-notification-top"))
     throw new Error(test.type + " has no content notification bar.");
-  if (msgc.e("msgNotificationBar").collapsed)
+  if (msgc.e("mail-notification-top").collapsed)
     throw new Error(test.type + " content notification bar not shown.");
 
   // Clean up, close the window
@@ -238,7 +238,7 @@ function allowRemoteContentAndCheck(test) {
   plan_for_message_display(mc);
 
   // Click on the allow remote content button
-  const kBoxId = "msgNotificationBar";
+  const kBoxId = "mail-notification-top";
   const kNotificationValue = "remoteContent";
   wait_for_notification_to_show(mc, kBoxId, kNotificationValue);
   let prefButton = get_notification_button(mc, kBoxId, kNotificationValue,

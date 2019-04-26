@@ -259,9 +259,7 @@ var FeedMessageHandler = {
       }
       // If in a non rss folder, hide possible remote content bar on a web
       // page load, as it doesn't apply.
-      if ("msgNotificationBar" in window) {
-        gMessageNotificationBar.clearMsgNotifications();
-      }
+      gMessageNotificationBar.clearMsgNotifications();
 
       this.loadWebPage(aMsgHdr, {messagepane: true});
       this.gToggle = false;

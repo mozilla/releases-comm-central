@@ -6,15 +6,27 @@
  *         removeWidgetFor, onSelectAlarm, ensureCalendarVisible
  */
 
+/* global MozElements */
+
 /* import-globals-from ../calendar-item-editing.js */
 
 var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 addEventListener("DOMContentLoaded", () => {
     document.getElementById("alarm-snooze-all-popup").addEventListener("snooze", (event) => {
         snoozeAllItems(event.detail);
+    });
+});
+
+const gNotification = {};
+XPCOMUtils.defineLazyGetter(gNotification, "notificationbox", () => {
+    return new MozElements.NotificationBox(element => {
+        element.setAttribute("flex", "1");
+        element.setAttribute("notificationside", "top");
+        document.getElementById("readonly-notification").append(element);
     });
 });
 
@@ -370,20 +382,20 @@ function doReadOnlyChecks() {
         snoozeAllButton.removeAttribute("tooltiptext");
     }
 
-    let nBox = document.getElementById("readonly-notification");
-    let notification = nBox.getNotificationWithValue("calendar-readonly");
+    let notification = gNotification.notificationbox
+        .getNotificationWithValue("calendar-readonly");
     if (countRO && !notification) {
         let message = cal.l10n.getString("calendar-alarms",
                                          "reminderReadonlyNotification",
                                          [snoozeAllButton.label]);
-        nBox.appendNotification(message,
-                                "calendar-readonly",
-                                null,
-                                nBox.PRIORITY_WARNING_MEDIUM,
-                                null,
-                                null);
+        gNotification.notificationbox.appendNotification(message,
+            "calendar-readonly",
+            null,
+            gNotification.notificationbox.PRIORITY_WARNING_MEDIUM,
+            null,
+            null);
     } else if (notification && !countRO) {
-        nBox.removeNotification(notification);
+        gNotification.notificationbox.removeNotification(notification);
     }
 }
 

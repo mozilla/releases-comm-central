@@ -3,6 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* global MozElements */
+
 /* import-globals-from ../../../mailnews/base/content/junkCommands.js */
 /* import-globals-from ../../../mailnews/extensions/newsblog/content/newsblogOverlay.js */
 /* import-globals-from commandglue.js */
@@ -2533,7 +2535,14 @@ var gMessageNotificationBar = {
 
   get msgNotificationBar() {
     delete this.msgNotificationBar;
-    return this.msgNotificationBar = document.getElementById("msgNotificationBar");
+
+    let newNotificationBox = new MozElements.NotificationBox(element => {
+      element.setAttribute("flex", "1");
+      element.setAttribute("notificationside", "top");
+      document.getElementById("mail-notification-top").append(element);
+    });
+
+    return this.msgNotificationBar = newNotificationBox;
   },
 
   setJunkMsg(aMsgHdr) {
@@ -2606,21 +2615,27 @@ var gMessageNotificationBar = {
       callback() {},
     }];
 
-    if (!this.isShowingRemoteContentNotification()) {
-      this.msgNotificationBar.appendNotification(remoteContentMsg, "remoteContent",
-        "chrome://messenger/skin/icons/remote-blocked.svg",
-        this.msgNotificationBar.PRIORITY_WARNING_MEDIUM,
-        (aCanOverride ? buttons : []));
-    }
-
     // The popup value is a space separated list of all the blocked origins.
     let popup = document.getElementById("remoteContentOptions");
     let principal = Services.scriptSecurityManager
-      .createCodebasePrincipal(aContentURI, {});
+                            .createCodebasePrincipal(aContentURI, {});
     let origins = popup.value ? popup.value.split(" ") : [];
-    if (!origins.includes(principal.origin))
+    if (!origins.includes(principal.origin)) {
       origins.push(principal.origin);
+    }
     popup.value = origins.join(" ");
+
+    if (!this.isShowingRemoteContentNotification()) {
+      let notification = this.msgNotificationBar.appendNotification(
+        remoteContentMsg,
+        "remoteContent",
+        "chrome://messenger/skin/icons/remote-blocked.svg",
+        this.msgNotificationBar.PRIORITY_WARNING_MEDIUM,
+        (aCanOverride ? buttons : []));
+
+      let button = notification.spacer.nextSibling;
+      button.classList.add("button-menu-list");
+    }
   },
 
   isShowingRemoteContentNotification() {
@@ -2644,10 +2659,14 @@ var gMessageNotificationBar = {
     }];
 
     if (!this.isShowingPhishingNotification()) {
-       this.msgNotificationBar.appendNotification(phishingMsgNote, "maybeScam",
-         "chrome://messenger/skin/icons/phishing.png",
-         this.msgNotificationBar.PRIORITY_CRITICAL_MEDIUM,
-         buttons);
+      let notification = this.msgNotificationBar.appendNotification(
+        phishingMsgNote, "maybeScam",
+        "chrome://messenger/skin/icons/phishing.png",
+        this.msgNotificationBar.PRIORITY_CRITICAL_MEDIUM,
+        buttons);
+
+      let button = notification.spacer.nextSibling;
+      button.classList.add("button-menu-list");
     }
   },
 

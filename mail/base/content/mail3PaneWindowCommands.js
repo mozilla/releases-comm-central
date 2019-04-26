@@ -7,6 +7,8 @@
  * consisting of folder pane, thread pane and message pane.
  */
 
+/* global MozElements */
+
 /* import-globals-from ../../components/im/content/chat-messenger.js */
 /* import-globals-from commandglue.js */
 /* import-globals-from folderDisplay.js */
@@ -22,6 +24,18 @@ var {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 
 // Controller object for folder pane
 var FolderPaneController = {
+  get notificationbox() {
+    delete this.notificationbox;
+
+    let newNotificationBox = new MozElements.NotificationBox(element => {
+      element.setAttribute("flex", "1");
+      element.setAttribute("notificationside", "bottom");
+      document.getElementById("messenger-notification-footer").append(element);
+    });
+
+    return this.notificationbox = newNotificationBox;
+  },
+
   supportsCommand(command) {
     switch (command) {
       case "cmd_delete":
@@ -684,8 +698,7 @@ var DefaultController = {
           if (!gFolderDisplay.selectedMessageThreadIgnored) {
             ShowIgnoredMessageNotification(gFolderDisplay.selectedMessages, false);
           } else {
-            document.getElementById("msg-footer-notification-box")
-                    .removeTransientNotifications();
+            this.notificationbox.removeTransientNotifications();
           }
         }
         // kill thread kills the thread and then does a next unread
@@ -696,8 +709,7 @@ var DefaultController = {
           if (!gFolderDisplay.selectedMessageSubthreadIgnored) {
             ShowIgnoredMessageNotification(gFolderDisplay.selectedMessages, true);
           } else {
-            document.getElementById("msg-footer-notification-box")
-                    .removeTransientNotifications();
+            this.notificationbox.removeTransientNotifications();
           }
         }
         GoNextMessage(Ci.nsMsgNavigationType.toggleSubthreadKilled, true);
@@ -1025,7 +1037,7 @@ var DefaultController = {
  *                   ignore thread
  */
 function ShowIgnoredMessageNotification(aMsgs, aSubthreadOnly) {
-  let notifyBox = document.getElementById("msg-footer-notification-box");
+  let notifyBox = FolderPaneController.notificationbox;
   notifyBox.removeTransientNotifications(); // don't want to pile these up
 
   let bundle = new StringBundle("chrome://messenger/locale/messenger.properties");
@@ -1074,8 +1086,9 @@ function ShowIgnoredMessageNotification(aMsgs, aSubthreadOnly) {
     let ignoredThreadText = bundle.get(!aSubthreadOnly ?
       "ignoredThreadFeedback" : "ignoredSubthreadFeedback");
     let subj = aMsgs[0].mime2DecodedSubject || "";
-    if (subj.length > 45)
+    if (subj.length > 45) {
       subj = subj.substring(0, 45) + "…";
+    }
     let text = ignoredThreadText.replace("#1", subj);
 
     notifyBox.appendNotification(

@@ -819,7 +819,12 @@ function resize_to(aController, aWidth, aHeight) {
   aController.sleep(0);
   aController.waitFor(() => (aController.window.outerWidth == aWidth) &&
                             (aController.window.outerHeight == aHeight),
-                      "Timeout waiting for resize (is the screen resolution at least 1280 x 1024?)",
+                      "Timeout waiting for resize (current screen size: " +
+                      aController.window.screen.availWidth + "X" +
+                      aController.window.screen.availHeight +
+                      "), Requested width " + aWidth + " but got " +
+                      aController.window.outerWidth + ", Request height " +
+                      aHeight + " but got " + aController.window.outerHeight,
                       10000, 50);
 }
 

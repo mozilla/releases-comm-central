@@ -30,6 +30,7 @@
  <script type="application/javascript" src="chrome://global/content/nsDragAndDrop.js" />
  <script type="application/javascript" src="chrome://global/content/nsTransferable.js" />
  <script type="application/javascript" src="chrome://chat/content/chat-account-richlistitem.js" />
+ <stringbundle id="accountsBundle" src="chrome://messenger/locale/imAccounts.properties"/>
 
  <linkset>
    <html:link rel="localization" href="security/certificates/certManager.ftl"/>
@@ -131,27 +132,30 @@
    </toolbar>
  </toolbox>
 
- <deck flex="1" id="accountsDesk" ondblclick="gAccountManager.new();">
-   <vbox flex="1" id="noAccountScreen" align="center" pack="center">
-     <hbox id="noAccountBox" align="top">
-       <vbox id="noAccountInnerBox" flex="1">
-         <label id="noAccountTitle" value="&accountManager.noAccount.title;"/>
-         <description id="noAccountDesc">&accountManager.noAccount.description;</description>
-       </vbox>
-     </hbox>
-   </vbox>
-   <notificationbox id="accountsNotificationBox" flex="1">
-     <richlistbox id="accountlist" flex="1" context="accountsContextMenu"
-                  onselect="gAccountManager.onAccountSelect();"
-                  ondragstart="nsDragAndDrop.startDrag(event, gAMDragAndDrop);"
-                  ondragover="nsDragAndDrop.dragOver(event, gAMDragAndDrop);"
-                  ondragend="gAMDragAndDrop.cleanBorders(true);"
-                  ondrop="nsDragAndDrop.drop(event, gAMDragAndDrop);"/>
-   </notificationbox>
- </deck>
- <hbox id="bottombuttons" align="center">
-  <button id="newaccount" command="cmd_new"/>
-  <spacer flex="1"/>
-  <button id="close" command="cmd_close"/>
- </hbox>
+  <deck flex="1" id="accountsDesk" ondblclick="gAccountManager.new();">
+    <vbox flex="1" id="noAccountScreen" align="center" pack="center">
+      <hbox id="noAccountBox" align="top">
+        <vbox id="noAccountInnerBox" flex="1">
+          <label id="noAccountTitle" value="&accountManager.noAccount.title;"/>
+          <description id="noAccountDesc">&accountManager.noAccount.description;</description>
+        </vbox>
+      </hbox>
+    </vbox>
+
+    <vbox id="accounts-notification-box" flex="1">
+      <!-- notificationbox will be added here lazily. -->
+      <richlistbox id="accountlist" flex="1" context="accountsContextMenu"
+                   onselect="gAccountManager.onAccountSelect();"
+                   ondragstart="nsDragAndDrop.startDrag(event, gAMDragAndDrop);"
+                   ondragover="nsDragAndDrop.dragOver(event, gAMDragAndDrop);"
+                   ondragend="gAMDragAndDrop.cleanBorders(true);"
+                   ondrop="nsDragAndDrop.drop(event, gAMDragAndDrop);"/>
+    </vbox>
+  </deck>
+
+  <hbox id="bottombuttons" align="center">
+    <button id="newaccount" command="cmd_new"/>
+    <spacer flex="1"/>
+    <button id="close" command="cmd_close"/>
+  </hbox>
 </window>

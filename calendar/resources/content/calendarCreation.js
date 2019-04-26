@@ -7,8 +7,11 @@
  *          onInitialAdvance, doCreateCalendar, setCanRewindFalse
  */
 
+/* global MozElements */
+
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var gCalendar;
 
@@ -22,6 +25,14 @@ var l10nStrings = {};
 l10nStrings[errorConstants.SUCCESS] = "";
 l10nStrings[errorConstants.INVALID_URI] = cal.l10n.getString("calendarCreation", "error.invalidUri");
 l10nStrings[errorConstants.ALREADY_EXISTS] = cal.l10n.getString("calendarCreation", "error.alreadyExists");
+
+var gNotification = {};
+XPCOMUtils.defineLazyGetter(gNotification, "notificationbox", () => {
+    return new MozElements.NotificationBox(element => {
+        element.setAttribute("flex", "1");
+        document.getElementById("calendar-notification-location").append(element);
+    });
+});
 
 function onLoad() {
     // The functions referred to here are not the ones in this file,
@@ -59,7 +70,7 @@ function initCustomizePage() {
 
     let suppressAlarmsRow = document.getElementById("customize-suppressAlarms-row");
     suppressAlarmsRow.hidden =
-        gCalendar && gCalendar.getProperty("capabilities.alarms.popup.supported") === false;
+    gCalendar && gCalendar.getProperty("capabilities.alarms.popup.supported") === false;
     document.getElementById("calendar-color").value = "#A8C2E1";
 }
 
@@ -68,22 +79,21 @@ function initCustomizePage() {
  * notifications are removed. Otherwise, the respective notification is added to
  * the notification box. Only one notification per reason will be shown.
  *
- * @param aReason           The reason of notification, one of |errorConstants|.
+ * @param {errorConstants} aReason   The reason of notification, one of |errorConstants|.
  */
 function setNotification(aReason) {
-    let notificationBox = document.getElementById("location-notifications");
-
     if (aReason == errorConstants.SUCCESS) {
-        notificationBox.removeAllNotifications();
+        gNotification.notificationbox.removeAllNotifications();
     } else {
-        let existingBox = notificationBox.getNotificationWithValue(aReason);
+        let existingBox = gNotification.notificationbox.getNotificationWithValue(aReason);
         if (!existingBox) {
-            notificationBox.appendNotification(l10nStrings[aReason],
-                                               aReason,
-                                               null,
-                                               notificationBox.PRIORITY_WARNING_MEDIUM,
-                                               null);
-            notificationBox.getNotificationWithValue(aReason).setAttribute("hideclose", "true");
+            gNotification.notificationbox.appendNotification(l10nStrings[aReason],
+                aReason,
+                null,
+                gNotification.notificationbox.PRIORITY_WARNING_MEDIUM,
+                null);
+            gNotification.notificationbox.getNotificationWithValue(aReason)
+                .setAttribute("hideclose", "true");
         }
     }
 }
@@ -92,7 +102,7 @@ function setNotification(aReason) {
  * Called when a provider is selected in the network calendar list. Makes sure
  * the page is set up for the provider.
  *
- * @param type      The provider type selected
+ * @param {string} type   The provider type selected
  */
 function onSelectProvider(type) {
     let cache = document.getElementById("cache");
@@ -129,7 +139,6 @@ function checkRequired() {
             canAdvance = (eList[i].value != "");
         }
 
-        let notificationbox = document.getElementById("location-notifications");
         if (canAdvance && document.getElementById("calendar-uri").value &&
             curPage.pageid == "locationPage") {
             // eslint-disable-next-line array-bracket-spacing
@@ -137,7 +146,7 @@ function checkRequired() {
             canAdvance = (reason == errorConstants.SUCCESS);
             setNotification(reason);
         } else {
-            notificationbox.removeAllNotifications();
+            gNotification.notificationbox.removeAllNotifications();
         }
         document.getElementById("calendar-wizard").canAdvance = canAdvance;
     }
@@ -232,7 +241,7 @@ function initNameFromURI() {
  * Parses the given uri value to check if it is valid and there is not already
  * a calendar with this uri.
  *
- * @param aUri              The string to parse as an uri.
+ * @param {string} aUri     The string to parse as an uri.
  * @return [error, uri]     |error| is the error code from errorConstants,
  *                          |uri| the parsed nsIURI, or null on error.
  */

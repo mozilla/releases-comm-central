@@ -26,7 +26,7 @@ var maxSize, oldInsertNotificationPref;
 var kOfferThreshold = "mail.compose.big_attachments.threshold_kb";
 var kInsertNotificationPref = "mail.compose.big_attachments.insert_notification";
 
-var kBoxId = "attachmentNotificationBox";
+var kBoxId = "compose-notification-bottom";
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {

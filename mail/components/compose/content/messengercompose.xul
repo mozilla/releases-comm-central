@@ -2081,10 +2081,8 @@
             hidden="true"/>
   </panel>
 
-  <hbox>
-    <notificationbox id="attachmentNotificationBox"
-                     flex="1"
-                     notificationside="bottom"/>
+  <hbox id="compose-notification-bottom">
+    <!-- notificationbox will be added here lazily. -->
   </hbox>
 
   <hbox id="status-bar" class="statusbar chromeclass-status">

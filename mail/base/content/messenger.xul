@@ -679,7 +679,9 @@
                       <!-- The msgNotificationBar appears on top of the message
                            and displays information like: junk, contains remote
                            images, or is a suspected phishing URL. -->
-                      <notificationbox id="msgNotificationBar" notificationside="top"/>
+                      <hbox id="mail-notification-top">
+                        <!-- notificationbox will be added here lazily. -->
+                      </hbox>
                       <!-- The messagepanewrapper hbox exists to allow
                            extensions to add sidebars to the message. -->
                       <hbox id="messagepanewrapper" flex="1">
@@ -702,7 +704,9 @@
                     </vbox>
                   </vbox>
                 </hbox>
-               <notificationbox id="msg-footer-notification-box" notificationside="bottom"/>
+                <hbox id="messenger-notification-footer">
+                  <!-- notificationbox will be added here lazily. -->
+                </hbox>
               </box>
             </vbox>
           </box>
@@ -723,11 +727,9 @@
             </toolbaritem>
           </hbox>
         </vbox>
-        <notificationbox flex="1" notificationside="top">
-          <browser id="dummycontentbrowser" type="content" flex="1"
-                   disablehistory="true" autocompletepopup="PopupAutoComplete"
-                   context="mailContext"/>
-        </notificationbox>
+        <browser id="dummycontentbrowser" type="content" flex="1"
+                 disablehistory="true" autocompletepopup="PopupAutoComplete"
+                 context="mailContext"/>
       </vbox>
     </vbox>
 
@@ -736,11 +738,9 @@
         <vbox id="dummychrometoolbox" class="contentTabToolbox">
           <hbox id="dummychrometoolbar" class="contentTabToolbar"></hbox>
         </vbox>
-        <notificationbox flex="1" notificationside="top">
-          <browser id="dummychromebrowser" flex="1"
-                   disablesecurity="true" disablehistory="true"
-                   autocompletepopup="PopupAutoComplete"/>
-        </notificationbox>
+        <browser id="dummychromebrowser" flex="1"
+                 disablesecurity="true" disablehistory="true"
+                 autocompletepopup="PopupAutoComplete"/>
       </vbox>
     </vbox>
 
@@ -776,13 +776,13 @@
     </vbox>
     <vbox id="preferencesTab" collapsed="true">
       <vbox flex="1">
-        <notificationbox flex="1">
+        <hbox flex="1">
           <browser id="preferencesbrowser"
                    type="content"
                    flex="1"
                    disablehistory="true"
                    onclick="specialTabs.defaultClickHandler(event);"/>
-        </notificationbox>
+        </hbox>
         <findbar browserid="preferencesbrowser"/>
       </vbox>
     </vbox>
@@ -793,7 +793,9 @@
             hidden="true"/>
   </panel>
 
-  <notificationbox id="mail-notification-box" notificationside="bottom"/>
+  <hbox id="messenger-notification-bottom">
+      <!-- notificationbox will be added here lazily. -->
+  </hbox>
   <statuspanel id="statusbar-display"/>
   <hbox id="status-bar" class="statusbar chromeclass-status">
 #include mainStatusbar.inc.xul

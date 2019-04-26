@@ -14,6 +14,8 @@
  *          applyValues
  */
 
+/* global MozElements */
+
 /* import-globals-from ../../base/content/calendar-ui-utils.js */
 /* import-globals-from ../../base/content/dialogs/calendar-dialog-utils.js */
 /* import-globals-from html-item-editing/react-code.js */
@@ -28,6 +30,7 @@ var {
     countOccurrences
 } = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
 var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var cloudFileAccounts;
 try {
@@ -69,6 +72,14 @@ var gConfig = {
 // parent context, so that they are already set before iframe content load:
 //   - gTimezoneEnabled
 //   - gShowLink
+
+const gNotification = {};
+XPCOMUtils.defineLazyGetter(gNotification, "notificationbox", () => {
+    return new MozElements.NotificationBox(element => {
+        element.setAttribute("flex", "1");
+        document.getElementById("status-notifications").append(element);
+    });
+});
 
 var eventDialogQuitObserver = {
     observe: function(aSubject, aTopic, aData) {
@@ -2485,43 +2496,42 @@ function attachmentClick(aEvent) {
 }
 
 /**
- * Helper function to show a notification in the event-dialog's notificationBox
+ * Helper function to show a notification in the event-dialog's notificationbox
  *
  * @param aMessage     the message text to show
  * @param aValue       string identifying the notification
  * @param aPriority    (optional) the priority of the warning (info, critical), default is 'warn'
  * @param aImage       (optional) URL of image to appear on the notification
  * @param aButtonset   (optional) array of button descriptions to appear on the notification
- * @param aCallback    (optional) a function to handle events from the notificationBox
+ * @param aCallback    (optional) a function to handle events from the notificationbox
  */
 function notifyUser(aMessage, aValue, aPriority, aImage, aButtonset, aCallback) {
-    let notificationBox = document.getElementById("event-dialog-notifications");
     // only append, if the notification does not already exist
-    if (notificationBox.getNotificationWithValue(aValue) == null) {
+    if (gNotification.notificationbox.getNotificationWithValue(aValue) == null) {
         const prioMap = {
-            info: notificationBox.PRIORITY_INFO_MEDIUM,
-            critical: notificationBox.PRIORITY_CRITICAL_MEDIUM
+            info: gNotification.notificationbox.PRIORITY_INFO_MEDIUM,
+            critical: gNotification.notificationbox.PRIORITY_CRITICAL_MEDIUM
         };
-        let priority = prioMap[aPriority] || notificationBox.PRIORITY_WARNING_MEDIUM;
-        notificationBox.appendNotification(aMessage,
-                                           aValue,
-                                           aImage,
-                                           priority,
-                                           aButtonset,
-                                           aCallback);
+        let priority = prioMap[aPriority] ||
+                       gNotification.notificationbox.PRIORITY_WARNING_MEDIUM;
+        gNotification.notificationbox.appendNotification(aMessage,
+                                                         aValue,
+                                                         aImage,
+                                                         priority,
+                                                         aButtonset,
+                                                         aCallback);
     }
 }
 
 /**
  * Remove a notification from the notifiactionBox
  *
- * @param aValue      string identifying the notification to remove
+ * @param {string} aValue    string identifying the notification to remove
  */
 function removeNotification(aValue) {
-    let notificationBox = document.getElementById("event-dialog-notifications");
-    let notification = notificationBox.getNotificationWithValue(aValue);
+    let notification = gNotification.notificationbox.getNotificationWithValue(aValue);
     if (notification != null) {
-        notificationBox.removeNotification(notification);
+        gNotification.notificationbox.removeNotification(notification);
     }
 }
 

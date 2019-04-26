@@ -27,7 +27,7 @@ var {OS} = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 
 var gOutboxFolder;
 
-var kBoxId = "attachmentNotificationBox";
+var kBoxId = "compose-notification-bottom";
 var kNotificationId = "blockedContent";
 
 function setupModule(module) {

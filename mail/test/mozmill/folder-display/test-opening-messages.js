@@ -171,10 +171,11 @@ function check_message_pane_in_tab_full_height() {
   let messagesBoxHeight = mc.e("messagesBox").getBoundingClientRect().height;
   let displayDeckHeight = mc.e("displayDeck").getBoundingClientRect().height;
   let messagePaneBoxWrapperHeight = mc.e("messagepaneboxwrapper").getBoundingClientRect().height;
-  let notificationBoxHeight = mc.e("msg-footer-notification-box").getBoundingClientRect().height;
+  let notificationBoxHeight = mc.e("messenger-notification-footer").getBoundingClientRect().height;
 
-  assert_equals(messagesBoxHeight, displayDeckHeight + messagePaneBoxWrapperHeight + notificationBoxHeight,
-      "messanges box height (" + messagesBoxHeight +
+  assert_equals(messagesBoxHeight, displayDeckHeight +
+    messagePaneBoxWrapperHeight + notificationBoxHeight,
+      "messages box height (" + messagesBoxHeight +
       ") not equal to the sum of displayDeck height (" + displayDeckHeight +
       ") and message pane box wrapper height (" + messagePaneBoxWrapperHeight +
       ") and message notification box height (" + notificationBoxHeight +
@@ -199,7 +200,7 @@ function check_message_pane_in_window_full_height(aWC) {
     } catch (ex) {}
   }
 
-  assert_equals(messengerWindowHeight, childrenHeightsSum,
+  assert_equals(Math.round(messengerWindowHeight), Math.round(childrenHeightsSum),
     "messenger window height not equal to the sum of children heights: " +
     childrenHeightsStr);
 }

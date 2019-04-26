@@ -5,6 +5,7 @@
 /* ===== messenger.css ==================================================
   == Content specific styles for Messenger.
   ======================================================================= */
+@import url("chrome://messenger/content/notification.css");
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 

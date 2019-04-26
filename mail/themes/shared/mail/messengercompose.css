@@ -381,15 +381,7 @@
   list-style-image: url("chrome://messenger/skin/addressbook/icons/remote-addrbook-error.png");
 }
 
-/* ::::: attachment reminder ::::: */
-
-#attachmentNotificationBox b {
-  font-weight: bold;
-}
-
-#attachmentNotificationBox > xbl-notification[image="null"] .messageImage {
-  background-image: url("chrome://messenger/skin/icons/attach.svg");
-}
+/* :::: attachment notification :::: */
 
 #attachmentReminderText {
   margin-inline-start: 0;
@@ -401,4 +393,8 @@
   margin-inline-start: 0;
   text-decoration: underline;
   cursor: pointer;
+}
+
+#attachmentNotificationBox > hbox > .messageImage {
+  background-image: url("chrome://messenger/skin/icons/attach.svg");
 }

@@ -6,11 +6,22 @@
  *          sendMailToOrganizer, openAttachment, reply
  */
 
+/* global MozElements */
+
 /* import-globals-from ../../src/calApplicationUtils.js */
 /* import-globals-from calendar-dialog-utils.js */
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { recurrenceRule2String } = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+const gNotification = {};
+XPCOMUtils.defineLazyGetter(gNotification, "notificationbox", () => {
+    return new MozElements.NotificationBox(element => {
+        element.setAttribute("flex", "1");
+        document.getElementById("status-notifications").append(element);
+    });
+});
 
 /**
  * Sets up the summary dialog, setting all needed fields on the dialog from the
@@ -348,7 +359,6 @@ function updateToolbar() {
         }
     }
 
-    let notificationBox = document.getElementById("status-notification");
     if (window.attendee) {
         // we display a notification about the users partstat
         let partStat = window.attendee.participationStatus || "NEEDS-ACTION";
@@ -367,12 +377,12 @@ function updateToolbar() {
 
         let msg = cal.l10n.getString("calendar-event-dialog", msgStr[partStat]);
 
-        notificationBox.appendNotification(msg,
-                                           "statusNotification",
-                                           null,
-                                           notificationBox.PRIORITY_INFO_MEDIUM);
+        gNotification.notificationbox.appendNotification(msg,
+            "statusNotification",
+            null,
+            gNotification.notificationbox.PRIORITY_INFO_MEDIUM);
     } else {
-        notificationBox.removeAllNotifications();
+        gNotification.notificationbox.removeAllNotifications();
     }
 }
 

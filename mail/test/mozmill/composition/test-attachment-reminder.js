@@ -22,7 +22,7 @@ var MODULE_REQUIRES = ["folder-display-helpers",
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-var kBoxId = "attachmentNotificationBox";
+var kBoxId = "compose-notification-bottom";
 var kNotificationId = "attachmentReminder";
 var kReminderPref = "mail.compose.attachment_reminder";
 var gDrafts;
@@ -101,7 +101,7 @@ function assert_manual_reminder_state(aCwc, aChecked) {
  */
 function get_reminder_keywords(aCwc) {
   assert_automatic_reminder_state(aCwc, true);
-  let nBox = aCwc.e(kBoxId);
+  let nBox = aCwc.e(kBoxId).querySelector(".notificationbox-stack")._notificationBox;
   let notification = nBox.getNotificationWithValue(kNotificationId);
   return notification.querySelector("#attachmentKeywords").getAttribute("value");
 }
@@ -326,11 +326,11 @@ function test_manual_attachment_reminder() {
 
   select_click_row(0);
   // Wait for the notification with the Edit button.
-  wait_for_notification_to_show(mc, "msgNotificationBar", "draftMsgContent");
+  wait_for_notification_to_show(mc, "mail-notification-top", "draftMsgContent");
   // Edit the draft again...
   plan_for_new_window("msgcompose");
   // ... by clicking Edit in the draft message notification bar.
-  mc.click(mc.eid("msgNotificationBar", {tagName: "button", label: "Edit"}));
+  mc.click(mc.eid("mail-notification-top", {tagName: "button", label: "Edit"}));
   cwc = wait_for_compose_window();
 
   // Check the reminder enablement was preserved in the message.
@@ -587,11 +587,11 @@ function test_reminder_in_draft() {
 
   select_click_row(0);
   // Wait for the notification with the Edit button.
-  wait_for_notification_to_show(mc, "msgNotificationBar", "draftMsgContent");
+  wait_for_notification_to_show(mc, "mail-notification-top", "draftMsgContent");
   // Edit the draft again...
   plan_for_new_window("msgcompose");
   // ... by clicking Edit in the draft message notification bar.
-  mc.click(mc.eid("msgNotificationBar", {tagName: "button", label: "Edit"}));
+  mc.click(mc.eid("mail-notification-top", {tagName: "button", label: "Edit"}));
   cwc = wait_for_compose_window();
 
   // Give the notification time to appear.

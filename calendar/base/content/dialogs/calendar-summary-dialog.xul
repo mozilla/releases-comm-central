@@ -126,7 +126,9 @@
     </toolbar>
   </toolbox>
 
-  <notificationbox id="status-notification"/>
+  <hbox id="status-notification" flex="1">
+    <!-- notificationbox will be added here lazily. -->
+  </hbox>
 
   <!-- General -->
   <box id="item-general-box" orient="vertical">

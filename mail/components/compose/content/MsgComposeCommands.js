@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* global MozElements */
+
 /* import-globals-from ../../../../editor/ui/composer/content/ComposerCommands.js */
 /* import-globals-from ../../../../editor/ui/composer/content/editor.js */
 /* import-globals-from ../../../../editor/ui/composer/content/editorUtilities.js */
@@ -152,6 +154,16 @@ function ReleaseGlobalVariables() {
   MailServices.mailSession.RemoveMsgWindow(msgWindow);
   msgWindow = null;
 }
+
+// Notification box shown at the bottom of the window.
+var gNotification = {};
+XPCOMUtils.defineLazyGetter(gNotification, "notificationbox", () => {
+  return new MozElements.NotificationBox(element => {
+    element.setAttribute("flex", "1");
+    element.setAttribute("notificationside", "bottom");
+    document.getElementById("compose-notification-bottom").append(element);
+  });
+});
 
 /**
  * Get a pretty, human-readable shortcut key string from a given <key> id.
@@ -2079,8 +2091,7 @@ function handleEsc() {
   // If there is a notification in the attachmentNotificationBox
   // AND focus is in message body, subject field or on the notification,
   // hide it.
-  let notification = document.getElementById("attachmentNotificationBox")
-                             .currentNotification;
+  let notification = gNotification.notificationbox.currentNotification;
   if (notification && (activeElement.id == "content-frame" ||
       activeElement.parentNode.parentNode.id == "msgSubject" ||
       notification.contains(activeElement) ||
@@ -2141,12 +2152,12 @@ function manageAttachmentNotification(aForce = false) {
     }
   }
 
-  let nBox = document.getElementById("attachmentNotificationBox");
-  let notification = nBox.getNotificationWithValue("attachmentReminder");
+  let notification = gNotification.notificationbox.
+    getNotificationWithValue("attachmentReminder");
   if (removeNotification) {
-    if (notification)
-      nBox.removeNotification(notification);
-
+    if (notification) {
+      gNotification.notificationbox.removeNotification(notification);
+    }
     return;
   }
 
@@ -2211,19 +2222,23 @@ function manageAttachmentNotification(aForce = false) {
     type: "menu-button",
     accessKey: getComposeBundle().getString("remindLaterButton.accesskey"),
     label: getComposeBundle().getString("remindLaterButton"),
-    popup: remindLaterMenuPopup,
     callback(aNotificationBar, aButton) {
       toggleAttachmentReminder(true);
     },
   };
 
-  notification = nBox.appendNotification("", "attachmentReminder",
-                               /* fake out the image so we can do it in CSS */
-                               "null",
-                               nBox.PRIORITY_WARNING_MEDIUM,
-                               [addButton, remindButton]);
-  let buttons = notification.childNodes[0];
-  notification.insertBefore(msg, buttons);
+  notification = gNotification.notificationbox.appendNotification(
+    "", "attachmentReminder", "null",
+    gNotification.notificationbox.PRIORITY_WARNING_MEDIUM,
+    [addButton, remindButton]);
+  notification.setAttribute("id", "attachmentNotificationBox");
+
+  let button = notification.spacer.nextSibling;
+  notification.messageDetails.insertBefore(msg, button);
+
+  let nextButton = button.nextSibling;
+  nextButton.setAttribute("type", "menu-button");
+  nextButton.appendChild(remindLaterMenuPopup);
 }
 
 /**
@@ -3154,8 +3169,7 @@ function GenericSendMessage(msgType) {
     //    keywords, and notification was not dismissed).
     if (gManualAttachmentReminder ||
         (Services.prefs.getBoolPref("mail.compose.attachment_reminder_aggressive") &&
-         document.getElementById("attachmentNotificationBox")
-                 .getNotificationWithValue("attachmentReminder"))) {
+         gNotification.notificationbox.getNotificationWithValue("attachmentReminder"))) {
       let flags = Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_IS_STRING +
                   Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_IS_STRING;
       let hadForgotten = Services.prompt.confirmEx(window,
@@ -6706,7 +6720,8 @@ function enableInlineSpellCheck(aEnableInlineSpellCheck) {
     spellCheckReadyObserver.removeObserver();
   }
   gSpellChecker.enabled = aEnableInlineSpellCheck;
-  document.getElementById("msgSubject").setAttribute("spellcheck", aEnableInlineSpellCheck);
+  document.getElementById("msgSubject").setAttribute("spellcheck",
+                                                     aEnableInlineSpellCheck);
   document.getElementById("menu_inlineSpellCheck")
           .setAttribute("checked", aEnableInlineSpellCheck);
   document.getElementById("spellCheckEnable")
@@ -6765,11 +6780,6 @@ var gComposeNotificationBar = {
     return this.brandBundle = document.getElementById("brandBundle");
   },
 
-  get notificationBar() {
-    delete this.notificationBar;
-    return this.notificationBar = document.getElementById("attachmentNotificationBox");
-  },
-
   setBlockedContent(aBlockedURI) {
     let brandName = this.brandBundle.getString("brandShortName");
     let buttonLabel = getComposeBundle().getString((AppConstants.platform == "win") ?
@@ -6798,45 +6808,46 @@ var gComposeNotificationBar = {
     msg = PluralForm.get(urls.length, msg);
 
     if (!this.isShowingBlockedContentNotification()) {
-      this.notificationBar.appendNotification(msg, "blockedContent",
-        null, this.notificationBar.PRIORITY_WARNING_MEDIUM, buttons);
+      gNotification.notificationbox.appendNotification(msg, "blockedContent",
+        null, gNotification.notificationbox.PRIORITY_WARNING_MEDIUM, buttons);
     } else {
-      this.notificationBar.getNotificationWithValue("blockedContent")
+      gNotification.notificationbox.getNotificationWithValue("blockedContent")
         .setAttribute("label", msg);
     }
   },
 
   isShowingBlockedContentNotification() {
-    return !!this.notificationBar.getNotificationWithValue("blockedContent");
+    return !!gNotification.notificationbox.getNotificationWithValue("blockedContent");
   },
 
   clearBlockedContentNotification() {
-    this.notificationBar.removeNotification(
-      this.notificationBar.getNotificationWithValue("blockedContent"));
+    gNotification.notificationbox.removeNotification(
+      gNotification.notificationbox.getNotificationWithValue("blockedContent"));
   },
 
   clearNotifications(aValue) {
-    this.notificationBar.removeAllNotifications(true);
+    gNotification.notificationbox.removeAllNotifications(true);
   },
 
   setIdentityWarning(aIdentityName) {
-    if (!this.notificationBar.getNotificationWithValue("identityWarning")) {
-      let text = getComposeBundle().getString("identityWarning")
-                                   .split("%S");
+    if (!gNotification.notificationbox.getNotificationWithValue("identityWarning")) {
+      let text = getComposeBundle().getString("identityWarning").split("%S");
       let label = new DocumentFragment();
       label.appendChild(document.createTextNode(text[0]));
       label.appendChild(document.createElement("b"));
       label.lastChild.appendChild(document.createTextNode(aIdentityName));
       label.appendChild(document.createTextNode(text[1]));
-      this.notificationBar.appendNotification(label, "identityWarning", null,
-        this.notificationBar.PRIORITY_WARNING_HIGH, null);
+      gNotification.notificationbox.appendNotification(label, "identityWarning", null,
+        gNotification.notificationbox.PRIORITY_WARNING_HIGH, null);
     }
   },
 
   clearIdentityWarning() {
-    let idWarning = this.notificationBar.getNotificationWithValue("identityWarning");
-    if (idWarning)
-      this.notificationBar.removeNotification(idWarning);
+    let idWarning = gNotification.notificationbox
+      .getNotificationWithValue("identityWarning");
+    if (idWarning) {
+      gNotification.notificationbox.removeNotification(idWarning);
+    }
   },
 };
 
