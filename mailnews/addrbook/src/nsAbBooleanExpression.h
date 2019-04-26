@@ -11,33 +11,31 @@
 #include "nsString.h"
 #include "nsIArray.h"
 
-class nsAbBooleanConditionString : public nsIAbBooleanConditionString
-{
-public:
-    NS_DECL_THREADSAFE_ISUPPORTS
-    NS_DECL_NSIABBOOLEANCONDITIONSTRING
+class nsAbBooleanConditionString : public nsIAbBooleanConditionString {
+ public:
+  NS_DECL_THREADSAFE_ISUPPORTS
+  NS_DECL_NSIABBOOLEANCONDITIONSTRING
 
-    nsAbBooleanConditionString();
+  nsAbBooleanConditionString();
 
-protected:
-    virtual ~nsAbBooleanConditionString();
-    nsAbBooleanConditionType mCondition;
-    nsCString mName;
-    nsString mValue;
+ protected:
+  virtual ~nsAbBooleanConditionString();
+  nsAbBooleanConditionType mCondition;
+  nsCString mName;
+  nsString mValue;
 };
 
-class nsAbBooleanExpression: public nsIAbBooleanExpression
-{
-public:
-    NS_DECL_THREADSAFE_ISUPPORTS
-    NS_DECL_NSIABBOOLEANEXPRESSION
+class nsAbBooleanExpression : public nsIAbBooleanExpression {
+ public:
+  NS_DECL_THREADSAFE_ISUPPORTS
+  NS_DECL_NSIABBOOLEANEXPRESSION
 
-    nsAbBooleanExpression();
+  nsAbBooleanExpression();
 
-protected:
-    virtual ~nsAbBooleanExpression();
-    nsAbBooleanOperationType mOperation;
-    nsCOMPtr<nsIArray> mExpressions;
+ protected:
+  virtual ~nsAbBooleanExpression();
+  nsAbBooleanOperationType mOperation;
+  nsCOMPtr<nsIArray> mExpressions;
 };
 
 #endif

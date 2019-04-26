@@ -20,13 +20,9 @@
 
 #define kDNColumn "DN"
 
-nsAbLDAPCard::nsAbLDAPCard()
-{
-}
+nsAbLDAPCard::nsAbLDAPCard() {}
 
-nsAbLDAPCard::~nsAbLDAPCard()
-{
-}
+nsAbLDAPCard::~nsAbLDAPCard() {}
 
 NS_IMPL_ISUPPORTS_INHERITED(nsAbLDAPCard, nsAbCardProperty, nsIAbLDAPCard)
 
@@ -48,51 +44,44 @@ NS_IMPL_ISUPPORTS_INHERITED(nsAbLDAPCard, nsAbCardProperty, nsIAbLDAPCard)
  * operations (rename, then update the other attributes). If the rename
  * operation succeeds and not the update of the attributes, you are
  * "somewhere in between" the original card and the updated card.
-*/
+ */
 NS_IMETHODIMP nsAbLDAPCard::GetLDAPMessageInfo(
-  nsIAbLDAPAttributeMap *aAttributeMap,
-  const uint32_t aClassCount,
-  const char **aClasses,
-  int32_t aType,
-  nsIArray **aLDAPAddMessageInfo)
-{
+    nsIAbLDAPAttributeMap *aAttributeMap, const uint32_t aClassCount,
+    const char **aClasses, int32_t aType, nsIArray **aLDAPAddMessageInfo) {
   NS_ENSURE_ARG_POINTER(aAttributeMap);
   NS_ENSURE_ARG_POINTER(aClasses);
   NS_ENSURE_ARG_POINTER(aLDAPAddMessageInfo);
 
   nsresult rv;
   nsCOMPtr<nsIMutableArray> modArray =
-    do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
+      do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Add any missing object classes. We never remove any object
   // classes: if an entry has additional object classes, it's probably
   // for a good reason.
   nsAutoCString oclass;
-  for (uint32_t i = 0; i < aClassCount; ++i)
-  {
+  for (uint32_t i = 0; i < aClassCount; ++i) {
     oclass.Assign(nsDependentCString(aClasses[i]));
     ToLowerCase(oclass);
 
-    if (!m_objectClass.Contains(oclass))
-    {
+    if (!m_objectClass.Contains(oclass)) {
       m_objectClass.AppendElement(oclass);
       printf("LDAP : adding objectClass %s\n", oclass.get());
     }
   }
 
   nsCOMPtr<nsILDAPModification> mod =
-    do_CreateInstance("@mozilla.org/network/ldap-modification;1", &rv);
+      do_CreateInstance("@mozilla.org/network/ldap-modification;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMutableArray> values =
-    do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
+      do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  for (uint32_t i = 0; i < m_objectClass.Length(); ++i)
-  {
+  for (uint32_t i = 0; i < m_objectClass.Length(); ++i) {
     nsCOMPtr<nsILDAPBERValue> value =
-      do_CreateInstance("@mozilla.org/network/ldap-ber-value;1", &rv);
+        do_CreateInstance("@mozilla.org/network/ldap-ber-value;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = value->SetFromUTF8(m_objectClass.ElementAt(i));
@@ -110,13 +99,12 @@ NS_IMETHODIMP nsAbLDAPCard::GetLDAPMessageInfo(
   // Add card properties
   CharPtrArrayGuard props;
   rv = aAttributeMap->GetAllCardProperties(props.GetSizeAddr(),
-    props.GetArrayAddr());
+                                           props.GetArrayAddr());
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString attr;
   nsCString propvalue;
-  for (uint32_t i = 0; i < props.GetSize(); ++i)
-  {
+  for (uint32_t i = 0; i < props.GetSize(); ++i) {
     // Skip some attributes that don't map to LDAP.
     //
     // BirthYear : by default this is mapped to 'birthyear',
@@ -132,28 +120,25 @@ NS_IMETHODIMP nsAbLDAPCard::GetLDAPMessageInfo(
         !strcmp(props[i], kPreferMailFormatProperty))
       continue;
 
-    rv = aAttributeMap->GetFirstAttribute(nsDependentCString(props[i]),
-      attr);
+    rv = aAttributeMap->GetFirstAttribute(nsDependentCString(props[i]), attr);
     NS_ENSURE_SUCCESS(rv, rv);
     ToLowerCase(attr);
 
     // If the property is not mapped to an attribute, skip it.
-    if (attr.IsEmpty())
-      continue;
+    if (attr.IsEmpty()) continue;
 
     nsCOMPtr<nsILDAPModification> mod =
-      do_CreateInstance("@mozilla.org/network/ldap-modification;1", &rv);
+        do_CreateInstance("@mozilla.org/network/ldap-modification;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     size_t index = m_attributes.IndexOf(attr);
 
     rv = GetPropertyAsAUTF8String(props[i], propvalue);
 
-    if (NS_SUCCEEDED(rv) &&!propvalue.IsEmpty())
-    {
+    if (NS_SUCCEEDED(rv) && !propvalue.IsEmpty()) {
       // If the new value is not empty, add/update it
       nsCOMPtr<nsILDAPBERValue> value =
-        do_CreateInstance("@mozilla.org/network/ldap-ber-value;1", &rv);
+          do_CreateInstance("@mozilla.org/network/ldap-ber-value;1", &rv);
       NS_ENSURE_SUCCESS(rv, rv);
 
       rv = value->SetFromUTF8(propvalue);
@@ -162,20 +147,17 @@ NS_IMETHODIMP nsAbLDAPCard::GetLDAPMessageInfo(
       rv = mod->SetUpModificationOneValue(aType, attr, value);
       NS_ENSURE_SUCCESS(rv, rv);
 
-      printf("LDAP : setting attribute %s (%s) to '%s'\n", attr.get(),
-        props[i], propvalue.get());
+      printf("LDAP : setting attribute %s (%s) to '%s'\n", attr.get(), props[i],
+             propvalue.get());
       modArray->AppendElement(mod);
-      if (index != m_attributes.NoIndex)
-        m_attributes.AppendElement(attr);
+      if (index != m_attributes.NoIndex) m_attributes.AppendElement(attr);
 
-    }
-    else if (aType == nsILDAPModification::MOD_REPLACE &&
-             index != m_attributes.NoIndex)
-    {
+    } else if (aType == nsILDAPModification::MOD_REPLACE &&
+               index != m_attributes.NoIndex) {
       // If the new value is empty, we are performing an update
       // and the attribute was previously set, clear it
       nsCOMPtr<nsIMutableArray> novalues =
-        do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
+          do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
       NS_ENSURE_SUCCESS(rv, rv);
 
       rv = mod->SetUpModification(aType, attr, novalues);
@@ -195,8 +177,7 @@ NS_IMETHODIMP nsAbLDAPCard::GetLDAPMessageInfo(
 NS_IMETHODIMP nsAbLDAPCard::BuildRdn(nsIAbLDAPAttributeMap *aAttributeMap,
                                      const uint32_t aAttrCount,
                                      const char **aAttributes,
-                                     nsACString &aRdn)
-{
+                                     nsACString &aRdn) {
   NS_ENSURE_ARG_POINTER(aAttributeMap);
   NS_ENSURE_ARG_POINTER(aAttributes);
 
@@ -206,8 +187,7 @@ NS_IMETHODIMP nsAbLDAPCard::BuildRdn(nsIAbLDAPAttributeMap *aAttributeMap,
   nsCString propvalue;
 
   aRdn.Truncate();
-  for (uint32_t i = 0; i < aAttrCount; ++i)
-  {
+  for (uint32_t i = 0; i < aAttrCount; ++i) {
     attr.Assign(nsDependentCString(aAttributes[i]));
 
     // Lookup the property corresponding to the attribute
@@ -220,8 +200,7 @@ NS_IMETHODIMP nsAbLDAPCard::BuildRdn(nsIAbLDAPAttributeMap *aAttributeMap,
     // XXX The case where an attribute needed to build the Relative
     // Distinguished Name is not set needs to be handled by the caller,
     // so as to let the user know what is missing.
-    if (NS_FAILED(rv) || propvalue.IsEmpty())
-    {
+    if (NS_FAILED(rv) || propvalue.IsEmpty()) {
       NS_ERROR("nsAbLDAPCard::BuildRdn: a required attribute is not set");
       return NS_ERROR_NOT_INITIALIZED;
     }
@@ -229,25 +208,21 @@ NS_IMETHODIMP nsAbLDAPCard::BuildRdn(nsIAbLDAPAttributeMap *aAttributeMap,
     aRdn.Append(attr);
     aRdn.Append('=');
     aRdn.Append(propvalue);
-    if (i < aAttrCount - 1)
-      aRdn.Append('+');
+    if (i < aAttrCount - 1) aRdn.Append('+');
   }
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbLDAPCard::GetDn(nsACString &aDN)
-{
+NS_IMETHODIMP nsAbLDAPCard::GetDn(nsACString &aDN) {
   return GetPropertyAsAUTF8String(kDNColumn, aDN);
 }
 
-NS_IMETHODIMP nsAbLDAPCard::SetDn(const nsACString &aDN)
-{
+NS_IMETHODIMP nsAbLDAPCard::SetDn(const nsACString &aDN) {
   SetLocalId(aDN);
   return SetPropertyAsAUTF8String(kDNColumn, aDN);
 }
 
-NS_IMETHODIMP nsAbLDAPCard::SetMetaProperties(nsILDAPMessage *aMessage)
-{
+NS_IMETHODIMP nsAbLDAPCard::SetMetaProperties(nsILDAPMessage *aMessage) {
   NS_ENSURE_ARG_POINTER(aMessage);
 
   // Get DN
@@ -264,8 +239,7 @@ NS_IMETHODIMP nsAbLDAPCard::SetMetaProperties(nsILDAPMessage *aMessage)
 
   nsAutoCString attr;
   m_attributes.Clear();
-  for (uint32_t i = 0; i < attrs.GetSize(); ++i)
-  {
+  for (uint32_t i = 0; i < attrs.GetSize(); ++i) {
     attr.Assign(nsDependentCString(attrs[i]));
     ToLowerCase(attr);
     m_attributes.AppendElement(attr);
@@ -275,19 +249,17 @@ NS_IMETHODIMP nsAbLDAPCard::SetMetaProperties(nsILDAPMessage *aMessage)
   m_objectClass.Clear();
   PRUnicharPtrArrayGuard vals;
   rv = aMessage->GetValues("objectClass", vals.GetSizeAddr(),
-    vals.GetArrayAddr());
+                           vals.GetArrayAddr());
 
   // objectClass is not always included in search result entries and
   // nsILDAPMessage::GetValues returns NS_ERROR_LDAP_DECODING_ERROR if the
   // requested attribute doesn't exist.
-  if (rv ==  NS_ERROR_LDAP_DECODING_ERROR)
-    return NS_OK;
+  if (rv == NS_ERROR_LDAP_DECODING_ERROR) return NS_OK;
 
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString oclass;
-  for (uint32_t i = 0; i < vals.GetSize(); ++i)
-  {
+  for (uint32_t i = 0; i < vals.GetSize(); ++i) {
     oclass.Assign(NS_LossyConvertUTF16toASCII(nsDependentString(vals[i])));
     ToLowerCase(oclass);
     m_objectClass.AppendElement(oclass);

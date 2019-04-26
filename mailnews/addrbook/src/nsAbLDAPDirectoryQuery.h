@@ -16,19 +16,18 @@
 #include "nsCOMArray.h"
 
 class nsAbLDAPDirectoryQuery : public nsIAbDirectoryQuery,
-                             public nsIAbDirectoryQueryResultListener
-{
-public:
+                               public nsIAbDirectoryQueryResultListener {
+ public:
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIABDIRECTORYQUERY
   NS_DECL_NSIABDIRECTORYQUERYRESULTLISTENER
 
   nsAbLDAPDirectoryQuery();
 
-protected:
+ protected:
   nsCOMPtr<nsILDAPMessageListener> mListener;
 
-private:
+ private:
   virtual ~nsAbLDAPDirectoryQuery();
   nsCOMPtr<nsILDAPConnection> mConnection;
   nsCOMPtr<nsILDAPURL> mDirectoryUrl;
@@ -41,4 +40,4 @@ private:
   bool mInitialized;
 };
 
-#endif // nsAbLDAPDirectoryQuery_h__
+#endif  // nsAbLDAPDirectoryQuery_h__

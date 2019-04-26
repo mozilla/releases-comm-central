@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
 #ifndef nsAbLDAPReplicationQuery_h__
 #define nsAbLDAPReplicationQuery_h__
 
@@ -15,9 +14,8 @@
 #include "nsDirPrefs.h"
 #include "nsString.h"
 
-class nsAbLDAPReplicationQuery final : public nsIAbLDAPReplicationQuery
-{
-public:
+class nsAbLDAPReplicationQuery final : public nsIAbLDAPReplicationQuery {
+ public:
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIABLDAPREPLICATIONQUERY
 
@@ -26,7 +24,7 @@ public:
   nsresult InitLDAPData();
   nsresult ConnectToLDAPServer();
 
-protected :
+ protected:
   ~nsAbLDAPReplicationQuery() {}
   // pointer to interfaces used by this object
   nsCOMPtr<nsILDAPConnection> mConnection;
@@ -40,4 +38,4 @@ protected :
   nsCString mLogin;
 };
 
-#endif // nsAbLDAPReplicationQuery_h__
+#endif  // nsAbLDAPReplicationQuery_h__

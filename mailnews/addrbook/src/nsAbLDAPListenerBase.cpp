@@ -23,27 +23,24 @@ using namespace mozilla;
 
 uint32_t nsAbLDAPListenerBase::sCurrentRequestNum = 0;
 
-nsAbLDAPListenerBase::nsAbLDAPListenerBase(nsILDAPURL* url,
-                                           nsILDAPConnection* connection,
+nsAbLDAPListenerBase::nsAbLDAPListenerBase(nsILDAPURL *url,
+                                           nsILDAPConnection *connection,
                                            const nsACString &login,
-                                           const int32_t timeOut) :
-  mDirectoryUrl(url), mConnection(connection), mLogin(login),
-  mTimeOut(timeOut), mBound(false), mInitialized(false),
-  mLock("nsAbLDAPListenerBase.mLock")
-{
-}
+                                           const int32_t timeOut)
+    : mDirectoryUrl(url),
+      mConnection(connection),
+      mLogin(login),
+      mTimeOut(timeOut),
+      mBound(false),
+      mInitialized(false),
+      mLock("nsAbLDAPListenerBase.mLock") {}
 
-nsAbLDAPListenerBase::~nsAbLDAPListenerBase()
-{
-}
+nsAbLDAPListenerBase::~nsAbLDAPListenerBase() {}
 
-nsresult nsAbLDAPListenerBase::Initiate()
-{
-  if (!mConnection || !mDirectoryUrl)
-    return NS_ERROR_NULL_POINTER;
+nsresult nsAbLDAPListenerBase::Initiate() {
+  if (!mConnection || !mDirectoryUrl) return NS_ERROR_NULL_POINTER;
 
-  if (mInitialized)
-    return NS_OK;
+  if (mInitialized) return NS_OK;
 
   mInitialized = true;
 
@@ -53,10 +50,9 @@ nsresult nsAbLDAPListenerBase::Initiate()
 // If something fails in this function, we must call InitFailed() so that the
 // derived class (and listener) knows to cancel what its doing as there is
 // a problem.
-NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit(nsILDAPConnection *aConn, nsresult aStatus)
-{
-  if (!mConnection || !mDirectoryUrl)
-  {
+NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit(nsILDAPConnection *aConn,
+                                               nsresult aStatus) {
+  if (!mConnection || !mDirectoryUrl) {
     InitFailed();
     return NS_ERROR_NULL_POINTER;
   }
@@ -65,24 +61,22 @@ NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit(nsILDAPConnection *aConn, nsresul
   nsString passwd;
 
   // Make sure that the Init() worked properly
-  if (NS_FAILED(aStatus))
-  {
+  if (NS_FAILED(aStatus)) {
     InitFailed();
     return NS_OK;
   }
 
   // If mLogin is set, we're expected to use it to get a password.
   //
-  if (!mLogin.IsEmpty() && !mSaslMechanism.EqualsLiteral("GSSAPI"))
-  {
+  if (!mLogin.IsEmpty() && !mSaslMechanism.EqualsLiteral("GSSAPI")) {
     // get the string bundle service
     //
     nsCOMPtr<nsIStringBundleService> stringBundleSvc =
-      mozilla::services::GetStringBundleService();
-    if (!stringBundleSvc)
-    {
-      NS_ERROR("nsAbLDAPListenerBase::OnLDAPInit():"
-               " error getting string bundle service");
+        mozilla::services::GetStringBundleService();
+    if (!stringBundleSvc) {
+      NS_ERROR(
+          "nsAbLDAPListenerBase::OnLDAPInit():"
+          " error getting string bundle service");
       InitFailed();
       return NS_ERROR_UNEXPECTED;
     }
@@ -90,12 +84,12 @@ NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit(nsILDAPConnection *aConn, nsresul
     // get the LDAP string bundle
     //
     nsCOMPtr<nsIStringBundle> ldapBundle;
-    rv = stringBundleSvc->CreateBundle("chrome://mozldap/locale/ldap.properties",
-                                       getter_AddRefs(ldapBundle));
-    if (NS_FAILED(rv))
-    {
-      NS_ERROR("nsAbLDAPListenerBase::OnLDAPInit(): error creating string"
-               "bundle chrome://mozldap/locale/ldap.properties");
+    rv = stringBundleSvc->CreateBundle(
+        "chrome://mozldap/locale/ldap.properties", getter_AddRefs(ldapBundle));
+    if (NS_FAILED(rv)) {
+      NS_ERROR(
+          "nsAbLDAPListenerBase::OnLDAPInit(): error creating string"
+          "bundle chrome://mozldap/locale/ldap.properties");
       InitFailed();
       return rv;
     }
@@ -104,11 +98,11 @@ NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit(nsILDAPConnection *aConn, nsresul
     //
     nsString authPromptTitle;
     rv = ldapBundle->GetStringFromName("authPromptTitle", authPromptTitle);
-    if (NS_FAILED(rv))
-    {
-      NS_ERROR("nsAbLDAPListenerBase::OnLDAPInit(): error getting"
-               "'authPromptTitle' string from bundle "
-               "chrome://mozldap/locale/ldap.properties");
+    if (NS_FAILED(rv)) {
+      NS_ERROR(
+          "nsAbLDAPListenerBase::OnLDAPInit(): error getting"
+          "'authPromptTitle' string from bundle "
+          "chrome://mozldap/locale/ldap.properties");
       InitFailed();
       return rv;
     }
@@ -117,10 +111,10 @@ NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit(nsILDAPConnection *aConn, nsresul
     //
     nsAutoCString host;
     rv = mDirectoryUrl->GetAsciiHost(host);
-    if (NS_FAILED(rv))
-    {
-      NS_ERROR("nsAbLDAPListenerBase::OnLDAPInit(): error getting ascii host"
-               "name from directory url");
+    if (NS_FAILED(rv)) {
+      NS_ERROR(
+          "nsAbLDAPListenerBase::OnLDAPInit(): error getting ascii host"
+          "name from directory url");
       InitFailed();
       return rv;
     }
@@ -130,20 +124,19 @@ NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit(nsILDAPConnection *aConn, nsresul
     // which is the default compiler for Mozilla on linux at the moment.
     //
     NS_ConvertASCIItoUTF16 hostTemp(host);
-    const char16_t *hostArray[1] = { hostTemp.get() };
+    const char16_t *hostArray[1] = {hostTemp.get()};
 
     // format the hostname into the authprompt text string
     //
     nsString authPromptText;
-    rv = ldapBundle->FormatStringFromName("authPromptText",
-                                          hostArray,
-                                          sizeof(hostArray) / sizeof(const char16_t *),
-                                          authPromptText);
-    if (NS_FAILED(rv))
-    {
-      NS_ERROR("nsAbLDAPListenerBase::OnLDAPInit():"
-               "error getting 'authPromptText' string from bundle "
-               "chrome://mozldap/locale/ldap.properties");
+    rv = ldapBundle->FormatStringFromName(
+        "authPromptText", hostArray,
+        sizeof(hostArray) / sizeof(const char16_t *), authPromptText);
+    if (NS_FAILED(rv)) {
+      NS_ERROR(
+          "nsAbLDAPListenerBase::OnLDAPInit():"
+          "error getting 'authPromptText' string from bundle "
+          "chrome://mozldap/locale/ldap.properties");
       InitFailed();
       return rv;
     }
@@ -151,11 +144,11 @@ NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit(nsILDAPConnection *aConn, nsresul
     // get the window mediator service, so we can get an auth prompter
     //
     nsCOMPtr<nsIWindowMediator> windowMediator =
-      do_GetService(NS_WINDOWMEDIATOR_CONTRACTID, &rv);
-    if (NS_FAILED(rv))
-    {
-      NS_ERROR("nsAbLDAPListenerBase::OnLDAPInit():"
-               " couldn't get window mediator service.");
+        do_GetService(NS_WINDOWMEDIATOR_CONTRACTID, &rv);
+    if (NS_FAILED(rv)) {
+      NS_ERROR(
+          "nsAbLDAPListenerBase::OnLDAPInit():"
+          " couldn't get window mediator service.");
       InitFailed();
       return rv;
     }
@@ -164,12 +157,11 @@ NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit(nsILDAPConnection *aConn, nsresul
     // prompter dialog
     //
     nsCOMPtr<mozIDOMWindowProxy> window;
-    rv = windowMediator->GetMostRecentWindow(nullptr,
-                                             getter_AddRefs(window));
-    if (NS_FAILED(rv))
-    {
-      NS_ERROR("nsAbLDAPListenerBase::OnLDAPInit():"
-               " error getting most recent window");
+    rv = windowMediator->GetMostRecentWindow(nullptr, getter_AddRefs(window));
+    if (NS_FAILED(rv)) {
+      NS_ERROR(
+          "nsAbLDAPListenerBase::OnLDAPInit():"
+          " error getting most recent window");
       InitFailed();
       return rv;
     }
@@ -177,11 +169,11 @@ NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit(nsILDAPConnection *aConn, nsresul
     // get the window watcher service, so we can get an auth prompter
     //
     nsCOMPtr<nsIWindowWatcher> windowWatcherSvc =
-      do_GetService(NS_WINDOWWATCHER_CONTRACTID, &rv);
-    if (NS_FAILED(rv))
-    {
-      NS_ERROR("nsAbLDAPListenerBase::OnLDAPInit():"
-               " couldn't get window watcher service.");
+        do_GetService(NS_WINDOWWATCHER_CONTRACTID, &rv);
+    if (NS_FAILED(rv)) {
+      NS_ERROR(
+          "nsAbLDAPListenerBase::OnLDAPInit():"
+          " couldn't get window watcher service.");
       InitFailed();
       return rv;
     }
@@ -191,10 +183,10 @@ NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit(nsILDAPConnection *aConn, nsresul
     nsCOMPtr<nsIAuthPrompt> authPrompter;
     rv = windowWatcherSvc->GetNewAuthPrompter(window,
                                               getter_AddRefs(authPrompter));
-    if (NS_FAILED(rv))
-    {
-      NS_ERROR("nsAbLDAPMessageBase::OnLDAPInit():"
-               " error getting auth prompter");
+    if (NS_FAILED(rv)) {
+      NS_ERROR(
+          "nsAbLDAPMessageBase::OnLDAPInit():"
+          " error getting auth prompter");
       InitFailed();
       return rv;
     }
@@ -207,10 +199,10 @@ NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit(nsILDAPConnection *aConn, nsresul
     // Get the specification
     nsCString spec;
     rv = mDirectoryUrl->GetSpec(spec);
-    if (NS_FAILED(rv))
-    {
-      NS_ERROR("nsAbLDAPMessageBase::OnLDAPInit():"
-               " error getting directory url spec");
+    if (NS_FAILED(rv)) {
+      NS_ERROR(
+          "nsAbLDAPMessageBase::OnLDAPInit():"
+          " error getting directory url spec");
       InitFailed();
       return rv;
     }
@@ -220,17 +212,14 @@ NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit(nsILDAPConnection *aConn, nsresul
                                       authPromptText.get(),
                                       NS_ConvertUTF8toUTF16(spec).get(),
                                       nsIAuthPrompt::SAVE_PASSWORD_PERMANENTLY,
-                                      getter_Copies(passwd),
-                                      &status);
-    if (NS_FAILED(rv))
-    {
-      NS_ERROR("nsAbLDAPMessageBase::OnLDAPInit(): failed to prompt for"
-               " password");
+                                      getter_Copies(passwd), &status);
+    if (NS_FAILED(rv)) {
+      NS_ERROR(
+          "nsAbLDAPMessageBase::OnLDAPInit(): failed to prompt for"
+          " password");
       InitFailed();
       return rv;
-    }
-    else if (!status)
-    {
+    } else if (!status) {
       InitFailed(true);
       return NS_OK;
     }
@@ -238,25 +227,24 @@ NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit(nsILDAPConnection *aConn, nsresul
 
   // Initiate the LDAP operation
   mOperation = do_CreateInstance(NS_LDAPOPERATION_CONTRACTID, &rv);
-  if (NS_FAILED(rv))
-  {
-    NS_ERROR("nsAbLDAPMessageBase::OnLDAPInit(): failed to create ldap operation");
+  if (NS_FAILED(rv)) {
+    NS_ERROR(
+        "nsAbLDAPMessageBase::OnLDAPInit(): failed to create ldap operation");
     InitFailed();
     return rv;
   }
 
   rv = mOperation->Init(mConnection, this, nullptr);
-  if (NS_FAILED(rv))
-  {
-    NS_ERROR("nsAbLDAPMessageBase::OnLDAPInit(): failed to Initialise operation");
+  if (NS_FAILED(rv)) {
+    NS_ERROR(
+        "nsAbLDAPMessageBase::OnLDAPInit(): failed to Initialise operation");
     InitFailed();
     return rv;
   }
   mOperation->SetRequestNum(++sCurrentRequestNum);
 
   // Try non-password mechanisms first
-  if (mSaslMechanism.EqualsLiteral("GSSAPI"))
-  {
+  if (mSaslMechanism.EqualsLiteral("GSSAPI")) {
     nsAutoCString service;
     rv = mDirectoryUrl->GetAsciiHost(service);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -264,14 +252,15 @@ NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit(nsILDAPConnection *aConn, nsresul
     service.InsertLiteral("ldap@", 0);
 
     nsCOMPtr<nsIAuthModule> authModule =
-      nsIAuthModule::CreateInstance("sasl-gssapi");
+        nsIAuthModule::CreateInstance("sasl-gssapi");
 
     rv = mOperation->SaslBind(service, mSaslMechanism, authModule);
-    if (NS_FAILED(rv))
-    {
-      NS_ERROR("nsAbLDAPMessageBase::OnLDAPInit(): "
-               "failed to perform GSSAPI bind");
-      mOperation = nullptr; // Break Listener -> Operation -> Listener ref cycle
+    if (NS_FAILED(rv)) {
+      NS_ERROR(
+          "nsAbLDAPMessageBase::OnLDAPInit(): "
+          "failed to perform GSSAPI bind");
+      mOperation =
+          nullptr;  // Break Listener -> Operation -> Listener ref cycle
       InitFailed();
     }
     return rv;
@@ -279,19 +268,18 @@ NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit(nsILDAPConnection *aConn, nsresul
 
   // Bind
   rv = mOperation->SimpleBind(NS_ConvertUTF16toUTF8(passwd));
-  if (NS_FAILED(rv))
-  {
-    NS_ERROR("nsAbLDAPMessageBase::OnLDAPInit(): failed to perform bind operation");
-    mOperation = nullptr; // Break Listener->Operation->Listener reference cycle
+  if (NS_FAILED(rv)) {
+    NS_ERROR(
+        "nsAbLDAPMessageBase::OnLDAPInit(): failed to perform bind operation");
+    mOperation =
+        nullptr;  // Break Listener->Operation->Listener reference cycle
     InitFailed();
   }
   return rv;
 }
 
-nsresult nsAbLDAPListenerBase::OnLDAPMessageBind(nsILDAPMessage *aMessage)
-{
-  if (mBound)
-    return NS_OK;
+nsresult nsAbLDAPListenerBase::OnLDAPMessageBind(nsILDAPMessage *aMessage) {
+  if (mBound) return NS_OK;
 
   // see whether the bind actually succeeded
   //
@@ -299,19 +287,17 @@ nsresult nsAbLDAPListenerBase::OnLDAPMessageBind(nsILDAPMessage *aMessage)
   nsresult rv = aMessage->GetErrorCode(&errCode);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (errCode != nsILDAPErrors::SUCCESS)
-  {
+  if (errCode != nsILDAPErrors::SUCCESS) {
     // if the login failed, tell the wallet to forget this password
     //
     if (errCode == nsILDAPErrors::INAPPROPRIATE_AUTH ||
-        errCode == nsILDAPErrors::INVALID_CREDENTIALS)
-    {
+        errCode == nsILDAPErrors::INVALID_CREDENTIALS) {
       // Login failed, so try again - but first remove the existing login(s)
       // so that the user gets prompted. This may not be the best way of doing
       // things, we need to review that later.
 
       nsCOMPtr<nsILoginManager> loginMgr =
-        do_GetService(NS_LOGINMANAGER_CONTRACTID, &rv);
+          do_GetService(NS_LOGINMANAGER_CONTRACTID, &rv);
       NS_ENSURE_SUCCESS(rv, rv);
 
       nsCString spec;
@@ -323,20 +309,18 @@ nsresult nsAbLDAPListenerBase::OnLDAPMessageBind(nsILDAPMessage *aMessage)
       NS_ENSURE_SUCCESS(rv, rv);
 
       uint32_t count;
-      nsILoginInfo** logins;
+      nsILoginInfo **logins;
 
       rv = loginMgr->FindLogins(&count, NS_ConvertUTF8toUTF16(prePath),
-                                EmptyString(),
-                                NS_ConvertUTF8toUTF16(spec), &logins);
+                                EmptyString(), NS_ConvertUTF8toUTF16(spec),
+                                &logins);
       NS_ENSURE_SUCCESS(rv, rv);
 
       // Typically there should only be one-login stored for this url, however,
       // just in case there isn't.
-      for (uint32_t i = 0; i < count; ++i)
-      {
+      for (uint32_t i = 0; i < count; ++i) {
         rv = loginMgr->RemoveLogin(logins[i]);
-        if (NS_FAILED(rv))
-        {
+        if (NS_FAILED(rv)) {
           NS_FREE_XPCOM_ISUPPORTS_POINTER_ARRAY(count, logins);
           return rv;
         }

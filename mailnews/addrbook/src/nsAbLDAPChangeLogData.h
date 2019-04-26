@@ -10,24 +10,23 @@
 #include "nsAbLDAPChangeLogQuery.h"
 
 typedef struct {
-  nsCString     changeLogDN;
-  int32_t       firstChangeNumber;
-  int32_t       lastChangeNumber;
-  nsCString     dataVersion;
+  nsCString changeLogDN;
+  int32_t firstChangeNumber;
+  int32_t lastChangeNumber;
+  nsCString dataVersion;
 } RootDSEChangeLogEntry;
 
-class nsAbLDAPProcessChangeLogData : public nsAbLDAPProcessReplicationData
-{
-public :
-
+class nsAbLDAPProcessChangeLogData : public nsAbLDAPProcessReplicationData {
+ public:
   nsAbLDAPProcessChangeLogData();
 
-  NS_IMETHOD Init(nsIAbLDAPReplicationQuery * query, nsIWebProgressListener *progressListener);
+  NS_IMETHOD Init(nsIAbLDAPReplicationQuery *query,
+                  nsIWebProgressListener *progressListener);
 
-protected :
+ protected:
   ~nsAbLDAPProcessChangeLogData();
 
-  nsCOMPtr <nsIAbLDAPChangeLogQuery> mChangeLogQuery;
+  nsCOMPtr<nsIAbLDAPChangeLogQuery> mChangeLogQuery;
 
   nsresult OnLDAPBind(nsILDAPMessage *aMessage);
   nsresult OnLDAPSearchEntry(nsILDAPMessage *aMessage) override;
@@ -36,7 +35,7 @@ protected :
   nsresult ParseChangeLogEntries(nsILDAPMessage *aMessage);
   nsresult ParseRootDSEEntry(nsILDAPMessage *aMessage);
 
-  nsresult  GetAuthData(); // displays username and password prompt
+  nsresult GetAuthData();  // displays username and password prompt
   nsCString mAuthUserID;   // user id of the user making the connection
 
   nsresult OnSearchAuthDNDone();
@@ -45,13 +44,11 @@ protected :
   nsresult OnReplicatingChangeDone();
 
   RootDSEChangeLogEntry mRootDSEEntry;
-  bool    mUseChangeLog;
+  bool mUseChangeLog;
   int32_t mChangeLogEntriesCount;
 
   int32_t mEntriesAddedQueryCount;
   nsStringArray mEntriesToAdd;
 };
 
-
-#endif // nsAbLDAPChangeLogData_h__
-
+#endif  // nsAbLDAPChangeLogData_h__

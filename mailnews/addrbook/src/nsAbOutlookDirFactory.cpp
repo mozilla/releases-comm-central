@@ -16,13 +16,9 @@
 
 NS_IMPL_ISUPPORTS(nsAbOutlookDirFactory, nsIAbDirFactory)
 
-nsAbOutlookDirFactory::nsAbOutlookDirFactory(void)
-{
-}
+nsAbOutlookDirFactory::nsAbOutlookDirFactory(void) {}
 
-nsAbOutlookDirFactory::~nsAbOutlookDirFactory(void)
-{
-}
+nsAbOutlookDirFactory::~nsAbOutlookDirFactory(void) {}
 
 extern const char *kOutlookDirectoryScheme;
 
@@ -30,16 +26,15 @@ NS_IMETHODIMP
 nsAbOutlookDirFactory::GetDirectories(const nsAString &aDirName,
                                       const nsACString &aURI,
                                       const nsACString &aPrefName,
-                                      nsISimpleEnumerator **aDirectories)
-{
+                                      nsISimpleEnumerator **aDirectories) {
   NS_ENSURE_ARG_POINTER(aDirectories);
 
   *aDirectories = nullptr;
   nsresult rv = NS_OK;
   nsCString stub;
   nsCString entry;
-  nsAbWinType abType = getAbWinType(kOutlookDirectoryScheme,
-                                    nsCString(aURI).get(), stub, entry);
+  nsAbWinType abType =
+      getAbWinType(kOutlookDirectoryScheme, nsCString(aURI).get(), stub, entry);
 
   if (abType == nsAbWinType_Unknown) {
     return NS_ERROR_FAILURE;
@@ -67,12 +62,12 @@ nsAbOutlookDirFactory::GetDirectories(const nsAString &aDirName,
     NS_ENSURE_SUCCESS(rv, rv);
     directories->AppendElement(directory);
   }
-  return NS_NewArrayEnumerator(aDirectories, directories, NS_GET_IID(nsIAbDirectory));
+  return NS_NewArrayEnumerator(aDirectories, directories,
+                               NS_GET_IID(nsIAbDirectory));
 }
 
 // No actual deletion, since you cannot create the address books from Mozilla.
-NS_IMETHODIMP nsAbOutlookDirFactory::DeleteDirectory(nsIAbDirectory *aDirectory)
-{
+NS_IMETHODIMP nsAbOutlookDirFactory::DeleteDirectory(
+    nsIAbDirectory *aDirectory) {
   return NS_OK;
 }
-

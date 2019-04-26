@@ -19,24 +19,20 @@
 
 NS_IMPL_ISUPPORTS(nsAbMDBDirFactory, nsIAbDirFactory)
 
-nsAbMDBDirFactory::nsAbMDBDirFactory()
-{
-}
+nsAbMDBDirFactory::nsAbMDBDirFactory() {}
 
-nsAbMDBDirFactory::~nsAbMDBDirFactory()
-{
-}
+nsAbMDBDirFactory::~nsAbMDBDirFactory() {}
 
 NS_IMETHODIMP nsAbMDBDirFactory::GetDirectories(const nsAString &aDirName,
                                                 const nsACString &aURI,
                                                 const nsACString &aPrefName,
-                                                nsISimpleEnumerator **_retval)
-{
+                                                nsISimpleEnumerator **_retval) {
   NS_ENSURE_ARG_POINTER(_retval);
 
   nsresult rv;
 
-  nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
+  nsCOMPtr<nsIAbManager> abManager =
+      do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIAbDirectory> directory;
@@ -50,17 +46,18 @@ NS_IMETHODIMP nsAbMDBDirFactory::GetDirectories(const nsAString &aDirName,
   rv = abManager->GetUserProfileDirectory(getter_AddRefs(dbPath));
 
   nsCOMPtr<nsIAddrDatabase> listDatabase;
-  if (NS_SUCCEEDED(rv))
-  {
+  if (NS_SUCCEEDED(rv)) {
     nsAutoCString fileName;
 
     if (StringBeginsWith(aURI, NS_LITERAL_CSTRING(kMDBDirectoryRoot)))
-      fileName = Substring(aURI, kMDBDirectoryRootLen, aURI.Length() - kMDBDirectoryRootLen);
+      fileName = Substring(aURI, kMDBDirectoryRootLen,
+                           aURI.Length() - kMDBDirectoryRootLen);
 
     rv = dbPath->AppendNative(fileName);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMPtr<nsIAddrDatabase> addrDBFactory = do_GetService(NS_ADDRDATABASE_CONTRACTID, &rv);
+    nsCOMPtr<nsIAddrDatabase> addrDBFactory =
+        do_GetService(NS_ADDRDATABASE_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = addrDBFactory->Open(dbPath, true, true, getter_AddRefs(listDatabase));
@@ -74,44 +71,36 @@ NS_IMETHODIMP nsAbMDBDirFactory::GetDirectories(const nsAString &aDirName,
 }
 
 /* void deleteDirectory (in nsIAbDirectory directory); */
-NS_IMETHODIMP nsAbMDBDirFactory::DeleteDirectory(nsIAbDirectory *directory)
-{
-    if (!directory)
-        return NS_ERROR_NULL_POINTER;
+NS_IMETHODIMP nsAbMDBDirFactory::DeleteDirectory(nsIAbDirectory *directory) {
+  if (!directory) return NS_ERROR_NULL_POINTER;
 
-    nsresult rv = NS_OK;
+  nsresult rv = NS_OK;
 
-    nsCOMPtr<nsIMutableArray> pAddressLists;
-    rv = directory->GetAddressLists(getter_AddRefs(pAddressLists));
-    NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIMutableArray> pAddressLists;
+  rv = directory->GetAddressLists(getter_AddRefs(pAddressLists));
+  NS_ENSURE_SUCCESS(rv, rv);
 
-    uint32_t total;
-    rv = pAddressLists->GetLength(&total);
-    NS_ENSURE_SUCCESS(rv, rv);
+  uint32_t total;
+  rv = pAddressLists->GetLength(&total);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-    for (uint32_t i = 0; i < total; i++)
-    {
-        nsCOMPtr<nsIAbDirectory> listDir(do_QueryElementAt(pAddressLists, i, &rv));
-        if (NS_FAILED(rv))
-            break;
+  for (uint32_t i = 0; i < total; i++) {
+    nsCOMPtr<nsIAbDirectory> listDir(do_QueryElementAt(pAddressLists, i, &rv));
+    if (NS_FAILED(rv)) break;
 
-        nsCOMPtr<nsIAbMDBDirectory> dblistDir(do_QueryInterface(listDir, &rv));
-        if (NS_FAILED(rv))
-            break;
+    nsCOMPtr<nsIAbMDBDirectory> dblistDir(do_QueryInterface(listDir, &rv));
+    if (NS_FAILED(rv)) break;
 
-        rv = directory->DeleteDirectory(listDir);
-        if (NS_FAILED(rv))
-            break;
+    rv = directory->DeleteDirectory(listDir);
+    if (NS_FAILED(rv)) break;
 
-        rv = dblistDir->RemoveElementsFromAddressList();
-        if (NS_FAILED(rv))
-            break;
-    }
-    pAddressLists->Clear();
+    rv = dblistDir->RemoveElementsFromAddressList();
+    if (NS_FAILED(rv)) break;
+  }
+  pAddressLists->Clear();
 
-    nsCOMPtr<nsIAbMDBDirectory> dbdirectory(do_QueryInterface(directory, &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIAbMDBDirectory> dbdirectory(do_QueryInterface(directory, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
 
-    return dbdirectory->ClearDatabase();
+  return dbdirectory->ClearDatabase();
 }
-

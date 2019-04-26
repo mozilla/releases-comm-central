@@ -22,8 +22,7 @@
 #include "nsMemory.h"
 #include "nsIStringBundle.h"
 
-typedef struct AbCard
-{
+typedef struct AbCard {
   nsIAbCard *card;
   uint32_t primaryCollationKeyLen;
   uint32_t secondaryCollationKeyLen;
@@ -31,10 +30,11 @@ typedef struct AbCard
   uint8_t *secondaryCollationKey;
 } AbCard;
 
-
-class nsAbView : public nsIAbView, public nsITreeView, public nsIAbListener, public nsIObserver
-{
-public:
+class nsAbView : public nsIAbView,
+                 public nsITreeView,
+                 public nsIAbListener,
+                 public nsIObserver {
+ public:
   nsAbView();
 
   NS_DECL_ISUPPORTS
@@ -43,14 +43,15 @@ public:
   NS_DECL_NSIABLISTENER
   NS_DECL_NSIOBSERVER
 
-  int32_t CompareCollationKeys(uint8_t *key1, uint32_t len1, uint8_t *key2, uint32_t len2);
+  int32_t CompareCollationKeys(uint8_t *key1, uint32_t len1, uint8_t *key2,
+                               uint32_t len2);
 
-private:
+ private:
   virtual ~nsAbView();
   nsresult Initialize();
   int32_t FindIndexForInsert(AbCard *abcard);
   int32_t FindIndexForCard(nsIAbCard *card);
-  nsresult GenerateCollationKeysForCard(const nsAString& colID, AbCard *abcard);
+  nsresult GenerateCollationKeysForCard(const nsAString &colID, AbCard *abcard);
   nsresult InvalidateTree(int32_t row);
   nsresult RemoveCardAt(int32_t row);
   nsresult AddCard(AbCard *abcard, bool selectCardAfterAdding, int32_t *index);
@@ -59,13 +60,14 @@ private:
   nsresult SetGeneratedNameFormatFromPrefs();
   nsresult GetSelectedCards(nsCOMPtr<nsIMutableArray> &aSelectedCards);
   nsresult ReselectCards(nsIArray *aCards, nsIAbCard *aIndexCard);
-  nsresult GetCardValue(nsIAbCard *card, const nsAString& colID, nsAString &_retval);
+  nsresult GetCardValue(nsIAbCard *card, const nsAString &colID,
+                        nsAString &_retval);
   nsresult RefreshTree();
 
   RefPtr<mozilla::dom::XULTreeElement> mTree;
   nsCOMPtr<nsITreeSelection> mTreeSelection;
-  nsCOMPtr <nsIAbDirectory> mDirectory;
-  nsTArray<AbCard*> mCards;
+  nsCOMPtr<nsIAbDirectory> mDirectory;
+  nsTArray<AbCard *> mCards;
   nsString mSortColumn;
   nsString mSortDirection;
   nsCOMPtr<nsICollation> mCollationKeyGenerator;

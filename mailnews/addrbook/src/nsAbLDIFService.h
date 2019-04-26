@@ -10,28 +10,30 @@
 
 class nsIMdbRow;
 
-class nsAbLDIFService : public nsIAbLDIFService
-{
-public:
+class nsAbLDIFService : public nsIAbLDIFService {
+ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIABLDIFSERVICE
 
   nsAbLDIFService();
-private:
-  virtual ~nsAbLDIFService();
-  nsresult        str_parse_line(char *line, char **type, char **value, int *vlen) const;
-  char *          str_getline(char **next) const;
-  nsresult        GetLdifStringRecord(char* buf, int32_t len, int32_t& stopPos);
-  void AddLdifRowToDatabase(nsIAddrDatabase *aDatabase, bool aIsList);
-  void AddLdifColToDatabase(nsIAddrDatabase *aDatabase, nsIMdbRow* newRow,
-                            char* typeSlot, char* valueSlot, bool bIsList);
-  void            ClearLdifRecordBuffer();
-  void            SplitCRLFAddressField(nsCString &inputAddress, nsCString &outputLine1, nsCString &outputLine2) const;
 
-  bool            mStoreLocAsHome;
-  nsCString       mLdifLine;
-  int32_t         mLFCount;
-  int32_t         mCRCount;
+ private:
+  virtual ~nsAbLDIFService();
+  nsresult str_parse_line(char *line, char **type, char **value,
+                          int *vlen) const;
+  char *str_getline(char **next) const;
+  nsresult GetLdifStringRecord(char *buf, int32_t len, int32_t &stopPos);
+  void AddLdifRowToDatabase(nsIAddrDatabase *aDatabase, bool aIsList);
+  void AddLdifColToDatabase(nsIAddrDatabase *aDatabase, nsIMdbRow *newRow,
+                            char *typeSlot, char *valueSlot, bool bIsList);
+  void ClearLdifRecordBuffer();
+  void SplitCRLFAddressField(nsCString &inputAddress, nsCString &outputLine1,
+                             nsCString &outputLine2) const;
+
+  bool mStoreLocAsHome;
+  nsCString mLdifLine;
+  int32_t mLFCount;
+  int32_t mCRCount;
 };
 
 #endif

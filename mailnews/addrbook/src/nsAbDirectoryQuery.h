@@ -13,101 +13,88 @@
 #include "nsIArray.h"
 #include "nsIAbBooleanExpression.h"
 
-class nsAbDirectoryQuerySimpleBooleanExpression : public nsIAbBooleanExpression
-{
-public:
-    NS_DECL_THREADSAFE_ISUPPORTS
-    NS_DECL_NSIABBOOLEANEXPRESSION
+class nsAbDirectoryQuerySimpleBooleanExpression
+    : public nsIAbBooleanExpression {
+ public:
+  NS_DECL_THREADSAFE_ISUPPORTS
+  NS_DECL_NSIABBOOLEANEXPRESSION
 
-    nsAbDirectoryQuerySimpleBooleanExpression();
+  nsAbDirectoryQuerySimpleBooleanExpression();
 
-private:
-    virtual ~nsAbDirectoryQuerySimpleBooleanExpression();
+ private:
+  virtual ~nsAbDirectoryQuerySimpleBooleanExpression();
 
-public:
-    nsCOMPtr<nsIArray> mExpressions;
-    nsAbBooleanOperationType mOperation;
+ public:
+  nsCOMPtr<nsIArray> mExpressions;
+  nsAbBooleanOperationType mOperation;
 };
 
+class nsAbDirectoryQueryArguments : public nsIAbDirectoryQueryArguments {
+ public:
+  NS_DECL_THREADSAFE_ISUPPORTS
+  NS_DECL_NSIABDIRECTORYQUERYARGUMENTS
 
-class nsAbDirectoryQueryArguments : public nsIAbDirectoryQueryArguments
-{
-public:
-    NS_DECL_THREADSAFE_ISUPPORTS
-    NS_DECL_NSIABDIRECTORYQUERYARGUMENTS
+  nsAbDirectoryQueryArguments();
 
-    nsAbDirectoryQueryArguments();
+ private:
+  virtual ~nsAbDirectoryQueryArguments();
 
-private:
-    virtual ~nsAbDirectoryQueryArguments();
-
-protected:
-    nsCOMPtr<nsISupports> mExpression;
-    nsCOMPtr<nsISupports> mTypeSpecificArg;
-    bool mQuerySubDirectories;
-    nsCString mFilter;
+ protected:
+  nsCOMPtr<nsISupports> mExpression;
+  nsCOMPtr<nsISupports> mTypeSpecificArg;
+  bool mQuerySubDirectories;
+  nsCString mFilter;
 };
 
+class nsAbDirectoryQueryPropertyValue
+    : public nsIAbDirectoryQueryPropertyValue {
+ public:
+  NS_DECL_THREADSAFE_ISUPPORTS
+  NS_DECL_NSIABDIRECTORYQUERYPROPERTYVALUE
 
-class nsAbDirectoryQueryPropertyValue : public nsIAbDirectoryQueryPropertyValue
-{
-public:
-    NS_DECL_THREADSAFE_ISUPPORTS
-    NS_DECL_NSIABDIRECTORYQUERYPROPERTYVALUE
+  nsAbDirectoryQueryPropertyValue();
+  nsAbDirectoryQueryPropertyValue(const char* aName, const char16_t* aValue);
+  nsAbDirectoryQueryPropertyValue(const char* aName,
+                                  nsISupports* aValueISupports);
 
-    nsAbDirectoryQueryPropertyValue();
-    nsAbDirectoryQueryPropertyValue(const char* aName,
-          const char16_t* aValue);
-    nsAbDirectoryQueryPropertyValue(const char* aName,
-          nsISupports* aValueISupports);
-
-protected:
-    virtual ~nsAbDirectoryQueryPropertyValue();
-    nsCString mName;
-    nsString mValue;
-    nsCOMPtr<nsISupports> mValueISupports;
+ protected:
+  virtual ~nsAbDirectoryQueryPropertyValue();
+  nsCString mName;
+  nsString mValue;
+  nsCOMPtr<nsISupports> mValueISupports;
 };
 
+class nsAbDirectoryQuery : public nsIAbDirectoryQuery {
+ public:
+  NS_DECL_ISUPPORTS
+  NS_DECL_NSIABDIRECTORYQUERY
 
-class nsAbDirectoryQuery : public nsIAbDirectoryQuery
-{
-public:
-    NS_DECL_ISUPPORTS
-    NS_DECL_NSIABDIRECTORYQUERY
+  nsAbDirectoryQuery();
 
-    nsAbDirectoryQuery();
+ protected:
+  virtual ~nsAbDirectoryQuery();
+  nsresult query(nsIAbDirectory* directory, nsIAbBooleanExpression* expression,
+                 nsIAbDirSearchListener* listener, bool doSubDirectories,
+                 int32_t* resultLimit);
+  nsresult queryChildren(nsIAbDirectory* directory,
+                         nsIAbBooleanExpression* expression,
+                         nsIAbDirSearchListener* listener,
+                         bool doSubDirectories, int32_t* resultLimit);
+  nsresult queryCards(nsIAbDirectory* directory,
+                      nsIAbBooleanExpression* expression,
+                      nsIAbDirSearchListener* listener, int32_t* resultLimit);
+  nsresult matchCard(nsIAbCard* card, nsIAbBooleanExpression* expression,
+                     nsIAbDirSearchListener* listener, int32_t* resultLimit);
+  nsresult matchCardExpression(nsIAbCard* card,
+                               nsIAbBooleanExpression* expression,
+                               bool* result);
+  nsresult matchCardCondition(nsIAbCard* card,
+                              nsIAbBooleanConditionString* condition,
+                              bool* matchFound);
 
-protected:
-    virtual ~nsAbDirectoryQuery();
-    nsresult query(nsIAbDirectory* directory,
-                   nsIAbBooleanExpression* expression,
-                   nsIAbDirSearchListener* listener,
-                   bool doSubDirectories,
-                   int32_t* resultLimit);
-    nsresult queryChildren(nsIAbDirectory* directory,
-                           nsIAbBooleanExpression* expression,
-                           nsIAbDirSearchListener* listener,
-                           bool doSubDirectories,
-                           int32_t* resultLimit);
-    nsresult queryCards(nsIAbDirectory* directory,
-                        nsIAbBooleanExpression* expression,
-                        nsIAbDirSearchListener* listener,
-                        int32_t* resultLimit);
-    nsresult matchCard(nsIAbCard* card,
-                       nsIAbBooleanExpression* expression,
-                       nsIAbDirSearchListener* listener,
-                       int32_t* resultLimit);
-    nsresult matchCardExpression(nsIAbCard* card,
-                                 nsIAbBooleanExpression* expression,
-                                 bool* result);
-    nsresult matchCardCondition(nsIAbCard* card,
-                                nsIAbBooleanConditionString* condition,
-                                bool* matchFound);
-
-    nsresult queryMatch (nsIAbCard* card,
-        nsIAbDirSearchListener* listener);
-    nsresult queryFinished(nsIAbDirSearchListener* listener);
-    nsresult queryError(nsIAbDirSearchListener* listener);
+  nsresult queryMatch(nsIAbCard* card, nsIAbDirSearchListener* listener);
+  nsresult queryFinished(nsIAbDirSearchListener* listener);
+  nsresult queryError(nsIAbDirSearchListener* listener);
 };
 
 #endif

@@ -19,10 +19,8 @@ class nsIAbLDAPAttributeMap;
 
 class nsAbManager : public nsIAbManager,
                     public nsICommandLineHandler,
-                    public nsIObserver
-{
-
-public:
+                    public nsIObserver {
+ public:
   nsAbManager();
 
   NS_DECL_THREADSAFE_ISUPPORTS
@@ -32,17 +30,28 @@ public:
 
   nsresult Init();
 
-private:
+ private:
   virtual ~nsAbManager();
   nsresult GetRootDirectory(nsIAbDirectory **aResult);
-  nsresult ExportDirectoryToDelimitedText(nsIAbDirectory *aDirectory, const char *aDelim,
-                                          uint32_t aDelimLen, nsIFile *aLocalFile, bool useUTF8);
-  nsresult ExportDirectoryToVCard(nsIAbDirectory *aDirectory, nsIFile *aLocalFile);
-  nsresult ExportDirectoryToLDIF(nsIAbDirectory *aDirectory, nsIFile *aLocalFile);
-  nsresult AppendLDIFForMailList(nsIAbCard *aCard, nsIAbLDAPAttributeMap *aAttrMap, nsACString &aResult);
-  nsresult AppendDNForCard(const char *aProperty, nsIAbCard *aCard, nsIAbLDAPAttributeMap *aAttrMap, nsACString &aResult);
-  nsresult AppendBasicLDIFForCard(nsIAbCard *aCard, nsIAbLDAPAttributeMap *aAttrMap, nsACString &aResult);
-  nsresult AppendProperty(const char *aProperty, const char16_t *aValue, nsACString &aResult);
+  nsresult ExportDirectoryToDelimitedText(nsIAbDirectory *aDirectory,
+                                          const char *aDelim,
+                                          uint32_t aDelimLen,
+                                          nsIFile *aLocalFile, bool useUTF8);
+  nsresult ExportDirectoryToVCard(nsIAbDirectory *aDirectory,
+                                  nsIFile *aLocalFile);
+  nsresult ExportDirectoryToLDIF(nsIAbDirectory *aDirectory,
+                                 nsIFile *aLocalFile);
+  nsresult AppendLDIFForMailList(nsIAbCard *aCard,
+                                 nsIAbLDAPAttributeMap *aAttrMap,
+                                 nsACString &aResult);
+  nsresult AppendDNForCard(const char *aProperty, nsIAbCard *aCard,
+                           nsIAbLDAPAttributeMap *aAttrMap,
+                           nsACString &aResult);
+  nsresult AppendBasicLDIFForCard(nsIAbCard *aCard,
+                                  nsIAbLDAPAttributeMap *aAttrMap,
+                                  nsACString &aResult);
+  nsresult AppendProperty(const char *aProperty, const char16_t *aValue,
+                          nsACString &aResult);
   bool IsSafeLDIFString(const char16_t *aStr);
 
   struct abListener {
@@ -50,12 +59,13 @@ private:
     uint32_t mNotifyFlags;
 
     abListener(nsIAbListener *aListener, uint32_t aNotifyFlags)
-      : mListener(aListener), mNotifyFlags(aNotifyFlags) {}
+        : mListener(aListener), mNotifyFlags(aNotifyFlags) {}
     abListener(const abListener &aListener)
-      : mListener(aListener.mListener), mNotifyFlags(aListener.mNotifyFlags) {}
+        : mListener(aListener.mListener),
+          mNotifyFlags(aListener.mNotifyFlags) {}
     ~abListener() {}
 
-    int operator==(nsIAbListener* aListener) const {
+    int operator==(nsIAbListener *aListener) const {
       return mListener == aListener;
     }
     int operator==(const abListener &aListener) const {
@@ -63,21 +73,17 @@ private:
     }
   };
 
-  class nsFilePickerShownCallback
-    : public nsIFilePickerShownCallback
-  {
-    virtual ~nsFilePickerShownCallback()
-    { }
+  class nsFilePickerShownCallback : public nsIFilePickerShownCallback {
+    virtual ~nsFilePickerShownCallback() {}
 
-  public:
-    nsFilePickerShownCallback(nsAbManager* aInput,
-                              nsIFilePicker* aFilePicker,
+   public:
+    nsFilePickerShownCallback(nsAbManager *aInput, nsIFilePicker *aFilePicker,
                               nsIAbDirectory *aDirectory);
     NS_DECL_ISUPPORTS
 
     NS_IMETHOD Done(int16_t aResult) override;
 
-  private:
+   private:
     nsCOMPtr<nsIFilePicker> mFilePicker;
     RefPtr<nsAbManager> mAbManager;
     RefPtr<nsIAbDirectory> mDirectory;

@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
-
 #ifndef nsAbLDAPReplicationService_h___
 #define nsAbLDAPReplicationService_h___
 
@@ -11,9 +9,8 @@
 #include "nsIAbLDAPReplicationQuery.h"
 #include "nsString.h"
 
-class nsAbLDAPReplicationService : public nsIAbLDAPReplicationService
-{
-public:
+class nsAbLDAPReplicationService : public nsIAbLDAPReplicationService {
+ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIABLDAPREPLICATIONSERVICE
 
@@ -21,13 +18,11 @@ public:
 
   int32_t DecideProtocol();
 
-protected:
+ protected:
   virtual ~nsAbLDAPReplicationService();
   nsCOMPtr<nsIAbLDAPReplicationQuery> mQuery;
-  bool           mReplicating;
+  bool mReplicating;
   nsCOMPtr<nsIAbLDAPDirectory> mDirectory;
-
 };
-
 
 #endif /* nsAbLDAPReplicationService_h___ */

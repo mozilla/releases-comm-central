@@ -18,8 +18,7 @@ NS_IMETHODIMP
 nsAbOSXDirFactory::GetDirectories(const nsAString &aDirName,
                                   const nsACString &aURI,
                                   const nsACString &aPrefName,
-                                  nsISimpleEnumerator **aDirectories)
-{
+                                  nsISimpleEnumerator **aDirectories) {
   NS_ENSURE_ARG_POINTER(aDirectories);
 
   *aDirectories = nullptr;
@@ -29,8 +28,9 @@ nsAbOSXDirFactory::GetDirectories(const nsAString &aDirName,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIAbDirectory> directory;
-  rv = abManager->GetDirectory(NS_LITERAL_CSTRING(NS_ABOSXDIRECTORY_URI_PREFIX "/"),
-                               getter_AddRefs(directory));
+  rv = abManager->GetDirectory(
+      NS_LITERAL_CSTRING(NS_ABOSXDIRECTORY_URI_PREFIX "/"),
+      getter_AddRefs(directory));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIAbOSXDirectory> osxDirectory(do_QueryInterface(directory, &rv));
@@ -44,7 +44,4 @@ nsAbOSXDirFactory::GetDirectories(const nsAString &aDirName,
 
 // No actual deletion, since you cannot create the address books from Mozilla.
 NS_IMETHODIMP
-nsAbOSXDirFactory::DeleteDirectory(nsIAbDirectory *aDirectory)
-{
-  return NS_OK;
-}
+nsAbOSXDirFactory::DeleteDirectory(nsIAbDirectory *aDirectory) { return NS_OK; }

@@ -12,9 +12,8 @@
 #include "nsString.h"
 
 class nsAbLDAPChangeLogQuery : public nsIAbLDAPChangeLogQuery,
-                               public nsAbLDAPReplicationQuery
-{
-public :
+                               public nsAbLDAPReplicationQuery {
+ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIABLDAPCHANGELOGQUERY
 
@@ -22,7 +21,8 @@ public :
   virtual ~nsAbLDAPChangeLogQuery();
 
   NS_IMETHOD DoReplicationQuery() override;
-  NS_IMETHOD Init(const nsACString & aPrefName, nsIWebProgressListener *aProgressListener);
+  NS_IMETHOD Init(const nsACString &aPrefName,
+                  nsIWebProgressListener *aProgressListener);
 };
 
-#endif // nsAbLDAPChangeLogQuery_h__
+#endif  // nsAbLDAPChangeLogQuery_h__

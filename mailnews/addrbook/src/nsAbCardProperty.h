@@ -23,33 +23,38 @@ class nsIStringBundle;
 class mozITXTToHTMLConv;
 struct AppendItem;
 
- /*
-  * Address Book Card Property
-  */
+/*
+ * Address Book Card Property
+ */
 
-class nsAbCardProperty: public nsIAbCard
-{
-public:
+class nsAbCardProperty : public nsIAbCard {
+ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIABCARD
   NS_DECL_NSIABITEM
 
   nsAbCardProperty();
 
-protected:
+ protected:
   virtual ~nsAbCardProperty();
-  bool     m_IsMailList;
+  bool m_IsMailList;
   nsCString m_MailListURI;
 
   // Store most of the properties here
   nsInterfaceHashtable<nsCStringHashKey, nsIVariant> m_properties;
 
   nsCString m_directoryId, m_localId;
-private:
-  nsresult AppendSection(const AppendItem *aArray, int16_t aCount, const nsString& aHeading, nsIStringBundle *aBundle, mozITXTToHTMLConv *aConv, nsString &aResult);
-  nsresult AppendLine(const AppendItem &aItem, mozITXTToHTMLConv *aConv, nsString &aResult);
-  nsresult AppendLabel(const AppendItem &aItem, nsIStringBundle *aBundle, mozITXTToHTMLConv *aConv, nsString &aResult);
-  nsresult AppendCityStateZip(const AppendItem &aItem, nsIStringBundle *aBundle, mozITXTToHTMLConv *aConv, nsString &aResult);
+
+ private:
+  nsresult AppendSection(const AppendItem *aArray, int16_t aCount,
+                         const nsString &aHeading, nsIStringBundle *aBundle,
+                         mozITXTToHTMLConv *aConv, nsString &aResult);
+  nsresult AppendLine(const AppendItem &aItem, mozITXTToHTMLConv *aConv,
+                      nsString &aResult);
+  nsresult AppendLabel(const AppendItem &aItem, nsIStringBundle *aBundle,
+                       mozITXTToHTMLConv *aConv, nsString &aResult);
+  nsresult AppendCityStateZip(const AppendItem &aItem, nsIStringBundle *aBundle,
+                              mozITXTToHTMLConv *aConv, nsString &aResult);
 
   nsresult ConvertToBase64EncodedXML(nsACString &result);
   nsresult ConvertToXMLPrintData(nsAString &result);

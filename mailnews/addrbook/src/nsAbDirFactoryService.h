@@ -8,15 +8,14 @@
 
 #include "nsIAbDirFactoryService.h"
 
-class nsAbDirFactoryService : public nsIAbDirFactoryService
-{
-public:
+class nsAbDirFactoryService : public nsIAbDirFactoryService {
+ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIABDIRFACTORYSERVICE
 
   nsAbDirFactoryService();
 
-private:
+ private:
   virtual ~nsAbDirFactoryService();
 };
 

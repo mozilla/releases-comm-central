@@ -21,39 +21,39 @@ class nsIAbBooleanExpression;
 
 #define NS_ABOSXDIRECTORY_URI_PREFIX NS_ABOSXDIRECTORY_PREFIX "://"
 
-#define NS_IABOSXDIRECTORY_IID \
-{ 0x87ee4bd9, 0x8552, 0x498f, \
-  { 0x80, 0x85, 0x34, 0xf0, 0x2a, 0xbb, 0x56, 0x16 } }
+#define NS_IABOSXDIRECTORY_IID                       \
+  {                                                  \
+    0x87ee4bd9, 0x8552, 0x498f, {                    \
+      0x80, 0x85, 0x34, 0xf0, 0x2a, 0xbb, 0x56, 0x16 \
+    }                                                \
+  }
 
-class nsIAbOSXDirectory : public nsISupports
-{
-public:
+class nsIAbOSXDirectory : public nsISupports {
+ public:
   NS_DECLARE_STATIC_IID_ACCESSOR(NS_IABOSXDIRECTORY_IID)
 
   virtual nsresult AssertChildNodes() = 0;
   virtual nsresult Update() = 0;
   virtual nsresult AssertDirectory(nsIAbManager *aManager,
                                    nsIAbDirectory *aDirectory) = 0;
-  virtual nsresult AssertCard(nsIAbManager *aManager,
-                              nsIAbCard *aCard) = 0;
-  virtual nsresult UnassertCard(nsIAbManager *aManager,
-                                nsIAbCard *aCard,
+  virtual nsresult AssertCard(nsIAbManager *aManager, nsIAbCard *aCard) = 0;
+  virtual nsresult UnassertCard(nsIAbManager *aManager, nsIAbCard *aCard,
                                 nsIMutableArray *aCardList) = 0;
   virtual nsresult UnassertDirectory(nsIAbManager *aManager,
                                      nsIAbDirectory *aDirectory) = 0;
   virtual nsresult DeleteUid(const nsACString &aUid) = 0;
   virtual nsresult GetURI(nsACString &aURI) = 0;
   virtual nsresult Init(const char *aUri) = 0;
-  virtual nsresult GetCardByUri(const nsACString &aUri, nsIAbOSXCard **aResult) = 0;
+  virtual nsresult GetCardByUri(const nsACString &aUri,
+                                nsIAbOSXCard **aResult) = 0;
 };
 
 NS_DEFINE_STATIC_IID_ACCESSOR(nsIAbOSXDirectory, NS_IABOSXDIRECTORY_IID)
 
 class nsAbOSXDirectory final : public nsAbDirProperty,
-public nsIAbDirSearchListener,
-public nsIAbOSXDirectory
-{
-public:
+                               public nsIAbDirSearchListener,
+                               public nsIAbOSXDirectory {
+ public:
   nsAbOSXDirectory();
 
   NS_DECL_ISUPPORTS_INHERITED
@@ -68,15 +68,14 @@ public:
   NS_IMETHOD GetChildNodes(nsISimpleEnumerator **aNodes) override;
   NS_IMETHOD GetIsQuery(bool *aResult) override;
   NS_IMETHOD HasCard(nsIAbCard *aCard, bool *aHasCard) override;
-  NS_IMETHOD HasDirectory(nsIAbDirectory *aDirectory, bool *aHasDirectory) override;
+  NS_IMETHOD HasDirectory(nsIAbDirectory *aDirectory,
+                          bool *aHasDirectory) override;
   NS_IMETHOD GetURI(nsACString &aURI) override;
   NS_IMETHOD GetCardFromProperty(const char *aProperty,
-                                 const nsACString &aValue,
-                                 bool caseSensitive,
+                                 const nsACString &aValue, bool caseSensitive,
                                  nsIAbCard **aResult) override;
   NS_IMETHOD GetCardsFromProperty(const char *aProperty,
-                                  const nsACString &aValue,
-                                  bool aCaseSensitive,
+                                  const nsACString &aValue, bool aCaseSensitive,
                                   nsISimpleEnumerator **aResult) override;
   NS_IMETHOD CardForEmailAddress(const nsACString &aEmailAddress,
                                  nsIAbCard **aResult) override;
@@ -85,10 +84,8 @@ public:
   nsresult AssertChildNodes() override;
   nsresult AssertDirectory(nsIAbManager *aManager,
                            nsIAbDirectory *aDirectory) override;
-  nsresult AssertCard(nsIAbManager *aManager,
-                      nsIAbCard *aCard) override;
-  nsresult UnassertCard(nsIAbManager *aManager,
-                        nsIAbCard *aCard,
+  nsresult AssertCard(nsIAbManager *aManager, nsIAbCard *aCard) override;
+  nsresult UnassertCard(nsIAbManager *aManager, nsIAbCard *aCard,
                         nsIMutableArray *aCardList) override;
   nsresult UnassertDirectory(nsIAbManager *aManager,
                              nsIAbDirectory *aDirectory) override;
@@ -97,11 +94,12 @@ public:
 
   nsresult DeleteUid(const nsACString &aUid) override;
 
-  nsresult GetCardByUri(const nsACString &aUri, nsIAbOSXCard **aResult) override;
+  nsresult GetCardByUri(const nsACString &aUri,
+                        nsIAbOSXCard **aResult) override;
 
   nsresult GetRootOSXDirectory(nsIAbOSXDirectory **aResult);
 
-private:
+ private:
   ~nsAbOSXDirectory();
   nsresult FallbackSearch(nsIAbBooleanExpression *aExpression,
                           nsISimpleEnumerator **aCards);
@@ -121,4 +119,4 @@ private:
   nsCOMPtr<nsIAbOSXDirectory> mCacheTopLevelOSXAb;
 };
 
-#endif // nsAbOSXDirectory_h___
+#endif  // nsAbOSXDirectory_h___

@@ -20,14 +20,12 @@
 #include "nsIMutableArray.h"
 #include "nsWeakReference.h"
 
- /*
-  * Address Book Directory
-  */
+/*
+ * Address Book Directory
+ */
 
-class nsAbDirProperty: public nsIAbDirectory,
-                       public nsSupportsWeakReference
-{
-public:
+class nsAbDirProperty : public nsIAbDirectory, public nsSupportsWeakReference {
+ public:
   nsAbDirProperty(void);
 
   NS_DECL_ISUPPORTS
@@ -35,7 +33,7 @@ public:
   NS_DECL_NSIABCOLLECTION
   NS_DECL_NSIABDIRECTORY
 
-protected:
+ protected:
   virtual ~nsAbDirProperty(void);
 
   /**
@@ -49,7 +47,7 @@ protected:
   nsString m_ListName;
   nsString m_ListNickName;
   nsString m_Description;
-  bool     m_IsMailList;
+  bool m_IsMailList;
 
   nsCString mURI;
   nsCString mUID;
@@ -57,7 +55,6 @@ protected:
   nsCString mURINoQuery;
   bool mIsValidURI;
   bool mIsQueryURI;
-
 
   /*
    * Note that any derived implementations should ensure that this item

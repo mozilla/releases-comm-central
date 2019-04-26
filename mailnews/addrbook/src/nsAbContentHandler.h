@@ -10,16 +10,15 @@
 #include "nsIContentHandler.h"
 
 class nsAbContentHandler : public nsIContentHandler,
-                           public nsIStreamLoaderObserver
-{
-public:
+                           public nsIStreamLoaderObserver {
+ public:
   nsAbContentHandler();
 
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSICONTENTHANDLER
   NS_DECL_NSISTREAMLOADEROBSERVER
 
-private:
+ private:
   virtual ~nsAbContentHandler();
 };
 

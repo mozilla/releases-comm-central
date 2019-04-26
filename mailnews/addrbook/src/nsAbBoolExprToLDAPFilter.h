@@ -12,34 +12,25 @@
 
 class nsIAbLDAPAttributeMap;
 
-class nsAbBoolExprToLDAPFilter
-{
-public:
-    static const int TRANSLATE_CARD_PROPERTY ;
-    static const int ALLOW_NON_CONVERTABLE_CARD_PROPERTY ;
+class nsAbBoolExprToLDAPFilter {
+ public:
+  static const int TRANSLATE_CARD_PROPERTY;
+  static const int ALLOW_NON_CONVERTABLE_CARD_PROPERTY;
 
-    static nsresult Convert (
-            nsIAbLDAPAttributeMap* map,
-            nsIAbBooleanExpression* expression,
-            nsCString& filter,
-            int flags = TRANSLATE_CARD_PROPERTY);
+  static nsresult Convert(nsIAbLDAPAttributeMap* map,
+                          nsIAbBooleanExpression* expression, nsCString& filter,
+                          int flags = TRANSLATE_CARD_PROPERTY);
 
-protected:
-    static nsresult FilterExpression (
-        nsIAbLDAPAttributeMap* map,
-        nsIAbBooleanExpression* expression,
-        nsCString& filter,
-        int flags);
-    static nsresult FilterExpressions (
-        nsIAbLDAPAttributeMap* map,
-        nsIArray* expressions,
-        nsCString& filter,
-        int flags);
-    static nsresult FilterCondition (
-        nsIAbLDAPAttributeMap* map,
-        nsIAbBooleanConditionString* condition,
-        nsCString& filter,
-        int flags);
+ protected:
+  static nsresult FilterExpression(nsIAbLDAPAttributeMap* map,
+                                   nsIAbBooleanExpression* expression,
+                                   nsCString& filter, int flags);
+  static nsresult FilterExpressions(nsIAbLDAPAttributeMap* map,
+                                    nsIArray* expressions, nsCString& filter,
+                                    int flags);
+  static nsresult FilterCondition(nsIAbLDAPAttributeMap* map,
+                                  nsIAbBooleanConditionString* condition,
+                                  nsCString& filter, int flags);
 };
 
 #endif

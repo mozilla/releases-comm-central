@@ -13,9 +13,8 @@
 #include "nsIAddbookUrl.h"
 #include "nsIAbDirectory.h"
 
-class nsAddbookProtocolHandler : public nsIProtocolHandler
-{
-public:
+class nsAddbookProtocolHandler : public nsIProtocolHandler {
+ public:
   nsAddbookProtocolHandler();
 
   NS_DECL_ISUPPORTS
@@ -25,21 +24,18 @@ public:
   //////////////////////////////////////////////////////////////////////////
   NS_DECL_NSIPROTOCOLHANDLER
 
-private:
+ private:
   virtual ~nsAddbookProtocolHandler();
-  nsresult    GenerateXMLOutputChannel(nsString &aOutput,
-                                         nsIAddbookUrl *addbookUrl,
-                                         nsIURI *aURI,
-                                         nsILoadInfo *aLoadInfo,
-                                         nsIChannel **_retval);
+  nsresult GenerateXMLOutputChannel(nsString &aOutput,
+                                    nsIAddbookUrl *addbookUrl, nsIURI *aURI,
+                                    nsILoadInfo *aLoadInfo,
+                                    nsIChannel **_retval);
 
-  nsresult    GeneratePrintOutput(nsIAddbookUrl *addbookUrl,
-                                   nsString &aOutput);
+  nsresult GeneratePrintOutput(nsIAddbookUrl *addbookUrl, nsString &aOutput);
 
-  nsresult    BuildDirectoryXML(nsIAbDirectory *aDirectory,
-                                   nsString &aOutput);
+  nsresult BuildDirectoryXML(nsIAbDirectory *aDirectory, nsString &aOutput);
 
-  int32_t     mAddbookOperation;
+  int32_t mAddbookOperation;
 };
 
 #endif /* nsAddbookProtocolHandler_h___ */

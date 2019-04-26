@@ -6,28 +6,20 @@
 #include "nsAbDirectoryQuery.h"
 #include "nsAbDirectoryQueryProxy.h"
 
-NS_IMPL_ISUPPORTS(nsAbDirectoryQueryProxy, nsIAbDirectoryQueryProxy, nsIAbDirectoryQuery)
+NS_IMPL_ISUPPORTS(nsAbDirectoryQueryProxy, nsIAbDirectoryQueryProxy,
+                  nsIAbDirectoryQuery)
 
-nsAbDirectoryQueryProxy::nsAbDirectoryQueryProxy() :
-    mInitiated (false)
-{
-}
+nsAbDirectoryQueryProxy::nsAbDirectoryQueryProxy() : mInitiated(false) {}
 
-nsAbDirectoryQueryProxy::~nsAbDirectoryQueryProxy()
-{
-}
+nsAbDirectoryQueryProxy::~nsAbDirectoryQueryProxy() {}
 
 /* void initiate (in nsIAbDirectory directory); */
-NS_IMETHODIMP nsAbDirectoryQueryProxy::Initiate()
-{
-    if (mInitiated)
-        return NS_OK;
+NS_IMETHODIMP nsAbDirectoryQueryProxy::Initiate() {
+  if (mInitiated) return NS_OK;
 
-    mDirectoryQuery = new nsAbDirectoryQuery();
+  mDirectoryQuery = new nsAbDirectoryQuery();
 
-    mInitiated = true;
+  mInitiated = true;
 
-    return NS_OK;
+  return NS_OK;
 }
-
-

@@ -9,19 +9,18 @@
 #include "nsIAbDirectoryQueryProxy.h"
 #include "nsCOMPtr.h"
 
-class nsAbDirectoryQueryProxy : public nsIAbDirectoryQueryProxy
-{
-public:
-    NS_DECL_ISUPPORTS
-    NS_FORWARD_NSIABDIRECTORYQUERY(mDirectoryQuery->)
-    NS_DECL_NSIABDIRECTORYQUERYPROXY
+class nsAbDirectoryQueryProxy : public nsIAbDirectoryQueryProxy {
+ public:
+  NS_DECL_ISUPPORTS
+  NS_FORWARD_NSIABDIRECTORYQUERY(mDirectoryQuery->)
+  NS_DECL_NSIABDIRECTORYQUERYPROXY
 
-    nsAbDirectoryQueryProxy();
+  nsAbDirectoryQueryProxy();
 
-protected:
-    virtual ~nsAbDirectoryQueryProxy();
-    bool mInitiated;
-    nsCOMPtr<nsIAbDirectoryQuery> mDirectoryQuery;
+ protected:
+  virtual ~nsAbDirectoryQueryProxy();
+  bool mInitiated;
+  nsCOMPtr<nsIAbDirectoryQuery> mDirectoryQuery;
 };
 
 #endif

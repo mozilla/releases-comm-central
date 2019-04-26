@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
 #ifndef nsAbLDAPReplicationData_h__
 #define nsAbLDAPReplicationData_h__
 
@@ -19,9 +18,8 @@
 #include "nsString.h"
 
 class nsAbLDAPProcessReplicationData : public nsIAbLDAPProcessReplicationData,
-                                       public nsAbLDAPListenerBase
-{
-public:
+                                       public nsAbLDAPListenerBase {
+ public:
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIABLDAPPROCESSREPLICATIONDATA
 
@@ -30,7 +28,7 @@ public:
   // nsILDAPMessageListener
   NS_IMETHOD OnLDAPMessage(nsILDAPMessage *aMessage) override;
 
-protected:
+ protected:
   virtual ~nsAbLDAPProcessReplicationData();
   virtual nsresult DoTask() override;
   virtual void InitFailed(bool aCancelled = false) override;
@@ -41,26 +39,25 @@ protected:
   nsCOMPtr<nsIAbLDAPReplicationQuery> mQuery;
 
   nsCOMPtr<nsIAddrDatabase> mReplicationDB;
-  nsCOMPtr <nsIFile> mReplicationFile;
-  nsCOMPtr <nsIFile> mBackupReplicationFile;
+  nsCOMPtr<nsIFile> mReplicationFile;
+  nsCOMPtr<nsIFile> mBackupReplicationFile;
 
   // state of processing, protocol used and count of results
-  int32_t         mState;
-  int32_t         mProtocol;
-  int32_t         mCount;
-  bool            mDBOpen;
-  bool            mInitialized;
+  int32_t mState;
+  int32_t mProtocol;
+  int32_t mCount;
+  bool mDBOpen;
+  bool mInitialized;
 
   nsCOMPtr<nsIAbLDAPDirectory> mDirectory;
-  nsCOMPtr<nsIAbLDAPAttributeMap> mAttrMap; // maps ab properties to ldap attrs
+  nsCOMPtr<nsIAbLDAPAttributeMap> mAttrMap;  // maps ab properties to ldap attrs
 
   virtual nsresult OnLDAPSearchEntry(nsILDAPMessage *aMessage);
   virtual nsresult OnLDAPSearchResult(nsILDAPMessage *aMessage);
 
   nsresult OpenABForReplicatedDir(bool bCreate);
-  nsresult DeleteCard(nsString & aDn);
+  nsresult DeleteCard(nsString &aDn);
   void Done(bool aSuccess);
 };
 
-
-#endif // nsAbLDAPReplicationData_h__
+#endif  // nsAbLDAPReplicationData_h__

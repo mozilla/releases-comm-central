@@ -15,21 +15,20 @@
 #include "nsString.h"
 #include "mozilla/Mutex.h"
 
-class nsAbLDAPListenerBase : public nsILDAPMessageListener
-{
-public:
+class nsAbLDAPListenerBase : public nsILDAPMessageListener {
+ public:
   // Note that the directoryUrl is the details of the ldap directory
   // without any search params or attributes specified.
   nsAbLDAPListenerBase(nsILDAPURL* directoryUrl = nullptr,
                        nsILDAPConnection* connection = nullptr,
-                       const nsACString &login = EmptyCString(),
+                       const nsACString& login = EmptyCString(),
                        const int32_t timeOut = 0);
   virtual ~nsAbLDAPListenerBase();
 
-  NS_IMETHOD OnLDAPInit(nsILDAPConnection *aConn, nsresult aStatus) override;
+  NS_IMETHOD OnLDAPInit(nsILDAPConnection* aConn, nsresult aStatus) override;
 
-protected:
-  nsresult OnLDAPMessageBind(nsILDAPMessage *aMessage);
+ protected:
+  nsresult OnLDAPMessageBind(nsILDAPMessage* aMessage);
 
   nsresult Initiate();
 
@@ -40,7 +39,7 @@ protected:
   virtual nsresult DoTask() = 0;
 
   nsCOMPtr<nsILDAPURL> mDirectoryUrl;
-  nsCOMPtr<nsILDAPOperation> mOperation;        // current ldap op
+  nsCOMPtr<nsILDAPOperation> mOperation;  // current ldap op
   nsILDAPConnection* mConnection;
   nsCString mLogin;
   nsCString mSaslMechanism;

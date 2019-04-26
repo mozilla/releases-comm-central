@@ -15,10 +15,8 @@
 
 class nsIPrefBranch;
 
-class nsAbAddressCollector : public nsIAbAddressCollector,
-                             public nsIObserver
-{
-public:
+class nsAbAddressCollector : public nsIAbAddressCollector, public nsIObserver {
+ public:
   nsAbAddressCollector();
 
   NS_DECL_ISUPPORTS
@@ -27,7 +25,7 @@ public:
 
   nsresult Init();
 
-private:
+ private:
   virtual ~nsAbAddressCollector();
   already_AddRefed<nsIAbCard> GetCardForAddress(const nsACString &aEmailAddress,
                                                 nsIAbDirectory **aDirectory);
@@ -36,9 +34,8 @@ private:
   void SplitFullName(const nsCString &aFullName, nsCString &aFirstName,
                      nsCString &aLastName);
   void SetUpAbFromPrefs(nsIPrefBranch *aPrefBranch);
-  nsCOMPtr <nsIAbDirectory> mDirectory;
+  nsCOMPtr<nsIAbDirectory> mDirectory;
   nsCString mABURI;
 };
 
 #endif  // _nsAbAddressCollector_H_
-

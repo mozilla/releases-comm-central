@@ -10,68 +10,57 @@
 
 NS_IMPL_ISUPPORTS(nsMsgVCardService, nsIMsgVCardService)
 
-nsMsgVCardService::nsMsgVCardService()
-{
+nsMsgVCardService::nsMsgVCardService() {}
+
+nsMsgVCardService::~nsMsgVCardService() {}
+
+NS_IMETHODIMP_(void) nsMsgVCardService::CleanVObject(VObject *o) {
+  cleanVObject(o);
 }
 
-nsMsgVCardService::~nsMsgVCardService()
-{
+NS_IMETHODIMP_(VObject *) nsMsgVCardService::NextVObjectInList(VObject *o) {
+  return nextVObjectInList(o);
 }
 
-NS_IMETHODIMP_(void) nsMsgVCardService::CleanVObject(VObject * o)
-{
-    cleanVObject(o);
+NS_IMETHODIMP_(VObject *)
+nsMsgVCardService::Parse_MIME(const char *input, uint32_t len) {
+  return parse_MIME(input, (unsigned long)len);
 }
 
-NS_IMETHODIMP_(VObject *) nsMsgVCardService::NextVObjectInList(VObject * o)
-{
-    return nextVObjectInList(o);
+NS_IMETHODIMP_(char *) nsMsgVCardService::FakeCString(VObject *o) {
+  return fakeCString(vObjectUStringZValue(o));
 }
 
-NS_IMETHODIMP_(VObject *) nsMsgVCardService::Parse_MIME(const char *input, uint32_t len)
-{
-    return parse_MIME(input, (unsigned long)len);
+NS_IMETHODIMP_(VObject *)
+nsMsgVCardService::IsAPropertyOf(VObject *o, const char *id) {
+  return isAPropertyOf(o, id);
 }
 
-NS_IMETHODIMP_(char *) nsMsgVCardService::FakeCString(VObject * o)
-{
-    return fakeCString(vObjectUStringZValue(o));
+NS_IMETHODIMP_(char *)
+nsMsgVCardService::WriteMemoryVObjects(const char *s, int32_t *len,
+                                       VObject *list, bool expandSpaces) {
+  return writeMemoryVObjects((char *)s, len, list, expandSpaces);
 }
 
-NS_IMETHODIMP_(VObject *) nsMsgVCardService::IsAPropertyOf(VObject * o, const char *id)
-{
-    return isAPropertyOf(o,id);
+NS_IMETHODIMP_(VObject *) nsMsgVCardService::NextVObject(VObjectIterator *i) {
+  return nextVObject(i);
 }
 
-NS_IMETHODIMP_(char *) nsMsgVCardService::WriteMemoryVObjects(const char *s, int32_t *len, VObject * list, bool expandSpaces)
-{
-    return writeMemoryVObjects((char *)s, len, list, expandSpaces);
+NS_IMETHODIMP_(void)
+nsMsgVCardService::InitPropIterator(VObjectIterator *i, VObject *o) {
+  initPropIterator(i, o);
 }
 
-NS_IMETHODIMP_(VObject *) nsMsgVCardService::NextVObject(VObjectIterator * i)
-{
-    return nextVObject(i);
+NS_IMETHODIMP_(int32_t) nsMsgVCardService::MoreIteration(VObjectIterator *i) {
+  return ((int32_t)moreIteration(i));
 }
 
-NS_IMETHODIMP_(void) nsMsgVCardService::InitPropIterator(VObjectIterator * i, VObject * o)
-{
-    initPropIterator(i,o);
+NS_IMETHODIMP_(const char *) nsMsgVCardService::VObjectName(VObject *o) {
+  return vObjectName(o);
 }
 
-NS_IMETHODIMP_(int32_t) nsMsgVCardService::MoreIteration(VObjectIterator * i)
-{
-    return ((int32_t)moreIteration(i));
-}
-
-NS_IMETHODIMP_(const char *) nsMsgVCardService::VObjectName(VObject * o)
-{
-    return vObjectName(o);
-}
-
-NS_IMETHODIMP_(char *) nsMsgVCardService::VObjectAnyValue(VObject * o)
-{
-    char *retval = (char *)PR_MALLOC(strlen((char *)vObjectAnyValue(o)) + 1);
-    if (retval)
-        PL_strcpy(retval, (char *) vObjectAnyValue(o));
-    return retval;
+NS_IMETHODIMP_(char *) nsMsgVCardService::VObjectAnyValue(VObject *o) {
+  char *retval = (char *)PR_MALLOC(strlen((char *)vObjectAnyValue(o)) + 1);
+  if (retval) PL_strcpy(retval, (char *)vObjectAnyValue(o));
+  return retval;
 }

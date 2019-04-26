@@ -17,18 +17,11 @@
 
 #include "nsCRTGlue.h"
 
-nsAbBSDirectory::nsAbBSDirectory()
-: mInitialized(false)
-, mServers(13)
-{
-}
+nsAbBSDirectory::nsAbBSDirectory() : mInitialized(false), mServers(13) {}
 
-nsAbBSDirectory::~nsAbBSDirectory()
-{
-}
+nsAbBSDirectory::~nsAbBSDirectory() {}
 
-NS_IMETHODIMP nsAbBSDirectory::Init(const char *aURI)
-{
+NS_IMETHODIMP nsAbBSDirectory::Init(const char *aURI) {
   mURI = aURI;
   return NS_OK;
 }
@@ -37,43 +30,39 @@ NS_IMPL_ISUPPORTS_INHERITED0(nsAbBSDirectory, nsAbDirProperty)
 
 nsresult nsAbBSDirectory::CreateDirectoriesFromFactory(const nsACString &aURI,
                                                        DIR_Server *aServer,
-                                                       bool aNotify)
-{
+                                                       bool aNotify) {
   nsresult rv;
 
   // Get the directory factory service
   nsCOMPtr<nsIAbDirFactoryService> dirFactoryService =
-    do_GetService(NS_ABDIRFACTORYSERVICE_CONTRACTID,&rv);
-  NS_ENSURE_SUCCESS (rv, rv);
+      do_GetService(NS_ABDIRFACTORYSERVICE_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   // Get the directory factory from the URI
   nsCOMPtr<nsIAbDirFactory> dirFactory;
   rv = dirFactoryService->GetDirFactory(aURI, getter_AddRefs(dirFactory));
-  NS_ENSURE_SUCCESS (rv, rv);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   // Create the directories
   nsCOMPtr<nsISimpleEnumerator> newDirEnumerator;
   rv = dirFactory->GetDirectories(NS_ConvertUTF8toUTF16(aServer->description),
-                                  aURI,
-                                  nsDependentCString(aServer->prefName),
+                                  aURI, nsDependentCString(aServer->prefName),
                                   getter_AddRefs(newDirEnumerator));
-  NS_ENSURE_SUCCESS (rv, rv);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   // Enumerate through the directories adding them
   // to the sub directories array
   bool hasMore;
-  nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
+  nsCOMPtr<nsIAbManager> abManager =
+      do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
 
-  while (NS_SUCCEEDED(newDirEnumerator->HasMoreElements(&hasMore)) && hasMore)
-  {
+  while (NS_SUCCEEDED(newDirEnumerator->HasMoreElements(&hasMore)) && hasMore) {
     nsCOMPtr<nsISupports> newDirSupports;
     rv = newDirEnumerator->GetNext(getter_AddRefs(newDirSupports));
-    if(NS_FAILED(rv))
-      continue;
+    if (NS_FAILED(rv)) continue;
 
     nsCOMPtr<nsIAbDirectory> childDir = do_QueryInterface(newDirSupports, &rv);
-    if(NS_FAILED(rv))
-      continue;
+    if (NS_FAILED(rv)) continue;
 
     // Define a relationship between the preference
     // entry and the directory
@@ -88,31 +77,27 @@ nsresult nsAbBSDirectory::CreateDirectoriesFromFactory(const nsACString &aURI,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbBSDirectory::GetChildNodes(nsISimpleEnumerator* *aResult)
-{
+NS_IMETHODIMP nsAbBSDirectory::GetChildNodes(nsISimpleEnumerator **aResult) {
   nsresult rv = EnsureInitialized();
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return NS_NewArrayEnumerator(aResult, mSubDirectories, NS_GET_IID(nsIAbDirectory));
+  return NS_NewArrayEnumerator(aResult, mSubDirectories,
+                               NS_GET_IID(nsIAbDirectory));
 }
 
-nsresult nsAbBSDirectory::EnsureInitialized()
-{
-  if (mInitialized)
-    return NS_OK;
+nsresult nsAbBSDirectory::EnsureInitialized() {
+  if (mInitialized) return NS_OK;
 
   nsresult rv;
   nsCOMPtr<nsIAbDirFactoryService> dirFactoryService =
-    do_GetService(NS_ABDIRFACTORYSERVICE_CONTRACTID,&rv);
-  NS_ENSURE_SUCCESS (rv, rv);
+      do_GetService(NS_ABDIRFACTORYSERVICE_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  nsTArray<DIR_Server*> *directories = DIR_GetDirectories();
-  if (!directories)
-    return NS_ERROR_FAILURE;
+  nsTArray<DIR_Server *> *directories = DIR_GetDirectories();
+  if (!directories) return NS_ERROR_FAILURE;
 
   int32_t count = directories->Length();
-  for (int32_t i = 0; i < count; i++)
-  {
+  for (int32_t i = 0; i < count; i++) {
     DIR_Server *server = directories->ElementAt(i);
 
     // if this is a 4.x, local .na2 addressbook (PABDirectory)
@@ -123,17 +108,16 @@ nsresult nsAbBSDirectory::EnsureInitialized()
     // those.  see bug #127007
     uint32_t fileNameLen = strlen(server->fileName);
     if (((fileNameLen > kABFileName_PreviousSuffixLen) &&
-      strcmp(server->fileName + fileNameLen - kABFileName_PreviousSuffixLen,
-             kABFileName_PreviousSuffix) == 0) &&
-      (server->dirType == PABDirectory))
+         strcmp(server->fileName + fileNameLen - kABFileName_PreviousSuffixLen,
+                kABFileName_PreviousSuffix) == 0) &&
+        (server->dirType == PABDirectory))
       continue;
 
     // Set the uri property
-    nsAutoCString URI (server->uri);
+    nsAutoCString URI(server->uri);
     // This is in case the uri is never set
     // in the nsDirPref.cpp code.
-    if (!server->uri)
-    {
+    if (!server->uri) {
       URI = NS_LITERAL_CSTRING(kMDBDirectoryRoot);
       URI += nsDependentCString(server->fileName);
     }
@@ -144,7 +128,8 @@ nsresult nsAbBSDirectory::EnsureInitialized()
      * check if the URI ends with ".na2"
      */
     if (StringEndsWith(URI, NS_LITERAL_CSTRING(kABFileName_PreviousSuffix)))
-      URI.Replace(kMDBDirectoryRootLen, URI.Length() - kMDBDirectoryRootLen, server->fileName);
+      URI.Replace(kMDBDirectoryRootLen, URI.Length() - kMDBDirectoryRootLen,
+                  server->fileName);
 
     // Create the directories
     rv = CreateDirectoriesFromFactory(URI, server, false /* notify */);
@@ -165,8 +150,7 @@ NS_IMETHODIMP nsAbBSDirectory::CreateNewDirectory(const nsAString &aDirName,
                                                   const nsACString &aURI,
                                                   uint32_t aType,
                                                   const nsACString &aPrefName,
-                                                  nsACString &aResult)
-{
+                                                  nsACString &aResult) {
   nsresult rv = EnsureInitialized();
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -188,10 +172,10 @@ NS_IMETHODIMP nsAbBSDirectory::CreateNewDirectory(const nsAString &aDirName,
    * is more general.
    *
    */
-  DIR_Server* server = nullptr;
+  DIR_Server *server = nullptr;
   rv = DIR_AddNewAddressBook(aDirName, EmptyCString(), URI,
                              (DirectoryType)aType, aPrefName, &server);
-  NS_ENSURE_SUCCESS (rv, rv);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   if (aType == PABDirectory) {
     // Add the URI property
@@ -202,13 +186,12 @@ NS_IMETHODIMP nsAbBSDirectory::CreateNewDirectory(const nsAString &aDirName,
   aResult.Assign(server->prefName);
 
   rv = CreateDirectoriesFromFactory(URI, server, true /* notify */);
-  NS_ENSURE_SUCCESS(rv,rv);
+  NS_ENSURE_SUCCESS(rv, rv);
   return rv;
 }
 
-NS_IMETHODIMP nsAbBSDirectory::CreateDirectoryByURI(const nsAString &aDisplayName,
-                                                    const nsACString &aURI)
-{
+NS_IMETHODIMP nsAbBSDirectory::CreateDirectoryByURI(
+    const nsAString &aDisplayName, const nsACString &aURI) {
   nsresult rv = EnsureInitialized();
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -216,18 +199,17 @@ NS_IMETHODIMP nsAbBSDirectory::CreateDirectoryByURI(const nsAString &aDisplayNam
   if (StringBeginsWith(aURI, NS_LITERAL_CSTRING(kMDBDirectoryRoot)))
     fileName = Substring(aURI, kMDBDirectoryRootLen);
 
-  DIR_Server * server = nullptr;
-  rv = DIR_AddNewAddressBook(aDisplayName, fileName, aURI,
-                             PABDirectory, EmptyCString(), &server);
-  NS_ENSURE_SUCCESS(rv,rv);
+  DIR_Server *server = nullptr;
+  rv = DIR_AddNewAddressBook(aDisplayName, fileName, aURI, PABDirectory,
+                             EmptyCString(), &server);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   rv = CreateDirectoriesFromFactory(aURI, server, true /* notify */);
-  NS_ENSURE_SUCCESS(rv,rv);
+  NS_ENSURE_SUCCESS(rv, rv);
   return rv;
 }
 
-NS_IMETHODIMP nsAbBSDirectory::DeleteDirectory(nsIAbDirectory *directory)
-{
+NS_IMETHODIMP nsAbBSDirectory::DeleteDirectory(nsIAbDirectory *directory) {
   NS_ENSURE_ARG_POINTER(directory);
 
   nsresult rv = EnsureInitialized();
@@ -236,15 +218,13 @@ NS_IMETHODIMP nsAbBSDirectory::DeleteDirectory(nsIAbDirectory *directory)
   DIR_Server *server = nullptr;
   mServers.Get(directory, &server);
 
-  if (!server)
-    return NS_ERROR_FAILURE;
+  if (!server) return NS_ERROR_FAILURE;
 
-  struct GetDirectories
-  {
-    explicit GetDirectories(DIR_Server* aServer) : mServer(aServer) { }
+  struct GetDirectories {
+    explicit GetDirectories(DIR_Server *aServer) : mServer(aServer) {}
 
     nsCOMArray<nsIAbDirectory> directories;
-    DIR_Server* mServer;
+    DIR_Server *mServer;
   };
   GetDirectories getDirectories(server);
   for (auto iter = mServers.Iter(); !iter.Done(); iter.Next()) {
@@ -257,8 +237,8 @@ NS_IMETHODIMP nsAbBSDirectory::DeleteDirectory(nsIAbDirectory *directory)
   DIR_DeleteServerFromList(server);
 
   nsCOMPtr<nsIAbDirFactoryService> dirFactoryService =
-    do_GetService(NS_ABDIRFACTORYSERVICE_CONTRACTID,&rv);
-  NS_ENSURE_SUCCESS (rv, rv);
+      do_GetService(NS_ABDIRFACTORYSERVICE_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   uint32_t count = getDirectories.directories.Count();
 
@@ -270,8 +250,7 @@ NS_IMETHODIMP nsAbBSDirectory::DeleteDirectory(nsIAbDirectory *directory)
     mServers.Remove(d);
     mSubDirectories.RemoveObject(d);
 
-    if (abManager)
-      abManager->NotifyDirectoryDeleted(this, d);
+    if (abManager) abManager->NotifyDirectoryDeleted(this, d);
 
     nsCString uri;
     rv = d->GetURI(uri);
@@ -279,8 +258,7 @@ NS_IMETHODIMP nsAbBSDirectory::DeleteDirectory(nsIAbDirectory *directory)
 
     nsCOMPtr<nsIAbDirFactory> dirFactory;
     rv = dirFactoryService->GetDirFactory(uri, getter_AddRefs(dirFactory));
-    if (NS_FAILED(rv))
-      continue;
+    if (NS_FAILED(rv)) continue;
 
     rv = dirFactory->DeleteDirectory(d);
   }
@@ -288,10 +266,8 @@ NS_IMETHODIMP nsAbBSDirectory::DeleteDirectory(nsIAbDirectory *directory)
   return rv;
 }
 
-NS_IMETHODIMP nsAbBSDirectory::HasDirectory(nsIAbDirectory *dir, bool *hasDir)
-{
-  if (!hasDir)
-    return NS_ERROR_NULL_POINTER;
+NS_IMETHODIMP nsAbBSDirectory::HasDirectory(nsIAbDirectory *dir, bool *hasDir) {
+  if (!hasDir) return NS_ERROR_NULL_POINTER;
 
   nsresult rv = EnsureInitialized();
   NS_ENSURE_SUCCESS(rv, rv);
@@ -301,9 +277,8 @@ NS_IMETHODIMP nsAbBSDirectory::HasDirectory(nsIAbDirectory *dir, bool *hasDir)
   return DIR_ContainsServer(dirServer, hasDir);
 }
 
-NS_IMETHODIMP nsAbBSDirectory::UseForAutocomplete(const nsACString &aIdentityKey,
-                                                  bool *aResult)
-{
+NS_IMETHODIMP nsAbBSDirectory::UseForAutocomplete(
+    const nsACString &aIdentityKey, bool *aResult) {
   // For the "root" directory (kAllDirectoryRoot) always return true so that
   // we can search sub directories that may or may not be local.
   NS_ENSURE_ARG_POINTER(aResult);
@@ -311,12 +286,9 @@ NS_IMETHODIMP nsAbBSDirectory::UseForAutocomplete(const nsACString &aIdentityKey
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbBSDirectory::GetURI(nsACString &aURI)
-{
-  if (mURI.IsEmpty())
-    return NS_ERROR_NOT_INITIALIZED;
+NS_IMETHODIMP nsAbBSDirectory::GetURI(nsACString &aURI) {
+  if (mURI.IsEmpty()) return NS_ERROR_NOT_INITIALIZED;
 
   aURI = mURI;
   return NS_OK;
 }
-

@@ -9,15 +9,14 @@
 #include "nsIMsgVCardService.h"
 #include "nsISupports.h"
 
-class nsMsgVCardService : public nsIMsgVCardService
-{
-public:
+class nsMsgVCardService : public nsIMsgVCardService {
+ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGVCARDSERVICE
 
   nsMsgVCardService();
 
-private:
+ private:
   virtual ~nsMsgVCardService();
 };
 

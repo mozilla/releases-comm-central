@@ -8,42 +8,31 @@
 
 #include "nsIAbBooleanExpression.h"
 
-class nsAbQueryStringToExpression
-{
-public:
-    static nsresult Convert (
-        const nsACString &aQueryString,
-        nsIAbBooleanExpression** expression);
+class nsAbQueryStringToExpression {
+ public:
+  static nsresult Convert(const nsACString& aQueryString,
+                          nsIAbBooleanExpression** expression);
 
-protected:
-    static nsresult ParseExpression (
-        const char** index,
-        nsISupports** expression);
-    static nsresult ParseExpressions (
-        const char** index,
-        nsIAbBooleanExpression* expression);
-    static nsresult ParseCondition (
-        const char** index,
-        const char* indexBracketClose,
-        nsIAbBooleanConditionString** conditionString);
+ protected:
+  static nsresult ParseExpression(const char** index, nsISupports** expression);
+  static nsresult ParseExpressions(const char** index,
+                                   nsIAbBooleanExpression* expression);
+  static nsresult ParseCondition(const char** index,
+                                 const char* indexBracketClose,
+                                 nsIAbBooleanConditionString** conditionString);
 
-    static nsresult ParseConditionEntry (
-        const char** index,
-        const char* indexBracketClose,
-        char** entry);
-    static nsresult ParseOperationEntry (
-        const char* indexBracketOpen1,
-        const char* indexBracketOpen2,
-        char** operation);
+  static nsresult ParseConditionEntry(const char** index,
+                                      const char* indexBracketClose,
+                                      char** entry);
+  static nsresult ParseOperationEntry(const char* indexBracketOpen1,
+                                      const char* indexBracketOpen2,
+                                      char** operation);
 
-    static nsresult CreateBooleanExpression(
-        const char* operation,
-        nsIAbBooleanExpression** expression);
-    static nsresult CreateBooleanConditionString (
-        const char* attribute,
-        const char* condition,
-        const char* value,
-        nsIAbBooleanConditionString** conditionString);
+  static nsresult CreateBooleanExpression(const char* operation,
+                                          nsIAbBooleanExpression** expression);
+  static nsresult CreateBooleanConditionString(
+      const char* attribute, const char* condition, const char* value,
+      nsIAbBooleanConditionString** conditionString);
 };
 
 #endif

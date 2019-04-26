@@ -7,16 +7,15 @@
 
 #include "nsIAbDirFactory.h"
 
-class nsAbOutlookDirFactory : public nsIAbDirFactory
-{
-public:
-    nsAbOutlookDirFactory(void);
+class nsAbOutlookDirFactory : public nsIAbDirFactory {
+ public:
+  nsAbOutlookDirFactory(void);
 
-    NS_DECL_ISUPPORTS
-    NS_DECL_NSIABDIRFACTORY
+  NS_DECL_ISUPPORTS
+  NS_DECL_NSIABDIRFACTORY
 
-private:
-    virtual ~nsAbOutlookDirFactory(void);
+ private:
+  virtual ~nsAbOutlookDirFactory(void);
 };
 
-#endif // nsAbOutlookDirFactory_h___
+#endif  // nsAbOutlookDirFactory_h___

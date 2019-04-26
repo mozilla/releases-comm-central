@@ -3,7 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
 #include "nsCOMPtr.h"
 #include "nsAbLDAPReplicationQuery.h"
 #include "nsAbLDAPReplicationService.h"
@@ -15,26 +14,20 @@
 #include "nsComponentManagerUtils.h"
 #include "nsMsgUtils.h"
 
-NS_IMPL_ISUPPORTS(nsAbLDAPReplicationQuery,
-                              nsIAbLDAPReplicationQuery)
+NS_IMPL_ISUPPORTS(nsAbLDAPReplicationQuery, nsIAbLDAPReplicationQuery)
 
-nsAbLDAPReplicationQuery::nsAbLDAPReplicationQuery()
-    :  mInitialized(false)
-{
-}
+nsAbLDAPReplicationQuery::nsAbLDAPReplicationQuery() : mInitialized(false) {}
 
-nsresult nsAbLDAPReplicationQuery::InitLDAPData()
-{
+nsresult nsAbLDAPReplicationQuery::InitLDAPData() {
   nsAutoCString fileName;
   nsresult rv = mDirectory->GetReplicationFileName(fileName);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // this is done here to take care of the problem related to bug # 99124.
-  // earlier versions of Mozilla could have the fileName associated with the directory
-  // to be abook.mab which is the profile's personal addressbook. If the pref points to
-  // it, calls nsDirPrefs to generate a new server filename.
-  if (fileName.IsEmpty() || fileName.EqualsLiteral(kPersonalAddressbook))
-  {
+  // earlier versions of Mozilla could have the fileName associated with the
+  // directory to be abook.mab which is the profile's personal addressbook. If
+  // the pref points to it, calls nsDirPrefs to generate a new server filename.
+  if (fileName.IsEmpty() || fileName.EqualsLiteral(kPersonalAddressbook)) {
     // Ensure fileName is empty for DIR_GenerateAbFileName to work
     // correctly.
     fileName.Truncate();
@@ -48,9 +41,8 @@ nsresult nsAbLDAPReplicationQuery::InitLDAPData()
 
     // XXX This should be replaced by a local function at some stage.
     // For now we'll continue using the nsDirPrefs version.
-    DIR_Server* server = DIR_GetServerFromList(dirPrefId.get());
-    if (server)
-    {
+    DIR_Server *server = DIR_GetServerFromList(dirPrefId.get());
+    if (server) {
       DIR_SetServerFileName(server);
       // Now ensure the prefs are saved
       DIR_SavePrefsForOneServer(server);
@@ -67,55 +59,47 @@ nsresult nsAbLDAPReplicationQuery::InitLDAPData()
   NS_ENSURE_SUCCESS(rv, rv);
 
   mConnection = do_CreateInstance(NS_LDAPCONNECTION_CONTRACTID, &rv);
-  if (NS_FAILED(rv))
-    return rv;
+  if (NS_FAILED(rv)) return rv;
 
   mOperation = do_CreateInstance(NS_LDAPOPERATION_CONTRACTID, &rv);
 
   return rv;
 }
 
-nsresult nsAbLDAPReplicationQuery::ConnectToLDAPServer()
-{
-    if (!mInitialized || !mURL)
-        return NS_ERROR_NOT_INITIALIZED;
+nsresult nsAbLDAPReplicationQuery::ConnectToLDAPServer() {
+  if (!mInitialized || !mURL) return NS_ERROR_NOT_INITIALIZED;
 
-    nsresult rv;
-    nsCOMPtr<nsILDAPMessageListener> mDp = do_QueryInterface(mDataProcessor,
-                                                             &rv);
-    if (NS_FAILED(rv))
-      return NS_ERROR_UNEXPECTED;
+  nsresult rv;
+  nsCOMPtr<nsILDAPMessageListener> mDp = do_QueryInterface(mDataProcessor, &rv);
+  if (NS_FAILED(rv)) return NS_ERROR_UNEXPECTED;
 
-    // this could be a rebind call
-    int32_t replicationState = nsIAbLDAPProcessReplicationData::kIdle;
-    rv = mDataProcessor->GetReplicationState(&replicationState);
-    if (NS_FAILED(rv) ||
-        replicationState != nsIAbLDAPProcessReplicationData::kIdle)
-        return rv;
+  // this could be a rebind call
+  int32_t replicationState = nsIAbLDAPProcessReplicationData::kIdle;
+  rv = mDataProcessor->GetReplicationState(&replicationState);
+  if (NS_FAILED(rv) ||
+      replicationState != nsIAbLDAPProcessReplicationData::kIdle)
+    return rv;
 
-    uint32_t protocolVersion;
-    rv = mDirectory->GetProtocolVersion(&protocolVersion);
-    NS_ENSURE_SUCCESS(rv, rv);
+  uint32_t protocolVersion;
+  rv = mDirectory->GetProtocolVersion(&protocolVersion);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-    // initialize the LDAP connection
-    return mConnection->Init(mURL, mLogin, mDp, nullptr, protocolVersion);
+  // initialize the LDAP connection
+  return mConnection->Init(mURL, mLogin, mDp, nullptr, protocolVersion);
 }
 
-NS_IMETHODIMP nsAbLDAPReplicationQuery::Init(nsIAbLDAPDirectory *aDirectory,
-                                             nsIWebProgressListener *aProgressListener)
-{
+NS_IMETHODIMP nsAbLDAPReplicationQuery::Init(
+    nsIAbLDAPDirectory *aDirectory, nsIWebProgressListener *aProgressListener) {
   NS_ENSURE_ARG_POINTER(aDirectory);
 
   mDirectory = aDirectory;
 
   nsresult rv = InitLDAPData();
-  if (NS_FAILED(rv))
-    return rv;
+  if (NS_FAILED(rv)) return rv;
 
   mDataProcessor =
-    do_CreateInstance(NS_ABLDAP_PROCESSREPLICATIONDATA_CONTRACTID, &rv);
-  if (NS_FAILED(rv))
-    return rv;
+      do_CreateInstance(NS_ABLDAP_PROCESSREPLICATIONDATA_CONTRACTID, &rv);
+  if (NS_FAILED(rv)) return rv;
 
   // 'this' initialized
   mInitialized = true;
@@ -124,29 +108,23 @@ NS_IMETHODIMP nsAbLDAPReplicationQuery::Init(nsIAbLDAPDirectory *aDirectory,
                               aProgressListener);
 }
 
-NS_IMETHODIMP nsAbLDAPReplicationQuery::DoReplicationQuery()
-{
-    return ConnectToLDAPServer();
+NS_IMETHODIMP nsAbLDAPReplicationQuery::DoReplicationQuery() {
+  return ConnectToLDAPServer();
 }
 
-NS_IMETHODIMP nsAbLDAPReplicationQuery::CancelQuery()
-{
-    if (!mInitialized)
-        return NS_ERROR_NOT_INITIALIZED;
+NS_IMETHODIMP nsAbLDAPReplicationQuery::CancelQuery() {
+  if (!mInitialized) return NS_ERROR_NOT_INITIALIZED;
 
-    return mDataProcessor->Abort();
+  return mDataProcessor->Abort();
 }
 
-NS_IMETHODIMP nsAbLDAPReplicationQuery::Done(bool aSuccess)
-{
-   if (!mInitialized)
-       return NS_ERROR_NOT_INITIALIZED;
+NS_IMETHODIMP nsAbLDAPReplicationQuery::Done(bool aSuccess) {
+  if (!mInitialized) return NS_ERROR_NOT_INITIALIZED;
 
-   nsresult rv = NS_OK;
-   nsCOMPtr<nsIAbLDAPReplicationService> replicationService =
-                            do_GetService(NS_ABLDAP_REPLICATIONSERVICE_CONTRACTID, &rv);
-   if (NS_SUCCEEDED(rv))
-      replicationService->Done(aSuccess);
+  nsresult rv = NS_OK;
+  nsCOMPtr<nsIAbLDAPReplicationService> replicationService =
+      do_GetService(NS_ABLDAP_REPLICATIONSERVICE_CONTRACTID, &rv);
+  if (NS_SUCCEEDED(rv)) replicationService->Done(aSuccess);
 
-   return rv;
+  return rv;
 }

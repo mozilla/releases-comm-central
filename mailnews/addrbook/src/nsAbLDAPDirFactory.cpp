@@ -16,20 +16,15 @@
 
 NS_IMPL_ISUPPORTS(nsAbLDAPDirFactory, nsIAbDirFactory)
 
-nsAbLDAPDirFactory::nsAbLDAPDirFactory()
-{
-}
+nsAbLDAPDirFactory::nsAbLDAPDirFactory() {}
 
-nsAbLDAPDirFactory::~nsAbLDAPDirFactory()
-{
-}
+nsAbLDAPDirFactory::~nsAbLDAPDirFactory() {}
 
 NS_IMETHODIMP
 nsAbLDAPDirFactory::GetDirectories(const nsAString &aDirName,
                                    const nsACString &aURI,
                                    const nsACString &aPrefName,
-                                   nsISimpleEnumerator **aDirectories)
-{
+                                   nsISimpleEnumerator **aDirectories) {
   NS_ENSURE_ARG_POINTER(aDirectories);
 
   nsresult rv;
@@ -59,8 +54,7 @@ nsAbLDAPDirFactory::GetDirectories(const nsAString &aDirName,
     bridgeURI = NS_LITERAL_CSTRING(kLDAPDirectoryRoot);
     bridgeURI += aPrefName;
     rv = abManager->GetDirectory(bridgeURI, getter_AddRefs(directory));
-  }
-  else {
+  } else {
     rv = abManager->GetDirectory(aURI, getter_AddRefs(directory));
   }
   NS_ENSURE_SUCCESS(rv, rv);
@@ -70,8 +64,7 @@ nsAbLDAPDirFactory::GetDirectories(const nsAString &aDirName,
 
 /* void deleteDirectory (in nsIAbDirectory directory); */
 NS_IMETHODIMP
-nsAbLDAPDirFactory::DeleteDirectory(nsIAbDirectory *directory)
-{
+nsAbLDAPDirFactory::DeleteDirectory(nsIAbDirectory *directory) {
   // No actual deletion - as the LDAP Address Book is not physically
   // created in the corresponding CreateDirectory() unlike the Personal
   // Address Books. But we still need to return NS_OK from here.

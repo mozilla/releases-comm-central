@@ -75,7 +75,7 @@ char yysccsid[] = "@(#)yaccpar  1.4 (Berkeley) 02/25/90";
 #define DBG_(x)
 
 #ifndef _NO_LINE_FOLDING
-#define _SUPPORT_LINE_FOLDING
+#  define _SUPPORT_LINE_FOLDING
 #endif
 
 /****  External Functions  ****/
@@ -118,26 +118,26 @@ char yysccsid[] = "@(#)yaccpar  1.4 (Berkeley) 02/25/90";
 #include "plstr.h"
 
 #ifndef FALSE
-#define FALSE 0
+#  define FALSE 0
 #endif
 #ifndef TRUE
-#define TRUE 1
+#  define TRUE 1
 #endif
 
 /****  Types, Constants  ****/
 
-#define YYDEBUG       0  /* 1 to compile in some debugging code */
-#define PR_MAXTOKEN 256  /* maximum token (line) length */
-#define YYSTACKSIZE  50  /* ~unref ?*/
-#define PR_MAXLEVEL  10  /* max # of nested objects parseable */
-                         /* (includes outermost) */
+#define YYDEBUG 0       /* 1 to compile in some debugging code */
+#define PR_MAXTOKEN 256 /* maximum token (line) length */
+#define YYSTACKSIZE 50  /* ~unref ?*/
+#define PR_MAXLEVEL 10  /* max # of nested objects parseable */
+                        /* (includes outermost) */
 
 /****  Global Variables  ****/
 int mime_lineNum, mime_numErrors; /* yyerror() can use these */
-static VObject* vObjList;
+static VObject *vObjList;
 static VObject *curProp;
 static VObject *curObj;
-static VObject* ObjStack[PR_MAXLEVEL];
+static VObject *ObjStack[PR_MAXLEVEL];
 static int ObjStackTop;
 
 /* A helpful utility for the rest of the app. */
@@ -145,8 +145,8 @@ static int ObjStackTop;
 extern "C" {
 #endif
 
-  extern void yyerror(const char *s);
-  extern char** fieldedProp;
+extern void yyerror(const char *s);
+extern char **fieldedProp;
 
 #ifdef __cplusplus
 }
@@ -167,7 +167,7 @@ enum LexMode {
 
 /****  Private Forward Declarations  ****/
 static int pushVObject(const char *prop);
-static VObject* popVObject();
+static VObject *popVObject();
 static int lexGeta();
 static int lexGetc_();
 static int lexGetc();
@@ -175,14 +175,14 @@ static void lexSkipLookahead();
 static int lexLookahead();
 static void lexSkipWhite();
 static void lexClearToken();
-static char * lexStr();
-static char * lexGetDataFromBase64();
-static char * lexGetQuotedPrintable();
-static char * lexGet1Value();
-static char * lexGetWord();
+static char *lexStr();
+static char *lexGetDataFromBase64();
+static char *lexGetQuotedPrintable();
+static char *lexGet1Value();
+static char *lexGetWord();
 static void finiLex();
 
-static VObject* parse_MIMEHelper();
+static VObject *parse_MIMEHelper();
 
 /*static char* lexDataFromBase64();*/
 static void lexPopMode(int top);
@@ -217,6 +217,8 @@ typedef union {
 #define ID 273
 #define STRING 274
 #define YYERRCODE 256
+
+// clang-format off
 short yylhs[] = {                                        -1,
     0,    7,    6,    6,    5,    5,    9,    3,   10,    3,
     8,    8,   14,   11,   11,   16,   12,   12,   15,   15,
@@ -391,14 +393,16 @@ char *yyrule[] = {
   "todoitem : BEGIN_VTODO $$12 END_VTODO",
 };
 #endif
-#define yyclearin (yychar=(-1))
-#define yyerrok (yyerrflag=0)
+// clang-format on
+
+#define yyclearin (yychar = (-1))
+#define yyerrok (yyerrflag = 0)
 #ifndef YYSTACKSIZE
-#ifdef YYPR_MAXDEPTH
-#define YYSTACKSIZE YYPR_MAXDEPTH
-#else
-#define YYSTACKSIZE 300
-#endif
+#  ifdef YYPR_MAXDEPTH
+#    define YYSTACKSIZE YYPR_MAXDEPTH
+#  else
+#    define YYSTACKSIZE 300
+#  endif
 #endif
 int yydebug;
 int yynerrs;
@@ -413,19 +417,16 @@ short yyss[YYSTACKSIZE];
 YYSTYPE yyvs[YYSTACKSIZE];
 /*#line 444 "vcc.y"*/
 /******************************************************************************/
-static int pushVObject(const char *prop)
-{
+static int pushVObject(const char *prop) {
   VObject *newObj;
-  if (ObjStackTop == PR_MAXLEVEL)
-  return FALSE;
+  if (ObjStackTop == PR_MAXLEVEL) return FALSE;
 
   ObjStack[++ObjStackTop] = curObj;
 
   if (curObj) {
-    newObj = addProp(curObj,prop);
+    newObj = addProp(curObj, prop);
     curObj = newObj;
-  }
-  else
+  } else
     curObj = newVObject(prop);
 
   return TRUE;
@@ -433,8 +434,7 @@ static int pushVObject(const char *prop)
 
 /******************************************************************************/
 /* This pops the recently built vCard off the stack and returns it. */
-static VObject* popVObject()
-{
+static VObject *popVObject() {
   VObject *oldObj;
   if (ObjStackTop < 0) {
     yyerror("pop on empty Object Stack\n");
@@ -446,49 +446,46 @@ static VObject* popVObject()
   return oldObj;
 }
 
-extern "C" void      deleteString(char *p);
+extern "C" void deleteString(char *p);
 
-static void enterValues(const char *value)
-{
+static void enterValues(const char *value) {
   if (fieldedProp && *fieldedProp) {
     if (value) {
-      addPropValue(curProp,*fieldedProp,value);
+      addPropValue(curProp, *fieldedProp, value);
     }
     /* else this field is empty, advance to next field */
     fieldedProp++;
-  }
-  else {
+  } else {
     if (value) {
-      setVObjectUStringZValue_(curProp,fakeUnicode(value,0));
+      setVObjectUStringZValue_(curProp, fakeUnicode(value, 0));
     }
   }
   deleteString((char *)value);
 }
 
-static void enterProps(const char *s)
-{
-  curProp = addGroup(curObj,s);
+static void enterProps(const char *s) {
+  curProp = addGroup(curObj, s);
   deleteString((char *)s);
 }
 
-static void enterAttr(const char *s1, const char *s2)
-{
+static void enterAttr(const char *s1, const char *s2) {
   const char *p1, *p2 = nullptr;
   p1 = lookupProp_(s1);
   if (s2) {
     VObject *a;
     p2 = lookupProp_(s2);
-    a = addProp(curProp,p1);
-    setVObjectStringZValue(a,p2);
-  }
-  else
-    addProp(curProp,p1);
-  if (PL_strcasecmp(p1,VCBase64Prop) == 0 || (s2 && PL_strcasecmp(p2,VCBase64Prop)==0))
+    a = addProp(curProp, p1);
+    setVObjectStringZValue(a, p2);
+  } else
+    addProp(curProp, p1);
+  if (PL_strcasecmp(p1, VCBase64Prop) == 0 ||
+      (s2 && PL_strcasecmp(p2, VCBase64Prop) == 0))
     lexPushMode(L_BASE64);
-  else if (PL_strcasecmp(p1,VCQuotedPrintableProp) == 0 ||
-           (s2 && PL_strcasecmp(p2,VCQuotedPrintableProp)==0))
+  else if (PL_strcasecmp(p1, VCQuotedPrintableProp) == 0 ||
+           (s2 && PL_strcasecmp(p2, VCQuotedPrintableProp) == 0))
     lexPushMode(L_QUOTED_PRINTABLE);
-  deleteString((char *)s1); deleteString((char *)s2);
+  deleteString((char *)s1);
+  deleteString((char *)s2);
 }
 
 #define PR_MAX_LEX_LOOKAHEAD_0 32
@@ -517,57 +514,50 @@ struct LexBuf {
   unsigned long strsLen;
 } lexBuf;
 
-static void lexPushMode(enum LexMode mode)
-{
-  if (lexBuf.lexModeStackTop == (PR_MAX_LEX_MODE_STACK_SIZE-1))
+static void lexPushMode(enum LexMode mode) {
+  if (lexBuf.lexModeStackTop == (PR_MAX_LEX_MODE_STACK_SIZE - 1))
     yyerror("lexical context stack overflow");
   else {
     lexBuf.lexModeStack[++lexBuf.lexModeStackTop] = mode;
   }
 }
 
-static void lexPopMode(int top)
-{
+static void lexPopMode(int top) {
   /* special case of pop for ease of error recovery -- this
   version will never underflow */
   if (top)
     lexBuf.lexModeStackTop = 0;
-  else
-    if (lexBuf.lexModeStackTop > 0) lexBuf.lexModeStackTop--;
+  else if (lexBuf.lexModeStackTop > 0)
+    lexBuf.lexModeStackTop--;
 }
 
 static int lexWithinMode(enum LexMode mode) {
   unsigned long i;
-  for (i=0;i<lexBuf.lexModeStackTop;i++)
+  for (i = 0; i < lexBuf.lexModeStackTop; i++)
     if (mode == lexBuf.lexModeStack[i]) return 1;
   return 0;
 }
 
-static int lexGetc_()
-{
+static int lexGetc_() {
   /* get next char from input, no buffering. */
-  if (lexBuf.curPos == lexBuf.inputLen)
-    return EOF;
-  if (lexBuf.inputString)
-    return *(lexBuf.inputString + lexBuf.curPos++);
+  if (lexBuf.curPos == lexBuf.inputLen) return EOF;
+  if (lexBuf.inputString) return *(lexBuf.inputString + lexBuf.curPos++);
 
   return -1;
 }
 
-static int lexGeta()
-{
+static int lexGeta() {
   ++lexBuf.len;
   return (lexBuf.buf[lexBuf.getPtr] = lexGetc_());
 }
 
-static int lexGeta_(int i)
-{
+static int lexGeta_(int i) {
   ++lexBuf.len;
-  return (lexBuf.buf[(lexBuf.getPtr+i)%PR_MAX_LEX_LOOKAHEAD] = lexGetc_());
+  return (lexBuf.buf[(lexBuf.getPtr + i) % PR_MAX_LEX_LOOKAHEAD] = lexGetc_());
 }
 
 static void lexSkipLookahead() {
-  if (lexBuf.len > 0 && lexBuf.buf[lexBuf.getPtr]!=EOF) {
+  if (lexBuf.len > 0 && lexBuf.buf[lexBuf.getPtr] != EOF) {
     /* don't skip EOF. */
     lexBuf.getPtr = (lexBuf.getPtr + 1) % PR_MAX_LEX_LOOKAHEAD;
     lexBuf.len--;
@@ -575,23 +565,18 @@ static void lexSkipLookahead() {
 }
 
 static int lexLookahead() {
-  int c = (lexBuf.len)?
-  lexBuf.buf[lexBuf.getPtr]:
-  lexGeta();
+  int c = (lexBuf.len) ? lexBuf.buf[lexBuf.getPtr] : lexGeta();
   /* do the \r\n -> \n or \r -> \n translation here */
   if (c == '\r') {
-    int a = (lexBuf.len>1)?
-    lexBuf.buf[(lexBuf.getPtr+1)%PR_MAX_LEX_LOOKAHEAD]:
-    lexGeta_(1);
+    int a = (lexBuf.len > 1)
+                ? lexBuf.buf[(lexBuf.getPtr + 1) % PR_MAX_LEX_LOOKAHEAD]
+                : lexGeta_(1);
     if (a == '\n') {
       lexSkipLookahead();
     }
     lexBuf.buf[lexBuf.getPtr] = c = '\n';
-  }
-  else if (c == '\n') {
-    int a = (lexBuf.len>1)?
-    lexBuf.buf[lexBuf.getPtr+1]:
-    lexGeta_(1);
+  } else if (c == '\n') {
+    int a = (lexBuf.len > 1) ? lexBuf.buf[lexBuf.getPtr + 1] : lexGeta_(1);
     if (a == '\r') {
       lexSkipLookahead();
     }
@@ -602,7 +587,7 @@ static int lexLookahead() {
 
 static int lexGetc() {
   int c = lexLookahead();
-  if (lexBuf.len > 0 && lexBuf.buf[lexBuf.getPtr]!=EOF) {
+  if (lexBuf.len > 0 && lexBuf.buf[lexBuf.getPtr] != EOF) {
     /* EOF will remain in lookahead buffer */
     lexBuf.getPtr = (lexBuf.getPtr + 1) % PR_MAX_LEX_LOOKAHEAD;
     lexBuf.len--;
@@ -617,13 +602,9 @@ static void lexSkipLookaheadWord() {
   }
 }
 
-static void lexClearToken()
-{
-  lexBuf.strsLen = 0;
-}
+static void lexClearToken() { lexBuf.strsLen = 0; }
 
-static void lexAppendc(int c)
-{
+static void lexAppendc(int c) {
   lexBuf.strs[lexBuf.strsLen] = c;
   /* append up to zero termination */
   if (c == 0) return;
@@ -631,13 +612,11 @@ static void lexAppendc(int c)
   if (lexBuf.strsLen >= lexBuf.maxToken) {
     /* double the token string size */
     lexBuf.maxToken <<= 1;
-    lexBuf.strs = (char*) PR_Realloc(lexBuf.strs,lexBuf.maxToken);
+    lexBuf.strs = (char *)PR_Realloc(lexBuf.strs, lexBuf.maxToken);
   }
 }
 
-static char* lexStr() {
-  return dupStr(lexBuf.strs,lexBuf.strsLen+1);
-}
+static char *lexStr() { return dupStr(lexBuf.strs, lexBuf.strsLen + 1); }
 
 static void lexSkipWhite() {
   int c = lexLookahead();
@@ -647,12 +626,12 @@ static void lexSkipWhite() {
   }
 }
 
-static char* lexGetWord() {
+static char *lexGetWord() {
   int c;
   lexSkipWhite();
   lexClearToken();
   c = lexLookahead();
-  while (c != EOF && !PL_strchr("\t\n ;:=",(char)c)) {
+  while (c != EOF && !PL_strchr("\t\n ;:=", (char)c)) {
     lexAppendc(c);
     lexSkipLookahead();
     c = lexLookahead();
@@ -683,14 +662,14 @@ static void lexPushLookaheadc(int c) {
   int putptr;
   /* can't putback EOF, because it never leaves lookahead buffer */
   if (c == EOF) return;
-  putptr = (int) lexBuf.getPtr - 1;
+  putptr = (int)lexBuf.getPtr - 1;
   if (putptr < 0) putptr += PR_MAX_LEX_LOOKAHEAD;
   lexBuf.getPtr = putptr;
   lexBuf.buf[putptr] = c;
   lexBuf.len += 1;
 }
 
-static char* lexLookaheadWord() {
+static char *lexLookaheadWord() {
   /* this function can lookahead word with max size of PR_MAX_LEX_LOOKAHEAD_0
    /  and thing bigger than that will stop the lookahead and return 0;
    / leading white spaces are not recoverable.
@@ -700,7 +679,7 @@ static char* lexLookaheadWord() {
   int curgetptr = 0;
   lexSkipWhite();
   lexClearToken();
-  curgetptr = (int) lexBuf.getPtr;  /* remember! */
+  curgetptr = (int)lexBuf.getPtr; /* remember! */
   while (len < (PR_MAX_LEX_LOOKAHEAD_0)) {
     c = lexGetc();
     len++;
@@ -710,11 +689,10 @@ static char* lexLookaheadWord() {
       lexBuf.len += len;
       lexBuf.getPtr = curgetptr;
       return lexStr();
-    }
-    else
+    } else
       lexAppendc(c);
   }
-  lexBuf.len += len;  /* char that has been moved to lookahead buffer */
+  lexBuf.len += len; /* char that has been moved to lookahead buffer */
   lexBuf.getPtr = curgetptr;
   return 0;
 }
@@ -744,20 +722,18 @@ static void handleMoreRFC822LineBreak(int c) {
          */
         lexSkipWhite();
         lexPushLookaheadc(';');
-      }
-      else {
+      } else {
         lexPushLookaheadc('\n');
         lexPushLookaheadc(';');
       }
-    }
-    else {
+    } else {
       lexPushLookaheadc(';');
     }
   }
 }
 
-static char* lexGet1Value() {
-/*  int size = 0; */
+static char *lexGet1Value() {
+  /*  int size = 0; */
   int c;
   lexSkipWhite();
   c = lexLookahead();
@@ -766,33 +742,28 @@ static char* lexGet1Value() {
     if (c == '\n') {
       int a;
       lexSkipLookahead();
-      a  = lexLookahead();
+      a = lexLookahead();
       if (a == ' ' || a == '\t') {
         lexAppendc(' ');
         lexSkipLookahead();
-      }
-      else {
+      } else {
         lexPushLookaheadc('\n');
         break;
       }
-    }
-    else if (c == '\\') {
+    } else if (c == '\\') {
       int a;
       lexSkipLookahead();
       a = lexLookahead();
       if (a == '\\' || a == ',' || a == ';' || a == ':') {
         lexAppendc(a);
-      }
-      else if (a == 'n' || a == 'N') {
+      } else if (a == 'n' || a == 'N') {
         lexAppendc('\n');
-      }
-      else {
+      } else {
         lexAppendc(c);
         lexAppendc(a);
       }
       lexSkipLookahead();
-    }
-    else {
+    } else {
       lexAppendc(c);
       lexSkipLookahead();
     }
@@ -800,22 +771,21 @@ static char* lexGet1Value() {
   }
   lexAppendc(0);
   handleMoreRFC822LineBreak(c);
-  return c==EOF?0:lexStr();
+  return c == EOF ? 0 : lexStr();
 }
 #endif
 
-
 #ifndef _SUPPORT_LINE_FOLDING
-static char* lexGetStrUntil(char *termset) {
+static char *lexGetStrUntil(char *termset) {
   int c = lexLookahead();
   lexClearToken();
-  while (c != EOF && !PL_strchr(termset,c)) {
+  while (c != EOF && !PL_strchr(termset, c)) {
     lexAppendc(c);
     lexSkipLookahead();
     c = lexLookahead();
   }
   lexAppendc(0);
-  return c==EOF?0:lexStr();
+  return c == EOF ? 0 : lexStr();
 }
 #endif /* ! _SUPPORT_LINE_FOLDING */
 
@@ -823,23 +793,26 @@ static int match_begin_name(int end) {
   char *n = lexLookaheadWord();
   int token = ID;
   if (n) {
-    if (!PL_strcasecmp(n,"vcard")) token = end?END_VCARD:BEGIN_VCARD;
-    else if (!PL_strcasecmp(n,"vcalendar")) token = end?END_VCAL:BEGIN_VCAL;
-    else if (!PL_strcasecmp(n,"vevent")) token = end?END_VEVENT:BEGIN_VEVENT;
-    else if (!PL_strcasecmp(n,"vtodo")) token = end?END_VTODO:BEGIN_VTODO;
+    if (!PL_strcasecmp(n, "vcard"))
+      token = end ? END_VCARD : BEGIN_VCARD;
+    else if (!PL_strcasecmp(n, "vcalendar"))
+      token = end ? END_VCAL : BEGIN_VCAL;
+    else if (!PL_strcasecmp(n, "vevent"))
+      token = end ? END_VEVENT : BEGIN_VEVENT;
+    else if (!PL_strcasecmp(n, "vtodo"))
+      token = end ? END_VTODO : BEGIN_VTODO;
     deleteString(n);
     return token;
   }
   return 0;
 }
 
-void initLex(const char *inputstring, unsigned long inputlen)
-{
+void initLex(const char *inputstring, unsigned long inputlen) {
   /* initialize lex mode stack */
-  lexBuf.lexModeStack[lexBuf.lexModeStackTop=0] = L_NORMAL;
+  lexBuf.lexModeStack[lexBuf.lexModeStackTop = 0] = L_NORMAL;
 
   /* iniatialize lex buffer. */
-  lexBuf.inputString = (char*) inputstring;
+  lexBuf.inputString = (char *)inputstring;
   lexBuf.inputLen = inputlen;
   lexBuf.curPos = 0;
 
@@ -847,20 +820,17 @@ void initLex(const char *inputstring, unsigned long inputlen)
   lexBuf.getPtr = 0;
 
   lexBuf.maxToken = PR_MAXTOKEN;
-  lexBuf.strs = (char*)PR_CALLOC(PR_MAXTOKEN);
+  lexBuf.strs = (char *)PR_CALLOC(PR_MAXTOKEN);
   lexBuf.strsLen = 0;
 }
 
-static void finiLex() {
-  PR_FREEIF(lexBuf.strs);
-}
+static void finiLex() { PR_FREEIF(lexBuf.strs); }
 
 /******************************************************************************/
 /* This parses and converts the base64 format for binary encoding into
  * a decoded buffer (allocated with new).  See RFC 1521.
  */
-static char * lexGetDataFromBase64()
-{
+static char *lexGetDataFromBase64() {
   unsigned long bytesLen = 0, bytesMax = 0;
   int quadIx = 0, pad = 0;
   unsigned long trip = 0;
@@ -877,10 +847,9 @@ static char * lexGetDataFromBase64()
       if (lexLookahead() == '\n') {
         /* a '\n' character by itself means end of data */
         break;
-      }
-      else continue; /* ignore '\n' */
-    }
-    else {
+      } else
+        continue; /* ignore '\n' */
+    } else {
       if ((c >= 'A') && (c <= 'Z'))
         b = (unsigned char)(c - 'A');
       else if ((c >= 'a') && (c <= 'z'))
@@ -898,12 +867,12 @@ static char * lexGetDataFromBase64()
         continue;
       } else { /* error condition */
         if (bytes)
-          PR_Free (bytes);
+          PR_Free(bytes);
         else if (oldBytes)
-          PR_Free (oldBytes);
+          PR_Free(oldBytes);
         /* error recovery: skip until 2 adjacent newlines. */
-        DBG_(("db: invalid character 0x%x '%c'\n", c,c));
-        if (c != EOF)  {
+        DBG_(("db: invalid character 0x%x '%c'\n", c, c));
+        if (c != EOF) {
           c = lexGetc();
           while (c != EOF) {
             if (c == '\n' && lexLookahead() == '\n') {
@@ -921,7 +890,7 @@ static char * lexGetDataFromBase64()
         int numOut;
         int i;
         for (i = 0; i < 3; i++) {
-          outBytes[2-i] = (unsigned char)(trip & 0xFF);
+          outBytes[2 - i] = (unsigned char)(trip & 0xFF);
           trip >>= 8;
         }
         numOut = 3 - pad;
@@ -932,7 +901,7 @@ static char * lexGetDataFromBase64()
             bytesMax <<= 2;
             oldBytes = bytes;
           }
-          bytes = (unsigned char*) PR_Realloc(oldBytes, bytesMax);
+          bytes = (unsigned char *)PR_Realloc(oldBytes, bytesMax);
           if (!bytes) {
             mime_error("out of memory while processing BASE64 data\n");
             break;
@@ -948,15 +917,14 @@ static char * lexGetDataFromBase64()
       }
     }
   } /* while */
-  DBG_(("db: bytesLen = %d\n",  bytesLen));
+  DBG_(("db: bytesLen = %d\n", bytesLen));
   /* kludge: all this won't be necessary if we have tree form
   representation */
   if (bytes) {
-    setValueWithSize(curProp,bytes,(unsigned int)bytesLen);
+    setValueWithSize(curProp, bytes, (unsigned int)bytesLen);
     PR_FREEIF(bytes);
-  }
-  else if (oldBytes) {
-    setValueWithSize(curProp,oldBytes,(unsigned int)bytesLen);
+  } else if (oldBytes) {
+    setValueWithSize(curProp, oldBytes, (unsigned int)bytesLen);
     PR_FREEIF(oldBytes);
   }
   return 0;
@@ -973,8 +941,7 @@ static int match_begin_end_name(int end) {
     lexPushLookaheadc(':');
     DBG_(("db: ID '%s'\n", yylval.str));
     return ID;
-  }
-  else if (token != 0) {
+  } else if (token != 0) {
     lexSkipLookaheadWord();
     deleteString(yylval.str);
     DBG_(("db: begin/end %d\n", token));
@@ -983,8 +950,7 @@ static int match_begin_end_name(int end) {
   return 0;
 }
 
-static char* lexGetQuotedPrintable()
-{
+static char *lexGetQuotedPrintable() {
   char cur;
   /* unsigned long len = 0; */
 
@@ -992,56 +958,53 @@ static char* lexGetQuotedPrintable()
   do {
     cur = lexGetc();
     switch (cur) {
-    case '=': {
-      int c = 0;
-      int next[2];
-      int tab [1];
-      int i;
-      for (i = 0; i < 2; i++) {
-        next[i] = lexGetc();
-        if (next[i] >= '0' && next[i] <= '9')
-          c = c * 16 + next[i] - '0';
-        else if (next[i] >= 'A' && next[i] <= 'F')
-          c = c * 16 + next[i] - 'A' + 10;
-        else
-          break;
-      }
-      if (i == 0) {
-        /* single '=' follow by LINESEP is continuation sign? */
-        if (next[0] == '\n') {
-          tab[0] = lexGetc();
-          if (tab[0] == '\t')
-            lexSkipWhite();
-          ++mime_lineNum;
+      case '=': {
+        int c = 0;
+        int next[2];
+        int tab[1];
+        int i;
+        for (i = 0; i < 2; i++) {
+          next[i] = lexGetc();
+          if (next[i] >= '0' && next[i] <= '9')
+            c = c * 16 + next[i] - '0';
+          else if (next[i] >= 'A' && next[i] <= 'F')
+            c = c * 16 + next[i] - 'A' + 10;
+          else
+            break;
         }
-         else {
-          lexAppendc(cur);
-          /* lexPushLookaheadc('=');
-          goto EndString; */
+        if (i == 0) {
+          /* single '=' follow by LINESEP is continuation sign? */
+          if (next[0] == '\n') {
+            tab[0] = lexGetc();
+            if (tab[0] == '\t') lexSkipWhite();
+            ++mime_lineNum;
+          } else {
+            lexAppendc(cur);
+            /* lexPushLookaheadc('=');
+            goto EndString; */
+          }
+        } else if (i == 1) {
+          lexPushLookaheadc(next[1]);
+          lexPushLookaheadc(next[0]);
+          lexAppendc('=');
+        } else {
+          lexAppendc(c);
         }
+        break;
+      } /* '=' */
+      case '\n': {
+        lexPushLookaheadc('\n');
+        goto EndString;
       }
-      else if (i == 1) {
-        lexPushLookaheadc(next[1]);
-        lexPushLookaheadc(next[0]);
-        lexAppendc('=');
-      } else {
-        lexAppendc(c);
+      case ';': {
+        lexPushLookaheadc(';');
+        goto EndString;
       }
-      break;
-    } /* '=' */
-    case '\n': {
-      lexPushLookaheadc('\n');
-      goto EndString;
-    }
-    case ';': {
-      lexPushLookaheadc(';');
-      goto EndString;
-    }
-    case (char)EOF:
-      break;
-    default:
-      lexAppendc(cur);
-      break;
+      case (char)EOF:
+        break;
+      default:
+        lexAppendc(cur);
+        break;
     } /* switch */
   } while (cur != (char)EOF);
 
@@ -1063,20 +1026,18 @@ static int yylex() {
       lexSkipLookahead();
 #endif
       return SEMICOLON;
-    }
-    else if (PL_strchr("\n",(char)c)) {
+    } else if (PL_strchr("\n", (char)c)) {
       ++mime_lineNum;
       /* consume all line separator(s) adjacent to each other */
       c = lexLookahead();
-      while (PL_strchr("\n",(char)c)) {
+      while (PL_strchr("\n", (char)c)) {
         lexSkipLookahead();
         c = lexLookahead();
         ++mime_lineNum;
       }
       DBG_(("db: LINESEP\n"));
       return LINESEP;
-    }
-    else {
+    } else {
       char *p = 0;
       lexPushLookaheadc(c);
       if (lexWithinMode(L_BASE64)) {
@@ -1084,11 +1045,9 @@ static int yylex() {
         p = lexGetDataFromBase64();
         yylval.str = p;
         return !p && lexLookahead() == EOF ? 0 : STRING;
-      }
-      else if (lexWithinMode(L_QUOTED_PRINTABLE)) {
+      } else if (lexWithinMode(L_QUOTED_PRINTABLE)) {
         p = lexGetQuotedPrintable();
-      }
-      else {
+      } else {
 #ifdef _SUPPORT_LINE_FOLDING
         p = lexGet1Value();
 #else
@@ -1099,104 +1058,93 @@ static int yylex() {
         DBG_(("db: STRING: '%s'\n", p));
         yylval.str = p;
         return STRING;
-      }
-      else return 0;
+      } else
+        return 0;
     }
-  }
-  else {
+  } else {
     /* normal mode */
     while (1) {
       int c = lexGetc();
-      switch(c) {
-      case ':': {
-        /* consume all line separator(s) adjacent to each other */
-        /* ignoring linesep immediately after colon. */
-        c = lexLookahead();
-        while (PL_strchr("\n",(char)c)) {
-          lexSkipLookahead();
+      switch (c) {
+        case ':': {
+          /* consume all line separator(s) adjacent to each other */
+          /* ignoring linesep immediately after colon. */
           c = lexLookahead();
+          while (PL_strchr("\n", (char)c)) {
+            lexSkipLookahead();
+            c = lexLookahead();
+            ++mime_lineNum;
+          }
+          DBG_(("db: COLON\n"));
+          return COLON;
+        }
+        case ';':
+          DBG_(("db: SEMICOLON\n"));
+          return SEMICOLON;
+        case '=':
+          DBG_(("db: EQ\n"));
+          return EQ;
+        /* ignore whitespace in this mode */
+        case '\t':
+        case ' ':
+          continue;
+        case '\n': {
           ++mime_lineNum;
+          continue;
         }
-        DBG_(("db: COLON\n"));
-        return COLON;
-      }
-      case ';':
-        DBG_(("db: SEMICOLON\n"));
-        return SEMICOLON;
-      case '=':
-        DBG_(("db: EQ\n"));
-        return EQ;
-      /* ignore whitespace in this mode */
-      case '\t':
-      case ' ': continue;
-      case '\n': {
-        ++mime_lineNum;
-        continue;
-      }
-      case EOF:
-        return 0;
-      default: {
-        lexPushLookaheadc(c);
-        if (isalpha(c)) {
-          char *t = lexGetWord();
-          yylval.str = t;
-          if (!PL_strcasecmp(t, "BEGIN")) {
-            return match_begin_end_name(0);
-          }
-          else if (!PL_strcasecmp(t,"END")) {
-            return match_begin_end_name(1);
-          }
-          else {
-            DBG_(("db: ID '%s'\n", t));
-            return ID;
-          }
-        }
-        else {
-          /* unknown token */
+        case EOF:
           return 0;
+        default: {
+          lexPushLookaheadc(c);
+          if (isalpha(c)) {
+            char *t = lexGetWord();
+            yylval.str = t;
+            if (!PL_strcasecmp(t, "BEGIN")) {
+              return match_begin_end_name(0);
+            } else if (!PL_strcasecmp(t, "END")) {
+              return match_begin_end_name(1);
+            } else {
+              DBG_(("db: ID '%s'\n", t));
+              return ID;
+            }
+          } else {
+            /* unknown token */
+            return 0;
+          }
         }
-      }
       }
     }
   }
 }
 
-
 /***************************************************************************/
 /***              Public Functions            ****/
 /***************************************************************************/
 
-static VObject* parse_MIMEHelper()
-{
+static VObject *parse_MIMEHelper() {
   ObjStackTop = -1;
   mime_numErrors = 0;
   mime_lineNum = 1;
   vObjList = 0;
   curObj = 0;
 
-  if (yyparse() != 0)
-    return 0;
+  if (yyparse() != 0) return 0;
 
   finiLex();
   return vObjList;
 }
 
 /******************************************************************************/
-VObject* parse_MIME(const char *input, unsigned long len)
-{
+VObject *parse_MIME(const char *input, unsigned long len) {
   initLex(input, len);
   return parse_MIMEHelper();
 }
 
 static MimeErrorHandler mimeErrorHandler;
 
-void registerMimeErrorHandler(MimeErrorHandler me)
-{
-  mimeErrorHandler = me;
-}
+void registerMimeErrorHandler(MimeErrorHandler me) { mimeErrorHandler = me; }
 
-void mime_error(const char *s)
-{
+void mime_error(const char *s) {
   char msg[256];
   if (mimeErrorHandler) {
     PR_snprintf(msg, sizeof(msg), "%s at line %d", s, mime_lineNum);
@@ -1208,19 +1156,15 @@ void mime_error(const char *s)
 #define YYABORT goto yyabort
 #define YYACCEPT goto yyaccept
 #define YYERROR goto yyerrlab
-int
-yyparse()
-{
+int yyparse() {
   int yym, yyn, yystate;
 #if YYDEBUG
   char *yys;
   extern char *getenv();
 
-  if (yys = getenv("YYDEBUG"))
-  {
+  if (yys = getenv("YYDEBUG")) {
     yyn = *yys;
-    if (yyn >= '0' && yyn <= '9')
-      yydebug = yyn - '0';
+    if (yyn >= '0' && yyn <= '9') yydebug = yyn - '0';
   }
 #endif
 
@@ -1234,41 +1178,35 @@ yyparse()
 
 yyloop:
   if ((yyn = yydefred[yystate])) goto yyreduce;
-  if (yychar < 0)
-  {
+  if (yychar < 0) {
     if ((yychar = yylex()) < 0) yychar = 0;
 #if YYDEBUG
-    if (yydebug)
-    {
+    if (yydebug) {
       yys = 0;
       if (yychar <= YYPR_MAXTOKEN) yys = yyname[yychar];
       if (!yys) yys = "illegal-symbol";
-      printf("yydebug: state %d, reading %d (%s)\n", yystate,
-             yychar, yys);
+      printf("yydebug: state %d, reading %d (%s)\n", yystate, yychar, yys);
     }
 #endif
   }
-  if ((yyn = yysindex[yystate]) && (yyn += yychar) >= 0 &&
-      yyn <= YYTABLESIZE && yycheck[yyn] == yychar)
-  {
+  if ((yyn = yysindex[yystate]) && (yyn += yychar) >= 0 && yyn <= YYTABLESIZE &&
+      yycheck[yyn] == yychar) {
 #if YYDEBUG
     if (yydebug)
-      printf("yydebug: state %d, shifting to state %d\n",
-             yystate, yytable[yyn]);
+      printf("yydebug: state %d, shifting to state %d\n", yystate,
+             yytable[yyn]);
 #endif
-    if (yyssp >= yyss + yystacksize - 1)
-    {
+    if (yyssp >= yyss + yystacksize - 1) {
       goto yyoverflow;
     }
     *++yyssp = yystate = yytable[yyn];
     *++yyvsp = yylval;
     yychar = (-1);
-    if (yyerrflag > 0)  --yyerrflag;
+    if (yyerrflag > 0) --yyerrflag;
     goto yyloop;
   }
-  if ((yyn = yyrindex[yystate]) && (yyn += yychar) >= 0 &&
-      yyn <= YYTABLESIZE && yycheck[yyn] == yychar)
-  {
+  if ((yyn = yyrindex[yystate]) && (yyn += yychar) >= 0 && yyn <= YYTABLESIZE &&
+      yycheck[yyn] == yychar) {
     yyn = yytable[yyn];
     goto yyreduce;
   }
@@ -1276,7 +1214,7 @@ yyloop:
 #ifdef lint
   goto yynewerror;
 #endif
-/*yynewerror: */
+  /*yynewerror: */
   yyerror("syntax error");
 #ifdef lint
   goto yyerrlab;
@@ -1284,46 +1222,36 @@ yyloop:
 yyerrlab:
   ++yynerrs;
 yyinrecovery:
-  if (yyerrflag < 3)
-  {
+  if (yyerrflag < 3) {
     yyerrflag = 3;
-    for (;;)
-    {
+    for (;;) {
       if ((yyn = yysindex[*yyssp]) && (yyn += YYERRCODE) >= 0 &&
-          yyn <= YYTABLESIZE && yycheck[yyn] == YYERRCODE)
-      {
+          yyn <= YYTABLESIZE && yycheck[yyn] == YYERRCODE) {
 #if YYDEBUG
         if (yydebug)
           printf("yydebug: state %d, error recovery shifting to state %d\n",
                  *yyssp, yytable[yyn]);
 #endif
-        if (yyssp >= yyss + yystacksize - 1)
-        {
+        if (yyssp >= yyss + yystacksize - 1) {
           goto yyoverflow;
         }
         *++yyssp = yystate = yytable[yyn];
         *++yyvsp = yylval;
         goto yyloop;
-      }
-      else
-      {
+      } else {
 #if YYDEBUG
         if (yydebug)
-          printf("yydebug: error recovery discarding state %d\n",
-                 *yyssp);
+          printf("yydebug: error recovery discarding state %d\n", *yyssp);
 #endif
         if (yyssp <= yyss) goto yyabort;
         --yyssp;
         --yyvsp;
       }
     }
-  }
-  else
-  {
+  } else {
     if (yychar == 0) goto yyabort;
 #if YYDEBUG
-    if (yydebug)
-    {
+    if (yydebug) {
       yys = 0;
       if (yychar <= YYPR_MAXTOKEN) yys = yyname[yychar];
       if (!yys) yys = "illegal-symbol";
@@ -1337,179 +1265,177 @@ yyinrecovery:
 yyreduce:
 #if YYDEBUG
   if (yydebug)
-    printf("yydebug: state %d, reducing by rule %d (%s)\n",
-           yystate, yyn, yyrule[yyn]);
+    printf("yydebug: state %d, reducing by rule %d (%s)\n", yystate, yyn,
+           yyrule[yyn]);
 #endif
   yym = yylen[yyn];
-  yyval = yyvsp[1-yym];
-  switch (yyn)
-  {
-  case 2:
-    /*#line 282 "vcc.y"*/
-    { addList(&vObjList, yyvsp[0].vobj ); curObj = 0; }
-    break;
-  case 4:
-    /*#line 285 "vcc.y"*/
-    { addList(&vObjList, yyvsp[0].vobj ); curObj = 0; }
-    break;
-  case 7:
-    /*#line 294 "vcc.y"*/
-    {
-      lexPushMode(L_VCARD);
-      if (!pushVObject(VCCardProp)) YYERROR;
-    }
-    break;
-  case 8:
-    /*#line 299 "vcc.y"*/
-    {
-      lexPopMode(0);
-      yyval.vobj  = popVObject();
-    }
-    break;
-  case 9:
-    /*#line 304 "vcc.y"*/
-    {
-      lexPushMode(L_VCARD);
-      if (!pushVObject(VCCardProp)) YYERROR;
-    }
-    break;
-  case 10:
-    /*#line 309 "vcc.y"*/
-    {
-      lexPopMode(0);
-      yyval.vobj  = popVObject();
-    }
-    break;
-  case 13:
-    /*#line 320 "vcc.y"*/
-    {
-      lexPushMode(L_VALUES);
-    }
-    break;
-  case 14:
-    /*#line 324 "vcc.y"*/
-    {
-      if (lexWithinMode(L_BASE64) || lexWithinMode(L_QUOTED_PRINTABLE))
+  yyval = yyvsp[1 - yym];
+  switch (yyn) {
+    case 2:
+      /*#line 282 "vcc.y"*/
+      {
+        addList(&vObjList, yyvsp[0].vobj);
+        curObj = 0;
+      }
+      break;
+    case 4:
+      /*#line 285 "vcc.y"*/
+      {
+        addList(&vObjList, yyvsp[0].vobj);
+        curObj = 0;
+      }
+      break;
+    case 7:
+      /*#line 294 "vcc.y"*/
+      {
+        lexPushMode(L_VCARD);
+        if (!pushVObject(VCCardProp)) YYERROR;
+      }
+      break;
+    case 8:
+      /*#line 299 "vcc.y"*/
+      {
         lexPopMode(0);
-      lexPopMode(0);
-    }
-    break;
-  case 16:
-    /*#line 332 "vcc.y"*/
-    {
-      enterProps(yyvsp[0].str );
-    }
-    break;
-  case 18:
-    /*#line 337 "vcc.y"*/
-    {
-      enterProps(yyvsp[0].str );
-    }
-    break;
-  case 22:
-    /*#line 350 "vcc.y"*/
-    {
-      enterAttr(yyvsp[0].str ,0);
-    }
-    break;
-  case 23:
-    /*#line 354 "vcc.y"*/
-    {
-      enterAttr(yyvsp[-2].str ,yyvsp[0].str );
-    }
-    break;
-  case 25:
-    /*#line 363 "vcc.y"*/
-    { enterValues(yyvsp[-1].str ); }
-    break;
-  case 27:
-    /*#line 365 "vcc.y"*/
-    { enterValues(yyvsp[0].str ); }
-    break;
-  case 29:
-    /*#line 370 "vcc.y"*/
-    { yyval.str  = 0; }
-    break;
-  case 30:
-    /*#line 375 "vcc.y"*/
-    { if (!pushVObject(VCCalProp)) YYERROR; }
-    break;
-  case 31:
-    /*#line 378 "vcc.y"*/
-    { yyval.vobj  = popVObject(); }
-    break;
-  case 32:
-    /*#line 380 "vcc.y"*/
-    { if (!pushVObject(VCCalProp)) YYERROR; }
-    break;
-  case 33:
-    /*#line 382 "vcc.y"*/
-    { yyval.vobj  = popVObject(); }
-    break;
-  case 39:
-  /*#line 397 "vcc.y"*/
-    {
-      lexPushMode(L_VEVENT);
-      if (!pushVObject(VCEventProp)) YYERROR;
-    }
-    break;
-  case 40:
-  /*#line 403 "vcc.y"*/
-    {
-      lexPopMode(0);
-      popVObject();
-    }
-    break;
-  case 41:
-    /*#line 408 "vcc.y"*/
-    {
-      lexPushMode(L_VEVENT);
-      if (!pushVObject(VCEventProp)) YYERROR;
-    }
-    break;
-  case 42:
-    /*#line 413 "vcc.y"*/
-    {
-      lexPopMode(0);
-      popVObject();
-    }
-    break;
-  case 43:
-    /*#line 421 "vcc.y"*/
-    {
-      lexPushMode(L_VTODO);
-      if (!pushVObject(VCTodoProp)) YYERROR;
-    }
-    break;
-  case 44:
-    /*#line 427 "vcc.y"*/
-    {
-      lexPopMode(0);
-      popVObject();
-    }
-    break;
-  case 45:
-    /*#line 432 "vcc.y"*/
-    {
-      lexPushMode(L_VTODO);
-      if (!pushVObject(VCTodoProp)) YYERROR;
-    }
-    break;
-  case 46:
-    /*#line 437 "vcc.y"*/
-    {
-      lexPopMode(0);
-      popVObject();
-    }
-    break;
-/*#line 1520 "y_tab.c"*/
+        yyval.vobj = popVObject();
+      }
+      break;
+    case 9:
+      /*#line 304 "vcc.y"*/
+      {
+        lexPushMode(L_VCARD);
+        if (!pushVObject(VCCardProp)) YYERROR;
+      }
+      break;
+    case 10:
+      /*#line 309 "vcc.y"*/
+      {
+        lexPopMode(0);
+        yyval.vobj = popVObject();
+      }
+      break;
+    case 13:
+      /*#line 320 "vcc.y"*/
+      { lexPushMode(L_VALUES); }
+      break;
+    case 14:
+      /*#line 324 "vcc.y"*/
+      {
+        if (lexWithinMode(L_BASE64) || lexWithinMode(L_QUOTED_PRINTABLE))
+          lexPopMode(0);
+        lexPopMode(0);
+      }
+      break;
+    case 16:
+      /*#line 332 "vcc.y"*/
+      { enterProps(yyvsp[0].str); }
+      break;
+    case 18:
+      /*#line 337 "vcc.y"*/
+      { enterProps(yyvsp[0].str); }
+      break;
+    case 22:
+      /*#line 350 "vcc.y"*/
+      { enterAttr(yyvsp[0].str, 0); }
+      break;
+    case 23:
+      /*#line 354 "vcc.y"*/
+      { enterAttr(yyvsp[-2].str, yyvsp[0].str); }
+      break;
+    case 25:
+      /*#line 363 "vcc.y"*/
+      { enterValues(yyvsp[-1].str); }
+      break;
+    case 27:
+      /*#line 365 "vcc.y"*/
+      { enterValues(yyvsp[0].str); }
+      break;
+    case 29:
+      /*#line 370 "vcc.y"*/
+      { yyval.str = 0; }
+      break;
+    case 30:
+      /*#line 375 "vcc.y"*/
+      {
+        if (!pushVObject(VCCalProp)) YYERROR;
+      }
+      break;
+    case 31:
+      /*#line 378 "vcc.y"*/
+      { yyval.vobj = popVObject(); }
+      break;
+    case 32:
+      /*#line 380 "vcc.y"*/
+      {
+        if (!pushVObject(VCCalProp)) YYERROR;
+      }
+      break;
+    case 33:
+      /*#line 382 "vcc.y"*/
+      { yyval.vobj = popVObject(); }
+      break;
+    case 39:
+      /*#line 397 "vcc.y"*/
+      {
+        lexPushMode(L_VEVENT);
+        if (!pushVObject(VCEventProp)) YYERROR;
+      }
+      break;
+    case 40:
+      /*#line 403 "vcc.y"*/
+      {
+        lexPopMode(0);
+        popVObject();
+      }
+      break;
+    case 41:
+      /*#line 408 "vcc.y"*/
+      {
+        lexPushMode(L_VEVENT);
+        if (!pushVObject(VCEventProp)) YYERROR;
+      }
+      break;
+    case 42:
+      /*#line 413 "vcc.y"*/
+      {
+        lexPopMode(0);
+        popVObject();
+      }
+      break;
+    case 43:
+      /*#line 421 "vcc.y"*/
+      {
+        lexPushMode(L_VTODO);
+        if (!pushVObject(VCTodoProp)) YYERROR;
+      }
+      break;
+    case 44:
+      /*#line 427 "vcc.y"*/
+      {
+        lexPopMode(0);
+        popVObject();
+      }
+      break;
+    case 45:
+      /*#line 432 "vcc.y"*/
+      {
+        lexPushMode(L_VTODO);
+        if (!pushVObject(VCTodoProp)) YYERROR;
+      }
+      break;
+    case 46:
+      /*#line 437 "vcc.y"*/
+      {
+        lexPopMode(0);
+        popVObject();
+      }
+      break;
+      /*#line 1520 "y_tab.c"*/
   }
   yyssp -= yym;
   yystate = *yyssp;
   yyvsp -= yym;
   yym = yylhs[yyn];
-  if (yystate == 0 && yym == 0)
-  {
+  if (yystate == 0 && yym == 0) {
 #if YYDEBUG
     if (yydebug)
       printf("yydebug: after reduction, shifting from state 0 to state %d\n",
@@ -1518,25 +1444,22 @@ yyreduce:
     yystate = YYFINAL;
     *++yyssp = YYFINAL;
     *++yyvsp = yyval;
-    if (yychar < 0)
-    {
+    if (yychar < 0) {
       if ((yychar = yylex()) < 0) yychar = 0;
 #if YYDEBUG
-      if (yydebug)
-      {
+      if (yydebug) {
         yys = 0;
         if (yychar <= YYPR_MAXTOKEN) yys = yyname[yychar];
         if (!yys) yys = "illegal-symbol";
-        printf("yydebug: state %d, reading %d (%s)\n",
-               YYFINAL, yychar, yys);
+        printf("yydebug: state %d, reading %d (%s)\n", YYFINAL, yychar, yys);
       }
 #endif
     }
     if (yychar == 0) goto yyaccept;
     goto yyloop;
   }
-  if ((yyn = yygindex[yym]) && (yyn += yystate) >= 0 &&
-      yyn <= YYTABLESIZE && yycheck[yyn] == yystate)
+  if ((yyn = yygindex[yym]) && (yyn += yystate) >= 0 && yyn <= YYTABLESIZE &&
+      yycheck[yyn] == yystate)
     yystate = yytable[yyn];
   else
     yystate = yydgoto[yym];
@@ -1545,8 +1468,7 @@ yyreduce:
     printf("yydebug: after reduction, shifting from state %d to state %d\n",
            *yyssp, yystate);
 #endif
-  if (yyssp >= yyss + yystacksize - 1)
-  {
+  if (yyssp >= yyss + yystacksize - 1) {
     goto yyoverflow;
   }
   *++yyssp = yystate;

@@ -13,53 +13,44 @@ using namespace mozilla;
 #include <AddressBook/AddressBook.h>
 #define kABDepartmentProperty (kABDepartmentProperty ? kABDepartmentProperty : @"ABDepartment")
 
-NSString*
-WrapString(const nsString &aString)
-{
-    unichar* chars = reinterpret_cast<unichar*>(const_cast<char16_t*>(aString.get()));
+NSString *WrapString(const nsString &aString) {
+  unichar *chars = reinterpret_cast<unichar *>(const_cast<char16_t *>(aString.get()));
 
-    return [NSString stringWithCharacters:chars
-                                   length:aString.Length()];
+  return [NSString stringWithCharacters:chars length:aString.Length()];
 }
 
-void
-AppendToString(const NSString *aString, nsString &aResult)
-{
-    if (aString) {
-        const char *chars = [aString UTF8String];
-        if (chars) {
-            aResult.Append(NS_ConvertUTF8toUTF16(chars));
-        }
+void AppendToString(const NSString *aString, nsString &aResult) {
+  if (aString) {
+    const char *chars = [aString UTF8String];
+    if (chars) {
+      aResult.Append(NS_ConvertUTF8toUTF16(chars));
     }
+  }
 }
 
-void
-AssignToString(const NSString *aString, nsString &aResult)
-{
-    if (aString) {
-        const char *chars = [aString UTF8String];
-        if (chars)
-          CopyUTF8toUTF16(nsDependentCString(chars), aResult);
-    }
+void AssignToString(const NSString *aString, nsString &aResult) {
+  if (aString) {
+    const char *chars = [aString UTF8String];
+    if (chars) CopyUTF8toUTF16(nsDependentCString(chars), aResult);
+  }
 }
 
-void
-AppendToCString(const NSString *aString, nsCString &aResult)
-{
-    if (aString) {
-        const char *chars = [aString UTF8String];
-        if (chars) {
-            aResult.Append(chars);
-        }
+void AppendToCString(const NSString *aString, nsCString &aResult) {
+  if (aString) {
+    const char *chars = [aString UTF8String];
+    if (chars) {
+      aResult.Append(chars);
     }
+  }
 }
 
 // Some properties can't be easily mapped back and forth.
 #define DONT_MAP(moz_name, osx_property, osx_label, osx_key)
 
 #define DEFINE_PROPERTY(moz_name, osx_property, osx_label, osx_key) \
-    { osx_property, osx_label, osx_key, #moz_name },
+  {osx_property, osx_label, osx_key, #moz_name},
 
+// clang-format off
 const nsAbOSXPropertyMap nsAbOSXUtils::kPropertyMap[] = {
     DEFINE_PROPERTY(FirstName, kABFirstNameProperty, nil, nil)
     DEFINE_PROPERTY(LastName, kABLastNameProperty, nil, nil)
@@ -112,6 +103,6 @@ const nsAbOSXPropertyMap nsAbOSXUtils::kPropertyMap[] = {
     DONT_MAP("PreferMailFormat", nil, nil, nil)
     DONT_MAP("LastModifiedDate", modifytimestamp, nil, nil)
 };
+// clang-format on
 
-const uint32_t nsAbOSXUtils::kPropertyMapSize =
-    ArrayLength(nsAbOSXUtils::kPropertyMap);
+const uint32_t nsAbOSXUtils::kPropertyMapSize = ArrayLength(nsAbOSXUtils::kPropertyMap);

@@ -10,16 +10,15 @@
 #include "nsAbCardProperty.h"
 #include "nsCOMPtr.h"
 
-class nsAbMDBCard: public nsAbCardProperty
-{
-public:
+class nsAbMDBCard : public nsAbCardProperty {
+ public:
   NS_DECL_ISUPPORTS_INHERITED
 
   nsAbMDBCard(void);
 
   NS_IMETHOD Equals(nsIAbCard *card, bool *result) override;
 
-private:
+ private:
   virtual ~nsAbMDBCard();
 };
 

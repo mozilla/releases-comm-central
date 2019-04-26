@@ -78,17 +78,17 @@ which accompanied this distribution.
 
 */
 
-
 #ifndef __VOBJECT_H__
 #define __VOBJECT_H__ 1
 
 /*
-Unfortunately, on the Mac (and possibly other platforms) with our current, out-dated
-libraries (Plauger), |wchar_t| is defined incorrectly, which breaks vcards.
+Unfortunately, on the Mac (and possibly other platforms) with our current,
+out-dated libraries (Plauger), |wchar_t| is defined incorrectly, which breaks
+vcards.
 
 We can't fix Plauger because it doesn't come with source. Later, when we
 upgrade to MSL, we can make this evil hack go away.  In the mean time,
-vcards are not allowed to use the (incorrectly defined) |wchar_t| type.  Instead,
+vcards are not allowed to use the (incorrectly defined) |wchar_t| type. Instead,
 they will use an appropriately defined local type |vwchar_t|.
 */
 
@@ -262,29 +262,29 @@ extern "C" {
 #define VCUseHTML "x-mozilla-html"
 
 /* return type of vObjectValueType: */
-#define VCVT_NOVALUE  0
-  /* if the VObject has no value associated with it. */
-#define VCVT_STRINGZ  1
-  /* if the VObject has value set by setVObjectStringZValue. */
+#define VCVT_NOVALUE 0
+/* if the VObject has no value associated with it. */
+#define VCVT_STRINGZ 1
+/* if the VObject has value set by setVObjectStringZValue. */
 #define VCVT_USTRINGZ 2
-  /* if the VObject has value set by setVObjectUStringZValue. */
-#define VCVT_UINT   3
-  /* if the VObject has value set by setVObjectIntegerValue. */
-#define VCVT_ULONG    4
-  /* if the VObject has value set by setVObjectLongValue. */
-#define VCVT_RAW    5
-  /* if the VObject has value set by setVObjectAnyValue. */
-#define VCVT_VOBJECT  6
-  /* if the VObject has value set by setVObjectVObjectValue. */
+/* if the VObject has value set by setVObjectUStringZValue. */
+#define VCVT_UINT 3
+/* if the VObject has value set by setVObjectIntegerValue. */
+#define VCVT_ULONG 4
+/* if the VObject has value set by setVObjectLongValue. */
+#define VCVT_RAW 5
+/* if the VObject has value set by setVObjectAnyValue. */
+#define VCVT_VOBJECT 6
+/* if the VObject has value set by setVObjectVObjectValue. */
 
-#define NAME_OF(o)        o->id
-#define VALUE_TYPE(o)     o->valType
-#define STRINGZ_VALUE_OF(o)   o->val.strs
-#define USTRINGZ_VALUE_OF(o)  o->val.ustrs
-#define INTEGER_VALUE_OF(o)   o->val.i
-#define LONG_VALUE_OF(o)    o->val.l
-#define ANY_VALUE_OF(o)     o->val.any
-#define VOBJECT_VALUE_OF(o)   o->val.vobj
+#define NAME_OF(o) o->id
+#define VALUE_TYPE(o) o->valType
+#define STRINGZ_VALUE_OF(o) o->val.strs
+#define USTRINGZ_VALUE_OF(o) o->val.ustrs
+#define INTEGER_VALUE_OF(o) o->val.i
+#define LONG_VALUE_OF(o) o->val.l
+#define ANY_VALUE_OF(o) o->val.any
+#define VOBJECT_VALUE_OF(o) o->val.vobj
 
 typedef struct VObject VObject;
 
@@ -317,72 +317,75 @@ typedef struct OFile {
   char *s;
   int len;
   int limit;
-  int alloc:1;
-  int fail:1;
+  int alloc : 1;
+  int fail : 1;
 } OFile;
 
 typedef struct VObjectIterator {
-  VObject* start;
-  VObject* next;
+  VObject *start;
+  VObject *next;
 } VObjectIterator;
 
-VObject*  newVObject(const char *id);
-void      deleteVObject(VObject *p);
-char*     dupStr(const char *s, unsigned int size);
+VObject *newVObject(const char *id);
+void deleteVObject(VObject *p);
+char *dupStr(const char *s, unsigned int size);
 extern "C" void deleteString(char *p);
-void      unUseStr(const char *s);
+void unUseStr(const char *s);
 
-void      setVObjectName(VObject *o, const char* id);
-void      setVObjectStringZValue(VObject *o, const char *s);
-void      setVObjectStringZValue_(VObject *o, const char *s);
-void      setVObjectUStringZValue(VObject *o, const vwchar_t *s);
-void      setVObjectUStringZValue_(VObject *o, const vwchar_t *s);
-void      setVObjectIntegerValue(VObject *o, unsigned int i);
-void      setVObjectLongValue(VObject *o, unsigned long l);
-void      setVObjectAnyValue(VObject *o, void *t);
-VObject*  setValueWithSize(VObject *prop, void *val, unsigned int size);
-VObject*  setValueWithSize_(VObject *prop, void *val, unsigned int size);
+void setVObjectName(VObject *o, const char *id);
+void setVObjectStringZValue(VObject *o, const char *s);
+void setVObjectStringZValue_(VObject *o, const char *s);
+void setVObjectUStringZValue(VObject *o, const vwchar_t *s);
+void setVObjectUStringZValue_(VObject *o, const vwchar_t *s);
+void setVObjectIntegerValue(VObject *o, unsigned int i);
+void setVObjectLongValue(VObject *o, unsigned long l);
+void setVObjectAnyValue(VObject *o, void *t);
+VObject *setValueWithSize(VObject *prop, void *val, unsigned int size);
+VObject *setValueWithSize_(VObject *prop, void *val, unsigned int size);
 
-const char* vObjectName(VObject *o);
-const char* vObjectStringZValue(VObject *o);
-const vwchar_t* vObjectUStringZValue(VObject *o);
+const char *vObjectName(VObject *o);
+const char *vObjectStringZValue(VObject *o);
+const vwchar_t *vObjectUStringZValue(VObject *o);
 unsigned int vObjectIntegerValue(VObject *o);
 unsigned long vObjectLongValue(VObject *o);
-void* vObjectAnyValue(VObject *o);
-VObject* vObjectVObjectValue(VObject *o);
+void *vObjectAnyValue(VObject *o);
+VObject *vObjectVObjectValue(VObject *o);
 void setVObjectVObjectValue(VObject *o, VObject *p);
 
-VObject* addVObjectProp(VObject *o, VObject *p);
-VObject* addProp(VObject *o, const char *id);
-VObject* addProp_(VObject *o, const char *id);
-VObject* addPropValue(VObject *o, const char *p, const char *v);
-VObject* addPropSizedValue_(VObject *o, const char *p, const char *v, unsigned int size);
-VObject* addPropSizedValue(VObject *o, const char *p, const char *v, unsigned int size);
-VObject* addGroup(VObject *o, const char *g);
+VObject *addVObjectProp(VObject *o, VObject *p);
+VObject *addProp(VObject *o, const char *id);
+VObject *addProp_(VObject *o, const char *id);
+VObject *addPropValue(VObject *o, const char *p, const char *v);
+VObject *addPropSizedValue_(VObject *o, const char *p, const char *v,
+                            unsigned int size);
+VObject *addPropSizedValue(VObject *o, const char *p, const char *v,
+                           unsigned int size);
+VObject *addGroup(VObject *o, const char *g);
 void addList(VObject **o, VObject *p);
 
-VObject* isAPropertyOf(VObject *o, const char *id);
+VObject *isAPropertyOf(VObject *o, const char *id);
 
-VObject* nextVObjectInList(VObject *o);
+VObject *nextVObjectInList(VObject *o);
 void initPropIterator(VObjectIterator *i, VObject *o);
 int moreIteration(VObjectIterator *i);
-VObject* nextVObject(VObjectIterator *i);
+VObject *nextVObject(VObjectIterator *i);
 
 void writeVObject_(OFile *fp, VObject *o);
-char* writeMemVObject(char *s, int *len, VObject *o);
-extern "C" char* writeMemoryVObjects(char *s, int *len, VObject *list, bool expandSpaces);
+char *writeMemVObject(char *s, int *len, VObject *o);
+extern "C" char *writeMemoryVObjects(char *s, int *len, VObject *list,
+                                     bool expandSpaces);
 
-const char* lookupStr(const char *s);
+const char *lookupStr(const char *s);
 
 void cleanVObject(VObject *o);
 void cleanVObjects(VObject *list);
 
-const char* lookupProp(const char* str);
-const char* lookupProp_(const char* str);
+const char *lookupProp(const char *str);
+const char *lookupProp_(const char *str);
 
-vwchar_t* fakeUnicode(const char *ps, int *bytes);
+vwchar_t *fakeUnicode(const char *ps, int *bytes);
 int uStrLen(const vwchar_t *u);
-char* fakeCString(const vwchar_t *u);
+char *fakeCString(const vwchar_t *u);
 
 #define MAXPROPNAMESIZE 256
 #define MAXMOZPROPNAMESIZE 16
@@ -392,5 +395,3 @@ char* fakeCString(const vwchar_t *u);
 #endif
 
 #endif /* __VOBJECT_H__ */
-
-

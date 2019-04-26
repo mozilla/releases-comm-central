@@ -5,18 +5,13 @@
 
 #include "nsAbMDBCard.h"
 
-nsAbMDBCard::nsAbMDBCard(void)
-{
-}
+nsAbMDBCard::nsAbMDBCard(void) {}
 
-nsAbMDBCard::~nsAbMDBCard(void)
-{
-}
+nsAbMDBCard::~nsAbMDBCard(void) {}
 
 NS_IMPL_ISUPPORTS_INHERITED0(nsAbMDBCard, nsAbCardProperty)
 
-NS_IMETHODIMP nsAbMDBCard::Equals(nsIAbCard *card, bool *result)
-{
+NS_IMETHODIMP nsAbMDBCard::Equals(nsIAbCard *card, bool *result) {
   NS_ENSURE_ARG_POINTER(card);
   NS_ENSURE_ARG_POINTER(result);
 
@@ -40,8 +35,7 @@ NS_IMETHODIMP nsAbMDBCard::Equals(nsIAbCard *card, bool *result)
 
   uint32_t row;
   nsresult rv = card->GetPropertyAsUint32("DbRowID", &row);
-  if (NS_FAILED(rv))
-  {
+  if (NS_FAILED(rv)) {
     *result = false;
     return NS_OK;
   }

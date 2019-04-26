@@ -18,26 +18,20 @@
 
 NS_IMPL_ISUPPORTS(nsAbDirFactoryService, nsIAbDirFactoryService)
 
-nsAbDirFactoryService::nsAbDirFactoryService()
-{
-}
+nsAbDirFactoryService::nsAbDirFactoryService() {}
 
-nsAbDirFactoryService::~nsAbDirFactoryService()
-{
-}
+nsAbDirFactoryService::~nsAbDirFactoryService() {}
 
 /* nsIAbDirFactory getDirFactory (in string uri); */
 NS_IMETHODIMP
-nsAbDirFactoryService::GetDirFactory(const nsACString &aURI,
-                                     nsIAbDirFactory** aDirFactory)
-{
+nsAbDirFactoryService::GetDirFactory(const nsACString& aURI,
+                                     nsIAbDirFactory** aDirFactory) {
   NS_ENSURE_ARG_POINTER(aDirFactory);
 
   nsresult rv;
 
   // Obtain the network IO service
-  nsCOMPtr<nsIIOService> nsService =
-    mozilla::services::GetIOService();
+  nsCOMPtr<nsIIOService> nsService = mozilla::services::GetIOService();
   NS_ENSURE_TRUE(nsService, NS_ERROR_UNEXPECTED);
 
   // Extract the scheme

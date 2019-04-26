@@ -9,19 +9,15 @@
 #include "nsIAbLDAPDirectory.h"
 #include "nsIArray.h"
 
-class nsAbLDAPDirectoryModify
-{
-public:
+class nsAbLDAPDirectoryModify {
+ public:
   nsAbLDAPDirectoryModify();
   virtual ~nsAbLDAPDirectoryModify();
 
-protected:
-  nsresult DoModify(nsIAbLDAPDirectory *directory,
-                    const int32_t &aUpdateType,
-                    const nsACString &aCardDN,
-                    nsIArray* modArray,
-                    const nsACString &aNewRDN,
-                    const nsACString &aNewBaseDN);
+ protected:
+  nsresult DoModify(nsIAbLDAPDirectory *directory, const int32_t &aUpdateType,
+                    const nsACString &aCardDN, nsIArray *modArray,
+                    const nsACString &aNewRDN, const nsACString &aNewBaseDN);
 };
 
-#endif // nsAbLDAPDirectoryModify_h__
+#endif  // nsAbLDAPDirectoryModify_h__

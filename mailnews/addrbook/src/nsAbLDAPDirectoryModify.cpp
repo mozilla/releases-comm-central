@@ -18,26 +18,23 @@
 
 using namespace mozilla;
 
-class nsAbModifyLDAPMessageListener : public nsAbLDAPListenerBase
-{
-public:
+class nsAbModifyLDAPMessageListener : public nsAbLDAPListenerBase {
+ public:
   NS_DECL_THREADSAFE_ISUPPORTS
 
-  nsAbModifyLDAPMessageListener(const int32_t type,
-                                const nsACString &cardDN,
-                                nsIArray* modArray,
-                                const nsACString &newRDN,
+  nsAbModifyLDAPMessageListener(const int32_t type, const nsACString &cardDN,
+                                nsIArray *modArray, const nsACString &newRDN,
                                 const nsACString &newBaseDN,
-                                nsILDAPURL* directoryUrl,
-                                nsILDAPConnection* connection,
-                                nsIMutableArray* serverSearchControls,
-                                nsIMutableArray* clientSearchControls,
+                                nsILDAPURL *directoryUrl,
+                                nsILDAPConnection *connection,
+                                nsIMutableArray *serverSearchControls,
+                                nsIMutableArray *clientSearchControls,
                                 const nsACString &login,
                                 const int32_t timeOut = 0);
   // nsILDAPMessageListener
   NS_IMETHOD OnLDAPMessage(nsILDAPMessage *aMessage) override;
 
-protected:
+ protected:
   virtual ~nsAbModifyLDAPMessageListener();
 
   nsresult Cancel();
@@ -62,59 +59,48 @@ protected:
   nsCOMPtr<nsIMutableArray> mClientSearchControls;
 };
 
-
 NS_IMPL_ISUPPORTS(nsAbModifyLDAPMessageListener, nsILDAPMessageListener)
 
 nsAbModifyLDAPMessageListener::nsAbModifyLDAPMessageListener(
-    const int32_t type,
-    const nsACString &cardDN,
-    nsIArray* modArray,
-    const nsACString &newRDN,
-    const nsACString &newBaseDN,
-    nsILDAPURL* directoryUrl,
-    nsILDAPConnection* connection,
-    nsIMutableArray* serverSearchControls,
-    nsIMutableArray* clientSearchControls,
-    const nsACString &login,
-    const int32_t timeOut) :
-    nsAbLDAPListenerBase(directoryUrl, connection, login, timeOut),
-    mType(type),
-    mCardDN(cardDN),
-    mModification(modArray),
-    mNewRDN(newRDN),
-    mNewBaseDN(newBaseDN),
-    mFinished(false),
-    mCanceled(false),
-    mFlagRename(false),
-    mServerSearchControls(serverSearchControls),
-    mClientSearchControls(clientSearchControls)
-{
-  if (mType == nsILDAPModification::MOD_REPLACE &&
-      !mNewRDN.IsEmpty() && !mNewBaseDN.IsEmpty())
+    const int32_t type, const nsACString &cardDN, nsIArray *modArray,
+    const nsACString &newRDN, const nsACString &newBaseDN,
+    nsILDAPURL *directoryUrl, nsILDAPConnection *connection,
+    nsIMutableArray *serverSearchControls,
+    nsIMutableArray *clientSearchControls, const nsACString &login,
+    const int32_t timeOut)
+    : nsAbLDAPListenerBase(directoryUrl, connection, login, timeOut),
+      mType(type),
+      mCardDN(cardDN),
+      mModification(modArray),
+      mNewRDN(newRDN),
+      mNewBaseDN(newBaseDN),
+      mFinished(false),
+      mCanceled(false),
+      mFlagRename(false),
+      mServerSearchControls(serverSearchControls),
+      mClientSearchControls(clientSearchControls) {
+  if (mType == nsILDAPModification::MOD_REPLACE && !mNewRDN.IsEmpty() &&
+      !mNewBaseDN.IsEmpty())
     mFlagRename = true;
 }
 
-nsAbModifyLDAPMessageListener::~nsAbModifyLDAPMessageListener ()
-{
-}
+nsAbModifyLDAPMessageListener::~nsAbModifyLDAPMessageListener() {}
 
-nsresult nsAbModifyLDAPMessageListener::Cancel ()
-{
+nsresult nsAbModifyLDAPMessageListener::Cancel() {
   nsresult rv = Initiate();
   NS_ENSURE_SUCCESS(rv, rv);
 
   MutexAutoLock lock(mLock);
 
-  if (mFinished || mCanceled)
-    return NS_OK;
+  if (mFinished || mCanceled) return NS_OK;
 
   mCanceled = true;
 
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbModifyLDAPMessageListener::OnLDAPMessage(nsILDAPMessage *aMessage)
-{
+NS_IMETHODIMP nsAbModifyLDAPMessageListener::OnLDAPMessage(
+    nsILDAPMessage *aMessage) {
   nsresult rv = Initiate();
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -126,18 +112,16 @@ NS_IMETHODIMP nsAbModifyLDAPMessageListener::OnLDAPMessage(nsILDAPMessage *aMess
 
   // Enter lock
   {
-    MutexAutoLock lock (mLock);
+    MutexAutoLock lock(mLock);
 
-    if (mFinished)
-      return NS_OK;
+    if (mFinished) return NS_OK;
 
     // for these messages, no matter the outcome, we're done
     if ((messageType == nsILDAPMessage::RES_ADD) ||
         (messageType == nsILDAPMessage::RES_DELETE) ||
         (messageType == nsILDAPMessage::RES_MODIFY))
       mFinished = true;
-    else if (mCanceled)
-    {
+    else if (mCanceled) {
       mFinished = true;
       cancelOperation = true;
     }
@@ -145,38 +129,33 @@ NS_IMETHODIMP nsAbModifyLDAPMessageListener::OnLDAPMessage(nsILDAPMessage *aMess
   // Leave lock
 
   //    nsCOMPtr<nsIAbDirectoryQueryResult> queryResult;
-  if (!cancelOperation)
-  {
-    switch (messageType)
-    {
-    case nsILDAPMessage::RES_BIND:
-      rv = OnLDAPMessageBind(aMessage);
-      if (NS_FAILED(rv))
-        // We know the bind failed and hence the message has an error, so we
-        // can just call ModifyResult with the message and that'll sort it out
-        // for us.
+  if (!cancelOperation) {
+    switch (messageType) {
+      case nsILDAPMessage::RES_BIND:
+        rv = OnLDAPMessageBind(aMessage);
+        if (NS_FAILED(rv))
+          // We know the bind failed and hence the message has an error, so we
+          // can just call ModifyResult with the message and that'll sort it out
+          // for us.
+          rv = OnLDAPMessageModifyResult(aMessage);
+        break;
+      case nsILDAPMessage::RES_ADD:
+      case nsILDAPMessage::RES_MODIFY:
+      case nsILDAPMessage::RES_DELETE:
         rv = OnLDAPMessageModifyResult(aMessage);
-      break;
-    case nsILDAPMessage::RES_ADD:
-    case nsILDAPMessage::RES_MODIFY:
-    case nsILDAPMessage::RES_DELETE:
-      rv = OnLDAPMessageModifyResult(aMessage);
-      break;
-    case nsILDAPMessage::RES_MODDN:
-      mFlagRename = false;
-      rv = OnLDAPMessageRenameResult(aMessage);
-      if (NS_FAILED(rv))
-        // Rename failed, so we stop here
-        mFinished = true;
-      break;
-    default:
-      break;
+        break;
+      case nsILDAPMessage::RES_MODDN:
+        mFlagRename = false;
+        rv = OnLDAPMessageRenameResult(aMessage);
+        if (NS_FAILED(rv))
+          // Rename failed, so we stop here
+          mFinished = true;
+        break;
+      default:
+        break;
     }
-  }
-  else
-  {
-    if (mModifyOperation)
-      rv = mModifyOperation->AbandonExt();
+  } else {
+    if (mModifyOperation) rv = mModifyOperation->AbandonExt();
 
     // reset because we might re-use this listener...except don't do this
     // until the search is done, so we'll ignore results from a previous
@@ -187,22 +166,20 @@ NS_IMETHODIMP nsAbModifyLDAPMessageListener::OnLDAPMessage(nsILDAPMessage *aMess
   return rv;
 }
 
-void nsAbModifyLDAPMessageListener::InitFailed(bool aCancelled)
-{
+void nsAbModifyLDAPMessageListener::InitFailed(bool aCancelled) {
   // XXX Just cancel the operation for now
   // we'll need to review this when we've got the proper listeners in place.
   Cancel();
 }
 
-nsresult nsAbModifyLDAPMessageListener::DoTask()
-{
+nsresult nsAbModifyLDAPMessageListener::DoTask() {
   nsresult rv;
   mCanceled = mFinished = false;
 
   mModifyOperation = do_CreateInstance(NS_LDAPOPERATION_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = mModifyOperation->Init (mConnection, this, nullptr);
+  rv = mModifyOperation->Init(mConnection, this, nullptr);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // XXX do we need the search controls?
@@ -215,8 +192,7 @@ nsresult nsAbModifyLDAPMessageListener::DoTask()
   if (mFlagRename)
     return mModifyOperation->Rename(mCardDN, mNewRDN, mNewBaseDN, true);
 
-  switch (mType)
-  {
+  switch (mType) {
     case nsILDAPModification::MOD_ADD:
       return mModifyOperation->AddExt(mCardDN, mModification);
     case nsILDAPModification::MOD_DELETE:
@@ -229,8 +205,8 @@ nsresult nsAbModifyLDAPMessageListener::DoTask()
   }
 }
 
-nsresult nsAbModifyLDAPMessageListener::OnLDAPMessageModifyResult(nsILDAPMessage *aMessage)
-{
+nsresult nsAbModifyLDAPMessageListener::OnLDAPMessageModifyResult(
+    nsILDAPMessage *aMessage) {
   nsresult rv;
   NS_ENSURE_ARG_POINTER(aMessage);
 
@@ -238,14 +214,13 @@ nsresult nsAbModifyLDAPMessageListener::OnLDAPMessageModifyResult(nsILDAPMessage
   rv = aMessage->GetErrorCode(&errCode);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (errCode != nsILDAPErrors::SUCCESS)
-  {
+  if (errCode != nsILDAPErrors::SUCCESS) {
     nsAutoCString errMessage;
     rv = aMessage->GetErrorMessage(errMessage);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    printf("LDAP modification failed (code: %i, message: %s)\n",
-           errCode, errMessage.get());
+    printf("LDAP modification failed (code: %i, message: %s)\n", errCode,
+           errMessage.get());
     return NS_ERROR_FAILURE;
   }
 
@@ -253,8 +228,8 @@ nsresult nsAbModifyLDAPMessageListener::OnLDAPMessageModifyResult(nsILDAPMessage
   return NS_OK;
 }
 
-nsresult nsAbModifyLDAPMessageListener::OnLDAPMessageRenameResult(nsILDAPMessage *aMessage)
-{
+nsresult nsAbModifyLDAPMessageListener::OnLDAPMessageRenameResult(
+    nsILDAPMessage *aMessage) {
   nsresult rv;
   NS_ENSURE_ARG_POINTER(aMessage);
 
@@ -262,14 +237,13 @@ nsresult nsAbModifyLDAPMessageListener::OnLDAPMessageRenameResult(nsILDAPMessage
   rv = aMessage->GetErrorCode(&errCode);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (errCode != nsILDAPErrors::SUCCESS)
-  {
+  if (errCode != nsILDAPErrors::SUCCESS) {
     nsAutoCString errMessage;
     rv = aMessage->GetErrorMessage(errMessage);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    printf("LDAP rename failed (code: %i, message: %s)\n",
-           errCode, errMessage.get());
+    printf("LDAP rename failed (code: %i, message: %s)\n", errCode,
+           errMessage.get());
     return NS_ERROR_FAILURE;
   }
 
@@ -283,33 +257,26 @@ nsresult nsAbModifyLDAPMessageListener::OnLDAPMessageRenameResult(nsILDAPMessage
   return DoTask();
 }
 
-nsAbLDAPDirectoryModify::nsAbLDAPDirectoryModify()
-{
-}
+nsAbLDAPDirectoryModify::nsAbLDAPDirectoryModify() {}
 
-nsAbLDAPDirectoryModify::~nsAbLDAPDirectoryModify()
-{
-}
+nsAbLDAPDirectoryModify::~nsAbLDAPDirectoryModify() {}
 
 nsresult nsAbLDAPDirectoryModify::DoModify(nsIAbLDAPDirectory *directory,
                                            const int32_t &updateType,
                                            const nsACString &cardDN,
-                                           nsIArray* modArray,
+                                           nsIArray *modArray,
                                            const nsACString &newRDN,
-                                           const nsACString &newBaseDN)
-{
+                                           const nsACString &newBaseDN) {
   NS_ENSURE_ARG_POINTER(directory);
   // modArray may be null in the delete operation case.
-  if (!modArray &&
-      (updateType == nsILDAPModification::MOD_ADD ||
-       updateType == nsILDAPModification::MOD_REPLACE))
+  if (!modArray && (updateType == nsILDAPModification::MOD_ADD ||
+                    updateType == nsILDAPModification::MOD_REPLACE))
     return NS_ERROR_NULL_POINTER;
 
   nsresult rv;
 
   // it's an error if we don't have a dn
-  if (cardDN.IsEmpty())
-    return NS_ERROR_INVALID_ARG;
+  if (cardDN.IsEmpty()) return NS_ERROR_INVALID_ARG;
 
   nsCOMPtr<nsILDAPURL> currentUrl;
   rv = directory->GetLDAPURL(getter_AddRefs(currentUrl));
@@ -317,7 +284,7 @@ nsresult nsAbLDAPDirectoryModify::DoModify(nsIAbLDAPDirectory *directory,
 
   // Get the ldap connection
   nsCOMPtr<nsILDAPConnection> ldapConnection =
-    do_CreateInstance(NS_LDAPCONNECTION_CONTRACTID, &rv);
+      do_CreateInstance(NS_LDAPCONNECTION_CONTRACTID, &rv);
 
   nsCOMPtr<nsIMutableArray> serverSearchControls;
   rv = directory->GetSearchServerControls(getter_AddRefs(serverSearchControls));
@@ -352,21 +319,14 @@ nsresult nsAbLDAPDirectoryModify::DoModify(nsIAbLDAPDirectory *directory,
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Initiate LDAP message listener
-  nsAbModifyLDAPMessageListener* _messageListener =
-    new nsAbModifyLDAPMessageListener(updateType, cardDN, modArray,
-                                      newRDN, newBaseDN,
-                                      currentUrl,
-                                      ldapConnection,
-                                      serverSearchControls,
-                                      clientSearchControls,
-                                      login,
-                                      0);
-  if (_messageListener == NULL)
-    return NS_ERROR_OUT_OF_MEMORY;
+  nsAbModifyLDAPMessageListener *_messageListener =
+      new nsAbModifyLDAPMessageListener(
+          updateType, cardDN, modArray, newRDN, newBaseDN, currentUrl,
+          ldapConnection, serverSearchControls, clientSearchControls, login, 0);
+  if (_messageListener == NULL) return NS_ERROR_OUT_OF_MEMORY;
 
   // Now lets initialize the LDAP connection properly. We'll kick
   // off the bind operation in the callback function, |OnLDAPInit()|.
-  return ldapConnection->Init(currentUrl, login,
-                              _messageListener, nullptr, protocolVersion);
+  return ldapConnection->Init(currentUrl, login, _messageListener, nullptr,
+                              protocolVersion);
 }
-

@@ -40,30 +40,25 @@
 
 using namespace mozilla;
 
-nsAbLDAPDirectory::nsAbLDAPDirectory() :
-  nsAbDirProperty(),
-  mPerformingQuery(false),
-  mContext(0),
-  mLock("nsAbLDAPDirectory.mLock")
-{
-}
+nsAbLDAPDirectory::nsAbLDAPDirectory()
+    : nsAbDirProperty(),
+      mPerformingQuery(false),
+      mContext(0),
+      mLock("nsAbLDAPDirectory.mLock") {}
 
-nsAbLDAPDirectory::~nsAbLDAPDirectory()
-{
-}
+nsAbLDAPDirectory::~nsAbLDAPDirectory() {}
 
 NS_IMPL_ISUPPORTS_INHERITED(nsAbLDAPDirectory, nsAbDirProperty,
-                             nsISupportsWeakReference, nsIAbDirSearchListener,
-                             nsIAbLDAPDirectory)
+                            nsISupportsWeakReference, nsIAbDirSearchListener,
+                            nsIAbLDAPDirectory)
 
-NS_IMETHODIMP nsAbLDAPDirectory::GetPropertiesChromeURI(nsACString &aResult)
-{
-  aResult.AssignLiteral("chrome://messenger/content/addressbook/pref-directory-add.xul");
+NS_IMETHODIMP nsAbLDAPDirectory::GetPropertiesChromeURI(nsACString &aResult) {
+  aResult.AssignLiteral(
+      "chrome://messenger/content/addressbook/pref-directory-add.xul");
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::Init(const char* aURI)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::Init(const char *aURI) {
   // We need to ensure that the m_DirPrefId is initialized properly
   nsAutoCString uri(aURI);
 
@@ -75,15 +70,13 @@ NS_IMETHODIMP nsAbLDAPDirectory::Init(const char* aURI)
   if (searchCharLocation == -1)
     m_DirPrefId = Substring(uri, kLDAPDirectoryRootLen);
   else
-    m_DirPrefId = Substring(uri, kLDAPDirectoryRootLen, searchCharLocation - kLDAPDirectoryRootLen);
+    m_DirPrefId = Substring(uri, kLDAPDirectoryRootLen,
+                            searchCharLocation - kLDAPDirectoryRootLen);
 
   return nsAbDirProperty::Init(aURI);
 }
 
-nsresult nsAbLDAPDirectory::Initiate()
-{
-  return NS_OK;
-}
+nsresult nsAbLDAPDirectory::Initiate() { return NS_OK; }
 
 /*
  *
@@ -91,97 +84,85 @@ nsresult nsAbLDAPDirectory::Initiate()
  *
  */
 
-NS_IMETHODIMP nsAbLDAPDirectory::GetURI(nsACString &aURI)
-{
-  if (mURI.IsEmpty())
-    return NS_ERROR_NOT_INITIALIZED;
+NS_IMETHODIMP nsAbLDAPDirectory::GetURI(nsACString &aURI) {
+  if (mURI.IsEmpty()) return NS_ERROR_NOT_INITIALIZED;
 
   aURI = mURI;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::GetChildNodes(nsISimpleEnumerator* *aResult)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::GetChildNodes(nsISimpleEnumerator **aResult) {
   return NS_NewEmptyEnumerator(aResult);
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::GetChildCards(nsISimpleEnumerator** result)
-{
-    nsresult rv;
+NS_IMETHODIMP nsAbLDAPDirectory::GetChildCards(nsISimpleEnumerator **result) {
+  nsresult rv;
 
-    // when offline, we need to get the child cards for the local, replicated mdb directory
-    bool offline;
-    nsCOMPtr <nsIIOService> ioService =
-      mozilla::services::GetIOService();
-    NS_ENSURE_TRUE(ioService, NS_ERROR_UNEXPECTED);
-    rv = ioService->GetOffline(&offline);
-    NS_ENSURE_SUCCESS(rv,rv);
+  // when offline, we need to get the child cards for the local, replicated mdb
+  // directory
+  bool offline;
+  nsCOMPtr<nsIIOService> ioService = mozilla::services::GetIOService();
+  NS_ENSURE_TRUE(ioService, NS_ERROR_UNEXPECTED);
+  rv = ioService->GetOffline(&offline);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-    if (offline) {
-      nsCString fileName;
-      rv = GetReplicationFileName(fileName);
-      NS_ENSURE_SUCCESS(rv,rv);
+  if (offline) {
+    nsCString fileName;
+    rv = GetReplicationFileName(fileName);
+    NS_ENSURE_SUCCESS(rv, rv);
 
-      // if there is no fileName, bail out now.
-      if (fileName.IsEmpty())
-        return NS_OK;
+    // if there is no fileName, bail out now.
+    if (fileName.IsEmpty()) return NS_OK;
 
-      // perform the same query, but on the local directory
-      nsAutoCString localDirectoryURI(NS_LITERAL_CSTRING(kMDBDirectoryRoot));
-      localDirectoryURI.Append(fileName);
-      if (mIsQueryURI)
-      {
-        localDirectoryURI.Append('?');
-        localDirectoryURI.Append(mQueryString);
-      }
-
-      nsCOMPtr<nsIAbManager> abManager(do_GetService(NS_ABMANAGER_CONTRACTID,
-                                                     &rv));
-      NS_ENSURE_SUCCESS(rv, rv);
-
-      nsCOMPtr <nsIAbDirectory> directory;
-      rv = abManager->GetDirectory(localDirectoryURI,
-                                   getter_AddRefs(directory));
-      NS_ENSURE_SUCCESS(rv, rv);
-
-      rv = directory->GetChildCards(result);
-    }
-    else {
-      // Start the search
-      rv = StartSearch();
-      NS_ENSURE_SUCCESS(rv, rv);
-
-      rv = NS_NewEmptyEnumerator(result);
+    // perform the same query, but on the local directory
+    nsAutoCString localDirectoryURI(NS_LITERAL_CSTRING(kMDBDirectoryRoot));
+    localDirectoryURI.Append(fileName);
+    if (mIsQueryURI) {
+      localDirectoryURI.Append('?');
+      localDirectoryURI.Append(mQueryString);
     }
 
-    NS_ENSURE_SUCCESS(rv,rv);
-    return rv;
+    nsCOMPtr<nsIAbManager> abManager(
+        do_GetService(NS_ABMANAGER_CONTRACTID, &rv));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    nsCOMPtr<nsIAbDirectory> directory;
+    rv = abManager->GetDirectory(localDirectoryURI, getter_AddRefs(directory));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = directory->GetChildCards(result);
+  } else {
+    // Start the search
+    rv = StartSearch();
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = NS_NewEmptyEnumerator(result);
+  }
+
+  NS_ENSURE_SUCCESS(rv, rv);
+  return rv;
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::GetIsQuery(bool *aResult)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::GetIsQuery(bool *aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   *aResult = mIsQueryURI;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::HasCard(nsIAbCard* card, bool* hasCard)
-{
-  nsresult rv = Initiate ();
+NS_IMETHODIMP nsAbLDAPDirectory::HasCard(nsIAbCard *card, bool *hasCard) {
+  nsresult rv = Initiate();
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Enter lock
-  MutexAutoLock lock (mLock);
+  MutexAutoLock lock(mLock);
 
   *hasCard = mCache.Get(card, nullptr);
-  if (!*hasCard && mPerformingQuery)
-    return NS_ERROR_NOT_AVAILABLE;
+  if (!*hasCard && mPerformingQuery) return NS_ERROR_NOT_AVAILABLE;
 
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::GetLDAPURL(nsILDAPURL** aResult)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::GetLDAPURL(nsILDAPURL **aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
   // Rather than using GetURI here we call GetStringValue directly so
@@ -189,8 +170,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::GetLDAPURL(nsILDAPURL** aResult)
   // below)
   nsAutoCString URI;
   nsresult rv = GetStringValue("uri", EmptyCString(), URI);
-  if (NS_FAILED(rv) || URI.IsEmpty())
-  {
+  if (NS_FAILED(rv) || URI.IsEmpty()) {
     /*
      * A recent change in Mozilla now means that the LDAP Address Book
      * URI is based on the unique preference name value i.e.
@@ -214,8 +194,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::GetLDAPURL(nsILDAPURL** aResult)
       URI.Replace(0, kLDAPDirectoryRootLen, NS_LITERAL_CSTRING("ldap://"));
   }
 
-  nsCOMPtr<nsIIOService> ioService =
-    mozilla::services::GetIOService();
+  nsCOMPtr<nsIIOService> ioService = mozilla::services::GetIOService();
   NS_ENSURE_TRUE(ioService, NS_ERROR_UNEXPECTED);
 
   nsCOMPtr<nsIURI> result;
@@ -225,8 +204,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::GetLDAPURL(nsILDAPURL** aResult)
   return CallQueryInterface(result, aResult);
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::SetLDAPURL(nsILDAPURL *aUrl)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::SetLDAPURL(nsILDAPURL *aUrl) {
   NS_ENSURE_ARG_POINTER(aUrl);
 
   nsAutoCString oldUrl;
@@ -246,20 +224,21 @@ NS_IMETHODIMP nsAbLDAPDirectory::SetLDAPURL(nsILDAPURL *aUrl)
   // listeners get updated correctly.
 
   // See if they both start with ldaps: or ldap:
-  bool newIsNotSecure = StringBeginsWith(tempLDAPURL, NS_LITERAL_CSTRING("ldap:"));
+  bool newIsNotSecure =
+      StringBeginsWith(tempLDAPURL, NS_LITERAL_CSTRING("ldap:"));
 
   if (oldUrl.IsEmpty() ||
-      StringBeginsWith(oldUrl, NS_LITERAL_CSTRING("ldap:")) != newIsNotSecure)
-  {
+      StringBeginsWith(oldUrl, NS_LITERAL_CSTRING("ldap:")) != newIsNotSecure) {
     // They don't so its time to send round an update.
-    nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
+    nsCOMPtr<nsIAbManager> abManager =
+        do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     // We inherit from nsIAbDirectory, so this static cast should be safe.
-    abManager->NotifyItemPropertyChanged(static_cast<nsIAbDirectory*>(this),
-      "IsSecure",
-      (newIsNotSecure ? u"true" : u"false"),
-      (newIsNotSecure ? u"false" : u"true"));
+    abManager->NotifyItemPropertyChanged(static_cast<nsIAbDirectory *>(this),
+                                         "IsSecure",
+                                         (newIsNotSecure ? u"true" : u"false"),
+                                         (newIsNotSecure ? u"false" : u"true"));
   }
 
   return NS_OK;
@@ -271,81 +250,75 @@ NS_IMETHODIMP nsAbLDAPDirectory::SetLDAPURL(nsILDAPURL *aUrl)
  *
  */
 
-NS_IMETHODIMP nsAbLDAPDirectory::StartSearch ()
-{
-    if (!mIsQueryURI || mQueryString.IsEmpty())
-        return NS_OK;
+NS_IMETHODIMP nsAbLDAPDirectory::StartSearch() {
+  if (!mIsQueryURI || mQueryString.IsEmpty()) return NS_OK;
 
-    nsresult rv = Initiate();
+  nsresult rv = Initiate();
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = StopSearch();
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIAbDirectoryQueryArguments> arguments =
+      do_CreateInstance(NS_ABDIRECTORYQUERYARGUMENTS_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIAbBooleanExpression> expression;
+  rv = nsAbQueryStringToExpression::Convert(mQueryString,
+                                            getter_AddRefs(expression));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = arguments->SetExpression(expression);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = arguments->SetQuerySubDirectories(true);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Get the max hits to return
+  int32_t maxHits;
+  rv = GetMaxHits(&maxHits);
+  if (NS_FAILED(rv)) maxHits = kDefaultMaxHits;
+
+  // get the appropriate ldap attribute map, and pass it in via the
+  // TypeSpecificArgument
+  nsCOMPtr<nsIAbLDAPAttributeMap> attrMap;
+  rv = GetAttributeMap(getter_AddRefs(attrMap));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = arguments->SetTypeSpecificArg(attrMap);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (!mDirectoryQuery) {
+    mDirectoryQuery =
+        do_CreateInstance(NS_ABLDAPDIRECTORYQUERY_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
+  }
 
-    rv = StopSearch();
-    NS_ENSURE_SUCCESS(rv, rv);
+  // Perform the query
+  rv = mDirectoryQuery->DoQuery(this, arguments, this, maxHits, 0, &mContext);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMPtr<nsIAbDirectoryQueryArguments> arguments = do_CreateInstance(NS_ABDIRECTORYQUERYARGUMENTS_CONTRACTID,&rv);
-    NS_ENSURE_SUCCESS(rv, rv);
+  // Enter lock
+  MutexAutoLock lock(mLock);
+  mPerformingQuery = true;
+  mCache.Clear();
 
-    nsCOMPtr<nsIAbBooleanExpression> expression;
-    rv = nsAbQueryStringToExpression::Convert(mQueryString,
-                                              getter_AddRefs(expression));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    rv = arguments->SetExpression(expression);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    rv = arguments->SetQuerySubDirectories(true);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    // Get the max hits to return
-    int32_t maxHits;
-    rv = GetMaxHits(&maxHits);
-    if (NS_FAILED(rv))
-      maxHits = kDefaultMaxHits;
-
-    // get the appropriate ldap attribute map, and pass it in via the
-    // TypeSpecificArgument
-    nsCOMPtr<nsIAbLDAPAttributeMap> attrMap;
-    rv = GetAttributeMap(getter_AddRefs(attrMap));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    rv = arguments->SetTypeSpecificArg(attrMap);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    if (!mDirectoryQuery)
-    {
-      mDirectoryQuery = do_CreateInstance(NS_ABLDAPDIRECTORYQUERY_CONTRACTID,
-                                          &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
-    }
-
-    // Perform the query
-    rv = mDirectoryQuery->DoQuery(this, arguments, this, maxHits, 0, &mContext);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    // Enter lock
-    MutexAutoLock lock(mLock);
-    mPerformingQuery = true;
-    mCache.Clear();
-
-    return rv;
+  return rv;
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::StopSearch ()
-{
+NS_IMETHODIMP nsAbLDAPDirectory::StopSearch() {
   nsresult rv = Initiate();
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Enter lock
   {
     MutexAutoLock lockGuard(mLock);
-    if (!mPerformingQuery)
-      return NS_OK;
+    if (!mPerformingQuery) return NS_OK;
     mPerformingQuery = false;
   }
   // Exit lock
 
-  if (!mDirectoryQuery)
-    return NS_ERROR_NULL_POINTER;
+  if (!mDirectoryQuery) return NS_ERROR_NULL_POINTER;
 
   return mDirectoryQuery->StopQuery(mContext);
 }
@@ -355,8 +328,8 @@ NS_IMETHODIMP nsAbLDAPDirectory::StopSearch ()
  * nsAbDirSearchListenerContext methods
  *
  */
-NS_IMETHODIMP nsAbLDAPDirectory::OnSearchFinished(int32_t aResult, const nsAString &aErrorMessage)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::OnSearchFinished(
+    int32_t aResult, const nsAString &aErrorMessage) {
   nsresult rv = Initiate();
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -366,8 +339,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::OnSearchFinished(int32_t aResult, const nsAStri
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::OnSearchFoundCard(nsIAbCard* card)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::OnSearchFoundCard(nsIAbCard *card) {
   nsresult rv = Initiate();
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -378,22 +350,21 @@ NS_IMETHODIMP nsAbLDAPDirectory::OnSearchFoundCard(nsIAbCard* card)
   }
   // Exit lock
 
-  nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
-  if(NS_SUCCEEDED(rv))
-    abManager->NotifyDirectoryItemAdded(this, card);
+  nsCOMPtr<nsIAbManager> abManager =
+      do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
+  if (NS_SUCCEEDED(rv)) abManager->NotifyDirectoryItemAdded(this, card);
 
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::GetSupportsMailingLists(bool *aSupportsMailingsLists)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::GetSupportsMailingLists(
+    bool *aSupportsMailingsLists) {
   NS_ENSURE_ARG_POINTER(aSupportsMailingsLists);
   *aSupportsMailingsLists = false;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::GetReadOnly(bool *aReadOnly)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::GetReadOnly(bool *aReadOnly) {
   NS_ENSURE_ARG_POINTER(aReadOnly);
 
   *aReadOnly = true;
@@ -403,48 +374,43 @@ NS_IMETHODIMP nsAbLDAPDirectory::GetReadOnly(bool *aReadOnly)
   nsresult rv = GetBoolValue("readonly", false, &readOnly);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (readOnly)
-    return NS_OK;
+  if (readOnly) return NS_OK;
 
   // when online, we'll allow writing as well
   bool offline;
-  nsCOMPtr <nsIIOService> ioService =
-    mozilla::services::GetIOService();
+  nsCOMPtr<nsIIOService> ioService = mozilla::services::GetIOService();
   NS_ENSURE_TRUE(ioService, NS_ERROR_UNEXPECTED);
 
   rv = ioService->GetOffline(&offline);
-  NS_ENSURE_SUCCESS(rv,rv);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  if (!offline)
-    *aReadOnly = false;
+  if (!offline) *aReadOnly = false;
 #endif
 
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::GetIsRemote(bool *aIsRemote)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::GetIsRemote(bool *aIsRemote) {
   NS_ENSURE_ARG_POINTER(aIsRemote);
   *aIsRemote = true;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::GetIsSecure(bool *aIsSecure)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::GetIsSecure(bool *aIsSecure) {
   NS_ENSURE_ARG_POINTER(aIsSecure);
 
   nsAutoCString URI;
   nsresult rv = GetStringValue("uri", EmptyCString(), URI);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // to determine if this is a secure directory, check if the uri is ldaps:// or not
+  // to determine if this is a secure directory, check if the uri is ldaps:// or
+  // not
   *aIsSecure = (strncmp(URI.get(), "ldaps:", 6) == 0);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::UseForAutocomplete(const nsACString &aIdentityKey,
-                                                    bool *aResult)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::UseForAutocomplete(
+    const nsACString &aIdentityKey, bool *aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
   // Set this to false by default to make the code easier below.
@@ -452,8 +418,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::UseForAutocomplete(const nsACString &aIdentityK
 
   nsresult rv;
   bool offline = false;
-  nsCOMPtr <nsIIOService> ioService =
-    mozilla::services::GetIOService();
+  nsCOMPtr<nsIIOService> ioService = mozilla::services::GetIOService();
   NS_ENSURE_TRUE(ioService, NS_ERROR_UNEXPECTED);
 
   rv = ioService->GetOffline(&offline);
@@ -461,12 +426,10 @@ NS_IMETHODIMP nsAbLDAPDirectory::UseForAutocomplete(const nsACString &aIdentityK
 
   // If we're online, then don't allow search during local autocomplete - must
   // use the separate LDAP autocomplete session due to the current interfaces
-  if (!offline)
-    return NS_OK;
+  if (!offline) return NS_OK;
 
   // Is the use directory pref set for autocompletion?
-  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID,
-                                              &rv));
+  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool useDirectory = false;
@@ -475,49 +438,41 @@ NS_IMETHODIMP nsAbLDAPDirectory::UseForAutocomplete(const nsACString &aIdentityK
 
   // No need to search if not set up globally for LDAP autocompletion and we've
   // not been given an identity.
-  if (!useDirectory && aIdentityKey.IsEmpty())
-    return NS_OK;
+  if (!useDirectory && aIdentityKey.IsEmpty()) return NS_OK;
 
   nsCString prefName;
-  if (!aIdentityKey.IsEmpty())
-  {
+  if (!aIdentityKey.IsEmpty()) {
     // If we have an identity string, try and find out the required directory
     // server.
     nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+        do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
 
     // If we failed, just return, we can't do much about this.
-    if (NS_SUCCEEDED(rv))
-    {
+    if (NS_SUCCEEDED(rv)) {
       nsCOMPtr<nsIMsgIdentity> identity;
       rv = accountManager->GetIdentity(aIdentityKey, getter_AddRefs(identity));
-      if (NS_SUCCEEDED(rv))
-      {
+      if (NS_SUCCEEDED(rv)) {
         bool overrideGlobalPref = false;
         identity->GetOverrideGlobalPref(&overrideGlobalPref);
-        if (overrideGlobalPref)
-          identity->GetDirectoryServer(prefName);
+        if (overrideGlobalPref) identity->GetDirectoryServer(prefName);
       }
     }
 
     // If the preference name is still empty but useDirectory is false, then
     // the global one is not available, nor is the overridden one.
-    if (prefName.IsEmpty() && !useDirectory)
-      return NS_OK;
+    if (prefName.IsEmpty() && !useDirectory) return NS_OK;
   }
 
   // If we failed to get the identity preference, or the pref name is empty
   // try the global preference.
-  if (prefName.IsEmpty())
-  {
-    nsresult rv = prefs->GetCharPref("ldap_2.autoComplete.directoryServer",
-                                     prefName);
-    NS_ENSURE_SUCCESS(rv,rv);
+  if (prefName.IsEmpty()) {
+    nsresult rv =
+        prefs->GetCharPref("ldap_2.autoComplete.directoryServer", prefName);
+    NS_ENSURE_SUCCESS(rv, rv);
   }
 
   // Now see if the pref name matches our pref id.
-  if (prefName.Equals(m_DirPrefId))
-  {
+  if (prefName.Equals(m_DirPrefId)) {
     // Yes it does, one last check - does the replication file exist?
     nsresult rv;
     nsCOMPtr<nsIFile> databaseFile;
@@ -534,137 +489,130 @@ NS_IMETHODIMP nsAbLDAPDirectory::UseForAutocomplete(const nsACString &aIdentityK
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::GetSearchClientControls(nsIMutableArray **aControls)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::GetSearchClientControls(
+    nsIMutableArray **aControls) {
   NS_IF_ADDREF(*aControls = mSearchClientControls);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::SetSearchClientControls(nsIMutableArray *aControls)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::SetSearchClientControls(
+    nsIMutableArray *aControls) {
   mSearchClientControls = aControls;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::GetSearchServerControls(nsIMutableArray **aControls)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::GetSearchServerControls(
+    nsIMutableArray **aControls) {
   NS_IF_ADDREF(*aControls = mSearchServerControls);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::SetSearchServerControls(nsIMutableArray *aControls)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::SetSearchServerControls(
+    nsIMutableArray *aControls) {
   mSearchServerControls = aControls;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::GetProtocolVersion(uint32_t *aProtocolVersion)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::GetProtocolVersion(
+    uint32_t *aProtocolVersion) {
   nsAutoCString versionString;
 
-  nsresult rv = GetStringValue("protocolVersion", NS_LITERAL_CSTRING("3"), versionString);
+  nsresult rv =
+      GetStringValue("protocolVersion", NS_LITERAL_CSTRING("3"), versionString);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  *aProtocolVersion = versionString.EqualsLiteral("3") ?
-    (uint32_t)nsILDAPConnection::VERSION3 :
-    (uint32_t)nsILDAPConnection::VERSION2;
+  *aProtocolVersion = versionString.EqualsLiteral("3")
+                          ? (uint32_t)nsILDAPConnection::VERSION3
+                          : (uint32_t)nsILDAPConnection::VERSION2;
 
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::SetProtocolVersion(uint32_t aProtocolVersion)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::SetProtocolVersion(uint32_t aProtocolVersion) {
   // XXX We should cancel any existing LDAP connections here and
   // be ready to re-initialise them with the new auth details.
   return SetStringValue("protocolVersion",
-                        aProtocolVersion == nsILDAPConnection::VERSION3 ?
-                        NS_LITERAL_CSTRING("3") : NS_LITERAL_CSTRING("2"));
+                        aProtocolVersion == nsILDAPConnection::VERSION3
+                            ? NS_LITERAL_CSTRING("3")
+                            : NS_LITERAL_CSTRING("2"));
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::GetMaxHits(int32_t *aMaxHits)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::GetMaxHits(int32_t *aMaxHits) {
   return GetIntValue("maxHits", kDefaultMaxHits, aMaxHits);
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::SetMaxHits(int32_t aMaxHits)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::SetMaxHits(int32_t aMaxHits) {
   return SetIntValue("maxHits", aMaxHits);
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::GetReplicationFileName(nsACString &aReplicationFileName)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::GetReplicationFileName(
+    nsACString &aReplicationFileName) {
   return GetStringValue("filename", EmptyCString(), aReplicationFileName);
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::SetReplicationFileName(const nsACString &aReplicationFileName)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::SetReplicationFileName(
+    const nsACString &aReplicationFileName) {
   return SetStringValue("filename", aReplicationFileName);
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::GetAuthDn(nsACString &aAuthDn)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::GetAuthDn(nsACString &aAuthDn) {
   return GetStringValue("auth.dn", EmptyCString(), aAuthDn);
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::SetAuthDn(const nsACString &aAuthDn)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::SetAuthDn(const nsACString &aAuthDn) {
   // XXX We should cancel any existing LDAP connections here and
   // be ready to re-initialise them with the new auth details.
   return SetStringValue("auth.dn", aAuthDn);
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::GetSaslMechanism(nsACString &aSaslMechanism)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::GetSaslMechanism(nsACString &aSaslMechanism) {
   return GetStringValue("auth.saslmech", EmptyCString(), aSaslMechanism);
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::SetSaslMechanism(const nsACString &aSaslMechanism)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::SetSaslMechanism(
+    const nsACString &aSaslMechanism) {
   return SetStringValue("auth.saslmech", aSaslMechanism);
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::GetLastChangeNumber(int32_t *aLastChangeNumber)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::GetLastChangeNumber(
+    int32_t *aLastChangeNumber) {
   return GetIntValue("lastChangeNumber", -1, aLastChangeNumber);
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::SetLastChangeNumber(int32_t aLastChangeNumber)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::SetLastChangeNumber(
+    int32_t aLastChangeNumber) {
   return SetIntValue("lastChangeNumber", aLastChangeNumber);
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::GetDataVersion(nsACString &aDataVersion)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::GetDataVersion(nsACString &aDataVersion) {
   return GetStringValue("dataVersion", EmptyCString(), aDataVersion);
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::SetDataVersion(const nsACString &aDataVersion)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::SetDataVersion(
+    const nsACString &aDataVersion) {
   return SetStringValue("dataVersion", aDataVersion);
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::GetAttributeMap(nsIAbLDAPAttributeMap **aAttributeMap)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::GetAttributeMap(
+    nsIAbLDAPAttributeMap **aAttributeMap) {
   NS_ENSURE_ARG_POINTER(aAttributeMap);
 
   nsresult rv;
-  nsCOMPtr<nsIAbLDAPAttributeMapService> mapSvc =
-    do_GetService("@mozilla.org/addressbook/ldap-attribute-map-service;1", &rv);
+  nsCOMPtr<nsIAbLDAPAttributeMapService> mapSvc = do_GetService(
+      "@mozilla.org/addressbook/ldap-attribute-map-service;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   return mapSvc->GetMapForPrefBranch(m_DirPrefId, aAttributeMap);
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::GetReplicationFile(nsIFile **aResult)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::GetReplicationFile(nsIFile **aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
   nsCString fileName;
   nsresult rv = GetStringValue("filename", EmptyCString(), fileName);
   NS_ENSURE_SUCCESS(rv, rv);
 
- if (fileName.IsEmpty())
-    return NS_ERROR_NOT_INITIALIZED;
+  if (fileName.IsEmpty()) return NS_ERROR_NOT_INITIALIZED;
 
   nsCOMPtr<nsIFile> profileDir;
   rv = NS_GetSpecialDirectory(NS_APP_USER_PROFILE_50_DIR,
@@ -679,26 +627,25 @@ NS_IMETHODIMP nsAbLDAPDirectory::GetReplicationFile(nsIFile **aResult)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::GetReplicationDatabase(nsIAddrDatabase **aResult)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::GetReplicationDatabase(
+    nsIAddrDatabase **aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
   nsresult rv;
   nsCOMPtr<nsIFile> databaseFile;
- rv = GetReplicationFile(getter_AddRefs(databaseFile));
+  rv = GetReplicationFile(getter_AddRefs(databaseFile));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIAddrDatabase> addrDBFactory =
-    do_GetService(NS_ADDRDATABASE_CONTRACTID, &rv);
+      do_GetService(NS_ADDRDATABASE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   return addrDBFactory->Open(databaseFile, false /* no create */, true,
-                           aResult);
+                             aResult);
 }
 
 NS_IMETHODIMP nsAbLDAPDirectory::AddCard(nsIAbCard *aUpdatedCard,
-                                         nsIAbCard **aAddedCard)
-{
+                                         nsIAbCard **aAddedCard) {
   NS_ENSURE_ARG_POINTER(aUpdatedCard);
   NS_ENSURE_ARG_POINTER(aAddedCard);
 
@@ -708,7 +655,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::AddCard(nsIAbCard *aUpdatedCard,
 
   // Create a new LDAP card
   nsCOMPtr<nsIAbLDAPCard> card =
-    do_CreateInstance(NS_ABLDAPCARD_CONTRACTID, &rv);
+      do_CreateInstance(NS_ABLDAPCARD_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = Initiate();
@@ -728,7 +675,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::AddCard(nsIAbCard *aUpdatedCard,
 
   CharPtrArrayGuard rdnAttrs;
   rv = SplitStringList(prefString, rdnAttrs.GetSizeAddr(),
-    rdnAttrs.GetArrayAddr());
+                       rdnAttrs.GetArrayAddr());
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = GetObjectClasses(prefString);
@@ -736,13 +683,14 @@ NS_IMETHODIMP nsAbLDAPDirectory::AddCard(nsIAbCard *aUpdatedCard,
 
   CharPtrArrayGuard objClass;
   rv = SplitStringList(prefString, objClass.GetSizeAddr(),
-    objClass.GetArrayAddr());
+                       objClass.GetArrayAddr());
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Process updates
   nsCOMPtr<nsIArray> modArray;
-  rv = card->GetLDAPMessageInfo(attrMap, objClass.GetSize(), objClass.GetArray(),
-    nsILDAPModification::MOD_ADD, getter_AddRefs(modArray));
+  rv = card->GetLDAPMessageInfo(
+      attrMap, objClass.GetSize(), objClass.GetArray(),
+      nsILDAPModification::MOD_ADD, getter_AddRefs(modArray));
   NS_ENSURE_SUCCESS(rv, rv);
 
   // For new cards, the base DN is the search base DN
@@ -756,8 +704,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::AddCard(nsIAbCard *aUpdatedCard,
 
   // Calculate DN
   nsAutoCString cardDN;
-  rv = card->BuildRdn(attrMap, rdnAttrs.GetSize(), rdnAttrs.GetArray(),
-    cardDN);
+  rv = card->BuildRdn(attrMap, rdnAttrs.GetSize(), rdnAttrs.GetArray(), cardDN);
   NS_ENSURE_SUCCESS(rv, rv);
   cardDN.Append(',');
   cardDN.Append(baseDN);
@@ -778,8 +725,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::AddCard(nsIAbCard *aUpdatedCard,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::DeleteCards(nsIArray *aCards)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::DeleteCards(nsIArray *aCards) {
   uint32_t cardCount;
   uint32_t i;
   nsAutoCString cardDN;
@@ -787,11 +733,9 @@ NS_IMETHODIMP nsAbLDAPDirectory::DeleteCards(nsIArray *aCards)
   nsresult rv = aCards->GetLength(&cardCount);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  for (i = 0; i < cardCount; ++i)
-  {
+  for (i = 0; i < cardCount; ++i) {
     nsCOMPtr<nsIAbLDAPCard> card(do_QueryElementAt(aCards, i, &rv));
-    if (NS_FAILED(rv))
-    {
+    if (NS_FAILED(rv)) {
       NS_WARNING("Wrong type of card passed to nsAbLDAPDirectory::DeleteCards");
       break;
     }
@@ -815,8 +759,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::DeleteCards(nsIArray *aCards)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::ModifyCard(nsIAbCard *aUpdatedCard)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::ModifyCard(nsIAbCard *aUpdatedCard) {
   NS_ENSURE_ARG_POINTER(aUpdatedCard);
 
   nsCOMPtr<nsIAbLDAPAttributeMap> attrMap;
@@ -837,13 +780,14 @@ NS_IMETHODIMP nsAbLDAPDirectory::ModifyCard(nsIAbCard *aUpdatedCard)
 
   CharPtrArrayGuard objClass;
   rv = SplitStringList(prefString, objClass.GetSizeAddr(),
-    objClass.GetArrayAddr());
+                       objClass.GetArrayAddr());
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Process updates
   nsCOMPtr<nsIArray> modArray;
-  rv = card->GetLDAPMessageInfo(attrMap, objClass.GetSize(), objClass.GetArray(),
-    nsILDAPModification::MOD_REPLACE, getter_AddRefs(modArray));
+  rv = card->GetLDAPMessageInfo(
+      attrMap, objClass.GetSize(), objClass.GetArray(),
+      nsILDAPModification::MOD_REPLACE, getter_AddRefs(modArray));
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Get current DN
@@ -851,32 +795,28 @@ NS_IMETHODIMP nsAbLDAPDirectory::ModifyCard(nsIAbCard *aUpdatedCard)
   rv = card->GetDn(oldDN);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsILDAPService> ldapSvc = do_GetService(
-    "@mozilla.org/network/ldap-service;1", &rv);
+  nsCOMPtr<nsILDAPService> ldapSvc =
+      do_GetService("@mozilla.org/network/ldap-service;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Retrieve base DN and RDN attributes
   nsAutoCString baseDN;
   nsAutoCString oldRDN;
   CharPtrArrayGuard rdnAttrs;
-  rv = ldapSvc->ParseDn(oldDN.get(), oldRDN, baseDN,
-                        rdnAttrs.GetSizeAddr(), rdnAttrs.GetArrayAddr());
+  rv = ldapSvc->ParseDn(oldDN.get(), oldRDN, baseDN, rdnAttrs.GetSizeAddr(),
+                        rdnAttrs.GetArrayAddr());
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Calculate new RDN and check whether it has changed
   nsAutoCString newRDN;
-  rv = card->BuildRdn(attrMap, rdnAttrs.GetSize(), rdnAttrs.GetArray(),
-    newRDN);
+  rv = card->BuildRdn(attrMap, rdnAttrs.GetSize(), rdnAttrs.GetArray(), newRDN);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (newRDN.Equals(oldRDN))
-  {
+  if (newRDN.Equals(oldRDN)) {
     // Launch query
     rv = DoModify(this, nsILDAPModification::MOD_REPLACE, oldDN, modArray,
                   EmptyCString(), EmptyCString());
-  }
-  else
-  {
+  } else {
     // Build and store the new DN
     nsAutoCString newDN(newRDN);
     newDN.Append(',');
@@ -892,34 +832,31 @@ NS_IMETHODIMP nsAbLDAPDirectory::ModifyCard(nsIAbCard *aUpdatedCard)
   return rv;
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::GetRdnAttributes(nsACString &aRdnAttributes)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::GetRdnAttributes(nsACString &aRdnAttributes) {
   return GetStringValue("rdnAttributes", NS_LITERAL_CSTRING("cn"),
-    aRdnAttributes);
+                        aRdnAttributes);
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::SetRdnAttributes(const nsACString &aRdnAttributes)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::SetRdnAttributes(
+    const nsACString &aRdnAttributes) {
   return SetStringValue("rdnAttributes", aRdnAttributes);
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::GetObjectClasses(nsACString &aObjectClasses)
-{
-  return GetStringValue("objectClasses", NS_LITERAL_CSTRING(
-    "top,person,organizationalPerson,inetOrgPerson,mozillaAbPersonAlpha"),
-    aObjectClasses);
+NS_IMETHODIMP nsAbLDAPDirectory::GetObjectClasses(nsACString &aObjectClasses) {
+  return GetStringValue(
+      "objectClasses",
+      NS_LITERAL_CSTRING(
+          "top,person,organizationalPerson,inetOrgPerson,mozillaAbPersonAlpha"),
+      aObjectClasses);
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::SetObjectClasses(const nsACString &aObjectClasses)
-{
+NS_IMETHODIMP nsAbLDAPDirectory::SetObjectClasses(
+    const nsACString &aObjectClasses) {
   return SetStringValue("objectClasses", aObjectClasses);
 }
 
-nsresult nsAbLDAPDirectory::SplitStringList(
-  const nsACString& aString,
-  uint32_t *aCount,
-  char ***aValues)
-{
+nsresult nsAbLDAPDirectory::SplitStringList(const nsACString &aString,
+                                            uint32_t *aCount, char ***aValues) {
   NS_ENSURE_ARG_POINTER(aCount);
   NS_ENSURE_ARG_POINTER(aValues);
 
@@ -927,14 +864,12 @@ nsresult nsAbLDAPDirectory::SplitStringList(
   ParseString(aString, ',', strarr);
 
   char **cArray = nullptr;
-  if (!(cArray = static_cast<char **>(moz_xmalloc(
-      strarr.Length() * sizeof(char *)))))
+  if (!(cArray = static_cast<char **>(
+            moz_xmalloc(strarr.Length() * sizeof(char *)))))
     return NS_ERROR_OUT_OF_MEMORY;
 
-  for (uint32_t i = 0; i < strarr.Length(); ++i)
-  {
-    if (!(cArray[i] = ToNewCString(strarr[i])))
-    {
+  for (uint32_t i = 0; i < strarr.Length(); ++i) {
+    if (!(cArray[i] = ToNewCString(strarr[i]))) {
       NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(strarr.Length(), cArray);
       return NS_ERROR_OUT_OF_MEMORY;
     }
@@ -944,4 +879,3 @@ nsresult nsAbLDAPDirectory::SplitStringList(
   *aValues = cArray;
   return NS_OK;
 }
-

@@ -14,19 +14,17 @@ void AppendToString(const NSString *aString, nsString &aResult);
 void AssignToString(const NSString *aString, nsString &aResult);
 void AppendToCString(const NSString *aString, nsCString &aResult);
 
-struct nsAbOSXPropertyMap
-{
-    NSString * const mOSXProperty;
-    NSString * const mOSXLabel;
-    NSString * const mOSXKey;
-    const char *mPropertyName;
+struct nsAbOSXPropertyMap {
+  NSString *const mOSXProperty;
+  NSString *const mOSXLabel;
+  NSString *const mOSXKey;
+  const char *mPropertyName;
 };
 
-class nsAbOSXUtils
-{
-public:
-    static const nsAbOSXPropertyMap kPropertyMap[];
-    static const uint32_t kPropertyMapSize;
+class nsAbOSXUtils {
+ public:
+  static const nsAbOSXPropertyMap kPropertyMap[];
+  static const uint32_t kPropertyMapSize;
 };
 
-#endif // nsAbOSXUtils_h___
+#endif  // nsAbOSXUtils_h___

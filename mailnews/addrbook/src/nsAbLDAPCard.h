@@ -10,16 +10,14 @@
 #include "nsIAbLDAPCard.h"
 #include "nsTArray.h"
 
-class nsAbLDAPCard : public nsAbCardProperty,
-                     public nsIAbLDAPCard
-{
-public:
+class nsAbLDAPCard : public nsAbCardProperty, public nsIAbLDAPCard {
+ public:
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIABLDAPCARD
 
   nsAbLDAPCard();
 
-protected:
+ protected:
   virtual ~nsAbLDAPCard();
   nsTArray<nsCString> m_attributes;
   nsTArray<nsCString> m_objectClass;

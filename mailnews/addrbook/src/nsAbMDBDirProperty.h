@@ -16,19 +16,18 @@
 #include "nsAbDirProperty.h"
 #include "nsCOMPtr.h"
 
- /*
-  * Address Book Directory
-  */
+/*
+ * Address Book Directory
+ */
 
-class nsAbMDBDirProperty: public nsIAbMDBDirectory, public nsAbDirProperty
-{
-public:
+class nsAbMDBDirProperty : public nsIAbMDBDirectory, public nsAbDirProperty {
+ public:
   nsAbMDBDirProperty(void);
 
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIABMDBDIRECTORY
 
-protected:
+ protected:
   virtual ~nsAbMDBDirProperty();
 
   uint32_t m_dbRowID;

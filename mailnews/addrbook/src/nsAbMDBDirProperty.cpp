@@ -14,47 +14,35 @@
 #include "nsComponentManagerUtils.h"
 #include "nsIWeakReference.h"
 
-nsAbMDBDirProperty::nsAbMDBDirProperty(void)
-  : nsAbDirProperty()
-{
+nsAbMDBDirProperty::nsAbMDBDirProperty(void) : nsAbDirProperty() {
   m_dbRowID = 0;
 }
 
-nsAbMDBDirProperty::~nsAbMDBDirProperty(void)
-{
-}
+nsAbMDBDirProperty::~nsAbMDBDirProperty(void) {}
 
-
-NS_IMPL_ISUPPORTS_INHERITED(nsAbMDBDirProperty, nsAbDirProperty,
-                             nsIAbDirectory,
-                             nsISupportsWeakReference, nsIAbMDBDirectory)
+NS_IMPL_ISUPPORTS_INHERITED(nsAbMDBDirProperty, nsAbDirProperty, nsIAbDirectory,
+                            nsISupportsWeakReference, nsIAbMDBDirectory)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-
-
 // nsIAbMDBDirectory attributes
 
-NS_IMETHODIMP nsAbMDBDirProperty::GetDbRowID(uint32_t *aDbRowID)
-{
+NS_IMETHODIMP nsAbMDBDirProperty::GetDbRowID(uint32_t *aDbRowID) {
   *aDbRowID = m_dbRowID;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbMDBDirProperty::SetDbRowID(uint32_t aDbRowID)
-{
+NS_IMETHODIMP nsAbMDBDirProperty::SetDbRowID(uint32_t aDbRowID) {
   m_dbRowID = aDbRowID;
   return NS_OK;
 }
 
-
 // nsIAbMDBDirectory methods
 
 /* add mailing list to the parent directory */
-NS_IMETHODIMP nsAbMDBDirProperty::AddMailListToDirectory(nsIAbDirectory *mailList)
-{
-  if (!m_AddressList)
-  {
+NS_IMETHODIMP nsAbMDBDirProperty::AddMailListToDirectory(
+    nsIAbDirectory *mailList) {
+  if (!m_AddressList) {
     nsresult rv;
     m_AddressList = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -68,10 +56,8 @@ NS_IMETHODIMP nsAbMDBDirProperty::AddMailListToDirectory(nsIAbDirectory *mailLis
 }
 
 /* add addresses to the mailing list */
-NS_IMETHODIMP nsAbMDBDirProperty::AddAddressToList(nsIAbCard *card)
-{
-  if (!m_AddressList)
-  {
+NS_IMETHODIMP nsAbMDBDirProperty::AddAddressToList(nsIAbCard *card) {
+  if (!m_AddressList) {
     nsresult rv;
     m_AddressList = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -84,14 +70,12 @@ NS_IMETHODIMP nsAbMDBDirProperty::AddAddressToList(nsIAbCard *card)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbMDBDirProperty::CopyDBMailList(nsIAbMDBDirectory* srcListDB)
-{
+NS_IMETHODIMP nsAbMDBDirProperty::CopyDBMailList(nsIAbMDBDirectory *srcListDB) {
   nsresult err = NS_OK;
   nsCOMPtr<nsIAbDirectory> srcList(do_QueryInterface(srcListDB));
-  if (NS_FAILED(err))
-    return NS_ERROR_NULL_POINTER;
+  if (NS_FAILED(err)) return NS_ERROR_NULL_POINTER;
 
-  CopyMailList (srcList);
+  CopyMailList(srcList);
 
   uint32_t rowID;
   srcListDB->GetDbRowID(&rowID);
@@ -100,45 +84,38 @@ NS_IMETHODIMP nsAbMDBDirProperty::CopyDBMailList(nsIAbMDBDirectory* srcListDB)
   return NS_OK;
 }
 
-
 // nsIAbMDBDirectory NOT IMPLEMENTED methods
 
 /* nsIAbDirectory addDirectory (in string uriName); */
-NS_IMETHODIMP nsAbMDBDirProperty::AddDirectory(const char *uriName, nsIAbDirectory **_retval)
-{
-    return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-/* [noscript] void removeElementsFromAddressList (); */
-NS_IMETHODIMP nsAbMDBDirProperty::RemoveElementsFromAddressList()
-{
-    return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-/* void removeEmailAddressAt (in unsigned long aIndex); */
-NS_IMETHODIMP nsAbMDBDirProperty::RemoveEmailAddressAt(uint32_t aIndex)
-{
-    return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-/* [noscript] void notifyDirItemAdded (in nsISupports item); */
-NS_IMETHODIMP nsAbMDBDirProperty::NotifyDirItemAdded(nsISupports *item)
-{
-    return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-/* [noscript] void clearDatabase (); */
-NS_IMETHODIMP nsAbMDBDirProperty::ClearDatabase()
-{
-    return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP nsAbMDBDirProperty::GetDatabaseFile(nsIFile **aResult)
-{
+NS_IMETHODIMP nsAbMDBDirProperty::AddDirectory(const char *uriName,
+                                               nsIAbDirectory **_retval) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsAbMDBDirProperty::GetDatabase(nsIAddrDatabase **aResult)
-{
+/* [noscript] void removeElementsFromAddressList (); */
+NS_IMETHODIMP nsAbMDBDirProperty::RemoveElementsFromAddressList() {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* void removeEmailAddressAt (in unsigned long aIndex); */
+NS_IMETHODIMP nsAbMDBDirProperty::RemoveEmailAddressAt(uint32_t aIndex) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* [noscript] void notifyDirItemAdded (in nsISupports item); */
+NS_IMETHODIMP nsAbMDBDirProperty::NotifyDirItemAdded(nsISupports *item) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* [noscript] void clearDatabase (); */
+NS_IMETHODIMP nsAbMDBDirProperty::ClearDatabase() {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+NS_IMETHODIMP nsAbMDBDirProperty::GetDatabaseFile(nsIFile **aResult) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+NS_IMETHODIMP nsAbMDBDirProperty::GetDatabase(nsIAddrDatabase **aResult) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }

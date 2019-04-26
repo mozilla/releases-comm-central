@@ -3,7 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
 /***************************************************************************
 (C) Copyright 1996 Apple Computer, Inc., AT&T Corp., International
 Business Machines Corporation and Siemens Rolm Communications Inc.
@@ -51,7 +50,7 @@ DFARS 252.227-7013 or 48 CFR 52.227-19, as applicable.
 extern "C" {
 #endif
 
-VObject* parse_MIME(const char *input, unsigned long len);
+VObject *parse_MIME(const char *input, unsigned long len);
 
 typedef void (*MimeErrorHandler)(char *);
 

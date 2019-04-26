@@ -16,15 +16,14 @@
 #include "nsAbWinHelper.h"
 #include "prlock.h"
 
-struct nsMapiEntry ;
+struct nsMapiEntry;
 
-class nsAbOutlookDirectory : public nsAbDirProperty, // nsIAbDirectory
+class nsAbOutlookDirectory : public nsAbDirProperty,  // nsIAbDirectory
                              public nsIAbDirectoryQuery,
                              public nsIAbDirectorySearch,
                              public nsIAbDirSearchListener,
-                             public nsIAbDirectoryQueryResultListener
-{
-public:
+                             public nsIAbDirectoryQueryResultListener {
+ public:
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIABDIRSEARCHLISTENER
   NS_DECL_NSIABDIRECTORYQUERYRESULTLISTENER
@@ -38,14 +37,17 @@ public:
   NS_IMETHOD GetChildNodes(nsISimpleEnumerator **aNodes) override;
   NS_IMETHOD GetIsQuery(bool *aResult) override;
   NS_IMETHOD HasCard(nsIAbCard *aCard, bool *aHasCard) override;
-  NS_IMETHOD HasDirectory(nsIAbDirectory *aDirectory, bool *aHasDirectory) override;
+  NS_IMETHOD HasDirectory(nsIAbDirectory *aDirectory,
+                          bool *aHasDirectory) override;
   NS_IMETHOD DeleteCards(nsIArray *aCardList) override;
   NS_IMETHOD DeleteDirectory(nsIAbDirectory *aDirectory) override;
-  NS_IMETHOD UseForAutocomplete(const nsACString &aIdentityKey, bool *aResult) override;
+  NS_IMETHOD UseForAutocomplete(const nsACString &aIdentityKey,
+                                bool *aResult) override;
   NS_IMETHOD AddCard(nsIAbCard *aData, nsIAbCard **addedCard) override;
   NS_IMETHOD ModifyCard(nsIAbCard *aModifiedCard) override;
   NS_IMETHOD DropCard(nsIAbCard *aData, bool needToCopyCard) override;
-  NS_IMETHOD AddMailList(nsIAbDirectory *aMailList, nsIAbDirectory **addedList) override;
+  NS_IMETHOD AddMailList(nsIAbDirectory *aMailList,
+                         nsIAbDirectory **addedList) override;
   NS_IMETHOD EditMailListToDatabase(nsIAbCard *listCard) override;
 
   // nsAbDirProperty method
@@ -56,11 +58,10 @@ public:
   NS_DECL_NSIABDIRECTORYSEARCH
   // Perform a MAPI query (function executed in a separate thread)
   nsresult ExecuteQuery(SRestriction &aRestriction,
-                        nsIAbDirSearchListener *aListener,
-                        int32_t aResultLimit, int32_t aTimeout,
-                        int32_t aThreadId);
+                        nsIAbDirSearchListener *aListener, int32_t aResultLimit,
+                        int32_t aTimeout, int32_t aThreadId);
 
-protected:
+ protected:
   // Retrieve hierarchy as cards, with an optional restriction
   nsresult GetChildCards(nsIMutableArray *aCards, void *aRestriction);
   // Retrieve hierarchy as directories
@@ -77,7 +78,7 @@ protected:
 
   nsMapiEntry *mMapiData;
   // Container for the query threads
-  nsDataHashtable<nsUint32HashKey, PRThread*> mQueryThreads;
+  nsDataHashtable<nsUint32HashKey, PRThread *> mQueryThreads;
   int32_t mCurrentQueryId;
   PRLock *mProtector;
   // Data for the search interfaces
@@ -86,42 +87,39 @@ protected:
   // Windows AB type
   uint32_t mAbWinType;
 
-private:
+ private:
   virtual ~nsAbOutlookDirectory(void);
-
 };
 
-enum
-{
-    index_DisplayName = 0,
-    index_EmailAddress,
-    index_FirstName,
-    index_LastName,
-    index_NickName,
-    index_WorkPhoneNumber,
-    index_HomePhoneNumber,
-    index_WorkFaxNumber,
-    index_PagerNumber,
-    index_MobileNumber,
-    index_HomeCity,
-    index_HomeState,
-    index_HomeZip,
-    index_HomeCountry,
-    index_WorkCity,
-    index_WorkState,
-    index_WorkZip,
-    index_WorkCountry,
-    index_JobTitle,
-    index_Department,
-    index_Company,
-    index_WorkWebPage,
-    index_HomeWebPage,
-    index_Comments,
-    index_LastProp
+enum {
+  index_DisplayName = 0,
+  index_EmailAddress,
+  index_FirstName,
+  index_LastName,
+  index_NickName,
+  index_WorkPhoneNumber,
+  index_HomePhoneNumber,
+  index_WorkFaxNumber,
+  index_PagerNumber,
+  index_MobileNumber,
+  index_HomeCity,
+  index_HomeState,
+  index_HomeZip,
+  index_HomeCountry,
+  index_WorkCity,
+  index_WorkState,
+  index_WorkZip,
+  index_WorkCountry,
+  index_JobTitle,
+  index_Department,
+  index_Company,
+  index_WorkWebPage,
+  index_HomeWebPage,
+  index_Comments,
+  index_LastProp
 };
 
-static const ULONG OutlookCardMAPIProps[] =
-{
+static const ULONG OutlookCardMAPIProps[] = {
     PR_DISPLAY_NAME_W,
     PR_EMAIL_ADDRESS_W,
     PR_GIVEN_NAME_W,
@@ -145,9 +143,8 @@ static const ULONG OutlookCardMAPIProps[] =
     PR_COMPANY_NAME_W,
     PR_BUSINESS_HOME_PAGE_W,
     PR_PERSONAL_HOME_PAGE_W,
-    PR_COMMENT_W
-};
+    PR_COMMENT_W};
 
 nsresult OutlookCardForURI(const nsACString &aUri, nsIAbCard **card);
 
-#endif // nsAbOutlookDirectory_h___
+#endif  // nsAbOutlookDirectory_h___
