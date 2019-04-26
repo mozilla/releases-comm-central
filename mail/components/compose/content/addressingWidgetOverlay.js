@@ -192,12 +192,8 @@ function Recipients2CompFields(msgCompFields) {
 function CompFields2Recipients(msgCompFields) {
   if (msgCompFields) {
     let listbox = document.getElementById("addressingWidget");
-    let newListBoxNode = listbox.cloneNode(false);
-    let listBoxColsClone = listbox.firstChild.cloneNode(true);
-    newListBoxNode.appendChild(listBoxColsClone);
     let templateNode = listbox.getElementsByTagName("richlistitem")[0];
-    // dump("replacing child in comp fields 2 recips \n");
-    listbox.parentNode.replaceChild(newListBoxNode, listbox);
+    templateNode.remove();
 
     top.MAX_RECIPIENTS = 0;
     let msgReplyTo = msgCompFields.replyTo;
@@ -209,30 +205,30 @@ function CompFields2Recipients(msgCompFields) {
     let havePrimaryRecipient = false;
     if (msgReplyTo)
       awSetInputAndPopupFromArray(msgCompFields.splitRecipients(msgReplyTo, false, {}),
-                                  "addr_reply", newListBoxNode, templateNode);
+                                  "addr_reply", listbox, templateNode);
     if (msgTo) {
       let rcp = msgCompFields.splitRecipients(msgTo, false, {});
       if (rcp.length) {
-        awSetInputAndPopupFromArray(rcp, "addr_to", newListBoxNode, templateNode);
+        awSetInputAndPopupFromArray(rcp, "addr_to", listbox, templateNode);
         havePrimaryRecipient = true;
       }
     }
     if (msgCC)
       awSetInputAndPopupFromArray(msgCompFields.splitRecipients(msgCC, false, {}),
-                                  "addr_cc", newListBoxNode, templateNode);
+                                  "addr_cc", listbox, templateNode);
     if (msgBCC)
       awSetInputAndPopupFromArray(msgCompFields.splitRecipients(msgBCC, false, {}),
-                                  "addr_bcc", newListBoxNode, templateNode);
+                                  "addr_bcc", listbox, templateNode);
     if (msgNewsgroups) {
-      awSetInputAndPopup(msgNewsgroups, "addr_newsgroups", newListBoxNode, templateNode);
+      awSetInputAndPopup(msgNewsgroups, "addr_newsgroups", listbox, templateNode);
       havePrimaryRecipient = true;
     }
     if (msgFollowupTo)
-      awSetInputAndPopup(msgFollowupTo, "addr_followup", newListBoxNode, templateNode);
+      awSetInputAndPopup(msgFollowupTo, "addr_followup", listbox, templateNode);
 
     // If it's a new message, we need to add an extra empty recipient.
     if (!havePrimaryRecipient)
-      _awSetInputAndPopup("", "addr_to", newListBoxNode, templateNode);
+      _awSetInputAndPopup("", "addr_to", listbox, templateNode);
     awFitDummyRows(2);
 
     // CompFields2Recipients is called whenever a user replies or edits an existing message. We want to
