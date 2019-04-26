@@ -137,102 +137,102 @@
                     accesskey="&sendOptions.accesskey;"
                     oncommand="gComposePane.sendOptionsDialog();"/>
           </hbox>
-         </tabpanel>
+        </tabpanel>
 
-         <tabpanel orient="vertical">
-           <groupbox>
-              <!-- Address Autocomplete -->
-              <label><html:h2>&addressingTitle.label;</html:h2></label>
+        <tabpanel orient="vertical">
+          <groupbox>
+            <!-- Address Autocomplete -->
+            <label><html:h2>&addressingTitle.label;</html:h2></label>
 
-              <description>&autocompleteText.label;</description>
+            <description>&autocompleteText.label;</description>
 
-              <hbox align="center">
-                <checkbox id="addressingAutocomplete" label="&addressingEnable.label;"
-                          preference="mail.enable_autocomplete"
-                          accesskey="&addressingEnable.accesskey;"/>
-              </hbox>
-
-              <hbox align="center">
-                <checkbox id="autocompleteLDAP" label="&directories.label;"
-                          preference="ldap_2.autoComplete.useDirectory"
-                          accesskey="&directories.accesskey;"/>
-                <menulist id="directoriesList" flex="1" aria-labelledby="autocompleteLDAP"
-                          preference="ldap_2.autoComplete.directoryServer">
-                  <menupopup id="directoriesListPopup" class="addrbooksPopup"
-                             none="&directoriesNone.label;"
-                             remoteonly="true" value="dirPrefId"/>
-                </menulist>
-                <button id="editButton" label="&editDirectories.label;"
-                        oncommand="gComposePane.editDirectories();"
-                        preference="pref.ldap.disable_button.edit_directories"
-                        accesskey="&editDirectories.accesskey;"/>
-              </hbox>
-            </groupbox>
-
-            <separator class="thin"/>
-
-            <hbox align="center" pack="start">
-              <checkbox id="emailCollectionOutgoing" label="&emailCollectionPicker.label;"
-                        accesskey="&emailCollectionPicker.accesskey;"
-                        preference="mail.collect_email_address_outgoing"/>
-              <menulist id="localDirectoriesList" flex="1"
-                        preference="mail.collect_addressbook"
-                        aria-labelledby="emailCollectionOutgoing">
-                <menupopup id="abPopup-menupopup" class="addrbooksPopup"
-                           localonly="true" writable="true"/>
-              </menulist>
+            <hbox align="center">
+              <checkbox id="addressingAutocomplete" label="&addressingEnable.label;"
+                        preference="mail.enable_autocomplete"
+                        accesskey="&addressingEnable.accesskey;"/>
             </hbox>
 
-           <hbox align="center" pack="start">
-             <label value="&showAsDefault.label;" accesskey="&showAsDefault.accesskey;"
+            <hbox align="center">
+              <checkbox id="autocompleteLDAP" label="&directories.label;"
+                        preference="ldap_2.autoComplete.useDirectory"
+                        accesskey="&directories.accesskey;"/>
+              <menulist is="menulist-addrbooks" id="directoriesList"
+                        aria-labelledby="autocompleteLDAP"
+                        preference="ldap_2.autoComplete.directoryServer"
+                        none="&directoriesNone.label;"
+                        remoteonly="true"
+                        value="dirPrefId"
+                        flex="1"/>
+              <button id="editButton" label="&editDirectories.label;"
+                      oncommand="gComposePane.editDirectories();"
+                      preference="pref.ldap.disable_button.edit_directories"
+                      accesskey="&editDirectories.accesskey;"/>
+            </hbox>
+          </groupbox>
+
+          <separator class="thin"/>
+
+          <hbox align="center" pack="start">
+            <checkbox id="emailCollectionOutgoing" label="&emailCollectionPicker.label;"
+                      accesskey="&emailCollectionPicker.accesskey;"
+                      preference="mail.collect_email_address_outgoing"/>
+            <menulist is="menulist-addrbooks" id="localDirectoriesList"
+                      aria-labelledby="emailCollectionOutgoing"
+                      preference="mail.collect_addressbook"
+                      localonly="true"
+                      writable="true"
+                      flex="1"/>
+          </hbox>
+
+          <hbox align="center" pack="start">
+            <label value="&showAsDefault.label;" accesskey="&showAsDefault.accesskey;"
                     control="defaultStartupDirList"/>
-             <menulist id="defaultStartupDirList" flex="1"
-                       oncommand="gComposePane.setDefaultStartupDir(this.value);">
-               <menupopup class="addrbooksPopup"
-                          none="&showAsDefaultLast.label;"
-                          alladdressbooks="true"
-                          mailinglists="true"/>
-             </menulist>
-           </hbox>
-         </tabpanel>
+            <menulist is="menulist-addrbooks" id="defaultStartupDirList"
+                      oncommand="gComposePane.setDefaultStartupDir(this.value);"
+                      none="&showAsDefaultLast.label;"
+                      alladdressbooks="true"
+                      mailinglists="true"
+                      flex="1"/>
+          </hbox>
+        </tabpanel>
 
-         <tabpanel orient="vertical">
-            <hbox>
-              <checkbox id="spellCheckBeforeSend"
-                        label="&spellCheck.label;"
-                        preference="mail.SpellCheckBeforeSend"
-                        accesskey="&spellCheck.accesskey;"/>
-              <spacer flex="1"/>
-            </hbox>
-            <hbox>
-              <checkbox id="inlineSpellCheck"
-                        label="&spellCheckInline.label;"
-                        preference="mail.spellcheck.inline"
-                        accesskey="&spellCheckInline1.accesskey;"/>
-              <spacer flex="1"/>
-            </hbox>
+        <tabpanel orient="vertical">
+          <hbox>
+            <checkbox id="spellCheckBeforeSend"
+                      label="&spellCheck.label;"
+                      preference="mail.SpellCheckBeforeSend"
+                      accesskey="&spellCheck.accesskey;"/>
+            <spacer flex="1"/>
+          </hbox>
+          <hbox>
+            <checkbox id="inlineSpellCheck"
+                      label="&spellCheckInline.label;"
+                      preference="mail.spellcheck.inline"
+                      accesskey="&spellCheckInline1.accesskey;"/>
+            <spacer flex="1"/>
+          </hbox>
 
-            <separator class="thin"/>
+          <separator class="thin"/>
 
-            <hbox align="center" pack="start">
-              <label value ="&languagePopup.label;" control="languageMenuList" accesskey="&languagePopup.accessKey;"/>
-              <menulist id="languageMenuList" preference="spellchecker.dictionary" flex="1">
-                <menupopup onpopupshowing="gComposePane.initLanguageMenu();">
-                  <!-- dynamic content populated by JS -->
-                </menupopup>
-              </menulist>
-              <spacer flex="1"/>
-            </hbox>
+          <hbox align="center" pack="start">
+            <label value ="&languagePopup.label;" control="languageMenuList" accesskey="&languagePopup.accessKey;"/>
+            <menulist id="languageMenuList" preference="spellchecker.dictionary" flex="1">
+              <menupopup onpopupshowing="gComposePane.initLanguageMenu();">
+                <!-- dynamic content populated by JS -->
+              </menupopup>
+            </menulist>
+            <spacer flex="1"/>
+          </hbox>
 
-            <separator/>
-            <hbox>
-              <label id="downloadDictionaries" class="text-link"
-                     onclick="if (event.button == 0) { openDictionaryList('tab'); }"
-                     value="&downloadDictionaries.label;"/>
-              <spacer flex="1"/>
-            </hbox>
-         </tabpanel>
-       </tabpanels>
+          <separator/>
+          <hbox>
+            <label id="downloadDictionaries" class="text-link"
+                    onclick="if (event.button == 0) { openDictionaryList('tab'); }"
+                    value="&downloadDictionaries.label;"/>
+            <spacer flex="1"/>
+          </hbox>
+        </tabpanel>
+      </tabpanels>
     </tabbox>
     <separator/>
   </prefpane>

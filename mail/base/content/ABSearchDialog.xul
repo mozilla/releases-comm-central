@@ -45,6 +45,7 @@
   <script type="application/javascript" src="chrome://messenger/content/addressbook/abCommon.js"/>
   <script type="application/javascript" src="chrome://messenger/content/searchTerm.js"/>
   <script type="application/javascript" src="chrome://messenger/content/dateFormat.js"/>
+  <script type="application/javascript" src="chrome://messenger/content/customElements.js"/>
 
   <keyset id="mailKeys">
     <key key="&closeCmd.key;" modifiers="accel" oncommand="onSearchStop(); closeWindow(true);"/>
@@ -61,10 +62,11 @@
       <vbox>
         <hbox align="center">
           <label value="&abSearchHeading.label;" accesskey="&abSearchHeading.accesskey;" control="abPopup"/>
-          <menulist id="abPopup" oncommand="SelectDirectory(this.value);">
-            <menupopup id="abPopup-menupopup" class="addrbooksPopup" alladdressbooks="true"/>
-          </menulist>
-          <spacer flex="10"/>
+          <menulist is="menulist-addrbooks" id="abPopup"
+                    oncommand="SelectDirectory(this.value);"
+                    alladdressbooks="true"
+                    flex="1"/>
+          <spacer flex="3"/>
           <button id="search-button" oncommand="onSearchButton(event);" default="true"/>
         </hbox>
         <hbox align="center">

@@ -27,6 +27,7 @@
 
   <script type="application/javascript" src="chrome://messenger/content/addressbook/abCommon.js"/>
   <script type="application/javascript" src="chrome://messenger/content/addressbook/abCard.js"/>
+  <script type="application/javascript" src="chrome://messenger/content/customElements.js"/>
   <script type="application/javascript"><![CDATA[
     document.addEventListener("dialogaccept", NewCardOKButton);
     document.addEventListener("dialogcancel", NewCardCancelButton);
@@ -34,9 +35,7 @@
 
   <hbox align="center">
     <label id="abPopupLabel" control="abPopup" value="&chooseAddressBook.label;" accesskey="&chooseAddressBook.accesskey;"/>
-    <menulist id="abPopup">
-      <menupopup id="abPopup-menupopup" class="addrbooksPopup" writable="true"/>
-    </menulist>
+    <menulist is="menulist-addrbooks" id="abPopup" writable="true"/>
   </hbox>
 
   <spacer style="height:1em"/>

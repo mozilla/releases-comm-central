@@ -103,12 +103,12 @@ function addSelectedAddresses(aRecipientType) {
   parent.AddRecipientsArray(aRecipientType, addressArray);
 }
 
-function AddressBookMenuListChange() {
+function AddressBookMenuListChange(aValue) {
   let searchInput = document.getElementById("peopleSearchInput");
   if (searchInput.value && !searchInput.showingSearchCriteria)
     onEnterInSearchBar();
   else
-    ChangeDirectoryByURI(document.getElementById("addressbookList").value);
+    ChangeDirectoryByURI(aValue);
 
   // Hide the addressbook column if the selected addressbook isn't
   // "All address books". Since the column is redundant in all other cases.

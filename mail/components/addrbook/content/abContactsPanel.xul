@@ -32,6 +32,7 @@
   <script type="application/javascript" src="chrome://messenger/content/addressbook/abCommon.js"/>
   <script type="application/javascript" src="chrome://messenger/content/addressbook/abResultsPane.js"/>
   <script type="application/javascript" src="chrome://messenger/content/addressbook/abContactsPanel.js"/>
+  <script type="application/javascript" src="chrome://messenger/content/customElements.js"/>
 
   <commandset id="CommandUpdate_AddressBook"
               commandupdater="true"
@@ -108,11 +109,11 @@
                      onclick="showContextMenu('sidebarAbContextMenu', event, [this, 'after_end', 0, 0, true]);"/>
     </hbox>
     <hbox id="panel-bar" class="toolbar" align="center">
-      <menulist id="addressbookList"
-                oncommand="AddressBookMenuListChange();" flex="1"
-                persist="value">
-        <menupopup id="addressbookList-menupopup" class="addrbooksPopup" alladdressbooks="true"/>
-      </menulist>
+      <menulist is="menulist-addrbooks" id="addressbookList"
+                alladdressbooks="true"
+                oncommand="AddressBookMenuListChange(this.value);"
+                flex="1"
+                persist="value"/>
     </hbox>
 
     <separator class="thin"/>

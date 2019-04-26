@@ -59,12 +59,11 @@
       <textbox id="editContactEmail" readonly="true"
                class="editContactTextbox"
                onkeypress="editContactInlineUI.onKeyPress(event, true);"/>
-      <menulist id="editContactAddressBookList" flex="1">
-            <menupopup id="editContactAddressBookList-menupopup"
-                       class="addrbooksPopup"/>
-      </menulist>
-      <description id="contactMoveDisabledText"
-                        collapsed="true">&contactMoveDisabledWarning.description;</description>
+      <menulist is="menulist-addrbooks" id="editContactAddressBookList"
+                flex="1" />
+      <description id="contactMoveDisabledText" collapsed="true">
+        &contactMoveDisabledWarning.description;
+      </description>
     </vbox>
   </hbox>
 

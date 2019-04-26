@@ -36,6 +36,7 @@
   <script type="application/javascript" src="chrome://messenger/content/FilterEditor.js"/>
   <script type="application/javascript" src="chrome://messenger/content/searchTerm.js"/>
   <script type="application/javascript" src="chrome://messenger/content/dateFormat.js"/>
+  <script type="application/javascript" src="chrome://messenger/content/customElements.js"/>
 
   <commandset>
     <command id="cmd_updateFilterType" oncommand="updateFilterType();"/>

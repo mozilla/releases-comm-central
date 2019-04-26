@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+    <script type="application/javascript" src="chrome://messenger/content/customElements.js"/>
     <vbox flex="1" id="compositionAndAddressing">
       <stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
 
@@ -94,14 +95,16 @@
           <radio value="true" id="directories" label="&directories.label;"
                  accesskey="&directories.accesskey;"/>
           <hbox class="indent">
-            <menulist id="identity.directoryServer"
-                      wsm_persist="true" preftype="string"
+            <menulist is="menulist-addrbooks" id="identity.directoryServer"
+                      none="&directoriesNone.label;"
+                      remoteonly="true"
+                      value="dirPrefId"
+                      wsm_persist="true"
+                      preftype="string"
                       prefstring="mail.identity.%identitykey%.directoryServer"
-                      style="min-width: 16em;" aria-labelledby="directories">
-              <menupopup class="addrbooksPopup"
-                         none="&directoriesNone.label;"
-                         remoteonly="true" value="dirPrefId"/>
-            </menulist>
+                      style="min-width: 16em;"
+                      aria-labelledby="directories"
+                      flex="1"/>
             <button id="editButton" label="&editDirectories.label;"
                     accesskey="&editDirectories.accesskey;"
                     oncommand="onEditDirectories();"/>

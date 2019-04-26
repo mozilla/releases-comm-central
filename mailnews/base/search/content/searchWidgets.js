@@ -656,9 +656,7 @@ class MozSearchValue extends MozXULElement {
           </menupopup>
         </menulist>
         <textbox flex="1" class="search-value-textbox" inherits="disabled"></textbox>
-        <menulist flex="1" class="search-value-menulist" inherits="disabled">
-          <menupopup class="addrbooksPopup" localonly="true"></menupopup>
-        </menulist>
+        <menulist is="menulist-addrbooks" flex="1" class="search-value-menulist" inherits="disabled" localonly="true"/>
         <menulist flex="1" class="search-value-menulist" inherits="disabled">
           <menupopup class="search-value-popup"></menupopup>
         </menulist>
