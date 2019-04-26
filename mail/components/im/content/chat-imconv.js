@@ -7,8 +7,9 @@
 /* global MozElements, MozXULElement, gChatTab, chatHandler */
 
 {
-  const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-  const { Status } = ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
+  const {Status} = ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
+  const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+  const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
   /**
     * The MozChatConv widget displays opened conversation information from the
