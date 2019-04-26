@@ -607,6 +607,7 @@ function test_reminder_in_draft() {
  * Bug 942436
  * Test that the reminder can be turned off for the current message.
  */
+test_disabling_attachment_reminder.__force_skip__ = true;
 function test_disabling_attachment_reminder() {
   // Open a sample message with attachment keywords.
   let cwc = open_compose_new_mail();
