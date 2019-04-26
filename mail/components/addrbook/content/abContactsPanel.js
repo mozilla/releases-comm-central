@@ -145,7 +145,9 @@ function AbPanelLoad() {
   if (!abPopup.selectedItem)
     abPopup.selectedIndex = 0;
 
-  ChangeDirectoryByURI(abPopup.value);
+  // Postpone the slow contacts load so that the sidebar document
+  // gets a chance to display quickly.
+  setTimeout(ChangeDirectoryByURI, 0, abPopup.value);
 
   mutationObs = new MutationObserver(function(aMutations) {
     aMutations.forEach(function(mutation) {
