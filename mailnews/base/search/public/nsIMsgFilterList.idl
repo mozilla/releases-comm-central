@@ -37,6 +37,8 @@ interface nsIMsgFilterList : nsISupports {
     const nsMsgFilterFileAttribValue attribCondition = 10;
     const nsMsgFilterFileAttribValue attribCustomId = 11;
 
+    /// Unique text identifier of this filter list.
+    readonly attribute ACString listId;
     attribute nsIMsgFolder folder;
     readonly attribute short version;
     readonly attribute ACString arbitraryHeaders;
@@ -91,6 +93,13 @@ interface nsIMsgFilterList : nsISupports {
     readonly attribute ACString logURL;
     void clearLog();
     void flushLogIfNecessary();
+    /**
+     * Push a message to the filter log file, adding a timestamp.
+     *
+     * @param message  The message text to log.
+     * @param filter   Optional filter object that reports the message.
+     */
+    void logFilterMessage(in AString message, [optional] in nsIMsgFilter filter);
 };
 
 

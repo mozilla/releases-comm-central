@@ -92,4 +92,13 @@ interface nsIMsgFilterService : nsISupports {
      */
     nsIMsgSearchCustomTerm getCustomTerm(in ACString id);
 
+    /**
+     * Translate the filter type flag into human readable type names.
+     * In case of multiple flag they are delimited by '&'.
+     *
+     * @param  filterType  nsMsgFilterType flags of filter type
+     *
+     * @return             A string describing the filter type.
+     */
+    ACString filterTypeName(in nsMsgFilterTypeType filterType);
 };

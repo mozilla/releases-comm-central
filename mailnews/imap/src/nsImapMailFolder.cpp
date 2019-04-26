@@ -94,12 +94,15 @@
 static NS_DEFINE_CID(kParseMailMsgStateCID, NS_PARSEMAILMSGSTATE_CID);
 static NS_DEFINE_CID(kCImapHostSessionList, NS_IIMAPHOSTSESSIONLIST_CID);
 
-extern mozilla::LazyLogModule gAutoSyncLog; // defined in nsAutoSyncManager.cpp
-extern mozilla::LazyLogModule IMAP;         // defined in nsImapProtocol.cpp
-extern mozilla::LazyLogModule IMAP_CS;      // For CONDSTORE, defined in nsImapProtocol.cpp
-mozilla::LazyLogModule IMAP_KW("IMAP_KW");  // for logging keyword (tag) processing
-
 #define MAILNEWS_CUSTOM_HEADERS "mailnews.customHeaders"
+
+using namespace mozilla;
+
+extern LazyLogModule gAutoSyncLog;    // defined in nsAutoSyncManager.cpp
+extern LazyLogModule IMAP;            // defined in nsImapProtocol.cpp
+extern LazyLogModule IMAP_CS;         // For CONDSTORE, defined in nsImapProtocol.cpp
+extern LazyLogModule FILTERLOGMODULE; // defined in nsMsgFilterService.cpp
+LazyLogModule IMAP_KW("IMAP_KW");     // for logging keyword (tag) processing
 
 /*
     Copies the contents of srcDir into destDir.
@@ -602,10 +605,20 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(nsIMsgWindow *aMsgWindo
   GetInheritedStringProperty("applyIncomingFilters", applyIncomingFilters);
   m_applyIncomingFilters = applyIncomingFilters.EqualsLiteral("true");
 
+  nsString folderName;
+  GetPrettyName(folderName);
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug, ("(Imap) nsImapMailFolder::UpdateFolderWithListener() on folder '%s'", NS_ConvertUTF16toUTF8(folderName).get()));
   if (mFlags & nsMsgFolderFlags::Inbox || m_applyIncomingFilters)
   {
-    if (!m_filterList)
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Imap) Preparing filter run on folder '%s'", NS_ConvertUTF16toUTF8(folderName).get()));
+
+    if (!m_filterList) {
       rv = GetFilterList(aMsgWindow, getter_AddRefs(m_filterList));
+      if (NS_FAILED(rv)) {
+        MOZ_LOG(FILTERLOGMODULE, LogLevel::Error, ("(Imap) Loading of filter list failed"));
+      }
+    }
+
     // if there's no msg window, but someone is updating the inbox, we're
     // doing something biff-like, and may download headers, so make biff notify.
     if (!aMsgWindow && mFlags & nsMsgFolderFlags::Inbox)
@@ -614,6 +627,9 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(nsIMsgWindow *aMsgWindo
 
   if (m_filterList)
   {
+    nsCString listId;
+    m_filterList->GetListId(listId);
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Imap) Preparing filter list %s", listId.get()));
     nsCOMPtr<nsIMsgIncomingServer> server;
     rv = GetServer(getter_AddRefs(server));
     NS_ENSURE_SUCCESS(rv, rv);
@@ -712,6 +728,8 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(nsIMsgWindow *aMsgWindo
         }
       }
     }
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Imap) Filters require the message body: %s",
+                                              (m_filterListRequiresBody ? "true" : "false")));
   }
 
   selectFolder = true;
@@ -3026,6 +3044,11 @@ nsresult nsImapMailFolder::NormalEndHeaderParseStream(nsIImapProtocol *aProtocol
       !(msgFlags & (nsMsgMessageFlags::Read | nsMsgMessageFlags::IMAPDeleted));
 
     if (doFilter)
+      MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Imap) New message parsed, and filters will be run on it"));
+    else
+      MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Imap) New message parsed, but filters will not be run on it"));
+
+    if (doFilter)
     {
       int32_t duplicateAction = nsIMsgIncomingServer::keepDups;
       if (server)
@@ -3086,6 +3109,8 @@ nsresult nsImapMailFolder::NormalEndHeaderParseStream(nsIImapProtocol *aProtocol
         if (m_filterList)
         {
           GetMoveCoalescer();  // not sure why we're doing this here.
+          MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug,
+                  ("(Imap) ApplyFilterToHdr from nsImapMailFolder::NormalEndHeaderParseStream()"));
           m_filterList->ApplyFiltersToHdr(nsMsgFilterType::InboxRule, newMsgHdr,
                                           this, mDatabase, nsDependentCSubstring(headers, headersSize),
                                           this, msgWindow);
@@ -3384,11 +3409,6 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter *filter, nsIMsgWindo
 
   nsresult rv = NS_OK;
 
-  // look at action - currently handle move
-#ifdef DEBUG_bienvenu
-  printf("got a rule hit!\n");
-#endif
-
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
   if (m_filterListRequiresBody)
     GetMessageHeader(m_curMsgUid, getter_AddRefs(msgHdr));
@@ -3399,13 +3419,19 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter *filter, nsIMsgWindo
   bool deleteToTrash = DeleteIsMoveToTrash();
 
   nsCOMPtr<nsIArray> filterActionList;
-
   rv = filter->GetSortedActionList(getter_AddRefs(filterActionList));
   NS_ENSURE_SUCCESS(rv, rv);
 
   uint32_t numActions;
   rv = filterActionList->GetLength(&numActions);
   NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCString msgId;
+  msgHdr->GetMessageId(getter_Copies(msgId));
+  nsMsgKey msgKey;
+  msgHdr->GetMessageKey(&msgKey);
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Imap) Applying filter actions on message with key %" PRIu32, msgKeyToInt(msgKey)));
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug, ("(Imap) Message ID: %s", msgId.get()));
 
   bool loggingEnabled = false;
   if (m_filterList && numActions)

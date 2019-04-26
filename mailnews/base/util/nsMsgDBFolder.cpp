@@ -67,8 +67,13 @@
 #include "nsMimeTypes.h"
 #include "nsIMsgFilter.h"
 #include "nsIScriptError.h"
-#include "mozilla/intl/LocaleService.h"
 #include "nsIURIMutator.h"
+#include "mozilla/intl/LocaleService.h"
+#include "mozilla/Logging.h"
+
+using namespace mozilla;
+
+extern LazyLogModule FILTERLOGMODULE;
 
 static PRTime gtimeOfLastPurgeCheck;  // variable to know when to check for purge threshold
 
@@ -2299,6 +2304,7 @@ nsMsgDBFolder::SpamFilterClassifyMessage(const char *aURI, nsIMsgWindow *aMsgWin
 nsresult
 nsMsgDBFolder::SpamFilterClassifyMessages(const char **aURIArray, uint32_t aURICount, nsIMsgWindow *aMsgWindow, nsIJunkMailPlugin *aJunkMailPlugin)
 {
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("Running Spam classification on %" PRIu32 " messages", aURICount));
 
   nsresult rv;
   nsCOMPtr<nsIMsgTraitService> traitService(do_GetService("@mozilla.org/msg-trait-service;1", &rv));
@@ -2494,6 +2500,11 @@ NS_IMETHODIMP
 nsMsgDBFolder::CallFilterPlugins(nsIMsgWindow *aMsgWindow, bool *aFiltersRun)
 {
   NS_ENSURE_ARG_POINTER(aFiltersRun);
+
+  nsString folderName;
+  GetPrettyName(folderName);
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("Running filter plugins on folder '%s'", NS_ConvertUTF16toUTF8(folderName).get()));
+
   *aFiltersRun = false;
   nsCOMPtr<nsIMsgIncomingServer> server;
   nsCOMPtr<nsISpamSettings> spamSettings;
@@ -2571,6 +2582,8 @@ nsMsgDBFolder::CallFilterPlugins(nsIMsgWindow *aMsgWindow, bool *aFiltersRun)
   if (!userHasClassified)
     filterForJunk = false;
 
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("Will run Spam filter: %s", filterForJunk ? "true" : "false"));
+
   nsCOMPtr<nsIMsgDatabase> database(mDatabase);
   rv = GetMsgDatabase(getter_AddRefs(database));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -2617,6 +2630,8 @@ nsMsgDBFolder::CallFilterPlugins(nsIMsgWindow *aMsgWindow, bool *aFiltersRun)
     free(antiIndices);
   }
 
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("Will run Trait classification: %s", filterForOther ? "true" : "false"));
+
   // Do we need to apply message filters?
   bool filterPostPlugin = false; // Do we have a post-analysis filter?
   nsCOMPtr<nsIMsgFilterList> filterList;
@@ -2643,11 +2658,15 @@ nsMsgDBFolder::CallFilterPlugins(nsIMsgWindow *aMsgWindow, bool *aFiltersRun)
     }
   }
 
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("Will run Post-classification filters: %s",
+                                            filterPostPlugin ? "true" : "false"));
+
   // If there is nothing to do, leave now but let NotifyHdrsNotBeingClassified
   // generate the msgsClassified notification for all newly added messages as
   // tracked by the NotReportedClassified processing flag.
   if (!filterForOther && !filterForJunk && !filterPostPlugin)
   {
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("No filters need to be run"));
     NotifyHdrsNotBeingClassified();
     return NS_OK;
   }
@@ -2658,6 +2677,8 @@ nsMsgDBFolder::CallFilterPlugins(nsIMsgWindow *aMsgWindow, bool *aFiltersRun)
   nsMsgKey *newKeys;
   rv = database->GetNewList(&numNewKeys, &newKeys);
   NS_ENSURE_SUCCESS(rv, rv);
+
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("Running filters on %" PRIu32 " new messages", numNewKeys));
 
   nsTArray<nsMsgKey> newMessageKeys;
   // Start from m_saveNewMsgs (and clear its current state).  m_saveNewMsgs is
@@ -2676,8 +2697,9 @@ nsMsgDBFolder::CallFilterPlugins(nsIMsgWindow *aMsgWindow, bool *aFiltersRun)
   uint32_t numNewMessages = newMessageKeys.Length();
   for (uint32_t i = 0 ; i < numNewMessages ; ++i)
   {
-    nsCOMPtr <nsIMsgDBHdr> msgHdr;
     nsMsgKey msgKey = newMessageKeys[i];
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("Running filters on message with key %" PRIu32, msgKeyToInt(msgKey)));
+    nsCOMPtr<nsIMsgDBHdr> msgHdr;
     rv = database->GetMsgHdrForKey(msgKey, getter_AddRefs(msgHdr));
     if (!NS_SUCCEEDED(rv))
       continue;
@@ -2685,25 +2707,30 @@ nsMsgDBFolder::CallFilterPlugins(nsIMsgWindow *aMsgWindow, bool *aFiltersRun)
     bool filterMessageForJunk = false;
     while (filterForJunk)  // we'll break from this at the end
     {
+      MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("Spam filter"));
       nsCString junkScore;
       msgHdr->GetStringProperty("junkscore", getter_Copies(junkScore));
-      if (!junkScore.IsEmpty()) // ignore already scored messages.
+      if (!junkScore.IsEmpty()) {
+        // ignore already scored messages.
+        MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("Message already scored previously, skipping"));
         break;
+      }
 
       bool whiteListMessage = false;
       spamSettings->CheckWhiteList(msgHdr, &whiteListMessage);
       if (whiteListMessage)
       {
         // mark this msg as non-junk, because we whitelisted it.
-
         nsAutoCString msgJunkScore;
         msgJunkScore.AppendInt(nsIJunkMailPlugin::IS_HAM_SCORE);
         database->SetStringProperty(msgKey, "junkscore", msgJunkScore.get());
         database->SetStringProperty(msgKey, "junkscoreorigin", "whitelist");
+        MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("Message whitelisted, skipping"));
         break; // skip this msg since it's in the white list
       }
       filterMessageForJunk = true;
 
+      MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("Message is to be classified"));
       OrProcessingFlags(msgKey, nsMsgProcessingFlags::ClassifyJunk);
       // Since we are junk processing, we want to defer the msgsClassified
       // notification until the junk classification has occurred.  The event
@@ -2742,6 +2769,7 @@ nsMsgDBFolder::CallFilterPlugins(nsIMsgWindow *aMsgWindow, bool *aFiltersRun)
         // Don't do filters on this message again.
         // (Only set this if we are actually filtering since this is
         // tantamount to a memory leak.)
+        MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("Filters done on this message"));
         OrProcessingFlags(msgKey, nsMsgProcessingFlags::FiltersDone);
         // Lazily create the array.
         if (!mPostBayesMessagesToFilter)
@@ -2769,6 +2797,7 @@ nsMsgDBFolder::CallFilterPlugins(nsIMsgWindow *aMsgWindow, bool *aFiltersRun)
     mBayesTraitClassifying = filterForOther;
 
     uint32_t numMessagesToClassify = classifyMsgKeys.Length();
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("%" PRIu32 " messages to be classified", numMessagesToClassify));
     char ** messageURIs = (char **) PR_MALLOC(sizeof(const char *) * numMessagesToClassify);
     if (!messageURIs)
       return NS_ERROR_OUT_OF_MEMORY;

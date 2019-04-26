@@ -465,13 +465,6 @@ NS_IMETHODIMP nsMsgFilter::GetScope(nsIMsgSearchScopeTerm **aResult)
     return NS_OK;
 }
 
-#define LOG_ENTRY_START_TAG "<p>\n"
-#define LOG_ENTRY_START_TAG_LEN (strlen(LOG_ENTRY_START_TAG))
-#define LOG_ENTRY_END_TAG "</p>\n"
-#define LOG_ENTRY_END_TAG_LEN (strlen(LOG_ENTRY_END_TAG))
-// Does this need to be localizable?
-#define LOG_ENTRY_TIMESTAMP "[$S] "
-
 // This function handles the logging both for success of filtering
 // (NS_SUCCEEDED(aRcode)), and for error reporting (NS_FAILED(aRcode)
 // when the filter action (such as file move/copy) failed.
@@ -506,9 +499,6 @@ nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
     NS_ENSURE_ARG_POINTER(aMsgHdr);
 
     NS_ENSURE_TRUE(m_filterList, NS_OK);
-    nsCOMPtr <nsIOutputStream> logStream;
-    nsresult rv = m_filterList->GetLogStream(getter_AddRefs(logStream));
-    NS_ENSURE_SUCCESS(rv,rv);
 
     PRTime date;
     nsMsgRuleActionType actionType;
@@ -532,7 +522,7 @@ nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
     (void)aMsgHdr->GetMime2DecodedAuthor(authorValue);
     (void)aMsgHdr->GetMime2DecodedSubject(subjectValue);
 
-    nsCString buffer;
+    nsString buffer;
     // this is big enough to hold a log entry.
     // do this so we avoid growing and copying as we append to the log.
     buffer.SetCapacity(512);
@@ -542,7 +532,7 @@ nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
     NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
 
     nsCOMPtr<nsIStringBundle> bundle;
-    rv = bundleService->CreateBundle("chrome://messenger/locale/filter.properties",
+    nsresult rv = bundleService->CreateBundle("chrome://messenger/locale/filter.properties",
       getter_AddRefs(bundle));
     NS_ENSURE_SUCCESS(rv, rv);
 
@@ -580,8 +570,8 @@ nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
                       logErrorFormatStrings, 2,
                       filterFailureWarningPrefix);
       NS_ENSURE_SUCCESS(rv, rv);
-      buffer += NS_ConvertUTF16toUTF8(filterFailureWarningPrefix);
-      buffer += "\n";
+      buffer += filterFailureWarningPrefix;
+      buffer.AppendLiteral("\n");
     }
 
     const char16_t *filterLogDetectFormatStrings[4] = { filterName.get(), authorValue.get(), subjectValue.get(), dateValue.get() };
@@ -592,8 +582,8 @@ nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
       filterLogDetectStr);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    buffer += NS_ConvertUTF16toUTF8(filterLogDetectStr);
-    buffer +=  "\n";
+    buffer += filterLogDetectStr;
+    buffer.AppendLiteral("\n");
 
     if (actionType == nsMsgFilterAction::MoveToFolder ||
         actionType == nsMsgFilterAction::CopyToFolder)
@@ -615,7 +605,7 @@ nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
         logMoveStr);
       NS_ENSURE_SUCCESS(rv, rv);
 
-      buffer += NS_ConvertUTF16toUTF8(logMoveStr);
+      buffer += logMoveStr;
     }
     else if (actionType == nsMsgFilterAction::Custom)
     {
@@ -628,7 +618,7 @@ nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
         bundle->GetStringFromName(
                   "filterMissingCustomAction",
                   filterActionName);
-      buffer += NS_ConvertUTF16toUTF8(filterActionName);
+      buffer += filterActionName;
     }
     else
     {
@@ -639,48 +629,11 @@ nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
       rv = bundle->GetStringFromName(filterActionID.get(), actionValue);
       NS_ENSURE_SUCCESS(rv, rv);
 
-      buffer += NS_ConvertUTF16toUTF8(actionValue);
+      buffer += actionValue;
     }
-    buffer += "\n";
+    buffer.AppendLiteral("\n");
 
-    // Prepare timestamp
-    PR_ExplodeTime(PR_Now(), PR_LocalTimeParameters, &exploded);
-    mozilla::DateTimeFormat::FormatPRExplodedTime(mozilla::kDateFormatShort,
-                                                  mozilla::kTimeFormatSeconds,
-                                                  &exploded,
-                                                  dateValue);
-
-    nsCString timestampString(LOG_ENTRY_TIMESTAMP);
-    MsgReplaceSubstring(timestampString, "$S", NS_ConvertUTF16toUTF8(dateValue).get());
-
-    // XXX: Finally, here we have enough context and buffer
-    // (string) to display the filtering error if we want: for
-    // example, a sticky error message in status bar, etc.
-
-    uint32_t writeCount;
-
-    rv = logStream->Write(LOG_ENTRY_START_TAG, LOG_ENTRY_START_TAG_LEN, &writeCount);
-    NS_ENSURE_SUCCESS(rv,rv);
-    NS_ASSERTION(writeCount == LOG_ENTRY_START_TAG_LEN, "failed to write out start log tag");
-
-    rv = logStream->Write(timestampString.get(), timestampString.Length(), &writeCount);
-    NS_ENSURE_SUCCESS(rv,rv);
-    NS_ASSERTION(writeCount == timestampString.Length(), "failed to write out timestamp");
-
-    // HTML-escape the log for security reasons.
-    // We don't want someone to send us a message with a subject with
-    // HTML tags, especially <script>.
-    nsCString escapedBuffer;
-    nsAppendEscapedHTML(buffer, escapedBuffer);
-
-    uint32_t escapedBufferLen = escapedBuffer.Length();
-    rv = logStream->Write(escapedBuffer.get(), escapedBufferLen, &writeCount);
-    NS_ENSURE_SUCCESS(rv,rv);
-    NS_ASSERTION(writeCount == escapedBufferLen, "failed to write out log hit");
-
-    rv = logStream->Write(LOG_ENTRY_END_TAG, LOG_ENTRY_END_TAG_LEN, &writeCount);
-    NS_ENSURE_SUCCESS(rv,rv);
-    NS_ASSERTION(writeCount == LOG_ENTRY_END_TAG_LEN, "failed to write out end log tag");
+    m_filterList->LogFilterMessage(buffer, nullptr);
     return NS_OK;
 }
 

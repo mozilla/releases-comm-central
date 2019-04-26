@@ -10,6 +10,7 @@
 #include "msgCore.h"
 #include "nsMsgFilterList.h"
 #include "nsMsgFilter.h"
+#include "nsIMsgHdr.h"
 #include "nsIMsgFilterHitNotify.h"
 #include "nsMsgUtils.h"
 #include "nsMsgSearchTerm.h"
@@ -17,16 +18,24 @@
 #include "nsMsgBaseCID.h"
 #include "nsIMsgFilterService.h"
 #include "nsMsgSearchScopeTerm.h"
+#include "nsIStringBundle.h"
 #include "nsNetUtil.h"
 #include "nsIInputStream.h"
 #include "nsNativeCharsetUtils.h"
 #include "nsMemory.h"
 #include "prmem.h"
 #include "mozilla/ArrayUtils.h"
+#include "mozilla/Logging.h"
 #include <ctype.h>
 
 // Marker for EOF or failure during read
 #define EOF_CHAR -1
+
+using namespace mozilla;
+
+extern LazyLogModule FILTERLOGMODULE;
+
+static uint32_t nextListId = 0;
 
 nsMsgFilterList::nsMsgFilterList() :
     m_fileVersion(0)
@@ -35,6 +44,9 @@ nsMsgFilterList::nsMsgFilterList() :
   m_startWritingToBuffer = false;
   m_temporaryList = false;
   m_curFilter = nullptr;
+  m_listId.Assign("List");
+  m_listId.AppendInt(nextListId++);
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("Creating a new filter list with id=%s", m_listId.get()));
 }
 
 NS_IMPL_ADDREF(nsMsgFilterList)
@@ -54,6 +66,12 @@ NS_IMETHODIMP nsMsgFilterList::CreateFilter(const nsAString &name,class nsIMsgFi
 }
 
 NS_IMPL_GETSET(nsMsgFilterList, LoggingEnabled, bool, m_loggingEnabled)
+
+NS_IMETHODIMP nsMsgFilterList::GetListId(nsACString &aListId)
+{
+  aListId.Assign(m_listId);
+  return NS_OK;
+}
 
 NS_IMETHODIMP nsMsgFilterList::GetFolder(nsIMsgFolder **aFolder)
 {
@@ -270,6 +288,7 @@ nsMsgFilterList::ApplyFiltersToHdr(nsMsgFilterTypeType filterType,
                                    nsIMsgFilterHitNotify *listener,
                                    nsIMsgWindow *msgWindow)
 {
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug, ("(Auto) nsMsgFilterList::ApplyFiltersToHdr"));
   nsCOMPtr<nsIMsgFilter> filter;
   uint32_t filterCount = 0;
   nsresult rv = GetFilterCount(&filterCount);
@@ -277,6 +296,18 @@ nsMsgFilterList::ApplyFiltersToHdr(nsMsgFilterTypeType filterType,
 
   RefPtr<nsMsgSearchScopeTerm> scope =
     new nsMsgSearchScopeTerm(nullptr, nsMsgSearchScope::offlineMail, folder);
+
+  nsString folderName;
+  folder->GetName(folderName);
+  nsMsgKey msgKey;
+  msgHdr->GetMessageKey(&msgKey);
+  nsCString typeName;
+  nsCOMPtr<nsIMsgFilterService> filterService =
+    do_GetService(NS_MSGFILTERSERVICE_CONTRACTID, &rv);
+  filterService->FilterTypeName(filterType, typeName);
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Auto) Filter run initiated, trigger=%s (%i)", typeName.get(), filterType));
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Auto) Running %" PRIu32 " filters from %s on message with key %" PRIu32 " in folder '%s'",
+                                            filterCount, m_listId.get(), msgKeyToInt(msgKey), NS_ConvertUTF16toUTF8(folderName).get()));
 
   for (uint32_t filterIndex = 0; filterIndex < filterCount; filterIndex++)
   {
@@ -286,12 +317,20 @@ nsMsgFilterList::ApplyFiltersToHdr(nsMsgFilterTypeType filterType,
       nsMsgFilterTypeType curFilterType;
 
       filter->GetEnabled(&isEnabled);
-      if (!isEnabled)
+      if (!isEnabled) {
+        MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Auto) Skipping disabled filter at index %" PRIu32, filterIndex));
         continue;
+      }
 
+      nsString filterName;
+      filter->GetFilterName(filterName);
       filter->GetFilterType(&curFilterType);
       if (curFilterType & filterType)
       {
+        MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Auto) Running filter %" PRIu32, filterIndex));
+        MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug, ("(Auto) Filter name: %s",
+                                                   NS_ConvertUTF16toUTF8(filterName).get()));
+
         nsresult matchTermStatus = NS_OK;
         bool result;
 
@@ -300,14 +339,38 @@ nsMsgFilterList::ApplyFiltersToHdr(nsMsgFilterTypeType filterType,
         filter->SetScope(nullptr);
         if (NS_SUCCEEDED(matchTermStatus) && result && listener)
         {
-          bool applyMore = true;
+          nsCString msgId;
+          msgHdr->GetMessageId(getter_Copies(msgId));
+          MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Auto) Filter matched message with key %" PRIu32,
+                                                    msgKeyToInt(msgKey)));
+          MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug, ("(Auto) Matched message ID: %s", msgId.get()));
 
+          bool applyMore = true;
           rv = listener->ApplyFilterHit(filter, msgWindow, &applyMore);
-          if (NS_FAILED(rv) || !applyMore)
+          if (NS_FAILED(rv) || !applyMore) {
+            if (NS_FAILED(rv)) {
+              MOZ_LOG(FILTERLOGMODULE, LogLevel::Error, ("(Auto) Applying filter actions failed"));
+              LogFilterMessage(NS_LITERAL_STRING("Applying filter actions failed"), filter);
+            }
+            MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Auto) Stopping further filter execution on this message"));
             break;
+          }
+        } else {
+          if (NS_FAILED(matchTermStatus)) {
+            MOZ_LOG(FILTERLOGMODULE, LogLevel::Error, ("(Auto) Filter evaluation failed"));
+            LogFilterMessage(NS_LITERAL_STRING("Filter evaluation failed"), filter);
+          }
+          if (!result)
+            MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Auto) Filter didn't match"));
         }
+      } else {
+        MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Auto) Skipping filter of non-matching type at index %" PRIu32, filterIndex));
       }
     }
+  }
+  if (NS_FAILED(rv)) {
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Error, ("(Auto) Filter run failed (%" PRIx32 ")", static_cast<uint32_t>(rv)));
+    LogFilterMessage(NS_LITERAL_STRING("Filter run failed"), nullptr);
   }
   return rv;
 }
@@ -879,6 +942,7 @@ nsresult nsMsgFilterList::SaveTextFilters(nsIOutputStream *aStream)
 
 nsMsgFilterList::~nsMsgFilterList()
 {
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("Closing filter list %s", m_listId.get()));
 }
 
 nsresult nsMsgFilterList::Close()
@@ -1167,5 +1231,85 @@ NS_IMETHODIMP nsMsgFilterList::FlushLogIfNecessary()
     }
   }
   return rv;
+}
+
+#define LOG_ENTRY_START_TAG "<p>\n"
+#define LOG_ENTRY_START_TAG_LEN (strlen(LOG_ENTRY_START_TAG))
+#define LOG_ENTRY_END_TAG "</p>\n"
+#define LOG_ENTRY_END_TAG_LEN (strlen(LOG_ENTRY_END_TAG))
+
+NS_IMETHODIMP nsMsgFilterList::LogFilterMessage(const nsAString &message, nsIMsgFilter *filter)
+{
+  nsCOMPtr <nsIOutputStream> logStream;
+  nsresult rv = GetLogStream(getter_AddRefs(logStream));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIStringBundleService> bundleService =
+    mozilla::services::GetStringBundleService();
+  NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
+
+  nsCOMPtr<nsIStringBundle> bundle;
+  rv = bundleService->CreateBundle("chrome://messenger/locale/filter.properties",
+    getter_AddRefs(bundle));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsString tempMessage(message);
+
+  if (filter) {
+    // If a filter was passed, prepend its name in the log message.
+    nsString filterName;
+    filter->GetFilterName(filterName);
+
+    const char16_t *logFormatStrings[2] = { filterName.get(),
+                                            tempMessage.get() };
+    nsString statusLogMessage;
+    rv = bundle->FormatStringFromName("filterMessage",
+                                      logFormatStrings, 2,
+                                      statusLogMessage);
+    if (NS_SUCCEEDED(rv))
+      tempMessage.Assign(statusLogMessage);
+  }
+
+  // Prepare timestamp
+  PRExplodedTime exploded;
+  nsString dateValue;
+  PR_ExplodeTime(PR_Now(), PR_LocalTimeParameters, &exploded);
+  mozilla::DateTimeFormat::FormatPRExplodedTime(mozilla::kDateFormatShort,
+                                                mozilla::kTimeFormatSeconds,
+                                                &exploded,
+                                                dateValue);
+
+  // HTML-escape the log for security reasons.
+  // We don't want someone to send us a message with a subject with
+  // HTML tags, especially <script>.
+  nsCString escapedBuffer;
+  nsAppendEscapedHTML(NS_ConvertUTF16toUTF8(tempMessage), escapedBuffer);
+  NS_ConvertUTF8toUTF16 finalMessage(escapedBuffer);
+
+  // Print timestamp and the message.
+  const char16_t *logFormatStrings[2] = { dateValue.get(),
+                                          finalMessage.get() };
+  nsString filterLogMessage;
+  rv = bundle->FormatStringFromName("filterLogLine",
+                                    logFormatStrings, 2,
+                                    filterLogMessage);
+
+  // Write message into log stream.
+  uint32_t writeCount;
+
+  rv = logStream->Write(LOG_ENTRY_START_TAG, LOG_ENTRY_START_TAG_LEN, &writeCount);
+  NS_ENSURE_SUCCESS(rv, rv);
+  NS_ASSERTION(writeCount == LOG_ENTRY_START_TAG_LEN, "failed to write out start log tag");
+
+  NS_ConvertUTF16toUTF8 buffer(filterLogMessage);
+  uint32_t escapedBufferLen = buffer.Length();
+  rv = logStream->Write(buffer.get(), escapedBufferLen, &writeCount);
+  NS_ENSURE_SUCCESS(rv, rv);
+  NS_ASSERTION(writeCount == escapedBufferLen, "failed to write out log hit");
+
+  rv = logStream->Write(LOG_ENTRY_END_TAG, LOG_ENTRY_END_TAG_LEN, &writeCount);
+  NS_ENSURE_SUCCESS(rv, rv);
+  NS_ASSERTION(writeCount == LOG_ENTRY_END_TAG_LEN, "failed to write out end log tag");
+  return NS_OK;
 }
 // ------------ End FilterList methods ------------------

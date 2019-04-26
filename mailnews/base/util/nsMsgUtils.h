@@ -373,6 +373,8 @@ NS_MSG_BASE nsMsgKey msgKeyFromInt(uint32_t aValue);
 
 NS_MSG_BASE nsMsgKey msgKeyFromInt(uint64_t aValue);
 
+NS_MSG_BASE uint32_t msgKeyToInt(nsMsgKey aMsgKey);
+
 /**
  * Helper function to extract query part from URL spec.
  */

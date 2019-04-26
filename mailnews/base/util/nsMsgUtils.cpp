@@ -2105,6 +2105,11 @@ NS_MSG_BASE nsMsgKey msgKeyFromInt(uint64_t aValue)
   return aValue;
 }
 
+NS_MSG_BASE uint32_t msgKeyToInt(nsMsgKey aMsgKey)
+{
+  return (uint32_t)aMsgKey;
+}
+
 // Helper function to extract a query qualifier.
 nsCString MsgExtractQueryPart(const nsACString& spec, const char* queryToExtract)
 {

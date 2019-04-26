@@ -7,11 +7,11 @@
 #define _nsMsgFilterService_H_
 
 #include "nsIMsgFilterService.h"
+#include "nsIFile.h"
 #include "nsCOMArray.h"
 
 class nsIMsgWindow;
 class nsIStringBundle;
-
 
 
 // The filter service is used to acquire and manipulate filter lists.
@@ -39,7 +39,6 @@ protected:
 
   nsCOMArray<nsIMsgFilterCustomAction> mCustomActions; // defined custom action list
   nsCOMArray<nsIMsgSearchCustomTerm> mCustomTerms; // defined custom term list
-
 };
 
 #endif  // _nsMsgFilterService_H_

@@ -33,6 +33,7 @@
 #include "nsMsgUtils.h"
 #include "nsIMutableArray.h"
 #include "nsIMsgMailSession.h"
+#include "nsIFile.h"
 #include "nsArrayUtils.h"
 #include "nsCOMArray.h"
 #include "nsIMsgFilterCustomAction.h"
@@ -46,14 +47,23 @@
 #include "nsIMsgFilter.h"
 #include "nsIMsgOperationListener.h"
 #include "mozilla/Attributes.h"
+#include "mozilla/Logging.h"
+
+using namespace mozilla;
+
+LazyLogModule FILTERLOGMODULE("Filters");
 
 #define BREAK_IF_FAILURE(_rv, _text) if (NS_FAILED(_rv)) { \
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Error, ("(Post) Filter error: %s", _text)); \
+  m_filters->LogFilterMessage(NS_LITERAL_STRING(_text), m_curFilter); \
   NS_WARNING(_text); \
   mFinalResult = _rv; \
   break; \
 }
 
 #define CONTINUE_IF_FAILURE(_rv, _text) if (NS_FAILED(_rv)) { \
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Warning, ("(Post) Filter problem: %s", _text)); \
+  m_filters->LogFilterMessage(NS_LITERAL_STRING(_text), m_curFilter); \
   NS_WARNING(_text); \
   mFinalResult = _rv; \
   if (m_msgWindow && !ContinueExecutionPrompt()) \
@@ -62,12 +72,16 @@
 }
 
 #define BREAK_IF_FALSE(_assertTrue, _text) if (!(_assertTrue)) { \
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Error, ("(Post) Filter error: %s", _text)); \
+  m_filters->LogFilterMessage(NS_LITERAL_STRING(_text), m_curFilter); \
   NS_WARNING(_text); \
   mFinalResult = NS_ERROR_FAILURE; \
   break; \
 }
 
 #define CONTINUE_IF_FALSE(_assertTrue, _text) if (!(_assertTrue)) { \
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Warning, ("(Post) Filter problem: %s", _text)); \
+  m_filters->LogFilterMessage(NS_LITERAL_STRING(_text), m_curFilter); \
   NS_WARNING(_text); \
   mFinalResult = NS_ERROR_FAILURE; \
   if (m_msgWindow && !ContinueExecutionPrompt()) \
@@ -79,10 +93,12 @@ NS_IMPL_ISUPPORTS(nsMsgFilterService, nsIMsgFilterService)
 
 nsMsgFilterService::nsMsgFilterService()
 {
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug, ("nsMsgFilterService"));
 }
 
 nsMsgFilterService::~nsMsgFilterService()
 {
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug, ("~nsMsgFilterService"));
 }
 
 NS_IMETHODIMP nsMsgFilterService::OpenFilterList(nsIFile *aFilterFile,
@@ -92,6 +108,18 @@ NS_IMETHODIMP nsMsgFilterService::OpenFilterList(nsIFile *aFilterFile,
 {
   NS_ENSURE_ARG_POINTER(aFilterFile);
   NS_ENSURE_ARG_POINTER(resultFilterList);
+
+  if (rootFolder) {
+    nsCOMPtr<nsIMsgIncomingServer> server;
+    rootFolder->GetServer(getter_AddRefs(server));
+    nsString serverName;
+    server->GetPrettyName(serverName);
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("Reading filter list for account '%s'", NS_ConvertUTF16toUTF8(serverName).get()));
+  }
+
+  nsString fileName;
+  (void)aFilterFile->GetPath(fileName);
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug, ("Reading filter list from file '%s'", NS_ConvertUTF16toUTF8(fileName).get()));
 
   bool exists = false;
   nsresult rv = aFilterFile->Exists(&exists);
@@ -139,6 +167,13 @@ NS_IMETHODIMP nsMsgFilterService::OpenFilterList(nsIFile *aFilterFile,
       ThrowAlertMsg("invalidCustomHeader", aMsgWindow);
   }
 
+  nsCString listId;
+  filterList->GetListId(listId);
+  uint32_t filterCount = 0;
+  (void)filterList->GetFilterCount(&filterCount);
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("Read %" PRIu32 " filters", filterCount));
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("Filter list stored as %s", listId.get()));
+
   filterList.forget(resultFilterList);
   return rv;
 }
@@ -155,6 +190,10 @@ NS_IMETHODIMP  nsMsgFilterService::SaveFilterList(nsIMsgFilterList *filterList, 
   NS_ENSURE_ARG_POINTER(filterFile);
   NS_ENSURE_ARG_POINTER(filterList);
 
+  nsCString listId;
+  filterList->GetListId(listId);
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("Saving filter list %s", listId.get()));
+
   nsCOMPtr<nsIOutputStream> strm;
   nsresult rv = MsgNewSafeBufferedFileOutputStream(getter_AddRefs(strm),
                                                 filterFile, -1, 0600);
@@ -168,6 +207,7 @@ NS_IMETHODIMP  nsMsgFilterService::SaveFilterList(nsIMsgFilterList *filterList, 
     rv = safeStream->Finish();
     if (NS_FAILED(rv)) {
       NS_WARNING("failed to save filter file! possible data loss");
+      MOZ_LOG(FILTERLOGMODULE, LogLevel::Error, ("Save of list failed"));
     }
   }
   return rv;
@@ -323,6 +363,7 @@ nsMsgFilterAfterTheFact::nsMsgFilterAfterTheFact(nsIMsgWindow *aMsgWindow,
                                                  nsIArray *aFolderList,
                                                  nsIMsgOperationListener *aCallback)
 {
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug, ("(Post) nsMsgFilterAfterTheFact"));
   m_curFilterIndex = m_curFolderIndex = m_nextAction = 0;
   m_msgWindow = aMsgWindow;
   m_filters = aFilterList;
@@ -340,6 +381,7 @@ nsMsgFilterAfterTheFact::nsMsgFilterAfterTheFact(nsIMsgWindow *aMsgWindow,
 
 nsMsgFilterAfterTheFact::~nsMsgFilterAfterTheFact()
 {
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug, ("(Post) ~nsMsgFilterAfterTheFact"));
 }
 
 // do what we have to do to cleanup.
@@ -362,20 +404,30 @@ nsresult nsMsgFilterAfterTheFact::OnEndExecution()
     NS_RELEASE_THIS(); // release ourselves.
     mNeedsRelease = false;
   }
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Post) End executing filters"));
   return rv;
 }
 
 nsresult nsMsgFilterAfterTheFact::RunNextFilter()
 {
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug, ("(Post) nsMsgFilterAfterTheFact::RunNextFilter"));
   nsresult rv = NS_OK;
   while (true)
   {
     m_curFilter = nullptr;
     if (m_curFilterIndex >= m_numFilters)
       break;
+
     BREAK_IF_FALSE(m_filters, "Missing filters");
+
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug, ("(Post) Running filter %" PRIu32, m_curFilterIndex));
+
     rv = m_filters->GetFilterAt(m_curFilterIndex++, getter_AddRefs(m_curFilter));
     CONTINUE_IF_FAILURE(rv, "Could not get filter at index");
+
+    nsString filterName;
+    m_curFilter->GetFilterName(filterName);
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Post) Filter name: %s", NS_ConvertUTF16toUTF8(filterName).get()));
 
     nsCOMPtr<nsIMutableArray> searchTerms;
     rv = m_curFilter->GetSearchTerms(getter_AddRefs(searchTerms));
@@ -407,6 +459,12 @@ nsresult nsMsgFilterAfterTheFact::RunNextFilter()
     CONTINUE_IF_FAILURE(rv, "Search failed");
     return NS_OK; // OnSearchDone will continue
   }
+
+  if (NS_FAILED(rv)) {
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Error, ("(Post) Filter evaluation failed"));
+    m_filters->LogFilterMessage(NS_LITERAL_STRING("Filter evaluation failed"), m_curFilter);
+  }
+
   m_curFilter = nullptr;
   NS_WARNING_ASSERTION(NS_SUCCEEDED(rv), "Search failed");
   return AdvanceToNextFolder();
@@ -414,15 +472,19 @@ nsresult nsMsgFilterAfterTheFact::RunNextFilter()
 
 nsresult nsMsgFilterAfterTheFact::AdvanceToNextFolder()
 {
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug, ("(Post) nsMsgFilterAfterTheFact::AdvanceToNextFolder"));
   nsresult rv = NS_OK;
   // Advance through folders, making sure m_curFolder is null on errors
   while (true)
   {
     m_stopFiltering.Clear();
     m_curFolder = nullptr;
-    if (m_curFolderIndex >= m_numFolders)
+    if (m_curFolderIndex >= m_numFolders) {
       // final end of nsMsgFilterAfterTheFact object
       return OnEndExecution();
+    }
+
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug, ("(Post) Entering folder %" PRIu32, m_curFolderIndex));
 
     // reset the filter index to apply all filters to this new folder
     m_curFilterIndex = 0;
@@ -436,6 +498,15 @@ nsresult nsMsgFilterAfterTheFact::AdvanceToNextFolder()
 
      // m_curFolder may be null when the folder is deleted externally.
     CONTINUE_IF_FALSE(m_curFolder, "Next folder returned null");
+
+    nsString folderName;
+    (void)m_curFolder->GetName(folderName);
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Post) Folder name: %s", NS_ConvertUTF16toUTF8(folderName).get()));
+
+    nsCOMPtr<nsIFile> folderPath;
+    (void)m_curFolder->GetFilePath(getter_AddRefs(folderPath));
+    (void)folderPath->GetPath(folderName);
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug, ("(Post) Folder path: %s", NS_ConvertUTF16toUTF8(folderName).get()));
 
     rv = m_curFolder->GetMsgDatabase(getter_AddRefs(m_curFolderDB));
     if (rv == NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE)
@@ -485,10 +556,17 @@ NS_IMETHODIMP nsMsgFilterAfterTheFact::OnSearchHit(nsIMsgDBHdr *header, nsIMsgFo
   nsMsgKey msgKey;
   header->GetMessageKey(&msgKey);
 
+  nsCString msgId;
+  header->GetMessageId(getter_Copies(msgId));
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Post) Filter matched message with key %" PRIu32, msgKeyToInt(msgKey)));
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug, ("(Post) Matched message ID: %s", msgId.get()));
+
   // Under various previous actions (a move, delete, or stopExecution)
   //  we do not want to process filters on a per-message basis.
-  if (m_stopFiltering.Contains(msgKey))
+  if (m_stopFiltering.Contains(msgKey)) {
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Post) Stopping further filter execution on this message"));
     return NS_OK;
+  }
 
   m_searchHits.AppendElement(msgKey);
   m_searchHitHdrs->AppendElement(header);
@@ -498,6 +576,7 @@ NS_IMETHODIMP nsMsgFilterAfterTheFact::OnSearchHit(nsIMsgDBHdr *header, nsIMsgFo
 // Continue after an async operation.
 NS_IMETHODIMP nsMsgFilterAfterTheFact::OnSearchDone(nsresult status)
 {
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Post) Done matching current filter"));
   if (NS_SUCCEEDED(status))
     return m_searchHits.IsEmpty() ? RunNextFilter() : ApplyFilter();
 
@@ -523,6 +602,7 @@ NS_IMETHODIMP nsMsgFilterAfterTheFact::OnNewSearch()
 //   next filter action, filter, or folder.
 nsresult nsMsgFilterAfterTheFact::ApplyFilter()
 {
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug, ("(Post) nsMsgFilterAfterTheFact::ApplyFilter"));
   nsresult rv;
   do { // error management block, break if unable to continue with filter.
     // 'm_curFolder' can be reset asynchronously by the copy service
@@ -546,6 +626,8 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter()
 
     uint32_t numActions;
     actionList->GetLength(&numActions);
+
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Post) Applying filter actions to %" PRIu32 " matched messages", static_cast<uint32_t>(m_searchHits.Length())));
 
     // We start from m_nextAction to allow us to continue applying actions
     // after the return from an async copy.
@@ -904,8 +986,19 @@ nsMsgFilterService::ApplyFiltersToFolders(nsIMsgFilterList *aFilterList,
                                           nsIMsgWindow *aMsgWindow,
                                           nsIMsgOperationListener *aCallback)
 {
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug, ("(Post) nsMsgFilterService::ApplyFiltersToFolders"));
   NS_ENSURE_ARG_POINTER(aFilterList);
   NS_ENSURE_ARG_POINTER(aFolders);
+
+  uint32_t filterCount;
+  aFilterList->GetFilterCount(&filterCount);
+  nsCString listId;
+  aFilterList->GetListId(listId);
+  uint32_t folderCount;
+  aFolders->GetLength(&folderCount);
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Post) Manual filter run initiated"));
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Post) Running %" PRIu32 " filters from %s on %" PRIu32 " folders",
+                                            filterCount, listId.get(), folderCount));
 
   RefPtr<nsMsgFilterAfterTheFact> filterExecutor =
     new nsMsgFilterAfterTheFact(aMsgWindow, aFilterList, aFolders, aCallback);
@@ -982,6 +1075,56 @@ nsMsgFilterService::GetCustomTerm(const nsACString& aId,
   return NS_OK;
 }
 
+/**
+ * Translate the filter type flag into human readable type names.
+ * In case of multiple flag they are delimited by '&'.
+ */
+NS_IMETHODIMP
+nsMsgFilterService::FilterTypeName(nsMsgFilterTypeType filterType, nsACString &typeName) {
+  typeName.Truncate();
+  if (filterType == nsMsgFilterType::None) {
+    typeName.Assign("None");
+    return NS_OK;
+  }
+
+  if ((filterType & nsMsgFilterType::Incoming) == nsMsgFilterType::Incoming) {
+    typeName.Append("Incoming&");
+  } else {
+    if ((filterType & nsMsgFilterType::Inbox) == nsMsgFilterType::Inbox) {
+      typeName.Append("Inbox&");
+    } else {
+      if (filterType & nsMsgFilterType::InboxRule)
+        typeName.Append("InboxRule&");
+      if (filterType & nsMsgFilterType::InboxJavaScript)
+        typeName.Append("InboxJavaScript&");
+    }
+    if ((filterType & nsMsgFilterType::News) == nsMsgFilterType::News) {
+      typeName.Append("News&");
+    } else {
+      if (filterType & nsMsgFilterType::NewsRule)
+        typeName.Append("NewsRule&");
+      if (filterType & nsMsgFilterType::NewsJavaScript)
+        typeName.Append("NewsJavaScript&");
+    }
+  }
+  if (filterType & nsMsgFilterType::Manual)
+    typeName.Append("Manual&");
+  if (filterType & nsMsgFilterType::PostPlugin)
+    typeName.Append("PostPlugin&");
+  if (filterType & nsMsgFilterType::PostOutgoing)
+    typeName.Append("PostOutgoing&");
+  if (filterType & nsMsgFilterType::Archive)
+    typeName.Append("Archive&");
+
+  if (typeName.IsEmpty()) {
+    typeName.Assign("UNKNOWN");
+  } else {
+    // Cut the trailing '&' character.
+    typeName.Truncate(typeName.Length() - 1);
+  }
+  return NS_OK;
+}
+
 // nsMsgApplyFiltersToMessages overrides nsMsgFilterAfterTheFact in order to
 // apply filters to a list of messages, rather than an entire folder
 class nsMsgApplyFiltersToMessages : public nsMsgFilterAfterTheFact
@@ -1009,6 +1152,7 @@ nsMsgApplyFiltersToMessages::nsMsgApplyFiltersToMessages(nsIMsgWindow *aMsgWindo
 : nsMsgFilterAfterTheFact(aMsgWindow, aFilterList, aFolderList, aCallback),
   m_filterType(aFilterType)
 {
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug, ("(Post) nsMsgApplyFiltersToMessages"));
   nsCOMPtr<nsISimpleEnumerator> msgEnumerator;
   if (NS_SUCCEEDED(aMsgHdrList->Enumerate(getter_AddRefs(msgEnumerator))))
   {
@@ -1030,6 +1174,7 @@ nsMsgApplyFiltersToMessages::nsMsgApplyFiltersToMessages(nsIMsgWindow *aMsgWindo
 
 nsresult nsMsgApplyFiltersToMessages::RunNextFilter()
 {
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug, ("(Post) nsMsgApplyFiltersToMessages::RunNextFilter"));
   nsresult rv = NS_OK;
   while (true)
   {
@@ -1037,6 +1182,7 @@ nsresult nsMsgApplyFiltersToMessages::RunNextFilter()
     if (!m_curFolder || // Not an error, we just need to run AdvanceToNextFolder()
         m_curFilterIndex >= m_numFilters)
       break;
+
     BREAK_IF_FALSE(m_filters, "No filters");
     nsMsgFilterTypeType filterType;
     bool isEnabled;
@@ -1050,6 +1196,11 @@ nsresult nsMsgApplyFiltersToMessages::RunNextFilter()
     CONTINUE_IF_FAILURE(rv, "Could not get isEnabled");
     if (!isEnabled)
       continue;
+
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug, ("(Post) Running filter %" PRIu32, m_curFilterIndex));
+    nsString filterName;
+    m_curFilter->GetFilterName(filterName);
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Post) Filter name: %s", NS_ConvertUTF16toUTF8(filterName).get()));
 
     nsCOMPtr<nsIMsgSearchScopeTerm> scope(new nsMsgSearchScopeTerm(nullptr, nsMsgSearchScope::offlineMail, m_curFolder));
     BREAK_IF_FALSE(scope, "Could not create scope, OOM?");
@@ -1081,8 +1232,17 @@ nsresult nsMsgApplyFiltersToMessages::RunNextFilter()
         return NS_OK; // async callback will continue, or we are done.
     }
   }
+
+  if (NS_FAILED(rv)) {
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Error, ("(Post) Filter run failed (%" PRIx32 ")", static_cast<uint32_t>(rv)));
+    m_filters->LogFilterMessage(NS_LITERAL_STRING("Filter run failed"), m_curFilter);
+    NS_WARNING_ASSERTION(false, "Failed to run filters");
+  } else {
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Post) Filter run finished on the current folder"));
+  }
+
   m_curFilter = nullptr;
-  NS_WARNING_ASSERTION(NS_SUCCEEDED(rv), "Failed to run filters");
+
   // We expect the failure is already recorded through one of the macro
   // expressions, that will have console logging added to them.
   // So an additional console warning is not needed here.
@@ -1095,6 +1255,7 @@ NS_IMETHODIMP nsMsgFilterService::ApplyFilters(nsMsgFilterTypeType aFilterType,
                                                nsIMsgWindow *aMsgWindow,
                                                nsIMsgOperationListener *aCallback)
 {
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug, ("(Post) nsMsgApplyFiltersToMessages::ApplyFilters"));
   NS_ENSURE_ARG_POINTER(aFolder);
 
   nsCOMPtr<nsIMsgFilterList>    filterList;
@@ -1105,6 +1266,20 @@ NS_IMETHODIMP nsMsgFilterService::ApplyFilters(nsMsgFilterTypeType aFilterType,
   NS_ENSURE_SUCCESS(rv, rv);
 
   folderList->AppendElement(aFolder);
+
+  uint32_t filterCount;
+  filterList->GetFilterCount(&filterCount);
+  uint32_t msgCount;
+  aMsgHdrList->GetLength(&msgCount);
+  nsCString listId;
+  filterList->GetListId(listId);
+  nsString folderName;
+  aFolder->GetName(folderName);
+  nsCString typeName;
+  FilterTypeName(aFilterType, typeName);
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Post) Filter run initiated, trigger=%s (%i)", typeName.get(), aFilterType));
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Post) Running %" PRIu32 " filters from %s on %" PRIu32 " message(s) in folder '%s'",
+                                            filterCount, listId.get(), msgCount, NS_ConvertUTF16toUTF8(folderName).get()));
 
   // Create our nsMsgApplyFiltersToMessages object which will be called when ApplyFiltersToHdr
   // finds one or more filters that hit.
@@ -1201,3 +1376,4 @@ nsMsgFilterAfterTheFact::DisplayConfirmationPrompt(nsIMsgWindow *msgWindow, cons
   }
   return NS_OK;
 }
+

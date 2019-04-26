@@ -78,13 +78,16 @@
 #include "nsIMsgFilterService.h"
 #include "nsIMsgProtocolInfo.h"
 #include "mozIDOMWindow.h"
-#include "mozilla/Preferences.h"
 #include "nsIURIMutator.h"
 #include "nsINSSErrorsService.h"
+#include "mozilla/Logging.h"
+#include "mozilla/Preferences.h"
 
 using namespace mozilla;
 using namespace mozilla::dom;
 using namespace mozilla::mailnews;
+
+extern LazyLogModule FILTERLOGMODULE;
 
 #define PREF_MAIL_SEND_STRUCT "mail.send_struct"
 #define PREF_MAIL_STRICTLY_MIME "mail.strictly_mime"
@@ -3954,6 +3957,7 @@ nsMsgComposeAndSend::FilterSentMessage()
   if (mSendProgress)
     mSendProgress->GetMsgWindow(getter_AddRefs(msgWindow));
 
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Send) Running filters on sent message"));
   return filterSvc->ApplyFilters(nsMsgFilterType::PostOutgoing, msgArray, folder, msgWindow, this);
 }
 
@@ -3962,10 +3966,13 @@ nsMsgComposeAndSend::OnStopOperation(nsresult aStatus)
 {
   // Set a status message...
   nsString msg;
-  if (NS_SUCCEEDED(aStatus))
+  if (NS_SUCCEEDED(aStatus)) {
     mComposeBundle->GetStringFromName("filterMessageComplete", msg);
-  else
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Send) Filter run complete"));
+  } else {
     mComposeBundle->GetStringFromName("filterMessageFailed", msg);
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Send) Filter run failed"));
+  }
 
   SetStatusMessage(msg);
 
