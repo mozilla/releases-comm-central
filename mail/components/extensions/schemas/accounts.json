@@ -8,7 +8,6 @@
           {
             "type": "string",
             "enum": [
-              "accountsFolders",
               "accountsRead"
             ]
           }
@@ -20,34 +19,6 @@
     "namespace": "accounts",
     "permissions": [
       "accountsRead"
-    ],
-    "types": [
-      {
-        "id": "MailFolder",
-        "type": "object",
-        "description": "A folder object, as returned by the <var>list</var> and <var>get</var> methods. Use the accountId and path properties to refer to a folder.",
-        "properties": {
-          "accountId": {
-            "type": "string",
-            "description": "The account this folder belongs to."
-          },
-          "name": {
-            "type": "string",
-            "optional": true,
-            "description": "The human-friendly name of this folder."
-          },
-          "path": {
-            "type": "string",
-            "description": "Path to this folder in the account. Although paths look predictable, never guess a folder's path, as there are a number of reasons why it may not be what you think it is."
-          },
-          "type": {
-            "type": "string",
-            "optional": true,
-            "description": "The type of folder, for several common types.",
-            "enum": ["inbox", "drafts", "sent", "trash", "templates", "archives", "junk", "outbox"]
-          }
-        }
-      }
     ],
     "functions": [
       {
@@ -66,57 +37,6 @@
           {
             "name": "accountId",
             "type": "string"
-          }
-        ]
-      },
-      {
-        "name": "createSubfolder",
-        "type": "function",
-        "description": "Creates a new subfolder of <code>parentFolder</code>.",
-        "permissions": [
-          "accountsFolders"
-        ],
-        "async": true,
-        "parameters": [
-          {
-            "name": "parentFolder",
-            "$ref": "accounts.MailFolder"
-          }, {
-            "name": "childName",
-            "type": "string"
-          }
-        ]
-      },
-      {
-        "name": "renameFolder",
-        "type": "function",
-        "description": "Renames a folder.",
-        "permissions": [
-          "accountsFolders"
-        ],
-        "async": true,
-        "parameters": [
-          {
-            "name": "folder",
-            "$ref": "accounts.MailFolder"
-          }, {
-            "name": "newName",
-            "type": "string"
-          }
-        ]
-      },
-      {
-        "name": "deleteFolder",
-        "type": "function",
-        "description": "Deletes a folder.",
-        "permissions": [
-          "accountsFolders"
-        ],
-        "async": true,
-        "parameters": [
-          {
-            "name": "folder",
-            "$ref": "accounts.MailFolder"
           }
         ]
       }

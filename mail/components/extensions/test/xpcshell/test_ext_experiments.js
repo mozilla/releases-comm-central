@@ -60,7 +60,7 @@ add_task(async function test_managers() {
           async: true,
           parameters: [{
             name: "folder",
-            $ref: "accounts.MailFolder",
+            $ref: "folders.MailFolder",
           }],
         }, {
           name: "testCanConvertFolder",

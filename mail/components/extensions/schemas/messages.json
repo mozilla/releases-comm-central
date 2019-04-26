@@ -30,7 +30,7 @@
         "parameters": [
           {
             "name": "folder",
-            "$ref": "accounts.MailFolder"
+            "$ref": "folders.MailFolder"
           }
         ]
       },
@@ -127,7 +127,7 @@
           },
           {
             "name": "destination",
-            "$ref": "accounts.MailFolder",
+            "$ref": "folders.MailFolder",
             "description": "The folder to move the messages to."
           }
         ]
@@ -152,7 +152,7 @@
           },
           {
             "name": "destination",
-            "$ref": "accounts.MailFolder",
+            "$ref": "folders.MailFolder",
             "description": "The folder to copy the messages to."
           }
         ]

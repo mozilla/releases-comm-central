@@ -152,12 +152,12 @@
             "description": "The selected messages, if the context menu was opened in the message list."
           },
           "displayedFolder": {
-            "$ref": "accounts.MailFolder",
+            "$ref": "folders.MailFolder",
             "optional": true,
             "description": "The displayed folder, if the context menu was opened in the message list."
           },
           "selectedFolder": {
-            "$ref": "accounts.MailFolder",
+            "$ref": "folders.MailFolder",
             "optional": true,
             "description": "The selected folder, if the context menu was opened in the folder pane."
           }

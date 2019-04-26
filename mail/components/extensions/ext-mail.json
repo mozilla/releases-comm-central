@@ -67,6 +67,14 @@
       ["composeAction"]
     ]
   },
+  "folders": {
+    "url": "chrome://messenger/content/parent/ext-folders.js",
+    "schema": "chrome://messenger/content/schemas/folders.json",
+    "scopes": ["addon_parent"],
+    "paths": [
+      ["folders"]
+    ]
+  },
   "geckoProfiler": {
     "url": "chrome://extensions/content/parent/ext-geckoProfiler.js",
     "schema": "chrome://extensions/content/schemas/geckoProfiler.json",
