@@ -20,9 +20,9 @@
 ChromeUtils.import("resource:///modules/activity/activityModules.jsm");
 var {AttachmentChecker} = ChromeUtils.import("resource:///modules/AttachmentChecker.jsm");
 var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
-var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
-var { allAccountsSorted } = ChromeUtils.import("resource:///modules/folderUtils.jsm");
-var { fixIterator, toArray } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var {MimeParser} = ChromeUtils.import("resource:///modules/mimeParser.jsm");
+var {allAccountsSorted} = ChromeUtils.import("resource:///modules/folderUtils.jsm");
+var {fixIterator, toArray} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var {InlineSpellChecker} = ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
@@ -4450,7 +4450,7 @@ function attachmentsGetSortedArray(aAscending = true, aSelectedOnly = false) {
       return [];
 
     bucketList = document.getElementById("attachmentBucket");
-    listItems = [...bucketList.querySelectorAll("richlistitem.attachmentItem")];
+    listItems = [...bucketList.itemChildren];
   }
 
   if (aAscending) {
@@ -5465,7 +5465,7 @@ function LoadIdentity(startup) {
       hideIrrelevantAddressingOptions(accountKey);
     }
 
-    let maxRecipients = awGetMaxRecipients();
+    let maxRecipients = awGetNumberOfRecipients();
     for (let i = 1; i <= maxRecipients; i++) {
       let params = JSON.parse(awGetInputElement(i).searchParam);
       params.idKey = idKey;

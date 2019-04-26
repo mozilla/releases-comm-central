@@ -24,10 +24,6 @@ if (Services.prefs.getPrefType("mail.debug.test_addresses_sequence") == Ci.nsIPr
   test_addresses_sequence = Services.prefs.getBoolPref("mail.debug.test_addresses_sequence");
 }
 
-function awGetMaxRecipients() {
-  return top.MAX_RECIPIENTS;
-}
-
 function awGetNumberOfCols() {
   if (gNumberOfCols == 0) {
     var listbox = document.getElementById("addressingWidget");
@@ -192,7 +188,7 @@ function Recipients2CompFields(msgCompFields) {
 function CompFields2Recipients(msgCompFields) {
   if (msgCompFields) {
     let listbox = document.getElementById("addressingWidget");
-    let templateNode = listbox.getElementsByTagName("richlistitem")[0];
+    let templateNode = listbox.getItemAtIndex(0);
     templateNode.remove();
 
     top.MAX_RECIPIENTS = 0;
@@ -411,7 +407,7 @@ function awTestRowSequence() {
   /* debug code to verify the sequence still good */
 
   let listbox = document.getElementById("addressingWidget");
-  let listitems = listbox.getElementsByTagName("richlistitem");
+  let listitems = listbox.itemChildren;
   if (listitems.length >= top.MAX_RECIPIENTS) {
     for (let i = 1; i <= listitems.length; i++) {
       let item = listitems[i - 1];
@@ -652,27 +648,23 @@ function awGetElementByCol(row, col) {
 
 function awGetListItem(row) {
   var listbox = document.getElementById("addressingWidget");
+  if (listbox && row > 0)
+    return listbox.getItemAtIndex(row - 1);
 
-  if (listbox && row > 0) {
-    var listitems = listbox.getElementsByTagName("richlistitem");
-    if (listitems && listitems.length >= row)
-      return listitems[row - 1];
-  }
-  return 0;
+  return null;
 }
 
+/**
+ * @param inputElement  The textbox of recipient input.
+ * @return              The row index (starting from 1) where the input element
+ *                      is found. 0 if the element is not found.
+ */
 function awGetRowByInputElement(inputElement) {
-  var row = 0;
-  if (inputElement) {
-    var listitem = inputElement.parentNode.parentNode;
-    while (listitem) {
-      if (listitem.localName == "richlistitem") {
-        ++row;
-      }
-      listitem = listitem.previousSibling;
-    }
-  }
-  return row;
+  if (!inputElement)
+    return 0;
+
+  var listitem = inputElement.parentNode.parentNode;
+  return document.getElementById("addressingWidget").getIndexOfItem(listitem) + 1;
 }
 
 // Copy Node - copy this node and insert ahead of the (before) node.  Append to end if before=0
@@ -898,7 +890,7 @@ function awCreateOrRemoveDummyRows() {
 
 function awCalcContentHeight() {
   var listbox = document.getElementById("addressingWidget");
-  var items = listbox.getElementsByTagName("richlistitem");
+  var items = listbox.itemChildren;
 
   gAWContentHeight = 0;
   if (items.length > 0) {
@@ -915,7 +907,7 @@ function awCalcContentHeight() {
 
 function awCreateDummyItem(aParent) {
   var listbox = document.getElementById("addressingWidget");
-  var item = listbox.getElementsByTagName("richlistitem")[0];
+  var item = listbox.getItemAtIndex(0);
 
   var titem = document.createElement("richlistitem");
   titem.setAttribute("_isDummyRow", "true");
