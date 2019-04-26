@@ -14,9 +14,8 @@
 
 class nsNNTPProtocol;
 
-class nsNntpMockChannel : public nsIChannel
-{
-public:
+class nsNntpMockChannel : public nsIChannel {
+ public:
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSICHANNEL
   NS_DECL_NSIREQUEST
@@ -26,7 +25,8 @@ public:
                     nsISupports *aConsumer);
 
   nsresult AttachNNTPConnection(nsNNTPProtocol &protocol);
-protected:
+
+ protected:
   virtual ~nsNntpMockChannel();
 
   // The URL we will be running
@@ -38,12 +38,11 @@ protected:
   nsCOMPtr<nsIMsgWindow> m_msgWindow;
 
   // The state we're in
-  enum
-  {
-    CHANNEL_UNOPENED,        //!< No one bothered to open this yet
-    CHANNEL_OPEN_WITH_LOAD,  //!< We should open with LoadNewsUrl
-    CHANNEL_OPEN_WITH_ASYNC, //!< We should open with AsyncOpen
-    CHANNEL_CLOSED           //!< We were closed and should not open
+  enum {
+    CHANNEL_UNOPENED,         //!< No one bothered to open this yet
+    CHANNEL_OPEN_WITH_LOAD,   //!< We should open with LoadNewsUrl
+    CHANNEL_OPEN_WITH_ASYNC,  //!< We should open with AsyncOpen
+    CHANNEL_CLOSED            //!< We were closed and should not open
   } m_channelState;
 
   // The protocol instance

@@ -11,9 +11,11 @@
 #include "nsINNTPNewsgroupPost.h"
 #include "nsIFile.h"
 
-class nsNntpUrl : public nsINntpUrl, public nsMsgMailNewsUrl, public nsIMsgMessageUrl, public nsIMsgI18NUrl
-{
-public:
+class nsNntpUrl : public nsINntpUrl,
+                  public nsMsgMailNewsUrl,
+                  public nsIMsgMessageUrl,
+                  public nsIMsgI18NUrl {
+ public:
   NS_DECL_NSINNTPURL
   NS_DECL_NSIMSGMESSAGEURL
   NS_DECL_NSIMSGI18NURL
@@ -33,31 +35,32 @@ public:
 
   NS_DECL_ISUPPORTS_INHERITED
 
-private:
+ private:
   virtual ~nsNntpUrl();
   nsresult DetermineNewsAction();
   nsresult ParseNewsURL();
   nsresult ParseNntpURL();
 
   nsCOMPtr<nsINNTPNewsgroupPost> m_newsgroupPost;
-  nsNewsAction m_newsAction; // the action this url represents...parse mailbox, display messages, etc.
+  nsNewsAction m_newsAction;  // the action this url represents...parse mailbox,
+                              // display messages, etc.
 
-  nsCString mURI; // the RDF URI associated with this url.
-  nsCString mCharsetOverride; // used by nsIMsgI18NUrl...
+  nsCString mURI;              // the RDF URI associated with this url.
+  nsCString mCharsetOverride;  // used by nsIMsgI18NUrl...
 
   nsCString mOriginalSpec;
-  nsCOMPtr <nsIFile>  m_filePath;
+  nsCOMPtr<nsIFile> m_filePath;
 
   // used by save message to disk
   nsCOMPtr<nsIFile> m_messageFile;
 
-  bool          m_addDummyEnvelope;
-  bool          m_canonicalLineEnding;
-  bool          m_getOldMessages;
+  bool m_addDummyEnvelope;
+  bool m_canonicalLineEnding;
+  bool m_getOldMessages;
 
   nsCString m_group;
   nsCString m_messageID;
   nsMsgKey m_key;
 };
 
-#endif // nsNntpUrl_h__
+#endif  // nsNntpUrl_h__

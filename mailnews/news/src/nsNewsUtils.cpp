@@ -8,25 +8,21 @@
 #include "nsNewsUtils.h"
 #include "nsMsgUtils.h"
 
-
 /* parses NewsMessageURI */
-nsresult
-nsParseNewsMessageURI(const char* uri, nsCString& group, nsMsgKey *key)
-{
+nsresult nsParseNewsMessageURI(const char *uri, nsCString &group,
+                               nsMsgKey *key) {
   NS_ENSURE_ARG_POINTER(uri);
   NS_ENSURE_ARG_POINTER(key);
 
   nsAutoCString uriStr(uri);
   int32_t keySeparator = uriStr.FindChar('#');
-  if(keySeparator != -1)
-  {
+  if (keySeparator != -1) {
     int32_t keyEndSeparator = MsgFindCharInSet(uriStr, "?&", keySeparator);
 
     // Grab between the last '/' and the '#' for the key
     group = StringHead(uriStr, keySeparator);
     int32_t groupSeparator = group.RFind("/");
-    if (groupSeparator == -1)
-      return NS_ERROR_FAILURE;
+    if (groupSeparator == -1) return NS_ERROR_FAILURE;
 
     // Our string APIs don't let us unescape into the same buffer from earlier,
     // so escape into a temporary
@@ -36,7 +32,8 @@ nsParseNewsMessageURI(const char* uri, nsCString& group, nsMsgKey *key)
 
     nsAutoCString keyStr;
     if (keyEndSeparator != -1)
-      keyStr = Substring(uriStr, keySeparator + 1, keyEndSeparator - (keySeparator + 1));
+      keyStr = Substring(uriStr, keySeparator + 1,
+                         keyEndSeparator - (keySeparator + 1));
     else
       keyStr = Substring(uriStr, keySeparator + 1);
     nsresult errorCode;
@@ -47,13 +44,12 @@ nsParseNewsMessageURI(const char* uri, nsCString& group, nsMsgKey *key)
   return NS_ERROR_FAILURE;
 }
 
-nsresult nsCreateNewsBaseMessageURI(const char *baseURI, nsCString &baseMessageURI)
-{
+nsresult nsCreateNewsBaseMessageURI(const char *baseURI,
+                                    nsCString &baseMessageURI) {
   nsAutoCString tailURI(baseURI);
 
   // chop off news:/
-  if (tailURI.Find(kNewsRootURI) == 0)
-    tailURI.Cut(0, PL_strlen(kNewsRootURI));
+  if (tailURI.Find(kNewsRootURI) == 0) tailURI.Cut(0, PL_strlen(kNewsRootURI));
 
   baseMessageURI = kNewsMessageRootURI;
   baseMessageURI += tailURI;

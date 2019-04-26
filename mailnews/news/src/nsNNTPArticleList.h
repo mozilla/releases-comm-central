@@ -13,28 +13,27 @@
 #include "MailNewsTypes.h"
 #include "nsTArray.h"
 
-class nsNNTPArticleList : public nsINNTPArticleList
-{
-public:
+class nsNNTPArticleList : public nsINNTPArticleList {
+ public:
   nsNNTPArticleList();
 
-    NS_DECL_ISUPPORTS
-    NS_DECL_NSINNTPARTICLELIST
+  NS_DECL_ISUPPORTS
+  NS_DECL_NSINNTPARTICLELIST
 
-protected:
+ protected:
   virtual ~nsNNTPArticleList();
 
-    nsTArray<nsMsgKey> m_idsInDB;
+  nsTArray<nsMsgKey> m_idsInDB;
 
 #ifdef DEBUG
-    nsTArray<nsMsgKey> m_idsOnServer;
+  nsTArray<nsMsgKey> m_idsOnServer;
 #endif
-    nsTArray<nsMsgKey> m_idsDeleted;
+  nsTArray<nsMsgKey> m_idsDeleted;
 
-    nsCOMPtr <nsIMsgNewsFolder> m_newsFolder;
-    nsCOMPtr <nsIMsgDatabase> m_newsDB;
+  nsCOMPtr<nsIMsgNewsFolder> m_newsFolder;
+  nsCOMPtr<nsIMsgDatabase> m_newsDB;
 
-    uint32_t  m_dbIndex;
+  uint32_t m_dbIndex;
 };
 
 #endif /* nsNNTPArticleList_h___ */

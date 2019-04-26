@@ -20,32 +20,30 @@
 #include "nsIMsgFilterList.h"
 #include "nsIArray.h"
 
-class nsMsgNewsFolder : public nsMsgDBFolder, public nsIMsgNewsFolder
-{
-public:
+class nsMsgNewsFolder : public nsMsgDBFolder, public nsIMsgNewsFolder {
+ public:
   nsMsgNewsFolder(void);
 
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIMSGNEWSFOLDER
 
   // nsIUrlListener method
-  NS_IMETHOD OnStopRunningUrl(nsIURI * aUrl, nsresult aExitCode) override;
+  NS_IMETHOD OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode) override;
   // nsIMsgFolder methods:
   NS_IMETHOD GetSubFolders(nsISimpleEnumerator **aResult) override;
 
   NS_IMETHOD GetMessages(nsISimpleEnumerator **result) override;
   NS_IMETHOD UpdateFolder(nsIMsgWindow *aWindow) override;
 
-  NS_IMETHOD CreateSubfolder(const nsAString& folderName,
+  NS_IMETHOD CreateSubfolder(const nsAString &folderName,
                              nsIMsgWindow *msgWindow) override;
 
   NS_IMETHOD Delete() override;
-  NS_IMETHOD Rename(const nsAString& newName,
-                     nsIMsgWindow *msgWindow) override;
+  NS_IMETHOD Rename(const nsAString &newName, nsIMsgWindow *msgWindow) override;
 
-  NS_IMETHOD GetAbbreviatedName(nsAString& aAbbreviatedName) override;
+  NS_IMETHOD GetAbbreviatedName(nsAString &aAbbreviatedName) override;
 
-  NS_IMETHOD GetFolderURL(nsACString& url) override;
+  NS_IMETHOD GetFolderURL(nsACString &url) override;
 
   NS_IMETHOD GetExpungedBytesCount(int64_t *count);
   NS_IMETHOD GetDeletable(bool *deletable) override;
@@ -57,9 +55,9 @@ public:
   NS_IMETHOD GetDBFolderInfoAndDB(nsIDBFolderInfo **folderInfo,
                                   nsIMsgDatabase **db) override;
 
-  NS_IMETHOD DeleteMessages(nsIArray *messages,
-                            nsIMsgWindow *msgWindow, bool deleteStorage,
-                            bool isMove, nsIMsgCopyServiceListener* listener,
+  NS_IMETHOD DeleteMessages(nsIArray *messages, nsIMsgWindow *msgWindow,
+                            bool deleteStorage, bool isMove,
+                            nsIMsgCopyServiceListener *listener,
                             bool allowUndo) override;
   NS_IMETHOD GetNewMessages(nsIMsgWindow *aWindow,
                             nsIUrlListener *aListener) override;
@@ -69,7 +67,7 @@ public:
   NS_IMETHOD GetCanCreateSubfolders(bool *aResult) override;
   NS_IMETHOD GetCanRename(bool *aResult) override;
   NS_IMETHOD GetCanCompact(bool *aResult) override;
-  NS_IMETHOD OnReadChanged(nsIDBChangeListener * aInstigator) override;
+  NS_IMETHOD OnReadChanged(nsIDBChangeListener *aInstigator) override;
 
   NS_IMETHOD DownloadMessagesForOffline(nsIArray *messages,
                                         nsIMsgWindow *window) override;
@@ -89,12 +87,12 @@ public:
   NS_IMETHOD SetFilterList(nsIMsgFilterList *aFilterList) override;
   NS_IMETHOD SetEditableFilterList(nsIMsgFilterList *aFilterList) override;
   NS_IMETHOD ApplyRetentionSettings() override;
-  NS_IMETHOD GetIncomingServerType(nsACString& serverType) override;
+  NS_IMETHOD GetIncomingServerType(nsACString &serverType) override;
 
-protected:
+ protected:
   virtual ~nsMsgNewsFolder();
   // helper routine to parse the URI and update member variables
-  nsresult AbbreviatePrettyName(nsAString& prettyName, int32_t fullwords);
+  nsresult AbbreviatePrettyName(nsAString &prettyName, int32_t fullwords);
   nsresult ParseFolder(nsIFile *path);
   nsresult CreateSubFolders(nsIFile *path);
   nsresult AddDirectorySeparator(nsIFile *path);
@@ -103,15 +101,17 @@ protected:
                                       nsIMsgFolder **folder) override;
 
   nsresult LoadNewsrcFileAndCreateNewsgroups();
-  int32_t RememberLine(const nsACString& line);
-  nsresult RememberUnsubscribedGroup(const nsACString& newsgroup, const nsACString& setStr);
+  int32_t RememberLine(const nsACString &line);
+  nsresult RememberUnsubscribedGroup(const nsACString &newsgroup,
+                                     const nsACString &setStr);
   nsresult ForgetLine(void);
-  nsresult GetNewsMessages(nsIMsgWindow *aMsgWindow, bool getOld, nsIUrlListener *aListener);
+  nsresult GetNewsMessages(nsIMsgWindow *aMsgWindow, bool getOld,
+                           nsIUrlListener *aListener);
 
-  int32_t HandleNewsrcLine(const char * line, uint32_t line_size);
-  virtual nsresult CreateBaseMessageURI(const nsACString& aURI) override;
+  int32_t HandleNewsrcLine(const char *line, uint32_t line_size);
+  virtual nsresult CreateBaseMessageURI(const nsACString &aURI) override;
 
-protected:
+ protected:
   int64_t mExpungedBytes;
   bool mGettingNews;
   bool mInitialized;
@@ -132,7 +132,7 @@ protected:
   nsCString mRawName;
   int32_t mSortOrder;
 
-private:
+ private:
   /**
    * Constructs a signon url for use in login manager.
    *
@@ -140,7 +140,7 @@ private:
    * @param result The result of the string
    */
   nsresult CreateNewsgroupUrlForSignon(const char *ref, nsAString &result);
-  nsCOMPtr <nsIMsgFilterList> mFilterList;
+  nsCOMPtr<nsIMsgFilterList> mFilterList;
 };
 
-#endif // nsMsgNewsFolder_h__
+#endif  // nsMsgNewsFolder_h__

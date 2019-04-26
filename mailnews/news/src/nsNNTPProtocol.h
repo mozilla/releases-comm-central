@@ -34,89 +34,93 @@
 // state information about the connection (authentication, have we sent
 // commands, etc. I do not intend it to refer to protocol state)
 
-#define NNTP_PAUSE_FOR_READ      0x00000001  /* should we pause for the next read */
-#define NNTP_PROXY_AUTH_REQUIRED    0x00000002  /* is auth required */
-#define NNTP_SENT_PROXY_AUTH        0x00000004  /* have we sent a proxy auth? */
-#define NNTP_READER_PERFORMED       0x00000010  /* have we sent any cmds to the server yet? */
-#define NNTP_USE_FANCY_NEWSGROUP    0x00000020  /* use LIST XACTIVE or LIST */
-#define NNTP_DESTROY_PROGRESS_GRAPH 0x00000040  /* do we need to destroy graph progress */
-#define NNTP_SOME_PROTOCOL_SUCCEEDED 0x0000080  /* some protocol has succeeded so don't kill the connection */
-#define NNTP_NO_XOVER_SUPPORT       0x00000100  /* xover command is not supported here */
+#define NNTP_PAUSE_FOR_READ 0x00000001 /* should we pause for the next read */
+#define NNTP_PROXY_AUTH_REQUIRED 0x00000002 /* is auth required */
+#define NNTP_SENT_PROXY_AUTH 0x00000004     /* have we sent a proxy auth? */
+#define NNTP_READER_PERFORMED \
+  0x00000010 /* have we sent any cmds to the server yet? */
+#define NNTP_USE_FANCY_NEWSGROUP 0x00000020 /* use LIST XACTIVE or LIST */
+#define NNTP_DESTROY_PROGRESS_GRAPH \
+  0x00000040 /* do we need to destroy graph progress */
+#define NNTP_SOME_PROTOCOL_SUCCEEDED \
+  0x0000080 /* some protocol has succeeded so don't kill the connection */
+#define NNTP_NO_XOVER_SUPPORT \
+  0x00000100 /* xover command is not supported here */
 
 /* states of the machine
  */
 typedef enum _StatesEnum {
-NNTP_RESPONSE,
+  NNTP_RESPONSE,
 #ifdef BLOCK_UNTIL_AVAILABLE_CONNECTION
-NNTP_BLOCK_UNTIL_CONNECTIONS_ARE_AVAILABLE,
-NNTP_CONNECTIONS_ARE_AVAILABLE,
+  NNTP_BLOCK_UNTIL_CONNECTIONS_ARE_AVAILABLE,
+  NNTP_CONNECTIONS_ARE_AVAILABLE,
 #endif
-NNTP_CONNECT,
-NNTP_CONNECT_WAIT,
-NNTP_LOGIN_RESPONSE,
-NNTP_SEND_MODE_READER,
-NNTP_SEND_MODE_READER_RESPONSE,
-SEND_LIST_EXTENSIONS,
-SEND_LIST_EXTENSIONS_RESPONSE,
-SEND_LIST_SEARCHES,
-SEND_LIST_SEARCHES_RESPONSE,
-NNTP_LIST_SEARCH_HEADERS,
-NNTP_LIST_SEARCH_HEADERS_RESPONSE,
-NNTP_GET_PROPERTIES,
-NNTP_GET_PROPERTIES_RESPONSE,
-SEND_LIST_SUBSCRIPTIONS,
-SEND_LIST_SUBSCRIPTIONS_RESPONSE,
-SEND_FIRST_NNTP_COMMAND,
-SEND_FIRST_NNTP_COMMAND_RESPONSE,
-SETUP_NEWS_STREAM,
-NNTP_BEGIN_AUTHORIZE,
-NNTP_AUTHORIZE_RESPONSE,
-NNTP_PASSWORD_RESPONSE,
-NNTP_READ_LIST_BEGIN,
-NNTP_READ_LIST,
-DISPLAY_NEWSGROUPS,
-NNTP_NEWGROUPS_BEGIN,
-NNTP_NEWGROUPS,
-NNTP_BEGIN_ARTICLE,
-NNTP_READ_ARTICLE,
-NNTP_XOVER_BEGIN,
-NNTP_FIGURE_NEXT_CHUNK,
-NNTP_XOVER_SEND,
-NNTP_XOVER_RESPONSE,
-NNTP_XOVER,
-NEWS_PROCESS_XOVER,
-NNTP_XHDR_SEND,
-NNTP_XHDR_RESPONSE,
-NNTP_READ_GROUP,
-NNTP_READ_GROUP_RESPONSE,
-NNTP_READ_GROUP_BODY,
-NNTP_SEND_GROUP_FOR_ARTICLE,
-NNTP_SEND_GROUP_FOR_ARTICLE_RESPONSE,
-NNTP_SEND_ARTICLE_NUMBER,
-NEWS_PROCESS_BODIES,
-NNTP_PRINT_ARTICLE_HEADERS,
-NNTP_SEND_POST_DATA,
-NNTP_SEND_POST_DATA_RESPONSE,
-NNTP_CHECK_FOR_MESSAGE,
-NEWS_START_CANCEL,
-NEWS_DO_CANCEL,
-NNTP_XPAT_SEND,
-NNTP_XPAT_RESPONSE,
-NNTP_SEARCH,
-NNTP_SEARCH_RESPONSE,
-NNTP_SEARCH_RESULTS,
-NNTP_LIST_PRETTY_NAMES,
-NNTP_LIST_PRETTY_NAMES_RESPONSE,
-NNTP_LIST_XACTIVE,
-NNTP_LIST_XACTIVE_RESPONSE,
-NNTP_LIST_GROUP,
-NNTP_LIST_GROUP_RESPONSE,
-NEWS_DONE,
-NEWS_POST_DONE,
-NEWS_ERROR,
-NNTP_ERROR,
-NEWS_FREE,
-NNTP_SUSPENDED
+  NNTP_CONNECT,
+  NNTP_CONNECT_WAIT,
+  NNTP_LOGIN_RESPONSE,
+  NNTP_SEND_MODE_READER,
+  NNTP_SEND_MODE_READER_RESPONSE,
+  SEND_LIST_EXTENSIONS,
+  SEND_LIST_EXTENSIONS_RESPONSE,
+  SEND_LIST_SEARCHES,
+  SEND_LIST_SEARCHES_RESPONSE,
+  NNTP_LIST_SEARCH_HEADERS,
+  NNTP_LIST_SEARCH_HEADERS_RESPONSE,
+  NNTP_GET_PROPERTIES,
+  NNTP_GET_PROPERTIES_RESPONSE,
+  SEND_LIST_SUBSCRIPTIONS,
+  SEND_LIST_SUBSCRIPTIONS_RESPONSE,
+  SEND_FIRST_NNTP_COMMAND,
+  SEND_FIRST_NNTP_COMMAND_RESPONSE,
+  SETUP_NEWS_STREAM,
+  NNTP_BEGIN_AUTHORIZE,
+  NNTP_AUTHORIZE_RESPONSE,
+  NNTP_PASSWORD_RESPONSE,
+  NNTP_READ_LIST_BEGIN,
+  NNTP_READ_LIST,
+  DISPLAY_NEWSGROUPS,
+  NNTP_NEWGROUPS_BEGIN,
+  NNTP_NEWGROUPS,
+  NNTP_BEGIN_ARTICLE,
+  NNTP_READ_ARTICLE,
+  NNTP_XOVER_BEGIN,
+  NNTP_FIGURE_NEXT_CHUNK,
+  NNTP_XOVER_SEND,
+  NNTP_XOVER_RESPONSE,
+  NNTP_XOVER,
+  NEWS_PROCESS_XOVER,
+  NNTP_XHDR_SEND,
+  NNTP_XHDR_RESPONSE,
+  NNTP_READ_GROUP,
+  NNTP_READ_GROUP_RESPONSE,
+  NNTP_READ_GROUP_BODY,
+  NNTP_SEND_GROUP_FOR_ARTICLE,
+  NNTP_SEND_GROUP_FOR_ARTICLE_RESPONSE,
+  NNTP_SEND_ARTICLE_NUMBER,
+  NEWS_PROCESS_BODIES,
+  NNTP_PRINT_ARTICLE_HEADERS,
+  NNTP_SEND_POST_DATA,
+  NNTP_SEND_POST_DATA_RESPONSE,
+  NNTP_CHECK_FOR_MESSAGE,
+  NEWS_START_CANCEL,
+  NEWS_DO_CANCEL,
+  NNTP_XPAT_SEND,
+  NNTP_XPAT_RESPONSE,
+  NNTP_SEARCH,
+  NNTP_SEARCH_RESPONSE,
+  NNTP_SEARCH_RESULTS,
+  NNTP_LIST_PRETTY_NAMES,
+  NNTP_LIST_PRETTY_NAMES_RESPONSE,
+  NNTP_LIST_XACTIVE,
+  NNTP_LIST_XACTIVE_RESPONSE,
+  NNTP_LIST_GROUP,
+  NNTP_LIST_GROUP_RESPONSE,
+  NEWS_DONE,
+  NEWS_POST_DONE,
+  NEWS_ERROR,
+  NNTP_ERROR,
+  NEWS_FREE,
+  NNTP_SUSPENDED
 } StatesEnum;
 
 class nsICacheEntry;
@@ -126,9 +130,8 @@ class nsNNTPProtocol : public nsMsgProtocol,
                        public nsITimerCallback,
                        public nsICacheEntryOpenCallback,
                        public nsIMsgAsyncPromptListener,
-                       public nsIProtocolProxyCallback
-{
-public:
+                       public nsIProtocolProxyCallback {
+ public:
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSINNTPPROTOCOL
   NS_DECL_NSICACHEENTRYOPENCALLBACK
@@ -141,21 +144,22 @@ public:
   nsNNTPProtocol(nsINntpIncomingServer *aServer, nsIURI *aURL,
                  nsIMsgWindow *aMsgWindow);
 
-  // stop binding is a "notification" informing us that the stream associated with aURL is going away.
+  // stop binding is a "notification" informing us that the stream associated
+  // with aURL is going away.
   NS_IMETHOD OnStopRequest(nsIRequest *request, nsresult aStatus) override;
 
-  char * m_ProxyServer;    /* proxy server hostname */
+  char *m_ProxyServer; /* proxy server hostname */
 
   NS_IMETHOD Cancel(nsresult status) override;  // handle stop button
   NS_IMETHOD GetContentType(nsACString &aContentType) override;
   NS_IMETHOD AsyncOpen(nsIStreamListener *listener) override;
-  NS_IMETHOD GetOriginalURI(nsIURI* *aURI) override;
-  NS_IMETHOD SetOriginalURI(nsIURI* aURI) override;
+  NS_IMETHOD GetOriginalURI(nsIURI **aURI) override;
+  NS_IMETHOD SetOriginalURI(nsIURI *aURI) override;
   void PostLoadAssertions();
 
-  nsresult LoadUrl(nsIURI * aURL, nsISupports * aConsumer) override;
+  nsresult LoadUrl(nsIURI *aURL, nsISupports *aConsumer) override;
 
-private:
+ private:
   virtual ~nsNNTPProtocol();
   /**
    * Triggers the protocol state machine.
@@ -175,64 +179,71 @@ private:
    * the code will not read the input stream at all. Therefore, it is strongly
    * advised to suspend the request before using this state.
    */
-  virtual nsresult ProcessProtocolState(nsIURI * url, nsIInputStream * inputStream,
-                                        uint64_t sourceOffset, uint32_t length) override;
+  virtual nsresult ProcessProtocolState(nsIURI *url,
+                                        nsIInputStream *inputStream,
+                                        uint64_t sourceOffset,
+                                        uint32_t length) override;
   virtual nsresult CloseSocket() override;
 
   // we have our own implementation of SendData which writes to the nntp log
   // and then calls the base class to transmit the data
-  nsresult SendData(const char * dataBuffer, bool aSuppressLogging = false) override;
+  nsresult SendData(const char *dataBuffer,
+                    bool aSuppressLogging = false) override;
 
-  nsresult LoadUrlInternal(nsIProxyInfo* aProxyInfo);
+  nsresult LoadUrlInternal(nsIProxyInfo *aProxyInfo);
   nsresult CleanupAfterRunningUrl();
-  void Cleanup(); //free char* member variables
+  void Cleanup();  // free char* member variables
 
   void ParseHeaderForCancel(char *buf);
 
-  virtual const char* GetType() override { return "nntp"; }
+  virtual const char *GetType() override { return "nntp"; }
 
-  static void CheckIfAuthor(nsIMsgIdentity *aIdentity, const nsCString &aOldFrom, nsCString &aFrom);
+  static void CheckIfAuthor(nsIMsgIdentity *aIdentity,
+                            const nsCString &aOldFrom, nsCString &aFrom);
 
-  nsCOMPtr <nsINNTPNewsgroupList> m_newsgroupList;
-  nsCOMPtr <nsINNTPArticleList> m_articleList;
+  nsCOMPtr<nsINNTPNewsgroupList> m_newsgroupList;
+  nsCOMPtr<nsINNTPArticleList> m_articleList;
 
-  nsCOMPtr <nsIMsgNewsFolder> m_newsFolder;
-  nsCOMPtr <nsIMsgWindow> m_msgWindow;
+  nsCOMPtr<nsIMsgNewsFolder> m_newsFolder;
+  nsCOMPtr<nsIMsgWindow> m_msgWindow;
 
   nsCOMPtr<nsIAsyncInputStream> mDisplayInputStream;
   nsCOMPtr<nsIAsyncOutputStream> mDisplayOutputStream;
-  RefPtr<nsMsgLineStreamBuffer> m_lineStreamBuffer; // used to efficiently extract lines from the incoming data stream
+  RefPtr<nsMsgLineStreamBuffer>
+      m_lineStreamBuffer;  // used to efficiently extract lines from the
+                           // incoming data stream
   // the nsINntpURL that is currently running
   nsCOMPtr<nsINntpUrl> m_runningURL;
-  bool        m_connectionBusy;
-  bool        m_fromCache;  // is this connection from the cache?
-  PRTime      m_lastActiveTimeStamp;
+  bool m_connectionBusy;
+  bool m_fromCache;  // is this connection from the cache?
+  PRTime m_lastActiveTimeStamp;
   nsNewsAction m_newsAction;
-  nsCOMPtr <nsISupports> m_consumer;
+  nsCOMPtr<nsISupports> m_consumer;
 
-  // Generic state information -- What state are we in? What state do we want to go to
-  // after the next response? What was the last response code? etc.
-  StatesEnum  m_nextState;
-  StatesEnum  m_nextStateAfterResponse;
-  int32_t     m_typeWanted;     /* Article, List, or Group */
-  int32_t     m_responseCode;    /* code returned from NNTP server */
-  int32_t   m_previousResponseCode;
-  char       *m_responseText;   /* text returned from NNTP server */
+  // Generic state information -- What state are we in? What state do we want to
+  // go to after the next response? What was the last response code? etc.
+  StatesEnum m_nextState;
+  StatesEnum m_nextStateAfterResponse;
+  int32_t m_typeWanted;   /* Article, List, or Group */
+  int32_t m_responseCode; /* code returned from NNTP server */
+  int32_t m_previousResponseCode;
+  char *m_responseText; /* text returned from NNTP server */
 
-  char    *m_dataBuf;
-  uint32_t   m_dataBufSize;
+  char *m_dataBuf;
+  uint32_t m_dataBufSize;
 
   /* for group command */
-  nsCString m_currentGroup;     /* current group */
+  nsCString m_currentGroup; /* current group */
 
-  int32_t   m_firstArticle;
-  int32_t   m_lastArticle;
-  int32_t   m_firstPossibleArticle;
-  int32_t   m_lastPossibleArticle;
+  int32_t m_firstArticle;
+  int32_t m_lastArticle;
+  int32_t m_firstPossibleArticle;
+  int32_t m_lastPossibleArticle;
 
-  int32_t    m_numArticlesLoaded;  /* How many articles we got XOVER lines for. */
-  int32_t    m_numArticlesWanted; /* How many articles we wanted to get XOVER lines for. */
-  int32_t   m_maxArticles;        /* max articles to get during an XOVER */
+  int32_t m_numArticlesLoaded; /* How many articles we got XOVER lines for. */
+  int32_t m_numArticlesWanted; /* How many articles we wanted to get XOVER lines
+                                  for. */
+  int32_t m_maxArticles;       /* max articles to get during an XOVER */
 
   // Cancelation specific state. In particular, the headers that should be
   // used for the cancelation message.
@@ -240,17 +251,19 @@ private:
   nsCString m_cancelNewsgroups;
   nsCString m_cancelDistribution;
   nsCString m_cancelID;
-  int32_t    m_cancelStatus;
+  int32_t m_cancelStatus;
 
   // variable for ReadNewsList
-  int32_t   m_readNewsListCount;
+  int32_t m_readNewsListCount;
 
-  // Per news article state information. (article number, author, subject, id, etc
+  // Per news article state information. (article number, author, subject, id,
+  // etc
   nsCString m_messageID;
-  int32_t   m_articleNumber;   /* current article number */
+  int32_t m_articleNumber; /* current article number */
   nsCString m_searchData;
 
-  int32_t   m_originalContentLength; /* the content length at the time of calling graph progress */
+  int32_t m_originalContentLength; /* the content length at the time of calling
+                                      graph progress */
 
   nsCOMPtr<nsIStringBundle> m_stringBundle;
 
@@ -259,13 +272,13 @@ private:
   nsresult GetNewsStringByName(const char *aName, char16_t **aString);
   nsresult GetNewsStringByID(int32_t stringID, char16_t **aString);
 
-  nsresult PostMessageInFile(nsIFile * filePath);
+  nsresult PostMessageInFile(nsIFile *filePath);
 
   //////////////////////////////////////////////////////////////////////////////
   // Communication methods --> Reading and writing protocol
   //////////////////////////////////////////////////////////////////////////////
 
-  int32_t ReadLine(nsIInputStream * inputStream, uint32_t length, char ** line);
+  int32_t ReadLine(nsIInputStream *inputStream, uint32_t length, char **line);
 
   //////////////////////////////////////////////////////////////////////////////
   // Protocol Methods --> This protocol is state driven so each protocol method
@@ -273,8 +286,8 @@ private:
   //            group them together based on functionality.
   //////////////////////////////////////////////////////////////////////////////
 
-  // gets the response code from the nntp server and the response line. Returns the TCP return code
-  // from the read.
+  // gets the response code from the nntp server and the response line. Returns
+  // the TCP return code from the read.
   nsresult NewsResponse(nsIInputStream *inputStream, uint32_t length);
 
   // Interpret the server response after the connect.
@@ -284,19 +297,23 @@ private:
   nsresult SendModeReaderResponse();
 
   nsresult SendListExtensions();
-  nsresult SendListExtensionsResponse(nsIInputStream *inputStream, uint32_t length);
+  nsresult SendListExtensionsResponse(nsIInputStream *inputStream,
+                                      uint32_t length);
 
   nsresult SendListSearches();
-  nsresult SendListSearchesResponse(nsIInputStream *inputStream, uint32_t length);
+  nsresult SendListSearchesResponse(nsIInputStream *inputStream,
+                                    uint32_t length);
 
   nsresult SendListSearchHeaders();
-  nsresult SendListSearchHeadersResponse(nsIInputStream *inputStream, uint32_t length);
+  nsresult SendListSearchHeadersResponse(nsIInputStream *inputStream,
+                                         uint32_t length);
 
   nsresult GetProperties();
   nsresult GetPropertiesResponse(nsIInputStream *inputStream, uint32_t length);
 
   nsresult SendListSubscriptions();
-  nsresult SendListSubscriptionsResponse(nsIInputStream *inputStream, uint32_t length);
+  nsresult SendListSubscriptionsResponse(nsIInputStream *inputStream,
+                                         uint32_t length);
 
   // Figure out what the first command is and send it.
   // Returns the status from the NETWrite.
@@ -453,8 +470,6 @@ private:
    */
   nsresult ProcessXover();
 
-
-
   // Canceling
   nsresult StartCancel();
   nsresult DoCancel();
@@ -463,7 +478,8 @@ private:
   nsresult XPATSend();
   nsresult XPATResponse(nsIInputStream *inputStream, uint32_t length);
   nsresult ListPrettyNames();
-  nsresult ListPrettyNamesResponse(nsIInputStream *inputStream, uint32_t length);
+  nsresult ListPrettyNamesResponse(nsIInputStream *inputStream,
+                                   uint32_t length);
 
   nsresult ListXActive();
   nsresult ListXActiveResponse(nsIInputStream *inputStream, uint32_t length);
@@ -489,8 +505,8 @@ private:
   void TimerCallback();
 
   void HandleAuthenticationFailure();
-  nsCOMPtr <nsIInputStream> mInputStream;
-  nsCOMPtr <nsITimer> mUpdateTimer;
+  nsCOMPtr<nsIInputStream> mInputStream;
+  nsCOMPtr<nsITimer> mUpdateTimer;
   nsresult AlertError(int32_t errorCode, const char *text);
   int32_t mBytesReceived;
   int32_t mBytesReceivedSinceLastStatusUpdate;
@@ -498,17 +514,22 @@ private:
   int32_t mNumGroupsListed;
   nsMsgKey m_key;
 
-  nsresult SetCurrentGroup(); /* sets m_currentGroup.  should be called after doing a successful GROUP command */
-  nsresult CleanupNewsgroupList(); /* cleans up m_newsgroupList, and set it to null */
+  nsresult SetCurrentGroup(); /* sets m_currentGroup.  should be called after
+                                 doing a successful GROUP command */
+  nsresult
+  CleanupNewsgroupList(); /* cleans up m_newsgroupList, and set it to null */
 
   // cache related helper methods
-  void FinishMemCacheEntry(bool valid); // either mark it valid, or doom it
-  nsresult OpenCacheEntry(); // makes a request to the cache service for a cache entry for a url
-  bool ReadFromLocalCache(); // attempts to read the url out of our local (offline) cache....
-  nsresult ReadFromNewsConnection(); // creates a new news connection to read the url
-  nsresult ReadFromMemCache(nsICacheEntry *entry); // attempts to read the url out of our memory cache
-  nsresult SetupPartExtractorListener(nsIStreamListener * aConsumer);
+  void FinishMemCacheEntry(bool valid);  // either mark it valid, or doom it
+  nsresult OpenCacheEntry();  // makes a request to the cache service for a
+                              // cache entry for a url
+  bool ReadFromLocalCache();  // attempts to read the url out of our local
+                              // (offline) cache....
+  nsresult
+  ReadFromNewsConnection();  // creates a new news connection to read the url
+  nsresult ReadFromMemCache(nsICacheEntry *entry);  // attempts to read the url
+                                                    // out of our memory cache
+  nsresult SetupPartExtractorListener(nsIStreamListener *aConsumer);
 };
-
 
 #endif  // nsNNTPProtocol_h___

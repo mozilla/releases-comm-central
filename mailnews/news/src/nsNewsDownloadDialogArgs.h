@@ -9,15 +9,14 @@
 #include "nsINewsDownloadDialogArgs.h"
 #include "nsString.h"
 
-class nsNewsDownloadDialogArgs : public nsINewsDownloadDialogArgs
-{
-public:
+class nsNewsDownloadDialogArgs : public nsINewsDownloadDialogArgs {
+ public:
   nsNewsDownloadDialogArgs();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSINEWSDOWNLOADDIALOGARGS
 
-private:
+ private:
   virtual ~nsNewsDownloadDialogArgs();
 
   nsString mGroupName;
@@ -27,4 +26,4 @@ private:
   bool mDownloadAll;
 };
 
-#endif // nsNewsDownloadDialogArgs_h__
+#endif  // nsNewsDownloadDialogArgs_h__

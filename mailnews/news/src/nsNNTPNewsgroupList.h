@@ -27,7 +27,7 @@
    articles we've already seen in the current newsgroup. */
 
 typedef struct MSG_NewsKnown {
-  nsMsgKeySet* set; /* Set of articles we've already gotten
+  nsMsgKeySet *set; /* Set of articles we've already gotten
                        from the newsserver (if it's marked
                        "read", then we've already gotten it).
                        If an article is marked "read", it
@@ -38,7 +38,7 @@ typedef struct MSG_NewsKnown {
                        unread messages. */
 
   int32_t first_possible; /* The oldest article in this group. */
-  int32_t last_possible; /* The newest article in this group. */
+  int32_t last_possible;  /* The newest article in this group. */
 
   bool shouldGetOldest;
 } MSG_NewsKnown;
@@ -47,26 +47,27 @@ typedef struct MSG_NewsKnown {
 // state machine - either by inheritance or delegation.
 // Currently, a folder pane owns one and libnet news group listing
 // related messages get passed to this object.
-class nsNNTPNewsgroupList : public nsINNTPNewsgroupList, public nsIMsgFilterHitNotify
+class nsNNTPNewsgroupList : public nsINNTPNewsgroupList,
+                            public nsIMsgFilterHitNotify
 #ifdef HAVE_CHANGELISTENER
 /* ,public ChangeListener */
 #endif
 {
-public:
+ public:
   nsNNTPNewsgroupList();
   NS_DECL_ISUPPORTS
   NS_DECL_NSINNTPNEWSGROUPLIST
   NS_DECL_NSIMSGFILTERHITNOTIFY
 
-private:
-  virtual  ~nsNNTPNewsgroupList();
+ private:
+  virtual ~nsNNTPNewsgroupList();
 
   nsresult CleanUp();
 
-  bool    m_finishingXover;
+  bool m_finishingXover;
 
 #ifdef HAVE_CHANGELISTENER
-  virtual void OnAnnouncerGoingAway (ChangeAnnouncer *instigator);
+  virtual void OnAnnouncerGoingAway(ChangeAnnouncer *instigator);
 #endif
   nsresult ParseLine(char *line, uint32_t *message_number);
   nsresult GetDatabase(const char *uri, nsIMsgDatabase **db);
@@ -75,8 +76,9 @@ private:
 
   void UpdateStatus(bool filtering, int32_t numDled, int32_t totToDL);
 
-  nsresult AddHeader(const char * header, const char * value);
-protected:
+  nsresult AddHeader(const char *header, const char *value);
+
+ protected:
   bool m_getOldMessages;
   bool m_promptedAlready;
   bool m_downloadAll;
@@ -84,9 +86,9 @@ protected:
   int32_t m_lastPercent;
   PRTime m_lastStatusUpdate;
 
-  nsCOMPtr <nsIMsgNewsFolder> m_newsFolder;
-  nsCOMPtr <nsIMsgDatabase> m_newsDB;
-  nsCOMPtr <nsINntpUrl> m_runningURL;
+  nsCOMPtr<nsIMsgNewsFolder> m_newsFolder;
+  nsCOMPtr<nsIMsgDatabase> m_newsDB;
+  nsCOMPtr<nsINntpUrl> m_runningURL;
 
   /**
    * The last message that we have processed (XOVER or HEAD).
@@ -109,16 +111,14 @@ protected:
   nsCString m_lastHeader;
   nsCString m_thisLine;
 
-private:
-  nsCOMPtr <nsIMsgWindow> m_msgWindow;
-  nsCOMPtr <nsIMsgFilterList> m_filterList;
-  nsCOMPtr <nsIMsgFilterList> m_serverFilterList;
-  nsCOMPtr <nsIMsgDBHdr> m_newMsgHdr; // current message header we're building
+ private:
+  nsCOMPtr<nsIMsgWindow> m_msgWindow;
+  nsCOMPtr<nsIMsgFilterList> m_filterList;
+  nsCOMPtr<nsIMsgFilterList> m_serverFilterList;
+  nsCOMPtr<nsIMsgDBHdr> m_newMsgHdr;  // current message header we're building
   nsCOMArray<nsIMsgDBHdr> m_newHeaders;
 
   bool m_addHdrToDB;
-
 };
 
 #endif /* nsNNTPNewsgroupListState_h___ */
-
