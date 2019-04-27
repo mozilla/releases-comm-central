@@ -26,6 +26,8 @@
           src="chrome://messenger/content/FilterListDialog.js"/>
   <stringbundle id="bundle_filter"
                 src="chrome://messenger/locale/filter.properties"/>
+  <stringbundle id="bundle_brand"
+                src="chrome://branding/locale/brand.properties"/>
 
   <keyset id="filterKeys">
     <key id="key_selectAll"/>

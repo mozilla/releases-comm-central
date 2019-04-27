@@ -251,7 +251,8 @@ function toggleFilter(index)
     if (filter.unparseable)
     {
       Services.prompt.alert(window, null,
-                            gFilterBundle.getString("cannotEnableFilter"));
+                            gFilterBundle.getFormattedString("cannotEnableIncompatFilter",
+                            [document.getElementById("bundle_brand").getString("brandShortName")]));
       return false;
     }
     filter.enabled = !filter.enabled;
