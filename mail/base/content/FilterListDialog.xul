@@ -24,7 +24,6 @@
   title="&window.title;">
 
   <script type="application/javascript" src="chrome://messenger/content/searchWidgets.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/generalBindings.js"/>
   <script type="application/javascript" src="chrome://messenger/content/FilterListDialog.js"/>
   <script type="application/javascript" src="chrome://messenger/content/customElements.js"/>
   <stringbundleset id="stringbundleset">
