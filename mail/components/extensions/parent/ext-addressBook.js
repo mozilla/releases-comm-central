@@ -19,9 +19,7 @@ const hiddenProperties = [
 ];
 
 /**
- * Cache of items in the address book "tree". This cache is
- * completely blown away by most changes, so operations should
- * be as lightweight as possible.
+ * Cache of items in the address book "tree".
  *
  * @implements {nsIAbListener}
  * @implements {nsIObserver}
@@ -30,6 +28,7 @@ var addressBookCache = new class extends EventEmitter {
   constructor() {
     super();
     this.listenerCount = 0;
+    this.flush();
   }
   _makeContactNode(contact, parent) {
     contact.QueryInterface(Ci.nsIAbCard);
@@ -46,89 +45,111 @@ var addressBookCache = new class extends EventEmitter {
       id: directory.UID,
       type: directory.isMailList ? "mailingList" : "addressBook",
       item: directory,
-      get contacts() {
-        delete this.contacts;
-        this.contacts = [];
-        for (let card of directory.childCards) {
-          if (!card.isMailList) {
-            this.contacts.push(addressBookCache._makeContactNode(card, directory));
-          }
-        }
-        return this.contacts;
-      },
-      get mailingLists() {
-        delete this.mailingLists;
-        if (directory.isMailList) {
-          return undefined;
-        }
-        this.mailingLists = [];
-        for (let al of directory.addressLists.enumerate()) {
-          this.mailingLists.push(addressBookCache._makeDirectoryNode(al, directory));
-        }
-        return this.mailingLists;
-      },
     };
     if (parent) {
       node.parentId = parent.UID;
     }
     return node;
   }
-  _rebuild() {
-    this._tree = [];
-    for (let tld of MailServices.ab.directories) {
-      if (!tld.readOnly) {
-        this._tree.push(this._makeDirectoryNode(tld));
+  _populateListContacts(mailingList) {
+    mailingList.contacts = new Map();
+    for (let contact of mailingList.item.addressLists.enumerate()) {
+      let newNode = this._makeContactNode(contact, mailingList.item);
+      mailingList.contacts.set(newNode.id, newNode);
+    }
+  }
+  getListContacts(mailingList) {
+    if (!mailingList.contacts) {
+      this._populateListContacts(mailingList);
+    }
+    return [...mailingList.contacts.values()];
+  }
+  _populateContacts(addressBook) {
+    addressBook.contacts = new Map();
+    for (let contact of addressBook.item.childCards) {
+      if (!contact.isMailList) {
+        let newNode = this._makeContactNode(contact, addressBook.item);
+        this._contacts.set(newNode.id, newNode);
+        addressBook.contacts.set(newNode.id, newNode);
       }
     }
   }
-  get tree() {
-    if (!this._tree) {
-      this._rebuild();
+  getContacts(addressBook) {
+    if (!addressBook.contacts) {
+      this._populateContacts(addressBook);
     }
-    return this._tree;
+    return [...addressBook.contacts.values()];
   }
-  flush() {
-    this._tree = null;
-  }
-  _findObjectById(type, id) {
-    function checkNode(parentNode) {
-      if (type == parentNode.type && id == parentNode.id) {
-        return parentNode;
-      }
-      if (type == "contact") {
-        return parentNode.contacts.find(c => id == c.id);
-      }
-      return null;
+  _populateMailingLists(parent) {
+    parent.mailingLists = new Map();
+    for (let mailingList of parent.item.addressLists.enumerate()) {
+      let newNode = this._makeDirectoryNode(mailingList, parent.item);
+      this._mailingLists.set(newNode.id, newNode);
+      parent.mailingLists.set(newNode.id, newNode);
     }
-
-    for (let node of this.tree) {
-      let returnNode = checkNode(node);
-      if (returnNode) {
-        return returnNode;
-      }
-
-      if (type == "addressBook" || !node.mailingLists) {
-        continue;
-      }
-
-      for (let listNode of node.mailingLists) {
-        returnNode = checkNode(listNode);
-        if (returnNode) {
-          return returnNode;
+  }
+  getMailingLists(parent) {
+    if (!parent.mailingLists) {
+      this._populateMailingLists(parent);
+    }
+    return [...parent.mailingLists.values()];
+  }
+  get addressBooks() {
+    if (!this._addressBooks) {
+      this._addressBooks = new Map();
+      for (let tld of MailServices.ab.directories) {
+        if (!tld.readOnly) {
+          this._addressBooks.set(tld.UID, this._makeDirectoryNode(tld));
         }
       }
     }
-
-    throw new ExtensionError(`${type} with id=${id} could not be found.`);
+    return this._addressBooks;
+  }
+  flush() {
+    this._contacts = new Map();
+    this._mailingLists = new Map();
+    this._addressBooks = null;
   }
   findAddressBookById(id) {
-    return this._findObjectById("addressBook", id);
-  }
-  findContactById(id) {
-    return this._findObjectById("contact", id);
+    let addressBook = this.addressBooks.get(id);
+    if (addressBook) {
+      return addressBook;
+    }
+    throw new ExtensionUtils.ExtensionError(`addressBook with id=${id} could not be found.`);
   }
   findMailingListById(id) {
-    return this._findObjectById("mailingList", id);
+    if (this._mailingLists.has(id)) {
+      return this._mailingLists.get(id);
+    }
+    for (let addressBook of this.addressBooks.values()) {
+      if (!addressBook.mailingLists) {
+        this._populateMailingLists(addressBook);
+        if (addressBook.mailingLists.has(id)) {
+          return addressBook.mailingLists.get(id);
+        }
+      }
+    }
+    throw new ExtensionUtils.ExtensionError(`mailingList with id=${id} could not be found.`);
+  }
+  findContactById(id, bookHint) {
+    if (this._contacts.has(id)) {
+      return this._contacts.get(id);
+    }
+    if (bookHint && !bookHint.contacts) {
+      this._populateContacts(bookHint);
+      if (bookHint.contacts.has(id)) {
+        return bookHint.contacts.get(id);
+      }
+    }
+    for (let addressBook of this.addressBooks.values()) {
+      if (!addressBook.contacts) {
+        this._populateContacts(addressBook);
+        if (addressBook.contacts.has(id)) {
+          return addressBook.contacts.get(id);
+        }
+      }
+    }
+    throw new ExtensionUtils.ExtensionError(`contact with id=${id} could not be found.`);
   }
   convert(node, complete) {
     if (node === null) {
@@ -146,10 +167,12 @@ var addressBookCache = new class extends EventEmitter {
     }
 
     if (complete) {
-      for (let key of ["contacts", "mailingLists"]) {
-        if (key in node && node[key]) {
-          copy[key] = this.convert(node[key], complete);
-        }
+      if (node.type == "addressBook") {
+        copy.mailingLists = this.convert(this.getMailingLists(node), true);
+        copy.contacts = this.convert(this.getContacts(node), true);
+      }
+      if (node.type == "mailingList") {
+        copy.contacts = this.convert(this.getListContacts(node), true);
       }
     }
 
@@ -162,6 +185,16 @@ var addressBookCache = new class extends EventEmitter {
         copy.properties = {};
         for (let property of node.item.properties) {
           if (!hiddenProperties.includes(property.name)) {
+            switch (property.value) {
+            case undefined:
+            case null:
+            case "":
+              // If someone sets a property to one of these values,
+              // the property will be deleted from the database.
+              // However, the value still appears in the notification,
+              // so we ignore it here.
+              continue;
+            }
             // WebExtensions complains if we use numbers.
             copy.properties[property.name] = "" + property.value;
           }
@@ -185,18 +218,29 @@ var addressBookCache = new class extends EventEmitter {
     if (item instanceof Ci.nsIAbDirectory) {
       item.QueryInterface(Ci.nsIAbDirectory);
       if (item.isMailList) {
-        this.emit("mailing-list-created", this._makeDirectoryNode(item, parent));
-      } else {
-        this.emit("address-book-created", this._makeDirectoryNode(item));
+        let newNode = this._makeDirectoryNode(item, parent);
+        if (this._addressBooks && this._addressBooks.has(parent.UID) && this._addressBooks.get(parent.UID).mailingLists) {
+          this._addressBooks.get(parent.UID).mailingLists.set(newNode.id, newNode);
+          this._mailingLists.set(newNode.id, newNode);
+        }
+        this.emit("mailing-list-created", newNode);
+      } else if (!item.readOnly) {
+        let newNode = this._makeDirectoryNode(item);
+        if (this._addressBooks) {
+          this._addressBooks.set(newNode.id, newNode);
+        }
+        this.emit("address-book-created", newNode);
       }
     } else if (item instanceof Ci.nsIAbCard) {
       item.QueryInterface(Ci.nsIAbCard);
       if (!item.isMailList && parent.isMailList) {
-        this.emit("mailing-list-member-added", this._makeContactNode(item, parent));
+        let newNode = this._makeContactNode(item, parent);
+        if (this._mailingLists.has(parent.UID) && this._mailingLists.get(parent.UID).contacts) {
+          this._mailingLists.get(parent.UID).contacts.set(newNode.id, newNode);
+        }
+        this.emit("mailing-list-member-added", newNode);
       }
     }
-
-    this._tree = null;
   }
   // nsIAbListener
   onItemRemoved(parent, item) {
@@ -205,18 +249,48 @@ var addressBookCache = new class extends EventEmitter {
     if (item instanceof Ci.nsIAbDirectory) {
       item.QueryInterface(Ci.nsIAbDirectory);
       if (item.isMailList) {
+        this._mailingLists.delete(item.UID);
+        if (this._addressBooks && this._addressBooks.has(parent.UID) && this._addressBooks.get(parent.UID).mailingLists) {
+          this._addressBooks.get(parent.UID).mailingLists.delete(item.UID);
+        }
         this.emit("mailing-list-deleted", parent, item);
-      } else {
+      } else if (!item.readonly) {
+        if (this._addressBooks && this._addressBooks.has(item.UID)) {
+          if (this._addressBooks.get(item.UID).contacts) {
+            for (let id of this._addressBooks.get(item.UID).contacts.keys()) {
+              this._contacts.delete(id);
+            }
+          }
+          if (this._addressBooks.get(item.UID).mailingLists) {
+            for (let id of this._addressBooks.get(item.UID).mailingLists.keys()) {
+              this._mailingLists.delete(id);
+            }
+          }
+          this._addressBooks.delete(item.UID);
+        }
         this.emit("address-book-deleted", item);
       }
     } else if (item instanceof Ci.nsIAbCard) {
       item.QueryInterface(Ci.nsIAbCard);
       if (!item.isMailList) {
-        this.emit(parent.isMailList ? "mailing-list-member-removed" : "contact-deleted", parent, item);
+        if (parent.isMailList) {
+          if (this._mailingLists.has(parent.UID)) {
+            if (this._mailingLists.get(parent.UID).contacts) {
+              this._mailingLists.get(parent.UID).contacts.delete(item.UID);
+            }
+          }
+          this.emit("mailing-list-member-removed", parent, item);
+        } else {
+          this._contacts.delete(item.UID);
+          if (this._addressBooks && this._addressBooks.has(parent.UID)) {
+            if (this._addressBooks.get(parent.UID).contacts) {
+              this._addressBooks.get(parent.UID).contacts.delete(item.UID);
+            }
+          }
+          this.emit("contact-deleted", parent, item);
+        }
       }
     }
-
-    this._tree = null;
   }
   // nsIAbListener
   onItemPropertyChanged(item, property, oldValue, newValue) {
@@ -224,24 +298,38 @@ var addressBookCache = new class extends EventEmitter {
       item.QueryInterface(Ci.nsIAbDirectory);
       if (!item.isMailList) {
         this.emit("address-book-updated", this._makeDirectoryNode(item));
-        this._tree = null;
       }
     }
   }
 
   // nsIObserver
   observe(subject, topic, data) {
-    this._tree = null;
-
     switch (topic) {
       case "addrbook-contact-created": {
         let parentNode = this.findAddressBookById(data);
-        this.emit("contact-created", this._makeContactNode(subject, parentNode.item));
+        let newNode = this._makeContactNode(subject, parentNode.item);
+        if (this._addressBooks.has(data) && this._addressBooks.get(data).contacts) {
+          this._addressBooks.get(data).contacts.set(newNode.id, newNode);
+          this._contacts.set(newNode.id, newNode);
+        }
+        this.emit("contact-created", newNode);
         break;
       }
       case "addrbook-contact-updated": {
         let parentNode = this.findAddressBookById(data);
-        this.emit("contact-updated", this._makeContactNode(subject, parentNode.item));
+        let newNode = this._makeContactNode(subject, parentNode.item);
+        if (this._addressBooks.has(data) && this._addressBooks.get(data).contacts) {
+          this._addressBooks.get(data).contacts.set(newNode.id, newNode);
+          this._contacts.set(newNode.id, newNode);
+        }
+        if (this._addressBooks.has(data) && this._addressBooks.get(data).mailingLists) {
+          for (let mailingList of this._addressBooks.get(data).mailingLists.values()) {
+            if (mailingList.contacts && mailingList.contacts.has(newNode.id)) {
+              mailingList.contacts.get(newNode.id).item = subject;
+            }
+          }
+        }
+        this.emit("contact-updated", newNode);
         break;
       }
       case "addrbook-list-updated": {
@@ -251,7 +339,11 @@ var addressBookCache = new class extends EventEmitter {
       }
       case "addrbook-list-member-added": {
         let parentNode = this.findMailingListById(data);
-        this.emit("mailing-list-member-added", this._makeContactNode(subject, parentNode.item));
+        let newNode = this._makeContactNode(subject, parentNode.item);
+        if (this._mailingLists.has(data) && this._mailingLists.get(data).contacts) {
+          this._mailingLists.get(data).contacts.set(newNode.id, newNode);
+        }
+        this.emit("mailing-list-member-added", newNode);
         break;
       }
     }
@@ -313,7 +405,7 @@ this.addressBook = class extends ExtensionAPI {
         },
 
         list(complete = false) {
-          return addressBookCache.convert(addressBookCache.tree, complete);
+          return addressBookCache.convert([...addressBookCache.addressBooks.values()], complete);
         },
         get(id, complete = false) {
           return addressBookCache.convert(addressBookCache.findAddressBookById(id), complete);
@@ -378,7 +470,7 @@ this.addressBook = class extends ExtensionAPI {
       contacts: {
         list(parentId) {
           let parentNode = addressBookCache.findAddressBookById(parentId);
-          return addressBookCache.convert(parentNode.contacts, false);
+          return addressBookCache.convert(addressBookCache.getContacts(parentNode), false);
         },
         quickSearch(parentId, searchString) {
           const {
@@ -396,17 +488,18 @@ this.addressBook = class extends ExtensionAPI {
           let results = [];
           let booksToSearch;
           if (parentId == null) {
-            booksToSearch = addressBookCache.tree;
+            booksToSearch = [...addressBookCache.addressBooks.values()];
           } else {
             booksToSearch = [addressBookCache.findAddressBookById(parentId)];
           }
           for (let book of booksToSearch) {
             let searchURI = book.item.URI + generateQueryURI(searchFormat, searchWords);
-            let node = addressBookCache._makeDirectoryNode(MailServices.ab.getDirectory(searchURI));
-            results = results.concat(addressBookCache.convert(node.contacts, false));
+            for (let contact of MailServices.ab.getDirectory(searchURI).childCards) {
+              results.push(addressBookCache.findContactById(contact.UID, book));
+            }
           }
 
-          return results;
+          return addressBookCache.convert(results, false);
         },
         get(id) {
           return addressBookCache.convert(addressBookCache.findContactById(id), false);
@@ -488,7 +581,7 @@ this.addressBook = class extends ExtensionAPI {
       mailingLists: {
         list(parentId) {
           let parentNode = addressBookCache.findAddressBookById(parentId);
-          return addressBookCache.convert(parentNode.mailingLists, false);
+          return addressBookCache.convert(addressBookCache.getMailingLists(parentNode), false);
         },
         get(id) {
           return addressBookCache.convert(addressBookCache.findMailingListById(id), false);
@@ -518,7 +611,7 @@ this.addressBook = class extends ExtensionAPI {
 
         listMembers(id) {
           let node = addressBookCache.findMailingListById(id);
-          return addressBookCache.convert(node.contacts, false);
+          return addressBookCache.convert(addressBookCache.getListContacts(node), false);
         },
         addMember(id, contactId) {
           let node = addressBookCache.findMailingListById(id);
