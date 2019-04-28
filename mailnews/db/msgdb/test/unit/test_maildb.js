@@ -3,6 +3,7 @@
  * Test suite for msg database functions.
  */
 
+/* import-globals-from ../../../../test/resources/messageGenerator.js */
 load("../../../../resources/messageGenerator.js");
 
 var dbService;
@@ -10,8 +11,7 @@ var gTestFolder;
 var gCurTestNum = 0;
 var kNumTestMessages = 10;
 
-var gTestArray =
-[
+var gTestArray = [
   function test_db_open() {
     dbService = Cc["@mozilla.org/msgDatabase/msgDBService;1"]
                             .getService(Ci.nsIMsgDBService);
@@ -35,7 +35,7 @@ var gTestArray =
   },
   function test_async_open() {
     let messageGenerator = new MessageGenerator();
-    let localFolder = gTestFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+    gTestFolder = gTestFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
     let gMessages = [];
 
     // Add some messages to gTestFolder, close the db, and then test that opening
@@ -57,29 +57,26 @@ var gTestArray =
     let db = dbService.asyncOpenFolderDB(gTestFolder, false);
     // this should eventually throw an error in one of the callbacks
     openMoreAsync(db);
-  }
+  },
 ];
 
-function doTest(test)
-{
-  if (test <= gTestArray.length)
-  {
+function doTest(test) {
+  if (test <= gTestArray.length) {
     dump("Doing test " + test + "\n");
     gCurTestNum = test;
 
-    var testFn = gTestArray[test-1];
+    var testFn = gTestArray[test - 1];
     // Set a limit of 10 seconds; if the notifications haven't arrived by then there's a problem.
-    do_timeout(10000, function(){
-        if (gCurTestNum == test)
-          do_throw("Notifications not received in 10000 ms for operation " + testFn.name);
-        }
-      );
+    do_timeout(10000, function() {
+      if (gCurTestNum == test)
+        do_throw("Notifications not received in 10000 ms for operation " + testFn.name);
+    });
     try {
-    testFn();
-    } catch(ex) {do_throw(ex);}
-  }
-  else
-  {
+      testFn();
+    } catch (ex) {
+      do_throw(ex);
+    }
+  } else {
     do_test_finished(); // for the one in run_test()
   }
 }
@@ -91,13 +88,12 @@ function run_test() {
   doTest(1);
 }
 
-function openMore(db)
-{
+function openMore(db) {
   let done = dbService.openMore(db, 1);
   dump("in openMore done = " + done + "\n");
-  if (!done)
+  if (!done) {
     mailTestUtils.do_timeout_function(0, openMore, null, [db]);
-  else {
+  } else {
     // just check that we can get something out of the db.
     Assert.equal(db.dBFolderInfo.numMessages, kNumTestMessages);
     db.Close(true);
@@ -107,22 +103,20 @@ function openMore(db)
   }
 }
 
-function openMoreAsync(db)
-{
+function openMoreAsync(db) {
   let done = false;
   try {
     done = dbService.openMore(db, 100);
     dump("in openMoreAsync done = " + done + "\n");
-  }
-  catch (ex) {
+  } catch (ex) {
     dump("got expected error opening corrupt db async\n");
     db = null;
     doTest(++gCurTestNum);
     return;
-  };
+  }
   if (!done)
     mailTestUtils.do_timeout_function(0, openMoreAsync, null, [db]);
   else
-    throw "Should have got an exception opening out of date db";
+    throw new Error("Should have got an exception opening out of date db");
 }
 

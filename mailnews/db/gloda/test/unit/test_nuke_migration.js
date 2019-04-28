@@ -27,16 +27,16 @@ var BAD_DB_VERSION_TO_USE = 2;
  * next test, but will be inert because we have closed the database.
  */
 function make_out_of_date_database() {
-    // Get the path to our global database
-    var dbFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
-    dbFile.append("global-messages-db.sqlite");
+  // Get the path to our global database
+  var dbFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
+  dbFile.append("global-messages-db.sqlite");
 
-    // Create the database
-    var dbConnection = Services.storage.openUnsharedDatabase(dbFile);
-    dbConnection.schemaVersion = BAD_DB_VERSION_TO_USE;
+  // Create the database
+  var dbConnection = Services.storage.openUnsharedDatabase(dbFile);
+  dbConnection.schemaVersion = BAD_DB_VERSION_TO_USE;
 
-    // Close the database (will throw if there's a problem closing)
-    dbConnection.close();
+  // Close the database (will throw if there's a problem closing)
+  dbConnection.close();
 }
 
 // some copied and pasted preference setup from glodaTestHelper that is
@@ -51,13 +51,12 @@ Services.prefs.setBoolPref("mailnews.database.global.indexer.perform_initial_swe
 Services.prefs.setBoolPref("mailnews.database.global.logging.dump", true);
 
 function run_test() {
-
   // - make the old database
   make_out_of_date_database();
 
   // - tickle gloda
   // public.js loads gloda.js which self-initializes and initializes the datastore
-  let {Gloda} = ChromeUtils.import("resource:///modules/gloda/public.js");
+  ChromeUtils.import("resource:///modules/gloda/public.js");
   let {GlodaDatastore} = ChromeUtils.import("resource:///modules/gloda/datastore.js");
 
   Assert.notEqual(GlodaDatastore.asyncConnection, null);

@@ -4,6 +4,7 @@
  * are made offline later.
  */
 
+/* import-globals-from base_index_messages.js */
 load("base_index_messages.js");
 
 // we want to go offline once the messages have already been indexed online

@@ -9,9 +9,10 @@
  * also the easy thing to do?)
  */
 
+/* import-globals-from resources/glodaTestHelper.js */
 load("resources/glodaTestHelper.js");
 
-var {MimeType, MimeTypeNoun} = ChromeUtils.import("resource:///modules/gloda/noun_mimetype.js");
+var {MimeTypeNoun} = ChromeUtils.import("resource:///modules/gloda/noun_mimetype.js");
 
 /* ===== Tests ===== */
 

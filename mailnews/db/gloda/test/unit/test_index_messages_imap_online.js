@@ -4,6 +4,7 @@
  */
 
 // Most of the definitions are common, so just re-use those
+/* import-globals-from base_index_messages.js */
 load("base_index_messages.js");
 
 expectFulltextResults = false;

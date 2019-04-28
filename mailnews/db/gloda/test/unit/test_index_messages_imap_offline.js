@@ -3,6 +3,7 @@
  * Tests how well gloda indexes IMAP messages that are offline from the start.
  */
 
+/* import-globals-from base_index_messages.js */
 load("base_index_messages.js");
 
 function run_test() {

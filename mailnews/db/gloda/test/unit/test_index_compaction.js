@@ -27,6 +27,7 @@
  *    in the process of being compacted.
  */
 
+/* import-globals-from resources/glodaTestHelper.js */
 load("resources/glodaTestHelper.js");
 
 /*
@@ -264,7 +265,7 @@ function* test_do_not_enter_compacting_folders() {
   configure_gloda_indexing({event: false});
 
   // create a folder with a message inside.
-  let [folder, msgSet] = make_folder_with_sets([{count: 1}]);
+  let [folder] = make_folder_with_sets([{count: 1}]);
   yield wait_for_message_injection();
 
   // lie and claim we are compacting that folder

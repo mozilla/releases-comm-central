@@ -62,7 +62,6 @@ editor/ui/texzilla/**
 
 # mailnews exclusions
 mailnews/mailnews.js
-mailnews/db/*
 mailnews/imap/*
 mailnews/import/*
 mailnews/intl/*

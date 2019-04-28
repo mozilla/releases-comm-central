@@ -2,6 +2,8 @@
 /**
  * Test query support for IMAP messages that aren't offline.
  */
+
+/* import-globals-from base_query_messages.js */
 load("base_query_messages.js");
 
 expectFulltextResults = false;

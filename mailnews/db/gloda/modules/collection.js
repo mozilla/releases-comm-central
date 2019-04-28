@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ['GlodaCollection', 'GlodaCollectionManager'];
+this.EXPORTED_SYMBOLS = ["GlodaCollection", "GlodaCollectionManager"];
 
 const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
@@ -31,21 +31,20 @@ var GlodaCollectionManager = {
    *  is done using a weak reference so that the collection can go away if it
    *  wants to.
    */
-  registerCollection: function gloda_colm_registerCollection(aCollection) {
+  registerCollection(aCollection) {
     let collections;
     let nounID = aCollection.query._nounDef.id;
-    if (!(nounID in this._collectionsByNoun))
+    if (!(nounID in this._collectionsByNoun)) {
       collections = this._collectionsByNoun[nounID] = [];
-    else {
+    } else {
       // purge dead weak references while we're at it
-      collections = this._collectionsByNoun[nounID].filter(function (aRef) {
-        return aRef.get(); });
+      collections = this._collectionsByNoun[nounID].filter((aRef) => aRef.get());
       this._collectionsByNoun[nounID] = collections;
     }
     collections.push(Cu.getWeakReference(aCollection));
   },
 
-  getCollectionsForNounID: function gloda_colm_getCollectionsForNounID(aNounID){
+  getCollectionsForNounID(aNounID) {
     if (!(aNounID in this._collectionsByNoun))
       return [];
 
@@ -61,7 +60,7 @@ var GlodaCollectionManager = {
     return collections;
   },
 
-  defineCache: function gloda_colm_defineCache(aNounDef, aCacheSize) {
+  defineCache(aNounDef, aCacheSize) {
     this._cachesByNoun[aNounDef.id] = new GlodaLRUCacheCollection(aNounDef,
                                                                    aCacheSize);
   },
@@ -71,7 +70,7 @@ var GlodaCollectionManager = {
    *  given id.  Counts as a cache hit if found.  (And if it wasn't in a cache,
    *  but rather a collection, it is added to the cache.)
    */
-  cacheLookupOne: function gloda_colm_cacheLookupOne(aNounID, aID, aDoCache) {
+  cacheLookupOne(aNounID, aID, aDoCache) {
     let cache = this._cachesByNoun[aNounID];
 
     if (cache) {
@@ -114,8 +113,7 @@ var GlodaCollectionManager = {
    *          a dictionary whose keys are the ids of noun instances that
    *          were not found.]
    */
-  cacheLookupMany: function gloda_colm_cacheLookupMany(aNounID, aIDMap,
-      aTargetMap, aDoCache) {
+  cacheLookupMany(aNounID, aIDMap, aTargetMap, aDoCache) {
     let foundCount = 0, notFoundCount = 0, notFound = {};
 
     let cache = this._cachesByNoun[aNounID];
@@ -126,8 +124,7 @@ var GlodaCollectionManager = {
         if (cacheValue === undefined) {
           notFoundCount++;
           notFound[key] = null;
-        }
-        else {
+        } else {
           foundCount++;
           aTargetMap[key] = cacheValue;
           cache.hit(cacheValue);
@@ -162,7 +159,7 @@ var GlodaCollectionManager = {
    *  assumption is this is being used for in-memory updates where we only need
    *  to tweak what is in memory.
    */
-  cacheLookupManyList: function gloda_colm_cacheLookupManyList(aNounID, aIds) {
+  cacheLookupManyList(aNounID, aIds) {
     let checkMap = {}, targetMap = {};
     for (let id of aIds) {
       checkMap[id] = null;
@@ -177,9 +174,7 @@ var GlodaCollectionManager = {
    *  given id.  Counts as a cache hit if found.  (And if it wasn't in a cache,
    *  but rather a collection, it is added to the cache.)
    */
-  cacheLookupOneByUniqueValue:
-      function gloda_colm_cacheLookupOneByUniqueValue(aNounID, aUniqueValue,
-                                                      aDoCache) {
+  cacheLookupOneByUniqueValue(aNounID, aUniqueValue, aDoCache) {
     let cache = this._cachesByNoun[aNounID];
 
     if (cache) {
@@ -210,7 +205,7 @@ var GlodaCollectionManager = {
    *  the pre-existing instance is returned and counts as a cache hit.  If it
    *  is not, the passed-in instance is added to the cache and returned.
    */
-  cacheLoadUnifyOne: function gloda_colm_cacheLoadUnifyOne(aItem) {
+  cacheLoadUnifyOne(aItem) {
     let items = [aItem];
     this.cacheLoadUnify(aItem.NOUN_ID, items);
     return items[0];
@@ -223,8 +218,7 @@ var GlodaCollectionManager = {
    *  counts as a cache hit.  Items without pre-existing instances are added
    *  to the cache and left intact.
    */
-  cacheLoadUnify: function gloda_colm_cacheLoadUnify(aNounID, aItems,
-      aCacheIfMissing) {
+  cacheLoadUnify(aNounID, aItems, aCacheIfMissing) {
     let cache = this._cachesByNoun[aNounID];
     if (aCacheIfMissing === undefined)
       aCacheIfMissing = true;
@@ -247,8 +241,7 @@ var GlodaCollectionManager = {
           // update the caller's array with the reference to the 'real' item
           aItems[iItem] = realItem;
           cache.hit(realItem);
-        }
-        else {
+        } else {
           unresolvedIndexToItem[iItem] = item;
           numUnresolved++;
         }
@@ -257,8 +250,7 @@ var GlodaCollectionManager = {
       // we're done if everyone was a hit.
       if (numUnresolved == 0)
         return;
-    }
-    else {
+    } else {
       for (let iItem = 0; iItem < aItems.length; iItem++) {
         unresolvedIndexToItem[iItem] = aItems[iItem];
       }
@@ -290,11 +282,9 @@ var GlodaCollectionManager = {
       cache.add(needToCache.concat(Object.keys(unresolvedIndexToItem).
                                    map(key => unresolvedIndexToItem[key])));
     }
-
-    return aItems;
   },
 
-  cacheCommitDirty: function glod_colm_cacheCommitDirty() {
+  cacheCommitDirty() {
     for (let id in this._cachesByNoun) {
       let cache = this._cachesByNoun[id];
       cache.commitDirty();
@@ -305,7 +295,7 @@ var GlodaCollectionManager = {
    * Notifies the collection manager that an item has been loaded and should
    *  be cached, assuming caching is active.
    */
-  itemLoaded: function gloda_colm_itemsLoaded(aItem) {
+  itemLoaded(aItem) {
     let cache = this._cachesByNoun[aItem.NOUN_ID];
     if (cache) {
       cache.add([aItem]);
@@ -316,7 +306,7 @@ var GlodaCollectionManager = {
    * Notifies the collection manager that multiple items has been loaded and
    *  should be cached, assuming caching is active.
    */
-  itemsLoaded: function gloda_colm_itemsLoaded(aNounID, aItems) {
+  itemsLoaded(aNounID, aItems) {
     let cache = this._cachesByNoun[aNounID];
     if (cache) {
       cache.add(aItems);
@@ -330,7 +320,7 @@ var GlodaCollectionManager = {
    * We walk all existing collections for the given noun type and add the items
    *  to the collection if the item meets the query that defines the collection.
    */
-  itemsAdded: function gloda_colm_itemsAdded(aNounID, aItems) {
+  itemsAdded(aNounID, aItems) {
     let cache = this._cachesByNoun[aNounID];
     if (cache) {
       cache.add(aItems);
@@ -353,23 +343,24 @@ var GlodaCollectionManager = {
    *  onItemsAdded events.  For items included that still match the query, we
    *  generate onItemsModified events.
    */
-  itemsModified: function gloda_colm_itemsModified(aNounID, aItems) {
+  itemsModified(aNounID, aItems) {
     for (let collection of this.getCollectionsForNounID(aNounID)) {
       let added = [], modified = [], removed = [];
       for (let item of aItems) {
         if (item.id in collection._idMap) {
           // currently in... but should it still be there?
-          if (collection.query.test(item))
+          if (collection.query.test(item)) {
             modified.push(item); // yes, keep it
-          // oy, so null queries really don't want any notifications, and they
-          //  sorta fit into our existing model, except for the removal bit.
-          //  so we need a specialized check for them, and we're using the
-          //  frozen attribute to this end.
-          else if (!collection.query.frozen)
+          } else if (!collection.query.frozen) {
+            // oy, so null queries really don't want any notifications, and they
+            //  sorta fit into our existing model, except for the removal bit.
+            //  so we need a specialized check for them, and we're using the
+            //  frozen attribute to this end.
             removed.push(item); // no, bin it
-        }
-        else if (collection.query.test(item)) // not in, should it be?
+          }
+        } else if (collection.query.test(item)) { // not in, should it be?
           added.push(item); // yep, add it
+        }
       }
       if (added.length)
         collection._onItemsAdded(added);
@@ -390,7 +381,7 @@ var GlodaCollectionManager = {
    *
    * @param aItemIds A list of item ids that are being deleted.
    */
-  itemsDeleted: function gloda_colm_itemsDeleted(aNounID, aItemIds) {
+  itemsDeleted(aNounID, aItemIds) {
     // cache
     let cache = this._cachesByNoun[aNounID];
     if (cache) {
@@ -425,8 +416,7 @@ var GlodaCollectionManager = {
    *     thought of as deleted, or false if the item is still good.  Screw this
    *     up and you will get some seriously wacky bugs, yo.
    */
-  itemsDeletedByAttribute: function gloda_colm_itemsDeletedByAttribute(
-      aNounID, aFilter) {
+  itemsDeletedByAttribute(aNounID, aFilter) {
     // cache
     let cache = this._cachesByNoun[aNounID];
     if (cache) {
@@ -490,8 +480,7 @@ function GlodaCollection(aNounDef, aItems, aQuery, aListener,
 
   if (aMasterCollection) {
     this.masterCollection = aMasterCollection.masterCollection;
-  }
-  else {
+  } else {
     this.masterCollection = this;
     /** a dictionary of dictionaries. at the top level, the keys are noun IDs.
      * each of these sub-dictionaries maps the IDs of desired noun instances to
@@ -527,7 +516,7 @@ GlodaCollection.prototype = {
    *  initial database query.  It will, however, receive onItemsModified
    *  notifications if items in the collection are re-indexed.
    */
-  becomeExplicit: function gloda_coll_becomeExplicit() {
+  becomeExplicit() {
     if (!(this.query instanceof this._nounDef.explicitQueryClass)) {
       this.query = new this._nounDef.explicitQueryClass(this);
     }
@@ -539,22 +528,21 @@ GlodaCollection.prototype = {
    *  should represent the state of the query, so unless we're going to delete
    *  all the items, clearing the collection would violate that constraint.)
    */
-  clear: function gloda_coll_clear() {
+  clear() {
     this._idMap = {};
     if (this._uniqueValueMap)
       this._uniqueValueMap = {};
     this.items = [];
   },
 
-  _onItemsAdded: function gloda_coll_onItemsAdded(aItems) {
+  _onItemsAdded(aItems) {
     this.items.push.apply(this.items, aItems);
     if (this._uniqueValueMap) {
       for (let item of this.items) {
         this._idMap[item.id] = item;
         this._uniqueValueMap[item.uniqueValue] = item;
       }
-    }
-    else {
+    } else {
       for (let item of this.items) {
         this._idMap[item.id] = item;
       }
@@ -562,20 +550,18 @@ GlodaCollection.prototype = {
     if (this._listener) {
       try {
         this._listener.onItemsAdded(aItems, this);
-      }
-      catch (ex) {
+      } catch (ex) {
         LOG.error("caught exception from listener in onItemsAdded: " +
             ex.fileName + ":" + ex.lineNumber + ": " + ex);
       }
     }
   },
 
-  _onItemsModified: function gloda_coll_onItemsModified(aItems) {
+  _onItemsModified(aItems) {
     if (this._listener) {
       try {
         this._listener.onItemsModified(aItems, this);
-      }
-      catch (ex) {
+      } catch (ex) {
         LOG.error("caught exception from listener in onItemsModified: " +
             ex.fileName + ":" + ex.lineNumber + ": " + ex);
       }
@@ -587,7 +573,7 @@ GlodaCollection.prototype = {
    *  remove them from the collection and notify the listener.  The 'tricky'
    *  part is that we need to remove the deleted items from our list of items.
    */
-  _onItemsRemoved: function gloda_coll_onItemsRemoved(aItems) {
+  _onItemsRemoved(aItems) {
     // we want to avoid the O(n^2) deletion performance case, and deletion
     //  should be rare enough that the extra cost of building the deletion map
     //  should never be a real problem.
@@ -601,7 +587,7 @@ GlodaCollection.prototype = {
     }
     let items = this.items;
     // in-place filter.  probably needless optimization.
-    let iWrite=0;
+    let iWrite = 0;
     for (let iRead = 0; iRead < items.length; iRead++) {
       let item = items[iRead];
       if (!(item.id in deleteMap))
@@ -612,19 +598,18 @@ GlodaCollection.prototype = {
     if (this._listener) {
       try {
         this._listener.onItemsRemoved(aItems, this);
-      }
-      catch (ex) {
+      } catch (ex) {
         LOG.error("caught exception from listener in onItemsRemoved: " +
             ex.fileName + ":" + ex.lineNumber + ": " + ex);
       }
     }
   },
 
-  _onQueryCompleted: function gloda_coll_onQueryCompleted() {
+  _onQueryCompleted() {
     this.query.completed = true;
     if (this._listener && this._listener.onQueryCompleted)
       this._listener.onQueryCompleted(this);
-  }
+  },
 };
 
 /**
@@ -650,7 +635,7 @@ function GlodaLRUCacheCollection(aNounDef, aCacheSize) {
  * @augments GlodaCollection
  */
 GlodaLRUCacheCollection.prototype = new GlodaCollection;
-GlodaLRUCacheCollection.prototype.add = function cache_add(aItems) {
+GlodaLRUCacheCollection.prototype.add = function(aItems) {
   for (let item of aItems) {
     if (item.id in this._idMap) {
       // DEBUGME so, we're dealing with this, but it shouldn't happen.  need
@@ -701,7 +686,7 @@ GlodaLRUCacheCollection.prototype.add = function cache_add(aItems) {
   }
 };
 
-GlodaLRUCacheCollection.prototype.hit = function cache_hit(aItem) {
+GlodaLRUCacheCollection.prototype.hit = function(aItem) {
   // don't do anything in the 0 or 1 items case, or if we're already
   //  the last item
   if ((this._head === this._tail) || (this._tail === aItem))
@@ -724,7 +709,7 @@ GlodaLRUCacheCollection.prototype.hit = function cache_hit(aItem) {
   return aItem;
 };
 
-GlodaLRUCacheCollection.prototype.deleted = function cache_deleted(aItem) {
+GlodaLRUCacheCollection.prototype.deleted = function(aItem) {
   // unlink the item
   if (aItem._lruPrev !== null)
     aItem._lruPrev._lruNext = aItem._lruNext;
@@ -751,7 +736,7 @@ GlodaLRUCacheCollection.prototype.deleted = function cache_deleted(aItem) {
  * If any of the cached items are dirty, commit them, and make them no longer
  *  dirty.
  */
-GlodaLRUCacheCollection.prototype.commitDirty = function cache_commitDirty() {
+GlodaLRUCacheCollection.prototype.commitDirty = function() {
   // we can only do this if there is an update method available...
   if (!this._nounDef.objUpdate)
     return;

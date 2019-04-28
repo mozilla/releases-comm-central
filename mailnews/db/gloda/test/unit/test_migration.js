@@ -10,6 +10,7 @@
  *  that.)
  **/
 
+/* import-globals-from resources/glodaTestHelper.js */
 load("resources/glodaTestHelper.js");
 
 /**
@@ -30,7 +31,7 @@ function* test_fix_missing_contacts_and_fallout() {
   // - Create messages of the genres [from, to]: [inAB, inAB], [inAB, !inAB],
   //    [!inAB, inAB], [!inAB, !inAB].  The permutations are black box overkill.
   // smear the messages over multiple folders for realism
-  let [synFolders, yesyesMsgSet, yesnoMsgSet, noyesMsgSet, nonoMsgSet] =
+  let [, yesyesMsgSet, yesnoMsgSet, noyesMsgSet, nonoMsgSet] =
     make_folders_with_sets(3, [
       { count: 2, from: abPeeps[0], to: [abPeeps[1]] },
       { count: 2, from: abPeeps[1], to: nonAbPeeps },

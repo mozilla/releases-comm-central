@@ -26,6 +26,13 @@ var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 // Import the main scripts that mailnews tests need to set up and tear down
+/* import-globals-from ../../../../../test/resources/abSetup.js */
+/* import-globals-from ../../../../../test/resources/logHelper.js */
+/* import-globals-from ../../../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../../../test/resources/messageGenerator.js */
+/* import-globals-from ../../../../../test/resources/messageModifier.js */
+/* import-globals-from ../../../../../test/resources/messageInjection.js */
+/* import-globals-from ../../../../../test/resources/folderEventLogHelper.js */
 load("../../../../resources/abSetup.js");
 load("../../../../resources/logHelper.js");
 load("../../../../resources/asyncTestUtils.js");
@@ -38,11 +45,11 @@ load("../../../../resources/folderEventLogHelper.js");
 // register this before gloda gets a chance to do anything so that
 registerFolderEventLogHelper();
 
-
+/* exported scenarios */
 // Create a message generator
 var msgGen = gMessageGenerator = new MessageGenerator();
 // Create a message scenario generator using that message generator
-var scenarios = gMessageScenarioFactory = new MessageScenarioFactory(msgGen);
+var scenarios = new MessageScenarioFactory(msgGen);
 
 var {logObject} = ChromeUtils.import("resource:///modules/errUtils.js");
 
@@ -73,8 +80,8 @@ Services.prefs.setBoolPref("mailnews.database.global.logging.dump", true);
 var ENVIRON_MAPPINGS = [
   {
     envVar: "GLODA_DATASTORE_EXPLAIN_TO_PATH",
-    prefName: "mailnews.database.global.datastore.explainToPath"
-  }
+    prefName: "mailnews.database.global.datastore.explainToPath",
+  },
 ];
 
 // -- Propagate environment variables to prefs as appropriate:
@@ -86,34 +93,22 @@ for (let {envVar, prefName} of ENVIRON_MAPPINGS) {
  }
 }
 
-
+/* exported IndexingJob, GlodaFolder, TagNoun */
 // -- Import our modules
 var {Gloda} = ChromeUtils.import("resource:///modules/gloda/public.js");
 var {GlodaIndexer, IndexingJob} = ChromeUtils.import("resource:///modules/gloda/indexer.js");
 var {GlodaMsgIndexer} = ChromeUtils.import("resource:///modules/gloda/index_msg.js");
 var {GlodaDatastore} = ChromeUtils.import("resource:///modules/gloda/datastore.js");
 var {
-  GlodaCollection,
   GlodaCollectionManager,
 } = ChromeUtils.import("resource:///modules/gloda/collection.js");
 var {
-  GlodaAttributeDBDef,
-  GlodaAccount,
-  GlodaConversation,
   GlodaFolder,
   GlodaMessage,
-  GlodaContact,
-  GlodaIdentity,
-  GlodaAttachment,
 } = ChromeUtils.import("resource:///modules/gloda/datamodel.js");
 var {TagNoun} = ChromeUtils.import("resource:///modules/gloda/noun_tag.js");
 var {
   MsgHdrToMimeMessage,
-  MimeMessage,
-  MimeContainer,
-  MimeBody,
-  MimeUnknown,
-  MimeMessageAttachment,
 } = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
 
 // -- Add a logger listener that throws when we give it a warning/error.
@@ -124,9 +119,10 @@ Log4Moz.repository.rootLogger.addAppender(throwingAppender);
 
 var LOG = Log4Moz.repository.getLogger("gloda.test");
 
+/* exported GLODA_BAD_MESSAGE_ID, GLODA_OLD_BAD_MESSAGE_ID */
 // index_msg does not export this, so we need to provide it.
-var GLODA_BAD_MESSAGE_ID = 2,
-      GLODA_OLD_BAD_MESSAGE_ID = 1;
+var GLODA_BAD_MESSAGE_ID = 2;
+var GLODA_OLD_BAD_MESSAGE_ID = 1;
 
 // -- Add a hook that makes folders not filthy when we first see them.
 register_message_injection_listener({
@@ -183,12 +179,12 @@ function _prepareIndexerForTesting() {
   // pretend we are always idle
   GlodaIndexer._idleService = {
     idleTime: 1000,
-    addIdleObserver: function() {
+    addIdleObserver() {
       // There is no actual need to register with the idle observer, and if
       //  we do, the stupid "idle" notification will trigger commits.
     },
-    removeIdleObserver: function() {
-    }
+    removeIdleObserver() {
+    },
   };
 
   // We want the event-driven indexer to always handle indexing and never spill
@@ -251,10 +247,10 @@ if (logHelperHasInterestedListeners) {
   };
   let orig_updateMessageKeys = GlodaDatastore.updateMessageKeys;
   GlodaDatastore.updateMessageKeys = function(...aArgs) {
-    mark_action("glodaWrapped", "updateMessageKeys"
+    mark_action("glodaWrapped", "updateMessageKeys",
                 ["ids", aArgs[0], "keys", aArgs[1]]);
     orig_updateMessageKeys.apply(GlodaDatastore, aArgs);
-  }
+  };
 
   /* also, let us see the results of cache lookups so we can know if we are
      performing cache unification when a load occurs. */
@@ -263,7 +259,7 @@ if (logHelperHasInterestedListeners) {
     let rv = orig_cacheLookupOne.apply(GlodaCollectionManager, aArgs);
     mark_action("glodaWrapped", "cacheLookupOne", ["hit?", rv !== null]);
     return rv;
-  }
+  };
 }
 
 var _wait_for_gloda_indexer_defaults = {
@@ -327,8 +323,7 @@ function wait_for_gloda_indexer(aSynMessageSets, aConfig) {
   function get_val(aKey) {
     if (aConfig && (aKey in aConfig))
       return aConfig[aKey];
-    else
-      return _wait_for_gloda_indexer_defaults[aKey];
+    return _wait_for_gloda_indexer_defaults[aKey];
   }
 
   ims.verifier = get_val("verifier");
@@ -440,7 +435,7 @@ var _indexMessageState = {
    */
   interestingEvents: [],
 
-  _jsonifyCallbackHandleState: function(aCallbackHandle) {
+  _jsonifyCallbackHandleState(aCallbackHandle) {
     return {
       _stringRep: aCallbackHandle.activeStack.length + " active generators",
       activeStackLength: aCallbackHandle.activeStack.length,
@@ -448,8 +443,7 @@ var _indexMessageState = {
     };
   },
 
-  _testHookRecover: function(aRecoverResult, aOriginEx, aActiveJob,
-                             aCallbackHandle) {
+  _testHookRecover(aRecoverResult, aOriginEx, aActiveJob, aCallbackHandle) {
     mark_action("glodaEvent", "indexer recovery hook fired",
                 ["recover result:", aRecoverResult,
                  "originating exception:", aOriginEx,
@@ -463,8 +457,7 @@ var _indexMessageState = {
       _indexMessageState._workerFailedToRecoverCount++;
   },
 
-  _testHookCleanup: function(aHadCleanupFunc, aOriginEx, aActiveJob,
-                             aCallbackHandle) {
+  _testHookCleanup(aHadCleanupFunc, aOriginEx, aActiveJob, aCallbackHandle) {
     mark_action("glodaEvent", "indexer cleanup hook fired",
                 ["had cleanup?", aHadCleanupFunc,
                  "originating exception:", aOriginEx,
@@ -497,7 +490,7 @@ var _indexMessageState = {
         if (!(synMsg.messageId in this._glodaMessagesByMessageId)) {
           let msgHdr = msgSet.getMsgHdr(iSynMsg);
           mark_failure(
-            ["Header", msgHdr, "in folder", msgHdr ? msgHdr.folder: "no header?",
+            ["Header", msgHdr, "in folder", msgHdr ? msgHdr.folder : "no header?",
              "should have been indexed."]);
         }
 
@@ -510,11 +503,10 @@ var _indexMessageState = {
           try {
             mark_action("glodaTestHelper", "verifier", [synMsg, glodaMsg]);
             previousValue = verifier(synMsg, glodaMsg, previousValue);
-          }
-          catch (ex) {
+          } catch (ex) {
             // ugh, too verbose
-            //logObject(synMsg, "synMsg");
-            //logObject(glodaMsg, "glodaMsg");
+            // logObject(synMsg, "synMsg");
+            // logObject(glodaMsg, "glodaMsg");
             dump("synMsg: " + synMsg + "\n");
             dump("glodaMsg: " + glodaMsg + "\n");
             mark_failure(
@@ -544,8 +536,6 @@ var _indexMessageState = {
             do_throw("Synthetic message " + synMsg + " did not get deleted!");
           }
 
-          let glodaMsg = this._glodaMessagesByMessageId[synMsg.messageId];
-
           this._glodaDeletionsByMessageId[synMsg.messageId] = null;
         }
       }
@@ -553,7 +543,7 @@ var _indexMessageState = {
 
     // - Check that we don't have unexpected deletions
     for (let messageId in this._glodaDeletionsByMessageId) {
-      let  glodaMsg = this._glodaDeletionsByMessageId[messageId];
+      let glodaMsg = this._glodaDeletionsByMessageId[messageId];
       if (glodaMsg != null) {
         logObject(glodaMsg, "glodaMsg");
         do_throw("Gloda message with message id " + messageId + " was " +
@@ -610,16 +600,17 @@ var _indexMessageState = {
    *  existing message actually gets purged from the system, we should receive
    *  an onItemsRemoved call.
    */
-  onItemsAdded: function(aItems) {
+  onItemsAdded(aItems) {
     mark_action("glodaEvent", "itemsAdded", aItems);
 
     for (let item of aItems) {
-      if (item.headerMessageID in this._glodaMessagesByMessageId)
-        mark_failure(
-          ["Gloda message", item.folderMessage,
-            "already indexed once since the last" + "wait_for_gloda_indexer call!"
-          ]);
-
+      if (item.headerMessageID in this._glodaMessagesByMessageId) {
+        mark_failure([
+          "Gloda message",
+          item.folderMessage,
+          "already indexed once since the last wait_for_gloda_indexer call!",
+        ]);
+      }
       this._glodaMessagesByMessageId[item.headerMessageID] = item;
     }
 
@@ -629,7 +620,7 @@ var _indexMessageState = {
       GlodaMsgIndexer._indexingFolder.msgDatabase = null;
   },
 
-  onItemsModified: function(aItems) {
+  onItemsModified(aItems) {
     mark_action("glodaEvent", "itemsModified", aItems);
 
     for (let item of aItems) {
@@ -642,7 +633,7 @@ var _indexMessageState = {
     }
   },
 
-  onItemsRemoved: function(aItems) {
+  onItemsRemoved(aItems) {
     mark_action("glodaEvent", "removed", aItems);
 
     for (let item of aItems) {
@@ -666,21 +657,20 @@ var _indexMessageState = {
    * Fake attribute provider processing function so we can distinguish
    *  between fully reindexed messages and fast-path modified messages.
    */
-  process: function*(aItem, aRawReps, aIsConceptuallyNew, aCallbackHandle) {
+  * process(aItem, aRawReps, aIsConceptuallyNew, aCallbackHandle) {
     this._numFullIndexed++;
 
     yield Gloda.kWorkDone;
   },
 
-  _numItemsAdded : 0,
+  _numItemsAdded: 0,
 
   /**
    * Gloda indexer listener, used to know when all active indexing jobs have
    *  completed so that we can try and process all the things that should have
    *  been processed.
    */
-  onIndexNotification: function(aStatus, aPrettyName, aJobIndex,
-                                aJobItemIndex, aJobItemGoal) {
+  onIndexNotification(aStatus, aPrettyName, aJobIndex, aJobItemIndex, aJobItemGoal) {
     let ims = _indexMessageState;
     let waiting = ims.waitingForIndexingCompletion ?
                   ims.waitingForIndexingCompletion : false;
@@ -705,7 +695,7 @@ var _indexMessageState = {
    *  this because we add events we care about to interestingEvents before they
    *  can possibly be fired.
    */
-  msgsClassified: function(aMsgHdrs, aJunkClassified, aTraitClassified) {
+  msgsClassified(aMsgHdrs, aJunkClassified, aTraitClassified) {
     let idx = this.interestingEvents.indexOf("msgsClassified");
     if (idx != -1) {
       this.interestingEvents.splice(idx, 1);
@@ -728,6 +718,7 @@ var _indexMessageState = {
   },
 };
 
+/* exported indexAndPermuteMessages */
 /**
  * Given a function that generates a set of synthetic messages, feed those
  *  messages to gloda to be indexed, verifying the resulting indexed messages
@@ -784,7 +775,7 @@ function* _runPermutations(aScenarioMaker, aVerifier) {
 function factorial(i, rv) {
   if (i <= 1)
     return rv || 1;
-  return factorial(i-1, (rv || 1) * i); // tail-call capable
+  return factorial(i - 1, (rv || 1) * i); // tail-call capable
 }
 
 /**
@@ -798,11 +789,11 @@ function factorial(i, rv) {
  */
 function permute(aArray, aPermutationId) {
   let out = [];
-  for (let l=aArray.length; l > 0; l--) {
-    let offset = aPermutationId % l;
+  for (let i = aArray.length; i > 0; i--) {
+    let offset = aPermutationId % i;
     out.push(aArray[offset]);
     aArray.splice(offset, 1);
-    aPermutationId = Math.floor(aPermutationId / l);
+    aPermutationId = Math.floor(aPermutationId / i);
   }
   return out;
 }
@@ -814,7 +805,7 @@ _defaultExpectationExtractors[Gloda.NOUN_MESSAGE] = [
   },
   function expectExtract_message_synth(aSynthMessage) {
     return aSynthMessage.messageId;
-  }
+  },
 ];
 _defaultExpectationExtractors[Gloda.NOUN_CONTACT] = [
   function expectExtract_contact_gloda(aGlodaContact) {
@@ -822,7 +813,7 @@ _defaultExpectationExtractors[Gloda.NOUN_CONTACT] = [
   },
   function expectExtract_contact_name(aName) {
     return aName;
-  }
+  },
 ];
 _defaultExpectationExtractors[Gloda.NOUN_IDENTITY] = [
   function expectExtract_identity_gloda(aGlodaIdentity) {
@@ -830,14 +821,14 @@ _defaultExpectationExtractors[Gloda.NOUN_IDENTITY] = [
   },
   function expectExtract_identity_address(aAddress) {
     return aAddress;
-  }
+  },
 ];
 
 function expectExtract_default_toString(aThing) {
   return aThing.toString();
 }
 
-/// see {queryExpect} for info on what we do
+// see {queryExpect} for info on what we do
 function QueryExpectationListener(aExpectedSet, aGlodaExtractor,
                                   aOrderVerifier, aCallerStackFrame) {
   this.expectedSet = aExpectedSet;
@@ -856,8 +847,7 @@ QueryExpectationListener.prototype = {
       let glodaStringRep;
       try {
         glodaStringRep = this.glodaExtractor(item);
-      }
-      catch (ex) {
+      } catch (ex) {
         do_throw("Gloda extractor threw during query expectation for item: " +
                  item + " exception: " + ex);
       }
@@ -873,8 +863,7 @@ QueryExpectationListener.prototype = {
       if (this.orderVerifier) {
         try {
           this.orderVerifier(this.nextIndex, item, aCollection);
-        }
-        catch (ex) {
+        } catch (ex) {
           // if the order was wrong, we could probably go for an output of what
           //  we actually got...
           dump("!!! ORDER PROBLEM, SO ORDER DUMP!\n");
@@ -924,6 +913,7 @@ QueryExpectationListener.prototype = {
   },
 };
 
+/* exported queryExpect */
 /**
  * Execute the given query, verifying that the result set contains exactly the
  *  contents of the expected set; no more, no less.  Since we expect that the
@@ -965,7 +955,7 @@ QueryExpectationListener.prototype = {
  * @returns The collection created from the query.
  */
 function queryExpect(aQuery, aExpectedSet, aGlodaExtractor,
-    aExpectedExtractor, aOrderVerifier) {
+                     aExpectedExtractor, aOrderVerifier) {
   if (aQuery.test)
     aQuery = {queryFunc: aQuery.getCollection, queryThis: aQuery, args: [],
               nounId: aQuery._nounDef.id};
@@ -992,8 +982,7 @@ function queryExpect(aQuery, aExpectedSet, aGlodaExtractor,
   for (let item of aExpectedSet) {
     try {
       expectedSet[aExpectedExtractor(item)] = item;
-    }
-    catch (ex) {
+    } catch (ex) {
       do_throw("Expected extractor threw during query expectation for item: " +
                item + " exception: " + ex);
     }
@@ -1008,6 +997,7 @@ function queryExpect(aQuery, aExpectedSet, aGlodaExtractor,
   return aQuery.queryFunc.apply(aQuery.queryThis, aQuery.args);
 }
 
+/* exported sqlExpectCount */
 /**
  * Run an (async) SQL statement against the gloda database.  The statement
  *  should be a SELECT COUNT; we check the count against aExpectedCount.
@@ -1044,13 +1034,13 @@ _SqlExpectationListener.prototype = {
     let row = aResultSet.getNextRow();
     if (!row)
       mark_failure(["No result row returned from caller", this.callerStackFrame,
-                    "SQL:", sqlDesc]);
+                    "SQL:", this.sqlDesc]);
     this.actualCount = row.getInt64(0);
   },
 
   handleError: function sel_handleError(aError) {
     mark_failure(["SQL error from caller", this.callerStackFrame,
-                  "result", aError, "SQL: ", sqlDesc]);
+                  "result", aError, "SQL: ", this.sqlDesc]);
   },
 
   handleCompletion: function sel_handleCompletion(aReason) {
@@ -1063,6 +1053,7 @@ _SqlExpectationListener.prototype = {
   },
 };
 
+/* exported sqlRun */
 /**
  * Asynchronously run a SQL statement against the gloda database.  This can grow
  *  binding logic and data returning as needed.
@@ -1075,7 +1066,7 @@ function sqlRun(sql) {
 
   mark_action("glodaTestHelper", "running SQL", [sql]);
   stmt.executeAsync({
-    handleResult: function(aResultSet) {
+    handleResult(aResultSet) {
       if (!rows)
         rows = [];
       let row;
@@ -1083,17 +1074,18 @@ function sqlRun(sql) {
         rows.push(row);
       }
     },
-    handleError: function(aError) {
+    handleError(aError) {
       mark_failure(["SQL error! result:", aError, "SQL: ", sql]);
     },
-    handleCompletion: function() {
+    handleCompletion() {
       async_driver(rows);
-    }
+    },
   });
   stmt.finalize();
   return false;
 }
 
+/* exported wait_for_gloda_db_flush */
 /**
  * Resume execution when the db has run all the async statements whose execution
  *  was queued prior to this call.  We trigger a commit to accomplish this,
@@ -1125,6 +1117,7 @@ function _simulate_hang_on_MsgHdrToMimeMessage(...aArgs) {
     async_driver();
 }
 
+/* exported wait_for_indexing_hang */
 /**
  * If you have configured gloda to hang while indexing, this is the thing
  *  you wait on to make sure the indexer actually gets to the point where it
@@ -1145,15 +1138,16 @@ function InjectedFault(aWhy) {
   this.message = aWhy;
 }
 InjectedFault.prototype = {
-  toString: function() {
+  toString() {
     return "[InjectedFault: " + this.message + "]";
-  }
+  },
 };
 
 function _inject_failure_on_MsgHdrToMimeMessage() {
   throw new InjectedFault("MsgHdrToMimeMessage");
 }
 
+/* exported configure_gloda_indexing */
 /**
  * Configure gloda indexing.  For most settings, the settings get clobbered by
  *  the next time this method is called.  Omitted settings reset to the defaults.
@@ -1194,8 +1188,7 @@ function configure_gloda_indexing(aArgs) {
         mark_failure([aArgs.hangWhile,
                       "is not a legal choice for hangWhile"]);
     }
-  }
-  else if ("injectFaultIn" in aArgs) {
+  } else if ("injectFaultIn" in aArgs) {
     mark_action("glodaTestHelper", "enabling fault injection in",
                 [aArgs.hangWhile]);
     switch (aArgs.injectFaultIn) {
@@ -1207,14 +1200,14 @@ function configure_gloda_indexing(aArgs) {
         mark_failure([aArgs.injectFaultIn,
                       "is not a legal choice for injectFaultIn"]);
     }
-  }
-  else {
+  } else {
     if (GlodaMsgIndexer._MsgHdrToMimeMessageFunc != MsgHdrToMimeMessage)
       mark_action("glodaTestHelper", "clearing hang/fault injection", []);
     GlodaMsgIndexer._MsgHdrToMimeMessageFunc = MsgHdrToMimeMessage;
   }
 }
 
+/* exported resume_from_simulated_hang */
 /**
  * Call this to resume from the hang induced by configuring the indexer with
  *  a "hangWhile" argument to |configure_gloda_indexing|.
@@ -1232,8 +1225,7 @@ function resume_from_simulated_hang(aJustResumeExecution) {
                 "resuming from simulated hang with direct wrapper callback",
                 []);
     GlodaIndexer._wrapCallbackDriver();
-  }
-  else {
+  } else {
     let [func, dis, args] = _gloda_simulate_hang_data;
     mark_action("glodaTestHelper",
                 "resuming from simulated hang with call to: " + func.name,
@@ -1242,6 +1234,7 @@ function resume_from_simulated_hang(aJustResumeExecution) {
   }
 }
 
+/* exported glodaHelperRunTests */
 /**
  * Test driving logic that takes a list of tests to run.  Every completed test
  *  needs to call (or cause to be called) next_test.
@@ -1263,6 +1256,7 @@ function glodaHelperRunTests(aTests, aNounID) {
   async_run_tests(aTests);
 }
 
+/* exported nukeGlodaCachesAndCollections */
 /**
  * Wipe out almost everything from the clutches of the GlodaCollectionManager.
  * By default, it is caching things and knows about all the non-GC'ed
@@ -1314,7 +1308,7 @@ function nukeGlodaCachesAndCollections() {
   }
 }
 
-
+/* exported makeABCardForAddressPair */
 /**
  * Add a name-and-address pair as generated by `makeNameAndAddress` to the
  *  personal address book.

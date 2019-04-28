@@ -17,6 +17,11 @@
  *  adds a lot of runtime overhead which makes certain debugging strategies like
  *  using chronicle-recorder impractical.
  */
+/* import-globals-from ../../../../test/resources/logHelper.js */
+/* import-globals-from ../../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../../test/resources/messageGenerator.js */
+/* import-globals-from ../../../../test/resources/messageModifier.js */
+/* import-globals-from ../../../../test/resources/messageInjection.js */
 load("../../../../resources/logHelper.js");
 load("../../../../resources/asyncTestUtils.js");
 
@@ -24,18 +29,14 @@ load("../../../../resources/messageGenerator.js");
 load("../../../../resources/messageModifier.js");
 load("../../../../resources/messageInjection.js");
 
+/* exported scenarios */
 // Create a message generator
 var msgGen = gMessageGenerator = new MessageGenerator();
 // Create a message scenario generator using that message generator
-var scenarios = gMessageScenarioFactory = new MessageScenarioFactory(msgGen);
+var scenarios = new MessageScenarioFactory(msgGen);
 
 var {
   MsgHdrToMimeMessage,
-  MimeMessage,
-  MimeContainer,
-  MimeBody,
-  MimeUnknown,
-  MimeMessageAttachment,
 } = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
 
 // While we're at it, we'll also test the correctness of the GlodaAttachment
@@ -47,13 +48,13 @@ var partText = new SyntheticPartLeaf("I am text! Woo!");
 var partHtml = new SyntheticPartLeaf(
   "<html><head></head><body>I am HTML! Woo! </body></html>",
   {
-    contentType: "text/html"
+    contentType: "text/html",
   }
 );
 var partEnriched = new SyntheticPartLeaf(
   "<bold><italic>I am not a popular format! sad woo :(</italic></bold>",
   {
-    contentType: "text/enriched"
+    contentType: "text/enriched",
   }
 );
 var partAlternative = new SyntheticPartMultiAlternative([partText, partHtml]);
@@ -73,47 +74,46 @@ var tachNoFilename = {
 // so this covers this case as well.
 var tachExternal = {
   body:
-    'You deleted an attachment from this message. The original MIME headers for the attachment were:\n'+
-    'Content-Type: image/png;\n'+
-    ' name="conversations-bug1.png"\n'+
-    'Content-Transfer-Encoding: base64\n'+
-    'Content-Disposition: attachment;\n'+
+    "You deleted an attachment from this message. The original MIME headers for the attachment were:\n" +
+    "Content-Type: image/png;\n" +
+    ' name="conversations-bug1.png"\n' +
+    "Content-Transfer-Encoding: base64\n" +
+    "Content-Disposition: attachment;\n" +
     ' filename="conversations-bug1.png"',
-  contentType: 'image/png',
+  contentType: "image/png",
   filename: "conversations-bug1.png",
   charset: null,
   format: null,
-  encoding: 'base64',
+  encoding: "base64",
   extraHeaders: {
-    'X-Mozilla-External-Attachment-URL': 'file:///tmp/conversations-bug1.png',
-    'X-Mozilla-Altered': 'AttachmentDetached; date="Wed Aug 03 11:11:33 2011"',
+    "X-Mozilla-External-Attachment-URL": "file:///tmp/conversations-bug1.png",
+    "X-Mozilla-Altered": 'AttachmentDetached; date="Wed Aug 03 11:11:33 2011"',
   },
 };
-var tachText = {filename: 'bob.txt', body: 'I like cheese!'};
+var tachText = {filename: "bob.txt", body: "I like cheese!"};
 var partTachText = new SyntheticPartLeaf(tachText.body, tachText);
-var tachInlineText = {filename: 'foo.txt', body: 'Rock the mic',
+var tachInlineText = {filename: "foo.txt", body: "Rock the mic",
                       format: null, charset: null,
-                      disposition: 'inline'};
-var partTachInlineText = new SyntheticPartLeaf(tachInlineText.body,
-                                               tachInlineText);
+                      disposition: "inline"};
+new SyntheticPartLeaf(tachInlineText.body, tachInlineText);
 
-var tachImage = {filename: 'bob.png', contentType: 'image/png',
-                 encoding: 'base64', charset: null, format: null,
-                 body: 'YWJj\n'};
+var tachImage = {filename: "bob.png", contentType: "image/png",
+                 encoding: "base64", charset: null, format: null,
+                 body: "YWJj\n"};
 var partTachImage = new SyntheticPartLeaf(tachImage.body, tachImage);
 
-var relImage = {contentType: 'image/png',
-                encoding: 'base64', charset: null, format: null,
-                contentId: 'part1.foo@bar.invalid',
-                body: 'YWJj\n'};
+var relImage = {contentType: "image/png",
+                encoding: "base64", charset: null, format: null,
+                contentId: "part1.foo@bar.invalid",
+                body: "YWJj\n"};
 var partRelImage = new SyntheticPartLeaf(relImage.body, relImage);
 
-var tachVCard = {filename: 'bob.vcf', contentType: 'text/x-vcard',
-                 encoding: '7bit', body: 'begin:vcard\nfn:Bob\nend:vcard\n'};
+var tachVCard = {filename: "bob.vcf", contentType: "text/x-vcard",
+                 encoding: "7bit", body: "begin:vcard\nfn:Bob\nend:vcard\n"};
 var partTachVCard = new SyntheticPartLeaf(tachVCard.body, tachVCard);
 
-var tachApplication = {filename: 'funky.funk',
-                       contentType: 'application/x-funky', body: 'funk!'};
+var tachApplication = {filename: "funky.funk",
+                       contentType: "application/x-funky", body: "funk!"};
 var partTachApplication = new SyntheticPartLeaf(tachApplication.body,
                                                 tachApplication);
 
@@ -124,115 +124,115 @@ var partEmpty = new SyntheticDegeneratePartEmpty();
 var messageInfos = [
   // -- simple
   {
-    name: 'text/plain',
+    name: "text/plain",
     bodyPart: partText,
   },
   {
-    name: 'text/html',
+    name: "text/html",
     bodyPart: partHtml,
   },
   // -- simply ugly
   {
-    name: 'text/enriched',
+    name: "text/enriched",
     bodyPart: partEnriched,
   },
   // -- simple w/attachment
   {
-    name: 'text/plain w/text attachment (=> multipart/mixed)',
+    name: "text/plain w/text attachment (=> multipart/mixed)",
     bodyPart: partText,
     attachments: [tachText],
   },
   {
-    name: 'text/plain w/image attachment (=> multipart/mixed)',
+    name: "text/plain w/image attachment (=> multipart/mixed)",
     bodyPart: partText,
     attachments: [tachImage],
   },
   {
-    name: 'text/plain w/vcard attachment (=> multipart/mixed)',
+    name: "text/plain w/vcard attachment (=> multipart/mixed)",
     bodyPart: partText,
     attachments: [tachVCard],
   },
   {
-    name: 'text/plain w/app attachment (=> multipart/mixed)',
+    name: "text/plain w/app attachment (=> multipart/mixed)",
     bodyPart: partText,
     attachments: [tachApplication],
   },
   {
-    name: 'text/html w/text attachment (=> multipart/mixed)',
+    name: "text/html w/text attachment (=> multipart/mixed)",
     bodyPart: partHtml,
     attachments: [tachText],
   },
   {
-    name: 'text/html w/image attachment (=> multipart/mixed)',
+    name: "text/html w/image attachment (=> multipart/mixed)",
     bodyPart: partHtml,
     attachments: [tachImage],
   },
   {
-    name: 'text/html w/vcard attachment (=> multipart/mixed)',
+    name: "text/html w/vcard attachment (=> multipart/mixed)",
     bodyPart: partHtml,
     attachments: [tachVCard],
   },
   {
-    name: 'text/html w/app attachment (=> multipart/mixed)',
+    name: "text/html w/app attachment (=> multipart/mixed)",
     bodyPart: partHtml,
     attachments: [tachApplication],
   },
   // -- alternatives
   {
-    name: 'multipart/alternative: text/plain, text/html',
+    name: "multipart/alternative: text/plain, text/html",
     bodyPart: partAlternative,
   },
   {
-    name: 'multipart/alternative plain/html w/text attachment',
+    name: "multipart/alternative plain/html w/text attachment",
     bodyPart: partAlternative,
     attachments: [tachText],
   },
   {
-    name: 'multipart/alternative plain/html w/image attachment',
+    name: "multipart/alternative plain/html w/image attachment",
     bodyPart: partAlternative,
     attachments: [tachImage],
   },
   {
-    name: 'multipart/alternative plain/html w/vcard attachment',
+    name: "multipart/alternative plain/html w/vcard attachment",
     bodyPart: partAlternative,
     attachments: [tachVCard],
   },
   {
-    name: 'multipart/alternative plain/html w/app attachment',
+    name: "multipart/alternative plain/html w/app attachment",
     bodyPart: partAlternative,
     attachments: [tachApplication],
   },
   // -- S/MIME.
   {
-    name: 'S/MIME alternative',
+    name: "S/MIME alternative",
     bodyPart: new SyntheticPartMultiSignedSMIME(partAlternative),
   },
   {
-    name: 'S/MIME alternative with text attachment inside',
+    name: "S/MIME alternative with text attachment inside",
     // we have to do the attachment packing ourselves on this one.
     bodyPart: new SyntheticPartMultiSignedSMIME(
       new SyntheticPartMultiMixed([partAlternative, partTachText])),
   },
   {
-    name: 'S/MIME alternative with image attachment inside',
+    name: "S/MIME alternative with image attachment inside",
     // we have to do the attachment packing ourselves on this one.
     bodyPart: new SyntheticPartMultiSignedSMIME(
       new SyntheticPartMultiMixed([partAlternative, partTachImage])),
   },
   {
-    name: 'S/MIME alternative with image attachment inside',
+    name: "S/MIME alternative with image attachment inside",
     // we have to do the attachment packing ourselves on this one.
     bodyPart: new SyntheticPartMultiSignedSMIME(
       new SyntheticPartMultiMixed([partAlternative, partTachVCard])),
   },
   {
-    name: 'S/MIME alternative with app attachment inside',
+    name: "S/MIME alternative with app attachment inside",
     // we have to do the attachment packing ourselves on this one.
     bodyPart: new SyntheticPartMultiSignedSMIME(
       new SyntheticPartMultiMixed([partAlternative, partTachApplication])),
   },
   {
-    name: 'S/MIME alternative wrapped in mailing list',
+    name: "S/MIME alternative wrapped in mailing list",
     bodyPart: new SyntheticPartMultiMixed(
       [new SyntheticPartMultiSignedSMIME(partAlternative),
        partMailingListFooter]),
@@ -240,40 +240,40 @@ var messageInfos = [
   // -- PGP signature
   // We mainly care that all the content-type parameters show up.
   {
-    name: 'PGP signed alternative',
+    name: "PGP signed alternative",
     bodyPart: new SyntheticPartMultiSignedPGP(partAlternative),
   },
   // -- attached RFC822
   {
     // not your average attachment, pack ourselves for now
-    name: 'attached rfc822',
+    name: "attached rfc822",
     bodyPart: new SyntheticPartMultiMixed([partAlternative,
                                            partTachMessages[0]]),
   },
   // -- multipart/related
   {
-    name: 'multipart/related',
+    name: "multipart/related",
     bodyPart: new SyntheticPartMultiRelated([partHtml, partRelImage]),
   },
   {
-    name: 'multipart/related inside multipart/alternative',
+    name: "multipart/related inside multipart/alternative",
     bodyPart: new SyntheticPartMultiAlternative([partText,
       new SyntheticPartMultiRelated([partHtml, partRelImage])]),
   },
   // -- multipart/digest
   {
-    name: 'multipart/digest',
+    name: "multipart/digest",
     bodyPart: new SyntheticPartMultiDigest(partTachMessages.concat()),
   },
   // -- multipart/parallel (allegedly the same as mixed)
   {
-    name: 'multipart/parallel',
+    name: "multipart/parallel",
     bodyPart: new SyntheticPartMultiParallel([partText, partTachImage]),
   },
   // --- previous bugs
   // -- bug 495057, text/enriched was being dumb
   {
-    name: 'text/enriched inside related',
+    name: "text/enriched inside related",
     bodyPart: new SyntheticPartMultiRelated([partEnriched]),
   },
   // -- empty sections
@@ -283,15 +283,15 @@ var messageInfos = [
   //  nothing inherently nested-multipart-requiring to trigger the double-close
   //  bug.
   {
-    name: 'nested multipart with empty multipart section',
+    name: "nested multipart with empty multipart section",
     bodyPart: new SyntheticPartMultiMixed([
         new SyntheticPartMultiRelated([partAlternative, partTachText]),
-        partEmpty
-      ])
+        partEmpty,
+      ]),
   },
   {
-    name: 'empty multipart section produces no child',
-    bodyPart: new SyntheticPartMultiMixed([partText, partEmpty, partTachText])
+    name: "empty multipart section produces no child",
+    bodyPart: new SyntheticPartMultiMixed([partText, partEmpty, partTachText]),
   },
 ];
 
@@ -390,8 +390,7 @@ function verify_stream_message(aInfo, aSynMsg, aMsgHdr, aMimeMsg) {
   try {
     // aMimeMsg is normalized; it only ever actually gets one child...
     verify_body_part_equivalence(aSynMsg.bodyPart, aMimeMsg.parts[0]);
-  }
-  catch (ex) {
+  } catch (ex) {
     dump("Something was wrong with the MIME rep!\n!!!!!!!!\n");
     dump("Synthetic looks like:\n  " + aSynMsg.prettyString() +
          "\n\n");
@@ -449,20 +448,20 @@ var partTachNestedMessages = [
   // all by itself. That allows us to create a non-UTF-8 subject, and ensure the
   // resulting attachment name is indeed São Paulo.eml.
   msgGen.makeMessage({
-    subject: "S"+String.fromCharCode(0xe3)+"o Paulo",
+    subject: "S" + String.fromCharCode(0xe3) + "o Paulo",
     bodyPart: new SyntheticPartLeaf(
       "<html><head></head><body>I am HTML! Woo! </body></html>",
       {
-        contentType: 'text/html',
+        contentType: "text/html",
       }
-    )
+    ),
   }),
   msgGen.makeMessage({
-      attachments: [tachImage]
-    }),
+    attachments: [tachImage],
+  }),
   msgGen.makeMessage({
-      attachments: [tachImage, tachApplication]
-    }),
+    attachments: [tachImage, tachApplication],
+  }),
 ];
 
 var attMessagesParams = [
@@ -473,17 +472,17 @@ var attMessagesParams = [
     attachments: [tachExternal],
   },
   {
-    name: 'attached rfc822',
+    name: "attached rfc822",
     bodyPart: new SyntheticPartMultiMixed([partAlternative,
                                            partTachNestedMessages[0]]),
   },
   {
-    name: 'attached rfc822 w. image inside',
+    name: "attached rfc822 w. image inside",
     bodyPart: new SyntheticPartMultiMixed([partAlternative,
                                            partTachNestedMessages[1]]),
   },
   {
-    name: 'attached x/funky + attached rfc822 w. (image + x/funky) inside',
+    name: "attached x/funky + attached rfc822 w. (image + x/funky) inside",
     bodyPart: new SyntheticPartMultiMixed([partAlternative,
                                            partTachApplication,
                                            partTachNestedMessages[2]]),
@@ -506,15 +505,15 @@ var expectedAttachmentsInfo = [
   },
   {
     allAttachmentsContentTypes: ["image/png"],
-    allUserAttachmentsContentTypes: ["message/rfc822"]
+    allUserAttachmentsContentTypes: ["message/rfc822"],
   },
   {
     allAttachmentsContentTypes: ["application/x-funky", "image/png", "application/x-funky"],
-    allUserAttachmentsContentTypes: ["application/x-funky", "message/rfc822"]
+    allUserAttachmentsContentTypes: ["application/x-funky", "message/rfc822"],
   },
 ];
 
-function* test_attachments_correctness () {
+function* test_attachments_correctness() {
   for (let [i, params] of attMessagesParams.entries()) {
     let synMsg = gMessageGenerator.makeMessage(params);
     let synSet = new SyntheticMessageSet([synMsg]);
@@ -529,8 +528,8 @@ function* test_attachments_correctness () {
         if ("firstAttachmentName" in expected) {
           let att = aMimeMsg.allUserAttachments[0];
           Assert.equal(att.name.length, expected.firstAttachmentName.length);
-          for (let i = 0; i < att.name.length; ++i)
-            Assert.equal(att.name.charCodeAt(i), expected.firstAttachmentName.charCodeAt(i));
+          for (let j = 0; j < att.name.length; ++j)
+            Assert.equal(att.name.charCodeAt(j), expected.firstAttachmentName.charCodeAt(j));
         }
 
         Assert.equal(aMimeMsg.allAttachments.length, expected.allAttachmentsContentTypes.length);
@@ -550,9 +549,8 @@ function* test_attachments_correctness () {
           // present
           Assert.ok(glodaAttachment.url.startsWith(att.url));
         }
-
       } catch (e) {
-        dump(aMimeMsg.prettyString()+"\n");
+        dump(aMimeMsg.prettyString() + "\n");
         do_throw(e);
       }
 
@@ -573,10 +571,12 @@ var weirdMessageInfos = [
   // name Part 1.2. Now it's not the case anymore, so we should ensure this
   // message has no attachments.
   {
-    name: 'test message with part 1.2 attachment',
-    attachments: [{ body: 'attachment',
-                    filename: '',
-                    format: '' }],
+    name: "test message with part 1.2 attachment",
+    attachments: [{
+      body: "attachment",
+      filename: "",
+      format: "",
+    }],
   },
 ];
 

@@ -39,7 +39,7 @@ var refsAndResults = [
   // be backwards compatible with things that just seem malicious
   [" 4 < 5", ["4 < 5"]],
   [" 6 > 3", ["6 > 3"]],
-  ["  look ma!\n newlines!", ["look ma!\n newlines!"]]
+  ["  look ma!\n newlines!", ["look ma!\n newlines!"]],
 ];
 
 /**
@@ -65,7 +65,7 @@ function test_references_header_parsing(aMsgHdr) {
       dump("Got:\n");
 
       for (iResult = 0; iResult < aMsgHdr.numReferences; iResult++) {
-        dump("'" + aMsgHdr.getStringReference(iResult) +  "'\n");
+        dump("'" + aMsgHdr.getStringReference(iResult) + "'\n");
       }
 
       Assert.equal(aMsgHdr.numReferences, results.length);
@@ -95,14 +95,14 @@ function run_test() {
 var messageHeaderGetterListener = {
   msgKey: null,
 
-  OnStartCopy: function() {},
-  OnProgress: function(aProgress, aProgressMax) {},
-  GetMessageId: function (aMessageId) {},
-  SetMessageKey: function(aKey) {
+  OnStartCopy() {},
+  OnProgress(aProgress, aProgressMax) {},
+  GetMessageId(aMessageId) {},
+  SetMessageKey(aKey) {
     this.msgKey = aKey;
   },
-  OnStopCopy: function(aStatus) {
+  OnStopCopy(aStatus) {
     test_references_header_parsing(
       localAccountUtils.inboxFolder.GetMessageHeader(this.msgKey));
   },
-}
+};

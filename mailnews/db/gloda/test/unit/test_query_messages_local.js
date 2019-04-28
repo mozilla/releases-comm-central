@@ -2,6 +2,8 @@
 /**
  * Test query support for local messages.
  */
+
+/* import-globals-from base_query_messages.js */
 load("base_query_messages.js");
 
 function run_test() {

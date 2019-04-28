@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ['GlodaABIndexer', 'GlodaABAttrs'];
+this.EXPORTED_SYMBOLS = ["GlodaABIndexer", "GlodaABAttrs"];
 
 const {GlodaCollectionManager} = ChromeUtils.import("resource:///modules/gloda/collection.js");
 const {GlodaDatastore} = ChromeUtils.import("resource:///modules/gloda/datastore.js");
@@ -18,7 +18,7 @@ var GlodaABIndexer = {
   _log: null,
 
   name: "index_ab",
-  enable: function() {
+  enable() {
     if (this._log == null)
       this._log =  Log4Moz.repository.getLogger("gloda.index_ab");
 
@@ -28,7 +28,7 @@ var GlodaABIndexer = {
                                            Ci.nsIAbListener.directoryItemRemoved);
   },
 
-  disable: function() {
+  disable() {
     MailServices.ab.removeAddressBookListener(this);
   },
 
@@ -41,7 +41,7 @@ var GlodaABIndexer = {
     ];
   },
 
-  _worker_index_card: function*(aJob, aCallbackHandle) {
+  * _worker_index_card(aJob, aCallbackHandle) {
     let card = aJob.id;
 
     if (card.primaryEmail) {
@@ -60,8 +60,8 @@ var GlodaABIndexer = {
 
         this._log.debug("Found identity, processing card.");
         yield aCallbackHandle.pushAndGo(
-            Gloda.grokNounItem(identity.contact, {card: card}, false, false,
-                               aCallbackHandle));
+          Gloda.grokNounItem(identity.contact, {card}, false, false,
+                             aCallbackHandle));
         this._log.debug("Done processing card.");
       }
     }
@@ -69,7 +69,7 @@ var GlodaABIndexer = {
     yield GlodaIndexer.kWorkDone;
   },
 
-  initialSweep: function() {
+  initialSweep() {
   },
 
   /* ------ nsIAbListener ------ */
@@ -77,7 +77,7 @@ var GlodaABIndexer = {
    * When an address book card is added, update the cached GlodaIdentity
    *  object's cached idea of whether the identity has an ab card.
    */
-  onItemAdded: function ab_indexer_onItemAdded(aParentDir, aItem) {
+  onItemAdded(aParentDir, aItem) {
     if (!(aItem instanceof Ci.nsIAbCard))
       return;
 
@@ -91,7 +91,7 @@ var GlodaABIndexer = {
    * When an address book card is added, update the cached GlodaIdentity
    *  object's cached idea of whether the identity has an ab card.
    */
-  onItemRemoved: function ab_indexer_onItemRemoved(aParentDir, aItem) {
+  onItemRemoved(aParentDir, aItem) {
     if (!(aItem instanceof Ci.nsIAbCard))
       return;
 
@@ -100,10 +100,8 @@ var GlodaABIndexer = {
       Gloda.NOUN_IDENTITY, "email@" + aItem.primaryEmail.toLowerCase());
     if (identity)
       identity._hasAddressBookCard = false;
-
   },
-  onItemPropertyChanged: function ab_indexer_onItemPropertyChanged(aItem,
-      aProperty, aOldValue, aNewValue) {
+  onItemPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {
     if (aProperty == null && aItem instanceof Ci.nsIAbCard) {
       this._log.debug("Received Card Change Notification");
 
@@ -111,7 +109,7 @@ var GlodaABIndexer = {
       let job = new IndexingJob("ab-card", card);
       GlodaIndexer.indexJob(job);
     }
-  }
+  },
 };
 GlodaIndexer.registerIndexer(GlodaABIndexer);
 
@@ -119,19 +117,18 @@ var GlodaABAttrs = {
   providerName: "gloda.ab_attr",
   _log: null,
 
-  init: function() {
+  init() {
     this._log =  Log4Moz.repository.getLogger("gloda.abattrs");
 
     try {
       this.defineAttributes();
-    }
-    catch (ex) {
+    } catch (ex) {
       this._log.error("Error in init: " + ex);
       throw ex;
     }
   },
 
-  defineAttributes: function() {
+  defineAttributes() {
     /* ***** Contacts ***** */
     this._attrIdentityContact = Gloda.defineAttribute({
       provider: this,
@@ -140,7 +137,7 @@ var GlodaABAttrs = {
       attributeName: "identities",
       singular: false,
       special: Gloda.kSpecialColumnChildren,
-      //specialColumnName: "contactID",
+      // specialColumnName: "contactID",
       storageAttributeName: "_identities",
       subjectNouns: [Gloda.NOUN_CONTACT],
       objectNoun: Gloda.NOUN_IDENTITY,
@@ -249,7 +246,7 @@ var GlodaABAttrs = {
     }
   },
 
-  process: function*(aContact, aRawReps, aIsNew, aCallbackHandle) {
+  * process(aContact, aRawReps, aIsNew, aCallbackHandle) {
     let card = aRawReps.card;
     if (aContact.NOUN_ID != Gloda.NOUN_CONTACT) {
       this._log.warn("Somehow got a non-contact: " + aContact);
@@ -278,5 +275,5 @@ var GlodaABAttrs = {
     }
 
     yield Gloda.kWorkDone;
-  }
+  },
 };

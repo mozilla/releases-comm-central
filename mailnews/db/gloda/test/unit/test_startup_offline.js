@@ -13,6 +13,7 @@ var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 Services.io.manageOfflineStatus = false;
 Services.io.offline = true;
 
+/* import-globals-from resources/glodaTestHelper.js */
 load("resources/glodaTestHelper.js");
 
 /**
@@ -21,7 +22,7 @@ load("resources/glodaTestHelper.js");
  */
 function* test_gloda_offline_startup() {
   // Set up a folder for indexing and check the message doesn't get indexed.
-  let [folder, msgSet] = make_folder_with_sets([{count: 1}]);
+  let [, msgSet] = make_folder_with_sets([{count: 1}]);
   yield wait_for_message_injection();
   yield wait_for_gloda_indexer();
 

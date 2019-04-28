@@ -10,6 +10,7 @@
  *  other tests unless you take care to fix all our meddling.
  */
 
+/* import-globals-from resources/glodaTestHelper.js */
 load("resources/glodaTestHelper.js");
 
 /**
@@ -36,7 +37,7 @@ function* test_msf_closure() {
   GlodaFolder.prototype.ACCEPTABLY_OLD_THRESHOLD = 1000000000;
 
   // create a synthetic message
-  let [folder, msgSet] = make_folder_with_sets([{count: 1}]);
+  let [, msgSet] = make_folder_with_sets([{count: 1}]);
   yield wait_for_message_injection();
   yield wait_for_gloda_indexer(msgSet, {verifier: poke_and_verify_msf_closure});
 }

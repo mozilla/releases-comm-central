@@ -15,6 +15,7 @@
  * - Full-text search.  Happens in query testing.
  */
 
+/* import-globals-from resources/glodaTestHelper.js */
 load("resources/glodaTestHelper.js");
 
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
@@ -38,7 +39,7 @@ var goOffline = false;
  *  up, flush again, and make sure the dirty property goes clean again.
  */
 function* test_pending_commit_tracker_flushes_correctly() {
-  let [folder, msgSet] = make_folder_with_sets([{count: 1}]);
+  let [, msgSet] = make_folder_with_sets([{count: 1}]);
   yield wait_for_message_injection();
   yield wait_for_gloda_indexer(msgSet, {augment: true});
 
@@ -116,8 +117,7 @@ function* test_indexing_sweep() {
   let [folderA, setA1, setA2] = make_folder_with_sets([{count: 3},
                                                        {count: 2}]);
   yield wait_for_message_injection();
-  let [folderB, setB1, setB2] = make_folder_with_sets([{count: 3},
-                                                       {count: 2}]);
+  let [, setB1, setB2] = make_folder_with_sets([{count: 3}, {count: 2}]);
   yield wait_for_message_injection();
   let [folderC, setC1, setC2] = make_folder_with_sets([{count: 3},
                                                        {count: 2}]);
@@ -186,7 +186,7 @@ function* test_indexing_sweep() {
   mark_sub_test_start("forced folder indexing");
   GlodaMsgIndexer.indexFolder(get_real_injection_folder(folderA), {
     force: true,
-    callback: function() {
+    callback() {
       callbackInvoked = true;
     }});
   yield wait_for_gloda_indexer([setA1, setA2]);
@@ -228,7 +228,6 @@ function* test_event_driven_indexing_does_not_mess_with_filthy_folders() {
 }
 
 function* test_indexing_never_priority() {
-
   // add a folder with a bunch of messages
   let [folder, msgSet] = make_folder_with_sets([{count: 1}]);
   yield wait_for_message_injection();
@@ -264,7 +263,6 @@ function* test_indexing_never_priority() {
 }
 
 function* test_setting_indexing_priority_never_while_indexing() {
-
   if (!message_injection_is_local())
     return;
 
@@ -272,7 +270,7 @@ function* test_setting_indexing_priority_never_while_indexing() {
   configure_gloda_indexing({hangWhile: "streaming"});
 
   // create a folder with a message inside.
-  let [folder, msgSet] = make_folder_with_sets([{count: 1}]);
+  let [folder] = make_folder_with_sets([{count: 1}]);
   yield wait_for_message_injection();
 
   yield wait_for_indexing_hang();
@@ -336,10 +334,12 @@ function* test_attachment_flag() {
   // in the attachment pane (Content-Disposition: inline, no filename, and
   // displayable inline)
   let smsg = msgGen.makeMessage({
-    name: 'test message with part 1.2 attachment',
-    attachments: [{ body: 'attachment',
-                    filename: '',
-                    format: '' }],
+    name: "test message with part 1.2 attachment",
+    attachments: [{
+      body: "attachment",
+      filename: "",
+      format: "",
+    }],
   });
   // save it off for test_attributes_fundamental_from_disk
   let msgSet = new SyntheticMessageSet([smsg]);
@@ -355,7 +355,6 @@ function* test_attachment_flag() {
 
   yield wait_for_gloda_indexer(msgSet,
                                {verifier: verify_attachment_flag});
-
 }
 
 function verify_attachment_flag(smsg, gmsg) {
@@ -395,13 +394,13 @@ var fundamentalGlodaMessageId;
 function* test_attributes_fundamental() {
   // create a synthetic message with attachment
   let smsg = msgGen.makeMessage({
-    name: 'test message',
+    name: "test message",
     bodyPart: new SyntheticPartMultiMixed([
-      new SyntheticPartLeaf({body: 'I like cheese!'}),
-      msgGen.makeMessage({ body: { body: 'I like wine!' }}), // that's one attachment
+      new SyntheticPartLeaf({body: "I like cheese!"}),
+      msgGen.makeMessage({ body: { body: "I like wine!" }}), // that's one attachment
     ]),
     attachments: [
-      {filename: 'bob.txt', body: 'I like bread!'} // and that's another one
+      {filename: "bob.txt", body: "I like bread!"}, // and that's another one
     ],
   });
   // save it off for test_attributes_fundamental_from_disk
@@ -419,7 +418,6 @@ function* test_attributes_fundamental() {
   }
 
   yield wait_for_gloda_indexer(msgSet, { verifier: verify_attributes_fundamental });
-
 }
 
 function verify_attributes_fundamental(smsg, gmsg) {
@@ -481,7 +479,7 @@ function verify_attributes_fundamental(smsg, gmsg) {
          uri: attInfos.url,
          loadingPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
          securityFlags: Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-         contentPolicyType: Ci.nsIContentPolicy.TYPE_OTHER
+         contentPolicyType: Ci.nsIContentPolicy.TYPE_OTHER,
       });
 
       try {
@@ -491,8 +489,7 @@ function verify_attributes_fundamental(smsg, gmsg) {
         do_throw(new Error("Invalid attachment URL"));
       }
     }
-  }
-  else {
+  } else {
     // Make sure we don't actually get attachments!
     Assert.equal(gmsg.attachmentTypes, null);
     Assert.equal(gmsg.attachmentNames, null);
@@ -519,7 +516,7 @@ function* test_moved_message_attributes() {
   yield async_move_messages(fundamentalMsgSet, destFolder, true);
 
   yield wait_for_gloda_indexer(fundamentalMsgSet, {
-    verifier: function (newSynMsg, newGlodaMsg) {
+    verifier(newSynMsg, newGlodaMsg) {
       // verify we still have the same number of attachments
       Assert.equal(fundamentalGlodaMsgAttachmentUrls.length,
         newGlodaMsg.attachmentInfos.length);
@@ -531,7 +528,7 @@ function* test_moved_message_attributes() {
            uri: attInfos.url,
            loadingPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
            securityFlags: Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-           contentPolicyType: Ci.nsIContentPolicy.TYPE_OTHER
+           contentPolicyType: Ci.nsIContentPolicy.TYPE_OTHER,
         });
         try {
           channel.open();
@@ -557,7 +554,7 @@ function test_attributes_fundamental_from_disk() {
   let query = Gloda.newQuery(Gloda.NOUN_MESSAGE).id(fundamentalGlodaMessageId);
   queryExpect(query, [fundamentalSyntheticMessage],
               verify_attributes_fundamental_from_disk,
-              function (smsg) { return smsg.messageId; } );
+              function(smsg) { return smsg.messageId; });
   return false;
 }
 
@@ -580,7 +577,7 @@ function verify_attributes_fundamental_from_disk(aGlodaMessage) {
  * Test the attributes defined by explattr.js.
  */
 function* test_attributes_explicit() {
-  let [folder, msgSet] = make_folder_with_sets([{count: 1}]);
+  let [, msgSet] = make_folder_with_sets([{count: 1}]);
   yield wait_for_message_injection();
   yield wait_for_gloda_indexer(msgSet, {augment: true});
   let gmsg = msgSet.glodaMessages[0];
@@ -643,7 +640,7 @@ function* test_attributes_explicit() {
  * Test non-query-able attributes
  */
 function* test_attributes_cant_query() {
-  let [folder, msgSet] = make_folder_with_sets([{count: 1}]);
+  let [, msgSet] = make_folder_with_sets([{count: 1}]);
   yield wait_for_message_injection();
   yield wait_for_gloda_indexer(msgSet, {augment: true});
   let gmsg = msgSet.glodaMessages[0];
@@ -691,7 +688,7 @@ function* test_people_in_addressbook() {
   makeABCardForAddressPair(senderPair);
   makeABCardForAddressPair(recipPair);
 
-  let [folder, msgSet] = make_folder_with_sets([
+  let [, msgSet] = make_folder_with_sets([
     { count: 1, to: [recipPair], from: senderPair }]);
   yield wait_for_message_injection();
   yield wait_for_gloda_indexer(msgSet, {augment: true});
@@ -761,7 +758,7 @@ function* test_streamed_bodies_are_size_capped() {
 function* test_message_deletion() {
   mark_sub_test_start("non-last message in conv, twin");
   // create and index two messages in a conversation
-  let [folder, convSet] = make_folder_with_sets([{count: 2, msgsPerThread: 2}]);
+  let [, convSet] = make_folder_with_sets([{count: 2, msgsPerThread: 2}]);
   yield wait_for_message_injection();
   yield wait_for_gloda_indexer([convSet], {augment: true});
 
@@ -920,12 +917,11 @@ function* test_message_deletion() {
   mark_sub_test_start("identity culling verification");
   // The identities associated with that message should no longer exist, nor
   //  should their contacts.
-
 }
 
 function* test_moving_to_trash_marks_deletion() {
   // create and index two messages in a conversation
-  let [folder, msgSet] = make_folder_with_sets([{count: 2, msgsPerThread: 2}]);
+  let [, msgSet] = make_folder_with_sets([{count: 2, msgsPerThread: 2}]);
   yield wait_for_message_injection();
   yield wait_for_gloda_indexer([msgSet], {augment: true});
 
@@ -1020,15 +1016,7 @@ function* test_folder_nuking_message_deletion() {
 function get_nsIMsgFolder(aFolder) {
   if (!(aFolder instanceof Ci.nsIMsgFolder))
     return MailUtils.getOrCreateFolder(aFolder);
-  else
-    return aFolder;
-}
-
-function get_testFolder(aFolder) {
-  if ((typeof aFolder) != "string")
-    return aFolder.URI;
-  else
-    return aFolder;
+  return aFolder;
 }
 
 function* test_folder_deletion_nested() {
@@ -1096,7 +1084,7 @@ function* test_imap_add_unread_to_folder() {
   if (message_injection_is_local())
     return;
 
-  let [srcFolder, msgSet] = make_folder_with_sets([{count: 1, read: true}]);
+  let [, msgSet] = make_folder_with_sets([{count: 1, read: true}]);
   yield wait_for_message_injection();
   yield wait_for_gloda_indexer(msgSet);
 }
@@ -1224,6 +1212,7 @@ function* test_filthy_moves_slash_move_from_unindexed_to_indexed() {
   yield wait_for_gloda_indexer([msgSet]);
 }
 
+/* exported tests */
 var tests = [
   test_pending_commit_tracker_flushes_correctly,
   test_pending_commit_causes_msgdb_commit,

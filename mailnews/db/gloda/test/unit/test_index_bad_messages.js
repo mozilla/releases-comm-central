@@ -7,6 +7,7 @@
  *  exploding or something bad like that.
  */
 
+/* import-globals-from resources/glodaTestHelper.js */
 load("resources/glodaTestHelper.js");
 
 var gInbox;
@@ -16,15 +17,15 @@ var illegalMessageTemplates = [
   {
     name: "no author",
     clobberHeaders: {
-      From: ""
-    }
+      From: "",
+    },
   },
   {
     name: "too many authors (> 1)",
     clobberHeaders: {
-      From: "Tweedle Dee <dee@example.com>, Tweedle Dum <dum@example.com>"
-    }
-  }
+      From: "Tweedle Dee <dee@example.com>, Tweedle Dum <dum@example.com>",
+    },
+  },
 ];
 
 /**
@@ -79,7 +80,7 @@ function* test_streaming_failure() {
  *  we should not attempt to index the message again.
  */
 function* test_recovery_and_no_second_attempts() {
-  let [badSet, goodSet] = make_new_sets_in_folder(gInbox, [
+  let [, goodSet] = make_new_sets_in_folder(gInbox, [
                    {count: 1, clobberHeaders: {From: ""}},
                    {count: 1}]);
   yield wait_for_message_injection();

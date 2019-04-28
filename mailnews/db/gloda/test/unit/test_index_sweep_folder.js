@@ -13,6 +13,8 @@
  *  indexing gets.  We also clobber or wrap other functions as needed.
  */
 
+/* import-globals-from resources/glodaTestHelper.js */
+/* import-globals-from resources/asyncCallbackHandler.js */
 load("resources/glodaTestHelper.js");
 load("resources/asyncCallbackHandler.js");
 
@@ -53,11 +55,8 @@ function* _spin_folder_indexer_gen(aFolderHandle, aExpectedJobGoal) {
   let worker = GlodaMsgIndexer._worker_folderIndex(job, asyncCallbackHandle);
   try {
     yield asyncCallbackHandle.pushAndGo(worker);
-  }
-  catch(ex) {
-    // it's okay if this is from our exploding enumerator wrapper.
-    if (ex != expectedReaper)
-      do_throw(ex);
+  } catch (ex) {
+    do_throw(ex);
   }
 
   if (aExpectedJobGoal !== undefined)

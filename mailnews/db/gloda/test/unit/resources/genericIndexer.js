@@ -3,29 +3,32 @@
  *  Gloda.grokNounItem.  Call GenericIndexer.indexNewObjects() to queue
  *  queue your objects for initial indexing.
  */
+
+/* import-globals-from ../test_query_core.js */
+
 var GenericIndexer = {
   _log: Log4Moz.repository.getLogger("gloda.indexer.generic"),
   /* public interface */
   name: "generic_indexer",
-  enable: function() {
+  enable() {
     this.enabled = true;
   },
-  disable: function() {
+  disable() {
     this.enabled = false;
   },
   get workers() {
     return [
       ["generic", {
          worker: this._worker_index_generic,
-       }]
+       }],
     ];
   },
-  initialSweep: function() {
+  initialSweep() {
   },
   /* mock interface */
   enabled: false,
   initialSweepCalled: false,
-  indexObjects: function(aObjects) {
+  indexObjects(aObjects) {
     indexingInProgress = true;
     this._log.debug("enqueuing " + aObjects.length +
       " generic objects with id: " + aObjects[0].NOUN_ID);
@@ -33,7 +36,7 @@ var GenericIndexer = {
                                           aObjects.concat()));
   },
   /* implementation */
-  _worker_index_generic: function*(aJob, aCallbackHandle) {
+  * _worker_index_generic(aJob, aCallbackHandle) {
     this._log.debug("Beginning indexing " + aJob.items.length +
                     " generic items");
     for (let item of aJob.items) {
@@ -48,7 +51,7 @@ var GenericIndexer = {
 
     yield GlodaIndexer.kWorkDone;
     this._log.debug("Done indexing");
-  }
+  },
 };
 GlodaIndexer.registerIndexer(GenericIndexer);
 

@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../test_index_sweep_folder.js */
+
+/* exported asyncCallbackHandle */
 /**
  * Implements GlodaIndexer._callbackHandle's interface adapted to our async
  *  test driver.  This allows us to run indexing workers directly in tests
@@ -19,12 +22,12 @@ var asyncCallbackHandle = {
       _asyncCallbackHandle_glodaWorkerAdapter(aIterator),
       "callbackHandler pushAndGo"]);
     return async_driver();
-  }
+  },
 };
 
 function* _asyncCallbackHandle_glodaWorkerAdapter(aIter) {
-  while(true) {
-    switch(aIter.next().value) {
+  while (true) {
+    switch (aIter.next().value) {
       case GlodaIndexer.kWorkSync:
         yield true;
         break;

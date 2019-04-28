@@ -1,6 +1,8 @@
 /**
  * Test indexing support for online IMAP junk.
  */
+
+/* import-globals-from base_index_junk.js */
 load("base_index_junk.js");
 
 function run_test() {

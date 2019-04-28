@@ -21,6 +21,7 @@
  *  test_query_core to our message search logic.
  */
 
+/* import-globals-from resources/glodaTestHelper.js */
 load("resources/glodaTestHelper.js");
 
 var uniqueCounter = 0;
@@ -68,7 +69,7 @@ function asyncMsgSearcherExpect(aFulltextStr, aExpectedSet, aLimit) {
  */
 function* test_fulltext_weighting_by_column() {
   let ustr = unique_string();
-  let [folder, subjSet, bodySet] = make_folder_with_sets(
+  let [, subjSet, bodySet] = make_folder_with_sets(
     [{count: 1, subject: ustr}, {count: 1, body: {body: ustr}}]);
   yield wait_for_gloda_indexer([subjSet, bodySet]);
   yield asyncMsgSearcherExpect(ustr, subjSet);
@@ -83,7 +84,7 @@ function* test_fulltext_weighting_saturation() {
   let ustr = unique_string();
   let double_ustr = ustr + " " + ustr;
   let thrice_ustr = ustr + " " + ustr + " " + ustr;
-  let [folder, subjSet, bodySet] = make_folder_with_sets(
+  let [, subjSet, bodySet] = make_folder_with_sets(
     [{count: 1, subject: double_ustr}, {count: 1, body: {body: thrice_ustr}}]);
   yield wait_for_gloda_indexer([subjSet, bodySet]);
   yield asyncMsgSearcherExpect(ustr, bodySet);
@@ -96,7 +97,7 @@ function* test_fulltext_weighting_saturation() {
  */
 function* test_static_interestingness_boost_works() {
   let ustr = unique_string();
-  let [folder, starred, notStarred] = make_folder_with_sets(
+  let [, starred, notStarred] = make_folder_with_sets(
     [{count: 1, subject: ustr}, {count: 1, subject: ustr}]);
   // index in their native state
   yield wait_for_gloda_indexer([starred, notStarred]);
@@ -112,7 +113,7 @@ function* test_static_interestingness_boost_works() {
  */
 function* test_joins_do_not_return_everybody() {
   let ustr = unique_string();
-  let [folder, subjSet] = make_folder_with_sets([{count: 1, subject: ustr}]);
+  let [, subjSet] = make_folder_with_sets([{count: 1, subject: ustr}]);
   yield wait_for_gloda_indexer([subjSet]);
   yield asyncMsgSearcherExpect(ustr, subjSet, 2);
 }

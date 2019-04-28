@@ -1,3 +1,4 @@
+/* import-globals-from ../../../../test/resources/messageGenerator.js */
 load("../../../../resources/messageGenerator.js");
 
 var gMessages = [];
@@ -5,8 +6,7 @@ var gMessages = [];
 const kSetCount = 13;
 const kNumExpectedMatches = 10;
 
-function setupGlobals()
-{
+function setupGlobals() {
   localAccountUtils.loadLocalMailAccount();
   // Create a message generator
   let messageGenerator = new MessageGenerator();

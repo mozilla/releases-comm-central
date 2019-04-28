@@ -4,6 +4,7 @@
  * via Gloda.getMessageContent for IMAP messages that are offline.
  */
 
+/* import-globals-from base_gloda_content.js */
 load("base_gloda_content.js");
 
 function run_test() {

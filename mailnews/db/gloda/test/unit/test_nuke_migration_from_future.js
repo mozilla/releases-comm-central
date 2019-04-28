@@ -5,6 +5,7 @@
  * grandchildren!
  **/
 
+/* import-globals-from test_nuke_migration.js */
 load("test_nuke_migration.js");
 
 // pick something so far forward it will never get used!

@@ -4,6 +4,7 @@
  * via Gloda.getMessageContent for local messages.
  */
 
+/* import-globals-from base_gloda_content.js */
 load("base_gloda_content.js");
 
 function run_test() {

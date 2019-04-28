@@ -10,6 +10,7 @@
  *  base_index_messages.js.
  */
 
+/* import-globals-from resources/glodaTestHelper.js */
 load("resources/glodaTestHelper.js");
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
@@ -21,15 +22,15 @@ var HAM_BODY = {body: "ham ham ham nice nice nice happy happy happy"};
  * Make SPAM_BODY be known as spammy and HAM_BODY be known as hammy.
  */
 function* setup_spam_filter() {
-  let [folder, spamSet, hamSet] = make_folder_with_sets([
+  let [, spamSet, hamSet] = make_folder_with_sets([
     {count: 1, body: SPAM_BODY}, {count: 1, body: HAM_BODY}]);
   yield wait_for_message_injection();
   yield wait_for_gloda_indexer([spamSet, hamSet]);
 
   let junkListener = {
-    onMessageClassified: function() {
+    onMessageClassified() {
       async_driver();
-    }
+    },
   };
 
   // ham
@@ -63,7 +64,7 @@ function* test_never_indexes_a_message_marked_as_junk() {
   mark_sub_test_start("event-driven does not index junk");
 
   // make a message that will be marked as junk from the get-go
-  let [folder, msgSet] = make_folder_with_sets([{count: 1, body: SPAM_BODY}]);
+  make_folder_with_sets([{count: 1, body: SPAM_BODY}]);
   yield wait_for_message_injection();
   // since the message is junk, gloda should not index it!
   yield wait_for_gloda_indexer([]);
@@ -89,7 +90,7 @@ function reset_spam_filter() {
 function* test_mark_as_junk_is_deletion_mark_as_not_junk_is_exposure() {
   mark_sub_test_start("mark as junk is deletion");
   // create a message; it should get indexed
-  let [folder, msgSet] = make_folder_with_sets([{count: 1}]);
+  let [, msgSet] = make_folder_with_sets([{count: 1}]);
   yield wait_for_message_injection();
   yield wait_for_gloda_indexer([msgSet], {augment: true});
 
@@ -121,7 +122,7 @@ function* test_mark_as_junk_is_deletion_mark_as_not_junk_is_exposure() {
  */
 function* test_message_moving_to_junk_folder_is_deletion() {
   // create and index two messages in a conversation
-  let [folder, msgSet] = make_folder_with_sets([{count: 2, msgsPerThread: 2}]);
+  let [, msgSet] = make_folder_with_sets([{count: 2, msgsPerThread: 2}]);
   yield wait_for_message_injection();
   yield wait_for_gloda_indexer([msgSet], {augment: true});
 
@@ -163,6 +164,7 @@ function* test_message_moving_to_junk_folder_is_deletion() {
   yield false; // queryExpect is async
 }
 
+/* exported tests */
 var tests = [
   setup_spam_filter,
   test_never_indexes_a_message_marked_as_junk,

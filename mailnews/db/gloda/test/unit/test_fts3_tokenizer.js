@@ -14,6 +14,7 @@
  * terms to avoid issuing a query that will definitely return no results.
  */
 
+/* import-globals-from resources/glodaTestHelper.js */
 load("resources/glodaTestHelper.js");
 
 /* ===== Tests ===== */
@@ -32,15 +33,15 @@ var intlPhrases = [
   // -- CJK case
   {
     name: "CJK: Vending Machine",
-    actual: '\u81ea\u52d5\u552e\u8ca8\u6a5f',
+    actual: "\u81ea\u52d5\u552e\u8ca8\u6a5f",
     encodings: {
-      'utf-8': ['=?utf-8?b?6Ieq5YuV5ZSu6LKo5qmf?=',
-                '\xe8\x87\xaa\xe5\x8b\x95\xe5\x94\xae\xe8\xb2\xa8\xe6\xa9\x9f'],
+      "utf-8": ["=?utf-8?b?6Ieq5YuV5ZSu6LKo5qmf?=",
+                "\xe8\x87\xaa\xe5\x8b\x95\xe5\x94\xae\xe8\xb2\xa8\xe6\xa9\x9f"],
     },
     searchPhrases: [
       // match bi-gram driven matches starting from the front
       { body: '"\u81ea\u52d5"', match: true },
-    ]
+    ],
   },
   // -- Regular case. Make sure two-letter tokens do not match, since the
   // tokenizer is supposed to drop them. Also make sure that a three-letter
@@ -49,11 +50,11 @@ var intlPhrases = [
     name: "Boring ASCII",
     actual: "aa bbb",
     encodings: {
-      'utf-8': ['=?utf-8?q?aa_bbb?=', 'aa bbb'],
+      "utf-8": ["=?utf-8?q?aa_bbb?=", "aa bbb"],
     },
     searchPhrases: [
-      { body: 'aa', match: false },
-      { body: 'bbb', match: true },
+      { body: "aa", match: false },
+      { body: "bbb", match: true },
     ],
   },
 ];
@@ -78,12 +79,12 @@ function* test_index(aPhrase) {
 
     let smsg = gMessageGenerator.makeMessage({
       subject: quoted,
-      body: {charset: charset, encoding: "8bit", body: bodyEncoded},
+      body: {charset, encoding: "8bit", body: bodyEncoded},
       attachments: [
         {filename: quoted, body: "gabba gabba hey"},
       ],
       // save off the actual value for checking
-      callerData: [charset, aPhrase.actual]
+      callerData: [charset, aPhrase.actual],
     });
 
     messages.push(smsg);
@@ -135,8 +136,7 @@ function* test_token_count() {
  * For each phrase, make sure that all of the searchPhrases either match or fail
  *  to match as appropriate.
  */
-function* test_fulltextsearch(aPhrase)
-{
+function* test_fulltextsearch(aPhrase) {
   for (let searchPhrase of aPhrase.searchPhrases) {
     let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
     query.bodyMatches(searchPhrase.body);
@@ -164,8 +164,8 @@ function msgSearchExpectCount(aCount, aFulltextStr) {
   // Brace yourself, brutal monkey-patching NOW
   let sql, args;
   let oldFunc = GlodaDatastore._queryFromSQLString;
-  GlodaDatastore._queryFromSQLString = function (aSql, aArgs) {
-    sql = aSql
+  GlodaDatastore._queryFromSQLString = function(aSql, aArgs) {
+    sql = aSql;
     args = aArgs;
   };
   query.getCollection();
@@ -179,20 +179,19 @@ function msgSearchExpectCount(aCount, aFulltextStr) {
 
   let i = 0;
   stmt.executeAsync({
-    handleResult: function(aResultSet) {
+    handleResult(aResultSet) {
       for (let row = aResultSet.getNextRow();
            row;
            row = aResultSet.getNextRow()) {
-
         i++;
       }
     },
 
-    handleError: function(aError) {
+    handleError(aError) {
       do_throw(new Error("Error: " + aError.message));
     },
 
-    handleCompletion: function(aReason) {
+    handleCompletion(aReason) {
       if (aReason != Ci.mozIStorageStatementCallback.REASON_FINISHED)
         do_throw(new Error("Query canceled or aborted!"));
 
@@ -202,7 +201,7 @@ function msgSearchExpectCount(aCount, aFulltextStr) {
         do_throw();
       }
       async_driver();
-    }
+    },
   });
   stmt.finalize();
   return false;

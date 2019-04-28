@@ -10,6 +10,8 @@
  *  to test for.)
  */
 
+/* import-globals-from resources/glodaTestHelper.js */
+/* import-globals-from resources/genericIndexer.js */
 load("resources/glodaTestHelper.js");
 load("resources/genericIndexer.js");
 
@@ -42,7 +44,7 @@ function Widget(inum, date, str, notability, text1, text2) {
   this._restoreStash = null;
 }
 Widget.prototype = {
-  _clone: function() {
+  _clone() {
     let clonus = new Widget(this._inum, this._date, this._str, this._notability,
                             this._text1, this._text2);
     clonus._id = this._id;
@@ -60,7 +62,7 @@ Widget.prototype = {
 
     return clonus;
   },
-  _stash: function() {
+  _stash() {
     this._indexStash = {};
     for (let key of Object.keys(this)) {
       let value = this[key];
@@ -100,16 +102,16 @@ Widget.prototype = {
   get text2() { return this._text2; },
   set text2(aVal) { this._text2 = aVal; },
 
-  toString: function () {
+  toString() {
     return "" + this.id;
-  }
+  },
 };
 
 var WidgetProvider = {
   providerName: "widget",
-  process: function*() {
+  * process() {
     yield Gloda.kWorkDone;
-  }
+  },
 };
 
 var WidgetNoun;
@@ -124,20 +126,26 @@ function setup_test_noun_and_attributes() {
     //  will load some.  Or we could add things to collections as we index them.
     cache: true, cacheCost: 32,
     schema: {
-      columns: [['id', 'INTEGER PRIMARY KEY'],
-                ['intCol', 'NUMBER', 'inum'],
-                // datePRTime is special and creates a Date object.
-                ['dateCol', 'NUMBER', 'datePRTime'],
-                ['strCol', 'STRING', 'str'],
-                ['notabilityCol', 'NUMBER', 'notability'],
-                ['textOne', 'STRING', 'text1'],
-                ['textTwo', 'STRING', 'text2']],
-      indices: {intCol: ['intCol'],
-                strCol: ['strCol']},
-      fulltextColumns: [['fulltextOne', 'TEXT', 'text1'],
-                        ['fulltextTwo', 'TEXT', 'text2']],
-      genericAttributes: true
-    }
+      columns: [
+        ["id", "INTEGER PRIMARY KEY"],
+        ["intCol", "NUMBER", "inum"],
+        // datePRTime is special and creates a Date object.
+        ["dateCol", "NUMBER", "datePRTime"],
+        ["strCol", "STRING", "str"],
+        ["notabilityCol", "NUMBER", "notability"],
+        ["textOne", "STRING", "text1"],
+        ["textTwo", "STRING", "text2"],
+      ],
+      indices: {
+        intCol: ["intCol"],
+        strCol: ["strCol"],
+      },
+      fulltextColumns: [
+        ["fulltextOne", "TEXT", "text1"],
+        ["fulltextTwo", "TEXT", "text2"],
+      ],
+      genericAttributes: true,
+    },
   });
 
   const EXT_NAME = "test";
@@ -250,7 +258,7 @@ function test_lots_of_string_constraints() {
                            // throw in something that will explode if not quoted
                            // (and use an uneven number of things so if we fail
                            // to quote it won't get quietly eaten.)
-                           "'" + '"');
+                           "'\"");
   }
 
   let query = Gloda.newQuery(WidgetNoun.id);
@@ -395,7 +403,7 @@ function* setup_search_ranking_idiom() {
     new Widget(3, origin, "", 0, "foo", "foo foo"),
     new Widget(2, origin, "", 0, "foo foo", "foo foo"),
     new Widget(1, origin, "", 0, "foo foo", "foo foo foo"),
-    new Widget(0, origin, "", 0, "foo foo foo", "foo foo foo")
+    new Widget(0, origin, "", 0, "foo foo foo", "foo foo foo"),
   ];
   barBazWidgets = [
     // -- setup score and matches to boost older messages over newer messages
@@ -406,7 +414,7 @@ function* setup_search_ranking_idiom() {
     new Widget(3, origin, "", 1, "bar", "baz"), // 3 + 0
     new Widget(2, monthmore, "", 0, "", "bar"), // 1 + 4
     new Widget(1, origin, "", 0, "bar baz", "bar baz bar bar"), // 6 + 0
-    new Widget(0, origin, "", 1, "bar baz", "bar baz bar bar") // 7 + 0
+    new Widget(0, origin, "", 1, "bar baz", "bar baz bar bar"), // 7 + 0
   ];
 
   yield GenericIndexer.indexObjects(fooWidgets.concat(barBazWidgets));
@@ -450,10 +458,10 @@ function test_search_ranking_idiom_offsets() {
     // dascore becomes 0-based column number 8
     outerWrapColumns: [DASCORE_SQL_SNIPPET + " AS dascore"],
     // save our extra columns for analysis and debugging
-    stashColumns: [7, 8]
+    stashColumns: [7, 8],
   });
   query.fulltextAll("foo");
-  query.orderBy('-dascore');
+  query.orderBy("-dascore");
   queryExpect(query, fooWidgets, null, null,
               verify_widget_order_and_stashing);
   return false; // queryExpect is async
@@ -467,10 +475,10 @@ function test_search_ranking_idiom_score() {
     outerWrapColumns: [DASCORE_SQL_SNIPPET + " AS dascore",
                        SCORE_SQL_SNIPPET + " AS dabore", "dateCol"],
     // save our extra columns for analysis and debugging
-    stashColumns: [7, 8, 9, 10]
+    stashColumns: [7, 8, 9, 10],
   });
   query.fulltextAll("bar OR baz");
-  query.orderBy('-dascore');
+  query.orderBy("-dascore");
   queryExpect(query, barBazWidgets, null, null,
               verify_widget_order_and_stashing);
   return false; // queryExpect is async

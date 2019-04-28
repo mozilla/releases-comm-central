@@ -7,7 +7,7 @@
  *  raw JSON file.  It is trying to be one right now, but it obviously is not.
  */
 
-var EXPORTED_SYMBOLS = ['MimeCategoryMapping'];
+var EXPORTED_SYMBOLS = ["MimeCategoryMapping"];
 
 /**
  * Input data structure to allow us to build a fast mapping from mime type to
@@ -109,7 +109,7 @@ var MimeCategoryMapping = {
       "application/vnd.openxmlformats-officedocument.presentationml.template",
 
       "application/vnd.oasis.opendocument.presentation",
-      "application/vnd.oasis.opendocument.presentation-template"
+      "application/vnd.oasis.opendocument.presentation-template",
     ],
     spreadsheet: [
       "application/vnd.lotus-1-2-3",
@@ -165,11 +165,11 @@ var MimeCategoryMapping = {
       "application/x-amipro",
     ],
     suite: [
-      "application/vnd.ms-works"
+      "application/vnd.ms-works",
     ],
   },
   images: [
-    "image/*"
+    "image/*",
   ],
   media: {
     audio: [
@@ -187,10 +187,10 @@ var MimeCategoryMapping = {
       "application/x-matroska",
       "application/x-quicktime-media-link",
       "application/x-quicktimeplayer",
-    ]
+    ],
   },
   other: [
-    "*"
+    "*",
   ],
   pdf: [
     "application/pdf",
@@ -201,4 +201,4 @@ var MimeCategoryMapping = {
     "application/x-bzpdf",
     "application/x-gzpdf",
   ],
-}
+};

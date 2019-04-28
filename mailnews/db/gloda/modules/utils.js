@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ['GlodaUtils'];
+this.EXPORTED_SYMBOLS = ["GlodaUtils"];
 
 const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
@@ -18,7 +18,7 @@ var GlodaUtils = {
    */
   PART_RE: new RegExp("^[^?]+\\?(?:/;section=\\d+\\?)?(?:[^&]+&)*part=([^&]+)(?:&[^&]+)*$"),
 
-  deMime: function gloda_utils_deMime(aString) {
+  deMime(aString) {
     return MailServices.mimeConverter.decodeMimeHeader(aString, null, false, true);
   },
 
@@ -40,7 +40,7 @@ var GlodaUtils = {
    *
    * This method is a convenience wrapper around nsIMsgHeaderParser.
    */
-  parseMailAddresses: function gloda_utils_parseMailAddresses(aMailAddresses) {
+  parseMailAddresses(aMailAddresses) {
     let addresses = {}, names = {}, fullAddresses = {};
     this._headerParser.parseHeadersWithArray(aMailAddresses, addresses,
                                              names, fullAddresses);
@@ -53,15 +53,15 @@ var GlodaUtils = {
    * MD5 hash a string and return the hex-string result. Impl from nsICryptoHash
    *  docs.
    */
-  md5HashString: function gloda_utils_md5hash(aString) {
-    let converter = Cc["@mozilla.org/intl/scriptableunicodeconverter"].
-                    createInstance(Ci.nsIScriptableUnicodeConverter);
+  md5HashString(aString) {
+    let converter = Cc["@mozilla.org/intl/scriptableunicodeconverter"]
+                      .createInstance(Ci.nsIScriptableUnicodeConverter);
     let trash = {};
     converter.charset = "UTF-8";
     let data = converter.convertToByteArray(aString, trash);
 
-    let hasher = Cc['@mozilla.org/security/hash;1'].
-                 createInstance(Ci.nsICryptoHash);
+    let hasher = Cc["@mozilla.org/security/hash;1"]
+                   .createInstance(Ci.nsICryptoHash);
     hasher.init(Ci.nsICryptoHash.MD5);
     hasher.update(data, data.length);
     let hash = hasher.finish(false);
@@ -76,16 +76,14 @@ var GlodaUtils = {
     return hex.join("");
   },
 
-  getCardForEmail: function gloda_utils_getCardForEmail(aAddress) {
+  getCardForEmail(aAddress) {
     // search through all of our local address books looking for a match.
     let enumerator = MailServices.ab.directories;
     let cardForEmailAddress;
     let addrbook;
-    while (!cardForEmailAddress && enumerator.hasMoreElements())
-    {
+    while (!cardForEmailAddress && enumerator.hasMoreElements()) {
       addrbook = enumerator.getNext().QueryInterface(Ci.nsIAbDirectory);
-      try
-      {
+      try {
         cardForEmailAddress = addrbook.cardForEmailAddress(aAddress);
         if (cardForEmailAddress)
           return cardForEmailAddress;
@@ -117,7 +115,7 @@ var GlodaUtils = {
    * @param aNumHeadersSeen The number of headers code has seen.  A granularity
    *     of hundreds of messages should be fine.
    */
-  considerHeaderBasedGC: function(aNumHeadersSeen) {
+  considerHeaderBasedGC(aNumHeadersSeen) {
     this._headersSeen += aNumHeadersSeen;
     if (this._headersSeen >= this._FORCE_GC_AFTER_NUM_HEADERS)
       this.forceGarbageCollection();
@@ -142,9 +140,8 @@ var GlodaUtils = {
    *     unused / unimplemented, but we would use
    *     nsIDOMWindowUtils.garbageCollect() to do so.
    */
-  forceGarbageCollection:
-      function gloda_utils_garbageCollection(aCycleCollecting) {
+  forceGarbageCollection(aCycleCollecting) {
     Cu.forceGC();
     this._headersSeen = 0;
-  }
+  },
 };

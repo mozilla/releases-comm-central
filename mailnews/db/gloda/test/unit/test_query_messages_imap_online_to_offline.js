@@ -3,6 +3,8 @@
  * Test query support for IMAP messages that were indexed, then made available
  * offline.
  */
+
+/* import-globals-from base_query_messages.js */
 load("base_query_messages.js");
 
 // we want to go offline once the messages have already been indexed online

@@ -19,6 +19,7 @@
  *  define a bunch of message corpuses entirely specialized for each test.
  */
 
+/* import-globals-from resources/glodaTestHelper.js */
 load("resources/glodaTestHelper.js");
 
 /**
@@ -71,7 +72,7 @@ var world = {
   // messages authored by contacts in the "peoples" group
   peoplesMessages: [],
   // messages authored by outlierAuthor and outlierFriend
-  outlierMessages: []
+  outlierMessages: [],
 };
 
 /**
@@ -82,13 +83,13 @@ var world = {
  *  things to happen we actually double every numerically driven character.
  */
 function uniqueTermGenerator(aNum) {
-  let s = 'uniq';
+  let s = "uniq";
   do {
     let l = String.fromCharCode(97 + (aNum % 26));
     s += l + l;
     aNum = Math.floor(aNum / 26);
   }
-  while(aNum)
+  while (aNum);
   return s;
 }
 
@@ -163,10 +164,10 @@ function generateFolderMessages() {
       },
       attachments: [
         {
-          filename: convUniqueAttachment + '.conv',
-          body: 'content does not matter. only life matters.',
-          contentType: 'application/x-test',
-        }
+          filename: convUniqueAttachment + ".conv",
+          body: "content does not matter. only life matters.",
+          contentType: "application/x-test",
+        },
       ],
     });
 
@@ -271,7 +272,7 @@ function verify_nonMatches(aQueries, aCollections) {
   for (let i = 0; i < aCollections.length; i++) {
     let testQuery = aQueries[i];
     let nonmatches =
-      aCollections[(i+1) % aCollections.length].items;
+      aCollections[(i + 1) % aCollections.length].items;
 
     for (let item of nonmatches) {
       if (testQuery.test(item)) {
@@ -407,6 +408,7 @@ function test_query_messages_by_identity_nonmatches() {
   verify_nonMatches(ts_messageIdentityQueries, ts_messageIdentityCollections);
 }
 
+/* exported test_query_messages_by_contact */
 function test_query_messages_by_contact() {
   // IOU
 }
@@ -438,6 +440,7 @@ function test_query_messages_by_date_nonmatches() {
 
 
 /* === contacts === */
+/* exported test_query_contacts_by_popularity */
 function test_query_contacts_by_popularity() {
   // IOU
 }
@@ -448,6 +451,7 @@ function test_query_contacts_by_popularity() {
 
 /* === conversations === */
 
+/* exported test_query_conversations_by_subject_text */
 function test_query_conversations_by_subject_text() {
 }
 
@@ -527,7 +531,7 @@ function test_query_messages_by_authorMatches_name() {
  * @tests gloda.datastore.sqlgen.kConstraintFulltext
  */
 function test_query_messages_by_authorMatches_email() {
-  let [authorName, authorMail] = world.peoples[0];
+  let [, authorMail] = world.peoples[0];
   let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
   query.authorMatches(authorMail);
   queryExpect(query, world.authorGroups[authorMail]);
@@ -543,7 +547,7 @@ function test_query_messages_by_authorMatches_email() {
  * @tests gloda.datastore.sqlgen.kConstraintFulltext
  */
 function test_query_messages_by_recipients_name() {
-  let [name,] = world.peoples[0];
+  let name = world.peoples[0][0];
   let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
   query.recipientsMatch(name);
   queryExpect(query, world.peoplesMessages);
@@ -579,7 +583,7 @@ function test_query_contacts_by_name() {
   let personName = world.peoples[0][0];
   // chop off the first and last letter...  this isn't the most edge-case
   //  handling way to roll, but LOOK OVER THERE? IS THAT ELVIS?
-  let personNameSubstring = personName.substring(1, personName.length-1);
+  let personNameSubstring = personName.substring(1, personName.length - 1);
   contactLikeQuery.nameLike(contactLikeQuery.WILDCARD, personNameSubstring,
                             contactLikeQuery.WILDCARD);
 
@@ -629,6 +633,7 @@ function test_query_identities_by_kind_and_value_nonmatches() {
 
 /* ===== Driver ===== */
 
+/* exported tests */
 var tests = [
   function pre_setup_populate() { pre_setup_populate_hook(); },
   setup_populate,
@@ -662,5 +667,5 @@ var tests = [
   test_query_messages_by_recipients_email,
   // like
   test_query_contacts_by_name,
-  test_query_contacts_by_name_nonmatch
+  test_query_contacts_by_name_nonmatch,
 ];

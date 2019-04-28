@@ -14,15 +14,11 @@
  * care about the quoted blocks.)
  */
 
+/* import-globals-from resources/glodaTestHelper.js */
 load("resources/glodaTestHelper.js");
 
 var {
   MsgHdrToMimeMessage,
-  MimeMessage,
-  MimeContainer,
-  MimeBody,
-  MimeUnknown,
-  MimeMessageAttachment,
 } = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
 
 // we need to be able to get at GlodaFundAttr to check the number of whittler
@@ -36,13 +32,13 @@ var messageInfos = [
     bode: [[true, "I like hats"],
            [true, "yes I do!"],
            [true, "I like hats!"],
-           [true, "How bout you?"]]
+           [true, "How bout you?"]],
   },
   {
     name: "no quoting, whitespace removal",
     bode: [[true, "robots are nice..."],
            [true, ""],
-           [true, "except for the bloodlust"]]
+           [true, "except for the bloodlust"]],
   },
   {
     name: "bottom posting",
@@ -53,7 +49,7 @@ var messageInfos = [
            [false, ""],
            [true, "I do enjoy them as well."],
            [true, ""],
-           [true, "Bob"]]
+           [true, "Bob"]],
   },
   {
     name: "top posting",
@@ -61,7 +57,7 @@ var messageInfos = [
            [false, ""],
            [false, "John wrote:"],
            [false, "> I like hats"],
-           [false, "> yes I do!"]]
+           [false, "> yes I do!"]],
   },
   {
     name: "top posting with trailing whitespace, no intro",
@@ -70,7 +66,7 @@ var messageInfos = [
            [false, "> I like hats"],
            [false, "> yes I do!"],
            [false, ""],
-           [false, ""]]
+           [false, ""]],
   },
   {
     name: "interspersed quoting",
@@ -84,7 +80,7 @@ var messageInfos = [
            [false, "> I like hats!"],
            [false, "> How bout you?"],
            [false, ""],
-           [true, "Verily!"]]
+           [true, "Verily!"]],
   },
   {
     name: "german style",
@@ -92,7 +88,7 @@ var messageInfos = [
            [false, "\xa0"],
            [false, "> We haven't nailed anything down in detail yet, depending on how we are "],
            [true, "That sounds great and would definitely be appreciated by localizers."],
-           [false, ""]]
+           [false, ""]],
   },
   {
     name: "tortuous interference",
@@ -100,8 +96,8 @@ var messageInfos = [
            [true, "running all the time"],
            [false, "> wrote"],
            [true, "cheese"],
-           [false, ""]]
-  }
+           [false, ""]],
+  },
 ];
 
 /* ===== Tests ===== */
@@ -169,6 +165,7 @@ function verify_message_content(aInfo, aSynMsg, aGlodaMsg, aMsgHdr, aMimeMsg) {
 
 /* ===== Driver ===== */
 
+/* exported tests */
 var tests = [
   parameterizeTest(setup_create_message, messageInfos),
   setup_inject_messages,

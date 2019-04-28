@@ -2,6 +2,7 @@
  * Test indexing support for local messages.
  */
 
+/* import-globals-from base_index_messages.js */
 load("base_index_messages.js");
 
 /**
@@ -40,7 +41,7 @@ tests.unshift(test_reparse_of_local_folder_works);
  */
 function* test_fromjson_of_removed_tag() {
   // -- inject
-  let [folder, msgSet] = make_folder_with_sets([{count: 1}]);
+  let [, msgSet] = make_folder_with_sets([{count: 1}]);
   yield wait_for_message_injection();
   yield wait_for_gloda_indexer(msgSet, {augment: true});
   let gmsg = msgSet.glodaMessages[0];
@@ -57,7 +58,7 @@ function* test_fromjson_of_removed_tag() {
   // this also means we have to replace the tag service with a liar.
   let realTagService = TagNoun._msgTagService;
   TagNoun._msgTagService = {
-    isValidKey: function() {return false;} // lies!
+    isValidKey() { return false; }, // lies!
   };
 
   // -- forget about the message, gloda!

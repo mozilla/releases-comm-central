@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from resources/glodaTestHelper.js */
 load("resources/glodaTestHelper.js");
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
@@ -51,8 +52,6 @@ function get_cached_gloda_identity_for_email(aEmailAddress) {
 var EMAIL_ADDRESS = "all.over@the.world.invalid";
 var DISPLAY_NAME = "every day";
 
-var identityCollection;
-
 /**
  * Create an e-mail so the identity can exist.
  */
@@ -70,7 +69,7 @@ function* setup_create_identity() {
   let identQuery = Gloda.newQuery(Gloda.NOUN_IDENTITY);
   identQuery.kind("email");
   identQuery.value(EMAIL_ADDRESS);
-  identityCollection = queryExpect(identQuery, [EMAIL_ADDRESS]);
+  queryExpect(identQuery, [EMAIL_ADDRESS]);
   yield false;
 
   // now the identity exists... make sure it is in cache.

@@ -18,46 +18,42 @@ function run_test() {
                                     false, 0, "", copyListener, null);
 }
 
-var copyListener =
-{
-  OnStartCopy: function() {},
-  OnProgress: function(aProgress, aProgressMax) {},
-  SetMessageKey: function(aKey) { gHdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);},
-  SetMessageId: function(aMessageId) {},
-  OnStopCopy: function(aStatus) { continue_test();}
+var copyListener = {
+  OnStartCopy() {},
+  OnProgress(aProgress, aProgressMax) {},
+  SetMessageKey(aKey) { gHdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey); },
+  SetMessageId(aMessageId) {},
+  OnStopCopy(aStatus) { continue_test(); },
 };
 
-function continue_test()
-{
+function continue_test() {
   // test some of the default properties
   var enumerator = gHdr.propertyEnumerator;
   var properties = [];
-  while (enumerator.hasMore())
-  {
+  while (enumerator.hasMore()) {
     var property = enumerator.getNext();
-    //dump("\nProperty is " + property);
+    // dump("\nProperty is " + property);
     properties.push(property);
   }
-  Assert.ok(properties.indexOf("flags") >= 0);
-  Assert.ok(properties.indexOf("size") >= 0);
+  Assert.ok(properties.includes("flags"));
+  Assert.ok(properties.includes("size"));
   // this will be added in the next section, but does not exist yet
-  Assert.ok(properties.indexOf("iamnew") < 0);
+  Assert.ok(!properties.includes("iamnew"));
 
   // add a new property, and make sure that it appears
   gHdr.setStringProperty("iamnew", "somevalue");
 
   enumerator = gHdr.propertyEnumerator;
   properties = [];
-  while (enumerator.hasMore())
-  {
+  while (enumerator.hasMore()) {
     property = enumerator.getNext();
-    //dump("\nProperty 2 is " + property);
+    // dump("\nProperty 2 is " + property);
     properties.push(property);
   }
-  Assert.ok(properties.indexOf("flags") >= 0);
-  Assert.ok(properties.indexOf("size") >= 0);
-  Assert.ok(properties.indexOf("iamnew") >= 0);
-  Assert.ok(properties.indexOf("idonotexist") < 0);
+  Assert.ok(properties.includes("flags"));
+  Assert.ok(properties.includes("size"));
+  Assert.ok(properties.includes("iamnew"));
+  Assert.ok(!properties.includes("idonotexist"));
 
   gHdr = null;
   do_test_finished();

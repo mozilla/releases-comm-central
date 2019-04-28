@@ -19,7 +19,7 @@ function test_enumerator_cleanup() {
   db = null;
   gc();
   while (enumerator.hasMoreElements())
-    var header = enumerator.getNext();
+    enumerator.getNext();
 
   do_test_finished();
 }
@@ -38,12 +38,11 @@ function run_test() {
 }
 
 var messageHeaderGetterListener = {
-  OnStartCopy: function() {},
-  OnProgress: function(aProgress, aProgressMax) {},
-  GetMessageId: function (aMessageId) {},
-  SetMessageKey: function(aKey) {
-  },
-  OnStopCopy: function(aStatus) {
+  OnStartCopy() {},
+  OnProgress(aProgress, aProgressMax) {},
+  GetMessageId(aMessageId) {},
+  SetMessageKey(aKey) {},
+  OnStopCopy(aStatus) {
     do_timeout(0, test_enumerator_cleanup);
-  }
-}
+  },
+};

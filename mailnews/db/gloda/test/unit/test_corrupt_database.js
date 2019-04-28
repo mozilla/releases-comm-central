@@ -12,6 +12,8 @@
  * We do use the rest of the test infrastructure though.
  */
 
+/* import-globals-from ../../../../test/resources/logHelper.js */
+/* import-globals-from ../../../../test/resources/asyncTestUtils.js */
 load("../../../../resources/logHelper.js");
 load("../../../../resources/asyncTestUtils.js");
 
@@ -58,9 +60,9 @@ CountingAppender.prototype = {
       return this.counts[level];
     return 0;
   },
-  toString: function() {
+  toString() {
     return "One, two, three! Ah ah ah!";
-  }
+  },
 };
 
 

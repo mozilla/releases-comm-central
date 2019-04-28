@@ -68,7 +68,7 @@ GlodaQueryClass.prototype = {
     return this._constraints.length;
   },
 
-  or: function gloda_query_or() {
+  or() {
     let owner = this._owner || this;
     let orQuery = new this._queryClass();
     orQuery._owner = owner;
@@ -76,12 +76,12 @@ GlodaQueryClass.prototype = {
     return orQuery;
   },
 
-  orderBy: function gloda_query_orderBy(...aArgs) {
+  orderBy(...aArgs) {
     this._order.push(...aArgs);
     return this;
   },
 
-  limit: function gloda_query_limit(aLimit) {
+  limit(aLimit) {
     this._limit = aLimit;
     return this;
   },
@@ -108,19 +108,20 @@ GlodaQueryClass.prototype = {
    *     better solution for your use-case.  (Note: removals will still happen
    *     when things get fully deleted.)
    */
-  getCollection: function gloda_query_getCollection(aListener, aData, aArgs) {
+  getCollection(aListener, aData, aArgs) {
     this.completed = false;
     return this._nounDef.datastore.queryFromQuery(this, aListener, aData,
              /* aExistingCollection */ null, /* aMasterCollection */ null,
              aArgs);
   },
 
+  /* eslint-disable complexity */
   /**
    * Test whether the given first-class noun instance satisfies this query.
    *
    * @testpoint gloda.query.test
    */
-  test: function gloda_query_test(aObj) {
+  test(aObj) {
     // when changing this method, be sure that GlodaDatastore's queryFromQuery
     //  method likewise has any required changes made.
     let unionQueries = [this].concat(this._unions);
@@ -144,14 +145,13 @@ GlodaQueryClass.prototype = {
         let constraintValues = constraint.slice(2);
 
         if (constraintType === GlodaDatastore.kConstraintIdIn) {
-          if (constraintValues.indexOf(aObj.id) == -1) {
+          if (!constraintValues.includes(aObj.id)) {
             querySatisfied = false;
             break;
           }
-        }
-        // @testpoint gloda.query.test.kConstraintIn
-        else if ((constraintType === GlodaDatastore.kConstraintIn) ||
-                 (constraintType === GlodaDatastore.kConstraintEquals)) {
+        } else if ((constraintType === GlodaDatastore.kConstraintIn) ||
+                   (constraintType === GlodaDatastore.kConstraintEquals)) {
+          // @testpoint gloda.query.test.kConstraintIn
           let objectNounDef = attrDef.objectNounDef;
 
           // if they provide an equals comparator, use that.
@@ -203,10 +203,9 @@ GlodaQueryClass.prototype = {
               querySatisfied = false;
               break;
             }
-          }
-          // otherwise, we need to convert everyone to their param/value form
-          //  in order to test for equality
-          else {
+          } else {
+            // otherwise, we need to convert everyone to their param/value form
+            //  in order to test for equality
             // let's just do the simple, obvious thing for now.  which is
             //  what we did in the prior case but exploding values using
             //  toParamAndValue, and then comparing.
@@ -259,9 +258,8 @@ GlodaQueryClass.prototype = {
               break;
             }
           }
-        }
-        // @testpoint gloda.query.test.kConstraintRanges
-        else if (constraintType === GlodaDatastore.kConstraintRanges) {
+        } else if (constraintType === GlodaDatastore.kConstraintRanges) {
+          // @testpoint gloda.query.test.kConstraintRanges
           let objectNounDef = attrDef.objectNounDef;
 
           let testValues;
@@ -284,16 +282,14 @@ GlodaQueryClass.prototype = {
                   foundMatch = true;
                   break;
                 }
-              }
-              else if (upperRValue == null) {
+              } else if (upperRValue == null) {
                 let [lowerParam, lowerValue] =
                   objectNounDef.toParamAndValue(lowerRValue);
                 if (tParam == lowerParam && tValue >= lowerValue) {
                   foundMatch = true;
                   break;
                 }
-              }
-              else { // no one is null
+              } else { // no one is null
                 let [upperParam, upperValue] =
                   objectNounDef.toParamAndValue(upperRValue);
                 let [lowerParam, lowerValue] =
@@ -312,9 +308,8 @@ GlodaQueryClass.prototype = {
             querySatisfied = false;
             break;
           }
-        }
-        // @testpoint gloda.query.test.kConstraintStringLike
-        else if (constraintType === GlodaDatastore.kConstraintStringLike) {
+        } else if (constraintType === GlodaDatastore.kConstraintStringLike) {
+          // @testpoint gloda.query.test.kConstraintStringLike
           let curIndex = 0;
           let value = (boundName in aObj) ? aObj[boundName] : "";
           // the attribute must be singular, we don't support arrays of strings.
@@ -328,25 +323,22 @@ GlodaQueryClass.prototype = {
                   querySatisfied = false;
                 else
                   curIndex = index + valuePart.length;
-              }
-              else {
-                if (index != curIndex)
-                  querySatisfied = false;
-                else
-                  curIndex = index + valuePart.length;
+              } else if (index != curIndex) {
+                querySatisfied = false;
+              } else {
+                curIndex = index + valuePart.length;
               }
               if (!querySatisfied)
                 break;
-            }
-            else // wild!
+            } else { // wild!
               curIndex = null;
+            }
           }
           // curIndex must be null or equal to the length of the string
           if (querySatisfied && curIndex !== null && curIndex != value.length)
             querySatisfied = false;
-        }
-        // @testpoint gloda.query.test.kConstraintFulltext
-        else if (constraintType === GlodaDatastore.kConstraintFulltext) {
+        } else if (constraintType === GlodaDatastore.kConstraintFulltext) {
+          // @testpoint gloda.query.test.kConstraintFulltext
           // this is beyond our powers. Even if we have the fulltext content in
           //  memory, which we may not, the tokenization and such to perform
           //  the testing gets very complicated in the face of i18n, etc.
@@ -366,6 +358,7 @@ GlodaQueryClass.prototype = {
     }
     return false;
   },
+  /* eslint-enable complexity */
 
   /**
    * Helper code for noun definitions of queryHelpers that want to build a
@@ -374,8 +367,7 @@ GlodaQueryClass.prototype = {
    *
    * @protected
    */
-  _inConstraintHelper:
-      function gloda_query__discreteConstraintHelper(aAttrDef, aValues) {
+  _inConstraintHelper(aAttrDef, aValues) {
     let constraint =
       [GlodaDatastore.kConstraintIn, aAttrDef].concat(aValues);
     this._constraints.push(constraint);
@@ -390,13 +382,12 @@ GlodaQueryClass.prototype = {
    *
    * @protected
    */
-  _rangedConstraintHelper:
-      function gloda_query__rangedConstraintHelper(aAttrDef, aRanges) {
+  _rangedConstraintHelper(aAttrDef, aRanges) {
     let constraint =
       [GlodaDatastore.kConstraintRanges, aAttrDef].concat(aRanges);
     this._constraints.push(constraint);
     return this;
-  }
+  },
 };
 
 /**
@@ -443,7 +434,7 @@ GlodaNullQueryClass.prototype = {
    *
    * @returns null
    */
-  or: function() {
+  or() {
     return null;
   },
 
@@ -459,7 +450,7 @@ GlodaNullQueryClass.prototype = {
    *
    * @returns null
    */
-  getCollection: function() {
+  getCollection() {
     return null;
   },
 
@@ -470,9 +461,9 @@ GlodaNullQueryClass.prototype = {
    *     associated collection.  But we don't care!  Not a fig!
    * @returns false
    */
-  test: function gloda_query_null_test(aObj) {
+  test(aObj) {
     return false;
-  }
+  },
 };
 
 /**
@@ -505,7 +496,7 @@ GlodaExplicitQueryClass.prototype = {
    *
    * @returns null
    */
-  or: function() {
+  or() {
     return null;
   },
 
@@ -521,7 +512,7 @@ GlodaExplicitQueryClass.prototype = {
    *
    * @returns null
    */
-  getCollection: function() {
+  getCollection() {
     return null;
   },
 
@@ -534,9 +525,9 @@ GlodaExplicitQueryClass.prototype = {
    * @returns true when the object is in the associated collection, otherwise
    *     false.
    */
-  test: function gloda_query_explicit_test(aObj) {
+  test(aObj) {
     return (aObj.id in this.collection._idMap);
-  }
+  },
 };
 
 /**
@@ -553,16 +544,16 @@ GlodaWildcardQueryClass.prototype = {
   options: {},
 
   // don't let people try and mess with us
-  or: function() { return null; },
+  or() { return null; },
   // don't let people try and query on us (until we have a real use case for
   //  that...)
-  getCollection: function() { return null; },
+  getCollection() { return null; },
   /**
    * Everybody wins!
    */
-  test: function gloda_query_explicit_test(aObj) {
+  test(aObj) {
     return true;
-  }
+  },
 };
 
 /**

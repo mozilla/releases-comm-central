@@ -12,21 +12,21 @@ MockTimer.prototype = {
   TYPE_ONE_SHOT: 0,
   TYPE_REPEATING_SLACK: 1,
   TYPE_REPEATING_PRECISE: 2,
-  initWithCallback: function(aCallback, aDelay, aType) {
+  initWithCallback(aCallback, aDelay, aType) {
     if (aCallback instanceof Ci.nsITimerCallback)
       this.callback = aCallback;
     else // it was just a function that we need to dress up.
-      this.callback = {notify: function() {aCallback();}};
+      this.callback = {notify() { aCallback(); }};
     this.delay = aDelay;
     this.type = aType;
   },
-  init: function(aObserver, aDelay, aType) {
+  init(aObserver, aDelay, aType) {
     this.observer = aObserver;
     this.delay = aDelay;
     this.type = aType;
     this.callback = null;
   },
-  cancel: function() {
+  cancel() {
     this.callback = null;
   },
   delay: 0,
@@ -48,7 +48,7 @@ MockTimer.prototype = {
   get oneShot() {
     return this.type == this.TYPE_ONE_SHOT;
   },
-  clobber: function(aObj, aAttrName) {
+  clobber(aObj, aAttrName) {
     let realTimer = aObj[aAttrName];
     realTimer.cancel();
     this.delay = realTimer.delay;
@@ -56,15 +56,14 @@ MockTimer.prototype = {
     this.callback = realTimer.callback;
     aObj[aAttrName] = this;
   },
-  fireNow: function() {
+  fireNow() {
     if (this._callback) {
       this._activeCallback = this._callback;
       if (this.oneShot)
         this._callback = null;
       this._activeCallback.notify();
       this._activeCallback = null;
-    }
-    else if (this.observer) {
+    } else if (this.observer) {
       let observer = this.observer;
       if (this.oneShot)
         this.observer = null;
@@ -73,5 +72,5 @@ MockTimer.prototype = {
   },
   get active() {
     return (this.callback != null) || (this.observer != null);
-  }
+  },
 };
