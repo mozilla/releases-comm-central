@@ -37,16 +37,11 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
 
   <!-- Javascript includes -->
-  <script type="application/javascript"
-          src="chrome://lightning/content/lightning-item-panel.js"/>
-  <script type="application/javascript"
-          src="chrome://calendar/content/calendar-dialog-utils.js"/>
-  <script type="application/javascript"
-          src="chrome://calendar/content/calendar-ui-utils.js"/>
-  <script type="application/javascript"
-          src="chrome://global/content/globalOverlay.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger/content/toolbarIconColor.js"/>
+  <script src="chrome://lightning/content/lightning-item-panel.js"/>
+  <script src="chrome://calendar/content/calendar-dialog-utils.js"/>
+  <script src="chrome://calendar/content/calendar-ui-utils.js"/>
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://messenger/content/toolbarIconColor.js"/>
 
   <stringbundleset id="stringbundleset">
     <stringbundle id="languageBundle"

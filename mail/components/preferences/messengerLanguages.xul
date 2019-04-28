@@ -21,8 +21,8 @@
     <html:link rel="localization" href="messenger/preferences/languages.ftl"/>
   </linkset>
 
-  <script type="application/javascript" src="chrome://global/content/preferencesBindings.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/preferences/messengerLanguages.js"/>
+  <script src="chrome://global/content/preferencesBindings.js"/>
+  <script src="chrome://messenger/content/preferences/messengerLanguages.js"/>
 
   <vbox id="messengerLanguagesDialogPane"
         class="prefpane largeDialogContainer"

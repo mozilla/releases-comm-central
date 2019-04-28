@@ -14,10 +14,8 @@
         onload="onInitEditDirectories();"
         onunload="onUninitEditDirectories();">
 
-  <script type="application/javascript"
-          src="chrome://messenger/content/addressbook/abCommon.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger/content/addressbook/pref-editdirectories.js"/>
+  <script src="chrome://messenger/content/addressbook/abCommon.js"/>
+  <script src="chrome://messenger/content/addressbook/pref-editdirectories.js"/>
 
   <stringbundle id="bundle_addressBook"
                 src="chrome://messenger/locale/addressbook/addressBook.properties"/>

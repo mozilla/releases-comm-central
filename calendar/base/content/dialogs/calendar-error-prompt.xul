@@ -22,7 +22,7 @@
         width="500"
         xmlns:html="http://www.w3.org/1999/xhtml">
 
-    <script type="application/javascript"><![CDATA[
+    <script><![CDATA[
         function loadErrorPrompt() {
             var args = window.arguments[0].QueryInterface(Ci.nsIDialogParamBlock);
             document.getElementById("general-text").value = args.GetString(0);

@@ -41,6 +41,6 @@
     </hbox>
   </prefpane>
 
-  <script type="application/javascript" src="chrome://global/content/preferencesBindings.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/preferences/dockoptions.js"/>
+  <script src="chrome://global/content/preferencesBindings.js"/>
+  <script src="chrome://messenger/content/preferences/dockoptions.js"/>
 </dialog>

@@ -21,7 +21,7 @@
         style="width:38em;">
 
   <prefpane id="attachmentReminderOptionsDialogPane">
-    <script type="application/javascript" src="chrome://messenger/content/preferences/attachmentReminder.js"/>
+    <script src="chrome://messenger/content/preferences/attachmentReminder.js"/>
     <stringbundle id="bundlePreferences" src="chrome://messenger/locale/preferences/preferences.properties"/>
 
     <groupbox>

@@ -7,7 +7,7 @@
 <overlay id="suiteAddonsOverlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
 
-  <script type="application/javascript"><![CDATA[
+  <script><![CDATA[
     var lightningPrefs = {
       guid: "{e2fda1a4-762b-4020-b5ad-a41df1933103}",
       handleEvent: function(aEvent) {

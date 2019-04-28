@@ -19,9 +19,9 @@
         buttons="accept,cancel">
 
   <!-- Methods common to all editor dialogs -->
-  <script type="application/javascript" src="chrome://editor/content/editorUtilities.js"/>
-  <script type="application/javascript" src="chrome://editor/content/EdDialogCommon.js"/>
-  <script type="application/javascript" src="chrome://editor/content/EdInputProps.js"/>
+  <script src="chrome://editor/content/editorUtilities.js"/>
+  <script src="chrome://editor/content/EdDialogCommon.js"/>
+  <script src="chrome://editor/content/EdInputProps.js"/>
 
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
 

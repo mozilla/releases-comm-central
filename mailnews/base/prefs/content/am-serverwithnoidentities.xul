@@ -15,8 +15,8 @@
       title="&accountTitle.label;"
       onload="parent.onPanelLoaded('am-serverwithnoidentities.xul');">
 
-  <script type="application/javascript" src="chrome://messenger/content/am-serverwithnoidentities.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/amUtils.js"/>
+  <script src="chrome://messenger/content/am-serverwithnoidentities.js"/>
+  <script src="chrome://messenger/content/amUtils.js"/>
 
   <hbox class="dialogheader">
     <label class="dialogheader-title" value="&accountTitle.label;"/>

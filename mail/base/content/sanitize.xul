@@ -27,10 +27,8 @@
     <stringbundle id="bundleBrowser"
             src="chrome://messenger/locale/messenger.properties"/>
 
-    <script type="application/javascript"
-            src="chrome://messenger/content/sanitize.js"/>
-    <script type="application/javascript"
-            src="chrome://messenger/content/sanitizeDialog.js"/>
+    <script src="chrome://messenger/content/sanitize.js"/>
+    <script src="chrome://messenger/content/sanitizeDialog.js"/>
 
     <hbox id="SanitizeDurationBox" align="center">
       <label value="&clearTimeDuration.label;"

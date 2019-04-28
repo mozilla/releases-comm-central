@@ -29,10 +29,8 @@
         onkeypress="FeedSubscriptions.onKeyPress(event);"
         onmousedown="FeedSubscriptions.onMouseDown(event);">
 
-  <script type="application/javascript"
-          src="chrome://messenger/content/specialTabs.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger-newsblog/content/feed-subscriptions.js"/>
+  <script src="chrome://messenger/content/specialTabs.js"/>
+  <script src="chrome://messenger-newsblog/content/feed-subscriptions.js"/>
 
   <linkset>
     <html:link rel="localization" href="security/certificates/certManager.ftl"/>

@@ -14,9 +14,9 @@
       onload="parent.onPanelLoaded('am-copies.xul');">
 
   <vbox flex="1" style="overflow: auto;">
-    <script type="application/javascript" src="chrome://messenger/content/AccountManager.js"/>
-    <script type="application/javascript" src="chrome://messenger/content/am-copies.js"/>
-    <script type="application/javascript" src="chrome://messenger/content/amUtils.js"/>
+    <script src="chrome://messenger/content/AccountManager.js"/>
+    <script src="chrome://messenger/content/am-copies.js"/>
+    <script src="chrome://messenger/content/amUtils.js"/>
 
     <hbox class="dialogheader">
       <label class="dialogheader-title" value="&copyAndFolderTitle.label;"/>

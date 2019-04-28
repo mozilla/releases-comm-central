@@ -15,9 +15,9 @@
 
 
   <vbox flex="1" style="overflow: auto;">
-    <script type="application/javascript" src="chrome://messenger/content/am-addressing.js"/>
-    <script type="application/javascript" src="chrome://messenger/content/amUtils.js"/>
-    <script type="application/javascript" src="chrome://messenger/content/am-prefs.js"/>
+    <script src="chrome://messenger/content/am-addressing.js"/>
+    <script src="chrome://messenger/content/amUtils.js"/>
+    <script src="chrome://messenger/content/am-prefs.js"/>
 
     <hbox class="dialogheader">
       <label class="dialogheader-title" value="&addressing.label;"/>

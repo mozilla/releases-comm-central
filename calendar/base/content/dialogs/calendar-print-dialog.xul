@@ -26,10 +26,10 @@
         persist="screenX screenY width height"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
 
-  <script type="application/javascript" src="chrome://calendar/content/calendar-print-dialog.js"/>
-  <script type="application/javascript" src="chrome://calendar/content/calendar-ui-utils.js"/>
-  <script type="application/javascript" src="chrome://global/content/printUtils.js"/>
-  <script type="application/javascript" src="chrome://calendar/content/datetimepickers/datetimepickers.js"/>
+  <script src="chrome://calendar/content/calendar-print-dialog.js"/>
+  <script src="chrome://calendar/content/calendar-ui-utils.js"/>
+  <script src="chrome://global/content/printUtils.js"/>
+  <script src="chrome://calendar/content/datetimepickers/datetimepickers.js"/>
 
   <hbox id="firstHbox" flex="1">
     <vbox id="groupboxVbox">

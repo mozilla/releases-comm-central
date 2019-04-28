@@ -20,11 +20,11 @@
   </stringbundleset>
 
   <!-- move needed functions into a single js file -->
-  <script type="application/javascript" src="chrome://messenger/content/messengercompose/addressingWidgetOverlay.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/addressbook/abCommon.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/addressbook/abMailListDialog.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/customElements.js"/>
-  <script type="application/javascript"><![CDATA[
+  <script src="chrome://messenger/content/messengercompose/addressingWidgetOverlay.js"/>
+  <script src="chrome://messenger/content/addressbook/abCommon.js"/>
+  <script src="chrome://messenger/content/addressbook/abMailListDialog.js"/>
+  <script src="chrome://messenger/content/customElements.js"/>
+  <script><![CDATA[
     document.addEventListener("dialogaccept", MailListOKButton);
   ]]></script>
 

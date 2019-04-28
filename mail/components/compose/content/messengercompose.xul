@@ -63,33 +63,33 @@
   <html:link rel="localization" href="toolkit/main-window/findbar.ftl"/>
 </linkset>
 
-<script type="application/javascript" src="chrome://global/content/printUtils.js"/>
-<script type="application/javascript" src="chrome://messenger/content/accountUtils.js"/>
-<script type="application/javascript" src="chrome://messenger/content/mailCore.js"/>
-<script type="application/javascript" src="chrome://messenger/content/mail-compacttheme.js"/>
-<script type="application/javascript" src="chrome://communicator/content/contentAreaClick.js"/>
-<script type="application/javascript" src="chrome://editor/content/editor.js"/>
-<script type="application/javascript" src="chrome://editor/content/editorUtilities.js"/>
-<script type="application/javascript" src="chrome://editor/content/ComposerCommands.js"/>
-<script type="application/javascript" src="chrome://messenger/content/messengercompose/MsgComposeCommands.js"/>
-<script type="application/javascript" src="chrome://messenger/content/messengercompose/bigFileObserver.js"/>
-<script type="application/javascript" src="chrome://messenger/content/messengercompose/cloudAttachmentLinkManager.js"/>
+<script src="chrome://global/content/printUtils.js"/>
+<script src="chrome://messenger/content/accountUtils.js"/>
+<script src="chrome://messenger/content/mailCore.js"/>
+<script src="chrome://messenger/content/mail-compacttheme.js"/>
+<script src="chrome://communicator/content/contentAreaClick.js"/>
+<script src="chrome://editor/content/editor.js"/>
+<script src="chrome://editor/content/editorUtilities.js"/>
+<script src="chrome://editor/content/ComposerCommands.js"/>
+<script src="chrome://messenger/content/messengercompose/MsgComposeCommands.js"/>
+<script src="chrome://messenger/content/messengercompose/bigFileObserver.js"/>
+<script src="chrome://messenger/content/messengercompose/cloudAttachmentLinkManager.js"/>
 
 <!-- drag and drop -->
-<script type="application/javascript" src="chrome://messenger/content/addressbook/abDragDrop.js"/>
-<script type="application/javascript" src="chrome://global/content/nsDragAndDrop.js"/>
+<script src="chrome://messenger/content/addressbook/abDragDrop.js"/>
+<script src="chrome://global/content/nsDragAndDrop.js"/>
 
 <!-- move needed functions into a single js file -->
-<script type="application/javascript" src="chrome://messenger/content/messengercompose/addressingWidgetOverlay.js"/>
-<script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
-<script type="application/javascript" src="chrome://global/content/contentAreaUtils.js"/>
-<script type="application/javascript" src="chrome://global/content/viewZoomOverlay.js"/>
+<script src="chrome://messenger/content/messengercompose/addressingWidgetOverlay.js"/>
+<script src="chrome://global/content/globalOverlay.js"/>
+<script src="chrome://global/content/contentAreaUtils.js"/>
+<script src="chrome://global/content/viewZoomOverlay.js"/>
 #ifdef XP_MACOSX
-<script type="application/javascript" src="chrome://global/content/macWindowMenu.js"/>
+<script src="chrome://global/content/macWindowMenu.js"/>
 #endif
-<script type="application/javascript" src="chrome://communicator/content/utilityOverlay.js"/>
-<script type="application/javascript" src="chrome://messenger/content/toolbarIconColor.js"/>
-<script type="application/javascript" src="chrome://messenger-smime/content/msgCompSMIMEOverlay.js"/>
+<script src="chrome://communicator/content/utilityOverlay.js"/>
+<script src="chrome://messenger/content/toolbarIconColor.js"/>
+<script src="chrome://messenger-smime/content/msgCompSMIMEOverlay.js"/>
 
 <commandset id="composeCommands">
   <commandset id="msgComposeCommandUpdate"

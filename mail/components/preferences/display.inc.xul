@@ -2,10 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
   <prefpane id="paneDisplay" label="&paneDisplay.title;">
-    <script type="application/javascript"
-            src="chrome://mozapps/content/preferences/fontbuilder.js"/>
-    <script type="application/javascript"
-            src="chrome://messenger/content/preferences/display.js"/>
+    <script src="chrome://mozapps/content/preferences/fontbuilder.js"/>
+    <script src="chrome://messenger/content/preferences/display.js"/>
 
     <tabbox id="displayPrefs" flex="1" onselect="gDisplayPane.tabSelectionChanged();">
       <tabs id="displayPrefsTabs">

@@ -16,9 +16,9 @@
 
   <vbox flex="1" style="overflow: auto;">
     <stringbundle id="bundle_smime" src="chrome://messenger/locale/am-mdn.properties"/>
-    <script type="application/javascript" src="chrome://messenger/content/AccountManager.js"/>
-    <script type="application/javascript" src="chrome://messenger/content/amUtils.js"/>
-    <script type="application/javascript" src="chrome://messenger/content/am-mdn.js"/>
+    <script src="chrome://messenger/content/AccountManager.js"/>
+    <script src="chrome://messenger/content/amUtils.js"/>
+    <script src="chrome://messenger/content/am-mdn.js"/>
 
     <hbox class="dialogheader">
       <label class="dialogheader-title" value="&pane.title;"/>

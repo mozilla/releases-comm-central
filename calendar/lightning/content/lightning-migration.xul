@@ -19,8 +19,8 @@
 
 <overlay id="ltnMigrationOverlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
-    <script type="application/javascript" src="chrome://calendar/content/calendar-migration-dialog.js"/>
-    <script type="application/javascript"><![CDATA[
+    <script src="chrome://calendar/content/calendar-migration-dialog.js"/>
+    <script><![CDATA[
         function checkOld() {
             var calMgr = Cc["@mozilla.org/calendar/manager;1"].getService(Ci.calICalendarManager);
             var cals = calMgr.getCalendars({});

@@ -15,10 +15,10 @@
     buttonlabelclose="&closeButton.label;"
     onload="Startup()">
 
-  <script type="application/javascript" src="chrome://editor/content/editorUtilities.js"/>
-  <script type="application/javascript" src="chrome://editor/content/publishprefs.js"/>
-  <script type="application/javascript" src="chrome://editor/content/EdDialogCommon.js"/>
-  <script type="application/javascript" src="chrome://editor/content/EditorPublishProgress.js"/>
+  <script src="chrome://editor/content/editorUtilities.js"/>
+  <script src="chrome://editor/content/publishprefs.js"/>
+  <script src="chrome://editor/content/EdDialogCommon.js"/>
+  <script src="chrome://editor/content/EditorPublishProgress.js"/>
 
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
 

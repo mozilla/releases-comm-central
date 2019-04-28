@@ -16,7 +16,7 @@
         onload="OnLoad();"
         style="width: 35em;">
 
-<script type="application/javascript" src="chrome://messenger/content/msgSynchronize.js"/>
+<script src="chrome://messenger/content/msgSynchronize.js"/>
 
     <keyset id="keyset"/>
     <label hidden="true" wsm_persist="true" id="server.type"/>

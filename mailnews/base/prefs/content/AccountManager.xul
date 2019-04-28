@@ -18,13 +18,13 @@
         onunload="onUnload();">
 <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
 <stringbundle id="bundle_prefs" src="chrome://messenger/locale/prefs.properties"/>
-<script type="application/javascript" src="chrome://messenger/content/accountUtils.js"/>
-<script type="application/javascript" src="chrome://messenger/content/am-prefs.js"/>
-<script type="application/javascript" src="chrome://messenger/content/AccountManager.js"/>
+<script src="chrome://messenger/content/accountUtils.js"/>
+<script src="chrome://messenger/content/am-prefs.js"/>
+<script src="chrome://messenger/content/AccountManager.js"/>
 #ifdef MOZ_SUITE
-<script type="application/javascript" src="chrome://messenger/content/am-help.js"/>
+<script src="chrome://messenger/content/am-help.js"/>
 #endif
-<script type="application/javascript" src="chrome://messenger/content/amUtils.js"/>
+<script src="chrome://messenger/content/amUtils.js"/>
 
   <hbox flex="1">
     <vbox style="&accountTree.width;">

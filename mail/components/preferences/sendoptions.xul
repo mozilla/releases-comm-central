@@ -23,8 +23,8 @@
         onload="gSendOptionsDialog.init();">
 
   <prefpane id="SendOptionsDialogPane">
-    <script type="application/javascript" src="chrome://global/content/preferencesBindings.js"/>
-    <script type="application/javascript" src="chrome://messenger/content/preferences/sendoptions.js"/>
+    <script src="chrome://global/content/preferencesBindings.js"/>
+    <script src="chrome://messenger/content/preferences/sendoptions.js"/>
 
     <stringbundle id="bundlePreferences" src="chrome://messenger/locale/preferences/preferences.properties"/>
 

@@ -17,8 +17,7 @@
   buttons="accept,cancel"
   onload="onLoad();">
 
-<script type="application/javascript"
-        src="chrome://messenger/content/certpicker.js"/>
+<script src="chrome://messenger/content/certpicker.js"/>
 
   <hbox align="center">
     <label id="pickerInfo" value="&certPicker.info;"/>

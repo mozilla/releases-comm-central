@@ -39,8 +39,7 @@
         onload="gSystemIntegrationDialog.onLoad();"
         title="&systemIntegration.title;">
 
-  <script type="application/javascript"
-          src="chrome://messenger/content/systemIntegrationDialog.js"/>
+  <script src="chrome://messenger/content/systemIntegrationDialog.js"/>
 
   <label control="defaultClientList">&defaultClient.intro;</label>
   <vbox id="defaultClientList">

@@ -11,12 +11,9 @@
 <overlay id="ltnCalendarPropertiesOverlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
 
-  <script type="application/javascript"
-          src="chrome://calendar/content/calendar-ui-utils.js"/>
-  <script type="application/javascript"
-          src="chrome://lightning/content/lightning-utils.js"/>
-  <script type="application/javascript"
-          src="chrome://lightning/content/lightning-calendar-properties.js"/>
+  <script src="chrome://calendar/content/calendar-ui-utils.js"/>
+  <script src="chrome://lightning/content/lightning-utils.js"/>
+  <script src="chrome://lightning/content/lightning-calendar-properties.js"/>
 
   <rows id="calendar-properties-rows">
     <hbox id="no-identity-notification" class="notification-inline" flex="1">

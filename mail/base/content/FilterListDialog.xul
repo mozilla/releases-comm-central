@@ -23,9 +23,9 @@
   persist="width height screenX screenY"
   title="&window.title;">
 
-  <script type="application/javascript" src="chrome://messenger/content/searchWidgets.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/FilterListDialog.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/customElements.js"/>
+  <script src="chrome://messenger/content/searchWidgets.js"/>
+  <script src="chrome://messenger/content/FilterListDialog.js"/>
+  <script src="chrome://messenger/content/customElements.js"/>
   <stringbundleset id="stringbundleset">
     <stringbundle id="bundle_filter" src="chrome://messenger/locale/filter.properties"/>
     <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>

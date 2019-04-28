@@ -22,16 +22,11 @@
       title="&accountTitle.label;"
       onload="parent.onPanelLoaded('am-newsblog.xul');">
 
-  <script type="application/javascript"
-          src="chrome://messenger/content/AccountManager.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger-newsblog/content/am-newsblog.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger-newsblog/content/newsblogOverlay.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger/content/amUtils.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger/content/am-prefs.js"/>
+  <script src="chrome://messenger/content/AccountManager.js"/>
+  <script src="chrome://messenger-newsblog/content/am-newsblog.js"/>
+  <script src="chrome://messenger-newsblog/content/newsblogOverlay.js"/>
+  <script src="chrome://messenger/content/amUtils.js"/>
+  <script src="chrome://messenger/content/am-prefs.js"/>
 
   <vbox flex="1" style="overflow: auto;">
 

@@ -25,8 +25,8 @@
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
 
   <!-- Javascript includes -->
-  <script type="application/javascript" src="chrome://calendar/content/calendar-subscriptions-dialog.js"/>
-  <script type="application/javascript" src="chrome://calendar/content/calendar-ui-utils.js"/>
+  <script src="chrome://calendar/content/calendar-subscriptions-dialog.js"/>
+  <script src="chrome://calendar/content/calendar-ui-utils.js"/>
 
   <vbox flex="1">
     <grid flex="1">

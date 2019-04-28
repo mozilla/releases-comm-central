@@ -18,7 +18,7 @@
         onload="joinChat.onload()"
         autojoinLabel="&autojoin.label;"
         autojoinAccesskey="&autojoin.accesskey;">
-  <script type="application/javascript" src="chrome://messenger/content/chat/joinchat.js"/>
+  <script src="chrome://messenger/content/chat/joinchat.js"/>
   <div xmlns="http://www.w3.org/1999/xhtml" id="joinChatGrid">
     <div>
       <xul:label value="&account.label;" control="accountlist"/>

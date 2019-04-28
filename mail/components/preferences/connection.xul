@@ -24,8 +24,8 @@
 #endif
 
   <prefpane id="ConnectionsDialogPane">
-    <script type="application/javascript" src="chrome://global/content/preferencesBindings.js"/>
-    <script type="application/javascript" src="chrome://messenger/content/preferences/connection.js"/>
+    <script src="chrome://global/content/preferencesBindings.js"/>
+    <script src="chrome://messenger/content/preferences/connection.js"/>
 
     <groupbox>
       <label><html:h2>&proxyTitle.label;</html:h2></label>

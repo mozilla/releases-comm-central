@@ -81,6 +81,6 @@
     </vbox>
   </prefpane>
 
-  <script type="application/javascript" src="chrome://global/content/preferencesBindings.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/preferences/colors.js"/>
+  <script src="chrome://global/content/preferencesBindings.js"/>
+  <script src="chrome://messenger/content/preferences/colors.js"/>
 </dialog>

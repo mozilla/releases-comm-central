@@ -8,8 +8,8 @@
 <overlay id="ComposerContextMenuOverlay"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
 
-<script type="application/javascript" src="chrome://editor/content/EditorContextMenu.js"/>
-<script type="application/javascript" src="chrome://editor/content/StructBarContextMenu.js"/>
+<script src="chrome://editor/content/EditorContextMenu.js"/>
+<script src="chrome://editor/content/StructBarContextMenu.js"/>
 
   <menupopup id="contentAreaContextMenu"
              onpopupshowing="return event.target != this ||

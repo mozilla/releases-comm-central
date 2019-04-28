@@ -12,10 +12,10 @@
 
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
 
-  <script type="application/javascript" src="chrome://calendar/content/calFilter.js"/>
-  <script type="application/javascript" src="chrome://calendar/content/calendar-task-tree-utils.js"/>
-  <script type="application/javascript" src="chrome://calendar/content/calendar-unifinder-todo.js"/>
-  <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://calendar/content/calFilter.js"/>
+  <script src="chrome://calendar/content/calendar-task-tree-utils.js"/>
+  <script src="chrome://calendar/content/calendar-unifinder-todo.js"/>
+  <script src="chrome://global/content/globalOverlay.js"/>
 
   <vbox id="todo-tab-panel" persist="height,collapsed" flex="1">
     <!-- This second vbox means all of this is added to the DOM at once,

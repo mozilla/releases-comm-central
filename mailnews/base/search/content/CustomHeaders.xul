@@ -22,7 +22,7 @@
   <stringbundle id="bundle_custom" src="chrome://messenger/locale/custom.properties"/>
   </stringbundleset>
 
-  <script type="application/javascript" src="chrome://messenger/content/CustomHeaders.js"/>
+  <script src="chrome://messenger/content/CustomHeaders.js"/>
 
   <grid flex="1">
     <columns>

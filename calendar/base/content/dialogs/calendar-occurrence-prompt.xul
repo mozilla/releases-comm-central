@@ -16,7 +16,7 @@
         xmlns:xhtml2="http://www.w3.org/TR/xhtml2"
         xmlns:wairole="http://www.w3.org/2005/01/wai-rdf/GUIRoleTaxonomy#"
         xhtml2:role="wairole:alertdialog">
-  <script type="application/javascript"><![CDATA[
+  <script><![CDATA[
       const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
       document.addEventListener("dialogaccept", () => exitOccurrenceDialog(1));

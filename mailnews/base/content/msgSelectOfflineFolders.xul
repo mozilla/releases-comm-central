@@ -18,10 +18,8 @@
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
   <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
 
-  <script type="application/javascript"
-          src="chrome://messenger/content/msgSelectOfflineFolders.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger/content/folderPane.js"/>
+  <script src="chrome://messenger/content/msgSelectOfflineFolders.js"/>
+  <script src="chrome://messenger/content/folderPane.js"/>
 
   <label class="desc" control="synchronizeTree">&MsgSelectDesc.label;</label>
 

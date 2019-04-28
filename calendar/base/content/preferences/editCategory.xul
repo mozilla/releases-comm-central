@@ -17,7 +17,7 @@
         xmlns:html="http://www.w3.org/1999/xhtml"
         buttons="accept,cancel"
         onload="editCategoryLoad();">
-  <script type="application/javascript" src="chrome://calendar/content/preferences/editCategory.js"/>
+  <script src="chrome://calendar/content/preferences/editCategory.js"/>
 
   <vbox id="dialog-box">
     <label value="&pref.categories.name.label;"

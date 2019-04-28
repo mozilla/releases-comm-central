@@ -14,11 +14,11 @@
     persist="screenX screenY"
     onload="Startup()">
 
-  <script type="application/javascript" src="chrome://editor/content/editorUtilities.js"/>
-  <script type="application/javascript" src="chrome://editor/content/EdDialogCommon.js"/>
-  <script type="application/javascript" src="chrome://communicator/content/utilityOverlay.js"/>
-  <script type="application/javascript" src="chrome://editor/content/EdSpellCheck.js"/>
-  <script type="application/javascript" src="chrome://global/content/contentAreaUtils.js"/>
+  <script src="chrome://editor/content/editorUtilities.js"/>
+  <script src="chrome://editor/content/EdDialogCommon.js"/>
+  <script src="chrome://communicator/content/utilityOverlay.js"/>
+  <script src="chrome://editor/content/EdSpellCheck.js"/>
+  <script src="chrome://global/content/contentAreaUtils.js"/>
 
   <stringbundle id="languageBundle" src="chrome://global/locale/languageNames.properties"/>
   <stringbundle id="regionBundle" src="chrome://global/locale/regionNames.properties"/>

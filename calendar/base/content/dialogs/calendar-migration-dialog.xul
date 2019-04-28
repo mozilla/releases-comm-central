@@ -23,8 +23,8 @@
         branded="true"
         persist="screenX screenY">
 
-    <script type="application/javascript" src="chrome://calendar/content/calendar-migration-dialog.js"/>
-    <script type="application/javascript" src="chrome://calendar/content/import-export.js"/>
+    <script src="chrome://calendar/content/calendar-migration-dialog.js"/>
+    <script src="chrome://calendar/content/import-export.js"/>
 
     <wizardpage id="wizardPage1"
                 pageid="initialPage"

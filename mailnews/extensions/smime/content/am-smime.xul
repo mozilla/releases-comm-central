@@ -12,8 +12,8 @@
         onload="parent.onPanelLoaded('am-smime.xul');">
 
   <vbox flex="1" style="overflow: auto;">
-    <script type="application/javascript" src="chrome://messenger/content/AccountManager.js"/>
-    <script type="application/javascript" src="chrome://messenger/content/am-smime.js"/>
+    <script src="chrome://messenger/content/AccountManager.js"/>
+    <script src="chrome://messenger/content/am-smime.js"/>
 
     <hbox class="dialogheader">
       <label class="dialogheader-title" value="&securityTitle.label;"/>

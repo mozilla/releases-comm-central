@@ -19,7 +19,7 @@
         persist="screenX screenY width height"
         style="width: 40em; height: 25em;">
 
-  <script type="application/javascript" src="chrome://messenger/content/viewLog.js"/>
+  <script src="chrome://messenger/content/viewLog.js"/>
 
   <vbox flex="1">
     <description>&viewLogInfo.text;</description>

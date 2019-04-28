@@ -18,8 +18,7 @@
   style="width: 40em;">
 
 <stringbundle id="bundle_prefs" src="chrome://messenger/locale/prefs.properties"/>
-<script type="application/javascript"
-        src="chrome://messenger/content/am-identities-list.js"/>
+<script src="chrome://messenger/content/am-identities-list.js"/>
 
 <commandset>
   <command id="cmd_add"     oncommand="openIdentityEditor(null);"/>

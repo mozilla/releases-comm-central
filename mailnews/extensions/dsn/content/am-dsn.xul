@@ -14,8 +14,8 @@
       onload="parent.onPanelLoaded('am-dsn.xul');">
 
   <stringbundle id="bundle_smime" src="chrome://messenger/locale/am-dsn.properties"/>
-  <script type="application/javascript" src="chrome://messenger/content/AccountManager.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/am-dsn.js"/>
+  <script src="chrome://messenger/content/AccountManager.js"/>
+  <script src="chrome://messenger/content/am-dsn.js"/>
 
   <hbox class="dialogheader">
     <label class="dialogheader-title" value="&pane.title;"/>

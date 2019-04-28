@@ -31,41 +31,41 @@
 
 <overlay id="ltnSidebarOverlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
-  <script type="application/javascript" src="chrome://calendar/content/calendar-base-view.js"/>
+  <script src="chrome://calendar/content/calendar-base-view.js"/>
 
   <!-- NEEDED FOR MULTIPLE CALENDAR SUPPORT -->
-  <script type="application/javascript" src="chrome://calendar/content/calendar-management.js"/>
+  <script src="chrome://calendar/content/calendar-management.js"/>
 
   <!-- NEEDED FOR CLIPBOARD SUPPORT -->
-  <script type="application/javascript" src="chrome://calendar/content/calendar-clipboard.js"/>
+  <script src="chrome://calendar/content/calendar-clipboard.js"/>
 
   <!-- NEEDED FOR IMPORT / EXPORT SUPPORT -->
-  <script type="application/javascript" src="chrome://calendar/content/import-export.js"/>
+  <script src="chrome://calendar/content/import-export.js"/>
 
   <!-- NEEDED FOR PUBLICATION SUPPORT -->
-  <script type="application/javascript" src="chrome://calendar/content/publish.js"/>
+  <script src="chrome://calendar/content/publish.js"/>
 
-  <script type="application/javascript" src="chrome://calendar/content/calendar-item-editing.js"/>
-  <script type="application/javascript" src="chrome://calendar/content/calendar-chrome-startup.js"/>
-  <script type="application/javascript" src="chrome://calendar/content/mouseoverPreviews.js"/>
-  <script type="application/javascript" src="chrome://calendar/content/calendar-views.js"/>
-  <script type="application/javascript" src="chrome://calendar/content/calendar-ui-utils.js"/>
-  <script type="application/javascript" src="chrome://calendar/content/calendar-creation.js"/>
-  <script type="application/javascript" src="chrome://calendar/content/calendar-dnd-listener.js"/>
-  <script type="application/javascript" src="chrome://calendar/content/calendar-statusbar.js"/>
-  <script type="application/javascript" src="chrome://global/content/nsDragAndDrop.js"/>
+  <script src="chrome://calendar/content/calendar-item-editing.js"/>
+  <script src="chrome://calendar/content/calendar-chrome-startup.js"/>
+  <script src="chrome://calendar/content/mouseoverPreviews.js"/>
+  <script src="chrome://calendar/content/calendar-views.js"/>
+  <script src="chrome://calendar/content/calendar-ui-utils.js"/>
+  <script src="chrome://calendar/content/calendar-creation.js"/>
+  <script src="chrome://calendar/content/calendar-dnd-listener.js"/>
+  <script src="chrome://calendar/content/calendar-statusbar.js"/>
+  <script src="chrome://global/content/nsDragAndDrop.js"/>
 
   <!-- NEEDED FOR TASK VIEW/LIST SUPPORT -->
-  <script type="application/javascript" src="chrome://calendar/content/calendar-task-editing.js"/>
+  <script src="chrome://calendar/content/calendar-task-editing.js"/>
 
-  <script type="application/javascript" src="chrome://calendar/content/calendar-extract.js"/>
+  <script src="chrome://calendar/content/calendar-extract.js"/>
 
-  <script type="application/javascript" src="chrome://lightning/content/lightning-utils.js"/>
-  <script type="application/javascript" src="chrome://lightning/content/messenger-overlay-sidebar.js"/>
-  <script type="application/javascript" src="chrome://calendar/content/calendar-invitations-manager.js"/>
+  <script src="chrome://lightning/content/lightning-utils.js"/>
+  <script src="chrome://lightning/content/messenger-overlay-sidebar.js"/>
+  <script src="chrome://calendar/content/calendar-invitations-manager.js"/>
 
   <!-- NEEDED FOR EVENT/TASK IN A TAB -->
-  <script type="application/javascript" src="chrome://lightning/content/lightning-item-panel.js"/>
+  <script src="chrome://lightning/content/lightning-item-panel.js"/>
 
   <window id="messengerWindow">
     <!-- Be sure to keep these sets, since they will be overlaid by

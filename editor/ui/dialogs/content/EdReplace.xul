@@ -16,9 +16,9 @@
    onload="onLoad()">
 
   <!-- Methods common to all editor dialogs -->
-  <script type="application/javascript" src="chrome://editor/content/editorUtilities.js"/>
-  <script type="application/javascript" src="chrome://editor/content/EdDialogCommon.js"/>
-  <script type="application/javascript" src="chrome://editor/content/EdReplace.js"/>
+  <script src="chrome://editor/content/editorUtilities.js"/>
+  <script src="chrome://editor/content/EdDialogCommon.js"/>
+  <script src="chrome://editor/content/EdReplace.js"/>
   <stringbundle id="findBundle" src="chrome://global/locale/finddialog.properties"/>
 
   <hbox>

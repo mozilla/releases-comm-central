@@ -16,7 +16,7 @@
                   src="chrome://messenger/locale/addressbook/addressBook.properties"/>
   </stringbundleset>
 
-  <script type="application/javascript" src="chrome://messenger/content/addressbook/abAddressBookNameDialog.js"/>
+  <script src="chrome://messenger/content/addressbook/abAddressBookNameDialog.js"/>
 
   <hbox align="center">
     <label control="name" value="&name.label;" accesskey="&name.accesskey;"/>

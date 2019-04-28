@@ -17,7 +17,7 @@
         branded="true"
         buttons="accept,cancel">
 
-  <script type="application/javascript" src="chrome://messenger/content/migration/migration.js"/>
+  <script src="chrome://messenger/content/migration/migration.js"/>
 
   <stringbundle id="bundle" src="chrome://messenger/locale/migration/migration.properties"/>
 

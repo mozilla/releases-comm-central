@@ -17,10 +17,10 @@
   onload="folderPropsOnLoad();" style="width: 56ch;">
 
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
-  <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/retention.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/folderProps.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/menulist-charsetpicker.js"/>
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://messenger/content/retention.js"/>
+  <script src="chrome://messenger/content/folderProps.js"/>
+  <script src="chrome://messenger/content/menulist-charsetpicker.js"/>
 
 <tabbox id="folderPropTabBox">
   <tabs id="folderPropTabs">

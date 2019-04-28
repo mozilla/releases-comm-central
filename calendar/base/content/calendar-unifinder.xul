@@ -9,8 +9,8 @@
 <!DOCTYPE overlay SYSTEM "chrome://calendar/locale/calendar.dtd">
 
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
-  <script type="application/javascript" src="chrome://calendar/content/calendar-unifinder.js"/>
-  <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://calendar/content/calendar-unifinder.js"/>
+  <script src="chrome://global/content/globalOverlay.js"/>
 
   <vbox id="calendar-view-box">
     <vbox id="bottom-events-box" insertbefore="calendar-nav-control" persist="height">

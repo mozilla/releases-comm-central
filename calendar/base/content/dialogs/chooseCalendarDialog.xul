@@ -19,8 +19,8 @@
         onload="setTimeout(loadCalendars, 0);"
         persist="screenX screenY height width">
 
-    <script type="application/javascript" src="chrome://calendar/content/calendar-ui-utils.js"/>
-    <script type="application/javascript" src="chrome://calendar/content/chooseCalendarDialog.js"/>
+    <script src="chrome://calendar/content/calendar-ui-utils.js"/>
+    <script src="chrome://calendar/content/chooseCalendarDialog.js"/>
 
     <vbox id="dialog-box" flex="1">
         <label id="prompt" control="calendar-list"/>

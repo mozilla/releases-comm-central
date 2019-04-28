@@ -16,8 +16,7 @@
         buttonaccesskeyaccept="&send.accesskey;"
         style="width: 75ch;">
 
-  <script type="application/javascript"
-          src="chrome://messenger/content/messengercompose/askSendFormat.js"/>
+  <script src="chrome://messenger/content/messengercompose/askSendFormat.js"/>
 
   <stringbundle id="askSendFormatStringBundle"
                 src="chrome://messenger/locale/messengercompose/askSendFormat.properties"/>

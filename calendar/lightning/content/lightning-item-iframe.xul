@@ -39,24 +39,15 @@
       xmlns:html="http://www.w3.org/1999/xhtml">
 
   <!-- JavaScript includes -->
-  <script type="application/javascript"
-          src="chrome://lightning/content/lightning-item-iframe.js"/>
-  <script type="application/javascript"
-          src="chrome://calendar/content/calendar-dialog-utils.js"/>
-  <script type="application/javascript"
-          src="chrome://calendar/content/calendar-ui-utils.js"/>
-  <script type="application/javascript"
-          src="chrome://calendar/content/calApplicationUtils.js"/>
-  <script type="application/javascript"
-          src="chrome://global/content/globalOverlay.js"/>
-  <script type="application/javascript"
-          src="chrome://global/content/printUtils.js"/>
-  <script type="application/javascript"
-          src="chrome://calendar/content/calendar-statusbar.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger/content/customElements.js"/>
-  <script type="application/javascript"
-          src="chrome://calendar/content/datetimepickers/datetimepickers.js"/>
+  <script src="chrome://lightning/content/lightning-item-iframe.js"/>
+  <script src="chrome://calendar/content/calendar-dialog-utils.js"/>
+  <script src="chrome://calendar/content/calendar-ui-utils.js"/>
+  <script src="chrome://calendar/content/calApplicationUtils.js"/>
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/printUtils.js"/>
+  <script src="chrome://calendar/content/calendar-statusbar.js"/>
+  <script src="chrome://messenger/content/customElements.js"/>
+  <script src="chrome://calendar/content/datetimepickers/datetimepickers.js"/>
 
   <commandset id="">
     <command id="cmd_recurrence"

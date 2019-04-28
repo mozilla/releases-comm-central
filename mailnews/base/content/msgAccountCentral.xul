@@ -23,22 +23,14 @@
                 src="chrome://messenger/locale/messenger.properties"/>
   <stringbundle id="bundle_prefs"
                 src="chrome://messenger/locale/prefs.properties"/>
-  <script type="application/javascript"
-          src="chrome://messenger/content/AccountManager.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger/content/accountUtils.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger/content/commandglue.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger/content/mailWindowOverlay.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger/content/mailWindow.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger/content/msgMail3PaneWindow.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger/content/msgAccountCentral.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger/content/mailCore.js"/>
+  <script src="chrome://messenger/content/AccountManager.js"/>
+  <script src="chrome://messenger/content/accountUtils.js"/>
+  <script src="chrome://messenger/content/commandglue.js"/>
+  <script src="chrome://messenger/content/mailWindowOverlay.js"/>
+  <script src="chrome://messenger/content/mailWindow.js"/>
+  <script src="chrome://messenger/content/msgMail3PaneWindow.js"/>
+  <script src="chrome://messenger/content/msgAccountCentral.js"/>
+  <script src="chrome://messenger/content/mailCore.js"/>
 
   <grid id="acctCentralGrid" flex="1" style="overflow: auto;">
     <columns id="acctCentralColumns">

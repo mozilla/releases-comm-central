@@ -46,11 +46,11 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
 
 #ifdef MOZ_SUITE
-<script type="application/javascript" src="chrome://communicator/content/customizeToolbar.js"/>
+<script src="chrome://communicator/content/customizeToolbar.js"/>
 <stringbundle id="stringBundle" src="chrome://communicator/locale/customizeToolbar.properties"/>
 #else
-<script type="application/javascript" src="chrome://messenger/content/customizeToolbar.js"/>
-<script type="application/javascript" src="chrome://messenger/content/mailCore.js"/>
+<script src="chrome://messenger/content/customizeToolbar.js"/>
+<script src="chrome://messenger/content/mailCore.js"/>
 <stringbundle id="stringBundle" src="chrome://messenger/locale/customizeToolbar.properties"/>
 #endif
 

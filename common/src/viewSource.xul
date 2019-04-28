@@ -34,15 +34,15 @@
         screenX="10" screenY="10"
         persist="screenX screenY width height sizemode">
 
-  <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
-  <script type="application/javascript" src="chrome://global/content/printUtils.js"/>
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/printUtils.js"/>
 #ifndef MOZ_SUITE
-<script type="application/javascript" src="chrome://messenger/content/mailCore.js"/>
+<script src="chrome://messenger/content/mailCore.js"/>
 #endif
-  <script type="application/javascript" src="chrome://messenger/content/viewSource.js"/>
-  <script type="application/javascript" src="chrome://global/content/viewZoomOverlay.js"/>
-  <script type="application/javascript" src="chrome://global/content/contentAreaUtils.js"/>
-  <script type="application/javascript" src="chrome://global/content/editMenuOverlay.js"/>
+  <script src="chrome://messenger/content/viewSource.js"/>
+  <script src="chrome://global/content/viewZoomOverlay.js"/>
+  <script src="chrome://global/content/contentAreaUtils.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
 
   <stringbundle id="viewSourceBundle" src="chrome://messenger/locale/viewSource.properties"/>
 

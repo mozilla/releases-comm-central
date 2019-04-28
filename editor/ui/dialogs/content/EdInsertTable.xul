@@ -19,9 +19,9 @@
     onload = "Startup()">
 
   <!-- Methods common to all editor dialogs -->
-  <script type="application/javascript" src="chrome://editor/content/editorUtilities.js"/>
-  <script type="application/javascript" src="chrome://editor/content/EdDialogCommon.js"/>
-  <script type="application/javascript" src="chrome://editor/content/EdInsertTable.js"/>
+  <script src="chrome://editor/content/editorUtilities.js"/>
+  <script src="chrome://editor/content/EdDialogCommon.js"/>
+  <script src="chrome://editor/content/EdInsertTable.js"/>
 
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
   <groupbox><label class="header">&size.label;</label>

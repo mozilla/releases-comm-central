@@ -16,8 +16,7 @@
         buttons="accept,cancel"
         onload="onLoad();">
 
-  <script type="application/javascript"
-          src="chrome://messenger/content/am-server-advanced.js"/>
+  <script src="chrome://messenger/content/am-server-advanced.js"/>
   <stringbundle id="bundle_prefs"
                 src="chrome://messenger/locale/prefs.properties"/>
 

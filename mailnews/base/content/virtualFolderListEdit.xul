@@ -16,10 +16,8 @@
         persist="width height screenX screenY"
         onload="gSelectVirtual.load();">
 
-  <script type="application/javascript"
-          src="chrome://messenger/content/virtualFolderListEdit.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger/content/folderPane.js"/>
+  <script src="chrome://messenger/content/virtualFolderListEdit.js"/>
+  <script src="chrome://messenger/content/folderPane.js"/>
 
   <stringbundleset id="stringbundleset">
     <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>

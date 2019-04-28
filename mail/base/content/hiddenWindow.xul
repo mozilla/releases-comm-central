@@ -36,31 +36,31 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         onload="hiddenWindowStartup();">
 
-<script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
-<script type="application/javascript" src="chrome://messenger/content/commandglue.js"/>
-<script type="application/javascript" src="chrome://messenger/content/mailWindow.js"/>
-<script type="application/javascript" src="chrome://messenger/content/msgMail3PaneWindow.js"/>
-<script type="application/javascript" src="chrome://messenger/content/mail3PaneWindowCommands.js"/>
-<script type="application/javascript" src="chrome://messenger/content/searchBar.js"/>
-<script type="application/javascript" src="chrome://messenger/content/hiddenWindow.js"/>
-<script type="application/javascript" src="chrome://messenger/content/mailCommands.js"/>
-<script type="application/javascript" src="chrome://messenger/content/junkCommands.js"/>
-<script type="application/javascript" src="chrome://messenger/content/mailWindowOverlay.js"/>
-<script type="application/javascript" src="chrome://messenger/content/mailTabs.js"/>
-<script type="application/javascript" src="chrome://messenger/content/messageDisplay.js"/>
-<script type="application/javascript" src="chrome://messenger/content/folderDisplay.js"/>
-<script type="application/javascript" src="chrome://messenger-newsblog/content/newsblogOverlay.js"/>
-<script type="application/javascript" src="chrome://messenger/content/mail-offline.js"/>
-<script type="application/javascript" src="chrome://global/content/printUtils.js"/>
-<script type="application/javascript" src="chrome://messenger/content/msgViewPickerOverlay.js"/>
-<script type="application/javascript" src="chrome://global/content/viewZoomOverlay.js"/>
-<script type="application/javascript" src="chrome://communicator/content/utilityOverlay.js"/>
-<script type="application/javascript" src="chrome://messenger/content/mailCore.js"/>
-<script type="application/javascript" src="chrome://messenger/content/quickFilterBar.js"/>
-<script type="application/javascript" src="chrome://messenger/content/newmailaccount/uriListener.js"/>
-<script type="application/javascript" src="chrome://messenger-smime/content/msgReadSMIMEOverlay.js"/>
+<script src="chrome://global/content/globalOverlay.js"/>
+<script src="chrome://messenger/content/commandglue.js"/>
+<script src="chrome://messenger/content/mailWindow.js"/>
+<script src="chrome://messenger/content/msgMail3PaneWindow.js"/>
+<script src="chrome://messenger/content/mail3PaneWindowCommands.js"/>
+<script src="chrome://messenger/content/searchBar.js"/>
+<script src="chrome://messenger/content/hiddenWindow.js"/>
+<script src="chrome://messenger/content/mailCommands.js"/>
+<script src="chrome://messenger/content/junkCommands.js"/>
+<script src="chrome://messenger/content/mailWindowOverlay.js"/>
+<script src="chrome://messenger/content/mailTabs.js"/>
+<script src="chrome://messenger/content/messageDisplay.js"/>
+<script src="chrome://messenger/content/folderDisplay.js"/>
+<script src="chrome://messenger-newsblog/content/newsblogOverlay.js"/>
+<script src="chrome://messenger/content/mail-offline.js"/>
+<script src="chrome://global/content/printUtils.js"/>
+<script src="chrome://messenger/content/msgViewPickerOverlay.js"/>
+<script src="chrome://global/content/viewZoomOverlay.js"/>
+<script src="chrome://communicator/content/utilityOverlay.js"/>
+<script src="chrome://messenger/content/mailCore.js"/>
+<script src="chrome://messenger/content/quickFilterBar.js"/>
+<script src="chrome://messenger/content/newmailaccount/uriListener.js"/>
+<script src="chrome://messenger-smime/content/msgReadSMIMEOverlay.js"/>
 #ifdef XP_MACOSX
-<script type="application/javascript" src="chrome://global/content/macWindowMenu.js"/>
+<script src="chrome://global/content/macWindowMenu.js"/>
 #endif
 
 

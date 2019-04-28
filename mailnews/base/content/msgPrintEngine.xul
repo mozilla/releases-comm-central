@@ -25,12 +25,9 @@
   <key id="printKb" key="&printCmd.key;" command="cmd_print" modifiers="accel"/>
   <key id="key_close" key="&closeCmd.key;" command="cmd_close" modifiers="accel"/>
 
-  <script type="application/javascript"
-          src="chrome://global/content/printUtils.js"/>
-  <script type="application/javascript"
-          src="chrome://global/content/globalOverlay.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger/content/msgPrintEngine.js"/>
+  <script src="chrome://global/content/printUtils.js"/>
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://messenger/content/msgPrintEngine.js"/>
 
   <!-- The main display frame -->
   <browser id="content"

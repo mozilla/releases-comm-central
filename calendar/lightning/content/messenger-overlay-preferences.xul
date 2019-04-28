@@ -62,13 +62,11 @@
         </tabbox>
     </prefpane>
 
-    <script type="application/javascript"
-            src="chrome://calendar/content/calendar-ui-utils.js"/>
-    <script type="application/javascript"
-            src="chrome://calendar/content/calendar-dialog-utils.js"/>
+    <script src="chrome://calendar/content/calendar-ui-utils.js"/>
+    <script src="chrome://calendar/content/calendar-dialog-utils.js"/>
 
     <!-- Get the localized text for use in the .js -->
-    <script type="application/javascript">
+    <script>
         var labelLong  = "&pref.dateformat.long;";
         var labelShort = "&pref.dateformat.short;";
         var noneLabel  = "&pref.categories.none.label;";
@@ -79,14 +77,9 @@
         var noBlankCategories = "&pref.categories.noBlankCategories;";
     </script>
 
-    <script type="application/javascript"
-            src="chrome://calendar/content/preferences/general.js"/>
-    <script type="application/javascript"
-            src="chrome://calendar/content/preferences/alarms.js"/>
-    <script type="application/javascript"
-            src="chrome://calendar/content/preferences/categories.js"/>
-    <script type="application/javascript"
-            src="chrome://calendar/content/preferences/views.js"/>
-    <script type="application/javascript"
-            src="chrome://lightning/content/messenger-overlay-preferences.js"/>
+    <script src="chrome://calendar/content/preferences/general.js"/>
+    <script src="chrome://calendar/content/preferences/alarms.js"/>
+    <script src="chrome://calendar/content/preferences/categories.js"/>
+    <script src="chrome://calendar/content/preferences/views.js"/>
+    <script src="chrome://lightning/content/messenger-overlay-preferences.js"/>
 </overlay>

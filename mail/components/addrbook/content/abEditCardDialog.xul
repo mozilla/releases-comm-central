@@ -20,9 +20,9 @@
     <stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
   </stringbundleset>
 
-  <script type="application/javascript" src="chrome://messenger/content/addressbook/abCommon.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/addressbook/abCard.js"/>
-  <script type="application/javascript"><![CDATA[
+  <script src="chrome://messenger/content/addressbook/abCommon.js"/>
+  <script src="chrome://messenger/content/addressbook/abCard.js"/>
+  <script><![CDATA[
     document.addEventListener("dialogaccept", EditCardOKButton);
     document.addEventListener("dialogcancel", EditCardCancelButton);
   ]]></script>

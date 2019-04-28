@@ -16,7 +16,7 @@
         persist="width height"
         onload="onLoadArchiveOptions();">
 
-  <script type="application/javascript" src="chrome://messenger/content/am-archiveoptions.js"/>
+  <script src="chrome://messenger/content/am-archiveoptions.js"/>
 
   <vbox flex="1">
     <label>&archiveGranularityPrefix.label;</label>

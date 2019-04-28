@@ -19,10 +19,8 @@
         onload="DownloadsView.init();">
   <xhtml:link rel="shortcut icon"
               href="chrome://messenger/skin/downloads/download.svg"/>
-  <script type="application/javascript"
-          src="chrome://global/content/globalOverlay.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger/content/downloads/aboutDownloads.js"/>
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://messenger/content/downloads/aboutDownloads.js"/>
 
   <commandset id="msgDownloadCommands"
               commandupdater="true"

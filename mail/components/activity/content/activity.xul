@@ -35,16 +35,11 @@
         onunload="activityObject.shutdown();"
         onclose="return closeWindow(false);">
 
-  <script type="application/javascript"
-          src="chrome://messenger/content/activity.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger/content/activity-widgets.js"/>
-  <script type="application/javascript"
-          src="chrome://global/content/contentAreaUtils.js"/>
-  <script type="application/javascript"
-          src="chrome://global/content/nsDragAndDrop.js"/>
-  <script type="application/javascript"
-          src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://messenger/content/activity.js"/>
+  <script src="chrome://messenger/content/activity-widgets.js"/>
+  <script src="chrome://global/content/contentAreaUtils.js"/>
+  <script src="chrome://global/content/nsDragAndDrop.js"/>
+  <script src="chrome://global/content/globalOverlay.js"/>
 
   <stringbundleset id="activitySet">
     <stringbundle id="brandStrings"

@@ -25,8 +25,8 @@
     xmlns:html="http://www.w3.org/1999/xhtml"
     width="500">
 
-  <script type="application/javascript" src="chrome://calendar/content/calendar-properties-dialog.js"/>
-  <script type="application/javascript" src="chrome://calendar/content/calendar-ui-utils.js"/>
+  <script src="chrome://calendar/content/calendar-properties-dialog.js"/>
+  <script src="chrome://calendar/content/calendar-ui-utils.js"/>
 
   <description id="force-disabled-description" hidden="true">&calendarproperties.forceDisabled.label;</description>
 

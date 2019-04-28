@@ -100,66 +100,66 @@
   <html:link rel="localization" href="toolkit/main-window/findbar.ftl"/>
 </linkset>
 
-<script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
-<script type="application/javascript" src="chrome://messenger/content/commandglue.js"/>
-<script type="application/javascript" src="chrome://messenger/content/msgViewNavigation.js"/>
-<script type="application/javascript" src="chrome://messenger/content/mailWindow.js"/>
-<script type="application/javascript" src="chrome://messenger/content/mail-compacttheme.js"/>
-<script type="application/javascript" src="chrome://messenger/content/selectionsummaries.js"/>
-<script type="application/javascript" src="chrome://messenger/content/msgMail3PaneWindow.js"/>
-<script type="application/javascript" src="chrome://messenger/content/specialTabs.js"/>
+<script src="chrome://global/content/globalOverlay.js"/>
+<script src="chrome://messenger/content/commandglue.js"/>
+<script src="chrome://messenger/content/msgViewNavigation.js"/>
+<script src="chrome://messenger/content/mailWindow.js"/>
+<script src="chrome://messenger/content/mail-compacttheme.js"/>
+<script src="chrome://messenger/content/selectionsummaries.js"/>
+<script src="chrome://messenger/content/msgMail3PaneWindow.js"/>
+<script src="chrome://messenger/content/specialTabs.js"/>
 <!-- accountProvisionerTab.js relies on code from specialTabs.js, and so much be loaded after it. -->
-<script type="application/javascript" src="chrome://messenger/content/newmailaccount/accountProvisionerTab.js"/>
-<script type="application/javascript" src="chrome://messenger/content/glodaFacetTab.js"/>
-<script type="application/javascript" src="chrome://gloda/content/overlay.js"/>
-<script type="application/javascript" src="chrome://messenger/content/searchBar.js"/>
-<script type="application/javascript" src="chrome://messenger/content/mail3PaneWindowCommands.js"/>
-<script type="application/javascript" src="chrome://global/content/contentAreaUtils.js"/>
-<script type="application/javascript" src="chrome://messenger/content/nsContextMenu.js"/>
-<script type="application/javascript" src="chrome://messenger/content/mailContextMenus.js"/>
-<script type="application/javascript" src="chrome://messenger/content/accountUtils.js"/>
-<script type="application/javascript" src="chrome://messenger/content/folderPane.js"/>
-<script type="application/javascript" src="chrome://messenger/content/phishingDetector.js"/>
-<script type="application/javascript" src="chrome://communicator/content/contentAreaClick.js"/>
-<script type="application/javascript" src="chrome://global/content/nsDragAndDrop.js"/>
-<script type="application/javascript" src="chrome://messenger/content/editContactPanel.js"/>
-<script type="application/javascript" src="chrome://messenger/content/toolbarIconColor.js"/>
-<script type="application/javascript" src="chrome://messenger/content/jsTreeView.js"/>
-<script type="application/javascript" src="chrome://messenger/content/msgHdrView.js"/>
-<script type="application/javascript" src="chrome://global/content/nsDragAndDrop.js"/>
-<script type="application/javascript" src="chrome://messenger-smime/content/msgHdrViewSMIMEOverlay.js"/>
-<script type="application/javascript" src="chrome://messenger-smime/content/msgReadSMIMEOverlay.js"/>
-<script type="application/javascript" src="chrome://messenger/content/chat/chat-messenger.js"/>
-<script type="application/javascript" src="chrome://messenger/content/chat/imStatusSelector.js"/>
-<script type="application/javascript" src="chrome://messenger/content/chat/imContextMenu.js"/>
-<script type="application/javascript" src="chrome://messenger/content/preferences/preferencesTab.js"/>
-<script type="application/javascript" src="chrome://messenger/content/mailCore.js"/>
-<script type="application/javascript" src="chrome://messenger/content/mailCommands.js"/>
-<script type="application/javascript" src="chrome://messenger/content/junkCommands.js"/>
-<script type="application/javascript" src="chrome://messenger/content/mailWindowOverlay.js"/>
-<script type="application/javascript" src="chrome://messenger/content/mailTabs.js"/>
-<script type="application/javascript" src="chrome://messenger/content/messageDisplay.js"/>
-<script type="application/javascript" src="chrome://messenger/content/folderDisplay.js"/>
-<script type="application/javascript" src="chrome://messenger-newsblog/content/newsblogOverlay.js"/>
-<script type="application/javascript" src="chrome://messenger/content/mail-offline.js"/>
-<script type="application/javascript" src="chrome://global/content/printUtils.js"/>
-<script type="application/javascript" src="chrome://messenger/content/msgViewPickerOverlay.js"/>
-<script type="application/javascript" src="chrome://global/content/viewZoomOverlay.js"/>
-<script type="application/javascript" src="chrome://communicator/content/utilityOverlay.js"/>
-<script type="application/javascript" src="chrome://messenger/content/quickFilterBar.js"/>
-<script type="application/javascript" src="chrome://messenger/content/newmailaccount/uriListener.js"/>
-<script type="application/javascript" src="chrome://messenger/content/chat/chat-conversation-info.js"/>
-<script type="application/javascript" src="chrome://gloda/content/autocomplete-richlistitem.js"/>
-<script type="application/javascript" src="chrome://messenger/content/chat/chat-contact.js"/>
-<script type="application/javascript" src="chrome://messenger/content/chat/chat-group.js"/>
-<script type="application/javascript" src="chrome://messenger/content/chat/chat-imconv.js"/>
+<script src="chrome://messenger/content/newmailaccount/accountProvisionerTab.js"/>
+<script src="chrome://messenger/content/glodaFacetTab.js"/>
+<script src="chrome://gloda/content/overlay.js"/>
+<script src="chrome://messenger/content/searchBar.js"/>
+<script src="chrome://messenger/content/mail3PaneWindowCommands.js"/>
+<script src="chrome://global/content/contentAreaUtils.js"/>
+<script src="chrome://messenger/content/nsContextMenu.js"/>
+<script src="chrome://messenger/content/mailContextMenus.js"/>
+<script src="chrome://messenger/content/accountUtils.js"/>
+<script src="chrome://messenger/content/folderPane.js"/>
+<script src="chrome://messenger/content/phishingDetector.js"/>
+<script src="chrome://communicator/content/contentAreaClick.js"/>
+<script src="chrome://global/content/nsDragAndDrop.js"/>
+<script src="chrome://messenger/content/editContactPanel.js"/>
+<script src="chrome://messenger/content/toolbarIconColor.js"/>
+<script src="chrome://messenger/content/jsTreeView.js"/>
+<script src="chrome://messenger/content/msgHdrView.js"/>
+<script src="chrome://global/content/nsDragAndDrop.js"/>
+<script src="chrome://messenger-smime/content/msgHdrViewSMIMEOverlay.js"/>
+<script src="chrome://messenger-smime/content/msgReadSMIMEOverlay.js"/>
+<script src="chrome://messenger/content/chat/chat-messenger.js"/>
+<script src="chrome://messenger/content/chat/imStatusSelector.js"/>
+<script src="chrome://messenger/content/chat/imContextMenu.js"/>
+<script src="chrome://messenger/content/preferences/preferencesTab.js"/>
+<script src="chrome://messenger/content/mailCore.js"/>
+<script src="chrome://messenger/content/mailCommands.js"/>
+<script src="chrome://messenger/content/junkCommands.js"/>
+<script src="chrome://messenger/content/mailWindowOverlay.js"/>
+<script src="chrome://messenger/content/mailTabs.js"/>
+<script src="chrome://messenger/content/messageDisplay.js"/>
+<script src="chrome://messenger/content/folderDisplay.js"/>
+<script src="chrome://messenger-newsblog/content/newsblogOverlay.js"/>
+<script src="chrome://messenger/content/mail-offline.js"/>
+<script src="chrome://global/content/printUtils.js"/>
+<script src="chrome://messenger/content/msgViewPickerOverlay.js"/>
+<script src="chrome://global/content/viewZoomOverlay.js"/>
+<script src="chrome://communicator/content/utilityOverlay.js"/>
+<script src="chrome://messenger/content/quickFilterBar.js"/>
+<script src="chrome://messenger/content/newmailaccount/uriListener.js"/>
+<script src="chrome://messenger/content/chat/chat-conversation-info.js"/>
+<script src="chrome://gloda/content/autocomplete-richlistitem.js"/>
+<script src="chrome://messenger/content/chat/chat-contact.js"/>
+<script src="chrome://messenger/content/chat/chat-group.js"/>
+<script src="chrome://messenger/content/chat/chat-imconv.js"/>
 #ifdef XP_MACOSX
-<script type="application/javascript" src="chrome://messenger/content/macMessengerMenu.js"/>
-<script type="application/javascript" src="chrome://global/content/macWindowMenu.js"/>
+<script src="chrome://messenger/content/macMessengerMenu.js"/>
+<script src="chrome://global/content/macWindowMenu.js"/>
 #endif
 
 <!-- move needed functions into a single js file -->
-<script type="application/javascript" src="chrome://messenger/content/threadPane.js"/>
+<script src="chrome://messenger/content/threadPane.js"/>
 
 <commandset id="mailCommands">
 #include mainCommandSet.inc.xul

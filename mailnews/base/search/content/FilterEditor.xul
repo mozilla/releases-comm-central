@@ -30,13 +30,13 @@
     <stringbundle id="bundle_search" src="chrome://messenger/locale/search.properties"/>
   </stringbundleset>
 
-  <script type="application/javascript" src="chrome://messenger/content/searchWidgets.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/mailWindowOverlay.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/mailCommands.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/FilterEditor.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/searchTerm.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/dateFormat.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/customElements.js"/>
+  <script src="chrome://messenger/content/searchWidgets.js"/>
+  <script src="chrome://messenger/content/mailWindowOverlay.js"/>
+  <script src="chrome://messenger/content/mailCommands.js"/>
+  <script src="chrome://messenger/content/FilterEditor.js"/>
+  <script src="chrome://messenger/content/searchTerm.js"/>
+  <script src="chrome://messenger/content/dateFormat.js"/>
+  <script src="chrome://messenger/content/customElements.js"/>
 
   <commandset>
     <command id="cmd_updateFilterType" oncommand="updateFilterType();"/>

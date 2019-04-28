@@ -13,7 +13,7 @@
         onload="onLoad()"
         buttons="cancel">
 
-  <script type="application/javascript" src="chrome://messenger/content/shutdownWindow.js"/>
+  <script src="chrome://messenger/content/shutdownWindow.js"/>
   <stringbundle id="bundle_shutdown" src="chrome://messenger/locale/shutdownWindow.properties"/>
 
   <vbox align="center">

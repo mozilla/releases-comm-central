@@ -25,8 +25,7 @@
         onload="onLoad();">
   <stringbundle id="bundle_removeAccount"
                 src="chrome://messenger/locale/removeAccount.properties"/>
-  <script type="application/javascript"
-          src="chrome://messenger/content/removeAccount.js"/>
+  <script src="chrome://messenger/content/removeAccount.js"/>
   <deck id="infoPane">
     <vbox flex="1">
       <label id="accountName"></label>

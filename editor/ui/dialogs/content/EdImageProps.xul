@@ -21,11 +21,11 @@
     onload="Startup()"
     buttons="accept,cancel">
 
-  <script type="application/javascript" src="chrome://editor/content/editorUtilities.js"/>
-  <script type="application/javascript" src="chrome://editor/content/EdDialogCommon.js"/>
-  <script type="application/javascript" src="chrome://editor/content/EdImageProps.js"/>
-  <script type="application/javascript" src="chrome://editor/content/EdImageDialog.js"/>
-  <script type="application/javascript" src="chrome://editor/content/EdImageLinkLoader.js"/>
+  <script src="chrome://editor/content/editorUtilities.js"/>
+  <script src="chrome://editor/content/EdDialogCommon.js"/>
+  <script src="chrome://editor/content/EdImageProps.js"/>
+  <script src="chrome://editor/content/EdImageDialog.js"/>
+  <script src="chrome://editor/content/EdImageLinkLoader.js"/>
 
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
 

@@ -15,16 +15,16 @@
 
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml">
-  <script type="application/javascript" src="chrome://calendar/content/calFilter.js"/>
-  <script type="application/javascript" src="chrome://calendar/content/calendar-task-tree-utils.js"/>
-  <script type="application/javascript" src="chrome://calendar/content/calendar-task-tree-view.js"/>
-  <script type="application/javascript" src="chrome://calendar/content/calendar-task-tree.js"/>
-  <script type="application/javascript" src="chrome://calendar/content/calendar-task-view.js"/>
-  <script type="application/javascript" src="chrome://calendar/content/calendar-dialog-utils.js"/>
-  <script type="application/javascript" src="chrome://calendar/content/calApplicationUtils.js"/>
-  <script type="application/javascript" src="chrome://calendar/content/calendar-item-bindings.js"/>
-  <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
-  <script type="application/javascript" src="chrome://calendar/content/calendar-menus.js"/>
+  <script src="chrome://calendar/content/calFilter.js"/>
+  <script src="chrome://calendar/content/calendar-task-tree-utils.js"/>
+  <script src="chrome://calendar/content/calendar-task-tree-view.js"/>
+  <script src="chrome://calendar/content/calendar-task-tree.js"/>
+  <script src="chrome://calendar/content/calendar-task-view.js"/>
+  <script src="chrome://calendar/content/calendar-dialog-utils.js"/>
+  <script src="chrome://calendar/content/calApplicationUtils.js"/>
+  <script src="chrome://calendar/content/calendar-item-bindings.js"/>
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://calendar/content/calendar-menus.js"/>
 
   <vbox id="calendarDisplayDeck">
     <vbox id="calendar-task-box" flex="1"

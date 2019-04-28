@@ -13,9 +13,9 @@
     onload="Startup()"
     buttonlabelcancel="&closeButton.label;">
 
-  <script type="application/javascript" src="chrome://editor/content/editorUtilities.js"/>
-  <script type="application/javascript" src="chrome://editor/content/EdDialogCommon.js"/>
-  <script type="application/javascript" src="chrome://editor/content/EdLinkChecker.js"/>
+  <script src="chrome://editor/content/editorUtilities.js"/>
+  <script src="chrome://editor/content/EdDialogCommon.js"/>
+  <script src="chrome://editor/content/EdLinkChecker.js"/>
 
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
 

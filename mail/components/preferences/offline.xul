@@ -19,8 +19,8 @@
             title="&offlineDialog.title;">
 
   <prefpane id="OfflineSettingsDialogPane">
-    <script type="application/javascript" src="chrome://global/content/preferencesBindings.js"/>
-    <script type="application/javascript" src="chrome://messenger/content/preferences/offline.js"/>
+    <script src="chrome://global/content/preferencesBindings.js"/>
+    <script src="chrome://messenger/content/preferences/offline.js"/>
 
     <checkbox label="&checkAutoDetect.label;"
               accesskey="&checkAutoDetect.accesskey;"

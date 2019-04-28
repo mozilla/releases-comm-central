@@ -23,10 +23,10 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
 
   <!-- Javascript includes -->
-  <script type="application/javascript" src="chrome://calendar/content/calendar-event-dialog-reminder.js"/>
-  <script type="application/javascript" src="chrome://calendar/content/calendar-ui-utils.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/customElements.js"/>
-  <script type="application/javascript" src="chrome://calendar/content/datetimepickers/datetimepickers.js"/>
+  <script src="chrome://calendar/content/calendar-event-dialog-reminder.js"/>
+  <script src="chrome://calendar/content/calendar-ui-utils.js"/>
+  <script src="chrome://messenger/content/customElements.js"/>
+  <script src="chrome://calendar/content/datetimepickers/datetimepickers.js"/>
 
   <hbox id="reminder-notifications" class="notification-inline" flex="1">
     <!-- notificationbox will be added here lazily. -->

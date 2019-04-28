@@ -33,7 +33,7 @@
             onload="onLoad();"
             buttondisabledaccept="true">
 
-  <script type="application/javascript" src="chrome://messenger/content/safeMode.js"/>
+  <script src="chrome://messenger/content/safeMode.js"/>
 
   <stringbundle id="preferencesBundle" src="chrome://messenger/locale/preferences/preferences.properties"/>
 

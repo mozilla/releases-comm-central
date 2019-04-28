@@ -34,13 +34,13 @@
     <stringbundle id="bundle_folder"    src="chrome://messenger/locale/folderWidgets.properties"/>
   </stringbundleset>
 
-  <script type="application/javascript" src="chrome://messenger/content/searchWidgets.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/mailCommands.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/commandglue.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/virtualFolderProperties.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/searchTerm.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/dateFormat.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/customElements.js"/>
+  <script src="chrome://messenger/content/searchWidgets.js"/>
+  <script src="chrome://messenger/content/mailCommands.js"/>
+  <script src="chrome://messenger/content/commandglue.js"/>
+  <script src="chrome://messenger/content/virtualFolderProperties.js"/>
+  <script src="chrome://messenger/content/searchTerm.js"/>
+  <script src="chrome://messenger/content/dateFormat.js"/>
+  <script src="chrome://messenger/content/customElements.js"/>
 
   <hbox>
     <vbox>

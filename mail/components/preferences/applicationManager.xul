@@ -15,10 +15,8 @@
         style="&appManager.style;"
         persist="screenX screenY">
 
-  <script type="application/javascript"
-          src="chrome://messenger/content/preferences/applications.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger/content/preferences/applicationManager.js"/>
+  <script src="chrome://messenger/content/preferences/applications.js"/>
+  <script src="chrome://messenger/content/preferences/applicationManager.js"/>
 
   <commandset id="appManagerCommandSet">
     <command id="cmd_delete"
