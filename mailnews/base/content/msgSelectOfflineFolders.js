@@ -69,7 +69,7 @@ var gSelectOffline = {
     if (aEvent.button != 0)
       return;
 
-    let treeCellInfo = this._treeElement.getCellAt(aEvent.clientX);
+    let treeCellInfo = this._treeElement.getCellAt(aEvent.clientX, aEvent.clientY);
 
     if (treeCellInfo.row == -1 || treeCellInfo.col.id != "syncCol")
       return;
