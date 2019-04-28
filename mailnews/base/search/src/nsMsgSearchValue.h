@@ -10,17 +10,16 @@
 #include "nsMsgSearchCore.h"
 
 class nsMsgSearchValueImpl : public nsIMsgSearchValue {
-  public:
-    explicit nsMsgSearchValueImpl(nsMsgSearchValue *aInitialValue);
+ public:
+  explicit nsMsgSearchValueImpl(nsMsgSearchValue *aInitialValue);
 
-    NS_DECL_ISUPPORTS
-    NS_DECL_NSIMSGSEARCHVALUE
+  NS_DECL_ISUPPORTS
+  NS_DECL_NSIMSGSEARCHVALUE
 
-  private:
-    virtual ~nsMsgSearchValueImpl();
+ private:
+  virtual ~nsMsgSearchValueImpl();
 
-    nsMsgSearchValue mValue;
-
+  nsMsgSearchValue mValue;
 };
 
 #endif

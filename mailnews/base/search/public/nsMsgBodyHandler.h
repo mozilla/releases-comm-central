@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
 #ifndef __nsMsgBodyHandler_h
 #define __nsMsgBodyHandler_h
 
@@ -14,22 +13,19 @@
 // nsMsgBodyHandler: used to retrieve lines from POP and IMAP offline messages.
 // This is a helper class used by nsMsgSearchTerm::MatchBody
 //---------------------------------------------------------------------------
-class nsMsgBodyHandler
-{
-public:
-  nsMsgBodyHandler (nsIMsgSearchScopeTerm *,
-    uint32_t length,
-    nsIMsgDBHdr * msg,
-    nsIMsgDatabase * db);
+class nsMsgBodyHandler {
+ public:
+  nsMsgBodyHandler(nsIMsgSearchScopeTerm *, uint32_t length, nsIMsgDBHdr *msg,
+                   nsIMsgDatabase *db);
 
   // we can also create a body handler when doing arbitrary header
   // filtering...we need the list of headers and the header size as well
   // if we are doing filtering...if ForFilters is false, headers and
   // headersSize is ignored!!!
-  nsMsgBodyHandler (nsIMsgSearchScopeTerm *,
-    uint32_t length, nsIMsgDBHdr * msg, nsIMsgDatabase * db,
-    const char * headers /* NULL terminated list of headers */,
-    uint32_t headersSize, bool ForFilters);
+  nsMsgBodyHandler(nsIMsgSearchScopeTerm *, uint32_t length, nsIMsgDBHdr *msg,
+                   nsIMsgDatabase *db,
+                   const char *headers /* NULL terminated list of headers */,
+                   uint32_t headersSize, bool ForFilters);
 
   virtual ~nsMsgBodyHandler();
 
@@ -39,9 +35,9 @@ public:
   bool IsQP() { return m_partIsQP; }
 
   // Transformations
-  void SetStripHeaders (bool strip) { m_stripHeaders = strip; }
+  void SetStripHeaders(bool strip) { m_stripHeaders = strip; }
 
-protected:
+ protected:
   void Initialize();  // common initialization code
 
   // filter related methods. For filtering we always use the headers
@@ -49,7 +45,7 @@ protected:
   bool m_Filtering;
   int32_t GetNextFilterLine(nsCString &buf);
   // pointer into the headers list in the original message hdr db...
-  const char * m_headers;
+  const char *m_headers;
   uint32_t m_headersSize;
   uint32_t m_headerBytesRead;
 
@@ -60,8 +56,8 @@ protected:
   int32_t GetNextLocalLine(nsCString &buf);
 
   nsIMsgSearchScopeTerm *m_scope;
-  nsCOMPtr <nsILineInputStream> m_fileLineStream;
-  nsCOMPtr <nsIFile> m_localFile;
+  nsCOMPtr<nsILineInputStream> m_fileLineStream;
+  nsCOMPtr<nsIFile> m_localFile;
 
   /**
    * The number of lines in the message.  If |m_lineCountInBodyLines| then this
@@ -83,30 +79,32 @@ protected:
 
   // Offline IMAP related methods & state
 
-
   nsCOMPtr<nsIMsgDBHdr> m_msgHdr;
   nsCOMPtr<nsIMsgDatabase> m_db;
 
   // Transformations
   // With the exception of m_isMultipart, these all apply to the various parts
-  bool m_stripHeaders;    // true if we're supposed to strip of message headers
-  bool m_pastMsgHeaders;  // true if we've already skipped over the message headers
-  bool m_pastPartHeaders; // true if we've already skipped over the part headers
-  bool m_partIsQP;        // true if the Content-Transfer-Encoding header claims quoted-printable
-  bool m_partIsHtml;      // true if the Content-type header claims text/html
-  bool m_base64part;      // true if the current part is in base64
-  bool m_isMultipart;     // true if the message is a multipart/* message
-  bool m_partIsText;      // true if the current part is text/*
-  bool m_inMessageAttachment; // true if current part is message/*
+  bool m_stripHeaders;     // true if we're supposed to strip of message headers
+  bool m_pastMsgHeaders;   // true if we've already skipped over the message
+                           // headers
+  bool m_pastPartHeaders;  // true if we've already skipped over the part
+                           // headers
+  bool m_partIsQP;     // true if the Content-Transfer-Encoding header claims
+                       // quoted-printable
+  bool m_partIsHtml;   // true if the Content-type header claims text/html
+  bool m_base64part;   // true if the current part is in base64
+  bool m_isMultipart;  // true if the message is a multipart/* message
+  bool m_partIsText;   // true if the current part is text/*
+  bool m_inMessageAttachment;  // true if current part is message/*
 
   nsTArray<nsCString> m_boundaries;  // The boundary strings to look for
-  nsCString m_partCharset; // The charset found in the part
+  nsCString m_partCharset;           // The charset found in the part
 
   // See implementation for comments
-  int32_t ApplyTransformations (const nsCString &line, int32_t length,
-                                bool &returnThisLine, nsCString &buf);
-  void SniffPossibleMIMEHeader (const nsCString &line);
-  static void StripHtml (nsCString &buf);
-  static void Base64Decode (nsCString &buf);
+  int32_t ApplyTransformations(const nsCString &line, int32_t length,
+                               bool &returnThisLine, nsCString &buf);
+  void SniffPossibleMIMEHeader(const nsCString &line);
+  static void StripHtml(nsCString &buf);
+  static void Base64Decode(nsCString &buf);
 };
 #endif

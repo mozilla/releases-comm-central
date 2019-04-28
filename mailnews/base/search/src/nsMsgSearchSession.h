@@ -21,27 +21,28 @@ class nsMsgSearchAdapter;
 class nsMsgSearchBoolExpression;
 class nsMsgSearchScopeTerm;
 
-class nsMsgSearchSession : public nsIMsgSearchSession, public nsIUrlListener, public nsSupportsWeakReference
-{
-public:
+class nsMsgSearchSession : public nsIMsgSearchSession,
+                           public nsIUrlListener,
+                           public nsSupportsWeakReference {
+ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGSEARCHSESSION
   NS_DECL_NSIURLLISTENER
 
   nsMsgSearchSession();
 
-protected:
+ protected:
   virtual ~nsMsgSearchSession();
 
   nsWeakPtr m_msgWindowWeak;
   nsresult Initialize();
   nsresult StartTimer();
-  nsresult TimeSlice (bool *aDone);
+  nsresult TimeSlice(bool *aDone);
   nsMsgSearchScopeTerm *GetRunningScope();
   void StopRunning();
   nsresult BeginSearching();
   nsresult DoNextSearch();
-  nsresult SearchWOUrls ();
+  nsresult SearchWOUrls();
   nsresult GetNextUrl();
   nsresult NotifyListenersDone(nsresult status);
   void EnableFolderNotifications(bool aEnable);
@@ -50,7 +51,7 @@ protected:
   nsTArray<RefPtr<nsMsgSearchScopeTerm>> m_scopeList;
   nsCOMPtr<nsIMutableArray> m_termList;
 
-  nsTArray<nsCOMPtr<nsIMsgSearchNotify> > m_listenerList;
+  nsTArray<nsCOMPtr<nsIMsgSearchNotify>> m_listenerList;
   nsTArray<int32_t> m_listenerFlagList;
   /**
    * Iterator index for m_listenerList/m_listenerFlagList.  We used to use an
@@ -70,19 +71,19 @@ protected:
    */
   int32_t m_iListener;
 
-  void DestroyTermList ();
-  void DestroyScopeList ();
+  void DestroyTermList();
+  void DestroyScopeList();
 
   static void TimerCallback(nsITimer *aTimer, void *aClosure);
   // support for searching multiple scopes in serial
-  nsresult TimeSliceSerial (bool *aDone);
-  nsresult TimeSliceParallel ();
+  nsresult TimeSliceSerial(bool *aDone);
+  nsresult TimeSliceParallel();
 
   nsMsgSearchAttribValue m_sortAttribute;
   uint32_t m_idxRunningScope;
   bool m_handlingError;
-  nsCString m_runningUrl;     // The url for the current search
-  nsCOMPtr <nsITimer> m_backgroundTimer;
+  nsCString m_runningUrl;  // The url for the current search
+  nsCOMPtr<nsITimer> m_backgroundTimer;
   bool m_searchPaused;
   nsMsgSearchBoolExpression *m_expressionTree;
 };

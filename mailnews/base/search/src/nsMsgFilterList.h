@@ -21,17 +21,16 @@ const int16_t k45Version = 6;
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // The Msg Filter List is an interface designed to make accessing filter lists
-// easier. Clients typically open a filter list and either enumerate the filters,
-// or add new filters, or change the order around...
+// easier. Clients typically open a filter list and either enumerate the
+// filters, or add new filters, or change the order around...
 //
 ////////////////////////////////////////////////////////////////////////////////////////
 
 class nsIMsgFilter;
 class nsMsgFilter;
 
-class nsMsgFilterList : public nsIMsgFilterList
-{
-public:
+class nsMsgFilterList : public nsIMsgFilterList {
+ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGFILTERLIST
 
@@ -42,7 +41,7 @@ public:
 
   bool m_temporaryList;
 
-protected:
+ protected:
   virtual ~nsMsgFilterList();
 
   nsresult ComputeArbitraryHeaders();
@@ -56,16 +55,17 @@ protected:
   nsresult LoadValue(nsCString &value, nsIInputStream *aStream);
   int16_t m_fileVersion;
   bool m_loggingEnabled;
-  bool m_startWritingToBuffer; //tells us when to start writing one whole filter to m_unparsedBuffer
+  bool m_startWritingToBuffer;  // tells us when to start writing one whole
+                                // filter to m_unparsedBuffer
   nsCOMPtr<nsIMsgFolder> m_folder;
-  nsMsgFilter *m_curFilter; // filter we're filing in or out(?)
+  nsMsgFilter *m_curFilter;  // filter we're filing in or out(?)
   nsCString m_listId;
   nsTArray<nsCOMPtr<nsIMsgFilter> > m_filters;
   nsCString m_arbitraryHeaders;
   nsCOMPtr<nsIFile> m_defaultFile;
-  nsCString m_unparsedFilterBuffer; //holds one entire filter unparsed
+  nsCString m_unparsedFilterBuffer;  // holds one entire filter unparsed
 
-private:
+ private:
   nsresult TruncateLog();
   nsresult GetLogFile(nsIFile **aFile);
   nsresult EnsureLogFile(nsIFile *file);

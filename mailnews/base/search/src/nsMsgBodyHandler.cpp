@@ -17,45 +17,43 @@
 #include "prmem.h"
 #include "nsMimeTypes.h"
 
-nsMsgBodyHandler::nsMsgBodyHandler (nsIMsgSearchScopeTerm * scope,
-                                    uint32_t numLines,
-                                    nsIMsgDBHdr* msg, nsIMsgDatabase * db)
-{
+nsMsgBodyHandler::nsMsgBodyHandler(nsIMsgSearchScopeTerm *scope,
+                                   uint32_t numLines, nsIMsgDBHdr *msg,
+                                   nsIMsgDatabase *db) {
   m_scope = scope;
   m_numLocalLines = numLines;
   uint32_t flags;
-  m_lineCountInBodyLines = NS_SUCCEEDED(msg->GetFlags(&flags)) ?
-    !(flags & nsMsgMessageFlags::Offline) : true;
+  m_lineCountInBodyLines = NS_SUCCEEDED(msg->GetFlags(&flags))
+                               ? !(flags & nsMsgMessageFlags::Offline)
+                               : true;
   // account for added x-mozilla-status lines, and envelope line.
-  if (!m_lineCountInBodyLines)
-    m_numLocalLines += 3;
+  if (!m_lineCountInBodyLines) m_numLocalLines += 3;
   m_msgHdr = msg;
   m_db = db;
 
-  // the following are variables used when the body handler is handling stuff from filters....through this constructor, that is not the
-  // case so we set them to NULL.
+  // the following are variables used when the body handler is handling stuff
+  // from filters....through this constructor, that is not the case so we set
+  // them to NULL.
   m_headers = NULL;
   m_headersSize = 0;
-  m_Filtering = false; // make sure we set this before we call initialize...
+  m_Filtering = false;  // make sure we set this before we call initialize...
 
   Initialize();  // common initialization stuff
   OpenLocalFolder();
 }
 
-nsMsgBodyHandler::nsMsgBodyHandler(nsIMsgSearchScopeTerm * scope,
-                                   uint32_t numLines,
-                                   nsIMsgDBHdr* msg, nsIMsgDatabase* db,
-                                   const char * headers, uint32_t headersSize,
-                                   bool Filtering)
-{
+nsMsgBodyHandler::nsMsgBodyHandler(nsIMsgSearchScopeTerm *scope,
+                                   uint32_t numLines, nsIMsgDBHdr *msg,
+                                   nsIMsgDatabase *db, const char *headers,
+                                   uint32_t headersSize, bool Filtering) {
   m_scope = scope;
   m_numLocalLines = numLines;
   uint32_t flags;
-  m_lineCountInBodyLines = NS_SUCCEEDED(msg->GetFlags(&flags)) ?
-    !(flags & nsMsgMessageFlags::Offline) : true;
+  m_lineCountInBodyLines = NS_SUCCEEDED(msg->GetFlags(&flags))
+                               ? !(flags & nsMsgMessageFlags::Offline)
+                               : true;
   // account for added x-mozilla-status lines, and envelope line.
-  if (!m_lineCountInBodyLines)
-    m_numLocalLines += 3;
+  if (!m_lineCountInBodyLines) m_numLocalLines += 3;
   m_msgHdr = msg;
   m_db = db;
   m_headersSize = headersSize;
@@ -66,7 +64,8 @@ nsMsgBodyHandler::nsMsgBodyHandler(nsIMsgSearchScopeTerm * scope,
   if (m_Filtering)
     m_headers = headers;
   else
-    OpenLocalFolder();  // if nothing else applies, then we must be a POP folder file
+    OpenLocalFolder();  // if nothing else applies, then we must be a POP folder
+                        // file
 }
 
 void nsMsgBodyHandler::Initialize()
@@ -78,21 +77,18 @@ void nsMsgBodyHandler::Initialize()
   m_base64part = false;
   m_partIsQP = false;
   m_isMultipart = false;
-  m_partIsText = true; // Default is text/plain, maybe proven otherwise later.
+  m_partIsText = true;  // Default is text/plain, maybe proven otherwise later.
   m_pastMsgHeaders = false;
   m_pastPartHeaders = false;
   m_inMessageAttachment = false;
   m_headerBytesRead = 0;
 }
 
-nsMsgBodyHandler::~nsMsgBodyHandler()
-{
-}
+nsMsgBodyHandler::~nsMsgBodyHandler() {}
 
-int32_t nsMsgBodyHandler::GetNextLine (nsCString &buf, nsCString &charset)
-{
-  int32_t length = -1;          // length of incoming line or -1 eof
-  int32_t outLength = -1;       // length of outgoing line or -1 eof
+int32_t nsMsgBodyHandler::GetNextLine(nsCString &buf, nsCString &charset) {
+  int32_t length = -1;     // length of incoming line or -1 eof
+  int32_t outLength = -1;  // length of outgoing line or -1 eof
   bool eatThisLine = true;
   nsAutoCString nextLine;
 
@@ -100,30 +96,25 @@ int32_t nsMsgBodyHandler::GetNextLine (nsCString &buf, nsCString &charset)
     // first, handle the filtering case...this is easy....
     if (m_Filtering)
       length = GetNextFilterLine(nextLine);
-    else
-    {
+    else {
       // 3 cases: Offline IMAP, POP, or we are dealing with a news message....
       // Offline cases should be same as local mail cases, since we're going
       // to store offline messages in berkeley format folders.
-      if (m_db)
-      {
-         length = GetNextLocalLine (nextLine); // (2) POP
+      if (m_db) {
+        length = GetNextLocalLine(nextLine);  // (2) POP
       }
     }
 
-    if (length < 0)
-      break; // eof in
+    if (length < 0) break;  // eof in
 
     outLength = ApplyTransformations(nextLine, length, eatThisLine, buf);
   }
 
-  if (outLength < 0)
-    return -1; // eof out
+  if (outLength < 0) return -1;  // eof out
 
   // For non-multipart messages, the entire message minus headers is encoded
   // ApplyTransformations can only decode a part
-  if (!m_isMultipart && m_base64part)
-  {
+  if (!m_isMultipart && m_base64part) {
     Base64Decode(buf);
     m_base64part = false;
     // And reapply our transformations...
@@ -140,46 +131,45 @@ int32_t nsMsgBodyHandler::GetNextLine (nsCString &buf, nsCString &charset)
   return outLength;
 }
 
-void nsMsgBodyHandler::OpenLocalFolder()
-{
-  nsCOMPtr <nsIInputStream> inputStream;
+void nsMsgBodyHandler::OpenLocalFolder() {
+  nsCOMPtr<nsIInputStream> inputStream;
   nsresult rv = m_scope->GetInputStream(m_msgHdr, getter_AddRefs(inputStream));
   // Warn and return if GetInputStream fails
   NS_ENSURE_SUCCESS_VOID(rv);
   m_fileLineStream = do_QueryInterface(inputStream);
 }
 
-int32_t nsMsgBodyHandler::GetNextFilterLine(nsCString &buf)
-{
-  // m_nextHdr always points to the next header in the list....the list is NULL terminated...
+int32_t nsMsgBodyHandler::GetNextFilterLine(nsCString &buf) {
+  // m_nextHdr always points to the next header in the list....the list is NULL
+  // terminated...
   uint32_t numBytesCopied = 0;
-  if (m_headersSize > 0)
-  {
-    // #mscott. Ugly hack! filter headers list have CRs & LFs inside the NULL delimited list of header
-    // strings. It is possible to have: To NULL CR LF From. We want to skip over these CR/LFs if they start
-    // at the beginning of what we think is another header.
+  if (m_headersSize > 0) {
+    // #mscott. Ugly hack! filter headers list have CRs & LFs inside the NULL
+    // delimited list of header strings. It is possible to have: To NULL CR LF
+    // From. We want to skip over these CR/LFs if they start at the beginning of
+    // what we think is another header.
 
-    while (m_headersSize > 0 && (m_headers[0] == '\r' || m_headers[0] == '\n' || m_headers[0] == ' ' || m_headers[0] == '\0'))
-    {
+    while (m_headersSize > 0 && (m_headers[0] == '\r' || m_headers[0] == '\n' ||
+                                 m_headers[0] == ' ' || m_headers[0] == '\0')) {
       m_headers++;  // skip over these chars...
       m_headersSize--;
     }
 
-    if (m_headersSize > 0)
-    {
-      numBytesCopied = strlen(m_headers) + 1 ;
+    if (m_headersSize > 0) {
+      numBytesCopied = strlen(m_headers) + 1;
       buf.Assign(m_headers);
       m_headers += numBytesCopied;
-      // be careful...m_headersSize is unsigned. Don't let it go negative or we overflow to 2^32....*yikes*
+      // be careful...m_headersSize is unsigned. Don't let it go negative or we
+      // overflow to 2^32....*yikes*
       if (m_headersSize < numBytesCopied)
         m_headersSize = 0;
       else
-        m_headersSize -= numBytesCopied;  // update # bytes we have read from the headers list
+        m_headersSize -= numBytesCopied;  // update # bytes we have read from
+                                          // the headers list
 
-      return (int32_t) numBytesCopied;
+      return (int32_t)numBytesCopied;
     }
-  }
-  else if (m_headersSize == 0) {
+  } else if (m_headersSize == 0) {
     buf.Truncate();
   }
   return -1;
@@ -190,20 +180,16 @@ int32_t nsMsgBodyHandler::GetNextFilterLine(nsCString &buf)
 int32_t nsMsgBodyHandler::GetNextLocalLine(nsCString &buf)
 // returns number of bytes copied
 {
-  if (m_numLocalLines)
-  {
+  if (m_numLocalLines) {
     // I the line count is in body lines, only decrement once we have
     // processed all the headers.  Otherwise the line is not in body
     // lines and we want to decrement for every line.
-    if (m_pastMsgHeaders || !m_lineCountInBodyLines)
-      m_numLocalLines--;
+    if (m_pastMsgHeaders || !m_lineCountInBodyLines) m_numLocalLines--;
     // do we need to check the return value here?
-    if (m_fileLineStream)
-    {
+    if (m_fileLineStream) {
       bool more = false;
       nsresult rv = m_fileLineStream->ReadLine(buf, &more);
-      if (NS_SUCCEEDED(rv))
-        return buf.Length();
+      if (NS_SUCCEEDED(rv)) return buf.Length();
     }
   }
 
@@ -232,15 +218,15 @@ int32_t nsMsgBodyHandler::GetNextLocalLine(nsCString &buf)
  *                            redundant version of line).
  * @return            the length of the line after applying transformations
  */
-int32_t nsMsgBodyHandler::ApplyTransformations (const nsCString &line, int32_t length,
-                                                bool &eatThisLine, nsCString &buf)
-{
+int32_t nsMsgBodyHandler::ApplyTransformations(const nsCString &line,
+                                               int32_t length,
+                                               bool &eatThisLine,
+                                               nsCString &buf) {
   eatThisLine = false;
 
   if (!m_pastPartHeaders)  // line is a line from the part headers
   {
-    if (m_stripHeaders)
-      eatThisLine = true;
+    if (m_stripHeaders) eatThisLine = true;
 
     // We have already grabbed all worthwhile information from the headers,
     // so there is no need to keep track of the current lines
@@ -261,8 +247,7 @@ int32_t nsMsgBodyHandler::ApplyTransformations (const nsCString &line, int32_t l
     }
 
     // We set m_pastMsgHeaders to 'true' only once.
-    if (m_pastPartHeaders)
-      m_pastMsgHeaders = true;
+    if (m_pastPartHeaders) m_pastMsgHeaders = true;
 
     return length;
   }
@@ -273,40 +258,33 @@ int32_t nsMsgBodyHandler::ApplyTransformations (const nsCString &line, int32_t l
     for (int32_t i = (int32_t)m_boundaries.Length() - 1; i >= 0; i--) {
       if (StringBeginsWith(line, m_boundaries[i])) {
         matchedBoundary = true;
-        // If we matched a boundary, we won't need the nested/later ones any more.
-        m_boundaries.SetLength(i+1);
+        // If we matched a boundary, we won't need the nested/later ones any
+        // more.
+        m_boundaries.SetLength(i + 1);
         break;
       }
     }
   }
-  if (matchedBoundary)
-  {
-    if (m_base64part && m_partIsText)
-    {
+  if (matchedBoundary) {
+    if (m_base64part && m_partIsText) {
       Base64Decode(buf);
       // Work on the parsed string
-      if (!buf.Length())
-      {
+      if (!buf.Length()) {
         NS_WARNING("Trying to transform an empty buffer");
         eatThisLine = true;
-      }
-      else
-      {
+      } else {
         // It is wrong to call ApplyTransformations() here since this will
-        // lead to the buffer being doubled-up at |buf.Append(line.get());| below.
-        // ApplyTransformations(buf, buf.Length(), eatThisLine, buf);
+        // lead to the buffer being doubled-up at |buf.Append(line.get());|
+        // below. ApplyTransformations(buf, buf.Length(), eatThisLine, buf);
         // Avoid spurious failures
         eatThisLine = false;
       }
-    }
-    else if (!m_partIsHtml)
-    {
+    } else if (!m_partIsHtml) {
       buf.Truncate();
-      eatThisLine = true; // We have no content...
+      eatThisLine = true;  // We have no content...
     }
 
-    if (m_partIsHtml)
-    {
+    if (m_partIsHtml) {
       StripHtml(buf);
     }
 
@@ -316,17 +294,17 @@ int32_t nsMsgBodyHandler::ApplyTransformations (const nsCString &line, int32_t l
     // since it will screw the body line count.
     m_pastPartHeaders = false;
     m_partIsHtml = false;
-    // If we ever see a multipart message, each part needs to set 'm_partIsText',
-    // so no more defaulting to 'true' when the part is done.
+    // If we ever see a multipart message, each part needs to set
+    // 'm_partIsText', so no more defaulting to 'true' when the part is done.
     m_partIsText = false;
 
     // Note: we cannot reset 'm_partIsQP' yet since we still need it to process
-    // the last buffer returned here. Parsing the next part will set a new value.
+    // the last buffer returned here. Parsing the next part will set a new
+    // value.
     return buf.Length();
   }
 
-  if (!m_partIsText)
-  {
+  if (!m_partIsText) {
     // Ignore non-text parts
     buf.Truncate();
     eatThisLine = true;
@@ -334,9 +312,8 @@ int32_t nsMsgBodyHandler::ApplyTransformations (const nsCString &line, int32_t l
   }
 
   // Accumulate base64 parts and HTML parts for later decoding or tag stripping.
-  if (m_base64part || m_partIsHtml)
-  {
-    if (m_partIsHtml && ! m_base64part)  // Replace newline in HTML with a space.
+  if (m_base64part || m_partIsHtml) {
+    if (m_partIsHtml && !m_base64part)  // Replace newline in HTML with a space.
       buf.Append(' ');
     buf.Append(line.get());
     eatThisLine = true;
@@ -347,16 +324,14 @@ int32_t nsMsgBodyHandler::ApplyTransformations (const nsCString &line, int32_t l
   return buf.Length();
 }
 
-void nsMsgBodyHandler::StripHtml(nsCString &pBufInOut)
-{
-  char *pBuf = (char*) PR_Malloc (pBufInOut.Length() + 1);
-  if (pBuf)
-  {
+void nsMsgBodyHandler::StripHtml(nsCString &pBufInOut) {
+  char *pBuf = (char *)PR_Malloc(pBufInOut.Length() + 1);
+  if (pBuf) {
     char *pWalk = pBuf;
 
-    char *pWalkInOut = (char *) pBufInOut.get();
+    char *pWalkInOut = (char *)pBufInOut.get();
     bool inTag = false;
-    while (*pWalkInOut) // throw away everything inside < >
+    while (*pWalkInOut)  // throw away everything inside < >
     {
       if (!inTag) {
         if (*pWalkInOut == '<')
@@ -364,12 +339,11 @@ void nsMsgBodyHandler::StripHtml(nsCString &pBufInOut)
         else
           *pWalk++ = *pWalkInOut;
       } else {
-        if (*pWalkInOut == '>')
-          inTag = false;
+        if (*pWalkInOut == '>') inTag = false;
       }
       pWalkInOut++;
     }
-    *pWalk = 0; // null terminator
+    *pWalk = 0;  // null terminator
 
     pBufInOut.Adopt(pBuf);
   }
@@ -383,8 +357,7 @@ void nsMsgBodyHandler::StripHtml(nsCString &pBufInOut)
  *
  * @param line        (in)    a header line that may contain a MIME header
  */
-void nsMsgBodyHandler::SniffPossibleMIMEHeader(const nsCString &line)
-{
+void nsMsgBodyHandler::SniffPossibleMIMEHeader(const nsCString &line) {
   // Some parts of MIME are case-sensitive and other parts are case-insensitive;
   // specifically, the headers are all case-insensitive and the values we care
   // about are also case-insensitive, with the sole exception of the boundary
@@ -392,20 +365,18 @@ void nsMsgBodyHandler::SniffPossibleMIMEHeader(const nsCString &line)
   nsCString lowerCaseLine(line);
   ToLowerCase(lowerCaseLine);
 
-  if (StringBeginsWith(lowerCaseLine, NS_LITERAL_CSTRING("content-transfer-encoding:")))
-    m_partIsQP = lowerCaseLine.Find("quoted-printable", /* ignoreCase = */ true) != -1;
+  if (StringBeginsWith(lowerCaseLine,
+                       NS_LITERAL_CSTRING("content-transfer-encoding:")))
+    m_partIsQP =
+        lowerCaseLine.Find("quoted-printable", /* ignoreCase = */ true) != -1;
 
-  if (StringBeginsWith(lowerCaseLine, NS_LITERAL_CSTRING("content-type:")))
-  {
-    if (lowerCaseLine.Find("text/html", /* ignoreCase = */ true) != -1)
-    {
+  if (StringBeginsWith(lowerCaseLine, NS_LITERAL_CSTRING("content-type:"))) {
+    if (lowerCaseLine.Find("text/html", /* ignoreCase = */ true) != -1) {
       m_partIsText = true;
       m_partIsHtml = true;
-    }
-    else if (lowerCaseLine.Find("multipart/", /* ignoreCase = */ true) != -1)
-    {
-      if (m_isMultipart)
-      {
+    } else if (lowerCaseLine.Find("multipart/", /* ignoreCase = */ true) !=
+               -1) {
+      if (m_isMultipart) {
         // Nested multipart, get ready for new headers.
         m_base64part = false;
         m_partIsQP = false;
@@ -415,47 +386,40 @@ void nsMsgBodyHandler::SniffPossibleMIMEHeader(const nsCString &line)
       }
       m_isMultipart = true;
       m_partCharset.Truncate();
-    }
-    else if (lowerCaseLine.Find("message/", /* ignoreCase = */ true) != -1)
-    {
+    } else if (lowerCaseLine.Find("message/", /* ignoreCase = */ true) != -1) {
       // Initialise again.
       m_base64part = false;
       m_partIsQP = false;
       m_pastPartHeaders = false;
       m_partIsHtml = false;
-      m_partIsText = true;  // Default is text/plain, maybe proven otherwise later.
+      m_partIsText =
+          true;  // Default is text/plain, maybe proven otherwise later.
       m_inMessageAttachment = true;
-    }
-    else if (lowerCaseLine.Find("text/", /* ignoreCase = */ true) != -1)
+    } else if (lowerCaseLine.Find("text/", /* ignoreCase = */ true) != -1)
       m_partIsText = true;
     else if (lowerCaseLine.Find("text/", /* ignoreCase = */ true) == -1)
-      m_partIsText = false; // We have disproven our assumption.
+      m_partIsText = false;  // We have disproven our assumption.
   }
 
   int32_t start;
-  if (m_isMultipart &&
-      (start = lowerCaseLine.Find("boundary=", /* ignoreCase = */ true)) != -1)
-  {
+  if (m_isMultipart && (start = lowerCaseLine.Find(
+                            "boundary=", /* ignoreCase = */ true)) != -1) {
     start += 9;  // strlen("boundary=")
-    if (line[start] == '\"')
-      start++;
+    if (line[start] == '\"') start++;
     int32_t end = line.RFindChar('\"');
-    if (end == -1)
-      end = line.Length();
+    if (end == -1) end = line.Length();
 
     // Collect all boundaries. Since we only react to crossing a boundary,
     // we can simply collect the boundaries instead of forming a tree
     // structure from the message. Keep it simple ;-)
     nsCString boundary;
     boundary.AssignLiteral("--");
-    boundary.Append(Substring(line, start, end-start));
-    if (!m_boundaries.Contains(boundary))
-      m_boundaries.AppendElement(boundary);
+    boundary.Append(Substring(line, start, end - start));
+    if (!m_boundaries.Contains(boundary)) m_boundaries.AppendElement(boundary);
   }
 
   if (m_isMultipart &&
-      (start = lowerCaseLine.Find("charset=", /* ignoreCase = */ true)) != -1)
-  {
+      (start = lowerCaseLine.Find("charset=", /* ignoreCase = */ true)) != -1) {
     start += 8;  // strlen("charset=")
     bool foundQuote = false;
     if (line[start] == '\"') {
@@ -463,10 +427,9 @@ void nsMsgBodyHandler::SniffPossibleMIMEHeader(const nsCString &line)
       foundQuote = true;
     }
     int32_t end = line.FindChar(foundQuote ? '\"' : ';', start);
-    if (end == -1)
-      end = line.Length();
+    if (end == -1) end = line.Length();
 
-    m_partCharset.Assign(Substring(line, start, end-start));
+    m_partCharset.Assign(Substring(line, start, end - start));
   }
 
   if (StringBeginsWith(lowerCaseLine,
@@ -482,11 +445,10 @@ void nsMsgBodyHandler::SniffPossibleMIMEHeader(const nsCString &line)
  *
  * @param pBufInOut   (inout) a buffer of the string
  */
-void nsMsgBodyHandler::Base64Decode (nsCString &pBufInOut)
-{
-  char *decodedBody = PL_Base64Decode(pBufInOut.get(), pBufInOut.Length(), nullptr);
-  if (decodedBody)
-    pBufInOut.Adopt(decodedBody);
+void nsMsgBodyHandler::Base64Decode(nsCString &pBufInOut) {
+  char *decodedBody =
+      PL_Base64Decode(pBufInOut.get(), pBufInOut.Length(), nullptr);
+  if (decodedBody) pBufInOut.Adopt(decodedBody);
 
   int32_t offset = pBufInOut.FindChar('\n');
   while (offset != -1) {
@@ -499,4 +461,3 @@ void nsMsgBodyHandler::Base64Decode (nsCString &pBufInOut)
     offset = pBufInOut.FindChar('\r', offset);
   }
 }
-

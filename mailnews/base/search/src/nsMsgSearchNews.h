@@ -4,9 +4,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #ifndef _nsMsgSearchNews_h__
-#include "nsMsgSearchAdapter.h"
-#include "MailNewsTypes.h"
-#include "nsTArray.h"
+#  include "nsMsgSearchAdapter.h"
+#  include "MailNewsTypes.h"
+#  include "nsTArray.h"
 
 typedef enum search_type {
   ST_UNINITIALIZED,
@@ -18,27 +18,26 @@ typedef enum search_type {
 //---------- Adapter class for searching online (news) folders ----------------
 //-----------------------------------------------------------------------------
 
-class nsMsgSearchNews : public nsMsgSearchAdapter
-{
-public:
-  nsMsgSearchNews (nsMsgSearchScopeTerm *scope, nsIArray *termList);
-  virtual ~nsMsgSearchNews ();
+class nsMsgSearchNews : public nsMsgSearchAdapter {
+ public:
+  nsMsgSearchNews(nsMsgSearchScopeTerm *scope, nsIArray *termList);
+  virtual ~nsMsgSearchNews();
 
-  NS_IMETHOD ValidateTerms () override;
-  NS_IMETHOD Search (bool *aDone) override;
-  NS_IMETHOD GetEncoding (char **result) override;
+  NS_IMETHOD ValidateTerms() override;
+  NS_IMETHOD Search(bool *aDone) override;
+  NS_IMETHOD GetEncoding(char **result) override;
   NS_IMETHOD AddHit(nsMsgKey key) override;
   NS_IMETHOD CurrentUrlDone(nsresult exitCode) override;
 
-  virtual nsresult Encode (nsCString *outEncoding);
-  virtual char *EncodeTerm (nsIMsgSearchTerm *);
-  char16_t *EncodeToWildmat (const char16_t *);
+  virtual nsresult Encode(nsCString *outEncoding);
+  virtual char *EncodeTerm(nsIMsgSearchTerm *);
+  char16_t *EncodeToWildmat(const char16_t *);
 
-  void ReportHits ();
-  void CollateHits ();
-  void ReportHit (nsIMsgDBHdr *pHeaders, nsIMsgFolder *folder);
+  void ReportHits();
+  void CollateHits();
+  void ReportHit(nsIMsgDBHdr *pHeaders, nsIMsgFolder *folder);
 
-protected:
+ protected:
   nsCString m_encoding;
   search_type m_searchType;
 
@@ -52,4 +51,3 @@ protected:
 };
 
 #endif
-
