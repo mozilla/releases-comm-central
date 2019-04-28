@@ -22,17 +22,17 @@ class nsIMsgDatabase;
  * An adaptor class to make msg strategy nsTArray.Sort()
  * compatible.
  */
-class MsgStrategyComparatorAdaptor
-{
+class MsgStrategyComparatorAdaptor {
  public:
-  MsgStrategyComparatorAdaptor(nsIAutoSyncMsgStrategy* aStrategy,
-    nsIMsgFolder *aFolder, nsIMsgDatabase *aDatabase);
+  MsgStrategyComparatorAdaptor(nsIAutoSyncMsgStrategy *aStrategy,
+                               nsIMsgFolder *aFolder,
+                               nsIMsgDatabase *aDatabase);
 
   /** @return True if the elements are equals; false otherwise. */
-  bool Equals(const nsMsgKey& a, const nsMsgKey& b) const;
+  bool Equals(const nsMsgKey &a, const nsMsgKey &b) const;
 
   /** @return True if (a < b); false otherwise. */
-  bool LessThan(const nsMsgKey& a, const nsMsgKey& b) const;
+  bool LessThan(const nsMsgKey &a, const nsMsgKey &b) const;
 
  private:
   MsgStrategyComparatorAdaptor();
@@ -43,18 +43,17 @@ class MsgStrategyComparatorAdaptor
   nsIMsgDatabase *mDatabase;
 };
 
-
 /**
  * Facilitates auto-sync capabilities for imap folders.
  */
-class nsAutoSyncState final : public nsIAutoSyncState, public nsIUrlListener
-{
-public:
+class nsAutoSyncState final : public nsIAutoSyncState, public nsIUrlListener {
+ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIAUTOSYNCSTATE
   NS_DECL_NSIURLLISTENER
 
-  explicit nsAutoSyncState(nsImapMailFolder *aOwnerFolder, PRTime aLastSyncTime = 0UL);
+  explicit nsAutoSyncState(nsImapMailFolder *aOwnerFolder,
+                           PRTime aLastSyncTime = 0UL);
 
   /// Called by owner folder when new headers are fetched from the server
   void OnNewHeaderFetchCompleted(const nsTArray<nsMsgKey> &aMsgKeyList);
@@ -74,10 +73,10 @@ public:
   nsresult PlaceIntoDownloadQ(const nsTArray<nsMsgKey> &aMsgKeyList);
   nsresult SortQueueBasedOnStrategy(nsTArray<nsMsgKey> &aQueue);
   nsresult SortSubQueueBasedOnStrategy(nsTArray<nsMsgKey> &aQueue,
-                                    uint32_t aStartingOffset);
+                                       uint32_t aStartingOffset);
 
   void LogOwnerFolderName(const char *s);
-  void LogQWithSize(nsTArray<nsMsgKey>& q, uint32_t toOffset = 0);
+  void LogQWithSize(nsTArray<nsMsgKey> &q, uint32_t toOffset = 0);
   void LogQWithSize(nsIMutableArray *q, uint32_t toOffset = 0);
 
  private:

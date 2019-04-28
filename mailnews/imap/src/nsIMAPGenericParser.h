@@ -4,38 +4,36 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*
-nsIMAPGenericParser is the base parser class used by the server parser and body shell parser
+nsIMAPGenericParser is the base parser class used by the server parser and body
+shell parser
 */
 
 #ifndef nsIMAPGenericParser_H
 #define nsIMAPGenericParser_H
 
-#define WHITESPACE " \015\012"     // token delimiter
+#define WHITESPACE " \015\012"  // token delimiter
 
-
-class nsIMAPGenericParser
-{
-
-public:
+class nsIMAPGenericParser {
+ public:
   nsIMAPGenericParser();
   virtual ~nsIMAPGenericParser();
 
   // Add any specific stuff in the derived class
-  virtual bool       LastCommandSuccessful();
+  virtual bool LastCommandSuccessful();
 
   bool SyntaxError() { return (fParserState & stateSyntaxErrorFlag) != 0; }
   bool ContinueParse() { return fParserState == stateOK; }
   bool Connected() { return !(fParserState & stateDisconnectedFlag); }
   void SetConnected(bool error);
 
-protected:
-
+ protected:
   // This is a pure virtual member which must be overridden in the derived class
   // for each different implementation of a nsIMAPGenericParser.
-  // For instance, one implementation (the nsIMAPServerState) might get the next line
-  // from an open socket, whereas another implementation might just get it from a buffer somewhere.
-  // This fills in nextLine with the buffer, and returns true if everything is OK.
-  // Returns false if there was some error encountered.  In that case, we reset the parser.
+  // For instance, one implementation (the nsIMAPServerState) might get the next
+  // line from an open socket, whereas another implementation might just get it
+  // from a buffer somewhere. This fills in nextLine with the buffer, and
+  // returns true if everything is OK. Returns false if there was some error
+  // encountered.  In that case, we reset the parser.
   virtual bool GetNextLineForParser(char **nextLine) = 0;
 
   virtual void HandleMemoryFailure();
@@ -55,19 +53,21 @@ protected:
   void AdvanceTokenizerStartingPoint(int32_t bytesToAdvance);
   void ResetLexAnalyzer();
 
-protected:
+ protected:
   // use with care
-  const char     *fNextToken;
-  char           *fCurrentLine;
-  char           *fLineOfTokens;
-  char           *fStartOfLineOfTokens;
-  char           *fCurrentTokenPlaceHolder;
-  bool            fAtEndOfLine;
+  const char *fNextToken;
+  char *fCurrentLine;
+  char *fLineOfTokens;
+  char *fStartOfLineOfTokens;
+  char *fCurrentTokenPlaceHolder;
+  bool fAtEndOfLine;
 
-private:
-  enum nsIMAPGenericParserState { stateOK = 0,
-                                  stateSyntaxErrorFlag = 0x1,
-                                  stateDisconnectedFlag = 0x2 };
+ private:
+  enum nsIMAPGenericParserState {
+    stateOK = 0,
+    stateSyntaxErrorFlag = 0x1,
+    stateDisconnectedFlag = 0x2
+  };
   uint32_t fParserState;
 };
 

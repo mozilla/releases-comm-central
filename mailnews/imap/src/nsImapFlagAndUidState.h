@@ -17,43 +17,43 @@ const int32_t kImapFlagAndUidStateSize = 100;
 #include "nsBaseHashtable.h"
 #include "nsDataHashtable.h"
 
-class nsImapFlagAndUidState : public nsIImapFlagAndUidState
-{
-public:
-    NS_DECL_THREADSAFE_ISUPPORTS
-    explicit nsImapFlagAndUidState(int numberOfMessages);
+class nsImapFlagAndUidState : public nsIImapFlagAndUidState {
+ public:
+  NS_DECL_THREADSAFE_ISUPPORTS
+  explicit nsImapFlagAndUidState(int numberOfMessages);
 
-    NS_DECL_NSIIMAPFLAGANDUIDSTATE
+  NS_DECL_NSIIMAPFLAGANDUIDSTATE
 
-    int32_t               NumberOfDeletedMessages();
+  int32_t NumberOfDeletedMessages();
 
-    imapMessageFlagsType  GetMessageFlagsFromUID(uint32_t uid, bool *foundIt, int32_t *ndx);
+  imapMessageFlagsType GetMessageFlagsFromUID(uint32_t uid, bool *foundIt,
+                                              int32_t *ndx);
 
-    bool         IsLastMessageUnseen(void);
-    bool         GetPartialUIDFetch() {return fPartialUIDFetch;}
-    void         SetPartialUIDFetch(bool isPartial) {fPartialUIDFetch = isPartial;}
-    uint32_t     GetHighestNonDeletedUID();
-    uint16_t     GetSupportedUserFlags() { return fSupportedUserFlags; }
-    void         StartCapture() { fStartCapture = true; }
-    uint32_t     GetNumAdded() { return fNumAdded; }
+  bool IsLastMessageUnseen(void);
+  bool GetPartialUIDFetch() { return fPartialUIDFetch; }
+  void SetPartialUIDFetch(bool isPartial) { fPartialUIDFetch = isPartial; }
+  uint32_t GetHighestNonDeletedUID();
+  uint16_t GetSupportedUserFlags() { return fSupportedUserFlags; }
+  void StartCapture() { fStartCapture = true; }
+  uint32_t GetNumAdded() { return fNumAdded; }
 
-private:
+ private:
   virtual ~nsImapFlagAndUidState();
 
-    nsTArray<nsMsgKey>      fUids;
-    nsTArray<imapMessageFlagsType> fFlags;
-    // Hash table, mapping uids to extra flags
-    nsDataHashtable<nsUint32HashKey, nsCString> m_customFlagsHash;
-    // Hash table, mapping UID+customAttributeName to customAttributeValue.
-    nsDataHashtable<nsCStringHashKey, nsCString> m_customAttributesHash;
-    uint16_t                fSupportedUserFlags;
-    int32_t                 fNumberDeleted;
-    bool                    fPartialUIDFetch;
-    uint32_t                fNumAdded;
-    bool                    fStartCapture;
-    // Keywords (aka, tags) in FLAGS response to SELECT defined by other clients
-    nsTArray<nsCString>     fOtherKeywords;
-    mozilla::Mutex mLock;
+  nsTArray<nsMsgKey> fUids;
+  nsTArray<imapMessageFlagsType> fFlags;
+  // Hash table, mapping uids to extra flags
+  nsDataHashtable<nsUint32HashKey, nsCString> m_customFlagsHash;
+  // Hash table, mapping UID+customAttributeName to customAttributeValue.
+  nsDataHashtable<nsCStringHashKey, nsCString> m_customAttributesHash;
+  uint16_t fSupportedUserFlags;
+  int32_t fNumberDeleted;
+  bool fPartialUIDFetch;
+  uint32_t fNumAdded;
+  bool fStartCapture;
+  // Keywords (aka, tags) in FLAGS response to SELECT defined by other clients
+  nsTArray<nsCString> fOtherKeywords;
+  mozilla::Mutex mLock;
 };
 
 #endif

@@ -3,21 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #ifndef nsAutoSyncManager_h__
-#define nsAutoSyncManager_h__
+#  define nsAutoSyncManager_h__
 
-#include "nsAutoPtr.h"
-#include "nsString.h"
-#include "nsCOMArray.h"
-#include "nsIObserver.h"
-#include "nsIUrlListener.h"
-#include "nsITimer.h"
-#include "nsTObserverArray.h"
-#include "nsIAutoSyncManager.h"
-#include "nsIAutoSyncMsgStrategy.h"
-#include "nsIAutoSyncFolderStrategy.h"
-#include "nsIIdleService.h"
-#include "prtime.h"
+#  include "nsAutoPtr.h"
+#  include "nsString.h"
+#  include "nsCOMArray.h"
+#  include "nsIObserver.h"
+#  include "nsIUrlListener.h"
+#  include "nsITimer.h"
+#  include "nsTObserverArray.h"
+#  include "nsIAutoSyncManager.h"
+#  include "nsIAutoSyncMsgStrategy.h"
+#  include "nsIAutoSyncFolderStrategy.h"
+#  include "nsIIdleService.h"
+#  include "prtime.h"
 
+// clang-format off
 /* Auto-Sync
  *
  * Background:
@@ -78,37 +79,36 @@
  * a timer, and in the timer callback, it processes the update q, by calling
  * InitiateAutoSync on the first folder in the update q.
  */
+// clang-format on
 
 /**
  * Default strategy implementation to prioritize messages in the download queue.
  */
-class nsDefaultAutoSyncMsgStrategy final : public nsIAutoSyncMsgStrategy
-{
-  static const uint32_t kFirstPassMessageSize = 60U*1024U; // 60K
+class nsDefaultAutoSyncMsgStrategy final : public nsIAutoSyncMsgStrategy {
+  static const uint32_t kFirstPassMessageSize = 60U * 1024U;  // 60K
 
-  public:
-    NS_DECL_ISUPPORTS
-    NS_DECL_NSIAUTOSYNCMSGSTRATEGY
+ public:
+  NS_DECL_ISUPPORTS
+  NS_DECL_NSIAUTOSYNCMSGSTRATEGY
 
-    nsDefaultAutoSyncMsgStrategy();
+  nsDefaultAutoSyncMsgStrategy();
 
-  private:
-    ~nsDefaultAutoSyncMsgStrategy();
+ private:
+  ~nsDefaultAutoSyncMsgStrategy();
 };
 
 /**
  * Default strategy implementation to prioritize folders in the download queue.
  */
-class nsDefaultAutoSyncFolderStrategy final : public nsIAutoSyncFolderStrategy
-{
-  public:
-    NS_DECL_ISUPPORTS
-    NS_DECL_NSIAUTOSYNCFOLDERSTRATEGY
+class nsDefaultAutoSyncFolderStrategy final : public nsIAutoSyncFolderStrategy {
+ public:
+  NS_DECL_ISUPPORTS
+  NS_DECL_NSIAUTOSYNCFOLDERSTRATEGY
 
-    nsDefaultAutoSyncFolderStrategy();
+  nsDefaultAutoSyncFolderStrategy();
 
-  private:
-    ~nsDefaultAutoSyncFolderStrategy();
+ private:
+  ~nsDefaultAutoSyncFolderStrategy();
 };
 
 // see the end of the page for auto-sync internals
@@ -118,94 +118,95 @@ class nsDefaultAutoSyncFolderStrategy final : public nsIAutoSyncFolderStrategy
  */
 class nsAutoSyncManager final : public nsIObserver,
                                 public nsIUrlListener,
-                                public nsIAutoSyncManager
-{
+                                public nsIAutoSyncManager {
   static const PRTime kAutoSyncFreq = 60UL * (PR_USEC_PER_SEC * 60UL);  // 1hr
   static const uint32_t kDefaultUpdateInterval = 10UL;                  // 10min
   static const int32_t kTimerIntervalInMs = 400;
   static const uint32_t kNumberOfHeadersToProcess = 250U;
   // enforced size of the first group that will be downloaded before idle time
-  static const uint32_t kFirstGroupSizeLimit = 60U*1024U /* 60K */;
+  static const uint32_t kFirstGroupSizeLimit = 60U * 1024U /* 60K */;
   static const int32_t kIdleTimeInSec = 10;
   static const uint32_t kGroupRetryCount = 3;
 
   enum IdleState { systemIdle, appIdle, notIdle };
   enum UpdateState { initiated, completed };
 
-  public:
-    NS_DECL_ISUPPORTS
-    NS_DECL_NSIOBSERVER
-    NS_DECL_NSIURLLISTENER
-    NS_DECL_NSIAUTOSYNCMANAGER
+ public:
+  NS_DECL_ISUPPORTS
+  NS_DECL_NSIOBSERVER
+  NS_DECL_NSIURLLISTENER
+  NS_DECL_NSIAUTOSYNCMANAGER
 
-    nsAutoSyncManager();
+  nsAutoSyncManager();
 
-  private:
-    ~nsAutoSyncManager();
+ private:
+  ~nsAutoSyncManager();
 
-    void SetIdleState(IdleState st);
-    IdleState GetIdleState() const;
-    nsresult StartIdleProcessing();
-    nsresult AutoUpdateFolders();
-    void ScheduleFolderForOfflineDownload(nsIAutoSyncState *aAutoSyncStateObj);
-    nsresult DownloadMessagesForOffline(nsIAutoSyncState *aAutoSyncStateObj, uint32_t aSizeLimit = 0);
-    nsresult HandleDownloadErrorFor(nsIAutoSyncState *aAutoSyncStateObj, const nsresult error);
+  void SetIdleState(IdleState st);
+  IdleState GetIdleState() const;
+  nsresult StartIdleProcessing();
+  nsresult AutoUpdateFolders();
+  void ScheduleFolderForOfflineDownload(nsIAutoSyncState *aAutoSyncStateObj);
+  nsresult DownloadMessagesForOffline(nsIAutoSyncState *aAutoSyncStateObj,
+                                      uint32_t aSizeLimit = 0);
+  nsresult HandleDownloadErrorFor(nsIAutoSyncState *aAutoSyncStateObj,
+                                  const nsresult error);
 
-    // Helper methods for priority Q operations
-    static
-    void ChainFoldersInQ(const nsCOMArray<nsIAutoSyncState> &aQueue,
-                          nsCOMArray<nsIAutoSyncState> &aChainedQ);
-    static
-    nsIAutoSyncState* SearchQForSibling(const nsCOMArray<nsIAutoSyncState> &aQueue,
-                          nsIAutoSyncState *aAutoSyncStateObj, int32_t aStartIdx, int32_t *aIndex = nullptr);
-    static
-    bool DoesQContainAnySiblingOf(const nsCOMArray<nsIAutoSyncState> &aQueue,
-                          nsIAutoSyncState *aAutoSyncStateObj, const int32_t aState,
-                          int32_t *aIndex = nullptr);
-    static
-    nsIAutoSyncState* GetNextSibling(const nsCOMArray<nsIAutoSyncState> &aQueue,
-                          nsIAutoSyncState *aAutoSyncStateObj, int32_t *aIndex = nullptr);
-    static
-    nsIAutoSyncState* GetHighestPrioSibling(const nsCOMArray<nsIAutoSyncState> &aQueue,
-                          nsIAutoSyncState *aAutoSyncStateObj, int32_t *aIndex = nullptr);
+  // Helper methods for priority Q operations
+  static void ChainFoldersInQ(const nsCOMArray<nsIAutoSyncState> &aQueue,
+                              nsCOMArray<nsIAutoSyncState> &aChainedQ);
+  static nsIAutoSyncState *SearchQForSibling(
+      const nsCOMArray<nsIAutoSyncState> &aQueue,
+      nsIAutoSyncState *aAutoSyncStateObj, int32_t aStartIdx,
+      int32_t *aIndex = nullptr);
+  static bool DoesQContainAnySiblingOf(
+      const nsCOMArray<nsIAutoSyncState> &aQueue,
+      nsIAutoSyncState *aAutoSyncStateObj, const int32_t aState,
+      int32_t *aIndex = nullptr);
+  static nsIAutoSyncState *GetNextSibling(
+      const nsCOMArray<nsIAutoSyncState> &aQueue,
+      nsIAutoSyncState *aAutoSyncStateObj, int32_t *aIndex = nullptr);
+  static nsIAutoSyncState *GetHighestPrioSibling(
+      const nsCOMArray<nsIAutoSyncState> &aQueue,
+      nsIAutoSyncState *aAutoSyncStateObj, int32_t *aIndex = nullptr);
 
-    /// timer to process existing keys and updates
-    void InitTimer();
-    static void TimerCallback(nsITimer *aTimer, void *aClosure);
-    void StopTimer();
-    void StartTimerIfNeeded();
+  /// timer to process existing keys and updates
+  void InitTimer();
+  static void TimerCallback(nsITimer *aTimer, void *aClosure);
+  void StopTimer();
+  void StartTimerIfNeeded();
 
-    /// pref helpers
-    uint32_t GetUpdateIntervalFor(nsIAutoSyncState *aAutoSyncStateObj);
+  /// pref helpers
+  uint32_t GetUpdateIntervalFor(nsIAutoSyncState *aAutoSyncStateObj);
 
-  protected:
-    nsCOMPtr<nsIAutoSyncMsgStrategy> mMsgStrategyImpl;
-    nsCOMPtr<nsIAutoSyncFolderStrategy> mFolderStrategyImpl;
-    // contains the folders that will be downloaded on background
-    nsCOMArray<nsIAutoSyncState> mPriorityQ;
-    // contains the folders that will be examined for existing headers and
-    // adds the headers we don't have offline into the autosyncState
-    // object's download queue.
-    nsCOMArray<nsIAutoSyncState> mDiscoveryQ;
-    // contains the folders that will be checked for new messages with STATUS,
-    // and if there are any, we'll call UpdateFolder on them.
-    nsCOMArray<nsIAutoSyncState> mUpdateQ;
-    // this is the update state for the current folder.
-    UpdateState mUpdateState;
+ protected:
+  nsCOMPtr<nsIAutoSyncMsgStrategy> mMsgStrategyImpl;
+  nsCOMPtr<nsIAutoSyncFolderStrategy> mFolderStrategyImpl;
+  // contains the folders that will be downloaded on background
+  nsCOMArray<nsIAutoSyncState> mPriorityQ;
+  // contains the folders that will be examined for existing headers and
+  // adds the headers we don't have offline into the autosyncState
+  // object's download queue.
+  nsCOMArray<nsIAutoSyncState> mDiscoveryQ;
+  // contains the folders that will be checked for new messages with STATUS,
+  // and if there are any, we'll call UpdateFolder on them.
+  nsCOMArray<nsIAutoSyncState> mUpdateQ;
+  // this is the update state for the current folder.
+  UpdateState mUpdateState;
 
-    // This is set if auto sync has been completely paused.
-    bool mPaused;
-    // This is set if we've finished startup and should start
-    // paying attention to idle notifications.
-    bool mStartupDone;
+  // This is set if auto sync has been completely paused.
+  bool mPaused;
+  // This is set if we've finished startup and should start
+  // paying attention to idle notifications.
+  bool mStartupDone;
 
-  private:
-    uint32_t mGroupSize;
-    IdleState mIdleState;
-    int32_t mDownloadModel;
-    nsCOMPtr<nsIIdleService> mIdleService;
-    nsCOMPtr<nsITimer> mTimer;
-    nsTObserverArray<nsCOMPtr<nsIAutoSyncMgrListener> > mListeners;
+ private:
+  uint32_t mGroupSize;
+  IdleState mIdleState;
+  int32_t mDownloadModel;
+  nsCOMPtr<nsIIdleService> mIdleService;
+  nsCOMPtr<nsITimer> mTimer;
+  nsTObserverArray<nsCOMPtr<nsIAutoSyncMgrListener> > mListeners;
 };
 
 #endif
@@ -225,13 +226,14 @@ it turns out that there are pending messages on the server, it adds them into
 nsAutoSyncState's download queue.
 
 2) nsAutoSyncState::ProcessExistingHeaders: is triggered for every imap folder
-every hour or so (see kAutoSyncFreq). nsAutoSyncManager uses an internal queue called Discovery
-queue to keep track of this task. The purpose of ProcessExistingHeaders()
-method is to check existing headers of a given folder in batches and discover
-the messages without bodies, in asynchronous fashion. This process is
-sequential, one and only one folder at any given time, very similar to
-indexing. Again, if it turns out that the folder in hand has messages w/o
-bodies, ProcessExistingHeaders adds them into nsAutoSyncState's download queue.
+every hour or so (see kAutoSyncFreq). nsAutoSyncManager uses an internal queue
+called Discovery queue to keep track of this task. The purpose of
+ProcessExistingHeaders() method is to check existing headers of a given folder
+in batches and discover the messages without bodies, in asynchronous fashion.
+This process is sequential, one and only one folder at any given time, very
+similar to indexing. Again, if it turns out that the folder in hand has messages
+w/o bodies, ProcessExistingHeaders adds them into nsAutoSyncState's download
+queue.
 
 Any change in nsAutoSyncState's download queue, notifies nsAutoSyncManager and
 nsAutoSyncManager puts the requesting  nsAutoSyncState into its internal
@@ -255,7 +257,8 @@ this switch at worst.
 
 And finally, Update queue helps nsAutoSyncManager to keep track of folders
 waiting to be updated. With the latest change, we update one and only one
-folder at any given time. Default frequency of updating is 10 min (kDefaultUpdateInterval).
-We add folders into the update queue during idle time, if they are not in mPriorityQ already.
+folder at any given time. Default frequency of updating is 10 min
+(kDefaultUpdateInterval). We add folders into the update queue during idle time,
+if they are not in mPriorityQ already.
 
 */
