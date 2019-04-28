@@ -9,7 +9,7 @@
  *  read/unread, etc.
  */
 
-this.EXPORTED_SYMBOLS = ['GlodaExplicitAttr'];
+this.EXPORTED_SYMBOLS = ["GlodaExplicitAttr"];
 
 const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 const {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
@@ -32,15 +32,14 @@ var GlodaExplicitAttr = {
   _log: null,
   _msgTagService: null,
 
-  init: function gloda_explattr_init() {
+  init() {
     this._log =  Log4Moz.repository.getLogger("gloda.explattr");
 
     this._msgTagService = MailServices.tags;
 
     try {
       this.defineAttributes();
-    }
-    catch (ex) {
+    } catch (ex) {
       this._log.error("Error in init: " + ex);
       throw ex;
     }
@@ -53,7 +52,7 @@ var GlodaExplicitAttr = {
   /** Boost for tagged messages, each additional tag. */
   NOTABILITY_TAGGED_ADDL: 1,
 
-  defineAttributes: function() {
+  defineAttributes() {
     // Tag
     this._attrTag = Gloda.defineAttribute({
                         provider: this,
@@ -125,8 +124,7 @@ var GlodaExplicitAttr = {
     }); // tested-by: test_attributes_explicit
   },
 
-  process: function* Gloda_explattr_process(aGlodaMessage, aRawReps, aIsNew,
-                                            aCallbackHandle) {
+  * process(aGlodaMessage, aRawReps, aIsNew, aCallbackHandle) {
     let aMsgHdr = aRawReps.header;
 
     aGlodaMessage.starred = aMsgHdr.isFlagged;
@@ -144,7 +142,7 @@ var GlodaExplicitAttr = {
     // -- Tag
     // build a map of the keywords
     let keywords = aMsgHdr.getStringProperty("keywords");
-    let keywordList = keywords.split(' ');
+    let keywordList = keywords.split(" ");
     let keywordMap = {};
     for (let iKeyword = 0; iKeyword < keywordList.length; iKeyword++) {
       let keyword = keywordList[iKeyword];
@@ -170,7 +168,7 @@ var GlodaExplicitAttr = {
    *  be factored to call us, grokNounItem should be factored to call us, or we
    *  should get sufficiently fancy that our code wildly diverges.
    */
-  score: function Gloda_explattr_score(aMessage, aContext) {
+  score(aMessage, aContext) {
     let score = 0;
     if (aMessage.starred)
       score += this.NOTABILITY_STARRED;

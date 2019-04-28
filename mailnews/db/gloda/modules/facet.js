@@ -32,7 +32,7 @@ FacetDriver.prototype = {
    * Populate |this.faceters| with a set of faceters appropriate to the noun
    *  definition associated with this instance.
    */
-  _makeFaceters: function() {
+  _makeFaceters() {
     let faceters = this.faceters = [];
 
     function makeFaceter(aAttrDef, aFacetDef) {
@@ -43,12 +43,10 @@ FacetDriver.prototype = {
           faceters.push(new DateFaceter(aAttrDef, aFacetDef));
         else
           faceters.push(new DiscreteFaceter(aAttrDef, aFacetDef));
-      }
-      else {
-        if (facetType == "nonempty?")
-          faceters.push(new NonEmptySetFaceter(aAttrDef, aFacetDef));
-        else
-          faceters.push(new DiscreteSetFaceter(aAttrDef, aFacetDef));
+      } else if (facetType == "nonempty?") {
+        faceters.push(new NonEmptySetFaceter(aAttrDef, aFacetDef));
+      } else {
+        faceters.push(new DiscreteSetFaceter(aAttrDef, aFacetDef));
       }
     }
 
@@ -71,7 +69,7 @@ FacetDriver.prototype = {
    * Asynchronously facet the provided items, calling the provided callback when
    *  completed.
    */
-  go: function FacetDriver_go(aItems, aCallback, aCallbackThis) {
+  go(aItems, aCallback, aCallbackThis) {
     this.items = aItems;
     this.callback = aCallback;
     this.callbackThis = aCallbackThis;
@@ -82,10 +80,10 @@ FacetDriver.prototype = {
 
   _MAX_FACETING_TIMESLICE_MS: 100,
   _FACETING_YIELD_DURATION_MS: 0,
-  _driveWrapper: function(aThis) {
+  _driveWrapper(aThis) {
     aThis._drive();
   },
-  _drive: function() {
+  _drive() {
     let start = Date.now();
 
     while (this._nextFaceter < this.faceters.length) {
@@ -105,11 +103,11 @@ FacetDriver.prototype = {
 
     // we only get here once we are done with the faceters
     this.callback.call(this.callbackThis);
-  }
+  },
 };
 
 var FacetUtils = {
-  _groupSizeComparator: function(a, b) {
+  _groupSizeComparator(a, b) {
     return b[1].length - a[1].length;
   },
 
@@ -124,8 +122,7 @@ var FacetUtils = {
    * @param aGroups The list of groups built for the facet.
    * @param aMaxCount The number of result rows you want back.
    */
-  makeTopGroups: function FacetUtils_makeTopGroups(aAttrDef, aGroups,
-                                                   aMaxCount) {
+  makeTopGroups(aAttrDef, aGroups, aMaxCount) {
     let nounDef = aAttrDef.objectNounDef;
     let realGroupsToUse = aMaxCount;
 
@@ -141,7 +138,7 @@ var FacetUtils = {
     outGroups.sort(comparatorHelper);
 
     return outGroups;
-  }
+  },
 };
 
 /**
@@ -158,19 +155,17 @@ DiscreteFaceter.prototype = {
   /**
    * Facet the given set of items, deferring to the appropriate helper method
    */
-  facetItems: function(aItems) {
+  facetItems(aItems) {
     if (this.attrDef.objectNounDef.isPrimitive)
       return this.facetPrimitiveItems(aItems);
-    else
-      return this.facetComplexItems(aItems);
+    return this.facetComplexItems(aItems);
   },
   /**
    * Facet an attribute whose value is primitive, meaning that it is a raw
    *  numeric value or string, rather than a complex object.
    */
-  facetPrimitiveItems: function(aItems) {
+  facetPrimitiveItems(aItems) {
     let attrKey = this.attrDef.boundName;
-    let nounDef = this.attrDef.objectNounDef;
     let filter = this.facetDef.filter;
 
     let valStrToVal = {};
@@ -188,9 +183,9 @@ DiscreteFaceter.prototype = {
 
       // We need to use hasOwnProperty because we cannot guarantee that the
       //  contents of val won't collide with the attributes in Object.prototype.
-      if (groups.hasOwnProperty(val))
+      if (groups.hasOwnProperty(val)) {
         groups[val].push(item);
-      else {
+      } else {
         groups[val] = [item];
         valStrToVal[val] = val;
         this.groupCount++;
@@ -211,9 +206,8 @@ DiscreteFaceter.prototype = {
    *  by its 'id' attribute.  This is the case where the value is itself a noun
    *  instance.
    */
-  facetComplexItems: function(aItems) {
+  facetComplexItems(aItems) {
     let attrKey = this.attrDef.boundName;
-    let nounDef = this.attrDef.objectNounDef;
     let filter = this.facetDef.filter;
     let idAttr = this.facetDef.groupIdAttr;
 
@@ -237,8 +231,7 @@ DiscreteFaceter.prototype = {
       //  by the DiscreteSetFaceter.)
       if (groupMap.hasOwnProperty(valId)) {
         groups[valId].push(item);
-      }
-      else {
+      } else {
         groupMap[valId] = val;
         groups[valId] = [item];
         this.groupCount++;
@@ -273,19 +266,17 @@ DiscreteSetFaceter.prototype = {
   /**
    * Facet the given set of items, deferring to the appropriate helper method
    */
-  facetItems: function(aItems) {
+  facetItems(aItems) {
     if (this.attrDef.objectNounDef.isPrimitive)
       return this.facetPrimitiveItems(aItems);
-    else
-      return this.facetComplexItems(aItems);
+    return this.facetComplexItems(aItems);
   },
   /**
    * Facet an attribute whose value is primitive, meaning that it is a raw
    *  numeric value or string, rather than a complex object.
    */
-  facetPrimitiveItems: function(aItems) {
+  facetPrimitiveItems(aItems) {
     let attrKey = this.attrDef.boundName;
-    let nounDef = this.attrDef.objectNounDef;
     let filter = this.facetDef.filter;
 
     let groups = this.groups = {};
@@ -308,9 +299,9 @@ DiscreteSetFaceter.prototype = {
         // We need to use hasOwnProperty because we cannot guarantee that the
         //  contents of val won't collide with the attributes in
         //  Object.prototype.
-        if (groups.hasOwnProperty(val))
+        if (groups.hasOwnProperty(val)) {
           groups[val].push(item);
-        else {
+        } else {
           groups[val] = [item];
           valStrToVal[val] = val;
           this.groupCount++;
@@ -332,9 +323,8 @@ DiscreteSetFaceter.prototype = {
    *  by its 'id' attribute.  This is the case where the value is itself a noun
    *  instance.
    */
-  facetComplexItems: function(aItems) {
+  facetComplexItems(aItems) {
     let attrKey = this.attrDef.boundName;
-    let nounDef = this.attrDef.objectNounDef;
     let filter = this.facetDef.filter;
     let idAttr = this.facetDef.groupIdAttr;
 
@@ -361,8 +351,7 @@ DiscreteSetFaceter.prototype = {
         //  of Object.prototype.
         if (groupMap.hasOwnProperty(valId)) {
           groups[valId].push(item);
-        }
-        else {
+        } else {
           groupMap[valId] = val;
           groups[valId] = [item];
           this.groupCount++;
@@ -394,14 +383,12 @@ NonEmptySetFaceter.prototype = {
   /**
    * Facet the given set of items, deferring to the appropriate helper method
    */
-  facetItems: function(aItems) {
+  facetItems(aItems) {
     let attrKey = this.attrDef.boundName;
-    let nounDef = this.attrDef.objectNounDef;
 
     let trueValues = [];
     let falseValues = [];
 
-    let groups = this.groups = {};
     this.groupCount = 0;
 
     for (let item of aItems) {
@@ -419,7 +406,7 @@ NonEmptySetFaceter.prototype = {
       this.orderedGroups.push([false, falseValues]);
     this.groupCount = this.orderedGroups.length;
   },
-  makeQuery: function(aGroupValues, aInclusive) {
+  makeQuery(aGroupValues, aInclusive) {
     let query = this.query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
 
     let constraintFunc = query[this.attrDef.boundName];
@@ -430,7 +417,7 @@ NonEmptySetFaceter.prototype = {
     let invert = aGroupValues[0] != aInclusive;
 
     return [query, invert];
-  }
+  },
 };
 
 
@@ -453,15 +440,14 @@ DateFaceter.prototype = {
   /**
    *
    */
-  facetItems: function(aItems) {
+  facetItems(aItems) {
     let attrKey = this.attrDef.boundName;
-    let nounDef = this.attrDef.objectNounDef;
 
     let years = this.years = {_subCount: 0};
     // generally track the time range
     let oldest = null, newest = null;
 
-    let validItems = this.validItems = [];
+    this.validItems = [];
 
     // just cheat and put us at the front...
     this.groupCount = aItems.length ? 1000 : 0;
@@ -516,11 +502,10 @@ DateFaceter.prototype = {
       if (valYear in years) {
         year = years[valYear];
         year._dateCount++;
-      }
-      else {
+      } else {
         year = years[valYear] = {
           _dateCount: 1,
-          _subCount: 0
+          _subCount: 0,
         };
         years._subCount++;
       }
@@ -530,11 +515,10 @@ DateFaceter.prototype = {
       if (valMonth in year) {
         month = year[valMonth];
         month._dateCount++;
-      }
-      else {
+      } else {
         month = year[valMonth] = {
           _dateCount: 1,
-          _subCount: 0
+          _subCount: 0,
         };
         year._subCount++;
       }
@@ -543,8 +527,7 @@ DateFaceter.prototype = {
       let valDate = val.getDate();
       if (valDate in month) {
         month[valDate].push(item);
-      }
-      else {
+      } else {
         month[valDate] = [item];
       }
     }
@@ -553,25 +536,25 @@ DateFaceter.prototype = {
     this.newest = newest;
   },
 
-  _unionMonth: function(aMonthObj) {
+  _unionMonth(aMonthObj) {
     let dayItemLists = [];
     for (let key in aMonthObj) {
       let dayItemList = aMonthObj[key];
-      if (typeof(key) == "string" && key.startsWith('_'))
+      if (typeof(key) == "string" && key.startsWith("_"))
         continue;
       dayItemLists.push(dayItemList);
     }
     return dayItemLists;
   },
 
-  _unionYear: function(aYearObj) {
+  _unionYear(aYearObj) {
     let monthItemLists = [];
     for (let key in aYearObj) {
       let monthObj = aYearObj[key];
-      if (typeof(key) == "string" && key.startsWith('_'))
+      if (typeof(key) == "string" && key.startsWith("_"))
         continue;
       monthItemLists.push(this._unionMonth(monthObj));
     }
     return monthItemLists;
-  }
+  },
 };

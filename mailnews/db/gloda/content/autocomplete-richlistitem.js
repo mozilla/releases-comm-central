@@ -6,6 +6,10 @@
 
 /* global MozXULElement, MozElements */
 {
+  let {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+  let {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
+  let gGlodaCompleteStrings = new StringBundle("chrome://messenger/locale/glodaComplete.properties");
+
   /**
    * The MozGlodacompleteBaseRichlistitem widget is the
    * abstract base class for all the gloda autocomplete items.
@@ -52,7 +56,7 @@
       }
 
       // Sort the regions by start position then end position.
-      regions = regions.sort(function (a, b) {
+      regions = regions.sort(function(a, b) {
         let start = a[0] - b[0];
         return (start == 0) ? a[1] - b[1] : start;
       });

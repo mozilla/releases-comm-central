@@ -12,7 +12,7 @@ function MultiSuffixTree(aStrings, aItems) {
   if (aStrings.length != aItems.length)
     throw new Error("Array lengths need to be the same.");
 
-  let s = '';
+  let s = "";
   let offsetsToItems = [];
   let lastLength = 0;
   for (let i = 0; i < aStrings.length; i++) {
@@ -64,10 +64,10 @@ State.prototype = {
     return this.end - this.start;
   },
 
-  toString: function State_toString() {
+  toString() {
     return "[Start: " + this.start + " End: " + this.end +
            (this.suffix ? " non-null suffix]" : " null suffix]");
-  }
+  },
 };
 
 /**
@@ -85,12 +85,12 @@ SuffixTree.prototype = {
   /**
    * Find all items matching the provided substring.
    */
-  findMatches: function findMatches(aSubstring) {
+  findMatches(aSubstring) {
     let results = [];
     let state = this._root;
-    let index=0;
+    let index = 0;
     let end = aSubstring.length;
-    while(index < end) {
+    while (index < end) {
       state = state[aSubstring[index]];
       // bail if there was no edge
       if (state === undefined)
@@ -127,28 +127,27 @@ SuffixTree.prototype = {
     return results;
   },
 
-  _resultGather: function resultGather(aState, aResults, aPresence,
-                                       aPatLength, aDelta, alreadyAdjusted) {
+  _resultGather(aState, aResults, aPresence, aPatLength, aDelta, alreadyAdjusted) {
     // find the item that this state originated from based on the state's
     //  start character.  offsetToItem holds [string start index, string end
     //  index (exclusive), item reference].  So we want to binary search to
     //  find the string whose start/end index contains the state's start index.
     let low = 0;
-    let high = this._numItems-1;
+    let high = this._numItems - 1;
     let mid, stringStart, stringEnd;
 
     let patternLast = aState.start - aDelta;
     while (low <= high) {
       mid = low + Math.floor((high - low) / 2); // excessive, especially with js nums
-      stringStart = this._offsetsToItems[mid*3];
+      stringStart = this._offsetsToItems[mid * 3];
       let startDelta = stringStart - patternLast;
-      stringEnd = this._offsetsToItems[mid*3+1];
+      stringEnd = this._offsetsToItems[mid * 3 + 1];
       let endDelta = stringEnd - patternLast;
-      if (startDelta > 0)
+      if (startDelta > 0) {
         high = mid - 1;
-      else if (endDelta <= 0)
+      } else if (endDelta <= 0) {
         low = mid + 1;
-      else {
+      } else {
         break;
       }
     }
@@ -169,7 +168,7 @@ SuffixTree.prototype = {
   if (patternFirst >= stringStart) {
     if (!(stringStart in aPresence)) {
       aPresence[stringStart] = true;
-      aResults.push(this._offsetsToItems[mid*3+2]);
+      aResults.push(this._offsetsToItems[mid * 3 + 2]);
     }
   }
 
@@ -189,7 +188,7 @@ dump("  bailing! (bail was: " + bail + ")\n");
       if (key.length == 1) {
         let statePrime = aState[key];
         this._resultGather(statePrime, aResults, aPresence, aPatLength,
-                           aDelta + aState.length, //(alreadyAdjusted ? 0 : aState.length),
+                           aDelta + aState.length, // (alreadyAdjusted ? 0 : aState.length),
                            false);
       }
     }
@@ -205,7 +204,7 @@ dump("  bailing! (bail was: " + bail + ")\n");
    * (The information about the 'edge' is contained on its target State;
    *  we can do this because a state is only referenced by one other state.)
    */
-  _canonize: function canonize(aState, aStart, aEnd) {
+  _canonize(aState, aStart, aEnd) {
     if (aEnd <= aStart) {
       return [aState, aStart];
     }
@@ -236,37 +235,35 @@ dump("  bailing! (bail was: " + bail + ")\n");
    * @return A list of: whether we had to make it explicit, the (potentially)
    *    new explicit state.
    */
-  _testAndSplit: function testAndSplit(aState, aStart, aEnd, aChar) {
+  _testAndSplit(aState, aStart, aEnd, aChar) {
     if (aStart < aEnd) { // it's not explicit
       let statePrime = aState[this._str[aStart]];
       let length = aEnd - aStart;
       if (aChar == this._str[statePrime.start + length]) {
         return [true, aState];
       }
-      else {
-        // do splitting... aState -> rState -> statePrime
-        let rState = new State(statePrime.start, statePrime.start + length);
-        aState[this._str[statePrime.start]] = rState;
-        statePrime.start += length;
-        rState[this._str[statePrime.start]] = statePrime;
-        return [false, rState];
-      }
-    }
-    else { // it's already explicit
-      if (aState === null) { // bottom case... shouldn't happen, but hey.
-        return [true, aState];
-      }
-      return [(aChar in aState), aState];
+
+      // do splitting... aState -> rState -> statePrime
+      let rState = new State(statePrime.start, statePrime.start + length);
+      aState[this._str[statePrime.start]] = rState;
+      statePrime.start += length;
+      rState[this._str[statePrime.start]] = statePrime;
+      return [false, rState];
     }
 
+    // it's already explicit
+    if (aState === null) { // bottom case... shouldn't happen, but hey.
+      return [true, aState];
+    }
+    return [(aChar in aState), aState];
   },
 
-  _update: function update(aState, aStart, aIndex) {
+  _update(aState, aStart, aIndex) {
     let oldR = this._root;
     let textAtIndex = this._str[aIndex]; // T sub i (0-based corrected...)
     // because of the way we store the 'end' value as a one-past form, we do
     //  not need to subtract 1 off of aIndex.
-    let [endPoint, rState] = this._testAndSplit(aState, aStart, aIndex, //no -1
+    let [endPoint, rState] = this._testAndSplit(aState, aStart, aIndex, // no -1
                                                 textAtIndex);
     while (!endPoint) {
       let rPrime = new State(aIndex, this._infinity);
@@ -284,23 +281,23 @@ dump("  bailing! (bail was: " + bail + ")\n");
     return [aState, aStart];
   },
 
-  _construct: function construct(aStr) {
+  _construct(aStr) {
     this._str = aStr;
     // just needs to be longer than the string.
     this._infinity = aStr.length + 1;
 
-    //this._bottom = new State(0, -1, null);
+    // this._bottom = new State(0, -1, null);
     this._root = new State(-1, 0, null); // null === bottom
     let state = this._root;
     let start = 0;
 
     for (let i = 0; i < aStr.length; i++) {
       [state, start] = this._update(state, start, i); // treat as flowing -1...
-      [state, start] = this._canonize(state, start, i+1); // 1-length string
+      [state, start] = this._canonize(state, start, i + 1); // 1-length string
     }
   },
 
-  dump: function SuffixTree_show(aState, aIndent, aKey) {
+  dump(aState, aIndent, aKey) {
     if (aState === undefined)
       aState = this._root;
     if (aIndent === undefined) {
@@ -310,23 +307,24 @@ dump("  bailing! (bail was: " + bail + ")\n");
 
     if (aState.isImplicit) {
       let snip;
-      if (aState.length > 10)
+      if (aState.length > 10) {
         snip = this._str.slice(aState.start,
-                           Math.min(aState.start+10, this._str.length)) + "...";
-      else
+                               Math.min(aState.start + 10, this._str.length)) + "...";
+      } else {
         snip =  this._str.slice(aState.start,
                                 Math.min(aState.end, this._str.length));
+      }
       dump(aIndent + aKey + ":" + snip + "(" +
            aState.start + ":" + aState.end + ")\n");
+    } else {
+      dump(aIndent + aKey + ": (explicit:" + aState.start + ":" + aState.end + ")\n");
     }
-    else
-      dump(aIndent + aKey + ": (explicit:" + aState.start + ":" + aState.end +")\n");
     let nextIndent = aIndent + "  ";
     let keys = Object.keys(aState).filter(c => c.length == 1);
     for (let key of keys) {
       this.dump(aState[key], nextIndent, key);
     }
-  }
+  },
 };
 MultiSuffixTree.prototype = SuffixTree.prototype;
 

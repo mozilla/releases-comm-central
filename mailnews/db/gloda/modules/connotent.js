@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ['GlodaContent', 'whittlerRegistry',
-                          'mimeMsgToContentAndMeta', 'mimeMsgToContentSnippetAndMeta'];
+this.EXPORTED_SYMBOLS = ["GlodaContent", "whittlerRegistry",
+                         "mimeMsgToContentAndMeta", "mimeMsgToContentSnippetAndMeta"];
 
 const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
@@ -50,7 +50,7 @@ function mimeMsgToContentSnippetAndMeta(aMimeMsg, folder, length) {
 
   let text = content.getContentSnippet(length + 1);
   if (length && text.length > length)
-    text = text.substring(0, length-1) + "\u2026"; // ellipsis
+    text = text.substring(0, length - 1) + "\u2026"; // ellipsis
 
   return [text, meta];
 }
@@ -69,19 +69,19 @@ WhittlerRegistry.prototype = {
   /**
    * Add a provider as a content whittler.
    */
-  registerWhittler: function whittler_registry_registerWhittler(provider) {
+  registerWhittler(provider) {
     this._whittlers.push(provider);
   },
   /**
    * get the list of content whittlers, sorted from the most specific to
    * the most generic
    */
-  getWhittlers: function whittler_registry_getWhittlers() {
+  getWhittlers() {
     // Use the concat() trick to avoid mutating the internal object and
     // leaking an internal representation.
     return this._whittlers.concat().reverse();
-  }
-}
+  },
+};
 
 this.whittlerRegistry = new WhittlerRegistry();
 
@@ -99,7 +99,7 @@ GlodaContent.prototype = {
   kHunkQuoted: 2,
   kHunkContent: 3,
 
-  _resetContent: function gloda_content__resetContent() {
+  _resetContent() {
     this._keysAndValues = [];
     this._keysAndDeltaValues = [];
     this._hunks = [];
@@ -107,7 +107,7 @@ GlodaContent.prototype = {
   },
 
   /* ===== Consumer API ===== */
-  hasContent: function gloda_content_hasContent() {
+  hasContent() {
     return (this._contentPriority != null);
   },
 
@@ -117,14 +117,14 @@ GlodaContent.prototype = {
    *
    * @param aMaxLength The maximum snippet length desired.
    */
-  getContentSnippet: function gloda_content_getContentSnippet(aMaxLength) {
+  getContentSnippet(aMaxLength) {
     let content = this.getContentString();
     if (aMaxLength)
       content = content.substring(0, aMaxLength);
     return content;
   },
 
-  getContentString: function gloda_content_getContent(aIndexingPurposes) {
+  getContentString(aIndexingPurposes) {
     let data = "";
     for (let hunk of this._hunks) {
       if (hunk.hunkType == this.kHunkContent) {
@@ -162,7 +162,7 @@ GlodaContent.prototype = {
    *     ignore their calls if we return false, this allows the simplification
    *     of code that needs to run anyways.)
    */
-  volunteerContent: function gloda_content_volunteerContent(aPriority) {
+  volunteerContent(aPriority) {
     if (this._contentPriority === null || this._contentPriority < aPriority) {
       this._contentPriority = aPriority;
       this._resetContent();
@@ -173,14 +173,13 @@ GlodaContent.prototype = {
     return false;
   },
 
-  keyValue: function gloda_content_keyValue(aKey, aValue) {
+  keyValue(aKey, aValue) {
     if (!this._producing)
       return;
 
     this._keysAndValues.push([aKey, aValue]);
   },
-  keyValueDelta: function gloda_content_keyValueDelta (aKey, aOldValue,
-      aNewValue) {
+  keyValueDelta(aKey, aOldValue, aNewValue) {
     if (!this._producing)
       return;
 
@@ -201,7 +200,7 @@ GlodaContent.prototype = {
    *     index of the item in the attribute's bound list that the meta-data
    *     is associated with.
    */
-  meta: function gloda_content_meta(aLineOrLines, aAttr, aIndex) {
+  meta(aLineOrLines, aAttr, aIndex) {
     if (!this._producing)
       return;
 
@@ -212,7 +211,7 @@ GlodaContent.prototype = {
       data = aLineOrLines.join("\n");
 
     this._curHunk = {hunkType: this.kHunkMeta, attr: aAttr, index: aIndex,
-                     data: data};
+                     data};
     this._hunks.push(this._curHunk);
   },
   /**
@@ -225,8 +224,7 @@ GlodaContent.prototype = {
    * @param aTarget A reference to the location in the original content, if
    *     known.  For example, the index of a line in a message or something?
    */
-  quoted: function gloda_content_quoted(aLineOrLines, aDepth, aOrigin,
-      aTarget) {
+  quoted(aLineOrLines, aDepth, aOrigin, aTarget) {
     if (!this._producing)
       return;
 
@@ -240,15 +238,15 @@ GlodaContent.prototype = {
         this._curHunk.hunkType != this.kHunkQuoted ||
         this._curHunk.depth != aDepth ||
         this._curHunk.origin != aOrigin || this._curHunk.target != aTarget) {
-      this._curHunk = {hunkType: this.kHunkQuoted, data: data,
+      this._curHunk = {hunkType: this.kHunkQuoted, data,
                        depth: aDepth, origin: aOrigin, target: aTarget};
       this._hunks.push(this._curHunk);
-    }
-    else
+    } else {
       this._curHunk.data += "\n" + data;
+    }
   },
 
-  content: function gloda_content_content(aLineOrLines) {
+  content(aLineOrLines) {
     if (!this._producing)
       return;
 
@@ -259,10 +257,10 @@ GlodaContent.prototype = {
       data = aLineOrLines.join("\n");
 
     if (!this._curHunk || this._curHunk.hunkType != this.kHunkContent) {
-      this._curHunk = {hunkType: this.kHunkContent, data: data};
+      this._curHunk = {hunkType: this.kHunkContent, data};
       this._hunks.push(this._curHunk);
-    }
-    else
+    } else {
       this._curHunk.data += "\n" + data;
+    }
   },
 };

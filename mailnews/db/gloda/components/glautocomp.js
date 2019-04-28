@@ -25,7 +25,7 @@ function ResultRowFullText(aItem, words, typeForStyle) {
 }
 ResultRowFullText.prototype = {
   multi: false,
-  fullText: true
+  fullText: true,
 };
 
 function ResultRowSingle(aItem, aCriteriaType, aCriteria, aExplicitNounID) {
@@ -38,7 +38,7 @@ function ResultRowSingle(aItem, aCriteriaType, aCriteria, aExplicitNounID) {
 }
 ResultRowSingle.prototype = {
   multi: false,
-  fullText: false
+  fullText: false,
 };
 
 function ResultRowMulti(aNounID, aCriteriaType, aCriteria, aQuery) {
@@ -54,19 +54,19 @@ ResultRowMulti.prototype = {
   multi: true,
   typeForStyle: "gloda-multi",
   fullText: false,
-  onItemsAdded: function(aItems) {
+  onItemsAdded(aItems) {
     if (this.renderer) {
-      for (let [iItem, item] of aItems.entries()) {
+      for (let [, item] of aItems.entries()) {
         this.renderer.renderItem(item);
       }
     }
   },
-  onItemsModified: function(aItems) {
+  onItemsModified(aItems) {
   },
-  onItemsRemoved: function(aItems) {
+  onItemsRemoved(aItems) {
   },
-  onQueryCompleted: function() {
-  }
+  onQueryCompleted() {
+  },
 };
 
 function nsAutoCompleteGlodaResult(aListener, aCompleter, aString) {
@@ -84,22 +84,22 @@ function nsAutoCompleteGlodaResult(aListener, aCompleter, aString) {
   this.wrappedJSObject = this;
 }
 nsAutoCompleteGlodaResult.prototype = {
-  getObjectAt: function(aIndex) {
+  getObjectAt(aIndex) {
     return this._results[aIndex] || null;
   },
-  markPending: function ACGR_markPending(aCompleter) {
+  markPending(aCompleter) {
     this._pendingCount++;
   },
-  markCompleted: function ACGR_markCompleted(aCompleter) {
+  markCompleted(aCompleter) {
     if (--this._pendingCount == 0 && this.active) {
       this.listener.onSearchResult(this.completer, this);
     }
   },
-  announceYourself: function ACGR_announceYourself() {
+  announceYourself() {
     this._initiallyReported = true;
     this.listener.onSearchResult(this.completer, this);
   },
-  addRows: function ACGR_addRows(aRows) {
+  addRows(aRows) {
     if (!aRows.length)
       return;
     this._results.push.apply(this._results, aRows);
@@ -115,8 +115,7 @@ nsAutoCompleteGlodaResult.prototype = {
     if (this._results.length)
       return (!this._pendingCount) ? Ci.nsIAutoCompleteResult.RESULT_SUCCESS
                           : Ci.nsIAutoCompleteResult.RESULT_SUCCESS_ONGOING;
-    else
-      return (!this._pendingCount) ? Ci.nsIAutoCompleteResult.RESULT_NOMATCH
+    return (!this._pendingCount) ? Ci.nsIAutoCompleteResult.RESULT_NOMATCH
                           : Ci.nsIAutoCompleteResult.RESULT_NOMATCH_ONGOING;
   },
   active: false,
@@ -127,29 +126,28 @@ nsAutoCompleteGlodaResult.prototype = {
   },
   // this is the lower text, (shows the url in firefox)
   // we try and show the contact's name here.
-  getValueAt: function(aIndex) {
+  getValueAt(aIndex) {
     let thing = this._results[aIndex];
     return thing.name || thing.value || thing.subject || null;
   },
-  getLabelAt: function(aIndex) {
+  getLabelAt(aIndex) {
     return this.getValueAt(aIndex);
   },
   // rich uses this to be the "title".  it is the upper text
   // we try and show the identity here.
-  getCommentAt: function(aIndex) {
+  getCommentAt(aIndex) {
     let thing = this._results[aIndex];
     if (thing.value) // identity
       return thing.contact.name;
-    else
-      return thing.name || thing.subject;
+    return thing.name || thing.subject;
   },
   // rich uses this to be the "type"
-  getStyleAt: function(aIndex) {
+  getStyleAt(aIndex) {
     let row = this._results[aIndex];
     return row.typeForStyle;
   },
   // rich uses this to be the icon
-  getImageAt: function(aIndex) {
+  getImageAt(aIndex) {
     let thing = this._results[aIndex];
     if (!thing.value)
       return null;
@@ -162,13 +160,11 @@ nsAutoCompleteGlodaResult.prototype = {
     return gravURL;
     */
   },
-  getFinalCompleteValueAt: function(aIndex) {
+  getFinalCompleteValueAt(aIndex) {
     return this.getValueAt(aIndex);
   },
-  removeValueAt: function() {},
-
-  _stop: function() {
-  }
+  removeValueAt() {},
+  _stop() {},
 };
 
 var MAX_POPULAR_CONTACTS = 200;
@@ -186,8 +182,8 @@ function ContactIdentityCompleter() {
   this.contactCollection.becomeExplicit();
 }
 ContactIdentityCompleter.prototype = {
-  _popularitySorter: function(a, b){ return b.popularity - a.popularity; },
-  complete: function ContactIdentityCompleter_complete(aResult, aString) {
+  _popularitySorter(a, b) { return b.popularity - a.popularity; },
+  complete(aResult, aString) {
     if (aString.length < 3) {
       // In CJK, first name or last name is sometime used as 1 character only.
       // So we allow autocompleted search even if 1 character.
@@ -203,9 +199,9 @@ ContactIdentityCompleter.prototype = {
     let matches;
     if (this.suffixTree) {
       matches = this.suffixTree.findMatches(aString.toLowerCase());
-    }
-    else
+    } else {
       matches = [];
+    }
 
     // let's filter out duplicates due to identity/contact double-hits by
     //  establishing a map based on the contact id for these guys.
@@ -229,7 +225,7 @@ ContactIdentityCompleter.prototype = {
     aResult.addRows(rows);
 
     // - match against database contacts / identities
-    let pending = {contactToThing: contactToThing, pendingCount: 2};
+    let pending = {contactToThing, pendingCount: 2};
 
     let contactQuery = Gloda.newQuery(Gloda.NOUN_CONTACT);
     contactQuery.nameLike(contactQuery.WILDCARD, aString,
@@ -247,13 +243,13 @@ ContactIdentityCompleter.prototype = {
 
     return true;
   },
-  onItemsAdded: function(aItems, aCollection) {
+  onItemsAdded(aItems, aCollection) {
   },
-  onItemsModified: function(aItems, aCollection) {
+  onItemsModified(aItems, aCollection) {
   },
-  onItemsRemoved: function(aItems, aCollection) {
+  onItemsRemoved(aItems, aCollection) {
   },
-  onQueryCompleted: function(aCollection) {
+  onQueryCompleted(aCollection) {
     // handle the initial setup case...
     if (aCollection.data == null) {
       // cheat and explicitly add our own contact...
@@ -303,7 +299,7 @@ ContactIdentityCompleter.prototype = {
       // check identities first because they are better than contacts in terms
       //  of display
       items = pending.identityColl.items;
-      for (let iIdentity = 0; iIdentity < items.length; iIdentity++){
+      for (let iIdentity = 0; iIdentity < items.length; iIdentity++) {
         let identity = items[iIdentity];
         if (!(identity.contactID in contactToThing)) {
           contactToThing[identity.contactID] = identity;
@@ -334,7 +330,7 @@ ContactIdentityCompleter.prototype = {
       // the result object no longer needs us or our data
       delete result._contactCompleterPending;
     }
-  }
+  },
 };
 
 /**
@@ -346,7 +342,7 @@ function ContactTagCompleter() {
   FreeTagNoun.addListener(this);
 }
 ContactTagCompleter.prototype = {
-  _buildSuffixTree: function() {
+  _buildSuffixTree() {
     let tagNames = [], tags = [];
     for (let [tagName, tag] of Object.entries(FreeTagNoun.knownFreeTags)) {
       tagNames.push(tagName.toLowerCase());
@@ -355,10 +351,10 @@ ContactTagCompleter.prototype = {
     this._suffixTree = new MultiSuffixTree(tagNames, tags);
     this._suffixTreeDirty = false;
   },
-  onFreeTagAdded: function(aTag) {
+  onFreeTagAdded(aTag) {
     this._suffixTreeDirty = true;
   },
-  complete: function ContactTagCompleter_complete(aResult, aString) {
+  complete(aResult, aString) {
     // now is not the best time to do this; have onFreeTagAdded use a timer.
     if (this._suffixTreeDirty)
       this._buildSuffixTree();
@@ -378,7 +374,7 @@ ContactTagCompleter.prototype = {
     aResult.addRows(rows);
 
     return false; // no async mechanism that will add new rows
-  }
+  },
 };
 
 /**
@@ -388,7 +384,7 @@ function MessageTagCompleter() {
   this._buildSuffixTree();
 }
 MessageTagCompleter.prototype = {
-  _buildSuffixTree: function MessageTagCompleter__buildSufficeTree() {
+  _buildSuffixTree() {
     let tagNames = [], tags = [];
     let tagArray = TagNoun.getAllTags();
     for (let iTag = 0; iTag < tagArray.length; iTag++) {
@@ -399,7 +395,7 @@ MessageTagCompleter.prototype = {
     this._suffixTree = new MultiSuffixTree(tagNames, tags);
     this._suffixTreeDirty = false;
   },
-  complete: function MessageTagCompleter_complete(aResult, aString) {
+  complete(aResult, aString) {
     if (aString.length < 2)
       return false;
 
@@ -412,7 +408,7 @@ MessageTagCompleter.prototype = {
     aResult.addRows(rows);
 
     return false; // no async mechanism that will add new rows
-  }
+  },
 };
 
 /**
@@ -421,7 +417,7 @@ MessageTagCompleter.prototype = {
 function FullTextCompleter() {
 }
 FullTextCompleter.prototype = {
-  complete: function FullTextCompleter_complete(aResult, aSearchString) {
+  complete(aResult, aSearchString) {
     if (aSearchString.length < 4)
       return false;
     // We use code very similar to that in msg_search.js, except that we
@@ -455,7 +451,7 @@ FullTextCompleter.prototype = {
       term = aSearchString.substring(0, spaceIndex).replace(/,/g, "");
       if (term)
         terms.push(term);
-      aSearchString = aSearchString.substring(spaceIndex+1);
+      aSearchString = aSearchString.substring(spaceIndex + 1);
     }
 
     if (terms.length == 1 && !phraseFound)
@@ -464,7 +460,7 @@ FullTextCompleter.prototype = {
       aResult.addRows([new ResultRowFullText(aSearchString, terms, "all")]);
 
     return false; // no async mechanism that will add new rows
-  }
+  },
 };
 
 var LOG;
@@ -487,7 +483,7 @@ function nsAutoCompleteGloda() {
       FreeTagNoun = loadNS.FreeTagNoun;
 
       loadNS = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
-      LOG = loadNS["Log4Moz"].repository.getLogger("gloda.autocomp");
+      LOG = loadNS.Log4Moz.repository.getLogger("gloda.autocomp");
     }
 
     this.completers = [];
@@ -507,7 +503,7 @@ nsAutoCompleteGloda.prototype = {
   QueryInterface: ChromeUtils.generateQI([
       Ci.nsIAutoCompleteSearch]),
 
-  startSearch: function(aString, aParam, aResult, aListener) {
+  startSearch(aString, aParam, aResult, aListener) {
     try {
       let result = new nsAutoCompleteGlodaResult(aListener, this, aString);
       // save this for hacky access to the search.  I somewhat suspect we simply
@@ -524,7 +520,7 @@ nsAutoCompleteGloda.prototype = {
           if (completer.complete(result, aString))
             result.markPending(completer);
         }
-      //} else {
+      // } else {
       //   It'd be nice to do autocomplete in the quicksearch modes based
       //   on the specific values for that mode in the current view.
       //   But we don't do that yet.
@@ -536,9 +532,9 @@ nsAutoCompleteGloda.prototype = {
     }
   },
 
-  stopSearch: function() {
+  stopSearch() {
     this.curResult.active = false;
-  }
+  },
 };
 
 var components = [nsAutoCompleteGloda];
