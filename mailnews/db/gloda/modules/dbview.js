@@ -31,17 +31,20 @@ function GlodaSyntheticView(aArgs) {
     this.collection = this.query.getCollection(this);
     this.completed = false;
     this.viewType = "global";
-  } else if ("collection" in aArgs) {
+  }
+  else if ("collection" in aArgs) {
     this.query = null;
     this.collection = aArgs.collection;
     this.completed = true;
     this.viewType = "global";
-  } else if ("conversation" in aArgs) {
+  }
+  else if ("conversation" in aArgs) {
     this.collection = aArgs.conversation.getMessagesCollection(this);
     this.query = this.collection.query;
     this.completed = false;
     this.viewType = "conversation";
-  } else {
+  }
+  else {
     throw new Error("You need to pass a query or collection");
   }
 
@@ -55,7 +58,7 @@ GlodaSyntheticView.prototype = {
    *  aSearchListener.  If results are already available, they should
    *  be provided to aSearchListener without re-performing the search.
    */
-  search(aSearchListener, aCompletionCallback) {
+  search: function(aSearchListener, aCompletionCallback) {
     this.searchListener = aSearchListener;
     this.completionCallback = aCompletionCallback;
 
@@ -64,10 +67,11 @@ GlodaSyntheticView.prototype = {
       this.reportResults(this.collection.items);
       // we're not really aborting, but it closes things out nicely
       this.abortSearch();
+      return;
     }
   },
 
-  abortSearch() {
+  abortSearch: function() {
     if (this.searchListener)
       this.searchListener.onSearchDone(Cr.NS_OK);
     if (this.completionCallback)
@@ -76,7 +80,7 @@ GlodaSyntheticView.prototype = {
     this.completionCallback = null;
   },
 
-  reportResults(aItems) {
+  reportResults: function(aItems) {
     for (let item of aItems) {
       let hdr = item.folderMessage;
       if (hdr)
@@ -88,7 +92,7 @@ GlodaSyntheticView.prototype = {
    * Helper function used by |DBViewWrapper.getMsgHdrForMessageID| since there
    *  are no actual backing folders for it to check.
    */
-  getMsgHdrForMessageID(aMessageId) {
+  getMsgHdrForMessageID: function(aMessageId) {
     for (let item of this.collection.items) {
       if (item.headerMessageID == aMessageId) {
         let hdr = item.folderMessage;
@@ -127,37 +131,39 @@ GlodaSyntheticView.prototype = {
   },
 
   // --- settings persistence
-  getPersistedSetting(aSetting) {
+  getPersistedSetting: function(aSetting) {
     try {
       return JSON.parse(Services.prefs.getCharPref(
         "mailnews.database.global.views." + this.viewType + "." + aSetting
       ));
-    } catch (e) {
+    }
+    catch (e) {
       return this.getDefaultSetting(aSetting);
     }
   },
-  setPersistedSetting(aSetting, aValue) {
+  setPersistedSetting: function(aSetting, aValue) {
     Services.prefs.setCharPref(
       "mailnews.database.global.views." + this.viewType + "." + aSetting,
       JSON.stringify(aValue)
     );
   },
-  getDefaultSetting(aSetting) {
+  getDefaultSetting: function(aSetting) {
     if (aSetting == "columns")
       return this.DEFAULT_COLUMN_STATES;
-    return undefined;
+    else
+      return undefined;
   },
 
   // --- collection listener
-  onItemsAdded(aItems, aCollection) {
+  onItemsAdded: function(aItems, aCollection) {
     if (this.searchListener)
       this.reportResults(aItems);
   },
-  onItemsModified(aItems, aCollection) {
+  onItemsModified: function(aItems, aCollection) {
   },
-  onItemsRemoved(aItems, aCollection) {
+  onItemsRemoved: function(aItems, aCollection) {
   },
-  onQueryCompleted(aCollection) {
+  onQueryCompleted: function(aCollection) {
     this.completed = true;
     this.searchListener.onSearchDone(Cr.NS_OK);
     if (this.completionCallback)

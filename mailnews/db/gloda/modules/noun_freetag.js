@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ["FreeTag", "FreeTagNoun"];
+this.EXPORTED_SYMBOLS = ['FreeTag', 'FreeTagNoun'];
 
 const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
@@ -13,9 +13,9 @@ function FreeTag(aTagName) {
 }
 
 FreeTag.prototype = {
-  toString() {
+  toString: function () {
     return this.name;
-  },
+  }
 };
 
 /**
@@ -31,16 +31,16 @@ var FreeTagNoun = {
   usesParameter: true,
 
   _listeners: [],
-  addListener(aListener) {
+  addListener: function(aListener) {
     this._listeners.push(aListener);
   },
-  removeListener(aListener) {
+  removeListener: function(aListener) {
     let index = this._listeners.indexOf(aListener);
-    if (index >= 0)
+    if (index >=0)
       this._listeners.splice(index, 1);
   },
 
-  populateKnownFreeTags() {
+  populateKnownFreeTags: function() {
     for (let attr of this.objectNounOfAttributes) {
       let attrDB = attr.dbDef;
       for (let param in attrDB.parameterBindings) {
@@ -50,7 +50,7 @@ var FreeTagNoun = {
   },
 
   knownFreeTags: {},
-  getFreeTag(aTagName) {
+  getFreeTag: function(aTagName) {
     let tag = this.knownFreeTags[aTagName];
     if (!tag) {
       tag = this.knownFreeTags[aTagName] = new FreeTag(aTagName);
@@ -60,25 +60,27 @@ var FreeTagNoun = {
     return tag;
   },
 
-  comparator(a, b) {
+  comparator: function gloda_noun_freetag_comparator(a, b) {
     if (a == null) {
       if (b == null)
         return 0;
-      return 1;
-    } else if (b == null) {
+      else
+        return 1;
+    }
+    else if (b == null) {
       return -1;
     }
     return a.name.localeCompare(b.name);
   },
 
-  toParamAndValue(aTag) {
+  toParamAndValue: function gloda_noun_freetag_toParamAndValue(aTag) {
     return [aTag.name, null];
   },
 
-  toJSON(aTag) {
+  toJSON: function gloda_noun_freetag_toJSON(aTag) {
     return aTag.name;
   },
-  fromJSON(aTagName) {
+  fromJSON: function gloda_noun_freetag_fromJSON(aTagName) {
     return this.getFreeTag(aTagName);
   },
 };

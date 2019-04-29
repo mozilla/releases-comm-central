@@ -8,6 +8,8 @@ var gSearchBundle;
 
 var gStatusBar = document.getElementById("statusbar-icon");
 
+var gGlodaCompleteStrings = new StringBundle("chrome://messenger/locale/glodaComplete.properties");
+
 /**
  * The glodasearch widget is a UI widget (the #searchInput textbox) which is
  * outside of the mailTabType's display panel, but acts as though it were within

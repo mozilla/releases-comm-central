@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ["GlodaFundAttr"];
+this.EXPORTED_SYMBOLS = ['GlodaFundAttr'];
 
 const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 const {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
@@ -26,12 +26,13 @@ var GlodaFundAttr = {
   strings: new StringBundle("chrome://messenger/locale/gloda.properties"),
   _log: null,
 
-  init() {
+  init: function gloda_explattr_init() {
     this._log =  Log4Moz.repository.getLogger("gloda.fundattr");
 
     try {
       this.defineAttributes();
-    } catch (ex) {
+    }
+    catch (ex) {
       this._log.error("Error in init: " + ex);
       throw ex;
     }
@@ -55,7 +56,7 @@ var GlodaFundAttr = {
   /** Boost for each additional person involved in my address book. */
   NOTABILITY_INVOLVING_ADDR_BOOK_ADDL: 2,
 
-  defineAttributes() {
+  defineAttributes: function gloda_fundattr_defineAttributes() {
     /* ***** Conversations ***** */
     // conversation: subjectMatches
     this._attrConvSubject = Gloda.defineAttribute({
@@ -68,7 +69,7 @@ var GlodaFundAttr = {
       specialColumnName: "subject",
       subjectNouns: [Gloda.NOUN_CONVERSATION],
       objectNoun: Gloda.NOUN_FULLTEXT,
-    });
+      });
 
     /* ***** Messages ***** */
     // folder
@@ -83,7 +84,7 @@ var GlodaFundAttr = {
       specialColumnName: "folderID",
       subjectNouns: [Gloda.NOUN_MESSAGE],
       objectNoun: Gloda.NOUN_FOLDER,
-    }); // tested-by: test_attributes_fundamental
+      }); // tested-by: test_attributes_fundamental
     this._attrAccount = Gloda.defineAttribute({
       provider: this,
       extensionName: Gloda.BUILT_IN,
@@ -93,8 +94,8 @@ var GlodaFundAttr = {
       singular: true,
       facet: true,
       subjectNouns: [Gloda.NOUN_MESSAGE],
-      objectNoun: Gloda.NOUN_ACCOUNT,
-    });
+      objectNoun: Gloda.NOUN_ACCOUNT
+      });
     this._attrMessageKey = Gloda.defineAttribute({
       provider: this,
       extensionName: Gloda.BUILT_IN,
@@ -106,7 +107,7 @@ var GlodaFundAttr = {
       subjectNouns: [Gloda.NOUN_MESSAGE],
       objectNoun: Gloda.NOUN_NUMBER,
       canQuery: true,
-    }); // tested-by: test_attributes_fundamental
+      }); // tested-by: test_attributes_fundamental
 
     // We need to surface the deleted attribute for querying, but there is no
     //  reason for user code, so let's call it "_deleted" rather than deleted.
@@ -123,7 +124,7 @@ var GlodaFundAttr = {
       specialColumnName: "deleted",
       subjectNouns: [Gloda.NOUN_MESSAGE],
       objectNoun: Gloda.NOUN_NUMBER,
-    });
+      });
 
 
     // -- fulltext search helpers
@@ -139,7 +140,7 @@ var GlodaFundAttr = {
       specialColumnName: "messagesText",
       subjectNouns: [Gloda.NOUN_MESSAGE],
       objectNoun: Gloda.NOUN_FULLTEXT,
-    });
+      });
 
     // subjectMatches.  Fulltext match on subject
     // @testpoint gloda.noun.message.attr.subjectMatches
@@ -153,7 +154,7 @@ var GlodaFundAttr = {
       specialColumnName: "subject",
       subjectNouns: [Gloda.NOUN_MESSAGE],
       objectNoun: Gloda.NOUN_FULLTEXT,
-    });
+      });
 
     // bodyMatches. super-synthetic full-text matching...
     // @testpoint gloda.noun.message.attr.bodyMatches
@@ -167,7 +168,7 @@ var GlodaFundAttr = {
       specialColumnName: "body",
       subjectNouns: [Gloda.NOUN_MESSAGE],
       objectNoun: Gloda.NOUN_FULLTEXT,
-    });
+      });
 
     // attachmentNamesMatch
     // @testpoint gloda.noun.message.attr.attachmentNamesMatch
@@ -181,7 +182,7 @@ var GlodaFundAttr = {
       specialColumnName: "attachmentNames",
       subjectNouns: [Gloda.NOUN_MESSAGE],
       objectNoun: Gloda.NOUN_FULLTEXT,
-    });
+      });
 
     // @testpoint gloda.noun.message.attr.authorMatches
     this._attrAuthorFulltext = Gloda.defineAttribute({
@@ -194,7 +195,7 @@ var GlodaFundAttr = {
       specialColumnName: "author",
       subjectNouns: [Gloda.NOUN_MESSAGE],
       objectNoun: Gloda.NOUN_FULLTEXT,
-    });
+      });
 
     // @testpoint gloda.noun.message.attr.recipientsMatch
     this._attrRecipientsFulltext = Gloda.defineAttribute({
@@ -207,7 +208,7 @@ var GlodaFundAttr = {
       specialColumnName: "recipients",
       subjectNouns: [Gloda.NOUN_MESSAGE],
       objectNoun: Gloda.NOUN_FULLTEXT,
-    });
+      });
 
     // --- synthetic stuff for some reason
     // conversation
@@ -225,7 +226,7 @@ var GlodaFundAttr = {
       subjectNouns: [Gloda.NOUN_MESSAGE],
       objectNoun: Gloda.NOUN_CONVERSATION,
       canQuery: true,
-    });
+      });
 
     // --- Fundamental
     // From
@@ -237,7 +238,7 @@ var GlodaFundAttr = {
                         singular: true,
                         subjectNouns: [Gloda.NOUN_MESSAGE],
                         objectNoun: Gloda.NOUN_IDENTITY,
-                      }); // tested-by: test_attributes_fundamental
+                        }); // tested-by: test_attributes_fundamental
     // To
     this._attrTo = Gloda.defineAttribute({
                         provider: this,
@@ -247,7 +248,7 @@ var GlodaFundAttr = {
                         singular: false,
                         subjectNouns: [Gloda.NOUN_MESSAGE],
                         objectNoun: Gloda.NOUN_IDENTITY,
-                      }); // tested-by: test_attributes_fundamental
+                        }); // tested-by: test_attributes_fundamental
     // Cc
     this._attrCc = Gloda.defineAttribute({
                         provider: this,
@@ -257,7 +258,7 @@ var GlodaFundAttr = {
                         singular: false,
                         subjectNouns: [Gloda.NOUN_MESSAGE],
                         objectNoun: Gloda.NOUN_IDENTITY,
-                      }); // not-tested
+                        }); // not-tested
     /**
      * Bcc'ed recipients; only makes sense for sent messages.
      */
@@ -285,7 +286,7 @@ var GlodaFundAttr = {
                         specialColumnName: "date",
                         subjectNouns: [Gloda.NOUN_MESSAGE],
                         objectNoun: Gloda.NOUN_DATE,
-                      }); // tested-by: test_attributes_fundamental
+                        }); // tested-by: test_attributes_fundamental
 
     // Header message ID.
     this._attrHeaderMessageID = Gloda.defineAttribute({
@@ -299,7 +300,7 @@ var GlodaFundAttr = {
                         subjectNouns: [Gloda.NOUN_MESSAGE],
                         objectNoun: Gloda.NOUN_STRING,
                         canQuery: true,
-                      }); // tested-by: test_attributes_fundamental
+                        }); // tested-by: test_attributes_fundamental
 
     // Attachment MIME Types
     this._attrAttachmentTypes = Gloda.defineAttribute({
@@ -317,7 +318,7 @@ var GlodaFundAttr = {
       },
       subjectNouns: [Gloda.NOUN_MESSAGE],
       objectNoun: Gloda.NOUN_MIME_TYPE,
-    });
+      });
 
     // Attachment infos
     this._attrIsEncrypted = Gloda.defineAttribute({
@@ -329,7 +330,7 @@ var GlodaFundAttr = {
       emptySetIsSignificant: false,
       subjectNouns: [Gloda.NOUN_MESSAGE],
       objectNoun: Gloda.NOUN_NUMBER,
-    });
+      });
 
     // Attachment infos
     this._attrAttachmentInfos = Gloda.defineAttribute({
@@ -341,7 +342,7 @@ var GlodaFundAttr = {
       emptySetIsSignificant: false,
       subjectNouns: [Gloda.NOUN_MESSAGE],
       objectNoun: Gloda.NOUN_ATTACHMENT,
-    });
+      });
 
     // --- Optimization
     /**
@@ -365,13 +366,13 @@ var GlodaFundAttr = {
          * @return true if the identity is not one of my identities, false if it
          *   is.
          */
-        filter(aItem) {
+        filter: function gloda_explattr_involves_filter(aItem) {
           return (!(aItem.id in Gloda.myIdentities));
-        },
+        }
       },
       subjectNouns: [Gloda.NOUN_MESSAGE],
       objectNoun: Gloda.NOUN_IDENTITY,
-    }); // not-tested
+      }); // not-tested
 
     /**
      * Any of to/cc/bcc.
@@ -384,7 +385,7 @@ var GlodaFundAttr = {
       singular: false,
       subjectNouns: [Gloda.NOUN_MESSAGE],
       objectNoun: Gloda.NOUN_IDENTITY,
-    }); // not-tested
+      }); // not-tested
 
     // From Me (To/Cc/Bcc)
     this._attrFromMe = Gloda.defineAttribute({
@@ -395,11 +396,11 @@ var GlodaFundAttr = {
       singular: false,
       // The interesting thing to a facet is whether the message is from me.
       facet: {
-        type: "nonempty?",
+        type: "nonempty?"
       },
       subjectNouns: [Gloda.NOUN_MESSAGE],
       objectNoun: Gloda.NOUN_PARAM_IDENTITY,
-    }); // not-tested
+      }); // not-tested
     // To/Cc/Bcc Me
     this._attrToMe = Gloda.defineAttribute({
       provider: this,
@@ -408,12 +409,12 @@ var GlodaFundAttr = {
       attributeName: "toMe",
       // The interesting thing to a facet is whether the message is to me.
       facet: {
-        type: "nonempty?",
+        type: "nonempty?"
       },
       singular: false,
       subjectNouns: [Gloda.NOUN_MESSAGE],
       objectNoun: Gloda.NOUN_PARAM_IDENTITY,
-    }); // not-tested
+      }); // not-tested
 
 
     // -- Mailing List
@@ -443,7 +444,7 @@ var GlodaFundAttr = {
                         facet: true,
                         subjectNouns: [Gloda.NOUN_MESSAGE],
                         objectNoun: Gloda.NOUN_IDENTITY,
-                      }); // not-tested, not-implemented
+                        }); // not-tested, not-implemented
   },
 
   RE_LIST_POST: /<mailto:([^>]+)>/,
@@ -458,7 +459,8 @@ var GlodaFundAttr = {
    *   processing.)
    * - Newsgroups.  Same deal as mailing lists.
    */
-  * process(aGlodaMessage, aRawReps, aIsNew, aCallbackHandle) {
+  process: function* gloda_fundattr_process(aGlodaMessage, aRawReps,
+                                            aIsNew, aCallbackHandle) {
     let aMsgHdr = aRawReps.header;
     let aMimeMsg = aRawReps.mime;
 
@@ -580,7 +582,8 @@ var GlodaFundAttr = {
     yield Gloda.kWorkDone;
   },
 
-  glodaAttFromMimeAtt(aGlodaMessage, aAtt) {
+  glodaAttFromMimeAtt:
+      function gloda_fundattr_glodaAttFromMimeAtt(aGlodaMessage, aAtt) {
     // So we don't want to store the URL because it can change over time if
     // the message is moved. What we do is store the full URL if it's a
     // detached attachment, otherwise just keep the part information, and
@@ -604,7 +607,9 @@ var GlodaFundAttr = {
                                aAtt.isExternal);
   },
 
-  * optimize(aGlodaMessage, aRawReps, aIsNew, aCallbackHandle) {
+  optimize: function* gloda_fundattr_optimize(aGlodaMessage, aRawReps,
+                                              aIsNew, aCallbackHandle) {
+
     let aMsgHdr = aRawReps.header;
 
     // for simplicity this is used for both involves and recipients
@@ -628,14 +633,14 @@ var GlodaFundAttr = {
     // The fulltext search column for the recipients. (same deal)
     aGlodaMessage._indexRecipients = aMsgHdr.mime2DecodedRecipients;
 
-    if (isFromMe) {
+    if (isFromMe)
       aGlodaMessage.notability += this.NOTABILITY_FROM_ME;
-    } else {
+    else {
       let authorCard = authorIdentity.abCard;
       if (authorCard) {
         aGlodaMessage.notability += this.NOTABILITY_FROM_IN_ADDR_BOOK;
         // @testpoint gloda.noun.message.attr.authorMatches
-        aGlodaMessage._indexAuthor += " " + authorCard.displayName;
+        aGlodaMessage._indexAuthor += ' ' + authorCard.displayName;
       }
     }
 
@@ -653,7 +658,7 @@ var GlodaFundAttr = {
         if (toCard) {
           involvedAddrBookCount++;
           // @testpoint gloda.noun.message.attr.recipientsMatch
-          aGlodaMessage._indexRecipients += " " + toCard.displayName;
+          aGlodaMessage._indexRecipients += ' ' + toCard.displayName;
         }
       }
 
@@ -680,7 +685,7 @@ var GlodaFundAttr = {
         if (ccCard) {
           involvedAddrBookCount++;
           // @testpoint gloda.noun.message.attr.recipientsMatch
-          aGlodaMessage._indexRecipients += " " + ccCard.displayName;
+          aGlodaMessage._indexRecipients += ' ' + ccCard.displayName;
         }
       }
       // optimization attribute cc-me ('I' am the parameter)
@@ -708,7 +713,7 @@ var GlodaFundAttr = {
         if (bccCard) {
           involvedAddrBookCount++;
           // @testpoint gloda.noun.message.attr.recipientsMatch
-          aGlodaMessage._indexRecipients += " " + bccCard.displayName;
+          aGlodaMessage._indexRecipients += ' ' + bccCard.displayName;
         }
       }
       // optimization attribute cc-me ('I' am the parameter)
@@ -745,7 +750,8 @@ var GlodaFundAttr = {
       if (this.contentWhittle({}, aRawReps.bodyLines, aGlodaMessage._content)) {
         // we were going to do something here?
       }
-    } else {
+    }
+    else {
       aRawReps.content = null;
     }
 
@@ -757,7 +763,7 @@ var GlodaFundAttr = {
    *  be factored to call us, grokNounItem should be factored to call us, or we
    *  should get sufficiently fancy that our code wildly diverges.
    */
-  score(aMessage, aContext) {
+  score: function gloda_fundattr_score(aMessage, aContext) {
     let score = 0;
 
     let authorIdentity = aMessage.from;
@@ -781,7 +787,8 @@ var GlodaFundAttr = {
     return score;
   },
 
-  _countQuoteDepthAndNormalize(aLine) {
+  _countQuoteDepthAndNormalize:
+    function gloda_fundattr__countQuoteDepthAndNormalize(aLine) {
     let count = 0;
     let lastStartOffset = 0;
 
@@ -789,8 +796,11 @@ var GlodaFundAttr = {
       let c = aLine[i];
       if (c == ">") {
         count++;
-        lastStartOffset = i + 1;
-      } else if (c != " ") {
+        lastStartOffset = i+1;
+      }
+      else if (c == " ") {
+      }
+      else {
         return [count,
                 lastStartOffset ? aLine.substring(lastStartOffset) : aLine];
       }
@@ -805,7 +815,8 @@ var GlodaFundAttr = {
    * of quoting at this time.  Also no support for piercing the wrapper of
    * forwarded messages to actually be the content of the forwarded message.
    */
-  contentWhittle(aMeta, aBodyLines, aContent) {
+  contentWhittle: function gloda_fundattr_contentWhittle(aMeta,
+      aBodyLines, aContent) {
     if (!aContent.volunteerContent(aContent.kPriorityBase))
       return false;
 
@@ -846,12 +857,13 @@ var GlodaFundAttr = {
               rangeEnd = Math.min(rangeEnd, lastNonBlankLine);
           }
           if (rangeEnd >= rangeStart)
-            aContent.content(aBodyLines.slice(rangeStart, rangeEnd + 1));
+            aContent.content(aBodyLines.slice(rangeStart, rangeEnd+1));
 
           [inQuoteDepth, line] = this._countQuoteDepthAndNormalize(line);
           bodyLines[iLine] = line;
           rangeStart = quoteRangeStart;
-        } else {
+        }
+        else {
           let curQuoteDepth;
           [curQuoteDepth, line] = this._countQuoteDepthAndNormalize(line);
           bodyLines[iLine] = line;
@@ -864,10 +876,13 @@ var GlodaFundAttr = {
             rangeStart = iLine;
           }
         }
-      } else if (inQuoteDepth) {
-        aContent.quoted(aBodyLines.slice(rangeStart, iLine), inQuoteDepth);
-        inQuoteDepth = 0;
-        rangeStart = iLine;
+      }
+      else {
+        if (inQuoteDepth) {
+          aContent.quoted(aBodyLines.slice(rangeStart, iLine), inQuoteDepth);
+          inQuoteDepth = 0;
+          rangeStart = iLine;
+        }
       }
 
       prevLastNonBlankLine = lastNonBlankLine;
@@ -876,8 +891,9 @@ var GlodaFundAttr = {
 
     if (inQuoteDepth) {
       aContent.quoted(aBodyLines.slice(rangeStart), inQuoteDepth);
-    } else {
-      aContent.content(aBodyLines.slice(rangeStart, lastNonBlankLine + 1));
+    }
+    else {
+      aContent.content(aBodyLines.slice(rangeStart, lastNonBlankLine+1));
     }
 
     return true;

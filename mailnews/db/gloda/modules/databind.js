@@ -113,11 +113,11 @@ GlodaDatabind.prototype = {
    *  Additionally, there is the small matter of storage's bias towards
    *  PRTime representations which may not always be desirable.
    */
-  bindByType(aStmt, aColDef, aValue) {
+  bindByType: function(aStmt, aColDef, aValue) {
     aStmt.bindByIndex(aColDef[3], aValue);
   },
 
-  objFromRow(aRow) {
+  objFromRow: function(aRow) {
     let getVariant = this._datastore._getVariant;
     let obj = new this._nounDef.class();
     for (let [iCol, colDef] of this._tableDef.columns.entries()) {
@@ -126,7 +126,7 @@ GlodaDatabind.prototype = {
     return obj;
   },
 
-  objInsert(aThing) {
+  objInsert: function(aThing) {
     let bindByType = this.bindByType;
     if (!aThing[this._idAttr])
       aThing[this._idAttr] = this._nextId++;
@@ -148,7 +148,7 @@ GlodaDatabind.prototype = {
     }
   },
 
-  objUpdate(aThing) {
+  objUpdate: function(aThing) {
     let bindByType = this.bindByType;
     let stmt = this._updateStmt;
     // note, we specially bound the location of 'id' for the insert, but since
@@ -169,7 +169,7 @@ GlodaDatabind.prototype = {
     }
   },
 
-  adjustAttributes(...aArgs) {
+  adjustAttributes: function(...aArgs) {
     // just proxy the call over to the datastore... we have to do this for
     //  'this' reasons.  we don't refactor things to avoid this because it does
     //  make some sense to have all the methods exposed from a single object,
@@ -178,7 +178,7 @@ GlodaDatabind.prototype = {
   },
 
   // also proxied...
-  queryFromQuery(...aArgs) {
+  queryFromQuery: function(...aArgs) {
     return this._datastore.queryFromQuery(...aArgs);
-  },
+  }
 };

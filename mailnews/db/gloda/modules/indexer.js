@@ -10,7 +10,7 @@
  *  benefit readability/size as well.
  */
 
-this.EXPORTED_SYMBOLS = ["GlodaIndexer", "IndexingJob"];
+this.EXPORTED_SYMBOLS = ['GlodaIndexer', 'IndexingJob'];
 
 const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -58,20 +58,21 @@ IndexingJob.prototype = {
    * Invoke the callback associated with this job, passing through all arguments
    *  received by this function to the callback function.
    */
-  safelyInvokeCallback(...aArgs) {
+  safelyInvokeCallback: function(...aArgs) {
     if (!this.callback)
       return;
     try {
       this.callback.apply(this.callbackThis, aArgs);
-    } catch (ex) {
+    }
+    catch(ex) {
       GlodaIndexer._log.warn("job callback invocation problem:", ex);
     }
   },
-  toString() {
+  toString: function IndexingJob_toString() {
     return "[job:" + this.jobType +
       " id:" + this.id + " items:" + (this.items ? this.items.length : "no") +
       " offset:" + this.offset + " goal:" + this.goal + "]";
-  },
+  }
 };
 
 /**
@@ -293,7 +294,7 @@ var GlodaIndexer = {
   /**
    * Initialize the indexer.
    */
-  _init() {
+  _init: function gloda_index_init() {
     if (this._inited)
       return;
 
@@ -318,6 +319,7 @@ var GlodaIndexer = {
                                    .createInstance(Ci.nsIStopwatch);
       this._perfPauseStopwatch = Cc["@mozilla.org/stopwatch;1"]
                                    .createInstance(Ci.nsIStopwatch);
+
     } catch (ex) {
       this._log.error("problem creating stopwatch!: " + ex);
     }
@@ -327,8 +329,17 @@ var GlodaIndexer = {
 
     // figure out if event-driven indexing should be enabled...
     let branch = Services.prefs.getBranch("mailnews.database.global.indexer.");
-    let eventDrivenEnabled = branch.getBoolPref("enabled", false);
-    let performInitialSweep = branch.getBoolPref("perform_initial_sweep", true);
+    let eventDrivenEnabled = false; // default
+    let performInitialSweep = true; // default
+    try {
+      eventDrivenEnabled = branch.getBoolPref("enabled");
+    } catch (ex) {
+      dump("%%% annoying exception on pref access: " + ex);
+    }
+    // this is a secret preference mainly intended for testing purposes.
+    try {
+      performInitialSweep = branch.getBoolPref("perform_initial_sweep");
+    } catch (ex) {}
     // pretend we have already performed an initial sweep...
     if (!performInitialSweep)
       this._initialSweepPerformed = true;
@@ -347,7 +358,7 @@ var GlodaIndexer = {
    * Shutdown the indexing process and datastore as quickly as possible in
    *  a synchronous fashion.
    */
-  _shutdown() {
+  _shutdown: function gloda_index_shutdown() {
     // no more timer events, please
     try {
       this._timer.cancel();
@@ -379,7 +390,8 @@ var GlodaIndexer = {
       try {
         if (workerDef.cleanup)
           workerDef.cleanup.call(workerDef.indexer, this._curIndexingJob);
-      } catch (ex) {
+      }
+      catch (ex) {
         this._log.error("problem during worker cleanup during shutdown.");
       }
     }
@@ -427,7 +439,7 @@ var GlodaIndexer = {
    *     sure they are indexed.  Right now we just call everyone at the same
    *     time and hope that their jobs don't fight too much.
    */
-  registerIndexer(aIndexer) {
+  registerIndexer: function gloda_index_registerIndexer(aIndexer) {
     this._log.info("Registering indexer: " + aIndexer.name);
     this._indexers.push(aIndexer);
 
@@ -447,7 +459,8 @@ var GlodaIndexer = {
         if (!("jobCanceled" in workerDef))
           workerDef.jobCanceled = null;
       }
-    } catch (ex) {
+    }
+    catch (ex) {
       this._log.warn("Helper indexer threw exception on worker enum.");
     }
 
@@ -494,7 +507,8 @@ var GlodaIndexer = {
         this._longTimer.initWithCallback(this._scheduleInitialSweep,
           this._INITIAL_SWEEP_DELAY, Ci.nsITimer.TYPE_ONE_SHOT);
       }
-    } else if (this._enabled && !aEnable) {
+    }
+    else if (this._enabled && !aEnable) {
       for (let indexer of this._indexers) {
         try {
           indexer.disable();
@@ -511,6 +525,7 @@ var GlodaIndexer = {
 
       this._enabled = false;
     }
+
   },
 
   /** Track whether indexing is desired (we have jobs to prosecute). */
@@ -589,7 +604,7 @@ var GlodaIndexer = {
    *  to schedule one.  We don't need to worry about whether one is active
    *  because the indexingSweepNeeded takes care of that.
    */
-  _scheduleInitialSweep() {
+  _scheduleInitialSweep: function gloda_index_scheduleInitialSweep() {
     if (GlodaIndexer._initialSweepPerformed)
       return;
     GlodaIndexer._initialSweepPerformed = true;
@@ -645,9 +660,9 @@ var GlodaIndexer = {
    * @TODO should probably allow for a 'this' value to be provided
    * @TODO generalize to not be folder/message specific.  use nouns!
    */
-  addListener(aListener) {
+  addListener: function gloda_index_addListener(aListener) {
     // should we weakify?
-    if (!this._indexListeners.includes(aListener))
+    if (this._indexListeners.indexOf(aListener) == -1)
       this._indexListeners.push(aListener);
     // if we aren't indexing, give them an idle indicator, otherwise they can
     //  just be happy when we hit the next actual status point.
@@ -659,7 +674,7 @@ var GlodaIndexer = {
    * Remove the given listener so that it no longer receives indexing progress
    *  updates.
    */
-  removeListener(aListener) {
+  removeListener: function gloda_index_removeListener(aListener) {
     let index = this._indexListeners.indexOf(aListener);
     if (index != -1)
       this._indexListeners.splice(index, 1);
@@ -674,7 +689,7 @@ var GlodaIndexer = {
    *  to its own indexer.  Some generalization is required but will likely
    *  require string hooks.
    */
-  _notifyListeners() {
+  _notifyListeners: function gloda_index_notifyListeners() {
     let status, prettyName, jobIndex, jobItemIndex, jobItemGoal, jobType;
 
     if (this.indexing && this._curIndexingJob) {
@@ -688,11 +703,12 @@ var GlodaIndexer = {
       else
         prettyName = null;
 
-      jobIndex = this._indexingJobCount - 1;
+      jobIndex = this._indexingJobCount-1;
       jobItemIndex = job.offset;
       jobItemGoal  = job.goal;
       jobType = job.jobType;
-    } else {
+    }
+    else {
       status = Gloda.kIndexerIdle;
       prettyName = null;
       jobIndex = 0;
@@ -706,13 +722,14 @@ var GlodaIndexer = {
     if (jobItemIndex > jobItemGoal)
       jobItemGoal = jobItemIndex;
 
-    for (let iListener = this._indexListeners.length - 1; iListener >= 0;
+    for (let iListener = this._indexListeners.length-1; iListener >= 0;
          iListener--) {
       let listener = this._indexListeners[iListener];
       try {
         listener(status, prettyName, jobIndex, jobItemIndex, jobItemGoal,
                  jobType);
-      } catch (ex) {
+      }
+      catch(ex) {
         this._log.error(ex);
       }
     }
@@ -722,14 +739,14 @@ var GlodaIndexer = {
    * A wrapped callback driver intended to be used by timers that provide
    *  arguments we really do not care about.
    */
-  _timerCallbackDriver() {
+  _timerCallbackDriver: function gloda_index_timerCallbackDriver() {
     GlodaIndexer.callbackDriver();
   },
 
   /**
    * A simple callback driver wrapper to provide 'this'.
    */
-  _wrapCallbackDriver(...aArgs) {
+  _wrapCallbackDriver: function gloda_index_wrapCallbackDriver(...aArgs) {
     GlodaIndexer.callbackDriver(...aArgs);
   },
 
@@ -750,7 +767,7 @@ var GlodaIndexer = {
    *  and return.  (We use one-shot timers because repeating-slack does not
    *  know enough to deal with our (current) asynchronous nature.)
    */
-  callbackDriver(...aArgs) {
+  callbackDriver: function gloda_index_callbackDriver(...aArgs) {
     // just bail if we are shutdown
     if (this._indexerIsShutdown)
       return;
@@ -787,9 +804,9 @@ var GlodaIndexer = {
       if (this._savedCallbackArgs != null) {
         args = this._savedCallbackArgs;
         this._savedCallbackArgs = null;
-      } else {
-        args = aArgs;
       }
+      else
+        args = aArgs;
 
       let result;
       if (args.length == 0)
@@ -807,11 +824,11 @@ var GlodaIndexer = {
           // (intentional fall-through to re-scheduling logic)
         // the batch wants to get re-scheduled, do so.
         case this.kWorkPause:
-          if (this.indexing) {
+          if (this.indexing)
             this._timer.initWithCallback(this._timerCallbackDriver,
                                          this._INDEX_INTERVAL,
                                          Ci.nsITimer.TYPE_ONE_SHOT);
-          } else { // it's important to indicate no more callbacks are in flight
+          else { // it's important to indicate no more callbacks are in flight
             this._indexingActive = false;
           }
           break;
@@ -820,13 +837,14 @@ var GlodaIndexer = {
           //  calling us.
           break;
       }
-    } finally {
+    }
+    finally {
       this._inCallback = false;
     }
   },
 
   _callbackHandle: {
-    init() {
+    init: function gloda_index_callbackhandle_init() {
       this.wrappedCallback = GlodaIndexer._wrapCallbackDriver;
       this.callbackThis = GlodaIndexer;
       this.callback = GlodaIndexer.callbackDriver;
@@ -848,7 +866,7 @@ var GlodaIndexer = {
     /**
      * Push a new generator onto the stack.  It becomes the active generator.
      */
-    push(aIterator, aContext) {
+    push: function gloda_index_callbackhandle_push(aIterator, aContext) {
       this.activeStack.push(aIterator);
       this.contextStack.push(aContext);
       this.activeIterator = aIterator;
@@ -860,14 +878,15 @@ var GlodaIndexer = {
      *
      * @public
      */
-    pushAndGo(aIterator, aContext) {
+    pushAndGo: function gloda_index_callbackhandle_pushAndGo(aIterator,
+                                                             aContext) {
       this.push(aIterator, aContext);
       return GlodaIndexer.kWorkSync;
     },
     /**
      * Pop the active generator off the stack.
      */
-    pop() {
+    pop: function gloda_index_callbackhandle_pop() {
       this.activeIterator.return();
       this.activeStack.pop();
       this.contextStack.pop();
@@ -884,7 +903,7 @@ var GlodaIndexer = {
      *     method completes.  Pass 0 or omit for us to clear everything out.
      *     Pass 1 to leave just the top-level generator intact.
      */
-    cleanup(aOptionalStopAtDepth) {
+    cleanup: function gloda_index_callbackhandle_cleanup(aOptionalStopAtDepth) {
       if (aOptionalStopAtDepth === undefined)
         aOptionalStopAtDepth = 0;
       while (this.activeStack.length > aOptionalStopAtDepth) {
@@ -898,7 +917,7 @@ var GlodaIndexer = {
      *
      * @protected
      */
-    popWithResult() {
+    popWithResult: function gloda_index_callbackhandle_popWithResult() {
       this.pop();
       let result = this._result;
       this._result = null;
@@ -912,22 +931,21 @@ var GlodaIndexer = {
      *
      * @public
      */
-    doneWithResult(aResult) {
+    doneWithResult: function gloda_index_callbackhandle_doneWithResult(aResult){
       this._result = aResult;
       return Gloda.kWorkDoneWithResult;
     },
 
     /* be able to serve as a collection listener, resuming the active iterator's
        last yield kWorkAsync */
-    onItemsAdded() {},
-    onItemsModified() {},
-    onItemsRemoved() {},
-    onQueryCompleted(aCollection) {
+    onItemsAdded: function() {},
+    onItemsModified: function() {},
+    onItemsRemoved: function() {},
+    onQueryCompleted: function(aCollection) {
       GlodaIndexer.callbackDriver();
-    },
+    }
   },
   _workBatchData: undefined,
-  /* eslint-disable complexity */
   /**
    * The workBatch generator handles a single 'batch' of processing, managing
    *  the database transaction and keeping track of "tokens".  It drives the
@@ -938,7 +956,8 @@ var GlodaIndexer = {
    *  encounters a kWorkAsync (which workBatch will yield to callbackDriver), or
    *  it runs out of tokens and yields a kWorkPause or kWorkDone.
    */
-  * workBatch() {
+  workBatch: function* gloda_index_workBatch() {
+
     // Do we still have an open transaction? If not, start a new one.
     if (!this._idleToCommit)
       GlodaDatastore._beginTransaction();
@@ -1016,7 +1035,8 @@ var GlodaIndexer = {
             default:
               break;
           }
-        } catch (ex) {
+        }
+        catch (ex) {
           this._log.debug("Exception in batch processing:", ex);
           let workerDef = this._curIndexingJob._workerDef;
           if (workerDef.recover) {
@@ -1027,7 +1047,8 @@ var GlodaIndexer = {
                                      this._curIndexingJob,
                                        this._callbackHandle.contextStack,
                                        ex);
-            } catch (ex2) {
+            }
+            catch (ex2) {
               this._log.error("Worker '" + workerDef.name +
                               "' recovery function itself failed:", ex2);
             }
@@ -1046,16 +1067,19 @@ var GlodaIndexer = {
           if (workerDef.cleanup) {
             try {
             workerDef.cleanup.call(workerDef.indexer, this._curIndexingJob);
-            } catch (ex2) {
+            }
+            catch (ex2) {
               this._log.error("Worker '" + workerDef.name +
                               "' cleanup function itself failed:", ex2);
             }
             if (this._unitTestHookCleanup)
               this._unitTestHookCleanup(true, ex, this._curIndexingJob,
                                         this._callbackHandle);
-          } else if (this._unitTestHookCleanup) {
-            this._unitTestHookCleanup(false, ex, this._curIndexingJob,
-                                      this._callbackHandle);
+          }
+          else {
+            if (this._unitTestHookCleanup)
+              this._unitTestHookCleanup(false, ex, this._curIndexingJob,
+                                        this._callbackHandle);
           }
 
           // Clean out everything on the async stack, warn about the job, kill.
@@ -1082,11 +1106,13 @@ var GlodaIndexer = {
         if (this._idleService.idleTime < this._INDEX_IDLE_ADJUSTMENT_TIME) {
           inIdle = false;
           this._cpuTargetIndexTime = this._CPU_TARGET_INDEX_TIME_ACTIVE;
-        } else {
+        }
+        else {
           inIdle = true;
           this._cpuTargetIndexTime = this._CPU_TARGET_INDEX_TIME_IDLE;
         }
-      } catch (ex) {
+      }
+      catch (ex) {
         inIdle = false;
       }
 
@@ -1121,8 +1147,8 @@ var GlodaIndexer = {
       // XXX: there's possibly a lot of fluctuation since we go through here
       // every 5 messages or even less
       if (this._indexedMessageCount > 0) {
-        let delta = (Date.now() - t0) / 1000; // in seconds
-        let v = Math.round(this._indexedMessageCount / delta);
+        let delta = (Date.now() - t0)/1000; // in seconds
+        let v = Math.round(this._indexedMessageCount/delta);
         try {
           let h = Services.telemetry
             .getHistogramById("THUNDERBIRD_INDEXING_RATE_MSG_PER_S");
@@ -1194,7 +1220,6 @@ var GlodaIndexer = {
 
     yield this.kWorkDone;
   },
-  /* eslint-enable complexity */
 
   /**
    * Maps indexing job type names to a worker definition.
@@ -1211,7 +1236,7 @@ var GlodaIndexer = {
    * Perform the initialization step and return a generator if there is any
    *  steady-state processing to be had.
    */
-  _hireJobWorker() {
+  _hireJobWorker: function gloda_index_hireJobWorker() {
     // In no circumstances should there be data bouncing around from previous
     //  calls if we are here.  |killActiveJob| depends on this.
     this._workBatchData = undefined;
@@ -1244,7 +1269,8 @@ var GlodaIndexer = {
 
       generator = workerDef.worker.call(workerDef.indexer, job,
                                         this._callbackHandle);
-    } else {
+    }
+    else {
       // Nothing we can do about this.  Be loud about it and try to schedule
       //  something else.
       this._log.error("Unknown job type: " + job.jobType);
@@ -1260,13 +1286,14 @@ var GlodaIndexer = {
       this._callbackHandle.push(generator);
       return true;
     }
-    return false;
+    else
+      return false;
   },
 
   /**
    * Schedule a job for indexing.
    */
-  indexJob(aJob) {
+  indexJob: function glodaIndexJob(aJob) {
     this._log.info("Queue-ing job for indexing: " + aJob.jobType);
 
     this._indexQueue.push(aJob);
@@ -1291,7 +1318,7 @@ var GlodaIndexer = {
    *    situation, you should just throw an exception.  At the very least,
    *    use a timeout to trigger us.
    */
-  killActiveJob() {
+  killActiveJob: function() {
     // There is nothing to do if we have no job
     if (!this._curIndexingJob)
       return;
@@ -1301,7 +1328,7 @@ var GlodaIndexer = {
     if (this._unitTestSuperVerbose)
       this._log.debug("Killing job of type: " + this._curIndexingJob.jobType);
     if (this._unitTestHookCleanup)
-      this._unitTestHookCleanup(!!workerDef.cleanup,
+      this._unitTestHookCleanup(workerDef.cleanup ? true : false,
                                 "no exception, this was killActiveJob",
                                 this._curIndexingJob,
                                 this._callbackHandle);
@@ -1323,7 +1350,7 @@ var GlodaIndexer = {
    *     returns true if the job should be purged, false if it should not be.
    *     The filter sees the jobs in the order they are scheduled.
    */
-  purgeJobsUsingFilter(aFilterElimFunc) {
+  purgeJobsUsingFilter: function(aFilterElimFunc) {
     for (let iJob = 0; iJob < this._indexQueue.length; iJob++) {
       let job = this._indexQueue[iJob];
 
@@ -1341,7 +1368,7 @@ var GlodaIndexer = {
   },
 
   /* *********** Event Processing *********** */
-  observe(aSubject, aTopic, aData) {
+  observe: function gloda_indexer_observe(aSubject, aTopic, aData) {
     // idle
     if (aTopic == "idle") {
       // Do we need to commit an indexer transaction?
@@ -1352,13 +1379,18 @@ var GlodaIndexer = {
         this._lastCommitTime = Date.now();
         this._notifyListeners();
       }
-    } else if (aTopic == "network:offline-status-changed") { // offline status
+    }
+    // offline status
+    else if (aTopic == "network:offline-status-changed") {
       if (aData == "offline") {
         this.suppressIndexing = true;
-      } else { // online
+      }
+      else { // online
         this.suppressIndexing = false;
       }
-    } else if (aTopic == "quit-application") { // shutdown fallback
+    }
+    // shutdown fallback
+    else if (aTopic == "quit-application") {
       this._shutdown();
     }
   },

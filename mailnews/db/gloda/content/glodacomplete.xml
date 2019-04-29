@@ -22,10 +22,15 @@
             if (this._currentIndex >= this.matchCount)
               return;
 
+            var existingItemsCount = this.richlistbox.childNodes.length;
             var item;
 
             // trim the leading/trailing whitespace
             var trimmedSearchString = controller.searchString.trim();
+
+            // Unescape the URI spec for showing as an entry in the popup
+            let url = Services.textToSubURI
+                              .unEscapeURIForUI("UTF-8", controller.getValueAt(this._currentIndex));
 
             let glodaCompleter = Cc["@mozilla.org/autocomplete/search;1?name=gloda"]
                                    .getService(Ci.nsIAutoCompleteSearch)
@@ -37,6 +42,7 @@
             // set these attributes before we set the class
             // so that we can use them from the constructor
             var row = result.getObjectAt(this._currentIndex);
+            var obj = row.item;
             item.setAttribute("text", trimmedSearchString);
             item.setAttribute("type", result.getStyleAt(this._currentIndex));
 

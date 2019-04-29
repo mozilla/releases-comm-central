@@ -92,7 +92,8 @@ function identityFunc(x) {
 function oneLessMaxZero(x) {
   if (x <= 1)
     return 0;
-  return x - 1;
+  else
+    return x - 1;
 }
 
 function reduceSum(accum, curValue) {
@@ -149,9 +150,9 @@ function scoreOffsets(aMessage, aContext) {
   //  because of the extra arguments map parses.  curse you, map!
   let offsetNums =
     aContext.stashedColumns[aMessage.id][0].split(" ").map(x => parseInt(x));
-  for (let i = 0; i < offsetNums.length; i += 4) {
+  for (let i=0; i < offsetNums.length; i += 4) {
     let columnIndex = offsetNums[i];
-    let termIndex = offsetNums[i + 1];
+    let termIndex = offsetNums[i+1];
     columnTermIncidence[columnIndex][termIndex]++;
   }
 
@@ -209,7 +210,7 @@ GlodaMsgSearcher.prototype = {
   /**
    * Parse the string into terms/phrases by finding matching double-quotes.
    */
-  parseSearchString(aSearchString) {
+  parseSearchString: function GlodaMsgSearcher_parseSearchString(aSearchString) {
     aSearchString = aSearchString.trim();
     let terms = [];
 
@@ -244,20 +245,20 @@ GlodaMsgSearcher.prototype = {
       }
 
       addTerm(aSearchString.substring(0, spaceIndex));
-      aSearchString = aSearchString.substring(spaceIndex + 1);
+      aSearchString = aSearchString.substring(spaceIndex+1);
     }
 
     return terms;
   },
 
-  buildFulltextQuery() {
+  buildFulltextQuery: function GlodaMsgSearcher_buildFulltextQuery() {
     let query = Gloda.newQuery(Gloda.NOUN_MESSAGE, {
       noMagic: true,
       explicitSQL: NUEVO_FULLTEXT_SQL,
       limitClauseAlreadyIncluded: true,
       // osets is 0-based column number 14 (volatile to column changes)
       // save the offset column for extra analysis
-      stashColumns: [14],
+      stashColumns: [14]
     });
 
     let fulltextQueryString = "";
@@ -283,6 +284,7 @@ GlodaMsgSearcher.prototype = {
           || term.length >= 3
       )
         fulltextQueryString += '"' + term + '"';
+
     }
 
     query.fulltextMatches(fulltextQueryString);
@@ -291,7 +293,8 @@ GlodaMsgSearcher.prototype = {
     return query;
   },
 
-  getCollection(aListenerOverride, aData) {
+  getCollection: function GlodaMsgSearcher_getCollection(
+      aListenerOverride, aData) {
     if (aListenerOverride)
       this.listener = aListenerOverride;
 
@@ -302,14 +305,14 @@ GlodaMsgSearcher.prototype = {
     return this.collection;
   },
 
-  sortBy: "-dascore",
+  sortBy: '-dascore',
 
-  onItemsAdded(aItems, aCollection) {
+  onItemsAdded: function GlodaMsgSearcher_onItemsAdded(aItems, aCollection) {
     let newScores = Gloda.scoreNounItems(
       aItems,
       {
         terms: this.fulltextTerms,
-        stashedColumns: aCollection.stashedColumns,
+        stashedColumns: aCollection.stashedColumns
       },
       [scoreOffsets]);
     if (this.scores)
@@ -320,15 +323,17 @@ GlodaMsgSearcher.prototype = {
     if (this.listener)
       this.listener.onItemsAdded(aItems, aCollection);
   },
-  onItemsModified(aItems, aCollection) {
+  onItemsModified: function GlodaMsgSearcher_onItemsModified(aItems,
+                                                             aCollection) {
     if (this.listener)
       this.listener.onItemsModified(aItems, aCollection);
   },
-  onItemsRemoved(aItems, aCollection) {
+  onItemsRemoved: function GlodaMsgSearcher_onItemsRemoved(aItems,
+                                                           aCollection) {
     if (this.listener)
       this.listener.onItemsRemoved(aItems, aCollection);
   },
-  onQueryCompleted(aCollection) {
+  onQueryCompleted: function GlodaMsgSearcher_onQueryCompleted(aCollection) {
     this.completed = true;
     if (this.listener)
       this.listener.onQueryCompleted(aCollection);

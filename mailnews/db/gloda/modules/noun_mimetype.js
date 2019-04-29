@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ["MimeType", "MimeTypeNoun"];
+this.EXPORTED_SYMBOLS = ['MimeType', 'MimeTypeNoun'];
 
 const {StringBundle} = ChromeUtils.import("resource:///modules/StringBundle.js");
 const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
@@ -55,7 +55,7 @@ MimeType.prototype = {
    * The full MIME type; "text/plain" returns "text/plain".
    */
   get fullType() { return this._fullType; },
-  toString() {
+  toString: function () {
     return this.fullType;
   },
 
@@ -75,7 +75,7 @@ MimeType.prototype = {
    */
   get categoryLabel() {
     return CategoryStringMap[this._category];
-  },
+  }
 };
 
 /**
@@ -108,12 +108,12 @@ var MimeTypeNoun = {
   // we now use the exciting 'schema' mechanism of defineNoun to get our table
   //  created for us, plus some helper methods that we simply don't use.
   schema: {
-    name: "mimeTypes",
-    columns: [["id", "INTEGER PRIMARY KEY", "_id"],
-              ["mimeType", "TEXT", "fullType"]],
+    name: 'mimeTypes',
+    columns: [['id', 'INTEGER PRIMARY KEY', '_id'],
+              ['mimeType', 'TEXT', 'fullType']],
   },
 
-  _init() {
+  _init: function() {
     LOG.debug("loading MIME types");
     this._loadCategoryMapping();
     this._loadMimeTypes();
@@ -126,10 +126,11 @@ var MimeTypeNoun = {
   /**
    * Load the contents of mimeTypeCategories.js and populate
    */
-  _loadCategoryMapping() {
-    let {
-      MimeCategoryMapping,
-    } = ChromeUtils.import("resource:///modules/gloda/mimeTypeCategories.js");
+  _loadCategoryMapping: function MimeTypeNoun__loadCategoryMapping() {
+    let mimecatNS = {};
+    ChromeUtils.import("resource:///modules/gloda/mimeTypeCategories.js",
+              mimecatNS);
+    let mcm = mimecatNS.MimeCategoryMapping;
 
     let mimeTypeToCategory = this._mimeTypeToCategory;
 
@@ -152,20 +153,23 @@ var MimeTypeNoun = {
           for (let mimeTypeStr of value) {
             mimeTypeToCategory[mimeTypeStr] = categories;
           }
-        } else { // it's yet another sub-tree branch
+        }
+        // it's yet another sub-tree branch
+        else {
           procMapObj(value, categories);
         }
       }
     }
 
-    procMapObj(MimeCategoryMapping, []);
+    procMapObj(mimecatNS.MimeCategoryMapping, []);
   },
 
   /**
    * Lookup the category associated with a MIME type given its full type and
    *  type.  (So, "foo/bar" and "foo" for "foo/bar".)
    */
-  _getCategoryForMimeType(aFullType, aType) {
+  _getCategoryForMimeType:
+      function MimeTypeNoun__getCategoryForMimeType(aFullType, aType) {
     if (aFullType in this._mimeTypeToCategory)
       return this._mimeTypeToCategory[aFullType][0];
     let wildType = aType + "/*";
@@ -188,16 +192,16 @@ var MimeTypeNoun = {
    * Kick off a query of all the mime types in our database, leaving
    *  |_processMimeTypes| to actually do the legwork.
    */
-  _loadMimeTypes() {
+  _loadMimeTypes: function MimeTypeNoun__loadMimeTypes() {
     // get all the existing mime types!
     let query = Gloda.newQuery(this.id);
     let nullFunc = function() {};
     this._universalCollection = query.getCollection({
       onItemsAdded: nullFunc, onItemsModified: nullFunc,
       onItemsRemoved: nullFunc,
-      onQueryCompleted(aCollection) {
+      onQueryCompleted: function (aCollection) {
         MimeTypeNoun._processMimeTypes(aCollection.items);
-      },
+      }
     }, null);
   },
 
@@ -212,24 +216,25 @@ var MimeTypeNoun = {
    *  on their own... but there are other issues that will come up that we will
    *  just have to deal with then.)
    */
-  _createCategoryDummies(aId, aCategory) {
+  _createCategoryDummies: function (aId, aCategory) {
     let blockBottom = aId - (aId % this.TYPE_BLOCK_SIZE);
     let blockTop = blockBottom + this.TYPE_BLOCK_SIZE - 1;
     this._mimeTypeRangeDummyObjects[aCategory] = [
       new MimeType(blockBottom, "!category-dummy!", aCategory,
                    "!category-dummy!/" + aCategory, aCategory),
       new MimeType(blockTop, "!category-dummy!", aCategory,
-                   "!category-dummy!/" + aCategory, aCategory),
+                   "!category-dummy!/" + aCategory, aCategory)
     ];
   },
 
-  _processMimeTypes(aMimeTypes) {
+  _processMimeTypes: function MimeTypeNoun__processMimeTypes(aMimeTypes) {
     for (let mimeType of aMimeTypes) {
       if (mimeType.id > this._highID)
         this._highID = mimeType.id;
       this._mimeTypes[mimeType] = mimeType;
       this._mimeTypesByID[mimeType.id] = mimeType;
 
+      let typeBlock = mimeType.id - (mimeType.id % this.TYPE_BLOCK_SIZE);
       let blockHighID = (mimeType.category in this._mimeTypeHighID) ?
                           this._mimeTypeHighID[mimeType.category] : undefined;
       // create the dummy range objects
@@ -240,7 +245,7 @@ var MimeTypeNoun = {
     }
   },
 
-  _addNewMimeType(aMimeTypeName) {
+  _addNewMimeType: function MimeTypeNoun__addNewMimeType(aMimeTypeName) {
     let [typeName, subTypeName] = aMimeTypeName.split("/");
     let category = this._getCategoryForMimeType(aMimeTypeName, typeName);
 
@@ -280,7 +285,7 @@ var MimeTypeNoun = {
    *     (which will be ignored).  A mime type is of the form "type/subtype".
    *     A type with parameters would look like 'type/subtype; param="value"'.
    */
-  getMimeType(aMimeTypeName) {
+  getMimeType: function MimeTypeNoun_getMimeType(aMimeTypeName) {
     // first, lose any parameters
     let semiIndex = aMimeTypeName.indexOf(";");
     if (semiIndex >= 0)
@@ -289,7 +294,8 @@ var MimeTypeNoun = {
 
     if (aMimeTypeName in this._mimeTypes)
       return this._mimeTypes[aMimeTypeName];
-    return this._addNewMimeType(aMimeTypeName);
+    else
+      return this._addNewMimeType(aMimeTypeName);
   },
 
   /**
@@ -307,7 +313,7 @@ var MimeTypeNoun = {
      * @param aAttrDef The attribute that is using us.
      * @param aArguments The actual arguments object that
      */
-    Category(aAttrDef, aArguments) {
+    Category: function(aAttrDef, aArguments) {
       let rangePairs = [];
       // If there are no arguments then we want to fall back to the 'in'
       //  constraint which matches on any attachment.
@@ -319,27 +325,29 @@ var MimeTypeNoun = {
         rangePairs.push(MimeTypeNoun._mimeTypeRangeDummyObjects[arg.category]);
       }
       return this._rangedConstraintHelper(aAttrDef, rangePairs);
-    },
+    }
   },
 
-  comparator(a, b) {
+  comparator: function gloda_noun_mimeType_comparator(a, b) {
     if (a == null) {
       if (b == null)
         return 0;
-      return 1;
-    } else if (b == null) {
+      else
+        return 1;
+    }
+    else if (b == null) {
       return -1;
     }
     return a.fullType.localeCompare(b.fullType);
   },
 
-  toParamAndValue(aMimeType) {
+  toParamAndValue: function gloda_noun_mimeType_toParamAndValue(aMimeType) {
     return [null, aMimeType.id];
   },
-  toJSON(aMimeType) {
+  toJSON: function gloda_noun_mimeType_toJSON(aMimeType) {
     return aMimeType.id;
   },
-  fromJSON(aMimeTypeID) {
+  fromJSON: function gloda_noun_mimeType_fromJSON(aMimeTypeID) {
     return this._mimeTypesByID[aMimeTypeID];
   },
 };

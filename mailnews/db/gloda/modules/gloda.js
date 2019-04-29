@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ["Gloda"];
+this.EXPORTED_SYMBOLS = ['Gloda'];
 
 const {Log4Moz} = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
@@ -35,9 +35,9 @@ function BadItemContentsError(aMessage) {
   this.message = aMessage;
 }
 BadItemContentsError.prototype = {
-  toString() {
+  toString: function BadItemContentsError_toString() {
     return this.message;
-  },
+  }
 };
 
 
@@ -140,7 +140,7 @@ var Gloda = {
    *  everybody.js module which ensures all of those dependencies are loaded
    *  (and initialized).
    */
-  _init() {
+  _init: function gloda_ns_init() {
     this._initLogging();
     GlodaDatastore._init(this._nounIDToDef);
     this._initAttributes();
@@ -152,7 +152,7 @@ var Gloda = {
    * Initialize logging; the error console window gets Warning/Error, and stdout
    *  (via dump) gets everything.
    */
-  _initLogging() {
+  _initLogging: function gloda_ns_initLogging() {
     let formatter = new Log4Moz.BasicFormatter();
     Log4Moz.repository.rootLogger.level = Log4Moz.Level.Debug;
 
@@ -285,7 +285,8 @@ var Gloda = {
    *
    * @testpoint gloda.ns.getMessageCollectionForHeader()
    */
-  getMessageCollectionForHeader(aMsgHdr, aListener, aData) {
+  getMessageCollectionForHeader: function gloda_ns_getMessageForHeader(aMsgHdr,
+      aListener, aData) {
     let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
     query.folder(aMsgHdr.folder).messageKey(aMsgHdr.messageKey);
     return query.getCollection(aListener, aData);
@@ -310,9 +311,11 @@ var Gloda = {
    *
    * @testpoint gloda.ns.getMessageCollectionForHeaders()
    */
-  getMessageCollectionForHeaders(aHeaders, aListener, aData) {
+  getMessageCollectionForHeaders: function gloda_ns_getMessagesForHeaders(
+      aHeaders, aListener, aData) {
     // group the headers by the folder they are found in
     let headersByFolder = {};
+    let iter;
     for (let header of fixIterator(aHeaders)) {
       let folderURI = header.folder.URI;
       let headersForFolder = headersByFolder[folderURI];
@@ -345,11 +348,11 @@ var Gloda = {
   /**
    * @testpoint gloda.ns.getMessageContent
    */
-  getMessageContent(aGlodaMessage, aMimeMsg) {
+  getMessageContent: function gloda_ns_getMessageContent(aGlodaMessage, aMimeMsg) {
     return mimeMsgToContentAndMeta(aMimeMsg, aGlodaMessage.folderMessage.folder)[0];
   },
 
-  getFolderForFolder(aMsgFolder) {
+  getFolderForFolder: function gloda_ns_getFolderForFolder(aMsgFolder) {
     return GlodaDatastore._mapFolder(aMsgFolder);
   },
 
@@ -381,7 +384,8 @@ var Gloda = {
    *   for each string argument passed.  Each sub-list contains zero or more
    *   GlodaIdentity instances corresponding to the addresses provided.
    */
-  * getOrCreateMailIdentities(aCallbackHandle, ...aAddrGroups) {
+  getOrCreateMailIdentities:
+      function* gloda_ns_getOrCreateMailIdentities(aCallbackHandle, ...aAddrGroups) {
     let addresses = {};
     let resultLists = [];
 
@@ -392,6 +396,7 @@ var Gloda = {
       let resultList = [];
       resultLists.push(resultList);
 
+      let identities = [];
       for (let iAddress = 0; iAddress < parsed.count; iAddress++) {
         let address = parsed.addresses[iAddress].toLowerCase();
         if (address in addresses)
@@ -467,7 +472,8 @@ var Gloda = {
       // (it will fix-up the name based on the card as appropriate)
       if (card)
         yield aCallbackHandle.pushAndGo(
-          Gloda.grokNounItem(contact, {card}, true, true, aCallbackHandle));
+          Gloda.grokNounItem(contact, {card: card}, true, true,
+                             aCallbackHandle));
       else // grokNounItem will issue the insert for us...
         GlodaDatastore.insertContact(contact);
 
@@ -813,7 +819,7 @@ var Gloda = {
    */
   _nounIDToDef: {},
 
-  _managedToJSON(aItem) {
+  _managedToJSON: function gloda_ns_managedToJSON(aItem) {
     return aItem.id;
   },
 
@@ -874,7 +880,7 @@ var Gloda = {
    *       becomes the index name.  Ex: {foo: ["bar"]} results in an index on
    *       the column "bar" where the index is named "foo".
   */
-  defineNoun(aNounDef, aNounID) {
+  defineNoun: function gloda_ns_defineNoun(aNounDef, aNounID) {
     this._log.info("Defining noun: " + aNounDef.name);
     if (aNounID === undefined)
       aNounID = this._nextNounID++;
@@ -908,11 +914,11 @@ var Gloda = {
       GlodaDatastore.createNounTable(aNounDef);
 
       if (!aNounDef.toParamAndValue)
-        aNounDef.toParamAndValue = function(aThing) {
+        aNounDef.toParamAndValue = function (aThing) {
           if (aThing instanceof aNounDef.class)
             return [null, aThing.id];
-          // assume they're just passing the id directly
-          return [null, aThing];
+          else // assume they're just passing the id directly
+            return [null, aThing];
         };
     }
 
@@ -964,7 +970,7 @@ var Gloda = {
    *  noun arguments.  Throws an exception if the noun with the given name
    *  cannot be found; the assumption is that you can't live without the noun.
    */
-  lookupNoun(aNounName) {
+  lookupNoun: function gloda_ns_lookupNoun(aNounName) {
     if (aNounName in this._nounNameToNounID)
       return this._nounNameToNounID[aNounName];
 
@@ -976,7 +982,7 @@ var Gloda = {
   /**
    * Lookup a noun def given a name.
    */
-  lookupNounDef(aNounName) {
+  lookupNounDef: function gloda_ns_lookupNoun(aNounName) {
     return this._nounIDToDef[this.lookupNoun(aNounName)];
   },
 
@@ -1019,7 +1025,7 @@ var Gloda = {
    *   this signature is deprecated.  Probably the way to update this would be
    *   to pass in the query instance that constraints should be contributed to.
    */
-  defineNounAction(aNounID, aActionMeta) {
+  defineNounAction: function gloda_ns_defineNounAction(aNounID, aActionMeta) {
     let nounDef = this._nounIDToDef[aNounID];
     nounDef.actions.push(aActionMeta);
   },
@@ -1028,7 +1034,7 @@ var Gloda = {
    * Retrieve all of the actions (as defined using defineNounAction) for the
    *  given noun type (via noun ID) with the given action type (ex: filter).
    */
-  getNounActions(aNounID, aActionType) {
+  getNounActions: function gloda_ns_getNounActions(aNounID, aActionType) {
     let nounDef = this._nounIDToDef[aNounID];
     if (!nounDef)
       return [];
@@ -1059,86 +1065,94 @@ var Gloda = {
    *  we can deal with those once we start to integrate lightning/calendar and
    *  our noun space gets large and more heterogeneous.
    */
-  _initAttributes() {
+  _initAttributes: function gloda_ns_initAttributes() {
     this.defineNoun({
       name: "bool",
       clazz: Boolean, allowsArbitraryAttrs: false,
       isPrimitive: true,
       // favor true before false
-      comparator(a, b) {
+      comparator: function gloda_bool_comparator(a, b) {
         if (a == null) {
           if (b == null)
             return 0;
-          return 1;
-        } else if (b == null) {
+          else
+            return 1;
+        }
+        else if (b == null) {
           return -1;
         }
         return b - a;
       },
-      toParamAndValue(aBool) {
+      toParamAndValue: function(aBool) {
         return [null, aBool ? 1 : 0];
       }}, this.NOUN_BOOLEAN);
     this.defineNoun({
       name: "number",
       clazz: Number, allowsArbitraryAttrs: false, continuous: true,
       isPrimitive: true,
-      comparator(a, b) {
+      comparator: function gloda_number_comparator(a, b) {
         if (a == null) {
           if (b == null)
             return 0;
-          return 1;
-        } else if (b == null) {
+          else
+            return 1;
+        }
+        else if (b == null) {
           return -1;
         }
         return a - b;
       },
-      toParamAndValue(aNum) {
+      toParamAndValue: function(aNum) {
         return [null, aNum];
       }}, this.NOUN_NUMBER);
     this.defineNoun({
       name: "string",
       clazz: String, allowsArbitraryAttrs: false,
       isPrimitive: true,
-      comparator(a, b) {
+      comparator: function gloda_string_comparator(a, b) {
         if (a == null) {
           if (b == null)
             return 0;
-          return 1;
-        } else if (b == null) {
+          else
+            return 1;
+        }
+        else if (b == null) {
           return -1;
         }
         return a.localeCompare(b);
       },
-      toParamAndValue(aString) {
+      toParamAndValue: function(aString) {
         return [null, aString];
       }}, this.NOUN_STRING);
     this.defineNoun({
       name: "date",
       clazz: Date, allowsArbitraryAttrs: false, continuous: true,
       isPrimitive: true,
-      comparator(a, b) {
+      comparator: function gloda_data_comparator(a, b) {
         if (a == null) {
           if (b == null)
             return 0;
-          return 1;
-        } else if (b == null) {
+          else
+            return 1;
+        }
+        else if (b == null) {
           return -1;
         }
         return a - b;
       },
-      toParamAndValue(aDate) {
+      toParamAndValue: function(aDate) {
         return [null, aDate.valueOf() * 1000];
       }}, this.NOUN_DATE);
     this.defineNoun({
       name: "fulltext",
       clazz: String, allowsArbitraryAttrs: false, continuous: false,
       isPrimitive: true,
-      comparator(a, b) {
+      comparator: function gloda_fulltext_comparator(a, b) {
         throw new Error("Fulltext nouns are not comparable!");
       },
       // as noted on NOUN_FULLTEXT, we just pass the string around.  it never
       //  hits the database, so it's okay.
-      toParamAndValue(aString) {
+      toParamAndValue: function(aString) {
         return [null, aString];
       }}, this.NOUN_FULLTEXT);
 
@@ -1159,7 +1173,7 @@ var Gloda = {
          * @TODO The long-term solution is to move towards using arithmetic
          *     encoding on folder-id's like we use for MIME types and friends.
          */
-        Account(aAttrDef, aArguments) {
+        Account: function(aAttrDef, aArguments) {
           let folderValues = [];
           let seenRootFolders = {};
           for (let iArg = 0; iArg < aArguments.length; iArg++) {
@@ -1194,41 +1208,46 @@ var Gloda = {
             }
           }
           return this._inConstraintHelper(aAttrDef, folderValues);
-        },
+        }
       },
-      comparator(a, b) {
+      comparator: function gloda_folder_comparator(a, b) {
         if (a == null) {
           if (b == null)
             return 0;
-          return 1;
-        } else if (b == null) {
+          else
+            return 1;
+        }
+        else if (b == null) {
           return -1;
         }
         return a.name.localeCompare(b.name);
       },
-      toParamAndValue(aFolderOrGlodaFolder) {
+      toParamAndValue: function(aFolderOrGlodaFolder) {
         if (aFolderOrGlodaFolder instanceof GlodaFolder)
           return [null, aFolderOrGlodaFolder.id];
-        return [null, GlodaDatastore._mapFolder(aFolderOrGlodaFolder).id];
+        else
+          return [null, GlodaDatastore._mapFolder(aFolderOrGlodaFolder).id];
       }}, this.NOUN_FOLDER);
     this.defineNoun({
       name: "account",
       clazz: GlodaAccount,
       allowsArbitraryAttrs: false,
       isPrimitive: false,
-      equals(a, b) {
+      equals: function(a, b) {
         if (a && !b || !a && b)
           return false;
         if (!a && !b)
           return true;
         return a.id == b.id;
       },
-      comparator(a, b) {
+      comparator: function gloda_account_comparator(a, b) {
         if (a == null) {
           if (b == null)
             return 0;
-          return 1;
-        } else if (b == null) {
+          else
+            return 1;
+        }
+        else if (b == null) {
           return -1;
         }
         return a.name.localeCompare(b.name);
@@ -1243,21 +1262,23 @@ var Gloda = {
       attrTableName: "messageAttributes", attrIDColumnName: "conversationID",
       datastore: GlodaDatastore,
       objFromRow: GlodaDatastore._conversationFromRow,
-      comparator(a, b) {
+      comparator: function gloda_conversation_comparator(a, b) {
         if (a == null) {
           if (b == null)
             return 0;
-          return 1;
-        } else if (b == null) {
+          else
+            return 1;
+        }
+        else if (b == null) {
           return -1;
         }
         return a.subject.localeCompare(b.subject);
       },
-      toParamAndValue(aConversation) {
+      toParamAndValue: function(aConversation) {
         if (aConversation instanceof GlodaConversation)
           return [null, aConversation.id];
-        // assume they're just passing the id directly
-        return [null, aConversation];
+        else // assume they're just passing the id directly
+          return [null, aConversation];
       }}, this.NOUN_CONVERSATION);
     this.defineNoun({
       name: "message",
@@ -1281,11 +1302,11 @@ var Gloda = {
         " LEFT JOIN messagesText ON messages.id = messagesText.rowid",
       objInsert: GlodaDatastore.insertMessage,
       objUpdate: GlodaDatastore.updateMessage,
-      toParamAndValue(aMessage) {
+      toParamAndValue: function(aMessage) {
         if (aMessage instanceof GlodaMessage)
           return [null, aMessage.id];
-        // assume they're just passing the id directly
-        return [null, aMessage];
+        else // assume they're just passing the id directly
+          return [null, aMessage];
       }}, this.NOUN_MESSAGE);
     this.defineNoun({
       name: "contact",
@@ -1299,21 +1320,23 @@ var Gloda = {
       dbAttribAdjuster: GlodaDatastore.adjustAttributes,
       objInsert: GlodaDatastore.insertContact,
       objUpdate: GlodaDatastore.updateContact,
-      comparator(a, b) {
+      comparator: function gloda_contact_comparator(a, b) {
         if (a == null) {
           if (b == null)
             return 0;
-          return 1;
-        } else if (b == null) {
+          else
+            return 1;
+        }
+        else if (b == null) {
           return -1;
         }
         return a.name.localeCompare(b.name);
       },
-      toParamAndValue(aContact) {
+      toParamAndValue: function(aContact) {
         if (aContact instanceof GlodaContact)
           return [null, aContact.id];
-        // assume they're just passing the id directly
-        return [null, aContact];
+        else // assume they're just passing the id directly
+          return [null, aContact];
       }}, this.NOUN_CONTACT);
     this.defineNoun({
       name: "identity",
@@ -1328,45 +1351,47 @@ var Gloda = {
        * Short string is the contact name, long string includes the identity
        *  value too, delimited by a colon.  Not tremendously localizable.
        */
-      userVisibleString(aIdentity, aLong) {
+      userVisibleString: function(aIdentity, aLong) {
         if (!aLong)
           return aIdentity.contact.name;
         if (aIdentity.contact.name == aIdentity.value)
           return aIdentity.value;
         return aIdentity.contact.name + " (" + aIdentity.value + ")";
       },
-      comparator(a, b) {
+      comparator: function gloda_identity_comparator(a, b) {
         if (a == null) {
           if (b == null)
             return 0;
-          return 1;
-        } else if (b == null) {
+          else
+            return 1;
+        }
+        else if (b == null) {
           return -1;
         }
         return a.contact.name.localeCompare(b.contact.name);
       },
-      toParamAndValue(aIdentity) {
+      toParamAndValue: function(aIdentity) {
         if (aIdentity instanceof GlodaIdentity)
           return [null, aIdentity.id];
-        // assume they're just passing the id directly
-        return [null, aIdentity];
+        else // assume they're just passing the id directly
+          return [null, aIdentity];
       }}, this.NOUN_IDENTITY);
     this.defineNoun({
       name: "attachment-infos",
       clazz: GlodaAttachment,
       allowsArbitraryAttrs: false,
       isPrimitive: false,
-      toJSON(x) {
+      toJSON: function (x) {
           return [
             x._name,
             x._contentType,
             x._size,
             x._part,
             x._externalUrl,
-            x._isExternal,
-          ];
+            x._isExternal
+          ]
         },
-      fromJSON(x, aGlodaMessage) {
+      fromJSON: function (x, aGlodaMessage) {
           let [name, contentType, size, _part, _externalUrl, isExternal] = x;
           return new GlodaAttachment(aGlodaMessage, name, contentType, size, _part, _externalUrl, isExternal);
         },
@@ -1380,12 +1405,14 @@ var Gloda = {
       name: "parameterized-identity",
       clazz: null,
       allowsArbitraryAttrs: false,
-      comparator(a, b) {
+      comparator: function gloda_fulltext_comparator(a, b) {
         if (a == null) {
           if (b == null)
             return 0;
-          return 1;
-        } else if (b == null) {
+          else
+            return 1;
+        }
+        else if (b == null) {
           return -1;
         }
         // First sort by the first identity in the tuple
@@ -1398,7 +1425,7 @@ var Gloda = {
         //  this time to be consistent with our identity comparator.
         return a[1].contact.name.localeCompare(b[1].contact.name);
       },
-      computeDelta(aCurValues, aOldValues) {
+      computeDelta: function(aCurValues, aOldValues) {
         let oldMap = {};
         for (let tupe of aOldValues) {
           let [originIdentity, targetIdentity] = tupe;
@@ -1427,7 +1454,7 @@ var Gloda = {
 
         return [added, removed];
       },
-      contributeObjDependencies(aJsonValues, aReferencesByNounID,
+      contributeObjDependencies: function(aJsonValues, aReferencesByNounID,
           aInverseReferencesByNounID) {
         // nothing to do with a zero-length list
         if (aJsonValues.length == 0)
@@ -1448,7 +1475,7 @@ var Gloda = {
 
         return true;
       },
-      resolveObjDependencies(aJsonValues, aReferencesByNounID,
+      resolveObjDependencies: function(aJsonValues, aReferencesByNounID,
           aInverseReferencesByNounID) {
         let references =
           aReferencesByNounID[Gloda.NOUN_IDENTITY];
@@ -1462,10 +1489,10 @@ var Gloda = {
 
         return results;
       },
-      toJSON(aIdentityTuple) {
+      toJSON: function (aIdentityTuple) {
         return [aIdentityTuple[0].id, aIdentityTuple[1].id];
       },
-      toParamAndValue(aIdentityTuple) {
+      toParamAndValue: function(aIdentityTuple) {
         return [aIdentityTuple[0].id, aIdentityTuple[1].id];
       }}, this.NOUN_PARAM_IDENTITY);
 
@@ -1482,7 +1509,7 @@ var Gloda = {
    *
    * @XXX potentially rename to not suggest binding is required.
    */
-  _bindAttribute(aAttrDef, aSubjectNounDef) {
+  _bindAttribute: function gloda_ns_bindAttr(aAttrDef, aSubjectNounDef) {
     let objectNounDef = aAttrDef.objectNounDef;
 
     // -- the query constraint helpers
@@ -1495,7 +1522,8 @@ var Gloda = {
           this._constraints.push(constraint);
           return this;
         };
-      } else if (aAttrDef.canQuery || aAttrDef.attributeName.startsWith("_")) {
+      }
+      else if (aAttrDef.canQuery || aAttrDef.attributeName.startsWith("_")) {
         constrainer = function(...aArgs) {
           let constraint = [GlodaDatastore.kConstraintIn, aAttrDef, ...aArgs];
           this._constraints.push(constraint);
@@ -1504,11 +1532,11 @@ var Gloda = {
       } else {
         constrainer = function() {
           throw new Error(
-              "Cannot query on attribute " + aAttrDef.attributeName
+              "Cannot query on attribute "+aAttrDef.attributeName
             + " because its canQuery parameter hasn't been set to true."
             + " Reading the comments about Gloda.defineAttribute may be a"
             + " sensible thing to do now.");
-        };
+        }
         canQuery = false;
       }
 
@@ -1624,7 +1652,7 @@ var Gloda = {
    *     attribute ID, and an integer which is the integer representation of the
    *     'object' whose type you are defining right here.
    */
-  defineAttribute(aAttrDef) {
+  defineAttribute: function gloda_ns_defineAttribute(aAttrDef) {
     // ensure required properties exist on aAttrDef
     if (!("provider" in aAttrDef) ||
         !("extensionName" in aAttrDef) ||
@@ -1643,7 +1671,7 @@ var Gloda = {
       aAttrDef.emptySetIsSignificant = false;
 
     if (!("canQuery" in aAttrDef))
-      aAttrDef.canQuery = !!aAttrDef.facet;
+      aAttrDef.canQuery = aAttrDef.facet ? true : false;
 
     // return if the attribute has already been defined
     if (aAttrDef.dbDef)
@@ -1665,7 +1693,9 @@ var Gloda = {
       //  not yet 'bound' to a provider (and had important meta-info that
       //  doesn't go in the db copied over)
       attrDBDef = GlodaDatastore._attributeDBDefs[compoundName];
-    } else { // we need to create the attribute definition in the database
+    }
+    // we need to create the attribute definition in the database
+    else {
       let attrID = null;
       attrID = GlodaDatastore._createAttributeDef(aAttrDef.attributeType,
                                                   aAttrDef.extensionName,
@@ -1702,19 +1732,22 @@ var Gloda = {
     }
     // No facet attribute means no facet desired; set an explicit null so that
     //  code can check without doing an "in" check.
-    if (!("facet" in aAttrDef)) {
+    if (!("facet" in aAttrDef))
       aAttrDef.facet = null;
-    } else if (aAttrDef.facet) {
-      // Promote "true" facet values to the defaults.  Where attributes have
-      //  specified values, make sure we fill in any missing defaults.
-      aAttrDef.facet = {
-        type: "default",
-        groupIdAttr: aAttrDef.objectNounDef.idAttr,
-        groupComparator: aAttrDef.objectNounDef.comparator,
-        filter: null,
-      };
-    } else {
-      normalizeFacetDef(aAttrDef.facet);
+    // Promote "true" facet values to the defaults.  Where attributes have
+    //  specified values, make sure we fill in any missing defaults.
+    else {
+      if (aAttrDef.facet == true) {
+        aAttrDef.facet = {
+          type: "default",
+          groupIdAttr: aAttrDef.objectNounDef.idAttr,
+          groupComparator: aAttrDef.objectNounDef.comparator,
+          filter: null,
+        };
+      }
+      else {
+        normalizeFacetDef(aAttrDef.facet);
+      }
     }
     if ("extraFacets" in aAttrDef) {
       for (let facetDef of aAttrDef.extraFacets) {
@@ -1727,7 +1760,8 @@ var Gloda = {
         let attrName = Gloda._ATTR_LOCALIZED_STRINGS[propName];
         try {
           aStickIn[attrName] = aBundle.get(aPropRoot + propName);
-        } catch (ex) {
+        }
+        catch (ex) {
           // do nothing.  nsIStringBundle throws exceptions because it is a
           //  standard nsresult type of API and our helper buddy does nothing
           //  to help us.  (StringBundle.js, that is.)
@@ -1771,7 +1805,8 @@ var Gloda = {
       this._bindAttribute(aAttrDef, subjectNounDef);
 
       // update the provider maps...
-      if (!this._attrProviderOrderByNoun[subjectType].includes(aAttrDef.provider)) {
+      if (this._attrProviderOrderByNoun[subjectType]
+              .indexOf(aAttrDef.provider) == -1) {
         this._attrProviderOrderByNoun[subjectType].push(aAttrDef.provider);
         if (aAttrDef.provider.optimize)
           this._attrOptimizerOrderByNoun[subjectType].push(aAttrDef.provider);
@@ -1813,7 +1848,7 @@ var Gloda = {
    *  extensions into liars as name changes/moves to core/etc. happen.
    * @TODO consider removing the extension name argument parameter requirement
    */
-  getAttrDef(aPluginName, aAttrName) {
+  getAttrDef: function gloda_ns_getAttrDef(aPluginName, aAttrName) {
     let compoundName = aPluginName + ":" + aAttrName;
     return GlodaDatastore._attributeDBDefs[compoundName];
   },
@@ -1856,7 +1891,7 @@ var Gloda = {
    * @param aOptions an optional dictionary of query options, see the GlodaQuery
    *     class documentation.
    */
-  newQuery(aNounID, aOptions) {
+  newQuery: function gloda_ns_newQuery(aNounID, aOptions) {
     let nounDef = this._nounIDToDef[aNounID];
     return new nounDef.queryClass(aOptions);
   },
@@ -1866,7 +1901,7 @@ var Gloda = {
    *  provided items.  This is to be used when you have an explicit set of items
    *  that you would still like to receive updates for.
    */
-  explicitCollection(aNounID, aItems) {
+  explicitCollection: function gloda_ns_explicitCollection(aNounID, aItems) {
     let nounDef = this._nounIDToDef[aNounID];
     let collection = new GlodaCollection(nounDef, aItems, null, null);
     let query = new nounDef.explicitQueryClass(collection);
@@ -1886,7 +1921,7 @@ var Gloda = {
    *  collection.  (Forgetting about the collection will suffice, as it is still
    *  weakly held.)
    */
-  _wildcardCollection(aNounID, aItems) {
+  _wildcardCollection: function gloda_ns_wildcardCollection(aNounID, aItems) {
     let nounDef = this._nounIDToDef[aNounID];
     let collection = new GlodaCollection(nounDef, aItems, null, null);
     let query = new nounDef.wildcardQueryClass(collection);
@@ -1902,9 +1937,8 @@ var Gloda = {
    *
    * We're not really taking advantage of this yet, but it's a good idea.
    */
-  BadItemContentsError,
+  BadItemContentsError: BadItemContentsError,
 
-  /* eslint-disable complexity */
   /**
    * Populate a gloda representation of an item given the thus-far built
    *  representation, the previous representation, and one or more raw
@@ -1944,7 +1978,8 @@ var Gloda = {
    * @param aDoCache Should we allow this item to be contributed to its noun
    *     cache?
    */
-  * grokNounItem(aItem, aRawReps, aIsConceptuallyNew, aIsRecordNew, aCallbackHandle, aDoCache) {
+  grokNounItem: function* gloda_ns_grokNounItem(aItem, aRawReps,
+      aIsConceptuallyNew, aIsRecordNew, aCallbackHandle, aDoCache) {
     let itemNounDef = aItem.NOUN_DEF;
     let attribsByBoundName = itemNounDef.attribsByBoundName;
 
@@ -1957,9 +1992,9 @@ var Gloda = {
 
     let aOldItem;
     aRawReps.trueGlodaRep = aItem;
-    if (aIsConceptuallyNew) { // there is no old item if we are new.
+    if (aIsConceptuallyNew) // there is no old item if we are new.
       aOldItem = {};
-    } else {
+    else {
       aOldItem = aItem;
       // we want to create a clone of the existing item so that we can know the
       //  deltas that happened for indexing purposes
@@ -2009,14 +2044,17 @@ var Gloda = {
           jsonDict[attrib.id] = objectNounDef.toJSON(value);
         else
           jsonDict[attrib.id] = value;
-      } else if (objectNounDef.toJSON) {
-        let toJSON = objectNounDef.toJSON;
-        jsonDict[attrib.id] = [];
-        for (let subValue of value) {
-          jsonDict[attrib.id].push(toJSON(subValue));
+      }
+      else {
+        if (objectNounDef.toJSON) {
+          let toJSON = objectNounDef.toJSON;
+          jsonDict[attrib.id] = [];
+          for (let subValue of value) {
+            jsonDict[attrib.id].push(toJSON(subValue));
+          }
         }
-      } else {
-        jsonDict[attrib.id] = value;
+        else
+          jsonDict[attrib.id] = value;
       }
 
       let oldValue = aOldItem[key];
@@ -2050,12 +2088,13 @@ var Gloda = {
             removeDBAttribs.push(
               attribDB.convertValuesToDBAttributes([oldValue])[0]);
           }
-        } else if (objectNounDef.computeDelta) {
-          // in the plural case, we have to figure the deltas accounting for
-          //  possible changes in ordering (which is insignificant from an
-          //  indexing perspective)
-          // some nouns may not meet === equivalence needs, so must provide a
-          //  custom computeDelta method to help us out
+        }
+        // in the plural case, we have to figure the deltas accounting for
+        //  possible changes in ordering (which is insignificant from an
+        //  indexing perspective)
+        // some nouns may not meet === equivalence needs, so must provide a
+        //  custom computeDelta method to help us out
+        else if (objectNounDef.computeDelta) {
           let [valuesAdded, valuesRemoved] =
             objectNounDef.computeDelta(value, oldValue);
           // convert the values to database-style attribute rows
@@ -2063,7 +2102,8 @@ var Gloda = {
             attribDB.convertValuesToDBAttributes(valuesAdded));
           removeDBAttribs.push.apply(removeDBAttribs,
             attribDB.convertValuesToDBAttributes(valuesRemoved));
-        } else {
+        }
+        else {
           // build a map of the previous values; we will delete the values as
           //  we see them so that we will know what old values are no longer
           //  present in the current set of values.
@@ -2100,7 +2140,9 @@ var Gloda = {
           else if (!value.length && oldValue.length)
             addDBAttribs.push([GlodaDatastore.kEmptySetAttrId, attribDB.id]);
         }
-      } else { // no old value, all values are new
+      }
+      // no old value, all values are new
+      else {
         // add the db reps on the new values
         if (attrib.singular)
           value = [value];
@@ -2136,8 +2178,8 @@ var Gloda = {
       delete aOldItem[key];
 
       if (attrib.canQuery !== true) {
-        this._log.debug("Not inserting attribute " + attrib.attributeName
-          + " into the db, since we don't plan on querying on it");
+        this._log.debug("Not inserting attribute "+attrib.attributeName
+            +" into the db, since we don't plan on querying on it");
         continue;
       }
 
@@ -2157,7 +2199,8 @@ var Gloda = {
     if (aIsRecordNew) {
       this._log.debug(" inserting item");
       itemNounDef.objInsert.call(itemNounDef.datastore, aItem);
-    } else {
+    }
+    else {
       this._log.debug(" updating item");
       itemNounDef.objUpdate.call(itemNounDef.datastore, aItem);
     }
@@ -2182,7 +2225,6 @@ var Gloda = {
 
     yield this.kWorkDone;
   },
-  /* eslint-enable complexity */
 
   /**
    * Processes a list of noun instances for their score within a given context.
@@ -2195,7 +2237,8 @@ var Gloda = {
    * @param aExtraScoreFuncs A list of extra scoring functions to apply.
    * @returns A list of integer scores equal in length to aItems.
    */
-  scoreNounItems(aItems, aContext, aExtraScoreFuncs) {
+  scoreNounItems: function gloda_ns_grokNounItem(aItems, aContext,
+                                                 aExtraScoreFuncs) {
     let scores = [];
     // bail if there is nothing to score
     if (!aItems.length)
@@ -2219,16 +2262,17 @@ var Gloda = {
     }
 
     return scores;
-  },
+  }
 };
 
 /* and initialize the Gloda object/NS before we return... */
 try {
   Gloda._init();
-} catch (ex) {
+}
+catch (ex) {
   Gloda._log.debug("Exception during Gloda init (" + ex.fileName + ":" +
                    ex.lineNumber + "): " + ex);
-}
+};
 /* but don't forget that we effectively depend on everybody.js too, and
    currently on our importer to be importing that if they need us fully armed
    and operational. */
