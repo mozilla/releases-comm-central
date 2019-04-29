@@ -2293,7 +2293,7 @@ function displayAttachmentsForExpandedViewExternal() {
   let attachmentList = document.getElementById("attachmentList");
 
   // Attachment bar single.
-  let firstAttachment = attachmentList.firstElementChild.attachment;
+  let firstAttachment = attachmentList.attachmentListWrapper.firstElementChild.attachment;
   let isExternalAttachment = firstAttachment.isExternalAttachment;
   let displayUrl = isExternalAttachment ? firstAttachment.displayUrl : "";
   let tooltiptext = isExternalAttachment || firstAttachment.isDeleted ?
@@ -2329,7 +2329,7 @@ function displayAttachmentsForExpandedViewExternal() {
 
   // Expanded attachment list.
   let index = 0;
-  for (let attachmentitem of attachmentList.children) {
+  for (let attachmentitem of attachmentList.attachmentListWrapper.children) {
     let attachment = attachmentitem.attachment;
     if (attachment.isDeleted) {
       attachmentitem.classList.add("notfound");
@@ -2559,6 +2559,8 @@ function toggleAttachmentList(expanded, updateFocus) {
 
     if (updateFocus)
       attachmentList.focus();
+
+    attachmentList.selectItem(attachmentList.attachmentListWrapper.firstChild);
   } else {
     attachmentList.collapsed = true;
     attachmentSplitter.collapsed = true;
@@ -2948,8 +2950,9 @@ function ClearAttachmentList() {
   var list = document.getElementById("attachmentList");
   list.clearSelection();
 
-  while (list.hasChildNodes())
+  while (list.hasChildNodes()) {
     list.lastChild.remove();
+  }
 }
 
 var attachmentListDNDObserver = {

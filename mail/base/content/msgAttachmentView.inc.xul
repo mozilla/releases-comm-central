@@ -91,7 +91,7 @@
                             </hbox>
                           </vbox>
                         </hbox>
-                        <richlistbox id="attachmentList"
+                        <richlistbox is="attachment-list" id="attachmentList"
                                      class="attachmentList"
                                      orient="horizontal"
                                      flex="1"

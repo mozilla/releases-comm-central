@@ -38,7 +38,7 @@
   border-bottom-color: Highlight;
 }
 
-:root[lwt-tree] #attachmentBucket > .attachmentItem:hover {
+:root[lwt-tree] #attachmentBucket .attachmentItem:hover {
   background-color: hsla(0,0%,50%,.15);
   border-color: transparent;
 }
