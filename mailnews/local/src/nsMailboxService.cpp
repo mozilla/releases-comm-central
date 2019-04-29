@@ -494,7 +494,7 @@ NS_IMETHODIMP nsMailboxService::AllowPort(int32_t port, const char *scheme,
 NS_IMETHODIMP nsMailboxService::GetProtocolFlags(uint32_t *result) {
   NS_ENSURE_ARG_POINTER(result);
   *result = URI_NORELATIVE | URI_FORBIDS_AUTOMATIC_DOCUMENT_REPLACEMENT |
-            URI_DANGEROUS_TO_LOAD
+            URI_DANGEROUS_TO_LOAD | URI_FORBIDS_COOKIE_ACCESS
 #ifdef IS_ORIGIN_IS_FULL_SPEC_DEFINED
             | ORIGIN_IS_FULL_SPEC
 #endif

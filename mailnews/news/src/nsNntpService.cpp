@@ -1142,7 +1142,7 @@ nsNntpService::GetDefaultServerPort(bool aUseSSL, int32_t *aDefaultPort) {
 NS_IMETHODIMP nsNntpService::GetProtocolFlags(uint32_t *aUritype) {
   NS_ENSURE_ARG_POINTER(aUritype);
   *aUritype = URI_NORELATIVE | URI_FORBIDS_AUTOMATIC_DOCUMENT_REPLACEMENT |
-              URI_LOADABLE_BY_ANYONE | ALLOWS_PROXY
+              URI_LOADABLE_BY_ANYONE | ALLOWS_PROXY | URI_FORBIDS_COOKIE_ACCESS
 #ifdef IS_ORIGIN_IS_FULL_SPEC_DEFINED
               | ORIGIN_IS_FULL_SPEC
 #endif
