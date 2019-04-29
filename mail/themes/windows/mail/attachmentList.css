@@ -36,7 +36,7 @@
     margin-bottom: 1px;
   }
 
-  .attachmentList[orient="horizontal"] .attachmentItem {
+  .attachmentList[orient="horizontal"] > .attachmentItem {
     margin-top: 1px;
     margin-inline-start: 1px;
   }
@@ -62,24 +62,24 @@
                                         rgba(131, 183, 249, 0.5));
     }
 
-    .attachmentList:focus .attachmentItem[current="true"] {
+    .attachmentList:focus > .attachmentItem[current="true"] {
       border-color: rgb(125, 162, 206);
     }
 
-    .attachmentList:focus .attachmentItem[current="true"]:hover {
+    .attachmentList:focus > .attachmentItem[current="true"]:hover {
       border-color: rgb(125, 162, 206);
       background-image: linear-gradient(rgba(131, 183, 249, 0.05),
                                         rgba(131, 183, 249, 0.16));
     }
 
-    .attachmentList:focus .attachmentItem[selected="true"] {
+    .attachmentList:focus > .attachmentItem[selected="true"] {
       border-color: rgb(132, 172, 221);
       background-image: linear-gradient(rgba(131, 183, 249, 0.16),
                                         rgba(131, 183, 249, 0.375));
     }
 
-    .attachmentList:focus .attachmentItem[selected="true"]:hover,
-    .attachmentList:focus .attachmentItem[selected="true"][current="true"] {
+    .attachmentList:focus > .attachmentItem[selected="true"]:hover,
+    .attachmentList:focus > .attachmentItem[selected="true"][current="true"] {
       border-color: rgb(125, 162, 206);
       background-image: linear-gradient(rgba(131, 183, 249, 0.28),
                                         rgba(131, 183, 249, 0.5));
@@ -109,24 +109,24 @@
       background-color: rgb(229, 243, 255);
     }
 
-    .attachmentList:focus .attachmentItem[selected="true"] {
+    .attachmentList:focus > .attachmentItem[selected="true"] {
       border-color: rgb(142, 186, 235);
       background-color: rgb(205, 232, 255);
     }
 
-    #attachmentBucket[orient="vertical"]:focus
+    #attachmentBucket[orient="vertical"]:focus >
       .attachmentItem[selected="true"]:not(:-moz-any([current="true"], :hover)) {
       border-right-color: transparent;
       border-left-color: transparent;
     }
 
-    .attachmentList:focus .attachmentItem[current="true"] {
+    .attachmentList:focus > .attachmentItem[current="true"] {
       border-color: rgb(125, 162, 206);
     }
 
-    .attachmentList:focus .attachmentItem[current="true"]:hover,
-    .attachmentList:focus .attachmentItem[selected="true"]:hover,
-    .attachmentList:focus .attachmentItem[selected="true"][current="true"] {
+    .attachmentList:focus > .attachmentItem[current="true"]:hover,
+    .attachmentList:focus > .attachmentItem[selected="true"]:hover,
+    .attachmentList:focus > .attachmentItem[selected="true"][current="true"] {
       border-color: rgb(125, 162, 206);
     }
 

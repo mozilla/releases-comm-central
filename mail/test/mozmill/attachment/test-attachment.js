@@ -371,8 +371,8 @@ function test_selected_attachments_are_cleared() {
 
   // We can just click on the first element, but the second one needs a
   // ctrl-click (or cmd-click for those Mac-heads among us).
-  mc.click(new elib.Elem(attachmentList.attachmentListWrapper.children[0]), 5, 5);
-  EventUtils.synthesizeMouse(attachmentList.attachmentListWrapper.children[1], 5, 5,
+  mc.click(new elib.Elem(attachmentList.itemChildren[0]), 5, 5);
+  EventUtils.synthesizeMouse(attachmentList.itemChildren[1], 5, 5,
                              {accelKey: true}, mc.window);
 
   assert_equals(attachmentList.selectedItems.length, 2,
@@ -416,7 +416,7 @@ function test_delete_attachment_key() {
   // Expand the attachment list.
   mc.click(mc.eid("attachmentToggle"));
 
-  let firstAttachment = new elib.Elem(mc.e("attachmentList").attachmentListWrapper.firstChild);
+  let firstAttachment = new elib.Elem(mc.e("attachmentList").firstChild);
   mc.click(firstAttachment, 5, 5);
 
   // Try deleting with the delete key
@@ -513,7 +513,7 @@ function test_delete_from_toolbar() {
   // Expand the attachment list.
   mc.click(mc.eid("attachmentToggle"));
 
-  let firstAttachment = new elib.Elem(mc.e("attachmentList").attachmentListWrapper.firstChild);
+  let firstAttachment = new elib.Elem(mc.e("attachmentList").firstChild);
   mc.click(firstAttachment, 5, 5);
 
   // Make sure clicking the "Delete" toolbar button with an attachment focused
