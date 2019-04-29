@@ -60,53 +60,40 @@
     <hbox id="smtpServerInfoBox">
       <stack flex="1">
         <spacer id="backgroundBox"/>
-        <grid>
-          <columns>
-            <column/>
-            <column flex="1"/>
-          </columns>
-          <rows>
-            <row align="center">
-              <hbox pack="end">
-                <label id="descriptionLabel"
-                       value="&serverDescription.label;"
-                       control="descriptionValue"/>
-              </hbox>
+        <hbox>
+          <vbox align="end">
+            <label id="descriptionLabel" value="&serverDescription.label;"
+                   control="descriptionValue"/>
+            <label id="nameLabel" value="&serverName.label;" control="nameValue"/>
+            <label id="portLabel" value="&serverPort.label;" control="portValue"/>
+            <label id="userNameLabel" value="&userName.label;"
+                   control="userNameValue"/>
+            <label id="authMethodLabel" value="&authMethod.label;"
+                   control="authMethodValue"/>
+            <label id="connectionSecurityLabel" value="&connectionSecurity.label;"
+                   control="useSecureConnectionValue"/>
+          </vbox>
+          <vbox>
+            <hbox flex="1">
               <textbox id="descriptionValue" readonly="true" class="plain"/>
-            </row>
-            <row align="center">
-              <hbox pack="end">
-                <label id="nameLabel" value="&serverName.label;" control="nameValue"/>
-              </hbox>
+            </hbox>
+            <hbox flex="1">
               <textbox id="nameValue" readonly="true" class="plain"/>
-            </row>
-            <row align="center">
-              <hbox pack="end">
-                <label id="portLabel" value="&serverPort.label;" control="portValue"/>
-              </hbox>
+            </hbox>
+            <hbox flex="1">
               <textbox id="portValue" readonly="true" class="plain"/>
-            </row>
-            <row align="center">
-              <hbox pack="end">
-                <label id="userNameLabel" value="&userName.label;" control="userNameValue"/>
-              </hbox>
+            </hbox>
+            <hbox flex="1">
               <textbox id="userNameValue" readonly="true" class="plain"/>
-            </row>
-            <row align="center">
-              <hbox pack="end">
-                <label id="authMethodLabel" value="&authMethod.label;" control="authMethodValue"/>
-              </hbox>
+            </hbox>
+            <hbox flex="1">
               <textbox id="authMethodValue" readonly="true" class="plain"/>
-            </row>
-            <row align="center">
-              <hbox pack="end">
-                <label id="connectionSecurityLabel" value="&connectionSecurity.label;"
-                       control="useSecureConnectionValue"/>
-              </hbox>
+            </hbox>
+            <hbox flex="1">
               <textbox id="useSecureConnectionValue" readonly="true" class="plain"/>
-            </row>
-          </rows>
-        </grid>
+            </hbox>
+          </vbox>
+        </hbox>
       </stack>
     </hbox>
     <separator flex="1"/>
