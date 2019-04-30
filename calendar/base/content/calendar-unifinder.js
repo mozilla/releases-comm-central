@@ -82,8 +82,6 @@ var unifinderObserver = {
             // again.
             gUnifinderNeedsRefresh = true;
             unifinderTreeView.clearItems();
-        } else {
-            unifinderTreeView.sortItems();
         }
     },
 
@@ -444,11 +442,18 @@ var unifinderTreeView = {
      * Add an item to the unifinder tree.
      *
      * @param aItemArray        An array of items to add.
+     * @param aDontSort         If true, the items will only be appended.
      */
-    addItems: function(aItemArray) {
+    addItems: function(aItemArray, aDontSort) {
         this.eventArray = this.eventArray.concat(aItemArray);
         let newCount = (this.eventArray.length - aItemArray.length - 1);
         this.tree.rowCountChanged(newCount, aItemArray.length);
+
+        if (aDontSort) {
+            this.calculateIndexMap();
+        } else {
+            this.sortItems();
+        }
     },
 
     /**
@@ -506,11 +511,16 @@ var unifinderTreeView = {
      * Sets the items that should be in the unifinder. This removes all items
      * that were previously in the unifinder.
      */
-    setItems: function(aItemArray) {
+    setItems: function(aItemArray, aDontSort) {
         let oldCount = this.eventArray.length;
         this.eventArray = aItemArray.slice(0);
         this.tree.rowCountChanged(oldCount - 1, this.eventArray.length - oldCount);
-        this.sortItems();
+
+        if (aDontSort) {
+            this.calculateIndexMap();
+        } else {
+            this.sortItems();
+        }
     },
 
     /**
