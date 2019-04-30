@@ -33,11 +33,11 @@
         <textbox amsa_persist="true" id="serverDirectory"/>
       </hbox>
 
-      <checkbox amsa_persist="true" id="usingSubscription"
+      <checkbox id="usingSubscription" amsa_persist="true"
                 label="&usingSubscription.label;"
                 accesskey="&usingSubscription.accesskey;"/>
 
-      <checkbox amsa_persist="true" id="dualUseFolders"
+      <checkbox id="dualUseFolders" amsa_persist="true"
                 label="&dualUseFolders.label;"
                 accesskey="&dualUseFolders.accesskey;"/>
 
@@ -47,54 +47,40 @@
           <label control="maximumConnectionsNumber"
                  value="&maximumConnectionsNumber.label;"
                  accesskey="&maximumConnectionsNumber.accesskey;"/>
-          <textbox amsa_persist="true" size="3" type="number"
-                   min="1" max="1000" id="maximumConnectionsNumber"/>
+          <textbox id="maximumConnectionsNumber" type="number"
+                   size="3" min="1" max="1000"
+                   amsa_persist="true"/>
         </hbox>
       </row>
 
       <separator class="groove"/>
       <description>&namespaceDesc.label;</description>
-      <grid>
-        <columns>
-          <column/>
-          <column/>
-          <column/>
-        </columns>
-        <rows>
-          <row align="center">
-            <separator class="indent"/>
+      <hbox class="indent">
+        <vbox>
+          <hbox flex="1" align="center">
             <label control="personalNamespace" value="&personalNamespace.label;"
                    accesskey="&personalNamespace.accesskey;"/>
-            <textbox amsa_persist="true" id="personalNamespace" />
-          </row>
-          <row align="center">
-            <separator class="indent"/>
+          </hbox>
+          <hbox flex="1" align="center">
             <label control="publicNamespace" value="&publicNamespace.label;"
                    accesskey="&publicNamespace.accesskey;"/>
-            <textbox amsa_persist="true" id="publicNamespace"/>
-          </row>
-          <row align="center">
-            <separator class="indent"/>
+          </hbox>
+          <hbox flex="1" align="center">
             <label control="otherUsersNamespace" value="&otherUsersNamespace.label;"
                    accesskey="&otherUsersNamespace.accesskey;"/>
-            <textbox amsa_persist="true" id="otherUsersNamespace"/>
-          </row>
-        </rows>
-      </grid>
-      <grid>
-        <columns>
-          <column/>
-          <column/>
-        </columns>
-        <rows>
-          <row align="center">
-            <separator class="indent"/>
-            <checkbox amsa_persist="true" id="overrideNamespaces"
-                      label="&overrideNamespaces.label;"
-                      accesskey="&overrideNamespaces.accesskey;"/>
-          </row>
-        </rows>
-      </grid>
+          </hbox>
+        </vbox>
+        <vbox>
+          <textbox id="personalNamespace" amsa_persist="true"/>
+          <textbox id="publicNamespace" amsa_persist="true"/>
+          <textbox id="otherUsersNamespace" amsa_persist="true"/>
+        </vbox>
+      </hbox>
+      <hbox class="indent">
+        <checkbox id="overrideNamespaces" amsa_persist="true"
+                  label="&overrideNamespaces.label;"
+                  accesskey="&overrideNamespaces.accesskey;"/>
+      </hbox>
     </vbox>
 
 
