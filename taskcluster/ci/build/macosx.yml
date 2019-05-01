@@ -7,7 +7,7 @@ macosx64/debug:
         platform: osx-cross/debug
         symbol: B
         tier: 1
-    worker-type: aws-provisioner-v1/gecko-{level}-b-linux
+    worker-type: b-linux
     worker:
         max-run-time: 36000
         env:
@@ -48,7 +48,7 @@ macosx64/opt:
         platform: osx-cross/opt
         symbol: B
         tier: 1
-    worker-type: aws-provisioner-v1/gecko-{level}-b-linux
+    worker-type: b-linux
     worker:
         max-run-time: 36000
         env:
@@ -93,7 +93,7 @@ macosx64-nightly/opt:
         platform: osx-cross/opt
         symbol: N
         tier: 1
-    worker-type: aws-provisioner-v1/gecko-{level}-b-linux
+    worker-type: b-linux
     worker:
         max-run-time: 36000
         env:

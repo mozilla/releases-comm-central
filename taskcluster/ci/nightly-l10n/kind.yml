@@ -56,8 +56,8 @@ job-template:
             win64-nightly: internal
     worker-type:
         by-build-platform:
-            default: aws-provisioner-v1/gecko-{level}-b-linux
-            win.*: aws-provisioner-v1/gecko-{level}-b-win2012
+            default: b-linux
+            win.*: b-win2012
     treeherder:
         symbol: L10n(N)
         tier: 1

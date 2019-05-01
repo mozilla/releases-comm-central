@@ -19,7 +19,7 @@ jobs:
         run-on-projects: []
         shipping-phase: promote
         shipping-product: thunderbird
-        worker-type: aws-provisioner-v1/gecko-{level}-b-linux
+        worker-type: b-linux
         worker:
             implementation: docker-worker
             os: linux
