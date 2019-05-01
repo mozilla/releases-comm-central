@@ -793,7 +793,7 @@
     "uk": {
       "default": {
         "visibleDefaultEngines": [
-          "google", "bing", "meta-ua", "ddg", "wikipedia-uk", "hotline-ua"
+          "google", "bing", "ddg", "wikipedia-uk", "hotline-ua"
         ]
       }
     },
