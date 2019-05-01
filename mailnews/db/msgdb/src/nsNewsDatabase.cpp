@@ -8,6 +8,7 @@
 #include "nsIMsgThread.h"
 #include "nsNewsDatabase.h"
 #include "nsMsgKeySet.h"
+#include "nsMsgMessageFlags.h"
 #include "nsCOMPtr.h"
 #include "prlog.h"
 

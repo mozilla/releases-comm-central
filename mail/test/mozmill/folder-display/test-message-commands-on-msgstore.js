@@ -23,7 +23,6 @@ var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
 
 var statusHeader = "X-Mozilla-Status: ";
-var nsMsgMessageFlags = Ci.nsMsgMessageFlags;
 
 var gInbox;
 var gOutbox;
@@ -111,7 +110,7 @@ function test_mark_messages_read() {
   press_delete(mc);
   assert_not_equals(curMessage, select_click_row(0));
   check_status(null, offset, statusOffset,
-               nsMsgMessageFlags.Read + nsMsgMessageFlags.Expunged);
+               Ci.nsMsgMessageFlags.Read + Ci.nsMsgMessageFlags.Expunged);
 
   // 4 messages in the folder.
   curMessage = select_click_row(0);
@@ -124,16 +123,16 @@ function test_mark_messages_read() {
 
   // All the 4 messages should now be read.
   assert_true(curMessage.isRead, "Message should have been marked Read!");
-  check_status(curMessage, null, null, nsMsgMessageFlags.Read);
+  check_status(curMessage, null, null, Ci.nsMsgMessageFlags.Read);
   curMessage = select_click_row(1);
   assert_true(curMessage.isRead, "Message should have been marked Read!");
-  check_status(curMessage, null, null, nsMsgMessageFlags.Read);
+  check_status(curMessage, null, null, Ci.nsMsgMessageFlags.Read);
   curMessage = select_click_row(2);
   assert_true(curMessage.isRead, "Message should have been marked Read!");
-  check_status(curMessage, null, null, nsMsgMessageFlags.Read);
+  check_status(curMessage, null, null, Ci.nsMsgMessageFlags.Read);
   curMessage = select_click_row(3);
   assert_true(curMessage.isRead, "Message should have been marked Read!");
-  check_status(curMessage, null, null, nsMsgMessageFlags.Read);
+  check_status(curMessage, null, null, Ci.nsMsgMessageFlags.Read);
 
   // Let's have the last message unread.
   right_click_on_row(3);
@@ -150,7 +149,7 @@ function test_mark_messages_flagged() {
   mc.click_menus_in_sequence(mc.e("mailContext"), [{id: "mailContext-mark"},
                                                    {id: "mailContext-markFlagged"}]);
   assert_true(curMessage.isFlagged, "Message should have been marked Flagged!");
-  check_status(curMessage, null, null, nsMsgMessageFlags.Read + nsMsgMessageFlags.Marked);
+  check_status(curMessage, null, null, Ci.nsMsgMessageFlags.Read + Ci.nsMsgMessageFlags.Marked);
 }
 
 function subtest_check_queued_message() {
@@ -160,7 +159,7 @@ function subtest_check_queued_message() {
   while (queued.hasMoreElements()) {
     let msg = queued.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     if (!queued.hasMoreElements()) {
-      check_status(msg, null, null, nsMsgMessageFlags.Queued);
+      check_status(msg, null, null, Ci.nsMsgMessageFlags.Queued);
     }
   }
 }
@@ -210,7 +209,7 @@ function test_mark_messages_replied() {
   reply_forward_message(2, true);
   let curMessage = select_click_row(2);
   check_status(curMessage, null, null,
-               nsMsgMessageFlags.Replied + nsMsgMessageFlags.Read);
+               Ci.nsMsgMessageFlags.Replied + Ci.nsMsgMessageFlags.Read);
 }
 
 function test_mark_messages_forwarded() {
@@ -218,14 +217,14 @@ function test_mark_messages_forwarded() {
   // Forward a clean message.
   reply_forward_message(3, false);
   let curMessage = select_click_row(3);
-  check_status(curMessage, null, null, nsMsgMessageFlags.Forwarded);
+  check_status(curMessage, null, null, Ci.nsMsgMessageFlags.Forwarded);
 
   // Forward a message that is read and already replied to.
   reply_forward_message(2, false);
   curMessage = select_click_row(2);
   check_status(curMessage, null, null,
-               nsMsgMessageFlags.Forwarded + nsMsgMessageFlags.Replied +
-               nsMsgMessageFlags.Read);
+               Ci.nsMsgMessageFlags.Forwarded + Ci.nsMsgMessageFlags.Replied +
+               Ci.nsMsgMessageFlags.Read);
 }
 
 function teardownModule(module) {

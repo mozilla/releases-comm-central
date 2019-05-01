@@ -20,8 +20,6 @@ load("../../../resources/messageInjection.js");
 var gMessageGenerator = new MessageGenerator();
 var gScenarioFactory = new MessageScenarioFactory(gMessageGenerator);
 
-var nsMsgMessageFlags = Ci.nsMsgMessageFlags;
-
 var gMsgFile1 = do_get_file("../../../data/bugmail10");
 var gMsgId1 = "200806061706.m56H6RWT004933@mrapp54.mozilla.org";
 var gMsgFile2 = do_get_file("../../../data/image-attach-test");
@@ -127,7 +125,7 @@ var tests = [
   },
   function* select2ndMsg() {
     let msg1 = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId1);
-    Assert.notEqual(msg1.flags & nsMsgMessageFlags.Offline, 0);
+    Assert.notEqual(msg1.flags & Ci.nsMsgMessageFlags.Offline, 0);
     let db = IMAPPump.inbox.msgDatabase;
     let msg2 = db.getMsgHdrForMessageID(gMsgId2);
     let url = new Object;
@@ -141,7 +139,7 @@ var tests = [
   },
   function* select3rdMsg() {
     let msg2 = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId2);
-    Assert.notEqual(msg2.flags & nsMsgMessageFlags.Offline, 0);
+    Assert.notEqual(msg2.flags & Ci.nsMsgMessageFlags.Offline, 0);
     let db = IMAPPump.inbox.msgDatabase;
     let msg3 = db.getMsgHdrForMessageID(gMsgId3);
     let url = new Object;
@@ -156,7 +154,7 @@ var tests = [
   function verify3rdMsg() {
     let msg3 = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId3);
     // can't turn this on because our fake server doesn't support body structure.
-//    do_check_eq(msg3.flags & nsMsgMessageFlags.Offline, 0);
+//    do_check_eq(msg3.flags & Ci.nsMsgMessageFlags.Offline, 0);
   },
   function* addNewMsgs() {
     let mbox = IMAPPump.daemon.getMailbox("INBOX")

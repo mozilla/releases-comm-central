@@ -7,7 +7,6 @@
 #include "nsCOMPtr.h"
 #include "msgCore.h"
 #include "nsImapProtocol.h"
-#include "nsMsgMessageFlags.h"
 
 struct msgState {
   uint32_t uid;

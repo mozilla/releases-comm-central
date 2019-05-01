@@ -16,6 +16,7 @@
 #include "nsLocalUtils.h"
 #include "nsMsgLocalFolderHdrs.h"
 #include "nsIMsgFolder.h"  // TO include biffState enum. Change to bool later...
+#include "nsMsgMessageFlags.h"
 #include "nsMailHeaders.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIPop3Protocol.h"

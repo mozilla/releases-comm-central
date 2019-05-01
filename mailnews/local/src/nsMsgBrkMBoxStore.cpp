@@ -12,6 +12,7 @@
 #include "nsMsgBrkMBoxStore.h"
 #include "nsIMsgFolder.h"
 #include "nsMsgFolderFlags.h"
+#include "nsMsgMessageFlags.h"
 #include "nsIMsgLocalMailFolder.h"
 #include "nsCOMArray.h"
 #include "nsIFile.h"

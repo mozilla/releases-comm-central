@@ -113,7 +113,6 @@
 #include "msgCore.h"
 #include "prprf.h"
 #include "nsIOutputStream.h"
-#include "nsMsgMessageFlags.h"
 #include "nsIURL.h"
 #include "nsMsgAttachmentHandler.h"
 #include "nsMsgCompFields.h"

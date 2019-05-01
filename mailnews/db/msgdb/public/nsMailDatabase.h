@@ -8,7 +8,6 @@
 
 #include "mozilla/Attributes.h"
 #include "nsMsgDatabase.h"
-#include "nsMsgMessageFlags.h"
 #include "nsTArray.h"
 
 #include "nsIDBChangeListener.h"

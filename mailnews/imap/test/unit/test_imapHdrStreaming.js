@@ -19,8 +19,6 @@ load("../../../resources/messageInjection.js");
 setupIMAPPump();
 
 
-var nsMsgMessageFlags = Ci.nsMsgMessageFlags;
-
 var gMsgFile1 = do_get_file("../../../data/bugmail10");
 var gMsgId1 = "200806061706.m56H6RWT004933@mrapp54.mozilla.org";
 

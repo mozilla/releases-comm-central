@@ -7,6 +7,7 @@
 #include "nsCOMPtr.h"
 #include "nsMsgBaseCID.h"
 #include "nsMsgFolderFlags.h"
+#include "nsMsgMessageFlags.h"
 #include "nsIMsgFolder.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgFolder.h"

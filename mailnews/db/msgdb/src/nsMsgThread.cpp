@@ -7,6 +7,7 @@
 #include "nsMsgDatabase.h"
 #include "nsCOMPtr.h"
 #include "nsMsgThread.h"
+#include "nsMsgMessageFlags.h"
 #include "nsSimpleEnumerator.h"
 #include "MailNewsTypes2.h"
 #include "mozilla/DebugOnly.h"

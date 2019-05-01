@@ -8,6 +8,7 @@
 #include "nsMsgHdr.h"
 #include "nsMsgDatabase.h"
 #include "nsMsgUtils.h"
+#include "nsMsgMessageFlags.h"
 #include "nsIMsgThread.h"
 #include "nsMsgMimeCID.h"
 #include "mozilla/Attributes.h"

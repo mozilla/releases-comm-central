@@ -7,7 +7,6 @@
 #include "nsCOMPtr.h"
 #include "msgCore.h"
 #include "nsImapProtocol.h"
-#include "nsMsgMessageFlags.h"
 
 // What to check
 enum EHdrArrayCheck

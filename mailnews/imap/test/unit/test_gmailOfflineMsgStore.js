@@ -40,8 +40,6 @@ var gXGmMsgid2 = "1278455345230334555";
 var gXGmThrid2 = "1266894639832287111";
 var gXGmLabels2 = '(\"\\\\Sent\")';
 
-var nsMsgMessageFlags = Ci.nsMsgMessageFlags;
-
 var fooBox;
 var fooFolder;
 

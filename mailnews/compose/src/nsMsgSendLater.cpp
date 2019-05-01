@@ -28,6 +28,7 @@
 #include "nsIObserverService.h"
 #include "nsIMsgLocalMailFolder.h"
 #include "nsIMsgDatabase.h"
+#include "nsMsgMessageFlags.h"
 #include "mozilla/Services.h"
 #include "nsArrayUtils.h"
 

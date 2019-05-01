@@ -16,8 +16,6 @@ var {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/
 
 load("../../../resources/logHelper.js");
 
-var nsMsgMessageFlags = Ci.nsMsgMessageFlags;
-
 var gMsgFile1 = do_get_file("../../../data/bugmail10");
 var gMsgId1 = "200806061706.m56H6RWT004933@mrapp54.mozilla.org";
 var gMsgFile2 = do_get_file("../../../data/image-attach-test");
