@@ -1589,8 +1589,9 @@ nsresult nsParseNewMailState::Init(nsIMsgFolder *serverFolder,
   if (NS_SUCCEEDED(rv)) {
     nsString serverName;
     server->GetPrettyName(serverName);
-    MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Local) Detected new local messages on account '%s'",
-                                              NS_ConvertUTF16toUTF8(serverName).get()));
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
+            ("(Local) Detected new local messages on account '%s'",
+             NS_ConvertUTF16toUTF8(serverName).get()));
     rv = server->GetFilterList(aMsgWindow, getter_AddRefs(m_filterList));
 
     if (m_filterList) rv = server->ConfigureTemporaryFilters(m_filterList);
@@ -1788,15 +1789,21 @@ void nsParseNewMailState::ApplyFilters(bool *pMoved, nsIMsgWindow *msgWindow,
       char *headers = m_headers.GetBuffer();
       uint32_t headersSize = m_headers.GetBufferPos();
       if (m_filterList) {
-        MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Local) Running filters on 1 message at offset %" PRIu64, msgOffset));
-        MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Local) Using filters from the original account"));
+        MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
+                ("(Local) Running filters on 1 message at offset %" PRIu64,
+                 msgOffset));
+        MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
+                ("(Local) Using filters from the original account"));
         (void)m_filterList->ApplyFiltersToHdr(
             nsMsgFilterType::InboxRule, msgHdr, downloadFolder, m_mailDB,
             nsDependentCSubstring(headers, headersSize), this, msgWindow);
       }
       if (!m_msgMovedByFilter && m_deferredToServerFilterList) {
-        MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Local) Running filters on 1 message at offset %" PRIu64, msgOffset));
-        MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Local) Using filters from the deferred to account"));
+        MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
+                ("(Local) Running filters on 1 message at offset %" PRIu64,
+                 msgOffset));
+        MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
+                ("(Local) Using filters from the deferred to account"));
         (void)m_deferredToServerFilterList->ApplyFiltersToHdr(
             nsMsgFilterType::InboxRule, msgHdr, downloadFolder, m_mailDB,
             nsDependentCSubstring(headers, headersSize), this, msgWindow);
@@ -1831,8 +1838,11 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter *filter,
   msgHdr->GetMessageId(getter_Copies(msgId));
   nsMsgKey msgKey;
   msgHdr->GetMessageKey(&msgKey);
-  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Local) Applying filter actions on message with key %" PRIu32, msgKeyToInt(msgKey)));
-  MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug, ("(Local) Message ID: %s", msgId.get()));
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
+          ("(Local) Applying filter actions on message with key %" PRIu32,
+           msgKeyToInt(msgKey)));
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug,
+          ("(Local) Message ID: %s", msgId.get()));
 
   bool loggingEnabled = false;
   if (m_filterList && numActions)
@@ -2134,7 +2144,10 @@ nsresult nsParseNewMailState::ApplyForwardAndReplyFilter(
   nsMsgKey msgKey;
   if (count > 0 && m_msgToForwardOrReply) {
     m_msgToForwardOrReply->GetMessageKey(&msgKey);
-    MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Local) Forwarding message with key %" PRIu32 " to %" PRIu32 " addresses", msgKeyToInt(msgKey), count));
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
+            ("(Local) Forwarding message with key %" PRIu32 " to %" PRIu32
+             " addresses",
+             msgKeyToInt(msgKey), count));
   }
 
   for (i = 0; i < count; i++) {
@@ -2151,7 +2164,8 @@ nsresult nsParseNewMailState::ApplyForwardAndReplyFilter(
             forwardStr, m_msgToForwardOrReply, msgWindow, server,
             nsIMsgComposeService::kForwardAsDefault);
         if (NS_FAILED(rv))
-          MOZ_LOG(FILTERLOGMODULE, LogLevel::Error, ("(Local) Forwarding failed"));
+          MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,
+                  ("(Local) Forwarding failed"));
       }
     }
   }
@@ -2159,7 +2173,10 @@ nsresult nsParseNewMailState::ApplyForwardAndReplyFilter(
 
   count = m_replyTemplateUri.Length();
   if (count > 0 && m_msgToForwardOrReply) {
-    MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(Local) Replying message with key %" PRIu32 " to %" PRIu32 " addresses", msgKeyToInt(msgKey), count));
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
+            ("(Local) Replying message with key %" PRIu32 " to %" PRIu32
+             " addresses",
+             msgKeyToInt(msgKey), count));
   }
 
   for (i = 0; i < count; i++) {
@@ -2176,7 +2193,8 @@ nsresult nsParseNewMailState::ApplyForwardAndReplyFilter(
                                               msgWindow, server);
           if (NS_FAILED(rv)) {
             NS_WARNING("ReplyWithTemplate failed");
-            MOZ_LOG(FILTERLOGMODULE, LogLevel::Error, ("(Local) Replying failed"));
+            MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,
+                    ("(Local) Replying failed"));
             if (rv == NS_ERROR_ABORT) {
               (void)m_filter->LogRuleHitFail(
                   m_ruleAction, m_msgToForwardOrReply, rv,
