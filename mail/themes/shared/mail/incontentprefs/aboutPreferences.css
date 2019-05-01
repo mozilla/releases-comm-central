@@ -12,14 +12,14 @@
 }
 
 @supports -moz-bool-pref("browser.in-content.dark-mode") {
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --in-content-categories-background: rgba(249,249,250,0.1);
-      --in-content-dialogtitle-background: rgba(249,249,250,0.05);
-      --in-content-dialogtitle-border: rgba(0,0,0,0.5);
-      --in-content-warning-container: var(--grey-90-a30);
-    }
+@media (prefers-color-scheme: dark) {
+  :root {
+    --in-content-categories-background: rgba(249,249,250,0.1);
+    --in-content-dialogtitle-background: rgba(249,249,250,0.05);
+    --in-content-dialogtitle-border: rgba(0,0,0,0.5);
+    --in-content-warning-container: var(--grey-90-a30);
   }
+}
 }
 
 #MailPreferences {
@@ -286,6 +286,8 @@ html|input[type="number"]::-moz-number-spin-down {
   border-color: var(--in-content-box-border-color);
   background-color: var(--in-content-button-background);
   background-position: center;
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 html|input[type="number"]::-moz-number-spin-up:hover,
@@ -297,12 +299,12 @@ html|input[type="number"]::-moz-number-spin-up {
   border-bottom-width: 1px;
   border-bottom-style: solid;
   border-radius: 1px 1px 0 0;
-  background-image: url("chrome://messenger/skin/icons/arrow/arrow-up.png");
+  background-image: url("chrome://global/skin/icons/arrow-up-12.svg")
 }
 
 html|input[type="number"]::-moz-number-spin-down {
   border-radius: 0 0 1px 1px;
-  background-image: url("chrome://messenger/skin/icons/arrow/arrow-down.png");
+  background-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
 }
 
 separator.groove:not([orient="vertical"]) {
@@ -445,11 +447,13 @@ tabs {
   padding-inline-start: 30px;
   margin-block-start: 20px;
   line-height: 20px;
-  background-image: url("chrome://global/skin/icons/info.svg");
+  background-image: url("chrome://messenger/skin/icons/info.svg");
   background-position-x: left 2px;
   background-position-y: top 2px;
   background-size: 16px 16px;
   background-repeat: no-repeat;
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 #updateSettingCrossUserWarning:-moz-locale-dir(rtl) {
