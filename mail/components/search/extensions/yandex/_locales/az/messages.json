@@ -1,0 +1,23 @@
+{
+  "extensionName": {
+    "message": "Yandex"
+  },
+  "extensionDescription": {
+    "message": "İnternetdə axtarış üçün Yandexdən istifadə edin."
+  },
+  "searchUrl": {
+    "message": "https://yandex.az/search"
+  },
+  "searchForm": {
+    "message": "https://www.yandex.az/"
+  },
+  "suggestUrl": {
+    "message": "https://yandex.az/suggest/suggest-ff.cgi?part={searchTerms}"
+  },
+  "searchUrlGetParams": {
+    "message": "text={searchTerms}"
+  },
+  "extensionIcon": {
+    "message": "yandex-ru.ico"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "extensionName": {
+    "message": "Яндекс"
+  },
+  "extensionDescription": {
+    "message": "Пошук з дапамогаю Яндекс"
+  },
+  "searchUrl": {
+    "message": "https://yandex.by/search"
+  },
+  "searchForm": {
+    "message": "https://www.yandex.by/"
+  },
+  "suggestUrl": {
+    "message": "https://suggest.yandex.by/suggest-ff.cgi?part={searchTerms}"
+  },
+  "searchUrlGetParams": {
+    "message": "text={searchTerms}"
+  },
+  "extensionIcon": {
+    "message": "yandex-ru.ico"
+  }
+}
