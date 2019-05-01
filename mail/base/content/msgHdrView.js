@@ -590,6 +590,7 @@ var messageHeaderSink = {
       // this relies on the fact that PartDownloaded comes after PartSize from
       // the MIME emitter.)
       last.size = -1;
+      last.sizeResolved = false;
     }
   },
 
