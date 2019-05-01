@@ -956,7 +956,6 @@ nsresult nsMsgBrkMBoxStore::AddSubFolders(nsIMsgFolder *parent,
 
     nsAutoString leafName;
     currentFile->GetLeafName(leafName);
-    directoryEnumerator->HasMoreElements(&hasMore);
     // here we should handle the case where the current file is a .sbd directory
     // w/o a matching folder file, or a directory w/o the name .sbd
     if (nsShouldIgnoreFile(leafName)) continue;
