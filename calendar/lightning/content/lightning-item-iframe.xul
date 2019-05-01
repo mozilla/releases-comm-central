@@ -128,7 +128,7 @@
     </vbox>
   </hbox>
 
-  <hbox id="event-dialog-notifications" flex="1">
+  <hbox id="event-dialog-notifications">
     <!-- notificationbox will be added here lazily. -->
   </hbox>
 

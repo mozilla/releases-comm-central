@@ -77,7 +77,7 @@ const gNotification = {};
 XPCOMUtils.defineLazyGetter(gNotification, "notificationbox", () => {
     return new MozElements.NotificationBox(element => {
         element.setAttribute("flex", "1");
-        document.getElementById("status-notifications").append(element);
+        document.getElementById("event-dialog-notifications").append(element);
     });
 });
 
