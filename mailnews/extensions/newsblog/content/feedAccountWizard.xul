@@ -49,23 +49,14 @@
     <vbox flex="1">
       <description>&accountSummaryInfo.label;</description>
       <separator class="thin"/>
-      <grid>
-        <columns>
-          <column/>
-          <column flex="1"/>
-        </columns>
-        <rows>
-          <row id="account.name"
-               align="center">
-            <label id="account.name.label"
-                   class="label"
-                   flex="1"
-                   value="&accnameLabel.label;"/>
-            <label id="account.name.text"
-                   class="label"/>
-          </row>
-        </rows>
-      </grid>
+      <hbox id="account.name"
+            align="center">
+        <label id="account.name.label"
+               class="label"
+               value="&accnameLabel.label;"/>
+        <label id="account.name.text"
+               class="label"/>
+      </hbox>
       <separator/>
       <spacer flex="1"/>
     </vbox>
