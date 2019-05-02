@@ -84,47 +84,46 @@
                    accesskey="&returnSome.accesskey;"/>
 
             <hbox id="receiptSendIf" class="indent">
-            <grid>
-              <columns><column/><column/></columns>
-              <rows>
-                <row align="center">
+              <vbox>
+                <hbox flex="1" align="center">
                   <label id="notInToCcLabel" value="&notInToCc.label;"
                          accesskey="&notInToCc.accesskey;" control="server.mdn_not_in_to_cc"/>
-                  <menulist id="server.mdn_not_in_to_cc" wsm_persist="true" genericattr="true"
-                            preftype="int" prefstring="mail.server.%serverkey%.mdn_not_in_to_cc">
-                    <menupopup>
-                      <menuitem value="0" label="&neverSend.label;"/>
-                      <menuitem value="1" label="&alwaysSend.label;"/>
-                      <menuitem value="2" label="&askMe.label;"/>
-                    </menupopup>
-                  </menulist>
-                </row>
-                <row align="center">
+                </hbox>
+                <hbox flex="1" align="center">
                   <label id="outsideDomainLabel" value="&outsideDomain.label;"
                          accesskey="&outsideDomain.accesskey;" control="server.mdn_outside_domain"/>
-                  <menulist id="server.mdn_outside_domain" wsm_persist="true" genericattr="true"
-                            preftype="int" prefstring="mail.server.%serverkey%.mdn_outside_domain">
-                    <menupopup>
-                      <menuitem value="0" label="&neverSend.label;"/>
-                      <menuitem value="1" label="&alwaysSend.label;"/>
-                      <menuitem value="2" label="&askMe.label;"/>
-                    </menupopup>
-                  </menulist>
-                </row>
-                <row align="center">
+                </hbox>
+                <hbox flex="1" align="center">
                   <label id="otherCasesLabel" value="&otherCases.label;"
                          accesskey="&otherCases.accesskey;" control="server.mdn_other"/>
-                  <menulist id="server.mdn_other" wsm_persist="true" genericattr="true"
-                            preftype="int" prefstring="mail.server.%serverkey%.mdn_other">
-                    <menupopup>
-                      <menuitem value="0" label="&neverSend.label;"/>
-                      <menuitem value="1" label="&alwaysSend.label;"/>
-                      <menuitem value="2" label="&askMe.label;"/>
-                    </menupopup>
-                  </menulist>
-                </row>
-              </rows>
-            </grid>
+                </hbox>
+              </vbox>
+              <vbox>
+                <menulist id="server.mdn_not_in_to_cc" wsm_persist="true" genericattr="true"
+                          preftype="int" prefstring="mail.server.%serverkey%.mdn_not_in_to_cc">
+                  <menupopup>
+                    <menuitem value="0" label="&neverSend.label;"/>
+                    <menuitem value="1" label="&alwaysSend.label;"/>
+                    <menuitem value="2" label="&askMe.label;"/>
+                  </menupopup>
+                </menulist>
+                <menulist id="server.mdn_outside_domain" wsm_persist="true" genericattr="true"
+                          preftype="int" prefstring="mail.server.%serverkey%.mdn_outside_domain">
+                  <menupopup>
+                    <menuitem value="0" label="&neverSend.label;"/>
+                    <menuitem value="1" label="&alwaysSend.label;"/>
+                    <menuitem value="2" label="&askMe.label;"/>
+                  </menupopup>
+                </menulist>
+                <menulist id="server.mdn_other" wsm_persist="true" genericattr="true"
+                          preftype="int" prefstring="mail.server.%serverkey%.mdn_other">
+                  <menupopup>
+                    <menuitem value="0" label="&neverSend.label;"/>
+                    <menuitem value="1" label="&alwaysSend.label;"/>
+                    <menuitem value="2" label="&askMe.label;"/>
+                  </menupopup>
+                </menulist>
+              </vbox>
             </hbox>
           </radiogroup>
 
