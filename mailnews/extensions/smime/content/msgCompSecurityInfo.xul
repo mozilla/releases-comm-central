@@ -34,22 +34,16 @@
   <description>&subject.plaintextWarning;</description>
   <separator class="thin"/>
   <description>&status.heading;</description>
-  <grid>
-    <columns>
-      <column/>
-      <column/>
-    </columns>
-    <rows>
-      <row>
-        <label value="&status.signed;"/>
-        <label id="signed"/>
-      </row>
-      <row>
-        <label value="&status.encrypted;"/>
-        <label id="encrypted"/>
-      </row>
-    </rows>
-  </grid>
+  <hbox>
+    <vbox>
+      <label value="&status.signed;"/>
+      <label value="&status.encrypted;"/>
+    </vbox>
+    <vbox>
+      <label id="signed"/>
+      <label id="encrypted"/>
+    </vbox>
+  </hbox>
 
   <separator class="thin"/>
   <label value="&status.certificates;" control="infolist"/>
