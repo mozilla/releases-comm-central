@@ -6,6 +6,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/content/am-server.css" type="text/css"?>
 
 <!DOCTYPE page [
 <!ENTITY % trashDTD SYSTEM "chrome://messenger/locale/am-server-top.dtd">
@@ -13,6 +14,7 @@
 ]>
 
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       title="&serverSettings.label;"
       onload="parent.onPanelLoaded('am-server.xul');">
 
@@ -37,115 +39,108 @@
       <label class="dialogheader-title" value="&serverSettings.label;"/>
     </hbox>
 
-    <grid>
-      <columns>
-        <column/>
-        <column flex="1"/>
-        <column/>
-      </columns>
-      <rows>
-        <row align="center">
-          <label value="&serverType.label;"/>
-          <label id="servertype.verbose"/>
-        </row>
-        <row align="center">
-          <hbox>
-              <label value="&serverName.label;" accesskey="&serverName.accesskey;"
-                     control="server.realHostName"/>
-          </hbox>
-          <hbox align="center">
-              <label id="fixedServerName" collapsed="true" use="server.realHostName"/>
-              <textbox wsm_persist="true"
-                       size="20"
-                       flex="1"
-                       id="server.realHostName"
-                       prefstring="mail.server.%serverkey%.realhostname"
-                       class="uri-element"/>
-          </hbox>
-          <hbox align="center">
-              <label hidefor="movemail" value="&port.label;"
-                     accesskey="&port.accesskey;" control="server.port"/>
-              <label id="fixedServerPort" hidefor="movemail"
-                     collapsed="true" use="server.port"/>
-              <textbox wsm_persist="true" size="3" id="server.port"
-                       preftype="int" hidefor="movemail"
-                       prefstring="mail.server.%serverkey%.port"
-                       type="number" min="1" max="65535" increment="1"/>
-              <label value="&serverPortDefault.label;" hidefor="movemail"/>
-              <label id="defaultPort" hidefor="movemail"/>
-          </hbox>
-        </row>
-        <row align="center">
-          <hbox align="center" hidefor="nntp">
-              <label value="&userName.label;"
-                     accesskey="&userName.accesskey;"
-                     control="server.realUsername"/>
-          </hbox>
-          <hbox align="center" hidefor="nntp">
-              <label id="fixedUserName" collapsed="true" use="server.realUsername"/>
-              <textbox wsm_persist="true"
-                       size="20"
-                       flex="1"
-                       id="server.realUsername"
-                       prefstring="mail.server.%serverkey%.realusername"/>
-          </hbox>
-        </row>
-      </rows>
-    </grid>
+    <div xmlns="http://www.w3.org/1999/xhtml" id="amServerSetting">
+      <div>
+        <xul:label value="&serverType.label;"/>
+      </div>
+      <div>
+        <xul:label id="servertype.verbose"/>
+      </div>
+      <div/>
+      <div>
+        <xul:label value="&serverName.label;" accesskey="&serverName.accesskey;"
+                   control="server.realHostName"/>
+      </div>
+      <div>
+        <xul:label id="fixedServerName" collapsed="true" use="server.realHostName"/>
+        <xul:textbox id="server.realHostName"
+                     wsm_persist="true"
+                     size="20"
+                     flex="1"
+                     prefstring="mail.server.%serverkey%.realhostname"
+                     class="uri-element textbox-flex"/>
+      </div>
+      <div>
+        <xul:label hidefor="movemail" value="&port.label;"
+                   accesskey="&port.accesskey;" control="server.port"/>
+        <xul:label id="fixedServerPort" hidefor="movemail"
+                   collapsed="true" use="server.port"/>
+        <xul:textbox id="server.port" wsm_persist="true" size="3"
+                     preftype="int" hidefor="movemail"
+                     prefstring="mail.server.%serverkey%.port"
+                     type="number" min="1" max="65535" increment="1"/>
+        <xul:label value="&serverPortDefault.label;" hidefor="movemail"/>
+        <xul:label id="defaultPort" hidefor="movemail"/>
+      </div>
+      <div hidefor="nntp">
+        <xul:label value="&userName.label;"
+                   accesskey="&userName.accesskey;"
+                   control="server.realUsername"/>
+      </div>
+      <div hidefor="nntp">
+        <xul:label id="fixedUserName" collapsed="true" use="server.realUsername"/>
+        <xul:textbox id="server.realUsername"
+                     wsm_persist="true"
+                     size="20"
+                     flex="1"
+                     class="textbox-flex"
+                     prefstring="mail.server.%serverkey%.realusername"/>
+      </div>
+      <div/>
+    </div>
 
     <separator class="thin"/>
 
     <groupbox hidefor="movemail">
       <label class="header">&securitySettings.label;</label>
 
-      <grid flex="1">
-        <columns>
-          <column/>
-          <column/>
-        </columns>
-        <rows>
-          <row align="center">
+      <hbox flex="1">
+        <vbox>
+          <hbox flex="1" align="center">
             <label value="&connectionSecurity.label;"
                    accesskey="&connectionSecurity.accesskey;"
                    control="server.socketType"/>
-            <menulist wsm_persist="true" id="server.socketType"
-                      oncommand="secureSelect();">
-              <menupopup id="server.socketTypePopup">
-                <menuitem value="0" label="&connectionSecurityType-0.label;"/>
-                <menuitem id="connectionSecurityType-1"
-                          value="1" label="&connectionSecurityType-1.label;"
-                          disabled="true"/>
-                <menuitem value="2" label="&connectionSecurityType-2.label;"
-                          hidefor="nntp"/>
-                <menuitem value="3" label="&connectionSecurityType-3.label;"/>
-              </menupopup>
-            </menulist>
-          </row>
-          <row align="center" hidefor="nntp,movemail">
+          </hbox>
+          <hbox flex="1" align="center">
             <label value="&authMethod.label;"
                    accesskey="&authMethod.accesskey;"
-                   control="server.authMethod"/>
-            <!-- same in SmtpServerEdit.xul/js -->
-            <menulist id="server.authMethod"
-                      wsm_persist="true"
-                      preftype="int" type="number"
-                      prefstring="mail.server.%serverkey%.authMethod">
-              <menupopup id="server.authMethodPopup">
-                <menuitem id="authMethod-no" value="1"/>
-                <menuitem id="authMethod-old" value="2"/>
-                <menuitem id="authMethod-password-cleartext" value="3"/>
-                <menuitem id="authMethod-password-encrypted" value="4"/>
-                <menuitem id="authMethod-kerberos" value="5"/>
-                <menuitem id="authMethod-ntlm" value="6"/>
-                <menuitem id="authMethod-external" value="7"/>
-                <menuitem id="authMethod-oauth2" value="10"/>
-                <menuitem id="authMethod-anysecure" value="8"/>
-                <menuitem id="authMethod-any" value="9"/>
-              </menupopup>
-            </menulist>
-          </row>
-        </rows>
-      </grid>
+                   control="server.authMethod"
+                   hidefor="nntp,movemail"/>
+          </hbox>
+        </vbox>
+        <vbox>
+          <menulist wsm_persist="true" id="server.socketType"
+                      oncommand="secureSelect();">
+            <menupopup id="server.socketTypePopup">
+              <menuitem value="0" label="&connectionSecurityType-0.label;"/>
+              <menuitem id="connectionSecurityType-1"
+                          value="1" label="&connectionSecurityType-1.label;"
+                          disabled="true"/>
+              <menuitem value="2" label="&connectionSecurityType-2.label;"
+                          hidefor="nntp"/>
+              <menuitem value="3" label="&connectionSecurityType-3.label;"/>
+            </menupopup>
+          </menulist>
+          <menulist id="server.authMethod"
+                    wsm_persist="true"
+                    preftype="int" type="number"
+                    prefstring="mail.server.%serverkey%.authMethod"
+                    hidefor="nntp,movemail">
+            <menupopup id="server.authMethodPopup">
+              <menuitem id="authMethod-no" value="1"/>
+              <menuitem id="authMethod-old" value="2"/>
+              <menuitem id="authMethod-password-cleartext" value="3"/>
+              <menuitem id="authMethod-password-encrypted" value="4"/>
+              <menuitem id="authMethod-kerberos" value="5"/>
+              <menuitem id="authMethod-ntlm" value="6"/>
+              <menuitem id="authMethod-external" value="7"/>
+              <menuitem id="authMethod-oauth2" value="10"/>
+              <menuitem id="authMethod-anysecure" value="8"/>
+              <menuitem id="authMethod-any" value="9"/>
+            </menupopup>
+          </menulist>
+        </vbox>
+      </hbox>
     </groupbox>
 
     <groupbox>
@@ -259,43 +254,41 @@
                     wsm_persist="true"
                     oncommand="selectImapDeleteModel(this.value);"
                     prefstring="mail.server.%serverkey%.delete_model">
-          <grid class="specialFolderPickerGrid">
-            <columns>
-              <column/>
-              <column flex="1"/>
-            </columns>
-            <rows>
-              <row align="center">
+          <hbox class="specialFolderPickerGrid">
+            <vbox>
+              <hbox flex="1" align="center">
                 <radio id="modelMoveToTrash"
                        value="1"
                        label="&modelMoveToTrash.label;"
                        accesskey="&modelMoveToTrash.accesskey;"/>
-                <menulist id="msgTrashFolderPicker" flex="1"
-                          class="folderMenuItem"
-                          maxwidth="300" crop="center"
-                          aria-labelledby="modelMoveToTrash"
-                          displayformat="verbose">
-                  <menupopup id="msgTrashFolderPopup"
-                             type="folder"
-                             mode="filing"
-                             showFileHereLabel="true"
-                             oncommand="folderPickerChange(event);"/>
-                </menulist>
-              </row>
-              <row align="center">
+              </hbox>
+              <hbox flex="1" align="center">
                 <radio id="modelMarkDeleted"
                        value="0"
                        label="&modelMarkDeleted.label;"
                        accesskey="&modelMarkDeleted.accesskey;"/>
-              </row>
-              <row align="center">
+              </hbox>
+              <hbox flex="1" align="center">
                 <radio id="modelDeleteImmediately"
                        value="2"
                        label="&modelDeleteImmediately.label;"
                        accesskey="&modelDeleteImmediately.accesskey;"/>
-              </row>
-            </rows>
-          </grid>
+              </hbox>
+            </vbox>
+            <vbox>
+              <menulist id="msgTrashFolderPicker"
+                        class="folderMenuItem"
+                        maxwidth="300" crop="center"
+                        aria-labelledby="modelMoveToTrash"
+                        displayformat="verbose">
+                <menupopup id="msgTrashFolderPopup"
+                           type="folder"
+                           mode="filing"
+                           showFileHereLabel="true"
+                           oncommand="folderPickerChange(event);"/>
+              </menulist>
+            </vbox>
+          </hbox>
         </radiogroup>
       </hbox>
       <hbox pack="end">
