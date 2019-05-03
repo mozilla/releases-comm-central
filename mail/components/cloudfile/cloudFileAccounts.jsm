@@ -6,11 +6,6 @@ this.EXPORTED_SYMBOLS = ["cloudFileAccounts"];
 
 var ACCOUNT_ROOT = "mail.cloud_files.accounts.";
 
-// The following constants are used to query and insert entries
-// into the nsILoginManager.
-var PWDMGR_HOST = "chrome://messenger/cloudfile";
-var PWDMGR_REALM = "BigFiles Auth Token";
-
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {EventEmitter} = ChromeUtils.import("resource://gre/modules/EventEmitter.jsm");
 
@@ -32,10 +27,6 @@ var cloudFileAccounts = new class extends EventEmitter {
     this._providers = new Map();
     this._accounts = new Map();
     this._highestOrdinal = 0;
-  }
-
-  get kTokenRealm() {
-    return PWDMGR_REALM;
   }
 
   get _accountKeys() {
@@ -138,13 +129,6 @@ var cloudFileAccounts = new class extends EventEmitter {
     this._accounts.delete(key);
     Services.prefs.deleteBranch(ACCOUNT_ROOT + key);
 
-    // Destroy any secret tokens for this accountKey.
-    let logins = Services.logins.findLogins({}, PWDMGR_HOST, null, "");
-    for (let login of logins) {
-      if (login.username == key)
-        Services.logins.removeLogin(login);
-    }
-
     this.emit("accountDeleted", key, type);
   }
 
@@ -207,78 +191,4 @@ var cloudFileAccounts = new class extends EventEmitter {
     let key = this._ensureKey(aKeyOrAccount);
     Services.prefs.setCharPref(ACCOUNT_ROOT + key + ".displayName", aDisplayName);
   }
-
-  /**
-   * Retrieve a secret value, like an authorization token, for an account.
-   *
-   * @param aKeyOrAccount an account, or an accountKey for an account.
-   * @param aRealm a human-readable string describing what exactly
-   *               was being stored. Should match the realm used when setting
-   *               the value.
-   */
-  getSecretValue(aKeyOrAccount, aRealm) {
-    let key = this._ensureKey(aKeyOrAccount);
-
-    let loginInfo = this._getLoginInfoForKey(key, aRealm);
-
-    if (loginInfo)
-      return loginInfo.password;
-
-    return null;
-  }
-
-  /**
-   * Store a secret value, like an authorization token, for an account
-   * in nsILoginManager.
-   *
-   * @param aKeyOrAccount an account, or an accountKey for an account.
-   * @param aRealm a human-readable string describing what exactly
-   *               is being stored here. To reduce magic strings, you can use
-   *               cloudFileAccounts.kTokenRealm for simple auth tokens, and
-   *               anything else for custom secret values.
-   * @param aToken The token to be saved.  If this is set to null or the
-   *               empty string, then the entry for this key will be removed.
-   */
-  setSecretValue(aKeyOrAccount, aRealm, aToken) {
-    let key = this._ensureKey(aKeyOrAccount);
-    let loginInfo = this._getLoginInfoForKey(key, aRealm);
-
-    if (!aToken) {
-      if (!loginInfo)
-        return;
-
-      Services.logins.removeLogin(loginInfo);
-      return;
-    }
-
-    let newLoginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"]
-                       .createInstance(Ci.nsILoginInfo);
-    newLoginInfo.init(PWDMGR_HOST, null, aRealm, key,
-                      aToken, "", "");
-
-    if (loginInfo)
-      Services.logins.modifyLogin(loginInfo, newLoginInfo);
-    else
-      Services.logins.addLogin(newLoginInfo);
-  }
-
-  /**
-   * Searches the nsILoginManager for an nsILoginInfo for BigFiles with
-   * the username set to aKey, and the realm set to aRealm.
-   *
-   * @param aKey a key for an account that we're searching for login info for.
-   * @param aRealm the realm that the login info was stored under.
-   */
-  _getLoginInfoForKey(aKey, aRealm) {
-    let logins = Services.logins.findLogins({}, PWDMGR_HOST, null, aRealm);
-    for (let login of logins) {
-      if (login.username == aKey)
-        return login;
-    }
-    return null;
-  }
 };
-
-// These modules define and register the Box and Hightail providers. They export nothing.
-ChromeUtils.import("chrome://messenger/content/cloudfile/Box/box.jsm");
-ChromeUtils.import("chrome://messenger/content/cloudfile/Hightail/hightail.jsm");

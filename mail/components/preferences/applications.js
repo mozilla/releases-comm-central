@@ -517,7 +517,6 @@ var gCloudFileTab = {
   _tabpanel: null,
   _settingsPanelWrap: null,
   _defaultPanel: null,
-  _blacklist: new Set(["YouSendIt"]),
 
   get _strings() {
     return Services.strings
@@ -589,10 +588,8 @@ var gCloudFileTab = {
       this._list.appendChild(item);
     }
 
-    if (!this._blacklist.has(provider.type)) {
-      this._buttonContainer.appendChild(this.makeButtonForProvider(provider));
-      this._listContainer.appendChild(this.makeListItemForProvider(provider));
-    }
+    this._buttonContainer.appendChild(this.makeButtonForProvider(provider));
+    this._listContainer.appendChild(this.makeListItemForProvider(provider));
   },
 
   _onProviderUnregistered(event, type) {
@@ -714,10 +711,6 @@ var gCloudFileTab = {
     let providers = cloudFileAccounts.providers;
     providers.sort(this._sortDisplayNames);
     for (let provider of providers) {
-      if (this._blacklist.has(provider.type)) {
-        continue;
-      }
-
       this._buttonContainer.appendChild(this.makeButtonForProvider(provider));
       this._listContainer.appendChild(this.makeListItemForProvider(provider));
     }

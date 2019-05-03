@@ -85,8 +85,6 @@ classic.jar:
   skin/classic/messenger/addressbook/icons/remote-addrbook.png (mail/addrbook/remote-addrbook.png)
   skin/classic/messenger/addressbook/icons/remote-addrbook-error.png      (mail/addrbook/remote-addrbook-error.png)
   skin/classic/messenger/addressbook/icons/secure-remote-addrbook.png     (mail/addrbook/secure-remote-addrbook.png)
-  skin/classic/messenger/cloudfile/Hightail/fileExceedsLimit.css       (mail/cloudfile/Hightail/fileExceedsLimit.css)
-  skin/classic/messenger/cloudfile/Hightail/check.png                  (mail/cloudfile/Hightail/check.png)
   skin/classic/messenger/messengercompose/messengercompose.css (mail/compose/messengercompose.css)
   skin/classic/messenger/downloads/aboutDownloads.css         (mail/downloads/aboutDownloads.css)
 % skin messenger-newsblog classic/1.0 %skin/classic/messenger-newsblog/
@@ -178,10 +176,8 @@ classic.jar:
   skin/classic/messenger/newmailaccount/success-compose.png   (mail/newmailaccount/success-compose.png)
   skin/classic/messenger/newmailaccount/success-signature.png (mail/newmailaccount/success-signature.png)
   skin/classic/messenger/newmailaccount/search.png            (mail/newmailaccount/search.png)
-  skin/classic/messenger/icons/hightail.png                   (mail/icons/hightail.png)
   skin/classic/messenger/sanitizeDialog.css                   (mail/sanitizeDialog.css)
   skin/classic/messenger/converterDialog.css                  (mail/converterDialog.css)
-  skin/classic/messenger/icons/box-logo.png                   (mail/icons/box-logo.png)
 % skin communicator classic/1.0 %skin/classic/communicator/
   skin/classic/communicator/icons/smileys/smiley-smile.png    (mail/icons/smiley-smile.png)
   skin/classic/communicator/icons/smileys/smiley-frown.png    (mail/icons/smiley-frown.png)

@@ -27,8 +27,6 @@ chrome/classic/skin/classic/messenger/shared/in-content/calendar.svg
 chrome/classic/skin/classic/messenger/shared/in-content/compose.svg
 chrome/messenger/content/branding/icon48.png
 chrome/messenger/content/branding/icon64.png
-chrome/messenger/content/messenger/cloudfile/Box/management.js
-chrome/messenger/content/messenger/cloudfile/Hightail/management.js
 chrome/messenger/skin/classic/messenger/messages/simple/Variants/Normal.css
 chrome/messenger/skin/classic/messenger/messages/simple/Incoming/Context.html
 chrome/messenger/skin/classic/messenger/messages/simple/Incoming/NextContext.html

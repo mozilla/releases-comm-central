@@ -17,7 +17,7 @@ var kMockContractIDPrefix = "@mozilla.org/mail/mockCloudFile;1?id=";
 
 var kDefaults = {
   type: "default",
-  iconURL: "chrome://messenger/skin/icons/box-logo.png",
+  iconURL: "chrome://messenger/content/extension.svg",
   accountKey: null,
   settingsURL: "",
   managementURL: "",
@@ -113,7 +113,7 @@ var gMockCloudfileManager = {
     cloudFileAccounts.registerProvider(aID, {
       type: aID,
       displayName: aID,
-      iconURL: "chrome://messenger/skin/icons/box-logo.png",
+      iconURL: "chrome://messenger/content/extension.svg",
       initAccount(accountKey) {
         let account = new MockCloudfileAccount();
 

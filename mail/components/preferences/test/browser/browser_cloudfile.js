@@ -26,7 +26,7 @@ add_task(async () => {
   });
 
   let { cloudFileAccounts } = ChromeUtils.import("resource:///modules/cloudFileAccounts.jsm");
-  is(cloudFileAccounts.providers.length, 3);
+  is(cloudFileAccounts.providers.length, 1);
   is(cloudFileAccounts.accounts.length, 0);
 
   // Load the preferences tab.
@@ -40,15 +40,13 @@ add_task(async () => {
 
   let buttonList = prefsDocument.getElementById("addCloudFileAccountButtons");
   ok(!buttonList.hidden);
-  is(buttonList.childElementCount, 2);
-  is(buttonList.children[0].getAttribute("value"), "Box");
-  is(buttonList.children[1].getAttribute("value"), "ext-wetransfer@extensions.thunderbird.net");
+  is(buttonList.childElementCount, 1);
+  is(buttonList.children[0].getAttribute("value"), "ext-wetransfer@extensions.thunderbird.net");
 
   let menuButton = prefsDocument.getElementById("addCloudFileAccount");
   ok(menuButton.hidden);
-  is(menuButton.itemCount, 2);
-  is(menuButton.getItemAtIndex(0).getAttribute("value"), "Box");
-  is(menuButton.getItemAtIndex(1).getAttribute("value"), "ext-wetransfer@extensions.thunderbird.net");
+  is(menuButton.itemCount, 1);
+  is(menuButton.getItemAtIndex(0).getAttribute("value"), "ext-wetransfer@extensions.thunderbird.net");
 
   let removeButton = prefsDocument.getElementById("removeCloudFileAccount");
   ok(removeButton.disabled);
@@ -86,26 +84,24 @@ add_task(async () => {
     },
   };
   cloudFileAccounts.registerProvider("Mochitest", provider);
-  is(cloudFileAccounts.providers.length, 4);
+  is(cloudFileAccounts.providers.length, 2);
   is(cloudFileAccounts.accounts.length, 0);
 
   await new Promise(resolve => prefsWindow.requestAnimationFrame(resolve));
 
-  is(buttonList.childElementCount, 3);
-  is(buttonList.children[0].getAttribute("value"), "Box");
-  is(buttonList.children[1].getAttribute("value"), "ext-wetransfer@extensions.thunderbird.net");
-  is(buttonList.children[2].getAttribute("value"), "Mochitest");
-  is(buttonList.children[2].style.listStyleImage, `url("${ICON_URL}")`);
+  is(buttonList.childElementCount, 2);
+  is(buttonList.children[0].getAttribute("value"), "ext-wetransfer@extensions.thunderbird.net");
+  is(buttonList.children[1].getAttribute("value"), "Mochitest");
+  is(buttonList.children[1].style.listStyleImage, `url("${ICON_URL}")`);
 
-  is(menuButton.itemCount, 3);
-  is(menuButton.getItemAtIndex(0).getAttribute("value"), "Box");
-  is(menuButton.getItemAtIndex(1).getAttribute("value"), "ext-wetransfer@extensions.thunderbird.net");
-  is(menuButton.getItemAtIndex(2).getAttribute("value"), "Mochitest");
-  is(menuButton.getItemAtIndex(2).getAttribute("image"), ICON_URL);
+  is(menuButton.itemCount, 2);
+  is(menuButton.getItemAtIndex(0).getAttribute("value"), "ext-wetransfer@extensions.thunderbird.net");
+  is(menuButton.getItemAtIndex(1).getAttribute("value"), "Mochitest");
+  is(menuButton.getItemAtIndex(1).getAttribute("image"), ICON_URL);
 
   // Create a new account.
 
-  EventUtils.synthesizeMouseAtCenter(buttonList.children[2], { clickCount: 1 }, prefsWindow);
+  EventUtils.synthesizeMouseAtCenter(buttonList.children[1], { clickCount: 1 }, prefsWindow);
   is(cloudFileAccounts.accounts.length, 1);
   is(cloudFileAccounts.configuredAccounts.length, 0);
 
@@ -194,17 +190,15 @@ add_task(async () => {
   // Remove the test provider. The list item, button, and iframe should disappear.
 
   cloudFileAccounts.unregisterProvider("Mochitest");
-  is(cloudFileAccounts.providers.length, 3);
+  is(cloudFileAccounts.providers.length, 1);
   is(cloudFileAccounts.accounts.length, 0);
 
   await new Promise(resolve => prefsWindow.requestAnimationFrame(resolve));
 
-  is(buttonList.childElementCount, 2);
-  is(buttonList.children[0].getAttribute("value"), "Box");
-  is(buttonList.children[1].getAttribute("value"), "ext-wetransfer@extensions.thunderbird.net");
-  is(menuButton.itemCount, 2);
-  is(menuButton.getItemAtIndex(0).getAttribute("value"), "Box");
-  is(menuButton.getItemAtIndex(1).getAttribute("value"), "ext-wetransfer@extensions.thunderbird.net");
+  is(buttonList.childElementCount, 1);
+  is(buttonList.children[0].getAttribute("value"), "ext-wetransfer@extensions.thunderbird.net");
+  is(menuButton.itemCount, 1);
+  is(menuButton.getItemAtIndex(0).getAttribute("value"), "ext-wetransfer@extensions.thunderbird.net");
   is(accountList.itemCount, 0);
   is(settingsDeck.selectedPanel.id, "cloudFileDefaultPanel");
   is(iframeWrapper.childElementCount, 0);
@@ -212,21 +206,19 @@ add_task(async () => {
   // Re-add the test provider.
 
   cloudFileAccounts.registerProvider("Mochitest", provider);
-  is(cloudFileAccounts.providers.length, 4);
+  is(cloudFileAccounts.providers.length, 2);
   is(cloudFileAccounts.accounts.length, 1);
   is(cloudFileAccounts.configuredAccounts.length, 1);
 
   await new Promise(resolve => prefsWindow.requestAnimationFrame(resolve));
 
-  is(buttonList.childElementCount, 3);
-  is(buttonList.children[0].getAttribute("value"), "Box");
-  is(buttonList.children[1].getAttribute("value"), "ext-wetransfer@extensions.thunderbird.net");
-  is(buttonList.children[2].getAttribute("value"), "Mochitest");
+  is(buttonList.childElementCount, 2);
+  is(buttonList.children[0].getAttribute("value"), "ext-wetransfer@extensions.thunderbird.net");
+  is(buttonList.children[1].getAttribute("value"), "Mochitest");
 
-  is(menuButton.itemCount, 3);
-  is(menuButton.getItemAtIndex(0).getAttribute("value"), "Box");
-  is(menuButton.getItemAtIndex(1).getAttribute("value"), "ext-wetransfer@extensions.thunderbird.net");
-  is(menuButton.getItemAtIndex(2).getAttribute("value"), "Mochitest");
+  is(menuButton.itemCount, 2);
+  is(menuButton.getItemAtIndex(0).getAttribute("value"), "ext-wetransfer@extensions.thunderbird.net");
+  is(menuButton.getItemAtIndex(1).getAttribute("value"), "Mochitest");
 
   is(accountList.itemCount, 1);
   is(accountList.selectedIndex, -1);
@@ -243,11 +235,11 @@ add_task(async () => {
   ok(!Services.prefs.prefHasUserValue(`mail.cloud_files.accounts.${accountKey}.displayName`));
   ok(!Services.prefs.prefHasUserValue(`mail.cloud_files.accounts.${accountKey}.type`));
 
-  is(cloudFileAccounts.providers.length, 4);
+  is(cloudFileAccounts.providers.length, 2);
   is(cloudFileAccounts.accounts.length, 0);
 
   cloudFileAccounts.unregisterProvider("Mochitest", provider);
-  is(cloudFileAccounts.providers.length, 3);
+  is(cloudFileAccounts.providers.length, 1);
   is(cloudFileAccounts.accounts.length, 0);
 
   // Close the preferences tab.
@@ -285,7 +277,7 @@ add_task(async () => {
     },
   };
   cloudFileAccounts.registerProvider("Mochitest", provider);
-  is(cloudFileAccounts.providers.length, 4);
+  is(cloudFileAccounts.providers.length, 2);
   is(cloudFileAccounts.accounts.length, 0);
 
   // Load the preferences tab.
@@ -306,7 +298,7 @@ add_task(async () => {
 
   let count = 0;
   do {
-    EventUtils.synthesizeMouseAtCenter(buttonList.children[1], { clickCount: 1 }, prefsWindow);
+    EventUtils.synthesizeMouseAtCenter(buttonList.children[0], { clickCount: 1 }, prefsWindow);
     await new Promise(resolve => setTimeout(resolve));
     if (buttonList.hidden) {
       break;
