@@ -24,38 +24,25 @@
 
   <script src="chrome://messenger/content/CustomHeaders.js"/>
 
-  <grid flex="1">
-    <columns>
-      <column flex="1"/>
-      <column/>
-    </columns>
-    <rows>
-      <row>
-        <label accesskey="&newMsgHeader.accesskey;" control="headerInput" value="&newMsgHeader.label;"/>
-      </row>
-      <row>
-        <textbox id="headerInput" onfocus="this.select();" oninput="onTextInput();"/>
-      </row>
-
-      <row flex="1">
-        <vbox>
-          <richlistbox id="headerList"
+  <hbox flex="1">
+    <vbox flex="1">
+      <label accesskey="&newMsgHeader.accesskey;" control="headerInput" value="&newMsgHeader.label;"/>
+      <textbox id="headerInput" onfocus="this.select();" oninput="onTextInput();"/>
+      <richlistbox id="headerList"
                        class="theme-listbox"
                        flex="1"
                        onselect="updateRemoveButton();" />
-        </vbox>
-
-        <vbox>
-          <button id="addButton"
-                  label="&addButton.label;"
-                  accesskey="&addButton.accesskey;"
-                  dlgtype="extra1"/>
-          <button id="removeButton"
-                  label="&removeButton.label;"
-                  accesskey="&removeButton.accesskey;"
-                  dlgtype="extra2"/>
-        </vbox>
-      </row>
-    </rows>
-  </grid>
+    </vbox>
+    <vbox>
+      <label value=""/>
+      <button id="addButton"
+              label="&addButton.label;"
+              accesskey="&addButton.accesskey;"
+              dlgtype="extra1"/>
+      <button id="removeButton"
+              label="&removeButton.label;"
+              accesskey="&removeButton.accesskey;"
+              dlgtype="extra2"/>
+    </vbox>
+  </hbox>
 </dialog>
