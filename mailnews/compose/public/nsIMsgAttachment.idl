@@ -48,7 +48,7 @@ interface nsIMsgAttachment : nsISupports {
   /**
    * Cloud provider account key for this attachment, if any.
    */
-  attribute ACString cloudProviderKey;
+  attribute ACString cloudFileAccountKey;
 
   /**
    * This allows the compose front end code to put whatever html annotation

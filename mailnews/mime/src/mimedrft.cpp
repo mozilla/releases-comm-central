@@ -204,7 +204,7 @@ nsresult CreateComposeParams(nsCOMPtr<nsIMsgComposeParams> &pMsgComposeParams,
                                           "provider", nullptr, nullptr));
             cloudUrl.Adopt(MimeHeaders_get_parameter(
                 curAttachment->m_cloudPartInfo.get(), "url", nullptr, nullptr));
-            attachment->SetCloudProviderKey(provider);
+            attachment->SetCloudFileAccountKey(provider);
             attachment->SetContentLocation(cloudUrl);
           }
           compFields->AddAttachment(attachment);

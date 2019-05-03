@@ -5,7 +5,7 @@
 "use strict";
 
 var {ExtensionParent} = ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");
-var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
+var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.jsm");
 
 // eslint-disable-next-line mozilla/reject-importGlobalProperties
 Cu.importGlobalProperties(["File", "FileReader"]);
@@ -52,9 +52,6 @@ class CloudFileAccount {
       this.extension.manifest.cloud_file.name
     );
   }
-  get serviceURL() {
-    return this.extension.manifest.cloud_file.service_url;
-  }
   get iconURL() {
     if (this.extension.manifest.icons) {
       let { icon } = ExtensionParent.IconDetails.getPreferredIcon(
@@ -87,7 +84,7 @@ class CloudFileAccount {
     return this.extension.manifest.cloud_file.new_account_url;
   }
 
-  async uploadFile(file, callback) {
+  async uploadFile(file) {
     let id = this._nextId++;
     let results;
 
@@ -102,28 +99,23 @@ class CloudFileAccount {
       });
     } catch (ex) {
       if (ex.result == 0x80530014) { // NS_ERROR_DOM_ABORT_ERR
-        callback.onStopRequest(null, cloudFileAccounts.constants.uploadCancelled);
+        throw cloudFileAccounts.constants.uploadCancelled;
       } else {
         console.error(ex);
-        callback.onStopRequest(null, cloudFileAccounts.constants.uploadErr);
+        throw cloudFileAccounts.constants.uploadErr;
       }
-      return;
     }
 
     if (results && results.length > 0) {
       if (results[0].aborted) {
-        callback.onStopRequest(null, cloudFileAccounts.constants.uploadCancelled);
-        return;
+        throw cloudFileAccounts.constants.uploadCancelled;
       }
 
       let url = results[0].url;
       this._fileUrls.set(file.path, url);
-      callback.onStopRequest(null, Cr.NS_OK);
     } else {
-      callback.onStopRequest(null, cloudFileAccounts.constants.uploadErr);
-      throw new ExtensionUtils.ExtensionError(
-        `Missing cloudFile.onFileUpload listener for ${this.extension.id}`
-      );
+      console.error(`Missing cloudFile.onFileUpload listener for ${this.extension.id}`);
+      throw cloudFileAccounts.constants.uploadErr;
     }
   }
 
@@ -137,14 +129,7 @@ class CloudFileAccount {
     });
   }
 
-  refreshUserInfo(withUI, callback) {
-    if (Services.io.offline) {
-      throw cloudFileAccounts.constants.offlineErr;
-    }
-    callback.onStopRequest(null, Cr.NS_OK);
-  }
-
-  async deleteFile(file, callback) {
+  async deleteFile(file) {
     let results;
     try {
       if (this._fileIds.has(file.path)) {
@@ -152,36 +137,13 @@ class CloudFileAccount {
         results = await this.extension.emit("deleteFile", this, { id });
       }
     } catch (ex) {
-      callback.onStopRequest(null, Cr.NS_ERROR_FAILURE);
+      throw Cr.NS_ERROR_FAILURE;
     }
 
-    if (results && results.length > 0) {
-      callback.onStopRequest(null, Cr.NS_OK);
-    } else {
-      callback.onStopRequest(null, Cr.NS_ERROR_FAILURE);
-      throw new ExtensionUtils.ExtensionError(
-        `Missing cloudFile.onFileDeleted listener for ${this.extension.id}`
-      );
+    if (!results || results.length == 0) {
+      console.error(`Missing cloudFile.onFileDeleted listener for ${this.extension.id}`);
+      throw Cr.NS_ERROR_FAILURE;
     }
-  }
-
-  createNewAccount(...args) {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
-  }
-
-  createExistingAccount(callback) {
-    if (Services.io.offline) {
-      throw cloudFileAccounts.constants.offlineErr;
-    }
-    // We're assuming everything is ok here.
-    callback.onStopRequest(null, Cr.NS_OK);
-  }
-
-  providerUrlForError(error) {
-    return "";
-  }
-
-  overrideUrls(count, urls) {
   }
 }
 
@@ -218,6 +180,9 @@ this.cloudFile = class extends ExtensionAPI {
           }
           return "chrome://messenger/content/extension.svg";
         },
+        get serviceURL() {
+          return extension.manifest.cloud_file.service_url;
+        },
         initAccount(accountKey) {
           return new CloudFileAccount(accountKey, extension);
         },
@@ -225,7 +190,10 @@ this.cloudFile = class extends ExtensionAPI {
     }
   }
 
-  onShutdown() {
+  onShutdown(reason) {
+    if (reason == "APP_SHUTDOWN") {
+      return;
+    }
     cloudFileAccounts.unregisterProvider(this.providerType);
   }
 

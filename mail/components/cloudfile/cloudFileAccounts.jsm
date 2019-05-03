@@ -4,9 +4,7 @@
 
 this.EXPORTED_SYMBOLS = ["cloudFileAccounts"];
 
-var CATEGORY = "cloud-files";
-var PREF_ROOT = "mail.cloud_files.";
-var ACCOUNT_ROOT = PREF_ROOT + "accounts.";
+var ACCOUNT_ROOT = "mail.cloud_files.accounts.";
 
 // The following constants are used to query and insert entries
 // into the nsILoginManager.
@@ -14,7 +12,6 @@ var PWDMGR_HOST = "chrome://messenger/cloudfile";
 var PWDMGR_REALM = "BigFiles Auth Token";
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 var {EventEmitter} = ChromeUtils.import("resource://gre/modules/EventEmitter.jsm");
 
 var cloudFileAccounts = new class extends EventEmitter {
@@ -114,7 +111,6 @@ var cloudFileAccounts = new class extends EventEmitter {
     return this._providers.get(aType);
   }
 
-  // aExtraPrefs are prefs specific to an account provider.
   createAccount(aType) {
     this._highestOrdinal++;
     let key = "account" + this._highestOrdinal;

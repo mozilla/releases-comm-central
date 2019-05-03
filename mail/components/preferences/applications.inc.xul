@@ -104,8 +104,7 @@
             <hbox id="cloudFileToggleAndThreshold" align="center">
               <checkbox id="enableThreshold"
                         label="&enableCloudFileAccountOffer.label;"
-                        preference="mail.compose.big_attachments.notify"
-                        oncommand="gCloudFileTab.updateThreshold();"/>
+                        preference="mail.compose.big_attachments.notify"/>
               <textbox id="cloudFileThreshold" type="number" increment="1"
                        maxlength="4" size="2"
                        preference="mail.compose.big_attachments.threshold_kb"
@@ -118,15 +117,28 @@
               <vbox id="provider-listing">
                 <richlistbox id="cloudFileView" orient="vertical" flex="1"
                              seltype="single"
+                             onoverflow="gCloudFileTab.onListOverflow();"
                              onselect="gCloudFileTab.onSelectionChanged(event);">
                 </richlistbox>
                 <vbox id="addCloudFileAccountButtons">
                 </vbox>
+                <menulist id="addCloudFileAccount"
+                          hidden="true"
+                          label="&addCloudFileAccount1.label;"
+                          accesskey="&addCloudFileAccount1.accesskey;"
+                          defaultlabel="&addCloudFileAccount1.label;"
+                          oncommand="gCloudFileTab.addCloudFileAccount(this.value);">
+                  <menupopup id="addCloudFileAccountListItems"/>
+                </menulist>
                 <button id="removeCloudFileAccount"
                         disabled="true"
                         label="&removeCloudFileAccount.label;"
                         accesskey="&removeCloudFileAccount.accesskey;"
                         oncommand="gCloudFileTab.removeCloudFileAccount();"/>
+                <label is="text-link"
+                       id="moreProvidersLink"
+                       href="https://addons.thunderbird.net/thunderbird/tag/filelink"
+                       value="&findCloudFileProviders.label;"/>
               </vbox>
               <separator class="thin" orient="vertical"/>
               <vbox flex="1">

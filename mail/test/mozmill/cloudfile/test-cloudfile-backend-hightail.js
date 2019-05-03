@@ -20,7 +20,7 @@ var MODULE_REQUIRES = ["folder-display-helpers",
                          "prompt-helpers",];
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
+var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.jsm");
 
 var gServer, gObsManager;
 
@@ -68,23 +68,27 @@ function test_simple_case() {
     Services.obs.addObserver(obs, topic);
   }
 
-  let requestObserver = gObsManager.create("test_simple_case - Upload 1");
+  let uploadComplete = false;
   let file = getFile("./data/testFile1", __file__);
   let provider = gServer.getPreparedBackend("someAccountKey");
-  provider.uploadFile(file, requestObserver);
+  provider.uploadFile(file).then(() => {
+    uploadComplete = true;
+  });
 
-  mc.waitFor(() => requestObserver.success);
+  mc.waitFor(() => uploadComplete);
 
   let urlForFile = provider.urlForFile(file);
   assert_equals(kExpectedUrl, urlForFile);
   assert_equals(1, obs.numSightings(kUploadFile));
   assert_equals(1, obs.numSightings(kGetFileURL));
 
+  uploadComplete = false;
   gServer.planForUploadFile("testFile1");
   gServer.planForGetFileURL("testFile1", {url: kExpectedUrl});
-  requestObserver = gObsManager.create("test_simple_case - Upload 2");
-  provider.uploadFile(file, requestObserver);
-  mc.waitFor(() => requestObserver.success);
+  provider.uploadFile(file).then(() => {
+    uploadComplete = true;
+  });
+  mc.waitFor(() => uploadComplete);
   urlForFile = provider.urlForFile(file);
   assert_equals(kExpectedUrl, urlForFile);
 
@@ -118,10 +122,12 @@ function test_chained_uploads() {
   let files = [];
 
   let observers = kFilenames.map(function(aFilename) {
-    let requestObserver = gObsManager.create("test_chained_uploads for filename " + aFilename);
+    let requestObserver = { success: false };
     let file = getFile("./data/" + aFilename, __file__);
     files.push(file);
-    provider.uploadFile(file, requestObserver);
+    provider.uploadFile(file).then(() => {
+      requestObserver.success = true;
+    });
     return requestObserver;
   });
 
@@ -153,9 +159,11 @@ function test_deleting_uploads() {
 
   let file = getFile("./data/" + kFilename, __file__);
   gServer.planForUploadFile(kFilename);
-  let requestObserver = gObsManager.create("test_deleting_uploads - upload 1");
-  provider.uploadFile(file, requestObserver);
-  mc.waitFor(() => requestObserver.success);
+  let uploadComplete = false;
+  provider.uploadFile(file).then(() => {
+    uploadComplete = true;
+  });
+  mc.waitFor(() => uploadComplete);
 
   // Try deleting a file
   let obs = new ObservationRecorder();
@@ -251,9 +259,11 @@ function test_delete_refreshes_stale_token() {
   let provider = gServer.getPreparedBackend("someAccountKey");
   let file = getFile("./data/" + kFilename, __file__);
   gServer.planForUploadFile(kFilename);
-  let requestObserver = gObsManager.create("test_delete_refreshes_stale_token - upload 1");
-  provider.uploadFile(file, requestObserver);
-  mc.waitFor(() => requestObserver.success);
+  let uploadComplete = false
+  provider.uploadFile(file).then(() => {
+    uploadComplete = true;
+  });
+  mc.waitFor(() => uploadComplete);
 
   // At this point, we should not have seen any auth attempts.
   assert_equals(gServer.auth.count, 0,
@@ -284,12 +294,14 @@ function test_bug771132_fix_no_scheme() {
   gServer.planForUploadFile("testFile1");
   gServer.planForGetFileURL("testFile1", {url: kMalformedUrl});
 
-  let requestObserver = gObsManager.create("test_simple_case - Upload 1");
+  let uploadComplete = false;
   let file = getFile("./data/testFile1", __file__);
   let provider = gServer.getPreparedBackend("someAccountKey");
-  provider.uploadFile(file, requestObserver);
+  provider.uploadFile(file).then(() => {
+    uploadComplete = true;
+  });
 
-  mc.waitFor(() => requestObserver.success);
+  mc.waitFor(() => uploadComplete);
 
   let urlForFile = provider.urlForFile(file);
   assert_equals(kExpectedUrl, urlForFile);
@@ -298,9 +310,11 @@ function test_bug771132_fix_no_scheme() {
   // already a scheme.
   gServer.planForUploadFile("testFile1");
   gServer.planForGetFileURL("testFile1", {url: kExpectedUrl});
-  requestObserver = gObsManager.create("test_simple_case - Upload 2");
-  provider.uploadFile(file, requestObserver);
-  mc.waitFor(() => requestObserver.success);
+  uploadComplete = false;
+  provider.uploadFile(file).then(() => {
+    uploadComplete = true;
+  });
+  mc.waitFor(() => uploadComplete);
 
   urlForFile = provider.urlForFile(file);
   assert_equals(kExpectedUrl, urlForFile);

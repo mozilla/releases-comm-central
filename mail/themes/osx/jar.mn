@@ -117,7 +117,6 @@ classic.jar:
   skin/classic/messenger/preferences/saveFile.png                (mail/preferences/saveFile.png)
   skin/classic/messenger/preferences/preferences.css             (mail/preferences/preferences.css)
   skin/classic/messenger/preferences/applications.css            (mail/preferences/applications.css)
-  skin/classic/messenger/preferences/auth-error.png              (mail/preferences/auth-error.png)
   skin/classic/messenger/preferences/dialog.css                  (mail/preferences/dialog.css)
   skin/classic/messenger/preferences/aboutPreferences.css        (mail/preferences/aboutPreferences.css)
   skin/classic/messenger/smime/smime-compose.css                 (mail/smime/smime-compose.css)

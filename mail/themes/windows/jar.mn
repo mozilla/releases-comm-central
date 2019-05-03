@@ -90,7 +90,6 @@ classic.jar:
   skin/classic/messenger/preferences/alwaysAsk.png            (mail/preferences/alwaysAsk.png)
   skin/classic/messenger/preferences/application.png          (mail/preferences/application.png)
   skin/classic/messenger/preferences/applications.css         (mail/preferences/applications.css)
-  skin/classic/messenger/preferences/auth-error.png           (mail/preferences/auth-error.png)
   skin/classic/messenger/preferences/dialog.css               (mail/preferences/dialog.css)
   skin/classic/messenger/preferences/preferences.css          (mail/preferences/preferences.css)
   skin/classic/messenger/preferences/saveFile.png             (mail/preferences/saveFile.png)

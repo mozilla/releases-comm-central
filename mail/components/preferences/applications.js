@@ -21,7 +21,7 @@ var APP_ICON_ATTR_NAME = "appHandlerIcon";
 var gNodeToObjectMap = new WeakMap();
 
 // CloudFile account tools used by gCloudFileTab.
-var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
+var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
@@ -511,6 +511,7 @@ var gCloudFileTab = {
   _initializationStarted: false,
   _list: null,
   _buttonContainer: null,
+  _listContainer: null,
   _settings: null,
   _settingsDeck: null,
   _tabpanel: null,
@@ -540,6 +541,8 @@ var gCloudFileTab = {
 
     this._list = document.getElementById("cloudFileView");
     this._buttonContainer = document.getElementById("addCloudFileAccountButtons");
+    this._addAccountButton = document.getElementById("addCloudFileAccount");
+    this._listContainer = document.getElementById("addCloudFileAccountListItems");
     this._removeAccountButton = document.getElementById("removeCloudFileAccount");
     this._settingsDeck = document.getElementById("cloudFileSettingsDeck");
     this._defaultPanel = document.getElementById("cloudFileDefaultPanel");
@@ -588,6 +591,7 @@ var gCloudFileTab = {
 
     if (!this._blacklist.has(provider.type)) {
       this._buttonContainer.appendChild(this.makeButtonForProvider(provider));
+      this._listContainer.appendChild(this.makeListItemForProvider(provider));
     }
   },
 
@@ -610,6 +614,17 @@ var gCloudFileTab = {
       if (button.getAttribute("value") == type) {
         button.remove();
       }
+    }
+
+    for (let item of this._listContainer.children) {
+      if (item.getAttribute("value") == type) {
+        item.remove();
+      }
+    }
+
+    if (this._buttonContainer.childElementCount < 1) {
+      this._buttonContainer.hidden = false;
+      this._addAccountButton.hidden = true;
     }
   },
 
@@ -664,6 +679,15 @@ var gCloudFileTab = {
     return button;
   },
 
+  makeListItemForProvider(provider) {
+    let menuitem = document.createElement("menuitem");
+    menuitem.classList.add("menuitem-iconic");
+    menuitem.setAttribute("value", provider.type);
+    menuitem.setAttribute("label", provider.displayName);
+    menuitem.setAttribute("image", provider.iconURL);
+    return menuitem;
+  },
+
   // Sort the accounts by displayName.
   _sortDisplayNames(a, b) {
     let aName = a.displayName.toLowerCase();
@@ -695,6 +719,7 @@ var gCloudFileTab = {
       }
 
       this._buttonContainer.appendChild(this.makeButtonForProvider(provider));
+      this._listContainer.appendChild(this.makeListItemForProvider(provider));
     }
   },
 
@@ -742,6 +767,13 @@ var gCloudFileTab = {
     this._settings = iframe;
   },
 
+  onListOverflow() {
+    if (this._buttonContainer.childElementCount > 1) {
+      this._buttonContainer.hidden = true;
+      this._addAccountButton.hidden = false;
+    }
+  },
+
   addCloudFileAccount(aType) {
     let account = cloudFileAccounts.createAccount(aType);
     if (!account)
@@ -750,6 +782,10 @@ var gCloudFileTab = {
     let rli = this.makeRichListItemForAccount(account);
     this._list.appendChild(rli);
     this._list.selectItem(rli);
+    this._addAccountButton.removeAttribute("image");
+    this._addAccountButton.setAttribute(
+      "label", this._addAccountButton.getAttribute("defaultlabel")
+    );
     this._removeAccountButton.disabled = false;
   },
 
@@ -844,9 +880,11 @@ var gCloudFileTab = {
 
   updateThreshold() {
     document.getElementById("cloudFileThreshold").disabled =
-      !document.getElementById("enableThreshold").checked;
+      !Preferences.get("mail.compose.big_attachments.notify").value;
   },
 };
+
+Preferences.get("mail.compose.big_attachments.notify").on("change", gCloudFileTab.updateThreshold);
 
 // -------------------
 // Prefpane Controller

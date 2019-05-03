@@ -19,7 +19,7 @@ var MODULE_REQUIRES = ["folder-display-helpers",
                        "notificationbox-helpers"];
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
+var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.jsm");
 
 var maxSize, oldInsertNotificationPref;
 
@@ -233,10 +233,9 @@ function test_link_insertion_goes_away_on_error() {
   let provider = new MockCloudfileAccount();
   provider.init("aKey");
 
-  provider.uploadFile = function(aFile, aListener) {
-    aListener.onStartRequest(null);
-    cwc.window.setTimeout(function() {
-      aListener.onStopRequest(null, cloudFileAccounts.constants.uploadErr);
+  provider.uploadFile = function(aFile) {
+    return new Promise((resolve, reject) => {
+      cwc.window.setTimeout(() => reject(cloudFileAccounts.constants.uploadErr));
     }, 500);
   };
 
@@ -267,9 +266,8 @@ function test_no_offer_on_conversion() {
   // Override uploadFile to succeed instantaneously so that we don't have
   // to worry about waiting for the onStopRequest method being called
   // asynchronously.
-  provider.uploadFile = function(aFile, aListener) {
-    aListener.onStartRequest(null);
-    aListener.onStopRequest(null, Cr.NS_OK);
+  provider.uploadFile = function(aFile) {
+    return Promise.resolve();
   };
 
   let cw = open_compose_new_mail();
@@ -310,9 +308,8 @@ function test_offer_then_upload_notifications() {
   // Override uploadFile to succeed instantaneously so that we don't have
   // to worry about waiting for the onStopRequest method being called
   // asynchronously.
-  provider.uploadFile = function(aFile, aListener) {
-    aListener.onStartRequest(null);
-    aListener.onStopRequest(null, Cr.NS_OK);
+  provider.uploadFile = function(aFile) {
+    return Promise.resolve();
   };
 
   let cw = open_compose_new_mail();
@@ -352,10 +349,7 @@ function test_privacy_warning_notification() {
   provider.init("aKey");
 
   provider.uploadFile = function(aFile, aListener) {
-    aListener.onStartRequest(null);
-    cwc.window.setTimeout(function() {
-      aListener.onStopRequest(null, Cr.NS_OK);
-    }, 500);
+    return new Promise(resolve => cwc.window.setTimeout(resolve, 500));
   };
   let cwc = open_compose_new_mail(mc);
   add_cloud_attachments(cwc, provider);
@@ -392,10 +386,7 @@ function test_privacy_warning_notification_no_persist() {
   provider.init("aKey");
 
   provider.uploadFile = function(aFile, aListener) {
-    aListener.onStartRequest(null);
-    cwc.window.setTimeout(function() {
-      aListener.onStopRequest(null, Cr.NS_OK);
-    }, 500);
+    return new Promise(resolve => cwc.window.setTimeout(resolve, 500));
   };
   let cwc = open_compose_new_mail(mc);
   add_cloud_attachments(cwc, provider, false);
@@ -432,10 +423,7 @@ function test_privacy_warning_notification_open_after_close() {
   provider.init("aKey");
 
   provider.uploadFile = function(aFile, aListener) {
-    aListener.onStartRequest(null);
-    cwc.window.setTimeout(function() {
-      aListener.onStopRequest(null, Cr.NS_OK);
-    }, 500);
+    return new Promise(resolve => cwc.window.setTimeout(resolve, 500));
   };
   let cwc = open_compose_new_mail(mc);
   add_cloud_attachments(cwc, provider, false);

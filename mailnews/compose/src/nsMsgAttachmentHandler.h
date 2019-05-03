@@ -159,7 +159,7 @@ public:
    // true if this should be sent as a link to a file.
   bool                  mSendViaCloud;
   nsString              mHtmlAnnotation;
-  nsCString             mCloudProviderKey;
+  nsCString             mCloudFileAccountKey;
   nsCString             mCloudUrl;
   int32_t mNodeIndex; //If this is an embedded image, this is the index of the
                       // corresponding domNode in the editor's

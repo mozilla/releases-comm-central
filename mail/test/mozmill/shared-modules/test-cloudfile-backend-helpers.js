@@ -9,7 +9,7 @@ var MODULE_NAME = "cloudfile-backend-helpers";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["window-helpers"];
 
-var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
+var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.jsm");
 
 var kUserAuthRequested = "cloudfile:auth";
 var kUserDataRequested = "cloudfile:user";
@@ -96,17 +96,9 @@ function assert_can_cancel_uploads(aController, aProvider, aFiles) {
 
   for (let file of aFiles) {
     let mapping = {};
-    mapping.listener = {
-      onStartRequest(aRequest) {
-        mapping.started = true;
-      },
-      onStopRequest(aRequest, aStatusCode) {
-        if (aStatusCode == cloudFileAccounts.constants.uploadCancelled)
-          mapping.cancelled = true;
-      },
-    };
-
-    aProvider.uploadFile(file, mapping.listener);
+    aProvider.uploadFile(file).catch(() => {
+      mapping.cancelled = true;
+    });
     fileListenerMap.push(mapping);
   }
 

@@ -18,7 +18,7 @@ var MODULE_REQUIRES = ["folder-display-helpers",
 
 var kAttachmentItemContextID = "msgComposeAttachmentItemContext";
 
-var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
+var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.jsm");
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
@@ -56,12 +56,13 @@ function test_upload_cancel_repeat() {
 
   // Now we override the uploadFile function of the MockCloudfileAccount
   // so that we're perpetually uploading...
-  let listener;
+  let promise;
   let started;
-  provider.uploadFile = function(aFile, aListener) {
-    listener = aListener;
-    listener.onStartRequest(null);
-    started = true;
+  provider.uploadFile = function(aFile) {
+    return new Promise((resolve, reject) => {
+      promise = { resolve, reject };
+      started = true;
+    });
   };
 
   const kAttempts = 3;
@@ -69,7 +70,7 @@ function test_upload_cancel_repeat() {
   let menu = cw.getMenu("#" + kAttachmentItemContextID);
 
   for (let i = 0; i < kAttempts; i++) {
-    listener = null;
+    promise = null;
     started = false;
 
     // Select the attachment, and choose to convert it to a Filelink
@@ -77,7 +78,7 @@ function test_upload_cancel_repeat() {
     cw.window.convertSelectedToCloudAttachment(provider);
     cw.waitFor(() => started);
 
-    assert_can_cancel_upload(cw, provider, listener, file);
+    assert_can_cancel_upload(cw, provider, promise, file);
   }
 
   close_compose_window(cw);
@@ -99,16 +100,17 @@ function test_upload_multiple_and_cancel() {
   provider.init("someKey");
   let cw = open_compose_new_mail();
 
-  let listener;
-  provider.uploadFile = function(aFile, aListener) {
-    listener = aListener;
-    listener.onStartRequest(null);
+  let promise;
+  provider.uploadFile = function(aFile) {
+    return new Promise((resolve, reject) => {
+      promise = { resolve, reject };
+    });
   };
 
   add_cloud_attachments(cw, provider, false);
 
   for (let i = files.length - 1; i >= 0; --i) {
-    assert_can_cancel_upload(cw, provider, listener, files[i]);
+    assert_can_cancel_upload(cw, provider, promise, files[i]);
   }
 
   close_compose_window(cw);
@@ -126,15 +128,14 @@ function test_upload_multiple_and_cancel() {
  *                  function.
  * @param aTargetFile the nsIFile to cancel the upload for.
  */
-function assert_can_cancel_upload(aController, aProvider, aListener,
-                                  aTargetFile) {
+function assert_can_cancel_upload(aController, aProvider, aPromise, aTargetFile) {
   let cancelled = false;
 
   // Override the provider's cancelFileUpload function.  We can do this because
   // it's assumed that the provider is a MockCloudfileAccount.
   aProvider.cancelFileUpload = function(aFileToCancel) {
     if (aTargetFile.equals(aFileToCancel)) {
-      aListener.onStopRequest(null, cloudFileAccounts.constants.uploadCancelled);
+      aPromise.reject(cloudFileAccounts.constants.uploadCancelled);
       cancelled = true;
     }
   };

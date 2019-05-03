@@ -7,7 +7,7 @@
 /* import-globals-from MsgComposeCommands.js */
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
+var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.jsm");
 
 var kUploadNotificationValue = "bigAttachmentUploading";
 var kPrivacyWarningNotificationValue = "bigAttachmentPrivacyWarning";
@@ -183,26 +183,44 @@ var gBigFileObserver = {
   },
 
   convertAttachments() {
-    let cloudProvider;
+    let account;
     let accounts = cloudFileAccounts.configuredAccounts;
 
     if (accounts.length == 1) {
-      cloudProvider = accounts[0];
+      account = accounts[0];
     } else if (accounts.length > 1) {
-      let selection = {};
+      // We once used Services.prompt.select for this UI, but it doesn't support displaying an
+      // icon for each item. The following code does the same thing with a replacement dialog.
+      let { PromptUtils } = ChromeUtils.import("resource://gre/modules/SharedPromptUtils.jsm");
+
       let names = accounts.map(i => cloudFileAccounts.getDisplayName(i));
-      if (Services.prompt.select(window,
-                                 this.formatString("bigFileChooseAccount.title"),
-                                 this.formatString("bigFileChooseAccount.text"),
-                                 names.length, names, selection))
-        cloudProvider = accounts[selection.value];
+      let icons = accounts.map(i => i.iconURL);
+      let args = {
+        promptType: "select",
+        title: this.formatString("bigFileChooseAccount.title"),
+        text: this.formatString("bigFileChooseAccount.text"),
+        list: names,
+        icons,
+        selected: -1,
+        ok: false,
+      };
+
+      let propBag = PromptUtils.objectToPropBag(args);
+      openDialog("chrome://messenger/content/cloudfile/selectDialog.xul",
+                 "_blank",
+                 "centerscreen,chrome,modal,titlebar",
+                 propBag);
+      PromptUtils.propBagToObject(propBag, args);
+
+      if (args.ok)
+        account = accounts[args.selected];
     } else {
       openPreferencesTab("paneApplications", "attachmentsOutTab");
       return true;
     }
 
-    if (cloudProvider)
-      convertToCloudAttachment(this.bigFiles, cloudProvider);
+    if (account)
+      convertToCloudAttachment(this.bigFiles, account);
 
     return false;
   },

@@ -6,6 +6,7 @@ add_task(async () => {
   await testCheckboxes("paneApplications", "attachmentsOutTab", {
     checkboxID: "enableThreshold",
     pref: "mail.compose.big_attachments.notify",
+    enabledElements: ["#cloudFileThreshold"],
   });
 });
 

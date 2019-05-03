@@ -205,8 +205,7 @@ a {
   font-weight: 600;
 }
 
-/* Loading panel */
-#cloudFileLoadingPanel, #cloudFileDefaultPanel {
+#cloudFileDefaultPanel {
   text-align: center;
   padding-top: 150px;
 }

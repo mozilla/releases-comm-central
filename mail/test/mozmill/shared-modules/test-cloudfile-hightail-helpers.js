@@ -8,7 +8,7 @@ var MODULE_NAME = "cloudfile-hightail-helpers";
 
 var {HttpServer} = ChromeUtils.import("chrome://mozmill/content/stdlib/httpd.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
+var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.jsm");
 
 var kDefaultServerPort = 4444;
 var kServerRoot = "http://localhost:" + kDefaultServerPort;

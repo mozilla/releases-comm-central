@@ -34,8 +34,7 @@ var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
 
 var cloudFileAccounts;
 try {
-    let temp = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
-    cloudFileAccounts = temp.cloudFileAccounts;
+    ({ cloudFileAccounts } = ChromeUtils.import("resource:///modules/cloudFileAccounts.jsm"));
 } catch (e) {
     // This will fail on Seamonkey, but that's ok since the pref for cloudfiles
     // is false, which means the UI will not be shown
@@ -2055,9 +2054,9 @@ function loadCloudProviders() {
         itemObject.displayName = cloudFileAccounts.getDisplayName(cloudProvider);
         itemObject.label = cal.l10n.getString("calendar-event-dialog", "attachViaFilelink", [itemObject.displayName]);
         itemObject.cloudProviderAccountKey = cloudProvider.accountKey;
-        if (cloudProvider.iconClass) {
+        if (cloudProvider.iconURL) {
             itemObject.class = "menuitem-iconic";
-            itemObject.image = cloudProvider.iconClass;
+            itemObject.image = cloudProvider.iconURL;
         }
 
         itemObjects.push(itemObject);
@@ -2231,44 +2230,37 @@ function makePrettyName(aUri) {
  * @param cloudProvider     The clould provider to upload to
  * @param listItem          The listitem in attachment-link listbox to update.
  */
-function uploadCloudAttachment(attachment, cloudProvider, listItem) {
+function uploadCloudAttachment(attachment, cloudFileAccount, listItem) {
     let file = attachment.uri.QueryInterface(Ci.nsIFileURL).file;
     listItem.attachLocalFile = file;
-    listItem.attachCloudProvider = cloudProvider;
-    cloudProvider.uploadFile(file, {
-        onStartRequest: function() {
-            listItem.setAttribute("image", "chrome://global/skin/icons/loading.png");
-        },
+    listItem.attachCloudFileAccount = cloudFileAccount;
+    listItem.setAttribute("image", "chrome://global/skin/icons/loading.png");
+    cloudFileAccount.uploadFile(file).then(() => {
+        delete gAttachMap[attachment.hashId];
+        attachment.uri = Services.io.newURI(cloudFileAccount.urlForFile(file));
+        attachment.setParameter("FILENAME", file.leafName);
+        attachment.setParameter("PROVIDER", cloudFileAccount.type);
+        listItem.setAttribute("label", file.leafName);
+        gAttachMap[attachment.hashId] = attachment;
+        listItem.setAttribute("image", cloudFileAccount.iconURL);
+        updateAttachment();
+    }, (statusCode) => {
+        cal.ERROR("[calendar-event-dialog] Uploading cloud attachment " +
+                  "failed. Status code: " + statusCode);
 
-        onStopRequest: function(aRequest, aStatusCode) {
-            if (Components.isSuccessCode(aStatusCode)) {
-                delete gAttachMap[attachment.hashId];
-                attachment.uri = Services.io.newURI(cloudProvider.urlForFile(file));
-                attachment.setParameter("FILENAME", file.leafName);
-                attachment.setParameter("PROVIDER", cloudProvider.type);
-                listItem.setAttribute("label", file.leafName);
-                gAttachMap[attachment.hashId] = attachment;
-                listItem.setAttribute("image", cloudProvider.iconClass);
-                updateAttachment();
-            } else {
-                cal.ERROR("[calendar-event-dialog] Uploading cloud attachment " +
-                          "failed. Status code: " + aStatusCode);
+        // Uploading failed. First of all, show an error icon. Also,
+        // delete it from the attach map now, this will make sure it is
+        // not serialized if the user saves.
+        listItem.setAttribute("image", "chrome://messenger/skin/icons/error.png");
+        delete gAttachMap[attachment.hashId];
 
-                // Uploading failed. First of all, show an error icon. Also,
-                // delete it from the attach map now, this will make sure it is
-                // not serialized if the user saves.
-                listItem.setAttribute("image", "chrome://messenger/skin/icons/error.png");
-                delete gAttachMap[attachment.hashId];
-
-                // Keep the item for a while so the user can see something failed.
-                // When we have a nice notification bar, we can show more info
-                // about the failure.
-                setTimeout(() => {
-                    listItem.remove();
-                    updateAttachment();
-                }, 5000);
-            }
-        }
+        // Keep the item for a while so the user can see something failed.
+        // When we have a nice notification bar, we can show more info
+        // about the failure.
+        setTimeout(() => {
+            listItem.remove();
+            updateAttachment();
+        }, 5000);
     });
 }
 
@@ -2276,9 +2268,9 @@ function uploadCloudAttachment(attachment, cloudProvider, listItem) {
  * Adds the given attachment to dialog controls.
  *
  * @param attachment    The calIAttachment object to add
- * @param cloudProvider (optional) If set, the given cloud provider will be used.
+ * @param cloudFileAccount (optional) If set, the given cloud file account will be used.
  */
-function addAttachment(attachment, cloudProvider) {
+function addAttachment(attachment, cloudFileAccount) {
     if (!attachment ||
         !attachment.hashId ||
         attachment.hashId in gAttachMap) {
@@ -2296,14 +2288,14 @@ function addAttachment(attachment, cloudProvider) {
         label.setAttribute("crop", "end");
         listItem.appendChild(label);
         listItem.setAttribute("tooltiptext", attachment.uri.spec);
-        if (cloudProvider) {
+        if (cloudFileAccount) {
             if (attachment.uri.schemeIs("file")) {
                 // Its still a local url, needs to be uploaded
                 image.setAttribute("src", "chrome://messenger/skin/icons/connecting.png");
-                uploadCloudAttachment(attachment, cloudProvider, listItem);
+                uploadCloudAttachment(attachment, cloudFileAccount, listItem);
             } else {
                 let leafName = attachment.getParameter("FILENAME");
-                image.setAttribute("src", cloudProvider.iconClass);
+                image.setAttribute("src", cloudFileAccount.iconURL);
                 if (leafName) {
                     listItem.setAttribute("label", leafName);
                 }
@@ -2321,7 +2313,7 @@ function addAttachment(attachment, cloudProvider) {
             }
             if (providerType && cloudFileEnabled) {
                 let provider = cloudFileAccounts.getProviderForType(providerType);
-                image.setAttribute("src", provider.iconClass);
+                image.setAttribute("src", provider.iconURL);
             } else {
                 let iconSrc = attachment.uri.spec.length ? attachment.uri.spec : "dummy.html";
                 if (attachment.formatType) {
@@ -2361,18 +2353,13 @@ function deleteAttachment() {
     let item = documentLink.selectedItem;
     delete gAttachMap[item.attachment.hashId];
 
-    if (item.attachLocalFile && item.attachCloudProvider) {
+    if (item.attachLocalFile && item.attachCloudFileAccount) {
         try {
-            item.attachCloudProvider.deleteFile(item.attachLocalFile, {
-                onStartRequest: function() {},
-                onStopRequest: function(aRequest, aStatusCode) {
-                    if (!Components.isSuccessCode(aStatusCode)) {
-                        // TODO With a notification bar, we could actually show this error.
-                        cal.ERROR("[calendar-event-dialog] Deleting cloud attachment " +
-                                  "failed, file will remain on server. " +
-                                  " Status code: " + aStatusCode);
-                    }
-                }
+            item.attachCloudFileAccount.deleteFile(item.attachLocalFile).catch((statusCode) => {
+                // TODO With a notification bar, we could actually show this error.
+                cal.ERROR("[calendar-event-dialog] Deleting cloud attachment " +
+                          "failed, file will remain on server. " +
+                          " Status code: " + statusCode);
             });
         } catch (e) {
             cal.ERROR("[calendar-event-dialog] Deleting cloud attachment " +

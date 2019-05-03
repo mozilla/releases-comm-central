@@ -1127,7 +1127,7 @@ nsMsgComposeAndSend::PreProcessPart(nsMsgAttachmentHandler  *ma,
     if (m_deliver_mode == nsMsgSaveAsDraft)
     {
       draftInfo.AppendLiteral("; provider=");
-      draftInfo.Append(ma->mCloudProviderKey.get());
+      draftInfo.Append(ma->mCloudFileAccountKey.get());
       draftInfo.AppendLiteral("; file=");
       draftInfo.Append(urlSpec.get());
     }
@@ -1957,13 +1957,13 @@ nsMsgComposeAndSend::AddCompFieldLocalAttachments()
         attachment->GetSendViaCloud(&sendViaCloud);
         if (sendViaCloud)
         {
-          nsCString cloudProviderKey;
+          nsCString cloudFileAccountKey;
           // We'd like to output a part for the attachment, just an html part
           // with information about how to download the attachment.
           // m_attachments[newLoc]->m_done = true;
           attachment->GetHtmlAnnotation(m_attachments[newLoc]->mHtmlAnnotation);
           m_attachments[newLoc]->m_type.AssignLiteral("text/html");
-          attachment->GetCloudProviderKey(m_attachments[newLoc]->mCloudProviderKey);
+          attachment->GetCloudFileAccountKey(m_attachments[newLoc]->mCloudFileAccountKey);
           attachment->GetContentLocation(m_attachments[newLoc]->mCloudUrl);
         }
         // Just look for local file:// attachments and do the right thing.

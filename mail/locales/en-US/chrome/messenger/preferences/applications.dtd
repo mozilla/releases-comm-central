@@ -30,9 +30,7 @@
 <!ENTITY addCloudFileAccount.description  "Add a new Filelink storage service">
 <!ENTITY removeCloudFileAccount.label     "Remove">
 <!ENTITY removeCloudFileAccount.accesskey "R">
-<!ENTITY authRequired.description         "Your authorization is required in order to see the settings for this storage service.">
-<!ENTITY authRequired.button.label        "Authorize">
-<!ENTITY authRequired.button.accesskey    "U">
+<!ENTITY findCloudFileProviders.label     "Find more providers…">
 
 <!ENTITY enableCloudFileAccountOffer.label "Offer to share for files larger than">
 <!ENTITY enableCloudFileAccountOffer.mb "MB">

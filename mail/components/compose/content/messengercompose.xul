@@ -279,7 +279,7 @@
   <command id="cmd_new" oncommand="goDoCommand('cmd_newMessage')"/>
   <command id="cmd_attachFile" oncommand="goDoCommand('cmd_attachFile')"/>
   <command id="cmd_attachCloud"
-           oncommand="attachToCloud(event.target.cloudProvider);
+           oncommand="attachToCloud(event.target.cloudFileAccount);
                       event.stopPropagation();"/>
   <command id="cmd_attachPage" oncommand="goDoCommand('cmd_attachPage')"/>
   <command id="cmd_attachVCard" checked="false"
@@ -383,7 +383,7 @@
   <command id="cmd_CustomizeComposeToolbar"
            oncommand="CustomizeMailToolbar('compose-toolbox', 'CustomizeComposeToolbar')"/>
 
-  <command id="cmd_convertCloud" oncommand="convertSelectedToCloudAttachment(event.target.cloudProvider); event.stopPropagation();"/>
+  <command id="cmd_convertCloud" oncommand="convertSelectedToCloudAttachment(event.target.cloudFileAccount); event.stopPropagation();"/>
   <command id="cmd_convertAttachment" oncommand="goDoCommand('cmd_convertAttachment')"/>
   <command id="cmd_cancelUpload" oncommand="goDoCommand('cmd_cancelUpload')"/>
   <command id="cmd_customizeFromAddress" oncommand="MakeFromFieldEditable();"

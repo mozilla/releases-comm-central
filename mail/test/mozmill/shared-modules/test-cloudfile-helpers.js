@@ -10,12 +10,13 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers"];
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
+var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.jsm");
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 
 var kMockContractIDPrefix = "@mozilla.org/mail/mockCloudFile;1?id=";
 
 var kDefaults = {
+  type: "default",
   iconURL: "chrome://messenger/skin/icons/box-logo.png",
   accountKey: null,
   settingsURL: "",
@@ -78,36 +79,20 @@ MockCloudfileAccount.prototype = {
     this.accountKey = aAccountKey;
   },
 
-  uploadFile(aFile, aListener) {
-    aListener.onStartRequest(null);
-    fdh.mc.window.setTimeout(function() {
-      aListener.onStopRequest(null, Cr.NS_OK);
-    }, 0);
+  uploadFile(aFile) {
+    return new Promise(resolve => fdh.mc.window.setTimeout(resolve));
   },
 
   urlForFile(aFile) {
-    return "http://www.example.com/" + this.accountKey + "/" +
-           aFile.leafName;
-  },
-
-  refreshUserInfo(aWithUI, aCallback) {
-    aCallback.onStartRequest(null);
-    aCallback.onStopRequest(null, Cr.NS_OK);
+    return `http://www.example.com/${this.accountKey}/${aFile.leafName}`;
   },
 
   cancelFileUpload(aFile) {
     throw Cr.NS_ERROR_NOT_IMPLEMENTED;
   },
 
-  providerUrlForError(aStatusCode) {
-    return "";
-  },
-
-  deleteFile(aFile, aCallback) {
-    aCallback.onStartRequest(null);
-    fdh.mc.window.setTimeout(function() {
-      aCallback.onStopRequest(null, Cr.NS_OK);
-    }, 0);
+  deleteFile(aFile) {
+    return new Promise(resolve => fdh.mc.window.setTimeout(resolve));
   },
 
   get displayName() {

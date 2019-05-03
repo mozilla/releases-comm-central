@@ -26,7 +26,7 @@ private:
   nsCString   mUrlCharset;
   bool        mTemporary;
   bool        mSendViaCloud;
-  nsCString   mCloudProviderKey;
+  nsCString   mCloudFileAccountKey;
   nsCString   mContentLocation;
   nsCString   mContentType;
   nsCString   mContentTypeParam;

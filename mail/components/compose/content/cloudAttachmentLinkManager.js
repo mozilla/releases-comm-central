@@ -38,9 +38,9 @@ var gCloudAttachmentLinkManager = {
         this._insertHeader(mailDoc);
 
       let attachment = event.target.attachment;
-      let provider = event.target.cloudProvider;
+      let account = event.target.cloudFileAccount;
       this.cloudAttachments.push(attachment);
-      this._insertItem(mailDoc, attachment, provider);
+      this._insertItem(mailDoc, attachment, account);
     } else if (event.type == "attachments-removed" ||
                event.type == "attachments-converted") {
       let items = [];
@@ -351,9 +351,9 @@ var gCloudAttachmentLinkManager = {
    *
    * @param aDocument the document to insert the item into
    * @param aAttachment the nsIMsgAttachment to insert
-   * @param aProviderType the cloud storage provider
+   * @param aAccount the cloud storage account
    */
-  _insertItem(aDocument, aAttachment, aProvider) {
+  _insertItem(aDocument, aAttachment, aAccount) {
     let list = aDocument.getElementById("cloudAttachmentList");
 
     if (!list) {
@@ -364,6 +364,8 @@ var gCloudAttachmentLinkManager = {
     let node = aDocument.createElement("div");
     node.className = "cloudAttachmentItem";
     node.contentLocation = aAttachment.contentLocation;
+
+    let provider = cloudFileAccounts.getProviderForType(aAccount.type);
 
     if (gMsgCompose.composeHTML) {
       node.style.border = "1px solid #CDCDCD";
@@ -396,18 +398,21 @@ var gCloudAttachmentLinkManager = {
       let providerIdentity = aDocument.createElement("span");
       providerIdentity.style.cssFloat = "right";
 
-      if (aProvider.iconURL) {
+      if (provider.iconURL) {
         let providerIcon = aDocument.createElement("img");
         providerIcon.style.marginRight = "5px";
+        providerIcon.style.maxWidth = "24px";
+        providerIcon.style.maxHeight = "24px";
+        providerIcon.style.verticalAlign = "middle";
         providerIdentity.appendChild(providerIcon);
 
-        if (!/^chrome:\/\//i.test(aProvider.iconURL)) {
-          providerIcon.src = aProvider.iconURL;
+        if (!/^(chrome|moz-extension):\/\//i.test(provider.iconURL)) {
+          providerIcon.src = provider.iconURL;
         } else {
           try {
             // Let's use the goodness from MsgComposeCommands.js since we're
             // sitting right in a compose window.
-            providerIcon.src = window.loadBlockedImage(aProvider.iconURL, true);
+            providerIcon.src = window.loadBlockedImage(provider.iconURL, true);
           } catch (e) {
             // Couldn't load the referenced image.
             Cu.reportError(e);
@@ -415,13 +420,15 @@ var gCloudAttachmentLinkManager = {
         }
       }
 
-      if (aProvider.serviceURL) {
-        let providerLink = this._generateLink(aDocument, aProvider.displayName,
-                                              aProvider.serviceURL);
+      if (provider.serviceURL) {
+        let providerLink = this._generateLink(aDocument, provider.displayName,
+                                              provider.serviceURL);
+        providerLink.style.verticalAlign = "middle";
         providerIdentity.appendChild(providerLink);
       } else {
         let providerName = aDocument.createElement("span");
-        providerName.textContent = aProvider.displayName;
+        providerName.textContent = provider.displayName;
+        providerName.style.verticalAlign = "middle";
         providerIdentity.appendChild(providerName);
       }
 
@@ -438,7 +445,7 @@ var gCloudAttachmentLinkManager = {
       node.textContent = getComposeBundle().getFormattedString(
         "cloudAttachmentListItem",
         [aAttachment.name, gMessenger.formatFileSize(aAttachment.size),
-         aProvider.displayName,
+         provider.displayName,
          aAttachment.contentLocation]);
     }
 

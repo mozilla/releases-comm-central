@@ -69,29 +69,6 @@ menuitem[appHandlerIcon="save"] {
   padding-inline-start: 4px;
 }
 
-#authMessage {
-  text-align: center;
-  padding: 0 80px;
-}
-
-#authImage {
-  list-style-image: url("chrome://messenger/skin/preferences/auth-error.png");
-  width: 150px;
-  height: 150px;
-}
-
 #cloudFileToggleAndThreshold {
   padding-bottom: 6px;
-}
-
-#cloudFileLoadingSpinner {
-  width: 16px;
-  height: 16px;
-  list-style-image: url("chrome://global/skin/icons/loading.png");
-}
-
-@media (min-resolution: 1.1dppx) {
-  #cloudFileLoadingSpinner {
-    list-style-image: url("chrome://global/skin/icons/loading@2x.png");
-  }
 }

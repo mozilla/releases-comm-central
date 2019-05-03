@@ -389,14 +389,29 @@ description > html|a {
 }
 
 #addCloudFileAccountButtons button,
-#removeCloudFileAccount {
+#addCloudFileAccount,
+#removeCloudFileAccount,
+#moreProvidersLink {
   margin: 4px 0 0;
+  text-align: center;
 }
 
 #addCloudFileAccountButtons button .button-icon {
   width: 16px;
   height: 16px;
   margin-inline-end: 8px;
+}
+
+#addCloudFileAccountListItems {
+  text-align: start;
+}
+
+#addCloudFileAccountListItems > menuitem > .menu-iconic-left {
+  display: -moz-box;
+}
+
+#moreProvidersLink {
+  padding: 4px;
 }
 
 #paneChat {

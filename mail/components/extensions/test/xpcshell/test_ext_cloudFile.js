@@ -4,7 +4,7 @@
 
 "use strict";
 
-var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.js");
+var {cloudFileAccounts} = ChromeUtils.import("resource:///modules/cloudFileAccounts.jsm");
 var {ExtensionTestUtils} = ChromeUtils.import("resource://testing-common/ExtensionXPCShellUtils.jsm");
 
 ExtensionTestUtils.init(this);
@@ -213,10 +213,7 @@ add_task(async () => {
   };
 
   extension.onMessage("createAccount", (id = "ext-cloudfile@xpcshell") => {
-    cloudFileAccounts.createAccount(id, {
-      onStartRequest() {},
-      onStopRequest() {},
-    }, null);
+    cloudFileAccounts.createAccount(id);
   });
 
   extension.onMessage("removeAccount", (id) => {
@@ -230,11 +227,10 @@ add_task(async () => {
       expected = cloudFileAccounts.constants[expected];
     }
 
-    account.uploadFile(testFiles[filename], {
-      onStartRequest() {},
-      onStopRequest(req, status) {
-        Assert.equal(status, expected);
-      },
+    account.uploadFile(testFiles[filename]).then(() => {
+      Assert.equal(Cr.NS_OK, expected);
+    }, (status) => {
+      Assert.equal(status, expected);
     });
   });
 
@@ -246,10 +242,7 @@ add_task(async () => {
   extension.onMessage("deleteFile", (id) => {
     let account = cloudFileAccounts.getAccount(id);
 
-    account.deleteFile(testFiles.cloudFile1, {
-      onStartRequest() {},
-      onStopRequest() {},
-    });
+    account.deleteFile(testFiles.cloudFile1);
   });
 
   Assert.ok(!cloudFileAccounts.getProviderForType("ext-cloudfile@xpcshell"));

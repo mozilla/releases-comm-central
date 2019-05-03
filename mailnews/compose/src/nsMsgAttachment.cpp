@@ -100,16 +100,16 @@ NS_IMETHODIMP nsMsgAttachment::GetHtmlAnnotation(nsAString &aAnnotation)
 }
 
 NS_IMETHODIMP
-nsMsgAttachment::SetCloudProviderKey(const nsACString &aCloudProviderKey)
+nsMsgAttachment::SetCloudFileAccountKey(const nsACString &aCloudFileAccountKey)
 {
-  mCloudProviderKey = aCloudProviderKey;
+  mCloudFileAccountKey = aCloudFileAccountKey;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgAttachment::GetCloudProviderKey(nsACString &aCloudProviderKey)
+nsMsgAttachment::GetCloudFileAccountKey(nsACString &aCloudFileAccountKey)
 {
-  aCloudProviderKey = mCloudProviderKey;
+  aCloudFileAccountKey = mCloudFileAccountKey;
   return NS_OK;
 }
 

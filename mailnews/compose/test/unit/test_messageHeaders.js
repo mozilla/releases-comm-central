@@ -399,7 +399,7 @@ async function testContentHeaders() {
   let cloudAttachment = makeAttachment({
     url: Services.io.newFileURI(do_get_file("data/test-UTF-8.txt")).spec,
     sendViaCloud: true,
-    cloudProviderKey: "akey",
+    cloudFileAccountKey: "akey",
     name: "attachment.html",
     contentLocation: "http://localhost.invalid/",
   });
@@ -522,7 +522,7 @@ async function testSentMessage() {
     let cloudAttachment = makeAttachment({
       url: Services.io.newFileURI(do_get_file("data/test-UTF-8.txt")).spec,
       sendViaCloud: true,
-      cloudProviderKey: "akey",
+      cloudFileAccountKey: "akey",
       name: "attachment.html",
       contentLocation: "http://localhost.invalid/",
     });
