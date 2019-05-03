@@ -586,79 +586,74 @@ customElements.whenDefined("menulist").then(() => {
    */
   class MozMenulistEditable extends customElements.get("menulist") {
     connectedCallback() {
-      if (this.delayConnectedCallback()) {
+      if (this.delayConnectedCallback() || this._hasConnected) {
         return;
       }
+      this._hasConnected = true;
 
       this.prepend(MozMenulistEditable.fragment.cloneNode(true));
       this._inputField = this.querySelector(".menulist-input");
-      this._labelBox = this.querySelector(".menulist-label-box");
       this._dropmarker = this.querySelector(".menulist-dropmarker");
+      this._labelBox = this.querySelector(".menulist-label-box");
 
       if (this.getAttribute("type") == "description") {
-        this._description = document.createElement("label");
+        this._description = document.createXULElement("label");
         this._description.classList.add("menulist-description");
         this._description.setAttribute("crop", "right");
         this._description.setAttribute("flex", "10000");
         this._description.setAttribute("role", "none");
         this.querySelector(".menulist-label").after(this._description);
       }
-
       this.initializeAttributeInheritance();
 
-      this.mSelectedInternal = null;
-      this.setInitialSelection();
+      super.mSelectedInternal = null;
+      super.mAttributeObserver = null;
+      super.setInitialSelection();
 
-      this._handleMutation = (mutations) => {
+      // React to changes in the editable attribute. This could be done by
+      // attributeChangedCallback - but since that's in use for
+      // inheritedAttributes... let's just observe mutations.
+      this.mEditableObserver = new MutationObserver((mutations) => {
         this.editable = this.getAttribute("editable") == "true";
-      };
-      this.mAttributeObserver = new MutationObserver(this._handleMutation);
-      this.mAttributeObserver.observe(this, {
+      });
+      this.mEditableObserver.observe(this, {
         attributes: true,
         attributeFilter: ["editable"],
       });
 
-      this._keypress = (event) => {
+      this._inputField.addEventListener("keypress", (event) => {
         if (event.key == "ArrowDown") {
           this.open = true;
         }
-      };
-      this._inputField.addEventListener("keypress", this._keypress);
-      this._change = (event) => {
+      });
+
+      this._inputField.addEventListener("input", (event) => {
         event.stopPropagation();
-        this.selectedItem = null;
-        this.setAttribute("value", this._inputField.value);
+
+        // Update the menuitem we edited. These changes will be propagated
+        // to the menulist itself through super._mAttributeObserver
+        this.selectedItem.value = this._inputField.value;
+        this.selectedItem.label = this._inputField.value;
+
         // Start the event again, but this time with the menulist as target.
         this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
-      };
-      this._inputField.addEventListener("change", this._change);
+      });
 
-      this._popupHiding = (event) => {
+      if (!this.menupopup) {
+        this.appendChild(MozXULElement.parseXULToFragment(`<menupopup />`));
+      }
+
+      this.menupopup.addEventListener("popuphiding", (event) => {
         // layerX is 0 if the user clicked outside the popup.
         if (this.editable && event.layerX > 0) {
           this._inputField.select();
         }
-      };
-      if (!this.menupopup) {
-        this.appendChild(MozXULElement.parseXULToFragment(`<menupopup />`));
-      }
-      this.menupopup.addEventListener("popuphiding", this._popupHiding);
+      });
     }
 
     disconnectedCallback() {
-      super.disconnectedCallback();
-
-      this.mAttributeObserver.disconnect();
-      this._inputField.removeEventListener("keypress", this._keypress);
-      this._inputField.removeEventListener("change", this._change);
-      this.menupopup.removeEventListener("popuphiding", this._popupHiding);
-
-      for (let prop of ["_inputField", "_labelBox", "_dropmarker", "_description"]) {
-        if (this[prop]) {
-          this[prop].remove();
-          this[prop] = null;
-        }
-      }
+      // Override. Unlike super, we never do a re-setup in connectedCallback,
+      // so we should do nothing here.
     }
 
     static get fragment() {
@@ -703,9 +698,8 @@ customElements.whenDefined("menulist").then(() => {
     }
 
     set value(val) {
+      super.value = val;
       this._inputField.value = val;
-      this.setAttribute("value", val);
-      this.setAttribute("label", val);
       return val;
     }
 

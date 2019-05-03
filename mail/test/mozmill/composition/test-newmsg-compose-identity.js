@@ -96,6 +96,9 @@ function checkCompIdentity(cwc, aIdentityKey, aIdentityAlias, aIdentityValue) {
   if (aIdentityValue) {
     assert_equals(identityList.value, aIdentityValue,
                   "The From address does not have the correct value");
+
+    assert_equals(identityList.selectedItem.value, aIdentityValue,
+                  "The From address list does not have the correct selectedItem.value");
   }
 }
 
