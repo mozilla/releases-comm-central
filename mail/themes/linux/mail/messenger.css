@@ -543,11 +543,11 @@ treecol.treecol-image:hover:active {
   background: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
 }
 
-/* Stock icons for the menu bar items */
+/* Stock icons for the menu bar items
 menuitem:not([type]) {
   -moz-binding: url("chrome://global/content/bindings/menu.xml#menuitem-iconic");
 }
-
+ */
 #menu_New {
   list-style-image: url("moz-icon://stock/gtk-new?size=menu");
 }

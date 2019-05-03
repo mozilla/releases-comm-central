@@ -295,11 +295,11 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 #appmenu_find {
   list-style-image: url("chrome://messenger/skin/icons/search-glass.svg");
 }
-
+/*
 #appmenu_find > .splitmenu-menuitem {
   -moz-binding: url("chrome://global/content/bindings/menu.xml#menuitem-iconic");
 }
-
+*/
 #appmenu_addons {
   list-style-image: url("chrome://mozapps/skin/extensions/extensionGeneric-16.svg");
 }
