@@ -16,149 +16,148 @@
         title="&connectionsDialog.title;"
         dlgbuttons="accept,cancel"
         onbeforeaccept="return gConnectionsDialog.beforeAccept();"
-        onload="gConnectionsDialog.checkForSystemProxy(); gConnectionsDialog.initDnsOverHttpsUI();"
+        onload="gConnectionsDialog.checkForSystemProxy();"
 #ifdef XP_MACOSX
         style="width: &window.macWidth; !important;">
 #else
         style="width: &window.width; !important;">
 #endif
 
-  <prefpane id="ConnectionsDialogPane">
-    <script src="chrome://global/content/preferencesBindings.js"/>
-    <script src="chrome://messenger/content/preferences/connection.js"/>
+  <linkset>
+    <html:link rel="localization" href="messenger/preferences/connection.ftl"/>
+  </linkset>
 
-    <groupbox>
-      <label><html:h2>&proxyTitle.label;</html:h2></label>
+  <script src="chrome://global/content/preferencesBindings.js"/>
+  <script src="chrome://messenger/content/preferences/connection.js"/>
 
-      <radiogroup id="networkProxyType" preference="network.proxy.type"
-                  onsyncfrompreference="return gConnectionsDialog.readProxyType();">
-        <radio value="0" label="&noProxyTypeRadio.label;" accesskey="&noProxyTypeRadio.accesskey;"/>
-        <radio value="4" label="&WPADTypeRadio.label;" accesskey="&WPADTypeRadio.accesskey;"/>
-        <radio value="5" label="&systemTypeRadio.label;" accesskey="&systemTypeRadio.accesskey;"
-               id="systemPref" hidden="true"/>
-        <radio value="1" label="&manualTypeRadio.label;" accesskey="&manualTypeRadio.accesskey;"/>
-        <grid class="indent" flex="1">
-          <columns>
-            <column/>
-            <column flex="1"/>
-          </columns>
-          <rows>
-            <row align="center">
-              <hbox pack="end">
-                <label value="&http.label;" accesskey="&http.accesskey;" control="networkProxyHTTP"/>
-              </hbox>
-              <hbox align="center">
-                <textbox id="networkProxyHTTP" flex="1" class="uri-element"
-                         preference="network.proxy.http" onsyncfrompreference="return gConnectionsDialog.readHTTPProxyServer();"/>
-                <label value="&HTTPport.label;" accesskey="&HTTPport.accesskey;" control="networkProxyHTTP_Port"/>
-                <textbox id="networkProxyHTTP_Port" type="number" max="65535" size="5"
-                         preference="network.proxy.http_port"
-                         onsyncfrompreference="return gConnectionsDialog.readHTTPProxyPort();"/>
-              </hbox>
-            </row>
-            <row>
-              <hbox/>
-              <hbox>
-                <checkbox id="shareAllProxies" label="&shareproxy.label;" accesskey="&shareproxy.accesskey;"
-                          preference="network.proxy.share_proxy_settings"
-                          onsyncfrompreference="return gConnectionsDialog.updateProtocolPrefs();"/>
-              </hbox>
-            </row>
-            <row align="center">
-              <hbox pack="end">
-                <label value="&ssl.label;" accesskey="&ssl.accesskey;" control="networkProxySSL"/>
-              </hbox>
-              <hbox align="center">
-                <textbox id="networkProxySSL" flex="1" class="uri-element"
-                         preference="network.proxy.ssl"
-                         onsyncfrompreference="return gConnectionsDialog.readProxyProtocolPref('ssl', false);"/>
-                <label value="&SSLport.label;" accesskey="&SSLport.accesskey;" control="networkProxySSL_Port"/>
-                <textbox id="networkProxySSL_Port" type="number" max="65535" size="5"
-                         preference="network.proxy.ssl_port"
-                         onsyncfrompreference="return gConnectionsDialog.readProxyProtocolPref('ssl', true);"/>
-              </hbox>
-            </row>
-            <row align="center">
-              <hbox pack="end">
-                <label value="&socks.label;" accesskey="&socks.accesskey;" control="networkProxySOCKS"/>
-              </hbox>
-              <hbox align="center">
-                <textbox id="networkProxySOCKS" flex="1" class="uri-element"
-                         preference="network.proxy.socks"
-                         onsyncfrompreference="return gConnectionsDialog.readProxyProtocolPref('socks', false);"/>
-                <label value="&SOCKSport.label;" accesskey="&SOCKSport.accesskey;" control="networkProxySOCKS_Port"/>
-                <textbox id="networkProxySOCKS_Port" type="number" max="65535" size="5"
-                         preference="network.proxy.socks_port"
-                         onsyncfrompreference="return gConnectionsDialog.readProxyProtocolPref('socks', true);"/>
-              </hbox>
-            </row>
-            <row>
-              <spacer/>
-              <radiogroup id="networkProxySOCKSVersion" orient="horizontal"
-                          preference="network.proxy.socks_version"
-                          onsyncfrompreference="return gConnectionsDialog.updateDNSPref();">
-                <radio id="networkProxySOCKSVersion4" value="4" label="&socks4.label;" accesskey="&socks4.accesskey;" />
-                <radio id="networkProxySOCKSVersion5" value="5" label="&socks5.label;" accesskey="&socks5.accesskey;" />
-              </radiogroup>
-            </row>
-          </rows>
-        </grid>
-        <radio value="2" label="&autoTypeRadio.label;" accesskey="&autoTypeRadio.accesskey;"/>
-        <hbox class="indent" flex="1" align="center">
-          <textbox id="networkProxyAutoconfigURL" flex="1" class="uri-element"
-                   preference="network.proxy.autoconfig_url"
-                   oninput="gConnectionsDialog.updateReloadButton();"/>
-          <button id="autoReload" label="&reload.label;" accesskey="&reload.accesskey;"
-                  oncommand="gConnectionsDialog.reloadPAC();"
-                  preference="pref.advanced.proxies.disable_button.reload"/>
-        </hbox>
-      </radiogroup>
-    </groupbox>
-    <separator class="thin"/>
-    <label value="&noproxy.label;"
-           accesskey="&noproxy.accesskey;"
-           control="networkProxyNone"/>
-    <html:textarea id="networkProxyNone" rows="2" preference="network.proxy.no_proxies_on"/>
-    <label value="&noproxyExplain.label;" control="networkProxyNone"/>
-    <checkbox id="autologinProxy"
-              label="&autologinproxy.label;"
-              accesskey="&autologinproxy.accesskey;"
-              preference="signon.autologin.proxy"
-              tooltiptext="&autologinproxy.tooltip;"/>
-    <checkbox id="networkProxySOCKSRemoteDNS"
-              preference="network.proxy.socks_remote_dns"
-              label="&socksRemoteDNS.label;"
-              accesskey="&socksRemoteDNS.accesskey;"/>
-    <checkbox id="networkDnsOverHttps"
-              label="&dnsOverHttps.label;"
-              accesskey="&dnsOverHttps.accesskey;"
-              preference="network.trr.mode"
-              onsyncfrompreference="return gConnectionsDialog.readDnsOverHttpsMode();"
-              onsynctopreference="return gConnectionsDialog.writeDnsOverHttpsMode();"
-              oncommand="gConnectionsDialog.updateDnsOverHttpsUI();"/>
-    <vbox class="indent" flex="1">
-      <radiogroup id="DnsOverHttpsUrlRadioGroup" orient="vertical">
-        <hbox>
-          <radio id="defaultDnsOverHttpsUrlRadio"
-                 label="&dnsOverHttpsUrlDefault.label;"
-                 accesskey="&dnsOverHttpsUrlDefault.accesskey;"
-                 tooltiptext="&dnsOverHttpsUrlDefault.tooltip;"
-                 preference="network.trr.uri"
-                 oncommand="gConnectionsDialog.updateDnsOverHttpsUI();"/>
-          <label id="defaultDnsOverHttpsUrlLabel"/>
-        </hbox>
-        <hbox>
-          <radio id="customDnsOverHttpsUrlRadio"
-                 label="&dnsOverHttpsUrlCustom.label;"
-                 accesskey="&dnsOverHttpsUrlCustom.accesskey;"
-                 tooltiptext="&dnsOverHttpsUrlCustom.tooltip;"
-                 oncommand="gConnectionsDialog.updateDnsOverHttpsUI();"/>
-          <textbox id="customDnsOverHttpsInput"
-                   flex="1"
-                   preference="network.trr.custom_uri"/>
-        </hbox>
-      </radiogroup>
-    </vbox>
-    <separator/>
-  </prefpane>
+  <groupbox>
+    <label><html:h2>&proxyTitle.label;</html:h2></label>
+
+    <radiogroup id="networkProxyType" preference="network.proxy.type"
+                onsyncfrompreference="return gConnectionsDialog.readProxyType();">
+      <radio value="0" label="&noProxyTypeRadio.label;" accesskey="&noProxyTypeRadio.accesskey;"/>
+      <radio value="4" label="&WPADTypeRadio.label;" accesskey="&WPADTypeRadio.accesskey;"/>
+      <radio value="5" label="&systemTypeRadio.label;" accesskey="&systemTypeRadio.accesskey;"
+              id="systemPref" hidden="true"/>
+      <radio value="1" label="&manualTypeRadio.label;" accesskey="&manualTypeRadio.accesskey;"/>
+      <grid class="indent" flex="1">
+        <columns>
+          <column/>
+          <column flex="1"/>
+        </columns>
+        <rows>
+          <row align="center">
+            <hbox pack="end">
+              <label value="&http.label;" accesskey="&http.accesskey;" control="networkProxyHTTP"/>
+            </hbox>
+            <hbox align="center">
+              <textbox id="networkProxyHTTP" flex="1" class="uri-element"
+                       preference="network.proxy.http" onsyncfrompreference="return gConnectionsDialog.readHTTPProxyServer();"/>
+              <label value="&HTTPport.label;" accesskey="&HTTPport.accesskey;" control="networkProxyHTTP_Port"/>
+              <textbox id="networkProxyHTTP_Port" type="number" max="65535" size="5"
+                       preference="network.proxy.http_port"
+                       onsyncfrompreference="return gConnectionsDialog.readHTTPProxyPort();"/>
+            </hbox>
+          </row>
+          <row>
+            <hbox/>
+            <hbox>
+              <checkbox id="shareAllProxies" label="&shareproxy.label;" accesskey="&shareproxy.accesskey;"
+                        preference="network.proxy.share_proxy_settings"
+                        onsyncfrompreference="return gConnectionsDialog.updateProtocolPrefs();"/>
+            </hbox>
+          </row>
+          <row align="center">
+            <hbox pack="end">
+              <label value="&ssl.label;" accesskey="&ssl.accesskey;" control="networkProxySSL"/>
+            </hbox>
+            <hbox align="center">
+              <textbox id="networkProxySSL" flex="1" class="uri-element"
+                       preference="network.proxy.ssl"
+                       onsyncfrompreference="return gConnectionsDialog.readProxyProtocolPref('ssl', false);"/>
+              <label value="&SSLport.label;" accesskey="&SSLport.accesskey;" control="networkProxySSL_Port"/>
+              <textbox id="networkProxySSL_Port" type="number" max="65535" size="5"
+                       preference="network.proxy.ssl_port"
+                       onsyncfrompreference="return gConnectionsDialog.readProxyProtocolPref('ssl', true);"/>
+            </hbox>
+          </row>
+          <row align="center">
+            <hbox pack="end">
+              <label value="&socks.label;" accesskey="&socks.accesskey;" control="networkProxySOCKS"/>
+            </hbox>
+            <hbox align="center">
+              <textbox id="networkProxySOCKS" flex="1" class="uri-element"
+                       preference="network.proxy.socks"
+                       onsyncfrompreference="return gConnectionsDialog.readProxyProtocolPref('socks', false);"/>
+              <label value="&SOCKSport.label;" accesskey="&SOCKSport.accesskey;" control="networkProxySOCKS_Port"/>
+              <textbox id="networkProxySOCKS_Port" type="number" max="65535" size="5"
+                       preference="network.proxy.socks_port"
+                       onsyncfrompreference="return gConnectionsDialog.readProxyProtocolPref('socks', true);"/>
+            </hbox>
+          </row>
+          <row>
+            <spacer/>
+            <radiogroup id="networkProxySOCKSVersion" orient="horizontal"
+                        preference="network.proxy.socks_version"
+                        onsyncfrompreference="return gConnectionsDialog.updateDNSPref();">
+              <radio id="networkProxySOCKSVersion4" value="4" label="&socks4.label;" accesskey="&socks4.accesskey;" />
+              <radio id="networkProxySOCKSVersion5" value="5" label="&socks5.label;" accesskey="&socks5.accesskey;" />
+            </radiogroup>
+          </row>
+        </rows>
+      </grid>
+      <radio value="2" label="&autoTypeRadio.label;" accesskey="&autoTypeRadio.accesskey;"/>
+      <hbox class="indent" flex="1" align="center">
+        <textbox id="networkProxyAutoconfigURL" flex="1" class="uri-element"
+                 preference="network.proxy.autoconfig_url"
+                 oninput="gConnectionsDialog.updateReloadButton();"/>
+        <button id="autoReload" label="&reload.label;" accesskey="&reload.accesskey;"
+                oncommand="gConnectionsDialog.reloadPAC();"
+                preference="pref.advanced.proxies.disable_button.reload"/>
+      </hbox>
+    </radiogroup>
+  </groupbox>
+  <separator class="thin"/>
+  <label value="&noproxy.label;"
+          accesskey="&noproxy.accesskey;"
+          control="networkProxyNone"/>
+  <html:textarea id="networkProxyNone" rows="2" preference="network.proxy.no_proxies_on"/>
+  <label value="&noproxyExplain.label;" control="networkProxyNone"/>
+  <checkbox id="autologinProxy"
+            label="&autologinproxy.label;"
+            accesskey="&autologinproxy.accesskey;"
+            preference="signon.autologin.proxy"
+            tooltiptext="&autologinproxy.tooltip;"/>
+  <checkbox id="networkProxySOCKSRemoteDNS"
+            preference="network.proxy.socks_remote_dns"
+            label="&socksRemoteDNS.label;"
+            accesskey="&socksRemoteDNS.accesskey;"/>
+  <separator class="thin"/>
+  <checkbox id="networkDnsOverHttps"
+            label="&dnsOverHttps.label;"
+            accesskey="&dnsOverHttps.accesskey;"
+            preference="network.trr.mode"
+            onsyncfrompreference="return gConnectionsDialog.readDnsOverHttpsMode();"
+            onsynctopreference="return gConnectionsDialog.writeDnsOverHttpsMode();"/>
+  <vbox class="indent" flex="1">
+    <hbox align="center">
+      <hbox>
+        <label id="networkDnsOverHttpsResolverChoicesLabel"
+               data-l10n-id="connection-dns-over-https-url-resolver"
+               control="networkDnsOverHttpsResolverChoices"/>
+      </hbox>
+      <menulist id="networkDnsOverHttpsResolverChoices" flex="1"
+                oncommand="gConnectionsDialog.updateDnsOverHttpsUI()"/>
+    </hbox>
+    <hbox align="center" id="customDnsOverHttpsContainer" style="visibility: hidden;">
+      <hbox>
+        <label id="networkCustomDnsOverHttpsInputLabel"
+               data-l10n-id="connection-dns-over-https-custom-label"
+               control="networkCustomDnsOverHttpsInput"/>
+      </hbox>
+      <textbox id="networkCustomDnsOverHttpsInput" flex="1"
+               preference="network.trr.custom_uri"/>
+    </hbox>
+  </vbox>
+  <separator/>
 </dialog>

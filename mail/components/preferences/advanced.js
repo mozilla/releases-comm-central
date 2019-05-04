@@ -438,8 +438,7 @@ var gAdvancedPane = {
    * Display the the connection settings dialog.
    */
   showConnections() {
-    gSubDialog.open("chrome://messenger/content/preferences/connection.xul",
-                    "resizable=no");
+    gSubDialog.open("chrome://messenger/content/preferences/connection.xul");
   },
 
   /**
