@@ -2647,13 +2647,14 @@ var gFolderTreeController = {
    * Prompts the user to confirm and empties the trash for the selected folder.
    * The folder and its children are only emptied if it has the proper Trash flag.
    *
-   * @param aFolder (optional)  the trash folder to empty
-   * @note Calling this function on a non-trash folder will result in strange
-   *       behavior!
+   * @param aFolder (optional)  The trash folder to empty. If unspecified or not
+   *                            a trash folder, the currently selected server's
+   *                            trash folder is used.
    */
   emptyTrash(aFolder) {
     let folder = aFolder || gFolderTreeView.getSelectedFolders()[0];
-
+    if (!folder.getFlag(Ci.nsMsgFolderFlags.Trash))
+      folder = folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
     if (!folder)
       return;
 
@@ -2678,7 +2679,8 @@ var gFolderTreeController = {
    * Deletes everything (folders and messages) in the selected folder.
    * The folder is only emptied if it has the proper Junk flag.
    *
-   * @param aFolder (optional)  the folder to empty
+   * @param aFolder (optional)  The folder to empty. If unspecified, the currently
+   *                            selected folder is used, if it is junk.
    */
   emptyJunk(aFolder) {
     let folder = aFolder || gFolderTreeView.getSelectedFolders()[0];
@@ -2798,10 +2800,8 @@ var gFolderTreeController = {
     if (!aFolder)
       return false;
 
-    let showPrompt = true;
-    try {
-      showPrompt = !Services.prefs.getBoolPref("mailnews." + aCommand + ".dontAskAgain");
-    } catch (ex) {}
+    let showPrompt = !Services.prefs
+                       .getBoolPref("mailnews." + aCommand + ".dontAskAgain", false);
 
     if (showPrompt) {
       let checkbox = {value: false};
@@ -2813,7 +2813,8 @@ var gFolderTreeController = {
                                          msg,
                                          Services.prompt.STD_YES_NO_BUTTONS,
                                          null, null, null,
-                                         gFolderTreeView.messengerBundle.getString(aCommand + "DontAsk"),
+                                         gFolderTreeView.messengerBundle
+                                                        .getString(aCommand + "DontAsk"),
                                          checkbox) == 0;
       if (checkbox.value)
         Services.prefs.setBoolPref("mailnews." + aCommand + ".dontAskAgain", true);
