@@ -51,7 +51,7 @@ jobs:
             kind: test
             tier: 1
         attributes:
-            build_platform: linux64-shippable
+            build_platform: linux64-nightly
 
     thunderbird-linux:
         description: linux update verify
@@ -62,7 +62,7 @@ jobs:
             kind: test
             tier: 1
         attributes:
-            build_platform: linux-shippable
+            build_platform: linux-nightly
 
     thunderbird-win64:
         description: win64 update verify
@@ -73,7 +73,7 @@ jobs:
             kind: test
             tier: 1
         attributes:
-            build_platform: win64-shippable
+            build_platform: win64-nightly
 
     thunderbird-win32:
         description: win32 update verify
@@ -84,7 +84,7 @@ jobs:
             kind: test
             tier: 1
         attributes:
-            build_platform: win32-shippable
+            build_platform: win32-nightly
 
     thunderbird-macosx64:
         description: macosx64 update verify
@@ -95,4 +95,4 @@ jobs:
             kind: test
             tier: 1
         attributes:
-            build_platform: macosx64-shippable
+            build_platform: macosx64-nightly
