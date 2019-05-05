@@ -534,8 +534,7 @@ char
 }
 
 static char *
-RFC2231ParmFolding(const char *parmName, const nsCString& charset,
-                   const char *language, const nsString& parmValue);
+RFC2231ParmFolding(const char *parmName, const char *parmValue);
 
 static char *
 LegacyParmFolding(const nsCString& aCharset,
@@ -567,32 +566,17 @@ mime_generate_attachment_headers (const char *type,
 
   /* Let's encode the real name */
   char *encodedRealName = nullptr;
-  nsCString charset;   // actual charset used for MIME encode
   nsAutoString realName;
   if (real_name)
   {
-    // first try main body's charset to encode the file name,
-    // then try local file system charset if fails
-    CopyUTF8toUTF16(nsDependentCString(real_name), realName);
-    if (bodyCharset && *bodyCharset &&
-        nsMsgI18Ncheck_data_in_charset_range(bodyCharset, realName.get()))
-      charset.Assign(bodyCharset);
-    else
-    {
-      charset = nsMsgI18NFileSystemCharset();
-      if (!nsMsgI18Ncheck_data_in_charset_range(charset.get(), realName.get()))
-        charset.AssignLiteral("UTF-8"); // set to UTF-8 if fails again
-    }
-
-    encodedRealName = RFC2231ParmFolding("filename", charset, nullptr,
-                                         realName);
+    encodedRealName = RFC2231ParmFolding("filename", real_name);
     // somehow RFC2231ParamFolding failed. fall back to legacy method
     if (!encodedRealName || !*encodedRealName) {
       PR_FREEIF(encodedRealName);
       parmFolding = 0;
       // Not RFC 2231 style encoding (it's not standard-compliant)
-      encodedRealName =
-        LegacyParmFolding(charset, nsDependentCString(real_name), parmFolding);
+      encodedRealName = LegacyParmFolding(NS_LITERAL_CSTRING("UTF-8"),
+        nsDependentCString(real_name), parmFolding);
     }
   }
 
@@ -928,62 +912,42 @@ msg_generate_message_id (nsIMsgIdentity *identity)
   return PR_smprintf("<%s@%s>", uuidString + 1, host);
 }
 
-
-inline static bool is7bitCharset(const nsCString& charset)
-{
-  // charset name is canonical (no worry about case-sensitivity)
-  return Substring(charset, 0, 8).EqualsLiteral("ISO-2022-");
-}
-
 #define PR_MAX_FOLDING_LEN 75     // this is to guarantee the folded line will
                                   // never be greater than 78 = 75 + CRLFLWSP
 /*static */ char *
-RFC2231ParmFolding(const char *parmName, const nsCString& charset,
-                   const char *language, const nsString& parmValue)
+RFC2231ParmFolding(const char *parmName, const char *parmValue)
 {
-  NS_ENSURE_TRUE(parmName && *parmName && !parmValue.IsEmpty(), nullptr);
+  NS_ENSURE_TRUE(parmName && *parmName && parmValue && *parmValue, nullptr);
 
   bool needEscape;
   nsCString dupParm;
+  nsCString charset("UTF-8");
 
-  if (!mozilla::IsAsciiNullTerminated(static_cast<const char16_t*>(parmValue.get())) || is7bitCharset(charset)) {
+  if (!mozilla::IsAsciiNullTerminated(parmValue)) {
     needEscape = true;
-    nsAutoCString nativeParmValue;
-    nsMsgI18NConvertFromUnicode(charset, parmValue, nativeParmValue);
-    MsgEscapeString(nativeParmValue, nsINetUtil::ESCAPE_ALL, dupParm);
+    dupParm.Assign(parmValue);
+    MsgEscapeString(dupParm, nsINetUtil::ESCAPE_ALL, dupParm);
   }
   else {
     needEscape = false;
-    dupParm.Adopt(
-      msg_make_filename_qtext(NS_LossyConvertUTF16toASCII(parmValue).get(),
-                              true));
+    dupParm.Adopt(msg_make_filename_qtext(parmValue, true));
   }
-
-  if (dupParm.IsEmpty())
-    return nullptr;
 
   int32_t parmNameLen = PL_strlen(parmName);
   int32_t parmValueLen = dupParm.Length();
 
   parmNameLen += 5;  // *=__'__'___ or *[0]*=__'__'__ or *[1]*=___ or *[0]="___"
 
-  int32_t languageLen = language ?  PL_strlen(language) : 0;
-  int32_t charsetLen = charset.Length();
   char *foldedParm = nullptr;
 
-  if ((parmValueLen + parmNameLen + charsetLen + languageLen) <
-      PR_MAX_FOLDING_LEN)
+  if ((parmValueLen + parmNameLen + strlen("UTF-8")) < PR_MAX_FOLDING_LEN)
   {
     foldedParm = PL_strdup(parmName);
     if (needEscape)
     {
       NS_MsgSACat(&foldedParm, "*=");
-      if (charsetLen)
-        NS_MsgSACat(&foldedParm, charset.get());
-      NS_MsgSACat(&foldedParm, "'");
-      if (languageLen)
-        NS_MsgSACat(&foldedParm, language);
-      NS_MsgSACat(&foldedParm, "'");
+      NS_MsgSACat(&foldedParm, "UTF-8");
+      NS_MsgSACat(&foldedParm, "''"); // We don't support language.
     }
     else
       NS_MsgSACat(&foldedParm, "=\"");
@@ -1019,14 +983,9 @@ RFC2231ParmFolding(const char *parmName, const nsCString& charset,
         NS_MsgSACat(&foldedParm, "*=");
         if (counter == 0)
         {
-          if (charsetLen)
-            NS_MsgSACat(&foldedParm, charset.get());
-          NS_MsgSACat(&foldedParm, "'");
-          if (languageLen)
-            NS_MsgSACat(&foldedParm, language);
-          NS_MsgSACat(&foldedParm, "'");
-          curLineLen += charsetLen;
-          curLineLen += languageLen;
+          NS_MsgSACat(&foldedParm, "UTF-8");
+          NS_MsgSACat(&foldedParm, "''"); // We don't support language.
+          curLineLen += strlen("UTF-8");
         }
       }
       else
@@ -1043,27 +1002,24 @@ RFC2231ParmFolding(const char *parmName, const nsCString& charset,
       tmp = 0;
       if (*end && needEscape)
       {
-        // check to see if we are in the middle of escaped char
-        if (*end == '%')
-        {
-          tmp = '%'; *end = 0;
+        // Check to see if we are in the middle of escaped char.
+        // We use ESCAPE_ALL, so every third character is a '%'.
+        if (end - 1 > start && *(end - 1) == '%') {
+          end -= 1;
+        } else if (end - 2 > start && *(end - 2) == '%') {
+          end -= 2;
         }
-        else if (end-1 > start && *(end-1) == '%')
-        {
-          end -= 1; tmp = '%'; *end = 0;
+        // *end is now a '%'.
+        // Check if the following UTF-8 octet is a continuation.
+        while (end - 3 > start &&
+               (*(end + 1) == '8' || *(end + 1) == '9' ||
+                *(end + 1) == 'A' || *(end + 1) == 'B')) {
+          end -= 3;
         }
-        else if (end-2 > start && *(end-2) == '%')
-        {
-          end -= 2; tmp = '%'; *end = 0;
-        }
-        else
-        {
-          tmp = *end; *end = 0;
-        }
+        tmp = *end; *end = 0;
       }
       else
       {
-        // XXX should check if we are in the middle of escaped char (RFC 822)
         tmp = *end; *end = 0;
       }
       NS_MsgSACat(&foldedParm, start);

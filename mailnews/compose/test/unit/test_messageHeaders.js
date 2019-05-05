@@ -368,7 +368,7 @@ async function testContentHeaders() {
 
   plainAttachment.name = "oïl.txt";
   plainAttachmentHeaders["Content-Disposition"] =
-    "attachment; filename*=ISO-8859-1''%6F%EF%6C%2E%74%78%74";
+    "attachment; filename*=UTF-8''%6F%C3%AF%6C%2E%74%78%74";
   await richCreateMessage(fields, [plainAttachment], identity);
   checkDraftHeaders(plainAttachmentHeaders, "2");
 
