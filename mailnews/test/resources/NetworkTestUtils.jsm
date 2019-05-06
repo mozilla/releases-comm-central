@@ -236,7 +236,7 @@ var NetworkTestUtils = {
         applyFilter(aProxyService, aURI, aProxyInfo, aCallback) {
           if (aURI.host != "localhost" && aURI.host != "127.0.0.1") {
             aCallback.onProxyFilterResult(pps.newProxyInfo("socks", "localhost", gSocksServer.port,
-              Ci.nsIProxyInfo.TRANSPARENT_PROXY_RESOLVES_HOST, 0, null));
+              "", "", Ci.nsIProxyInfo.TRANSPARENT_PROXY_RESOLVES_HOST, 0, null));
             return;
           }
           aCallback.onProxyFilterResult(aProxyInfo);
