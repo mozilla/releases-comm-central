@@ -2871,6 +2871,11 @@ function ComposeStartup(aParams) {
       setTimeout(toggleAddressPicker, 0, false);
     }
   }
+
+  // Update the priority button.
+  if (gMsgCompose.compFields.priority)
+    updatePriorityToolbarButton(gMsgCompose.compFields.priority);
+
   gAutoSaveInterval = Services.prefs.getBoolPref("mail.compose.autosave") ?
     Services.prefs.getIntPref("mail.compose.autosaveinterval") * 60000 : 0;
 
