@@ -21,29 +21,24 @@
   <stringbundle id="sendProgressStringBundle"
                 src="chrome://messenger/locale/messengercompose/sendProgress.properties"/>
 
-    <grid flex="1">
-      <columns>
-        <column/>
-        <column flex="1"/>
-      </columns>
-
-      <rows>
-        <row>
-          <hbox pack="end">
-            <label value="&status.label;"/>
-          </hbox>
+    <hbox flex="1">
+      <vbox align="end">
+        <hbox flex="1" align="center">
+          <label value="&status.label;"/>
+        </hbox>
+        <hbox flex="1" align="center">
+          <label value="&progress.label;"/>
+        </hbox>
+      </vbox>
+      <vbox flex="1">
+        <hbox flex="1" align="center">
           <label id="dialog.status" crop="center"/>
-        </row>
-        <row class="thin-separator">
-          <hbox pack="end">
-            <label value="&progress.label;"/>
-          </hbox>
-          <html:progress id="dialog.progress" value="0" max="100"/>
-          <hbox pack="end">
-            <label id="dialog.progressText"/>
-          </hbox>
-        </row>
-      </rows>
-    </grid>
+        </hbox>
+        <hbox class="thin-separator" flex="1" align="center" style="display:flex; align-items:stretch;">
+          <html:progress id="dialog.progress" value="0" max="100" style="flex:1;"/>
+          <label id="dialog.progressText" value=""/>
+        </hbox>
+      </vbox>
+    </hbox>
 
 </dialog>
