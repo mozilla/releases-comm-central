@@ -12,7 +12,6 @@
 /* import-globals-from folderDisplay.js */
 /* import-globals-from folderPane.js */
 /* import-globals-from glodaFacetTab.js */
-/* import-globals-from mail-compacttheme.js */
 /* import-globals-from mailTabs.js */
 /* import-globals-from mailWindow.js */
 /* import-globals-from quickFilterBar.js */
@@ -433,7 +432,6 @@ function OnLoadMessenger() {
   // update the pane config before we exit onload otherwise the user may see a flicker if we poke the document
   // in delayedOnLoadMessenger...
   UpdateMailPaneConfig(false);
-  CompactTheme.init();
 
   if (AppConstants.platform == "win") {
     // On Win8 set an attribute when the window frame color is too dark for black text.
@@ -700,8 +698,6 @@ function OnUnloadMessenger() {
   TabsInTitlebar.uninit();
 
   ToolbarIconColor.uninit();
-
-  CompactTheme.uninit();
 
   let tabmail = document.getElementById("tabmail");
   tabmail._teardown();

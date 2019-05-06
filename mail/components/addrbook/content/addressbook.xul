@@ -7,7 +7,6 @@
 <?xml-stylesheet href="chrome://messenger/content/bindings.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/searchBox.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/addressbook/addressbook.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/compacttheme.css" type="text/css" alternate="yes" title="Light/Dark"?>
 
 <!DOCTYPE window [
 <!ENTITY % abMainWindowDTD SYSTEM "chrome://messenger/locale/addressbook/abMainWindow.dtd" >
@@ -44,7 +43,6 @@
 <script src="chrome://messenger/content/addressbook/abTrees.js"/>
 <script src="chrome://messenger/content/accountUtils.js"/>
 <script src="chrome://messenger/content/mailCore.js"/>
-<script src="chrome://messenger/content/mail-compacttheme.js"/>
 <script src="chrome://messenger/content/addressbook/addressbook.js"/>
 <script src="chrome://messenger/content/addressbook/map-list.js"/>
 <script src="chrome://messenger/content/addressbook/abCommon.js"/>

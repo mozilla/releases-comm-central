@@ -90,7 +90,7 @@
 
 :root[lwt-tree] .task-details-name,
 :root[lwt-tree] .task-details-value,
-:root[lwt-tree] .item-date-row > .selectable-label,
+:root[lwt-tree] .item-date-row > calendar-item-date >.selectable-label,
 :root[lwt-tree] #calendar-task-details-grid > rows > .item-date-row > .headline {
     color: inherit;
 }

@@ -2960,7 +2960,6 @@ function ComposeLoad() {
     return;
   }
 
-  CompactTheme.init();
   ToolbarIconColor.init();
 
   // initialize the customizeDone method on the customizeable toolbar
@@ -2998,7 +2997,6 @@ function ComposeUnload() {
   RemoveMessageComposeOfflineQuitObserver();
   gAttachmentNotifier.shutdown();
   ToolbarIconColor.uninit();
-  CompactTheme.uninit();
 
   // Stop observing dictionary removals.
   dictionaryRemovalObserver.removeObserver();
