@@ -25,7 +25,6 @@ common/src/viewSource.xul
 # If you are enabling a directory, please add directory specific exclusions
 # below.
 build/**
-ldap/**
 suite/**
 
 # chat exclusions

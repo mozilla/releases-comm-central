@@ -3,105 +3,102 @@
  * Test suite for nsLDAPURL functions.
  */
 
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
 // If we are still using the wallet service, then default port numbers
 // are still visible in the password manager, and therefore we need to have
 // them in the url. The toolkit login manager doesn't do this.
 const usingWallet = "nsIWalletService" in Ci;
 const portAdpt = usingWallet ? ":389" : "";
 
-const ldapURLs =
-  [ { url: "ldap://localhost/dc=test",
-      spec: "ldap://localhost/dc=test",
-      asciiSpec: "ldap://localhost/dc=test",
-      host: "localhost",
-      asciiHost: "localhost",
-      port: -1,
-      scheme: "ldap",
-      path: "/dc=test",
-      prePath: "ldap://localhost",
-      hostPort: "localhost",
-      displaySpec: "ldap://localhost/dc=test",
-      displayPrePath: "ldap://localhost",
-      displayHost: "localhost",
-      displayHostPort: "localhost",
-      dn: "dc=test",
-      scope: Ci.nsILDAPURL.SCOPE_BASE,
-      filter: "(objectclass=*)",
-      options: 0
-    },
-    { url: "ldap://localhost:389/dc=test,dc=abc??sub?(objectclass=*)",
-      spec: "ldap://localhost" + portAdpt + "/dc=test,dc=abc??sub?(objectclass=*)",
-      asciiSpec: "ldap://localhost" + portAdpt + "/dc=test,dc=abc??sub?(objectclass=*)",
-      host: "localhost",
-      asciiHost: "localhost",
-      port: usingWallet ? 389 : -1,
-      scheme: "ldap",
-      path: "/dc=test,dc=abc??sub?(objectclass=*)",
-      prePath: "ldap://localhost" + portAdpt,
-      hostPort: "localhost" + portAdpt,
-      displaySpec: "ldap://localhost" + portAdpt + "/dc=test,dc=abc??sub?(objectclass=*)",
-      displayPrePath: "ldap://localhost",
-      displayHost: "localhost",
-      displayHostPort: "localhost" + portAdpt,
-      dn: "dc=test,dc=abc",
-      scope: Ci.nsILDAPURL.SCOPE_SUBTREE,
-      filter: "(objectclass=*)",
-      options: 0
-    },
-    { url: "ldap://\u65e5\u672c\u8a93.jp:389/dc=tes\u65e5t??one?(oc=xyz)",
-      spec: "ldap://xn--wgv71a309e.jp" + portAdpt + "/dc=tes%E6%97%A5t??one?(oc=xyz)",
-      asciiSpec: "ldap://xn--wgv71a309e.jp" + portAdpt + "/dc=tes%E6%97%A5t??one?(oc=xyz)",
-      host: "xn--wgv71a309e.jp",
-      asciiHost: "xn--wgv71a309e.jp",
-      port: usingWallet ? 389 : -1,
-      scheme: "ldap",
-      path: "/dc=tes%E6%97%A5t??one?(oc=xyz)",
-      prePath: "ldap://xn--wgv71a309e.jp" + portAdpt,
-      hostPort: "xn--wgv71a309e.jp" + portAdpt,
-      displaySpec: "ldap://\u65e5\u672c\u8a93.jp" + portAdpt + "/dc=tes%E6%97%A5t??one?(oc=xyz)",
-      displayPrePath: "ldap://\u65e5\u672c\u8a93.jp" + portAdpt,
-      displayHost: "\u65e5\u672c\u8a93.jp",
-      displayHostPort: "\u65e5\u672c\u8a93.jp" + portAdpt,
-      dn: "dc=tes\u65e5t",
-      scope: Ci.nsILDAPURL.SCOPE_ONELEVEL,
-      filter: "(oc=xyz)",
-      options: 0
-    },
-    { url: "ldaps://localhost/dc=test",
-      spec: "ldaps://localhost/dc=test",
-      asciiSpec: "ldaps://localhost/dc=test",
-      host: "localhost",
-      asciiHost: "localhost",
-      port: -1,
-      scheme: "ldaps",
-      path: "/dc=test",
-      prePath: "ldaps://localhost",
-      hostPort: "localhost",
-      displaySpec: "ldaps://localhost/dc=test",
-      displayPrePath: "ldaps://localhost",
-      displayHost: "localhost",
-      displayHostPort: "localhost",
-      dn: "dc=test",
-      scope: Ci.nsILDAPURL.SCOPE_BASE,
-      filter: "(objectclass=*)",
-      options: Ci.nsILDAPURL.OPT_SECURE
-    }
-  ];
+const ldapURLs = [
+  {
+    url: "ldap://localhost/dc=test",
+    spec: "ldap://localhost/dc=test",
+    asciiSpec: "ldap://localhost/dc=test",
+    host: "localhost",
+    asciiHost: "localhost",
+    port: -1,
+    scheme: "ldap",
+    path: "/dc=test",
+    prePath: "ldap://localhost",
+    hostPort: "localhost",
+    displaySpec: "ldap://localhost/dc=test",
+    displayPrePath: "ldap://localhost",
+    displayHost: "localhost",
+    displayHostPort: "localhost",
+    dn: "dc=test",
+    scope: Ci.nsILDAPURL.SCOPE_BASE,
+    filter: "(objectclass=*)",
+    options: 0,
+  }, {
+    url: "ldap://localhost:389/dc=test,dc=abc??sub?(objectclass=*)",
+    spec: "ldap://localhost" + portAdpt + "/dc=test,dc=abc??sub?(objectclass=*)",
+    asciiSpec: "ldap://localhost" + portAdpt + "/dc=test,dc=abc??sub?(objectclass=*)",
+    host: "localhost",
+    asciiHost: "localhost",
+    port: usingWallet ? 389 : -1,
+    scheme: "ldap",
+    path: "/dc=test,dc=abc??sub?(objectclass=*)",
+    prePath: "ldap://localhost" + portAdpt,
+    hostPort: "localhost" + portAdpt,
+    displaySpec: "ldap://localhost" + portAdpt + "/dc=test,dc=abc??sub?(objectclass=*)",
+    displayPrePath: "ldap://localhost",
+    displayHost: "localhost",
+    displayHostPort: "localhost" + portAdpt,
+    dn: "dc=test,dc=abc",
+    scope: Ci.nsILDAPURL.SCOPE_SUBTREE,
+    filter: "(objectclass=*)",
+    options: 0,
+  }, {
+    url: "ldap://\u65e5\u672c\u8a93.jp:389/dc=tes\u65e5t??one?(oc=xyz)",
+    spec: "ldap://xn--wgv71a309e.jp" + portAdpt + "/dc=tes%E6%97%A5t??one?(oc=xyz)",
+    asciiSpec: "ldap://xn--wgv71a309e.jp" + portAdpt + "/dc=tes%E6%97%A5t??one?(oc=xyz)",
+    host: "xn--wgv71a309e.jp",
+    asciiHost: "xn--wgv71a309e.jp",
+    port: usingWallet ? 389 : -1,
+    scheme: "ldap",
+    path: "/dc=tes%E6%97%A5t??one?(oc=xyz)",
+    prePath: "ldap://xn--wgv71a309e.jp" + portAdpt,
+    hostPort: "xn--wgv71a309e.jp" + portAdpt,
+    displaySpec: "ldap://\u65e5\u672c\u8a93.jp" + portAdpt + "/dc=tes%E6%97%A5t??one?(oc=xyz)",
+    displayPrePath: "ldap://\u65e5\u672c\u8a93.jp" + portAdpt,
+    displayHost: "\u65e5\u672c\u8a93.jp",
+    displayHostPort: "\u65e5\u672c\u8a93.jp" + portAdpt,
+    dn: "dc=tes\u65e5t",
+    scope: Ci.nsILDAPURL.SCOPE_ONELEVEL,
+    filter: "(oc=xyz)",
+    options: 0,
+  }, {
+    url: "ldaps://localhost/dc=test",
+    spec: "ldaps://localhost/dc=test",
+    asciiSpec: "ldaps://localhost/dc=test",
+    host: "localhost",
+    asciiHost: "localhost",
+    port: -1,
+    scheme: "ldaps",
+    path: "/dc=test",
+    prePath: "ldaps://localhost",
+    hostPort: "localhost",
+    displaySpec: "ldaps://localhost/dc=test",
+    displayPrePath: "ldaps://localhost",
+    displayHost: "localhost",
+    displayHostPort: "localhost",
+    dn: "dc=test",
+    scope: Ci.nsILDAPURL.SCOPE_BASE,
+    filter: "(objectclass=*)",
+    options: Ci.nsILDAPURL.OPT_SECURE,
+  },
+];
 
 function run_test() {
   var url;
 
-  // Get the IO service;
-  var ioService = Cc["@mozilla.org/network/io-service;1"]
-                    .getService(Ci.nsIIOService);
-
   // Test - get and check urls.
 
-  var part = 0;
-  for (part = 0; part < ldapURLs.length; ++part)
-  {
+  for (let part = 0; part < ldapURLs.length; ++part) {
     dump("url: " + ldapURLs[part].url + "\n");
-    url = ioService.newURI(ldapURLs[part].url);
+    url = Services.io.newURI(ldapURLs[part].url);
 
     Assert.equal(url.spec, ldapURLs[part].spec);
     Assert.equal(url.asciiSpec, ldapURLs[part].asciiSpec);
@@ -130,8 +127,7 @@ function run_test() {
   // Start off with a base url
   const kBaseURL = "ldap://localhost:389/dc=test,dc=abc??sub?(objectclass=*)";
 
-  url = ioService.newURI(kBaseURL)
-                 .QueryInterface(Ci.nsILDAPURL);
+  url = Services.io.newURI(kBaseURL).QueryInterface(Ci.nsILDAPURL);
 
   // Test - dn
 
@@ -202,8 +198,8 @@ function run_test() {
 
   // Test - Equals
 
-  var url2 = ioService.newURI("ldap://localhost" + portAdpt + "/dc=short??one?(objectclass=*)")
-                      .QueryInterface(Ci.nsILDAPURL);
+  var url2 = Services.io.newURI("ldap://localhost" + portAdpt + "/dc=short??one?(objectclass=*)")
+                        .QueryInterface(Ci.nsILDAPURL);
 
   Assert.ok(url.equals(url2));
 
@@ -233,8 +229,6 @@ function run_test() {
 
   var newAttrs = "abc,def,ghi,jkl";
   url.attributes = newAttrs;
-
-  var i;
 
   Assert.equal(url.attributes, newAttrs);
   Assert.equal(url.spec,

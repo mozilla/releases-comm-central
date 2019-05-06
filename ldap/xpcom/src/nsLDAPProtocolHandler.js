@@ -18,7 +18,7 @@ function makeProtocolHandler(aCID, aProtocol, aDefaultPort) {
                    nsIProtocolHandler.URI_DANGEROUS_TO_LOAD |
                    nsIProtocolHandler.ALLOWS_PROXY,
 
-    newURI: function (aSpec, aOriginCharset, aBaseURI) {
+    newURI(aSpec, aOriginCharset, aBaseURI) {
       var url = Cc["@mozilla.org/network/ldap-url;1"]
                   .createInstance(Ci.nsIURI);
 
@@ -29,7 +29,7 @@ function makeProtocolHandler(aCID, aProtocol, aDefaultPort) {
       return url;
     },
 
-    newChannel: function (aURI, aLoadInfo) {
+    newChannel(aURI, aLoadInfo) {
       if ("@mozilla.org/network/ldap-channel;1" in Cc) {
         var channel = Cc["@mozilla.org/network/ldap-channel;1"]
                         .createInstance(Ci.nsIChannel);
@@ -41,9 +41,9 @@ function makeProtocolHandler(aCID, aProtocol, aDefaultPort) {
       throw Cr.NS_ERROR_NOT_IMPLEMENTED;
     },
 
-    allowPort: function (port, scheme) {
+    allowPort(port, scheme) {
       return port == aDefaultPort;
-    }
+    },
   };
 }
 
