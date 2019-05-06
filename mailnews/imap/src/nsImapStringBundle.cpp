@@ -11,13 +11,11 @@
 #include "nsServiceManagerUtils.h"
 #include "mozilla/Services.h"
 
-#define IMAP_MSGS_URL       "chrome://messenger/locale/imapMsgs.properties"
+#define IMAP_MSGS_URL "chrome://messenger/locale/imapMsgs.properties"
 
-extern "C"
-nsresult
-IMAPGetStringByName(const char* stringName, char16_t **aString)
-{
-  nsCOMPtr <nsIStringBundle> sBundle;
+extern "C" nsresult IMAPGetStringByName(const char *stringName,
+                                        char16_t **aString) {
+  nsCOMPtr<nsIStringBundle> sBundle;
   nsresult rv = IMAPGetStringBundle(getter_AddRefs(sBundle));
   if (NS_SUCCEEDED(rv) && sBundle) {
     nsAutoString string;
@@ -27,12 +25,10 @@ IMAPGetStringByName(const char* stringName, char16_t **aString)
   return rv;
 }
 
-nsresult
-IMAPGetStringBundle(nsIStringBundle **aBundle)
-{
-  nsresult rv=NS_OK;
+nsresult IMAPGetStringBundle(nsIStringBundle **aBundle) {
+  nsresult rv = NS_OK;
   nsCOMPtr<nsIStringBundleService> stringService =
-    mozilla::services::GetStringBundleService();
+      mozilla::services::GetStringBundleService();
   if (!stringService) return NS_ERROR_NULL_POINTER;
   nsCOMPtr<nsIStringBundle> stringBundle;
   rv = stringService->CreateBundle(IMAP_MSGS_URL, getter_AddRefs(stringBundle));

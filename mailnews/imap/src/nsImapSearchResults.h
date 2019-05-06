@@ -8,35 +8,33 @@
 
 #include "nsTArray.h"
 
-class nsImapSearchResultSequence : public nsTArray<char*>
-{
-public:
-    virtual ~nsImapSearchResultSequence();
-    static nsImapSearchResultSequence *CreateSearchResultSequence();
+class nsImapSearchResultSequence : public nsTArray<char *> {
+ public:
+  virtual ~nsImapSearchResultSequence();
+  static nsImapSearchResultSequence *CreateSearchResultSequence();
 
-    virtual void AddSearchResultLine(const char *searchLine);
-    virtual void ResetSequence();
-    void  Clear();
+  virtual void AddSearchResultLine(const char *searchLine);
+  virtual void ResetSequence();
+  void Clear();
 
-    friend class nsImapSearchResultIterator;
-private:
-    nsImapSearchResultSequence();
+  friend class nsImapSearchResultIterator;
+
+ private:
+  nsImapSearchResultSequence();
 };
 
 class nsImapSearchResultIterator {
-public:
-    explicit nsImapSearchResultIterator(nsImapSearchResultSequence &sequence);
-    virtual ~nsImapSearchResultIterator();
+ public:
+  explicit nsImapSearchResultIterator(nsImapSearchResultSequence &sequence);
+  virtual ~nsImapSearchResultIterator();
 
-    void  ResetIterator();
-    int32_t GetNextMessageNumber();   // returns 0 at end of list
-private:
-    nsImapSearchResultSequence &fSequence;
-    int32_t fSequenceIndex;
-    char  *fCurrentLine;
-    char  *fPositionInCurrentLine;
+  void ResetIterator();
+  int32_t GetNextMessageNumber();  // returns 0 at end of list
+ private:
+  nsImapSearchResultSequence &fSequence;
+  int32_t fSequenceIndex;
+  char *fCurrentLine;
+  char *fPositionInCurrentLine;
 };
-
-
 
 #endif

@@ -14,10 +14,11 @@
 #include "nsIFile.h"
 #include "mozilla/Mutex.h"
 
-class nsImapUrl : public nsIImapUrl, public nsMsgMailNewsUrl, public nsIMsgMessageUrl, public nsIMsgI18NUrl
-{
-public:
-
+class nsImapUrl : public nsIImapUrl,
+                  public nsMsgMailNewsUrl,
+                  public nsIMsgMessageUrl,
+                  public nsIMsgI18NUrl {
+ public:
   NS_DECL_ISUPPORTS_INHERITED
 
   // nsMsgMailNewsUrl overrides
@@ -41,12 +42,15 @@ public:
   // nsImapUrl
   nsImapUrl();
 
-  static nsresult ConvertToCanonicalFormat(const char *folderName, char onlineDelimiter, char **resultingCanonicalPath);
+  static nsresult ConvertToCanonicalFormat(const char *folderName,
+                                           char onlineDelimiter,
+                                           char **resultingCanonicalPath);
   static nsresult EscapeSlashes(const char *sourcePath, char **resultPath);
   static nsresult UnescapeSlashes(char *path);
-  static char *  ReplaceCharsInCopiedString(const char *stringToCopy, char oldChar, char newChar);
+  static char *ReplaceCharsInCopiedString(const char *stringToCopy,
+                                          char oldChar, char newChar);
 
-protected:
+ protected:
   virtual ~nsImapUrl();
   virtual nsresult ParseUrl();
 
@@ -65,42 +69,45 @@ protected:
 
   nsresult GetMsgFolder(nsIMsgFolder **msgFolder);
 
-  char        *m_sourceCanonicalFolderPathSubString;
-  char        *m_destinationCanonicalFolderPathSubString;
-  char        *m_tokenPlaceHolder;
-  char        *m_urlidSubString;
-  char        m_onlineSubDirSeparator;
-  char        *m_searchCriteriaString;  // should we use m_search, or is this special?
-  nsCString     m_command;       // for custom commands
-  nsCString     m_msgFetchAttribute; // for fetching custom msg attributes
-  nsCString     m_customAttributeResult; // for fetching custom msg attributes
-  nsCString     m_customCommandResult; // custom command response
-  nsCString     m_customAddFlags;       // these two are for setting and clearing custom flags
-  nsCString     m_customSubtractFlags;
-  int32_t       m_numBytesToFetch; // when doing a msg body preview, how many bytes to read
+  char *m_sourceCanonicalFolderPathSubString;
+  char *m_destinationCanonicalFolderPathSubString;
+  char *m_tokenPlaceHolder;
+  char *m_urlidSubString;
+  char m_onlineSubDirSeparator;
+  char *m_searchCriteriaString;   // should we use m_search, or is this special?
+  nsCString m_command;            // for custom commands
+  nsCString m_msgFetchAttribute;  // for fetching custom msg attributes
+  nsCString m_customAttributeResult;  // for fetching custom msg attributes
+  nsCString m_customCommandResult;    // custom command response
+  nsCString
+      m_customAddFlags;  // these two are for setting and clearing custom flags
+  nsCString m_customSubtractFlags;
+  int32_t m_numBytesToFetch;  // when doing a msg body preview, how many bytes
+                              // to read
   bool m_validUrl;
   bool m_runningUrl;
   bool m_idsAreUids;
   bool m_mimePartSelectorDetected;
   bool m_allowContentChange;  // if false, we can't use Mime parts on demand
-  bool m_fetchPartsOnDemand; // if true, we should fetch leave parts on server.
-  bool m_msgLoadingFromCache; // if true, we might need to mark read on server
-  bool m_externalLinkUrl; // if true, we're running this url because the user
+  bool m_fetchPartsOnDemand;  // if true, we should fetch leave parts on server.
+  bool m_msgLoadingFromCache;  // if true, we might need to mark read on server
+  bool m_externalLinkUrl;  // if true, we're running this url because the user
   // True if the fetch results should be put in the offline store.
   bool m_storeResultsOffline;
   bool m_storeOfflineOnFallback;
   bool m_localFetchOnly;
-  bool m_rerunningUrl; // first attempt running this failed with connection error; retrying
+  bool m_rerunningUrl;  // first attempt running this failed with connection
+                        // error; retrying
   bool m_moreHeadersToDownload;
-  nsImapContentModifiedType  m_contentModified;
+  nsImapContentModifiedType m_contentModified;
 
-  int32_t    m_extraStatus;
+  int32_t m_extraStatus;
 
-  nsCString  m_userName;
-  nsCString  m_serverKey;
+  nsCString m_userName;
+  nsCString m_serverKey;
   // event sinks
-  imapMessageFlagsType  m_flags;
-  nsImapAction  m_imapAction;
+  imapMessageFlagsType m_flags;
+  nsImapAction m_imapAction;
 
   nsWeakPtr m_imapFolder;
   nsWeakPtr m_imapMailFolderSink;
@@ -109,17 +116,17 @@ protected:
   nsWeakPtr m_imapServerSink;
 
   // online message copy support; i don't have a better solution yet
-  nsCOMPtr <nsISupports> m_copyState;   // now, refcounted.
+  nsCOMPtr<nsISupports> m_copyState;  // now, refcounted.
   nsCOMPtr<nsIFile> m_file;
   nsWeakPtr m_channelWeakPtr;
 
   // used by save message to disk
   nsCOMPtr<nsIFile> m_messageFile;
-  bool                  m_addDummyEnvelope;
-  bool                  m_canonicalLineEnding; // CRLF
+  bool m_addDummyEnvelope;
+  bool m_canonicalLineEnding;  // CRLF
 
-  nsCString mURI; // the RDF URI associated with this url.
-  nsCString mCharsetOverride; // used by nsIMsgI18NUrl...
+  nsCString mURI;              // the RDF URI associated with this url.
+  nsCString mCharsetOverride;  // used by nsIMsgI18NUrl...
   mozilla::Mutex mLock;
 };
 

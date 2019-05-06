@@ -18,10 +18,8 @@
 #include "nsIWeakReferenceUtils.h"
 #include "nsCOMArray.h"
 
-class nsImapMoveCopyMsgTxn : public nsMsgTxn, nsIUrlListener
-{
-public:
-
+class nsImapMoveCopyMsgTxn : public nsMsgTxn, nsIUrlListener {
+ public:
   nsImapMoveCopyMsgTxn();
   nsImapMoveCopyMsgTxn(nsIMsgFolder* srcFolder, nsTArray<nsMsgKey>* srcKeyArray,
                        const char* srcMsgIdString, nsIMsgFolder* dstFolder,
@@ -34,9 +32,9 @@ public:
   NS_IMETHOD RedoTransaction(void) override;
 
   // helper
-  nsresult SetCopyResponseUid(const char *msgIdString);
+  nsresult SetCopyResponseUid(const char* msgIdString);
   nsresult GetSrcKeyArray(nsTArray<nsMsgKey>& srcKeyArray);
-  void GetSrcMsgIds(nsCString &srcMsgIds) {srcMsgIds = m_srcMsgIdString;}
+  void GetSrcMsgIds(nsCString& srcMsgIds) { srcMsgIds = m_srcMsgIdString; }
   nsresult AddDstKey(nsMsgKey aKey);
   nsresult UndoMailboxDelete();
   nsresult RedoMailboxDelete();
@@ -44,7 +42,7 @@ public:
                 const char* srcMsgIdString, nsIMsgFolder* dstFolder,
                 bool idsAreUids, bool isMove);
 
-protected:
+ protected:
   virtual ~nsImapMoveCopyMsgTxn();
 
   nsWeakPtr m_srcFolder;
@@ -63,24 +61,23 @@ protected:
   // to be the listener, but the folder may need to also be notified.
   nsWeakPtr m_onStopListener;
 
-  nsresult GetImapDeleteModel(nsIMsgFolder* aFolder, nsMsgImapDeleteModel *aDeleteModel);
+  nsresult GetImapDeleteModel(nsIMsgFolder* aFolder,
+                              nsMsgImapDeleteModel* aDeleteModel);
 };
 
-class nsImapOfflineTxn : public nsImapMoveCopyMsgTxn
-{
-public:
+class nsImapOfflineTxn : public nsImapMoveCopyMsgTxn {
+ public:
   nsImapOfflineTxn(nsIMsgFolder* srcFolder, nsTArray<nsMsgKey>* srcKeyArray,
-                   const char* srcMsgIdString,
-                   nsIMsgFolder* dstFolder,
-                   bool isMove,
-                   nsOfflineImapOperationType opType,
-                   nsCOMArray<nsIMsgDBHdr> &srcHdrs);
+                   const char* srcMsgIdString, nsIMsgFolder* dstFolder,
+                   bool isMove, nsOfflineImapOperationType opType,
+                   nsCOMArray<nsIMsgDBHdr>& srcHdrs);
 
   NS_IMETHOD UndoTransaction(void) override;
   NS_IMETHOD RedoTransaction(void) override;
-  void SetAddFlags(bool addFlags) {m_addFlags = addFlags;}
-  void SetFlags(uint32_t flags) {m_flags = flags;}
-protected:
+  void SetAddFlags(bool addFlags) { m_addFlags = addFlags; }
+  void SetFlags(uint32_t flags) { m_flags = flags; }
+
+ protected:
   virtual ~nsImapOfflineTxn();
   nsOfflineImapOperationType m_opType;
   // these two are used to undo flag changes, which we don't currently do.

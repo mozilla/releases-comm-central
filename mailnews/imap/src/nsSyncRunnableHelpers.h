@@ -20,99 +20,98 @@
 // synchronously. The main thread must not block on this thread, or a
 // deadlock condition can occur.
 
-class StreamListenerProxy final : public nsIStreamListener
-{
-public:
+class StreamListenerProxy final : public nsIStreamListener {
+ public:
   explicit StreamListenerProxy(nsIStreamListener* receiver)
-    : mReceiver(receiver)
-  {
-    MOZ_DIAGNOSTIC_ASSERT(receiver, "Null receiver, crash now to get feedback instead of later");
+      : mReceiver(receiver) {
+    MOZ_DIAGNOSTIC_ASSERT(
+        receiver, "Null receiver, crash now to get feedback instead of later");
   }
 
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIREQUESTOBSERVER
   NS_DECL_NSISTREAMLISTENER
 
-private:
+ private:
   ~StreamListenerProxy() {
-    NS_ReleaseOnMainThreadSystemGroup("StreamListenerProxy::mReceiver", mReceiver.forget());
+    NS_ReleaseOnMainThreadSystemGroup("StreamListenerProxy::mReceiver",
+                                      mReceiver.forget());
   }
   nsCOMPtr<nsIStreamListener> mReceiver;
 };
 
-class ImapMailFolderSinkProxy final : public nsIImapMailFolderSink
-{
-public:
+class ImapMailFolderSinkProxy final : public nsIImapMailFolderSink {
+ public:
   explicit ImapMailFolderSinkProxy(nsIImapMailFolderSink* receiver)
-    : mReceiver(receiver)
-  {
-    MOZ_DIAGNOSTIC_ASSERT(receiver, "Null receiver, crash now to get feedback instead of later");
+      : mReceiver(receiver) {
+    MOZ_DIAGNOSTIC_ASSERT(
+        receiver, "Null receiver, crash now to get feedback instead of later");
   }
 
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIIMAPMAILFOLDERSINK
 
-private:
+ private:
   ~ImapMailFolderSinkProxy() {
-    NS_ReleaseOnMainThreadSystemGroup("ImapMailFolderSinkProxy::mReceiver", mReceiver.forget());
+    NS_ReleaseOnMainThreadSystemGroup("ImapMailFolderSinkProxy::mReceiver",
+                                      mReceiver.forget());
   }
   nsCOMPtr<nsIImapMailFolderSink> mReceiver;
 };
 
-class ImapServerSinkProxy final : public nsIImapServerSink
-{
-public:
+class ImapServerSinkProxy final : public nsIImapServerSink {
+ public:
   explicit ImapServerSinkProxy(nsIImapServerSink* receiver)
-    : mReceiver(receiver)
-  {
-    MOZ_DIAGNOSTIC_ASSERT(receiver, "Null receiver, crash now to get feedback instead of later");
+      : mReceiver(receiver) {
+    MOZ_DIAGNOSTIC_ASSERT(
+        receiver, "Null receiver, crash now to get feedback instead of later");
   }
 
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIIMAPSERVERSINK
 
-private:
+ private:
   ~ImapServerSinkProxy() {
-    NS_ReleaseOnMainThreadSystemGroup("ImapServerSinkProxy::mReceiver", mReceiver.forget());
+    NS_ReleaseOnMainThreadSystemGroup("ImapServerSinkProxy::mReceiver",
+                                      mReceiver.forget());
   }
   nsCOMPtr<nsIImapServerSink> mReceiver;
 };
 
-
-class ImapMessageSinkProxy final : public nsIImapMessageSink
-{
-public:
+class ImapMessageSinkProxy final : public nsIImapMessageSink {
+ public:
   explicit ImapMessageSinkProxy(nsIImapMessageSink* receiver)
-    : mReceiver(receiver)
-  {
-    MOZ_DIAGNOSTIC_ASSERT(receiver, "Null receiver, crash now to get feedback instead of later");
+      : mReceiver(receiver) {
+    MOZ_DIAGNOSTIC_ASSERT(
+        receiver, "Null receiver, crash now to get feedback instead of later");
   }
 
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIIMAPMESSAGESINK
 
-private:
+ private:
   ~ImapMessageSinkProxy() {
-    NS_ReleaseOnMainThreadSystemGroup("ImapMessageSinkProxy::mReceiver", mReceiver.forget());
+    NS_ReleaseOnMainThreadSystemGroup("ImapMessageSinkProxy::mReceiver",
+                                      mReceiver.forget());
   }
   nsCOMPtr<nsIImapMessageSink> mReceiver;
 };
 
-class ImapProtocolSinkProxy final : public nsIImapProtocolSink
-{
-public:
+class ImapProtocolSinkProxy final : public nsIImapProtocolSink {
+ public:
   explicit ImapProtocolSinkProxy(nsIImapProtocolSink* receiver)
-    : mReceiver(receiver)
-  {
-    MOZ_DIAGNOSTIC_ASSERT(receiver, "Null receiver, crash now to get feedback instead of later");
+      : mReceiver(receiver) {
+    MOZ_DIAGNOSTIC_ASSERT(
+        receiver, "Null receiver, crash now to get feedback instead of later");
   }
 
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIIMAPPROTOCOLSINK
 
-private:
+ private:
   ~ImapProtocolSinkProxy() {
-    NS_ReleaseOnMainThreadSystemGroup("ImapProtocolSinkProxy::mReceiver", mReceiver.forget());
+    NS_ReleaseOnMainThreadSystemGroup("ImapProtocolSinkProxy::mReceiver",
+                                      mReceiver.forget());
   }
   nsCOMPtr<nsIImapProtocolSink> mReceiver;
 };
@@ -123,18 +122,17 @@ class nsIMsgIncomingServer;
 namespace mozilla {
 namespace mailnews {
 
-class OAuth2ThreadHelper final : public msgIOAuth2ModuleListener
-{
-public:
-  explicit OAuth2ThreadHelper(nsIMsgIncomingServer *aServer);
+class OAuth2ThreadHelper final : public msgIOAuth2ModuleListener {
+ public:
+  explicit OAuth2ThreadHelper(nsIMsgIncomingServer* aServer);
 
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_MSGIOAUTH2MODULELISTENER
 
   bool SupportsOAuth2();
-  void GetXOAuth2String(nsACString &base64Str);
+  void GetXOAuth2String(nsACString& base64Str);
 
-private:
+ private:
   ~OAuth2ThreadHelper();
   void Init();
   void Connect();
@@ -145,7 +143,7 @@ private:
   nsCString mOAuth2String;
 };
 
-} // namespace mailnews
-} // namespace mozilla
+}  // namespace mailnews
+}  // namespace mozilla
 
-#endif // nsSyncRunnableHelpers_h
+#endif  // nsSyncRunnableHelpers_h
