@@ -21,6 +21,7 @@ jobs:
     - debian9-raw
     - desktop1604-test
     - fetch
+    - index-task
     - image_builder
     - lint
     - mingw32-build
