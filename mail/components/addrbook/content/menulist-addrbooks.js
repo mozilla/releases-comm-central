@@ -83,17 +83,19 @@ customElements.whenDefined("menulist").then(() => {
         },
       };
 
-      Cc["@mozilla.org/abmanager;1"]
-        .getService(Ci.nsIAbManager)
-        .addAddressBookListener(this.addressBookListener, Ci.nsIAbListener.all);
+      MailServices.ab.addAddressBookListener(this.addressBookListener, Ci.nsIAbListener.all);
+
+      this._onUnload = () => {
+        MailServices.ab.removeAddressBookListener(this.addressBookListener);
+      };
+      window.addEventListener("unload", this._onUnload);
     }
 
     disconnectedCallback() {
       super.disconnectedCallback();
 
-      Cc["@mozilla.org/abmanager;1"]
-        .getService(Ci.nsIAbManager)
-        .removeAddressBookListener(this.addressBookListener);
+      window.removeEventListener("unload", this._onUnload);
+      MailServices.ab.removeAddressBookListener(this.addressBookListener);
     }
 
     _rebuild(aSelectValue) {
