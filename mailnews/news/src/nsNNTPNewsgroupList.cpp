@@ -582,9 +582,11 @@ NS_IMETHODIMP nsNNTPNewsgroupList::ApplyFilterHit(nsIMsgFilter *aFilter,
   m_newMsgHdr->GetMessageId(getter_Copies(msgId));
   nsMsgKey msgKey;
   m_newMsgHdr->GetMessageKey(&msgKey);
-  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(News) Applying filter actions on message with key %" PRIu32,
-                                            msgKeyToInt(msgKey)));
-  MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug, ("(News) Message ID: %s", msgId.get()));
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
+          ("(News) Applying filter actions on message with key %" PRIu32,
+           msgKeyToInt(msgKey)));
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug,
+          ("(News) Message ID: %s", msgId.get()));
 
   bool loggingEnabled = false;
   nsCOMPtr<nsIMsgFilterList> currentFilterList;
@@ -997,8 +999,9 @@ nsresult nsNNTPNewsgroupList::CallFilters() {
   uint32_t count = m_newHeaders.Count();
   nsString folderName;
   folder->GetPrettyName(folderName);
-  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(News) Running filters on %" PRIu32 " new messages in folder '%s'",
-                                            count, NS_ConvertUTF16toUTF8(folderName).get()));
+  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
+          ("(News) Running filters on %" PRIu32 " new messages in folder '%s'",
+           count, NS_ConvertUTF16toUTF8(folderName).get()));
 
   // Notify MsgFolderListeners of message adds
   nsCOMPtr<nsIMsgFolderNotificationService> notifier(
@@ -1056,13 +1059,15 @@ nsresult nsNNTPNewsgroupList::CallFilters() {
     // execution, then users should be able to override the global filters in
     // the per-newsgroup filters.
     if (filterCount) {
-      MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(News) Running filters from current newsgroup"));
+      MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
+              ("(News) Running filters from current newsgroup"));
       rv = m_filterList->ApplyFiltersToHdr(nsMsgFilterType::NewsRule,
                                            m_newMsgHdr, folder, m_newsDB,
                                            fullHeaders, this, m_msgWindow);
     }
     if (serverFilterCount) {
-      MOZ_LOG(FILTERLOGMODULE, LogLevel::Info, ("(News) Running filters from parent server"));
+      MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
+              ("(News) Running filters from parent server"));
       rv = m_serverFilterList->ApplyFiltersToHdr(
           nsMsgFilterType::NewsRule, m_newMsgHdr, folder, m_newsDB, fullHeaders,
           this, m_msgWindow);
