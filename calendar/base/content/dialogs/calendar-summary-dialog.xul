@@ -120,7 +120,7 @@
     </toolbar>
   </toolbox>
 
-  <hbox id="status-notification" flex="1">
+  <hbox id="status-notifications">
     <!-- notificationbox will be added here lazily. -->
   </hbox>
 
