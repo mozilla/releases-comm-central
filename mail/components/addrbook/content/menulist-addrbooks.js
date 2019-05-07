@@ -84,17 +84,14 @@ customElements.whenDefined("menulist").then(() => {
       };
 
       MailServices.ab.addAddressBookListener(this.addressBookListener, Ci.nsIAbListener.all);
-
-      this._onUnload = () => {
+      window.addEventListener("unload", () => {
         MailServices.ab.removeAddressBookListener(this.addressBookListener);
-      };
-      window.addEventListener("unload", this._onUnload);
+      }, { once: true });
     }
 
     disconnectedCallback() {
       super.disconnectedCallback();
 
-      window.removeEventListener("unload", this._onUnload);
       MailServices.ab.removeAddressBookListener(this.addressBookListener);
     }
 
