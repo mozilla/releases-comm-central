@@ -66,6 +66,9 @@
 
 #define NS_ERROR_ILLEGAL_LOCALPART                  NS_MSG_GENERATE_FAILURE(12601)
 
+#define NS_ERROR_CLIENTID                           NS_MSG_GENERATE_FAILURE(12610)
+#define NS_ERROR_CLIENTID_PERMISSION                NS_MSG_GENERATE_FAILURE(12611)
+
 const char* errorStringNameForErrorCode(nsresult aCode);
 
 #endif /* _nsComposeStrings_H__ */

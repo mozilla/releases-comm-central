@@ -294,6 +294,32 @@ nsSmtpServer::SetUsername(const nsACString &aUsername)
 }
 
 NS_IMETHODIMP
+nsSmtpServer::GetClientid(nsACString &aClientid)
+{
+  nsresult rv;
+  rv = mPrefBranch->GetCharPref("clientid", aClientid);
+  if (NS_FAILED(rv))
+  {
+    rv = mDefPrefBranch->GetCharPref("clientid", aClientid);
+    if (NS_FAILED(rv))
+      aClientid.Truncate();
+  }
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsSmtpServer::SetClientid(const nsACString &aClientid)
+{
+  if (!aClientid.IsEmpty())
+    return mPrefBranch->SetCharPref("clientid", aClientid);
+
+  // If the pref value is already empty, ClearUserPref will return
+  // NS_ERROR_UNEXPECTED, so don't check the rv here.
+  mPrefBranch->ClearUserPref("clientid");
+  return NS_OK;
+}
+
+NS_IMETHODIMP
 nsSmtpServer::GetPassword(nsAString& aPassword)
 {
     if (m_password.IsEmpty() && !m_logonFailed)

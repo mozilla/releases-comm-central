@@ -22,6 +22,12 @@ var kDefaultCharsetsPrefVersion = 1;
 
 function migrateMailnews() {
   try {
+    MigrateProfileClientid();
+  } catch (e) {
+    logException(e);
+  }
+
+  try {
     MigrateServerAuthPref();
   } catch (e) {
     logException(e);
@@ -37,6 +43,22 @@ function migrateMailnews() {
     MigrateDefaultCharsets();
   } catch (e) {
     logException(e);
+  }
+}
+
+/**
+ * Creates the server specific default 'clientid' prefs.
+ */
+function MigrateProfileClientid() {
+  // First generate a uuid without braces.
+  let uuidGen = Cc["@mozilla.org/uuid-generator;1"].getService(Ci.nsIUUIDGenerator);
+  let defaultClientid = uuidGen.generateUUID().toString().replace(/[{}]/g, "");
+  // We need to populate our default clientid preferences if they are missing.
+  if (!Services.prefs.getCharPref("mail.server.default.clientid")) {
+    Services.prefs.setCharPref("mail.server.default.clientid", defaultClientid);
+  }
+  if (!Services.prefs.getCharPref("mail.smtpserver.default.clientid")) {
+    Services.prefs.setCharPref("mail.smtpserver.default.clientid", defaultClientid);
   }
 }
 
