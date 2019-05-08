@@ -841,6 +841,7 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
         NS_ENSURE_SUCCESS(rv, rv);
 
         if (isForwarded) {
+          nsCOMPtr<nsIEditor> editor(m_editor);  // Strong reference.
           // Special treatment for forwarded messages: Part 2.
           if (sigOnTopInserted) {
             // Sadly the M-C editor inserts a <br> between the <div> for the signature
@@ -851,14 +852,14 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
             if (brBeforeDiv) {
               tagLocalName = brBeforeDiv->LocalName();
               if (tagLocalName.EqualsLiteral("br")) {
-                rv = m_editor->DeleteNode(brBeforeDiv);
+                rv = editor->DeleteNode(brBeforeDiv);
                 NS_ENSURE_SUCCESS(rv, rv);
               }
             }
           }
 
           // Clean up the <br> we inserted.
-          rv = m_editor->DeleteNode(extraBr);
+          rv = editor->DeleteNode(extraBr);
           NS_ENSURE_SUCCESS(rv, rv);
         }
 
@@ -1102,7 +1103,8 @@ nsMsgCompose::Initialize(nsIMsgComposeParams *aParams,
   return CreateMessage(originalMsgURI.get(), type, composeFields);
 }
 
-nsresult nsMsgCompose::SetDocumentCharset(const char *aCharset)
+MOZ_CAN_RUN_SCRIPT_BOUNDARY nsresult
+nsMsgCompose::SetDocumentCharset(const char *aCharset)
 {
   NS_ENSURE_TRUE(m_compFields && m_editor, NS_ERROR_NOT_INITIALIZED);
 
@@ -1113,8 +1115,10 @@ nsresult nsMsgCompose::SetDocumentCharset(const char *aCharset)
   nsCString charset;
   if (aCharset)
     charset = nsDependentCString(aCharset);
-  if (m_editor)
-    m_editor->SetDocumentCharacterSet(charset);
+  if (m_editor) {
+    nsCOMPtr<nsIEditor> editor(m_editor);  // Strong reference.
+    editor->SetDocumentCharacterSet(charset);
+  }
 
   return NS_OK;
 }
@@ -1636,7 +1640,7 @@ static nsresult fixCharset(nsCString &aCharset)
 //  (it did the loadURI that triggered editor creation)
 // It is called from JS after editor creation
 //  (loadURI is done in JS)
-NS_IMETHODIMP
+MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP
 nsMsgCompose::InitEditor(nsIEditor* aEditor, mozIDOMWindowProxy* aContentWindow)
 {
   NS_ENSURE_ARG_POINTER(aEditor);
@@ -1649,7 +1653,7 @@ nsMsgCompose::InitEditor(nsIEditor* aEditor, mozIDOMWindowProxy* aContentWindow)
   rv = fixCharset(msgCharSet);
   NS_ENSURE_SUCCESS(rv, rv);
   m_compFields->SetCharacterSet(msgCharSet.get());
-  m_editor->SetDocumentCharacterSet(msgCharSet);
+  aEditor->SetDocumentCharacterSet(msgCharSet);
 
   nsCOMPtr<nsPIDOMWindowOuter> window = nsPIDOMWindowOuter::From(aContentWindow);
 
@@ -5823,12 +5827,13 @@ nsMsgCompose::SetIdentity(nsIMsgIdentity *aIdentity)
 
     if (signatureFound)
     {
-      m_editor->BeginTransaction();
+      nsCOMPtr<nsIEditor> editor(m_editor);  // Strong reference.
+      editor->BeginTransaction();
       tempNode = node->GetPreviousSibling();
-      rv = m_editor->DeleteNode(node);
+      rv = editor->DeleteNode(node);
       if (NS_FAILED(rv))
       {
-        m_editor->EndTransaction();
+        editor->EndTransaction();
         return rv;
       }
 
@@ -5837,9 +5842,9 @@ nsMsgCompose::SetIdentity(nsIMsgIdentity *aIdentity)
       {
         tagLocalName = tempNode->LocalName();
         if (tagLocalName.EqualsLiteral("br"))
-          m_editor->DeleteNode(tempNode);
+          editor->DeleteNode(tempNode);
       }
-      m_editor->EndTransaction();
+      editor->EndTransaction();
     }
   }
 
