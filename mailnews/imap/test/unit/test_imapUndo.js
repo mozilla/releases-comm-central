@@ -7,38 +7,36 @@
 // Original Author: David Bienvenu <bienvenu@nventure.com>
 
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var gRootFolder;
-var gLastKey;
 var gMessages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-var gCopyService = MailServices.copy;
 var gMsgWindow;
 
 var gMsgFile1 = do_get_file("../../../data/bugmail10");
 var gMsgFile2 = do_get_file("../../../data/bugmail11");
-var gMsgFile3 = do_get_file("../../../data/draft1");
+// var gMsgFile3 = do_get_file("../../../data/draft1");
 var gMsgFile4 = do_get_file("../../../data/bugmail7");
 var gMsgFile5 = do_get_file("../../../data/bugmail6");
 
 // Copied straight from the example files
 var gMsgId1 = "200806061706.m56H6RWT004933@mrapp54.mozilla.org";
 var gMsgId2 = "200804111417.m3BEHTk4030129@mrapp51.mozilla.org";
-var gMsgId3 = "4849BF7B.2030800@example.com";
+// var gMsgId3 = "4849BF7B.2030800@example.com";
 var gMsgId4 = "bugmail7.m47LtAEf007542@mrapp51.mozilla.org";
 var gMsgId5 = "bugmail6.m47LtAEf007542@mrapp51.mozilla.org";
 
 
 
 // Adds some messages directly to a mailbox (eg new mail)
-function addMessagesToServer(messages, mailbox)
-{
+function addMessagesToServer(messages, mailbox) {
   // For every message we have, we need to convert it to a file:/// URI
-  messages.forEach(function (message)
-  {
+  messages.forEach(function(message) {
     let URI = Services.io.newFileURI(message.file).QueryInterface(Ci.nsIFileURL);
     // Create the imapMessage and store it on the mailbox.
     mailbox.addMessage(new imapMessage(URI.spec, mailbox.uidnext++, []));
@@ -48,13 +46,13 @@ function addMessagesToServer(messages, mailbox)
 function alertListener() {}
 
 alertListener.prototype = {
-  reset: function () {
+  reset() {
   },
 
-  onAlert: function (aMessage, aMsgWindow) {
+  onAlert(aMessage, aMsgWindow) {
     dump("got alert " + aMessage + "\n");
-    do_throw ('TEST FAILED ' + aMessage);
-  }
+    do_throw("TEST FAILED " + aMessage);
+  },
 };
 
 var tests = [
@@ -95,7 +93,7 @@ var tests = [
     Assert.ok(msgRestored !== null);
     Assert.equal(IMAPPump.inbox.msgDatabase.dBFolderInfo.numMessages, 4);
   },
-  teardown
+  teardown,
 ];
 
 function setup() {
@@ -116,7 +114,7 @@ function setup() {
   // running initial folder discovery, and adding the folder bails
   // out before we set it as verified online, so we bail out, and
   // then remove the INBOX folder since it's not verified.
-  IMAPPump.inbox.hierarchyDelimiter = '/';
+  IMAPPump.inbox.hierarchyDelimiter = "/";
   IMAPPump.inbox.verifiedAsOnlineFolder = true;
 
 

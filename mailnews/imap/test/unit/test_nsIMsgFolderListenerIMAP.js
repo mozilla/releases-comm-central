@@ -15,13 +15,14 @@
 * - Adding new messages directly to mailboxes
 */
 
+/* import-globals-from ../../../test/resources/msgFolderListenerSetup.js */
 load("../../../resources/msgFolderListenerSetup.js");
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 // Globals
 var gRootFolder;
-var gIMAPInbox, gIMAPFolder2, gIMAPFolder3, gIMAPTrashFolder;
+var gIMAPInbox, gIMAPFolder2, gIMAPFolder3;
 var gIMAPDaemon, gServer, gIMAPIncomingServer;
 var gMsgFile1 = do_get_file("../../../data/bugmail10");
 var gMsgFile2 = do_get_file("../../../data/bugmail11");
@@ -39,8 +40,7 @@ var gMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
                   .createInstance(Ci.nsIMsgWindow);
 
 
-function addFolder(parent, folderName, storeIn)
-{
+function addFolder(parent, folderName, storeIn) {
   gExpectedEvents = [[MailServices.mfn.folderAdded, parent, folderName, storeIn]];
   // No copy listener notification for this
   gCurrStatus |= kStatus.onStopCopyDone;
@@ -51,8 +51,7 @@ function addFolder(parent, folderName, storeIn)
     resetStatusAndProceed();
 }
 
-function copyFileMessage(file, messageId, destFolder)
-{
+function copyFileMessage(file, messageId, destFolder) {
   copyListener.mFolderStoredIn = destFolder;
 
   // This *needs* to be a draft (fourth parameter), as for non-UIDPLUS servers,
@@ -79,8 +78,7 @@ function copyFileMessage(file, messageId, destFolder)
 }
 
 var gFolderBeingUpdated = null;
-function doUpdateFolder(test)
-{
+function doUpdateFolder(test) {
   // In case we've moved on to the next test, exit
   if (gTest > test)
     return;
@@ -90,15 +88,13 @@ function doUpdateFolder(test)
   if (gCurrStatus == kStatus.everythingDone)
     resetStatusAndProceed();
   else
-    do_timeout(1000, function(){doUpdateFolder(test);});
+    do_timeout(1000, function() { doUpdateFolder(test); });
 }
 
 // Adds some messages directly to a mailbox (eg new mail)
-function addMessagesToServer(messages, mailbox, localFolder)
-{
+function addMessagesToServer(messages, mailbox, localFolder) {
   // For every message we have, we need to convert it to a file:/// URI
-  messages.forEach(function (message)
-  {
+  messages.forEach(function(message) {
     let URI = Services.io.newFileURI(message.file).QueryInterface(Ci.nsIFileURL);
     // Create the imapMessage and store it on the mailbox.
     mailbox.addMessage(new imapMessage(URI.spec, mailbox.uidnext++, []));
@@ -116,18 +112,15 @@ function addMessagesToServer(messages, mailbox, localFolder)
   doUpdateFolder(gTest);
 }
 
-function copyMessages(messages, isMove, srcFolder, destFolder)
-{
+function copyMessages(messages, isMove, srcFolder, destFolder) {
   let array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  messages.forEach(function (message)
-  {
+  messages.forEach(function(message) {
     array.appendElement(message);
   });
   gExpectedEvents = [[MailServices.mfn.msgsMoveCopyCompleted, isMove, messages, destFolder, true]];
   // We'll also get the msgAdded events when we go and update the destination
   // folder
-  messages.forEach(function (message)
-  {
+  messages.forEach(function(message) {
     // We can't use the headers directly, because the notifications we'll
     // receive are for message headers in the destination folder
     gExpectedEvents.push([MailServices.mfn.msgKeyChanged,
@@ -149,8 +142,7 @@ function copyMessages(messages, isMove, srcFolder, destFolder)
     resetStatusAndProceed();
 }
 
-var gTestArray =
-[
+var gTestArray = [
   // Adding folders
   // Create another folder to move and copy messages around, and force initialization.
   function testAddFolder1() {
@@ -161,22 +153,22 @@ var gTestArray =
   },
 
   // Adding messages to folders
-  function testCopyFileMessage1()
-  {
+  function testCopyFileMessage1() {
     // Make sure the offline flag is not set for any of the folders
-    [gIMAPInbox, gIMAPFolder2, gIMAPFolder3].forEach(function (folder)
-    {
+    [gIMAPInbox, gIMAPFolder2, gIMAPFolder3].forEach(function(folder) {
       folder.clearFlag(Ci.nsMsgFolderFlags.Offline);
     });
-    copyFileMessage(gMsgFile1, gMsgId1, gIMAPInbox)
+    copyFileMessage(gMsgFile1, gMsgId1, gIMAPInbox);
   },
-  function testCopyFileMessage2() { copyFileMessage(gMsgFile2, gMsgId2, gIMAPInbox) },
+  function testCopyFileMessage2() {
+    copyFileMessage(gMsgFile2, gMsgId2, gIMAPInbox);
+  },
 
   // Add message straight to the server, so that we get a message added
   // notification on the next folder update
   function testNewMessageArrival1() {
     addMessagesToServer([{file: gMsgFile3, messageId: gMsgId3}],
-                        gIMAPDaemon.getMailbox("INBOX"), gIMAPInbox)
+                        gIMAPDaemon.getMailbox("INBOX"), gIMAPInbox);
   },
 
   // Add another couple of messages, this time to another folder on the server
@@ -187,11 +179,12 @@ var gTestArray =
   },
 
   // Moving/copying messages (this doesn't work right now)
-  function testCopyMessages1() { copyMessages([gMsgHdrs[0].hdr, gMsgHdrs[1].hdr], false, gIMAPInbox, gIMAPFolder3) }
+  function testCopyMessages1() {
+    copyMessages([gMsgHdrs[0].hdr, gMsgHdrs[1].hdr], false, gIMAPInbox, gIMAPFolder3);
+  },
 ];
 
-function run_test()
-{
+function run_test() {
   // This is before any of the actual tests, so...
   gTest = 0;
 
@@ -238,7 +231,7 @@ function run_test()
   gRootFolder = gIMAPIncomingServer.rootFolder;
   gIMAPInbox = gRootFolder.getChildNamed("Inbox");
   gExpectedEvents = [[MailServices.mfn.folderAdded, gRootFolder, "Trash",
-                      function(folder) { gIMAPTrashFolder = folder; } ]];
+                      function(folder) {}]];
   gCurrStatus |= kStatus.onStopCopyDone | kStatus.functionCallDone;
 
   gServer.performTest("SUBSCRIBE");
@@ -248,24 +241,20 @@ function run_test()
   do_test_pending();
 }
 
-function doTest(test)
-{
+function doTest(test) { // eslint-disable-line no-unused-vars
   dump("Doing test " + test + "\n");
-  if (test <= gTestArray.length)
-  {
-    let testFn = gTestArray[test-1];
+  if (test <= gTestArray.length) {
+    let testFn = gTestArray[test - 1];
 
     // Set a limit of ten seconds; if the notifications haven't arrived by then there's a problem.
-    do_timeout(10000, function(){
+    do_timeout(10000, function() {
         if (gTest == test)
           do_throw("Notifications not received in 10000 ms for operation " + testFn.name +
             ", current status is " + gCurrStatus);
         }
       );
     testFn();
-  }
-  else
-  {
+  } else {
     MailServices.mfn.removeListener(gMFListener);
     // Cleanup, null out everything, close all cached connections and stop the
     // server
@@ -274,13 +263,11 @@ function doTest(test)
     gIMAPInbox = null;
     gIMAPFolder2 = null;
     gIMAPFolder3 = null;
-    gIMAPTrashFolder = null;
     do_timeout(1000, endTest);
   }
 }
 
-function endTest()
-{
+function endTest() {
   gIMAPIncomingServer.closeCachedConnections();
   gServer.performTest();
   gServer.stop();

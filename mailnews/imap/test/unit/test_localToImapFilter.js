@@ -7,26 +7,20 @@
  * Original author: Kent James <kent@caspia.com>
  */
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../test/resources/POP3pump.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/POP3pump.js");
 
-var {
-  getFolderProperties,
-  getSpecialFolderString,
-  allAccountsSorted,
-  getMostRecentFolders,
-  folderNameCompare,
-} = ChromeUtils.import("resource:///modules/folderUtils.jsm");
 var {fixIterator, toXPCOMArray} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-var gIMAPTrashFolder;
 var gEmptyLocal1, gEmptyLocal2;
-var gLastKey;
 var gMessages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
 var gFiles = ["../../../data/bugmail1",
-                "../../../data/draft1"];
+              "../../../data/draft1"];
 
 var tests = [
   setup,
@@ -94,13 +88,13 @@ var tests = [
     // operation was a move
     Assert.equal(folderCount(localAccountUtils.inboxFolder), 0);
   },
-  teardown
+  teardown,
 ];
 
-function folderCount(folder)
-{
+function folderCount(folder) {
   let enumerator = folder.msgDatabase.EnumerateMessages();
   let count = 0;
+  // eslint-disable-next-line no-unused-vars
   for (let hdr of fixIterator(enumerator, Ci.nsIMsgDBHdr)) {
     count++;
   }
@@ -116,27 +110,22 @@ function setup() {
   // running initial folder discovery, and adding the folder bails
   // out before we set it as verified online, so we bail out, and
   // then remove the INBOX folder since it's not verified.
-  IMAPPump.inbox.hierarchyDelimiter = '/';
+  IMAPPump.inbox.hierarchyDelimiter = "/";
   IMAPPump.inbox.verifiedAsOnlineFolder = true;
 }
 
 // nsIMsgCopyServiceListener implementation - runs next test when copy
 // is completed.
-var CopyListener =
-{
-  OnStartCopy: function OnStartCopy() {},
-  OnProgress: function OnProgress(aProgress, aProgressMax) {},
-  SetMessageKey: function SetMessageKey(aKey)
-  {
-    gLastKey = aKey;
-  },
-  SetMessageId: function SetMessageId(aMessageId) {},
-  OnStopCopy: function OnStopCopy(aStatus)
-  {
+var CopyListener = {
+  OnStartCopy() {},
+  OnProgress(aProgress, aProgressMax) {},
+  SetMessageKey(aKey) {},
+  SetMessageId(aMessageId) {},
+  OnStopCopy(aStatus) {
     // Check: message successfully copied.
     Assert.equal(aStatus, 0);
     async_driver();
-  }
+  },
 };
 
 asyncUrlListener.callback = function(aUrl, aExitCode) {
@@ -147,8 +136,7 @@ function listMessages(folder) {
   let enumerator = folder.msgDatabase.EnumerateMessages();
   var msgCount = 0;
   dump("listing messages for " + folder.prettyName + "\n");
-  for (let hdr of fixIterator(enumerator, Ci.nsIMsgDBHdr))
-  {
+  for (let hdr of fixIterator(enumerator, Ci.nsIMsgDBHdr)) {
     msgCount++;
     dump(msgCount + ": " + hdr.subject + "\n");
   }
@@ -156,7 +144,6 @@ function listMessages(folder) {
 
 function teardown() {
   gMessages.clear();
-  gIMAPTrashFolder = null;
   gEmptyLocal1 = null;
   gEmptyLocal2 = null;
   gPOP3Pump = null;

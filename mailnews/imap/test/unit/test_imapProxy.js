@@ -4,6 +4,7 @@
 
 var {NetworkTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/NetworkTestUtils.jsm");
 var {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
+/* import-globals-from ../../../test/resources/messageGenerator.js */
 load("../../../resources/messageGenerator.js");
 
 var server, daemon, incomingServer;
@@ -17,7 +18,7 @@ add_task(async function setup() {
   Services.prefs.setBoolPref("mail.biff.show_tray_icon", false);
   Services.prefs.setBoolPref("mail.biff.animate_dock_icon", false);
 
-  let daemon = new imapDaemon();
+  daemon = new imapDaemon();
   server = makeServer(daemon, "");
 
   let messages = [];
@@ -61,7 +62,3 @@ add_task(async function cleanUp() {
   incomingServer.closeCachedConnections();
   server.stop();
 });
-
-function run_test() {
-  run_next_test();
-}

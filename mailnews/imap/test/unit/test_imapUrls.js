@@ -14,8 +14,7 @@ setupIMAPPump();
  * Test parsing of imap uri's with very large UID's.
  */
 
-function run_test()
-{
+function run_test() {
   let imapS = Cc["@mozilla.org/messenger/messageservice;1?type=imap"]
                 .getService(Ci.nsIMsgMessageService);
   let uri = {};

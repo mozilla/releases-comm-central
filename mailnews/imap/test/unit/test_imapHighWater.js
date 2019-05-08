@@ -4,9 +4,12 @@
  * marks.
  */
 
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/alertTestUtils.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../test/resources/messageGenerator.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/alertTestUtils.js");
 load("../../../resources/asyncTestUtils.js");
@@ -18,19 +21,16 @@ var gIMAPInbox;
 var gFolder1, gRootFolder;
 
 // Adds some messages directly to a mailbox (eg new mail)
-function addMessagesToServer(messages, mailbox)
-{
+function addMessagesToServer(messages, mailbox) {
   // Create the imapMessages and store them on the mailbox
-  messages.forEach(function (message)
-  {
+  messages.forEach(function(message) {
     let dataUri = Services.io.newURI("data:text/plain;base64," +
                                       btoa(message.toMessageString()));
     mailbox.addMessage(new imapMessage(dataUri.spec, mailbox.uidnext++, []));
   });
 }
 
-function run_test()
-{
+function run_test() {
   localAccountUtils.loadLocalMailAccount();
 
   /*
@@ -38,7 +38,7 @@ function run_test()
    */
   gIMAPDaemon = new imapDaemon();
   gServer = makeServer(gIMAPDaemon, "");
-  gIMAPDaemon.createMailbox("folder 1", {subscribed : true});
+  gIMAPDaemon.createMailbox("folder 1", {subscribed: true});
   gIMAPIncomingServer = createLocalIMAPServer(gServer.port);
   gIMAPIncomingServer.maximumConnectionsNumber = 1;
 
@@ -77,7 +77,7 @@ function* setupFolders() {
   messages = messages.concat(scenarioFactory.directReply(10));
 
   // Add 10 messages with uids 1-10.
-  let imapInbox = gIMAPDaemon.getMailbox("INBOX")
+  let imapInbox = gIMAPDaemon.getMailbox("INBOX");
   addMessagesToServer(messages, imapInbox);
   messages = [];
   messages = messages.concat(messageGenerator.makeMessage());
@@ -103,8 +103,7 @@ function* doMoves() {
   let headers1 = Cc["@mozilla.org/array;1"]
                    .createInstance(Ci.nsIMutableArray);
   let msgEnumerator = gIMAPInbox.msgDatabase.EnumerateMessages();
-  for (let i = 0; i < 5 && msgEnumerator.hasMoreElements(); i++)
-  {
+  for (let i = 0; i < 5 && msgEnumerator.hasMoreElements(); i++) {
     let header = msgEnumerator.getNext();
     if (header instanceof Ci.nsIMsgDBHdr)
       headers1.appendElement(header);
@@ -123,8 +122,7 @@ function* doMoves() {
   headers1 = Cc["@mozilla.org/array;1"]
                 .createInstance(Ci.nsIMutableArray);
   msgEnumerator = gIMAPInbox.msgDatabase.EnumerateMessages();
-  for (let i = 0; i < 5 && msgEnumerator.hasMoreElements(); i++)
-  {
+  for (let i = 0; i < 5 && msgEnumerator.hasMoreElements(); i++) {
     let header = msgEnumerator.getNext();
     if (header instanceof Ci.nsIMsgDBHdr)
       headers1.appendElement(header);
@@ -144,48 +142,43 @@ function* doMoves() {
   // this should clear the dummy headers.
   gFolder1.updateFolderWithListener(gDummyMsgWindow, UrlListener);
   yield false;
-  let serverSink = gIMAPIncomingServer.QueryInterface(Ci.nsIImapServerSink);
   Assert.equal(gFolder1.msgDatabase.dBFolderInfo.highWater, 11);
   yield true;
 }
 
-var UrlListener =
-{
-  OnStartRunningUrl: function(url) { },
-  OnStopRunningUrl: function(url, rc)
-  {
+var UrlListener = {
+  OnStartRunningUrl(url) {},
+  OnStopRunningUrl(url, rc) {
     // Check for ok status.
     Assert.equal(rc, 0);
     async_driver();
-  }
+  },
 };
 
 // nsIMsgCopyServiceListener implementation
-var CopyListener =
-{
-  OnStartCopy: function() {},
-  OnProgress: function(aProgress, aProgressMax) {},
-  SetMessageKey: function(aKey){},
-  SetMessageId: function(aMessageId) {},
-  OnStopCopy: function(aStatus){
+var CopyListener = {
+  OnStartCopy() {},
+  OnProgress(aProgress, aProgressMax) {},
+  SetMessageKey(aKey) {},
+  SetMessageId(aMessageId) {},
+  OnStopCopy(aStatus) {
     Assert.equal(aStatus, 0);
     async_driver();
-  }
+  },
 };
 
 // Definition of tests
 var tests = [
   setupFolders,
   doMoves,
-  endTest
-]
+  endTest,
+];
 
 function actually_run_test() {
   async_run_tests(tests);
 }
 
-function* endTest()
-{
+function* endTest() {
   Services.io.offline = true;
   gServer.performTest("LOGOUT");
 //  gIMAPIncomingServer.closeCachedConnections();

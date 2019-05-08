@@ -4,6 +4,9 @@
 // Original Author: Kent James <kent@caspia.com>
 
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../test/resources/messageGenerator.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/messageGenerator.js");
@@ -15,20 +18,13 @@ var gLastKey;
 var gMessages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
 var gCopyService = MailServices.copy;
 
-var {
-  getFolderProperties,
-  getSpecialFolderString,
-  allAccountsSorted,
-  getMostRecentFolders,
-  folderNameCompare,
-} = ChromeUtils.import("resource:///modules/folderUtils.jsm");
 var {toXPCOMArray} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
 var tests = [
   setup,
   function* copyFolder1() {
     dump("gEmpty1 " + gEmptyLocal1.URI + "\n");
-    let folders = new Array;
+    let folders = [];
     folders.push(gEmptyLocal1.QueryInterface(Ci.nsIMsgFolder));
     let array = toXPCOMArray(folders, Ci.nsIMutableArray);
     gCopyService.CopyFolders(array, IMAPPump.inbox, false, CopyListener, null);
@@ -36,7 +32,7 @@ var tests = [
   },
   function* copyFolder2() {
     dump("gEmpty2 " + gEmptyLocal2.URI + "\n");
-    let folders = new Array;
+    let folders = [];
     folders.push(gEmptyLocal2);
     let array = toXPCOMArray(folders, Ci.nsIMutableArray);
     gCopyService.CopyFolders(array, IMAPPump.inbox, false, CopyListener, null);
@@ -92,17 +88,15 @@ var tests = [
     // operation was a move.
     Assert.equal(folderCount(localAccountUtils.inboxFolder), 0);
   },
-  teardown
+  teardown,
 ];
 
-function folderCount(folder)
-{
+function folderCount(folder) {
   let enumerator = folder.msgDatabase.EnumerateMessages();
   let count = 0;
-  while (enumerator.hasMoreElements())
-  {
+  while (enumerator.hasMoreElements()) {
     count++;
-    let hdr = enumerator.getNext();
+    enumerator.getNext();
   }
   return count;
 }
@@ -124,27 +118,24 @@ function setup() {
   // running initial folder discovery, and adding the folder bails
   // out before we set it as verified online, so we bail out, and
   // then remove the INBOX folder since it's not verified.
-  IMAPPump.inbox.hierarchyDelimiter = '/';
+  IMAPPump.inbox.hierarchyDelimiter = "/";
   IMAPPump.inbox.verifiedAsOnlineFolder = true;
 }
 
 // nsIMsgCopyServiceListener implementation - runs next test when copy
 // is completed.
-var CopyListener =
-{
-  OnStartCopy: function() {},
-  OnProgress: function(aProgress, aProgressMax) {},
-  SetMessageKey: function(aKey)
-  {
+var CopyListener = {
+  OnStartCopy() {},
+  OnProgress(aProgress, aProgressMax) {},
+  SetMessageKey(aKey) {
     gLastKey = aKey;
   },
-  SetMessageId: function(aMessageId) {},
-  OnStopCopy: function(aStatus)
-  {
+  SetMessageId(aMessageId) {},
+  OnStopCopy(aStatus) {
     // Check: message successfully copied.
     Assert.equal(aStatus, 0);
     async_driver();
-  }
+  },
 };
 
 asyncUrlListener.callback = function(aUrl, aExitCode) {

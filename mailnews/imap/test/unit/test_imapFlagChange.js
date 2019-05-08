@@ -4,6 +4,9 @@
  * are stored in db.
  */
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../test/resources/messageGenerator.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/messageGenerator.js");
@@ -97,7 +100,7 @@ var tests = [
     let keywords = msgHdr.getStringProperty("keywords");
     Assert.ok(!keywords.includes("randomtag"));
   },
-  teardown
+  teardown,
 ];
 
 function* setup() {
@@ -105,7 +108,7 @@ function* setup() {
 
   setupIMAPPump();
 
-  IMAPPump.daemon.createMailbox("secondFolder", {subscribed : true});
+  IMAPPump.daemon.createMailbox("secondFolder", {subscribed: true});
 
   // build up a diverse list of messages
   let messages = [];

@@ -5,6 +5,9 @@
  * an imap folder on the server makes us delete all the headers from our db.
  */
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../test/resources/messageGenerator.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/messageGenerator.js");
@@ -37,10 +40,10 @@ var tests = [
     yield false;
   },
   function checkMailboxEmpty() {
-    let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gSynthMessage.messageId);
+    IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gSynthMessage.messageId);
     Assert.equal(IMAPPump.inbox.getTotalMessages(false), 0);
   },
-  teardown
+  teardown,
 ];
 
 function* setup() {
@@ -49,7 +52,7 @@ function* setup() {
    */
   setupIMAPPump();
 
-  IMAPPump.daemon.createMailbox("secondFolder", {subscribed : true});
+  IMAPPump.daemon.createMailbox("secondFolder", {subscribed: true});
 
   let messages = [];
   let gMessageGenerator = new MessageGenerator();

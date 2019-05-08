@@ -7,6 +7,8 @@
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/messageGenerator.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/messageGenerator.js");
 
@@ -17,7 +19,7 @@ var tests = [
   startTest,
   doMove,
   testMove,
-  teardownIMAPPump
+  teardownIMAPPump,
 ];
 
 function setupCUSTOM1() {
@@ -25,8 +27,7 @@ function setupCUSTOM1() {
   Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
 }
 
-async function startTest()
-{
+async function startTest() {
   IMAPPump.incomingServer.rootFolder.createSubfolder("folder 1", null);
   await PromiseTestUtils.promiseFolderAdded("folder 1");
 
@@ -64,15 +65,14 @@ async function testMove() {
   Assert.equal(gFolder1.getTotalMessages(false), 1);
 
   // maildir should also delete the files.
-  if (IMAPPump.inbox.msgStore.storeType == "maildir")
-  {
+  if (IMAPPump.inbox.msgStore.storeType == "maildir") {
     let curDir = IMAPPump.inbox.filePath.clone();
     curDir.append("cur");
     Assert.ok(curDir.exists());
     Assert.ok(curDir.isDirectory());
     let curEnum = curDir.directoryEntries;
     // the directory should be empty, fails from bug 771643
-    Assert.ok(!curEnum.hasMoreElements())
+    Assert.ok(!curEnum.hasMoreElements());
   }
 }
 

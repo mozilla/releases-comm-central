@@ -67,7 +67,7 @@ function makeServer(daemon, infoString, otherProps) {
   return server;
 }
 
-function createLocalIMAPServer(port, hostname="localhost") {
+function createLocalIMAPServer(port, hostname = "localhost") {
   let server = localAccountUtils.create_incoming_server("imap", port,
     "user", "password", hostname);
   server.QueryInterface(Ci.nsIImapIncomingServer);
@@ -90,13 +90,12 @@ function do_check_transaction(fromServer, expected, withParams) {
   if (fromServer instanceof Array)
     fromServer = fromServer[fromServer.length - 1];
 
-  var realTransaction = new Array();
-  for (var i = 0; i < fromServer.them.length; i++)
-  {
+  let realTransaction = [];
+  for (let i = 0; i < fromServer.them.length; i++) {
     var line = fromServer.them[i]; // e.g. '1 login "user" "password"'
     var components = line.split(" ");
     if (components.length < 2)
-      throw "IMAP command in transaction log missing: " + line;
+      throw new Error("IMAP command in transaction log missing: " + line);
     if (withParams)
       realTransaction.push(line.substr(components[0].length + 1));
     else if (components[1] == "authenticate")
@@ -111,10 +110,9 @@ function do_check_transaction(fromServer, expected, withParams) {
 /**
  * add a simple message to the IMAP pump mailbox
  */
-function addImapMessage()
-{
+function addImapMessage() {
   let messages = [];
-  let messageGenerator = new MessageGenerator();
+  let messageGenerator = new MessageGenerator(); // eslint-disable-line no-undef
   messages = messages.concat(messageGenerator.makeMessage());
   let dataUri = Services.io.newURI("data:text/plain;base64," +
                   btoa(messages[0].toMessageString()));

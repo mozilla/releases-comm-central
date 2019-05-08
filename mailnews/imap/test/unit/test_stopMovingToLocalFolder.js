@@ -8,6 +8,9 @@
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../test/resources/messageGenerator.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/messageGenerator.js");
@@ -23,22 +26,22 @@ function stop_server() {
 }
 
 var asyncCopyListener = {
-  OnStartCopy: function() {},
-  SetMessageKey: function(aMsgKey) {},
-  GetMessageId: function() {},
-  OnProgress: function(aProgress, aProgressMax) {
+  OnStartCopy() {},
+  SetMessageKey(aMsgKey) {},
+  GetMessageId() {},
+  OnProgress(aProgress, aProgressMax) {
     stop_server();
   },
-  OnStopCopy: function(aStatus) {
+  OnStopCopy(aStatus) {
     Assert.equal(aStatus, 0);
     async_driver();
-  }
+  },
 };
 
 var tests = [
   setup_messages,
   move_messages,
-  check_messages
+  check_messages,
 ];
 
 function* setup_messages() {
@@ -79,7 +82,9 @@ function run_test() {
       IMAPPump.incomingServer.closeCachedConnections();
       let serverSink = IMAPPump.incomingServer.QueryInterface(Ci.nsIImapServerSink);
       serverSink.abortQueuedUrls();
-    } catch (ex) {dump(ex);}
+    } catch (ex) {
+      dump(ex);
+    }
     IMAPPump.server.stop();
     let thread = gThreadManager.currentThread;
     while (thread.hasPendingEvents())

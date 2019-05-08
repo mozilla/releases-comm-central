@@ -11,18 +11,19 @@ var defaultProtocolFlags =
   Ci.nsIProtocolHandler.URI_FORBIDS_COOKIE_ACCESS |
   Ci.nsIProtocolHandler.ORIGIN_IS_FULL_SPEC;
 
-var protocols =
-  [ { protocol: "imap",
-      urlSpec: "imap://user@localhost/",
-      defaultPort: Ci.nsIImapUrl.DEFAULT_IMAP_PORT
-    }
-    // XXX Imaps protocol not available via nsIProtocolHandler yet.
-    /*,
-    { protocol: "imaps",
-      urlSpec: "iamps://user@localhost/",
-      defaultPort: Ci.nsIImapUrl.DEFAULT_IMAPS_PORT
-      }*/
-    ];
+var protocols = [
+  {
+    protocol: "imap",
+    urlSpec: "imap://user@localhost/",
+    defaultPort: Ci.nsIImapUrl.DEFAULT_IMAP_PORT,
+  },
+  // XXX Imaps protocol not available via nsIProtocolHandler yet.
+  // {
+  //   protocol: "imaps",
+  //   urlSpec: "iamps://user@localhost/",
+  //   defaultPort: Ci.nsIImapUrl.DEFAULT_IMAPS_PORT,
+  // },
+];
 
 function run_test() {
   // We need a server to match the urlSpecs above.

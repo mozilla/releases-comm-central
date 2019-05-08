@@ -2,10 +2,9 @@
  * Test bug 629738 - Parts should be cached.
  */
 
+/* import-globals-from ../../../test/resources/logHelper.js */
 load("../../../resources/logHelper.js");
 var {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
-
-var gSavedMsgFile;
 
 var gIMAPService = Cc["@mozilla.org/messenger/messageservice;1?type=imap"]
                        .getService(Ci.nsIMsgMessageService);
@@ -25,29 +24,28 @@ var gMsgPartURL2;
 var gUidValidity;
 
 // We use this as a display consumer
-var streamListener =
-{
+var streamListener = {
   _data: "",
 
   QueryInterface:
     ChromeUtils.generateQI([Ci.nsIStreamListener, Ci.nsIRequestObserver]),
 
   // nsIRequestObserver
-  onStartRequest: function(aRequest) {
+  onStartRequest(aRequest) {
   },
-  onStopRequest: function(aRequest, aStatusCode) {
+  onStopRequest(aRequest, aStatusCode) {
     Assert.equal(aStatusCode, Cr.NS_OK);
   },
 
   // nsIStreamListener
-  onDataAvailable: function(aRequest, aInputStream, aOffset, aCount) {
+  onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
     let scriptStream = Cc["@mozilla.org/scriptableinputstream;1"]
                          .createInstance(Ci.nsIScriptableInputStream);
 
     scriptStream.init(aInputStream);
 
     scriptStream.read(aCount);
-  }
+  },
 };
 
 var tests = [
@@ -58,7 +56,7 @@ var tests = [
   hackMetadata,
   displayPart2,
   checkCache,
-  teardown
+  teardown,
 ];
 
 async function setup() {
@@ -96,7 +94,7 @@ async function displayMessage1() {
   let msg = db.getMsgHdrForMessageID(gMsgId1);
   gUidValidity = msg.folder.QueryInterface(Ci.nsIImapMailFolderSink).uidValidity;
   let listener = new PromiseTestUtils.PromiseUrlListener();
-  let url = new Object;
+  let url = {};
   gIMAPService.DisplayMessage(IMAPPump.inbox.getUriForMsg(msg),
                               streamListener,
                               null,
@@ -110,9 +108,9 @@ async function displayMessage1() {
 async function displayPart1() {
   let db = IMAPPump.inbox.msgDatabase;
   let msg = db.getMsgHdrForMessageID(gMsgId1);
-  let url = new Object;
+  let url = {};
   let listener = new PromiseTestUtils.PromiseUrlListener();
-  gIMAPService.DisplayMessage(IMAPPump.inbox.getUriForMsg(msg)+"?part=1.2&filename=check.gif",
+  gIMAPService.DisplayMessage(IMAPPump.inbox.getUriForMsg(msg) + "?part=1.2&filename=check.gif",
                               streamListener,
                               null,
                               listener,
@@ -125,7 +123,7 @@ async function displayPart1() {
 async function displayMessage2() {
   let db = IMAPPump.inbox.msgDatabase;
   let msg = db.getMsgHdrForMessageID(gMsgId2);
-  let url = new Object;
+  let url = {};
   let listener = new PromiseTestUtils.PromiseUrlListener();
   gIMAPService.DisplayMessage(IMAPPump.inbox.getUriForMsg(msg),
                               streamListener,
@@ -144,17 +142,16 @@ function hackMetadata() {
   // of the PDF attachment.
   let extension = gUidValidity.toString(16);
 
-  MailServices.imap
-              .cacheStorage
-              .asyncOpenURI(gMsgURL2, extension, Ci.nsICacheStorage.OPEN_NORMALLY,
+  MailServices.imap.cacheStorage.asyncOpenURI(
+    gMsgURL2, extension, Ci.nsICacheStorage.OPEN_NORMALLY,
     {
-      onCacheEntryAvailable: function(cacheEntry, isNew, appCache, status) {
+      onCacheEntryAvailable(cacheEntry, isNew, appCache, status) {
         Assert.equal(status, Cr.NS_OK);
         cacheEntry.setMetaDataElement("ContentModified", "Modified View As Link");
       },
-      onCacheEntryCheck: function(cacheEntry, appCache) {
+      onCacheEntryCheck(cacheEntry, appCache) {
         return Ci.nsICacheEntryOpenCallback.ENTRY_WANTED;
-      }
+      },
     }
   );
 }
@@ -162,9 +159,9 @@ function hackMetadata() {
 async function displayPart2() {
   let db = IMAPPump.inbox.msgDatabase;
   let msg = db.getMsgHdrForMessageID(gMsgId2);
-  let url = new Object;
+  let url = {};
   let listener = new PromiseTestUtils.PromiseUrlListener();
-  gIMAPService.DisplayMessage(IMAPPump.inbox.getUriForMsg(msg)+"?part=1.2&filename=check.pdf",
+  gIMAPService.DisplayMessage(IMAPPump.inbox.getUriForMsg(msg) + "?part=1.2&filename=check.pdf",
                               streamListener,
                               null,
                               listener,

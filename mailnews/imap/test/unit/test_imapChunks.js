@@ -13,8 +13,7 @@ var gIMAPService = Cc["@mozilla.org/messenger/messageservice;1?type=imap"]
 var gFileName = "bug92111";
 var gMsgFile = do_get_file("../../../data/" + gFileName);
 
-function run_test()
-{
+function run_test() {
   /*
    * Set up an IMAP server. The bug is only triggered when nsMsgSaveAsListener
    * is used (i.e., for IMAP and NNTP).
@@ -61,11 +60,11 @@ function run_test()
   gSavedMsgFile.append(gFileName + ".eml");
 
   do_test_pending();
-  do_timeout(10000, function(){
-      do_throw('SaveMessageToDisk did not complete within 10 seconds' +
-        '(incorrect messageURI?). ABORTING.');
-      }
-    );
+  do_timeout(10000, function() {
+    do_throw("SaveMessageToDisk did not complete within 10 seconds" +
+      "(incorrect messageURI?). ABORTING.");
+    }
+  );
 
   /*
    * From nsIMsgMessageService.idl:
@@ -78,12 +77,11 @@ function run_test()
    * test also runs successfully on platforms not using CRLF by default.
    */
   gIMAPService.SaveMessageToDisk("imap-message://user@localhost/INBOX#"
-                                 + (inbox.uidnext-1), gSavedMsgFile,
+                                 + (inbox.uidnext - 1), gSavedMsgFile,
                                  false, UrlListener, {}, true, null);
 }
 
-function endTest()
-{
+function endTest() {
   gIMAPIncomingServer.closeCachedConnections();
   gServer.stop();
   var thread = gThreadManager.currentThread;
@@ -92,19 +90,16 @@ function endTest()
 
   try {
     gSavedMsgFile.remove(false);
-  }
-  catch (ex) {
+  } catch (ex) {
     dump(ex);
     do_throw(ex);
   }
   do_test_finished();
 }
 
-var UrlListener =
-{
-  OnStartRunningUrl: function(url) { },
-  OnStopRunningUrl: function(url, rc)
-  {
+var UrlListener = {
+  OnStartRunningUrl(url) {},
+  OnStopRunningUrl(url, rc) {
     // operation succeeded
     Assert.equal(rc, 0);
 
@@ -116,7 +111,7 @@ var UrlListener =
     // So wait, and then remove it. We need to test this to ensure we don't
     // indefinitely lock the file.
     do_timeout(1000, endTest);
-  }
+  },
 };
 
 // XXX IRVING we need a separate check somehow to make sure we store the correct

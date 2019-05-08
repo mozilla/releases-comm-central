@@ -13,6 +13,9 @@
  */
 
 // async support
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../test/resources/alertTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/alertTestUtils.js");
@@ -32,16 +35,15 @@ var tests = [
   setupMailboxes,
   testListSubscribed,
   testZimbraServerVersions,
-  endTest
-]
+  endTest,
+];
 
 // setup the mailboxes that will be used for this test
-function* setupMailboxes()
-{
+function* setupMailboxes() {
   IMAPPump.mailbox.subscribed = true;
-  IMAPPump.daemon.createMailbox("folder1", {subscribed : true, flags : ["\\Noselect"]});
-  IMAPPump.daemon.createMailbox("folder1/folder11", {subscribed : true, flags : ["\\Noinferiors"]});
-  IMAPPump.daemon.createMailbox("folder2", {subscribed : true, nonExistent : true});
+  IMAPPump.daemon.createMailbox("folder1", {subscribed: true, flags: ["\\Noselect"]});
+  IMAPPump.daemon.createMailbox("folder1/folder11", {subscribed: true, flags: ["\\Noinferiors"]});
+  IMAPPump.daemon.createMailbox("folder2", {subscribed: true, nonExistent: true});
   IMAPPump.daemon.createMailbox("folder3", {});
 
   // select the inbox to force folder discovery, etc.
@@ -50,8 +52,7 @@ function* setupMailboxes()
 }
 
 // tests that LIST (SUBSCRIBED) returns the proper response
-function* testListSubscribed()
-{
+function* testListSubscribed() {
   // check that we have \Noselect and \Noinferiors flags - these would not have
   // been returned if we had used LSUB instead of LIST(SUBSCRIBED)
   let rootFolder = IMAPPump.incomingServer.rootFolder;
@@ -65,7 +66,7 @@ function* testListSubscribed()
   Assert.ok(folder11.getFlag(Ci.nsMsgFolderFlags.ImapNoinferiors));
 
   // test that \NonExistent implies \Noselect
-  let folder2 = rootFolder.getChildNamed("folder2");
+  rootFolder.getChildNamed("folder2");
   Assert.ok(folder1.getFlag(Ci.nsMsgFolderFlags.ImapNoselect));
 
   // should not get a folder3 since it is not subscribed
@@ -73,7 +74,7 @@ function* testListSubscribed()
   try {
     folder3 = rootFolder.getChildNamed("folder3");
   } catch (ex) {}
-  //do_check_false(folder1.getFlag(Ci.nsMsgFolderFlags.Subscribed));
+  // do_check_false(folder1.getFlag(Ci.nsMsgFolderFlags.Subscribed));
   Assert.equal(null, folder3);
 
   yield true;
@@ -83,12 +84,12 @@ function* testZimbraServerVersions() {
   // older versions of Zimbra can crash if we send LIST (SUBSCRIBED) so we want
   // to make sure that we are checking for versions
 
-  let testValues = [ { version : '6.3.1_GA_2790', expectedResult : false },
-                     { version : '7.2.2_GA_2790', expectedResult : false },
-                     { version : '7.2.3_GA_2790', expectedResult : true },
-                     { version : '8.0.2_GA_2790', expectedResult : false },
-                     { version : '8.0.3_GA_2790', expectedResult : true },
-                     { version : '9.0.0_GA_2790', expectedResult : true } ];
+  let testValues = [ { version: "6.3.1_GA_2790", expectedResult: false },
+                     { version: "7.2.2_GA_2790", expectedResult: false },
+                     { version: "7.2.3_GA_2790", expectedResult: true },
+                     { version: "8.0.2_GA_2790", expectedResult: false },
+                     { version: "8.0.3_GA_2790", expectedResult: true },
+                     { version: "9.0.0_GA_2790", expectedResult: true } ];
 
   for (let i = 0; i < testValues.length; i++) {
     IMAPPump.daemon.idResponse = '("NAME" "Zimbra" ' +
@@ -110,33 +111,11 @@ function* testZimbraServerVersions() {
 }
 
 // Cleanup at end
-function endTest()
-{
+function endTest() {
   teardownIMAPPump();
 }
 
-function run_test()
-{
+function run_test() {
   Services.prefs.setBoolPref("mail.server.server1.autosync_offline_stores", false);
   async_run_tests(tests);
-}
-
-/*
- * helper functions
- */
-
-// given a test file, return the file uri spec
-function specForFileName(aFileName)
-{
-  let file = do_get_file("../../../data/" + aFileName);
-  let msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
-  return msgfileuri.spec;
-}
-
-function recursiveDeleteMailboxes(aMailbox)
-{
-  for (var child of aMailbox.allChildren) {
-    recursiveDeleteMailboxes(child);
-  }
-  IMAPPump.daemon.deleteMailbox(aMailbox);
 }

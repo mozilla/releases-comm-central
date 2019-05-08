@@ -9,6 +9,10 @@ var {Log} = ChromeUtils.import("resource://gre/modules/Log.jsm");
 Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
                            "@mozilla.org/msgstore/berkeleystore;1");
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../test/resources/messageGenerator.js */
+/* import-globals-from ../../../test/resources/alertTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/messageGenerator.js");
@@ -19,14 +23,12 @@ var log = Log.repository.getLogger("MailStoreConverter");
 var {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 
 // Globals
-var gRootFolder;
-
 var gMsgFile1 = do_get_file("../../../data/bugmail10");
 
 // Copied straight from the example files
 var gMsgId1 = "200806061706.m56H6RWT004933@mrapp54.mozilla.org";
 var gMsgId2 = "200804111417.m3BEHTk4030129@mrapp51.mozilla.org";
-var gMsgId3 = "4849BF7B.2030800@example.com";
+// var gMsgId3 = "4849BF7B.2030800@example.com";
 var gMsgId4 = "bugmail7.m47LtAEf007542@mrapp51.mozilla.org";
 var gMsgId5 = "bugmail6.m47LtAEf007542@mrapp51.mozilla.org";
 
@@ -55,7 +57,7 @@ function checkConversion(aSource, aTarget) {
         let curContents = cur.directoryEntries;
         let curContentsCount = 0;
         while (curContents.hasMoreElements()) {
-          let curContent = curContents.getNext();
+          curContents.getNext();
           curContentsCount += 1;
         }
         Assert.equal(curContentsCount, 8);
@@ -90,7 +92,6 @@ function addMessagesToServer(aMessages, aMailbox) {
 function setup() {
   setupIMAPPump();
 
-  gRootFolder = IMAPPump.incomingServer.rootFolder;
   // These hacks are required because we've created the inbox before
   // running initial folder discovery, and adding the folder bails
   // out before we set it as verified online, so we bail out, and
@@ -117,7 +118,6 @@ async function downloadForOffline() {
 function run_test() {
   setup();
   registerCleanupFunction(function() {
-    gRootFolder = null;
     teardownIMAPPump();
   });
 

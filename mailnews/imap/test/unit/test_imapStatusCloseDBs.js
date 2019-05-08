@@ -1,6 +1,8 @@
 // This file tests that checking folders for new mail with STATUS
 // doesn't leave db's open.
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
@@ -9,7 +11,7 @@ var gFolder1, gFolder2;
 var tests = [
   setup,
   check,
-  teardown
+  teardown,
 ];
 
 function* setup() {
@@ -17,8 +19,8 @@ function* setup() {
 
   setupIMAPPump();
 
-  IMAPPump.daemon.createMailbox("folder 1", {subscribed : true});
-  IMAPPump.daemon.createMailbox("folder 2", {subscribed : true});
+  IMAPPump.daemon.createMailbox("folder 1", {subscribed: true});
+  IMAPPump.daemon.createMailbox("folder 2", {subscribed: true});
 
   IMAPPump.server.performTest("SUBSCRIBE");
 

@@ -7,6 +7,8 @@
  */
 
 // async support
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
@@ -32,12 +34,11 @@ var tests = [
   loadImapMessage,
   testFetchCustomValue,
   testFetchCustomList,
-  endTest
-]
+  endTest,
+];
 
 // load and update a message in the imap fake server
-function* loadImapMessage()
-{
+function* loadImapMessage() {
   let message = new imapMessage(specForFileName(gMessage),
                           IMAPPump.mailbox.uidnext++, []);
   message.xCustomValue = gCustomValue;
@@ -49,8 +50,7 @@ function* loadImapMessage()
 
 // Used to verify that nsIServerResponseParser.msg_fetch() can handle
 // not in a parenthesis group - Bug 750012
-function* testFetchCustomValue()
-{
+function* testFetchCustomValue() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   let uri = IMAPPump.inbox.fetchCustomMsgAttribute("X-CUSTOM-VALUE", msgHdr.messageKey, gMsgWindow);
   uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
@@ -60,18 +60,17 @@ function* testFetchCustomValue()
 
 // listens for resposne from fetchCustomMsgAttribute request for X-CUSTOM-VALUE
 var fetchCustomValueListener = {
-  OnStartRunningUrl: function (aUrl) {},
+  OnStartRunningUrl(aUrl) {},
 
-  OnStopRunningUrl: function (aUrl, aExitCode) {
+  OnStopRunningUrl(aUrl, aExitCode) {
     aUrl.QueryInterface(Ci.nsIImapUrl);
     Assert.equal(aUrl.customAttributeResult, gCustomValue);
     async_driver();
-  }
+  },
 };
 
 // Used to verify that nsIServerResponseParser.msg_fetch() can handle a parenthesis group - Bug 735542
-function* testFetchCustomList()
-{
+function* testFetchCustomList() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   let uri = IMAPPump.inbox.fetchCustomMsgAttribute("X-CUSTOM-LIST", msgHdr.messageKey, gMsgWindow);
   uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
@@ -81,23 +80,21 @@ function* testFetchCustomList()
 
 // listens for response from fetchCustomMsgAttribute request for X-CUSTOM-LIST
 var fetchCustomListListener = {
-  OnStartRunningUrl: function (aUrl) {},
+  OnStartRunningUrl(aUrl) {},
 
-  OnStopRunningUrl: function (aUrl, aExitCode) {
+  OnStopRunningUrl(aUrl, aExitCode) {
     aUrl.QueryInterface(Ci.nsIImapUrl);
     Assert.equal(aUrl.customAttributeResult, "(" + gCustomList.join(" ") + ")");
     async_driver();
-  }
+  },
 };
 
 // Cleanup at end
-function endTest()
-{
+function endTest() {
   teardownIMAPPump();
 }
 
-function run_test()
-{
+function run_test() {
   Services.prefs.setBoolPref("mail.server.server1.autosync_offline_stores", false);
   async_run_tests(tests);
 }
@@ -107,8 +104,7 @@ function run_test()
  */
 
 // given a test file, return the file uri spec
-function specForFileName(aFileName)
-{
+function specForFileName(aFileName) {
   let file = do_get_file("../../../data/" + aFileName);
   let msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
   return msgfileuri.spec;

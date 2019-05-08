@@ -4,6 +4,8 @@
  * and returns success.
  */
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/messageGenerator.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/messageGenerator.js");
 
@@ -14,7 +16,7 @@ var tests = [
   setup,
   downloadAllForOffline,
   verifyDownloaded,
-  teardownIMAPPump
+  teardownIMAPPump,
 ];
 
 async function setup() {

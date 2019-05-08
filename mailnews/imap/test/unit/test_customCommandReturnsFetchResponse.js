@@ -8,6 +8,8 @@
  */
 
 // async support
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
@@ -21,7 +23,7 @@ var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var gMessageFileName = "bugmail10"; // message file used as the test message
 var gMessage, gExpectedLength;
 
-var gCustomList = ['Custom1', 'Custom2', 'Custom3'];
+var gCustomList = ["Custom1", "Custom2", "Custom3"];
 
 var gMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
   .createInstance(Ci.nsIMsgWindow);
@@ -34,12 +36,11 @@ var tests = [
   testStoreCustomList,
   testStoreMinusCustomList,
   testStorePlusCustomList,
-  endTest
-]
+  endTest,
+];
 
 // load and update a message in the imap fake server
-function* loadImapMessage()
-{
+function* loadImapMessage() {
   gMessage = new imapMessage(specForFileName(gMessageFileName),
     IMAPPump.mailbox.uidnext++, []);
   gMessage.xCustomList = [];
@@ -48,8 +49,7 @@ function* loadImapMessage()
   yield false;
 }
 
-function* testStoreCustomList()
-{
+function* testStoreCustomList() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   gExpectedLength = gCustomList.length;
   let uri = IMAPPump.inbox.issueCommandOnMsgs("STORE", msgHdr.messageKey +
@@ -61,19 +61,18 @@ function* testStoreCustomList()
 
 // listens for response from customCommandResult request for X-CUSTOM-LIST
 var storeCustomListSetListener = {
-  OnStartRunningUrl: function (aUrl) {},
+  OnStartRunningUrl(aUrl) {},
 
-  OnStopRunningUrl: function (aUrl, aExitCode) {
+  OnStopRunningUrl(aUrl, aExitCode) {
     aUrl.QueryInterface(Ci.nsIImapUrl);
     Assert.equal(aUrl.customCommandResult,
       "(" + gMessage.xCustomList.join(" ") + ")");
     Assert.equal(gMessage.xCustomList.length, gExpectedLength);
     async_driver();
-  }
+  },
 };
 
-function* testStoreMinusCustomList()
-{
+function* testStoreMinusCustomList() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   gExpectedLength--;
   let uri = IMAPPump.inbox.issueCommandOnMsgs("STORE", msgHdr.messageKey +
@@ -85,19 +84,18 @@ function* testStoreMinusCustomList()
 
 // listens for response from customCommandResult request for X-CUSTOM-LIST
 var storeCustomListRemovedListener = {
-  OnStartRunningUrl: function (aUrl) {},
+  OnStartRunningUrl(aUrl) {},
 
-  OnStopRunningUrl: function (aUrl, aExitCode) {
+  OnStopRunningUrl(aUrl, aExitCode) {
     aUrl.QueryInterface(Ci.nsIImapUrl);
     Assert.equal(aUrl.customCommandResult,
       "(" + gMessage.xCustomList.join(" ") + ")");
     Assert.equal(gMessage.xCustomList.length, gExpectedLength);
     async_driver();
-  }
+  },
 };
 
-function* testStorePlusCustomList()
-{
+function* testStorePlusCustomList() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   gExpectedLength++;
   let uri = IMAPPump.inbox.issueCommandOnMsgs("STORE", msgHdr.messageKey +
@@ -109,26 +107,24 @@ function* testStorePlusCustomList()
 
 // listens for response from customCommandResult request for X-CUSTOM-LIST
 var storeCustomListAddedListener = {
-  OnStartRunningUrl: function (aUrl) {},
+  OnStartRunningUrl(aUrl) {},
 
-  OnStopRunningUrl: function (aUrl, aExitCode) {
+  OnStopRunningUrl(aUrl, aExitCode) {
     aUrl.QueryInterface(Ci.nsIImapUrl);
     Assert.equal(aUrl.customCommandResult,
       "(" + gMessage.xCustomList.join(" ") + ")");
     Assert.equal(gMessage.xCustomList.length, gExpectedLength);
     async_driver();
-  }
+  },
 };
 
 
 // Cleanup at end
-function endTest()
-{
+function endTest() {
   teardownIMAPPump();
 }
 
-function run_test()
-{
+function run_test() {
   Services.prefs.setBoolPref("mail.server.server1.autosync_offline_stores", false);
   async_run_tests(tests);
 }
@@ -138,8 +134,7 @@ function run_test()
  */
 
 // given a test file, return the file uri spec
-function specForFileName(aFileName)
-{
+function specForFileName(aFileName) {
   let file = do_get_file("../../../data/" + aFileName);
   let msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
   return msgfileuri.spec;

@@ -2,6 +2,9 @@
  * Tests basic mailbox handling of IMAP, like discovery, rename and empty folder.
  */
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../test/resources/messageGenerator.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/messageGenerator.js");
@@ -13,11 +16,11 @@ const folderName2 = "test \u00E4";    // test ä
 function* setup() {
   setupIMAPPump();
 
-  IMAPPump.daemon.createMailbox(folderName1, {subscribed : true});
+  IMAPPump.daemon.createMailbox(folderName1, {subscribed: true});
   IMAPPump.daemon.createMailbox("Unsubscribed box");
   // Create an all upper case trash folder name to make sure
   // we handle special folder names case-insensitively.
-  IMAPPump.daemon.createMailbox("TRASH", {subscribed : true});
+  IMAPPump.daemon.createMailbox("TRASH", {subscribed: true});
 
   // Get the server list...
   IMAPPump.server.performTest("LIST");
@@ -62,13 +65,12 @@ var tests = [
   function checkEmptyFolder() {
     try {
     let serverSink = IMAPPump.server.QueryInterface(Ci.nsIImapServerSink);
-      serverSink.possibleImapMailbox("/", '/', 0);
-    }
-    catch (ex) {
+      serverSink.possibleImapMailbox("/", "/", 0);
+    } catch (ex) {
       // we expect this to fail, but not crash or assert.
     }
   },
-  teardown
+  teardown,
 ];
 
 function teardown() {

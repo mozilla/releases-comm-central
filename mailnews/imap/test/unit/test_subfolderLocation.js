@@ -3,9 +3,9 @@
 
 // Test proper location of new imap offline subfolders for maildir.
 
-var CC = Components.Constructor;
-
 // async support
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/alertTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/alertTestUtils.js");
 
@@ -14,7 +14,7 @@ load("../../../resources/alertTestUtils.js");
 // Messages to load must have CRLF line endings, that is Windows style
 var gMessage = "bugmail10"; // message file used as the test message
 
-add_task(function () {
+add_task(function() {
   Services.prefs.setBoolPref("mail.server.server1.autosync_offline_stores", false);
   setupIMAPPump();
 });
@@ -63,10 +63,6 @@ add_task(function testSubfolder() {
 
 // Cleanup at end
 add_task(teardownIMAPPump);
-
-function run_test() {
-  run_next_test();
-}
 
 /*
  * helper functions

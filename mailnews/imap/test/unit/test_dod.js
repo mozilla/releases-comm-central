@@ -8,6 +8,8 @@
  */
 
  // async support
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
@@ -17,34 +19,33 @@ var gServer, gIMAPIncomingServer, gIMAPDaemon;
 
 var tests = [
   streamMessages,
-  endTest
+  endTest,
 ];
 
-function run_test()
-{
+function run_test() {
   gIMAPDaemon = new imapDaemon();
   // pref tuning: one connection only, turn off notifications
-  Services.prefs.setIntPref( "mail.server.server1.max_cached_connections", 1);
+  Services.prefs.setIntPref("mail.server.server1.max_cached_connections", 1);
   Services.prefs.setBoolPref("mail.biff.play_sound", false);
   Services.prefs.setBoolPref("mail.biff.show_alert", false);
-  Services.prefs.setBoolPref("mail.biff.show_tray_icon",    false);
+  Services.prefs.setBoolPref("mail.biff.show_tray_icon", false);
   Services.prefs.setBoolPref("mail.biff.animate_dock_icon", false);
 
   // Force bodypart fetching as best as we can.
   // It would be advisable to enable log and check to be sure body[] is not
   // being fetched in lieu of parts. There may be conditions that bypass
   // bodypart fetch.
-  Services.prefs.setBoolPref("mail.inline_attachments",     false);
-  Services.prefs.setIntPref ("browser.cache.disk.capacity",              0);
-  Services.prefs.setIntPref ("mail.imap.mime_parts_on_demand_threshold", 1);
-  Services.prefs.setIntPref ("mailnews.display.disallow_mime_handlers",  0);
-  Services.prefs.setBoolPref("mail.server.default.fetch_by_chunks",  false);
+  Services.prefs.setBoolPref("mail.inline_attachments", false);
+  Services.prefs.setIntPref("browser.cache.disk.capacity", 0);
+  Services.prefs.setIntPref("mail.imap.mime_parts_on_demand_threshold", 1);
+  Services.prefs.setIntPref("mailnews.display.disallow_mime_handlers", 0);
+  Services.prefs.setBoolPref("mail.server.default.fetch_by_chunks", false);
   Services.prefs.setBoolPref("mail.server.server1.autosync_offline_stores", false);
 
   gServer = makeServer(gIMAPDaemon, "");
   gIMAPIncomingServer = createLocalIMAPServer(gServer.port);
 
-  //start first test
+  // start first test
   async_run_tests(tests);
 }
 
@@ -66,10 +67,10 @@ function* streamMessages() {
 
   // loop through the files twice, once for plain and one for html check
   let isPlain = true;
-  for (let cnt = 2 ; cnt > 0 ; cnt--, isPlain = false) {
+  for (let cnt = 2; cnt > 0; cnt--, isPlain = false) {
     // adjust these for 'view body as' setting
     // 0 orig html 3 sanitized 1 plain text
-    Services.prefs.setIntPref ("mailnews.display.html_as", isPlain ? 1 : 0);
+    Services.prefs.setIntPref("mailnews.display.html_as", isPlain ? 1 : 0);
     Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", isPlain);
     let marker;
     if (isPlain)
@@ -77,7 +78,7 @@ function* streamMessages() {
     else
       marker = "thishtmltextneedstodisplaytopasstest";
 
-    for (let i = 1; i < inbox.uidnext ; i++) {
+    for (let i = 1; i < inbox.uidnext; i++) {
       let uri = {};
       imapS.GetUrlForUri("imap-message://user@localhost/INBOX#" + i, uri, null);
       let channel = Services.io.newChannelFromURI(uri.value,
@@ -89,32 +90,31 @@ function* streamMessages() {
       channel.asyncOpen(gStreamListener, null);
       yield false;
       let buf = gStreamListener._data;
-      dump("##########\nTesting--->" + fileNames[i-1] +
+      dump("##########\nTesting--->" + fileNames[i - 1] +
            "; 'prefer plain text': " + isPlain + "\n" +
            buf + "\n" +
-           "##########\nTesting--->" + fileNames[i-1] +
+           "##########\nTesting--->" + fileNames[i - 1] +
            "; 'prefer plain text': " + isPlain + "\n");
       try {
         Assert.ok(buf.includes(marker));
-      }
-      catch(e){}
+      } catch (e) {}
     }
   }
   yield true;
 }
 
 var gStreamListener = {
-  QueryInterface : ChromeUtils.generateQI([Ci.nsIStreamListener]),
-  _stream : null,
-  _data : null,
-  onStartRequest : function (aRequest) {
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
+  _stream: null,
+  _data: null,
+  onStartRequest(aRequest) {
     this._data = "";
     this._stream = null;
   },
-  onStopRequest : function (aRequest, aStatusCode) {
+  onStopRequest(aRequest, aStatusCode) {
     async_driver();
   },
-  onDataAvailable : function (aRequest, aInputStream, aOff, aCount) {
+  onDataAvailable(aRequest, aInputStream, aOff, aCount) {
     if (this._stream == null) {
       this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(Ci.nsIScriptableInputStream);
       this._stream.init(aInputStream);

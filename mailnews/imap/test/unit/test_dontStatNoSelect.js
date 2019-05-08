@@ -2,12 +2,15 @@
 // doesn't try to STAT noselect folders.
 
 var gServer, gImapServer;
-var gIMAPInbox, gIMAPFolder1, gIMAPFolder2;
+var gIMAPInbox;
 var gFolder2Mailbox;
 var gFolder1, gFolder2;
 
+/* import-globals-from ../../../test/resources/messageGenerator.js */
 load("../../../resources/messageGenerator.js");
 // async support
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
@@ -16,15 +19,15 @@ var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var tests = [
   checkStatSelect,
   checkStatNoSelect,
-  endTest
+  endTest,
 ];
 
 function run_test() {
   var daemon = new imapDaemon();
-  daemon.createMailbox("folder 1", {subscribed : true});
+  daemon.createMailbox("folder 1", {subscribed: true});
   let folder1Mailbox = daemon.getMailbox("folder 1");
   folder1Mailbox.flags.push("\\Noselect");
-  daemon.createMailbox("folder 2", {subscribed : true});
+  daemon.createMailbox("folder 2", {subscribed: true});
   gFolder2Mailbox = daemon.getMailbox("folder 2");
   addMessageToFolder(gFolder2Mailbox);
   gServer = makeServer(daemon, "");
@@ -67,7 +70,7 @@ function run_test() {
   gFolder2 = rootFolder.getChildNamed("folder 2");
   gFolder1.setFlag(Ci.nsMsgFolderFlags.CheckNew);
   gFolder2.setFlag(Ci.nsMsgFolderFlags.CheckNew);
-  //start first test
+  // start first test
   async_run_tests(tests);
 }
 
@@ -117,8 +120,7 @@ function addMessageToFolder(mbox) {
   mbox.addMessage(message);
 }
 
-function* endTest()
-{
+function* endTest() {
   Assert.equal(gFolder2.getNumUnread(false), 2);
   // Clean up the server in preparation
   gServer.resetTest();
@@ -129,9 +131,9 @@ function* endTest()
 }
 
 var gFolderListener = {
-  OnItemBoolPropertyChanged : function(aItem, aProperty, aOldValue, aNewValue) {
+  OnItemBoolPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {
     // This means that the STAT on "folder 2" has finished.
-    if (aProperty == "NewMessages" && aNewValue == true)
+    if (aProperty == "NewMessages" && aNewValue)
       async_driver();
-  }
+  },
 };

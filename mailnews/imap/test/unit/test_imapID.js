@@ -3,9 +3,9 @@
  * Test to ensure that we handle the RFC2197 ID command.
  */
 
+/* import-globals-from ../../../test/resources/logHelper.js */
 load("../../../resources/logHelper.js");
 
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
 var kIDResponse = "(\"name\" \"GImap\" \"vendor\" \"Google, Inc.\" \"support-url\" \"http://mail.google.com/support\")";
@@ -21,7 +21,6 @@ add_task(async function setup() {
 });
 
 add_task(async function updateInbox() {
-  let rootFolder = IMAPPump.incomingServer.rootFolder;
   let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, promiseUrlListener);
   await promiseUrlListener.promise;
@@ -33,7 +32,3 @@ add_task(function checkIDHandling() {
 });
 
 add_task(teardownIMAPPump);
-
-function run_test() {
-  run_next_test();
-}

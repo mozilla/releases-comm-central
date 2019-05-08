@@ -8,6 +8,10 @@
 
 Services.prefs.setIntPref("mailnews.tcptimeout", 2);
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../test/resources/alertTestUtils.js */
+/* import-globals-from ../../../test/resources/messageGenerator.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/alertTestUtils.js");
@@ -23,6 +27,7 @@ setupIMAPPump();
 var gGotAlert = false;
 var gGotMsgAdded = false;
 
+/* exported alert */// to alertTestUtils.js
 function alert(aDialogTitle, aText) {
   Assert.ok(aText.startsWith("Connection to server localhost timed out."));
   gGotAlert = true;
@@ -30,13 +35,13 @@ function alert(aDialogTitle, aText) {
 }
 
 var CopyListener = {
-  OnStartCopy: function() {},
-  OnProgress: function(aProgress, aProgressMax) {},
-  SetMessageKey: function(aMsgKey) {},
-  GetMessageId: function() {},
-  OnStopCopy: function(aStatus) {
+  OnStartCopy() {},
+  OnProgress(aProgress, aProgressMax) {},
+  SetMessageKey(aMsgKey) {},
+  GetMessageId() {},
+  OnStopCopy(aStatus) {
     async_driver();
-  }
+  },
 };
 
 // Definition of tests
@@ -46,12 +51,11 @@ var tests = [
   moveMessageToTargetFolder,
   waitForOfflinePlayback,
   updateTargetFolder,
-  endTest
-]
+  endTest,
+];
 
 var gTargetFolder;
-function* createTargetFolder()
-{
+function* createTargetFolder() {
   IMAPPump.daemon.copySleep = 5000;
   IMAPPump.incomingServer.rootFolder.createSubfolder("targetFolder", null);
   yield false;
@@ -62,8 +66,7 @@ function* createTargetFolder()
 }
 
 // load and update a message in the imap fake server
-function* loadImapMessage()
-{
+function* loadImapMessage() {
   let messages = [];
   let gMessageGenerator = new MessageGenerator();
   messages = messages.concat(gMessageGenerator.makeMessage());
@@ -84,8 +87,7 @@ function* loadImapMessage()
 }
 
 // move the message to a diffent folder
-function* moveMessageToTargetFolder()
-{
+function* moveMessageToTargetFolder() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
 
   // Now move this message to the target folder.
@@ -99,8 +101,7 @@ function* moveMessageToTargetFolder()
   yield false;
 }
 
-function* waitForOfflinePlayback()
-{
+function* waitForOfflinePlayback() {
   // just wait for the alert about timed out connection.
   yield false;
   // then, wait for a second so we don't get our next url aborted.
@@ -108,15 +109,13 @@ function* waitForOfflinePlayback()
   yield false;
 }
 
-function* updateTargetFolder()
-{
+function* updateTargetFolder() {
   gTargetFolder.updateFolderWithListener(null, asyncUrlListener);
   yield false;
 }
 
 // Cleanup
-function endTest()
-{
+function endTest() {
   Assert.ok(gGotAlert);
   // Make sure neither source nor target folder have offline events.
   Assert.ok(!IMAPPump.inbox.getFlag(Ci.nsMsgFolderFlags.OfflineEvents));
@@ -131,17 +130,14 @@ function endTest()
 
 // listeners
 
-var mfnListener =
-{
-  folderAdded: function folderAdded(aFolder)
-  {
+var mfnListener = {
+  folderAdded(aFolder) {
     // we are only using async yield on the target folder add
     if (aFolder.name == "targetFolder")
       async_driver();
   },
 
-  msgAdded: function msgAdded(aMsg)
-  {
+  msgAdded(aMsg) {
     if (!gGotMsgAdded)
       async_driver();
     gGotMsgAdded = true;
@@ -149,8 +145,7 @@ var mfnListener =
 
 };
 
-function run_test()
-{
+function run_test() {
   Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
   // Add folder listeners that will capture async events
   const nsIMFNService = Ci.nsIMsgFolderNotificationService;

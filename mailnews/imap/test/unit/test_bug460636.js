@@ -2,6 +2,8 @@
  * Test bug 460636 - nsMsgSaveAsListener sometimes inserts extra LF characters
  */
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
@@ -16,7 +18,7 @@ var gMsgFile = do_get_file("../../../data/" + gFileName);
 var tests = [
   setup,
   checkSavedMessage,
-  teardown
+  teardown,
 ];
 
 function* setup() {
@@ -53,7 +55,7 @@ function* setup() {
    * test also runs successfully on platforms not using CRLF by default.
    */
   gIMAPService.SaveMessageToDisk("imap-message://user@localhost/INBOX#"
-                                 + (IMAPPump.mailbox.uidnext-1), gSavedMsgFile,
+                                 + (IMAPPump.mailbox.uidnext - 1), gSavedMsgFile,
                                  false, asyncUrlListener, {}, true, null);
   yield false;
 }
@@ -66,8 +68,7 @@ function checkSavedMessage() {
 function teardown() {
   try {
     gSavedMsgFile.remove(false);
-  }
-  catch (ex) {
+  } catch (ex) {
     dump(ex);
     do_throw(ex);
   }

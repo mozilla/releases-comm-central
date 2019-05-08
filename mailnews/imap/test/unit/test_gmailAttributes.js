@@ -15,6 +15,8 @@
  */
 
 // async support
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
@@ -35,9 +37,11 @@ IMAPPump.mailbox.specialUseFlag = "\\Inbox";
 IMAPPump.mailbox.subscribed = true;
 
 // need all mail folder to identify this as gmail server.
-IMAPPump.daemon.createMailbox("[Gmail]", {flags : ["\\NoSelect"] });
-IMAPPump.daemon.createMailbox("[Gmail]/All Mail", {subscribed : true,
-                                               specialUseFlag : "\\AllMail"});
+IMAPPump.daemon.createMailbox("[Gmail]", {flags: ["\\NoSelect"] });
+IMAPPump.daemon.createMailbox("[Gmail]/All Mail", {
+  subscribed: true,
+  specialUseFlag: "\\AllMail",
+});
 
 // Definition of tests
 var tests = [
@@ -45,12 +49,11 @@ var tests = [
   testFetchXGmMsgid,
   testFetchXGmThrid,
   testFetchXGmLabels,
-  endTest
-]
+  endTest,
+];
 
 // load and update a message in the imap fake server
-function* loadImapMessage()
-{
+function* loadImapMessage() {
   let message = new imapMessage(specForFileName(gMessage),
                                 IMAPPump.mailbox.uidnext++, []);
   message.xGmMsgid = gXGmMsgid;
@@ -61,36 +64,31 @@ function* loadImapMessage()
   yield false;
 }
 
-function testFetchXGmMsgid()
-{
+function testFetchXGmMsgid() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   let val = msgHdr.getStringProperty("X-GM-MSGID");
   Assert.equal(val, gXGmMsgid);
 }
 
-function testFetchXGmThrid()
-{
+function testFetchXGmThrid() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   let val = msgHdr.getStringProperty("X-GM-THRID");
   Assert.equal(val, gXGmThrid);
 }
 
-function testFetchXGmLabels()
-{
+function testFetchXGmLabels() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   let val = msgHdr.getStringProperty("X-GM-LABELS");
    // We need to remove the starting "(" and ending ")" from gXGmLabels while comparing
-  Assert.equal(val, gXGmLabels.substring(1 ,gXGmLabels.length - 1));
+  Assert.equal(val, gXGmLabels.substring(1, gXGmLabels.length - 1));
 }
 
 // Cleanup at end
-function endTest()
-{
+function endTest() {
   teardownIMAPPump();
 }
 
-function run_test()
-{
+function run_test() {
   Services.prefs.setBoolPref("mail.server.server1.autosync_offline_stores", false);
   async_run_tests(tests);
 }
@@ -100,8 +98,7 @@ function run_test()
  */
 
 // given a test file, return the file uri spec
-function specForFileName(aFileName)
-{
+function specForFileName(aFileName) {
   let file = do_get_file("../../../data/" + aFileName);
   let msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
   return msgfileuri.spec;

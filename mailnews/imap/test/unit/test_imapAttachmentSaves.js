@@ -6,6 +6,9 @@
  * Tests imap save and detach attachments.
  */
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../test/resources/messageGenerator.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/messageGenerator.js");
@@ -17,7 +20,7 @@ var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 // IMAP pump
 
-var kAttachFileName = 'bob.txt';
+var kAttachFileName = "bob.txt";
 
 setupIMAPPump();
 
@@ -30,17 +33,16 @@ var tests = [
   startMime,
   startDetach,
   testDetach,
-  endTest
-]
+  endTest,
+];
 
 // load and update a message in the imap fake server
-function* loadImapMessage()
-{
+function* loadImapMessage() {
   let gMessageGenerator = new MessageGenerator();
   // create a synthetic message with attachment
   let smsg = gMessageGenerator.makeMessage({
     attachments: [
-      {filename: kAttachFileName, body: 'I like cheese!'}
+      {filename: kAttachFileName, body: "I like cheese!"},
     ],
   });
 
@@ -60,8 +62,7 @@ function* loadImapMessage()
 }
 
 // process the message through mime
-function* startMime()
-{
+function* startMime() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
 
   mimeMsg.MsgHdrToMimeMessage(msgHdr, gCallbackObject, gCallbackObject.callback,
@@ -70,8 +71,7 @@ function* startMime()
 }
 
 // detach any found attachments
-function* startDetach()
-{
+function* startDetach() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   let msgURI = msgHdr.folder.generateMessageURI(msgHdr.messageKey);
 
@@ -86,8 +86,7 @@ function* startDetach()
 }
 
 // test that the detachment was successful
-function* testDetach()
-{
+function* testDetach() {
   // This test seems to fail on Linux without the following delay.
   mailTestUtils.do_timeout_function(200, async_driver);
   yield false;
@@ -108,8 +107,7 @@ function* testDetach()
 }
 
 // Cleanup
-function endTest()
-{
+function endTest() {
   teardownIMAPPump();
 }
 
@@ -121,12 +119,11 @@ SaveAttachmentCallback.prototype = {
   callback: function saveAttachmentCallback_callback(aMsgHdr, aMimeMessage) {
     this.attachments = aMimeMessage.allAttachments;
     async_driver();
-  }
-}
+  },
+};
 var gCallbackObject = new SaveAttachmentCallback();
 
-function run_test()
-{
+function run_test() {
   // Add folder listeners that will capture async events
   const nsIMFNService = Ci.nsIMsgFolderNotificationService;
   MailServices.mfn.addListener(mfnListener, nsIMFNService.msgsDeleted);
@@ -173,10 +170,8 @@ function getContentFromMessage(aMsgHdr) {
   return content;
 }
 
-var mfnListener =
-{
-  msgsDeleted: function msgsDeleted(aMsgArray)
-  {
+var mfnListener = {
+  msgsDeleted(aMsgArray) {
     dump("msg deleted\n");
     async_driver();
   },

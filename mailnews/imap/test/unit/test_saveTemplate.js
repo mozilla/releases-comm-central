@@ -11,6 +11,9 @@ var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../test/resources/messageGenerator.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/messageGenerator.js");
@@ -22,12 +25,11 @@ setupIMAPPump();
 var tests = [
   loadImapMessage,
   saveAsTemplate,
-  endTest
-]
+  endTest,
+];
 
 // load and update a message in the imap fake server
-function* loadImapMessage()
-{
+function* loadImapMessage() {
   let gMessageGenerator = new MessageGenerator();
   // create a synthetic message with attachment
   let smsg = gMessageGenerator.makeMessage();
@@ -35,7 +37,7 @@ function* loadImapMessage()
   let msgURI =
     Services.io.newURI("data:text/plain;base64," +
                         btoa(smsg.toMessageString()));
-  let imapInbox =  IMAPPump.daemon.getMailbox("INBOX")
+  let imapInbox = IMAPPump.daemon.getMailbox("INBOX");
   let message = new imapMessage(msgURI.spec, imapInbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(message);
   IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
@@ -45,8 +47,7 @@ function* loadImapMessage()
 }
 
 // Cleanup
-function* endTest()
-{
+function* endTest() {
   teardownIMAPPump();
   yield true;
 }
@@ -57,13 +58,13 @@ function saveAsUrlListener(aUri, aIdentity) {
 }
 
 saveAsUrlListener.prototype = {
-  OnStartRunningUrl: function(aUrl) {
+  OnStartRunningUrl(aUrl) {
   },
-  OnStopRunningUrl: function(aUrl, aExitCode) {
+  OnStopRunningUrl(aUrl, aExitCode) {
     let messenger = Cc["@mozilla.org/messenger;1"]
                       .createInstance(Ci.nsIMessenger);
     messenger.saveAs(this.uri, false, this.identity, null);
-  }
+  },
 };
 
 // This is similar to the method in mailCommands.js, to test the way that
@@ -83,10 +84,8 @@ function* saveAsTemplate() {
 }
 
 // listener for saveAsTemplate adding a message to the templates folder.
-var mfnListener =
-{
-  msgAdded: function msgAdded(aMsg)
-  {
+var mfnListener = {
+  msgAdded(aMsg) {
     // Check this is the templates folder.
     Assert.equal(aMsg.folder.prettyName, "Templates");
     async_driver();
@@ -94,8 +93,7 @@ var mfnListener =
 };
 
 
-function run_test()
-{
+function run_test() {
   Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
   async_run_tests(tests);
 }

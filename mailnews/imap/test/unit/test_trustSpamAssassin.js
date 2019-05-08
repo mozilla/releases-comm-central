@@ -12,6 +12,8 @@
  */
 
 // async support
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
@@ -33,18 +35,17 @@ var tests = [
   markMessageAsGood,
   updateFoldersAndCheck,
   endTest,
-]
+];
 
 var gJunkFolder;
-function* createJunkFolder()
-{
+function* createJunkFolder() {
   IMAPPump.incomingServer.rootFolder.createSubfolder("Junk", null);
-  dl('wait for folderAdded');
+  dl("wait for folderAdded");
   yield false;
   gJunkFolder = IMAPPump.incomingServer.rootFolder.getChildNamed("Junk");
   Assert.ok(gJunkFolder instanceof Ci.nsIMsgImapMailFolder);
   gJunkFolder.updateFolderWithListener(null, asyncUrlListener);
-  dl('wait for OnStopRunningURL');
+  dl("wait for OnStopRunningURL");
   yield false;
 }
 
@@ -52,8 +53,7 @@ function* createJunkFolder()
  * Load and update a message in the imap fake server, should move
  *  SpamAssassin-marked junk message to junk folder
  */
-function* loadImapMessage()
-{
+function* loadImapMessage() {
   IMAPPump.mailbox.addMessage(new imapMessage(specForFileName(gMessage),
                           IMAPPump.mailbox.uidnext++, []));
   /*
@@ -61,22 +61,20 @@ function* loadImapMessage()
    *  to the junk folder
    */
   IMAPPump.inbox.updateFolder(null);
-  dl('wait for msgsMoveCopyCompleted');
+  dl("wait for msgsMoveCopyCompleted");
   yield false;
   gJunkFolder.updateFolderWithListener(null, asyncUrlListener);
-  dl('wait for OnStopRunningURL');
+  dl("wait for OnStopRunningURL");
   yield false;
 }
 
-function* testMessageInJunk()
-{
+function* testMessageInJunk() {
   Assert.equal(0, IMAPPump.inbox.getTotalMessages(false));
   Assert.equal(1, gJunkFolder.getTotalMessages(false));
   yield true;
 }
 
-function* markMessageAsGood()
-{
+function* markMessageAsGood() {
   /*
    * This is done in the application in nsMsgDBView, which is difficult
    *  to test in xpcshell tests. We aren't really trying to test that here
@@ -109,17 +107,16 @@ function* markMessageAsGood()
 
   MailServices.copy.CopyMessages(gJunkFolder, messages, IMAPPump.inbox, true,
                                  null, null, false);
-  dl('wait for msgsMoveCopyCompleted');
+  dl("wait for msgsMoveCopyCompleted");
   yield false;
 }
 
-function* updateFoldersAndCheck()
-{
+function* updateFoldersAndCheck() {
   IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
-  dl('wait for OnStopRunningURL');
+  dl("wait for OnStopRunningURL");
   yield false;
   gJunkFolder.updateFolderWithListener(null, asyncUrlListener);
-  dl('wait for OnStopRunningURL');
+  dl("wait for OnStopRunningURL");
   yield false;
   // bug 540385 causes this test to fail
   Assert.equal(1, IMAPPump.inbox.getTotalMessages(false));
@@ -127,13 +124,11 @@ function* updateFoldersAndCheck()
   yield true;
 }
 
-function endTest()
-{
+function endTest() {
   teardownIMAPPump();
 }
 
-function run_test()
-{
+function run_test() {
   let server = IMAPPump.incomingServer;
   let spamSettings = server.spamSettings;
   server.setBoolValue("useServerFilter", true);
@@ -154,30 +149,26 @@ function run_test()
         nsIMFNService.msgAdded;
   MailServices.mfn.addListener(mfnListener, flags);
 
-  //start first test
+  // start first test
   async_run_tests(tests);
 }
 
-var mfnListener =
-{
-  msgsMoveCopyCompleted: function (aMove, aSrcMsgs, aDestFolder, aDestMsgs)
-  {
-    dl('msgsMoveCopyCompleted to folder ' + aDestFolder.name);
+var mfnListener = {
+  msgsMoveCopyCompleted(aMove, aSrcMsgs, aDestFolder, aDestMsgs) {
+    dl("msgsMoveCopyCompleted to folder " + aDestFolder.name);
     async_driver();
   },
 
-  folderAdded: function (aFolder)
-  {
-    dl('folderAdded <' + aFolder.name + '>');
+  folderAdded(aFolder) {
+    dl("folderAdded <" + aFolder.name + ">");
     // we are only using async add on the Junk folder
     if (aFolder.name == "Junk")
       async_driver();
   },
 
-  msgAdded: function msgAdded(aMsg)
-  {
-    dl('msgAdded with subject <' + aMsg.subject + '>');
-  }
+  msgAdded(aMsg) {
+    dl("msgAdded with subject <" + aMsg.subject + ">");
+  },
 };
 
 /*
@@ -185,8 +176,7 @@ var mfnListener =
  */
 
 // given a test file, return the file uri spec
-function specForFileName(aFileName)
-{
+function specForFileName(aFileName) {
   let file = do_get_file("../../../data/" + aFileName);
   let msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
   return msgfileuri.spec;
@@ -194,5 +184,5 @@ function specForFileName(aFileName)
 
 // quick shorthand for output of a line of text.
 function dl(text) {
-  dump(text + '\n');
+  dump(text + "\n");
 }

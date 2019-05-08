@@ -3,21 +3,20 @@
  * Test autosync date constraints
  */
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../test/resources/messageGenerator.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/messageGenerator.js");
 
-var gRootFolder;
-var gIMAPTrashFolder, gMsgImapInboxFolder;
-var gImapInboxOfflineStoreSize;
+var gMsgImapInboxFolder;
 
 // Adds some messages directly to a mailbox (eg new mail)
-function addMessagesToServer(messages, mailbox)
-{
+function addMessagesToServer(messages, mailbox) {
   // Create the imapMessages and store them on the mailbox
-  messages.forEach(function (message)
-  {
-    let dataUri = 'data:text/plain,' + message.toMessageString();
+  messages.forEach(function(message) {
+    let dataUri = "data:text/plain," + message.toMessageString();
     mailbox.addMessage(new imapMessage(dataUri, mailbox.uidnext++, []));
   });
 }
@@ -48,7 +47,7 @@ var tests = [
       }
     }
   },
-  teardown
+  teardown,
 ];
 
 function setup() {
@@ -56,20 +55,18 @@ function setup() {
 
   setupIMAPPump();
 
-  gRootFolder = IMAPPump.incomingServer.rootFolder;
   gMsgImapInboxFolder = IMAPPump.inbox.QueryInterface(Ci.nsIMsgImapMailFolder);
   // these hacks are required because we've created the inbox before
   // running initial folder discovery, and adding the folder bails
   // out before we set it as verified online, so we bail out, and
   // then remove the INBOX folder since it's not verified.
-  gMsgImapInboxFolder.hierarchyDelimiter = '/';
+  gMsgImapInboxFolder.hierarchyDelimiter = "/";
   gMsgImapInboxFolder.verifiedAsOnlineFolder = true;
 
 
   // Add a couple of messages to the INBOX
   // this is synchronous, afaik
   let messageGenerator = new MessageGenerator();
-  let scenarioFactory = new MessageScenarioFactory(messageGenerator);
 
   // build up a diverse list of messages
   let messages = [];

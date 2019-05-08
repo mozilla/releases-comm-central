@@ -4,6 +4,9 @@
  * stores, i.e., over 4 GiB.
  */
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../test/resources/messageGenerator.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/messageGenerator.js");
@@ -16,7 +19,7 @@ var gOfflineStoreSize;
 var tests = [
   setup,
   check_result,
-  teardown
+  teardown,
 ];
 
 function run_test() {
@@ -33,8 +36,7 @@ function run_test() {
   // sparse. If it isn't, then bail out now, because in all probability it is
   // FAT32, which doesn't support file sizes greater than 4 GB.
   if ("@mozilla.org/windows-registry-key;1" in Cc &&
-      mailTestUtils.get_file_system(inboxFile) != "NTFS")
-  {
+      mailTestUtils.get_file_system(inboxFile) != "NTFS") {
     dump("On Windows, this test only works on NTFS volumes.\n");
     teardown();
     return;
@@ -119,7 +121,7 @@ function* check_result() {
     IMAPPump.inbox.getOfflineFileStream(header.messageKey, offset, size).close();
     info("Msg hdr offset = " + offset.value);
   }
-};
+}
 
 function teardown() {
   // Free up disk space - if you want to look at the file after running

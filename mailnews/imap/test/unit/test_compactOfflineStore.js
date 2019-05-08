@@ -7,12 +7,14 @@
 Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
                            "@mozilla.org/msgstore/berkeleystore;1");
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../test/resources/messageGenerator.js */
+/* import-globals-from ../../../test/resources/alertTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/messageGenerator.js");
 load("../../../resources/alertTestUtils.js");
-
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 // Globals
 var gRootFolder;
@@ -20,34 +22,30 @@ var gImapInboxOfflineStoreSize;
 
 var gMsgFile1 = do_get_file("../../../data/bugmail10");
 var gMsgFile2 = do_get_file("../../../data/bugmail11");
-var gMsgFile3 = do_get_file("../../../data/draft1");
+// var gMsgFile3 = do_get_file("../../../data/draft1");
 var gMsgFile4 = do_get_file("../../../data/bugmail7");
 var gMsgFile5 = do_get_file("../../../data/bugmail6");
 
 // Copied straight from the example files
 var gMsgId1 = "200806061706.m56H6RWT004933@mrapp54.mozilla.org";
 var gMsgId2 = "200804111417.m3BEHTk4030129@mrapp51.mozilla.org";
-var gMsgId3 = "4849BF7B.2030800@example.com";
+// var gMsgId3 = "4849BF7B.2030800@example.com";
 var gMsgId4 = "bugmail7.m47LtAEf007542@mrapp51.mozilla.org";
 var gMsgId5 = "bugmail6.m47LtAEf007542@mrapp51.mozilla.org";
 
 // Adds some messages directly to a mailbox (eg new mail)
-function addMessagesToServer(messages, mailbox)
-{
+function addMessagesToServer(messages, mailbox) {
   // For every message we have, we need to convert it to a file:/// URI
-  messages.forEach(function (message)
-  {
+  messages.forEach(function(message) {
     let URI = Services.io.newFileURI(message.file).QueryInterface(Ci.nsIFileURL);
     // Create the imapMessage and store it on the mailbox.
     mailbox.addMessage(new imapMessage(URI.spec, mailbox.uidnext++, []));
   });
 }
 
-function addGeneratedMessagesToServer(messages, mailbox)
-{
+function addGeneratedMessagesToServer(messages, mailbox) {
   // Create the imapMessages and store them on the mailbox
-  messages.forEach(function (message)
-  {
+  messages.forEach(function(message) {
     let dataUri = Services.io.newURI("data:text/plain;base64," +
                                      btoa(message.toMessageString()));
     mailbox.addMessage(new imapMessage(dataUri.spec, mailbox.uidnext++, []));
@@ -57,13 +55,11 @@ function addGeneratedMessagesToServer(messages, mailbox)
 
 function checkOfflineStore(prevOfflineStoreSize) {
   dump("checking offline store\n");
-  let offset = new Object;
-  let size = new Object;
+  let offset = {};
+  let size = {};
   let enumerator = IMAPPump.inbox.msgDatabase.EnumerateMessages();
-  if (enumerator)
-  {
-    while (enumerator.hasMoreElements())
-    {
+  if (enumerator) {
+    while (enumerator.hasMoreElements()) {
       let header = enumerator.getNext();
       // this will verify that the message in the offline store
       // starts with "From " - otherwise, it returns an error.
@@ -147,7 +143,7 @@ var tests = [
     let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId2);
     Assert.equal(msgHdr.flags & Ci.nsMsgMessageFlags.Offline, 0);
   },
-  teardown
+  teardown,
 ];
 
 function setup() {
@@ -158,7 +154,7 @@ function setup() {
   // running initial folder discovery, and adding the folder bails
   // out before we set it as verified online, so we bail out, and
   // then remove the INBOX folder since it's not verified.
-  IMAPPump.inbox.hierarchyDelimiter = '/';
+  IMAPPump.inbox.hierarchyDelimiter = "/";
   IMAPPump.inbox.verifiedAsOnlineFolder = true;
 
   let messageGenerator = new MessageGenerator();
@@ -180,18 +176,15 @@ function setup() {
 // nsIMsgCopyServiceListener implementation - runs next test when copy
 // is completed.
 var CopyListener = {
-  OnStartCopy: function() {},
-  OnProgress: function(aProgress, aProgressMax) {},
-  SetMessageKey: function(aKey) {
-    let hdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
-    gMsgHdrs.push({hdr: hdr, ID: hdr.messageId});
-  },
-  SetMessageId: function(aMessageId) {},
-  OnStopCopy: function(aStatus) {
+  OnStartCopy() {},
+  OnProgress(aProgress, aProgressMax) {},
+  SetMessageKey(aKey) {},
+  SetMessageId(aMessageId) {},
+  OnStopCopy(aStatus) {
     // Check: message successfully copied.
     Assert.equal(aStatus, 0);
     async_driver();
-  }
+  },
 };
 
 function teardown() {

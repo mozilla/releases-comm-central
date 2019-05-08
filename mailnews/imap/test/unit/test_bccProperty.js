@@ -7,6 +7,8 @@
  * original author Kent James <kent@caspia.com>
  */
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
@@ -17,7 +19,7 @@ var tests = [
   setup,
   downloadAllForOffline,
   checkBccs,
-  teardown
+  teardown,
 ];
 
 function* setup() {
@@ -46,7 +48,7 @@ function* downloadAllForOffline() {
 function checkBccs() {
   // locate the new message by enumerating through the database
   let enumerator = IMAPPump.inbox.msgDatabase.EnumerateMessages();
-  while(enumerator.hasMoreElements()) {
+  while (enumerator.hasMoreElements()) {
     let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     Assert.ok(hdr.bccList.includes("Another Person"));
     Assert.ok(hdr.bccList.includes("<u1@example.com>"));

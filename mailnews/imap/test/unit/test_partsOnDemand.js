@@ -9,6 +9,9 @@
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 Services.prefs.setIntPref("mail.imap.mime_parts_on_demand_threshold", 1000);
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../test/resources/messageGenerator.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/messageGenerator.js");
@@ -30,8 +33,8 @@ var tests = [
   testAllInlineMessage,
   updateCounts,
   testNotRead,
-  endTest
-]
+  endTest,
+];
 
 // make sure we are in the optimal conditions!
 function* setPrefs() {
@@ -46,10 +49,7 @@ function* setPrefs() {
 }
 
 // load and update a message in the imap fake server
-function* loadImapMessage()
-{
-  let gMessageGenerator = new MessageGenerator();
-
+function* loadImapMessage() {
   let file = do_get_file("../../../data/bodystructuretest1");
   let msgURI = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
 
@@ -73,11 +73,10 @@ function* loadImapMessage()
 }
 
 // process the message through mime
-function* startMime()
-{
+function* startMime() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
 
-  mimeMsg.MsgHdrToMimeMessage(msgHdr, this, function (aMsgHdr, aMimeMessage) {
+  mimeMsg.MsgHdrToMimeMessage(msgHdr, this, function(aMsgHdr, aMimeMessage) {
     let url = aMimeMessage.allUserAttachments[0].url;
     // A URL containing this string indicates that the attachment will be
     // downloaded on demand.
@@ -88,22 +87,19 @@ function* startMime()
 }
 
 // test that we don't mark all inline messages as read.
-function* testAllInlineMessage()
-{
+function* testAllInlineMessage() {
   let enumerator = IMAPPump.inbox.msgDatabase.EnumerateMessages();
 
-  if (enumerator.hasMoreElements())
-  {
+  if (enumerator.hasMoreElements()) {
     gSecondMsg = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
-    mimeMsg.MsgHdrToMimeMessage(gSecondMsg, this, function (aMsgHdr, aMimeMessage) {
+    mimeMsg.MsgHdrToMimeMessage(gSecondMsg, this, function(aMsgHdr, aMimeMessage) {
       async_driver();
     }, true /* allowDownload */, { partsOnDemand: true });
     yield false;
   }
 }
 
-function* updateCounts()
-{
+function* updateCounts() {
   // select the trash, then the inbox again, to force an update of the
   // read state of messages.
   let trash = IMAPPump.incomingServer.rootFolder.getChildNamed("Trash");
@@ -114,19 +110,16 @@ function* updateCounts()
   yield false;
 }
 
-function* testNotRead()
-{
+function* testNotRead() {
   Assert.equal(2, IMAPPump.inbox.getNumUnread(false));
   yield true;
 }
 
 // Cleanup
-function endTest()
-{
+function endTest() {
   teardownIMAPPump();
 }
 
-function run_test()
-{
+function run_test() {
   async_run_tests(tests);
 }

@@ -7,6 +7,7 @@
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
+/* import-globals-from ../../../test/resources/messageGenerator.js */
 load("../../../resources/messageGenerator.js");
 
 var gSecondFolder, gThirdFolder;
@@ -26,9 +27,9 @@ var tests = [
   function prepareToGoOffline() {
     let rootFolder = IMAPPump.incomingServer.rootFolder;
     gSecondFolder = rootFolder.getChildNamed("secondFolder")
-                      .QueryInterface(Ci.nsIMsgImapMailFolder);
-    gThirdFolder =  rootFolder.getChildNamed("thirdFolder")
-                      .QueryInterface(Ci.nsIMsgImapMailFolder);
+                              .QueryInterface(Ci.nsIMsgImapMailFolder);
+    gThirdFolder = rootFolder.getChildNamed("thirdFolder")
+                             .QueryInterface(Ci.nsIMsgImapMailFolder);
     IMAPPump.incomingServer.closeCachedConnections();
   },
   async function doOfflineOps() {
@@ -94,16 +95,15 @@ var tests = [
     Assert.notEqual(msgHdr2, null);
     Assert.notEqual(msgHdr3, null);
   },
-  teardownIMAPPump
+  teardownIMAPPump,
 ];
 
 async function setup() {
-
   /*
    * Set up an IMAP server.
    */
-  IMAPPump.daemon.createMailbox("secondFolder", {subscribed : true});
-  IMAPPump.daemon.createMailbox("thirdFolder", {subscribed : true});
+  IMAPPump.daemon.createMailbox("secondFolder", {subscribed: true});
+  IMAPPump.daemon.createMailbox("thirdFolder", {subscribed: true});
   Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
   // Don't prompt about offline download when going offline
   Services.prefs.setIntPref("offline.download.download_messages", 2);
@@ -119,7 +119,7 @@ async function setup() {
   let msgURI =
     Services.io.newURI("data:text/plain;base64," +
                        btoa(messages[0].toMessageString()));
-  let imapInbox =  IMAPPump.daemon.getMailbox("INBOX")
+  let imapInbox = IMAPPump.daemon.getMailbox("INBOX");
   let message = new imapMessage(msgURI.spec, imapInbox.uidnext++, ["\\Seen"]);
   imapInbox.addMessage(message);
   msgURI =

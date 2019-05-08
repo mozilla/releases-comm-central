@@ -1,3 +1,4 @@
+/* import-globals-from head_server.js */
 load("head_server.js");
 
 info("Running test with maildir");

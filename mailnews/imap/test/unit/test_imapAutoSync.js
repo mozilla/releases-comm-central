@@ -18,10 +18,14 @@
 // get put in the front of the queue.
 
 // IMAP pump
+/* import-globals-from ../../../test/resources/logHelper.js */
 load("../../../resources/logHelper.js");
 
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/asyncTestUtils.js");
 
+/* import-globals-from ../../../test/resources/alertTestUtils.js */
+/* import-globals-from ../../../test/resources/messageGenerator.js */
 load("../../../resources/alertTestUtils.js");
 load("../../../resources/messageGenerator.js");
 
@@ -33,8 +37,6 @@ setupIMAPPump();
 var msgFlagOffline = Ci.nsMsgMessageFlags.Offline;
 var nsIAutoSyncMgrListener = Ci.nsIAutoSyncMgrListener;
 
-var gGotAlert;
-
 var gAutoSyncManager = Cc["@mozilla.org/imap/autosyncmgr;1"]
                        .getService(Ci.nsIAutoSyncManager);
 
@@ -45,13 +47,12 @@ var tests = [
   test_triggerAutoSyncIdle,
   test_moveMessageToTargetFolder,
   test_waitForTargetUpdate,
-  endTest
-]
+  endTest,
+];
 
 var gTargetFolder;
 
-function* test_createTargetFolder()
-{
+function* test_createTargetFolder() {
   gAutoSyncManager.addListener(gAutoSyncListener);
 
   IMAPPump.incomingServer.rootFolder.createSubfolder("targetFolder", null);
@@ -62,8 +63,7 @@ function* test_createTargetFolder()
   gTargetFolder.setFlag(Ci.nsMsgFolderFlags.CheckNew);
 }
 
-function* test_checkForNewMessages()
-{
+function* test_checkForNewMessages() {
   addMessageToFolder(gTargetFolder);
   // This will update the INBOX and STATUS targetFolder. We only care about
   // the latter.
@@ -74,8 +74,7 @@ function* test_checkForNewMessages()
   yield true;
 }
 
-function test_triggerAutoSyncIdle()
-{
+function test_triggerAutoSyncIdle() {
   // wait for both folders to get updated.
   gAutoSyncListener._waitingForDiscoveryList.push(IMAPPump.inbox);
   gAutoSyncListener._waitingForDiscoveryList.push(gTargetFolder);
@@ -86,8 +85,7 @@ function test_triggerAutoSyncIdle()
 }
 
 // move the message to a diffent folder
-function* test_moveMessageToTargetFolder()
-{
+function* test_moveMessageToTargetFolder() {
   let observer = gAutoSyncManager.QueryInterface(Ci.nsIObserver);
   observer.observe(null, "mail:appIdle", "back");
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
@@ -102,8 +100,7 @@ function* test_moveMessageToTargetFolder()
   yield false;
 }
 
-function* test_waitForTargetUpdate()
-{
+function* test_waitForTargetUpdate() {
   // After the copy, now we expect to get notified of the gTargetFolder
   // getting updated, after we simulate going idle.
   gAutoSyncListener._waitingForUpdate = true;
@@ -116,8 +113,7 @@ function* test_waitForTargetUpdate()
 }
 
 // Cleanup
-function endTest()
-{
+function endTest() {
   let enumerator = gTargetFolder.messages;
   let numMsgs = 0;
   while (enumerator.hasMoreElements()) {
@@ -132,8 +128,7 @@ function endTest()
   teardownIMAPPump();
 }
 
-function run_test()
-{
+function run_test() {
   // Add folder listeners that will capture async events
   const nsIMFNService = Ci.nsIMsgFolderNotificationService;
   let flags =
@@ -148,72 +143,68 @@ function run_test()
 
 // listeners for various events to drive the tests.
 
-var mfnListener =
-{
-  msgsMoveCopyCompleted: function (aMove, aSrcMsgs, aDestFolder, aDestMsgs)
-  {
-    dump('msgsMoveCopyCompleted to folder ' + aDestFolder.name + '\n');
+var mfnListener = {
+  msgsMoveCopyCompleted(aMove, aSrcMsgs, aDestFolder, aDestMsgs) {
+    dump("msgsMoveCopyCompleted to folder " + aDestFolder.name + "\n");
   },
-  folderAdded: function folderAdded(aFolder)
-  {
+  folderAdded(aFolder) {
     // we are only using async yield on the target folder add
     if (aFolder.name == "targetFolder")
       async_driver();
   },
 
-  msgAdded: function msgAdded(aMsg)
-  {
+  msgAdded(aMsg) {
   },
 };
 
-var gAutoSyncListener =
-{
-  _inQFolderList : new Array(),
-  _runnning : false,
+var gAutoSyncListener = {
+  _inQFolderList: [],
+  _runnning: false,
   _lastMessage: {},
-  _waitingForUpdateList : new Array(),
-  _waitingForUpdate : false,
-  _waitingForDiscoveryList : new Array(),
-  _waitingForDiscovery : false,
+  _waitingForUpdateList: [],
+  _waitingForUpdate: false,
+  _waitingForDiscoveryList: [],
+  _waitingForDiscovery: false,
 
-  onStateChanged : function(running) {
+  onStateChanged(running) {
     try {
       this._runnning = running;
     } catch (e) {
-      throw(e);
+      throw (e);
     }
   },
 
-  onFolderAddedIntoQ : function(queue, folder) {
+  onFolderAddedIntoQ(queue, folder) {
     try {
-      let queueName = "";
       dump("folder added into Q " + this.qName(queue) + " " + folder.URI + "\n");
       if (folder instanceof Ci.nsIMsgFolder &&
           queue == nsIAutoSyncMgrListener.PriorityQueue) {
+        return;
       }
     } catch (e) {
-      throw(e);
+      throw (e);
     }
   },
-  onFolderRemovedFromQ : function(queue, folder) {
+  onFolderRemovedFromQ(queue, folder) {
     try {
       dump("folder removed from Q " + this.qName(queue) + " " + folder.URI + "\n");
       if (folder instanceof Ci.nsIMsgFolder &&
           queue == nsIAutoSyncMgrListener.PriorityQueue) {
+        return;
       }
     } catch (e) {
-      throw(e);
+      throw (e);
     }
   },
-  onDownloadStarted : function(folder, numOfMessages, totalPending) {
+  onDownloadStarted(folder, numOfMessages, totalPending) {
     try {
       dump("folder download started" + folder.URI + "\n");
     } catch (e) {
-      throw(e);
+      throw (e);
     }
   },
 
-  onDownloadCompleted : function(folder) {
+  onDownloadCompleted(folder) {
     try {
       dump("folder download completed" + folder.URI + "\n");
       if (folder instanceof Ci.nsIMsgFolder) {
@@ -227,17 +218,17 @@ var gAutoSyncListener =
         }
       }
     } catch (e) {
-      throw(e);
+      throw (e);
     }
   },
 
-  onDownloadError : function(folder) {
+  onDownloadError(folder) {
     if (folder instanceof Ci.nsIMsgFolder) {
       dump("OnDownloadError: " + folder.prettyName + "\n");
     }
   },
 
-  onDiscoveryQProcessed : function (folder, numOfHdrsProcessed, leftToProcess) {
+  onDiscoveryQProcessed(folder, numOfHdrsProcessed, leftToProcess) {
     dump("onDiscoveryQProcessed: " + folder.prettyName + "\n");
     let index = mailTestUtils.non_strict_index_of(this._waitingForDiscoveryList, folder);
     if (index != -1)
@@ -249,9 +240,9 @@ var gAutoSyncListener =
     }
   },
 
-  onAutoSyncInitiated : function (folder) {
+  onAutoSyncInitiated(folder) {
   },
-  qName : function(queueType) {
+  qName(queueType) {
     if (queueType == nsIAutoSyncMgrListener.PriorityQueue)
       return "priorityQ";
     if (queueType == nsIAutoSyncMgrListener.UpdateQueue)
@@ -260,15 +251,14 @@ var gAutoSyncListener =
       return "discoveryQ";
     return "";
   },
-}
+};
 
 /*
  * helper functions
  */
 
 // load and update a message in the imap fake server
-function addMessageToFolder(folder)
-{
+function addMessageToFolder(folder) {
   let messages = [];
   let gMessageGenerator = new MessageGenerator();
   messages = messages.concat(gMessageGenerator.makeMessage());

@@ -9,6 +9,8 @@
  */
 
 // async support
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
@@ -27,13 +29,12 @@ var tests = [
   saveDraft,
   goOnline,
   checkResult,
-  endTest
+  endTest,
 ];
 
 var gDraftsFolder;
 
-function* createDraftsFolder()
-{
+function* createDraftsFolder() {
   IMAPPump.incomingServer.rootFolder.createSubfolder("Drafts", null);
   yield false;
   gDraftsFolder = IMAPPump.incomingServer.rootFolder.getChildNamed("Drafts");
@@ -41,8 +42,7 @@ function* createDraftsFolder()
   gDraftsFolder.updateFolderWithListener(null, asyncUrlListener);
   yield false;
 }
-function* goOffline()
-{
+function* goOffline() {
   // Don't prompt about offline download when going offline
   Services.prefs.setIntPref("offline.download.download_messages", 2);
 
@@ -58,8 +58,7 @@ function* goOffline()
   Services.io.offline = true;
 }
 
-function* saveDraft()
-{
+function* saveDraft() {
   let msgCompose = Cc["@mozilla.org/messengercompose/compose;1"]
                      .createInstance(Ci.nsIMsgCompose);
   let fields = Cc["@mozilla.org/messengercompose/composefields;1"]
@@ -83,8 +82,7 @@ function* saveDraft()
   Assert.equal(IMAPPump.daemon.getMailbox("Drafts")._messages.length, 0);
 }
 
-function* goOnline()
-{
+function* goOnline() {
   let offlineManager = Cc["@mozilla.org/messenger/offline-manager;1"]
                        .getService(Ci.nsIMsgOfflineManager);
   IMAPPump.daemon.closing = false;
@@ -93,33 +91,29 @@ function* goOnline()
   IMAPPump.server.start();
   offlineManager.inProgress = true;
   offlineManager.goOnline(false, true, null);
-  let waitForNotInProgress = function () {
+  let waitForNotInProgress = function() {
     if (offlineManager.inProgress)
       do_timeout(250, waitForNotInProgress);
     else
       async_driver();
-  }
+  };
   waitForNotInProgress();
   yield false;
 }
 
-function* checkResult()
-{
+function* checkResult() {
   // verify that message is now on the server
   Assert.equal(IMAPPump.daemon.getMailbox("Drafts")._messages.length, 1);
   yield true;
 }
 
-function* endTest()
-{
+function* endTest() {
   teardownIMAPPump();
   yield true;
 }
 
-function run_test()
-{
+function run_test() {
   Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
-  let server = IMAPPump.incomingServer;
 
   // Add folder listeners that will capture async events
   const nsIMFNService = Ci.nsIMsgFolderNotificationService;
@@ -130,46 +124,41 @@ function run_test()
         nsIMFNService.msgAdded;
   MailServices.mfn.addListener(mfnListener, flags);
 
-  //start first test
+  // start first test
   async_run_tests(tests);
 }
 
-var mfnListener =
-{
-  msgsMoveCopyCompleted: function (aMove, aSrcMsgs, aDestFolder, aDestMsgs)
-  {
-    dl('msgsMoveCopyCompleted to folder ' + aDestFolder.name);
+var mfnListener = {
+  msgsMoveCopyCompleted(aMove, aSrcMsgs, aDestFolder, aDestMsgs) {
+    dl("msgsMoveCopyCompleted to folder " + aDestFolder.name);
   },
 
-  folderAdded: function (aFolder)
-  {
-    dl('folderAdded <' + aFolder.name + '>');
+  folderAdded(aFolder) {
+    dl("folderAdded <" + aFolder.name + ">");
     // we are only using async add on the Junk folder
     if (aFolder.name == "Drafts")
       async_driver();
   },
 
-  msgAdded: function msgAdded(aMsg)
-  {
-    dl('msgAdded with subject <' + aMsg.subject + '>');
-  }
+  msgAdded(aMsg) {
+    dl("msgAdded with subject <" + aMsg.subject + ">");
+  },
 };
 
 var progressListener = {
-  onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus) {
-    if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP){
-      dl('onStateChange');
+  onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
+    if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
+      dl("onStateChange");
       async_driver();
     }
   },
 
-  onProgressChange: function(aWebProgress, aRequest, aCurSelfProgress,
-                             aMaxSelfProgress, aCurTotalProgress,
-                             aMaxTotalProgress) {},
-  onLocationChange: function(aWebProgress, aRequest, aLocation, aFlags) {},
-  onStatusChange: function(aWebProgress, aRequest, aStatus, aMessage) {},
-  onSecurityChange: function(aWebProgress, aRequest, state) {},
-  onContentBlockingEvent: function(aWebProgress, aRequest, aEvent) {},
+  onProgressChange(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress,
+                   aCurTotalProgress, aMaxTotalProgress) {},
+  onLocationChange(aWebProgress, aRequest, aLocation, aFlags) {},
+  onStatusChange(aWebProgress, aRequest, aStatus, aMessage) {},
+  onSecurityChange(aWebProgress, aRequest, state) {},
+  onContentBlockingEvent(aWebProgress, aRequest, aEvent) {},
 
   QueryInterface: ChromeUtils.generateQI(["nsIWebProgressListener",
                                           "nsISupportsWeakReference"]),
@@ -181,5 +170,5 @@ var progressListener = {
 
 // quick shorthand for output of a line of text.
 function dl(text) {
-  dump(text + '\n');
+  dump(text + "\n");
 }

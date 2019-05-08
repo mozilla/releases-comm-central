@@ -6,6 +6,9 @@
  * Tests imap msg header download chunking
  */
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../test/resources/messageGenerator.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/messageGenerator.js");
@@ -19,34 +22,32 @@ var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 setupIMAPPump();
 
 // Dummy message window so we can say the inbox is open in a window.
-var dummyMsgWindow =
-{
-  openFolder : IMAPPump.inbox,
+var dummyMsgWindow = {
+  openFolder: IMAPPump.inbox,
   QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgWindow,
-                                          Ci.nsISupportsWeakReference])
+                                          Ci.nsISupportsWeakReference]),
 };
 
 var gFolderListener = {
   _gotNewMailBiff: false,
-  OnItemIntPropertyChanged : function(aItem, aProperty, aOldValue, aNewValue) {
+  OnItemIntPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {
     if (aProperty == "BiffState" &&
         aNewValue == Ci.nsIMsgFolder.nsMsgBiffState_NewMail) {
       this._gotNewMailBiff = true;
       async_driver();
     }
-  }
+  },
 };
 
 var tests = [
   uploadImapMessages,
   testMessageFetched,
   testHdrsDownloaded,
-  endTest
-]
+  endTest,
+];
 
 // upload messages to the imap fake server Inbox
-function* uploadImapMessages()
-{
+function* uploadImapMessages() {
   // make 10 messages
   let messageGenerator = new MessageGenerator();
   let scenarioFactory = new MessageScenarioFactory(messageGenerator);
@@ -56,10 +57,9 @@ function* uploadImapMessages()
   messages = messages.concat(scenarioFactory.directReply(10));
 
   // Add 10 messages with uids 1-10.
-  let imapInbox = IMAPPump.daemon.getMailbox("INBOX")
+  let imapInbox = IMAPPump.daemon.getMailbox("INBOX");
   // Create the imapMessages and store them on the mailbox
-  messages.forEach(function (message)
-  {
+  messages.forEach(function(message) {
     let dataUri = Services.io.newURI("data:text/plain;base64," +
                                      btoa(message.toMessageString()));
     imapInbox.addMessage(new imapMessage(dataUri.spec, imapInbox.uidnext++, []));
@@ -90,8 +90,7 @@ function endTest() {
   teardownIMAPPump();
 }
 
-function run_test()
-{
+function run_test() {
   // We need to register the dummyMsgWindow so that we'll think the
   // Inbox is open in a folder and fetch headers in chunks.
   MailServices.mailSession.AddMsgWindow(dummyMsgWindow);

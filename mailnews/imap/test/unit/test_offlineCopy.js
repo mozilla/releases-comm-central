@@ -11,9 +11,9 @@
  * by allowUndo == true in CopyMessages).
  */
 
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
+/* import-globals-from ../../../test/resources/logHelper.js */
 load("../../../resources/logHelper.js");
 
 var gMsgFile1 = do_get_file("../../../data/bugmail10");
@@ -28,11 +28,9 @@ var gMsg4Id = "foo.12345@example";
 var gFolder1;
 
 // Adds some messages directly to a mailbox (eg new mail)
-function addMessagesToServer(messages, mailbox)
-{
+function addMessagesToServer(messages, mailbox) {
   // For every message we have, we need to convert it to a file:/// URI
-  messages.forEach(function (message)
-  {
+  messages.forEach(function(message) {
     let URI = Services.io.newFileURI(message.file).QueryInterface(Ci.nsIFileURL);
     // Create the imapMessage and store it on the mailbox.
     mailbox.addMessage(new imapMessage(URI.spec, mailbox.uidnext++, []));
@@ -61,7 +59,7 @@ var tests = [
     // running initial folder discovery, and adding the folder bails
     // out before we set it as verified online, so we bail out, and
     // then remove the INBOX folder since it's not verified.
-    IMAPPump.inbox.hierarchyDelimiter = '/';
+    IMAPPump.inbox.hierarchyDelimiter = "/";
     IMAPPump.inbox.verifiedAsOnlineFolder = true;
 
     // Add messages to the INBOX
@@ -101,16 +99,15 @@ var tests = [
     // test the headers in the inbox
     let enumerator = db.EnumerateMessages();
     let count = 0;
-    while (enumerator.hasMoreElements())
-    {
+    while (enumerator.hasMoreElements()) {
       count++;
       var message = enumerator.getNext();
       message instanceof Ci.nsIMsgDBHdr;
-      dump('message <'+ message.subject +
-           '> storeToken: <' + message.getStringProperty("storeToken") +
-           '> offset: <' + message.messageOffset +
-           '> id: <' + message.messageId +
-           '>\n');
+      dump("message <" + message.subject +
+           "> storeToken: <" + message.getStringProperty("storeToken") +
+           "> offset: <" + message.messageOffset +
+           "> id: <" + message.messageId +
+           ">\n");
       // This fails for file copies in bug 790912. Without  this, messages that
       //  are copied are not visible in pre-pluggableStores versions of TB (pre TB 12)
       if (IMAPPump.inbox.msgStore.storeType == "mbox")
@@ -151,16 +148,15 @@ var tests = [
     db = gFolder1.msgDatabase;
     let enumerator = db.EnumerateMessages();
     let count = 0;
-    while (enumerator.hasMoreElements())
-    {
+    while (enumerator.hasMoreElements()) {
       count++;
       var message = enumerator.getNext();
       message instanceof Ci.nsIMsgDBHdr;
-      dump('message <'+ message.subject +
-           '> storeToken: <' + message.getStringProperty("storeToken") +
-           '> offset: <' + message.messageOffset +
-           '> id: <' + message.messageId +
-           '>\n');
+      dump("message <" + message.subject +
+           "> storeToken: <" + message.getStringProperty("storeToken") +
+           "> offset: <" + message.messageOffset +
+           "> id: <" + message.messageId +
+           ">\n");
       if (gFolder1.msgStore.storeType == "mbox")
         Assert.equal(message.messageOffset, parseInt(message.getStringProperty("storeToken")));
     }
@@ -168,9 +164,8 @@ var tests = [
   },
   async function test_headers() {
     let msgIds = [gMsgId1, gMsg3Id, gMsg4Id];
-    for (let msgId of msgIds)
-    {
-      let newMsgHdr= gFolder1.msgDatabase.getMsgHdrForMessageID(msgId);
+    for (let msgId of msgIds) {
+      let newMsgHdr = gFolder1.msgDatabase.getMsgHdrForMessageID(msgId);
       Assert.ok(newMsgHdr.flags & Ci.nsMsgMessageFlags.Offline);
       let msgURI = newMsgHdr.folder.getUriForMsg(newMsgHdr);
       let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
@@ -178,7 +173,7 @@ var tests = [
       let promiseStreamListener = new PromiseTestUtils.PromiseStreamListener();
       msgServ.streamHeaders(msgURI, promiseStreamListener, null, true);
       let data = await promiseStreamListener.promise;
-      dump('\nheaders for messageId ' + msgId + '\n' + data + '\n\n');
+      dump("\nheaders for messageId " + msgId + "\n" + data + "\n\n");
       Assert.ok(data.includes(msgId));
     }
   },
@@ -198,18 +193,17 @@ var tests = [
     Assert.ok(!enumerator.hasMoreElements());
 
     // maildir should also delete the files.
-    if (IMAPPump.inbox.msgStore.storeType == "maildir")
-    {
+    if (IMAPPump.inbox.msgStore.storeType == "maildir") {
       let curDir = IMAPPump.inbox.filePath.clone();
       curDir.append("cur");
       Assert.ok(curDir.exists());
       Assert.ok(curDir.isDirectory());
       let curEnum = curDir.directoryEntries;
       // the directory should be empty, fails from bug 771643
-      Assert.ok(!curEnum.hasMoreElements())
+      Assert.ok(!curEnum.hasMoreElements());
     }
   },
-  teardownIMAPPump
+  teardownIMAPPump,
 ];
 
 function run_test() {

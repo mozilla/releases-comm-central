@@ -2,19 +2,15 @@
 // going to test copying local folders to imap servers, but other tests
 // could be added.
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../test/resources/messageGenerator.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/messageGenerator.js");
 
 var gEmptyLocal1, gEmptyLocal2, gEmptyLocal3, gNotEmptyLocal4;
 
-var {
-  getFolderProperties,
-  getSpecialFolderString,
-  allAccountsSorted,
-  getMostRecentFolders,
-  folderNameCompare,
-} = ChromeUtils.import("resource:///modules/folderUtils.jsm");
 var {toXPCOMArray} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
@@ -22,7 +18,7 @@ var tests = [
   setup,
   function* copyFolder1() {
     dump("gEmpty1 " + gEmptyLocal1.URI + "\n");
-    let folders = new Array;
+    let folders = [];
     folders.push(gEmptyLocal1.QueryInterface(Ci.nsIMsgFolder));
     let array = toXPCOMArray(folders, Ci.nsIMutableArray);
     MailServices.copy.CopyFolders(array, IMAPPump.inbox, false, CopyListener, null);
@@ -30,7 +26,7 @@ var tests = [
   },
   function* copyFolder2() {
     dump("gEmpty2 " + gEmptyLocal2.URI + "\n");
-    let folders = new Array;
+    let folders = [];
     folders.push(gEmptyLocal2);
     let array = toXPCOMArray(folders, Ci.nsIMutableArray);
     MailServices.copy.CopyFolders(array, IMAPPump.inbox, false, CopyListener, null);
@@ -38,7 +34,7 @@ var tests = [
   },
   function* copyFolder3() {
     dump("gEmpty3 " + gEmptyLocal3.URI + "\n");
-    let folders = new Array;
+    let folders = [];
     folders.push(gEmptyLocal3);
     let array = toXPCOMArray(folders, Ci.nsIMutableArray);
     MailServices.copy.CopyFolders(array, IMAPPump.inbox, false, CopyListener, null);
@@ -56,7 +52,7 @@ var tests = [
     Assert.ok(folder3 !== null);
   },
   function* moveImapFolder1() {
-    let folders = new Array;
+    let folders = [];
     let folder1 = IMAPPump.inbox.getChildNamed("empty 1");
     let folder2 = IMAPPump.inbox.getChildNamed("empty 2");
     folders.push(folder2.QueryInterface(Ci.nsIMsgFolder));
@@ -65,7 +61,7 @@ var tests = [
     yield false;
   },
   function* moveImapFolder2() {
-    let folders = new Array;
+    let folders = [];
     let folder1 = IMAPPump.inbox.getChildNamed("empty 1");
     let folder3 = IMAPPump.inbox.getChildNamed("empty 3");
     folders.push(folder3.QueryInterface(Ci.nsIMsgFolder));
@@ -85,7 +81,7 @@ var tests = [
     Assert.ok(folder3 !== null);
   },
   function* testImapFolderCopyFailure() {
-    let folders = new Array;
+    let folders = [];
     folders.push(gNotEmptyLocal4.QueryInterface(Ci.nsIMsgFolder));
     let array = toXPCOMArray(folders, Ci.nsIMutableArray);
     IMAPPump.daemon.commandToFail = "APPEND";
@@ -99,7 +95,7 @@ var tests = [
 
     yield false;
   },
-  teardown
+  teardown,
 ];
 
 function setup() {
@@ -119,23 +115,23 @@ function setup() {
   // running initial folder discovery, and adding the folder bails
   // out before we set it as verified online, so we bail out, and
   // then remove the INBOX folder since it's not verified.
-  IMAPPump.inbox.hierarchyDelimiter = '/';
+  IMAPPump.inbox.hierarchyDelimiter = "/";
   IMAPPump.inbox.verifiedAsOnlineFolder = true;
 }
 
 // nsIMsgCopyServiceListener implementation - runs next test when copy
 // is completed.
 var CopyListener = {
-  _expectedStatus : 0,
-  OnStartCopy: function() {},
-  OnProgress: function(aProgress, aProgressMax) {},
-  SetMessageKey: function(aKey) {},
-  SetMessageId: function(aMessageId) {},
-  OnStopCopy: function(aStatus) {
+  _expectedStatus: 0,
+  OnStartCopy() {},
+  OnProgress(aProgress, aProgressMax) {},
+  SetMessageKey(aKey) {},
+  SetMessageId(aMessageId) {},
+  OnStopCopy(aStatus) {
     // Check: message successfully copied.
     Assert.equal(aStatus, this._expectedStatus);
     async_driver();
-  }
+  },
 };
 
 function teardown() {

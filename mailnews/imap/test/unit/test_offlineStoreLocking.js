@@ -4,30 +4,31 @@
  * with offline store locking correctly.
  */
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../test/resources/messageGenerator.js */
+/* import-globals-from ../../../test/resources/alertTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/messageGenerator.js");
 load("../../../resources/alertTestUtils.js");
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-
 
 // Globals
 var gIMAPTrashFolder, gMsgImapInboxFolder;
 var gGotAlert = false;
 var gMovedMsgId;
 
+/* exported alert */// to alertTestUtils.js
 function alert(aDialogTitle, aText) {
 //  do_check_true(aText.startsWith("Connection to server Mail for  timed out."));
   gGotAlert = true;
 }
 
-function addGeneratedMessagesToServer(messages, mailbox)
-{
+function addGeneratedMessagesToServer(messages, mailbox) {
   // Create the imapMessages and store them on the mailbox
-  messages.forEach(function (message)
-  {
+  messages.forEach(function(message) {
     let dataUri = Services.io.newURI("data:text/plain;base64," +
                                      btoa(message.toMessageString()));
     mailbox.addMessage(new imapMessage(dataUri.spec, mailbox.uidnext++, []));
@@ -35,28 +36,6 @@ function addGeneratedMessagesToServer(messages, mailbox)
 }
 
 var gStreamedHdr = null;
-
-function checkOfflineStore(prevOfflineStoreSize) {
-  dump("checking offline store\n");
-  let offset = new Object;
-  let size = new Object;
-  let enumerator = IMAPPump.inbox.msgDatabase.EnumerateMessages();
-  if (enumerator)
-  {
-    while (enumerator.hasMoreElements())
-    {
-      let header = enumerator.getNext();
-      // this will verify that the message in the offline store
-      // starts with "From " - otherwise, it returns an error.
-      if (header instanceof Ci.nsIMsgDBHdr &&
-         (header.flags & Ci.nsMsgMessageFlags.Offline))
-        IMAPPump.inbox.getOfflineFileStream(header.messageKey, offset, size).close();
-    }
-  }
-  // check that the offline store shrunk by at least 100 bytes.
-  // (exact calculation might be fragile).
-  Assert.ok(prevOfflineStoreSize > IMAPPump.inbox.filePath.fileSize + 100);
-}
 
 var tests = [
   setup,
@@ -130,7 +109,6 @@ var tests = [
     // hard to test because of the half-second delay.
     IMAPPump.server.stop();
     Services.io.offline = true;
-    let trashHdr;
     let enumerator = gIMAPTrashFolder.msgDatabase.EnumerateMessages();
     let msgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     gMovedMsgId = msgHdr.messageId;
@@ -142,13 +120,15 @@ var tests = [
   },
   function* verifyNoOfflineMsg() {
     try {
-    let movedMsg = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMovedMsgId);
-    Assert.equal(false, movedMsg.flags & Ci.nsMsgMessageFlags.Offline);
-    } catch (ex) {dump(ex);}
+      let movedMsg = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMovedMsgId);
+      Assert.equal(false, movedMsg.flags & Ci.nsMsgMessageFlags.Offline);
+    } catch (ex) {
+      dump(ex);
+    }
     yield false;
     yield false;
   },
-  teardown
+  teardown,
 ];
 
 function run_test() {
@@ -165,7 +145,7 @@ function setup() {
   // running initial folder discovery, and adding the folder bails
   // out before we set it as verified online, so we bail out, and
   // then remove the INBOX folder since it's not verified.
-  gMsgImapInboxFolder.hierarchyDelimiter = '/';
+  gMsgImapInboxFolder.hierarchyDelimiter = "/";
   gMsgImapInboxFolder.verifiedAsOnlineFolder = true;
 
   let messageGenerator = new MessageGenerator();
@@ -182,25 +162,20 @@ function setup() {
 
 // nsIMsgCopyServiceListener implementation - runs next test when copy
 // is completed.
-var CopyListener =
-{
-  OnStartCopy: function() {},
-  OnProgress: function(aProgress, aProgressMax) {},
-  SetMessageKey: function(aKey)
-  {
-    let hdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
-    gMsgHdrs.push({hdr: hdr, ID: hdr.messageId});
-  },
-  SetMessageId: function(aMessageId) {},
-  OnStopCopy: function(aStatus)
-  {
+var CopyListener = {
+  OnStartCopy() {},
+  OnProgress(aProgress, aProgressMax) {},
+  SetMessageKey(aKey) {},
+  SetMessageId(aMessageId) {},
+  OnStopCopy(aStatus) {
     // Check: message successfully copied.
     Assert.equal(aStatus, 0);
     async_driver();
-  }
+  },
 };
 
 function teardown() {
+  Assert.ok(gGotAlert);
   gMsgImapInboxFolder = null;
   gIMAPTrashFolder = null;
 
@@ -210,7 +185,9 @@ function teardown() {
     IMAPPump.incomingServer.closeCachedConnections();
     let serverSink = IMAPPump.incomingServer.QueryInterface(Ci.nsIImapServerSink);
     serverSink.abortQueuedUrls();
-  } catch (ex) {dump(ex);}
+  } catch (ex) {
+    dump(ex);
+  }
   let thread = gThreadManager.currentThread;
   while (thread.hasPendingEvents())
     thread.processNextEvent(true);

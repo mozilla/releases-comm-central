@@ -1,6 +1,9 @@
 // This file tests that listing folders on startup because we're not using
 // subscription doesn't leave db's open.
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../test/resources/messageGenerator.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/messageGenerator.js");
@@ -11,22 +14,22 @@ var tests = [
   setup,
   updateInbox,
   checkCachedDBForFolder,
-  teardown
+  teardown,
 ];
 
 function* setup() {
   setupIMAPPump();
 
-  IMAPPump.daemon.createMailbox("folder1", {subscribed : true});
-  IMAPPump.daemon.createMailbox("folder1/sub1", "", {subscribed : true});
-  IMAPPump.daemon.createMailbox("folder1/sub1/sub2", "", {subscribed : true});
-  IMAPPump.daemon.createMailbox("folder1/sub1/sub2/sub3", "", {subscribed : true});
+  IMAPPump.daemon.createMailbox("folder1", {subscribed: true});
+  IMAPPump.daemon.createMailbox("folder1/sub1", "", {subscribed: true});
+  IMAPPump.daemon.createMailbox("folder1/sub1/sub2", "", {subscribed: true});
+  IMAPPump.daemon.createMailbox("folder1/sub1/sub2/sub3", "", {subscribed: true});
 
   IMAPPump.incomingServer.usingSubscription = false;
 
   let rootFolder = IMAPPump.incomingServer.rootFolder.QueryInterface(Ci.nsIMsgImapMailFolder);
-  rootFolder.hierarchyDelimiter = '/';
-  IMAPPump.inbox.hierarchyDelimiter = '/';
+  rootFolder.hierarchyDelimiter = "/";
+  IMAPPump.inbox.hierarchyDelimiter = "/";
   rootFolder.addSubfolder("folder1");
   rootFolder.addSubfolder("folder1/sub1");
   rootFolder.addSubfolder("folder1/sub1/sub2");

@@ -5,14 +5,17 @@
  */
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/alertTestUtils.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/alertTestUtils.js");
 load("../../../resources/asyncTestUtils.js");
 
 var gGotAlert = false;
 
+/* exported alert */// to asyncTestUtils.js
 function alert(aDialogTitle, aText) {
   Assert.ok(aText.startsWith("Server localhost has disconnected"));
   gGotAlert = true;
@@ -21,7 +24,7 @@ function alert(aDialogTitle, aText) {
 var tests = [
   setup,
   check_alert,
-  teardown
+  teardown,
 ];
 
 function* setup() {

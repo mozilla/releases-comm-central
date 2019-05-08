@@ -6,6 +6,7 @@
  * adapted from test_imapFilterActions.js
  */
 
+/* import-globals-from ../../../test/resources/logHelper.js */
 load("../../../resources/logHelper.js");
 
 // Globals
@@ -19,23 +20,22 @@ var tests = [
   setup,
   function NeedsBodyTrue() {
     gAction.type = Ci.nsMsgFilterAction.Custom;
-    gAction.customId = 'mailnews@mozilla.org#testOffline';
+    gAction.customId = "mailnews@mozilla.org#testOffline";
     actionTestOffline.needsBody = true;
-    gAction.strValue = 'true';
+    gAction.strValue = "true";
   },
   runFilterAction,
   function NeedsBodyFalse() {
     gAction.type = Ci.nsMsgFilterAction.Custom;
-    gAction.customId = 'mailnews@mozilla.org#testOffline';
+    gAction.customId = "mailnews@mozilla.org#testOffline";
     actionTestOffline.needsBody = false;
-    gAction.strValue = 'false';
+    gAction.strValue = "false";
   },
   runFilterAction,
-  teardownIMAPPump
+  teardownIMAPPump,
 ];
 
 function setup() {
-
   // Create a test filter.
   let filterList = IMAPPump.incomingServer.getFilterList(null);
   gFilter = filterList.createFilter("test offline");
@@ -77,26 +77,23 @@ function run_test() {
 }
 
 // custom action to test offline status
-var actionTestOffline =
-{
+var actionTestOffline = {
   id: "mailnews@mozilla.org#testOffline",
   name: "test if offline",
-  apply: function(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow)
-  {
-    for (var i = 0; i < aMsgHdrs.length; i++)
-    {
+  apply(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
+    for (let i = 0; i < aMsgHdrs.length; i++) {
       var msgHdr = aMsgHdrs.queryElementAt(i, Ci.nsIMsgDBHdr);
       let isOffline = msgHdr.flags & Ci.nsMsgMessageFlags.Offline;
-      Assert.equal(!!isOffline, aActionValue == 'true');
+      Assert.equal(!!isOffline, aActionValue == "true");
     }
   },
-  isValidForType: function(type, scope) {return true;},
+  isValidForType(type, scope) { return true; },
 
-  validateActionValue: function(value, folder, type) { return null;},
+  validateActionValue(value, folder, type) { return null; },
 
   allowDuplicates: false,
 
-  needsBody: false // set during test setup
+  needsBody: false, // set during test setup
 };
 
 /*

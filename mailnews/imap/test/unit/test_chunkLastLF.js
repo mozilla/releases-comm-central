@@ -12,6 +12,8 @@
  */
 
  // async support
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
@@ -19,8 +21,7 @@ var gFile = do_get_file("../../../data/bug92111b");
 var gIMAPDaemon, gIMAPServer, gIMAPIncomingServer;
 
 // Adds some messages directly to a mailbox (eg new mail)
-function addMessageToServer(file, mailbox)
-{
+function addMessageToServer(file, mailbox) {
   let URI = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
   let msg = new imapMessage(URI.spec, mailbox.uidnext++, []);
   // underestimate the actual file size, like some IMAP servers do
@@ -28,8 +29,7 @@ function addMessageToServer(file, mailbox)
   mailbox.addMessage(msg);
 }
 
-function run_test()
-{
+function run_test() {
   // Disable new mail notifications
   Services.prefs.setBoolPref("mail.biff.play_sound", false);
   Services.prefs.setBoolPref("mail.biff.show_alert", false);
@@ -56,8 +56,7 @@ function run_test()
   async_run_tests([verifyContentLength, endTest]);
 }
 
-function* verifyContentLength()
-{
+function* verifyContentLength() {
   dump("adding message to server\n");
   // Add a message to the IMAP server
   addMessageToServer(gFile, gIMAPDaemon.getMailbox("INBOX"));
@@ -105,8 +104,7 @@ function* verifyContentLength()
   yield true;
 }
 
-function* endTest()
-{
+function* endTest() {
   gIMAPIncomingServer.closeCachedConnections();
   gIMAPServer.stop();
   let thread = gThreadManager.currentThread;
@@ -117,17 +115,17 @@ function* endTest()
 }
 
 var gStreamListener = {
-  QueryInterface : ChromeUtils.generateQI([Ci.nsIStreamListener]),
-  _stream : null,
-  _data : null,
-  onStartRequest : function (aRequest) {
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
+  _stream: null,
+  _data: null,
+  onStartRequest(aRequest) {
     this._data = "";
     this._stream = null;
   },
-  onStopRequest : function (aRequest, aStatusCode) {
+  onStopRequest(aRequest, aStatusCode) {
     async_driver();
   },
-  onDataAvailable : function (aRequest, aInputStream, aOff, aCount) {
+  onDataAvailable(aRequest, aInputStream, aOff, aCount) {
     if (this._stream == null) {
       this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(Ci.nsIScriptableInputStream);
       this._stream.init(aInputStream);

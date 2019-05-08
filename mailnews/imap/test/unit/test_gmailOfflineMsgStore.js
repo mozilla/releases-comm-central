@@ -17,8 +17,9 @@
  */
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
@@ -60,8 +61,8 @@ var tests = [
   selectFooMsg,
   StreamMessageFoo,
   crossStreaming,
-  teardown
-]
+  teardown,
+];
 
 function setup() {
   // We aren't interested in downloading messages automatically
@@ -75,12 +76,14 @@ function setup() {
   IMAPPump.mailbox.subscribed = true;
 
   // need all mail folder to identify this as gmail server.
-  IMAPPump.daemon.createMailbox("[Gmail]", {flags : ["\\NoSelect"] });
-  IMAPPump.daemon.createMailbox("[Gmail]/All Mail", {subscribed : true,
-                                                 specialUseFlag : "\\AllMail"});
+  IMAPPump.daemon.createMailbox("[Gmail]", {flags: ["\\NoSelect"] });
+  IMAPPump.daemon.createMailbox("[Gmail]/All Mail", {
+    subscribed: true,
+    specialUseFlag: "\\AllMail",
+  });
 
   // Creating the mailbox "foo"
-  IMAPPump.daemon.createMailbox("foo", {subscribed : true});
+  IMAPPump.daemon.createMailbox("foo", {subscribed: true});
   fooBox = IMAPPump.daemon.getMailbox("foo");
 
   // Add message1 to inbox.
@@ -104,7 +107,7 @@ function* selectInboxMsg() {
                         .getService(Ci.nsIMsgMessageService);
   let db = IMAPPump.inbox.msgDatabase;
   let msg1 = db.getMsgHdrForMessageID(gMsgId1);
-  let url = new Object;
+  let url = {};
   imapService.DisplayMessage(IMAPPump.inbox.getUriForMsg(msg1), streamListener,
                              null, asyncUrlListener, null, url);
   yield false;
@@ -157,7 +160,7 @@ function* selectFooMsg() {
   let imapService = Cc["@mozilla.org/messenger/messageservice;1?type=imap"]
                        .getService(Ci.nsIMsgMessageService);
   let msg1 = fooFolder.msgDatabase.getMsgHdrForMessageID(gMsgId2);
-  let url = new Object;
+  let url = {};
   imapService.DisplayMessage(fooFolder.getUriForMsg(msg1), streamListener,
                              null, asyncUrlListener, null, url);
   yield false;
@@ -192,7 +195,7 @@ function* crossStreaming() {
   gFooOfflineStoreSizeFinal = fooFolder.filePath.fileSize;
   gImapInboxOfflineStoreSizeFinal = IMAPPump.inbox.filePath.fileSize;
   Assert.equal(gFooOfflineStoreSizeFinal, gFooOfflineStoreSizeInitial);
-  Assert.equal(gImapInboxOfflineStoreSizeFinal,gImapInboxOfflineStoreSizeInitial);
+  Assert.equal(gImapInboxOfflineStoreSizeFinal, gImapInboxOfflineStoreSizeInitial);
   yield false;
 }
 
@@ -213,43 +216,42 @@ asyncUrlListener.callback = function(aUrl, aExitCode) {
 };
 
  // We use this as a display consumer
-var streamListener =
-{
+var streamListener = {
   _data: "",
 
   QueryInterface:
     ChromeUtils.generateQI([Ci.nsIStreamListener, Ci.nsIRequestObserver]),
 
   // nsIRequestObserver
-  onStartRequest: function(aRequest) {
+  onStartRequest(aRequest) {
   },
-  onStopRequest: function(aRequest, aStatusCode) {
+  onStopRequest(aRequest, aStatusCode) {
     Assert.equal(aStatusCode, 0);
   },
 
   // nsIStreamListener
-  onDataAvailable: function(aRequest, aInputStream, aOffset, aCount) {
+  onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
     let scriptStream = Cc["@mozilla.org/scriptableinputstream;1"]
-                          .createInstance(Ci.nsIScriptableInputStream);
+                         .createInstance(Ci.nsIScriptableInputStream);
 
     scriptStream.init(aInputStream);
 
     scriptStream.read(aCount);
-  }
+  },
 };
 
 var gStreamListener = {
-  QueryInterface : ChromeUtils.generateQI([Ci.nsIStreamListener]),
-  _stream : null,
-  _data : null,
-  onStartRequest : function (aRequest) {
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
+  _stream: null,
+  _data: null,
+  onStartRequest(aRequest) {
     this._data = "";
   },
-  onStopRequest : function (aRequest, aStatusCode) {
+  onStopRequest(aRequest, aStatusCode) {
     async_driver();
     this._stream = null;
   },
-  onDataAvailable : function (aRequest, aInputStream, aOff, aCount) {
+  onDataAvailable(aRequest, aInputStream, aOff, aCount) {
     if (this._stream == null) {
       this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(Ci.nsIScriptableInputStream);
       this._stream.init(aInputStream);
@@ -259,8 +261,7 @@ var gStreamListener = {
 };
 
 // given a test file, return the file uri spec
-function specForFileName(aFileName)
-{
+function specForFileName(aFileName) {
   let file = do_get_file("../../../data/" + aFileName);
   let msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
   return msgfileuri.spec;

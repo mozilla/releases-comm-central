@@ -7,6 +7,8 @@
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
@@ -47,18 +49,15 @@ function* test_rename() {
   yield true;
 }
 
-var mfnListener =
-{
-  folderAdded: function folderAdded(aFolder)
-  {
+var mfnListener = {
+  folderAdded(aFolder) {
     // we are only using async yield on the target folder add
     if (aFolder.name == "folder 1")
       async_driver();
   },
 };
 
-function run_test()
-{
+function run_test() {
   async_run_tests(tests);
 }
 

@@ -8,6 +8,8 @@
  */
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
@@ -20,12 +22,10 @@ setupIMAPPump();
 var tests = [
   setupTest,
   checkFilterResults,
-  endTest
-]
+  endTest,
+];
 
-function run_test()
-{
-
+function run_test() {
   // Create a test filter.
   let filterList = IMAPPump.incomingServer.getFilterList(null);
   let filter = filterList.createFilter("test list-id");

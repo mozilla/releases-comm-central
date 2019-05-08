@@ -11,6 +11,8 @@
  * that are run externally.
  */
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
@@ -25,7 +27,7 @@ var tests = [
   setup,
   addMessageToServer,
   verifyContentLength,
-  teardown
+  teardown,
 ];
 
 // Adds some messages directly to a mailbox (eg new mail)
@@ -38,7 +40,7 @@ function* addMessageToServer() {
 }
 
 var msgFolderListener = {
-  msgAdded: function(aMsgHdr) {
+  msgAdded(aMsgHdr) {
     gMsgHdr = aMsgHdr;
     executeSoon(async_driver);
   },

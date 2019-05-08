@@ -9,36 +9,20 @@
  * adapted from test_localToImapFilter.js
  */
 
-var {
-  getFolderProperties,
-  getSpecialFolderString,
-  allAccountsSorted,
-  getMostRecentFolders,
-  folderNameCompare,
-} = ChromeUtils.import("resource:///modules/folderUtils.jsm");
-
-var nsMsgSearchScope = Ci.nsMsgSearchScope;
-var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
-var nsMsgSearchOp = Ci.nsMsgSearchOp;
-var Is = nsMsgSearchOp.Is;
-var Contains = nsMsgSearchOp.Contains;
-var Subject = nsMsgSearchAttrib.Subject;
-var Body = nsMsgSearchAttrib.Body;
+var Is = Ci.nsMsgSearchOp.Is;
+var Contains = Ci.nsMsgSearchOp.Contains;
+var Subject = Ci.nsMsgSearchAttrib.Subject;
+var Body = Ci.nsMsgSearchAttrib.Body;
 
 // Globals
 var gSubfolder; // a local message folder used as a target for moves and copies
-var gLastKey; // the last message key
 var gFilter; // a message filter with a subject search
 var gAction; // current message action (reused)
 var gBodyFilter; // a message filter with a body search
 var gInboxListener; // database listener object
-var gContinueListener; // what listener is used to continue the test?
 var gHeader; // the current message db header
-var gChecks; // the function that will be used to check the results of the filter
 var gInboxCount; // the previous number of messages in the Inbox
 var gSubfolderCount; // the previous number of messages in the subfolder
-var gMoveCallbackCount; // the number of callbacks from the move listener
-var gCurTestNum; // the current test number
 var gMessage = "draft1"; // message file used as the test message
 
 // subject of the test message
@@ -48,20 +32,18 @@ var gMessageSubject = "Hello, did you receive my bugmail?";
 var gMessageInBody = "an HTML message";
 
 // various object references
-var gCopyService = MailServices.copy;
 var gDbService = Cc["@mozilla.org/msgDatabase/msgDBService;1"]
                              .getService(Ci.nsIMsgDBService);
 
 // Definition of tests. The test function name is the filter action
 // being tested, with "Body" appended to tests that use delayed
 // application of filters due to a body search
-var gTestArray =
-[
+var gTestArray = [
   setupIMAPPump,
-    // optionally set server parameters, here enabling debug messages
-  //function serverParms() {
-  //  IMAPPump.server.setDebugLevel(fsDebugAll);
-  //},
+  // optionally set server parameters, here enabling debug messages
+  // function serverParms() {
+  //   IMAPPump.server.setDebugLevel(fsDebugAll);
+  // },
   setupFilters,
   // The initial tests do not result in new messages added.
   async function MoveToFolder() {
@@ -329,19 +311,17 @@ var gTestArray =
     Assert.equal(gSubfolderCount + 1, folderCount(gSubfolder));
   },
   /**/
-  endTest
+  endTest,
 
 ];
 
 function run_test() {
-  //Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
+  // Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
   gTestArray.forEach(x => add_task(x));
   run_next_test();
 }
 
-function setupFilters()
-{
-
+function setupFilters() {
   // Create a non-body filter.
   let filterList = IMAPPump.incomingServer.getFilterList(null);
   gFilter = filterList.createFilter("subject");
@@ -383,7 +363,6 @@ function setupFilters()
   //   bodies are downloaded - and the message filters are applied twice!
   //   See bug 1116228, but for now workaround by always downloading bodies.
   IMAPPump.incomingServer.downloadBodiesOnGetNewMail = true;
-
 }
 
 /*
@@ -391,13 +370,11 @@ function setupFilters()
  */
 
 // basic preparation done for each test
-async function setupTest(aFilter, aAction)
-{
+async function setupTest(aFilter, aAction) {
   let filterList = IMAPPump.incomingServer.getFilterList(null);
   while (filterList.filterCount)
     filterList.removeFilterAt(0);
-  if (aFilter)
-  {
+  if (aFilter) {
     aFilter.clearActionList();
     if (aAction) {
       aFilter.appendAction(aAction);
@@ -411,7 +388,6 @@ async function setupTest(aFilter, aAction)
 
   gInboxListener = new DBListener();
   gDbService.registerPendingListener(IMAPPump.inbox, gInboxListener);
-  gMoveCallbackCount = 0;
   IMAPPump.mailbox.addMessage(new imapMessage(specForFileName(gMessage),
                           IMAPPump.mailbox.uidnext++, []));
   let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
@@ -422,8 +398,7 @@ async function setupTest(aFilter, aAction)
 
 // Cleanup, null out everything, close all cached connections and stop the
 // server
-function endTest()
-{
+function endTest() {
   if (gInboxListener)
     gDbService.unregisterPendingListener(gInboxListener);
   gInboxListener = null;
@@ -437,19 +412,18 @@ function endTest()
 
 // nsIFolderListener implementation
 var FolderListener = {
-  OnItemEvent: function OnItemEvent(aEventFolder, aEvent) {
+  OnItemEvent(aEventFolder, aEvent) {
     dump("received folder event " + aEvent +
          " folder " + aEventFolder.name +
          "\n");
-  }
+  },
 };
 
 // nsIDBChangeListener implementation. Counts of calls are kept, but not
 // currently used in the tests. Current role is to provide a reference
 // to the new message header (plus give some examples of using db listeners
 // in javascript).
-function DBListener()
-{
+function DBListener() {
   this.counts = {};
   let counts = this.counts;
   counts.onHdrFlagsChanged = 0;
@@ -463,68 +437,50 @@ function DBListener()
   counts.onEvent = 0;
 }
 
-DBListener.prototype =
-{
-  onHdrFlagsChanged:
-    function onHdrFlagsChanged(aHdrChanged, aOldFlags, aNewFlags, aInstigator)
-    {
-      this.counts.onHdrFlagsChanged++;
-    },
+DBListener.prototype = {
+  onHdrFlagsChanged(aHdrChanged, aOldFlags, aNewFlags, aInstigator) {
+    this.counts.onHdrFlagsChanged++;
+  },
 
-  onHdrDeleted:
-    function onHdrDeleted(aHdrChanged, aParentKey, Flags, aInstigator)
-    {
-      this.counts.onHdrDeleted++;
-    },
+  onHdrDeleted(aHdrChanged, aParentKey, Flags, aInstigator) {
+    this.counts.onHdrDeleted++;
+  },
 
-  onHdrAdded:
-    function onHdrAdded(aHdrChanged, aParentKey, aFlags, aInstigator)
-    {
-      this.counts.onHdrAdded++;
-      gHeader = aHdrChanged;
-    },
+  onHdrAdded(aHdrChanged, aParentKey, aFlags, aInstigator) {
+    this.counts.onHdrAdded++;
+    gHeader = aHdrChanged;
+  },
 
-  onParentChanged:
-    function onParentChanged(aKeyChanged, oldParent, newParent, aInstigator)
-    {
-      this.counts.onParentChanged++;
-    },
+  onParentChanged(aKeyChanged, oldParent, newParent, aInstigator) {
+    this.counts.onParentChanged++;
+  },
 
-  onAnnouncerGoingAway:
-    function onAnnouncerGoingAway(instigator)
-    {
-      if (gInboxListener)
-        try {
-          IMAPPump.inbox.msgDatabase.RemoveListener(gInboxListener);
-        }
-        catch (e) {dump(" listener not found\n");}
-      this.counts.onAnnouncerGoingAway++;
-    },
+  onAnnouncerGoingAway(instigator) {
+    if (gInboxListener) {
+      try {
+        IMAPPump.inbox.msgDatabase.RemoveListener(gInboxListener);
+      } catch (e) {
+        dump(" listener not found\n");
+      }
+    }
+    this.counts.onAnnouncerGoingAway++;
+  },
 
-  onReadChanged:
-    function onReadChanged(aInstigator)
-    {
-      this.counts.onReadChanged++;
-    },
+  onReadChanged(aInstigator) {
+    this.counts.onReadChanged++;
+  },
 
-  onJunkScoreChanged:
-    function onJunkScoreChanged(aInstigator)
-    {
-      this.counts.onJunkScoreChanged++;
-    },
+  onJunkScoreChanged(aInstigator) {
+    this.counts.onJunkScoreChanged++;
+  },
 
-  onHdrPropertyChanged:
-    function onHdrPropertyChanged(aHdrToChange, aPreChange, aStatus, aInstigator)
-    {
-      this.counts.onHdrPropertyChanged++;
-    },
+  onHdrPropertyChanged(aHdrToChange, aPreChange, aStatus, aInstigator) {
+    this.counts.onHdrPropertyChanged++;
+  },
 
-  onEvent:
-    function onEvent(aDB, aEvent)
-    {
-      this.counts.onEvent++;
-    },
-
+  onEvent(aDB, aEvent) {
+    this.counts.onEvent++;
+  },
 };
 
 /*
@@ -533,36 +489,32 @@ DBListener.prototype =
 
 // return the number of messages in a folder (and check that the
 // folder counts match the database counts)
-function folderCount(folder)
-{
+function folderCount(folder) {
   // count using the database
   let enumerator = folder.msgDatabase.EnumerateMessages();
   let dbCount = 0;
-  while (enumerator.hasMoreElements())
-  {
+  while (enumerator.hasMoreElements()) {
     dbCount++;
-    let hdr = enumerator.getNext();
+    enumerator.getNext();
   }
 
   // count using the folder
-  let folderCount = folder.getTotalMessages(false);
+  let count = folder.getTotalMessages(false);
 
   // compare the two
-  Assert.equal(dbCount, folderCount);
+  Assert.equal(dbCount, count);
   return dbCount;
 }
 
 // given a test file, return the file uri spec
-function specForFileName(aFileName)
-{
+function specForFileName(aFileName) {
   let file = do_get_file("../../../data/" + aFileName);
   let msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
   return msgfileuri.spec;
 }
 
 // shorthand for the inbox message summary database
-function db()
-{
+function db() {
   return IMAPPump.inbox.msgDatabase;
 }
 
@@ -576,33 +528,34 @@ var gPreviousUnread = 0;
 //  aFolderNewDelta: change in new count for the folder
 //  aDbNewDelta:     change in new count for the database
 //
-function testCounts(aHasNew, aUnreadDelta, aFolderNewDelta, aDbNewDelta)
-{
+function testCounts(aHasNew, aUnreadDelta, aFolderNewDelta, aDbNewDelta) {
   try {
-  let folderNew = IMAPPump.inbox.getNumNewMessages(false);
-  let hasNew = IMAPPump.inbox.hasNewMessages;
-  let unread = IMAPPump.inbox.getNumUnread(false);
-  let countOut = {};
-  let arrayOut = {};
-  db().getNewList(countOut, arrayOut);
-  let dbNew = countOut.value ? countOut.value : 0;
-  dump(" hasNew: " + hasNew +
-       " unread: " + unread +
-       " folderNew: " + folderNew +
-       " dbNew: " + dbNew +
-       " prevUnread " + gPreviousUnread +
-       "\n");
-  Assert.equal(aHasNew, hasNew);
-  Assert.equal(aUnreadDelta, unread - gPreviousUnread);
-  gPreviousUnread = unread;
-  // This seems to be reset for each folder update.
-  //
-  // This check seems to be failing in SeaMonkey builds, yet I can see no ill
-  // effects of this in the actual program. Fixing this is complex because of
-  // the messiness of new count management (see bug 507638 for a
-  // refactoring proposal, and attachment 398899 on bug 514801 for one possible
-  // fix to this particular test). So I am disabling this.
-  //Assert.equal(aFolderNewDelta, folderNew);
-  Assert.equal(aDbNewDelta, dbNew);
-  } catch (e) {dump(e);}
+    let folderNew = IMAPPump.inbox.getNumNewMessages(false);
+    let hasNew = IMAPPump.inbox.hasNewMessages;
+    let unread = IMAPPump.inbox.getNumUnread(false);
+    let countOut = {};
+    let arrayOut = {};
+    db().getNewList(countOut, arrayOut);
+    let dbNew = countOut.value ? countOut.value : 0;
+    dump(" hasNew: " + hasNew +
+         " unread: " + unread +
+         " folderNew: " + folderNew +
+         " dbNew: " + dbNew +
+         " prevUnread " + gPreviousUnread +
+         "\n");
+    Assert.equal(aHasNew, hasNew);
+    Assert.equal(aUnreadDelta, unread - gPreviousUnread);
+    gPreviousUnread = unread;
+    // This seems to be reset for each folder update.
+    //
+    // This check seems to be failing in SeaMonkey builds, yet I can see no ill
+    // effects of this in the actual program. Fixing this is complex because of
+    // the messiness of new count management (see bug 507638 for a
+    // refactoring proposal, and attachment 398899 on bug 514801 for one possible
+    // fix to this particular test). So I am disabling this.
+    // Assert.equal(aFolderNewDelta, folderNew);
+    Assert.equal(aDbNewDelta, dbNew);
+  } catch (e) {
+    dump(e);
+  }
 }

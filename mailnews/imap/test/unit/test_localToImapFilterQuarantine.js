@@ -15,9 +15,12 @@ var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
                            "@mozilla.org/msgstore/berkeleystore;1");
 
+/* import-globals-from ../../../test/resources/POP3pump.js */
 load("../../../resources/POP3pump.js");
 
 // async support
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
@@ -36,18 +39,17 @@ var quarantineTests = [
   updateSubfolderAndTest,
   get2Messages,
   updateSubfolderAndTest2,
-  endTest
+  endTest,
 ];
 
-function* createSubfolder()
-{
+function* createSubfolder() {
   IMAPPump.incomingServer.rootFolder.createSubfolder("subfolder", null);
-  dl('wait for folderAdded notification');
+  dl("wait for folderAdded notification");
   yield false;
   gSubfolder = IMAPPump.incomingServer.rootFolder.getChildNamed("subfolder");
   Assert.ok(gSubfolder instanceof Ci.nsIMsgImapMailFolder);
   gSubfolder.updateFolderWithListener(null, urlListener);
-  dl('wait for OnStopRunningURL');
+  dl("wait for OnStopRunningURL");
   yield false;
 }
 
@@ -66,9 +68,12 @@ function* getLocalMessages() {
   filterList.insertFilterAt(0, filter);
 
   gPOP3Pump.files = ["../../../data/bugmail1"];
-  gPOP3Pump.onDone = function() {dump('POP3Pump done\n');async_driver();};
+  gPOP3Pump.onDone = function() {
+    dump("POP3Pump done\n");
+    async_driver();
+  };
   gPOP3Pump.run();
-  dl('waiting for POP3Pump done');
+  dl("waiting for POP3Pump done");
   yield false;
 }
 
@@ -76,12 +81,9 @@ function checkResult() {
   if (gFinishedRunningURL == 1) {
     async_driver();
     gFinishedRunningURL = -1;
-    return;
-  }
-  else if (gFinishedRunningURL == 0) {
+  } else if (gFinishedRunningURL == 0) {
     gSubfolder.updateFolderWithListener(null, urlListener);
     do_timeout(100, checkResult);
-    return;
   }
   // Else just ignore it.
 }
@@ -94,7 +96,7 @@ function* updateSubfolderAndTest() {
   // when we are done.
   gFinishedRunningURL = 0;
   gSubfolder.updateFolderWithListener(null, urlListener);
-  dl('wait for OnStopRunningURL');
+  dl("wait for OnStopRunningURL");
   do_timeout(100, checkResult);
   yield false;
 
@@ -109,13 +111,15 @@ function* updateSubfolderAndTest() {
   Assert.equal(folderCount(localAccountUtils.inboxFolder), 1);
 }
 
-function* get2Messages()
-{
+function* get2Messages() {
   gPOP3Pump.files = ["../../../data/bugmail10",
                      "../../../data/draft1"];
-  gPOP3Pump.onDone = function() {dump('POP3Pump done\n');async_driver();};
+  gPOP3Pump.onDone = function() {
+    dump("POP3Pump done\n");
+    async_driver();
+  };
   gPOP3Pump.run();
-  dl('waiting for POP3Pump done');
+  dl("waiting for POP3Pump done");
   yield false;
 }
 
@@ -127,7 +131,7 @@ function* updateSubfolderAndTest2() {
   // when we are done.
   gFinishedRunningURL = 0;
   gSubfolder.updateFolderWithListener(null, urlListener);
-  dl('wait for OnStopRunningURL');
+  dl("wait for OnStopRunningURL");
   do_timeout(1000, checkResult);
   yield false;
 
@@ -135,15 +139,14 @@ function* updateSubfolderAndTest2() {
   do_timeout(1000, async_driver);
   yield false;
 
-  //test
+  // test
   listMessages(gSubfolder);
   listMessages(localAccountUtils.inboxFolder);
   Assert.equal(folderCount(gSubfolder), 3);
   Assert.equal(folderCount(localAccountUtils.inboxFolder), 3);
 }
 
-function endTest()
-{
+function endTest() {
   // Cleanup, null out everything, close all cached connections and stop the
   // server
   dl("Exiting mail tests");
@@ -153,38 +156,34 @@ function endTest()
 
 // listeners
 
-var mfnListener =
-{
-  folderAdded: function folderAdded(aFolder)
-  {
-    dl('folderAdded <' + aFolder.name + '>');
+var mfnListener = {
+  folderAdded(aFolder) {
+    dl("folderAdded <" + aFolder.name + ">");
     // we are only using async yield on the Subfolder add
     if (aFolder.name == "subfolder")
       async_driver();
   },
 
-  msgAdded: function msgAdded(aMsg)
-  {
-    dl('msgAdded to folder <' + aMsg.folder.name + '> subject <' + aMsg.subject + '>');
+  msgAdded(aMsg) {
+    dl("msgAdded to folder <" + aMsg.folder.name + "> subject <" + aMsg.subject + ">");
   },
 
 };
 
 var urlListener = {
-  OnStartRunningUrl: function _OnStartRunningUrl(aUrl) {
-    dl('OnStartRunningUrl');
+  OnStartRunningUrl(aUrl) {
+    dl("OnStartRunningUrl");
   },
-  OnStopRunningUrl: function _OnStopRunningUrl(aUrl, aExitCode) {
-    dl('OnStopRunningUrl');
+  OnStopRunningUrl(aUrl, aExitCode) {
+    dl("OnStopRunningUrl");
     gFinishedRunningURL = 1;
     checkResult();
-  }
+  },
 };
 
 // main test startup
 
-function run_test()
-{
+function run_test() {
   // quarantine messages
   Services.prefs.setBoolPref("mailnews.downloadToTempFile", true);
 
@@ -195,21 +194,19 @@ function run_test()
         nsIMFNService.msgAdded;
   MailServices.mfn.addListener(mfnListener, flags);
 
-  //start first test
+  // start first test
   async_run_tests(quarantineTests);
 }
 
 // helper functions
 
 // count of messages in a folder, using the database
-function folderCount(folder)
-{
+function folderCount(folder) {
   let enumerator = folder.msgDatabase.EnumerateMessages();
   let count = 0;
-  while (enumerator.hasMoreElements())
-  {
+  while (enumerator.hasMoreElements()) {
     count++;
-    let hdr = enumerator.getNext();
+    enumerator.getNext();
   }
   return count;
 }
@@ -219,8 +216,7 @@ function listMessages(folder) {
   let enumerator = folder.msgDatabase.EnumerateMessages();
   var msgCount = 0;
   dl("listing messages for " + folder.prettyName);
-  while(enumerator.hasMoreElements())
-  {
+  while (enumerator.hasMoreElements()) {
     msgCount++;
     let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     dl(msgCount + ": " + hdr.subject);
@@ -229,6 +225,6 @@ function listMessages(folder) {
 
 // shorthand output of a line of text
 function dl(text) {
-  dump(text + '\n');
+  dump(text + "\n");
 }
 

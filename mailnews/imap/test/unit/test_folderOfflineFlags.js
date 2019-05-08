@@ -10,13 +10,12 @@
 // make SOLO_FILE="test_folderOfflineFlags.js" -C mailnews/imap/test check-one
 
 // async support
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../test/resources/alertTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/alertTestUtils.js");
-
-// IMAP pump
-
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Definition of tests
 var tests = [
@@ -24,7 +23,7 @@ var tests = [
   testGeneralFoldersOffline,
   testTrashNotOffline,
   testJunkNotOffline,
-  teardown
+  teardown,
 ];
 
 /**
@@ -35,15 +34,15 @@ function* setup() {
 
   IMAPPump.mailbox.subscribed = true;
   IMAPPump.mailbox.specialUseFlag = "\\Inbox";
-  IMAPPump.daemon.createMailbox("[Gmail]", {flags : ["\\Noselect"], subscribed: true});
-  IMAPPump.daemon.createMailbox("[Gmail]/All Mail", {specialUseFlag : "\\AllMail", subscribed: true});
-  IMAPPump.daemon.createMailbox("[Gmail]/Drafts", {specialUseFlag : "\\Drafts", subscribed: true});
-  IMAPPump.daemon.createMailbox("[Gmail]/Sent", {specialUseFlag : "\\Sent", subscribed: true});
-  IMAPPump.daemon.createMailbox("[Gmail]/Spam", {specialUseFlag : "\\Spam", subscribed: true});
-  IMAPPump.daemon.createMailbox("[Gmail]/Starred", {specialUseFlag : "\\Starred", subscribed: true});
-  IMAPPump.daemon.createMailbox("[Gmail]/Trash", {specialUseFlag : "\\Trash", subscribed: true});
-  IMAPPump.daemon.createMailbox("folder1", {subscribed : true});
-  IMAPPump.daemon.createMailbox("folder2", {subscribed : true});
+  IMAPPump.daemon.createMailbox("[Gmail]", {flags: ["\\Noselect"], subscribed: true});
+  IMAPPump.daemon.createMailbox("[Gmail]/All Mail", {specialUseFlag: "\\AllMail", subscribed: true});
+  IMAPPump.daemon.createMailbox("[Gmail]/Drafts", {specialUseFlag: "\\Drafts", subscribed: true});
+  IMAPPump.daemon.createMailbox("[Gmail]/Sent", {specialUseFlag: "\\Sent", subscribed: true});
+  IMAPPump.daemon.createMailbox("[Gmail]/Spam", {specialUseFlag: "\\Spam", subscribed: true});
+  IMAPPump.daemon.createMailbox("[Gmail]/Starred", {specialUseFlag: "\\Starred", subscribed: true});
+  IMAPPump.daemon.createMailbox("[Gmail]/Trash", {specialUseFlag: "\\Trash", subscribed: true});
+  IMAPPump.daemon.createMailbox("folder1", {subscribed: true});
+  IMAPPump.daemon.createMailbox("folder2", {subscribed: true});
 
   // select the inbox to force folder discovery, etc.
   IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);

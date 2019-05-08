@@ -6,6 +6,8 @@
 //  during online move of an imap message.
 
 // async support
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
@@ -24,29 +26,27 @@ var tests = [
   loadImapMessage,
   moveMessageToSubfolder,
   testPropertyOnMove,
-  endTest
-]
+  endTest,
+];
 
 var gSubfolder;
-function* createSubfolder()
-{
+function* createSubfolder() {
   IMAPPump.incomingServer.rootFolder.createSubfolder("Subfolder", null);
-  dl('wait for folderAdded notification');
+  dl("wait for folderAdded notification");
   yield false;
   gSubfolder = IMAPPump.incomingServer.rootFolder.getChildNamed("Subfolder");
   Assert.ok(gSubfolder instanceof Ci.nsIMsgImapMailFolder);
   gSubfolder.updateFolderWithListener(null, asyncUrlListener);
-  dl('wait for OnStopRunningURL');
+  dl("wait for OnStopRunningURL");
   yield false;
 }
 
 // load and update a message in the imap fake server
-function* loadImapMessage()
-{
+function* loadImapMessage() {
   IMAPPump.mailbox.addMessage(new imapMessage(specForFileName(gMessage),
                           IMAPPump.mailbox.uidnext++, []));
   IMAPPump.inbox.updateFolder(null);
-  dl('wait for msgAdded notification');
+  dl("wait for msgAdded notification");
   yield false;
   Assert.equal(1, IMAPPump.inbox.getTotalMessages(false));
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
@@ -58,8 +58,7 @@ function* loadImapMessage()
 }
 
 // move the message to a subfolder
-function* moveMessageToSubfolder()
-{
+function* moveMessageToSubfolder() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
 
   // Now move this message to the subfolder.
@@ -78,16 +77,15 @@ function* moveMessageToSubfolder()
 
   MailServices.copy.CopyMessages(IMAPPump.inbox, messages, gSubfolder, true,
                                  asyncCopyListener, null, false);
-  dl('wait for OnStopCopy');
+  dl("wait for OnStopCopy");
   yield false;
 }
 
-function* testPropertyOnMove()
-{
+function* testPropertyOnMove() {
   gSubfolder.updateFolderWithListener(null, asyncUrlListener);
-  dl('wait for msgAdded');
+  dl("wait for msgAdded");
   yield false; // wait for msgAdded notification
-  dl('wait for OnStopRunningURL');
+  dl("wait for OnStopRunningURL");
   yield false; // wait for OnStopRunningUrl
   let msgHdr = mailTestUtils.firstMsgHdr(gSubfolder);
   Assert.equal(msgHdr.getStringProperty("testprop"), "somevalue");
@@ -95,33 +93,28 @@ function* testPropertyOnMove()
 }
 
 // Cleanup
-function endTest()
-{
+function endTest() {
   teardownIMAPPump();
 }
 
 // listeners
 
-var mfnListener =
-{
-  folderAdded: function folderAdded(aFolder)
-  {
-    dl('folderAdded <' + aFolder.name + '>');
+var mfnListener = {
+  folderAdded(aFolder) {
+    dl("folderAdded <" + aFolder.name + ">");
     // we are only using async yield on the Subfolder add
     if (aFolder.name == "Subfolder")
       async_driver();
   },
 
-  msgAdded: function msgAdded(aMsg)
-  {
-    dl('msgAdded with subject <' + aMsg.subject + '>')
+  msgAdded(aMsg) {
+    dl("msgAdded with subject <" + aMsg.subject + ">");
     async_driver();
   },
 
 };
 
-function run_test()
-{
+function run_test() {
   Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
   // Add folder listeners that will capture async events
   const nsIMFNService = Ci.nsIMsgFolderNotificationService;
@@ -137,8 +130,7 @@ function run_test()
  */
 
 // given a test file, return the file uri spec
-function specForFileName(aFileName)
-{
+function specForFileName(aFileName) {
   let file = do_get_file("../../../data/" + aFileName);
   let msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
   return msgfileuri.spec;
@@ -146,5 +138,5 @@ function specForFileName(aFileName)
 
 // shorthand output of a line of text
 function dl(text) {
-  dump(text + '\n');
+  dump(text + "\n");
 }
