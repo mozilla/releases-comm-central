@@ -42,13 +42,10 @@ jobs:
                 comm-beta:
                     thunderbird-beta-latest-ssl: installer-ssl
                     thunderbird-beta-latest: installer
-                    # Don't try to do anything with MSI yet - bug 1526537
-                    # thunderbird-beta-msi-latest-ssl: msi
+                    thunderbird-beta-msi-latest-ssl: msi
                 comm-esr60:
                     thunderbird-latest-ssl: installer-ssl
                     thunderbird-latest: installer
-                    # Don't try to do anything with MSI yet - bug 1526537
-                    # thunderbird-msi-latest-ssl: msi
                 default: {}
         shipping-product: thunderbird
         treeherder:

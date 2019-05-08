@@ -37,7 +37,7 @@ jobs:
         bouncer-platforms: ['linux', 'linux64', 'osx', 'win', 'win64']
         bouncer-products:
             by-project:
-                comm-beta: ['complete-mar', 'installer', 'installer-ssl', 'partial-mar']
+                comm-beta: ['complete-mar', 'installer', 'installer-ssl', 'partial-mar', 'msi']
                 comm-esr60: ['complete-mar', 'complete-mar-bz2', 'installer', 'installer-ssl', 'partial-mar']
                 default: ['complete-mar', 'installer', 'installer-ssl', 'partial-mar', 'msi']
         shipping-product: thunderbird
