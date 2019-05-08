@@ -12,7 +12,7 @@ var {mailTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/mai
 var {localAccountUtils} = ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
 
 // Load the test components.
-do_load_manifest("resources/testComponents.manifest")
+do_load_manifest("resources/testComponents.manifest");
 // Ensure the profile directory is set up.
 do_get_profile();
 

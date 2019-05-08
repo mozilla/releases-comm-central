@@ -7,8 +7,6 @@
   a mailnews URL extended for a hypthetical account type "foo".
 **/
 
-var CE = Components.Exception;
-
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 const {JSAccountUtils} = ChromeUtils.import("resource:///modules/jsaccount/JSAccountUtils.jsm");
 const {
@@ -25,9 +23,9 @@ var FooUrlProperties = {
   contractID: "@mozilla.org/jsaccount/testjafoourl;1",
   classID: Components.ID("{73F98539-A59F-4F6F-9A72-D83A08646C23}"),
 
-// Add an additional interface only needed by this custom class.
+  // Add an additional interface only needed by this custom class.
   extraInterfaces: [ Ci.msgIFooUrl ],
-}
+};
 
 // Constructor
 function FooUrlConstructor() {
@@ -37,11 +35,10 @@ function FooUrlConstructor() {
 FooUrlConstructor.prototype = {
   classID: FooUrlProperties.classID,
   _xpcom_factory: JSAccountUtils.jaFactory(FooUrlProperties, FooUrl),
-}
+};
 
 // Main class.
 function FooUrl(aDelegator, aBaseInterfaces) {
-
   // Superclass constructor
   JaBaseUrl.call(this, aDelegator, aBaseInterfaces);
 
@@ -59,7 +56,7 @@ function FooUrl(aDelegator, aBaseInterfaces) {
 // Extend the base class methods.
 FooUrl.prototype = {
 
-    // Typical boilerplate to include in all implementations.
+  // Typical boilerplate to include in all implementations.
 
   // Extended the JS URL object.
   __proto__: JaBaseUrl.prototype,
@@ -67,9 +64,9 @@ FooUrl.prototype = {
   // Delegate these methods to CPP.
   _JsPrototypeToDelegate: true,
 
-    // InterfaceRequestor override, needed if extraInterfaces.
+  // InterfaceRequestor override, needed if extraInterfaces.
 
-  getInterface: function(iid) {
+  getInterface(iid) {
     for (let iface of FooUrlProperties.extraInterfaces) {
       if (iid.equals(iface))
         return this;
@@ -77,20 +74,20 @@ FooUrl.prototype = {
     return this.delegator.QueryInterface(iid);
   },
 
-    // msgIFooUrl implementation
+  // msgIFooUrl implementation
 
   // Foo id for item.
   // attribute AString itemId;
-  get itemId() { return this._itemId;},
-  set itemId(aVal) {this._itemId = aVal;},
+  get itemId() { return this._itemId; },
+  set itemId(aVal) { this._itemId = aVal; },
 
   // Does this url refer to an attachment?
-  //readonly attribute boolean isAttachment;
+  // readonly attribute boolean isAttachment;
   get isAttachment() {
     // We look to see if the URL has an attachment query
     let query = this.QueryInterface(Ci.nsIURL).query;
-    return (query && query.indexOf(ATTACHMENT_QUERY) != -1);
+    return (query && query.includes(ATTACHMENT_QUERY));
   },
-}
+};
 
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([FooUrlConstructor]);
+this.NSGetFactory = XPCOMUtils.generateNSGetFactory([FooUrlConstructor]);

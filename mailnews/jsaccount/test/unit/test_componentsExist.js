@@ -73,18 +73,16 @@ let tests = [
               ["@mozilla.org/jacppsenddelegator;1", "nsISupportsWeakReference"],
             ];
 
-function run_test()
-{
+function run_test() {
   for (let [contractID, iface] of tests) {
-    dump('trying to create component ' + contractID +
-         ' with interface ' + iface + '\n');
+    dump("trying to create component " + contractID + " with interface " + iface + "\n");
     try {
-      dump(Cc[contractID] + " " + Ci[iface] + '\n');
+      dump(Cc[contractID] + " " + Ci[iface] + "\n");
+    } catch (e) {
+      dump(e + "\n");
     }
-    catch (e) {dump(e + '\n');}
 
     let comp = Cc[contractID].createInstance(Ci[iface]);
     Assert.ok(comp instanceof Ci[iface]);
   }
-
 }

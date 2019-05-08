@@ -6,7 +6,6 @@
 
 const EXPORTED_SYMBOLS = ["JaBaseUrlProperties", "JaBaseUrl"];
 
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 const {JSAccountUtils} = ChromeUtils.import("resource:///modules/jsaccount/JSAccountUtils.jsm");
 
 // A partial JavaScript implementation of the base server methods.
@@ -41,10 +40,8 @@ const JaBaseUrlProperties = {
   classID:            Components.ID("{1E7B42CA-E6D9-408F-A4E4-8D2F82AECBBD}"),
 };
 
-function JaBaseUrl(aDelegator, aBaseInterfaces) {
-
 // Typical boilerplate to include in all implementations.
-
+function JaBaseUrl(aDelegator, aBaseInterfaces) {
   // Object delegating method calls to the appropriate XPCOM object.
   // Weak because it owns us.
   this._delegatorWeak = Cu.getWeakReference(aDelegator);
@@ -56,8 +53,8 @@ function JaBaseUrl(aDelegator, aBaseInterfaces) {
   aBaseInterfaces.forEach(iface => this.cppBase instanceof iface);
 }
 
-JaBaseUrl.prototype = {
 // Typical boilerplate to include in all implementations.
+JaBaseUrl.prototype = {
   __proto__: JSAccountUtils.makeCppDelegator(JaBaseUrlProperties),
 
   // Flag this item as CPP needs to delegate to JS.
@@ -80,5 +77,4 @@ JaBaseUrl.prototype = {
   delegateList: null,
 
   // Implementation in JS  (if any) of methods in XPCOM interfaces.
-
 };

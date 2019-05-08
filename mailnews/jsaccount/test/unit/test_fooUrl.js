@@ -7,12 +7,9 @@
 
 var {
   JaBaseUrlProperties,
-  JaBaseUrl,
 } = ChromeUtils.import("resource:///modules/jsaccount/JaBaseUrl.jsm");
 
-var extraInterfaces = [
-                       Ci.msgIFooUrl,
-                      ];
+var extraInterfaces = [Ci.msgIFooUrl];
 
 function newURL() {
   return Cc["@mozilla.org/jsaccount/testjafoourl;1"]
@@ -78,8 +75,7 @@ var tests = [
   },
 ];
 
-function run_test()
-{
+function run_test() {
   for (var test of tests)
     test();
 }

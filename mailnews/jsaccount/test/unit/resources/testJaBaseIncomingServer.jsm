@@ -11,9 +11,6 @@
 
 const EXPORTED_SYMBOLS = ["JaBaseIncomingServerProperties", "JaBaseIncomingServer"];
 
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {JSAccountUtils} = ChromeUtils.import("resource:///modules/jsaccount/JSAccountUtils.jsm");
-
 // A partial JavaScript implementation of the base server methods.
 
 const JaBaseIncomingServerProperties = {
@@ -62,7 +59,6 @@ JaBaseIncomingServer.prototype = {
   delegateList: null,
 
   // nsIMsgIncomingServer overrides.
-  get localStoreType() { return "testja"},
-  get localDatabaseType() { return "mailbox"},
-
+  get localStoreType() { return "testja"; },
+  get localDatabaseType() { return "mailbox"; },
 };

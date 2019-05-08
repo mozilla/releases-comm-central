@@ -10,27 +10,23 @@
 
 var {
   JaBaseMsgFolderProperties,
-  JaBaseMsgFolder,
 } = ChromeUtils.import("resource://testing-common/mailnews/testJaBaseMsgFolder.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-var interfaces = JaBaseMsgFolderProperties.baseInterfaces;
-
-function run_test()
-{
+function run_test() {
   let server = MailServices.accounts.createIncomingServer("foouser", "foohost", "testja");
   Assert.ok(server instanceof Ci.msgIOverride);
 
   // If you create a folder object directly, it will complain about not being registered.
   // Use folder-lookup-service instead.
   let testJaMsgFolder = MailUtils.getOrCreateFolder("testja://foouser@foohost/somefolder");
-  //let testJaMsgFolder = Cc[JaBaseMsgFolderProperties.contractID]
+  // let testJaMsgFolder = Cc[JaBaseMsgFolderProperties.contractID]
   //                        .createInstance(Ci.msgIOverride);
   Assert.ok(testJaMsgFolder instanceof Ci.nsIMsgFolder);
 
   JaBaseMsgFolderProperties.baseInterfaces.forEach(iface => {
-    dump('testing interface ' + iface + '(' + Ci[iface] + ')\n');
+    dump("testing interface " + iface + "(" + Ci[iface] + ")\n");
     testJaMsgFolder.QueryInterface(Ci[iface]);
   });
 

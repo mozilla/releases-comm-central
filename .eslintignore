@@ -64,7 +64,6 @@ mailnews/mailnews.js
 mailnews/extensions/dsn/content/dsn.js
 mailnews/extensions/mdn/content/mdn.js
 mailnews/extensions/smime/content/smime.js
-mailnews/jsaccount/*
 mailnews/mime/*
 
 # mail exclusions

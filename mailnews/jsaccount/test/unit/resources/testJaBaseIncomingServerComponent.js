@@ -23,6 +23,6 @@ function JaBaseIncomingServerConstructor() {
 JaBaseIncomingServerConstructor.prototype = {
   classID: JaBaseIncomingServerProperties.classID,
   _xpcom_factory: JSAccountUtils.jaFactory(JaBaseIncomingServerProperties, JaBaseIncomingServer),
-}
+};
 
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([JaBaseIncomingServerConstructor]);
+this.NSGetFactory = XPCOMUtils.generateNSGetFactory([JaBaseIncomingServerConstructor]);

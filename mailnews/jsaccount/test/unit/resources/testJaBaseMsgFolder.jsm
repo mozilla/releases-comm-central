@@ -11,9 +11,6 @@
 
 const EXPORTED_SYMBOLS = ["JaBaseMsgFolderProperties", "JaBaseMsgFolder"];
 
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {JSAccountUtils} = ChromeUtils.import("resource:///modules/jsaccount/JSAccountUtils.jsm");
-
 // A partial JavaScript implementation of the base server methods.
 
 const JaBaseMsgFolderProperties = {
@@ -65,6 +62,5 @@ JaBaseMsgFolder.prototype = {
   delegateList: null,
 
   // nsIMsgFolder overrides.
-  get incomingServerType() { return "testja";},
-
+  get incomingServerType() { return "testja"; },
 };

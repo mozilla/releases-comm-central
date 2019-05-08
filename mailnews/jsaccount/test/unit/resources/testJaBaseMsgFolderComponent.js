@@ -9,10 +9,6 @@
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 const {JSAccountUtils} = ChromeUtils.import("resource:///modules/jsaccount/JSAccountUtils.jsm");
 var {
-  JaBaseIncomingServerProperties,
-  JaBaseIncomingServer,
-} = ChromeUtils.import("resource://testing-common/mailnews/testJaBaseIncomingServer.jsm");
-var {
   JaBaseMsgFolderProperties,
   JaBaseMsgFolder,
 } = ChromeUtils.import("resource://testing-common/mailnews/testJaBaseMsgFolder.jsm");
@@ -25,6 +21,6 @@ function JaBaseMsgFolderConstructor() {
 JaBaseMsgFolderConstructor.prototype = {
   classID: JaBaseMsgFolderProperties.classID,
   _xpcom_factory: JSAccountUtils.jaFactory(JaBaseMsgFolderProperties, JaBaseMsgFolder),
-}
+};
 
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([JaBaseMsgFolderConstructor]);
+this.NSGetFactory = XPCOMUtils.generateNSGetFactory([JaBaseMsgFolderConstructor]);

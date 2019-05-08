@@ -35,7 +35,6 @@ var JSAccountUtils = {};
 
 const {Log} = ChromeUtils.import("resource://gre/modules/Log.jsm");
 const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 // Logger definitions.
 const LOGGER_NAME = "JsAccount";
@@ -44,7 +43,7 @@ const PREF_LOG_LEVEL = PREF_BRANCH_LOG + "level";
 const PREF_LOG_DUMP = PREF_BRANCH_LOG + "dump";
 
 // Set default logging levels.
-const LOG_LEVEL_DEFAULT = "Info"
+const LOG_LEVEL_DEFAULT = "Info";
 const LOG_DUMP_DEFAULT = true;
 
 // Logging usage: set mailnews.jsaccount.log.level to the word "Debug" to
@@ -81,14 +80,12 @@ var log = configureLogging();
  *                                  XPCOM methods calls will be delegated.
  */
 
-JSAccountUtils.jaFactory = function (aProperties, aJsDelegateConstructor)
-{
+JSAccountUtils.jaFactory = function(aProperties, aJsDelegateConstructor) {
   let factory = {};
   factory.QueryInterface = ChromeUtils.generateQI([Ci.nsIFactory]);
   factory.lockFactory = function() {};
 
-  factory.createInstance = function(outer, iid)
-  {
+  factory.createInstance = function(outer, iid) {
     if (outer != null)
       throw Cr.NS_ERROR_NO_AGGREGATION;
 
@@ -116,14 +113,13 @@ JSAccountUtils.jaFactory = function (aProperties, aJsDelegateConstructor)
       // Lazily create and populate the list of methods to delegate.
       log.info("creating delegate list for contractID " + aProperties.contractID);
       let delegateList = delegator.methodsToDelegate;
-      Object.keys(delegator).forEach(name => {log.debug("delegator has key " + name);});
+      Object.keys(delegator).forEach(name => { log.debug("delegator has key " + name); });
 
       // jsMethods contains the methods that may be targets of the C++ delegation to JS.
       let jsMethods = Object.getPrototypeOf(jsDelegate);
-      for (let name in jsMethods)
-      {
+      for (let name in jsMethods) {
         log.debug("processing jsDelegate method: " + name);
-        if (name[0] == '_') { // don't bother with methods explicitly marked as internal.
+        if (name[0] == "_") { // don't bother with methods explicitly marked as internal.
           log.debug("skipping " + name);
           continue;
         }
@@ -149,11 +145,10 @@ JSAccountUtils.jaFactory = function (aProperties, aJsDelegateConstructor)
         }
 
         let upperCaseName = name[0].toUpperCase() + name.substr(1);
-        if ('value' in jsDescriptor) {
+        if ("value" in jsDescriptor) {
           log.info("delegating " + upperCaseName);
           delegateList.add(upperCaseName);
-        }
-        else {
+        } else {
           if (jsDescriptor.set) {
             log.info("delegating Set" + upperCaseName);
             delegateList.add("Set" + upperCaseName);
@@ -178,7 +173,7 @@ JSAccountUtils.jaFactory = function (aProperties, aJsDelegateConstructor)
   };
 
   return factory;
-}
+};
 
 /**
  * Create a JS object that contains calls to each of the methods in a CPP
@@ -190,8 +185,7 @@ JSAccountUtils.jaFactory = function (aProperties, aJsDelegateConstructor)
  *
  * @returns a JS object suitable as the prototype of a JsAccount implementation.
  */
-JSAccountUtils.makeCppDelegator = function(aProperties)
-{
+JSAccountUtils.makeCppDelegator = function(aProperties) {
   log.info("Making cppDelegator for contractID " + aProperties.contractID);
   let cppDelegator = {};
   let cppDummy = Cc[aProperties.baseContractID].createInstance(Ci.nsISupports);
@@ -210,7 +204,7 @@ JSAccountUtils.makeCppDelegator = function(aProperties)
     let property = { enumerable: true };
     // We must use Immediately Invoked Function Expressions to pass method, otherwise it is
     // a closure containing just the last value it was set to.
-    if ('value' in descriptor) {
+    if ("value" in descriptor) {
       log.debug("Adding value for " + method);
       property.value = function(aMethod) {
         return function(...args) {
@@ -237,13 +231,12 @@ JSAccountUtils.makeCppDelegator = function(aProperties)
     Object.defineProperty(cppDelegator, method, property);
   }
   return cppDelegator;
-}
+};
 
 // Utility functions.
 
 // Iterate over an object and its prototypes to get a property descriptor.
-function getPropertyDescriptor(obj, name)
-{
+function getPropertyDescriptor(obj, name) {
   let descriptor = null;
 
   // Eventually we will hit an object that will delegate JS calls to a CPP
@@ -259,8 +252,7 @@ function getPropertyDescriptor(obj, name)
 }
 
 // Configure the logger based on the preferences.
-function configureLogging()
-{
+function configureLogging() {
   let log = Log.repository.getLogger(LOGGER_NAME);
 
   // Log messages need to go to the browser console.
