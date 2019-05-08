@@ -7,8 +7,7 @@ var useCustomPrefs;
 var requestAlways;
 var gIdentity;
 
-function onInit()
-{
+function onInit() {
   useCustomPrefs = document.getElementById("identity.dsn_use_custom_prefs");
   requestAlways = document.getElementById("identity.dsn_always_request_on");
 
@@ -17,8 +16,7 @@ function onInit()
   return true;
 }
 
-function onSave()
-{
+function onSave() {
 }
 
 function EnableDisableCustomSettings() {
@@ -30,7 +28,6 @@ function EnableDisableCustomSettings() {
   return true;
 }
 
-function onPreInit(account, accountValues)
-{
+function onPreInit(account, accountValues) {
   gIdentity = account.defaultIdentity;
 }

@@ -44,234 +44,250 @@ var gTest; // currently active test
 //   test.traitListener: should we use the trait listener call?
 //   test.junkListener: should we use the junk listener call?
 
-var tests =
-[
-
+var tests = [
   // test the trait-based calls. We mix trait listeners, junk listeners,
   // and both
 
-  // with no training, percents is 50 - but classifies as junk
-  {command: kClassT,
-   fileName: "ham1.eml",
-   junkPercent: -50,  // negative means classifies as junk
-   traitListener: false,
-   junkListener: true},
-  // train 1 ham message
-  {command: kTrainT,
-   fileName: "ham1.eml",
-   junkPercent: 0,
-   traitListener: false,
-   junkListener: true},
-  // with ham but no spam training, percents are 0 and classifies as ham
-  {command: kClassT,
-   fileName: "ham1.eml",
-   junkPercent: 0,
-   traitListener: false,
-   junkListener: true},
-  // train 1 spam message
-  {command: kTrainT,
-   fileName: "spam1.eml",
-   junkPercent: 100,
-   traitListener: true,
-   junkListener: false},
-  // the trained messages will classify at 0 and 100
-  {command: kClassT,
-   fileName: "ham1.eml",
-   junkPercent: 0,
-   traitListener: false,
-   junkListener: true},
-  {command: kClassT,
-   fileName: "spam1.eml",
-   junkPercent: 100,
-   traitListener: true,
-   junkListener: false},
-  // ham2, spam2, spam4 give partial percents, but still ham
-  {command: kClassT,
-   fileName: "ham2.eml",
-   junkPercent: 8,
-   traitListener: true,
-   junkListener: true},
-  {command: kClassT,
-   fileName: "spam2.eml",
-   junkPercent: 81,
-   traitListener: false,
-   junkListener: true},
-  {command: kClassT,
-   fileName: "spam4.eml",
-   junkPercent: 81,
-   traitListener: true,
-   junkListener: false},
-  // spam3 evaluates to spam
-  {command: kClassT,
-   fileName: "spam3.eml",
-   junkPercent: 98,
-   traitListener: true,
-   junkListener: true},
-  // train ham2, then test percents of 0 (clearly good)
-  {command: kTrainT,
-   fileName: "ham2.eml",
-   junkPercent: 0,
-   traitListener: true,
-   junkListener: true},
-  {command: kClassT,
-   fileName: "ham2.eml",
-   junkPercent: 0,
-   traitListener: true,
-   junkListener: true},
-   // forget ham2, percents should return to partial value
-  {command: kForgetT,
-   fileName: "ham2.eml",
-   junkPercent: 0,
-   traitListener: false,
-   junkListener: true},
-  {command: kClassT,
-   fileName: "ham2.eml",
-   junkPercent: 8,
-   traitListener: true,
-   junkListener: true},
-  // train, classify, forget, reclassify spam4
-  {command: kTrainT,
-   fileName: "spam4.eml",
-   junkPercent: 100,
-   traitListener: true,
-   junkListener: true},
-  {command: kClassT,
-   fileName: "spam4.eml",
-   junkPercent: 100,
-   traitListener: true,
-   junkListener: true},
-  {command: kCounts,
-   tokenCount: 66,  // count of tokens in the corpus
-   junkCount: 2,    // count of junk messages in the corpus
-   goodCount: 1},   // count of good messages in the corpus
-  {command: kForgetT,
-   fileName: "spam4.eml",
-   junkPercent: 100,
-   traitListener: true,
-   junkListener: false},
-  {command: kClassT,
-   fileName: "spam4.eml",
-   junkPercent: 81,
-   traitListener: true,
-   junkListener: true},
-  // forget ham1 and spam1 to empty training
-  {command: kForgetT,
-   fileName: "ham1.eml",
-   junkPercent: 0,
-   traitListener: true,
-   junkListener: true},
-  {command: kForgetT,
-   fileName: "spam1.eml",
-   junkPercent: 100,
-   traitListener: true,
-   junkListener: true},
-
+  { // with no training, percents is 50 - but classifies as junk
+    command: kClassT,
+    fileName: "ham1.eml",
+    junkPercent: -50,  // negative means classifies as junk
+    traitListener: false,
+    junkListener: true,
+  }, { // train 1 ham message
+    command: kTrainT,
+    fileName: "ham1.eml",
+    junkPercent: 0,
+    traitListener: false,
+    junkListener: true,
+  }, { // with ham but no spam training, percents are 0 and classifies as ham
+    command: kClassT,
+    fileName: "ham1.eml",
+    junkPercent: 0,
+    traitListener: false,
+    junkListener: true,
+  }, { // train 1 spam message
+    command: kTrainT,
+    fileName: "spam1.eml",
+    junkPercent: 100,
+    traitListener: true,
+    junkListener: false,
+  }, { // the trained messages will classify at 0 and 100
+    command: kClassT,
+    fileName: "ham1.eml",
+    junkPercent: 0,
+    traitListener: false,
+    junkListener: true,
+  }, {
+    command: kClassT,
+    fileName: "spam1.eml",
+    junkPercent: 100,
+    traitListener: true,
+    junkListener: false,
+  }, { // ham2, spam2, spam4 give partial percents, but still ham
+    command: kClassT,
+    fileName: "ham2.eml",
+    junkPercent: 8,
+    traitListener: true,
+    junkListener: true,
+  }, {
+    command: kClassT,
+    fileName: "spam2.eml",
+    junkPercent: 81,
+    traitListener: false,
+    junkListener: true,
+  }, {
+    command: kClassT,
+    fileName: "spam4.eml",
+    junkPercent: 81,
+    traitListener: true,
+    junkListener: false,
+  }, { // spam3 evaluates to spam
+    command: kClassT,
+    fileName: "spam3.eml",
+    junkPercent: 98,
+    traitListener: true,
+    junkListener: true,
+  }, { // train ham2, then test percents of 0 (clearly good)
+    command: kTrainT,
+    fileName: "ham2.eml",
+    junkPercent: 0,
+    traitListener: true,
+    junkListener: true,
+  }, {
+    command: kClassT,
+    fileName: "ham2.eml",
+    junkPercent: 0,
+    traitListener: true,
+    junkListener: true,
+  }, { // forget ham2, percents should return to partial value
+    command: kForgetT,
+    fileName: "ham2.eml",
+    junkPercent: 0,
+    traitListener: false,
+    junkListener: true,
+  }, {
+    command: kClassT,
+    fileName: "ham2.eml",
+    junkPercent: 8,
+    traitListener: true,
+    junkListener: true,
+  }, { // train, classify, forget, reclassify spam4
+    command: kTrainT,
+    fileName: "spam4.eml",
+    junkPercent: 100,
+    traitListener: true,
+    junkListener: true,
+  }, {
+    command: kClassT,
+    fileName: "spam4.eml",
+    junkPercent: 100,
+    traitListener: true,
+    junkListener: true,
+  }, {
+    command: kCounts,
+    tokenCount: 66,  // count of tokens in the corpus
+    junkCount: 2,    // count of junk messages in the corpus
+    goodCount: 1,    // count of good messages in the corpus
+  }, {
+    command: kForgetT,
+    fileName: "spam4.eml",
+    junkPercent: 100,
+    traitListener: true,
+    junkListener: false,
+  }, {
+    command: kClassT,
+    fileName: "spam4.eml",
+    junkPercent: 81,
+    traitListener: true,
+    junkListener: true,
+  }, { // forget ham1 and spam1 to empty training
+    command: kForgetT,
+    fileName: "ham1.eml",
+    junkPercent: 0,
+    traitListener: true,
+    junkListener: true,
+  }, {
+    command: kForgetT,
+    fileName: "spam1.eml",
+    junkPercent: 100,
+    traitListener: true,
+    junkListener: true,
+  },
   // repeat the whole sequence using the junk calls
-
-  // train 1 ham and 1 spam message
-  {command: kTrainJ,
-   fileName: "ham1.eml",
-   junkPercent: 0,
-   traitListener: false,
-   junkListener: true},
-  {command: kTrainJ,
-   fileName: "spam1.eml",
-   junkPercent: 100,
-   traitListener: false,
-   junkListener: true},
-  // the trained messages will classify at 0 and 100
-  {command: kClassJ,
-   fileName: "ham1.eml",
-   junkPercent: 0,
-   traitListener: false,
-   junkListener: true},
-  {command: kClassJ,
-   fileName: "spam1.eml",
-   junkPercent: 100,
-   traitListener: false,
-   junkListener: true},
-  // ham2, spam2, spam4 give partial percents, but still ham
-  {command: kClassJ,
-   fileName: "ham2.eml",
-   junkPercent: 8,
-   traitListener: false,
-   junkListener: true},
-  {command: kClassJ,
-   fileName: "spam2.eml",
-   junkPercent: 81,
-   traitListener: false,
-   junkListener: true},
-  {command: kClassJ,
-   fileName: "spam4.eml",
-   junkPercent: 81,
-   traitListener: false,
-   junkListener: true},
-  // spam3 evaluates to spam
-  {command: kClassJ,
-   fileName: "spam3.eml",
-   junkPercent: 98,
-   traitListener: false,
-   junkListener: true},
-  // train ham2, then test percents of 0 (clearly good)
-  {command: kTrainJ,
-   fileName: "ham2.eml",
-   junkPercent: 0,
-   traitListener: false,
-   junkListener: true},
-  {command: kClassJ,
-   fileName: "ham2.eml",
-   junkPercent: 0,
-   traitListener: false,
-   junkListener: true},
-   // forget ham2, percents should return to partial value
-  {command: kForgetJ,
-   fileName: "ham2.eml",
-   junkPercent: 0,
-   traitListener: false,
-   junkListener: true},
-  {command: kClassJ,
-   fileName: "ham2.eml",
-   junkPercent: 8,
-   traitListener: false,
-   junkListener: true},
-  // train, classify, forget, reclassify spam4
-  {command: kTrainJ,
-   fileName: "spam4.eml",
-   junkPercent: 100,
-   traitListener: false,
-   junkListener: true},
-  {command: kClassJ,
-   fileName: "spam4.eml",
-   junkPercent: 100,
-   traitListener: false,
-   junkListener: true},
-  {command: kForgetJ,
-   fileName: "spam4.eml",
-   junkPercent: 100,
-   traitListener: false,
-   junkListener: true},
-  {command: kClassJ,
-   fileName: "spam4.eml",
-   junkPercent: 81,
-   traitListener: false,
-   junkListener: true},
-  // forget ham1 and spam1 to be empty
-  {command: kForgetJ,
-   fileName: "ham1.eml",
-   junkPercent: 0,
-   traitListener: false,
-   junkListener: true},
-  {command: kForgetJ,
-   fileName: "spam1.eml",
-   junkPercent: 100,
-   traitListener: false,
-   junkListener: true},
-
-]
+  { // train 1 ham and 1 spam message
+    command: kTrainJ,
+    fileName: "ham1.eml",
+    junkPercent: 0,
+    traitListener: false,
+    junkListener: true,
+  }, {
+    command: kTrainJ,
+    fileName: "spam1.eml",
+    junkPercent: 100,
+    traitListener: false,
+    junkListener: true,
+  }, { // the trained messages will classify at 0 and 100
+    command: kClassJ,
+    fileName: "ham1.eml",
+    junkPercent: 0,
+    traitListener: false,
+    junkListener: true,
+  }, {
+    command: kClassJ,
+    fileName: "spam1.eml",
+    junkPercent: 100,
+    traitListener: false,
+    junkListener: true,
+  }, { // ham2, spam2, spam4 give partial percents, but still ham
+    command: kClassJ,
+    fileName: "ham2.eml",
+    junkPercent: 8,
+    traitListener: false,
+    junkListener: true,
+  }, {
+    command: kClassJ,
+    fileName: "spam2.eml",
+    junkPercent: 81,
+    traitListener: false,
+    junkListener: true,
+  }, {
+    command: kClassJ,
+    fileName: "spam4.eml",
+    junkPercent: 81,
+    traitListener: false,
+    junkListener: true,
+  }, {// spam3 evaluates to spam
+    command: kClassJ,
+    fileName: "spam3.eml",
+    junkPercent: 98,
+    traitListener: false,
+    junkListener: true,
+  }, { // train ham2, then test percents of 0 (clearly good)
+    command: kTrainJ,
+    fileName: "ham2.eml",
+    junkPercent: 0,
+    traitListener: false,
+    junkListener: true,
+  }, {
+    command: kClassJ,
+    fileName: "ham2.eml",
+    junkPercent: 0,
+    traitListener: false,
+    junkListener: true,
+  }, { // forget ham2, percents should return to partial value
+    command: kForgetJ,
+    fileName: "ham2.eml",
+    junkPercent: 0,
+    traitListener: false,
+    junkListener: true,
+  }, {
+    command: kClassJ,
+    fileName: "ham2.eml",
+    junkPercent: 8,
+    traitListener: false,
+    junkListener: true,
+  }, { // train, classify, forget, reclassify spam4
+    command: kTrainJ,
+    fileName: "spam4.eml",
+    junkPercent: 100,
+    traitListener: false,
+    junkListener: true,
+  }, {
+    command: kClassJ,
+    fileName: "spam4.eml",
+    junkPercent: 100,
+    traitListener: false,
+    junkListener: true,
+  }, {
+    command: kForgetJ,
+    fileName: "spam4.eml",
+    junkPercent: 100,
+    traitListener: false,
+    junkListener: true,
+  }, {
+    command: kClassJ,
+    fileName: "spam4.eml",
+    junkPercent: 81,
+    traitListener: false,
+    junkListener: true,
+  }, { // forget ham1 and spam1 to be empty
+    command: kForgetJ,
+    fileName: "ham1.eml",
+    junkPercent: 0,
+    traitListener: false,
+    junkListener: true,
+  }, {
+    command: kForgetJ,
+    fileName: "spam1.eml",
+    junkPercent: 100,
+    traitListener: false,
+    junkListener: true,
+  },
+];
 
 // main test
-function run_test()
-{
+function run_test() {
   localAccountUtils.loadLocalMailAccount();
   do_test_pending();
 
@@ -282,16 +298,14 @@ function run_test()
   startCommand();
 }
 
-var junkListener =
-{
-// nsIJunkMailClassificationListener implementation
-  onMessageClassified: function(aMsgURI, aClassification, aJunkPercent)
-  {
+var junkListener = {
+  // nsIJunkMailClassificationListener implementation
+  onMessageClassified(aMsgURI, aClassification, aJunkPercent) {
     if (!aMsgURI)
       return; // ignore end-of-batch signal
-    //print("Message URI is " + aMsgURI);
-    //print("Junk percent is " + aJunkPercent);
-    //print("Classification is " + aClassification);
+    // print("Message URI is " + aMsgURI);
+    // print("Junk percent is " + aJunkPercent);
+    // print("Classification is " + aClassification);
     var command = gTest.command;
     var junkPercent = gTest.junkPercent;
     // file returned correctly
@@ -300,11 +314,9 @@ var junkListener =
     // checks of aClassification
 
     // forget returns unclassified
-    if (command == kForgetJ || command == kForgetT)
+    if (command == kForgetJ || command == kForgetT) {
       Assert.equal(aClassification, kUnclassified);
-    // classification or train should return an actual classification
-    else
-    {
+    } else { // classification or train should return an actual classification
       // check junk classification set by default cutoff of 90
       var isGood = Math.abs(junkPercent) < 90;
       if (junkPercent < 0)
@@ -329,33 +341,30 @@ var junkListener =
     if (gTest.traitListener)
       return;
     startCommand();
-  }
+  },
 };
 
-var traitListener =
-{
-  //nsIMsgTraitClassificationListener implementation
-  onMessageTraitsClassified: function(aMsgURI, {}, aTraits, aPercents)
-  {
+var traitListener = {
+  // nsIMsgTraitClassificationListener implementation
+  onMessageTraitsClassified(aMsgURI, aTraitCount, aTraits, aPercents) {
     if (!aMsgURI)
-      return; //ignore end-of-batch signal
-    //print("(Trait Listener)Message URI is " + aMsgURI);
-    //print("(Trait Listener)Junk percent is " + aPercents);
+      return; // ignore end-of-batch signal
+    // print("(Trait Listener)Message URI is " + aMsgURI);
+    // print("(Trait Listener)Junk percent is " + aPercents);
     var command = gTest.command;
     var junkPercent = gTest.junkPercent;
-    //print("command, junkPercent is " + command + " , " + junkPercent);
+    // print("command, junkPercent is " + command + " , " + junkPercent);
 
     Assert.equal(getSpec(gTest.fileName), aMsgURI);
 
     // checks of aPercents
 
-    if (command == kForgetJ || command == kForgetT)
+    if (command == kForgetJ || command == kForgetT) {
       // "forgets" with null newClassifications does not return a percent
       Assert.equal(aPercents.length, 0);
-    else
-    {
+    } else {
       var percent = aPercents[0];
-      //print("Percent is " + percent);
+      // print("Percent is " + percent);
       if (command == kClassJ || command == kClassT)
       // Classify returns actual percents
         Assert.equal(percent, junkPercent);
@@ -366,33 +375,28 @@ var traitListener =
 
     // checks of aTraits
 
-    if (command == kForgetJ || command == kForgetT)
+    if (command == kForgetJ || command == kForgetT) {
       // "forgets" with null newClassifications does not return a
       // classification
       Assert.equal(aTraits.length, 0);
-    else if (command == kClassJ || command == kClassT)
-    {
+    } else if (command == kClassJ || command == kClassT) {
       // classification just returns the tested "Pro" trait (junk)
-      var trait = aTraits[0];
+      let trait = aTraits[0];
       Assert.equal(trait, kJunkTrait);
-    }
-    else
-    {
+    } else {
       // training returns the actual trait trained
-      var trait = aTraits[0];
+      let trait = aTraits[0];
       Assert.equal(trait, junkPercent < 90 ? kGoodTrait : kJunkTrait);
     }
 
     // All done, start the next test
     startCommand();
-  }
+  },
 };
 
 // start the next test command
-function startCommand()
-{
-  if (!tests.length)       // Do we have more commands?
-  {
+function startCommand() {
+  if (!tests.length) { // Do we have more commands?
     // no, all done
     do_test_finished();
     return;
@@ -405,8 +409,7 @@ function startCommand()
   var fileName = gTest.fileName;
   var tListener = gTest.traitListener;
   var jListener = gTest.junkListener;
-  switch (command)
-  {
+  switch (command) {
     case kTrainJ:
       // train message using junk call
       MailServices.junk.setMessageClassification(
@@ -445,7 +448,7 @@ function startCommand()
     case kClassT:
       // classify message using trait call
       MailServices.junk.classifyTraitsInMessage(
-        getSpec(fileName), //in string aMsgURI
+        getSpec(fileName), // in string aMsgURI
         gProArray.length, // length of traits arrays
         gProArray,   // in array aProTraits,
         gAntiArray,  // in array aAntiTraits
@@ -470,7 +473,7 @@ function startCommand()
     case kForgetT:
       // forget message using trait call
       MailServices.junk.setMsgTraitClassification(
-        getSpec(fileName), //in string aMsgURI
+        getSpec(fileName), // in string aMsgURI
         gProArray.length,  // length of aOldTraits array (1 in this test)
         junkPercent == kIsSpamScore ? gProArray :
           gAntiArray,  // in array aOldTraits

@@ -3,6 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../../base/prefs/content/amUtils.js */
+
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
 var useCustomPrefs;
 var requestReceipt;
 var leaveInInbox;
@@ -22,8 +26,7 @@ var gIdentity;
 var gIncomingServer;
 var gMdnPrefBranch;
 
-function onInit()
-{
+function onInit() {
   useCustomPrefs = document.getElementById("identity.use_custom_prefs");
   requestReceipt = document.getElementById("identity.request_return_receipt_on");
   leaveInInbox = document.getElementById("leave_in_inbox");
@@ -45,9 +48,7 @@ function onInit()
   return true;
 }
 
-function onSave()
-{
-
+function onSave() {
 }
 
 function EnableDisableCustomSettings() {
@@ -59,8 +60,7 @@ function EnableDisableCustomSettings() {
     returnSome.setAttribute("disabled", "true");
     receiptArriveLabel.setAttribute("disabled", "true");
     receiptRequestLabel.setAttribute("disabled", "true");
-  }
-  else {
+  } else {
     requestReceipt.removeAttribute("disabled");
     leaveInInbox.removeAttribute("disabled");
     moveToSent.removeAttribute("disabled");
@@ -86,8 +86,7 @@ function EnableDisableAllowedReceipts() {
       outsideDomainLabel.removeAttribute("disabled");
       otherCasesPref.removeAttribute("disabled");
       otherCasesLabel.removeAttribute("disabled");
-    }
-    else {
+    } else {
       notInToCcPref.setAttribute("disabled", "true");
       notInToCcLabel.setAttribute("disabled", "true");
       outsideDomainPref.setAttribute("disabled", "true");
@@ -99,48 +98,42 @@ function EnableDisableAllowedReceipts() {
   return true;
 }
 
-function onPreInit(account, accountValues)
-{
+function onPreInit(account, accountValues) {
   gIdentity = account.defaultIdentity;
   gIncomingServer = account.incomingServer;
 }
 
 // Disables xul elements that have associated preferences locked.
-function onLockPreference(initPrefString, keyString)
-{
-    var finalPrefString;
+function onLockPreference(initPrefString, keyString) {
+  var allPrefElements = [
+    { prefstring: "request_return_receipt_on", id: "identity.request_return_receipt_on"},
+    { prefstring: "select_custom_prefs", id: "identity.select_custom_prefs"},
+    { prefstring: "select_global_prefs", id: "identity.select_global_prefs"},
+    { prefstring: "incorporate_return_receipt", id: "server.incorporate_return_receipt"},
+    { prefstring: "never_return", id: "never_return"},
+    { prefstring: "return_some", id: "return_some"},
+    { prefstring: "mdn_not_in_to_cc", id: "server.mdn_not_in_to_cc"},
+    { prefstring: "mdn_outside_domain", id: "server.mdn_outside_domain"},
+    { prefstring: "mdn_other", id: "server.mdn_other"},
+  ];
 
-    var allPrefElements = [
-      { prefstring:"request_return_receipt_on", id:"identity.request_return_receipt_on"},
-      { prefstring:"select_custom_prefs", id:"identity.select_custom_prefs"},
-      { prefstring:"select_global_prefs", id:"identity.select_global_prefs"},
-      { prefstring:"incorporate_return_receipt", id:"server.incorporate_return_receipt"},
-      { prefstring:"never_return", id:"never_return"},
-      { prefstring:"return_some", id:"return_some"},
-      { prefstring:"mdn_not_in_to_cc", id:"server.mdn_not_in_to_cc"},
-      { prefstring:"mdn_outside_domain", id:"server.mdn_outside_domain"},
-      { prefstring:"mdn_other", id:"server.mdn_other"},
-    ];
+  var finalPrefString = initPrefString + "." + keyString + ".";
+  gMdnPrefBranch = Services.prefs.getBranch(finalPrefString);
 
-    finalPrefString = initPrefString + "." + keyString + ".";
-    gMdnPrefBranch = Services.prefs.getBranch(finalPrefString);
-
-    disableIfLocked( allPrefElements );
+  disableIfLocked(allPrefElements);
 }
 
-function disableIfLocked( prefstrArray )
-{
-  for (var i=0; i<prefstrArray.length; i++) {
+function disableIfLocked(prefstrArray) {
+  for (let i = 0; i < prefstrArray.length; i++) {
     var id = prefstrArray[i].id;
     var element = document.getElementById(id);
     if (gMdnPrefBranch.prefIsLocked(prefstrArray[i].prefstring)) {
-      if (id == "server.incorporate_return_receipt")
-      {
+      if (id == "server.incorporate_return_receipt") {
         document.getElementById("leave_in_inbox").setAttribute("disabled", "true");
         document.getElementById("move_to_sent").setAttribute("disabled", "true");
-      }
-      else
+      } else {
         element.setAttribute("disabled", "true");
+      }
     }
   }
 }

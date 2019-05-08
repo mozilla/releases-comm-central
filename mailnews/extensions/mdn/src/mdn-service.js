@@ -10,7 +10,7 @@ function MDNService() {}
 MDNService.prototype = {
   name: "mdn",
   chromePackageName: "messenger",
-  showPanel: function(server) {
+  showPanel(server) {
     // don't show the panel for news, rss, im or local accounts
     return (server.type != "nntp" && server.type != "rss" &&
             server.type != "im" && server.type != "none");

@@ -31,17 +31,15 @@ var kSigningCertPref = "identity.signing_cert_name";
 
 document.addEventListener("dialogaccept", smimeOnAcceptEditor);
 
-function onInit()
-{
+function onInit() {
   smimeInitializeFields();
 }
 
-function smimeInitializeFields()
-{
+function smimeInitializeFields() {
   // initialize all of our elements based on the current identity values....
   gEncryptionCertName = document.getElementById(kEncryptionCertPref);
   gHiddenEncryptionPolicy = document.getElementById("identity.encryptionpolicy");
-  gEncryptionChoices = document.getElementById("encryptionChoices");
+  gEncryptionChoices  = document.getElementById("encryptionChoices");
   gSignCertName       = document.getElementById(kSigningCertPref);
   gSignMessages       = document.getElementById("identity.sign_mail");
   gEncryptAlways      = document.getElementById("encrypt_mail_always");
@@ -72,8 +70,7 @@ function smimeInitializeFields()
 
     gSignMessages.checked = false;
     gEncryptionChoices.value = 0;
-  }
-  else {
+  } else {
     var certdb = Cc[nsX509CertDBContractID].getService(nsIX509CertDB);
     var x509cert = null;
 
@@ -88,15 +85,14 @@ function smimeInitializeFields()
             gEncryptionCertName.value = x509cert.displayName + " [" + x509cert.serialNumber + "]";
             gEncryptionCertName.displayName = x509cert.displayName;
         }
-    } catch(e) {}
+    } catch (e) {}
 
     gEncryptionChoices.value = gIdentity.getIntAttribute("encryptionpolicy");
 
     if (!gEncryptionCertName.value) {
       gEncryptAlways.setAttribute("disabled", true);
       gNeverEncrypt.setAttribute("disabled", true);
-    }
-    else {
+    } else {
       enableEncryptionControls(true);
     }
 
@@ -110,14 +106,12 @@ function smimeInitializeFields()
             gSignCertName.value = x509cert.displayName + " [" + x509cert.serialNumber + "]";
             gSignCertName.displayName = x509cert.displayName;
         }
-    } catch(e) {}
+    } catch (e) {}
 
     gSignMessages.checked = gIdentity.getBoolAttribute("sign_mail");
-    if (!gSignCertName.value)
-    {
+    if (!gSignCertName.value) {
       gSignMessages.setAttribute("disabled", true);
-    }
-    else {
+    } else {
       enableSigningControls(true);
     }
   }
@@ -132,21 +126,18 @@ function smimeInitializeFields()
     onLockPreference();
 }
 
-function onPreInit(account, accountValues)
-{
+function onPreInit(account, accountValues) {
   gIdentity = account.defaultIdentity;
 }
 
-function onSave()
-{
+function onSave() {
   smimeSave();
 }
 
-function smimeSave()
-{
+function smimeSave() {
   // find out which radio for the encryption radio group is selected and set that on our hidden encryptionChoice pref....
   var newValue = gEncryptionChoices.value;
-  gHiddenEncryptionPolicy.setAttribute('value', newValue);
+  gHiddenEncryptionPolicy.setAttribute("value", newValue);
   gIdentity.setIntAttribute("encryptionpolicy", newValue);
   gIdentity.setUnicharAttribute("encryption_cert_name",
     gEncryptionCertName.displayName || gEncryptionCertName.value);
@@ -158,45 +149,33 @@ function smimeSave()
   gIdentity.setCharAttribute("signing_cert_dbkey", gSignCertName.dbKey);
 }
 
-function smimeOnAcceptEditor(event)
-{
-  try {
-    if (!onOk()) {
-      event.preventDefault();
-      return;
-    }
-  }
-  catch (ex) {}
-
+function smimeOnAcceptEditor(event) {
   smimeSave();
 }
 
-function onLockPreference()
-{
+function onLockPreference() {
   var initPrefString = "mail.identity";
   var finalPrefString;
 
   var allPrefElements = [
-    { prefstring:"signingCertSelectButton", id:"signingCertSelectButton"},
-    { prefstring:"encryptionCertSelectButton", id:"encryptionCertSelectButton"},
-    { prefstring:"sign_mail", id:"identity.sign_mail"},
-    { prefstring:"encryptionpolicy", id:"encryptionChoices"}
+    { prefstring: "signingCertSelectButton", id: "signingCertSelectButton" },
+    { prefstring: "encryptionCertSelectButton", id: "encryptionCertSelectButton" },
+    { prefstring: "sign_mail", id: "identity.sign_mail" },
+    { prefstring: "encryptionpolicy", id: "encryptionChoices" },
   ];
 
   finalPrefString = initPrefString + "." + gIdentity.key + ".";
   gSmimePrefbranch = Services.prefs.getBranch(finalPrefString);
 
-  disableIfLocked( allPrefElements );
+  disableIfLocked(allPrefElements);
 }
 
 
 // Does the work of disabling an element given the array which contains xul id/prefstring pairs.
 // Also saves the id/locked state in an array so that other areas of the code can avoid
 // stomping on the disabled state indiscriminately.
-function disableIfLocked( prefstrArray )
-{
-  var i;
-  for (i=0; i<prefstrArray.length; i++) {
+function disableIfLocked(prefstrArray) {
+  for (let i = 0; i < prefstrArray.length; i++) {
     var id = prefstrArray[i].id;
     var element = document.getElementById(id);
     if (gSmimePrefbranch.prefIsLocked(prefstrArray[i].prefstring)) {
@@ -214,13 +193,11 @@ function disableIfLocked( prefstrArray )
       if (id == "identity.sign_mail") {
         document.getElementById("identity.sign_mail").setAttribute("disabled", "true");
         gSigningChoicesLocked = true;
-      }
-      else {
+      } else {
         element.setAttribute("disabled", "true");
         if (id == "signingCertSelectButton") {
           document.getElementById("signingCertClearButton").setAttribute("disabled", "true");
-        }
-        else if (id == "encryptionCertSelectButton") {
+        } else if (id == "encryptionCertSelectButton") {
           document.getElementById("encryptionCertClearButton").setAttribute("disabled", "true");
         }
       }
@@ -228,15 +205,13 @@ function disableIfLocked( prefstrArray )
   }
 }
 
-function alertUser(message)
-{
+function alertUser(message) {
   Services.prompt.alert(window,
                         gBrandBundle.getString("brandShortName"),
                         message);
 }
 
-function askUser(message)
-{
+function askUser(message) {
   let button = Services.prompt.confirmEx(
     window,
     gBrandBundle.getString("brandShortName"),
@@ -251,8 +226,7 @@ function askUser(message)
   return (button == 0);
 }
 
-function checkOtherCert(cert, pref, usage, msgNeedCertWantSame, msgWantSame, msgNeedCertWantToSelect, enabler)
-{
+function checkOtherCert(cert, pref, usage, msgNeedCertWantSame, msgWantSame, msgNeedCertWantToSelect, enabler) {
   var otherCertInfo = document.getElementById(pref);
   if (otherCertInfo.dbKey == cert.dbKey) {
     // All is fine, same cert is now selected for both purposes.
@@ -260,20 +234,18 @@ function checkOtherCert(cert, pref, usage, msgNeedCertWantSame, msgWantSame, msg
   }
 
   var secMsg = Cc["@mozilla.org/nsCMSSecureMessage;1"]
-    .getService(Ci.nsICMSSecureMessage);
+                 .getService(Ci.nsICMSSecureMessage);
 
   var matchingOtherCert;
   if (email_recipient_cert_usage == usage) {
-    if(secMsg.canBeUsedForEmailEncryption(cert)) {
+    if (secMsg.canBeUsedForEmailEncryption(cert)) {
       matchingOtherCert = cert;
     }
-  }
-  else if (email_signing_cert_usage == usage) {
+  } else if (email_signing_cert_usage == usage) {
     if (secMsg.canBeUsedForEmailSigning(cert)) {
       matchingOtherCert = cert;
     }
-  }
-  else {
+  } else {
     throw new Error("Unexpected SECCertUsage: " + usage);
   }
 
@@ -281,17 +253,11 @@ function checkOtherCert(cert, pref, usage, msgNeedCertWantSame, msgWantSame, msg
   if (!otherCertInfo.value) {
     if (matchingOtherCert) {
       userWantsSameCert = askUser(gBundle.getString(msgNeedCertWantSame));
+    } else if (askUser(gBundle.getString(msgNeedCertWantToSelect))) {
+      smimeSelectCert(pref);
     }
-    else {
-      if (askUser(gBundle.getString(msgNeedCertWantToSelect))) {
-        smimeSelectCert(pref);
-      }
-    }
-  }
-  else {
-    if (matchingOtherCert) {
-      userWantsSameCert = askUser(gBundle.getString(msgWantSame));
-    }
+  } else if (matchingOtherCert) {
+    userWantsSameCert = askUser(gBundle.getString(msgWantSame));
   }
 
   if (userWantsSameCert) {
@@ -302,15 +268,14 @@ function checkOtherCert(cert, pref, usage, msgNeedCertWantSame, msgWantSame, msg
   }
 }
 
-function smimeSelectCert(smime_cert)
-{
+function smimeSelectCert(smime_cert) {
   var certInfo = document.getElementById(smime_cert);
   if (!certInfo)
     return;
 
   var picker = Cc["@mozilla.org/user_cert_picker;1"]
                .createInstance(Ci.nsIUserCertPicker);
-  var canceled = new Object;
+  var canceled = {};
   var x509cert = 0;
   var certUsage;
   var selectEncryptionCert;
@@ -330,7 +295,7 @@ function smimeSelectCert(smime_cert)
       false, true,
       gIdentity.email,
       canceled);
-  } catch(e) {
+  } catch (e) {
     canceled.value = false;
     x509cert = null;
   }
@@ -346,8 +311,7 @@ function smimeSelectCert(smime_cert)
         alertUser(gBundle.getString(selectEncryptionCert ?
                                     "NoEncryptionCert" : "NoSigningCert"));
       }
-    }
-    else {
+    } else {
       certInfo.removeAttribute("disabled");
       certInfo.value = x509cert.displayName + " [" + x509cert.serialNumber + "]";
       certInfo.displayName = x509cert.displayName;
@@ -378,8 +342,7 @@ function smimeSelectCert(smime_cert)
   enableCertSelectButtons();
 }
 
-function enableEncryptionControls(do_enable)
-{
+function enableEncryptionControls(do_enable) {
   if (gEncryptionChoicesLocked)
     return;
 
@@ -387,8 +350,7 @@ function enableEncryptionControls(do_enable)
     gEncryptAlways.removeAttribute("disabled");
     gNeverEncrypt.removeAttribute("disabled");
     gEncryptionCertName.removeAttribute("disabled");
-  }
-  else {
+  } else {
     gEncryptAlways.setAttribute("disabled", "true");
     gNeverEncrypt.setAttribute("disabled", "true");
     gEncryptionCertName.setAttribute("disabled", "true");
@@ -396,41 +358,37 @@ function enableEncryptionControls(do_enable)
   }
 }
 
-function enableSigningControls(do_enable)
-{
+function enableSigningControls(do_enable) {
   if (gSigningChoicesLocked)
     return;
 
   if (do_enable) {
     gSignMessages.removeAttribute("disabled");
     gSignCertName.removeAttribute("disabled");
-  }
-  else {
+  } else {
     gSignMessages.setAttribute("disabled", "true");
     gSignCertName.setAttribute("disabled", "true");
     gSignMessages.checked = false;
   }
 }
 
-function enableCertSelectButtons()
-{
+function enableCertSelectButtons() {
   document.getElementById("signingCertSelectButton").removeAttribute("disabled");
 
-  if (document.getElementById('identity.signing_cert_name').value.length)
+  if (document.getElementById("identity.signing_cert_name").value.length)
     document.getElementById("signingCertClearButton").removeAttribute("disabled");
   else
     document.getElementById("signingCertClearButton").setAttribute("disabled", "true");
 
   document.getElementById("encryptionCertSelectButton").removeAttribute("disabled");
 
-  if (document.getElementById('identity.encryption_cert_name').value.length)
+  if (document.getElementById("identity.encryption_cert_name").value.length)
     document.getElementById("encryptionCertClearButton").removeAttribute("disabled");
   else
     document.getElementById("encryptionCertClearButton").setAttribute("disabled", "true");
 }
 
-function smimeClearCert(smime_cert)
-{
+function smimeClearCert(smime_cert) {
   var certInfo = document.getElementById(smime_cert);
   if (!certInfo)
     return;
@@ -449,8 +407,7 @@ function smimeClearCert(smime_cert)
   enableCertSelectButtons();
 }
 
-function openCertManager()
-{
+function openCertManager() {
   // Check for an existing certManager window and focus it; it's not
   // application modal.
   let lastCertManager = Services.wm.getMostRecentWindow("mozilla:certmanager");
@@ -461,8 +418,7 @@ function openCertManager()
                       "centerscreen,resizable=yes,dialog=no");
 }
 
-function openDeviceManager()
-{
+function openDeviceManager() {
   // Check for an existing deviceManager window and focus it; it's not
   // application modal.
   let lastCertManager = Services.wm.getMostRecentWindow("mozilla:devicemanager");
@@ -473,8 +429,7 @@ function openDeviceManager()
                       "centerscreen,resizable=yes,dialog=no");
 }
 
-function smimeOnLoadEditor()
-{
+function smimeOnLoadEditor() {
   smimeInitializeFields();
 
   document.documentElement.setAttribute("ondialogaccept",

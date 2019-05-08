@@ -21,12 +21,11 @@ var tokenData = [
   [1003, 1, "linecount"],
   [1003, 1, "subject:test"],
   [1003, 1, "envelope-to:kenttest@caspia.com"],
-]
+];
 
 // list of tests
 
-var gTests =
-[
+var gTests = [
   // train two different combinations of messages
   function checkLoadOnce() {
     let fileName = "msgCorpus.dat";
@@ -124,17 +123,13 @@ var gTests =
       Assert.equal(id == 1001 ? 0 : count, msgCorpus.getTokenCount(word, id));
     }
   },
-
-]
+];
 
 // main test
-function run_test()
-{
+function run_test() {
   do_test_pending();
-  while(1)
-  {
-    if (!gTests.length)       // Do we have more commands?
-    {
+  while (true) {
+    if (!gTests.length) { // Do we have more commands?
       // no, all done
       do_test_finished();
       return;

@@ -3,6 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* globals gDBView, GetNumSelectedMessages */
+
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gEncryptionStatus = -1;
@@ -12,37 +14,31 @@ var gEncryptionCert = null;
 
 addEventListener("load", smimeReadOnLoad, {capture: false, once: true});
 
-function smimeReadOnLoad()
-{
+function smimeReadOnLoad() {
   top.controllers.appendController(SecurityController);
 
   addEventListener("unload", smimeReadOnUnload, {capture: false, once: true});
 }
 
-function smimeReadOnUnload()
-{
+function smimeReadOnUnload() {
   top.controllers.removeController(SecurityController);
 }
 
-function showImapSignatureUnknown()
-{
+function showImapSignatureUnknown() {
   let readSmimeBundle = document.getElementById("bundle_read_smime");
   let brandBundle = document.getElementById("bundle_brand");
   if (!readSmimeBundle || !brandBundle)
     return;
 
   if (Services.prompt.confirm(window, brandBundle.getString("brandShortName"),
-                              readSmimeBundle.getString("ImapOnDemand")))
-  {
+                              readSmimeBundle.getString("ImapOnDemand"))) {
     gDBView.reloadMessageWithAllParts();
   }
 }
 
-function showMessageReadSecurityInfo()
-{
+function showMessageReadSecurityInfo() {
   let gSignedUINode = document.getElementById("signedHdrIcon");
-  if (gSignedUINode && gSignedUINode.getAttribute("signed") == "unknown")
-  {
+  if (gSignedUINode && gSignedUINode.getAttribute("signed") == "unknown") {
     showImapSignatureUnknown();
     return;
   }
@@ -63,12 +59,9 @@ function showMessageReadSecurityInfo()
                     "", "chrome,resizable,modal,dialog,centerscreen", params);
 }
 
-var SecurityController =
-{
-  supportsCommand: function(command)
-  {
-    switch (command)
-    {
+var SecurityController = {
+  supportsCommand(command) {
+    switch (command) {
       case "cmd_viewSecurityStatus":
         return true;
 
@@ -77,16 +70,13 @@ var SecurityController =
     }
   },
 
-  isCommandEnabled: function(command)
-  {
-    switch (command)
-    {
+  isCommandEnabled(command) {
+    switch (command) {
       case "cmd_viewSecurityStatus":
-        if (document.documentElement.getAttribute('windowtype') == "mail:messageWindow")
+        if (document.documentElement.getAttribute("windowtype") == "mail:messageWindow")
           return GetNumSelectedMessages() > 0;
 
-        if (GetNumSelectedMessages() > 0 && gDBView)
-        {
+        if (GetNumSelectedMessages() > 0 && gDBView) {
           let enabled = {value: false};
           let checkStatus = {};
           gDBView.getCommandStatus(Ci.nsMsgViewCommandType.cmdRequiringMsgBody,
@@ -98,5 +88,5 @@ var SecurityController =
       default:
         return false;
     }
-  }
+  },
 };

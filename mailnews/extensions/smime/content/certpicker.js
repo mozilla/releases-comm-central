@@ -12,8 +12,7 @@ var itemCount = 0;
 document.addEventListener("dialogaccept", doOK);
 document.addEventListener("dialogcancel", doCancel);
 
-function onLoad()
-{
+function onLoad() {
   dialogParams = window.arguments[0].QueryInterface(nsIDialogParamBlock);
 
   var selectElement = document.getElementById("nicknames");
@@ -40,8 +39,7 @@ function onLoad()
   setDetails();
 }
 
-function setDetails()
-{
+function setDetails() {
   let selItem = document.getElementById("nicknames").value;
   if (selItem.length == 0) {
     return;
@@ -52,13 +50,11 @@ function setDetails()
   document.getElementById("details").value = details;
 }
 
-function onCertSelected()
-{
+function onCertSelected() {
   setDetails();
 }
 
-function doOK()
-{
+function doOK() {
   // Signal that the user accepted.
   dialogParams.SetInt(0, 1);
 
@@ -68,7 +64,6 @@ function doOK()
   dialogParams.SetInt(1, index);
 }
 
-function doCancel()
-{
+function doCancel() {
   dialogParams.SetInt(0, 0); // Signal that the user cancelled.
 }

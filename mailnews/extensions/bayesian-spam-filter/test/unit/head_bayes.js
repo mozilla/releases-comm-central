@@ -9,10 +9,7 @@ var CC = Components.Constructor;
 // Ensure the profile directory is set up
 do_get_profile();
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
-function getSpec(aFileName)
-{
+function getSpec(aFileName) {
   var file = do_get_file("resources/" + aFileName);
   var uri = Services.io.newFileURI(file).QueryInterface(Ci.nsIURL);
   uri = uri.mutate().setQuery("type=application/x-message-display").finalize();

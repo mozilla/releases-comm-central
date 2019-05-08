@@ -56,43 +56,42 @@ var gTest; // currently active test
 //   test.antiAliases: array of aliases for the anti trait
 //   test.percent: expected results from the classifier
 
-var tests =
-[
-  {fileName: "aliases1.eml",
-   proAliases: [],
-   antiAliases: [],
-   percent: 92
+var tests = [
+  {
+    fileName: "aliases1.eml",
+    proAliases: [],
+    antiAliases: [],
+    percent: 92,
+  }, {
+    fileName: "aliases2.eml",
+    proAliases: [],
+    antiAliases: [],
+    percent: 8,
+  }, {
+    fileName: "aliases3.eml",
+    proAliases: [],
+    antiAliases: [],
+    percent: 50,
+  }, {
+    fileName: "aliases1.eml",
+    proAliases: [kProAlias],
+    antiAliases: [kAntiAlias],
+    percent: 98,
+  }, {
+    fileName: "aliases2.eml",
+    proAliases: [kProAlias],
+    antiAliases: [kAntiAlias],
+    percent: 3,
+  }, {
+    fileName: "aliases3.eml",
+    proAliases: [kProAlias],
+    antiAliases: [kAntiAlias],
+    percent: 53,
   },
-  {fileName: "aliases2.eml",
-   proAliases: [],
-   antiAliases: [],
-   percent: 8
-  },
-  {fileName: "aliases3.eml",
-   proAliases: [],
-   antiAliases: [],
-   percent: 50
-  },
-  {fileName: "aliases1.eml",
-   proAliases: [kProAlias],
-   antiAliases: [kAntiAlias],
-   percent: 98
-  },
-  {fileName: "aliases2.eml",
-   proAliases: [kProAlias],
-   antiAliases: [kAntiAlias],
-   percent: 3
-  },
-  {fileName: "aliases3.eml",
-   proAliases: [kProAlias],
-   antiAliases: [kAntiAlias],
-   percent: 53
-  },
-]
+];
 
 // main test
-function run_test()
-{
+function run_test() {
   localAccountUtils.loadLocalMailAccount();
 
   // load in the aliases trait testing file
@@ -103,26 +102,22 @@ function run_test()
   startCommand();
 }
 
-var listener =
-{
-  //nsIMsgTraitClassificationListener implementation
-  onMessageTraitsClassified: function(aMsgURI, {}, aTraits, aPercents)
-  {
-    //print("Message URI is " + aMsgURI);
+var listener = {
+  // nsIMsgTraitClassificationListener implementation
+  onMessageTraitsClassified(aMsgURI, aTraitCount, aTraits, aPercents) {
+    // print("Message URI is " + aMsgURI);
     if (!aMsgURI)
-      return; //ignore end-of-batch signal
+      return; // ignore end-of-batch signal
 
-    Assert.equal(aPercents[0], gTest.percent)
+    Assert.equal(aPercents[0], gTest.percent);
     // All done, start the next test
     startCommand();
   },
 };
 
 // start the next test command
-function startCommand()
-{
-  if (!tests.length)       // Do we have more commands?
-  {
+function startCommand() {
+  if (!tests.length) { // Do we have more commands?
     // no, all done
     do_test_finished();
     return;
@@ -156,6 +151,6 @@ function startCommand()
     proArray,    // in array aProTraits,
     antiArray,   // in array aAntiTraits
     listener);   // in nsIMsgTraitClassificationListener aTraitListener
-    //null,      // [optional] in nsIMsgWindow aMsgWindow
-    //null,      // [optional] in nsIJunkMailClassificationListener aJunkListener
+    // null,      // [optional] in nsIMsgWindow aMsgWindow
+    // null,      // [optional] in nsIJunkMailClassificationListener aJunkListener
 }

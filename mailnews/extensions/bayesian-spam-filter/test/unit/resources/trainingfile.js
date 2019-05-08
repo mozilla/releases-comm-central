@@ -7,8 +7,8 @@
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+/* exported TrainingData */
 function TrainingData() {
-
   // local constants
 
   const CC = Components.Constructor;
@@ -23,8 +23,8 @@ function TrainingData() {
   this.mJunkTokens = 0;
   this.mGoodMessages = 0;
   this.mJunkMessages = 0;
-  this.mGoodCounts = new Object;
-  this.mJunkCounts = new Object;
+  this.mGoodCounts = {};
+  this.mJunkCounts = {};
 
   // helper functions
 
@@ -37,9 +37,7 @@ function TrainingData() {
   }
 
   function getBinStream(oFile) {
-
-    if (oFile && oFile.exists())
-    {
+    if (oFile && oFile.exists()) {
       var oUri = Services.io.newFileURI(oFile);
       // open stream (channel)
       let channel = Services.io.newChannelFromURI(oUri,
@@ -84,8 +82,7 @@ function TrainingData() {
     // Read good tokens
     this.mGoodTokens = fileStream.read32();
     var iRefCount, iTokenLen, sToken;
-    for (var i = 0; i < this.mGoodTokens; ++i)
-    {
+    for (let i = 0; i < this.mGoodTokens; ++i) {
       iRefCount  = fileStream.read32();
       iTokenLen  = fileStream.read32();
       sToken     = fileStream.readBytes(iTokenLen);
@@ -94,8 +91,7 @@ function TrainingData() {
 
     // we have no further good tokens, so read junk tokens
     this.mJunkTokens = fileStream.read32();
-    for (i = 0; i < this.mJunkTokens; i++)
-    { // read token data
+    for (let i = 0; i < this.mJunkTokens; i++) { // read token data
       iRefCount  = fileStream.read32();
       iTokenLen  = fileStream.read32();
       sToken     = fileStream.readBytes(iTokenLen);

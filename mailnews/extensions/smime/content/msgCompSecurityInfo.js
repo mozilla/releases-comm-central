@@ -18,10 +18,9 @@ var gSMimeContractID = "@mozilla.org/messenger-smime/smimejshelper;1";
 var gISMimeJSHelper = Ci.nsISMimeJSHelper;
 var gIX509Cert = Ci.nsIX509Cert;
 var nsICertificateDialogs = Ci.nsICertificateDialogs;
-var nsCertificateDialogs = "@mozilla.org/nsCertificateDialogs;1"
+var nsCertificateDialogs = "@mozilla.org/nsCertificateDialogs;1";
 
-function onLoad()
-{
+function onLoad() {
   var params = window.arguments[0];
   if (!params)
     return;
@@ -35,19 +34,17 @@ function onLoad()
   gViewButton = document.getElementById("viewCertButton");
   gBundle = document.getElementById("bundle_smime_comp_info");
 
-  gEmailAddresses = new Object();
-  gCertIssuedInfos = new Object();
-  gCertExpiresInfos = new Object();
-  gCerts = new Object();
-  gCount = new Object();
-  var canEncrypt = new Object();
+  gEmailAddresses = {};
+  gCertIssuedInfos = {};
+  gCertExpiresInfos = {};
+  gCerts = {};
+  gCount = {};
+  var canEncrypt = {};
 
   var allow_ldap_cert_fetching = params.smFields.requireEncryptMessage;
 
-  while (true)
-  {
-    try
-    {
+  while (true) {
+    try {
       helper.getRecipientCertsInfo(
         params.compFields,
         gCount,
@@ -57,9 +54,7 @@ function onLoad()
         gCertExpiresInfos,
         gCerts,
         canEncrypt);
-    }
-    catch (e)
-    {
+    } catch (e) {
       dump(e);
       return;
     }
@@ -69,23 +64,19 @@ function onLoad()
 
     allow_ldap_cert_fetching = false;
 
-    var missing = new Array();
+    var missing = [];
 
-    for (var j = gCount.value - 1; j >= 0; --j)
-    {
-      if (!gCerts.value[j])
-      {
+    for (let j = gCount.value - 1; j >= 0; --j) {
+      if (!gCerts.value[j]) {
         missing[missing.length] = gEmailAddresses.value[j];
       }
     }
 
-    if (missing.length > 0)
-    {
+    if (missing.length > 0) {
       var autocompleteLdap = Services.prefs
         .getBoolPref("ldap_2.autoComplete.useDirectory");
 
-      if (autocompleteLdap)
-      {
+      if (autocompleteLdap) {
         var autocompleteDirectory = null;
         if (params.currentIdentity.overrideGlobalPref) {
           autocompleteDirectory = params.currentIdentity.directoryServer;
@@ -94,11 +85,10 @@ function onLoad()
             .getCharPref("ldap_2.autoComplete.directoryServer");
         }
 
-        if (autocompleteDirectory)
-        {
-          window.openDialog('chrome://messenger-smime/content/certFetchingStatus.xul',
-            '',
-            'chrome,resizable=1,modal=1,dialog=1',
+        if (autocompleteDirectory) {
+          window.openDialog("chrome://messenger-smime/content/certFetchingStatus.xul",
+            "",
+            "chrome,resizable=1,modal=1,dialog=1",
             autocompleteDirectory,
             missing
           );
@@ -107,8 +97,7 @@ function onLoad()
     }
   }
 
-  if (gBundle)
-  {
+  if (gBundle) {
     var yes_string = gBundle.getString("StatusYes");
     var no_string = gBundle.getString("StatusNo");
     var not_possible_string = gBundle.getString("StatusNotPossible");
@@ -116,43 +105,30 @@ function onLoad()
     var signed_element = document.getElementById("signed");
     var encrypted_element = document.getElementById("encrypted");
 
-    if (params.smFields.requireEncryptMessage)
-    {
-      if (params.isEncryptionCertAvailable && canEncrypt.value)
-      {
+    if (params.smFields.requireEncryptMessage) {
+      if (params.isEncryptionCertAvailable && canEncrypt.value) {
         encrypted_element.value = yes_string;
-      }
-      else
-      {
+      } else {
         encrypted_element.value = not_possible_string;
       }
-    }
-    else
-    {
+    } else {
       encrypted_element.value = no_string;
     }
 
-    if (params.smFields.signMessage)
-    {
-      if (params.isSigningCertAvailable)
-      {
+    if (params.smFields.signMessage) {
+      if (params.isSigningCertAvailable) {
         signed_element.value = yes_string;
-      }
-      else
-      {
+      } else {
         signed_element.value = not_possible_string;
       }
-    }
-    else
-    {
+    } else {
       signed_element.value = no_string;
     }
   }
 
   var imax = gCount.value;
 
-  for (var i = 0; i < imax; ++i)
-  {
+  for (let i = 0; i < imax; ++i) {
     let email = document.createElement("label");
     email.setAttribute("value", gEmailAddresses.value[i]);
     email.setAttribute("crop", "end");
@@ -161,16 +137,13 @@ function onLoad()
     let listitem = document.createElement("richlistitem");
     listitem.appendChild(email);
 
-    if (!gCerts.value[i])
-    {
+    if (!gCerts.value[i]) {
       let notFound = document.createElement("label");
       notFound.setAttribute("value", gBundle.getString("StatusNotFound"));
       notFound.setAttribute("style", "width: var(--statusWidth)");
 
       listitem.appendChild(notFound);
-    }
-    else
-    {
+    } else {
       let status = document.createElement("label");
       status.setAttribute("value", "?"); // temporary placeholder
       status.setAttribute("crop", "end");
@@ -274,8 +247,7 @@ function asyncDetermineUsages(cert) {
 }
 // --- /borrowed from pippki.js ---
 
-function onSelectionChange(event)
-{
+function onSelectionChange(event) {
   gViewButton.disabled = !(gListBox.selectedItems.length == 1 &&
                            certForRow(gListBox.selectedIndex));
 }
@@ -289,20 +261,18 @@ function certForRow(aRowIndex) {
   return gCerts.value[aRowIndex];
 }
 
-function viewSelectedCert()
-{
+function viewSelectedCert() {
   if (!gViewButton.disabled)
     viewCertHelper(window, certForRow(gListBox.selectedIndex));
 }
 
-function doHelpButton()
-{
-  openHelp('compose_security', 'chrome://communicator/locale/help/suitehelp.rdf');
+/* globals openHelp */// Suite only.
+function doHelpButton() {
+  openHelp("compose_security", "chrome://communicator/locale/help/suitehelp.rdf");
 }
 
-function createCell(label)
-{
+function createCell(label) {
   var cell = document.createElement("listcell");
-  cell.setAttribute("label", label)
+  cell.setAttribute("label", label);
   return cell;
 }

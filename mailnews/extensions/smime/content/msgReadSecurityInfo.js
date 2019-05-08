@@ -9,7 +9,7 @@ var nsIDialogParamBlock = Ci.nsIDialogParamBlock;
 var nsIX509Cert = Ci.nsIX509Cert;
 var nsICMSMessageErrors = Ci.nsICMSMessageErrors;
 var nsICertificateDialogs = Ci.nsICertificateDialogs;
-var nsCertificateDialogs = "@mozilla.org/nsCertificateDialogs;1"
+var nsCertificateDialogs = "@mozilla.org/nsCertificateDialogs;1";
 
 var gSignerCert = null;
 var gEncryptionCert = null;
@@ -27,16 +27,16 @@ function setText(id, value) {
   element.appendChild(textNode);
 }
 
-function onLoad()
-{
+/* eslint-disable complexity */
+function onLoad() {
   var paramBlock = window.arguments[0].QueryInterface(nsIDialogParamBlock);
   paramBlock.objects.QueryInterface(Ci.nsIMutableArray);
   try {
     gSignerCert = paramBlock.objects.queryElementAt(0, nsIX509Cert);
-  } catch(e) { } // maybe null
+  } catch (e) { } // maybe null
   try {
     gEncryptionCert = paramBlock.objects.queryElementAt(1, nsIX509Cert);
-  } catch(e) { } // maybe null
+  } catch (e) { } // maybe null
 
   gSignatureStatus = paramBlock.GetInt(1);
   gEncryptionStatus = paramBlock.GetInt(2);
@@ -127,8 +127,7 @@ function onLoad()
     var str;
     if (sigInfo) {
       str = bundle.getString(sigInfo);
-    }
-    else if (sigInfo_clueless) {
+    } else if (sigInfo_clueless) {
       str = bundle.getString("SIClueless") + " (" + gSignatureStatus + ")";
     }
     setText("signatureExplanation", str);
@@ -175,8 +174,7 @@ function onLoad()
 
     if (encInfo) {
       str = bundle.getString(encInfo);
-    }
-    else if (encInfo_clueless) {
+    } else if (encInfo_clueless) {
       str = bundle.getString("EIClueless");
     }
     setText("encryptionExplanation", str);
@@ -208,27 +206,26 @@ function onLoad()
     }
   }
 }
+/* eslint-enable complexity */
 
 function viewCertHelper(parent, cert) {
   Services.ww.openWindow(parent, "chrome://pippki/content/certViewer.xul",
                          "_blank", "centerscreen,chrome,titlebar", cert);
 }
 
-function viewSignatureCert()
-{
+function viewSignatureCert() {
   if (gSignerCert) {
     viewCertHelper(window, gSignerCert);
   }
 }
 
-function viewEncryptionCert()
-{
+function viewEncryptionCert() {
   if (gEncryptionCert) {
     viewCertHelper(window, gEncryptionCert);
   }
 }
 
-function doHelpButton()
-{
-  openHelp('received_security');
+/* globals openHelp */// Suite only.
+function doHelpButton() {
+  openHelp("received_security");
 }

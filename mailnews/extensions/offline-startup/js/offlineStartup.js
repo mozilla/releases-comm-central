@@ -14,44 +14,33 @@ var kAlwaysOnline       = 2;
 var kAlwaysOffline      = 3;
 var kAutomatic          = 4;
 var gStartingUp         = true;
-var gOfflineStartupMode;  //0 = remember last state, 1 = ask me, 2 == online, 3 == offline, 4 = automatic
+var gOfflineStartupMode;  // 0 = remember last state, 1 = ask me, 2 == online, 3 == offline, 4 = automatic
 var gDebugLog;
 
-////////////////////////////////////////////////////////////////////////
-//
-//   Debug helper
-//
-////////////////////////////////////////////////////////////////////////
+// Debug helper
+
 if (!kDebug)
   gDebugLog = function(m) {};
 else
-  gDebugLog = function(m) {dump("\t *** nsOfflineStartup: " + m + "\n");};
+  gDebugLog = function(m) { dump("\t *** nsOfflineStartup: " + m + "\n"); };
 
-////////////////////////////////////////////////////////////////////////
+// nsOfflineStartup : nsIObserver
 //
-//   nsOfflineStartup : nsIObserver
-//
-//   Check if the user has set the pref to be prompted for
-//   online/offline startup mode. If so, prompt the user. Also,
-//   check if the user wants to remember their offline state
-//   the next time they start up.
-//   If the user shutdown offline, and is now starting up in online
-//   mode, we will set the boolean pref "mailnews.playback_offline" to true.
-//
-////////////////////////////////////////////////////////////////////////
+// Check if the user has set the pref to be prompted for
+// online/offline startup mode. If so, prompt the user. Also,
+// check if the user wants to remember their offline state
+// the next time they start up.
+// If the user shutdown offline, and is now starting up in online
+// mode, we will set the boolean pref "mailnews.playback_offline" to true.
 
-var nsOfflineStartup =
-{
-  onProfileStartup: function()
-  {
+var nsOfflineStartup = {
+  onProfileStartup() {
     gDebugLog("onProfileStartup");
 
-    if (gStartingUp)
-    {
+    if (gStartingUp) {
       gStartingUp = false;
       // if checked, the "work offline" checkbox overrides
-      if (Services.io.offline && !Services.io.manageOfflineStatus)
-      {
+      if (Services.io.offline && !Services.io.manageOfflineStatus) {
         gDebugLog("already offline!");
         return;
       }
@@ -61,18 +50,13 @@ var nsOfflineStartup =
     gOfflineStartupMode = Services.prefs.getIntPref(kOfflineStartupPref);
     let wasOffline = !Services.prefs.getBoolPref("network.online");
 
-    if (gOfflineStartupMode == kAutomatic)
-    {
+    if (gOfflineStartupMode == kAutomatic) {
       // Offline state should be managed automatically
       // so do nothing specific at startup.
-    }
-    else if (gOfflineStartupMode == kAlwaysOffline)
-    {
+    } else if (gOfflineStartupMode == kAlwaysOffline) {
       Services.io.manageOfflineStatus = false;
       Services.io.offline = true;
-    }
-    else if (gOfflineStartupMode == kAlwaysOnline)
-    {
+    } else if (gOfflineStartupMode == kAlwaysOnline) {
       Services.io.manageOfflineStatus = manageOfflineStatus;
       if (wasOffline)
         Services.prefs.setBoolPref("mailnews.playback_offline", true);
@@ -80,23 +64,19 @@ var nsOfflineStartup =
       // be the network really is offline.
       if (!manageOfflineStatus)
         Services.io.offline = false;
-    }
-    else if (gOfflineStartupMode == kRememberLastState)
-    {
+    } else if (gOfflineStartupMode == kRememberLastState) {
       Services.io.manageOfflineStatus = manageOfflineStatus && !wasOffline;
       // If we are meant to be online, and managing the offline status
       // then don't force it - it may be the network really is offline.
       if (!manageOfflineStatus || wasOffline)
         Services.io.offline = wasOffline;
-    }
-    else if (gOfflineStartupMode == kAskForOnlineState)
-    {
+    } else if (gOfflineStartupMode == kAskForOnlineState) {
       var bundle = Services.strings.createBundle("chrome://messenger/locale/offlineStartup.properties");
       var title = bundle.GetStringFromName("title");
       var desc = bundle.GetStringFromName("desc");
       var button0Text = bundle.GetStringFromName("workOnline");
       var button1Text = bundle.GetStringFromName("workOffline");
-      var checkVal = {value:0};
+      var checkVal = {value: 0};
 
       var result = Services.prompt.confirmEx(null, title, desc,
         (Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_IS_STRING) +
@@ -110,41 +90,31 @@ var nsOfflineStartup =
     }
   },
 
-  observe: function(aSubject, aTopic, aData)
-  {
+  observe(aSubject, aTopic, aData) {
     gDebugLog("observe: " + aTopic);
 
-    if (aTopic == "profile-change-net-teardown")
-    {
+    if (aTopic == "profile-change-net-teardown") {
       gDebugLog("remembering offline state");
       Services.prefs.setBoolPref("network.online", !Services.io.offline);
-    }
-    else if (aTopic == "app-startup")
-    {
+    } else if (aTopic == "app-startup") {
       Services.obs.addObserver(this, "profile-after-change");
       Services.obs.addObserver(this, "profile-change-net-teardown");
-    }
-    else if (aTopic == "profile-after-change")
-    {
+    } else if (aTopic == "profile-after-change") {
       this.onProfileStartup();
     }
   },
 
 
   QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
+};
+
+function nsOfflineStartupModule() {
 }
 
-function nsOfflineStartupModule()
-{
-}
-
-nsOfflineStartupModule.prototype =
-{
+nsOfflineStartupModule.prototype = {
   classID: Components.ID("3028a3c8-2165-42a4-b878-398da5d32736"),
-  _xpcom_factory:
-  {
-    createInstance: function(aOuter, aIID)
-    {
+  _xpcom_factory: {
+    createInstance(aOuter, aIID) {
       if (aOuter != null)
         throw Cr.NS_ERROR_NO_AGGREGATION;
 
@@ -152,11 +122,10 @@ nsOfflineStartupModule.prototype =
       return nsOfflineStartup.QueryInterface(aIID);
     },
 
-    lockFactory: function(aLock)
-    {
+    lockFactory(aLock) {
       // quieten warnings
-    }
-  }
+    },
+  },
 };
 
 var components = [nsOfflineStartupModule];

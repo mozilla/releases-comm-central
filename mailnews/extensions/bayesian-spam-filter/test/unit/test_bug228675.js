@@ -6,6 +6,7 @@
 
 // main setup
 
+/* import-globals-from resources/trainingfile.js */
 load("resources/trainingfile.js");
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
@@ -25,8 +26,7 @@ var classifications = [ kGood,       kGood,       kJunk,
 var trainingData;
 
 // main test
-function run_test()
-{
+function run_test() {
   localAccountUtils.loadLocalMailAccount();
   MailServices.junk.resetTrainingData();
 
@@ -39,16 +39,13 @@ function run_test()
     kUnclassified, classification, null, doTestingListener);
 }
 
-var doTestingListener =
-{
-  onMessageClassified: function(aMsgURI, aClassification, aJunkPercent)
-  {
+var doTestingListener = {
+  onMessageClassified(aMsgURI, aClassification, aJunkPercent) {
     if (!aMsgURI)
       return; // ignore end-of-batch signal
     var email = emails.shift();
     var classification = classifications.shift();
-    if (email)
-    {
+    if (email) {
       MailServices.junk.setMessageClassification(getSpec(email),
           kUnclassified, classification, null, doTestingListener);
       return;
@@ -100,13 +97,12 @@ var doTestingListener =
     checkToken("important", 1, 0); // (2/2, 0/2)
 
     do_test_finished();
-  }
+  },
 };
 
 // helper functions
 
-function checkToken(aToken, aGoodCount, aJunkCount)
-{
+function checkToken(aToken, aGoodCount, aJunkCount) {
   print(" checking " + aToken);
   var goodCount = trainingData.mGoodCounts[aToken];
   var junkCount = trainingData.mJunkCounts[aToken];

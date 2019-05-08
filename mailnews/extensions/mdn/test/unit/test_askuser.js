@@ -8,8 +8,7 @@ identity.email = "bob@t2.example.net";
 localAccount.addIdentity(identity);
 localAccount.defaultIdentity = identity;
 
-function run_test()
-{
+function run_test() {
   var headers =
     "from: alice@t1.example.com\r\n" +
     "to: bob@t2.example.net\r\n" +
@@ -20,10 +19,10 @@ function run_test()
                   .createInstance(Ci.nsIMimeHeaders);
   mimeHdr.initialize(headers);
   let receivedHeader = mimeHdr.extractHeader("To", false);
-  dump(receivedHeader+"\n");
+  dump(receivedHeader + "\n");
 
-  let localFolder = localAccountUtils.inboxFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
-  localAccountUtils.inboxFolder.addMessage("From \r\n"+ headers + "\r\nhello\r\n");
+  localAccountUtils.inboxFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  localAccountUtils.inboxFolder.addMessage("From \r\n" + headers + "\r\nhello\r\n");
   // Need to setup some prefs
   Services.prefs.setBoolPref("mail.mdn.report.enabled", true);
   Services.prefs.setIntPref("mail.mdn.report.not_in_to_cc", 2);
@@ -46,7 +45,7 @@ function run_test()
   Assert.ok(!askUser);
 
   Services.prefs.setIntPref("mail.mdn.report.outside_domain", 2);
-  var askUser = mdnGenerator.process(Ci.nsIMsgMdnGenerator.eDisplayed, msgWindow, msgFolder,
-                                     msgHdr.messageKey, mimeHdr, false);
+  askUser = mdnGenerator.process(Ci.nsIMsgMdnGenerator.eDisplayed, msgWindow, msgFolder,
+                                 msgHdr.messageKey, mimeHdr, false);
   Assert.ok(askUser);
 }

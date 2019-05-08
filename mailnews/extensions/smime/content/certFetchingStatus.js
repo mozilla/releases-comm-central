@@ -29,13 +29,11 @@ var gLogin;
 
 document.addEventListener("dialogcancel", stopFetching);
 
-function onLoad()
-{
+function onLoad() {
   gDirectoryPref = window.arguments[0];
   gEmailAddresses = window.arguments[1];
 
-  if (!gEmailAddresses.length)
-  {
+  if (!gEmailAddresses.length) {
     window.close();
     return;
   }
@@ -43,8 +41,7 @@ function onLoad()
   setTimeout(search, 1);
 }
 
-function search()
-{
+function search() {
   // get the login to authenticate as, if there is one
   try {
     gLogin = Services.prefs.getStringPref(gDirectoryPref + ".auth.dn");
@@ -63,7 +60,6 @@ function search()
 
     gLdapConnection.init(gLdapServerURL, gLogin, new boundListener(),
       null, Ci.nsILDAPConnection.VERSION3);
-
   } catch (ex) {
     dump(ex);
     dump(" exception creating ldap connection\n");
@@ -71,24 +67,21 @@ function search()
   }
 }
 
-function stopFetching()
-{
+function stopFetching() {
   if (gLdapOperation) {
     try {
       gLdapOperation.abandon();
-    }
-    catch (e) {
+    } catch (e) {
     }
   }
 }
 
-function importCert(ber_value)
-{
+function importCert(ber_value) {
   if (!gCertDB) {
     gCertDB = Cc[nsX509CertDB].getService(nsIX509CertDB);
   }
 
-  var cert_length = new Object();
+  var cert_length = {};
   var cert_bytes = ber_value.get(cert_length);
 
   if (cert_bytes) {
@@ -96,23 +89,20 @@ function importCert(ber_value)
   }
 }
 
-function getLDAPOperation()
-{
-    gLdapOperation = Cc["@mozilla.org/network/ldap-operation;1"]
-      .createInstance().QueryInterface(Ci.nsILDAPOperation);
+function getLDAPOperation() {
+  gLdapOperation = Cc["@mozilla.org/network/ldap-operation;1"]
+                     .createInstance(Ci.nsILDAPOperation);
 
-    gLdapOperation.init(gLdapConnection,
-                        new ldapMessageListener(),
-                        null);
+  gLdapOperation.init(gLdapConnection,
+                      new ldapMessageListener(),
+                      null);
 }
 
-function getPassword()
-{
+function getPassword() {
   // we only need a password if we are using credentials
-  if (gLogin)
-  {
+  if (gLogin) {
     let authPrompter = Services.ww.getNewAuthPrompter(window.QueryInterface(Ci.nsIDOMWindow));
-    let strBundle = document.getElementById('bundle_ldap');
+    let strBundle = document.getElementById("bundle_ldap");
     let password = { value: "" };
 
     // nsLDAPAutocompleteSession uses asciiHost instead of host for the prompt text, I think we should be
@@ -128,19 +118,16 @@ function getPassword()
   return null;
 }
 
-function kickOffBind()
-{
+function kickOffBind() {
   try {
     getLDAPOperation();
     gLdapOperation.simpleBind(getPassword());
-  }
-  catch (e) {
+  } catch (e) {
     window.close();
   }
 }
 
-function kickOffSearch()
-{
+function kickOffSearch() {
   try {
     var prefix1 = "";
     var suffix1 = "";
@@ -148,10 +135,9 @@ function kickOffSearch()
     var urlFilter = gLdapServerURL.filter;
 
     if (urlFilter != null && urlFilter.length > 0 && urlFilter != "(objectclass=*)") {
-      if (urlFilter.startsWith('(')) {
+      if (urlFilter.startsWith("(")) {
         prefix1 = "(&" + urlFilter;
-      }
-      else {
+      } else {
         prefix1 = "(&(" + urlFilter + ")";
       }
       suffix1 = ")";
@@ -187,8 +173,7 @@ function kickOffSearch()
     getLDAPOperation();
     gLdapOperation.searchExt(gLdapServerURL.dn, gLdapServerURL.scope,
                              filter, wanted_attributes, 0, maxEntriesWanted);
-  }
-  catch (e) {
+  } catch (e) {
     window.close();
   }
 }
@@ -200,14 +185,11 @@ function boundListener() {
 boundListener.prototype.QueryInterface =
   ChromeUtils.generateQI(["nsILDAPMessageListener"]);
 
-boundListener.prototype.onLDAPMessage =
-  function(aMessage) {
-  }
+boundListener.prototype.onLDAPMessage = function(aMessage) {};
 
-boundListener.prototype.onLDAPInit =
-  function(aConn, aStatus) {
-    kickOffBind();
-  }
+boundListener.prototype.onLDAPInit = function(aConn, aStatus) {
+  kickOffBind();
+};
 
 
 function ldapMessageListener() {
@@ -226,29 +208,25 @@ ldapMessageListener.prototype.onLDAPMessage =
     if (Ci.nsILDAPMessage.RES_BIND == aMessage.type) {
       if (Ci.nsILDAPErrors.SUCCESS != aMessage.errorCode) {
         window.close();
-      }
-      else {
+      } else {
         kickOffSearch();
       }
       return;
     }
 
     if (Ci.nsILDAPMessage.RES_SEARCH_ENTRY == aMessage.type) {
-      var outSize = new Object();
+      var outSize = {};
       try {
         var outBinValues = aMessage.getBinaryValues(CertAttribute, outSize);
 
-        var i;
-        for (i=0; i < outSize.value; ++i) {
+        for (let i = 0; i < outSize.value; ++i) {
           importCert(outBinValues[i]);
         }
+      } catch (e) {
       }
-      catch (e) {
-      }
-      return;
     }
-  }
+  };
 
 ldapMessageListener.prototype.onLDAPInit =
   function(aConn, aStatus) {
-  }
+  };
