@@ -8,9 +8,11 @@ var CC = Components.Constructor;
 do_get_profile();
 
 // Import the required setup scripts.
+/* import-globals-from ../../../test/resources/abSetup.js */
 load("../../../resources/abSetup.js");
 
 // Import the script with basic import functions
+/* import-globals-from resources/import_helper.js */
 load("resources/import_helper.js");
 
 registerCleanupFunction(function() {

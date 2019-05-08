@@ -8,11 +8,10 @@
  *   -Bug 182128: Edit Card, Notes on several lines appear on one after
  *                export/import in text format *(only tests the import).
  */
-function run_test()
-{
+function run_test() {
   // Due to the import code using nsIAbManager off the main thread, we need
   // to ensure that it is initialized before we start the main test.
-  let abMgr = MailServices.ab;
+  MailServices.ab;
 
   let file = do_get_file("resources/basic_csv_addressbook.csv");
   new AbImportHelper(file, "csv", "basic_csv_addressbook",

@@ -6,6 +6,8 @@
 
 "use strict";
 
+/* import-globals-from ../../extensions/newsblog/content/feed-subscriptions.js */
+
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
@@ -23,8 +25,7 @@ var gNewFeedAcctCreated = false;
 
 var nsISupportsString = Ci.nsISupportsString;
 
-function OnLoadImportDialog()
-{
+function OnLoadImportDialog() {
   gImportMsgsBundle = document.getElementById("bundle_importMsgs");
   gFeedsBundle = document.getElementById("bundle_feeds");
   gImportService = Cc["@mozilla.org/import/import-service;1"]
@@ -48,14 +49,11 @@ function OnLoadImportDialog()
 
   // look in arguments[0] for parameters
   if (("arguments" in window) && window.arguments.length >= 1 &&
-      ("importType" in window.arguments[0]) && window.arguments[0].importType)
-  {
+      ("importType" in window.arguments[0]) && window.arguments[0].importType) {
     // keep parameters in global for later
     gImportType = window.arguments[0].importType;
     gProgressInfo.importType = gImportType;
-  }
-  else
-  {
+  } else {
     gImportType = "all";
     gProgressInfo.importType = "all";
   }
@@ -70,14 +68,12 @@ function OnLoadImportDialog()
 }
 
 
-function SetUpImportType()
-{
+function SetUpImportType() {
   // set dialog title
   document.getElementById("importFields").value = gImportType;
 
   // Mac migration not working right now, so disable it.
-  if (Services.appinfo.OS == "Darwin")
-  {
+  if (Services.appinfo.OS == "Darwin") {
     document.getElementById("allRadio").setAttribute("disabled", "true");
     if (gImportType == "all")
       document.getElementById("importFields").value = "addressbook";
@@ -85,44 +81,38 @@ function SetUpImportType()
 
   let descriptionDeck = document.getElementById("selectDescriptionDeck");
   descriptionDeck.selectedIndex = 0;
-  if (gImportType == "feeds")
-  {
+  if (gImportType == "feeds") {
     descriptionDeck.selectedIndex = 1;
     ListFeedAccounts();
-  }
-  else
+  } else {
     ListModules();
+  }
 }
 
 
-function SetDivText(id, text)
-{
+function SetDivText(id, text) {
   var div = document.getElementById(id);
 
   if (div) {
     if (!div.hasChildNodes()) {
       var textNode = document.createTextNode(text);
       div.appendChild(textNode);
-    }
-    else if (div.childNodes.length == 1) {
+    } else if (div.childNodes.length == 1) {
       div.childNodes[0].nodeValue = text;
     }
   }
 }
 
-function CheckIfLocalFolderExists()
-{
+function CheckIfLocalFolderExists() {
   try {
     if (MailServices.accounts.localFoldersServer)
       gProgressInfo.localFolderExists = true;
-  }
-  catch (ex) {
+  } catch (ex) {
     gProgressInfo.localFolderExists = false;
   }
 }
 
-async function ImportDialogOKButton()
-{
+async function ImportDialogOKButton() {
   var listbox = document.getElementById("moduleList");
   var deck = document.getElementById("stateDeck");
   var header = document.getElementById("header");
@@ -137,24 +127,21 @@ async function ImportDialogOKButton()
   var backButton = document.getElementById("back");
   backButton.setAttribute("disabled", "true");
 
-  if (listbox && (listbox.selectedCount == 1))
-  {
+  if (listbox && (listbox.selectedCount == 1)) {
     let module = "";
     let name = "";
     gImportType = document.getElementById("importFields").value;
     let index = listbox.selectedItem.getAttribute("list-index");
     if (index == -1)
       return false;
-    if (gImportType == "feeds")
+    if (gImportType == "feeds") {
       module = "Feeds";
-    else
-    {
+    } else {
       module = gImportService.GetModule(gImportType, index);
       name = gImportService.GetModuleName(gImportType, index);
     }
     gSelectedModuleName = name;
-    if (module)
-    {
+    if (module) {
       // Fix for Bug 57839 & 85219
       // We use localFoldersServer(in nsIMsgAccountManager) to check if Local Folder exists.
       // We need to check localFoldersServer before importing "mail", "settings", or "filters".
@@ -166,47 +153,39 @@ async function ImportDialogOKButton()
 
       let meterText = "";
       let error = {};
-      switch(gImportType)
-      {
+      switch (gImportType) {
         case "mail":
-          if (ImportMail(module, gSuccessStr, gErrorStr))
-          {
+          if (ImportMail(module, gSuccessStr, gErrorStr)) {
             // We think it was a success, either, we need to
             // wait for the import to finish
             // or we are done!
             if (gProgressInfo.importInterface == null) {
-              ShowImportResults(true, 'Mail');
+              ShowImportResults(true, "Mail");
               return true;
             }
-            else {
-              meterText = gImportMsgsBundle.getFormattedString('MailProgressMeterText',
-                                                               [ name ]);
-              header.setAttribute("description", meterText);
 
-              progressStatusEl.setAttribute("label", "");
-              progressTitleEl.setAttribute("label", meterText);
+            meterText = gImportMsgsBundle.getFormattedString("MailProgressMeterText", [ name ]);
+            header.setAttribute("description", meterText);
 
-              deck.selectedIndex = 2;
-              gProgressInfo.progressWindow = window;
-              gProgressInfo.intervalState = setInterval(ContinueImportCallback, 100);
-              return true;
-            }
+            progressStatusEl.setAttribute("label", "");
+            progressTitleEl.setAttribute("label", meterText);
+
+            deck.selectedIndex = 2;
+            gProgressInfo.progressWindow = window;
+            gProgressInfo.intervalState = setInterval(ContinueImportCallback, 100);
+            return true;
           }
-          else
-          {
-            ShowImportResults(false, 'Mail');
-            // Re-enable the next button, as we are here, because the user cancelled the picking.
-            // Enable next, so they can try again.
-            nextButton.removeAttribute("disabled");
-            // Also enable back button so that users can pick other import options.
-            backButton.removeAttribute("disabled");
-            return false;
-          }
-          break;
+
+          ShowImportResults(false, "Mail");
+          // Re-enable the next button, as we are here, because the user cancelled the picking.
+          // Enable next, so they can try again.
+          nextButton.removeAttribute("disabled");
+          // Also enable back button so that users can pick other import options.
+          backButton.removeAttribute("disabled");
+          return false;
 
         case "feeds":
-          if (await ImportFeeds())
-          {
+          if (await ImportFeeds()) {
             // Successful completion of pre processing and launch of async import.
             meterText = document.getElementById("description").textContent;
             header.setAttribute("description", meterText);
@@ -218,16 +197,13 @@ async function ImportDialogOKButton()
             deck.selectedIndex = 2;
             return true;
           }
-          else
-          {
-            // Re-enable the next button, as we are here, because the user cancelled the picking.
-            // Enable next, so they can try again.
-            nextButton.removeAttribute("disabled");
-            // Also enable back button so that users can pick other import options.
-            backButton.removeAttribute("disabled");
-            return false;
-          }
-          break;
+
+          // Re-enable the next button, as we are here, because the user cancelled the picking.
+          // Enable next, so they can try again.
+          nextButton.removeAttribute("disabled");
+          // Also enable back button so that users can pick other import options.
+          backButton.removeAttribute("disabled");
+          return false;
 
         case "addressbook":
           if (await ImportAddress(module, gSuccessStr, gErrorStr)) {
@@ -235,41 +211,35 @@ async function ImportDialogOKButton()
             // wait for the import to finish
             // or we are done!
             if (gProgressInfo.importInterface == null) {
-              ShowImportResults(true, 'Address');
+              ShowImportResults(true, "Address");
               return true;
             }
-            else {
-              meterText = gImportMsgsBundle.getFormattedString('AddrProgressMeterText',
-                                                               [ name ]);
-              header.setAttribute("description", meterText);
 
-              progressStatusEl.setAttribute("label", "");
-              progressTitleEl.setAttribute("label", meterText);
+            meterText = gImportMsgsBundle.getFormattedString("AddrProgressMeterText", [ name ]);
+            header.setAttribute("description", meterText);
 
-              deck.selectedIndex = 2;
-              gProgressInfo.progressWindow = window;
-              gProgressInfo.intervalState = setInterval(ContinueImportCallback, 100);
+            progressStatusEl.setAttribute("label", "");
+            progressTitleEl.setAttribute("label", meterText);
 
-              return true;
-            }
+            deck.selectedIndex = 2;
+            gProgressInfo.progressWindow = window;
+            gProgressInfo.intervalState = setInterval(ContinueImportCallback, 100);
+
+            return true;
           }
-          else
-          {
-            ShowImportResults(false, 'Address');
-            // Re-enable the next button, as we are here, because the user cancelled the picking.
-            // Enable next, so they can try again.
-            nextButton.removeAttribute("disabled");
-            // Also enable back button so that users can pick other import options.
-            backButton.removeAttribute("disabled");
-            return false;
-          }
-          break;
+
+          ShowImportResults(false, "Address");
+          // Re-enable the next button, as we are here, because the user cancelled the picking.
+          // Enable next, so they can try again.
+          nextButton.removeAttribute("disabled");
+          // Also enable back button so that users can pick other import options.
+          backButton.removeAttribute("disabled");
+          return false;
 
         case "settings":
           error.value = null;
           let newAccount = {};
-          if (!(await ImportSettings(module, newAccount, error)))
-          {
+          if (!(await ImportSettings(module, newAccount, error))) {
             if (error.value)
               ShowImportResultsRaw(gImportMsgsBundle.getString("ImportSettingsFailed"),
                                    null, false);
@@ -280,16 +250,14 @@ async function ImportDialogOKButton()
             backButton.removeAttribute("disabled");
             return false;
           }
-          else
-            ShowImportResultsRaw(
-             gImportMsgsBundle.getFormattedString("ImportSettingsSuccess", [ name ]),
-             null, true);
+          ShowImportResultsRaw(
+            gImportMsgsBundle.getFormattedString("ImportSettingsSuccess", [ name ]),
+            null, true);
           break;
 
         case "filters":
           error.value = null;
-          if (!ImportFilters(module, error))
-          {
+          if (!ImportFilters(module, error)) {
             if (error.value)
               ShowImportResultsRaw(
                 gImportMsgsBundle.getFormattedString("ImportFiltersFailed", [ name ]),
@@ -301,17 +269,19 @@ async function ImportDialogOKButton()
             backButton.removeAttribute("disabled");
             return false;
           }
-          else
-          {
-            if (error.value)
-              ShowImportResultsRaw(
-                gImportMsgsBundle.getFormattedString('ImportFiltersPartial', [ name ]),
-                error.value, true);
-            else
-              ShowImportResultsRaw(
-                gImportMsgsBundle.getFormattedString('ImportFiltersSuccess', [ name ]),
-                null, true);
+
+          if (error.value) {
+            ShowImportResultsRaw(
+              gImportMsgsBundle.getFormattedString("ImportFiltersPartial", [ name ]),
+              error.value, true
+            );
+          } else {
+            ShowImportResultsRaw(
+              gImportMsgsBundle.getFormattedString("ImportFiltersSuccess", [ name ]),
+              null, true
+            );
           }
+
           break;
       }
     }
@@ -320,52 +290,44 @@ async function ImportDialogOKButton()
   return true;
 }
 
-function SetStatusText(val)
-{
+function SetStatusText(val) {
   var progressStatus = document.getElementById("progressStatus");
   progressStatus.setAttribute("label", val);
 }
 
-function SetProgress(val)
-{
+function SetProgress(val) {
   var progressMeter = document.getElementById("progressMeter");
   progressMeter.value = val;
 }
 
-function ContinueImportCallback()
-{
+function ContinueImportCallback() {
   gProgressInfo.mainWindow.ContinueImport(gProgressInfo);
 }
 
-function ImportSelectionChanged()
-{
-  let listbox = document.getElementById('moduleList');
-  let acctNameBox = document.getElementById('acctName-box');
-  if (listbox && (listbox.selectedCount == 1))
-  {
+function ImportSelectionChanged() {
+  let listbox = document.getElementById("moduleList");
+  let acctNameBox = document.getElementById("acctName-box");
+  if (listbox && (listbox.selectedCount == 1)) {
     let index = listbox.selectedItem.getAttribute("list-index");
     if (index == -1)
       return;
-    acctNameBox.setAttribute('style', 'visibility: hidden;');
-    if (gImportType == "feeds")
-    {
-      if (index == 0)
-      {
-        SetDivText('description', gFeedsBundle.getString('ImportFeedsNewAccount'));
+    acctNameBox.setAttribute("style", "visibility: hidden;");
+    if (gImportType == "feeds") {
+      if (index == 0) {
+        SetDivText("description", gFeedsBundle.getString("ImportFeedsNewAccount"));
         let defaultName = gFeedsBundle.getString("feeds-accountname");
         document.getElementById("acctName").value = defaultName;
-        acctNameBox.removeAttribute('style');
+        acctNameBox.removeAttribute("style");
+      } else {
+        SetDivText("description", gFeedsBundle.getString("ImportFeedsExistingAccount"));
       }
-      else
-        SetDivText('description', gFeedsBundle.getString('ImportFeedsExistingAccount'));
-    }
-    else
+    } else {
       SetDivText("description", gImportService.GetModuleDescription(gImportType, index));
+    }
   }
 }
 
-function CompareImportModuleName(a, b)
-{
+function CompareImportModuleName(a, b) {
   if (a.name > b.name)
     return 1;
   if (a.name < b.name)
@@ -398,15 +360,14 @@ function ListModules() {
   }
 }
 
-function AddModuleToList(moduleName, index)
-{
+function AddModuleToList(moduleName, index) {
   var body = document.getElementById("moduleList");
 
   let item = document.createElement("richlistitem");
   let label = document.createElement("label");
   label.setAttribute("value", moduleName);
   item.appendChild(label);
-  item.setAttribute('list-index', index);
+  item.setAttribute("list-index", index);
   body.appendChild(item);
 }
 
@@ -442,7 +403,7 @@ function ListFeedAccounts() {
 }
 
 function ContinueImport(info) {
-  var isMail = info.importType == 'mail';
+  var isMail = info.importType == "mail";
   var clear = true;
   var deck;
   var pcnt;
@@ -457,9 +418,8 @@ function ContinueImport(info) {
         info.progressWindow = null;
       }
 
-      ShowImportResults(false, isMail ? 'Mail' : 'Address');
-    }
-    else if ((pcnt = info.importInterface.GetProgress()) < 100) {
+      ShowImportResults(false, isMail ? "Mail" : "Address");
+    } else if ((pcnt = info.importInterface.GetProgress()) < 100) {
       clear = false;
       if (info.progressWindow != null) {
         if (pcnt < 5)
@@ -474,8 +434,7 @@ function ContinueImport(info) {
           }
         }
       }
-    }
-    else {
+    } else {
       dump("*** WARNING! sometimes this shows results too early. \n");
       dump("    something screwy here. this used to work fine.\n");
       clearInterval(info.intervalState);
@@ -486,7 +445,7 @@ function ContinueImport(info) {
         info.progressWindow = null;
       }
 
-      ShowImportResults(true, isMail ? 'Mail' : 'Address');
+      ShowImportResults(true, isMail ? "Mail" : "Address");
     }
   }
   if (clear) {
@@ -496,12 +455,9 @@ function ContinueImport(info) {
 }
 
 
-function ShowResults(doesWantProgress, result)
-{
-  if (result)
-  {
-    if (doesWantProgress)
-    {
+function ShowResults(doesWantProgress, result) {
+  if (result) {
+    if (doesWantProgress) {
       let deck = document.getElementById("stateDeck");
       let header = document.getElementById("header");
       let progressStatusEl = document.getElementById("progressStatus");
@@ -516,27 +472,22 @@ function ShowResults(doesWantProgress, result)
       deck.selectedIndex = 2;
       gProgressInfo.progressWindow = window;
       gProgressInfo.intervalState = setInterval(ContinueImportCallback, 100);
+    } else {
+      ShowImportResults(true, "Address");
     }
-    else
-    {
-      ShowImportResults(true, 'Address');
-    }
-  }
-  else
-  {
-    ShowImportResults(false, 'Address');
+  } else {
+    ShowImportResults(false, "Address");
   }
 
   return true;
 }
 
-function ShowImportResults(good, module)
-{
+function ShowImportResults(good, module) {
   // String keys for ImportSettingsSuccess, ImportSettingsFailed,
   // ImportMailSuccess, ImportMailFailed, ImportAddressSuccess,
   // ImportAddressFailed, ImportFiltersSuccess, and ImportFiltersFailed.
-  var modSuccess = 'Import' + module + 'Success';
-  var modFailed = 'Import' + module + 'Failed';
+  var modSuccess = "Import" + module + "Success";
+  var modFailed = "Import" + module + "Failed";
 
   // The callers seem to set 'good' to true even if there's something
   // in the error log. So we should only make it a success case if
@@ -546,8 +497,7 @@ function ShowImportResults(good, module)
   if (good && !gErrorStr.data) {
     title = gImportMsgsBundle.getFormattedString(modSuccess, [ moduleName ]);
     results = gSuccessStr.data;
-  }
-  else if (gErrorStr.data) {
+  } else if (gErrorStr.data) {
     title = gImportMsgsBundle.getFormattedString(modFailed, [ moduleName ]);
     results = gErrorStr.data;
   }
@@ -556,8 +506,7 @@ function ShowImportResults(good, module)
     ShowImportResultsRaw(title, results, good);
 }
 
-function ShowImportResultsRaw(title, results, good)
-{
+function ShowImportResultsRaw(title, results, good) {
   SetDivText("status", title);
   var header = document.getElementById("header");
   header.setAttribute("description", title);
@@ -582,8 +531,7 @@ function ShowImportResultsRaw(title, results, good)
   }
 }
 
-function attachStrings(aNode, aString)
-{
+function attachStrings(aNode, aString) {
   var attachNode = document.getElementById(aNode);
   if (!aString) {
     attachNode.parentNode.setAttribute("hidden", "true");
@@ -594,7 +542,7 @@ function attachStrings(aNode, aString)
     if (string) {
       let currNode = document.createTextNode(string);
       attachNode.appendChild(currNode);
-      let br = document.createElementNS("http://www.w3.org/1999/xhtml", 'br');
+      let br = document.createElementNS("http://www.w3.org/1999/xhtml", "br");
       attachNode.appendChild(br);
     }
   }
@@ -627,7 +575,7 @@ function promptForFile(fp) {
 async function ImportSettings(module, newAccount, error) {
   var setIntf = module.GetImportInterface("settings");
   if (!(setIntf instanceof Ci.nsIImportSettings)) {
-    error.value = gImportMsgsBundle.getString('ImportSettingsBadModule');
+    error.value = gImportMsgsBundle.getString("ImportSettingsBadModule");
     return false;
   }
 
@@ -650,27 +598,23 @@ async function ImportSettings(module, newAccount, error) {
             filePicker.appendFilters(filePicker.filterAll);
 
             file = await promptForFile(filePicker);
-          }
-          catch(ex) {
+          } catch (ex) {
             Cu.reportError(ex);
             error.value = null;
             return false;
           }
           if (file != null) {
             setIntf.SetLocation(file);
-          }
-          else {
+          } else {
             error.value = null;
             return false;
           }
-      }
-      else {
-        error.value = gImportMsgsBundle.getString('ImportSettingsNotFound');
+      } else {
+        error.value = gImportMsgsBundle.getString("ImportSettingsNotFound");
         return false;
       }
-    }
-    else {
-      error.value = gImportMsgsBundle.getString('ImportSettingsNotFound');
+    } else {
+      error.value = gImportMsgsBundle.getString("ImportSettingsNotFound");
       return false;
     }
   }
@@ -680,14 +624,14 @@ async function ImportSettings(module, newAccount, error) {
   // that's really only useful for "Upgrade"
   result = setIntf.Import(newAccount);
   if (!result) {
-    error.value = gImportMsgsBundle.getString('ImportSettingsFailed');
+    error.value = gImportMsgsBundle.getString("ImportSettingsFailed");
   }
   return result;
 }
 
 async function ImportMail(module, success, error) {
   if (gProgressInfo.importInterface || gProgressInfo.intervalState) {
-    error.data = gImportMsgsBundle.getString('ImportAlreadyInProgress');
+    error.data = gImportMsgsBundle.getString("ImportAlreadyInProgress");
     return false;
   }
 
@@ -695,7 +639,7 @@ async function ImportMail(module, success, error) {
 
   var mailInterface = module.GetImportInterface("mail");
   if (!(mailInterface instanceof Ci.nsIImportGeneric)) {
-    error.data = gImportMsgsBundle.getString('ImportMailBadModule');
+    error.data = gImportMsgsBundle.getString("ImportMailBadModule");
     return false;
   }
 
@@ -716,19 +660,17 @@ async function ImportMail(module, success, error) {
               return false;
             }
             mailInterface.SetData("mailLocation", file);
-          } catch(ex) {
+          } catch (ex) {
             Cu.reportError(ex);
             // don't show an error when we return!
             return false;
           }
-      }
-      else {
-        error.data = gImportMsgsBundle.getString('ImportMailNotFound');
+      } else {
+        error.data = gImportMsgsBundle.getString("ImportMailNotFound");
         return false;
       }
-    }
-    else {
-      error.data = gImportMsgsBundle.getString('ImportMailNotFound');
+    } else {
+      error.data = gImportMsgsBundle.getString("ImportMailNotFound");
       return false;
     }
   }
@@ -739,8 +681,7 @@ async function ImportMail(module, success, error) {
       // intervalState = setInterval(ContinueImport, 100);
       return true;
     }
-    else
-      return false;
+    return false;
   }
   return mailInterface.BeginImport(success, error);
 }
@@ -750,7 +691,7 @@ async function ImportMail(module, success, error) {
 // due to field maps...
 async function ImportAddress(module, success, error) {
   if (gProgressInfo.importInterface || gProgressInfo.intervalState) {
-    error.data = gImportMsgsBundle.getString('ImportAlreadyInProgress');
+    error.data = gImportMsgsBundle.getString("ImportAlreadyInProgress");
     return false;
   }
 
@@ -758,7 +699,7 @@ async function ImportAddress(module, success, error) {
 
   gAddInterface = module.GetImportInterface("addressbook");
   if (!(gAddInterface instanceof Ci.nsIImportGeneric)) {
-    error.data = gImportMsgsBundle.getString('ImportAddressBadModule');
+    error.data = gImportMsgsBundle.getString("ImportAddressBadModule");
     return false;
   }
 
@@ -774,13 +715,13 @@ async function ImportAddress(module, success, error) {
     // as the user for the location or not?
     if (gAddInterface.GetStatus("canUserSetLocation") == 0) {
       // an autofind address book that could not be found!
-      error.data = gImportMsgsBundle.getString('ImportAddressNotFound');
+      error.data = gImportMsgsBundle.getString("ImportAddressNotFound");
       return false;
     }
 
     let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance();
     if (!(filePicker instanceof Ci.nsIFilePicker)) {
-      error.data = gImportMsgsBundle.getString('ImportAddressNotFound');
+      error.data = gImportMsgsBundle.getString("ImportAddressNotFound");
       return false;
     }
 
@@ -800,12 +741,11 @@ async function ImportAddress(module, success, error) {
         if (file && file.path) {
           fileIsDirectory = true;
         }
-      } catch(ex) {
+      } catch (ex) {
         Cu.reportError(ex);
         file = null;
       }
-    }
-    else {
+    } else {
       // ask for file
       try {
         filePicker.init(window,
@@ -815,19 +755,19 @@ async function ImportAddress(module, success, error) {
         if (gSelectedModuleName ==
             document.getElementById("bundle_vcardImportMsgs")
                     .getString("vCardImportName")) {
-          filePicker.appendFilter(addressbookBundle.getString('VCFFiles'), "*.vcf");
+          filePicker.appendFilter(addressbookBundle.getString("VCFFiles"), "*.vcf");
         } else {
-          filePicker.appendFilter(addressbookBundle.getString('LDIFFiles'), "*.ldi; *.ldif");
-          filePicker.appendFilter(addressbookBundle.getString('CSVFiles'), "*.csv");
-          filePicker.appendFilter(addressbookBundle.getString('TABFiles'), "*.tab; *.txt");
-          filePicker.appendFilter(addressbookBundle.getString('SupportedABFiles'), ".csv; *.ldi; *.ldif; *.tab; *.txt");
+          filePicker.appendFilter(addressbookBundle.getString("LDIFFiles"), "*.ldi; *.ldif");
+          filePicker.appendFilter(addressbookBundle.getString("CSVFiles"), "*.csv");
+          filePicker.appendFilter(addressbookBundle.getString("TABFiles"), "*.tab; *.txt");
+          filePicker.appendFilter(addressbookBundle.getString("SupportedABFiles"), ".csv; *.ldi; *.ldif; *.tab; *.txt");
           filePicker.appendFilters(filePicker.filterAll);
           // Use "Supported Address Book Files" as default file filter.
           filePicker.filterIndex = 3;
         }
 
         file = await promptForFile(filePicker);
-      } catch(ex) {
+      } catch (ex) {
         Cu.reportError(ex);
         file = null;
       }
@@ -855,9 +795,11 @@ async function ImportAddress(module, success, error) {
       "chrome://messenger/content/fieldMapImport.xul",
       "",
       "chrome,modal,titlebar",
-      { fieldMap: map,
+      {
+        fieldMap: map,
         addInterface: gAddInterface,
-        result: result });
+        result,
+      });
 
     if (!result.ok)
       return false;
@@ -880,10 +822,9 @@ async function ImportAddress(module, success, error) {
   Returns false if it failed and true if it succeeded.
   An error string is returned as error.value.
 */
-function ImportFilters(module, error)
-{
+function ImportFilters(module, error) {
   if (gProgressInfo.importInterface || gProgressInfo.intervalState) {
-    error.data = gImportMsgsBundle.getString('ImportAlreadyInProgress');
+    error.data = gImportMsgsBundle.getString("ImportAlreadyInProgress");
     return false;
   }
 
@@ -891,7 +832,7 @@ function ImportFilters(module, error)
 
   var filtersInterface = module.GetImportInterface("filters");
   if (!(filtersInterface instanceof Ci.nsIImportFilters)) {
-    error.data = gImportMsgsBundle.getString('ImportFiltersBadModule');
+    error.data = gImportMsgsBundle.getString("ImportFiltersBadModule");
     return false;
   }
 
@@ -901,8 +842,7 @@ function ImportFilters(module, error)
 /*
   Import feeds.
 */
-async function ImportFeeds()
-{
+async function ImportFeeds() {
   // Get file and file url to open from filepicker.
   let [openFile, openFileUrl] = await FeedSubscriptions.opmlPickOpenFile();
 
@@ -912,8 +852,7 @@ async function ImportFeeds()
   let server = document.getElementById("moduleList").selectedItem.server;
   gNewFeedAcctCreated = false;
 
-  if (!server)
-  {
+  if (!server) {
     // Create a new Feeds account.
     acctName = document.getElementById("acctName").value;
     server = FeedUtils.createRssAccount(acctName).incomingServer;
@@ -923,16 +862,14 @@ async function ImportFeeds()
 
   acctName = server.rootFolder.prettyName;
 
-  let callback = function(aStatusReport, aLastFolder , aFeedWin)
-  {
+  let callback = function(aStatusReport, aLastFolder, aFeedWin) {
     let message = gFeedsBundle.getFormattedString("ImportFeedsDone",
                                                   [fileName, acctNewExist, acctName]);
     ShowImportResultsRaw(message + "  " + aStatusReport, null, true);
     document.getElementById("back").removeAttribute("disabled");
 
     let subscriptionsWindow = Services.wm.getMostRecentWindow("Mail:News-BlogSubscriptions");
-    if (subscriptionsWindow)
-    {
+    if (subscriptionsWindow) {
       let feedWin = subscriptionsWindow.FeedSubscriptions;
       if (aLastFolder)
         feedWin.FolderListener.folderAdded(aLastFolder);
@@ -942,14 +879,13 @@ async function ImportFeeds()
       feedWin.clearStatusInfo();
       feedWin.updateStatusItem("statusText", aStatusReport);
     }
-  }
+  };
 
   if (!(await FeedSubscriptions.importOPMLFile(openFile, openFileUrl, server, callback)))
     return false;
 
   let subscriptionsWindow = Services.wm.getMostRecentWindow("Mail:News-BlogSubscriptions");
-  if (subscriptionsWindow)
-  {
+  if (subscriptionsWindow) {
     let feedWin = subscriptionsWindow.FeedSubscriptions;
     feedWin.mActionMode = feedWin.kImportingOPML;
     feedWin.updateButtons(null);
@@ -961,8 +897,7 @@ async function ImportFeeds()
   return true;
 }
 
-function SwitchType(newType)
-{
+function SwitchType(newType) {
   if (gImportType == newType)
     return;
 
@@ -971,12 +906,11 @@ function SwitchType(newType)
 
   SetUpImportType();
 
-  SetDivText('description', "");
+  SetDivText("description", "");
 }
 
 
-function next()
-{
+function next() {
   var deck = document.getElementById("stateDeck");
   switch (deck.selectedIndex) {
   case "0":
@@ -984,8 +918,7 @@ function next()
     backButton.removeAttribute("disabled");
     let radioGroup = document.getElementById("importFields");
 
-    if (radioGroup.value == "all")
-    {
+    if (radioGroup.value == "all") {
       let args = { closeMigration: true };
       let SEAMONKEY_ID = "{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}";
       if (Services.appinfo.ID == SEAMONKEY_ID) {
@@ -998,9 +931,7 @@ function next()
       }
       if (args.closeMigration)
         close();
-    }
-    else
-    {
+    } else {
       SwitchType(radioGroup.value);
       deck.selectedIndex = 1;
       document.getElementById("modulesFound").selectedIndex =
@@ -1018,16 +949,14 @@ function next()
   }
 }
 
-function SelectFirstItem()
-{
+function SelectFirstItem() {
   var listbox = document.getElementById("moduleList");
   if ((listbox.selectedIndex == -1) && (listbox.itemCount > 0))
     listbox.selectedIndex = 0;
   ImportSelectionChanged();
 }
 
-function enableAdvance()
-{
+function enableAdvance() {
   var listbox = document.getElementById("moduleList");
   var nextButton = document.getElementById("forward");
   if (listbox.selectedCount > 0)
@@ -1036,8 +965,7 @@ function enableAdvance()
     nextButton.setAttribute("disabled", "true");
 }
 
-function back()
-{
+function back() {
   var deck = document.getElementById("stateDeck");
   var backButton = document.getElementById("back");
   var nextButton = document.getElementById("forward");

@@ -1,7 +1,7 @@
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 function TestMailImpoter() {
-};
+}
 
 TestMailImpoter.prototype = {
   classID: Components.ID("{a81438ef-aca1-41a5-9b3a-3ccfbbe4f5e1}"),
@@ -14,7 +14,7 @@ TestMailImpoter.prototype = {
   _xpcom_categories: [{
     category: "mailnewsimport",
     entry: "{a81438ef-aca1-41a5-9b3a-3ccfbbe4f5e1}",
-    value: "mail"
+    value: "mail",
   }],
 
   name: "Test mail import module",
@@ -25,7 +25,7 @@ TestMailImpoter.prototype = {
 
   supportsUpgrade: true,
 
-  GetImportInterface: function(type) {
+  GetImportInterface(type) {
     if (type != "mail")
       return null;
     let importService = Cc["@mozilla.org/import/import-service;1"]
@@ -39,12 +39,12 @@ TestMailImpoter.prototype = {
     return genericInterface;
   },
 
-  GetDefaultLocation: function(location, found, userVerify) {
+  GetDefaultLocation(location, found, userVerify) {
     found = false;
     userVerify = false;
   },
 
-  _createMailboxDescriptor: function(path, name, depth) {
+  _createMailboxDescriptor(path, name, depth) {
     let importService = Cc["@mozilla.org/import/import-service;1"]
                         .createInstance(Ci.nsIImportService);
     let descriptor = importService.CreateNewMailboxDescriptor();
@@ -56,7 +56,7 @@ TestMailImpoter.prototype = {
     return descriptor;
   },
 
-  _collectMailboxesInDirectory: function(directory, depth, result) {
+  _collectMailboxesInDirectory(directory, depth, result) {
     let descriptor = this._createMailboxDescriptor(directory.path,
                                                    directory.leafName,
                                                    depth);
@@ -69,7 +69,7 @@ TestMailImpoter.prototype = {
     }
   },
 
-  FindMailboxes: function(location) {
+  FindMailboxes(location) {
     let result = Cc["@mozilla.org/array;1"]
                    .createInstance(Ci.nsIMutableArray);
     this._collectMailboxesInDirectory(location, 0, result);
@@ -77,22 +77,18 @@ TestMailImpoter.prototype = {
     return result;
   },
 
-  ImportMailbox: function(source,
-                          destination,
-                          errorLog,
-                          successLog,
-                          fatalError) {
+  ImportMailbox(source, destination, errorLog, successLog, fatalError) {
     this.progress = 0;
     let msgStore = destination.msgStore;
 
-    let entries = directory.directoryEntries;
+    let entries = source.directoryEntries;
     while (entries.hasMoreElements()) {
       let entry = entries.getNext().QueryInterface(Ci.nsIFile);
       if (!entry.isFile())
         continue;
 
-      let newMsgHdr = new Object;
-      let reusable = new Object;
+      let newMsgHdr = {};
+      let reusable = {};
       let outputStream = msgStore.getNewMsgOutputStream(destination,
                                                         newMsgHdr,
                                                         reusable);
@@ -114,14 +110,14 @@ TestMailImpoter.prototype = {
     this.progress = 100;
   },
 
-  GetImportProgress: function() {
+  GetImportProgress() {
     return this.progress;
   },
 
-  translateFolderName: function(folderName) {
+  translateFolderName(folderName) {
     return folderName;
-  }
+  },
 
 };
 
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([TestMailImpoter]);
+this.NSGetFactory = XPCOMUtils.generateNSGetFactory([TestMailImpoter]);

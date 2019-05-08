@@ -2,8 +2,7 @@
  * Test for a regression of Bug 437556: mailnews crashes while importing an
  * address book if a field map is required but not set.
  */
-function run_test()
-{
+function run_test() {
   var file = do_get_file("resources/basic_addressbook.csv");
   var errorStr = Cc["@mozilla.org/supports-string;1"]
                   .createInstance(Ci.nsISupportsString);

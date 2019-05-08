@@ -8,11 +8,10 @@
  */
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-function run_test()
-{
+function run_test() {
   // Due to the import code using nsIAbManager off the main thread, we need
   // to ensure that it is initialized before we start the main test.
-  var abMgr = MailServices.ab;
+  MailServices.ab;
 
   var file = do_get_file("resources/bug_263304.ldif");
   new AbImportHelper(file, "Text file", "bug_263304", "bug_263304").beginImport();

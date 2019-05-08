@@ -1,12 +1,11 @@
 const {localAccountUtils} = ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
 
-function run_test()
-{
+function run_test() {
   localAccountUtils.loadLocalMailAccount();
 
   // Due to the import code using nsIAbManager off the main thread, we need
   // to ensure that it is initialized before we start the main test.
-  let abMgr = MailServices.ab;
+  MailServices.ab;
 
   // Import incoming filters.
   let file = do_get_file("resources/becky/filters/IFilter.def");

@@ -7,30 +7,25 @@
 
 <script>
 
-function toImport(importType)
-{
-	/*
-	window.openDialog("chrome:/messenger/content/fieldMapImport.xul",
-					  "fieldMapImportDialog",
-					  "chrome,modal");
-	*/
-	window.openDialog("chrome:/messenger/content/importDialog.xul",
-					  "",
-					  "chrome,modal",
-					  {importType:importType});
-
+function toImport(importType) {
+  // window.openDialog("chrome:/messenger/content/fieldMapImport.xul",
+  //                   "fieldMapImportDialog",
+  //                   "chrome,modal");
+  window.openDialog("chrome:/messenger/content/importDialog.xul",
+                    "",
+                    "chrome,modal",
+                    {importType});
 }
-
 
 </script>
 
 <p>
 <form name="form">
-<input type="button" value="Import Address Books" onclick="toImport( 'addressbook');"><br>
-<input type="button" value="Import Mail" onclick="toImport( 'mail');"><br>
-<input type="button" value="Import Settings" onclick="toImport( 'settings');"><br>
-<input type="button" value="Import Filters" onclick="toImport( 'filters');"><br>
-<form> 
+<input type="button" value="Import Address Books" onclick="toImport('addressbook');"><br>
+<input type="button" value="Import Mail" onclick="toImport('mail');"><br>
+<input type="button" value="Import Settings" onclick="toImport('settings');"><br>
+<input type="button" value="Import Filters" onclick="toImport('filters');"><br>
+</form>
 
 </body>
 </html>

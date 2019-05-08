@@ -1,35 +1,35 @@
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
+/* import-globals-from resources/mock_windows_reg_factory.js */
 load("resources/mock_windows_reg_factory.js");
 
 function POP3Account() {}
 
 POP3Account.prototype = {
-  'Account Name': 'POP3 Account Name',
-  'POP3 Server': 'pop.host.invalid',
-  'POP3 User Name': 'pop3user',
-  'Leave Mail On Server': 1,
-  'SMTP Server': 'smtp.host.invalid',
-  'SMTP Display Name': 'SMTP Display Name',
-  'SMTP Email Address': 'pop3user@host.invalid',
-  'SMTP Reply To Email Address': 'pop3user@host.invalid',
-  'SMTP Organization Name': 'SMTP Organization Name',
-  'SMTP User Name': 'smtpuser'
+  "Account Name": "POP3 Account Name",
+  "POP3 Server": "pop.host.invalid",
+  "POP3 User Name": "pop3user",
+  "Leave Mail On Server": 1,
+  "SMTP Server": "smtp.host.invalid",
+  "SMTP Display Name": "SMTP Display Name",
+  "SMTP Email Address": "pop3user@host.invalid",
+  "SMTP Reply To Email Address": "pop3user@host.invalid",
+  "SMTP Organization Name": "SMTP Organization Name",
+  "SMTP User Name": "smtpuser",
 };
 
 function IMAPAccount() {}
 
 IMAPAccount.prototype = {
-  'Account Name': 'IMAP Account Name',
-  'IMAP Server': 'imap.host.invalid',
-  'IMAP User Name': 'imapuser',
-  'SMTP Server': 'smtp.host.invalid',
-  'SMTP Display Name': 'SMTP Display Name',
-  'SMTP Email Address': 'imapuser@host.invalid',
-  'SMTP Reply To Email Address': 'imapuser@host.invalid',
-  'SMTP Organization Name': 'SMTP Organization Name',
-  'SMTP User Name': 'smtpuser'
+  "Account Name": "IMAP Account Name",
+  "IMAP Server": "imap.host.invalid",
+  "IMAP User Name": "imapuser",
+  "SMTP Server": "smtp.host.invalid",
+  "SMTP Display Name": "SMTP Display Name",
+  "SMTP Email Address": "imapuser@host.invalid",
+  "SMTP Reply To Email Address": "imapuser@host.invalid",
+  "SMTP Organization Name": "SMTP Organization Name",
+  "SMTP User Name": "smtpuser",
 };
 
 /* Outlook 98 */
@@ -38,12 +38,12 @@ function Outlook98Registry(defaultAccount) {
 }
 
 Outlook98Registry.prototype = {
-  get 'Software\\Microsoft\\Office\\8.0\\Outlook\\OMI Account Manager'() {
+  get "Software\\Microsoft\\Office\\8.0\\Outlook\\OMI Account Manager"() {
     return {
-      'Default Mail Account': '00000001',
-      '00000001': this._defaultAccount
+      "Default Mail Account": "00000001",
+      "00000001": this._defaultAccount,
     };
-  }
+  },
 };
 
 /* Outlook 2003 - */
@@ -52,49 +52,49 @@ function Outlook2003Registry(defaultAccount) {
 }
 
 Outlook2003Registry.prototype = {
-  get 'Software\\Microsoft\\Office\\Outlook\\OMI Account Manager'() {
+  get "Software\\Microsoft\\Office\\Outlook\\OMI Account Manager"() {
     return {
-      'Default Mail Account': '00000001',
-      '00000001': this._defaultAccount
+      "Default Mail Account": "00000001",
+      "00000001": this._defaultAccount,
     };
-  }
+  },
 };
 
 var expectedPop3Account = {
   incomingServer: {
-    type: 'pop3',
-    hostName: 'pop.invalid.host',
-    username: 'pop3user',
-    leaveMessagesOnServer: true
+    type: "pop3",
+    hostName: "pop.invalid.host",
+    username: "pop3user",
+    leaveMessagesOnServer: true,
   },
   identity: {
-    fullName: 'SMTP Display Name',
-    email: 'pop3user@host.invalid',
-    replyTo: 'pop3user@host.invalid',
-    organization: 'SMTP Organization Name'
+    fullName: "SMTP Display Name",
+    email: "pop3user@host.invalid",
+    replyTo: "pop3user@host.invalid",
+    organization: "SMTP Organization Name",
   },
   smtpServer: {
-    hostname: 'smtp.invalid.host',
-    username: 'smtpuser'
-  }
+    hostname: "smtp.invalid.host",
+    username: "smtpuser",
+  },
 };
 
 var expectedImapAccount = {
   incomingServer: {
-    type: 'imap',
-    hostName: 'imap.invalid.host',
-    username: 'imapuser'
+    type: "imap",
+    hostName: "imap.invalid.host",
+    username: "imapuser",
   },
   identity: {
-    fullName: 'SMTP Display Name',
-    email: 'imapuser@host.invalid',
-    replyTo: 'imapuser@host.invalid',
-    organization: 'SMTP Organization Name'
+    fullName: "SMTP Display Name",
+    email: "imapuser@host.invalid",
+    replyTo: "imapuser@host.invalid",
+    organization: "SMTP Organization Name",
   },
   smtpServer: {
-    hostname: 'smtp.invalid.host',
-    username: 'smtpuser'
-  }
+    hostname: "smtp.invalid.host",
+    username: "smtpuser",
+  },
 };
 
 function teardown() {
@@ -112,7 +112,7 @@ function _test(registry, expectedAccount) {
   try {
     setup_mock_registry(registry);
     new SettingsImportHelper(null, "Outlook", [expectedAccount]).beginImport();
-  } catch(e) {
+  } catch (e) {
     teardown();
     do_throw(e);
   }

@@ -1,10 +1,9 @@
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-function run_test()
-{
+function run_test() {
   // Due to the import code using nsIAbManager off the main thread, we need
   // to ensure that it is initialized before we start the main test.
-  let abMgr = MailServices.ab;
+  MailServices.ab;
 
   let file = do_get_file("resources/becky/addressbooks");
   let helper = new AbImportHelper(file, "Becky!", "addressbooks",

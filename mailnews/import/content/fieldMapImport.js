@@ -16,8 +16,7 @@ var gSkipFirstRecordButton;
 
 document.addEventListener("dialogaccept", FieldImportOKButton);
 
-function OnLoadFieldMapImport()
-{
+function OnLoadFieldMapImport() {
   top.importService = Cc["@mozilla.org/import/import-service;1"]
                         .getService(Ci.nsIImportService);
 
@@ -30,7 +29,7 @@ function OnLoadFieldMapImport()
   }
   if (top.fieldMap == null) {
     top.fieldMap = top.importService.CreateNewFieldMap();
-    top.fieldMap.DefaultFieldMap( top.fieldMap.numMozFields);
+    top.fieldMap.DefaultFieldMap(top.fieldMap.numMozFields);
   }
 
   gMoveUpButton = document.getElementById("upButton");
@@ -49,15 +48,14 @@ function OnLoadFieldMapImport()
   disableMoveButtons();
 }
 
-function IndexInMap( index)
-{
+function IndexInMap(index) {
   var count = top.fieldMap.mapSize;
   for (var i = 0; i < count; i++) {
-    if (top.fieldMap.GetFieldMap( i) == index)
-      return( true);
+    if (top.fieldMap.GetFieldMap(i) == index)
+      return true;
   }
 
-  return( false);
+  return false;
 }
 
 function ListFields() {
@@ -66,21 +64,19 @@ function ListFields() {
 
   var count = top.fieldMap.mapSize;
   var index;
-  var i;
-  for (i = 0; i < count; i++) {
-    index = top.fieldMap.GetFieldMap( i);
-    AddFieldToList(top.fieldMap.GetFieldDescription( index), index, top.fieldMap.GetFieldActive( i));
+  for (let i = 0; i < count; i++) {
+    index = top.fieldMap.GetFieldMap(i);
+    AddFieldToList(top.fieldMap.GetFieldDescription(index), index, top.fieldMap.GetFieldActive(i));
   }
 
   count = top.fieldMap.numMozFields;
-  for (i = 0; i < count; i++) {
-    if (!IndexInMap( i))
-      AddFieldToList(top.fieldMap.GetFieldDescription( i), i, false);
+  for (let i = 0; i < count; i++) {
+    if (!IndexInMap(i))
+      AddFieldToList(top.fieldMap.GetFieldDescription(i), i, false);
   }
 }
 
-function CreateField(name, index, on)
-{
+function CreateField(name, index, on) {
   var item = document.createElement("richlistitem");
   item.setAttribute("align", "center");
   item.setAttribute("field-index", index);
@@ -109,24 +105,21 @@ function CreateField(name, index, on)
   return item;
 }
 
-function AddFieldToList(name, index, on)
-{
+function AddFieldToList(name, index, on) {
   var item = CreateField(name, index, on);
   gListbox.appendChild(item);
 }
 
-function cellClicked(event)
-{
+function cellClicked(event) {
   if (event.button == 0) {
-    var on = gListbox.selectedItem.firstChild.getAttribute('checked');
-    gListbox.selectedItem.firstChild.setAttribute('checked', (on != "true"));
+    var on = gListbox.selectedItem.firstChild.getAttribute("checked");
+    gListbox.selectedItem.firstChild.setAttribute("checked", (on != "true"));
   }
 }
 
 // The "Move Up/Move Down" buttons should move the items in the left column
 // up/down but the values in the right column should not change.
-function moveItem(up)
-{
+function moveItem(up) {
   var selectedItem = gListbox.selectedItem;
   var swapPartner = (up ? gListbox.getPreviousItem(selectedItem, 1)
                         : gListbox.getNextItem(selectedItem, 1));
@@ -141,55 +134,48 @@ function moveItem(up)
   disableMoveButtons();
 }
 
-function disableMoveButtons()
-{
+function disableMoveButtons() {
   var selectedIndex = gListbox.selectedIndex;
   gMoveUpButton.disabled = (selectedIndex == 0);
   gMoveDownButton.disabled = (selectedIndex == (gListbox.getRowCount() - 1));
 }
 
-function ShowSampleData(data)
-{
+function ShowSampleData(data) {
   var fields = data.split("\n");
   for (var i = 0; i < gListbox.getRowCount(); i++)
     gListbox.getItemAtIndex(i).lastChild.setAttribute("value", (i < fields.length) ? fields[i] : "");
 }
 
-function FetchSampleData(num)
-{
+function FetchSampleData(num) {
   if (!top.addInterface)
     return false;
 
-  var data = top.addInterface.GetData( "sampleData-" + num);
+  var data = top.addInterface.GetData("sampleData-" + num);
   if (!(data instanceof Ci.nsISupportsString))
     return false;
-  ShowSampleData( data.data);
+  ShowSampleData(data.data);
   return true;
 }
 
-function Browse(step)
-{
+function Browse(step) {
   recordNum += step;
   if (FetchSampleData(recordNum - 1))
-    document.getElementById('recordNumber').setAttribute('value', ("" + recordNum));
+    document.getElementById("recordNumber").setAttribute("value", ("" + recordNum));
 
   gPreviousButton.disabled = (recordNum == 1);
   gNextButton.disabled = (addInterface.GetData("sampleData-" + recordNum) == null);
 }
 
-function FieldImportOKButton()
-{
+function FieldImportOKButton() {
   var max = gListbox.getRowCount();
-  var fIndex;
-  var on;
   // Ensure field map is the right size
   top.fieldMap.SetFieldMapSize(max);
 
-  for (var i = 0; i < max; i++) {
-    fIndex = gListbox.getItemAtIndex(i).getAttribute( 'field-index');
-    on = gListbox.getItemAtIndex(i).firstChild.getAttribute('checked');
-    top.fieldMap.SetFieldMap( i, fIndex);
-    top.fieldMap.SetFieldActive( i, (on == "true"));
+  for (let i = 0; i < max; i++) {
+    let fIndex = gListbox.getItemAtIndex(i).getAttribute("field-index");
+    let on = gListbox.getItemAtIndex(i).firstChild.getAttribute("checked");
+    top.fieldMap.SetFieldMap(i, fIndex);
+    top.fieldMap.SetFieldActive(i, (on == "true"));
   }
 
   top.fieldMap.skipFirstRecord = gSkipFirstRecordButton.checked;
