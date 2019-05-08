@@ -89,6 +89,8 @@ var GlodaExplicitAttr = {
                         extensionName: Gloda.BUILT_IN,
                         attributeType: Gloda.kAttrExplicit,
                         attributeName: "read",
+                        // Make the message query-able but without using the database.
+                        canQuery: "truthy-but-not-true",
                         singular: true,
                         subjectNouns: [Gloda.NOUN_MESSAGE],
                         objectNoun: Gloda.NOUN_BOOLEAN,
