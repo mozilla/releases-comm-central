@@ -198,7 +198,7 @@ function onLoad() {
                 .removeAttribute("hidden");
             let textbox = document.getElementById("item-description");
             textbox.value = description;
-            textbox.inputField.readOnly = true;
+            textbox.readOnly = true;
         }
     }
 
