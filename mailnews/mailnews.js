@@ -933,12 +933,13 @@ pref("mailnews.auto_config.fetchFromISP.sendEmailAddress", true);
 //    That's because they direct customer domains (HTTP) to their provider
 //    config (HTTPS). If you set this to true, you simply break this mechanism.
 //    You will simply not get most configs.
-// 3. Even with this mechanism protected, there are still guess config and
-//    AutoDiscover config mechanisms which have the exact same problem.
-//    And we really need the guess config, it's the mechanism that provides
-//    about 40% of the configs. Plus, many internal mail servers
-//    have no SSL, so even with this preference set to true, you cannot
-//    solve the problem.
+// 3. There are guess config and AutoDiscover config mechanisms which
+//    have the exact same problem. In order to mitigate those additional
+//    vectors, set the following prefs accordingly:
+//     * mailnews.auto_config.guess.sslOnly = true
+//     * mailnews.auto_config.fetchFromExchange.enabled = false
+// Not all mail servers support SSL so enabling this option might lock
+// you out from your ISP. This especially affect internal mail servers.
 pref("mailnews.auto_config.fetchFromISP.sslOnly", false);
 // Allow the Microsoft Exchange AutoDiscover protocol.
 // This also sends the email address and password to the server,
@@ -948,6 +949,15 @@ pref("mailnews.auto_config.fetchFromExchange.enabled", true);
 // protocol default ports and common domain practices
 // (e.g. {mail,pop,imap,smtp}.<email-domain>).
 pref("mailnews.auto_config.guess.enabled", true);
+// Allow only SSL configs when guessing.
+// An attacker could block SSL to force plaintext and thus be able to
+// eavesdrop. Compared to mailnews.auto_config.fetchFromISP.sslOnly
+// the attacker cannot determine the config, just pick which one it
+// likes best among those Thunderbird generates for the user based on
+// the email address.
+// Not all mail servers support SSL so enabling this option might lock
+// you out from your ISP. This especially affect internal mail servers.
+pref("mailnews.auto_config.guess.sslOnly", false);
 // The timeout (in seconds) for each guess
 pref("mailnews.auto_config.guess.timeout", 10);
 // Work around bug 1454325 by disabling mimetype mungling in XmlHttpRequest

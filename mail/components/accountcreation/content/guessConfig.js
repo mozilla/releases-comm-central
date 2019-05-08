@@ -384,6 +384,7 @@ HostDetector.prototype = {
         { "imap": IMAP, "pop3": POP, "smtp": SMTP }, UNKNOWN);
     if (!port)
       port = UNKNOWN;
+    var ssl_only = Services.prefs.getBoolPref("mailnews.auto_config.guess.sslOnly");
     var ssl = ConvertSocketTypeToSSL(socketType);
     this._cancel = false;
     this._log.info("doing auto detect for protocol " + protocol +
@@ -405,6 +406,8 @@ HostDetector.prototype = {
       let hostEntries = this._portsToTry(hostname, protocol, ssl, port);
       for (let j = 0; j < hostEntries.length; j++) {
         let hostTry = hostEntries[j]; // from getHostEntry()
+        if (ssl_only && hostTry.ssl == NONE)
+          continue;
         hostTry.hostname = hostname;
         hostTry.status = kNotTried;
         hostTry.desc = hostTry.hostname + ":" + hostTry.port +
