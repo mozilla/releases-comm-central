@@ -303,7 +303,7 @@ const AppUpdateUI_Internal = {
     let update = subject && subject.QueryInterface(Ci.nsIUpdate);
     switch (topic) {
       case "quit-application":
-        this.observers.forEach(function(observer) {
+        this._obs.forEach(function(observer) {
           Services.obs.removeObserver(this, observer);
         });
         break;
