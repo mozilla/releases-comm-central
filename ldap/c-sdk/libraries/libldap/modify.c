@@ -53,19 +53,19 @@ static char copyright[] = "@(#) Copyright (c) 1990 Regents of the University of 
 /*
  * ldap_modify - initiate an ldap modify operation.  Parameters:
  *
- *	ld		LDAP descriptor
- *	dn		DN of the object to modify
- *	mods		List of modifications to make.  This is null-terminated
- *			array of struct ldapmod's, specifying the modifications
- *			to perform.
+ * ld    LDAP descriptor
+ * dn    DN of the object to modify
+ * mods  List of modifications to make.  This is null-terminated
+ *       array of struct ldapmod's, specifying the modifications
+ *       to perform.
  *
  * Example:
- *	LDAPMod	*mods[] = {
- *			{ LDAP_MOD_ADD, "cn", { "babs jensen", "babs", 0 } },
- *			{ LDAP_MOD_REPLACE, "sn", { "jensen", 0 } },
- *			0
- *		}
- *	msgid = ldap_modify( ld, dn, mods );
+ * LDAPMod  *mods[] = {
+ *     { LDAP_MOD_ADD, "cn", { "babs jensen", "babs", 0 } },
+ *     { LDAP_MOD_REPLACE, "sn", { "jensen", 0 } },
+ *     0
+ *   }
+ * msgid = ldap_modify(ld, dn, mods);
  */
 int LDAP_CALL ldap_modify(LDAP *ld, const char *dn, LDAPMod **mods) {
   int msgid;
@@ -87,20 +87,20 @@ int LDAP_CALL ldap_modify_ext(LDAP *ld, const char *dn, LDAPMod **mods,
 
   /*
    * A modify request looks like this:
-   *	ModifyRequet ::= SEQUENCE {
-   *		object		DistinguishedName,
-   *		modifications	SEQUENCE OF SEQUENCE {
-   *			operation	ENUMERATED {
-   *				add	(0),
-   *				delete	(1),
-   *				replace	(2)
-   *			},
-   *			modification	SEQUENCE {
-   *				type	AttributeType,
-   *				values	SET OF AttributeValue
-   *			}
-   *		}
-   *	}
+   * ModifyRequet ::= SEQUENCE {
+   *   object DistinguishedName,
+   *   modifications SEQUENCE OF SEQUENCE {
+   *     operation ENUMERATED {
+   *       add     (0),
+   *       delete  (1),
+   *       replace (2)
+   *     },
+   *     modification  SEQUENCE {
+   *       type AttributeType,
+   *       values SET OF AttributeValue
+   *     }
+   *   }
+   * }
    */
 
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_modify_ext\n", 0, 0, 0);

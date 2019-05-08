@@ -44,7 +44,7 @@
 
    ld              LDAP pointer to the desired connection
 
-   dn		   The dn used in the proxy auth
+   dn              The dn used in the proxy auth
 
    ctl_iscritical  Indicates whether the control is critical of not. If
                    this field is non-zero, the operation will only be car-
@@ -99,7 +99,7 @@ int LDAP_CALL ldap_create_proxyauth_control(LDAP *ld, const char *dn,
 
    ld              LDAP pointer to the desired connection
 
-   authzid		   The authorization identity used in the proxy auth,
+   authzid         The authorization identity used in the proxy auth,
                    e.g., dn:uid=bjensen,dc=example,dc=com
 
    ctrlp           the address of a place to put the constructed control

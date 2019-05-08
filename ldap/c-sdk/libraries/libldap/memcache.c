@@ -39,7 +39,7 @@
  *  memcache.c - routines that implement an in-memory cache.
  *
  *  To Do:  1) ber_dup_ext().
- *	    2) referrals and reference?
+ *          2) referrals and reference?
  */
 
 #include <assert.h>
@@ -1020,7 +1020,7 @@ memcache_remove_all(LDAP *ld)
         return LDAP_LOCAL_ERROR;
 
     return memcache_access(ld->ld_memcache, MEMCACHE_ACCESS_DELETE_ALL,
-	                   NULL, NULL, NULL);
+                           NULL, NULL, NULL);
 }
 #endif /* 0 */
 

@@ -76,19 +76,19 @@ static int nsldapi_search_s(LDAP *ld, const char *base, int scope,
 /*
  * ldap_search - initiate an ldap search operation.  Parameters:
  *
- *	ld		LDAP descriptor
- *	base		DN of the base object
- *	scope		the search scope - one of LDAP_SCOPE_BASE,
- *			    LDAP_SCOPE_ONELEVEL, LDAP_SCOPE_SUBTREE
- *	filter		a string containing the search filter
- *			(e.g., "(|(cn=bob)(sn=bob))")
- *	attrs		list of attribute types to return for matches
- *	attrsonly	1 => attributes only 0 => attributes and values
+ * ld         LDAP descriptor
+ * base       DN of the base object
+ * scope      the search scope - one of LDAP_SCOPE_BASE,
+ *            LDAP_SCOPE_ONELEVEL, LDAP_SCOPE_SUBTREE
+ * filter     a string containing the search filter
+ *            (e.g., "(|(cn=bob)(sn=bob))")
+ * attrs      list of attribute types to return for matches
+ * attrsonly  1 => attributes only 0 => attributes and values
  *
  * Example:
- *	char	*attrs[] = { "mail", "title", 0 };
- *	msgid = ldap_search( ld, "c=us@o=UM", LDAP_SCOPE_SUBTREE, "cn~=bob",
- *	    attrs, attrsonly );
+ * char  *attrs[] = { "mail", "title", 0 };
+ * msgid = ldap_search(ld, "c=us@o=UM", LDAP_SCOPE_SUBTREE, "cn~=bob",
+ *                     attrs, attrsonly);
  */
 int LDAP_CALL ldap_search(LDAP *ld, const char *base, int scope,
                           const char *filter, char **attrs, int attrsonly) {
@@ -253,25 +253,25 @@ int nsldapi_build_search_req(
 
   /*
    * Create the search request.  It looks like this:
-   *	SearchRequest := [APPLICATION 3] SEQUENCE {
-   *		baseObject	DistinguishedName,
-   *		scope		ENUMERATED {
-   *			baseObject	(0),
-   *			singleLevel	(1),
-   *			wholeSubtree	(2)
-   *		},
-   *		derefAliases	ENUMERATED {
-   *			neverDerefaliases	(0),
-   *			derefInSearching	(1),
-   *			derefFindingBaseObj	(2),
-   *			alwaysDerefAliases	(3)
-   *		},
-   *		sizelimit	INTEGER (0 .. 65535),
-   *		timelimit	INTEGER (0 .. 65535),
-   *		attrsOnly	BOOLEAN,
-   *		filter		Filter,
-   *		attributes	SEQUENCE OF AttributeType
-   *	}
+   * SearchRequest := [APPLICATION 3] SEQUENCE {
+   *   baseObject DistinguishedName,
+   *   scope ENUMERATED {
+   *     baseObject   (0),
+   *     singleLevel  (1),
+   *     wholeSubtree (2)
+   *   },
+   *   derefAliases ENUMERATED {
+   *     neverDerefaliases   (0),
+   *     derefInSearching    (1),
+   *     derefFindingBaseObj (2),
+   *     alwaysDerefAliases  (3)
+   *   },
+   *   sizelimit  INTEGER (0 .. 65535),
+   *   timelimit  INTEGER (0 .. 65535),
+   *   attrsOnly  BOOLEAN,
+   *   filter    Filter,
+   *   attributes  SEQUENCE OF AttributeType
+   * }
    * wrapped in an ldap message.
    */
 
@@ -541,11 +541,11 @@ static int put_filter_list(BerElement *ber, char *str) {
  * is_valid_attr - returns 1 if a is a syntactically valid left-hand side
  * of a filter expression, 0 otherwise.  A valid string may contain only
  * letters, numbers, hyphens, semi-colons, colons and periods. examples:
- *	cn
- *	cn;lang-fr
- *	1.2.3.4;binary;dynamic
- *	mail;dynamic
- *	cn:dn:1.2.3.4
+ * cn
+ * cn;lang-fr
+ * 1.2.3.4;binary;dynamic
+ * mail;dynamic
+ * cn:dn:1.2.3.4
  *
  * For compatibility with older servers, we also allow underscores in
  * attribute types, even through they are not allowed by the LDAPv3 RFCs.
@@ -631,7 +631,7 @@ static int put_simple_filter(BerElement *ber, char *str) {
       /*
        * extended filter looks like this:
        *
-       *	[type][':dn'][':'oid]':='value
+       * [type][':dn'][':'oid]':='value
        *
        * where one of type or :oid is required.
        *

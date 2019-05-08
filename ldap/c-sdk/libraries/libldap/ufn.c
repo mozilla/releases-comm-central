@@ -67,29 +67,29 @@ static LDAPMessage *ldap_ufn_expand(LDAP *ld,
 
 /*
  * ldap_ufn_search_ctx - do user friendly searching; provide cancel feature;
- *			specify ldapfilter.conf tags for each phase of search
+ *     specify ldapfilter.conf tags for each phase of search
  *
- *	ld		LDAP descriptor
- *	ufncomp		the exploded user friendly name to look for
- *	ncomp		number of elements in ufncomp
- *	prefix		where to start searching
- *	attrs		list of attribute types to return for matches
- *	attrsonly	1 => attributes only 0 => attributes and values
- *	res		will contain the result of the search
- *	cancelproc	routine that returns non-zero if operation should be
- *			cancelled.  This can be NULL.  If it is non-NULL, the
- *			routine will be called periodically.
- *	cancelparm	void * that is passed to cancelproc
- *	tag[123]	the ldapfilter.conf tag that will be used in phases
- *			1, 2, and 3 of the search, respectively
+ * ld          LDAP descriptor
+ * ufncomp     the exploded user friendly name to look for
+ * ncomp       number of elements in ufncomp
+ * prefix      where to start searching
+ * attrs       list of attribute types to return for matches
+ * attrsonly   1 => attributes only 0 => attributes and values
+ * res         will contain the result of the search
+ * cancelproc  routine that returns non-zero if operation should be
+ *             cancelled.  This can be NULL.  If it is non-NULL, the
+ *             routine will be called periodically.
+ * cancelparm  void * that is passed to cancelproc
+ * tag[123]    the ldapfilter.conf tag that will be used in phases
+ *             1, 2, and 3 of the search, respectively
  *
  * Example:
- *	char		*attrs[] = { "mail", "title", 0 };
- *	char		*ufncomp[] = { "howes", "umich", "us", 0 }
- *	LDAPMessage	*res;
- *	error = ldap_ufn_search_ctx( ld, ufncomp, 3, NULL, attrs, attrsonly,
- *			&res, acancelproc, along, "ufn first",
- *			"ufn intermediate", "ufn last" );
+ * char *attrs[] = { "mail", "title", 0 };
+ * char *ufncomp[] = { "howes", "umich", "us", 0 }
+ * LDAPMessage *res;
+ * error = ldap_ufn_search_ctx(ld, ufncomp, 3, NULL, attrs, attrsonly,
+ *                             &res, acancelproc, along, "ufn first",
+ *                             "ufn intermediate", "ufn last");
  */
 
 static int ldap_ufn_search_ctx(LDAP *ld, char **ufncomp, int ncomp,
@@ -109,9 +109,9 @@ static int ldap_ufn_search_ctx(LDAP *ld, char **ufncomp, int ncomp,
   /*
    * look up ufn components from most to least significant.
    * there are 3 phases.
-   * 	phase 1	search the root for orgs or countries
-   * 	phase 2	search for orgs
-   * 	phase 3	search for a person
+   *   phase 1  search the root for orgs or countries
+   *   phase 2  search for orgs
+   *   phase 3  search for a person
    * in phases 1 and 2, we are building a list of candidate DNs,
    * below which we will search for the final component of the ufn.
    * for each component we try the filters listed in the

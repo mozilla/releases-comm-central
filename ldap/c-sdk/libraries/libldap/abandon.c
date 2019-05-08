@@ -59,13 +59,13 @@ static int nsldapi_send_abandon_message(LDAP *ld, LDAPConn *lc, BerElement *ber,
 /*
  * ldap_abandon - perform an ldap abandon operation. Parameters:
  *
- *	ld		LDAP descriptor
- *	msgid		The message id of the operation to abandon
+ * ld     LDAP descriptor
+ * msgid  The message id of the operation to abandon
  *
  * ldap_abandon returns 0 if everything went ok, -1 otherwise.
  *
  * Example:
- *	ldap_abandon( ld, msgid );
+ * ldap_abandon(ld, msgid);
  */
 int LDAP_CALL ldap_abandon(LDAP *ld, int msgid) {
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_abandon %d\n", msgid, 0, 0);
@@ -122,7 +122,7 @@ static int do_abandon(LDAP *ld, int origid, int msgid,
 
   /*
    * An abandon request looks like this:
-   *	AbandonRequest ::= MessageID
+   * AbandonRequest ::= MessageID
    */
   LDAPDebug(LDAP_DEBUG_TRACE, "do_abandon origid %d, msgid %d\n", origid, msgid,
             0);

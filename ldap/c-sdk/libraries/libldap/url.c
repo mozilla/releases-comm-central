@@ -43,7 +43,7 @@
  *
  *  LDAP URLs look like this:
  *    l d a p : / / [ hostport ] [ / dn [ ? [ attributes ] [ ? [ scope ]
- *			[ ? [ filter ] [ ? extensions ] ] ] ] ]
+ *                  [ ? [ filter ] [ ? extensions ] ] ] ] ]
  *
  *  where:
  *   hostport is a host or a host:port list that can be space-separated.
@@ -154,9 +154,9 @@ int LDAP_CALL ldap_url_parse(const char *url, LDAPURLDesc **ludpp) {
 /*
  * like ldap_url_parse() with a few exceptions:
  *   1) if dn_required is zero, a missing DN does not generate an error
- *	(we just leave the lud_dn field NULL)
+ *      (we just leave the lud_dn field NULL)
  *   2) no defaults are set for lud_scope and lud_filter (they are set to -1
- *	and NULL respectively if no SCOPE or FILTER are present in the URL).
+ *      and NULL respectively if no SCOPE or FILTER are present in the URL).
  *   3) when there is a zero-length DN in a URL we do not set lud_dn to NULL.
  *
  * note that LDAPv3 URL extensions are ignored unless they are marked

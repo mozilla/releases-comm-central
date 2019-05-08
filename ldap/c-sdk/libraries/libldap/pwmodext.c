@@ -67,9 +67,9 @@ int LDAP_CALL ldap_passwd(LDAP *ld, struct berval *userid,
 
     /*
      * PasswdModifyRequestValue ::= SEQUENCE {
-     *	 userIdentity    [0]  OCTET STRING OPTIONAL
-     *	 oldPasswd       [1]  OCTET STRING OPTIONAL
-     *	 newPasswd       [2]  OCTET STRING OPTIONAL }
+     *   userIdentity    [0]  OCTET STRING OPTIONAL
+     *   oldPasswd       [1]  OCTET STRING OPTIONAL
+     *   newPasswd       [2]  OCTET STRING OPTIONAL }
      */
     if (LBER_ERROR == (ber_printf(ber, "{"))) {
       LDAP_SET_LDERRNO(ld, LDAP_ENCODING_ERROR, NULL, NULL);

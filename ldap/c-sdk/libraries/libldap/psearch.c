@@ -59,15 +59,15 @@ int LDAP_CALL ldap_create_persistentsearch_control(LDAP *ld, int changetypes,
   /*
    * create a Persistent Search control.  The control value looks like this:
    *
-   *	PersistentSearch ::= SEQUENCE {
-   *		changeTypes INTEGER,
-   *		-- the changeTypes field is the logical OR of
-   *		-- one or more of these values: add (1), delete (2),
-   *		-- modify (4), modDN (8).  It specifies which types of
-   *		-- changes will cause an entry to be returned.
-   *		changesOnly BOOLEAN, -- skip initial search?
-   *		returnECs BOOLEAN,   -- return "Entry Change" controls?
-   *	}
+   * PersistentSearch ::= SEQUENCE {
+   *   changeTypes INTEGER,
+   *   -- the changeTypes field is the logical OR of
+   *   -- one or more of these values: add (1), delete (2),
+   *   -- modify (4), modDN (8).  It specifies which types of
+   *   -- changes will cause an entry to be returned.
+   *   changesOnly BOOLEAN, -- skip initial search?
+   *   returnECs BOOLEAN,   -- return "Entry Change" controls?
+   * }
    */
   if ((nsldapi_alloc_ber_with_options(ld, &ber)) != LDAP_SUCCESS) {
     rc = LDAP_NO_MEMORY;
@@ -123,16 +123,16 @@ int LDAP_CALL ldap_parse_entrychange_control(LDAP *ld, LDAPControl **ctrls,
    * allocate a BER element from the control value and parse it.  The control
    * value should look like this:
    *
-   *	EntryChangeNotification ::= SEQUENCE {
-   *	     changeType ENUMERATED {
-   *	 	add             (1),  -- these values match the
-   *	 	delete          (2),  -- values used for changeTypes
-   *	 	modify          (4),  -- in the PersistentSearch control.
-   *	 	modDN           (8),
-   *	     },
-   *	     previousDN   LDAPDN OPTIONAL,     -- modDN ops. only
-   *	     changeNumber INTEGER OPTIONAL,    -- if supported
-   *	}
+   * EntryChangeNotification ::= SEQUENCE {
+   *   changeType ENUMERATED {
+   *     add             (1),  -- these values match the
+   *     delete          (2),  -- values used for changeTypes
+   *     modify          (4),  -- in the PersistentSearch control.
+   *     modDN           (8),
+   *   },
+   *   previousDN   LDAPDN OPTIONAL,     -- modDN ops. only
+   *   changeNumber INTEGER OPTIONAL,    -- if supported
+   * }
    */
   if ((ber = ber_init(&(ctrls[i]->ldctl_value))) == NULL) {
     rc = LDAP_NO_MEMORY;

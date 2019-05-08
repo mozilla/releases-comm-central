@@ -147,19 +147,20 @@ int LDAP_CALL ldap_parse_passwordpolicy_control(
   /*
    * The control value should look like this:
    *
-   *	PasswordPolicyResponseValue ::= SEQUENCE {
-   *		warning [0] CHOICE {
-   *			timeBeforeExpiration        [0] INTEGER (0 .. maxInt),
-   *			graceLoginsRemaining        [1] INTEGER (0 .. maxInt) }
-   *OPTIONAL error       [1] ENUMERATED { passwordExpired             (0),
-   *			accountLocked               (1),
-   *			changeAfterReset            (2),
-   *			passwordModNotAllowed       (3),
-   *			mustSupplyOldPassword       (4),
-   *			insufficientPasswordQuality (5),
-   *			passwordTooShort            (6),
-   *			passwordTooYoung            (7),
-   *			passwordInHistory           (8) } OPTIONAL }
+   * PasswordPolicyResponseValue ::= SEQUENCE {
+   *   warning [0] CHOICE {
+   *     timeBeforeExpiration        [0] INTEGER (0 .. maxInt),
+   *     graceLoginsRemaining        [1] INTEGER (0 .. maxInt) } OPTIONAL
+   *   error   [1] ENUMERATED {
+   *     passwordExpired             (0),
+   *     accountLocked               (1),
+   *     changeAfterReset            (2),
+   *     passwordModNotAllowed       (3),
+   *     mustSupplyOldPassword       (4),
+   *     insufficientPasswordQuality (5),
+   *     passwordTooShort            (6),
+   *     passwordTooYoung            (7),
+   *     passwordInHistory           (8) } OPTIONAL }
    */
 
   if (ber_scanf(ber, "{") == LBER_ERROR) {

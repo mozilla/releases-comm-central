@@ -315,7 +315,7 @@ static struct ldap_extra_thread_fns nsldapi_default_extra_thread_fns = {0, 0, 0,
 #  ifdef _WINDOWS
                                                                         0
 #  else
-		(void *(*)(void))pthread_self
+   (void *(*)(void))pthread_self
 #  endif /* _WINDOWS */
 };
 #endif /* use_pthreads || _windows */
@@ -425,18 +425,17 @@ void nsldapi_initialize_defaults(void) {
 /*
  * ldap_version - report version levels for important properties
  * This function is deprecated.  Use ldap_get_option( ..., LDAP_OPT_API_INFO,
- *	... ) instead.
+ * ... ) instead.
  *
  * Example:
- *	LDAPVersion ver;
- *	ldap_version( &ver );
- *  if ( (ver.sdk_version < 100) || (ver.SSL_version < 300) )
- *      fprintf( stderr, "LDAP SDK level insufficient\n" );
+ * LDAPVersion ver;
+ * ldap_version(&ver);
+ * if ((ver.sdk_version < 100) || (ver.SSL_version < 300))
+ *   fprintf(stderr, "LDAP SDK level insufficient\n");
  *
  * or:
- *  if ( ldap_version(NULL) < 100 )
- *      fprintf( stderr, "LDAP SDK level insufficient\n" );
- *
+ * if (ldap_version(NULL) < 100)
+ *   fprintf(stderr, "LDAP SDK level insufficient\n");
  */
 
 int LDAP_CALL ldap_version(LDAPVersion *ver) {
@@ -467,8 +466,8 @@ int LDAP_CALL ldap_version(LDAPVersion *ver) {
  * "host" may be a space-separated list of hosts or IP addresses
  *
  * Example:
- *	LDAP	*ld;
- *	ld = ldap_open( hostname, port );
+ * LDAP  *ld;
+ * ld = ldap_open(hostname, port);
  */
 
 LDAP *LDAP_CALL ldap_open(const char *host, int port) {
@@ -504,8 +503,8 @@ LDAP *LDAP_CALL ldap_open(const char *host, int port) {
  * by calling prldap_install_routines. (See the nspr samples in examples)
  *
  * Example:
- *	LDAP	*ld;
- *	ld = ldap_init( default_hostname, default_port );
+ * LDAP  *ld;
+ * ld = ldap_init(default_hostname, default_port);
  */
 LDAP *LDAP_CALL ldap_init(const char *defhost, int defport) {
   LDAP *ld;

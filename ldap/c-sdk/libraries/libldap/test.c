@@ -352,8 +352,6 @@ typedef struct my_malloc_info {
 } MyMallocInfo;
 #  define MY_MALLOC_MAGIC_NUMBER 0x19940618
 
-#  define MY_MALLOC_CHECK_MAGIC(p)	if ( ((MyMallocInfo *)( (p) - sizeof()
-
 void *my_malloc(size_t size) {
   void *p;
   MyMallocInfo *mmip;
@@ -432,7 +430,7 @@ ldapmain(
 #else  /* WINSOCK */
 main(
 #endif /* WINSOCK */
-	int argc, char **argv )
+ int argc, char **argv )
 {
   LDAP *ld;
   int rc, i, c, port, cldapflg, errflg, method, id, msgtype;

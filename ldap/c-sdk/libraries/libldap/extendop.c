@@ -42,11 +42,11 @@
  * LDAP error code.
  *
  * Example:
- *	struct berval	exdata;
- *	char		*exoid;
- *	int		err, msgid;
- *	... fill in oid and data ...
- *	err = ldap_extended_operation( ld, exoid, &exdata, NULL, NULL, &msgid );
+ * struct berval exdata;
+ * char *exoid;
+ * int err, msgid;
+ * ... fill in oid and data ...
+ * err = ldap_extended_operation(ld, exoid, &exdata, NULL, NULL, &msgid);
  */
 
 int LDAP_CALL ldap_extended_operation(LDAP *ld, const char *exoid,
@@ -59,10 +59,10 @@ int LDAP_CALL ldap_extended_operation(LDAP *ld, const char *exoid,
   /*
    * the ldapv3 extended operation request looks like this:
    *
-   *	ExtendedRequest ::= [APPLICATION 23] SEQUENCE {
-   *		requestName	LDAPOID,
-   *		requestValue	OCTET STRING
-   *	}
+   * ExtendedRequest ::= [APPLICATION 23] SEQUENCE {
+   *   requestName  LDAPOID,
+   *   requestValue  OCTET STRING
+   * }
    *
    * all wrapped up in an LDAPMessage sequence.
    */
@@ -91,15 +91,15 @@ int LDAP_CALL ldap_extended_operation(LDAP *ld, const char *exoid,
   LDAP_MUTEX_UNLOCK(ld, LDAP_MSGID_LOCK);
 
 #if 0
-	if ( ld->ld_cache_on && ld->ld_cache_extendedop != NULL ) {
-		LDAP_MUTEX_LOCK( ld, LDAP_CACHE_LOCK );
-		if ( (rc = (ld->ld_cache_extendedop)( ld, msgid,
-		    LDAP_REQ_EXTENDED, exoid, cred )) != 0 ) {
-			LDAP_MUTEX_UNLOCK( ld, LDAP_CACHE_LOCK );
-			return( rc );
-		}
-		LDAP_MUTEX_UNLOCK( ld, LDAP_CACHE_LOCK );
-	}
+  if (ld->ld_cache_on && ld->ld_cache_extendedop != NULL) {
+    LDAP_MUTEX_LOCK(ld, LDAP_CACHE_LOCK);
+    if ((rc = (ld->ld_cache_extendedop)(ld, msgid,
+               LDAP_REQ_EXTENDED, exoid, cred )) != 0) {
+      LDAP_MUTEX_UNLOCK(ld, LDAP_CACHE_LOCK);
+      return(rc);
+    }
+    LDAP_MUTEX_UNLOCK(ld, LDAP_CACHE_LOCK);
+  }
 #endif
 
   /* create a message to send */
@@ -144,11 +144,11 @@ int LDAP_CALL ldap_extended_operation(LDAP *ld, const char *exoid,
  * is returned upon success, the ldap error code otherwise.
  *
  * Example:
- *	struct berval	exdata, exretval;
- *	char		*exoid;
- *	int		rc;
- *	... fill in oid and data ...
- *	rc = ldap_extended_operation_s( ld, exoid, &exdata, &exretval );
+ * struct berval exdata, exretval;
+ * char *exoid;
+ * int rc;
+ * ... fill in oid and data ...
+ * rc = ldap_extended_operation_s(ld, exoid, &exdata, &exretval);
  */
 int LDAP_CALL ldap_extended_operation_s(LDAP *ld, const char *requestoid,
                                         const struct berval *requestdata,

@@ -504,13 +504,13 @@ static int nsldapi_sasl_do_bind(LDAP *ld, const char *dn, const char *mechs,
  * to the id of the request initiated.
  *
  * Example:
- *	struct berval	creds;
- *	LDAPControl	**ctrls;
- *	int		err, msgid;
- *	... fill in creds with credentials ...
- *	... fill in ctrls with server controls ...
- *	err = ldap_sasl_bind( ld, "cn=manager, o=university of michigan, c=us",
- *	    "mechanismname", &creds, ctrls, NULL, &msgid );
+ * struct berval  creds;
+ * LDAPControl  **ctrls;
+ * int    err, msgid;
+ * ... fill in creds with credentials ...
+ * ... fill in ctrls with server controls ...
+ * err = ldap_sasl_bind(ld, "cn=manager, o=university of michigan, c=us",
+ *                      "mechanismname", &creds, ctrls, NULL, &msgid);
  */
 int LDAP_CALL ldap_sasl_bind(LDAP *ld, const char *dn, const char *mechanism,
                              const struct berval *cred,
@@ -521,18 +521,18 @@ int LDAP_CALL ldap_sasl_bind(LDAP *ld, const char *dn, const char *mechanism,
 
   /*
    * The ldapv3 bind request looks like this:
-   *	BindRequest ::= SEQUENCE {
-   *		version		INTEGER,
-   *		name		DistinguishedName,	 -- who
-   *		authentication	CHOICE {
-   *			simple		[0] OCTET STRING, -- passwd
-   *			sasl		[3] SaslCredentials -- v3 only
-   *		}
-   *	}
-   *	SaslCredentials ::= SEQUENCE {
-   *		mechanism	LDAPString,
-   * 		credentials	OCTET STRING
-   *	}
+   * BindRequest ::= SEQUENCE {
+   *   version INTEGER,
+   *   name DistinguishedName,      -- who
+   *   authentication CHOICE {
+   *     simple [0] OCTET STRING,   -- passwd
+   *     sasl   [3] SaslCredentials -- v3 only
+   *   }
+   * }
+   * SaslCredentials ::= SEQUENCE {
+   *   mechanism  LDAPString,
+   *   credentials  OCTET STRING
+   * }
    * all wrapped up in an LDAPMessage sequence.
    */
 
@@ -629,10 +629,10 @@ int LDAP_CALL ldap_sasl_bind(LDAP *ld, const char *dn, const char *mechanism,
  * otherwise.
  *
  * Example:
- *	struct berval	creds;
- *	... fill in creds with credentials ...
- *	ldap_sasl_bind_s( ld, "cn=manager, o=university of michigan, c=us",
- *	    "mechanismname", &creds )
+ * struct berval  creds;
+ * ... fill in creds with credentials ...
+ * ldap_sasl_bind_s(ld, "cn=manager, o=university of michigan, c=us",
+ *                  "mechanismname", &creds)
  */
 int LDAP_CALL ldap_sasl_bind_s(LDAP *ld, const char *dn, const char *mechanism,
                                const struct berval *cred,
@@ -757,10 +757,10 @@ int LDAP_CALL ldap_parse_sasl_bind_result(LDAP *ld, LDAPMessage *res,
   /*
    * the ldapv3 SASL bind response looks like this:
    *
-   *	BindResponse ::= [APPLICATION 1] SEQUENCE {
-   *		COMPONENTS OF LDAPResult,
-   *		serverSaslCreds [7] OCTET STRING OPTIONAL
-   *	}
+   * BindResponse ::= [APPLICATION 1] SEQUENCE {
+   *   COMPONENTS OF LDAPResult,
+   *   serverSaslCreds [7] OCTET STRING OPTIONAL
+   * }
    *
    * all wrapped up in an LDAPMessage sequence.
    */

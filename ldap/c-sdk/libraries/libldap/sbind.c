@@ -59,8 +59,8 @@ static int simple_bind_nolock(LDAP *ld, const char *dn, const char *passwd,
  * of the request initiated is returned.
  *
  * Example:
- *	ldap_simple_bind( ld, "cn=manager, o=university of michigan, c=us",
- *	    "secret" )
+ * ldap_simple_bind(ld, "cn=manager, o=university of michigan, c=us",
+ *                  "secret")
  */
 
 int LDAP_CALL ldap_simple_bind(LDAP *ld, const char *dn, const char *passwd) {
@@ -88,13 +88,13 @@ static int simple_bind_nolock(LDAP *ld, const char *dn, const char *passwd,
 
   /*
    * The bind request looks like this:
-   *	BindRequest ::= SEQUENCE {
-   *		version		INTEGER,
-   *		name		DistinguishedName,	 -- who
-   *		authentication	CHOICE {
-   *			simple		[0] OCTET STRING -- passwd
-   *		}
-   *	}
+   * BindRequest ::= SEQUENCE {
+   *   version INTEGER,
+   *   name DistinguishedName,   -- who
+   *   authentication CHOICE {
+   *     simple [0] OCTET STRING -- passwd
+   *   }
+   * }
    * all wrapped up in an LDAPMessage sequence.
    */
 
@@ -152,8 +152,8 @@ static int simple_bind_nolock(LDAP *ld, const char *dn, const char *passwd,
  * otherwise.
  *
  * Example:
- *	ldap_simple_bind_s( ld, "cn=manager, o=university of michigan, c=us",
- *	    "secret" )
+ * ldap_simple_bind_s(ld, "cn=manager, o=university of michigan, c=us",
+ *                    "secret")
  */
 int LDAP_CALL ldap_simple_bind_s(LDAP *ld, const char *dn, const char *passwd) {
   int msgid;

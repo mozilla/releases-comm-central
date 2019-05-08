@@ -1284,9 +1284,9 @@ ber_uint_t LDAP_CALL ber_get_next_buffer_ext(void *buffer, size_t buffer_size,
    * and the rest of the undecoded element in buf.
    *
    * Assumptions:
-   *	1) small tags (less than 128)
-   *	2) definite lengths
-   *	3) primitive encodings used whenever possible
+   * 1) small tags (less than 128)
+   * 2) definite lengths
+   * 3) primitive encodings used whenever possible
    */
 
   /*

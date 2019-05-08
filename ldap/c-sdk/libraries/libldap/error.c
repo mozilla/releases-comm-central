@@ -350,20 +350,20 @@ int nsldapi_parse_result(LDAP *ld, int msgtype, BerElement *rber, int *errcodep,
   /*
    * Parse the result message.  LDAPv3 result messages look like this:
    *
-   *	LDAPResult ::= SEQUENCE {
-   *		resultCode	ENUMERATED { ... },
-   *		matchedDN	LDAPDN,
-   *		errorMessage	LDAPString,
-   *		referral	[3] Referral OPTIONAL
-   *		opSpecificStuff	OPTIONAL
-   *	}
+   * LDAPResult ::= SEQUENCE {
+   *   resultCode ENUMERATED { ... },
+   *   matchedDN LDAPDN,
+   *   errorMessage LDAPString,
+   *   referral [3] Referral OPTIONAL
+   *   opSpecificStuff OPTIONAL
+   * }
    *
    * all wrapped up in an LDAPMessage sequence which looks like this:
-   *	LDAPMessage ::= SEQUENCE {
-   *		messageID	MessageID,
-   *		LDAPResult	CHOICE { ... },	// message type
-   *		controls	[0] Controls OPTIONAL
-   *	}
+   * LDAPMessage ::= SEQUENCE {
+   *   messageID MessageID,
+   *   LDAPResult CHOICE { ... },  // message type
+   *   controls [0] Controls OPTIONAL
+   * }
    *
    * LDAPv2 messages don't include referrals or controls.
    * LDAPv1 messages don't include matchedDN, referrals, or controls.

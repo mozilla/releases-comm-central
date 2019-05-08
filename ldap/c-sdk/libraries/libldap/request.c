@@ -474,11 +474,11 @@ int nsldapi_send_ber_message(LDAP *ld, Sockbuf *sb, BerElement *ber, int freeit,
  * that are associated with connection 'lc'.
  *
  * Return values:  0 -- success.
- *		  -1 -- fatal error; connection closed.
+ *                -1 -- fatal error; connection closed.
  *
  * Must be called with these two mutexes locked, in this order:
- *	LDAP_CONN_LOCK
- *	LDAP_REQ_LOCK
+ * LDAP_CONN_LOCK
+ * LDAP_REQ_LOCK
  */
 int nsldapi_send_pending_requests_nolock(LDAP *ld, LDAPConn *lc) {
   int err;
@@ -989,8 +989,8 @@ void nsldapi_free_request(LDAP *ld, LDAPRequest *lr, int free_conn) {
  * Add a request to the end of the list of outstanding requests.
  * This function must be called with these two locks in hand, acquired in
  * this order:
- *	LDAP_CONN_LOCK
- *	LDAP_REQ_LOCK
+ * LDAP_CONN_LOCK
+ * LDAP_REQ_LOCK
  */
 void nsldapi_queue_request_nolock(LDAP *ld, LDAPRequest *lr) {
   if (NULL == ld->ld_requests) {
@@ -1156,8 +1156,8 @@ int nsldapi_chase_v3_refs(LDAP *ld, LDAPRequest *lr, char **v3refs,
  * returns an LDAP error code
  *
  * XXXmcs: this function used to have #ifdef LDAP_DNS code in it but I
- *	removed it when I improved the parsing (we don't define LDAP_DNS
- *	here at Netscape).
+ * removed it when I improved the parsing (we don't define LDAP_DNS
+ * here at Netscape).
  */
 static int chase_one_referral(LDAP *ld, LDAPRequest *lr, LDAPRequest *origreq,
                               char *refurl, char *desc, int *unknownp,
@@ -1460,9 +1460,9 @@ void nsldapi_connection_lost_nolock(LDAP *ld, Sockbuf *sb) {
 
   /*
    * change status of all pending requests that are associated with "sb
-   *	to "connection dead."
+   * to "connection dead."
    * also change the connection status to "dead" and remove it from
-   *	the list of sockets we are interested in.
+   * the list of sockets we are interested in.
    */
   for (lr = ld->ld_requests; lr != NULL; lr = lr->lr_next) {
     if (sb == NULL || (lr->lr_conn != NULL && lr->lr_conn->lconn_sb == sb)) {

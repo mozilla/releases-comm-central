@@ -43,25 +43,26 @@
 #include <winsock.h>
 #include <string.h>
 
-//	Purpose of this file is to implement an intermediate layer to our
-//network 		services, the winsock. 	This intermediate layer will be able to
-//function with and without a working 		winsock being present. 	The attempt to
-//activate the winsock happens as would normally be expected,
-//              through the calling application's entry point to us, WSAStartup.
+// Purpose of this file is to implement an intermediate layer to our network
+// services, the winsock.
+// This intermediate layer will be able to function with and without a working
+// winsock being present.
+// The attempt to activate the winsock happens as would normally be expected,
+// through the calling application's entry point to us, WSAStartup.
 
-//	Name of the winsock we would like to load.
-//	Diffs between OSs, Win32s is out in the cold if running 32 bits unless
-//		they also have a winsock name wsock32.dll.
+// Name of the winsock we would like to load.
+// Diffs between OSs, Win32s is out in the cold if running 32 bits unless
+// they also have a winsock name wsock32.dll.
 #ifndef _WIN32
 #  define SZWINSOCK "winsock.dll"
 #else
 #  define SZWINSOCK "wsock32.dll"
 #endif
 
-//	Here is the enumeration for the winsock functions we have currently
-//		overridden (needed to run).  Add more when needed.
-//	We use these to access proc addresses, and to hold a table of strings
-//		to obtain the proc addresses.
+// Here is the enumeration for the winsock functions we have currently
+// overridden (needed to run).  Add more when needed.
+// We use these to access proc addresses, and to hold a table of strings
+// to obtain the proc addresses.
 enum SockProc {
   sp_WSAAsyncGetHostByName = 0,
   sp_WSAAsyncSelect,
@@ -96,12 +97,12 @@ enum SockProc {
   sp_socket,
   sp_inet_ntoa,
 
-  sp_MaxProcs  //	Total count.
+  sp_MaxProcs  // Total count.
 };
 
-//	Array of function names used in GetProcAddress to fill in our
-//		proc array when needed.
-//	This array must match the enumerations exactly.
+// Array of function names used in GetProcAddress to fill in our
+// proc array when needed.
+// This array must match the enumerations exactly.
 char *spName[(int)sp_MaxProcs] = {"WSAAsyncGetHostByName",
                                   "WSAAsyncSelect",
                                   "WSACleanup",
@@ -135,17 +136,17 @@ char *spName[(int)sp_MaxProcs] = {"WSAAsyncGetHostByName",
                                   "socket",
                                   "inet_ntoa"};
 
-//	Array of proc addresses to the winsock functions.
-//      These can be NULL, indicating their absence (as in the case we couldn't
-//              load the winsock.dll or one of the functions wasn't loaded).
-//	The procs assigned in must corellate with the enumerations exactly.
+// Array of proc addresses to the winsock functions.
+// These can be NULL, indicating their absence (as in the case we couldn't
+// load the winsock.dll or one of the functions wasn't loaded).
+// The procs assigned in must corellate with the enumerations exactly.
 FARPROC spArray[(int)sp_MaxProcs];
 
-//	Typedef all the different types of functions that we must cast the
-//		procs to in order to call without the compiler barfing.
-//	Prefix is always sp.
-//	Retval is next, spelled out.
-//	Parameters in their order are next, spelled out.
+// Typedef all the different types of functions that we must cast the
+// procs to in order to call without the compiler barfing.
+// Prefix is always sp.
+// Retval is next, spelled out.
+// Parameters in their order are next, spelled out.
 typedef int(PASCAL FAR *sp_int_WORD_LPWSADATA)(WORD, LPWSADATA);
 typedef int(PASCAL FAR *sp_int_void)(void);
 typedef HANDLE(PASCAL FAR *sp_HANDLE_HWND_uint_ccharFARp_charFARp_int)(
@@ -190,11 +191,11 @@ typedef char FAR *(PASCAL FAR *sp_charFARp_in_addr)(struct in_addr in);
 typedef struct protoent FAR *(PASCAL FAR *sp_protoentFARcchar)(
     const char FAR *);
 
-//	Handle to the winsock, if loaded.
+// Handle to the winsock, if loaded.
 HINSTANCE hWinsock = NULL;
 
 #ifndef _WIN32
-//	Last error code for the winsock.
+// Last error code for the winsock.
 int ispError = 0;
 #endif
 
@@ -223,23 +224,22 @@ BOOL IsWinsockLoaded(int sp) {
     LeaveCriticalSection(&sc);
 #endif
   }
-//	Quick macro to tell if the winsock has actually loaded for a particular
-//		function.
-//  Debug version is a little more strict to make sure you get the names right.
+// Quick macro to tell if the winsock has actually loaded for a particular
+// function.
+// Debug version is a little more strict to make sure you get the names right.
 #ifdef DEBUG
   return hWinsock != NULL && spArray[(int)(sp)] != NULL;
-#else  //  A little faster
+#else  // A little faster
   return hWinsock != NULL;
 #endif
 }
 
-//	Here are the functions that we have taken over by not directly linking
-//		with the winsock import library or importing through the def
-//file.
+// Here are the functions that we have taken over by not directly linking
+// with the winsock import library or importing through the def file.
 
 /* In win16 we simulate blocking commands as follows.  Prior to issuing the
  * command we make the socket not-blocking (WSAAsyncSelect does that).
- * We then issue the command and see if it would have blocked.	If so, we
+ * We then issue the command and see if it would have blocked.  If so, we
  * yield the processor and go to sleep until an event occurs that unblocks
  * us (WSAAsyncSelect allowed us to register what that condition is).  We
  * keep repeating until we do not get a would-block indication when issuing
@@ -276,77 +276,77 @@ BOOL IsWinsockLoaded(int sp) {
 #endif
 
 int PASCAL FAR WSAStartup(WORD wVersionRequested, LPWSADATA lpWSAData) {
-  //	Our default return value is failure, though we change this regardless.
+  // Our default return value is failure, though we change this regardless.
   int iRetval = WSAVERNOTSUPPORTED;
   HINSTANCE MyHandle;
 
-  //	Before doing anything, clear out our proc array.
+  // Before doing anything, clear out our proc array.
   memset(spArray, 0, sizeof(spArray));
 
-  //	attempt to load the real winsock.
+  // attempt to load the real winsock.
   MyHandle = LoadLibrary(SZWINSOCK);
 #ifdef _WIN32
   if (MyHandle != NULL) {
 #else
   if (MyHandle > HINSTANCE_ERROR) {
 #endif
-    //	Winsock was loaded.
-    //	Get the proc addresses for each needed function next.
+    // Winsock was loaded.
+    // Get the proc addresses for each needed function next.
     int spTraverse;
     for (spTraverse = 0; spTraverse < (int)sp_MaxProcs; spTraverse++) {
       spArray[spTraverse] = GetProcAddress(MyHandle, spName[spTraverse]);
       if (NULL == spArray[spTraverse])
-        return iRetval;  //	Bad winsock?  Bad function name?
+        return iRetval;  // Bad winsock? Bad function name?
     }
 
     hWinsock = MyHandle;
-    //	AllRight, attempt to make our first proxied call.
+    // AllRight, attempt to make our first proxied call.
     if (IsWinsockLoaded(sp_WSAStartup)) {
       iRetval = ((sp_int_WORD_LPWSADATA)spArray[sp_WSAStartup])(
           wVersionRequested, lpWSAData);
     }
 
-    //	If the return value is still an error at this point, we unload the DLL,
-    //		so that we can act as though nothing happened and the user
-    //		gets no network access.
+    // If the return value is still an error at this point, we unload the DLL,
+    // so that we can act as though nothing happened and the user
+    // gets no network access.
     if (iRetval != 0) {
-      //	Clear out our proc array.
+      // Clear out our proc array.
       memset(spArray, 0, sizeof(spArray));
 
-      //	Free up the winsock.
+      // Free up the winsock.
       FreeLibrary(MyHandle);
       MyHandle = NULL;
     }
   }
 #ifndef _WIN32
   else {
-    //	Failed to load.
-    //	Set this to NULL so it is clear.
+    // Failed to load.
+    // Set this to NULL so it is clear.
     hWinsock = NULL;
   }
 #endif
 
-  //      Check our return value, if it isn't success, then we need to fake
-  //		our own winsock implementation.
+  // Check our return value, if it isn't success, then we need to fake
+  // our own winsock implementation.
   if (iRetval != 0) {
-    //	We always return success.
+    // We always return success.
     iRetval = 0;
 
-    //	Fill in the structure.
-    //	Return the version requested as the version supported.
+    // Fill in the structure.
+    // Return the version requested as the version supported.
     lpWSAData->wVersion = wVersionRequested;
     lpWSAData->wHighVersion = wVersionRequested;
 
-    //	Fill in a description.
+    // Fill in a description.
     strcpy(lpWSAData->szDescription, "Mozock DLL internal implementation.");
     strcpy(lpWSAData->szSystemStatus,
            "Winsock running, allowing no network access.");
 
-    //	Report a nice round number for sockets and datagram sizes.
+    // Report a nice round number for sockets and datagram sizes.
     lpWSAData->iMaxSockets = 4096;
     lpWSAData->iMaxUdpDg = 4096;
 
-    //	No vendor information.
+    // No vendor information.
     lpWSAData->lpVendorInfo = NULL;
   }
 
@@ -356,21 +356,21 @@ int PASCAL FAR WSAStartup(WORD wVersionRequested, LPWSADATA lpWSAData) {
 int PASCAL FAR WSACleanup(void) {
   int iRetval = 0;
 
-  //	Handling normally or internally.
+  // Handling normally or internally.
   // When IsWinsockLoaded() is called and hWinsock is NULL, it winds up calling
   // WSAStartup which wedges rpcrt4.dll on win95 with some winsock
   // implementations. Bug: 81359.
   if (hWinsock && IsWinsockLoaded(sp_WSACleanup)) {
-    //	Call their cleanup routine.
-    //	We could set the return value here, but it is meaning less.
-    //	We always return success.
+    // Call their cleanup routine.
+    // We could set the return value here, but it is meaning less.
+    // We always return success.
     iRetval = ((sp_int_void)spArray[sp_WSACleanup])();
     // ASSERT(iRetval == 0);
     iRetval = 0;
   }
 
-  //	Whether or not it succeeded, we free off the library here.
-  //	Clear out our proc table too.
+  // Whether or not it succeeded, we free off the library here.
+  // Clear out our proc table too.
   memset(spArray, 0, sizeof(spArray));
   if (hWinsock != NULL) {
     FreeLibrary(hWinsock);
@@ -390,57 +390,57 @@ HANDLE PASCAL FAR WSAAsyncGetHostByName(HWND hWnd, unsigned int wMsg,
              spArray[sp_WSAAsyncGetHostByName])(hWnd, wMsg, name, buf, buflen));
   }
 
-  //	Must return error here.
-  //	Set our last error value to be that the net is down.
+  // Must return error here.
+  // Set our last error value to be that the net is down.
   WSASetLastError(WSAENETDOWN);
   return (NULL);
 }
 
 int PASCAL FAR WSAAsyncSelect(SOCKET s, HWND hWnd, unsigned int wMsg,
                               long lEvent) {
-  //	Normal or shim.
+  // Normal or shim.
   if (IsWinsockLoaded(sp_WSAAsyncSelect)) {
     return (((sp_int_SOCKET_HWND_uint_long)spArray[sp_WSAAsyncSelect])(
         s, hWnd, wMsg, lEvent));
   }
 
-  //	Must return error here.
+  // Must return error here.
   WSASetLastError(WSAENETDOWN);
   return (SOCKET_ERROR);
 }
 
 int PASCAL FAR WSAGetLastError(void) {
-  //	See if someone else can handle.
+  // See if someone else can handle.
   if (IsWinsockLoaded(sp_WSAGetLastError)) {
     return (((sp_int_void)spArray[sp_WSAGetLastError])());
   }
 
 #ifndef _WIN32
   {
-    //	Fake it.
+    // Fake it.
     int iRetval = ispError;
     ispError = 0;
     return (iRetval);
   }
 #else
-  //	Use default OS handler.
+  // Use default OS handler.
   return (GetLastError());
 #endif
 }
 
 void PASCAL FAR WSASetLastError(int iError) {
-  //	See if someone else can handle.
+  // See if someone else can handle.
   if (IsWinsockLoaded(sp_WSASetLastError)) {
     ((sp_void_int)spArray[sp_WSASetLastError])(iError);
     return;
   }
 
 #ifndef _WIN32
-  //	Fake it.
+  // Fake it.
   ispError = iError;
   return;
 #else
-  //	Use default OS handler.
+  // Use default OS handler.
   SetLastError(iError);
   return;
 #endif
@@ -449,12 +449,12 @@ void PASCAL FAR WSASetLastError(int iError) {
 int PASCAL FAR __WSAFDIsSet(SOCKET fd, fd_set FAR *set) {
   int i;
 
-  //	See if someone else will handle.
+  // See if someone else will handle.
   if (IsWinsockLoaded(sp___WSAFDIsSet)) {
     return (((sp_int_SOCKET_fdsetFARp)spArray[sp___WSAFDIsSet])(fd, set));
   }
 
-  //	Default implementation.
+  // Default implementation.
   i = set->fd_count;
   while (i--) {
     if (set->fd_array[i] == fd) {
@@ -466,40 +466,40 @@ int PASCAL FAR __WSAFDIsSet(SOCKET fd, fd_set FAR *set) {
 
 SOCKET PASCAL FAR accept(SOCKET s, struct sockaddr FAR *addr,
                          int FAR *addrlen) {
-  //	Internally or shim
+  // Internally or shim
   NON_BLOCKING((((sp_SOCKET_SOCKET_sockaddrFARp_intFARp)spArray[sp_accept])(
                    s, addr, addrlen)),
                FD_ACCEPT, sp_accept, SOCKET);
 
-  //	Fail.
+  // Fail.
   WSASetLastError(WSAENETDOWN);
   return (INVALID_SOCKET);
 }
 
 int PASCAL FAR bind(SOCKET s, const struct sockaddr FAR *name, int namelen) {
-  //	Internally or shim
+  // Internally or shim
   if (IsWinsockLoaded(sp_bind)) {
     return (
         ((sp_int_SOCKET_csockaddrFARp_int)spArray[sp_bind])(s, name, namelen));
   }
 
-  //	Fail.
+  // Fail.
   WSASetLastError(WSAENETDOWN);
   return (SOCKET_ERROR);
 }
 
 int PASCAL FAR closesocket(SOCKET s) {
-  //	Internally or shim.
+  // Internally or shim.
   NON_BLOCKING((((sp_int_SOCKET)spArray[sp_closesocket])(s)), FD_CLOSE,
                sp_closesocket, int);
 
-  //	Error.
+  // Error.
   WSASetLastError(WSAENETDOWN);
   return (SOCKET_ERROR);
 }
 
 int PASCAL FAR connect(SOCKET s, const struct sockaddr FAR *name, int namelen) {
-  //	Internally or shim.
+  // Internally or shim.
   if (IsWinsockLoaded(sp_connect)) {
     /* This could block and so it would seem that the NON_BLOCK
      * macro should be used here.  However it was causing a crash
@@ -509,7 +509,7 @@ int PASCAL FAR connect(SOCKET s, const struct sockaddr FAR *name, int namelen) {
                                                                    namelen));
   }
 
-  //	Err.
+  // Err.
   WSASetLastError(WSAENETDOWN);
   return (SOCKET_ERROR);
 }
@@ -595,7 +595,7 @@ u_long PASCAL FAR htonl(u_long hostlong) {
           ((hostlong & 0xff0000) >> 8) + ((hostlong & 0xff000000) >> 24));
 
 #else
-  //	Just return what was passed in.
+  // Just return what was passed in.
   return (hostlong);
 #endif
 }
@@ -609,7 +609,7 @@ u_short PASCAL FAR htons(u_short hostshort) {
   return (((hostshort & 0xff) << 8) + ((hostshort & 0xff00) >> 8));
 
 #else
-  //	Just return what was passed in.
+  // Just return what was passed in.
   return (hostshort);
 #endif
 }
@@ -624,7 +624,7 @@ u_long PASCAL FAR ntohl(u_long hostlong) {
           ((hostlong & 0xff0000) >> 8) + ((hostlong & 0xff000000) >> 24));
 
 #else
-  //	Just return what was passed in.
+  // Just return what was passed in.
   return (hostlong);
 #endif
 }
@@ -638,7 +638,7 @@ u_short PASCAL FAR ntohs(u_short hostshort) {
   return (((hostshort & 0xff) << 8) + ((hostshort & 0xff00) >> 8));
 
 #else
-  //	Just return what was passed in.
+  // Just return what was passed in.
   return (hostshort);
 #endif
 }
@@ -682,8 +682,8 @@ int PASCAL FAR recv(SOCKET s, char FAR *buf, int len, int flags) {
 int PASCAL FAR select(int nfds, fd_set FAR *readfds, fd_set FAR *writefds,
                       fd_set FAR *exceptfds,
                       const struct timeval FAR *timeout) {
-  //  If there's nothing to do, stop now before we go off into dll land.
-  //	Optimization, boyz.
+  // If there's nothing to do, stop now before we go off into dll land.
+  // Optimization, boyz.
   if ((readfds && readfds->fd_count) || (writefds && writefds->fd_count) ||
       (exceptfds && exceptfds->fd_count)) {
     if (IsWinsockLoaded(sp_select)) {
@@ -696,7 +696,7 @@ int PASCAL FAR select(int nfds, fd_set FAR *readfds, fd_set FAR *writefds,
     return (SOCKET_ERROR);
   }
 
-  //	No need to go to the DLL, there is nothing to do.
+  // No need to go to the DLL, there is nothing to do.
   return (0);
 }
 

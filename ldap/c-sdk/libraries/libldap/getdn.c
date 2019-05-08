@@ -206,9 +206,9 @@ static char **ldap_explode(const char *dn, const int notypes,
   }
 
 #if 0
-	if ( ldap_is_dns_dn( dn ) ) {
-		return( ldap_explode_dns( dn ) );
-	}
+  if (ldap_is_dns_dn(dn)) {
+    return(ldap_explode_dns(dn));
+  }
 #endif
 
   while (ldap_utf8isspace((char *)dn)) { /* ignore leading spaces */

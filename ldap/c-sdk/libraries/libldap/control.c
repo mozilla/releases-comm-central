@@ -149,13 +149,13 @@ int nsldapi_get_controls(BerElement *ber, LDAPControl ***controlsp) {
    * of an LDAP operation (e.g., add an attribute size limit
    * to the search operation). These controls look like this:
    *
-   *	Controls ::= SEQUENCE OF Control
+   * Controls ::= SEQUENCE OF Control
    *
-   *	Control ::= SEQUENCE {
-   *		controlType	LDAPOID,
-   *		criticality	BOOLEAN DEFAULT FALSE,
-   *		controlValue	OCTET STRING
-   *	}
+   * Control ::= SEQUENCE {
+   *   controlType LDAPOID,
+   *   criticality BOOLEAN DEFAULT FALSE,
+   *   controlValue OCTET STRING
+   * }
    */
   LDAPDebug(LDAP_DEBUG_TRACE, "=> nsldapi_get_controls\n", 0, 0, 0);
 
@@ -336,38 +336,38 @@ LDAP_CALL
 ldap_control_append( LDAPControl **ctrl_src, LDAPControl *ctrl )
 {
     int nctrls = 0;
-	LDAPControl **ctrlp;
-	int i;
+  LDAPControl **ctrlp;
+  int i;
 
-	if ( NULL == ctrl )
-	    return ( NULL );
+  if (NULL == ctrl)
+    return (NULL);
 
-	/* Count the existing controls */
-	if ( NULL != ctrl_src ) {
-		while( NULL != ctrl_src[nctrls] ) {
-			nctrls++;
-		}
-	}
+  /* Count the existing controls */
+  if (NULL != ctrl_src) {
+    while (NULL != ctrl_src[nctrls]) {
+      nctrls++;
+    }
+  }
 
-	/* allocate the new control structure */
-	if ( ( ctrlp = (LDAPControl **)NSLDAPI_MALLOC( sizeof(LDAPControl *)
-	    * (nctrls + 2) ) ) == NULL ) {
-		return( NULL );
-	}
-	memset( ctrlp, 0, sizeof(*ctrlp) * (nctrls + 2) );
+  /* allocate the new control structure */
+  if ((ctrlp = (LDAPControl **)NSLDAPI_MALLOC(sizeof(LDAPControl *)
+      *(nctrls + 2))) == NULL) {
+    return(NULL);
+  }
+  memset(ctrlp, 0, sizeof(*ctrlp) * (nctrls + 2));
 
-	for( i = 0; i < (nctrls + 1); i++ ) {
-	    if ( i < nctrls ) {
-		    ctrlp[i] = ldap_control_dup( ctrl_src[i] );
-	    } else {
-		    ctrlp[i] = ldap_control_dup( ctrl );
-	    }
-	    if ( NULL == ctrlp[i] ) {
-		    ldap_controls_free( ctrlp );
-		    return( NULL );
-	    }
-	}
-	return ctrlp;
+  for (i = 0; i < (nctrls + 1); i++) {
+      if (i < nctrls) {
+        ctrlp[i] = ldap_control_dup(ctrl_src[i]);
+      } else {
+        ctrlp[i] = ldap_control_dup(ctrl);
+      }
+      if (NULL == ctrlp[i]) {
+        ldap_controls_free(ctrlp);
+        return(NULL);
+      }
+  }
+  return ctrlp;
 }
 #endif /* 0 */
 

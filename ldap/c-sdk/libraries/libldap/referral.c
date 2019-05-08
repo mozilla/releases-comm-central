@@ -120,15 +120,15 @@ int nsldapi_parse_reference(LDAP *ld, BerElement *rber, char ***referralsp,
    * Parse a searchResultReference message.  These are used in LDAPv3
    * and beyond and look like this:
    *
-   *	SearchResultReference ::= [APPLICATION 19] SEQUENCE OF LDAPURL
+   * SearchResultReference ::= [APPLICATION 19] SEQUENCE OF LDAPURL
    *
    * all wrapped up in an LDAPMessage sequence which looks like this:
    *
-   *	LDAPMessage ::= SEQUENCE {
-   *		messageID	MessageID,
-   *		SearchResultReference
-   *		controls	[0] Controls OPTIONAL
-   *	}
+   * LDAPMessage ::= SEQUENCE {
+   *   messageID  MessageID,
+   *   SearchResultReference
+   *   controls  [0] Controls OPTIONAL
+   * }
    *
    * ldap_result() pulls out the message id, so by the time a result
    * message gets here we are conveniently sitting at the start of the

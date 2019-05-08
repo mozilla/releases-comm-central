@@ -124,17 +124,17 @@ int LDAP_CALL ldap_parse_userstatus_control(LDAP *ld, LDAPControl **ctrlp,
   /*
    * The control value should look like this:
    *
-   *	ACCOUNT_USABLE_RESPONSE::= CHOICE {
-   * 		is_available		[0] INTEGER, ** seconds before expiration
-   *** is_not_available	[1] More_info
-   *	}
-   *	More_info::= SEQUENCE {
-   *		inactive				[0] BOOLEAN DEFAULT
-   *FALSE, reset					[1] BOOLEAN DEFAULT
-   *FALSE, expired					[2] BOOLEAN DEFAULT
-   *FALSE, remaining_grace			[3] INTEGER OPTIONAL,
-   *		seconds_before_unlock	[4] INTEGER OPTIONAL
-   *	}
+   *  ACCOUNT_USABLE_RESPONSE::= CHOICE {
+   *    is_available      [0] INTEGER, ** seconds before expiration **
+   *    is_not_available  [1] More_info
+   *  }
+   *  More_info::= SEQUENCE {
+   *    inactive               [0] BOOLEAN DEFAULT FALSE,
+   *    reset                  [1] BOOLEAN DEFAULT FALSE,
+   *    expired                [2] BOOLEAN DEFAULT FALSE,
+   *    remaining_grace        [3] INTEGER OPTIONAL,
+   *    seconds_before_unlock  [4] INTEGER OPTIONAL
+   *  }
    */
 
   if ((ber_scanf(ber, "t", &tag)) == LBER_ERROR) {

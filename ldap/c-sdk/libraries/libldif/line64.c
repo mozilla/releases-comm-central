@@ -182,9 +182,9 @@ int ldif_parse_line(char *line, char **type, char **value, int *vlen) {
  * (a zero-terminated string) and decode them into the the buffer "dst".
  * "src" and "dst" can be the same if in-place decoding is desired.
  * "dst" must be large enough to hold the decoded octets.  No more than
- *	3 * strlen( src ) / 4 bytes will be produced.
+ * 3 * strlen(src) / 4 bytes will be produced.
  * "dst" may contain zero octets anywhere within it, but it is not
- *	zero-terminated by this function.
+ * zero-terminated by this function.
  *
  * The number of bytes copied to "dst" is returned if all goes well.
  * -1 is returned if the BASE64 encoding in "src" is invalid.

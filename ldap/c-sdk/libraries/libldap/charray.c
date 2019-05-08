@@ -157,7 +157,7 @@ char **LDAP_CALL ldap_charray_dup(char **a) {
 /*
  * Tokenize the string str, return NULL upon any memory failure.
  * XXX: on many platforms this function is not thread safe because it
- *	uses strtok().
+ * uses strtok().
  */
 char **LDAP_CALL ldap_str2charray(char *str, char *brkstr)
 /* This implementation fails if brkstr contains multibyte characters.

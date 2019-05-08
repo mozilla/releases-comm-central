@@ -56,7 +56,7 @@ static char copyright[] = "@(#) Copyright (c) 1990 Regents of the University of 
  * attr and value) are supplied.  The msgid of the response is returned.
  *
  * Example:
- *	ldap_compare( ld, "c=us@cn=bob", "userPassword", "secret" )
+ * ldap_compare(ld, "c=us@cn=bob", "userPassword", "secret")
  */
 int LDAP_CALL ldap_compare(LDAP *ld, const char *dn, const char *attr,
                            const char *value) {
@@ -83,13 +83,13 @@ int LDAP_CALL ldap_compare_ext(LDAP *ld, const char *dn, const char *attr,
   int rc, lderr;
 
   /* The compare request looks like this:
-   *	CompareRequest ::= SEQUENCE {
-   *		entry	DistinguishedName,
-   *		ava	SEQUENCE {
-   *			type	AttributeType,
-   *			value	AttributeValue
-   *		}
-   *	}
+   * CompareRequest ::= SEQUENCE {
+   *   entry DistinguishedName,
+   *   ava SEQUENCE {
+   *     type AttributeType,
+   *     value AttributeValue
+   *   }
+   * }
    * and must be wrapped in an LDAPMessage.
    */
 

@@ -148,8 +148,8 @@ int ldap_translate_to_t61(LDAP *ld, char **bufp, unsigned long *lenp,
  *
  * changes made by mcs@umich.edu 12 October 1995:
  *   Change calling conventions of iso8859_t61() and t61_iso8859() to
- *	match libldap conventions; rename to ldap_8859_to_t61() and
- *	ldap_t61_to_8859().
+ *   match libldap conventions; rename to ldap_8859_to_t61() and
+ *   ldap_t61_to_8859().
  *   Change conversion routines to deal with non-zero terminated strings.
  *   ANSI-ize functions and include prototypes.
  */

@@ -49,11 +49,11 @@ static char copyright[] = "@(#) Copyright (c) 1990 Regents of the University of 
 /*
  * ldap_delete - initiate an ldap delete operation. Parameters:
  *
- *	ld		LDAP descriptor
- *	dn		DN of the object to delete
+ * ld    LDAP descriptor
+ * dn    DN of the object to delete
  *
  * Example:
- *	msgid = ldap_delete( ld, dn );
+ * msgid = ldap_delete(ld, dn);
  */
 int LDAP_CALL ldap_delete(LDAP *ld, const char *dn) {
   int msgid;
@@ -75,7 +75,7 @@ int LDAP_CALL ldap_delete_ext(LDAP *ld, const char *dn,
 
   /*
    * A delete request looks like this:
-   *	DelRequet ::= DistinguishedName,
+   * DelRequet ::= DistinguishedName,
    */
 
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_delete_ext\n", 0, 0, 0);

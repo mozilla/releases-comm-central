@@ -77,17 +77,17 @@ static void link_pend(LDAP *ld, LDAPPend *lp);
 
 /*
  * ldap_result - wait for an ldap result response to a message from the
- * ldap server.  If msgid is -1, any message will be accepted, otherwise
- * ldap_result will wait for a response with msgid.  If all is 0 the
+ * ldap server. If msgid is -1, any message will be accepted, otherwise
+ * ldap_result will wait for a response with msgid. If all is 0 the
  * first message with id msgid will be accepted, otherwise, ldap_result
  * will wait for all responses with id msgid and then return a pointer to
- * the entire list of messages.  This is only useful for search responses,
+ * the entire list of messages. This is only useful for search responses,
  * which can be of two message types (zero or more entries, followed by an
- * ldap result).  The type of the first message received is returned.
+ * ldap result). The type of the first message received is returned.
  * When waiting, any messages that have been abandoned are discarded.
  *
  * Example:
- *	ldap_result( s, msgid, all, timeout, result )
+ * ldap_result(s, msgid, all, timeout, result)
  */
 int LDAP_CALL ldap_result(LDAP *ld, int msgid, int all, struct timeval *timeout,
                           LDAPMessage **result) {
@@ -118,7 +118,7 @@ int nsldapi_result_nolock(LDAP *ld, int msgid, int all, int unlock_permitted,
   /*
    * First, look through the list of responses we have received on
    * this association and see if the response we're interested in
-   * is there.  If it is, return it.  If not, call wait4msg() to
+   * is there. If it is, return it. If not, call wait4msg() to
    * wait until it arrives or timeout occurs.
    */
 
@@ -148,7 +148,7 @@ int nsldapi_result_nolock(LDAP *ld, int msgid, int all, int unlock_permitted,
 
 /*
  * Look through the list of queued responses for a message that matches the
- * criteria in the msgid and all parameters.  msgid == LDAP_RES_ANY matches
+ * criteria in the msgid and all parameters. msgid == LDAP_RES_ANY matches
  * all ids.
  *
  * If an appropriate message is found, a non-zero value is returned and the
@@ -285,11 +285,11 @@ static int wait4msg(LDAP *ld, int msgid, int all, int unlock_permitted,
 
   /* check the cache */
   if (ld->ld_cache_on && ld->ld_cache_result != NULL) {
-    /* if ( unlock_permitted ) LDAP_MUTEX_UNLOCK( ld ); */
+    /* if (unlock_permitted) LDAP_MUTEX_UNLOCK(ld); */
     LDAP_MUTEX_LOCK(ld, LDAP_CACHE_LOCK);
     rc = (ld->ld_cache_result)(ld, msgid, all, timeout, result);
     LDAP_MUTEX_UNLOCK(ld, LDAP_CACHE_LOCK);
-    /* if ( unlock_permitted ) LDAP_MUTEX_LOCK( ld ); */
+    /* if (unlock_permitted) LDAP_MUTEX_LOCK(ld); */
     if (rc != NSLDAPI_RESULT_TIMEOUT) {
       return (rc);
     }
@@ -462,7 +462,7 @@ static int wait4msg(LDAP *ld, int msgid, int all, int unlock_permitted,
     /*
      * It is possible that recursion occurred while chasing
      * referrals and as a result the message we are looking
-     * for may have been placed on the response queue.  Look
+     * for may have been placed on the response queue. Look
      * for it there before continuing so we don't end up
      * waiting on the network for a message that we already
      * received!
@@ -1122,9 +1122,9 @@ static int cldap_select1(LDAP *ld, struct timeval *timeout) {
     rc = ld->ld_extpoll_fn(pollfds, 1, nsldapi_tv2ms(timeout),
                            ld->ld_ext_session_arg);
   } else {
-                LDAPDebug( LDAP_DEBUG_ANY,
-		    "nsldapi_iostatus_poll: unknown I/O type %d\n",
-		rc = 0; /* simulate a timeout (what else to do?) */
+    LDAPDebug(LDAP_DEBUG_ANY,
+        "nsldapi_iostatus_poll: unknown I/O type %d\n",
+     rc = 0; /* simulate a timeout (what else to do?) */
   }
 
   return (rc);
@@ -1152,10 +1152,10 @@ static int cldap_select1(LDAP *ld, struct timeval *timeout) {
   } else if (NSLDAPI_IO_TYPE_EXTENDED == ld->ldiou_type &&
              NULL != ld->ld_extselect_fn) {
             rc = ld->ld_extselect_fn( ld->ld_ext_session_arg, 1, &readfds, 0,
-		0, timeout ) );
+    0, timeout));
   } else {
     /* XXXmcs: UNIX platforms should use poll() */
-            rc = select( 1, &readfds, 0, 0, timeout ) );
+            rc = select(1, &readfds, 0, 0, timeout));
   }
 
   return (rc == SOCKET_ERROR ? -1 : rc);
@@ -1181,8 +1181,8 @@ int LDAP_CALL ldap_msgfree(LDAPMessage *lm) {
 
 /*
  * ldap_msgdelete - delete a message.  It returns:
- *	0	if the entire message was deleted
- *	-1	if the message was not found, or only part of it was found
+ *   0  if the entire message was deleted
+ *  -1  if the message was not found, or only part of it was found
  */
 int ldap_msgdelete(LDAP *ld, int msgid) {
   LDAPMessage *lm, *prev;

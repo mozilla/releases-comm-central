@@ -55,21 +55,21 @@ static char copyright[] = "@(#) Copyright (c) 1990 Regents of the University of 
  * outcome of the bind request.
  *
  * Example:
- *	ldap_bind( ld, "cn=manager, o=university of michigan, c=us", "secret",
- *	    LDAP_AUTH_SIMPLE )
+ * ldap_bind(ld, "cn=manager, o=university of michigan, c=us", "secret",
+ *           LDAP_AUTH_SIMPLE)
  */
 
 int LDAP_CALL ldap_bind(LDAP *ld, const char *dn, const char *passwd,
                         int authmethod) {
   /*
    * The bind request looks like this:
-   *	BindRequest ::= SEQUENCE {
-   *		version		INTEGER,
-   *		name		DistinguishedName,	 -- who
-   *		authentication	CHOICE {
-   *			simple		[0] OCTET STRING -- passwd
-   *		}
-   *	}
+   * BindRequest ::= SEQUENCE {
+   *   version INTEGER,
+   *   name DistinguishedName,   -- who
+   *   authentication CHOICE {
+   *     simple [0] OCTET STRING -- passwd
+   *   }
+   * }
    * all wrapped up in an LDAPMessage sequence.
    */
 
@@ -98,10 +98,10 @@ int LDAP_CALL ldap_bind(LDAP *ld, const char *dn, const char *passwd,
  * user already has a valid tgt for now.
  *
  * Examples:
- *	ldap_bind_s( ld, "cn=manager, o=university of michigan, c=us",
- *	    "secret", LDAP_AUTH_SIMPLE )
- *	ldap_bind_s( ld, "cn=manager, o=university of michigan, c=us",
- *	    NULL, LDAP_AUTH_KRBV4 )
+ * ldap_bind_s(ld, "cn=manager, o=university of michigan, c=us",
+ *             "secret", LDAP_AUTH_SIMPLE)
+ * ldap_bind_s(ld, "cn=manager, o=university of michigan, c=us",
+ *             NULL, LDAP_AUTH_KRBV4)
  */
 int LDAP_CALL ldap_bind_s(LDAP *ld, const char *dn, const char *passwd,
                           int authmethod) {

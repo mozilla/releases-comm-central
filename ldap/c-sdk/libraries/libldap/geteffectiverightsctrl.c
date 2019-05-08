@@ -44,7 +44,7 @@
 
    ld              LDAP pointer to the desired connection
 
-   authzid		   RFC2829 section 9, eg "dn:<DN>".
+   authzid         RFC2829 section 9, eg "dn:<DN>".
                    NULL or empty string means get bound user's rights,
                    just "dn:" means get anonymous user's rights.
 

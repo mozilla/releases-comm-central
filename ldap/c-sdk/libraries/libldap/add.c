@@ -53,21 +53,21 @@ static char copyright[] = "@(#) Copyright (c) 1990 Regents of the University of 
 /*
  * ldap_add - initiate an ldap add operation.  Parameters:
  *
- *	ld		LDAP descriptor
- *	dn		DN of the entry to add
- *	mods		List of attributes for the entry.  This is a null-
- *			terminated array of pointers to LDAPMod structures.
- *			only the type and values in the structures need be
- *			filled in.
+ *  ld    LDAP descriptor
+ *  dn    DN of the entry to add
+ *  mods  List of attributes for the entry.  This is a null-
+ *        terminated array of pointers to LDAPMod structures.
+ *        only the type and values in the structures need be
+ *        filled in.
  *
  * Example:
- *	LDAPMod	*attrs[] = {
- *			{ 0, "cn", { "babs jensen", "babs", 0 } },
- *			{ 0, "sn", { "jensen", 0 } },
- *			{ 0, "objectClass", { "person", 0 } },
- *			0
- *		}
- *	msgid = ldap_add( ld, dn, attrs );
+ * LDAPMod  *attrs[] = {
+ *     { 0, "cn", { "babs jensen", "babs", 0 } },
+ *     { 0, "sn", { "jensen", 0 } },
+ *     { 0, "objectClass", { "person", 0 } },
+ *     0
+ *   }
+ * msgid = ldap_add(ld, dn, attrs);
  */
 int LDAP_CALL ldap_add(LDAP *ld, const char *dn, LDAPMod **attrs) {
   int msgid;
@@ -93,13 +93,13 @@ int LDAP_CALL ldap_add_ext(LDAP *ld, const char *dn, LDAPMod **attrs,
 
   /*
    * An add request looks like this:
-   *	AddRequest ::= SEQUENCE {
-   *		entry	DistinguishedName,
-   *		attrs	SEQUENCE OF SEQUENCE {
-   *			type	AttributeType,
-   *			values	SET OF AttributeValue
-   *		}
-   *	}
+   * AddRequest ::= SEQUENCE {
+   *   entry DistinguishedName,
+   *   attrs SEQUENCE OF SEQUENCE {
+   *     type AttributeType,
+   *     values SET OF AttributeValue
+   *   }
+   * }
    */
 
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_add_ext\n", 0, 0, 0);

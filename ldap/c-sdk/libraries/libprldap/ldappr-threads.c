@@ -353,7 +353,7 @@ static PRStatus prldap_init_tpd(void) {
 /*
  * Function: prldap_allocate_map()
  * Description: allocate a thread-private data map to use for a new
- *	LDAP session handle.
+ * LDAP session handle.
  * Returns: a pointer to the TPD map or NULL if none available.
  */
 static PRLDAP_TPDMap *prldap_allocate_map(LDAP *ld) {
@@ -413,7 +413,7 @@ static PRLDAP_TPDMap *prldap_allocate_map(LDAP *ld) {
 /*
  * Function: prldap_return_map()
  * Description: return a thread-private data map to the pool of ones
- *	available for re-use.
+ * available for re-use.
  */
 static void prldap_return_map(PRLDAP_TPDMap *map) {
   PRLDAP_ErrorInfo *eip;
@@ -476,7 +476,7 @@ static int prldap_set_thread_private(PRInt32 tpdindex, void *priv) {
 /*
  * Function: prldap_get_thread_private()
  * Description: retrieve a piece of thread-private data.  If not set,
- *	NULL is returned.
+ * NULL is returned.
  * Returns: 0 if successful and -1 if not.
  */
 static void *prldap_get_thread_private(PRInt32 tpdindex) {
@@ -542,7 +542,7 @@ static PRLDAP_TPDHeader *prldap_tsd_realloc(PRLDAP_TPDHeader *tsdhdr,
 /*
  * Function: prldap_tsd_destroy()
  * Description: Free a thread-private data array. Installed as an NSPR TPD
- *	destructor function
+ * destructor function
  * Returns: nothing.
  */
 static void prldap_tsd_destroy(void *priv) {

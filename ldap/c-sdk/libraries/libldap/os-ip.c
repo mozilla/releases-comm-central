@@ -368,8 +368,8 @@ static int nsldapi_os_connect_with_to(LBER_SOCKET sockfd,
 
 #  else /* NSLDAPI_HAVE_POLL */
   /* if timeval structure == NULL, select will block indefinitely */
-  /* 			!= NULL, and value == 0, select will */
-  /* 			         not block */
+  /*                      != NULL, and value == 0, select will */
+  /*                               not block */
   /* Windows is a bit quirky on how it behaves w.r.t nonblocking */
   /* connects.  If the connect fails, the exception fd, eset, is */
   /* set to show the failure.  The first argument in select is */

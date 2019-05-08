@@ -53,21 +53,22 @@ static char copyright[] = "@(#) Copyright (c) 1990 Regents of the University of 
 /*
  * ldap_rename - initiate an ldap modifyDN operation. Parameters:
  *
- *	ld		LDAP descriptor
- *	dn		DN of the object to modify
- *	newrdn		RDN that will form leftmost component of entry's new
- *name newparent       if present, this is the Distinguished Name of the entry
- *                      which becomes the immediate parent of the existing entry
- *	deleteoldrdn	nonzero means to delete old rdn values from the entry
- *                      while zero means to retain them as attributes of the
- *entry serverctrls     list of LDAP server controls clientctrls     list of
- *client controls msgidp          this result parameter will be set to the
- *message id of the request if the ldap_rename() call succeeds
+ * ld             LDAP descriptor
+ * dn             DN of the object to modify
+ * newrdn         RDN that will form leftmost component of entry's new name
+ * newparent      if present, this is the Distinguished Name of the entry
+ *                which becomes the immediate parent of the existing entry
+ * deleteoldrdn   nonzero means to delete old rdn values from the entry
+ *                while zero means to retain them as attributes of the entry
+ * serverctrls    list of LDAP server controls
+ * clientctrls    list of client controls
+ * msgidp         this result parameter will be set to the message id of the
+ *                request if the ldap_rename() call succeeds
  *
  * Example:
- *      int rc;
- *	rc = ldap_rename( ld, dn, newrdn, newparent, deleteoldrdn, serverctrls,
- *clientctrls, &msgid );
+ * int rc;
+ * rc = ldap_rename(ld, dn, newrdn, newparent, deleteoldrdn, serverctrls,
+ *                  clientctrls, &msgid);
  */
 int LDAP_CALL
 ldap_rename(LDAP *ld, const char *dn, const char *newrdn, const char *newparent,
@@ -79,12 +80,12 @@ ldap_rename(LDAP *ld, const char *dn, const char *newrdn, const char *newparent,
 
   /*
    * A modify dn request looks like this:
-   *	ModifyDNRequest ::= SEQUENCE {
-   *		entry		LDAPDN,
-   *		newrdn		RelativeLDAPDN,
-   *              newparent       [0] LDAPDN OPTIONAL,
-   *		deleteoldrdn	BOOLEAN
-   *	}
+   * ModifyDNRequest ::= SEQUENCE {
+   *   entry  LDAPDN,
+   *   newrdn  RelativeLDAPDN,
+   *   newparent [0] LDAPDN OPTIONAL,
+   *   deleteoldrdn  BOOLEAN
+   * }
    */
 
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_rename\n", 0, 0, 0);
@@ -128,15 +129,15 @@ ldap_rename(LDAP *ld, const char *dn, const char *newrdn, const char *newparent,
       }
       LDAP_MUTEX_UNLOCK(ld, LDAP_CACHE_LOCK);
 #if 0
-		} else if ( ld->ld_cache_rename != NULL ) {
-			LDAP_MUTEX_LOCK( ld, LDAP_CACHE_LOCK );
-			if ( (rc = (ld->ld_cache_rename)( ld, *msgidp,
-			    LDAP_REQ_MODDN, dn, newrdn, newparent,
-			    deleteoldrdn )) != 0 ) {   
-				*msgidp = rc;
-				return( LDAP_SUCCESS );
-			}
-			LDAP_MUTEX_UNLOCK( ld, LDAP_CACHE_LOCK );
+    } else if (ld->ld_cache_rename != NULL) {
+      LDAP_MUTEX_LOCK(ld, LDAP_CACHE_LOCK);
+      if ((rc = (ld->ld_cache_rename)(ld, *msgidp,
+                 LDAP_REQ_MODDN, dn, newrdn, newparent,
+                 deleteoldrdn )) != 0) {   
+        *msgidp = rc;
+        return(LDAP_SUCCESS);
+      }
+      LDAP_MUTEX_UNLOCK(ld, LDAP_CACHE_LOCK);
 #endif
     }
   }

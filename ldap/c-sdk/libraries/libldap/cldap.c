@@ -107,8 +107,8 @@ static int cldap_parsemsg();
  * be used for future communication is returned on success, NULL on failure.
  *
  * Example:
- *	LDAP	*ld;
- *	ld = cldap_open( hostname, port );
+ * LDAP  *ld;
+ * ld = cldap_open(hostname, port);
  */
 
 LDAP *cldap_open(char *host, int port) {

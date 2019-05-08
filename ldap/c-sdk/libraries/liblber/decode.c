@@ -102,8 +102,8 @@ ber_tag_t LDAP_CALL ber_skip_tag(BerElement *ber, ber_len_t *len) {
    * can assume a single byte), and return the length in len.
    *
    * Assumptions:
-   *	1) definite lengths
-   *	2) primitive encodings used whenever possible
+   * 1) definite lengths
+   * 2) primitive encodings used whenever possible
    */
 
   /*

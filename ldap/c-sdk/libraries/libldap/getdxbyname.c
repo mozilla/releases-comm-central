@@ -92,7 +92,7 @@ extern char *h_errlist[];
 
 /*
  * nsldapi_getdxbyname - lookup DNS DX records for domain and return an ordered
- *	array.
+ * array.
  */
 char **nsldapi_getdxbyname(char *domain) {
   unsigned char buf[PACKETSZ];
@@ -132,7 +132,7 @@ static char **decode_answer(unsigned char *answer, int len) {
 
 #  ifdef LDAP_DEBUG
   if (ldap_debug & LDAP_DEBUG_PACKETS) {
-    /*	__p_query( answer );	*/
+    /* __p_query(answer);  */
   }
 #  endif /* LDAP_DEBUG */
 
