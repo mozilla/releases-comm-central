@@ -195,8 +195,8 @@ typedef enum passpolicyerror_enum {
 
 LDAP_API(int)
 LDAP_CALL
-    ldap_create_sort_control(LDAP *ld, LDAPsortkey **sortKeyList,
-                             const char ctl_iscritical, LDAPControl **ctrlp);
+ldap_create_sort_control(LDAP *ld, LDAPsortkey **sortKeyList,
+                         const char ctl_iscritical, LDAPControl **ctrlp);
 LDAP_API(int)
 LDAP_CALL ldap_parse_sort_control(LDAP *ld, LDAPControl **ctrls,
                                   ber_int_t *result, char **attribute);
@@ -217,18 +217,18 @@ LDAP_API(int)
 LDAP_CALL ldap_create_passwordpolicy_control(LDAP *ld, LDAPControl **ctrlp);
 LDAP_API(int)
 LDAP_CALL
-    ldap_create_passwordpolicy_control_ext(LDAP *ld, const char ctl_iscritical,
-                                           LDAPControl **ctrlp);
+ldap_create_passwordpolicy_control_ext(LDAP *ld, const char ctl_iscritical,
+                                       LDAPControl **ctrlp);
 LDAP_API(int)
 LDAP_CALL
-    ldap_parse_passwordpolicy_control(LDAP *ld, LDAPControl *ctrlp,
+ldap_parse_passwordpolicy_control(LDAP *ld, LDAPControl *ctrlp,
+                                  ber_int_t *expirep, ber_int_t *gracep,
+                                  LDAPPasswordPolicyError *errorp);
+LDAP_API(int)
+LDAP_CALL
+ldap_parse_passwordpolicy_control_ext(LDAP *ld, LDAPControl **ctrlp,
                                       ber_int_t *expirep, ber_int_t *gracep,
                                       LDAPPasswordPolicyError *errorp);
-LDAP_API(int)
-LDAP_CALL
-    ldap_parse_passwordpolicy_control_ext(LDAP *ld, LDAPControl **ctrlp,
-                                          ber_int_t *expirep, ber_int_t *gracep,
-                                          LDAPPasswordPolicyError *errorp);
 LDAP_API(const char *)
 LDAP_CALL ldap_passwordpolicy_err2txt(LDAPPasswordPolicyError err);
 
@@ -237,7 +237,7 @@ LDAP_CALL ldap_create_authzid_control(LDAP *ld, const char ctl_iscritical,
                                       LDAPControl **ctrlp);
 LDAP_API(int)
 LDAP_CALL
-    ldap_parse_authzid_control(LDAP *ld, LDAPControl **ctrlp, char **authzid);
+ldap_parse_authzid_control(LDAP *ld, LDAPControl **ctrlp, char **authzid);
 
 LDAP_API(int)
 LDAP_CALL ldap_whoami(LDAP *ld, LDAPControl **serverctrls,
@@ -247,7 +247,7 @@ LDAP_CALL ldap_whoami_s(LDAP *ld, struct berval **authzid,
                         LDAPControl **serverctrls, LDAPControl **clientctrls);
 LDAP_API(int)
 LDAP_CALL
-    ldap_parse_whoami(LDAP *ld, LDAPMessage *result, struct berval **authzid);
+ldap_parse_whoami(LDAP *ld, LDAPMessage *result, struct berval **authzid);
 
 LDAP_API(int)
 LDAP_CALL ldap_create_geteffectiveRights_control(LDAP *ld, const char *authzid,
@@ -296,15 +296,14 @@ LDAP_CALL ldap_parse_virtuallist_control(LDAP *ld, LDAPControl **ctrls,
 #define LDAP_CHANGETYPE_ANY (1 | 2 | 4 | 8)
 LDAP_API(int)
 LDAP_CALL
-    ldap_create_persistentsearch_control(LDAP *ld, int changetypes,
-                                         int changesonly, int return_echg_ctls,
-                                         char ctl_iscritical,
-                                         LDAPControl **ctrlp);
+ldap_create_persistentsearch_control(LDAP *ld, int changetypes, int changesonly,
+                                     int return_echg_ctls, char ctl_iscritical,
+                                     LDAPControl **ctrlp);
 LDAP_API(int)
 LDAP_CALL
-    ldap_parse_entrychange_control(LDAP *ld, LDAPControl **ctrls,
-                                   ber_int_t *chgtypep, char **prevdnp,
-                                   int *chgnumpresentp, ber_int_t *chgnump);
+ldap_parse_entrychange_control(LDAP *ld, LDAPControl **ctrls,
+                               ber_int_t *chgtypep, char **prevdnp,
+                               int *chgnumpresentp, ber_int_t *chgnump);
 
 /*
  * Routines for creating Proxied Authorization controls (an LDAPv3
@@ -603,9 +602,9 @@ typedef int(LDAP_C LDAP_CALLBACK LDAP_VALCMP_CALLBACK)(const char **val1p,
  */
 LDAP_API(int)
 LDAP_CALL
-    ldap_keysort_entries(LDAP *ld, LDAPMessage **chain, void *arg,
-                         LDAP_KEYGEN_CALLBACK *gen, LDAP_KEYCMP_CALLBACK *cmp,
-                         LDAP_KEYFREE_CALLBACK *fre);
+ldap_keysort_entries(LDAP *ld, LDAPMessage **chain, void *arg,
+                     LDAP_KEYGEN_CALLBACK *gen, LDAP_KEYCMP_CALLBACK *cmp,
+                     LDAP_KEYFREE_CALLBACK *fre);
 LDAP_API(int)
 LDAP_CALL ldap_multisort_entries(LDAP *ld, LDAPMessage **chain, char **attr,
                                  LDAP_CMP_CALLBACK *cmp);
@@ -648,7 +647,7 @@ LDAP_CALL ldap_getfirstfilter(LDAPFiltDesc *lfdp, char *tagpat, char *value);
 LDAP_API(LDAPFiltInfo *) LDAP_CALL ldap_getnextfilter(LDAPFiltDesc *lfdp);
 LDAP_API(int)
 LDAP_CALL
-    ldap_set_filter_additions(LDAPFiltDesc *lfdp, char *prefix, char *suffix);
+ldap_set_filter_additions(LDAPFiltDesc *lfdp, char *prefix, char *suffix);
 LDAP_API(int)
 LDAP_CALL ldap_create_filter(char *buf, unsigned long buflen, char *pattern,
                              char *prefix, char *suffix, char *attr,
@@ -848,14 +847,14 @@ typedef int(LDAP_SASL_INTERACT_PROC)(LDAP *ld, unsigned flags, void *defaults,
 
 LDAP_API(int)
 LDAP_CALL
-    ldap_sasl_interactive_bind_s(LDAP *ld, const char *dn, /* usually NULL */
-                                 const char *saslMechanism,
-                                 LDAPControl **serverControls,
-                                 LDAPControl **clientControls,
+ldap_sasl_interactive_bind_s(LDAP *ld, const char *dn, /* usually NULL */
+                             const char *saslMechanism,
+                             LDAPControl **serverControls,
+                             LDAPControl **clientControls,
 
-                                 /* should be client controls */
-                                 unsigned flags, LDAP_SASL_INTERACT_PROC *proc,
-                                 void *defaults);
+                             /* should be client controls */
+                             unsigned flags, LDAP_SASL_INTERACT_PROC *proc,
+                             void *defaults);
 
 LDAP_API(int)
 LDAP_CALL ldap_sasl_interactive_bind_ext_s(
@@ -877,13 +876,13 @@ LDAP_CALL ldap_passwd(LDAP *ld, struct berval *userid, struct berval *oldpasswd,
 
 LDAP_API(int)
 LDAP_CALL
-    ldap_passwd_s(LDAP *ld, struct berval *userid, struct berval *oldpasswd,
-                  struct berval *newpasswd, struct berval *genpasswd,
-                  LDAPControl **serverctrls, LDAPControl **clientctrls);
+ldap_passwd_s(LDAP *ld, struct berval *userid, struct berval *oldpasswd,
+              struct berval *newpasswd, struct berval *genpasswd,
+              LDAPControl **serverctrls, LDAPControl **clientctrls);
 
 LDAP_API(int)
 LDAP_CALL
-    ldap_parse_passwd(LDAP *ld, LDAPMessage *result, struct berval *genpasswd);
+ldap_parse_passwd(LDAP *ld, LDAPMessage *result, struct berval *genpasswd);
 
 /*
  * in reslist.c

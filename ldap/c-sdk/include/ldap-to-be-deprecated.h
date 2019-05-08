@@ -137,14 +137,14 @@ LDAP_API(int) LDAP_CALL ldap_is_dns_dn(const char *dn);
 typedef int(LDAP_C LDAP_CALLBACK LDAP_CANCELPROC_CALLBACK)(void *cl);
 LDAP_API(int)
 LDAP_CALL
-    ldap_ufn_search_c(LDAP *ld, char *ufn, char **attrs, int attrsonly,
-                      LDAPMessage **res, LDAP_CANCELPROC_CALLBACK *cancelproc,
-                      void *cancelparm);
+ldap_ufn_search_c(LDAP *ld, char *ufn, char **attrs, int attrsonly,
+                  LDAPMessage **res, LDAP_CANCELPROC_CALLBACK *cancelproc,
+                  void *cancelparm);
 LDAP_API(int)
 LDAP_CALL
-    ldap_ufn_search_ct(LDAP *ld, char *ufn, char **attrs, int attrsonly,
-                       LDAPMessage **res, LDAP_CANCELPROC_CALLBACK *cancelproc,
-                       void *cancelparm, char *tag1, char *tag2, char *tag3);
+ldap_ufn_search_ct(LDAP *ld, char *ufn, char **attrs, int attrsonly,
+                   LDAPMessage **res, LDAP_CANCELPROC_CALLBACK *cancelproc,
+                   void *cancelparm, char *tag1, char *tag2, char *tag3);
 LDAP_API(int)
 LDAP_CALL ldap_ufn_search_s(LDAP *ld, char *ufn, char **attrs, int attrsonly,
                             LDAPMessage **res);

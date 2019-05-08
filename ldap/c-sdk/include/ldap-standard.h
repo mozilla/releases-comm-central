@@ -302,7 +302,7 @@ LDAP_API(int) LDAP_CALL ldap_modify(LDAP *ld, const char *dn, LDAPMod **mods);
 LDAP_API(int) LDAP_CALL ldap_modify_s(LDAP *ld, const char *dn, LDAPMod **mods);
 LDAP_API(int)
 LDAP_CALL
-    ldap_compare(LDAP *ld, const char *dn, const char *attr, const char *value);
+ldap_compare(LDAP *ld, const char *dn, const char *attr, const char *value);
 LDAP_API(int)
 LDAP_CALL ldap_compare_s(LDAP *ld, const char *dn, const char *attr,
                          const char *value);
@@ -313,8 +313,8 @@ LDAP_CALL ldap_search(LDAP *ld, const char *base, int scope, const char *filter,
                       char **attrs, int attrsonly);
 LDAP_API(int)
 LDAP_CALL
-    ldap_search_s(LDAP *ld, const char *base, int scope, const char *filter,
-                  char **attrs, int attrsonly, LDAPMessage **res);
+ldap_search_s(LDAP *ld, const char *base, int scope, const char *filter,
+              char **attrs, int attrsonly, LDAPMessage **res);
 LDAP_API(int)
 LDAP_CALL ldap_search_st(LDAP *ld, const char *base, int scope,
                          const char *filter, char **attrs, int attrsonly,
@@ -385,17 +385,17 @@ LDAP_CALL ldap_sasl_bind(LDAP *ld, const char *dn, const char *mechanism,
                          LDAPControl **clientctrls, int *msgidp);
 LDAP_API(int)
 LDAP_CALL
-    ldap_sasl_bind_s(LDAP *ld, const char *dn, const char *mechanism,
-                     const struct berval *cred, LDAPControl **serverctrls,
-                     LDAPControl **clientctrls, struct berval **servercredp);
+ldap_sasl_bind_s(LDAP *ld, const char *dn, const char *mechanism,
+                 const struct berval *cred, LDAPControl **serverctrls,
+                 LDAPControl **clientctrls, struct berval **servercredp);
 LDAP_API(int)
 LDAP_CALL ldap_modify_ext(LDAP *ld, const char *dn, LDAPMod **mods,
                           LDAPControl **serverctrls, LDAPControl **clientctrls,
                           int *msgidp);
 LDAP_API(int)
 LDAP_CALL
-    ldap_modify_ext_s(LDAP *ld, const char *dn, LDAPMod **mods,
-                      LDAPControl **serverctrls, LDAPControl **clientctrls);
+ldap_modify_ext_s(LDAP *ld, const char *dn, LDAPMod **mods,
+                  LDAPControl **serverctrls, LDAPControl **clientctrls);
 LDAP_API(int)
 LDAP_CALL ldap_rename(LDAP *ld, const char *dn, const char *newrdn,
                       const char *newparent, int deleteoldrdn,
@@ -407,14 +407,14 @@ LDAP_CALL ldap_rename_s(LDAP *ld, const char *dn, const char *newrdn,
                         LDAPControl **serverctrls, LDAPControl **clientctrls);
 LDAP_API(int)
 LDAP_CALL
-    ldap_compare_ext(LDAP *ld, const char *dn, const char *attr,
-                     const struct berval *bvalue, LDAPControl **serverctrls,
-                     LDAPControl **clientctrls, int *msgidp);
+ldap_compare_ext(LDAP *ld, const char *dn, const char *attr,
+                 const struct berval *bvalue, LDAPControl **serverctrls,
+                 LDAPControl **clientctrls, int *msgidp);
 LDAP_API(int)
 LDAP_CALL
-    ldap_compare_ext_s(LDAP *ld, const char *dn, const char *attr,
-                       const struct berval *bvalue, LDAPControl **serverctrls,
-                       LDAPControl **clientctrls);
+ldap_compare_ext_s(LDAP *ld, const char *dn, const char *attr,
+                   const struct berval *bvalue, LDAPControl **serverctrls,
+                   LDAPControl **clientctrls);
 LDAP_API(int)
 LDAP_CALL ldap_delete_ext(LDAP *ld, const char *dn, LDAPControl **serverctrls,
                           LDAPControl **clientctrls, int *msgidp);
@@ -428,10 +428,10 @@ LDAP_CALL ldap_search_ext(LDAP *ld, const char *base, int scope,
                           struct timeval *timeoutp, int sizelimit, int *msgidp);
 LDAP_API(int)
 LDAP_CALL
-    ldap_search_ext_s(LDAP *ld, const char *base, int scope, const char *filter,
-                      char **attrs, int attrsonly, LDAPControl **serverctrls,
-                      LDAPControl **clientctrls, struct timeval *timeoutp,
-                      int sizelimit, LDAPMessage **res);
+ldap_search_ext_s(LDAP *ld, const char *base, int scope, const char *filter,
+                  char **attrs, int attrsonly, LDAPControl **serverctrls,
+                  LDAPControl **clientctrls, struct timeval *timeoutp,
+                  int sizelimit, LDAPMessage **res);
 LDAP_API(int)
 LDAP_CALL ldap_extended_operation(LDAP *ld, const char *requestoid,
                                   const struct berval *requestdata,
@@ -455,9 +455,9 @@ LDAP_CALL ldap_parse_sasl_bind_result(LDAP *ld, LDAPMessage *res,
                                       struct berval **servercredp, int freeit);
 LDAP_API(int)
 LDAP_CALL
-    ldap_parse_result(LDAP *ld, LDAPMessage *res, int *errcodep,
-                      char **matcheddnp, char **errmsgp, char ***referralsp,
-                      LDAPControl ***serverctrlsp, int freeit);
+ldap_parse_result(LDAP *ld, LDAPMessage *res, int *errcodep, char **matcheddnp,
+                  char **errmsgp, char ***referralsp,
+                  LDAPControl ***serverctrlsp, int freeit);
 LDAP_API(int)
 LDAP_CALL ldap_parse_extended_result(LDAP *ld, LDAPMessage *res, char **retoidp,
                                      struct berval **retdatap, int freeit);

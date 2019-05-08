@@ -70,7 +70,7 @@ LDAP_API(LDAP *) LDAP_CALL ldap_open(const char *host, int port);
 #define LDAP_AUTH_SASL 0xa3L
 LDAP_API(int)
 LDAP_CALL
-    ldap_bind(LDAP *ld, const char *who, const char *passwd, int authmethod);
+ldap_bind(LDAP *ld, const char *who, const char *passwd, int authmethod);
 LDAP_API(int)
 LDAP_CALL ldap_bind_s(LDAP *ld, const char *who, const char *cred, int method);
 

@@ -70,8 +70,8 @@ LDAP_C lcache_bind(LDAP *ld, int msgid, unsigned long tag, const char *dn,
 LDAP_API(int) LDAP_C lcache_unbind(LDAP *ld, int msgid, unsigned long tag);
 LDAP_API(int)
 LDAP_C
-    lcache_search(LDAP *ld, int msgid, unsigned long tag, const char *dn,
-                  int scope, const char *filter, char **attrs, int attrsonly);
+lcache_search(LDAP *ld, int msgid, unsigned long tag, const char *dn, int scope,
+              const char *filter, char **attrs, int attrsonly);
 LDAP_API(int)
 LDAP_C lcache_compare(LDAP *ld, int msgid, unsigned long tag, const char *dn,
                       const char *attr, struct berval *val);
@@ -82,8 +82,8 @@ LDAP_API(int)
 LDAP_C lcache_delete(LDAP *ld, int msgid, unsigned long tag, const char *dn);
 LDAP_API(int)
 LDAP_C
-    lcache_rename(LDAP *ld, int msgid, unsigned long tag, const char *dn,
-                  const char *newrdn, const char *newparent, int deleteoldrdn);
+lcache_rename(LDAP *ld, int msgid, unsigned long tag, const char *dn,
+              const char *newrdn, const char *newparent, int deleteoldrdn);
 LDAP_API(int)
 LDAP_C lcache_modify(LDAP *ld, int msgid, unsigned long tag, const char *dn,
                      LDAPMod **mods);

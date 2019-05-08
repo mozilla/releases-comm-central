@@ -263,8 +263,8 @@ LDAP_API(void) LDAP_CALL ber_svecfree(char **vals);
 LDAP_API(struct berval *) LDAP_CALL ber_bvdup(const struct berval *bv);
 LDAP_API(void)
 LDAP_CALL
-    ber_set_string_translators(BerElement *ber, BERTranslateProc encode_proc,
-                               BERTranslateProc decode_proc);
+ber_set_string_translators(BerElement *ber, BERTranslateProc encode_proc,
+                           BERTranslateProc decode_proc);
 LDAP_API(BerElement *) LDAP_CALL ber_init(const struct berval *bv);
 
 /*
@@ -276,7 +276,7 @@ LDAP_API(int)
 LDAP_CALL ber_put_int(BerElement *ber, ber_int_t num, ber_tag_t tag);
 LDAP_API(int)
 LDAP_CALL
-    ber_put_ostring(BerElement *ber, char *str, ber_len_t len, ber_tag_t tag);
+ber_put_ostring(BerElement *ber, char *str, ber_len_t len, ber_tag_t tag);
 LDAP_API(int)
 LDAP_CALL ber_put_string(BerElement *ber, char *str, ber_tag_t tag);
 LDAP_API(int)
