@@ -299,24 +299,29 @@
                       <menuitem id="menu_newContact"
                                 label="&newContact.label;"
                                 accesskey="&newContact.accesskey;"
-                                key="key_newCard" command="cmd_newCard"/>
+                                key="key_newCard" command="cmd_newCard"
+                                class="menuitem-iconic"/>
                       <menuitem id="menu_newList"
                                 label="&newListCmd.label;"
                                 accesskey="&newListCmd.accesskey;"
-                                command="cmd_newlist"/>
+                                command="cmd_newlist"
+                                class="menuitem-iconic"/>
                       <menuitem id="menu_newAddrbook"
                                 label="&newAddressBookCmd.label;"
                                 accesskey="&newAddressBookCmd.accesskey;"
-                                oncommand="AbNewAddressBook()"/>
+                                oncommand="AbNewAddressBook()"
+                                class="menuitem-iconic"/>
                       <menuitem id="addLDAP" label="&newLDAPDirectoryCmd.label;"
                                 accesskey="&newLDAPDirectoryCmd.accesskey;"
-                                oncommand="AbNewLDAPDirectory()"/>
+                                oncommand="AbNewLDAPDirectory()"
+                                class="menuitem-iconic"/>
                       <menuseparator/>
                       <menuitem id="menu_newMessage"
                                 label="&newMessageCmd.label;"
                                 key="key_newMessage"
                                 accesskey="&newMessageCmd.accesskey;"
-                                command="cmd_newMessage"/>
+                                command="cmd_newMessage"
+                                class="menuitem-iconic"/>
                     </menupopup>
                 </menu>
                 <menuseparator/>
@@ -325,38 +330,45 @@
                           label="&osxAddressBook.label;"
                           accesskey="&osxAddressBook.accesskey;"
                           oncommand="AbShowHideOSXAddressBook();"
-                          checked="true" type="checkbox"/>
+                          checked="true" type="checkbox"
+                          class="menuitem-iconic"/>
                 <menuseparator/>
 #endif
 #ifndef XP_MACOSX
                 <menuitem id="printPreviewMenuItem"
                           label="&printPreviewContactCmd.label;"
                           accesskey="&printPreviewContactCmd.accesskey;"
-                          command="cmd_printcardpreview"/>
+                          command="cmd_printcardpreview"
+                          class="menuitem-iconic"/>
 #endif
                 <menuitem id="printMenuItem" label="&printContactCmd.label;"
                           accesskey="&printContactCmd.accesskey;"
-                          key="key_printContact" command="cmd_printcard"/>
+                          key="key_printContact" command="cmd_printcard"
+                          class="menuitem-iconic"/>
                 <menuseparator id="menu_PageSetupSeparator"/>
                 <menuitem id="printSetupMenuItem" label="&printSetupCmd.label;"
                           accesskey="&printSetupCmd.accesskey;"
-                          oncommand="PrintUtils.showPageSetup()"/>
+                          oncommand="PrintUtils.showPageSetup()"
+                          class="menuitem-iconic"/>
                 <menuseparator id="menu_PrintAddrbookSeparator"/>
 #ifndef XP_MACOSX
                 <menuitem id="printPreviewAddressBook"
                           label="&printPreviewAddressBook.label;"
                           accesskey="&printPreviewAddressBook.accesskey;"
-                          oncommand="AbPrintPreviewAddressBook()"/>
+                          oncommand="AbPrintPreviewAddressBook()"
+                          class="menuitem-iconic"/>
 #endif
                 <menuitem id="printAddressBook" label="&printAddressBook.label;"
                           accesskey="&printAddressBook.accesskey;"
-                          oncommand="AbPrintAddressBook()"/>
+                          oncommand="AbPrintAddressBook()"
+                          class="menuitem-iconic"/>
                 <menuseparator id="menu_FileCloseSeparator"/>
                 <menuitem id="menu_close"
                           label="&closeCmd.label;"
                           key="key_close"
                           accesskey="&closeCmd.accesskey;"
-                          oncommand="AbClose()"/>
+                          oncommand="AbClose()"
+                          class="menuitem-iconic"/>
             </menupopup>
         </menu>
 
@@ -367,33 +379,39 @@
                       label="&undoCmd.label;"
                       key="key_undo"
                       accesskey="&undoCmd.accesskey;"
-                      command="cmd_undo"/>
+                      command="cmd_undo"
+                      class="menuitem-iconic"/>
             <menuitem id="menu_redo"
                       label="&redoCmd.label;"
                       key="key_redo"
                       accesskey="&redoCmd.accesskey;"
-                      command="cmd_redo"/>
+                      command="cmd_redo"
+                      class="menuitem-iconic"/>
             <menuseparator/>
             <menuitem id="menu_cut"
                       label="&cutCmd.label;"
                       key="key_cut"
                       accesskey="&cutCmd.accesskey;"
-                      command="cmd_cut"/>
+                      command="cmd_cut"
+                      class="menuitem-iconic"/>
             <menuitem id="menu_copy"
                       label="&copyCmd.label;"
                       key="key_copy"
                       accesskey="&copyCmd.accesskey;"
-                      command="cmd_copy"/>
+                      command="cmd_copy"
+                      class="menuitem-iconic"/>
             <menuitem id="menu_paste"
                       label="&pasteCmd.label;"
                       key="key_paste"
                       accesskey="&pasteCmd.accesskey;"
-                      command="cmd_paste"/>
+                      command="cmd_paste"
+                      class="menuitem-iconic"/>
             <menuitem id="menu_delete"
                       label="&deleteCmd.label;"
                       key="key_delete"
                       accesskey="&deleteCmd.accesskey;"
-                      command="cmd_delete"/>
+                      command="cmd_delete"
+                      class="menuitem-iconic"/>
             <menuseparator/>
             <menuitem id="menu_selectAll"
                       label="&selectAllCmd.label;"
@@ -406,7 +424,8 @@
                       label="&searchAddressesCmd.label;"
                       accesskey="&searchAddressesCmd.accesskey;"
                       key="key_searchAddresses"
-                      oncommand="onAdvancedAbSearch();"/>
+                      oncommand="onAdvancedAbSearch();"
+                      class="menuitem-iconic"/>
 
             <menuseparator/>
             <!-- LOCALIZATION NOTE: set "hideSwapFnLnUI" to false in .dtd to enable the UI -->
@@ -431,8 +450,11 @@
 #ifdef XP_UNIX
 #ifndef XP_MACOSX
         <menuseparator id="prefSep"/>
-        <menuitem id="menu_preferences" label="&preferencesCmdUnix.label;" accesskey="&preferencesCmdUnix.accesskey;"
-                  command="cmd_preferences"/>
+        <menuitem id="menu_preferences"
+                  label="&preferencesCmdUnix.label;"
+                  accesskey="&preferencesCmdUnix.accesskey;"
+                  command="cmd_preferences"
+                  class="menuitem-iconic"/>
 #endif
 #endif
           </menupopup>
@@ -593,7 +615,8 @@
             <menuitem id="menu_preferences"
                       label="&preferencesCmd2.label;"
                       accesskey="&preferencesCmd2.accesskey;"
-                      command="cmd_preferences"/>
+                      command="cmd_preferences"
+                      class="menuitem-iconic"/>
 #else
 #ifdef XP_MACOSX
             <menuitem id="menu_preferences"

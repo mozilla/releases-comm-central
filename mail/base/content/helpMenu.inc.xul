@@ -13,7 +13,8 @@
                     accesskey="&openHelp.accesskey;"
 #endif
                     key="key_openHelp"
-                    oncommand="openSupportURL();"/>
+                    oncommand="openSupportURL();"
+                    class="menuitem-iconic"/>
           <menuitem id="whatsNew"
                     label="&whatsNewCmd.label;" accesskey="&whatsNewCmd.accesskey;"
                     oncommand="openWhatsNew();"/>
@@ -35,6 +36,7 @@
           <menuitem id="aboutName"
                     label="&aboutMenuCmd2.label;"
                     accesskey="&aboutMenuCmd2.accesskey;"
-                    oncommand="openAboutDialog();"/>
+                    oncommand="openAboutDialog();"
+                    class="menuitem-iconic"/>
         </menupopup>
       </menu>

@@ -811,12 +811,12 @@
           <menu id="menu_New" class="menu-iconic"
                 label="&newMenu.label;" accesskey="&newMenu.accesskey;">
             <menupopup id="menu_NewPopup">
-              <menuitem id="menu_NewMessage"
+              <menuitem id="menu_NewMessage" class="menuitem-iconic"
                         label="&newMessage.label;" accesskey="&newMessage.accesskey;"
                         key="key_newMessage2" oncommand="goOpenNewMessage(event);"/>
               <menuseparator/>
               <menuitem id="menu_NewContact" label="&newContact.label;"
-                        accesskey="&newContact.accesskey;"
+                        accesskey="&newContact.accesskey;" class="menuitem-iconic"
                         oncommand="window.openDialog('chrome://messenger/content/addressbook/abNewCardDialog.xul', '', 'chrome,modal,resizable=no,centerscreen');"/>
             </menupopup>
           </menu>
@@ -828,9 +828,12 @@
                     command="cmd_attachCloud">
                 <menupopup onpopupshowing="addAttachCloudMenuItems(this);"/>
               </menu>
-              <menuitem label="&attachPageCmd.label;" accesskey="&attachPageCmd.accesskey;" command="cmd_attachPage"/>
+              <menuitem label="&attachPageCmd.label;"
+                        accesskey="&attachPageCmd.accesskey;" command="cmd_attachPage"/>
               <menuseparator/>
-              <menuitem type="checkbox" label="&attachVCardCmd.label;" accesskey="&attachVCardCmd.accesskey;" command="cmd_attachVCard"/>
+              <menuitem type="checkbox"
+                        label="&attachVCardCmd.label;" accesskey="&attachVCardCmd.accesskey;"
+                        command="cmd_attachVCard"/>
               <menuseparator id="menu_Attach_RemindLaterSeparator"/>
               <menuitem id="menu_Attach_RemindLaterItem" type="checkbox" label="&remindLater.label;"
                         accesskey="&remindLater.accesskey;" command="cmd_remindLater"/>
@@ -838,8 +841,8 @@
           </menu>
           <menuseparator/>
           <menuitem id="menu_SaveCmd" label="&saveCmd.label;" accesskey="&saveCmd.accesskey;"
-                    key="key_save" command="cmd_saveDefault"/>
-          <menu id="menu_SaveAsCmd" class="menu-iconic"
+                    key="key_save" command="cmd_saveDefault" class="menuitem-iconic"/>
+          <menu id="menu_SaveAsCmd" class="menu-iconic menuitem-iconic"
                 label="&saveAsCmd.label;" accesskey="&saveAsCmd.accesskey;">
             <menupopup id="menu_SaveAsCmdPopup" onpopupshowing="InitFileSaveAsMenu();">
               <menuitem id="menu_SaveAsFileCmd"
@@ -853,16 +856,27 @@
             </menupopup>
           </menu>
           <menuseparator/>
-          <menuitem label="&sendNowCmd.label;" accesskey="&sendNowCmd.accesskey;" key="key_send" command="cmd_sendNow" id="menu-item-send-now"/>
-          <menuitem label="&sendLaterCmd.label;" accesskey="&sendLaterCmd.accesskey;" key="key_sendLater" command="cmd_sendLater"/>
+          <menuitem label="&sendNowCmd.label;"
+                    accesskey="&sendNowCmd.accesskey;" key="key_send"
+                    command="cmd_sendNow" id="menu-item-send-now"/>
+          <menuitem label="&sendLaterCmd.label;"
+                    accesskey="&sendLaterCmd.accesskey;" key="key_sendLater"
+                    command="cmd_sendLater"/>
           <menuseparator/>
-          <menuitem id="printSetupMenuItem" label="&printSetupCmd.label;" accesskey="&printSetupCmd.accesskey;" command="cmd_printSetup"/>
+          <menuitem id="printSetupMenuItem"
+                    label="&printSetupCmd.label;" accesskey="&printSetupCmd.accesskey;"
+                    command="cmd_printSetup"/>
 #ifndef XP_MACOSX
-          <menuitem id="printPreviewMenuItem" label="&printPreviewCmd.label;" accesskey="&printPreviewCmd.accesskey;" command="cmd_printPreview"/>
+          <menuitem id="printPreviewMenuItem" class="menuitem-iconic"
+                    label="&printPreviewCmd.label;" accesskey="&printPreviewCmd.accesskey;"
+                    command="cmd_printPreview"/>
 #endif
-          <menuitem id="printMenuItem" label="&printCmd.label;" accesskey="&printCmd.accesskey;" key="key_print" command="cmd_print"/>
+          <menuitem id="printMenuItem" class="menuitem-iconic"
+                    label="&printCmd.label;" accesskey="&printCmd.accesskey;"
+                    key="key_print" command="cmd_print"/>
           <menuseparator id="menu_FileCloseSeparator"/>
           <menuitem id="menu_close"
+                    class="menuitem-iconic"
                     label="&closeCmd.label;"
                     key="key_close"
                     accesskey="&closeCmd.accesskey;"
@@ -873,19 +887,29 @@
       <!-- Edit Menu -->
       <menu id="menu_Edit" label="&editMenu.label;" accesskey="&editMenu.accesskey;">
         <menupopup id="menu_EditPopup" onpopupshowing="updateEditItems();">
-          <menuitem id="menu_undo" label="&undoCmd.label;" key="key_undo" accesskey="&undoCmd.accesskey;" command="cmd_undo"/>
-          <menuitem id="menu_redo" label="&redoCmd.label;" key="key_redo" accesskey="&redoCmd.accesskey;" command="cmd_redo"/>
+          <menuitem id="menu_undo" class="menuitem-iconic"
+                    label="&undoCmd.label;" key="key_undo"
+                    accesskey="&undoCmd.accesskey;" command="cmd_undo"/>
+          <menuitem id="menu_redo" class="menuitem-iconic"
+                    label="&redoCmd.label;" key="key_redo"
+                    accesskey="&redoCmd.accesskey;" command="cmd_redo"/>
           <menuseparator/>
-          <menuitem id="menu_cut" label="&cutCmd.label;" key="key_cut" accesskey="&cutCmd.accesskey;" command="cmd_cut"/>
-          <menuitem id="menu_copy" label="&copyCmd.label;" key="key_copy" accesskey="&copyCmd.accesskey;" command="cmd_copy"/>
-          <menuitem id="menu_paste" label="&pasteCmd.label;" key="key_paste" accesskey="&pasteCmd.accesskey;" command="cmd_paste"/>
-          <menuitem id="menu_pasteNoFormatting" command="cmd_pasteNoFormatting"
-                    key="pastenoformattingkb"/>
+          <menuitem id="menu_cut" class="menuitem-iconic"
+                    label="&cutCmd.label;" key="key_cut"
+                    accesskey="&cutCmd.accesskey;" command="cmd_cut"/>
+          <menuitem id="menu_copy" class="menuitem-iconic"
+                    label="&copyCmd.label;" key="key_copy"
+                    accesskey="&copyCmd.accesskey;" command="cmd_copy"/>
+          <menuitem id="menu_paste" class="menuitem-iconic"
+                    label="&pasteCmd.label;" key="key_paste"
+                    accesskey="&pasteCmd.accesskey;" command="cmd_paste"/>
+          <menuitem id="menu_pasteNoFormatting"
+                    command="cmd_pasteNoFormatting" key="pastenoformattingkb"/>
           <menuitem id="menu_pasteQuote"
                     accesskey="&pasteAsQuotationCmd.accesskey;"
                     command="cmd_pasteQuote"
                     key="pastequotationkb"/>
-          <menuitem id="menu_delete"
+          <menuitem id="menu_delete" class="menuitem-iconic"
                     label="&deleteCmd.label;"
                     accesskey="&deleteCmd.accesskey;"
                     key="key_delete"
@@ -947,8 +971,10 @@
                     label="&accountManagerCmd2.label;"
                     accesskey="&accountManagerCmdUnix2.accesskey;"
                     command="cmd_account"/>
-          <menuitem id="menu_preferences" label="&preferencesCmdUnix.label;" accesskey="&preferencesCmdUnix.accesskey;"
-                    oncommand="openOptionsDialog('paneCompose');"/>
+          <menuitem id="menu_preferences" label="&preferencesCmdUnix.label;"
+                    accesskey="&preferencesCmdUnix.accesskey;"
+                    oncommand="openOptionsDialog('paneCompose');"
+                    class="menuitem-iconic"/>
 #endif
 #endif
         </menupopup>
@@ -987,16 +1013,19 @@
               <menuitem id="menu_fullZoomEnlarge" key="key_fullZoomEnlarge"
                         label="&fullZoomEnlargeCmd.label;"
                         accesskey="&fullZoomEnlargeCmd.accesskey;"
-                        command="cmd_fullZoomEnlarge"/>
+                        command="cmd_fullZoomEnlarge"
+                        class="menuitem-iconic"/>
               <menuitem id="menu_fullZoomReduce" key="key_fullZoomReduce"
                         label="&fullZoomReduceCmd.label;"
                         accesskey="&fullZoomReduceCmd.accesskey;"
-                        command="cmd_fullZoomReduce"/>
+                        command="cmd_fullZoomReduce"
+                        class="menuitem-iconic"/>
               <menuseparator id="fullZoomAfterReduceSeparator"/>
               <menuitem id="menu_fullZoomReset" key="key_fullZoomReset"
                         label="&fullZoomResetCmd.label;"
                         accesskey="&fullZoomResetCmd.accesskey;"
-                        command="cmd_fullZoomReset"/>
+                        command="cmd_fullZoomReset"
+                        class="menuitem-iconic"/>
               <menuseparator id="fullZoomAfterResetSeparator"/>
               <menuitem id="menu_fullZoomToggle" label="&fullZoomToggleCmd.label;"
                         accesskey="&fullZoomToggleCmd.accesskey;"
@@ -1019,7 +1048,8 @@
           <menuitem id="menu_viewSecurityStatus"
                     label="&menu_viewSecurityStatus.label;"
                     accesskey="&menu_viewSecurityStatus.accesskey;"
-                    command="cmd_viewSecurityStatus"/>
+                    command="cmd_viewSecurityStatus"
+                    class="menuitem-iconic"/>
         </menupopup>
       </menu>
 
@@ -1074,7 +1104,10 @@
             </menupopup>
           </menu>
           <menuseparator id="insertMenuSeparator"/>
-          <menuitem id="insertBreakAll" accesskey="&insertBreakAllCmd.accesskey;"   observes="cmd_insertBreakAll"   label="&insertBreakAllCmd.label;"/>
+          <menuitem id="insertBreakAll"
+                    accesskey="&insertBreakAllCmd.accesskey;"
+                    observes="cmd_insertBreakAll"
+                    label="&insertBreakAllCmd.label;"/>
         </menupopup>
       </menu>
 
@@ -1286,24 +1319,25 @@
           <!-- Note: "cmd_fontColor" only monitors color state, it doesn't execute the command
                (We should use "cmd_fontColorState" and "cmd_backgroundColorState" ?) -->
           <menuitem id="fontColor" label="&formatFontColor.label;"
-                accesskey="&formatFontColor.accesskey;"
-                observes="cmd_fontColor"
-                oncommand="EditorSelectColor('Text', null);"
-                position="4"/>
+                    accesskey="&formatFontColor.accesskey;"
+                    observes="cmd_fontColor"
+                    oncommand="EditorSelectColor('Text', null);"
+                    position="4"
+                    class="menuitem-iconic"/>
           <menuseparator id="removeSep" position="5"/>
 
           <!-- label and accesskey set at runtime from strings -->
           <menuitem id="removeStylesMenuitem" key="removestyleskb"
-                observes="cmd_removeStyles"
-                position="6"/>
+                    observes="cmd_removeStyles"
+                    position="6"/>
           <menuitem id="removeLinksMenuitem" key="removelinkskb"
-                observes="cmd_removeLinks"
-                position="7"/>
+                    observes="cmd_removeLinks"
+                    position="7"/>
           <menuitem id="removeNamedAnchorsMenuitem"  label="&formatRemoveNamedAnchors.label;"
-                key="removenamedanchorskb"
-                accesskey="&formatRemoveNamedAnchors.accesskey;"
-                observes="cmd_removeNamedAnchors"
-                position="8"/>
+                    key="removenamedanchorskb"
+                    accesskey="&formatRemoveNamedAnchors.accesskey;"
+                    observes="cmd_removeNamedAnchors"
+                    position="8"/>
           <menuseparator id="tabSep" position="9"/>
 
           <!-- Note: the 'Init' menu methods for Paragraph, List, and Align
@@ -1438,13 +1472,15 @@
                     accesskey="&increaseIndent.accesskey;"
                     key="increaseindentkb"
                     observes="cmd_indent"
-                    position="13"/>
+                    position="13"
+                    class="menuitem-iconic"/>
           <menuitem id="decreaseIndent"
                     label="&decreaseIndent.label;"
                     accesskey="&decreaseIndent.accesskey;"
                     key="decreaseindentkb"
                     observes="cmd_outdent"
-                    position="14"/>
+                    position="14"
+                    class="menuitem-iconic"/>
 
           <menu id="alignMenu" label="&alignMenu.label;" accesskey="&alignMenu.accesskey;"
               onpopupshowing="InitAlignMenu()"
@@ -1599,7 +1635,8 @@
           </menu>
           <menuseparator/>
           <!-- label and accesskey filled in during menu creation -->
-          <menuitem id="objectProperties" command="cmd_objectProperties"/>
+          <menuitem id="objectProperties"
+                    command="cmd_objectProperties"/>
           <!-- Don't use 'observes', must call command correctly -->
           <menuitem id="colorsAndBackground"
                     label="&colorsAndBackground.label;"
@@ -1611,12 +1648,19 @@
 
       <menu id="optionsMenu" label="&optionsMenu.label;" accesskey="&optionsMenu.accesskey;">
         <menupopup id="optionsMenuPopup" onpopupshowing="setSecuritySettings(1);">
-          <menuitem label="&checkSpellingCmd2.label;" id="menu_checkspelling" accesskey="&checkSpellingCmd2.accesskey;" key="key_checkspelling" command="cmd_spelling"/>
+          <menuitem id="menu_checkspelling"
+                    label="&checkSpellingCmd2.label;"
+                    accesskey="&checkSpellingCmd2.accesskey;"
+                    key="key_checkspelling"
+                    command="cmd_spelling"
+                    class="menuitem-iconic"/>
           <menuitem label="&enableInlineSpellChecker.label;" id="menu_inlineSpellCheck"
-                           accesskey="&enableInlineSpellChecker.accesskey;" checked="false"
-                           type="checkbox"
-                           oncommand="enableInlineSpellCheck(!gSpellChecker.enabled);"/>
-          <menuitem label="&quoteCmd.label;" accesskey="&quoteCmd.accesskey;" command="cmd_quoteMessage"/>
+                    accesskey="&enableInlineSpellChecker.accesskey;" checked="false"
+                    type="checkbox"
+                    oncommand="enableInlineSpellCheck(!gSpellChecker.enabled);"/>
+          <menuitem label="&quoteCmd.label;"
+                    accesskey="&quoteCmd.accesskey;"
+                    command="cmd_quoteMessage"/>
           <menuseparator/>
           <menuitem id="returnReceiptMenu" type="checkbox" label="&returnReceiptMenu.label;" accesskey="&returnReceiptMenu.accesskey;" checked="false" oncommand="ToggleReturnReceipt(event.target)"/>
           <menuitem id="dsnMenu" type="checkbox" label="&dsnMenu.label;" accesskey="&dsnMenu.accesskey;" oncommand="ToggleDSN(event.target)"/>
@@ -1681,18 +1725,28 @@
                       label="&addressBookCmd.label;"
                       accesskey="&addressBookCmd.accesskey;"
                       key="key_addressbook"
-                      oncommand="toAddressBook();"/>
+                      oncommand="toAddressBook();"
+                      class="menuitem-iconic"/>
 #endif
 
 #ifndef XP_UNIX
             <menuseparator id="prefSep"/>
-            <menuitem label="&accountManagerCmd2.label;" accesskey="&accountManagerCmd2.accesskey;" command="cmd_account"/>
-            <menuitem id="menu_preferences" label="&preferencesCmd2.label;" accesskey="&preferencesCmd2.accesskey;"
-                      oncommand="openOptionsDialog('paneCompose');"/>
+            <menuitem label="&accountManagerCmd2.label;"
+                      accesskey="&accountManagerCmd2.accesskey;"
+                      command="cmd_account"/>
+            <menuitem id="menu_preferences"
+                      label="&preferencesCmd2.label;"
+                      accesskey="&preferencesCmd2.accesskey;"
+                      oncommand="openOptionsDialog('paneCompose');"
+                      class="menuitem-iconic"/>
 #else
 #ifdef XP_MACOSX
-            <menuitem label="&accountManagerCmd2.label;" accesskey="&accountManagerCmd2.accesskey;" command="cmd_account"/>
-            <menuitem id="menu_preferences" label="&preferencesCmd2.label;" accesskey="&preferencesCmd2.accesskey;"
+            <menuitem label="&accountManagerCmd2.label;"
+                      accesskey="&accountManagerCmd2.accesskey;"
+                      command="cmd_account">
+            <menuitem id="menu_preferences"
+                      label="&preferencesCmd2.label;"
+                      accesskey="&preferencesCmd2.accesskey;"
                       oncommand="openOptionsDialog('paneCompose');"/>
 #endif
 #endif
@@ -1836,11 +1890,13 @@
                   label="&printCmd.label;"
                   accesskey="&printCmd.accesskey;"
                   command="cmd_print"
-                  default="true"/>
+                  default="true"
+                  class="menuitem-iconic"/>
         <menuitem id="button-printPreviewMenu"
                   label="&printPreviewCmd.label;"
                   accesskey="&printPreviewCmd.accesskey;"
-                  command="cmd_printPreview"/>
+                  command="cmd_printPreview"
+                  class="menuitem-iconic"/>
       </menupopup>
     </toolbarbutton>
 #endif
@@ -1870,11 +1926,26 @@
       <label value="&priorityButton.label;" control="priorityMenu-button"/>
       <menulist id="priorityMenu-button" value="Normal" oncommand="PriorityMenuSelect(event.target);">
         <menupopup id="priorityMenu-buttonPopup">
-          <menuitem name="priority" label="&highestPriorityCmd.label;" value="Highest"  id="list_priority_highest"/>
-          <menuitem name="priority" label="&highPriorityCmd.label;"    value="High"     id="list_priority_high"/>
-          <menuitem name="priority" label="&normalPriorityCmd.label;"  value="Normal"   id="list_priority_normal"/>
-          <menuitem name="priority" label="&lowPriorityCmd.label;"     value="Low"      id="list_priority_low"/>
-          <menuitem name="priority" label="&lowestPriorityCmd.label;"  value="Lowest"   id="list_priority_lowest"/>
+          <menuitem id="list_priority_highest"
+                    name="priority"
+                    label="&highestPriorityCmd.label;"
+                    value="Highest"/>
+          <menuitem id="list_priority_high"
+                    name="priority"
+                    label="&highPriorityCmd.label;"
+                    value="High"/>
+          <menuitem id="list_priority_normal"
+                    name="priority"
+                    label="&normalPriorityCmd.label;"
+                    value="Normal"/>
+          <menuitem id="list_priority_low"
+                    name="priority"
+                    label="&lowPriorityCmd.label;"
+                    value="Low"/>
+          <menuitem id="list_priority_lowest"
+                    name="priority"
+                    label="&lowestPriorityCmd.label;"
+                    value="Lowest"/>
         </menupopup>
       </menulist>
     </toolbaritem>

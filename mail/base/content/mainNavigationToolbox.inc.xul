@@ -49,10 +49,12 @@
                         command="cmd_newMessage"/>
               <menuitem id="menu_newFolder" label="&newFolderCmd.label;"
                         command="cmd_newFolder"
-                        accesskey="&newFolderCmd.accesskey;"/>
+                        accesskey="&newFolderCmd.accesskey;"
+                        class="menuitem-iconic"/>
               <menuitem id="menu_newVirtualFolder" label="&newVirtualFolderCmd.label;"
                         command="cmd_newVirtualFolder"
-                        accesskey="&newVirtualFolderCmd.accesskey;"/>
+                        accesskey="&newVirtualFolderCmd.accesskey;"
+                        class="menuitem-iconic"/>
               <menuseparator id="newAccountPopupMenuSeparator"/>
               <menuitem id="newCreateEmailAccountMenuItem"
                         label="&newCreateEmailAccountCmd.label;"
@@ -86,15 +88,16 @@
             </menupopup>
           </menu>
           <menuitem id="openMessageFileMenuitem" label="&openMessageFileCmd.label;"
-            accesskey="&openMessageFileCmd.accesskey;"
+            accesskey="&openMessageFileCmd.accesskey;" class="menuitem-iconic"
             oncommand="MsgOpenFromFile();"/>
           <menuitem id="menu_close"
                     label="&closeCmd.label;"
                     key="key_close"
                     accesskey="&closeCmd.accesskey;"
-                    command="cmd_close"/>
+                    command="cmd_close"
+                    class="menuitem-iconic"/>
           <menuseparator id="fileMenuAfterCloseSeparator"/>
-          <menu id="menu_saveAs" class="menu-iconic"
+          <menu id="menu_saveAs" class="menu-iconic menuitem-iconic"
                 label="&saveAsMenu.label;" accesskey="&saveAsMenu.accesskey;">
             <menupopup id="menu_SavePopup">
               <menuitem id="menu_saveAsFile" label="&saveAsFileCmd.label;"
@@ -174,11 +177,23 @@
             </menupopup>
           </menu>
           <menuseparator id="fileMenuAfterOfflineSeparator"/>
-          <menuitem id="printSetupMenuItem" label="&printSetupCmd.label;" accesskey="&printSetupCmd.accesskey;" command="cmd_printSetup"/>
+          <menuitem id="printSetupMenuItem"
+                    label="&printSetupCmd.label;"
+                    accesskey="&printSetupCmd.accesskey;"
+                    command="cmd_printSetup"/>
 #ifndef XP_MACOSX
-          <menuitem id="printPreviewMenuItem" label="&printPreviewCmd.label;" accesskey="&printPreviewCmd.accesskey;" command="cmd_printpreview"/>
+          <menuitem id="printPreviewMenuItem"
+                    label="&printPreviewCmd.label;"
+                    accesskey="&printPreviewCmd.accesskey;"
+                    command="cmd_printpreview"
+                    class="menuitem-iconic"/>
 #endif
-          <menuitem id="printMenuItem" key="key_print" label="&printCmd.label;" accesskey="&printCmd.accesskey;" command="cmd_print"/>
+          <menuitem id="printMenuItem"
+                    key="key_print"
+                    label="&printCmd.label;"
+                    accesskey="&printCmd.accesskey;"
+                    command="cmd_print"
+                    class="menuitem-iconic"/>
           <menuseparator id="menu_FileQuitSeparator"/>
           <menuitem id="menu_FileQuitItem"
 #ifdef XP_UNIX
@@ -194,7 +209,8 @@
                     label="&quitApplicationCmd.label;"
                     accesskey="&quitApplicationCmd.accesskey;"
 #endif
-                    command="cmd_quit"/>
+                    command="cmd_quit"
+                    class="menuitem-iconic"/>
         </menupopup>
       </menu>
 
@@ -204,24 +220,55 @@
           accesskey="&editMenu.accesskey;"
           oncommand="CommandUpdate_UndoRedo();">
       <menupopup id="menu_EditPopup" onpopupshowing="InitEditMessagesMenu()">
-        <menuitem id="menu_undo" label="&undoDefaultCmd.label;" accesskey="&undoDefaultCmd.accesskey;" key="key_undo" command="cmd_undo"/>
-        <menuitem id="menu_redo" label="&redoDefaultCmd.label;" accesskey="&redoDefaultCmd.accesskey;" key="key_redo" command="cmd_redo"/>
+        <menuitem id="menu_undo"
+                  label="&undoDefaultCmd.label;"
+                  accesskey="&undoDefaultCmd.accesskey;"
+                  key="key_undo"
+                  command="cmd_undo"
+                  class="menuitem-iconic"/>
+        <menuitem id="menu_redo"
+                  label="&redoDefaultCmd.label;"
+                  accesskey="&redoDefaultCmd.accesskey;"
+                  key="key_redo"
+                  command="cmd_redo"
+                  class="menuitem-iconic"/>
         <menuseparator id="editMenuAfterRedoSeparator"/>
-        <menuitem id="menu_cut" label="&cutCmd.label;" key="key_cut" accesskey="&cutCmd.accesskey;" command="cmd_cut"/>
-        <menuitem id="menu_copy" label="&copyCmd.label;" key="key_copy" accesskey="&copyCmd.accesskey;" command="cmd_copy"/>
-        <menuitem id="menu_paste" label="&pasteCmd.label;" key="key_paste" accesskey="&pasteCmd.accesskey;" command="cmd_paste"/>
-        <menuitem id="menu_delete" label="&deleteCmd.label;" key="key_delete" accesskey="&deleteCmd.accesskey;" command="cmd_delete"/>
+        <menuitem id="menu_cut"
+                  label="&cutCmd.label;"
+                  key="key_cut"
+                  accesskey="&cutCmd.accesskey;"
+                  command="cmd_cut"
+                  class="menuitem-iconic"/>
+        <menuitem id="menu_copy"
+                  label="&copyCmd.label;"
+                  key="key_copy"
+                  accesskey="&copyCmd.accesskey;"
+                  command="cmd_copy"
+                  class="menuitem-iconic"/>
+        <menuitem id="menu_paste"
+                  label="&pasteCmd.label;"
+                  key="key_paste"
+                  accesskey="&pasteCmd.accesskey;"
+                  command="cmd_paste"
+                  class="menuitem-iconic"/>
+        <menuitem id="menu_delete"
+                  label="&deleteCmd.label;"
+                  key="key_delete"
+                  accesskey="&deleteCmd.accesskey;"
+                  command="cmd_delete"
+                  class="menuitem-iconic"/>
         <menuseparator id="editMenuAfterDeleteSeparator"/>
         <menu id="menu_select" label="&selectMenu.label;" accesskey="&selectMenu.accesskey;">
           <menupopup id="menu_SelectPopup">
             <menuitem id="menu_SelectAll" label="&all.label;"
                       accesskey="&all.accesskey;" key="key_selectAll"
-                      command="cmd_selectAll"/>
+                      command="cmd_selectAll"
+                      class="menuitem-iconic"/>
             <menuseparator id="selectMenuSeparator"/>
             <menuitem id="menu_selectThread" label="&selectThreadCmd.label;"
-             accesskey="&selectThreadCmd.accesskey;"
-             key="key_selectThread"
-             command="cmd_selectThread"/>
+                      accesskey="&selectThreadCmd.accesskey;"
+                      key="key_selectThread"
+                      command="cmd_selectThread"/>
             <menuitem id="menu_selectFlagged"
                       label="&selectFlaggedCmd.label;"
                       accesskey="&selectFlaggedCmd.accesskey;"
@@ -232,8 +279,16 @@
         <menu id="menu_find" class="menu-iconic"
               label="&findMenu.label;" accesskey="&findMenu.accesskey;">
           <menupopup id="menu_FindPopup">
-            <menuitem id="menu_findCmd" label="&findCmd.label;" key="key_find" accesskey="&findCmd.accesskey;" command="cmd_find"/>
-            <menuitem id="menu_findAgainCmd" label="&findAgainCmd.label;" key="key_findAgain" accesskey="&findAgainCmd.accesskey;" command="cmd_findAgain"/>
+            <menuitem id="menu_findCmd"
+                      label="&findCmd.label;"
+                      key="key_find"
+                      accesskey="&findCmd.accesskey;"
+                      command="cmd_find"/>
+            <menuitem id="menu_findAgainCmd"
+                      label="&findAgainCmd.label;"
+                      key="key_findAgain"
+                      accesskey="&findAgainCmd.accesskey;"
+                      command="cmd_findAgain"/>
             <menuseparator id="editMenuAfterFindSeparator"/>
             <menuitem id="searchMailCmd" label="&searchMailCmd.label;"
                       key="key_searchMail"
@@ -263,7 +318,8 @@
         <menuitem id="menu_preferences"
                   oncommand="openOptionsDialog()"
                   label="&preferencesCmdUnix.label;"
-                  accesskey="&preferencesCmdUnix.accesskey;"/>
+                  accesskey="&preferencesCmdUnix.accesskey;"
+                  class="menuitem-iconic"/>
 #endif
 #endif
       </menupopup>
@@ -492,16 +548,19 @@
               <menuitem id="menu_fullZoomEnlarge" key="key_fullZoomEnlarge"
                         label="&fullZoomEnlargeCmd.label;"
                         accesskey="&fullZoomEnlargeCmd.accesskey;"
-                        command="cmd_fullZoomEnlarge"/>
+                        command="cmd_fullZoomEnlarge"
+                        class="menuitem-iconic"/>
               <menuitem id="menu_fullZoomReduce" key="key_fullZoomReduce"
                         label="&fullZoomReduceCmd.label;"
                         accesskey="&fullZoomReduceCmd.accesskey;"
-                        command="cmd_fullZoomReduce"/>
+                        command="cmd_fullZoomReduce"
+                        class="menuitem-iconic"/>
               <menuseparator id="fullZoomAfterReduceSeparator"/>
               <menuitem id="menu_fullZoomReset" key="key_fullZoomReset"
                         label="&fullZoomResetCmd.label;"
                         accesskey="&fullZoomResetCmd.accesskey;"
-                        command="cmd_fullZoomReset"/>
+                        command="cmd_fullZoomReset"
+                        class="menuitem-iconic"/>
               <menuseparator id="fullZoomAfterResetSeparator"/>
               <menuitem id="menu_fullZoomToggle" label="&fullZoomToggleCmd.label;"
                         accesskey="&fullZoomToggleCmd.accesskey;"
@@ -517,11 +576,16 @@
                        onpopupshowing="CharsetMenu.build(this, true, this.getAttribute('detectors') != 'false');"/>
           </menu>
           <menuseparator id="viewAfterCharsetSeparator"/>
-          <menuitem id="pageSourceMenuItem" label="&pageSourceCmd.label;" key="key_viewPageSource" accesskey="&pageSourceCmd.accesskey;" command="cmd_viewPageSource"/>
+          <menuitem id="pageSourceMenuItem"
+                    label="&pageSourceCmd.label;"
+                    key="key_viewPageSource"
+                    accesskey="&pageSourceCmd.accesskey;"
+                    command="cmd_viewPageSource"/>
           <menuitem id="menu_securityStatus"
                     label="&menu_securityStatus.label;"
                     accesskey="&menu_securityStatus.accesskey;"
-                    command="cmd_viewSecurityStatus"/>
+                    command="cmd_viewSecurityStatus"
+                    class="menuitem-iconic"/>
         </menupopup>
         </menu>
 
@@ -530,11 +594,20 @@
           <menupopup id="menu_GoPopup" onpopupshowing="InitGoMessagesMenu();">
           <menu id="goNextMenu" label="&nextMenu.label;" accesskey="&nextMenu.accesskey;">
             <menupopup id="menu_GoNextPopup">
-              <menuitem id="menu_nextMsg" label="&nextMsgCmd.label;" accesskey="&nextMsgCmd.accesskey;" command="cmd_nextMsg"
+              <menuitem id="menu_nextMsg"
+                        label="&nextMsgCmd.label;"
+                        accesskey="&nextMsgCmd.accesskey;"
+                        command="cmd_nextMsg"
                         key="key_nextMsg"/>
-              <menuitem id="menu_nextUnreadMsg" label="&nextUnreadMsgCmd.label;" accesskey="&nextUnreadMsgCmd.accesskey;" command="cmd_nextUnreadMsg"
+              <menuitem id="menu_nextUnreadMsg"
+                        label="&nextUnreadMsgCmd.label;"
+                        accesskey="&nextUnreadMsgCmd.accesskey;"
+                        command="cmd_nextUnreadMsg"
                         key="key_nextUnreadMsg"/>
-              <menuitem id="menu_nextFlaggedMsg" label="&nextStarredMsgCmd.label;" accesskey="&nextStarredMsgCmd.accesskey;" command="cmd_nextFlaggedMsg"/>
+              <menuitem id="menu_nextFlaggedMsg"
+                        label="&nextStarredMsgCmd.label;"
+                        accesskey="&nextStarredMsgCmd.accesskey;"
+                        command="cmd_nextFlaggedMsg"/>
               <menuseparator id="goNextAfterFlaggedSeparator"/>
               <menuitem id="menu_nextUnreadThread"
                         label="&nextUnreadThread.label;"
@@ -545,19 +618,30 @@
           </menu>
           <menu id="goPreviousMenu" label="&prevMenu.label;" accesskey="&prevMenu.accesskey;">
             <menupopup id="menu_GoPreviousPopup">
-              <menuitem id="menu_prevMsg" label="&prevMsgCmd.label;" accesskey="&prevMsgCmd.accesskey;" command="cmd_previousMsg"
+              <menuitem id="menu_prevMsg"
+                        label="&prevMsgCmd.label;"
+                        accesskey="&prevMsgCmd.accesskey;"
+                        command="cmd_previousMsg"
                         key="key_previousMsg"/>
-              <menuitem id="menu_prevUnreadMsg" label="&prevUnreadMsgCmd.label;" accesskey="&prevUnreadMsgCmd.accesskey;" command="cmd_previousUnreadMsg"
+              <menuitem id="menu_prevUnreadMsg"
+                        label="&prevUnreadMsgCmd.label;"
+                        accesskey="&prevUnreadMsgCmd.accesskey;"
+                        command="cmd_previousUnreadMsg"
                         key="key_previousUnreadMsg"/>
-              <menuitem id="menu_prevFlaggedMsg" label="&prevStarredMsgCmd.label;" accesskey="&prevStarredMsgCmd.accesskey;" command="cmd_previousFlaggedMsg"/>
+              <menuitem id="menu_prevFlaggedMsg"
+                        label="&prevStarredMsgCmd.label;"
+                        accesskey="&prevStarredMsgCmd.accesskey;"
+                        command="cmd_previousFlaggedMsg"/>
             </menupopup>
           </menu>
           <menuitem id="menu_goForward" label="&goForwardCmd.label;"
                     accesskey="&goForwardCmd.accesskey;" command="cmd_goForward"
-                    key="key_goForward"/>
+                    key="key_goForward"
+                    class="menuitem-iconic"/>
           <menuitem id="menu_goBack" label="&goBackCmd.label;"
                     accesskey="&goBackCmd.accesskey;" command="cmd_goBack"
-                    key="key_goBack"/>
+                    key="key_goBack"
+                    class="menuitem-iconic"/>
           <menuseparator id="goNextSeparator"/>
           <menuitem id="menu_goChat" label="&goChatCmd.label;"
                     accesskey="&goChatCmd.accesskey;"
@@ -593,7 +677,8 @@
                     label="&startPageCmd.label;"
                     accesskey="&startPageCmd.accesskey;"
                     command="cmd_goStartPage"
-                    key="key_goStartPage"/>
+                    key="key_goStartPage"
+                    class="menuitem-iconic"/>
         </menupopup>
         </menu>
 
@@ -740,11 +825,21 @@
                 <menuitem id="markUnreadMenuItem" label="&markAsUnreadCmd.label;"
                           accesskey="&markAsUnreadCmd.accesskey;"
                           command="cmd_markAsUnread"/>
-                <menuitem id="menu_markThreadAsRead" label="&markThreadAsReadCmd.label;" accesskey="&markThreadAsReadCmd.accesskey;" command="cmd_markThreadAsRead"
+                <menuitem id="menu_markThreadAsRead"
+                          label="&markThreadAsReadCmd.label;"
+                          accesskey="&markThreadAsReadCmd.accesskey;"
+                          command="cmd_markThreadAsRead"
                           key="key_markThreadAsRead"/>
-                <menuitem id="menu_markReadByDate" label="&markReadByDateCmd.label;" accesskey="&markReadByDateCmd.accesskey;" command="cmd_markReadByDate"
+                <menuitem id="menu_markReadByDate"
+                          label="&markReadByDateCmd.label;"
+                          accesskey="&markReadByDateCmd.accesskey;"
+                          command="cmd_markReadByDate"
                           key="key_markReadByDate"/>
-                <menuitem id="menu_markAllRead" label="&markAllReadCmd.label;" key="key_markAllRead" accesskey="&markAllReadCmd.accesskey;" command="cmd_markAllRead"/>
+                <menuitem id="menu_markAllRead"
+                          label="&markAllReadCmd.label;"
+                          key="key_markAllRead"
+                          accesskey="&markAllReadCmd.accesskey;"
+                          command="cmd_markAllRead"/>
                 <menuseparator id="markMenuAfterAllReadSeparator"/>
                 <menuitem id="markFlaggedMenuItem"
                           type="checkbox"
@@ -839,7 +934,8 @@
                   label="&addressBookCmd.label;"
                   accesskey="&addressBookCmd.accesskey;"
                   key="key_addressbook"
-                  oncommand="toOpenWindowByType('mail:addressbook', 'chrome://messenger/content/addressbook/addressbook.xul');"/>
+                  oncommand="toOpenWindowByType('mail:addressbook', 'chrome://messenger/content/addressbook/addressbook.xul');"
+                  class="menuitem-iconic"/>
         <menuseparator id="devToolsSeparator"/>
 #endif
         <menuitem id="menu_openSavedFilesWnd" label="&savedFiles.label;"
@@ -896,13 +992,13 @@
                   command="cmd_applyFiltersToSelection"/>
         <menuseparator id="tasksMenuAfterApplySeparator"/>
         <menuitem id="runJunkControls"
-            label="&runJunkControls.label;"
-            accesskey="&runJunkControls.accesskey;"
-            command="cmd_runJunkControls"/>
+                  label="&runJunkControls.label;"
+                  accesskey="&runJunkControls.accesskey;"
+                  command="cmd_runJunkControls"/>
         <menuitem id="deleteJunk"
-            label="&deleteJunk.label;"
-            accesskey="&deleteJunk.accesskey;"
-            command="cmd_deleteJunk"/>
+                  label="&deleteJunk.label;"
+                  accesskey="&deleteJunk.accesskey;"
+                  command="cmd_deleteJunk"/>
         <menuseparator id="tasksMenuAfterDeleteSeparator"/>
         <menuitem id="menu_import" label="&importCmd.label;"
                   accesskey="&importCmd.accesskey;"
@@ -949,7 +1045,8 @@
         <menuitem id="menu_preferences"
                   oncommand="openOptionsDialog()"
                   label="&preferencesCmd2.label;"
-                  accesskey="&preferencesCmd2.accesskey;"/>
+                  accesskey="&preferencesCmd2.accesskey;"
+                  class="menuitem-iconic"/>
 #else
 #ifdef XP_MACOSX
         <menuseparator id="prefSep"/>
@@ -960,11 +1057,18 @@
         <menuitem id="menu_preferences"
                   label="&preferencesCmdMac2.label;"
                   key="key_preferencesCmdMac"
-                  oncommand="openOptionsDialog()"/>
-        <menuitem id="menu_mac_services" label="&servicesMenuMac.label;"/>
-        <menuitem id="menu_mac_hide_app" label="&hideThisAppCmdMac.label;" key="key_hideThisAppCmdMac"/>
-        <menuitem id="menu_mac_hide_others" label="&hideOtherAppsCmdMac.label;" key="key_hideOtherAppsCmdMac"/>
-        <menuitem id="menu_mac_show_all" label="&showAllAppsCmdMac.label;"/>
+                  oncommand="openOptionsDialog()"
+                  class="menuitem-iconic"/>
+        <menuitem id="menu_mac_services"
+                  label="&servicesMenuMac.label;"/>
+        <menuitem id="menu_mac_hide_app"
+                  label="&hideThisAppCmdMac.label;"
+                  key="key_hideThisAppCmdMac"/>
+        <menuitem id="menu_mac_hide_others"
+                  label="&hideOtherAppsCmdMac.label;"
+                  key="key_hideOtherAppsCmdMac"/>
+        <menuitem id="menu_mac_show_all"
+                  label="&showAllAppsCmdMac.label;"/>
 #endif
 #endif
        </menupopup>

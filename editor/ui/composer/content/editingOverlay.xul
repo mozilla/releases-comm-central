@@ -99,16 +99,18 @@
                                        event.target.getAttribute('fileType'));"/>
           <!-- menuitems appended at runtime -->
       </menu>
-      <menuitem id="menu_close"/>
+      <menuitem id="menu_close" class="menuitem-iconic"/>
       <menuseparator id="sep_close"/>
       <menuitem id="menu_saveCmd"
                 accesskey="&saveCmd.accesskey;"
                 key="key_save"
-                command="cmd_save"/>
+                command="cmd_save"
+                class="menuitem-iconic"/>
       <menuitem id="menu_saveAsCmd"
                 label="&saveAsCmd.label;"
                 accesskey="&saveAsCmd.accesskey;"
-                command="cmd_saveAs"/>
+                command="cmd_saveAs"
+                class="menuitem-iconic"/>
       <menuitem id="menu_saveAsChangeEncoding"
                 label="&saveAsChangeEncodingCmd2.label;"
                 accesskey="&saveAsChangeEncodingCmd2.accesskey;"
@@ -130,8 +132,8 @@
       <menuseparator id="sep_print"/>
       <!-- menuitems are merged in here from composerOverlay.xul -->
       <menuitem id="menu_printSetup"/>
-      <menuitem id="menu_printPreview"/>
-      <menuitem id="menu_print"/>
+      <menuitem id="menu_printPreview" class="menuitem-iconic"/>
+      <menuitem id="menu_print" class="menuitem-iconic"/>
       <!-- The Exit/Quit item is merged from platformGlobalOverlay.xul -->
     </menupopup>
   </menu>
@@ -139,7 +141,8 @@
   <!-- Edit menu items -->
   <menupopup id="menu_EditPopup">
     <menuitem id="menu_inlineSpellCheck"
-              oncommand="InlineSpellCheckerUI.enabled = !InlineSpellCheckerUI.enabled"/>
+              oncommand="InlineSpellCheckerUI.enabled = !InlineSpellCheckerUI.enabled"
+              class="menuitem-iconic"/>
     <menuitem id="menu_publishSettings"
               insertafter="sep_preferences"
               label="&publishSettings.label;"
