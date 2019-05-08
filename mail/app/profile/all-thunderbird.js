@@ -185,9 +185,6 @@ pref("extensions.update.interval", 86400);  // Check for updates to Extensions a
 
 pref("extensions.dss.switchPending", false);    // Non-dynamic switch pending after next
 
-pref("extensions.webextensions.themes.icons.buttons", "getmsg,newmsg,address,reply,replyall,replylist,forwarding,delete,junk,print,stop,file,nextUnread,prevUnread,mark,tag,back,forward,compact,archive,chat,nextMsg,prevMsg,QFB,conversation,app_menu,newcard,newlist,editcard,newim,send,spelling,attach,security,save,quote,cut,copy,paste,buddy,join_chat,chat_accounts,calendar,tasks,synchronize,newevent,newtask,editevent,today,find,category,complete,priority,saveandclose,attendees,privacy,status,freebusy,timezones");
-pref("extensions.webextensions.themes.enabled", true);
-
 pref("lightweightThemes.update.enabled", true);
 
 // Built-in default permissions.
