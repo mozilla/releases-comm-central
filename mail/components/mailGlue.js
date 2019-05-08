@@ -13,6 +13,7 @@ var {TBDistCustomizer} = ChromeUtils.import("resource:///modules/TBDistCustomize
 var {MailMigrator} = ChromeUtils.import("resource:///modules/MailMigrator.jsm");
 var {ExtensionSupport} = ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
 var { L10nRegistry, FileSource } = ChromeUtils.import("resource://gre/modules/L10nRegistry.jsm");
+var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 // lazy module getters
 
@@ -167,6 +168,11 @@ MailGlue.prototype = {
     AddonManager.maybeInstallBuiltinAddon(
         "thunderbird-compact-dark@mozilla.org", "1.0",
         "resource:///modules/themes/dark/");
+
+    if (AppConstants.MOZ_UPDATER) {
+      const {AppUpdateUI} = ChromeUtils.import("resource:///modules/AppUpdateUI.jsm");
+      AppUpdateUI.init();
+    }
   },
 
   _onMailStartupDone() {

@@ -338,6 +338,14 @@
     </popupnotificationcontent>
   </popupnotification>
 
+#ifdef MOZ_UPDATER
+  <popupnotification id="app-update-notification" hidden="true">
+    <popupnotificationcontent class="app-update-notification-content" orient="vertical">
+      <description id="app-update-text" class="app-update-text"/>
+    </popupnotificationcontent>
+  </popupnotification>
+#endif
+
 #include editContactPanel.inc.xul
 #include ../../components/im/content/chat-menu.inc.xul
 </popupset>
@@ -399,9 +407,13 @@
            align="center"
            hidden="true">
         <image id="addons-notification-icon"
-               src="chrome://mozapps/skin/extensions/extensionGeneric-16.svg"
-               class="notification-anchor-icon install-icon"
+               class="notification-anchor-icon addons-icon"
                role="button"/>
+#ifdef MOZ_UPDATER
+        <image id="app-update-notification-icon"
+               class="notification-anchor-icon app-update-icon"
+               role="button"/>
+#endif
       </box>
 
       <toolbar id="tabbar-toolbar" toolboxid="mail-toolbox"

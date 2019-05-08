@@ -60,6 +60,35 @@ description.error {
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
+/* notification anchors should only be visible when their associated
+   notifications are */
+.notification-anchor-icon {
+  -moz-user-focus: normal;
+}
+
+.notification-anchor-icon:not([showing]) {
+  display: none;
+}
+
+.addons-icon {
+  list-style-image: url("chrome://mozapps/skin/extensions/extensionGeneric-16.svg");
+}
+
+.app-update-icon {
+  list-style-image: url("chrome://messenger/skin/icons/app-update-badge.svg");
+  background-color: #74BF43;
+  border-radius: 50%;
+}
+
+.popup-notification-icon[popupid="app-update"] {
+  background: #74BF43 url("chrome://messenger/skin/icons/app-update.svg") no-repeat center;
+  border-radius: 50%;
+}
+
+.popup-notification-icon[popupid="app-update"].updates-unsupported {
+  background-color: #FFE900;
+}
+
 html|ul.addon-installed-list {
   margin-top: 0;
 }

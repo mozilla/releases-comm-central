@@ -26,6 +26,7 @@
   locale/@AB_CD@/messenger/accountCreationModel.properties              (%chrome/messenger/accountCreationModel.properties)
   locale/@AB_CD@/messenger/accountCreationUtil.properties               (%chrome/messenger/accountCreationUtil.properties)
   locale/@AB_CD@/messenger/addons.properties                            (%chrome/messenger/addons.properties)
+  locale/@AB_CD@/messenger/appUpdate.properties                         (%chrome/messenger/appUpdate.properties)
   locale/@AB_CD@/messenger/charsetTitles.properties                     (%chrome/messenger/charsetTitles.properties)
   locale/@AB_CD@/messenger/customizeToolbar.dtd                         (%chrome/messenger/customizeToolbar.dtd)
   locale/@AB_CD@/messenger/customizeToolbar.properties                  (%chrome/messenger/customizeToolbar.properties)

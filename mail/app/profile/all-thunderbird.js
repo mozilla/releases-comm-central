@@ -45,34 +45,8 @@ pref("app.update.timerFirstInterval", 30000);
 // Enables some extra Application Update Logging (can reduce performance)
 pref("app.update.log", false);
 
-// When |app.update.cert.checkAttributes| is true or not specified the
-// certificate attributes specified in the |app.update.certs.| preference branch
-// are checked against the certificate for the url specified by the
-// |app.update.url| preference.
-pref("app.update.cert.checkAttributes", true);
-
-// The number of certificate attribute check failures to allow for background
-// update checks before notifying the user of the failure. User initiated update
-// checks always notify the user of the certificate attribute check failure.
-pref("app.update.cert.maxErrors", 5);
-
-// The |app.update.certs.| preference branch contains branches that are
-// sequentially numbered starting at 1 that contain attribute name / value
-// pairs for the certificate used by the server that hosts the update xml file
-// as specified in the |app.update.url| preference. When these preferences are
-// present the following conditions apply for a successful update check:
-// 1. the uri scheme must be https
-// 2. the preference name must exist as an attribute name on the certificate and
-//    the value for the name must be the same as the value for the attribute name
-//    on the certificate.
-// If these conditions aren't met it will be treated the same as when there is
-// no update available.
-
-pref("app.update.certs.1.issuerName", "CN=DigiCert SHA2 Secure Server CA,O=DigiCert Inc,C=US");
-pref("app.update.certs.1.commonName", "aus5.mozilla.org");
-
-pref("app.update.certs.2.issuerName", "CN=thawte SSL CA - G2,O=\"thawte, Inc.\",C=US");
-pref("app.update.certs.2.commonName", "aus5.mozilla.org");
+// Whether or not to use the doorhanger application update UI.
+pref("app.update.doorhanger", true);
 
 // If set to true, the Update Service will automatically download updates when
 // user can apply updates. This pref is no longer used on Windows, except as the
@@ -89,13 +63,7 @@ pref("app.update.silent", false);
 
 // If set to true, the Update Service will apply updates in the background
 // when it finishes downloading them.
-#if defined(XP_WIN)
 pref("app.update.staging.enabled", true);
-#elif defined(EARLY_BETA_OR_EARLIER)
-pref("app.update.staging.enabled", true);
-#else
-pref("app.update.staging.enabled", false);
-#endif
 
 // Update service URL:
 pref("app.update.url", "https://aus5.mozilla.org/update/6/%PRODUCT%/%VERSION%/%BUILD_ID%/%BUILD_TARGET%/%LOCALE%/%CHANNEL%/%OS_VERSION%/%SYSTEM_CAPABILITIES%/%DISTRIBUTION%/%DISTRIBUTION_VERSION%/update.xml");
@@ -120,6 +88,8 @@ pref("app.update.service.enabled", true);
 #ifdef XP_WIN
 // This pref prevents BITS from being used by Thunderbird to download updates.
 pref("app.update.BITS.enabled", false);
+// This pref prevents BITS from getting enabled while it is being evaluated.
+pref("app.update.BITS.inTrialGroup", false);
 #endif
 
 // Release notes URL
