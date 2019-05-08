@@ -158,6 +158,9 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted, focus, selected) {
   list-style-image: url(chrome://messenger/skin/icons/symbol-imapdeleted-selected.png) !important;
 }
 
+treechildren::-moz-tree-image(subjectCol, new) {
+  list-style-image: url(chrome://messenger/skin/icons/symbol-new.png);
+}
 
 treechildren::-moz-tree-image(subjectCol, news) {
   list-style-image: none;
