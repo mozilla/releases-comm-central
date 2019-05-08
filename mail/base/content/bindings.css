@@ -37,6 +37,3 @@ button[type="menu-button"] {
   -moz-binding: url("chrome://messenger/content/menubutton.xml#menu-button");
 }
 
-menulist[type="description"] > menupopup > menuitem[description] {
-  -moz-binding: url("chrome://messenger/content/mailWidgets.xml#menuitem-iconic-desc-noaccel");
-}

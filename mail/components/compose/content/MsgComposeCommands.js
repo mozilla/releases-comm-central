@@ -3983,6 +3983,14 @@ function FillIdentityList(menulist) {
         // Mark the first identity as default.
         item.setAttribute("default", "true");
       }
+      // Create the menuitem description and add it after the last label in the
+      // menuitem internals.
+      let desc = document.createXULElement("label");
+      desc.value = item.getAttribute("description");
+      desc.classList.add("menu-description");
+      desc.setAttribute("crop", "right");
+      desc.setAttribute("flex", "10000");
+      item.querySelector("label:last-child").after(desc);
     }
   }
 
