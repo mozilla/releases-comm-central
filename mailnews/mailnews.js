@@ -916,12 +916,30 @@ pref("mailnews.auto_config_url", "https://live.thunderbird.net/autoconfig/v1.1/"
 pref("mailnews.mx_service_url", "https://live.thunderbird.net/dns/mx/");
 // The list of addons which can handle certain account types
 pref("mailnews.auto_config.addons_url", "https://live.thunderbird.net/autoconfig/addons.json");
-// Allow to contact ISP (email address domain)
-// This happens via insecure means (HTTP), so the config cannot be trusted,
-// and also contains the email address
+// Allow to contact the ISP (email address domain).
+// This may happen via insecure means (HTTP) susceptible to eavesdropping
+// and MitM (see mailnews.auto_config.fetchFromISP.sslOnly below).
 pref("mailnews.auto_config.fetchFromISP.enabled", true);
-// Allow the fetch from ISP via HTTP, but not the email address
+// Allow the username to be sent to the ISP when fetching.
+// Note that the username will leak in plaintext if a non-SSL fetch is
+// performed.
 pref("mailnews.auto_config.fetchFromISP.sendEmailAddress", true);
+// Allow only SSL channels when fetching config from ISP.
+// If false, an active attacker can block SSL fetches and then
+// MITM the HTTP fetch, determining the config that is shown to the user.
+// However:
+// 1. The user still needs to explicitly approve the false config.
+// 2. Most hosters that offer this ISP config do so on HTTP and not on HTTPS.
+//    That's because they direct customer domains (HTTP) to their provider
+//    config (HTTPS). If you set this to true, you simply break this mechanism.
+//    You will simply not get most configs.
+// 3. Even with this mechanism protected, there are still guess config and
+//    AutoDiscover config mechanisms which have the exact same problem.
+//    And we really need the guess config, it's the mechanism that provides
+//    about 40% of the configs. Plus, many internal mail servers
+//    have no SSL, so even with this preference set to true, you cannot
+//    solve the problem.
+pref("mailnews.auto_config.fetchFromISP.sslOnly", false);
 // Allow the Microsoft Exchange AutoDiscover protocol.
 // This also sends the email address and password to the server,
 // which the protocol unfortunately requires in practice.

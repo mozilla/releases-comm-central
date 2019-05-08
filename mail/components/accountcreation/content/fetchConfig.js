@@ -63,11 +63,16 @@ function fetchConfigFromISP(domain, emailAddress, successCallback,
     return new Abortable();
   }
 
-  let url1 = "http://autoconfig." + sanitize.hostname(domain) +
-             "/mail/config-v1.1.xml";
+  let conf1 = "autoconfig." + sanitize.hostname(domain) +
+              "/mail/config-v1.1.xml";
   // .well-known/ <http://tools.ietf.org/html/draft-nottingham-site-meta-04>
-  let url2 = "http://" + sanitize.hostname(domain) +
-             "/.well-known/autoconfig/mail/config-v1.1.xml";
+  let conf2 = sanitize.hostname(domain) +
+              "/.well-known/autoconfig/mail/config-v1.1.xml";
+  // This list is sorted by decreasing priority
+  var urls = ["https://" + conf1, "https://" + conf2];
+  if (!Services.prefs.getBoolPref("mailnews.auto_config.fetchFromISP.sslOnly")) {
+    urls.push("http://" + conf1, "http://" + conf2);
+  }
   let callArgs = {
     urlArgs: {
       emailaddress: emailAddress,
@@ -83,18 +88,13 @@ function fetchConfigFromISP(domain, emailAddress, successCallback,
   let priority = new PriorityOrderAbortable(
       xml => successCallback(readFromXML(xml)),
       errorCallback);
-
-  call = priority.addCall();
-  fetch = new FetchHTTP(url1, callArgs,
-      call.successCallback(), call.errorCallback());
-  call.setAbortable(fetch);
-  fetch.start();
-
-  call = priority.addCall();
-  fetch = new FetchHTTP(url2, callArgs,
-      call.successCallback(), call.errorCallback());
-  call.setAbortable(fetch);
-  fetch.start();
+  for (let url of urls) {
+    call = priority.addCall();
+    fetch = new FetchHTTP(url, callArgs,
+        call.successCallback(), call.errorCallback());
+    call.setAbortable(fetch);
+    fetch.start();
+  }
 
   return priority;
 }
