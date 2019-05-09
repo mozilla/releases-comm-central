@@ -69,6 +69,7 @@ win32-shippable/opt:
             - taskcluster_nightly.py
         extra-config:
             stage_platform: win32
+    run-on-projects: []  # Don't run by default
     toolchains:
         - win64-cbindgen
         - win64-clang-cl
@@ -171,6 +172,7 @@ win64-shippable/opt:
             - taskcluster_nightly.py
         extra-config:
             stage_platform: win64
+    run-on-projects: []  # Don't run by default
     toolchains:
         - win64-cbindgen
         - win64-clang-cl
