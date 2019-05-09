@@ -113,9 +113,8 @@ class morkTable : public morkObject, public morkLink, public nsIMdbTable {
 #endif
   virtual mork_refs CutStrongRef(morkEnv* ev) override;
 
- public:  // state is public because the entire Mork system is private
-          // { ===== begin nsIMdbCollection methods =====
-
+ public:
+  // { ===== begin nsIMdbCollection methods =====
   // { ----- begin attribute methods -----
   NS_IMETHOD GetSeed(nsIMdbEnv* ev,
                      mdb_seed* outSeed) override;  // member change count

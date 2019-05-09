@@ -110,6 +110,7 @@ class morkTableRowCursor : public morkCursor,
       nsIMdbEnv* ev,       // context
       nsIMdbRow** acqRow,  // acquire previous row in table
       mdb_pos* outRowPos) override;  // zero-based position of the row in table
+
   // } ----- end row iteration methods -----
 
  public:  // dynamic type identification

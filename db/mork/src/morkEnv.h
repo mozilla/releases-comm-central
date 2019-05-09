@@ -44,8 +44,8 @@
 #define morkEnv_kNonHandleTypeError NS_ERROR_FAILURE
 #define morkEnv_kNonOpenNodeError NS_ERROR_FAILURE
 
-#define morkEnv_kWeakRefCountEnvBonus 0 /* try NOT to leak all env instances \
-                                         */
+/* try NOT to leak all env instances */
+#define morkEnv_kWeakRefCountEnvBonus 0
 
 /*| morkEnv:
 |*/

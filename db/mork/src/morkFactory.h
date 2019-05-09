@@ -160,6 +160,7 @@ class morkFactory : public morkObject, public nsIMdbFactory {  // nsIMdbObject
       nsIMdbFile* ioFile,                 // db abstract file interface
       const mdbOpenPolicy* inOpenPolicy,  // runtime policies for using db
       nsIMdbStore** acqStore) override;   // acquire new db store object
+
   // } ----- end store methods -----
 
   // } ===== end nsIMdbFactory methods =====

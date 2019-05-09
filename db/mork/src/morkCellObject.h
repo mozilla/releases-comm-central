@@ -132,6 +132,7 @@ class morkCellObject : public morkObject,
       nsIMdbEnv* ev,         // context
       nsIMdbTable** acqTable)
       override;  // acquire child table (or nil if no child)
+
   // } ----- end children methods -----
 
   // } ===== end nsIMdbCell methods =====

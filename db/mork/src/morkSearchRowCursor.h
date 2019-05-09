@@ -50,9 +50,8 @@ class morkSearchRowCursor : public morkTableRowCursor {  // row iterator
 
   // morkTable*  mTableRowCursor_Table; // weak ref to table
 
- public:  // state is public because the entire Mork system is private
   // { ===== begin morkNode interface =====
- public:                                    // morkNode virtual methods
+ public:
   virtual void CloseMorkNode(morkEnv* ev);  // CloseSearchRowCursor()
   virtual ~morkSearchRowCursor();  // assert that close executed earlier
 
@@ -65,10 +64,6 @@ class morkSearchRowCursor : public morkTableRowCursor {  // row iterator
   morkSearchRowCursor(const morkSearchRowCursor& other);
   morkSearchRowCursor& operator=(const morkSearchRowCursor& other);
 
- public
-     :  // dynamic type identification
-        // mork_bool IsSearchRowCursor() const
-        // { return IsNode() && mNode_Derived == morkDerived_kSearchRowCursor; }
   // } ===== end morkNode methods =====
 
  public:  // typing

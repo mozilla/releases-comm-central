@@ -197,9 +197,10 @@ class morkSpan {
  * morkParser: for parsing Mork text syntax
  */
 
-#define morkParser_kMinGranularity 512 /* parse at least half 0.5K at once */
-#define morkParser_kMaxGranularity (64 * 1024) /* parse at most 64 K at once \
-                                                */
+/* parse at least half 0.5K at once */
+#define morkParser_kMinGranularity 512
+/* parse at most 64 K at once */
+#define morkParser_kMaxGranularity (64 * 1024)
 
 #define morkDerived_kParser /*i*/ 0x5073 /* ascii 'Ps' */
 #define morkParser_kTag /*i*/ 0x70417253 /* ascii 'pArS' */

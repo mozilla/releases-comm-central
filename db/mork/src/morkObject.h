@@ -55,8 +55,9 @@ class morkObject : public morkBead, public nsIMdbObject {
   morkHandle* mObject_Handle;  // weak ref to handle for this object
 
   morkEnv* mMorkEnv;  // weak ref to environment this object created in.
+
   // { ===== begin morkNode interface =====
- public:  // morkNode virtual methods
+ public:
   virtual void CloseMorkNode(
       morkEnv* ev) override;  // CloseObject() only if open
 #ifdef MORK_DEBUG_HEAP_STATS

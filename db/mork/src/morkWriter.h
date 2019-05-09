@@ -44,8 +44,8 @@
 
 // 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
-#define morkWriter_kStreamBufSize /*i*/ (16 * 1024) /* buffer size for stream \
-                                                     */
+/* buffer size for stream */
+#define morkWriter_kStreamBufSize /*i*/ (16 * 1024)
 
 #define morkDerived_kWriter /*i*/ 0x5772 /* ascii 'Wr' */
 

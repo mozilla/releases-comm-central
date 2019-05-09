@@ -119,7 +119,8 @@ mork_strcpy(void* outDst, const void* inSrc) {
   // back up one first to support preincrement
   mork_u1* d = ((mork_u1*)outDst) - 1;
   const mork_u1* s = ((const mork_u1*)inSrc) - 1;
-  while ((*++d = *++s) != 0) /* empty */;
+  while ((*++d = *++s) != 0)
+    ; /* empty */
 }
 
 MORK_LIB_IMPL(mork_i4)
@@ -161,8 +162,8 @@ MORK_LIB_IMPL(mork_size)
 mork_strlen(const void* inString) {
   // back up one first to support preincrement
   const mork_u1* s = ((const mork_u1*)inString) - 1;
-  while (*++s)  // preincrement is cheapest
-    /* empty */;
+  while (*++s) /* preincrement is cheapest */
+    ;          /* empty */
 
   return s - ((const mork_u1*)inString);  // distance from original address
 }

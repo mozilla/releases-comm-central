@@ -45,9 +45,8 @@ class morkUniqRowCursor : public morkTableRowCursor {  // row iterator
 
   // morkTable*  mTableRowCursor_Table; // weak ref to table
 
- public:  // state is public because the entire Mork system is private
   // { ===== begin morkNode interface =====
- public:                                             // morkNode virtual methods
+ public:
   virtual void CloseMorkNode(morkEnv* ev) override;  // CloseUniqRowCursor()
   virtual ~morkUniqRowCursor();  // assert that close executed earlier
 
@@ -59,10 +58,6 @@ class morkUniqRowCursor : public morkTableRowCursor {  // row iterator
  private:  // copying is not allowed
   morkUniqRowCursor(const morkUniqRowCursor& other);
   morkUniqRowCursor& operator=(const morkUniqRowCursor& other);
-
- public:  // dynamic type identification
-          // mork_bool IsUniqRowCursor() const
-          // { return IsNode() && mNode_Derived == morkDerived_kUniqRowCursor; }
   // } ===== end morkNode methods =====
 
  public:  // typing

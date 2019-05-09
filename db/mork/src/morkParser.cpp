@@ -267,7 +267,8 @@ int morkParser::eat_comment(morkEnv* ev)  // last char was '/'
   int c = s->Getc(ev);
   if (c == '/')  // C++ style comment?
   {
-    while ((c = s->Getc(ev)) != EOF && c != 0xA && c != 0xD) /* empty */;
+    while ((c = s->Getc(ev)) != EOF && c != 0xA && c != 0xD)
+      ; /* empty */
 
     if (c == 0xA || c == 0xD) c = this->eat_line_break(ev, c);
   } else if (c == '*') /* C style comment? */
