@@ -1710,21 +1710,23 @@ nsresult nsMsgCompose::GetBodyModified(bool * modified)
   return NS_OK;
 }
 
-nsresult nsMsgCompose::SetBodyModified(bool modified)
+MOZ_CAN_RUN_SCRIPT_BOUNDARY nsresult
+nsMsgCompose::SetBodyModified(bool modified)
 {
   nsresult  rv = NS_OK;
 
   if (m_editor)
   {
+    nsCOMPtr<nsIEditor> editor(m_editor);  // Strong reference.
     if (modified)
     {
-      int32_t  modCount = 0;
-      m_editor->GetModificationCount(&modCount);
+      int32_t modCount = 0;
+      editor->GetModificationCount(&modCount);
       if (modCount == 0)
-        m_editor->IncrementModificationCount(1);
+        editor->IncrementModificationCount(1);
     }
     else
-      m_editor->ResetModificationCount();
+      editor->ResetModificationCount();
   }
 
   return rv;
@@ -5874,8 +5876,9 @@ nsMsgCompose::SetIdentity(nsIMsgIdentity *aIdentity)
   if (!aSignature.IsEmpty())
   {
     TranslateLineEnding(aSignature);
+    nsCOMPtr<nsIEditor> editor(m_editor);  // Strong reference.
 
-    m_editor->BeginTransaction();
+    editor->BeginTransaction();
     int32_t reply_on_top = 0;
     bool sig_bottom = true;
     aIdentity->GetReplyOnTop(&reply_on_top);
@@ -5890,15 +5893,15 @@ nsMsgCompose::SetIdentity(nsIMsgIdentity *aIdentity)
 
     if (NS_SUCCEEDED(rv)) {
       if (m_composeHTML) {
-        nsCOMPtr<nsIHTMLEditor> htmlEditor (do_QueryInterface(m_editor));
+        nsCOMPtr<nsIHTMLEditor> htmlEditor (do_QueryInterface(editor));
         rv = htmlEditor->InsertHTML(aSignature);
       } else {
-        nsCOMPtr<nsIPlaintextEditor> textEditor (do_QueryInterface(m_editor));
+        nsCOMPtr<nsIPlaintextEditor> textEditor (do_QueryInterface(editor));
         rv = textEditor->InsertLineBreak();
         InsertDivWrappedTextAtSelection(aSignature, NS_LITERAL_STRING("moz-signature"));
       }
     }
-    m_editor->EndTransaction();
+    editor->EndTransaction();
   }
 
   return rv;
