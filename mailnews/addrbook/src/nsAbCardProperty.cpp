@@ -342,7 +342,15 @@ NS_IMETHODIMP nsAbCardProperty::GetUID(nsACString &uid) {
 }
 
 NS_IMETHODIMP nsAbCardProperty::SetUID(const nsACString &aUID) {
-  nsresult rv = SetPropertyAsAString(kUIDProperty, NS_ConvertUTF8toUTF16(aUID));
+  nsAutoString aString;
+  nsresult rv = GetPropertyAsAString(kUIDProperty, aString);
+  if (NS_SUCCEEDED(rv)) {
+    if (!aString.Equals(NS_ConvertUTF8toUTF16(aUID))) {
+      return NS_ERROR_FAILURE;
+    }
+  }
+
+  rv = SetPropertyAsAString(kUIDProperty, NS_ConvertUTF8toUTF16(aUID));
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (m_directoryId.IsEmpty()) {

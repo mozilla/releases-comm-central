@@ -36,8 +36,7 @@ add_task(async function existingContactUID() {
   await checkFileForUID(card.UID, book.fileName);
 });
 
-// Tests that new contacts have UIDs. Do this test last so we don't muck up
-// the others by adding new things to the address book.
+// Tests that new contacts have UIDs.
 add_task(async function newContactUID() {
   let book = newAddressBookFile();
 
@@ -46,6 +45,34 @@ add_task(async function newContactUID() {
   equal(36, newContact.UID.length, "New contact has a UID");
 
   await checkFileForUID(newContact.UID, book.fileName);
+
+  Assert.throws(() => {
+    // Set the UID after it already exists.
+    newContact.UID = "This should not be possible";
+  }, /NS_ERROR_FAILURE/);
+
+  // Setting the UID to it's existing value should not fail.
+  newContact.UID = newContact.UID; // eslint-disable-line no-self-assign
+});
+
+// Tests that the UID on a new contact can be set.
+add_task(async function newContactWithUID() {
+  let book = newAddressBookFile();
+
+  let contact = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(Ci.nsIAbCard);
+  contact.UID = "I'm a UID!";
+  let newContact = book.addCard(contact);
+  equal("I'm a UID!", newContact.UID, "New contact has the UID we set");
+
+  await checkFileForUID(newContact.UID, book.fileName);
+
+  Assert.throws(() => {
+    // Set the UID after it already exists.
+    newContact.UID = "This should not be possible";
+  }, /NS_ERROR_FAILURE/);
+
+  // Setting the UID to it's existing value should not fail.
+  newContact.UID = newContact.UID; // eslint-disable-line no-self-assign
 });
 
 // Tests that existing lists have UIDs. Reference the nsIAbCard first.

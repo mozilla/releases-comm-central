@@ -110,10 +110,10 @@ interface nsIAbCard : nsIAbItem {
   attribute AUTF8String localId;
 
   /**
-   * A 128-bit unique identifier for this card.
+   * A 128-bit unique identifier for this card. This can only be set if it is not
+   * already set. The getter sets a value if there is not one.
    */
-  readonly attribute AUTF8String UID;
-  [noscript] void setUID(in AUTF8String aUID);
+  attribute AUTF8String UID;
 
   /**
    * A list of all the properties that this card has as an enumerator, whose
