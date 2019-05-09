@@ -430,18 +430,24 @@ HostDetector.prototype = {
       return;
     var me = this;
     var timeout = Services.prefs.getIntPref("mailnews.auto_config.guess.timeout");
-    for (let i = 0; i < this._hostsToTry.length; i++) {
-      let thisTry = this._hostsToTry[i]; // {HostTry}
-      if (thisTry.status != kNotTried)
-        continue;
-      this._log.info(thisTry.desc + ": initializing probe...");
-      if (i == 0) // showing 50 servers at once is pointless
-        this.mProgressCallback(thisTry);
+    // We assume we'll resolve the same proxy for all tries, and
+    // proceed to use the first resolved proxy for all tries. This
+    // assumption is generally sound, but not always: mechanisms like
+    // the pref network.proxy.no_proxies_on can make imap.domain and
+    // pop.domain resolve differently.
+    doProxy(this._hostsToTry[0].hostname, function(proxy) {
+      for (let i = 0; i < me._hostsToTry.length; i++) {
+        let thisTry = me._hostsToTry[i]; // {HostTry}
+        if (thisTry.status != kNotTried)
+          continue;
+        me._log.info(thisTry.desc + ": initializing probe...");
+        if (i == 0) // showing 50 servers at once is pointless
+          me.mProgressCallback(thisTry);
 
-      thisTry.abortable = SocketUtil(
+        thisTry.abortable = SocketUtil(
           thisTry.hostname, thisTry.port, thisTry.ssl,
-          thisTry.commands, timeout,
-          new SSLErrorHandler(thisTry, this._log),
+          thisTry.commands, timeout, proxy,
+          new SSLErrorHandler(thisTry, me._log),
           function(wiredata) { // result callback
             if (me._cancel)
               return; // don't use response anymore
@@ -455,9 +461,11 @@ HostDetector.prototype = {
             me._log.warn(thisTry.desc + ": " + e);
             thisTry.status = kFailed;
             me._checkFinished();
-          });
-      thisTry.status = kOngoing;
-    }
+          }
+        );
+        thisTry.status = kOngoing;
+      }
+    });
   },
 
   /**
@@ -938,13 +946,14 @@ SSLErrorHandler.prototype = {
  * @param commands {Array of String}: protocol commands
  *          to send to the server.
  * @param timeout {Integer} seconds to wait for a server response, then cancel.
+ * @param proxy {nsIProxyInfo} The proxy to use (or null to not use any).
  * @param sslErrorHandler {SSLErrorHandler}
  * @param resultCallback {function(wiredata)} This function will
  *            be called with the result string array from the server
  *            or null if no communication occurred.
  * @param errorCallback {function(e)}
  */
-function SocketUtil(hostname, port, ssl, commands, timeout,
+function SocketUtil(hostname, port, ssl, commands, timeout, proxy,
                     sslErrorHandler, resultCallback, errorCallback) {
   assert(commands && commands.length, "need commands");
 
@@ -985,7 +994,7 @@ function SocketUtil(hostname, port, ssl, commands, timeout,
   }
   var transport = transportService.createTransport([socketTypeName],
                                                    ssl == NONE ? 0 : 1,
-                                                   hostname, port, null);
+                                                   hostname, port, proxy);
 
   transport.setTimeout(Ci.nsISocketTransport.TIMEOUT_CONNECT, timeout);
   transport.setTimeout(Ci.nsISocketTransport.TIMEOUT_READ_WRITE, timeout);
@@ -1060,3 +1069,38 @@ SocketAbortable.prototype.cancel = function(ex) {
   }
 };
 
+/**
+ * Resolve a proxy for some domain and expose it via a callback.
+ *
+ * @param hostname {String} The hostname which a proxy will be resolved for
+ * @param resultCallback {function(proxyInfo)}
+ *   Called after the proxy has been resolved for hostname.
+ *   proxy {nsIProxyInfo} The resolved proxy, or null if none were found
+ *         for hostname
+ */
+function doProxy(hostname, resultCallback) {
+  // This implements the nsIProtocolProxyCallback interface:
+  function ProxyResolveCallback() { }
+  ProxyResolveCallback.prototype = {
+    onProxyAvailable(req, uri, proxy, status) {
+      // Anything but a SOCKS proxy will be unusable for email.
+      if (proxy != null && proxy.type != "socks" &&
+          proxy.type != "socks4") {
+        proxy = null;
+      }
+      resultCallback(proxy);
+    },
+  };
+  var proxyService = Cc["@mozilla.org/network/protocol-proxy-service;1"]
+                     .getService(Ci.nsIProtocolProxyService);
+  // Use some arbitrary scheme just because it is required...
+  var uri = Services.io.newURI("http://" + hostname);
+  // ... we'll ignore it any way. We prefer SOCKS since that's the
+  // only thing we can use for email protocols.
+  var proxyFlags = Ci.nsIProtocolProxyService.RESOLVE_IGNORE_URI_SCHEME |
+                   Ci.nsIProtocolProxyService.RESOLVE_PREFER_SOCKS_PROXY;
+  if (Services.prefs.getBoolPref("network.proxy.socks_remote_dns")) {
+    proxyFlags |= Ci.nsIProtocolProxyService.RESOLVE_ALWAYS_TUNNEL;
+  }
+  proxyService.asyncResolve(uri, proxyFlags, new ProxyResolveCallback());
+}
