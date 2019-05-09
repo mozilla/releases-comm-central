@@ -74,7 +74,7 @@ void morkMapScratch::halt_map_scratch(morkEnv* ev) {
   }
 }
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 /*============================================================================*/
 /* morkProbeMap */
@@ -1006,7 +1006,7 @@ mork_change* morkProbeMapIter::CutHere(morkEnv* ev, void* outKey,
   return (mork_change*)0;
 }
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 // NOTE: the following methods ONLY work for sMap_ValIsIP pointer values.
 // (Note the implied assumption that zero is never a good value pattern.)
@@ -1104,4 +1104,4 @@ void* morkProbeMapIter::IterHereKey(morkEnv* ev)
   return (void*)0;
 }
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789

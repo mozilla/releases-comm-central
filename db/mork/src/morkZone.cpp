@@ -23,7 +23,7 @@
 #  include "morkEnv.h"
 #endif
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 // { ===== begin morkNode interface =====
 // public: // morkNode virtual methods
@@ -445,7 +445,7 @@ void* morkZone::ZoneGrowRun(morkEnv* ev, void* ioRunBlock, mdb_size inSize) {
 #endif /*morkZone_CONFIG_ARENA*/
 }
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 // { ===== begin nsIMdbHeap methods =====
 /*virtual*/ nsresult morkZone::Alloc(

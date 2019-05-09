@@ -42,7 +42,7 @@
 #  include "mork.h"
 #endif
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 #define morkUsage_kHeap 'h'
 #define morkUsage_kStack 's'
@@ -82,7 +82,7 @@ class morkUsage {
   static const morkUsage& GetNone();    // kNone, safe at static init time
 };
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 #define morkNode_kMaxRefCount 0x0FFFF /* count sticks if it hits this */
 
@@ -285,6 +285,6 @@ nsIMdbFile_SlotStrongFile(nsIMdbFile* self, morkEnv* ev, nsIMdbFile** ioSlot);
 // then self is put into slot *ioSlot.  Note self can be nil, so we take
 // expression 'nsIMdbFile_SlotStrongFile(0, ev, &slot)'.
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 #endif /* _MORKNODE_ */

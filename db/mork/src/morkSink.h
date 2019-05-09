@@ -14,7 +14,7 @@
 #  include "morkBlob.h"
 #endif
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 /*| morkSink is intended to be a very cheap buffered i/o sink which
 **| writes to bufs and other strings a single byte at a time.  The
@@ -150,6 +150,6 @@ class morkSpool : public morkSink {  // for buffered i/o to a morkCoil
   // unless inString is null, in which case we then do nothing at all.
 };
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 #endif /* _MORKSINK_ */

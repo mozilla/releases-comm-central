@@ -18,7 +18,7 @@
 #  include "morkDeque.h"
 #endif
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 /*| CONFIG_DEBUG: do paranoid debug checks if defined.
 |*/
@@ -60,7 +60,7 @@
 #  define morkHunk_USE_TAG_SLOT 1 /* need mHunk_Tag slot inside morkHunk */
 #endif
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 #define morkRun_kTag ((mork_u4)0x6D52754E) /* ascii 'mRuN' */
 
@@ -100,7 +100,7 @@ class morkRun {
   static void RunSizeAlignError(morkEnv* ev);
 };
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 /*| morkOldRun: more space to record size when run is put into old free list
 |*/
@@ -113,7 +113,7 @@ class morkOldRun : public morkRun {
   void OldSetSize(mork_size inSize) { mOldRun_Size = inSize; }
 };
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 #define morkHunk_kTag ((mork_u4)0x68556E4B) /* ascii 'hUnK' */
 
@@ -147,7 +147,7 @@ class morkHunk {
   static void BadHunkTagWarning(morkEnv* ev);
 };
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 /*| kNewHunkSize: the default size for a hunk, assuming we must allocate
 **| a new one whenever the free hunk list does not already have.  Note this
@@ -308,6 +308,6 @@ class morkZone : public morkNode, public nsIMdbHeap {
   static void BadZoneTagError(morkEnv* ev);
 };
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 #endif /* _MORKZONE_ */

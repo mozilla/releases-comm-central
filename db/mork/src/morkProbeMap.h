@@ -51,7 +51,7 @@
 #  include "morkNode.h"
 #endif
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 class morkMapScratch {  // utility class used by map subclasses
  public:
@@ -65,7 +65,7 @@ class morkMapScratch {  // utility class used by map subclasses
   void halt_map_scratch(morkEnv* ev);
 };
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 #define morkDerived_kProbeMap 0x7072 /* ascii 'pr' */
 #define morkProbeMap_kTag 0x70724D50 /* ascii 'prMP' */
@@ -418,6 +418,6 @@ class morkProbeMapIter {
   mork_change* CutHere(morkEnv* ev, void* outKey, void* outVal);
 };
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 #endif /* _MORKPROBEMAP_ */

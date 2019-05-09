@@ -51,7 +51,7 @@
 #  include "morkEnv.h"
 #endif
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 /* this byte char predicate source file derives from public domain Mithril */
 /* (that means much of this has a copyright dedicated to the public domain) */
@@ -341,4 +341,4 @@ const mork_flags morkCh_Type[] = /* derives from public domain Mithril table */
         0,
 };
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789

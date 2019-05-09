@@ -10,7 +10,7 @@
 #  include "mork.h"
 #endif
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 /*| Buf: the minimum needed to describe location and content length.
 **| This is typically only enough to read from this buffer, since
@@ -135,6 +135,6 @@ class morkCoil : public morkText {  // self-managing text blob object
   morkCoil& operator=(const morkCoil& other);
 };
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 #endif /* _MORKBLOB_ */

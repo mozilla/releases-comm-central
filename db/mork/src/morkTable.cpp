@@ -51,7 +51,7 @@
 #  include "morkRowObject.h"
 #endif
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 // ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
@@ -1351,7 +1351,7 @@ morkTableRowCursor* morkTable::NewTableRowCursor(morkEnv* ev,
   return outCursor;
 }
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 morkTableChange::morkTableChange(morkEnv* ev, mork_change inChange,
                                  morkRow* ioRow)
@@ -1397,7 +1397,7 @@ void morkTableChange::NegativeMovePosError(morkEnv* ev) const
   ev->NewError("negative mTableChange_Pos for row move");
 }
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 morkTableMap::~morkTableMap() {}
 
@@ -1412,4 +1412,4 @@ morkTableMap::morkTableMap(morkEnv* ev, const morkUsage& inUsage,
   if (ev->Good()) mNode_Derived = morkDerived_kTableMap;
 }
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789

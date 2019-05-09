@@ -42,7 +42,7 @@
 #  include "morkBead.h"
 #endif
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 class nsIMdbTable;
 #define morkDerived_kTable /*i*/ 0x5462 /* ascii 'Tb' */
@@ -587,7 +587,7 @@ class morkTable : public morkObject, public morkLink, public nsIMdbTable {
   }
 };
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 // use negative values for kCut and kAdd, to keep non-neg move pos distinct:
 #define morkTableChange_kCut ((mork_pos)-1)  /* shows row was cut */
@@ -629,7 +629,7 @@ class morkTableChange : public morkNext {
   // GetMovePos() assumes that IsMoveRowTableChange() is true.
 };
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 #define morkDerived_kTableMap /*i*/ 0x744D /* ascii 'tM' */
 
@@ -737,6 +737,6 @@ class morkTableMapIter : public morkMapIter {  // typesafe wrapper class
 #endif /*MORK_BEAD_OVER_NODE_MAPS*/
 };
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 #endif /* _MORKTABLE_ */

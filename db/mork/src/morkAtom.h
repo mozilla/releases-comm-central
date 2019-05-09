@@ -10,7 +10,7 @@
 #  include "mork.h"
 #endif
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 #define morkAtom_kMaxByteSize 255       /* max for 8-bit integer */
 #define morkAtom_kForeverCellUses 0x0FF /* max for 8-bit integer */
@@ -357,6 +357,6 @@ class morkMaxBookAtom : public morkBigBookAtom {  //
   morkMaxBookAtom& operator=(const morkMaxBookAtom& other);
 };
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 #endif /* _MORKATOM_ */

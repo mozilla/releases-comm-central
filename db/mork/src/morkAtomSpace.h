@@ -26,7 +26,7 @@
 #  include "morkNodeMap.h"
 #endif
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 /*| kMinUnderId: the smallest ID we auto-assign to the 'under' namespace
 **| reserved for tokens expected to occur very frequently, such as the names
@@ -157,7 +157,7 @@ class morkAtomSpace : public morkSpace {  //
   }
 };
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 #define morkDerived_kAtomSpaceMap /*i*/ 0x615A /* ascii 'aZ' */
 
@@ -222,6 +222,6 @@ class morkAtomSpaceMapIter : public morkMapIter {  // typesafe wrapper class
   }
 };
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 #endif /* _MORKATOMSPACE_ */

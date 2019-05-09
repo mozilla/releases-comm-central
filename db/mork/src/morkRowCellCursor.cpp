@@ -39,7 +39,7 @@
 #  include "morkRow.h"
 #endif
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 // ````` ````` ````` ````` `````
 // { ===== begin morkNode interface =====
@@ -114,7 +114,7 @@ NS_IMPL_ISUPPORTS_INHERITED(morkRowCellCursor, morkCursor, nsIMdbRowCellCursor)
   ev->NewError("non morkRowCellCursor");
 }
 
-// 3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
+// 456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 // { ----- begin attribute methods -----
 NS_IMETHODIMP
 morkRowCellCursor::SetRow(nsIMdbEnv* mev, nsIMdbRow* ioRow) {
