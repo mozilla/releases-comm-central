@@ -9,33 +9,31 @@
 #include "nsIMsgAttachment.h"
 #include "nsString.h"
 
-class nsMsgAttachment : public nsIMsgAttachment
-{
-public:
+class nsMsgAttachment : public nsIMsgAttachment {
+ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGATTACHMENT
 
   nsMsgAttachment();
 
-private:
+ private:
   virtual ~nsMsgAttachment();
   nsresult DeleteAttachment();
 
-  nsString    mName;
-  nsCString   mUrl;
-  nsCString   mUrlCharset;
-  bool        mTemporary;
-  bool        mSendViaCloud;
-  nsCString   mCloudFileAccountKey;
-  nsCString   mContentLocation;
-  nsCString   mContentType;
-  nsCString   mContentTypeParam;
-  nsCString   mCharset;
-  nsCString   mMacType;
-  nsCString   mMacCreator;
-  nsString    mHtmlAnnotation;
-  int64_t     mSize;
+  nsString mName;
+  nsCString mUrl;
+  nsCString mUrlCharset;
+  bool mTemporary;
+  bool mSendViaCloud;
+  nsCString mCloudFileAccountKey;
+  nsCString mContentLocation;
+  nsCString mContentType;
+  nsCString mContentTypeParam;
+  nsCString mCharset;
+  nsCString mMacType;
+  nsCString mMacCreator;
+  nsString mHtmlAnnotation;
+  int64_t mSize;
 };
-
 
 #endif /* _nsMsgAttachment_H_ */

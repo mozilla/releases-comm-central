@@ -27,38 +27,29 @@
 #include "nsContentUtils.h"
 
 NS_IMPL_ISUPPORTS(nsMsgQuoteListener, nsIMsgQuoteListener,
-  nsIMimeStreamConverterListener)
+                  nsIMimeStreamConverterListener)
 
-nsMsgQuoteListener::nsMsgQuoteListener()
-{
-}
+nsMsgQuoteListener::nsMsgQuoteListener() {}
 
-nsMsgQuoteListener::~nsMsgQuoteListener()
-{
-}
+nsMsgQuoteListener::~nsMsgQuoteListener() {}
 
-NS_IMETHODIMP nsMsgQuoteListener::SetMsgQuote(nsIMsgQuote * msgQuote)
-{
+NS_IMETHODIMP nsMsgQuoteListener::SetMsgQuote(nsIMsgQuote *msgQuote) {
   mMsgQuote = do_GetWeakReference(msgQuote);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgQuoteListener::GetMsgQuote(nsIMsgQuote ** aMsgQuote)
-{
+NS_IMETHODIMP nsMsgQuoteListener::GetMsgQuote(nsIMsgQuote **aMsgQuote) {
   nsresult rv = NS_OK;
-  if (aMsgQuote)
-  {
+  if (aMsgQuote) {
     nsCOMPtr<nsIMsgQuote> msgQuote = do_QueryReferent(mMsgQuote);
     msgQuote.forget(aMsgQuote);
-  }
-  else
+  } else
     rv = NS_ERROR_NULL_POINTER;
 
   return rv;
 }
 
-nsresult nsMsgQuoteListener::OnHeadersReady(nsIMimeHeaders * headers)
-{
+nsresult nsMsgQuoteListener::OnHeadersReady(nsIMimeHeaders *headers) {
   nsCOMPtr<nsIMsgQuotingOutputStreamListener> quotingOutputStreamListener;
   nsCOMPtr<nsIMsgQuote> msgQuote = do_QueryReferent(mMsgQuote);
 
@@ -73,63 +64,53 @@ nsresult nsMsgQuoteListener::OnHeadersReady(nsIMimeHeaders * headers)
 //
 // Implementation...
 //
-nsMsgQuote::nsMsgQuote()
-{
+nsMsgQuote::nsMsgQuote() {
   mQuoteHeaders = false;
   mQuoteListener = nullptr;
 }
 
-nsMsgQuote::~nsMsgQuote()
-{
-}
+nsMsgQuote::~nsMsgQuote() {}
 
 NS_IMPL_ISUPPORTS(nsMsgQuote, nsIMsgQuote, nsISupportsWeakReference)
 
-NS_IMETHODIMP nsMsgQuote::GetStreamListener(nsIMsgQuotingOutputStreamListener ** aStreamListener)
-{
+NS_IMETHODIMP nsMsgQuote::GetStreamListener(
+    nsIMsgQuotingOutputStreamListener **aStreamListener) {
   nsresult rv = NS_OK;
-  if (aStreamListener)
-  {
+  if (aStreamListener) {
     NS_IF_ADDREF(*aStreamListener = mStreamListener);
-  }
-  else
+  } else
     rv = NS_ERROR_NULL_POINTER;
 
   return rv;
 }
 
-nsresult
-nsMsgQuote::QuoteMessage(const char *msgURI, bool quoteHeaders,
-                         nsIMsgQuotingOutputStreamListener * aQuoteMsgStreamListener,
-                         const char * aMsgCharSet, bool headersOnly,
-                         nsIMsgDBHdr *aMsgHdr)
-{
-  nsresult  rv;
-  if (!msgURI)
-    return NS_ERROR_INVALID_ARG;
+nsresult nsMsgQuote::QuoteMessage(
+    const char *msgURI, bool quoteHeaders,
+    nsIMsgQuotingOutputStreamListener *aQuoteMsgStreamListener,
+    const char *aMsgCharSet, bool headersOnly, nsIMsgDBHdr *aMsgHdr) {
+  nsresult rv;
+  if (!msgURI) return NS_ERROR_INVALID_ARG;
 
   mQuoteHeaders = quoteHeaders;
   mStreamListener = aQuoteMsgStreamListener;
 
   nsAutoCString msgUri(msgURI);
   bool fileUrl = !strncmp(msgURI, "file:", 5);
-  bool forwardedMessage = PL_strstr(msgURI, "&realtype=message/rfc822") != nullptr;
+  bool forwardedMessage =
+      PL_strstr(msgURI, "&realtype=message/rfc822") != nullptr;
   nsCOMPtr<nsIURI> newURI;
-  if (fileUrl)
-  {
+  if (fileUrl) {
     msgUri.Replace(0, 5, NS_LITERAL_CSTRING("mailbox:"));
     msgUri.AppendLiteral("?number=0");
     rv = NS_NewURI(getter_AddRefs(newURI), msgUri);
     nsCOMPtr<nsIMsgMessageUrl> mailUrl(do_QueryInterface(newURI));
-    if (mailUrl)
-      mailUrl->SetMessageHeader(aMsgHdr);
-  }
-  else if (forwardedMessage)
+    if (mailUrl) mailUrl->SetMessageHeader(aMsgHdr);
+  } else if (forwardedMessage)
     rv = NS_NewURI(getter_AddRefs(newURI), msgURI);
-  else
-  {
-    nsCOMPtr <nsIMsgMessageService> msgService;
-    rv = GetMessageServiceFromURI(nsDependentCString(msgURI), getter_AddRefs(msgService));
+  else {
+    nsCOMPtr<nsIMsgMessageService> msgService;
+    rv = GetMessageServiceFromURI(nsDependentCString(msgURI),
+                                  getter_AddRefs(msgService));
     if (NS_FAILED(rv)) return rv;
     rv = msgService->GetUrlForUri(msgURI, getter_AddRefs(newURI), nullptr);
   }
@@ -137,33 +118,32 @@ nsMsgQuote::QuoteMessage(const char *msgURI, bool quoteHeaders,
 
   nsAutoCString queryPart;
   rv = newURI->GetQuery(queryPart);
-  if (!queryPart.IsEmpty())
-    queryPart.Append('&');
+  if (!queryPart.IsEmpty()) queryPart.Append('&');
 
-  if (headersOnly) /* We don't need to quote the message body but we still need to extract the headers */
+  if (headersOnly) /* We don't need to quote the message body but we still need
+                      to extract the headers */
     queryPart.AppendLiteral("header=only");
   else if (quoteHeaders)
     queryPart.AppendLiteral("header=quote");
   else
     queryPart.AppendLiteral("header=quotebody");
   rv = NS_MutateURI(newURI).SetQuery(queryPart).Finalize(newURI);
-  NS_ENSURE_SUCCESS(rv,rv);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   // if we were given a non empty charset, then use it
-  if (aMsgCharSet && *aMsgCharSet)
-  {
-    nsCOMPtr<nsIMsgI18NUrl> i18nUrl (do_QueryInterface(newURI));
-    if (i18nUrl)
-      i18nUrl->SetCharsetOverRide(aMsgCharSet);
+  if (aMsgCharSet && *aMsgCharSet) {
+    nsCOMPtr<nsIMsgI18NUrl> i18nUrl(do_QueryInterface(newURI));
+    if (i18nUrl) i18nUrl->SetCharsetOverRide(aMsgCharSet);
   }
 
   mQuoteListener = do_CreateInstance(NS_MSGQUOTELISTENER_CONTRACTID, &rv);
   if (NS_FAILED(rv)) return rv;
   mQuoteListener->SetMsgQuote(this);
 
-  // funky magic go get the isupports for this class which inherits from multiple interfaces.
-  nsISupports * supports;
-  QueryInterface(NS_GET_IID(nsISupports), (void **) &supports);
+  // funky magic go get the isupports for this class which inherits from
+  // multiple interfaces.
+  nsISupports *supports;
+  QueryInterface(NS_GET_IID(nsISupports), (void **)&supports);
   nsCOMPtr<nsISupports> quoteSupport = supports;
   NS_IF_RELEASE(supports);
 
@@ -171,47 +151,39 @@ nsMsgQuote::QuoteMessage(const char *msgURI, bool quoteHeaders,
   mQuoteChannel = nullptr;
   nsCOMPtr<nsIIOService> netService = mozilla::services::GetIOService();
   NS_ENSURE_TRUE(netService, NS_ERROR_UNEXPECTED);
-  rv = netService->NewChannelFromURI(newURI,
-                                     nullptr,
-                                     nsContentUtils::GetSystemPrincipal(),
-                                     nullptr,
-                                     nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                     nsIContentPolicy::TYPE_OTHER,
-                                     getter_AddRefs(mQuoteChannel));
+  rv = netService->NewChannelFromURI(
+      newURI, nullptr, nsContentUtils::GetSystemPrincipal(), nullptr,
+      nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+      nsIContentPolicy::TYPE_OTHER, getter_AddRefs(mQuoteChannel));
 
   if (NS_FAILED(rv)) return rv;
 
   nsCOMPtr<nsIStreamConverterService> streamConverterService =
-           do_GetService("@mozilla.org/streamConverters;1", &rv);
-  NS_ENSURE_SUCCESS(rv,rv);
+      do_GetService("@mozilla.org/streamConverters;1", &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIStreamListener> convertedListener;
-  rv = streamConverterService->AsyncConvertData("message/rfc822",
-                                                "application/vnd.mozilla.xul+xml",
-                                                mStreamListener,
-                                                quoteSupport,
-                                                getter_AddRefs(convertedListener));
+  rv = streamConverterService->AsyncConvertData(
+      "message/rfc822", "application/vnd.mozilla.xul+xml", mStreamListener,
+      quoteSupport, getter_AddRefs(convertedListener));
   if (NS_FAILED(rv)) return rv;
 
-  //  now try to open the channel passing in our display consumer as the listener
+  //  now try to open the channel passing in our display consumer as the
+  //  listener
   rv = mQuoteChannel->AsyncOpen(convertedListener);
   return rv;
 }
 
 NS_IMETHODIMP
-nsMsgQuote::GetQuoteListener(nsIMimeStreamConverterListener** aQuoteListener)
-{
-    if (!aQuoteListener || !mQuoteListener)
-        return NS_ERROR_NULL_POINTER;
-    NS_ADDREF(*aQuoteListener = mQuoteListener);
-    return NS_OK;
+nsMsgQuote::GetQuoteListener(nsIMimeStreamConverterListener **aQuoteListener) {
+  if (!aQuoteListener || !mQuoteListener) return NS_ERROR_NULL_POINTER;
+  NS_ADDREF(*aQuoteListener = mQuoteListener);
+  return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgQuote::GetQuoteChannel(nsIChannel** aQuoteChannel)
-{
-    if (!aQuoteChannel || !mQuoteChannel)
-        return NS_ERROR_NULL_POINTER;
-    NS_ADDREF(*aQuoteChannel = mQuoteChannel);
-    return NS_OK;
+nsMsgQuote::GetQuoteChannel(nsIChannel **aQuoteChannel) {
+  if (!aQuoteChannel || !mQuoteChannel) return NS_ERROR_NULL_POINTER;
+  NS_ADDREF(*aQuoteChannel = mQuoteChannel);
+  return NS_OK;
 }

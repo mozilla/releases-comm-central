@@ -4,15 +4,13 @@
 
 #include "nsComposeStrings.h"
 
-const char* errorStringNameForErrorCode(nsresult aCode)
-{
+const char* errorStringNameForErrorCode(nsresult aCode) {
 #ifdef __GNUC__
 // Temporary workaround until bug 783526 is fixed.
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wswitch"
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wswitch"
 #endif
-  switch(aCode)
-  {
+  switch (aCode) {
     case NS_MSG_UNABLE_TO_OPEN_FILE:
       return "unableToOpenFile";
     case NS_MSG_UNABLE_TO_OPEN_TMP_FILE:
@@ -105,6 +103,6 @@ const char* errorStringNameForErrorCode(nsresult aCode)
       return "sendFailed";
   }
 #ifdef __GNUC__
-#pragma GCC diagnostic pop
+#  pragma GCC diagnostic pop
 #endif
 }

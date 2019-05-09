@@ -10,33 +10,30 @@
 #include "nsString.h"
 #include "nsCOMPtr.h"
 
-class nsMsgProcessReport : public nsIMsgProcessReport
-{
-public:
+class nsMsgProcessReport : public nsIMsgProcessReport {
+ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGPROCESSREPORT
 
   nsMsgProcessReport();
 
-private:
+ private:
   virtual ~nsMsgProcessReport();
-  bool      mProceeded;
-  nsresult  mError;
-  nsString  mMessage;
+  bool mProceeded;
+  nsresult mError;
+  nsString mMessage;
 };
 
-
-class nsMsgSendReport : public nsIMsgSendReport
-{
-public:
+class nsMsgSendReport : public nsIMsgSendReport {
+ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGSENDREPORT
 
   nsMsgSendReport();
 
-private:
+ private:
   virtual ~nsMsgSendReport();
-  #define SEND_LAST_PROCESS  process_FCC
+#define SEND_LAST_PROCESS process_FCC
   nsCOMPtr<nsIMsgProcessReport> mProcessReport[SEND_LAST_PROCESS + 1];
   int32_t mDeliveryMode;
   int32_t mCurrentProcess;

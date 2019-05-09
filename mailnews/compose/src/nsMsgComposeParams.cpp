@@ -5,162 +5,141 @@
 
 #include "nsMsgComposeParams.h"
 
-nsMsgComposeParams::nsMsgComposeParams() :
-  mType(nsIMsgCompType::New),
-  mFormat(nsIMsgCompFormat::Default),
-  mBodyIsLink(false)
-{
-}
+nsMsgComposeParams::nsMsgComposeParams()
+    : mType(nsIMsgCompType::New),
+      mFormat(nsIMsgCompFormat::Default),
+      mBodyIsLink(false) {}
 
-/* the following macro actually implement addref, release and query interface for our component. */
+/* the following macro actually implement addref, release and query interface
+ * for our component. */
 NS_IMPL_ISUPPORTS(nsMsgComposeParams, nsIMsgComposeParams)
 
-nsMsgComposeParams::~nsMsgComposeParams()
-{
-}
+nsMsgComposeParams::~nsMsgComposeParams() {}
 
 /* attribute MSG_ComposeType type; */
-NS_IMETHODIMP nsMsgComposeParams::GetType(MSG_ComposeType *aType)
-{
+NS_IMETHODIMP nsMsgComposeParams::GetType(MSG_ComposeType *aType) {
   NS_ENSURE_ARG_POINTER(aType);
 
   *aType = mType;
   return NS_OK;
 }
-NS_IMETHODIMP nsMsgComposeParams::SetType(MSG_ComposeType aType)
-{
+NS_IMETHODIMP nsMsgComposeParams::SetType(MSG_ComposeType aType) {
   mType = aType;
   return NS_OK;
 }
 
 /* attribute MSG_ComposeFormat format; */
-NS_IMETHODIMP nsMsgComposeParams::GetFormat(MSG_ComposeFormat *aFormat)
-{
+NS_IMETHODIMP nsMsgComposeParams::GetFormat(MSG_ComposeFormat *aFormat) {
   NS_ENSURE_ARG_POINTER(aFormat);
 
   *aFormat = mFormat;
   return NS_OK;
 }
-NS_IMETHODIMP nsMsgComposeParams::SetFormat(MSG_ComposeFormat aFormat)
-{
+NS_IMETHODIMP nsMsgComposeParams::SetFormat(MSG_ComposeFormat aFormat) {
   mFormat = aFormat;
   return NS_OK;
 }
 
 /* attribute string originalMsgURI; */
-NS_IMETHODIMP nsMsgComposeParams::GetOriginalMsgURI(char * *aOriginalMsgURI)
-{
+NS_IMETHODIMP nsMsgComposeParams::GetOriginalMsgURI(char **aOriginalMsgURI) {
   NS_ENSURE_ARG_POINTER(aOriginalMsgURI);
 
   *aOriginalMsgURI = ToNewCString(mOriginalMsgUri);
   return NS_OK;
 }
-NS_IMETHODIMP nsMsgComposeParams::SetOriginalMsgURI(const char * aOriginalMsgURI)
-{
+NS_IMETHODIMP nsMsgComposeParams::SetOriginalMsgURI(
+    const char *aOriginalMsgURI) {
   mOriginalMsgUri = aOriginalMsgURI;
   return NS_OK;
 }
 
 /* attribute nsIMsgIdentity identity; */
-NS_IMETHODIMP nsMsgComposeParams::GetIdentity(nsIMsgIdentity * *aIdentity)
-{
+NS_IMETHODIMP nsMsgComposeParams::GetIdentity(nsIMsgIdentity **aIdentity) {
   NS_ENSURE_ARG_POINTER(aIdentity);
   NS_IF_ADDREF(*aIdentity = mIdentity);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgComposeParams::SetIdentity(nsIMsgIdentity * aIdentity)
-{
+NS_IMETHODIMP nsMsgComposeParams::SetIdentity(nsIMsgIdentity *aIdentity) {
   mIdentity = aIdentity;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgComposeParams::SetOrigMsgHdr(nsIMsgDBHdr *aMsgHdr)
-{
+NS_IMETHODIMP nsMsgComposeParams::SetOrigMsgHdr(nsIMsgDBHdr *aMsgHdr) {
   mOrigMsgHdr = aMsgHdr;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgComposeParams::GetOrigMsgHdr(nsIMsgDBHdr * *aMsgHdr)
-{
+NS_IMETHODIMP nsMsgComposeParams::GetOrigMsgHdr(nsIMsgDBHdr **aMsgHdr) {
   NS_ENSURE_ARG_POINTER(aMsgHdr);
   NS_IF_ADDREF(*aMsgHdr = mOrigMsgHdr);
   return NS_OK;
 }
 
 /* attribute ACString htmlToQuote; */
-NS_IMETHODIMP nsMsgComposeParams::GetHtmlToQuote(nsACString& aHtmlToQuote)
-{
+NS_IMETHODIMP nsMsgComposeParams::GetHtmlToQuote(nsACString &aHtmlToQuote) {
   aHtmlToQuote = mHtmlToQuote;
   return NS_OK;
 }
-NS_IMETHODIMP nsMsgComposeParams::SetHtmlToQuote(const nsACString& aHtmlToQuote)
-{
+NS_IMETHODIMP nsMsgComposeParams::SetHtmlToQuote(
+    const nsACString &aHtmlToQuote) {
   mHtmlToQuote = aHtmlToQuote;
   return NS_OK;
 }
 
 /* attribute nsIMsgCompFields composeFields; */
-NS_IMETHODIMP nsMsgComposeParams::GetComposeFields(nsIMsgCompFields * *aComposeFields)
-{
+NS_IMETHODIMP nsMsgComposeParams::GetComposeFields(
+    nsIMsgCompFields **aComposeFields) {
   NS_ENSURE_ARG_POINTER(aComposeFields);
 
-  if (mComposeFields)
-  {
-     NS_ADDREF(*aComposeFields = mComposeFields);
-  }
-  else
+  if (mComposeFields) {
+    NS_ADDREF(*aComposeFields = mComposeFields);
+  } else
     *aComposeFields = nullptr;
   return NS_OK;
 }
-NS_IMETHODIMP nsMsgComposeParams::SetComposeFields(nsIMsgCompFields * aComposeFields)
-{
+NS_IMETHODIMP nsMsgComposeParams::SetComposeFields(
+    nsIMsgCompFields *aComposeFields) {
   mComposeFields = aComposeFields;
   return NS_OK;
 }
 
 /* attribute boolean bodyIsLink; */
-NS_IMETHODIMP nsMsgComposeParams::GetBodyIsLink(bool *aBodyIsLink)
-{
+NS_IMETHODIMP nsMsgComposeParams::GetBodyIsLink(bool *aBodyIsLink) {
   NS_ENSURE_ARG_POINTER(aBodyIsLink);
 
   *aBodyIsLink = mBodyIsLink;
   return NS_OK;
 }
-NS_IMETHODIMP nsMsgComposeParams::SetBodyIsLink(bool aBodyIsLink)
-{
+NS_IMETHODIMP nsMsgComposeParams::SetBodyIsLink(bool aBodyIsLink) {
   mBodyIsLink = aBodyIsLink;
   return NS_OK;
 }
 
 /* attribute nsIMsgSendLisneter sendListener; */
-NS_IMETHODIMP nsMsgComposeParams::GetSendListener(nsIMsgSendListener * *aSendListener)
-{
+NS_IMETHODIMP nsMsgComposeParams::GetSendListener(
+    nsIMsgSendListener **aSendListener) {
   NS_ENSURE_ARG_POINTER(aSendListener);
 
-  if (mSendListener)
-  {
-     NS_ADDREF(*aSendListener = mSendListener);
-  }
-  else
+  if (mSendListener) {
+    NS_ADDREF(*aSendListener = mSendListener);
+  } else
     *aSendListener = nullptr;
   return NS_OK;
 }
-NS_IMETHODIMP nsMsgComposeParams::SetSendListener(nsIMsgSendListener * aSendListener)
-{
+NS_IMETHODIMP nsMsgComposeParams::SetSendListener(
+    nsIMsgSendListener *aSendListener) {
   mSendListener = aSendListener;
   return NS_OK;
 }
 
 /* attribute string smtpPassword; */
-NS_IMETHODIMP nsMsgComposeParams::GetSmtpPassword(nsAString &aSmtpPassword)
-{
+NS_IMETHODIMP nsMsgComposeParams::GetSmtpPassword(nsAString &aSmtpPassword) {
   aSmtpPassword = mSMTPPassword;
   return NS_OK;
 }
-NS_IMETHODIMP nsMsgComposeParams::SetSmtpPassword(const nsAString &aSmtpPassword)
-{
+NS_IMETHODIMP nsMsgComposeParams::SetSmtpPassword(
+    const nsAString &aSmtpPassword) {
   mSMTPPassword = aSmtpPassword;
   return NS_OK;
 }
-

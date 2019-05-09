@@ -14,34 +14,33 @@
 #include "nsMsgUtils.h"
 #include "mozilla/Services.h"
 
-nsresult
-nsMsgGetMessageByName(const char* aName, nsString& aResult)
-{
+nsresult nsMsgGetMessageByName(const char *aName, nsString &aResult) {
   nsresult rv;
   nsCOMPtr<nsIStringBundleService> bundleService =
-    mozilla::services::GetStringBundleService();
+      mozilla::services::GetStringBundleService();
   NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
 
   nsCOMPtr<nsIStringBundle> bundle;
   rv = bundleService->CreateBundle(
-    "chrome://messenger/locale/messengercompose/composeMsgs.properties",
-    getter_AddRefs(bundle));
+      "chrome://messenger/locale/messengercompose/composeMsgs.properties",
+      getter_AddRefs(bundle));
   NS_ENSURE_SUCCESS(rv, rv);
 
   return bundle->GetStringFromName(aName, aResult);
 }
 
-static nsresult
-nsMsgBuildMessageByName(const char *aName, nsIFile *aFile, nsString& aResult)
-{
+static nsresult nsMsgBuildMessageByName(const char *aName, nsIFile *aFile,
+                                        nsString &aResult) {
   NS_ENSURE_ARG_POINTER(aFile);
   nsresult rv;
   nsCOMPtr<nsIStringBundleService> bundleService =
-    mozilla::services::GetStringBundleService();
+      mozilla::services::GetStringBundleService();
   NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
 
   nsCOMPtr<nsIStringBundle> bundle;
-  rv = bundleService->CreateBundle("chrome://messenger/locale/messengercompose/composeMsgs.properties", getter_AddRefs(bundle));
+  rv = bundleService->CreateBundle(
+      "chrome://messenger/locale/messengercompose/composeMsgs.properties",
+      getter_AddRefs(bundle));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsString path;
@@ -51,60 +50,51 @@ nsMsgBuildMessageByName(const char *aName, nsIFile *aFile, nsString& aResult)
   return bundle->FormatStringFromName(aName, params, 1, aResult);
 }
 
-nsresult
-nsMsgBuildMessageWithFile(nsIFile *aFile, nsString& aResult)
-{
+nsresult nsMsgBuildMessageWithFile(nsIFile *aFile, nsString &aResult) {
   return nsMsgBuildMessageByName("unableToOpenFile", aFile, aResult);
 }
 
-nsresult
-nsMsgBuildMessageWithTmpFile(nsIFile *aFile, nsString& aResult)
-{
+nsresult nsMsgBuildMessageWithTmpFile(nsIFile *aFile, nsString &aResult) {
   return nsMsgBuildMessageByName("unableToOpenTmpFile", aFile, aResult);
 }
 
-nsresult
-nsMsgDisplayMessageByName(nsIPrompt *aPrompt, const char* aName, const char16_t *windowTitle)
-{
+nsresult nsMsgDisplayMessageByName(nsIPrompt *aPrompt, const char *aName,
+                                   const char16_t *windowTitle) {
   nsString msg;
   nsMsgGetMessageByName(aName, msg);
   return nsMsgDisplayMessageByString(aPrompt, msg.get(), windowTitle);
 }
 
-nsresult
-nsMsgDisplayMessageByString(nsIPrompt * aPrompt, const char16_t * msg, const char16_t * windowTitle)
-{
+nsresult nsMsgDisplayMessageByString(nsIPrompt *aPrompt, const char16_t *msg,
+                                     const char16_t *windowTitle) {
   NS_ENSURE_ARG_POINTER(msg);
 
   nsresult rv = NS_OK;
   nsCOMPtr<nsIPrompt> prompt = aPrompt;
 
-  if (!prompt)
-  {
-    nsCOMPtr<nsIWindowWatcher> wwatch(do_GetService(NS_WINDOWWATCHER_CONTRACTID));
-    if (wwatch)
-      wwatch->GetNewPrompter(0, getter_AddRefs(prompt));
+  if (!prompt) {
+    nsCOMPtr<nsIWindowWatcher> wwatch(
+        do_GetService(NS_WINDOWWATCHER_CONTRACTID));
+    if (wwatch) wwatch->GetNewPrompter(0, getter_AddRefs(prompt));
   }
 
-  if (prompt)
-    rv = prompt->Alert(windowTitle, msg);
+  if (prompt) rv = prompt->Alert(windowTitle, msg);
 
   return rv;
 }
 
-nsresult
-nsMsgAskBooleanQuestionByString(nsIPrompt * aPrompt, const char16_t * msg, bool *answer, const char16_t * windowTitle)
-{
+nsresult nsMsgAskBooleanQuestionByString(nsIPrompt *aPrompt,
+                                         const char16_t *msg, bool *answer,
+                                         const char16_t *windowTitle) {
   NS_ENSURE_TRUE(msg && *msg, NS_ERROR_INVALID_ARG);
 
   nsresult rv = NS_OK;
   nsCOMPtr<nsIPrompt> dialog = aPrompt;
 
-  if (!dialog)
-  {
-    nsCOMPtr<nsIWindowWatcher> wwatch(do_GetService(NS_WINDOWWATCHER_CONTRACTID));
-    if (wwatch)
-      wwatch->GetNewPrompter(0, getter_AddRefs(dialog));
+  if (!dialog) {
+    nsCOMPtr<nsIWindowWatcher> wwatch(
+        do_GetService(NS_WINDOWWATCHER_CONTRACTID));
+    if (wwatch) wwatch->GetNewPrompter(0, getter_AddRefs(dialog));
   }
 
   if (dialog) {

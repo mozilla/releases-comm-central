@@ -7,24 +7,23 @@
 #include "nsString.h"
 #include "nsIMsgHdr.h"
 #include "nsCOMPtr.h"
-class nsMsgComposeParams : public nsIMsgComposeParams
-{
-public:
+class nsMsgComposeParams : public nsIMsgComposeParams {
+ public:
   nsMsgComposeParams();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGCOMPOSEPARAMS
 
-private:
+ private:
   virtual ~nsMsgComposeParams();
-  MSG_ComposeType               mType;
-  MSG_ComposeFormat             mFormat;
-  nsCString                     mOriginalMsgUri;
-  nsCOMPtr<nsIMsgIdentity>      mIdentity;
-  nsCOMPtr<nsIMsgCompFields>    mComposeFields;
-  bool                          mBodyIsLink;
-  nsCOMPtr<nsIMsgSendListener>  mSendListener;
-  nsString                     mSMTPPassword;
-  nsCOMPtr<nsIMsgDBHdr>         mOrigMsgHdr;
-  nsCString                     mHtmlToQuote;
+  MSG_ComposeType mType;
+  MSG_ComposeFormat mFormat;
+  nsCString mOriginalMsgUri;
+  nsCOMPtr<nsIMsgIdentity> mIdentity;
+  nsCOMPtr<nsIMsgCompFields> mComposeFields;
+  bool mBodyIsLink;
+  nsCOMPtr<nsIMsgSendListener> mSendListener;
+  nsString mSMTPPassword;
+  nsCOMPtr<nsIMsgDBHdr> mOrigMsgHdr;
+  nsCString mHtmlToQuote;
 };

@@ -5,16 +5,15 @@
 
 #include "nsIMsgComposeProgressParams.h"
 
-class nsMsgComposeProgressParams : public nsIMsgComposeProgressParams
-{
-public:
+class nsMsgComposeProgressParams : public nsIMsgComposeProgressParams {
+ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGCOMPOSEPROGRESSPARAMS
 
   nsMsgComposeProgressParams();
 
-private:
+ private:
   virtual ~nsMsgComposeProgressParams();
-  nsString                          m_subject;
-  MSG_DeliverMode                   m_deliveryMode;
+  nsString m_subject;
+  MSG_DeliverMode m_deliveryMode;
 };

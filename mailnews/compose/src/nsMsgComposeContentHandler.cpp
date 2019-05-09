@@ -25,24 +25,19 @@
 
 static NS_DEFINE_CID(kMsgComposeServiceCID, NS_MSGCOMPOSESERVICE_CID);
 
-nsMsgComposeContentHandler::nsMsgComposeContentHandler()
-{
-}
+nsMsgComposeContentHandler::nsMsgComposeContentHandler() {}
 
 // The following macro actually implement addref, release and query interface
 // for our component.
 NS_IMPL_ISUPPORTS(nsMsgComposeContentHandler, nsIContentHandler)
 
-nsMsgComposeContentHandler::~nsMsgComposeContentHandler()
-{
-}
+nsMsgComposeContentHandler::~nsMsgComposeContentHandler() {}
 
 // Try to get an appropriate nsIMsgIdentity by going through the window, getting
 // the document's URI, then the corresponding nsIMsgDBHdr. Then find the server
 // associated with that header and get the first identity for it.
 nsresult nsMsgComposeContentHandler::GetBestIdentity(
-  nsIInterfaceRequestor* aWindowContext, nsIMsgIdentity **aIdentity)
-{
+    nsIInterfaceRequestor* aWindowContext, nsIMsgIdentity** aIdentity) {
   nsresult rv;
 
   nsCOMPtr<mozIDOMWindowProxy> domWindow = do_GetInterface(aWindowContext);
@@ -58,8 +53,7 @@ nsresult nsMsgComposeContentHandler::GetBestIdentity(
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgMessageUrl> msgURI = do_QueryInterface(documentURI);
-  if (!msgURI)
-    return NS_ERROR_FAILURE;
+  if (!msgURI) return NS_ERROR_FAILURE;
 
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
   rv = msgURI->GetMessageHeader(getter_AddRefs(msgHdr));
@@ -71,15 +65,14 @@ nsresult nsMsgComposeContentHandler::GetBestIdentity(
 
   // nsIMsgDBHdrs from .eml messages have a null folder, so bail out if that's
   // the case.
-  if (!folder)
-    return NS_ERROR_FAILURE;
+  if (!folder) return NS_ERROR_FAILURE;
 
   nsCOMPtr<nsIMsgIncomingServer> server;
   rv = folder->GetServer(getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIMsgAccountManager> accountManager = do_GetService(
-    NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+  nsCOMPtr<nsIMsgAccountManager> accountManager =
+      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = accountManager->GetFirstIdentityForServer(server, aIdentity);
@@ -88,12 +81,11 @@ nsresult nsMsgComposeContentHandler::GetBestIdentity(
   return rv;
 }
 
-NS_IMETHODIMP nsMsgComposeContentHandler::HandleContent(const char * aContentType,
-                                                nsIInterfaceRequestor* aWindowContext, nsIRequest *request)
-{
+NS_IMETHODIMP nsMsgComposeContentHandler::HandleContent(
+    const char* aContentType, nsIInterfaceRequestor* aWindowContext,
+    nsIRequest* request) {
   nsresult rv = NS_OK;
-  if (!request)
-    return NS_ERROR_NULL_POINTER;
+  if (!request) return NS_ERROR_NULL_POINTER;
 
   // First of all, get the content type and make sure it is a content type we
   // know how to handle!
@@ -105,13 +97,12 @@ NS_IMETHODIMP nsMsgComposeContentHandler::HandleContent(const char * aContentTyp
 
     nsCOMPtr<nsIURI> aUri;
     nsCOMPtr<nsIChannel> aChannel = do_QueryInterface(request);
-    if(!aChannel) return NS_ERROR_FAILURE;
+    if (!aChannel) return NS_ERROR_FAILURE;
 
     rv = aChannel->GetURI(getter_AddRefs(aUri));
-    if (aUri)
-    {
+    if (aUri) {
       nsCOMPtr<nsIMsgComposeService> composeService =
-               do_GetService(kMsgComposeServiceCID, &rv);
+          do_GetService(kMsgComposeServiceCID, &rv);
       if (NS_SUCCEEDED(rv))
         rv = composeService->OpenComposeWindowWithURI(nullptr, aUri, identity);
     }

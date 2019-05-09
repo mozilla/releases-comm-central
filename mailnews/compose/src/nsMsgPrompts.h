@@ -12,11 +12,15 @@
 
 class nsIPrompt;
 
-nsresult      nsMsgGetMessageByName(const char* aName, nsString& aResult);
-nsresult      nsMsgBuildMessageWithFile(nsIFile * aFile, nsString& aResult);
-nsresult      nsMsgBuildMessageWithTmpFile(nsIFile * aFile, nsString& aResult);
-nsresult      nsMsgDisplayMessageByName(nsIPrompt *aPrompt, const char *aName, const char16_t *windowTitle = nullptr);
-nsresult      nsMsgDisplayMessageByString(nsIPrompt * aPrompt, const char16_t * msg, const char16_t * windowTitle = nullptr);
-nsresult      nsMsgAskBooleanQuestionByString(nsIPrompt * aPrompt, const char16_t * msg, bool *answer, const char16_t * windowTitle = nullptr);
+nsresult nsMsgGetMessageByName(const char* aName, nsString& aResult);
+nsresult nsMsgBuildMessageWithFile(nsIFile* aFile, nsString& aResult);
+nsresult nsMsgBuildMessageWithTmpFile(nsIFile* aFile, nsString& aResult);
+nsresult nsMsgDisplayMessageByName(nsIPrompt* aPrompt, const char* aName,
+                                   const char16_t* windowTitle = nullptr);
+nsresult nsMsgDisplayMessageByString(nsIPrompt* aPrompt, const char16_t* msg,
+                                     const char16_t* windowTitle = nullptr);
+nsresult nsMsgAskBooleanQuestionByString(nsIPrompt* aPrompt,
+                                         const char16_t* msg, bool* answer,
+                                         const char16_t* windowTitle = nullptr);
 
 #endif /* _nsMsgPrompts_H_ */

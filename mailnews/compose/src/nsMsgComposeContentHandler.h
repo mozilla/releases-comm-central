@@ -6,15 +6,14 @@
 #include "nsIContentHandler.h"
 #include "nsIMsgIdentity.h"
 
-class nsMsgComposeContentHandler : public nsIContentHandler
-{
-public:
+class nsMsgComposeContentHandler : public nsIContentHandler {
+ public:
   nsMsgComposeContentHandler();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSICONTENTHANDLER
-private:
+ private:
   virtual ~nsMsgComposeContentHandler();
   nsresult GetBestIdentity(nsIInterfaceRequestor* aWindowContext,
-                           nsIMsgIdentity **identity);
+                           nsIMsgIdentity** identity);
 };
