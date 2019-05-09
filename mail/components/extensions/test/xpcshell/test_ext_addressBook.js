@@ -188,6 +188,32 @@ add_task(async function test_addressBooks() {
       browser.test.assertEq("first@last", updatedContact.properties.PrimaryEmail);
       browser.test.assertTrue(!("LastName" in updatedContact.properties));
 
+      let fixedContactId = await browser.contacts.create(firstBookId, "this is a test", {
+        FirstName: "a",
+        LastName: "test",
+      });
+      browser.test.assertEq("this is a test", fixedContactId);
+      checkEvents(["contacts", "onCreated", { type: "contact", parentId: firstBookId, id: "this is a test" }]);
+
+      let fixedContact = await browser.contacts.get("this is a test");
+      browser.test.assertEq("this is a test", fixedContact.id);
+
+      await browser.contacts.delete("this is a test");
+      checkEvents(["contacts", "onDeleted", firstBookId, "this is a test"]);
+
+      try {
+        await browser.contacts.create(firstBookId, newContactId, {
+          FirstName: "uh",
+          LastName: "oh",
+        });
+        browser.test.fail(`Adding a contact with a duplicate id should throw`);
+      } catch (ex) {
+        browser.test.assertEq(
+          `Duplicate contact id: ${newContactId}`,
+          ex.message, `browser.contacts.create threw exception`
+        );
+      }
+
       browser.test.assertEq(0, events.length, "No events left unconsumed");
       browser.test.log("Completed contactsTest");
     }

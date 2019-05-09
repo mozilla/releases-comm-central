@@ -318,6 +318,12 @@
             "type": "string"
           },
           {
+            "name": "id",
+            "type": "string",
+            "description": "Assigns the contact an id. If an existing contact has this id, an exception is thrown.",
+            "optional": true
+          },
+          {
             "name": "properties",
             "$ref": "ContactProperties"
           }

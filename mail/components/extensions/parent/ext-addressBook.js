@@ -504,12 +504,26 @@ this.addressBook = class extends ExtensionAPI {
         get(id) {
           return addressBookCache.convert(addressBookCache.findContactById(id), false);
         },
-        create(parentId, properties) {
+        create(parentId, id, properties) {
           let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(Ci.nsIAbCard);
           for (let [name, value] of Object.entries(properties)) {
             if (!hiddenProperties.includes(name)) {
               card.setProperty(name, value);
             }
+          }
+          if (id) {
+            let duplicateExists = false;
+            try {
+              // Second argument is only a hint, all address books are checked.
+              addressBookCache.findContactById(id, parentId);
+              duplicateExists = true;
+            } catch (ex) {
+              // Do nothing. We want this to throw because no contact was found.
+            }
+            if (duplicateExists) {
+              throw new ExtensionError(`Duplicate contact id: ${id}`);
+            }
+            card.UID = id;
           }
           let parentNode = addressBookCache.findAddressBookById(parentId);
           let newCard = parentNode.item.addCard(card);
