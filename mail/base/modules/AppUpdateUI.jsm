@@ -303,9 +303,9 @@ const AppUpdateUI_Internal = {
     let update = subject && subject.QueryInterface(Ci.nsIUpdate);
     switch (topic) {
       case "quit-application":
-        this._obs.forEach(function(observer) {
+        for (let observer of this._obs) {
           Services.obs.removeObserver(this, observer);
-        });
+        }
         break;
       case "update-available":
         if (status != "unsupported") {
