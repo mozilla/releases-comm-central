@@ -1743,7 +1743,7 @@
 #ifdef XP_MACOSX
             <menuitem label="&accountManagerCmd2.label;"
                       accesskey="&accountManagerCmd2.accesskey;"
-                      command="cmd_account">
+                      command="cmd_account"/>
             <menuitem id="menu_preferences"
                       label="&preferencesCmd2.label;"
                       accesskey="&preferencesCmd2.accesskey;"
