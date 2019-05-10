@@ -33,9 +33,12 @@ function getNotification(id, browser) {
   return browser.ownerGlobal.PopupNotifications.getNotification(id, browser);
 }
 
-function showNotification(browser, ...args) {
+function showNotification(browser, id, message, anchorID, mainAction, secondaryActions, options) {
   let notifications = browser.ownerGlobal.PopupNotifications;
-  return notifications.show(browser, ...args);
+  if (options.popupIconURL == "chrome://browser/content/extension.svg") {
+    options.popupIconURL = DEFAULT_EXTENSION_ICON;
+  }
+  return notifications.show(browser, id, message, anchorID, mainAction, secondaryActions, options);
 }
 
 // Removes a doorhanger notification if all of the installs it was notifying

@@ -16,6 +16,12 @@
   skin/classic/messenger/icons/addcontact.svg                 (../shared/mail/icons/addcontact.svg)
   skin/classic/messenger/icons/addlist.svg                    (../shared/mail/icons/addlist.svg)
   skin/classic/messenger/icons/accounts.svg                   (../shared/mail/icons/accounts.svg)
+  skin/classic/messenger/icons/addon-install-blocked.svg      (../shared/mail/icons/addon-install-blocked.svg)
+  skin/classic/messenger/icons/addon-install-confirm.svg      (../shared/mail/icons/addon-install-confirm.svg)
+  skin/classic/messenger/icons/addon-install-downloading.svg  (../shared/mail/icons/addon-install-downloading.svg)
+  skin/classic/messenger/icons/addon-install-error.svg        (../shared/mail/icons/addon-install-error.svg)
+  skin/classic/messenger/icons/addon-install-installed.svg    (../shared/mail/icons/addon-install-installed.svg)
+  skin/classic/messenger/icons/addon-install-warning.svg      (../shared/mail/icons/addon-install-warning.svg)
 #ifdef MOZ_UPDATER
   skin/classic/messenger/icons/app-update.svg                 (../shared/mail/icons/app-update.svg)
   skin/classic/messenger/icons/app-update-badge.svg           (../shared/mail/icons/app-update-badge.svg)

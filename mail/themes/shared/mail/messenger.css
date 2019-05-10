@@ -74,6 +74,33 @@ description.error {
   list-style-image: url("chrome://mozapps/skin/extensions/extensionGeneric-16.svg");
 }
 
+.popup-notification-icon[popupid="xpinstall-disabled"],
+.popup-notification-icon[popupid="addon-install-blocked"],
+.popup-notification-icon[popupid="addon-install-origin-blocked"] {
+  list-style-image: url(chrome://messenger/skin/icons/addon-install-blocked.svg);
+}
+
+.popup-notification-icon[popupid="addon-progress"] {
+  list-style-image: url(chrome://messenger/skin/icons/addon-install-downloading.svg);
+}
+
+.popup-notification-icon[popupid="addon-install-failed"] {
+  list-style-image: url(chrome://messenger/skin/icons/addon-install-error.svg);
+}
+
+.popup-notification-icon[popupid="addon-install-confirmation"] {
+  list-style-image: url(chrome://messenger/skin/icons/addon-install-confirm.svg);
+}
+
+#addon-install-confirmation-notification[warning]
+    .popup-notification-icon[popupid="addon-install-confirmation"] {
+  list-style-image: url(chrome://messenger/skin/icons/addon-install-warning.svg);
+}
+
+.popup-notification-icon[popupid="addon-install-complete"] {
+  list-style-image: url(chrome://messenger/skin/icons/addon-install-installed.svg);
+}
+
 .app-update-icon {
   list-style-image: url("chrome://messenger/skin/icons/app-update-badge.svg");
   background-color: #74BF43;
