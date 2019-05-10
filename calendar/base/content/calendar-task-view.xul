@@ -43,9 +43,8 @@
                    onkeypress="taskEdit.onKeyPress(event)"/>
         </box>
         <box align="center" flex="1">
-          <textbox id="task-text-filter-field"
+          <textbox is="search-textbox" id="task-text-filter-field"
                    class="themeableSearchBox"
-                   type="search"
                    flex="1"
                    placeholder=""
                    emptytextbase="&calendar.task.text-filter.textbox.emptytext.base1;"
