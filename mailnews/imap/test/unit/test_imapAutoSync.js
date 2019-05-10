@@ -177,10 +177,6 @@ var gAutoSyncListener = {
   onFolderAddedIntoQ(queue, folder) {
     try {
       dump("folder added into Q " + this.qName(queue) + " " + folder.URI + "\n");
-      if (folder instanceof Ci.nsIMsgFolder &&
-          queue == nsIAutoSyncMgrListener.PriorityQueue) {
-        return;
-      }
     } catch (e) {
       throw (e);
     }
@@ -188,10 +184,6 @@ var gAutoSyncListener = {
   onFolderRemovedFromQ(queue, folder) {
     try {
       dump("folder removed from Q " + this.qName(queue) + " " + folder.URI + "\n");
-      if (folder instanceof Ci.nsIMsgFolder &&
-          queue == nsIAutoSyncMgrListener.PriorityQueue) {
-        return;
-      }
     } catch (e) {
       throw (e);
     }

@@ -394,7 +394,7 @@ var actionTestOffline = {
   apply(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
     for (let i = 0; i < aMsgHdrs.length; i++) {
       var msgHdr = aMsgHdrs.queryElementAt(i, Ci.nsIMsgDBHdr);
-      let isOffline = !!((msgHdr.flags & Ci.nsMsgMessageFlags.Offline));
+      let isOffline = !!(msgHdr.flags & Ci.nsMsgMessageFlags.Offline);
       dump("in actionTestOffline, flags are " + msgHdr.flags +
             " subject is " + msgHdr.subject +
             " isOffline is " + isOffline +

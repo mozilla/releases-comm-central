@@ -22,7 +22,7 @@ var gMovedMsgId;
 
 /* exported alert */// to alertTestUtils.js
 function alert(aDialogTitle, aText) {
-//  do_check_true(aText.startsWith("Connection to server Mail for  timed out."));
+  // do_check_true(aText.startsWith("Connection to server Mail for  timed out."));
   gGotAlert = true;
 }
 

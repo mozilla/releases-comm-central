@@ -40,7 +40,6 @@ var tests = [
     yield false;
   },
   function checkMailboxEmpty() {
-    IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gSynthMessage.messageId);
     Assert.equal(IMAPPump.inbox.getTotalMessages(false), 0);
   },
   teardown,
