@@ -31,29 +31,29 @@ typedef struct MimeHeaders {
   int32_t all_headers_size; /* The size of the allocated block. */
 
   bool done_p; /* Whether we've read the end-of-headers marker
-            (the terminating blank line.) */
+                 (the terminating blank line.) */
 
   char **heads;       /* An array of length n_headers which points
-                to the beginning of each distinct header:
-                just after the newline which terminated
-                the previous one.  This is to speed search.
+                        to the beginning of each distinct header:
+                        just after the newline which terminated
+                        the previous one.  This is to speed search.
       
-                This is not initialized until all the
-                headers have been read.
-              */
+                        This is not initialized until all the
+                        headers have been read.
+                      */
   int32_t heads_size; /* The length (and consequently, how many
-            distinct headers are in here.) */
+                         distinct headers are in here.) */
 
   char *obuffer; /* This buffer is used for output. */
   int32_t obuffer_size;
   int32_t obuffer_fp;
 
-  char
-      *munged_subject; /* What a hack.  This is a place to write down
-             the subject header, after it's been
-             charset-ified and stuff.  Remembered so that
-             we can later use it to generate the
-             <TITLE> tag. (Also works for giving names to RFC822 attachments) */
+  char *munged_subject; /* What a hack.  This is a place to write down
+                           the subject header, after it's been
+                           charset-ified and stuff.  Remembered so that
+                           we can later use it to generate the
+                           <TITLE> tag. (Also works for giving names to
+                           RFC822 attachments) */
 } MimeHeaders;
 
 class MimeDisplayOptions;
@@ -76,6 +76,7 @@ typedef struct MSG_AttachmentData MSG_AttachmentData;
 extern char *MimeHeaders_get(MimeHeaders *hdrs, const char *header_name,
                              bool strip_p, bool all_p);
 
+// clang-format off
 /* Given a header of the form of the MIME "Content-" headers, extracts a
    named parameter from it, if it exists.  For example,
    MimeHeaders_get_parameter("text/plain; charset=us-ascii", "charset")
@@ -92,12 +93,11 @@ extern char *MimeHeaders_get(MimeHeaders *hdrs, const char *header_name,
    the return value (parameter) has to be PR_FREE'd.
 
    For example,
-   MimeHeaders_get_parameter("text/plain;
-   name*=us-ascii'en-us'This%20is%20%2A%2A%2Afun%2A%2A%2A", "name")
-   MimeHeaders_get_parameter("text/plain; name*0*=us-ascii'en-us'This%20is%20;
-   CRLFLWSPname*1*=%2A%2A%2Afun%2A%2A%2A", "name") would return "This is
-   ***fun***" and *charset = "us-ascii", *language = "en-us"
+   MimeHeaders_get_parameter("text/plain; name*=us-ascii'en-us'This%20is%20%2A%2A%2Afun%2A%2A%2A", "name")
+   MimeHeaders_get_parameter("text/plain; name*0*=us-ascii'en-us'This%20is%20; CRLFLWSPname*1*=%2A%2A%2Afun%2A%2A%2A", "name") would return "This is ***fun***" and *charset = "us-ascii", *language = "en-us"
  */
+// clang-format on
+
 extern char *MimeHeaders_get_parameter(const char *header_value,
                                        const char *parm_name, char **charset,
                                        char **language);
@@ -113,7 +113,7 @@ typedef enum {
                           (for when we're printing this message.) */
   MimeHeadersMicro,     /* Show a one-line header summary */
   MimeHeadersMicroPlus, /* Same, but show the full recipient list as
-                          well (To, CC, etc.) */
+                           well (To, CC, etc.) */
   MimeHeadersCitation,  /* A one-line summary geared toward use in a
                            reply citation ("So-and-so wrote:") */
   MimeHeadersOnly,      /* Just parse and output headers...nothing else! */
@@ -140,57 +140,58 @@ class MimeDisplayOptions {
 
   MimeHeadersState headers; /* How headers should be displayed. */
   bool fancy_headers_p;     /* Whether to do clever formatting of headers
-                    using tables, instead of spaces. */
+                               using tables, instead of spaces. */
 
   bool output_vcard_buttons_p; /* Whether to output the buttons */
                                /* on vcards. */
 
   bool variable_width_plaintext_p; /* Whether text/plain messages should
-                      be in variable width, or fixed. */
+                                      be in variable width, or fixed. */
   bool wrap_long_lines_p;          /* Whether to wrap long lines in text/plain
-                           messages. */
+                                      messages. */
 
   bool rot13_p;       /* Whether text/plain parts should be rotated
-                  Set by "?rot13=true" */
+                         Set by "?rot13=true" */
   char *part_to_load; /* The particular part of the multipart which
-              we are extracting.  Set by "?part=3.2.4" */
+                         we are extracting.  Set by "?part=3.2.4" */
 
   bool no_output_p; /* Will never write output when this is true.
-          (When false, output or not may depend on other things.)
-          This needs to be in the options, because the method
-          MimeObject_parse_begin is controlling the property "output_p"
-          (on the MimeObject) so we need a way for other functions to
-          override it and tell that we do not want output. */
+                       (When false, output or not may depend on other things.)
+                       This needs to be in the options, because the method
+                       MimeObject_parse_begin is controlling the property
+                       "output_p" (on the MimeObject) so we need a way for other
+                       functions to override it and tell that we do not want
+                       output. */
 
   bool write_html_p; /* Whether the output should be HTML, or raw. */
 
   bool decrypt_p; /* Whether all traces of xlateion should be
-              eradicated -- this is only meaningful when
-              write_html_p is false; we set this when
-              attaching a message for forwarding, since
-              forwarding someone else a message that wasn't
-              xlated for them doesn't work.  We have to
-              dexlate it before sending it.
-            */
+                     eradicated -- this is only meaningful when
+                     write_html_p is false; we set this when
+                     attaching a message for forwarding, since
+                     forwarding someone else a message that wasn't
+                     xlated for them doesn't work.  We have to
+                     dexlate it before sending it.
+                   */
 
   /* Whether this MIME part is a child of another part (and not top level). */
   bool is_child = false;
 
-  uint32_t
-      whattodo; /* from the prefs, we'll get if the user wants to do glyph or
-                   structure substitutions and set this member variable. */
+  uint32_t whattodo; /* from the prefs, we'll get if the user wants to do glyph
+                        or structure substitutions and set this member variable.
+                      */
 
   char *default_charset;   /* If this is non-NULL, then it is the charset to
-                  assume when no other one is specified via a
-                  `charset' parameter.
-                */
+                              assume when no other one is specified via a
+                              `charset' parameter.
+                            */
   bool override_charset;   /* If this is true, then we will assume that
-                  all data is in the default_charset, regardless
-                                of what the `charset' parameter of that part
-                                says. (This is to cope with the fact that, in
-                                the real world, many messages are mislabelled
-                                with the wrong charset.)
-                */
+                              all data is in the default_charset, regardless
+                              of what the `charset' parameter of that part
+                              says. (This is to cope with the fact that, in
+                              the real world, many messages are mislabelled
+                              with the wrong charset.)
+                            */
   bool force_user_charset; /* this is the new strategy to deal with incorrectly
                               labeled attachments */
 
@@ -275,7 +276,7 @@ class MimeDisplayOptions {
   MimeHTMLGeneratorFunction generate_news_url_fn;
 
   /* =======================================================================
-     Callbacks to handle the backend-specific inlined image display
+   Callbacks to handle the backend-specific inlined image display
    (internal-external-reconnect junk.)  For `image_begin', the `closure'
    argument is what is found in `stream_closure'; but for all of the
    others, the `closure' argument is the data that `image_begin' returned.
@@ -307,23 +308,21 @@ class MimeDisplayOptions {
   Mail Draft hooks -- 09-19-1996
    */
   bool decompose_file_p;           /* are we decomposing a mime msg
-                    into separate files */
+                                      into separate files */
   bool done_parsing_outer_headers; /* are we done parsing the outer message
-                     headers; this is really useful when
-                     we have multiple Message/RFC822
-                     headers */
+                                      headers; this is really useful when
+                                      we have multiple Message/RFC822
+                                      headers */
   bool is_multipart_msg;           /* are we decomposing a multipart
-                     message */
+                                      message */
 
-  int decompose_init_count; /* used for non multipart message only
-                             */
+  int decompose_init_count; /* used for non multipart message only */
 
-  bool signed_p; /* to tell draft this is a signed
-          message */
+  bool signed_p; /* to tell draft this is a signed message */
 
   bool caller_need_root_headers; /* set it to true to receive the message main
-                                      headers through the callback
-                                      decompose_headers_info_fn */
+                                    headers through the callback
+                                    decompose_headers_info_fn */
 
   /* Callback to gather the outer most headers so we could use the
    information to initialize the addressing/subject/newsgroups fields
@@ -339,25 +338,26 @@ class MimeDisplayOptions {
 #endif /* MIME_DRAFTS */
 
   int32_t attachment_icon_layer_id; /* Hackhackhack.  This is zero if we have
-                   not yet emitted the attachment layer
-                   stuff.  If we have, then this is the
-                   id number for that layer, which is a
-                   unique random number every time, to keep
-                   evil people from writing javascript code
-                   to hack it. */
+                                       not yet emitted the attachment layer
+                                       stuff.  If we have, then this is the
+                                       id number for that layer, which is a
+                                       unique random number every time, to keep
+                                       evil people from writing javascript code
+                                       to hack it. */
 
   bool missing_parts; /* Whether or not this message is going to contain
-                missing parts (from IMAP Mime Parts On Demand) */
+                         missing parts (from IMAP Mime Parts On Demand) */
 
   bool show_attachment_inline_p; /* Whether or not we should display attachment
-                         inline (whatever say the content-disposition) */
+                                    inline (whatever say the
+                                    content-disposition) */
 
   bool show_attachment_inline_text; /* Whether or not we should display text
-                         attachment inline (whatever the content-disposition
-                         says) */
+                                       attachment inline (whatever the
+                                       content-disposition says) */
 
   bool quote_attachment_inline_p; /* Whether or not we should include inlined
-                         attachments in quotes of replies) */
+                                     attachments in quotes of replies) */
 
   int32_t html_as_p; /* How we should display HTML, which allows us to know if
                         we should display all body parts */

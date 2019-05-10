@@ -1382,9 +1382,9 @@ extern "C" void *mime_bridge_create_display_stream(
     //
     // We have a bool pref (mail.force_user_charset) to deal with attachments.
     // 1) If true - libmime does NO conversion and just passes it through to
-    // raptor 2) If false, then we try to use the charset of the part and if not
-    // available,
-    //    the charset of the root message
+    //    raptor
+    // 2) If false, then we try to use the charset of the part and if not
+    //    available, the charset of the root message
     //
     msd->options->m_prefBranch->GetBoolPref(
         "mail.force_user_charset", &(msd->options->force_user_charset));

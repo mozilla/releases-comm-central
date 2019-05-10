@@ -133,11 +133,10 @@ static int MimeExternalObject_parse_begin(MimeObject *obj) {
     /******
     RICHIE SHERRY
     GOTTA STILL DO THIS FOR QUOTING!
-         status = MimeHeaders_write_attachment_box (obj->headers, &newopt,
-                                                     obj->content_type,
-                                                     obj->encoding,
-                                                     id_name? id_name : id,
-    id_url, 0)
+    status = MimeHeaders_write_attachment_box(obj->headers, &newopt,
+                                              obj->content_type,
+                                              obj->encoding,
+                                              id_name? id_name : id, id_url, 0)
     *****/
 
     // obj->options really owns the storage for this.

@@ -17,13 +17,13 @@ extern "C" {
  * Uses MIME_ConvertCharset if the decoded string needs a conversion.
  *
  *
- * @param header      [IN] A header to decode.
- * @param default_charset     [IN] Default charset to apply to ulabeled
- * non-UTF-8 8bit data
- * @param override_charset    [IN] If true, default_charset used instead of any
- * charset labeling other than UTF-8
- * @param eatContinuations    [IN] If true, unfold headers
- * @param result      [OUT] Decoded buffer
+ * @param header            [IN]  A header to decode.
+ * @param default_charset   [IN]  Default charset to apply to ulabeled
+ *                                non-UTF-8 8bit data
+ * @param override_charset  [IN]  If true, default_charset used instead of any
+ *                                charset labeling other than UTF-8
+ * @param eatContinuations  [IN]  If true, unfold headers
+ * @param result            [OUT] Decoded buffer
  */
 void MIME_DecodeMimeHeader(const char *header, const char *default_charset,
                            bool override_charset, bool eatContinuations,

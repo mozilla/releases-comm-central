@@ -389,7 +389,7 @@ char *MimeHeaders_get(MimeHeaders *hdrs, const char *header_name, bool strip_p,
 
         /* Since we are tacking more data onto the end of the header
            field, we must make it be a well-formed continuation line,
-                            by separating the old and new data with CR-LF-TAB.
+           by separating the old and new data with CR-LF-TAB.
          */
         *s++ = ','; /* #### only do this for addr headers? */
         *s++ = MSG_LINEBREAK[0];

@@ -58,8 +58,8 @@ class nsStreamConverter : public nsIStreamConverter,
 
   nsCOMPtr<nsIMimeEmitter> mEmitter;  // emitter being used...
   nsCOMPtr<nsIURI> mURI;              // URI being processed
-  nsMimeOutputType
-      mOutputType;  // the output type we should use for the operation
+  nsMimeOutputType mOutputType;       // the output type we should use for the
+                                      // operation
   bool mAlreadyKnowOutputType;
 
   void *mBridgeStream;  // internal libmime data stream
@@ -87,8 +87,8 @@ class nsStreamConverter : public nsIStreamConverter,
 #ifdef DEBUG_mscott
   PRTime mConvertContentTime;
 #endif
-  nsIRequest
-      *mPendingRequest;  // used when we need to delay to fire onStartRequest
+  nsIRequest *mPendingRequest;  // used when we need to delay to fire
+                                // onStartRequest
 };
 
 #endif /* nsStreamConverter_h_ */

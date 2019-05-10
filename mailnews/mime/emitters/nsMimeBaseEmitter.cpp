@@ -779,8 +779,7 @@ nsresult nsMimeBaseEmitter::WriteHeaderFieldHTMLPrefix(const nsACString &name) {
   if (((mFormat == nsMimeOutput::nsMimeMessageSaveAs) && (mFirstHeaders)) ||
       ((mFormat == nsMimeOutput::nsMimeMessagePrintOutput) && (mFirstHeaders)))
     /* DO NOTHING */;  // rhp: Do nothing...leaving the conditional like this so
-                       // its
-                       //      easier to see the logic of what is going on.
+                       // its easier to see the logic of what is going on.
   else {
     mHTMLHeaders.AppendLiteral("<br><fieldset class=\"mimeAttachmentHeader\">");
     if (!name.IsEmpty()) {

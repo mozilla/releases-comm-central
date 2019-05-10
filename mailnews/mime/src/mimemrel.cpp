@@ -560,8 +560,8 @@ static bool MimeMultipartRelated_output_child_p(MimeObject *obj,
     return true;
   }
 
-  return false; /* Don't actually parse this child; we'll handle
-            all that at eof time. */
+  // Don't actually parse this child; we'll handle all that at eof time.
+  return false;
 }
 
 static int MimeMultipartRelated_parse_child_line(MimeObject *obj,

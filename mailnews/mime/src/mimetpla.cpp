@@ -182,7 +182,7 @@ static int MimeInlineTextPlain_parse_begin(MimeObject *obj) {
         openingDiv = "<pre wrap class=\"moz-quote-pre\">\n";
 
       /* text/plain objects always have separators before and after them.
-       Note that this is not the case for text/enriched objects. */
+         Note that this is not the case for text/enriched objects. */
       status = MimeObject_write_separator(obj);
       if (status < 0) return status;
 
@@ -240,8 +240,8 @@ static int MimeInlineTextPlain_parse_eof(MimeObject *obj, bool abort_p) {
     }
 
     /* text/plain objects always have separators before and after them.
-   Note that this is not the case for text/enriched objects.
-   */
+       Note that this is not the case for text/enriched objects.
+     */
     status = MimeObject_write_separator(obj);
     if (status < 0) return status;
   }

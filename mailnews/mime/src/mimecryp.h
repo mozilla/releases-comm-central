@@ -126,11 +126,11 @@ struct MimeEncrypted {
   MimeContainer container;         /* superclass variables */
   void *crypto_closure;            /* Opaque data used by decryption module. */
   MimeDecoderData *decoder_data;   /* Opaque data for the Transfer-Encoding
-                    decoder. */
+                                      decoder. */
   MimeHeaders *hdrs;               /* Headers of the enclosed object (including
-                          the type of the *decrypted* data.) */
+                                      the type of the *decrypted* data.) */
   MimePartBufferData *part_buffer; /* The data of the decrypted enclosed
-                    object (see mimepbuf.h) */
+                                      object (see mimepbuf.h) */
 };
 
 #define MimeEncryptedClassInitializer(ITYPE, CSUPER) \

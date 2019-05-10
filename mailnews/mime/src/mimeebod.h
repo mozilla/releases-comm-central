@@ -26,8 +26,8 @@ extern MimeExternalBodyClass mimeExternalBodyClass;
 struct MimeExternalBody {
   MimeObject object; /* superclass variables */
   MimeHeaders *hdrs; /* headers within this external-body, which
-              describe the network data which this body
-              is a pointer to. */
+                        describe the network data which this body
+                        is a pointer to. */
   char *body;        /* The "phantom body" of this link. */
 };
 

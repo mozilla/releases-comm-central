@@ -219,6 +219,7 @@ static int MimeMultipart_parse_line(const char *line, int32_t length,
 
             nsAutoCString fileName;
             fileName.Adopt(MimeHeaders_get_name(mult->hdrs, obj->options));
+            // clang-format off
             if (detachingPart) {
               char *contentType =
                   MimeHeaders_get(mult->hdrs, "Content-Type", false, false);
@@ -228,37 +229,25 @@ static int MimeMultipart_parse_line(const char *line, int32_t length,
                 PR_Free(contentType);
               }
               MimeWriteAString(obj, NS_LITERAL_CSTRING(MSG_LINEBREAK));
-              MimeWriteAString(
-                  obj, NS_LITERAL_CSTRING(
-                           "Content-Disposition: attachment; filename=\""));
+              MimeWriteAString(obj, NS_LITERAL_CSTRING("Content-Disposition: attachment; filename=\""));
               MimeWriteAString(obj, fileName);
               MimeWriteAString(obj, NS_LITERAL_CSTRING("\"" MSG_LINEBREAK));
-              MimeWriteAString(obj, NS_LITERAL_CSTRING(
-                                        "X-Mozilla-External-Attachment-URL: "));
+              MimeWriteAString(obj, NS_LITERAL_CSTRING("X-Mozilla-External-Attachment-URL: "));
               MimeWriteAString(obj, obj->options->state->detachedFilePath);
               MimeWriteAString(obj, NS_LITERAL_CSTRING(MSG_LINEBREAK));
-              MimeWriteAString(
-                  obj, NS_LITERAL_CSTRING(
-                           "X-Mozilla-Altered: AttachmentDetached; date=\""));
+              MimeWriteAString(obj, NS_LITERAL_CSTRING("X-Mozilla-Altered: AttachmentDetached; date=\""));
             } else {
-              nsAutoCString header(
-                  "Content-Type: text/x-moz-deleted; name=\"Deleted: ");
+              nsAutoCString header("Content-Type: text/x-moz-deleted; name=\"Deleted: ");
               header.Append(fileName);
               status = MimeWriteAString(obj, header);
               if (status < 0) return status;
-              status = MimeWriteAString(
-                  obj, NS_LITERAL_CSTRING(
-                           "\"" MSG_LINEBREAK
-                           "Content-Transfer-Encoding: 8bit" MSG_LINEBREAK));
-              MimeWriteAString(
-                  obj,
-                  NS_LITERAL_CSTRING(
-                      "Content-Disposition: inline; filename=\"Deleted: "));
+              status = MimeWriteAString(obj, NS_LITERAL_CSTRING("\"" MSG_LINEBREAK
+                                                 "Content-Transfer-Encoding: 8bit" MSG_LINEBREAK));
+              MimeWriteAString(obj, NS_LITERAL_CSTRING(
+                                        "Content-Disposition: inline; filename=\"Deleted: "));
               MimeWriteAString(obj, fileName);
-              MimeWriteAString(
-                  obj, NS_LITERAL_CSTRING(
-                           "\"" MSG_LINEBREAK
-                           "X-Mozilla-Altered: AttachmentDeleted; date=\""));
+              MimeWriteAString(obj, NS_LITERAL_CSTRING("\"" MSG_LINEBREAK
+                                        "X-Mozilla-Altered: AttachmentDeleted; date=\""));
             }
             nsCString result;
             char timeBuffer[128];
@@ -268,13 +257,11 @@ static int MimeMultipart_parse_line(const char *line, int32_t length,
                                    "%a %b %d %H:%M:%S %Y", &now);
             MimeWriteAString(obj, nsDependentCString(timeBuffer));
             MimeWriteAString(obj, NS_LITERAL_CSTRING("\"" MSG_LINEBREAK));
-            MimeWriteAString(
-                obj,
-                NS_LITERAL_CSTRING(
-                    MSG_LINEBREAK
-                    "You deleted an attachment from this message. The original "
-                    "MIME headers for the attachment were:" MSG_LINEBREAK));
+            MimeWriteAString(obj, NS_LITERAL_CSTRING(MSG_LINEBREAK
+                                      "You deleted an attachment from this message. The original "
+                                      "MIME headers for the attachment were:" MSG_LINEBREAK));
             MimeHeaders_write_raw_headers(mult->hdrs, obj->options, false);
+            // clang-format on
           }
           int32_t old_nchildren = container->nchildren;
           status = ((MimeMultipartClass *)obj->clazz)->create_child(obj);
@@ -441,11 +428,6 @@ static int MimeMultipart_create_child(MimeObject *obj) {
     if (!mime_typep(obj, (MimeObjectClass *)&mimeMultipartRelatedClass) &&
         !mime_typep(obj, (MimeObjectClass *)&mimeMultipartAlternativeClass) &&
         !mime_typep(obj, (MimeObjectClass *)&mimeMultipartSignedClass) &&
-#  ifdef MIME_DETAIL_CHECK
-        !mime_typep(body, (MimeObjectClass *)&mimeMultipartRelatedClass) &&
-        !mime_typep(body, (MimeObjectClass *)&mimeMultipartAlternativeClass) &&
-        !mime_typep(body, (MimeObjectClass *)&mimeMultipartSignedClass)
-#  else
         /* bug 21869 -- due to the fact that we are not generating the
            correct mime class object for content-typ multipart/signed part
            the above check failed. to solve the problem in general and not
@@ -453,10 +435,9 @@ static int MimeMultipart_create_child(MimeObject *obj) {
            draft we can simply make sure that the child is not a multipart
            mime object. this way we could have a proper decomposing message
            part functions set correctly */
-        !mime_typep(body, (MimeObjectClass *)&mimeMultipartClass)
-#  endif
-        && !(mime_typep(body, (MimeObjectClass *)&mimeExternalObjectClass) &&
-             !strcmp(body->content_type, "text/x-vcard"))) {
+        !mime_typep(body, (MimeObjectClass *)&mimeMultipartClass) &&
+        !(mime_typep(body, (MimeObjectClass *)&mimeExternalObjectClass) &&
+          !strcmp(body->content_type, "text/x-vcard"))) {
       status = obj->options->decompose_file_init_fn(
           obj->options->stream_closure, mult->hdrs);
       if (status < 0) return status;
@@ -531,17 +512,10 @@ static int MimeMultipart_close_child(MimeObject *object) {
       if (object->options && object->options->decompose_file_p &&
           object->options->is_multipart_msg &&
           object->options->decompose_file_close_fn) {
-        if (!mime_typep(object,
-                        (MimeObjectClass *)&mimeMultipartRelatedClass) &&
-            !mime_typep(object,
-                        (MimeObjectClass *)&mimeMultipartAlternativeClass) &&
+        // clang-format off
+        if (!mime_typep(object, (MimeObjectClass *)&mimeMultipartRelatedClass) &&
+            !mime_typep(object, (MimeObjectClass *)&mimeMultipartAlternativeClass) &&
             !mime_typep(object, (MimeObjectClass *)&mimeMultipartSignedClass) &&
-#  ifdef MIME_DETAIL_CHECK
-            !mime_typep(kid, (MimeObjectClass *)&mimeMultipartRelatedClass) &&
-            !mime_typep(kid,
-                        (MimeObjectClass *)&mimeMultipartAlternativeClass) &&
-            !mime_typep(kid, (MimeObjectClass *)&mimeMultipartSignedClass)
-#  else
             /* bug 21869 -- due to the fact that we are not generating the
                correct mime class object for content-typ multipart/signed part
                the above check failed. to solve the problem in general and not
@@ -549,14 +523,14 @@ static int MimeMultipart_close_child(MimeObject *object) {
                draft we can simply make sure that the child is not a multipart
                mime object. this way we could have a proper decomposing message
                part functions set correctly */
-            !mime_typep(kid, (MimeObjectClass *)&mimeMultipartClass)
-#  endif
-            && !(mime_typep(kid, (MimeObjectClass *)&mimeExternalObjectClass) &&
-                 !strcmp(kid->content_type, "text/x-vcard"))) {
+            !mime_typep(kid, (MimeObjectClass *)&mimeMultipartClass) &&
+            !(mime_typep(kid, (MimeObjectClass *)&mimeExternalObjectClass) &&
+              !strcmp(kid->content_type, "text/x-vcard"))) {
           status = object->options->decompose_file_close_fn(
               object->options->stream_closure);
           if (status < 0) return status;
         }
+        // clang-format on
       }
 #endif /* MIME_DRAFTS */
     }
@@ -584,11 +558,6 @@ static int MimeMultipart_parse_child_line(MimeObject *obj, const char *line,
     if (!mime_typep(obj, (MimeObjectClass *)&mimeMultipartAlternativeClass) &&
         !mime_typep(obj, (MimeObjectClass *)&mimeMultipartRelatedClass) &&
         !mime_typep(obj, (MimeObjectClass *)&mimeMultipartSignedClass) &&
-#  ifdef MIME_DETAIL_CHECK
-        !mime_typep(kid, (MimeObjectClass *)&mimeMultipartAlternativeClass) &&
-        !mime_typep(kid, (MimeObjectClass *)&mimeMultipartRelatedClass) &&
-        !mime_typep(kid, (MimeObjectClass *)&mimeMultipartSignedClass)
-#  else
         /* bug 21869 -- due to the fact that we are not generating the
            correct mime class object for content-typ multipart/signed part
            the above check failed. to solve the problem in general and not
@@ -596,10 +565,9 @@ static int MimeMultipart_parse_child_line(MimeObject *obj, const char *line,
            draft we can simply make sure that the child is not a multipart
            mime object. this way we could have a proper decomposing message
            part functions set correctly */
-        !mime_typep(kid, (MimeObjectClass *)&mimeMultipartClass)
-#  endif
-        && !(mime_typep(kid, (MimeObjectClass *)&mimeExternalObjectClass) &&
-             !strcmp(kid->content_type, "text/x-vcard")))
+        !mime_typep(kid, (MimeObjectClass *)&mimeMultipartClass) &&
+        !(mime_typep(kid, (MimeObjectClass *)&mimeExternalObjectClass) &&
+          !strcmp(kid->content_type, "text/x-vcard")))
       return obj->options->decompose_file_output_fn(
           line, length, obj->options->stream_closure);
   }

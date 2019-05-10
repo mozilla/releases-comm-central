@@ -129,25 +129,25 @@ struct MimeObject {
   MimeObjectClass *clazz; /* Pointer to class object, for `type-of' */
 
   MimeHeaders *headers; /* The header data associated with this object;
-              this is where the content-type, disposition,
-              description, and other meta-data live.
+                           this is where the content-type, disposition,
+                           description, and other meta-data live.
 
-              For example, the outermost message/rfc822 object
-              would have NULL here (since it has no parent,
-              thus no headers to describe it.)  However, a
-              multipart/mixed object, which was the sole
-              child of that message/rfc822 object, would have
-              here a copy of the headers which began the
-              parent object (the headers which describe the
-              child.)
-            */
+                           For example, the outermost message/rfc822 object
+                           would have NULL here (since it has no parent,
+                           thus no headers to describe it.)  However, a
+                           multipart/mixed object, which was the sole
+                           child of that message/rfc822 object, would have
+                           here a copy of the headers which began the
+                           parent object (the headers which describe the
+                           child.)
+                         */
 
   char *content_type; /* The MIME content-type and encoding.  */
   char *encoding;     /* In most cases, these will be the same as the
-                values to be found in the `headers' object,
-                but in some cases, the values in these slots
-                will be more correct than the headers.
-              */
+                         values to be found in the `headers' object,
+                         but in some cases, the values in these slots
+                         will be more correct than the headers.
+                       */
 
   MimeObject *parent; /* Backpointer to a MimeContainer object. */
 
@@ -162,10 +162,10 @@ struct MimeObject {
                                 are never shown as attachments. */
 
   /* Read-buffer and write-buffer (on input, `parse_buffer' uses ibuffer to
-   compose calls to `parse_line'; on output, `obuffer' is used in various
-   ways by various routines.)  These buffers are created and grow as needed.
-   `ibuffer' should be generally be considered hands-off, and `obuffer'
-   should generally be considered fair game.
+     compose calls to `parse_line'; on output, `obuffer' is used in various
+     ways by various routines.)  These buffers are created and grow as needed.
+     `ibuffer' should be generally be considered hands-off, and `obuffer'
+     should generally be considered fair game.
    */
   char *ibuffer, *obuffer;
   int32_t ibuffer_size, obuffer_size;

@@ -66,12 +66,12 @@ static int MimeInlineTextHTML_parse_begin(MimeObject *obj) {
       if (!buf) return MIME_OUT_OF_MEMORY;
 
       /* The value of the Content-Base header is a number of "words".
-      Whitespace in this header is not significant -- it is assumed
-      that any real whitespace in the URL has already been encoded,
-      and whitespace has been inserted to allow the lines in the
-      mail header to be wrapped reasonably.  Creators are supposed
-      to insert whitespace every 40 characters or less.
-    */
+        Whitespace in this header is not significant -- it is assumed
+        that any real whitespace in the URL has already been encoded,
+        and whitespace has been inserted to allow the lines in the
+        mail header to be wrapped reasonably.  Creators are supposed
+        to insert whitespace every 40 characters or less.
+      */
       PL_strncpyz(buf, "<BASE HREF=\"", buflen);
       out = buf + strlen(buf);
 
@@ -173,9 +173,9 @@ void MimeInlineTextHTML_insert_lang_div(MimeObject *obj, nsCString &message) {
   index = message.FindChar('>', index) + 1;
 
   // Insert <div class="moz-text-html" lang="..."> for the following two
-  // purposes: 1) Users can configure their HTML display via CSS for
-  // .moz-text-html. 2) The language group in the 'lang' attribure is used by
-  // Gecko to determine
+  // purposes:
+  // 1) Users can configure their HTML display via CSS for .moz-text-html.
+  // 2) The language group in the 'lang' attribure is used by Gecko to determine
   //    which font to use.
   int32_t fontSize;            // default font size
   int32_t fontSizePercentage;  // size percentage

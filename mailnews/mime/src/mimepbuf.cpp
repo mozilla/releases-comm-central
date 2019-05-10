@@ -52,9 +52,8 @@ struct MimePartBufferData {
   int32_t part_buffer_fp;   /* Active length. */
   int32_t part_buffer_size; /* How big it is. */
 
-  nsCOMPtr<nsIFile>
-      file_buffer; /* The nsIFile of a temp file used when we
-                                        run out of room in the head_buffer. */
+  nsCOMPtr<nsIFile> file_buffer; /* The nsIFile of a temp file used when we
+                                    run out of room in the head_buffer. */
   nsCOMPtr<nsIInputStream> input_file_stream;   /* A stream to it. */
   nsCOMPtr<nsIOutputStream> output_file_stream; /* A stream to it. */
   MimePartBufferData()
@@ -116,15 +115,14 @@ int MimePartBufferWrite(MimePartBufferData *data, const char *buf,
   if (!data || !buf || size <= 0) return -1;
 
   /* If we don't yet have a buffer (either memory or file) try and make a
-    memory buffer.
-    */
+     memory buffer.
+   */
   if (!data->part_buffer && !data->file_buffer) {
     int target_size = TARGET_MEMORY_BUFFER_SIZE;
     while (target_size > 0) {
       data->part_buffer = (char *)PR_MALLOC(target_size);
-      if (data->part_buffer) break;                /* got it! */
-      target_size -= TARGET_MEMORY_BUFFER_QUANTUM; /* decrease it and try
-       again */
+      if (data->part_buffer) break;                 // got it!
+      target_size -= TARGET_MEMORY_BUFFER_QUANTUM;  // decrease it and try again
     }
 
     if (data->part_buffer)

@@ -12,42 +12,45 @@
  * 04/20/2000       IBM Corp.      OS/2 VisualAge build.
  */
 
+// clang-format off
 #include "nsCOMPtr.h"
-#include "mimeobj.h"  /*  MimeObject (abstract) */
-#include "mimecont.h" /*   |--- MimeContainer (abstract) */
-#include "mimemult.h" /*   |     |--- MimeMultipart (abstract) */
-#include "mimemmix.h" /*   |     |     |--- MimeMultipartMixed */
-#include "mimemdig.h" /*   |     |     |--- MimeMultipartDigest */
-#include "mimempar.h" /*   |     |     |--- MimeMultipartParallel */
-#include "mimemalt.h" /*   |     |     |--- MimeMultipartAlternative */
-#include "mimemrel.h" /*   |     |     |--- MimeMultipartRelated */
-#include "mimemapl.h" /*   |     |     |--- MimeMultipartAppleDouble */
-#include "mimesun.h"  /*   |     |     |--- MimeSunAttachment */
-#include "mimemsig.h" /*   |     |     |--- MimeMultipartSigned (abstract)*/
+#include "mimeobj.h"   /*  MimeObject (abstract) */
+#include "mimecont.h"  /*   |--- MimeContainer (abstract) */
+#include "mimemult.h"  /*   |     |--- MimeMultipart (abstract) */
+#include "mimemmix.h"  /*   |     |     |--- MimeMultipartMixed */
+#include "mimemdig.h"  /*   |     |     |--- MimeMultipartDigest */
+#include "mimempar.h"  /*   |     |     |--- MimeMultipartParallel */
+#include "mimemalt.h"  /*   |     |     |--- MimeMultipartAlternative */
+#include "mimemrel.h"  /*   |     |     |--- MimeMultipartRelated */
+#include "mimemapl.h"  /*   |     |     |--- MimeMultipartAppleDouble */
+#include "mimesun.h"   /*   |     |     |--- MimeSunAttachment */
+#include "mimemsig.h"  /*   |     |     |--- MimeMultipartSigned (abstract)*/
 #ifdef ENABLE_SMIME
-#  include "mimemcms.h" /*   |     |           |---MimeMultipartSignedCMS */
+#include "mimemcms.h"  /*   |     |           |---MimeMultipartSignedCMS */
 #endif
-#include "mimecryp.h" /*   |     |--- MimeEncrypted (abstract) */
+#include "mimecryp.h"  /*   |     |--- MimeEncrypted (abstract) */
 #ifdef ENABLE_SMIME
-#  include "mimecms.h" /*   |     |     |--- MimeEncryptedPKCS7 */
+#include "mimecms.h"   /*   |     |     |--- MimeEncryptedPKCS7 */
 #endif
-#include "mimemsg.h"  /*   |     |--- MimeMessage */
-#include "mimeunty.h" /*   |     |--- MimeUntypedText */
-#include "mimeleaf.h" /*   |--- MimeLeaf (abstract) */
-#include "mimetext.h" /*   |     |--- MimeInlineText (abstract) */
-#include "mimetpla.h" /*   |     |     |--- MimeInlineTextPlain */
-#include "mimethpl.h" /*   |     |     |     |--- M.I.TextHTMLAsPlaintext */
-#include "mimetpfl.h" /*   |     |     |--- MimeInlineTextPlainFlowed */
-#include "mimethtm.h" /*   |     |     |--- MimeInlineTextHTML */
-#include "mimethsa.h" /*   |     |     |     |--- M.I.TextHTMLSanitized */
+#include "mimemsg.h"   /*   |     |--- MimeMessage */
+#include "mimeunty.h"  /*   |     |--- MimeUntypedText */
+#include "mimeleaf.h"  /*   |--- MimeLeaf (abstract) */
+#include "mimetext.h"  /*   |     |--- MimeInlineText (abstract) */
+#include "mimetpla.h"  /*   |     |     |--- MimeInlineTextPlain */
+#include "mimethpl.h"  /*   |     |     |     |--- M.I.TextHTMLAsPlaintext */
+#include "mimetpfl.h"  /*   |     |     |--- MimeInlineTextPlainFlowed */
+#include "mimethtm.h"  /*   |     |     |--- MimeInlineTextHTML */
+#include "mimethsa.h"  /*   |     |     |     |--- M.I.TextHTMLSanitized */
 #include "mimeTextHTMLParsed.h" /*|     |     |--- M.I.TextHTMLParsed */
-#include "mimetric.h"           /*   |     |     |--- MimeInlineTextRichtext */
-#include "mimetenr.h" /*   |     |     |     |--- MimeInlineTextEnriched */
+#include "mimetric.h"  /*   |     |     |--- MimeInlineTextRichtext */
+#include "mimetenr.h"  /*   |     |     |     |--- MimeInlineTextEnriched */
 /* SUPPORTED VIA PLUGIN     |     |     |--- MimeInlineTextVCard */
-#include "mimeiimg.h" /*   |     |--- MimeInlineImage */
-#include "mimeeobj.h" /*   |     |--- MimeExternalObject */
-#include "mimeebod.h" /*   |--- MimeExternalBody */
-                      /* If you add classes here,also add them to mimei.h */
+#include "mimeiimg.h"  /*   |     |--- MimeInlineImage */
+#include "mimeeobj.h"  /*   |     |--- MimeExternalObject */
+#include "mimeebod.h"  /*   |--- MimeExternalBody */
+                       /* If you add classes here,also add them to mimei.h */
+// clang-format on
+
 #include "prlog.h"
 #include "prmem.h"
 #include "prenv.h"
