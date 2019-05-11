@@ -315,7 +315,7 @@ var gDataMigrator = {
         for (let prof of profiles) {
             let dirEnum = prof.directoryEntries;
             while (dirEnum.hasMoreElements()) {
-                let profile = dirEnum.getNext().QueryInterface(Ci.nsIFile);
+                let profile = dirEnum.nextFile;
                 if (profile.isFile()) {
                     continue;
                 } else {
@@ -344,7 +344,7 @@ var gDataMigrator = {
 
             let i = 1;
             while (dirs.hasMoreElements()) {
-                let dataDir = dirs.getNext().QueryInterface(Ci.nsIFile);
+                let dataDir = dirs.nextFile;
                 let dataStore = dataDir.clone();
                 dataStore.append("corestorage.ics");
                 if (!dataStore.exists()) {
@@ -441,7 +441,7 @@ var gDataMigrator = {
             let calManager = cal.getCalendarManager();
             let dirs = aDataDir.directoryEntries;
             while (dirs.hasMoreElements()) {
-                let dataDir = dirs.getNext().QueryInterface(Ci.nsIFile);
+                let dataDir = dirs.nextFile;
                 let dataStore = dataDir.clone();
                 dataStore.append("calendar.ics");
                 evoDataMigrate(dataStore);

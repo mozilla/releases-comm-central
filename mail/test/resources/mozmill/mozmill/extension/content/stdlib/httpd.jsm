@@ -1783,7 +1783,7 @@ function defaultIndexHandler(metadata, response) {
   var fileList = [];
   var files = directory.directoryEntries;
   while (files.hasMoreElements()) {
-    var f = files.getNext().QueryInterface(Ci.nsIFile);
+    var f = files.nextFile;
     var name = f.leafName;
     if (!f.isHidden() &&
         (name.charAt(name.length - 1) != HIDDEN_CHAR ||

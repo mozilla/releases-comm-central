@@ -651,7 +651,7 @@ var GlodaIMIndexer = {
     // _knownFiles tree as we traverse.
     let children = dir.directoryEntries;
     while (children.hasMoreElements()) {
-      let proto = children.getNext().QueryInterface(Ci.nsIFile);
+      let proto = children.nextFile;
       if (!proto.isDirectory())
         continue;
       let protoName = proto.leafName;
@@ -660,7 +660,7 @@ var GlodaIMIndexer = {
       let protoObj = this._knownFiles[protoName];
       let accounts = proto.directoryEntries;
       while (accounts.hasMoreElements()) {
-        let account = accounts.getNext().QueryInterface(Ci.nsIFile);
+        let account = accounts.nextFile;
         if (!account.isDirectory())
           continue;
         let accountName = account.leafName;
@@ -669,7 +669,7 @@ var GlodaIMIndexer = {
         let accountObj = protoObj[accountName];
         let convs = account.directoryEntries;
         while (convs.hasMoreElements()) {
-          let conv = convs.getNext().QueryInterface(Ci.nsIFile);
+          let conv = convs.nextFile;
           let convName = conv.leafName;
           if (!conv.isDirectory() || convName == ".system")
             continue;
@@ -691,7 +691,7 @@ var GlodaIMIndexer = {
 
     let sessions = folder.directoryEntries;
     while (sessions.hasMoreElements()) {
-      let file = sessions.getNext().QueryInterface(Ci.nsIFile);
+      let file = sessions.nextFile;
       let fileName = file.leafName;
       if (!file.isFile() || !file.isReadable() || !fileName.endsWith(".json") ||
           (Object.prototype.hasOwnProperty.call(aJob.convObj, fileName) &&

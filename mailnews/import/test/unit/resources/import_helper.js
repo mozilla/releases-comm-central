@@ -354,7 +354,7 @@ MailImportHelper.prototype = {
     let expectedEnumerator = expectedFolder.directoryEntries;
     let expectedSubFolders = [];
     while (expectedEnumerator.hasMoreElements()) {
-      let entry = expectedEnumerator.getNext().QueryInterface(Ci.nsIFile);
+      let entry = expectedEnumerator.nextFile;
       if (entry.isDirectory()) {
         expectedSubFolderCount++;
         expectedSubFolders.push(entry);

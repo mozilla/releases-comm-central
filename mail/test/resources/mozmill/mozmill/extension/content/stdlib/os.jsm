@@ -44,8 +44,7 @@ function listDirectory(file) {
   var entries = file.directoryEntries;
   var array = [];
   while (entries.hasMoreElements()) {
-    var entry = entries.getNext();
-    entry.QueryInterface(Ci.nsIFile);
+    let entry = entries.nextFile;
     array.push(entry);
   }
   return array;

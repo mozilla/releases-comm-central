@@ -60,7 +60,7 @@ function setupNNTPDaemon() {
   var files = [];
   var enumerator = auto_add.directoryEntries;
   while (enumerator.hasMoreElements())
-    files.push(enumerator.getNext().QueryInterface(Ci.nsIFile));
+    files.push(enumerator.nextFile);
 
   files.sort(function(a, b) {
     if (a.leafName == b.leafName) return 0;

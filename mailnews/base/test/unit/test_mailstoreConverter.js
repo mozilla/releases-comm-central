@@ -135,7 +135,7 @@ async function doMboxTest(srvName, mboxFilename, expectCnt) {
   let cnt = 0;
   let it = curDir.directoryEntries;
   while (it.hasMoreElements()) {
-    it.getNext();
+    it.nextFile;
     cnt++;
   }
 

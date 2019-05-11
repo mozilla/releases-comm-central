@@ -287,8 +287,7 @@ function getDirectoryEntries(aDir)
 
     let children = dir.directoryEntries;
     while (children.hasMoreElements()) {
-      let file = children.getNext()
-                         .QueryInterface(Ci.nsIFile);
+      let file = children.nextFile;
       results.push(file.leafName);
     }
   }

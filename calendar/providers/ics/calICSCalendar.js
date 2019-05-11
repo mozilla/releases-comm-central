@@ -677,7 +677,7 @@ calICSCalendar.prototype = {
             let dirEnum = backupDir.directoryEntries;
             let files = [];
             while (dirEnum.hasMoreElements()) {
-                let file = dirEnum.getNext().QueryInterface(Ci.nsIFile);
+                let file = dirEnum.nextFile;
                 if (file.isFile()) {
                     files.push({ name: file.leafName, lastmodified: file.lastModifiedTime });
                 }

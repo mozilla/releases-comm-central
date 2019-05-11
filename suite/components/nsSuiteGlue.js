@@ -555,7 +555,7 @@ SuiteGlue.prototype = {
     let enumerator = aSource.directoryEntries;
 
     while (enumerator.hasMoreElements()) {
-      let file = enumerator.getNext().QueryInterface(Ci.nsIFile);
+      let file = enumerator.nextFile;
 
       if (file.isDirectory()) {
         let subdir = aDestination.clone();

@@ -62,7 +62,7 @@ function checkConversion(source, target) {
   let sourceContents = source.directoryEntries;
 
   while (sourceContents.hasMoreElements()) {
-    let sourceContent = sourceContents.getNext().QueryInterface(Ci.nsIFile);
+    let sourceContent = sourceContents.nextFile;
     let sourceContentName = sourceContent.leafName;
     let ext = sourceContentName.substr(-4);
     let targetFile = FileUtils.File(OS.Path.join(target.path, sourceContentName));
@@ -82,7 +82,7 @@ function checkConversion(source, target) {
         let curContents = cur.directoryEntries;
         let curContentsCount = 0;
         while (curContents.hasMoreElements()) {
-          curContents.getNext();
+          curContents.nextFile;
           curContentsCount++;
         }
         Assert.equal(curContentsCount, 1000);

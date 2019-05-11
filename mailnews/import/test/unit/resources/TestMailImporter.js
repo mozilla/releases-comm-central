@@ -63,7 +63,7 @@ TestMailImpoter.prototype = {
     result.appendElement(descriptor);
     let entries = directory.directoryEntries;
     while (entries.hasMoreElements()) {
-      let entry = entries.getNext().QueryInterface(Ci.nsIFile);
+      let entry = entries.nextFile;
       if (entry.isDirectory())
         this._collectMailboxesInDirectory(entry, depth + 1, result);
     }
@@ -83,7 +83,7 @@ TestMailImpoter.prototype = {
 
     let entries = source.directoryEntries;
     while (entries.hasMoreElements()) {
-      let entry = entries.getNext().QueryInterface(Ci.nsIFile);
+      let entry = entries.nextFile;
       if (!entry.isFile())
         continue;
 

@@ -509,7 +509,7 @@ function check_JSON_backup(aIsAutomaticBackup) {
     let files = bookmarksBackupDir.directoryEntries;
     let backup_date = PlacesBackups.toISODateString(new Date());
     while (files.hasMoreElements()) {
-      let entry = files.getNext().QueryInterface(Ci.nsIFile);
+      let entry = files.nextFile;
       if (PlacesBackups.filenamesRegex.test(entry.leafName)) {
         profileBookmarksJSONFile = entry;
         break;

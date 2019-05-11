@@ -36,7 +36,7 @@ function checkConversion(aSource, aTarget) {
   let sourceContents = aSource.directoryEntries;
 
   while (sourceContents.hasMoreElements()) {
-    let sourceContent = sourceContents.getNext().QueryInterface(Ci.nsIFile);
+    let sourceContent = sourceContents.nextFile;
     let sourceContentName = sourceContent.leafName;
     let ext = sourceContentName.slice(-4);
     let targetFile = FileUtils.File(OS.Path.join(aTarget.path, sourceContentName));
@@ -57,7 +57,7 @@ function checkConversion(aSource, aTarget) {
         let curContents = cur.directoryEntries;
         let curContentsCount = 0;
         while (curContents.hasMoreElements()) {
-          curContents.getNext();
+          curContents.nextFile;
           curContentsCount += 1;
         }
         Assert.equal(curContentsCount, 8);

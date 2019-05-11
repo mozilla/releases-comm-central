@@ -56,7 +56,7 @@ function* streamMessages() {
   let fileNames = [];
   let msgFiles = do_get_file("../../../data/").directoryEntries;
   while (msgFiles.hasMoreElements()) {
-    let file = msgFiles.getNext();
+    let file = msgFiles.nextFile;
     let msgfileuri =
       Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
     if (msgfileuri.fileName.toLowerCase().startsWith("bodystructure")) {
