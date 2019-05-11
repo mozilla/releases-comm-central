@@ -37,9 +37,8 @@ nsresult JaBaseCppMsgFolder::GetDatabase() {
       rv = msgDBService->CreateNewDB(this, getter_AddRefs(mDatabase));
       NS_ENSURE_STATE(mDatabase);
       // not sure about this ... the issue is that if the summary is not valid,
-      // then
-      //  the db does not get added to the cache in the future, and reindexes
-      //  do not show all of the messages.
+      // then the db does not get added to the cache in the future, and
+      // reindexes do not show all of the messages.
       // mDatabase->SetSummaryValid(true);
       mDatabase->SetSummaryValid(false);
       CreateDummyFile(this);
@@ -63,11 +62,10 @@ nsresult JaBaseCppMsgFolder::GetDatabase() {
     if (mDatabase) {
       //
       // When I inadvertently deleted the out-of-date database, I hit this code
-      // with
-      //  the db's m_dbFolderInfo as null from the delete, yet the local
-      //  mDatabase reference kept the database alive. So I hit an assert when I
-      //  tried to open the database. Be careful if you try to fix the
-      //  out-of-date issues!
+      // with the db's m_dbFolderInfo as null from the delete, yet the local
+      // mDatabase reference kept the database alive. So I hit an assert when I
+      // tried to open the database. Be careful if you try to fix the
+      // out-of-date issues!
       //
       // UpdateNewMessages();
       if (mAddListener) mDatabase->AddListener(this);
