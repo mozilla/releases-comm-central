@@ -106,8 +106,7 @@ class nsMailboxProtocol : public nsMsgProtocol {
 
   ////////////////////////////////////////////////////////////////////////////////////////
   // Protocol Methods --> This protocol is state driven so each protocol method
-  // is
-  //            designed to re-act to the current "state". I've attempted to
+  //            is designed to re-act to the current "state". I've attempted to
   //            group them together based on functionality.
   ////////////////////////////////////////////////////////////////////////////////////////
 

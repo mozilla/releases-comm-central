@@ -336,9 +336,8 @@ NS_IMETHODIMP nsMsgLocalMailFolder::GetDatabaseWithReparse(
           folderOpen == NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE) {
         if (NS_FAILED(rv = ParseFolder(aMsgWindow, aReparseUrlListener))) {
           if (rv == NS_MSG_FOLDER_BUSY) {
-            mDatabase->RemoveListener(
-                this);  // we need to null out the db so that parsing gets
-                        // kicked off again.
+            // we need to null out the db so that parsing gets kicked off again.
+            mDatabase->RemoveListener(this);
             mDatabase = nullptr;
             ThrowAlertMsg("parsingFolderFailed", aMsgWindow);
           }
@@ -792,8 +791,8 @@ NS_IMETHODIMP nsMsgLocalMailFolder::Rename(const nsAString &aNewName,
       parentFolder->PropagateDelete(this, false, msgWindow);
       parentFolder->NotifyItemAdded(newFolder);
     }
-    SetFilePath(
-        nullptr);  // forget our path, since this folder object renamed itself
+    // Forget our path, since this folder object renamed itself.
+    SetFilePath(nullptr);
     newFolder->NotifyFolderEvent(kRenameCompleted);
 
     nsCOMPtr<nsIMsgFolderNotificationService> notifier(
@@ -2173,8 +2172,9 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
       }
       // we can do undo with the dest folder db, see bug #198909
       // else
-      //  mCopyState->m_undoMsgTxn = nullptr; //null out the transaction because
-      //  we can't undo w/o the msg db
+      //   mCopyState->m_undoMsgTxn = nullptr;  // null out the transaction
+      //                                        // because we can't undo w/o
+      //                                        // the msg db
     }
 
     // if we plan on allowing undo, (if we have a mCopyState->m_parseMsgState or

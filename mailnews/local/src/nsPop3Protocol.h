@@ -23,13 +23,15 @@
 #include "nsCOMPtr.h"
 
 /* A more guaranteed way of making sure that we never get duplicate messages
-is to always get each message's UIDL (if the server supports it)
-and use these for storing up deletes which were not committed on the
-server.  Based on our experience, it looks like we do NOT need to
-do this (it has performance tradeoffs, etc.).  To turn it on, three
-things need to happen: #define POP_ALWAYS_USE_UIDL_FOR_DUPLICATES, verify that
-the uidl's are correctly getting added when the delete response is received,
-and change the POP3_QUIT_RESPONSE state to flush the newly committed deletes. */
+   is to always get each message's UIDL (if the server supports it)
+   and use these for storing up deletes which were not committed on the
+   server.  Based on our experience, it looks like we do NOT need to
+   do this (it has performance tradeoffs, etc.).  To turn it on, three
+   things need to happen: #define POP_ALWAYS_USE_UIDL_FOR_DUPLICATES, verify
+   that the uidl's are correctly getting added when the delete response is
+   received, and change the POP3_QUIT_RESPONSE state to flush the newly
+   committed deletes.
+ */
 
 /*
  * Cannot have the following line uncommented. It is defined.
@@ -85,58 +87,50 @@ enum Pop3CapabilityEnum {
 
 enum Pop3StatesEnum {
   POP3_READ_PASSWORD,                          // 0
-                                               //
   POP3_START_CONNECT,                          // 1
   POP3_FINISH_CONNECT,                         // 2
   POP3_WAIT_FOR_RESPONSE,                      // 3
   POP3_WAIT_FOR_START_OF_CONNECTION_RESPONSE,  // 4
   POP3_SEND_USERNAME,                          // 5
-
-  POP3_SEND_PASSWORD,  // 6
-  POP3_SEND_STAT,      // 7
-  POP3_GET_STAT,       // 8
-  POP3_SEND_LIST,      // 9
-  POP3_GET_LIST,       // 10
-
-  POP3_SEND_UIDL_LIST,        // 11
-  POP3_GET_UIDL_LIST,         // 12
-  POP3_SEND_XTND_XLST_MSGID,  // 13
-  POP3_GET_XTND_XLST_MSGID,   // 14
-  POP3_GET_MSG,               // 15
-
-  POP3_SEND_TOP,       // 16
-  POP3_TOP_RESPONSE,   // 17
-  POP3_SEND_RETR,      // 18
-  POP3_RETR_RESPONSE,  // 19
-  POP3_SEND_DELE,      // 20
-
-  POP3_DELE_RESPONSE,   // 21
-  POP3_SEND_QUIT,       // 22
-  POP3_DONE,            // 23
-  POP3_ERROR_DONE,      // 24
-  POP3_FREE,            // 25
-  POP3_SEND_AUTH,       // 26
-  POP3_AUTH_RESPONSE,   // 27
-  POP3_SEND_CAPA,       // 28
-  POP3_CAPA_RESPONSE,   // 29
-  POP3_PROCESS_AUTH,    // 30
-  POP3_NEXT_AUTH_STEP,  // 31
-
-  POP3_AUTH_LOGIN,           // 32
-  POP3_AUTH_LOGIN_RESPONSE,  // 33
-  POP3_AUTH_NTLM,            // 34
-  POP3_AUTH_NTLM_RESPONSE,   // 35
-  POP3_SEND_XSENDER,         // 36
-  POP3_XSENDER_RESPONSE,     // 37
-  POP3_SEND_GURL,            // 38
-
-  POP3_GURL_RESPONSE,  // 39
-  POP3_QUIT_RESPONSE,  // 40
-  POP3_TLS_RESPONSE,   // 41
-
-  POP3_AUTH_GSSAPI,        // 42
-  POP3_AUTH_GSSAPI_FIRST,  // 43
-  POP3_AUTH_GSSAPI_STEP,   // 44
+  POP3_SEND_PASSWORD,                          // 6
+  POP3_SEND_STAT,                              // 7
+  POP3_GET_STAT,                               // 8
+  POP3_SEND_LIST,                              // 9
+  POP3_GET_LIST,                               // 10
+  POP3_SEND_UIDL_LIST,                         // 11
+  POP3_GET_UIDL_LIST,                          // 12
+  POP3_SEND_XTND_XLST_MSGID,                   // 13
+  POP3_GET_XTND_XLST_MSGID,                    // 14
+  POP3_GET_MSG,                                // 15
+  POP3_SEND_TOP,                               // 16
+  POP3_TOP_RESPONSE,                           // 17
+  POP3_SEND_RETR,                              // 18
+  POP3_RETR_RESPONSE,                          // 19
+  POP3_SEND_DELE,                              // 20
+  POP3_DELE_RESPONSE,                          // 21
+  POP3_SEND_QUIT,                              // 22
+  POP3_DONE,                                   // 23
+  POP3_ERROR_DONE,                             // 24
+  POP3_FREE,                                   // 25
+  POP3_SEND_AUTH,                              // 26
+  POP3_AUTH_RESPONSE,                          // 27
+  POP3_SEND_CAPA,                              // 28
+  POP3_CAPA_RESPONSE,                          // 29
+  POP3_PROCESS_AUTH,                           // 30
+  POP3_NEXT_AUTH_STEP,                         // 31
+  POP3_AUTH_LOGIN,                             // 32
+  POP3_AUTH_LOGIN_RESPONSE,                    // 33
+  POP3_AUTH_NTLM,                              // 34
+  POP3_AUTH_NTLM_RESPONSE,                     // 35
+  POP3_SEND_XSENDER,                           // 36
+  POP3_XSENDER_RESPONSE,                       // 37
+  POP3_SEND_GURL,                              // 38
+  POP3_GURL_RESPONSE,                          // 39
+  POP3_QUIT_RESPONSE,                          // 40
+  POP3_TLS_RESPONSE,                           // 41
+  POP3_AUTH_GSSAPI,                            // 42
+  POP3_AUTH_GSSAPI_FIRST,                      // 43
+  POP3_AUTH_GSSAPI_STEP,                       // 44
 
   /**
    * Async wait to obtain the password and deal with the result.
@@ -178,9 +172,9 @@ typedef struct Pop3MsgInfo {
 
 typedef struct _Pop3ConData {
   bool leave_on_server;      /* Whether we're supposed to leave messages
-                                  on server. */
+                                on server. */
   bool headers_only;         /* Whether to just fetch headers on initial
-                                  downloads. */
+                                downloads. */
   int32_t size_limit;        /* Leave messages bigger than this on the
                                 server and only download a partial
                                 message. */
@@ -201,14 +195,13 @@ typedef struct _Pop3ConData {
   int32_t real_new_counter;
   int32_t number_of_messages;
   Pop3MsgInfo* msg_info; /* Message sizes and uidls (used only if we
-                           are playing games that involve leaving
-                           messages on the server). */
+                            are playing games that involve leaving
+                            messages on the server). */
   int32_t last_accessed_msg;
   int32_t cur_msg_size;
   bool truncating_cur_msg; /* are we using top and uidl? */
   bool msg_del_started;    /* True if MSG_BeginMailDel...
-                            * called
-                            */
+                            * called */
   bool only_check_for_new_mail;
   nsMsgBiffState biffstate; /* If just checking for, what the answer is. */
 
@@ -217,9 +210,9 @@ typedef struct _Pop3ConData {
   void* msg_closure;
 
   bool graph_progress_bytes_p; /* whether we should display info about
-                                    the bytes transferred (usually we
-                                    display info about the number of
-                                    messages instead.) */
+                                  the bytes transferred (usually we
+                                  display info about the number of
+                                  messages instead.) */
 
   Pop3UidlHost* uidlinfo;
   PLHashTable* newuidl;

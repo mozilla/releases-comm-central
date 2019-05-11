@@ -31,9 +31,9 @@
 #include "nsServiceManagerUtils.h"
 #include "mozilla/Services.h"
 
-#define PREF_MAIL_ROOT_POP3 \
-  "mail.root.pop3"  // old - for backward compatibility only
 #define PREF_MAIL_ROOT_POP3_REL "mail.root.pop3-rel"
+// old - for backward compatibility only
+#define PREF_MAIL_ROOT_POP3 "mail.root.pop3"
 
 static NS_DEFINE_CID(kPop3UrlCID, NS_POP3URL_CID);
 

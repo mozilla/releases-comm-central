@@ -1182,32 +1182,32 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
   // we don't aggregate bcc, as we only generate it locally,
   // and we don't use multiple lines
 
-  sender =
-      (m_from.length
-           ? &m_from
-           : m_sender.length ? &m_sender
-                             : m_envelope_from.length ? &m_envelope_from : 0);
-  recipient =
-      (to.length ? &to
-                 : cc.length ? &cc : m_newsgroups.length ? &m_newsgroups : 0);
-  ccList = (cc.length ? &cc : 0);
-  bccList = (m_bccList.length ? &m_bccList : 0);
-  subject = (m_subject.length ? &m_subject : 0);
-  id = (m_message_id.length ? &m_message_id : 0);
-  references = (m_references.length ? &m_references : 0);
-  statush = (m_status.length ? &m_status : 0);
-  mozstatus = (m_mozstatus.length ? &m_mozstatus : 0);
-  mozstatus2 = (m_mozstatus2.length ? &m_mozstatus2 : 0);
-  date =
-      (m_date.length ? &m_date : m_envelope_date.length ? &m_envelope_date : 0);
+  // clang-format off
+  sender       = (m_from.length          ? &m_from          :
+                  m_sender.length        ? &m_sender        :
+                  m_envelope_from.length ? &m_envelope_from : 0);
+  recipient    = (to.length              ? &to              :
+                  cc.length              ? &cc              :
+                  m_newsgroups.length    ? &m_newsgroups    : 0);
+  ccList       = (cc.length              ? &cc              : 0);
+  bccList      = (m_bccList.length       ? &m_bccList       : 0);
+  subject      = (m_subject.length       ? &m_subject       : 0);
+  id           = (m_message_id.length    ? &m_message_id    : 0);
+  references   = (m_references.length    ? &m_references    : 0);
+  statush      = (m_status.length        ? &m_status        : 0);
+  mozstatus    = (m_mozstatus.length     ? &m_mozstatus     : 0);
+  mozstatus2   = (m_mozstatus2.length    ? &m_mozstatus2    : 0);
+  date         = (m_date.length          ? &m_date          :
+                  m_envelope_date.length ? &m_envelope_date : 0);
   deliveryDate = (m_delivery_date.length ? &m_delivery_date : 0);
-  priority = (m_priority.length ? &m_priority : 0);
-  keywords = (m_keywords.length ? &m_keywords : 0);
-  mdn_dnt = (m_mdn_dnt.length ? &m_mdn_dnt : 0);
-  inReplyTo = (m_in_reply_to.length ? &m_in_reply_to : 0);
-  replyTo = (m_replyTo.length ? &m_replyTo : 0);
-  content_type = (m_content_type.length ? &m_content_type : 0);
-  account_key = (m_account_key.length ? &m_account_key : 0);
+  priority     = (m_priority.length      ? &m_priority      : 0);
+  keywords     = (m_keywords.length      ? &m_keywords      : 0);
+  mdn_dnt      = (m_mdn_dnt.length       ? &m_mdn_dnt       : 0);
+  inReplyTo    = (m_in_reply_to.length   ? &m_in_reply_to   : 0);
+  replyTo      = (m_replyTo.length       ? &m_replyTo       : 0);
+  content_type = (m_content_type.length  ? &m_content_type  : 0);
+  account_key  = (m_account_key.length   ? &m_account_key   : 0);
+  // clang-format on
 
   if (mozstatus) {
     if (mozstatus->length == 4) {
@@ -1220,10 +1220,8 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
           (nsMsgPriorityValue)((flags & nsMsgMessageFlags::Priorities) >> 13);
       flags &= ~nsMsgMessageFlags::Priorities;
     }
-    delta = (m_headerstartpos + (mozstatus->value - m_headers.GetBuffer()) -
-             (2 + X_MOZILLA_STATUS_LEN) /* 2 extra bytes for ": ". */
-             ) -
-            m_envelope_pos;
+    delta = m_headerstartpos + (mozstatus->value - m_headers.GetBuffer()) -
+            (X_MOZILLA_STATUS_LEN + 2 /* for ": " */) - m_envelope_pos;
   }
 
   if (mozstatus2) {
@@ -1322,12 +1320,12 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
       if (sender) m_newMsgHdr->SetAuthor(sender->value);
       if (recipient == &m_newsgroups) {
         /* In the case where the recipient is a newsgroup, truncate the string
-        at the first comma.  This is used only for presenting the thread list,
-        and newsgroup lines tend to be long and non-shared, and tend to bloat
-        the string table.  So, by only showing the first newsgroup, we can
-        reduce memory and file usage at the expense of only showing the one
-        group in the summary list, and only being able to sort on the first
-          group rather than the whole list.  It's worth it. */
+           at the first comma.  This is used only for presenting the thread
+           list, and newsgroup lines tend to be long and non-shared, and tend to
+           bloat the string table.  So, by only showing the first newsgroup, we
+           can reduce memory and file usage at the expense of only showing the
+           one group in the summary list, and only being able to sort on the
+           first group rather than the whole list.  It's worth it. */
         char *ch;
         ch = PL_strchr(recipient->value, ',');
         if (ch) {

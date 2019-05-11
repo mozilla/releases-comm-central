@@ -331,11 +331,12 @@ static void net_pop3_free_state(Pop3UidlHost *host) {
 }
 
 /*
-Look for a specific UIDL string in our hash tables, if we have it then we need
-to mark the message for deletion so that it can be deleted later. If the uidl of
-the message is not found, then the message was downloaded completely and already
-deleted from the server. So this only applies to messages kept on the server or
-too big for download. */
+   Look for a specific UIDL string in our hash tables, if we have it then we
+   need to mark the message for deletion so that it can be deleted later. If the
+   uidl of the message is not found, then the message was downloaded completely
+   and already deleted from the server. So this only applies to messages kept on
+   the server or too big for download.
+ */
 /* static */
 void nsPop3Protocol::MarkMsgInHashTable(PLHashTable *hashTable,
                                         const Pop3UidlEntry *uidlE,
@@ -1047,9 +1048,9 @@ nsresult nsPop3Protocol::LoadUrlInternal(nsIURI *aURL) {
     MsgUnescapeString(nsDependentCString(uidl), 0, unescapedData);
     m_pop3ConData->only_uidl = PL_strdup(unescapedData.get());
 
-    mSuppressListenerNotifications =
-        true;  // suppress on start and on stop because this url won't have any
-               // content to display
+    // Suppress on start and on stop because this url won't have any
+    // content to display.
+    mSuppressListenerNotifications = true;
   }
 
   m_pop3ConData->next_state = POP3_START_CONNECT;
@@ -2191,7 +2192,7 @@ int32_t nsPop3Protocol::GetStat() {
     nsCOMPtr<nsIMsgWindow> msgWindow;
     nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_url);
     if (mailnewsUrl) rv = mailnewsUrl->GetMsgWindow(getter_AddRefs(msgWindow));
-    //      NS_ASSERTION(NS_SUCCEEDED(rv) && msgWindow, "no msg window");
+    // NS_ASSERTION(NS_SUCCEEDED(rv) && msgWindow, "no msg window");
 
     rv = m_nsIPop3Sink->BeginMailDelivery(m_pop3ConData->only_uidl != nullptr,
                                           msgWindow,
@@ -3634,10 +3635,10 @@ nsresult nsPop3Protocol::ProcessProtocolState(nsIURI *url,
           /* update old style biff */
           if (!m_pop3ConData->only_check_for_new_mail) {
             /* We don't want to pop up a warning message any more (see
-            bug 54116), so instead we put the "no new messages" or
-            "retrieved x new messages"
-            in the status line.  Unfortunately, this tends to be running
-            in a progress pane, so we try to get the real pane and
+              bug 54116), so instead we put the "no new messages" or
+              "retrieved x new messages"
+              in the status line.  Unfortunately, this tends to be running
+              in a progress pane, so we try to get the real pane and
               show the message there. */
 
             if (m_totalDownloadSize <= 0) {

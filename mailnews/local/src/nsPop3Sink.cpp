@@ -647,9 +647,8 @@ nsresult nsPop3Sink::WriteLineToMailbox(const nsACString &buffer) {
                 NS_LITERAL_STRING(
                     ". "
                     "If you can reliably reproduce this, please report the "
-                    "steps "
-                    "you used to dev-apps-thunderbird@lists.mozilla.org or to "
-                    "bug 1308335 at bugzilla.mozilla.org. "
+                    "steps you used to dev-apps-thunderbird@lists.mozilla.org "
+                    "or to bug 1308335 at bugzilla.mozilla.org. "
                     "Resolving this problem will allow speeding up message "
                     "downloads."),
             NS_LITERAL_STRING(__FILE__), __LINE__, nsIScriptError::errorFlag);

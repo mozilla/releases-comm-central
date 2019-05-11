@@ -41,9 +41,9 @@
 static mozilla::LazyLogModule gMovemailLog("Movemail");
 #define LOG(args) MOZ_LOG(gMovemailLog, mozilla::LogLevel::Debug, args)
 
-#define PREF_MAIL_ROOT_MOVEMAIL \
-  "mail.root.movemail"  // old - for backward compatibility only
 #define PREF_MAIL_ROOT_MOVEMAIL_REL "mail.root.movemail-rel"
+// old - for backward compatibility only
+#define PREF_MAIL_ROOT_MOVEMAIL "mail.root.movemail"
 
 #define LOCK_SUFFIX ".lock"
 #define MOZLOCK_SUFFIX ".mozlock"
