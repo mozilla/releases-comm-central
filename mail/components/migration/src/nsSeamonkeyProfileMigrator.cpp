@@ -429,9 +429,10 @@ nsresult nsSeamonkeyProfileMigrator::CopySignatureFiles(
 nsresult nsSeamonkeyProfileMigrator::CopyMailFolders(
     PBStructArray& aMailServers, nsIPrefService* aPrefService) {
   // Each server has a .directory pref which points to the location of the mail
-  // data for that server. We need to do two things for that case... (1) Fix up
-  // the directory path for the new profile (2) copy the mail folder data from
-  // the source directory pref to the destination directory pref
+  // data for that server. We need to do two things for that case...
+  // (1) Fix up the directory path for the new profile
+  // (2) copy the mail folder data from the source directory pref to the
+  //     destination directory pref
 
   nsresult rv;
   uint32_t count = aMailServers.Length();
