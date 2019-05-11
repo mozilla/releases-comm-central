@@ -6,7 +6,6 @@
 #ifndef __nsSmtpServer_h_
 #define __nsSmtpServer_h_
 
-
 #include "nsString.h"
 #include "nsISmtpServer.h"
 #include "nsIPrefBranch.h"
@@ -15,30 +14,29 @@
 
 class nsSmtpServer : public nsISmtpServer,
                      public nsSupportsWeakReference,
-                     public nsIObserver
-{
-public:
-    nsSmtpServer();
-    nsresult Init();
+                     public nsIObserver {
+ public:
+  nsSmtpServer();
+  nsresult Init();
 
-    NS_DECL_ISUPPORTS
-    NS_DECL_NSISMTPSERVER
-    NS_DECL_NSIOBSERVER
+  NS_DECL_ISUPPORTS
+  NS_DECL_NSISMTPSERVER
+  NS_DECL_NSIOBSERVER
 
-private:
-    virtual ~nsSmtpServer();
-    nsCString mKey;
-    nsCOMPtr<nsIPrefBranch> mPrefBranch;
-    nsCOMPtr<nsIPrefBranch> mDefPrefBranch;
+ private:
+  virtual ~nsSmtpServer();
+  nsCString mKey;
+  nsCOMPtr<nsIPrefBranch> mPrefBranch;
+  nsCOMPtr<nsIPrefBranch> mDefPrefBranch;
 
-    nsresult getPrefs();
-    void getIntPrefWithDefault(const char *prefName, int32_t *val,
-                               int32_t defval);
-    nsresult GetPasswordWithoutUI();
-    nsCString GetServerURIInternal(const bool aIncludeUsername);
+  nsresult getPrefs();
+  void getIntPrefWithDefault(const char *prefName, int32_t *val,
+                             int32_t defval);
+  nsresult GetPasswordWithoutUI();
+  nsCString GetServerURIInternal(const bool aIncludeUsername);
 
-    nsString m_password;
-    bool m_logonFailed;
+  nsString m_password;
+  bool m_logonFailed;
 };
 
 #endif

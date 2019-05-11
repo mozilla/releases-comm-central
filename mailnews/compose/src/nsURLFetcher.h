@@ -27,9 +27,8 @@ class nsURLFetcher : public nsIURLFetcher,
                      public nsIURIContentListener,
                      public nsIInterfaceRequestor,
                      public nsIWebProgressListener,
-                     public nsSupportsWeakReference
-{
-public:
+                     public nsSupportsWeakReference {
+ public:
   nsURLFetcher();
 
   /* this macro defines QueryInterface, AddRef and Release for this class */
@@ -53,38 +52,40 @@ public:
   // Methods for nsIWebProgressListener
   NS_DECL_NSIWEBPROGRESSLISTENER
 
-protected:
-  nsresult InsertConverter(const char * aContentType);
+ protected:
+  nsresult InsertConverter(const char* aContentType);
 
-private:
+ private:
   virtual ~nsURLFetcher();
-  nsCOMPtr<nsIOutputStream>       mOutStream;               // the output file stream
-  nsCOMPtr<nsIFile>          mLocalFile;               // the output file itself
-  nsCOMPtr<nsIStreamListener>     mConverter;               // the stream converter, if needed
-  nsCString                  mConverterContentType;    // The content type of the converter
-  bool                            mStillRunning;  // Are we still running?
-  int32_t                         mTotalWritten;  // Size counter variable
-  char                            *mBuffer;                 // Buffer used for reading the data
-  uint32_t                        mBufferSize;              // Buffer size;
-  nsCString                  mContentType;             // The content type retrieved from the server
-  nsCString                  mCharset;                 // The charset retrieved from the server
-  RefPtr<nsMsgAttachmentHandler> mTagData;      // Tag data for callback...
-  nsAttachSaveCompletionCallback  mCallback;      // Callback to call once the file is saved...
-  nsCOMPtr<nsISupports>           mLoadCookie;    // load cookie used by the uri loader when we fetch the url
-  bool                            mOnStopRequestProcessed; // used to prevent calling OnStopRequest multiple times
-  bool                            mIsFile;        // This is used to check whether the URI is a local file.
+  nsCOMPtr<nsIOutputStream> mOutStream;    // the output file stream
+  nsCOMPtr<nsIFile> mLocalFile;            // the output file itself
+  nsCOMPtr<nsIStreamListener> mConverter;  // the stream converter, if needed
+  nsCString mConverterContentType;         // The content type of the converter
+  bool mStillRunning;                      // Are we still running?
+  int32_t mTotalWritten;                   // Size counter variable
+  char* mBuffer;                           // Buffer used for reading the data
+  uint32_t mBufferSize;                    // Buffer size;
+  nsCString mContentType;  // The content type retrieved from the server
+  nsCString mCharset;      // The charset retrieved from the server
+  RefPtr<nsMsgAttachmentHandler> mTagData;  // Tag data for callback...
+  nsAttachSaveCompletionCallback
+      mCallback;  // Callback to call once the file is saved...
+  nsCOMPtr<nsISupports>
+      mLoadCookie;  // load cookie used by the uri loader when we fetch the url
+  bool mOnStopRequestProcessed;  // used to prevent calling OnStopRequest
+                                 // multiple times
+  bool mIsFile;  // This is used to check whether the URI is a local file.
 
   friend class nsURLFetcherStreamConsumer;
 };
 
-
 /**
- * Stream consumer used for handling special content type like multipart/x-mixed-replace
+ * Stream consumer used for handling special content type like
+ * multipart/x-mixed-replace
  */
 
-class nsURLFetcherStreamConsumer : public nsIStreamListener
-{
-public:
+class nsURLFetcherStreamConsumer : public nsIStreamListener {
+ public:
   explicit nsURLFetcherStreamConsumer(nsURLFetcher* urlFetcher);
 
   /* additional members */
@@ -92,10 +93,9 @@ public:
   NS_DECL_NSISTREAMLISTENER
   NS_DECL_NSIREQUESTOBSERVER
 
-private:
+ private:
   virtual ~nsURLFetcherStreamConsumer();
   nsURLFetcher* mURLFetcher;
 };
-
 
 #endif /* nsURLFetcher_h_ */

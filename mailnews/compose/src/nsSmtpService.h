@@ -14,16 +14,14 @@
 #include "nsIProtocolHandler.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////
-// The Smtp Service is an interfaced designed to make building and running mail to urls
-// easier. I'm not sure if this service will go away when the new networking model comes
-// on line (as part of the N2 project). So I reserve the right to change my mind and take
-// this service away =).
+// The Smtp Service is an interfaced designed to make building and running mail
+// to urls easier. I'm not sure if this service will go away when the new
+// networking model comes on line (as part of the N2 project). So I reserve the
+// right to change my mind and take this service away =).
 ////////////////////////////////////////////////////////////////////////////////////////
 
-class nsSmtpService : public nsISmtpService, public nsIProtocolHandler
-{
-public:
-
+class nsSmtpService : public nsISmtpService, public nsIProtocolHandler {
+ public:
   nsSmtpService();
 
   NS_DECL_ISUPPORTS
@@ -38,26 +36,25 @@ public:
   //////////////////////////////////////////////////////////////////////////
   NS_DECL_NSIPROTOCOLHANDLER
 
-protected:
-    nsresult loadSmtpServers();
+ protected:
+  nsresult loadSmtpServers();
 
-
-private:
+ private:
   virtual ~nsSmtpService();
-    static bool findServerByKey(nsISmtpServer *aServer, void *aData);
-    static bool findServerByHostname(nsISmtpServer *aServer, void *aData);
+  static bool findServerByKey(nsISmtpServer *aServer, void *aData);
+  static bool findServerByHostname(nsISmtpServer *aServer, void *aData);
 
-    nsresult createKeyedServer(const char* key,
-                               nsISmtpServer **aResult = nullptr);
-    nsresult saveKeyList();
+  nsresult createKeyedServer(const char *key,
+                             nsISmtpServer **aResult = nullptr);
+  nsresult saveKeyList();
 
-    nsCOMArray<nsISmtpServer> mSmtpServers;
-    nsCOMPtr<nsISmtpServer> mDefaultSmtpServer;
-    nsCOMPtr<nsISmtpServer> mSessionDefaultServer;
+  nsCOMArray<nsISmtpServer> mSmtpServers;
+  nsCOMPtr<nsISmtpServer> mDefaultSmtpServer;
+  nsCOMPtr<nsISmtpServer> mSessionDefaultServer;
 
-    nsCString mServerKeyList;
+  nsCString mServerKeyList;
 
-    bool mSmtpServersLoaded;
+  bool mSmtpServersLoaded;
 };
 
 #endif /* nsSmtpService_h___ */

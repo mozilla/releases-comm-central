@@ -18,16 +18,15 @@
 #include "nsIInterfaceRequestorUtils.h"
 #include "nsIURIMutator.h"
 
-class nsMailtoUrl : public nsIMailtoUrl, public nsIURI
-{
-public:
-    NS_DECL_ISUPPORTS
-    NS_DECL_NSIURI
-    NS_DECL_NSIMAILTOURL
+class nsMailtoUrl : public nsIMailtoUrl, public nsIURI {
+ public:
+  NS_DECL_ISUPPORTS
+  NS_DECL_NSIURI
+  NS_DECL_NSIMAILTOURL
 
-    nsMailtoUrl();
+  nsMailtoUrl();
 
-protected:
+ protected:
   virtual nsresult Clone(nsIURI **_retval);
   virtual nsresult SetSpecInternal(const nsACString &aSpec);
   virtual nsresult SetScheme(const nsACString &aScheme);
@@ -41,51 +40,48 @@ protected:
   virtual nsresult SetRef(const nsACString &aRef);
   virtual nsresult SetFilePath(const nsACString &aFilePath);
   virtual nsresult SetQuery(const nsACString &aQuery);
-  virtual nsresult SetQueryWithEncoding(const nsACString &aQuery, const mozilla::Encoding* aEncoding);
+  virtual nsresult SetQueryWithEncoding(const nsACString &aQuery,
+                                        const mozilla::Encoding *aEncoding);
 
-public:
-  class Mutator
-      : public nsIURIMutator
-      , public BaseURIMutator<nsMailtoUrl>
-  {
+ public:
+  class Mutator : public nsIURIMutator, public BaseURIMutator<nsMailtoUrl> {
     NS_DECL_ISUPPORTS
     NS_FORWARD_SAFE_NSIURISETTERS_RET(mURI)
 
-    NS_IMETHOD Deserialize(const mozilla::ipc::URIParams& aParams) override
-    {
+    NS_IMETHOD Deserialize(const mozilla::ipc::URIParams &aParams) override {
       return NS_ERROR_NOT_IMPLEMENTED;
     }
 
-    NS_IMETHOD Finalize(nsIURI** aURI) override
-    {
+    NS_IMETHOD Finalize(nsIURI **aURI) override {
       mURI.forget(aURI);
       return NS_OK;
     }
 
-    NS_IMETHOD SetSpec(const nsACString & aSpec, nsIURIMutator** aMutator) override
-    {
-      if (aMutator)
-        NS_ADDREF(*aMutator = this);
+    NS_IMETHOD SetSpec(const nsACString &aSpec,
+                       nsIURIMutator **aMutator) override {
+      if (aMutator) NS_ADDREF(*aMutator = this);
       return InitFromSpec(aSpec);
     }
 
-    explicit Mutator() { }
-  private:
-    virtual ~Mutator() { }
+    explicit Mutator() {}
+
+   private:
+    virtual ~Mutator() {}
 
     friend class nsMailtoUrl;
   };
   friend BaseURIMutator<nsMailtoUrl>;
 
-protected:
+ protected:
   virtual ~nsMailtoUrl();
   nsresult ParseUrl();
   nsresult CleanupMailtoState();
-  nsresult ParseMailtoUrl(char * searchPart);
+  nsresult ParseMailtoUrl(char *searchPart);
 
   nsCOMPtr<nsIURI> m_baseURL;
 
-  // data retrieved from parsing the url: (Note the url could be a post from file or it could be in the url)
+  // data retrieved from parsing the url: (Note the url could be a post from
+  // file or it could be in the url)
   nsCString m_toPart;
   nsCString m_ccPart;
   nsCString m_subjectPart;
@@ -104,9 +100,8 @@ protected:
   MSG_ComposeFormat mFormat;
 };
 
-class nsSmtpUrl : public nsISmtpUrl, public nsMsgMailNewsUrl
-{
-public:
+class nsSmtpUrl : public nsISmtpUrl, public nsMsgMailNewsUrl {
+ public:
   NS_DECL_ISUPPORTS_INHERITED
 
   // From nsISmtpUrl
@@ -115,7 +110,7 @@ public:
   // nsSmtpUrl
   nsSmtpUrl();
 
-protected:
+ protected:
   virtual ~nsSmtpUrl();
 
   // data retrieved from parsing the url: (Note the url could be a post from
@@ -139,7 +134,7 @@ protected:
   // it is possible to encode the message to parse in the form of a url.
   // This function is used to decompose the search and path part into the bare
   // message components (to, fcc, bcc, etc.)
-  nsresult ParseMessageToPost(char * searchPart);
+  nsresult ParseMessageToPost(char *searchPart);
 };
 
-#endif // nsSmtpUrl_h__
+#endif  // nsSmtpUrl_h__
