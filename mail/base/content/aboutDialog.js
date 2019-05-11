@@ -83,9 +83,9 @@ function init(aEvent) {
     channelLabel.value = defaults.getCharPref("app.update.channel");
   }
 
+  window.sizeToContent();
+
   if (AppConstants.platform == "macosx") {
-    // it may not be sized at this point, and we need its width to calculate its position
-    window.sizeToContent();
     window.moveTo((screen.availWidth / 2) - (window.outerWidth / 2), screen.availHeight / 5);
   }
 }
