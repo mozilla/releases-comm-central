@@ -126,7 +126,6 @@ function test_escape_does_not_reach_us_from_gloda_search() {
  * Control-shift-k expands the quick filter bar when it's collapsed. When
  * already expanded, it focuses the text box and selects its text.
  */
-test_control_shift_k_shows_quick_filter_bar.__force_skip__ = true;  // See bug 1534913.
 function test_control_shift_k_shows_quick_filter_bar() {
   let dispatcha = mc.window.document.commandDispatcher;
   let qfbTextbox = mc.e("qfb-qs-textbox");
@@ -148,8 +147,8 @@ function test_control_shift_k_shows_quick_filter_bar() {
   if (dispatcha.focusedElement != qfbTextbox.inputField)
     throw new Error("second control-shift-k did not keep focus on filter " +
                     "textbox");
-  if (qfbTextbox.selectionStart != 0 ||
-      qfbTextbox.selectionEnd != qfbTextbox.textLength)
+  if (qfbTextbox.inputField.selectionStart != 0 ||
+      qfbTextbox.inputField.selectionEnd != qfbTextbox.inputField.textLength)
     throw new Error("second control-shift-k did not select text in filter " +
                     "textbox");
 
