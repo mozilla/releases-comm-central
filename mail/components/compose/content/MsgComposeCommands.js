@@ -2602,11 +2602,23 @@ function ComposeStartup(aParams) {
   // Observe dictionary removals.
   dictionaryRemovalObserver.addObserver();
 
-  var identityList = document.getElementById("msgIdentity");
-
   document.addEventListener("paste", onPasteOrDrop);
   document.addEventListener("drop", onPasteOrDrop);
 
+  // Workaround for missing inbuilt funcionality of <menulist> to restore
+  // visibility when focused and receiving key presses while scrolled out of view.
+  // Note: Unrelated key presses (e.g. access keys for other UI elements)
+  // typically do not fire keyup on the menulist as focus will have shifted.
+  // Some false positives like function or OS keys might occur; we accept that.
+  // Alt+CursorDown will still show the dropdown in the wrong place.
+  let addressingWidget = GetMsgAddressingWidgetTreeElement();
+  addressingWidget.addEventListener("keyup", (event) => {
+    if (event.target.classList.contains("aw-menulist")) {
+      addressingWidget.ensureElementIsVisible(event.target);
+    }
+  });
+
+  let identityList = GetMsgIdentityElement();
   if (identityList)
     FillIdentityList(identityList);
 
@@ -3779,7 +3791,8 @@ var spellCheckReadyObserver = {
 
 function onAddressColCommand(aAddressWidgetId) {
   gContentChanged = true;
-  awSetAutoComplete(aAddressWidgetId.slice(aAddressWidgetId.lastIndexOf("#") + 1));
+  let row = aAddressWidgetId.slice(aAddressWidgetId.lastIndexOf("#") + 1);
+  awSetAutoComplete(row);
   updateSendCommands(true);
 }
 
