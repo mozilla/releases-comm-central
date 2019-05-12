@@ -35,8 +35,7 @@ class nsIMsgProtocolInfo;
 
 class NS_MSG_BASE nsMsgIncomingServer : public nsIMsgIncomingServer,
                                         public nsSupportsWeakReference,
-                                        public nsIObserver
-{
+                                        public nsIObserver {
  public:
   nsMsgIncomingServer();
   nsresult Init();
@@ -45,7 +44,7 @@ class NS_MSG_BASE nsMsgIncomingServer : public nsIMsgIncomingServer,
   NS_DECL_NSIMSGINCOMINGSERVER
   NS_DECL_NSIOBSERVER
 
-protected:
+ protected:
   virtual ~nsMsgIncomingServer();
   nsCString m_serverKey;
 
@@ -56,46 +55,49 @@ protected:
   nsresult ConfigureTemporaryReturnReceiptsFilter(nsIMsgFilterList *filterList);
   nsresult ConfigureTemporaryServerSpamFilters(nsIMsgFilterList *filterList);
 
-  nsCOMPtr <nsIMsgFolder> m_rootFolder;
-  nsCOMPtr <nsIMsgDownloadSettings> m_downloadSettings;
+  nsCOMPtr<nsIMsgFolder> m_rootFolder;
+  nsCOMPtr<nsIMsgDownloadSettings> m_downloadSettings;
 
   // For local servers, where we put messages. For imap/pop3, where we store
   // offline messages.
-  nsCOMPtr <nsIMsgPluggableStore> m_msgStore;
+  nsCOMPtr<nsIMsgPluggableStore> m_msgStore;
 
   /// Helper routine to create local folder on disk if it doesn't exist
   /// under the account's rootFolder.
-  nsresult CreateLocalFolder(const nsAString& folderName);
+  nsresult CreateLocalFolder(const nsAString &folderName);
 
-  static nsresult GetDeferredServers(nsIMsgIncomingServer *destServer, nsCOMArray<nsIPop3IncomingServer>& aServers);
+  static nsresult GetDeferredServers(
+      nsIMsgIncomingServer *destServer,
+      nsCOMArray<nsIPop3IncomingServer> &aServers);
 
   nsresult CreateRootFolder();
   virtual nsresult CreateRootFolderFromUri(const nsCString &serverUri,
                                            nsIMsgFolder **rootFolder) = 0;
 
-  nsresult InternalSetHostName(const nsACString& aHostname, const char * prefName);
+  nsresult InternalSetHostName(const nsACString &aHostname,
+                               const char *prefName);
 
-  nsCOMPtr <nsIFile> mFilterFile;
-  nsCOMPtr <nsIMsgFilterList> mFilterList;
-  nsCOMPtr <nsIMsgFilterList> mEditableFilterList;
+  nsCOMPtr<nsIFile> mFilterFile;
+  nsCOMPtr<nsIMsgFilterList> mFilterList;
+  nsCOMPtr<nsIMsgFilterList> mEditableFilterList;
   nsCOMPtr<nsIPrefBranch> mPrefBranch;
   nsCOMPtr<nsIPrefBranch> mDefPrefBranch;
 
   // these allow us to handle duplicate incoming messages, e.g. delete them.
-  nsDataHashtable<nsCStringHashKey,int32_t> m_downloadedHdrs;
-  int32_t  m_numMsgsDownloaded;
+  nsDataHashtable<nsCStringHashKey, int32_t> m_downloadedHdrs;
+  int32_t m_numMsgsDownloaded;
 
-private:
+ private:
   uint32_t m_biffState;
   bool m_serverBusy;
-  nsCOMPtr <nsISpamSettings> mSpamSettings;
+  nsCOMPtr<nsISpamSettings> mSpamSettings;
   nsCOMPtr<nsIMsgFilterPlugin> mFilterPlugin;  // XXX should be a list
 
-protected:
+ protected:
   nsString m_password;
   bool m_canHaveFilters;
   bool m_displayStartupPage;
   bool mPerformingBiff;
 };
 
-#endif // nsMsgIncomingServer_h__
+#endif  // nsMsgIncomingServer_h__

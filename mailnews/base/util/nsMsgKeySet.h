@@ -20,13 +20,13 @@ class MSG_NewsHost;
 #endif
 
 class NS_MSG_BASE nsMsgKeySet {
-public:
+ public:
   // Creates an empty set.
   static nsMsgKeySet* Create(/* MSG_NewsHost* host = NULL*/);
 
   // Creates a set from the list of numbers, as might be found in a
   // newsrc file.
-  static nsMsgKeySet* Create(const char* str/* , MSG_NewsHost* host = NULL*/);
+  static nsMsgKeySet* Create(const char* str /* , MSG_NewsHost* host = NULL*/);
   ~nsMsgKeySet();
 
   // FirstNonMember() returns the lowest non-member of the set that is
@@ -35,7 +35,7 @@ public:
 
   // Output() converts to a string representation suitable for writing to a
   // .newsrc file.
-  nsresult Output(char **outputStr);
+  nsresult Output(char** outputStr);
 
   // IsMember() returns whether the given article is a member of this set.
   bool IsMember(int32_t art);
@@ -56,8 +56,8 @@ public:
 
   // FirstMissingRange() takes an inclusive range and finds the first range
   // of articles that are not in the set.  If none, return zeros.
-  int FirstMissingRange(int32_t min, int32_t max, int32_t* first, int32_t* last);
-
+  int FirstMissingRange(int32_t min, int32_t max, int32_t* first,
+                        int32_t* last);
 
   // LastMissingRange() takes an inclusive range and finds the last range
   // of articles that are not in the set.  If none, return zeros.
@@ -65,20 +65,20 @@ public:
 
   int32_t GetLastMember();
   int32_t GetFirstMember();
-  void  SetLastMember(int32_t highWaterMark);
+  void SetLastMember(int32_t highWaterMark);
   // For debugging only...
-  int32_t getLength() {return m_length;}
+  int32_t getLength() { return m_length; }
 
-/**
- * Fill the passed in aArray with the keys in the message key set.
- */
-  nsresult ToMsgKeyArray(nsTArray<nsMsgKey> &aArray);
+  /**
+   * Fill the passed in aArray with the keys in the message key set.
+   */
+  nsresult ToMsgKeyArray(nsTArray<nsMsgKey>& aArray);
 
 #ifdef DEBUG
   static void RunTests();
 #endif
 
-protected:
+ protected:
   nsMsgKeySet(/* MSG_NewsHost* host */);
   explicit nsMsgKeySet(const char* /* , MSG_NewsHost* host */);
   bool Grow();
@@ -91,18 +91,17 @@ protected:
   static void test_member(bool with_cache);
 #endif
 
-  int32_t *m_data;          /* the numbers composing the `chunks' */
-  int32_t m_data_size;        /* size of that malloc'ed block */
-  int32_t m_length;        /* active area */
+  int32_t* m_data;     /* the numbers composing the `chunks' */
+  int32_t m_data_size; /* size of that malloc'ed block */
+  int32_t m_length;    /* active area */
 
-  int32_t m_cached_value;      /* a potential set member, or -1 if unset*/
-  int32_t m_cached_value_index;    /* the index into `data' at which a search
-                     to determine whether `cached_value' was
-                     a member of the set ended. */
+  int32_t m_cached_value;       /* a potential set member, or -1 if unset*/
+  int32_t m_cached_value_index; /* the index into `data' at which a search
+                                   to determine whether `cached_value' was
+                                   a member of the set ended. */
 #ifdef NEWSRC_DOES_HOST_STUFF
   MSG_NewsHost* m_host;
 #endif
 };
-
 
 #endif /* _nsMsgKeySet_H_ */

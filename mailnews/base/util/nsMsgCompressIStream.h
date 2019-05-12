@@ -9,9 +9,8 @@
 #include "mozilla/UniquePtr.h"
 #include "zlib.h"
 
-class NS_MSG_BASE nsMsgCompressIStream final : public nsIAsyncInputStream
-{
-public:
+class NS_MSG_BASE nsMsgCompressIStream final : public nsIAsyncInputStream {
+ public:
   nsMsgCompressIStream();
 
   NS_DECL_THREADSAFE_ISUPPORTS
@@ -21,7 +20,7 @@ public:
 
   nsresult InitInputStream(nsIInputStream *rawStream);
 
-protected:
+ protected:
   ~nsMsgCompressIStream();
   nsresult DoInflation();
   nsCOMPtr<nsIInputStream> m_iStream;
@@ -32,4 +31,3 @@ protected:
   bool m_inflateAgain;
   z_stream m_zstream;
 };
-

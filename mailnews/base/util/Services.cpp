@@ -32,14 +32,14 @@ namespace mozilla {
 namespace services {
 
 namespace {
-class ShutdownObserver final : public nsIObserver
-{
-public:
+class ShutdownObserver final : public nsIObserver {
+ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIOBSERVER
 
   static void EnsureInitialized();
-private:
+
+ private:
   ~ShutdownObserver() {}
 
   void ShutdownServices();
@@ -49,21 +49,19 @@ private:
 
 bool ShutdownObserver::sShuttingDown = false;
 RefPtr<ShutdownObserver> ShutdownObserver::sShutdownObserver = nullptr;
-}
+}  // namespace
 
-#define MOZ_SERVICE(NAME, TYPE, CONTRACT_ID) \
-  static TYPE *g##NAME = nullptr; \
-  already_AddRefed<TYPE> Get##NAME() \
-  { \
-    ShutdownObserver::EnsureInitialized(); \
-    if (!g##NAME) \
-    { \
-      nsCOMPtr<TYPE> os = do_GetService(CONTRACT_ID); \
-      os.forget(&g##NAME); \
+#define MOZ_SERVICE(NAME, TYPE, CONTRACT_ID)                        \
+  static TYPE *g##NAME = nullptr;                                   \
+  already_AddRefed<TYPE> Get##NAME() {                              \
+    ShutdownObserver::EnsureInitialized();                          \
+    if (!g##NAME) {                                                 \
+      nsCOMPtr<TYPE> os = do_GetService(CONTRACT_ID);               \
+      os.forget(&g##NAME);                                          \
       MOZ_ASSERT(g##NAME, "This service is unexpectedly missing."); \
-    } \
-    nsCOMPtr<TYPE> ret = g##NAME; \
-    return ret.forget(); \
+    }                                                               \
+    nsCOMPtr<TYPE> ret = g##NAME;                                   \
+    return ret.forget();                                            \
   }
 #include "mozilla/mailnews/ServiceList.h"
 #undef MOZ_SERVICE
@@ -71,18 +69,15 @@ RefPtr<ShutdownObserver> ShutdownObserver::sShutdownObserver = nullptr;
 NS_IMPL_ISUPPORTS(ShutdownObserver, nsIObserver)
 
 NS_IMETHODIMP ShutdownObserver::Observe(nsISupports *aSubject,
-    const char *aTopic, const char16_t *aData)
-{
-  if (!strcmp(aTopic, "xpcom-shutdown-threads"))
-    ShutdownServices();
+                                        const char *aTopic,
+                                        const char16_t *aData) {
+  if (!strcmp(aTopic, "xpcom-shutdown-threads")) ShutdownServices();
   return NS_OK;
 }
 
-void ShutdownObserver::EnsureInitialized()
-{
+void ShutdownObserver::EnsureInitialized() {
   MOZ_ASSERT(!sShuttingDown, "It is illegal to use this code after shutdown!");
-  if (!sShutdownObserver)
-  {
+  if (!sShutdownObserver) {
     sShutdownObserver = new ShutdownObserver;
     nsCOMPtr<nsIObserverService> obs(mozilla::services::GetObserverService());
     MOZ_ASSERT(obs, "This should never be null");
@@ -90,8 +85,7 @@ void ShutdownObserver::EnsureInitialized()
   }
 }
 
-void ShutdownObserver::ShutdownServices()
-{
+void ShutdownObserver::ShutdownServices() {
   sShuttingDown = true;
   MOZ_ASSERT(sShutdownObserver, "Shutting down twice?");
   sShutdownObserver = nullptr;
@@ -100,5 +94,5 @@ void ShutdownObserver::ShutdownServices()
 #undef MOZ_SERVICE
 }
 
-} // namespace services
-} // namespace mozilla
+}  // namespace services
+}  // namespace mozilla

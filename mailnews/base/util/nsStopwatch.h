@@ -9,19 +9,23 @@
 
 #include "msgCore.h"
 
-#define NS_STOPWATCH_CID \
-{0x6ef7eafd, 0x72d0, 0x4c56, {0x94, 0x09, 0x67, 0xe1, 0x6d, 0x0f, 0x25, 0x5b}}
+#define NS_STOPWATCH_CID                             \
+  {                                                  \
+    0x6ef7eafd, 0x72d0, 0x4c56, {                    \
+      0x94, 0x09, 0x67, 0xe1, 0x6d, 0x0f, 0x25, 0x5b \
+    }                                                \
+  }
 
 #define NS_STOPWATCH_CONTRACTID "@mozilla.org/stopwatch;1"
 
-class NS_MSG_BASE nsStopwatch : public nsIStopwatch
-{
-public:
+class NS_MSG_BASE nsStopwatch : public nsIStopwatch {
+ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSISTOPWATCH
 
   nsStopwatch();
-private:
+
+ private:
   virtual ~nsStopwatch();
 
   /// Wall-clock start time in seconds since unix epoch.
@@ -44,4 +48,4 @@ private:
   static double GetCPUTime();
 };
 
-#endif // _nsStopwatch_h_
+#endif  // _nsStopwatch_h_

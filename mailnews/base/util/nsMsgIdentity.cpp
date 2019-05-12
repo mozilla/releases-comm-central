@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "msgCore.h" // for pre-compiled headers
+#include "msgCore.h"  // for pre-compiled headers
 #include "nsMsgIdentity.h"
 #include "nsIPrefService.h"
 #include "nsString.h"
@@ -21,11 +21,9 @@
 #include "nsComponentManagerUtils.h"
 #include "nsArrayUtils.h"
 
-
 #define REL_FILE_PREF_SUFFIX "-rel"
 
-NS_IMPL_ISUPPORTS(nsMsgIdentity,
-                   nsIMsgIdentity)
+NS_IMPL_ISUPPORTS(nsMsgIdentity, nsIMsgIdentity)
 
 /*
  * accessors for pulling values directly out of preferences
@@ -33,36 +31,31 @@ NS_IMPL_ISUPPORTS(nsMsgIdentity,
  */
 
 NS_IMETHODIMP
-nsMsgIdentity::GetKey(nsACString& aKey)
-{
+nsMsgIdentity::GetKey(nsACString &aKey) {
   aKey = mKey;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgIdentity::SetKey(const nsACString& identityKey)
-{
+nsMsgIdentity::SetKey(const nsACString &identityKey) {
   mKey = identityKey;
   nsresult rv;
   nsCOMPtr<nsIPrefService> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  if (NS_FAILED(rv))
-    return rv;
+  if (NS_FAILED(rv)) return rv;
 
   nsAutoCString branchName;
   branchName.AssignLiteral("mail.identity.");
   branchName += mKey;
   branchName.Append('.');
   rv = prefs->GetBranch(branchName.get(), getter_AddRefs(mPrefBranch));
-  if (NS_FAILED(rv))
-    return rv;
+  if (NS_FAILED(rv)) return rv;
 
-  rv = prefs->GetBranch("mail.identity.default.", getter_AddRefs(mDefPrefBranch));
+  rv = prefs->GetBranch("mail.identity.default.",
+                        getter_AddRefs(mDefPrefBranch));
   return rv;
 }
 
-nsresult
-nsMsgIdentity::GetIdentityName(nsAString& idName)
-{
+nsresult nsMsgIdentity::GetIdentityName(nsAString &idName) {
   idName.AssignLiteral("");
   // Try to use "fullname <email>" as the name.
   nsresult rv = GetFullAddress(idName);
@@ -71,23 +64,20 @@ nsMsgIdentity::GetIdentityName(nsAString& idName)
   // If a non-empty label exists, append it.
   nsString label;
   rv = GetLabel(label);
-  if (NS_SUCCEEDED(rv) && !label.IsEmpty())
-  { // TODO: this should be localizable
+  if (NS_SUCCEEDED(rv) &&
+      !label.IsEmpty()) {  // TODO: this should be localizable
     idName.AppendLiteral(" (");
     idName.Append(label);
     idName.Append(')');
   }
 
-  if (!idName.IsEmpty())
-    return NS_OK;
+  if (!idName.IsEmpty()) return NS_OK;
 
   // If we still found nothing to use, use our key.
   return ToString(idName);
 }
 
-nsresult
-nsMsgIdentity::GetFullAddress(nsAString& fullAddress)
-{
+nsresult nsMsgIdentity::GetFullAddress(nsAString &fullAddress) {
   nsAutoString fullName;
   nsresult rv = GetFullName(fullName);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -99,14 +89,14 @@ nsMsgIdentity::GetFullAddress(nsAString& fullAddress)
   if (fullName.IsEmpty() && email.IsEmpty())
     fullAddress.Truncate();
   else
-    mozilla::mailnews::MakeMimeAddress(fullName, NS_ConvertASCIItoUTF16(email), fullAddress);
+    mozilla::mailnews::MakeMimeAddress(fullName, NS_ConvertASCIItoUTF16(email),
+                                       fullAddress);
 
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgIdentity::ToString(nsAString& aResult)
-{
+nsMsgIdentity::ToString(nsAString &aResult) {
   aResult.AssignLiteral("[nsIMsgIdentity: ");
   aResult.Append(NS_ConvertASCIItoUTF16(mKey));
   aResult.Append(']');
@@ -116,32 +106,31 @@ nsMsgIdentity::ToString(nsAString& aResult)
 /* Identity attribute accessors */
 
 NS_IMETHODIMP
-nsMsgIdentity::GetSignature(nsIFile **sig)
-{
+nsMsgIdentity::GetSignature(nsIFile **sig) {
   bool gotRelPref;
-  nsresult rv = NS_GetPersistentFile("sig_file" REL_FILE_PREF_SUFFIX, "sig_file", nullptr, gotRelPref, sig, mPrefBranch);
-  if (NS_SUCCEEDED(rv) && !gotRelPref)
-  {
-    rv = NS_SetPersistentFile("sig_file" REL_FILE_PREF_SUFFIX, "sig_file", *sig, mPrefBranch);
+  nsresult rv =
+      NS_GetPersistentFile("sig_file" REL_FILE_PREF_SUFFIX, "sig_file", nullptr,
+                           gotRelPref, sig, mPrefBranch);
+  if (NS_SUCCEEDED(rv) && !gotRelPref) {
+    rv = NS_SetPersistentFile("sig_file" REL_FILE_PREF_SUFFIX, "sig_file", *sig,
+                              mPrefBranch);
     NS_ASSERTION(NS_SUCCEEDED(rv), "Failed to write signature file pref.");
   }
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgIdentity::SetSignature(nsIFile *sig)
-{
+nsMsgIdentity::SetSignature(nsIFile *sig) {
   nsresult rv = NS_OK;
   if (sig)
-    rv = NS_SetPersistentFile("sig_file" REL_FILE_PREF_SUFFIX, "sig_file", sig, mPrefBranch);
+    rv = NS_SetPersistentFile("sig_file" REL_FILE_PREF_SUFFIX, "sig_file", sig,
+                              mPrefBranch);
   return rv;
 }
 
 NS_IMETHODIMP
-nsMsgIdentity::ClearAllValues()
-{
-  if (!mPrefBranch)
-    return NS_ERROR_NOT_INITIALIZED;
+nsMsgIdentity::ClearAllValues() {
+  if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   return mPrefBranch->DeleteBranch("");
 }
@@ -165,11 +154,12 @@ NS_IMPL_IDPREF_BOOL(SigBottom, "sig_bottom")
 NS_IMPL_IDPREF_BOOL(SigOnForward, "sig_on_fwd")
 NS_IMPL_IDPREF_BOOL(SigOnReply, "sig_on_reply")
 
-NS_IMPL_IDPREF_INT(SignatureDate,"sig_date")
+NS_IMPL_IDPREF_INT(SignatureDate, "sig_date")
 
 NS_IMPL_IDPREF_BOOL(DoFcc, "fcc")
 
-NS_IMPL_FOLDERPREF_STR(FccFolder, "fcc_folder", "Sent", nsMsgFolderFlags::SentMail)
+NS_IMPL_FOLDERPREF_STR(FccFolder, "fcc_folder", "Sent",
+                       nsMsgFolderFlags::SentMail)
 NS_IMPL_IDPREF_STR(FccFolderPickerMode, "fcc_folder_picker_mode")
 NS_IMPL_IDPREF_BOOL(FccReplyFollowsParent, "fcc_reply_follows_parent")
 NS_IMPL_IDPREF_STR(DraftsFolderPickerMode, "drafts_folder_picker_mode")
@@ -178,22 +168,19 @@ NS_IMPL_IDPREF_STR(TmplFolderPickerMode, "tmpl_folder_picker_mode")
 
 NS_IMPL_IDPREF_BOOL(BccSelf, "bcc_self")
 NS_IMPL_IDPREF_BOOL(BccOthers, "bcc_other")
-NS_IMPL_IDPREF_STR (BccList, "bcc_other_list")
+NS_IMPL_IDPREF_STR(BccList, "bcc_other_list")
 
 NS_IMPL_IDPREF_BOOL(SuppressSigSep, "suppress_signature_separator")
 
 NS_IMPL_IDPREF_BOOL(DoCc, "doCc")
-NS_IMPL_IDPREF_STR (DoCcList, "doCcList")
+NS_IMPL_IDPREF_STR(DoCcList, "doCcList")
 
 NS_IMETHODIMP
-nsMsgIdentity::GetDoBcc(bool *aValue)
-{
-  if (!mPrefBranch)
-    return NS_ERROR_NOT_INITIALIZED;
+nsMsgIdentity::GetDoBcc(bool *aValue) {
+  if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   nsresult rv = mPrefBranch->GetBoolPref("doBcc", aValue);
-  if (NS_SUCCEEDED(rv))
-    return rv;
+  if (NS_SUCCEEDED(rv)) return rv;
 
   bool bccSelf = false;
   GetBccSelf(&bccSelf);
@@ -210,41 +197,35 @@ nsMsgIdentity::GetDoBcc(bool *aValue)
 }
 
 NS_IMETHODIMP
-nsMsgIdentity::SetDoBcc(bool aValue)
-{
+nsMsgIdentity::SetDoBcc(bool aValue) {
   return SetBoolAttribute("doBcc", aValue);
 }
 
 NS_IMETHODIMP
-nsMsgIdentity::GetDoBccList(nsACString& aValue)
-{
-  if (!mPrefBranch)
-    return NS_ERROR_NOT_INITIALIZED;
+nsMsgIdentity::GetDoBccList(nsACString &aValue) {
+  if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   nsCString val;
   nsresult rv = mPrefBranch->GetCharPref("doBccList", val);
   aValue = val;
-  if (NS_SUCCEEDED(rv))
-    return rv;
+  if (NS_SUCCEEDED(rv)) return rv;
 
   bool bccSelf = false;
   rv = GetBccSelf(&bccSelf);
-  NS_ENSURE_SUCCESS(rv,rv);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  if (bccSelf)
-    GetEmail(aValue);
+  if (bccSelf) GetEmail(aValue);
 
   bool bccOthers = false;
   rv = GetBccOthers(&bccOthers);
-  NS_ENSURE_SUCCESS(rv,rv);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   nsCString others;
   rv = GetBccList(others);
-  NS_ENSURE_SUCCESS(rv,rv);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   if (bccOthers && !others.IsEmpty()) {
-    if (bccSelf)
-      aValue.Append(',');
+    if (bccSelf) aValue.Append(',');
     aValue.Append(others);
   }
 
@@ -252,32 +233,32 @@ nsMsgIdentity::GetDoBccList(nsACString& aValue)
 }
 
 NS_IMETHODIMP
-nsMsgIdentity::SetDoBccList(const nsACString& aValue)
-{
+nsMsgIdentity::SetDoBccList(const nsACString &aValue) {
   return SetCharAttribute("doBccList", aValue);
 }
 
-NS_IMPL_FOLDERPREF_STR(DraftFolder, "draft_folder", "Drafts", nsMsgFolderFlags::Drafts)
-NS_IMPL_FOLDERPREF_STR(ArchiveFolder, "archive_folder", "Archives", nsMsgFolderFlags::Archive)
-NS_IMPL_FOLDERPREF_STR(StationeryFolder, "stationery_folder", "Templates", nsMsgFolderFlags::Templates)
+NS_IMPL_FOLDERPREF_STR(DraftFolder, "draft_folder", "Drafts",
+                       nsMsgFolderFlags::Drafts)
+NS_IMPL_FOLDERPREF_STR(ArchiveFolder, "archive_folder", "Archives",
+                       nsMsgFolderFlags::Archive)
+NS_IMPL_FOLDERPREF_STR(StationeryFolder, "stationery_folder", "Templates",
+                       nsMsgFolderFlags::Templates)
 
 NS_IMPL_IDPREF_BOOL(ArchiveEnabled, "archive_enabled")
 NS_IMPL_IDPREF_INT(ArchiveGranularity, "archive_granularity")
 NS_IMPL_IDPREF_BOOL(ArchiveKeepFolderStructure, "archive_keep_folder_structure")
 
 NS_IMPL_IDPREF_BOOL(ShowSaveMsgDlg, "showSaveMsgDlg")
-NS_IMPL_IDPREF_STR (DirectoryServer, "directoryServer")
+NS_IMPL_IDPREF_STR(DirectoryServer, "directoryServer")
 NS_IMPL_IDPREF_BOOL(OverrideGlobalPref, "overrideGlobal_Pref")
 NS_IMPL_IDPREF_BOOL(AutocompleteToMyDomain, "autocompleteToMyDomain")
 
 NS_IMPL_IDPREF_BOOL(Valid, "valid")
 
-nsresult
-nsMsgIdentity::getFolderPref(const char *prefname, nsCString& retval,
-                             const char *folderName, uint32_t folderflag)
-{
-  if (!mPrefBranch)
-    return NS_ERROR_NOT_INITIALIZED;
+nsresult nsMsgIdentity::getFolderPref(const char *prefname, nsCString &retval,
+                                      const char *folderName,
+                                      uint32_t folderflag) {
+  if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   nsresult rv = mPrefBranch->GetCharPref(prefname, retval);
   if (NS_SUCCEEDED(rv) && !retval.IsEmpty()) {
@@ -285,20 +266,20 @@ nsMsgIdentity::getFolderPref(const char *prefname, nsCString& retval,
     rv = GetOrCreateFolder(retval, getter_AddRefs(folder));
     NS_ENSURE_SUCCESS(rv, rv);
     nsCOMPtr<nsIMsgIncomingServer> server;
-    // Make sure that folder hierarchy is built so that legitimate parent-child relationship is established.
+    // Make sure that folder hierarchy is built so that legitimate parent-child
+    // relationship is established.
     folder->GetServer(getter_AddRefs(server));
-    if (server)
-    {
+    if (server) {
       nsCOMPtr<nsIMsgFolder> rootFolder;
       nsCOMPtr<nsIMsgFolder> deferredToRootFolder;
       server->GetRootFolder(getter_AddRefs(rootFolder));
       server->GetRootMsgFolder(getter_AddRefs(deferredToRootFolder));
       // check if we're using a deferred account - if not, use the uri;
       // otherwise, fall through to code that will fix this pref.
-      if (rootFolder == deferredToRootFolder)
-      {
+      if (rootFolder == deferredToRootFolder) {
         nsCOMPtr<nsIMsgFolder> msgFolder;
-        rv = server->GetMsgFolderFromURI(folder, retval, getter_AddRefs(msgFolder));
+        rv = server->GetMsgFolderFromURI(folder, retval,
+                                         getter_AddRefs(msgFolder));
         return NS_SUCCEEDED(rv) ? msgFolder->GetURI(retval) : rv;
       }
     }
@@ -312,21 +293,19 @@ nsMsgIdentity::getFolderPref(const char *prefname, nsCString& retval,
   // here I think we need to create a uri for the folder on the
   // default server for this identity.
   nsCOMPtr<nsIMsgAccountManager> accountManager =
-  do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv,rv);
+      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIArray> servers;
   rv = accountManager->GetServersForIdentity(this, getter_AddRefs(servers));
-  NS_ENSURE_SUCCESS(rv,rv);
+  NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIMsgIncomingServer> server(do_QueryElementAt(servers, 0, &rv));
-  if (NS_SUCCEEDED(rv))
-  {
+  if (NS_SUCCEEDED(rv)) {
     bool defaultToServer;
     server->GetDefaultCopiesAndFoldersPrefsToServer(&defaultToServer);
     // if we should default to special folders on the server,
     // use the local folders server
-    if (!defaultToServer)
-    {
+    if (!defaultToServer) {
       rv = accountManager->GetLocalFoldersServer(getter_AddRefs(server));
       NS_ENSURE_SUCCESS(rv, rv);
     }
@@ -335,8 +314,7 @@ nsMsgIdentity::getFolderPref(const char *prefname, nsCString& retval,
     // is deferred, e.g., using the pop3 global inbox.
     rv = server->GetRootMsgFolder(getter_AddRefs(rootFolder));
     NS_ENSURE_SUCCESS(rv, rv);
-    if (rootFolder)
-    {
+    if (rootFolder) {
       rv = rootFolder->GetURI(retval);
       NS_ENSURE_SUCCESS(rv, rv);
       retval.Append('/');
@@ -348,41 +326,39 @@ nsMsgIdentity::getFolderPref(const char *prefname, nsCString& retval,
   return NS_ERROR_FAILURE;
 }
 
-nsresult
-nsMsgIdentity::setFolderPref(const char *prefname, const nsACString& value, uint32_t folderflag)
-{
-  if (!mPrefBranch)
-    return NS_ERROR_NOT_INITIALIZED;
+nsresult nsMsgIdentity::setFolderPref(const char *prefname,
+                                      const nsACString &value,
+                                      uint32_t folderflag) {
+  if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   nsCString oldpref;
   nsresult rv;
   nsCOMPtr<nsIMsgFolder> folder;
 
-  if (folderflag == nsMsgFolderFlags::SentMail)
-  {
+  if (folderflag == nsMsgFolderFlags::SentMail) {
     // Clear the temporary return receipt filter so that the new filter
     // rule can be recreated (by ConfigureTemporaryFilters()).
     nsCOMPtr<nsIMsgAccountManager> accountManager =
-      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv,rv);
+        do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
 
     nsCOMPtr<nsIArray> servers;
     rv = accountManager->GetServersForIdentity(this, getter_AddRefs(servers));
-    NS_ENSURE_SUCCESS(rv,rv);
+    NS_ENSURE_SUCCESS(rv, rv);
     uint32_t cnt = 0;
     servers->GetLength(&cnt);
-    if (cnt > 0)
-    {
+    if (cnt > 0) {
       nsCOMPtr<nsIMsgIncomingServer> server(do_QueryElementAt(servers, 0, &rv));
       if (NS_SUCCEEDED(rv))
-        server->ClearTemporaryReturnReceiptsFilter(); // okay to fail; no need to check for return code
+        server
+            ->ClearTemporaryReturnReceiptsFilter();  // okay to fail; no need to
+                                                     // check for return code
     }
   }
 
   // get the old folder, and clear the special folder flag on it
   rv = mPrefBranch->GetCharPref(prefname, oldpref);
-  if (NS_SUCCEEDED(rv) && !oldpref.IsEmpty())
-  {
+  if (NS_SUCCEEDED(rv) && !oldpref.IsEmpty()) {
     rv = GetOrCreateFolder(oldpref, getter_AddRefs(folder));
     if (NS_SUCCEEDED(rv)) {
       rv = folder->ClearFlag(folderflag);
@@ -391,19 +367,16 @@ nsMsgIdentity::setFolderPref(const char *prefname, const nsACString& value, uint
 
   // set the new folder, and set the special folder flags on it
   rv = SetCharAttribute(prefname, value);
-  if (NS_SUCCEEDED(rv) && !value.IsEmpty())
-  {
+  if (NS_SUCCEEDED(rv) && !value.IsEmpty()) {
     rv = GetOrCreateFolder(value, getter_AddRefs(folder));
-    if (NS_SUCCEEDED(rv))
-      rv = folder->SetFlag(folderflag);
+    if (NS_SUCCEEDED(rv)) rv = folder->SetFlag(folderflag);
   }
   return rv;
 }
 
-NS_IMETHODIMP nsMsgIdentity::SetUnicharAttribute(const char *aName, const nsAString& val)
-{
-  if (!mPrefBranch)
-    return NS_ERROR_NOT_INITIALIZED;
+NS_IMETHODIMP nsMsgIdentity::SetUnicharAttribute(const char *aName,
+                                                 const nsAString &val) {
+  if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   if (!val.IsEmpty())
     return mPrefBranch->SetStringPref(aName, NS_ConvertUTF16toUTF8(val));
@@ -412,34 +385,31 @@ NS_IMETHODIMP nsMsgIdentity::SetUnicharAttribute(const char *aName, const nsAStr
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgIdentity::GetUnicharAttribute(const char *aName, nsAString& val)
-{
-  if (!mPrefBranch)
-    return NS_ERROR_NOT_INITIALIZED;
+NS_IMETHODIMP nsMsgIdentity::GetUnicharAttribute(const char *aName,
+                                                 nsAString &val) {
+  if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   nsCString valueUtf8;
-  if (NS_FAILED(mPrefBranch->GetStringPref(aName, EmptyCString(), 0, valueUtf8)))
+  if (NS_FAILED(
+          mPrefBranch->GetStringPref(aName, EmptyCString(), 0, valueUtf8)))
     mDefPrefBranch->GetStringPref(aName, EmptyCString(), 0, valueUtf8);
   CopyUTF8toUTF16(valueUtf8, val);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgIdentity::SetCharAttribute(const char *aName, const nsACString& val)
-{
-  if (!mPrefBranch)
-    return NS_ERROR_NOT_INITIALIZED;
+NS_IMETHODIMP nsMsgIdentity::SetCharAttribute(const char *aName,
+                                              const nsACString &val) {
+  if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
-  if (!val.IsEmpty())
-    return mPrefBranch->SetCharPref(aName, val);
+  if (!val.IsEmpty()) return mPrefBranch->SetCharPref(aName, val);
 
   mPrefBranch->ClearUserPref(aName);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgIdentity::GetCharAttribute(const char *aName, nsACString& val)
-{
-  if (!mPrefBranch)
-    return NS_ERROR_NOT_INITIALIZED;
+NS_IMETHODIMP nsMsgIdentity::GetCharAttribute(const char *aName,
+                                              nsACString &val) {
+  if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   nsCString tmpVal;
   if (NS_FAILED(mPrefBranch->GetCharPref(aName, tmpVal)))
@@ -448,19 +418,15 @@ NS_IMETHODIMP nsMsgIdentity::GetCharAttribute(const char *aName, nsACString& val
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgIdentity::SetBoolAttribute(const char *aName, bool val)
-{
-  if (!mPrefBranch)
-    return NS_ERROR_NOT_INITIALIZED;
+NS_IMETHODIMP nsMsgIdentity::SetBoolAttribute(const char *aName, bool val) {
+  if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   return mPrefBranch->SetBoolPref(aName, val);
 }
 
-NS_IMETHODIMP nsMsgIdentity::GetBoolAttribute(const char *aName, bool *val)
-{
+NS_IMETHODIMP nsMsgIdentity::GetBoolAttribute(const char *aName, bool *val) {
   NS_ENSURE_ARG_POINTER(val);
-  if (!mPrefBranch)
-    return NS_ERROR_NOT_INITIALIZED;
+  if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   *val = false;
 
@@ -470,20 +436,16 @@ NS_IMETHODIMP nsMsgIdentity::GetBoolAttribute(const char *aName, bool *val)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgIdentity::SetIntAttribute(const char *aName, int32_t val)
-{
-  if (!mPrefBranch)
-    return NS_ERROR_NOT_INITIALIZED;
+NS_IMETHODIMP nsMsgIdentity::SetIntAttribute(const char *aName, int32_t val) {
+  if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   return mPrefBranch->SetIntPref(aName, val);
 }
 
-NS_IMETHODIMP nsMsgIdentity::GetIntAttribute(const char *aName, int32_t *val)
-{
+NS_IMETHODIMP nsMsgIdentity::GetIntAttribute(const char *aName, int32_t *val) {
   NS_ENSURE_ARG_POINTER(val);
 
-  if (!mPrefBranch)
-    return NS_ERROR_NOT_INITIALIZED;
+  if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   *val = 0;
 
@@ -493,95 +455,90 @@ NS_IMETHODIMP nsMsgIdentity::GetIntAttribute(const char *aName, int32_t *val)
   return NS_OK;
 }
 
-#define COPY_IDENTITY_FILE_VALUE(SRC_ID,MACRO_GETTER,MACRO_SETTER)   \
-  {  \
-    nsresult macro_rv;  \
-    nsCOMPtr <nsIFile>macro_spec;   \
-          macro_rv = SRC_ID->MACRO_GETTER(getter_AddRefs(macro_spec)); \
-          if (NS_SUCCEEDED(macro_rv)) \
-            this->MACRO_SETTER(macro_spec);     \
+#define COPY_IDENTITY_FILE_VALUE(SRC_ID, MACRO_GETTER, MACRO_SETTER) \
+  {                                                                  \
+    nsresult macro_rv;                                               \
+    nsCOMPtr<nsIFile> macro_spec;                                    \
+    macro_rv = SRC_ID->MACRO_GETTER(getter_AddRefs(macro_spec));     \
+    if (NS_SUCCEEDED(macro_rv)) this->MACRO_SETTER(macro_spec);      \
   }
 
-#define COPY_IDENTITY_INT_VALUE(SRC_ID,MACRO_GETTER,MACRO_SETTER)   \
-  {  \
-        nsresult macro_rv;  \
-          int32_t macro_oldInt;  \
-          macro_rv = SRC_ID->MACRO_GETTER(&macro_oldInt);  \
-          if (NS_SUCCEEDED(macro_rv)) \
-            this->MACRO_SETTER(macro_oldInt);     \
+#define COPY_IDENTITY_INT_VALUE(SRC_ID, MACRO_GETTER, MACRO_SETTER) \
+  {                                                                 \
+    nsresult macro_rv;                                              \
+    int32_t macro_oldInt;                                           \
+    macro_rv = SRC_ID->MACRO_GETTER(&macro_oldInt);                 \
+    if (NS_SUCCEEDED(macro_rv)) this->MACRO_SETTER(macro_oldInt);   \
   }
 
-#define COPY_IDENTITY_BOOL_VALUE(SRC_ID,MACRO_GETTER,MACRO_SETTER)   \
-  {  \
-        nsresult macro_rv;  \
-          bool macro_oldBool;  \
-          macro_rv = SRC_ID->MACRO_GETTER(&macro_oldBool);  \
-          if (NS_SUCCEEDED(macro_rv)) \
-            this->MACRO_SETTER(macro_oldBool);     \
+#define COPY_IDENTITY_BOOL_VALUE(SRC_ID, MACRO_GETTER, MACRO_SETTER) \
+  {                                                                  \
+    nsresult macro_rv;                                               \
+    bool macro_oldBool;                                              \
+    macro_rv = SRC_ID->MACRO_GETTER(&macro_oldBool);                 \
+    if (NS_SUCCEEDED(macro_rv)) this->MACRO_SETTER(macro_oldBool);   \
   }
 
-#define COPY_IDENTITY_STR_VALUE(SRC_ID,MACRO_GETTER,MACRO_SETTER)   \
-  {  \
-          nsCString macro_oldStr;  \
-        nsresult macro_rv;  \
-          macro_rv = SRC_ID->MACRO_GETTER(macro_oldStr);  \
-            if (NS_SUCCEEDED(macro_rv)) { \
-                    this->MACRO_SETTER(macro_oldStr);  \
-            } \
+#define COPY_IDENTITY_STR_VALUE(SRC_ID, MACRO_GETTER, MACRO_SETTER) \
+  {                                                                 \
+    nsCString macro_oldStr;                                         \
+    nsresult macro_rv;                                              \
+    macro_rv = SRC_ID->MACRO_GETTER(macro_oldStr);                  \
+    if (NS_SUCCEEDED(macro_rv)) {                                   \
+      this->MACRO_SETTER(macro_oldStr);                             \
+    }                                                               \
   }
 
-#define COPY_IDENTITY_WSTR_VALUE(SRC_ID,MACRO_GETTER,MACRO_SETTER)   \
-  {  \
-          nsString macro_oldStr;  \
-        nsresult macro_rv;  \
-          macro_rv = SRC_ID->MACRO_GETTER(macro_oldStr); \
-          if (NS_SUCCEEDED(macro_rv)) { \
-                  this->MACRO_SETTER(macro_oldStr);  \
-              }  \
+#define COPY_IDENTITY_WSTR_VALUE(SRC_ID, MACRO_GETTER, MACRO_SETTER) \
+  {                                                                  \
+    nsString macro_oldStr;                                           \
+    nsresult macro_rv;                                               \
+    macro_rv = SRC_ID->MACRO_GETTER(macro_oldStr);                   \
+    if (NS_SUCCEEDED(macro_rv)) {                                    \
+      this->MACRO_SETTER(macro_oldStr);                              \
+    }                                                                \
   }
 
 NS_IMETHODIMP
-nsMsgIdentity::Copy(nsIMsgIdentity *identity)
-{
-    NS_ENSURE_ARG_POINTER(identity);
+nsMsgIdentity::Copy(nsIMsgIdentity *identity) {
+  NS_ENSURE_ARG_POINTER(identity);
 
-    COPY_IDENTITY_BOOL_VALUE(identity,GetComposeHtml,SetComposeHtml)
-    COPY_IDENTITY_STR_VALUE(identity,GetEmail,SetEmail)
-    COPY_IDENTITY_WSTR_VALUE(identity,GetLabel,SetLabel)
-    COPY_IDENTITY_STR_VALUE(identity,GetReplyTo,SetReplyTo)
-    COPY_IDENTITY_WSTR_VALUE(identity,GetFullName,SetFullName)
-    COPY_IDENTITY_WSTR_VALUE(identity,GetOrganization,SetOrganization)
-    COPY_IDENTITY_STR_VALUE(identity,GetDraftFolder,SetDraftFolder)
-    COPY_IDENTITY_STR_VALUE(identity,GetArchiveFolder,SetArchiveFolder)
-    COPY_IDENTITY_STR_VALUE(identity,GetFccFolder,SetFccFolder)
-    COPY_IDENTITY_BOOL_VALUE(identity,GetFccReplyFollowsParent,
-                             SetFccReplyFollowsParent)
-    COPY_IDENTITY_STR_VALUE(identity,GetStationeryFolder,SetStationeryFolder)
-    COPY_IDENTITY_BOOL_VALUE(identity,GetArchiveEnabled,SetArchiveEnabled)
-    COPY_IDENTITY_INT_VALUE(identity,GetArchiveGranularity,
-                            SetArchiveGranularity)
-    COPY_IDENTITY_BOOL_VALUE(identity,GetArchiveKeepFolderStructure,
-                             SetArchiveKeepFolderStructure)
-    COPY_IDENTITY_BOOL_VALUE(identity,GetAttachSignature,SetAttachSignature)
-    COPY_IDENTITY_FILE_VALUE(identity,GetSignature,SetSignature)
-    COPY_IDENTITY_WSTR_VALUE(identity,GetHtmlSigText,SetHtmlSigText)
-    COPY_IDENTITY_BOOL_VALUE(identity,GetHtmlSigFormat,SetHtmlSigFormat)
-    COPY_IDENTITY_BOOL_VALUE(identity,GetAutoQuote,SetAutoQuote)
-    COPY_IDENTITY_INT_VALUE(identity,GetReplyOnTop,SetReplyOnTop)
-    COPY_IDENTITY_BOOL_VALUE(identity,GetSigBottom,SetSigBottom)
-    COPY_IDENTITY_BOOL_VALUE(identity,GetSigOnForward,SetSigOnForward)
-    COPY_IDENTITY_BOOL_VALUE(identity,GetSigOnReply,SetSigOnReply)
-    COPY_IDENTITY_INT_VALUE(identity,GetSignatureDate,SetSignatureDate)
-    COPY_IDENTITY_BOOL_VALUE(identity,GetAttachVCard,SetAttachVCard)
-    COPY_IDENTITY_STR_VALUE(identity,GetEscapedVCard,SetEscapedVCard)
-    COPY_IDENTITY_STR_VALUE(identity,GetSmtpServerKey,SetSmtpServerKey)
-    COPY_IDENTITY_BOOL_VALUE(identity,GetSuppressSigSep,SetSuppressSigSep)
-    return NS_OK;
+  COPY_IDENTITY_BOOL_VALUE(identity, GetComposeHtml, SetComposeHtml)
+  COPY_IDENTITY_STR_VALUE(identity, GetEmail, SetEmail)
+  COPY_IDENTITY_WSTR_VALUE(identity, GetLabel, SetLabel)
+  COPY_IDENTITY_STR_VALUE(identity, GetReplyTo, SetReplyTo)
+  COPY_IDENTITY_WSTR_VALUE(identity, GetFullName, SetFullName)
+  COPY_IDENTITY_WSTR_VALUE(identity, GetOrganization, SetOrganization)
+  COPY_IDENTITY_STR_VALUE(identity, GetDraftFolder, SetDraftFolder)
+  COPY_IDENTITY_STR_VALUE(identity, GetArchiveFolder, SetArchiveFolder)
+  COPY_IDENTITY_STR_VALUE(identity, GetFccFolder, SetFccFolder)
+  COPY_IDENTITY_BOOL_VALUE(identity, GetFccReplyFollowsParent,
+                           SetFccReplyFollowsParent)
+  COPY_IDENTITY_STR_VALUE(identity, GetStationeryFolder, SetStationeryFolder)
+  COPY_IDENTITY_BOOL_VALUE(identity, GetArchiveEnabled, SetArchiveEnabled)
+  COPY_IDENTITY_INT_VALUE(identity, GetArchiveGranularity,
+                          SetArchiveGranularity)
+  COPY_IDENTITY_BOOL_VALUE(identity, GetArchiveKeepFolderStructure,
+                           SetArchiveKeepFolderStructure)
+  COPY_IDENTITY_BOOL_VALUE(identity, GetAttachSignature, SetAttachSignature)
+  COPY_IDENTITY_FILE_VALUE(identity, GetSignature, SetSignature)
+  COPY_IDENTITY_WSTR_VALUE(identity, GetHtmlSigText, SetHtmlSigText)
+  COPY_IDENTITY_BOOL_VALUE(identity, GetHtmlSigFormat, SetHtmlSigFormat)
+  COPY_IDENTITY_BOOL_VALUE(identity, GetAutoQuote, SetAutoQuote)
+  COPY_IDENTITY_INT_VALUE(identity, GetReplyOnTop, SetReplyOnTop)
+  COPY_IDENTITY_BOOL_VALUE(identity, GetSigBottom, SetSigBottom)
+  COPY_IDENTITY_BOOL_VALUE(identity, GetSigOnForward, SetSigOnForward)
+  COPY_IDENTITY_BOOL_VALUE(identity, GetSigOnReply, SetSigOnReply)
+  COPY_IDENTITY_INT_VALUE(identity, GetSignatureDate, SetSignatureDate)
+  COPY_IDENTITY_BOOL_VALUE(identity, GetAttachVCard, SetAttachVCard)
+  COPY_IDENTITY_STR_VALUE(identity, GetEscapedVCard, SetEscapedVCard)
+  COPY_IDENTITY_STR_VALUE(identity, GetSmtpServerKey, SetSmtpServerKey)
+  COPY_IDENTITY_BOOL_VALUE(identity, GetSuppressSigSep, SetSuppressSigSep)
+  return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgIdentity::GetRequestReturnReceipt(bool *aVal)
-{
+nsMsgIdentity::GetRequestReturnReceipt(bool *aVal) {
   NS_ENSURE_ARG_POINTER(aVal);
 
   bool useCustomPrefs = false;
@@ -596,8 +553,7 @@ nsMsgIdentity::GetRequestReturnReceipt(bool *aVal)
 }
 
 NS_IMETHODIMP
-nsMsgIdentity::GetReceiptHeaderType(int32_t *aType)
-{
+nsMsgIdentity::GetReceiptHeaderType(int32_t *aType) {
   NS_ENSURE_ARG_POINTER(aType);
 
   bool useCustomPrefs = false;
@@ -612,15 +568,13 @@ nsMsgIdentity::GetReceiptHeaderType(int32_t *aType)
 }
 
 NS_IMETHODIMP
-nsMsgIdentity::GetRequestDSN(bool *aVal)
-{
+nsMsgIdentity::GetRequestDSN(bool *aVal) {
   NS_ENSURE_ARG_POINTER(aVal);
 
   bool useCustomPrefs = false;
   nsresult rv = GetBoolAttribute("dsn_use_custom_prefs", &useCustomPrefs);
   NS_ENSURE_SUCCESS(rv, rv);
-  if (useCustomPrefs)
-    return GetBoolAttribute("dsn_always_request_on", aVal);
+  if (useCustomPrefs) return GetBoolAttribute("dsn_always_request_on", aVal);
 
   nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);

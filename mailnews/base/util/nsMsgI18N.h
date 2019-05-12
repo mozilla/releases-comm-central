@@ -15,13 +15,19 @@ class nsIFile;
  * Encode an input string into RFC 2047 form.
  *
  * @param header       [IN] A header to encode.
- * @param structured   [IN] Specify the header is structured or non-structured field (See RFC-822).
+ * @param structured   [IN] Specify the header is structured or non-structured
+ *                          field (See RFC-822).
  * @param charset      [IN] Charset name to convert.
  * @param fieldnamelen [IN] Header field name length. (e.g. "From: " -> 6)
- * @param usemime      [IN] If false then apply charset conversion only no MIME encoding.
+ * @param usemime      [IN] If false then apply charset conversion only no MIME
+ *                          encoding.
  * @return             Encoded buffer (in C string) or NULL in case of error.
  */
-NS_MSG_BASE char      *nsMsgI18NEncodeMimePartIIStr(const char *header, bool structured, const char *charset, int32_t fieldnamelen, bool usemime);
+NS_MSG_BASE char* nsMsgI18NEncodeMimePartIIStr(const char* header,
+                                               bool structured,
+                                               const char* charset,
+                                               int32_t fieldnamelen,
+                                               bool usemime);
 
 /**
  * Check if given charset is stateful (e.g. ISO-2022-JP).
@@ -29,7 +35,7 @@ NS_MSG_BASE char      *nsMsgI18NEncodeMimePartIIStr(const char *header, bool str
  * @param charset     [IN] Charset name.
  * @return            True if stateful
  */
-NS_MSG_BASE bool      nsMsgI18Nstateful_charset(const char *charset);
+NS_MSG_BASE bool nsMsgI18Nstateful_charset(const char* charset);
 
 /**
  * Check if given charset is multibye (e.g. Shift_JIS, Big5).
@@ -37,22 +43,25 @@ NS_MSG_BASE bool      nsMsgI18Nstateful_charset(const char *charset);
  * @param charset     [IN] Charset name.
  * @return            True if multibyte
  */
-NS_MSG_BASE bool nsMsgI18Nmultibyte_charset(const char *charset);
+NS_MSG_BASE bool nsMsgI18Nmultibyte_charset(const char* charset);
 
 /**
- * Check the input (unicode) string is in a range of the given charset after the conversion.
- * Note, do not use this for large string (e.g. message body) since this actually applies the conversion to the buffer.
+ * Check the input (unicode) string is in a range of the given charset after the
+ * conversion. Note, do not use this for large string (e.g. message body) since
+ * this actually applies the conversion to the buffer.
  *
- * @param charset     [IN] Charset to be converted.
- * @param inString    [IN] Input unicode string to be examined.
- * @param fallbackCharset [OUT]
- *                         null if fallback charset is not needed.
- *                         Otherwise, a fallback charset name may be set if that was used for the conversion.
- *                         Caller is responsible for freeing the memory.
- * @return            True if the string can be converted within the charset range.
- *                    False if one or more characters cannot be converted to the target charset.
+ * @param charset  [IN] Charset to be converted.
+ * @param inString [IN] Input unicode string to be examined.
+ * @param fallbackCharset [OUT] null if fallback charset is not needed.
+ *                      Otherwise, a fallback charset name may be set if that
+ *                      was used for the conversion.
+ *                      Caller is responsible for freeing the memory.
+ * @return         True if the string can be converted within the charset range.
+ *                 False if one or more characters cannot be converted to the
+ *                 target charset.
  */
-NS_MSG_BASE bool      nsMsgI18Ncheck_data_in_charset_range(const char *charset, const char16_t* inString);
+NS_MSG_BASE bool nsMsgI18Ncheck_data_in_charset_range(const char* charset,
+                                                      const char16_t* inString);
 
 /**
  * Return charset name of file system (OS dependent).
@@ -81,11 +90,9 @@ NS_MSG_BASE void nsMsgI18NTextFileCharset(nsACString& aCharset);
  *                                  NS_ERROR_UENC_NOMAPPING is a success code!
  * @return            nsresult.
  */
-NS_MSG_BASE nsresult nsMsgI18NConvertFromUnicode(const nsACString& aCharset,
-                                                 const nsAString& inString,
-                                                 nsACString& outString,
-                                                 bool reportUencNoMapping =
-                                                        false);
+NS_MSG_BASE nsresult nsMsgI18NConvertFromUnicode(
+    const nsACString& aCharset, const nsAString& inString,
+    nsACString& outString, bool reportUencNoMapping = false);
 /**
  * Convert from charset to unicode.
  *
@@ -103,7 +110,7 @@ NS_MSG_BASE nsresult nsMsgI18NConvertToUnicode(const nsACString& aCharset,
  * @param file    [IN] A nsIFile.
  * @return            A charset name or empty string if not found.
  */
-NS_MSG_BASE const char *nsMsgI18NParseMetaCharset(nsIFile* file);
+NS_MSG_BASE const char* nsMsgI18NParseMetaCharset(nsIFile* file);
 
 /**
  * Shrink the aStr to aMaxLength bytes. Note that this doesn't check whether
@@ -114,9 +121,9 @@ NS_MSG_BASE const char *nsMsgI18NParseMetaCharset(nsIFile* file);
  * @param outString  [OUT] Shrunken UTF-8 string
  * @return           nsresult
  */
-NS_MSG_BASE nsresult nsMsgI18NShrinkUTF8Str(const nsCString &inString,
+NS_MSG_BASE nsresult nsMsgI18NShrinkUTF8Str(const nsCString& inString,
                                             uint32_t aMaxLength,
-                                            nsACString &outString);
+                                            nsACString& outString);
 
 /*
  * Convert raw bytes in header to UTF-16
@@ -142,7 +149,7 @@ NS_MSG_BASE void nsMsgI18NConvertRawBytesToUTF8(const nsCString& inString,
 NS_MSG_BASE nsresult CopyUTF7toUTF16(const nsACString& aSrc, nsAString& aDest);
 
 // Convert between UTF-16 and modified UTF-7 used for IMAP.
-NS_MSG_BASE nsresult CopyUTF16toMUTF7(const nsAString &aSrc, nsACString& aDest);
+NS_MSG_BASE nsresult CopyUTF16toMUTF7(const nsAString& aSrc, nsACString& aDest);
 NS_MSG_BASE nsresult CopyMUTF7toUTF16(const nsACString& aSrc, nsAString& aDest);
 
 #endif /* _nsMsgI18N_H_ */

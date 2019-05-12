@@ -40,20 +40,19 @@
 class NS_MSG_BASE nsMsgMailNewsUrl : public nsIMsgMailNewsUrl,
                                      public nsIURIWithSpecialOrigin,
                                      public nsISerializable,
-                                     public nsIClassInfo
-{
-public:
-    nsMsgMailNewsUrl();
+                                     public nsIClassInfo {
+ public:
+  nsMsgMailNewsUrl();
 
-    NS_DECL_THREADSAFE_ISUPPORTS
-    NS_DECL_NSIMSGMAILNEWSURL
-    NS_DECL_NSIURI
-    NS_DECL_NSIURL
-    NS_DECL_NSIURIWITHSPECIALORIGIN
-    NS_DECL_NSISERIALIZABLE
-    NS_DECL_NSICLASSINFO
+  NS_DECL_THREADSAFE_ISUPPORTS
+  NS_DECL_NSIMSGMAILNEWSURL
+  NS_DECL_NSIURI
+  NS_DECL_NSIURL
+  NS_DECL_NSIURIWITHSPECIALORIGIN
+  NS_DECL_NSISERIALIZABLE
+  NS_DECL_NSICLASSINFO
 
-protected:
+ protected:
   virtual nsresult Clone(nsIURI **_retval);
   virtual nsresult SetScheme(const nsACString &aScheme);
   virtual nsresult SetUserPass(const nsACString &aUserPass);
@@ -66,44 +65,42 @@ protected:
   virtual nsresult SetRef(const nsACString &aRef);
   virtual nsresult SetFilePath(const nsACString &aFilePath);
   virtual nsresult SetQuery(const nsACString &aQuery);
-  virtual nsresult SetQueryWithEncoding(const nsACString &aQuery, const mozilla::Encoding* aEncoding);
-  virtual nsresult CreateURL(const nsACString& aSpec, nsIURL **aURL);  // nsMailboxUrl overrides this.
+  virtual nsresult SetQueryWithEncoding(const nsACString &aQuery,
+                                        const mozilla::Encoding *aEncoding);
+  virtual nsresult CreateURL(const nsACString &aSpec,
+                             nsIURL **aURL);  // nsMailboxUrl overrides this.
 
-public:
-  class Mutator
-      : public nsIURIMutator
-      , public BaseURIMutator<nsMsgMailNewsUrl>
-  {
+ public:
+  class Mutator : public nsIURIMutator,
+                  public BaseURIMutator<nsMsgMailNewsUrl> {
     NS_DECL_ISUPPORTS
     NS_FORWARD_SAFE_NSIURISETTERS_RET(mURI)
 
-    NS_IMETHOD Deserialize(const mozilla::ipc::URIParams& aParams) override
-    {
+    NS_IMETHOD Deserialize(const mozilla::ipc::URIParams &aParams) override {
       return NS_ERROR_NOT_IMPLEMENTED;
     }
 
-    NS_IMETHOD Finalize(nsIURI** aURI) override
-    {
+    NS_IMETHOD Finalize(nsIURI **aURI) override {
       mURI.forget(aURI);
       return NS_OK;
     }
 
-    NS_IMETHOD SetSpec(const nsACString & aSpec, nsIURIMutator** aMutator) override
-    {
-      if (aMutator)
-        NS_ADDREF(*aMutator = this);
+    NS_IMETHOD SetSpec(const nsACString &aSpec,
+                       nsIURIMutator **aMutator) override {
+      if (aMutator) NS_ADDREF(*aMutator = this);
       return InitFromSpec(aSpec);
     }
 
-    explicit Mutator() { }
-  private:
-    virtual ~Mutator() { }
+    explicit Mutator() {}
+
+   private:
+    virtual ~Mutator() {}
 
     friend class nsMsgMailNewsUrl;
   };
   friend BaseURIMutator<nsMsgMailNewsUrl>;
 
-protected:
+ protected:
   virtual ~nsMsgMailNewsUrl();
 
   nsCOMPtr<nsIURL> m_baseURL;
@@ -124,11 +121,12 @@ protected:
   bool m_hasNormalizedOrigin;
 
   // the following field is really a bit of a hack to make
-  // open attachments work. The external applications code sometimes tries to figure out the right
-  // handler to use by looking at the file extension of the url we are trying to load. Unfortunately,
-  // the attachment file name really isn't part of the url string....so we'll store it here...and if
-  // the url we are running is an attachment url, we'll set it here. Then when the helper apps code
-  // asks us for it, we'll return the right value.
+  // open attachments work. The external applications code sometimes tries to
+  // figure out the right handler to use by looking at the file extension of the
+  // url we are trying to load. Unfortunately, the attachment file name really
+  // isn't part of the url string....so we'll store it here...and if the url we
+  // are running is an attachment url, we'll set it here. Then when the helper
+  // apps code asks us for it, we'll return the right value.
   nsCString mAttachmentFileName;
 
   nsTObserverArray<nsCOMPtr<nsIUrlListener> > mUrlListeners;

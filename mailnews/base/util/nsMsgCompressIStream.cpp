@@ -9,36 +9,24 @@
 
 #define BUFFER_SIZE 16384
 
-nsMsgCompressIStream::nsMsgCompressIStream() :
-  m_dataptr(nullptr),
-  m_dataleft(0),
-  m_inflateAgain(false)
-{
-}
+nsMsgCompressIStream::nsMsgCompressIStream()
+    : m_dataptr(nullptr), m_dataleft(0), m_inflateAgain(false) {}
 
-nsMsgCompressIStream::~nsMsgCompressIStream()
-{
-  Close();
-}
+nsMsgCompressIStream::~nsMsgCompressIStream() { Close(); }
 
-NS_IMPL_ISUPPORTS(nsMsgCompressIStream, nsIInputStream,
-                              nsIAsyncInputStream)
+NS_IMPL_ISUPPORTS(nsMsgCompressIStream, nsIInputStream, nsIAsyncInputStream)
 
-nsresult nsMsgCompressIStream::InitInputStream(nsIInputStream *rawStream)
-{
+nsresult nsMsgCompressIStream::InitInputStream(nsIInputStream *rawStream) {
   // protect against repeat calls
-  if (m_iStream)
-    return NS_ERROR_UNEXPECTED;
+  if (m_iStream) return NS_ERROR_UNEXPECTED;
 
   // allocate some memory for buffering
   m_zbuf = mozilla::MakeUnique<char[]>(BUFFER_SIZE);
-  if (!m_zbuf)
-    return NS_ERROR_OUT_OF_MEMORY;
+  if (!m_zbuf) return NS_ERROR_OUT_OF_MEMORY;
 
   // allocate some memory for buffering
   m_databuf = mozilla::MakeUnique<char[]>(BUFFER_SIZE);
-  if (!m_databuf)
-    return NS_ERROR_OUT_OF_MEMORY;
+  if (!m_databuf) return NS_ERROR_OUT_OF_MEMORY;
 
   // set up zlib object
   m_zstream.zalloc = Z_NULL;
@@ -49,18 +37,16 @@ nsresult nsMsgCompressIStream::InitInputStream(nsIInputStream *rawStream)
   // perl's Compress::Raw::Zlib manual says:
   // -WindowBits
   //  To compress an RFC 1951 data stream, set WindowBits to -MAX_WBITS.
-  if (inflateInit2(&m_zstream, -MAX_WBITS) != Z_OK)
-    return NS_ERROR_FAILURE;
+  if (inflateInit2(&m_zstream, -MAX_WBITS) != Z_OK) return NS_ERROR_FAILURE;
 
   m_iStream = rawStream;
 
   return NS_OK;
 }
 
-nsresult nsMsgCompressIStream::DoInflation()
-{
+nsresult nsMsgCompressIStream::DoInflation() {
   // if there's something in the input buffer of the zstream, process it.
-  m_zstream.next_out = (Bytef *) m_databuf.get();
+  m_zstream.next_out = (Bytef *)m_databuf.get();
   m_zstream.avail_out = BUFFER_SIZE;
   int zr = inflate(&m_zstream, Z_SYNC_FLUSH);
 
@@ -68,12 +54,10 @@ nsresult nsMsgCompressIStream::DoInflation()
   // Z_STREAM_END or an error, and Z_BUF_ERROR just means
   // unable to progress any further (possible if we filled
   // an output buffer exactly)
-  if (zr == Z_BUF_ERROR || zr == Z_STREAM_END)
-    zr = Z_OK;
+  if (zr == Z_BUF_ERROR || zr == Z_STREAM_END) zr = Z_OK;
 
   // otherwise it's an error
-  if (zr != Z_OK)
-    return NS_ERROR_FAILURE;
+  if (zr != Z_OK) return NS_ERROR_FAILURE;
 
   // http://www.zlib.net/manual.html says:
   // If inflate returns Z_OK and with zero avail_out, it must be called
@@ -90,21 +74,16 @@ nsresult nsMsgCompressIStream::DoInflation()
 }
 
 /* void close (); */
-NS_IMETHODIMP nsMsgCompressIStream::Close()
-{
-  return CloseWithStatus(NS_OK);
-}
+NS_IMETHODIMP nsMsgCompressIStream::Close() { return CloseWithStatus(NS_OK); }
 
-NS_IMETHODIMP nsMsgCompressIStream::CloseWithStatus(nsresult reason)
-{
+NS_IMETHODIMP nsMsgCompressIStream::CloseWithStatus(nsresult reason) {
   nsresult rv = NS_OK;
 
-  if (m_iStream)
-  {
+  if (m_iStream) {
     // pass the status through to our wrapped stream
-    nsCOMPtr <nsIAsyncInputStream> asyncInputStream = do_QueryInterface(m_iStream);
-    if (asyncInputStream)
-      rv = asyncInputStream->CloseWithStatus(reason);
+    nsCOMPtr<nsIAsyncInputStream> asyncInputStream =
+        do_QueryInterface(m_iStream);
+    if (asyncInputStream) rv = asyncInputStream->CloseWithStatus(reason);
 
     // tidy up
     m_iStream = nullptr;
@@ -121,21 +100,17 @@ NS_IMETHODIMP nsMsgCompressIStream::CloseWithStatus(nsresult reason)
 }
 
 /* unsigned long long available (); */
-NS_IMETHODIMP nsMsgCompressIStream::Available(uint64_t *aResult)
-{
-  if (!m_iStream)
-    return NS_BASE_STREAM_CLOSED;
+NS_IMETHODIMP nsMsgCompressIStream::Available(uint64_t *aResult) {
+  if (!m_iStream) return NS_BASE_STREAM_CLOSED;
 
   // check if there's anything still in flight
-  if (!m_dataleft && m_inflateAgain)
-  {
+  if (!m_dataleft && m_inflateAgain) {
     nsresult rv = DoInflation();
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
   // we'll be returning this many to the next read, guaranteed
-  if (m_dataleft)
-  {
+  if (m_dataleft) {
     *aResult = m_dataleft;
     return NS_OK;
   }
@@ -147,10 +122,9 @@ NS_IMETHODIMP nsMsgCompressIStream::Available(uint64_t *aResult)
 }
 
 /* [noscript] unsigned long read (in charPtr aBuf, in unsigned long aCount); */
-NS_IMETHODIMP nsMsgCompressIStream::Read(char * aBuf, uint32_t aCount, uint32_t *aResult)
-{
-  if (!m_iStream)
-  {
+NS_IMETHODIMP nsMsgCompressIStream::Read(char *aBuf, uint32_t aCount,
+                                         uint32_t *aResult) {
+  if (!m_iStream) {
     *aResult = 0;
     return NS_OK;
   }
@@ -170,17 +144,15 @@ NS_IMETHODIMP nsMsgCompressIStream::Read(char * aBuf, uint32_t aCount, uint32_t 
   // both buffers have a maximum size of BUFFER_SIZE, so it is
   // possible that multiple inflate passes will be required to
   // consume all of m_zbuf.
-  while (!m_dataleft)
-  {
+  while (!m_dataleft) {
     // get some more data if we don't already have any
-    if (!m_inflateAgain)
-    {
+    if (!m_inflateAgain) {
       uint32_t bytesRead;
-      nsresult rv = m_iStream->Read(m_zbuf.get(), (uint32_t)BUFFER_SIZE, &bytesRead);
+      nsresult rv =
+          m_iStream->Read(m_zbuf.get(), (uint32_t)BUFFER_SIZE, &bytesRead);
       NS_ENSURE_SUCCESS(rv, rv);
-      if (!bytesRead)
-        return NS_BASE_STREAM_CLOSED;
-      m_zstream.next_in = (Bytef *) m_zbuf.get();
+      if (!bytesRead) return NS_BASE_STREAM_CLOSED;
+      m_zstream.next_in = (Bytef *)m_zbuf.get();
       m_zstream.avail_in = bytesRead;
     }
 
@@ -190,8 +162,7 @@ NS_IMETHODIMP nsMsgCompressIStream::Read(char * aBuf, uint32_t aCount, uint32_t 
 
   *aResult = std::min(m_dataleft, aCount);
 
-  if (*aResult)
-  {
+  if (*aResult) {
     memcpy(aBuf, m_dataptr, *aResult);
     m_dataptr += *aResult;
     m_dataleft -= *aResult;
@@ -200,18 +171,21 @@ NS_IMETHODIMP nsMsgCompressIStream::Read(char * aBuf, uint32_t aCount, uint32_t 
   return NS_OK;
 }
 
-/* [noscript] unsigned long readSegments (in nsWriteSegmentFun aWriter, in voidPtr aClosure, in unsigned long aCount); */
-NS_IMETHODIMP nsMsgCompressIStream::ReadSegments(nsWriteSegmentFun aWriter, void * aClosure, uint32_t aCount, uint32_t *_retval)
-{
+/* [noscript] unsigned long readSegments (in nsWriteSegmentFun aWriter, in
+ * voidPtr aClosure, in unsigned long aCount); */
+NS_IMETHODIMP nsMsgCompressIStream::ReadSegments(nsWriteSegmentFun aWriter,
+                                                 void *aClosure,
+                                                 uint32_t aCount,
+                                                 uint32_t *_retval) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsMsgCompressIStream::AsyncWait(nsIInputStreamCallback *callback, uint32_t flags, uint32_t amount, nsIEventTarget *target)
-{
-  if (!m_iStream)
-    return NS_BASE_STREAM_CLOSED;
+NS_IMETHODIMP nsMsgCompressIStream::AsyncWait(nsIInputStreamCallback *callback,
+                                              uint32_t flags, uint32_t amount,
+                                              nsIEventTarget *target) {
+  if (!m_iStream) return NS_BASE_STREAM_CLOSED;
 
-  nsCOMPtr <nsIAsyncInputStream> asyncInputStream = do_QueryInterface(m_iStream);
+  nsCOMPtr<nsIAsyncInputStream> asyncInputStream = do_QueryInterface(m_iStream);
   if (asyncInputStream)
     return asyncInputStream->AsyncWait(callback, flags, amount, target);
 
@@ -219,9 +193,7 @@ NS_IMETHODIMP nsMsgCompressIStream::AsyncWait(nsIInputStreamCallback *callback, 
 }
 
 /* boolean isNonBlocking (); */
-NS_IMETHODIMP nsMsgCompressIStream::IsNonBlocking(bool *aNonBlocking)
-{
+NS_IMETHODIMP nsMsgCompressIStream::IsNonBlocking(bool *aNonBlocking) {
   *aNonBlocking = false;
   return NS_OK;
 }
-

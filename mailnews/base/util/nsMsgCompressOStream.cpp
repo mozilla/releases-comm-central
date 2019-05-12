@@ -8,28 +8,19 @@
 
 #define BUFFER_SIZE 16384
 
-nsMsgCompressOStream::nsMsgCompressOStream() :
-  m_zbuf(nullptr)
-{
-}
+nsMsgCompressOStream::nsMsgCompressOStream() : m_zbuf(nullptr) {}
 
-nsMsgCompressOStream::~nsMsgCompressOStream()
-{
-  Close();
-}
+nsMsgCompressOStream::~nsMsgCompressOStream() { Close(); }
 
 NS_IMPL_ISUPPORTS(nsMsgCompressOStream, nsIOutputStream)
 
-nsresult nsMsgCompressOStream::InitOutputStream(nsIOutputStream *rawStream)
-{
+nsresult nsMsgCompressOStream::InitOutputStream(nsIOutputStream *rawStream) {
   // protect against repeat calls
-  if (m_oStream)
-    return NS_ERROR_UNEXPECTED;
+  if (m_oStream) return NS_ERROR_UNEXPECTED;
 
   // allocate some memory for a buffer
   m_zbuf = mozilla::MakeUnique<char[]>(BUFFER_SIZE);
-  if (!m_zbuf)
-    return NS_ERROR_OUT_OF_MEMORY;
+  if (!m_zbuf) return NS_ERROR_OUT_OF_MEMORY;
 
   // set up the zlib object
   m_zstream.zalloc = Z_NULL;
@@ -40,8 +31,8 @@ nsresult nsMsgCompressOStream::InitOutputStream(nsIOutputStream *rawStream)
   // perl's Compress::Raw::Zlib manual says:
   // -WindowBits [...]
   //  To compress an RFC 1951 data stream, set WindowBits to -MAX_WBITS.
-  if (deflateInit2(&m_zstream, Z_DEFAULT_COMPRESSION, Z_DEFLATED,
-                   -MAX_WBITS, MAX_MEM_LEVEL, Z_DEFAULT_STRATEGY) != Z_OK)
+  if (deflateInit2(&m_zstream, Z_DEFAULT_COMPRESSION, Z_DEFLATED, -MAX_WBITS,
+                   MAX_MEM_LEVEL, Z_DEFAULT_STRATEGY) != Z_OK)
     return NS_ERROR_FAILURE;
 
   m_oStream = rawStream;
@@ -50,10 +41,8 @@ nsresult nsMsgCompressOStream::InitOutputStream(nsIOutputStream *rawStream)
 }
 
 /* void close (); */
-NS_IMETHODIMP nsMsgCompressOStream::Close()
-{
-  if (m_oStream)
-  {
+NS_IMETHODIMP nsMsgCompressOStream::Close() {
+  if (m_oStream) {
     m_oStream = nullptr;
     deflateEnd(&m_zstream);
   }
@@ -63,18 +52,15 @@ NS_IMETHODIMP nsMsgCompressOStream::Close()
 }
 
 NS_IMETHODIMP
-nsMsgCompressOStream::Write(const char *buf, uint32_t count, uint32_t *result)
-{
-  if (!m_oStream)
-    return NS_BASE_STREAM_CLOSED;
+nsMsgCompressOStream::Write(const char *buf, uint32_t count, uint32_t *result) {
+  if (!m_oStream) return NS_BASE_STREAM_CLOSED;
 
-  m_zstream.next_in = (Bytef *) buf;
+  m_zstream.next_in = (Bytef *)buf;
   m_zstream.avail_in = count;
 
   // keep looping until the buffer doesn't get filled
-  do
-  {
-    m_zstream.next_out = (Bytef *) m_zbuf.get();
+  do {
+    m_zstream.next_out = (Bytef *)m_zbuf.get();
     m_zstream.avail_out = BUFFER_SIZE;
     // Using "Z_SYNC_FLUSH" may cause excess flushes if the calling
     // code does a lot of small writes.  An option with the IMAP
@@ -84,30 +70,27 @@ nsMsgCompressOStream::Write(const char *buf, uint32_t count, uint32_t *result)
     // is likely to break callers.
     int zr = deflate(&m_zstream, Z_SYNC_FLUSH);
     if (zr == Z_STREAM_END || zr == Z_BUF_ERROR)
-      zr = Z_OK; // not an error for our purposes
-    if (zr != Z_OK)
-      return NS_ERROR_FAILURE;
+      zr = Z_OK;  // not an error for our purposes
+    if (zr != Z_OK) return NS_ERROR_FAILURE;
 
     uint32_t out_size = BUFFER_SIZE - m_zstream.avail_out;
     const char *out_buf = m_zbuf.get();
 
     // push everything in the buffer before repeating
-    while (out_size)
-    {
+    while (out_size) {
       uint32_t out_result;
       nsresult rv = m_oStream->Write(out_buf, out_size, &out_result);
       NS_ENSURE_SUCCESS(rv, rv);
-      if (!out_result)
-        return NS_BASE_STREAM_CLOSED;
+      if (!out_result) return NS_BASE_STREAM_CLOSED;
       out_size -= out_result;
       out_buf += out_result;
     }
 
-  // http://www.zlib.net/manual.html says:
-  // If deflate returns with avail_out == 0, this function must be
-  // called again with the same value of the flush parameter and
-  // more output space (updated avail_out), until the flush is
-  // complete (deflate returns with non-zero avail_out).
+    // http://www.zlib.net/manual.html says:
+    // If deflate returns with avail_out == 0, this function must be
+    // called again with the same value of the flush parameter and
+    // more output space (updated avail_out), until the flush is
+    // complete (deflate returns with non-zero avail_out).
   } while (!m_zstream.avail_out);
 
   *result = count;
@@ -116,30 +99,26 @@ nsMsgCompressOStream::Write(const char *buf, uint32_t count, uint32_t *result)
 }
 
 NS_IMETHODIMP
-nsMsgCompressOStream::Flush(void)
-{
-  if (!m_oStream)
-    return NS_BASE_STREAM_CLOSED;
+nsMsgCompressOStream::Flush(void) {
+  if (!m_oStream) return NS_BASE_STREAM_CLOSED;
 
   return m_oStream->Flush();
 }
 
 NS_IMETHODIMP
-nsMsgCompressOStream::WriteFrom(nsIInputStream *inStr, uint32_t count, uint32_t *_retval)
-{
+nsMsgCompressOStream::WriteFrom(nsIInputStream *inStr, uint32_t count,
+                                uint32_t *_retval) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
-nsMsgCompressOStream::WriteSegments(nsReadSegmentFun reader, void * closure, uint32_t count, uint32_t *_retval)
-{
+nsMsgCompressOStream::WriteSegments(nsReadSegmentFun reader, void *closure,
+                                    uint32_t count, uint32_t *_retval) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 /* boolean isNonBlocking (); */
-NS_IMETHODIMP nsMsgCompressOStream::IsNonBlocking(bool *aNonBlocking)
-{
+NS_IMETHODIMP nsMsgCompressOStream::IsNonBlocking(bool *aNonBlocking) {
   *aNonBlocking = false;
   return NS_OK;
 }
-

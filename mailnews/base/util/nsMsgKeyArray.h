@@ -12,9 +12,8 @@
 /*
  * This class is a thin wrapper around an nsTArray<nsMsgKey>
  */
-class nsMsgKeyArray : public nsIMsgKeyArray
-{
-public:
+class nsMsgKeyArray : public nsIMsgKeyArray {
+ public:
   nsMsgKeyArray();
 
   NS_DECL_ISUPPORTS
@@ -22,7 +21,7 @@ public:
 
   nsTArray<nsMsgKey> m_keys;
 
-private:
+ private:
   virtual ~nsMsgKeyArray();
 
 #ifdef DEBUG

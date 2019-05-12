@@ -7,13 +7,13 @@
 #include <stdio.h>
 #include <time.h>
 #if defined(XP_UNIX)
-#include <unistd.h>
-#include <sys/times.h>
-#include <sys/time.h>
-#include <errno.h>
+#  include <unistd.h>
+#  include <sys/times.h>
+#  include <sys/time.h>
+#  include <errno.h>
 #elif defined(XP_WIN)
-#include "windows.h"
-#endif // elif defined(XP_WIN)
+#  include "windows.h"
+#endif  // elif defined(XP_WIN)
 
 #include "nsMemory.h"
 /*
@@ -33,133 +33,123 @@ NS_IMPL_ISUPPORTS(nsStopwatch, nsIStopwatch)
 #if defined(XP_UNIX)
 /** the number of ticks per second */
 static double gTicks = 0;
-#define MICRO_SECONDS_TO_SECONDS_MULT static_cast<double>(1.0e-6)
+#  define MICRO_SECONDS_TO_SECONDS_MULT static_cast<double>(1.0e-6)
 #elif defined(WIN32)
-#ifdef DEBUG
-#include "nsPrintfCString.h"
-#endif
-// 1 tick per 100ns = 10 per us = 10 * 1,000 per ms = 10 * 1,000 * 1,000 per sec.
-#define WIN32_TICK_RESOLUTION static_cast<double>(1.0e-7)
+#  ifdef DEBUG
+#    include "nsPrintfCString.h"
+#  endif
+// 1 tick per 100ns = 10 per us = 10 * 1,000 per ms = 10 * 1,000 * 1,000 per
+// sec.
+#  define WIN32_TICK_RESOLUTION static_cast<double>(1.0e-7)
 // subtract off to get to the unix epoch
-#define UNIX_EPOCH_IN_FILE_TIME 116444736000000000L
-#endif // elif defined(WIN32)
+#  define UNIX_EPOCH_IN_FILE_TIME 116444736000000000L
+#endif  // elif defined(WIN32)
 
 nsStopwatch::nsStopwatch()
- : fTotalRealTimeSecs(0.0)
- , fTotalCpuTimeSecs(0.0)
- , fRunning(false)
-{
+    : fTotalRealTimeSecs(0.0), fTotalCpuTimeSecs(0.0), fRunning(false) {
 #if defined(XP_UNIX)
   // idempotent in the event of a race under all coherency models
-  if (!gTicks)
-  {
+  if (!gTicks) {
     // we need to clear errno because sysconf's spec says it leaves it the same
     //  on success and only sets it on failure.
     errno = 0;
     gTicks = (clock_t)sysconf(_SC_CLK_TCK);
     // in event of failure, pick an arbitrary value so we don't divide by zero.
-    if (errno)
-      gTicks = 1000000L;
+    if (errno) gTicks = 1000000L;
   }
 #endif
 }
 
-nsStopwatch::~nsStopwatch()
-{
-}
+nsStopwatch::~nsStopwatch() {}
 
-NS_IMETHODIMP nsStopwatch::Start()
-{
+NS_IMETHODIMP nsStopwatch::Start() {
   fTotalRealTimeSecs = 0.0;
   fTotalCpuTimeSecs = 0.0;
   return Resume();
 }
 
-NS_IMETHODIMP nsStopwatch::Stop()
-{
+NS_IMETHODIMP nsStopwatch::Stop() {
   fStopRealTimeSecs = GetRealTime();
-  fStopCpuTimeSecs  = GetCPUTime();
-  if (fRunning)
-  {
-    fTotalCpuTimeSecs  += fStopCpuTimeSecs  - fStartCpuTimeSecs;
+  fStopCpuTimeSecs = GetCPUTime();
+  if (fRunning) {
+    fTotalCpuTimeSecs += fStopCpuTimeSecs - fStartCpuTimeSecs;
     fTotalRealTimeSecs += fStopRealTimeSecs - fStartRealTimeSecs;
   }
   fRunning = false;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsStopwatch::Resume()
-{
-  if (!fRunning)
-  {
+NS_IMETHODIMP nsStopwatch::Resume() {
+  if (!fRunning) {
     fStartRealTimeSecs = GetRealTime();
-    fStartCpuTimeSecs  = GetCPUTime();
+    fStartCpuTimeSecs = GetCPUTime();
   }
   fRunning = true;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsStopwatch::GetCpuTimeSeconds(double *result)
-{
+NS_IMETHODIMP nsStopwatch::GetCpuTimeSeconds(double *result) {
   NS_ENSURE_ARG_POINTER(result);
   *result = fTotalCpuTimeSecs;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsStopwatch::GetRealTimeSeconds(double *result)
-{
+NS_IMETHODIMP nsStopwatch::GetRealTimeSeconds(double *result) {
   NS_ENSURE_ARG_POINTER(result);
   *result = fTotalRealTimeSecs;
   return NS_OK;
 }
 
-double nsStopwatch::GetRealTime()
-{
+double nsStopwatch::GetRealTime() {
 #if defined(XP_UNIX)
   struct timeval t;
   gettimeofday(&t, NULL);
   return t.tv_sec + t.tv_usec * MICRO_SECONDS_TO_SECONDS_MULT;
 #elif defined(WIN32)
-  union     {FILETIME ftFileTime;
-             __int64  ftInt64;
-            } ftRealTime; // time the process has spent in kernel mode
+  union {
+    FILETIME ftFileTime;
+    __int64 ftInt64;
+  } ftRealTime;  // time the process has spent in kernel mode
   SYSTEMTIME st;
   GetSystemTime(&st);
   SystemTimeToFileTime(&st, &ftRealTime.ftFileTime);
   return (ftRealTime.ftInt64 - UNIX_EPOCH_IN_FILE_TIME) * WIN32_TICK_RESOLUTION;
 #else
-#error "nsStopwatch not supported on this platform."
+#  error "nsStopwatch not supported on this platform."
 #endif
 }
 
-double nsStopwatch::GetCPUTime()
-{
+double nsStopwatch::GetCPUTime() {
 #if defined(XP_UNIX)
   struct tms cpt;
   times(&cpt);
-  return (double)(cpt.tms_utime+cpt.tms_stime) / gTicks;
+  return (double)(cpt.tms_utime + cpt.tms_stime) / gTicks;
 #elif defined(WIN32)
-  FILETIME    ftCreate,       // when the process was created
-              ftExit;         // when the process exited
+  FILETIME ftCreate,  // when the process was created
+      ftExit;         // when the process exited
 
-  union     {FILETIME ftFileTime;
-             __int64  ftInt64;
-            } ftKernel; // time the process has spent in kernel mode
+  union {
+    FILETIME ftFileTime;
+    __int64 ftInt64;
+  } ftKernel;  // time the process has spent in kernel mode
 
-  union     {FILETIME ftFileTime;
-             __int64  ftInt64;
-            } ftUser;   // time the process has spent in user mode
+  union {
+    FILETIME ftFileTime;
+    __int64 ftInt64;
+  } ftUser;  // time the process has spent in user mode
 
   HANDLE hProcess = GetCurrentProcess();
-#ifdef DEBUG
+#  ifdef DEBUG
   BOOL ret =
-#endif
-    GetProcessTimes(hProcess, &ftCreate, &ftExit,
-                              &ftKernel.ftFileTime, &ftUser.ftFileTime);
-#ifdef DEBUG
+#  endif
+      GetProcessTimes(hProcess, &ftCreate, &ftExit, &ftKernel.ftFileTime,
+                      &ftUser.ftFileTime);
+#  ifdef DEBUG
   if (!ret)
-    NS_ERROR(nsPrintfCString("GetProcessTimes() failed, error=0x%lx.", GetLastError()).get());
-#endif
+    NS_ERROR(nsPrintfCString("GetProcessTimes() failed, error=0x%lx.",
+                             GetLastError())
+                 .get());
+#  endif
 
   /*
    * Process times are returned in a 64-bit structure, as the number of
@@ -169,6 +159,6 @@ double nsStopwatch::GetCPUTime()
    */
   return (ftKernel.ftInt64 + ftUser.ftInt64) * WIN32_TICK_RESOLUTION;
 #else
-#error "nsStopwatch not supported on this platform."
+#  error "nsStopwatch not supported on this platform."
 #endif
 }

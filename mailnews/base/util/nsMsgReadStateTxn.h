@@ -13,36 +13,32 @@
 #include "MailNewsTypes.h"
 #include "nsIMsgFolder.h"
 
-
-#define NS_MSGREADSTATETXN_IID \
-{ /* 121FCE4A-3EA1-455C-8161-839E1557D0CF */ \
-  0x121FCE4A, 0x3EA1, 0x455C, \
-  { 0x81, 0x61, 0x83, 0x9E, 0x15, 0x57, 0xD0, 0xCF } \
-}
-
+#define NS_MSGREADSTATETXN_IID                       \
+  { /* 121FCE4A-3EA1-455C-8161-839E1557D0CF */       \
+    0x121FCE4A, 0x3EA1, 0x455C, {                    \
+      0x81, 0x61, 0x83, 0x9E, 0x15, 0x57, 0xD0, 0xCF \
+    }                                                \
+  }
 
 //------------------------------------------------------------------------------
 // A mark-all transaction handler. Helper for redo/undo of message read states.
 //------------------------------------------------------------------------------
-class NS_MSG_BASE nsMsgReadStateTxn : public nsMsgTxn
-{
-public:
+class NS_MSG_BASE nsMsgReadStateTxn : public nsMsgTxn {
+ public:
   nsMsgReadStateTxn();
   virtual ~nsMsgReadStateTxn();
 
-  nsresult Init(nsIMsgFolder *aParentFolder,
-                uint32_t aNumKeys,
+  nsresult Init(nsIMsgFolder *aParentFolder, uint32_t aNumKeys,
                 nsMsgKey *aMsgKeyArray);
   NS_IMETHOD UndoTransaction() override;
   NS_IMETHOD RedoTransaction() override;
 
-protected:
+ protected:
   NS_IMETHOD MarkMessages(bool aAsRead);
 
-private:
+ private:
   nsCOMPtr<nsIMsgFolder> mParentFolder;
-  nsTArray<nsMsgKey>     mMarkedMessages;
+  nsTArray<nsMsgKey> mMarkedMessages;
 };
 
 #endif  // nsMsgBaseUndoTxn_h_
-

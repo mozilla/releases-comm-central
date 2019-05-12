@@ -9,20 +9,12 @@
 #include "nsIMsgHdr.h"
 #include "nsComponentManagerUtils.h"
 
+nsMsgReadStateTxn::nsMsgReadStateTxn() {}
 
-nsMsgReadStateTxn::nsMsgReadStateTxn()
-{
-}
+nsMsgReadStateTxn::~nsMsgReadStateTxn() {}
 
-nsMsgReadStateTxn::~nsMsgReadStateTxn()
-{
-}
-
-nsresult
-nsMsgReadStateTxn::Init(nsIMsgFolder *aParentFolder,
-                        uint32_t aNumKeys,
-                        nsMsgKey *aMsgKeyArray)
-{
+nsresult nsMsgReadStateTxn::Init(nsIMsgFolder *aParentFolder, uint32_t aNumKeys,
+                                 nsMsgKey *aMsgKeyArray) {
   NS_ENSURE_ARG_POINTER(aParentFolder);
 
   mParentFolder = aParentFolder;
@@ -32,23 +24,16 @@ nsMsgReadStateTxn::Init(nsIMsgFolder *aParentFolder,
 }
 
 NS_IMETHODIMP
-nsMsgReadStateTxn::UndoTransaction()
-{
-  return MarkMessages(false);
-}
+nsMsgReadStateTxn::UndoTransaction() { return MarkMessages(false); }
 
 NS_IMETHODIMP
-nsMsgReadStateTxn::RedoTransaction()
-{
-  return MarkMessages(true);
-}
+nsMsgReadStateTxn::RedoTransaction() { return MarkMessages(true); }
 
 NS_IMETHODIMP
-nsMsgReadStateTxn::MarkMessages(bool aAsRead)
-{
+nsMsgReadStateTxn::MarkMessages(bool aAsRead) {
   nsresult rv;
   nsCOMPtr<nsIMutableArray> messageArray =
-    do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
+      do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   uint32_t length = mMarkedMessages.Length();
@@ -63,4 +48,3 @@ nsMsgReadStateTxn::MarkMessages(bool aAsRead)
 
   return mParentFolder->MarkMessagesRead(messageArray, aAsRead);
 }
-

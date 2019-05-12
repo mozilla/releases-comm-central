@@ -8,9 +8,8 @@
 #include "mozilla/UniquePtr.h"
 #include "zlib.h"
 
-class NS_MSG_BASE nsMsgCompressOStream final : public nsIOutputStream
-{
-public:
+class NS_MSG_BASE nsMsgCompressOStream final : public nsIOutputStream {
+ public:
   nsMsgCompressOStream();
 
   NS_DECL_THREADSAFE_ISUPPORTS
@@ -19,10 +18,9 @@ public:
 
   nsresult InitOutputStream(nsIOutputStream *rawStream);
 
-protected:
+ protected:
   ~nsMsgCompressOStream();
   nsCOMPtr<nsIOutputStream> m_oStream;
   mozilla::UniquePtr<char[]> m_zbuf;
   z_stream m_zstream;
 };
-
