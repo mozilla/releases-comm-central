@@ -77,9 +77,6 @@ class nsMsgKeySetU;
   * class derived from nsMsgFolder for those folders that use an nsIMsgDatabase
   */
 
-#undef IMETHOD_VISIBILITY
-#define IMETHOD_VISIBILITY NS_VISIBILITY_DEFAULT
-
 class NS_MSG_BASE nsMsgDBFolder: public nsRDFResource,
                                  public nsSupportsWeakReference,
                                  public nsIMsgFolder,
@@ -319,8 +316,5 @@ protected:
   nsMsgKeySet* loKeySet;
   nsMsgKeySet* hiKeySet;
 };
-
-#undef  IMETHOD_VISIBILITY
-#define IMETHOD_VISIBILITY NS_VISIBILITY_HIDDEN
 
 #endif

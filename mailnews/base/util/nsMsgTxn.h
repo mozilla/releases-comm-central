@@ -25,9 +25,6 @@
  * base class for all message undo/redo transactions.
  */
 
-#undef  IMETHOD_VISIBILITY
-#define IMETHOD_VISIBILITY NS_VISIBILITY_DEFAULT
-
 class NS_MSG_BASE nsMsgTxn : public nsITransaction,
                              public nsIWritablePropertyBag,
                              public nsIWritablePropertyBag2
@@ -66,8 +63,5 @@ protected:
     uint32_t m_txnType;
     nsresult CheckForToggleDelete(nsIMsgFolder *aFolder, const nsMsgKey &aMsgKey, bool *aResult);
 };
-
-#undef  IMETHOD_VISIBILITY
-#define IMETHOD_VISIBILITY NS_VISIBILITY_HIDDEN
 
 #endif

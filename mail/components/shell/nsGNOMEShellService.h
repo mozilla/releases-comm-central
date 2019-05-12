@@ -25,7 +25,7 @@ class nsGNOMEShellService : public nsIShellService,
   NS_DECL_ISUPPORTS
   NS_DECL_NSISHELLSERVICE
 
-  NS_HIDDEN_(nsresult) Init();
+  nsresult Init();
   nsGNOMEShellService();
 
  protected:

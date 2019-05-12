@@ -14,9 +14,6 @@
 
 #define NS_STOPWATCH_CONTRACTID "@mozilla.org/stopwatch;1"
 
-#undef  IMETHOD_VISIBILITY
-#define IMETHOD_VISIBILITY NS_VISIBILITY_DEFAULT
-
 class NS_MSG_BASE nsStopwatch : public nsIStopwatch
 {
 public:

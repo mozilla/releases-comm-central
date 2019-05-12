@@ -33,7 +33,7 @@ class nsWindowsShellService : public nsIShellService,
                               public nsToolkitShellService {
  public:
   nsWindowsShellService();
-  NS_HIDDEN_(nsresult) Init();
+  nsresult Init();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSISHELLSERVICE

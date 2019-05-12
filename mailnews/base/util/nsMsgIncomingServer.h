@@ -33,9 +33,6 @@ class nsIMsgProtocolInfo;
  * this particular implementation is not meant to be used directly.
  */
 
-#undef  IMETHOD_VISIBILITY
-#define IMETHOD_VISIBILITY NS_VISIBILITY_DEFAULT
-
 class NS_MSG_BASE nsMsgIncomingServer : public nsIMsgIncomingServer,
                                         public nsSupportsWeakReference,
                                         public nsIObserver
@@ -100,8 +97,5 @@ protected:
   bool m_displayStartupPage;
   bool mPerformingBiff;
 };
-
-#undef  IMETHOD_VISIBILITY
-#define IMETHOD_VISIBILITY NS_VISIBILITY_HIDDEN
 
 #endif // nsMsgIncomingServer_h__
