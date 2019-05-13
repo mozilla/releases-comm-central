@@ -5,6 +5,7 @@
 
 #ifndef _nsMsgLocalFolderHdrs_H
 #define _nsMsgLocalFolderHdrs_H
+// clang-format off
 
 /* The Netscape-specific header fields that we use for storing our
    various bits of state in mail folders.
@@ -33,7 +34,10 @@
 #define EMPTY_MESSAGE_LINE(buf) (buf[0] == '\r' || buf[0] == '\n' || buf[0] == '\0')
 
 /* blank filled header to store keyword/tags in the mailbox */
-#define X_MOZILLA_KEYWORDS     "X-Mozilla-Keys" ":                                                                                 " MSG_LINEBREAK
+#define X_MOZILLA_KEYWORDS     "X-Mozilla-Keys"                                          \
+    ":                                                                                 " \
+    MSG_LINEBREAK
 #define X_MOZILLA_KEYWORDS_LEN (sizeof(X_MOZILLA_KEYWORDS) - 1)
 
+// clang-format on
 #endif

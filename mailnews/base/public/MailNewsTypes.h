@@ -12,14 +12,15 @@
 /* nsMsgKey is a unique ID for a particular message in a folder.  If you want
    a handle to a message that will remain valid even after resorting the folder
    or otherwise changing their indices, you want one of these rather than a
-   nsMsgViewIndex. nsMsgKeys don't survive local mail folder compression, however.
+   nsMsgViewIndex. nsMsgKeys don't survive local mail folder compression,
+   however.
  */
 const nsMsgKey nsMsgKey_None = 0xffffffff;
 
 /* nsMsgViewIndex
  *
- * A generic index type from which other index types are derived.  All nsMsgViewIndex
- * derived types are zero based.
+ * A generic index type from which other index types are derived.  All
+ * nsMsgViewIndex derived types are zero based.
  *
  * The following index types are currently supported:
  *  - nsMsgViewIndex - an index into the list of messages or folders or groups,

@@ -5,6 +5,7 @@
 
 #ifndef _msgHeaderMasks_h_
 #define _msgHeaderMasks_h_
+// clang-format off
 
 DO NOT USE ANYMORE!!!
 /* This set enumerates the header fields which may be displayed in the
@@ -48,4 +49,5 @@ DO NOT USE ANYMORE!!!
 
 /* IMAP folders for posting */
 //#define MSG_IMAP_FOLDER_HEADER_MASK       0x02000000
+// clang-format on
 #endif

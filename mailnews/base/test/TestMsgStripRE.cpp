@@ -19,25 +19,22 @@ struct testInfo {
   bool expectedDidModify;
 };
 
-int
-testStripRe(const char *encodedInput, char *expectedOutput,
-            bool expectedDidModify)
-{
+int testStripRe(const char *encodedInput, char *expectedOutput,
+                bool expectedDidModify) {
   // call NS_StripRE with the appropriate args
   nsCString modifiedSubject;
   bool didModify;
   didModify = NS_MsgStripRE(nsDependentCString(encodedInput), modifiedSubject);
 
   // make sure we got the right results
-  if (didModify != expectedDidModify)
-    return 2;
+  if (didModify != expectedDidModify) return 2;
 
   if (didModify) {
     if (strcmp(expectedOutput, modifiedSubject.get())) {
       return 3;
     }
   } else if (strcmp(expectedOutput, encodedInput)) {
-      return 4;
+    return 4;
   }
 
   // test passed
@@ -45,34 +42,35 @@ testStripRe(const char *encodedInput, char *expectedOutput,
 }
 
 // int main(int argc, char** argv)
-TEST(TestMsgStripRE,TestMsgStripREMain)
+TEST(TestMsgStripRE, TestMsgStripREMain)
 {
   nsresult rv;
-  nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID,
-                                     &rv));
+  nsCOMPtr<nsIPrefBranch> prefBranch(
+      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
   EXPECT_TRUE(NS_SUCCEEDED(rv));
 
   // set localizedRe pref, value "SV,ÆØÅ",
   // \xC3\x86, \xC3\x98 and \xC3\x85 are the UTF-8 encodings of Æ, Ø and Å.
-  rv = prefBranch->SetStringPref("mailnews.localizedRe",
-                                 NS_LITERAL_CSTRING("SV,\xC3\x86\xC3\x98\xC3\x85"));
+  rv = prefBranch->SetStringPref(
+      "mailnews.localizedRe",
+      NS_LITERAL_CSTRING("SV,\xC3\x86\xC3\x98\xC3\x85"));
   EXPECT_TRUE(NS_SUCCEEDED(rv));
 
   // run our tests
   struct testInfo testInfoStructs[] = {
-    // Note that re-encoding always happens in UTF-8.
-    {"SV: =?ISO-8859-1?Q?=C6blegr=F8d?=", "=?UTF-8?B?w4ZibGVncsO4ZA==?=",
-     true},
-    {"=?ISO-8859-1?Q?SV=3A=C6blegr=F8d?=", "=?UTF-8?B?w4ZibGVncsO4ZA==?=",
-     true},
+      // Note that re-encoding always happens in UTF-8.
+      {"SV: =?ISO-8859-1?Q?=C6blegr=F8d?=", "=?UTF-8?B?w4ZibGVncsO4ZA==?=",
+       true},
+      {"=?ISO-8859-1?Q?SV=3A=C6blegr=F8d?=", "=?UTF-8?B?w4ZibGVncsO4ZA==?=",
+       true},
 
-     // Note that in the next two tests, the only ISO-8859-1 chars are in the
-     // localizedRe piece, so once they've been stripped, the re-encoding process
-     // simply writes out ASCII rather than an ISO-8859-1 encoded string with
-     // no actual ISO-8859-1 special characters, which seems reasonable.
-    {"=?ISO-8859-1?Q?=C6=D8=C5=3A_Foo_bar?=", "Foo bar", true},
-    {"=?ISO-8859-1?Q?=C6=D8=C5=3AFoo_bar?=", "Foo bar", true}
-  };
+      // Note that in the next two tests, the only ISO-8859-1 chars are in the
+      // localizedRe piece, so once they've been stripped, the re-encoding
+      // process simply writes out ASCII rather than an ISO-8859-1 encoded
+      // string with no actual ISO-8859-1 special characters, which seems
+      // reasonable.
+      {"=?ISO-8859-1?Q?=C6=D8=C5=3A_Foo_bar?=", "Foo bar", true},
+      {"=?ISO-8859-1?Q?=C6=D8=C5=3AFoo_bar?=", "Foo bar", true}};
 
   bool allTestsPassed = true;
   int result;
@@ -80,8 +78,7 @@ TEST(TestMsgStripRE,TestMsgStripREMain)
     result = testStripRe(testInfoStructs[i].encodedInput,
                          testInfoStructs[i].expectedOutput,
                          testInfoStructs[i].expectedDidModify);
-    if (result)
-    {
+    if (result) {
       printf("Failed: %s, i=%d | result=%d\n", __FILE__, i, result);
       allTestsPassed = false;
     }

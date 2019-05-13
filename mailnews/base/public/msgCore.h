@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* Include files we are going to want available to all files....these files include
-   NSPR, memory, and string header files among others */
+/* Include files we are going to want available to all files....these files
+   include NSPR, memory, and string header files among others */
 
 #ifndef msgCore_h__
 #define msgCore_h__
@@ -59,13 +59,13 @@ class nsIMsgFolder;
 
 /* use these routines to generate error values */
 #define NS_MSG_GENERATE_RESULT(severity, value) \
-NS_ERROR_GENERATE(severity, NS_ERROR_MODULE_MAILNEWS, value)
+  NS_ERROR_GENERATE(severity, NS_ERROR_MODULE_MAILNEWS, value)
 
 #define NS_MSG_GENERATE_SUCCESS(value) \
-NS_ERROR_GENERATE_SUCCESS(NS_ERROR_MODULE_MAILNEWS, value)
+  NS_ERROR_GENERATE_SUCCESS(NS_ERROR_MODULE_MAILNEWS, value)
 
 #define NS_MSG_GENERATE_FAILURE(value) \
-NS_ERROR_GENERATE_FAILURE(NS_ERROR_MODULE_MAILNEWS, value)
+  NS_ERROR_GENERATE_FAILURE(NS_ERROR_MODULE_MAILNEWS, value)
 
 /* these are shortcuts to generate simple errors with a zero value */
 #define NS_MSG_SUCCESS NS_MSG_GENERATE_SUCCESS(0)
@@ -74,23 +74,22 @@ NS_ERROR_GENERATE_FAILURE(NS_ERROR_MODULE_MAILNEWS, value)
 #define IS_SPACE(VAL) \
   (((((PRIntn)(VAL)) & 0x7f) == ((PRIntn)(VAL))) && isspace((PRIntn)(VAL)))
 
-#define IS_DIGIT(i)   ((((unsigned int) (i)) > 0x7f) ? (int) 0 : isdigit(i))
+#define IS_DIGIT(i) ((((unsigned int)(i)) > 0x7f) ? (int)0 : isdigit(i))
 #if defined(XP_WIN)
-#define IS_ALPHA(VAL) (isascii((int)(VAL)) && isalpha((int)(VAL)))
+#  define IS_ALPHA(VAL) (isascii((int)(VAL)) && isalpha((int)(VAL)))
 #else
-#define IS_ALPHA(VAL) ((((unsigned int) (VAL)) > 0x7f) ? (int) 0 : isalpha((int)(VAL)))
+#  define IS_ALPHA(VAL) \
+    ((((unsigned int)(VAL)) > 0x7f) ? (int)0 : isalpha((int)(VAL)))
 #endif
 
 /* for retrieving information out of messenger nsresults */
 
 #define NS_IS_MSG_ERROR(err) \
- (NS_ERROR_GET_MODULE(err) == NS_ERROR_MODULE_MAILNEWS)
+  (NS_ERROR_GET_MODULE(err) == NS_ERROR_MODULE_MAILNEWS)
 
-#define NS_MSG_SUCCEEDED(err) \
- (NS_IS_MSG_ERROR(err) && NS_SUCCEEDED(err))
+#define NS_MSG_SUCCEEDED(err) (NS_IS_MSG_ERROR(err) && NS_SUCCEEDED(err))
 
-#define NS_MSG_FAILED(err) \
- (NS_IS_MSG_ERROR(err) && NS_FAILED(err))
+#define NS_MSG_FAILED(err) (NS_IS_MSG_ERROR(err) && NS_FAILED(err))
 
 #define NS_MSG_PASSWORD_PROMPT_CANCELLED NS_MSG_GENERATE_SUCCESS(1)
 
@@ -148,12 +147,18 @@ NS_ERROR_GENERATE_FAILURE(NS_ERROR_MODULE_MAILNEWS, value)
 // it was queued after failed. We send an OnStopRunningUrl with this error code
 // so the listeners can know that we didn't run the url.
 #define NS_MSG_ERROR_URL_ABORTED NS_MSG_GENERATE_FAILURE(27)
-#define NS_MSG_CUSTOM_HEADERS_OVERFLOW NS_MSG_GENERATE_FAILURE(28) //when num of custom headers exceeds 50
-#define NS_MSG_INVALID_CUSTOM_HEADER NS_MSG_GENERATE_FAILURE(29) //when custom header has invalid characters (as per rfc 2822)
 
-#define NS_MSG_USER_NOT_AUTHENTICATED NS_MSG_GENERATE_FAILURE(30) // when local caches are password protect and user isn't auth
+// when num of custom headers exceeds 50
+#define NS_MSG_CUSTOM_HEADERS_OVERFLOW NS_MSG_GENERATE_FAILURE(28)
 
-#define NS_MSG_ERROR_COPYING_FROM_TMP_DOWNLOAD NS_MSG_GENERATE_FAILURE(31) // pop3 downloaded to tmp file, and failed.
+// when custom header has invalid characters (as per rfc 2822)
+#define NS_MSG_INVALID_CUSTOM_HEADER NS_MSG_GENERATE_FAILURE(29)
+
+// when local caches are password protect and user isn't auth
+#define NS_MSG_USER_NOT_AUTHENTICATED NS_MSG_GENERATE_FAILURE(30)
+
+#define NS_MSG_ERROR_COPYING_FROM_TMP_DOWNLOAD \
+  NS_MSG_GENERATE_FAILURE(31)  // pop3 downloaded to tmp file, and failed.
 
 // The code tried to stream a message using the aLocalOnly argument, but
 // the message was not cached locally.
@@ -170,16 +175,17 @@ NS_ERROR_GENERATE_FAILURE(NS_ERROR_MODULE_MAILNEWS, value)
    12500 and 12999 are reserved.
 */
 #define NS_MSGCOMP_ERROR_BEGIN 12500
-/* NS_ERROR_NNTP_NO_CROSS_POSTING lives here, and not in nsMsgComposeStringBundle.h, because it is used in news and compose. */
+/* NS_ERROR_NNTP_NO_CROSS_POSTING lives here, and not in
+ * nsMsgComposeStringBundle.h, because it is used in news and compose. */
 #define NS_ERROR_NNTP_NO_CROSS_POSTING NS_MSG_GENERATE_FAILURE(12554)
 #define NS_MSGCOMP_ERROR_END 12999
 
 #if defined(XP_WIN)
-#define MSG_LINEBREAK "\015\012"
-#define MSG_LINEBREAK_LEN 2
+#  define MSG_LINEBREAK "\015\012"
+#  define MSG_LINEBREAK_LEN 2
 #else
-#define MSG_LINEBREAK "\012"
-#define MSG_LINEBREAK_LEN 1
+#  define MSG_LINEBREAK "\012"
+#  define MSG_LINEBREAK_LEN 1
 #endif
 
 /*
@@ -201,5 +207,4 @@ NS_ERROR_GENERATE_FAILURE(NS_ERROR_MODULE_MAILNEWS, value)
 /// The number of microseconds in a day. This comes up a lot.
 #define PR_USEC_PER_DAY (PRTime(PR_USEC_PER_SEC) * 60 * 60 * 24)
 
-#endif // msgCore_h__
-
+#endif  // msgCore_h__
