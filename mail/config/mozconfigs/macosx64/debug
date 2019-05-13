@@ -17,6 +17,3 @@ MOZ_REQUIRE_ADDON_SIGNING=0
 export MOZ_PACKAGE_JSSHELL=1
 
 . "$topsrcdir/comm/build/mozconfig.sccache"
-
-# https://bugzilla.mozilla.org/show_bug.cgi?id=1419472
-ac_add_options --disable-clang-plugin

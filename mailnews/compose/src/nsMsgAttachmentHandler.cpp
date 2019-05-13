@@ -858,9 +858,6 @@ nsresult nsMsgAttachmentHandler::ConvertToAppleEncoding(
     nsCOMPtr<nsIURI> fileURI;
     NS_NewFileURI(getter_AddRefs(fileURI), mEncodedWorkingFile);
 
-    nsCOMPtr<nsIFileURL> theFileURL = do_QueryInterface(fileURI, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
     nsCString newURLSpec;
     rv = fileURI->GetSpec(newURLSpec);
     NS_ENSURE_SUCCESS(rv, rv);

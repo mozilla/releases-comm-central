@@ -22,7 +22,4 @@ MOZ_REQUIRE_ADDON_SIGNING=0
 
 . "$topsrcdir/comm/build/mozconfig.sccache"
 
-# https://bugzilla.mozilla.org/show_bug.cgi?id=1419472
-ac_add_options --disable-clang-plugin
-
 mk_add_options "export SOCORRO_SYMBOL_UPLOAD_TOKEN_FILE=/builds/crash-stats-api.token"
