@@ -164,6 +164,9 @@
 
 @RESPATH@/components/aboutRedirector.js
 @RESPATH@/components/activityComponents.manifest
+@RESPATH@/components/EnterprisePolicies.js
+@RESPATH@/components/EnterprisePolicies.manifest
+@RESPATH@/components/EnterprisePoliciesContent.js
 @RESPATH@/components/folderLookupService.js
 ; interfaces.manifest doesn't get packaged because it is dynamically
 ; re-created at packaging time when linking the xpts that will actually

@@ -6,22 +6,23 @@
 # Only Mac and Windows have search integration components, but we include at
 # least one module from search/ on all platforms
 DIRS += [
-    'compose',
-    'cloudfile',
-    'devtools',
-    'downloads',
-    'extensions',
-    'preferences',
-    'addrbook',
-    'migration',
-    'activity',
-    'search',
-    'shell',
     'about-support',
     'accountcreation',
-    'wintaskbar',
-    'newmailaccount',
+    'activity',
+    'addrbook',
+    'cloudfile',
+    'compose',
+    'devtools',
+    'downloads',
+    'enterprisepolicies',
+    'extensions',
     'im',
+    'migration',
+    'newmailaccount',
+    'preferences',
+    'search',
+    'shell',
+    'wintaskbar',
 ]
 
 TEST_DIRS += ['test']

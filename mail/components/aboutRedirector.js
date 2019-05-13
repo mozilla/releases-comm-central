@@ -25,6 +25,8 @@ AboutRedirector.prototype = {
                     flags: Ci.nsIAboutModule.ALLOW_SCRIPT},
     "downloads": {url: "chrome://messenger/content/downloads/aboutDownloads.xul",
                   flags: Ci.nsIAboutModule.ALLOW_SCRIPT},
+    "policies": {url: "chrome://messenger/content/policies/aboutPolicies.xhtml",
+                 flags: Ci.nsIAboutModule.ALLOW_SCRIPT},
   },
 
   /**
