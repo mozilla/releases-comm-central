@@ -1986,6 +1986,7 @@ nsresult nsNNTPProtocol::DisplayArticle(nsIInputStream *inputStream,
     nsresult rv = NS_OK;
     char *line = m_lineStreamBuffer->ReadNextLine(inputStream, line_length,
                                                   pauseForMoreData, &rv, true);
+
     if (pauseForMoreData) {
       uint64_t inlength = 0;
       mDisplayInputStream->Available(&inlength);
@@ -1997,6 +1998,8 @@ nsresult nsNNTPProtocol::DisplayArticle(nsIInputStream *inputStream,
       PR_Free(line);
       return rv;
     }
+
+    if (!line) return NS_OK;
 
     if (m_newsFolder) m_newsFolder->NotifyDownloadedLine(line, m_key);
 
