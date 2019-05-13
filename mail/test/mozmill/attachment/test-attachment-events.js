@@ -122,6 +122,7 @@ function test_attachments_added_on_multiple() {
   }
 
   // Close the compose window - let's try again with 3 attachments.
+  cw.e("attachmentBucket").removeEventListener(kAttachmentsAdded, listener);
   close_compose_window(cw);
 
   attachmentUrls = ["http://www.example.com/1",
@@ -378,7 +379,7 @@ function test_attachment_renamed() {
   assert_equals("www.example.com/2", originalName3);
 
   // Unregister the Mock Prompt service, and remove our observer.
-  cw.e("attachmentBucket").addEventListener(kAttachmentRenamed, listener);
+  cw.e("attachmentBucket").removeEventListener(kAttachmentRenamed, listener);
 
   close_compose_window(cw);
   gMockPromptService.unregister();
