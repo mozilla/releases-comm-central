@@ -6,6 +6,11 @@
  * This test verifies that we don't display text attachments inline
  * when mail.inline_attachments is false.
  */
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../test/resources/messageGenerator.js */
+/* import-globals-from ../../../test/resources/messageModifier.js */
+/* import-globals-from ../../../test/resources/messageInjection.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
@@ -17,30 +22,33 @@ var gMessenger = Cc["@mozilla.org/messenger;1"]
                    .createInstance(Ci.nsIMessenger);
 
 // Create a message generator
-var msgGen = gMessageGenerator = new MessageGenerator();
+var gMessageGenerator = new MessageGenerator();
 
 var textAttachment =
   "inline text attachment";
 
 // create a message with a text attachment
 var messages = [
-  // text attachment
-  { attachments: [{ body: textAttachment,
-                    filename: 'test.txt',
-                    format: '' }]},
-  ];
-
+  {
+    // text attachment
+    attachments: [{
+      body: textAttachment,
+      filename: "test.txt",
+      format: "",
+    }],
+  },
+];
 
 var gStreamListener = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
 
   _str: "",
   // nsIRequestObserver part
-  onStartRequest: function (aRequest) {
+  onStartRequest(aRequest) {
     this.str = "";
     this._stream = null;
   },
-  onStopRequest: function (aRequest, aStatusCode) {
+  onStopRequest(aRequest, aStatusCode) {
     // check that text attachment contents didn't end up inline.
     Assert.ok(!this._str.includes(textAttachment));
     async_driver();
@@ -50,9 +58,9 @@ var gStreamListener = {
      converter is actually eating everything except the start and stop
      notification. */
   // nsIStreamListener part
-  _stream : null,
+  _stream: null,
 
-  onDataAvailable: function (aRequest, aInputStream, aOffset, aCount) {
+  onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
     if (this._stream === null) {
       this._stream = Cc["@mozilla.org/scriptableinputstream;1"].
                     createInstance(Ci.nsIScriptableInputStream);
@@ -75,7 +83,7 @@ function* test_message_attachments(info, inline, inline_text) {
   let msgURI = synSet.getMsgURI(0);
   let msgService = gMessenger.messageServiceFromURI(msgURI);
 
-  let streamURI = msgService.streamMessage(
+  msgService.streamMessage(
     msgURI,
     gStreamListener,
     msgWindow,

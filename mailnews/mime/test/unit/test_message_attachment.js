@@ -5,9 +5,14 @@
 /**
  * This test verifies that we generate proper attachment filenames.
  */
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
+/* import-globals-from ../../../test/resources/messageGenerator.js */
+/* import-globals-from ../../../test/resources/messageModifier.js */
+/* import-globals-from ../../../test/resources/messageInjection.js */
 load("../../../resources/messageGenerator.js");
 load("../../../resources/messageModifier.js");
 load("../../../resources/messageInjection.js");
@@ -23,41 +28,54 @@ var textAttachment =
 
 // create a message with a text attachment
 var messages = [
-  // unnamed email attachment
-  { attachments: [{ body: textAttachment,
-                    filename: 'test.txt',
-                    format: '' },
-                  { body: '',
-                    expectedFilename: 'ForwardedMessage.eml',
-                    contentType: 'message/rfc822', },
-                 ]},
-  // named email attachment
-  { attachments: [{ body: textAttachment,
-                    filename: 'test.txt',
-                    format: '' },
-                  { body: '',
-                    filename: 'Attached Message',
-                    contentType: 'message/rfc822', },
-                 ]},
-  { attachments: [{ body: textAttachment,
-                    filename: 'test.html',
-                    format: '' },
-                  { body: '',
-                    filename: '<iframe src=&quote;http://www.example.com&quote></iframe>.htm',
-                    expectedFilename: '&lt;iframe src=&amp;quote;http://www.example.com&amp;quote&gt;&lt;/iframe&gt;.htm',
-                    contentType: 'text/html;', },
-                 ]},
-  // no named email attachment with subject header
-  { attachments: [{ body: '', expectedFilename: 'testSubject.eml' }],
+  {
+    // unnamed email attachment
+    attachments: [{
+      body: textAttachment,
+      filename: "test.txt",
+      format: "",
+    }, {
+      body: "",
+      expectedFilename: "ForwardedMessage.eml",
+      contentType: "message/rfc822",
+    }],
+  }, {
+    // named email attachment
+    attachments: [{
+      body: textAttachment,
+      filename: "test.txt",
+      format: "",
+    }, {
+      body: "",
+      filename: "Attached Message",
+      contentType: "message/rfc822",
+    }],
+  }, {
+    attachments: [{
+      body: textAttachment,
+      filename: "test.html",
+      format: "",
+    }, {
+      body: "",
+      filename: "<iframe src=&quote;http://www.example.com&quote></iframe>.htm",
+      expectedFilename: "&lt;iframe src=&amp;quote;http://www.example.com&amp;quote&gt;&lt;/iframe&gt;.htm",
+      contentType: "text/html;",
+    }],
+  }, {
+    // no named email attachment with subject header
+    attachments: [{
+      body: "",
+      expectedFilename: "testSubject.eml",
+    }],
     bodyPart: new SyntheticPartMultiMixed([
-      new SyntheticPartLeaf('plain body text'),
+      new SyntheticPartLeaf("plain body text"),
       msgGen.makeMessage({
-        subject: '=?UTF-8?B?dGVzdFN1YmplY3Q=?=', // This string is 'testSubject'.
-        charset: 'UTF-8',
+        subject: "=?UTF-8?B?dGVzdFN1YmplY3Q=?=", // This string is 'testSubject'.
+        charset: "UTF-8",
       }),
-    ])},
+    ]),
+  },
 ];
-
 
 var gStreamListener = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
@@ -65,11 +83,11 @@ var gStreamListener = {
   index: 0, // The index of the message we're currently looking at.
 
   // nsIRequestObserver part
-  onStartRequest: function (aRequest) {
+  onStartRequest(aRequest) {
     this.contents = "";
     this.stream = null;
   },
-  onStopRequest: function (aRequest, aStatusCode) {
+  onStopRequest(aRequest, aStatusCode) {
     // Check that the attachments' filenames are as expected. Just use a regex
     // here because it's simple.
     let regex = /<legend class="mimeAttachmentHeaderName">(.*?)<\/legend>/gi;
@@ -86,7 +104,7 @@ var gStreamListener = {
   },
 
   // nsIStreamListener part
-  onDataAvailable: function (aRequest, aInputStream, aOffset, aCount) {
+  onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
     if (this.stream === null) {
       this.stream = Cc["@mozilla.org/scriptableinputstream;1"].
                     createInstance(Ci.nsIScriptableInputStream);
@@ -97,22 +115,21 @@ var gStreamListener = {
 };
 
 var gMessageHeaderSink = {
-  handleAttachment: function(aContentType, aUrl, aDisplayName, aUri,
-                             aIsExternalAttachment) {},
-  addAttachmentField: function(aName, aValue) {},
+  handleAttachment(aContentType, aUrl, aDisplayName, aUri, aIsExternalAttachment) {},
+  addAttachmentField(aName, aValue) {},
 
   // stub functions from nsIMsgHeaderSink
-  onStartHeaders: function() {},
-  onEndHeaders: function() {},
-  processHeaders: function(aHeaderNames, aHeaderValues, dontCollectAddrs) {},
-  onEndAllAttachments: function() {},
-  onEndMsgDownload: function() {},
-  onEndMsgHeaders: function(aUrl) {},
-  onMsgHasRemoteContent: function(aMsgHdr, aContentURI) {},
+  onStartHeaders() {},
+  onEndHeaders() {},
+  processHeaders(aHeaderNames, aHeaderValues, dontCollectAddrs) {},
+  onEndAllAttachments() {},
+  onEndMsgDownload() {},
+  onEndMsgHeaders(aUrl) {},
+  onMsgHasRemoteContent(aMsgHdr, aContentURI) {},
   securityInfo: null,
   mDummyMsgHeader: null,
   properties: null,
-  resetProperties: function () {}
+  resetProperties() {},
 };
 
 var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
@@ -127,14 +144,15 @@ function* test_message_attachments(info) {
   let msgURI = synSet.getMsgURI(0);
   let msgService = gMessenger.messageServiceFromURI(msgURI);
 
-  let streamURI = msgService.streamMessage(
+  msgService.streamMessage(
     msgURI,
     gStreamListener,
     msgWindow,
     null,
     true, // have them create the converter
     "header=filter",
-    false);
+    false
+  );
 
   yield false;
 }

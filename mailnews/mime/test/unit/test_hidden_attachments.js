@@ -6,6 +6,11 @@
  * This test creates some messages with attachments of different types and
  * checks that libmime emits (or doesn't emit) the attachments as appropriate.
  */
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../test/resources/messageGenerator.js */
+/* import-globals-from ../../../test/resources/messageModifier.js */
+/* import-globals-from ../../../test/resources/messageInjection.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
@@ -17,78 +22,94 @@ var gMessenger = Cc["@mozilla.org/messenger;1"]
                    .createInstance(Ci.nsIMessenger);
 
 // Create a message generator
-var msgGen = gMessageGenerator = new MessageGenerator();
-// Create a message scenario generator using that message generator
-var scenarios = gMessageScenarioFactory = new MessageScenarioFactory(msgGen);
+var gMessageGenerator = new MessageGenerator();
 
 // create some messages that have various types of attachments
 var messages = [
   {},
 
-  /***** Attachments with Content-Disposition: attachment *****/
+  /* Attachments with Content-Disposition: attachment */
 
-  // inline-able attachment with a name
-  { attachments: [{ body: "attachment",
-                    filename: "ubik.txt",
-                    disposition: "attachment",
-                    format: "",
-                    shouldShow: true }],
-  },
-  // inline-able attachment with no name
-  { attachments: [{ body: "attachment",
-                    filename: "",
-                    disposition: "attachment",
-                    format: "",
-                    shouldShow: true }],
-  },
-  // non-inline-able attachment with a name
-  { attachments: [{ body: "attachment",
-                    filename: "ubik.ubk",
-                    disposition: "attachment",
-                    contentType: "application/x-ubik",
-                    format: "",
-                    shouldShow: true }],
-  },
-  // non-inline-able attachment with no name
-  { attachments: [{ body: "attachment",
-                    filename: "",
-                    disposition: "attachment",
-                    contentType: "application/x-ubik",
-                    format: "",
-                    shouldShow: true }],
+  {
+    // inline-able attachment with a name
+    attachments: [{
+      body: "attachment",
+      filename: "ubik.txt",
+      disposition: "attachment",
+      format: "",
+      shouldShow: true,
+    }],
+  }, {
+    // inline-able attachment with no name
+    attachments: [{
+      body: "attachment",
+      filename: "",
+      disposition: "attachment",
+      format: "",
+      shouldShow: true,
+    }],
+  }, {
+    // non-inline-able attachment with a name
+    attachments: [{
+      body: "attachment",
+      filename: "ubik.ubk",
+      disposition: "attachment",
+      contentType: "application/x-ubik",
+      format: "",
+      shouldShow: true,
+    }],
+  }, {
+    // non-inline-able attachment with no name
+    attachments: [{
+      body: "attachment",
+      filename: "",
+      disposition: "attachment",
+      contentType: "application/x-ubik",
+      format: "",
+      shouldShow: true,
+    }],
   },
 
-  /***** Attachments with Content-Disposition: inline *****/
+  /* Attachments with Content-Disposition: inline */
 
-  // inline-able attachment with a name
-  { attachments: [{ body: "attachment",
-                    filename: "ubik.txt",
-                    disposition: "inline",
-                    format: "",
-                    shouldShow: true }],
-  },
-  // inline-able attachment with no name
-  { attachments: [{ body: "attachment",
-                    filename: "",
-                    disposition: "inline",
-                    format: "",
-                    shouldShow: false }],
-  },
-  // non-inline-able attachment with a name
-  { attachments: [{ body: "attachment",
-                    filename: "ubik.ubk",
-                    disposition: "inline",
-                    contentType: "application/x-ubik",
-                    format: "",
-                    shouldShow: true }],
-  },
-  // non-inline-able attachment with no name
-  { attachments: [{ body: "attachment",
-                    filename: "",
-                    disposition: "inline",
-                    contentType: "application/x-ubik",
-                    format: "",
-                    shouldShow: true }],
+  {
+    // inline-able attachment with a name
+    attachments: [{
+      body: "attachment",
+      filename: "ubik.txt",
+      disposition: "inline",
+      format: "",
+      shouldShow: true,
+    }],
+  }, {
+    // inline-able attachment with no name
+    attachments: [{
+      body: "attachment",
+      filename: "",
+      disposition: "inline",
+      format: "",
+      shouldShow: false,
+    }],
+  }, {
+    // non-inline-able attachment with a name
+    attachments: [{
+      body: "attachment",
+      filename: "ubik.ubk",
+      disposition: "inline",
+      contentType: "application/x-ubik",
+      format: "",
+      shouldShow: true,
+    }],
+  }, {
+    // non-inline-able attachment with no name
+    attachments: [{
+      body: "attachment",
+      filename: "",
+      disposition: "inline",
+      contentType: "application/x-ubik",
+      format: "",
+      shouldShow: true,
+    }],
   },
 ];
 
@@ -97,9 +118,9 @@ var gStreamListener = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
 
   // nsIRequestObserver part
-  onStartRequest: function (aRequest) {
+  onStartRequest(aRequest) {
   },
-  onStopRequest: function (aRequest, aStatusCode) {
+  onStopRequest(aRequest, aStatusCode) {
     let expectedAttachments = this.allAttachments.filter(i => i.shouldShow).
       map(i => i.filename);
     Assert.equal(expectedAttachments.length,
@@ -118,9 +139,9 @@ var gStreamListener = {
   },
 
   // nsIStreamListener part
-  _stream : null,
+  _stream: null,
 
-  onDataAvailable: function (aRequest, aInputStream, aOffset, aCount) {
+  onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
     if (this._stream === null) {
       this._stream = Cc["@mozilla.org/scriptableinputstream;1"].
                     createInstance(Ci.nsIScriptableInputStream);
@@ -131,26 +152,25 @@ var gStreamListener = {
 };
 
 var gMessageHeaderSink = {
-  onEndMsgHeaders: function(aUrl) {
+  onEndMsgHeaders(aUrl) {
     this.attachments = [];
   },
-  handleAttachment: function(aContentType, aUrl, aDisplayName, aUri,
-                             aIsExternalAttachment) {
+  handleAttachment(aContentType, aUrl, aDisplayName, aUri, aIsExternalAttachment) {
     this.attachments.push(aDisplayName);
   },
 
   // stub functions from nsIMsgHeaderSink
-  onStartHeaders: function() {},
-  onEndHeaders: function() {},
-  processHeaders: function(aHeaderNames, aHeaderValues, dontCollectAddrs) {},
-  addAttachmentField: function(aName, aValue) {},
-  onEndAllAttachments: function() {},
-  onEndMsgDownload: function() {},
-  onMsgHasRemoteContent: function(aMsgHdr, aContentURI) {},
+  onStartHeaders() {},
+  onEndHeaders() {},
+  processHeaders(aHeaderNames, aHeaderValues, dontCollectAddrs) {},
+  addAttachmentField(aName, aValue) {},
+  onEndAllAttachments() {},
+  onEndMsgDownload() {},
+  onMsgHasRemoteContent(aMsgHdr, aContentURI) {},
   securityInfo: null,
   mDummyMsgHeader: null,
   properties: null,
-  resetProperties: function () {}
+  resetProperties() {},
 };
 
 var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
@@ -166,7 +186,7 @@ function* test_message_attachments(info) {
   let msgService = gMessenger.messageServiceFromURI(msgURI);
 
   gStreamListener.allAttachments = info.attachments || [];
-  let streamURI = msgService.streamMessage(
+  msgService.streamMessage(
     msgURI,
     gStreamListener,
     msgWindow,
@@ -174,7 +194,8 @@ function* test_message_attachments(info) {
     true, // have them create the converter
     // additional uri payload, note that "header=" is prepended automatically
     "filter",
-    false);
+    false
+  );
 
   yield false;
 }

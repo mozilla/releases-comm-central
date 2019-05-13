@@ -3,31 +3,29 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 // vim:set ts=2 sw=2 sts=2 et ft=javascript:
 
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const {jsmime} = ChromeUtils.import("resource:///modules/jsmime.jsm");
 
 var EXPORTED_SYMBOLS = ["MimeParser"];
 
 // Emitter helpers, for internal functions later on.
 var ExtractHeadersEmitter = {
-  startPart: function (partNum, headers) {
-    if (partNum == '') {
+  startPart(partNum, headers) {
+    if (partNum == "") {
       this.headers = headers;
     }
-  }
+  },
 };
 
 var ExtractHeadersAndBodyEmitter = {
-  body: '',
+  body: "",
   startPart: ExtractHeadersEmitter.startPart,
-  deliverPartData: function (partNum, data) {
-    if (partNum == '')
+  deliverPartData(partNum, data) {
+    if (partNum == "")
       this.body += data;
-  }
+  },
 };
 
-/// Sets appropriate default options for chrome-privileged environments
+// Sets appropriate default options for chrome-privileged environments
 function setDefaultParserOptions(opts) {
   if (!("onerror" in opts)) {
     opts.onerror = Cu.reportError;
@@ -47,7 +45,7 @@ var MimeParser = {
    * @param emitter The emitter to receive callbacks on.
    * @param opts    A set of options for the parser.
    */
-  parseAsync: function MimeParser_parseAsync(input, emitter, opts) {
+  parseAsync(input, emitter, opts) {
     // Normalize the input into an input stream.
     if (!(input instanceof Ci.nsIInputStream)) {
       throw new Error("input is not a recognizable type!");
@@ -74,7 +72,7 @@ var MimeParser = {
    * @param emitter The emitter to receive callbacks on.
    * @param opts    A set of options for the parser.
    */
-  parseSync: function MimeParser_parseSync(input, emitter, opts) {
+  parseSync(input, emitter, opts) {
     // We only support string parsing if we are trying to do this parse
     // synchronously.
     if (typeof input != "string") {
@@ -84,7 +82,6 @@ var MimeParser = {
     var parser = new jsmime.MimeParser(emitter, opts);
     parser.deliverData(input);
     parser.deliverEOF();
-    return;
   },
 
   /**
@@ -97,9 +94,9 @@ var MimeParser = {
    * @param emitter The emitter to receive callbacks on.
    * @param opts    A set of options for the parser.
    */
-  makeStreamListenerParser: function MimeParser_makeSLParser(emitter, opts) {
+  makeStreamListenerParser(emitter, opts) {
     var StreamListener = {
-      onStartRequest: function SLP_onStartRequest(aRequest) {
+      onStartRequest(aRequest) {
         try {
           if ("onStartRequest" in emitter)
             emitter.onStartRequest(aRequest);
@@ -107,13 +104,12 @@ var MimeParser = {
           this._parser.resetParser();
         }
       },
-      onStopRequest: function SLP_onStopRequest(aRequest, aStatus) {
+      onStopRequest(aRequest, aStatus) {
         this._parser.deliverEOF();
         if ("onStopRequest" in emitter)
           emitter.onStopRequest(aRequest, aStatus);
       },
-      onDataAvailable: function SLP_onData(aRequest, aStream,
-                                           aOffset, aCount) {
+      onDataAvailable(aRequest, aStream, aOffset, aCount) {
         var scriptIn = Cc["@mozilla.org/scriptableinputstream;1"]
                          .createInstance(Ci.nsIScriptableInputStream);
         scriptIn.init(aStream);
@@ -121,7 +117,7 @@ var MimeParser = {
         this._parser.deliverData(scriptIn.readBytes(aCount));
       },
       QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener,
-        Ci.nsIRequestObserver])
+        Ci.nsIRequestObserver]),
     };
     setDefaultParserOptions(opts);
     StreamListener._parser = new jsmime.MimeParser(emitter, opts);
@@ -137,7 +133,7 @@ var MimeParser = {
    * @param emitter The emitter to receive callbacks on.
    * @param opts    A set of options for the parser.
    */
-  makeParser: function MimeParser_makeParser(emitter, opts) {
+  makeParser(emitter, opts) {
     setDefaultParserOptions(opts);
     return new jsmime.MimeParser(emitter, opts);
   },
@@ -152,9 +148,9 @@ var MimeParser = {
    *
    * @param input   A string of text to parse.
    */
-  extractHeaders: function MimeParser_extractHeaders(input) {
+  extractHeaders(input) {
     var emitter = Object.create(ExtractHeadersEmitter);
-    MimeParser.parseSync(input, emitter, {pruneat: '', bodyformat: 'none'});
+    MimeParser.parseSync(input, emitter, {pruneat: "", bodyformat: "none"});
     return emitter.headers;
   },
 
@@ -167,9 +163,9 @@ var MimeParser = {
    *
    * @param input   A string of text to parse.
    */
-  extractHeadersAndBody: function MimeParser_extractHeaders(input) {
+  extractHeadersAndBody(input) {
     var emitter = Object.create(ExtractHeadersAndBodyEmitter);
-    MimeParser.parseSync(input, emitter, {pruneat: '', bodyformat: 'raw'});
+    MimeParser.parseSync(input, emitter, {pruneat: "", bodyformat: "raw"});
     return [emitter.headers, emitter.body];
   },
 
@@ -209,7 +205,7 @@ var MimeParser = {
    */
   HEADER_OPTION_ALLOW_RAW:   0x40,
 
-  /// Convenience for all three of the above.
+  // Convenience for all three of the above.
   HEADER_OPTION_ALL_I18N:    0x70,
 
   /**
@@ -229,7 +225,7 @@ var MimeParser = {
    * @param flags   A set of flags that controls interpretation of the header.
    * @param charset A default charset to assume if no information may be found.
    */
-  parseHeaderField: function MimeParser_parseHeaderField(text, flags, charset) {
+  parseHeaderField(text, flags, charset) {
     // If we have a raw string, convert it to Unicode first
     if (flags & MimeParser.HEADER_OPTION_ALLOW_RAW)
       text = jsmime.headerparser.convert8BitHeader(text, charset);
@@ -249,7 +245,7 @@ var MimeParser = {
       return jsmime.headerparser.parseAddressingHeader(text,
         (flags & MimeParser.HEADER_OPTION_DECODE_2047) != 0);
     default:
-      throw "Illegal type of header field";
+      throw new Error("Illegal type of header field");
     }
   },
 };

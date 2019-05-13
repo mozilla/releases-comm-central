@@ -27,7 +27,7 @@ function run_test() {
     dump("Testing message " + test[0]);
     let value = test[0];
     if (test.length > 2)
-      value = jsmime.headerparser.convert8BitHeader(value, test[2])
+      value = jsmime.headerparser.convert8BitHeader(value, test[2]);
     Assert.equal(jsmime.headerparser.parseStructuredHeader("Subject", value),
       test[1]);
   }

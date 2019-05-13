@@ -17,7 +17,7 @@ Services.scriptloader.loadSubScript("resource:///modules/jsmime/jsmime.js");
 var EXPORTED_SYMBOLS = ["jsmime"];
 
 function bytesToString(buffer) {
-  var string = '';
+  var string = "";
   for (var i = 0; i < buffer.length; i++)
     string += String.fromCharCode(buffer[i]);
   return string;
@@ -30,8 +30,8 @@ function UTF7TextDecoder(options = {}, manager) {
 }
 UTF7TextDecoder.prototype = {
   // Since the constructor checked, this will only be called for UTF-7.
-  decode: function (input, options = {}) {
-    let more = 'stream' in options ? options.stream : false;
+  decode(input, options = {}) {
+    let more = "stream" in options ? options.stream : false;
     // There are cases where this is called without input.
     if (!input)
       return "";
@@ -42,6 +42,7 @@ UTF7TextDecoder.prototype = {
   },
 };
 
+/* exported MimeTextDecoder */
 function MimeTextDecoder(charset, options) {
   let manager = Cc["@mozilla.org/charset-converter-manager;1"]
                   .createInstance(Ci.nsICharsetConverterManager);
@@ -55,7 +56,7 @@ function MimeTextDecoder(charset, options) {
 
 // The following code loads custom MIME encoders.
 var CATEGORY_NAME = "custom-mime-encoder";
-Services.obs.addObserver(function (subject, topic, data) {
+Services.obs.addObserver(function(subject, topic, data) {
   subject = subject.QueryInterface(Ci.nsISupportsCString)
                    .data;
   if (data == CATEGORY_NAME) {

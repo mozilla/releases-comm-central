@@ -8,19 +8,19 @@ var requireCache = new Map();
 
 // Preload an assert module
 var assert = new Assert();
-assert.doesNotThrow = function (block, message) {
-  message = (message ? ' ' + message : '.');
+assert.doesNotThrow = function(block, message) {
+  message = (message ? " " + message : ".");
   try {
     block();
   } catch (e) {
-    this.report(true, e, null, 'Got unwanted exception' + message);
+    this.report(true, e, null, "Got unwanted exception" + message);
   }
 };
 requireCache.set("assert", assert);
 
 // Preload an fs module
 var fs = {
-  readFile: function (filename, options, callback) {
+  readFile(filename, options, callback) {
     if (callback === undefined) {
       callback = options;
       options = {};
@@ -29,8 +29,8 @@ var fs = {
     // Convert according to encoding. For the moment, we don't support this
     // node.js feature in the shim since we don't need to.
     var translator = (contents => contents);
-    if (options !== undefined && 'encoding' in options) {
-      translator = function () {
+    if (options !== undefined && "encoding" in options) {
+      translator = function() {
         throw new Error("I can't do this!");
       };
     }
@@ -43,18 +43,19 @@ var fs = {
   },
 };
 requireCache.set("fs", fs);
-Components.utils.import("resource:///modules/jsmime.jsm");
+var {jsmime} = ChromeUtils.import("resource:///modules/jsmime.jsm");
 requireCache.set("jsmime", jsmime);
 
 function require(path) {
   if (requireCache.has(path))
     return requireCache.get(path);
 
+  let file;
   if (path.startsWith("test/")) {
     let name = path.substring("test/".length);
-    var file = "resource://testing-common/jsmime/" + name + ".js";
+    file = "resource://testing-common/jsmime/" + name + ".js";
   } else {
-    var file = "resource:///modules/jsmime/" + path + ".js";
+    file = "resource:///modules/jsmime/" + path + ".js";
   }
 
   var globalObject = {
@@ -78,9 +79,8 @@ function innerDefine(moduleName, dfn) {
 
 var define = innerDefine.bind(this, "xpcshell-test");
 
-///////////////////////////
-// Mocha TDD UI Bindings //
-///////////////////////////
+// Mocha TDD UI Bindings
+// ---------------------
 
 /**
  * A block of tests, from the suite class.
@@ -93,18 +93,18 @@ function MochaSuite(name) {
   this.suites = [];
 }
 
-/// The real code for running a suite of tests, written as async function.
-MochaSuite.prototype._runSuite = async function () {
+// The real code for running a suite of tests, written as async function.
+MochaSuite.prototype._runSuite = async function() {
   info("Running suite " + this.name);
-  for (let setup of this.setup) {
-    await runFunction(setup);
+  for (let setup_ of this.setup) {
+    await runFunction(setup_);
   }
-  for (let test of this.tests) {
-    info("Running test " + test.name);
-    await runFunction(test.test);
+  for (let test_ of this.tests) {
+    info("Running test " + test_.name);
+    await runFunction(test_.test);
   }
-  for (let suite of this.suites) {
-    await suite.runSuite();
+  for (let suite_ of this.suites) {
+    await suite_.runSuite();
   }
   for (let fn of this.teardown) {
     await runFunction(fn);
@@ -112,14 +112,14 @@ MochaSuite.prototype._runSuite = async function () {
   info("Finished suite " + this.name);
 };
 
-/// The outer call to run a test suite, which returns a promise of completion.
-MochaSuite.prototype.runSuite = function () {
+// The outer call to run a test suite, which returns a promise of completion.
+MochaSuite.prototype.runSuite = function() {
   return this._runSuite();
 };
 
-/// Run the given function, returning a promise of when the test will complete.
+// Run the given function, returning a promise of when the test will complete.
 function runFunction(fn) {
-  let completed = new Promise(function (resolve, reject) {
+  let completed = new Promise(function(resolve, reject) {
     function onEnd(error) {
       if (error !== undefined)
         reject(error);
@@ -139,7 +139,7 @@ function runFunction(fn) {
   return completed;
 }
 
-var currentSuite = new MochaSuite('');
+var currentSuite = new MochaSuite("");
 function suite(name, tests) {
   name = name.toString();
   if (/[\x80-]/.exec(name))
@@ -154,16 +154,16 @@ function test(name, block) {
   name = name.toString();
   if (/[\x80-]/.exec(name))
     name = "<unprintable name>";
-  currentSuite.tests.push({name: name, test: block});
+  currentSuite.tests.push({name, test: block});
 }
 function setup(block) {
-  currentSetup.setup.push(block);
+  currentSuite.setup.push(block);
 }
 function teardown(block) {
-  currentSetup.teardown.push(block);
+  currentSuite.teardown.push(block);
 }
 
-/// The actual binding xpcshell needs to do its work.
+// The actual binding xpcshell needs to do its work.
 function run_test() {
   add_task(() => currentSuite.runSuite());
   run_next_test();

@@ -9,7 +9,7 @@
 const {localAccountUtils} = ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
 var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
 
-var gTestFiles =[
+var gTestFiles = [
   "../../../data/bug505221",
   "../../../data/bug513543",
 ];
@@ -20,9 +20,9 @@ var gMessenger = Cc["@mozilla.org/messenger;1"].
                    createInstance(Ci.nsIMessenger);
 
 var gUrlListener = {
-  OnStartRunningUrl: function (aUrl) {
+  OnStartRunningUrl(aUrl) {
   },
-  OnStopRunningUrl: function (aUrl, aExitCode) {
+  OnStopRunningUrl(aUrl, aExitCode) {
     do_test_finished();
   },
 };
@@ -30,22 +30,20 @@ var gUrlListener = {
 
 localAccountUtils.loadLocalMailAccount();
 
-function run_test()
-{
+function run_test() {
   do_test_pending();
   localAccountUtils.inboxFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   for (let fileName of gTestFiles) {
     localAccountUtils.inboxFolder.addMessage(IOUtils.loadFileToString(do_get_file(fileName)));
-  };
+  }
   gMsgEnumerator = localAccountUtils.inboxFolder.msgDatabase.EnumerateMessages();
   doNextTest();
 }
 
-function streamMsg(msgHdr)
-{
+function streamMsg(msgHdr) {
   let msgURI = localAccountUtils.inboxFolder.getUriForMsg(msgHdr);
   let msgService = gMessenger.messageServiceFromURI(msgURI);
-  let streamURI = msgService.streamMessage(
+  msgService.streamMessage(
     msgURI,
     gStreamListener,
     null,
@@ -53,16 +51,17 @@ function streamMsg(msgHdr)
     true, // have them create the converter
     // additional uri payload, note that "header=" is prepended automatically
     "filter",
-    true);
+    true
+  );
 }
 
 var gStreamListener = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
-  _stream : null,
+  _stream: null,
   // nsIRequestObserver part
-  onStartRequest: function (aRequest) {
+  onStartRequest(aRequest) {
   },
-  onStopRequest: function (aRequest, aStatusCode) {
+  onStopRequest(aRequest, aStatusCode) {
     doNextTest();
   },
 
@@ -70,7 +69,7 @@ var gStreamListener = {
      converter is actually eating everything except the start and stop
      notification. */
   // nsIStreamListener part
-  onDataAvailable: function (aRequest, aInputStream, aOffset, aCount) {
+  onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
     if (this._stream === null) {
       this._stream = Cc["@mozilla.org/scriptableinputstream;1"].
                     createInstance(Ci.nsIScriptableInputStream);

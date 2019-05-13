@@ -10,7 +10,7 @@ var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var {mailTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/mailTestUtils.js");
-var {promiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
+var {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 const {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 
 var CC = Components.Constructor;
@@ -31,13 +31,13 @@ class DummyMsgHeader {
     this.recipients = null;
     this.from = null;
     this.subject = "";
-    this.ccList = null,
-    this.messageId = null,
-    this.listPost = null,
-    this.date = 0,
-    this.accountKey = "",
-    this.flags = 0,
-    this.folder = null
+    this.ccList = null;
+    this.messageId = null;
+    this.listPost = null;
+    this.date = 0;
+    this.accountKey = "";
+    this.flags = 0;
+    this.folder = null;
   }
   getStringProperty(aProperty) { return this.mProperties[aProperty]; }
   setStringProperty(aProperty, aVal) { this.mProperties[aProperty] = aVal; }
@@ -53,7 +53,7 @@ class DummyMsgHeader {
   get mime2DecodedSubject() { return this.subject; }
 }
 
-function apply_mime_conversion(msgUri, headerSink={}) {
+function apply_mime_conversion(msgUri, headerSink = {}) {
   let stubHeaderSink = {
     processHeaders(aHeaderNames, aHeaderValues, dontCollectAddress) {},
     handleAttachment(contentType, url, displayName, uri, aNotDownloaded) {},
@@ -66,7 +66,7 @@ function apply_mime_conversion(msgUri, headerSink={}) {
     dummyMsgHeader: new DummyMsgHeader(),
     get properties() { return null; },
     resetProperties() {},
-    QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgHeaderSink])
+    QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgHeaderSink]),
   };
 
   // Copy the descriptors from headerSink to stubHeaderSink.

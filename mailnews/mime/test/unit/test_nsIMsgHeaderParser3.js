@@ -6,8 +6,7 @@
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 function run_test() {
-  const checks =
-  [
+  const checks = [
     { addrs: "test@foo.invalid",
       otherAddrs: "",
       expectedResult: "test@foo.invalid" },

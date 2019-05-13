@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* globals jsmime */
+
 function parseNewsgroups(headers) {
   let ng = [];
   for (let header of headers) {
@@ -12,9 +14,9 @@ function parseNewsgroups(headers) {
 
 function emitNewsgroups(groups) {
   // Don't encode the newsgroups names in RFC 2047...
-  if (groups.length == 1)
+  if (groups.length == 1) {
     this.addText(groups[0], false);
-  else {
+  } else {
     this.addText(groups[0], false);
     for (let i = 1; i < groups.length; i++) {
       this.addText(",", false); // only comma, no space!

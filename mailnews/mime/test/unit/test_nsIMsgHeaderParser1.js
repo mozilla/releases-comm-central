@@ -6,8 +6,7 @@
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 function run_test() {
-  var checks =
-  [
+  var checks = [
     ["", "test@foo.invalid", "test@foo.invalid"],
     ["Test", "test@foo.invalid", "Test <test@foo.invalid>"],
     ["Test", "\"abc!x.yz\"@foo.invalid", "Test <\"abc!x.yz\"@foo.invalid>"],

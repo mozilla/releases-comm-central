@@ -14,8 +14,7 @@ function run_test() {
   // 1: expected output from extractHeaderAddressMailboxes
   // 2: list of recipient names in the string
   // 3: first recipient name in the string
-  const checks =
-  [
+  const checks = [
     ["abc@foo.invalid",
      "abc@foo.invalid",
      "abc@foo.invalid",
@@ -51,7 +50,7 @@ function run_test() {
     ["Undisclosed recipients:;",
      "", // Mailboxes
      "", // Address Names
-     ""] // Address Name
+     ""], // Address Name
   ];
 
   // this used to cause memory read overruns
@@ -67,10 +66,10 @@ function run_test() {
 
   for (let i = 0; i < checks.length; ++i) {
     Assert.equal(MailServices.headerParser.extractHeaderAddressMailboxes(checks[i][0]), checks[i][1]);
-    let names = MailServices.headerParser.parseDecodedHeader(checks[i][0])
-                                         .map(addr => addr.name || addr.email)
-                                         .join(", ");
-    Assert.equal(names, checks[i][2]);
+    let _names = MailServices.headerParser.parseDecodedHeader(checks[i][0])
+                                          .map(addr => addr.name || addr.email)
+                                          .join(", ");
+    Assert.equal(_names, checks[i][2]);
     Assert.equal(MailServices.headerParser.extractFirstName(checks[i][0]), checks[i][3]);
   }
 }

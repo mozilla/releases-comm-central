@@ -1,23 +1,22 @@
 "use strict";
 define(function(require) {
-
-var headerparser = require('jsmime').headerparser;
-var assert = require('assert');
+var headerparser = require("jsmime").headerparser;
+var assert = require("assert");
 
 function arrayTest(data, fn) {
-  fn.toString = function () {
+  fn.toString = function() {
     let text = Function.prototype.toString.call(this);
-    text = text.replace(/data\[([0-9]*)\]/g, function (m, p) {
+    text = text.replace(/data\[([0-9]*)\]/g, function(m, p) {
       return JSON.stringify(data[p]);
     });
     return text;
   };
   return test(data[0], fn);
 }
-suite('headerparser', function () {
-  suite('parseParameterHeader', function () {
+suite("headerparser", function() {
+  suite("parseParameterHeader", function() {
     let header_tests = [
-      ['multipart/related', ["multipart/related", {}]],
+      ["multipart/related", ["multipart/related", {}]],
       ["a ; b=v", ["a", {"b": "v"}]],
       ["a ; b='v'", ["a", {"b": "'v'"}]],
       ['a; b = "v"', ["a", {"b": "v"}]],
@@ -26,13 +25,13 @@ suite('headerparser', function () {
       ['a;b="a;b"', ["a", {"b": "a;b"}]],
       ['a;b="\\\\"', ["a", {"b": "\\"}]],
       ['a;b="a\\b\\c"', ["a", {"b": "abc"}]],
-      ['a;b=1;c=2', ["a", {"b": "1", "c": "2"}]],
+      ["a;b=1;c=2", ["a", {"b": "1", "c": "2"}]],
       ['a;b="a\\', ["a", {"b": "a"}]],
-      ['a;b', ["a", {}]],
-      ['a;b=";";c=d', ["a", {"b": ';', 'c': "d"}]],
+      ["a;b", ["a", {}]],
+      ['a;b=";";c=d', ["a", {"b": ";", "c": "d"}]],
     ];
-    header_tests.forEach(function (data) {
-      arrayTest(data, function () {
+    header_tests.forEach(function(data) {
+      arrayTest(data, function() {
         let testMap = new Map();
         for (let key in data[1][1])
           testMap.set(key, data[1][1][key]);
@@ -42,7 +41,7 @@ suite('headerparser', function () {
       });
     });
   });
-  suite('parseParameterHeader (2231/2047 support)', function () {
+  suite("parseParameterHeader (2231/2047 support)", function() {
     let header_tests = [
       // Copied from test_MIME_params.js and adapted
       ["attachment;", ["attachment", {}]],
@@ -178,8 +177,8 @@ suite('headerparser', function () {
       ["attachment; filename=\"=?ISO-8859-1?Q?foo-=E4.html?=\"; filename*=UTF" +
         "-8''5987", ["attachment", {filename: "5987"}]],
     ];
-    header_tests.forEach(function (data) {
-      arrayTest(data, function () {
+    header_tests.forEach(function(data) {
+      arrayTest(data, function() {
         let testMap = new Map();
         for (let key in data[1][1])
           testMap.set(key, data[1][1][key]);
@@ -189,7 +188,7 @@ suite('headerparser', function () {
       });
     });
   });
-  suite('parseAddressingHeader', function () {
+  suite("parseAddressingHeader", function() {
     let header_tests = [
       ["", []],
       ["Joe Schmoe <jschmoe@invalid.invalid>",
@@ -240,7 +239,7 @@ suite('headerparser', function () {
         [{name: "Unfortunate breaking", email: "so.many.spaces@here.invalid"}]],
       ["so . many . spaces @ here . invalid",
         [{name: "", email: "so.many.spaces@here.invalid"}]],
-      ["abc@foo.invalid", [{name:"", email: "abc@foo.invalid"}]],
+      ["abc@foo.invalid", [{name: "", email: "abc@foo.invalid"}]],
       ["foo <ghj@foo.invalid>", [{name: "foo", email: "ghj@foo.invalid"}]],
       ["abc@foo.invalid, foo <ghj@foo.invalid>",
         [{name: "", email: "abc@foo.invalid"},
@@ -282,14 +281,14 @@ suite('headerparser', function () {
           {name: "Ed Jones", email: "c@a.invalid"},
           {name: "", email: "joe@where.invalid"},
           {name: "John", email: "jdoe@one.invalid"}]}]],
-      ['mygroup:;, empty:;, foo@foo.invalid, othergroup:bar@foo.invalid, bar2' +
-        '@foo.invalid;,       y@y.invalid, empty:;',
+      ["mygroup:;, empty:;, foo@foo.invalid, othergroup:bar@foo.invalid, bar2" +
+        "@foo.invalid;,       y@y.invalid, empty:;",
         [{name: "mygroup", group: []},
          {name: "empty", group: []},
          {name: "", email: "foo@foo.invalid"},
          {name: "othergroup", group: [
            {name: "", email: "bar@foo.invalid"},
-           {name: "", email: "bar2@foo.invalid"}
+           {name: "", email: "bar2@foo.invalid"},
          ]},
          {name: "", email: "y@y.invalid"},
          {name: "empty", group: []}]],
@@ -313,9 +312,9 @@ suite('headerparser', function () {
          {name: "g", group: [
            {name: "(this: is, <a> comment;) C", email: "c.invalid"},
            {name: "d.invalid", email: ""}]}]],
-      ['Mary Smith <mary@x.invalid>, extra:;, group:jdoe@example.invalid; Who' +
+      ["Mary Smith <mary@x.invalid>, extra:;, group:jdoe@example.invalid; Who" +
         '? <one@y.invalid>; <boss@nil.invalid>, "Giant; \\"Big\\" Box" <sysse' +
-        'rvices@example.invalid>,         ',
+        "rvices@example.invalid>,         ",
         [{name: "Mary Smith", email: "mary@x.invalid"},
          {name: "extra", group: []},
          {name: "group", group: [{name: "", email: "jdoe@example.invalid"}]},
@@ -332,7 +331,7 @@ suite('headerparser', function () {
       ["a < <a@b.c>", [{name: "a", email: "a@b.c"}]],
       ["Name <incomplete@email", [{name: "Name", email: "incomplete@email"}]],
       ["Name <space here@email.invalid>",
-        [{name: 'Name', email: '"space here"@email.invalid'}]],
+        [{name: "Name", email: '"space here"@email.invalid'}]],
       ["Name <not an email>", [{name: "Name", email: "not an email"}]],
       ["=?UTF-8?Q?Simple?= <a@b.c>",
         [{name: "=?UTF-8?Q?Simple?=", email: "a@b.c"}]],
@@ -365,14 +364,14 @@ suite('headerparser', function () {
       ["Friend \"<friend@huhu.com>\"                                \t <ws@example.com>",
         [{name: "Friend <friend@huhu.com>", email: "ws@example.com"}]],
     ];
-    header_tests.forEach(function (data) {
-      arrayTest(data, function () {
+    header_tests.forEach(function(data) {
+      arrayTest(data, function() {
         assert.deepEqual(headerparser.parseAddressingHeader(data[0], false),
           data[1]);
       });
     });
   });
-  suite('parseAddressingHeader (RFC 2047 support)', function () {
+  suite("parseAddressingHeader (RFC 2047 support)", function() {
     let header_tests = [
       ["Simple <a@b.c>", [{name: "Simple", email: "a@b.c"}]],
       ["=?UTF-8?Q?Simple?= <a@b.c>", [{name: "Simple", email: "a@b.c"}]],
@@ -397,15 +396,15 @@ suite('headerparser', function () {
         "[BCN-FC]\" <Barcelona-Freecycle-noreply@yahoogroups.com>",
         [{name: "Jazzy Fern\u00E1ndez Nunoz jazzy.f.nunoz@example.com [BCN-FC]",
           email: "Barcelona-Freecycle-noreply@yahoogroups.com"}]],
-      ["\"=?UTF-8?B?TWlyaWFtIEJlcm5hYsOpIFBlcmVsbMOz?= miriam@example.com "+
+      ["\"=?UTF-8?B?TWlyaWFtIEJlcm5hYsOpIFBlcmVsbMOz?= miriam@example.com " +
         "[BCN-FC]\" <Barcelona-Freecycle-noreply@yahoogroups.com>",
         [{name: "Miriam Bernab\u00E9 Perell\u00F3 miriam@example.com [BCN-FC]",
           email: "Barcelona-Freecycle-noreply@yahoogroups.com"}]],
-      ["\"=?iso-8859-1?Q?First_Mar=EDa_Furi=F3_Gancho?= mail@yahoo.es "+
+      ["\"=?iso-8859-1?Q?First_Mar=EDa_Furi=F3_Gancho?= mail@yahoo.es " +
         "[BCN-FC]\" <Barcelona-Freecycle-noreply@yahoogroups.com>",
         [{name: "First Mar\u00EDa Furi\u00F3 Gancho mail@yahoo.es [BCN-FC]",
           email: "Barcelona-Freecycle-noreply@yahoogroups.com"}]],
-      ["\"=?iso-8859-1?B?U29maWEgQ2FzdGVsbPMgUm9tZXJv?= sonia@example.com "+
+      ["\"=?iso-8859-1?B?U29maWEgQ2FzdGVsbPMgUm9tZXJv?= sonia@example.com " +
         "[BCN-FC]\" <Barcelona-Freecycle-noreply@yahoogroups.com>",
         [{name: "Sofia Castell\u00F3 Romero sonia@example.com [BCN-FC]",
           email: "Barcelona-Freecycle-noreply@yahoogroups.com"}]],
@@ -418,14 +417,14 @@ suite('headerparser', function () {
         [{name: "\"Claudia Röhschicht\" Claudia_Roehschicht@web.de [freecycle-berlin]",
           email: "freecycle-berlin-noreply@yahoogroups.de"}]],
     ];
-    header_tests.forEach(function (data) {
-      arrayTest(data, function () {
+    header_tests.forEach(function(data) {
+      arrayTest(data, function() {
         assert.deepEqual(headerparser.parseAddressingHeader(data[0], true),
           data[1]);
       });
     });
   });
-  suite('parseDateHeader', function () {
+  suite("parseDateHeader", function() {
     let header_tests = [
       // Some basic tests, derived from searching for Date headers in a mailing
       // list archive.
@@ -511,17 +510,17 @@ suite('headerparser', function () {
 
 
       // A truly invalid date
-      ["Coincident with the rapture", NaN]
+      ["Coincident with the rapture", NaN],
     ];
-    header_tests.forEach(function (data) {
-      arrayTest(data, function () {
+    header_tests.forEach(function(data) {
+      arrayTest(data, function() {
         assert.equal(headerparser.parseDateHeader(data[0]).toString(),
           new Date(data[1]).toString());
       });
     });
   });
 
-  suite('decodeRFC2047Words', function () {
+  suite("decodeRFC2047Words", function() {
     let header_tests = [
       // Some basic sanity tests for the test process
       ["Test", "Test"],
@@ -568,7 +567,7 @@ suite('headerparser', function () {
       // of slightly different, slightly incompatible charsets.
       // TODO: This requires future investigation. Bug 912470 discusses the
       // changes to Big5 proposed within Mozilla.
-      //["=?Big5?Q?=87E?=", "\ud85c\ude67"],
+      // ["=?Big5?Q?=87E?=", "\ud85c\ude67"],
       ["=?GB18030?B?lDnaMw==?=", "\ud83d\udca9"],
 
       // How to handle breaks in multi-byte encoding
@@ -608,14 +607,14 @@ suite('headerparser', function () {
         "\u2200  \u2201  \u2202  \u2203  \u2204  \u2205  \u2206  \u2207  " +
         "\u2208  \u2209  \u220a  \u220b  \u220c  \u220d  \u220e  \u220f"],
       ["=?utf-8?Q?=E2=88=80__=E2=88=81__=E2=88=82__=E2=88=83__=E2=88=84__?=\n" +
-       " =?utf-8?Q?=E2=88=85__=E2=88=86__=E2=88=87__=E2=88=88__=E2=88=89__?=\n"+
-       " =?utf-8?Q?=E2=88=8A__=E2=88=8B__=E2=88=8C__=E2=88=8D__=E2=88=8E__?=\n"+
+       " =?utf-8?Q?=E2=88=85__=E2=88=86__=E2=88=87__=E2=88=88__=E2=88=89__?=\n" +
+       " =?utf-8?Q?=E2=88=8A__=E2=88=8B__=E2=88=8C__=E2=88=8D__=E2=88=8E__?=\n" +
        " =?utf-8?Q?=E2=88=8F?=",
         "\u2200  \u2201  \u2202  \u2203  \u2204  \u2205  \u2206  \u2207  " +
         "\u2208  \u2209  \u220a  \u220b  \u220c  \u220d  \u220e  \u220f"],
       ["=?utf-8?q?=E2=88=80__=E2=88=81__=E2=88=82__=E2=88=83__=E2=88=84__?=\n" +
-       " =?utf-8?q?=E2=88=85__=E2=88=86__=E2=88=87__=E2=88=88__=E2=88=89__?=\n"+
-       " =?utf-8?q?=E2=88=8A__=E2=88=8B__=E2=88=8C__=E2=88=8D__=E2=88=8E__?=\n"+
+       " =?utf-8?q?=E2=88=85__=E2=88=86__=E2=88=87__=E2=88=88__=E2=88=89__?=\n" +
+       " =?utf-8?q?=E2=88=8A__=E2=88=8B__=E2=88=8C__=E2=88=8D__=E2=88=8E__?=\n" +
        " =?utf-8?q?=E2=88=8F?=",
         "\u2200  \u2201  \u2202  \u2203  \u2204  \u2205  \u2206  \u2207  " +
         "\u2208  \u2209  \u220a  \u220b  \u220c  \u220d  \u220e  \u220f"],
@@ -666,13 +665,13 @@ suite('headerparser', function () {
       ["=?us-ascii?B?VGVzdA==========?=", "Test"],
       ["=?us-ascii?B?VGVzdA===========?=", "Test"],
     ];
-    header_tests.forEach(function (data) {
-      arrayTest(data, function () {
+    header_tests.forEach(function(data) {
+      arrayTest(data, function() {
         assert.deepEqual(headerparser.decodeRFC2047Words(data[0]), data[1]);
       });
     });
   });
-  suite('8-bit header processing', function () {
+  suite("8-bit header processing", function() {
     let header_tests = [
       // Non-ASCII header values
       ["oxyg\xc3\xa8ne", "oxyg\u00e8ne", "UTF-8"],
@@ -695,13 +694,12 @@ suite('headerparser', function () {
       ["\xc3 =?UTF-8?Q?=a8?=", "\ufffd \ufffd", "UTF-8"],
       ["\xc3 =?UTF-8?Q?=a8?=", "\u00c3 \ufffd", "ISO-8859-1"],
     ];
-    header_tests.forEach(function (data) {
-      arrayTest(data, function () {
+    header_tests.forEach(function(data) {
+      arrayTest(data, function() {
         assert.deepEqual(headerparser.decodeRFC2047Words(
           headerparser.convert8BitHeader(data[0], (data.length > 2 ? data[2] : null))), data[1]);
       });
     });
   });
 });
-
 });

@@ -7,7 +7,7 @@
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-/// Verify that a specific XPCOM error code is thrown.
+// Verify that a specific XPCOM error code is thrown.
 function verifyError(block, errorCode) {
   let caught = undefined;
   try {
@@ -132,7 +132,7 @@ add_task(async function check_raw() {
   }
   headers.deleteHeader("Date");
   Assert.ok(moreHeaders.hasHeader("Date"));
-})
+});
 
 add_task(async function check_nsIMimeHeaders() {
   let headers = Cc["@mozilla.org/messenger/mimeheaders;1"]
@@ -181,7 +181,3 @@ add_task(async function checkBuildMimeText() {
   Assert.equal(mimeHeaders.buildMimeText(), mimeText);
   Assert.equal(mimeHeaders.allHeaders, utf8Text);
 });
-
-function run_test() {
-  run_next_test();
-}

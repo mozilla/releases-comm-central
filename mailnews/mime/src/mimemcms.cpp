@@ -92,7 +92,6 @@ typedef struct MimeMultCMSdata {
     PR_FREEIF(sender_addr);
 
     // Do a graceful shutdown of the nsICMSDecoder and release the nsICMSMessage
-    // //
     if (sig_decoder_context) {
       nsCOMPtr<nsICMSMessage> cinfo;
       sig_decoder_context->Finish(getter_AddRefs(cinfo));

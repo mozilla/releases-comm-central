@@ -1,7 +1,10 @@
-(function (root, fn) {
-  if (typeof define === 'function' && define.amd) {
+/* import-globals-from ../src/jsmime.jsm */
+/* globals define, module */
+
+(function(root, fn) {
+  if (typeof define === "function" && define.amd) {
     define(fn);
-  } else if (typeof module !== 'undefined' && module.exports) {
+  } else if (typeof module !== "undefined" && module.exports) {
     module.exports = fn();
   } else {
     root.jsmime = fn();
@@ -9,13 +12,13 @@
 }(this, function() {
   var mods = {};
   function req(id) {
-    return mods[id.replace(/^\.\//, '')];
+    return mods[id.replace(/^\.\//, "")];
   }
 
   function def(id, fn) {
     mods[id] = fn(req);
   }
-def('mimeutils', function() {
+def("mimeutils", function() {
 "use strict";
 
 /**
@@ -33,14 +36,14 @@ function decode_qp(buffer, more) {
   let decoded = buffer.replace(
     // Replace either =<hex><hex> or =<wsp>CRLF
     /=([0-9A-F][0-9A-F]|[ \t]*(\r\n|[\r\n]|$))/gi,
-    function replace_chars(match, param) {
+    function(match, param) {
       // If trailing text matches [ \t]*CRLF, drop everything, since it's a
       // soft line break.
       if (param.trim().length == 0)
-        return '';
+        return "";
       return String.fromCharCode(parseInt(param, 16));
     });
-  return [decoded, ''];
+  return [decoded, ""];
 }
 
 /**
@@ -57,19 +60,19 @@ function decode_qp(buffer, more) {
  */
 function decode_base64(buffer, more) {
   // Drop all non-base64 characters
-  let sanitize = buffer.replace(/[^A-Za-z0-9+\/=]/g,'');
+  let sanitize = buffer.replace(/[^A-Za-z0-9+\/=]/g, "");
   // Remove harmful `=' chars in the middle.
-  sanitize = sanitize.replace(/=+([A-Za-z0-9+\/])/g, '$1');
+  sanitize = sanitize.replace(/=+([A-Za-z0-9+\/])/g, "$1");
   // We need to encode in groups of 4 chars. If we don't have enough, leave the
   // excess for later. If there aren't any more, drop enough to make it 4.
   let excess = sanitize.length % 4;
   if (excess != 0 && more)
     buffer = sanitize.slice(-excess);
   else
-    buffer = '';
+    buffer = "";
   sanitize = sanitize.substring(0, sanitize.length - excess);
   // Delete all unnecessary '====' in padding.
-  sanitize = sanitize.replace(/(====)+$/g, '');
+  sanitize = sanitize.replace(/(====)+$/g, "");
   // Use the atob function we (ought to) have in global scope.
   return [atob(sanitize), buffer];
 }
@@ -94,8 +97,8 @@ function stringToTypedArray(buffer) {
  * @returns {Uint8Array} The converted data.
  */
 function typedArrayToString(buffer) {
-  var string = '';
-  for (var i = 0; i < buffer.length; i+= 100)
+  var string = "";
+  for (let i = 0; i < buffer.length; i += 100)
     string += String.fromCharCode.apply(undefined, buffer.subarray(i, i + 100));
   return string;
 }
@@ -105,11 +108,11 @@ var kMonthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
   "Sep", "Oct", "Nov", "Dec"];
 
 return {
-  decode_base64: decode_base64,
-  decode_qp: decode_qp,
-  kMonthNames: kMonthNames,
-  stringToTypedArray: stringToTypedArray,
-  typedArrayToString: typedArrayToString,
+  decode_base64,
+  decode_qp,
+  kMonthNames,
+  stringToTypedArray,
+  typedArrayToString,
 };
 });
 /**
@@ -117,7 +120,7 @@ return {
  * for several key headers. It is not meant to be used externally to jsmime.
  */
 
-def('structuredHeaders', function (require) {
+def("structuredHeaders", function(require) {
 "use strict";
 
 var structuredDecoders = new Map();
@@ -137,9 +140,8 @@ function addHeader(name, decoder, encoder) {
 // There is no need to specialize the results for the header, so just pun it
 // back to parseAddressingHeader.
 function parseAddress(value) {
-  let results = [];
   let headerparser = this;
-  return value.reduce(function (results, header) {
+  return value.reduce(function(results, header) {
     return results.concat(headerparser.parseAddressingHeader(header, true));
   }, []);
 }
@@ -186,7 +188,7 @@ function parseParameterHeader(value, do2231, do2047) {
 function parseContentType(value) {
   let params = parseParameterHeader.call(this, value, false, false);
   let origtype = params.preSemi;
-  let parts = origtype.split('/');
+  let parts = origtype.split("/");
   if (parts.length != 2) {
     // Malformed. Return to text/plain. Evil, ain't it?
     params = new Map();
@@ -194,12 +196,12 @@ function parseContentType(value) {
   }
   let mediatype = parts[0].toLowerCase();
   let subtype = parts[1].toLowerCase();
-  let type = mediatype + '/' + subtype;
+  let type = mediatype + "/" + subtype;
   let structure = new Map();
   structure.mediatype = mediatype;
   structure.subtype = subtype;
   structure.type = type;
-  params.forEach(function (value, name) {
+  params.forEach(function(value, name) {
     structure.set(name.toLowerCase(), value);
   });
   return structure;
@@ -255,7 +257,7 @@ addHeader("Resent-Message-ID", parseMessageID, writeMessageID);
 // Miscellaneous headers (those that don't fall under the above schemes):
 
 // RFC 2047
-structuredDecoders.set("Content-Transfer-Encoding", function (values) {
+structuredDecoders.set("Content-Transfer-Encoding", function(values) {
   return values[0].toLowerCase();
 });
 structuredEncoders.set("Content-Transfer-Encoding", writeUnstructured);
@@ -270,7 +272,7 @@ function preprocessMessageIDs(values) {
   while ((match = msgId.exec(values)) !== null) {
     ids.push(match[0]);
   }
-  return ids.join(' ');
+  return ids.join(" ");
 }
 structuredDecoders.set("References", preprocessMessageIDs);
 structuredDecoders.set("In-Reply-To", preprocessMessageIDs);
@@ -280,9 +282,8 @@ return Object.freeze({
   encoders: structuredEncoders,
   spellings: preferredSpellings,
 });
-
 });
-def('headerparser', function(require) {
+def("headerparser", function(require) {
 /**
  * This file implements the structured decoding of message header fields. It is
  * part of the same system as found in mimemimeutils.js, and occasionally makes
@@ -291,7 +292,7 @@ def('headerparser', function(require) {
  */
 
 "use strict";
-var mimeutils = require('./mimeutils');
+var mimeutils = require("./mimeutils");
 
 /**
  * This is the API that we ultimately return.
@@ -375,18 +376,19 @@ var headerparser = {};
  *                             method returning their value) or String objects
  *                             (representing delimiters).
  */
+/* eslint-disable complexity */
 function getHeaderTokens(value, delimiters, opts) {
   // The array of parsed tokens. This method used to be a generator, but it
   // appears that generators are poorly optimized in current engines, so it was
   // converted to not be one.
   let tokenList = [];
 
-  /// Represents a non-delimiter token
+  // Represents a non-delimiter token
   function Token(token) {
     // Unescape all quoted pairs. Any trailing \ is deleted.
     this.token = token.replace(/\\(.?)/g, "$1");
   }
-  Token.prototype.toString = function () { return this.token; };
+  Token.prototype.toString = function() { return this.token; };
 
   // The start of the current token (e.g., atoms, strings)
   let tokenStart = undefined;
@@ -405,7 +407,7 @@ function getHeaderTokens(value, delimiters, opts) {
     let ch = value[i];
     // If we see a \, no matter what context we are in, ignore the next
     // character.
-    if (ch == '\\') {
+    if (ch == "\\") {
       i++;
       continue;
     }
@@ -424,7 +426,7 @@ function getHeaderTokens(value, delimiters, opts) {
         tokenList.push(new Token(text));
         endQuote = undefined;
         tokenStart = undefined;
-      } else if (ch == endQuote && ch == ']') {
+      } else if (ch == endQuote && ch == "]") {
         // Domain literals include their delimiters.
         tokenList.push(new Token(value.slice(tokenStart, i + 1)));
         endQuote = undefined;
@@ -436,7 +438,7 @@ function getHeaderTokens(value, delimiters, opts) {
 
     // If we can match the RFC 2047 encoded-word pattern, we need to decode the
     // entire word or set of words.
-    if (opts.rfc2047 && ch == '=' && i + 1 < value.length && value[i + 1] == '?') {
+    if (opts.rfc2047 && ch == "=" && i + 1 < value.length && value[i + 1] == "?") {
       // RFC 2047 tokens separated only by whitespace are conceptually part of
       // the same output token, so we need to decode them all at once.
       let encodedWordsRE = /([ \t\r\n]*=\?[^?]*\?[BbQq]\?[^?]*\?=)+/;
@@ -455,7 +457,7 @@ function getHeaderTokens(value, delimiters, opts) {
           "UTF-8");
         // Don't make a new Token variable, since we do not want to unescape the
         // decoded string.
-        tokenList.push({ toString: function() { return string; }});
+        tokenList.push({ toString() { return string; }});
 
         // Skip everything we decoded. The -1 is because we don't want to
         // include the starting character.
@@ -496,12 +498,12 @@ function getHeaderTokens(value, delimiters, opts) {
       tokenIsEnding = true;
       tokenIsStarting = true;
       endQuote = ch;
-    } else if (opts.dliteral && ch == '[') {
+    } else if (opts.dliteral && ch == "[") {
       // Domain literals end the last token and start a new one.
       tokenIsEnding = true;
       tokenIsStarting = true;
-      endQuote = ']';
-    } else if (opts.comments && ch == '(') {
+      endQuote = "]";
+    } else if (opts.comments && ch == "(") {
       // Comments are nested (oh joy). We only really care for the outer
       // delimiter, though, which also ends the prior token and needs to be
       // output if the consumer requests it.
@@ -512,7 +514,7 @@ function getHeaderTokens(value, delimiters, opts) {
       } else {
         tokenIsStarting = true;
       }
-    } else if (opts.comments && ch == ')') {
+    } else if (opts.comments && ch == ")") {
       // Comments are nested (oh joy). We only really care for the outer
       // delimiter, though, which also ends the prior token and needs to be
       // output if the consumer requests it.
@@ -559,6 +561,7 @@ function getHeaderTokens(value, delimiters, opts) {
 
   return tokenList;
 }
+/* eslint-enable complexity */
 
 /**
  * Convert a header value into UTF-16 strings by attempting to decode as UTF-8
@@ -612,7 +615,7 @@ function decodeRFC2047Words(headerValue) {
   // we need to be able to handle these situations gracefully. This is done by
   // using the decoder in streaming mode so long as the next token is another
   // 2047 token with the same charset.
-  let lastCharset = '', currentDecoder = undefined;
+  let lastCharset = "", currentDecoder = undefined;
 
   /**
    * Decode a single RFC 2047 token. This function is inline so that we can
@@ -623,17 +626,17 @@ function decodeRFC2047Words(headerValue) {
     let tokenParts = token.split("?");
 
     // If it's obviously not a valid token, return false immediately.
-    if (tokenParts.length != 5 || tokenParts[4] != '=')
+    if (tokenParts.length != 5 || tokenParts[4] != "=")
       return false;
 
     // The charset parameter is defined in RFC 2231 to be charset or
     // charset*language. We only care about the charset here, so ignore any
     // language parameter that gets passed in.
-    let charset = tokenParts[1].split('*', 1)[0];
+    let charset = tokenParts[1].split("*", 1)[0];
     let encoding = tokenParts[2], text = tokenParts[3];
 
     let buffer;
-    if (encoding == 'B' || encoding == 'b') {
+    if (encoding == "B" || encoding == "b") {
       // Decode base64. If there's any non-base64 data, treat the string as
       // an illegal token.
       if (/[^ A-Za-z0-9+\/=]/.exec(text))
@@ -641,7 +644,7 @@ function decodeRFC2047Words(headerValue) {
 
       // Decode the string
       buffer = mimeutils.decode_base64(text, false)[0];
-    } else if (encoding == 'Q' || encoding == 'q') {
+    } else if (encoding == "Q" || encoding == "q") {
       // Q encoding here looks a lot like quoted-printable text. The differences
       // between quoted-printable and this are that quoted-printable allows you
       // to quote newlines (this doesn't), while this replaces spaces with _.
@@ -651,7 +654,7 @@ function decodeRFC2047Words(headerValue) {
       // whitespace at the end of the string. Such an input string is already
       // malformed to begin with, so stripping the = and following input in that
       // case should not be an important loss.
-      buffer = mimeutils.decode_qp(text.replace(/_/g, ' '), false)[0];
+      buffer = mimeutils.decode_qp(text.replace(/_/g, " "), false)[0];
     } else {
       return false;
     }
@@ -661,7 +664,7 @@ function decodeRFC2047Words(headerValue) {
     buffer = mimeutils.stringToTypedArray(buffer);
 
     // If we cannot reuse the last decoder, flush out whatever remains.
-    var output = '';
+    var output = "";
     if (charset != lastCharset && currentDecoder) {
       output += currentDecoder.decode();
       currentDecoder = null;
@@ -722,13 +725,13 @@ function decodeRFC2047Words(headerValue) {
     } else if (/^[ \t\r\n]*$/.exec(components[i])) {
       // Whitespace-only tokens get squashed into nothing, so 2047 tokens will
       // be concatenated together.
-      components[i] = '';
+      components[i] = "";
       continue;
     }
 
     // If there was stuff left over from decoding the last 2047 token, flush it
     // out.
-    lastCharset = '';
+    lastCharset = "";
     if (currentDecoder) {
       components[i] = currentDecoder.decode() + components[i];
       currentDecoder = null;
@@ -737,12 +740,11 @@ function decodeRFC2047Words(headerValue) {
 
   // After the for loop, we'll have a set of decoded strings. Concatenate them
   // together to make the return value.
-  return components.join('');
+  return components.join("");
 }
 
-///////////////////////////////
-// Structured field decoders //
-///////////////////////////////
+// Structured field decoders
+// -------------------------
 
 /**
  * Extract a list of addresses from a header which matches the RFC 5322
@@ -779,7 +781,7 @@ function parseAddressingHeader(header, doRFC2047) {
   let addrlist = [];
 
   // Build up all of the values
-  let name = '', groupName = '', localPart = '', address = '', comment = '';
+  let name = "", groupName = "", localPart = "", address = "", comment = "";
   // Indicators of current state
   let inAngle = false, inComment = false, needsSpace = false;
   let preserveSpace = false;
@@ -804,7 +806,7 @@ function parseAddressingHeader(header, doRFC2047) {
   // local-part of an addr-spec (where we ignore comments) until we find an
   // '@' or an '<' token. Thus, we collect both variants until the fog lifts,
   // plus the last comment seen.
-  let lastComment = '';
+  let lastComment = "";
 
   /**
    * Add the parsed mailbox object to the address list.
@@ -824,57 +826,57 @@ function parseAddressingHeader(header, doRFC2047) {
     // Replace consecutive whitespace in the name with a single whitespace.
     displayName = displayName.replace(/\s\s+/g, " ");
 
-    if (displayName === '' && lastComment !== '') {
+    if (displayName === "" && lastComment !== "") {
       // Take last comment content as the display-name.
-      let offset = lastComment[0] === ' ' ? 2 : 1;
+      let offset = lastComment[0] === " " ? 2 : 1;
       displayName = lastComment.substr(offset, lastComment.length - offset - 1);
     }
-    if (displayName !== '' || addrSpec !== '') {
+    if (displayName !== "" || addrSpec !== "") {
       addrlist.push({name: displayName, email: addrSpec});
     }
     // Clear pending flags and variables.
-    name = localPart = address = lastComment = '';
+    name = localPart = address = lastComment = "";
     inAngle = inComment = needsSpace = false;
   }
 
   // Main parsing loop
   for (let token of getHeaderTokens(header, ":,;<>@",
         {qstring: true, comments: true, dliteral: true, rfc2047: doRFC2047})) {
-    if (token === ':') {
+    if (token === ":") {
       groupName = name;
-      name = '';
-      localPart = '';
+      name = "";
+      localPart = "";
       // If we had prior email address results, commit them to the top-level.
       if (addrlist.length > 0)
         results = results.concat(addrlist);
       addrlist = [];
-    } else if (token === '<') {
+    } else if (token === "<") {
       if (inAngle) {
         // Interpret the address we were parsing as a name.
         if (address.length > 0) {
           name = address;
         }
-        localPart = address = '';
+        localPart = address = "";
       } else {
         inAngle = true;
       }
-    } else if (token === '>') {
+    } else if (token === ">") {
       inAngle = false;
       // Forget addr-spec comments.
-      lastComment = '';
-    } else if (token === '(') {
+      lastComment = "";
+    } else if (token === "(") {
       inComment = true;
       // The needsSpace flag may not always be set even if it should be,
       // e.g. for a comment behind an angle-addr.
       // Also, we need to restore the needsSpace flag if we ignore the comment.
       preserveSpace = needsSpace;
       if (!needsSpace)
-        needsSpace = name !== '' && name.substr(-1) !== ' ';
-      comment = needsSpace ? ' (' : '(';
+        needsSpace = name !== "" && name.substr(-1) !== " ";
+      comment = needsSpace ? " (" : "(";
       commentClosed = false;
-    } else if (token === ')') {
+    } else if (token === ")") {
       inComment = false;
-      comment += ')';
+      comment += ")";
       lastComment = comment;
       // The comment may be part of the name, but not of the local-part.
       // Enforce a space behind the comment only when not ignoring it.
@@ -886,49 +888,49 @@ function parseAddressingHeader(header, doRFC2047) {
       }
       commentClosed = true;
       continue;
-    } else if (token === '@') {
+    } else if (token === "@") {
       // An @ means we see an email address. If we're not within <> brackets,
       // then we just parsed an email address instead of a display name. Empty
       // out the display name for the current production.
       if (!inAngle) {
         address = localPart;
-        name = '';
-        localPart = '';
+        name = "";
+        localPart = "";
         // The remainder of this mailbox is part of an addr-spec.
         inAngle = true;
       }
-      address += '@';
-    } else if (token === ',') {
+      address += "@";
+    } else if (token === ",") {
       // A comma ends the current name. If we have something that's kind of a
       // name, add it to the result list. If we don't, then our input looks like
       // To: , , -> don't bother adding an empty entry.
       addToAddrList(name, address);
-    } else if (token === ';') {
+    } else if (token === ";") {
       // Add pending name to the list
       addToAddrList(name, address);
 
       // If no group name was found, treat the ';' as a ','. In any case, we
       // need to copy the results of addrlist into either a new group object or
       // the main list.
-      if (groupName === '') {
+      if (groupName === "") {
         results = results.concat(addrlist);
       } else {
         results.push({
           name: groupName,
-          group: addrlist
+          group: addrlist,
         });
       }
       // ... and reset every other variable.
       addrlist = [];
-      groupName = '';
+      groupName = "";
     } else {
       // This is either comment content, a quoted-string, or some span of
       // dots and atoms.
 
       // Ignore the needs space if we're a "close" delimiter token.
       let spacedToken = token;
-      if (needsSpace && token.toString()[0] != '.')
-        spacedToken = ' ' + spacedToken;
+      if (needsSpace && token.toString()[0] != ".")
+        spacedToken = " " + spacedToken;
 
       // Which field do we add this data to?
       if (inComment) {
@@ -948,7 +950,7 @@ function parseAddressingHeader(header, doRFC2047) {
 
       // We need space for the next token if we aren't some kind of comment or
       // . delimiter.
-      needsSpace = (token.toString().length > 0) && (token.toString()[0] != '.');
+      needsSpace = (token.toString().length > 0) && (token.toString()[0] != ".");
       // The fall-through case after this resets needsSpace to false, and we
       // don't want that!
       continue;
@@ -962,7 +964,7 @@ function parseAddressingHeader(header, doRFC2047) {
   // If we're missing the final ';' of a group, assume it was present. Also, add
   // in the details of any email/address that we previously saw.
   addToAddrList(name, address);
-  if (groupName !== '') {
+  if (groupName !== "") {
     results.push({name: groupName, group: addrlist});
     addrlist = [];
   }
@@ -983,17 +985,19 @@ function parseAddressingHeader(header, doRFC2047) {
  *                                 The property preSemi is set to the token that
  *                                 precedes the first semicolon.
  */
+/* eslint-disable complexity */
 function parseParameterHeader(headerValue, doRFC2047, doRFC2231) {
   // The basic syntax of headerValue is token [; token = token-or-qstring]*
   // Copying more or less liberally from nsMIMEHeaderParamImpl:
   // The first token is the text to the first whitespace or semicolon.
   var semi = headerValue.indexOf(";");
+  let start, rest;
   if (semi < 0) {
-    var start = headerValue;
-    var rest = '';
+    start = headerValue;
+    rest = "";
   } else {
-    var start = headerValue.substring(0, semi);
-    var rest = headerValue.substring(semi); // Include the semicolon
+    start = headerValue.substring(0, semi);
+    rest = headerValue.substring(semi); // Include the semicolon
   }
   // Strip start to be <WSP><nowsp><WSP>.
   start = start.trim().split(/[ \t\r\n]/)[0];
@@ -1002,45 +1006,44 @@ function parseParameterHeader(headerValue, doRFC2047, doRFC2231) {
   let opts = {qstring: true, rfc2047: doRFC2047};
   // Name is the name of the parameter, inName is true iff we don't have a name
   // yet.
-  let name = '', inName = true;
+  let name = "", inName = true;
   // Matches is a list of [name, value] pairs, where we found something that
   // looks like name=value in the input string.
   let matches = [];
   for (let token of getHeaderTokens(rest, ";=", opts)) {
-    if (token === ';') {
+    if (token === ";") {
       // If we didn't find a name yet (we have ... tokenA; tokenB), push the
       // name with an empty token instead.
-      if (name != '' && inName == false)
-        matches.push([name, '']);
-      name = '';
+      if (name != "" && !inName)
+        matches.push([name, ""]);
+      name = "";
       inName = true;
-    } else if (token === '=') {
+    } else if (token === "=") {
       inName = false;
-    } else if (inName && name == '') {
+    } else if (inName && name == "") {
       name = token.toString();
-    } else if (!inName && name != '') {
+    } else if (!inName && name != "") {
       token = token.toString();
       // RFC 2231 doesn't make it clear if %-encoding is supposed to happen
       // within a quoted string, but this is very much required in practice. If
       // it ends with a '*', then the string is an extended-value, which means
       // that its value may be %-encoded.
-      if (doRFC2231 && name.endsWith('*')) {
-        token = token.replace(/%([0-9A-Fa-f]{2})/g,
-          function percent_deencode(match, hexchars) {
-            return String.fromCharCode(parseInt(hexchars, 16));
+      if (doRFC2231 && name.endsWith("*")) {
+        token = token.replace(/%([0-9A-Fa-f]{2})/g, function(match, hexchars) {
+          return String.fromCharCode(parseInt(hexchars, 16));
         });
       }
       matches.push([name, token]);
       // Clear the name, so we ignore anything afterwards.
-      name = '';
+      name = "";
     } else if (inName) {
       // We have ...; tokenA tokenB ... -> ignore both tokens
-      name = ''; // Error recovery, ignore this one
+      name = ""; // Error recovery, ignore this one
     }
   }
   // If we have a leftover ...; tokenA, push the tokenA
-  if (name != '' && inName == false)
-    matches.push([name, '']);
+  if (name != "" && !inName)
+    matches.push([name, ""]);
 
   // Now matches holds the parameters, so clean up for RFC 2231. There are three
   // cases: param=val, param*=us-ascii'en-US'blah, and param*n= variants. The
@@ -1059,7 +1062,7 @@ function parseParameterHeader(headerValue, doRFC2047, doRFC2231) {
     let name = pair[0];
     let value = pair[1];
     // Get first index, not last index, so we match param*0*= like param*0=.
-    let star = name.indexOf('*');
+    let star = name.indexOf("*");
     if (star == -1) {
       // This is the case of param=val. Select the first value here, if there
       // are multiple ones.
@@ -1082,7 +1085,7 @@ function parseParameterHeader(headerValue, doRFC2047, doRFC2231) {
       // If we haven't seen it yet, set up entry already. Note that entries are
       // not straight string values but rather [valid, hasCharset, param0, ... ]
       if (!continuationValues.has(param)) {
-        entry = new Array();
+        entry = [];
         entry.valid = true;
         entry.hasCharset = undefined;
         continuationValues.set(param, entry);
@@ -1090,14 +1093,12 @@ function parseParameterHeader(headerValue, doRFC2047, doRFC2231) {
 
       // When the string ends in *, we need to charset decoding.
       // Note that the star is only meaningful for the *0*= case.
-      let lastStar = name[name.length - 1] == '*';
+      let lastStar = name[name.length - 1] == "*";
       let number = name.substring(star + 1, name.length - (lastStar ? 1 : 0));
-      if (number == '0')
+      if (number == "0") {
         entry.hasCharset = lastStar;
-
-      // Is the continuation number illegal?
-      else if (number.length == 0 || (number[0] == '0' && number != '0') ||
-          !(/^[0-9]+$/.test(number))) {
+      } else if (number.length == 0 || (number[0] == "0" && number != "0") ||
+          !(/^[0-9]+$/.test(number))) { // Is the continuation number illegal?
         entry.valid = false;
         continue;
       }
@@ -1142,7 +1143,7 @@ function parseParameterHeader(headerValue, doRFC2047, doRFC2231) {
 
       // Concatenate as many parameters as are valid. If we need to decode thec
       // charset, do so now.
-      let value = entry.slice(0, i).join('');
+      let value = entry.slice(0, i).join("");
       if (entry.hasCharset) {
         try {
           value = decode2231Value(value);
@@ -1169,6 +1170,7 @@ function parseParameterHeader(headerValue, doRFC2047, doRFC2231) {
   values.preSemi = start;
   return values;
 }
+/* eslint-enable complexity */
 
 /**
  * Convert a RFC 2231-encoded string parameter into a Unicode version of the
@@ -1184,7 +1186,7 @@ function decode2231Value(value) {
   let charset = (quote1 >= 0 ? value.substring(0, quote1) : "");
   // It turns out that the language isn't useful anywhere in our codebase for
   // the present time, so we will safely ignore it.
-  //var language = (quote2 >= 0 ? value.substring(quote1 + 2, quote2) : "");
+  // var language = (quote2 >= 0 ? value.substring(quote1 + 2, quote2) : "");
   value = value.substring(Math.max(quote1, quote2) + 1);
 
   // Convert the value into a typed array for decoding
@@ -1211,7 +1213,7 @@ var kKnownTZs = {
   "BST": "+0100", // British Summer Time
   "MET": "+0100", // Middle Europe Time
   "EET": "+0200", // Eastern Europe Time
-  "JST": "+0900"  // Japan Standard Time
+  "JST": "+0900", // Japan Standard Time
 };
 
 /**
@@ -1245,7 +1247,7 @@ function parseDateHeader(header) {
 
   // First, ignore the day-of-the-week if present. This would be the first two
   // tokens.
-  if (tokens.length > 1 && tokens[1] === ',')
+  if (tokens.length > 1 && tokens[1] === ",")
     tokens = tokens.slice(2);
 
   // If there are too few tokens, the date is obviously invalid.
@@ -1283,9 +1285,9 @@ function parseDateHeader(header) {
   let decompose = /^([+-])(\d\d)(\d\d)$/.exec(tzoffset);
   // Unknown? Make it +0000
   if (decompose === null)
-    decompose = ['+0000', '+', '00', '00'];
+    decompose = ["+0000", "+", "00", "00"];
   let tzOffsetInMin = parseInt(decompose[2]) * 60 + parseInt(decompose[3]);
-  if (decompose[1] == '-')
+  if (decompose[1] == "-")
     tzOffsetInMin = -tzOffsetInMin;
 
   // How do we make the date at this point? Well, the JS date's constructor
@@ -1303,13 +1305,12 @@ function parseDateHeader(header) {
   return finalDate;
 }
 
-////////////////////////////////////////
-// Structured header decoding support //
-////////////////////////////////////////
+// Structured header decoding support
+// ----------------------------------
 
 // Load the default structured decoders
 var structuredDecoders = new Map();
-var structuredHeaders = require('./structuredHeaders');
+var structuredHeaders = require("./structuredHeaders");
 var preferredSpellings = structuredHeaders.spellings;
 var forbiddenHeaders = new Set();
 for (let pair of structuredHeaders.decoders) {
@@ -1453,12 +1454,10 @@ headerparser.parseDateHeader = parseDateHeader;
 headerparser.parseParameterHeader = parseParameterHeader;
 headerparser.parseStructuredHeader = parseStructuredHeader;
 return Object.freeze(headerparser);
-
 });
 
-////////////////////////////////////////////////////////////////////////////////
-//                        JavaScript Raw MIME Parser                          //
-////////////////////////////////////////////////////////////////////////////////
+// JavaScript Raw MIME Parser
+// --------------------------
 
 /**
  * The parser implemented in this file produces a MIME part tree for a given
@@ -1510,12 +1509,12 @@ return Object.freeze(headerparser);
  *   to the outermost message/rfc822 envelope.
  */
 
-def('mimeparser', function(require) {
+def("mimeparser", function(require) {
 "use strict";
 
-var mimeutils = require('./mimeutils');
-var headerparser = require('./headerparser');
-var spellings = require('./structuredHeaders').spellings;
+var mimeutils = require("./mimeutils");
+var headerparser = require("./headerparser");
+var spellings = require("./structuredHeaders").spellings;
 
 /**
  * An object that represents the structured MIME headers for a message.
@@ -1592,7 +1591,7 @@ function StructuredHeaders(rawHeaderText, options) {
     values.shift();
     // Elide the mbox delimiter from this._headerData
     if (values.length == 0)
-      rawHeaderText = '';
+      rawHeaderText = "";
     else
       rawHeaderText = rawHeaderText.substring(rawHeaderText.indexOf(values[0]));
   }
@@ -1602,20 +1601,21 @@ function StructuredHeaders(rawHeaderText, options) {
     // Look for a colon. If it's not present, this header line is malformed,
     // perhaps by premature EOF or similar.
     let colon = values[i].indexOf(":");
+    let header, val;
     if (colon >= 0) {
-      var header = values[i].substring(0, colon);
-      var val = values[i].substring(colon + 1).trim();
+      header = values[i].substring(0, colon);
+      val = values[i].substring(colon + 1).trim();
       if (options.stripcontinuations)
-        val = val.replace(/[\r\n]/g, '');
+        val = val.replace(/[\r\n]/g, "");
     } else {
-      var header = values[i];
-      var val = '';
+      header = values[i];
+      val = "";
     }
 
     // Canonicalize the header in lower-case form.
     header = header.trim().toLowerCase();
     // Omit "empty" headers
-    if (header == '')
+    if (header == "")
       continue;
 
     // We keep an array of values for each header, since a given header may be
@@ -1637,21 +1637,23 @@ function StructuredHeaders(rawHeaderText, options) {
    * @private
    */
   this._cachedHeaders = new Map();
-  Object.defineProperty(this, "rawHeaderText",
-    {get: function () { return rawHeaderText; }});
-  Object.defineProperty(this, "size",
-    {get: function () { return this._rawHeaders.size; }});
+  Object.defineProperty(this, "rawHeaderText", {
+    get() { return rawHeaderText; },
+  });
+  Object.defineProperty(this, "size", {
+    get() { return this._rawHeaders.size; },
+  });
   Object.defineProperty(this, "charset", {
-    get: function () { return this._charset; },
-    set: function (value) {
+    get() { return this._charset; },
+    set(value) {
       this._charset = value;
       // Clear the cached headers, since this could change their values
       this._cachedHeaders.clear();
-    }
+    },
   });
 
   // Default to the charset, until the message parser overrides us.
-  if ('charset' in options)
+  if ("charset" in options)
     this._charset = options.charset;
   else
     this._charset = null;
@@ -1661,7 +1663,7 @@ function StructuredHeaders(rawHeaderText, options) {
   // someone who changes the charset affect the values of 8-bit parameters.
   Object.defineProperty(this, "contentType", {
     configurable: true,
-    get: function () { return this.get('Content-Type'); }
+    get() { return this.get("Content-Type"); },
   });
 }
 
@@ -1685,7 +1687,7 @@ function StructuredHeaders(rawHeaderText, options) {
  * @returns {BinaryString[]} The raw header values (with no charset conversion
  *                           applied).
  */
-StructuredHeaders.prototype.getRawHeader = function (headerName) {
+StructuredHeaders.prototype.getRawHeader = function(headerName) {
   return this._rawHeaders.get(headerName.toLowerCase());
 };
 
@@ -1705,7 +1707,7 @@ StructuredHeaders.prototype.getRawHeader = function (headerName) {
  * @param headerName {String} The header name for which to get the header value.
  * @returns The structured header value of the output.
  */
-StructuredHeaders.prototype.get = function (headerName) {
+StructuredHeaders.prototype.get = function(headerName) {
   // Normalize the header name to lower case
   headerName = headerName.toLowerCase();
 
@@ -1720,7 +1722,7 @@ StructuredHeaders.prototype.get = function (headerName) {
 
   // Convert the header to Unicode
   let charset = this.charset;
-  headerValue = headerValue.map(function (value) {
+  headerValue = headerValue.map(function(value) {
     return headerparser.convert8BitHeader(value, charset);
   });
 
@@ -1730,7 +1732,7 @@ StructuredHeaders.prototype.get = function (headerName) {
   try {
     structured = headerparser.parseStructuredHeader(headerName, headerValue);
   } catch (e) {
-    structured = headerValue.map(function (value) {
+    structured = headerValue.map(function(value) {
       return headerparser.decodeRFC2047Words(value);
     });
   }
@@ -1746,7 +1748,7 @@ StructuredHeaders.prototype.get = function (headerName) {
  * @param headerName {String} The header name for which to get the header value.
  * @returns {Boolean} True if the header is present in this header block.
  */
-StructuredHeaders.prototype.has = function (headerName) {
+StructuredHeaders.prototype.has = function(headerName) {
   // Check for presence in the raw headers instead of cached headers.
   return this._rawHeaders.has(headerName.toLowerCase());
 };
@@ -1761,7 +1763,7 @@ var ITERATOR_SYMBOL = JS_HAS_SYMBOLS ? Symbol.iterator : "@@iterator";
  * representations. This is the function that makes
  * for (let [header, value] of headers) work properly.
  */
-StructuredHeaders.prototype[ITERATOR_SYMBOL] = function*() {
+StructuredHeaders.prototype[ITERATOR_SYMBOL] = function* () {
   // Iterate over all the raw headers, and use the cached headers to retrieve
   // them.
   for (let headerName of this.keys()) {
@@ -1778,7 +1780,7 @@ StructuredHeaders.prototype[ITERATOR_SYMBOL] = function*() {
  * @param thisarg  {Object}                         The parameter that will be
  *                                                  the |this| of the callback.
  */
-StructuredHeaders.prototype.forEach = function (callback, thisarg) {
+StructuredHeaders.prototype.forEach = function(callback, thisarg) {
   for (let [header, value] of this) {
     callback.call(thisarg, value, header, this);
   }
@@ -1791,9 +1793,9 @@ StructuredHeaders.prototype.forEach = function (callback, thisarg) {
 StructuredHeaders.prototype.entries =
   StructuredHeaders.prototype[Symbol.iterator];
 
-/// This function maps lower case names to a pseudo-preferred spelling.
+// This function maps lower case names to a pseudo-preferred spelling.
 function capitalize(headerName) {
-  return headerName.replace(/\b[a-z]/g, function (match) {
+  return headerName.replace(/\b[a-z]/g, function(match) {
     return match.toUpperCase();
   });
 }
@@ -1801,7 +1803,7 @@ function capitalize(headerName) {
 /**
  * An equivalent of Map.keys, applied to the structured header representations.
  */
-StructuredHeaders.prototype.keys = function*() {
+StructuredHeaders.prototype.keys = function* () {
   for (let name of this._rawHeaders.keys()) {
     yield spellings.get(name) || capitalize(name);
   }
@@ -1881,9 +1883,9 @@ StructuredHeaders.prototype.values = function* () {
  *      parser itself to throw an error, rethrow it via the onerror function.
  */
 function MimeParser(emitter, options) {
-  /// The actual emitter
+  // The actual emitter
   this._emitter = emitter;
-  /// Options for the parser (those listed here are defaults)
+  // Options for the parser (those listed here are defaults)
   this._options = {
     pruneat: "",
     bodyformat: "nodecode",
@@ -1891,7 +1893,7 @@ function MimeParser(emitter, options) {
     stripcontinuations: true,
     charset: "",
     "force-charset": false,
-    onerror: function swallow(error) {}
+    onerror(error) {},
   };
   // Load the options as a copy here (prevents people from changing on the fly).
   if (options)
@@ -1901,7 +1903,7 @@ function MimeParser(emitter, options) {
 
   // Ensure that the error function is in fact a function
   if (typeof this._options.onerror != "function")
-    throw new Exception("onerror callback must be a function");
+    throw new Error("onerror callback must be a function");
 
   // Reset the parser
   this.resetParser();
@@ -1911,25 +1913,25 @@ function MimeParser(emitter, options) {
  * Resets the parser to read a new message. This method need not be called
  * immediately after construction.
  */
-MimeParser.prototype.resetParser = function () {
-  /// Current parser state
+MimeParser.prototype.resetParser = function() {
+  // Current parser state
   this._state = PARSING_HEADERS;
-  /// Input data that needs to be held for buffer conditioning
-  this._holdData = '';
-  /// Complete collection of headers (also used to accumulate _headerData)
-  this._headerData = '';
-  /// Whether or not emitter.startMessage has been called
+  // Input data that needs to be held for buffer conditioning
+  this._holdData = "";
+  // Complete collection of headers (also used to accumulate _headerData)
+  this._headerData = "";
+  // Whether or not emitter.startMessage has been called
   this._triggeredCall = false;
 
-  /// Splitting input
+  // Splitting input
   this._splitRegex = this._handleSplit = undefined;
-  /// Subparsing
+  // Subparsing
   this._subparser = this._subPartNum = undefined;
-  /// Data that has yet to be consumed by _convertData
-  this._savedBuffer = '';
-  /// Convert data
+  // Data that has yet to be consumed by _convertData
+  this._savedBuffer = "";
+  // Convert data
   this._convertData = undefined;
-  /// String decoder
+  // String decoder
   this._decoder = undefined;
 };
 
@@ -1938,7 +1940,7 @@ MimeParser.prototype.resetParser = function () {
  *
  * @param buffer {BinaryString} The raw data to add to the message.
  */
-MimeParser.prototype.deliverData = function (buffer) {
+MimeParser.prototype.deliverData = function(buffer) {
   // In ideal circumstances, we'd like to parse the message all at once. In
   // reality, though, data will be coming to us in packets. To keep the amount
   // of saved state low, we want to make basic guarantees about how packets get
@@ -1960,7 +1962,7 @@ MimeParser.prototype.deliverData = function (buffer) {
   // Add in previously saved data
   if (this._holdData) {
     buffer = this._holdData + buffer;
-    this._holdData = '';
+    this._holdData = "";
   }
 
   // Condition the input, so that we get the multiline-buffering mentioned in
@@ -1981,7 +1983,7 @@ MimeParser.prototype.deliverData = function (buffer) {
 
   // Finally, send it the internal parser.
   this._dispatchData("", buffer, true);
-}
+};
 
 /**
  * Ensure that a set of data always ends in an end-of-line character.
@@ -1996,18 +1998,18 @@ function conditionToEndOnCRLF(buffer) {
   // don't want to consider '\r' if it is the very last character, as we need
   // the next packet to tell if the '\r' is the beginning of a CRLF or a line
   // ending by itself.
-  let lastCR = buffer.lastIndexOf('\r', buffer.length - 2);
-  let lastLF = buffer.lastIndexOf('\n');
+  let lastCR = buffer.lastIndexOf("\r", buffer.length - 2);
+  let lastLF = buffer.lastIndexOf("\n");
   let end = lastLF > lastCR ? lastLF : lastCR;
   return [buffer.substring(0, end + 1), buffer.substring(end + 1)];
-};
+}
 
 /**
  * Tell the parser that all of the data has been delivered.
  *
  * This will flush all of the internal state of the parser.
  */
-MimeParser.prototype.deliverEOF = function () {
+MimeParser.prototype.deliverEOF = function() {
   // Start of input buffered too long? Call start message now.
   if (!this._triggeredCall) {
     this._triggeredCall = true;
@@ -2030,7 +2032,7 @@ MimeParser.prototype.deliverEOF = function () {
  * @param funcname {String} The function name to call on the emitter.
  * @param args...           Extra arguments to pass into the emitter callback.
  */
-MimeParser.prototype._callEmitter = function (funcname, ...args) {
+MimeParser.prototype._callEmitter = function(funcname, ...args) {
   if (this._emitter && funcname in this._emitter) {
     if (args.length > 0 && this._willIgnorePart(args[0])) {
       // partNum is always the first argument, so check to make sure that it
@@ -2053,22 +2055,21 @@ MimeParser.prototype._callEmitter = function (funcname, ...args) {
  * @param part {String} The number of the part.
  * @returns {Boolean} True if the emitter is not interested in this part.
  */
-MimeParser.prototype._willIgnorePart = function (part) {
-  if (this._options["pruneat"]) {
-    let match = this._options["pruneat"];
+MimeParser.prototype._willIgnorePart = function(part) {
+  if (this._options.pruneat) {
+    let match = this._options.pruneat;
     let start = part.substr(0, match.length);
     // It needs to start with and follow with a new part indicator
     // (i.e., don't let 10 match with 1, but let 1.1 or 1$ do so)
     if (start != match || (match.length < part.length &&
-          "$.".indexOf(part[match.length]) == -1))
+          !("$.".includes(part[match.length]))))
       return true;
   }
   return false;
 };
 
-//////////////////////
-// MIME parser core //
-//////////////////////
+// MIME parser core
+// ----------------
 
 // This MIME parser is a stateful parser; handling of the MIME tree is mostly
 // done by creating new parsers and feeding data to them manually. In parallel
@@ -2135,7 +2136,7 @@ var SEND_TO_SUBPARSER = 4;
  *                                  This is set to false internally to handle
  *                                  low-level splitting details.
  */
-MimeParser.prototype._dispatchData = function (partNum, buffer, checkSplit) {
+MimeParser.prototype._dispatchData = function(partNum, buffer, checkSplit) {
   // Are we parsing headers?
   if (this._state == PARSING_HEADERS) {
     this._headerData += buffer;
@@ -2182,13 +2183,12 @@ MimeParser.prototype._dispatchData = function (partNum, buffer, checkSplit) {
   // Where does the data go?
   if (this._state == SEND_TO_BLACK_HOLE) {
     // Don't send any data when going to the black hole.
-    return;
   } else if (this._state == SEND_TO_EMITTER) {
     // Don't pass body data if the format is to be none
-    let passData = this._options["bodyformat"] != "none";
+    let passData = this._options.bodyformat != "none";
     if (!passData || this._willIgnorePart(partNum))
       return;
-    buffer = this._applyDataConversion(buffer, this._options["strformat"]);
+    buffer = this._applyDataConversion(buffer, this._options.strformat);
     if (buffer.length > 0)
       this._callEmitter("deliverPartData", partNum, buffer);
   } else if (this._state == SEND_TO_SUBPARSER) {
@@ -2208,7 +2208,7 @@ MimeParser.prototype._dispatchData = function (partNum, buffer, checkSplit) {
  * @returns Coerced and converted data that can be sent to the emitter or
  *          subparser.
  */
-MimeParser.prototype._applyDataConversion = function (buf, type) {
+MimeParser.prototype._applyDataConversion = function(buf, type) {
   // If we need to convert data, do so.
   if (this._convertData) {
     // Prepend leftover data from the last conversion.
@@ -2227,8 +2227,8 @@ MimeParser.prototype._applyDataConversion = function (buf, type) {
  *                                         called again.
  * @returns {BinaryString|String|Uint8Array} The desired output format.
  */
-/// Coerces the buffer (a string or typedarray) into a given type
-MimeParser.prototype._coerceData = function (buffer, type, more) {
+// Coerces the buffer (a string or typedarray) into a given type
+MimeParser.prototype._coerceData = function(buffer, type, more) {
   if (typeof buffer == "string") {
     // string -> binarystring is a nop
     if (type == "binarystring")
@@ -2257,7 +2257,7 @@ MimeParser.prototype._coerceData = function (buffer, type, more) {
  *
  * @param partNum {String} The part number being currently parsed.
  */
-MimeParser.prototype._dispatchEOF = function (partNum) {
+MimeParser.prototype._dispatchEOF = function(partNum) {
   if (this._state == PARSING_HEADERS) {
     // Unexpected EOF in headers. Parse them now and call startPart/endPart
     this._headers = this._parseHeaders();
@@ -2272,8 +2272,8 @@ MimeParser.prototype._dispatchEOF = function (partNum) {
     this._subparser = null;
   } else if (this._convertData && this._savedBuffer) {
     // Convert lingering data
-    let [buffer, ] = this._convertData(this._savedBuffer, false);
-    buffer = this._coerceData(buffer, this._options["strformat"], false);
+    let [buffer] = this._convertData(this._savedBuffer, false);
+    buffer = this._coerceData(buffer, this._options.strformat, false);
     if (buffer.length > 0)
       this._callEmitter("deliverPartData", partNum, buffer);
   }
@@ -2288,16 +2288,16 @@ MimeParser.prototype._dispatchEOF = function (partNum) {
  * @returns {StructuredHeaders} The structured header objects for the header
  *                              block.
  */
-MimeParser.prototype._parseHeaders = function () {
+MimeParser.prototype._parseHeaders = function() {
   let headers = new StructuredHeaders(this._headerData, this._options);
 
   // Fill the headers.contentType parameter of headers.
-  let contentType = headers.get('Content-Type');
+  let contentType = headers.get("Content-Type");
   if (typeof contentType === "undefined") {
-    contentType = headerparser.parseStructuredHeader('Content-Type',
-      this._defaultContentType || 'text/plain');
+    contentType = headerparser.parseStructuredHeader("Content-Type",
+      this._defaultContentType || "text/plain");
     Object.defineProperty(headers, "contentType", {
-      get: function () { return contentType; }
+      get() { return contentType; },
     });
   } else {
     Object.defineProperty(headers, "contentType", { configurable: false });
@@ -2306,13 +2306,13 @@ MimeParser.prototype._parseHeaders = function () {
   // Find the charset for the current part. If the user requested a forced
   // conversion, use that first. Otherwise, check the content-type for one and
   // fallback to a default if it is not present.
-  let charset = '';
+  let charset = "";
   if (this._options["force-charset"])
-    charset = this._options["charset"];
+    charset = this._options.charset;
   else if (contentType.has("charset"))
     charset = contentType.get("charset");
   else
-    charset = this._options["charset"];
+    charset = this._options.charset;
   headers.charset = charset;
 
   // Retain a copy of the charset so that users don't override our decision for
@@ -2326,13 +2326,13 @@ MimeParser.prototype._parseHeaders = function () {
  *
  * @param partNum {String} The part number being currently parsed.
  */
-MimeParser.prototype._startBody = function Parser_startBody(partNum) {
+MimeParser.prototype._startBody = function(partNum) {
   let contentType = this._headers.contentType;
 
   // Should the bodyformat be raw, we just want to pass through all data without
   // trying to interpret it.
-  if (this._options["bodyformat"] == "raw" &&
-      partNum == this._options["pruneat"]) {
+  if (this._options.bodyformat == "raw" &&
+      partNum == this._options.pruneat) {
     this._state = SEND_TO_EMITTER;
     return;
   }
@@ -2348,10 +2348,10 @@ MimeParser.prototype._startBody = function Parser_startBody(partNum) {
   //    consumer deal with them.
   // 4. For untyped data, there needs to be no Content-Type header. This helps
   //    avoid false positives.
-  if (contentType.mediatype == 'multipart') {
+  if (contentType.mediatype == "multipart") {
     // If there's no boundary type, everything will be part of the prologue of
     // the multipart message, so just feed everything into a black hole.
-    if (!contentType.has('boundary')) {
+    if (!contentType.has("boundary")) {
       this._state = SEND_TO_BLACK_HOLE;
       return;
     }
@@ -2361,9 +2361,9 @@ MimeParser.prototype._startBody = function Parser_startBody(partNum) {
     // and then the CRLF at the end. Since the CRLFs in here are necessary for
     // distinguishing the parts, they are not included in the subparts, so we
     // need to capture them in the regex as well to prevent them leaking out.
-    this._splitRegex = new RegExp('(\r\n|[\r\n]|^)--' +
-      contentType.get('boundary').replace(/[\\^$*+?.()|{}[\]]/g, '\\$&') +
-      '(--)?[ \t]*(?:\r\n|[\r\n]|$)');
+    this._splitRegex = new RegExp("(\r\n|[\r\n]|^)--" +
+      contentType.get("boundary").replace(/[\\^$*+?.()|{}[\]]/g, "\\$&") +
+      "(--)?[ \t]*(?:\r\n|[\r\n]|$)");
     this._handleSplit = this._whenMultipart;
     this._subparser = new MimeParser(this._emitter, this._options);
     // multipart/digest defaults to message/rfc822 instead of text/plain
@@ -2381,22 +2381,22 @@ MimeParser.prototype._startBody = function Parser_startBody(partNum) {
     // if the next text could be the boundary. Therefore, we need to withhold
     // the last line of text to be sure of what's going on. The _convertData is
     // how we do this, even though we're not really converting any data.
-    this._convertData = function mpart_no_leak_crlf(buffer, more) {
+    this._convertData = function(buffer, more) {
       let splitPoint = buffer.length;
       if (more) {
-        if (buffer.charAt(splitPoint - 1) == '\n')
+        if (buffer.charAt(splitPoint - 1) == "\n")
           splitPoint--;
-        if (splitPoint >= 0 && buffer.charAt(splitPoint - 1) == '\r')
+        if (splitPoint >= 0 && buffer.charAt(splitPoint - 1) == "\r")
           splitPoint--;
       }
       let res = conditionToEndOnCRLF(buffer.substring(0, splitPoint));
       let preLF = res[0];
       let rest = res[1];
       return [preLF, rest + buffer.substring(splitPoint)];
-    }
-  } else if (contentType.type == 'message/rfc822' ||
-      contentType.type == 'message/global' ||
-      contentType.type == 'message/news') {
+    };
+  } else if (contentType.type == "message/rfc822" ||
+      contentType.type == "message/global" ||
+      contentType.type == "message/news") {
     // The subpart is just another header/body pair that goes to EOF, so just
     // return the parse from that blob
     this._state = SEND_TO_SUBPARSER;
@@ -2408,15 +2408,15 @@ MimeParser.prototype._startBody = function Parser_startBody(partNum) {
     // contents properly. There seems to be some evidence that message/rfc822
     // that is illegally-encoded exists in the wild, so be lenient and decode
     // for any message/* type that gets here.
-    let cte = this._extractHeader('content-transfer-encoding', '');
+    let cte = this._extractHeader("content-transfer-encoding", "");
     if (cte in ContentDecoders)
       this._convertData = ContentDecoders[cte];
   } else {
     // Okay, we just have to feed the data into the output
     this._state = SEND_TO_EMITTER;
-    if (this._options["bodyformat"] == "decode") {
+    if (this._options.bodyformat == "decode") {
       // If we wish to decode, look it up in one of our decoders.
-      let cte = this._extractHeader('content-transfer-encoding', '');
+      let cte = this._extractHeader("content-transfer-encoding", "");
       if (cte in ContentDecoders)
         this._convertData = ContentDecoders[cte];
     }
@@ -2425,7 +2425,7 @@ MimeParser.prototype._startBody = function Parser_startBody(partNum) {
   // Set up the encoder for charset conversions; only do this for text parts.
   // Other parts are almost certainly binary, so no translation should be
   // applied to them.
-  if (this._options["strformat"] == "unicode" &&
+  if (this._options.strformat == "unicode" &&
       contentType.mediatype == "text") {
     // If the charset is nonempty, initialize the decoder
     if (this._charset !== "") {
@@ -2434,9 +2434,9 @@ MimeParser.prototype._startBody = function Parser_startBody(partNum) {
       // There's no charset we can use for decoding, so pass through as an
       // identity encoder or otherwise this._coerceData will complain.
       this._decoder = {
-        decode: function identity_decoder(buffer) {
+        decode(buffer) {
           return MimeParser.prototype._coerceData(buffer, "binarystring", true);
-        }
+        },
       };
     }
   } else {
@@ -2452,7 +2452,7 @@ MimeParser.prototype._startBody = function Parser_startBody(partNum) {
  * @param partNum    {String} The part number being currently parsed.
  * @param lastResult {Array}  The result of the regular expression match.
  */
-MimeParser.prototype._whenMultipart = function (partNum, lastResult) {
+MimeParser.prototype._whenMultipart = function(partNum, lastResult) {
   // Fix up the part number (don't do '' -> '.4' and don't do '1' -> '14')
   if (partNum != "") partNum += ".";
   if (!this._subPartNum) {
@@ -2463,22 +2463,22 @@ MimeParser.prototype._whenMultipart = function (partNum, lastResult) {
     // If we did not match a CRLF at the beginning of the line, strip CRLF from
     // the saved buffer. We do this in the else block because it is not
     // necessary for the prologue, since that gets ignored anyways.
-    if (this._savedBuffer != '' && lastResult[1] === '') {
+    if (this._savedBuffer != "" && lastResult[1] === "") {
       let useEnd = this._savedBuffer.length - 1;
-      if (this._savedBuffer[useEnd] == '\n')
+      if (this._savedBuffer[useEnd] == "\n")
         useEnd--;
-      if (useEnd >= 0 && this._savedBuffer[useEnd] == '\r')
+      if (useEnd >= 0 && this._savedBuffer[useEnd] == "\r")
         useEnd--;
       this._savedBuffer = this._savedBuffer.substring(0, useEnd + 1);
     }
     // If we have saved data and we matched a CRLF, pass the saved data in.
-    if (this._savedBuffer != '')
+    if (this._savedBuffer != "")
       this._subparser._dispatchData(this._subPartNum, this._savedBuffer, true);
     // We've seen the boundary at least once before, so this must end a subpart.
     // Tell that subpart that it has reached EOF.
     this._subparser._dispatchEOF(this._subPartNum);
   }
-  this._savedBuffer = '';
+  this._savedBuffer = "";
 
   // The regex feeder has a capture on the (--)?, so if its result is present,
   // then we have seen the terminator. Alternatively, the message may have been
@@ -2503,19 +2503,19 @@ MimeParser.prototype._whenMultipart = function (partNum, lastResult) {
  * @param dflt {String} The default MIME value of the header.
  * @returns The structured representation of the header.
  */
-MimeParser.prototype._extractHeader = function (name, dflt) {
+MimeParser.prototype._extractHeader = function(name, dflt) {
   name = name.toLowerCase(); // Normalize name
   return this._headers.has(name) ? this._headers.get(name) :
     headerparser.parseStructuredHeader(name, [dflt]);
 };
 
 var ContentDecoders = {};
-ContentDecoders['quoted-printable'] = mimeutils.decode_qp;
-ContentDecoders['base64'] = mimeutils.decode_base64;
+ContentDecoders["quoted-printable"] = mimeutils.decode_qp;
+ContentDecoders.base64 = mimeutils.decode_base64;
 
 return MimeParser;
 });
-def('headeremitter', function(require) {
+def("headeremitter", function(require) {
 /**
  * This module implements the code for emitting structured representations of
  * MIME headers into their encoded forms. The code here is a companion to,
@@ -2526,18 +2526,18 @@ def('headeremitter', function(require) {
 
 "use strict";
 
-var mimeutils = require('./mimeutils');
+var mimeutils = require("./mimeutils");
 
 // Get the default structured encoders and add them to the map
-var structuredHeaders = require('./structuredHeaders');
+var structuredHeaders = require("./structuredHeaders");
 var encoders = new Map();
 var preferredSpellings = structuredHeaders.spellings;
 for (let [header, encoder] of structuredHeaders.encoders) {
   addStructuredEncoder(header, encoder);
 }
 
-/// Clamp a value in the range [min, max], defaulting to def
-/// if the object[property] does not contain the value.
+// Clamp a value in the range [min, max], defaulting to def
+// if the object[property] does not contain the value.
 function clamp(object, property, min, max, def) {
   if (!(property in object))
     return def;
@@ -2593,9 +2593,9 @@ function clamp(object, property, min, max, def) {
  *     as needed to retain headers as ASCII.
  */
 function HeaderEmitter(handler, options) {
-  /// The inferred value of options.useASCII
+  // The inferred value of options.useASCII
   this._useASCII = options.useASCII === undefined ? true : options.useASCII;
-  /// The handler to use.
+  // The handler to use.
   this._handler = handler;
   /**
    * The current line being built; note that we may insert a line break in the
@@ -2627,9 +2627,8 @@ function HeaderEmitter(handler, options) {
 }
 
 
-///////////////////////
-// Low-level methods //
-///////////////////////
+// Low-level methods
+// -----------------
 
 // Explanation of the emitter internals:
 // RFC 5322 requires that we wrap our lines, ideally at 78 characters and at
@@ -2676,23 +2675,21 @@ function HeaderEmitter(handler, options) {
  * @param [count] {Integer} The number of characters in the current line to
  *   include before wrapping.
  */
-HeaderEmitter.prototype._commitLine = function (count) {
+HeaderEmitter.prototype._commitLine = function(count) {
   let isContinuing = typeof count !== "undefined";
 
   // Split at the point, and lop off whitespace immediately before and after.
+  let firstN, lastN;
   if (isContinuing) {
-    var firstN = this._currentLine.slice(0, count).trimRight();
-    var lastN = this._currentLine.slice(count).trimLeft();
+    firstN = this._currentLine.slice(0, count).trimRight();
+    lastN = this._currentLine.slice(count).trimLeft();
   } else {
-    var firstN = this._currentLine.trimRight();
-    var lastN = "";
+    firstN = this._currentLine.trimRight();
+    lastN = "";
   }
 
-  // How many characters do we need to shift preferred/emergency breakpoints?
-  let shift = this._currentLine.length - lastN.length;
-
   // Send the line plus the final CRLF.
-  this._handler.deliverData(firstN + '\r\n');
+  this._handler.deliverData(firstN + "\r\n");
 
   // Fill the start of the line with the new data.
   this._currentLine = lastN;
@@ -2700,8 +2697,7 @@ HeaderEmitter.prototype._commitLine = function (count) {
   // If this is a continuation, add an extra space at the beginning of the line.
   // Adjust the breakpoint shift amount as well.
   if (isContinuing) {
-    this._currentLine = ' ' + this._currentLine;
-    shift++;
+    this._currentLine = " " + this._currentLine;
   }
 
   // We will always break at a point at or after the _preferredBreakpoint, if it
@@ -2717,7 +2713,7 @@ HeaderEmitter.prototype._commitLine = function (count) {
  * @param length {Integer} The number of characters to reserve space for.
  * @return {Boolean} Whether or not there is enough space for length characters.
  */
-HeaderEmitter.prototype._reserveTokenSpace = function (length) {
+HeaderEmitter.prototype._reserveTokenSpace = function(length) {
   // We are not going to do a sanity check that length is within the wrap
   // margins. The rationale is that this lets code simply call this function to
   // force a higher-level line break than normal preferred line breaks (see
@@ -2765,7 +2761,7 @@ HeaderEmitter.prototype._reserveTokenSpace = function (length) {
  * @param {Boolean} mayBreakAfter If true, the end of this text is a preferred
  *                                breakpoint.
  */
-HeaderEmitter.prototype.addText = function (text, mayBreakAfter) {
+HeaderEmitter.prototype.addText = function(text, mayBreakAfter) {
   // Try to reserve space for the tokens. If we can't, give up.
   if (!this._reserveTokenSpace(text.length))
     throw new Error("Cannot encode " + text + " due to length.");
@@ -2774,8 +2770,8 @@ HeaderEmitter.prototype.addText = function (text, mayBreakAfter) {
   if (mayBreakAfter) {
     // Make sure that there is an extra space if text could break afterwards.
     this._preferredBreakpoint = this._currentLine.length;
-    if (text[text.length - 1] != ' ') {
-      this._currentLine += ' ';
+    if (text[text.length - 1] != " ") {
+      this._currentLine += " ";
     }
   }
 };
@@ -2793,7 +2789,7 @@ HeaderEmitter.prototype.addText = function (text, mayBreakAfter) {
  * @param {Boolean} mayBreakAfter If true, the end of this text is a preferred
  *                                breakpoint.
  */
-HeaderEmitter.prototype.addQuotable = function (text, qchars, mayBreakAfter) {
+HeaderEmitter.prototype.addQuotable = function(text, qchars, mayBreakAfter) {
   // No text -> no need to be quoted (prevents strict warning errors).
   if (text.length == 0)
     return;
@@ -2802,7 +2798,7 @@ HeaderEmitter.prototype.addQuotable = function (text, qchars, mayBreakAfter) {
   // already appears to be quoted.
   let needsQuote = false;
 
-  if (!(text[0] == '"' && text[text.length - 1] == '"') && qchars != '') {
+  if (!(text[0] == '"' && text[text.length - 1] == '"') && qchars != "") {
     for (let i = 0; i < text.length; i++) {
       if (qchars.includes(text[i])) {
         needsQuote = true;
@@ -2830,7 +2826,7 @@ HeaderEmitter.prototype.addQuotable = function (text, qchars, mayBreakAfter) {
  * @param {Boolean} mayBreakAfter If true, the end of this text is a preferred
  *                                breakpoint.
  */
-HeaderEmitter.prototype.addPhrase = function (text, qchars, mayBreakAfter) {
+HeaderEmitter.prototype.addPhrase = function(text, qchars, mayBreakAfter) {
   // Collapse all whitespace spans into a single whitespace node.
   text = text.replace(/[ \t\r\n]+/g, " ");
 
@@ -2864,20 +2860,20 @@ HeaderEmitter.prototype.addPhrase = function (text, qchars, mayBreakAfter) {
   // If the text is too long, split the quotable string at space boundaries and
   // add each word individually. If we still can't add all those words, there is
   // nothing that we can do.
-  let words = text.split(' ');
+  let words = text.split(" ");
   for (let i = 0; i < words.length; i++) {
     this.addQuotable(words[i], qchars,
       i == words.length - 1 ? mayBreakAfter : true);
   }
 };
 
-/// A regular expression for characters that need to be encoded.
+// A regular expression for characters that need to be encoded.
 var nonAsciiRe = /[^\x20-\x7e]/;
 
-/// The beginnings of RFC 2047 encoded-word
+// The beginnings of RFC 2047 encoded-word
 var b64Prelude = "=?UTF-8?B?", qpPrelude = "=?UTF-8?Q?";
 
-/// A list of ASCII characters forbidden in RFC 2047 encoded-words
+// A list of ASCII characters forbidden in RFC 2047 encoded-words
 var qpForbidden = "\"#$%&'(),.:;<=>?@[\\]^_`{|}~";
 
 var hexString = "0123456789abcdef";
@@ -2893,11 +2889,11 @@ var hexString = "0123456789abcdef";
  * @param {Boolean}    mayBreakAfter If true, the end of this text is a
  *                                   preferred breakpoint.
  */
-HeaderEmitter.prototype._addRFC2047Word = function (encodedText, useQP,
-    mayBreakAfter) {
+HeaderEmitter.prototype._addRFC2047Word = function(encodedText, useQP, mayBreakAfter) {
   let binaryString = mimeutils.typedArrayToString(encodedText);
+  let token;
   if (useQP) {
-    var token = qpPrelude;
+    token = qpPrelude;
     for (let i = 0; i < encodedText.length; i++) {
       if (encodedText[i] < 0x20 || encodedText[i] >= 0x7F ||
           qpForbidden.includes(binaryString[i])) {
@@ -2911,7 +2907,7 @@ HeaderEmitter.prototype._addRFC2047Word = function (encodedText, useQP,
     }
     token += "?=";
   } else {
-    var token = b64Prelude + btoa(binaryString) + "?=";
+    token = b64Prelude + btoa(binaryString) + "?=";
   }
   this.addText(token, mayBreakAfter);
 };
@@ -2924,7 +2920,7 @@ HeaderEmitter.prototype._addRFC2047Word = function (encodedText, useQP,
  * @param {Boolean} mayBreakAfter If true, the end of this text is a preferred
  *                                breakpoint.
  */
-HeaderEmitter.prototype.encodeRFC2047Phrase = function (text, mayBreakAfter) {
+HeaderEmitter.prototype.encodeRFC2047Phrase = function(text, mayBreakAfter) {
   // Start by encoding the text into UTF-8 directly.
   let encodedText = new TextEncoder("UTF-8").encode(text);
 
@@ -2982,9 +2978,8 @@ HeaderEmitter.prototype.encodeRFC2047Phrase = function (text, mayBreakAfter) {
     mayBreakAfter);
 };
 
-////////////////////////
-// High-level methods //
-////////////////////////
+// High-level methods
+// ------------------
 
 /**
  * Add the header name, with the colon and trailing space, to the output.
@@ -2992,7 +2987,7 @@ HeaderEmitter.prototype.encodeRFC2047Phrase = function (text, mayBreakAfter) {
  * @public
  * @param {String} name The name of the header.
  */
-HeaderEmitter.prototype.addHeaderName = function (name) {
+HeaderEmitter.prototype.addHeaderName = function(name) {
   this._currentLine = this._currentLine.trimRight();
   if (this._currentLine.length > 0) {
     this._commitLine();
@@ -3013,7 +3008,7 @@ HeaderEmitter.prototype.addHeaderName = function (name) {
  * @param {String} name  The name of the header.
  * @param          value The structured value of the header.
  */
-HeaderEmitter.prototype.addStructuredHeader = function (name, value) {
+HeaderEmitter.prototype.addStructuredHeader = function(name, value) {
   let lowerName = name.toLowerCase();
   if (encoders.has(lowerName)) {
     this.addHeaderName(preferredSpellings.get(lowerName));
@@ -3041,7 +3036,7 @@ HeaderEmitter.prototype.addStructuredHeader = function (name, value) {
  * @param {String} addr.email The email of the address to add.
  * @see headerparser.parseAddressingHeader
  */
-HeaderEmitter.prototype.addAddress = function (addr) {
+HeaderEmitter.prototype.addAddress = function(addr) {
   // If we have a display name, add that first.
   if (addr.name) {
     // This is a simple estimate that keeps names on one line if possible.
@@ -3061,10 +3056,10 @@ HeaderEmitter.prototype.addAddress = function (addr) {
   // need to be quoted separately. Note that the @ goes to the domain, so that
   // the local-part may be quoted if it needs to be.
   let at = addr.email.lastIndexOf("@");
-  let localpart = "", domain = ""
-  if (at == -1)
+  let localpart = "", domain = "";
+  if (at == -1) {
     localpart = addr.email;
-  else {
+  } else {
     localpart = addr.email.slice(0, at);
     domain = addr.email.slice(at);
   }
@@ -3088,7 +3083,7 @@ HeaderEmitter.prototype.addAddress = function (addr) {
  * @see HeaderEmitter.addAddress
  * @see headerparser.parseAddressingHeader
  */
-HeaderEmitter.prototype.addAddresses = function (addresses) {
+HeaderEmitter.prototype.addAddresses = function(addresses) {
   let needsComma = false;
   for (let addr of addresses) {
     // Add a comma if this is not the first element.
@@ -3118,7 +3113,7 @@ HeaderEmitter.prototype.addAddresses = function (addresses) {
  * @public
  * @param {String} text The text to add to the output.
  */
-HeaderEmitter.prototype.addUnstructured = function (text) {
+HeaderEmitter.prototype.addUnstructured = function(text) {
   if (text.length == 0)
     return;
 
@@ -3150,7 +3145,7 @@ function padTo2Digits(num) {
  * @public
  * @param {Date} date The date to be added to the output string.
  */
-HeaderEmitter.prototype.addDate = function (date) {
+HeaderEmitter.prototype.addDate = function(date) {
   // Rather than make a header plastered with NaN values, throw an error on
   // specific invalid dates.
   if (isNaN(date.getTime()))
@@ -3181,7 +3176,7 @@ HeaderEmitter.prototype.addDate = function (date) {
     padTo2Digits(date.getHours()) + ":" +
       padTo2Digits(date.getMinutes()) + ":" +
       padTo2Digits(date.getSeconds()),
-    tzOffsetStr
+    tzOffsetStr,
   ].join(" ");
   this.addText(dayTime, false);
 };
@@ -3193,7 +3188,7 @@ HeaderEmitter.prototype.addDate = function (date) {
  * @param {Boolean} deliverEOF If true, signal to the handler that no more text
  *                             will be arriving.
  */
-HeaderEmitter.prototype.finish = function (deliverEOF) {
+HeaderEmitter.prototype.finish = function(deliverEOF) {
   this._commitLine();
   if (deliverEOF)
     this._handler.deliverEOF();
@@ -3213,8 +3208,8 @@ function makeStreamingEmitter(handler, options) {
 
 function StringHandler() {
   this.value = "";
-  this.deliverData = function (str) { this.value += str; };
-  this.deliverEOF = function () { };
+  this.deliverData = function(str) { this.value += str; };
+  this.deliverEOF = function() {};
 }
 
 /**
@@ -3254,8 +3249,8 @@ function emitStructuredHeaders(headerValues, options) {
   let handler = new StringHandler();
   let emitter = new HeaderEmitter(handler, options);
   for (let instance of headerValues) {
-    instance[1].forEach(function (e) {
-      emitter.addStructuredHeader(instance[0], e)
+    instance[1].forEach(function(e) {
+      emitter.addStructuredHeader(instance[0], e);
     });
   }
   emitter.finish(true);
@@ -3288,20 +3283,19 @@ function addStructuredEncoder(header, encoder) {
 }
 
 return Object.freeze({
-  addStructuredEncoder: addStructuredEncoder,
-  emitStructuredHeader: emitStructuredHeader,
-  emitStructuredHeaders: emitStructuredHeaders,
-  makeStreamingEmitter: makeStreamingEmitter
+  addStructuredEncoder,
+  emitStructuredHeader,
+  emitStructuredHeaders,
+  makeStreamingEmitter,
+});
 });
 
-});
-
-def('jsmime', function(require) {
+def("jsmime", function(require) {
   return {
-    MimeParser: require('./mimeparser'),
-    headerparser: require('./headerparser'),
-    headeremitter: require('./headeremitter')
-  }
+    MimeParser: require("./mimeparser"),
+    headerparser: require("./headerparser"),
+    headeremitter: require("./headeremitter"),
+  };
 });
-  return mods['jsmime'];
+  return mods.jsmime;
 }));

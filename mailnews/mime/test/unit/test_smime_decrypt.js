@@ -10,13 +10,16 @@
 
 var {PromiseTestUtils} = ChromeUtils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 var {PromiseUtils } = ChromeUtils.import("resource://gre/modules/PromiseUtils.jsm");
-var {localAccountUtils} = ChromeUtils.import("resource://testing-common/mailnews/localAccountUtils.js");
-var {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
 var {SmimeUtils} = ChromeUtils.import("resource://testing-common/mailnews/smimeUtils.jsm");
 
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
+/* import-globals-from ../../../test/resources/messageGenerator.js */
+/* import-globals-from ../../../test/resources/messageModifier.js */
+/* import-globals-from ../../../test/resources/messageInjection.js */
 load("../../../resources/messageGenerator.js");
 load("../../../resources/messageModifier.js");
 load("../../../resources/messageInjection.js");
@@ -65,7 +68,7 @@ add_task(async function verifyTestCertsStillValid() {
     // Let's test if they were valid a week ago, for a better guess.
 
     let oneWeekAgo = now - (7 * 24 * 60 * 60);
-    let prom = testCertValidity(cert, oneWeekAgo);
+    prom = testCertValidity(cert, oneWeekAgo);
     await prom;
 
     if (gCertValidityResult == 0) {
@@ -90,7 +93,7 @@ var smimeDataDirectory = "../../../data/smime/";
 
 let smimeHeaderSink = {
   expectResults(maxLen) {
-    //dump("Restarting for next test\n");
+    // dump("Restarting for next test\n");
     this._deferred = PromiseUtils.defer();
     this._expectedLen = maxLen;
     this._results = [];
@@ -98,28 +101,28 @@ let smimeHeaderSink = {
   },
   maxWantedNesting() { return 2; },
   signedStatus(aNestingLevel, aSignedStatus, aSignerCert) {
-    //dump("Signed message\n");
+    // dump("Signed message\n");
     Assert.equal(aNestingLevel, 1);
     this._results.push({
       type: "signed",
       status: aSignedStatus,
-      certificate: aSignerCert
+      certificate: aSignerCert,
     });
     if (this._results.length == this._expectedLen)
       this._deferred.resolve(this._results);
   },
   encryptionStatus(aNestingLevel, aEncryptedStatus, aRecipientCert) {
-    //dump("Encrypted message\n");
+    // dump("Encrypted message\n");
     Assert.equal(aNestingLevel, 1);
     this._results.push({
       type: "encrypted",
       status: aEncryptedStatus,
-      certificate: aRecipientCert
+      certificate: aRecipientCert,
     });
     if (this._results.length == this._expectedLen)
       this._deferred.resolve(this._results);
   },
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgSMIMEHeaderSink])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgSMIMEHeaderSink]),
 };
 
 /**
@@ -209,7 +212,7 @@ add_task(async function check_smime_message() {
   for (let msg of gMessages) {
     let numExpected = 1;
     if (msg.enc && msg.sig) {
-      numExpected++
+      numExpected++;
     }
 
     let hdr = mailTestUtils.getMsgHdrN(gInbox, hdrIndex);
@@ -220,7 +223,7 @@ add_task(async function check_smime_message() {
     await conversion.promise;
 
     let contents = conversion._data;
-    //dump("contents: " + contents + "\n");
+    // dump("contents: " + contents + "\n");
 
     if (!msg.sig || msg.sig_good) {
       // Check that the plaintext body is in there.

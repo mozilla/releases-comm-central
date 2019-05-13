@@ -20,8 +20,7 @@ function run_test() {
   // 0: input string
   // 1: expected output from parseDecodedHeader
   // 2: expected output from parseEncodedHeader
-  const checks =
-  [
+  const checks = [
     ["abc@foo.invalid",
      [{name: "", email: "abc@foo.invalid"}],
      [{name: "", email: "abc@foo.invalid"}]],

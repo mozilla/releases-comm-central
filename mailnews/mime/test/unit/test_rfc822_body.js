@@ -6,6 +6,11 @@
  * This test verifies that we emit a message/rfc822 body part as an attachment
  * whether or not mail.inline_attachments is true.
  */
+/* import-globals-from ../../../test/resources/logHelper.js */
+/* import-globals-from ../../../test/resources/asyncTestUtils.js */
+/* import-globals-from ../../../test/resources/messageGenerator.js */
+/* import-globals-from ../../../test/resources/messageModifier.js */
+/* import-globals-from ../../../test/resources/messageInjection.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
@@ -20,15 +25,18 @@ var gMessenger = Cc["@mozilla.org/messenger;1"]
 var msgGen = gMessageGenerator = new MessageGenerator();
 
 var messages = [
-  // a message whose body is itself a message
-  { bodyPart: msgGen.makeMessage(),
+  {
+    // a message whose body is itself a message
+    bodyPart: msgGen.makeMessage(),
     attachmentCount: inline => 1,
-  },
-  // a message whose body is itself a message, and which has an attachment
-  { bodyPart: msgGen.makeMessage({
-      attachments: [{ body: "I'm an attachment!",
-                      filename: "attachment.txt",
-                      format: "" }]
+  }, {
+    // a message whose body is itself a message, and which has an attachment
+    bodyPart: msgGen.makeMessage({
+      attachments: [{
+        body: "I'm an attachment!",
+        filename: "attachment.txt",
+        format: "",
+      }],
     }),
     attachmentCount: inline => inline ? 2 : 1,
   },
@@ -39,45 +47,44 @@ var gStreamListener = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
 
   // nsIRequestObserver part
-  onStartRequest: function (aRequest) {
+  onStartRequest(aRequest) {
   },
-  onStopRequest: function (aRequest, aStatusCode) {
+  onStopRequest(aRequest, aStatusCode) {
     Assert.equal(gMessageHeaderSink.attachmentCount,
                  this.expectedAttachmentCount);
     async_driver();
   },
 
   // nsIStreamListener part
-  onDataAvailable: function (aRequest, aInputStream, aOffset, aCount) {
+  onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
     if (this.stream === null) {
       this.stream = Cc["@mozilla.org/scriptableinputstream;1"].
                     createInstance(Ci.nsIScriptableInputStream);
       this.stream.init(aInputStream);
     }
-  }
+  },
 };
 
 var gMessageHeaderSink = {
   attachmentCount: 0,
 
-  handleAttachment: function(aContentType, aUrl, aDisplayName, aUri,
-                             aIsExternalAttachment) {
+  handleAttachment(aContentType, aUrl, aDisplayName, aUri, aIsExternalAttachment) {
     this.attachmentCount++;
   },
 
   // stub functions from nsIMsgHeaderSink
-  addAttachmentField: function(aName, aValue) {},
-  onStartHeaders: function() {},
-  onEndHeaders: function() {},
-  processHeaders: function(aHeaderNames, aHeaderValues, dontCollectAddrs) {},
-  onEndAllAttachments: function() {},
-  onEndMsgDownload: function() {},
-  onEndMsgHeaders: function(aUrl) {},
-  onMsgHasRemoteContent: function(aMsgHdr, aContentURI) {},
+  addAttachmentField(aName, aValue) {},
+  onStartHeaders() {},
+  onEndHeaders() {},
+  processHeaders(aHeaderNames, aHeaderValues, dontCollectAddrs) {},
+  onEndAllAttachments() {},
+  onEndMsgDownload() {},
+  onEndMsgHeaders(aUrl) {},
+  onMsgHasRemoteContent(aMsgHdr, aContentURI) {},
   securityInfo: null,
   mDummyMsgHeader: null,
   properties: null,
-  resetProperties: function () {
+  resetProperties() {
     this.attachmentCount = 0;
   },
 };
@@ -96,7 +103,7 @@ function* help_test_rfc822_body(info, inline) {
   let msgService = gMessenger.messageServiceFromURI(msgURI);
 
   gStreamListener.expectedAttachmentCount = info.attachmentCount(inline);
-  let streamURI = msgService.streamMessage(
+  msgService.streamMessage(
     msgURI,
     gStreamListener,
     msgWindow,

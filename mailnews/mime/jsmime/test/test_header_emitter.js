@@ -1,15 +1,14 @@
 "use strict";
 define(function(require) {
-
-var assert = require('assert');
-var jsmime = require('jsmime');
+var assert = require("assert");
+var jsmime = require("jsmime");
 var headeremitter = jsmime.headeremitter;
-var MockDate = require('test/mock_date');
+var MockDate = require("test/mock_date");
 
 function arrayTest(data, fn) {
-  fn.toString = function () {
+  fn.toString = function() {
     let text = Function.prototype.toString.call(this);
-    text = text.replace(/data\[([0-9]*)\]/g, function (m, p) {
+    text = text.replace(/data\[([0-9]*)\]/g, function(m, p) {
       return JSON.stringify(data[p]);
     });
     return text;
@@ -17,19 +16,19 @@ function arrayTest(data, fn) {
   return test(JSON.stringify(data[0]), fn);
 }
 
-suite('headeremitter', function () {
-  suite('addAddresses', function () {
+suite("headeremitter", function() {
+  suite("addAddresses", function() {
     let handler = {
-      reset: function (expected) {
-        this.output = '';
+      reset(expected) {
+        this.output = "";
         this.expected = expected;
       },
-      deliverData: function (data) { this.output += data; },
-      deliverEOF: function () {
-        assert.equal(this.output, this.expected + '\r\n');
-        for (let line of this.output.split('\r\n'))
+      deliverData(data) { this.output += data; },
+      deliverEOF() {
+        assert.equal(this.output, this.expected + "\r\n");
+        for (let line of this.output.split("\r\n"))
           assert.ok(line.length <= 30, "Line is too long");
-      }
+      },
     };
     let header_tests = [
       [[{name: "", email: ""}], ""],
@@ -71,8 +70,8 @@ suite('headeremitter', function () {
                                  { name: "u@c", email: "b@b.c" }]}],
         "Group: \"u@d\" <a@a.c>,\r\n \"u@c\" <b@b.c>;"],
     ];
-    header_tests.forEach(function (data) {
-      arrayTest(data, function () {
+    header_tests.forEach(function(data) {
+      arrayTest(data, function() {
         let emitter = headeremitter.makeStreamingEmitter(handler, {
           softMargin: 30,
           useASCII: false,
@@ -83,19 +82,19 @@ suite('headeremitter', function () {
       });
     });
   });
-  suite('addAddresses (RFC 2047)', function () {
+  suite("addAddresses (RFC 2047)", function() {
     let handler = {
-      reset: function (expected) {
-        this.output = '';
+      reset(expected) {
+        this.output = "";
         this.expected = expected;
       },
-      deliverData: function (data) { this.output += data; },
-      deliverEOF: function () {
-        assert.equal(this.output, this.expected + '\r\n');
-        for (let line of this.output.split('\r\n'))
+      deliverData(data) { this.output += data; },
+      deliverEOF() {
+        assert.equal(this.output, this.expected + "\r\n");
+        for (let line of this.output.split("\r\n"))
           assert.ok(line.length <= 30, "Line is too long");
-      }
-    }
+      },
+    };
     let header_tests = [
       [[{name: "\u0436", email: "a@a.c"}], "=?UTF-8?B?0LY=?= <a@a.c>"],
       [[{name: "dioxyg\u00e8ne", email: "a@a.c"}],
@@ -113,11 +112,11 @@ suite('headeremitter', function () {
         "=?UTF-8?Q?B=c3=bcg_1088975?=\r\n" +
         " =?UTF-8?Q?=2c_FirstName?=\r\n <a@b.c>"],
     ];
-    header_tests.forEach(function (data) {
-      arrayTest(data, function () {
+    header_tests.forEach(function(data) {
+      arrayTest(data, function() {
         let emitter = headeremitter.makeStreamingEmitter(handler, {
           softMargin: 30,
-          useASCII: true
+          useASCII: true,
         });
         handler.reset(data[1]);
         emitter.addAddresses(data[0]);
@@ -125,19 +124,19 @@ suite('headeremitter', function () {
       });
     });
   });
-  suite('addUnstructured (RFC 2047)', function () {
+  suite("addUnstructured (RFC 2047)", function() {
     let handler = {
-      reset: function (expected) {
-        this.output = '';
+      reset(expected) {
+        this.output = "";
         this.expected = expected;
       },
-      deliverData: function (data) { this.output += data; },
-      deliverEOF: function () {
-        assert.equal(this.output, this.expected + '\r\n');
-        for (let line of this.output.split('\r\n'))
+      deliverData(data) { this.output += data; },
+      deliverEOF() {
+        assert.equal(this.output, this.expected + "\r\n");
+        for (let line of this.output.split("\r\n"))
           assert.ok(line.length <= 30, "Line is too long");
-      }
-    }
+      },
+    };
     let header_tests = [
       ["My house   burned down!", "My house burned down!"],
 
@@ -206,11 +205,11 @@ suite('headeremitter', function () {
         " =?UTF-8?Q?roupe_des_chalcog?=\r\n" +
         " =?UTF-8?B?w6huZXM=?="],
     ];
-    header_tests.forEach(function (data) {
-      arrayTest(data, function () {
+    header_tests.forEach(function(data) {
+      arrayTest(data, function() {
         let emitter = headeremitter.makeStreamingEmitter(handler, {
           softMargin: 30,
-          useASCII: true
+          useASCII: true,
         });
         handler.reset(data[1]);
         emitter.addUnstructured(data[0]);
@@ -218,16 +217,16 @@ suite('headeremitter', function () {
       });
     });
   });
-  suite("addDate", function () {
+  suite("addDate", function() {
     let handler = {
-      reset: function (expected) {
-        this.output = '';
+      reset(expected) {
+        this.output = "";
         this.expected = expected;
       },
-      deliverData: function (data) { this.output += data; },
-      deliverEOF: function () {
-        assert.equal(this.output, this.expected + '\r\n');
-      }
+      deliverData(data) { this.output += data; },
+      deliverEOF() {
+        assert.equal(this.output, this.expected + "\r\n");
+      },
     };
     let header_tests = [
       // Test basic day/month names
@@ -296,9 +295,9 @@ suite('headeremitter', function () {
       // In addition, ES6 Date objects don't support leap seconds. Invalid dates
       // per RFC 5322 are handled in a later run of code.
     ];
-    header_tests.forEach(function (data) {
-      arrayTest(data, function () {
-        let emitter = headeremitter.makeStreamingEmitter(handler, { });
+    header_tests.forEach(function(data) {
+      arrayTest(data, function() {
+        let emitter = headeremitter.makeStreamingEmitter(handler, {});
         handler.reset(data[1]);
         emitter.addDate(new MockDate(data[0]));
         emitter.finish(true);
@@ -306,17 +305,17 @@ suite('headeremitter', function () {
     });
 
     // An invalid date should throw an error instead of make a malformed header.
-    test('Invalid dates', function () {
-      let emitter = headeremitter.makeStreamingEmitter(handler, { });
-      assert.throws(function () { emitter.addDate(new Date(NaN)); }, /Cannot encode an invalid date/);
-      assert.throws(function () { emitter.addDate(new Date("1850-01-01")); }, /Date year is out of encodable range/);
-      assert.throws(function () { emitter.addDate(new Date("10000-01-01")); }, /Cannot encode an invalid date/);
+    test("Invalid dates", function() {
+      let emitter = headeremitter.makeStreamingEmitter(handler, {});
+      assert.throws(function() { emitter.addDate(new Date(NaN)); }, /Cannot encode an invalid date/);
+      assert.throws(function() { emitter.addDate(new Date("1850-01-01")); }, /Date year is out of encodable range/);
+      assert.throws(function() { emitter.addDate(new Date("10000-01-01")); }, /Cannot encode an invalid date/);
     });
 
     // Test preferred breaking for the date header.
-    test('Break spot', function () {
+    test("Break spot", function() {
       let emitter = headeremitter.makeStreamingEmitter(handler, {
-        softMargin: 30
+        softMargin: 30,
       });
       handler.reset("Overly-Long-Date:\r\n Sat, 1 Jan 2000 00:00:00 +0000");
       emitter.addHeaderName("Overly-Long-Date");
@@ -324,8 +323,8 @@ suite('headeremitter', function () {
       emitter.finish();
     });
 
-    test('Correctness of date', function () {
-      let emitter = headeremitter.makeStreamingEmitter(handler, { });
+    test("Correctness of date", function() {
+      let emitter = headeremitter.makeStreamingEmitter(handler, {});
       handler.reset();
       let now = new Date();
       emitter.addDate(now);
@@ -339,46 +338,45 @@ suite('headeremitter', function () {
     });
   });
 
-  suite("Header lengths", function () {
+  suite("Header lengths", function() {
     let handler = {
-      reset: function (expected) {
-        this.output = '';
+      reset(expected) {
+        this.output = "";
         this.expected = expected;
       },
-      deliverData: function (data) { this.output += data; },
-      deliverEOF: function () {
-        assert.equal(this.output, this.expected + '\r\n');
-      }
+      deliverData(data) { this.output += data; },
+      deliverEOF() {
+        assert.equal(this.output, this.expected + "\r\n");
+      },
     };
     let header_tests = [
       [[{name: "Supercalifragilisticexpialidocious", email: "a@b.c"}],
-        'Supercalifragilisticexpialidocious\r\n <a@b.c>'],
+        "Supercalifragilisticexpialidocious\r\n <a@b.c>"],
       [[{email: "supercalifragilisticexpialidocious@" +
           "the.longest.domain.name.in.the.world.invalid"}],
-        'supercalifragilisticexpialidocious\r\n' +
-        ' @the.longest.domain.name.in.the.world.invalid'],
+        "supercalifragilisticexpialidocious\r\n" +
+        " @the.longest.domain.name.in.the.world.invalid"],
       [[{name: "Lopadotemachoselachogaleokranioleipsanodrimhypotrimmatosilphi" +
         "paraomelitokatakechymenokichlepikossyphophattoperisteralektryonoptek" +
         "ephalliokigklopeleiolagoiosiraiobaphetraganopterygon", email: "a@b.c"}],
         new Error],
     ];
-    header_tests.forEach(function (data) {
-      arrayTest(data, function () {
+    header_tests.forEach(function(data) {
+      arrayTest(data, function() {
         let emitter = headeremitter.makeStreamingEmitter(handler, {
           softMargin: 30,
           hardMargin: 50,
           useASCII: false,
         });
         handler.reset(data[1]);
-        if (data[1] instanceof Error)
-          assert.throws(function () { emitter.addAddresses(data[0]); }, /Cannot encode/);
-        else {
-          assert.doesNotThrow(function () { emitter.addAddresses(data[0]); });
+        if (data[1] instanceof Error) {
+          assert.throws(function() { emitter.addAddresses(data[0]); }, /Cannot encode/);
+        } else {
+          assert.doesNotThrow(function() { emitter.addAddresses(data[0]); });
           emitter.finish(true);
         }
       });
     });
   });
 });
-
 });

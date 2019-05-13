@@ -9,10 +9,9 @@ var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 function run_test() {
   var i;
 
-  var checks =
-  [
+  var checks = [
     ["", false, ""],
-    ["\u0436", false, "=?UTF-8?B?0LY=?="], //CYRILLIC SMALL LETTER ZHE
+    ["\u0436", false, "=?UTF-8?B?0LY=?="], // CYRILLIC SMALL LETTER ZHE
     ["IamASCII", false, "IamASCII"],
     // Although an invalid email, we shouldn't crash on it (bug 479206)
     ["crash test@foo.invalid>", true, "\"crash test\"@foo.invalid"],
@@ -21,8 +20,7 @@ function run_test() {
     ["-----------------------:", false, "-----------------------:"],
   ];
 
-  for (i = 0; i < checks.length; ++i)
-  {
+  for (i = 0; i < checks.length; ++i) {
     Assert.equal(
       MailServices.mimeConverter.encodeMimePartIIStr_UTF8(checks[i][0], checks[i][1], "Subject".length, 72),
       checks[i][2]);
