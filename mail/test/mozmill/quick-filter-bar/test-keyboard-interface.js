@@ -147,8 +147,8 @@ function test_control_shift_k_shows_quick_filter_bar() {
   if (dispatcha.focusedElement != qfbTextbox.inputField)
     throw new Error("second control-shift-k did not keep focus on filter " +
                     "textbox");
-  if (qfbTextbox.inputField.selectionStart != 0 ||
-      qfbTextbox.inputField.selectionEnd != qfbTextbox.inputField.textLength)
+  if (qfbTextbox.selectionStart != 0 ||
+      qfbTextbox.selectionEnd != qfbTextbox.textLength)
     throw new Error("second control-shift-k did not select text in filter " +
                     "textbox");
 

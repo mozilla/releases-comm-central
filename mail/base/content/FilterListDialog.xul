@@ -49,9 +49,10 @@
                  showAccountsFileHere="true"
                  oncommand="setFilterFolder(event.target._folder);"/>
     </menulist>
-    <textbox is="search-textbox" id="searchBox"
+    <textbox id="searchBox"
              class="searchBox"
              flex="1"
+             type="search"
              oncommand="rebuildFilterList();"
              emptytext="&searchBox.emptyText;"
              isempty="true"/>

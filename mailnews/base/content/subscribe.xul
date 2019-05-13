@@ -48,8 +48,9 @@
                      expandFolders="false"
                      oncommand="onServerClick(event.target._folder);"/>
         </menulist>
-        <textbox is="search-textbox" id="namefield"
+        <textbox id="namefield"
                  flex="1"
+                 type="search"
                  timeout="300"
                  aria-controls="subscribeTree"
                  oncommand="Search();"/>

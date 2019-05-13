@@ -542,7 +542,7 @@ function handleNewCalendarWizard(wizard, name, data = undefined) {
         }
         wizard.type(wizardlookup(`
             /id("calendar-wizard")/{"pageid":"locationPage"}/[1]/[1]/{"align":"center"}/
-            id("calendar-uri")/{"class":"textbox-input"}
+            id("calendar-uri")/anon({"anonid":"moz-input-box"})/anon({"anonid":"input"})
         `), data.network.location);
 
         // Choose offline support.

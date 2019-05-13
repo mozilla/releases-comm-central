@@ -57,8 +57,9 @@
         </row>
         <row align="center">
           <label value="&calendarproperties.location.label;" control="calendar-uri"/>
-          <textbox is="search-textbox" id="calendar-uri"
+          <textbox id="calendar-uri"
                    required="true"
+                   type="search"
                    oninput="checkRequired();"/>
         </row>
         <row>

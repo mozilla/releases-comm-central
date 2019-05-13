@@ -122,7 +122,8 @@
       <label value="&searchContacts.label;"
              accesskey="&searchContacts.accesskey;"
              control="peopleSearchInput"/>
-      <textbox is="search-textbox" id="peopleSearchInput"
+      <textbox type="search"
+               id="peopleSearchInput"
                class="searchBox"
                flex="1"
                timeout="800"
