@@ -3259,49 +3259,47 @@ void nsImapProtocol::Bodystructure(const nsCString &messageId, bool idIsUid) {
 }
 
 void nsImapProtocol::PipelinedFetchMessageParts(
-    const char *uid, nsIMAPMessagePartIDArray *parts) {
+    const char *uid, const nsTArray<nsIMAPMessagePartID> &parts) {
   // assumes no chunking
 
   // build up a string to fetch
   nsCString stringToFetch, what;
   uint32_t currentPartNum = 0;
-  while ((parts->GetNumParts() > currentPartNum) && !DeathSignalReceived()) {
-    nsIMAPMessagePartID *currentPart = parts->GetPart(currentPartNum);
-    if (currentPart) {
-      // Do things here depending on the type of message part
-      // Append it to the fetch string
-      if (currentPartNum > 0) stringToFetch.Append(' ');
+  while ((parts.Length() > currentPartNum) && !DeathSignalReceived()) {
+    nsIMAPMessagePartID currentPart = parts[currentPartNum];
+    // Do things here depending on the type of message part
+    // Append it to the fetch string
+    if (currentPartNum > 0) stringToFetch.Append(' ');
 
-      switch (currentPart->GetFields()) {
-        case kMIMEHeader:
+    switch (currentPart.GetFields()) {
+      case kMIMEHeader:
+        what = "BODY.PEEK[";
+        what.Append(currentPart.GetPartNumberString());
+        what.AppendLiteral(".MIME]");
+        stringToFetch.Append(what);
+        break;
+      case kRFC822HeadersOnly:
+        if (currentPart.GetPartNumberString()) {
           what = "BODY.PEEK[";
-          what.Append(currentPart->GetPartNumberString());
-          what.AppendLiteral(".MIME]");
+          what.Append(currentPart.GetPartNumberString());
+          what.AppendLiteral(".HEADER]");
           stringToFetch.Append(what);
-          break;
-        case kRFC822HeadersOnly:
-          if (currentPart->GetPartNumberString()) {
-            what = "BODY.PEEK[";
-            what.Append(currentPart->GetPartNumberString());
-            what.AppendLiteral(".HEADER]");
-            stringToFetch.Append(what);
-          } else {
-            // headers for the top-level message
-            stringToFetch.AppendLiteral("BODY.PEEK[HEADER]");
-          }
-          break;
-        default:
-          NS_ASSERTION(
-              false,
-              "we should only be pipelining MIME headers and Message headers");
-          break;
-      }
+        } else {
+          // headers for the top-level message
+          stringToFetch.AppendLiteral("BODY.PEEK[HEADER]");
+        }
+        break;
+      default:
+        NS_ASSERTION(
+            false,
+            "we should only be pipelining MIME headers and Message headers");
+        break;
     }
     currentPartNum++;
   }
 
   // Run the single, pipelined fetch command
-  if ((parts->GetNumParts() > 0) && !DeathSignalReceived() &&
+  if ((parts.Length() > 0) && !DeathSignalReceived() &&
       !GetPseudoInterrupted() && stringToFetch.get()) {
     IncrementCommandTagNumber();
 
@@ -3633,7 +3631,7 @@ void nsImapProtocol::FetchTryChunking(const nsCString &messageIds,
 }
 
 void nsImapProtocol::PipelinedFetchMessageParts(
-    nsCString &uid, nsIMAPMessagePartIDArray *parts) {
+    nsCString &uid, const nsTArray<nsIMAPMessagePartID> &parts) {
   // assumes no chunking
 
   // build up a string to fetch
@@ -3641,43 +3639,41 @@ void nsImapProtocol::PipelinedFetchMessageParts(
   nsCString what;
 
   uint32_t currentPartNum = 0;
-  while ((parts->GetNumParts() > currentPartNum) && !DeathSignalReceived()) {
-    nsIMAPMessagePartID *currentPart = parts->GetPart(currentPartNum);
-    if (currentPart) {
-      // Do things here depending on the type of message part
-      // Append it to the fetch string
-      if (currentPartNum > 0) stringToFetch += " ";
+  while ((parts.Length() > currentPartNum) && !DeathSignalReceived()) {
+    nsIMAPMessagePartID currentPart = parts[currentPartNum];
+    // Do things here depending on the type of message part
+    // Append it to the fetch string
+    if (currentPartNum > 0) stringToFetch += " ";
 
-      switch (currentPart->GetFields()) {
-        case kMIMEHeader:
+    switch (currentPart.GetFields()) {
+      case kMIMEHeader:
+        what = "BODY.PEEK[";
+        what += currentPart.GetPartNumberString();
+        what += ".MIME]";
+        stringToFetch += what;
+        break;
+      case kRFC822HeadersOnly:
+        if (currentPart.GetPartNumberString()) {
           what = "BODY.PEEK[";
-          what += currentPart->GetPartNumberString();
-          what += ".MIME]";
+          what += currentPart.GetPartNumberString();
+          what += ".HEADER]";
           stringToFetch += what;
-          break;
-        case kRFC822HeadersOnly:
-          if (currentPart->GetPartNumberString()) {
-            what = "BODY.PEEK[";
-            what += currentPart->GetPartNumberString();
-            what += ".HEADER]";
-            stringToFetch += what;
-          } else {
-            // headers for the top-level message
-            stringToFetch += "BODY.PEEK[HEADER]";
-          }
-          break;
-        default:
-          NS_ASSERTION(
-              false,
-              "we should only be pipelining MIME headers and Message headers");
-          break;
-      }
+        } else {
+          // headers for the top-level message
+          stringToFetch += "BODY.PEEK[HEADER]";
+        }
+        break;
+      default:
+        NS_ASSERTION(
+            false,
+            "we should only be pipelining MIME headers and Message headers");
+        break;
     }
     currentPartNum++;
   }
 
   // Run the single, pipelined fetch command
-  if ((parts->GetNumParts() > 0) && !DeathSignalReceived() &&
+  if ((parts.Length() > 0) && !DeathSignalReceived() &&
       !GetPseudoInterrupted() && stringToFetch.get()) {
     IncrementCommandTagNumber();
 

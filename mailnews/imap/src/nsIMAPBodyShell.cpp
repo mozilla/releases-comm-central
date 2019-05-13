@@ -54,8 +54,6 @@ nsIMAPBodyShell::nsIMAPBodyShell(nsImapProtocol *protocolConnection,
   m_message = message;
   NS_ASSERTION(m_protocolConnection, "non null connection");
   if (!m_protocolConnection) return;
-  m_prefetchQueue = new nsIMAPMessagePartIDArray();
-  if (!m_prefetchQueue) return;
   m_UID = "";
   m_UID.AppendInt(UID);
   m_UID_validity = m_UID;
@@ -76,7 +74,7 @@ nsIMAPBodyShell::nsIMAPBodyShell(nsImapProtocol *protocolConnection,
 
 nsIMAPBodyShell::~nsIMAPBodyShell() {
   delete m_message;
-  delete m_prefetchQueue;
+  m_prefetchQueue.Clear();
   PR_Free(m_folderName);
 }
 
@@ -136,19 +134,15 @@ void nsIMAPBodyShell::AdoptMimeHeader(const char *partNum, char *mimeHeader) {
 
 void nsIMAPBodyShell::AddPrefetchToQueue(nsIMAPeFetchFields fields,
                                          const char *partNumber) {
-  nsIMAPMessagePartID *newPart = new nsIMAPMessagePartID(fields, partNumber);
-  if (newPart) {
-    m_prefetchQueue->AppendElement(newPart);
-  } else {
-    // HandleMemoryFailure();
-  }
+  nsIMAPMessagePartID newPart(fields, partNumber);
+  m_prefetchQueue.AppendElement(newPart);
 }
 
 // Flushes all of the prefetches that have been queued up in the prefetch queue,
 // freeing them as we go
 void nsIMAPBodyShell::FlushPrefetchQueue() {
   m_protocolConnection->PipelinedFetchMessageParts(GetUID(), m_prefetchQueue);
-  m_prefetchQueue->RemoveAndFreeAll();
+  m_prefetchQueue.Clear();
 }
 
 // Requires that the shell is valid when called
@@ -1148,16 +1142,3 @@ nsIMAPBodyShell *nsIMAPBodyShellCache::FindShellForUID(
 nsIMAPMessagePartID::nsIMAPMessagePartID(nsIMAPeFetchFields fields,
                                          const char *partNumberString)
     : m_partNumberString(partNumberString), m_fields(fields) {}
-
-nsIMAPMessagePartIDArray::nsIMAPMessagePartIDArray() {}
-
-nsIMAPMessagePartIDArray::~nsIMAPMessagePartIDArray() { RemoveAndFreeAll(); }
-
-void nsIMAPMessagePartIDArray::RemoveAndFreeAll() {
-  uint32_t n = Length();
-  for (uint32_t i = 0; i < n; i++) {
-    nsIMAPMessagePartID *part = GetPart(i);
-    delete part;
-  }
-  Clear();
-}

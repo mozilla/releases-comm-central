@@ -217,7 +217,7 @@ class nsIMAPBodypartMessage : public nsIMAPBodypartLeaf {
   bool m_topLevelMessage;  // Whether or not this is the top-level message
 };
 
-class nsIMAPMessagePartIDArray;
+class nsIMAPMessagePartID;
 
 // We will refer to a Body "Shell" as a hierarchical object representation of a
 // parsed BODYSTRUCTURE response.  A shell contains representations of Shell
@@ -295,9 +295,8 @@ class nsIMAPBodyShell : public nsISupports {
 
   nsIMAPBodypartMessage *m_message;
 
-  nsIMAPMessagePartIDArray
-      *m_prefetchQueue;  // array of pipelined part prefetches.  Ok, so it's not
-                         // really a queue.
+  nsTArray<nsIMAPMessagePartID>
+      m_prefetchQueue;  // Array of pipelined part prefetches.
 
   bool m_isValid;
   nsImapProtocol *m_protocolConnection;  // Connection, for filling in parts
@@ -358,7 +357,7 @@ class nsIMAPBodyShellCache {
   nsRefPtrHashtable<nsCStringHashKey, nsIMAPBodyShell> m_shellHash;
 };
 
-// MessagePartID and MessagePartIDArray are used for pipelining prefetches.
+// MessagePartID and an array of them are used for pipelining prefetches.
 
 class nsIMAPMessagePartID {
  public:
@@ -371,16 +370,4 @@ class nsIMAPMessagePartID {
   nsIMAPeFetchFields m_fields;
 };
 
-class nsIMAPMessagePartIDArray : public nsTArray<nsIMAPMessagePartID *> {
- public:
-  nsIMAPMessagePartIDArray();
-  ~nsIMAPMessagePartIDArray();
-
-  void RemoveAndFreeAll();
-  uint32_t GetNumParts() { return Length(); }
-  nsIMAPMessagePartID *GetPart(uint32_t i) {
-    NS_ASSERTION(i < Length(), "invalid message part #");
-    return ElementAt(i);
-  }
-};
 #endif  // IMAPBODY_H

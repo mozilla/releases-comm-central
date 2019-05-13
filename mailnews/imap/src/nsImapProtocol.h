@@ -51,7 +51,7 @@
 #include "nsIProtocolProxyCallback.h"
 #include "nsIStringBundle.h"
 
-class nsIMAPMessagePartIDArray;
+class nsIMAPMessagePartID;
 class nsIPrefBranch;
 
 #define kDownLoadCacheSize 16000u  // was 1536 - try making it bigger
@@ -203,8 +203,8 @@ class nsImapProtocol : public nsIImapProtocol,
   void FetchTryChunking(const nsCString &messageIds,
                         nsIMAPeFetchFields whatToFetch, bool idIsUid,
                         char *part, uint32_t downloadSize, bool tryChunking);
-  virtual void PipelinedFetchMessageParts(nsCString &uid,
-                                          nsIMAPMessagePartIDArray *parts);
+  virtual void PipelinedFetchMessageParts(
+      nsCString &uid, const nsTArray<nsIMAPMessagePartID> &parts);
   void FallbackToFetchWholeMsg(const nsCString &messageId,
                                uint32_t messageSize);
   // used when streaming a message fetch
@@ -309,7 +309,7 @@ class nsImapProtocol : public nsIImapProtocol,
   void GetMyRightsForFolder(const char *mailboxName);
   void Bodystructure(const nsCString &messageId, bool idIsUid);
   void PipelinedFetchMessageParts(const char *uid,
-                                  nsIMAPMessagePartIDArray *parts);
+                                  const nsTArray<nsIMAPMessagePartID> &parts);
 
   // this function does not ref count!!! be careful!!!
   nsIImapUrl *GetCurrentUrl() { return m_runningUrl; }
