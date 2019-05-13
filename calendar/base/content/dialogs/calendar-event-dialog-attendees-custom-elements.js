@@ -438,7 +438,7 @@ class MozCalendarEventAttendeesList extends MozElements.RichListBox {
     get attendees() {
         let attendees = [];
 
-        for (let i = 1; true; i++) {
+        for (let i = 1; i <= this.itemCount; i++) {
             let inputField = this.getInputElement(i);
             if (!inputField) {
                 break;
@@ -491,7 +491,7 @@ class MozCalendarEventAttendeesList extends MozElements.RichListBox {
      * @returns {?calIAttendee}     Organizer of the event or null
      */
     get organizer() {
-        for (let i = 1; true; i++) {
+        for (let i = 1; i <= this.itemCount; i++) {
             let inputField = this.getInputElement(i);
             if (!inputField) {
                 break;
@@ -1178,7 +1178,11 @@ class MozCalendarEventAttendeesList extends MozElements.RichListBox {
      * @returns {Element}       Textbox element
      */
     getInputElement(row) {
-        return this.getListItem(row).querySelector(".textbox-addressingWidget");
+        let listItem = this.getListItem(row);
+        if (listItem) {
+            return listItem.querySelector(".textbox-addressingWidget");
+        }
+        return null;
     }
 
     /**
@@ -1188,7 +1192,11 @@ class MozCalendarEventAttendeesList extends MozElements.RichListBox {
      * @returns {Element}       Textbox element
      */
     getRoleElement(row) {
-        return this.getListItem(row).querySelector(".role-icon, .status-icon");
+        let listItem = this.getListItem(row);
+        if (listItem) {
+            return listItem.querySelector(".role-icon, .status-icon");
+        }
+        return null;
     }
 
     /**
@@ -1198,7 +1206,11 @@ class MozCalendarEventAttendeesList extends MozElements.RichListBox {
      * @returns {Element}       Status element in the row
      */
     getStatusElement(row) {
-        return this.getListItem(row).querySelector(".role-icon, .status-icon");
+        let listItem = this.getListItem(row);
+        if (listItem) {
+            return listItem.querySelector(".role-icon, .status-icon");
+        }
+        return null;
     }
 
     /**
@@ -1208,7 +1220,11 @@ class MozCalendarEventAttendeesList extends MozElements.RichListBox {
      * @returns {Element}       Usertype-icon element in the row
      */
     getUserTypeElement(row) {
-        return this.getListItem(row).querySelector(".usertype-icon");
+        let listItem = this.getListItem(row);
+        if (listItem) {
+            return listItem.querySelector(".usertype-icon");
+        }
+        return null;
     }
 
     /**
@@ -3079,7 +3095,11 @@ class MozCalendarEventFreebusyGrid extends MozElements.RichListBox {
      * @returns {Element}       Freebusy-row element
      */
     getFreeBusyElement(row) {
-        return this.getListItem(row).getElementsByTagName("calendar-event-freebusy-row")[0];
+        let listItem = this.getListItem(row);
+        if (listItem) {
+            return listItem.getElementsByTagName("calendar-event-freebusy-row")[0];
+        }
+        return null;
     }
 
     /**
