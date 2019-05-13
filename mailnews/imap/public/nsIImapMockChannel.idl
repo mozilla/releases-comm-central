@@ -40,7 +40,6 @@ interface nsIImapMockChannel : nsIChannel
 {
   attribute nsIProgressEventSink progressEventSink;
   void GetChannelListener(out nsIStreamListener aChannelListener);
-  void GetChannelContext(out nsISupports aChannelContext);
   void Close();
   void setImapProtocol(in nsIImapProtocol aProtocol);
   [noscript] void setSecurityInfo(in nsISupports securityInfo);

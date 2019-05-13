@@ -632,7 +632,7 @@ nsresult nsNNTPProtocol::ReadFromMemCache(nsICacheEntry *entry) {
 
     mContentType = "";  // reset the content type for the upcoming read....
 
-    rv = pump->AsyncRead(cacheListener, m_channelContext);
+    rv = pump->AsyncRead(cacheListener, nullptr);
 
     if (NS_SUCCEEDED(rv))  // ONLY if we succeeded in actually starting the read
                            // should we return
@@ -656,8 +656,6 @@ nsresult nsNNTPProtocol::ReadFromNewsConnection() {
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  // XXX TODO: m_channelContext should be passes as URI on the channel.
-  // Previously passed as context.
   return nsMsgProtocol::AsyncOpen(m_channelListener);
 }
 
@@ -703,7 +701,7 @@ bool nsNNTPProtocol::ReadFromLocalCache() {
         nsCOMPtr<nsIInputStreamPump> pump;
         rv = NS_NewInputStreamPump(getter_AddRefs(pump), slicedStream.forget());
         if (NS_SUCCEEDED(rv))
-          rv = pump->AsyncRead(cacheListener, m_channelContext);
+          rv = pump->AsyncRead(cacheListener, nullptr);
 
         if (NS_SUCCEEDED(rv))  // ONLY if we succeeded in actually starting the
                                // read should we return
@@ -4406,14 +4404,14 @@ void nsNNTPProtocol::SetProgressBarPercent(uint32_t aProgress,
                                            uint32_t aProgressMax) {
   // XXX 64-bit
   if (mProgressEventSink)
-    mProgressEventSink->OnProgress(this, m_channelContext, uint64_t(aProgress),
+    mProgressEventSink->OnProgress(this, nullptr, uint64_t(aProgress),
                                    uint64_t(aProgressMax));
 }
 
 nsresult nsNNTPProtocol::SetProgressStatus(const char16_t *aMessage) {
   nsresult rv = NS_OK;
   if (mProgressEventSink)
-    rv = mProgressEventSink->OnStatus(this, m_channelContext, NS_OK, aMessage);
+    rv = mProgressEventSink->OnStatus(this, nullptr, NS_OK, aMessage);
   return rv;
 }
 

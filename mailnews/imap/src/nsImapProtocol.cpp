@@ -818,7 +818,6 @@ nsresult nsImapProtocol::SetupWithUrl(nsIURI *aURL, nsISupports *aConsumer) {
       if (channelListener)  // only over-ride if we have a non null channel
                             // listener
         aRealStreamListener = channelListener;
-      m_mockChannel->GetChannelContext(getter_AddRefs(m_channelContext));
       nsCOMPtr<nsIMsgWindow> msgWindow;
       GetMsgWindow(getter_AddRefs(msgWindow));
       if (!msgWindow) GetTopmostMsgWindow(getter_AddRefs(msgWindow));
@@ -1017,8 +1016,6 @@ void nsImapProtocol::ReleaseUrlState(bool rerunning) {
     }
   }
 
-  m_channelContext = nullptr;  // this might be the url - null it out before the
-                               // final release of the url
   m_imapMessageSink = nullptr;
 
   // Proxy the release of the listener to the main thread.  This is something
@@ -1156,7 +1153,6 @@ NS_IMETHODIMP nsImapProtocol::CloseStreams() {
     m_inputStream = nullptr;
     m_outputStream = nullptr;
     m_channelListener = nullptr;
-    m_channelContext = nullptr;
     if (m_mockChannel) {
       m_mockChannel->Close();
       m_mockChannel = nullptr;
@@ -8501,7 +8497,6 @@ NS_IMPL_ISUPPORTS(nsImapMockChannel, nsIImapMockChannel, nsIChannel, nsIRequest,
                   nsISupportsWeakReference)
 
 nsImapMockChannel::nsImapMockChannel() {
-  m_channelContext = nullptr;
   m_cancelStatus = NS_OK;
   mLoadFlags = 0;
   mChannelClosed = false;
@@ -8594,12 +8589,6 @@ NS_IMETHODIMP nsImapMockChannel::SetProgressEventSink(
 NS_IMETHODIMP nsImapMockChannel::GetChannelListener(
     nsIStreamListener **aChannelListener) {
   NS_IF_ADDREF(*aChannelListener = m_channelListener);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsImapMockChannel::GetChannelContext(
-    nsISupports **aChannelContext) {
-  NS_IF_ADDREF(*aChannelContext = m_channelContext);
   return NS_OK;
 }
 
@@ -9123,7 +9112,7 @@ nsresult nsImapMockChannel::ReadFromMemCache(nsICacheEntry *entry) {
     RefPtr<nsImapCacheStreamListener> cacheListener =
         new nsImapCacheStreamListener();
     cacheListener->Init(m_channelListener, this);
-    rv = pump->AsyncRead(cacheListener, m_channelContext);
+    rv = pump->AsyncRead(cacheListener, nullptr);
 
     if (NS_SUCCEEDED(rv))  // ONLY if we succeeded in actually starting the read
                            // should we return
@@ -9272,7 +9261,7 @@ bool nsImapMockChannel::ReadFromLocalCache() {
         nsCOMPtr<nsIInputStreamPump> pump;
         rv = NS_NewInputStreamPump(getter_AddRefs(pump), slicedStream.forget());
         if (NS_SUCCEEDED(rv))
-          rv = pump->AsyncRead(cacheListener, m_channelContext);
+          rv = pump->AsyncRead(cacheListener, nullptr);
 
         if (NS_SUCCEEDED(rv))  // ONLY if we succeeded in actually starting the
                                // read should we return
@@ -9305,11 +9294,6 @@ NS_IMETHODIMP nsImapMockChannel::AsyncOpen(nsIStreamListener *aListener) {
   if (NS_FAILED(rv)) return rv;
 
   // set the stream listener and then load the url
-  m_channelContext = nullptr;
-  nsCOMPtr<nsIURI> uri;
-  GetURI(getter_AddRefs(uri));
-  m_channelContext = uri;
-
   NS_ASSERTION(!m_channelListener, "shouldn't already have a listener");
   m_channelListener = listener;
   nsCOMPtr<nsIImapUrl> imapUrl(do_QueryInterface(m_url));

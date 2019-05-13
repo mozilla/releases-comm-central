@@ -582,14 +582,14 @@ void nsPop3Protocol::UpdateStatus(const char *aStatusName) {
 void nsPop3Protocol::UpdateStatusWithString(const char16_t *aStatusString) {
   if (mProgressEventSink) {
     mozilla::DebugOnly<nsresult> rv = mProgressEventSink->OnStatus(
-        this, m_channelContext, NS_OK, aStatusString);  // XXX i18n message
+        this, nullptr, NS_OK, aStatusString);  // XXX i18n message
     NS_ASSERTION(NS_SUCCEEDED(rv), "dropping error result");
   }
 }
 
 void nsPop3Protocol::UpdateProgressPercent(int64_t totalDone, int64_t total) {
   if (mProgressEventSink)
-    mProgressEventSink->OnProgress(this, m_channelContext, totalDone, total);
+    mProgressEventSink->OnProgress(this, nullptr, totalDone, total);
 }
 
 // note:  SetUsername() expects an unescaped string
@@ -2918,7 +2918,7 @@ int32_t nsPop3Protocol::SendRetr() {
                               m_pop3ConData->really_new_messages, finalString);
       NS_ASSERTION(NS_SUCCEEDED(rv), "couldn't format string");
       if (mProgressEventSink) {
-        rv = mProgressEventSink->OnStatus(this, m_channelContext, NS_OK,
+        rv = mProgressEventSink->OnStatus(this, nullptr, NS_OK,
                                           finalString.get());
         NS_ASSERTION(NS_SUCCEEDED(rv), "dropping error result");
       }

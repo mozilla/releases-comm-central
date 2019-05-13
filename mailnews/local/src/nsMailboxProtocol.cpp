@@ -293,13 +293,10 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest *request,
                 // basically re-initialize the transport with the correct
                 // message size. then, we have to make sure the url keeps
                 // running somehow.
-                nsCOMPtr<nsISupports> urlSupports =
-                    do_QueryInterface(m_runningUrl);
                 //
                 // put us in a state where we are always notified of incoming
                 // data
                 //
-
                 m_transport = nullptr;  // open new stream transport
                 m_outputStream = nullptr;
 
@@ -339,7 +336,7 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest *request,
                     rv = NS_NewInputStreamPump(getter_AddRefs(pump),
                                                stream.forget());
                     if (NS_SUCCEEDED(rv)) {
-                      rv = pump->AsyncRead(this, urlSupports);
+                      rv = pump->AsyncRead(this, nullptr);
                       if (NS_SUCCEEDED(rv)) m_request = pump;
                     }
                   }
@@ -630,7 +627,7 @@ int32_t nsMailboxProtocol::ReadMessageResponse(nsIInputStream *inputStream,
     int64_t maxProgress;
     nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl(do_QueryInterface(m_runningUrl));
     mailnewsUrl->GetMaxProgress(&maxProgress);
-    mProgressEventSink->OnProgress(this, m_channelContext, mCurrentProgress,
+    mProgressEventSink->OnProgress(this, nullptr, mCurrentProgress,
                                    maxProgress);
   }
 
