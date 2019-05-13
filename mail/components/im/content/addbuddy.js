@@ -28,7 +28,9 @@ var addBuddy = {
       !addBuddy.getValue("name");
   },
 
-  getValue(aId) { return document.getElementById(aId).value; },
+  getValue(aId) {
+    return document.getElementById(aId).value;
+  },
 
   create() {
     let account = Services.accounts.getAccountById(this.getValue("accountlist"));
@@ -37,4 +39,4 @@ var addBuddy = {
   },
 };
 
-document.addEventListener("dialogaccept", addBuddy.create);
+document.addEventListener("dialogaccept", addBuddy.create.bind(addBuddy));
