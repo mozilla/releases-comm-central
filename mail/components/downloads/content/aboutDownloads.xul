@@ -51,9 +51,8 @@
             tooltiptext="&cmd.clearList.tooltip;"/>
 
     <spacer flex="1"/>
-    <textbox id="searchBox"
+    <textbox is="search-textbox" id="searchBox"
              class="searchBox"
-             type="search"
              command="msgDownloadsCmd_searchDownloads"
              placeholder="&cmd.searchDownloads.label;"/>
   </hbox>
