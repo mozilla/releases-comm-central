@@ -1204,7 +1204,7 @@ function test_search_button_disabled_if_no_query_on_init() {
 
   let uri = Services.io.newURI(url);
   let principal = Services.scriptSecurityManager.createCodebasePrincipal(uri, {});
-  let storage = dsm.createStorage(null, principal, url);
+  let storage = dsm.createStorage(null, principal, principal, url);
 
   // Ok, got it. Now let's blank out the name.
   storage.setItem("name", "");

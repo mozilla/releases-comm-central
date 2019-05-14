@@ -33,7 +33,7 @@ function getLocalStorage() {
 
   var uri = Services.io.newURI(url);
   var principal = Services.scriptSecurityManager.createCodebasePrincipal(uri, {});
-  return Services.domStorageManager.createStorage(null, principal, url);
+  return Services.domStorageManager.createStorage(null, principal, principal, url);
 }
 
 var MAX_SMALL_ADDRESSES = 2;
