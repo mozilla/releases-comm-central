@@ -369,10 +369,11 @@ nsMsgPrintEngine::ShowProgressDialog(bool aIsForPrinting, bool& aDoNotify)
         domWin = mWindow;
       }
 
-      rv = mPrintPromptService->ShowProgress(domWin, mWebBrowserPrint, mPrintSettings, this, aIsForPrinting,
-                                            getter_AddRefs(mPrintProgressListener),
-                                            getter_AddRefs(mPrintProgressParams),
-                                            &aDoNotify);
+      rv = mPrintPromptService->ShowPrintProgressDialog(
+             domWin, mWebBrowserPrint, mPrintSettings, this, aIsForPrinting,
+             getter_AddRefs(mPrintProgressListener),
+             getter_AddRefs(mPrintProgressParams),
+             &aDoNotify);
       if (NS_SUCCEEDED(rv)) {
 
         showProgressDialog = mPrintProgressListener != nullptr && mPrintProgressParams != nullptr;
