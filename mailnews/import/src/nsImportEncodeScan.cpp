@@ -19,7 +19,6 @@ uint32_t gAppleSingleHeader[6] = {0x00051600, 0x00020000, 0, 0, 0, 0};
 #define kAppleSingleHeaderSize (6 * sizeof(uint32_t))
 
 #ifdef _MAC_IMPORT_CODE
-#  include "MoreFilesExtras.h"
 #  include "MoreDesktopMgr.h"
 
 CInfoPBRec gCatInfoPB;
