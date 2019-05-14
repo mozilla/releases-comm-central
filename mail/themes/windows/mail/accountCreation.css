@@ -11,7 +11,7 @@
   font-weight: bold;
 }
 
-/* Set the order of the buttons to: (stop|re-test), (continue|create account), cancel */
+/* Set the order of the buttons to: (stop|test), (continue|create account), cancel */
 #stop_button, #half-manual-test_button {
   -moz-box-ordinal-group: 1;
 }
@@ -58,27 +58,9 @@ menulist[disabled="true"] > .menulist-dropmarker {
   padding: 8px;
 }
 
-#warningbox {
-  width: 650px;
-  height: 400px;
-}
-
 .outgoing_hostname {
   margin-bottom: 4px !important;
   margin-top: 4px !important;
-}
-
-#result-username {
-  margin-inline-start: 1px;
-}
-
-textbox[disabled="true"],
-input[disabled="true"],
-menulist[disabled="true"] {
-  -moz-appearance: none;
-  border: 0;
-  background-color: -moz-dialog;
-  color: -moz-DialogText;
 }
 
 textbox.padded html|*.textbox-input::placeholder {

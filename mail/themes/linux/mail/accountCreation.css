@@ -41,29 +41,6 @@ menulist[disabled="true"] > .menulist-dropmarker {
   padding: 8px;
 }
 
-#warningbox {
-  width: 800px;
-  height: 485px;
-}
-
-#result-username {
-  margin-inline-start: 1px;
-}
-
-textbox[disabled="true"],
-input[disabled="true"],
-menulist[disabled="true"] {
-  -moz-appearance: none;
-  border: 0;
-  background-color: -moz-dialog;
-  color: -moz-DialogText;
-}
-
-menulist:not([editable="true"]) {
-  padding-top: 2px;
-  padding-bottom: 3px;
-}
-
 .menulist-editable-box {
   -moz-appearance: textfield;
   min-width: 4em;
@@ -81,10 +58,6 @@ menulist > .menulist-editable-input {
 /* Fix to show the menulist-dropmarker under newer GTK3 versions */
 menulist[editable="true"] > .menulist-dropmarker {
   min-width: 2em;
-}
-
-#status_area {
-  -moz-box-pack: center;
 }
 
 textbox.port[disabled="true"] {

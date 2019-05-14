@@ -124,7 +124,7 @@ function setText(id, value) {
 
   if (element.localName == "textbox" || element.localName == "label") {
     element.value = value;
-  } else if (element.localName == "description") {
+  } else if (element.localName == "description" || element.localName == "hbox") {
     element.textContent = value;
   } else {
     throw new NotReached("XUL element type not supported");
@@ -177,6 +177,7 @@ EmailConfigWizard.prototype = {
     }
     e("realname").value = this._realname;
     this._password = "";
+    this._showPassword = false;
     this._exchangeUsername = ""; // only for Exchange AutoDiscover and only if needed
     this._okCallback = null;
 
@@ -216,8 +217,9 @@ EmailConfigWizard.prototype = {
 
     // If the account provisioner is preffed off, don't display
     // the account provisioner button.
-    if (!Services.prefs.getBoolPref("mail.provider.enabled"))
+    if (!Services.prefs.getBoolPref("mail.provider.enabled")) {
       _hide("provisioner_button");
+    }
 
     let menulist = e("outgoing_hostname");
     // Add the entry for the new host to the menulist
@@ -251,16 +253,13 @@ EmailConfigWizard.prototype = {
     // switchToMode() will then hide the unneeded parts again.
     // We will add some leeway of 10px, in case some of the <description>s wrap,
     // e.g. outgoing username != incoming username.
-    _show("status_area");
+    _show("status-area");
     _show("result_area");
     _hide("manual-edit_area");
-    window.sizeToContent();
-    e("mastervbox").setAttribute("style",
-        "min-width: " + document.documentElement.clientWidth + "px; " +
-        "min-height: " + (document.documentElement.clientHeight + 10) + "px;");
 
     this.switchToMode("start");
     e("realname").select();
+    window.sizeToContent();
   },
 
   /**
@@ -285,6 +284,7 @@ EmailConfigWizard.prototype = {
    */
   switchToMode(modename) {
     if (modename == this._currentModename) {
+      window.sizeToContent();
       return;
     }
     this._currentModename = modename;
@@ -293,7 +293,7 @@ EmailConfigWizard.prototype = {
     // _show("initialSettings"); always visible
     // _show("cancel_button"); always visible
     if (modename == "start") {
-      _hide("status_area");
+      _hide("status-area");
       _hide("result_area");
       _hide("manual-edit_area");
 
@@ -303,9 +303,8 @@ EmailConfigWizard.prototype = {
       _hide("create_button");
       _hide("stop_button");
       _hide("manual-edit_button");
-      _hide("advanced-setup_button");
     } else if (modename == "find-config") {
-      _show("status_area");
+      _show("status-area");
       _hide("result_area");
       _hide("manual-edit_area");
 
@@ -315,11 +314,9 @@ EmailConfigWizard.prototype = {
       _hide("create_button");
       _show("stop_button");
       this.onStop = this.onStopFindConfig;
-      _show("manual-edit_button");
-      _hide("provisioner_button");
-      _hide("advanced-setup_button");
+      _hide("manual-edit_button");
     } else if (modename == "result") {
-      _show("status_area");
+      _show("status-area");
       _show("result_area");
       _hide("manual-edit_area");
 
@@ -329,10 +326,8 @@ EmailConfigWizard.prototype = {
       _enable("create_button");
       _hide("stop_button");
       _show("manual-edit_button");
-      _hide("provisioner_button");
-      _hide("advanced-setup_button");
     } else if (modename == "manual-edit") {
-      _show("status_area");
+      _show("status-area");
       _hide("result_area");
       _show("manual-edit_area");
 
@@ -343,11 +338,8 @@ EmailConfigWizard.prototype = {
       _disable("create_button");
       _hide("stop_button");
       _hide("manual-edit_button");
-      _hide("provisioner_button");
-      _show("advanced-setup_button");
-      _disable("advanced-setup_button");
     } else if (modename == "manual-edit-have-hostname") {
-      _show("status_area");
+      _show("status-area");
       _hide("result_area");
       _show("manual-edit_area");
       _hide("manual-edit_button");
@@ -358,10 +350,8 @@ EmailConfigWizard.prototype = {
       _enable("half-manual-test_button");
       _disable("create_button");
       _hide("stop_button");
-      _show("advanced-setup_button");
-      _disable("advanced-setup_button");
     } else if (modename == "manual-edit-testing") {
-      _show("status_area");
+      _show("status-area");
       _hide("result_area");
       _show("manual-edit_area");
       _hide("manual-edit_button");
@@ -373,11 +363,8 @@ EmailConfigWizard.prototype = {
       _disable("create_button");
       _show("stop_button");
       this.onStop = this.onStopHalfManualTesting;
-      _hide("provisioner_button");
-      _show("advanced-setup_button");
-      _disable("advanced-setup_button");
     } else if (modename == "manual-edit-complete") {
-      _show("status_area");
+      _show("status-area");
       _hide("result_area");
       _show("manual-edit_area");
       _hide("manual-edit_button");
@@ -388,9 +375,6 @@ EmailConfigWizard.prototype = {
       _enable("half-manual-test_button");
       _enable("create_button");
       _hide("stop_button");
-      _hide("provisioner_button");
-      _show("advanced-setup_button");
-      _enable("advanced-setup_button");
     } else {
       throw new NotReached("unknown mode");
     }
@@ -398,13 +382,10 @@ EmailConfigWizard.prototype = {
     // the advanced config button if we have a current config.
     if (Services.io.offline) {
       if (this._currentConfig != null) {
-        _show("advanced-setup_button");
-        _enable("advanced-setup_button");
         _hide("half-manual-test_button");
         _hide("create_button");
         _hide("manual-edit_button");
       }
-      _hide("provisioner_button");
     }
     window.sizeToContent();
   },
@@ -488,13 +469,11 @@ EmailConfigWizard.prototype = {
   onBlurRealname() {
     let realnameEl = e("realname");
     if (this._realname) {
-      this.clearError("nameerror");
-      _show("nametext");
+      this.clearError("realname");
       realnameEl.removeAttribute("error");
     // bug 638790: don't show realname error until user enter an email address
     } else if (this.validateEmailMinimally(this._email)) {
-      _hide("nametext");
-      this.setError("nameerror", "please_enter_name");
+      this.setError("realname", "please_enter_name");
       realnameEl.setAttribute("error", "true");
     }
   },
@@ -506,35 +485,36 @@ EmailConfigWizard.prototype = {
    */
   onBlurEmail() {
     if (!this._email) {
+      this.clearError("email");
+      e("email").removeAttribute("error");
       return;
     }
-    var emailEl = e("email");
+
+    let emailEl = e("email");
     if (this.validateEmail(this._email)) {
-      this.clearError("emailerror");
+      this.clearError("email");
       emailEl.removeAttribute("error");
       this.onBlurRealname();
     } else {
-      this.setError("emailerror", "double_check_email");
+      this.setError("email", "double_check_email");
       emailEl.setAttribute("error", "true");
     }
   },
 
-  /**
-   * If the user just tabbed through the password input without entering
-   * anything, set the type back to text so we don't wind up showing the
-   * emptytext as bullet characters.
-   */
-  onBlurPassword() {
+  passwordToggle() {
     if (!this._password) {
-      e("password").type = "text";
+      return;
     }
-  },
 
-  /**
-   * @see onBlurPassword()
-   */
-  onFocusPassword() {
-    e("password").type = "password";
+    if (e("password").type == "password") {
+      this._showPassword = true;
+      e("password").type = "text";
+      e("passwordInfo").classList.add("icon-visible");
+    } else {
+      this._showPassword = false;
+      e("password").type = "password";
+      e("passwordInfo").classList.remove("icon-visible");
+    }
   },
 
   /**
@@ -557,6 +537,7 @@ EmailConfigWizard.prototype = {
    * information stage to using that information to configure account details.
    */
   onNext() {
+    _hide("provisioner_button");
     this.findConfig(this._domain, this._email);
   },
 
@@ -740,27 +721,38 @@ EmailConfigWizard.prototype = {
   // Status area
 
   startSpinner(actionStrName) {
-    e("status_area").setAttribute("status", "loading");
+    e("status-area").setAttribute("status", "loading");
     gEmailWizardLogger.warn("spinner start " + actionStrName);
     this._showStatusTitle(actionStrName);
   },
 
   stopSpinner(actionStrName) {
-    e("status_area").setAttribute("status", "result");
-    _hide("stop_button");
+    if (!actionStrName) {
+      e("status-area").removeAttribute("status");
+      this._showStatusTitle("");
+      _hide("stop_button");
+      gEmailWizardLogger.warn("all spinner stop");
+      window.sizeToContent();
+      return;
+    }
+
+    e("status-area").setAttribute("status", "result");
+
     this._showStatusTitle(actionStrName);
+    _hide("stop_button");
     gEmailWizardLogger.warn("all spinner stop " + actionStrName);
+    window.sizeToContent();
   },
 
   showErrorStatus(actionStrName) {
-    e("status_area").setAttribute("status", "error");
+    e("status-area").setAttribute("status", "error");
     gEmailWizardLogger.warn("status error " + actionStrName);
     this._showStatusTitle(actionStrName);
   },
 
   showErrorMsg(errorMsg) {
     gEmailWizardLogger.warn("error " + errorMsg);
-    e("status_area").setAttribute("status", "error");
+    e("status-area").setAttribute("status", "error");
     e("status_msg").textContent = errorMsg;
   },
 
@@ -783,15 +775,15 @@ EmailConfigWizard.prototype = {
 
   addStatusLine(msgID, call) {
     _show("status-lines");
-    var statusLine = document.createXULElement("hbox");
+    let statusLine = document.createXULElement("hbox");
+    statusLine.setAttribute("align", "center");
     e("status-lines").appendChild(statusLine);
     statusLine.classList.add("status-line");
     var statusDescr = document.createXULElement("description");
-    statusDescr.classList.add("status_msg");
+    statusDescr.classList.add("status-msg");
     statusLine.appendChild(statusDescr);
-    var statusImg = document.createXULElement("vbox");
+    var statusImg = document.createXULElement("image");
     statusImg.classList.add("status-img");
-    statusImg.setAttribute("pack", "start");
     statusLine.appendChild(statusImg);
     let msg = msgID;
     try {
@@ -886,7 +878,7 @@ EmailConfigWizard.prototype = {
             this.validateAndFinish();
           };
         } else {
-          _hide("status_area");
+          _hide("status-area");
           _show("result_addon_intro");
           var msg = gStringsBundle.getString("addon-intro");
           if (!config.incomingAlternatives.find(alt => (alt.type == "imap" || alt.type == "pop3"))) {
@@ -897,18 +889,17 @@ EmailConfigWizard.prototype = {
           let containerE = e("result_addon_install_rows");
           for (let addon of config.addons) {
             // Creates
-            // <row>
+            // <hbox flex="1">
             //   <image src="https://live.thunderbird.net/owl32.png" />
             //   <label is="text-link" href="https://live.thunderbird.net/owl">
             //     A third party addon that ...
             //   </label>
-            //   <button
-            //     class="larger-button"
-            //     orient="vertical" crop="right"
-            //     label="Install"
-            //     oncommand="…" />
-            // </row>
-            let addonE = document.createXULElement("row");
+            //   <button class="larger-button"
+            //           orient="vertical" crop="right"
+            //           label="Install"
+            //           oncommand="…" />
+            // </hbox>
+            let addonE = document.createXULElement("hbox");
             let iconE = document.createXULElement("image");
             let descrE = document.createXULElement("label", {is: "text-link"}); // must be <label> to be clickable
             let buttonE = document.createXULElement("button");
@@ -916,11 +907,13 @@ EmailConfigWizard.prototype = {
             addonE.appendChild(descrE);
             addonE.appendChild(buttonE);
             containerE.appendChild(addonE);
+            addonE.setAttribute("flex", "1");
             addonE.setAttribute("align", "center");
             iconE.classList.add("icon");
             if (addon.icon32) {
               iconE.setAttribute("src", addon.icon32);
             }
+            descrE.setAttribute("flex", "1");
             descrE.setAttribute("href", addon.websiteURL);
             descrE.textContent = addon.description;
             buttonE.classList.add("larger-button");
@@ -942,13 +935,14 @@ EmailConfigWizard.prototype = {
     _show("result_hostnames");
     _hide("result_exchange");
     _enable("create_button");
+    window.sizeToContent();
 
     var unknownString = gStringsBundle.getString("resultUnknown");
 
     function _makeHostDisplayString(server, descrE) {
       let type = gStringsBundle.getString(sanitize.translate(server.type,
-          { imap: "resultIMAP", pop3: "resultPOP3", smtp: "resultSMTP", exchange: "resultExchange" }),
-          unknownString);
+        { imap: "resultIMAP", pop3: "resultPOP3", smtp: "resultSMTP", exchange: "resultExchange" }),
+        unknownString);
       let domain = Services.eTLD.getBaseDomainFromHost(server.hostname);
       let host = server.hostname.substr(0, server.hostname.length - domain.length);
       let port = (isStandardPort(server.port) ? "" : ":" + server.port);
@@ -965,19 +959,35 @@ EmailConfigWizard.prototype = {
         textE.textContent = text;
         descrE.appendChild(textE);
       }
+
+      function _addCertStatus(text, className) {
+        let textE = document.createXULElement("label");
+        textE.classList.add(className);
+        textE.textContent = text;
+        descrE.parentNode.appendChild(textE);
+      }
+
+      function _removeCertStatus() {
+        let el = descrE.parentNode.querySelector(".certStatus");
+        if (el != null) {
+          el.remove();
+        }
+      }
+
       removeChildNodes(descrE);
+      _removeCertStatus();
       _addComponent(type, "protocolType");
       _addComponent(host, "host-without-domain");
       _addComponent(domain, "domain");
       _addComponent(port, "port");
       _addComponent(ssl, "ssl");
-      _addComponent(certStatus, "certStatus");
+      _addCertStatus(certStatus, "certStatus");
 
       if (server.socketType != 2 && server.socketType != 3) { // not SSL/STARTTLS
         descrE.querySelector(".ssl").classList.add("insecure");
       }
       if (server.badCert) {
-        descrE.querySelector(".certStatus").classList.add("insecure");
+        descrE.parentNode.querySelector(".certStatus").classList.add("insecure");
       }
     }
 
@@ -1041,7 +1051,7 @@ EmailConfigWizard.prototype = {
     _hide("result_addon_install");
     _hide("result_addon_intro");
     _disable("create_button");
-    _show("status_area");
+    _show("status-area");
     this.startSpinner("addonInstallStarted");
 
     try {
@@ -1427,8 +1437,7 @@ EmailConfigWizard.prototype = {
   },
   onChangedOutAuth(aSelectedAuth) {
     if (aSelectedAuth) {
-      e("outgoing_label").hidden = e("outgoing_username").hidden =
-                                   (aSelectedAuth.id == "out-authMethod-no");
+      e("outgoing_username").disabled = (aSelectedAuth.id == "out-authMethod-no");
     }
     this.onChangedManualEdit();
   },
@@ -1466,16 +1475,16 @@ EmailConfigWizard.prototype = {
     if (menuitem && menuitem.serverKey) {
       // an existing server has been selected from the dropdown
       menulist.editable = false;
-      _hide("outgoing_port");
-      _hide("outgoing_ssl");
-      _hide("outgoing_authMethod");
+      _disable("outgoing_port");
+      _disable("outgoing_ssl");
+      _disable("outgoing_authMethod");
       this.onChangedManualEdit();
     } else {
       // new server, with hostname, port etc.
       menulist.editable = true;
-      _show("outgoing_port");
-      _show("outgoing_ssl");
-      _show("outgoing_authMethod");
+      _enable("outgoing_port");
+      _enable("outgoing_ssl");
+      _enable("outgoing_authMethod");
     }
 
     this.onChangedManualEdit();
@@ -1551,6 +1560,12 @@ EmailConfigWizard.prototype = {
       return;
     }
 
+    if (!Services.prompt.confirm(null,
+      gStringsBundle.getString("confirmAdvancedConfigTitle"),
+      gStringsBundle.getString("confirmAdvancedConfigText"))) {
+      return;
+    }
+
     gEmailWizardLogger.info("creating account in backend");
     let newAccount = createAccountInBackend(configFilledIn);
 
@@ -1621,18 +1636,17 @@ EmailConfigWizard.prototype = {
   },
 
   clearError(which) {
-    _hide(which);
-    _hide(which + "icon");
-    e(which).textContent = "";
+    _hide(`${which}Warning`);
+    _show(`${which}Info`);
   },
 
   setError(which, msg_name) {
     try {
-      _show(which);
-      _show(which + "icon");
-      e(which).textContent = gStringsBundle.getString(msg_name);
-      window.sizeToContent();
-    } catch (ex) { alertPrompt("missing error string", msg_name); }
+      _hide(`${which}Info`);
+      _show(`${which}Warning`);
+    } catch (ex) {
+      alertPrompt("missing error string", msg_name);
+    }
   },
 
   // -------------------------------
@@ -1722,7 +1736,6 @@ EmailConfigWizard.prototype = {
     // "result" or "manual-edit-complete" mode.
     _disable("create_button");
     _disable("half-manual-test_button");
-    _disable("advanced-setup_button");
     // no stop button: backend has no ability to stop :-(
     var self = this;
     this.startSpinner("checking_password");
@@ -1766,7 +1779,6 @@ EmailConfigWizard.prototype = {
         _enable("create_button");
         // hidden in non-manual mode, so it's fine to enable
         _enable("half-manual-test_button");
-        _enable("advanced-setup_button");
       });
   },
 
@@ -1980,6 +1992,8 @@ SecurityWarningDialog.prototype = {
       details.setAttribute("collapsed", true);
       tech.removeAttribute("expanded");
     }
+
+    window.sizeToContent();
   },
 
   /**

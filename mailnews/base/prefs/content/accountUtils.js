@@ -432,8 +432,8 @@ function msgNewMailAccount(msgWindow, okCallback, extraData) {
   } else if (AppConstants.MOZ_APP_NAME == "thunderbird") {
     // disabling modal for the time being, see 688273 REMOVEME
     window.openDialog("chrome://messenger/content/accountcreation/emailWizard.xul",
-                      "AccountSetup", "chrome,titlebar,centerscreen",
-                      { msgWindow, okCallback, extraData });
+      "AccountSetup", "chrome,titlebar,centerscreen,resizable",
+      { msgWindow, okCallback, extraData });
   }
 
   /*

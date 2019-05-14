@@ -79,6 +79,7 @@ function test_re_test_config() {
     // changing the value of the email field does the trick.
     awc.e("realname").focus();
     awc.keypress(null, "VK_TAB", {});
+    awc.e("email").focus();
     input_value(awc, user.altEmail);
     awc.keypress(null, "VK_TAB", {});
 
@@ -93,9 +94,7 @@ function test_re_test_config() {
     // Previously, we'd switched to the manual editing state. Now we've started
     // over, we should make sure the information is presented back in its original
     // "automatic" mode.
-    assert_true(!awc.e("manual-edit_button").hidden,
-      "We're not back to the original state!");
-    assert_true(awc.e("advanced-setup_button").hidden,
+    assert_true(awc.e("manual-edit_area").hidden,
       "We're not back to the original state!");
 
     close_window(awc);

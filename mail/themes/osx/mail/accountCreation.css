@@ -25,30 +25,12 @@
   padding: 10px 8px;
 }
 
-#warningbox {
-  width: 650px;
-  height: 400px;
-}
-
-#result-username {
-  margin-inline-start: 6px;
-}
-
-textbox[disabled="true"],
-input[disabled="true"],
-menulist[disabled="true"] {
-  -moz-appearance: none;
-  border: 0;
-  background-color: #ececec;
-  color: #000000 !important;
-}
-
 menulist {
   margin-right: 4px;
   margin-left: 4px;
 }
 
-#status_area[status=error] #status_img_before {
+#status-area[status=error] #statusImgBefore {
   margin-right: 1em;
 }
 

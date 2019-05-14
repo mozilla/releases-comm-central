@@ -7,6 +7,7 @@
 /* import-globals-from ../shared-modules/test-account-manager-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 /* import-globals-from ../shared-modules/test-keyboard-helpers.js */
+/* import-globals-from ../shared-modules/test-prompt-helpers.js */
 /* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-mail-account-setup-wizard";
@@ -16,6 +17,7 @@ var MODULE_REQUIRES = [
   "window-helpers",
   "account-manager-helpers",
   "keyboard-helpers",
+  "prompt-helpers",
 ];
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -89,12 +91,20 @@ function test_mail_account_setup() {
                 "Timeout waiting for current config to become non-null",
                 8000, 600);
 
+    // Register the prompt service to handle the confirm() dialog
+    gMockPromptService.register();
+    gMockPromptService.returnValue = true;
+
     // Open the advanced settings (Account Manager) to create the account
     // immediately.  We use an invalid email/password so the setup will fail
     // anyway.
     open_advanced_settings_from_account_wizard(subtest_verify_account, awc);
 
+    let promptState = gMockPromptService.promptState;
+    assert_equals("confirm", promptState.method);
+
     // Clean up
+    gMockPromptService.unregister();
     Services.prefs.clearUserPref(pref_name);
   });
 }
