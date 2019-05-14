@@ -36,13 +36,6 @@ ChromeUtils.defineModuleGetter(this, "ShortcutUtils",
 
 var sDictCount = 0;
 
-// Hack to provide `gBrowser` needed for zooming.
-Object.defineProperty(this, "gBrowser", {
-  get() {
-    return getBrowser();
-  },
-});
-
 /**
  * Global message window object. This is used by mail-offline.js and therefore
  * should not be renamed. We need to avoid doing this kind of cross file global

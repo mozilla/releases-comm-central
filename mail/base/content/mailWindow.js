@@ -35,13 +35,6 @@ var accountManager;
 var gContextMenu;
 var gMailWindowLog = Log4Moz.getConfiguredLogger("mailWindow", Log4Moz.Level.Debug, Log4Moz.Level.Debug, Log4Moz.Level.Debug);
 
-// Hack to provide `gBrowser` needed for zooming.
-Object.defineProperty(this, "gBrowser", {
-  get() {
-    return getBrowser();
-  },
-});
-
 /**
  * Called by messageWindow.xul:onunload,  the 'single message display window'.
  *
