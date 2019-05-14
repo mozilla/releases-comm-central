@@ -53,7 +53,7 @@
 <script src="chrome://messenger/content/mail-offline.js"/>
 <script src="chrome://global/content/printUtils.js"/>
 <script src="chrome://messenger/content/msgViewPickerOverlay.js"/>
-<script src="chrome://global/content/viewZoomOverlay.js"/>
+<script src="chrome://messenger/content/viewZoomOverlay.js"/>
 <script src="chrome://communicator/content/utilityOverlay.js"/>
 <script src="chrome://messenger/content/mailCore.js"/>
 <script src="chrome://messenger/content/quickFilterBar.js"/>

@@ -40,7 +40,7 @@
 <script src="chrome://messenger/content/mailCore.js"/>
 #endif
   <script src="chrome://messenger/content/viewSource.js"/>
-  <script src="chrome://global/content/viewZoomOverlay.js"/>
+  <script src="chrome://messenger/content/viewZoomOverlay.js"/>
   <script src="chrome://global/content/contentAreaUtils.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
 
