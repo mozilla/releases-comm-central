@@ -4,8 +4,8 @@ product-dir: comm/mail
 
 treeherder:
     group-names:
-        'X-1proc': 'Xpcshell tests'
-        'Z-1proc': 'MozMill tests'
+        'X': 'Xpcshell tests'
+        'Z': 'MozMill tests'
         'I': 'Docker Image Builds'
         'TL': 'Toolchain builds for Linux 64-bits'
         'TM': 'Toolchain builds for OSX'
@@ -18,7 +18,7 @@ treeherder:
         'Fetch-URL': 'Fetch and store content'
         'L10n': 'Localised Repacks'
         'L10n-Rpk': 'Localized Repackaged Repacks'
-        'M-1proc': 'Mochitests'
+        'M': 'Mochitests'
         'ms': 'Complete MAR signing'
         'MSI': 'Repack installers into MSIs'
         'MSIs': 'Signing of Repacked installers of MSIs'
