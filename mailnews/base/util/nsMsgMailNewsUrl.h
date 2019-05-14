@@ -112,7 +112,9 @@ class NS_MSG_BASE nsMsgMailNewsUrl : public nsIMsgMailNewsUrl,
   nsCOMPtr<nsIMsgSearchSession> m_searchSession;
   nsCOMPtr<nsICacheEntry> m_memCacheEntry;
   nsCOMPtr<nsIMsgHeaderSink> mMsgHeaderSink;
-  char *m_errorMessage;
+  nsCString m_errorCode;
+  nsString m_errorMessage;
+  nsString m_errorParameters;
   int64_t mMaxProgress;
   bool m_runningUrl;
   bool m_updatingFolder;

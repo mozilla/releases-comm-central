@@ -88,6 +88,29 @@ interface nsIMsgMailNewsUrl : nsIURL {
   attribute boolean msgIsInLocalCache;
   attribute boolean suppressErrorMsgs; // used to avoid displaying biff error messages
 
+  /**
+   * Set after an error occurred.
+   * It is not translated and contains no parameters.
+   * It is unique to each different kind of error, i.e. the same
+   * error has the same code, but a different error has a different code.
+   * This allows to recover from specific errors programmatically,
+   * or to keep error statistics.
+   * If the error comes from a server, the implementor should make
+   * efforts to pass on comparable server error identifiers and include
+   * them here, e.g. as suffixes. Example: "imap-sasl-S474", where-as "S474"
+   * comes from the server annd "imap-sasl-" is the prefix for where the
+   * server reports appears.
+   */
+  attribute ACString errorCode;
+  /**
+   * Set after an error occurred.
+   * An error message that can be displayed directly
+   * to the end user without further processing.
+   * It must have been translated.
+   * It may contain contain values as part of the message.
+   */
+  attribute AString errorMessage;
+
   attribute nsICacheEntry memCacheEntry;
 
   const unsigned long eCopy     = 0;

@@ -1181,18 +1181,52 @@ int32_t nsPop3Protocol::WaitForResponse(nsIInputStream *inputStream,
 int32_t nsPop3Protocol::Error(const char *err_code, const char16_t **params,
                               uint32_t length) {
   MOZ_LOG(POP3LOGMODULE, LogLevel::Info, (POP3LOG("ERROR: %s"), err_code));
+  nsresult rv = NS_OK;
 
   // the error code is just the resource name for the error string...
   // so print out that error message!
+  nsAutoString message;
+  // Format the alert string if parameter list isn't empty
+  if (params) {
+    mLocalBundle->FormatStringFromName(err_code, params, length, message);
+  } else {
+    mLocalBundle->GetStringFromName(err_code, message);
+  }
+  if (!m_pop3ConData->command_succeeded) {
+    // Server error message
+    nsString serverSaidPrefix;
+    nsCOMPtr<nsIMsgIncomingServer> server = do_QueryInterface(m_pop3Server);
+    nsCString hostName;
+    // Format string with hostname.
+    if (server) {
+      rv = server->GetRealHostName(hostName);
+    }
+    if (NS_SUCCEEDED(rv)) {
+      nsAutoString hostStr;
+      CopyASCIItoUTF16(hostName, hostStr);
+      const char16_t *params[] = {hostStr.get()};
+      mLocalBundle->FormatStringFromName("pop3ServerSaid", params, 1,
+                                         serverSaidPrefix);
+    }
+
+    message.Append(' ');
+    message.Append(serverSaidPrefix);
+    message.Append(' ');
+    message.Append(NS_ConvertASCIItoUTF16(m_commandResponse));
+  }
+
+  nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_url, &rv);
+  mailnewsUrl->SetErrorCode(nsDependentCString(err_code));
+  mailnewsUrl->SetErrorMessage(message);
+
   nsCOMPtr<nsIMsgIncomingServer> server = do_QueryInterface(m_pop3Server);
   nsString accountName;
-  nsresult rv = server->GetPrettyName(accountName);
+  rv = server->GetPrettyName(accountName);
   NS_ENSURE_SUCCESS(rv, -1);
   const char16_t *titleParams[] = {accountName.get()};
   nsString dialogTitle;
   mLocalBundle->FormatStringFromName("pop3ErrorDialogTitle", titleParams, 1,
                                      dialogTitle);
-  nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_url, &rv);
   // we handle "pop3TmpDownloadError" earlier...
   if (strcmp(err_code, "pop3TmpDownloadError") && NS_SUCCEEDED(rv)) {
     nsCOMPtr<nsIMsgWindow> msgWindow;
@@ -1203,37 +1237,7 @@ int32_t nsPop3Protocol::Error(const char *err_code, const char16_t **params,
     if (NS_SUCCEEDED(rv) && msgWindow) {
       rv = msgWindow->GetPromptDialog(getter_AddRefs(dialog));
       if (NS_SUCCEEDED(rv)) {
-        nsString alertString;
-        // Format the alert string if parameter list isn't empty
-        if (params)
-          mLocalBundle->FormatStringFromName(err_code, params, length,
-                                             alertString);
-        else
-          mLocalBundle->GetStringFromName(err_code, alertString);
-        if (m_pop3ConData->command_succeeded)  // not a server error message
-          dialog->Alert(dialogTitle.get(), alertString.get());
-        else {
-          nsString serverSaidPrefix;
-          nsCOMPtr<nsIMsgIncomingServer> server =
-              do_QueryInterface(m_pop3Server);
-          nsCString hostName;
-          // Fomat string with hostname.
-          if (server) rv = server->GetRealHostName(hostName);
-          if (NS_SUCCEEDED(rv)) {
-            nsAutoString hostStr;
-            CopyASCIItoUTF16(hostName, hostStr);
-            const char16_t *params[] = {hostStr.get()};
-            mLocalBundle->FormatStringFromName("pop3ServerSaid", params, 1,
-                                               serverSaidPrefix);
-          }
-
-          nsAutoString message(alertString);
-          message.Append(' ');
-          message.Append(serverSaidPrefix);
-          message.Append(' ');
-          message.Append(NS_ConvertASCIItoUTF16(m_commandResponse));
-          dialog->Alert(dialogTitle.get(), message.get());
-        }
+        dialog->Alert(dialogTitle.get(), message.get());
       }
     }
   }

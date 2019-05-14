@@ -179,19 +179,15 @@ urlListener.prototype = {
       this.mSuccessCallback(this.mConfig);
     } else if (!this.mAlter) {
       // Logon failed, and we aren't supposed to try other variations.
-      this._cleanup();
-      var errorMsg = getStringBundle(
-          "chrome://messenger/locale/accountCreationModel.properties")
-          .GetStringFromName("cannot_login.error");
-      this.mErrorCallback(new Exception(errorMsg));
+      this._failed(aUrl);
     } else if (!this.mCertError) {
       // Try other variations, unless there's a cert error, in which
       // case we'll see what the user chooses.
-      this.tryNextLogon();
+      this.tryNextLogon(aUrl);
     }
   },
 
-  tryNextLogon() {
+  tryNextLogon(aPreviousUrl) {
     this._log.info("tryNextLogon()");
     this._log.info("  username=" + (this.mConfig.incoming.username !=
                           this.mConfig.identity.emailAddress) +
@@ -260,11 +256,7 @@ urlListener.prototype = {
 
     // Tried all variations we can. Give up.
     this._log.info("Giving up.");
-    this._cleanup();
-    let errorMsg = getStringBundle(
-        "chrome://messenger/locale/accountCreationModel.properties")
-        .GetStringFromName("cannot_login.error");
-    this.mErrorCallback(new Exception(errorMsg));
+    this._failed(aPreviousUrl);
   },
 
   _cleanup() {
@@ -275,6 +267,29 @@ urlListener.prototype = {
         this.mServer = null;
       }
     } catch (e) { this._log.error(e); }
+  },
+
+  _failed(aUrl) {
+    this._cleanup();
+    var code = aUrl.errorCode || "login-error-unknown";
+    var msg = aUrl.errorMessage;
+    // *Only* for known (!) username/password errors, show our message.
+    // But there are 1000 other reasons why it could have failed, e.g.
+    // server not reachable, bad auth method, server hiccups, or even
+    // custom server messages that tell the user to do something,
+    // so show the backend error message, unless we are certain
+    // that it's a wrong username or password.
+    if (!msg || // Normal IMAP login error sets no error msg
+         code == "pop3UsernameFailure" ||
+         code == "pop3PasswordFailed" ||
+         code == "imapOAuth2Error") {
+      msg = getStringBundle(
+        "chrome://messenger/locale/accountCreationModel.properties")
+        .GetStringFromName("cannot_login.error");
+    }
+    var ex = new Exception(msg);
+    ex.code = code;
+    this.mErrorCallback(ex);
   },
 
   // Suppress any certificate errors

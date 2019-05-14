@@ -404,6 +404,27 @@ NS_IMETHODIMP nsMsgMailNewsUrl::SetSuppressErrorMsgs(bool aSuppressErrorMsgs) {
   return NS_OK;
 }
 
+NS_IMETHODIMP nsMsgMailNewsUrl::GetErrorCode(nsACString &aErrorCode) {
+  aErrorCode = m_errorCode;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgMailNewsUrl::SetErrorCode(const nsACString &aErrorCode) {
+  m_errorCode.Assign(aErrorCode);
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgMailNewsUrl::GetErrorMessage(nsAString &aErrorMessage) {
+  aErrorMessage = m_errorMessage;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgMailNewsUrl::SetErrorMessage(
+    const nsAString &aErrorMessage) {
+  m_errorMessage.Assign(aErrorMessage);
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsMsgMailNewsUrl::IsUrlType(uint32_t type, bool *isType) {
   // base class doesn't know about any specific types
   NS_ENSURE_ARG(isType);

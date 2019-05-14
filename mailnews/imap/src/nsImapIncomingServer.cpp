@@ -1688,7 +1688,12 @@ nsImapIncomingServer::FEAlert(const nsAString &aAlertString,
 
       rv = m_stringBundle->FormatStringFromName("imapServerAlert", params, 2,
                                                 message);
-      if (NS_SUCCEEDED(rv)) return AlertUser(message, aUrl);
+      if (NS_SUCCEEDED(rv)) {
+        aUrl->SetErrorCode(NS_LITERAL_CSTRING("imap-server-alert"));
+        aUrl->SetErrorMessage(message);
+
+        return AlertUser(message, aUrl);
+      }
     }
   }
   return AlertUser(aAlertString, aUrl);
@@ -1721,7 +1726,12 @@ nsImapIncomingServer::FEAlertWithName(const char *aMsgName,
       const NS_ConvertUTF8toUTF16 hostName16(hostName);
       const char16_t *params[] = {hostName16.get()};
       rv = m_stringBundle->FormatStringFromName(aMsgName, params, 1, message);
-      if (NS_SUCCEEDED(rv)) return AlertUser(message, aUrl);
+      if (NS_SUCCEEDED(rv)) {
+        aUrl->SetErrorCode(nsDependentCString(aMsgName));
+        aUrl->SetErrorMessage(message);
+
+        return AlertUser(message, aUrl);
+      }
     }
   }
 
@@ -1769,6 +1779,9 @@ NS_IMETHODIMP nsImapIncomingServer::FEAlertFromServer(
   nsString folderName;
 
   NS_ConvertUTF8toUTF16 unicodeMsg(message);
+
+  aUrl->SetErrorCode(NS_LITERAL_CSTRING("imap-server-error"));
+  aUrl->SetErrorMessage(unicodeMsg);
 
   nsCOMPtr<nsIMsgFolder> folder;
   if (imapState == nsIImapUrl::nsImapSelectedState ||

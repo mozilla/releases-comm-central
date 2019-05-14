@@ -1747,10 +1747,12 @@ EmailConfigWizard.prototype = {
         self.finish(configFilledIn);
       },
       function(e) { // failed
-        self.showErrorStatus("config_unverifiable");
-        // TODO bug 555448: wrong error msg, there may be a 1000 other
-        // reasons why this failed, and this is misleading users.
-        self.setError("passworderror", "user_pass_invalid");
+        // Could be a wrong password, but there are 1000 other
+        // reasons why this failed. Only the backend knows.
+        // If we got no message, then something other than VerifyLogon failed.
+        self.showErrorMsg(e.message || e.toString());
+
+        window.sizeToContent();
         // TODO use switchToMode(), see above
         // give user something to proceed after fixing
         _enable("create_button");

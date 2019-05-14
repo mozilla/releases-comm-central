@@ -163,6 +163,7 @@ textbox.username {
 
 #status_msg {
   min-height: 1.5em;
+  max-width: 30em;
 }
 
 #status-lines {
