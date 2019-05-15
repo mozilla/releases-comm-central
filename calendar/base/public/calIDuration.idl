@@ -106,7 +106,7 @@ interface calIDuration : nsISupports
 /** Libical specific interfaces */
 
 [ptr] native icaldurationtypeptr(struct icaldurationtype);
-[scriptable, uuid(f5e1c987-e722-4dec-bf91-93d4062b504a)]
+[builtinclass,scriptable,uuid(f5e1c987-e722-4dec-bf91-93d4062b504a)]
 interface calIDurationLibical : calIDuration
 {
   [noscript,notxpcom] void toIcalDuration(in icaldurationtypeptr idt);
