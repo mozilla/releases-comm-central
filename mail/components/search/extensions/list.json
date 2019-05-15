@@ -110,6 +110,13 @@
         ]
       }
     },
+    "bn": {
+      "default": {
+        "visibleDefaultEngines": [
+          "google", "amazon-in", "bing", "ddg", "wikipedia-bn"
+        ]
+      }
+    },
     "bn-BD": {
       "default": {
         "visibleDefaultEngines": [
@@ -184,14 +191,14 @@
     "de": {
       "default": {
         "visibleDefaultEngines": [
-          "google", "amazondotcom-de", "bing", "ddg", "ecosia", "leo_ende_de", "wikipedia-de"
+          "google", "amazon-de", "bing", "ddg", "ecosia", "leo_ende_de", "wikipedia-de"
         ]
       }
     },
     "dsb": {
       "default": {
         "visibleDefaultEngines": [
-          "google", "bing", "amazondotcom-de", "ddg", "leo_ende_de", "wikipedia-dsb"
+          "google", "bing", "amazon-de", "ddg", "leo_ende_de", "wikipedia-dsb"
         ]
       }
     },
@@ -381,7 +388,7 @@
     "hsb": {
       "default": {
         "visibleDefaultEngines": [
-          "google", "bing", "amazondotcom-de", "ddg", "leo_ende_de", "wikipedia-hsb"
+          "google", "bing", "amazon-de", "ddg", "leo_ende_de", "wikipedia-hsb"
         ]
       }
     },
