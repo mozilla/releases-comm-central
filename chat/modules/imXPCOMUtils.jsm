@@ -190,7 +190,7 @@ ClassInfo.prototype = {
   get interfaces() {
     return [Ci.nsIClassInfo, Ci.nsISupports].concat(this._interfaces);
   },
-  getHelperForLanguage: language => null,
+  getScriptableHelper: () => null,
   contractID: null,
   classID: null,
   flags: 0,
