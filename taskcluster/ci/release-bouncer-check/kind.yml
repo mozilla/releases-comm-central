@@ -20,7 +20,7 @@ job-defaults:
     shipping-phase: push
     worker-type: b-linux
     worker:
-        max-run-time: 1200
+        max-run-time: 1800
         docker-image: {in-tree: "update-verify"}
     run:
         sparse-profile: mozharness
@@ -39,11 +39,14 @@ jobs:
             product: thunderbird
             job-name: thunderbird-bouncer-check
         run:
+            comm-checkout: true
             config:
-                - releases/bouncer_thunderbird.py
+                - comm/mozharness/releases/bouncer_thunderbird.py
             extra-config:
                 by-project:
-                    comm-(beta|esr60): {}
+                    comm-(beta|esr60):
+                        locales: ['en-US', 'fr', 'de']
+                        bouncer_prefix: "https://download.mozilla.org/"
                     default:
                         locales: ['en-US', 'fr', 'de']
                         bouncer_prefix: "https://bouncer-bouncer-releng.stage.mozaws.net/"
