@@ -27,6 +27,14 @@ config = {
                 "win64",
             ],
         },
+        "msi": {
+            "product-name": "Thunderbird-%(version)s-msi-SSL",
+            "check_uptake": True,
+            "platforms": [
+                "win",
+                "win64",
+            ],
+        },
         "complete-mar": {
             "product-name": "Thunderbird-%(version)s-Complete",
             "check_uptake": True,
