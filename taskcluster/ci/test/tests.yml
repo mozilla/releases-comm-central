@@ -53,7 +53,7 @@ xpcshell:
                 windows.*:
                     - unittests/win_unittest.py
                     - unittests/thunderbird_extra.py
-                macosx64.*:
+                macosx.*64.*:
                     - unittests/mac_unittest.py
                     - unittests/thunderbird_extra.py
                 linux.*:
@@ -93,7 +93,7 @@ mozmill:
                 windows.*:
                     - unittests/win_unittest.py
                     - unittests/thunderbird_extra.py
-                macosx64.*:
+                macosx.*64.*:
                     - unittests/mac_unittest.py
                     - unittests/thunderbird_extra.py
                 linux.*:
@@ -122,7 +122,7 @@ mochitest-thunderbird:
                 windows.*:
                     - unittests/win_unittest.py
                     - unittests/thunderbird_extra.py
-                macosx64.*:
+                macosx.*64.*:
                     - unittests/mac_unittest.py
                     - unittests/thunderbird_extra.py
                 linux.*:
