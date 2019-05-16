@@ -1075,13 +1075,11 @@ nsMsgNewsFolder::GetAuthenticationCredentials(nsIMsgWindow *aMsgWindow,
         do_GetService(NS_LOGINMANAGER_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    uint32_t numLogins = 0;
-    nsILoginInfo **logins = nullptr;
-    rv = loginMgr->FindLogins(&numLogins, signonUrl, EmptyString(), signonUrl,
-                              &logins);
+    nsTArray<RefPtr<nsILoginInfo>> logins;
+    rv = loginMgr->FindLogins(signonUrl, EmptyString(), signonUrl, logins);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    if (numLogins > 0) {
+    if (logins.Length() > 0) {
       nsString uniUsername, uniPassword;
       logins[0]->GetUsername(uniUsername);
       logins[0]->GetPassword(uniPassword);
@@ -1090,7 +1088,6 @@ nsMsgNewsFolder::GetAuthenticationCredentials(nsIMsgWindow *aMsgWindow,
 
       *validCredentials = true;
     }
-    NS_FREE_XPCOM_ISUPPORTS_POINTER_ARRAY(numLogins, logins);
   }
 
   // Show the prompt if we need to
@@ -1183,17 +1180,13 @@ NS_IMETHODIMP nsMsgNewsFolder::ForgetAuthenticationCredentials() {
       do_GetService(NS_LOGINMANAGER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  uint32_t count;
-  nsILoginInfo **logins;
-
-  rv = loginMgr->FindLogins(&count, signonUrl, EmptyString(), signonUrl,
-                            &logins);
+  nsTArray<RefPtr<nsILoginInfo>> logins;
+  rv = loginMgr->FindLogins(signonUrl, EmptyString(), signonUrl, logins);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // There should only be one-login stored for this url, however just in case
   // there isn't.
-  for (uint32_t i = 0; i < count; ++i) loginMgr->RemoveLogin(logins[i]);
-  NS_FREE_XPCOM_ISUPPORTS_POINTER_ARRAY(count, logins);
+  for (uint32_t i = 0; i < logins.Length(); ++i) loginMgr->RemoveLogin(logins[i]);
 
   // Clear out the saved passwords for anyone else who tries to call.
   mGroupUsername.Truncate();

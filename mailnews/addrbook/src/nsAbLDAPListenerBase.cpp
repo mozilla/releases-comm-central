@@ -308,24 +308,19 @@ nsresult nsAbLDAPListenerBase::OnLDAPMessageBind(nsILDAPMessage *aMessage) {
       rv = mDirectoryUrl->GetPrePath(prePath);
       NS_ENSURE_SUCCESS(rv, rv);
 
-      uint32_t count;
-      nsILoginInfo **logins;
-
-      rv = loginMgr->FindLogins(&count, NS_ConvertUTF8toUTF16(prePath),
-                                EmptyString(), NS_ConvertUTF8toUTF16(spec),
-                                &logins);
+      nsTArray<RefPtr<nsILoginInfo>> logins;
+      rv = loginMgr->FindLogins(NS_ConvertUTF8toUTF16(prePath), EmptyString(),
+                                NS_ConvertUTF8toUTF16(spec), logins);
       NS_ENSURE_SUCCESS(rv, rv);
 
       // Typically there should only be one-login stored for this url, however,
       // just in case there isn't.
-      for (uint32_t i = 0; i < count; ++i) {
+      for (uint32_t i = 0; i < logins.Length(); ++i) {
         rv = loginMgr->RemoveLogin(logins[i]);
         if (NS_FAILED(rv)) {
-          NS_FREE_XPCOM_ISUPPORTS_POINTER_ARRAY(count, logins);
           return rv;
         }
       }
-      NS_FREE_XPCOM_ISUPPORTS_POINTER_ARRAY(count, logins);
 
       // XXX We should probably pop up an error dialog telling
       // the user that the login failed here, rather than just bringing

@@ -619,15 +619,14 @@ nsresult nsMsgIncomingServer::GetPasswordWithoutUI() {
 
   NS_ConvertUTF8toUTF16 currServer(currServerUri);
 
-  uint32_t numLogins = 0;
-  nsILoginInfo **logins = nullptr;
-  rv = loginMgr->FindLogins(&numLogins, currServer, EmptyString(), currServer,
-                            &logins);
+  nsTArray<RefPtr<nsILoginInfo>> logins;
+  rv = loginMgr->FindLogins(currServer, EmptyString(), currServer, logins);
 
   // Login manager can produce valid fails, e.g. NS_ERROR_ABORT when a user
   // cancels the master password dialog. Therefore handle that here, but don't
   // warn about it.
   if (NS_FAILED(rv)) return rv;
+  uint32_t numLogins = logins.Length();
 
   // Don't abort here, if we didn't find any or failed, then we'll just have
   // to prompt.
@@ -652,7 +651,6 @@ nsresult nsMsgIncomingServer::GetPasswordWithoutUI() {
         break;
       }
     }
-    NS_FREE_XPCOM_ISUPPORTS_POINTER_ARRAY(numLogins, logins);
   }
   return NS_OK;
 }
@@ -757,9 +755,6 @@ nsMsgIncomingServer::ForgetPassword() {
 
   currServerUri.Append(temp);
 
-  uint32_t count;
-  nsILoginInfo **logins;
-
   NS_ConvertUTF8toUTF16 currServer(currServerUri);
 
   nsCString serverCUsername;
@@ -768,14 +763,14 @@ nsMsgIncomingServer::ForgetPassword() {
 
   NS_ConvertUTF8toUTF16 serverUsername(serverCUsername);
 
-  rv = loginMgr->FindLogins(&count, currServer, EmptyString(), currServer,
-                            &logins);
+  nsTArray<RefPtr<nsILoginInfo>> logins;
+  rv = loginMgr->FindLogins(currServer, EmptyString(), currServer, logins);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // There should only be one-login stored for this url, however just in case
   // there isn't.
   nsString username;
-  for (uint32_t i = 0; i < count; ++i) {
+  for (uint32_t i = 0; i < logins.Length(); ++i) {
     if (NS_SUCCEEDED(logins[i]->GetUsername(username)) &&
         username.Equals(serverUsername)) {
       // If this fails, just continue, we'll still want to remove the password
@@ -783,7 +778,6 @@ nsMsgIncomingServer::ForgetPassword() {
       loginMgr->RemoveLogin(logins[i]);
     }
   }
-  NS_FREE_XPCOM_ISUPPORTS_POINTER_ARRAY(count, logins);
 
   return SetPassword(EmptyString());
 }

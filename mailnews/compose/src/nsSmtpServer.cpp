@@ -390,14 +390,13 @@ nsresult nsSmtpServer::GetPasswordWithoutUI() {
 
   NS_ConvertASCIItoUTF16 serverUri(GetServerURIInternal(false));
 
-  uint32_t numLogins = 0;
-  nsILoginInfo **logins = nullptr;
-  rv = loginMgr->FindLogins(&numLogins, serverUri, EmptyString(), serverUri,
-                            &logins);
+  nsTArray<RefPtr<nsILoginInfo>> logins;
+  rv = loginMgr->FindLogins(serverUri, EmptyString(), serverUri, logins);
   // Login manager can produce valid fails, e.g. NS_ERROR_ABORT when a user
   // cancels the master password dialog. Therefore handle that here, but don't
   // warn about it.
   if (NS_FAILED(rv)) return rv;
+  uint32_t numLogins = logins.Length();
 
   // Don't abort here, if we didn't find any or failed, then we'll just have
   // to prompt.
@@ -421,7 +420,6 @@ nsresult nsSmtpServer::GetPasswordWithoutUI() {
       }
     }
   }
-  NS_FREE_XPCOM_ISUPPORTS_POINTER_ARRAY(numLogins, logins);
   return NS_OK;
 }
 
@@ -536,9 +534,6 @@ nsSmtpServer::ForgetPassword() {
     serverUri.Append(escapedHostname);
   }
 
-  uint32_t count;
-  nsILoginInfo **logins;
-
   NS_ConvertUTF8toUTF16 currServer(serverUri);
 
   nsCString serverCUsername;
@@ -547,14 +542,14 @@ nsSmtpServer::ForgetPassword() {
 
   NS_ConvertUTF8toUTF16 serverUsername(serverCUsername);
 
-  rv = loginMgr->FindLogins(&count, currServer, EmptyString(), currServer,
-                            &logins);
+  nsTArray<RefPtr<nsILoginInfo>> logins;
+  rv = loginMgr->FindLogins(currServer, EmptyString(), currServer, logins);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // There should only be one-login stored for this url, however just in case
   // there isn't.
   nsString username;
-  for (uint32_t i = 0; i < count; ++i) {
+  for (uint32_t i = 0; i < logins.Length(); ++i) {
     if (NS_SUCCEEDED(logins[i]->GetUsername(username)) &&
         username.Equals(serverUsername)) {
       // If this fails, just continue, we'll still want to remove the password
@@ -562,7 +557,6 @@ nsSmtpServer::ForgetPassword() {
       loginMgr->RemoveLogin(logins[i]);
     }
   }
-  NS_FREE_XPCOM_ISUPPORTS_POINTER_ARRAY(count, logins);
 
   rv = SetPassword(EmptyString());
   m_logonFailed = true;
