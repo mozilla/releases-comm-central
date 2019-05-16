@@ -460,7 +460,9 @@ DONE:
 }
 
 nsresult nsMsgAttachmentHandler::PickCharset() {
-  if (!m_charset.IsEmpty() || !m_type.LowerCaseEqualsLiteral(TEXT_PLAIN))
+  if (!m_charset.IsEmpty() ||
+      !StringBeginsWith(m_type, NS_LITERAL_CSTRING("text/"),
+                        nsCaseInsensitiveCStringComparator()))
     return NS_OK;
 
   if (!mTmpFile) return NS_OK;
