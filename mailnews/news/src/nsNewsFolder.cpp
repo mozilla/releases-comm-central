@@ -1186,7 +1186,8 @@ NS_IMETHODIMP nsMsgNewsFolder::ForgetAuthenticationCredentials() {
 
   // There should only be one-login stored for this url, however just in case
   // there isn't.
-  for (uint32_t i = 0; i < logins.Length(); ++i) loginMgr->RemoveLogin(logins[i]);
+  for (uint32_t i = 0; i < logins.Length(); ++i)
+    loginMgr->RemoveLogin(logins[i]);
 
   // Clear out the saved passwords for anyone else who tries to call.
   mGroupUsername.Truncate();
