@@ -40,7 +40,7 @@ var gMigrateWizard = {
 
         migLOG("migrators: " + window.arguments.length);
         for (let migrator of window.arguments[0]) {
-            let checkbox = document.createElement("checkbox");
+            let checkbox = document.createXULElement("checkbox");
             checkbox.setAttribute("checked", true);
             checkbox.setAttribute("label", migrator.title);
             checkbox.migrator = migrator;

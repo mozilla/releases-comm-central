@@ -332,7 +332,7 @@ function onViewToolbarsPopupShowing(aEvent, toolboxIds, aInsertPoint) {
 
       let toolbarName = toolbar.getAttribute("toolbarname");
       if (toolbarName) {
-        let menuItem = document.createElement("menuitem");
+        let menuItem = document.createXULElement("menuitem");
         let hidingAttribute = toolbar.getAttribute("type") == "menubar" ?
                               "autohide" : "collapsed";
         menuItem.setAttribute("type", "checkbox");

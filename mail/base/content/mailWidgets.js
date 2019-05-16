@@ -89,7 +89,7 @@ class MozMailHeaderfieldTags extends MozXULElement {
       }
 
       // now create a label for the tag name, and set the color
-      const label = document.createElement("label");
+      const label = document.createXULElement("label");
       label.setAttribute("value", tagName);
       label.className = "tagvalue";
       label.setAttribute("style", "color: " + textColor + "; background-color: " + color + ";");
@@ -121,9 +121,9 @@ class MozMailNewsgroupsHeaderfield extends MozXULElement {
 
   buildViews() {
     for (let i = 0; i < this.mNewsgroups.length; i++) {
-      const newNode = document.createElement("mail-newsgroup");
+      const newNode = document.createXULElement("mail-newsgroup");
       if (i > 0) {
-        const textNode = document.createElement("text");
+        const textNode = document.createXULElement("text");
         textNode.setAttribute("value", ",");
         textNode.setAttribute("class", "newsgroupSeparator");
         this.appendChild(textNode);
@@ -202,14 +202,14 @@ class MozMailMessageidsHeaderfield extends MozXULElement {
     this.mMessageIds = [];
     this.showFullMessageIds = false;
 
-    this.toggleIcon = document.createElement("image");
+    this.toggleIcon = document.createXULElement("image");
     this.toggleIcon.classList.add("emailToggleHeaderfield");
     this.toggleIcon.addEventListener("click", () => {
       this._toggleWrap();
     });
     this.appendChild(this.toggleIcon);
 
-    this.headerValue = document.createElement("hbox");
+    this.headerValue = document.createXULElement("hbox");
     this.headerValue.classList.add("headerValue");
     this.headerValue.setAttribute("flex", "1");
     this.appendChild(this.headerValue);
@@ -244,10 +244,10 @@ class MozMailMessageidsHeaderfield extends MozXULElement {
         this._updateMessageIdNode(this.headerValue.childNodes[i * 2], i + 1,
           this.mMessageIds[i], this.mMessageIds.length);
       } else {
-        let newMessageIdNode = document.createElement("mail-messageid");
+        let newMessageIdNode = document.createXULElement("mail-messageid");
 
         if (i > 0) {
-          let textNode = document.createElement("text");
+          let textNode = document.createXULElement("text");
           textNode.setAttribute("value", ", ");
           textNode.setAttribute("class", "messageIdSeparator");
           this.headerValue.appendChild(textNode);
@@ -306,14 +306,14 @@ class MozMailEmailaddress extends MozXULElement {
     this.setAttribute("context", "emailAddressPopup");
     this.setAttribute("popup", "emailAddressPopup");
 
-    const label = document.createElement("label");
+    const label = document.createXULElement("label");
     label.classList.add("emaillabel");
 
-    const emailStarImage = document.createElement("image");
+    const emailStarImage = document.createXULElement("image");
     emailStarImage.classList.add("emailStar");
     emailStarImage.setAttribute("context", "emailAddressPopup");
 
-    const emailPresenceImage = document.createElement("image");
+    const emailPresenceImage = document.createXULElement("image");
     emailPresenceImage.classList.add("emailPresence");
 
     this.appendChild(label);
@@ -387,7 +387,7 @@ class MozMailEmailheaderfield extends MozXULElement {
     if (this.hasChildNodes() || this.delayConnectedCallback()) {
       return;
     }
-    this._mailEmailAddress = document.createElement("mail-emailaddress");
+    this._mailEmailAddress = document.createXULElement("mail-emailaddress");
     this._mailEmailAddress.classList.add("headerValue");
     this._mailEmailAddress.setAttribute("containsEmail", "true");
 
@@ -409,7 +409,7 @@ class MozTreecolImage extends customElements.get("treecol") {
     if (this.hasChildNodes() || this.delayConnectedCallback()) {
       return;
     }
-    this.image = document.createElement("image");
+    this.image = document.createXULElement("image");
     this.image.classList.add("treecol-icon");
 
     this.appendChild(this.image);
@@ -573,7 +573,7 @@ customElements.define("thread-pane-treecolpicker", MozThreadPaneTreeColpicker, {
 // The menulist CE is defined lazily. Create one now to get menulist defined,
 // allowing us to inherit from it.
 if (!customElements.get("menulist")) {
-  delete document.createElement("menulist");
+  delete document.createXULElement("menulist");
 }
 customElements.whenDefined("menulist").then(() => {
   /**
@@ -596,7 +596,7 @@ customElements.whenDefined("menulist").then(() => {
       this._dropmarker = this.querySelector(".menulist-dropmarker");
 
       if (this.getAttribute("type") == "description") {
-        this._description = document.createElement("label");
+        this._description = document.createXULElement("label");
         this._description.classList.add("menulist-description");
         this._description.setAttribute("crop", "right");
         this._description.setAttribute("flex", "10000");
@@ -794,20 +794,20 @@ class MozMailMultiEmailheaderfield extends MozXULElement {
       return;
     }
 
-    this.longEmailAddresses = document.createElement("hbox");
+    this.longEmailAddresses = document.createXULElement("hbox");
     this.longEmailAddresses.classList.add("headerValueBox");
     this.longEmailAddresses.setAttribute("flex", "1");
     this.longEmailAddresses.setAttribute("singleline", "true");
     this.longEmailAddresses.setAttribute("align", "baseline");
 
-    this.emailAddresses = document.createElement("description");
+    this.emailAddresses = document.createXULElement("description");
     this.emailAddresses.classList.add("class", "headerValue");
     this.emailAddresses.setAttribute("containsEmail", "true");
     this.emailAddresses.setAttribute("flex", "1");
     this.emailAddresses.setAttribute("orient", "vertical");
     this.emailAddresses.setAttribute("pack", "start");
 
-    this.more = document.createElement("label");
+    this.more = document.createXULElement("label");
     this.more.classList.add("class", "moreIndicator");
     this.more.addEventListener("click", this.toggleWrap.bind(this));
     this.more.setAttribute("collapsed", "true");
@@ -906,7 +906,7 @@ class MozMailMultiEmailheaderfield extends MozXULElement {
         newAddressNode = this.emailAddresses.childNodes[i * 2];
         newAddressNode.hidden = false;
       } else {
-        newAddressNode = document.createElement("mail-emailaddress");
+        newAddressNode = document.createXULElement("mail-emailaddress");
 
         // Stash the headerName somewhere that UpdateEmailNodeDetails will be able to find it.
         newAddressNode.setAttribute("headerName", this.headerName);
@@ -1004,7 +1004,7 @@ class MozMailMultiEmailheaderfield extends MozXULElement {
    */
   appendComma() {
     // Create and append a comma.
-    let commaNode = document.createElement("text");
+    let commaNode = document.createXULElement("text");
     commaNode.setAttribute("value", ",");
     commaNode.setAttribute("class", "emailSeparator");
     this.emailAddresses.appendChild(commaNode);

@@ -4,18 +4,18 @@
 
 var accountOptionsHelper = {
   createTextbox(aType, aValue, aLabel, aName) {
-    let container = document.createElement("hbox");
+    let container = document.createXULElement("hbox");
     container.setAttribute("align", "baseline");
     container.setAttribute("equalsize", "always");
 
-    let label = document.createElement("label");
+    let label = document.createXULElement("label");
     label.textContent = aLabel;
     label.setAttribute("control", aName);
     label.setAttribute("flex", "1");
     container.appendChild(label);
 
-    let hbox = document.createElement("hbox");
-    let textbox = document.createElement("textbox");
+    let hbox = document.createXULElement("hbox");
+    let textbox = document.createXULElement("textbox");
     if (aType) {
       textbox.setAttribute("type", aType);
     }
@@ -31,23 +31,23 @@ var accountOptionsHelper = {
   },
 
   createMenulist(aList, aLabel, aName) {
-    let vbox = document.createElement("vbox");
-    let hbox = document.createElement("hbox");
+    let vbox = document.createXULElement("vbox");
+    let hbox = document.createXULElement("hbox");
 
-    let label = document.createElement("label");
+    let label = document.createXULElement("label");
     label.setAttribute("value", aLabel);
     label.setAttribute("control", aName);
     hbox.appendChild(label);
     vbox.appendChild(hbox);
 
     aList.QueryInterface(Ci.nsISimpleEnumerator);
-    let menulist = document.createElement("menulist");
+    let menulist = document.createXULElement("menulist");
     menulist.setAttribute("id", aName);
     menulist.setAttribute("flex", "1");
-    let popup = menulist.appendChild(document.createElement("menupopup"));
+    let popup = menulist.appendChild(document.createXULElement("menupopup"));
     while (aList.hasMoreElements()) {
       let elt = aList.getNext();
-      let item = document.createElement("menuitem");
+      let item = document.createXULElement("menuitem");
       item.setAttribute("label", elt.name);
       item.setAttribute("value", elt.value);
       popup.appendChild(item);
@@ -71,8 +71,8 @@ var accountOptionsHelper = {
       let name = aIdPrefix + opt.name;
       switch (opt.type) {
         case Ci.prplIPref.typeBool:
-          let chk = document.createElement("checkbox");
-          let hbox = document.createElement("hbox");
+          let chk = document.createXULElement("checkbox");
+          let hbox = document.createXULElement("hbox");
           hbox.setAttribute("flex", "1");
           chk.setAttribute("label", text);
           chk.setAttribute("id", name);

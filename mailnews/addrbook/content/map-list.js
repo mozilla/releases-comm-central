@@ -105,7 +105,7 @@
 
       // Creates the menuitem with supplied data.
       function addMapService(url, name) {
-        let item = document.createElement("menuitem");
+        let item = document.createXULElement("menuitem");
         item.setAttribute("url", url);
         item.setAttribute("label", name);
         item.setAttribute("type", "radio");

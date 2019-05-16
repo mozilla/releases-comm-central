@@ -263,7 +263,7 @@ class MozFacetBoolean extends HTMLElement {
     this.bubble = document.createElement("span");
     this.bubble.classList.add("facet-checkbox-bubble");
 
-    this.checkbox = document.createElement("input");
+    this.checkbox = document.createXULElement("input");
     this.checkbox.setAttribute("type", "checkbox");
 
     this.labelNode = document.createElement("span");

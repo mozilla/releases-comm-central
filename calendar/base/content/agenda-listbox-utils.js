@@ -287,9 +287,9 @@ agendaListbox.getEnd = function() {
 agendaListbox.addItemBefore = function(aNewItem, aAgendaItem, aPeriod, visible) {
     let newelement = null;
     if (aNewItem.startDate.isDate) {
-        newelement = document.createElement("richlistitem", { is: "agenda-allday-richlist-item" });
+        newelement = document.createXULElement("richlistitem", { is: "agenda-allday-richlist-item" });
     } else {
-        newelement = document.createElement("richlistitem", { is: "agenda-richlist-item" });
+        newelement = document.createXULElement("richlistitem", { is: "agenda-richlist-item" });
     }
     // set the item at the richlistItem. When the duration of the period
     // is bigger than 1 (day) the starttime of the item has to include

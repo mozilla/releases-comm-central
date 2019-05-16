@@ -708,12 +708,12 @@ function rebuildFilterList() {
       enabledCell = nameCell.nextSibling;
     } else {
       // If there are not enough listitems in the list, create a new one.
-      listitem = document.createElement("richlistitem");
+      listitem = document.createXULElement("richlistitem");
       listitem.setAttribute("align", "center");
       listitem.setAttribute("role", "checkbox");
-      nameCell = document.createElement("label");
+      nameCell = document.createXULElement("label");
       nameCell.setAttribute("flex", "1");
-      enabledCell = document.createElement("checkbox");
+      enabledCell = document.createXULElement("checkbox");
       enabledCell.setAttribute("style", "padding-inline-start: 25px;");
       enabledCell.addEventListener("CheckboxStateChange", onFilterClick, true);
       listitem.appendChild(nameCell);

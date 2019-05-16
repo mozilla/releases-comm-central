@@ -1584,11 +1584,11 @@ var gAccountTree = {
       }
 
       // Create the top level tree-item.
-      let treeitem = document.createElement("treeitem");
+      let treeitem = document.createXULElement("treeitem");
       mainTree.appendChild(treeitem);
-      let treerow = document.createElement("treerow");
+      let treerow = document.createXULElement("treerow");
       treeitem.appendChild(treerow);
-      let treecell = document.createElement("treecell");
+      let treecell = document.createXULElement("treecell");
       treerow.appendChild(treecell);
       treecell.setAttribute("label", accountName);
       treeitem.setAttribute("PageTag", amChrome);
@@ -1604,14 +1604,14 @@ var gAccountTree = {
       }
 
       if (panelsToKeep.length > 0) {
-        var treekids = document.createElement("treechildren");
+        var treekids = document.createXULElement("treechildren");
         treeitem.appendChild(treekids);
         for (let panel of panelsToKeep) {
-          var kidtreeitem = document.createElement("treeitem");
+          var kidtreeitem = document.createXULElement("treeitem");
           treekids.appendChild(kidtreeitem);
-          var kidtreerow = document.createElement("treerow");
+          var kidtreerow = document.createXULElement("treerow");
           kidtreeitem.appendChild(kidtreerow);
-          var kidtreecell = document.createElement("treecell");
+          var kidtreecell = document.createXULElement("treecell");
           kidtreerow.appendChild(kidtreecell);
           setAccountLabel(null, kidtreecell, panel.string);
           kidtreeitem.setAttribute("PageTag", panel.src);
@@ -1631,11 +1631,11 @@ var gAccountTree = {
     markDefaultServer(MailServices.accounts.defaultAccount, null);
 
     // Now add the outgoing server node.
-    let treeitem = document.createElement("treeitem");
+    let treeitem = document.createXULElement("treeitem");
     mainTree.appendChild(treeitem);
-    let treerow = document.createElement("treerow");
+    let treerow = document.createXULElement("treerow");
     treeitem.appendChild(treerow);
-    let treecell = document.createElement("treecell");
+    let treecell = document.createXULElement("treecell");
     treerow.appendChild(treecell);
     treecell.setAttribute("label", getString("prefPanel-smtp"));
     treeitem.setAttribute("PageTag", "am-smtp.xul");

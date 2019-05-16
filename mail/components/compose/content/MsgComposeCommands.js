@@ -204,7 +204,7 @@ var PrintPreviewListener = {
       gChromeState = {};
     preparePrintPreviewTitleHeader();
     if (!browser) {
-      browser = document.createElement("browser");
+      browser = document.createXULElement("browser");
       browser.setAttribute("id", "cppBrowser");
       browser.setAttribute("flex", "1");
       browser.setAttribute("disablehistory", "true");
@@ -1449,7 +1449,7 @@ function addAttachCloudMenuItems(aParentMenu) {
     aParentMenu.lastChild.remove();
 
   for (let account of cloudFileAccounts.configuredAccounts) {
-    let item = document.createElement("menuitem");
+    let item = document.createXULElement("menuitem");
     let iconURL = account.iconURL;
     item.cloudFileAccount = account;
     item.setAttribute("label", cloudFileAccounts.getDisplayName(account));
@@ -1474,7 +1474,7 @@ function addConvertCloudMenuItems(aParentMenu, aAfterNodeId, aRadioGroup) {
   }
 
   for (let account of cloudFileAccounts.configuredAccounts) {
-    let item = document.createElement("menuitem");
+    let item = document.createXULElement("menuitem");
     let iconURL = account.iconURL;
     item.cloudFileAccount = account;
     item.setAttribute("label", cloudFileAccounts.getDisplayName(account));
@@ -2142,20 +2142,20 @@ function manageAttachmentNotification(aForce = false) {
   }
 
   // Construct the notification as we don't have one.
-  let msg = document.createElement("hbox");
+  let msg = document.createXULElement("hbox");
   msg.setAttribute("flex", "100");
   msg.onclick = function(event) {
     openOptionsDialog("paneCompose", "generalTab",
                       {subdialog: "attachment_reminder_button"});
   };
 
-  let msgText = document.createElement("label");
+  let msgText = document.createXULElement("label");
   msg.appendChild(msgText);
   msgText.id = "attachmentReminderText";
   msgText.setAttribute("crop", "end");
   msgText.setAttribute("flex", "1");
   msgText.setAttribute("value", textValue);
-  let msgKeywords = document.createElement("label");
+  let msgKeywords = document.createXULElement("label");
   msg.appendChild(msgKeywords);
   msgKeywords.id = "attachmentKeywords";
   msgKeywords.setAttribute("crop", "end");
@@ -2170,9 +2170,9 @@ function manageAttachmentNotification(aForce = false) {
     },
   };
 
-  let remindLaterMenuPopup = document.createElement("menupopup");
+  let remindLaterMenuPopup = document.createXULElement("menupopup");
   remindLaterMenuPopup.id = "reminderBarPopup";
-  let disableAttachmentReminder = document.createElement("menuitem");
+  let disableAttachmentReminder = document.createXULElement("menuitem");
   disableAttachmentReminder.id = "disableReminder";
   disableAttachmentReminder.setAttribute("label",
     getComposeBundle().getString("disableAttachmentReminderButton"));
@@ -2460,7 +2460,7 @@ function onPasteOrDrop(e) {
 function ComposeStartup(aParams) {
   // Findbar overlay
   if (!document.getElementById("findbar-replaceButton")) {
-    let replaceButton = document.createElement("toolbarbutton");
+    let replaceButton = document.createXULElement("toolbarbutton");
     replaceButton.setAttribute("id", "findbar-replaceButton");
     replaceButton.setAttribute("class", "findbar-button tabbable");
     replaceButton.setAttribute("label", getComposeBundle().getString("replaceButton.label"));
@@ -2470,7 +2470,7 @@ function ComposeStartup(aParams) {
 
     let findbar = document.getElementById("FindToolbar");
     let lastButton = findbar.getElement("find-entire-word");
-    let tSeparator = document.createElement("toolbarseparator");
+    let tSeparator = document.createXULElement("toolbarseparator");
     tSeparator.setAttribute("id", "findbar-beforeReplaceSeparator");
     lastButton.parentNode.insertBefore(replaceButton, lastButton.nextSibling);
     lastButton.parentNode.insertBefore(tSeparator, lastButton.nextSibling);
@@ -3792,7 +3792,7 @@ function InitLanguageMenu() {
     languageMenuList.lastChild.remove();
 
   for (let i = 0; i < count; i++) {
-    var item = document.createElement("menuitem");
+    var item = document.createXULElement("menuitem");
     item.setAttribute("label", sortedList[i].displayName);
     item.setAttribute("value", sortedList[i].localeCode);
     item.setAttribute("type", "radio");
@@ -3965,7 +3965,7 @@ function FillIdentityList(menulist) {
       // or previous account.
       if (!firstAccountWithIdentities) {
         // only if this is not the first account shown
-        let separator = document.createElement("menuseparator");
+        let separator = document.createXULElement("menuseparator");
         menulist.menupopup.appendChild(separator);
       }
       accountHadSeparator = needSeparator;
@@ -3994,8 +3994,8 @@ function FillIdentityList(menulist) {
     }
   }
 
-  menulist.menupopup.appendChild(document.createElement("menuseparator"));
-  menulist.menupopup.appendChild(document.createElement("menuitem"))
+  menulist.menupopup.appendChild(document.createXULElement("menuseparator"));
+  menulist.menupopup.appendChild(document.createXULElement("menuitem"))
           .setAttribute("command", "cmd_customizeFromAddress");
 }
 
@@ -6838,7 +6838,7 @@ function onBlockedContentOptionsShowing(aEvent) {
 
   // ... and in with the new.
   for (let url of urls) {
-    let menuitem = document.createElement("menuitem");
+    let menuitem = document.createXULElement("menuitem");
     menuitem.setAttribute("label",
       getComposeBundle().getFormattedString("blockedAllowResource", [url]));
     menuitem.setAttribute("crop", "center");

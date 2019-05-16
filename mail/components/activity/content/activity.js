@@ -26,7 +26,7 @@ var activityObject = {
    */
   createActivityWidget(type) {
     let builtInName = type.bindingName;
-    let element = document.createElement("richlistitem", { is: builtInName });
+    let element = document.createXULElement("richlistitem", { is: builtInName });
 
     if (element) {
       element.setAttribute("actID", type.id);
@@ -93,7 +93,7 @@ var activityObject = {
                                                  aActivity.contextObj);
         // create a group if it's not already created.
         if (!group) {
-          group = document.createElement("richlistitem", { is: "activity-group" });
+          group = document.createXULElement("richlistitem", { is: "activity-group" });
           this._activityLogger.info("created group element");
           // Set the context type and object of the newly created group
           group.contextType = aActivity.contextType;

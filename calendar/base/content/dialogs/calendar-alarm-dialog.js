@@ -292,7 +292,7 @@ function widgetAlarmComptor(aItem, aWidgetItem) {
  * @param aAlarm      The alarm to add a widget for.
  */
 function addWidgetFor(aItem, aAlarm) {
-    let widget = document.createElement("calendar-alarm-widget");
+    let widget = document.createXULElement("calendar-alarm-widget");
     let alarmRichlist = document.getElementById("alarm-richlist");
 
     // Add widgets sorted by start date ascending

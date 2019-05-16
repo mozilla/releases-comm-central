@@ -1106,11 +1106,11 @@ class MozCalendarEventAttendeesList extends MozElements.RichListBox {
      * @returns {Node}       Dummy item
      */
     createDummyItem() {
-        let titem = document.createElement("richlistitem");
+        let titem = document.createXULElement("richlistitem");
         titem.setAttribute("_isDummyRow", "true");
         titem.setAttribute("class", "dummy-row");
         for (let i = this.mNumColumns; i > 0; i--) {
-            let cell = document.createElement("hbox");
+            let cell = document.createXULElement("hbox");
             cell.setAttribute("class", "addressingWidgetCell dummy-row-cell");
             titem.appendChild(cell);
         }
@@ -1389,9 +1389,9 @@ customElements.define("calendar-event-attendees-list", MozCalendarEventAttendees
 class MozCalendarEventFreebusyRow extends MozXULElement {
     connectedCallback() {
         if (!this.hasChildNodes()) {
-            this.containerNodeElem = document.createElement("calendar-event-scroll-container");
+            this.containerNodeElem = document.createXULElement("calendar-event-scroll-container");
             this.containerNodeElem.setAttribute("flex", "1");
-            this.hoursNodeElem = document.createElement("box");
+            this.hoursNodeElem = document.createXULElement("box");
             this.hoursNodeElem.setAttribute("equalsize", "always");
             this.containerNodeElem.appendChild(this.hoursNodeElem);
             this.appendChild(this.containerNodeElem);
@@ -1854,14 +1854,14 @@ customElements.define("calendar-event-freebusy-row", MozCalendarEventFreebusyRow
 class MozCalendarEventFreebusyDay extends MozXULElement {
     connectedCallback() {
         if (!this.hasChildNodes()) {
-            const wrapper = document.createElement("box");
+            const wrapper = document.createXULElement("box");
             wrapper.setAttribute("orient", "vertical");
 
-            this.text = document.createElement("text");
+            this.text = document.createXULElement("text");
             this.text.classList.add("freebusy-timebar-title");
             this.text.style.fontWeight = "bold";
 
-            this.box = document.createElement("box");
+            this.box = document.createXULElement("box");
             this.box.setAttribute("equalsize", "always");
 
             wrapper.appendChild(this.text);
@@ -2071,10 +2071,10 @@ class MozCalendarEventScrollContainer extends MozXULElement {
         if (!this.delayConnectedCallback() || !this.container || !this.content) {
             const childrenFragment = this._getChildrenFragment();
 
-            this.container = document.createElement("box");
+            this.container = document.createXULElement("box");
             this.container.classList.add("container");
 
-            this.content = document.createElement("box");
+            this.content = document.createXULElement("box");
             this.content.classList.add("content");
 
             this.content.appendChild(childrenFragment);
@@ -3192,10 +3192,10 @@ class MozCalendarEventFreebusyGrid extends MozElements.RichListBox {
      * @returns {Node}       Dummy item
      */
     createDummyItem() {
-        let item = document.createElement("richlistitem");
+        let item = document.createXULElement("richlistitem");
         item.setAttribute("_isDummyRow", "true");
         item.setAttribute("class", "dummy-row");
-        let cell = document.createElement("hbox");
+        let cell = document.createXULElement("hbox");
         cell.setAttribute("flex", "1");
         cell.setAttribute("class", "addressingWidgetCell dummy-row-cell");
         item.appendChild(cell);

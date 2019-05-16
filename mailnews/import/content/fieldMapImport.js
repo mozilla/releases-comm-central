@@ -77,25 +77,25 @@ function ListFields() {
 }
 
 function CreateField(name, index, on) {
-  var item = document.createElement("richlistitem");
+  var item = document.createXULElement("richlistitem");
   item.setAttribute("align", "center");
   item.setAttribute("field-index", index);
   item.setAttribute("allowevents", "true");
 
-  var checkboxCell = document.createElement("hbox");
+  var checkboxCell = document.createXULElement("hbox");
   checkboxCell.setAttribute("style", "width: var(--column1width)");
-  let checkbox = document.createElement("checkbox");
+  let checkbox = document.createXULElement("checkbox");
   checkbox.addEventListener("click", cellClicked);
   if (on) {
     checkbox.setAttribute("checked", "true");
   }
   checkboxCell.appendChild(checkbox);
 
-  var firstCell = document.createElement("label");
+  var firstCell = document.createXULElement("label");
   firstCell.setAttribute("style", "width: var(--column2width)");
   firstCell.setAttribute("value", name);
 
-  var secondCell = document.createElement("label");
+  var secondCell = document.createXULElement("label");
   secondCell.setAttribute("class", "importsampledata");
   secondCell.setAttribute("flex", "1");
 

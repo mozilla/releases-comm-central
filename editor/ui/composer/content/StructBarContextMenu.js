@@ -151,7 +151,7 @@ function OnKeyPress(event)
     editor.beginTransaction();
 
     try {
-      var newElt = editor.document.createElement(newTag);
+      var newElt = editor.document.createXULElement(newTag);
       if (newElt) {
         childNodes = element.childNodes;
         var childNodesLength = childNodes.length;

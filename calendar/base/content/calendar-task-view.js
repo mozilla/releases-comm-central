@@ -180,7 +180,7 @@ var taskDetailsView = {
             categoryPopup.lastElementChild.remove();
         }
         if (maxCount == 1) {
-            let menuitem = document.createElement("menuitem");
+            let menuitem = document.createXULElement("menuitem");
             menuitem.setAttribute("class", "menuitem-iconic");
             menuitem.setAttribute("label", cal.l10n.getCalString("None"));
             menuitem.setAttribute("type", "radio");
@@ -190,7 +190,7 @@ var taskDetailsView = {
             categoryPopup.appendChild(menuitem);
         }
         for (let cat of categoryList) {
-            let menuitem = document.createElement("menuitem");
+            let menuitem = document.createXULElement("menuitem");
             menuitem.setAttribute("class", "menuitem-iconic calendar-category");
             menuitem.setAttribute("label", cat);
             menuitem.setAttribute("value", cat);
@@ -291,7 +291,7 @@ var taskDetailsView = {
             let item = document.getElementById("calendar-task-tree").currentTask;
             let maxCount = item.calendar.getProperty("capabilities.categories.maxCount");
 
-            let menuitem = document.createElement("menuitem");
+            let menuitem = document.createXULElement("menuitem");
             menuitem.setAttribute("class", "menuitem-iconic calendar-category");
             menuitem.setAttribute("label", category);
             menuitem.setAttribute("value", category);

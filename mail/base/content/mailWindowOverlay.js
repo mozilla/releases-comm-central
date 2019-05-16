@@ -991,7 +991,7 @@ function InitMessageTags(menuPopup) {
       continue;
 
     // TODO we want to either remove or "check" the tags that already exist
-    var newMenuItem = document.createElement("menuitem");
+    var newMenuItem = document.createXULElement("menuitem");
     SetMessageTagLabel(newMenuItem, i + 1, taginfo.tag);
     newMenuItem.setAttribute("value", taginfo.key);
     newMenuItem.setAttribute("type", "checkbox");
@@ -1017,7 +1017,7 @@ function InitRecentlyClosedTabsPopup(menuPopup) {
 
   // Rebuild the recently closed tab list
   for (let i = 0; i < tabs.length; i++) {
-    let menuItem = document.createElement("menuitem");
+    let menuItem = document.createXULElement("menuitem");
     menuItem.setAttribute("label", tabs[i].title);
     menuItem.setAttribute("oncommand", `document.getElementById("tabmail").undoCloseTab(${i});`);
 
@@ -1029,9 +1029,9 @@ function InitRecentlyClosedTabsPopup(menuPopup) {
 
   // "Restore All Tabs" with only one entry does not make sense
   if (tabs.length > 1) {
-    menuPopup.appendChild(document.createElement("menuseparator"));
+    menuPopup.appendChild(document.createXULElement("menuseparator"));
 
-    let menuItem = document.createElement("menuitem");
+    let menuItem = document.createXULElement("menuitem");
     menuItem.setAttribute("label", document.getElementById("bundle_messenger")
                                            .getString("restoreAllTabs"));
     menuItem.setAttribute("oncommand", "goRestoreAllTabs();");
@@ -1112,7 +1112,7 @@ function populateHistoryMenu(menuPopup, isBackMenu) {
       menuText += subject + " - ";
 
     menuText += msgHdr.mime2DecodedAuthor;
-    newMenuItem = document.createElement("menuitem");
+    newMenuItem = document.createXULElement("menuitem");
     newMenuItem.setAttribute("label", menuText);
     relPos += isBackMenu ? -1 : 1;
     newMenuItem.setAttribute("value", relPos);
@@ -2792,7 +2792,7 @@ function onRemoteContentOptionsShowing(aEvent) {
 
   // ... and in with the new.
   for (let origin of origins) {
-    let menuitem = document.createElement("menuitem");
+    let menuitem = document.createXULElement("menuitem");
     menuitem.setAttribute("label",
       messengerBundle.getFormattedString("remoteAllowResource",
         [origin.replace("chrome://messenger/content/email=", "")]));
@@ -3259,7 +3259,7 @@ async function initAddonPrefsMenu(aMenupopup) {
   if (addonsFound.length > 0) {
     addonsFound.sort((a, b) => a.addon.name.localeCompare(b.addon.name));
     for (let { addon, optionsURL, optionsOpenInTab } of addonsFound) {
-      let newItem = document.createElement("menuitem");
+      let newItem = document.createXULElement("menuitem");
       newItem.setAttribute("label", addon.name);
       newItem.setAttribute("value", optionsURL);
       if (optionsOpenInTab) {

@@ -22,7 +22,7 @@
             if (this.delayConnectedCallback() || this.hasChildNodes()) {
                 return;
             }
-            this.kCheckbox = document.createElement("checkbox");
+            this.kCheckbox = document.createXULElement("checkbox");
             this.kCheckbox.classList.add("agenda-checkbox", "treenode-checkbox");
             this.appendChild(this.kCheckbox);
 

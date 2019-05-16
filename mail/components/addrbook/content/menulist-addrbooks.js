@@ -5,7 +5,7 @@
  // The menulist CE is defined lazily. Create one now to get menulist defined,
 // allowing us to inherit from it.
 if (!customElements.get("menulist")) {
-  delete document.createElement("menulist");
+  delete document.createXULElement("menulist");
 }
 
 customElements.whenDefined("menulist").then(() => {

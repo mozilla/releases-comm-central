@@ -393,7 +393,7 @@ function InitBirthDateFields() {
   if (birthMonth.menupopup.childElementCount == 1) {
     let formatter = Intl.DateTimeFormat(undefined, { month: "long" });
     for (let m = 1; m <= 12; m++) {
-      let menuitem = document.createElement("menuitem");
+      let menuitem = document.createXULElement("menuitem");
       menuitem.setAttribute("value", m);
       menuitem.setAttribute("label", formatter.format(new Date(2000, m - 1, 2)));
       birthMonth.menupopup.appendChild(menuitem);
@@ -401,7 +401,7 @@ function InitBirthDateFields() {
 
     formatter = Intl.DateTimeFormat(undefined, { day: "numeric" });
     for (let d = 1; d <= 31; d++) {
-      let menuitem = document.createElement("menuitem");
+      let menuitem = document.createXULElement("menuitem");
       menuitem.setAttribute("value", d);
       menuitem.setAttribute("label", formatter.format(new Date(2000, 0, d)));
       birthDay.menupopup.appendChild(menuitem);

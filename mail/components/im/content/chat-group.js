@@ -27,10 +27,10 @@ class MozChatGroup extends MozElements.MozRichlistitem {
     this.setAttribute("is", "chat-group");
     this.setAttribute("collapsed", "true");
 
-    this._image = document.createElement("image");
+    this._image = document.createXULElement("image");
     this._image.classList.add("twisty");
 
-    this._label = document.createElement("label");
+    this._label = document.createXULElement("label");
     this._label.setAttribute("flex", "1");
     this._label.setAttribute("crop", "end");
 
@@ -88,9 +88,9 @@ class MozChatGroup extends MozElements.MozRichlistitem {
 
     let contactElt;
     if (tagName) {
-      contactElt = document.createElement("richlistitem", { is: "chat-imconv" });
+      contactElt = document.createXULElement("richlistitem", { is: "chat-imconv" });
     } else {
-      contactElt = document.createElement("richlistitem", { is: "chat-contact" });
+      contactElt = document.createXULElement("richlistitem", { is: "chat-contact" });
     }
     if (this.classList.contains("closed")) {
       contactElt.setAttribute("collapsed", "true");

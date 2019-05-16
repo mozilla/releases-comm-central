@@ -172,7 +172,7 @@ var MigrationWizard = {
     var sourceProfiles = this._migrator.sourceProfiles;
     var count = sourceProfiles.length;
     for (var i = 0; i < count; ++i) {
-      var item = document.createElement("radio");
+      var item = document.createXULElement("radio");
       item.id = sourceProfiles.queryElementAt(i, nsISupportsString).data;
       item.setAttribute("label", item.id);
       profiles.appendChild(item);
@@ -207,7 +207,7 @@ var MigrationWizard = {
     for (var i = 0; i < 16; ++i) {
       var itemID = (items >> i) & 0x1 ? Math.pow(2, i) : 0;
       if (itemID > 0) {
-        var checkbox = document.createElement("checkbox");
+        var checkbox = document.createXULElement("checkbox");
         checkbox.id = itemID;
         checkbox.setAttribute("label", bundle.getString(itemID + "_" + this._source));
         dataSources.appendChild(checkbox);
@@ -271,7 +271,7 @@ var MigrationWizard = {
     for (var i = 0; i < 16; ++i) {
       var itemID = (this._itemsFlags >> i) & 0x1 ? Math.pow(2, i) : 0;
       if (itemID > 0) {
-        var label = document.createElement("label");
+        var label = document.createXULElement("label");
         label.id = itemID + "_migrated";
         try {
           label.setAttribute("value", "- " + bundle.getString(itemID + "_" + this._source));

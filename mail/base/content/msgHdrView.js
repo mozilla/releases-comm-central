@@ -922,12 +922,12 @@ function HeaderView(headerName, label) {
   let newRowNode = document.getElementById(rowId);
   if (!newRowNode) {
     // Create new collapsed row.
-    newRowNode = document.createElement("row");
+    newRowNode = document.createXULElement("row");
     newRowNode.setAttribute("id", rowId);
     newRowNode.collapsed = true;
 
     // Create and append the label which contains the header name.
-    let newLabelNode = document.createElement("label");
+    let newLabelNode = document.createXULElement("label");
     newLabelNode.setAttribute("id", "expanded" + headerName + "Label");
     newLabelNode.setAttribute("value", label);
     newLabelNode.setAttribute("class", "headerName");
@@ -935,7 +935,7 @@ function HeaderView(headerName, label) {
     newRowNode.appendChild(newLabelNode);
 
     // Create and append the new header value.
-    newHeaderNode = document.createElement("mail-headerfield");
+    newHeaderNode = document.createXULElement("mail-headerfield");
     newHeaderNode.setAttribute("id", idName);
     newHeaderNode.setAttribute("flex", "1");
 
@@ -2616,7 +2616,7 @@ function addAttachmentToPopup(popup, attachment, attachmentIndex) {
   if (!popup)
     return;
 
-  var item = document.createElement("menu");
+  var item = document.createXULElement("menu");
   if (!item)
     return;
 
@@ -2647,7 +2647,7 @@ function addAttachmentToPopup(popup, attachment, attachmentIndex) {
 
   // Each attachment in the list gets its own menupopup with options for
   // saving, deleting, detaching, etc.
-  var openpopup = document.createElement("menupopup");
+  var openpopup = document.createXULElement("menupopup");
   openpopup = item.appendChild(openpopup);
   openpopup.addEventListener("popupshowing", function(aEvent) {
     aEvent.stopPropagation();
@@ -2685,7 +2685,7 @@ function addAttachmentToPopup(popup, attachment, attachmentIndex) {
   }
 
   // Create the "open" menu item
-  var menuitementry = document.createElement("menuitem");
+  var menuitementry = document.createXULElement("menuitem");
   menuitementry.attachment = attachment;
   menuitementry.setAttribute("oncommand", "this.attachment.open();");
   menuitementry.setAttribute("label", getString("openLabel"));
@@ -2694,11 +2694,11 @@ function addAttachmentToPopup(popup, attachment, attachmentIndex) {
   menuitementry = openpopup.appendChild(menuitementry);
 
   // Create a menuseparator
-  var menuseparator = document.createElement("menuseparator");
+  var menuseparator = document.createXULElement("menuseparator");
   openpopup.appendChild(menuseparator);
 
   // Create the "save" menu item
-  menuitementry = document.createElement("menuitem");
+  menuitementry = document.createXULElement("menuitem");
   menuitementry.attachment = attachment;
   menuitementry.setAttribute("oncommand", "this.attachment.save();");
   menuitementry.setAttribute("label", getString("saveLabel"));
@@ -2707,7 +2707,7 @@ function addAttachmentToPopup(popup, attachment, attachmentIndex) {
   menuitementry = openpopup.appendChild(menuitementry);
 
   // Create the "detach" menu item
-  menuitementry = document.createElement("menuitem");
+  menuitementry = document.createXULElement("menuitem");
   menuitementry.attachment = attachment;
   menuitementry.setAttribute("oncommand", "this.attachment.detach(true);");
   menuitementry.setAttribute("label", getString("detachLabel"));
@@ -2716,7 +2716,7 @@ function addAttachmentToPopup(popup, attachment, attachmentIndex) {
   menuitementry = openpopup.appendChild(menuitementry);
 
   // Create the "delete" menu item
-  menuitementry = document.createElement("menuitem");
+  menuitementry = document.createXULElement("menuitem");
   menuitementry.attachment = attachment;
   menuitementry.setAttribute("oncommand", "this.attachment.detach(false);");
   menuitementry.setAttribute("label", getString("deleteLabel"));
@@ -2726,9 +2726,9 @@ function addAttachmentToPopup(popup, attachment, attachmentIndex) {
 
   // Create the "open containing folder" menu item, for existing detached only.
   if (attachment.isFileAttachment) {
-    let menuseparator = document.createElement("menuseparator");
+    let menuseparator = document.createXULElement("menuseparator");
     openpopup.appendChild(menuseparator);
-    menuitementry = document.createElement("menuitem");
+    menuitementry = document.createXULElement("menuitem");
     menuitementry.attachment = attachment;
     menuitementry.setAttribute("oncommand", "this.attachment.openFolder();");
     menuitementry.setAttribute("label", getString("openFolderLabel"));

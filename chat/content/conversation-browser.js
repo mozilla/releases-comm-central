@@ -24,7 +24,7 @@ var {cleanupImMarkup} = ChromeUtils.import("resource:///modules/imContentSink.js
   // Create a fake to ensure browser exists in customElements, since otherwise
   // we can't extend it. Then make sure this fake doesn't stay around.
   if (!customElements.get("browser")) {
-    delete document.createElement("browser");
+    delete document.createXULElement("browser");
   }
 })();
 

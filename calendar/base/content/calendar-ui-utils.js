@@ -725,7 +725,7 @@ function setupAttendanceMenu(aMenu, aItems) {
                             let checkedId = "checked-" + item.getAttribute("id");
                             if (!document.getElementById(checkedId)) {
                                 let checked = item.ownerDocument
-                                                  .createElement("menuitem");
+                                                  .createXULElement("menuitem");
                                 checked.setAttribute("type", "checkbox");
                                 checked.setAttribute("checked", "true");
                                 checked.setAttribute("label",

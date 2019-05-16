@@ -363,8 +363,8 @@ function ListModules() {
 function AddModuleToList(moduleName, index) {
   var body = document.getElementById("moduleList");
 
-  let item = document.createElement("richlistitem");
-  let label = document.createElement("label");
+  let item = document.createXULElement("richlistitem");
+  let label = document.createXULElement("label");
   label.setAttribute("value", moduleName);
   item.appendChild(label);
   item.setAttribute("list-index", index);
@@ -377,8 +377,8 @@ function ListFeedAccounts() {
     body.lastChild.remove();
 
   // Add item to allow for new account creation.
-  let item = document.createElement("richlistitem");
-  let label = document.createElement("label");
+  let item = document.createXULElement("richlistitem");
+  let label = document.createXULElement("label");
   label.setAttribute("value", gFeedsBundle.getString("ImportFeedsCreateNewListItem"));
   item.appendChild(label);
   item.setAttribute("list-index", 0);
@@ -388,8 +388,8 @@ function ListFeedAccounts() {
   let feedRootFolders = FeedUtils.getAllRssServerRootFolders();
 
   feedRootFolders.forEach(function(rootFolder) {
-    item = document.createElement("richlistitem");
-    let label = document.createElement("label");
+    item = document.createXULElement("richlistitem");
+    let label = document.createXULElement("label");
     label.setAttribute("value", rootFolder.prettyName);
     item.appendChild(label);
     item.setAttribute("list-index", ++index);

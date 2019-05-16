@@ -156,25 +156,25 @@ class MozFolderSummary extends MozXULElement {
   }
 
   _folderSummaryMessagePopup() {
-    let vbox = document.createElement("vbox");
+    let vbox = document.createXULElement("vbox");
     vbox.setAttribute("class", "folderSummaryMessage");
 
-    let hbox = document.createElement("hbox");
+    let hbox = document.createXULElement("hbox");
     hbox.setAttribute("class", "folderSummary-message-row");
 
-    let subject = document.createElement("label");
+    let subject = document.createXULElement("label");
     subject.setAttribute("class", "folderSummary-subject");
     subject.setAttribute("flex", "1");
     subject.setAttribute("crop", "right");
 
-    let sender = document.createElement("label");
+    let sender = document.createXULElement("label");
     sender.setAttribute("class", "folderSummary-sender");
     sender.setAttribute("crop", "right");
 
     hbox.appendChild(subject);
     hbox.appendChild(sender);
 
-    let preview = document.createElement("description");
+    let preview = document.createXULElement("description");
     preview.setAttribute("class", "folderSummary-message-row folderSummary-previewText");
     preview.setAttribute("crop", "right");
 
@@ -255,7 +255,7 @@ class MozFolderTooltip extends MozFolderSummary {
       if (!folder.isServer &&
           gFolderTreeView.getLevel(folderIndex) == 0 &&
           !gFolderTreeView.getServerNameAdded(folderIndex)) {
-        let loc = document.createElement("label");
+        let loc = document.createXULElement("label");
         let midPath = "";
         let midFolder = folder.parent;
         while (folder.server.rootFolder != midFolder) {
@@ -273,7 +273,7 @@ class MozFolderTooltip extends MozFolderSummary {
           ((folder.server instanceof Ci.nsINntpIncomingServer) &&
            !(folder.flags & Ci.nsMsgFolderFlags.Virtual) &&
            folder.server.abbreviate) && !folder.isServer) {
-        let loc = document.createElement("label");
+        let loc = document.createXULElement("label");
         loc.setAttribute("value", folder.name);
         node.appendChild(loc);
         return true;
@@ -286,7 +286,7 @@ class MozFolderTooltip extends MozFolderSummary {
       if (!counts || !counts[1]) {
         return false;
       }
-      let expl = document.createElement("label");
+      let expl = document.createXULElement("label");
       let sumString = document.getElementById("bundle_messenger")
         .getFormattedString("subfoldersExplanation", [counts[0], counts[1]], 2);
       expl.setAttribute("value", sumString);
@@ -295,7 +295,7 @@ class MozFolderTooltip extends MozFolderSummary {
     }
 
   _addCroppedText(text, node) {
-      let expl = document.createElement("label");
+      let expl = document.createXULElement("label");
       expl.setAttribute("value", text);
       node.appendChild(expl);
       return true;

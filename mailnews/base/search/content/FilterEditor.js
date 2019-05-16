@@ -327,7 +327,7 @@ function initializeDialog(filter) {
   for (let actionIndex = 0; actionIndex < numActions; actionIndex++) {
     let filterAction = filter.getActionAt(actionIndex);
 
-    let newActionRow = document.createElement("richlistitem");
+    let newActionRow = document.createXULElement("richlistitem");
     newActionRow.setAttribute("initialActionIndex", actionIndex);
     newActionRow.className = "ruleaction";
     gFilterActionList.appendChild(newActionRow);
@@ -345,7 +345,7 @@ function initializeDialog(filter) {
 function ensureActionRow() {
   // make sure we have at least one action row visible to the user
   if (!gFilterActionList.getRowCount()) {
-    let newActionRow = document.createElement("richlistitem");
+    let newActionRow = document.createXULElement("richlistitem");
     newActionRow.className = "ruleaction";
     gFilterActionList.appendChild(newActionRow);
     newActionRow.mRemoveButton.disabled = true;

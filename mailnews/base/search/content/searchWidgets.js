@@ -22,15 +22,15 @@ const updateParentNode = (parentNode) => {
 
 class MozRuleactiontargetTag extends MozXULElement {
   connectedCallback() {
-    const menulist = document.createElement("menulist");
-    const menuPopup = document.createElement("menupopup");
+    const menulist = document.createXULElement("menulist");
+    const menuPopup = document.createXULElement("menupopup");
 
     menulist.classList.add("ruleactionitem");
     menulist.setAttribute("flex", "1");
     menulist.appendChild(menuPopup);
 
     for (let taginfo of MailServices.tags.getAllTags({})) {
-      const newMenuItem = document.createElement("menuitem");
+      const newMenuItem = document.createXULElement("menuitem");
       newMenuItem.setAttribute("label", taginfo.tag);
       newMenuItem.setAttribute("value", taginfo.key);
       menuPopup.appendChild(newMenuItem);
@@ -81,8 +81,8 @@ class MozRuleactiontargetJunkscore extends MozXULElement {
 
 class MozRuleactiontargetReplyto extends MozXULElement {
   connectedCallback() {
-    const menulist = document.createElement("menulist");
-    const menuPopup = document.createElement("menupopup");
+    const menulist = document.createXULElement("menulist");
+    const menuPopup = document.createXULElement("menupopup");
 
     menulist.classList.add("ruleactionitem");
     menulist.setAttribute("flex", "1");
@@ -100,7 +100,7 @@ class MozRuleactiontargetReplyto extends MozXULElement {
 
 class MozRuleactiontargetForwardto extends MozXULElement {
   connectedCallback() {
-    const textbox = document.createElement("textbox");
+    const textbox = document.createXULElement("textbox");
 
     textbox.classList.add("ruleactionitem");
     textbox.setAttribute("flex", "1");
@@ -182,7 +182,7 @@ class MozRuleactiontargetWrapper extends MozXULElement {
     };
     const elementName = elementMapping[type];
 
-    return elementName ? document.createElement(elementName) : null;
+    return elementName ? document.createXULElement(elementName) : null;
   }
 
   _updateAttributes() {
@@ -240,10 +240,10 @@ class MozSearchMenulistAbstract extends MozXULElement {
 
   connectedCallback() {
     if (!this.hasChildNodes()) {
-      this.menulist = document.createElement("menulist");
+      this.menulist = document.createXULElement("menulist");
       this.menulist.classList.add("search-menulist");
       this.menulist.addEventListener("command", this.onSelect.bind(this));
-      this.menupopup = document.createElement("menupopup");
+      this.menupopup = document.createXULElement("menupopup");
       this.menupopup.classList.add("search-menulist-popup");
       this.menulist.appendChild(this.menupopup);
       this.appendChild(this.menulist);
@@ -393,7 +393,7 @@ class MozSearchMenulistAbstract extends MozXULElement {
       if (Ci.nsMsgSearchAttrib.OtherHeader == menuItemIds[i].toString()) {
         customizePos = i;
       } else {
-        const menuitem = document.createElement("menuitem");
+        const menuitem = document.createXULElement("menuitem");
         menuitem.setAttribute("label", menuItemStrings[i]);
         menuitem.setAttribute("value", menuItemIds[i]);
         popup.appendChild(menuitem);
@@ -404,9 +404,9 @@ class MozSearchMenulistAbstract extends MozXULElement {
       }
     }
     if (customizePos != -1) {
-      const separator = document.createElement("menuseparator");
+      const separator = document.createXULElement("menuseparator");
       popup.appendChild(separator);
-      const menuitem = document.createElement("menuitem");
+      const menuitem = document.createXULElement("menuitem");
       menuitem.setAttribute("label", menuItemStrings[customizePos]);
       menuitem.setAttribute("value", menuItemIds[customizePos]);
       popup.appendChild(menuitem);

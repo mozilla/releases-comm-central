@@ -480,7 +480,7 @@ function cvAddAddressNodes(node, uri) {
           node.lastChild.remove();
         }
         for (let i = 0; i < total; i++) {
-          var descNode = document.createElement("description");
+          var descNode = document.createXULElement("description");
           var card = addressList.queryElementAt(i, Ci.nsIAbCard);
 
           descNode.setAttribute("class", "CardViewLink");

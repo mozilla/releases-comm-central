@@ -626,7 +626,7 @@ var gCloudFileTab = {
   },
 
   makeRichListItemForAccount(aAccount) {
-    let rli = document.createElement("richlistitem");
+    let rli = document.createXULElement("richlistitem");
     rli.value = aAccount.accountKey;
     rli.setAttribute("align", "center");
     rli.setAttribute("class", "cloudfileAccount");
@@ -635,25 +635,25 @@ var gCloudFileTab = {
     if (aAccount.iconURL)
       rli.style.listStyleImage = "url('" + aAccount.iconURL + "')";
 
-    let icon = document.createElement("image");
+    let icon = document.createXULElement("image");
     icon.setAttribute("class", "typeIcon");
     rli.appendChild(icon);
 
-    let label = document.createElement("label");
+    let label = document.createXULElement("label");
     label.setAttribute("crop", "end");
     label.setAttribute("flex", "1");
     label.setAttribute("value", cloudFileAccounts.getDisplayName(aAccount.accountKey));
     label.addEventListener("click", this, true);
     rli.appendChild(label);
 
-    let textBox = document.createElement("textbox");
+    let textBox = document.createXULElement("textbox");
     textBox.setAttribute("flex", "1");
     textBox.hidden = true;
     textBox.addEventListener("blur", this);
     textBox.addEventListener("keypress", this);
     rli.appendChild(textBox);
 
-    let warningIcon = document.createElement("image");
+    let warningIcon = document.createXULElement("image");
     warningIcon.setAttribute("class", "configuredWarning typeIcon");
     warningIcon.setAttribute("src", "chrome://global/skin/icons/warning.svg");
     warningIcon.setAttribute("tooltiptext", this._strings.GetStringFromName("notConfiguredYet"));
@@ -666,7 +666,7 @@ var gCloudFileTab = {
   },
 
   makeButtonForProvider(provider) {
-    let button = document.createElement("button");
+    let button = document.createXULElement("button");
     button.setAttribute("value", provider.type);
     button.setAttribute(
       "label", this._strings.formatStringFromName("addProvider", [provider.displayName], 1)
@@ -677,7 +677,7 @@ var gCloudFileTab = {
   },
 
   makeListItemForProvider(provider) {
-    let menuitem = document.createElement("menuitem");
+    let menuitem = document.createXULElement("menuitem");
     menuitem.classList.add("menuitem-iconic");
     menuitem.setAttribute("value", provider.type);
     menuitem.setAttribute("label", provider.displayName);
@@ -1155,7 +1155,7 @@ var gApplicationsPane = {
     while (menuPopup.hasChildNodes())
       menuPopup.lastChild.remove();
 
-    var askMenuItem = document.createElement("menuitem");
+    var askMenuItem = document.createXULElement("menuitem");
     askMenuItem.setAttribute("alwaysAsk", "true");
     {
       let label = this._prefsBundle.getString("alwaysAsk");
@@ -1169,7 +1169,7 @@ var gApplicationsPane = {
     // Note: this option isn't available to protocol types, since we don't know
     // what it means to save a URL having a certain scheme to disk.
     if ((handlerInfo.wrappedHandlerInfo instanceof Ci.nsIMIMEInfo)) {
-      var saveMenuItem = document.createElement("menuitem");
+      var saveMenuItem = document.createXULElement("menuitem");
       saveMenuItem.setAttribute("action", Ci.nsIHandlerInfo.saveToDisk);
       let label = this._prefsBundle.getString("saveFile");
       saveMenuItem.setAttribute("label", label);
@@ -1180,12 +1180,12 @@ var gApplicationsPane = {
 
     // Add a separator to distinguish these items from the helper app items
     // that follow them.
-    let menuItem = document.createElement("menuseparator");
+    let menuItem = document.createXULElement("menuseparator");
     menuPopup.appendChild(menuItem);
 
     // Create a menu item for the OS default application, if any.
     if (handlerInfo.hasDefaultHandler) {
-      var defaultMenuItem = document.createElement("menuitem");
+      var defaultMenuItem = document.createXULElement("menuitem");
       defaultMenuItem.setAttribute("action", Ci.nsIHandlerInfo.useSystemDefault);
       let label = this._prefsBundle.getFormattedString("useDefault",
                                                        [handlerInfo.defaultDescription]);
@@ -1205,7 +1205,7 @@ var gApplicationsPane = {
       if (!gApplicationsPane.isValidHandlerApp(possibleApp))
         continue;
 
-      let menuItem = document.createElement("menuitem");
+      let menuItem = document.createXULElement("menuitem");
       menuItem.setAttribute("action", Ci.nsIHandlerInfo.useHelperApp);
       let label;
       if (possibleApp instanceof Ci.nsILocalHandlerApp)
@@ -1239,7 +1239,7 @@ var gApplicationsPane = {
     }
 
     if (createItem) {
-      let menuItem = document.createElement("menuitem");
+      let menuItem = document.createXULElement("menuitem");
       menuItem.setAttribute("oncommand", "gApplicationsPane.chooseApp(event)");
       let label = this._prefsBundle.getString("useOtherApp");
       menuItem.setAttribute("label", label);
@@ -1249,17 +1249,17 @@ var gApplicationsPane = {
 
     // Create a menu item for managing applications.
     if (possibleAppMenuItems.length) {
-      let menuItem = document.createElement("menuseparator");
+      let menuItem = document.createXULElement("menuseparator");
       menuPopup.appendChild(menuItem);
-      menuItem = document.createElement("menuitem");
+      menuItem = document.createXULElement("menuitem");
       menuItem.setAttribute("oncommand", "gApplicationsPane.manageApp(event)");
       menuItem.setAttribute("label", this._prefsBundle.getString("manageApp"));
       menuPopup.appendChild(menuItem);
     }
 
-    menuItem = document.createElement("menuseparator");
+    menuItem = document.createXULElement("menuseparator");
     menuPopup.appendChild(menuItem);
-    menuItem = document.createElement("menuitem");
+    menuItem = document.createXULElement("menuitem");
     menuItem.setAttribute("oncommand", "gApplicationsPane.confirmDelete(event)");
     menuItem.setAttribute("label", this._prefsBundle.getString("delete"));
     menuPopup.appendChild(menuItem);

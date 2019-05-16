@@ -719,7 +719,7 @@ var specialTabs = {
       if ("opener" in aArgs && aArgs.opener)
         clone.querySelector("browser").presetOpenerWindow(aArgs.opener);
 
-      const findbar = document.createElement("findbar");
+      const findbar = document.createXULElement("findbar");
       // Adding browserid to findbar so that browser property can be set
       // in findbar custom element.
       findbar.setAttribute("browserid", "dummycontentbrowser");

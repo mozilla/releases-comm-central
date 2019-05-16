@@ -78,7 +78,7 @@ var gChatPane = {
 
     window.removeEventListener("paneSelected", this.paneSelectionChanged);
 
-    let browser = document.createElement("browser", { is: "conversation-browser" });
+    let browser = document.createXULElement("browser", { is: "conversation-browser" });
     browser.setAttribute("id", "previewbrowser");
     browser.setAttribute("type", "content");
     browser.setAttribute("flex", "1");

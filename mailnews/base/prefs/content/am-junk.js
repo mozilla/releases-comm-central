@@ -82,11 +82,11 @@ function onInit(aPageId, aServerId) {
 
   // And then append each item to the listbox
   for (let abItem of abItems) {
-    let checkbox = document.createElement("checkbox");
+    let checkbox = document.createXULElement("checkbox");
     checkbox.setAttribute("label", abItem.label);
     checkbox.setAttribute("checked", currentArray.includes(abItem.URI));
 
-    let item = document.createElement("richlistitem");
+    let item = document.createXULElement("richlistitem");
     item.appendChild(checkbox);
     item.setAttribute("value", abItem.URI);
     wList.appendChild(item);

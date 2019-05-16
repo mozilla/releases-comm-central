@@ -100,9 +100,9 @@ var gSendOptionsDialog = {
   },
 
   addItemToDomainList(aListBox, aDomainTitle) {
-    let label = document.createElement("label");
+    let label = document.createXULElement("label");
     label.setAttribute("value", aDomainTitle);
-    let item = document.createElement("richlistitem");
+    let item = document.createXULElement("richlistitem");
     item.appendChild(label);
     aListBox.appendChild(item);
   },

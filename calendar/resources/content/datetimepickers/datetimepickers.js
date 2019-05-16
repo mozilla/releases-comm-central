@@ -64,17 +64,17 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
                 return;
             }
 
-            const spacer = document.createElement("spacer");
+            const spacer = document.createXULElement("spacer");
             spacer.setAttribute("flex", "1");
 
-            const minutebox = document.createElement("vbox");
+            const minutebox = document.createXULElement("vbox");
             minutebox.addEventListener("click", () => {
                 this.clickMinute(this, this.getAttribute("value"));
             });
 
-            const box = document.createElement("box");
+            const box = document.createXULElement("box");
 
-            this.label = document.createElement("label");
+            this.label = document.createXULElement("label");
             this.label.classList.add("time-picker-minute-label");
 
             box.appendChild(this.label);
@@ -166,10 +166,10 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
                 return;
             }
 
-            const spacer = document.createElement("spacer");
+            const spacer = document.createXULElement("spacer");
             spacer.setAttribute("flex", "1");
 
-            const hourbox = document.createElement("vbox");
+            const hourbox = document.createXULElement("vbox");
             hourbox.addEventListener("click", () => {
                 this.clickHour(this, this.getAttribute("value"));
             });
@@ -177,9 +177,9 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
                 this.doubleClickHour(this, this.getAttribute("value"));
             });
 
-            const box = document.createElement("box");
+            const box = document.createXULElement("box");
 
-            this.label = document.createElement("label");
+            this.label = document.createXULElement("label");
             this.label.classList.add("time-picker-hour-label");
 
             box.appendChild(this.label);
@@ -753,9 +753,9 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
                 this._foreverString =
                     cal.l10n.getString("calendar-event-dialog", "eventRecurrenceForeverLabel");
 
-                this._foreverItem = document.createElement("button");
+                this._foreverItem = document.createXULElement("button");
                 this._foreverItem.setAttribute("label", this._foreverString);
-                this._popup.appendChild(document.createElement("menuseparator"));
+                this._popup.appendChild(document.createXULElement("menuseparator"));
                 this._popup.appendChild(this._foreverItem);
 
                 this._foreverItem.addEventListener("command", () => {
@@ -1068,10 +1068,10 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
                 return;
             }
 
-            this._datepicker = document.createElement("datepicker");
+            this._datepicker = document.createXULElement("datepicker");
             this._datepicker.classList.add("datetimepicker-datepicker");
             this._datepicker.setAttribute("anonid", "datepicker");
-            this._timepicker = document.createElement("timepicker");
+            this._timepicker = document.createXULElement("timepicker");
             this._timepicker.classList.add("datetimepicker-timepicker");
             this._timepicker.setAttribute("anonid", "timepicker");
             this.appendChild(this._datepicker);

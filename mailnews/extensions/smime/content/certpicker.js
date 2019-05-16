@@ -24,7 +24,7 @@ function onLoad() {
   }
 
   for (let i = 0; i < itemCount; i++) {
-    let menuItemNode = document.createElement("menuitem");
+    let menuItemNode = document.createXULElement("menuitem");
     let nick = dialogParams.GetString(i);
     menuItemNode.setAttribute("value", i);
     menuItemNode.setAttribute("label", nick); // This is displayed.

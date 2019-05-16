@@ -41,7 +41,7 @@ class MozCalendarEventGripbar extends MozXULElement {
     }
 
     connectedCallback() {
-        this._image = document.createElement("image");
+        this._image = document.createXULElement("image");
         this._image.setAttribute("pack", "center");
 
         this.appendChild(this._image);

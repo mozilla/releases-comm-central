@@ -37,7 +37,7 @@ var PrintPreviewListener = {
   getPrintPreviewBrowser() {
     var browser = document.getElementById("ppBrowser");
     if (!browser) {
-      browser = document.createElement("browser");
+      browser = document.createXULElement("browser");
       browser.setAttribute("id", "ppBrowser");
       browser.setAttribute("flex", "1");
       browser.setAttribute("disablehistory", "true");

@@ -306,12 +306,12 @@ function booleanChanged(event) {
  *                    (e.g. via the '+' button)
  */
 function createSearchRow(index, scope, searchTerm, aUserAdded) {
-    var searchAttr = document.createElement("search-attribute");
-    var searchOp = document.createElement("search-operator");
-    var searchVal = document.createElement("search-value");
+    var searchAttr = document.createXULElement("search-attribute");
+    var searchOp = document.createXULElement("search-operator");
+    var searchVal = document.createXULElement("search-value");
 
-    var moreButton = document.createElement("button");
-    var lessButton = document.createElement("button");
+    var moreButton = document.createXULElement("button");
+    var lessButton = document.createXULElement("button");
     moreButton.setAttribute("class", "small-button");
     moreButton.setAttribute("oncommand", "onMore(event);");
     moreButton.setAttribute("label", "+");
@@ -407,10 +407,10 @@ function initializeTermFromIndex(index) {
  */
 function constructRow(aChildren) {
     let cols = gSearchTermList.firstChild.childNodes; // treecol elements
-    let listitem = document.createElement("richlistitem");
+    let listitem = document.createXULElement("richlistitem");
     listitem.setAttribute("allowevents", "true");
     for (let i = 0; i < aChildren.length; i++) {
-      let listcell = document.createElement("hbox");
+      let listcell = document.createXULElement("hbox");
       if (cols[i].hasAttribute("flex"))
         listcell.setAttribute("flex", cols[i].getAttribute("flex"));
       let child = aChildren[i];

@@ -856,7 +856,7 @@ function FillLinkMenulist(linkMenulist, headingsArray) {
 }
 
 function createMenuItem(aMenuPopup, aLabel) {
-  var menuitem = document.createElement("menuitem");
+  var menuitem = document.createXULElement("menuitem");
   menuitem.setAttribute("label", aLabel);
   aMenuPopup.appendChild(menuitem);
   return menuitem;

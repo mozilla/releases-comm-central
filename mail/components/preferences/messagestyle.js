@@ -117,7 +117,7 @@ var previewObserver = {
     let menulist = document.getElementById("themevariant");
     if (menulist.menupopup)
       menulist.menupopup.remove();
-    let popup = menulist.appendChild(document.createElement("menupopup"));
+    let popup = menulist.appendChild(document.createXULElement("menupopup"));
     let variants = getThemeVariants(this.theme);
 
     let defaultVariant = "";
@@ -132,16 +132,16 @@ var previewObserver = {
     if (!defaultText || defaultText.toLowerCase() == "default")
       defaultText = document.getElementById("themesBundle").getString("default");
 
-    let menuitem = document.createElement("menuitem");
+    let menuitem = document.createXULElement("menuitem");
     menuitem.setAttribute("label", defaultText);
     menuitem.setAttribute("value", "default");
     popup.appendChild(menuitem);
-    popup.appendChild(document.createElement("menuseparator"));
+    popup.appendChild(document.createXULElement("menuseparator"));
 
     variants.sort().forEach(function(aVariantName) {
       let displayName = aVariantName.replace(/_/g, " ");
       if (displayName != defaultVariant) {
-        let menuitem = document.createElement("menuitem");
+        let menuitem = document.createXULElement("menuitem");
         menuitem.setAttribute("label", displayName);
         menuitem.setAttribute("value", aVariantName);
         popup.appendChild(menuitem);

@@ -676,7 +676,7 @@ var chatHandler = {
       let convDeck = document.getElementById("conversationsDeck");
       if (!item.convView) {
         // Create new conversation binding.
-        let conv = document.createElement("imconversation");
+        let conv = document.createXULElement("imconversation");
         convDeck.appendChild(conv);
         conv.conv = item.conv;
         conv.tab = item;

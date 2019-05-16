@@ -11,10 +11,10 @@ class MozStatuspanel extends MozXULElement {
   }
 
   connectedCallback() {
-    const hbox = document.createElement("hbox");
+    const hbox = document.createXULElement("hbox");
     hbox.classList.add("statuspanel-inner");
 
-    const label = document.createElement("label");
+    const label = document.createXULElement("label");
     label.classList.add("statuspanel-label");
     label.setAttribute("flex", "1");
     label.setAttribute("crop", "end");

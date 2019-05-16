@@ -221,35 +221,35 @@ DownloadItem.prototype = {
 
   get element() {
     if (!this._element) {
-      this._element = this.createElement();
+      this._element = this.createXULElement();
     }
 
     return this._element;
   },
 
-  createElement() {
-    let element = document.createElement("richlistitem");
+  createXULElement() {
+    let element = document.createXULElement("richlistitem");
     element.classList.add("download");
 
-    let image = document.createElement("image");
+    let image = document.createXULElement("image");
     image.setAttribute("validate", "always");
     image.classList.add("fileTypeIcon");
 
-    let vbox = document.createElement("vbox");
+    let vbox = document.createXULElement("vbox");
     vbox.setAttribute("pack", "center");
     vbox.setAttribute("flex", "1");
 
-    let sender = document.createElement("description");
+    let sender = document.createXULElement("description");
     sender.classList.add("sender");
 
-    let fileName = document.createElement("description");
+    let fileName = document.createXULElement("description");
     fileName.setAttribute("crop", "center");
     fileName.classList.add("fileName");
 
-    let size = document.createElement("description");
+    let size = document.createXULElement("description");
     size.classList.add("size");
 
-    let startDate = document.createElement("description");
+    let startDate = document.createXULElement("description");
     startDate.setAttribute("crop", "end");
     startDate.classList.add("startDate");
 

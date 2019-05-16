@@ -776,13 +776,13 @@ EmailConfigWizard.prototype = {
 
   addStatusLine(msgID, call) {
     _show("status-lines");
-    var statusLine = document.createElement("hbox");
+    var statusLine = document.createXULElement("hbox");
     e("status-lines").appendChild(statusLine);
     statusLine.classList.add("status-line");
-    var statusDescr = document.createElement("description");
+    var statusDescr = document.createXULElement("description");
     statusDescr.classList.add("status_msg");
     statusLine.appendChild(statusDescr);
-    var statusImg = document.createElement("vbox");
+    var statusImg = document.createXULElement("vbox");
     statusImg.classList.add("status-img");
     statusImg.setAttribute("pack", "start");
     statusLine.appendChild(statusImg);
@@ -901,10 +901,10 @@ EmailConfigWizard.prototype = {
             //     label="Install"
             //     oncommand="…" />
             // </row>
-            let addonE = document.createElement("row");
-            let iconE = document.createElement("image");
-            let descrE = document.createElement("label", {is: "text-link"}); // must be <label> to be clickable
-            let buttonE = document.createElement("button");
+            let addonE = document.createXULElement("row");
+            let iconE = document.createXULElement("image");
+            let descrE = document.createXULElement("label", {is: "text-link"}); // must be <label> to be clickable
+            let buttonE = document.createXULElement("button");
             addonE.appendChild(iconE);
             addonE.appendChild(descrE);
             addonE.appendChild(buttonE);
@@ -953,7 +953,7 @@ EmailConfigWizard.prototype = {
       // TODO: we should really also display authentication method here.
 
       function _addComponent(text, className) {
-        let textE = document.createElement("label");
+        let textE = document.createXULElement("label");
         textE.classList.add(className);
         textE.textContent = text;
         descrE.appendChild(textE);

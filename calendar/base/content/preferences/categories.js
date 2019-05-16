@@ -93,14 +93,14 @@ var gCategoriesPane = {
         }
 
         for (let i = 0; i < gCategoryList.length; i++) {
-            let newListItem = document.createElement("richlistitem");
-            let categoryName = document.createElement("label");
+            let newListItem = document.createXULElement("richlistitem");
+            let categoryName = document.createXULElement("label");
             categoryName.setAttribute("id", gCategoryList[i]);
             categoryName.setAttribute("flex", "1");
             categoryName.setAttribute("value", gCategoryList[i]);
             let categoryNameFix = cal.view.formatStringForCSSRule(gCategoryList[i]);
 
-            let categoryColor = document.createElement("box");
+            let categoryColor = document.createXULElement("box");
             categoryColor.setAttribute("width", "150");
             try {
                 let colorCode = categoryPrefBranch.getCharPref(categoryNameFix);

@@ -875,7 +875,7 @@ function loadCategories(aItem) {
 
     let categoryPopup = document.getElementById("item-categories-popup");
     if (maxCount == 1) {
-        let item = document.createElement("menuitem");
+        let item = document.createXULElement("menuitem");
         item.setAttribute("class", "menuitem-iconic");
         item.setAttribute("label", cal.l10n.getCalString("None"));
         item.setAttribute("type", "radio");
@@ -885,7 +885,7 @@ function loadCategories(aItem) {
         categoryPopup.appendChild(item);
     }
     for (let cat of categoryList) {
-        let item = document.createElement("menuitem");
+        let item = document.createXULElement("menuitem");
         item.setAttribute("class", "menuitem-iconic calendar-category");
         item.setAttribute("label", cat);
         item.setAttribute("value", cat);
@@ -1000,7 +1000,7 @@ function categoryTextboxKeypress(event) {
         let calendar = getCurrentCalendar();
         let maxCount = calendar.getProperty("capabilities.categories.maxCount");
 
-        let item = document.createElement("menuitem");
+        let item = document.createXULElement("menuitem");
         item.setAttribute("class", "menuitem-iconic calendar-category");
         item.setAttribute("label", category);
         item.setAttribute("value", category);
@@ -2281,9 +2281,9 @@ function addAttachment(attachment, cloudFileAccount) {
     if (attachment.uri) {
         let documentLink = document.getElementById("attachment-link");
         let listItem = document.createXULElement("richlistitem");
-        let image = document.createElement("image");
+        let image = document.createXULElement("image");
         listItem.appendChild(image);
-        let label = document.createElement("label");
+        let label = document.createXULElement("label");
         label.setAttribute("value", makePrettyName(attachment.uri));
         label.setAttribute("crop", "end");
         listItem.appendChild(label);

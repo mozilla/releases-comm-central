@@ -17,10 +17,10 @@ class MozCalendarDayLabel extends MozXULElement {
         this.setAttribute("flex", "1");
         this.setAttribute("pack", "center");
 
-        this.longWeekdayName = document.createElement("label");
+        this.longWeekdayName = document.createXULElement("label");
         this.longWeekdayName.classList.add("calendar-day-label-name");
 
-        this.shortWeekdayName = document.createElement("label");
+        this.shortWeekdayName = document.createXULElement("label");
         this.shortWeekdayName.classList.add("calendar-day-label-name");
         this.shortWeekdayName.setAttribute("hidden", "true");
 

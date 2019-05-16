@@ -909,7 +909,7 @@ function awCreateDummyItem(aParent) {
   var listbox = document.getElementById("addressingWidget");
   var item = listbox.getItemAtIndex(0);
 
-  var titem = document.createElement("richlistitem");
+  var titem = document.createXULElement("richlistitem");
   titem.setAttribute("_isDummyRow", "true");
   titem.setAttribute("class", "dummy-row");
   titem.style.height = item.getBoundingClientRect().height + "px";
@@ -932,7 +932,7 @@ function awCreateDummyItem(aParent) {
 }
 
 function awCreateDummyCell(aParent) {
-  var cell = document.createElement("hbox");
+  var cell = document.createXULElement("hbox");
   cell.setAttribute("class", "addressingWidgetCell dummy-row-cell");
   if (aParent)
     aParent.appendChild(cell);

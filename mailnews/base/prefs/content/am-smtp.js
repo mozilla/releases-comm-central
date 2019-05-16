@@ -182,7 +182,7 @@ var gSmtpServerListWindow = {
   },
 
   createSmtpListItem(aServer, aIsDefault) {
-    var listitem = document.createElement("richlistitem");
+    var listitem = document.createXULElement("richlistitem");
     var serverName = "";
 
     if (aServer.description)
@@ -197,7 +197,7 @@ var gSmtpServerListWindow = {
       listitem.setAttribute("default", "true");
     }
 
-    let label = document.createElement("label");
+    let label = document.createXULElement("label");
     label.setAttribute("value", serverName);
     listitem.appendChild(label);
     listitem.setAttribute("key", aServer.key);

@@ -129,7 +129,7 @@ function getToDoStatusString(aToDo) {
  */
 function getPreviewForTask(toDoItem, aIsTooltip=true) {
     if (toDoItem) {
-        const vbox = document.createElement("vbox");
+        const vbox = document.createXULElement("vbox");
         vbox.setAttribute("class", "tooltipBox");
         if (aIsTooltip) {
             // tooltip appears above or below pointer, so may have as little as
@@ -229,7 +229,7 @@ function getPreviewForTask(toDoItem, aIsTooltip=true) {
  */
 function getPreviewForEvent(aEvent, aIsTooltip=true) {
     let event = aEvent;
-    const vbox = document.createElement("vbox");
+    const vbox = document.createXULElement("vbox");
     vbox.setAttribute("class", "tooltipBox");
     if (aIsTooltip) {
         // tooltip appears above or below pointer, so may have as little as
@@ -290,7 +290,7 @@ function getPreviewForEvent(aEvent, aIsTooltip=true) {
  * @param {Node}  vbox  box to which to append separator.
  */
 function boxAppendBodySeparator(vbox) {
-    const separator = document.createElement("separator");
+    const separator = document.createXULElement("separator");
     separator.setAttribute("class", "tooltipBodySeparator");
     vbox.appendChild(separator);
 }
@@ -306,7 +306,7 @@ function boxAppendBodySeparator(vbox) {
 function boxAppendBody(box, textString, aIsTooltip) {
     let type = (aIsTooltip) ? "description": "vbox";
     let textNode = document.createTextNode(textString);
-    let xulDescription = document.createElement(type);
+    let xulDescription = document.createXULElement(type);
     xulDescription.setAttribute("class", "tooltipBody");
     if (!aIsTooltip) {
         xulDescription.setAttribute("flex", "1");
@@ -348,21 +348,21 @@ function boxAppendLabeledDateTimeInterval(box, labelProperty, item) {
  * @param  {Node}  box  The node to create a column grid for
  */
 function boxInitializeHeaderGrid(box) {
-    let grid = document.createElement("grid");
+    let grid = document.createXULElement("grid");
     grid.setAttribute("class", "tooltipHeaderGrid");
     let rows;
     {
-        let columns = document.createElement("columns");
+        let columns = document.createXULElement("columns");
         {
-            let labelColumn = document.createElement("column");
+            let labelColumn = document.createXULElement("column");
             labelColumn.setAttribute("class", "tooltipLabelColumn");
             columns.appendChild(labelColumn);
-            let valueColumn = document.createElement("column");
+            let valueColumn = document.createXULElement("column");
             valueColumn.setAttribute("class", "tooltipValueColumn");
             columns.appendChild(valueColumn);
         }
         grid.appendChild(columns);
-        rows = document.createElement("rows");
+        rows = document.createXULElement("rows");
         grid.appendChild(rows);
     }
     box.appendChild(grid);
@@ -379,7 +379,7 @@ function boxInitializeHeaderGrid(box) {
 function boxAppendLabeledText(box, labelProperty, textString) {
     let labelText = cal.l10n.getCalString(labelProperty);
     let rows = box.getElementsByTagNameNS(box.namespaceURI, "rows")[0];
-    let row = document.createElement("row");
+    let row = document.createXULElement("row");
 
     row.appendChild(createTooltipHeaderLabel(labelText));
     row.appendChild(createTooltipHeaderDescription(textString));
@@ -394,7 +394,7 @@ function boxAppendLabeledText(box, labelProperty, textString) {
  * @returns {Node}         The node
  */
 function createTooltipHeaderLabel(text) {
-    let label = document.createElement("label");
+    let label = document.createXULElement("label");
     label.setAttribute("class", "tooltipHeaderLabel");
     label.appendChild(document.createTextNode(text));
     return label;
@@ -407,7 +407,7 @@ function createTooltipHeaderLabel(text) {
  * @returns {Node}         The node
  */
 function createTooltipHeaderDescription(text) {
-    let label = document.createElement("description");
+    let label = document.createXULElement("description");
     label.setAttribute("class", "tooltipHeaderDescription");
     label.appendChild(document.createTextNode(text));
     return label;

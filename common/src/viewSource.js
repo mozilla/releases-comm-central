@@ -685,7 +685,7 @@ var PrintPreviewListener = {
 
   getPrintPreviewBrowser() {
     if (!this._ppBrowser) {
-      this._ppBrowser = document.createElement("browser");
+      this._ppBrowser = document.createXULElement("browser");
       this._ppBrowser.setAttribute("flex", "1");
       this._ppBrowser.setAttribute("type", "content");
     }

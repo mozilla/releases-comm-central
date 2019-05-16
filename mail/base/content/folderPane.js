@@ -507,7 +507,7 @@ var gFolderTreeView = {
       appendMode(mode);
 
     if ((fullModes.length > 0) && (compactModes.length > 0))
-      modeSelector.menupopup.appendChild(document.createElement("menuseparator"));
+      modeSelector.menupopup.appendChild(document.createXULElement("menuseparator"));
 
     for (let mode of compactModes)
       appendMode(mode);

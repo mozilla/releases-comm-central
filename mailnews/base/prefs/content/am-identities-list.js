@@ -49,10 +49,10 @@ function refreshIdentityList(aSelectIndex) {
   let identities = gAccount.identities;
   for (let identity of fixIterator(identities, Ci.nsIMsgIdentity)) {
     if (identity.valid) {
-      let label = document.createElement("label");
+      let label = document.createXULElement("label");
       label.setAttribute("value", identity.identityName);
 
-      let listitem = document.createElement("richlistitem");
+      let listitem = document.createXULElement("richlistitem");
       listitem.appendChild(label);
       listitem.setAttribute("key", identity.key);
       gIdentityListBox.appendChild(listitem);

@@ -91,7 +91,7 @@ imContextMenu.prototype = {
     // Display action menu items.
     let sep = document.getElementById("context-sep-messageactions");
     for (let action of actions) {
-      let menuitem = document.createElement("menuitem");
+      let menuitem = document.createXULElement("menuitem");
       menuitem.setAttribute("label", action.label);
       menuitem.setAttribute("oncommand", "this.action.run();");
       menuitem.action = action;
@@ -208,7 +208,7 @@ imContextMenu.prototype = {
   // Temporary workaround for DOM api not yet implemented by XUL nodes.
   cloneNode(aItem) {
     // Create another element like the one we're cloning.
-    var node = document.createElement(aItem.tagName);
+    var node = document.createXULElement(aItem.tagName);
 
     // Copy attributes from argument item to the new one.
     var attrs = aItem.attributes;

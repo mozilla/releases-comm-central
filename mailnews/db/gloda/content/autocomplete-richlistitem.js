@@ -311,7 +311,7 @@
       if (this.delayConnectedCallback() || this.hasChildNodes()) {
         return;
       }
-      this._explanation = document.createElement("description");
+      this._explanation = document.createXULElement("description");
       this._explanation.classList.add("explanation");
       let label = gGlodaCompleteStrings.get("glodaComplete.messagesMentioningMany.label");
       this._explanation.setAttribute("value", label.replace("#1", this.row.words.join(", ")));
@@ -341,9 +341,9 @@
       if (this.delayConnectedCallback() || this.hasChildNodes()) {
         return;
       }
-      this._explanation = document.createElement("description");
+      this._explanation = document.createXULElement("description");
       this._explanation.classList.add("explanation", "gloda-fulltext-single");
-      this._parameters = document.createElement("description");
+      this._parameters = document.createXULElement("description");
 
       this.appendChild(this._explanation);
       this.appendChild(this._parameters);
@@ -376,8 +376,8 @@
       if (this.delayConnectedCallback() || this.hasChildNodes()) {
         return;
       }
-      this._explanation = document.createElement("description");
-      this._identityHolder = document.createElement("hbox");
+      this._explanation = document.createXULElement("description");
+      this._identityHolder = document.createXULElement("hbox");
       this._identityHolder.setAttribute("flex", "1");
 
       this.appendChild(this._explanation);
@@ -544,7 +544,7 @@
       if (this.delayConnectedCallback() || this.hasChildNodes()) {
         return;
       }
-      this._explanation = document.createElement("description");
+      this._explanation = document.createXULElement("description");
       this._explanation.classList.add("explanation", "gloda-single");
       this.appendChild(this._explanation);
       let label = gGlodaCompleteStrings.get("glodaComplete.messagesTagged.label");

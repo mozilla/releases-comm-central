@@ -19,19 +19,19 @@ gStrings.mailExt =
   document.insertBefore(contentStylesheet, document.documentElement);
 
   // Add navigation buttons for back and forward on the addons page.
-  let hbox = document.createElement("hbox");
+  let hbox = document.createXULElement("hbox");
   hbox.setAttribute("id", "nav-header");
   hbox.setAttribute("align", "center");
   hbox.setAttribute("pack", "center");
 
-  let backButton = document.createElement("toolbarbutton");
+  let backButton = document.createXULElement("toolbarbutton");
   backButton.setAttribute("id", "back-btn");
   backButton.setAttribute("class", "nav-button");
   backButton.setAttribute("command", "cmd_back");
   backButton.setAttribute("tooltiptext", gStrings.mailExt.GetStringFromName("cmdBackTooltip"));
   backButton.setAttribute("disabled", "true");
 
-  let forwardButton = document.createElement("toolbarbutton");
+  let forwardButton = document.createXULElement("toolbarbutton");
   forwardButton.setAttribute("id", "forward-btn");
   forwardButton.setAttribute("class", "nav-button");
   forwardButton.setAttribute("command", "cmd_forward");
@@ -50,20 +50,20 @@ gStrings.mailExt =
   textbox.setAttribute("placeholder", placeholder);
 
   // Tell the world about legacy extensions.
-  let alertContainer = document.createElement("vbox");
+  let alertContainer = document.createXULElement("vbox");
   alertContainer.id = "tb-legacy-extensions-notice";
   alertContainer.className = "alert-container";
 
-  let alert = document.createElement("vbox");
+  let alert = document.createXULElement("vbox");
   alert.className = "alert";
 
-  let description = document.createElement("description");
+  let description = document.createXULElement("description");
   let messageString = gStrings.mailExt.GetStringFromName("legacyInfo") + " ";
   messageString = messageString.replace("#1", gStrings.brandShortName);
   messageString = messageString.replace("#2", Services.appinfo.version);
   description.textContent = messageString;
 
-  let label = document.createElement("label");
+  let label = document.createXULElement("label");
   label.className = "text-link plain";
   label.href = "https://support.mozilla.org/kb/unable-install-add-on-extension-theme-thunderbird";
   label.value = gStrings.mailExt.GetStringFromName("legacyLearnMore");
@@ -153,7 +153,7 @@ gDetailView.updateState = function() {
       }
 
       if (!restartButton) {
-        restartButton = document.createElement("button");
+        restartButton = document.createXULElement("button");
         restartButton.id = "restart-btn";
         restartButton.className = "button-link restart-btn";
         restartButton.setAttribute(
@@ -165,7 +165,7 @@ gDetailView.updateState = function() {
       restartButton.hidden = false;
       if (undoCommand) {
         if (!undoButton) {
-          undoButton = document.createElement("button");
+          undoButton = document.createXULElement("button");
           undoButton.className = "button-link undo-btn";
           undoButton.setAttribute(
             "label", gStrings.mailExt.GetStringFromName("warnLegacyUndoButton")

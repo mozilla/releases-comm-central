@@ -25,7 +25,7 @@ var selector = document.getElementById("selector");
       continue;
     }
 
-    var radio = document.createElement("radio");
+    var radio = document.createXULElement("radio");
     radio.setAttribute("pane", pane.id);
     radio.setAttribute("value", pane.id);
     radio.setAttribute("label", pane.getAttribute("label"));

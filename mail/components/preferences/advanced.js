@@ -615,7 +615,7 @@ var gAdvancedPane = {
 
     let fragment = document.createDocumentFragment();
     for (let {code, name} of locales) {
-      let menuitem = document.createElement("menuitem");
+      let menuitem = document.createXULElement("menuitem");
       menuitem.setAttribute("value", code);
       menuitem.setAttribute("label", name);
       fragment.appendChild(menuitem);

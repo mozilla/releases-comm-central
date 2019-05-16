@@ -45,7 +45,7 @@ var joinChat = {
 
     for (let field of fixIterator(acc.getChatRoomFields())) {
       let div1 = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
-      let label = document.createElement("label");
+      let label = document.createXULElement("label");
       let text = field.label;
       let match = /_(.)/.exec(text);
       if (match) {
@@ -58,7 +58,7 @@ var joinChat = {
       joinChatGrid.appendChild(div1);
 
       let div2 = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
-      let textbox = document.createElement("textbox");
+      let textbox = document.createXULElement("textbox");
       textbox.setAttribute("id", "field-" + field.identifier);
       let val = defaultValues.getValue(field.identifier);
       if (val) {

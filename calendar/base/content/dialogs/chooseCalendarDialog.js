@@ -25,9 +25,9 @@ function loadCalendars() {
 
     for (let i = 0; i < calendars.length; i++) {
         let calendar = calendars[i];
-        let listItem = document.createElement("richlistitem");
+        let listItem = document.createXULElement("richlistitem");
 
-        let colorCell = document.createElement("box");
+        let colorCell = document.createXULElement("box");
         try {
             let calColor = calendar.getProperty("color");
             colorCell.style.background = calColor || "#a8c2e1";
@@ -35,7 +35,7 @@ function loadCalendars() {
         colorCell.style.width = "17px";
         listItem.appendChild(colorCell);
 
-        let nameCell = document.createElement("label");
+        let nameCell = document.createXULElement("label");
         nameCell.setAttribute("value", calendar.name);
         nameCell.setAttribute("flex", "1");
         listItem.appendChild(nameCell);

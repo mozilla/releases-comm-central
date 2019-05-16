@@ -196,7 +196,7 @@ function RefreshCustomViewsPopup(aMenupopup) {
   var numItems = gMailViewList.mailViewCount;
   for (var i = 0; i < numItems; ++i) {
     var viewInfo = gMailViewList.getMailViewAt(i);
-    var menuitem = document.createElement("menuitem");
+    var menuitem = document.createXULElement("menuitem");
     menuitem.setAttribute("label", viewInfo.prettyName);
     menuitem.setAttribute("value", kViewItemFirstCustom + i);
     menuitem.setAttribute("type", "radio");
@@ -218,7 +218,7 @@ function RefreshTagsPopup(aMenupopup) {
   let tagArray = MailServices.tags.getAllTags({});
   for (let i = 0; i < tagArray.length; ++i) {
     let tagInfo = tagArray[i];
-    let menuitem = document.createElement("menuitem");
+    let menuitem = document.createXULElement("menuitem");
     menuitem.setAttribute("label", tagInfo.tag);
     menuitem.setAttribute("value", kViewTagMarker + tagInfo.key);
     menuitem.setAttribute("type", "radio");

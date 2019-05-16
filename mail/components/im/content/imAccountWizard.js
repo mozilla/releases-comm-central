@@ -38,13 +38,13 @@ var accountWizard = {
       return a.name > b.name ? 1 : 0;
     });
     protos.forEach(function(proto) {
-      let image = document.createElement("image");
+      let image = document.createXULElement("image");
       image.setAttribute("src", proto.iconBaseURI + "icon.png");
 
-      let label = document.createElement("label");
+      let label = document.createXULElement("label");
       label.setAttribute("value", proto.name);
 
-      let item = document.createElement("richlistitem");
+      let item = document.createXULElement("richlistitem");
       item.setAttribute("value", proto.id);
       item.appendChild(image);
       item.appendChild(label);
@@ -102,18 +102,18 @@ var accountWizard = {
 
 
   insertUsernameField(aName, aLabel, aParent, aDefaultValue) {
-    var hbox = document.createElement("hbox");
+    var hbox = document.createXULElement("hbox");
     hbox.setAttribute("id", aName + "-hbox");
     hbox.setAttribute("align", "baseline");
     hbox.setAttribute("equalsize", "always");
 
-    var label = document.createElement("label");
+    var label = document.createXULElement("label");
     label.setAttribute("value", aLabel);
     label.setAttribute("control", aName);
     label.setAttribute("id", aName + "-label");
     hbox.appendChild(label);
 
-    var textbox = document.createElement("textbox");
+    var textbox = document.createXULElement("textbox");
     textbox.setAttribute("id", aName);
     textbox.setAttribute("flex", 1);
     if (aDefaultValue)
@@ -203,11 +203,11 @@ var accountWizard = {
   },
 
   createSummaryRow(aLabel, aValue) {
-    var hbox = document.createElement("hbox");
+    var hbox = document.createXULElement("hbox");
     hbox.setAttribute("align", "baseline");
     hbox.setAttribute("equalsize", "always");
 
-    var label = document.createElement("label");
+    var label = document.createXULElement("label");
     label.setAttribute("class", "header");
     if (aLabel.length > 20) {
       aLabel = aLabel.substring(0, 20);
@@ -215,11 +215,11 @@ var accountWizard = {
     }
 
     label.setAttribute("value", aLabel);
-    var hboxWrapper = document.createElement("hbox");
+    var hboxWrapper = document.createXULElement("hbox");
     hboxWrapper.appendChild(label);
     hbox.appendChild(hboxWrapper);
 
-    var textbox = document.createElement("textbox");
+    var textbox = document.createXULElement("textbox");
     textbox.setAttribute("value", aValue);
     textbox.setAttribute("class", "plain");
     textbox.setAttribute("readonly", true);

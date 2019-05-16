@@ -34,11 +34,11 @@ var gAppManagerDialog = {
       let item = list.lastChild;
       item.app = app;
 
-      let image = document.createElement("image");
+      let image = document.createXULElement("image");
       image.setAttribute("src", gApplicationsPane._getIconURLForHandlerApp(app));
       item.appendChild(image);
 
-      let label = document.createElement("label");
+      let label = document.createXULElement("label");
       label.setAttribute("value", app.name);
       item.appendChild(label);
     }

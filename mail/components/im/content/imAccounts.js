@@ -55,7 +55,7 @@ var gAccountManager = {
       let defaultID;
       Services.core.init(); // ensure the imCore is initialized.
       for (let acc of this.getAccounts()) {
-        let elt = document.createElement("richlistitem", { is: "chat-account-richlistitem" });
+        let elt = document.createXULElement("richlistitem", { is: "chat-account-richlistitem" });
         this.accountList.appendChild(elt);
         elt.build(acc);
         if (!defaultID && acc.firstConnectionState == acc.FIRST_CONNECTION_CRASHED)
@@ -149,7 +149,7 @@ var gAccountManager = {
 
     if (aTopic == "account-added") {
       document.getElementById("accountsDesk").selectedIndex = 1;
-      let elt = document.createElement("richlistitem", { is: "chat-account-richlistitem" });
+      let elt = document.createXULElement("richlistitem", { is: "chat-account-richlistitem" });
       this.accountList.appendChild(elt);
       elt.build(aObject);
       if (this.accountList.getRowCount() == 1)
