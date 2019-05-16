@@ -56,49 +56,41 @@
   <vbox flex="1">
     <groupbox>
       <label class="header">&contextDesc.label;</label>
-      <hbox>
-        <vbox>
-          <hbox flex="1" align="center">
-            <checkbox id="runManual"
-                      label="&contextManual.label;"
-                      accesskey="&contextManual.accesskey;"
-                      command="cmd_updateFilterType"/>
-          </hbox>
-          <hbox flex="1" align="center">
-            <checkbox id="runIncoming"
-                      label="&contextIncomingMail.label;"
-                      accesskey="&contextIncomingMail.accesskey;"
-                      command="cmd_updateClassificationMenu"/>
-          </hbox>
-          <hbox flex="1" align="center">
-            <checkbox id="runArchive"
-                      label="&contextArchive.label;"
-                      accesskey="&contextArchive.accesskey;"
-                      command="cmd_updateFilterType"/>
-          </hbox>
-          <hbox flex="1" align="center">
-            <checkbox id="runOutgoing"
-                      label="&contextOutgoing.label;"
-                      accesskey="&contextOutgoing.accesskey;"
-                      command="cmd_updateFilterType"/>
-          </hbox>
-        </vbox>
-        <vbox>
-          <hbox flex="1"/>
-          <hbox>
-            <menulist id="pluginsRunOrder"
-                      command="cmd_updateFilterType">
-              <menupopup>
-                <menuitem id="runBeforePlugins"
-                          label="&contextBeforeCls.label;"/>
-                <menuitem id="runAfterPlugins"
-                          label="&contextAfterCls.label;"/>
-              </menupopup>
-            </menulist>
-          </hbox>
-          <hbox flex="2"/>
-        </vbox>
-      </hbox>
+      <vbox>
+        <hbox flex="1" align="center">
+          <checkbox id="runManual"
+                    label="&contextManual.label;"
+                    accesskey="&contextManual.accesskey;"
+                    command="cmd_updateFilterType"/>
+        </hbox>
+        <hbox flex="1" align="center">
+          <checkbox id="runIncoming"
+                    label="&contextIncomingMail.label;"
+                    accesskey="&contextIncomingMail.accesskey;"
+                    command="cmd_updateClassificationMenu"/>
+          <menulist id="pluginsRunOrder"
+                    command="cmd_updateFilterType">
+            <menupopup>
+              <menuitem id="runBeforePlugins"
+                        label="&contextBeforeCls.label;"/>
+              <menuitem id="runAfterPlugins"
+                        label="&contextAfterCls.label;"/>
+            </menupopup>
+          </menulist>
+        </hbox>
+        <hbox flex="1" align="center">
+          <checkbox id="runArchive"
+                    label="&contextArchive.label;"
+                    accesskey="&contextArchive.accesskey;"
+                    command="cmd_updateFilterType"/>
+        </hbox>
+        <hbox flex="1" align="center">
+          <checkbox id="runOutgoing"
+                    label="&contextOutgoing.label;"
+                    accesskey="&contextOutgoing.accesskey;"
+                    command="cmd_updateFilterType"/>
+        </hbox>
+      </vbox>
     </groupbox>
 
     <vbox id="searchTermListBox" flex="1">
