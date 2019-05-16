@@ -9,16 +9,14 @@
 #include "nsString.h"
 #include "nsIMutableArray.h"
 
-class nsMsgAccount : public nsIMsgAccount
-{
-
-public:
+class nsMsgAccount : public nsIMsgAccount {
+ public:
   nsMsgAccount();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGACCOUNT
 
-private:
+ private:
   virtual ~nsMsgAccount();
   nsCString m_accountKey;
   nsCOMPtr<nsIPrefBranch> m_prefs;
@@ -35,4 +33,3 @@ private:
   // Have we tried to get the server yet?
   bool mTriedToGetServer;
 };
-

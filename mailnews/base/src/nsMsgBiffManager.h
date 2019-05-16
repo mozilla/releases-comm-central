@@ -20,14 +20,11 @@ typedef struct {
   PRTime nextBiffTime;
 } nsBiffEntry;
 
-
-class nsMsgBiffManager
-  : public nsIMsgBiffManager,
-    public nsIIncomingServerListener,
-    public nsIObserver,
-    public nsSupportsWeakReference
-{
-public:
+class nsMsgBiffManager : public nsIMsgBiffManager,
+                         public nsIIncomingServerListener,
+                         public nsIObserver,
+                         public nsSupportsWeakReference {
+ public:
   nsMsgBiffManager();
 
   NS_DECL_ISUPPORTS
@@ -37,7 +34,7 @@ public:
 
   nsresult PerformBiff();
 
-protected:
+ protected:
   virtual ~nsMsgBiffManager();
 
   int32_t FindServer(nsIMsgIncomingServer *server);
@@ -45,11 +42,11 @@ protected:
   nsresult SetupNextBiff();
   nsresult AddBiffEntry(nsBiffEntry &biffEntry);
 
-protected:
+ protected:
   nsCOMPtr<nsITimer> mBiffTimer;
   nsTArray<nsBiffEntry> mBiffArray;
   bool mHaveShutdown;
   bool mInited;
 };
 
-#endif // NSMSGBIFFMANAGER_H
+#endif  // NSMSGBIFFMANAGER_H

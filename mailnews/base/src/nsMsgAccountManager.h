@@ -3,9 +3,10 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * This Original Code has been modified by IBM Corporation. Modifications made by IBM
- * described herein are Copyright (c) International Business Machines Corporation, 2000.
- * Modifications to Mozilla code or documentation identified per MPL Section 3.3
+ * This Original Code has been modified by IBM Corporation. Modifications made
+ * by IBM described herein are Copyright (c) International Business Machines
+ * Corporation, 2000. Modifications to Mozilla code or documentation identified
+ * per MPL Section 3.3
  *
  * Date             Modified by     Description of modification
  * 04/20/2000       IBM Corp.      OS/2 VisualAge build.
@@ -29,9 +30,8 @@
 #include "nsAutoPtr.h"
 #include "nsTObserverArray.h"
 
-class VirtualFolderChangeListener final : public nsIDBChangeListener
-{
-public:
+class VirtualFolderChangeListener final : public nsIDBChangeListener {
+ public:
   VirtualFolderChangeListener();
 
   NS_DECL_ISUPPORTS
@@ -49,25 +49,24 @@ public:
 
   void DecrementNewMsgCount();
 
-  nsCOMPtr <nsIMsgFolder> m_virtualFolder; // folder we're listening to db changes on behalf of.
-  nsCOMPtr <nsIMsgFolder> m_folderWatching; // folder whose db we're listening to.
-  nsCOMPtr <nsIMsgSearchSession> m_searchSession;
+  // folder we're listening to db changes on behalf of.
+  nsCOMPtr<nsIMsgFolder> m_virtualFolder;
+  // folder whose db we're listening to.
+  nsCOMPtr<nsIMsgFolder> m_folderWatching;
+  nsCOMPtr<nsIMsgSearchSession> m_searchSession;
   bool m_searchOnMsgStatus;
   bool m_batchingEvents;
 
-private:
+ private:
   ~VirtualFolderChangeListener() {}
 };
 
-
-class nsMsgAccountManager: public nsIMsgAccountManager,
-    public nsIObserver,
-    public nsSupportsWeakReference,
-    public nsIUrlListener,
-    public nsIFolderListener
-{
-public:
-
+class nsMsgAccountManager : public nsIMsgAccountManager,
+                            public nsIObserver,
+                            public nsSupportsWeakReference,
+                            public nsIUrlListener,
+                            public nsIFolderListener {
+ public:
   nsMsgAccountManager();
 
   NS_DECL_THREADSAFE_ISUPPORTS
@@ -83,17 +82,19 @@ public:
   nsresult Shutdown();
   void LogoutOfServer(nsIMsgIncomingServer *aServer);
 
-private:
+ private:
   virtual ~nsMsgAccountManager();
 
   bool m_accountsLoaded;
-  nsCOMPtr <nsIMsgFolderCache> m_msgFolderCache;
+  nsCOMPtr<nsIMsgFolderCache> m_msgFolderCache;
   nsTArray<nsCOMPtr<nsIMsgAccount> > m_accounts;
   nsInterfaceHashtable<nsCStringHashKey, nsIMsgIdentity> m_identities;
-  nsInterfaceHashtable<nsCStringHashKey, nsIMsgIncomingServer> m_incomingServers;
+  nsInterfaceHashtable<nsCStringHashKey, nsIMsgIncomingServer>
+      m_incomingServers;
   nsCOMPtr<nsIMsgAccount> m_defaultAccount;
   nsCOMArray<nsIIncomingServerListener> m_incomingServerListeners;
-  nsTObserverArray<RefPtr<VirtualFolderChangeListener> > m_virtualFolderListeners;
+  nsTObserverArray<RefPtr<VirtualFolderChangeListener> >
+      m_virtualFolderListeners;
   nsCOMPtr<nsIMsgFolder> m_folderDoingEmptyTrash;
   nsCOMPtr<nsIMsgFolder> m_folderDoingCleanupInbox;
   bool m_emptyTrashInProgress;
@@ -111,37 +112,35 @@ private:
   bool m_virtualFoldersLoaded;
 
   /* we call FindServer() a lot.  so cache the last server found */
-  nsCOMPtr <nsIMsgIncomingServer> m_lastFindServerResult;
+  nsCOMPtr<nsIMsgIncomingServer> m_lastFindServerResult;
   nsCString m_lastFindServerHostName;
   nsCString m_lastFindServerUserName;
   int32_t m_lastFindServerPort;
   nsCString m_lastFindServerType;
 
-  void SetLastServerFound(nsIMsgIncomingServer *server, const nsACString& hostname,
-                          const nsACString& username, const int32_t port, const nsACString& type);
+  void SetLastServerFound(nsIMsgIncomingServer *server,
+                          const nsACString &hostname,
+                          const nsACString &username, const int32_t port,
+                          const nsACString &type);
 
   // Cache the results of the last call to FolderUriFromDirInProfile
   nsCOMPtr<nsIFile> m_lastPathLookedUp;
   nsCString m_lastFolderURIForPath;
 
   /* internal creation routines - updates m_identities and m_incomingServers */
-  nsresult createKeyedAccount(const nsCString& key,
-                              nsIMsgAccount **_retval);
-  nsresult createKeyedServer(const nsACString& key,
-                             const nsACString& username,
-                             const nsACString& password,
-                             const nsACString& type,
+  nsresult createKeyedAccount(const nsCString &key, nsIMsgAccount **_retval);
+  nsresult createKeyedServer(const nsACString &key, const nsACString &username,
+                             const nsACString &password, const nsACString &type,
                              nsIMsgIncomingServer **_retval);
 
-  nsresult createKeyedIdentity(const nsACString& key,
-                               nsIMsgIdentity **_retval);
+  nsresult createKeyedIdentity(const nsACString &key, nsIMsgIdentity **_retval);
 
   nsresult GetLocalFoldersPrettyName(nsString &localFoldersName);
 
   /**
    * Check if the given account can be the set as the default account.
    */
-  nsresult CheckDefaultAccount(nsIMsgAccount* aAccount, bool &aCanBeDefault);
+  nsresult CheckDefaultAccount(nsIMsgAccount *aAccount, bool &aCanBeDefault);
 
   /**
    * Find a new account that can serve as default.
@@ -164,38 +163,36 @@ private:
   //
 
   // find the servers that correspond to the given identity
-  static bool findServersForIdentity (nsISupports *element, void *aData);
+  static bool findServersForIdentity(nsISupports *element, void *aData);
 
-  void findAccountByServerKey(const nsCString &aKey,
-                              nsIMsgAccount **aResult);
+  void findAccountByServerKey(const nsCString &aKey, nsIMsgAccount **aResult);
 
   //
   // server enumerators
   // ("element" is always a server)
   //
 
-  nsresult findServerInternal(const nsACString& username,
-                              const nsACString& hostname,
-                              const nsACString& type,
-                              int32_t port,
-                              bool aRealFlag,
-                              nsIMsgIncomingServer** aResult);
+  nsresult findServerInternal(const nsACString &username,
+                              const nsACString &hostname,
+                              const nsACString &type, int32_t port,
+                              bool aRealFlag, nsIMsgIncomingServer **aResult);
 
   // handle virtual folders
-  static nsresult GetVirtualFoldersFile(nsCOMPtr<nsIFile>& file);
-  static nsresult WriteLineToOutputStream(const char *prefix, const char * line, nsIOutputStream *outputStream);
+  static nsresult GetVirtualFoldersFile(nsCOMPtr<nsIFile> &file);
+  static nsresult WriteLineToOutputStream(const char *prefix, const char *line,
+                                          nsIOutputStream *outputStream);
   void ParseAndVerifyVirtualFolderScope(nsCString &buffer);
   nsresult AddVFListenersForVF(nsIMsgFolder *virtualFolder,
-                               const nsCString& srchFolderUris,
+                               const nsCString &srchFolderUris,
                                nsIMsgDBService *msgDBService);
 
   nsresult RemoveVFListenerForVF(nsIMsgFolder *virtualFolder,
                                  nsIMsgFolder *folder);
 
-  void getUniqueAccountKey(nsCString& aResult);
+  void getUniqueAccountKey(nsCString &aResult);
 
   // Scan the preferences to find a unique server key
-  void GetUniqueServerKey(nsACString& aResult);
+  void GetUniqueServerKey(nsACString &aResult);
 
   nsresult RemoveFolderFromSmartFolder(nsIMsgFolder *aFolder,
                                        uint32_t flagsChanged);
