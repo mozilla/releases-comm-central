@@ -124,7 +124,10 @@ interface msgIStructuredHeaders : nsISupports {
     nsresult rv = GetAddressingHeader(aPropertyName, aPreserveGroups, &length,
       &addrPtr);
     NS_ENSURE_SUCCESS(rv, rv);
-    addrs.Adopt(addrPtr, length);
+    // addrs.Adopt(addrPtr, length);
+    addrs.Clear();
+    addrs.AppendElements(addrPtr, length);
+    free(addrPtr);
     return NS_OK;
   }
 %}

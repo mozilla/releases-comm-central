@@ -76,7 +76,10 @@ nsCOMArray<msgIAddressObject> DecodedHeader(const nsAString &aHeader) {
       headerParser->ParseDecodedHeader(aHeader, false, &length, &addresses);
   MOZ_ASSERT(NS_SUCCEEDED(rv), "Javascript jsmime returned an error!");
   if (NS_SUCCEEDED(rv) && length > 0 && addresses) {
-    retval.Adopt(addresses, length);
+    // retval.Adopt(addresses, length);
+    retval.Clear();
+    retval.AppendElements(addresses, length);
+    free(addresses);
   }
   return retval;
 }
@@ -95,7 +98,10 @@ nsCOMArray<msgIAddressObject> EncodedHeader(const nsACString &aHeader,
                                                  &length, &addresses);
   MOZ_ASSERT(NS_SUCCEEDED(rv), "This should never fail!");
   if (NS_SUCCEEDED(rv) && length > 0 && addresses) {
-    retval.Adopt(addresses, length);
+    // retval.Adopt(addresses, length);
+    retval.Clear();
+    retval.AppendElements(addresses, length);
+    free(addresses);
   }
   return retval;
 }
@@ -112,7 +118,10 @@ nsCOMArray<msgIAddressObject> EncodedHeaderW(const nsAString &aHeader) {
   nsresult rv = headerParser->ParseEncodedHeaderW(aHeader, &length, &addresses);
   MOZ_ASSERT(NS_SUCCEEDED(rv), "This should never fail!");
   if (NS_SUCCEEDED(rv) && length > 0 && addresses) {
-    retval.Adopt(addresses, length);
+    // retval.Adopt(addresses, length);
+    retval.Clear();
+    retval.AppendElements(addresses, length);
+    free(addresses);
   }
   return retval;
 }
