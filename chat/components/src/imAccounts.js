@@ -505,7 +505,7 @@ imAccount.prototype = {
     let passwordURI = "im://" + this.protocol.id;
     let logins;
     try {
-      logins = Services.logins.findLogins({}, passwordURI, null, passwordURI);
+      logins = Services.logins.findLogins(passwordURI, null, passwordURI);
     } catch (e) {
       this._handleMasterPasswordException(e);
       return "";
@@ -547,7 +547,7 @@ imAccount.prototype = {
     newLogin.init(passwordURI, null, passwordURI, this.normalizedName,
                   aPassword, "", "");
     try {
-      let logins = Services.logins.findLogins({}, passwordURI, null, passwordURI);
+      let logins = Services.logins.findLogins(passwordURI, null, passwordURI);
       let saved = false;
       for (let login of logins) {
         if (newLogin.matches(login, true)) {
@@ -622,7 +622,7 @@ imAccount.prototype = {
     // Note: the normalizedName may not be exactly right if the
     // protocol plugin is missing.
     login.init(passwordURI, null, passwordURI, this.normalizedName, "", "", "");
-    let logins = Services.logins.findLogins({}, passwordURI, null, passwordURI);
+    let logins = Services.logins.findLogins(passwordURI, null, passwordURI);
     for (let l of logins) {
       if (login.matches(l, true)) {
         Services.logins.removeLogin(l);

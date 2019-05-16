@@ -106,14 +106,10 @@ add_task(async function() {
   Assert.ok(rootFolder.containsChildNamed("Inbox"));
   Assert.ok(!rootFolder.containsChildNamed("Subscribed"));
 
-  // Check that we haven't forgotten the login even though we've retried and
-  // canceled.
+  // Check that we haven't forgotten the login even though we've retried and cancelled.
+  let logins = Services.logins.findLogins("imap://localhost", null, "imap://localhost");
 
-  let count = {};
-  let logins = Services.logins.findLogins(count, "imap://localhost", null,
-                                          "imap://localhost");
-
-  Assert.equal(count.value, 1);
+  Assert.equal(logins.length, 1);
   Assert.equal(logins[0].username, kUserName);
   Assert.equal(logins[0].password, kInvalidPassword);
 
@@ -130,19 +126,17 @@ add_task(async function() {
   Assert.ok(rootFolder.containsChildNamed("Subscribed"));
 
   // Now check the new one has been saved.
-  logins = Services.logins.findLogins(count, "imap://localhost", null,
-                                      "imap://localhost");
+  logins = Services.logins.findLogins("imap://localhost", null, "imap://localhost");
 
-  Assert.equal(count.value, 1);
+  Assert.equal(logins.length, 1);
   Assert.equal(logins[0].username, kUserName);
   Assert.equal(logins[0].password, kValidPassword);
 
   // Remove the login via the incoming server.
   incomingServer.forgetPassword();
-  logins = Services.logins.findLogins(count, "imap://localhost", null,
-                                      "imap://localhost");
+  logins = Services.logins.findLogins("imap://localhost", null, "imap://localhost");
 
-  Assert.equal(count.value, 0);
+  Assert.equal(logins.length, 0);
 
   do_timeout(500, endTest);
 });

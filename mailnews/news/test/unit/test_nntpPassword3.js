@@ -25,20 +25,18 @@ add_task(async function() {
   var incomingServer = MailServices.accounts.createIncomingServer(null, kHostname,
                                                                   kProtocol);
 
-  var count = {};
-
   // Test - Check there is a password to begin with...
-  var logins = Services.logins.findLogins(count, kServerUrl, null, kServerUrl);
+  var logins = Services.logins.findLogins(kServerUrl, null, kServerUrl);
 
-  Assert.equal(count.value, 1);
+  Assert.equal(logins.length, 1);
   Assert.equal(logins[0].username, kUsername);
   Assert.equal(logins[0].password, kPassword);
 
   // Test - Remove the news password login via the incoming server
   incomingServer.forgetPassword();
 
-  logins = Services.logins.findLogins(count, kServerUrl, null, kServerUrl);
+  logins = Services.logins.findLogins(kServerUrl, null, kServerUrl);
 
   // should be no passwords left...
-  Assert.equal(count.value, 0);
+  Assert.equal(logins.length, 0);
 });

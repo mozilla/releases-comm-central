@@ -52,7 +52,7 @@ var calauth = {
             let password;
             let found = false;
 
-            let logins = Services.logins.findLogins({}, aPasswordRealm.prePath, null, aPasswordRealm.realm);
+            let logins = Services.logins.findLogins(aPasswordRealm.prePath, null, aPasswordRealm.realm);
             if (logins.length) {
                 username = logins[0].username;
                 password = logins[0].password;
@@ -268,7 +268,7 @@ var calauth = {
         }
 
         try {
-            let logins = Services.logins.findLogins({}, origin, null, aRealm);
+            let logins = Services.logins.findLogins(origin, null, aRealm);
 
             let newLoginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"]
                                  .createInstance(Ci.nsILoginInfo);
@@ -304,7 +304,7 @@ var calauth = {
         let origin = this._ensureOrigin(aOrigin);
 
         try {
-            let logins = Services.logins.findLogins({}, origin, null, aRealm);
+            let logins = Services.logins.findLogins(origin, null, aRealm);
             for (let loginInfo of logins) {
                 if (loginInfo.username == aUsername) {
                     aPassword.value = loginInfo.password;
@@ -331,7 +331,7 @@ var calauth = {
         let origin = this._ensureOrigin(aOrigin);
 
         try {
-            let logins = Services.logins.findLogins({}, origin, null, aRealm);
+            let logins = Services.logins.findLogins(origin, null, aRealm);
             for (let loginInfo of logins) {
                 if (loginInfo.username == aUsername) {
                     Services.logins.removeLogin(loginInfo);

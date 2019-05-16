@@ -116,12 +116,9 @@ var URLListener = {
     // Check for ok status.
     Assert.equal(rc, 0);
     // Now check the new password has been saved.
-    let count = {};
-    let logins = Services.logins
-                         .findLogins(count, "smtp://localhost", null,
-                                     "smtp://localhost");
+    let logins = Services.logins.findLogins("smtp://localhost", null, "smtp://localhost");
 
-    Assert.equal(count.value, 1);
+    Assert.equal(logins.length, 1);
     Assert.equal(logins[0].username, kUsername);
     Assert.equal(logins[0].password, kValidPassword);
 

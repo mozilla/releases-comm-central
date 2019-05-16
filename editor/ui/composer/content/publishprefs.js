@@ -812,7 +812,7 @@ function GetSavedPassword(publishData)
     return "";
 
   let url = GetUrlForPasswordManager(publishData);
-  let logins = Services.logins.findLogins({}, url, null, url);
+  let logins = Services.logins.findLogins(url, null, url);
 
   for (let i = 0; i < logins.length; i++) {
     if (logins[i].username == publishData.username)
@@ -830,7 +830,7 @@ function SavePassword(publishData)
   let url = GetUrlForPasswordManager(publishData);
 
   // Remove existing entry by finding all logins that match.
-  let logins = Services.logins.findLogins({}, url, null, url);
+  let logins = Services.logins.findLogins(url, null, url);
 
   for (let i = 0; i < logins.length; i++) {
     if (logins[i].username == publishData.username) {

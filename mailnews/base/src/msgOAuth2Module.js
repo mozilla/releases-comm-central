@@ -90,7 +90,7 @@ OAuth2Module.prototype = {
   },
 
   get refreshToken() {
-    let logins = Services.logins.findLogins({}, this._loginUrl, null, this._scope);
+    let logins = Services.logins.findLogins(this._loginUrl, null, this._scope);
     for (let login of logins) {
       if (login.username == this._username)
         return login.password;
@@ -100,7 +100,7 @@ OAuth2Module.prototype = {
   set refreshToken(token) {
     // Check if we already have a login with this username, and modify the
     // password on that, if we do.
-    let logins = Services.logins.findLogins({}, this._loginUrl, null, this._scope);
+    let logins = Services.logins.findLogins(this._loginUrl, null, this._scope);
     for (let login of logins) {
       if (login.username == this._username) {
         if (token) {

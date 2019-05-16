@@ -133,13 +133,10 @@ add_task(async function() {
                                        "DATA"]);
 
 
-      // Now check the new one has been saved.
-      let count = {};
-      let logins = Services.logins
-                           .findLogins(count, "smtp://localhost", null,
-                                       "smtp://localhost");
+    // Now check the new one has been saved.
+    let logins = Services.logins.findLogins("smtp://localhost", null, "smtp://localhost");
 
-    Assert.equal(count.value, 1);
+    Assert.equal(logins.length, 1);
     Assert.equal(logins[0].username, kUsername);
     Assert.equal(logins[0].password, kValidPassword);
     do_test_finished();

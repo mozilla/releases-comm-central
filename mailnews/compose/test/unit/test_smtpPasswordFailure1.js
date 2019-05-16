@@ -106,14 +106,10 @@ add_task(async function() {
 
     Assert.equal(attempt, 2);
 
-    // Check that we haven't forgetton the login even though we've retried and
-    // canceled.
-    let count = {};
-    let logins = Services.logins
-                         .findLogins(count, "smtp://localhost", null,
-                                     "smtp://localhost");
+    // Check that we haven't forgetton the login even though we've retried and cancelled.
+    let logins = Services.logins.findLogins("smtp://localhost", null, "smtp://localhost");
 
-    Assert.equal(count.value, 1);
+    Assert.equal(logins.length, 1);
     Assert.equal(logins[0].username, kUsername);
     Assert.equal(logins[0].password, kInvalidPassword);
   } catch (e) {

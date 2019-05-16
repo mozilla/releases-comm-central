@@ -132,13 +132,10 @@ function* getMail1() {
 
   Assert.equal(attempt, 2);
 
-  // Check that we haven't forgotten the login even though we've retried and
-  // canceled.
-  let count = {};
-  let logins = Services.logins.findLogins(count, "mailbox://localhost", null,
-                                          "mailbox://localhost");
+  // Check that we haven't forgotten the login even though we've retried and cancelled.
+  let logins = Services.logins.findLogins("mailbox://localhost", null, "mailbox://localhost");
 
-  Assert.equal(count.value, 1);
+  Assert.equal(logins.length, 1);
   Assert.equal(logins[0].username, kUserName);
   Assert.equal(logins[0].password, kInvalidPassword);
 
@@ -155,11 +152,9 @@ function* getMail2() {
   dump("\nGot Mail 2\n");
 
   // Now check the new one has been saved.
-  let count = {};
-  let logins = Services.logins.findLogins(count, "mailbox://localhost", null,
-                                          "mailbox://localhost");
+  let logins = Services.logins.findLogins("mailbox://localhost", null, "mailbox://localhost");
 
-  Assert.equal(count.value, 1);
+  Assert.equal(logins.length, 1);
   Assert.equal(logins[0].username, kUserName);
   Assert.equal(logins[0].password, kValidPassword);
   yield true;

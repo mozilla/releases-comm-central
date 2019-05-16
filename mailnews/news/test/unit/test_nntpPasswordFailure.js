@@ -26,7 +26,6 @@ var daemon;
 var incomingServer;
 var folder;
 var attempt = 0;
-var count = {};
 var logins;
 
 var kUserName = "testnews";
@@ -127,12 +126,10 @@ function* getMail1() {
 
   Assert.equal(attempt, 2);
 
-  // Check that we haven't forgotten the login even though we've retried and
-  // canceled.
-  logins = Services.logins.findLogins(count, "news://localhost", null,
-                                      "news://localhost");
+  // Check that we haven't forgotten the login even though we've retried and cancelled.
+  logins = Services.logins.findLogins("news://localhost", null, "news://localhost");
 
-  Assert.equal(count.value, 1);
+  Assert.equal(logins.length, 1);
   Assert.equal(logins[0].username, kUserName);
   Assert.equal(logins[0].password, kInvalidPassword);
 
@@ -151,10 +148,9 @@ function* getMail2() {
 
 function* endTest() {
   // Now check the new one has been saved.
-  logins = Services.logins.findLogins(count, "news://localhost", null,
-                                      "news://localhost");
+  logins = Services.logins.findLogins("news://localhost", null, "news://localhost");
 
-  Assert.equal(count.value, 1);
+  Assert.equal(logins.length, 1);
   Assert.equal(logins[0].username, kUserName);
   Assert.equal(logins[0].password, kValidPassword);
   yield true;
