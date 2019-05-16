@@ -16,38 +16,34 @@
 
 NS_IMPL_ISUPPORTS(MailnewsLoadContextInfo, nsILoadContextInfo)
 
-MailnewsLoadContextInfo::MailnewsLoadContextInfo(bool aIsPrivate, bool aIsAnonymous, mozilla::OriginAttributes aOriginAttributes)
-  : mIsPrivate(aIsPrivate)
-  , mIsAnonymous(aIsAnonymous)
-  , mOriginAttributes(aOriginAttributes)
-{
+MailnewsLoadContextInfo::MailnewsLoadContextInfo(
+    bool aIsPrivate, bool aIsAnonymous,
+    mozilla::OriginAttributes aOriginAttributes)
+    : mIsPrivate(aIsPrivate),
+      mIsAnonymous(aIsAnonymous),
+      mOriginAttributes(aOriginAttributes) {
   mOriginAttributes.SyncAttributesWithPrivateBrowsing(mIsPrivate);
 }
 
-MailnewsLoadContextInfo::~MailnewsLoadContextInfo()
-{
-}
+MailnewsLoadContextInfo::~MailnewsLoadContextInfo() {}
 
-NS_IMETHODIMP MailnewsLoadContextInfo::GetIsPrivate(bool *aIsPrivate)
-{
+NS_IMETHODIMP MailnewsLoadContextInfo::GetIsPrivate(bool *aIsPrivate) {
   *aIsPrivate = mIsPrivate;
   return NS_OK;
 }
 
-NS_IMETHODIMP MailnewsLoadContextInfo::GetIsAnonymous(bool *aIsAnonymous)
-{
+NS_IMETHODIMP MailnewsLoadContextInfo::GetIsAnonymous(bool *aIsAnonymous) {
   *aIsAnonymous = mIsAnonymous;
   return NS_OK;
 }
 
-mozilla::OriginAttributes const* MailnewsLoadContextInfo::OriginAttributesPtr()
-{
+mozilla::OriginAttributes const *
+MailnewsLoadContextInfo::OriginAttributesPtr() {
   return &mOriginAttributes;
 }
 
-NS_IMETHODIMP MailnewsLoadContextInfo::GetOriginAttributes(JSContext *aCx,
-                                                   JS::MutableHandle<JS::Value> aVal)
-{
+NS_IMETHODIMP MailnewsLoadContextInfo::GetOriginAttributes(
+    JSContext *aCx, JS::MutableHandle<JS::Value> aVal) {
   if (NS_WARN_IF(!ToJSValue(aCx, mOriginAttributes, aVal))) {
     return NS_ERROR_FAILURE;
   }

@@ -62,78 +62,62 @@
 using namespace mozilla::mailnews;
 
 // HACK: Limitations in Focus/SetFocus on Mac (see bug 465446)
-nsresult FocusAppNative()
-{
+nsresult FocusAppNative() {
   ProcessSerialNumber psn;
 
-  if (::GetCurrentProcess(&psn) != 0)
-   return NS_ERROR_FAILURE;
+  if (::GetCurrentProcess(&psn) != 0) return NS_ERROR_FAILURE;
 
-  if (::SetFrontProcess(&psn) != 0)
-   return NS_ERROR_FAILURE;
+  if (::SetFrontProcess(&psn) != 0) return NS_ERROR_FAILURE;
 
   return NS_OK;
 }
 
-static void openMailWindow(const nsCString& aUri)
-{
+static void openMailWindow(const nsCString &aUri) {
   nsresult rv;
-  nsCOMPtr<nsIMsgMailSession> mailSession ( do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv));
-  if (NS_FAILED(rv))
-    return;
+  nsCOMPtr<nsIMsgMailSession> mailSession(do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv));
+  if (NS_FAILED(rv)) return;
 
   nsCOMPtr<nsIMsgWindow> topMostMsgWindow;
   rv = mailSession->GetTopmostMsgWindow(getter_AddRefs(topMostMsgWindow));
-  if (topMostMsgWindow)
-  {
-    if (!aUri.IsEmpty())
-    {
+  if (topMostMsgWindow) {
+    if (!aUri.IsEmpty()) {
       nsCOMPtr<nsIMsgMailNewsUrl> msgUri(do_CreateInstance(NS_MAILBOXURL_CONTRACTID, &rv));
-      if (NS_FAILED(rv))
-        return;
+      if (NS_FAILED(rv)) return;
 
       rv = msgUri->SetSpecInternal(aUri);
-      if (NS_FAILED(rv))
-        return;
+      if (NS_FAILED(rv)) return;
 
       bool isMessageUri = false;
       msgUri->GetIsMessageUri(&isMessageUri);
-      if (isMessageUri)
-      {
+      if (isMessageUri) {
         nsCOMPtr<nsIWindowWatcher> wwatch(do_GetService(NS_WINDOWWATCHER_CONTRACTID, &rv));
-        if (NS_FAILED(rv))
-          return;
+        if (NS_FAILED(rv)) return;
 
-        // SeaMonkey only supports message uris, whereas Thunderbird only
-        // supports message headers. This should be simplified/removed when
-        // bug 507593 is implemented.
+          // SeaMonkey only supports message uris, whereas Thunderbird only
+          // supports message headers. This should be simplified/removed when
+          // bug 507593 is implemented.
 #ifdef MOZ_SUITE
         nsCOMPtr<mozIDOMWindowProxy> newWindow;
-        wwatch->OpenWindow(0, "chrome://messenger/content/messageWindow.xul",
-                           "_blank", "all,chrome,dialog=no,status,toolbar", msgUri,
+        wwatch->OpenWindow(0, "chrome://messenger/content/messageWindow.xul", "_blank",
+                           "all,chrome,dialog=no,status,toolbar", msgUri,
                            getter_AddRefs(newWindow));
 #else
         nsCOMPtr<nsIMessenger> messenger(do_CreateInstance(NS_MESSENGER_CONTRACTID, &rv));
-        if (NS_FAILED(rv))
-          return;
+        if (NS_FAILED(rv)) return;
 
         nsCOMPtr<nsIMsgDBHdr> msgHdr;
         messenger->MsgHdrFromURI(aUri, getter_AddRefs(msgHdr));
-        if (msgHdr)
-        {
+        if (msgHdr) {
           nsCOMPtr<mozIDOMWindowProxy> newWindow;
-          wwatch->OpenWindow(0, "chrome://messenger/content/messageWindow.xul",
-                             "_blank", "all,chrome,dialog=no,status,toolbar", msgHdr,
+          wwatch->OpenWindow(0, "chrome://messenger/content/messageWindow.xul", "_blank",
+                             "all,chrome,dialog=no,status,toolbar", msgHdr,
                              getter_AddRefs(newWindow));
         }
 #endif
-      }
-      else
-      {
+      } else {
         nsCOMPtr<nsIMsgWindowCommands> windowCommands;
         topMostMsgWindow->GetWindowCommands(getter_AddRefs(windowCommands));
-        if (windowCommands)
-          windowCommands->SelectFolder(aUri);
+        if (windowCommands) windowCommands->SelectFolder(aUri);
       }
     }
 
@@ -144,97 +128,82 @@ static void openMailWindow(const nsCString& aUri)
       nsCOMPtr<nsPIDOMWindowOuter> privateWindow = nsPIDOMWindowOuter::From(domWindow);
       privateWindow->Focus();
     }
-  }
-  else
-  {
+  } else {
     // the user doesn't have a mail window open already so open one for them...
     nsCOMPtr<nsIMessengerWindowService> messengerWindowService =
-      do_GetService(NS_MESSENGERWINDOWSERVICE_CONTRACTID);
+        do_GetService(NS_MESSENGERWINDOWSERVICE_CONTRACTID);
     // if we want to preselect the first account with new mail,
     // here is where we would try to generate a uri to pass in
     // (and add code to the messenger window service to make that work)
     if (messengerWindowService)
-      messengerWindowService->OpenMessengerWindowWithUri(
-                                "mail:3pane", aUri.get(), nsMsgKey_None);
+      messengerWindowService->OpenMessengerWindowWithUri("mail:3pane", aUri.get(), nsMsgKey_None);
   }
 }
 
-nsMessengerOSXIntegration::nsMessengerOSXIntegration()
-{
+nsMessengerOSXIntegration::nsMessengerOSXIntegration() {
   mUnreadTotal = 0;
   mUnreadChat = 0;
 }
 
-nsMessengerOSXIntegration::~nsMessengerOSXIntegration()
-{
-  RestoreDockIcon();
-}
+nsMessengerOSXIntegration::~nsMessengerOSXIntegration() { RestoreDockIcon(); }
 
 NS_IMPL_ADDREF(nsMessengerOSXIntegration)
 NS_IMPL_RELEASE(nsMessengerOSXIntegration)
 
 NS_INTERFACE_MAP_BEGIN(nsMessengerOSXIntegration)
-   NS_INTERFACE_MAP_ENTRY_AMBIGUOUS(nsISupports, nsIMessengerOSIntegration)
-   NS_INTERFACE_MAP_ENTRY(nsIMessengerOSIntegration)
-   NS_INTERFACE_MAP_ENTRY(nsIFolderListener)
-   NS_INTERFACE_MAP_ENTRY(nsIObserver)
-   NS_INTERFACE_MAP_ENTRY(mozINewMailListener)
+  NS_INTERFACE_MAP_ENTRY_AMBIGUOUS(nsISupports, nsIMessengerOSIntegration)
+  NS_INTERFACE_MAP_ENTRY(nsIMessengerOSIntegration)
+  NS_INTERFACE_MAP_ENTRY(nsIFolderListener)
+  NS_INTERFACE_MAP_ENTRY(nsIObserver)
+  NS_INTERFACE_MAP_ENTRY(mozINewMailListener)
 NS_INTERFACE_MAP_END
 
-
-nsresult
-nsMessengerOSXIntegration::Init()
-{
+nsresult nsMessengerOSXIntegration::Init() {
   nsresult rv;
-  nsCOMPtr<nsIObserverService> observerService = do_GetService("@mozilla.org/observer-service;1", &rv);
+  nsCOMPtr<nsIObserverService> observerService =
+      do_GetService("@mozilla.org/observer-service;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   return observerService->AddObserver(this, "mail-startup-done", false);
 }
 
 NS_IMETHODIMP
-nsMessengerOSXIntegration::OnItemPropertyChanged(nsIMsgFolder *, const nsACString &, char const *, char const *)
-{
+nsMessengerOSXIntegration::OnItemPropertyChanged(nsIMsgFolder *, const nsACString &, char const *,
+                                                 char const *) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMessengerOSXIntegration::OnItemUnicharPropertyChanged(nsIMsgFolder *, const nsACString &, const char16_t *, const char16_t *)
-{
+nsMessengerOSXIntegration::OnItemUnicharPropertyChanged(nsIMsgFolder *, const nsACString &,
+                                                        const char16_t *, const char16_t *) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMessengerOSXIntegration::OnItemRemoved(nsIMsgFolder *, nsISupports *)
-{
-  return NS_OK;
-}
+nsMessengerOSXIntegration::OnItemRemoved(nsIMsgFolder *, nsISupports *) { return NS_OK; }
 
 NS_IMETHODIMP
-nsMessengerOSXIntegration::Observe(nsISupports* aSubject, const char* aTopic, const char16_t* aData)
-{
-  if (!strcmp(aTopic, "alertfinished"))
-    return OnAlertFinished();
+nsMessengerOSXIntegration::Observe(nsISupports *aSubject, const char *aTopic,
+                                   const char16_t *aData) {
+  if (!strcmp(aTopic, "alertfinished")) return OnAlertFinished();
 
-  if (!strcmp(aTopic, "alertclickcallback"))
-    return OnAlertClicked(aData);
+  if (!strcmp(aTopic, "alertclickcallback")) return OnAlertClicked(aData);
 
 #ifdef MOZ_SUITE
   // SeaMonkey does most of the GUI work in JS code when clicking on a mail
   // notification, so it needs an extra function here
-  if (!strcmp(aTopic, "alertclicksimplecallback"))
-    return OnAlertClickedSimple();
+  if (!strcmp(aTopic, "alertclicksimplecallback")) return OnAlertClickedSimple();
 #endif
 
   if (!strcmp(aTopic, "mail-startup-done")) {
     nsresult rv;
-    nsCOMPtr<nsIObserverService> observerService = do_GetService("@mozilla.org/observer-service;1", &rv);
+    nsCOMPtr<nsIObserverService> observerService =
+        do_GetService("@mozilla.org/observer-service;1", &rv);
     if (NS_SUCCEEDED(rv)) {
       observerService->RemoveObserver(this, "mail-startup-done");
 
       bool chatEnabled = false;
       nsCOMPtr<nsIPrefBranch> pref(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-      if (NS_SUCCEEDED(rv))
-        rv = pref->GetBoolPref(kChatEnabledPref, &chatEnabled);
+      if (NS_SUCCEEDED(rv)) rv = pref->GetBoolPref(kChatEnabledPref, &chatEnabled);
       if (NS_SUCCEEDED(rv) && chatEnabled) {
         observerService->AddObserver(this, kNewChatMessageTopic, false);
         observerService->AddObserver(this, kUnreadImCountChangedTopic, false);
@@ -242,11 +211,11 @@ nsMessengerOSXIntegration::Observe(nsISupports* aSubject, const char* aTopic, co
     }
 
     // Register with the new mail service for changes to the unread message count
-    nsCOMPtr<mozINewMailNotificationService> newmail
-      = do_GetService(MOZ_NEWMAILNOTIFICATIONSERVICE_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv); // This should really be an assert with a helpful message
+    nsCOMPtr<mozINewMailNotificationService> newmail =
+        do_GetService(MOZ_NEWMAILNOTIFICATIONSERVICE_CONTRACTID, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);  // This should really be an assert with a helpful message
     rv = newmail->AddListener(this, mozINewMailNotificationService::count);
-    NS_ENSURE_SUCCESS(rv, rv); // This should really be an assert with a helpful message
+    NS_ENSURE_SUCCESS(rv, rv);  // This should really be an assert with a helpful message
 
     // Get the initial unread count. Ignore return value; if code above didn't fail, this won't
     rv = newmail->GetMessageCount(&mUnreadTotal);
@@ -257,7 +226,8 @@ nsMessengerOSXIntegration::Observe(nsISupports* aSubject, const char* aTopic, co
     nsCOMPtr<nsIMsgMailSession> mailSession = do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    return mailSession->AddFolderListener(this, nsIFolderListener::boolPropertyChanged | nsIFolderListener::intPropertyChanged);
+    return mailSession->AddFolderListener(
+        this, nsIFolderListener::boolPropertyChanged | nsIFolderListener::intPropertyChanged);
   }
 
   if (!strcmp(aTopic, kNewChatMessageTopic)) {
@@ -282,179 +252,134 @@ nsMessengerOSXIntegration::Observe(nsISupports* aSubject, const char* aTopic, co
   return NS_OK;
 }
 
-nsresult
-nsMessengerOSXIntegration::GetStringBundle(nsIStringBundle **aBundle)
-{
+nsresult nsMessengerOSXIntegration::GetStringBundle(nsIStringBundle **aBundle) {
   NS_ENSURE_ARG_POINTER(aBundle);
   nsresult rv;
   nsCOMPtr<nsIStringBundleService> bundleService = do_GetService(NS_STRINGBUNDLE_CONTRACTID, &rv);
   nsCOMPtr<nsIStringBundle> bundle;
   if (bundleService && NS_SUCCEEDED(rv))
-    bundleService->CreateBundle("chrome://messenger/locale/messenger.properties", getter_AddRefs(bundle));
+    bundleService->CreateBundle("chrome://messenger/locale/messenger.properties",
+                                getter_AddRefs(bundle));
   bundle.forget(aBundle);
   return rv;
 }
 
-void
-nsMessengerOSXIntegration::FillToolTipInfo(nsIMsgFolder *aFolder, int32_t aNewCount)
-{
-  if (aFolder)
-  {
+void nsMessengerOSXIntegration::FillToolTipInfo(nsIMsgFolder *aFolder, int32_t aNewCount) {
+  if (aFolder) {
     nsString authors;
     int32_t numNotDisplayed;
     nsresult rv = GetNewMailAuthors(aFolder, authors, aNewCount, &numNotDisplayed);
 
     // If all senders are vetoed, the authors string will be empty.
-    if (NS_FAILED(rv) || authors.IsEmpty())
-      return;
+    if (NS_FAILED(rv) || authors.IsEmpty()) return;
 
     // If this isn't the root folder, get it so we can report for it.
     // GetRootFolder always returns the server's root, so calling on the root itself is fine.
     nsCOMPtr<nsIMsgFolder> rootFolder;
     aFolder->GetRootFolder(getter_AddRefs(rootFolder));
-    if (!rootFolder)
-      return;
+    if (!rootFolder) return;
 
     nsString accountName;
     rootFolder->GetPrettyName(accountName);
 
     nsCOMPtr<nsIStringBundle> bundle;
     GetStringBundle(getter_AddRefs(bundle));
-    if (bundle)
-    {
+    if (bundle) {
       nsAutoString numNewMsgsText;
       numNewMsgsText.AppendInt(aNewCount);
       nsString finalText;
       nsCString uri;
       aFolder->GetURI(uri);
 
-      if (numNotDisplayed > 0)
-      {
+      if (numNotDisplayed > 0) {
         nsAutoString numNotDisplayedText;
         numNotDisplayedText.AppendInt(numNotDisplayed);
-        const char16_t *formatStrings[3] = { numNewMsgsText.get(), authors.get(), numNotDisplayedText.get() };
-        bundle->FormatStringFromName("macBiffNotification_messages_extra",
-                                     formatStrings,
-                                     3,
+        const char16_t *formatStrings[3] = {numNewMsgsText.get(), authors.get(),
+                                            numNotDisplayedText.get()};
+        bundle->FormatStringFromName("macBiffNotification_messages_extra", formatStrings, 3,
                                      finalText);
-      }
-      else
-      {
-        const char16_t *formatStrings[2] = { numNewMsgsText.get(), authors.get() };
+      } else {
+        const char16_t *formatStrings[2] = {numNewMsgsText.get(), authors.get()};
 
-        if (aNewCount == 1)
-        {
-          bundle->FormatStringFromName("macBiffNotification_message",
-                                       formatStrings,
-                                       2,
-                                       finalText);
+        if (aNewCount == 1) {
+          bundle->FormatStringFromName("macBiffNotification_message", formatStrings, 2, finalText);
           // Since there is only 1 message, use the most recent mail's URI instead of the folder's
           nsCOMPtr<nsIMsgDatabase> db;
           rv = aFolder->GetMsgDatabase(getter_AddRefs(db));
-          if (NS_SUCCEEDED(rv) && db)
-          {
+          if (NS_SUCCEEDED(rv) && db) {
             uint32_t numNewKeys;
             uint32_t *newMessageKeys;
             rv = db->GetNewList(&numNewKeys, &newMessageKeys);
-            if (NS_SUCCEEDED(rv))
-            {
+            if (NS_SUCCEEDED(rv)) {
               nsCOMPtr<nsIMsgDBHdr> hdr;
-              rv = db->GetMsgHdrForKey(newMessageKeys[numNewKeys - 1],
-                                       getter_AddRefs(hdr));
-              if (NS_SUCCEEDED(rv) && hdr)
-                aFolder->GetUriForMsg(hdr, uri);
+              rv = db->GetMsgHdrForKey(newMessageKeys[numNewKeys - 1], getter_AddRefs(hdr));
+              if (NS_SUCCEEDED(rv) && hdr) aFolder->GetUriForMsg(hdr, uri);
             }
             free(newMessageKeys);
           }
-        }
-        else
-          bundle->FormatStringFromName("macBiffNotification_messages",
-                                       formatStrings,
-                                       2,
-                                       finalText);
+        } else
+          bundle->FormatStringFromName("macBiffNotification_messages", formatStrings, 2, finalText);
       }
       ShowAlertMessage(accountName, finalText, uri);
-    } // if we got a bundle
-  } // if we got a folder
+    }  // if we got a bundle
+  }    // if we got a folder
 }
 
-nsresult
-nsMessengerOSXIntegration::ShowAlertMessage(const nsAString& aAlertTitle,
-                                            const nsAString& aAlertText,
-                                            const nsACString& aFolderURI)
-{
+nsresult nsMessengerOSXIntegration::ShowAlertMessage(const nsAString &aAlertTitle,
+                                                     const nsAString &aAlertText,
+                                                     const nsACString &aFolderURI) {
   nsCOMPtr<nsIAlertsService> alertsService = mozilla::components::Alerts::Service();
   nsresult rv = alertsService ? NS_OK : NS_ERROR_UNEXPECTED;
   // If we have an nsIAlertsService implementation, use it:
-  if (NS_SUCCEEDED(rv))
-  {
-    alertsService->ShowAlertNotification(EmptyString(),
-                                         aAlertTitle, aAlertText, true,
-                                         NS_ConvertASCIItoUTF16(aFolderURI),
-                                         this, EmptyString(),
-                                         NS_LITERAL_STRING("auto"),
-                                         EmptyString(), EmptyString(),
-                                         nullptr,
-                                         false,
-                                         false);
+  if (NS_SUCCEEDED(rv)) {
+    alertsService->ShowAlertNotification(EmptyString(), aAlertTitle, aAlertText, true,
+                                         NS_ConvertASCIItoUTF16(aFolderURI), this, EmptyString(),
+                                         NS_LITERAL_STRING("auto"), EmptyString(), EmptyString(),
+                                         nullptr, false, false);
   }
 
   BounceDockIcon();
 
-  if (NS_FAILED(rv))
-    OnAlertFinished();
+  if (NS_FAILED(rv)) OnAlertFinished();
 
   return rv;
 }
 
 NS_IMETHODIMP
 nsMessengerOSXIntegration::OnItemIntPropertyChanged(nsIMsgFolder *aFolder,
-                                                    const nsACString &aProperty,
-                                                    int64_t aOldValue,
-                                                    int64_t aNewValue)
-{
+                                                    const nsACString &aProperty, int64_t aOldValue,
+                                                    int64_t aNewValue) {
   // if we got new mail show an alert
-  if (aNewValue == nsIMsgFolder::nsMsgBiffState_NewMail)
-  {
+  if (aNewValue == nsIMsgFolder::nsMsgBiffState_NewMail) {
     bool performingBiff = false;
     nsCOMPtr<nsIMsgIncomingServer> server;
     aFolder->GetServer(getter_AddRefs(server));
-    if (server)
-      server->GetPerformingBiff(&performingBiff);
-    if (!performingBiff)
-      return NS_OK; // kick out right now...
+    if (server) server->GetPerformingBiff(&performingBiff);
+    if (!performingBiff) return NS_OK;  // kick out right now...
 
     // Biff happens for the root folder, but we want info for the child with new mail
     nsCString folderUri;
     GetFirstFolderWithNewMail(aFolder, folderUri);
     nsCOMPtr<nsIMsgFolder> childFolder;
-    nsresult rv = aFolder->GetChildWithURI(folderUri, true, true,
-                                           getter_AddRefs(childFolder));
-    if (NS_FAILED(rv) || !childFolder)
-      return NS_ERROR_FAILURE;
+    nsresult rv = aFolder->GetChildWithURI(folderUri, true, true, getter_AddRefs(childFolder));
+    if (NS_FAILED(rv) || !childFolder) return NS_ERROR_FAILURE;
 
     int32_t numNewMessages = 0;
     childFolder->GetNumNewMessages(true, &numNewMessages);
     FillToolTipInfo(childFolder, numNewMessages);
-  }
-  else if (aProperty.Equals(kNewMailReceived))
-  {
+  } else if (aProperty.Equals(kNewMailReceived)) {
     FillToolTipInfo(aFolder, aNewValue);
   }
   return NS_OK;
 }
 
-nsresult
-nsMessengerOSXIntegration::OnAlertClicked(const char16_t* aAlertCookie)
-{
+nsresult nsMessengerOSXIntegration::OnAlertClicked(const char16_t *aAlertCookie) {
   openMailWindow(NS_ConvertUTF16toUTF8(aAlertCookie));
   return NS_OK;
 }
 
 #ifdef MOZ_SUITE
-nsresult
-nsMessengerOSXIntegration::OnAlertClickedSimple()
-{
+nsresult nsMessengerOSXIntegration::OnAlertClickedSimple() {
   // SeaMonkey only function; only focus the app here, rest of the work will
   // be done in suite/mailnews/mailWidgets.xml
   FocusAppNative();
@@ -462,15 +387,9 @@ nsMessengerOSXIntegration::OnAlertClickedSimple()
 }
 #endif
 
-nsresult
-nsMessengerOSXIntegration::OnAlertFinished()
-{
-  return NS_OK;
-}
+nsresult nsMessengerOSXIntegration::OnAlertFinished() { return NS_OK; }
 
-nsresult
-nsMessengerOSXIntegration::BounceDockIcon()
-{
+nsresult nsMessengerOSXIntegration::BounceDockIcon() {
   nsresult rv;
   nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -479,18 +398,15 @@ nsMessengerOSXIntegration::BounceDockIcon()
   rv = prefBranch->GetBoolPref(kBiffAnimateDockIconPref, &bounceDockIcon);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (!bounceDockIcon)
-    return NS_OK;
+  if (!bounceDockIcon) return NS_OK;
 
   nsCOMPtr<nsIWindowMediator> mediator(do_GetService(NS_WINDOWMEDIATOR_CONTRACTID));
-  if (mediator)
-  {
+  if (mediator) {
     nsCOMPtr<mozIDOMWindowProxy> domWindow;
     mediator->GetMostRecentWindow(u"mail:3pane", getter_AddRefs(domWindow));
-    if (domWindow)
-    {
-      nsPIDOMWindowOuter* outer = nsPIDOMWindowOuter::From(domWindow);
-      nsPIDOMWindowInner* inner = outer->GetCurrentInnerWindow();
+    if (domWindow) {
+      nsPIDOMWindowOuter *outer = nsPIDOMWindowOuter::From(domWindow);
+      nsPIDOMWindowInner *inner = outer->GetCurrentInnerWindow();
       if (inner) {
         mozilla::IgnoredErrorResult rv;
         nsGlobalWindowInner::Cast(inner)->GetAttention(rv);
@@ -500,28 +416,23 @@ nsMessengerOSXIntegration::BounceDockIcon()
   return NS_OK;
 }
 
-nsresult
-nsMessengerOSXIntegration::RestoreDockIcon()
-{
+nsresult nsMessengerOSXIntegration::RestoreDockIcon() {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NSRESULT;
 
   id tile = [[NSApplication sharedApplication] dockTile];
-  [tile setBadgeLabel: nil];
+  [tile setBadgeLabel:nil];
 
   return NS_OK;
 
   NS_OBJC_END_TRY_ABORT_BLOCK_NSRESULT;
 }
 
-nsresult
-nsMessengerOSXIntegration::BadgeDockIcon()
-{
+nsresult nsMessengerOSXIntegration::BadgeDockIcon() {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NSRESULT;
 
   int32_t unreadCount = mUnreadTotal + mUnreadChat;
   // If count is less than one, we should restore the original dock icon.
-  if (unreadCount < 1)
-  {
+  if (unreadCount < 1) {
     RestoreDockIcon();
     return NS_OK;
   }
@@ -531,18 +442,14 @@ nsMessengerOSXIntegration::BadgeDockIcon()
   // other short string. Getting back the empty string will cause
   // nothing to be drawn and us to return early.
   nsresult rv;
-  nsCOMPtr<nsIObserverService> os
-    (do_GetService("@mozilla.org/observer-service;1", &rv));
-  if (NS_FAILED(rv))
-  {
+  nsCOMPtr<nsIObserverService> os(do_GetService("@mozilla.org/observer-service;1", &rv));
+  if (NS_FAILED(rv)) {
     RestoreDockIcon();
     return rv;
   }
 
-  nsCOMPtr<nsISupportsString> str
-    (do_CreateInstance(NS_SUPPORTS_STRING_CONTRACTID, &rv));
-  if (NS_FAILED(rv))
-  {
+  nsCOMPtr<nsISupportsString> str(do_CreateInstance(NS_SUPPORTS_STRING_CONTRACTID, &rv));
+  if (NS_FAILED(rv)) {
     RestoreDockIcon();
     return rv;
   }
@@ -550,56 +457,42 @@ nsMessengerOSXIntegration::BadgeDockIcon()
   nsAutoString total;
   total.AppendInt(unreadCount);
   str->SetData(total);
-  os->NotifyObservers(str, "before-unread-count-display",
-                      total.get());
+  os->NotifyObservers(str, "before-unread-count-display", total.get());
   nsAutoString badgeString;
   str->GetData(badgeString);
-  if (badgeString.IsEmpty())
-  {
+  if (badgeString.IsEmpty()) {
     RestoreDockIcon();
     return NS_OK;
   }
 
   id tile = [[NSApplication sharedApplication] dockTile];
-  [tile setBadgeLabel:[NSString stringWithFormat:@"%S", (const unichar*)badgeString.get()]];
+  [tile setBadgeLabel:[NSString stringWithFormat:@"%S", (const unichar *)badgeString.get()]];
   return NS_OK;
 
   NS_OBJC_END_TRY_ABORT_BLOCK_NSRESULT;
 }
 
 NS_IMETHODIMP
-nsMessengerOSXIntegration::OnItemPropertyFlagChanged(nsIMsgDBHdr *item, const nsACString &property, uint32_t oldFlag, uint32_t newFlag)
-{
+nsMessengerOSXIntegration::OnItemPropertyFlagChanged(nsIMsgDBHdr *item, const nsACString &property,
+                                                     uint32_t oldFlag, uint32_t newFlag) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMessengerOSXIntegration::OnItemAdded(nsIMsgFolder *, nsISupports *)
-{
-  return NS_OK;
-}
+nsMessengerOSXIntegration::OnItemAdded(nsIMsgFolder *, nsISupports *) { return NS_OK; }
 
 NS_IMETHODIMP
 nsMessengerOSXIntegration::OnItemBoolPropertyChanged(nsIMsgFolder *aItem,
-                                                     const nsACString &aProperty,
-                                                     bool aOldValue,
-                                                     bool aNewValue)
-{
+                                                     const nsACString &aProperty, bool aOldValue,
+                                                     bool aNewValue) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMessengerOSXIntegration::OnItemEvent(nsIMsgFolder *, const nsACString &)
-{
-  return NS_OK;
-}
+nsMessengerOSXIntegration::OnItemEvent(nsIMsgFolder *, const nsACString &) { return NS_OK; }
 
-nsresult
-nsMessengerOSXIntegration::GetNewMailAuthors(nsIMsgFolder* aFolder,
-                                             nsString& aAuthors,
-                                             int32_t aNewCount,
-                                             int32_t* aNotDisplayed)
-{
+nsresult nsMessengerOSXIntegration::GetNewMailAuthors(nsIMsgFolder *aFolder, nsString &aAuthors,
+                                                      int32_t aNewCount, int32_t *aNotDisplayed) {
   // Get a list of names or email addresses for the folder's authors
   // with new mail. Note that we only process the most recent "new"
   // mail (aNewCount), working from most recently added. Duplicates
@@ -612,60 +505,47 @@ nsMessengerOSXIntegration::GetNewMailAuthors(nsIMsgFolder* aFolder,
   nsCOMPtr<nsIMsgDatabase> db;
   nsresult rv = aFolder->GetMsgDatabase(getter_AddRefs(db));
   uint32_t numNewKeys = 0;
-  if (NS_SUCCEEDED(rv) && db)
-  {
-    nsCOMPtr<nsIObserverService> os =
-      do_GetService("@mozilla.org/observer-service;1", &rv);
+  if (NS_SUCCEEDED(rv) && db) {
+    nsCOMPtr<nsIObserverService> os = do_GetService("@mozilla.org/observer-service;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     // Get proper l10n list separator -- ", " in English
     nsCOMPtr<nsIStringBundle> bundle;
     GetStringBundle(getter_AddRefs(bundle));
-    if (!bundle)
-      return NS_ERROR_FAILURE;
+    if (!bundle) return NS_ERROR_FAILURE;
 
     uint32_t *newMessageKeys;
     rv = db->GetNewList(&numNewKeys, &newMessageKeys);
-    if (NS_SUCCEEDED(rv))
-    {
+    if (NS_SUCCEEDED(rv)) {
       nsString listSeparator;
       bundle->GetStringFromName("macBiffNotification_separator", listSeparator);
 
       int32_t displayed = 0;
-      for (int32_t i = numNewKeys - 1; i >= 0; i--, aNewCount--)
-      {
-        if (0 == aNewCount || displayed == kMaxDisplayCount)
-          break;
+      for (int32_t i = numNewKeys - 1; i >= 0; i--, aNewCount--) {
+        if (0 == aNewCount || displayed == kMaxDisplayCount) break;
 
         nsCOMPtr<nsIMsgDBHdr> hdr;
-        rv = db->GetMsgHdrForKey(newMessageKeys[i],
-                                 getter_AddRefs(hdr));
-        if (NS_SUCCEEDED(rv) && hdr)
-        {
+        rv = db->GetMsgHdrForKey(newMessageKeys[i], getter_AddRefs(hdr));
+        if (NS_SUCCEEDED(rv) && hdr) {
           nsString author;
           rv = hdr->GetMime2DecodedAuthor(author);
-          if (NS_FAILED(rv))
-            continue;
+          if (NS_FAILED(rv)) continue;
 
           nsString name;
           ExtractName(DecodedHeader(author), name);
 
           // Give extensions a chance to suppress notifications for this author
-          nsCOMPtr<nsISupportsPRBool> notify =
-            do_CreateInstance(NS_SUPPORTS_PRBOOL_CONTRACTID);
+          nsCOMPtr<nsISupportsPRBool> notify = do_CreateInstance(NS_SUPPORTS_PRBOOL_CONTRACTID);
 
           notify->SetData(true);
-          os->NotifyObservers(notify, "newmail-notification-requested",
-                              author.get());
+          os->NotifyObservers(notify, "newmail-notification-requested", author.get());
 
           bool includeSender;
           notify->GetData(&includeSender);
 
           // Don't add unwanted or duplicate names
-          if (includeSender && aAuthors.Find(name, true) == -1)
-          {
-            if (displayed > 0)
-              aAuthors.Append(listSeparator);
+          if (includeSender && aAuthors.Find(name, true) == -1) {
+            if (displayed > 0) aAuthors.Append(listSeparator);
             aAuthors.Append(name);
             displayed++;
           }
@@ -678,12 +558,10 @@ nsMessengerOSXIntegration::GetNewMailAuthors(nsIMsgFolder* aFolder,
   return rv;
 }
 
-nsresult
-nsMessengerOSXIntegration::GetFirstFolderWithNewMail(nsIMsgFolder* aFolder, nsCString& aFolderURI)
-{
+nsresult nsMessengerOSXIntegration::GetFirstFolderWithNewMail(nsIMsgFolder *aFolder,
+                                                              nsCString &aFolderURI) {
   // Find the subfolder in aFolder with new mail and return the folderURI
-  if (aFolder)
-  {
+  if (aFolder) {
     nsCOMPtr<nsIMsgFolder> msgFolder;
     // enumerate over the folders under this root folder till we find one with new mail....
     nsCOMPtr<nsIArray> allFolders;
@@ -692,30 +570,24 @@ nsMessengerOSXIntegration::GetFirstFolderWithNewMail(nsIMsgFolder* aFolder, nsCS
 
     nsCOMPtr<nsISimpleEnumerator> enumerator;
     rv = allFolders->Enumerate(getter_AddRefs(enumerator));
-    if (NS_SUCCEEDED(rv) && enumerator)
-    {
+    if (NS_SUCCEEDED(rv) && enumerator) {
       nsCOMPtr<nsISupports> supports;
       int32_t numNewMessages = 0;
       bool hasMore = false;
-      while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMore)) && hasMore)
-      {
+      while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMore)) && hasMore) {
         rv = enumerator->GetNext(getter_AddRefs(supports));
-        if (NS_SUCCEEDED(rv) && supports)
-        {
+        if (NS_SUCCEEDED(rv) && supports) {
           msgFolder = do_QueryInterface(supports, &rv);
-          if (msgFolder)
-          {
+          if (msgFolder) {
             numNewMessages = 0;
             msgFolder->GetNumNewMessages(false, &numNewMessages);
-            if (numNewMessages)
-              break; // kick out of the while loop
+            if (numNewMessages) break;  // kick out of the while loop
           }
-        } // if we have a folder
-      }  // if we have more potential folders to enumerate
-    }  // if enumerator
+        }  // if we have a folder
+      }    // if we have more potential folders to enumerate
+    }      // if enumerator
 
-    if (msgFolder)
-      msgFolder->GetURI(aFolderURI);
+    if (msgFolder) msgFolder->GetURI(aFolderURI);
   }
 
   return NS_OK;
@@ -725,8 +597,7 @@ nsMessengerOSXIntegration::GetFirstFolderWithNewMail(nsIMsgFolder* aFolder, nsCS
  * Method implementations for mozINewMailListener
  */
 NS_IMETHODIMP
-nsMessengerOSXIntegration::OnCountChanged(uint32_t count)
-{
+nsMessengerOSXIntegration::OnCountChanged(uint32_t count) {
   mUnreadTotal = count;
   BadgeDockIcon();
   return NS_OK;

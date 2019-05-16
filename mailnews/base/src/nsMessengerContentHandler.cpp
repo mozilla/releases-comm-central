@@ -17,39 +17,33 @@
 #include "nsServiceManagerUtils.h"
 #include "nsIURIMutator.h"
 
-nsMessengerContentHandler::nsMessengerContentHandler()
-{
-}
+nsMessengerContentHandler::nsMessengerContentHandler() {}
 
-/* the following macro actually implement addref, release and query interface for our component. */
+/* the following macro actually implement addref, release and query interface
+ * for our component. */
 NS_IMPL_ISUPPORTS(nsMessengerContentHandler, nsIContentHandler)
 
-nsMessengerContentHandler::~nsMessengerContentHandler()
-{
-}
+nsMessengerContentHandler::~nsMessengerContentHandler() {}
 
-NS_IMETHODIMP nsMessengerContentHandler::HandleContent(const char * aContentType,
-                                                nsIInterfaceRequestor* aWindowContext, nsIRequest *request)
-{
+NS_IMETHODIMP nsMessengerContentHandler::HandleContent(
+    const char* aContentType, nsIInterfaceRequestor* aWindowContext,
+    nsIRequest* request) {
   nsresult rv = NS_OK;
-  if (!request)
-    return NS_ERROR_NULL_POINTER;
+  if (!request) return NS_ERROR_NULL_POINTER;
 
-  // First of all, get the content type and make sure it is a content type we know how to handle!
+  // First of all, get the content type and make sure it is a content type we
+  // know how to handle!
   if (PL_strcasecmp(aContentType, "application/x-message-display") == 0) {
     nsCOMPtr<nsIURI> aUri;
     nsCOMPtr<nsIChannel> aChannel = do_QueryInterface(request);
     if (!aChannel) return NS_ERROR_FAILURE;
 
     rv = aChannel->GetURI(getter_AddRefs(aUri));
-    if (aUri)
-    {
+    if (aUri) {
       rv = request->Cancel(NS_ERROR_ABORT);
-      if (NS_SUCCEEDED(rv))
-      {
+      if (NS_SUCCEEDED(rv)) {
         nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl = do_QueryInterface(aUri);
-        if (mailnewsurl)
-        {
+        if (mailnewsurl) {
           nsAutoCString queryPart;
           mailnewsurl->GetQuery(queryPart);
           queryPart.Replace(queryPart.Find("type=message/rfc822"),
@@ -59,9 +53,7 @@ NS_IMETHODIMP nsMessengerContentHandler::HandleContent(const char * aContentType
           rv = mailnewsurl->SetQueryInternal(queryPart);
           NS_ENSURE_SUCCESS(rv, rv);
           rv = OpenWindow(aUri);
-        }
-        else
-        {
+        } else {
           // Not an nsIMsgMailNewsUrl, so maybe a file URL, like opening a
           // message attachment (.eml file in a temp directory).
           nsAutoCString scheme;
@@ -70,8 +62,9 @@ NS_IMETHODIMP nsMessengerContentHandler::HandleContent(const char * aContentType
           if (scheme.Equals("file")) {
             // Add a special bit like in MsgOpenFromFile().
             rv = NS_MutateURI(aUri)
-                   .SetQuery(NS_LITERAL_CSTRING("type=application/x-message-display"))
-                   .Finalize(aUri);
+                     .SetQuery(NS_LITERAL_CSTRING(
+                         "type=application/x-message-display"))
+                     .Finalize(aUri);
             NS_ENSURE_SUCCESS(rv, rv);
           }
           rv = OpenWindow(aUri);
@@ -83,17 +76,17 @@ NS_IMETHODIMP nsMessengerContentHandler::HandleContent(const char * aContentType
   return rv;
 }
 
-// Utility function to open a message display window and and load the message in it.
-nsresult nsMessengerContentHandler::OpenWindow(nsIURI* aURI)
-{
+// Utility function to open a message display window and and load the message in
+// it.
+nsresult nsMessengerContentHandler::OpenWindow(nsIURI* aURI) {
   NS_ENSURE_ARG_POINTER(aURI);
 
-  nsCOMPtr<nsIWindowWatcher> wwatch = do_GetService("@mozilla.org/embedcomp/window-watcher;1");
-  if (!wwatch)
-    return NS_ERROR_FAILURE;
+  nsCOMPtr<nsIWindowWatcher> wwatch =
+      do_GetService("@mozilla.org/embedcomp/window-watcher;1");
+  if (!wwatch) return NS_ERROR_FAILURE;
 
   nsCOMPtr<mozIDOMWindowProxy> newWindow;
   return wwatch->OpenWindow(0, "chrome://messenger/content/messageWindow.xul",
-                 "_blank", "all,chrome,dialog=no,status,toolbar", aURI,
-                 getter_AddRefs(newWindow));
+                            "_blank", "all,chrome,dialog=no,status,toolbar",
+                            aURI, getter_AddRefs(newWindow));
 }

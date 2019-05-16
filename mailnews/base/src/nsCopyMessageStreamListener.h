@@ -13,9 +13,9 @@
 #include "nsCOMPtr.h"
 #include "nsIURI.h"
 
-class nsCopyMessageStreamListener : public nsIStreamListener, public nsICopyMessageStreamListener {
-
-public:
+class nsCopyMessageStreamListener : public nsIStreamListener,
+                                    public nsICopyMessageStreamListener {
+ public:
   nsCopyMessageStreamListener();
 
   NS_DECL_THREADSAFE_ISUPPORTS
@@ -23,13 +23,12 @@ public:
   NS_DECL_NSIREQUESTOBSERVER
   NS_DECL_NSISTREAMLISTENER
 
-protected:
+ protected:
   virtual ~nsCopyMessageStreamListener();
 
   nsCOMPtr<nsICopyMessageListener> mDestination;
   nsCOMPtr<nsISupports> mListenerData;
   nsCOMPtr<nsIMsgFolder> mSrcFolder;
-
 };
 
 #endif

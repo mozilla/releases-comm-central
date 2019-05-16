@@ -9,15 +9,14 @@
 #include "nsCOMPtr.h"
 #include "nsIProtocolHandler.h"
 
-class nsCidProtocolHandler : public nsIProtocolHandler
-{
-public:
+class nsCidProtocolHandler : public nsIProtocolHandler {
+ public:
   nsCidProtocolHandler();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIPROTOCOLHANDLER
 
-private:
+ private:
   virtual ~nsCidProtocolHandler();
 };
 

@@ -12,38 +12,32 @@
 #include "nsCOMPtr.h"
 #include "nsIFile.h"
 
-class nsMailDirProvider final : public nsIDirectoryServiceProvider2
-{
-public:
+class nsMailDirProvider final : public nsIDirectoryServiceProvider2 {
+ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIDIRECTORYSERVICEPROVIDER
   NS_DECL_NSIDIRECTORYSERVICEPROVIDER2
 
-private:
+ private:
   ~nsMailDirProvider() {}
 
-  nsresult EnsureDirectory(nsIFile *aDirectory);
+  nsresult EnsureDirectory(nsIFile* aDirectory);
 
-
-  class AppendingEnumerator final : public nsSimpleEnumerator
-  {
-  public:
-    const nsID& DefaultInterface() override
-    {
-      return NS_GET_IID(nsIFile);
-    }
+  class AppendingEnumerator final : public nsSimpleEnumerator {
+   public:
+    const nsID& DefaultInterface() override { return NS_GET_IID(nsIFile); }
 
     NS_DECL_NSISIMPLEENUMERATOR
 
     explicit AppendingEnumerator(nsISimpleEnumerator* aBase);
 
-  private:
+   private:
     ~AppendingEnumerator() override = default;
     nsCOMPtr<nsISimpleEnumerator> mBase;
-    nsCOMPtr<nsIFile>             mNext;
-    nsCOMPtr<nsIFile>             mNextWithLocale;
-    nsCString                     mLocale;
+    nsCOMPtr<nsIFile> mNext;
+    nsCOMPtr<nsIFile> mNextWithLocale;
+    nsCString mLocale;
   };
 };
 
-#endif // nsMailDirProvider_h__
+#endif  // nsMailDirProvider_h__

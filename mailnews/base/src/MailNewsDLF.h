@@ -18,21 +18,20 @@ namespace mailnews {
  * does is convert message/rfc822 to text/html and delegate the rest of the
  * work to the text/html factory.
  */
-class MailNewsDLF : public nsIDocumentLoaderFactory
-{
-public:
+class MailNewsDLF : public nsIDocumentLoaderFactory {
+ public:
   MailNewsDLF();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIDOCUMENTLOADERFACTORY
 
-private:
+ private:
   virtual ~MailNewsDLF();
 };
-}
-}
+}  // namespace mailnews
+}  // namespace mozilla
 
 #define MAILNEWSDLF_CATEGORIES \
-  { "Gecko-Content-Viewers", MESSAGE_RFC822, NS_MAILNEWSDLF_CONTRACTID }, \
+  {"Gecko-Content-Viewers", MESSAGE_RFC822, NS_MAILNEWSDLF_CONTRACTID},
 
 #endif
