@@ -22,6 +22,7 @@ interface nsMsgFilterType {
   const long PostPlugin       = 0x20; // After bayes filtering
   const long PostOutgoing     = 0x40; // After sending
   const long Archive          = 0x80; // Before archiving
+  const long Periodic         = 0x100;// On a repeating timer
   const long All              = Incoming | Manual;
 };
 

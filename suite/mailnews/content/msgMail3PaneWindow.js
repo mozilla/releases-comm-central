@@ -5,6 +5,7 @@
 
 /* This is where functions related to the 3 pane window are kept */
 const {msgDBCacheManager} = ChromeUtils.import("resource:///modules/msgDBCacheManager.js");
+const {PeriodicFilterManager} = ChromeUtils.import("resource:///modules/PeriodicFilterManager.jsm");
 
 // from MailNewsTypes.h
 const nsMsgKey_None = 0xFFFFFFFF;
@@ -769,6 +770,9 @@ function OnLoadMessenger()
   // gSyncUI.init();
 
   window.addEventListener("AppCommand", HandleAppCommandEvent, true);
+
+  // Load the periodic filter timer.
+  PeriodicFilterManager.setupFiltering();
 }
 
 function HandleAppCommandEvent(evt)

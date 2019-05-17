@@ -8,6 +8,7 @@
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 
 // The actual filter that we're editing if it is a _saved_ filter or prefill;
 // void otherwise.
@@ -244,6 +245,7 @@ function initializeFilterTypeSelector() {
 
     checkBoxArchive: document.getElementById("runArchive"),
     checkBoxOutgoing: document.getElementById("runOutgoing"),
+    checkBoxPeriodic: document.getElementById("runPeriodic"),
 
     /**
      * Returns the currently set filter type (checkboxes) in terms
@@ -271,6 +273,9 @@ function initializeFilterTypeSelector() {
       if (this.checkBoxOutgoing.checked)
         type |= nsMsgFilterType.PostOutgoing;
 
+      if (this.checkBoxPeriodic.checked)
+        type |= nsMsgFilterType.Periodic;
+
       return type;
     },
 
@@ -296,6 +301,12 @@ function initializeFilterTypeSelector() {
       this.checkBoxArchive.checked  = aType & nsMsgFilterType.Archive;
 
       this.checkBoxOutgoing.checked = aType & nsMsgFilterType.PostOutgoing;
+
+      this.checkBoxPeriodic.checked = aType & nsMsgFilterType.Periodic;
+      const periodMinutes = gFilterList.folder.server.getIntValue("periodicFilterRateMinutes");
+      document.getElementById("runPeriodic").label =
+        PluralForm.get(periodMinutes, gFilterBundle.getString("contextPeriodic.label"))
+                  .replace("#1", periodMinutes);
 
       this.updateClassificationMenu();
     },

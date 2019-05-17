@@ -571,6 +571,9 @@ pref("mail.store_conversion_enabled", true);
 pref("mail.store_conversion_enabled", false);
 #endif
 
+// Time between applications of periodic filters
+pref("mail.server.default.periodicFilterRateMinutes", 10);
+
 // This is the default store contractID for newly created servers.
 // We don't use mail.server.default because we want to ensure that the
 // store contract id is always written out to prefs.js

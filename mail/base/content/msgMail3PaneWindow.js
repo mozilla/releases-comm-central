@@ -36,7 +36,7 @@ var {MailUtils} = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 var {Color} = ChromeUtils.import("resource://gre/modules/Color.jsm");
 var {TagUtils} = ChromeUtils.import("resource:///modules/TagUtils.jsm");
-
+var {PeriodicFilterManager} = ChromeUtils.import("resource:///modules/PeriodicFilterManager.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   LightweightThemeManager: "resource://gre/modules/LightweightThemeManager.jsm",
@@ -522,6 +522,9 @@ function OnLoadMessenger() {
                          document.getElementById("multimessage"));
 
   window.addEventListener("AppCommand", HandleAppCommandEvent, true);
+
+  // Load the periodic filter timer.
+  PeriodicFilterManager.setupFiltering();
 }
 
 function LoadPostAccountWizard() {

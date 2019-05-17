@@ -22,6 +22,10 @@ EXTRA_COMPONENTS += [
     'nsMsgTraitService.manifest',
 ]
 
+EXTRA_JS_MODULES += [
+    'PeriodicFilterManager.jsm',
+]
+
 FINAL_LIBRARY = 'mail'
 
 FINAL_TARGET_FILES.isp += [

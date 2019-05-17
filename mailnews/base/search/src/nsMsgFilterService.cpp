@@ -1118,6 +1118,7 @@ nsMsgFilterService::FilterTypeName(nsMsgFilterTypeType filterType,
   if (filterType & nsMsgFilterType::PostOutgoing)
     typeName.Append("PostOutgoing&");
   if (filterType & nsMsgFilterType::Archive) typeName.Append("Archive&");
+  if (filterType & nsMsgFilterType::Periodic) typeName.Append("Periodic&");
 
   if (typeName.IsEmpty()) {
     typeName.Assign("UNKNOWN");
