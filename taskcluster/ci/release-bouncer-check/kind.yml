@@ -44,7 +44,7 @@ jobs:
                 - comm/mozharness/releases/bouncer_thunderbird.py
             extra-config:
                 by-project:
-                    comm-(beta|esr60):
+                    comm-(beta|esr60|esr68):
                         locales: ['en-US', 'fr', 'de']
                         bouncer_prefix: "https://download.mozilla.org/"
                     default:

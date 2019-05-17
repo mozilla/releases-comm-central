@@ -46,6 +46,10 @@ jobs:
                 comm-esr60:
                     thunderbird-latest-ssl: installer-ssl
                     thunderbird-latest: installer
+                comm-esr68:
+                    thunderbird-latest-ssl: installer-ssl
+                    thunderbird-latest: installer
+                    thunderbird-msi-latest-ssl: msi
                 default: {}
         shipping-product: thunderbird
         treeherder:
