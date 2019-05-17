@@ -65,7 +65,6 @@ macosx64/opt:
             - builds/releng_base_mac_64_cross_builds.py
         script: "mozharness/scripts/fx_desktop_build.py"
         tooltool-downloads: internal
-    run-on-projects: []  # Don't run by default
     toolchains:
         - linux64-binutils
         - linux64-cbindgen

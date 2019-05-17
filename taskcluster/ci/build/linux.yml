@@ -60,7 +60,6 @@ linux64-shippable/opt:
             - taskcluster_nightly.py
         script: "mozharness/scripts/fx_desktop_build.py"
         need-xvfb: true
-    run-on-projects: []  # Don't run by default
     toolchains:
         - linux64-binutils
         - linux64-cbindgen
@@ -165,7 +164,6 @@ linux-shippable/opt:
             - taskcluster_nightly.py
         script: "mozharness/scripts/fx_desktop_build.py"
         need-xvfb: true
-    run-on-projects: []  # Don't run by default
     toolchains:
         - linux64-binutils
         - linux64-cbindgen
