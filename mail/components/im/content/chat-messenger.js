@@ -13,7 +13,9 @@ var { Services: imServices } = ChromeUtils.import("resource:///modules/imService
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 ChromeUtils.defineModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
+ChromeUtils.defineModuleGetter(this, "OTRUI", "resource:///modules/OTRUI.jsm");
 
+var gOtrEnabled = false;
 var gBuddyListContextMenu = null;
 
 function buddyListContextMenu(aXulMenu) {
@@ -35,7 +37,12 @@ function buddyListContextMenu(aXulMenu) {
   document.getElementById("context-close-conversation").hidden = !this.onConv;
   document.getElementById("context-openconversation").disabled =
     !hide && !this.target.canOpenConversation();
+
+  if (gOtrEnabled) {
+    OTRUI.addBuddyContextMenu(this.menu, document);
+  }
 }
+
 buddyListContextMenu.prototype = {
   openConversation() {
     if (this.onContact || this.onConv)
@@ -629,6 +636,9 @@ var chatHandler = {
         document.getElementById("noConvScreen");
       this.updateTitle();
       this.observedContact = null;
+      if (gOtrEnabled) {
+        OTRUI.hideOTRButton();
+      }
       return;
     }
 
@@ -648,6 +658,9 @@ var chatHandler = {
       cti.removeAttribute("topicEditable");
       cti.removeAttribute("noTopic");
       this.observedContact = null;
+      if (gOtrEnabled) {
+        OTRUI.hideOTRButton();
+      }
 
       let path = "logs/" + item.log.path;
       path = OS.Path.join(OS.Constants.Path.profileDir, ...path.split("/"));
@@ -680,6 +693,10 @@ var chatHandler = {
       item.convView.updateConvStatus();
       item.update();
 
+      if (gOtrEnabled) {
+        OTRUI.updateOTRButton(item.conv);
+      }
+
       imServices.logs.getLogsForConversation(item.conv, true).then(aLogs => {
         if (contactlistbox.selectedItem != item)
           return;
@@ -700,6 +717,9 @@ var chatHandler = {
       button.disabled = false;
       this.observedContact = null;
     } else if (item.localName == "richlistitem" && item.getAttribute("is") == "chat-contact") {
+      if (gOtrEnabled) {
+        OTRUI.hideOTRButton();
+      }
       let contact = item.contact;
       if (this.observedContact && contact &&
           this.observedContact.id == contact.id) {
@@ -1213,6 +1233,28 @@ var chatHandler = {
     } else {
       this.ChatCore.init();
       this._addObserver("chat-core-initialized");
+    }
+
+    gOtrEnabled =
+      Services.prefs.getBoolPref("chat.otr.enable");
+
+    if (gOtrEnabled) {
+      new Promise(resolve => {
+        if (Services.core.initialized) {
+          resolve();
+          return;
+        }
+        function initObserver() {
+          Services.obs.removeObserver(initObserver, "prpl-init");
+          resolve();
+        }
+        Services.obs.addObserver(initObserver, "prpl-init");
+      }).then(() => {
+        let sss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
+        let uri = Services.io.newURI("chrome://chat/skin/otr.css");
+        sss.loadAndRegisterSheet(uri, sss.USER_SHEET);
+        OTRUI.init();
+      });
     }
   },
 };

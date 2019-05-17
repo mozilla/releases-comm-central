@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css" ?>
+
+<!DOCTYPE window SYSTEM "chrome://chat/content/otr-auth.dtd">
+
+<dialog
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  id="otrAuthDialog"
+  windowtype="OTR:Auth"
+  title="&authDialog.title;"
+  onload="otrAuth.onload()"
+  buttons="accept,cancel,help"
+  buttonlabelaccept="&authDialog.authenticate;"
+  buttonlabelhelp="&authDialog.help;"
+  buttondisabledaccept="true">
+
+  <script type="application/javascript" src="chrome://chat/content/otr-auth.js" />
+
+  <groupbox id="how" hidden="true">
+    <caption label="&authDialog.how;"/>
+    <menulist id="howOption" oncommand="otrAuth.how();">
+      <menupopup>
+        <menuitem label="&authDialog.questionAndAnswer;" value="questionAndAnswer" />
+        <menuitem label="&authDialog.sharedSecret;" value="sharedSecret" />
+        <menuitem label="&authDialog.manualVerification;" value="manualVerification" />
+      </menupopup>
+    </menulist>
+  </groupbox>
+
+  <groupbox id="questionAndAnswer" hidden="true">
+    <caption label="&authDialog.questionAndAnswer;" />
+    <description style="width: 300px; white-space: pre-wrap;">&authDialog.qaInstruction;</description>
+    <label value="&authDialog.question;" control="question" flex="1" />
+    <textbox id="question" />
+    <label value="&authDialog.answer;" control="answer" flex="1" />
+    <textbox id="answer" oninput="otrAuth.oninput(this)" />
+  </groupbox>
+
+  <groupbox id="sharedSecret" hidden="true">
+    <caption label="&authDialog.sharedSecret;" />
+    <description style="width: 300px; white-space: pre-wrap;">&authDialog.secretInstruction;</description>
+    <label value="&authDialog.secret;" control="secret" flex="1" />
+    <textbox id="secret" oninput="otrAuth.oninput(this)" />
+  </groupbox>
+
+  <groupbox id="manualVerification" hidden="true">
+    <caption label="&authDialog.manualVerification;" />
+    <description style="width: 300px; white-space: pre-wrap;">&authDialog.manualInstruction;</description>
+    <html:textarea id="fingerprints" rows="5" readonly="true" />
+    <hbox align="center">
+      <label value="&authDialog.verified;" />
+      <menulist id="verifiedOption">
+        <menupopup>
+          <menuitem label="&authDialog.yes;" value="yes" />
+          <menuitem label="&authDialog.no;" value="no" />
+        </menupopup>
+      </menulist>
+    </hbox>
+  </groupbox>
+
+  <groupbox id="ask" hidden="true">
+    <description id="askLabel" style="width: 300px; white-space: pre-wrap;" />
+    <textbox id="response" oninput="otrAuth.oninput(this)" />
+  </groupbox>
+
+</dialog>

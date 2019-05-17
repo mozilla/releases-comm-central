@@ -292,7 +292,6 @@ richlistitem[is="chat-imconv"]:not(:hover) > .closeConversationButton {
 
 .conv-top-info {
   margin: 0;
-  padding: 0.6ex;
   border-style: none;
   -moz-appearance: none;
   -moz-window-dragging: no-drag;
@@ -480,6 +479,11 @@ richlistitem[state="disconnected"] .accountStateIcon {
 }
 
 /* corresponds to im/themes/conversation.css @media all and (min-height: 251px) */
+.displayUserAccount {
+  padding: 4px;
+  background-color: -moz-OddTreeRow;
+}
+
 .statusImageStack,
 .displayNameAndstatusMessageStack {
   margin: 2px 2px;

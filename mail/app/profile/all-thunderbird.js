@@ -719,6 +719,8 @@ pref("mail.chat.play_sound", true);
 pref("mail.chat.play_sound.type", 0);
 // if sound is user specified, this needs to be a file url
 pref("mail.chat.play_sound.url", "");
+// Enable/Disable support for OTR chat encryption.
+pref("chat.otr.enable", false);
 
 // BigFiles
 pref("mail.cloud_files.enabled", true);

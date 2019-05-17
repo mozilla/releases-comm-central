@@ -8,6 +8,7 @@ XPCSHELL_TESTS_MANIFESTS += ['test/xpcshell.ini']
 EXTRA_JS_MODULES += [
     'ArrayBufferUtils.jsm',
     'BigInteger.jsm',
+    'CLib.jsm',
     'DNS.jsm',
     'hiddenWindow.jsm',
     'imContentSink.jsm',
@@ -19,6 +20,10 @@ EXTRA_JS_MODULES += [
     'imXPCOMUtils.jsm',
     'jsProtoHelper.jsm',
     'NormalizedMap.jsm',
+    'OTR.jsm',
+    'OTRHelpers.jsm',
+    'OTRLib.jsm',
+    'OTRUI.jsm',
     'socket.jsm',
     'ToLocaleFormat.jsm',
 ]

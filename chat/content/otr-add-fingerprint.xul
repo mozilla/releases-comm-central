@@ -1,0 +1,27 @@
+<?xml version="1.0" ?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css" ?>
+
+<!DOCTYPE window SYSTEM "chrome://chat/content/otr-add-finger.dtd">
+
+<dialog id="otrAddFingerDialog"
+        windowtype="OTR:AddFinger"
+        onload="otrAddFinger.onload()"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        title="&addFingerDialog.title;"
+        buttons="accept,cancel"
+        buttonlabelcancel="&addFingerDialog.cancel;"
+        buttondisabledaccept="true">
+
+  <script type="application/javascript" src="chrome://chat/content/otr-add-fingerprint.js"/>
+  <vbox flex="1">
+    <label value="&addFingerDialog.tooltip;" control="name" flex="1"/>
+    <hbox id="fingerBox" align="baseline" flex="1">
+      <label value="&addFingerDialog.finger;" control="name"/>
+      <textbox id="finger" oninput="otrAddFinger.oninput(this)" flex="1"/>
+    </hbox>
+  </vbox>
+</dialog>
