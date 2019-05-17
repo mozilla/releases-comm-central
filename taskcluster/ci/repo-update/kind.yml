@@ -15,8 +15,7 @@ job-defaults:
             DO_BLOCKLIST:
                 by-project:
                     comm-central: "1"
-                    comm-esr60: "1"
-                    comm-beta: "1"
+                    comm-(beta|esr60|esr68): "1"
                     default: ""
             USE_MOZILLA_CENTRAL: ""
 

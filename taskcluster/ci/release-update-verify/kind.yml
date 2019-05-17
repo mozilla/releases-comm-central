@@ -31,13 +31,6 @@ job-defaults:
         max-run-time: 7200
         retry-exit-status:
             - 255
-        env:
-            CHANNEL:
-                by-release-type:
-                    beta: "beta-localtest"
-                    release: "release-localtest"
-                    nightly: "nightly"
-                    default: "default"
     extra:
         chunks: 12
 

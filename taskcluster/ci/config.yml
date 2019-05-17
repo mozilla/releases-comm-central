@@ -86,7 +86,7 @@ partner-urls:
 
 task-priority:
     by-project:
-        'comm-esr60': 'very-high'
+        'comm-(esr60|esr68)': 'very-high'
         'comm-beta': 'high'
         'comm-central': 'medium'
         'default': 'low'
