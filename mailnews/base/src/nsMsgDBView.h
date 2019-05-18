@@ -31,30 +31,27 @@
 #include "nsAutoPtr.h"
 #include "nsIWeakReferenceUtils.h"
 #include "nsSimpleEnumerator.h"
-#define MESSENGER_STRING_URL       "chrome://messenger/locale/messenger.properties"
+#define MESSENGER_STRING_URL "chrome://messenger/locale/messenger.properties"
 
 typedef AutoTArray<nsMsgViewIndex, 1> nsMsgViewIndexArray;
 static_assert(nsMsgViewIndex(nsMsgViewIndexArray::NoIndex) ==
-  nsMsgViewIndex_None, "These need to be the same value.");
+                  nsMsgViewIndex_None,
+              "These need to be the same value.");
 
-enum eFieldType {
-    kCollationKey,
-    kU32
-};
+enum eFieldType { kCollationKey, kU32 };
 
 // This is used in an nsTArray<> to keep track of a multi-column sort.
-class MsgViewSortColumnInfo
-{
-public:
+class MsgViewSortColumnInfo {
+ public:
   MsgViewSortColumnInfo(const MsgViewSortColumnInfo &other);
   MsgViewSortColumnInfo() {}
-  bool operator == (const MsgViewSortColumnInfo &other) const;
+  bool operator==(const MsgViewSortColumnInfo &other) const;
   nsMsgViewSortTypeValue mSortType;
   nsMsgViewSortOrderValue mSortOrder;
   // If mSortType == byCustom, info about the custom column sort.
   nsString mCustomColumnName;
-  nsCOMPtr <nsIMsgCustomColumnHandler> mColHandler;
-} ;
+  nsCOMPtr<nsIMsgCustomColumnHandler> mColHandler;
+};
 
 // Reserve the top 8 bits in the msg flags for the view-only flags.
 #define MSG_VIEW_FLAGS 0xEE000000
@@ -66,36 +63,33 @@ public:
 
 // There currently only 5 labels defined.
 #define PREF_LABELS_MAX 5
-#define PREF_LABELS_DESCRIPTION  "mailnews.labels.description."
-#define PREF_LABELS_COLOR  "mailnews.labels.color."
+#define PREF_LABELS_DESCRIPTION "mailnews.labels.description."
+#define PREF_LABELS_COLOR "mailnews.labels.color."
 
-struct IdUint32
-{
-  nsMsgKey    id;
-  uint32_t    bits;
-  uint32_t    dword;
-  nsIMsgFolder* folder;
+struct IdUint32 {
+  nsMsgKey id;
+  uint32_t bits;
+  uint32_t dword;
+  nsIMsgFolder *folder;
 };
 
-struct IdKey : public IdUint32
-{
+struct IdKey : public IdUint32 {
   // Actually a variable length array, whose actual size is determined
   // when the struct is allocated.
-  uint8_t     key[1];
+  uint8_t key[1];
 };
 
-struct IdKeyPtr : public IdUint32
-{
-  uint8_t     *key;
+struct IdKeyPtr : public IdUint32 {
+  uint8_t *key;
 };
 
 // This is an abstract implementation class.
 // The actual view objects will be instances of sub-classes of this class.
-class nsMsgDBView : public nsIMsgDBView, public nsIDBChangeListener,
+class nsMsgDBView : public nsIMsgDBView,
+                    public nsIDBChangeListener,
                     public nsITreeView,
-                    public nsIJunkMailClassificationListener
-{
-public:
+                    public nsIJunkMailClassificationListener {
+ public:
   nsMsgDBView();
 
   NS_DECL_ISUPPORTS
@@ -109,27 +103,25 @@ public:
                                       nsCOMArray<nsIMsgFolder> *folders,
                                       nsMsgViewSortOrderValue sortOrder,
                                       nsMsgViewSortTypeValue sortType);
-  int32_t  SecondarySort(nsMsgKey key1,
-                         nsISupports *folder1,
-                         nsMsgKey key2,
-                         nsISupports *folder2,
-                         class viewSortInfo *comparisonContext);
+  int32_t SecondarySort(nsMsgKey key1, nsISupports *folder1, nsMsgKey key2,
+                        nsISupports *folder2,
+                        class viewSortInfo *comparisonContext);
 
-protected:
+ protected:
   virtual ~nsMsgDBView();
 
   static nsrefcnt gInstanceCount;
 
-  static char16_t* kHighestPriorityString;
-  static char16_t* kHighPriorityString;
-  static char16_t* kLowestPriorityString;
-  static char16_t* kLowPriorityString;
-  static char16_t* kNormalPriorityString;
+  static char16_t *kHighestPriorityString;
+  static char16_t *kHighPriorityString;
+  static char16_t *kLowestPriorityString;
+  static char16_t *kLowPriorityString;
+  static char16_t *kNormalPriorityString;
 
-  static char16_t* kReadString;
-  static char16_t* kRepliedString;
-  static char16_t* kForwardedString;
-  static char16_t* kNewString;
+  static char16_t *kReadString;
+  static char16_t *kRepliedString;
+  static char16_t *kForwardedString;
+  static char16_t *kNewString;
 
   RefPtr<mozilla::dom::XULTreeElement> mTree;
   nsCOMPtr<nsITreeSelection> mTreeSelection;
@@ -146,21 +138,23 @@ protected:
   bool mGoForwardEnabled;
   bool mGoBackEnabled;
 
-  virtual const char * GetViewName(void) {return "MsgDBView"; }
-  nsresult FetchAuthor(nsIMsgDBHdr * aHdr, nsAString &aAuthorString);
-  nsresult FetchRecipients(nsIMsgDBHdr * aHdr, nsAString &aRecipientsString);
-  nsresult FetchSubject(nsIMsgDBHdr * aMsgHdr, uint32_t aFlags, nsAString &aValue);
-  nsresult FetchDate(nsIMsgDBHdr * aHdr, nsAString & aDateString, bool rcvDate = false);
+  virtual const char *GetViewName(void) { return "MsgDBView"; }
+  nsresult FetchAuthor(nsIMsgDBHdr *aHdr, nsAString &aAuthorString);
+  nsresult FetchRecipients(nsIMsgDBHdr *aHdr, nsAString &aRecipientsString);
+  nsresult FetchSubject(nsIMsgDBHdr *aMsgHdr, uint32_t aFlags,
+                        nsAString &aValue);
+  nsresult FetchDate(nsIMsgDBHdr *aHdr, nsAString &aDateString,
+                     bool rcvDate = false);
   nsresult FetchStatus(uint32_t aFlags, nsAString &aStatusString);
-  nsresult FetchSize(nsIMsgDBHdr * aHdr, nsAString & aSizeString);
-  nsresult FetchPriority(nsIMsgDBHdr *aHdr, nsAString & aPriorityString);
-  nsresult FetchLabel(nsIMsgDBHdr *aHdr, nsAString & aLabelString);
-  nsresult FetchTags(nsIMsgDBHdr *aHdr, nsAString & aTagString);
-  nsresult FetchKeywords(nsIMsgDBHdr *aHdr, nsACString & keywordString);
+  nsresult FetchSize(nsIMsgDBHdr *aHdr, nsAString &aSizeString);
+  nsresult FetchPriority(nsIMsgDBHdr *aHdr, nsAString &aPriorityString);
+  nsresult FetchLabel(nsIMsgDBHdr *aHdr, nsAString &aLabelString);
+  nsresult FetchTags(nsIMsgDBHdr *aHdr, nsAString &aTagString);
+  nsresult FetchKeywords(nsIMsgDBHdr *aHdr, nsACString &keywordString);
   nsresult FetchRowKeywords(nsMsgViewIndex aRow, nsIMsgDBHdr *aHdr,
-                            nsACString & keywordString);
-  nsresult FetchAccount(nsIMsgDBHdr * aHdr, nsAString& aAccount);
-  bool IsOutgoingMsg(nsIMsgDBHdr * aHdr);
+                            nsACString &keywordString);
+  nsresult FetchAccount(nsIMsgDBHdr *aHdr, nsAString &aAccount);
+  bool IsOutgoingMsg(nsIMsgDBHdr *aHdr);
 
   // The default enumerator is over the db, but things like
   // quick search views will enumerate just the displayed messages.
@@ -185,22 +179,29 @@ protected:
   // RowCountChanged() will call AdjustSelection().
   // It should be called after SaveAndClearSelection() and before
   // RestoreSelection().
-  nsresult AdjustRowCount(int32_t rowCountBeforeSort, int32_t rowCountAfterSort);
+  nsresult AdjustRowCount(int32_t rowCountBeforeSort,
+                          int32_t rowCountAfterSort);
 
-  nsresult GetSelectedIndices(nsMsgViewIndexArray& selection);
-  nsresult GenerateURIForMsgKey(nsMsgKey aMsgKey, nsIMsgFolder *folder, nsACString &aURI);
+  nsresult GetSelectedIndices(nsMsgViewIndexArray &selection);
+  nsresult GenerateURIForMsgKey(nsMsgKey aMsgKey, nsIMsgFolder *folder,
+                                nsACString &aURI);
 
   // Routines used in building up view.
-  virtual bool WantsThisThread(nsIMsgThread * thread);
-  virtual nsresult AddHdr(nsIMsgDBHdr *msgHdr, nsMsgViewIndex *resultIndex = nullptr);
-  bool GetShowingIgnored() {return (m_viewFlags & nsMsgViewFlagsType::kShowIgnored) != 0;}
+  virtual bool WantsThisThread(nsIMsgThread *thread);
+  virtual nsresult AddHdr(nsIMsgDBHdr *msgHdr,
+                          nsMsgViewIndex *resultIndex = nullptr);
+  bool GetShowingIgnored() {
+    return (m_viewFlags & nsMsgViewFlagsType::kShowIgnored) != 0;
+  }
   bool OperateOnMsgsInCollapsedThreads();
 
-  virtual nsresult OnNewHeader(nsIMsgDBHdr *aNewHdr, nsMsgKey parentKey, bool ensureListed);
+  virtual nsresult OnNewHeader(nsIMsgDBHdr *aNewHdr, nsMsgKey parentKey,
+                               bool ensureListed);
   virtual nsMsgViewIndex GetInsertIndex(nsIMsgDBHdr *msgHdr);
   nsMsgViewIndex GetIndexForThread(nsIMsgDBHdr *hdr);
   nsMsgViewIndex GetThreadRootIndex(nsIMsgDBHdr *msgHdr);
-  virtual nsresult GetMsgHdrForViewIndex(nsMsgViewIndex index, nsIMsgDBHdr **msgHdr);
+  virtual nsresult GetMsgHdrForViewIndex(nsMsgViewIndex index,
+                                         nsIMsgDBHdr **msgHdr);
   // Given a view index, return the index of the top-level msg in the thread.
   nsMsgViewIndex GetThreadIndex(nsMsgViewIndex msgIndex);
 
@@ -230,32 +231,32 @@ protected:
    * @return the view index of the first message in the thread, if any.
    */
   nsMsgViewIndex GetIndexOfFirstDisplayedKeyInThread(nsIMsgThread *threadHdr,
-                                                     bool allowDummy=false);
+                                                     bool allowDummy = false);
   virtual nsresult GetFirstMessageHdrToDisplayInThread(nsIMsgThread *threadHdr,
                                                        nsIMsgDBHdr **result);
-  virtual nsMsgViewIndex ThreadIndexOfMsg(nsMsgKey msgKey,
-                                          nsMsgViewIndex msgIndex = nsMsgViewIndex_None,
-                                          int32_t *pThreadCount = nullptr,
-                                          uint32_t *pFlags = nullptr);
-  nsMsgViewIndex ThreadIndexOfMsgHdr(nsIMsgDBHdr *msgHdr,
-                                     nsMsgViewIndex msgIndex = nsMsgViewIndex_None,
-                                     int32_t *pThreadCount = nullptr,
-                                     uint32_t *pFlags = nullptr);
+  virtual nsMsgViewIndex ThreadIndexOfMsg(
+      nsMsgKey msgKey, nsMsgViewIndex msgIndex = nsMsgViewIndex_None,
+      int32_t *pThreadCount = nullptr, uint32_t *pFlags = nullptr);
+  nsMsgViewIndex ThreadIndexOfMsgHdr(
+      nsIMsgDBHdr *msgHdr, nsMsgViewIndex msgIndex = nsMsgViewIndex_None,
+      int32_t *pThreadCount = nullptr, uint32_t *pFlags = nullptr);
   nsMsgKey GetKeyOfFirstMsgInThread(nsMsgKey key);
   int32_t CountExpandedThread(nsMsgViewIndex index);
-  virtual  nsresult ExpansionDelta(nsMsgViewIndex index, int32_t *expansionDelta);
+  virtual nsresult ExpansionDelta(nsMsgViewIndex index,
+                                  int32_t *expansionDelta);
   void ReverseSort();
   void ReverseThreads();
-  nsresult SaveSortInfo(nsMsgViewSortTypeValue sortType, nsMsgViewSortOrderValue sortOrder);
+  nsresult SaveSortInfo(nsMsgViewSortTypeValue sortType,
+                        nsMsgViewSortOrderValue sortOrder);
   nsresult RestoreSortInfo();
   nsresult PersistFolderInfo(nsIDBFolderInfo **dbFolderInfo);
-  void     SetMRUTimeForFolder(nsIMsgFolder *folder);
+  void SetMRUTimeForFolder(nsIMsgFolder *folder);
 
-  nsMsgKey GetAt(nsMsgViewIndex index)
-           {return m_keys.SafeElementAt(index, nsMsgKey_None);}
+  nsMsgKey GetAt(nsMsgViewIndex index) {
+    return m_keys.SafeElementAt(index, nsMsgKey_None);
+  }
 
-  nsMsgViewIndex FindViewIndex(nsMsgKey  key)
-                 {return FindKey(key, false);}
+  nsMsgViewIndex FindViewIndex(nsMsgKey key) { return FindKey(key, false); }
   /**
    * Find the message header if it is visible in this view.  (Messages in
    *     threads/groups that are elided will not be
@@ -269,11 +270,12 @@ protected:
    */
   virtual nsMsgViewIndex FindHdr(nsIMsgDBHdr *msgHdr,
                                  nsMsgViewIndex startIndex = 0,
-                                 bool allowDummy=false);
+                                 bool allowDummy = false);
   virtual nsMsgViewIndex FindKey(nsMsgKey key, bool expand);
   virtual nsresult GetDBForViewIndex(nsMsgViewIndex index, nsIMsgDatabase **db);
-  virtual nsCOMArray<nsIMsgFolder>* GetFolders();
-  virtual nsresult GetFolderFromMsgURI(const char *aMsgURI, nsIMsgFolder **aFolder);
+  virtual nsCOMArray<nsIMsgFolder> *GetFolders();
+  virtual nsresult GetFolderFromMsgURI(const char *aMsgURI,
+                                       nsIMsgFolder **aFolder);
 
   virtual nsresult ListIdsInThread(nsIMsgThread *threadHdr,
                                    nsMsgViewIndex viewIndex,
@@ -287,35 +289,27 @@ protected:
                                         nsMsgKey parentKey, uint32_t level,
                                         nsMsgViewIndex *viewIndex,
                                         uint32_t *pNumListed);
-  uint32_t GetSize(void) {return(m_keys.Length());}
+  uint32_t GetSize(void) { return (m_keys.Length()); }
 
   // Notification APIs.
-  void  NoteStartChange(nsMsgViewIndex firstlineChanged,
-                        int32_t numChanged,
-                        nsMsgViewNotificationCodeValue changeType);
-  void  NoteEndChange(nsMsgViewIndex firstlineChanged,
-                      int32_t numChanged,
-                      nsMsgViewNotificationCodeValue changeType);
+  void NoteStartChange(nsMsgViewIndex firstlineChanged, int32_t numChanged,
+                       nsMsgViewNotificationCodeValue changeType);
+  void NoteEndChange(nsMsgViewIndex firstlineChanged, int32_t numChanged,
+                     nsMsgViewNotificationCodeValue changeType);
 
   // For commands.
   virtual nsresult ApplyCommandToIndices(nsMsgViewCommandTypeValue command,
-                                         nsMsgViewIndex* indices,
+                                         nsMsgViewIndex *indices,
                                          int32_t numIndices);
-  virtual nsresult ApplyCommandToIndicesWithFolder(nsMsgViewCommandTypeValue command,
-                                                   nsMsgViewIndex* indices,
-                                                   int32_t numIndices,
-                                                   nsIMsgFolder *destFolder);
-  virtual nsresult CopyMessages(nsIMsgWindow *window,
-                                nsMsgViewIndex *indices,
-                                int32_t numIndices,
-                                bool isMove,
+  virtual nsresult ApplyCommandToIndicesWithFolder(
+      nsMsgViewCommandTypeValue command, nsMsgViewIndex *indices,
+      int32_t numIndices, nsIMsgFolder *destFolder);
+  virtual nsresult CopyMessages(nsIMsgWindow *window, nsMsgViewIndex *indices,
+                                int32_t numIndices, bool isMove,
                                 nsIMsgFolder *destFolder);
-  virtual nsresult DeleteMessages(nsIMsgWindow *window,
-                                  nsMsgViewIndex *indices,
-                                  int32_t numIndices,
-                                  bool deleteStorage);
-  nsresult GetHeadersFromSelection(uint32_t *indices,
-                                   uint32_t numIndices,
+  virtual nsresult DeleteMessages(nsIMsgWindow *window, nsMsgViewIndex *indices,
+                                  int32_t numIndices, bool deleteStorage);
+  nsresult GetHeadersFromSelection(uint32_t *indices, uint32_t numIndices,
                                    nsIMutableArray *messageArray);
   virtual nsresult ListCollapsedChildren(nsMsgViewIndex viewIndex,
                                          nsIMutableArray *messageArray);
@@ -334,77 +328,77 @@ protected:
   nsresult AndExtraFlag(nsMsgViewIndex index, uint32_t andflag);
   nsresult SetExtraFlag(nsMsgViewIndex index, uint32_t extraflag);
   virtual nsresult RemoveByIndex(nsMsgViewIndex index);
-  virtual void OnExtraFlagChanged(nsMsgViewIndex /*index*/, uint32_t /*extraFlag*/) {}
+  virtual void OnExtraFlagChanged(nsMsgViewIndex /*index*/,
+                                  uint32_t /*extraFlag*/) {}
   virtual void OnHeaderAddedOrDeleted() {}
-  nsresult ToggleWatched( nsMsgViewIndex* indices,  int32_t numIndices);
-  nsresult SetThreadWatched(nsIMsgThread *thread, nsMsgViewIndex index, bool watched);
-  nsresult SetThreadIgnored(nsIMsgThread *thread, nsMsgViewIndex threadIndex, bool ignored);
-  nsresult SetSubthreadKilled(nsIMsgDBHdr *header, nsMsgViewIndex msgIndex, bool ignored);
-  nsresult DownloadForOffline(nsIMsgWindow *window, nsMsgViewIndex *indices, int32_t numIndices);
+  nsresult ToggleWatched(nsMsgViewIndex *indices, int32_t numIndices);
+  nsresult SetThreadWatched(nsIMsgThread *thread, nsMsgViewIndex index,
+                            bool watched);
+  nsresult SetThreadIgnored(nsIMsgThread *thread, nsMsgViewIndex threadIndex,
+                            bool ignored);
+  nsresult SetSubthreadKilled(nsIMsgDBHdr *header, nsMsgViewIndex msgIndex,
+                              bool ignored);
+  nsresult DownloadForOffline(nsIMsgWindow *window, nsMsgViewIndex *indices,
+                              int32_t numIndices);
   nsresult DownloadFlaggedForOffline(nsIMsgWindow *window);
-  nsMsgViewIndex  GetThreadFromMsgIndex(nsMsgViewIndex index, nsIMsgThread **threadHdr);
+  nsMsgViewIndex GetThreadFromMsgIndex(nsMsgViewIndex index,
+                                       nsIMsgThread **threadHdr);
   /// Should junk commands be enabled for the current message in the view?
   bool JunkControlsEnabled(nsMsgViewIndex aViewIndex);
 
   // For sorting.
-  nsresult GetFieldTypeAndLenForSort(nsMsgViewSortTypeValue sortType,
-                                     uint16_t *pMaxLen,
-                                     eFieldType *pFieldType,
-                                     nsIMsgCustomColumnHandler* colHandler = nullptr);
-  nsresult GetCollationKey(nsIMsgDBHdr *msgHdr,
-                           nsMsgViewSortTypeValue sortType,
-                           uint8_t **result,
-                           uint32_t *len,
-                           nsIMsgCustomColumnHandler* colHandler = nullptr);
-  nsresult GetLongField(nsIMsgDBHdr *msgHdr,
-                        nsMsgViewSortTypeValue sortType,
+  nsresult GetFieldTypeAndLenForSort(
+      nsMsgViewSortTypeValue sortType, uint16_t *pMaxLen,
+      eFieldType *pFieldType, nsIMsgCustomColumnHandler *colHandler = nullptr);
+  nsresult GetCollationKey(nsIMsgDBHdr *msgHdr, nsMsgViewSortTypeValue sortType,
+                           uint8_t **result, uint32_t *len,
+                           nsIMsgCustomColumnHandler *colHandler = nullptr);
+  nsresult GetLongField(nsIMsgDBHdr *msgHdr, nsMsgViewSortTypeValue sortType,
                         uint32_t *result,
-                        nsIMsgCustomColumnHandler* colHandler = nullptr);
+                        nsIMsgCustomColumnHandler *colHandler = nullptr);
 
-  static int FnSortIdKey(const void *pItem1, const void *pItem2, void *privateData);
-  static int FnSortIdKeyPtr(const void *pItem1, const void *pItem2, void *privateData);
-  static int FnSortIdUint32(const void *pItem1, const void *pItem2, void *privateData);
+  static int FnSortIdKey(const void *pItem1, const void *pItem2,
+                         void *privateData);
+  static int FnSortIdKeyPtr(const void *pItem1, const void *pItem2,
+                            void *privateData);
+  static int FnSortIdUint32(const void *pItem1, const void *pItem2,
+                            void *privateData);
 
   nsresult GetStatusSortValue(nsIMsgDBHdr *msgHdr, uint32_t *result);
-  nsresult GetLocationCollationKey(nsIMsgDBHdr *msgHdr, uint8_t **result, uint32_t *len);
+  nsresult GetLocationCollationKey(nsIMsgDBHdr *msgHdr, uint8_t **result,
+                                   uint32_t *len);
   void PushSort(const MsgViewSortColumnInfo &newSort);
   nsresult EncodeColumnSort(nsString &columnSortString);
   nsresult DecodeColumnSort(nsString &columnSortString);
   // For view navigation.
   nsresult NavigateFromPos(nsMsgNavigationTypeValue motion,
-                           nsMsgViewIndex startIndex,
-                           nsMsgKey *pResultKey,
+                           nsMsgViewIndex startIndex, nsMsgKey *pResultKey,
                            nsMsgViewIndex *pResultIndex,
-                           nsMsgViewIndex *pThreadIndex,
-                           bool wrap);
-  nsresult FindNextFlagged(nsMsgViewIndex startIndex, nsMsgViewIndex *pResultIndex);
+                           nsMsgViewIndex *pThreadIndex, bool wrap);
+  nsresult FindNextFlagged(nsMsgViewIndex startIndex,
+                           nsMsgViewIndex *pResultIndex);
   nsresult FindFirstNew(nsMsgViewIndex *pResultIndex);
-  nsresult FindPrevUnread(nsMsgKey startKey, nsMsgKey *pResultKey, nsMsgKey *resultThreadId);
+  nsresult FindPrevUnread(nsMsgKey startKey, nsMsgKey *pResultKey,
+                          nsMsgKey *resultThreadId);
   nsresult FindFirstFlagged(nsMsgViewIndex *pResultIndex);
-  nsresult FindPrevFlagged(nsMsgViewIndex startIndex, nsMsgViewIndex *pResultIndex);
-  nsresult MarkThreadOfMsgRead(nsMsgKey msgId,
-                               nsMsgViewIndex msgIndex,
-                               nsTArray<nsMsgKey> &idsMarkedRead,
-                               bool bRead);
-  nsresult MarkThreadRead(nsIMsgThread *threadHdr,
-                          nsMsgViewIndex threadIndex,
-                          nsTArray<nsMsgKey> &idsMarkedRead,
-                          bool bRead);
+  nsresult FindPrevFlagged(nsMsgViewIndex startIndex,
+                           nsMsgViewIndex *pResultIndex);
+  nsresult MarkThreadOfMsgRead(nsMsgKey msgId, nsMsgViewIndex msgIndex,
+                               nsTArray<nsMsgKey> &idsMarkedRead, bool bRead);
+  nsresult MarkThreadRead(nsIMsgThread *threadHdr, nsMsgViewIndex threadIndex,
+                          nsTArray<nsMsgKey> &idsMarkedRead, bool bRead);
   bool IsValidIndex(nsMsgViewIndex index);
-  nsresult ToggleIgnored(nsMsgViewIndex * indices,
-                         int32_t numIndices,
-                         nsMsgViewIndex *resultIndex,
-                         bool *resultToggleState);
-  nsresult ToggleMessageKilled(nsMsgViewIndex * indices,
-                               int32_t numIndices,
+  nsresult ToggleIgnored(nsMsgViewIndex *indices, int32_t numIndices,
+                         nsMsgViewIndex *resultIndex, bool *resultToggleState);
+  nsresult ToggleMessageKilled(nsMsgViewIndex *indices, int32_t numIndices,
                                nsMsgViewIndex *resultIndex,
                                bool *resultToggleState);
-  bool OfflineMsgSelected(nsMsgViewIndex * indices, int32_t numIndices);
-  bool NonDummyMsgSelected(nsMsgViewIndex * indices, int32_t numIndices);
-  char16_t * GetString(const char16_t *aStringName);
-  nsresult GetPrefLocalizedString(const char *aPrefName, nsString& aResult);
-  nsresult AppendKeywordProperties(const nsACString& keywords,
-                                   nsAString& properties);
+  bool OfflineMsgSelected(nsMsgViewIndex *indices, int32_t numIndices);
+  bool NonDummyMsgSelected(nsMsgViewIndex *indices, int32_t numIndices);
+  char16_t *GetString(const char16_t *aStringName);
+  nsresult GetPrefLocalizedString(const char *aPrefName, nsString &aResult);
+  nsresult AppendKeywordProperties(const nsACString &keywords,
+                                   nsAString &properties);
   nsresult InitLabelStrings(void);
   nsresult CopyDBView(nsMsgDBView *aNewMsgDBView,
                       nsIMessenger *aMessengerInstance,
@@ -419,7 +413,7 @@ protected:
   nsresult GetDBForHeader(nsIMsgDBHdr *msgHdr, nsIMsgDatabase **db);
 
   bool AdjustReadFlag(nsIMsgDBHdr *msgHdr, uint32_t *msgFlags);
-  void FreeAll(nsTArray<void*> *ptrs);
+  void FreeAll(nsTArray<void *> *ptrs);
   void ClearHdrCache();
   nsTArray<nsMsgKey> m_keys;
   nsTArray<uint32_t> m_flags;
@@ -427,15 +421,15 @@ protected:
   nsMsgImapDeleteModel mDeleteModel;
 
   // Cache the most recently asked for header and corresponding msgKey.
-  nsCOMPtr <nsIMsgDBHdr>  m_cachedHdr;
-  nsMsgKey                m_cachedMsgKey;
+  nsCOMPtr<nsIMsgDBHdr> m_cachedHdr;
+  nsMsgKey m_cachedMsgKey;
 
   // We need to store the message key for the message we are currently
   // displaying to ensure we don't try to redisplay the same message just
   // because the selection changed (i.e. after a sort).
-  nsMsgKey                m_currentlyDisplayedMsgKey;
-  nsCString               m_currentlyDisplayedMsgUri;
-  nsMsgViewIndex          m_currentlyDisplayedViewIndex;
+  nsMsgKey m_currentlyDisplayedMsgKey;
+  nsCString m_currentlyDisplayedMsgUri;
+  nsMsgViewIndex m_currentlyDisplayedViewIndex;
   // If we're deleting messages, we want to hold off loading messages on
   // selection changed until the delete is done and we want to batch
   // notifications.
@@ -445,9 +439,9 @@ protected:
   // The Sender column really shows recipients.
 
   // Server types for this view's folder
-  bool mIsNews;             // We have special icons for news.
-  bool mIsRss;              // RSS affects enabling of junk commands.
-  bool mIsXFVirtual;        // A virtual folder with multiple folders.
+  bool mIsNews;       // We have special icons for news.
+  bool mIsRss;        // RSS affects enabling of junk commands.
+  bool mIsXFVirtual;  // A virtual folder with multiple folders.
 
   bool mShowSizeInLines;    // For news we show lines instead of size when true.
   bool mSortThreadsByRoot;  // As opposed to by the newest message.
@@ -458,13 +452,13 @@ protected:
   bool mSummarizeFailed;
   uint8_t m_saveRestoreSelectionDepth;
 
-  nsCOMPtr <nsIMsgDatabase> m_db;
-  nsCOMPtr <nsIMsgFolder> m_folder;
+  nsCOMPtr<nsIMsgDatabase> m_db;
+  nsCOMPtr<nsIMsgFolder> m_folder;
   // For virtual folders, the VF db.
-  nsCOMPtr <nsIMsgFolder> m_viewFolder;
+  nsCOMPtr<nsIMsgFolder> m_viewFolder;
   nsString mMessageType;
-  nsTArray <MsgViewSortColumnInfo> m_sortColumns;
-  nsMsgViewSortTypeValue  m_sortType;
+  nsTArray<MsgViewSortColumnInfo> m_sortColumns;
+  nsMsgViewSortTypeValue m_sortType;
   nsMsgViewSortOrderValue m_sortOrder;
   nsString m_curCustomColumn;
   nsMsgViewSortTypeValue m_secondarySort;
@@ -508,26 +502,26 @@ protected:
 
   // These hold pointers (and IDs) for the nsIMsgCustomColumnHandler object
   // that constitutes the custom column handler.
-  nsCOMArray <nsIMsgCustomColumnHandler> m_customColumnHandlers;
+  nsCOMArray<nsIMsgCustomColumnHandler> m_customColumnHandlers;
   nsTArray<nsString> m_customColumnHandlerIDs;
 
-  nsIMsgCustomColumnHandler* GetColumnHandler(const nsAString &colID);
-  nsIMsgCustomColumnHandler* GetCurColumnHandler();
+  nsIMsgCustomColumnHandler *GetColumnHandler(const nsAString &colID);
+  nsIMsgCustomColumnHandler *GetCurColumnHandler();
   bool CustomColumnsInSortAndNotRegistered();
   void EnsureCustomColumnsValid();
 
 #ifdef DEBUG_David_Bienvenu
-void InitEntryInfoForIndex(nsMsgViewIndex i, IdKeyPtr &EntryInfo);
-void ValidateSort();
+  void InitEntryInfoForIndex(nsMsgViewIndex i, IdKeyPtr &EntryInfo);
+  void ValidateSort();
 #endif
 
-protected:
-  static nsresult   InitDisplayFormats();
+ protected:
+  static nsresult InitDisplayFormats();
 
-private:
-  static mozilla::nsDateFormatSelector  m_dateFormatDefault;
-  static mozilla::nsDateFormatSelector  m_dateFormatThisWeek;
-  static mozilla::nsDateFormatSelector  m_dateFormatToday;
+ private:
+  static mozilla::nsDateFormatSelector m_dateFormatDefault;
+  static mozilla::nsDateFormatSelector m_dateFormatThisWeek;
+  static mozilla::nsDateFormatSelector m_dateFormatToday;
   bool ServerSupportsFilterAfterTheFact();
 
   nsresult PerformActionsOnJunkMsgs(bool msgsAreJunk);
@@ -535,15 +529,11 @@ private:
                                          nsIMsgFolder *srcFolder,
                                          bool &moveMessages,
                                          bool &changeReadState,
-                                         nsIMsgFolder** targetFolder);
+                                         nsIMsgFolder **targetFolder);
 
-  class nsMsgViewHdrEnumerator final : public nsSimpleEnumerator
-  {
-  public:
-    const nsID& DefaultInterface() override
-    {
-      return NS_GET_IID(nsIMsgDBHdr);
-    }
+  class nsMsgViewHdrEnumerator final : public nsSimpleEnumerator {
+   public:
+    const nsID &DefaultInterface() override { return NS_GET_IID(nsIMsgDBHdr); }
 
     // nsISimpleEnumerator methods:
     NS_DECL_NSISIMPLEENUMERATOR
@@ -554,7 +544,7 @@ private:
     RefPtr<nsMsgDBView> m_view;
     nsMsgViewIndex m_curHdrIndex;
 
-  private:
+   private:
     ~nsMsgViewHdrEnumerator() override;
   };
 };
