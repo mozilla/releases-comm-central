@@ -1866,8 +1866,8 @@ NS_MSG_BASE nsresult MsgDetectCharsetFromFile(nsIFile *aFile,
       if (numRead == 0) break;
       detector->DoIt(buffer, numRead, &dontFeed);
       NS_ENSURE_SUCCESS(rv, rv);
-      if (dontFeed)  // XXX: We should really break here with: if (dontFeed ||
-                     // numRead == 0).
+      if (dontFeed)  // XXX: We should really break here with:
+                     // if (dontFeed || numRead == 0).
         break;
     }
     rv = detector->Done();
