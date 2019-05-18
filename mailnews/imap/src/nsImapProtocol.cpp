@@ -80,6 +80,8 @@
 #include "nsIImapServerSink.h"
 #include "nsIImapMessageSink.h"
 
+#include "mozilla/dom/InternalResponse.h"
+
 using namespace mozilla;
 
 LazyLogModule IMAP("IMAP");
@@ -8498,6 +8500,7 @@ nsImapMockChannel::nsImapMockChannel() {
   mChannelClosed = false;
   mReadingFromCache = false;
   mTryingToReadPart = false;
+  mContentLength = mozilla::dom::InternalResponse::UNKNOWN_BODY_SIZE;
 }
 
 nsImapMockChannel::~nsImapMockChannel() {
