@@ -1084,9 +1084,10 @@ var AugmentEverybodyWith = {
     },
 
     /**
-     * Get dropmarker arrow element from
+     * Get dropmarker arrow element from a toolbarbutton
      *
-     * @param aNode  An element containing a dropmarker, e.g. menulist or menu-button
+     * @param aNode  An element containing a dropmarker:
+     * a <toobalbuttton type="menu-button">. (Only usage left due to de-xbl).
      */
     get_menu_dropmarker: function(aNode) {
       let children = aNode.ownerDocument.getAnonymousNodes(aNode);

@@ -131,7 +131,7 @@ function test_attachment_reminder_appears_properly() {
   assert_manual_reminder_state(cwc, false);
 
   // Click ok to be notified on send if no attachments are attached.
-  cwc.click(cwc.eid(kBoxId, {tagName: "button", label: "Remind Me Later"}));
+  cwc.click(new elementslib.Elem(cwc.e(kBoxId).querySelector("button[label=\"Remind Me Later\"]")));
   wait_for_reminder_state(cwc, false);
 
   // The manual reminder should be enabled now.
@@ -607,7 +607,6 @@ function test_reminder_in_draft() {
  * Bug 942436
  * Test that the reminder can be turned off for the current message.
  */
-test_disabling_attachment_reminder.__force_skip__ = true;
 function test_disabling_attachment_reminder() {
   // Open a sample message with attachment keywords.
   let cwc = open_compose_new_mail();
@@ -623,7 +622,7 @@ function test_disabling_attachment_reminder() {
   // in the notification bar menu-button.
   let disableButton = get_notification_button(cwc, kBoxId, kNotificationId,
                                               { popup: "reminderBarPopup" });
-  cwc.click(new elementslib.Elem(cwc.get_menu_dropmarker(disableButton)));
+  cwc.click(new elementslib.Elem(disableButton.querySelector("dropmarker")));
   cwc.click_menus_in_sequence(cwc.e("reminderBarPopup"),
                               [ {id: "disableReminder"} ]);
 
@@ -652,7 +651,7 @@ function test_disabling_attachment_reminder() {
   // Disable the reminder again.
   disableButton = get_notification_button(cwc, kBoxId, kNotificationId,
                                           { popup: "reminderBarPopup" });
-  cwc.click(new elementslib.Elem(cwc.get_menu_dropmarker(disableButton)));
+  cwc.click(new elementslib.Elem(disableButton.querySelector("dropmarker")));
   cwc.click_menus_in_sequence(cwc.e("reminderBarPopup"),
                               [ {id: "disableReminder"} ]);
   wait_for_reminder_state(cwc, false);

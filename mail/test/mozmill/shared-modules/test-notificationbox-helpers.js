@@ -163,9 +163,7 @@ function get_notification_button(aController, aBoxId, aValue, aMatch) {
         if (button.getAttribute("type") == "menu-button" ||
             button.getAttribute("type") == "menu") {
           // The button contains a menupopup as the first child.
-          matched = (button.firstChild &&
-                     (button.firstChild.tagName == "menupopup") &&
-                     (button.firstChild.id == value));
+          matched = button.querySelector("menupopup#" + value);
         } else {
           // The "popup" attribute is not on the button itself but in its
           // buttonInfo member.
