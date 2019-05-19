@@ -19,9 +19,8 @@
 class nsMsgProgress : public nsIMsgProgress,
                       public nsIMsgStatusFeedback,
                       public nsIProgressEventSink,
-                      public nsSupportsWeakReference
-{
-public:
+                      public nsSupportsWeakReference {
+ public:
   nsMsgProgress();
 
   NS_DECL_THREADSAFE_ISUPPORTS
@@ -30,16 +29,16 @@ public:
   NS_DECL_NSIMSGSTATUSFEEDBACK
   NS_DECL_NSIPROGRESSEVENTSINK
 
-private:
+ private:
   virtual ~nsMsgProgress();
   nsresult ReleaseListeners(void);
 
-  bool                               m_closeProgress;
-  bool                               m_processCanceled;
-  nsString                           m_pendingStatus;
-  int32_t                            m_pendingStateFlags;
-  nsresult                           m_pendingStateValue;
-  nsWeakPtr                          m_msgWindow;
+  bool m_closeProgress;
+  bool m_processCanceled;
+  nsString m_pendingStatus;
+  int32_t m_pendingStateFlags;
+  nsresult m_pendingStateValue;
+  nsWeakPtr m_msgWindow;
   nsCOMArray<nsIWebProgressListener> m_listenerList;
 };
 

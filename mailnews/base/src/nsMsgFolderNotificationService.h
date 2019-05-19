@@ -11,28 +11,28 @@
 #include "nsTObserverArray.h"
 #include "nsCOMPtr.h"
 
-class nsMsgFolderNotificationService final : public nsIMsgFolderNotificationService
-{
-public:
+class nsMsgFolderNotificationService final
+    : public nsIMsgFolderNotificationService {
+ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGFOLDERNOTIFICATIONSERVICE
 
   nsMsgFolderNotificationService();
 
-private:
+ private:
   ~nsMsgFolderNotificationService();
-  struct MsgFolderListener
-  {
+  struct MsgFolderListener {
     nsCOMPtr<nsIMsgFolderListener> mListener;
     msgFolderListenerFlag mFlags;
 
-    MsgFolderListener(nsIMsgFolderListener *aListener, msgFolderListenerFlag aFlags)
-      : mListener(aListener), mFlags(aFlags) {}
+    MsgFolderListener(nsIMsgFolderListener *aListener,
+                      msgFolderListenerFlag aFlags)
+        : mListener(aListener), mFlags(aFlags) {}
     MsgFolderListener(const MsgFolderListener &aListener)
-      : mListener(aListener.mListener), mFlags(aListener.mFlags) {}
+        : mListener(aListener.mListener), mFlags(aListener.mFlags) {}
     ~MsgFolderListener() {}
 
-    int operator==(nsIMsgFolderListener* aListener) const {
+    int operator==(nsIMsgFolderListener *aListener) const {
       return mListener == aListener;
     }
     int operator==(const MsgFolderListener &aListener) const {

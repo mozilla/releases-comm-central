@@ -15,38 +15,32 @@
 //
 //  nsMsgFolderNotificationService
 //
-NS_IMPL_ISUPPORTS(nsMsgFolderNotificationService, nsIMsgFolderNotificationService)
+NS_IMPL_ISUPPORTS(nsMsgFolderNotificationService,
+                  nsIMsgFolderNotificationService)
 
-nsMsgFolderNotificationService::nsMsgFolderNotificationService()
-{
-}
+nsMsgFolderNotificationService::nsMsgFolderNotificationService() {}
 
-nsMsgFolderNotificationService::~nsMsgFolderNotificationService()
-{
+nsMsgFolderNotificationService::~nsMsgFolderNotificationService() {
   /* destructor code */
 }
 
-NS_IMETHODIMP nsMsgFolderNotificationService::GetHasListeners(bool *aHasListeners)
-{
+NS_IMETHODIMP nsMsgFolderNotificationService::GetHasListeners(
+    bool *aHasListeners) {
   NS_ENSURE_ARG_POINTER(aHasListeners);
   *aHasListeners = mListeners.Length() > 0;
   return NS_OK;
 }
 
-
-/* void addListener (in nsIMsgFolderListener aListener, in msgFolderListenerFlag flags); */
-NS_IMETHODIMP nsMsgFolderNotificationService::AddListener(nsIMsgFolderListener *aListener,
-                                                          msgFolderListenerFlag aFlags)
-{
+NS_IMETHODIMP nsMsgFolderNotificationService::AddListener(
+    nsIMsgFolderListener *aListener, msgFolderListenerFlag aFlags) {
   NS_ENSURE_ARG_POINTER(aListener);
   MsgFolderListener listener(aListener, aFlags);
   mListeners.AppendElementUnlessExists(listener);
   return NS_OK;
 }
 
-/* void removeListener (in nsIMsgFolderListener aListener); */
-NS_IMETHODIMP nsMsgFolderNotificationService::RemoveListener(nsIMsgFolderListener *aListener)
-{
+NS_IMETHODIMP nsMsgFolderNotificationService::RemoveListener(
+    nsIMsgFolderListener *aListener) {
   NS_ENSURE_ARG_POINTER(aListener);
 
   mListeners.RemoveElement(aListener);
@@ -63,42 +57,34 @@ NS_IMETHODIMP nsMsgFolderNotificationService::RemoveListener(nsIMsgFolderListene
   }                                                                       \
   PR_END_MACRO
 
-/* void notifyMsgAdded (in nsIMsgDBHdr aMsg); */
-NS_IMETHODIMP nsMsgFolderNotificationService::NotifyMsgAdded(nsIMsgDBHdr *aMsg)
-{
+NS_IMETHODIMP nsMsgFolderNotificationService::NotifyMsgAdded(
+    nsIMsgDBHdr *aMsg) {
   NOTIFY_MSGFOLDER_LISTENERS(msgAdded, MsgAdded, (aMsg));
   return NS_OK;
 }
 
-/* void notifyMsgsClassified (in  */
 NS_IMETHODIMP nsMsgFolderNotificationService::NotifyMsgsClassified(
-  nsIArray *aMsgs, bool aJunkProcessed, bool aTraitProcessed)
-{
+    nsIArray *aMsgs, bool aJunkProcessed, bool aTraitProcessed) {
   NOTIFY_MSGFOLDER_LISTENERS(msgsClassified, MsgsClassified,
                              (aMsgs, aJunkProcessed, aTraitProcessed));
   return NS_OK;
 }
 
-/* void notifyMsgsDeleted (in nsIArray aMsgs); */
-NS_IMETHODIMP nsMsgFolderNotificationService::NotifyMsgsDeleted(nsIArray *aMsgs)
-{
+NS_IMETHODIMP nsMsgFolderNotificationService::NotifyMsgsDeleted(
+    nsIArray *aMsgs) {
   NOTIFY_MSGFOLDER_LISTENERS(msgsDeleted, MsgsDeleted, (aMsgs));
   return NS_OK;
 }
 
-/* void notifyMsgsMoveCopyCompleted (in boolean aMove, in nsIArray aSrcMsgs,
-                                     in nsIMsgFolder aDestFolder); */
 NS_IMETHODIMP nsMsgFolderNotificationService::NotifyMsgsMoveCopyCompleted(
-  bool aMove, nsIArray *aSrcMsgs, nsIMsgFolder *aDestFolder,
-  nsIArray *aDestMsgs)
-{
+    bool aMove, nsIArray *aSrcMsgs, nsIMsgFolder *aDestFolder,
+    nsIArray *aDestMsgs) {
   uint32_t count = mListeners.Length();
 
   // IMAP delete model means that a "move" isn't really a move, it is a copy,
   // followed by storing the IMAP deleted flag on the message.
   bool isReallyMove = aMove;
-  if (count > 0 && aMove)
-  {
+  if (count > 0 && aMove) {
     nsresult rv;
     // Assume that all the source messages are from the same server.
     nsCOMPtr<nsIMsgDBHdr> message(do_QueryElementAt(aSrcMsgs, 0, &rv));
@@ -109,12 +95,10 @@ NS_IMETHODIMP nsMsgFolderNotificationService::NotifyMsgsMoveCopyCompleted(
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsCOMPtr<nsIMsgImapMailFolder> imapFolder(do_QueryInterface(msgFolder));
-    if (imapFolder)
-    {
+    if (imapFolder) {
       nsCOMPtr<nsIImapIncomingServer> imapServer;
       imapFolder->GetImapIncomingServer(getter_AddRefs(imapServer));
-      if (imapServer)
-      {
+      if (imapServer) {
         nsMsgImapDeleteModel deleteModel;
         imapServer->GetDeleteModel(&deleteModel);
         if (deleteModel == nsMsgImapDeleteModels::IMAPDelete)
@@ -130,44 +114,41 @@ NS_IMETHODIMP nsMsgFolderNotificationService::NotifyMsgsMoveCopyCompleted(
 
 NS_IMETHODIMP
 nsMsgFolderNotificationService::NotifyMsgKeyChanged(nsMsgKey aOldKey,
-                                                    nsIMsgDBHdr *aNewHdr)
-{
+                                                    nsIMsgDBHdr *aNewHdr) {
   NOTIFY_MSGFOLDER_LISTENERS(msgKeyChanged, MsgKeyChanged, (aOldKey, aNewHdr));
   return NS_OK;
 }
 
-/* void notifyFolderAdded(in nsIMsgFolder aFolder); */
-NS_IMETHODIMP nsMsgFolderNotificationService::NotifyFolderAdded(nsIMsgFolder *aFolder)
-{
+NS_IMETHODIMP nsMsgFolderNotificationService::NotifyFolderAdded(
+    nsIMsgFolder *aFolder) {
   NOTIFY_MSGFOLDER_LISTENERS(folderAdded, FolderAdded, (aFolder));
   return NS_OK;
 }
 
-/* void notifyFolderDeleted(in nsIMsgFolder aFolder); */
-NS_IMETHODIMP nsMsgFolderNotificationService::NotifyFolderDeleted(nsIMsgFolder *aFolder)
-{
+NS_IMETHODIMP nsMsgFolderNotificationService::NotifyFolderDeleted(
+    nsIMsgFolder *aFolder) {
   NOTIFY_MSGFOLDER_LISTENERS(folderDeleted, FolderDeleted, (aFolder));
   return NS_OK;
 }
 
-/* void notifyFolderMoveCopyCompleted(in boolean aMove, in nsIMsgFolder aSrcFolder, in nsIMsgFolder aDestFolder); */
-NS_IMETHODIMP nsMsgFolderNotificationService::NotifyFolderMoveCopyCompleted(bool aMove, nsIMsgFolder *aSrcFolder, nsIMsgFolder *aDestFolder)
-{
+NS_IMETHODIMP nsMsgFolderNotificationService::NotifyFolderMoveCopyCompleted(
+    bool aMove, nsIMsgFolder *aSrcFolder, nsIMsgFolder *aDestFolder) {
   NOTIFY_MSGFOLDER_LISTENERS(folderMoveCopyCompleted, FolderMoveCopyCompleted,
                              (aMove, aSrcFolder, aDestFolder));
   return NS_OK;
 }
 
-/* void notifyFolderRenamed (in nsIMsgFolder aOrigFolder, in nsIMsgFolder aNewFolder); */
-NS_IMETHODIMP nsMsgFolderNotificationService::NotifyFolderRenamed(nsIMsgFolder *aOrigFolder, nsIMsgFolder *aNewFolder)
-{
-  NOTIFY_MSGFOLDER_LISTENERS(folderRenamed, FolderRenamed, (aOrigFolder, aNewFolder));
+NS_IMETHODIMP nsMsgFolderNotificationService::NotifyFolderRenamed(
+    nsIMsgFolder *aOrigFolder, nsIMsgFolder *aNewFolder) {
+  NOTIFY_MSGFOLDER_LISTENERS(folderRenamed, FolderRenamed,
+                             (aOrigFolder, aNewFolder));
   return NS_OK;
 }
 
-/* void notifyItemEvent (in nsISupports aItem, in string aEvent, in nsISupports aData, in AUTF8String aString); */
-NS_IMETHODIMP nsMsgFolderNotificationService::NotifyItemEvent(nsISupports *aItem, const nsACString &aEvent, nsISupports *aData, const nsACString &aString)
-{
-  NOTIFY_MSGFOLDER_LISTENERS(itemEvent, ItemEvent, (aItem, aEvent, aData, aString));
+NS_IMETHODIMP nsMsgFolderNotificationService::NotifyItemEvent(
+    nsISupports *aItem, const nsACString &aEvent, nsISupports *aData,
+    const nsACString &aString) {
+  NOTIFY_MSGFOLDER_LISTENERS(itemEvent, ItemEvent,
+                             (aItem, aEvent, aData, aString));
   return NS_OK;
 }

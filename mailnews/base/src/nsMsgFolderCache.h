@@ -13,11 +13,10 @@
 #include "nsCOMPtr.h"
 #include "mdb.h"
 
-class nsMsgFolderCache : public nsIMsgFolderCache
-{
+class nsMsgFolderCache : public nsIMsgFolderCache {
   using PathString = mozilla::PathString;
 
-public:
+ public:
   friend class nsMsgFolderCacheElement;
 
   nsMsgFolderCache();
@@ -25,28 +24,31 @@ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGFOLDERCACHE
 
-protected:
+ protected:
   virtual ~nsMsgFolderCache();
 
-  nsresult GetMDBFactory(nsIMdbFactory ** aMdbFactory);
-  nsresult AddCacheElement(const nsACString& key, nsIMdbRow *row, nsIMsgFolderCacheElement **result);
-  nsresult RowCellColumnToCharPtr(nsIMdbRow *hdrRow, mdb_token columnToken, nsACString& resultPtr);
+  nsresult GetMDBFactory(nsIMdbFactory **aMdbFactory);
+  nsresult AddCacheElement(const nsACString &key, nsIMdbRow *row,
+                           nsIMsgFolderCacheElement **result);
+  nsresult RowCellColumnToCharPtr(nsIMdbRow *hdrRow, mdb_token columnToken,
+                                  nsACString &resultPtr);
   nsresult InitMDBInfo();
   nsresult InitNewDB();
   nsresult InitExistingDB();
-  nsresult OpenMDB(const PathString& dbName, bool create);
-  nsIMdbEnv *GetEnv() {return m_mdbEnv;}
-  nsIMdbStore *GetStore() {return m_mdbStore;}
-  nsInterfaceHashtable<nsCStringHashKey, nsIMsgFolderCacheElement> m_cacheElements;
+  nsresult OpenMDB(const PathString &dbName, bool create);
+  nsIMdbEnv *GetEnv() { return m_mdbEnv; }
+  nsIMdbStore *GetStore() { return m_mdbStore; }
+  nsInterfaceHashtable<nsCStringHashKey, nsIMsgFolderCacheElement>
+      m_cacheElements;
   // mdb stuff
-  nsIMdbEnv           *m_mdbEnv; // to be used in all the db calls.
-  nsIMdbStore         *m_mdbStore;
-  nsIMdbTable         *m_mdbAllFoldersTable;
-  mdb_token           m_folderRowScopeToken;
-  mdb_token           m_folderTableKindToken;
+  nsIMdbEnv *m_mdbEnv;  // to be used in all the db calls.
+  nsIMdbStore *m_mdbStore;
+  nsIMdbTable *m_mdbAllFoldersTable;
+  mdb_token m_folderRowScopeToken;
+  mdb_token m_folderTableKindToken;
   nsCOMPtr<nsIMdbFactory> mMdbFactory;
 
-  struct mdbOid       m_allFoldersTableOID;
+  struct mdbOid m_allFoldersTableOID;
 };
 
 #endif

@@ -3,7 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// This file holds some useful utility functions and declarations used by our datasources.
+// This file holds some useful utility functions and declarations used by our
+// datasources.
 
 #include "rdf.h"
 #include "nsIRDFResource.h"
@@ -21,6 +22,7 @@ typedef struct _nsMsgRDFNotification {
   nsIRDFNode *oldObject;
 } nsMsgRDFNotification;
 
+// clang-format off
 // Some property declarations
 #define NC_RDF_CHILD                        NC_NAMESPACE_URI "child"
 #define NC_RDF_NAME                         NC_NAMESPACE_URI "Name"
@@ -85,18 +87,23 @@ typedef struct _nsMsgRDFNotification {
 #define NC_RDF_COMPACTALL                   NC_NAMESPACE_URI "CompactAll"
 #define NC_RDF_RENAME                       NC_NAMESPACE_URI "Rename"
 #define NC_RDF_EMPTYTRASH                   NC_NAMESPACE_URI "EmptyTrash"
+// clang-format on
 
-
-nsresult createNode(const char16_t *str, nsIRDFNode **, nsIRDFService *rdfService);
+nsresult createNode(const char16_t *str, nsIRDFNode **,
+                    nsIRDFService *rdfService);
 
 // Given an int32_t creates an nsIRDFNode that is really an int literal.
-nsresult createIntNode(int32_t value, nsIRDFNode **node, nsIRDFService *rdfService);
+nsresult createIntNode(int32_t value, nsIRDFNode **node,
+                       nsIRDFService *rdfService);
 
 // Given an nsIRDFBlob creates an nsIRDFNode that is really an blob literal.
-nsresult createBlobNode(uint8_t *value, uint32_t &length,  nsIRDFNode **node, nsIRDFService *rdfService);
+nsresult createBlobNode(uint8_t *value, uint32_t &length, nsIRDFNode **node,
+                        nsIRDFService *rdfService);
 
-// Assertion for a datasource that will just call GetTarget on property.  When all of our
-// datasources derive from our datasource baseclass, this should be moved there and the first
-// parameter will no longer be needed.
-nsresult GetTargetHasAssertion(nsIRDFDataSource *dataSource, nsIRDFResource* folderResource,
-                 nsIRDFResource *property,bool tv, nsIRDFNode *target,bool* hasAssertion);
+// Assertion for a datasource that will just call GetTarget on property.  When
+// all of our datasources derive from our datasource baseclass, this should be
+// moved there and the first parameter will no longer be needed.
+nsresult GetTargetHasAssertion(nsIRDFDataSource *dataSource,
+                               nsIRDFResource *folderResource,
+                               nsIRDFResource *property, bool tv,
+                               nsIRDFNode *target, bool *hasAssertion);

@@ -16,15 +16,12 @@
 #include "nsIMsgSendLaterListener.h"
 #include "nsIStringBundle.h"
 
-class nsMsgOfflineManager
-  : public nsIMsgOfflineManager,
-    public nsIObserver,
-    public nsSupportsWeakReference,
-    public nsIMsgSendLaterListener,
-    public nsIUrlListener
-{
-public:
-
+class nsMsgOfflineManager : public nsIMsgOfflineManager,
+                            public nsIObserver,
+                            public nsSupportsWeakReference,
+                            public nsIMsgSendLaterListener,
+                            public nsIUrlListener {
+ public:
   nsMsgOfflineManager();
 
   NS_DECL_THREADSAFE_ISUPPORTS
@@ -36,8 +33,7 @@ public:
   NS_DECL_NSIURLLISTENER
   NS_DECL_NSIMSGSENDLATERLISTENER
 
-  typedef enum
-  {
+  typedef enum {
     eStarting = 0,
     eSynchronizingOfflineImapChanges = 1,
     eDownloadingNews = 2,
@@ -47,14 +43,13 @@ public:
     eNoState = 6  // we're not doing anything
   } offlineManagerState;
 
-  typedef enum
-  {
+  typedef enum {
     eGoingOnline = 0,
     eDownloadingForOffline = 1,
-    eNoOp = 2 // no operation in progress
+    eNoOp = 2  // no operation in progress
   } offlineManagerOperation;
 
-private:
+ private:
   virtual ~nsMsgOfflineManager();
 
   nsresult AdvanceToNextState(nsresult exitStatus);
@@ -75,11 +70,10 @@ private:
   bool m_goOfflineWhenDone;
   offlineManagerState m_curState;
   offlineManagerOperation m_curOperation;
-  nsCOMPtr <nsIMsgWindow> m_window;
-  nsCOMPtr <nsIMsgStatusFeedback> m_statusFeedback;
-  nsCOMPtr<nsIStringBundle>   mStringBundle;
+  nsCOMPtr<nsIMsgWindow> m_window;
+  nsCOMPtr<nsIMsgStatusFeedback> m_statusFeedback;
+  nsCOMPtr<nsIStringBundle> mStringBundle;
   nsCOMPtr<nsISupports> mOfflineImapSync;
-
 };
 
 #endif

@@ -22,18 +22,16 @@
 #include "nsIUrlListener.h"
 
 ///////////////////////////////////////////////////////////////////////////////////
-// The mail session is a replacement for the old 4.x MSG_Master object. It contains
-// mail session generic information such as the user's current mail identity, ....
-// I'm starting this off as an empty interface and as people feel they need to
-// add more information to it, they can. I think this is a better approach than
-// trying to port over the old MSG_Master in its entirety as that had a lot of
-// cruft in it....
+// The mail session is a replacement for the old 4.x MSG_Master object. It
+// contains mail session generic information such as the user's current mail
+// identity, .... I'm starting this off as an empty interface and as people feel
+// they need to add more information to it, they can. I think this is a better
+// approach than trying to port over the old MSG_Master in its entirety as that
+// had a lot of cruft in it....
 //////////////////////////////////////////////////////////////////////////////////
 
-class nsMsgMailSession : public nsIMsgMailSession,
-                         public nsIFolderListener
-{
-public:
+class nsMsgMailSession : public nsIMsgMailSession, public nsIFolderListener {
+ public:
   nsMsgMailSession();
 
   NS_DECL_THREADSAFE_ISUPPORTS
@@ -43,7 +41,7 @@ public:
   nsresult Init();
   nsresult GetSelectedLocaleDataDir(nsIFile *defaultsDir);
 
-protected:
+ protected:
   virtual ~nsMsgMailSession();
 
   struct folderListener {
@@ -51,12 +49,13 @@ protected:
     uint32_t mNotifyFlags;
 
     folderListener(nsIFolderListener *aListener, uint32_t aNotifyFlags)
-      : mListener(aListener), mNotifyFlags(aNotifyFlags) {}
+        : mListener(aListener), mNotifyFlags(aNotifyFlags) {}
     folderListener(const folderListener &aListener)
-      : mListener(aListener.mListener), mNotifyFlags(aListener.mNotifyFlags) {}
+        : mListener(aListener.mListener),
+          mNotifyFlags(aListener.mNotifyFlags) {}
     ~folderListener() {}
 
-    int operator==(nsIFolderListener* aListener) const {
+    int operator==(nsIFolderListener *aListener) const {
       return mListener == aListener;
     }
     int operator==(const folderListener &aListener) const {
@@ -70,16 +69,15 @@ protected:
 
   nsCOMArray<nsIMsgWindow> mWindows;
   // stick this here temporarily
-  nsCOMPtr <nsIMsgWindow> m_temporaryMsgWindow;
+  nsCOMPtr<nsIMsgWindow> m_temporaryMsgWindow;
 };
 
 /********************************************************************************/
 
 class nsMsgShutdownService : public nsIMsgShutdownService,
                              public nsIUrlListener,
-                             public nsIObserver
-{
-public:
+                             public nsIObserver {
+ public:
   nsMsgShutdownService();
 
   NS_DECL_ISUPPORTS
@@ -87,17 +85,17 @@ public:
   NS_DECL_NSIURLLISTENER
   NS_DECL_NSIOBSERVER
 
-protected:
+ protected:
   nsresult ProcessNextTask();
   void AttemptShutdown();
 
-private:
+ private:
   virtual ~nsMsgShutdownService();
 
   nsCOMArray<nsIMsgShutdownTask> mShutdownTasks;
-  nsCOMPtr<nsIMsgProgress>       mMsgProgress;
-  uint32_t                       mTaskIndex;
-  uint32_t                       mQuitMode;
+  nsCOMPtr<nsIMsgProgress> mMsgProgress;
+  uint32_t mTaskIndex;
+  uint32_t mQuitMode;
   bool mProcessedShutdown;
   bool mQuitForced;
   bool mReadyToQuit;

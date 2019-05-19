@@ -32,8 +32,7 @@ class nsMsgPrintEngine : public nsIMsgPrintEngine,
                          public nsIWebProgressListener,
                          public nsIObserver,
                          public nsSupportsWeakReference {
-
-public:
+ public:
   nsMsgPrintEngine();
 
   // nsISupports
@@ -49,43 +48,43 @@ public:
   NS_DECL_NSIOBSERVER
 
   void PrintMsgWindow();
-  NS_IMETHOD  StartNextPrintOperation();
+  NS_IMETHOD StartNextPrintOperation();
 
-protected:
+ protected:
   virtual ~nsMsgPrintEngine();
 
-  bool        FirePrintEvent();
-  nsresult    FireStartNextEvent();
-  nsresult    FireThatLoadOperationStartup(const nsString& uri);
-  nsresult    FireThatLoadOperation(const nsString& uri);
-  void        InitializeDisplayCharset();
-  void        SetupObserver();
-  nsresult    SetStatusMessage(const nsString& aMsgString);
-  void GetString(const char16_t *aStringName, nsString& aOutString);
-  nsresult    ShowProgressDialog(bool aIsForPrinting, bool& aDoNotify);
+  bool FirePrintEvent();
+  nsresult FireStartNextEvent();
+  nsresult FireThatLoadOperationStartup(const nsString& uri);
+  nsresult FireThatLoadOperation(const nsString& uri);
+  void InitializeDisplayCharset();
+  void SetupObserver();
+  nsresult SetStatusMessage(const nsString& aMsgString);
+  void GetString(const char16_t* aStringName, nsString& aOutString);
+  nsresult ShowProgressDialog(bool aIsForPrinting, bool& aDoNotify);
 
-  nsCOMPtr<nsIDocShell>       mDocShell;
+  nsCOMPtr<nsIDocShell> mDocShell;
   nsCOMPtr<mozIDOMWindowProxy> mWindow;
   nsCOMPtr<mozIDOMWindowProxy> mParentWindow;
-  int32_t                     mURICount;
-  nsTArray<nsString>          mURIArray;
-  int32_t                     mCurrentlyPrintingURI;
+  int32_t mURICount;
+  nsTArray<nsString> mURIArray;
+  int32_t mCurrentlyPrintingURI;
 
-  nsCOMPtr<nsIContentViewer>  mContentViewer;
-  nsCOMPtr<nsIStringBundle>   mStringBundle;    // String bundles...
-  nsCOMPtr<nsIMsgStatusFeedback> mFeedback;     // Tell the user something why don't ya'
+  nsCOMPtr<nsIContentViewer> mContentViewer;
+  nsCOMPtr<nsIStringBundle> mStringBundle;   // String bundles...
+  nsCOMPtr<nsIMsgStatusFeedback> mFeedback;  // Tell the user something
   nsCOMPtr<nsIWebBrowserPrint> mWebBrowserPrint;
-  nsCOMPtr<nsIPrintSettings>   mPrintSettings;
+  nsCOMPtr<nsIPrintSettings> mPrintSettings;
   nsCOMPtr<mozIDOMWindowProxy> mMsgDOMWin;
-  bool                         mIsDoingPrintPreview;
-  nsCOMPtr<nsIObserver>        mStartupPPObs;
-  int32_t                      mMsgInx;
+  bool mIsDoingPrintPreview;
+  nsCOMPtr<nsIObserver> mStartupPPObs;
+  int32_t mMsgInx;
 
   // Progress Dialog
 
   nsCOMPtr<nsIPrintingPromptService> mPrintPromptService;
   nsCOMPtr<nsIWebProgressListener> mPrintProgressListener;
-  nsCOMPtr<nsIPrintProgress>       mPrintProgress;
+  nsCOMPtr<nsIPrintProgress> mPrintProgress;
   nsCOMPtr<nsIPrintProgressParams> mPrintProgressParams;
-  nsString                         mLoadURI;
+  nsString mLoadURI;
 };

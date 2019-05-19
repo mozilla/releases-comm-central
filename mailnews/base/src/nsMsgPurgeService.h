@@ -17,11 +17,8 @@
 #include "nsIMsgFolderCacheElement.h"
 #include "nsIMutableArray.h"
 
-class nsMsgPurgeService
-  : public nsIMsgPurgeService,
-    public nsIMsgSearchNotify
-{
-public:
+class nsMsgPurgeService : public nsIMsgPurgeService, public nsIMsgSearchNotify {
+ public:
   nsMsgPurgeService();
 
   NS_DECL_ISUPPORTS
@@ -30,26 +27,26 @@ public:
 
   nsresult PerformPurge();
 
-protected:
+ protected:
   virtual ~nsMsgPurgeService();
   int32_t FindServer(nsIMsgIncomingServer *server);
   nsresult SetupNextPurge();
   nsresult PurgeSurver(nsIMsgIncomingServer *server);
   nsresult SearchFolderToPurge(nsIMsgFolder *folder, int32_t purgeInterval);
 
-protected:
+ protected:
   nsCOMPtr<nsITimer> mPurgeTimer;
   nsCOMPtr<nsIMsgSearchSession> mSearchSession;
   nsCOMPtr<nsIMsgFolder> mSearchFolder;
   nsCOMPtr<nsIMutableArray> mHdrsToDelete;
   bool mHaveShutdown;
 
-private:
-  int32_t mMinDelayBetweenPurges;  // in minutes, how long must pass between two consecutive purges on the same junk folder?
-  int32_t mPurgeTimerInterval;  // in minutes, how often to check if we need to purge one of the junk folders?
+ private:
+  // in minutes, how long must pass between two consecutive purges on the
+  // same junk folder?
+  int32_t mMinDelayBetweenPurges;
+  // in minutes, how often to check if we need to purge one of the junk folders?
+  int32_t mPurgeTimerInterval;
 };
 
-
-
 #endif
-

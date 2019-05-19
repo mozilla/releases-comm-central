@@ -8,8 +8,8 @@
 #include "nsCOMPtr.h"
 #include "nsMemory.h"
 
-nsresult createNode(const char16_t *str, nsIRDFNode **node, nsIRDFService *rdfService)
-{
+nsresult createNode(const char16_t *str, nsIRDFNode **node,
+                    nsIRDFService *rdfService) {
   nsresult rv;
   nsCOMPtr<nsIRDFLiteral> value;
 
@@ -18,8 +18,7 @@ nsresult createNode(const char16_t *str, nsIRDFNode **node, nsIRDFService *rdfSe
 
   if (str) {
     rv = rdfService->GetLiteral(str, getter_AddRefs(value));
-  }
-  else {
+  } else {
     rv = rdfService->GetLiteral(EmptyString().get(), getter_AddRefs(value));
   }
 
@@ -29,52 +28,50 @@ nsresult createNode(const char16_t *str, nsIRDFNode **node, nsIRDFService *rdfSe
   return rv;
 }
 
-nsresult createIntNode(int32_t value, nsIRDFNode **node, nsIRDFService *rdfService)
-{
+nsresult createIntNode(int32_t value, nsIRDFNode **node,
+                       nsIRDFService *rdfService) {
   *node = nullptr;
   nsresult rv;
   if (!rdfService) return NS_ERROR_NULL_POINTER;
   nsCOMPtr<nsIRDFInt> num;
   rv = rdfService->GetIntLiteral(value, getter_AddRefs(num));
-  if(NS_SUCCEEDED(rv)) {
+  if (NS_SUCCEEDED(rv)) {
     num.forget(node);
   }
   return rv;
 }
 
-nsresult createBlobNode(uint8_t *value, uint32_t &length, nsIRDFNode **node, nsIRDFService *rdfService)
-{
+nsresult createBlobNode(uint8_t *value, uint32_t &length, nsIRDFNode **node,
+                        nsIRDFService *rdfService) {
   NS_ENSURE_ARG_POINTER(node);
   NS_ENSURE_ARG_POINTER(rdfService);
 
   *node = nullptr;
   nsCOMPtr<nsIRDFBlob> blob;
   nsresult rv = rdfService->GetBlobLiteral(value, length, getter_AddRefs(blob));
-  NS_ENSURE_SUCCESS(rv,rv);
+  NS_ENSURE_SUCCESS(rv, rv);
   blob.forget(node);
   return rv;
 }
 
-nsresult GetTargetHasAssertion(nsIRDFDataSource *dataSource, nsIRDFResource* folderResource,
-                               nsIRDFResource *property,bool tv, nsIRDFNode *target,bool* hasAssertion)
-{
+nsresult GetTargetHasAssertion(nsIRDFDataSource *dataSource,
+                               nsIRDFResource *folderResource,
+                               nsIRDFResource *property, bool tv,
+                               nsIRDFNode *target, bool *hasAssertion) {
   NS_ENSURE_ARG_POINTER(hasAssertion);
 
   nsCOMPtr<nsIRDFNode> currentTarget;
 
-  nsresult rv = dataSource->GetTarget(folderResource, property,tv, getter_AddRefs(currentTarget));
-  if(NS_SUCCEEDED(rv))
-  {
+  nsresult rv = dataSource->GetTarget(folderResource, property, tv,
+                                      getter_AddRefs(currentTarget));
+  if (NS_SUCCEEDED(rv)) {
     nsCOMPtr<nsIRDFLiteral> value1(do_QueryInterface(target));
     nsCOMPtr<nsIRDFLiteral> value2(do_QueryInterface(currentTarget));
-    if(value1 && value2)
-      //If the two values are equal then it has this assertion
+    if (value1 && value2)
+      // If the two values are equal then it has this assertion
       *hasAssertion = (value1 == value2);
-  }
-  else
+  } else
     rv = NS_NOINTERFACE;
 
   return rv;
-
 }
-
