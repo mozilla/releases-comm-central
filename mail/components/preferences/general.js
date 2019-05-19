@@ -200,6 +200,7 @@ var gGeneralPane = {
   },
 
   updateWebSearch() {
+    let self = this;
     Services.search.init().then(async () => {
       let defaultEngine = await Services.search.getDefault();
       let engineList = document.getElementById("defaultWebSearch");
@@ -214,11 +215,79 @@ var gGeneralPane = {
           engineList.selectedItem = item;
         }
       }
+      self.defaultEngines = await Services.search.getDefaultEngines();
+      self.updateRemoveButton();
 
-      engineList.addEventListener("command", () => {
-        Services.search.setDefault(engineList.selectedItem.engine);
+      engineList.addEventListener("command", async () => {
+        await Services.search.setDefault(engineList.selectedItem.engine);
+        self.updateRemoveButton();
       });
     });
+  },
+
+  // Caches the default engines so we only retrieve them once.
+  defaultEngines: null,
+
+  async updateRemoveButton() {
+    let engineList = document.getElementById("defaultWebSearch");
+    let removeButton = document.getElementById("removeSearchEngine");
+    if (this.defaultEngines.includes(await Services.search.getDefault())) {
+      // Don't allow deletion of a default engine (saves us having a 'restore' button).
+      removeButton.disabled = true;
+    } else {
+      // Don't allow removal of last engine. This shouldn't happen since there should
+      // always be default engines.
+      removeButton.disabled = engineList.itemCount <= 1;
+    }
+  },
+
+  addSearchEngine() {
+    let fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
+    fp.init(window, document.getElementById("bundlePreferences")
+                            .getString("searchEnginePickerTitle"), Ci.nsIFilePicker.modeOpen);
+
+    // Filter on XML files only.
+    fp.appendFilter(document.getElementById("bundlePreferences")
+                            .getString("searchEngineType"), "*.xml");
+
+    fp.open(async rv => {
+      if (rv != Ci.nsIFilePicker.returnOK || !fp.file) {
+        return;
+      }
+      let engineAdd = fp.fileURL.spec;
+      let engine = await Services.search.addEngine(engineAdd, null, false);
+
+      // Add new engine to the list.
+      let engineList = document.getElementById("defaultWebSearch");
+
+      let item = engineList.appendItem(engine.name);
+      item.engine = engine;
+      item.className = "menuitem-iconic";
+      item.setAttribute(
+        "image", engine.iconURI ? engine.iconURI.spec :
+                 "resource://gre-resources/broken-image.png"
+      );
+
+      this.updateRemoveButton();
+    });
+  },
+
+  async removeSearchEngine() {
+    // Deletes the current engine. Firefox does a better job since it
+    // shows all the engines in the list. But better than nothing.
+    let defaultEngine = await Services.search.getDefault();
+    let engineList = document.getElementById("defaultWebSearch");
+    for (let i = 0; i < engineList.itemCount; i++) {
+      let item = engineList.getItemAtIndex(i);
+      if (item.engine == defaultEngine) {
+        await Services.search.removeEngine(item.engine);
+        item.remove();
+        engineList.selectedIndex = 0;
+        await Services.search.setDefault(engineList.selectedItem.engine);
+        this.updateRemoveButton();
+        break;
+      }
+    }
   },
 };
 

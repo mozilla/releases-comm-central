@@ -29,10 +29,18 @@
 
     <groupbox>
       <label><html:h2 >&defaultSearchEngine.label;</html:h2></label>
-      <hbox>
+      <hbox align="center">
         <menulist id="defaultWebSearch">
           <menupopup id="defaultWebSearchPopup"/>
         </menulist>
+        <button id="addSearchEngine"
+                label="&addSearchEngine.label;"
+                accesskey="&addSearchEngine.accesskey;"
+                oncommand="gGeneralPane.addSearchEngine();"/>
+        <button id="removeSearchEngine"
+                label="&removeSearchEngine.label;"
+                accesskey="&removeSearchEngine.accesskey;"
+                oncommand="gGeneralPane.removeSearchEngine();"/>
       </hbox>
     </groupbox>
 
