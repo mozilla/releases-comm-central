@@ -21,17 +21,12 @@
     padding-top: 1px;
 }
 
-radio[calview] {
+radio.calview {
     margin-bottom: 0;
 }
 
-radio[calview][selected="true"] {
+radio.calview[selected="true"] {
     background-color: -moz-Field;
-}
-
-radio[calview] > .tab-middle {
-    margin-top: 3px;
-    margin-bottom: 3px;
 }
 
 .navigation-bottombox {

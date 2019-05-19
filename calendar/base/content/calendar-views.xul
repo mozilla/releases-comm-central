@@ -67,22 +67,22 @@
           <radio id="calendar-day-view-button"
                  label="&calendar.day.button.label;"
                  tooltiptext="&calendar.day.button.tooltip;"
-                 calview="day"
+                 class="calview"
                  observes="calendar_day-view_command"/>
           <radio id="calendar-week-view-button"
                  label="&calendar.week.button.label;"
                  tooltiptext="&calendar.week.button.tooltip;"
-                 calview="week"
+                 class="calview"
                  observes="calendar_week-view_command"/>
           <radio id="calendar-multiweek-view-button"
                  label="&calendar.multiweek.button.label;"
                  tooltiptext="&calendar.multiweek.button.tooltip;"
-                 calview="multiweek"
+                 class="calview"
                  observes="calendar_multiweek-view_command"/>
           <radio id="calendar-month-view-button"
                  label="&calendar.month.button.label;"
                  tooltiptext="&calendar.month.button.tooltip;"
-                 calview="month"
+                 class="calview"
                  observes="calendar_month-view_command"/>
         </radiogroup>
         <box class="navigation-bottombox"/>

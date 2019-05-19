@@ -905,7 +905,11 @@ agenda-richlist-item[status="CANCELLED"] .agenda-container-box {
     border-bottom: 1px solid var(--calview-border-bottom-color);
 }
 
-radio[calview] {
+radiogroup#view-tabs{
+    margin: 0px;
+}
+
+radio.calview {
     -moz-appearance: none;
     min-width: unset;
     border-left: 1px solid var(--calview-border-color);
@@ -919,38 +923,43 @@ radio[calview] {
     font-size: 14px;
 }
 
-radio[calview]:not(:first-child) {
+radio.calview > image {
+    display: none;
+}
+
+radio.calview > hbox {
+    margin: 2px;
+}
+
+radio.calview:not(:first-child) {
     margin-inline-start: -1px;
 }
 
 
-radio[calview][selected="true"] {
+radio.calview[selected="true"] {
     background-image: linear-gradient(to bottom,
                       var(--calview-tabline-color) 2px, transparent 2px);
     border-bottom-width: 0;
     padding-bottom: 4px;
     color: ButtonText;
+    font-weight: bold;
 }
 
-radio[calview]:not([selected=true]):hover {
+radio.calview:not([selected=true]):hover {
     background-color: rgba(0,0,0,.1);
 }
 
-:root[lwt-tree-brighttext] radio[calview]:not([selected=true]):hover {
+:root[lwt-tree-brighttext] radio.calview:not([selected=true]):hover {
     background-color: rgba(249,249,250,.3);
 }
 
-:root[lwt-tree] #view-tabs > radio[calview][selected="true"] {
+:root[lwt-tree] #view-tabs > radio.calview[selected="true"] {
     background-color: var(--toolbar-bgcolor);
     color: var(--toolbar-color);
 }
 
 :root[lwt-tree] .navigation-bottombox {
     background-color: var(--toolbar-bgcolor) !important;
-}
-
-radio[calview] > .tab-middle {
-    text-align: center;
 }
 
 .view-header {

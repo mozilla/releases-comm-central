@@ -23,7 +23,7 @@
     margin-bottom: 0;
 }
 
-radio[calview][selected="true"] {
+radio.calview[selected="true"] {
     background-color: -moz-Field;
 }
 
