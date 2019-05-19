@@ -69,6 +69,7 @@
 <script src="chrome://editor/content/editor.js"/>
 <script src="chrome://editor/content/editorUtilities.js"/>
 <script src="chrome://editor/content/ComposerCommands.js"/>
+<script src="chrome://messenger/content/button-menu-button.js"/>
 <script src="chrome://messenger/content/messengercompose/MsgComposeCommands.js"/>
 <script src="chrome://messenger/content/messengercompose/bigFileObserver.js"/>
 <script src="chrome://messenger/content/messengercompose/cloudAttachmentLinkManager.js"/>

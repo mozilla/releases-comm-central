@@ -39,6 +39,7 @@
     <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
   </stringbundleset>
 
+<script src="chrome://messenger/content/button-menu-button.js"/>
 <script src="chrome://messenger/content/jsTreeView.js"/>
 <script src="chrome://messenger/content/addressbook/abTrees.js"/>
 <script src="chrome://messenger/content/accountUtils.js"/>
@@ -834,7 +835,7 @@
                         <description class="CardViewText" id="cvHomeCountry"/>
                       </vbox>
                       <vbox id="cvbHomeMapItBox" pack="end">
-                        <button id="cvHomeMapIt"
+                        <button is="button-menu-button" id="cvHomeMapIt"
                                 label="&mapItButton.label;"
                                 type="menu-button"
                                 oncommand="openLinkWithUrl(this.firstChild.mapURL);"
@@ -903,7 +904,7 @@
                         <description class="CardViewText" id="cvWorkCountry"/>
                       </vbox>
                       <vbox id="cvbWorkMapItBox" pack="end">
-                        <button id="cvWorkMapIt"
+                        <button is="button-menu-button" id="cvWorkMapIt"
                                 label="&mapItButton.label;"
                                 type="menu-button"
                                 oncommand="openLinkWithUrl(this.firstChild.mapURL);"

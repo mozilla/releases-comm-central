@@ -23,6 +23,7 @@
   persist="width height screenX screenY"
   title="&window.title;">
 
+  <script src="chrome://messenger/content/button-menu-button.js"/>
   <script src="chrome://messenger/content/searchWidgets.js"/>
   <script src="chrome://messenger/content/FilterListDialog.js"/>
   <script src="chrome://messenger/content/customElements.js"/>
@@ -104,7 +105,7 @@
     </vbox>
     <vbox>
       <label value=""/>
-      <button id="newButton"
+      <button is="button-menu-button" id="newButton"
               type="menu-button"
               label="&newButton.label;"
               accesskey="&newButton.accesskey;"

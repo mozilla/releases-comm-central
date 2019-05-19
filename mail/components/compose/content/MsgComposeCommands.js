@@ -2180,7 +2180,7 @@ function manageAttachmentNotification(aForce = false) {
   remindLaterMenuPopup.appendChild(disableAttachmentReminder);
 
   let remindButton = {
-    type: "menu-button",
+    is: "button-menu-button",
     accessKey: getComposeBundle().getString("remindLaterButton.accesskey"),
     label: getComposeBundle().getString("remindLaterButton"),
     callback(aNotificationBar, aButton) {
@@ -2194,12 +2194,9 @@ function manageAttachmentNotification(aForce = false) {
     [addButton, remindButton]);
   notification.setAttribute("id", "attachmentNotificationBox");
 
-  let button = notification.spacer.nextSibling;
-  notification.messageDetails.insertBefore(msg, button);
-
-  let nextButton = button.nextSibling;
-  nextButton.setAttribute("type", "menu-button");
-  nextButton.appendChild(remindLaterMenuPopup);
+  notification.messageDetails.querySelector("button").before(msg);
+  notification.messageDetails.querySelector("button:last-child")
+    .appendChild(remindLaterMenuPopup);
 }
 
 /**

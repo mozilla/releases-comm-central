@@ -33,7 +33,3 @@ toolbarpaletteitem[place="palette"] {
   -moz-binding: url("chrome://messenger/content/toolbar.xml#toolbarpaletteitem-palette");
 }
 
-button[type="menu-button"] {
-  -moz-binding: url("chrome://messenger/content/menubutton.xml#menu-button");
-}
-
