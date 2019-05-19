@@ -547,17 +547,17 @@ menulist.folderMenuItem > .menulist-label-box > .menulist-label {
   margin-inline-start: 2px !important;
 }
 
-button[type="menu-button"] {
-  margin: 1px 5px 2px 5px;
-}
-
-button[type="menu-button"] > button {
-  margin: -3px;
-  margin-inline-end: 0;
+button[type="menu-button"] > .button-box > button {
+  margin: -5px -7px -6px;
+  margin-inline-end: 6px;
 }
 
 @media (-moz-windows-default-theme: 0) {
-  button[type="menu-button"] > button {
+  button[type="menu-button"] > .button-box {
+    padding: 0;
+  }
+
+  button[type="menu-button"] > .button-box > button {
     margin: -2px;
   }
 
