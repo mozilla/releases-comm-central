@@ -425,7 +425,7 @@
                 <datepicker id="repeat-until-datepicker" flex="1"
                             type="forever"
                             disable-on-readonly="true"
-                            oncommand="checkUntilDate();"
+                            onchange="checkUntilDate();"
                             value=""/>
             </hbox>
             <vbox id="repeat-details" flex="1">

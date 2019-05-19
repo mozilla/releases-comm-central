@@ -759,8 +759,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
                 this._popup.appendChild(this._foreverItem);
 
                 this._foreverItem.addEventListener("command", () => {
-                    this._inputBoxValue = "forever";
-                    this._valueIsForever = true;
+                    this.value = "forever";
                     this._popup.hidePopup();
                 });
             }
