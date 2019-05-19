@@ -56,7 +56,7 @@
 
               if (undoCommand) {
                 if (!undoButton) {
-                  undoButton = document.createElement("button");
+                  undoButton = document.createXULElement("button");
                   undoButton.className = "button-link undo-btn";
                   undoButton.setAttribute(
                     "label", gStrings.mailExt.GetStringFromName("warnLegacyUndoButton")

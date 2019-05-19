@@ -867,7 +867,7 @@ var TagFacetingFilter = {
         // Keep in mind that the XBL does not get built for dynamically created
         //  elements such as these until they get displayed, which definitely
         //  means not before we append it into the tree.
-        let button = aDocument.createElement("toolbarbutton");
+        let button = aDocument.createXULElement("toolbarbutton");
 
         button.setAttribute("id", "qfb-tag-" + tag.key);
         button.addEventListener("command", commandHandler);

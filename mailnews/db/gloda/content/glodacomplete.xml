@@ -32,7 +32,7 @@
                                    .wrappedJSObject;
             var result = glodaCompleter.curResult;
 
-            item = document.createElement("richlistitem", { is: result.getStyleAt(this._currentIndex) });
+            item = document.createXULElement("richlistitem", { is: result.getStyleAt(this._currentIndex) });
 
             // set these attributes before we set the class
             // so that we can use them from the constructor

@@ -197,7 +197,7 @@ class Overlays {
 
     if (this.document.readyState == "complete") {
       let sheet;
-      let overlayTrigger = this.document.createElement("overlayTrigger");
+      let overlayTrigger = this.document.createXULElement("overlayTrigger");
       overlayTrigger.addEventListener("bindingattached", () => {
         oconsole.debug("XBL binding attached, continuing with load");
         if (sheet) {

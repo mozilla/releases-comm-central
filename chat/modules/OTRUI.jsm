@@ -137,9 +137,9 @@ var OTRUI = {
     }
     OTRUI.removeBuddyContextMenu(doc);
 
-    let sep = doc.createElement("menuseparator");
+    let sep = doc.createXULElement("menuseparator");
     sep.setAttribute("id", "otrsep");
-    let menuitem = doc.createElement("menuitem");
+    let menuitem = doc.createXULElement("menuitem");
     menuitem.setAttribute("label", _("buddycontextmenu.label"));
     menuitem.setAttribute("id", "otrcont");
     menuitem.addEventListener("command", () => {
@@ -483,7 +483,7 @@ var OTRUI = {
     let close = notification.querySelector("toolbarbutton");
     close.setAttribute("oncommand", "this.parentNode.parentNode.dismiss();");
 
-    let top = this.globalDoc.createElement("hbox");
+    let top = this.globalDoc.createXULElement("hbox");
     top.setAttribute("flex", "1");
     top.setAttribute("align", "center");
     top.classList.add("otr-notification-header");
@@ -492,7 +492,7 @@ var OTRUI = {
     top.appendChild(close);
     notification.insertBefore(top, notification.messageDetails);
 
-    let bottom = this.globalDoc.createElement("hbox");
+    let bottom = this.globalDoc.createXULElement("hbox");
     bottom.setAttribute("flex", "1");
     bottom.setAttribute("oncommand", "this.parentNode._doButtonCommand(event);");
     bottom.classList.add("otr-notification-footer");

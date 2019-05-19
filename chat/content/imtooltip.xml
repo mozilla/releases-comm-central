@@ -293,12 +293,12 @@
 
          let buddiesElt = document.getAnonymousElementByAttribute(this, "anonid",
                                                                   "buddies");
-         let sep = document.createElement("separator");
+         let sep = document.createXULElement("separator");
          sep.setAttribute("class", "groove tooltipSeparator");
          buddiesElt.appendChild(sep);
 
          for (let buddy of buddies) {
-           let buddyElt = document.createElement("buddy");
+           let buddyElt = document.createXULElement("buddy");
            buddiesElt.appendChild(buddyElt);
            buddyElt.getBoundingClientRect(); // force binding attachment
            buddyElt.build(buddy, this);

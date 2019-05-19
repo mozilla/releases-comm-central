@@ -1116,14 +1116,14 @@
 
          this.trackNick(name);
 
-         let image = document.createElement("image");
-         let label = document.createElement("label");
+         let image = document.createXULElement("image");
+         let label = document.createXULElement("label");
          label.setAttribute("value", name);
          label.setAttribute("flex", "1");
          label.setAttribute("crop", "end");
 
          // Fix insertBuddy below if you change the DOM makeup!
-         var item = document.createElement("richlistitem");
+         var item = document.createXULElement("richlistitem");
          item.chatBuddy = aBuddy;
          item.appendChild(image);
          item.appendChild(label);

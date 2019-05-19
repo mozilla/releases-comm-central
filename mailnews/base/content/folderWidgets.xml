@@ -411,7 +411,7 @@
             if ((!parent.isServer || showAccountsFileHere != "false") &&
                 (!mode || mode == "newFolder" || parent.noSelect ||
                  parent.canFileMessages || showAccountsFileHere == "true")) {
-              var menuitem = document.createElement("menuitem");
+              var menuitem = document.createXULElement("menuitem");
               menuitem._folder = this._parentFolder;
               menuitem.setAttribute("generated", "true");
               if (this.hasAttribute("fileHereLabel")) {
@@ -429,7 +429,7 @@
               if (this._parentFolder.noSelect)
                 menuitem.setAttribute("disabled", "true");
 
-              let sep = document.createElement("menuseparator");
+              let sep = document.createXULElement("menuseparator");
               sep.setAttribute("generated", "true");
               this.appendChild(sep);
             }
@@ -451,7 +451,7 @@
             }
             if (addSeparator) {
               // If we added Recent and/or Favorites, separate them from the rest of the items.
-              let sep = document.createElement("menuseparator");
+              let sep = document.createXULElement("menuseparator");
               sep.setAttribute("generated", "true");
               this.appendChild(sep);
             }
@@ -521,7 +521,7 @@
             // If we're going to add subFolders, we need to make menus, not
             // menuitems.
             if (!folder.hasSubFolders || !shouldExpand(folder.server.type)) {
-              node = document.createElement("menuitem");
+              node = document.createXULElement("menuitem");
               // Grumble, grumble, legacy code support
               node.setAttribute("id", folder.URI);
               node.setAttribute("class", "folderMenuItem menuitem-iconic");
@@ -531,7 +531,7 @@
               this._serversOnly = false;
               // xxx this is slightly problematic in that we haven't confirmed
               //     whether any of the subfolders will pass the filter
-              node = document.createElement("menu");
+              node = document.createXULElement("menu");
               node.setAttribute("class", "folderMenuItem menu-iconic");
               node.setAttribute("generated", "true");
               this.appendChild(node);
@@ -563,12 +563,12 @@
 
               // If there are labels, add the labels now
               if (labels) {
-                var serverNode = document.createElement("menuitem");
+                var serverNode = document.createXULElement("menuitem");
                 serverNode.setAttribute("label", labels[folder.server.type]);
                 serverNode._folder = folder;
                 serverNode.setAttribute("generated", "true");
                 popup.appendChild(serverNode);
-                let sep = document.createElement("menuseparator");
+                let sep = document.createXULElement("menuseparator");
                 sep.setAttribute("generated", "true");
                 popup.appendChild(sep);
               }
@@ -603,7 +603,7 @@
         <parameter name="type"/>
         <body><![CDATA[
           // Now create the Recent folder and its children
-          let menu = document.createElement("menu");
+          let menu = document.createXULElement("menu");
           if (type == "recent") {
             menu.setAttribute("label", this.getAttribute("recentLabel"));
             menu.setAttribute("accesskey", this.getAttribute("recentAccessKey"));
@@ -614,7 +614,7 @@
           menu.setAttribute("special", type);
           menu.setAttribute("generated", "true");
 
-          let popup = document.createElement("menupopup");
+          let popup = document.createXULElement("menupopup");
           popup.setAttribute("class", this.getAttribute("class"));
           popup.addEventListener("popupshowing",
                                  () => this._buildSpecialSubmenu(menu),
@@ -693,7 +693,7 @@
 
           // Create entries for each of the recent folders.
           for (let folderItem of specialFoldersMap) {
-            let node = document.createElement("menuitem");
+            let node = document.createXULElement("menuitem");
 
             node.setAttribute("label", folderItem.label);
             node._folder = folderItem.folder;

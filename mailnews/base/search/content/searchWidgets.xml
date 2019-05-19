@@ -558,7 +558,7 @@
       <method name="addRow">
         <body>
           <![CDATA[
-            let listItem = document.createElement("richlistitem");
+            let listItem = document.createXULElement("richlistitem");
             listItem.className = "ruleaction";
             listItem.setAttribute("onfocus", "this.storeFocus();");
             this.mListBox.insertBefore(listItem, this.nextSibling);
