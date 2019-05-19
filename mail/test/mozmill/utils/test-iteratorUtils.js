@@ -34,8 +34,7 @@ function teardownModule(module) {
 }
 
 function setupTest() {
-  gTab = open_content_tab_with_click(mc.menus.helpMenu.whatsNew,
-                                     gCollectionsUrl);
+  gTab = open_content_tab_with_url(gCollectionsUrl);
 }
 
 function teardownTest() {

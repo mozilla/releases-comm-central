@@ -186,6 +186,23 @@ function openUILink(url, event) {
   }
 }
 
+function openLinkText(event, url) {
+  switch (url) {
+    case "getInvolvedURL":
+      openUILink("https://www.thunderbird.net/get-involved/", event);
+      break;
+    case "keyboardShortcutsURL":
+      openUILink("https://support.mozilla.org/kb/keyboard-shortcuts/", event);
+      break;
+    case "donateURL":
+      openUILink("https://donate.mozilla.org/thunderbird/", event);
+      break;
+    case "tourURL":
+      openUILink("https://www.thunderbird.net/features/", event);
+      break;
+  }
+}
+
 function openWhatsNew() {
   openContentTab(Services.urlFormatter.formatURLPref("mailnews.start_page.override_url"));
 }

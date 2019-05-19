@@ -6,26 +6,38 @@
 #endif
         <menupopup id="menu_HelpPopup">
           <menuitem id="menu_openHelp"
-#ifdef XP_MACOSX
-                    label="&openHelpMac2.label;"
-#else
-                    label="&openHelp.label;"
-                    accesskey="&openHelp.accesskey;"
+                    label="&productHelp.label;"
+#ifndef XP_MACOSX
+                    accesskey="&productHelp.accesskey;"
 #endif
                     key="key_openHelp"
                     oncommand="openSupportURL();"
                     class="menuitem-iconic"/>
-          <menuitem id="whatsNew"
-                    label="&whatsNewCmd.label;" accesskey="&whatsNewCmd.accesskey;"
-                    oncommand="openWhatsNew();"/>
-          <menuitem id="releaseNotes"
-                    label="&releaseCmd2.label;" accesskey="&releaseCmd2.accesskey;"
-                    oncommand="openFormattedURL('app.releaseNotesURL');"/>
+          <menuitem id="menu_openTour"
+                    label="&helpShowTour2.label;"
+                    accesskey="&helpShowTour2.accesskey;"
+                    oncommand="openLinkText(event, 'tourURL');"/>
+          <menuitem id="menu_keyboardShortcuts"
+                    label="&helpKeyboardShortcuts.label;"
+                    accesskey="&helpKeyboardShortcuts.accesskey;"
+                    oncommand="openLinkText(event, 'keyboardShortcutsURL');"/>
+          <menuitem id="getInvolved"
+                    label="&helpGetInvolvedPage.label;"
+                    accesskey="&helpGetInvolvedPage.accesskey;"
+                    oncommand="openLinkText(event, 'getInvolvedURL');"/>
+          <menuitem id="donationsPage"
+                    label="&helpDonationsPage.label;"
+                    accesskey="&helpDonationsPage.accesskey;"
+                    oncommand="openLinkText(event, 'donationURL');"/>
+          <menuitem id="feedbackPage" hidden="true"
+                    label="&helpFeedbackPage.label;"
+                    accesskey="&helpFeedbackPage.accesskey;"
+                    oncommand="openFormattedURL('app.feedback.baseURL');"/>
+          <menuseparator id="functionsSeparator"/>
           <menuitem id="aboutsupport_open"
                     label="&helpTroubleshootingInfo.label;"
                     accesskey="&helpTroubleshootingInfo.accesskey;"
                     oncommand="openAboutSupport();"/>
-          <menuseparator id="functionsSeparator"/>
           <menuitem id="helpSafeMode"
                     label="&helpSafeMode.label;"
                     accesskey="&helpSafeMode.accesskey;"
@@ -34,8 +46,8 @@
           <menuseparator id="aboutSeparator"/>
 #endif
           <menuitem id="aboutName"
-                    label="&aboutMenuCmd2.label;"
-                    accesskey="&aboutMenuCmd2.accesskey;"
+                    label="&aboutProduct2.label;"
+                    accesskey="&aboutProduct2.accesskey;"
                     oncommand="openAboutDialog();"
                     class="menuitem-iconic"/>
         </menupopup>

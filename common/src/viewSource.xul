@@ -118,10 +118,10 @@
     <key id="key_openHelp"
          oncommand="openSupportURL();"
 #ifdef XP_MACOSX
-         key="&openHelpMac2.commandkey;"
-         modifiers="&openHelpMac2.modifiers;"/>
+         key="&productHelpMac.commandkey;"
+         modifiers="&productHelpMac.modifiers;"/>
 #else
-         keycode="&openHelp.commandkey;"/>
+         keycode="&productHelp.commandkey;"/>
 #endif
 #endif
 
@@ -286,11 +286,9 @@
 #endif
         <menupopup id="menu_HelpPopup">
           <menuitem id="menu_openHelp"
-#ifdef XP_MACOSX
-                    label="&openHelpMac2.label;"
-#else
-                    label="&openHelp.label;"
-                    accesskey="&openHelp.accesskey;"
+                    label="&productHelp.label;"
+#ifndef XP_MACOSX
+                    accesskey="&productHelp.accesskey;"
 #endif
                     key="key_openHelp"
                     oncommand="openSupportURL();"

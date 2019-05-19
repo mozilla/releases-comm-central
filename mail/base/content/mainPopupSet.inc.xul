@@ -1153,27 +1153,32 @@
                    oncommand="openSupportURL();">
             <menupopup id="appmenu_helpMenupopup">
               <menuitem id="appmenu_openHelp"
-                        label="&openHelp.label;"
+                        label="&productHelp.label;"
                         key="key_openHelp"
                         oncommand="openSupportURL();"/>
-              <menuitem id="appmenu_whatsNew"
-                        label="&whatsNewCmd.label;"
-                        oncommand="openWhatsNew();"/>
-              <menuitem id="appmenu_releaseNotes"
-                        label="&releaseCmd2.label;"
-                        oncommand="openFormattedURL('app.releaseNotesURL');"/>
+              <menuitem id="menu_keyboardShortcuts"
+                        label="&helpKeyboardShortcuts.label;"
+                        oncommand="openLinkText(event, 'keyboardShortcutsURL');"/>
+              <menuitem id="getInvolved"
+                        label="&helpGetInvolvedPage.label;"
+                        oncommand="openLinkText(event, 'getInvolvedURL');"/>
+              <menuitem id="donationsPage"
+                        label="&helpDonationsPage.label;"
+                        oncommand="openLinkText(event, 'donateURL');"/>
+              <menuitem id="feedbackPage" hidden="true"
+                        label="&helpFeedbackPage.label;"
+                        oncommand="openFormattedURL('app.feedback.baseURL');"/>
               <menuseparator/>
               <menuitem id="appmenu_troubleshootingInfo"
                         label="&helpTroubleshootingInfo.label;"
                         oncommand="openAboutSupport();"/>
-              <menuseparator/>
               <menuitem id="appmenu_safeMode"
-                  label="&helpSafeMode.label;"
-                  oncommand="safeModeRestart();"/>
+                        label="&helpSafeMode.label;"
+                        oncommand="safeModeRestart();"/>
               <menuseparator/>
               <menuitem id="appmenu_about"
-                  label="&aboutMenuCmd2.label;"
-                  oncommand="openAboutDialog();"/>
+                        label="&aboutProduct2.label;"
+                        oncommand="openAboutDialog();"/>
             </menupopup>
         </splitmenu>
       </vbox>

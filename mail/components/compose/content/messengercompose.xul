@@ -530,9 +530,9 @@
 #ifdef XP_MACOSX
   <!-- Mac Window Menu -->
   <key id="key_minimizeWindow" command="minimizeWindow" key="&minimizeWindow.key;" modifiers="accel"/>
-  <key id="key_openHelp" oncommand="openSupportURL();" key="&openHelpMac2.commandkey;" modifiers="&openHelpMac2.modifiers;"/>
+  <key id="key_openHelp" oncommand="openSupportURL();" key="&productHelpMac.commandkey;" modifiers="&productHelpMac.modifiers;"/>
 #else
-  <key id="key_openHelp" oncommand="openSupportURL();" keycode="&openHelp.commandkey;"/>
+  <key id="key_openHelp" oncommand="openSupportURL();" keycode="&productHelp.commandkey;"/>
 #endif
   <key keycode="VK_ESCAPE" oncommand="handleEsc();"/>
 </keyset>

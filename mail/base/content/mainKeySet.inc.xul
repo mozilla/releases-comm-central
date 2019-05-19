@@ -243,7 +243,7 @@
   <key id="key_preferencesCmdMac" key="&preferencesCmdMac.commandkey;" modifiers="&preferencesCmdMac.modifiers;"/>
   <key id="key_hideThisAppCmdMac" key="&hideThisAppCmdMac.commandkey;" modifiers="&hideThisAppCmdMac.modifiers;"/>
   <key id="key_hideOtherAppsCmdMac" key="&hideOtherAppsCmdMac.commandkey;" modifiers="&hideOtherAppsCmdMac.modifiers;"/>
-  <key id="key_openHelp" oncommand="openSupportURL();" key="&openHelpMac2.commandkey;" modifiers="&openHelpMac2.modifiers;"/>
+  <key id="key_openHelp" oncommand="openSupportURL();" key="&productHelpMac.commandkey;" modifiers="&productHelpMac.modifiers;"/>
 #else
-  <key id="key_openHelp" oncommand="openSupportURL();" keycode="&openHelp.commandkey;"/>
+  <key id="key_openHelp" oncommand="openSupportURL();" keycode="&productHelp.commandkey;"/>
 #endif

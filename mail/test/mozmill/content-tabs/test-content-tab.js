@@ -37,10 +37,7 @@ function setupModule(module) {
 }
 
 function test_content_tab_open() {
-  // Set the pref so that what's new opens a local url
-  Services.prefs.setCharPref("mailnews.start_page.override_url", whatsUrl);
-
-  let tab = open_content_tab_with_click(mc.menus.helpMenu.whatsNew, whatsUrl);
+  let tab = open_content_tab_with_url(whatsUrl);
 
   assert_tab_has_title(tab, "What's New Content Test");
   // Check the location of the what's new image, this is via the link element
@@ -125,6 +122,8 @@ function test_content_tab_context_menu() {
   close_popup(mc, new elementslib.Elem(mailContext));
 }
 
+/*
+ // We don't have an UI to test openin content tabs twice anymore.
 function test_content_tab_open_same() {
   let preCount = mc.tabmail.tabContainer.childNodes.length;
 
@@ -139,14 +138,11 @@ function test_content_tab_open_same() {
   if (mc.window.content.location != whatsUrl)
     throw new Error("window.content is not set to the url loaded, incorrect type=\"...\"?");
 }
+*/
 
 function test_content_tab_default_favicon() {
-  const whatsUrl1 = url + "whatsnew1.html";
-
-  // Set the pref so that what's new opens a local url
-  Services.prefs.setCharPref("mailnews.start_page.override_url", whatsUrl1);
-
-  let tab = open_content_tab_with_click(mc.menus.helpMenu.whatsNew, whatsUrl1);
+  const whatsUrl2 = url + "whatsnew1.html";
+  let tab = open_content_tab_with_url(whatsUrl2);
 
   assert_tab_has_title(tab, "What's New Content Test 1");
   // Check the location of the favicon, this should be the site favicon in this
