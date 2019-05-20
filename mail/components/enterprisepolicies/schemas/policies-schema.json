@@ -22,6 +22,21 @@
       "type": "boolean"
     },
 
+    "Certificates": {
+      "type": "object",
+      "properties": {
+        "ImportEnterpriseRoots": {
+          "type": "boolean"
+        },
+        "Install": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+
     "DisableMasterPasswordCreation": {
       "type": "boolean"
     },

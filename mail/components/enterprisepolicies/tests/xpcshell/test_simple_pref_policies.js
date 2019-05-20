@@ -30,6 +30,30 @@ const POLICIES_TESTS = [
    * },
    */
 
+  // POLICY: Certificates (true)
+  {
+    policies: {
+      "Certificates": {
+        "ImportEnterpriseRoots": true,
+      },
+    },
+    lockedPrefs: {
+      "security.enterprise_roots.enabled": true,
+    },
+  },
+
+  // POLICY: Certificates (false)
+  {
+    policies: {
+      "Certificates": {
+        "ImportEnterpriseRoots": false,
+      },
+    },
+    lockedPrefs: {
+      "security.enterprise_roots.enabled": false,
+    },
+  },
+
   // POLICY: SSLVersionMin/SSLVersionMax (1)
   {
     policies: {

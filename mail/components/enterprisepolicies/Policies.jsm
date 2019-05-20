@@ -8,6 +8,10 @@ const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
 const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
+XPCOMUtils.defineLazyServiceGetters(this, {
+  gCertDB: ["@mozilla.org/security/x509certdb;1", "nsIX509CertDB"],
+});
+
 XPCOMUtils.defineLazyModuleGetters(this, {
   ProxyPolicies: "resource:///modules/policies/ProxyPolicies.jsm",
 });
@@ -89,6 +93,94 @@ var Policies = {
     onBeforeUIStartup(manager, param) {
       if (param) {
         blockAboutPage(manager, "about:support");
+      }
+    },
+  },
+
+  "Certificates": {
+    onBeforeAddons(manager, param) {
+      if ("ImportEnterpriseRoots" in param) {
+        setAndLockPref("security.enterprise_roots.enabled", param.ImportEnterpriseRoots);
+      }
+      if ("Install" in param) {
+        (async () => {
+          let dirs = [];
+          let platform = AppConstants.platform;
+          if (platform == "win") {
+            dirs = [
+              // Ugly, but there is no official way to get %USERNAME\AppData\Roaming\Mozilla.
+              Services.dirsvc.get("XREUSysExt", Ci.nsIFile).parent,
+              // Even more ugly, but there is no official way to get %USERNAME\AppData\Local\Mozilla.
+              Services.dirsvc.get("DefProfLRt", Ci.nsIFile).parent.parent,
+            ];
+          } else if (platform == "macosx" || platform == "linux") {
+            dirs = [
+              // These two keys are named wrong. They return the Mozilla directory.
+              Services.dirsvc.get("XREUserNativeManifests", Ci.nsIFile),
+              Services.dirsvc.get("XRESysNativeManifests", Ci.nsIFile),
+            ];
+          }
+          dirs.unshift(Services.dirsvc.get("XREAppDist", Ci.nsIFile));
+          for (let certfilename of param.Install) {
+            let certfile;
+            try {
+              certfile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+              certfile.initWithPath(certfilename);
+            } catch (e) {
+              for (let dir of dirs) {
+                certfile = dir.clone();
+                certfile.append(platform == "linux" ? "certificates" : "Certificates");
+                certfile.append(certfilename);
+                if (certfile.exists()) {
+                  break;
+                }
+              }
+            }
+            let file;
+            try {
+              file = await File.createFromNsIFile(certfile);
+            } catch (e) {
+              log.error(`Unable to find certificate - ${certfilename}`);
+              continue;
+            }
+            let reader = new FileReader();
+            reader.onloadend = function() {
+              if (reader.readyState != reader.DONE) {
+                log.error(`Unable to read certificate - ${certfile.path}`);
+                return;
+              }
+              let certFile = reader.result;
+              let cert;
+              try {
+                cert = gCertDB.constructX509(certFile);
+              } catch (e) {
+                try {
+                  // It might be PEM instead of DER.
+                  cert = gCertDB.constructX509FromBase64(pemToBase64(certFile));
+                } catch (ex) {
+                  log.error(`Unable to add certificate - ${certfile.path}`);
+                }
+              }
+              let now = Date.now() / 1000;
+              if (cert) {
+                gCertDB.asyncVerifyCertAtTime(cert, 0x0008 /* certificateUsageSSLCA */,
+                                              0, null, now, (aPRErrorCode, aVerifiedChain, aHasEVPolicy) => {
+                  if (aPRErrorCode == Cr.NS_OK) {
+                    // Certificate is already installed.
+                    return;
+                  }
+                  try {
+                    gCertDB.addCert(certFile, "CT,CT,");
+                  } catch (e) {
+                    // It might be PEM instead of DER.
+                    gCertDB.addCertFromBase64(pemToBase64(certFile), "CT,CT,");
+                  }
+                });
+              }
+            };
+            reader.readAsBinaryString(file);
+          }
+        })();
       }
     },
   },
@@ -316,4 +408,10 @@ function blockAllChromeURLs() {
   Services.catMan.addCategoryEntry("content-policy",
                                    ChromeURLBlockPolicy.contractID,
                                    ChromeURLBlockPolicy.contractID, false, true);
+}
+
+function pemToBase64(pem) {
+  return pem.replace(/-----BEGIN CERTIFICATE-----/, "")
+            .replace(/-----END CERTIFICATE-----/, "")
+            .replace(/[\r\n]/g, "");
 }
