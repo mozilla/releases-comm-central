@@ -31,7 +31,7 @@
 
 <overlay id="ltnSidebarOverlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
-  <script src="chrome://calendar/content/calendar-base-view.js"/>
+  <script src="chrome://calendar/content/calendar-day-label.js"/>
 
   <!-- NEEDED FOR MULTIPLE CALENDAR SUPPORT -->
   <script src="chrome://calendar/content/calendar-management.js"/>
