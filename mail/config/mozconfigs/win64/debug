@@ -5,6 +5,9 @@
 . "$topsrcdir/comm/mail/config/mozconfigs/win64/common-win64"
 
 ac_add_options --enable-debug
+if test -n "$USE_ARTIFACT"; then
+ac_add_options --disable-mapi
+fi
 
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1
@@ -17,7 +20,9 @@ MOZ_REQUIRE_ADDON_SIGNING=0
 
 . "$topsrcdir/comm/build/mozconfig.sccache"
 
+if test -z "$USE_ARTIFACT"; then
 . $topsrcdir/build/win64/mozconfig.vs-latest
 
 # Set up mapi includes (must be done after visual studio setup)
 export INCLUDE=$INCLUDE:$(cd "$TOOLTOOL_DIR" && pwd)/mapiheader
+fi

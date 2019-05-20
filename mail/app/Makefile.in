@@ -139,7 +139,9 @@ LPROJ := Contents/Resources/$(LPROJ_ROOT).lproj
 clean clobber repackage::
 	$(RM) -r '$(DIST)/$(MOZ_MACBUNDLE_NAME)'
 
-tools repackage:: $(PROGRAM)
+.PHONY: repackage
+tools repackage:: $(DIST)/bin/$(MOZ_APP_NAME)
+	rm -rf '$(DIST)/$(MOZ_MACBUNDLE_NAME)'
 	$(MKDIR) -p '$(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/MacOS'
 	rsync -a --exclude '*.in' $(srcdir)/macbuild/Contents '$(DIST)/$(MOZ_MACBUNDLE_NAME)' --exclude English.lproj
 	$(MKDIR) -p '$(DIST)/$(MOZ_MACBUNDLE_NAME)/$(LPROJ)'
@@ -148,8 +150,8 @@ tools repackage:: $(PROGRAM)
 	sed -e 's/%MAC_APP_NAME%/$(MAC_APP_NAME)/' $(srcdir)/macbuild/Contents/Resources/English.lproj/InfoPlist.strings.in | iconv -f UTF-8 -t UTF-16 > '$(DIST)/$(MOZ_MACBUNDLE_NAME)/$(LPROJ)/InfoPlist.strings'
 	rsync -a --exclude-from='$(srcdir)/macbuild/Contents/MacOS-files.in' $(DIST)/bin/ '$(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Resources'
 	rsync -a --include-from='$(srcdir)/macbuild/Contents/MacOS-files.in' --exclude '*' $(DIST)/bin/ '$(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/MacOS'
-	$(RM) '$(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/MacOS/$(PROGRAM)'
-	rsync -aL $(PROGRAM) '$(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/MacOS'
+	$(RM) '$(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/MacOS/$(MOZ_APP_NAME)'
+	rsync -aL $(DIST)/bin/$(MOZ_APP_NAME) '$(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/MacOS'
 	$(MKDIR) -p '$(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Library/Spotlight'
 	rsync -a --copy-unsafe-links $(DIST)/package/thunderbird.mdimporter '$(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Library/Spotlight'
 	cp -RL $(topsrcdir)/$(MOZ_BRANDING_DIRECTORY)/thunderbird.icns '$(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Resources/thunderbird.icns'
