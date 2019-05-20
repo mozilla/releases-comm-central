@@ -19,7 +19,6 @@
       onload="parent.onPanelLoaded('am-server.xul');">
 
   <vbox flex="1" style="overflow: auto;">
-    <script src="chrome://messenger/content/AccountManager.js"/>
     <script src="chrome://messenger/content/am-server.js"/>
     <script src="chrome://messenger/content/am-prefs.js"/>
     <script src="chrome://messenger/content/amUtils.js"/>

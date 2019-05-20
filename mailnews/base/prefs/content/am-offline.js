@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from AccountManager.js */
+/* import-globals-from am-prefs.js */
 /* import-globals-from ../../content/retention.js */
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -27,9 +27,9 @@ function onInit(aPageId, aServerId) {
   initDownloadSettings();
   initOfflineSettings();
 
-  onCheckItem("offline.notDownloadMin", "offline.notDownload");
-  onCheckItem("nntp.downloadMsgMin", "nntp.downloadMsg");
-  onCheckItem("nntp.removeBodyMin", "nntp.removeBody");
+  onCheckItem1("offline.notDownloadMin", "offline.notDownload");
+  onCheckItem1("nntp.downloadMsgMin", "nntp.downloadMsg");
+  onCheckItem1("nntp.removeBodyMin", "nntp.removeBody");
   onCheckKeepMsg();
 }
 
@@ -118,7 +118,7 @@ function initDownloadSettings() {
 
 
 function onPreInit(account, accountValues) {
-  gServerType = getAccountValue(account, accountValues, "server", "type", null, false);
+  gServerType = top.getAccountValue(account, accountValues, "server", "type", null, false);
   hideShowControls(gServerType);
   gIncomingServer = account.incomingServer;
   gIncomingServer.type = gServerType;
@@ -192,7 +192,7 @@ function onAutosyncNotDownload() {
   // driving the preference.
   document.getElementById("offline.notDownload").checked =
     document.getElementById("autosync.notDownload").checked;
-  onCheckItem("offline.notDownloadMin", "offline.notDownload");
+  onCheckItem1("offline.notDownloadMin", "offline.notDownload");
 }
 
 function onCancel() {
@@ -320,7 +320,8 @@ function onLockPreference() {
   disableIfLocked(allPrefElements);
 }
 
-function onCheckItem(changeElementId, checkElementId) {
+// XXX TODO: Function should be merged with onCheckItem in bug 755885.
+function onCheckItem1(changeElementId, checkElementId) {
   var element = document.getElementById(changeElementId);
   var checked = document.getElementById(checkElementId).checked;
   if (checked && !gLockedPref[checkElementId]) {

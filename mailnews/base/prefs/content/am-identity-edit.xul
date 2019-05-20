@@ -34,7 +34,6 @@
   <script src="chrome://messenger/content/am-prefs.js"/>
   <script src="chrome://messenger/content/am-identity-edit.js"/>
   <script src="chrome://messenger/content/amUtils.js"/>
-  <script src="chrome://messenger/content/AccountManager.js"/>
   <script src="chrome://messenger/content/am-copies.js"/>
   <script src="chrome://messenger/content/am-addressing.js"/>
   <script src="chrome://messenger/content/am-smime.js"/>

@@ -3,7 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from AccountManager.js */
+/* import-globals-from am-prefs.js */
+/* import-globals-from amUtils.js */
 
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
@@ -109,10 +110,10 @@ function onInit(aPageId, aServerId) {
 }
 
 function onPreInit(account, accountValues) {
-  if (getAccountValue(account, accountValues, "server", "type", null, false) == "pop3")
-    gDeferredToAccount = getAccountValue(account, accountValues,
-                                         "pop3", "deferredToAccount",
-                                         null, false);
+  if (top.getAccountValue(account, accountValues, "server", "type", null, false) == "pop3")
+    gDeferredToAccount = top.getAccountValue(account, accountValues,
+                                             "pop3", "deferredToAccount",
+                                             null, false);
 
   buildServerFilterMenuList();
 }

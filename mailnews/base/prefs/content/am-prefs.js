@@ -109,3 +109,31 @@ function onCheckItem(aChangeElementId, aCheckElementIds) {
 
   elementToControl.disabled = disabled;
 }
+
+/**
+ * Hides and shows elements relevant for the given server type.
+ *
+ * @param aServerType  Name of the server type for which to show/hide elements
+ */
+function hideShowControls(serverType) {
+  let controls = document.querySelectorAll("[hidefor]");
+  for (let controlNo = 0; controlNo < controls.length; controlNo++) {
+    let control = controls[controlNo];
+    let hideFor = control.getAttribute("hidefor");
+
+    // Hide unsupported server types using hideFor="servertype1,servertype2".
+    let hide = false;
+    let hideForTokens = hideFor.split(",");
+    for (let tokenNo = 0; tokenNo < hideForTokens.length; tokenNo++) {
+      if (hideForTokens[tokenNo] == serverType) {
+        hide = true;
+        break;
+      }
+    }
+
+    if (hide)
+      control.setAttribute("hidden", "true");
+    else
+      control.removeAttribute("hidden");
+  }
+}
