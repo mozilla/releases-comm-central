@@ -16,6 +16,7 @@ function removeOverrides(config) {
 const xpcshellTestPaths = [
   "**/test*/unit*/",
   "**/test*/xpcshell/",
+  "chat/**/test*/",
 ];
 
 const browserTestPaths = [
