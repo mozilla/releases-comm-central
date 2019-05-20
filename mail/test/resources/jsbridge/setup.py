@@ -42,7 +42,7 @@ summ = """A powerful and extensible Python to JavaScript bridge interface."""
 
 PACKAGE_NAME = "jsbridge_thunderbird"
 # You must update the required version in mozmill's setup.py to match this.
-PACKAGE_VERSION = "2.5.1"
+PACKAGE_VERSION = "2.5.2"
 
 requires = ['mozrunner >= 6.0']
 

@@ -34,20 +34,33 @@ registerDirectory("XREUSysExt", userExtDir.parent);
 
 const ADDONS = {
   test_bootstrap1_1: {
-    "install.rdf": createInstallRDF({
-      id: "bootstrap1@tests.mozilla.org",
+    "manifest.json": JSON.stringify({
+      applications: {
+        gecko: {
+          id: "bootstrap1@tests.mozilla.org",
+        },
+      },
+      legacy: {
+        type: "bootstrap",
+      },
+      manifest_version: 2,
 
       name: "Test Bootstrap 1",
-
-      iconURL: "chrome://foo/skin/icon.png",
-      aboutURL: "chrome://foo/content/about.xul",
-      optionsURL: "chrome://foo/content/options.xul",
+      version: "1.0",
     }),
     "bootstrap.js": BOOTSTRAP_MONITOR_BOOTSTRAP_JS,
   },
   test_bootstrap1_2: {
-    "install.rdf": createInstallRDF({
-      id: "bootstrap1@tests.mozilla.org",
+    "manifest.json": JSON.stringify({
+      applications: {
+        gecko: {
+          id: "bootstrap1@tests.mozilla.org",
+        },
+      },
+      legacy: {
+        type: "bootstrap",
+      },
+      manifest_version: 2,
       version: "2.0",
 
       name: "Test Bootstrap 1",
@@ -55,22 +68,46 @@ const ADDONS = {
     "bootstrap.js": BOOTSTRAP_MONITOR_BOOTSTRAP_JS,
   },
   test_bootstrap1_3: {
-    "install.rdf": createInstallRDF({
-      id: "bootstrap1@tests.mozilla.org",
+    "manifest.json": JSON.stringify({
+      applications: {
+        gecko: {
+          id: "bootstrap1@tests.mozilla.org",
+        },
+      },
+      legacy: {
+        type: "bootstrap",
+      },
+      manifest_version: 2,
       version: "3.0",
 
       name: "Test Bootstrap 1",
 
       targetApplications: [{
-        id: "undefined",
+        applications: {
+          gecko: {
+            id: "undefined",
+          },
+        },
+        legacy: {
+          type: "bootstrap",
+        },
+        manifest_version: 2,
         minVersion: "1",
         maxVersion: "1"}],
     }),
     "bootstrap.js": BOOTSTRAP_MONITOR_BOOTSTRAP_JS,
   },
   test_bootstrap2_1: {
-    "install.rdf": createInstallRDF({
-      id: "bootstrap2@tests.mozilla.org",
+    "manifest.json": JSON.stringify({
+      applications: {
+        gecko: {
+          id: "bootstrap2@tests.mozilla.org",
+        },
+      },
+      legacy: {
+        type: "bootstrap",
+      },
+      manifest_version: 2,
     }),
     "bootstrap.js": BOOTSTRAP_MONITOR_BOOTSTRAP_JS,
   },
@@ -438,7 +475,7 @@ add_task(async function test_7() {
   ensure_test_completed();
   BootstrapMonitor.checkAddonNotInstalled(ID1);
   BootstrapMonitor.checkAddonNotStarted(ID1);
-  equal(getShutdownReason(), ADDON_UNINSTALL);
+  equal(getShutdownReason(), ADDON_DISABLE);
   equal(getShutdownNewVersion(), undefined);
   do_check_not_in_crash_annotation(ID1, "2.0");
 
@@ -649,211 +686,6 @@ add_task(async function test_12() {
   await checkBootstrappedPref();
 });
 
-
-// Tests that installing a bootstrapped extension with an invalid application
-// entry doesn't call it's startup method
-add_task(async function test_13() {
-  prepare_test({}, [
-    "onNewInstall",
-  ]);
-
-  let install = await AddonManager.getInstallForFile(XPIS.test_bootstrap1_3);
-  ensure_test_completed();
-
-  notEqual(install, null);
-  equal(install.type, "extension");
-  equal(install.version, "3.0");
-  equal(install.name, "Test Bootstrap 1");
-  equal(install.state, AddonManager.STATE_DOWNLOADED);
-  do_check_not_in_crash_annotation(ID1, "3.0");
-
-  await new Promise(resolve => {
-    prepare_test({
-      [ID1]: [
-        ["onInstalling", false],
-        "onInstalled",
-      ],
-    }, [
-      "onInstallStarted",
-      "onInstallEnded",
-    ], resolve);
-    install.install();
-  });
-
-  let installs = await AddonManager.getAllInstalls();
-
-  // There should be no active installs now since the install completed and
-  // doesn't require a restart.
-  equal(installs.length, 0);
-
-  let b1 = await AddonManager.getAddonByID(ID1);
-  notEqual(b1, null);
-  equal(b1.version, "3.0");
-  ok(b1.appDisabled);
-  ok(!b1.userDisabled);
-  ok(!b1.isActive);
-  BootstrapMonitor.checkAddonInstalled(ID1, "3.0"); // We call install even for disabled add-ons
-  BootstrapMonitor.checkAddonNotStarted(ID1); // Should not have called startup though
-  do_check_not_in_crash_annotation(ID1, "3.0");
-
-  await promiseRestartManager();
-
-  b1 = await AddonManager.getAddonByID(ID1);
-  notEqual(b1, null);
-  equal(b1.version, "3.0");
-  ok(b1.appDisabled);
-  ok(!b1.userDisabled);
-  ok(!b1.isActive);
-  BootstrapMonitor.checkAddonInstalled(ID1, "3.0"); // We call install even for disabled add-ons
-  BootstrapMonitor.checkAddonNotStarted(ID1); // Should not have called startup though
-  do_check_not_in_crash_annotation(ID1, "3.0");
-
-  await checkBootstrappedPref();
-  await b1.uninstall();
-});
-
-// Tests that a bootstrapped extension with an invalid target application entry
-// does not get loaded when detected during startup
-add_task(async function test_14() {
-  await promiseRestartManager();
-
-  await promiseShutdownManager();
-
-  await manuallyInstall(XPIS.test_bootstrap1_3, profileDir, ID1);
-
-  await promiseStartupManager();
-
-  let b1 = await AddonManager.getAddonByID(ID1);
-  notEqual(b1, null);
-  equal(b1.version, "3.0");
-  ok(b1.appDisabled);
-  ok(!b1.userDisabled);
-  ok(!b1.isActive);
-  BootstrapMonitor.checkAddonInstalled(ID1, "3.0"); // We call install even for disabled add-ons
-  BootstrapMonitor.checkAddonNotStarted(ID1); // Should not have called startup though
-  do_check_not_in_crash_annotation(ID1, "3.0");
-
-  await checkBootstrappedPref();
-  await b1.uninstall();
-});
-
-// Tests that upgrading a disabled bootstrapped extension still calls uninstall
-// and install but doesn't startup the new version
-add_task(async function test_15() {
-  await Promise.all([
-    BootstrapMonitor.promiseAddonStartup(ID1),
-    promiseInstallFile(XPIS.test_bootstrap1_1),
-  ]);
-
-  let b1 = await AddonManager.getAddonByID(ID1);
-  notEqual(b1, null);
-  equal(b1.version, "1.0");
-  ok(!b1.appDisabled);
-  ok(!b1.userDisabled);
-  ok(b1.isActive);
-  ok(!b1.isSystem);
-  BootstrapMonitor.checkAddonInstalled(ID1, "1.0");
-  BootstrapMonitor.checkAddonStarted(ID1, "1.0");
-
-  await b1.disable();
-  ok(!b1.isActive);
-  BootstrapMonitor.checkAddonInstalled(ID1, "1.0");
-  BootstrapMonitor.checkAddonNotStarted(ID1);
-
-  prepare_test({}, [
-    "onNewInstall",
-  ]);
-
-  let install = await AddonManager.getInstallForFile(XPIS.test_bootstrap1_2);
-  ensure_test_completed();
-
-  notEqual(install, null);
-  ok(install.addon.userDisabled);
-
-  await new Promise(resolve => {
-    prepare_test({
-      [ID1]: [
-        ["onInstalling", false],
-        "onInstalled",
-      ],
-    }, [
-      "onInstallStarted",
-      "onInstallEnded",
-    ], resolve);
-    install.install();
-  });
-
-  b1 = await AddonManager.getAddonByID(ID1);
-  notEqual(b1, null);
-  equal(b1.version, "2.0");
-  ok(!b1.appDisabled);
-  ok(b1.userDisabled);
-  ok(!b1.isActive);
-  BootstrapMonitor.checkAddonInstalled(ID1, "2.0");
-  BootstrapMonitor.checkAddonNotStarted(ID1);
-
-  await checkBootstrappedPref();
-  await promiseRestartManager();
-
-  let b1_2 = await AddonManager.getAddonByID(ID1);
-  notEqual(b1_2, null);
-  equal(b1_2.version, "2.0");
-  ok(!b1_2.appDisabled);
-  ok(b1_2.userDisabled);
-  ok(!b1_2.isActive);
-  BootstrapMonitor.checkAddonInstalled(ID1, "2.0");
-  BootstrapMonitor.checkAddonNotStarted(ID1);
-
-  await b1_2.uninstall();
-});
-
-// Tests that bootstrapped extensions don't get loaded when in safe mode
-add_task(async function test_16() {
-  await Promise.all([
-    BootstrapMonitor.promiseAddonStartup(ID1),
-    promiseInstallFile(XPIS.test_bootstrap1_1),
-  ]);
-
-  let b1 = await AddonManager.getAddonByID(ID1);
-  // Should have installed and started
-  BootstrapMonitor.checkAddonInstalled(ID1, "1.0");
-  BootstrapMonitor.checkAddonStarted(ID1, "1.0");
-  ok(b1.isActive);
-  ok(!b1.isSystem);
-  equal(b1.iconURL, "chrome://foo/skin/icon.png");
-  equal(b1.aboutURL, "chrome://foo/content/about.xul");
-  equal(b1.optionsURL, "chrome://foo/content/options.xul");
-
-  await promiseShutdownManager();
-
-  // Should have stopped
-  BootstrapMonitor.checkAddonInstalled(ID1, "1.0");
-  BootstrapMonitor.checkAddonNotStarted(ID1);
-
-  gAppInfo.inSafeMode = true;
-  await promiseStartupManager();
-
-  let b1_2 = await AddonManager.getAddonByID(ID1);
-  // Should still be stopped
-  BootstrapMonitor.checkAddonInstalled(ID1, "1.0");
-  BootstrapMonitor.checkAddonNotStarted(ID1);
-  ok(!b1_2.isActive);
-  equal(b1_2.iconURL, null);
-  equal(b1_2.aboutURL, null);
-  equal(b1_2.optionsURL, null);
-
-  await promiseShutdownManager();
-  gAppInfo.inSafeMode = false;
-  await promiseStartupManager();
-
-  // Should have started
-  BootstrapMonitor.checkAddonInstalled(ID1, "1.0");
-  BootstrapMonitor.checkAddonStarted(ID1, "1.0");
-
-  let b1_3 = await AddonManager.getAddonByID(ID1);
-  await b1_3.uninstall();
-});
-
 // Check that a bootstrapped extension in a non-profile location is loaded
 add_task(async function test_17() {
   await promiseShutdownManager();
@@ -941,246 +773,4 @@ add_task(async function test_19() {
   equal(getStartupOldVersion(), "2.0");
 
   await checkBootstrappedPref();
-});
-
-// Check that a new profile extension detected at startup replaces the non-profile
-// one
-add_task(async function test_20() {
-  await promiseShutdownManager();
-
-  await manuallyInstall(XPIS.test_bootstrap1_2, profileDir, ID1);
-
-  await promiseStartupManager();
-
-  let b1 = await AddonManager.getAddonByID(ID1);
-  // Should have installed and started
-  BootstrapMonitor.checkAddonInstalled(ID1, "2.0");
-  BootstrapMonitor.checkAddonStarted(ID1, "2.0");
-  notEqual(b1, null);
-  equal(b1.version, "2.0");
-  ok(b1.isActive);
-  ok(!b1.isSystem);
-
-  equal(getShutdownReason(), APP_SHUTDOWN);
-  equal(getUninstallReason(), ADDON_UPGRADE);
-  equal(getInstallReason(), ADDON_UPGRADE);
-  equal(getStartupReason(), APP_STARTUP);
-
-  equal(getShutdownNewVersion(), undefined);
-  equal(getUninstallNewVersion(), 2);
-  equal(getInstallOldVersion(), 1);
-  equal(getStartupOldVersion(), undefined);
-});
-
-// Check that a detected removal reveals the non-profile one
-add_task(async function test_21() {
-  await promiseShutdownManager();
-
-  equal(getShutdownReason(), APP_SHUTDOWN);
-  equal(getShutdownNewVersion(), undefined);
-
-  manuallyUninstall(profileDir, ID1);
-  BootstrapMonitor.clear(ID1);
-
-  await promiseStartupManager();
-
-  let b1 = await AddonManager.getAddonByID(ID1);
-  // Should have installed and started
-  BootstrapMonitor.checkAddonInstalled(ID1, "1.0");
-  BootstrapMonitor.checkAddonStarted(ID1, "1.0");
-  notEqual(b1, null);
-  equal(b1.version, "1.0");
-  ok(b1.isActive);
-  ok(!b1.isSystem);
-
-  // This won't be set as the bootstrap script was gone so we couldn't
-  // uninstall it properly
-  equal(getUninstallReason(), undefined);
-  equal(getUninstallNewVersion(), undefined);
-
-  equal(getInstallReason(), ADDON_DOWNGRADE);
-  equal(getInstallOldVersion(), 2);
-
-  equal(getStartupReason(), APP_STARTUP);
-  equal(getStartupOldVersion(), undefined);
-
-  await checkBootstrappedPref();
-  await promiseShutdownManager();
-
-  manuallyUninstall(userExtDir, ID1);
-  BootstrapMonitor.clear(ID1);
-
-  await promiseStartupManager();
-});
-
-// Check that an upgrade from the filesystem is detected and applied correctly
-add_task(async function test_22() {
-  await promiseShutdownManager();
-
-  let file = await manuallyInstall(XPIS.test_bootstrap1_1, profileDir, ID1);
-  if (file.isDirectory())
-    file.append("install.rdf");
-
-  // Make it look old so changes are detected
-  setExtensionModifiedTime(file, file.lastModifiedTime - 5000);
-
-  await promiseStartupManager();
-
-  let b1 = await AddonManager.getAddonByID(ID1);
-  // Should have installed and started
-  BootstrapMonitor.checkAddonInstalled(ID1, "1.0");
-  BootstrapMonitor.checkAddonStarted(ID1, "1.0");
-  notEqual(b1, null);
-  equal(b1.version, "1.0");
-  ok(b1.isActive);
-  ok(!b1.isSystem);
-
-  await promiseShutdownManager();
-
-  equal(getShutdownReason(), APP_SHUTDOWN);
-  equal(getShutdownNewVersion(), undefined);
-
-  manuallyUninstall(profileDir, ID1);
-  BootstrapMonitor.clear(ID1);
-  await manuallyInstall(XPIS.test_bootstrap1_2, profileDir, ID1);
-
-  await promiseStartupManager();
-
-  let b1_2 = await AddonManager.getAddonByID(ID1);
-  // Should have installed and started
-  BootstrapMonitor.checkAddonInstalled(ID1, "2.0");
-  BootstrapMonitor.checkAddonStarted(ID1, "2.0");
-  notEqual(b1_2, null);
-  equal(b1_2.version, "2.0");
-  ok(b1_2.isActive);
-  ok(!b1_2.isSystem);
-
-  // This won't be set as the bootstrap script was gone so we couldn't
-  // uninstall it properly
-  equal(getUninstallReason(), undefined);
-  equal(getUninstallNewVersion(), undefined);
-
-  equal(getInstallReason(), ADDON_UPGRADE);
-  equal(getInstallOldVersion(), 1);
-  equal(getStartupReason(), APP_STARTUP);
-  equal(getStartupOldVersion(), undefined);
-
-  await checkBootstrappedPref();
-  await b1_2.uninstall();
-});
-
-
-// Tests that installing from a URL doesn't require a restart
-add_task(async function test_23() {
-  prepare_test({}, [
-    "onNewInstall",
-  ]);
-
-  let url = "http://example.com/addons/test_bootstrap1_1.xpi";
-  let install = await AddonManager.getInstallForURL(url, {});
-
-  ensure_test_completed();
-
-  notEqual(install, null);
-
-  await new Promise(resolve => {
-    prepare_test({}, [
-      "onDownloadStarted",
-      "onDownloadEnded",
-    ], function() {
-      equal(install.type, "extension");
-      equal(install.version, "1.0");
-      equal(install.name, "Test Bootstrap 1");
-      equal(install.state, AddonManager.STATE_DOWNLOADED);
-      equal(install.addon.operationsRequiringRestart &
-                   AddonManager.OP_NEEDS_RESTART_INSTALL, 0);
-      do_check_not_in_crash_annotation(ID1, "1.0");
-
-      prepare_test({
-        [ID1]: [
-          ["onInstalling", false],
-          "onInstalled",
-        ],
-      }, [
-        "onInstallStarted",
-        "onInstallEnded",
-      ], resolve);
-    });
-    install.install();
-  });
-
-  await checkBootstrappedPref();
-
-  let installs = await AddonManager.getAllInstalls();
-
-  // There should be no active installs now since the install completed and
-  // doesn't require a restart.
-  equal(installs.length, 0);
-
-  let b1 = await AddonManager.getAddonByID(ID1);
-
-  notEqual(b1, null);
-  equal(b1.version, "1.0");
-  ok(!b1.appDisabled);
-  ok(!b1.userDisabled);
-  ok(b1.isActive);
-  ok(!b1.isSystem);
-  BootstrapMonitor.checkAddonInstalled(ID1, "1.0");
-  BootstrapMonitor.checkAddonStarted(ID1, "1.0");
-  equal(getStartupReason(), ADDON_INSTALL);
-  equal(getStartupOldVersion(), undefined);
-  do_check_in_crash_annotation(ID1, "1.0");
-
-  let dir = do_get_addon_root_uri(profileDir, ID1);
-  equal(b1.getResourceURI("bootstrap.js").spec, dir + "bootstrap.js");
-
-  await promiseRestartManager();
-
-  let b1_2 = await AddonManager.getAddonByID(ID1);
-  await b1_2.uninstall();
-});
-
-// Tests that we recover from a broken preference
-add_task(async function test_24() {
-  info("starting 24");
-
-  await Promise.all([
-    BootstrapMonitor.promiseAddonStartup(ID2),
-    promiseInstallAllFiles([XPIS.test_bootstrap1_1, XPIS.test_bootstrap2_1]),
-  ]);
-
-  info("test 24 got prefs");
-  BootstrapMonitor.checkAddonInstalled(ID1, "1.0");
-  BootstrapMonitor.checkAddonStarted(ID1, "1.0");
-  BootstrapMonitor.checkAddonInstalled(ID2, "1.0");
-  BootstrapMonitor.checkAddonStarted(ID2, "1.0");
-
-  await promiseRestartManager();
-
-  BootstrapMonitor.checkAddonInstalled(ID1, "1.0");
-  BootstrapMonitor.checkAddonStarted(ID1, "1.0");
-  BootstrapMonitor.checkAddonInstalled(ID2, "1.0");
-  BootstrapMonitor.checkAddonStarted(ID2, "1.0");
-
-  await promiseShutdownManager();
-
-  BootstrapMonitor.checkAddonInstalled(ID1, "1.0");
-  BootstrapMonitor.checkAddonNotStarted(ID1);
-  BootstrapMonitor.checkAddonInstalled(ID2, "1.0");
-  BootstrapMonitor.checkAddonNotStarted(ID2);
-
-  // Break the JSON.
-  let data = aomStartup.readStartupData();
-  data["app-profile"].addons[ID1].path += "foo";
-
-  await OS.File.writeAtomic(gAddonStartup.path,
-                            new TextEncoder().encode(JSON.stringify(data)),
-                            {compression: "lz4"});
-
-  await promiseStartupManager();
-
-  BootstrapMonitor.checkAddonInstalled(ID1, "1.0");
-  BootstrapMonitor.checkAddonStarted(ID1, "1.0");
-  BootstrapMonitor.checkAddonInstalled(ID2, "1.0");
-  BootstrapMonitor.checkAddonStarted(ID2, "1.0");
 });

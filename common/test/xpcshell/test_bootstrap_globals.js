@@ -9,8 +9,18 @@ createAppInfo("xpcshell@tests.mozilla.org", "XPCShell", "1", "1");
 
 const ADDONS = {
   bootstrap_globals: {
-    "install.rdf": createInstallRDF({
-      "id": "bootstrap_globals@tests.mozilla.org",
+    "manifest.json": JSON.stringify({
+      applications: {
+        gecko: {
+          id: "bootstrap_globals@tests.mozilla.org",
+        },
+      },
+      legacy: {
+        type: "bootstrap",
+      },
+      manifest_version: 2,
+      name: "Test Bootstrap 1",
+      version: "1.0",
     }),
     "bootstrap.js": String.raw`var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 

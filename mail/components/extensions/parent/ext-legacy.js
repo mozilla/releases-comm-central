@@ -9,16 +9,44 @@ ChromeUtils.defineModuleGetter(this, "XPIInternal", "resource://gre/modules/addo
 
 Cu.importGlobalProperties(["fetch"]);
 
+var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var {ConsoleAPI} = ChromeUtils.import("resource://gre/modules/Console.jsm");
+
+XPCOMUtils.defineLazyGetter(this, "BOOTSTRAP_REASONS", () => {
+  const {XPIProvider} = ChromeUtils.import("resource://gre/modules/addons/XPIProvider.jsm");
+  return XPIProvider.BOOTSTRAP_REASONS;
+});
+
+const {Log} = ChromeUtils.import("resource://gre/modules/Log.jsm");
+var logger = Log.repository.getLogger("addons.bootstrap");
+
+let bootstrapScopes = new Map();
+let cachedParams = new Map();
+
+Services.obs.addObserver(() => {
+  for (let [id, scope] of bootstrapScopes.entries()) {
+    if (ExtensionSupport.loadedBootstrapExtensions.has(id)) {
+      scope.shutdown({...cachedParams.get(id)}, BOOTSTRAP_REASONS.APP_SHUTDOWN);
+    }
+  }
+}, "quit-application-granted");
+
 var { ExtensionError } = ExtensionUtils;
 
 this.legacy = class extends ExtensionAPI {
   async onManifestEntry(entryName) {
     if (this.extension.manifest.legacy) {
-      await this.register();
+      if (this.extension.manifest.legacy.type == "bootstrap") {
+        await this.registerBootstrapped();
+      } else {
+        await this.registerNonBootstrapped();
+      }
     }
   }
 
-  async register() {
+  // This function is for non-bootstrapped add-ons.
+
+  async registerNonBootstrapped() {
     this.extension.legacyLoaded = true;
 
     let state = {
@@ -146,6 +174,147 @@ this.legacy = class extends ExtensionAPI {
         Services.obs.removeObserver(documentObserver, "chrome-document-interactive");
       },
     });
+  }
+
+  // The following functions are for bootstrapped add-ons.
+
+  async registerBootstrapped() {
+    let oldParams = cachedParams.get(this.extension.id);
+    let params = {
+      id: this.extension.id,
+      version: this.extension.version,
+      resourceURI: Services.io.newURI(this.extension.resourceURL),
+      installPath: this.extensionFile.path,
+    };
+    cachedParams.set(this.extension.id, {...params});
+
+    if (["ADDON_UPGRADE", "ADDON_DOWNGRADE"].includes(this.extension.startupReason)) {
+      params.oldVersion = oldParams.version;
+    }
+
+    let scope = await this.loadScope();
+    bootstrapScopes.set(this.extension.id, scope);
+
+    if (["ADDON_INSTALL", "ADDON_UPGRADE", "ADDON_DOWNGRADE"].includes(this.extension.startupReason)) {
+      scope.install(params, BOOTSTRAP_REASONS[this.extension.startupReason]);
+    }
+    scope.startup(params, BOOTSTRAP_REASONS[this.extension.startupReason]);
+    ExtensionSupport.loadedBootstrapExtensions.add(this.extension.id);
+  }
+
+  static onDisable(id) {
+    if (bootstrapScopes.has(id)) {
+      bootstrapScopes.get(id).shutdown({...cachedParams.get(id)}, BOOTSTRAP_REASONS.ADDON_DISABLE);
+      ExtensionSupport.loadedBootstrapExtensions.delete(id);
+    }
+  }
+
+  static onUpdate(id, manifest) {
+    if (bootstrapScopes.has(id)) {
+      let params = {
+        ...cachedParams.get(id),
+        newVersion: manifest.version,
+      };
+      let reason = BOOTSTRAP_REASONS.ADDON_UPGRADE;
+      if (Services.vc.compare(params.newVersion, params.version) < 0) {
+        reason = BOOTSTRAP_REASONS.ADDON_DOWNGRADE;
+      }
+
+      let scope = bootstrapScopes.get(id);
+      scope.shutdown(params, reason);
+      scope.uninstall(params, reason);
+      ExtensionSupport.loadedBootstrapExtensions.delete(id);
+      bootstrapScopes.delete(id);
+    }
+  }
+
+  static onUninstall(id) {
+    if (bootstrapScopes.has(id)) {
+      bootstrapScopes.get(id).uninstall({...cachedParams.get(id)}, BOOTSTRAP_REASONS.ADDON_UNINSTALL);
+      bootstrapScopes.delete(id);
+    }
+  }
+
+  get extensionFile() {
+    let uri = Services.io.newURI(this.extension.resourceURL);
+    if (uri instanceof Ci.nsIJARURI) {
+      uri = uri.QueryInterface(Ci.nsIJARURI).JARFile;
+    }
+    return uri.QueryInterface(Ci.nsIFileURL).file;
+  }
+
+  loadScope() {
+    let {extension} = this;
+    let file = this.extensionFile;
+    let uri = this.extension.getURL("bootstrap.js");
+    let principal = Services.scriptSecurityManager.getSystemPrincipal();
+
+    let sandbox = new Cu.Sandbox(principal, {
+      sandboxName: uri,
+      addonId: this.extension.id,
+      wantGlobalProperties: ["ChromeUtils"],
+      metadata: { addonID: this.extension.id, URI: uri },
+    });
+
+    try {
+      Object.assign(sandbox, BOOTSTRAP_REASONS);
+
+      XPCOMUtils.defineLazyGetter(sandbox, "console", () =>
+        new ConsoleAPI({ consoleID: `addon/${this.extension.id}` }));
+
+      Services.scriptloader.loadSubScript(uri, sandbox);
+    } catch (e) {
+      logger.warn(`Error loading bootstrap.js for ${this.extension.id}`, e);
+    }
+
+    function findMethod(name) {
+      if (sandbox.name) {
+        return sandbox.name;
+      }
+
+      try {
+        let method = Cu.evalInSandbox(name, sandbox);
+        return method;
+      } catch (err) { }
+
+      return () => {
+        logger.warn(`Add-on ${extension.id} is missing bootstrap method ${name}`);
+      };
+    }
+
+    let install = findMethod("install");
+    let uninstall = findMethod("uninstall");
+    let startup = findMethod("startup");
+    let shutdown = findMethod("shutdown");
+
+    return {
+      install: (...args) => install(...args),
+
+      uninstall(...args) {
+        uninstall(...args);
+        // Forget any cached files we might've had from this extension.
+        Services.obs.notifyObservers(null, "startupcache-invalidate");
+      },
+
+      startup(...args) {
+        logger.debug(`Registering manifest for ${file.path}\n`);
+        Components.manager.addBootstrappedManifestLocation(file);
+        return startup(...args);
+      },
+
+      shutdown(data, reason) {
+        try {
+          return shutdown(data, reason);
+        } catch (err) {
+          throw err;
+        } finally {
+          if (reason != BOOTSTRAP_REASONS.APP_SHUTDOWN) {
+            logger.debug(`Removing manifest for ${file.path}\n`);
+            Components.manager.removeBootstrappedManifestLocation(file);
+          }
+        }
+      },
+    };
   }
 };
 

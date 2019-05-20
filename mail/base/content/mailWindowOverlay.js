@@ -3239,7 +3239,8 @@ async function initAddonPrefsMenu(aMenupopup) {
         optionsOpenInTab: addon.optionsType == 3,
       });
     }
-    if (ExtensionSupport.loadedLegacyExtensions.has(addon.id)) {
+    if (ExtensionSupport.loadedLegacyExtensions.has(addon.id) ||
+        ExtensionSupport.loadedBootstrapExtensions.has(addon.id)) {
       let webextension = ExtensionParent.GlobalManager.getExtension(addon.id);
       let legacy = webextension.manifest.legacy;
       if (typeof legacy == "boolean" || !legacy.options || !legacy.options.page) {

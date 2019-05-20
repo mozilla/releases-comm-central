@@ -68,8 +68,10 @@ const {
   promiseFindAddonUpdates,
   promiseInstallAllFiles,
   promiseInstallFile,
+  promiseRestartManager,
   promiseSetExtensionModifiedTime,
   promiseShutdownManager,
+  promiseStartupManager,
   promiseWebExtensionStartup,
   promiseWriteProxyFileToDir,
   registerDirectory,
@@ -80,7 +82,7 @@ const {
 // WebExtension wrapper for ease of testing
 ExtensionTestUtils.init(this);
 
-AddonTestUtils.init(this);
+AddonTestUtils.init(this, false);
 AddonTestUtils.overrideCertDB();
 
 XPCOMUtils.defineLazyGetter(this, "BOOTSTRAP_REASONS",
@@ -147,18 +149,6 @@ Object.defineProperty(this, "TEST_UNPACKED", {
 // We need some internal bits of AddonManager
 var AMscope = ChromeUtils.import("resource://gre/modules/AddonManager.jsm", null);
 var { AddonManager, AddonManagerInternal, AddonManagerPrivate } = AMscope;
-
-// Wrap the startup functions to ensure the bootstrap loader is added.
-function promiseStartupManager(newVersion) {
-  const {BootstrapLoader} = ChromeUtils.import("resource:///modules/BootstrapLoader.jsm");
-  AddonManager.addExternalExtensionLoader(BootstrapLoader);
-  return AddonTestUtils.promiseStartupManager(newVersion);
-}
-
-async function promiseRestartManager(newVersion) {
-  await promiseShutdownManager(false);
-  await promiseStartupManager(newVersion);
-}
 
 const promiseAddonByID = AddonManager.getAddonByID;
 const promiseAddonsByIDs = AddonManager.getAddonsByIDs;
@@ -807,101 +797,6 @@ function isExtensionInBootstrappedList(aDir, aId) {
 }
 
 /**
- * Writes an install.rdf manifest into a directory using the properties passed
- * in a JS object. The objects should contain a property for each property to
- * appear in the RDF. The object may contain an array of objects with id,
- * minVersion and maxVersion in the targetApplications property to give target
- * application compatibility.
- *
- * @param   aData
- *          The object holding data about the add-on
- * @param   aDir
- *          The directory to add the install.rdf to
- * @param   aId
- *          An optional string to override the default installation aId
- * @param   aExtraFile
- *          An optional dummy file to create in the directory
- * @return  An nsIFile for the directory in which the add-on is installed.
- */
-async function promiseWriteInstallRDFToDir(aData, aDir, aId = aData.id, aExtraFile = null) {
-  let files = {
-    "install.rdf": createInstallRDF(aData),
-  };
-  if (typeof aExtraFile === "object")
-    Object.assign(files, aExtraFile);
-  else
-    files[aExtraFile] = "";
-
-  let dir = aDir.clone();
-  dir.append(aId);
-
-  await AddonTestUtils.promiseWriteFilesToDir(dir.path, files);
-  return dir;
-}
-
-/**
- * Writes an install.rdf manifest into a packed extension using the properties passed
- * in a JS object. The objects should contain a property for each property to
- * appear in the RDF. The object may contain an array of objects with id,
- * minVersion and maxVersion in the targetApplications property to give target
- * application compatibility.
- *
- * @param   aData
- *          The object holding data about the add-on
- * @param   aDir
- *          The install directory to add the extension to
- * @param   aId
- *          An optional string to override the default installation aId
- * @param   aExtraFile
- *          An optional dummy file to create in the extension
- * @return  A file pointing to where the extension was installed
- */
-async function promiseWriteInstallRDFToXPI(aData, aDir, aId = aData.id, aExtraFile = null) {
-  let files = {
-    "install.rdf": createInstallRDF(aData),
-  };
-  if (typeof aExtraFile === "object")
-    Object.assign(files, aExtraFile);
-  else
-  if (aExtraFile)
-    files[aExtraFile] = "";
-
-  if (!aDir.exists())
-    aDir.create(Ci.nsIFile.DIRECTORY_TYPE, FileUtils.PERMS_DIRECTORY);
-
-  var file = aDir.clone();
-  file.append(`${aId}.xpi`);
-
-  AddonTestUtils.writeFilesToZip(file.path, files);
-
-  return file;
-}
-
-/**
- * Writes an install.rdf manifest into an extension using the properties passed
- * in a JS object. The objects should contain a property for each property to
- * appear in the RDF. The object may contain an array of objects with id,
- * minVersion and maxVersion in the targetApplications property to give target
- * application compatibility.
- *
- * @param   aData
- *          The object holding data about the add-on
- * @param   aDir
- *          The install directory to add the extension to
- * @param   aId
- *          An optional string to override the default installation aId
- * @param   aExtraFile
- *          An optional dummy file to create in the extension
- * @return  A file pointing to where the extension was installed
- */
-function promiseWriteInstallRDFForExtension(aData, aDir, aId, aExtraFile) {
-  if (TEST_UNPACKED) {
-    return promiseWriteInstallRDFToDir(aData, aDir, aId, aExtraFile);
-  }
-  return promiseWriteInstallRDFToXPI(aData, aDir, aId, aExtraFile);
-}
-
-/**
  * Writes a manifest.json manifest into an extension using the properties passed
  * in a JS object.
  *
@@ -938,10 +833,6 @@ function createTempXPIFile(aData, aExtraFile) {
     files[aExtraFile] = "";
 
   return AddonTestUtils.createTempXPIFile(files);
-}
-
-function promiseInstallXPI(installRDF) {
-  return AddonTestUtils.promiseInstallXPI({"install.rdf": installRDF});
 }
 
 var gExpectedEvents = {};
@@ -1442,56 +1333,4 @@ function _writeLocaleStrings(data) {
   items.push(this._writeArrayProps(data, ["developer", "translator", "contributor"]));
 
   return items.join("");
-}
-
-function createInstallRDF(data) {
-  let defaults = {
-    bootstrap: true,
-    version: "1.0",
-    name: `Test Extension ${data.id}`,
-    targetApplications: [
-      {
-        "id": "xpcshell@tests.mozilla.org",
-        "minVersion": "1",
-        "maxVersion": "64.*",
-      },
-    ],
-  };
-
-  var rdf = '<?xml version="1.0"?>\n';
-  rdf += '<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"\n' +
-         '     xmlns:em="http://www.mozilla.org/2004/em-rdf#">\n';
-
-  rdf += '<Description about="urn:mozilla:install-manifest">\n';
-
-  data = Object.assign({}, defaults, data);
-
-  let props = ["id", "version", "type", "internalName", "updateURL",
-               "optionsURL", "optionsType", "aboutURL", "iconURL",
-               "skinnable", "bootstrap", "strictCompatibility"];
-  rdf += _writeProps(data, props);
-
-  rdf += _writeLocaleStrings(data);
-
-  for (let platform of data.targetPlatforms || [])
-    rdf += escaped`<em:targetPlatform>${platform}</em:targetPlatform>\n`;
-
-  for (let app of data.targetApplications || []) {
-    rdf += "<em:targetApplication><Description>\n";
-    rdf += _writeProps(app, ["id", "minVersion", "maxVersion"]);
-    rdf += "</Description></em:targetApplication>\n";
-  }
-
-  for (let localized of data.localized || []) {
-    rdf += "<em:localized><Description>\n";
-    rdf += _writeArrayProps(localized, ["locale"]);
-    rdf += _writeLocaleStrings(localized);
-    rdf += "</Description></em:localized>\n";
-  }
-
-  for (let dep of data.dependencies || [])
-    rdf += escaped`<em:dependency><Description em:id="${dep}"/></em:dependency>\n`;
-
-  rdf += "</Description>\n</RDF>\n";
-  return rdf;
 }

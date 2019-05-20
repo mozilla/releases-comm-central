@@ -4,12 +4,9 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXTRA_JS_MODULES += [
-    'BootstrapLoader.jsm',
     'ChromeManifest.jsm',
     'ExtensionSupport.jsm',
     'Overlays.jsm',
-    'RDFDataSource.jsm',
-    'RDFManifestConverter.jsm',
 ]
 
 SOURCES += [

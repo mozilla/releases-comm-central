@@ -41,7 +41,7 @@ desc = """UI Automation tool for Mozilla applications."""
 summ = """A tool for full UI automation of Mozilla applications."""
 
 PACKAGE_NAME = "mozmill_thunderbird"
-PACKAGE_VERSION = "1.6.1"
+PACKAGE_VERSION = "1.6.2"
 
 setup(name=PACKAGE_NAME,
       version=PACKAGE_VERSION,
@@ -65,7 +65,7 @@ setup(name=PACKAGE_NAME,
         """,
       platforms=['Any'],
       install_requires=[
-          'jsbridge_thunderbird == 2.5.1',
+          'jsbridge_thunderbird == 2.5.2',
           'mozrunner >= 6.0',
           'manifestparser >= 0.9'
       ],

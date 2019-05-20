@@ -3,8 +3,18 @@
  */
 
 const ADDON = {
-  "install.rdf": createInstallRDF({
-    "id": "bug675371@tests.mozilla.org",
+  "manifest.json": JSON.stringify({
+    applications: {
+      gecko: {
+        id: "bug675371@tests.mozilla.org",
+      },
+    },
+    legacy: {
+      type: "bootstrap",
+    },
+    manifest_version: 2,
+    name: "Test Bootstrap 1",
+    version: "1.0",
   }),
   "chrome.manifest": `content bug675371 .`,
   "test.js": `var active = true;`,

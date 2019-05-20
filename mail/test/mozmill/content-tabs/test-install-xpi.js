@@ -66,7 +66,7 @@ function test_install_corrupt_xpi() {
 function test_install_xpi_offer() {
   mc.click(content_tab_eid(gNewTab, "installlink"));
   waitForNotification("addon-install-blocked", ".popup-notification-primary-button");
-  waitForNotification("addon-install-confirmation", ".popup-notification-secondary-button");
+  waitForNotification("addon-install-failed", ".popup-notification-primary-button");
 }
 
 function test_xpinstall_disabled() {
@@ -82,8 +82,7 @@ function test_xpinstall_disabled() {
 function test_xpinstall_actually_install() {
   mc.click(content_tab_eid(gNewTab, "installlink"));
   waitForNotification("addon-install-blocked", ".popup-notification-primary-button");
-  waitForNotification("addon-install-confirmation", ".popup-notification-primary-button");
-  waitForNotification("addon-installed", ".popup-notification-primary-button");
+  waitForNotification("addon-install-failed", ".popup-notification-primary-button");
 }
 
 function test_xpinstall_webext_actually_install() {

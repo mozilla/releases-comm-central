@@ -19,6 +19,7 @@ const {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
 
 var extensionHooks = new Map();
 var legacyExtensions = new Map();
+var bootstrapExtensions = new Set();
 var openWindowList;
 
 var ExtensionSupport = {
@@ -68,6 +69,8 @@ var ExtensionSupport = {
       this._maybeDelete(ev.id, "uninstall");
     },
   },
+
+  loadedBootstrapExtensions: bootstrapExtensions,
 
   loadAddonPrefs(addonFile) {
     function setPref(preferDefault, name, value) {

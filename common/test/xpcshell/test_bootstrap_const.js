@@ -6,8 +6,18 @@ createAppInfo("xpcshell@tests.mozilla.org", "XPCShell", "1", "1");
 
 const ADDONS = {
   test_bootstrap_const: {
-    "install.rdf": createInstallRDF({
-      "id": "bootstrap@tests.mozilla.org",
+    "manifest.json": JSON.stringify({
+      applications: {
+        gecko: {
+          id: "bootstrap@tests.mozilla.org",
+        },
+      },
+      legacy: {
+        type: "bootstrap",
+      },
+      manifest_version: 2,
+      name: "Test Bootstrap 1",
+      version: "1.0",
     }),
     "bootstrap.js": "var {Services} = ChromeUtils.import(\"resource://gre/modules/Services.jsm\");\n\nconst install = function() {\n  Services.obs.notifyObservers(null, \"addon-install\");\n};\n",
   },
