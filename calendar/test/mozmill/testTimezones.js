@@ -63,6 +63,7 @@ function testTimezones2_CreateEvents() {
             setData(event, iframe, {
                 title: TIMEZONES[i],
                 repeat: "weekly",
+                repeatuntil: new Date(2009, 11, 31),
                 starttime: time,
                 timezone: TIMEZONES[i]
             });
