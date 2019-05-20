@@ -49,6 +49,19 @@
       "type": "boolean"
     },
 
+    "DisableSecurityBypass": {
+      "type": "object",
+      "properties": {
+        "InvalidCertificate": {
+          "type": "boolean"
+        },
+
+        "SafeBrowsing": {
+          "type": "boolean"
+        }
+      }
+    },
+
     "ExtensionSettings": {
       "type": "object",
       "patternProperties": {

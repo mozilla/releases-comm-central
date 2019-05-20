@@ -54,6 +54,20 @@ const POLICIES_TESTS = [
     },
   },
 
+  // POLICY: DisableSecurityBypass
+  {
+    policies: {
+      "DisableSecurityBypass": {
+        "InvalidCertificate": true,
+        "SafeBrowsing": true,
+      },
+    },
+    lockedPrefs: {
+      "security.certerror.hideAddException": true,
+      "browser.safebrowsing.allowOverride": false,
+    },
+  },
+
   // POLICY: SSLVersionMin/SSLVersionMax (1)
   {
     policies: {
