@@ -202,7 +202,11 @@ calTimezoneService.prototype = {
                 // This zone is an alias.
                 timezone.zone = this.getTimezone(timezone.aliasTo);
             } else if (Services.prefs.getBoolPref("calendar.icaljs", false)) {
-                let parsedComp = ICAL.parse("BEGIN:VCALENDAR\r\n" + timezone.ics + "\r\nEND:VCALENDAR");
+                let parsedComp = ICAL.parse(
+                    "BEGIN:VCALENDAR\r\nBEGIN:VTIMEZONE\r\nTZID:" + tzid + "\r\n" +
+                    timezone.ics.join("\r\n") +
+                    "\r\nEND:VTIMEZONE\r\nEND:VCALENDAR"
+                );
                 let icalComp = new ICAL.Component(parsedComp);
                 let tzComp = icalComp.getFirstSubcomponent("vtimezone");
                 timezone.zone = new calICALJSTimezone(ICAL.Timezone.fromData({
@@ -212,7 +216,10 @@ calTimezoneService.prototype = {
                     longitude: timezone.longitude
                 }));
             } else {
-                timezone.zone = new calLibicalTimezone(tzid, timezone.ics, timezone.latitude, timezone.longitude);
+                let ics = "BEGIN:VTIMEZONE\r\nTZID:" + tzid + "\r\n" +
+                          timezone.ics.join("\r\n") +
+                          "\r\nEND:VTIMEZONE";
+                timezone.zone = new calLibicalTimezone(tzid, ics, timezone.latitude, timezone.longitude);
             }
         }
         return timezone.zone;
