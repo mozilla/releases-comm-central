@@ -44,6 +44,7 @@
   <script src="chrome://messenger/content/addressbook/abResultsPane.js"/>
   <script src="chrome://messenger/content/addressbook/abCommon.js"/>
   <script src="chrome://messenger/content/searchTerm.js"/>
+  <script src="chrome://messenger/content/searchWidgets.js"/>
   <script src="chrome://messenger/content/dateFormat.js"/>
   <script src="chrome://messenger/content/customElements.js"/>
 
