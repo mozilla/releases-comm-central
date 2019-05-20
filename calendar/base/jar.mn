@@ -67,7 +67,6 @@ calendar.jar:
     content/calendar/calendar-invitations-dialog.css       (content/dialogs/calendar-invitations-dialog.css)
     content/calendar/calendar-invitations-dialog.js        (content/dialogs/calendar-invitations-dialog.js)
     content/calendar/calendar-invitations-dialog.xul       (content/dialogs/calendar-invitations-dialog.xul)
-    content/calendar/calendar-invitations-list.xml         (content/dialogs/calendar-invitations-list.xml)
     content/calendar/calendar-migration-dialog.js          (content/dialogs/calendar-migration-dialog.js)
     content/calendar/calendar-migration-dialog.xul         (content/dialogs/calendar-migration-dialog.xul)
     content/calendar/calendar-occurrence-prompt.xul        (content/dialogs/calendar-occurrence-prompt.xul)

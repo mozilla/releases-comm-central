@@ -20,7 +20,7 @@
   flex-direction: column;
 }
 
-calendar-invitations-richlistitem {
+.calendar-invitations-richlistitem {
   padding-top: 6px;
   padding-bottom: 6px;
   padding-inline-start: 7px;
@@ -29,7 +29,7 @@ calendar-invitations-richlistitem {
   border-bottom: 1px dotted #C0C0C0;
 }
 
-calendar-invitations-richlistitem[selected="true"] {
+.calendar-invitations-richlistitem[selected="true"] {
   background-color: Highlight;
   color: HighlightText;
   border-bottom: 1px dotted #7F9DB9;
@@ -59,7 +59,7 @@ calendar-invitations-richlistitem[selected="true"] {
   visibility: hidden;
 }
 
-calendar-invitations-richlistitem[selected="true"] .calendar-invitations-richlistitem-button {
+.calendar-invitations-richlistitem[selected="true"] .calendar-invitations-richlistitem-button {
   visibility: visible;
 }
 

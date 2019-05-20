@@ -13,6 +13,7 @@ calendar-@AB_CD@.jar:
     locale/@AB_CD@/calendar/calendar-alarms.properties     (%chrome/calendar/calendar-alarms.properties)
     locale/@AB_CD@/calendar/calendar-event-dialog.dtd      (%chrome/calendar/calendar-event-dialog.dtd)
     locale/@AB_CD@/calendar/calendar-event-dialog.properties  (%chrome/calendar/calendar-event-dialog.properties)
+    locale/@AB_CD@/calendar/calendar-invitations-dialog.properties  (%chrome/calendar/calendar-invitations-dialog.properties)
     locale/@AB_CD@/calendar/calendar-invitations-dialog.dtd  (%chrome/calendar/calendar-invitations-dialog.dtd)
     locale/@AB_CD@/calendar/calendar-occurrence-prompt.dtd (%chrome/calendar/calendar-occurrence-prompt.dtd)
     locale/@AB_CD@/calendar/calendar-occurrence-prompt.properties  (%chrome/calendar/calendar-occurrence-prompt.properties)

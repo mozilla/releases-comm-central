@@ -4,9 +4,195 @@
 
 /* exported onLoad, onUnload */
 
-/* globals invitationsText */// From calendar-invitations-dialog.xul.
+/* globals invitationsText, MozXULElement, MozElements */// From calendar-invitations-dialog.xul.
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
+class MozCalendarInvitationsRichlistitem extends MozElements.MozRichlistitem {
+    constructor() {
+        super();
+
+        this.mDateFormatter = null;
+        this.mCalendarItem = null;
+        this.mInitialParticipationStatus = null;
+        this.mParticipationStatus = null;
+        this.mDateFormatter = cal.getDateFormatter();
+        this.calInvitationsProps = Services.strings
+            .createBundle("chrome://calendar/locale/calendar-invitations-dialog.properties");
+    }
+
+    getString(propName) {
+        return this.calInvitationsProps.GetStringFromName(propName);
+    }
+
+    connectedCallback() {
+        if (this.delayConnectedCallback() || this.hasChildNodes()) {
+            return;
+        }
+
+        this.setAttribute("is", "calendar-invitations-richlistitem");
+
+        this.appendChild(MozXULElement.parseXULToFragment(`
+        <hbox align="start" flex="1">
+            <image class="calendar-invitations-richlistitem-icon"/>
+            <vbox flex="1">
+                <label class="calendar-invitations-richlistitem-title" crop="end"/>
+                <label class="calendar-invitations-richlistitem-date" crop="end"/>
+                <label class="calendar-invitations-richlistitem-recurrence" crop="end"/>
+                <label class="calendar-invitations-richlistitem-location" crop="end"/>
+                <label class="calendar-invitations-richlistitem-organizer" crop="end"/>
+                <label class="calendar-invitations-richlistitem-attendee" crop="end"/>
+                <label class="calendar-invitations-richlistitem-spacer" value="" hidden="true"/>
+            </vbox>
+            <vbox>
+                <button group="${this.getAttribute("itemId")}"
+                        type="radio"
+                        class="calendar-invitations-richlistitem-accept-button
+                        calendar-invitations-richlistitem-button"
+                        label="&calendar.invitations.list.accept.button.label;"
+                        oncommand="accept();"/>
+                <button group="${this.getAttribute("itemId")}"
+                        type="radio"
+                        class="calendar-invitations-richlistitem-decline-button
+                        calendar-invitations-richlistitem-button"
+                        label="&calendar.invitations.list.decline.button.label;"
+                        oncommand="decline();"/>
+            </vbox>
+        </hbox>
+        `, ["chrome://calendar/locale/calendar-invitations-dialog.dtd"]));
+    }
+
+    set calendarItem(val) {
+        this.setCalendarItem(val);
+        return val;
+    }
+
+    get calendarItem() {
+        return this.mCalendarItem;
+    }
+
+    set initialParticipationStatus(val) {
+        this.mInitialParticipationStatus = val;
+        return val;
+    }
+
+    get initialParticipationStatus() {
+        return this.mInitialParticipationStatus;
+    }
+
+    set participationStatus(val) {
+        this.mParticipationStatus = val;
+        let icon = this.querySelector(".calendar-invitations-richlistitem-icon");
+        icon.setAttribute("status", val);
+        return val;
+    }
+
+    get participationStatus() {
+        return this.mParticipationStatus;
+    }
+
+    setCalendarItem(item) {
+        this.mCalendarItem = item;
+        this.mInitialParticipationStatus =
+            this.getCalendarItemParticipationStatus(item);
+        this.participationStatus = this.mInitialParticipationStatus;
+
+        let titleLabel = this.querySelector(".calendar-invitations-richlistitem-title");
+        titleLabel.setAttribute("value", item.title);
+
+        let dateLabel = this.querySelector(".calendar-invitations-richlistitem-date");
+        let dateString = this.mDateFormatter.formatItemInterval(item);
+        if (item.startDate.isDate) {
+            dateString += ", " + this.getString("alldayEvent");
+        }
+        dateLabel.setAttribute("value", dateString);
+
+        let recurrenceLabel = this.querySelector(".calendar-invitations-richlistitem-recurrence");
+        if (item.recurrenceInfo) {
+            recurrenceLabel.setAttribute("value", this.getString("recurrentEvent"));
+        } else {
+            recurrenceLabel.setAttribute("hidden", "true");
+            let spacer = this.querySelector(".calendar-invitations-richlistitem-spacer");
+            spacer.removeAttribute("hidden");
+        }
+
+        let locationLabel = this.querySelector(".calendar-invitations-richlistitem-location");
+        let locationProperty = item.getProperty("LOCATION") || this.getString("none");
+        let locationString = this.calInvitationsProps.formatStringFromName(
+            "location", [locationProperty], 1
+        );
+
+        locationLabel.setAttribute("value", locationString);
+
+        let organizerLabel = this.querySelector(".calendar-invitations-richlistitem-organizer");
+        let org = item.organizer;
+        let organizerProperty = "";
+        if (org) {
+            if (org.commonName && org.commonName.length > 0) {
+                organizerProperty = org.commonName;
+            } else if (org.id) {
+                organizerProperty = org.id.replace(/^mailto:/i, "");
+            }
+        }
+        let organizerString = this.calInvitationsProps.formatStringFromName(
+            "organizer", [organizerProperty], 1
+        );
+        organizerLabel.setAttribute("value", organizerString);
+
+        let attendeeLabel = this.querySelector(".calendar-invitations-richlistitem-attendee");
+        let att = cal.itip.getInvitedAttendee(item);
+        let attendeeProperty = "";
+        if (att) {
+            if (att.commonName && att.commonName.length > 0) {
+                attendeeProperty = att.commonName;
+            } else if (att.id) {
+                attendeeProperty = att.id.replace(/^mailto:/i, "");
+            }
+        }
+        let attendeeString = this.calInvitationsProps.formatStringFromName(
+            "attendee", [attendeeProperty], 1
+        );
+        attendeeLabel.setAttribute("value", attendeeString);
+        Array.from(this.querySelectorAll("button")).map(
+            button => button.setAttribute("group", item.hashId)
+        );
+    }
+
+    getCalendarItemParticipationStatus(item) {
+        let att = cal.itip.getInvitedAttendee(item);
+        return (att ? att.participationStatus : null);
+    }
+
+    setCalendarItemParticipationStatus(item, status) {
+        let calendar = cal.wrapInstance(item.calendar, Ci.calISchedulingSupport);
+        if (calendar) {
+            let att = calendar.getInvitedAttendee(item);
+            if (att) {
+                let att_ = att.clone();
+                att_.participationStatus = status;
+
+                // Update attendee
+                item.removeAttendee(att);
+                item.addAttendee(att_);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    accept() {
+        this.participationStatus = "ACCEPTED";
+    }
+
+    decline() {
+        this.participationStatus = "DECLINED";
+    }
+}
+customElements.define(
+    "calendar-invitations-richlistitem",
+    MozCalendarInvitationsRichlistitem, { "extends": "richlistitem" }
+);
 
 /**
  * Sets up the invitations dialog from the window arguments, retrieves the
@@ -36,9 +222,10 @@ function onLoad() {
             updatingBox.setAttribute("hidden", "true");
             let richListBox = document.getElementById("invitations-listbox");
             for (let item of aItems) {
-                let newNode = document.createXULElement("calendar-invitations-richlistitem");
-                newNode.calendarItem = item;
+                let newNode = document.createXULElement("richlistitem", { is: "calendar-invitations-richlistitem" });
+                newNode.classList.add("calendar-invitations-richlistitem");
                 richListBox.appendChild(newNode);
+                newNode.calendarItem = item;
             }
         }
     };
