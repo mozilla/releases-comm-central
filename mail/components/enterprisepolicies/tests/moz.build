@@ -7,3 +7,7 @@
 BROWSER_CHROME_MANIFESTS += [
     'browser/browser.ini',
 ]
+
+XPCSHELL_TESTS_MANIFESTS += [
+    'xpcshell/xpcshell.ini',
+]
