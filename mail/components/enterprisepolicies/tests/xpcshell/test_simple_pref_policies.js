@@ -68,6 +68,28 @@ const POLICIES_TESTS = [
     },
   },
 
+  // POLICY: ExtensionUpdate
+  {
+    policies: {
+      "ExtensionUpdate": false,
+    },
+    lockedPrefs: {
+      "extensions.update.enabled": false,
+    },
+  },
+
+  // POLICY: InstallAddons.Default (block addon installs)
+  {
+    policies: {
+      "InstallAddonsPermission": {
+        "Default": false,
+      },
+    },
+    lockedPrefs: {
+      "xpinstall.enabled": false,
+    },
+  },
+
   // POLICY: SSLVersionMin/SSLVersionMax (1)
   {
     policies: {

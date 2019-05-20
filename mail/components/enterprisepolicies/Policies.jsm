@@ -13,6 +13,8 @@ XPCOMUtils.defineLazyServiceGetters(this, {
 });
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  AddonManager: "resource://gre/modules/AddonManager.jsm",
+  FileUtils: "resource://gre/modules/FileUtils.jsm",
   ProxyPolicies: "resource:///modules/policies/ProxyPolicies.jsm",
 });
 
@@ -227,9 +229,85 @@ var Policies = {
     },
   },
 
+  "Extensions": {
+    onBeforeUIStartup(manager, param) {
+      let uninstallingPromise = Promise.resolve();
+      if ("Uninstall" in param) {
+        uninstallingPromise = runOncePerModification("extensionsUninstall", JSON.stringify(param.Uninstall), async () => {
+          // If we're uninstalling add-ons, re-run the extensionsInstall runOnce even if it hasn't
+          // changed, which will allow add-ons to be updated.
+          Services.prefs.clearUserPref("browser.policies.runOncePerModification.extensionsInstall");
+          let addons = await AddonManager.getAddonsByIDs(param.Uninstall);
+          for (let addon of addons) {
+            if (addon) {
+              try {
+                await addon.uninstall();
+              } catch (e) {
+                // This can fail for add-ons that can't be uninstalled.
+                log.debug(`Add-on ID (${addon.id}) couldn't be uninstalled.`);
+              }
+            }
+          }
+        });
+      }
+      if ("Install" in param) {
+        runOncePerModification("extensionsInstall", JSON.stringify(param.Install), async () => {
+          await uninstallingPromise;
+          for (let location of param.Install) {
+            let uri;
+            try {
+              uri = Services.io.newURI(location);
+            } catch (e) {
+              // If it's not a URL, it's probably a file path.
+              // Assume location is a file path
+              // This is done for legacy support (old API)
+              try {
+                let xpiFile = new FileUtils.File(location);
+                uri = Services.io.newFileURI(xpiFile);
+              } catch (ex) {
+                log.error(`Invalid extension path location - ${location}`);
+                return;
+              }
+            }
+            installAddonFromURL(uri.spec);
+          }
+        });
+      }
+      if ("Locked" in param) {
+        for (let ID of param.Locked) {
+          manager.disallowFeature(`uninstall-extension:${ID}`);
+          manager.disallowFeature(`disable-extension:${ID}`);
+        }
+      }
+    },
+  },
+
   "ExtensionSettings": {
     onBeforeAddons(manager, param) {
       manager.setExtensionSettings(param);
+    },
+  },
+
+  "ExtensionUpdate": {
+    onBeforeAddons(manager, param) {
+      if (!param) {
+        setAndLockPref("extensions.update.enabled", param);
+      }
+    },
+  },
+
+  "InstallAddonsPermission": {
+    onBeforeUIStartup(manager, param) {
+      if ("Allow" in param) {
+        addAllowDenyPermissions("install", param.Allow, null);
+      }
+      if ("Default" in param) {
+        setAndLockPref("xpinstall.enabled", param.Default);
+        if (!param.Default) {
+          blockAboutPage(manager, "about:debugging");
+          manager.disallowFeature("xpinstall");
+        }
+      }
     },
   },
 
@@ -374,6 +452,43 @@ function setDefaultPref(prefName, prefValue, locked = false) {
 }
 
 /**
+ * addAllowDenyPermissions
+ *
+ * Helper function to call the permissions manager (Services.perms.add)
+ * for two arrays of URLs.
+ *
+ * @param {string} permissionName
+ *        The name of the permission to change
+ * @param {array} allowList
+ *        The list of URLs to be set as ALLOW_ACTION for the chosen permission.
+ * @param {array} blockList
+ *        The list of URLs to be set as DENY_ACTION for the chosen permission.
+ */
+function addAllowDenyPermissions(permissionName, allowList, blockList) {
+  allowList = allowList || [];
+  blockList = blockList || [];
+
+  for (let origin of allowList) {
+    try {
+      Services.perms.add(Services.io.newURI(origin.href),
+                         permissionName,
+                         Ci.nsIPermissionManager.ALLOW_ACTION,
+                         Ci.nsIPermissionManager.EXPIRE_POLICY);
+    } catch (ex) {
+      log.error(`Added by default for ${permissionName} permission in the permission
+      manager - ${origin.href}`);
+    }
+  }
+
+  for (let origin of blockList) {
+    Services.perms.add(Services.io.newURI(origin.href),
+                       permissionName,
+                       Ci.nsIPermissionManager.DENY_ACTION,
+                       Ci.nsIPermissionManager.EXPIRE_POLICY);
+  }
+}
+
+/**
  * runOnce
  *
  * Helper function to run a callback only once per policy.
@@ -392,6 +507,99 @@ function runOnce(actionName, callback) {
   }
   Services.prefs.setBoolPref(prefName, true);
   callback();
+}
+
+/**
+ * runOncePerModification
+ *
+ * Helper function similar to runOnce. The difference is that runOnce runs the
+ * callback once when the policy is set, then never again.
+ * runOncePerModification runs the callback once each time the policy value
+ * changes from its previous value.
+ * If the callback that was passed is an async function, you can await on this
+ * function to await for the callback.
+ *
+ * @param {string} actionName
+ *        A given name which will be used to track if this callback has run.
+ *        This string will be part of a pref name.
+ * @param {string} policyValue
+ *        The current value of the policy. This will be compared to previous
+ *        values given to this function to determine if the policy value has
+ *        changed. Regardless of the data type of the policy, this must be a
+ *        string.
+ * @param {Function} callback
+ *        The callback to be run when the pref value changes
+ * @returns Promise
+ *        A promise that will resolve once the callback finishes running.
+ *
+ */
+async function runOncePerModification(actionName, policyValue, callback) {
+  let prefName = `browser.policies.runOncePerModification.${actionName}`;
+  let oldPolicyValue = Services.prefs.getStringPref(prefName, undefined);
+  if (policyValue === oldPolicyValue) {
+    log.debug(`Not running action ${actionName} again because the policy's value is unchanged`);
+    return Promise.resolve();
+  }
+  Services.prefs.setStringPref(prefName, policyValue);
+  return callback();
+}
+
+/**
+ * clearRunOnceModification
+ *
+ * Helper function that clears a runOnce policy.
+*/
+function clearRunOnceModification(actionName) {
+  let prefName = `browser.policies.runOncePerModification.${actionName}`;
+  Services.prefs.clearUserPref(prefName);
+}
+
+/**
+ * installAddonFromURL
+ *
+ * Helper function that installs an addon from a URL
+ * and verifies that the addon ID matches.
+*/
+function installAddonFromURL(url, extensionID) {
+  AddonManager.getInstallForURL(url, {
+    telemetryInfo: {source: "enterprise-policy"},
+  }).then(install => {
+    if (install.addon && install.addon.appDisabled) {
+      log.error(`Incompatible add-on - ${location}`);
+      install.cancel();
+      return;
+    }
+    let listener = {
+    /* eslint-disable-next-line no-shadow */
+      onDownloadEnded: (install) => {
+        if (extensionID && install.addon.id != extensionID) {
+          log.error(`Add-on downloaded from ${url} had unexpected id (got ${install.addon.id} expected ${extensionID})`);
+          install.removeListener(listener);
+          install.cancel();
+        }
+        if (install.addon && install.addon.appDisabled) {
+          log.error(`Incompatible add-on - ${url}`);
+          install.removeListener(listener);
+          install.cancel();
+        }
+      },
+      onDownloadFailed: () => {
+        install.removeListener(listener);
+        log.error(`Download failed - ${url}`);
+        clearRunOnceModification("extensionsInstall");
+      },
+      onInstallFailed: () => {
+        install.removeListener(listener);
+        log.error(`Installation failed - ${url}`);
+      },
+      onInstallEnded: () => {
+        install.removeListener(listener);
+        log.debug(`Installation succeeded - ${url}`);
+      },
+    };
+    install.addListener(listener);
+    install.install();
+  });
 }
 
 let gChromeURLSBlocked = false;

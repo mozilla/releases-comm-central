@@ -62,6 +62,30 @@
       }
     },
 
+    "Extensions": {
+      "type": "object",
+      "properties": {
+        "Install" : {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Uninstall" : {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Locked" : {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+
     "ExtensionSettings": {
       "type": "object",
       "patternProperties": {
@@ -72,6 +96,26 @@
               "type": "string"
             }
           }
+        }
+      }
+    },
+
+    "ExtensionUpdate": {
+      "type": "boolean"
+    },
+
+    "InstallAddonsPermission": {
+      "type": "object",
+      "properties": {
+        "Allow": {
+          "type": "array",
+          "strict": false,
+          "items": {
+            "type": "origin"
+          }
+        },
+        "Default": {
+          "type": "boolean"
         }
       }
     },
