@@ -74,23 +74,32 @@ function MockCloudfileAccount() {
 }
 
 MockCloudfileAccount.prototype = {
+  nextId: 1,
+
   init(aAccountKey) {
     this.accountKey = aAccountKey;
   },
 
   uploadFile(aFile) {
-    return new Promise(resolve => fdh.mc.window.setTimeout(resolve));
+    return new Promise(resolve => fdh.mc.window.setTimeout(() => {
+      resolve({
+        id: this.nextId++,
+        url: this.urlForFile(aFile),
+        path: aFile.path,
+        leafName: aFile.leafName,
+      });
+    }));
   },
 
   urlForFile(aFile) {
     return `http://www.example.com/${this.accountKey}/${aFile.leafName}`;
   },
 
-  cancelFileUpload(aFile) {
+  cancelFileUpload(aUploadId) {
     throw Cr.NS_ERROR_NOT_IMPLEMENTED;
   },
 
-  deleteFile(aFile) {
+  deleteFile(aUploadId) {
     return new Promise(resolve => fdh.mc.window.setTimeout(resolve));
   },
 

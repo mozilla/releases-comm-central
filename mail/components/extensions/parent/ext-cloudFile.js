@@ -39,8 +39,7 @@ class CloudFileAccount {
     };
 
     this._nextId = 1;
-    this._fileUrls = new Map();
-    this._fileIds = new Map();
+    this._uploads = new Map();
   }
 
   get type() {
@@ -86,18 +85,24 @@ class CloudFileAccount {
 
   async uploadFile(file) {
     let id = this._nextId++;
+    let upload = {
+      id,
+      leafName: file.leafName,
+      path: file.path,
+      size: file.fileSize,
+    };
+    this._uploads.set(id, upload);
     let results;
 
     try {
       let buffer = await promiseFileRead(file);
-
-      this._fileIds.set(file.path, id);
       results = await this.extension.emit("uploadFile", this, {
         id,
         name: file.leafName,
         data: buffer,
       });
     } catch (ex) {
+      this._uploads.delete(id);
       if (ex.result == 0x80530014) { // NS_ERROR_DOM_ABORT_ERR
         throw cloudFileAccounts.constants.uploadCancelled;
       } else {
@@ -108,34 +113,48 @@ class CloudFileAccount {
 
     if (results && results.length > 0) {
       if (results[0].aborted) {
+        this._uploads.delete(id);
         throw cloudFileAccounts.constants.uploadCancelled;
       }
 
-      let url = results[0].url;
-      this._fileUrls.set(file.path, url);
-    } else {
-      console.error(`Missing cloudFile.onFileUpload listener for ${this.extension.id}`);
-      throw cloudFileAccounts.constants.uploadErr;
+      upload.url = results[0].url;
+      return {...upload};
     }
+
+    console.error(`Missing cloudFile.onFileUpload listener for ${this.extension.id}`);
+    this._uploads.delete(id);
+    throw cloudFileAccounts.constants.uploadErr;
   }
 
-  urlForFile(file) {
-    return this._fileUrls.get(file.path);
+  urlForFile(uploadId) {
+    return this._uploads.get(uploadId).url;
   }
 
   cancelFileUpload(file) {
-    this.extension.emit("uploadAbort", this, {
-      id: this._fileIds.get(file.path),
-    });
+    let path = file.path;
+    let uploadId = -1;
+    for (let upload of this._uploads.values()) {
+      if (!upload.url && upload.path == path) {
+        uploadId = upload.id;
+        break;
+      }
+    }
+    if (uploadId != -1) {
+      this.extension.emit("uploadAbort", this, { id: uploadId });
+    }
   }
 
-  async deleteFile(file) {
+  getPreviousUploads() {
+    return [...this._uploads.values()].map(u => { return {...u}; });
+  }
+
+  async deleteFile(uploadId) {
     let results;
     try {
-      if (this._fileIds.has(file.path)) {
-        let id = this._fileIds.get(file.path);
-        results = await this.extension.emit("deleteFile", this, { id });
+      if (this._uploads.has(uploadId)) {
+        results = await this.extension.emit("deleteFile", this, { id: uploadId });
       }
+      this._uploads.delete(uploadId);
     } catch (ex) {
       throw Cr.NS_ERROR_FAILURE;
     }

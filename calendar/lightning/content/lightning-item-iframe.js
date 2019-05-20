@@ -2232,17 +2232,17 @@ function makePrettyName(aUri) {
  */
 function uploadCloudAttachment(attachment, cloudFileAccount, listItem) {
     let file = attachment.uri.QueryInterface(Ci.nsIFileURL).file;
-    listItem.attachLocalFile = file;
     listItem.attachCloudFileAccount = cloudFileAccount;
     listItem.setAttribute("image", "chrome://global/skin/icons/loading.png");
-    cloudFileAccount.uploadFile(file).then(() => {
+    cloudFileAccount.uploadFile(file).then((upload) => {
         delete gAttachMap[attachment.hashId];
-        attachment.uri = Services.io.newURI(cloudFileAccount.urlForFile(file));
+        attachment.uri = Services.io.newURI(upload.url);
         attachment.setParameter("FILENAME", file.leafName);
         attachment.setParameter("PROVIDER", cloudFileAccount.type);
         listItem.setAttribute("label", file.leafName);
         gAttachMap[attachment.hashId] = attachment;
         listItem.setAttribute("image", cloudFileAccount.iconURL);
+        listItem.attachCloudFileUpload = upload;
         updateAttachment();
     }, (statusCode) => {
         cal.ERROR("[calendar-event-dialog] Uploading cloud attachment " +
@@ -2353,9 +2353,9 @@ function deleteAttachment() {
     let item = documentLink.selectedItem;
     delete gAttachMap[item.attachment.hashId];
 
-    if (item.attachLocalFile && item.attachCloudFileAccount) {
+    if (item.attachCloudFileAccount && item.attachCloudFileUpload) {
         try {
-            item.attachCloudFileAccount.deleteFile(item.attachLocalFile).catch((statusCode) => {
+            item.attachCloudFileAccount.deleteFile(item.attachCloudFileUpload.id).catch((statusCode) => {
                 // TODO With a notification bar, we could actually show this error.
                 cal.ERROR("[calendar-event-dialog] Deleting cloud attachment " +
                           "failed, file will remain on server. " +

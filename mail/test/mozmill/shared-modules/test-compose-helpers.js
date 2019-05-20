@@ -411,7 +411,7 @@ function add_cloud_attachments(aController, aProvider, aWaitUploaded = true) {
   }
 
   bucket.addEventListener("attachments-uploading", uploadAttachments, { once: true });
-  aController.window.attachToCloud(aProvider);
+  aController.window.attachToCloudNew(aProvider);
   aController.waitFor(() => attachmentsSubmitted, "Couldn't attach attachments for upload");
   if (aWaitUploaded) {
     aController.waitFor(() => attachmentCount == 0, "Attachments uploading didn't finish");

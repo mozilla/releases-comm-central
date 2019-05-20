@@ -156,6 +156,8 @@ add_task(async () => {
           await new Promise((resolveAbort) => {
             function abortListener(accountAccount, abortId) {
               browser.cloudFile.onFileUploadAbort.removeListener(abortListener);
+              browser.test.assertEq(account.id, accountAccount.id);
+              browser.test.assertEq(id, abortId);
               resolveAbort();
             }
             browser.cloudFile.onFileUploadAbort.addListener(abortListener);
@@ -212,6 +214,8 @@ add_task(async () => {
     "cloudFile2": do_get_file("data/cloudFile2.txt"),
   };
 
+  let uploads = {};
+
   extension.onMessage("createAccount", (id = "ext-cloudfile@xpcshell") => {
     cloudFileAccounts.createAccount(id);
   });
@@ -220,15 +224,16 @@ add_task(async () => {
     cloudFileAccounts.removeAccount(id);
   });
 
-  extension.onMessage("uploadFile", (accountId, filename, expected = Cr.NS_OK) => {
-    let account = cloudFileAccounts.getAccount(accountId);
+  extension.onMessage("uploadFile", (id, filename, expected = Cr.NS_OK) => {
+    let account = cloudFileAccounts.getAccount(id);
 
     if (typeof expected == "string") {
       expected = cloudFileAccounts.constants[expected];
     }
 
-    account.uploadFile(testFiles[filename]).then(() => {
+    account.uploadFile(testFiles[filename]).then((upload) => {
       Assert.equal(Cr.NS_OK, expected);
+      uploads[filename] = upload;
     }, (status) => {
       Assert.equal(status, expected);
     });
@@ -241,8 +246,7 @@ add_task(async () => {
 
   extension.onMessage("deleteFile", (id) => {
     let account = cloudFileAccounts.getAccount(id);
-
-    account.deleteFile(testFiles.cloudFile1);
+    account.deleteFile(uploads.cloudFile1.id);
   });
 
   Assert.ok(!cloudFileAccounts.getProviderForType("ext-cloudfile@xpcshell"));

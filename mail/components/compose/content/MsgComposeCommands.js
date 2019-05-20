@@ -1109,6 +1109,8 @@ var attachmentBucketController = {
         for (let item of bucket.selectedItems) {
           if (item.uploading)
             return false;
+          if (item.cloudFileUpload && item.cloudFileUpload.repeat)
+            return false;
         }
         return true;
       },
@@ -1126,6 +1128,8 @@ var attachmentBucketController = {
         let bucket = document.getElementById("attachmentBucket");
         for (let item of bucket.selectedItems) {
           if (item.uploading)
+            return false;
+          if (item.cloudFileUpload && item.cloudFileUpload.repeat)
             return false;
         }
         return true;
@@ -1449,16 +1453,38 @@ function addAttachCloudMenuItems(aParentMenu) {
     aParentMenu.lastChild.remove();
 
   for (let account of cloudFileAccounts.configuredAccounts) {
+    if (aParentMenu.lastChild && aParentMenu.lastChild.cloudFileUpload) {
+      aParentMenu.appendChild(document.createXULElement("menuseparator"));
+    }
+
     let item = document.createXULElement("menuitem");
     let iconURL = account.iconURL;
     item.cloudFileAccount = account;
-    item.setAttribute("label", cloudFileAccounts.getDisplayName(account));
-
+    item.setAttribute("label", cloudFileAccounts.getDisplayName(account) + "\u2026");
     if (iconURL) {
-      item.setAttribute("class", "menu-iconic");
+      item.setAttribute("class", `${item.localName}-iconic`);
       item.setAttribute("image", iconURL);
     }
     aParentMenu.appendChild(item);
+
+    let previousUploads = account.getPreviousUploads();
+    for (let upload of previousUploads) {
+      let file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+      file.initWithPath(upload.path);
+
+      // TODO: Figure out how to handle files that no longer exist on the filesystem.
+      if (!file.exists()) {
+        continue;
+      }
+
+      let fileItem = document.createXULElement("menuitem");
+      fileItem.cloudFileUpload = upload;
+      fileItem.cloudFileAccount = account;
+      fileItem.setAttribute("label", file.leafName);
+      fileItem.setAttribute("class", "menuitem-iconic");
+      fileItem.setAttribute("image", "moz-icon://" + file.leafName);
+      aParentMenu.appendChild(fileItem);
+    }
   }
 }
 
@@ -1512,22 +1538,24 @@ async function uploadCloudAttachment(attachment, file, cloudFileAccount) {
     attachmentItem.cloudFileAccount = cloudFileAccount;
   }
 
+  let upload;
   let statusCode = Cr.NS_OK;
   try {
-    await cloudFileAccount.uploadFile(file);
+    upload = await cloudFileAccount.uploadFile(file);
   } catch (ex) {
     statusCode = ex;
   }
 
   if (Components.isSuccessCode(statusCode)) {
     let originalUrl = attachment.url;
-    attachment.contentLocation = cloudFileAccount.urlForFile(file);
+    attachment.contentLocation = upload.url;
     attachment.cloudFileAccountKey = cloudFileAccount.accountKey;
     if (attachmentItem) {
       // Update relevant bits on the attachment list item.
       if (!attachmentItem.originalUrl) {
         attachmentItem.originalUrl = originalUrl;
       }
+      attachmentItem.cloudFileUpload = upload;
       attachmentItem.setAttribute("tooltiptext",
         getComposeBundle().getFormattedString("cloudFileUploadedTooltip", [
           cloudFileAccounts.getDisplayName(cloudFileAccount),
@@ -1627,9 +1655,9 @@ async function uploadCloudAttachment(attachment, file, cloudFileAccount) {
   updateSendCommands(true);
 }
 
-async function deleteCloudAttachment(attachment, file, cloudFileAccount) {
+async function deleteCloudAttachment(attachment, id, cloudFileAccount) {
   try {
-    await cloudFileAccount.deleteFile(file);
+    await cloudFileAccount.deleteFile(id);
   } catch (ex) {
     let bundle = getComposeBundle();
     let displayName = cloudFileAccounts.getDisplayName(cloudFileAccount);
@@ -1641,12 +1669,55 @@ async function deleteCloudAttachment(attachment, file, cloudFileAccount) {
   }
 }
 
+function attachToCloud(event) {
+  if (event.target.cloudFileUpload) {
+    attachToCloudRepeat(event.target.cloudFileUpload, event.target.cloudFileAccount);
+  } else {
+    attachToCloudNew(event.target.cloudFileAccount);
+  }
+  event.stopPropagation();
+}
+
+/**
+ * Attach a file that has already been uploaded to a cloud provider.
+ *
+ * @param {string} filePath the original file path
+ * @param {Object} account  the cloud provider to upload the files to
+ */
+function attachToCloudRepeat(upload, account) {
+  let file = FileUtils.File(upload.path);
+  let attachment = FileToAttachment(file);
+  attachment.contentLocation = upload.url;
+  attachment.sendViaCloud = true;
+  attachment.cloudFileAccountKey = account.accountKey;
+
+  AddAttachments([attachment], function(item) {
+    item.account = account;
+    item.setAttribute("name", upload.leafName);
+    item.cloudFileUpload = {
+      ...upload,
+      repeat: true,
+    };
+    let iconURL = account.iconURL;
+    if (iconURL) {
+      item.image = iconURL;
+    } else {
+      // Should we use a generic "cloud" icon here? Or an overlay icon?
+      // I think the provider should provide an icon, end of story.
+      item.image = null;
+    }
+    item.dispatchEvent(
+      new CustomEvent("attachment-uploaded", { bubbles: true, cancelable: true })
+    );
+  });
+}
+
 /**
  * Prompt the user for a list of files to attach via a cloud provider.
  *
  * @param aAccount the cloud provider to upload the files to
  */
-function attachToCloud(aAccount) {
+function attachToCloudNew(aAccount) {
   // We need to let the user pick local file(s) to upload to the cloud and
   // gather url(s) to those files.
   var fp = Cc["@mozilla.org/filepicker;1"]
@@ -1709,7 +1780,7 @@ function convertListItemsToCloudAttachment(aItems, aAccount) {
 
     let file = fileHandler.getFileFromURLSpec(url);
     if (item.cloudFileAccount) {
-      deleteCloudAttachment(item.attachment, file, item.cloudFileAccount);
+      deleteCloudAttachment(item.attachment, item.cloudFileUpload.id, item.cloudFileAccount);
     }
 
     uploadCloudAttachment(item.attachment, file, aAccount);
@@ -1756,8 +1827,6 @@ function convertToCloudAttachment(aAttachments, aAccount) {
  *        question
  */
 function convertListItemsToRegularAttachment(aItems) {
-  let fileHandler = Services.io.getProtocolHandler("file")
-                            .QueryInterface(Ci.nsIFileProtocolHandler);
   let convertedAttachments = Cc["@mozilla.org/array;1"]
                                .createInstance(Ci.nsIMutableArray);
 
@@ -1766,11 +1835,10 @@ function convertListItemsToRegularAttachment(aItems) {
       continue;
     }
 
-    let file = fileHandler.getFileFromURLSpec(item.originalUrl);
     try {
       // This will fail for drafts, but we can still send the message
       // with a normal attachment.
-      deleteCloudAttachment(item.attachment, file, item.cloudFileAccount);
+      deleteCloudAttachment(item.attachment, item.cloudFileUpload.id, item.cloudFileAccount);
     } catch (ex) {
        Cu.reportError(ex);
     }
@@ -4563,11 +4631,11 @@ function RemoveAllAttachments() {
       let originalUrl = item.originalUrl;
       if (!originalUrl)
         originalUrl = item.attachment.url;
-      let file = fileHandler.getFileFromURLSpec(originalUrl);
       if (item.uploading) {
+        let file = fileHandler.getFileFromURLSpec(originalUrl);
         item.cloudFileAccount.cancelFileUpload(file);
       } else {
-        deleteCloudAttachment(item.attachment, file, item.cloudFileAccount);
+        deleteCloudAttachment(item.attachment, item.cloudFileUpload.id, item.cloudFileAccount);
       }
     }
 
@@ -4652,15 +4720,17 @@ function RemoveSelectedAttachment() {
       gAttachmentsSize -= item.attachment.size;
     }
 
-    if (item.attachment.sendViaCloud && item.cloudFileAccount) {
+    if (item.attachment.sendViaCloud && item.cloudFileAccount &&
+        (!item.cloudFileUpload || !item.cloudFileUpload.repeat)) {
       let originalUrl = item.originalUrl;
       if (!originalUrl)
         originalUrl = item.attachment.url;
-      let file = fileHandler.getFileFromURLSpec(originalUrl);
-      if (item.uploading)
+      if (item.uploading) {
+        let file = fileHandler.getFileFromURLSpec(originalUrl);
         item.cloudFileAccount.cancelFileUpload(file);
-      else
-        deleteCloudAttachment(item.attachment, file, item.cloudFileAccount);
+      } else {
+        deleteCloudAttachment(item.attachment, item.cloudFileUpload.id, item.cloudFileAccount);
+      }
     }
 
     removedAttachments.appendElement(item.attachment);

@@ -275,7 +275,9 @@ function test_no_offer_on_conversion() {
   // to worry about waiting for the onStopRequest method being called
   // asynchronously.
   provider.uploadFile = function(aFile) {
-    return Promise.resolve();
+    return Promise.resolve({
+      id: 1,
+    });
   };
 
   let cw = open_compose_new_mail();
@@ -317,7 +319,9 @@ function test_offer_then_upload_notifications() {
   // to worry about waiting for the onStopRequest method being called
   // asynchronously.
   provider.uploadFile = function(aFile) {
-    return Promise.resolve();
+    return Promise.resolve({
+      id: 1,
+    });
   };
 
   let cw = open_compose_new_mail();
@@ -357,7 +361,11 @@ function test_privacy_warning_notification() {
   provider.init("aKey");
 
   provider.uploadFile = function(aFile, aListener) {
-    return new Promise(resolve => cwc.window.setTimeout(resolve, 500));
+    return new Promise(resolve => cwc.window.setTimeout(() => {
+      resolve({
+        id: 1,
+      });
+    }, 500));
   };
   let cwc = open_compose_new_mail(mc);
   add_cloud_attachments(cwc, provider);
@@ -394,7 +402,11 @@ function test_privacy_warning_notification_no_persist() {
   provider.init("aKey");
 
   provider.uploadFile = function(aFile, aListener) {
-    return new Promise(resolve => cwc.window.setTimeout(resolve, 500));
+    return new Promise(resolve => cwc.window.setTimeout(() => {
+      resolve({
+        id: 1,
+      });
+    }, 500));
   };
   let cwc = open_compose_new_mail(mc);
   add_cloud_attachments(cwc, provider, false);
@@ -431,7 +443,11 @@ function test_privacy_warning_notification_open_after_close() {
   provider.init("aKey");
 
   provider.uploadFile = function(aFile, aListener) {
-    return new Promise(resolve => cwc.window.setTimeout(resolve, 500));
+    return new Promise(resolve => cwc.window.setTimeout(() => {
+      resolve({
+        id: 1,
+      });
+    }, 500));
   };
   let cwc = open_compose_new_mail(mc);
   add_cloud_attachments(cwc, provider, false);
