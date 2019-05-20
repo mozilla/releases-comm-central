@@ -31,7 +31,7 @@
         "properties": {
           "text": {
             "type": "string",
-            "description": "String to match against the <var>recipients</var>, <var>sender</var>, <var>subject</var>, or <var>body</var>."
+            "description": "String to match against the <var>recipients</var>, <var>author</var>, <var>subject</var>, or <var>body</var>."
           },
           "recipients": {
             "type": "boolean",
@@ -40,7 +40,13 @@
           },
           "sender": {
             "type": "boolean",
-            "description": "Shows messages where <var>text</var> matches the sender.",
+            "description": "Use <var>author</var> instead.",
+            "optional": true,
+            "deprecated": true
+          },
+          "author": {
+            "type": "boolean",
+            "description": "Shows messages where <var>text</var> matches the author.",
             "optional": true
           },
           "subject": {

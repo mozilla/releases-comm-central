@@ -303,7 +303,7 @@ this.mailTabs = class extends ExtensionAPI {
             filterer.filterValues.text = {
               states: {
                 recipients: state.text.recipients || false,
-                sender: state.text.sender || false,
+                sender: state.text.author || state.text.sender || false,
                 subject: state.text.subject || false,
                 body: state.text.body || false,
               },
